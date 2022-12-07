@@ -3005,6 +3005,11 @@ string OTraceRegister::toString()
     return "TRACER " + getArgument()->toString();
 }
 
+string OTraceLRegister::toString()
+{
+    return "TRACELR " + getArgument()->toString();
+}
+
 string OTrace2Register::toString()
 {
     return "TRACE2R " + getArgument()->toString();

@@ -130,14 +130,14 @@ bool TypeStore::TypeIdMapComparator::operator()(
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
 DataTypeSimpleConst DataType::CFLOAT(ZTID_FLOAT, "const float");
 DataTypeSimpleConst DataType::CCHAR(ZTID_CHAR, "const char32");
-DataTypeSimpleConst DataType::CLONG(ZTID_LONG, "const int32_t");
+DataTypeSimpleConst DataType::CLONG(ZTID_LONG, "const long");
 DataTypeSimpleConst DataType::CBOOL(ZTID_BOOL, "const bool");
 DataTypeSimpleConst DataType::CRGBDATA(ZTID_RGBDATA, "const rgb");
 DataTypeSimple DataType::UNTYPED(ZTID_UNTYPED, "untyped", &CUNTYPED);
 DataTypeSimple DataType::ZVOID(ZTID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZTID_FLOAT, "float", &CFLOAT);
 DataTypeSimple DataType::CHAR(ZTID_CHAR, "char32", &CCHAR);
-DataTypeSimple DataType::LONG(ZTID_LONG, "int32_t", &CLONG);
+DataTypeSimple DataType::LONG(ZTID_LONG, "long", &CLONG);
 DataTypeSimple DataType::BOOL(ZTID_BOOL, "bool", &CBOOL);
 DataTypeSimple DataType::RGBDATA(ZTID_RGBDATA, "rgb", &CRGBDATA);
 DataTypeArray DataType::STRING(CHAR);

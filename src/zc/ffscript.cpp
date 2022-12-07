@@ -29736,6 +29736,10 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				FFCore.do_trace(false);
 				break;
 				
+			case TRACELR:
+				FFCore.do_tracel(false);
+				break;
+				
 			case TRACEV:
 				FFCore.do_trace(true);
 				break;
@@ -38737,6 +38741,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PUSHVARGR",           1,   0,   0,   0 },
 	{ "PRINTFVARG",           0,   0,   0,   0 },
 	{ "SPRINTFVARG",           0,   0,   0,   0 },
+	{ "TRACELR",             1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -40386,6 +40391,21 @@ void FFScript::do_trace(bool v)
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
+	}
+}
+void FFScript::do_tracel(bool v)
+{
+	int32_t temp = SH::get_arg(sarg1, v);
+	
+	char tmp[32];
+	sprintf(tmp, "%d", temp);
+	TraceScriptIDs();
+	al_trace("%s", tmp);
+	
+	if ( zscript_debugger ) 
+	{
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),tmp);
 	}
 }
 

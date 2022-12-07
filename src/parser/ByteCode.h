@@ -2624,6 +2624,17 @@ namespace ZScript
 		}
 	};
 
+	class OTraceLRegister : public UnaryOpcode
+	{
+	public:
+		OTraceLRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OTraceLRegister(a->clone());
+		}
+	};
+
 	class OTrace2Register : public UnaryOpcode
 	{
 	public:

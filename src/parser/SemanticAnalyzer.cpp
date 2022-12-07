@@ -1350,7 +1350,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		else if (castCount == bestCastCount)
 			bestFunctions.push_back(&function);
 	}
-	// We may have failed, but let's check std::optional parameters first...
+	// We may have failed, but let's check optional parameters first...
 	if(bestFunctions.size() > 1)
 	{
 		auto targSize = parameterTypes.size();

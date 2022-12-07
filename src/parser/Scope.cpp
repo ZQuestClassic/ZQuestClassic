@@ -541,12 +541,28 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 		auto lowsize = zc_min(maxSize, parameterTypes.size());
 		// Check parameter types.
 		bool parametersMatch = true;
-		for (size_t i = 0; i < lowsize; ++i)
+		if(function.getFlag(FUNCFLAG_NOCAST)) //no casting params
 		{
-			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+			Scope* scope = function.internalScope;
+			for (size_t i = 0; i < lowsize; ++i)
 			{
-				parametersMatch = false;
-				break;
+				if (getNaiveType(*parameterTypes[i],scope)
+					!= getNaiveType(*function.paramTypes[i],scope))
+				{
+					parametersMatch = false;
+					break;
+				}
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < lowsize; ++i)
+			{
+				if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+				{
+					parametersMatch = false;
+					break;
+				}
 			}
 		}
 		if (!parametersMatch)
