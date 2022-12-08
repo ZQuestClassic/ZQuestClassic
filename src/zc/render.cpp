@@ -159,7 +159,7 @@ static void configure_render_tree()
 		rti_screen.a4_bitmap = screen;
 	}
 
-	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible;
+	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || Saving;
 	if (rti_game.freeze_a4_bitmap_render)
 	{
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
