@@ -400,6 +400,7 @@ void load_game_configs()
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
+	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
 
 	char const* default_path = "";
 	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,default_path));
@@ -5314,6 +5315,13 @@ int32_t onConsoleZScript()
 	}
 }
 
+int32_t onClrConsoleOnLoad()
+{
+	clearConsoleOnLoad = !clearConsoleOnLoad;
+	zc_set_config("CONSOLE","clear_console_on_load",clearConsoleOnLoad?1:0);
+	return D_O_K;
+}
+
 
 int32_t onFrameSkip()
 {
@@ -7891,15 +7899,19 @@ static MENU misc_menu[] =
 	{ (char *)"&Fullscreen",				onFullscreenMenu,		NULL,					  0, NULL },
 	{ (char *)"&Video Mode...",			 onVidMode,			   NULL,					  0, NULL },
 	{ (char *)"",						   NULL,					NULL,					  0, NULL },
+	//5
 	{ (char *)"&Quest Info...",			 onQuest,				 NULL,					  0, NULL },
 	{ (char *)"Quest &MIDI Info...",		onMIDICredits,		   NULL,					  0, NULL },
 	{ (char *)"Quest &Directory...",		onQstPath,			   NULL,					  0, NULL },
 	{ (char *)"",						   NULL,					NULL,					  0, NULL },
 	{ (char *)"Take &Snapshot\tF12",		onSnapshot,			  NULL,					  0, NULL },
+	//10
 	{ (char *)"Sc&reen Saver...",		   onScreenSaver,		   NULL,					  0, NULL },
 	{ (char *)"Save ZC Configuration",	  OnSaveZCConfig,		  NULL,					  0, NULL },
 	{ (char *)"Show ZASM Debugger",		 onConsoleZASM,		   NULL,					  0, NULL },
 	{ (char *)"Show ZScript Debugger",	  onConsoleZScript,		NULL,					  0, NULL },
+	{ (char *)"Clear Console on Qst Load",	  onClrConsoleOnLoad,		NULL,					  0, NULL },
+	//15
 	{ (char *)"Clear Directory Cache",	  OnnClearQuestDir,		NULL,					  0, NULL },
 	{ (char *)"Modules",					NULL,					zcmodule_menu,			 0, NULL },
 	{ (char *)"Replay",					 NULL,					replay_menu,			   0, NULL },
@@ -8695,6 +8707,7 @@ void System()
 	
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
+		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
 		
 		the_player_menu[2].flags = replay_is_replaying() ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;

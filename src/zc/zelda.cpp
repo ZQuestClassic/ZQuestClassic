@@ -404,7 +404,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
-bool Playing, FrameSkip=false, TransLayers = true;
+bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
@@ -5499,7 +5499,6 @@ int main(int argc, char **argv)
 	if (snapshot_arg > 0)
 		replay_add_snapshot_frame(argv[snapshot_arg + 1]);
 	
-	//clearConsole();
 	if(!zqtesting_mode && !replay_is_active())
 	{
 		if (!checked_epilepsy)
@@ -5653,7 +5652,6 @@ reload_for_replay_file:
 			saves[0].set_name("Hero");
 		}
 		saves[0].set_timevalid(1);
-		clearConsole();
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
@@ -5688,7 +5686,8 @@ reload_for_replay_file:
 			game_pal();
 		}
 		else titlescreen(load_save);
-		clearConsole();
+		if(clearConsoleOnLoad)
+			clearConsole();
 		callback_switchin = 0;
 		load_save=0;
 		load_qstpath="";
