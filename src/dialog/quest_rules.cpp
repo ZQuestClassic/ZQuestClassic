@@ -863,7 +863,9 @@ static GUI::ListData compatRulesList
 			" as true when vanished."},
 	{ "Old FFC Functionality", qr_OLD_FFC_FUNCTIONALITY,
 		"If enabled, FFCs will lack certain functionality, such as hookshotability, switch_hookability,"
-		" and ffc triggers, among other misc changes."}
+		" and ffc triggers, among other misc changes."},
+	{ "Old Shallow Water SFX Attribute", qr_OLD_SHALLOW_SFX,
+		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for it's splash sound." }
 };
 
 static GUI::ListData enemiesRulesList

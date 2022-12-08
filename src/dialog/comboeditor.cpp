@@ -18,6 +18,8 @@ char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
 
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
+
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
 	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
@@ -742,6 +744,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
 			l_attribyte[4] = "Drown SFX:";
 			h_attribyte[4] = "The SFX played when drowning";
+			l_attribyte[5] = "Splash SFX:";
+			h_attribyte[5] = "SFX ID to play when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -768,8 +772,16 @@ void ComboEditorDialog::loadComboType()
 			l_flag[1] = "Modify HP (Passive)";
 			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
 				" (either healing or damaging).";
-			l_attribyte[0] = "Sound";
-			h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
+			if (get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
+			{
+				l_attribyte[0] = "Splash Sound";
+				h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
+			}
+			else
+			{
+				l_attribyte[5] = "Splash Sound";
+				h_attribyte[5] = "SFX ID to play when stepping in the shallow liquid";
+			}
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";

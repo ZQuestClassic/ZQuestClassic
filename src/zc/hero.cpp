@@ -7727,6 +7727,10 @@ bool HeroClass::animate(int32_t)
 				}
 				else damageovertimeclk = 0;
 				int32_t thesfx = combobuf[watercheck].attribytes[0];
+				if (combobuf[watercheck].type != cSHALLOWWATER || !get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
+				{
+					thesfx = combobuf[watercheck].attribytes[5];
+				}
 				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
 					sfx(thesfx,pan((int32_t)x));
 			}

@@ -3653,6 +3653,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		// Leaving this commented for now, might need to enable later -Em
 		// set_bit(quest_rules,qr_ZS_NO_NEG_ARRAY,1);
 	}
+	if(compatrule_version < 36)
+	{
+		set_bit(quest_rules,qr_OLD_SHALLOW_SFX,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
