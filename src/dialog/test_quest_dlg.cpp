@@ -136,7 +136,8 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 				Button(
 					text = "Test",
 					minwidth = 90_lpx,
-					onClick = message::OK),
+					onClick = message::OK,
+					focused = true),
 				Button(
 					text = "Cancel",
 					minwidth = 90_lpx,

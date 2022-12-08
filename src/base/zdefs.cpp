@@ -1138,10 +1138,10 @@ char const* zquestheader::getVerStr() const
 
 int32_t zquestheader::compareDate() const
 {
-	// zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
-		// new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
-		// new_version_id_date_hour, new_version_id_date_minute,
-		// BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
+	zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
+		new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
+		new_version_id_date_hour, new_version_id_date_minute,
+		BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
 	//!TODO handle timezones (build_timezone, __TIMEZONE__)
 	if(new_version_id_date_year > BUILDTM_YEAR)
 		return 1;

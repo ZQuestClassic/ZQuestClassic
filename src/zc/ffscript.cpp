@@ -40434,7 +40434,7 @@ void FFScript::do_tracel(bool v)
 	int32_t temp = SH::get_arg(sarg1, v);
 	
 	char tmp[32];
-	sprintf(tmp, "%d", temp);
+	sprintf(tmp, "%d\n", temp);
 	TraceScriptIDs();
 	al_trace("%s", tmp);
 	
