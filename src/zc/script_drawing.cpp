@@ -2171,6 +2171,7 @@ void do_drawstringr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
     if(opacity < 128)
     {
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
+		if (width < 1) return; //SANITY -Em
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
         textout_ex(pbmp, font, str->c_str(), 0, 0, color, bg_color);
@@ -2237,6 +2238,7 @@ void do_drawstringr2(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int
     if(opacity < 128)
     {
         int32_t width=zc_min(text_length(font, str->c_str()), 512);
+		if (width < 1) return; //SANITY -Em
         BITMAP *pbmp = create_sub_bitmap(prim_bmp, 0, 0, width, text_height(font));
         clear_bitmap(pbmp);
 		textout_styled_aligned_ex(pbmp, font, str->c_str(), 0, 0, textstyle, sstaLEFT, color, shadow_color, bg_color);
