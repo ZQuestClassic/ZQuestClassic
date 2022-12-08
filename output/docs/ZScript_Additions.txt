@@ -3257,16 +3257,11 @@ untyped STD[256];
  * Safe to read values; you should avoid writing to this array or using it
  * for any purpose, as it is reserved exclusively for a system header.
  
- untyped Ghost[256];
- * An array used internally by the <ghost> header.
- * Safe to read values; you should avoid writing to this array or using it
- * for any purpose, as it is reserved exclusively for a system header.
- 
- untyped Tango[256];
- * An array used internally by the <tango> header.
- * Safe to read values; you should avoid writing to this array or using it
- * for any purpose, as it is reserved exclusively for a system header.
- 
+untyped Misc2[256];
+untyped Misc3[256];
+ * Formerly 'Ghost[]' and 'Tango[]'
+ * Internal arrays for global data
+
 bool Suspend[susptLAST];
  * Each index represents an aspect of the game engine that you 
  * can suspend or resume by writing to this array.
@@ -3529,7 +3524,6 @@ untyped Misc[32];
  * An array of 32 misc values that is always available.
  * Data does not persist between sessions.
  * The Misc[] array now supports all datatypes, and has been expanded to a size of [32].
- * !! Verify that Game->Misc[] is now untyped, to match all other Misc[] arrays. -Z
 	
 int HighestStringID;
  * Returns the highest valid ID of the strings in the ZQuest String Editor.
@@ -6238,7 +6232,7 @@ int Length;
 	
 //////////////////
 ///  dmapdata  ///
-//////////////////								// DMapdata
+////////////////// dmapdata
 
 	1.	Sideview Gravity on All Screens (uses Dmaps[].sideview, new var.
 	2.	Layer 3 is Background on All Screens (uses DMaps[].flgs&dmfLAYER3BG)
@@ -6278,7 +6272,7 @@ int Type;
  * 3: BS Overworld
  
 int MusicTrack;
- * The enhanced musiic tracker file track ID.
+ * The enhanced music tracker file track ID.
  
 int ActiveSubscreen;
  * The active subscreen ID.
