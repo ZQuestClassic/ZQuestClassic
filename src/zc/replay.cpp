@@ -945,6 +945,7 @@ void replay_continue(std::string filename_)
 {
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
+    frame_arg = -1;
     replay_forget_input();
     filename = filename_;
     load_replay(filename);
