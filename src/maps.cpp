@@ -1467,7 +1467,7 @@ bool ishookshottable(int32_t bx, int32_t by)
 			return false;
 	}
 	
-	return false;
+	return true;
 }
 
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
