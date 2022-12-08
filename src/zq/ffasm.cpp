@@ -1133,6 +1133,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PUSHVARGR",           1,   0,   0,   0 },
 	{ "PRINTFVARG",           0,   0,   0,   0 },
 	{ "SPRINTFVARG",           0,   0,   0,   0 },
+	{ "TRACELR",             1,   0,   0,   0},
+	{ "WAITFRAMESR",             1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 

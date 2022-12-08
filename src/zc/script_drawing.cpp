@@ -1240,7 +1240,7 @@ void do_drawtiler(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         return;
     }
     
-    if(xscale<0||yscale<0)
+    if(xscale<=0||yscale<=0)
         canscale = false; //default size
         
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
@@ -1442,7 +1442,7 @@ void do_drawcombor(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
         return;
     }
     
-    if(xscale<0||yscale<0)
+    if(xscale<=0||yscale<=0)
         canscale = false; //default size
         
     if((xscale>0 && yscale>0) || rotation)   //scaled or rotated
@@ -6435,19 +6435,17 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 	int32_t usr_bitmap_index = sdci[2]-10;
 	byte using_user_bitmap = 0;
 	//Z_scripterrlog("bitmap index is: %d\n",bitmapIndex);
-	//Z_scripterrlog("Blit() bitmapIndex is: %d\n", bitmapIndex);
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("Blit() found a dest bitmap ID of: %d\n",bitmapIndex);
-	#endif
+	//Z_scripterrlog("DrawPlane() bitmapIndex is: %d\n", bitmapIndex);
+	
 	if ( bitmapIndex >= 10000 )
 	{
 		bitmapIndex = bitmapIndex / 10000; //reduce if ZScript sent a raw value, such as bitmap = <int32_t> 8;
 	}
-	else if ( usr_bitmap_index > 0 && usr_bitmap_index < 10000 ) 
+	else if ( usr_bitmap_index > 0 ) 
 	{
 		bitmapIndex = usr_bitmap_index;
 		using_user_bitmap = 1;
-		Z_scripterrlog("Mode7 is using a user bitmap target, pointer: %d\n", usr_bitmap_index);
+		// Z_scripterrlog("Mode7 is using a user bitmap target, pointer: %d\n", usr_bitmap_index);
 		yoffset = 0;
 	}
 	
@@ -6498,23 +6496,21 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 		//dest == -2 and the render target is not RT_SCREEN?
 		
 	ref = sdci[17];
-	//Z_scripterrlog("bitmap->blit() ref id this frame is: %d\n", ref);
+	//Z_scripterrlog("bitmap->DrawPlane() ref id this frame is: %d\n", ref);
 	ref -=10;
-	//Z_scripterrlog("bitmap->blit() modified ref id this frame is: %d\n", ref);
+	//Z_scripterrlog("bitmap->DrawPlane() modified ref id this frame is: %d\n", ref);
 		
 	
 	if ( ref <= 0 )
 	{
-		Z_scripterrlog("bitmap->blit() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
+		Z_scripterrlog("bitmap->DrawPlane() wanted to use to an invalid source bitmap id: %d. Aborting.\n", ref);
 		return;
 	}
 	BITMAP *sourceBitmap = FFCore.GetScriptBitmap(ref); //This can be the screen, as -1. 
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("bitmap->Blit() is trying to blit to ref: %d\n",sdci[17]);
-	#endif
+	
 	if(!sourceBitmap)
 	{
-		Z_message("Warning: blit(%d) source bitmap contains invalid data or is not initialized.\n", ref);
+		Z_message("Warning: %d->DrawPlane() source bitmap contains invalid data or is not initialized.\n", ref);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
@@ -6563,83 +6559,20 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			//sdci[18] = usr_bitmap_index;
 			if ( !scb.script_created_bitmaps[usr_bitmap_index].u_bmp )
 			{
-				Z_scripterrlog("Target for bitmap->Blit is uninitialised. Aborting.\n");
+				Z_scripterrlog("Target for bitmap->DrawPlane is uninitialised. Aborting.\n");
 				break;
 			}
 		}
 			//FFCore.get_user_bitmap(bitmapIndex); break;
 	}
 	
-	
-	
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("bitmap->Blit() is trying to blit to dest bitmap ID: %d\n",bitmapIndex);
-	#endif
-	
-	
 	if (!destBMP)
 	{
-		Z_message("Warning: blit(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
+		Z_message("Warning: DrawPlane(%d) destination bitmap contains invalid data or is not initialized.\n", bitmapIndex);
 		Z_message("[Note* Deferred drawing or layering order possibly not set right.]\n");
 		return;
 	}
 	
-	//bugfix
-	//sx = vbound(sx, 0, sourceBitmap->w);
-	/* //These vars are named wrongly for this function -V
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("Blit %s is: %d\n", "sx", sx);
-	Z_scripterrlog("Blit %s is: %d\n", "source->w", sourceBitmap->w);
-	#endif
-	//sy = vbound(sy, 0, sourceBitmap->h);
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("Blit %s is: %d\n", "sy", sy);
-	Z_scripterrlog("Blit %s is: %d\n", "source->h", sourceBitmap->h);
-	#endif
-	//sw = vbound(sw, 0, sourceBitmap->w - sx); //keep the w/h within range as well
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("Blit %s is: %d\n", "sw", sw);
-	#endif
-	//sh = vbound(sh, 0, sourceBitmap->h - sy);
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("Blit %s is: %d\n", "sh", sh);
-
-	Z_scripterrlog("Blit %s is: %d\n", "dh", dh);
-	Z_scripterrlog("Blit %s is: %d\n", "dw", dw);
-	#endif
-	//bool stretched = (sw != dw || sh != dh);
-	//bool stretched = (sourceBitmap->w != destBMP->w || sourceBitmap->h != destBMP->h);
-	#if LOG_BMPBLIT_LEVEL > 0
-	Z_scripterrlog("Blit %s is: %s\n", "stretched", stretched ? "true" : "false");
-	#endif
-	*/
-	//BITMAP *sourceBitmap = zscriptDrawingRenderTarget->GetBitmapPtr(bitmapIndex);
-	
-	
-    
-	
-    
-	BITMAP* subBmp = 0;
-	
-	/* IDR what this was. -Z ( 17th April, 2019 )
-	if ( bitmapIndex == -1 ) {
-		blit(bmp, sourceBitmap, sx, sy, 0, 0, dw, dh); 
-	}
-	*/
-    
-	//if(rot != 0 || mode != 0)    
-	//{
-	//	subBmp = create_bitmap_ex(8,sourceBitmap->w, sourceBitmap->h);//script_drawing_commands.AquireSubBitmap(dw, dh);
-	//	clear_bitmap(subBmp);
-        
-	//	if(!subBmp)
-	//	{
-	//		Z_scripterrlog("bitmap->Blit failed to create a sub-bitmap to use for %s. Aborting.\n", "rotation");
-	//		return;
-	//	}
-	//}
-    
-    
 	//dx = dx + xoffset; //don't do this here!
 	//dy = dy + yoffset; //Nor this. It auto-offsets the bitmap by +56. Hmm. The fix that gleeok made isn't being applied to these functions. -Z ( 17th April, 2019 )
 	//All of these are a factor of 10000 as fix. 
@@ -6682,14 +6615,6 @@ void bmp_do_mode7r(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 			else stretch_blit(sourceBitmap, destBMP, (int32_t)(srcX+space_x), (int32_t)(srcY+space_y), 
 				(int32_t)(line_dx*destW), 1, (int32_t)(screen_x), (int32_t)(screen_y)+yoffset, (int32_t)(destW), 1);
 		}
-	}
-	
-	
-	//cleanup
-	if(subBmp) 
-	{
-		//script_drawing_commands.ReleaseSubBitmap(subBmp); //purge the temporary bitmap.
-		destroy_bitmap(subBmp);
 	}
 }
 
@@ -10601,9 +10526,9 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
     }
     else
     {
-	BITMAP* square = create_bitmap_ex(8,16,16);
-	BITMAP* subsquare = create_bitmap_ex(8,16,16);
-	clear_to_color(subsquare,1);
+		BITMAP* square = create_bitmap_ex(8,16,16);
+		BITMAP* subsquare = create_bitmap_ex(8,16,16);
+		clear_to_color(subsquare,1);
         for(int32_t i(0); i < 176; ++i)
         {
             const int32_t x2 = ((i&15)<<4) + x1;
@@ -10614,26 +10539,26 @@ void do_bmpdrawlayersolidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int3
                 int32_t sol = (combobuf[l.data[i]].walk);
                 
                 if ( sol & 1 )
-		{
-			blit(subsquare, square, 0, 0, 0, 0, 8, 8);
-		}
-		if ( sol & 2 )
-		{
-			blit(subsquare, square, 0, 0, 0, 8, 8, 8);
-		}
-		if ( sol & 4 )
-		{
-			blit(subsquare, square, 0, 0, 8, 0, 8, 8);
-		}
-		if ( sol &8 )	{
-			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
-		}
-		
-		blit(square, b, 0, 0, x2, y2, square->w, square->h);
+				{
+					blit(subsquare, square, 0, 0, 0, 0, 8, 8);
+				}
+				if ( sol & 2 )
+				{
+					blit(subsquare, square, 0, 0, 0, 8, 8, 8);
+				}
+				if ( sol & 4 )
+				{
+					blit(subsquare, square, 0, 0, 8, 0, 8, 8);
+				}
+				if ( sol &8 )	{
+					blit(subsquare, square, 0, 0, 8, 8, 8, 8);
+				}
+				
+				blit(square, b, 0, 0, x2, y2, square->w, square->h);
             }
         }
-	destroy_bitmap(square);
-	destroy_bitmap(subsquare);
+		destroy_bitmap(square);
+		destroy_bitmap(subsquare);
     }
     
     //putscr

@@ -1079,6 +1079,7 @@ void do_varg_min();
 void do_varg_choose();
 void do_breakpoint();
 void do_trace(bool v);
+void do_tracel(bool v);
 void do_tracenl();
 void do_cleartrace();
 bool print_ZASM;
@@ -3420,8 +3421,10 @@ enum ASM_DEFINE
 	PUSHVARGR,
 	PRINTFVARG,
 	SPRINTFVARG,
+	TRACELR,
+	WAITFRAMESR,
 	
-	NUMCOMMANDS           //0x01F6
+	NUMCOMMANDS           //0x01F8
 };
 
 

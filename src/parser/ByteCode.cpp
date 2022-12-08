@@ -2583,6 +2583,11 @@ string OWaitframe::toString()
     return "WAITFRAME";
 }
 
+string OWaitframes::toString()
+{
+    return "WAITFRAMESR " + getArgument()->toString();
+}
+
 string OWaitdraw::toString()
 {
     return "WAITDRAW";
@@ -3003,6 +3008,11 @@ string O32BitNot::toString()
 string OTraceRegister::toString()
 {
     return "TRACER " + getArgument()->toString();
+}
+
+string OTraceLRegister::toString()
+{
+    return "TRACELR " + getArgument()->toString();
 }
 
 string OTrace2Register::toString()

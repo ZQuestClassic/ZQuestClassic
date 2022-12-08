@@ -18271,7 +18271,14 @@ void set_register(const int32_t arg, const int32_t value)
 		case SCREENDATAGUY: 		SET_SCREENDATA_VAR_BYTE(guy, "Guy"); break;		//b
 		case SCREENDATASTRING:		SET_SCREENDATA_VAR_INT32(str, "String"); break;		//w
 		case SCREENDATAROOM: 		SET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
-		case SCREENDATAITEM: 		SET_SCREENDATA_VAR_BYTE(item, "Item"); break;		//b
+		case SCREENDATAITEM:
+		{
+			auto v = vbound((value / 10000),-1,255);
+			if(v > -1)
+				tmpscr->item = v;
+			tmpscr->hasitem = v > -1;
+			break;
+		}
 		case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 		case SCREENDATATILEWARPTYPE: 	SET_SCREENDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
 		//case SCREENDATATILEWARPOVFLAGS: 	SET_SCREENDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
@@ -19160,7 +19167,21 @@ void set_register(const int32_t arg, const int32_t value)
 		case MAPDATAGUY: 		SET_MAPDATA_VAR_BYTE(guy, "Guy"); break;		//b
 		case MAPDATASTRING:		SET_MAPDATA_VAR_INT32(str, "String"); break;		//w
 		case MAPDATAROOM: 		SET_MAPDATA_VAR_BYTE(room, "RoomType");	break;		//b
-		case MAPDATAITEM: 		SET_MAPDATA_VAR_BYTE(item, "Item"); break;		//b
+		case MAPDATAITEM:
+		{
+			if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				auto v = vbound((value / 10000),-1,255);
+				if(v > -1)
+					m->item = v;
+				m->hasitem = v > -1;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","Item");
+			}
+			break;
+		}
 		case MAPDATAHASITEM: 		SET_MAPDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
 		case MAPDATATILEWARPTYPE: 	SET_MAPDATA_BYTE_INDEX(tilewarptype, "TileWarpType", 3); break;	//b, 4 of these
 		//case MAPDATATILEWARPOVFLAGS: 	SET_MAPDATA_VAR_BYTE(tilewarpoverlayflags, "TileWarpOverlayFlags"); break;	//b, tilewarpoverlayflags
@@ -28633,16 +28654,16 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 
 int32_t run_script_int(const byte type, const word script, const int32_t i)
 {
-	word scommand = curscript->zasm[ri->pc].command;
-	sarg1 = curscript->zasm[ri->pc].arg1;
-	sarg2 = curscript->zasm[ri->pc].arg2;
-	sargstr = curscript->zasm[ri->pc].strptr;
-	sargvec = curscript->zasm[ri->pc].vecptr;
+	if(ri->waitframes)
+	{
+		--ri->waitframes;
+		return RUNSCRIPT_OK;
+	}
 	zs_vargs.clear();
 	
 #ifdef _FFDISSASSEMBLY
 	
-	if(scommand != 0xFFFF)
+	if(curscript->zasm[ri->pc].command != 0xFFFF)
 	{
 #ifdef _FFONESCRIPTDISSASSEMBLY
 		zc_trace_clear();
@@ -28688,10 +28709,132 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
 	}
 	
-	while(scommand != 0xFFFF && scommand != WAITFRAME
-		&& scommand != WAITDRAW && scommand != WAITTO
-		&& scommand != WAITEVENT)
+	word scommand = curscript->zasm[ri->pc].command;
+	while(scommand != 0xFFFF)
 	{
+		scommand = curscript->zasm[ri->pc].command;
+		sarg1 = curscript->zasm[ri->pc].arg1;
+		sarg2 = curscript->zasm[ri->pc].arg2;
+		sargstr = curscript->zasm[ri->pc].strptr;
+		sargvec = curscript->zasm[ri->pc].vecptr;
+		
+		bool waiting = true;
+		switch(scommand) //Handle waitframe-type commands first
+		{
+			case WAITDRAW:
+			{
+				if(script_funcrun)
+					scommand = NOP;
+				else switch(type)
+				{
+					case SCRIPT_GENERIC:
+					case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
+						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
+						scommand = NOP;
+						break;
+				}
+				break;
+			}
+			case WAITTO:
+			{
+				if(script_funcrun)
+					scommand = NOP;
+				else switch(type)
+				{
+					case SCRIPT_GENERIC_FROZEN:
+						//ignore, no warn/error
+						scommand = NOP;
+						break;
+					case SCRIPT_GENERIC:
+					{
+						user_genscript& scr = user_scripts[script];
+						int32_t target = get_register(sarg1)/10000L;
+						bool atleast = get_register(sarg2)!=0;
+						if(unsigned(target) > SCR_TIMING_END_FRAME)
+						{
+							Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
+							scommand = NOP;
+							break;
+						}
+						if(genscript_timing == target ||
+							(atleast && genscript_timing < target))
+						{
+							//Already that time, skip the command
+							scommand = NOP;
+							break;
+						}
+						scr.waituntil = scr_timing(target);
+						scr.wait_atleast = atleast;
+						break;
+					}
+					default:
+						Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
+						scommand = NOP;
+						break;
+				}
+				break;
+			}
+			case WAITEVENT:
+			{
+				if(script_funcrun)
+					scommand = NOP;
+				else switch(type)
+				{
+					case SCRIPT_GENERIC_FROZEN:
+						scommand = WAITFRAME;
+						ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
+						break;
+					case SCRIPT_GENERIC:
+					{
+						user_genscript& scr = user_scripts[script];
+						scr.waitevent = true;
+						break;
+					}
+					default:
+						Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
+						scommand = NOP;
+						break;
+				}
+				break;
+			}
+			case WAITFRAME:
+			{
+				if(script_funcrun)
+					scommand = NOP;
+				else switch(type)
+				{
+					case SCRIPT_GENERIC:
+						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
+						user_scripts[script].wait_atleast = false;
+						break;
+				}
+				break;
+			}
+			case WAITFRAMESR:
+			{
+				auto count = get_register(sarg1);
+				if(script_funcrun || count <= 0)
+				{
+					scommand = NOP;
+					break;
+				}
+				auto frames = count/10000;
+				if(count%10000) ++frames; //round up decimals
+				ri->waitframes = frames-1; //this frame doesn't count
+				switch(type)
+				{
+					case SCRIPT_GENERIC:
+						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
+						user_scripts[script].wait_atleast = false;
+						break;
+				}
+				break;
+			}
+			default: waiting = false;
+		}
+		if(waiting && scommand != NOP)
+			break;
+		
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
 		{
@@ -29713,6 +29856,10 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				
 			case TRACER:
 				FFCore.do_trace(false);
+				break;
+				
+			case TRACELR:
+				FFCore.do_tracel(false);
 				break;
 				
 			case TRACEV:
@@ -32258,95 +32405,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			Z_scripterrlog("Script PC overflow! Too many ZASM lines?\n");
 			ri->pc = 0;
 			scommand = 0xFFFF;
-		}
-		if(scommand != 0xFFFF)
-		{
-			scommand = curscript->zasm[ri->pc].command;
-			sarg1 = curscript->zasm[ri->pc].arg1;
-			sarg2 = curscript->zasm[ri->pc].arg2;
-			sargstr = curscript->zasm[ri->pc].strptr;
-			sargvec = curscript->zasm[ri->pc].vecptr;
-			if(scommand == WAITDRAW)
-			{
-				if(script_funcrun) scommand = NOP;
-				switch(type)
-				{
-					case SCRIPT_GENERIC:
-					case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
-						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
-						scommand = NOP;
-						break;
-				}
-			}
-			else if(scommand == WAITTO)
-			{
-				if(script_funcrun) scommand = NOP;
-				switch(type)
-				{
-					case SCRIPT_GENERIC_FROZEN:
-						//ignore, no warn/error
-						scommand = NOP;
-						break;
-					case SCRIPT_GENERIC:
-					{
-						user_genscript& scr = user_scripts[script];
-						int32_t target = get_register(sarg1)/10000L;
-						bool atleast = get_register(sarg2)!=0;
-						if(unsigned(target) > SCR_TIMING_END_FRAME)
-						{
-							Z_scripterrlog("Invalid value '%d' provided to 'WaitTo()'\n", target);
-							scommand = NOP;
-							break;
-						}
-						if(genscript_timing == target ||
-							(atleast && genscript_timing < target))
-						{
-							//Already that time, skip the command
-							scommand = NOP;
-							break;
-						}
-						scr.waituntil = scr_timing(target);
-						scr.wait_atleast = atleast;
-						break;
-					}
-					default:
-						Z_scripterrlog("'WaitTo()' is only valid in 'generic' scripts!\n");
-						scommand = NOP;
-						break;
-				}
-			}
-			else if(scommand == WAITEVENT)
-			{
-				if(script_funcrun) scommand = NOP;
-				switch(type)
-				{
-					case SCRIPT_GENERIC_FROZEN:
-						scommand = WAITFRAME;
-						ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
-						break;
-					case SCRIPT_GENERIC:
-					{
-						user_genscript& scr = user_scripts[script];
-						scr.waitevent = true;
-						break;
-					}
-					default:
-						Z_scripterrlog("'WaitEvent()' is only valid in 'generic' scripts!\n");
-						scommand = NOP;
-						break;
-				}
-			}
-			else if(scommand == WAITFRAME)
-			{
-				if(script_funcrun) scommand = NOP;
-				switch(type)
-				{
-					case SCRIPT_GENERIC:
-						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
-						user_scripts[script].wait_atleast = false;
-						break;
-				}
-			}
 		}
 	}
 	if(script_funcrun) return RUNSCRIPT_OK;
@@ -38716,6 +38774,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PUSHVARGR",           1,   0,   0,   0 },
 	{ "PRINTFVARG",           0,   0,   0,   0 },
 	{ "SPRINTFVARG",           0,   0,   0,   0 },
+	{ "TRACELR",             1,   0,   0,   0},
+	{ "WAITFRAMESR",             1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -40365,6 +40425,21 @@ void FFScript::do_trace(bool v)
 	{
 		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),s2.c_str());
+	}
+}
+void FFScript::do_tracel(bool v)
+{
+	int32_t temp = SH::get_arg(sarg1, v);
+	
+	char tmp[32];
+	sprintf(tmp, "%d", temp);
+	TraceScriptIDs();
+	al_trace("%s", tmp);
+	
+	if ( zscript_debugger ) 
+	{
+		zscript_coloured_console.safeprint((CConsoleLoggerEx::COLOR_WHITE | 
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),tmp);
 	}
 }
 

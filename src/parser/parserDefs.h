@@ -17,9 +17,10 @@ using namespace util;
 #define FUNCFLAG_CLASSFUNC          0x00000020
 #define FUNCFLAG_VARARGS            0x00000040
 #define FUNCFLAG_DEPRECATED         0x00000080
+#define FUNCFLAG_NOCAST             0x00000100
 
-#define IFUNCFLAG_SKIPPOINTER		0x01
-#define IFUNCFLAG_REASSIGNPTR		0x02
+#define IFUNCFLAG_SKIPPOINTER	      0x01
+#define IFUNCFLAG_REASSIGNPTR	      0x02
 
 //Option values. NOTE: Result of "lookupOption" must be '/10000.0' -V
 #define OPT_OFF                     0

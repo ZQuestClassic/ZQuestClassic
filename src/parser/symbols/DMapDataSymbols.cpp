@@ -6,7 +6,6 @@ static AccessorTable DMapDataTable[] =
 {
 //	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-	{ "getTest",                    0,         ZTID_FLOAT,   DEBUGREFFFC,               0,  { ZTID_DMAPDATA },{} },
 	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "SetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "GetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },

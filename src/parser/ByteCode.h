@@ -2385,6 +2385,17 @@ namespace ZScript
 			return new OWaitframe();
 		}
 	};
+	
+	class OWaitframes : public UnaryOpcode
+	{
+	public:
+		OWaitframes(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OWaitframes(a->clone());
+		}
+	};
 
 	class OWaitdraw : public Opcode
 	{
@@ -2621,6 +2632,17 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OTraceRegister(a->clone());
+		}
+	};
+
+	class OTraceLRegister : public UnaryOpcode
+	{
+	public:
+		OTraceLRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OTraceLRegister(a->clone());
 		}
 	};
 
