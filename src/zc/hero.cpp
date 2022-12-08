@@ -25419,6 +25419,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int32_t aheadflag = lookaheadflag(scrolldir);
 	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
 	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
+	int32_t wateraheadx1 = vbound(x+4,0,240);
+	int32_t wateraheadx2 = vbound(x+11,0,240);;
+	int32_t wateraheady1 = vbound(y+9,0,160);
+	int32_t wateraheady2 = vbound(y+15,0,160);
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
@@ -25426,18 +25430,26 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		case up:
 			lookaheady=160;
+			wateraheady1=160;
+			wateraheady2=160;
 			break;
 			
 		case down:
 			lookaheady=0;
+			wateraheady1=0;
+			wateraheady2=0;
 			break;
 			
 		case left:
 			lookaheadx=240;
+			wateraheadx1=240;
+			wateraheadx2=240;
 			break;
 			
 		case right:
 			lookaheadx=0;
+			wateraheadx1=0;
+			wateraheadx2=0;
 			break;
 	}
 
@@ -25453,7 +25465,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				raftclk=0;
 			}
 		}
-		else if(iswaterex(ahead, currmap, currscr, -1, lookaheadx,lookaheady) && (current_item(itype_flippers)))
+		else if(iswaterex(ahead, currmap, currscr, -1, wateraheadx1,wateraheady1) && iswaterex(ahead, currmap, currscr, -1, wateraheadx2,wateraheady2) && (current_item(itype_flippers)))
 		{
 			if(lastaction==swimming || lastaction == sideswimming || lastaction == sideswimattacking || lastaction == sideswimhit || lastaction == swimhit || lastaction == sideswimcasting || lastaction == sidewaterhold1 || lastaction == sidewaterhold2)
 			{
