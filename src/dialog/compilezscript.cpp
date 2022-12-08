@@ -101,6 +101,16 @@ Button( \
 	height = 3_em, \
 	onClick = message::msg \
 )
+#define BTNF(txt, msg, w) \
+Button( \
+	focused = true, \
+	fitParent = true, \
+	padding = 0_px, \
+	text = (txt), \
+	width = (w), \
+	height = 3_em, \
+	onClick = message::msg \
+)
 
 std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 {
@@ -112,7 +122,6 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 	
 	window = Window(
 		title = "Compile ZScript",
-		onEnter = message::COMPILE,
 		onClose = message::CANCEL,
 		Column(
 			labels[0] = Label(hAlign = 0.0),
@@ -136,7 +145,7 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 				//
 				Row(padding = 0_px,
 					columnSpacing = col_spacing,
-					BTN("&Compile",COMPILE,panel_width/2+col_spacing/2),
+					BTNF("&Compile",COMPILE,panel_width/2+col_spacing/2),
 					BTN("Cancel",CANCEL,panel_width/2+col_spacing/2)
 				)
 			)

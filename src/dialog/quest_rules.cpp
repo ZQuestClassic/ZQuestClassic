@@ -1649,7 +1649,6 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 		
 		window = Window(
 			title = "Search Quest Rules",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				QRPanel(
@@ -1736,7 +1735,6 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 	{
 		window = Window(
 			title = "Quest Options",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				TabPanel(

@@ -242,7 +242,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	std::shared_ptr<GUI::Grid> windowRow;
 	window = Window(
 		title = titlebuf,
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		hPadding = 0_px, 
 		Column(

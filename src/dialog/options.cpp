@@ -384,7 +384,6 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 
 	return Window(
 		title = "ZQuest Options",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(

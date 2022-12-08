@@ -340,7 +340,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		window = Window(
 			padding = sized(0_px, 2_spx),
 			title = "Init Data",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				padding = sized(0_px, 2_spx),
@@ -616,7 +615,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		window = Window(
 			padding = sized(0_px, 2_spx),
 			title = "Init Data",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				padding = sized(0_px, 2_spx),
@@ -1016,7 +1014,6 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 	window = Window(
 		padding = sized(0_px, 2_spx),
 		title = "Generic Script Data (" + std::to_string(index) + ")",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			padding = sized(0_px, 2_spx),

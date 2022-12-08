@@ -45,7 +45,6 @@ std::shared_ptr<GUI::Widget> PickRuleTemplateDialog::view()
 	
 	return Window(
 		title = "Pick Rule Template",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Label

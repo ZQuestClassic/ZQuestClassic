@@ -476,7 +476,6 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 	}
 	window = Window(
 		title = "String Editor ("+std::to_string(strIndex)+")",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			tpan,

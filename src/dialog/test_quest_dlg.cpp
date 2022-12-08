@@ -97,7 +97,6 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 
 	return Window(
 		title = "Test Quest",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Rows<2>(

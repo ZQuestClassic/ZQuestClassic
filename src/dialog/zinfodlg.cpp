@@ -56,7 +56,6 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 		info = "By unchecking 'default' for an itemclass, it will allow entry of a string which will be stored in"
 			" the quest's \"zinfo\". If 'External ZInfo' is checked, zinfo will not be saved to the quest file,"
 			" but instead to a separate '.zinfo' file. If the external file is not found, it will load default data instead.",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(ptr = &zinftab,

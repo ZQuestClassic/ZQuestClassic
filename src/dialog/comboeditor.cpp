@@ -2216,7 +2216,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				"-/+: Change CSet\n"
 				"H/V/R: Flip (Horz,Vert,Rotate)\n"
 				"T: Change tile",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			shortcuts={
 				V=message::VFLIP,
@@ -3292,7 +3291,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				"-/+: Change CSet\n"
 				"H/V/R: Flip (Horz,Vert,Rotate)\n"
 				"T: Change tile",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			shortcuts={
 				V=message::VFLIP,

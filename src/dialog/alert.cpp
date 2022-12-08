@@ -32,7 +32,6 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 	dontshowagain = false;
 	return Window(
 		title = std::move(dlgTitle),
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		use_vsync = true,
 		onTick = [&](){return alert_on_tick();},

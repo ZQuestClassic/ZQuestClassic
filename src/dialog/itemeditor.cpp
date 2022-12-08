@@ -1127,7 +1127,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		window = Window(
 			use_vsync = true,
 			title = titlebuf,
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				Row(
@@ -2499,7 +2498,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		window = Window(
 			use_vsync = true,
 			title = titlebuf,
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				TabPanel(

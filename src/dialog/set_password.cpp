@@ -20,7 +20,6 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 
 	return Window(
 		title = "Set Password",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Rows<2>(

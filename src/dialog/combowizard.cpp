@@ -362,7 +362,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 	std::shared_ptr<GUI::Grid> windowRow;
 	window = Window(
 		//use_vsync = true,
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			windowRow = Row(padding = 0_px),

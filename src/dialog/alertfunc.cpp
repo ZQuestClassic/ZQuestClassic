@@ -30,7 +30,6 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 
 	std::shared_ptr<GUI::Window> window = Window(
 		title = std::move(dlgTitle),
-		onEnter = message::OK,
 		onClose = message::OK,
 		Column(
 			Label(noHLine = true,

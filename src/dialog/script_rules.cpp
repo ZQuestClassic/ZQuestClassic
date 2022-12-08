@@ -23,7 +23,6 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 	using namespace GUI::Props;
 	return Window(
 		title = "Script Rules",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(

@@ -32,7 +32,6 @@ std::shared_ptr<GUI::Widget> SetCheatDialog::view()
 
 	return Window(
 		title = "Cheats",
-		onEnter = message::CHECK,
 		onClose = message::CANCEL,
 		Column(
 			Row(padding = 0_px,

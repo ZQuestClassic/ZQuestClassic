@@ -36,7 +36,6 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 		title = "Vector Editor",
 		minwidth = 30_em,
 		info = "Select a list of numbers.",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			wingrid = Column(padding=0_px),

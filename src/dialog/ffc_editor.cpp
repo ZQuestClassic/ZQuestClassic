@@ -268,7 +268,6 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 		title = "FFC Editor ("+std::to_string(ffind+1)+")",
 		info = "Edit an FFC, setting up its' combo, flags, and script data.\n"
 			"Hotkeys: -/+: Change CSet",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		shortcuts={
 			PlusPad=message::PLUSCS,

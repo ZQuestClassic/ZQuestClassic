@@ -33,7 +33,6 @@ std::shared_ptr<GUI::Widget> MiscSprsDialog::view()
 	using namespace GUI::Props;
 	return Window(
 		title = "Misc Sprites",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			maxwidth = sized(308_px, 800_px),
