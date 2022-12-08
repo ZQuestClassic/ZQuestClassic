@@ -28710,6 +28710,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	}
 	
 	word scommand = curscript->zasm[ri->pc].command;
+	bool hit_invalid_zasm = false;
 	while(scommand != 0xFFFF)
 	{
 		scommand = curscript->zasm[ri->pc].command;
@@ -28866,7 +28867,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		start_time = script_counter;
 #endif
 #endif
-	  
+		
 		if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
 		switch(scommand)
 		{
@@ -32378,10 +32379,13 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			
 			default:
 			{
-				Z_scripterrlog("Invalid ZASM command %lu reached\n", scommand);
+				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
+				hit_invalid_zasm = true;
+				scommand = 0xFFFF;
 				break;
 			}
 		}
+		if(hit_invalid_zasm) break;
 		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
 #ifdef _SCRIPT_COUNTER
@@ -32520,142 +32524,140 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	
 	if(scommand == 0xFFFF) //Quit/command list end reached/bad command
 	{
-	
 		switch(type)
 		{
-		case SCRIPT_FFC:
-			tmpscr->ffcs[i].script = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
+			case SCRIPT_FFC:
+				tmpscr->ffcs[i].script = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
+				
+			case SCRIPT_GLOBAL:
+				g_doscript &= ~(1<<i);
+				FFScript::deallocateAllArrays(type, i);
+				break;
 			
-		case SCRIPT_GLOBAL:
-			g_doscript &= ~(1<<i);
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_GENERIC:
-			user_scripts[script].quit();
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_GENERIC_FROZEN:
-			gen_active_doscript = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_PLAYER:
-			player_doscript = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_DMAP:
-			dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
-			dmapscriptInitialised = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_ONMAP:
-			onmap_doscript = 0;
-			onmapInitialised = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_ACTIVESUBSCREEN:
-			active_subscreen_doscript = 0;
-			activeSubscreenInitialised = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
-		
-		case SCRIPT_PASSIVESUBSCREEN:
-			passive_subscreen_doscript = 0;
-			passiveSubscreenInitialised = 0;
-			FFScript::deallocateAllArrays(type, i);
-			break;
+			case SCRIPT_GENERIC:
+				user_scripts[script].quit();
+				FFScript::deallocateAllArrays(type, i);
+				break;
 			
-		case SCRIPT_ITEM:
-		{
-			// zprint("Item script reached quit/end of scope\n");
-			int32_t new_i = 0;
-			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+			case SCRIPT_GENERIC_FROZEN:
+				gen_active_doscript = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
 			
-			if ( !collect )
+			case SCRIPT_PLAYER:
+				player_doscript = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
+			
+			case SCRIPT_DMAP:
+				dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
+				dmapscriptInitialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
+			
+			case SCRIPT_ONMAP:
+				onmap_doscript = 0;
+				onmapInitialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
+			
+			case SCRIPT_ACTIVESUBSCREEN:
+				active_subscreen_doscript = 0;
+				activeSubscreenInitialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
+			
+			case SCRIPT_PASSIVESUBSCREEN:
+				passive_subscreen_doscript = 0;
+				passiveSubscreenInitialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				break;
+				
+			case SCRIPT_ITEM:
 			{
-				if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
-				item_doscript[new_i] = 0;
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
-				itemScriptData[new_i].Clear();
+				// zprint("Item script reached quit/end of scope\n");
+				int32_t new_i = 0;
+				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+				new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+				
+				if ( !collect )
+				{
+					if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
+					item_doscript[new_i] = 0;
+					for ( int32_t q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
+					itemScriptData[new_i].Clear();
+				}
+				else
+				{
+					item_collect_doscript[new_i] = 0;
+					for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
+					itemCollectScriptData[new_i].Clear();
+				}
+				FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
+				// zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
+				itemscriptInitialised[new_i] = 0;
+				
+				break; //item scripts aren't gonna go again anyway
 			}
-			else
+			case SCRIPT_NPC:
 			{
-				item_collect_doscript[new_i] = 0;
-				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
-				itemCollectScriptData[new_i].Clear();
-			}
-			FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
-			// zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
-			itemscriptInitialised[new_i] = 0;
-			
-			break; //item scripts aren't gonna go again anyway
-		}
-		case SCRIPT_NPC:
-		{
-			guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
-			guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
-			guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
-			FFScript::deallocateAllArrays(type, i);
+				guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
+				guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
+				guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
+				FFScript::deallocateAllArrays(type, i);
 
-			break;
-		}
-		case SCRIPT_LWPN:
-		{
-			Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
-			Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
-			Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
-			FFScript::deallocateAllArrays(type, i);
+				break;
+			}
+			case SCRIPT_LWPN:
+			{
+				Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
+				Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
+				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				
+				break;
+			}
+			case SCRIPT_EWPN:
+			{
 			
-			break;
-		}
-		case SCRIPT_EWPN:
-		{
-		
-			Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
-			Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
-			Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
-			FFScript::deallocateAllArrays(type, i);
+				Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
+				Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
+				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				
+				break;
+			}
+			case SCRIPT_ITEMSPRITE:
+			{
 			
-			break;
-		}
-		case SCRIPT_ITEMSPRITE:
-		{
-		
-			items.spr(ItemH::getItemIndex(i))->doscript = 0;
-			items.spr(ItemH::getItemIndex(i))->script = 0;
-			items.spr(ItemH::getItemIndex(i))->initialised = 0;
-			FFScript::deallocateAllArrays(type, i);
+				items.spr(ItemH::getItemIndex(i))->doscript = 0;
+				items.spr(ItemH::getItemIndex(i))->script = 0;
+				items.spr(ItemH::getItemIndex(i))->initialised = 0;
+				FFScript::deallocateAllArrays(type, i);
+				
+				break;
+			}
+			case SCRIPT_SCREEN:
+			{
+				tmpscr->script = 0;
+				tmpscr->screendatascriptInitialised = 0;
+				tmpscr->doscript = 0;
+				FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+				break;
+			} 
 			
-			break;
-		}
-		case SCRIPT_SCREEN:
-		{
-			tmpscr->script = 0;
-			tmpscr->screendatascriptInitialised = 0;
-			tmpscr->doscript = 0;
-			FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
-			break;
-		} 
-		
-		case SCRIPT_COMBO:
-		{
-			int32_t pos = i%176;
-			int32_t lyr = i/176;
-			combo_doscript[pos+(176*lyr)] = 0;
-			combo_initialised[pos] &= ~(1<<lyr);
-			
-			FFScript::deallocateAllArrays(type, i); //need to add combo arrays
-			break;
-		}
-		
+			case SCRIPT_COMBO:
+			{
+				int32_t pos = i%176;
+				int32_t lyr = i/176;
+				combo_doscript[pos+(176*lyr)] = 0;
+				combo_initialised[pos] &= ~(1<<lyr);
+				
+				FFScript::deallocateAllArrays(type, i); //need to add combo arrays
+				break;
+			}
 		}
 	}
 	else

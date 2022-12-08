@@ -1197,19 +1197,23 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
+		size_t num_actual_params = func.paramTypes.size() - func.extra_vargs;
+		size_t num_used_params = host.parameters.size();
 		
-		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (host.left->isTypeArrow())
 		{
-			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-			//visit(host.getLeft(), param);
-			//push it onto the stack
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			++num_used_params;
+			if (!(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
+			{
+				//load the value of the left-hand of the arrow into EXP1
+				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+				//visit(host.getLeft(), param);
+				//push it onto the stack
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 		}
 		
 		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
-		size_t num_actual_params = func.paramTypes.size()-func.extra_vargs;
-		size_t num_used_params = host.parameters.size();
 		int v = num_used_params-num_actual_params;
 		
 		size_t vargcount = 0;
