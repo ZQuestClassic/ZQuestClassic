@@ -936,6 +936,7 @@ void update_recent_quest(char const* path)
 	}
 	strncpy(rec_menu_strs[0], buf, 63);
 	refresh_recent_menu();
+	zc_set_config("zquest",last_quest_name,path);
 	write_recent_quests();
 }
 
@@ -32409,7 +32410,6 @@ int32_t save_config_file()
     zc_set_config("zquest",midi_path_name,midipath2);
     zc_set_config("zquest",image_path_name,imagepath2);
     zc_set_config("zquest",tmusic_path_name,tmusicpath2);
-    zc_set_config("zquest",last_quest_name,filepath);
 	
     if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
     {
