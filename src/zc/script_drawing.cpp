@@ -656,7 +656,10 @@ void do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
-            floodfill(prim_bmp, zc_max(0,fx)+xoffset, zc_max(0,fy)+yoffset, color);
+			int fillx = zc_max(0,fx)+xoffset;
+			int filly = zc_max(0,fy)+yoffset;
+			zprint2("Screen->Arc fill at prim_bmp (%d,%d) - 512x512\n", fillx, filly);
+			floodfill(prim_bmp, fillx, filly, color);
             
             if(sdci[14]/10000<=127) //translucent
             {
@@ -4323,7 +4326,10 @@ void bmp_do_arcr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
             arc(prim_bmp, cx+xoffset, cy+yoffset, sa, ea, int32_t(r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-sa)*r), cy+yoffset+fixtoi(fixsin(-sa)*r), color);
             line(prim_bmp, cx+xoffset, cy+yoffset, cx+xoffset+fixtoi(fixcos(-ea)*r), cy+yoffset+fixtoi(fixsin(-ea)*r), color);
-            floodfill(prim_bmp, zc_max(0,fx)+xoffset, zc_max(0,fy)+yoffset, color);
+			int fillx = zc_max(0,fx)+xoffset;
+			int filly = zc_max(0,fy)+yoffset;
+			zprint2("bitmap->Arc fill at prim_bmp (%d,%d) - 512x512\n", fillx, filly);
+			floodfill(prim_bmp, fillx, filly, color);
             
             if(sdci[14]/10000<=127) //translucent
             {
