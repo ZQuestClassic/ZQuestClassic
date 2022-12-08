@@ -216,14 +216,20 @@ void update_script_counter()
 END_OF_FUNCTION(update_script_counter)
 #endif
 
-void throttleFPS()
+bool doThrottle()
 {
 #ifdef ALLEGRO_MACOSX
 	int toggle_key = KEY_BACKQUOTE;
 #else
 	int toggle_key = KEY_TILDE;
 #endif
-    if( (Throttlefps ^ (zc_get_system_key(toggle_key)!=0)) || get_bit(quest_rules, qr_NOFASTMODE) || Paused)
+	return (Throttlefps ^ (zc_get_system_key(toggle_key)!=0))
+		|| get_bit(quest_rules, qr_NOFASTMODE);
+}
+
+void throttleFPS()
+{
+    if( doThrottle() || Paused)
     {
         if(zc_vsync == FALSE)
         {
@@ -628,7 +634,7 @@ bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
-	if(force || (!is_sys_pal && !Throttlefps) || myvsync)
+	if(force || (!is_sys_pal && !doThrottle()) || myvsync)
 	{
 		zc_process_display_events();
 		resx = al_get_display_width(all_get_display());
