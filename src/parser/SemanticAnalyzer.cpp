@@ -1442,6 +1442,63 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			bestFunctions.push_back(bestFound);
 		}
 	}
+	// We may have failed, but give higher priority to 'untyped' first...
+	if(bestFunctions.size() > 1)
+	{
+		vector<Function*> newBestFunctions = bestFunctions;
+		size_t maxsize = 0;
+		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
+		{
+			if(maxsize < (*it)->paramTypes.size())
+				maxsize = (*it)->paramTypes.size();
+		}
+		//Remove any strictly-less-specific functions
+		for(size_t p = 0; p < maxsize; ++p)
+		{
+			int flag = 0;
+			for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() < p)
+				{
+					++it;
+					continue;
+				}
+				bool ut = pty.at(p)->isUntyped();
+				if(flag == 3)
+				{
+					if (ut) //untyped, keep
+					{
+						++it;
+						continue;
+					}
+					else if(parameterTypes.size() > p)
+					{
+						DataType const& from = getNaiveType(*parameterTypes[p], scope);
+						DataType const& to = getNaiveType(*(*it)->paramTypes[p], scope);
+						if(from == to) //Exact match, keep
+						{
+							++it;
+							continue;
+						}
+					}
+					//Not exact match, not untyped; junk it.
+					it = bestFunctions.erase(it);
+					continue;
+				}
+				if(ut) flag |= 1;
+				else flag |= 2;
+				if(flag == 3)
+				{
+					it = bestFunctions.begin();
+					continue;
+				}
+				++it;
+			}
+		}
+		if(bestFunctions.size() == 0) //Restore conflicts for error msg
+			bestFunctions = newBestFunctions;
+	}
 	// We failed.
 	if (bestFunctions.size() != 1)
 	{

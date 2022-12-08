@@ -13,7 +13,7 @@ static AccessorTable GlobalTable[] =
 	{ "WaitTo",                  0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT, ZTID_BOOL },{ 0 } },
 	{ "WaitEvent",               0,         ZTID_FLOAT,   -1,          0,  {},{} },
 	{ "Trace",                   0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED },{} },
-	{ "Trace",                   1,          ZTID_VOID,   -1,  FL_NOCAST,  { ZTID_LONG },{} },
+	{ "Trace",                   1,          ZTID_VOID,   -1,          0,  { ZTID_LONG },{} },
 	{ "TraceB",                  0,          ZTID_VOID,   -1,          0,  { ZTID_BOOL },{} },
 	{ "TraceS",                  0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "TraceNL",                 0,          ZTID_VOID,   -1,          0,  {},{} },
