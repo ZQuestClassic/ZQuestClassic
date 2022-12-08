@@ -27349,6 +27349,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 		break;
 	}
 	
+	flushItemCache();
 	update_subscreens();
 	load_Sitems(&QMisc);
 	verifyBothWeapons();
