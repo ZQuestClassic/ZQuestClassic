@@ -1418,12 +1418,11 @@ std::string int_to_basE91(T value)
 {
     const char alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&()*+,./:;<=>?@[]^_`{|}~\"";
     std::string result;
-    while (value > 0)
-    {
+    do {
         T remainder = value % 91;
         value /= 91;
         result.insert(result.begin(), alphabet[remainder]);
-    }
+    } while (value > 0);
     return result;
 }
 
