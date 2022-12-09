@@ -1816,8 +1816,7 @@ int32_t init_game()
 		{
 			std::string filename_prefix = fmt::format("{}-{}", saves[currgame].title, saves[currgame]._name);
 			{
-				filename_prefix.erase(0, filename_prefix.find_first_not_of("\t\n\v\f\r ")); // left trim
-				filename_prefix.erase(filename_prefix.find_last_not_of("\t\n\v\f\r ") + 1); // right trim
+				trimstr(filename_prefix);
 				std::regex re(R"([^a-zA-Z0-9_+\-]+)");
 				filename_prefix = std::regex_replace(filename_prefix, re, "_");
 			}

@@ -22,6 +22,12 @@ namespace util
 		for(int32_t q = str.size() - 1; q >= 0; --q)
 			str[q] = tolower(str[q]);
 	}
+
+	void trimstr(string& str)
+	{
+		str.erase(0, str.find_first_not_of("\t\n\v\f\r "));
+		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
+	}
 	
 	string cropPath(string filepath)
 	{

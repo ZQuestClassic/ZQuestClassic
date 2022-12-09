@@ -1,6 +1,7 @@
 #include "replay.h"
 #include "zc_sys.h"
 #include "base/zc_alleg.h"
+#include "base/util.h"
 #include "zelda.h"
 #include <array>
 #include <vector>
@@ -20,6 +21,7 @@ static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
 static const int VERSION = 7;
 
+static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
 static const char TypeKeyDown = 'D';
 static const char TypeKeyUp = 'U';
@@ -561,6 +563,16 @@ static void load_replay(std::string filename)
         if (line.empty())
             continue;
 
+        // Annotations are always discarded.
+        std::string annotation;
+        auto annotation_pos = line.find(ANNOTATION_MARKER, 0);
+        if (annotation_pos != std::string::npos)
+        {
+            annotation = line.substr(annotation_pos + 1);
+            line = line.substr(0, annotation_pos);
+        }
+
+        util::trimstr(line);
         std::istringstream iss(line);
         char type;
         int frame;
@@ -593,6 +605,7 @@ static void load_replay(std::string filename)
             portable_get_line(iss, value);
 
             ASSERT(meta_map.find(key) == meta_map.end());
+            ASSERT(annotation_pos == std::string::npos);
             meta_map[key] = value;
         }
         else if (type == TypeComment)
@@ -703,6 +716,11 @@ static void load_replay(std::string filename)
 
 static void save_replay(std::string filename, const std::vector<std::shared_ptr<ReplayStep>> &log)
 {
+	bool insert_baseline_annotations =
+		has_assert_failed &&
+		filename.find(".roundtrip") != std::string::npos &&
+		log == record_log;
+
     std::time_t ct = std::time(0);
     replay_set_meta("time_updated", strtok(ctime(&ct), "\n"));
     replay_set_meta("zc_version_updated", getProgramVerStr());
@@ -711,8 +729,22 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     std::ofstream out(filename, std::ios::binary);
     for (auto it : meta_map)
         out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
-    for (auto it : log)
-        out << it->print() << '\n';
+    for (int i = 0; i < log.size(); i++)
+    {
+        auto step = log[i];
+        std::string step_as_string = step->print();
+        out << step_as_string;
+        if (insert_baseline_annotations && i < replay_log.size())
+        {
+            auto replay_log_step = replay_log[i];
+            if (!steps_are_equal(step.get(), replay_log_step.get()))
+                out << std::string(std::max(0, 60 - (int)step_as_string.size()), ' ')
+                    << ANNOTATION_MARKER
+                    << ' '
+                    << replay_log_step->print();
+        }
+        out << '\n';
+    }
     out.close();
 }
 
@@ -1366,6 +1398,7 @@ void replay_step_comment(std::string comment)
 {
     if (replay_is_recording())
     {
+        util::trimstr(comment);
         record_log.push_back(std::make_shared<CommentReplayStep>(frame_count, comment));
         // Not necessary to call this here, but helps to halt the program exactly when an unexpected
         // comment occurs instead of at the next call to replay_poll.
