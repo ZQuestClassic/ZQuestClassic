@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2022-12-05 05:39:54</td>
+      <td>2022-12-09 00:28:07</td>
     </tr>
   </table>
 </div>
@@ -75,35 +75,35 @@
     </tr>
     <tr>
       <td>
-        <a href="#l285">CConsoleLogger::AddHeaders()</a>
+        <a href="#l289">CConsoleLogger::AddHeaders()</a>
       </td>
       <td>
-        <a href="#l285">285</a>
+        <a href="#l289">289</a>
       </td>
       <td>
-        <a href="#l285"> not called</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l367">CConsoleLoggerEx::AddHeaders()</a>
-      </td>
-      <td>
-        <a href="#l367">367</a>
-      </td>
-      <td>
-        <a href="#l367"> not called</a>
+        <a href="#l289"> not called</a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="#l293">CConsoleLoggerEx::~CConsoleLoggerEx()</a>
+        <a href="#l375">CConsoleLoggerEx::AddHeaders()</a>
       </td>
       <td>
-        <a href="#l293">293</a>
+        <a href="#l375">375</a>
       </td>
       <td>
-        <a href="#l293"> not called</a>
+        <a href="#l375"> not called</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l297">CConsoleLoggerEx::~CConsoleLoggerEx()</a>
+      </td>
+      <td>
+        <a href="#l297">297</a>
+      </td>
+      <td>
+        <a href="#l297"> not called</a>
       </td>
     </tr>
   </table>
@@ -1822,7 +1822,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string, no buffer/printf</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1830,7 +1830,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// write string , use current color</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">safeprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1838,7 +1838,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cprintf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1846,7 +1846,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string , use current color</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1854,7 +1854,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// goto(x,y)</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cprintf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1862,7 +1862,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">gotoxy</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string, no buffer/printf</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1870,7 +1870,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">safeprint</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1878,7 +1878,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1886,7 +1886,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// goto(x,y)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1894,7 +1894,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">DWORD</span><span class="w">	</span><span class="nf">GetCurrentColor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">gotoxy</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1902,7 +1902,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">m_dwCurrentAttributes</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1910,7 +1910,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1918,7 +1918,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">	</span><span class="nf">SetCurrentColor</span><span class="p">(</span><span class="n">DWORD</span><span class="w"> </span><span class="n">dwColor</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1926,7 +1926,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"> </span><span class="n">m_dwCurrentAttributes</span><span class="o">=</span><span class="n">dwColor</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">DWORD</span><span class="w">	</span><span class="nf">GetCurrentColor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1934,7 +1934,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">m_dwCurrentAttributes</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1942,7 +1942,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1950,7 +1950,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">protected</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">	</span><span class="nf">SetCurrentColor</span><span class="p">(</span><span class="n">DWORD</span><span class="w"> </span><span class="n">dwColor</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1958,7 +1958,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">	</span><span class="n">AddHeaders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"> </span><span class="n">m_dwCurrentAttributes</span><span class="o">=</span><span class="n">dwColor</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1966,7 +1966,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w">	</span><span class="c1">// Thnx to this function, the &quot;Helper&quot; can see that we are &quot;extended&quot; logger !!!</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1974,7 +1974,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// (so we can use the same helper-child-application for both loggers</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1982,7 +1982,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">DWORD</span><span class="w"> </span><span class="n">cbWritten</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="n">protected</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1990,7 +1990,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="o">=</span><span class="s">&quot;Extended-Console: TRUE</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">	</span><span class="n">AddHeaders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1998,7 +1998,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">WriteFile</span><span class="p">(</span><span class="n">m_hPipe</span><span class="p">,</span><span class="n">ptr</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">ptr</span><span class="p">),</span><span class="o">&amp;</span><span class="n">cbWritten</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w">	</span><span class="c1">// Thnx to this function, the &quot;Helper&quot; can see that we are &quot;extended&quot; logger !!!</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2006,7 +2006,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">cbWritten</span><span class="o">==</span><span class="n">strlen</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// (so we can use the same helper-child-application for both loggers</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2014,7 +2014,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">DWORD</span><span class="w"> </span><span class="n">cbWritten</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2022,7 +2022,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">		</span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">ptr</span><span class="o">=</span><span class="s">&quot;Extended-Console: TRUE</span><span class="se">\r\n</span><span class="s">&quot;</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2030,7 +2030,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">WriteFile</span><span class="p">(</span><span class="n">m_hPipe</span><span class="p">,</span><span class="n">ptr</span><span class="p">,</span><span class="n">strlen</span><span class="p">(</span><span class="n">ptr</span><span class="p">),</span><span class="o">&amp;</span><span class="n">cbWritten</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2038,7 +2038,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_cprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">cbWritten</span><span class="o">==</span><span class="n">strlen</span><span class="p">(</span><span class="n">ptr</span><span class="p">))</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2046,7 +2046,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2054,7 +2054,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2062,7 +2062,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2070,7 +2070,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//}</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_cprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2078,7 +2078,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2086,7 +2086,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//{Unix</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2094,7 +2094,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2102,7 +2102,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="w"></span></td>
+      <td class="src "><span class="c1">//}</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2110,7 +2110,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#else</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2118,7 +2118,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">public</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="c1">//{Unix</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2134,7 +2134,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// ctor,dtor</span></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2142,7 +2142,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">CConsoleLogger</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2150,7 +2150,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">CConsoleLogger</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="n">public</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2158,7 +2158,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2166,7 +2166,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">valid</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// ctor,dtor</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2174,7 +2174,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="n">CConsoleLogger</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2182,7 +2182,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// create a logger: starts a pipe+create the child process</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="o">~</span><span class="n">CConsoleLogger</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2190,7 +2190,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszWindowTitle</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2198,7 +2198,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">buffer_size_x</span><span class="o">=</span><span class="mi">-1</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">buffer_size_y</span><span class="o">=</span><span class="mi">-1</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="nf">valid</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2206,7 +2206,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">logger_name</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2214,7 +2214,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">				</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">helper_executable</span><span class="o">=</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// create a logger: starts a pipe+create the child process</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2222,7 +2222,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">Create</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszWindowTitle</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2230,7 +2230,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">kill</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">				</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">buffer_size_x</span><span class="o">=</span><span class="mi">-1</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">buffer_size_y</span><span class="o">=</span><span class="mi">-1</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2238,7 +2238,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">				</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">logger_name</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2246,7 +2246,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// close everything</span></td>
+      <td class="src "><span class="w">				</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">helper_executable</span><span class="o">=</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2254,7 +2254,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">Close</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2262,7 +2262,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">kill</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2270,7 +2270,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// output functions</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2278,7 +2278,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="o">=</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// close everything</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2286,7 +2286,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">printf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">Close</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2302,7 +2302,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// play with the CRT output functions</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// output functions</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2310,7 +2310,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">SetAsDefaultOutput</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kr">inline</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="o">=</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2318,7 +2318,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">ResetDefaultOutput</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">printf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2326,7 +2326,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2334,7 +2334,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">protected</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// play with the CRT output functions</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2342,7 +2342,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">char</span><span class="w">	</span><span class="n">m_name</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">SetAsDefaultOutput</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2350,7 +2350,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifndef __EMSCRIPTEN__</span></td>
+      <td class="src "><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">ResetDefaultOutput</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2358,7 +2358,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_TEXTLOG</span><span class="o">*</span><span class="w"> </span><span class="n">m_textlog</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2366,7 +2366,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="n">protected</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2374,7 +2374,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">kill_on_close</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">char</span><span class="w">	</span><span class="n">m_name</span><span class="p">[</span><span class="mi">64</span><span class="p">];</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2382,7 +2382,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifndef __EMSCRIPTEN__</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2390,23 +2390,23 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// you can extend this class by overriding the function</span></td>
+      <td class="src "><span class="w">	</span><span class="n">ALLEGRO_TEXTLOG</span><span class="o">*</span><span class="w"> </span><span class="n">m_textlog</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l285" href="#l285">285</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">	</span><span class="n">AddHeaders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l286" href="#l286">286</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">bool</span><span class="w"> </span><span class="n">kill_on_close</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2422,23 +2422,23 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// the _print() helper function</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// you can extend this class by overriding the function</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l289" href="#l289">289</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w">	</span><span class="n">AddHeaders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l290" href="#l290">290</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2454,7 +2454,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// the _print() helper function</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2462,7 +2462,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2470,7 +2470,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2478,7 +2478,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">	</span><span class="n">m_dwCurrentAttributes</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2486,7 +2486,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">enumCommands</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2494,7 +2494,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="n">class</span><span class="w"> </span><span class="n">CConsoleLoggerEx</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">CConsoleLogger</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2502,7 +2502,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_PRINT</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2510,7 +2510,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_CPRINT</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w">	</span><span class="n">m_dwCurrentAttributes</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2518,7 +2518,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_CLEAR_SCREEN</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">enumCommands</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2526,7 +2526,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_COLORED_CLEAR_SCREEN</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2534,7 +2534,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_GOTOXY</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_PRINT</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2542,7 +2542,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_CLEAR_EOL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_CPRINT</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2550,7 +2550,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COMMAND_COLORED_CLEAR_EOL</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_CLEAR_SCREEN</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2558,7 +2558,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_COLORED_CLEAR_SCREEN</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2566,7 +2566,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">public</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_GOTOXY</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2574,7 +2574,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">CConsoleLoggerEx</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_CLEAR_EOL</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2582,7 +2582,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">COMMAND_COLORED_CLEAR_EOL</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2590,7 +2590,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">enumColors</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2598,7 +2598,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="n">public</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2606,7 +2606,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BLACK</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">CConsoleLoggerEx</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2614,7 +2614,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BLUE</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2622,7 +2622,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_GREEN</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="k">enum</span><span class="w"> </span><span class="n">enumColors</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2630,7 +2630,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_RED</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2638,7 +2638,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_WHITE</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BLACK</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2646,7 +2646,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_INTENSITY</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BLUE</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2654,7 +2654,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_BLACK</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_GREEN</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2662,7 +2662,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_BLUE</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_RED</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2670,7 +2670,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_GREEN</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_WHITE</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2678,7 +2678,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_RED</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_INTENSITY</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2686,7 +2686,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_WHITE</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_BLACK</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2694,7 +2694,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_INTENSITY</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_BLUE</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2702,7 +2702,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_LEADING_BYTE</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_GREEN</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2710,7 +2710,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_TRAILING_BYTE</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_RED</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2718,7 +2718,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_GRID_HORIZONTAL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_WHITE</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2726,7 +2726,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_GRID_LVERTICAL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_BACKGROUND_INTENSITY</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2734,7 +2734,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_GRID_RVERTICAL</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_LEADING_BYTE</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2742,7 +2742,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_REVERSE_VIDEO</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_TRAILING_BYTE</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2750,7 +2750,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_UNDERSCORE</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_GRID_HORIZONTAL</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2758,7 +2758,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_GRID_LVERTICAL</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2766,7 +2766,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_GRID_RVERTICAL</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2774,7 +2774,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Clear screen , use default color (black&amp;white)</span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_REVERSE_VIDEO</span><span class="p">,</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2782,7 +2782,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">cls</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">COLOR_COMMON_LVB_UNDERSCORE</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2790,7 +2790,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2798,7 +2798,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Clear screen use specific color</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2806,7 +2806,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">cls</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Clear screen , use default color (black&amp;white)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2814,7 +2814,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">cls</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2822,7 +2822,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Clear till End Of Line , use default color (black&amp;white)</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2830,7 +2830,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_eol</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Clear screen use specific color</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2838,7 +2838,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">cls</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2846,7 +2846,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// Clear till End Of Line , use specified color</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2854,7 +2854,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_eol</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Clear till End Of Line , use default color (black&amp;white)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2862,7 +2862,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_eol</span><span class="p">(</span><span class="kt">void</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2870,7 +2870,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// write string , use specified color</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2878,7 +2878,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cprintf</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// Clear till End Of Line , use specified color</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2886,7 +2886,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">clear_eol</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">color</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2894,7 +2894,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// write string , use current color</span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2902,7 +2902,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cprintf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string , use specified color</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2910,7 +2910,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cprintf</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2918,7 +2918,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="c1">// goto(x,y)</span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string, no buffer/printf</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2926,7 +2926,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">gotoxy</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">safeprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2934,7 +2934,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2942,7 +2942,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string , use current color</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2950,7 +2950,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">cprintf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2958,7 +2958,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w">	</span><span class="nf">GetCurrentColor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// write string, no buffer/printf</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2966,7 +2966,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="nf">safeprint</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">str</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2974,7 +2974,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">    </span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2982,7 +2982,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="c1">// goto(x,y)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2990,7 +2990,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="nf">gotoxy</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2998,7 +2998,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">	</span><span class="nf">SetCurrentColor</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">dwColor</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3006,7 +3006,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3014,7 +3014,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3022,7 +3022,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">word</span><span class="w">	</span><span class="nf">GetCurrentColor</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3030,7 +3030,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3038,7 +3038,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w">    </span></td>
     </tr>
 
     <tr class="source-line">
@@ -3046,43 +3046,11 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">protected</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l367" href="#l367">367</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">AddHeaders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l368" href="#l368">368</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l369" href="#l369">369</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w">  </span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l370" href="#l370">370</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l371" href="#l371">371</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -3090,11 +3058,43 @@
     </tr>
 
     <tr class="source-line">
+      <td class="lineno"><a id="l368" href="#l368">368</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">void</span><span class="w">	</span><span class="nf">SetCurrentColor</span><span class="p">(</span><span class="n">word</span><span class="w"> </span><span class="n">dwColor</span><span class="p">)</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l369" href="#l369">369</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l370" href="#l370">370</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">            </span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l371" href="#l371">371</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
       <td class="lineno"><a id="l372" href="#l372">372</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3102,7 +3102,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_cprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3110,15 +3110,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="n">protected</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l375" href="#l375">375</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">AddHeaders</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3126,15 +3126,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l377" href="#l377">377</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">//}</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w">  </span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3142,7 +3142,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3150,7 +3150,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3158,7 +3158,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_print</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3166,7 +3166,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span><span class="n">virtual</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">_cprint</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">attributes</span><span class="p">,</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">lpszText</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">iSize</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3174,7 +3174,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3187,6 +3187,70 @@
 
     <tr class="source-line">
       <td class="lineno"><a id="l384" href="#l384">384</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">};</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l385" href="#l385">385</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="c1">//}</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l386" href="#l386">386</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l387" href="#l387">387</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l388" href="#l388">388</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l389" href="#l389">389</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l390" href="#l390">390</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l391" href="#l391">391</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l392" href="#l392">392</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
