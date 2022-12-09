@@ -52,7 +52,7 @@ parser.add_argument('--build_folder', default='build/Debug')
 parser.add_argument('--filter')
 parser.add_argument('--throttle_fps', action='store_true')
 parser.add_argument('--update', action='store_true')
-parser.add_argument('--snapshot')
+parser.add_argument('--snapshot', action='append')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', type=int)
 parser.add_argument('--ci')
@@ -72,14 +72,29 @@ elif args.replay:
 
 is_windows_ci = args.ci and 'windows' in args.ci
 script_dir = os.path.dirname(os.path.realpath(__file__))
-replays_dir = os.path.join(script_dir, 'replays')
-tests = list(pathlib.Path(replays_dir).glob('*.zplay'))
+replays_dir = pathlib.Path(os.path.join(script_dir, 'replays'))
+tests = list(replays_dir.glob('*.zplay'))
+
+snapshot_arg = None
+snapshot_arg_by_replay = {}
+if args.snapshot:
+    for snapshot in args.snapshot:
+        if '=' in snapshot:
+            for replay, snapshot in [snapshot.split('=')]:
+                replay_full_path = replays_dir / replay
+                if replay_full_path not in tests:
+                    raise Exception(f'unknown test {replay}')
+                snapshot_arg_by_replay[replay_full_path] = snapshot
+        else:
+            snapshot_arg = snapshot
+
 if args.filter:
     tests = [t for t in tests if args.filter in str(
         t.relative_to(replays_dir))]
     if len(tests) == 0:
         print('no tests matched filter')
         exit(1)
+
 if args.ci:
     skip_in_ci = [
         'solid.zplay' if is_windows_ci else None,
@@ -204,10 +219,14 @@ def run_replay_test(replay_file):
         '-v1' if args.throttle_fps else '-v0',
         '-replay-exit-when-done',
     ]
+
     if args.frame is not None:
         exe_args.extend(['-frame', str(args.frame)])
-    if args.snapshot is not None:
-        exe_args.extend(['-snapshot', args.snapshot])
+
+    if replay_file in snapshot_arg_by_replay:
+        exe_args.extend(['-snapshot', snapshot_arg_by_replay[replay_file]])
+    elif snapshot_arg is not None:
+        exe_args.extend(['-snapshot', snapshot_arg])
 
     replay_data = get_replay_data(replay_file)
     frames = replay_data['frames']
