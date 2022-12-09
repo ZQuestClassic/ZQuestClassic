@@ -1447,7 +1447,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	{
 		vector<Function*> newBestFunctions = bestFunctions;
 		size_t maxsize = 0;
-		for(auto it = bestFunctions.begin(); it != bestFunctions.end(); ++it)
+		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
 		{
 			if(maxsize < (*it)->paramTypes.size())
 				maxsize = (*it)->paramTypes.size();
@@ -1456,7 +1456,17 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		for(size_t p = 0; p < maxsize; ++p)
 		{
 			int flag = 0;
-			for(auto it = bestFunctions.begin(); it != bestFunctions.end();)
+			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() < p)
+					continue;
+				bool ut = pty.at(p)->isUntyped();
+				if(ut) flag |= 1;
+				else flag |= 2;
+			}
+			if(flag != 3) continue;
+			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
 			{
 				auto& pty = (*it)->paramTypes;
 				if (pty.size() < p)
@@ -1465,38 +1475,29 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 					continue;
 				}
 				bool ut = pty.at(p)->isUntyped();
-				if(flag == 3)
+				if (ut) //untyped, keep
 				{
-					if (ut) //untyped, keep
+					++it;
+					continue;
+				}
+				else if(parameterTypes.size() > p)
+				{
+					DataType const& from = getNaiveType(*parameterTypes[p], scope);
+					DataType const& to = getNaiveType(*pty[p], scope);
+					if(from == to) //Exact match, keep
 					{
 						++it;
 						continue;
 					}
-					else if(parameterTypes.size() > p)
-					{
-						DataType const& from = getNaiveType(*parameterTypes[p], scope);
-						DataType const& to = getNaiveType(*(*it)->paramTypes[p], scope);
-						if(from == to) //Exact match, keep
-						{
-							++it;
-							continue;
-						}
-					}
-					//Not exact match, not untyped; junk it.
-					it = bestFunctions.erase(it);
-					continue;
 				}
-				if(ut) flag |= 1;
-				else flag |= 2;
-				if(flag == 3)
-				{
-					it = bestFunctions.begin();
-					continue;
-				}
-				++it;
+				//Not exact match, not untyped; junk it.
+				it = newBestFunctions.erase(it);
+				continue;
 			}
+			if(newBestFunctions.size() == 0)
+				break; //Nothing left to loop on
 		}
-		if(bestFunctions.size() == 0) //Restore conflicts for error msg
+		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
 			bestFunctions = newBestFunctions;
 	}
 	// We failed.
