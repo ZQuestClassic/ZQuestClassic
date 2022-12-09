@@ -3474,6 +3474,7 @@ struct zquestheader
 int8_t getProgramAlphaState();
 char const* getProgramAlphaVerStr();
 char const* getProgramVerStr();
+char const* getReleaseTag();
 
 enum { msLINKED };
 
