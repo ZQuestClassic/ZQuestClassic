@@ -1246,6 +1246,15 @@ char const* getProgramVerStr()
 	return buf;
 }
 
+char const* getReleaseTag()
+{
+#ifdef RELEASE_TAG
+	return RELEASE_TAG;
+#else
+	return getProgramVerStr();
+#endif
+}
+
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
 double WrapAngle( double radians ) 
 {
