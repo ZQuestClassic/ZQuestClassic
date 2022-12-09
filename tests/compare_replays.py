@@ -23,6 +23,7 @@ from github import Github
 
 
 def dir_path(path):
+    print(__file__)
     if os.path.isdir(path):
         return Path(path)
     else:
@@ -30,24 +31,22 @@ def dir_path(path):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--workflow', type=int, action='append')
+parser.add_argument('--workflow_run', type=int, action='append')
 parser.add_argument('--local', type=dir_path, action='append')
 parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
-parser.add_argument('--auth_name')
 parser.add_argument('--token')
 args = parser.parse_args()
 
 # See:
 # - https://nightly.link/
 # - https://github.com/actions/upload-artifact/issues/51
-if args.workflow and not args.token:
+if args.workflow_run and not args.token:
     print('no token detected, will download artifacts via nightly.link')
 
 
-if not args.workflow and not args.local:
-    raise ArgumentTypeError('must provide at least one --workflow or --local')
-if args.token and not args.auth_name:
-    raise ArgumentTypeError('must provide --auth_name')
+if not args.workflow_run and not args.local:
+    raise ArgumentTypeError(
+        'must provide at least one --workflow_run or --local')
 
 
 gh = Github(args.token)
@@ -58,7 +57,9 @@ tracks_dir = f'{script_dir}/compare-tracks'
 
 def download_artifact(artifact, dest):
     if args.token:
-        r = requests.get(artifact.archive_download_url, auth=(args.auth_name, args.token))
+        r = requests.get(artifact.archive_download_url, headers={
+            'authorization': f'Bearer {args.token}',
+        })
     else:
         url = f'https://nightly.link/{args.repo}/actions/artifacts/{artifact.id}.zip'
         r = requests.get(url)
@@ -74,7 +75,7 @@ def get_replay_from_bmp(bmp_path):
 
 def collect_replay_data_from_directory(directory):
     replay_data = []
-    all_snapshots = sorted(directory.glob('*.bmp'))
+    all_snapshots = sorted(directory.rglob('*.bmp'))
     for replay, snapshots in groupby(all_snapshots, get_replay_from_bmp):
         replay_data.append({
             'replay': replay,
@@ -85,21 +86,23 @@ def collect_replay_data_from_directory(directory):
             } for s in snapshots],
             'source': str(directory.relative_to(tracks_dir)),
         })
+        replay_data[-1]['snapshots'].sort(key=lambda s: s['frame'])
 
     return replay_data
 
 
-def collect_replay_data_from_workflow(id):
+def collect_replay_data_from_workflow_run(run_id):
     replay_data = []
-    workflow_dir = Path(f'{tracks_dir}/gha-{id}')
-    workflow_run = repo.get_workflow_run(id)
+    workflow_dir = Path(f'{tracks_dir}/gha-{run_id}')
+    run = repo.get_workflow_run(run_id)
 
-    for artifact in workflow_run.get_artifacts():
+    for artifact in run.get_artifacts():
         if artifact.name.startswith('replays-'):
             # strip 'x-of-y'
-            name_without_part = re.match(
-                r'(.*)-\d+-of-\d+', artifact.name).group(1)
-            dest = workflow_dir / name_without_part
+            # name_without_part = re.match(
+            #     r'(.*)-\d+-of-\d+', artifact.name).group(1)
+            # dest = workflow_dir / name_without_part
+            dest = workflow_dir / artifact.name
             dest.mkdir(parents=True, exist_ok=True)
             if next(dest.glob('*'), None) is None:
                 download_artifact(artifact, dest)
@@ -108,7 +111,13 @@ def collect_replay_data_from_workflow(id):
     return replay_data
 
 
+# TODO: push args.* to same array in argparse so that order is preserved.
+# first should always be baseline. For now, assume it is the workflow option.
+
 all_replay_data = []
+if args.workflow_run:
+    for run_id in args.workflow_run:
+        all_replay_data.extend(collect_replay_data_from_workflow_run(run_id))
 if args.local:
     local_index = 0
     for directory in args.local:
@@ -120,9 +129,6 @@ if args.local:
             shutil.copy(file, dest)
         all_replay_data.extend(collect_replay_data_from_directory(dest))
         local_index += 1
-if args.workflow:
-    for id in args.workflow:
-        all_replay_data.extend(collect_replay_data_from_workflow(id))
 
 
 html = Path(f'{script_dir}/compare-resources/compare.html').read_text('utf-8')
@@ -134,4 +140,6 @@ result = html.replace(
     '// JAVASCRIPT', f'const data = {json.dumps(all_replay_data, indent=2)}\n  {js}')
 result = result.replace('// DEPS', deps)
 result = result.replace('/* CSS */', css)
-Path(f'{tracks_dir}/index.html').write_text(result)
+out_path = Path(f'{tracks_dir}/index.html')
+out_path.write_text(result)
+print(f'report written to {out_path}')

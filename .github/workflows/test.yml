@@ -1,3 +1,6 @@
+name: Test
+run-name: Test (${{ inputs.runs-on }}, ${{ inputs.arch }}) ${{ inputs.extra-args }}
+
 on:
   workflow_dispatch:
     inputs:
