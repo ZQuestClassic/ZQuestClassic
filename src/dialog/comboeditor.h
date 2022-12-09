@@ -34,8 +34,8 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
-	ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd = false);
-	ComboEditorDialog(int32_t index, bool clrd = false);
+	ComboEditorDialog(newcombo const& ref, int32_t index);
+	ComboEditorDialog(int32_t index);
 	void refreshScript();
 	void loadComboType();
 	void loadComboFlag();

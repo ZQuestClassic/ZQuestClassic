@@ -56,7 +56,7 @@ bool hasCTypeEffects(int32_t type)
 	return false;
 }
 
-static bool edited = false, cleared = false;
+static bool edited = false;
 #if DEVLEVEL > 0
 static int32_t force_wizard = 0;
 #endif
@@ -69,18 +69,13 @@ bool call_combo_editor(int32_t index)
 		force_wizard = (key_shifts&KB_SHIFT_FLAG)?2:1;
 #endif
 	int32_t cs = CSet;
-	edited = false; cleared = false;
+	edited = false;
 	ComboEditorDialog(index).show();
-	while(cleared)
-	{
-		cleared = false;
-		ComboEditorDialog(index, true).show();
-	}
 	if(!edited) CSet = cs;
 	return edited;
 }
 
-ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd):
+ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	local_comboref(ref), index(index),
 	list_ctype(GUI::ZCListData::combotype(true)),
 	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
@@ -91,17 +86,10 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_deftypes(GUI::ZCListData::deftypes())
-{
-	if(clrd)
-	{
-		word foo = local_comboref.foo; //Might need to store this?
-		local_comboref.clear();
-		local_comboref.foo = foo;
-	}
-}
+{}
 
-ComboEditorDialog::ComboEditorDialog(int32_t index, bool clrd):
-	ComboEditorDialog(combobuf[index], index, clrd)
+ComboEditorDialog::ComboEditorDialog(int32_t index):
+	ComboEditorDialog(combobuf[index], index)
 {}
 
 //{ Help Strings
@@ -4470,14 +4458,24 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		}
 		case message::CLEAR:
+		{
+			bool doclear = false;
 			AlertDialog("Are you sure?",
 				"Clearing the combo will reset all values",
 				[&](bool ret,bool)
 				{
-					cleared = ret;
+					doclear = ret;
 				}).show();
-			if(cleared) return true;
-			break;
+			if(doclear)
+			{
+				word foo = local_comboref.foo; //Might need to store this?
+				local_comboref.clear();
+				local_comboref.foo = foo;
+				rerun_dlg = true;
+				return true;
+			}
+			return false;
+		}
 		
 		case message::WIZARD:
 			if(hasComboWizard(local_comboref.type))
