@@ -235,6 +235,9 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	visit(host.increment.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
+	if (breakRecursion(host, param)) return;
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
@@ -242,6 +245,9 @@ void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 	visit(host.test.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
+	if (breakRecursion(host, param)) return;
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
@@ -249,6 +255,9 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	visit(host.body.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
+	if (breakRecursion(host, param)) return;
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)

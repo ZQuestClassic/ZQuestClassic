@@ -643,9 +643,11 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//Check for a constant FALSE condition
 	if(std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
 	{
-		if(*val == 0) //False, so restore scope and exit
+		if(*val == 0) //False, so run else, restore scope, and exit
 		{
 			scope = scope->getParent();
+			if(host.hasElse())
+				visit(host.elseBlock.get(), param);
 			return;
 		}
 	}
@@ -653,8 +655,9 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t loopincr = ScriptParser::getUniqueLabelID();
-	//nop
-	Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
+	
+	Opcode *next = new ONoOp();
 	next->setLabel(loopstart);
 	addOpcode(next);
 	//test the termination condition
@@ -666,7 +669,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		arrayRefs.pop_back();
 	//Continue
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	addOpcode(new OGotoTrueImmediate(new LabelArgument(loopend)));
+	addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
 	//run the loop body
 	//save the old break and continue values
 
@@ -683,8 +686,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	continueRefCounts.pop_back();
 
 	//run the increment
-	//nop
-	next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next = new ONoOp();
 	next->setLabel(loopincr);
 	addOpcode(next);
 	int32_t incRefCount = arrayRefs.size(); //Store ref count
@@ -695,26 +697,40 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		arrayRefs.pop_back();
 	//Continue
 	addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
+	
+	scope = scope->getParent();
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
+	}
+	
 	//nop
-	next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next = new ONoOp();
 	next->setLabel(loopend);
 	addOpcode(next);
-	scope = scope->getParent();
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
 	std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
 	bool falsyval = val && !*val;
-	if(falsyval)
-		return; //never runs
+	if(host.isInverted() != falsyval) //never runs, handle else only
+	{
+		if(host.hasElse())
+			visit(host.elseBlock.get(), param);
+		return; 
+	}
 	int32_t startlabel = ScriptParser::getUniqueLabelID();
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	//run the test
-	//nop to label start
-	Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-	start->setLabel(startlabel);
-	addOpcode(start);
+	Opcode *next = new ONoOp();
+	next->setLabel(startlabel);
+	addOpcode(next);
 	if(!val)
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -727,11 +743,11 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted()) //Is this `until` or `while`?
 		{
-			addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
 		}
 		else
 		{
-			addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
 		}
 	}
 
@@ -748,10 +764,17 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	continueRefCounts.pop_back();
 
 	addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
-	//nop to end while
-	Opcode *end = new ONoOp();
-	end->setLabel(endlabel);
-	addOpcode(end);
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
+	}
+	next = new ONoOp();
+	next->setLabel(endlabel);
+	addOpcode(next);
 }
 
 void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
@@ -761,14 +784,16 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	bool deadloop = val && !truthyval;
 	int32_t startlabel;
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	int32_t continuelabel = ScriptParser::getUniqueLabelID();
+	Opcode* next;
 	if(!deadloop)
 	{
 		startlabel = ScriptParser::getUniqueLabelID();
 		//nop to label start
-		Opcode *start = new ONoOp();
-		start->setLabel(startlabel);
-		addOpcode(start);
+		next = new ONoOp();
+		next->setLabel(startlabel);
+		addOpcode(next);
 	}
 	
 	breaklabelids.push_back(endlabel);
@@ -783,15 +808,16 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	breakRefCounts.pop_back();
 	continueRefCounts.pop_back();
 	
-	Opcode* start = new ONoOp();
-	start->setLabel(continuelabel);
-	addOpcode(start);
+	next = new ONoOp();
+	next->setLabel(continuelabel);
+	addOpcode(next);
 	
 	if(val)
 	{
 		if(truthyval) //infinite loop
 			addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
-		//else no loop at all
+		else if(host.hasElse())
+			visit(host.elseBlock.get(), param);
 	}
 	else
 	{
@@ -805,18 +831,23 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted()) //Is this `until` or `while`?
 		{
-			addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
 		}
 		else
 		{
-			addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
 		}
 		addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
+		
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
 	}
-	//nop to end dowhile
-	Opcode *end = new ONoOp();
-	end->setLabel(endlabel);
-	addOpcode(end);
+	
+	next = new ONoOp();
+	next->setLabel(endlabel);
+	addOpcode(next);
 }
 
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)

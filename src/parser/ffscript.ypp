@@ -1483,7 +1483,19 @@ Statement_For :
 		ASTExpr* test = (ASTExpr*)$5;
 		ASTStmt* increment = (ASTExpr*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
-		$$ = new ASTStmtFor(setup, test, increment, body, @$);
+		$$ = new ASTStmtFor(setup, test, increment, body, nullptr, @$);
+	} | FOR LPAREN
+		Statement_NoSemicolon SEMICOLON
+		Expression SEMICOLON
+		Statement_NoSemicolon RPAREN
+		Block_Statement ELSE Block_Statement
+	{
+		ASTStmt* setup = (ASTStmt*)$3;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTStmt* increment = (ASTExpr*)$7;
+		ASTStmt* body = (ASTStmt*)$9;
+		ASTBlock* elseStatement = (ASTBlock*)$11;
+		$$ = new ASTStmtFor(setup, test, increment, body, elseStatement, @$);
 	}
 	;
 
@@ -1491,11 +1503,23 @@ Statement_While :
 	WHILE LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
-		$$ = new ASTStmtWhile(test, body, @$);}
+		$$ = new ASTStmtWhile(test, body, nullptr, @$);}
+	| WHILE LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$7;
+		$$ = new ASTStmtWhile(test, body, elseblock, @$);}
 	| UNTIL LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
-		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
+		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, nullptr, @$);
+		stmt->invert();
+		$$ = stmt;}
+	| UNTIL LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$7;
+		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, elseblock, @$);
 		stmt->invert();
 		$$ = stmt;}
 	;
@@ -1504,11 +1528,23 @@ Statement_Do :
 	DO Block_Statement WHILE LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
-		$$ = new ASTStmtDo(test, body, @$);}
+		$$ = new ASTStmtDo(test, body, nullptr, @$);}
+	| DO Block_Statement WHILE LPAREN Expression RPAREN ELSE Block_Statement {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$8;
+		$$ = new ASTStmtDo(test, body, elseblock, @$);}
 	| DO Block_Statement UNTIL LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
-		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
+		ASTStmtDo* stmt = new ASTStmtDo(test, body, nullptr, @$);
+		stmt->invert();
+		$$ = stmt;}
+	| DO Block_Statement UNTIL LPAREN Expression RPAREN ELSE Block_Statement {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$8;
+		ASTStmtDo* stmt = new ASTStmtDo(test, body, elseblock, @$);
 		stmt->invert();
 		$$ = stmt;}
 	;

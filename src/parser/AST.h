@@ -517,10 +517,9 @@ namespace ZScript
 	class ASTStmtFor : public ASTStmt
 	{
 	public:
-		ASTStmtFor(ASTStmt* setup = NULL,
-		           ASTExpr* test = NULL,
-		           ASTStmt* increment = NULL,
-		           ASTStmt* body = NULL,
+		ASTStmtFor(ASTStmt* setup, ASTExpr* test,
+		           ASTStmt* increment, ASTStmt* body,
+				   ASTStmt* elseBlock,
 		           LocationData const& location = LOC_NONE);
 		ASTStmtFor* clone() const {return new ASTStmtFor(*this);}
 
@@ -530,7 +529,9 @@ namespace ZScript
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> increment;
 		owning_ptr<ASTStmt> body;
+		owning_ptr<ASTStmt> elseBlock;
 		
+		bool hasElse() const {return elseBlock;}
 		Scope* getScope() {return scope;}
 		void setScope(Scope* scp) {scope = scp;}
 	private:
@@ -540,8 +541,7 @@ namespace ZScript
 	class ASTStmtWhile : public ASTStmt
 	{
 	public:
-		ASTStmtWhile(ASTExpr* test = NULL,
-		             ASTStmt* body = NULL,
+		ASTStmtWhile(ASTExpr* test, ASTStmt* body, ASTStmt* elseBlock,
 		             LocationData const& location = LOC_NONE);
 		ASTStmtWhile* clone() const {return new ASTStmtWhile(*this);}
 
@@ -551,6 +551,9 @@ namespace ZScript
 
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> body;
+		owning_ptr<ASTStmt> elseBlock;
+		
+		bool hasElse() const {return elseBlock;}
 	private:
 		bool inverted;
 	};
@@ -558,8 +561,7 @@ namespace ZScript
 	class ASTStmtDo : public ASTStmt
 	{
 	public:
-		ASTStmtDo(ASTExpr* test = NULL,
-		          ASTStmt* body = NULL,
+		ASTStmtDo(ASTExpr* test,ASTStmt* body, ASTStmt* elseBlock,
 		          LocationData const& location = LOC_NONE);
 		ASTStmtDo* clone() const {return new ASTStmtDo(*this);}
 	
@@ -569,6 +571,9 @@ namespace ZScript
 
 		owning_ptr<ASTExpr> test;
 		owning_ptr<ASTStmt> body;
+		owning_ptr<ASTStmt> elseBlock;
+		
+		bool hasElse() const {return elseBlock;}
 	private:
 		bool inverted;
 	};

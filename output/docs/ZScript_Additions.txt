@@ -1371,6 +1371,26 @@ of iterations is known at compile-time.
 
 
 /////////////////
+//  Loop-Else  //
+/////////////////
+
+	You can now include an 'else' clause after any loop. The else block
+	will run if the loop ends naturally, i.e. not via 'return' or 'break'.
+	
+	[example--
+		for(int q = 1; q <= Screen->NumNPCs(); ++q)
+		{
+			npc n = Screen->LoadNPC(q);
+			if(Distance(n->X,n->Y,Hero->X,Hero->Y) < 64)
+				break;
+		}
+		else
+		{
+			//No enemies are within 64 pixels of the hero
+		}
+	--end example]
+
+/////////////////
 // Switch-Case //
 /////////////////
 
