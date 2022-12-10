@@ -277,6 +277,8 @@ static AccessorTable HeroSTable[] =
 	{ "getShadowYOffset",           0,         ZTID_FLOAT,   HEROSHADOWYOFS,            0,  { ZTID_PLAYER },{} },
 	{ "setShadowYOffset",           0,          ZTID_VOID,   HEROSHADOWYOFS,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getStanding",                0,          ZTID_BOOL,   HEROSTANDING,              0,  { ZTID_PLAYER },{} },
+	{ "getCoyoteTime",              0,         ZTID_FLOAT,   HEROCOYOTETIME,            0,  { ZTID_PLAYER },{} },
+	{ "setCoyoteTime",              0,          ZTID_VOID,   HEROCOYOTETIME,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

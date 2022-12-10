@@ -1466,6 +1466,7 @@ void HeroClass::init()
 	steprate = zinit.heroStep;
 	is_warping = false;
 	can_mirror_portal = true;
+	coyotetime = 0;
 	
 	hammer_swim_up_offset = hammeroffsets[0];
 	hammer_swim_down_offset = hammeroffsets[1];
@@ -7805,10 +7806,15 @@ bool HeroClass::animate(int32_t)
 	checksigns();
 	checkgenpush();
 	
-	if(isStanding())
+	if(isStanding(true) && fall == 0)
 	{
 		if(extra_jump_count > 0)
 			extra_jump_count = 0;
+		coyotetime = 0;
+	}
+	else if(coyotetime < 65535)
+	{
+		++coyotetime;
 	}
 	if(can_use_item(itype_hoverboots,i_hoverboots))
 	{
@@ -10254,7 +10260,8 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	itemdata const& itm = itemsbuf[jumpid];
 	
 	bool standing = isStanding(true);
-	if(!(standing || extra_jump_count < itm.misc1)) return false;
+	bool coyotejump = !standing && coyotetime < (zc_min(65535,itm.misc5));
+	if(!(coyotejump || standing || extra_jump_count < itm.misc1)) return false;
 	if(!(checkbunny(jumpid) && checkmagiccost(jumpid)))
 	{
 		if(QMisc.miscsfx[sfxERROR])
@@ -10282,7 +10289,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(itm.flags & ITEM_FLAG1)
 		setFall(fall - itm.power);
 	else setFall(fall - (FEATHERJUMP*(itm.power+2)));
-	
+	coyotetime = 65535; //jumped, so no coyotetime
 	setOnSideviewLadder(false);
 	
 	// Reset the ladder, unless on an unwalkable combo

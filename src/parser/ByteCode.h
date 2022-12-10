@@ -1440,7 +1440,7 @@
 #define COMBODLIFTTIME          1356
 #define CLASS_THISKEY           1357
 #define ZELDABETATYPE           1358
-#define RESRVD_VAR_EMILY02      1359
+#define HEROCOYOTETIME          1359
 #define RESRVD_VAR_EMILY03      1360
 #define RESRVD_VAR_EMILY04      1361
 #define RESRVD_VAR_EMILY05      1362

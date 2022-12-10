@@ -3675,6 +3675,12 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case HEROCOYOTETIME:
+		{
+			ret = Hero.coyotetime*10000;
+			break;
+		}
+		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
 		case INPUTSTART:
@@ -13424,6 +13430,14 @@ void set_register(const int32_t arg, const int32_t value)
 		case HEROIMMORTAL:
 		{
 			Hero.setImmortal(value/10000);
+			break;
+		}
+		
+		case HEROCOYOTETIME:
+		{
+			auto v = value/10000;
+			if(v < 0 || v > 65535) v = 65535;
+			Hero.coyotetime = word(v);
 			break;
 		}
 		
@@ -40130,7 +40144,7 @@ script_variable ZASMVars[]=
 	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
 	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
 	{ "ZELDABETATYPE", ZELDABETATYPE, 0, 0 },
-	{ "RESRVD_VAR_EMILY02", RESRVD_VAR_EMILY02, 0, 0 },
+	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
 	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
 	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
 	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },

@@ -390,6 +390,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 					" such as holding the button to jump higher. Value is divided by 100 (314 would be equal to 3.14).");
 			if(FLAG(5))
 				_SET(misc[3], "Held Terminal Velocity", "Max fall speed of Link when this item is held. Useful for floating down while holding jump.");
+			_SET(misc[4], "Coyote Time", "Number of frames after leaving a ledge via non-jump that you can still jump");
 			_SET(flag[0], "Jump is Power/100", "If enabled, the player jumps with a force"
 				" of 'power' instead of '(power*80)+160'");
 			_SET(flag[1], "Hold to change player gravity", "If enabled, holding the button this item is attached to will change"

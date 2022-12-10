@@ -5460,6 +5460,15 @@ bool Standing;
  * Returns true if the hero is 'standing', as is used to check if they are capable
  *     of jumping. Automatically accounts for sideview.
 
+int CoyoteTime;
+ * The number of frames the hero has been off the ground. Range 0-65535.
+ * 0 while standing. When not standing, ticks up by 1 each frame.
+ * When jumping, is immediately set to 65535.
+ * If this value is < 65535 and < a feather's "Coyote Time" attribute,
+ *     the feather will be able to jump despite being in the air.
+ * Setting this to 65535 will disable coyote jumps, though this will be set to
+ *     0 upon landing on the ground again.
+
 int Steps[8];
  * The number of pixels that the player moves in a frame, based on
  * his present coordinates. The movement is taken from his x and y:

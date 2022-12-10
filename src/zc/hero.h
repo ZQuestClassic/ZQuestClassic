@@ -294,6 +294,7 @@ public:
 	bool shield_active;
 	int8_t shield_forcedir;
 	int32_t active_shield_id;
+	word coyotetime;
 	
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
