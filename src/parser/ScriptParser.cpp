@@ -657,30 +657,21 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 
 	// Grab all labels directly jumped to.
 	std::set<int32_t> usedLabels;
-	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
-	     it != runCode.end(); ++it)
-	{
-		GetLabels temp(usedLabels);
-		(*it)->execute(temp, NULL);
-	}
+	GetLabels getlabel(usedLabels);
+	getlabel.execute(runCode, nullptr);
 	std::set<int32_t> unprocessedLabels(usedLabels);
 
 	// Grab labels used by each function until we run out of functions.
 	while (!unprocessedLabels.empty())
 	{
 		int32_t label = *unprocessedLabels.begin();
-		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
+		Function* function = find<Function*>(functionsByLabel, label).value_or(nullptr);
 		if (function)
 		{
 			vector<shared_ptr<Opcode>> const& functionCode = function->getCode();
-			for (vector<shared_ptr<Opcode>>::const_iterator it = functionCode.begin();
-			     it != functionCode.end(); ++it)
-			{
-				GetLabels temp(usedLabels);
-				(*it)->execute(temp, NULL);
-				insertElements(unprocessedLabels, temp.newLabels);
-			}
+			GetLabels temp(usedLabels);
+			temp.execute(functionCode, nullptr);
+			insertElements(unprocessedLabels, temp.newLabels);
 		}
 
 		unprocessedLabels.erase(label);
@@ -696,7 +687,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	{
 		int32_t label = *it;
 		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
+			find<Function*>(functionsByLabel, label).value_or(nullptr);
 		if (!function) continue;
 
 		vector<shared_ptr<Opcode>> functionCode = function->getCode();
@@ -706,9 +697,12 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	}
 	
 	// Run automatic optimizations
+	// functionsByLabel and function labels are rendered invalid here
+	// ...but they've already been handled, so that's fine.
 	for(auto it = rval.begin(); it != rval.end();)
 	{
 		Opcode* ocode = it->get();
+		
 		//Merge multiple consecutive pops to the same register
 		OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
 		OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
@@ -758,7 +752,38 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					litarg->value += addcount;
 				}
 			}
+			++it;
+			continue;
 		}
+		
+		//Remove No Ops, handling their labels
+		if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
+		{
+			auto lbl = nop->getLabel();
+			if(lbl == -1) //no label, just trash it
+			{
+				it = rval.erase(it);
+				continue;
+			}
+			auto it2 = it;
+			++it2;
+			Opcode* nextcode = it2->get();
+			auto lbl2 = nextcode->getLabel();
+			if(lbl2 == -1) //next code has no label, pass the label
+			{
+				nextcode->setLabel(lbl);
+				it = rval.erase(it);
+				continue;
+			}
+			//Else merge the two labels!
+			it = rval.erase(it);
+			MergeLabels temp;
+			int32_t lbls[2] = { lbl2, lbl };
+			temp.execute(rval, lbls);
+			continue;
+		}
+		
+		//Not an opcode that has any special optimizations
 		++it;
 	}
 	
@@ -766,8 +791,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	map<int32_t, int32_t> linenos;
 	int32_t lineno = 1;
 
-	for (vector<shared_ptr<Opcode>>::iterator it = rval.begin();
-	     it != rval.end(); ++it)
+	for (auto it = rval.begin(); it != rval.end(); ++it)
 	{
 		if ((*it)->getLabel() != -1)
 			linenos[(*it)->getLabel()] = lineno;
@@ -775,12 +799,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	}
 
 	// Now fill in those labels
-	for (vector<shared_ptr<Opcode>>::iterator it = rval.begin();
-	     it != rval.end(); ++it)
-	{
-		SetLabels temp;
-		(*it)->execute(temp, &linenos);
-	}
+	SetLabels setlabel;
+	setlabel.execute(rval, &linenos);
 
 	return rval;
 }

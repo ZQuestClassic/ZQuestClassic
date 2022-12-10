@@ -168,14 +168,14 @@ namespace ZScript
 		GetLabels(std::set<int32_t>& usedLabels) : usedLabels(usedLabels) {}
 		
 		std::set<int32_t>& usedLabels;
-		std::vector<int32_t> newLabels;
+		std::set<int32_t> newLabels;
 		
 		void caseLabel(LabelArgument& host, void*)
 		{
 			int32_t id = host.getID();
 			if (find<int32_t>(usedLabels, id)) return;
 			usedLabels.insert(id);
-			newLabels.push_back(id);
+			newLabels.insert(id);
 		}
 	};
 
@@ -193,6 +193,16 @@ namespace ZScript
 			}
 			
 			host.setLineNo(lineno);
+		}
+	};
+	class MergeLabels : public ArgumentVisitor
+	{
+	public:
+		void caseLabel(LabelArgument &host, void *param)
+		{
+			int32_t* lbls = (int32_t*)param;
+			if(host.getID() == lbls[1])
+				host.setID(lbls[0]);
 		}
 	};
 }

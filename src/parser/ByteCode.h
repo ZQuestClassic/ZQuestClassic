@@ -1530,6 +1530,20 @@ namespace ZScript
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
 		virtual void caseGlobal(GlobalArgument&, void *){}
+		void execute(std::vector<std::shared_ptr<Opcode>>& vec, void* param)
+		{
+			for (auto it = vec.begin(); it != vec.end(); ++it)
+			{
+				(*it)->execute(*this, param);
+			}
+		}
+		void execute(std::vector<std::shared_ptr<Opcode>> const& vec, void* param)
+		{
+			for (auto it = vec.cbegin(); it != vec.cend(); ++it)
+			{
+				(*it)->execute(*this, param);
+			}
+		}
 		virtual ~ArgumentVisitor() {}
 	};
 
@@ -1606,7 +1620,6 @@ namespace ZScript
 		{
 			return new VarArgument(ID);
 		}
-	private:
 		int32_t ID;
 	};
 
@@ -1640,6 +1653,10 @@ namespace ZScript
 		Argument* clone() const
 		{
 			return new LabelArgument(ID);
+		}
+		void setID(int32_t newid)
+		{
+			ID = newid;
 		}
 		int32_t getID()
 		{
