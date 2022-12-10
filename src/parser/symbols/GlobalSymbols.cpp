@@ -1497,7 +1497,7 @@ void GlobalSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OPrintfVargs());
 		LABELBACK(label);
-		POP_ARGS(1,NUL);
+		POP_ARG(NUL);
 		RETURN();
 		function->giveCode(code);
 	}

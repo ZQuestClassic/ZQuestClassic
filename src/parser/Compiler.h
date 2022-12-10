@@ -46,8 +46,8 @@ namespace ZScript
 	public:
 		Opcode() : label(-1) {}
 		virtual ~Opcode() {}
-		virtual std::string toString()=0;
-		int32_t getLabel()
+		virtual std::string toString() const = 0;
+		int32_t getLabel() const
 		{
 			return label;
 		}
@@ -73,7 +73,7 @@ namespace ZScript
 		}
 		virtual void execute(ArgumentVisitor&, void*) {}
 	protected:
-		virtual Opcode *clone()=0;
+		virtual Opcode *clone() const = 0;
 	private:
 		int32_t label;
 	};
@@ -84,11 +84,11 @@ namespace ZScript
 		ArbitraryOpcode(std::string data) : str(data) {}
 		ArbitraryOpcode(char const* data) : str(data) {}
 		std::string str;
-		std::string toString()
+		std::string toString() const
 		{
 			return str;
 		}
-		Opcode *clone()
+		Opcode *clone() const
 		{
 			return new ArbitraryOpcode(str);
 		}

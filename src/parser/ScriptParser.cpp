@@ -704,7 +704,64 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		     it != functionCode.end(); ++it)
 			addOpcode2(rval, (*it)->makeClone());
 	}
-
+	
+	// Run automatic optimizations
+	for(auto it = rval.begin(); it != rval.end();)
+	{
+		Opcode* ocode = it->get();
+		//Merge multiple consecutive pops to the same register
+		OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
+		OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
+		if(popreg || popargs)
+		{
+			auto it2 = it;
+			++it2;
+			Argument const* regarg = popreg
+				? (popreg->getArgument())
+				: (popargs->getFirstArgument());
+			std::string targreg = regarg->toString();
+			size_t addcount = 0;
+			while(it2 != rval.end())
+			{
+				Opcode* nextcode = it2->get();
+				if(nextcode->getLabel() != -1)
+					break; //can't combine
+				OPopRegister* nextreg = dynamic_cast<OPopRegister*>(nextcode);
+				OPopArgsRegister* nextargs = dynamic_cast<OPopArgsRegister*>(nextcode);
+				if(!(nextreg || nextargs))
+					break; //can't combine
+				if(targreg.compare(nextreg
+					? (nextreg->getArgument()->toString())
+					: (nextargs->getFirstArgument()->toString())))
+					break; //Different registers, can't combine
+				if(nextargs)
+				{
+					LiteralArgument const* larg =
+						dynamic_cast<LiteralArgument*>(nextargs->getSecondArgument());
+					addcount += larg->value;
+				}
+				else //if nextreg
+					++addcount;
+				it2 = rval.erase(it2);
+			}
+			if(addcount)
+			{
+				if(popreg)
+				{
+					Argument* reg = regarg->clone();
+					it = rval.erase(it);
+					it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
+				}
+				else //if popargs
+				{
+					LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+					litarg->value += addcount;
+				}
+			}
+		}
+		++it;
+	}
+	
 	// Set the label line numbers.
 	map<int32_t, int32_t> linenos;
 	int32_t lineno = 1;
