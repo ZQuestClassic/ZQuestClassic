@@ -4947,7 +4947,7 @@ enum ASM_DEFINE
 #define COMBODLIFTHEIGHT        0x1481
 #define COMBODLIFTTIME          0x1482
 #define CLASS_THISKEY           0x1483
-#define RESRVD_VAR_EMILY01      0x1484
+#define ZELDABETATYPE           0x1484
 #define RESRVD_VAR_EMILY02      0x1485
 #define RESRVD_VAR_EMILY03      0x1486
 #define RESRVD_VAR_EMILY04      0x1487

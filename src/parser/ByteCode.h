@@ -1439,7 +1439,7 @@
 #define COMBODLIFTHEIGHT        1355
 #define COMBODLIFTTIME          1356
 #define CLASS_THISKEY           1357
-#define RESRVD_VAR_EMILY01      1358
+#define ZELDABETATYPE           1358
 #define RESRVD_VAR_EMILY02      1359
 #define RESRVD_VAR_EMILY03      1360
 #define RESRVD_VAR_EMILY04      1361

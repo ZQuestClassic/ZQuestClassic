@@ -101,8 +101,10 @@ DEFINE MIN_ITEMDATA			= 0;
 DEFINE MAX_ITEMDATA			= 255;
 DEFINE NUM_ITEMDATA         = 256;
 
+DEFINE NUM_LEVELS           = 512;
+
 DEFINE MAX_ARRAY_POINTERS	 	= 4095; //Arrays in operation. 
-DEFINE MAX_TILES 			= 65519;
+DEFINE MAX_TILES 			= 214499;
 DEFINE MAX_COMBOS			= 65279;
 DEFINE MAX_STRINGS			= 65519; //Strings in String Editor
 
@@ -528,6 +530,7 @@ DEFINE GEN_SIDESWIM_EXITJUMP  = 21; //Jump value when exiting water from the top
                                        //sideview ladder.
 DEFINE GEN_BUNNY_TILEMOD      = 22; //Tile modifier to apply while player is bunnified
 DEFINE GEN_SWITCHHOOK_STYLE   = 23; //Which 'SW_EFF' style to use for the 'Switch w/ Player' enemy defense
+DEFINE GEN_MAX                = 24;
 
 //Level item flags. Or (|) these together and use with Game->LItems[]
 DEFINE LI_TRIFORCE           = 0x01; // The Triforce of this Level has been obtained

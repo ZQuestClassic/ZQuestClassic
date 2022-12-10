@@ -7335,28 +7335,16 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case ZELDABETATYPE:
+		{
+			ret = int32_t(ALPHA_STATE*10000);
+			break;
+		}
 		case ZELDABETA:
 		{
-			if ( (FFCore.quest_format[vLastCompile]) < 13 ) //I don't remember why I did this. 
-				//It used to return IS_BETA*10000 here
-			{
-				int32_t statusvers = 0;
-				if ( V_ZC_ALPHA ) statusvers = V_ZC_ALPHA;
-				else if ( V_ZC_BETA ) statusvers = V_ZC_BETA;
-				else if ( V_ZC_GAMMA ) statusvers = V_ZC_GAMMA;
-				else if ( V_ZC_RELEASE ) statusvers = V_ZC_RELEASE;
-				ret = statusvers*10000;
-			}
-			else 
-			{
-				//and it used to return (int32_t)IS_BETA*10000 here. -Z
-				int32_t statusvers = 0;
-				if ( V_ZC_ALPHA ) statusvers = V_ZC_ALPHA;
-				else if ( V_ZC_BETA ) statusvers = V_ZC_BETA;
-				else if ( V_ZC_GAMMA ) statusvers = V_ZC_GAMMA;
-				else if ( V_ZC_RELEASE ) statusvers = V_ZC_RELEASE;
-				ret = (int32_t)statusvers*10000;
-			}
+			ret = int32_t(ALPHA_VER*10000);
+			if(ZC_IS_NIGHTLY) //Nightly 111/112 should return '111.5' not '112'
+				ret -= 5000;
 			break;
 		}
 		case GAMEDEATHS:
@@ -40141,7 +40129,7 @@ script_variable ZASMVars[]=
 	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
 	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
 	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
-	{ "RESRVD_VAR_EMILY01", RESRVD_VAR_EMILY01, 0, 0 },
+	{ "ZELDABETATYPE", ZELDABETATYPE, 0, 0 },
 	{ "RESRVD_VAR_EMILY02", RESRVD_VAR_EMILY02, 0, 0 },
 	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
 	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
