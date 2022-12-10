@@ -1171,6 +1171,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	OpcodeContext* c = (OpcodeContext*)param;
 	auto& func = *host.binding;
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
+	
+	auto* optarg = opcodeTargets.back();
+	
 	if(func.prototype) //Prototype function
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -1253,6 +1256,30 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				visit(arg, param);
+				//Optimize
+				Opcode* lastop = optarg->back().get();
+				if (OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if (destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushRegister(arg));
+						continue;
+					}
+				}
+				else if (OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if (destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushImmediate(arg));
+						continue;
+					}
+				}
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
@@ -1268,6 +1295,30 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				else
 				{
 					visit(arg, param);
+					//Optimize
+					Opcode* lastop = optarg->back().get();
+					if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+					{
+						VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+						if(destreg->ID == EXP1)
+						{
+							Argument* arg = tmp->getSecondArgument()->clone();
+							optarg->pop_back();
+							addOpcode(new OPushVargR(arg));
+							continue;
+						}
+					}
+					else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+					{
+						VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+						if(destreg->ID == EXP1)
+						{
+							Argument* arg = tmp->getSecondArgument()->clone();
+							optarg->pop_back();
+							addOpcode(new OPushVargV(arg));
+							continue;
+						}
+					}
 					addOpcode(new OPushVargR(new VarArgument(EXP1)));
 				}
 			}
@@ -1284,8 +1335,33 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
-		for(auto it = funcCode.begin();
-			it != funcCode.end(); ++it)
+		auto it = funcCode.begin();
+		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
+		{
+			Argument const* destreg = ocode->getArgument();
+			//Optimize
+			Opcode* lastop = optarg->back().get();
+			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
+			{
+				Argument* arg = tmp->getArgument()->clone();
+				optarg->pop_back();
+				addOpcode(new OSetRegister(destreg->clone(), arg));
+				if(++it == funcCode.end())
+					break;
+				continue;
+			}
+			else if(OPushImmediate* tmp = dynamic_cast<OPushImmediate*>(lastop))
+			{
+				Argument* arg = tmp->getArgument()->clone();
+				optarg->pop_back();
+				addOpcode(new OSetImmediate(destreg->clone(), arg));
+				if(++it == funcCode.end())
+					break;
+				continue;
+			}
+			else break;
+		}
+		for(;it != funcCode.end(); ++it)
 		{
 			addOpcode((*it)->makeClone());
 		}
@@ -1347,6 +1423,30 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				visit(*it, param);
+				//Optimize
+				Opcode* lastop = optarg->back().get();
+				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushRegister(arg));
+						continue;
+					}
+				}
+				else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushImmediate(arg));
+						continue;
+					}
+				}
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
@@ -1412,6 +1512,30 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				visit(*it, param);
+				//Optimize
+				Opcode* lastop = optarg->back().get();
+				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushRegister(arg));
+						continue;
+					}
+				}
+				else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushImmediate(arg));
+						continue;
+					}
+				}
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
