@@ -2404,14 +2404,6 @@ string OGlobalObject::toString()
 {
 	return "ZCLASS_GLOBALIZE " + getArgument()->toString();
 }
-string OReservedEmily07::toString()
-{
-	return "RESRVD_OP_EMILY07 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedEmily08::toString()
-{
-	return "RESRVD_OP_EMILY08 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
 string OReservedEmily09::toString()
 {
 	return "RESRVD_OP_EMILY09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -2690,6 +2682,15 @@ string OLoadIndirect::toString()
 string OStoreIndirect::toString()
 {
     return "STOREI " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OLoadDirect::toString()
+{
+    return "LOADD " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OStoreDirect::toString()
+{
+    return "STORED " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
 string OQuit::toString()

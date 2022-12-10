@@ -89,9 +89,7 @@ void BuildOpcodes::addOpcodes(Container const& container)
 
 void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
 {
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(arrayRef)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
+	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
 	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
 
@@ -952,11 +950,9 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	else
 	{
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		if (!host.getInitializer())
 			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 	}
 }
 
@@ -1004,9 +1000,7 @@ void BuildOpcodes::buildArrayUninit(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -1069,9 +1063,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 	// Local variable, get its value from the stack.
 	int32_t offset = 10000L * *getStackOffset(*host.binding);
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	addOpcode(new OLoadDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 }
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
@@ -2514,9 +2506,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -2553,12 +2543,8 @@ void BuildOpcodes::stringLiteralFree(
 	addOpcode2(init, new OAllocateMemImmediate(
 						   new VarArgument(EXP1),
 						   new LiteralArgument(size * 10000L)));
-	addOpcode2(init, new OSetRegister(new VarArgument(SFTEMP),
-									new VarArgument(SFRAME)));
-	addOpcode2(init, new OAddImmediate(new VarArgument(SFTEMP),
-									 new LiteralArgument(offset)));
-	addOpcode2(init, new OStoreIndirect(new VarArgument(EXP1),
-									  new VarArgument(SFTEMP)));
+	addOpcode2(init, new OStoreDirect(new VarArgument(EXP1),
+									  new LiteralArgument(offset)));
 
 	// Initialize.
 	addOpcode2(init, new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
@@ -2579,12 +2565,8 @@ void BuildOpcodes::stringLiteralFree(
 	// Actual Code.
 
 	// Local variable, get its value from the stack.
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
+	addOpcode(new OLoadDirect(new VarArgument(EXP1),
 								new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1),
-								new VarArgument(SFTEMP)));
 
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
@@ -2654,9 +2636,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -2739,14 +2719,8 @@ void BuildOpcodes::arrayLiteralFree(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L)));
 	addOpcode2(context.initCode,
-			new OSetRegister(new VarArgument(SFTEMP),
-							 new VarArgument(SFRAME)));
-	addOpcode2(context.initCode,
-			new OAddImmediate(new VarArgument(SFTEMP),
-							  new LiteralArgument(offset)));
-	addOpcode2(context.initCode,
-			new OStoreIndirect(new VarArgument(EXP1),
-							   new VarArgument(SFTEMP)));
+			new OStoreDirect(new VarArgument(EXP1),
+							   new LiteralArgument(offset)));
 
 	// Initialize.
 	std::vector<int32_t> constelements;
@@ -2791,12 +2765,8 @@ void BuildOpcodes::arrayLiteralFree(
 	// Actual Code.
 
 	// Local variable, get its value from the stack.
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
+	addOpcode(new OLoadDirect(new VarArgument(EXP1),
 								new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1),
-								new VarArgument(SFTEMP)));
 
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
@@ -2917,19 +2887,6 @@ void LValBOHelper::addOpcodes(Container const& container)
 		addOpcode(ptr);
 }
 
-/*
-void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
-{
-	// Cannot be a global variable, so just stuff it in the stack
-	OpcodeContext* c = (OpcodeContext*)param;
-	int32_t vid = host.manager->id;
-	int32_t offset = c->stackframe->getOffset(vid);
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-	addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-}
-*/
-
 void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
@@ -2953,12 +2910,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	// Set the stack.
 	int32_t offset = 10000L * *getStackOffset(*host.binding);
 
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
-								new LiteralArgument(offset)));
-	addOpcode(new OStoreIndirect(new VarArgument(EXP1),
-								 new VarArgument(SFTEMP)));
+	addOpcode(new OStoreDirect(new VarArgument(EXP1),new LiteralArgument(offset)));
 }
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)

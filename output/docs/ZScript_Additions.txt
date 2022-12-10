@@ -1387,6 +1387,7 @@ of iterations is known at compile-time.
 		else
 		{
 			//No enemies are within 64 pixels of the hero
+			//as the loop never hit a 'break'.
 		}
 	--end example]
 

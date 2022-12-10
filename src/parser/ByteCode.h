@@ -1969,26 +1969,6 @@ namespace ZScript
 			return new OGlobalObject(a->clone());
 		}
 	};
-	class OReservedEmily07 : public BinaryOpcode
-	{
-	public:
-		OReservedEmily07(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new OReservedEmily07(a->clone(),b->clone());
-		}
-	};
-	class OReservedEmily08 : public BinaryOpcode
-	{
-	public:
-		OReservedEmily08(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new OReservedEmily08(a->clone(),b->clone());
-		}
-	};
 	class OReservedEmily09 : public BinaryOpcode
 	{
 	public:
@@ -2600,6 +2580,27 @@ namespace ZScript
 		Opcode *clone()
 		{
 			return new OStoreIndirect(a->clone(),b->clone());
+		}
+	};
+
+	class OLoadDirect : public BinaryOpcode
+	{
+	public:
+		OLoadDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OLoadDirect(a->clone(),b->clone());
+		}
+	};
+	class OStoreDirect : public BinaryOpcode
+	{
+	public:
+		OStoreDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString();
+		Opcode *clone()
+		{
+			return new OStoreDirect(a->clone(),b->clone());
 		}
 	};
 

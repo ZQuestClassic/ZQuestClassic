@@ -22049,6 +22049,20 @@ void do_storei()
 	SH::write_stack(stackoffset, value);
 }
 
+void do_loadd()
+{
+	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
+	const int32_t value = SH::read_stack(stackoffset);
+	set_register(sarg1, value);
+}
+
+void do_stored()
+{
+	const int32_t stackoffset = (sarg2+ri->d[rSFRAME]) / 10000;
+	const int32_t value = get_register(sarg1);
+	SH::write_stack(stackoffset, value);
+}
+
 void do_enqueue(const bool)
 {
 }
@@ -29371,6 +29385,14 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				
 			case STOREI:
 				do_storei();
+				break;
+				
+			case LOADD:
+				do_loadd();
+				break;
+				
+			case STORED:
+				do_stored();
 				break;
 				
 			case LOAD1:
@@ -38720,8 +38742,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ZCLASS_OWN",   1,   0,   0,   0},
 	{ "STARTDESTRUCTOR",   0,   0,   0,   1},
 	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
-	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
+	{ "LOADD",   2,   0,   1,   0},
+	{ "STORED",   2,   0,   1,   0},
 	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
