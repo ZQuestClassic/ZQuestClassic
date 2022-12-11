@@ -53,6 +53,7 @@ if os.name == 'nt':
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug')
 parser.add_argument('--filter', action='append')
+parser.add_argument('--max_duration', type=int)
 parser.add_argument('--throttle_fps', action='store_true')
 parser.add_argument('--update', action='store_true')
 parser.add_argument('--snapshot', action='append')
@@ -166,12 +167,15 @@ def get_replay_data(file):
         estimated_fps = estimated_fps_overrides[file.name]
 
     frames_limited = frames
-    estimated_duration = frames / estimated_fps
-    if args.ci:
-        max_duration = 10 * 60
-        if estimated_duration > max_duration:
-            frames_limited = estimated_fps * max_duration
-            estimated_duration = max_duration
+    if args.ci and file.name == 'first_quest_layered.zplay':
+        frames_limited = 1_000_000
+    if args.frame and args.frame < frames_limited:
+        frames_limited = args.frame
+
+    estimated_duration = frames_limited / estimated_fps
+    if args.max_duration and estimated_duration > args.max_duration:
+        frames_limited = estimated_fps * args.max_duration
+        estimated_duration = args.max_duration
 
     return {
         'frames': frames,
