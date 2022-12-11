@@ -1291,7 +1291,10 @@ void replay_stop()
     for (int i = 0; i < framebuf_history.size(); i++)
     {
         if (framebuf_history[i].bitmap)
+		{
             destroy_bitmap(framebuf_history[i].bitmap);
+			framebuf_history[i].bitmap = nullptr;
+		}
     }
 
     mode = ReplayMode::Off;
