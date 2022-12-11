@@ -12234,6 +12234,8 @@ int32_t get_register(const int32_t arg)
 		case REFRNG: ret = ri->rngref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case REFPALDATA: ret = ri->paldataref; break;
+		case FOREACH_ITER: ret = ri->foreach_iter; break;
+		case FOREACH_ARR: ret = ri->foreach_arr; break;
 		
 			
 		case SP:
@@ -21788,6 +21790,8 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFRNG: ri->rngref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
+		case FOREACH_ITER: ri->foreach_iter = value; break;
+		case FOREACH_ARR: ri->foreach_arr = value; break;
 		
 		//-------------------------------------------------------------------------------------------------
 		
@@ -22031,7 +22035,8 @@ void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the sta
 {
 	int32_t num = sarg2;
 	ri->sp += num;
-	int32_t value = SH::read_stack(ri->sp-1);
+	word read = (ri->sp-1) & ((1<<BITS_SP)-1);
+	int32_t value = SH::read_stack(read);
 	set_register(sarg1, value);
 }
 
@@ -27753,7 +27758,7 @@ void do_set_dmap_enh_music(const bool v)
 void do_arraysize()
 {
 	int32_t arrayptr = get_register(sarg1) / 10000;
-	set_register(sarg1, ArrayH::getSize(arrayptr) * 10000);
+	ri->d[rEXP1] = ArrayH::getSize(arrayptr) * 10000;
 }
 
 void do_tobyte()
@@ -40167,8 +40172,8 @@ script_variable ZASMVars[]=
 	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
 	{ "ZELDABETATYPE", ZELDABETATYPE, 0, 0 },
 	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
-	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
-	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
+	{ "FOREACH_ITER", FOREACH_ITER, 0, 0 },
+	{ "FOREACH_ARR", FOREACH_ARR, 0, 0 },
 	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
 	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
 	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },

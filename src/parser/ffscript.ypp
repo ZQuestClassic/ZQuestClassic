@@ -192,6 +192,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token SEMICOLON
 %token SCOPERES
 %token COLON
+%token IN
 %token LPAREN
 %token RPAREN
 %token LBRACKET
@@ -1473,6 +1474,11 @@ Statement_Switch_Cases :
 	;
 
 Statement_For :
+	Statement_For_Standard {$$ = $1;}
+	| Statement_For_Each {$$ = $1;}
+	;
+
+Statement_For_Standard :
 	FOR LPAREN
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
@@ -1497,6 +1503,35 @@ Statement_For :
 		ASTBlock* elseStatement = (ASTBlock*)$11;
 		$$ = new ASTStmtFor(setup, test, increment, body, elseStatement, @$);
 	}
+	;
+
+Statement_For_Each :
+	FOR LPAREN Identifier Token_In Expression RPAREN
+		Block_Statement
+	{
+		ASTString* iden = (ASTString*)$3;
+		ASTExpr* expr = (ASTExpr*)$5;
+		ASTStmt* body = (ASTExpr*)$7;
+		
+		$$ = new ASTStmtForEach(iden->getValue(), expr, body, nullptr, @$);
+		delete iden;
+	}
+	| FOR LPAREN Identifier Token_In Expression RPAREN
+		Block_Statement ELSE Block_Statement
+	{
+		ASTString* iden = (ASTString*)$3;
+		ASTExpr* expr = (ASTExpr*)$5;
+		ASTStmt* body = (ASTExpr*)$7;
+		ASTStmt* elseblock = (ASTExpr*)$9;
+		
+		$$ = new ASTStmtForEach(iden->getValue(), expr, body, elseblock, @$);
+		delete iden;
+	}
+	;
+
+Token_In :
+	COLON {$$ = $1;}
+	| IN {$$ = $1;}
 	;
 
 Statement_While :

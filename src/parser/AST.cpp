@@ -596,12 +596,26 @@ ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
 		ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increment(increment),
-	  body(body), elseBlock(elseBlock), scope(NULL)
+	  body(body), elseBlock(elseBlock), scope(nullptr)
 {}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 {
 	return visitor.caseStmtFor(*this, param);
+}
+
+// ASTStmtForEach
+
+ASTStmtForEach::ASTStmtForEach(
+	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
+	ASTStmt* elseBlock, LocationData const& location)
+	: ASTStmt(location), iden(identifier), arrExpr(expr), body(body),
+		elseBlock(elseBlock), decl(nullptr), scope(nullptr)
+{}
+
+void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseStmtForEach(*this, param);
 }
 
 // ASTStmtWhile

@@ -324,6 +324,38 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
 
 	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);
 }
+void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
+{
+	//Use sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	visit(host.arrExpr.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	//Get the type of the array expr
+	DataType const& arrtype = *host.arrExpr->getReadType(scope, this);
+	checkCast(arrtype, DataType::UNTYPED, &host);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	//Get the base type of this type
+	DataType const& ty = getNaiveType(arrtype, scope);
+	
+	ASTDataDecl* decl = new ASTDataDecl(host.location);
+	decl->name = host.iden;
+	decl->baseType = new ASTDataType(ty, host.location);
+	host.decl = decl;
+	
+	visit(host.decl.get(), param);
+	
+	visit(host.body.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	scope = scope->getParent();
+    if (breakRecursion(host)) return;
+}
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
 {

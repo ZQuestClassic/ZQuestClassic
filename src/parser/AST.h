@@ -537,6 +537,28 @@ namespace ZScript
 	private:
 		Scope* scope;
 	};
+	class ASTStmtForEach : public ASTStmt
+	{
+	public:
+		ASTStmtForEach(std::string const& identifier, ASTExpr* expr,
+		           ASTStmt* body, ASTStmt* elseBlock,
+		           LocationData const& location = LOC_NONE);
+		ASTStmtForEach* clone() const {return new ASTStmtForEach(*this);}
+
+		void execute(ASTVisitor& visitor, void* param = NULL);
+		
+		std::string iden;
+		owning_ptr<ASTDataDecl> decl;
+		owning_ptr<ASTExpr> arrExpr;
+		owning_ptr<ASTStmt> body;
+		owning_ptr<ASTStmt> elseBlock;
+		
+		bool hasElse() const {return elseBlock;}
+		Scope* getScope() {return scope;}
+		void setScope(Scope* scp) {scope = scp;}
+	private:
+		Scope* scope;
+	};
 
 	class ASTStmtWhile : public ASTStmt
 	{

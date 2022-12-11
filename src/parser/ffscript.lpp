@@ -178,6 +178,7 @@ decorationsprite	TOKEN( DECORATION );
 	if(special_state == st_case) special_state = st_none;
 	TOKEN( COLON );
 }
+"in"	TOKEN( IN );
 "("		TOKEN( LPAREN );
 ")"		TOKEN( RPAREN );
 "["		TOKEN( LBRACKET );

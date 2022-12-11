@@ -712,6 +712,102 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	addOpcode(next);
 }
 
+void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
+{
+	//Keep track of if we're multiple foreach's deep
+	static bool _in_foreach = false;
+	bool store_regs = _in_foreach;
+	_in_foreach = true;
+	
+	if(store_regs)
+	{
+		//We're in another foreach loop, so store that loop's registers.
+		addOpcode(new OPushRegister(new VarArgument(FOREACH_ITER)));
+		addOpcode(new OPushRegister(new VarArgument(FOREACH_ARR)));
+	}
+	
+	//Force to sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	//Declare the local variable that will hold the current loop value
+	literalVisit(host.decl.get(), param);
+	
+	ASTDataDecl* decl = host.decl.get();
+	int32_t decloffset = 10000L * *getStackOffset(*decl->manager);
+	
+	int32_t loopstart = ScriptParser::getUniqueLabelID();
+	int32_t loopend = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
+	
+	//Clear the iterator to 0, store the array to iterate over
+	addOpcode(new OSetImmediate(new VarArgument(FOREACH_ITER), new LiteralArgument(0)));
+	literalVisit(host.arrExpr.get(), param);
+	addOpcode(new OSetRegister(new VarArgument(FOREACH_ARR), new VarArgument(EXP1)));
+	
+	Opcode* next = new ONoOp();
+	next->setLabel(loopstart);
+	addOpcode(next);
+	
+	//Check if we've reached the end of the array
+	addOpcode(new OArraySize(new VarArgument(FOREACH_ARR))); //get sizeofarray
+	//If the iterator is >= the length
+	addOpcode(new OCompareRegister(new VarArgument(FOREACH_ITER), new VarArgument(EXP1)));
+	addOpcode(new OSetMore(new VarArgument(EXP1)));
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	//Goto the 'else' (end without break)
+	addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
+	
+	//Reaching here, we have a valid index! Load it.
+	addOpcode(new OSetRegister(new VarArgument(INDEX), new VarArgument(FOREACH_ARR)));
+	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(FOREACH_ITER)));
+	//... and store it in the local variable.
+	addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	//Now increment the iterator for the next loop
+	addOpcode(new OAddImmediate(new VarArgument(FOREACH_ITER), new LiteralArgument(10000)));
+	
+	//...and run the inside of the loop.
+	breaklabelids.push_back(loopend);
+	breakRefCounts.push_back(arrayRefs.size());
+	continuelabelids.push_back(loopstart);
+	continueRefCounts.push_back(arrayRefs.size());
+	
+	visit(host.body.get(), param);
+	
+	breaklabelids.pop_back();
+	continuelabelids.pop_back();
+	breakRefCounts.pop_back();
+	continueRefCounts.pop_back();
+	
+	//Return to top of loop
+	addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
+	
+	scope = scope->getParent();
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
+	}
+	
+	next = new ONoOp();
+	next->setLabel(loopend);
+	addOpcode(next);
+	
+	if(store_regs)
+	{
+		//Restore the parent loop's registers.
+		addOpcode(new OPopRegister(new VarArgument(FOREACH_ARR)));
+		addOpcode(new OPopRegister(new VarArgument(FOREACH_ITER)));
+	}
+	else _in_foreach = false;
+}
+
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
 	std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
@@ -722,6 +818,7 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 			visit(host.elseBlock.get(), param);
 		return; 
 	}
+	
 	int32_t startlabel = ScriptParser::getUniqueLabelID();
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;

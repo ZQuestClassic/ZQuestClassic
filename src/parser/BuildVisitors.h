@@ -33,6 +33,7 @@ namespace ZScript
 		virtual void caseStmtSwitch(ASTStmtSwitch &host, void* param);
 		void caseStmtStrSwitch(ASTStmtSwitch &host, void* param);
 		virtual void caseStmtFor(ASTStmtFor &host, void *param);
+		virtual void caseStmtForEach(ASTStmtForEach &host, void *param);
 		virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
 		virtual void caseStmtDo(ASTStmtDo &host, void *param);
 		virtual void caseStmtReturn(ASTStmtReturn &host, void *param);

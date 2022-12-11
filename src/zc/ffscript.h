@@ -4949,8 +4949,8 @@ enum ASM_DEFINE
 #define CLASS_THISKEY           0x1483
 #define ZELDABETATYPE           0x1484
 #define HEROCOYOTETIME          0x1485
-#define RESRVD_VAR_EMILY03      0x1486
-#define RESRVD_VAR_EMILY04      0x1487
+#define FOREACH_ITER            0x1486
+#define FOREACH_ARR             0x1487
 #define RESRVD_VAR_EMILY05      0x1488
 #define RESRVD_VAR_EMILY06      0x1489
 #define RESRVD_VAR_EMILY07      0x148A

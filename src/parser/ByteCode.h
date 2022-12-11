@@ -1441,8 +1441,8 @@
 #define CLASS_THISKEY           1357
 #define ZELDABETATYPE           1358
 #define HEROCOYOTETIME          1359
-#define RESRVD_VAR_EMILY03      1360
-#define RESRVD_VAR_EMILY04      1361
+#define FOREACH_ITER            1360
+#define FOREACH_ARR             1361
 #define RESRVD_VAR_EMILY05      1362
 #define RESRVD_VAR_EMILY06      1363
 #define RESRVD_VAR_EMILY07      1364
@@ -2661,6 +2661,16 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OTraceRegister(a->clone());
+		}
+	};
+	class OTraceImmediate : public UnaryOpcode
+	{
+	public:
+		OTraceImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OTraceImmediate(a->clone());
 		}
 	};
 

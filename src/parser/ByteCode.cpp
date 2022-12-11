@@ -1958,8 +1958,8 @@ string ZScript::VarToString(int32_t ID)
 	case CLASS_THISKEY: return "CLASS_THISKEY";
 	case ZELDABETATYPE: return "ZELDABETATYPE";
 	case HEROCOYOTETIME: return "HEROCOYOTETIME";
-	case RESRVD_VAR_EMILY03: return "RESRVD_VAR_EMILY03";
-	case RESRVD_VAR_EMILY04: return "RESRVD_VAR_EMILY04";
+	case FOREACH_ITER: return "FOREACH_ITER";
+	case FOREACH_ARR: return "FOREACH_ARR";
 	case RESRVD_VAR_EMILY05: return "RESRVD_VAR_EMILY05";
 	case RESRVD_VAR_EMILY06: return "RESRVD_VAR_EMILY06";
 	case RESRVD_VAR_EMILY07: return "RESRVD_VAR_EMILY07";
@@ -3009,6 +3009,10 @@ string O32BitNot::toString() const
 string OTraceRegister::toString() const
 {
     return "TRACER " + getArgument()->toString();
+}
+string OTraceImmediate::toString() const
+{
+    return "TRACEV " + getArgument()->toString();
 }
 
 string OTraceLRegister::toString() const
