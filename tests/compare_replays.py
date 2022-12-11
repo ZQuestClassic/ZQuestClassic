@@ -23,7 +23,6 @@ from github import Github
 
 
 def dir_path(path):
-    print(__file__)
     if os.path.isdir(path):
         return Path(path)
     else:
@@ -69,14 +68,14 @@ def download_artifact(artifact, dest):
     zip.close()
 
 
-def get_replay_from_bmp(bmp_path):
-    return bmp_path.name[:bmp_path.name.index('.zplay') + len('.zplay')]
+def get_replay_from_snapshot_path(path):
+    return path.name[:path.name.index('.zplay') + len('.zplay')]
 
 
 def collect_replay_data_from_directory(directory):
     replay_data = []
-    all_snapshots = sorted(directory.rglob('*.bmp'))
-    for replay, snapshots in groupby(all_snapshots, get_replay_from_bmp):
+    all_snapshots = sorted(directory.rglob('*.png'))
+    for replay, snapshots in groupby(all_snapshots, get_replay_from_snapshot_path):
         replay_data.append({
             'replay': replay,
             'snapshots': [{
@@ -125,7 +124,7 @@ if args.local:
         if dest.exists():
             shutil.rmtree(dest)
         dest.mkdir(parents=True)
-        for file in directory.glob('*.bmp'):
+        for file in directory.glob('*.png'):
             shutil.copy(file, dest)
         all_replay_data.extend(collect_replay_data_from_directory(dest))
         local_index += 1

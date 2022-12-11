@@ -135,6 +135,7 @@ output/_auto/*.zip
 # Other
 *.zplay.roundtrip
 *.zplay.*.bmp
+*.zplay.*.png
 test_results.json
 compare-tracks/
 .gha-cache-dir/
