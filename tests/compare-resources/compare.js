@@ -7,6 +7,7 @@ let tracks = [];
 let trackFrames = [];
 let frameViewFrameIndex = -1;
 let frameViewTrackIndex = -1;
+let trackViewDirty = false;
 
 /**
  * @param {string} query
@@ -43,7 +44,7 @@ function getOptions() {
 function showOptions(view) {
     for (let el of findAll('.toolbar__options > *')) {
         const forView = el.dataset['view'];
-        el.classList.toggle('hidden', forView && view !== forView);
+        if (forView !== undefined) el.classList.toggle('hidden', view !== forView);
     }
 }
 
@@ -55,6 +56,36 @@ function findNextFrame(delta) {
     return trackFrames[nextIndex].frame;
 }
 
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const frameIndex = Number(entry.target.dataset.frame);
+            const trackFrameEls = findAll('.track-frame-present, track-frame-missing', entry.target);
+            for (let i = 1; i < tracks.length; i++) {
+                (async function () {
+                    const [img1, img2] = await Promise.all([
+                        loadImageFromTrack(frameIndex, 0),
+                        loadImageFromTrack(frameIndex, i),
+                    ]);
+
+                    if (!img1 || !img2) {
+                        return;
+                    }
+
+                    const diffImg = getDiffImage(img1, img2);
+                    diffImg.classList.add('track-frame__image');
+                    trackFrameEls[i].innerHTML = '';
+                    trackFrameEls[i].append(diffImg);
+                })();
+            }
+        }
+    });
+}, {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0
+});
+
 function init() {
     console.log({ data });
 
@@ -64,7 +95,12 @@ function init() {
 
     function onToggleDiff(value) {
         if (value !== undefined) find('.label__diff input').checked = value;
-        showFrameView(frameViewFrameIndex, frameViewTrackIndex, getOptions());
+        if (frameViewFrameIndex !== -1) {
+            showFrameView(frameViewFrameIndex, frameViewTrackIndex, getOptions());
+            trackViewDirty = true;
+        } else {
+            renderTracks(getOptions());
+        }
     }
 
     function onSwitchTrack(delta) {
@@ -92,9 +128,10 @@ function init() {
             if (e.key === '.') {
                 onSwitchTrack(1);
             }
-            if (e.key === 'd') {
-                onToggleDiff(!find('.label__diff input').checked);
-            }
+        }
+
+        if (e.key === 'd') {
+            onToggleDiff(!find('.label__diff input').checked);
         }
     });
 
@@ -119,7 +156,7 @@ function init() {
     });
 
     tracksEl.addEventListener('click', (e) => {
-        if (e.target.className !== 'track-frame__image') return;
+        if (!e.target.classList.contains('track-frame__image')) return;
 
         const containerEl = e.target.closest('.track-frame-container');
         const trackFrameEl = e.target.closest('.track-frame');
@@ -148,6 +185,7 @@ function init() {
  * @param {ReturnType<typeof getOptions>} options
  */
 function renderTracks(options) {
+    trackViewDirty = false;
     showOptions('tracks');
     tracks = data.filter(d => d.replay === options.replay);
 
@@ -236,6 +274,10 @@ function renderTracks(options) {
         containerEl.innerHTML = `<div class='track-frame-number'>${trackFrame.frame}</div>`;
         tracksEl.append(containerEl);
 
+        if (options.showDiff) {
+            observer.observe(containerEl);
+        }
+
         for (let j = 0; j < tracks.length; j++) {
             const index = trackFrame.tracks.indexOf(j);
             const snapshot = trackFrame.snapshots[index];
@@ -270,26 +312,60 @@ function renderTracks(options) {
     console.log({ trackFrames });
 }
 
-const imagePromises = new Map();
 async function loadImageFromTrack(frameIndex, trackIndex) {
     const track = tracks[trackIndex];
     const snapshot = track.snapshots.find(s => s.frame === frameIndex);
     if (!snapshot) return;
 
-    const key = `${frameIndex},${trackIndex}`;
-    let promise = imagePromises.get(key);
-    if (promise) return promise;
-
-    promise = new Promise((resolve) => {
+    return new Promise((resolve) => {
         const img = document.createElement('img');
         img.dataset['frame'] = frameIndex;
         img.dataset['track'] = trackIndex;
-        img.crossOrigin = 'Anonymous';
         img.addEventListener('load', () => resolve(img));
         img.src = snapshot.url;
+        if (img.complete) resolve(img);
     });
-    imagePromises.set(key, promise);
-    return promise;
+}
+
+const diffImageCache = new Map();
+function getDiffImage(img1, img2) {
+    function getImgData(img) {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        context.drawImage(img, 0, 0);
+        return context.getImageData(0, 0, img.width, img.height);
+    }
+
+    function getImageFromData(imgData) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = imgData.width;
+        canvas.height = imgData.height;
+        ctx.putImageData(imgData, 0, 0);
+
+        const image = new Image();
+        image.src = canvas.toDataURL();
+        return image;
+    }
+
+    const key = [new URL(img1.src).pathname, new URL(img2.src).pathname].join(';');
+    const cached = diffImageCache.get(key);
+    if (cached) {
+        cached.classList = 'diff-image';
+        return cached;
+    }
+
+    const imgData1 = getImgData(img1);
+    const imgData2 = getImgData(img2);
+    const diffImgData = getImgData(new Image(imgData1.width, imgData2.height));
+    pixelmatch(imgData1.data, imgData2.data, diffImgData.data, imgData1.width, imgData1.height, { threshold: 0 });
+
+    const diffImg = getImageFromData(diffImgData);
+    diffImg.classList = 'diff-image';
+    diffImageCache.set(key, diffImg);
+    return diffImg;
 }
 
 /**
@@ -299,11 +375,6 @@ async function loadImageFromTrack(frameIndex, trackIndex) {
  */
 async function showFrameView(frameIndex, trackIndex, options) {
     showOptions('frame');
-
-    // TODO: do something smarter here.
-    if (imagePromises.size > 500) {
-        imagePromises.clear();
-    }
 
     const selectedImg = await loadImageFromTrack(frameIndex, trackIndex);
 
@@ -340,44 +411,19 @@ async function showFrameView(frameIndex, trackIndex, options) {
         if (img.classList.contains('diff-image')) img.remove();
     }
 
-    function getImgData(img) {
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        context.drawImage(img, 0, 0);
-        return context.getImageData(0, 0, img.width, img.height);
-    }
-
-    function getImageFromData(imgData) {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = imgData.width;
-        canvas.height = imgData.height;
-        ctx.putImageData(imgData, 0, 0);
-
-        const image = new Image();
-        image.src = canvas.toDataURL();
-        return image;
-    }
-
     if (options.showDiff) {
-        const img1 = await loadImageFromTrack(frameIndex, 0);
-        const img2 = await loadImageFromTrack(frameIndex, trackIndex);
+        const [img1, img2] = await Promise.all([
+            loadImageFromTrack(frameIndex, 0),
+            loadImageFromTrack(frameIndex, trackIndex),
+        ]);
 
         if (!img1 || !img2) {
             setTitle(`${titleEl.textContent} (missing)`);
             return;
         }
 
-        const imgData1 = getImgData(img1);
-        const imgData2 = getImgData(img2);
-        const diffImgData = getImgData(new Image(imgData1.width, imgData2.height));
-        pixelmatch(imgData1.data, imgData2.data, diffImgData.data, imgData1.width, imgData1.height, { threshold: 0 });
-
-        const diffImg = getImageFromData(diffImgData);
+        const diffImg = getDiffImage(img1, img2);
         frameViewEl.append(diffImg);
-        diffImg.classList = 'diff-image';
     } else {
         if (selectedImg) {
             selectedImg.classList.remove('hidden');
@@ -394,6 +440,7 @@ async function hideFrameView() {
     frameViewTrackIndex = -1;
     setTitle(getOptions().replay);
     showOptions('tracks');
+    if (trackViewDirty) renderTracks(getOptions());
 }
 
 init();
