@@ -12270,8 +12270,6 @@ int32_t get_register(const int32_t arg)
 		case REFRNG: ret = ri->rngref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case REFPALDATA: ret = ri->paldataref; break;
-		case FOREACH_ITER: ret = ri->foreach_iter; break;
-		case FOREACH_ARR: ret = ri->foreach_arr; break;
 		
 			
 		case SP:
@@ -21826,8 +21824,6 @@ void set_register(const int32_t arg, const int32_t value)
 		case REFRNG: ri->rngref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
-		case FOREACH_ITER: ri->foreach_iter = value; break;
-		case FOREACH_ARR: ri->foreach_arr = value; break;
 		
 		//-------------------------------------------------------------------------------------------------
 		
@@ -21978,7 +21974,7 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 		{
 			if(BC::checkGuyIndex(indx, "Screen->NPC[]") != SH::_NoError)
 				return 0;
-			return items.spr(indx)->getUID();
+			return guys.spr(indx)->getUID();
 		}
 		case INTARR_SCREEN_ITEMSPR:
 		{
@@ -40266,8 +40262,8 @@ script_variable ZASMVars[]=
 	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
 	{ "ZELDABETATYPE", ZELDABETATYPE, 0, 0 },
 	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
-	{ "FOREACH_ITER", FOREACH_ITER, 0, 0 },
-	{ "FOREACH_ARR", FOREACH_ARR, 0, 0 },
+	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
+	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
 	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
 	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
 	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },

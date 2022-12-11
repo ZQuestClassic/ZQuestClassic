@@ -714,18 +714,6 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 
 void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 {
-	//Keep track of if we're multiple foreach's deep
-	static bool _in_foreach = false;
-	bool store_regs = _in_foreach;
-	_in_foreach = true;
-	
-	if(store_regs)
-	{
-		//We're in another foreach loop, so store that loop's registers.
-		addOpcode(new OPushRegister(new VarArgument(FOREACH_ITER)));
-		addOpcode(new OPushRegister(new VarArgument(FOREACH_ARR)));
-	}
-	
 	//Force to sub-scope
 	if(!host.getScope())
 	{
@@ -733,41 +721,50 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	}
 	scope = host.getScope();
 	
+	//Declare the local variable that will hold the array ptr
+	literalVisit(host.arrdecl.get(), param);
+	//Declare the local variable that will hold the iterator
+	literalVisit(host.indxdecl.get(), param);
 	//Declare the local variable that will hold the current loop value
 	literalVisit(host.decl.get(), param);
 	
-	ASTDataDecl* decl = host.decl.get();
-	int32_t decloffset = 10000L * *getStackOffset(*decl->manager);
+	auto* optarg = opcodeTargets.back();
+	if(OStoreDirect* ocode = dynamic_cast<OStoreDirect*>(optarg->back().get()))
+	{
+		optarg->pop_back();
+	}
+	
+	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
+	int32_t arrdecloffset = 10000L * *getStackOffset(*host.arrdecl.get()->manager);
+	int32_t indxdecloffset = 10000L * *getStackOffset(*host.indxdecl.get()->manager);
 	
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
-	
-	//Clear the iterator to 0, store the array to iterate over
-	addOpcode(new OSetImmediate(new VarArgument(FOREACH_ITER), new LiteralArgument(0)));
-	literalVisit(host.arrExpr.get(), param);
-	addOpcode(new OSetRegister(new VarArgument(FOREACH_ARR), new VarArgument(EXP1)));
 	
 	Opcode* next = new ONoOp();
 	next->setLabel(loopstart);
 	addOpcode(next);
 	
 	//Check if we've reached the end of the array
-	addOpcode(new OArraySize(new VarArgument(FOREACH_ARR))); //get sizeofarray
+	addOpcode(new OLoadDirect(new VarArgument(INDEX), new LiteralArgument(arrdecloffset)));
+	addOpcode(new OArraySize(new VarArgument(INDEX))); //get sizeofarray
+	//Load the iterator
+	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	//If the iterator is >= the length
-	addOpcode(new OCompareRegister(new VarArgument(FOREACH_ITER), new VarArgument(EXP1)));
+	addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
 	addOpcode(new OSetMore(new VarArgument(EXP1)));
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 	//Goto the 'else' (end without break)
 	addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
 	
 	//Reaching here, we have a valid index! Load it.
-	addOpcode(new OSetRegister(new VarArgument(INDEX), new VarArgument(FOREACH_ARR)));
-	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(FOREACH_ITER)));
+	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP2)));
 	//... and store it in the local variable.
 	addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
 	//Now increment the iterator for the next loop
-	addOpcode(new OAddImmediate(new VarArgument(FOREACH_ITER), new LiteralArgument(10000)));
+	addOpcode(new OAddImmediate(new VarArgument(EXP2), new LiteralArgument(10000)));
+	addOpcode(new OStoreDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
 	
 	//...and run the inside of the loop.
 	breaklabelids.push_back(loopend);
@@ -798,14 +795,6 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	next = new ONoOp();
 	next->setLabel(loopend);
 	addOpcode(next);
-	
-	if(store_regs)
-	{
-		//Restore the parent loop's registers.
-		addOpcode(new OPopRegister(new VarArgument(FOREACH_ARR)));
-		addOpcode(new OPopRegister(new VarArgument(FOREACH_ITER)));
-	}
-	else _in_foreach = false;
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)

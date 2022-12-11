@@ -189,6 +189,18 @@ namespace ZScript
 		static int32_t lid;
 		static std::vector<std::string> includePaths;
 	};
+
+	class compile_exception : public std::exception
+	{
+	public:
+		const char * what() const noexcept override {
+			return msg.c_str();
+		}
+		compile_exception(std::string const& msg) : msg(msg)
+		{}
+	private:
+		std::string msg;
+	};
 }
 
 #endif

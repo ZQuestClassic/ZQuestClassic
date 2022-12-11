@@ -40,6 +40,12 @@ void zconsole_db(const char *format,...);
 void zconsole_warn(const char *format,...);
 void zconsole_error(const char *format,...);
 void zconsole_info(const char *format,...);
+
+void zconsole_db(std::string const& str);
+void zconsole_warn(std::string const& str);
+void zconsole_error(std::string const& str);
+void zconsole_info(std::string const& str);
+
 bool zparser_errored_out();
 void zparser_error_out();
 

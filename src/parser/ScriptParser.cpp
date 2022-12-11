@@ -20,6 +20,7 @@
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
+#include <fmt/format.h>
 using std::unique_ptr;
 using std::shared_ptr;
 using namespace ZScript;
@@ -123,8 +124,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	}
 	catch (std::exception &e)
 	{
-		zconsole_error("An unexpected runtime error has occurred:");
-		zconsole_error("    %s", e.what());
+		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
 		zscript_had_warn_err = zscript_error_out = true;
 		return nullptr;
 	}

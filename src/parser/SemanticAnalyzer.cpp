@@ -343,18 +343,38 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	//Get the base type of this type
 	DataType const& ty = getNaiveType(arrtype, scope);
 	
+	//The array iter declaration
+	ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
+	indxdecl->name = "__LOOP_ITER";
+	indxdecl->baseType = new ASTDataType(DataType::FLOAT, host.location);
+	host.indxdecl = indxdecl;
+	//The array holder declaration
+	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
+	arrdecl->name = "__LOOP_ARR";
+	arrdecl->setInitializer(host.arrExpr.clone());
+	arrdecl->baseType = new ASTDataType(arrtype, host.location);
+	host.arrdecl = arrdecl;
+	//The data declaration
 	ASTDataDecl* decl = new ASTDataDecl(host.location);
 	decl->name = host.iden;
 	decl->baseType = new ASTDataType(ty, host.location);
 	host.decl = decl;
 	
+	visit(host.indxdecl.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.arrdecl.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
 	visit(host.decl.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
 	
 	visit(host.body.get(), param);
     if (breakRecursion(host)) {scope = scope->getParent(); return;}
 	
 	scope = scope->getParent();
     if (breakRecursion(host)) return;
+	
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)

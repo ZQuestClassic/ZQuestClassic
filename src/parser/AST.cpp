@@ -610,7 +610,8 @@ ASTStmtForEach::ASTStmtForEach(
 	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), iden(identifier), arrExpr(expr), body(body),
-		elseBlock(elseBlock), decl(nullptr), scope(nullptr)
+		elseBlock(elseBlock), decl(nullptr), arrdecl(nullptr),
+		indxdecl(nullptr), scope(nullptr)
 {}
 
 void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)

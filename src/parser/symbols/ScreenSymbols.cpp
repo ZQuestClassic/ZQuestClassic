@@ -279,7 +279,7 @@ static AccessorTable ScreenTable[] =
 	{ "TriggerCombo",               0,          ZTID_BOOL,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	{ "constNPC",                   0,           ZTID_NPC,   INTARR_SCREEN_NPC*10000,           0,  { ZTID_SCREEN },{} },
-	{ "constItem",                  0,           ZTID_NPC,   INTARR_SCREEN_ITEMSPR*10000,       0,  { ZTID_SCREEN },{} },
+	{ "constItems",                 0,           ZTID_NPC,   INTARR_SCREEN_ITEMSPR*10000,       0,  { ZTID_SCREEN },{} },
 	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX

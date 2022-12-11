@@ -308,136 +308,36 @@ static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
-void zconsole_db2(const char *format,...)
+void _print_zconsole(const char *buf, char const* header, int32_t color)
 {
 	if (!DisableCompileConsole)
 	{
-		int32_t v = parser_console.cprintf( DB_COLOR, "[DEBUG] ");
+		int32_t v = parser_console.safeprint( color,header);
 		if(v < 0) return; //Failed to print
 	}
-	//{
-	int32_t ret;
-	char tmp[1024];
 	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( DB_COLOR, "%s\n", tmp);
-	else
-	{
-		box_out(tmp);
-		box_eol();
-	}
-}
-void zconsole_warn2(const char *format,...)
-{
+	safe_al_trace(buf);
+	safe_al_trace("\n");
 	if (!DisableCompileConsole)
 	{
-		int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
-		if(v < 0) return; //Failed to print
+		parser_console.safeprint( color, buf);
+		parser_console.safeprint( color, "\n");
 	}
-	//{
-	int32_t ret;
-	char tmp[1024];
-	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
 	else
 	{
-		box_out(tmp);
-		box_eol();
-	}
-}
-void zconsole_error2(const char *format,...)
-{
-	if (!DisableCompileConsole)
-	{
-		int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
-		if(v < 0) return; //Failed to print
-	}
-	//{
-	int32_t ret;
-	char tmp[1024];
-	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
-	else
-	{
-		box_out(tmp);
-		box_eol();
-	}
-}
-void zconsole_info2(const char *format,...)
-{
-	if (!DisableCompileConsole)
-	{
-		int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
-		if(v < 0) return; //Failed to print
-	}
-	//{
-	int32_t ret;
-	char tmp[1024];
-	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
-	else
-	{
-		box_out(tmp);
+		box_out(buf);
 		box_eol();
 	}
 }
 
 void ReadConsole(char buf[], int code)
 {
-	//al_trace("%s\n", buf);
 	switch(code)
 	{
-		case ZC_CONSOLE_DB_CODE: zconsole_db2("%s", buf); break;
-		case ZC_CONSOLE_WARN_CODE: zconsole_warn2("%s", buf); break;
-		case ZC_CONSOLE_ERROR_CODE: zconsole_error2("%s", buf); break;
-		default: zconsole_info2("%s", buf); break;
+		case ZC_CONSOLE_DB_CODE: _print_zconsole(buf,"[Debug] ",DB_COLOR); break;
+		case ZC_CONSOLE_WARN_CODE: _print_zconsole(buf,"[Warn] ",WARN_COLOR); break;
+		case ZC_CONSOLE_ERROR_CODE: _print_zconsole(buf,"[Error] ",ERR_COLOR); break;
+		default: _print_zconsole(buf,"[Info] ",INFO_COLOR); break;
 	}
 }
 #endif //!IS_PARSER

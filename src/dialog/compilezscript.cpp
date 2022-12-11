@@ -286,7 +286,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
 				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
 				parser_console.gotoxy(0,0);
-				zconsole_info2("%s", "External ZScript Parser\n");
+				_print_zconsole("External ZScript Parser\n","[INFO] ",INFO_COLOR);
 			}
 			else
 			{
@@ -317,10 +317,10 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			pm->read(&syncthing, sizeof(int32_t));
 
 			FILE *console = fopen(consolefilename, "r");
-			char buf4[512];
 			bool running = true;
 			if (console) 
 			{
+				char buf4[4096];
 				while(running)
 				{
 					pm->read(&code, sizeof(int32_t));

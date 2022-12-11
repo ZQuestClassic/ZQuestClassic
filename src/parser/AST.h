@@ -548,6 +548,8 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
 		std::string iden;
+		owning_ptr<ASTDataDecl> indxdecl;
+		owning_ptr<ASTDataDecl> arrdecl;
 		owning_ptr<ASTDataDecl> decl;
 		owning_ptr<ASTExpr> arrExpr;
 		owning_ptr<ASTStmt> body;

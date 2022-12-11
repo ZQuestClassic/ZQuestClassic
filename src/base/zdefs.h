@@ -2358,7 +2358,6 @@ public:
 	int32_t switchkey; //used for switch statements
 	dword thiskey; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
-	int32_t foreach_iter, foreach_arr; //vars for foreach loops
 	
 	void Clear()
 	{
@@ -2377,8 +2376,6 @@ public:
 		switchkey = 0;
 		thiskey = 0;
 		waitframes = 0;
-		foreach_iter = 0;
-		foreach_arr = 0;
 	}
 	
 	refInfo()
@@ -2411,8 +2408,6 @@ public:
 		switchkey = rhs.switchkey;
 		thiskey = rhs.thiskey;
 		waitframes = rhs.waitframes;
-		foreach_iter = rhs.foreach_iter;
-		foreach_arr = rhs.foreach_arr;
 		return *this;
 	}
 };

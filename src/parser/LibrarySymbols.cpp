@@ -1,5 +1,6 @@
 #include "symbols/SymbolDefs.h"
 #include <fmt/format.h>
+#include <sstream>
 
 AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
 	int32_t var, int32_t flags,
@@ -56,7 +57,7 @@ void getConstant(int32_t refVar, Function* function, int32_t val)
 {
 	if(refVar != NUL)
 	{
-		throw std::runtime_error(fmt::format("Internal Constant {} has non-NUL refVar!", function->name));
+		throw compile_exception(fmt::format("Internal Constant {} has non-NUL refVar!", function->name));
 	}
 	function->setFlag(FUNCFLAG_INLINE);
 	function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
@@ -160,97 +161,120 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 	TypeStore& typeStore = scope.getTypeStore();
 	
 	vector<string const*> blankParams;
+	std::ostringstream errorstream;
 	
 	for (int32_t i = 0; table[i].name != ""; i++)
 	{
-		AccessorTable& entry = table[i];
-		
-		DataType const* returnType = typeStore.getType(entry.rettype);
-		vector<DataType const*> paramTypes;
-		for (auto& ptype : entry.params)
-			paramTypes.push_back(typeStore.getType(ptype));
-				
-		std::string const& name = entry.name;
-		std::string varName = name;
+		try
+		{
+			AccessorTable& entry = table[i];
 			
-		// Strip out the array at the end.
-		bool isArray = name.substr(name.size() - 2) == "[]";
-		if (isArray)
-			varName = name.substr(0, name.size() - 2);
+			DataType const* returnType = typeStore.getType(entry.rettype);
+			vector<DataType const*> paramTypes;
+			for (auto& ptype : entry.params)
+				paramTypes.push_back(typeStore.getType(ptype));
+					
+			std::string const& name = entry.name;
+			std::string varName = name;
+				
+			// Strip out the array at the end.
+			bool isArray = name.substr(name.size() - 2) == "[]";
+			if (isArray)
+				varName = name.substr(0, name.size() - 2);
 
-		// Create function object.
-		Function* function;
-		auto setorget = FUNCTION;
-		if (name.substr(0, 5) == "const")
-		{
-			setorget = CONSTANT;
-			varName = varName.substr(5); // Strip out "const"
-			function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-		}
-		else if (entry.var > -1 && name.substr(0, 3) == "set")
-		{
-			setorget = SETTER;
-			varName = varName.substr(3); // Strip out "set".
-			function = scope.addSetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-		}
-		else if (entry.var > -1 && name.substr(0, 3) == "get")
-		{
-			setorget = GETTER;
-			varName = varName.substr(3); // Strip out "get".
-			function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
-		}
-		else
-		{
-			if(name.substr(0,4) == "_set")
+			// Create function object.
+			auto setorget = FUNCTION;
+			Function* function = nullptr;
+			if (name.substr(0, 5) == "const")
+			{
+				setorget = CONSTANT;
+				varName = varName.substr(5); // Strip out "const"
+				function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+			}
+			else if (entry.var > -1 && name.substr(0, 3) == "set")
 			{
 				setorget = SETTER;
-				varName = varName.substr(4); // Strip out "_set".
+				varName = varName.substr(3); // Strip out "set".
+				function = scope.addSetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 			}
-			else if(name.substr(0,4) == "_get")
+			else if (entry.var > -1 && name.substr(0, 3) == "get")
 			{
 				setorget = GETTER;
-				varName = varName.substr(4); // Strip out "_get".
+				varName = varName.substr(3); // Strip out "get".
+				function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
 			}
-			function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+			else
+			{
+				if(name.substr(0,4) == "_set")
+				{
+					setorget = SETTER;
+					varName = varName.substr(4); // Strip out "_set".
+				}
+				else if(name.substr(0,4) == "_get")
+				{
+					setorget = GETTER;
+					varName = varName.substr(4); // Strip out "_get".
+				}
+				function = scope.addFunction(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+			}
+			
+			if(!function)
+				throw compile_exception(fmt::format("Failed to create internal function '{}', {}\n",name,entry.tag));
+			
+			functions[make_pair(name,entry.tag)] = function;
+			if(hasPrefixType)
+				function->hasPrefixType = true; //Print the first type differently in error messages!
+			
+			function->opt_vals = entry.optparams;
+			function->info = entry.info;
+			if(function->getFlag(FUNCFLAG_VARARGS))
+			{
+				function->extra_vargs = entry.extra_vargs;
+				function->setFlag(FUNCFLAG_INLINE);
+			}
+			// Generate function code for getters/setters
+			int32_t label = function->getLabel();
+			switch(setorget)
+			{
+				case GETTER:
+					if (isArray)
+						getIndexedVariable(refVar, function, entry.var);
+					else
+						getVariable(refVar, function, entry.var);
+					break;
+				case SETTER:
+					if (isArray)
+						setIndexedVariable(refVar, function, entry.var);
+					else if (entry.params.size() > 1 && entry.params[1] == ZTID_BOOL)
+						setBoolVariable(refVar, function, entry.var);
+					else
+						setVariable(refVar, function, entry.var);
+					break;
+				case CONSTANT:
+					getConstant(refVar, function, entry.var);
+					break;
+			}
 		}
-		functions[make_pair(name,entry.tag)] = function;
-		if(hasPrefixType)
-			function->hasPrefixType = true; //Print the first type differently in error messages!
-		
-		function->opt_vals = entry.optparams;
-		function->info = entry.info;
-		if(function->getFlag(FUNCFLAG_VARARGS))
+		catch(std::exception &e)
 		{
-			function->extra_vargs = entry.extra_vargs;
-			function->setFlag(FUNCFLAG_INLINE);
-		}
-		// Generate function code for getters/setters
-		int32_t label = function->getLabel();
-		switch(setorget)
-		{
-			case GETTER:
-				if (isArray)
-					getIndexedVariable(refVar, function, entry.var);
-				else
-					getVariable(refVar, function, entry.var);
-				break;
-			case SETTER:
-				if (isArray)
-					setIndexedVariable(refVar, function, entry.var);
-				else if (entry.params.size() > 1 && entry.params[1] == ZTID_BOOL)
-					setBoolVariable(refVar, function, entry.var);
-				else
-					setVariable(refVar, function, entry.var);
-				break;
-			case CONSTANT:
-				getConstant(refVar, function, entry.var);
-				break;
+			errorstream << e.what() << '\n';
 		}
 	}
 	
-	
-	generateCode();
+	try
+	{
+		generateCode();
+	}
+	catch (std::exception& e)
+	{
+		errorstream << e.what() << '\n';
+	}
+
 	functions.clear();
+	
+	std::string errors = errorstream.str();
+	if(!errors.empty())
+		throw compile_exception(errors);
 }
 
 Function* LibrarySymbols::getFunction(std::string const& name, byte tag) const
@@ -258,11 +282,8 @@ Function* LibrarySymbols::getFunction(std::string const& name, byte tag) const
 	std::pair<std::string, int32_t> p = make_pair(name, tag);
 	Function* ret = find<Function*>(functions, p).value_or(nullptr);
 	if(!ret)
-	{
-		char buf[512];
-		sprintf(buf, "Unique internal function %s not found with tag %d!", name.c_str(), tag);
-		throw std::runtime_error(buf);
-	}
+		throw compile_exception(fmt::format("Unique internal function {} not found with tag {}!", name, tag));
+	
 	return ret;
 }
 
