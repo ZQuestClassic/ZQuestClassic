@@ -62,8 +62,8 @@ function init() {
         renderTracks(getOptions());
     }
 
-    function onToggleDiff() {
-        find('.label__diff input').checked = !find('.label__diff input').checked;
+    function onToggleDiff(value) {
+        if (value !== undefined) find('.label__diff input').checked = value;
         showFrameView(frameViewFrameIndex, frameViewTrackIndex, getOptions());
     }
 
@@ -82,7 +82,7 @@ function init() {
     }
 
     find('.label__expected-filter input').addEventListener('change', onToggleUnexpectedFilter);
-    find('.label__diff input').addEventListener('change', onToggleDiff);
+    find('.label__diff input').addEventListener('change', () => onToggleDiff());
 
     document.addEventListener('keypress', (e) => {
         if (frameViewFrameIndex !== -1) {
@@ -93,7 +93,7 @@ function init() {
                 onSwitchTrack(1);
             }
             if (e.key === 'd') {
-                onToggleDiff();
+                onToggleDiff(!find('.label__diff input').checked);
             }
         }
     });
