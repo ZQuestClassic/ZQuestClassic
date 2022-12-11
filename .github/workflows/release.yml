@@ -113,7 +113,7 @@ jobs:
         project: zelda-classic
 
     - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
-    - run: cmake . -A ${{ matrix.arrays.arch }} -DWANT_SENTRY=ON -DSENTRY_RELEASE_TAG=${{ needs.create-tag.outputs.release_tag_name }}
+    - run: cmake . -A ${{ matrix.arrays.arch }} -DWANT_SENTRY=ON -DSENTRY_RELEASE_TAG="${{ needs.create-tag.outputs.release_tag_name }}"
     - run: cmake --build . --config RelWithDebInfo
     - run: mv RelWithDebInfo Release
     - run: echo y | ./buildpack.bat
