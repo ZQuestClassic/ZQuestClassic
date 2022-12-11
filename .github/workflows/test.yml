@@ -79,4 +79,4 @@ jobs:
           path: |
             ${{ github.workspace }}/tests/replays/test_results.json
             ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
-            ${{ github.workspace }}/tests/replays/*.bmp
+            ${{ github.workspace }}/tests/replays/*.png
