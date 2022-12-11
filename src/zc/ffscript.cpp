@@ -544,6 +544,9 @@ int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and
 	
 miscQdata *misc;
 int32_t run_script_int(const byte type, const word script, const int32_t i);
+int32_t get_int_arr(const int32_t ptr, int32_t indx);
+void set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
+int32_t sz_int_arr(const int32_t ptr);
 
 //We gain some speed by not passing as arguments
 int32_t sarg1 = 0;
@@ -2335,7 +2338,11 @@ public:
 	{
 		if(ptr == 0)
 			return InvalidError(ptr);
-			
+		if(ptr >= INTARR_OFFS)
+		{
+			Z_scripterrlog("Special internal array '%d' not valid for operation.\n", ptr);
+			return INVALIDARRAY;
+		}
 		if(ptr < 0) //An object array?
 		{
 			int32_t objptr = -ptr;
@@ -2364,6 +2371,13 @@ public:
 	
 	static size_t getSize(const int32_t ptr)
 	{
+		if(ptr >= INTARR_OFFS) //internal special array
+		{
+			int32_t sz = sz_int_arr(ptr);
+			if(sz < 0)
+				return size_t(-1);
+			return sz;
+		}
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
@@ -2449,6 +2463,17 @@ public:
 	static INLINE int32_t getElement(const int32_t ptr, int32_t offset,
 		const bool neg = false)
 	{
+		if(ptr >= INTARR_OFFS) //internal special array
+		{
+			int32_t sz = sz_int_arr(ptr);
+			if(sz >= 0 && BC::checkUserArrayIndex(offset, sz, neg) == _NoError)
+			{
+				if(offset < 0)
+					offset += sz; //[-1] becomes [size-1] -Em
+				return get_int_arr(ptr, offset);
+			}
+			else return -10000;
+		}
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
@@ -2468,6 +2493,17 @@ public:
 	static INLINE void setElement(const int32_t ptr, int32_t offset,
 		const int32_t value, const bool neg = false)
 	{
+		if(ptr >= INTARR_OFFS) //internal special array
+		{
+			int32_t sz = sz_int_arr(ptr);
+			if(sz >= 0 && BC::checkUserArrayIndex(offset, sz, neg) == _NoError)
+			{
+				if(offset < 0)
+					offset += sz; //[-1] becomes [size-1] -Em
+				set_int_arr(ptr, offset, value);
+			}
+			return;
+		}
 		ZScriptArray& a = getArray(ptr);
 		
 		if (&a == &INVALIDARRAY)
@@ -21933,6 +21969,64 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 	}
 } //end set_register
+
+int32_t get_int_arr(const int32_t ptr, int32_t indx)
+{
+	switch(ptr)
+	{
+		case INTARR_SCREEN_NPC:
+		{
+			if(BC::checkGuyIndex(indx, "Screen->NPC[]") != SH::_NoError)
+				return 0;
+			return items.spr(indx)->getUID();
+		}
+		case INTARR_SCREEN_ITEMSPR:
+		{
+			if(BC::checkItemIndex(indx, "Screen->Item[]") != SH::_NoError)
+				return 0;
+			return items.spr(indx)->getUID();
+		}
+		default:
+		{
+			Z_scripterrlog("Unknown internal array '%d' read from!\n", ptr);
+			return 0;
+		}
+	}
+}
+void set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
+{
+	switch(ptr)
+	{
+		case INTARR_SCREEN_NPC:
+		case INTARR_SCREEN_ITEMSPR:
+			return; //read-only
+		
+		default:
+		{
+			Z_scripterrlog("Unknown internal array '%d' written to!\n", ptr);
+			return;
+		}
+	}
+}
+int32_t sz_int_arr(const int32_t ptr)
+{
+	switch(ptr)
+	{
+		case INTARR_SCREEN_NPC:
+		{
+			return guys.Count();
+		}
+		case INTARR_SCREEN_ITEMSPR:
+		{
+			return items.Count();
+		}
+		default:
+		{
+			Z_scripterrlog("Unknown internal array '%d' size read!\n", ptr);
+			return -1;
+		}
+	}
+}
 
 ///----------------------------------------------------------------------------------------------------//
 //                                       ASM Functions                                                 //

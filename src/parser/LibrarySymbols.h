@@ -21,6 +21,7 @@ namespace ZScript
 static const int32_t SETTER = 0;
 static const int32_t GETTER = 1;
 static const int32_t FUNCTION = 2;
+static const int32_t CONSTANT = 3;
 
 struct AccessorTable
 {

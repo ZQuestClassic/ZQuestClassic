@@ -1512,6 +1512,14 @@
 
 //} END OF BYTECODE
 
+//{ INTERNAL ARRAYS
+
+#define INTARR_OFFS 65536
+#define INTARR_SCREEN_NPC       (65536+0)
+#define INTARR_SCREEN_ITEMSPR   (65536+1)
+
+//} END INTERNAL ARRAYS
+
 namespace ZScript
 {
 	class LiteralArgument;

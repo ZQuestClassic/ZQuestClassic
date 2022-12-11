@@ -5020,6 +5020,14 @@ enum ASM_DEFINE
 
 //} End variables
 
+//{ Start internal arrays
+
+#define INTARR_OFFS 65536
+#define INTARR_SCREEN_NPC       (65536+0)
+#define INTARR_SCREEN_ITEMSPR   (65536+1)
+
+//} End internal arrays
+
 struct quad3Dstruct
 {
     int32_t index;

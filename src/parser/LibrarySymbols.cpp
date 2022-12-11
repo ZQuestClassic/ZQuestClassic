@@ -1,4 +1,5 @@
 #include "symbols/SymbolDefs.h"
+#include <fmt/format.h>
 
 AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
 	int32_t var, int32_t flags,
@@ -49,6 +50,21 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
 		default: return &nilsymbols;
     }
+}
+
+void getConstant(int32_t refVar, Function* function, int32_t val)
+{
+	if(refVar != NUL)
+	{
+		throw std::runtime_error(fmt::format("Internal Constant {} has non-NUL refVar!", function->name));
+	}
+	function->setFlag(FUNCFLAG_INLINE);
+	function->internal_flags |= IFUNCFLAG_SKIPPOINTER;
+	int32_t label = function->getLabel();
+	vector<shared_ptr<Opcode>> code;
+	addOpcode2(code, new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(val)));
+	LABELBACK(label);
+	function->giveCode(code);
 }
 
 void getVariable(int32_t refVar, Function* function, int32_t var)
@@ -165,7 +181,13 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		// Create function object.
 		Function* function;
 		auto setorget = FUNCTION;
-		if (entry.var > -1 && name.substr(0, 3) == "set")
+		if (name.substr(0, 5) == "const")
+		{
+			setorget = CONSTANT;
+			varName = varName.substr(5); // Strip out "const"
+			function = scope.addGetter(returnType, varName, paramTypes, blankParams, entry.funcFlags);
+		}
+		else if (entry.var > -1 && name.substr(0, 3) == "set")
 		{
 			setorget = SETTER;
 			varName = varName.substr(3); // Strip out "set".
@@ -204,21 +226,25 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 		}
 		// Generate function code for getters/setters
 		int32_t label = function->getLabel();
-		if (setorget == GETTER)
+		switch(setorget)
 		{
-			if (isArray)
-				getIndexedVariable(refVar, function, entry.var);
-			else
-				getVariable(refVar, function, entry.var);
-		}
-		else if (setorget == SETTER)
-		{
-			if (isArray)
-				setIndexedVariable(refVar, function, entry.var);
-			else if (entry.params.size() > 1 && entry.params[1] == ZTID_BOOL)
-				setBoolVariable(refVar, function, entry.var);
-			else
-				setVariable(refVar, function, entry.var);
+			case GETTER:
+				if (isArray)
+					getIndexedVariable(refVar, function, entry.var);
+				else
+					getVariable(refVar, function, entry.var);
+				break;
+			case SETTER:
+				if (isArray)
+					setIndexedVariable(refVar, function, entry.var);
+				else if (entry.params.size() > 1 && entry.params[1] == ZTID_BOOL)
+					setBoolVariable(refVar, function, entry.var);
+				else
+					setVariable(refVar, function, entry.var);
+				break;
+			case CONSTANT:
+				getConstant(refVar, function, entry.var);
+				break;
 		}
 	}
 	
