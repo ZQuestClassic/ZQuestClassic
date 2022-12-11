@@ -373,7 +373,7 @@ for i in range(args.retries + 1):
         start = timer()
         result = test_results[test] = run_replay_test(test)
         duration = timer() - start
-        status_emoji = '✅' if test_results[test] else '❌'
+        status_emoji = '✅' if result.success else '❌'
 
         message = f'{status_emoji} {time_format(duration)}'
         if result.fps != None:
