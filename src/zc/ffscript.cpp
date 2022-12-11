@@ -21972,15 +21972,33 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 	{
 		case INTARR_SCREEN_NPC:
 		{
-			if(BC::checkGuyIndex(indx, "Screen->NPC[]") != SH::_NoError)
+			if(BC::checkGuyIndex(indx, "Screen->NPCs[]") != SH::_NoError)
 				return 0;
 			return guys.spr(indx)->getUID();
 		}
 		case INTARR_SCREEN_ITEMSPR:
 		{
-			if(BC::checkItemIndex(indx, "Screen->Item[]") != SH::_NoError)
+			if(BC::checkItemIndex(indx, "Screen->Items[]") != SH::_NoError)
 				return 0;
 			return items.spr(indx)->getUID();
+		}
+		case INTARR_SCREEN_LWPN:
+		{
+			if(BC::checkLWeaponIndex(indx, "Screen->LWeapons[]") != SH::_NoError)
+				return 0;
+			return Lwpns.spr(indx)->getUID();
+		}
+		case INTARR_SCREEN_EWPN:
+		{
+			if(BC::checkEWeaponIndex(indx, "Screen->EWeapons[]") != SH::_NoError)
+				return 0;
+			return Ewpns.spr(indx)->getUID();
+		}
+		case INTARR_SCREEN_FFC:
+		{
+			if(BC::checkFFC(indx, "Screen->FFCs[]") != SH::_NoError)
+				return 0;
+			return indx*10000;
 		}
 		default:
 		{
@@ -21994,8 +22012,20 @@ void set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
 	switch(ptr)
 	{
 		case INTARR_SCREEN_NPC:
+			Z_scripterrlog("Read-only array 'Screen->NPCs' cannot be written to!\n");
+			return;
 		case INTARR_SCREEN_ITEMSPR:
-			return; //read-only
+			Z_scripterrlog("Read-only array 'Screen->Items' cannot be written to!\n");
+			return;
+		case INTARR_SCREEN_LWPN:
+			Z_scripterrlog("Read-only array 'Screen->LWeapons' cannot be written to!\n");
+			return;
+		case INTARR_SCREEN_EWPN:
+			Z_scripterrlog("Read-only array 'Screen->EWeapons' cannot be written to!\n");
+			return;
+		case INTARR_SCREEN_FFC:
+			Z_scripterrlog("Read-only array 'Screen->FFCs' cannot be written to!\n");
+			return;
 		
 		default:
 		{
@@ -22015,6 +22045,18 @@ int32_t sz_int_arr(const int32_t ptr)
 		case INTARR_SCREEN_ITEMSPR:
 		{
 			return items.Count();
+		}
+		case INTARR_SCREEN_LWPN:
+		{
+			return Lwpns.Count();
+		}
+		case INTARR_SCREEN_EWPN:
+		{
+			return Ewpns.Count();
+		}
+		case INTARR_SCREEN_FFC:
+		{
+			return MAXFFCS;
 		}
 		default:
 		{

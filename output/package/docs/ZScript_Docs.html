@@ -277,7 +277,7 @@
 <body class = "pagecont">
 <header class = "pagecont">
 	<h1>ZScript Documentation (WIP)</h1>
-	<p>Last Updated: December 9, 2022 at 8:29 PM EST (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
+	<p>Last Updated: December 11, 2022 at 9:31 AM EST (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
 </header>
 <main class = "pagecont">
 	<a class = "link" data-link = "root" data-bid = 0 data-tid = 0>Return to Top</a>
@@ -2566,7 +2566,8 @@ The quake effect is more intense the higher the value is.</div>
 		<div class = "cntnt" data-bid = 176 data-tid = -1 hidden><h3>int NumItems();
 int NumNPCs();
 int NumLWeapons();
-int NumEWeapons();</h3>
+int NumEWeapons();
+int NumFFCs();</h3>
 Returns the number of the given object type that are present on the current screen.
 
 <h3><a class = 'deadlink ttip'>itemsprite<span class = 'ttt'>Under Construction!</span></a> CreateItem(int id);
@@ -2583,8 +2584,15 @@ Where <span class = "code1">1 &lt;= n &lt;= NumObjects</span>, returns a pointer
 Used to access itemsprites, npcs, lweapons, and eweapons that currently exist on the screen.
 
 <h3><a class = 'link' data-link = 'ffc'>ffc</a> LoadFFC(int n);</h3>
-Returns a pointer to the nth FFC on the screen, where <span class = "code1">1 &lt;= n &lt;= 32</span>.
-Used to access ffcs that currently exist on the screen.</div>
+Returns a pointer to the nth FFC on the screen, where <span class = "code1">1 &lt;= n &lt;= MAX_FFC</span>.
+Used to access ffcs that currently exist on the screen.
+
+<h3><a class = 'deadlink ttip'>itemsprite<span class = 'ttt'>Under Construction!</span></a> Items[];
+<a class = 'link' data-link = 'npc'>npc</a> NPCs[];
+<a class = 'deadlink ttip'>lweapon<span class = 'ttt'>Under Construction!</span></a> LWeapons[];
+<a class = 'deadlink ttip'>eweapon<span class = 'ttt'>Under Construction!</span></a> EWeapons[];
+<a class = 'link' data-link = 'ffc'>ffc</a> FFCs[];</h3>
+<a class = 'deadlink ttip'>Internal Array pointers<span class = 'ttt'>Under Construction!</span></a> to arrays containing all of each respective type of object on the screen. These arrays are 0-indexed.</div>
 		<div class = "cntnt" data-bid = 177 data-tid = -1 hidden>This data is all related to the current block being pushed on the screen.
 
 <h3>int MovingBlockX;
