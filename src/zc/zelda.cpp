@@ -4481,7 +4481,19 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 {
 	ASSERT(mode == ReplayMode::Replay || mode == ReplayMode::Assert || mode == ReplayMode::Update);
 	replay_start(mode, replay_file, frame);
-	testingqst_name = replay_get_meta_str("qst");
+
+	std::string qst_meta = replay_get_meta_str("qst");
+	testingqst_name = qst_meta;
+	// If the path resolved relative to the .zplay file exists, use that instead.
+	if (!std::filesystem::path(qst_meta).is_absolute())
+	{
+		auto resolved_qst = std::filesystem::path(replay_file).parent_path() / qst_meta;
+		if (std::filesystem::is_regular_file(resolved_qst))
+		{
+			testingqst_name = resolved_qst.string();
+		}
+	}
+
 	if (replay_get_meta_bool("test_mode"))
 	{
 		testingqst_dmap = replay_get_meta_int("starting_dmap");

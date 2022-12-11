@@ -355,11 +355,6 @@ test_results = {}
 for test in tests:
     test_results[test] = SimpleNamespace(success=None, failing_frame=None, log=None, diff=None, fps=None)
 
-    # qst files need to be relative to the build folder, so copy them over.
-    maybe_qst_path = test.with_suffix('.qst')
-    if maybe_qst_path.exists():
-        shutil.copy2(maybe_qst_path, args.build_folder)
-
 print(f'running {len(tests)} replays\n')
 iteration_count = 0
 for i in range(args.retries + 1):
