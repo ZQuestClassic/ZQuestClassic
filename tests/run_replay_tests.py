@@ -341,11 +341,12 @@ def run_replay_test(replay_file):
         else:
             result.diff = 'missing roundtrip file, cannnot diff'
 
-    failing_frame_match = re.match(r'.*expected:\n.*?(\d+)', result.log['stderr'], re.DOTALL)
-    if failing_frame_match:
-        result.failing_frame = int(failing_frame_match.group(1))
-    else:
-        print('could not find failing frame')
+    if not result.success:
+        failing_frame_match = re.match(r'.*expected:\n.*?(\d+)', result.log['stderr'], re.DOTALL)
+        if failing_frame_match:
+            result.failing_frame = int(failing_frame_match.group(1))
+        else:
+            print('could not find failing frame')
 
     return result
 
