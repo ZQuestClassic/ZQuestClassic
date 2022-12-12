@@ -186,6 +186,7 @@ sprite::sprite()
 }
 
 sprite::sprite(sprite const & other):
+	solid_object(other),
     z(other.z),
     fakez(other.fakez),
     fall(other.fall),
