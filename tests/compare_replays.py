@@ -74,7 +74,7 @@ def get_replay_from_snapshot_path(path):
 
 def collect_replay_data_from_directory(directory):
     replay_data = []
-    all_snapshots = sorted(directory.rglob('*.png'))
+    all_snapshots = sorted(directory.rglob('*.zplay*.png'))
     for replay, snapshots in groupby(all_snapshots, get_replay_from_snapshot_path):
         replay_data.append({
             'replay': replay,
@@ -116,7 +116,9 @@ def collect_replay_data_from_workflow_run(run_id):
 all_replay_data = []
 if args.workflow_run:
     for run_id in args.workflow_run:
-        all_replay_data.extend(collect_replay_data_from_workflow_run(run_id))
+        replay_data = collect_replay_data_from_workflow_run(run_id)
+        all_replay_data.extend(replay_data)
+        print(f'found {len(replay_data)} replay data from workflow run {run_id}')
 if args.local:
     local_index = 0
     for directory in args.local:
@@ -124,10 +126,12 @@ if args.local:
         if dest.exists():
             shutil.rmtree(dest)
         dest.mkdir(parents=True)
-        for file in directory.glob('*.png'):
+        for file in directory.rglob('*.zplay*.png'):
             shutil.copy(file, dest)
-        all_replay_data.extend(collect_replay_data_from_directory(dest))
+        replay_data = collect_replay_data_from_directory(dest)
+        all_replay_data.extend(replay_data)
         local_index += 1
+        print(f'found {len(replay_data)} replay data from {directory}')
 
 
 html = Path(f'{script_dir}/compare-resources/compare.html').read_text('utf-8')

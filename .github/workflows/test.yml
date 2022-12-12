@@ -73,7 +73,7 @@ jobs:
       - name: Run replay tests
         run: python3 -Xutf8 tests/run_replay_tests.py --build_folder ${{ env.BUILD_FOLDER }} --retries 1 --ci ${{ inputs.runs-on }}_${{ inputs.arch }} --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }} ${{ inputs.extra-args }}
       - uses: actions/upload-artifact@v3
-        if: always()
+        if: github.event_name == 'workflow_dispatch' || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: |
