@@ -35209,6 +35209,10 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_OX] = 0;
 	ScrollingData[SCROLLDATA_OY] = 0;
 	user_rng_init();
+	for(word q = 0; q < MAXFFCS; ++q)
+	{
+		ffcScriptData[q].Clear();
+	}
 }
 
 

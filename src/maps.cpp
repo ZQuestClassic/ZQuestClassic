@@ -4784,7 +4784,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 		
 		init_ffpos();
-		word ffcCount = ffscr.numFFC();
 		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((ffscr.ffcs[i].flags&ffCARRYOVER) && !(ffscr.flags5&fNOFFCARRYOVER))
