@@ -695,10 +695,6 @@ set(zc_clang_errors
 	-Wno-switch
 )
 
-foreach(target IN LISTS zc_targets)
-	target_compile_definitions(${target} PRIVATE ZC_APP_NAME="${target}")
-endforeach()
-
 if(WANT_SENTRY)
 	set(SENTRY_VERSION 0.5.3)
 	set(SENTRY_BACKEND crashpad)

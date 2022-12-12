@@ -46,7 +46,21 @@ void common_main_setup(App id, int argc, char **argv)
     sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
     sentry_options_set_handler_path(options, "crashpad_handler.exe");
     sentry_init(options);
-    sentry_set_tag("app", ZC_APP_NAME);
+    switch (id)
+    {
+        case App::zelda:
+            sentry_set_tag("app", "zelda");
+            break;
+        case App::zquest:
+            sentry_set_tag("app", "zquest");
+            break;
+        case App::zscript:
+            sentry_set_tag("app", "zscript");
+            break;
+        case App::launcher:
+            sentry_set_tag("app", "launcher");
+            break;
+    }
     atexit(sentry_atexit);
 #endif
 
