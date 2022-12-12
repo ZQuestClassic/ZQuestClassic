@@ -65,10 +65,11 @@ namespace ZScript
 			sprintf(&buf[0], "l%d:", label);
 			return (showlabel ? std::string(&buf[0]) : " ")+ toString() + "\n";
 		}
-		Opcode * makeClone()
+		Opcode * makeClone(bool copylabel = true)
 		{
 			Opcode *dup = clone();
-			dup->setLabel(label);
+			if(copylabel)
+				dup->setLabel(label);
 			return dup;
 		}
 		virtual void execute(ArgumentVisitor&, void*) {}

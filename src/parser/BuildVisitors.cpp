@@ -1183,7 +1183,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone());
+			addOpcode((*it)->makeClone(false));
 		}
 	}
 	else
@@ -1424,14 +1424,22 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		auto it = funcCode.begin();
 		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
 		{
-			Argument const* destreg = ocode->getArgument();
+			VarArgument const* destreg = static_cast<VarArgument*>(ocode->getArgument());
 			//Optimize
 			Opcode* lastop = optarg->back().get();
 			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
 			{
-				Argument* arg = tmp->getArgument()->clone();
-				optarg->pop_back();
-				addOpcode(new OSetRegister(destreg->clone(), arg));
+				VarArgument const* arg = static_cast<VarArgument*>(tmp->getArgument());
+				if(arg->ID == destreg->ID) //Same register!
+				{
+					optarg->pop_back();
+				}
+				else //Different register
+				{
+					Argument* a = arg->clone();
+					optarg->pop_back();
+					addOpcode(new OSetRegister(destreg->clone(), a));
+				}
 				if(++it == funcCode.end())
 					break;
 				continue;
@@ -1449,7 +1457,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		for(;it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone());
+			addOpcode((*it)->makeClone(false));
 		}
 	
 		if(host.left->isTypeArrow())
@@ -3181,7 +3189,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone());
+			addOpcode((*it)->makeClone(false));
 		}
 	}
 	else
