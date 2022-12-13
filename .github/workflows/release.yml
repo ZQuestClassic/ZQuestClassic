@@ -80,7 +80,7 @@ jobs:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
-      - run: sentry-cli releases new ${{ steps.make-vars.outputs.release_tag_name }}
+      - run: sentry-cli releases new 'zelda-classic@${{ steps.make-vars.outputs.release_tag_name }}'
         if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
 
   release-win:
@@ -130,7 +130,7 @@ jobs:
 
     - name: Upload debugging symbols
       if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-      run: sentry-cli upload-dif ${{ needs.create-tag.outputs.release_tag_name }} --include-sources --wait Release
+      run: sentry-cli upload-dif 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}' --include-sources --wait Release
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -204,5 +204,5 @@ jobs:
       - name: Finalize sentry
         if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
         run: |
-          sentry-cli releases set-commits ${{ needs.create-tag.outputs.release_tag_name }} --auto
-          sentry-cli releases finalize ${{ needs.create-tag.outputs.release_tag_name }}
+          sentry-cli releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}' --auto
+          sentry-cli releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}'
