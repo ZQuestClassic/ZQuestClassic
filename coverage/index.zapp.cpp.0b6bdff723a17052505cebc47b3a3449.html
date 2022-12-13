@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2022-12-11 10:16:10</td>
+      <td>2022-12-13 04:07:14</td>
     </tr>
   </table>
 </div>
@@ -86,24 +86,24 @@
     </tr>
     <tr>
       <td>
-        <a href="#l110">doAspectResize()</a>
+        <a href="#l124">doAspectResize()</a>
       </td>
       <td>
-        <a href="#l110">110</a>
+        <a href="#l124">124</a>
       </td>
       <td>
-        <a href="#l110"> called 3067482 times</a>
+        <a href="#l124"> called 3067482 times</a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="#l67">get_app_id()</a>
+        <a href="#l81">get_app_id()</a>
       </td>
       <td>
-        <a href="#l67">67</a>
+        <a href="#l81">81</a>
       </td>
       <td>
-        <a href="#l67"> called 4602 times</a>
+        <a href="#l81"> called 4602 times</a>
       </td>
     </tr>
     <tr>
@@ -119,24 +119,24 @@
     </tr>
     <tr>
       <td>
-        <a href="#l77">zc_get_monitor_scale()</a>
+        <a href="#l91">zc_get_monitor_scale()</a>
       </td>
       <td>
-        <a href="#l77">77</a>
+        <a href="#l91">91</a>
       </td>
       <td>
-        <a href="#l77"> called 11 times</a>
+        <a href="#l91"> called 11 times</a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="#l143">zc_process_display_events()</a>
+        <a href="#l157">zc_process_display_events()</a>
       </td>
       <td>
-        <a href="#l143">143</a>
+        <a href="#l157">157</a>
       </td>
       <td>
-        <a href="#l143"> called 3067482 times</a>
+        <a href="#l157"> called 3067482 times</a>
       </td>
     </tr>
   </table>
@@ -550,7 +550,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">ZC_APP_NAME</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -558,7 +558,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">atexit</span><span class="p">(</span><span class="n">sentry_atexit</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -566,7 +566,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">App</span><span class="o">::</span><span class="no">zelda</span><span class="p">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -574,7 +574,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zelda&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -582,7 +582,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// This allows for opening a binary from Finder and having ZC be in its expected</span></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -590,7 +590,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// working directory (the same as the binary). Only used when not inside an application bundle,</span></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">App</span><span class="o">::</span><span class="no">zquest</span><span class="p">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -598,7 +598,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// and only for testing purposes really. See comment about `SKIP_APP_BUNDLE` in buildpack_osx.sh</span></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zquest&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -606,11 +606,123 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef __APPLE__</span></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">App</span><span class="o">::</span><span class="no">zscript</span><span class="p">:</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l58" href="#l58">58</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zscript&quot;</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l59" href="#l59">59</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l60" href="#l60">60</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="no">App</span><span class="o">::</span><span class="no">launcher</span><span class="p">:</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l61" href="#l61">61</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;launcher&quot;</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l62" href="#l62">62</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l64" href="#l64">64</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="n">atexit</span><span class="p">(</span><span class="n">sentry_atexit</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l65" href="#l65">65</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l66" href="#l66">66</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l67" href="#l67">67</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="c1">// This allows for opening a binary from Finder and having ZC be in its expected</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l68" href="#l68">68</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="c1">// working directory (the same as the binary). Only used when not inside an application bundle,</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l69" href="#l69">69</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span><span class="c1">// and only for testing purposes really. See comment about `SKIP_APP_BUNDLE` in buildpack_osx.sh</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l70" href="#l70">70</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#ifdef __APPLE__</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l71" href="#l71">71</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -627,7 +739,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l58" href="#l58">58</a></td>
+      <td class="lineno"><a id="l72" href="#l72">72</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -644,7 +756,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l59" href="#l59">59</a></td>
+      <td class="lineno"><a id="l73" href="#l73">73</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">11</td>
@@ -652,123 +764,11 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l60" href="#l60">60</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l61" href="#l61">61</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l62" href="#l62">62</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_SDL</span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l63" href="#l63">63</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">SDL_LogSetAllPriority</span><span class="p">(</span><span class="n">SDL_LOG_PRIORITY_DEBUG</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l64" href="#l64">64</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l65" href="#l65">65</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">11</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l66" href="#l66">66</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l67" href="#l67">67</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">4602</td>
-      <td class="src coveredLine"><span class="n">App</span><span class="w"> </span><span class="nf">get_app_id</span><span class="p">()</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l68" href="#l68">68</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l69" href="#l69">69</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">4602</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">app_id</span><span class="p">;</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l70" href="#l70">70</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">}</span><span class="w"></span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l71" href="#l71">71</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l72" href="#l72">72</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">// https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows</span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l73" href="#l73">73</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">// https://mariusbancila.ro/blog/2021/05/19/how-to-build-high-dpi-aware-native-desktop-applications/</span></td>
-    </tr>
-
-    <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// On windows, Allegro sets DPI awareness at runtime:</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -776,7 +776,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//   https://github.com/liballeg/allegro5/blob/0d9271d381c33ab1096b424beadfd82050aaa2d3/src/win/wsystem.c#L142</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -784,15 +784,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// But it&#39;s better to do it in the application manifest, hence `set_property(TARGET zelda PROPERTY VS_DPI_AWARE &quot;PerMonitor&quot;)`</span></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_SDL</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11</td>
-      <td class="src coveredLine"><span class="kt">double</span><span class="w"> </span><span class="nf">zc_get_monitor_scale</span><span class="p">()</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">SDL_LogSetAllPriority</span><span class="p">(</span><span class="n">SDL_LOG_PRIORITY_DEBUG</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -800,15 +800,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef _WIN32</span></td>
+      <td class="linecount coveredLine">11</td>
+      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -816,15 +816,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+      <td class="linecount coveredLine">4602</td>
+      <td class="src coveredLine"><span class="n">App</span><span class="w"> </span><span class="nf">get_app_id</span><span class="p">()</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -832,15 +832,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// GetDpiForWindow only works for Windows 10 and greater.</span></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// why not use al_get_monitor_dpi? Because allegro uses GetDpiForMonitor,</span></td>
+      <td class="linecount coveredLine">4602</td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">app_id</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -848,7 +848,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="c1">// which is an older API.</span></td>
+      <td class="src "><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -856,7 +856,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">HMODULE</span><span class="w"> </span><span class="n">user32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoadLibraryW</span><span class="p">(</span><span class="sa">L</span><span class="s">&quot;user32&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -864,7 +864,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">// https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows</span></td>
     </tr>
 
     <tr class="source-line">
@@ -872,7 +872,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">typedef</span><span class="w"> </span><span class="n">UINT</span><span class="w"> </span><span class="p">(</span><span class="n">WINAPI</span><span class="w"> </span><span class="o">*</span><span class="n">GetDpiForWindowPROC</span><span class="p">)(</span><span class="n">HWND</span><span class="w"> </span><span class="n">hwnd</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="c1">// https://mariusbancila.ro/blog/2021/05/19/how-to-build-high-dpi-aware-native-desktop-applications/</span></td>
     </tr>
 
     <tr class="source-line">
@@ -880,7 +880,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="n">GetDpiForWindowPROC</span><span class="w"> </span><span class="n">imp_GetDpiForWindow</span><span class="w"> </span><span class="o">=</span><span class="w"></span></td>
+      <td class="src "><span class="c1">// On windows, Allegro sets DPI awareness at runtime:</span></td>
     </tr>
 
     <tr class="source-line">
@@ -888,7 +888,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="p">(</span><span class="n">GetDpiForWindowPROC</span><span class="p">)</span><span class="w"> </span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">user32</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;GetDpiForWindow&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="c1">//   https://github.com/liballeg/allegro5/blob/0d9271d381c33ab1096b424beadfd82050aaa2d3/src/win/wsystem.c#L142</span></td>
     </tr>
 
     <tr class="source-line">
@@ -896,15 +896,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">user32</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">user32</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_HANDLE_VALUE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="c1">// But it&#39;s better to do it in the application manifest, hence `set_property(TARGET zelda PROPERTY VS_DPI_AWARE &quot;PerMonitor&quot;)`</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">HWND</span><span class="w"> </span><span class="n">hwnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_win_window_handle</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span><span class="w"></span></td>
+      <td class="linecount coveredLine">11</td>
+      <td class="src coveredLine"><span class="kt">double</span><span class="w"> </span><span class="nf">zc_get_monitor_scale</span><span class="p">()</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -912,7 +912,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imp_GetDpiForWindow</span><span class="p">(</span><span class="n">hwnd</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -920,7 +920,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="n">FreeLibrary</span><span class="p">(</span><span class="n">user32</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#ifdef _WIN32</span></td>
     </tr>
 
     <tr class="source-line">
@@ -928,7 +928,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -936,7 +936,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -944,7 +944,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="c1">// GetDpiForWindow only works for Windows 10 and greater.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -952,7 +952,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">al_get_monitor_dpi</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// why not use al_get_monitor_dpi? Because allegro uses GetDpiForMonitor,</span></td>
     </tr>
 
     <tr class="source-line">
@@ -960,7 +960,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="c1">// which is an older API.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -968,7 +968,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">		</span><span class="n">HMODULE</span><span class="w"> </span><span class="n">user32</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LoadLibraryW</span><span class="p">(</span><span class="sa">L</span><span class="s">&quot;user32&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -976,7 +976,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">HDC</span><span class="w"> </span><span class="n">hdc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetDC</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -984,7 +984,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetDeviceCaps</span><span class="p">(</span><span class="n">hdc</span><span class="p">,</span><span class="w"> </span><span class="n">LOGPIXELSX</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="k">typedef</span><span class="w"> </span><span class="n">UINT</span><span class="w"> </span><span class="p">(</span><span class="n">WINAPI</span><span class="w"> </span><span class="o">*</span><span class="n">GetDpiForWindowPROC</span><span class="p">)(</span><span class="n">HWND</span><span class="w"> </span><span class="n">hwnd</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -992,7 +992,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">ReleaseDC</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">hdc</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="n">GetDpiForWindowPROC</span><span class="w"> </span><span class="n">imp_GetDpiForWindow</span><span class="w"> </span><span class="o">=</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1000,7 +1000,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">			</span><span class="p">(</span><span class="n">GetDpiForWindowPROC</span><span class="p">)</span><span class="w"> </span><span class="n">GetProcAddress</span><span class="p">(</span><span class="n">user32</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;GetDpiForWindow&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1008,15 +1008,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">user32</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">user32</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">INVALID_HANDLE_VALUE</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">11</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">al_get_monitor_dpi</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">			</span><span class="n">HWND</span><span class="w"> </span><span class="n">hwnd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_win_window_handle</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1024,7 +1024,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">			</span><span class="kt">int</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">imp_GetDpiForWindow</span><span class="p">(</span><span class="n">hwnd</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1032,7 +1032,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">			</span><span class="n">FreeLibrary</span><span class="p">(</span><span class="n">user32</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1040,7 +1040,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">			</span><span class="k">return</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1048,15 +1048,15 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">DragAspect</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l110" href="#l110">110</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3067482</td>
-      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">doAspectResize</span><span class="p">()</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1064,11 +1064,123 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="n">al_get_monitor_dpi</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l113" href="#l113">113</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l114" href="#l114">114</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">HDC</span><span class="w"> </span><span class="n">hdc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetDC</span><span class="p">(</span><span class="nb">NULL</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l115" href="#l115">115</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetDeviceCaps</span><span class="p">(</span><span class="n">hdc</span><span class="p">,</span><span class="w"> </span><span class="n">LOGPIXELSX</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l116" href="#l116">116</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="n">ReleaseDC</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="n">hdc</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l117" href="#l117">117</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">dpi</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#else</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">11</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">al_get_monitor_dpi</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">}</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l122" href="#l122">122</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l123" href="#l123">123</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">DragAspect</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l124" href="#l124">124</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">3067482</td>
+      <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">doAspectResize</span><span class="p">()</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l125" href="#l125">125</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -1085,7 +1197,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l113" href="#l113">113</a></td>
+      <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -1093,7 +1205,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l114" href="#l114">114</a></td>
+      <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1101,7 +1213,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l115" href="#l115">115</a></td>
+      <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1109,7 +1221,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l116" href="#l116">116</a></td>
+      <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1117,7 +1229,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l117" href="#l117">117</a></td>
+      <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
@@ -1134,7 +1246,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="lineno"><a id="l132" href="#l132">132</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1142,7 +1254,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">11</td>
@@ -1150,7 +1262,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">11</td>
@@ -1158,7 +1270,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="lineno"><a id="l135" href="#l135">135</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">11</td>
@@ -1166,7 +1278,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l122" href="#l122">122</a></td>
+      <td class="lineno"><a id="l136" href="#l136">136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1174,7 +1286,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l123" href="#l123">123</a></td>
+      <td class="lineno"><a id="l137" href="#l137">137</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
@@ -1191,7 +1303,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l124" href="#l124">124</a></td>
+      <td class="lineno"><a id="l138" href="#l138">138</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1199,7 +1311,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l125" href="#l125">125</a></td>
+      <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -1207,7 +1319,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l126" href="#l126">126</a></td>
+      <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1215,7 +1327,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l127" href="#l127">127</a></td>
+      <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -1223,7 +1335,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l128" href="#l128">128</a></td>
+      <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1231,7 +1343,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l129" href="#l129">129</a></td>
+      <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -1239,7 +1351,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l130" href="#l130">130</a></td>
+      <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1247,7 +1359,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l131" href="#l131">131</a></td>
+      <td class="lineno"><a id="l145" href="#l145">145</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -1255,7 +1367,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l132" href="#l132">132</a></td>
+      <td class="lineno"><a id="l146" href="#l146">146</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1263,7 +1375,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l133" href="#l133">133</a></td>
+      <td class="lineno"><a id="l147" href="#l147">147</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1271,7 +1383,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l134" href="#l134">134</a></td>
+      <td class="lineno"><a id="l148" href="#l148">148</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1279,7 +1391,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l135" href="#l135">135</a></td>
+      <td class="lineno"><a id="l149" href="#l149">149</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
@@ -1287,7 +1399,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l136" href="#l136">136</a></td>
+      <td class="lineno"><a id="l150" href="#l150">150</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1295,7 +1407,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l137" href="#l137">137</a></td>
+      <td class="lineno"><a id="l151" href="#l151">151</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1303,7 +1415,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l138" href="#l138">138</a></td>
+      <td class="lineno"><a id="l152" href="#l152">152</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1311,7 +1423,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l139" href="#l139">139</a></td>
+      <td class="lineno"><a id="l153" href="#l153">153</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1319,7 +1431,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l140" href="#l140">140</a></td>
+      <td class="lineno"><a id="l154" href="#l154">154</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1327,7 +1439,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l141" href="#l141">141</a></td>
+      <td class="lineno"><a id="l155" href="#l155">155</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1335,7 +1447,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l142" href="#l142">142</a></td>
+      <td class="lineno"><a id="l156" href="#l156">156</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1343,7 +1455,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l143" href="#l143">143</a></td>
+      <td class="lineno"><a id="l157" href="#l157">157</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1351,7 +1463,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l144" href="#l144">144</a></td>
+      <td class="lineno"><a id="l158" href="#l158">158</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1359,7 +1471,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l145" href="#l145">145</a></td>
+      <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1367,7 +1479,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l146" href="#l146">146</a></td>
+      <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1375,7 +1487,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l147" href="#l147">147</a></td>
+      <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1383,7 +1495,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l148" href="#l148">148</a></td>
+      <td class="lineno"><a id="l162" href="#l162">162</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">3067482</td>
@@ -1391,7 +1503,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l149" href="#l149">149</a></td>
+      <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
