@@ -386,6 +386,7 @@ test_results = {}
 for test in tests:
     test_results[test] = SimpleNamespace(success=None, failing_frame=None, log=None, diff=None, fps=None)
 
+
 print(f'running {len(tests)} replays\n')
 iteration_count = 0
 for i in range(args.retries + 1):

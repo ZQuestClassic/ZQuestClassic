@@ -1332,13 +1332,6 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     lensclk = 0;
     lensid=-1;
     drawguys=true;
-	down_control_states[btnUp] =
-		down_control_states[btnDown] =
-			down_control_states[btnLeft] =
-				down_control_states[btnRight] =
-					down_control_states[btnA] =
-						down_control_states[btnB] =
-							down_control_states[btnS] = true;
     
     if(watch && !cheat_superman)
     {
