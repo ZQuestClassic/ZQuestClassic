@@ -43,6 +43,10 @@ jobs:
     steps:
       - name: git clone
         uses: nschloe/action-cached-lfs-checkout@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - run: pip install requests PyGithub
 
       - uses: actions/download-artifact@v3
         with:

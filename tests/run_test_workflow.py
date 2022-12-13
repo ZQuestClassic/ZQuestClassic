@@ -5,16 +5,13 @@
 import argparse
 from argparse import ArgumentTypeError
 import os
-import io
-import platform
 import json
-import requests
-import zipfile
 from time import sleep
-from typing import List, Optional
+from typing import List
 from pathlib import Path
 # pip install PyGithub
 from github import Github, GithubException
+from common import infer_gha_platform, get_gha_artifacts
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -46,28 +43,6 @@ gh = Github(args.token)
 if args.test_results is not None and args.failing_workflow_run is not None:
     raise ArgumentTypeError(
         'can only choose one of --test_results or --failing_workflow_run')
-
-
-def infer_gha_platform(ci: Optional[str] = ''):
-    if ci:
-        return ci.split('_')
-
-    system = platform.system()
-    if system == 'Windows':
-        runs_on = 'windows-2022'
-        arch = 'x64' if platform.architecture()[0] == '64bit' else 'win32'
-    elif system == 'Darwin':
-        runs_on = 'macos-12'
-        arch = 'intel'
-    return runs_on, arch
-
-
-def download_artifact(artifact, dest):
-    url = f'https://nightly.link/{args.repo}/actions/artifacts/{artifact.id}.zip'
-    r = requests.get(url)
-    zip = zipfile.ZipFile(io.BytesIO(r.content))
-    zip.extractall(dest)
-    zip.close()
 
 
 def set_action_output(output_name, value):
@@ -121,7 +96,7 @@ def start_test_workflow_run(branch: str, runs_on: str, arch: str, extra_args: Li
 
     workflow_run_started = test_workflow.create_dispatch(branch, inputs)
     if not workflow_run_started:
-        print('failed to workflow run')
+        print('failed to start workflow run')
         return
 
     while True:
@@ -157,89 +132,56 @@ def poll_workflow_runs(run_ids: List[int]):
         sleep(20)
 
 
+# Collect all the test failures described by the provided test_results.json
+# files, and dispatch and wait for a workflow run to finish using a baseline
+# commit.
 def collect_baseline_from_test_results(test_results_paths: List[Path]):
-    baseline_branch = find_baseline_commit()
-
-    # CI runs replays sharded, so need to group the test results by platform.
-    results_grouped_by_platform = {}
+    failing_frames_by_replay = {}
     for path in test_results_paths:
         test_results = json.loads(path.read_text('utf-8'))
-        runs_on, arch = infer_gha_platform(test_results['ci'])
 
-        key = (runs_on, arch)
-        if key in results_grouped_by_platform:
-            results_for_platform = results_grouped_by_platform[key]
-        else:
-            results_for_platform = results_grouped_by_platform[key] = []
-
-        results_for_platform.append(test_results)
-
-    run_ids = []
-    for key, results_for_platform in results_grouped_by_platform.items():
-        (runs_on, arch) = key
-        extra_args = []
-
-        failing_replays = []
-        for test_results in results_for_platform:
-            for replay_result in test_results['replays']:
-                if not replay_result['success']:
-                    failing_replays.append(replay_result)
-
-        for replay_result in failing_replays:
-            replay_file = replay_result['replay']
-            failing_frame = replay_result['failing_frame']
-            if failing_frame == None:
-                print(f'no failing_frame for {replay_file} {key}, skipping')
+        for replay_result in test_results['replays']:
+            if replay_result['success']:
                 continue
 
-            extra_args.append(f'--filter {replay_file}')
-            extra_args.append(
-                f'--snapshot {replay_file}={max(0, failing_frame-60)}-{failing_frame+60}')
+            replay_name = replay_result['name']
+            failing_frame = replay_result['failing_frame']
+            if failing_frame == None:
+                print(f'{path}: no failing_frame for {replay_name}, skipping')
+                continue
 
-        if not extra_args:
+            if replay_name not in failing_frames_by_replay:
+                failing_frames_by_replay[replay_name] = []
+            failing_frames_by_replay[replay_name].append(failing_frame)
+
+        if replay_name not in failing_frames_by_replay:
+            runs_on = test_results['runs_on']
+            arch = test_results['arch']
             print(f'all failing replays were invalid for {runs_on} {arch}')
             continue
 
-        run_id = start_test_workflow_run(
-            baseline_branch, runs_on, arch, extra_args)
-        run_ids.append(run_id)
+    extra_args = []
+    for replay_name, failing_frames in failing_frames_by_replay.items():
+        for failing_frame in set(failing_frames):
+            extra_args.append(f'--filter {replay_name}')
+            extra_args.append(
+                f'--snapshot {replay_name}={max(0, failing_frame-60)}-{failing_frame+60}')
+            extra_args.append(f'--frame {replay_name}={failing_frame+60}')
 
-    print(f'all runs started: {", ".join([str(id) for id in run_ids])}')
-    poll_workflow_runs(run_ids)
-    print('all runs finished')
+    if not extra_args:
+        raise Exception('all failing replays were invalid')
 
-    baseline_run_id_args = ' '.join(f'--workflow_run {id}' for id in run_ids)
-    set_action_output('baseline_run_id_args', baseline_run_id_args)
+    # For baseline purposes, only need to run on a single platform.
+    run_id = start_test_workflow_run(
+        find_baseline_commit(), 'windows-2022', 'x64', extra_args)
+    poll_workflow_runs([run_id])
+    print('run finished')
+    set_action_output('baseline_run_id', run_id)
 
 
-def collect_baseline_from_run_test_results(run_id: int):
-    repo = gh.get_repo(args.repo)
-    run = repo.get_workflow_run(run_id)
-    replay_artifacts = [
-        r for r in run.get_artifacts() if r.name.startswith('replays-')]
-    if not replay_artifacts:
-        raise Exception(f'no replay artifacts found for run {run_id}')
-
-    # TODO use this for compare_replays.py too
-    gha_cache_dir = script_dir / '.gha-cache-dir'
-    workflow_run_dir = gha_cache_dir / str(run_id)
-    workflow_run_dir.mkdir(exist_ok=True, parents=True)
-
-    test_results_paths = []
-    for artifact in replay_artifacts:
-        artifact_dir = workflow_run_dir / str(artifact.name)
-        if not artifact_dir.exists():
-            print(f'downloading artifact: {artifact.name}')
-            download_artifact(artifact, artifact_dir)
-        test_results_path = next(artifact_dir.glob('test_results.json'), None)
-        if test_results_path:
-            test_results_paths.append(test_results_path)
-        else:
-            print(f'missing test_results.json for {artifact.name}')
-
-    if not test_results_paths:
-        raise Exception('found no test_results.json files')
-
+def collect_baseline_from_failing_workflow_run(run_id: int):
+    workflow_run_dir = get_gha_artifacts(gh, args.repo, run_id)
+    test_results_paths = list(workflow_run_dir.rglob('test_results.json'))
     collect_baseline_from_test_results(test_results_paths)
 
 
@@ -251,7 +193,7 @@ if args.test_results:
         test_results_paths = [args.test_results]
     collect_baseline_from_test_results(test_results_paths)
 elif args.failing_workflow_run:
-    collect_baseline_from_run_test_results(args.failing_workflow_run)
+    collect_baseline_from_failing_workflow_run(args.failing_workflow_run)
 else:
     extra_args = []
     if args.extra_args:

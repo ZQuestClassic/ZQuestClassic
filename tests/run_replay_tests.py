@@ -39,11 +39,12 @@ import json
 import re
 import difflib
 import pathlib
-import shutil
 import functools
 from types import SimpleNamespace
 from time import sleep
 from timeit import default_timer as timer
+from typing import List
+from common import infer_gha_platform
 
 ASSERT_FAILED_EXIT_CODE = 120
 
@@ -58,7 +59,7 @@ parser.add_argument('--throttle_fps', action='store_true')
 parser.add_argument('--update', action='store_true')
 parser.add_argument('--snapshot', action='append')
 parser.add_argument('--retries', type=int, default=0)
-parser.add_argument('--frame', type=int)
+parser.add_argument('--frame', action='append')
 parser.add_argument('--ci')
 parser.add_argument('--shard')
 parser.add_argument('--print_shards', action='store_true')
@@ -74,24 +75,45 @@ if args.update:
 elif args.replay:
     mode = 'replay'
 
+
+def group_arg(raw_values: List[str]):
+    default_arg = None
+    arg_by_replay = {}
+    if raw_values:
+        for raw_value in raw_values:
+            if '=' in raw_value:
+                for replay, value in [raw_value.split('=')]:
+                    replay_full_path = replays_dir / replay
+                    if replay_full_path not in tests:
+                        raise Exception(f'unknown test {replay}')
+                    arg_by_replay[replay_full_path] = value
+            else:
+                if default_arg != None:
+                    raise Exception('can only define one default value')
+                default_arg = raw_value
+
+    return (arg_by_replay, default_arg)
+
+
+def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
+    arg_by_replay, default_arg = grouped_arg
+    if replay_file in arg_by_replay:
+        result = arg_by_replay[replay_file]
+    else:
+        result = default_arg
+
+    if is_int and result != None:
+        return int(result)
+    return result
+
+
 is_windows_ci = args.ci and 'windows' in args.ci
 script_dir = os.path.dirname(os.path.realpath(__file__))
 replays_dir = pathlib.Path(os.path.join(script_dir, 'replays'))
 test_results_path = replays_dir / 'test_results.json'
 tests = list(replays_dir.glob('*.zplay'))
-
-snapshot_arg = None
-snapshot_arg_by_replay = {}
-if args.snapshot:
-    for snapshot in args.snapshot:
-        if '=' in snapshot:
-            for replay, snapshot in [snapshot.split('=')]:
-                replay_full_path = replays_dir / replay
-                if replay_full_path not in tests:
-                    raise Exception(f'unknown test {replay}')
-                snapshot_arg_by_replay[replay_full_path] = snapshot
-        else:
-            snapshot_arg = snapshot
+grouped_snapshot_arg = group_arg(args.snapshot)
+grouped_frame_arg = group_arg(args.frame)
 
 if args.filter:
     filtered_tests = []
@@ -169,8 +191,9 @@ def get_replay_data(file):
     frames_limited = frames
     if args.ci and file.name == 'first_quest_layered.zplay':
         frames_limited = 1_000_000
-    if args.frame and args.frame < frames_limited:
-        frames_limited = args.frame
+    frame_arg = get_arg_for_replay(file.name, grouped_frame_arg, is_int=True)
+    if frame_arg is not None and frame_arg < frames_limited:
+        frames_limited = frame_arg
 
     estimated_duration = frames_limited / estimated_fps
     if args.max_duration and estimated_duration > args.max_duration:
@@ -201,16 +224,20 @@ def get_shards(tests, n):
 
 
 def save_test_results():
+    runs_on, arch = args.ci.split('_') if args.ci else infer_gha_platform()
     json_result = {
-        'ci': args.ci,
+        'runs_on': runs_on,
+        'arch': arch,
     }
     if os.environ.get('CI'):
+        json_result['ci'] = True
         json_result['ref'] = os.environ.get('GITHUB_REF')
+        json_result['run_id'] = os.environ.get('GITHUB_RUN_ID')
 
     json_result['replays'] = []
     for replay, test_result in test_results.items():
         json_result['replays'].append({
-            'replay': replay.name,
+            'name': replay.name,
             'success': test_result.success,
             'failing_frame': test_result.failing_frame,
         })
@@ -259,12 +286,12 @@ def run_replay_test(replay_file):
         '-replay-exit-when-done',
     ]
 
-    if args.frame is not None:
-        exe_args.extend(['-frame', str(args.frame)])
+    frame_arg = get_arg_for_replay(replay_file, grouped_frame_arg, is_int=True)
+    if frame_arg is not None:
+        exe_args.extend(['-frame', str(frame_arg)])
 
-    if replay_file in snapshot_arg_by_replay:
-        exe_args.extend(['-snapshot', snapshot_arg_by_replay[replay_file]])
-    elif snapshot_arg is not None:
+    snapshot_arg = get_arg_for_replay(replay_file, grouped_snapshot_arg)
+    if snapshot_arg is not None:
         exe_args.extend(['-snapshot', snapshot_arg])
 
     replay_data = get_replay_data(replay_file)
@@ -276,8 +303,8 @@ def run_replay_test(replay_file):
     if args.ci:
         timeout = max(60 + replay_data['estimated_duration'] * 3, 60 * 5)
 
-    if args.frame is not None and args.frame < frames:
-        frames_limited = args.frame
+    if frame_arg is not None and frame_arg < frames:
+        frames_limited = frame_arg
     if frames_limited != frames:
         print(f"(-frame {frames_limited}, only doing {100 * frames_limited / frames:.2f}%) ", end='', flush=True)
         exe_args.extend(['-frame', str(frames_limited)])
@@ -403,10 +430,10 @@ if mode == 'assert':
         print(f'{len(failing_tests)} replay tests failed')
 
         print('\nto collect baseline artifacts and then generate a report, run the following commands:\n')
-        print(f'python {script_dir}/run_test_workflow.py --test_results {test_results_path} --token <1>')
-        print(f'python {script_dir}/compare_replays.py --workflow <2> --local {replays_dir}')
+        print(f'python {script_dir}/run_test_workflow.py --test_results {replays_dir} --token <1>')
+        print(f'python {script_dir}/compare_replays.py --workflow_run <2> --local {replays_dir}')
         print('\n')
         print('<1>: github personal access token, with write actions access')
-        print('<2>: workflow_id printed from the previous command')
+        print('<2>: workflow run id printed from the previous command')
 
         exit(1)

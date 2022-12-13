@@ -57,9 +57,9 @@ jobs:
         run: python3 tests/run_test_workflow.py --test_results test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
         id: collect-baseline
       - name: Generate report
-        run: python3 tests/compare_replays.py ${{ steps.collect-baseline.outputs.baseline_run_id_args }} --local test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+        run: python3 tests/compare_replays.py --workflow_run ${{ steps.collect-baseline.outputs.baseline_run_id }} --local test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
 
-      - run: npx surge ${{ github.workspace }}/tests/compare-tracks zc-replay-compare-${{ github.run_id }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+      - run: npx surge ${{ github.workspace }}/tests/compare-report zc-replay-compare-${{ github.run_id }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
         name: Upload to https://zc-replay-compare-${{ github.run_id }}.surge.sh
 
       - name: Discord notification

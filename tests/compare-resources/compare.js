@@ -87,7 +87,8 @@ const observer = new IntersectionObserver((entries) => {
 });
 
 function init() {
-    console.log({ data });
+    // `testRuns` has been defined by the python generation script.
+    console.log({ testRuns });
 
     function onToggleUnexpectedFilter() {
         renderTracks(getOptions());
@@ -169,7 +170,7 @@ function init() {
         hideFrameView();
     });
 
-    const replays = [...new Set(data.map(d => d.replay))];
+    const replays = [...new Set(testRuns.map(r => r.replays.map(r => r.name)).flat())];
     const selectEl = find('.select__replays select');
     for (const replay of replays) {
         const el = document.createElement('option');
@@ -187,7 +188,19 @@ function init() {
 function renderTracks(options) {
     trackViewDirty = false;
     showOptions('tracks');
-    tracks = data.filter(d => d.replay === options.replay);
+
+    tracks = [];
+    for (const testRun of testRuns) {
+        for (const replayData of testRun.replays) {
+            if (replayData.name === options.replay) {
+                tracks.push({
+                    source: testRun.label,
+                    ...replayData,
+                });
+            }
+        }
+    }
+    console.log({ tracks });
 
     let minFrame = tracks[0].snapshots[0].frame;
     let maxFrame = tracks[0].snapshots[0].frame;
@@ -251,9 +264,14 @@ function renderTracks(options) {
         containerEl.className = 'track-frame-container';
         tracksEl.append(containerEl);
         for (const track of tracks) {
-            const el = document.createElement('div');
+            let el = document.createElement('div');
+            el.className = 'track-frame--source';
+            el.innerHTML = '&nbsp;';
+            containerEl.append(el);
+
+            el = document.createElement('div');
             el.className = 'track-frame track-frame--source';
-            el.textContent = track.source;
+            el.innerHTML = track.source.split(' ').join('<br>');
             containerEl.append(el);
         }
     }
@@ -287,7 +305,7 @@ function renderTracks(options) {
             containerEl.append(el);
 
             if (snapshot) {
-                el.innerHTML = `<img loading=lazy class='track-frame__image' src='${snapshot.url}'>`;
+                el.innerHTML = `<img loading=lazy class='track-frame__image' src='${snapshot.path}'>`;
             }
 
             const unexpected = j > 0 && (snapshot?.unexpected || (!!snapshot !== trackFrame.tracks.includes(0)))
@@ -322,7 +340,7 @@ async function loadImageFromTrack(frameIndex, trackIndex) {
         img.dataset['frame'] = frameIndex;
         img.dataset['track'] = trackIndex;
         img.addEventListener('load', () => resolve(img));
-        img.src = snapshot.url;
+        img.src = snapshot.path;
         if (img.complete) resolve(img);
     });
 }
