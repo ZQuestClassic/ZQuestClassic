@@ -185,7 +185,7 @@ def get_replay_data(file):
     estimated_fps_overrides = {
         'classic_1st.zplay': 1400,
         'demosp253.zplay': 800,
-        'first_quest_layered.zplay': 1200,
+        'first_quest_layered.zplay': 1700,
         'nes-remastered.zplay': 1400,
         'stellar_seas_randomizer.zplay': 150,
     }
@@ -193,8 +193,6 @@ def get_replay_data(file):
         estimated_fps = estimated_fps_overrides[file.name]
 
     frames_limited = frames
-    if args.ci and file.name == 'first_quest_layered.zplay':
-        frames_limited = 1_000_000
     frame_arg = get_arg_for_replay(file.name, grouped_frame_arg, is_int=True)
     if frame_arg is not None and frame_arg < frames_limited:
         frames_limited = frame_arg
@@ -301,7 +299,7 @@ def run_replay_test(replay_file):
     frames = replay_data['frames']
     frames_limited = replay_data['frames_limited']
 
-    # Cap the length of a replay in CI.
+    # Cap the duration in CI, in case it somehow never ends.
     timeout = None
     if args.ci:
         timeout = max(60 + replay_data['estimated_duration'] * 3, 60 * 5)
