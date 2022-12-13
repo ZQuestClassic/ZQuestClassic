@@ -846,6 +846,7 @@ weapon::weapon(weapon const & other):
     minY(other.minY),			//int32_t		...
     maxY(other.maxY),			//int32_t		...
     ref_o_tile(other.ref_o_tile),	//int32_t
+	autorotate(other.autorotate),
 	
     //! dimi Wand
     /*
