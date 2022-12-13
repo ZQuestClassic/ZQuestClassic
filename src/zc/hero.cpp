@@ -7977,7 +7977,7 @@ bool HeroClass::animate(int32_t)
 		}
 		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell)
 		{
-			zfix my = y + gravity3;
+			zfix my = y + 2;
 			needFall = true;
 			for (zfix ty = y+1; ty < my; ++ty)
 			{
