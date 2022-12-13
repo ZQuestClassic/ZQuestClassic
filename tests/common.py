@@ -4,7 +4,12 @@ import io
 import requests
 import zipfile
 from pathlib import Path
-from github import Github
+
+# So that `PyGithub` is not necessary to simply run `run_replay_tests.py`.
+try:
+    from github import Github
+except:
+    Github = {}
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
