@@ -568,7 +568,7 @@ find_program(CODE_COVERAGE_GCOVR gcovr)
 if (CODE_COVERAGE_GCOVR)
 	include(CodeCoverage)
 	setup_coverage_test_target(zelda_coverage ${CMAKE_BINARY_DIR}/coverage-report
-		python ${CMAKE_SOURCE_DIR}/tests/run_replay_tests.py --build_folder ${CMAKE_BINARY_DIR}/Coverage --replay --ci osx)
+		python ${CMAKE_SOURCE_DIR}/tests/run_replay_tests.py --build_folder ${CMAKE_BINARY_DIR}/Coverage --replay --ci)
 	add_dependencies(zelda_coverage zelda)
 endif()
 

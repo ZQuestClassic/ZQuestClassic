@@ -60,7 +60,7 @@ parser.add_argument('--update', action='store_true')
 parser.add_argument('--snapshot', action='append')
 parser.add_argument('--retries', type=int, default=0)
 parser.add_argument('--frame', action='append')
-parser.add_argument('--ci')
+parser.add_argument('--ci', nargs='?')
 parser.add_argument('--shard')
 parser.add_argument('--print_shards', action='store_true')
 parser.add_argument('--replay', action='store_true')
@@ -75,6 +75,10 @@ if args.update:
 elif args.replay:
     mode = 'replay'
 
+if args.ci and '_' in args.ci:
+    runs_on, arch = args.ci.split('_')
+else:
+    runs_on, arch = infer_gha_platform()
 
 def group_arg(raw_values: List[str]):
     default_arg = None
@@ -224,7 +228,6 @@ def get_shards(tests, n):
 
 
 def save_test_results():
-    runs_on, arch = args.ci.split('_') if args.ci else infer_gha_platform()
     json_result = {
         'runs_on': runs_on,
         'arch': arch,
