@@ -6,6 +6,9 @@ on:
     branches: ['main']
     paths: ['tests/**']
 
+env:
+  PYTHONUNBUFFERED: '1'
+
 jobs:
   coverage:
     runs-on: macos-12

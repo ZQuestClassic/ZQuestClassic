@@ -6,6 +6,9 @@ on:
       - 'compare-baseline-*'
   pull_request:
 
+env:
+  PYTHONUNBUFFERED: '1'
+
 jobs:
   test:
     strategy:

@@ -27,6 +27,9 @@ on:
       extra-args:
         type: string
 
+env:
+  PYTHONUNBUFFERED: '1'
+
 jobs:
   build:
     # See https://github.com/community/community/discussions/40777
