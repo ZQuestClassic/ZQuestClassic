@@ -52,10 +52,6 @@ def get_replay_from_snapshot_path(path):
 #  - if run in CI, the workflow run id and git ref
 #  - a list of replays and any snapshots they produced
 def collect_test_run_from_dir(directory: Path):
-    snapshot_paths = sorted(directory.rglob('*.zplay*.png'))
-    if len(snapshot_paths) == 0:
-        raise Exception(f'{directory} has no snapshots')
-
     test_results = json.loads((directory/'test_results.json').read_text('utf-8'))
     test_run = {
         'label': '',
@@ -78,6 +74,10 @@ def collect_test_run_from_dir(directory: Path):
             test_run['ref'],
         ])
     test_run['label'] = ' '.join(label_parts)
+
+    snapshot_paths = sorted(directory.rglob('*.zplay*.png'))
+    if len(snapshot_paths) == 0:
+        print(f'{directory} has no snapshots')
 
     test_run['replays'] = []
     for replay, snapshots in groupby(snapshot_paths, get_replay_from_snapshot_path):
