@@ -57,16 +57,9 @@ When it asks you for compiler settings, be sure to set MSVC 2019, with `32-bit` 
 
 Click "Generate." This will create a Visual Studio project file for you in the build directory. You can then open up the project file in MSVC and do editing/compilation/debugging in MSVC. You do not need to touch CMake again unless you want to change project configuration options or add/remove source files.
 
-### Quick-start: Linux with gcc (OLD INSTRUCTIONS, UNTESTED)
+### Quick-start: Linux with gcc
 
-Linux builds are currently not entirely functional. This section will be updated with new instructions at a later date. (-EmilyV, Jan 9th 2022)
-
-Ensure you have CMake 3.5+ install and execute the following commands:
-```
-cd build
-cmake ..
-make
-```
+See `docs/building.md`.
 
 Binaries will be created in the `build` folder. You will need to copy the data files created by the buildpack.sh script to the Debug/Release folder.
 

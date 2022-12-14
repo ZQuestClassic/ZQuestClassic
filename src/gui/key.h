@@ -160,7 +160,7 @@ namespace Key
 #undef KEY
 #undef MOD_KEY
 
-inline constexpr ShortcutKey operator ""_key(uint64_t num)
+inline constexpr ShortcutKey operator ""_key(unsigned long long int num)
 {
 	return ShortcutKey((int32_t)num);
 }

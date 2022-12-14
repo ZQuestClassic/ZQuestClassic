@@ -65,11 +65,16 @@ const char * _midia5_get_platform_output_device_name(int device)
 	snd_seq_port_info_t *pinfo;
 	int count = 0;
 
-	snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0);
+	strcpy(_midia5_platform_output_device_name_buffer, "");
+
+	if (snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0) < 0) {
+		// local edit
+		fprintf(stderr, "Error opening ALSA sequencer.\n");
+		return _midia5_platform_output_device_name_buffer;
+	}
 	snd_seq_client_info_alloca(&cinfo);
 	snd_seq_port_info_alloca(&pinfo);
 
-	strcpy(_midia5_platform_output_device_name_buffer, "");
 	snd_seq_client_info_set_client(cinfo, -1);
 	while(snd_seq_query_next_client(seq, cinfo) >= 0)
 	{

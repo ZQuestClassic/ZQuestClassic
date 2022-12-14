@@ -1,5 +1,26 @@
 TODO: document how to build from scratch on windows and osx
 
+# Building on Ubuntu
+
+```sh
+sudo apt update
+sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+
+# Configure build for GCC
+cmake -B build -S .
+# Or: configure for clang
+CC=clang CXX=clang++ cmake -B build -S .
+
+# Build!
+cmake --build build
+```
+
+Then before running, you need some additional packages installed:
+<!-- TODO: why both? I think when using GCC we need to link with libopengl, but with clang we need libglu? -->
+```sh
+sudo apt install libopengl0 libglu1
+```
+
 # Building with Ninja and MSVC
 
 Typically, on Windows you want to use Visual Studio as the cmake generator, but if you want to use Ninja here's how:

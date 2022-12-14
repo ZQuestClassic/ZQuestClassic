@@ -9,6 +9,7 @@
 
 using namespace std;
 
+// TODO: use fmt::format
 std::string varToString(int32_t arg)
 {
 	for(int32_t q = 0; variable_list[q].id != -1; ++q)
@@ -23,7 +24,7 @@ std::string varToString(int32_t arg)
 				{
 					if(arg!=start+(w*mult)) continue;
 					
-					char buf[64];
+					char buf[80];
 					if(strcmp(variable_list[q].name, "A")==0)
 						sprintf(buf, "%s%d", variable_list[q].name, w+1);
 					else sprintf(buf, "%s%d", variable_list[q].name, w);
@@ -40,9 +41,9 @@ string getOpcodeString(ffscript const* line)
 {
 	script_command s_c = command_list[line->command];
 	//al_trace("%s - %ld - %ld\n", s_c.name, line->arg1, line->arg2);
-	char buf[0x100];
-	char a1buf[0x100];
-	char a2buf[0x100];
+	char buf[600];
+	char a1buf[256];
+	char a2buf[256];
 	if(s_c.args == 2)
 	{
 		if(s_c.arg1_type == 0)

@@ -2818,7 +2818,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			map<string,int32_t>::iterator it = labels.find(lbl);
 			if(it != labels.end())
 			{
-				char buf[80],buf2[80],buf3[80],name[13];
+				char buf[120],buf2[120],buf3[120],name[13];
 				extract_name(temppath,name,FILENAME8_3);
 				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				sprintf(buf2,"The error was: Duplicate Label");
@@ -3199,6 +3199,11 @@ int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t ar
 		{
 			for(int32_t j=0; j<variable_list[i].maxcount; ++j)
 			{
+#ifndef _MSC_VER
+				if (__builtin_strlen(variable_list[i].name) > sizeof(((script_variable*)0)->name))
+					__builtin_unreachable();
+#endif
+
 				if(strcmp(variable_list[i].name,"A")==0)
 					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
 				else sprintf(tempvar, "%s%d", variable_list[i].name, j);

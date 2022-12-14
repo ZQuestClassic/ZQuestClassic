@@ -24181,7 +24181,7 @@ void FFScript::do_loaddirectory()
 	size_t pos = path.find_last_not_of("/\\");
 	if(pos != string::npos && !(path.find_last_of("/\\") < pos))
 		path = path.substr(0, pos+1);
-	char buf[2048] = {0};
+	char buf[2048+1] = {0};
 	get_scriptfile_path(buf, path.c_str());
 	regulate_path(buf);
 	if(valid_dir(buf) && checkPath(buf, true))
@@ -24411,7 +24411,7 @@ void FFScript::do_paldata_load_bitmap()
 
 		if (get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 		{
-			char buf[2048] = { 0 };
+			char buf[2048+1] = { 0 };
 			if (FFCore.get_scriptfile_path(buf, str.c_str()))
 				str = buf;
 		}
@@ -26663,7 +26663,7 @@ void do_drawing_command(const int32_t script_command)
 			
 			if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
-				char buf[2048] = {0};
+				char buf[2048+1] = {0};
 				if(FFCore.get_scriptfile_path(buf, str->c_str()))
 					(*str) = buf;
 			}
@@ -26688,7 +26688,7 @@ void do_drawing_command(const int32_t script_command)
 			
 			if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
-				char buf[2048] = {0};
+				char buf[2048+1] = {0};
 				if(FFCore.get_scriptfile_path(buf, str->c_str()))
 					(*str) = buf;
 			}
@@ -33122,7 +33122,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 		Z_scripterrlog("Error: Script attempted to go up a directory in file load '%s'\n", filename_str.c_str());
 		return;
 	}
-	char buf[2048] = {0};
+	char buf[2048+1] = {0};
 	FFCore.get_scriptfile_path(buf, filename_str.c_str());
 	user_file* f = checkFile(ri->fileref, "Open()", false, true);
 	if(!f) //auto-allocate
@@ -35298,7 +35298,7 @@ string get_filestr(const bool relative) //Used for 'FileSystem' functions.
 	the_string = the_string.substr(0,last); //Kill trailing '/'
 	if(relative)
 	{
-		char buf[2048] = {0};
+		char buf[2048+1] = {0};
 		if(FFCore.get_scriptfile_path(buf, the_string.c_str()))
 			the_string = buf;
 	}
@@ -40471,7 +40471,7 @@ std::string ZASMVarToString(int32_t arg)
 				{
 					if(arg!=start+(w*mult)) continue;
 					
-					char buf[64];
+					char buf[64+1];
 					if(strcmp(ZASMVars[q].name, "A")==0)
 						sprintf(buf, "%s%d", ZASMVars[q].name, w+1);
 					else sprintf(buf, "%s%d", ZASMVars[q].name, w);
@@ -40888,7 +40888,7 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 						" Value will be truncated to 10.");
 					min_digits = 10;
 				}
-				char mindigbuf[8] = {0};
+				char mindigbuf[15] = {0};
 				sprintf(mindigbuf, "%%0%d%c", min_digits, hex ? format[0] : 'd');
 				bool tempbool = false;
 				switch( format[0] )

@@ -614,8 +614,6 @@ AL_CONST char *scancode_to_name(int scancode)
    return name;
 }
 
-
-
 /* install_keyboard:
  *  Installs Allegro's keyboard handler. You must call this before using
  *  any of the keyboard input routines. Returns -1 on failure.

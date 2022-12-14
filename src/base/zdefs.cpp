@@ -23,7 +23,7 @@ const char months[13][13] =
 
 char *VerStr(int32_t version)
 {
-    static char ver_str[12];
+    static char ver_str[15];
     sprintf(ver_str,"v%d.%02X",version>>8,version&0xFF);
     return ver_str;
 }
@@ -1206,7 +1206,7 @@ int32_t getProgramAlphaVer()
 
 char const* getProgramAlphaStr(bool ignoreNightly = false)
 {
-	static char buf[40] = "";
+	static char buf[60] = "";
 	char format[20] = "%s";
 	if(!ignoreNightly && ZC_IS_NIGHTLY) strcpy(format, "Nightly (%s)");
 	if(V_ZC_RELEASE) sprintf(buf, format, "Release");
@@ -1219,7 +1219,7 @@ char const* getProgramAlphaStr(bool ignoreNightly = false)
 
 char const* getProgramAlphaVerStr()
 {
-	static char buf[40] = "";
+	static char buf[100] = "";
 	if(ZC_IS_NIGHTLY)
 	{
 		if(getProgramAlphaVer() < 0)
@@ -1237,7 +1237,7 @@ char const* getProgramAlphaVerStr()
 
 char const* getProgramVerStr()
 {
-	static char buf[80] = "";
+	static char buf[120] = "";
 	if(V_ZC_FOURTH > 0)
 		sprintf(buf, "%d.%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
 			V_ZC_THIRD, V_ZC_FOURTH, getProgramAlphaVerStr());

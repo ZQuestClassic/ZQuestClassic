@@ -93,7 +93,7 @@ bool ZModule::init(bool d) //bool default
 	al_trace("The Current ZQuest Player Module is: %s\n",moduledata.module_name); 
 	if(!fileexists((char*)moduledata.module_name))
 	{
-		al_trace("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
+		Z_error("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 		return false;
 	}
 	if(!d) return true;

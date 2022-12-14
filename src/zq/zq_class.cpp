@@ -14499,7 +14499,7 @@ int32_t save_quest(const char *filename, bool timed_save)
 	{
 		char backupname[2048];
 		char backupname2[2048];
-		char ext[5];
+		char ext[12];
 		
 		for(int32_t i=retention-1; i>0; --i)
 		{

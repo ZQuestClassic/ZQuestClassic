@@ -5,6 +5,9 @@ on:
         type: string
       arch:
         type: string
+      compiler:
+        type: string
+        required: false
     outputs:
       build-artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
@@ -40,6 +43,9 @@ jobs:
         with:
           args: install .github/dependencies.config -y
 
+      - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+
       - if: ${{ contains(inputs.runs-on, 'mac') }}
         run: brew install ninja dylibbundler create-dmg ccache
 
@@ -53,13 +59,22 @@ jobs:
           make
           sudo make install
 
+      - if: inputs.compiler == 'clang'
+        run: |
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+      - if: inputs.compiler == 'gcc'
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+
       # Setup build cache via ccache.
       - name: ccache cache files
         uses: actions/cache@v3
         with:
           path: .ccache
-          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-ccache-${{ github.run_id }}
-          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-
+          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-
       - run: ccache -z
 
       # Configure build.
@@ -73,6 +88,9 @@ jobs:
           macos: |
             echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
             echo "PACKAGE_FOLDER=output/_auto/zelda-classic-mac" >> "$GITHUB_ENV"
+          linux: |
+            echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
+            echo "PACKAGE_FOLDER=output/_auto/buildpack/buildpack.tgz" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - name: Configure build
         run: >
@@ -82,15 +100,15 @@ jobs:
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       # Build things individually just to have some separation in the GHA UI.
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target allegro -j 4
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zcsound -j 4
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zquest -j 4
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zelda -j 4
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zscript -j 4
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zlauncher -j 4
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target allegro -j 4 -- -k 0
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zcsound -j 4 -- -k 0
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zquest -j 4 -- -k 0
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zelda -j 4 -- -k 0
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zscript -j 4 -- -k 0
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zlauncher -j 4 -- -k 0
       # TODO: fix error from png-fix-itxt.exe on windows.
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release -j 4
-        if: ${{ contains(inputs.runs-on, 'mac') }}
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release -j 4 -- -k 0
+        if: ${{ !contains(inputs.runs-on, 'windows') }}
       - run: ccache -s
 
       # Package.
@@ -103,6 +121,11 @@ jobs:
           macos: |
             cd output/_auto
             ./buildpack_osx.sh
+          linux: |
+            cd output/_auto
+            ./buildpack.sh ../../build/Release
+            cd buildpack
+            tar czpvf buildpack.tgz * --preserve-permissions
 
       # Make build result available to other jobs.
       - uses: actions/upload-artifact@v3

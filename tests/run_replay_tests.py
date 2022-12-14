@@ -39,6 +39,7 @@ import json
 import re
 import difflib
 import pathlib
+import platform
 import functools
 from types import SimpleNamespace
 from time import sleep
@@ -315,9 +316,24 @@ def run_replay_test(replay_file):
         allegro_log = None
         if allegro_log_path and allegro_log_path.exists():
             allegro_log = allegro_log_path.read_text()
+
+        if isinstance(process_result.stdout, str):
+            stdout = process_result.stdout
+        elif process_result.stdout:
+            stdout = process_result.stdout.decode('utf-8')
+        else:
+            stdout = None
+
+        if isinstance(process_result.stderr, str):
+            stderr = process_result.stderr
+        elif process_result.stderr:
+            stderr = process_result.stderr.decode('utf-8')
+        else:
+            stderr = None
+
         return {
-            'stdout': process_result.stdout,
-            'stderr': process_result.stderr,
+            'stdout': stdout,
+            'stderr': stderr,
             'allegro': allegro_log,
         }
 
@@ -328,7 +344,7 @@ def run_replay_test(replay_file):
         start = timer()
         try:
             process_result = subprocess.run(exe_args,
-                                            cwd=args.build_folder if os.name == 'nt' else None,
+                                            cwd=None if platform.system() == 'Darwin' else args.build_folder,
                                             env={
                                                 **os.environ,
                                                 'ALLEGRO_LEGACY_TRACE': allegro_log_path.name

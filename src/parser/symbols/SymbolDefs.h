@@ -6,7 +6,7 @@
 #include "../../zsyssimple.h"
 #include "../ByteCode.h"
 #include "../base/zdefs.h" //Putting this higher has issues?
-#include "../parserdefs.h"
+#include "../parserDefs.h"
 #include "../Scope.h"
 #include "../ZScript.h"
 #include "../CompilerUtils.h"

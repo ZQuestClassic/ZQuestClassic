@@ -1958,14 +1958,14 @@ void savesometiles(const char *prompt,int32_t initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
-			char name[256];
+			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -2195,14 +2195,14 @@ void savesomecombos(const char *prompt,int32_t initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOS-1)-first_tile_id);
 		if(getname("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
-			char name[256];
+			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -2544,16 +2544,16 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 		{
 			if(!writesomedmaps(f,first_dmap_id,last_dmap_id,MAXDMAPS))
 			{
-				char buf[80],name[256];
+				char buf[PATH_MAX+20],name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
 				sprintf(buf,"Unable to load %s",name);
 				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 			else
 			{
-				char name[256];
+				char name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -2616,14 +2616,14 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
 		if(getname("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
-			char name[256];
+			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -4944,6 +4944,9 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     blit(graypic,screen,0,0,0,0,screen->w,screen->h);
     destroy_bitmap(graypic);
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
     char extbuf[2][80];
     memset(extbuf[0],0,80);
     memset(extbuf[1],0,80);
@@ -4957,6 +4960,9 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     }
     
     sprintf(extbuf[0], "%s)", extbuf[0]);
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
     
     int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
     
@@ -5833,7 +5839,7 @@ void tile_warp_notification(int32_t which, char *buf)
         
     default:
     {
-        char buf2[25];
+        char buf2[30];
         
         if(strlen(DMaps[Map.CurrScr()->tilewarpdmap[which]].name)==0)
         {
@@ -6408,7 +6414,7 @@ void refresh(int32_t flags)
             
             for(int32_t btn=0; btn<(showedges?9:8); ++btn)
             {
-                char tbuf[10];
+                char tbuf[15];
                 sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
                 draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
             }
@@ -7168,7 +7174,7 @@ void refresh(int32_t flags)
 		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
             int32_t m = Map.getLayerTargetMultiple();
             sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
-            char buf2[16];
+            char buf2[24];
             
             if(m>0)
             {
@@ -7311,7 +7317,7 @@ void refresh(int32_t flags)
 			{
 				strcat(buf,item_string[misc.shop[shop].item[j]]);
 				strcat(buf,":");
-				char pricebuf[4];
+				char pricebuf[8];
 				sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
 				strcat(buf,pricebuf);
 				
@@ -7331,7 +7337,7 @@ void refresh(int32_t flags)
 			{
 				strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
 				strcat(buf,":");
-				char pricebuf[4];
+				char pricebuf[8];
 				sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
 				strcat(buf,pricebuf);
 				
@@ -10247,7 +10253,7 @@ void domouse()
 		{
 			for(int32_t btn=0; btn<(showedges?9:8); ++btn)
 			{
-				char tbuf[10];
+				char tbuf[15];
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
 				
 				if(isinRect(x,y,mapscreen_x+(btn*16*2*mapscreensize),mapscreen_y+((showedges?13:11)*16*mapscreensize),mapscreen_x+(btn*16*2*mapscreensize)+map_page_bar[btn].w,mapscreen_y+((showedges?13:11)*16*mapscreensize)+map_page_bar[btn].h))
@@ -10888,7 +10894,7 @@ void domouse()
 			ComboBrushPause=0;
 			
 			bool clickedffc = false;
-			int32_t earliestfreeffc = MAXFFCS;
+			uint32_t earliestfreeffc = MAXFFCS;
 			
 			// FFC right-click menu
 			// This loop also serves to find the free ffc with the smallest slot number.
@@ -13547,7 +13553,7 @@ const char *sfxlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static char lenseffect_str_buf[15];
+static char lenseffect_str_buf[30];
 
 const char *lenseffectlist(int32_t index, int32_t *list_size)
 {
@@ -13922,7 +13928,7 @@ int32_t onScrData()
 	char timedstring[6];
 	// char nmapstring[4];
 	// char nscrstring[3];
-	char csensstring[2];
+	char csensstring[4];
 	char tics_secs_str[80];
 	sprintf(tics_secs_str, "=0.00 seconds");
 	char zora_str[85];
@@ -16102,7 +16108,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 
 char dmap_title[21];
-char dmap_name[33];
+char dmap_name[21];
 char dmap_intro[73];
 
 
@@ -16549,7 +16555,7 @@ static DIALOG editdmap_dlg[] =
 void editdmap(int32_t index)
 {
 	//DMapEditorLastMaptileUsed = 0;
-	char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
+	char levelstr[7], compassstr[7], contstr[7], mirrordmapstr[7], tmusicstr[56], dmapnumstr[60];
 	char *tmfname;
 	byte gridstring[8];
 	static int32_t xy[2];
@@ -20703,7 +20709,7 @@ int32_t onBottleShopTypes()
 }
 
 
-static char item_drop_set_str_buf[40];
+static char item_drop_set_str_buf[70];
 int32_t item_drop_set_list_size=MAXITEMDROPSETS;
 
 const char *itemdropsetlist(int32_t index, int32_t *list_size)
@@ -21795,7 +21801,7 @@ int32_t onEnemies()
 	word oldenemy[10];
 	memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
 	restore_mouse();
-	char buf[24] = " ";
+	char buf[26] = " ";
 	int32_t ret;
 	int32_t copy=-1;
 	
@@ -22668,8 +22674,8 @@ int32_t onNewComboAlias()
     combo_alias *combo;
     combo = &temp_aliases[comboa_cnt];
     
-    char cwidth[3];
-    char cheight[3];
+    char cwidth[5];
+    char cheight[5];
     // char cp[3];
     
     word temp_combos[16*11*7];
@@ -24185,7 +24191,7 @@ const char *comboscriptlist2(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static char gscript_str_buf2[32];
+static char gscript_str_buf2[40];
 
 const char *gscriptlist2(int32_t index, int32_t *list_size)
 {

@@ -88,9 +88,12 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
     al_register_event_source(queue, al_get_joystick_event_source());
     while(!al_get_thread_should_stop(thread))
     {
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
         al_init_timeout(&timeout, 0.1);
+        if (al_wait_for_event_until(queue, &event, &timeout))
+#else
         al_wait_for_event(queue, &event);
-        if(true)
+#endif
         {
             switch(event.type)
             {
@@ -169,8 +172,10 @@ static int a5_joystick_init(void)
 
 static void a5_joystick_exit(void)
 {
-    // al_destroy_thread(a5_joystick_thread);
-    // a5_joystick_thread = NULL;
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    al_destroy_thread(a5_joystick_thread);
+    a5_joystick_thread = NULL;
+#endif
     al_uninstall_joystick();
 }
 

@@ -17,14 +17,14 @@ static uint32_t __dummy_;
 #include <unistd.h>
 #endif
 
-#ifdef __APPLE__
-	#define ZELDA_FILE "zelda"
-	#define ZQUEST_FILE "zquest"
-	#define ZSCRIPT_FILE "zscript"
-#else
+#ifdef _WIN32
 	#define ZELDA_FILE "zelda.exe"
 	#define ZQUEST_FILE "zquest.exe"
 	#define ZSCRIPT_FILE "zscript.exe"
+#else
+	#define ZELDA_FILE "zelda"
+	#define ZQUEST_FILE "zquest"
+	#define ZSCRIPT_FILE "zscript"
 #endif
 
 struct process_killer

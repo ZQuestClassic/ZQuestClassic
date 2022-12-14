@@ -13,10 +13,16 @@ jobs:
         include:
           - runs-on: windows-2022
             arch: x64
+            compiler: msvc
           - runs-on: windows-2022
             arch: win32
+            compiler: msvc
           - runs-on: macos-12
             arch: intel
+            compiler: clang
+          - runs-on: ubuntu-22.04
+            arch: x64
+            compiler: clang
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/test.yml
@@ -24,6 +30,7 @@ jobs:
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
+      compiler: ${{ matrix.compiler }}
 
   compare:
     needs: ["test"]
@@ -86,7 +93,6 @@ jobs:
               thread_name=f'Replay tests failed for {ref_name}',
               wait=True,
           )
-
 
   compile-web:
     runs-on: macos-12

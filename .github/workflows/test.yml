@@ -10,6 +10,9 @@ on:
       arch:
         type: string
         description: 'arch'
+      compiler:
+        type: string
+        description: 'compiler'
       extra-args:
         type: string
         description: 'extra-args'
@@ -18,6 +21,8 @@ on:
       runs-on:
         type: string
       arch:
+        type: string
+      compiler:
         type: string
       extra-args:
         type: string
@@ -30,6 +35,7 @@ jobs:
     with:
       runs-on: ${{ inputs.runs-on }}
       arch: ${{ inputs.arch }}
+      compiler: ${{ inputs.compiler }}
 
   test:
     needs: ["build"]
@@ -62,6 +68,13 @@ jobs:
             echo "BUILD_FOLDER=${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
             chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zelda
             chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zscript
+          linux: |
+            echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
+            mkdir zc-extracted
+            tar -xvzf ${{ needs.build.outputs.build-artifact-name }}/buildpack.tgz -C zc-extracted
+
+      - run: sudo apt-get install libopengl0 libglu1
+        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
       - if: ${{ matrix.shard_index == 1 }}
         name: Test zscript
@@ -70,12 +83,32 @@ jobs:
           windows: |
             cd ${{ env.BUILD_FOLDER }}
             ./zscript.exe -input "include/std.zh" -unlinked
-          macosx: |
+          macos: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript -input "include/std.zh" -unlinked
+          linux: |
             cd ${{ env.BUILD_FOLDER }}
             ./zscript -input "include/std.zh" -unlinked
 
       - name: Run replay tests
-        run: python3 -Xutf8 tests/run_replay_tests.py --build_folder ${{ env.BUILD_FOLDER }} --retries 1 --ci ${{ inputs.runs-on }}_${{ inputs.arch }} --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }} ${{ inputs.extra-args }}
+        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: >
+          xvfb-run --auto-servernum sudo python3 -Xutf8 tests/run_replay_tests.py 
+          --build_folder ${{ env.BUILD_FOLDER }}
+          --retries 1
+          --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
+          --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
+          ${{ inputs.extra-args }}
+      - name: Run replay tests
+        if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
+        run: >
+          python3 -Xutf8 tests/run_replay_tests.py 
+          --build_folder ${{ env.BUILD_FOLDER }}
+          --retries 1
+          --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
+          --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
+          ${{ inputs.extra-args }}
+
       - uses: actions/upload-artifact@v3
         if: github.event_name == 'workflow_dispatch' || failure()
         with:

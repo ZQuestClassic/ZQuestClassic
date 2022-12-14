@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <ctime>
 #include <fmt/format.h>
 
 #define XXH_STATIC_LINKING_ONLY

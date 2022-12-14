@@ -73,15 +73,15 @@ jobs:
             --formatted_time=${{ steps.current-time.outputs.formattedTime }} \
             --number=${{ inputs.number }}
 
-      - name: Setup Sentry CLI
-        uses: mathieu-bour/setup-sentry-cli@1.2.0
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-        with:
-          token: ${{ secrets.SENTRY_TOKEN }}
-          organization: zeldaclassic
-          project: zelda-classic
-      - run: sentry-cli releases new 'zelda-classic@${{ steps.make-vars.outputs.release_tag_name }}'
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+      # - name: Setup Sentry CLI
+      #   uses: mathieu-bour/setup-sentry-cli@1.2.0
+      #   if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+      #   with:
+      #     token: ${{ secrets.SENTRY_TOKEN }}
+      #     organization: zeldaclassic
+      #     project: zelda-classic
+      # - run: sentry-cli releases new 'zelda-classic@${{ steps.make-vars.outputs.release_tag_name }}'
+      #   if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
 
   release-win:
     needs:
@@ -112,13 +112,13 @@ jobs:
       uses: crazy-max/ghaction-chocolatey@v1
       with:
         args: install .github/dependencies.config -y
-    - name: Setup Sentry CLI
-      if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-      uses: mathieu-bour/setup-sentry-cli@1.2.0
-      with:
-        token: ${{ secrets.SENTRY_TOKEN }}
-        organization: zeldaclassic
-        project: zelda-classic
+    # - name: Setup Sentry CLI
+    #   if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+    #   uses: mathieu-bour/setup-sentry-cli@1.2.0
+    #   with:
+    #     token: ${{ secrets.SENTRY_TOKEN }}
+    #     organization: zeldaclassic
+    #     project: zelda-classic
 
     - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
     - run: cmake . -A ${{ matrix.arrays.arch }} -DWANT_SENTRY=ON -DRELEASE_TAG="${{ needs.create-tag.outputs.release_tag_name }}"
@@ -128,9 +128,9 @@ jobs:
       working-directory: output/_auto
     - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
 
-    - name: Upload debugging symbols
-      if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-      run: sentry-cli upload-dif 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}' --include-sources --wait Release
+    # - name: Upload debugging symbols
+    #   if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+    #   run: sentry-cli upload-dif 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}' --include-sources --wait Release
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -182,27 +182,65 @@ jobs:
         fail_on_unmatched_files: true
         generate_release_notes: true
 
-  finalize:
+  release-ubuntu:
     needs:
+      - check-date
       - create-tag
-      - release-win
-      - release-mac
-    runs-on: ubuntu-latest
+    if: ${{ needs.check-date.outputs.should_run == 'true' }}
     env:
-       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
+      CC: clang
+      CXX: clang++
+
+    runs-on: ubuntu-22.04
 
     steps:
-      - name: git clone
-        uses: actions/checkout@v3
-      - name: Setup Sentry CLI
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-        uses: mathieu-bour/setup-sentry-cli@1.2.0
-        with:
-          token: ${{ secrets.SENTRY_TOKEN }}
-          organization: zeldaclassic
-          project: zelda-classic
-      - name: Finalize sentry
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-        run: |
-          sentry-cli releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}' --auto
-          sentry-cli releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}'
+    - name: git clone
+      uses: actions/checkout@v3
+
+    - run: sudo apt-get install ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+
+    - run: bash .github/workflows/configure-signatures.sh ubuntu ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
+    - run: cmake -S . -B build -G 'Ninja Multi-Config' .
+    - run: cmake --build build --config Release
+
+    - run: |
+        ./buildpack.sh ../../build/Release
+        cd buildpack
+        tar czpvf ${{ needs.create-tag.outputs.release_tag_name }}-ubuntu.tgz * --preserve-permissions
+      working-directory: output/_auto
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ needs.create-tag.outputs.release_name }}
+        tag_name: ${{ needs.create-tag.outputs.release_tag_name }}
+        files: "output/_auto/buildpack/${{ needs.create-tag.outputs.release_tag_name }}-ubuntu.tgz"
+        prerelease: ${{ !inputs.full_release }}
+        fail_on_unmatched_files: true
+        generate_release_notes: true
+
+  # finalize:
+  #   needs:
+  #     - create-tag
+  #     - release-win
+  #     - release-mac
+  #     - release-ubuntu
+  #   runs-on: ubuntu-latest
+  #   env:
+  #      HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
+
+  #   steps:
+      # - name: git clone
+      #   uses: actions/checkout@v3
+      # - name: Setup Sentry CLI
+      #   if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+      #   uses: mathieu-bour/setup-sentry-cli@1.2.0
+      #   with:
+      #     token: ${{ secrets.SENTRY_TOKEN }}
+      #     organization: zeldaclassic
+      #     project: zelda-classic
+      # - name: Finalize sentry
+      #   if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+      #   run: |
+      #     sentry-cli releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}' --auto
+      #     sentry-cli releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release_tag_name }}'

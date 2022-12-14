@@ -58,9 +58,11 @@ static void * a5_sound_thread_proc(ALLEGRO_THREAD * thread, void * data)
     al_register_event_source(queue, al_get_audio_stream_event_source(a5_sound_stream));
     while(!al_get_thread_should_stop(thread))
     {
-        al_init_timeout(&timeout, 0.1);
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+        if (al_wait_for_event_until(queue, &event, &timeout))
+#else
         al_wait_for_event(queue, &event);
-        if(true)
+#endif
         {
             switch(event.type)
             {
@@ -134,8 +136,10 @@ static int a5_sound_init(int input, int voices)
 
 static void a5_sound_exit(int input)
 {
-    // al_destroy_thread(a5_sound_thread);
-    // a5_sound_thread = NULL;
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    al_destroy_thread(a5_sound_thread);
+    a5_sound_thread = NULL;
+#endif
     al_uninstall_audio();
 }
 

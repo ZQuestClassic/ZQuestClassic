@@ -99,9 +99,13 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
     al_start_timer(timer_data->timer);
     while(!al_get_thread_should_stop(thread))
     {
-        // al_init_timeout(&timeout, 0.1);
-        al_wait_for_event(queue, &event);
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+        al_init_timeout(&timeout, 0.1);
         // TODO: why does this hog so much CPU?!
+        if (al_wait_for_event_until(queue, &event, &timeout))
+#else
+        al_wait_for_event(queue, &event);
+#endif
         // if(al_wait_for_event_until(queue, &event, &timeout))
         {
             cur_time = al_get_time();
@@ -134,12 +138,15 @@ static int a5_timer_init(void)
 static void a5_timer_exit(void)
 {
     // Trying to destroy threads on exit just hangs everything :/
-    // int i;
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    int i;
 
-    // for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
-    // {
-    //     a5_destroy_timer_data(a5_timer_data[i]);
-    // }
+    for(i = 0; i < _A5_MAX_TIMERS && a5_timer_data[i]; i++)
+    {
+        a5_destroy_timer_data(a5_timer_data[i]);
+    }
+
+#endif
 }
 
 static double a5_get_timer_speed(long speed)

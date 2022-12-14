@@ -6,6 +6,7 @@ echo '#define DEV_SIGNOFF "Build_Script"' > src/metadata/sigs/devsig.h.sig
 echo '#define __TIMEZONE__ "UTC"' >> src/metadata/sigs/devsig.h.sig
 echo '' >> src/metadata/sigs/devsig.h.sig
 
+# TODO: this arg should be a compiler name, not os.
 if [ "$1" == 'win' ]; then
   echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
   echo '#define COMPILER_V_FIRST 19' >> src/metadata/sigs/compilersig.h.sig
@@ -15,6 +16,15 @@ if [ "$1" == 'win' ]; then
   echo '#define COMPILER_NAME "MSVC"' >> src/metadata/sigs/compilersig.h.sig
   echo '#define COMPILER_VERSION "v17, 2022"' >> src/metadata/sigs/compilersig.h.sig
 elif [ "$1" == 'mac' ]; then
+  echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_FIRST __clang_major__' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_SECOND __clang_minor__' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_THIRD __clang_patchlevel__' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_V_FOURTH 0' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_NAME "clang"' >> src/metadata/sigs/compilersig.h.sig
+  echo '#define COMPILER_VERSION __clang_version__' >> src/metadata/sigs/compilersig.h.sig
+elif [ "$1" == 'ubuntu' ]; then
+  # We also use clang here.
   echo '#define V_ZC_COMPILERSIG 1' >> src/metadata/sigs/compilersig.h.sig
   echo '#define COMPILER_V_FIRST __clang_major__' >> src/metadata/sigs/compilersig.h.sig
   echo '#define COMPILER_V_SECOND __clang_minor__' >> src/metadata/sigs/compilersig.h.sig

@@ -54,9 +54,12 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
         al_register_event_source(queue, al_get_touch_input_event_source());
     while(!al_get_thread_should_stop(thread))
     {
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
         al_init_timeout(&timeout, 0.1);
+        if (al_wait_for_event_until(queue, &event, &timeout))
+#else
         al_wait_for_event(queue, &event);
-        if(true)
+#endif
         {
             switch(event.type)
             {
@@ -148,8 +151,10 @@ static int a5_mouse_init(void)
 
 static void a5_mouse_exit(void)
 {
-    // al_destroy_thread(a5_mouse_thread);
-    // a5_mouse_thread = NULL;
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    al_destroy_thread(a5_mouse_thread);
+    a5_mouse_thread = NULL;
+#endif
     al_uninstall_mouse();
 }
 

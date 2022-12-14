@@ -172,7 +172,7 @@ private:
     static Size sized(int32_t size) noexcept;
 };
 
-inline Size operator ""_em(uint64_t size)
+inline Size operator ""_em(unsigned long long int size)
 {
 	return Size::em(size);
 }
@@ -182,17 +182,17 @@ inline Size operator ""_em(long double size)
 	return Size::em(size);
 }
 
-inline constexpr Size operator ""_px(uint64_t size)
+inline constexpr Size operator ""_px(unsigned long long int size)
 {
 	return Size::pixels(size);
 }
 
-inline Size operator ""_lpx(uint64_t size)
+inline Size operator ""_lpx(unsigned long long int size)
 {
 	return Size::largePixels(size);
 }
 
-inline Size operator ""_spx(uint64_t size)
+inline Size operator ""_spx(unsigned long long int size)
 {
 	return Size::smallPixels(size);
 }

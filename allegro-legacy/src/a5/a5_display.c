@@ -310,6 +310,7 @@ static bool _setup()
 static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
 {
   ALLEGRO_EVENT event;
+  ALLEGRO_TIMEOUT timeout;
 
   if(!_setup())
   {
@@ -319,7 +320,12 @@ static void * _a5_display_thread(ALLEGRO_THREAD * thread, void * data)
   _a5_display_creation_done = 1;
   while(!al_get_thread_should_stop(_a5_screen_thread))
   {
-    al_wait_for_event(_a5_display_thread_event_queue, NULL);
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+      al_init_timeout(&timeout, 0.1);
+      if (al_wait_for_event_until(_a5_display_thread_event_queue, &event, &timeout))
+#else
+      al_wait_for_event(_a5_display_thread_event_queue, NULL);
+#endif
     all_process_display_events();
     if(al_event_queue_is_empty(_a5_display_thread_event_queue))
     {
@@ -391,7 +397,9 @@ static void a5_display_exit(BITMAP * bp)
   }
   else
   {
-    // _a5_destroy_screen();
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    _a5_destroy_screen();
+#endif
   }
 }
 

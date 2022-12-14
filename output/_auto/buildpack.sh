@@ -32,7 +32,7 @@ cp "${rel}/zelda" "${nb}" >>"$log"
 cp "${rel}/zquest" "${nb}" >>"$log"
 cp "${rel}/zscript" "${nb}" >>"$log"
 cp "${rel}/zlauncher" "${nb}" >>"$log"
-cp "${rel}/libzcsound.so" "${nb}" >>"$log"
+find "$rel" -name "*.so*" -exec cp -P {} $nb \;
 
 echo "Copying 'changelog.txt'..."
 echo "Copying 'changelog.txt'...">>"${log}"

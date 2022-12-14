@@ -31,6 +31,9 @@ endif()
 if(APPLE)
 	# Makes binaries look in their directory for shared libraries.
 	list(APPEND CMAKE_BUILD_RPATH "@loader_path")
+elseif(LINUX)
+	# https://stackoverflow.com/a/71321163/2788187
+	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
@@ -55,6 +58,14 @@ endfunction(enable_unity_build)
 #############################################################
 
 if(NOT EMSCRIPTEN)
+	# TODO: can't use prebuilt zlib on Ubuntu, else get linker errors.
+	# Error from building gme:
+	#   /usr/bin/ld: _deps/zlib-build/Release/libz.a(trees.c.o): relocation R_X86_64_PC32 against
+	#   symbol `_length_code' can not be used when making a shared object; recompile with -fPIC
+	if(LINUX)
+		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE NEVER)
+	endif()
+
 	FetchContent_Declare(
 		zlib
 		GIT_REPOSITORY
@@ -64,6 +75,9 @@ if(NOT EMSCRIPTEN)
 		FIND_PACKAGE_ARGS NAMES ZLIB
 	)
 	FetchContent_MakeAvailable(zlib)
+	if(LINUX)
+		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
+	endif()
 
 	if(NOT ZLIB_LIBRARIES)
 		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
@@ -157,6 +171,14 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/native_dialog/allegro5/allegro_native_di
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
+# Some performance problems with allegro legacy threaded event queues encouraged
+# NOT closing them on shutdown. This seemed to work ok on Windows and Mac, but on
+# Ubuntu it totally prevents the program from closing.
+# TODO: investigate this further - can performance problems with threaded event queues
+# be fixed?
+if(LINUX AND NOT EMSCRIPTEN)
+	set(ALLEGRO_LEGACY_CLOSE_THREADS 1)
+endif()
 add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 
 add_library(allegro_with_legacy INTERFACE)
@@ -273,35 +295,42 @@ if(MSVC)
 	endif()
 
 elseif(EMSCRIPTEN)
-	# link_directories(/usr/lib/i386-linux-gnu)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
 
-	# TODO: figure out media libraries. probably replace this with w/e SDL offers.
-	# set(IMAGELIBS algif ldpng jpgal png z)
-	# set(SOUNDLIBS aldmb alogg dumb gme asound)
-	# set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
-
 	add_compile_options("-m32")
+	# TODO: remove?
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 
 elseif(LINUX)
-	link_directories(/usr/lib/i386-linux-gnu)
-	link_directories(./libs/linux)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
+	add_definitions(-DALLEGRO_LEGACY_NO_FIX_ALIASES)
 
-	set(IMAGELIBS ldpng png z)
-	set(SOUNDLIBS aldmb alogg dumb gme asound)
-	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
-
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		# SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -export-dynamic")
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc")
+		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc")
+	endif()
 endif()
 
 if(MSVC)
 	# REQUIRED or else MSVC throws internal compiler error(!)
 	add_compile_options("/fp:fast")
-else(UNIX)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# TODO: GCC w/ these flags don't quite match the behavior of MSVC or clang, as seen in a replay report:
+	#    https://zc-replay-compare-3700187020.surge.sh/
+	# The difference is trivial (and isolated to just stuff re: Patras, or maybe Sin/Cos, unclear), and actually GCC
+	# looks more "correct". Should re-assess fp-rounding to guarentee same playback for any compiler; should either:
+	# 1) ignore some frames for purposes of replay assert
+	# 2) investigate more how to get exact same behavior from gcc
+	# 3) investigate removing the fp flags from all compilers and seeing if results can be made to be consistent;
+	#    would require a workaround for the MSVC internal compiler error mentioned above.
+	#
+	# In the meantime, we just use clang for replay tests (and for building release), which seems fine long term.
+
+	# https://stackoverflow.com/a/36502370/2788187
+	add_compile_options(-funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fno-signaling-nans -fno-rounding-math -fcx-limited-range)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options("-ffp-model=fast")
 endif()
 
@@ -430,8 +459,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(LINUX OR EMSCRIPTEN)
-	# TODO: Build sound deps from source on linux.
+if(EMSCRIPTEN)
 	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
 else()
 	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
@@ -487,6 +515,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		GIT_TAG        6cd4bdb69be304f58c9253fb08b8362f541b3b4b
 	)
 	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+	option(ENABLE_UBSAN "" OFF)
 	FetchContent_MakeAvailable(gme_external)
 	add_library(gme_headers INTERFACE)
 	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
@@ -535,7 +564,6 @@ if(MSVC)
 
 elseif(LINUX)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.c src/single_instance_unix.cpp)
-	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
 endif()
 
 if(UNITY_BUILD)
@@ -580,7 +608,6 @@ if(MSVC)
 	list(APPEND ZQUESTEXTRASOURCES zq_icon.rc)
 elseif(LINUX)
 	list(APPEND ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
-	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
 if(UNITY_BUILD)
@@ -632,10 +659,6 @@ endif()
 # ZScript parser
 #############################################################
 
-if(LINUX)
-	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
-endif()
-
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src/zq)
@@ -649,10 +672,8 @@ endif()
 
 if(MSVC)
 	list(APPEND LAUNCHEREXTRASOURCES zl_icon.rc)
-
 elseif(LINUX)
 	list(APPEND LAUNCHEREXTRASOURCES zl_icon.c src/single_instance_unix.cpp)
-	set(LAUNCHERLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
@@ -686,13 +707,21 @@ endif()
 #############################################################
 
 set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger)
-set(zc_apps zquest zelda zlauncher)
 set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
 	-Wno-write-strings
 	-Wno-switch
+)
+set(zc_gcc_errors
+	-Werror=format
+	-Werror=format-overflow
+	-Werror=return-type
+	-Wno-write-strings
+	-Wno-switch
+	# TODO
+	# -Wunused-result
 )
 
 if(WANT_SENTRY)
@@ -722,9 +751,10 @@ foreach(target IN LISTS zc_targets)
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		# Uncomment to autofix. Only works for clang. When done, comment this line out again.
 		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_clang_errors} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
-	endif()
-	if(NOT CMAKE_COMPILER_IS_MSVC)
 		target_compile_options(${target} PRIVATE ${zc_clang_errors})
+	endif()
+	if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+		target_compile_options(${target} PRIVATE ${zc_gcc_errors})
 	endif()
 endforeach()
 

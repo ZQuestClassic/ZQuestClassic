@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <memory>
 #include "base/zc_alleg.h"
 
 #include "base/zdefs.h"

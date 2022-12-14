@@ -466,6 +466,11 @@ add_headers(allegro/inline   ${ALLEGRO_LEGACY_INCLUDE_ALLEGRO_LEGACY_INLINE_FILE
 add_headers(allegro/internal ${ALLEGRO_LEGACY_INCLUDE_ALLEGRO_LEGACY_INTERNAL_FILES})
 add_headers(allegro/platform ${ALLEGRO_LEGACY_INCLUDE_ALLEGRO_LEGACY_PLATFORM_FILES})
 
+# local edit
+if(ALLEGRO_LEGACY_CLOSE_THREADS)
+    add_definitions(-DALLEGRO_LEGACY_CLOSE_THREADS)
+endif()
+
 # Platform-specific top-level headers.
 if(ALLEGRO_LEGACY_LINUX)
     add_headers("" include/linalleg.h)
