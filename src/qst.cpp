@@ -2270,11 +2270,14 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		{
 			return qe_invalid;
 		}
+		// These fields are expected to end in null bytes!
+		tempheader.title[sizeof(tempheader.title)-1] = 0;
 		
 		if(!pfread(tempheader.author,sizeof(tempheader.author),f,true))
 		{
 			return qe_invalid;
 		}
+		tempheader.author[sizeof(tempheader.author)-1] = 0;
 		
 		if(!p_getc(&padding,f,true))
 		{
@@ -2501,16 +2504,17 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		}
 	
 		//FFCore.quest_format[qMinQuestVersion] = tempheader.minver;
-		//needs to be copied as char[9] or stored as a s.str
 		if(!pfread(tempheader.title,sizeof(tempheader.title),f,true))
 		{
 			return qe_invalid;
 		}
+		tempheader.title[sizeof(tempheader.title)-1] = 0;
 		
 		if(!pfread(tempheader.author,sizeof(tempheader.author),f,true))
 		{
 			return qe_invalid;
 		}
+		tempheader.author[sizeof(tempheader.author)-1] = 0;
 		
 		if(!p_getc(&tempheader.use_keyfile,f,true))
 		{

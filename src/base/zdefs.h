@@ -3400,6 +3400,8 @@ struct zquestheader
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
+    // NOTE: `version` and `minver` are fixed-length strings, unlike all other char strings here which are expected
+    // to end with a null-byte. They may not end in null!
     char  version[9];
     //73
     char  title[65];

@@ -625,6 +625,7 @@ gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
+std::string header_version;
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
@@ -1530,13 +1531,20 @@ void CatchBrang()
 
 int8_t smart_vercmp(char const* a, char const* b)
 {
-	for(int q = 0; a[q]; ++q)
+	// TODO: Attempting to make this not overflow given version
+	// string data may not be null terminated.
+	// I did my best here with the first two loops, but I can't understand the
+	// rest of this function to know if there is still a problem.
+	// Should probably rewrite this to use regular std::string splitting.
+	int VERSION_LEN = 9;
+
+	for(int q = 0; q < VERSION_LEN && a[q]; ++q)
 	{
 		if((a[q] >= '0' && a[q] <= '9') || a[q] == '.')
 			continue;
 		return strcmp(a, b);
 	}
-	for(int q = 0; b[q]; ++q)
+	for(int q = 0; q < VERSION_LEN && b[q]; ++q)
 	{
 		if((b[q] >= '0' && b[q] <= '9') || b[q] == '.')
 			continue;
@@ -1710,12 +1718,17 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
 		{
-			strcpy(g->version,QHeader.version);
-			strcpy(g->title,QHeader.title);
+			strncat(g->title,QHeader.title,sizeof(g->title)-1);
+
+			// Put the fixed-length header version field into a safer string.
+			strncpy(g->version,QHeader.version,sizeof(g->version));
+			int N = sizeof(g->version);
+			char* pos = (char*)memchr(QHeader.version, '\0', N);
+			header_version.assign(QHeader.version, pos ? pos - QHeader.version : N);
 		}
 		else
 		{
-			if(!ret && strcmp(g->title,QHeader.title))
+			if(!ret && strncmp(g->title,QHeader.title,sizeof(g->title)))
 			{
 				ret = qe_match;
 			}

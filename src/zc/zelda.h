@@ -502,6 +502,7 @@ extern gamedata *saves;
 extern gamedata *game;
 
 extern std::string load_qstpath;
+extern std::string header_version;
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
