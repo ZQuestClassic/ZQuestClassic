@@ -421,7 +421,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability",App::zelda,"gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
-						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",0,"Record debug information when making a .zplay file")
+						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", App::zelda,"zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
