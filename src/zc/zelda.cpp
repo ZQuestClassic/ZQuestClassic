@@ -625,7 +625,7 @@ gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
-std::string header_version;
+char header_version_nul_term[10];
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
@@ -1719,12 +1719,8 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		if(!g->title[0] || g->get_hasplayed() == 0)
 		{
 			strncat(g->title,QHeader.title,sizeof(g->title)-1);
-
 			// Put the fixed-length header version field into a safer string.
-			strncpy(g->version,QHeader.version,sizeof(g->version));
-			int N = sizeof(g->version);
-			char* pos = (char*)memchr(QHeader.version, '\0', N);
-			header_version.assign(QHeader.version, pos ? pos - QHeader.version : N);
+			strncat(header_version_nul_term,QHeader.version,sizeof(QHeader.version));
 		}
 		else
 		{
