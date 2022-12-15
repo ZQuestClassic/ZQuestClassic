@@ -2732,6 +2732,11 @@ void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
 	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
+	if(hashero)
+	{
+		Hero.setEaten(0);
+		hashero=false;
+	}
 }
 
 
