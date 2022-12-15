@@ -30991,8 +30991,8 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 					do_drawing_command(scommand);
 				else //If the pointer isn't allocated
 				{
-					int32_t w = SH::read_stack(ri->sp+1) / 10000;
-					int32_t h = SH::read_stack(ri->sp) / 10000;
+					int32_t w = SH::read_stack(ri->sp) / 10000;
+					int32_t h = SH::read_stack(ri->sp+1) / 10000;
 					if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
 					{
 						//flip height and width
