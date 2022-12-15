@@ -29882,6 +29882,17 @@ int32_t main(int32_t argc,char **argv)
 	al5img_init();
 	register_png_file_type();
 
+	if(!al_install_audio())
+	{
+		// We can continue even with no audio.
+		Z_error("Failed al_install_audio");
+	}
+
+	if(!al_init_acodec_addon())
+	{
+		Z_error("Failed al_init_acodec_addon");
+	}
+
 	all_disable_threaded_display();
 
 #ifdef __EMSCRIPTEN__

@@ -914,7 +914,6 @@ void zcmusic_unload_file(ZCMUSIC* &zcm)
 		break;
 		
 	case ZCMF_MP3:
-		// unload_mp3_file((MP3FILE*)zcm);
 		unload_mp3_file((MP3FILE*)zcm);
 		break;
 		
