@@ -800,12 +800,11 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
 	std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
-	bool falsyval = val && !*val;
-	if(host.isInverted() != falsyval) //never runs, handle else only
+	if(val && (host.isInverted() != !*val)) //never runs, handle else only
 	{
 		if(host.hasElse())
 			visit(host.elseBlock.get(), param);
-		return; 
+		return;
 	}
 	
 	int32_t startlabel = ScriptParser::getUniqueLabelID();
