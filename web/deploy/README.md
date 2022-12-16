@@ -8,7 +8,7 @@ The script in this folder:
 
 - (one-time) run `npm i` in `web/` folder
 - build for the web (`sh build_emscripten.sh` or `DEBUG=1 sh build_emscripten.sh`)
-- prepare the deployment: `python web/deploy/deploy.py --prepare --build_folder build_emscripten/Debug`
+- prepare the deployment: `python web/deploy/deploy.py --prepare --build_folder build_emscripten/Release`
 - run `npx statikk --port 8001 --coi` in `dist` and confirm everything works
 - deploy: `python web/deploy/deploy.py --deploy --prod` (drop `--prod` to deploy to `hoten.cc/zc-debug/`)
 

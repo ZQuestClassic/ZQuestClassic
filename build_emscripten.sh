@@ -30,7 +30,6 @@ rm -rf buildpack/headers/ghost_zh/3.0/demo buildpack/headers/GUITest.qst
 rm -rf "buildpack/scripts/stdWeapons/example scripts"
 rm buildpack/changelog.txt
 rm buildpack/music/Isabelle_Z2.nsf
-rm buildpack/zc.cfg && mv buildpack/zc_web.cfg buildpack/zc.cfg
 find buildpack -name "*.dll" -type f -delete
 find buildpack -name "*.so" -type f -delete
 find buildpack -name "*.exe" -type f -delete
