@@ -31,6 +31,7 @@ parser.add_argument('--token', required=True)
 parser.add_argument('--commit', default='main')
 parser.add_argument('--runs_on')
 parser.add_argument('--arch')
+parser.add_argument('--compiler')
 parser.add_argument('--extra_args', default='')
 
 # Automatically start multiple workflow runs based on test failures.
@@ -79,7 +80,7 @@ def find_baseline_commit():
     return dummy_branch
 
 
-def start_test_workflow_run(branch: str, runs_on: str, arch: str, extra_args: List[str]):
+def start_test_workflow_run(branch: str, runs_on: str, arch: str, compiler: str, extra_args: List[str]):
     repo = gh.get_repo(args.repo)
     test_workflow = repo.get_workflow('test.yml')
 
@@ -88,6 +89,7 @@ def start_test_workflow_run(branch: str, runs_on: str, arch: str, extra_args: Li
     inputs = {
         'runs-on': runs_on,
         'arch': arch,
+        'compiler': compiler,
         'extra-args': ' '.join(extra_args),
     }
     print(f'starting run with inputs: {inputs}')
@@ -173,7 +175,7 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
 
     # For baseline purposes, only need to run on a single platform.
     run_id = start_test_workflow_run(
-        find_baseline_commit(), 'windows-2022', 'x64', extra_args)
+        find_baseline_commit(), 'windows-2022', 'x64', 'msvc', extra_args)
     poll_workflow_runs([run_id])
     print('run finished')
     set_action_output('baseline_run_id', run_id)
@@ -206,5 +208,6 @@ else:
         runs_on, arch = infer_gha_platform()
         print(f'inferred from current machine: {runs_on} {arch}')
 
-    run_id = start_test_workflow_run(args.commit, runs_on, arch, extra_args)
+    run_id = start_test_workflow_run(
+        args.commit, runs_on, arch, args.compiler, extra_args)
     poll_workflow_runs([run_id])
