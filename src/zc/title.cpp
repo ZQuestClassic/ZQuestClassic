@@ -4195,7 +4195,7 @@ int32_t custom_game(int32_t file)
 	show_mouse(NULL);
 	game_pal();
 	key[KEY_ESC]=0;
-	chosecustomquest = (ret==5);
+	chosecustomquest = (ret==5) && customized;
 	return (int32_t)chosecustomquest;
 }
 
