@@ -53,28 +53,46 @@ if os.name == 'nt':
     sys.stdout.reconfigure(encoding='utf-8')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--build_folder', default='build/Debug')
-parser.add_argument('--filter', action='append')
-parser.add_argument('--max_duration', type=int)
-parser.add_argument('--throttle_fps', action='store_true')
-parser.add_argument('--update', action='store_true')
-parser.add_argument('--snapshot', action='append')
-parser.add_argument('--retries', type=int, default=0)
-parser.add_argument('--frame', action='append')
-parser.add_argument('--ci', nargs='?')
-parser.add_argument('--shard')
-parser.add_argument('--print_shards', action='store_true')
-parser.add_argument('--replay', action='store_true')
-args = parser.parse_args()
+parser.add_argument('--build_folder', default='build/Debug',
+    help='The folder containing the exe files',metavar='DIRECTORY')
+parser.add_argument('--filter', action='append', metavar='FILEPATH',
+    help='Specify a file to run, instead of running all. Can be supplied multiple times.')
+parser.add_argument('--max_duration', type=int, metavar='SECONDS',
+    help='The maximum time, in seconds, the replay will test for.')
+parser.add_argument('--throttle_fps', action='store_true',
+    help='Supply this to cap the replay\'s FPS')
+parser.add_argument('--retries', type=int, default=0,
+    help='The number of retries (default 0) to give each replay')
 
-if args.replay and args.update:
-    raise Exception('only one of --update or --replay may be used')
+
+mode_group = parser.add_argument_group('Mode','The playback mode')
+exclgroup = mode_group.add_mutually_exclusive_group()
+
+exclgroup.add_argument('--replay', action='store_true',
+    help='Play back the replay, without updating or asserting.')
+exclgroup.add_argument('--update', action='store_true',
+    help='Update the replays, accepting any changes.')
+exclgroup.add_argument('--assert', dest='assertmode', action='store_true',
+    help='Play back the replays in assert mode. This is the default behavior if no mode is specified.')
+
+int_group = parser.add_argument_group('Internal','Use these only if you know what they do.')
+
+int_group.add_argument('--snapshot', action='append')
+int_group.add_argument('--frame', action='append')
+int_group.add_argument('--ci', nargs='?',
+    help='Special arg meant for CI behaviors')
+int_group.add_argument('--shard')
+int_group.add_argument('--print_shards', action='store_true')
+
+args = parser.parse_args()
 
 mode = 'assert'
 if args.update:
     mode = 'update'
 elif args.replay:
     mode = 'replay'
+else:
+    args.assertmode = True #default true, not handled by argparse
 
 if args.ci and '_' in args.ci:
     runs_on, arch = args.ci.split('_')
