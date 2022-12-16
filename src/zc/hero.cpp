@@ -7975,7 +7975,7 @@ bool HeroClass::animate(int32_t)
 			fall = gravity3;
 			inair = false;
 		}
-		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell)
+		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell && !IsSideSwim())
 		{
 			zfix my = y + 2;
 			needFall = true;
