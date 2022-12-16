@@ -986,8 +986,10 @@ bool trigger_warp(newcombo const& cmb)
 	auto tdm = wscr->tilewarpdmap[index];
 	auto tscr = wscr->tilewarpscr[index];
 	auto wrindex=(wscr->warpreturnc>>(index*2))&3;
-	auto wx = wscr->warpreturnx[wrindex];
-	auto wy = wscr->warpreturny[wrindex];
+	int32_t ws=(DMaps[tdm].map*MAPSCRS+wscr->tilewarpscr[index]+DMaps[tdm].xoff);
+	mapscr* wscr2=&TheMaps[ws];
+	auto wx = wscr2->warpreturnx[wrindex];
+	auto wy = wscr2->warpreturny[wrindex];
 	if(stype == cPIT)
 	{
 		wx = -1;
