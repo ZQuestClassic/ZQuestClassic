@@ -115,6 +115,8 @@ double zc_get_monitor_scale()
 	int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
 	ReleaseDC(NULL, hdc);
 	return dpi / 96.0;
+#elif __EMSCRIPTEN__
+	return 1.0;
 #else
 	return al_get_monitor_dpi(0) / 96.0;
 #endif

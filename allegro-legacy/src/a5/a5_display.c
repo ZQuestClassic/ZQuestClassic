@@ -484,6 +484,10 @@ BITMAP* a4_cursor_bitmaps[20];
 ALLEGRO_MOUSE_CURSOR* a5_cursors[20];
 int a5_display_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
 {
+#ifdef __EMSCRIPTEN__
+  return 1;
+#endif
+
   ALLEGRO_MOUSE_CURSOR* cursor = NULL;
   int i;
 
