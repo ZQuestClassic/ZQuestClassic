@@ -67,7 +67,8 @@ if args.prepare:
     if not args.build_folder:
         raise Exception('missing --build_folder')
 
-    shutil.rmtree(dist_dir)
+    if dist_dir.exists():
+        shutil.rmtree(dist_dir)
     os.mkdir(dist_dir)
     os.mkdir(dist_dir / 'play')
     os.mkdir(dist_dir / 'create')
