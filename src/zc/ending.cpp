@@ -757,7 +757,7 @@ void ending_scripted()
     
 	//  setPackfilePassword(datapwd);
 	load_quest(game);
-	strncat(game->title,QHeader.title, sizeof(QHeader.title)-1);
+	strncpy(game->title,QHeader.title, sizeof(QHeader.title)-1);
 	//  setPackfilePassword(NULL);
 	game->save_user_objects();
 	saves[currgame] = *game;

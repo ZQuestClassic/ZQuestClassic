@@ -1718,10 +1718,10 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
 		{
-			strncat(g->title,QHeader.title,sizeof(g->title)-1);
+			strncpy(g->title,QHeader.title,sizeof(g->title)-1);
 			strncpy(g->version,QHeader.version,sizeof(g->version));
 			// Put the fixed-length header version field into a safer string.
-			strncat(header_version_nul_term,QHeader.version,sizeof(QHeader.version));
+			strncpy(header_version_nul_term,QHeader.version,sizeof(QHeader.version));
 		}
 		else
 		{
