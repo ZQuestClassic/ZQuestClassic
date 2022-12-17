@@ -771,6 +771,7 @@ int32_t  HeroClass::getLadderY()
 void HeroClass::setX(int32_t new_x)
 {
     zfix dx=new_x-x;
+    justmoved = 2;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -800,6 +801,7 @@ void HeroClass::setX(int32_t new_x)
 void HeroClass::setY(int32_t new_y)
 {
     zfix dy=new_y-y;
+    justmoved = 2;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -914,6 +916,7 @@ void HeroClass::setXfix(zfix new_x)
 {
 	//Z_scripterrlog("setxdbl: %f\n",new_x);
     zfix dx=new_x-x;
+    justmoved = 2;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->x+=dx;
@@ -943,6 +946,7 @@ void HeroClass::setXfix(zfix new_x)
 void HeroClass::setYfix(zfix new_y)
 {
     zfix dy=new_y-y;
+    justmoved = 2;
     if(Lwpns.idFirst(wHookshot)>-1)
     {
         Lwpns.spr(Lwpns.idFirst(wHookshot))->y+=dy;
@@ -1056,6 +1060,7 @@ void HeroClass::setFakeZfix(zfix new_z)
 void HeroClass::setFall(zfix new_fall)
 {
     fall=new_fall;
+    justmoved = 2;
     jumping=-1;
 }
 void HeroClass::setFakeFall(zfix new_fall)
@@ -1445,6 +1450,7 @@ void HeroClass::init()
 	liftheight = 0;
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw hero == 0
     hookshot_used=false;
+    justmoved = 0;
     hookshot_frozen=false;
     onpassivedmg=false;
     dir = up;
@@ -7975,7 +7981,7 @@ bool HeroClass::animate(int32_t)
 			fall = gravity3;
 			inair = false;
 		}
-		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell && !IsSideSwim())
+		else if (hoverclk < 1 && !inair && fall == 0 && !platformfell && !IsSideSwim() && justmoved <= 0)
 		{
 			zfix my = y + 4;
 			needFall = true;
@@ -9905,6 +9911,7 @@ bool HeroClass::animate(int32_t)
 			setDir(up);
 		}
 	}
+	if (justmoved > 0) --justmoved;
 	
 	return false;
 }

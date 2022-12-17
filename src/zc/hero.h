@@ -265,6 +265,7 @@ public:
 	int32_t landswim; // incremental time spent swimming against land
 	bool ilswim; // is land swimming?
 	bool walkable;
+	int32_t justmoved;
 	actiontype action, tempaction; // current action, cached action.
 	int32_t hshandle_id, hshead_id;
 	byte conveyor_flags;
