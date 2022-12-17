@@ -756,7 +756,7 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 		img_filename += "-unexpected";
 	img_filename += ".png";
 	// TODO: fmt::print crashes in Visual Studio IDE...
-	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}\n", img_filename).c_str());
+	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}", img_filename).c_str());
 	save_bitmap(img_filename.c_str(), bitmap, pal);
 }
 
