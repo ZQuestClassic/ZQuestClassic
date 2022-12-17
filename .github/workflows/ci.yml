@@ -120,11 +120,6 @@ jobs:
           restore-keys: web-ccache-
       - run: ccache -z
 
-      # - name: Install Node.js 16.x
-      #   uses: actions/setup-node@v1
-      #   with:
-      #     node-version: 16.x
-
       - run: |
           git clone https://github.com/psi29a/unsf.git
           cd unsf

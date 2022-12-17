@@ -8,16 +8,23 @@ on:
       compiler:
         type: string
         required: false
+      config:
+        type: string
+        default: "Release"
+      cache:
+        type: boolean
+        default: true
     outputs:
       build-artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
-        value: build-${{ inputs.runs-on }}-${{ inputs.arch }}
+        value: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
 
 env:
   CCACHE_BASEDIR: ${{ github.workspace }}
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CCACHE_MAXSIZE: 400M
   CCACHE_SLOPPINESS: time_macros
+  TARGET: zelda zquest zscript zlauncher
 
 jobs:
   build:
@@ -26,11 +33,6 @@ jobs:
       # Install dependencies.
       - name: git clone
         uses: actions/checkout@v3
-
-      - name: Install Node.js 16.x
-        uses: actions/setup-node@v1
-        with:
-          node-version: 16.x
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: ilammy/msvc-dev-cmd@v1
@@ -59,6 +61,18 @@ jobs:
           make
           sudo make install
 
+      # Setup build cache via ccache.
+      - name: ccache cache files
+        if: inputs.cache
+        uses: actions/cache@v3
+        with:
+          path: .ccache
+          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-
+      - if: ${{ !inputs.cache }}
+        run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
+
+      # Configure build.
       - if: inputs.compiler == 'clang'
         run: |
           echo "CC=clang" >> "$GITHUB_ENV"
@@ -67,30 +81,18 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-
-      # Setup build cache via ccache.
-      - name: ccache cache files
-        uses: actions/cache@v3
-        with:
-          path: .ccache
-          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-ccache-${{ github.run_id }}
-          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-
-      - run: ccache -z
-
-      # Configure build.
       - name: Set environment variables
         uses: knicknic/os-specific-run@v1.0.3
         with:
           windows: |
             chcp 65001
             echo ("BUILD_FOLDER=.") >> $env:GITHUB_ENV
-            echo ("PACKAGE_FOLDER=output/_auto/buildpack") >> $env:GITHUB_ENV
-          macos: |
-            echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
-            echo "PACKAGE_FOLDER=output/_auto/zelda-classic-mac" >> "$GITHUB_ENV"
-          linux: |
-            echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
-            echo "PACKAGE_FOLDER=output/_auto/buildpack/buildpack.tgz" >> "$GITHUB_ENV"
+          macos: echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
+          linux: echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
+      # Coverage builds only need zelda.
+      - name: Set environment variables
+        if: inputs.config == 'Coverage'
+        run: echo "TARGET=zelda" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - name: Configure build
         run: >
@@ -99,36 +101,43 @@ jobs:
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
-      # Build things individually just to have some separation in the GHA UI.
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target allegro -j 4 -- -k 0
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zcsound -j 4 -- -k 0
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zquest -j 4 -- -k 0
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zelda -j 4 -- -k 0
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zscript -j 4 -- -k 0
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release --target zlauncher -j 4 -- -k 0
-      # TODO: fix error from png-fix-itxt.exe on windows.
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config Release -j 4 -- -k 0
-        if: ${{ !contains(inputs.runs-on, 'windows') }}
+      - run: ccache -z
+      - run: cmake --build ${{ env.BUILD_FOLDER }} --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
       - run: ccache -s
 
       # Package.
       - name: Package
+        if: inputs.config != 'Coverage'
         uses: knicknic/os-specific-run@v1.0.3
         with:
+          # TODO: windows currently only works for Release config
           windows: |
             cd output/_auto
             ./buildpack.bat N
+            echo ("PACKAGE_FOLDER=output/_auto/buildpack") >> $env:GITHUB_ENV
           macos: |
             cd output/_auto
-            ./buildpack_osx.sh
+            ./buildpack_osx.sh ../../build/${{ inputs.config }}
+            echo "PACKAGE_FOLDER=output/_auto/zelda-classic-mac" >> "$GITHUB_ENV"
           linux: |
             cd output/_auto
-            ./buildpack.sh ../../build/Release
+            ./buildpack.sh ../../build/${{ inputs.config }}
             cd buildpack
             tar czpvf buildpack.tgz * --preserve-permissions
+            echo "PACKAGE_FOLDER=output/_auto/buildpack/buildpack.tgz" >> "$GITHUB_ENV"
+      # Coverage builds need the entire build folder.
+      - name: Package
+        if: inputs.config == 'Coverage'
+        run: |
+          cd output/_auto
+          ./buildpack.sh ../../build/Coverage
+          cp -r buildpack/* ../../build/Coverage
+          cd ../../build
+          tar czpvf build.tgz * --preserve-permissions
+          echo "PACKAGE_FOLDER=build/build.tgz" >> "$GITHUB_ENV"
 
       # Make build result available to other jobs.
       - uses: actions/upload-artifact@v3
         with:
-          name: build-${{ inputs.runs-on }}-${{ inputs.arch }}
+          name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
           path: ${{ env.PACKAGE_FOLDER }}

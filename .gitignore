@@ -138,5 +138,6 @@ output/_auto/*.zip
 *.zplay.*.png
 test_results.json
 compare-report/
+.coverage
 .gha-cache-dir/
 __pycache__

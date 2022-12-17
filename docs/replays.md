@@ -14,11 +14,11 @@ In the meantime, **a great way to contribute to ZC development** is to enable th
 
 ## Test coverage
 
-Instructions are for Mac.
-
 - `pip install gcovr`
 - `cmake -S . -B build -G 'Ninja Multi-Config'` (can skip if already configured a ninja multi-config build)
-- `cmake --build build --config Coverage -t zelda_coverage`
-- `open build/coverage-report/index.html`
+- `cmake --build build --config Coverage -t zelda`
+- `python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci`
+- `bash tests/generate_coverage_report.sh`
+- `open tests/.coverage/report/index.html`
 
 Coverage reports are hosted at https://armageddongames.github.io/ZQuestClassic/coverage and are updated automatically.

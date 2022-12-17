@@ -4,6 +4,7 @@ project (ZeldaClassic)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
+include(CodeCoverage)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
@@ -590,14 +591,6 @@ endif()
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
-endif()
-
-find_program(CODE_COVERAGE_GCOVR gcovr)
-if (CODE_COVERAGE_GCOVR)
-	include(CodeCoverage)
-	setup_coverage_test_target(zelda_coverage ${CMAKE_BINARY_DIR}/coverage-report
-		python ${CMAKE_SOURCE_DIR}/tests/run_replay_tests.py --build_folder ${CMAKE_BINARY_DIR}/Coverage --replay --ci)
-	add_dependencies(zelda_coverage zelda)
 endif()
 
 #############################################################

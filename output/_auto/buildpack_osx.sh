@@ -11,7 +11,7 @@ src="../.."
 out="${src}/output"
 nb="${out}/_auto/buildpack"
 mac_nb="${out}/_auto/zelda-classic-mac"
-rel="${src}/build/Release"
+rel="${1:-${src}/build/Release}"
 
 sh buildpack.sh "$rel"
 set -eu

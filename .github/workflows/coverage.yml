@@ -3,58 +3,65 @@ name: Code Coverage
 on:
   workflow_dispatch:
   push:
-    branches: ['main']
-    paths: ['tests/**']
+    branches: ["main"]
+    paths: ["tests/**"]
 
 env:
-  PYTHONUNBUFFERED: '1'
+  PYTHONUNBUFFERED: "1"
 
 jobs:
+  build:
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/build.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    with:
+      runs-on: ubuntu-22.04
+      arch: x64
+      compiler: clang
+      config: Coverage
+
   coverage:
-    runs-on: macos-12
+    needs: ["build"]
+    runs-on: ubuntu-22.04
     if: github.repository == 'ArmageddonGames/ZQuestClassic'
 
     steps:
-    - name: git clone
-      uses: nschloe/action-cached-lfs-checkout@v1
-    
-    - run: brew install ninja dylibbundler create-dmg
-    - name: Install Bison
-      run: |
-        wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-        tar -zxvf bison-3.6.tar.gz
-        cd bison-3.6
-        ./configure
-        make
-        sudo make install
-    
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.10' 
-    - run: pip install PyGithub requests gcovr
+      - name: git clone
+        uses: nschloe/action-cached-lfs-checkout@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: pip install requests PyGithub gcovr
 
-    - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - name: Configure build
-      run: cmake -S . -B build -G 'Ninja Multi-Config' .
-    - run: ./buildpack.sh ../../build/Coverage
-      working-directory: output/_auto
-    - run: cp -r output/_auto/buildpack/* build/Coverage
+      - run: sudo apt-get install libopengl0 libglu1
 
-    - run: cmake --build build --config Coverage -t zelda_coverage
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.build-artifact-name }}
+          path: ${{ needs.build.outputs.build-artifact-name }}
+      - name: Prepare build folder
+        run: tar -xvzf ${{ needs.build.outputs.build-artifact-name }}/build.tgz -C build
 
-    - name: Install Node.js 16.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.x
-    - run: |
-        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-        mkdir tmp
-        npx gh-pages --dist build/coverage-report --dest coverage -u "github-actions-bot <support+actions@github.com>"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # https://github.com/tschaub/gh-pages/issues/354
-        CACHE_DIR: tmp
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        files: build/coverage.json
+      - name: Run tests and collect coverage data
+        run: xvfb-run --auto-servernum sudo python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
+      - name: Generate coverage report
+        run: bash tests/generate_coverage_report.sh
+        env:
+          GCOV: llvm-cov-14 gcov
+
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          mkdir tmp
+          npx gh-pages --dist tests/.coverage/report --dest coverage -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/tschaub/gh-pages/issues/354
+          CACHE_DIR: tmp
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: tests/.coverage/coverage.json

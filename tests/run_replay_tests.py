@@ -298,7 +298,7 @@ def run_replay_test(replay_file):
     # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
     # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
     exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
-    exe_path = f'{args.build_folder}/{exe_name}'
+    exe_path = pathlib.Path(f'{args.build_folder}/{exe_name}').absolute()
 
     exe_args = [
         exe_path,
@@ -362,7 +362,7 @@ def run_replay_test(replay_file):
         start = timer()
         try:
             process_result = subprocess.run(exe_args,
-                                            cwd=None if platform.system() == 'Darwin' else args.build_folder,
+                                            cwd=args.build_folder,
                                             env={
                                                 **os.environ,
                                                 'ALLEGRO_LEGACY_TRACE': allegro_log_path.name
