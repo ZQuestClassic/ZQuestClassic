@@ -14599,7 +14599,6 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    }
 	    if ( guyversion < 39 ) //apply old InitD strings to both
 	    {
-		al_trace("Populating InitD Label Fields for NPCS\n");
 		for ( int32_t q = 0; q < 8; q++ )
 		{
 			sprintf(tempguy.initD_label[q],"InitD[%d]",q);
