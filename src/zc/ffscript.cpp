@@ -5743,7 +5743,7 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 			else
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					ret = ( ( (GuyH::getNPC()->step).getZLong() ) * 100 );
 				}
@@ -6294,7 +6294,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					ret=((weapon*)s)->step.getZLong() * 100;
 				}
@@ -6875,7 +6875,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn, "Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					ret=((weapon*)s)->step.getZLong() * 100;
 				}
@@ -15339,7 +15339,11 @@ void set_register(const int32_t arg, const int32_t value)
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				// fp math is bad for replay, so always ignore this QR when replay is active.
+				// TODO: can we just delete this QR? Would it actually break anything? For now,
+				// just disable for replay and wait for more tests to be played with this QR
+				// ignored.
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					((weapon*)s)->step= zslongToFix(value / 100);
 				}
@@ -15939,7 +15943,7 @@ void set_register(const int32_t arg, const int32_t value)
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn,"Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					((weapon*)s)->step= zslongToFix(value / 100);
 				}
@@ -16572,7 +16576,7 @@ void set_register(const int32_t arg, const int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) )
+				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
 				{	
 					GuyH::getNPC()->step = zslongToFix(value / 100);
 				}
