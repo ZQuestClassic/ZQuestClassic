@@ -27,15 +27,9 @@ char const* get_config_base_name(App a)
 		a = get_app_id();
 	switch (a)
 	{
-#ifdef __EMSCRIPTEN__
-		case App::zelda: return "local/base_config/zc.cfg";
-		case App::zquest: return "local/base_config/zquest.cfg";
-		case App::zscript: return "local/base_config/zscript.cfg";
-#else
 		case App::zelda: return "base_config/zc.cfg";
 		case App::zquest: return "base_config/zquest.cfg";
 		case App::zscript: return "base_config/zscript.cfg";
-#endif
 		case App::launcher: return "base_config/zcl.cfg";
 		default: exit(1);
 	}
