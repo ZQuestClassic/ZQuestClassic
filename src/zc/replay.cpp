@@ -47,6 +47,7 @@ static size_t replay_log_current_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
+static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
 static bool previous_control_state[ZC_CONTROL_STATES];
@@ -918,6 +919,7 @@ void replay_start(ReplayMode mode_, std::string filename_, int frame)
     sync_rng = false;
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
+    has_rng_desynced = false;
     gfx_got_mismatch = false;
     filename = filename_;
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
@@ -1264,6 +1266,7 @@ void replay_stop()
         bool log_size_mismatch = replay_log.size() != record_log.size();
         if (frame_arg == -1)
             has_assert_failed |= log_size_mismatch;
+        has_assert_failed |= has_rng_desynced;
         if (has_assert_failed)
         {
             replay_save(filename + ".roundtrip");
@@ -1305,7 +1308,7 @@ void replay_stop()
     meta_map.clear();
 
 	if (exit_when_done)
-		exit(0);
+		exit(has_rng_desynced ? 1 : 0);
 }
 
 void replay_quit()
@@ -1666,6 +1669,8 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
         // Only OK to be missing if in update mode.
         else if (mode != ReplayMode::Update)
         {
+            has_rng_desynced = true;
+
             int line_number = replay_log_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> rng desync! stopping replay", line_number);
             std::string error2 = fmt::format("frame {}", frame_count);
