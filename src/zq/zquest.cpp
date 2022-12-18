@@ -29906,7 +29906,7 @@ int32_t main(int32_t argc,char **argv)
 	em_init_fs();
 #endif
 
-#ifdef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
 #endif
