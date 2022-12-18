@@ -644,7 +644,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							{
 								lbl_theme_error->setText("");
 								zc_set_config("Theme","theme_filename",themename.c_str(),App::zelda);
-								zc_set_config("zeldadx","gui_colorset",99,App::zelda);
+								//zc_set_config("zeldadx","gui_colorset",99,App::zelda);
 							}
 							else
 							{
@@ -665,7 +665,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							{
 								lbl_theme_error->setText("");
 								zc_set_config("Theme","theme_filename",themename.c_str(),App::zquest);
-								zc_set_config("zquest","gui_colorset",99,App::zquest);
+								//zc_set_config("zquest","gui_colorset",99,App::zquest);
 							}
 							else
 							{
@@ -686,7 +686,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							{
 								lbl_theme_error->setText("");
 								zc_set_config("Theme","theme_filename",themename.c_str());
-								zc_set_config("ZLAUNCH","gui_colorset",99);
+								//zc_set_config("ZLAUNCH","gui_colorset",99);
 							}
 							else
 							{

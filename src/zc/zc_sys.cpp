@@ -423,7 +423,7 @@ void load_game_configs()
 	ss_speed = vbound(zc_get_config(cfg_sect,"ss_speed",2), 0, 6);
 	ss_density = vbound(zc_get_config(cfg_sect,"ss_density",3), 0, 6);
 	heart_beep = zc_get_config(cfg_sect,"heart_beep",1)!=0;
-	gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
+	//gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
 	sfxdat = zc_get_config(cfg_sect,"use_sfx_dat",1);
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);

@@ -545,7 +545,7 @@ int32_t SnapshotFormat = 0;
 int32_t memrequested = 0;
 byte Color = 0;
 extern int32_t jwin_pal[jcMAX];
-int32_t gui_colorset=0;
+int32_t gui_colorset=99;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 static int32_t combo_apos=0; //currently selected combo alias
@@ -30521,7 +30521,7 @@ int32_t main(int32_t argc,char **argv)
 	LeechUpdate					= zc_get_config("zquest","leech_update",500);
 	LeechUpdateTiles			   = zc_get_config("zquest","leech_update_tiles",1);
 	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
-	gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
+	//gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
 	strcpy(last_timed_save,zc_get_config("zquest","last_timed_save",""));
 	

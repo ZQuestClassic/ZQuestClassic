@@ -370,7 +370,7 @@ uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
 int32_t sfxdat=1;
 
 extern int32_t jwin_pal[jcMAX];
-int32_t gui_colorset=0;
+int32_t gui_colorset=99;
 int32_t fullscreen = 0;
 byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
