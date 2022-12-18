@@ -6801,7 +6801,6 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     
 #if ( !(defined MUST_HAVE_PASSWORD) || defined _NPASS )
 #if (defined _MSC_VER || defined _NPASS)
-    assert(!passguard);
     return 1;
 #endif
 #endif
