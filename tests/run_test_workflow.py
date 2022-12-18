@@ -175,7 +175,7 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
 
     # For baseline purposes, only need to run on a single platform.
     run_id = start_test_workflow_run(
-        find_baseline_commit(), 'windows-2022', 'x64', 'msvc', extra_args)
+        find_baseline_commit(), 'ubuntu-22.04', 'x64', 'clang', extra_args)
     poll_workflow_runs([run_id])
     print('run finished')
     set_action_output('baseline_run_id', run_id)
