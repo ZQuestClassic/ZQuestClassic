@@ -9435,7 +9435,7 @@ bool button_hold[ZC_CONTROL_STATES];
 
 void load_control_state()
 {
-	if (!replay_is_recording() || replay_get_version() >= 8)
+	if (!replay_is_active() || replay_get_version() >= 8)
 	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
