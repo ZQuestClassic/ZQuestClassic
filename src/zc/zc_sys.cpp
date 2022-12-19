@@ -4775,6 +4775,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		
 	Advance=false;
 
+	updatescr(allowwavy);
+
 	if (replay_is_active())
 	{
 		if (replay_get_version() >= 3)
@@ -4809,7 +4811,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if (Quit)
 		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
-	updatescr(allowwavy);
 	throttleFPS();
 	
 #ifdef _WIN32
