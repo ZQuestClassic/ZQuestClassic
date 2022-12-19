@@ -4785,9 +4785,9 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		// Replay compatability.
 		if (replay_get_version() >= 6 && replay_get_version() < 8)
 			replay_peek_input();
-		if (replay_get_version() < 8)
-			update_keys();
 	}
+
+	update_keys();
 
 	++frame;
 	
@@ -10073,9 +10073,6 @@ void update_keys()
 			key_current_frame[q] = key[q];
 
 		KeyPress[q] = key_current_frame[q] && !key_previous_frame[q];
-		if (KeyPress[q] && q == KEY_B) {
-			int lol = 1;
-		}
 		KeyInput[q] = key_current_frame[q];
 		key_previous_frame[q] = key_current_frame[q];
 	}
