@@ -1290,7 +1290,26 @@ void replay_stop()
 
     if (mode == ReplayMode::Update)
     {
-        replay_save();
+        bool should_save;
+        if (replay_log.size() != record_log.size())
+        {
+            should_save = true;
+        }
+        else
+        {
+            should_save = false;
+            for (size_t i = 0; i < replay_log.size(); i++)
+            {
+                if (!steps_are_equal(replay_log[i].get(), record_log[i].get()))
+                {
+                    should_save = true;
+                    break;
+                }
+            }
+        }
+
+        if (should_save)
+            replay_save();
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)
