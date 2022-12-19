@@ -62,6 +62,8 @@ std::string replay_get_buttons_string();
 bool replay_is_active();
 void replay_set_debug(bool enable_debug);
 bool replay_is_debug();
+void replay_set_snapshot_all_frames(bool snapshot_all_frames);
+bool replay_is_snapshot_all_frames();
 void replay_set_sync_rng(bool enable);
 bool replay_is_replaying();
 bool replay_is_recording();

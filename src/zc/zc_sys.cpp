@@ -6415,6 +6415,12 @@ int32_t onToggleRecordingNewSaves()
 	return D_O_K;
 }
 
+int32_t onToggleSnapshotAllFrames()
+{
+	replay_set_snapshot_all_frames(!replay_is_snapshot_all_frames());
+	return D_O_K;
+}
+
 int32_t onStopReplayOrRecord()
 {
 	if (replay_is_replaying())
@@ -6549,6 +6555,7 @@ static MENU replay_menu[] =
 	{ (char *)"Load replay (assert)",		onLoadReplayAssert,		  NULL,					 0,			NULL   },
 	{ (char *)"Load replay (update)",		onLoadReplayUpdate,		  NULL,					 0,			NULL   },
 	{ (char *)"Save replay",				onSaveReplay,			  NULL,					 0,			NULL   },
+	{ (char *)"Enable snapshot all frames", onToggleSnapshotAllFrames,NULL,					 0,			NULL   },
 	
 	{  NULL,								NULL,					  NULL,					 0,			NULL   }
 };
@@ -8751,6 +8758,9 @@ void System()
 			(char *)"Stop recording" :
 			(char *)"Stop replaying";
 		replay_menu[5].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
+		replay_menu[6].text = replay_is_snapshot_all_frames() ?
+			(char *)"Disable snapshot all frames" :
+			(char *)"Enable snapshot all frames";
 	
 		reset_snapshot_format_menu();
 		snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;

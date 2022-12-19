@@ -35,6 +35,7 @@ static const char TypeKeyMap = 'K';
 static ReplayMode mode = ReplayMode::Off;
 static int version;
 static bool debug;
+static bool snapshot_all_frames;
 static bool exit_when_done;
 static bool sync_rng;
 static int frame_arg;
@@ -881,7 +882,7 @@ static void start_manual_takeover()
 static void maybe_take_snapshot()
 {
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
-	if (!gfx_got_mismatch && it == snapshot_frames.end())
+	if (!snapshot_all_frames && !gfx_got_mismatch && it == snapshot_frames.end())
 	{
 		if (mode == ReplayMode::Assert && !prev_gfx_hash_was_same)
 		{
@@ -1603,6 +1604,16 @@ void replay_set_debug(bool enable_debug)
 bool replay_is_debug()
 {
     return mode != ReplayMode::Off && debug;
+}
+
+void replay_set_snapshot_all_frames(bool enable_snapshot_all_frames)
+{
+	snapshot_all_frames = enable_snapshot_all_frames;
+}
+
+bool replay_is_snapshot_all_frames()
+{
+	return snapshot_all_frames;
 }
 
 void replay_set_sync_rng(bool enable)
