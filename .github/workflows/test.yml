@@ -59,22 +59,24 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ needs.build.outputs.build-artifact-name }}
-          path: ${{ needs.build.outputs.build-artifact-name }}
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ${{ needs.build.outputs.artifact-name }}
       - name: Prepare build folder
         uses: knicknic/os-specific-run@v1.0.3
         with:
           windows: |
             chcp 65001
-            echo ("BUILD_FOLDER=${{ needs.build.outputs.build-artifact-name }}") >> $env:GITHUB_ENV
-          macos: |
-            echo "BUILD_FOLDER=${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
-            chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zelda
-            chmod +x ${{ needs.build.outputs.build-artifact-name }}/ZeldaClassic.app/Contents/Resources/zscript
-          linux: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
+            echo ("BUILD_FOLDER=zc-extracted") >> $env:GITHUB_ENV
             mkdir zc-extracted
-            tar -xvzf ${{ needs.build.outputs.build-artifact-name }}/buildpack.tgz -C zc-extracted
+            cd zc-extracted
+            7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
+          macos: |
+            echo "BUILD_FOLDER=zc-extracted/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
+            hdiutil attach -mountpoint zc-extracted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
+          linux: |
+            echo "BUILD_FOLDER=zc-extracted" >> "$GITHUB_ENV"
+            mkdir zc-extracted
+            tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C zc-extracted
 
       - run: sudo apt-get install libopengl0 libglu1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}

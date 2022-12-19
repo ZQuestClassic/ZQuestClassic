@@ -1,3 +1,5 @@
+run-name: ${{ inputs.release-tag || 'Build' }}, ${{ inputs.runs-on }} ${{ inputs.arch }} ${{ inputs.config }} w/ ${{ inputs.compiler }}
+
 on:
   workflow_call:
     inputs:
@@ -14,10 +16,25 @@ on:
       cache:
         type: boolean
         default: true
+      sentry:
+        type: boolean
+        default: false
+        description: "Do not set this directly! Use release workflow."
+      release-tag:
+        type: string
+        required: false
+        description: "Do not set this directly! Use release workflow."
+      release-name:
+        type: string
+        required: false
+        description: "Do not set this directly! Use release workflow."
     outputs:
-      build-artifact-name:
+      artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
         value: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
+      package-name:
+        description: "The name of the package inside the uploaded artifact"
+        value: ${{ jobs.build.outputs.package-name }}
 
 env:
   CCACHE_BASEDIR: ${{ github.workspace }}
@@ -29,10 +46,16 @@ env:
 jobs:
   build:
     runs-on: ${{ inputs.runs-on }}
+    outputs:
+      package-name: ${{ steps.set-package-name.outputs.package-name }}
     steps:
       # Install dependencies.
       - name: git clone
         uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: ilammy/msvc-dev-cmd@v1
@@ -81,14 +104,6 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-      - name: Set environment variables
-        uses: knicknic/os-specific-run@v1.0.3
-        with:
-          windows: |
-            chcp 65001
-            echo ("BUILD_FOLDER=.") >> $env:GITHUB_ENV
-          macos: echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
-          linux: echo "BUILD_FOLDER=build" >> "$GITHUB_ENV"
       # Coverage builds only need zelda.
       - name: Set environment variables
         if: inputs.config == 'Coverage'
@@ -96,35 +111,58 @@ jobs:
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - name: Configure build
         run: >
-          cmake -S . -B ${{ env.BUILD_FOLDER }} -G 'Ninja Multi-Config'
+          cmake -S . -B build -G 'Ninja Multi-Config'
+          -DRELEASE_TAG="${{ inputs.release-tag }}"
+          -DWANT_SENTRY="${{ inputs.sentry }}"
           -DCMAKE_WIN32_EXECUTABLE=1
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
       - run: ccache -z
-      - run: cmake --build ${{ env.BUILD_FOLDER }} --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
+      - run: cmake --build build --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
       - run: ccache -s
 
       # Package.
+      - name: Set package name
+        id: set-package-name
+        shell: python
+        run: |
+          import platform
+          import os
+
+          release_tag = '${{ inputs.release-tag }}' or 'buildpack'
+          arch = '${{ inputs.arch }}'
+
+          system = platform.system()
+          if system == 'Windows':
+            arch_label = 'x86' if arch == 'win32' else 'x64'
+            package_name = f'{release_tag}-windows-{arch_label}.zip'
+          elif system == 'Darwin':
+            package_name = f'{release_tag}-mac.dmg'
+          elif system == 'Linux':
+            package_name = f'{release_tag}-ubuntu.tgz'
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            print('{0}={1}'.format('package-name', package_name), file=f)
       - name: Package
         if: inputs.config != 'Coverage'
         uses: knicknic/os-specific-run@v1.0.3
         with:
-          # TODO: windows currently only works for Release config
           windows: |
             cd output/_auto
-            ./buildpack.bat N
-            echo ("PACKAGE_FOLDER=output/_auto/buildpack") >> $env:GITHUB_ENV
+            ls ../../build/${{ inputs.config }}
+            ./buildpack.bat Y build\${{ inputs.config }}
+            mv buildpack.zip ${{ steps.set-package-name.outputs.package-name }}
           macos: |
             cd output/_auto
             ./buildpack_osx.sh ../../build/${{ inputs.config }}
-            echo "PACKAGE_FOLDER=output/_auto/zelda-classic-mac" >> "$GITHUB_ENV"
+            mv ZeldaClassic.dmg ${{ steps.set-package-name.outputs.package-name }}
           linux: |
             cd output/_auto
             ./buildpack.sh ../../build/${{ inputs.config }}
             cd buildpack
             tar czpvf buildpack.tgz * --preserve-permissions
-            echo "PACKAGE_FOLDER=output/_auto/buildpack/buildpack.tgz" >> "$GITHUB_ENV"
+            mv buildpack.tgz ../${{ steps.set-package-name.outputs.package-name }}
       # Coverage builds need the entire build folder.
       - name: Package
         if: inputs.config == 'Coverage'
@@ -134,10 +172,22 @@ jobs:
           cp -r buildpack/* ../../build/Coverage
           cd ../../build
           tar czpvf build.tgz * --preserve-permissions
-          echo "PACKAGE_FOLDER=build/build.tgz" >> "$GITHUB_ENV"
+          mv build.tgz ../output/_auto/${{ steps.set-package-name.outputs.package-name }}
 
-      # Make build result available to other jobs.
+      # Make build result available to other workflows.
       - uses: actions/upload-artifact@v3
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
-          path: ${{ env.PACKAGE_FOLDER }}
+          path: output/_auto/${{ steps.set-package-name.outputs.package-name }}
+
+      # Upload debug symbols to Sentry.
+      - name: Setup Sentry CLI
+        if: inputs.sentry
+        uses: mathieu-bour/setup-sentry-cli@1.2.0
+        with:
+          token: ${{ secrets.SENTRY_TOKEN }}
+          organization: zeldaclassic
+          project: zelda-classic
+      - name: Upload debugging symbols
+        if: inputs.sentry
+        run: sentry-cli upload-dif 'zelda-classic@${{ needs.create-tag.outputs.release_tag }}' --include-sources --wait Release

@@ -5,7 +5,6 @@ set src=.
 set out=%src%\output
 set log=%out%\_auto\buildpack_log.txt
 set nb=%out%\_auto\buildpack
-set rel=%src%\Release
 set incl=%out%\include
 set docs=%out%\docs
 set theme=%out%\themes
@@ -13,6 +12,12 @@ set tsets=%out%\tilesets
 set conf=%out%\config
 set mod=%out%\modules
 set pack=%out%\package
+
+if "%~2"=="" (
+	set rel=%src%\Release
+)else (
+	set rel=%~2
+)
 
 if exist "%nb%" (
 	echo Clearing old buildpack folder...

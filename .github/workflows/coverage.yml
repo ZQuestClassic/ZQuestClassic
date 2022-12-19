@@ -37,10 +37,10 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ needs.build.outputs.build-artifact-name }}
-          path: ${{ needs.build.outputs.build-artifact-name }}
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ${{ needs.build.outputs.artifact-name }}
       - name: Prepare build folder
-        run: tar -xvzf ${{ needs.build.outputs.build-artifact-name }}/build.tgz -C build
+        run: tar -xvzf ${{ needs.build.outputs.artifact-name }}/build.tgz -C build
 
       - name: Run tests and collect coverage data
         run: xvfb-run --auto-servernum sudo python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
