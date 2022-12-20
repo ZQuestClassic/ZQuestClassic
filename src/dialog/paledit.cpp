@@ -95,7 +95,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 			Column(
 				tabpan = TabPanel(
 					ptr = &paltab,
-					onSwitch = [&](size_t tab)
+					onSwitch = [&](size_t,size_t)
 					{
 						loadPal();
 					},
@@ -335,7 +335,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 				tabpan = TabPanel(
 				
 					ptr = &paltab,
-					onSwitch = [&](size_t tab)
+					onSwitch = [&](size_t,size_t)
 					{
 						loadPal();
 					},

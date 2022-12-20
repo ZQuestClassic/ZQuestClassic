@@ -364,6 +364,17 @@ static bool set_zcl_theme()
 	return false;
 }
 
+bool LauncherDialog::load_theme(char const* themefile)
+{
+	if(themefile && fileexists(themefile))
+	{
+		load_themefile(themefile);
+		pendDraw();
+		return true;
+	}
+	return false;
+}
+
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
 {
 	using namespace GUI::Builder;
@@ -399,6 +410,33 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				focused = true,
 				minwidth = zq_screen_w - 60_px,
 				minheight = zq_screen_h - 100_px,
+				onSwitch = [&](size_t oldind, size_t newind)
+				{
+					if(newind < 3) //not a theme tab
+					{
+						if(oldind < 3) return; //Already not a theme tab
+						//Load the ZCL theme
+						char const* themepath = zc_get_config("Theme","theme_filename","themes/mooshmood.ztheme");
+						load_theme(themepath);
+					}
+					else
+					{
+						App a = App::launcher;
+						if(newind == 4) a = App::zquest;
+						else if(newind == 3) a = App::zelda;
+						char const* themepath = zc_get_config("Theme","theme_filename","themes/mooshmood.ztheme", a);
+						load_theme(themepath);
+						strcpy(zthemepath, themepath);
+						char path[4096] = {0};
+						relativize_path(path, zthemepath);
+						tf_theme[newind-3]->setText(path);
+						btn_save[newind-3]->setDisabled(false);
+						for(auto q = strlen(zthemepath)-1; q > 0 && !(zthemepath[q] == '/' || zthemepath[q] == '\\'); --q)
+						{
+							zthemepath[q] = 0;
+						}
+					}
+				},
 				TabRef(name = "ZC Player", Row(framed = true,
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Fullscreen",App::zelda,"zeldadx","fullscreen",0),
@@ -590,127 +628,126 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Themes", Column(
-					Label(text = "Here you can load themes, and save them for each program separately."),
-					Rows<4>(padding = 0_px,
-						Label(text = "Theme file path (.ztheme):"),
-						tf_theme = TextField(read_only = true, maxLength = 255, text = zc_get_config("Theme", "theme_filename", "themes/mooshmood.ztheme")),
-						Button(text = "Load", onPressFunc = [&]()
-						{
-							std::string themename;
-							themename.assign(tf_theme->getText());
-							if(fileexists(themename.c_str()))
-							{
-								lbl_theme_error->setText("");
-								strcpy(tmp_themefile, themename.c_str());
-								load_themefile(tmp_themefile);
-								queue_revert = 2;
-								pendDraw();
-							}
-							else
-							{
-								lbl_theme_error->setText("Theme load error!");
-							}
-						}),
-						Button(text = "Browse", onPressFunc = [&]()
+				TabRef(name = "ZC Theme", Rows<2>(
+					tf_theme[0] = TextField(read_only = true, maxLength = 255),
+					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
 							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
 							{
 								char path[4096] = {0};
 								relativize_path(path, temppath);
-								tf_theme->setText(path);
+								tf_theme[0]->setText(path);
 								for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
 								{
 									temppath[q] = 0;
 								}
 								strcpy(zthemepath, temppath);
+								bool loaded = load_theme(path);
+								btn_save[0]->setDisabled(!loaded);
+								if(loaded)
+								{
+									pendDraw();
+									//!TODO connor: add A5 text enter/esc to accept/revert
+									strcpy(tmp_themefile, path);
+									queue_revert = 2;
+								}
 							}
 						}),
-						DummyWidget(),
-						lbl_theme_error = Label(text = "")
-					),
-					Rows<2>(padding = 0_px,
-						Button(text = "Load ZC", onPressFunc = [&]()
+					btn_save[0] = Button(text = "Save", hAlign = 1.0, onPressFunc = [&]()
+					{
+						zc_set_config("Theme","theme_filename",tmp_themefile,App::zelda);
+					}),
+					Button(text = "Edit", fitParent = true, onPressFunc = [&]()
+					{
+						ThemeEditor(theme_saved_filepath).show();
+						queue_revert = 0;
+						if(theme_saved_filepath[0])
 						{
-							load_udef_colorset(App::zelda);
-							reset_theme();
-							tf_theme->setText(tmp_themefile);
-						}),
-						Button(text = "Save ZC", onPressFunc = [&]()
+							tf_theme[0]->setText(theme_saved_filepath);
+							strcpy(tmp_themefile, theme_saved_filepath);
+						}
+					})
+				)),
+				TabRef(name = "ZQ Theme", Rows<2>(
+					tf_theme[1] = TextField(read_only = true, maxLength = 255),
+					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
-							std::string themename;
-							themename.assign(tf_theme->getText());
-							if(fileexists(themename.c_str()))
+							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
 							{
-								lbl_theme_error->setText("");
-								zc_set_config("Theme","theme_filename",themename.c_str(),App::zelda);
-								//zc_set_config("zeldadx","gui_colorset",99,App::zelda);
-							}
-							else
-							{
-								lbl_theme_error->setText("Theme load error!");
-							}
-						}),
-						Button(text = "Load ZQ", onPressFunc = [&]()
-						{
-							load_udef_colorset(App::zquest);
-							reset_theme();
-							tf_theme->setText(tmp_themefile);
-						}),
-						Button(text = "Save ZQ", onPressFunc = [&]()
-						{
-							std::string themename;
-							themename.assign(tf_theme->getText());
-							if(fileexists(themename.c_str()))
-							{
-								lbl_theme_error->setText("");
-								zc_set_config("Theme","theme_filename",themename.c_str(),App::zquest);
-								//zc_set_config("zquest","gui_colorset",99,App::zquest);
-							}
-							else
-							{
-								lbl_theme_error->setText("Theme load error!");
+								char path[4096] = {0};
+								relativize_path(path, temppath);
+								tf_theme[1]->setText(path);
+								for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+								{
+									temppath[q] = 0;
+								}
+								strcpy(zthemepath, temppath);
+								bool loaded = load_theme(path);
+								btn_save[1]->setDisabled(!loaded);
+								if(loaded)
+								{
+									pendDraw();
+									//!TODO connor: add A5 text enter/esc to accept/revert
+									strcpy(tmp_themefile, path);
+									queue_revert = 2;
+								}
+								//else handle failure?
 							}
 						}),
-						Button(text = "Load ZCL", onPressFunc = [&]()
+					btn_save[1] = Button(text = "Save", hAlign = 1.0, onPressFunc = [&]()
+					{
+						zc_set_config("Theme","theme_filename",tmp_themefile,App::zquest);
+					}),
+					Button(text = "Edit", fitParent = true, onPressFunc = [&]()
+					{
+						ThemeEditor(theme_saved_filepath).show();
+						queue_revert = 0;
+						if(theme_saved_filepath[0])
 						{
-							load_udef_colorset(App::launcher);
-							reset_theme();
-							tf_theme->setText(tmp_themefile);
+							tf_theme[1]->setText(theme_saved_filepath);
+							strcpy(tmp_themefile, theme_saved_filepath);
+						}
+					})
+				)),
+				TabRef(name = "ZCL Theme", Rows<2>(
+					tf_theme[2] = TextField(read_only = true, maxLength = 255),
+					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
+						{
+							if(getname("Load Theme", "ztheme", NULL, zthemepath, false))
+							{
+								char path[4096] = {0};
+								relativize_path(path, temppath);
+								tf_theme[2]->setText(path);
+								for(auto q = strlen(temppath)-1; q > 0 && !(temppath[q] == '/' || temppath[q] == '\\'); --q)
+								{
+									temppath[q] = 0;
+								}
+								strcpy(zthemepath, temppath);
+								bool loaded = load_theme(path);
+								btn_save[2]->setDisabled(!loaded);
+								if(loaded)
+								{
+									pendDraw();
+									//!TODO connor: add A5 text enter/esc to accept/revert
+									strcpy(tmp_themefile, path);
+									queue_revert = 2;
+								}
+							}
 						}),
-						Button(text = "Save ZCL", onPressFunc = [&]()
+					btn_save[2] = Button(text = "Save", hAlign = 1.0, onPressFunc = [&]()
+					{
+						zc_set_config("Theme","theme_filename",tmp_themefile,App::launcher);
+					}),
+					Button(text = "Edit", fitParent = true, onPressFunc = [&]()
+					{
+						ThemeEditor(theme_saved_filepath).show();
+						queue_revert = 0;
+						if(theme_saved_filepath[0])
 						{
-							std::string themename;
-							themename.assign(tf_theme->getText());
-							if(fileexists(themename.c_str()))
-							{
-								lbl_theme_error->setText("");
-								zc_set_config("Theme","theme_filename",themename.c_str());
-								//zc_set_config("ZLAUNCH","gui_colorset",99);
-							}
-							else
-							{
-								lbl_theme_error->setText("Theme load error!");
-							}
-						})
-					),
-					Button(text = "Theme Editor", onPressFunc = [&]()
-						{
-							ThemeEditor(theme_saved_filepath).show();
-							queue_revert = 0;
-							if(theme_saved_filepath[0])
-							{
-								tf_theme->setText(theme_saved_filepath);
-								AlertFuncDialog("New Theme",
-									"Set the new theme to a program?",
-									4, 3, //4 buttons, where buttons[3] is focused
-									"Save ZC", set_zc_theme,
-									"Save ZQ", set_zq_theme,
-									"Save ZCL", set_zcl_theme,
-									"Done", NULL
-								).show();
-							}
-						})
+							tf_theme[2]->setText(theme_saved_filepath);
+							strcpy(tmp_themefile, theme_saved_filepath);
+						}
+					})
 				))
 			),
 			Row(
