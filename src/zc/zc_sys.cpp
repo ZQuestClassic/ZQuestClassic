@@ -6974,6 +6974,8 @@ int32_t onAbout()
 	oss << buf1 << '\n';
 	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
+	sprintf(buf1, "Tag: %s", getReleaseTag());
+	oss << buf1 << '\n';
 	
 	InfoDialog("About ZC", oss.str()).show();
 	return D_O_K;

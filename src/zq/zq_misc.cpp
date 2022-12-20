@@ -1198,7 +1198,7 @@ int32_t onAbout()
             sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
 #endif
-        sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
+        sprintf(buf2,"Tag: %s", getReleaseTag());
         sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
         InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }
