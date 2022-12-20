@@ -62,18 +62,22 @@ jobs:
           - runs-on: windows-2022
             arch: x64
             compiler: msvc
+            config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
+            config: RelWithDebInfo
             sentry: ${{ inputs.sentry }}
           - runs-on: macos-12
             arch: intel
             compiler: clang
+            config: Release
             sentry: false
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang
+            config: Release
             sentry: false
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
@@ -83,7 +87,7 @@ jobs:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
-      config: RelWithDebInfo
+      config: ${{ matrix.config }}
       sentry: ${{ matrix.sentry }}
       release-tag: ${{ needs.create-tag.outputs.release-tag }}
       release-name: ${{ needs.create-tag.outputs.release-name }}
