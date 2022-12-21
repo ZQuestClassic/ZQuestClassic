@@ -287,7 +287,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
 }
 
 
-void Z_error_fatal(const char *format,...)
+[[noreturn]] void Z_error_fatal(const char *format,...)
 {
     char buf[256];
     
@@ -298,6 +298,11 @@ void Z_error_fatal(const char *format,...)
     
 #if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
+#elif defined(ALLEGRO_WINDOWS)
+	if (!zscript_coloured_console.valid())
+	{
+		MessageBoxA(NULL, buf, "Zelda Classic", MB_OK | MB_ICONERROR);
+	}
 #endif
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);

@@ -4707,7 +4707,7 @@ int main(int argc, char **argv)
 	//al_trace("Before zcm.init, the current module is: %s\n", moduledata.module_name)
 	if ( !(zcm.init(true)) ) 
 	{
-		exit(1);    
+		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 	}
 	
 #ifdef _WIN32
