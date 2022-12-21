@@ -141,3 +141,4 @@ compare-report/
 .coverage
 .gha-cache-dir/
 __pycache__
+./packages/

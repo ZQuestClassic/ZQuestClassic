@@ -6,6 +6,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(FetchContent)
 include(CodeCoverage)
 
+option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they do not exist yet" ON)
+
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
@@ -754,6 +756,28 @@ endforeach()
 if(WIN32)
 	# Disable warnings for generated file.
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS /W0)
+endif()
+
+find_program(PYTHON python3 python REQUIRED)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --keep_existing_files
+	OUTPUT copy_resources_if_not_exist.stamp
+)
+add_custom_target(copy_resources_if_not_exist DEPENDS copy_resources_if_not_exist.stamp)
+set_source_files_properties(copy_resources_if_not_exist.stamp PROPERTIES SYMBOLIC 1)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+	OUTPUT copy_resources.stamp
+)
+add_custom_target(copy_resources DEPENDS copy_resources.stamp)
+set_source_files_properties(copy_resources.stamp PROPERTIES SYMBOLIC 1)
+
+if(COPY_RESOURCES)
+	foreach(target IN LISTS zc_targets)
+		add_dependencies(${target} copy_resources_if_not_exist)
+	endforeach()
 endif()
 
 #############################################################

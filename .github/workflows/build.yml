@@ -112,6 +112,7 @@ jobs:
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
+          -DCOPY_RESOURCES=OFF
           -DRELEASE_TAG="${{ inputs.release-tag }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
           -DCMAKE_WIN32_EXECUTABLE=1
@@ -130,7 +131,7 @@ jobs:
           import platform
           import os
 
-          release_tag = '${{ inputs.release-tag }}' or 'buildpack'
+          release_tag = '${{ inputs.release-tag }}' or 'zc'
           arch = '${{ inputs.arch }}'
 
           system = platform.system()
@@ -140,7 +141,7 @@ jobs:
           elif system == 'Darwin':
             package_name = f'{release_tag}-mac.dmg'
           elif system == 'Linux':
-            package_name = f'{release_tag}-ubuntu.tgz'
+            package_name = f'{release_tag}-ubuntu.tar.gz'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('package-name', package_name), file=f)
@@ -149,36 +150,31 @@ jobs:
         uses: knicknic/os-specific-run@v1.0.3
         with:
           windows: |
-            cd output/_auto
-            ls ../../build/${{ inputs.config }}
-            ./buildpack.bat Y build\${{ inputs.config }}
-            mv buildpack.zip ${{ steps.set-package-name.outputs.package-name }}
+            python scripts/package.py --build_folder build/${{ inputs.config }}
+            mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           macos: |
-            cd output/_auto
-            ./buildpack_osx.sh ../../build/${{ inputs.config }}
-            mv ZeldaClassic.dmg ${{ steps.set-package-name.outputs.package-name }}
+            sh scripts/package_mac.sh
+            mv build/${{ inputs.config }}/packages/ZeldaClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           linux: |
-            cd output/_auto
-            ./buildpack.sh ../../build/${{ inputs.config }}
-            cd buildpack
-            tar czpvf buildpack.tgz * --preserve-permissions
-            mv buildpack.tgz ../${{ steps.set-package-name.outputs.package-name }}
+            python scripts/package.py --build_folder build/${{ inputs.config }}
+            mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
       # Coverage builds need the entire build folder.
       - name: Package
         if: inputs.config == 'Coverage'
         run: |
-          cd output/_auto
-          ./buildpack.sh ../../build/Coverage
-          cp -r buildpack/* ../../build/Coverage
-          cd ../../build
-          tar czpvf build.tgz * --preserve-permissions
-          mv build.tgz ../output/_auto/${{ steps.set-package-name.outputs.package-name }}
+          python scripts/package.py --build_folder build/${{ inputs.config }} --skip_archive
+          cp -r build/${{ inputs.config }}/packages/zc/* build/${{ inputs.config }}
+          cd build
+          rm -rf ${{ inputs.config }}/packages
+          tar czpvf build.tar.gz * --preserve-permissions
+          mkdir ${{ inputs.config }}/packages
+          mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
 
       # Make build result available to other workflows.
       - uses: actions/upload-artifact@v3
         with:
           name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
-          path: output/_auto/${{ steps.set-package-name.outputs.package-name }}
+          path: build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
 
       # Upload debug symbols to Sentry.
       - name: Setup Sentry CLI

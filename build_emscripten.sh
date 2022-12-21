@@ -2,12 +2,18 @@
 
 set -e
 
+DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ROOT="$DIR"
+
 if ! command -v emsdk &> /dev/null
 then
   echo "emsdk could not be found."
   echo "https://emscripten.org/docs/getting_started/downloads.html"
   exit 1
 fi
+
+cd "$ROOT"
+mkdir -p build_emscripten
 
 EMCC_VERSION=3.1.24
 emsdk install $EMCC_VERSION
@@ -22,39 +28,37 @@ cd web
 npm install
 cd -
 
-cd output/_auto
-./buildpack.sh
-rm -f buildpack/{zelda,zquest,zlauncher,zscript}
-rm -rf buildpack/Addons buildpack/docs/ghost buildpack/docs/tango buildpack/utilities
-rm -rf buildpack/headers/ghost_zh/3.0/demo buildpack/headers/GUITest.qst
-rm -rf "buildpack/scripts/stdWeapons/example scripts"
-rm buildpack/changelog.txt
-rm buildpack/music/Isabelle_Z2.nsf
-find buildpack -name "*.dll" -type f -delete
-find buildpack -name "*.so" -type f -delete
-find buildpack -name "*.exe" -type f -delete
-find buildpack -name "*.rtf" -type f -delete
-find buildpack -name "*.pdf" -type f -delete
-find buildpack -name "*.so" -type f -delete
-find buildpack -name "*.zip" -type f -delete
+packages_dir="$ROOT/build_emscripten/packages"
+python scripts/package.py --build_folder build_emscripten --skip_binaries --skip_archive
 
+cd "$packages_dir/zc"
+rm -rf docs/ghost docs/tango
+rm -rf headers/ghost_zh/3.0/demo headers/GUITest.qst
+rm -rf "scripts/stdWeapons/example scripts"
+rm changelog.txt
+rm music/Isabelle_Z2.nsf
+find . -name "*.rtf" -type f -delete
+find . -name "*.pdf" -type f -delete
+find . -name "*.zip" -type f -delete
+cd -
+
+cd "$packages_dir"
 LAZY_LOAD=(
   tilesets/classic.qst
 )
-mkdir -p buildpack_lazy
+mkdir -p zc_lazy
 for f in ${LAZY_LOAD[@]}; do
   dir=$(dirname $f)
-  mkdir -p "buildpack_lazy/$dir"
-  mv "buildpack/$f" "buildpack_lazy/$dir"
+  mkdir -p "zc_lazy/$dir"
+  mv "zc/$f" "zc_lazy/$dir"
 done
 
-rm -rf buildpack_zq
-mkdir -p buildpack_zq
-mkdir -p buildpack_zq/modules/classic/
-mv buildpack/modules/classic/classic_qst.dat buildpack_zq/modules/classic/
+rm -rf zq
+mkdir -p zq
+mkdir -p zq/modules/classic/
+mv zc/modules/classic/classic_qst.dat zq/modules/classic/
 cd -
 
-mkdir -p build_emscripten
 cd build_emscripten
 
 # Wish I knew how to remove this.
@@ -195,7 +199,7 @@ cd $CONFIG
 
 "$(dirname $(which emcc))"/tools/file_packager.py zc.data \
   --no-node \
-  --preload "../../output/_auto/buildpack@/" \
+  --preload "$packages_dir/zc@/" \
   --preload "../../timidity/zc.cfg@/etc/zc.cfg" \
   --preload "../../timidity/ultra.cfg@/etc/ultra.cfg" \
   --preload "../../timidity/ppl160.cfg@/etc/ppl160.cfg" \
@@ -208,7 +212,7 @@ cd $CONFIG
 # Zquest also uses zc.data
 "$(dirname $(which emcc))"/tools/file_packager.py zq.data \
   --no-node \
-  --preload "../../output/_auto/buildpack_zq@/" \
+  --preload "$packages_dir/zq@/" \
   --use-preload-cache \
   --js-output=zq.data.js
 
@@ -242,7 +246,7 @@ fi
 cp -r ../../timidity .
 
 rm -rf files
-mv ../../output/_auto/buildpack_lazy files
+mv "$packages_dir/zc_lazy" files
 
 build_js
 

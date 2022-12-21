@@ -1,35 +1,31 @@
-#!/bin/sh
+#!/bin/bash
 
-# Same as buildpack.sh, but in the end creates a mac application bundle.
+# Creates a mac application bundle.
 # First, install these tools:
 #     brew install dylibbundler create-dmg
 #
 # Does not need user input. When the Finder ZeldaClassic.app -> Applications window opens
 # don't do anything - just wait.
 
-src="../.."
-out="${src}/output"
-nb="${out}/_auto/buildpack"
-mac_nb="${out}/_auto/zelda-classic-mac"
-rel="${1:-${src}/build/Release}"
+set -e
 
-sh buildpack.sh "$rel"
+DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+ROOT=$( dirname "$DIR" )
+
+build_dir="${1:-${ROOT}/build/Release}"
+packages_dir="$build_dir/packages"
+package_dir="$packages_dir/zc"
+mac_package_dir="$build_dir/packages/zelda-classic-mac"
+
 set -eu
+cd "$ROOT"
 
-# Need shared libraries.
-find "$rel" -name "*.dylib" -exec cp {} "$nb" \;
+python scripts/package.py --build_folder "$build_dir" --skip_archive
 
 # Change some defaults.
-sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/base_config/zquest.cfg"
-sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$nb/base_config/zc.cfg"
-find "$nb" -name "*.cfg-e" -exec rm {} \;
-
-# Delete things Mac build won't need.
-# TODO: better system for defining what files are bundled for each platform.
-find "$nb" -name "*.exe" -exec rm {} \;
-find "$nb" -name "*.dll" -exec rm {} \;
-rm -rf "$nb/Addons"
-rm -rf "$nb/utilities"
+sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$package_dir/base_config/zquest.cfg"
+sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$package_dir/base_config/zc.cfg"
+find "$package_dir" -name "*.cfg-e" -exec rm {} \;
 
 # Set SKIP_APP_BUNDLE=1 to skip building an osx application bundle.
 # This won't be able to distribute easily, because OSX will prevent users from running
@@ -37,24 +33,24 @@ rm -rf "$nb/utilities"
 # when zlauncher/zquest opens other ZC processes OSX will prevent it without a way to ignore
 # the intervention, so some features won't work.
 if test "${SKIP_APP_BUNDLE+x}"; then
-  rm -rf "$mac_nb"
-  mv "$nb" "$mac_nb"
+  rm -rf "$mac_package_dir"
+  mv "$package_dir" "$mac_package_dir"
   echo "Done"
   exit
 fi
 
 # Prepare the Mac application bundle.
-contents="$mac_nb/ZeldaClassic.app/Contents"
+contents="$mac_package_dir/ZeldaClassic.app/Contents"
 
-rm -rf "$mac_nb"
+rm -rf "$mac_package_dir"
 mkdir -p "$contents/MacOS"
-cp Info.plist "$contents"
-mv buildpack/zlauncher "$contents/MacOS"
-mv buildpack "$contents/Resources"
+cp "$DIR/Info.plist" "$contents"
+mv "$package_dir/zlauncher" "$contents/MacOS"
+mv "$package_dir" "$contents/Resources"
 
 # Generate icon.
 ICONDIR="$contents/Resources/icons.iconset"
-ICON=../zc.png
+ICON=resources/zc.png
 
 mkdir "$ICONDIR"
 
@@ -73,7 +69,7 @@ iconutil -c icns -o "$contents/Resources/icons.icns" "$ICONDIR"
 rm -rf "$ICONDIR"
 
 # Move shared libraries out of bundle (to be re-placed by dylibbundler)
-tmp_libs_dir="$mac_nb/libs"
+tmp_libs_dir="$mac_package_dir/libs"
 mkdir -p "$tmp_libs_dir"
 find "$contents/Resources" -name "*.dylib" -exec mv {} "$tmp_libs_dir" \;
 
@@ -83,7 +79,8 @@ dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
     -x "$contents/Resources/zelda" -x "$contents/Resources/zscript"
 rm -rf "$tmp_libs_dir"
 
-rm -f "ZeldaClassic.dmg"
+cd "$packages_dir"
+rm -f ZeldaClassic.dmg
 create-dmg \
   --volname "ZeldaClassic" \
   --volicon "$contents/Resources/icons.icns" \
@@ -93,7 +90,7 @@ create-dmg \
   --icon "ZeldaClassic.app" 200 190 \
   --hide-extension "ZeldaClassic.app" \
   --app-drop-link 600 185 \
-  "ZeldaClassic.dmg" \
-  "$mac_nb"
+  ZeldaClassic.dmg \
+  "$mac_package_dir"
 
 echo "Done!"
