@@ -13314,7 +13314,7 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		
 		case HEROSCRIPTCSET:
-			script_hero_cset=vbound((value/10000), 0, 0xF);
+			script_hero_cset=vbound((value/10000), -1, 0xF);
 			break;
 		case LINKSCRIPFLIP:
 			script_hero_flip=vbound((value/10000),-1,256);
