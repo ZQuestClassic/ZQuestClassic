@@ -774,6 +774,22 @@ add_custom_command(
 add_custom_target(copy_resources DEPENDS copy_resources.stamp)
 set_source_files_properties(copy_resources.stamp PROPERTIES SYMBOLIC 1)
 
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first
+	OUTPUT package.stamp
+	DEPENDS ${zc_targets}
+)
+add_custom_target(package DEPENDS package.stamp)
+set_source_files_properties(package.stamp PROPERTIES SYMBOLIC 1)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first --skip_archive
+	OUTPUT package_no_archive.stamp
+	DEPENDS ${zc_targets}
+)
+add_custom_target(package_no_archive DEPENDS package_no_archive.stamp)
+set_source_files_properties(package_no_archive.stamp PROPERTIES SYMBOLIC 1)
+
 if(COPY_RESOURCES)
 	foreach(target IN LISTS zc_targets)
 		add_dependencies(${target} copy_resources_if_not_exist)
@@ -795,7 +811,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zelda zquest zscript zlauncher PROPERTIES FOLDER "")
+	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb alogg PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
