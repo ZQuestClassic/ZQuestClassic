@@ -29575,7 +29575,7 @@ void switch_in()
 	else dialogs[0].dp = (void *) the_menu_large;
 	*/
 	//dialogs[0].dp2 = z3font;
-	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	//jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
 	
 	zcmusic_pause(zcmusic, ZCM_RESUME);
 	zc_midi_resume();
