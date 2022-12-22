@@ -162,10 +162,8 @@ jobs:
       - name: Package
         if: inputs.config == 'Coverage'
         run: |
-          python scripts/package.py --build_folder build/${{ inputs.config }} --skip_archive
-          cp -r build/${{ inputs.config }}/packages/zc/* build/${{ inputs.config }}
+          python scripts/package.py --build_folder build/${{ inputs.config }} --copy_to_build_folder
           cd build
-          rm -rf ${{ inputs.config }}/packages
           tar czpvf build.tar.gz * --preserve-permissions
           mkdir ${{ inputs.config }}/packages
           mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
