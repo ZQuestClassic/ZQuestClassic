@@ -131,7 +131,7 @@ jobs:
       - run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
-      - run: bash build_emscripten.sh
+      - run: bash scripts/build_emscripten.sh
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
       - run: ccache -s

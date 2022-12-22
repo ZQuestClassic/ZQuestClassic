@@ -3,7 +3,7 @@
 set -e
 
 DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ROOT="$DIR"
+ROOT=$( dirname "$DIR" )
 
 if ! command -v emsdk &> /dev/null
 then
