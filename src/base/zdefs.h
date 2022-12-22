@@ -3047,7 +3047,6 @@ struct newcombo
     byte walk; //8 bits
     byte type; //8 bits
     byte csets; //8 bits
-    word foo; // 8 bits ;  used in zq_tiles for some reason. May be redundant. -- L.
     byte frames; //8 bits
     byte speed; //8 bits
     word nextcombo; //16 bits
@@ -3125,7 +3124,6 @@ struct newcombo
 		walk = 0xF0;
 		type = 0;
 		csets = 0;
-		foo = 0;
 		frames = 0;
 		speed = 0;
 		nextcombo = 0;
@@ -3203,7 +3201,6 @@ struct newcombo
 		walk = other.walk;
 		type = other.type;
 		csets = other.csets;
-		foo = other.foo;
 		frames = other.frames;
 		speed = other.speed;
 		nextcombo = other.nextcombo;

@@ -4468,9 +4468,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				}).show();
 			if(doclear)
 			{
-				word foo = local_comboref.foo; //Might need to store this?
 				local_comboref.clear();
-				local_comboref.foo = foo;
 				rerun_dlg = true;
 				return true;
 			}

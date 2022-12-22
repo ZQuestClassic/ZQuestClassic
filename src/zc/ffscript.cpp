@@ -11090,7 +11090,7 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
-		case COMBODFOO:			GET_COMBO_VAR_DWORD(foo, "Foo"); break;						//W
+		case COMBODFOO:			break;						//W
 		case COMBODATASCRIPT:			GET_COMBO_VAR_DWORD(script, "Script"); break;						//W
 		case COMBODFRAMES:		GET_COMBO_VAR_BYTE(frames, "Frames"); break;					//C
 		case COMBODNEXTD:		GET_COMBO_VAR_DWORD(speed, "NextData"); break;					//W
@@ -20963,7 +20963,7 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			break;
 		}
-		case COMBODFOO:		SET_COMBO_VAR_DWORD(foo, "Foo"); break;							//W
+		case COMBODFOO:		break;							//W
 		case COMBODFRAMES:	SET_COMBO_VAR_BYTE(frames, "Frames"); break;						//C
 		case COMBODNEXTD:	SET_COMBO_VAR_DWORD(speed, "NextData"); break;						//W
 		case COMBODNEXTC:	SET_COMBO_VAR_BYTE(nextcombo, "NextCSet"); break;					//C
@@ -31810,7 +31810,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			case GCDWALK:  FFScript::getComboData_walk(); break;
 			case GCDTYPE:  FFScript::getComboData_type(); break;
 			case GCDCSETS:  FFScript::getComboData_csets(); break;
-			case GCDFOO:  FFScript::getComboData_foo(); break;
+			case GCDFOO:  break;
 			case GCDFRAMES:  FFScript::getComboData_frames(); break;
 			case GCDSPEED:  FFScript::getComboData_speed(); break;
 			case GCDNEXTCOMBO:  FFScript::getComboData_nextcombo(); break;
@@ -31888,7 +31888,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			case SCDWALK:  FFScript::setComboData_walk(); break;
 			case SCDTYPE:  FFScript::setComboData_type(); break;
 			case SCDCSETS:  FFScript::setComboData_csets(); break;
-			case SCDFOO:  FFScript::setComboData_foo(); break;
+			case SCDFOO:  break;
 			case SCDFRAMES:  FFScript::setComboData_frames(); break;
 			case SCDSPEED:  FFScript::setComboData_speed(); break;
 			case SCDNEXTCOMBO:  FFScript::setComboData_nextcombo(); break;
@@ -34849,7 +34849,6 @@ void FFScript::getComboData_flip(){ GET_COMBODATA_VAR_INT(flip); } //newcombo by
 void FFScript::getComboData_walk(){ GET_COMBODATA_VAR_INT(walk); } //newcombo byte
 void FFScript::getComboData_type(){ GET_COMBODATA_VAR_INT(type); } //newcombo byte
 void FFScript::getComboData_csets(){ GET_COMBODATA_VAR_INT(csets); } //newcombo byte
-void FFScript::getComboData_foo(){ GET_COMBODATA_VAR_INT(foo); } //newcombo word
 void FFScript::getComboData_frames(){ GET_COMBODATA_VAR_INT(frames); } //newcombo byte
 void FFScript::getComboData_speed(){ GET_COMBODATA_VAR_INT(speed); } //newcombo byte
 void FFScript::getComboData_nextcombo(){ GET_COMBODATA_VAR_INT(nextcombo); } //newcombo word
@@ -34938,7 +34937,6 @@ void FFScript::setComboData_flip(){ SET_COMBODATA_VAR_INT(flip,ZS_BYTE); } //new
 void FFScript::setComboData_walk(){ SET_COMBODATA_VAR_INT(walk,ZS_BYTE); } //newcombo byte
 void FFScript::setComboData_type(){ SET_COMBODATA_VAR_INT(type,ZS_BYTE); } //newcombo byte
 void FFScript::setComboData_csets(){ SET_COMBODATA_VAR_INT(csets,ZS_BYTE); } //newcombo byte
-void FFScript::setComboData_foo(){ SET_COMBODATA_VAR_INT(foo,ZS_WORD); } //newcombo word
 void FFScript::setComboData_frames(){ SET_COMBODATA_VAR_INT(frames,ZS_BYTE); } //newcombo byte
 void FFScript::setComboData_speed(){ SET_COMBODATA_VAR_INT(speed,ZS_BYTE); } //newcombo byte
 void FFScript::setComboData_nextcombo(){ SET_COMBODATA_VAR_INT(nextcombo,ZS_WORD); } //newcombo word

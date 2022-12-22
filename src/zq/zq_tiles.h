@@ -133,8 +133,6 @@ void draw_combos(int32_t page,int32_t cs,bool cols);
 void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,int32_t buttons);
 void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols);
 
-//extern word ctable[MAXCOMBOS];
-
 bool select_combo_2(int32_t &cmb,int32_t &cs);
 bool select_combo_3(int32_t &cmb,int32_t &cs);
 int32_t combo_screen(int32_t pg, int32_t tl);

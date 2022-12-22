@@ -16977,8 +16977,6 @@ void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols)
 		tile2 = tile;
 }
 
-word ctable[MAXCOMBOS];
-
 void draw_combo_list_window()
 {
 	int32_t window_xofs=0;
@@ -17021,10 +17019,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t copycnt=0;
 	
 	position_mouse_z(0);
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-		//   for (int32_t x=0; x<9; x++)
-		combobuf[i].foo=i;
 		
 	go();
 	int32_t window_xofs=0;
@@ -17357,26 +17351,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	}
 	while(!done);
 	
-	for(int32_t p=0; p<MAXCOMBOS; p+=256)
-	{
-		for(int32_t i=0; i<256; i++)
-		{
-			int32_t pos=0;
-			
-			for(int32_t j=0; j<256; j++)
-			{
-				if(combobuf[j+p].foo==i+p)
-				{
-					pos=j+p;
-					goto down;
-				}
-			}
-			
-down:
-			ctable[i+p]=pos;
-		}
-	}
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
@@ -17602,11 +17576,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	int32_t t2;
 	
 	bool masscopy;
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-	{
-		combobuf[i].foo=i;
-	}
 	
 	go();
 	int32_t window_xofs=0;
