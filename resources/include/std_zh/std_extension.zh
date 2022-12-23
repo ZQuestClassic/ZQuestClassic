@@ -616,7 +616,7 @@ int DirRev(int dir)
 		case DIR_RIGHTDOWN: return DIR_LEFTUP;
 		case DIR_LEFTDOWN: return DIR_RIGHTUP;
 		case DIR_RIGHTUP: return DIR_LEFTDOWN;
-		default: { LogPrint("Invalid direction %d passed to DirRev(int) \n",dir); return -1; }
+		default: { printf("Invalid direction %d passed to DirRev(int) \n",dir); return -1; }
 	}
 }
 
@@ -632,7 +632,7 @@ void DirRev(lweapon l)
 		case DIR_RIGHTDOWN: l->Dir = DIR_LEFTUP; break;
 		case DIR_LEFTDOWN: l->Dir = DIR_RIGHTUP; break;
 		case DIR_RIGHTUP: l->Dir = DIR_LEFTDOWN; break;
-		default: { LogPrint("Invalid direction %d passed to DirRev(lweapon) \n",l->Dir); break; }
+		default: { printf("Invalid direction %d passed to DirRev(lweapon) \n",l->Dir); break; }
 	}
 }
 
@@ -648,7 +648,7 @@ void DirRev(eweapon l)
 		case DIR_RIGHTDOWN: l->Dir = DIR_LEFTUP; break;
 		case DIR_LEFTDOWN: l->Dir = DIR_RIGHTUP; break;
 		case DIR_RIGHTUP: l->Dir = DIR_LEFTDOWN; break;
-		default: { LogPrint("Invalid direction %d passed to DirRev(eweapon) \n",l->Dir); break; }
+		default: { printf("Invalid direction %d passed to DirRev(eweapon) \n",l->Dir); break; }
 	}
 }
 
@@ -664,7 +664,7 @@ void DirRev(npc l)
 		case DIR_RIGHTDOWN: l->Dir = DIR_LEFTUP; break;
 		case DIR_LEFTDOWN: l->Dir = DIR_RIGHTUP; break;
 		case DIR_RIGHTUP: l->Dir = DIR_LEFTDOWN; break;
-		default: { LogPrint("Invalid direction %d passed to DirRev(npc) \n",l->Dir); break; }
+		default: { printf("Invalid direction %d passed to DirRev(npc) \n",l->Dir); break; }
 	}
 }
 	
@@ -1277,7 +1277,7 @@ int EWeaponToLWeaponID(int type)
 		case EW_SCRIPT8: return LW_SCRIPT8;
 		case EW_SCRIPT9: return LW_SCRIPT9;
 		case EW_SCRIPT10: return LW_SCRIPT10;
-		default: { LogPrint("Invalid weapon type %d passed to EWeaponToLWeaponID(int) \n", type); }
+		default: { printf("Invalid weapon type %d passed to EWeaponToLWeaponID(int) \n", type); }
 	}
 }
 
@@ -1899,7 +1899,7 @@ int LWeaponToEWeaponID(int type)
 		case LW_SCRIPT8: return EW_SCRIPT8;
 		case LW_SCRIPT9: return EW_SCRIPT9;
 		case LW_SCRIPT10: return EW_SCRIPT10;
-		default: { LogPrint("Invalid weapon type %d passed to LWeaponToEWeaponID(int) \n",type); return -1; }
+		default: { printf("Invalid weapon type %d passed to LWeaponToEWeaponID(int) \n",type); return -1; }
 	}
 }
 

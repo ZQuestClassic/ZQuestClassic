@@ -110,7 +110,7 @@ void AimLWeapon(lweapon l, int aimtype)
 		}
 		default:
 		{
-			LogPrint("Invalid aimtype %d provided to AimLWeapon(l,aimtype) \n",aimtype); break;
+			printf("Invalid aimtype %d provided to AimLWeapon(l,aimtype) \n",aimtype); break;
 		}
 	}
 }
@@ -769,7 +769,7 @@ int Dir4Angle(int dir)
 		case DIR_DOWN: return DEG_DIR_DOWN;
 		case DIR_LEFT: return DEG_DIR_LEFT;
 		case DIR_RIGHT: return DEG_DIR_RIGHT;
-		default: { LogPrint("Invalid direction %d passed to Dir4Angle \n",dir); return -1; }
+		default: { printf("Invalid direction %d passed to Dir4Angle \n",dir); return -1; }
 	}
 }
 
@@ -787,7 +787,7 @@ int DirAngle(int dir)
 		case DIR_RIGHTUP: return DEG_DIR_RIGHTUP;
 		case DIR_LEFTDOWN: return DEG_DIR_LEFTDOWN;
 		case DIR_RIGHTDOWN: return DEG_DIR_RIGHTDOWN;
-		default: { LogPrint("Invalid direction %d passed to DirAngle \n",dir); return -1; }
+		default: { printf("Invalid direction %d passed to DirAngle \n",dir); return -1; }
 	}
 }
 
@@ -800,7 +800,7 @@ int Dir4Rad(int dir)
 		case DIR_DOWN: return RAD_DIR_DOWN;
 		case DIR_LEFT: return RAD_DIR_LEFT;
 		case DIR_RIGHT: return RAD_DIR_RIGHT;
-		default: { LogPrint("Invalid direction %d passed to Dir4Rad \n",dir); return -1; }
+		default: { printf("Invalid direction %d passed to Dir4Rad \n",dir); return -1; }
 	}
 }
 
@@ -818,7 +818,7 @@ int DirRad(int dir)
 		case DIR_RIGHTUP: return RAD_DIR_RIGHTUP;
 		case DIR_LEFTDOWN: return RAD_DIR_LEFTDOWN;
 		case DIR_RIGHTDOWN: return RAD_DIR_RIGHTDOWN;
-		default: { LogPrint("Invalid direction %d passed to DirRad \n",dir); return -1; }
+		default: { printf("Invalid direction %d passed to DirRad \n",dir); return -1; }
 	}
 }
 
@@ -1377,7 +1377,7 @@ int GetLayerComboC(int layer, int pos)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to GetLayerComboC \n",layer);
+		printf("Invalid layer %d passed to GetLayerComboC \n",layer);
 		return -1;
 	}
 
@@ -1391,7 +1391,7 @@ int GetLayerComboD(int layer, int pos)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to GetLayerComboD \n",layer);
+		printf("Invalid layer %d passed to GetLayerComboD \n",layer);
 		return -1;
 	}
 
@@ -1404,7 +1404,7 @@ int GetLayerComboF(int layer, int pos)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to GetLayerComboF \n",layer);
+		printf("Invalid layer %d passed to GetLayerComboF \n",layer);
 		return -1;
 	}
 
@@ -1417,7 +1417,7 @@ int GetLayerComboI(int layer, int pos)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to GetLayerComboI \n",layer);
+		printf("Invalid layer %d passed to GetLayerComboI \n",layer);
 		return -1;
 	}
 
@@ -1431,7 +1431,7 @@ int GetLayerComboS(int layer, int pos)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to GetLayerComboS \n",layer);
+		printf("Invalid layer %d passed to GetLayerComboS \n",layer);
 		return -1;
 	}
 
@@ -1445,7 +1445,7 @@ int GetLayerComboT(int layer, int pos)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to GetLayerComboT \n",layer);
+		printf("Invalid layer %d passed to GetLayerComboT \n",layer);
 		return -1;
 	}
 
@@ -1805,15 +1805,15 @@ void GetNPCName(int npc_id, char32 buffer)
 //Returns the state of bit 'bit' of Screen->D[] register 'd'
 bool GetScreenDBit(int dmap, int screen, int d, int bit)
 {
-	return ( Game->GetDMapScreenD(dmap, screen, d) & (1 << bit) );
+	return ( Game->GetDMapScreenD(dmap, screen, d) & (1L << bit) );
 }
 bool GetScreenDBit(int screen, int d, int bit)
 {
-	return ( Game->GetScreenD(screen, d) & (1 << bit) );
+	return ( Game->GetScreenD(screen, d) & (1L << bit) );
 }
 bool GetScreenDBit(int d, int bit)
 {
-	return (Screen->D[d] & (1 << bit));
+	return (Screen->D[d] & (1L << bit));
 }
 
 
@@ -2847,7 +2847,7 @@ void SetLayerComboC(int layer, int pos, int val)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to SetLayerComboC \n",layer);
+		printf("Invalid layer %d passed to SetLayerComboC \n",layer);
 		return;
 	}
 
@@ -2860,7 +2860,7 @@ void SetLayerComboD(int layer, int pos, int val)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to SetLayerComboD \n",layer);
+		printf("Invalid layer %d passed to SetLayerComboD \n",layer);
 		return;
 	}
 
@@ -2873,7 +2873,7 @@ void SetLayerComboF(int layer, int pos, int val)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to SetLayerComboF \n",layer);
+		printf("Invalid layer %d passed to SetLayerComboF \n",layer);
 		return;
 	}
 
@@ -2886,7 +2886,7 @@ void SetLayerComboI(int layer, int pos, int val)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to SetLayerComboI \n",layer);
+		printf("Invalid layer %d passed to SetLayerComboI \n",layer);
 		return;
 	}
 
@@ -2899,7 +2899,7 @@ void SetLayerComboS(int layer, int pos, int val)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to SetLayerComboS \n",layer);
+		printf("Invalid layer %d passed to SetLayerComboS \n",layer);
 		return;
 	}
 
@@ -2912,7 +2912,7 @@ void SetLayerComboT(int layer, int pos, int val)
 {
 	if (layer < 0 || layer > 6)
 	{
-		LogPrint("Invalid layer %d passed to SetLayerComboT \n",layer);
+		printf("Invalid layer %d passed to SetLayerComboT \n",layer);
 		return;
 	}
 
@@ -3222,19 +3222,19 @@ void SetMapscreenFlag(int mapid, int scr, mapscreenflags flagid, bool state)
 void SetScreenDBit(int dmap, int screen, int d, int bit, bool state)
 {
 	int curstate = Game->GetDMapScreenD(dmap, screen, d);
-	if(state)	Game->SetDMapScreenD(dmap, screen, d, curstate |  (1 << bit));
-	else 		Game->SetDMapScreenD(dmap, screen, d, curstate & ~(1 << bit));
+	if(state)	Game->SetDMapScreenD(dmap, screen, d, curstate |  (1L << bit));
+	else 		Game->SetDMapScreenD(dmap, screen, d, curstate & ~(1L << bit));
 }
 void SetScreenDBit(int screen, int d, int bit, bool state)
 {
 	int curstate = Game->GetScreenD(screen, d);
-	if(state)	Game->SetScreenD(screen, d, curstate |  (1 << bit));
-	else 		Game->SetScreenD(screen, d, curstate & ~(1 << bit));
+	if(state)	Game->SetScreenD(screen, d, curstate |  (1L << bit));
+	else 		Game->SetScreenD(screen, d, curstate & ~(1L << bit));
 }
 void SetScreenDBit(int d, int bit, bool state)
 {
-	if(state)	Screen->D[d] |= (1 << bit);
-	else		Screen->D[d] &= ~(1 << bit);
+	if(state)	Screen->D[d] |= (1L << bit);
+	else		Screen->D[d] &= ~(1L << bit);
 }
 
 //Sets if a screen is visible on the passive subscreen minimap.
@@ -3656,7 +3656,7 @@ int WeaponTypeToID(int wpnt)
 		case WPN_ENEMYFIRETRAIL:	return EW_FIRETRAIL;
 		case WPN_ENEMYFLAME2:		return EW_FIRE2;
 		case WPN_ENEMYFIREBALL2:	return EW_FIREBALL2;
-		default: { LogPrint("No valid match for wpnt %d provided to WeaponTypeToID \n", wpnt); return -1; }
+		default: { printf("No valid match for wpnt %d provided to WeaponTypeToID \n", wpnt); return -1; }
 	}
 }
 
