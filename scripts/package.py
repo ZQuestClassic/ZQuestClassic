@@ -49,6 +49,9 @@ def glob_files(base_dir: Path, pattern: str):
 def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
     files_flat = []
     for file in files:
+        if not file:
+            continue
+
         if file.is_dir():
             for dir_path, dirs, dir_files in os.walk(file):
                 for dir_file in dir_files:
