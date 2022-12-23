@@ -735,6 +735,7 @@ endif()
 
 if (WIN32)
 	list(APPEND zc_targets zconsole)
+	add_dependencies(zelda zconsole)
 endif()
 foreach(target IN LISTS zc_targets)
 	if(WIN32)
