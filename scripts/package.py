@@ -118,6 +118,7 @@ else:
             binary_file(build_dir / 'zquest'),
             binary_file(build_dir / 'zscript'),
             binary_file(build_dir / 'zlauncher'),
+            binary_file(build_dir / 'zconsole') if system == 'Windows' else None,
             *(glob_files(build_dir, '*.dll') if system == 'Windows' else []),
             *(glob_files(build_dir, '*.so*') if system == 'Linux' else []),
             *(glob_files(build_dir, '*.dylib') if system == 'Darwin' else []),
