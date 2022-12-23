@@ -756,7 +756,7 @@ int ftoa(char32 ptr, float num)
 //Checks whether 'num' is an integer or not, and calls the appropriate function
 int ntoa(char32 ptr, int pos, float num)
 {
-	if(num == Floor(num))
+	unless(num%1)
 		return itoa(ptr, pos, num);
 	else
 		return ftoa(ptr, pos, num, false);
@@ -906,19 +906,7 @@ void strncatf(int dest, int arg, int format, int n)
 //Used by sprintf
 bool sprintf_isMFCode(char32 chr)
 {
-	switch (chr)
-	{
-		case 'n': return true;
-		case 's': return true; 
-		case 'i': return true;
-		case 'f': return true;
-		case 'd': return true;
-		case 'p': return true;
-		case 'c': return true;
-		case 'x': return true;
-		case 'X': return true;
-		default: return false;
-	}
+	return sprintf_MFCodeToInt(chr) != -1;
 }
 int sprintf_MFCodeToInt(char32 chr)
 {
@@ -1038,19 +1026,11 @@ char32 IsChar(char32 chr) { return chr; }
 bool IsChar(char32 chr, char32 comp) { return (chr == comp); }
 
 
-//old error logging function used by Arkanoid.qst and Atari.qst -Z
 void TraceError(char32 s, float v)
 {
-	char32 buf[12];
-	ftoa(buf,v);
-	TraceS(s); TraceS(": "); TraceS(buf); TraceNL();
+	printf("%s: %d\n", s, v);
 }
 	
-//Prints a formatted string to the screen. 
-//	`int v` can be a string, a float, or an int and is inserted to 
-//	the string using the tokens `%s`, `%f`, and `%d` respectively.
-//	`int args` is an array literal with the following format required:
-//	{ LAYER, X, Y, FONT, TEXT_COLOUR, TEXT_BG_COLOUR, FORMAT, OPCITY }
 
 //Prints a formatted string to the screen. 
 //	`int v` can be a string, a float, or an int and is inserted to 
@@ -1058,7 +1038,7 @@ void TraceError(char32 s, float v)
 //	`int args` is an array literal with the following format required:
 //	{ LAYER, X, Y, FONT, TEXT_COLOUR, TEXT_BG_COLOUR, FORMAT, OPCITY }
 
-void ScreenPrint(char32 s, int v, int args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
+void ScreenPrint(char32 s, untyped v, int args) //what if we use an array literal for the inputs?. No, then we still don't have overloaded strings
 {
 	int args_size = SizeOfArray(args);
 	if ( args_size < 8 )
