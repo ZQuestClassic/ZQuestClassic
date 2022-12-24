@@ -11,7 +11,7 @@ def loadjson(fname):
     parse_state('Validating Json...')
     tmp = debug_out
     debug_out = False
-    generate_output(data_obj) #validate json?
+    #generate_output(data_obj) #validate json?
     debug_out = tmp
     parse_state('Done!')
     return data_obj

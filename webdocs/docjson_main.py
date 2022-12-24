@@ -4,6 +4,8 @@ import os
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
+from tkinter import simpledialog
+from tkinter import ttk
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--in', dest='inputfile', default='',metavar='FILE',
@@ -18,6 +20,7 @@ lib.debug_out = args.db
 
 file_loaded = False
 needs_save = False
+cursheet = 0
 if os.path.exists(args.inputfile):
     json_obj = lib.loadjson(args.inputfile)
     file_loaded = True
@@ -32,11 +35,12 @@ else:
 
 ## GUI functions
 def loader_json():
-    global json_obj, root, needs_save, file_loaded, curpage
+    global json_obj, root, needs_save, file_loaded, curpage, cursheet
     fname = filedialog.askopenfilename(parent = root, title = 'Load', initialfile = args.inputfile, filetypes = (('Json','*.json'),))
     if len(fname) < 1:
         return
     switch(LoadPage)
+    cursheet = 0
     try:
         json_obj = lib.loadjson(fname)
         args.inputfile = fname
@@ -107,6 +111,56 @@ def onfile():
     filemenu.entryconfig('Save HTML', state = 'normal' if file_loaded else 'disabled')
 def popError(s):
     messagebox.showinfo(title = 'Error!', message = s)
+def get_sel(listbox):
+    sel = listbox.curselection()
+    if len(sel) < 1:
+        return -1
+    return sel[0]
+def edit_sheet(ind):
+    global cursheet
+    if ind < 0:
+        return
+    cursheet = ind
+    switch(EditShPage)
+def edit_named():
+    switch(EditNamedPage)
+def add_sheet(ind):
+    global json_obj, cursheet, needs_save
+    if ind < 0:
+        ind = 0
+    name = 'New Sheet'
+    sheets = json_obj['sheets']
+    json_obj['sheets'] = sheets[:ind+1] + [{'name':name,'tabs':[]}] + sheets[ind+1:]
+    needs_save = True
+    cursheet = ind+1
+    switch(SheetsPage)
+
+def ren_sheet(ind):
+    global json_obj, cursheet, root, needs_save
+    if ind < 0:
+        return
+    
+    name = simpledialog.askstring('Input', f"Rename '{json_obj['sheets'][ind]['name']}' to?", parent=root)
+    if not name:
+        return
+    needs_save = True
+    json_obj['sheets'][ind]['name'] = name
+    cursheet = ind
+    switch(SheetsPage)
+    
+def swap_sheets(s1,s2):
+    global json_obj, needs_save
+    json_obj['sheets'][s1],json_obj['sheets'][s2] = json_obj['sheets'][s2],json_obj['sheets'][s1]
+    needs_save = True
+def sheetshift(listbox,shift):
+    global sheetlistbox, cursheet
+    ind = get_sel(listbox)
+    ind2 = ind+shift
+    if ind <= 0 or ind2 <= 0 or ind2 >= listbox.size():
+        return
+    swap_sheets(ind,ind2)
+    cursheet = ind2
+    switch(SheetsPage)
 ## Pages
 def switch(pageclass):
     global root, mainframe, curpage
@@ -127,8 +181,31 @@ class InfoPage(Frame):
         You must load a .json file to continue.''').pack()
 class SheetsPage(Frame):
     def __init__(frame, root):
+        global json_obj, sheetlistbox, cursheet
         Frame.__init__(frame,root)
-        Label(frame, text = 'Insert list of sheets').pack()
+        
+        f1 = Frame(frame)
+        Label(f1, text = 'Sheets').pack()
+        sheetlistbox = Listbox(f1)
+        for ind,sheet in enumerate(json_obj['sheets']):
+            sheetlistbox.insert(ind,sheet['name'])
+        sheetlistbox.pack()
+        sheetlistbox.selection_set(cursheet)
+        f1.pack(side='left')
+        
+        f2 = Frame(frame)
+        Button(f2, text = '↑', command = lambda:sheetshift(sheetlistbox,-1)).pack()
+        Button(f2, text = '↓', command = lambda:sheetshift(sheetlistbox,1)).pack()
+        f2.pack(side='left')
+        
+        f2 = Frame(frame)
+        wid = 10
+        Button(f2, bd = 3, width = wid, text = 'Edit', command = lambda:edit_sheet(get_sel(sheetlistbox))).pack()
+        Button(f2, bd = 3, width = wid, text = 'Add', command = lambda:add_sheet(get_sel(sheetlistbox))).pack()
+        Button(f2, bd = 3, width = wid, text = 'Rename', command = lambda:ren_sheet(get_sel(sheetlistbox))).pack()
+        Button(f2, bd = 3, width = wid, text = 'Named Data', command = edit_named).pack()
+        f2.pack(side='left')
+        
 class TabsPage(Frame):
     def __init__(frame, root):
         Frame.__init__(frame,root)
@@ -141,6 +218,17 @@ class SavePage(Frame):
     def __init__(frame, root):
         Frame.__init__(frame,root)
         Label(frame, text = 'Saving... Please Wait...').pack()
+class EditShPage(Frame):
+    def __init__(frame, root):
+        global json_obj
+        Frame.__init__(frame,root)
+        Label(frame, text = f"TODO Edit Sheet {json_obj['sheets'][cursheet]['name']}").pack()
+        Button(frame, text = 'Exit', command = lambda: switch(SheetsPage)).pack()
+class EditNamedPage(Frame):
+    def __init__(frame, root):
+        Frame.__init__(frame,root)
+        Label(frame, text = 'TODO Edit Named').pack()
+        Button(frame, text = 'Exit', command = lambda: switch(SheetsPage)).pack()
 
 root = Tk()
 root.title('ZS Docs Editor')
