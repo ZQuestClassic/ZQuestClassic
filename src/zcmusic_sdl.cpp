@@ -246,7 +246,7 @@ std::string zcmusic_get_track_name(ZCMUSIC *zcm, int track) {
   return Mix_GetMusicTitleTag(zcm->mus);
 }
 int32_t zcmusic_change_track(ZCMUSIC *zcm, int32_t tracknum) {
-  Mix_StartTrack(tracknum);
+  Mix_StartTrack(zcm->mus, tracknum);
   return 0;
 }
 int32_t zcmusic_get_curpos(ZCMUSIC *zcm) { return 0; }
