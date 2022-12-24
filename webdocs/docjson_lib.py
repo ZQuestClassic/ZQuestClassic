@@ -4,23 +4,28 @@ from datetime import datetime
 import pytz
 
 def loadjson(fname):
-    global data_obj
-    print('[ST] Loading Json...')
+    global data_obj, debug_out
+    parse_state('Loading Json...')
     with open(fname, 'r') as file:
         data_obj = json.loads(file.read())
-    print('[ST] Done!')
+    parse_state('Validating Json...')
+    tmp = debug_out
+    debug_out = False
+    generate_output(data_obj) #validate json?
+    debug_out = tmp
+    parse_state('Done!')
     return data_obj
 def savejson(fname,obj):
-    print('[ST] Saving Json...')
+    parse_state('Saving Json...')
     with open(fname, 'w') as file:
         file.write(json.dumps(obj, indent=4))
-    print('[ST] Done!')
+    parse_state('Done!')
 def savehtml(fname,obj):
     outstr = generate_output(obj)
-    print('[ST] Writing output file...')
+    parse_state('Writing output file...')
     with open(fname, 'w') as file:
         file.write(outstr)
-    print('[ST] Done!')
+    parse_state('Done!')
 #data_obj has:
 #'sheets': list of objects having:
 #    'name': str, the sheet name
@@ -37,6 +42,10 @@ def savehtml(fname,obj):
 def parse_fail(msg):
     print(f'[FATAL] {msg}', file=sys.stderr)
     exit(1)
+#Called to print state information
+def parse_state(msg):
+    if debug_out:
+        print(f'[ST] {msg}')
 
 ##Utility Functions
 _pat_tags = re.compile('(<([^>]+)>)')
@@ -309,7 +318,7 @@ def generate_output(obj) -> str:
     generated_tabs = []
 
 
-    print('[ST] Generating bodies...')
+    parse_state('Generating bodies...')
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
         for line in tab:
@@ -321,7 +330,7 @@ def generate_output(obj) -> str:
             line['body'] = bid
             generated_bodies.append(f'\t\t<div class = "cntnt" data-bid = {bid} data-tid = -1 hidden>{_val}</div>\r\n')
 
-    print('[ST] Generating tabs...')
+    parse_state('Generating tabs...')
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
         cursheetind = get_tab_sheet(curtab)
@@ -355,10 +364,10 @@ def generate_output(obj) -> str:
         generated_tabs.append(tab_content);
         #end foreach tab
 
-    print('[ST] Parsing special body code...')
+    parse_state('Parsing special body code...')
     for ind in range(len(generated_bodies)):
         generated_bodies[ind] = parseBody(generated_bodies[ind])
-    print('[ST] Generating final output...')
+    parse_state('Generating final output...')
 
     generated_data = ''
     for tab in generated_tabs:
