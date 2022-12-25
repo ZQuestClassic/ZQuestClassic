@@ -456,6 +456,25 @@ def _setsheet(ind,sh):
         json_obj['sheets'][ind] = sh
     else:
         json_obj['named'] = sh
+
+def get_sheetind_named(name,default=-1):
+    global json_obj
+    for ind,sheet in enumerate(json_obj['sheets']):
+        if sheet['name'] == name:
+            return ind
+    return default
+
+def get_sheetnames():
+    global json_obj
+    return tuple(sheet['name'] for sheet in json_obj['sheets'])
+def get_sheetnums():
+    global json_obj
+    return tuple(x for x in range(len(json_obj['sheets'])))
+def get_secnums(sheetind):
+    global json_obj, cursheet
+    if sheetind < 0:
+        sheetind = cursheet
+    return tuple(x for x in range(len(json_obj['sheets'][sheetind]['tabs'])))
 ## Info
 def info_sheets():
     pass
@@ -618,6 +637,39 @@ class EditEntryPage(Frame):
         if len(_spl) > 1:
             jumps = [s.strip() for s in re.split('/|;;',_spl[1])]
         
+        val = entry['val']
+        is_link = val and val[0] == '$'
+        is_empty = not val
+        typestr = 'Page'
+        if is_empty:
+            typestr = 'Empty'
+        elif is_link:
+            typestr = 'Link'
+        linkrad = 0
+        linkname = ''
+        linknum = 0
+        self.secnum = 0
+        if is_link:
+            _s,*_ = val[1:].split('$')
+            try:
+                linknum = int(_s)
+                linkrad = 2 if linknum == -1 else 1
+            except:
+                linkname = _s
+            if _:
+                try:
+                    self.secnum = int(_[0])
+                except:
+                    self.secnum = 0
+        
+        sheetnames = get_sheetnames()
+        sheetnums = get_sheetnums()
+        
+        if linkname not in sheetnames:
+            linkname = sheetnames[0]
+        if linknum not in sheetnums:
+            linknum = 0
+        
         toprow = Frame(self)
         col1 = Frame(toprow)
         # This entry's 'Name'
@@ -627,7 +679,6 @@ class EditEntryPage(Frame):
         Entry(col1, textvariable=self.field_name).grid(row=0,column=1,sticky=W)
         # The jump search labels
         Label(col1, text = 'Jumps:').grid(row=1,column=0,sticky=NE)
-        #TEMP
         self.list_jumps = jumps
         
         fr = Frame(col1)
@@ -647,6 +698,42 @@ class EditEntryPage(Frame):
         Button(fr, bd=bor, width=wid, text='Delete', command=lambda:del_jump(curjump)).pack(anchor=W)
         fr.grid(row=1,column=2,sticky=NW)
         
+        self.field_ty = StringVar(self, typestr)
+        self.field_ty.trace('w', lambda *_:self.update_type())
+        cb = ttk.Combobox(col1, width=wid, textvariable=self.field_ty, state='readonly', values=('Empty', 'Page', 'Link'))
+        cb.grid(row=0,column=2,sticky=W)
+        
+        Label(col1, text = 'Link:').grid(row=0,column=3,sticky=S)
+        fr = Frame(col1)
+        self.radio_link = IntVar(self,linkrad)
+        self.radio_link.trace('w', lambda *_:self.update_radlink())
+        self.rad_link_cursh = Radiobutton(fr, text='Current Sheet', value=2, variable=self.radio_link)
+        self.rad_link_cursh.pack()
+        self.rad_link_sname = Radiobutton(fr, text='Sheet Name', value=0, variable=self.radio_link)
+        self.rad_link_sname.pack()
+        
+        wid = 13
+        self.field_linkname = StringVar(self, linkname)
+        self.field_linkname.trace('w', lambda *_:self.update_radlink())
+        self.cb_link_sname = ttk.Combobox(fr, width=wid, textvariable=self.field_linkname, state='readonly', values=sheetnames)
+        self.cb_link_sname.pack()
+        
+        self.rad_link_snum = Radiobutton(fr, text='Sheet Number', value=1, variable=self.radio_link)
+        self.rad_link_snum.pack()
+        self.field_linknum = StringVar(self, str(linknum))
+        self.field_linknum.trace('w', lambda *_:self.update_radlink())
+        self.cb_link_shnum = ttk.Combobox(fr, width=wid, textvariable=self.field_linknum, state='readonly', values=sheetnums)
+        self.cb_link_shnum.pack()
+        
+        Label(fr, text='Section Number').pack()
+        self.field_secnum = StringVar(self, str(self.secnum))
+        self.field_secnum.trace('w', lambda *_:self.update_secnum())
+        self.cb_link_secnum = ttk.Combobox(fr, width=wid, textvariable=self.field_secnum, state='readonly')
+        self.cb_link_secnum.pack()
+        
+        #Label(col1, text = ':').pack(anchor=W)
+        fr.grid(row=1,column=3,sticky=NW)
+        
         col1.pack(side = 'left')
         toprow.pack()
         butrow = Frame(self)
@@ -661,14 +748,68 @@ class EditEntryPage(Frame):
         Button(butrow, bd=bor, width=wid, text='Exit', command=exit_entry).pack(side='left')
         butrow.pack()
         
+        self.linkwidgs = [self.cb_link_sname, self.cb_link_shnum, self.rad_link_sname, self.rad_link_snum, self.rad_link_cursh, self.cb_link_secnum]
+        self.pageval = '' if is_link else val
+    def update_type(self):
+        ty = self.field_ty.get()
+        for w in self.linkwidgs:
+            w['state'] = NORMAL if ty == 'Link' else DISABLED
+        if ty == 'Link':
+            self.update_radlink()
+        local_edited()
+    def update_radlink(self):
+        ty = self.radio_link.get()
+        self.cb_link_sname['state'] = NORMAL if ty == 0 else DISABLED
+        self.cb_link_shnum['state'] = NORMAL if ty == 1 else DISABLED
+        sheetind = -1
+        if ty == 0:
+            sheetind = get_sheetind_named(self.field_linkname.get(),0)
+        elif ty == 1:
+            sheetind = int(self.field_linknum.get())
+        self.cb_link_secnum['values'] = get_secnums(sheetind)
+        if len(self.cb_link_secnum['values']) < 2:
+            self.cb_link_secnum['state'] = DISABLED
+            cursec = self.secnum
+            self.field_secnum.set('0')
+            self.secnum = cursec
+        else:
+            self.cb_link_secnum['state'] = NORMAL
+            self.field_secnum.set(str(self.secnum))
+        local_edited()
+    def update_secnum(self):
+        self.secnum = int(self.field_secnum.get())
+        local_edited()
+    def get_val(self):
+        ty = self.field_ty.get()
+        match ty:
+            case 'Empty':
+                return ''
+            case 'Link':
+                sheet_ty = self.radio_link.get()
+                sheet = '-1'
+                if sheet_ty == 0: #Name
+                    sheet = self.field_linkname.get()
+                elif ty == 1:
+                    sheet = self.field_linknum.get()
+                sec = int(self.field_secnum.get())
+                if str(sec) not in self.cb_link_secnum['values']:
+                    sec = 0
+                if sec:
+                    return f'${sheet}${sec}'
+                return f'${sheet}'
+            case 'Page':
+                return self.pageval
     def reload_jump(self,selind):
         global jumplistbox, curjump
         curjump = selind
         _load_list(jumplistbox, selind, self.list_jumps, lambda a:a)
     def postinit(self):
         global needs_edit_save
+        self.update_type()
         needs_edit_save = True
         local_edited(False)
+
+
 
 def save_entry():
     global mainframe, needs_edit_save, cursheet, cursec, curentry
@@ -682,14 +823,21 @@ def save_entry():
     name = mainframe.field_name.get()
     jumps = mainframe.list_jumps
     
-    out = name
+    outname = name
     if jumps:
-        out += ' ;; ' + ' / '.join(jumps)
+        outname += ' ;; ' + ' / '.join(jumps)
     
-    if not edited and entry['name'] != out:
+    if not edited and entry['name'] != outname:
         edited = True
-    print('Saved entry name:',out)
-    entry['name'] = out
+    print('Saved entry name:',outname)
+    entry['name'] = outname
+    
+    outval = mainframe.get_val()
+    
+    if not edited and entry['val'] != outval:
+        edited = True
+    print('Saved entry val:',outval)
+    entry['val'] = outval
     
     sheet['tabs'][cursec]['lines'][curentry] = entry
     _setsheet(cursheet, sheet)
