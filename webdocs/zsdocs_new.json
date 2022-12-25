@@ -2113,11 +2113,11 @@
                 "name": "TTIPS",
                 "lines": [
                     {
-                        "name": "SHADOW TYPE",
+                        "name": "Shadow Type",
                         "val": "<ol start=\"0\"><li>No Shadow</li>\n<li>Basic shadow, no text</li>\n<li>'U' shadow, no text</li>\n<li>Full outline shadow, no text</li>\n<li>'+' outline shadow, no text</li>\n<li>'X' outline shadow, no text</li>\n<li>Basic shadow, behind text</li>\n<li>'U' shadow, behind text</li>\n<li>Full outline shadow, behind text</li>\n<li>'+' outline shadow, behind text</li>\n<li>'X' outline shadow, behind text</li></ol>"
                     },
                     {
-                        "name": "COUNTER",
+                        "name": "Counter",
                         "val": "<iblock><ol start=\"-1\">\n<li>CR_NONE</li>\n<li>CR_LIFE</li>\n<li>CR_RUPEES</li>\n<li>CR_BOMBS</li>\n<li>CR_ARROWS</li>\n<li>CR_MAGIC</li>\n<li>CR_KEYS</li>\n<li>CR_SBOMBS</li>\n<li>CR_CUSTOM1</li>\n<li>CR_CUSTOM2</li>\n<li>CR_CUSTOM3</li>\n<li>CR_CUSTOM4</li>\n<li>CR_CUSTOM5</li>\n<li>CR_CUSTOM6</li>\n<li>CR_CUSTOM7</li>\n<li>CR_CUSTOM8</li>\n<li>CR_CUSTOM9</li></ol></iblock>  <iblock><ol start=\"16\">\n<li>CR_CUSTOM10</li>\n<li>CR_CUSTOM11</li>\n<li>CR_CUSTOM12</li>\n<li>CR_CUSTOM13</li>\n<li>CR_CUSTOM14</li>\n<li>CR_CUSTOM15</li>\n<li>CR_CUSTOM16</li>\n<li>CR_CUSTOM17</li>\n<li>CR_CUSTOM18</li>\n<li>CR_CUSTOM19</li>\n<li>CR_CUSTOM20</li>\n<li>CR_CUSTOM21</li>\n<li>CR_CUSTOM22</li>\n<li>CR_CUSTOM23</li>\n<li>CR_CUSTOM24</li>\n<li>CR_CUSTOM25</li></ol></iblock>"
                     },
                     {
@@ -2125,11 +2125,11 @@
                         "val": "<ol start=\"0\"><li>OBJTYPE_NPC</li>\r\n<li>OBJTYPE_LWPN</li>\r\n<li>OBJTYPE_EWPN</li>\r\n<li>OBJTYPE_ITSPR</li>\r\n<li>OBJTYPE_COMBODATA</li></ol>"
                     },
                     {
-                        "name": "UNBLOCKABLE",
+                        "name": "Unblockable",
                         "val": "<ul>\r\n<li>UNBLOCK_NONE = 0000b</li>\r\n<li>UNBLOCK_NORM = 0001b - Bypasses normal 'block' defenses</li>\r\n<li>UNBLOCK_IGNR = 0010b - Bypasses 'ignore' defenses</li>\r\n<li>UNBLOCK_SHLD = 0100b - Bypasses enemy/hero 'shields'</li>\r\n<li>UNBLOCK_REFL = 1000b - Bypasses hero 'reflect' on shields</li>\r\n<li>UNBLOCK_ALL = 1111b</li>\n</ul>"
                     },
                     {
-                        "name": "TRIGGER REQUIREMENT",
+                        "name": "Trigger Requirement",
                         "val": "This condition does not trigger the combo itself- instead, when something tries to trigger this combo, it must ALSO pass this condition.\nTo make this act as a trigger in itself, combine with the 'Always Triggered' (`TRIGFLAG_AUTO`) flag."
                     }
                 ]
