@@ -183,19 +183,22 @@ def add_auto(s):
     return f'{s1}.auto{ext}'
 
 time_minute = 1000*60
+def schedule_autosave(i=1):
+    global root
+    root.after(time_minute - timer() % time_minute, update_autosave, i)
 def update_autosave(i=1):
     global config, needs_autosave
-    if not needs_autosave: #Reset, nothing to autosave
-        root.after(time_minute - timer() % time_minute, update_autosave)
-    if i >= config['autosave_minutes']:
+    if not needs_autosave or config['autosave_minutes'] == 0: #Reset, nothing to autosave
+        schedule_autosave()
+    elif i >= config['autosave_minutes']:
         fname = add_auto(args.inputfile)
         lib.savejson(fname,json_obj)
         needs_autosave = False
         #Reset the autosave timer
-        root.after(time_minute - timer() % time_minute, update_autosave)
+        schedule_autosave()
     else:
         # Wait another minute
-        root.after(time_minute - timer() % time_minute, update_autosave, i+1)
+        schedule_autosave(i+1)
 def mark_edited():
     global needs_save, needs_autosave
     needs_save = True
@@ -500,6 +503,6 @@ else:
     switch(InfoPage)
 
 #Start autosave timer
-root.after(time_minute - timer() % time_minute, update_autosave)
+schedule_autosave()
 
 root.mainloop()
