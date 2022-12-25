@@ -146,8 +146,8 @@ def saver_html():
     try:
         lib.savehtml(fname,json_obj)
         args.outputfile = fname
-    except:
-        popError(f'Error occurred saving file:\n{fname}')
+    except Exception as e:
+        popError(f"Error '{str(e)}'\nOccurred saving file:\n{fname}")
 def quitter():
     global root, needs_save, needs_edit_save
     if needs_edit_save:
@@ -214,7 +214,7 @@ def local_edited(val:bool=True):
     global needs_edit_save, mainframe
     if needs_edit_save == val:
         return
-    needs_edit_save = val 
+    needs_edit_save = val
     if isinstance(mainframe, EditEntryPage):
         for b in mainframe.save_btns:
             b['state'] = NORMAL if val else DISABLED
@@ -662,6 +662,8 @@ class EditEntryPage(Frame):
                 except:
                     self.secnum = 0
         
+        pageval = '' if is_link else val
+        
         sheetnames = get_sheetnames()
         sheetnums = get_sheetnums()
         
@@ -703,36 +705,45 @@ class EditEntryPage(Frame):
         cb = ttk.Combobox(col1, width=wid, textvariable=self.field_ty, state='readonly', values=('Empty', 'Page', 'Link'))
         cb.grid(row=0,column=2,sticky=W)
         
-        Label(col1, text = 'Link:').grid(row=0,column=3,sticky=S)
         fr = Frame(col1)
+        Label(fr, text = 'Link:').pack(side='left',anchor=N)
+        linkfr = Frame(fr)
         self.radio_link = IntVar(self,linkrad)
         self.radio_link.trace('w', lambda *_:self.update_radlink())
-        self.rad_link_cursh = Radiobutton(fr, text='Current Sheet', value=2, variable=self.radio_link)
+        self.rad_link_cursh = Radiobutton(linkfr, text='Current Sheet', value=2, variable=self.radio_link)
         self.rad_link_cursh.pack()
-        self.rad_link_sname = Radiobutton(fr, text='Sheet Name', value=0, variable=self.radio_link)
+        self.rad_link_sname = Radiobutton(linkfr, text='Sheet Name', value=0, variable=self.radio_link)
         self.rad_link_sname.pack()
         
         wid = 13
         self.field_linkname = StringVar(self, linkname)
         self.field_linkname.trace('w', lambda *_:self.update_radlink())
-        self.cb_link_sname = ttk.Combobox(fr, width=wid, textvariable=self.field_linkname, state='readonly', values=sheetnames)
+        self.cb_link_sname = ttk.Combobox(linkfr, width=wid, textvariable=self.field_linkname, state='readonly', values=sheetnames)
         self.cb_link_sname.pack()
         
-        self.rad_link_snum = Radiobutton(fr, text='Sheet Number', value=1, variable=self.radio_link)
+        self.rad_link_snum = Radiobutton(linkfr, text='Sheet Number', value=1, variable=self.radio_link)
         self.rad_link_snum.pack()
         self.field_linknum = StringVar(self, str(linknum))
         self.field_linknum.trace('w', lambda *_:self.update_radlink())
-        self.cb_link_shnum = ttk.Combobox(fr, width=wid, textvariable=self.field_linknum, state='readonly', values=sheetnums)
+        self.cb_link_shnum = ttk.Combobox(linkfr, width=wid, textvariable=self.field_linknum, state='readonly', values=sheetnums)
         self.cb_link_shnum.pack()
         
-        Label(fr, text='Section Number').pack()
+        Label(linkfr, text='Section Number').pack()
         self.field_secnum = StringVar(self, str(self.secnum))
         self.field_secnum.trace('w', lambda *_:self.update_secnum())
-        self.cb_link_secnum = ttk.Combobox(fr, width=wid, textvariable=self.field_secnum, state='readonly')
+        self.cb_link_secnum = ttk.Combobox(linkfr, width=wid, textvariable=self.field_secnum, state='readonly')
         self.cb_link_secnum.pack()
         
         #Label(col1, text = ':').pack(anchor=W)
-        fr.grid(row=1,column=3,sticky=NW)
+        linkfr.pack(side='left',anchor=NW)
+        fr.grid(row=2,column=1,columnspan=2,sticky=NE)
+        Label(col1, text = 'Page Content:').grid(row=0,column=4,sticky=SW)
+        self.txt_body = Text(col1, height=20, width=75, bd=5, relief=SUNKEN)
+        self.ignore_modify = 2
+        self.txt_body.insert(END,pageval)
+        self.txt_body.config(undo=1)
+        self.txt_body.bind_all('<<Modified>>', lambda *_:self.update_val()) 
+        self.txt_body.grid(row=1,column=4,sticky=NW,rowspan=2)
         
         col1.pack(side = 'left')
         toprow.pack()
@@ -749,13 +760,16 @@ class EditEntryPage(Frame):
         butrow.pack()
         
         self.linkwidgs = [self.cb_link_sname, self.cb_link_shnum, self.rad_link_sname, self.rad_link_snum, self.rad_link_cursh, self.cb_link_secnum]
-        self.pageval = '' if is_link else val
     def update_type(self):
         ty = self.field_ty.get()
         for w in self.linkwidgs:
             w['state'] = NORMAL if ty == 'Link' else DISABLED
         if ty == 'Link':
             self.update_radlink()
+        if ty == 'Page':
+            self.txt_body.config(state = NORMAL, bg = '#FFF', fg = '#000')
+        else:
+            self.txt_body.config(state = DISABLED, bg = '#F0F0F0', fg = '#888')
         local_edited()
     def update_radlink(self):
         ty = self.radio_link.get()
@@ -779,6 +793,12 @@ class EditEntryPage(Frame):
     def update_secnum(self):
         self.secnum = int(self.field_secnum.get())
         local_edited()
+    def update_val(self):
+        self.txt_body.tk.call(self.txt_body._w, 'edit', 'modified', 0)
+        if self.ignore_modify:
+            self.ignore_modify -= 1
+            return
+        local_edited()
     def get_val(self):
         ty = self.field_ty.get()
         match ty:
@@ -798,7 +818,7 @@ class EditEntryPage(Frame):
                     return f'${sheet}${sec}'
                 return f'${sheet}'
             case 'Page':
-                return self.pageval
+                return self.txt_body.get("1.0", "end-1c")
     def reload_jump(self,selind):
         global jumplistbox, curjump
         curjump = selind
@@ -810,15 +830,8 @@ class EditEntryPage(Frame):
         local_edited(False)
 
 
-
-def save_entry():
-    global mainframe, needs_edit_save, cursheet, cursec, curentry
-    if not needs_edit_save:
-        return
-    sheet = _getsheet(cursheet)
-    entry = sheet['tabs'][cursec]['lines'][curentry]
-    
-    edited = False
+def get_entry():
+    global mainframe
     
     name = mainframe.field_name.get()
     jumps = mainframe.list_jumps
@@ -827,36 +840,40 @@ def save_entry():
     if jumps:
         outname += ' ;; ' + ' / '.join(jumps)
     
-    if not edited and entry['name'] != outname:
-        edited = True
-    print('Saved entry name:',outname)
-    entry['name'] = outname
-    
     outval = mainframe.get_val()
     
-    if not edited and entry['val'] != outval:
-        edited = True
-    print('Saved entry val:',outval)
-    entry['val'] = outval
-    
+    return {'name':outname,'val':outval}
+def entry_changed():
+    global cursheet, cursec, curentry
+    return _getsheet(cursheet)['tabs'][cursec]['lines'][curentry] != get_entry()
+def save_entry():
+    global needs_edit_save, cursheet, cursec, curentry
+    if not needs_edit_save:
+        return
+    local_edited(False)
+    entry = get_entry()
+    sheet = _getsheet(cursheet)
+    if entry == sheet['tabs'][cursec]['lines'][curentry]:
+        print('equal')
+        return
+    print('changed')
     sheet['tabs'][cursec]['lines'][curentry] = entry
     _setsheet(cursheet, sheet)
     local_edited(False)
-    if edited:
-        mark_edited()
+    mark_edited()
 def save_entry_exit():
     save_entry()
     switch(EditSecPage)
 def exit_entry():
     global needs_edit_save, root
-    if needs_edit_save:
+    if needs_edit_save and entry_changed():
         if not messagebox.askyesno(parent=root, title = 'Exit without saving?', message = 'Edits to this entry have not been saved!'):
             return
     local_edited(False)
     switch(EditSecPage)
 def reset_entry():
     global needs_edit_save, root
-    if needs_edit_save:
+    if needs_edit_save and entry_changed():
         if not messagebox.askyesno(parent=root, title = 'Reset changes?', message = 'Edits to this entry will be discarded!'):
             return
         local_edited(False)
@@ -864,7 +881,7 @@ def reset_entry():
 
 root = Tk()
 update_file(args.inputfile) #Update title to include loaded file
-root.geometry('640x480')
+root.geometry('1000x400')
 menubar = Menu(root)
 filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
 filemenu.add_command(label = 'Load', command = loader_json)

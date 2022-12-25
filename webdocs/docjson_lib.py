@@ -61,18 +61,18 @@ def findNamed(title,name):
     global data_obj
     _title = _namestrip(title)
     _name = _namestrip(name)
-    for section in data_obj['named']:
+    for section in data_obj['named']['tabs']:
         if _namestrip(section['name']) != _title:
             continue
         #The specified section
-        for line in section['val']:
+        for line in section['lines']:
             if _namestrip(line['name']) == _name:
                 return line['val']
         break
     #Not found in specified section
     #Search all sections as a fallback
-    for section in data_obj['named']:
-        for line in section['val']:
+    for section in data_obj['named']['tabs']:
+        for line in section['lines']:
             if _namestrip(line['name']) == _name:
                 return line['val']
     #Not found anywhere, error
