@@ -9,12 +9,17 @@ def loadjson(fname):
     with open(fname, 'r') as file:
         data_obj = json.loads(file.read())
     parse_state('Validating Json...')
-    tmp = debug_out
-    debug_out = False
-    #generate_output(data_obj) #validate json?
-    debug_out = tmp
-    parse_state('Done!')
-    return data_obj
+    _key = '[MISSING]'
+    try:
+        _key = data_obj['key']
+    except:
+        pass
+    if _key != 'zs_docjson_py':
+        parse_state('FAIL!')
+        raise Exception(f'Invalid .json key: {_key}')
+    else:
+        parse_state('Done!')
+        return data_obj
 def savejson(fname,obj):
     parse_state('Saving Json...')
     with open(fname, 'w') as file:
@@ -83,13 +88,20 @@ def findBodyTab(name):
     _tname = name.strip().lower()
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
-        for line in tab:
+        for line in tab['lines']:
             comp = trimtags(line['name']).lower()
             spl = re.split('/|;;',comp)
             for s in spl:
                 if s.strip() == _tname:
                     return (line['linktab'],line['body'])
     return (-1,-1)
+def get_line_display(line) -> str:
+    name = line['name']
+    try:
+        s = trimtags(name).split(';;',2)[0].strip()
+        return s if s else '[EMPTY]'
+    except:
+        return ''
 def broken_link(id):
     global broken_links
     if id not in broken_links:
@@ -321,7 +333,7 @@ def generate_output(obj) -> str:
     parse_state('Generating bodies...')
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
-        for line in tab:
+        for line in tab['lines']:
             line['body'] = -1
             _val = line['val']
             if not _val or _val[0] == '$':
@@ -336,7 +348,7 @@ def generate_output(obj) -> str:
         cursheetind = get_tab_sheet(curtab)
         hid_content = ' hidden style = "display:none"' if curtab > 0 else ''
         tab_content = f'\t\t<div class = "tab_container" data-bid = -1 data-tid = {curtab}{hid_content}>\r\n';
-        for line in tab:
+        for line in tab['lines']:
             line['linktab'] = curtab
             _name = line['name']
             _val = line['val']

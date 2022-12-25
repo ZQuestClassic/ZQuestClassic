@@ -19,8 +19,10 @@ with open(args.inputfile, 'r') as file:
 jsonobj = json.loads(jstring);
 
 newobj = {
+    'key': 'zs_docjson_py',
+    'ver': 0,
     'sheets': [],
-    'named': jsonobj['named']
+    'named': {'name':'Named_Data', 'tabs':[{'name':v['name'],'lines':v['val']} for v in jsonobj['named']]}
 }
 
 sheetind = 0;
@@ -31,7 +33,7 @@ for i in range(len(jsonobj['sheet_nm'])):
         continue;
     slist = [];
     for q in range(ssz):
-        slist.append(jsonobj['vals'][sheetind+q]);
+        slist.append({'name':str(q), 'lines':jsonobj['vals'][sheetind+q]});
     sheetind += ssz;
     newobj['sheets'].append({'name': sname, 'tabs':slist});
 
