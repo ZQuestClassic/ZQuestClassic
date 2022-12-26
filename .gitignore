@@ -133,6 +133,7 @@ output/_auto/buildpack_lazy
 output/_auto/*.zip
 
 # Other
+.tmp
 *.zplay.roundtrip
 *.zplay.*.bmp
 *.zplay.*.png
