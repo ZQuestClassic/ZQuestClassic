@@ -7,6 +7,9 @@ from tkinter import messagebox
 from tkinter import simpledialog
 from tkinter import ttk
 
+# import traceback
+# print(traceback.print_exc())
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--in', dest='inputfile', default='zsdocs_new.json',metavar='FILE',
     help='.json to generate docs from')
@@ -126,6 +129,8 @@ read_config()
 ## GUI functions
 def loader_json():
     global json_obj, root, needs_save, file_loaded, curpage, cursheet, needs_autosave, cur_file, cur_directory
+    if not save_warn('Load file'):
+        return
     fname = filedialog.askopenfilename(parent = root, title = 'Load', initialdir = cur_directory, initialfile = cur_file, filetypes = (('Json','*.json'),))
     if len(fname) < 1:
         return
@@ -178,18 +183,23 @@ def saver_html():
         args.outputfile = fname
     except Exception as e:
         popError(f"Error '{str(e)}'\nOccurred saving file:\n{fname}")
-def quitter(skipwarn=True):
-    global root, needs_save, needs_edit_save
-    warned = skipwarn
+def save_warn(_msg):
+    global root, needs_save, needs_edit_save, warned
+    warned = False
     if needs_edit_save:
         warned = True
-        if not messagebox.askyesno(parent=root, title = 'Exit without saving?', message = 'Edits to this entry have not been saved!'):
-            return
+        if not messagebox.askyesno(parent=root, title = f'{_msg} without saving?', message = 'Edits to this entry have not been saved!'):
+            return False
     if needs_save:
         warned = True
-        if not messagebox.askyesno(parent=root, title = 'Exit without saving?', message = 'Changes to the .json have not been saved!'):
-            return
-    if not warned:
+        if not messagebox.askyesno(parent=root, title = f'{_msg} without saving?', message = 'Changes to the .json have not been saved!'):
+            return False
+    return True
+def quitter(skipwarn=True):
+    global root, warned
+    if not save_warn('Exit'):
+        return
+    if not skipwarn and not warned:
         if not messagebox.askyesno(parent=root, title = 'Exit?', message = 'Would you like to exit?'):
             return
     write_config()
@@ -624,7 +634,7 @@ def disable_btn(btn,dis):
     else:
         btn.config(relief=RAISED)
 def style_txt(txt):
-    txt.config(relief=SUNKEN,wrap='word')
+    txt.config(relief=SUNKEN,wrap='char')
     disable_txt(txt,False)
 def disable_txt(txt,dis):
     if dis:
@@ -1107,6 +1117,8 @@ class EditEntryPage(Page):
         btns.append(b)
         b=Button(fr, width=wid, text='Tooltip', command=lambda:txt_insert(self.txt_body,get_ttip))
         btns.append(b)
+        b=Button(fr, width=wid, text='Named Data', command=lambda:txt_insert(self.txt_body,get_named))
+        btns.append(b)
         b=Button(fr, width=wid, text='Doc Link', command=lambda:txt_insert(self.txt_body,get_link))
         btns.append(b)
         b=Button(fr, width=wid, text='Code Inline', command=lambda:txt_insert(self.txt_body,get_code1))
@@ -1230,6 +1242,7 @@ class navigation:
     # Reset to blank navigation
     def clear(self):
         self.history = [(0,)]
+        self.update(0)
         self.goto((0,))
         self.update(0)
     # Refresh the page
