@@ -558,14 +558,27 @@ def hover_scroll(scr,hv):
         scr.config(style='Hov.Vertical.TScrollbar')
     else:
         scr.config(style='TScrollbar')
-def pack_scrollable_listbox(listbox):
-    scroll = ttk.Scrollbar(listbox.master, cursor='double_arrow')
+def pack_scrollable_widg(widg):
+    scroll = ttk.Scrollbar(widg.master, cursor='double_arrow')
     scroll.bind('<Enter>',lambda _: hover_scroll(scroll,True))
     scroll.bind('<Leave>',lambda _: hover_scroll(scroll,False))
-    listbox.config(yscrollcommand = scroll.set)
-    scroll.config(command = listbox.yview)
-    listbox.pack(side='left', fill=BOTH)
+    widg.config(yscrollcommand = scroll.set)
+    scroll.config(command = widg.yview)
+    widg.pack(side='left', fill=BOTH)
     scroll.pack(side='left', fill=BOTH)
+    
+def pack_scrollable_listbox(listbox):
+    pack_scrollable_widg(listbox)
+def pack_scrollable_text(txt):
+    pack_scrollable_widg(txt)
+
+    # scroll = ttk.Scrollbar(listbox.master, cursor='double_arrow')
+    # scroll.bind('<Enter>',lambda _: hover_scroll(scroll,True))
+    # scroll.bind('<Leave>',lambda _: hover_scroll(scroll,False))
+    # listbox.config(yscrollcommand = scroll.set)
+    # scroll.config(command = listbox.yview)
+    # listbox.pack(side='left', fill=BOTH)
+    # scroll.pack(side='left', fill=BOTH)
 def _set_field(field,text):
     field.delete(0,END)
     field.insert(0,text)
@@ -574,6 +587,7 @@ def _load_list(listbox, selind, _list, loadfunc):
     for ind,val in enumerate(_list):
         listbox.insert(ind,loadfunc(val))
     listbox.selection_set(selind)
+    listbox.see(selind)
 
 def disable_widg(widg,dis):
     if dis:
@@ -610,13 +624,13 @@ def disable_btn(btn,dis):
     else:
         btn.config(relief=RAISED)
 def style_txt(txt):
-    txt.config(relief=SUNKEN)
+    txt.config(relief=SUNKEN,wrap='word')
     disable_txt(txt,False)
 def disable_txt(txt,dis):
     if dis:
-        txt.config(bg = FLD_DIS_BGC, fg = FLD_DIS_FGC)
+        txt.config(bg = FLD_DIS_BGC, fg = FLD_DIS_FGC, insertbackground=FLD_DIS_BGC)
     else:
-        txt.config(bg = FLD_BGC, fg = FLD_FGC)
+        txt.config(bg = FLD_BGC, fg = FLD_FGC, insertbackground=FLD_FGC)
 
 def stylize():
     global style
@@ -887,6 +901,54 @@ class EditSecPage(Page):
     def reload(self):
         navi.refresh()
 
+def get_ttip(hld=None):
+    return ('[[',hld if hld else 'TITLE','|TIP TEXT]]')
+def get_named(hld=None):
+    return ('$[',hld if hld else 'DATA_NAME',']')
+def get_spoil(hld=None):
+    return ('#{TITLE|',hld if hld else 'HIDDEN TEXT','}')
+def get_link(hld=None):
+    return ('${KEY|',hld if hld else 'DISPLAY TEXT','}')
+def get_code1(hld=None):
+    return ('`',hld if hld else 'CODE','`')
+def get_code2(hld=None):
+    return ('```',hld if hld else 'CODE','```')
+def get_block(hld=None):
+    return ('<block>',hld if hld else 'TEXT','</block>')
+def get_iblock(hld=None):
+    return ('<iblock>',hld if hld else 'TEXT','</iblock>')
+def get_todo(hld=None):
+    return ('<todo>',hld if hld else 'TEXT','</todo>')
+def get_header(hld=None):
+    return ('<h3>',hld if hld else 'HEADER TEXT','</h3>')
+def get_bold(hld=None):
+    return ('<strong>',hld if hld else 'TEXT','</strong>')
+def get_italic(hld=None):
+    return ('<em>',hld if hld else 'TEXT','</em>')
+
+def txt_insert(txt,getter):
+    sel = None
+    has_sel = bool(txt.tag_ranges(SEL))
+    if has_sel:
+        sel = txt.get(SEL_FIRST, SEL_LAST)
+    vls = getter(sel)
+    if not vls: #Cancelled?
+        return;
+    s = vls[0]+vls[1]+vls[2]
+    
+    if has_sel:
+        tmp = txt.count('1.0',SEL_FIRST)
+        txt.delete(SEL_FIRST, SEL_LAST)
+    else:
+        tmp = txt.count('1.0',INSERT)
+    first = tmp[0] if tmp else 0
+    first += len(vls[0])
+    last = first + len(vls[1])
+    txt.insert(INSERT, s)
+    txt.tag_add('sel',f'1.0+{first}c',f'1.0+{last}c')
+    txt.mark_set(INSERT,f'1.0+{last}c')
+    
+
 class EditEntryPage(Page):
     def __init__(self, root):
         global json_obj, cursheet, cursec, curentry, jumplistbox, curjump, refr_entry
@@ -1029,35 +1091,66 @@ class EditEntryPage(Page):
         lb=Label(col1, text = 'Page Content:')
         style_label(lb)
         lb.grid(row=0,column=4,sticky=SW)
-        self.txt_body = Text(col1, height=20, width=75, bd=5)
+        fr = Frame(col1, bg=BGC)
+        self.txt_body = Text(fr, height=20, width=75, bd=5)
         style_txt(self.txt_body)
         self.ignore_modify = 2
         self.txt_body.insert(END,pageval)
         self.txt_body.config(undo=1)
         self.txt_body.bind_all('<<Modified>>', lambda *_:self.update_val()) 
-        self.txt_body.grid(row=1,column=4,sticky=NW,rowspan=2)
+        pack_scrollable_text(self.txt_body)
+        fr.grid(row=1,column=4,sticky=NW,rowspan=2)
+        fr = Frame(col1, bg=BGC)
+        btns = []
+        wid=12
+        b=Button(fr, width=wid, text='Spoiler', command=lambda:txt_insert(self.txt_body,get_spoil))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Tooltip', command=lambda:txt_insert(self.txt_body,get_ttip))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Doc Link', command=lambda:txt_insert(self.txt_body,get_link))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Code Inline', command=lambda:txt_insert(self.txt_body,get_code1))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Code Block', command=lambda:txt_insert(self.txt_body,get_code2))
+        btns.append(b)
+        b=Button(fr, width=wid, text='TODO', command=lambda:txt_insert(self.txt_body,get_todo))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Header (h3)', command=lambda:txt_insert(self.txt_body,get_header))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Bold', command=lambda:txt_insert(self.txt_body,get_bold))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Italic', command=lambda:txt_insert(self.txt_body,get_italic))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Block', command=lambda:txt_insert(self.txt_body,get_block))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Inline-Block', command=lambda:txt_insert(self.txt_body,get_iblock))
+        btns.append(b)
+        for btn in btns:
+            style_btn(btn)
+            btn.pack()
+        self.insert_btns = btns
+        fr.grid(row=1,column=5,sticky=NW,rowspan=2)
         
         col1.pack(side = 'left')
         toprow.pack()
         butrow = Frame(self, bg=BGC)
         wid = 5
+        btns = []
         self.backbtn = Button(butrow, width=wid, text='←', command=lambda:navi.back())
-        self.backbtn.pack(side='left')
+        btns.append(self.backbtn)
         self.fwdbtn = Button(butrow, width=wid, text='→', command=lambda:navi.fwd())
-        self.fwdbtn.pack(side='left')
-        style_btn(self.backbtn)
-        style_btn(self.fwdbtn)
-        wid = 12
-        b1=Button(butrow, width=wid, text='Save+Exit', command=save_entry_exit)
-        b2=Button(butrow, width=wid, text='Save', command=save_entry)
-        b3=Button(butrow, width=wid, text='Reset', command=reset_entry)
-        self.save_btns = [b1,b2,b3]
-        for btn in self.save_btns:
+        btns.append(self.fwdbtn)
+        wid = 12    
+        b=Button(butrow, width=wid, text='Save', command=save_entry)
+        btns.append(b)
+        b=Button(butrow, width=wid, text='Reset', command=reset_entry)
+        btns.append(b)
+        b=Button(butrow, width=wid, text='Exit (up)', command=exit_entry)
+        btns.append(b)
+        for btn in btns:
             style_btn(btn)
             btn.pack(side='left')
-        _btn=Button(butrow, width=wid, text='Exit', command=exit_entry)
-        style_btn(_btn)
-        _btn.pack(side='left')
+        self.save_btns = btns[-3:-1] # 'Save' and 'Reset', disabled if no changes.
         butrow.pack()
     def update_type(self):
         ty = self.field_ty.get()
@@ -1066,6 +1159,8 @@ class EditEntryPage(Page):
         if ty == 'Link':
             self.update_radlink()
         disable_widg(self.txt_body, ty != 'Page')
+        for b in self.insert_btns:
+            disable_widg(b, ty != 'Page')
         local_edited()
     def update_radlink(self):
         ty = self.radio_link.get()
