@@ -32,7 +32,33 @@ cursec = 0
 curentry = 0
 curjump = 0
 root = None
-
+mainframe = None
+# For refreshing
+refr_entry = None
+#Colors
+def theme(ind):
+    global BGC,FGC,DIS_FGC,FLD_BGC,FLD_FGC,FLD_DIS_BGC,FLD_DIS_FGC,ACT_C1
+    if ind == 1: #dark
+        BGC = '#283C55'
+        ACT_C1 = '#485C75'
+        FGC = '#D2E2FF'
+        DIS_FGC = '#6C7088'
+        FLD_BGC = '#1C2038'
+        FLD_FGC = '#699195'
+        FLD_DIS_BGC = '#283C55'
+        FLD_DIS_FGC = '#6C7088'
+    else:
+        BGC = '#DDD'
+        ACT_C1 = '#BBB'
+        FGC = '#000'
+        DIS_FGC = '#BBB'
+        FLD_BGC = '#FFF'
+        FLD_FGC = '#000'
+        FLD_DIS_BGC = '#F0F0F0'
+        FLD_DIS_FGC = '#888'
+    if mainframe:
+        mainframe.refresh()
+theme(0)
 def popError(s):
     messagebox.showinfo(title = 'Error!', message = s)
 def update_file(fname):
@@ -82,6 +108,8 @@ def read_config():
     except:
         config = {}
     _def_config('autosave_minutes',5)
+    _def_config('theme',0)
+    theme(config['theme'])
 def write_config():
     global config
     try:
@@ -106,7 +134,7 @@ def loader_json():
         needs_save = False
         needs_autosave = False
         file_loaded = True
-        switch(SheetsPage)
+        navi.clear()
     except Exception as e:
         json_obj = None
         update_file('')
@@ -167,7 +195,7 @@ def onfile():
 def onoption():
     global optmenu
     asmin = config['autosave_minutes']
-    optmenu.entryconfig(1, label = f"Autosave ({asmin} min)" if asmin else "Autosave (off)")
+    optmenu.entryconfig(0, label = f"Autosave ({asmin} min)" if asmin else "Autosave (off)")
 def opt_autosave():
     global config
     val = simpledialog.askinteger('Input', f"Autosave every how many minutes? (current: {config['autosave_minutes']})", minvalue=0, parent=root)
@@ -217,8 +245,7 @@ def local_edited(val:bool=True):
     needs_edit_save = val
     if isinstance(mainframe, EditEntryPage):
         for b in mainframe.save_btns:
-            b['state'] = NORMAL if val else DISABLED
-    
+            disable_widg(b,not val)
 def get_sel(listbox):
     sel = listbox.curselection()
     if len(sel) < 1:
@@ -230,17 +257,11 @@ def del_conf():
     return messagebox.askokcancel(parent=root, title = 'Delete Confirmation', message = 'Delete current selection?')
 
 def edit_named():
-    global cursheet, cursec
-    cursheet = -1
-    cursec = 0
-    switch(EditShPage)
+    navi.visit_new((-1,0))
 def edit_sheet(ind):
-    global cursheet, cursec
     if ind < 0:
         return
-    cursheet = ind
-    cursec = 0
-    switch(EditShPage)
+    navi.visit_new((ind,0))
 def add_sheet(ind):
     global json_obj
     if ind < 0:
@@ -273,12 +294,10 @@ def ren_sheet(ind):
     mainframe.reload_sheets(ind)
 
 def edit_sec(ind):
-    global cursec, curentry
+    global cursheet
     if ind < 0:
         return
-    cursec = ind
-    curentry = 0
-    switch(EditSecPage)
+    navi.visit_new((cursheet,ind,0))
 def add_sec(ind):
     global json_obj, cursheet
     if ind < 0:
@@ -315,14 +334,12 @@ def ren_sec(ind):
     mainframe.reload_sec(ind)
 
 def edit_entry(ind):
-    global curentry, curjump
+    global cursheet, cursec
     if ind < 0:
         return
-    curentry = ind
-    curjump = 0
-    switch(EditEntryPage)
+    navi.visit_new((cursheet,cursec,ind,0))
 def add_entry(ind):
-    global json_obj, cursheet, needs_save, cursec
+    global json_obj, cursheet, cursec
     if ind < 0:
         ind = 0
     name = 'New Entry'
@@ -346,6 +363,37 @@ def del_entry(ind):
     _setsheet(cursheet,sheet)
     mark_edited()
     mainframe.reload_entry(ind-1)
+def get_entry_link(ind):
+    global json_obj, cursheet, cursec
+    if ind < 0:
+        return
+    sheet = _getsheet(cursheet)
+    entry = sheet['tabs'][cursec]['lines'][ind]
+    val = entry['val']
+    if not val or val[0] != '$':
+        return
+    _s,*_ = val[1:].split('$')
+    sheetnum = -1
+    try:
+        sheetnum = int(_s)
+        if sheetnum == -1:
+            sheetnum = cursheet
+    except:
+        sheetnum = get_sheetind_named(_s)
+    if sheetnum < 0:
+        return
+    secnum = 0
+    if _:
+        try:
+            secnum = int(_[0])
+        except:
+            secnum = 0
+    return (sheetnum,secnum)
+def link_entry(ind):
+    global cursheet, cursec
+    val = get_entry_link(ind)
+    if val:
+        navi.visit_new(val+(0,))
 
 def edit_jump(ind):
     global mainframe
@@ -441,8 +489,9 @@ def sel_sec(evt):
     global cursec
     cursec = get_sel(evt.widget)
 def sel_entry(evt):
-    global curentry
+    global curentry, mainframe
     curentry = get_sel(evt.widget)
+    mainframe.reload_entry_link()
 def sel_jump(evt):
     global curjump
     curjump = get_sel(evt.widget)
@@ -490,13 +539,13 @@ def switch(pageclass):
     if mainframe is not None:
         mainframe.destroy()
     mainframe = pageclass(root)
-    mainframe.postinit()
+    mainframe._postinit()
     mainframe.grid()
     curpage = pageclass
     root.update()
 
 def pack_scrollable_listbox(listbox):
-    scroll = Scrollbar(listbox.master)
+    scroll = ttk.Scrollbar(listbox.master, orient='vertical', cursor='double_arrow')
     listbox.config(yscrollcommand = scroll.set)
     scroll.config(command = listbox.yview)
     listbox.pack(side='left', fill=BOTH)
@@ -509,44 +558,161 @@ def _load_list(listbox, selind, _list, loadfunc):
     for ind,val in enumerate(_list):
         listbox.insert(ind,loadfunc(val))
     listbox.selection_set(selind)
-class InfoPage(Frame):
-    def __init__(self, root):
+
+def disable_widg(widg,dis):
+    if dis:
+        widg.config(state=DISABLED)
+    else:
+        widg.config(state=NORMAL)
+    if issubclass(type(widg),Button):
+        disable_btn(widg,dis)
+    elif issubclass(type(widg),Text):
+        disable_txt(widg,dis)
+    elif issubclass(type(widg),ttk.Combobox):
+        if not dis:
+            widg.config(state='readonly')
+def style_label(label):
+    label.config(bg=BGC, fg=FGC, disabledforeground=DIS_FGC)
+def style_lb(lb):
+    lb.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC)
+def style_cb(cb):
+    cb.bind('<Enter>',func=lambda _: cb.config(style='Hov.TCombobox'))
+    cb.bind('<Leave>',func=lambda _: cb.config(style='TCombobox'))
+    pass
+def style_rad(rad):
+    pass#rad.config(bg=BGC,activebackground=BGC,fg=FGC,fieldbackground=FLD_BGC,disabledforeground=DIS_FGC)
+def style_entry(ent):
+    ent.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC)
+def style_btn(btn):
+    btn.config(bd=2,bg=BGC,fg=FGC,disabledforeground=DIS_FGC,activebackground=BGC,activeforeground=FGC)
+    btn.bind('<Enter>',func=lambda _: btn.config(background=ACT_C1,activebackground=ACT_C1))
+    btn.bind('<Leave>',func=lambda _: btn.config(background=BGC,activebackground=BGC))
+    disable_btn(btn,False)
+def disable_btn(btn,dis):
+    if dis:
+        btn.config(relief=GROOVE)
+    else:
+        btn.config(relief=RAISED)
+def style_txt(txt):
+    txt.config(relief=SUNKEN)
+    disable_txt(txt,False)
+def disable_txt(txt,dis):
+    if dis:
+        txt.config(bg = FLD_DIS_BGC, fg = FLD_DIS_FGC)
+    else:
+        txt.config(bg = FLD_BGC, fg = FLD_FGC)
+
+def stylize():
+    global style
+    
+    style.theme_use('alt')
+    style.configure('TCombobox',fieldbackground=FLD_BGC,background=BGC,foreground=FGC,
+        selectbackground=FLD_BGC,selectforeground=FGC,
+        #bordercolor=BGC,darkcolor=BGC,lightcolor=BGC,insertcolor=BGC,insertwidth=0,
+        arrowsize=16)
+    style.map('TCombobox',
+        fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',FLD_BGC)],
+        background=[('disabled',BGC),('readonly',BGC)],
+        foreground=[('disabled',DIS_FGC),('readonly',FGC)],
+        arrowcolor=[('disabled',DIS_FGC),('readonly',FGC)])
+    style.configure('Hov.TCombobox',background=ACT_C1)
+    style.map('Hov.TCombobox',
+        background=[('disabled',ACT_C1),('readonly',ACT_C1)])
+    
+    style.configure('TRadiobutton',background=BGC,foreground=FGC,indicatorcolor=FLD_BGC)
+    style.map('TRadiobutton',
+        background=[('disabled',BGC),('pressed',BGC),('active',BGC)],
+        foreground=[('disabled',DIS_FGC),('pressed',FGC),('active',ACT_C1)])
+    
+    style.configure('Vertical.TScrollbar',background=BGC,troughcolor=FLD_BGC)
+    style.map('Vertical.TScrollbar',background=[('disabled',FLD_BGC),('pressed',BGC),('active',BGC)])
+
+class Page(Frame):
+    def __init__(self,root):
         Frame.__init__(self,root)
-        Label(self, text = '''This GUI allows editing the web documentation.
+    def style(self):
+        self.config(bg=BGC)
+    def _postinit(self):
+        self.style()
+        self.postinit()
+        navi.update()
+    def postinit(self):
+        pass
+    def refresh(self):
+        global root
+        root.config(bg=BGC)
+        stylize()
+        self.reload()
+    def reload(self):
+        switch(type(self))
+class InfoPage(Page):
+    def __init__(self, root):
+        Page.__init__(self,root)
+        lb=Label(self, text = '''This GUI allows editing the web documentation.
         Docs are stored in .json format, which can be saved/loaded in the 'File' menu.
         You can also export the generated .html file.
         
-        You must load a .json file to continue.''').pack()
+        You must load a .json file to continue.''')
+        style_label(lb)
+        lb.pack()
     def postinit(self):
         pass
-class SheetsPage(Frame):
+
+class SheetsPage(Page):
     def __init__(self, root):
         global json_obj, sheetlistbox, cursheet
-        Frame.__init__(self,root)
+        Page.__init__(self,root)
         
         if cursheet < 0:
             cursheet = 0
         
-        f1 = Frame(self)
-        Label(f1, text = 'Sheets').pack()
+        f1 = Frame(self, bg=BGC)
+        f2 = Frame(f1, bg=BGC)
+        wid = 5
+        self.backbtn = Button(f2, width=wid, text='←', command=lambda:navi.back())
+        self.backbtn.pack(side='left')
+        self.fwdbtn = Button(f2, width=wid, text='→', command=lambda:navi.fwd())
+        self.fwdbtn.pack(side='left')
+        style_btn(self.backbtn)
+        style_btn(self.fwdbtn)
+        f2.pack()
+        lb=Label(f1, text = 'Sheets')
+        style_label(lb)
+        lb.pack()
         sheetlistbox = Listbox(f1)
+        style_lb(sheetlistbox)
         sheetlistbox.bind('<<ListboxSelect>>', sel_sheet)
         self.reload_sheets(cursheet)
         pack_scrollable_listbox(sheetlistbox)
         f1.pack(side='left')
         
-        f2 = Frame(self)
-        bor = 3
-        Button(f2, bd=bor, text = '?', command=info_sheets).pack(anchor=W)
+        f2 = Frame(self, bg=BGC)
+        _btn=Button(f2, text = '?', command=info_sheets)
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         wid = 5
-        Button(f2, bd=bor, width=wid, text='↑', command=lambda:sheetshift(-1)).pack(anchor=W)
-        Button(f2, bd=bor, width=wid, text='↓', command=lambda:sheetshift(1)).pack(anchor=W)
+        _btn=Button(f2, width=wid, text='↑', command=lambda:sheetshift(-1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(f2, width=wid, text='↓', command=lambda:sheetshift(1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         wid = 10
-        Button(f2, bd=bor, width=wid, text='Edit', command=lambda:edit_sheet(cursheet)).pack()
-        Button(f2, bd=bor, width=wid, text='Add', command=lambda:add_sheet(cursheet)).pack()
-        Button(f2, bd=bor, width=wid, text='Delete', command=lambda:del_sheet(cursheet)).pack()
-        Button(f2, bd=bor, width=wid, text='Rename', command=lambda:ren_sheet(cursheet)).pack()
-        Button(f2, bd=bor, width=wid, text='Named Data', command=edit_named).pack()
+        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Add', command=lambda:add_sheet(cursheet))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Delete', command=lambda:del_sheet(cursheet))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Rename', command=lambda:ren_sheet(cursheet))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Named Data', command=edit_named)
+        style_btn(_btn)
+        _btn.pack()
         f2.pack(side='left')
     def reload_sheets(self,selind):
         global json_obj, cursheet, sheetlistbox
@@ -554,33 +720,62 @@ class SheetsPage(Frame):
         _load_list(sheetlistbox, selind, json_obj['sheets'], lambda sheet: sheet['name'])
     def postinit(self):
         pass
+    def reload(self):
+        navi.refresh()
 
-class EditShPage(Frame):
+class EditShPage(Page):
     def __init__(self, root):
         global json_obj, seclistbox, cursheet, cursec
-        Frame.__init__(self,root)
+        Page.__init__(self,root)
         sheet = _getsheet(cursheet)
         
-        f1 = Frame(self)
-        Label(f1, text = f"Sections in '{sheet['name']}'").pack()
+        f1 = Frame(self, bg=BGC)
+        f2 = Frame(f1, bg=BGC)
+        wid = 5
+        self.backbtn = Button(f2, width=wid, text='←', command=lambda:navi.back())
+        self.backbtn.pack(side='left')
+        self.fwdbtn = Button(f2, width=wid, text='→', command=lambda:navi.fwd())
+        self.fwdbtn.pack(side='left')
+        style_btn(self.backbtn)
+        style_btn(self.fwdbtn)
+        f2.pack()
+        lb=Label(f1, text = f"Sections in '{sheet['name']}'")
+        style_label(lb)
+        lb.pack()
         seclistbox = Listbox(f1)
+        style_lb(seclistbox)
         seclistbox.bind('<<ListboxSelect>>', sel_sec)
         self.reload_sections(cursec)
         pack_scrollable_listbox(seclistbox)
         f1.pack(side='left')
         
-        f2 = Frame(self)
-        bor = 3
-        Button(f2, bd=bor, text = '?', command=info_editsheet).pack(anchor=W)
+        f2 = Frame(self, bg=BGC)
+        _btn=Button(f2, text = '?', command=info_editsheet)
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         wid = 5
-        Button(f2, bd=bor, width=wid, text='↑', command=lambda:secshift(-1)).pack(anchor=W)
-        Button(f2, bd=bor, width=wid, text='↓', command=lambda:secshift(1)).pack(anchor=W)
+        _btn=Button(f2, width=wid, text='↑', command=lambda:secshift(-1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(f2, width=wid, text='↓', command=lambda:secshift(1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         wid = 10
-        Button(f2, bd=bor, width=wid, text='Edit', command=lambda:edit_sec(cursec)).pack()
-        Button(f2, bd=bor, width=wid, text='Add', command=lambda:add_sec(cursec)).pack()
-        Button(f2, bd=bor, width=wid, text='Delete', command=lambda:del_sec(cursec)).pack()
-        Button(f2, bd=bor, width=wid, text='Rename', command=lambda:ren_sec(cursec)).pack()
-        Button(f2, bd=bor, width=wid, text='Back', command=lambda:switch(SheetsPage)).pack()
+        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Add', command=lambda:add_sec(cursec))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Delete', command=lambda:del_sec(cursec))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Rename', command=lambda:ren_sec(cursec))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Exit (Up)', command=lambda:navi.up())
+        style_btn(_btn)
+        _btn.pack()
         f2.pack(side='left')
     def reload_sections(self,selind):
         global cursheet, cursec, seclistbox
@@ -589,47 +784,86 @@ class EditShPage(Frame):
         _load_list(seclistbox, selind, sheet['tabs'], lambda sec: sec['name'])
     def postinit(self):
         pass
+    def reload(self):
+        navi.refresh()
 
-class EditSecPage(Frame):
+class EditSecPage(Page):
     def __init__(self, root):
         global json_obj, entrylistbox, cursheet, cursec, curentry
-        Frame.__init__(self,root)
+        Page.__init__(self,root)
         sheet = _getsheet(cursheet)
         
-        f1 = Frame(self)
-        Label(f1, text = f"Entries in '{sheet['tabs'][cursec]['name']}'").pack()
+        shname = sheet['name']
+        secname = sheet['tabs'][cursec]['name']
+        
+        f1 = Frame(self, bg=BGC)
+        f2 = Frame(f1, bg=BGC)
+        wid = 5
+        self.backbtn = Button(f2, width=wid, text='←', command=lambda:navi.back())
+        self.backbtn.pack(side='left')
+        self.fwdbtn = Button(f2, width=wid, text='→', command=lambda:navi.fwd())
+        self.fwdbtn.pack(side='left')
+        style_btn(self.backbtn)
+        style_btn(self.fwdbtn)
+        f2.pack()
+        lb=Label(f1, text = f"Entries in '{shname}->{secname}'")
+        style_label(lb)
+        lb.pack()
         entrylistbox = Listbox(f1)
+        style_lb(entrylistbox)
         entrylistbox.bind('<<ListboxSelect>>', sel_entry)
-        self.reload_entry(curentry)
         pack_scrollable_listbox(entrylistbox)
         f1.pack(side='left')
         
-        f2 = Frame(self)
-        bor = 3
-        Button(f2, bd=bor, text = '?', command=info_editsec).pack(anchor=W)
+        f2 = Frame(self, bg=BGC)
+        _btn=Button(f2, text = '?', command=info_editsec)
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         wid = 5
-        Button(f2, bd=bor, width=wid, text='↑', command=lambda:entryshift(-1)).pack(anchor=W)
-        Button(f2, bd=bor, width=wid, text='↓', command=lambda:entryshift(1)).pack(anchor=W)
+        _btn=Button(f2, width=wid, text='↑', command=lambda:entryshift(-1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(f2, width=wid, text='↓', command=lambda:entryshift(1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         wid = 10
-        Button(f2, bd=bor, width=wid, text='Edit', command=lambda:edit_entry(curentry)).pack()
-        Button(f2, bd=bor, width=wid, text='Add', command=lambda:add_entry(curentry)).pack()
-        Button(f2, bd=bor, width=wid, text='Delete', command=lambda:del_entry(curentry)).pack()
-        Button(f2, bd=bor, width=wid, text='Back', command=lambda:switch(EditShPage)).pack()
+        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Add', command=lambda:add_entry(curentry))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Delete', command=lambda:del_entry(curentry))
+        style_btn(_btn)
+        _btn.pack()
+        self.linkbtn = Button(f2, width=wid, text='Follow Link', command=lambda:link_entry(curentry))
+        style_btn(self.linkbtn)
+        self.linkbtn.pack()
+        _btn=Button(f2, width=wid, text='Exit (Up)', command=lambda:navi.up())
+        style_btn(_btn)
+        _btn.pack()
         f2.pack(side='left')
+    def reload_entry_link(self):
+        global curentry
+        link = get_entry_link(curentry)
+        disable_widg(self.linkbtn,not link)
     def reload_entry(self,selind):
         global cursheet, curentry, cursec, entrylistbox
         curentry = selind
+        self.reload_entry_link()
         sheet = _getsheet(cursheet)
         _load_list(entrylistbox, selind, sheet['tabs'][cursec]['lines'], lambda ln: lib.get_line_display(ln))
     def postinit(self):
-        pass
+        self.reload_entry(curentry)
+    def reload(self):
+        navi.refresh()
 
-class EditEntryPage(Frame):
+class EditEntryPage(Page):
     def __init__(self, root):
-        global json_obj, cursheet, cursec, curentry, jumplistbox, curjump
-        Frame.__init__(self,root)
+        global json_obj, cursheet, cursec, curentry, jumplistbox, curjump, refr_entry
+        Page.__init__(self,root)
         sheet = _getsheet(cursheet)
-        entry = sheet['tabs'][cursec]['lines'][curentry]
+        entry = refr_entry if refr_entry else sheet['tabs'][cursec]['lines'][curentry]
         
         _spl = entry['name'].split(';;',2)
         name = _spl[0].strip()
@@ -672,73 +906,102 @@ class EditEntryPage(Frame):
         if linknum not in sheetnums:
             linknum = 0
         
-        toprow = Frame(self)
-        col1 = Frame(toprow)
+        toprow = Frame(self, bg=BGC)
+        col1 = Frame(toprow, bg=BGC)
         # This entry's 'Name'
-        Label(col1, text = 'Name:').grid(row=0,column=0,sticky=E)
+        lb=Label(col1, text = 'Name:')
+        style_label(lb)
+        lb.grid(row=0,column=0,sticky=E)
         self.field_name = StringVar(self, name)
         self.field_name.trace('w', lambda *_:local_edited())
-        Entry(col1, textvariable=self.field_name).grid(row=0,column=1,sticky=W)
+        ent=Entry(col1, textvariable=self.field_name)
+        style_entry(ent)
+        ent.grid(row=0,column=1,sticky=W)
         # The jump search labels
-        Label(col1, text = 'Jumps:').grid(row=1,column=0,sticky=NE)
+        lb=Label(col1, text = 'Jumps:')
+        style_label(lb)
+        lb.grid(row=1,column=0,sticky=NE)
         self.list_jumps = jumps
         
-        fr = Frame(col1)
+        fr = Frame(col1, bg=BGC)
         jumplistbox = Listbox(fr)
+        style_lb(jumplistbox)
         self.reload_jump(curjump)
         jumplistbox.bind('<<ListboxSelect>>', sel_jump)
         pack_scrollable_listbox(jumplistbox)
         fr.grid(row=1,column=1,sticky=NW)
         
-        fr = Frame(col1)
+        fr = Frame(col1, bg=BGC)
         wid = 6
-        bor = 3
-        Button(fr, bd=bor, width=wid, text='↑', command=lambda:jumpshift(-1)).pack(anchor=W)
-        Button(fr, bd=bor, width=wid, text='↓', command=lambda:jumpshift(1)).pack(anchor=W)
-        Button(fr, bd=bor, width=wid, text='Edit', command=lambda:edit_jump(curjump)).pack(anchor=W)
-        Button(fr, bd=bor, width=wid, text='Add', command=lambda:add_jump(curjump)).pack(anchor=W)
-        Button(fr, bd=bor, width=wid, text='Delete', command=lambda:del_jump(curjump)).pack(anchor=W)
+        _btn=Button(fr, width=wid, text='↑', command=lambda:jumpshift(-1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(fr, width=wid, text='↓', command=lambda:jumpshift(1))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(fr, width=wid, text='Edit', command=lambda:edit_jump(curjump))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(fr, width=wid, text='Add', command=lambda:add_jump(curjump))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
+        _btn=Button(fr, width=wid, text='Delete', command=lambda:del_jump(curjump))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         fr.grid(row=1,column=2,sticky=NW)
         
         self.field_ty = StringVar(self, typestr)
         self.field_ty.trace('w', lambda *_:self.update_type())
         cb = ttk.Combobox(col1, width=wid, textvariable=self.field_ty, state='readonly', values=('Empty', 'Page', 'Link'))
+        style_cb(cb)
         cb.grid(row=0,column=2,sticky=W)
         
-        fr = Frame(col1)
-        Label(fr, text = 'Link:').pack(side='left',anchor=N)
-        linkfr = Frame(fr)
+        fr = Frame(col1, bg=BGC)
+        lb=Label(fr, text = 'Link:')
+        style_label(lb)
+        lb.pack(side='left',anchor=N)
+        linkfr = Frame(fr, bg=BGC)
         self.radio_link = IntVar(self,linkrad)
         self.radio_link.trace('w', lambda *_:self.update_radlink())
-        self.rad_link_cursh = Radiobutton(linkfr, text='Current Sheet', value=2, variable=self.radio_link)
+        self.rad_link_cursh = ttk.Radiobutton(linkfr, text='Current Sheet', value=2, variable=self.radio_link)
+        style_rad(self.rad_link_cursh)
         self.rad_link_cursh.pack()
-        self.rad_link_sname = Radiobutton(linkfr, text='Sheet Name', value=0, variable=self.radio_link)
+        self.rad_link_sname = ttk.Radiobutton(linkfr, text='Sheet Name', value=0, variable=self.radio_link)
+        style_rad(self.rad_link_sname)
         self.rad_link_sname.pack()
         
         wid = 13
         self.field_linkname = StringVar(self, linkname)
         self.field_linkname.trace('w', lambda *_:self.update_radlink())
         self.cb_link_sname = ttk.Combobox(linkfr, width=wid, textvariable=self.field_linkname, state='readonly', values=sheetnames)
+        style_cb(self.cb_link_sname)
         self.cb_link_sname.pack()
         
-        self.rad_link_snum = Radiobutton(linkfr, text='Sheet Number', value=1, variable=self.radio_link)
+        self.rad_link_snum = ttk.Radiobutton(linkfr, text='Sheet Number', value=1, variable=self.radio_link)
+        style_rad(self.rad_link_snum)
         self.rad_link_snum.pack()
         self.field_linknum = StringVar(self, str(linknum))
         self.field_linknum.trace('w', lambda *_:self.update_radlink())
         self.cb_link_shnum = ttk.Combobox(linkfr, width=wid, textvariable=self.field_linknum, state='readonly', values=sheetnums)
+        style_cb(self.cb_link_shnum)
         self.cb_link_shnum.pack()
         
-        Label(linkfr, text='Section Number').pack()
+        self.labl_secnum=Label(linkfr, text='Section Number')
+        style_label(self.labl_secnum)
+        self.labl_secnum.pack()
         self.field_secnum = StringVar(self, str(self.secnum))
         self.field_secnum.trace('w', lambda *_:self.update_secnum())
         self.cb_link_secnum = ttk.Combobox(linkfr, width=wid, textvariable=self.field_secnum, state='readonly')
+        style_cb(self.cb_link_secnum)
         self.cb_link_secnum.pack()
         
-        #Label(col1, text = ':').pack(anchor=W)
         linkfr.pack(side='left',anchor=NW)
         fr.grid(row=2,column=1,columnspan=2,sticky=NE)
-        Label(col1, text = 'Page Content:').grid(row=0,column=4,sticky=SW)
-        self.txt_body = Text(col1, height=20, width=75, bd=5, relief=SUNKEN)
+        lb=Label(col1, text = 'Page Content:')
+        style_label(lb)
+        lb.grid(row=0,column=4,sticky=SW)
+        self.txt_body = Text(col1, height=20, width=75, bd=5)
+        style_txt(self.txt_body)
         self.ignore_modify = 2
         self.txt_body.insert(END,pageval)
         self.txt_body.config(undo=1)
@@ -747,34 +1010,38 @@ class EditEntryPage(Frame):
         
         col1.pack(side = 'left')
         toprow.pack()
-        butrow = Frame(self)
+        butrow = Frame(self, bg=BGC)
+        wid = 5
+        self.backbtn = Button(butrow, width=wid, text='←', command=lambda:navi.back())
+        self.backbtn.pack(side='left')
+        self.fwdbtn = Button(butrow, width=wid, text='→', command=lambda:navi.fwd())
+        self.fwdbtn.pack(side='left')
+        style_btn(self.backbtn)
+        style_btn(self.fwdbtn)
         wid = 12
-        bor = 3
-        b1=Button(butrow, bd=bor, width=wid, text='Save+Exit', command=save_entry_exit)
-        b2=Button(butrow, bd=bor, width=wid, text='Save', command=save_entry)
-        b3=Button(butrow, bd=bor, width=wid, text='Reset', command=reset_entry)
+        b1=Button(butrow, width=wid, text='Save+Exit', command=save_entry_exit)
+        b2=Button(butrow, width=wid, text='Save', command=save_entry)
+        b3=Button(butrow, width=wid, text='Reset', command=reset_entry)
         self.save_btns = [b1,b2,b3]
         for btn in self.save_btns:
+            style_btn(btn)
             btn.pack(side='left')
-        Button(butrow, bd=bor, width=wid, text='Exit', command=exit_entry).pack(side='left')
+        _btn=Button(butrow, width=wid, text='Exit', command=exit_entry)
+        style_btn(_btn)
+        _btn.pack(side='left')
         butrow.pack()
-        
-        self.linkwidgs = [self.cb_link_sname, self.cb_link_shnum, self.rad_link_sname, self.rad_link_snum, self.rad_link_cursh, self.cb_link_secnum]
     def update_type(self):
         ty = self.field_ty.get()
-        for w in self.linkwidgs:
-            w['state'] = NORMAL if ty == 'Link' else DISABLED
+        for w in [self.labl_secnum,self.cb_link_sname,self.cb_link_shnum,self.cb_link_secnum,self.rad_link_sname,self.rad_link_snum,self.rad_link_cursh]:
+            disable_widg(w,ty!='Link')
         if ty == 'Link':
             self.update_radlink()
-        if ty == 'Page':
-            self.txt_body.config(state = NORMAL, bg = '#FFF', fg = '#000')
-        else:
-            self.txt_body.config(state = DISABLED, bg = '#F0F0F0', fg = '#888')
+        disable_widg(self.txt_body, ty != 'Page')
         local_edited()
     def update_radlink(self):
         ty = self.radio_link.get()
-        self.cb_link_sname['state'] = NORMAL if ty == 0 else DISABLED
-        self.cb_link_shnum['state'] = NORMAL if ty == 1 else DISABLED
+        disable_widg(self.cb_link_sname,ty!=0)
+        disable_widg(self.cb_link_shnum,ty!=1)
         sheetind = -1
         if ty == 0:
             sheetind = get_sheetind_named(self.field_linkname.get(),0)
@@ -782,12 +1049,12 @@ class EditEntryPage(Frame):
             sheetind = int(self.field_linknum.get())
         self.cb_link_secnum['values'] = get_secnums(sheetind)
         if len(self.cb_link_secnum['values']) < 2:
-            self.cb_link_secnum['state'] = DISABLED
+            disable_widg(self.cb_link_secnum,True)
             cursec = self.secnum
             self.field_secnum.set('0')
             self.secnum = cursec
         else:
-            self.cb_link_secnum['state'] = NORMAL
+            disable_widg(self.cb_link_secnum,False)
             self.field_secnum.set(str(self.secnum))
         local_edited()
     def update_secnum(self):
@@ -824,11 +1091,104 @@ class EditEntryPage(Frame):
         curjump = selind
         _load_list(jumplistbox, selind, self.list_jumps, lambda a:a)
     def postinit(self):
-        global needs_edit_save
+        global needs_edit_save, refr_entry
         self.update_type()
         needs_edit_save = True
+        refr_entry = None
         local_edited(False)
+    def reload(self):
+        navi.refresh()
 
+class navigation:
+    def __init__(self):
+        self.history = [(0,)]
+        self.index = 0
+    # Reset to blank navigation
+    def clear(self):
+        self.history = [(0,)]
+        self.goto((0,))
+        self.update(0)
+    # Refresh the page
+    def refresh(self):
+        global refr_entry
+        isentry = len(self.history[self.index])==4
+        if isentry:
+            refr_entry = get_entry()
+        self.goto_unsafe(self.history[self.index])
+    # Switch the active GUI window to the specified location
+    def goto_unsafe(self,node:tuple):
+        global cursheet, cursec, curentry
+        match len(node):
+            case 1:
+                cursheet = node[0]
+                cursec = 0
+                curentry = 0
+                switch(SheetsPage)
+            case 2:
+                cursheet = node[0]
+                cursec = node[1]
+                curentry = 0
+                switch(EditShPage)
+            case 3:
+                cursheet = node[0]
+                cursec = node[1]
+                curentry = node[2]
+                switch(EditSecPage)
+            case 4:
+                cursheet = node[0]
+                cursec = node[1]
+                curentry = node[2]
+                switch(EditEntryPage)
+            case _:
+                raise Exception('Bad Navigation: '+str(node))
+        return True
+    # Gives warning if exiting entry editor while needing to save
+    def goto(self,node:tuple):
+        isentry = len(self.history[self.index])==4
+        if isentry and not check_exit_entry():
+            return False
+        return self.goto_unsafe(node)
+    # Goto a new node, adding it to the history, and clearing any forward-history
+    def visit_new(self,node:tuple):
+        if not self.goto(node):
+            return False
+        if not self.atEnd():
+            self.history = self.history[:self.index+1]
+        self.history.append(node)
+        self.update(self.index + 1)
+        return True
+    # Go back a node
+    def back(self):
+        if self.atStart():
+            return
+        if self.goto(self.history[self.index-1]):
+            self.update(self.index - 1)
+    # Go forward a node
+    def fwd(self):
+        if self.atEnd():
+            return
+        if self.goto(self.history[self.index+1]):
+            self.update(self.index + 1)
+    # Go up a menu
+    def up(self):
+        if len(self.history[self.index]) > 1:
+            self.visit_new(self.history[self.index][:-1])
+    
+    # Updates the state of the object
+    def update(self,ind=-1):
+        global mainframe
+        if ind > -1:
+            self.index = ind
+        # Disable back/fwd buttons?
+        disable_widg(mainframe.backbtn, self.atStart())
+        disable_widg(mainframe.fwdbtn, self.atEnd())
+    
+    def atEnd(self)->bool:
+        return self.index == len(self.history)-1
+    def atStart(self)->bool:
+        return self.index == 0
+
+navi = navigation()
 
 def get_entry():
     global mainframe
@@ -863,37 +1223,53 @@ def save_entry():
     mark_edited()
 def save_entry_exit():
     save_entry()
-    switch(EditSecPage)
-def exit_entry():
+    navi.up()
+def check_exit_entry():
     global needs_edit_save, root
     if needs_edit_save and entry_changed():
         if not messagebox.askyesno(parent=root, title = 'Exit without saving?', message = 'Edits to this entry have not been saved!'):
-            return
-    local_edited(False)
-    switch(EditSecPage)
+            return False
+    return True
+def exit_entry():
+    if check_exit_entry():
+        local_edited(False)
+        navi.up()
 def reset_entry():
     global needs_edit_save, root
     if needs_edit_save and entry_changed():
         if not messagebox.askyesno(parent=root, title = 'Reset changes?', message = 'Edits to this entry will be discarded!'):
             return
-        local_edited(False)
         switch(EditEntryPage)
+    local_edited(False)
+def gen_menubar():
+    global menubar,filemenu,optmenu,root
+    menubar = Menu(root)
+    filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
+    filemenu.add_command(label = 'Load', command = loader_json)
+    filemenu.add_command(label = 'Save', command = saver_json)
+    filemenu.add_command(label = 'Save As', command = saver_json_as)
+    filemenu.add_command(label = 'Save HTML', command = saver_html)
+    filemenu.add_separator()
+    filemenu.add_command(label = 'Exit', command = quitter)
+    menubar.add_cascade(label='File', menu=filemenu)
+    optmenu = Menu(menubar, tearoff=0, postcommand=onoption)
+    optmenu.add_command(label = 'Autosave', command = opt_autosave)
+    optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
+    menubar.add_cascade(label='Options', menu=optmenu)
+    root.config(menu=menubar)
 
 root = Tk()
+style = ttk.Style(root)
+root.config(bg=BGC)
 update_file(args.inputfile) #Update title to include loaded file
 root.geometry('1000x400')
-menubar = Menu(root)
-filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
-filemenu.add_command(label = 'Load', command = loader_json)
-filemenu.add_command(label = 'Save', command = saver_json)
-filemenu.add_command(label = 'Save As', command = saver_json_as)
-filemenu.add_command(label = 'Save HTML', command = saver_html)
-filemenu.add_separator()
-filemenu.add_command(label = 'Exit', command = quitter)
-menubar.add_cascade(label='File', menu=filemenu)
-optmenu = Menu(menubar, tearoff=0, postcommand=onoption)
-optmenu.add_command(label = 'Autosave', command = opt_autosave)
-menubar.add_cascade(label='Options', menu=optmenu)
+_darktheme = BooleanVar(root)
+_darktheme.set(config['theme']==1)
+def settheme(dark):
+    config['theme'] = 1 if dark else 0
+    theme(config['theme'])
+_darktheme.trace('w', lambda *_:settheme(_darktheme.get()))
+gen_menubar()
 root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", quitter)
 root.grid_rowconfigure(0, weight=1)
@@ -902,9 +1278,11 @@ root.grid_columnconfigure(0, weight=1)
 
 mainframe = None
 if file_loaded:
-    switch(SheetsPage)
+    navi.clear()
 else:
     switch(InfoPage)
+
+theme(config['theme'])
 
 #Start autosave timer
 schedule_autosave()
