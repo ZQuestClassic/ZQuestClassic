@@ -11,7 +11,7 @@ from tkinter import ttk
 # print(traceback.print_exc())
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--in', dest='inputfile', default='zsdocs_new.json',metavar='FILE',
+parser.add_argument('--in', dest='inputfile', default='zsdocs_main.json',metavar='FILE',
     help='.json to generate docs from')
 parser.add_argument('--out', dest='outputfile', default='ZScript_Docs.html',metavar='FILE',
     help='HTML webpage output')
