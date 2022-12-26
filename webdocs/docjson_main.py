@@ -37,22 +37,24 @@ mainframe = None
 refr_entry = None
 #Colors
 def theme(ind):
-    global BGC,FGC,DIS_FGC,FLD_BGC,FLD_FGC,FLD_DIS_BGC,FLD_DIS_FGC,ACT_C1
+    global BGC,FGC,DIS_FGC,FLD_BGC,FLD_FGC,FLD_DIS_BGC,FLD_DIS_FGC,ACT_BGC,ACT_FLD_BGC
     if ind == 1: #dark
         BGC = '#283C55'
-        ACT_C1 = '#485C75'
+        ACT_BGC = '#40546D'
         FGC = '#D2E2FF'
         DIS_FGC = '#6C7088'
         FLD_BGC = '#1C2038'
+        ACT_FLD_BGC = '#0078D7'
         FLD_FGC = '#699195'
         FLD_DIS_BGC = '#283C55'
         FLD_DIS_FGC = '#6C7088'
     else:
         BGC = '#DDD'
-        ACT_C1 = '#BBB'
+        ACT_BGC = '#BBB'
         FGC = '#000'
         DIS_FGC = '#BBB'
         FLD_BGC = '#FFF'
+        ACT_FLD_BGC = '#DDF'
         FLD_FGC = '#000'
         FLD_DIS_BGC = '#F0F0F0'
         FLD_DIS_FGC = '#888'
@@ -176,13 +178,19 @@ def saver_html():
         args.outputfile = fname
     except Exception as e:
         popError(f"Error '{str(e)}'\nOccurred saving file:\n{fname}")
-def quitter():
+def quitter(skipwarn=True):
     global root, needs_save, needs_edit_save
+    warned = skipwarn
     if needs_edit_save:
+        warned = True
         if not messagebox.askyesno(parent=root, title = 'Exit without saving?', message = 'Edits to this entry have not been saved!'):
             return
     if needs_save:
+        warned = True
         if not messagebox.askyesno(parent=root, title = 'Exit without saving?', message = 'Changes to the .json have not been saved!'):
+            return
+    if not warned:
+        if not messagebox.askyesno(parent=root, title = 'Exit?', message = 'Would you like to exit?'):
             return
     write_config()
     root.destroy()
@@ -314,7 +322,7 @@ def del_sec(ind):
         return
     if ind < 0:
         return
-    sheets = _getsheet(cursheet)
+    sheet = _getsheet(cursheet)
     sheet['tabs'] = sheet['tabs'][:ind] + sheet['tabs'][ind+1:]
     _setsheet(cursheet,sheet)
     mark_edited()
@@ -397,7 +405,7 @@ def link_entry(ind):
 
 def edit_jump(ind):
     global mainframe
-    if ind < 0:
+    if ind < 0 or ind >= len(mainframe.list_jumps):
         return
     string = simpledialog.askstring('Input', f"Change '{mainframe.list_jumps[ind]}' to?", parent=root)
     if not string:
@@ -544,8 +552,16 @@ def switch(pageclass):
     curpage = pageclass
     root.update()
 
+def hover_scroll(scr,hv):
+    if hv:
+        scr.config(cursor='arrow' if DISABLED in scr.state() else 'double_arrow')
+        scr.config(style='Hov.Vertical.TScrollbar')
+    else:
+        scr.config(style='TScrollbar')
 def pack_scrollable_listbox(listbox):
-    scroll = ttk.Scrollbar(listbox.master, orient='vertical', cursor='double_arrow')
+    scroll = ttk.Scrollbar(listbox.master, cursor='double_arrow')
+    scroll.bind('<Enter>',lambda _: hover_scroll(scroll,True))
+    scroll.bind('<Leave>',lambda _: hover_scroll(scroll,False))
     listbox.config(yscrollcommand = scroll.set)
     scroll.config(command = listbox.yview)
     listbox.pack(side='left', fill=BOTH)
@@ -585,7 +601,7 @@ def style_entry(ent):
     ent.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC)
 def style_btn(btn):
     btn.config(bd=2,bg=BGC,fg=FGC,disabledforeground=DIS_FGC,activebackground=BGC,activeforeground=FGC)
-    btn.bind('<Enter>',func=lambda _: btn.config(background=ACT_C1,activebackground=ACT_C1))
+    btn.bind('<Enter>',func=lambda _: btn.config(background=BGC if btn['state']==DISABLED else ACT_BGC,activebackground=BGC if btn['state']==DISABLED else ACT_BGC))
     btn.bind('<Leave>',func=lambda _: btn.config(background=BGC,activebackground=BGC))
     disable_btn(btn,False)
 def disable_btn(btn,dis):
@@ -604,32 +620,42 @@ def disable_txt(txt,dis):
 
 def stylize():
     global style
-    
     style.theme_use('alt')
+    # ttk.Combobox
     style.configure('TCombobox',fieldbackground=FLD_BGC,background=BGC,foreground=FGC,
         selectbackground=FLD_BGC,selectforeground=FGC,
-        #bordercolor=BGC,darkcolor=BGC,lightcolor=BGC,insertcolor=BGC,insertwidth=0,
+        bordercolor=BGC,darkcolor=BGC,lightcolor=BGC,insertcolor=BGC,insertwidth=0,
         arrowsize=16)
     style.map('TCombobox',
         fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',FLD_BGC)],
         background=[('disabled',BGC),('readonly',BGC)],
         foreground=[('disabled',DIS_FGC),('readonly',FGC)],
         arrowcolor=[('disabled',DIS_FGC),('readonly',FGC)])
-    style.configure('Hov.TCombobox',background=ACT_C1)
+    style.configure('Hov.TCombobox',background=ACT_BGC,bordercolor=BGC)
     style.map('Hov.TCombobox',
-        background=[('disabled',ACT_C1),('readonly',ACT_C1)])
+        fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)],
+        background=[('disabled',BGC),('readonly',ACT_BGC)])
     
-    style.configure('TRadiobutton',background=BGC,foreground=FGC,indicatorcolor=FLD_BGC)
+    # ttk.Radiobutton
+    style.configure('TRadiobutton',padding=1,background=BGC,foreground=FGC,indicatorcolor=FLD_BGC)
     style.map('TRadiobutton',
-        background=[('disabled',BGC),('pressed',BGC),('active',BGC)],
-        foreground=[('disabled',DIS_FGC),('pressed',FGC),('active',ACT_C1)])
+        background=[('disabled',BGC),('pressed',BGC),('active',ACT_BGC)],
+        foreground=[('disabled',DIS_FGC),('pressed',FGC),('active',FGC)])
     
-    style.configure('Vertical.TScrollbar',background=BGC,troughcolor=FLD_BGC)
-    style.map('Vertical.TScrollbar',background=[('disabled',FLD_BGC),('pressed',BGC),('active',BGC)])
+    # ttk.Scrollbar
+    style.configure('TScrollbar',foreground=FGC,background=BGC,troughcolor=FLD_BGC,relief=RAISED,borderwidth=0)
+    style.map('TScrollbar',
+        background=[('disabled',FLD_BGC)],
+        troughcolor=[('disabled',BGC)],
+        relief=[('disabled',GROOVE)])
+    style.configure('Hov.Vertical.TScrollbar',background=ACT_BGC,troughcolor=BGC)
+    style.map('Hov.Vertical.TScrollbar',
+        background=[('disabled',FLD_BGC)])
 
 class Page(Frame):
     def __init__(self,root):
         Frame.__init__(self,root)
+        self.confirmbtn = None
     def style(self):
         self.config(bg=BGC)
     def _postinit(self):
@@ -645,6 +671,9 @@ class Page(Frame):
         self.reload()
     def reload(self):
         switch(type(self))
+    def confirm(self):
+        if self.confirmbtn:
+            self.confirmbtn.invoke()
 class InfoPage(Page):
     def __init__(self, root):
         Page.__init__(self,root)
@@ -698,9 +727,9 @@ class SheetsPage(Page):
         style_btn(_btn)
         _btn.pack(anchor=W)
         wid = 10
-        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
-        style_btn(_btn)
-        _btn.pack()
+        self.confirmbtn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
+        style_btn(self.confirmbtn)
+        self.confirmbtn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_sheet(cursheet))
         style_btn(_btn)
         _btn.pack()
@@ -761,9 +790,9 @@ class EditShPage(Page):
         style_btn(_btn)
         _btn.pack(anchor=W)
         wid = 10
-        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
-        style_btn(_btn)
-        _btn.pack()
+        self.confirmbtn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
+        style_btn(self.confirmbtn)
+        self.confirmbtn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_sec(cursec))
         style_btn(_btn)
         _btn.pack()
@@ -827,9 +856,9 @@ class EditSecPage(Page):
         style_btn(_btn)
         _btn.pack(anchor=W)
         wid = 10
-        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
-        style_btn(_btn)
-        _btn.pack()
+        self.confirmbtn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
+        style_btn(self.confirmbtn)
+        self.confirmbtn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_entry(curentry))
         style_btn(_btn)
         _btn.pack()
@@ -939,9 +968,9 @@ class EditEntryPage(Page):
         _btn=Button(fr, width=wid, text='↓', command=lambda:jumpshift(1))
         style_btn(_btn)
         _btn.pack(anchor=W)
-        _btn=Button(fr, width=wid, text='Edit', command=lambda:edit_jump(curjump))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
+        self.confirmbtn=Button(fr, width=wid, text='Edit', command=lambda:edit_jump(curjump))
+        style_btn(self.confirmbtn)
+        self.confirmbtn.pack(anchor=W)
         _btn=Button(fr, width=wid, text='Add', command=lambda:add_jump(curjump))
         style_btn(_btn)
         _btn.pack(anchor=W)
@@ -965,10 +994,10 @@ class EditEntryPage(Page):
         self.radio_link.trace('w', lambda *_:self.update_radlink())
         self.rad_link_cursh = ttk.Radiobutton(linkfr, text='Current Sheet', value=2, variable=self.radio_link)
         style_rad(self.rad_link_cursh)
-        self.rad_link_cursh.pack()
+        self.rad_link_cursh.pack(fill=BOTH)
         self.rad_link_sname = ttk.Radiobutton(linkfr, text='Sheet Name', value=0, variable=self.radio_link)
         style_rad(self.rad_link_sname)
-        self.rad_link_sname.pack()
+        self.rad_link_sname.pack(fill=BOTH)
         
         wid = 13
         self.field_linkname = StringVar(self, linkname)
@@ -979,7 +1008,7 @@ class EditEntryPage(Page):
         
         self.rad_link_snum = ttk.Radiobutton(linkfr, text='Sheet Number', value=1, variable=self.radio_link)
         style_rad(self.rad_link_snum)
-        self.rad_link_snum.pack()
+        self.rad_link_snum.pack(fill=BOTH)
         self.field_linknum = StringVar(self, str(linknum))
         self.field_linknum.trace('w', lambda *_:self.update_radlink())
         self.cb_link_shnum = ttk.Combobox(linkfr, width=wid, textvariable=self.field_linknum, state='readonly', values=sheetnums)
@@ -1117,7 +1146,10 @@ class navigation:
         self.goto_unsafe(self.history[self.index])
     # Switch the active GUI window to the specified location
     def goto_unsafe(self,node:tuple):
-        global cursheet, cursec, curentry
+        global cursheet, cursec, curentry, file_loaded
+        if not file_loaded:
+            switch(InfoPage)
+            return False
         match len(node):
             case 1:
                 cursheet = node[0]
@@ -1150,6 +1182,8 @@ class navigation:
         return self.goto_unsafe(node)
     # Goto a new node, adding it to the history, and clearing any forward-history
     def visit_new(self,node:tuple):
+        if not self.validate(node):
+            return False
         if not self.goto(node):
             return False
         if not self.atEnd():
@@ -1173,6 +1207,8 @@ class navigation:
     def up(self):
         if len(self.history[self.index]) > 1:
             self.visit_new(self.history[self.index][:-1])
+        else:
+            quitter(False)
     
     # Updates the state of the object
     def update(self,ind=-1):
@@ -1180,14 +1216,42 @@ class navigation:
         if ind > -1:
             self.index = ind
         # Disable back/fwd buttons?
-        disable_widg(mainframe.backbtn, self.atStart())
-        disable_widg(mainframe.fwdbtn, self.atEnd())
-    
+        try: #They might not exist?
+            disable_widg(mainframe.backbtn, self.atStart())
+        except AttributeError:
+            pass
+        try:
+            disable_widg(mainframe.fwdbtn, self.atEnd())
+        except AttributeError:
+            pass
     def atEnd(self)->bool:
         return self.index == len(self.history)-1
     def atStart(self)->bool:
         return self.index == 0
-
+    def validate(self,node:tuple)->bool:
+        global json_obj
+        l = len(node)-1
+        if l < 1:
+            return True
+        
+        sh = node[0]
+        if sh < -1 or sh >= len(json_obj['sheets']):
+            return False
+        
+        if l < 2:
+            return True
+        sheet = _getsheet(sh)
+        sec = node[1]
+        if sec < 0 or sec >= len(sheet['tabs']):
+            return False
+        
+        if l < 3:
+            return True
+        entr = node[2]
+        if entr < 0 or entr >= len(sheet['tabs'][sec]['lines']):
+            return False
+        
+        return True
 navi = navigation()
 
 def get_entry():
@@ -1270,19 +1334,20 @@ def settheme(dark):
     theme(config['theme'])
 _darktheme.trace('w', lambda *_:settheme(_darktheme.get()))
 gen_menubar()
-root.config(menu=menubar)
 root.protocol("WM_DELETE_WINDOW", quitter)
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
-
+root.bind('<Escape>', lambda _: navi.up())
+root.bind('<Return>', lambda _: mainframe.confirm())
 
 mainframe = None
+theme(config['theme'])
 if file_loaded:
     navi.clear()
 else:
     switch(InfoPage)
-
 theme(config['theme'])
+
 
 #Start autosave timer
 schedule_autosave()
