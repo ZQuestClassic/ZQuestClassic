@@ -20,9 +20,9 @@ parser.add_argument('--cli','-c', dest='edit', action='store_false', help='Just 
 args = parser.parse_args()
 
 lib.debug_out = args.db
-if args.edit:
-    #If opened by double-click, starts in system32??
-    os.chdir(os.path.dirname(__file__))
+#If opened by double-click, starts in system32??
+#Just ensure this is always the webdocs folder...
+os.chdir(os.path.dirname(__file__))
 
 cur_directory = ''
 cur_file = ''
