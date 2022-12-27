@@ -736,7 +736,7 @@ def style_cb(cb):
 def style_rad(rad):
     pass#rad.config(bg=BGC,activebackground=BGC,fg=FGC,fieldbackground=FLD_BGC,disabledforeground=DIS_FGC)
 def style_entry(ent):
-    ent.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC)
+    ent.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC, insertbackground=FLD_FGC)
 def style_btn(btn):
     btn.config(bd=2,bg=BGC,fg=FGC,disabledforeground=DIS_FGC,activebackground=BGC,activeforeground=FGC)
     btn.bind('<Enter>',func=lambda _: btn.config(background=BGC if btn['state']==DISABLED else ACT_BGC,activebackground=BGC if btn['state']==DISABLED else ACT_BGC))
@@ -1215,7 +1215,7 @@ def txt_insert(txt,getter):
     txt.insert(INSERT, s)
     txt.tag_add('sel',f'1.0+{first}c',f'1.0+{last}c')
     txt.mark_set(INSERT,f'1.0+{last}c')
-    
+
 
 def jump_rclick(evt):
     sel = sel_clicked_lb(evt) #Selects the clicked entry
@@ -1227,7 +1227,10 @@ class EditEntryPage(Page):
         Page.__init__(self,root)
         sheet = _getsheet(cursheet)
         entry = refr_entry if refr_entry else sheet['tabs'][cursec]['lines'][curentry]
-        
+        try:
+            self.todo = entry['todo']
+        except:
+            self.todo = False
         _spl = entry['name'].split(';;',2)
         name = _spl[0].strip()
         jumps = []
@@ -1258,6 +1261,13 @@ class EditEntryPage(Page):
                     self.secnum = int(_[0])
                 except:
                     self.secnum = 0
+        if linkrad == 2: #current sheet
+            linknum = cursheet
+            linkname = sheet['name']
+        elif linkrad == 1: #numbered
+            linkname = _getsheet(linknum)['name']
+        else: #named
+            linknum = get_sheetind_named(linkname)
         
         pageval = '' if is_link else val
         
@@ -1484,7 +1494,7 @@ class EditEntryPage(Page):
                 sheet = '-1'
                 if sheet_ty == 0: #Name
                     sheet = self.field_linkname.get()
-                elif ty == 1:
+                elif sheet_ty == 1:
                     sheet = self.field_linknum.get()
                 sec = int(self.field_secnum.get())
                 if str(sec) not in self.cb_link_secnum['values']:
@@ -1653,7 +1663,10 @@ def get_entry():
     
     outval = mainframe.get_val()
     
-    return {'name':outname,'val':outval}
+    ret = {'name':outname,'val':outval}
+    if mainframe.todo:
+        ret['todo'] = True
+    return ret
 def entry_changed():
     global cursheet, cursec, curentry
     return _getsheet(cursheet)['tabs'][cursec]['lines'][curentry] != get_entry()
