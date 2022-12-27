@@ -10,11 +10,15 @@
 #include <sstream>
 #include <algorithm>
 #include <ctime>
+#include <filesystem>
+#include <chrono>
 #include <fmt/format.h>
 
 #define XXH_STATIC_LINKING_ONLY
 #define XXH_IMPLEMENTATION
 #include <xxhash.h>
+
+using namespace std::chrono_literals;
 
 struct ReplayStep;
 
@@ -60,6 +64,8 @@ static bool prev_gfx_hash_was_same;
 static int prev_debug_x;
 static int prev_debug_y;
 static bool gfx_got_mismatch;
+static std::chrono::time_point<std::chrono::system_clock> time_started;
+static std::chrono::time_point<std::chrono::system_clock> time_result_saved;
 
 struct FramebufHistoryEntry
 {
@@ -751,6 +757,37 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     out.close();
 }
 
+static void save_result(bool stopped = false)
+{
+	time_result_saved = std::chrono::system_clock::now();
+	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
+	std::time_t time_started_c = std::chrono::system_clock::to_time_t(time_started);
+	int fps = (double)frame_count / elapsed.count() * 1000;
+
+	// Write to temporary file and then move it, because run_replay_tests.py will constantly
+	// be reading the .zplay.result.txt.
+	std::string tmp_filename = std::tmpnam(nullptr);
+	std::ofstream out(tmp_filename, std::ios::binary);
+
+	out << fmt::format("replay: {}", filename) << '\n';
+	out << fmt::format("mode: {}", replay_mode_to_string(mode)) << '\n';
+	out << fmt::format("time: {}", strtok(ctime(&time_started_c), "\n")) << '\n';
+	out << fmt::format("duration: {}", elapsed.count()) << '\n';
+	out << fmt::format("zc_version: {}", getReleaseTag()) << '\n';
+	if (replay_is_replaying())
+		out << fmt::format("replay_log_frames: {}", replay_log.back()->frame) << '\n';
+	if (replay_is_recording())
+		out << fmt::format("record_log_frames: {}", record_log.back()->frame) << '\n';
+	out << fmt::format("frame: {}", frame_count) << '\n';
+	out << fmt::format("fps: {}", fps) << '\n';
+	out << fmt::format("stopped: {}", stopped) << '\n';
+	if (stopped || has_assert_failed)
+		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+	out.close();
+
+	std::filesystem::rename(tmp_filename, filename + ".result.txt");
+}
+
 static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexpected)
 {
 	std::string img_filename = fmt::format("{}.{}", filename, frame);
@@ -915,6 +952,7 @@ void replay_start(ReplayMode mode_, std::string filename_, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
     ASSERT(mode_ != ReplayMode::Off && mode_ != ReplayMode::ManualTakeover);
+    time_started = std::chrono::system_clock::now();
     mode = mode_;
     debug = false;
     sync_rng = false;
@@ -1083,6 +1121,11 @@ void replay_poll()
     }
 
     maybe_take_snapshot();
+
+    if (frame_count == 0)
+        save_result();
+    if (std::chrono::system_clock::now() - time_result_saved > 1s)
+        save_result();
 
     if (mode == ReplayMode::Assert)
     {
@@ -1276,7 +1319,12 @@ void replay_stop()
         {
             fprintf(stderr, "replay_log size is %zu but record_log size is %zu\n", replay_log.size(), record_log.size());
         }
+    }
 
+    save_result(true);
+
+    if (mode == ReplayMode::Assert)
+    {
         if (exit_when_done)
             exit(has_assert_failed ? ASSERT_FAILED_EXIT_CODE : 0);
         else if (has_assert_failed)

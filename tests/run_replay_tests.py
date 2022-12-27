@@ -41,11 +41,98 @@ import difflib
 import pathlib
 import platform
 import functools
-from types import SimpleNamespace
+import logging
+from dataclasses import dataclass
 from time import sleep
 from timeit import default_timer as timer
-from typing import List
+from typing import List, Dict, Any
 from common import infer_gha_platform
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+
+def parse_result_txt_file(path: pathlib.Path):
+    if platform.system() == 'Windows':
+        # Windows has a tough time reading this file, sometimes resulting in a permission
+        # denied error. I suspect MSVC's `std::filesystem::rename` is not atomic like it
+        # claims to be. Or maybe the problem lies with Python's mtime.
+        for _ in range(0, 10):
+            try:
+                lines = path.read_text().splitlines()
+                if _ != 0:
+                    logging.warning('finally was able to read it')
+                break
+            except:
+                logging.exception(f'could not read {path}')
+                sleep(0.1)
+    else:
+        lines = path.read_text().splitlines()
+
+    result = {}
+    for line in lines:
+        key, value = line.split(': ', 1)
+        if value == 'true':
+            value = True
+        elif value == 'false':
+            value = False
+        elif value.isdigit():
+            value = int(value)
+        else:
+            try:
+                value = float(value)
+            except:
+                pass
+
+        result[key] = value
+
+    return result
+
+
+class ReplayResultUpdatedHandler(FileSystemEventHandler):
+
+    def __init__(self, path, callback=None):
+        self.path = path
+        self.callback = callback
+        self.result = None
+        self.is_result_stale = False
+        self.observer = Observer()
+        self.observer.schedule(self, path.parent, recursive=False)
+        self.observer.start()
+
+    def update_result(self):
+        if self.is_result_stale:
+            self.parse_result()
+
+    def parse_result(self):
+        if self.result and self.result['stopped']:
+            return
+
+        if not self.path.exists():
+            return
+
+        self.result = parse_result_txt_file(self.path)
+        self.is_result_stale = False
+        if self.result['stopped']:
+            self.observer.stop()
+
+    def on_modified(self, event):
+        if not event.is_directory and event.src_path.endswith(self.path.name):
+            self.modified_time = timer()
+            self.is_result_stale = True
+            if self.callback:
+                self.callback(self)
+
+    def on_created(self, event):
+        # To avoid reading the file in a bad state, replay.cpp first writes to a temporary file
+        # and then moves it atomically. This can present as a file creation event, although it depends
+        # on the implementation of the std fs library / possibly on the type of filesystem in use.
+        if not event.is_directory and event.src_path.endswith(self.path.name):
+            self.modified_time = timer()
+            self.is_result_stale = True
+            if self.callback:
+                self.callback(self)
+
+
 
 ASSERT_FAILED_EXIT_CODE = 120
 
@@ -99,6 +186,22 @@ if args.ci and '_' in args.ci:
 else:
     runs_on, arch = infer_gha_platform()
 
+
+@dataclass
+class ReplayTestResult:
+    success: bool = False
+    failing_frame: int = None
+    log: Dict[str, str] = None
+    diff: str = None
+    fps: int = None
+    duration: float = None
+    zplay_result: Dict[str, Any] = None
+
+
+class ReplayTimeoutException(Exception):
+    pass
+
+
 def group_arg(raw_values: List[str]):
     default_arg = None
     arg_by_replay = {}
@@ -128,6 +231,31 @@ def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
     if is_int and result != None:
         return int(result)
     return result
+
+
+last_progress_str = None
+
+def print_progress_str(s: str):
+    global last_progress_str
+
+    if not sys.stdout.isatty():
+        return
+
+    clear_progress_str()
+    print(s, end='', flush=True)
+    last_progress_str = s
+
+
+def clear_progress_str():
+    global last_progress_str
+
+    if not sys.stdout.isatty():
+        return
+    if last_progress_str:
+        print('\b' * len(last_progress_str), end='', flush=True)
+        print(' ' * len(last_progress_str), end='', flush=True)
+        print('\b' * len(last_progress_str), end='', flush=True)
+        last_progress_str = None
 
 
 is_windows_ci = args.ci and 'windows' in args.ci
@@ -164,14 +292,14 @@ if args.shard:
         raise ValueError('invalid --shard')
 
 
-def time_format(seconds: int):
-    if seconds is not None:
-        seconds = int(seconds)
+def time_format(ms: int):
+    if ms is not None:
+        seconds = int(ms / 1000)
         m = seconds // 60
         s = seconds % 3600 % 60
         if m > 0:
             return '{}m {:02d}s'.format(m, s)
-        elif s > 0:
+        elif s >= 0:
             return '{}s'.format(s)
     return '-'
 
@@ -245,6 +373,43 @@ def get_shards(tests, n):
     return result
 
 
+def parse_result_txt_file(path: pathlib.Path):
+    if platform.system() == 'Windows':
+        # Windows has a tough time reading this file, sometimes resulting in a permission
+        # denied error. I suspect MSVC's `std::filesystem::rename` is not atomic like it
+        # claims to be. Or maybe the problem lies with Python's mtime.
+        for _ in range(0, 10):
+            try:
+                lines = path.read_text().splitlines()
+                if _ != 0:
+                    logging.warning('finally was able to read it')
+                break
+            except:
+                logging.exception(f'could not read {path}')
+                sleep(0.1)
+    else:
+        lines = path.read_text().splitlines()
+
+    result = {}
+    for line in lines:
+        key, value = line.split(': ', 1)
+        if value == 'true':
+            value = True
+        elif value == 'false':
+            value = False
+        elif value.isdigit():
+            value = int(value)
+        else:
+            try:
+                value = float(value)
+            except:
+                pass
+
+        result[key] = value
+
+    return result
+
+
 def save_test_results():
     json_result = {
         'runs_on': runs_on,
@@ -261,6 +426,7 @@ def save_test_results():
             'name': replay.name,
             'success': test_result.success,
             'failing_frame': test_result.failing_frame,
+            'zplay_result': test_result.zplay_result,
         })
 
     test_results_path.write_text(json.dumps(json_result, indent=2))
@@ -291,8 +457,13 @@ if args.print_shards:
     exit(0)
 
 
-def run_replay_test(replay_file):
-    result = SimpleNamespace(success=False, failing_frame=None, log=None, diff=None, fps=None)
+def run_replay_test(replay_file: pathlib.Path):
+    result = ReplayTestResult()
+    result.log = {
+        'stdout': None,
+        'stderr': None,
+        'allegro': None,
+    }
 
     # TODO: fix this common-ish error, and whatever else is causing random failures.
     # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
@@ -320,9 +491,7 @@ def run_replay_test(replay_file):
     frames_limited = replay_data['frames_limited']
 
     # Cap the duration in CI, in case it somehow never ends.
-    timeout = None
-    if args.ci:
-        timeout = max(60 + replay_data['estimated_duration'] * 3, 60 * 5)
+    do_timeout = True if args.ci else False
 
     if frame_arg is not None and frame_arg < frames:
         frames_limited = frame_arg
@@ -330,68 +499,101 @@ def run_replay_test(replay_file):
         print(f"(-frame {frames_limited}, only doing {100 * frames_limited / frames:.2f}%) ", end='', flush=True)
         exe_args.extend(['-frame', str(frames_limited)])
 
-    def fill_log(process_result, allegro_log_path):
-        allegro_log = None
-        if allegro_log_path and allegro_log_path.exists():
-            allegro_log = allegro_log_path.read_text()
-
-        if isinstance(process_result.stdout, str):
-            stdout = process_result.stdout
-        elif process_result.stdout:
-            stdout = process_result.stdout.decode('utf-8')
-        else:
-            stdout = None
-
-        if isinstance(process_result.stderr, str):
-            stderr = process_result.stderr
-        elif process_result.stderr:
-            stderr = process_result.stderr.decode('utf-8')
-        else:
-            stderr = None
-
-        return {
-            'stdout': stdout,
-            'stderr': stderr,
-            'allegro': allegro_log,
-        }
-
     allegro_log_path = None
-    max_attempts = 5
-    for i in range(0, max_attempts):
+    max_start_attempts = 5
+    for i in range(0, max_start_attempts):
         allegro_log_path = pathlib.Path(args.build_folder) / f'{replay_file.stem}.{i}.log'
-        start = timer()
         try:
-            process_result = subprocess.run(exe_args,
-                                            cwd=args.build_folder,
-                                            env={
-                                                **os.environ,
-                                                'ALLEGRO_LEGACY_TRACE': allegro_log_path.name
-                                            },
-                                            stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE,
-                                            text=True,
-                                            timeout=timeout)
-            result.log = fill_log(process_result, allegro_log_path)
-            if 'Replay is active' in process_result.stdout:
-                # TODO: we only know the fps if the replay succeeded.
-                if process_result.returncode == 0:
-                    result.fps = int(frames_limited / (timer() - start))
-                    result.success = True
-                elif process_result.returncode != ASSERT_FAILED_EXIT_CODE:
-                    print(f'process failed with unexpected code {process_result.returncode}')
-                break
-            if i != max_attempts - 1:
-                print('did not start correctly, trying again...')
-                sleep(1)
-        except subprocess.TimeoutExpired as e:
-            result.log = fill_log(e, allegro_log_path)
-            result.log['stdout'] = f'{e}\n\n{result.log["stdout"]}'
+            result_path = replay_file.with_suffix('.zplay.result.txt')
+            if result_path.exists():
+                result_path.unlink()
+
+            def on_result_updated(w: ReplayResultUpdatedHandler):
+                if not sys.stdout.isatty():
+                    return
+
+                w.update_result()
+                if not w:
+                    return
+
+                last_frame = w.result['frame']
+                num_frames = w.result['replay_log_frames']
+                duration = w.result['duration']
+                fps = w.result['fps']
+                print_progress_str(
+                    f'{time_format(duration)}, {fps} fps, {last_frame} / {num_frames}')
+
+            watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
+
+            start = timer()
+            p = subprocess.Popen(exe_args,
+                                 cwd=args.build_folder,
+                                 env={
+                                     **os.environ,
+                                     'ALLEGRO_LEGACY_TRACE': allegro_log_path.name
+                                 },
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE,
+                                 encoding='utf-8',
+                                 text=True)
+
+            # Wait for .zplay.result.txt creation.
+            while True:
+                if do_timeout and timer() - start > 60:
+                    raise ReplayTimeoutException('timed out waiting for replay to start')
+
+                watcher.update_result()
+                if watcher.result:
+                    break
+
+                sleep(0.1)
+
+            # .zplay.result.txt should be updated every second.
+            while watcher.observer.is_alive():
+                if do_timeout and timer() - watcher.modified_time > 30:
+                    watcher.observer.stop()
+                    watcher.update_result()
+                    result.zplay_result = watcher.result
+                    last_frame = watcher.result['frame']
+                    raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
+
+                if p.poll() != None:
+                    watcher.observer.stop()
+                    break
+
+                sleep(0.1)
+
+            watcher.observer.stop()
+            watcher.update_result()
+            result.zplay_result = watcher.result
+            result.duration = watcher.result['duration']
+            result.fps = int(watcher.result['fps'])
+
+            result.log['stdout'], result.log['stderr'] = p.communicate()
+
+            result.success = result.zplay_result['stopped'] and result.zplay_result['success']
+            if p.returncode != 0 and p.returncode != ASSERT_FAILED_EXIT_CODE:
+                print(f'replay failed with unexpected code {p.returncode}')
+            break
+        except ReplayTimeoutException:
+            # Will try again.
+            # TODO: stdout, stderr is lost here.
+            p.terminate()
+            p.wait()
+        except KeyboardInterrupt:
+            exit(1)
+        except:
+            logging.exception('replay failed')
+            result.log['stdout'], result.log['stderr'] = p.communicate()
             return result
         finally:
+            p.wait()
             if allegro_log_path:
+                result.log['allegro'] = allegro_log_path.read_text()
                 allegro_log_path.unlink(missing_ok=True)
+            clear_progress_str()
 
-    if not args.update and process_result.returncode == 120:
+    if not args.update and p.returncode == ASSERT_FAILED_EXIT_CODE:
         roundtrip_path = pathlib.Path(f'{replay_file}.roundtrip')
         if os.path.exists(roundtrip_path):
             with open(replay_file) as f:
@@ -408,8 +610,9 @@ def run_replay_test(replay_file):
         else:
             result.diff = 'missing roundtrip file, cannnot diff'
 
-    if not result.success:
-        failing_frame_match = re.match(r'.*expected:\n.*?(\d+)', result.log['stderr'], re.DOTALL)
+    if not result.success and result.log['stderr']:
+        failing_frame_match = re.match(
+            r'.*expected:\n.*?(\d+)', result.log['stderr'], re.DOTALL)
         if failing_frame_match:
             result.failing_frame = int(failing_frame_match.group(1))
         else:
@@ -418,9 +621,9 @@ def run_replay_test(replay_file):
     return result
 
 
-test_results = {}
+test_results: Dict[pathlib.Path, ReplayTestResult] = {}
 for test in tests:
-    test_results[test] = SimpleNamespace(success=None, failing_frame=None, log=None, diff=None, fps=None)
+    test_results[test] = ReplayTestResult()
 
 
 print(f'running {len(tests)} replays\n')
@@ -434,12 +637,10 @@ for i in range(args.retries + 1):
 
     for test in [t for t in tests if not test_results[t].success]:
         print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
-        start = timer()
         result = test_results[test] = run_replay_test(test)
-        duration = timer() - start
         status_emoji = '✅' if result.success else '❌'
 
-        message = f'{status_emoji} {time_format(duration)}'
+        message = f'{status_emoji} {time_format(result.duration)}'
         if result.fps != None:
             message += f', {result.fps} fps'
         print(message)
@@ -454,6 +655,8 @@ for i in range(args.retries + 1):
             print(result.log['stderr'])
             print('\ndiff:')
             print(result.diff)
+            print('\nzplay result:')
+            print(result.zplay_result)
 
 
 save_test_results()

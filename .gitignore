@@ -136,6 +136,7 @@ resources/docs/ZScript_Docs.html
 # Other
 .tmp
 *.zplay.roundtrip
+*.zplay.result.txt
 *.zplay.*.bmp
 *.zplay.*.png
 test_results.json

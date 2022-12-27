@@ -55,7 +55,9 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
-      - run: pip install requests PyGithub
+      - run: pip install requests PyGithub watchdog
+      - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: sudo pip install requests PyGithub watchdog
 
       - uses: actions/download-artifact@v3
         with:
@@ -100,7 +102,7 @@ jobs:
       - name: Run replay tests
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: >
-          xvfb-run --auto-servernum sudo python3 -Xutf8 tests/run_replay_tests.py 
+          xvfb-run --auto-servernum sudo python -Xutf8 tests/run_replay_tests.py 
           --build_folder ${{ env.BUILD_FOLDER }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
@@ -109,7 +111,7 @@ jobs:
       - name: Run replay tests
         if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
         run: >
-          python3 -Xutf8 tests/run_replay_tests.py 
+          python -Xutf8 tests/run_replay_tests.py 
           --build_folder ${{ env.BUILD_FOLDER }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
@@ -123,4 +125,5 @@ jobs:
           path: |
             ${{ github.workspace }}/tests/replays/test_results.json
             ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
+            ${{ github.workspace }}/tests/replays/*.zplay.result.txt
             ${{ github.workspace }}/tests/replays/*.png
