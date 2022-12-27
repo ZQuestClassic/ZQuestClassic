@@ -131,6 +131,7 @@ output/_auto/zelda-classic-mac
 output/_auto/buildpack_zq
 output/_auto/buildpack_lazy
 output/_auto/*.zip
+resources/docs/ZScript_Docs.html
 
 # Other
 .tmp
