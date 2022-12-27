@@ -74,10 +74,18 @@ def update_file(fname):
     if not cur_file:
         args.inputfile = ''
     if root:
-        _title = 'ZS Docs Editor'
-        if cur_file:
-            _title += f' ({cur_file})'
-        root.title(_title)
+        update_root_title()
+def update_root_title():
+    global cur_file, needs_save, needs_edit_save
+    _title = 'ZS Docs Editor'
+    if cur_file:
+        _saved = '*' if needs_save else ''
+        _saved2 = '**' if needs_edit_save else _saved
+        if navi.depth() == 4: #Entry editor
+            _title += f' \'{cur_file}\' {_saved2}'
+        else:
+            _title += f' \'{cur_file}\' {_saved}'
+    root.title(_title)
 
 if os.path.exists(args.inputfile):
     if not args.edit:
@@ -114,6 +122,7 @@ def read_config():
         config = {}
     _def_config('autosave_minutes',5)
     _def_config('theme',0)
+    _def_config('default_follow_link',1)
     theme(config['theme'])
 def write_config():
     global config
@@ -135,44 +144,49 @@ def loader_json():
     if len(fname) < 1:
         return
     cursheet = 0
+    file_loaded = False
+    mark_saved()
+    mark_autosaved()
+    update_root_title()
     try:
         json_obj = lib.loadjson(fname)
         update_file(trim_auto(fname))
-        needs_save = False
-        needs_autosave = False
         file_loaded = True
         navi.clear()
     except Exception as e:
         json_obj = None
         update_file('')
-        needs_save = False
-        needs_autosave = False
-        file_loaded = False
         switch(InfoPage)
         popError(f"Error '{str(e)}' occurred loading input file:\n{fname}")
 def saver_json():
-    global json_obj, needs_save
+    global json_obj, needs_save, file_loaded
+    if not needs_save or not file_loaded:
+        return
     if len(args.inputfile) < 1:
         saver_json_as()
         return
     try:
         lib.savejson(args.inputfile,json_obj)
-        needs_save = False
+        mark_saved()
     except:
         popError(f'Error occurred saving file:\n{args.inputfile}')
 def saver_json_as():
-    global json_obj, root, needs_save, cur_directory, cur_file
+    global json_obj, root, file_loaded, needs_save, cur_directory, cur_file
+    if not file_loaded:
+        return
     fname = filedialog.asksaveasfilename(parent = root, title = 'Save As', initialdir = cur_directory, initialfile = cur_file, filetypes = (('Json','*.json'),),defaultextension = '.json')
     if len(fname) < 1:
         return
     try:
         lib.savejson(fname,json_obj)
         update_file(trim_auto(fname))
-        needs_save = False
+        mark_saved()
     except:
         popError(f'Error occurred saving file:\n{fname}')
 def saver_html():
-    global json_obj, root
+    global json_obj, root, file_loaded
+    if not file_loaded:
+        return
     _dir = os.path.dirname(args.outputfile)
     fname = os.path.basename(args.outputfile)
     fname = filedialog.asksaveasfilename(parent = root, title = 'Export HTML', initialdir = _dir, initialfile = fname, filetypes = (('HTML','*.html'),),defaultextension = '.html')
@@ -246,7 +260,7 @@ def update_autosave(i=1):
     elif i >= config['autosave_minutes']:
         fname = add_auto(args.inputfile)
         lib.savejson(fname,json_obj)
-        needs_autosave = False
+        mark_autosaved()
         #Reset the autosave timer
         schedule_autosave()
     else:
@@ -254,13 +268,28 @@ def update_autosave(i=1):
         schedule_autosave(i+1)
 def mark_edited():
     global needs_save, needs_autosave
-    needs_save = True
     needs_autosave = True
+    if needs_save:
+        return
+    needs_save = True
+    update_root_title()
+def mark_saved():
+    global needs_save
+    if not needs_save:
+        return
+    update_root_title()
+    needs_save = False
+def mark_autosaved():
+    global needs_autosave
+    if not needs_autosave:
+        return
+    needs_autosave = False
 def local_edited(val:bool=True):
     global needs_edit_save, mainframe
     if needs_edit_save == val:
         return
     needs_edit_save = val
+    update_root_title()
     if isinstance(mainframe, EditEntryPage):
         for b in mainframe.save_btns:
             disable_widg(b,not val)
@@ -325,7 +354,7 @@ def add_sec(ind):
     sheet['tabs'] = sheet['tabs'][:ind+1] + [{'name':name,'lines':[]}] + sheet['tabs'][ind+1:]
     _setsheet(cursheet,sheet)
     mark_edited()
-    mainframe.reload_sec(ind+1)
+    mainframe.reload_sections(ind+1)
 def del_sec(ind):
     global json_obj, cursheet
     if not del_conf():
@@ -349,7 +378,7 @@ def ren_sec(ind):
     mark_edited()
     sheet['tabs'][ind]['name'] = name
     _setsheet(cursheet,sheet)
-    mainframe.reload_sec(ind)
+    mainframe.reload_sections(ind)
 
 def edit_entry(ind):
     global cursheet, cursec
@@ -412,6 +441,8 @@ def link_entry(ind):
     val = get_entry_link(ind)
     if val:
         navi.visit_new(val+(0,))
+        return True
+    return False
 
 def edit_jump(ind):
     global mainframe
@@ -543,14 +574,42 @@ def get_secnums(sheetind):
         sheetind = cursheet
     return tuple(x for x in range(len(json_obj['sheets'][sheetind]['tabs'])))
 ## Info
+def info_program():
+    messagebox.showinfo('Info','''Working files are saved in '.json' format. Saving to HTML exports a preview of the docs with your changes, but does not actually save your changes.
+
+Keybinds:
+F1 - Display this help message
+Enter - Confirm a page.
+Esc - Exit up, to the containing page. If in the root page, attempts to quit the program (with confirmation)
+Alt+Left Arrow - Same effect as clicking the <- button
+Alt+Right Arrow - Same effect as clicking the -> button
+Ctrl+S - Same effect as 'File->Save'. Note that this will save the json, but NOT current entry changes.
+Ctrl+L or Ctrl+O - Same effect as 'File->Load'
+''')
 def info_sheets():
-    pass
+    messagebox.showinfo('Info','''Double-clicked sheets will be edited.
+Pressing 'Enter' has the same effect as double-clicking the current selection.
+Sheet names are used to link to sections in sheets.
+The top sheet cannot be re-ordered, it contains the root of the document as its' first entry.''')
 def info_editsheet():
-    pass
+    messagebox.showinfo('Info','''Double-clicked sections will be edited.
+Pressing 'Enter' has the same effect as double-clicking the current selection.
+Section names are not displayed in the html, and have no meaning except in Named_Data (where they are used for search priority)''')
 def info_editsec():
-    pass
+    messagebox.showinfo('Info','''Entries named exactly '--' will be hidden from the list.
+The first Page type Entry will be displayed by default for the section, even if named '--'.
+Making a '--' first entry can work if there are no other pages to display a body alongside a section full of links.
+
+If the Option 'Default Follow Links' is on and a double-clicked entry is a Link, it will follow to the section editor for the linked section.
+Otherwise, a double-clicked entry is edited.
+Pressing 'Enter' has the same effect as double-clicking the current selection.''')
 def info_editentry():
-    pass
+    messagebox.showinfo('Info','''Entry Types:
+Empty- An empty entry placeholder.
+Link- A link to another section.
+Page- An html page to display content.
+
+If an entry has no jumps, it will use its' name, split at '/' characters, as jumps.''')
 ## Pages
 def switch(pageclass):
     global root, mainframe, curpage
@@ -574,8 +633,8 @@ def pack_scrollable_widg(widg):
     scroll.bind('<Leave>',lambda _: hover_scroll(scroll,False))
     widg.config(yscrollcommand = scroll.set)
     scroll.config(command = widg.yview)
-    widg.pack(side='left', fill=BOTH)
-    scroll.pack(side='left', fill=BOTH)
+    widg.pack(side='left', fill=X, expand=True)
+    scroll.pack(side='left', fill=Y)
     
 def pack_scrollable_listbox(listbox):
     pack_scrollable_widg(listbox)
@@ -658,7 +717,8 @@ def stylize():
     style.configure('Hov.TCombobox',background=ACT_BGC,bordercolor=BGC)
     style.map('Hov.TCombobox',
         fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)],
-        background=[('disabled',BGC),('readonly',ACT_BGC)])
+        background=[('disabled',BGC),('readonly',ACT_BGC)],
+        selectbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)])
     
     # ttk.Radiobutton
     style.configure('TRadiobutton',padding=1,background=BGC,foreground=FGC,indicatorcolor=FLD_BGC)
@@ -679,7 +739,6 @@ def stylize():
 class Page(Frame):
     def __init__(self,root):
         Frame.__init__(self,root)
-        self.confirmbtn = None
     def style(self):
         self.config(bg=BGC)
     def _postinit(self):
@@ -696,8 +755,7 @@ class Page(Frame):
     def reload(self):
         switch(type(self))
     def confirm(self):
-        if self.confirmbtn:
-            self.confirmbtn.invoke()
+        pass
 class InfoPage(Page):
     def __init__(self, root):
         Page.__init__(self,root)
@@ -732,11 +790,17 @@ class SheetsPage(Page):
         lb=Label(f1, text = 'Sheets')
         style_label(lb)
         lb.pack()
-        sheetlistbox = Listbox(f1)
+        f2 = Frame(f1, bg=BGC)
+        sheetlistbox = Listbox(f2)
         style_lb(sheetlistbox)
         sheetlistbox.bind('<<ListboxSelect>>', sel_sheet)
+        sheetlistbox.bind('<Double-1>', lambda _:self.confirm())
         self.reload_sheets(cursheet)
         pack_scrollable_listbox(sheetlistbox)
+        sheetlistbox.focus_set()
+        f2.pack(fill=X,expand=True)
+        f_space = Frame(f1, bg=BGC, width=250)
+        f_space.pack()
         f1.pack(side='left')
         
         f2 = Frame(self, bg=BGC)
@@ -751,9 +815,9 @@ class SheetsPage(Page):
         style_btn(_btn)
         _btn.pack(anchor=W)
         wid = 10
-        self.confirmbtn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
-        style_btn(self.confirmbtn)
-        self.confirmbtn.pack()
+        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
+        style_btn(_btn)
+        _btn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_sheet(cursheet))
         style_btn(_btn)
         _btn.pack()
@@ -775,6 +839,9 @@ class SheetsPage(Page):
         pass
     def reload(self):
         navi.refresh()
+    def confirm(self):
+        global cursheet
+        edit_sheet(cursheet)
 
 class EditShPage(Page):
     def __init__(self, root):
@@ -795,11 +862,17 @@ class EditShPage(Page):
         lb=Label(f1, text = f"Sections in '{sheet['name']}'")
         style_label(lb)
         lb.pack()
-        seclistbox = Listbox(f1)
+        f2 = Frame(f1, bg=BGC)
+        seclistbox = Listbox(f2)
         style_lb(seclistbox)
         seclistbox.bind('<<ListboxSelect>>', sel_sec)
+        seclistbox.bind('<Double-1>', lambda _:self.confirm())
         self.reload_sections(cursec)
         pack_scrollable_listbox(seclistbox)
+        seclistbox.focus_set()
+        f2.pack(fill=X,expand=True)
+        f_space = Frame(f1, bg=BGC, width=250)
+        f_space.pack()
         f1.pack(side='left')
         
         f2 = Frame(self, bg=BGC)
@@ -814,9 +887,9 @@ class EditShPage(Page):
         style_btn(_btn)
         _btn.pack(anchor=W)
         wid = 10
-        self.confirmbtn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
-        style_btn(self.confirmbtn)
-        self.confirmbtn.pack()
+        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
+        style_btn(_btn)
+        _btn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_sec(cursec))
         style_btn(_btn)
         _btn.pack()
@@ -839,6 +912,9 @@ class EditShPage(Page):
         pass
     def reload(self):
         navi.refresh()
+    def confirm(self):
+        global cursec
+        edit_sec(cursec)
 
 class EditSecPage(Page):
     def __init__(self, root):
@@ -862,10 +938,16 @@ class EditSecPage(Page):
         lb=Label(f1, text = f"Entries in '{shname}->{secname}'")
         style_label(lb)
         lb.pack()
-        entrylistbox = Listbox(f1)
+        f2 = Frame(f1, bg=BGC)
+        entrylistbox = Listbox(f2)
         style_lb(entrylistbox)
         entrylistbox.bind('<<ListboxSelect>>', sel_entry)
+        entrylistbox.bind('<Double-1>', lambda _:self.confirm())
         pack_scrollable_listbox(entrylistbox)
+        entrylistbox.focus_set()
+        f2.pack(fill=X,expand=True)
+        f_space = Frame(f1, bg=BGC, width=250)
+        f_space.pack()
         f1.pack(side='left')
         
         f2 = Frame(self, bg=BGC)
@@ -880,9 +962,9 @@ class EditSecPage(Page):
         style_btn(_btn)
         _btn.pack(anchor=W)
         wid = 10
-        self.confirmbtn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
-        style_btn(self.confirmbtn)
-        self.confirmbtn.pack()
+        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
+        style_btn(_btn)
+        _btn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_entry(curentry))
         style_btn(_btn)
         _btn.pack()
@@ -905,12 +987,18 @@ class EditSecPage(Page):
         curentry = selind
         self.reload_entry_link()
         sheet = _getsheet(cursheet)
-        _load_list(entrylistbox, selind, sheet['tabs'][cursec]['lines'], lambda ln: lib.get_line_display(ln))
+        _load_list(entrylistbox, selind, sheet['tabs'][cursec]['lines'], lambda ln: lib.get_line_display(ln,typeprefix=True))
     def postinit(self):
         self.reload_entry(curentry)
     def reload(self):
         navi.refresh()
-
+    def confirm(self):
+        global curentry
+        if config['default_follow_link']:
+            if link_entry(curentry):
+                return #Followed a valid link
+        #No link, or link default off
+        edit_entry(curentry)
 def get_ttip(hld=None):
     return ('[[',hld if hld else 'TITLE','|TIP TEXT]]')
 def get_named(hld=None):
@@ -1025,24 +1113,29 @@ class EditEntryPage(Page):
         self.list_jumps = jumps
         
         fr = Frame(col1, bg=BGC)
-        jumplistbox = Listbox(fr)
+        f2 = Frame(fr, bg=BGC, width=20)
+        jumplistbox = Listbox(f2)
         style_lb(jumplistbox)
         self.reload_jump(curjump)
         jumplistbox.bind('<<ListboxSelect>>', sel_jump)
         pack_scrollable_listbox(jumplistbox)
+        f2.pack(fill=X,expand=True)
         fr.grid(row=1,column=1,sticky=NW)
         
         fr = Frame(col1, bg=BGC)
         wid = 6
+        _btn=Button(fr, width=wid, text = '?', command=info_editentry)
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         _btn=Button(fr, width=wid, text='↑', command=lambda:jumpshift(-1))
         style_btn(_btn)
         _btn.pack(anchor=W)
         _btn=Button(fr, width=wid, text='↓', command=lambda:jumpshift(1))
         style_btn(_btn)
         _btn.pack(anchor=W)
-        self.confirmbtn=Button(fr, width=wid, text='Edit', command=lambda:edit_jump(curjump))
-        style_btn(self.confirmbtn)
-        self.confirmbtn.pack(anchor=W)
+        _btn=Button(fr, width=wid, text='Edit', command=lambda:edit_jump(curjump))
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         _btn=Button(fr, width=wid, text='Add', command=lambda:add_jump(curjump))
         style_btn(_btn)
         _btn.pack(anchor=W)
@@ -1102,7 +1195,7 @@ class EditEntryPage(Page):
         style_label(lb)
         lb.grid(row=0,column=4,sticky=SW)
         fr = Frame(col1, bg=BGC)
-        self.txt_body = Text(fr, height=20, width=75, bd=5)
+        self.txt_body = Text(fr, bd=5, height=20, width=6)
         style_txt(self.txt_body)
         self.ignore_modify = 2
         self.txt_body.insert(END,pageval)
@@ -1170,7 +1263,12 @@ class EditEntryPage(Page):
             disable_widg(w,ty!='Link')
         if ty == 'Link':
             self.update_radlink()
-        disable_widg(self.txt_body, ty != 'Page')
+        if ty == 'Page':
+            self.txt_body.config(height=20, width=75)
+            disable_widg(self.txt_body, False)
+        else:
+            disable_widg(self.txt_body, True)
+        
         for b in self.insert_btns:
             disable_widg(b, ty != 'Page')
         local_edited()
@@ -1229,7 +1327,7 @@ class EditEntryPage(Page):
     def postinit(self):
         global needs_edit_save, refr_entry
         self.update_type()
-        needs_edit_save = True
+        needs_edit_save = True #Ensure it counts as 'changed' for local_edited()
         refr_entry = None
         local_edited(False)
     def reload(self):
@@ -1360,6 +1458,11 @@ class navigation:
             return False
         
         return True
+    def depth(self)->int:
+        global file_loaded
+        if not file_loaded:
+            return 0
+        return len(self.history[self.index])
 navi = navigation()
 
 def get_entry():
@@ -1386,9 +1489,7 @@ def save_entry():
     entry = get_entry()
     sheet = _getsheet(cursheet)
     if entry == sheet['tabs'][cursec]['lines'][curentry]:
-        print('equal')
         return
-    print('changed')
     sheet['tabs'][cursec]['lines'][curentry] = entry
     _setsheet(cursheet, sheet)
     local_edited(False)
@@ -1422,11 +1523,14 @@ def gen_menubar():
     filemenu.add_command(label = 'Save As', command = saver_json_as)
     filemenu.add_command(label = 'Save HTML', command = saver_html)
     filemenu.add_separator()
+    filemenu.add_command(label = 'Help [F1]', command = info_program)
+    filemenu.add_separator()
     filemenu.add_command(label = 'Exit', command = quitter)
     menubar.add_cascade(label='File', menu=filemenu)
     optmenu = Menu(menubar, tearoff=0, postcommand=onoption)
     optmenu.add_command(label = 'Autosave', command = opt_autosave)
     optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
+    optmenu.add_checkbutton(label='Default Follow Links', onvalue=1, offvalue=0, variable=_deflink)
     menubar.add_cascade(label='Options', menu=optmenu)
     root.config(menu=menubar)
 
@@ -1437,16 +1541,27 @@ update_file(args.inputfile) #Update title to include loaded file
 root.geometry('1000x400')
 _darktheme = BooleanVar(root)
 _darktheme.set(config['theme']==1)
-def settheme(dark):
-    config['theme'] = 1 if dark else 0
+def settheme(val):
+    config['theme'] = 1 if val else 0
     theme(config['theme'])
 _darktheme.trace('w', lambda *_:settheme(_darktheme.get()))
+_deflink = BooleanVar(root)
+_deflink.set(config['default_follow_link']==1)
+def setdeflink(val):
+    config['default_follow_link'] = 1 if val else 0
+_deflink.trace('w', lambda *_:setdeflink(_deflink.get()))
 gen_menubar()
 root.protocol("WM_DELETE_WINDOW", quitter)
 root.grid_rowconfigure(0, weight=1)
 root.grid_columnconfigure(0, weight=1)
 root.bind('<Escape>', lambda _: navi.up())
 root.bind('<Return>', lambda _: mainframe.confirm())
+root.bind('<Alt-Left>', lambda _: navi.back())
+root.bind('<Alt-Right>', lambda _: navi.fwd())
+root.bind('<F1>', lambda _: info_program())
+root.bind('<Control-Key-s>', lambda _: saver_json())
+root.bind('<Control-Key-l>', lambda _: loader_json())
+root.bind('<Control-Key-o>', lambda _: loader_json())
 
 mainframe = None
 theme(config['theme'])
