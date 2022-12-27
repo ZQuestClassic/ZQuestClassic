@@ -36,6 +36,7 @@ curentry = 0
 curjump = 0
 root = None
 mainframe = None
+copiedentry = None
 # For refreshing
 refr_entry = None
 #Colors
@@ -106,13 +107,18 @@ else:
         lib.parse_fail(f"Input file '{args.inputfile}' does not exist!")
 
 ## Configs
+def _dict_get(d:dict,s:str,default):
+    try:
+        return d[s]
+    except:
+        if default: #Set the default value
+            d[s] = default
+        return default
+def _dict_del(d:dict,s:str):
+    d.pop(s,None)
 def _def_config(key,defval):
     global config
-    try:
-        return config[key]
-    except:
-        config[key] = defval
-        return defval
+    return _dict_get(config,key,defval)
 def read_config():
     global config
     try:
@@ -122,7 +128,6 @@ def read_config():
         config = {}
     _def_config('autosave_minutes',5)
     _def_config('theme',0)
-    _def_config('default_follow_link',1)
     theme(config['theme'])
 def write_config():
     global config
@@ -277,8 +282,8 @@ def mark_saved():
     global needs_save
     if not needs_save:
         return
-    update_root_title()
     needs_save = False
+    update_root_title()
 def mark_autosaved():
     global needs_autosave
     if not needs_autosave:
@@ -315,9 +320,15 @@ def add_sheet(ind):
         ind = 0
     name = 'New Sheet'
     sheets = json_obj['sheets']
-    json_obj['sheets'] = sheets[:ind+1] + [{'name':name,'tabs':[]}] + sheets[ind+1:]
+    newsheet = [{'name':name,'tabs':[]}]
+    if not len(json_obj['sheets']):
+        newind = 0
+        json_obj['sheets'] = newsheet
+    else:
+        newind = ind+1
+        json_obj['sheets'] = sheets[:newind] + newsheet + sheets[newind:]
     mark_edited()
-    mainframe.reload_sheets(ind+1)
+    mainframe.reload_sheets(newind)
 def del_sheet(ind):
     global json_obj
     if not del_conf():
@@ -351,10 +362,16 @@ def add_sec(ind):
         ind = 0
     name = 'New Section'
     sheet = _getsheet(cursheet)
-    sheet['tabs'] = sheet['tabs'][:ind+1] + [{'name':name,'lines':[]}] + sheet['tabs'][ind+1:]
+    newsec = [{'name':name,'lines':[]}]
+    if not len(sheet['tabs']):
+        newind = 0
+        sheet['tabs'] = newsec
+    else:
+        newind = ind+1
+        sheet['tabs'] = sheet['tabs'][:newind] + newsec + sheet['tabs'][newind:]
     _setsheet(cursheet,sheet)
     mark_edited()
-    mainframe.reload_sections(ind+1)
+    mainframe.reload_sections(newind)
 def del_sec(ind):
     global json_obj, cursheet
     if not del_conf():
@@ -392,11 +409,17 @@ def add_entry(ind):
     name = 'New Entry'
     sheet = _getsheet(cursheet)
     lines = sheet['tabs'][cursec]['lines']
-    lines = lines[:ind+1] + [{'name':name,'val':'<todo>New Entry - fill content</todo>'}] + lines[ind+1:]
+    newl = [{'name':name,'val':''}]
+    if not len(lines):
+        newind = 0
+        lines = newl
+    else:
+        newind = ind+1
+        lines = lines[:newind] + newl + lines[newind:]
     sheet['tabs'][cursec]['lines'] = lines
     _setsheet(cursheet,sheet)
     mark_edited()
-    mainframe.reload_entry(ind+1)
+    mainframe.reload_entry(newind)
 def del_entry(ind):
     global json_obj, cursheet, cursec
     if not del_conf():
@@ -415,27 +438,30 @@ def get_entry_link(ind):
     if ind < 0:
         return
     sheet = _getsheet(cursheet)
-    entry = sheet['tabs'][cursec]['lines'][ind]
-    val = entry['val']
-    if not val or val[0] != '$':
-        return
-    _s,*_ = val[1:].split('$')
-    sheetnum = -1
     try:
-        sheetnum = int(_s)
-        if sheetnum == -1:
-            sheetnum = cursheet
-    except:
-        sheetnum = get_sheetind_named(_s)
-    if sheetnum < 0:
-        return
-    secnum = 0
-    if _:
+        entry = sheet['tabs'][cursec]['lines'][ind]
+        val = entry['val']
+        if not val or val[0] != '$':
+            return
+        _s,*_ = val[1:].split('$')
+        sheetnum = -1
         try:
-            secnum = int(_[0])
+            sheetnum = int(_s)
+            if sheetnum == -1:
+                sheetnum = cursheet
         except:
-            secnum = 0
-    return (sheetnum,secnum)
+            sheetnum = get_sheetind_named(_s)
+        if sheetnum < 0:
+            return
+        secnum = 0
+        if _:
+            try:
+                secnum = int(_[0])
+            except:
+                secnum = 0
+        return (sheetnum,secnum)
+    except:
+        return
 def link_entry(ind):
     global cursheet, cursec
     val = get_entry_link(ind)
@@ -573,6 +599,15 @@ def get_secnums(sheetind):
     if sheetind < 0:
         sheetind = cursheet
     return tuple(x for x in range(len(json_obj['sheets'][sheetind]['tabs'])))
+
+def toggle_todo(d:dict):
+    global mainframe
+    if _dict_get(d,'todo',False):
+        _dict_del(d,'todo')
+    else:
+        d['todo'] = True
+    mainframe.reload_lists()
+    mark_edited()
 ## Info
 def info_program():
     messagebox.showinfo('Info','''Working files are saved in '.json' format. Saving to HTML exports a preview of the docs with your changes, but does not actually save your changes.
@@ -585,6 +620,11 @@ Alt+Left Arrow - Same effect as clicking the <- button
 Alt+Right Arrow - Same effect as clicking the -> button
 Ctrl+S - Same effect as 'File->Save'. Note that this will save the json, but NOT current entry changes.
 Ctrl+L or Ctrl+O - Same effect as 'File->Load'
+
+Listboxes:
+Double-Click acts the same as Enter, confirming the page. In most cases, this will 'Edit' the clicked object.
+In the Section editor, double-clicking a [LINK] entry will follow the link instead.
+Right-Click will 'Edit' any entry in the entry list, or will 'Rename' things in other lists.
 ''')
 def info_sheets():
     messagebox.showinfo('Info','''Double-clicked sheets will be edited.
@@ -640,14 +680,6 @@ def pack_scrollable_listbox(listbox):
     pack_scrollable_widg(listbox)
 def pack_scrollable_text(txt):
     pack_scrollable_widg(txt)
-
-    # scroll = ttk.Scrollbar(listbox.master, cursor='double_arrow')
-    # scroll.bind('<Enter>',lambda _: hover_scroll(scroll,True))
-    # scroll.bind('<Leave>',lambda _: hover_scroll(scroll,False))
-    # listbox.config(yscrollcommand = scroll.set)
-    # scroll.config(command = listbox.yview)
-    # listbox.pack(side='left', fill=BOTH)
-    # scroll.pack(side='left', fill=BOTH)
 def _set_field(field,text):
     field.delete(0,END)
     field.insert(0,text)
@@ -655,9 +687,26 @@ def _load_list(listbox, selind, _list, loadfunc):
     listbox.delete(0,END)
     for ind,val in enumerate(_list):
         listbox.insert(ind,loadfunc(val))
+    if selind < 0:
+        selind = 0
+    if selind >= len(_list):
+        selind = len(_list)-1
     listbox.selection_set(selind)
+    listbox.activate(selind)
     listbox.see(selind)
 
+def sel_clicked_lb(evt):
+    sel = evt.widget.nearest(evt.y)
+    
+    _, yoffset, _, height = evt.widget.bbox(sel)
+    if evt.y > height + yoffset + 5:
+        return -1 #not on widget
+    
+    evt.widget.selection_clear(0,END)
+    evt.widget.selection_set(sel)
+    evt.widget.activate(sel)
+    evt.widget.event_generate('<<ListboxSelect>>',when='tail')
+    return sel
 def disable_widg(widg,dis):
     if dis:
         widg.config(state=DISABLED)
@@ -672,8 +721,14 @@ def disable_widg(widg,dis):
             widg.config(state='readonly')
 def style_label(label):
     label.config(bg=BGC, fg=FGC, disabledforeground=DIS_FGC)
-def style_lb(lb):
+def style_lb(lb,rclick_cb=None):
     lb.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC)
+    lb.bind('<B1-Motion>', sel_clicked_lb)
+    if not rclick_cb:
+        rclick_cb = sel_clicked_lb
+    lb.bind('<B3-Motion>', sel_clicked_lb)
+    lb.bind('<Button-3>', sel_clicked_lb)
+    lb.bind('<ButtonRelease-3>', rclick_cb)
 def style_cb(cb):
     cb.bind('<Enter>',func=lambda _: cb.config(style='Hov.TCombobox'))
     cb.bind('<Leave>',func=lambda _: cb.config(style='TCombobox'))
@@ -756,6 +811,13 @@ class Page(Frame):
         switch(type(self))
     def confirm(self):
         pass
+    def reload_lists(self):
+        pass
+    def copy(self):
+        pass
+    def paste(self):
+        pass
+
 class InfoPage(Page):
     def __init__(self, root):
         Page.__init__(self,root)
@@ -769,6 +831,15 @@ class InfoPage(Page):
     def postinit(self):
         pass
 
+def sheet_disp_name(sheet)->str:
+    name = sheet['name']
+    if _dict_get(sheet,'todo',False):
+        name = f'[TODO] {name}'
+    return name
+def sh_rclick(evt):
+    sel = sel_clicked_lb(evt) #Selects the clicked entry
+    if sel > -1: #could be off of elements
+        ren_sheet(sel)
 class SheetsPage(Page):
     def __init__(self, root):
         global json_obj, sheetlistbox, cursheet
@@ -792,7 +863,7 @@ class SheetsPage(Page):
         lb.pack()
         f2 = Frame(f1, bg=BGC)
         sheetlistbox = Listbox(f2)
-        style_lb(sheetlistbox)
+        style_lb(sheetlistbox, sh_rclick)
         sheetlistbox.bind('<<ListboxSelect>>', sel_sheet)
         sheetlistbox.bind('<Double-1>', lambda _:self.confirm())
         self.reload_sheets(cursheet)
@@ -818,6 +889,9 @@ class SheetsPage(Page):
         _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
         style_btn(_btn)
         _btn.pack()
+        _btn=Button(f2, width=wid, text='Mark Todo', command=lambda:toggle_todo(json_obj['sheets'][cursheet]))
+        style_btn(_btn)
+        _btn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_sheet(cursheet))
         style_btn(_btn)
         _btn.pack()
@@ -834,7 +908,7 @@ class SheetsPage(Page):
     def reload_sheets(self,selind):
         global json_obj, cursheet, sheetlistbox
         cursheet = selind
-        _load_list(sheetlistbox, selind, json_obj['sheets'], lambda sheet: sheet['name'])
+        _load_list(sheetlistbox, selind, json_obj['sheets'], sheet_disp_name)
     def postinit(self):
         pass
     def reload(self):
@@ -842,7 +916,19 @@ class SheetsPage(Page):
     def confirm(self):
         global cursheet
         edit_sheet(cursheet)
+    def reload_lists(self):
+        global cursheet
+        self.reload_sheets(cursheet)
 
+def sec_disp_name(sec)->str:
+    name = sec['name']
+    if _dict_get(sec,'todo',False):
+        name = f'[TODO] {name}'
+    return name
+def sec_rclick(evt):
+    sel = sel_clicked_lb(evt) #Selects the clicked entry
+    if sel > -1: #could be off of elements
+        ren_sec(sel)
 class EditShPage(Page):
     def __init__(self, root):
         global json_obj, seclistbox, cursheet, cursec
@@ -864,7 +950,7 @@ class EditShPage(Page):
         lb.pack()
         f2 = Frame(f1, bg=BGC)
         seclistbox = Listbox(f2)
-        style_lb(seclistbox)
+        style_lb(seclistbox, sec_rclick)
         seclistbox.bind('<<ListboxSelect>>', sel_sec)
         seclistbox.bind('<Double-1>', lambda _:self.confirm())
         self.reload_sections(cursec)
@@ -890,6 +976,9 @@ class EditShPage(Page):
         _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
         style_btn(_btn)
         _btn.pack()
+        _btn=Button(f2, width=wid, text='Mark Todo', command=lambda:toggle_todo(json_obj['sheets'][cursheet]['tabs'][cursec]))
+        style_btn(_btn)
+        _btn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_sec(cursec))
         style_btn(_btn)
         _btn.pack()
@@ -907,7 +996,7 @@ class EditShPage(Page):
         global cursheet, cursec, seclistbox
         cursec = selind
         sheet = _getsheet(cursheet)
-        _load_list(seclistbox, selind, sheet['tabs'], lambda sec: sec['name'])
+        _load_list(seclistbox, selind, sheet['tabs'], sec_disp_name)
     def postinit(self):
         pass
     def reload(self):
@@ -915,10 +1004,68 @@ class EditShPage(Page):
     def confirm(self):
         global cursec
         edit_sec(cursec)
+    def reload_lists(self):
+        global cursec
+        self.reload_sections(cursec)
 
+def entry_disp_name(entry)->str:
+    name = lib.get_line_display(entry)
+    pref = ''
+    if _dict_get(entry,'todo',False):
+        pref = '[TODO]'
+    try:
+        if entry['val'][0] == '$':
+            pref += '[LINK]'
+        else:
+            pref += '[PAGE]'
+    except:
+        pref += '[NULL]'
+    if pref:
+        return f'{pref} {name}'
+    return name
+def nil_entry(entry)->bool:
+    try:
+        if entry['val'] != '':
+            return False
+        if entry['name'] != '' and entry['name'] != 'New Entry':
+            return False
+        if _dict_get(entry,'todo',False):
+            return False
+    except:
+        pass
+    return True
+def copy_entry():
+    global cursheet, cursec, curentry, copiedentry
+    try:
+        copiedentry = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+    except:
+        copiedentry = None
+    try:
+        disable_widg(mainframe.pastebtn,not copiedentry)
+    except:
+        pass
+def paste_entry():
+    global cursheet, cursec, curentry, copiedentry
+    if not copiedentry:
+        return
+    e = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+    if e == copiedentry: #Identical object
+        return
+    if not nil_entry(e):
+        name = entry_disp_name(e)
+        cname = entry_disp_name(copiedentry)
+        if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The entry '{name}' will be replaced with the copied entry '{cname}'."):
+            return
+    json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = copiedentry
+    mainframe.reload_lists()
+    mark_edited()
+def entry_rclick(evt):
+    sel = sel_clicked_lb(evt) #Selects the clicked entry
+    if sel > -1: #could be off of elements
+        edit_entry(sel)
 class EditSecPage(Page):
     def __init__(self, root):
-        global json_obj, entrylistbox, cursheet, cursec, curentry
+        global json_obj, entrylistbox, cursheet, cursec, curentry, copiedentry
         Page.__init__(self,root)
         sheet = _getsheet(cursheet)
         
@@ -940,7 +1087,7 @@ class EditSecPage(Page):
         lb.pack()
         f2 = Frame(f1, bg=BGC)
         entrylistbox = Listbox(f2)
-        style_lb(entrylistbox)
+        style_lb(entrylistbox, entry_rclick)
         entrylistbox.bind('<<ListboxSelect>>', sel_entry)
         entrylistbox.bind('<Double-1>', lambda _:self.confirm())
         pack_scrollable_listbox(entrylistbox)
@@ -950,7 +1097,8 @@ class EditSecPage(Page):
         f_space.pack()
         f1.pack(side='left')
         
-        f2 = Frame(self, bg=BGC)
+        gr = Frame(self, bg=BGC)
+        f2 = Frame(gr, bg=BGC)
         _btn=Button(f2, text = '?', command=info_editsec)
         style_btn(_btn)
         _btn.pack(anchor=W)
@@ -961,8 +1109,13 @@ class EditSecPage(Page):
         _btn=Button(f2, width=wid, text='↓', command=lambda:entryshift(1))
         style_btn(_btn)
         _btn.pack(anchor=W)
+        f2.grid(row=0,column=0,sticky=SW)
+        f2 = Frame(gr, bg=BGC)
         wid = 10
         _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Mark Todo', command=lambda:toggle_todo(json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]))
         style_btn(_btn)
         _btn.pack()
         _btn=Button(f2, width=wid, text='Add', command=lambda:add_entry(curentry))
@@ -971,13 +1124,23 @@ class EditSecPage(Page):
         _btn=Button(f2, width=wid, text='Delete', command=lambda:del_entry(curentry))
         style_btn(_btn)
         _btn.pack()
+        f2.grid(row=1,column=0,sticky=NW)
+        f2 = Frame(gr, bg=BGC)
+        _btn=Button(f2, width=wid, text='Copy', command=lambda:copy_entry())
+        style_btn(_btn)
+        _btn.pack()
+        self.pastebtn=Button(f2, width=wid, text='Paste', command=lambda:paste_entry())
+        style_btn(self.pastebtn)
+        disable_widg(self.pastebtn,not copiedentry)
+        self.pastebtn.pack()
         self.linkbtn = Button(f2, width=wid, text='Follow Link', command=lambda:link_entry(curentry))
         style_btn(self.linkbtn)
         self.linkbtn.pack()
         _btn=Button(f2, width=wid, text='Exit (Up)', command=lambda:navi.up())
         style_btn(_btn)
         _btn.pack()
-        f2.pack(side='left')
+        f2.grid(row=1,column=1,sticky=NW)
+        gr.pack(side='left')
     def reload_entry_link(self):
         global curentry
         link = get_entry_link(curentry)
@@ -987,18 +1150,25 @@ class EditSecPage(Page):
         curentry = selind
         self.reload_entry_link()
         sheet = _getsheet(cursheet)
-        _load_list(entrylistbox, selind, sheet['tabs'][cursec]['lines'], lambda ln: lib.get_line_display(ln,typeprefix=True))
+        _load_list(entrylistbox, selind, sheet['tabs'][cursec]['lines'], entry_disp_name)
     def postinit(self):
         self.reload_entry(curentry)
     def reload(self):
         navi.refresh()
     def confirm(self):
         global curentry
-        if config['default_follow_link']:
-            if link_entry(curentry):
-                return #Followed a valid link
-        #No link, or link default off
+        if link_entry(curentry):
+            return #Followed a valid link
+        #No link
         edit_entry(curentry)
+    def reload_lists(self):
+        global curentry
+        self.reload_entry(curentry)
+    def copy(self):
+        copy_entry()
+    def paste(self):
+        paste_entry()
+
 def get_ttip(hld=None):
     return ('[[',hld if hld else 'TITLE','|TIP TEXT]]')
 def get_named(hld=None):
@@ -1047,6 +1217,10 @@ def txt_insert(txt,getter):
     txt.mark_set(INSERT,f'1.0+{last}c')
     
 
+def jump_rclick(evt):
+    sel = sel_clicked_lb(evt) #Selects the clicked entry
+    if sel > -1: #could be off of elements
+        edit_jump(sel)
 class EditEntryPage(Page):
     def __init__(self, root):
         global json_obj, cursheet, cursec, curentry, jumplistbox, curjump, refr_entry
@@ -1115,7 +1289,7 @@ class EditEntryPage(Page):
         fr = Frame(col1, bg=BGC)
         f2 = Frame(fr, bg=BGC, width=20)
         jumplistbox = Listbox(f2)
-        style_lb(jumplistbox)
+        style_lb(jumplistbox, jump_rclick)
         self.reload_jump(curjump)
         jumplistbox.bind('<<ListboxSelect>>', sel_jump)
         pack_scrollable_listbox(jumplistbox)
@@ -1332,7 +1506,9 @@ class EditEntryPage(Page):
         local_edited(False)
     def reload(self):
         navi.refresh()
-
+    def reload_lists(self):
+        global curjump
+        self.reload_jump(curjump)
 class navigation:
     def __init__(self):
         self.history = [(0,)]
@@ -1489,7 +1665,9 @@ def save_entry():
     entry = get_entry()
     sheet = _getsheet(cursheet)
     if entry == sheet['tabs'][cursec]['lines'][curentry]:
+        #Entry did not change
         return
+    #Entry changed
     sheet['tabs'][cursec]['lines'][curentry] = entry
     _setsheet(cursheet, sheet)
     local_edited(False)
@@ -1530,7 +1708,6 @@ def gen_menubar():
     optmenu = Menu(menubar, tearoff=0, postcommand=onoption)
     optmenu.add_command(label = 'Autosave', command = opt_autosave)
     optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
-    optmenu.add_checkbutton(label='Default Follow Links', onvalue=1, offvalue=0, variable=_deflink)
     menubar.add_cascade(label='Options', menu=optmenu)
     root.config(menu=menubar)
 
@@ -1545,11 +1722,6 @@ def settheme(val):
     config['theme'] = 1 if val else 0
     theme(config['theme'])
 _darktheme.trace('w', lambda *_:settheme(_darktheme.get()))
-_deflink = BooleanVar(root)
-_deflink.set(config['default_follow_link']==1)
-def setdeflink(val):
-    config['default_follow_link'] = 1 if val else 0
-_deflink.trace('w', lambda *_:setdeflink(_deflink.get()))
 gen_menubar()
 root.protocol("WM_DELETE_WINDOW", quitter)
 root.grid_rowconfigure(0, weight=1)
@@ -1562,6 +1734,8 @@ root.bind('<F1>', lambda _: info_program())
 root.bind('<Control-Key-s>', lambda _: saver_json())
 root.bind('<Control-Key-l>', lambda _: loader_json())
 root.bind('<Control-Key-o>', lambda _: loader_json())
+root.bind('<Control-Key-c>', lambda _: mainframe.copy())
+root.bind('<Control-Key-v>', lambda _: mainframe.paste())
 
 mainframe = None
 theme(config['theme'])

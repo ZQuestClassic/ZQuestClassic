@@ -95,22 +95,13 @@ def findBodyTab(name):
                 if s.strip() == _tname:
                     return (line['linktab'],line['body'])
     return (-1,-1)
-def get_line_display(line,typeprefix=False) -> str:
+def get_line_display(line) -> str:
     name = line['name']
-    pref = ''
-    if typeprefix:
-        try:
-            if line['val'][0] == '$':
-                pref = '[LINK] '
-            else:
-                pref = '[PAGE] '
-        except:
-            pref = '[NULL] '
     try:
         s = trimtags(name).split(';;',2)[0].strip()
-        return pref + (s if s else '[NONAME]')
+        return s if s else '[NONAME]'
     except:
-        return pref+'[??]'
+        return '[??]'
 def broken_link(id):
     global broken_links
     if id not in broken_links:
