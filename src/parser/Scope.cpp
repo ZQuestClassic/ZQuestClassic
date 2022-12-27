@@ -1696,6 +1696,7 @@ bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 				return false;
 			}
 			classData_[*name] = ucv;
+			ucv->setOrder(classData_.size());
 			if (!ZScript::isGlobal(datum))
 			{
 				stackOffsets_[&datum] = stackDepth_++;
@@ -1711,13 +1712,20 @@ bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 void ClassScope::parse_ucv()
 {
 	std::vector<UserClassVar*> ucvs = getSeconds<UserClassVar*>(classData_);
-	int32_t ind = 0;
+	
+	//Sort them in proper order, or access will be wrong
+	std::map<int32_t,UserClassVar*> ucv_map;
 	for(auto ucv : ucvs)
+		ucv_map[ucv->getOrder()] = ucv;
+	ucvs = getSeconds<UserClassVar*>(ucv_map);
+	
+	int32_t ind = 0;
+	for(auto ucv : ucvs) //Variables first
 	{
 		if(ucv->type.isArray()) continue;
 		ucv->setIndex(ind++);
 	}
-	for(auto ucv : ucvs)
+	for(auto ucv : ucvs) //Then arrays
 	{
 		if(!ucv->type.isArray()) continue;
 		ucv->setIndex(ind++);
