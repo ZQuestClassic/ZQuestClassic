@@ -620,27 +620,30 @@ Right-Click will 'Edit' any entry in the entry list, or will 'Rename' things in 
 def info_sheets():
     messagebox.showinfo('Info','''Double-clicked sheets will be edited.
 Pressing 'Enter' has the same effect as double-clicking the current selection.
+Right-clicked sheets will be renamed.
 Sheet names are used to link to sections in sheets.
 The top sheet cannot be re-ordered, it contains the root of the document as its' first entry.''')
 def info_editsheet():
     messagebox.showinfo('Info','''Double-clicked sections will be edited.
 Pressing 'Enter' has the same effect as double-clicking the current selection.
+Right-clicked sections will be renamed.
 Section names are not displayed in the html, and have no meaning except in Named_Data (where they are used for search priority)''')
 def info_editsec():
     messagebox.showinfo('Info','''Entries named exactly '--' will be hidden from the list.
 The first Page type Entry will be displayed by default for the section, even if named '--'.
 Making a '--' first entry can work if there are no other pages to display a body alongside a section full of links.
 
-If the Option 'Default Follow Links' is on and a double-clicked entry is a Link, it will follow to the section editor for the linked section.
-Otherwise, a double-clicked entry is edited.
-Pressing 'Enter' has the same effect as double-clicking the current selection.''')
+A double-clicked entry is edited unless it is a link, in which case it is followed.
+Pressing 'Enter' has the same effect as double-clicking the current selection.
+Right-clicking an entry will edit it, even if it is a link.''')
 def info_editentry():
     messagebox.showinfo('Info','''Entry Types:
 Empty- An empty entry placeholder.
 Link- A link to another section.
 Page- An html page to display content.
 
-If an entry has no jumps, it will use its' name, split at '/' characters, as jumps.''')
+If an entry has no jumps, it will use its' name, split at '/' characters, as jumps.
+Double-clicking or right-clicking a jump will edit it.''')
 ## Pages
 def switch(pageclass):
     global root, mainframe, curpage
@@ -1296,6 +1299,7 @@ class EditEntryPage(Page):
         style_lb(jumplistbox, jump_rclick)
         self.reload_jump(curjump)
         jumplistbox.bind('<<ListboxSelect>>', sel_jump)
+        jumplistbox.bind('<Double-1>', jump_rclick)
         pack_scrollable_listbox(jumplistbox)
         f2.pack(fill=X,expand=True)
         fr.grid(row=1,column=1,sticky=NW)
@@ -1419,16 +1423,12 @@ class EditEntryPage(Page):
         butrow = Frame(self, bg=BGC)
         wid = 5
         btns = []
+        wid = 12    
         self.backbtn = Button(butrow, width=wid, text='←', command=lambda:navi.back())
         btns.append(self.backbtn)
-        self.fwdbtn = Button(butrow, width=wid, text='→', command=lambda:navi.fwd())
-        btns.append(self.fwdbtn)
-        wid = 12    
         b=Button(butrow, width=wid, text='Save', command=save_entry)
         btns.append(b)
         b=Button(butrow, width=wid, text='Reset', command=reset_entry)
-        btns.append(b)
-        b=Button(butrow, width=wid, text='Exit (up)', command=exit_entry)
         btns.append(b)
         for btn in btns:
             style_btn(btn)
@@ -1591,9 +1591,12 @@ class navigation:
             self.update(self.index + 1)
     # Go up a menu
     def up(self):
-        if len(self.history[self.index]) > 1:
+        l = len(self.history[self.index])
+        if l == 4: #Nowhere to go but back one... don't clutter history
+            self.back() 
+        elif l > 1: #Go up one page
             self.visit_new(self.history[self.index][:-1])
-        else:
+        else: #Attempt to exit, but always ask for confirmation
             quitter(False)
     
     # Updates the state of the object
