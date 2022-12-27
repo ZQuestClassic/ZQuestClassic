@@ -3,6 +3,16 @@ from datetime import date
 from datetime import datetime
 import pytz
 
+def _dict_get(d:dict,s:str,default):
+    try:
+        return d[s]
+    except:
+        if default: #Set the default value
+            d[s] = default
+        return default
+def _dict_del(d:dict,s:str):
+    d.pop(s,None)
+
 def loadjson(fname):
     global data_obj, debug_out
     parse_state('Loading Json...')
@@ -1465,6 +1475,14 @@ def generate_output(obj) -> str:
                 else:
                     print(broken_links[ind])
             print()
+    parse_state('Cleaning up...')
+    for sheet in sheets:
+        _dict_del(sheet,'tabind')
+        for tab in sheet['tabs']:
+            for line in tab['lines']:
+                _dict_del(line,'linktab')
+                _dict_del(line,'body')
+    
     return f"""<!DOCTYPE html>
     <html lang="en" dir="ltr">
     <head>

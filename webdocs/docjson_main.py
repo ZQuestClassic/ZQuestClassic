@@ -107,18 +107,9 @@ else:
         lib.parse_fail(f"Input file '{args.inputfile}' does not exist!")
 
 ## Configs
-def _dict_get(d:dict,s:str,default):
-    try:
-        return d[s]
-    except:
-        if default: #Set the default value
-            d[s] = default
-        return default
-def _dict_del(d:dict,s:str):
-    d.pop(s,None)
 def _def_config(key,defval):
     global config
-    return _dict_get(config,key,defval)
+    return lib._dict_get(config,key,defval)
 def read_config():
     global config
     try:
@@ -602,8 +593,8 @@ def get_secnums(sheetind):
 
 def toggle_todo(d:dict):
     global mainframe
-    if _dict_get(d,'todo',False):
-        _dict_del(d,'todo')
+    if lib._dict_get(d,'todo',False):
+        lib._dict_del(d,'todo')
     else:
         d['todo'] = True
     mainframe.reload_lists()
@@ -698,7 +689,10 @@ def _load_list(listbox, selind, _list, loadfunc):
 def sel_clicked_lb(evt):
     sel = evt.widget.nearest(evt.y)
     
-    _, yoffset, _, height = evt.widget.bbox(sel)
+    try:
+        _, yoffset, _, height = evt.widget.bbox(sel)
+    except:
+        return -1 #error
     if evt.y > height + yoffset + 5:
         return -1 #not on widget
     
@@ -833,7 +827,7 @@ class InfoPage(Page):
 
 def sheet_disp_name(sheet)->str:
     name = sheet['name']
-    if _dict_get(sheet,'todo',False):
+    if lib._dict_get(sheet,'todo',False):
         name = f'[TODO] {name}'
     return name
 def sh_rclick(evt):
@@ -922,7 +916,7 @@ class SheetsPage(Page):
 
 def sec_disp_name(sec)->str:
     name = sec['name']
-    if _dict_get(sec,'todo',False):
+    if lib._dict_get(sec,'todo',False):
         name = f'[TODO] {name}'
     return name
 def sec_rclick(evt):
@@ -1011,7 +1005,7 @@ class EditShPage(Page):
 def entry_disp_name(entry)->str:
     name = lib.get_line_display(entry)
     pref = ''
-    if _dict_get(entry,'todo',False):
+    if lib._dict_get(entry,'todo',False):
         pref = '[TODO]'
     try:
         if entry['val'][0] == '$':
@@ -1029,7 +1023,7 @@ def nil_entry(entry)->bool:
             return False
         if entry['name'] != '' and entry['name'] != 'New Entry':
             return False
-        if _dict_get(entry,'todo',False):
+        if lib._dict_get(entry,'todo',False):
             return False
     except:
         pass
