@@ -12612,6 +12612,16 @@ void set_register(const int32_t arg, const int32_t value)
 			if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
 				(tmpscr->ffcs[ri->ffcref].initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
+			
+		case FFCLASTCHANGERX:
+			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerX") == SH::_NoError)
+				ffposx[ri->ffcref]=vbound(zslongToFix(value).getInt(),-32768, 32767);
+			break;
+			
+		case FFCLASTCHANGERY:
+			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerY") == SH::_NoError)
+				ffposy[ri->ffcref]=vbound(zslongToFix(value).getInt(),-32768, 32767);
+			break;
 		
 			
 			
@@ -40310,8 +40320,8 @@ script_variable ZASMVars[]=
 	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
 	{ "ZELDABETATYPE", ZELDABETATYPE, 0, 0 },
 	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
-	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
-	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
+	{ "FFCLASTCHANGERX", FFCLASTCHANGERX, 0, 0 },
+	{ "FFCLASTCHANGERY", FFCLASTCHANGERY, 0, 0 },
 	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
 	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
 	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
