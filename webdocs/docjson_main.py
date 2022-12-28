@@ -1,6 +1,7 @@
 import docjson_lib as lib
 import argparse
 import os, time, json, re, sys
+import webbrowser
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -23,7 +24,6 @@ lib.debug_out = args.db
 if args.edit:
     #If opened by double-click, starts in system32??
     os.chdir(os.path.dirname(__file__))
-
 cur_directory = ''
 cur_file = ''
 file_loaded = False
@@ -131,6 +131,11 @@ def write_config():
 config = None
 read_config()
 
+def openlink(url):
+    webbrowser.open_new(url)
+def openhtml(fpath):
+    url = 'file://'+fpath
+    openlink(url)
 ## GUI functions
 def loader_json():
     global json_obj, root, needs_save, file_loaded, curpage, cursheet, needs_autosave, cur_file, cur_directory
@@ -179,13 +184,16 @@ def saver_json_as():
         mark_saved()
     except:
         popError(f'Error occurred saving file:\n{fname}')
-def saver_html():
+def saver_html(filename=None):
     global json_obj, root, file_loaded
     if not file_loaded:
         return
     _dir = os.path.dirname(args.outputfile)
-    fname = os.path.basename(args.outputfile)
-    fname = filedialog.asksaveasfilename(parent = root, title = 'Export HTML', initialdir = _dir, initialfile = fname, filetypes = (('HTML','*.html'),),defaultextension = '.html')
+    if filename:
+        fname = filename
+    else:
+        fname = os.path.basename(args.outputfile)
+        fname = filedialog.asksaveasfilename(parent = root, title = 'Export HTML', initialdir = _dir, initialfile = fname, filetypes = (('HTML','*.html'),),defaultextension = '.html')
     if len(fname) < 1:
         return
     try:
@@ -193,6 +201,12 @@ def saver_html():
         args.outputfile = fname
     except Exception as e:
         popError(f"Error '{str(e)}'\nOccurred saving file:\n{fname}")
+        return None
+def preview_html():
+    tout = args.outputfile
+    saver_html('_preview.html')
+    openhtml(os.getcwd()+'\\'+'_preview.html')
+    args.outputfile = tout
 def save_warn(_msg):
     global root, needs_save, needs_edit_save, warned
     warned = False
@@ -715,6 +729,9 @@ def disable_widg(widg,dis):
     elif issubclass(type(widg),ttk.Combobox):
         if not dis:
             widg.config(state='readonly')
+def disable_widgs(widglist,dis):
+    for w in widglist:
+        disable_widg(w,dis)
 def style_label(label):
     label.config(bg=BGC, fg=FGC, disabledforeground=DIS_FGC)
 def style_lb(lb,rclick_cb=None):
@@ -761,6 +778,7 @@ def disable_txt(txt,dis):
 
 def stylize():
     global style
+    root.option_clear()
     style.theme_use('clam')
     # ttk.Combobox
     style.configure('TCombobox',fieldbackground=FLD_BGC,background=BGC,foreground=FGC,
@@ -774,11 +792,15 @@ def stylize():
         foreground=[('disabled',DIS_FGC),('readonly',FGC)],
         arrowcolor=[('disabled',DIS_FGC),('readonly',FGC)],
         bordercolor=[('disabled',DIS_FGC)])
-    style.configure('Hov.TCombobox',background=ACT_BGC,lightcolor=ACT_FLD_BGC)
+    style.configure('Hov.TCombobox',background=ACT_BGC, fieldbackground=ACT_FLD_BGC,
+        lightcolor=ACT_FLD_BGC,selectbackground=ACT_FLD_BGC)
     style.map('Hov.TCombobox',
         fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)],
         background=[('disabled',BGC),('readonly',ACT_BGC)],
         selectbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)])
+    root.option_add('*TCombobox*Listbox*Background',FLD_BGC)
+    root.option_add('*TCombobox*Listbox*Foreground',FLD_FGC)
+    # print(style.lookup('Vertical.Scrollbar.thumb','lightcolor'))
     
     # ttk.Radiobutton
     style.configure('TRadiobutton',padding=1,background=BGC,
@@ -1449,6 +1471,8 @@ class EditEntryPage(Page):
         wid = 12    
         self.backbtn = Button(butrow, width=wid, text='←', command=lambda:navi.back())
         btns.append(self.backbtn)
+        self.prevbtn=Button(butrow, width=wid, text='Preview HTML', command=preview_entry)
+        btns.append(self.prevbtn)
         b=Button(butrow, width=wid, text='Save', command=save_entry)
         btns.append(b)
         b=Button(butrow, width=wid, text='Reset', command=reset_entry)
@@ -1460,18 +1484,16 @@ class EditEntryPage(Page):
         butrow.pack()
     def update_type(self):
         ty = self.field_ty.get()
-        for w in [self.labl_secnum,self.cb_link_sname,self.cb_link_shnum,self.cb_link_secnum,self.rad_link_sname,self.rad_link_snum,self.rad_link_cursh]:
-            disable_widg(w,ty!='Link')
-        if ty == 'Link':
+        ispage = ty=='Page'
+        islink = ty=='Link'
+        disable_widgs([self.labl_secnum,self.cb_link_sname,self.cb_link_shnum,
+            self.cb_link_secnum,self.rad_link_sname,self.rad_link_snum,
+            self.rad_link_cursh],not islink)
+        if islink:
             self.update_radlink()
-        if ty == 'Page':
+        disable_widgs(self.insert_btns+[self.txt_body,self.prevbtn],not ispage)
+        if ispage:
             self.txt_body.config(height=20, width=75)
-            disable_widg(self.txt_body, False)
-        else:
-            disable_widg(self.txt_body, True)
-        
-        for b in self.insert_btns:
-            disable_widg(b, ty != 'Page')
         local_edited()
     def update_radlink(self):
         ty = self.radio_link.get()
@@ -1671,13 +1693,17 @@ class navigation:
         return len(self.history[self.index])
 navi = navigation()
 
-def get_entry():
+def get_entry(addjumps=None):
     global mainframe
     
     name = mainframe.field_name.get()
     jumps = mainframe.list_jumps
     
     outname = name
+    if addjumps:
+        if not jumps:
+            jumps = [s.strip() for s in re.split('/',name)]
+        jumps += addjumps
     if jumps:
         outname += ' ;; ' + ' / '.join(jumps)
     
@@ -1705,6 +1731,15 @@ def save_entry():
     _setsheet(cursheet, sheet)
     local_edited(False)
     mark_edited()
+def preview_entry():
+    global cursheet, cursec, curentry
+    old_e = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+    new_e = get_entry(['_PREVIEW_JUMP'])
+    
+    json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = new_e
+    preview_html()
+    json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = old_e
+
 def save_entry_exit():
     save_entry()
     navi.up()

@@ -1167,6 +1167,7 @@ def generate_output(obj) -> str:
 			setTab(obj.t);
 		if(obj.b > -1)
 			setBody(obj.b);
+		return obj.t > -1 || obj.b > -1;
 	}
 	function goodSplit(str,sep,lim)
 	{
@@ -1303,7 +1304,7 @@ def generate_output(obj) -> str:
 	}
 	function jump(str)
 	{
-		dojump(checkjump(str));
+		return dojump(checkjump(str));
 	}
 	function jumpstate(str)
 	{
@@ -1444,7 +1445,9 @@ def generate_output(obj) -> str:
 		setup_searchbar();
 
 		if(urlParams.has('jump'))
-			jump(urlParams.get('jump'))
+			jump(urlParams.get('jump'));
+		else if(jump('_preview_jump'))
+			pushState('_preview_jump');
 	}
 
 	window.onpopstate = function(e)
