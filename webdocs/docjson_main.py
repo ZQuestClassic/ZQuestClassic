@@ -186,6 +186,7 @@ def saver_json_as():
         mark_saved()
     except:
         popError(f'Error occurred saving file:\n{fname}')
+import traceback
 def saver_html(filename=None,skipwarn=False):
     global json_obj, root, file_loaded, htmlwarn_fname
     if not file_loaded:
@@ -204,6 +205,7 @@ def saver_html(filename=None,skipwarn=False):
         return True
     except Exception as e:
         popError(f"Error:\n{str(e)}\nOccurred saving file:\n{fname}")
+        print(traceback.print_exc())
         return False
     finally:
         if not skipwarn and lib.parse_warnings:
@@ -788,7 +790,7 @@ def hover_cb(cb,hv):
     else:
         cb.config(style='TCombobox')
 def style_rad(rad):
-    pass#rad.config(bg=BGC,activebackground=BGC,fg=FGC,fieldbackground=FLD_BGC,disabledforeground=DIS_FGC)
+    pass
 def style_entry(ent):
     ent.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC, insertbackground=FLD_FGC)
 def style_btn(btn):

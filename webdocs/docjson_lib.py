@@ -181,7 +181,7 @@ class tkdata:
         return string[:self.val[0].ind] + repl + string[self.val[-1].ind+len(self.val[-1].val):]
 
 class LeveledObj:
-    def __init__(self,s:str,tok:list,insens:bool):
+    def __init__(self,s:str,tok:list,insens:bool,nowarn:bool=False,htmlwarn:bool=False):
         self.string = s
         self.tokens = tok
         self.insens = insens
@@ -189,6 +189,10 @@ class LeveledObj:
         self.nest_lvl = 0
         self.ind = 0
         self.token_data = []
+        self.nowarn = nowarn
+        self.htmlwarn = htmlwarn
+        self.htmltags = []
+        self.htmlindx = -1
         
     def comparestr(self,s1:str,s2:str):
         if self.insens:
@@ -196,6 +200,9 @@ class LeveledObj:
         return s1 == s2
     
     def replacer(obj, replfunc) -> str:
+        obj.db = cur_body.sheetid == 0 and cur_body.tabid == 0  and cur_body.lineid == 0 and obj.htmlwarn
+        if obj.db:
+            print(obj.string)
         while obj.ind < len(obj.string):
             if len(obj.token_data) < obj.html_lvl+1:
                 obj.token_data.append(tkdata())
@@ -222,10 +229,11 @@ class LeveledObj:
                 obj.ind += len(_strslice)
                 if tkobj.tkind > 0:
                     _dat = tkobj.set(tkobj.tkind-1,obj.ind,'')
-                if _reset and obj.nest_lvl > 0:
-                    # A nested end
-                    obj.nest_lvl -= 1
-                    obj.html_lvl -= 1
+                if _reset:
+                    if obj.nest_lvl > 0:
+                        # A nested end
+                        obj.nest_lvl -= 1
+                        obj.down_level()
                 continue #End 'found the current token'
             elif tkobj.token > 0 and obj.comparestr(_strslice,obj.tokens[0]):
                 #Found a nested start?
@@ -249,30 +257,94 @@ class LeveledObj:
                     if not squote and not dquote and _c == '>':
                         break #Close html tag
                     q += 1
+                if obj.db:
+                    print(tstr)
                 if re.match(_pat_htmltag,tstr):
                     if len(tstr) > 1 and tstr[1] == '/':
-                        #Reset the level that was closed
-                        obj.token_data[obj.html_lvl] = tkdata()
-                        #lower the level
-                        obj.html_lvl -= 1
+                        if obj.db:
+                            print(1,tstr)
+                        obj.down_level()
+                        if not obj.htmltags and obj.htmlwarn:
+                            parse_warn(f'HTML CLOSE WITHOUT OPEN {tstr}')
+                        elif obj.htmltags:
+                            ind = tstr.find(' ')
+                            xstr = tstr[2:-1] if ind < 0 else tstr[2:ind]
+                            xlist = [x[1] for x in obj.htmltags]
+                            if xstr not in xlist:
+                                #Never was opened
+                                if obj.htmlwarn:
+                                    parse_warn(f'HTML CLOSE WITHOUT OPEN {tstr}')
+                            else:
+                                while obj.htmlindx > -1 and xstr != obj.htmltags[obj.htmlindx][1]:
+                                    if obj.htmlwarn:
+                                        parse_warn(f'UNCLOSED HTML TAG {obj.htmltags[obj.htmlindx][0]}')
+                                    obj.htmlindx -= 1
+                                    del obj.htmltags[-1]
+                                if obj.htmlindx > -1: #always true?
+                                    obj.htmlindx -= 1
+                                    del obj.htmltags[-1]
+                        if obj.html_lvl < 0:
+                            obj.html_lvl = 0
                     elif len(tstr) > 2 and tstr[-1] == '/':
+                        if obj.db:
+                            print(2)
                         #self-closing tag
                         pass
                     else:
+                        if obj.db:
+                            print(3)
                         obj.html_lvl += 1
-                    obj.ind += len(tstr)-1
+                        obj.htmlindx += 1
+                        ind = tstr.find(' ')
+                        xstr = tstr[1:-1] if ind < 0 else tstr[1:ind]
+                        tags = (tstr,xstr)
+                        if obj.db:
+                            print(f'tags[{obj.htmlindx}] = {tags}')
+                        if len(obj.htmltags) > obj.htmlindx:
+                            obj.htmltags[obj.htmlindx] = tags
+                        else:
+                            obj.htmltags.append(tags)
+                    obj.ind += len(tstr)
+                    continue
             else: #Something else?
+                _reset = False
                 for tk in range(obj.token_data[obj.html_lvl].token+1,len(obj.tokens)):
                     _strslice2 = obj.string[obj.ind:obj.ind+len(obj.tokens[tk])]
                     if obj.comparestr(_strslice2,obj.tokens[tk]): #Token found out-of-order! Reset!
-                        obj.token_data[obj.html_lvl] = tkdata()
-                        tkobj = obj.token_data[obj.html_lvl]
-                pass
+                        #obj.token_data[obj.html_lvl].token = 0
+                        obj.down_level(nowarn=True)
+                        if obj.nest_lvl > 0:
+                            obj.nest_lvl -= 1
+                        else:
+                            obj.html_lvl += 1
+                        _reset = True
+                        break
+                if _reset:
+                    obj.ind += len(_strslice2)
+                    continue
             obj.ind += 1
+        tkobj = obj.token_data[obj.html_lvl]
+        if obj.htmltags and obj.htmlwarn:
+            parse_warn(f'UNCLOSED HTML TAGS {obj.htmltags}')
+        if obj.nest_lvl > 0:
+            #obj.nest_lvl -= 1
+            obj.down_level()
         return obj.string
-
-def match_leveled(s:str, tok:list, replfunc, insens:bool):
-    tmp = LeveledObj(s,tok,insens)
+    def down_level(self,nowarn=False):
+        if self.html_lvl < 0:
+            return
+        if not nowarn:
+            tkobj = self.token_data[self.html_lvl]
+            if tkobj.token > 0 and not self.nowarn:
+                parse_warn(f'UNCLOSED TOKEN {tupstr(tuple(self.tokens[:tkobj.token]))} found, {tupstr(tuple(self.tokens[tkobj.token:]))} missing.')
+        self.token_data[self.html_lvl] = tkdata()
+        self.html_lvl -= 1
+def tupstr(t:tuple)->str:
+    if len(t) == 1:
+        return f"'{t[0]}'"
+    return str(t)
+def match_leveled(s:str, tok:list, replfunc, insens:bool,nowarn:bool=False,htmlwarn:bool=False):
+    tmp = LeveledObj(s,tok,insens,nowarn=nowarn,htmlwarn=htmlwarn)
     return tmp.replacer(replfunc)
 def repl_codeSingle(string,tkobj):
     return tkobj.replace(string,f'<span class = "code1">{tkobj.getval(1)}</span>')
@@ -311,21 +383,24 @@ def repl_spoil_2(string,tkobj):
     return tkobj.replace(string,parseSpoiler('',tkobj.getval(1)))
 
 def parseBody(s:str) -> str:
+    global main_body
+    mb = main_body
+    main_body = False
     while True:
-        s = match_leveled(s,['${','|','}'],repl_links_1,True)
-        s = match_leveled(s,['${','}'],repl_links_2,True)
+        s = match_leveled(s,['${','|','}'],repl_links_1,True,htmlwarn=mb)
+        s = match_leveled(s,['${','}'],repl_links_2,True,nowarn=True)
         o_str = s
         s = match_leveled(s,['[[','|',']]'],repl_ttip_1,True)
         s = match_leveled(s,['[[$',']]'],repl_ttip_2,True)
         if o_str != s:
             continue
         s = match_leveled(s,['#{','|','}'],repl_spoil_1,True)
-        s = match_leveled(s,['#{','}'],repl_spoil_2,True)
+        s = match_leveled(s,['#{','}'],repl_spoil_2,True,nowarn=True)
         s = match_leveled(s,['```','```'],repl_codeMulti,True)
         s = match_leveled(s,['`','`'],repl_codeSingle,True)
         o_str = s
         s = match_leveled(s,['$[','|',']'],repl_named_1,True)
-        s = match_leveled(s,['$[',']'],repl_named_2,True)
+        s = match_leveled(s,['$[',']'],repl_named_2,True,nowarn=True)
         if o_str != s:
             continue
         return s
@@ -370,7 +445,7 @@ class gen_body:
 
 cur_body = None
 def generate_output(obj) -> str:
-    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body
+    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body, main_body
     parse_warnings = []
     data_obj = obj
     sz_tabs = 0
@@ -437,6 +512,7 @@ def generate_output(obj) -> str:
     parse_state('Parsing special body code...')
     for ind in range(len(generated_bodies)):
         cur_body = generated_bodies[ind]
+        main_body = True
         generated_bodies[ind].text = parseBody(generated_bodies[ind].text)
     cur_body = None
     parse_state('Generating final output...')
