@@ -656,11 +656,10 @@ def switch(pageclass):
     root.update()
 
 def hover_scroll(scr,hv):
-    if hv:
-        scr.config(cursor='arrow' if DISABLED in scr.state() else 'double_arrow')
-        scr.config(style='Hov.Vertical.TScrollbar')
+    if hv and not DISABLED in scr.state():
+        scr.config(cursor='double_arrow',style='Hov.Vertical.TScrollbar')
     else:
-        scr.config(style='TScrollbar')
+        scr.config(cursor='arrow',style='TScrollbar')
 def pack_scrollable_widg(widg):
     scroll = ttk.Scrollbar(widg.master, cursor='double_arrow')
     scroll.bind('<Enter>',lambda _: hover_scroll(scroll,True))
@@ -727,15 +726,22 @@ def style_lb(lb,rclick_cb=None):
     lb.bind('<Button-3>', sel_clicked_lb)
     lb.bind('<ButtonRelease-3>', rclick_cb)
 def style_cb(cb):
-    cb.bind('<Enter>',func=lambda _: cb.config(style='Hov.TCombobox'))
-    cb.bind('<Leave>',func=lambda _: cb.config(style='TCombobox'))
+    cb.bind('<Enter>',func=lambda _: hover_cb(cb,True))
+    cb.bind('<Leave>',func=lambda _: hover_cb(cb,False))
     pass
+def hover_cb(cb,hv):
+    if hv and not DISABLED in cb.state():
+        cb.config(style='Hov.TCombobox')
+    else:
+        cb.config(style='TCombobox')
 def style_rad(rad):
     pass#rad.config(bg=BGC,activebackground=BGC,fg=FGC,fieldbackground=FLD_BGC,disabledforeground=DIS_FGC)
 def style_entry(ent):
     ent.config(bg=FLD_BGC, fg=FLD_FGC, disabledforeground=FLD_DIS_FGC, insertbackground=FLD_FGC)
 def style_btn(btn):
-    btn.config(bd=2,bg=BGC,fg=FGC,disabledforeground=DIS_FGC,activebackground=BGC,activeforeground=FGC)
+    btn.config(bd=2,bg=BGC,fg=FGC,disabledforeground=DIS_FGC,
+        activebackground=BGC,activeforeground=FGC,
+        highlightcolor=FGC)
     btn.bind('<Enter>',func=lambda _: btn.config(background=BGC if btn['state']==DISABLED else ACT_BGC,activebackground=BGC if btn['state']==DISABLED else ACT_BGC))
     btn.bind('<Leave>',func=lambda _: btn.config(background=BGC,activebackground=BGC))
     disable_btn(btn,False)
@@ -755,35 +761,52 @@ def disable_txt(txt,dis):
 
 def stylize():
     global style
-    style.theme_use('alt')
+    style.theme_use('clam')
     # ttk.Combobox
     style.configure('TCombobox',fieldbackground=FLD_BGC,background=BGC,foreground=FGC,
         selectbackground=FLD_BGC,selectforeground=FGC,
-        bordercolor=BGC,darkcolor=BGC,lightcolor=BGC,insertcolor=BGC,insertwidth=0,
+        lightcolor=BGC,bordercolor=FGC,borderwidth=1,
+        darkcolor=DIS_FGC,
         arrowsize=16)
     style.map('TCombobox',
         fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',FLD_BGC)],
         background=[('disabled',BGC),('readonly',BGC)],
         foreground=[('disabled',DIS_FGC),('readonly',FGC)],
-        arrowcolor=[('disabled',DIS_FGC),('readonly',FGC)])
-    style.configure('Hov.TCombobox',background=ACT_BGC,bordercolor=BGC)
+        arrowcolor=[('disabled',DIS_FGC),('readonly',FGC)],
+        bordercolor=[('disabled',DIS_FGC)])
+    style.configure('Hov.TCombobox',background=ACT_BGC,lightcolor=ACT_FLD_BGC)
     style.map('Hov.TCombobox',
         fieldbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)],
         background=[('disabled',BGC),('readonly',ACT_BGC)],
         selectbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)])
     
     # ttk.Radiobutton
-    style.configure('TRadiobutton',padding=1,background=BGC,foreground=FGC,indicatorcolor=FLD_BGC)
+    style.configure('TRadiobutton',padding=1,background=BGC,
+        foreground=FGC,indicatorbackground=FLD_BGC,indicatorforeground=FLD_FGC,
+        indicatorrelief=RAISED,indicatorsize=12,focuscolor=FGC)
     style.map('TRadiobutton',
         background=[('disabled',BGC),('pressed',BGC),('active',ACT_BGC)],
-        foreground=[('disabled',DIS_FGC),('pressed',FGC),('active',FGC)])
+        foreground=[('disabled',DIS_FGC),('pressed',FGC),('active',FGC)],
+        indicatorbackground=[('disabled',FLD_DIS_BGC)],
+        indicatorforeground=[('disabled',FLD_DIS_FGC)],
+        indicatorrelief=[('disabled',FLAT)])
     
     # ttk.Scrollbar
-    style.configure('TScrollbar',foreground=FGC,background=BGC,troughcolor=FLD_BGC,relief=RAISED,borderwidth=0)
+    # print(style.layout('Vertical.TScrollbar'))
+    # print(style.element_options('Vertical.Scrollbar.thumb'))
+    # print(style.lookup('Vertical.Scrollbar.thumb','lightcolor'))
+    style.configure('TScrollbar',foreground=FGC,background=BGC,
+        troughcolor=FLD_BGC,relief=RAISED,borderwidth=0,
+        lightcolor=FGC,darkcolor=BGC,bordercolor=FLD_BGC,
+        gripcount=5)
     style.map('TScrollbar',
-        background=[('disabled',FLD_BGC)],
+        background=[('disabled',FLD_DIS_BGC)],
         troughcolor=[('disabled',BGC)],
-        relief=[('disabled',GROOVE)])
+        lightcolor=[('disabled',DIS_FGC)],
+        darkcolor=[('disabled',DIS_FGC)],
+        arrowcolor=[('disabled',DIS_FGC)],
+        relief=[('disabled',FLAT)],
+        gripcount=[('disabled',0)])
     style.configure('Hov.Vertical.TScrollbar',background=ACT_BGC,troughcolor=BGC)
     style.map('Hov.Vertical.TScrollbar',
         background=[('disabled',FLD_BGC)])
@@ -1433,7 +1456,7 @@ class EditEntryPage(Page):
         for btn in btns:
             style_btn(btn)
             btn.pack(side='left')
-        self.save_btns = btns[-3:-1] # 'Save' and 'Reset', disabled if no changes.
+        self.save_btns = btns[-2:] # 'Save' and 'Reset', disabled if no changes.
         butrow.pack()
     def update_type(self):
         ty = self.field_ty.get()
