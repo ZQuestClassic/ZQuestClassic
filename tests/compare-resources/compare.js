@@ -57,10 +57,20 @@ function findNextFrame(delta) {
 }
 
 const observer = new IntersectionObserver((entries) => {
+    const options = getOptions();
     entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const frameIndex = Number(entry.target.dataset.frame);
-            const trackFrameEls = findAll('.track-frame-present, track-frame-missing', entry.target);
+        if (!entry.isIntersecting) return;
+
+        // Without this, lazy images won't load on the left when scrolling until the leftmost
+        // pixel is visible. Seems like a browser bug.
+        for (const imgEl of findAll('img', entry.target)) {
+            imgEl.loading = 'eager';
+        }
+
+        const frameIndex = Number(entry.target.dataset.frame);
+        const trackFrameEls = findAll('.track-frame-present, .track-frame-missing', entry.target);
+
+        if (options.showDiff) {
             for (let i = 1; i < tracks.length; i++) {
                 (async function () {
                     const [img1, img2] = await Promise.all([
@@ -291,10 +301,7 @@ function renderTracks(options) {
         containerEl.dataset['frame'] = trackFrame.frame;
         containerEl.innerHTML = `<div class='track-frame-number'>${trackFrame.frame}</div>`;
         tracksEl.append(containerEl);
-
-        if (options.showDiff) {
-            observer.observe(containerEl);
-        }
+        observer.observe(containerEl);
 
         for (let j = 0; j < tracks.length; j++) {
             const index = trackFrame.tracks.indexOf(j);
