@@ -321,8 +321,9 @@ def build_prog(prog,waitstr=None,parent=None):
     return fr
 def destroy_popup():
     global centered_popup_fr, centered_popup_prog, centered_popup_labels
-    centered_popup_fr.destroy()
-    centered_popup_fr = None
+    if centered_popup_fr:
+        centered_popup_fr.destroy()
+        centered_popup_fr = None
     centered_popup_prog = None
     if centered_popup_labels:
         centered_popup_labels.destroy()
@@ -338,66 +339,101 @@ def repop_centered_labels(l,fr=None,prog=None,waitstr=None):
     fr = build_labels(l,parent=par,prog=prog,waitstr=waitstr)
     root.update()
     return fr
-def savehtml_callback(tpl:tuple):
-    global htmlcallcount, centered_popup_prog, root, htmlcallstr, labelstrs
-    ind,s = tpl
-    if ind >= 0:
-        while len(labelstrs) <= ind:
-            labelstrs.append('')
-        if ind+1 < len(labelstrs):
-            labelstrs = labelstrs[:ind+1]
-        labelstrs[ind] = s
-    repop_centered_labels([htmlcallstr]+labelstrs)
-    centered_popup_prog = (centered_popup_prog[0],(htmlcallcount,lib.NUM_HTML_CALLBACK-1))
-    update_popup_size()
-    root.update()
-    htmlcallcount += 1
+class ProgressTracker:
+    def __init__(self,emptystr='',modcallback=None):
+        self.labelstrs = []
+        self.emptystr = emptystr
+        self.modcb = modcallback
+    def callback(self,tpl:tuple):
+        ind,s = tpl
+        if ind >= 0:
+            if ind+1 < len(self.labelstrs):
+                self.labelstrs = self.labelstrs[:ind+1]
+            else:
+                while len(self.labelstrs) <= ind:
+                    self.labelstrs.append(self.emptystr)
+            self.labelstrs[ind] = s
+        if self.modcb:
+            self.modcb(self.labelstrs)
+progpop_inst = None
+class ProgressPopup:
+    def __init__(self,titlestrs=[],waitstr='Please Wait {}/{}',ccount=0,cmax=0,tracker=None):
+        self.titlestrs = titlestrs
+        self.waitstr = waitstr
+        self.popup = None
+        self.callcount = ccount
+        self.callmax = cmax
+        self.tracker = tracker
+    def pop(self):
+        global root
+        if self.popup:
+            return #already popped
+        self.popup = centered_popup(Frame(root,bg=BGC))
+        
+        f1 = build_labels(self.titlestrs,parent=self.popup)
+        f1.pack()
+        
+        f2 = build_prog(parent=self.popup,prog=(self.callcount,self.callmax))
+        f2.pack()
+        update_popup_size()
+        if not self.tracker:
+            self.tracker = ProgressTracker()
+        self.tracker.modcb = lambda x: self.update(x)
+    def kill(self):
+        if self.popup:
+            destroy_popup()
+            self.popup = None
+    def update(self, labelstrs):
+        global centered_popup_prog, root
+        repop_centered_labels(self.titlestrs+labelstrs)
+        centered_popup_prog = (centered_popup_prog[0],(self.callcount,self.callmax))
+        update_popup_size()
+        root.update()
+        self.callcount += 1
+    @staticmethod
+    def open(titlestrs=[],waitstr='Please Wait {}/{}',ccount=0,cmax=0):
+        global progpop_inst
+        progpop_inst = ProgressPopup(titlestrs,waitstr,ccount,cmax)
+        progpop_inst.pop()
+    @staticmethod
+    def close():
+        global progpop_inst
+        if progpop_inst:
+            progpop_inst.kill()
+        progpop_inst = None
+    @staticmethod
+    def callback(tpl:tuple):
+        global progpop_inst
+        if progpop_inst.popup:
+            progpop_inst.tracker.callback(tpl)
 def save_html(filename=None,skipwarn=False):
-    global mainframe, htmlcallcount, htmlcallstr, labelstrs
+    global mainframe
     filename = get_save_html_name(filename)
     if filename == '':
         return
     
-    htmlcallstr = 'Saving HTML...'
-    labelstrs = [htmlcallstr]
     tout = args.outputfile
-    
-    popup = centered_popup(Frame(root,bg=BGC))
-    
-    f1 = build_labels(labelstrs,parent=popup)
-    f1.pack()
     lib.poll_html_callback()
-    f2 = build_prog(parent=popup,prog=(0,lib.NUM_HTML_CALLBACK-1),waitstr='Please Wait {}/{}')
-    f2.pack()
-    update_popup_size()
-    htmlcallcount = 0
+    ProgressPopup.open(titlestrs=['Saving HTML...'],cmax=lib.NUM_HTML_CALLBACK-1)
     
-    saver_html(filename,skipwarn=skipwarn,load_messager=savehtml_callback)
+    saver_html(filename,skipwarn=skipwarn,load_messager=ProgressPopup.callback)
     
-    destroy_popup()
+    ProgressPopup.close()
     args.outputfile = tout
 def preview_html():
-    global mainframe, htmlcallcount, htmlcallstr, labelstrs
-    htmlcallstr = 'Parsing preview HTML...'
-    labelstrs = [htmlcallstr]
+    global mainframe
     tout = args.outputfile
-    
-    popup = centered_popup(Frame(root,bg=BGC))
-    
-    f1 = build_labels(labelstrs,parent=popup)
-    f1.pack()
     lib.poll_html_callback()
-    f2 = build_prog(parent=popup,prog=(0,lib.NUM_HTML_CALLBACK-1),waitstr='Please Wait {}/{}')
-    f2.pack()
-    update_popup_size()
-    htmlcallcount = 0
-    if saver_html('_preview.html',skipwarn=True,load_messager=savehtml_callback):
+    ProgressPopup.open(titlestrs=['Parsing preview HTML...'],cmax=lib.NUM_HTML_CALLBACK-1)
+    
+    if saver_html('_preview.html',skipwarn=True,load_messager=ProgressPopup.callback):
         _go = True
         if lib.parse_warnings:
             _go = messagebox.askokcancel(parent=root,title='Warning!',message='Warnings:\n'+'\n'.join(lib.parse_warnings)+'\n\nPreview anyway?')
         if _go:
             openhtml(os.getcwd()+'\\'+'_preview.html')
-    destroy_popup()
+    
+    ProgressPopup.close()
     args.outputfile = tout
 def save_warn(_msg):
     global root, needs_save, needs_edit_save, warned
@@ -506,7 +542,7 @@ def del_conf():
     return messagebox.askokcancel(parent=root, title = 'Delete Confirmation', message = 'Delete current selection?')
 
 def edit_named():
-    navi.visit_new((-1,0))
+    navi.go_named()
 def edit_sheet(ind):
     if ind < 0:
         return
@@ -1138,12 +1174,6 @@ class SheetsPage(Page):
         _btn=Button(f2, width=wid, text='Rename', command=lambda:ren_sheet(cursheet))
         style_btn(_btn)
         _btn.pack()
-        _btn=Button(f2, width=wid, text='Named Data', command=edit_named)
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Page Settings', command=popup_pagesetting)
-        style_btn(_btn)
-        _btn.pack()
         f2.pack(side='left')
     def reload_sheets(self,selind):
         global json_obj, cursheet, sheetlistbox
@@ -1664,11 +1694,13 @@ class EditEntryPage(Page):
         col1.pack(side = 'left')
         toprow.pack()
         butrow = Frame(self, bg=BGC)
-        wid = 5
         btns = []
-        wid = 12    
+        wid = 8
         self.backbtn = Button(butrow, width=wid, text='←', command=lambda:navi.back())
         btns.append(self.backbtn)
+        self.fwdbtn = Button(butrow, width=wid, text='→', command=lambda:navi.fwd())
+        btns.append(self.fwdbtn)
+        wid = 12
         self.prevbtn=Button(butrow, width=wid, text='Preview HTML', command=preview_entry)
         btns.append(self.prevbtn)
         b=Button(butrow, width=wid, text='Save', command=save_entry)
@@ -1841,7 +1873,16 @@ class navigation:
             self.visit_new(self.history[self.index][:-1])
         else: #Attempt to exit, but always ask for confirmation
             quitter(False)
-    
+    # Go to Named Data
+    def go_named(self):
+        node = self.history[self.index]
+        if node[0] == -1: # In named data
+            if len(node) == 2: #exactly
+                return
+            if len(node) > 2: #subpage
+                self.visit_new(node[:2])
+                return
+        self.visit_new((-1,0)) #visit named data
     # Updates the state of the object
     def update(self,ind=-1):
         global mainframe
@@ -1977,35 +2018,37 @@ def gen_menubar():
     optmenu.add_command(label = 'Autosave', command = opt_autosave)
     optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
     menubar.add_cascade(label='Options', menu=optmenu)
+    pagemenu = Menu(menubar, tearoff=0, postcommand=onoption)
+    pagemenu.add_command(label = 'Settings', command = popup_pagesetting)
+    pagemenu.add_command(label = 'Named Data', command = edit_named)
+    menubar.add_cascade(label='Page', menu=pagemenu)
     root.config(menu=menubar)
 
-def clear_popup(toplevel,closers=[]):
-    global tl_frame_popup
+def clear_toplevel(toplevel,closers=[]):
     for closer in closers:
         closer()
-    if tl_frame_popup:
-        destroy_popup()
+    destroy_popup()
     toplevel.grab_release()
     toplevel.destroy()
-def setup_popup(title,closer=None):
-    popup = Toplevel(bg=BGC)
-    popup.title(title)
-    popup.grab_set()
-    popup.protocol("WM_DELETE_WINDOW", lambda: clear_popup(popup,[closer] if closer else []))
-    popup.grid_rowconfigure(0, weight=1)
-    popup.grid_columnconfigure(0, weight=1)
-    return popup
-def launch_popup(toplevel,frame,savers=[],closers=[]):
+def setup_toplevel(title,closers=[]):
+    toplevel = Toplevel(bg=BGC)
+    toplevel.title(title)
+    toplevel.grab_set()
+    toplevel.protocol("WM_DELETE_WINDOW", lambda: clear_toplevel(toplevel,closers))
+    toplevel.grid_rowconfigure(0, weight=1)
+    toplevel.grid_columnconfigure(0, weight=1)
+    return toplevel
+def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150):
     frame.grid()
     Frame(frame,bg=BGC,width=0,height=15).pack()
     btnfr = Frame(frame,bg=BGC)
     btns = []
     wid = 10
-    okb = Button(btnfr,width=wid,text='OK',command=lambda:clear_popup(toplevel,savers+closers))
+    okb = Button(btnfr,width=wid,text='OK',command=lambda:clear_toplevel(toplevel,savers+closers))
     btns.append(okb)
     cb = okb
     if savers:
-        cb = Button(btnfr,width=wid,text='Cancel',command=lambda:clear_popup(toplevel,closers))
+        cb = Button(btnfr,width=wid,text='Cancel',command=lambda:clear_toplevel(toplevel,closers))
         btns.append(cb)
     for b in btns:
         style_btn(b)
@@ -2014,6 +2057,13 @@ def launch_popup(toplevel,frame,savers=[],closers=[]):
     okb.focus_set()
     toplevel.bind('<Return>',lambda *_:okb.invoke())
     toplevel.bind('<Escape>',lambda *_:cb.invoke())
+    toplevel.geometry(f'{w}x{h}')
+    rx = root.winfo_x()
+    ry = root.winfo_y()
+    rw = root.winfo_width()
+    rh = root.winfo_height()
+    toplevel.geometry("+%d+%d" %(rx+(rw-w)/2,ry+(rh-h)/2))
+    
     toplevel.mainloop()
 def pack_entry_rows(toplevel,frame,l:list,wid=50):
     fr = Frame(frame, bg=BGC)
@@ -2048,19 +2098,23 @@ def setkey(key:str,val):
     json_obj[key] = val
 
 def popup_pagesetting():
-    global json_obj, file_loaded, tl_frame_popup, packed_rows
+    global json_obj, file_loaded
     if not file_loaded:
         return
-    tl_frame_popup = build_labels(['Page Settings open...','Please Close Popup'])
-    tl = setup_popup('Page Settings')
-    topframe = Frame(tl, bg=BGC)
-    packed_rows = pack_entry_rows(tl,topframe,[
+    popup = centered_popup(Frame(root,bg=BGC))
+    f1 = build_labels(['Page Settings open...','Please Close Popup'],parent=popup)
+    f1.pack()
+    update_popup_size()
+    
+    toplevel = setup_toplevel('Page Settings')
+    topframe = Frame(toplevel, bg=BGC)
+    savers,evars = pack_entry_rows(toplevel,topframe,[
         ('Page Title:','pagetitle'),
         ('Header:','header'),
         ('Host URL:','url'),
         ('URL Text:','urltxt')])
-    tl.geometry('400x150')
-    launch_popup(tl,topframe,savers=packed_rows[0])
+    savers.append(mark_edited)
+    launch_toplevel(toplevel,topframe,w=400,h=150,savers=savers)
 
 root = Tk()
 style = ttk.Style(root)

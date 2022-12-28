@@ -15,18 +15,18 @@ def _dict_del(d:dict,s:str):
 
 def loadjson(fname):
     global data_obj, debug_out
-    
-    parse_state('Loading Json...',0)
+    sm = StateMachine()
+    sm.new('Loading Json...')
     with open(fname, 'r') as file:
         data_obj = json.loads(file.read())
-    parse_state('Validating Json...',1)
+    sm.new('Validating Json...')
     _key = '[MISSING]'
     try:
         _key = data_obj['key']
     except:
         pass
     if _key != 'zs_docjson_py':
-        parse_state('FAIL!',2)
+        sm.new('FAIL!')
         raise Exception(f'Invalid .json key: {_key}')
     
     if data_obj['ver'] < 1:
@@ -35,14 +35,15 @@ def loadjson(fname):
         data_obj['url'] = 'https://www.zeldaclassic.com/zscript-docs/'
         data_obj['urltxt'] = 'Latest'
         data_obj['ver'] = 1
-    parse_state('Done!',2)
+    sm.new('Done!')
     poll_html_callback()
     return data_obj
 def savejson(fname,obj):
-    parse_state('Saving Json...',0)
+    sm = StateMachine()
+    sm.new('Saving Json...',0)
     with open(fname, 'w') as file:
         file.write(json.dumps(obj, indent=4))
-    parse_state('Done!',1)
+    sm.new('Done!',1)
     poll_html_callback()
 NUM_HTML_CALLBACK = 7
 def poll_html_callback():
@@ -62,20 +63,15 @@ def poll_html_callback():
     
     NUM_HTML_CALLBACK = 7 + (numlines*2) + numbodies
 def savehtml(fname,obj,load_messager=None):
-    global state_callback, stateind
-    
-    stateind = 0
-    state_callback = load_messager
-    
     poll_html_callback()
+    sm = StateMachine()
+    sm.callback = load_messager
     
-    outstr = generate_output(obj)
-    parse_state('Writing output file...',stateind+1)
+    outstr = generate_output(obj,sm)
+    sm.new('Writing output file...')
     with open(fname, 'w') as file:
         file.write(outstr)
-    parse_state('Writing output file...Done!')
-    
-    state_callback = None
+    sm.update('Writing output file...Done!')
 #data_obj has:
 #'sheets': list of objects having:
 #    'name': str, the sheet name
@@ -101,17 +97,20 @@ def parse_warn(msg):
     global parse_warnings, cur_body
     parse_warnings.append(_getloc()+msg)
 #Called to print state information
-state_callback = None
-def parse_state(msg,ind=None):
-    global state_callback, stateind
-    if ind is None:
-        ind = stateind
-    else:
-        stateind = ind
-    if state_callback:
-        state_callback((ind,msg))
-    if debug_out:
-        print(f'[ST] {msg}')
+class StateMachine:
+    def __init__(self):
+        self.ind = -1
+        self.callback = None
+    def new(self,s):
+        self.ind += 1
+        self.update(s)
+    def update(self,s):
+        if self.ind < 0:
+            self.ind = 0
+        if self.callback:
+            self.callback((self.ind,s))
+        if debug_out:
+            print(f'[ST] {msg}')
 
 ##Utility Functions
 _pat_tags = re.compile('(<([^>]+)>)')
@@ -474,13 +473,12 @@ class gen_body:
         return f"{sh['name']}->{tb['name']}->{get_line_display(li)}"
 
 cur_body = None
-def generate_output(obj) -> str:
-    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body, main_body, stateind
+def generate_output(obj,sm=None) -> str:
+    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body, main_body
     parse_warnings = []
     data_obj = obj
     sz_tabs = 0
     sheets = data_obj['sheets']
-    stateind = -1
 
     for sheet in sheets:
         sheet['tabind'] = sz_tabs;
@@ -495,12 +493,15 @@ def generate_output(obj) -> str:
         tab = get_tab_global(curtab)
         numlines += len(tab['lines'])
     curline = 0
-    parse_state(f'Generating bodies... 0/{numlines}',stateind+1)
+    
+    if not sm:
+        sm = StateMachine()
+    sm.new(f'Generating bodies... 0/{numlines}')
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
         for lind in range(len(tab['lines'])):
             curline += 1
-            parse_state(f'Generating bodies... {curline}/{numlines}')
+            sm.update(f'Generating bodies... {curline}/{numlines}')
             line = tab['lines'][lind]
             line['body'] = -1
             _val = line['val']
@@ -513,7 +514,7 @@ def generate_output(obj) -> str:
             generated_bodies.append(gen_body(shind,tind,lind,text=f'\t\t<div class = "cntnt" data-bid = {bid} data-tid = -1 hidden>{_val}</div>\n'))
     
     curline = 0
-    parse_state(f'Generating tabs... 0/{numlines}',stateind+1)
+    sm.new(f'Generating tabs... 0/{numlines}')
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
         cursheetind = get_tab_sheet(curtab)
@@ -521,7 +522,7 @@ def generate_output(obj) -> str:
         tab_content = f'\t\t<div class = "tab_container" data-bid = -1 data-tid = {curtab}{hid_content}>\n';
         for line in tab['lines']:
             curline += 1
-            parse_state(f'Generating tabs... {curline}/{numlines}')
+            sm.update(f'Generating tabs... {curline}/{numlines}')
             line['linktab'] = curtab
             _name = line['name']
             _val = line['val']
@@ -550,14 +551,14 @@ def generate_output(obj) -> str:
         #end foreach tab
     
     numlines = len(generated_bodies)
-    parse_state(f'Parsing special body code... 0/{numlines}',stateind+1)
+    sm.new(f'Parsing special body code... 0/{numlines}')
     for ind in range(len(generated_bodies)):
-        parse_state(f'Parsing special body code... {ind+1}/{numlines}')
+        sm.update(f'Parsing special body code... {ind+1}/{numlines}')
         cur_body = generated_bodies[ind]
         main_body = True
         generated_bodies[ind].text = parseBody(generated_bodies[ind].text)
     cur_body = None
-    parse_state('Generating final output...',stateind+1)
+    sm.new('Generating final output...')
 
     generated_data = ''
     for tab in generated_tabs:
@@ -1645,7 +1646,7 @@ def generate_output(obj) -> str:
                 else:
                     print(broken_links[ind])
             print()
-    parse_state('Cleaning up...',stateind+1)
+    sm.new('Cleaning up...')
     for sheet in sheets:
         _dict_del(sheet,'tabind')
         for tab in sheet['tabs']:
