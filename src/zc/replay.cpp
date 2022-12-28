@@ -43,7 +43,8 @@ static bool snapshot_all_frames;
 static bool exit_when_done;
 static bool sync_rng;
 static int frame_arg;
-static std::string filename;
+static std::filesystem::path replay_path;
+static std::filesystem::path output_dir;
 static std::vector<std::shared_ptr<ReplayStep>> replay_log;
 static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
@@ -431,6 +432,11 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 	return are_equal;
 }
 
+static std::filesystem::path get_file_path(std::string suffix)
+{
+	return output_dir / (replay_path.filename().string() + suffix);
+}
+
 // This is for detecting keyboard input during replaying,
 // and prompting the user if they wish to end the replay.
 static int keyboard_intercept(int c)
@@ -552,13 +558,13 @@ static std::istream &portable_get_line(std::istream &is, std::string &t)
     }
 }
 
-static void load_replay(std::string filename)
+static void load_replay(std::filesystem::path path)
 {
-    std::ifstream file(filename);
+    std::ifstream file(path);
 
     if (!file.is_open())
     {
-        fprintf(stderr, "could not open file: %s\n", filename.c_str());
+        fprintf(stderr, "could not open file: %s\n", path.string().c_str());
         exit(1);
     }
 
@@ -769,7 +775,7 @@ static void save_result(bool stopped = false)
 	std::string tmp_filename = std::tmpnam(nullptr);
 	std::ofstream out(tmp_filename, std::ios::binary);
 
-	out << fmt::format("replay: {}", filename) << '\n';
+	out << fmt::format("replay: {}", replay_path.string()) << '\n';
 	out << fmt::format("mode: {}", replay_mode_to_string(mode)) << '\n';
 	out << fmt::format("time: {}", strtok(ctime(&time_started_c), "\n")) << '\n';
 	out << fmt::format("duration: {}", elapsed.count()) << '\n';
@@ -785,18 +791,19 @@ static void save_result(bool stopped = false)
 		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
 	out.close();
 
-	std::filesystem::rename(tmp_filename, filename + ".result.txt");
+	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"));
 }
 
 static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexpected)
 {
-	std::string img_filename = fmt::format("{}.{}", filename, frame);
+	std::string suffix = fmt::format(".{}", frame);
 	if (was_unexpected)
-		img_filename += "-unexpected";
-	img_filename += ".png";
+		suffix += "-unexpected";
+	suffix += ".png";
+	auto img_path = get_file_path(suffix);
 	// TODO: fmt::print crashes in Visual Studio IDE...
-	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}", img_filename).c_str());
-	save_bitmap(img_filename.c_str(), bitmap, pal);
+	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}", img_path.string()).c_str());
+	save_bitmap(img_path.string().c_str(), bitmap, pal);
 }
 
 static void save_history_snapshots()
@@ -851,7 +858,7 @@ static void check_assert()
             std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
                                             replay_step->print(), record_step->print());
             fprintf(stderr, "%s\n", error.c_str());
-			replay_save(filename + ".roundtrip");
+            replay_save(get_file_path(".roundtrip"));
             if (!exit_when_done)
             {
                 enter_sys_pal();
@@ -948,7 +955,7 @@ std::string replay_mode_to_string(ReplayMode mode)
 	return "unknown";
 }
 
-void replay_start(ReplayMode mode_, std::string filename_, int frame)
+void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
 {
     ASSERT(mode == ReplayMode::Off);
     ASSERT(mode_ != ReplayMode::Off && mode_ != ReplayMode::ManualTakeover);
@@ -960,7 +967,8 @@ void replay_start(ReplayMode mode_, std::string filename_, int frame)
     has_assert_failed = false;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
-    filename = filename_;
+    replay_path = path;
+    if (output_dir.empty()) output_dir = replay_path.parent_path();
     manual_takeover_start_index = assert_current_index = replay_log_current_index = frame_count = 0;
     frame_arg = frame;
     prev_gfx_hash = 0;
@@ -989,7 +997,7 @@ void replay_start(ReplayMode mode_, std::string filename_, int frame)
     case ReplayMode::Replay:
     case ReplayMode::Assert:
     case ReplayMode::Update:
-        load_replay(filename);
+        load_replay(replay_path);
         break;
     }
 
@@ -1015,14 +1023,14 @@ void replay_start(ReplayMode mode_, std::string filename_, int frame)
     }
 }
 
-void replay_continue(std::string filename_)
+void replay_continue(std::filesystem::path path)
 {
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
     frame_arg = -1;
     replay_forget_input();
-    filename = filename_;
-    load_replay(filename);
+    replay_path = path;
+    load_replay(replay_path);
     record_log = replay_log;
     frame_count = record_log.back()->frame + 1;
 }
@@ -1313,7 +1321,7 @@ void replay_stop()
         has_assert_failed |= has_rng_desynced;
         if (has_assert_failed)
         {
-            replay_save(filename + ".roundtrip");
+            replay_save(get_file_path(".roundtrip"));
         }
         if (log_size_mismatch)
         {
@@ -1388,12 +1396,12 @@ void replay_quit()
 
 void replay_save()
 {
-    replay_save(filename);
+    replay_save(replay_path);
 }
 
-void replay_save(std::string filename)
+void replay_save(std::filesystem::path path)
 {
-    save_replay(filename, record_log);
+    save_replay(path.string(), record_log);
 }
 
 void replay_stop_manual_takeover()
@@ -1441,7 +1449,7 @@ void replay_stop_manual_takeover()
     replay_log.insert(replay_log.begin() + manual_takeover_start_index, record_log.begin() + manual_takeover_start_index, record_log.end());
     int steps_delta = replay_log.size() - num_steps_before;
 
-    save_replay(filename, replay_log);
+    save_replay(replay_path.string(), replay_log);
     replay_log_current_index = record_log.size();
     mode = ReplayMode::Update;
     install_keyboard_handlers();
@@ -1636,9 +1644,14 @@ int replay_get_version()
     return version;
 }
 
-std::string replay_get_filename()
+void replay_set_output_dir(std::filesystem::path dir)
 {
-    return filename;
+	output_dir = dir;
+}
+
+std::filesystem::path replay_get_replay_path()
+{
+    return replay_path;
 }
 
 std::string replay_get_buttons_string()

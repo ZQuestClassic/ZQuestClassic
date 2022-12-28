@@ -55,7 +55,8 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
-      - run: pip install requests PyGithub watchdog
+      - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
+        run: pip install requests PyGithub watchdog
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: sudo pip install requests PyGithub watchdog
 
@@ -102,8 +103,9 @@ jobs:
       - name: Run replay tests
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: >
-          xvfb-run --auto-servernum sudo python -Xutf8 tests/run_replay_tests.py 
+          xvfb-run --auto-servernum sudo -E python -Xutf8 tests/run_replay_tests.py 
           --build_folder ${{ env.BUILD_FOLDER }}
+          --test_results_folder .tmp/test_results
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
@@ -113,6 +115,7 @@ jobs:
         run: >
           python -Xutf8 tests/run_replay_tests.py 
           --build_folder ${{ env.BUILD_FOLDER }}
+          --test_results_folder .tmp/test_results
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
@@ -122,8 +125,4 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
-          path: |
-            ${{ github.workspace }}/tests/replays/test_results.json
-            ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
-            ${{ github.workspace }}/tests/replays/*.zplay.result.txt
-            ${{ github.workspace }}/tests/replays/*.png
+          path: ${{ github.workspace }}/.tmp/test_results

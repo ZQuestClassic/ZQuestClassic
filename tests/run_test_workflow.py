@@ -11,7 +11,7 @@ from typing import List
 from pathlib import Path
 # pip install PyGithub
 from github import Github, GithubException
-from common import infer_gha_platform, get_gha_artifacts
+from common import infer_gha_platform, get_gha_artifacts, ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -140,26 +140,23 @@ def poll_workflow_runs(run_ids: List[int]):
 def collect_baseline_from_test_results(test_results_paths: List[Path]):
     failing_frames_by_replay = {}
     for path in test_results_paths:
-        test_results = json.loads(path.read_text('utf-8'))
+        test_results_json = json.loads(path.read_text('utf-8'))
+        test_results = ReplayTestResults(**test_results_json)
 
-        for replay_result in test_results['replays']:
-            if replay_result['success']:
+        for run in test_results.runs[-1]:
+            if run.success:
                 continue
 
-            replay_name = replay_result['name']
-            failing_frame = replay_result['failing_frame']
-            if failing_frame == None:
-                print(f'{path}: no failing_frame for {replay_name}, skipping')
+            if run.failing_frame == None:
+                print(f'{path}: no failing_frame for {run.name}, skipping')
                 continue
 
-            if replay_name not in failing_frames_by_replay:
-                failing_frames_by_replay[replay_name] = []
-            failing_frames_by_replay[replay_name].append(failing_frame)
+            if run.name not in failing_frames_by_replay:
+                failing_frames_by_replay[run.name] = []
+            failing_frames_by_replay[run.name].append(run.failing_frame)
 
-        if replay_name not in failing_frames_by_replay:
-            runs_on = test_results['runs_on']
-            arch = test_results['arch']
-            print(f'all failing replays were invalid for {runs_on} {arch}')
+        if run.name not in failing_frames_by_replay:
+            print(f'all failing replays were invalid for {test_results.runs_on} {test_results.arch}')
             continue
 
     extra_args = []

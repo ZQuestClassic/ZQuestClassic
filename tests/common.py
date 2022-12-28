@@ -1,6 +1,10 @@
 import platform
 import os
 import io
+import json
+from dataclasses import dataclass
+import dataclasses
+from typing import List, Literal, Dict, Optional, Any
 import requests
 import zipfile
 from pathlib import Path
@@ -12,6 +16,40 @@ except:
     Github = {}
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+
+
+@dataclass
+class RunResult:
+    name: str
+    directory: str
+    success: bool = False
+    duration: float = None
+    fps: int = None
+    failing_frame: int = None
+    diff: str = None
+
+
+@dataclass
+class ReplayTestResults:
+    runs_on: Literal['windows-2022', 'macos-12', 'ubuntu-22.04']
+    arch: Literal['x64', 'win32', 'intel']
+    ci: bool
+    workflow_run_id: Optional[int]
+    git_ref: Optional[str]
+    zc_version: str
+    time: str
+    runs: List[List[RunResult]]
+
+    def __post_init__(self):
+        if self.runs and isinstance(self.runs[0][0], dict):
+            deserialized = []
+            for runs in self.runs:
+                deserialized.append([RunResult(**run) for run in runs])
+            self.runs = deserialized
+
+    def to_json(self):
+        as_dict = dataclasses.asdict(self)
+        return json.dumps(as_dict, indent=2)
 
 
 def infer_gha_platform():

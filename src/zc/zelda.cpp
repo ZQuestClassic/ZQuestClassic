@@ -5487,6 +5487,11 @@ int main(int argc, char **argv)
 		frame = std::stoi(argv[frame_arg + 1]);
 
 	replay_debug = zc_get_config("zeldadx","replay_debug",0) == 1 || used_switch(argc, argv, "-replay-debug") > 0;
+
+	int replay_output_dir_arg = used_switch(argc, argv, "-replay-output-dir");
+	if (replay_output_dir_arg > 0)
+		replay_set_output_dir(argv[replay_output_dir_arg + 1]);
+
 	if (replay_arg > 0)
 	{
 		load_replay_file(ReplayMode::Replay, argv[replay_arg + 1], frame);

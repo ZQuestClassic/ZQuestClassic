@@ -16,7 +16,7 @@ import json
 from pathlib import Path
 from itertools import groupby
 from github import Github
-from common import get_gha_artifacts
+from common import get_gha_artifacts, ReplayTestResults
 
 
 def dir_path(path):
@@ -51,18 +51,20 @@ def get_replay_from_snapshot_path(path):
 #  - what platform it ran on
 #  - if run in CI, the workflow run id and git ref
 #  - a list of replays and any snapshots they produced
+# TODO remove older `test_run` concept and use `test_results` directly in the JS instead.
 def collect_test_run_from_dir(directory: Path):
-    test_results = json.loads((directory/'test_results.json').read_text('utf-8'))
+    test_results_json = json.loads((directory/'test_results.json').read_text('utf-8'))
+    test_results = ReplayTestResults(**test_results_json)
     test_run = {
         'label': '',
-        'runs_on': test_results['runs_on'],
-        'arch': test_results['arch'],
+        'runs_on': test_results.runs_on,
+        'arch': test_results.arch,
         'ci': False,
     }
-    if 'ci' in test_results and test_results['ci']:
+    if test_results.ci:
         test_run['ci'] = True
-        test_run['ref'] = test_results['ref']
-        test_run['run_id'] = test_results['run_id']
+        test_run['ref'] = test_results.git_ref
+        test_run['run_id'] = test_results.workflow_run_id
 
     label_parts = [
         test_run['runs_on'],
@@ -81,6 +83,17 @@ def collect_test_run_from_dir(directory: Path):
 
     test_run['replays'] = []
     for replay, snapshots in groupby(snapshot_paths, get_replay_from_snapshot_path):
+        # For now, only collect the last run for a replay.
+        last_run_dir_for_replay = None
+        for runs in reversed(test_results.runs):
+            run = next((r for r in runs if r.name == replay), None)
+            if run:
+                last_run_dir_for_replay = run
+                break
+        if last_run_dir_for_replay:
+            snapshots = [
+                s for s in snapshots if last_run_dir_for_replay.directory in str(s)]
+
         snapshots = [{
             'path': s,
             'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),

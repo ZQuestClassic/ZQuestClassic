@@ -35,20 +35,26 @@ import argparse
 import subprocess
 import os
 import sys
-import json
 import re
 import difflib
 import pathlib
 import platform
 import functools
+import shutil
+from datetime import datetime, timezone
+import time
 import logging
-from dataclasses import dataclass
+from common import ReplayTestResults, RunResult
 from time import sleep
 from timeit import default_timer as timer
 from typing import List, Dict, Any
 from common import infer_gha_platform
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+replays_dir = script_dir / 'replays'
 
 
 def parse_result_txt_file(path: pathlib.Path):
@@ -142,6 +148,8 @@ if os.name == 'nt':
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', default='build/Debug',
     help='The folder containing the exe files',metavar='DIRECTORY')
+parser.add_argument('--test_results_folder',
+    help='Where to save the replay test artifacts. By default, somewhere in .tmp')
 parser.add_argument('--filter', action='append', metavar='FILEPATH',
     help='Specify a file to run, instead of running all. Can be supplied multiple times.')
 parser.add_argument('--max_duration', type=int, metavar='SECONDS',
@@ -185,17 +193,6 @@ if args.ci and '_' in args.ci:
     runs_on, arch = args.ci.split('_')
 else:
     runs_on, arch = infer_gha_platform()
-
-
-@dataclass
-class ReplayTestResult:
-    success: bool = False
-    failing_frame: int = None
-    log: Dict[str, str] = None
-    diff: str = None
-    fps: int = None
-    duration: float = None
-    zplay_result: Dict[str, Any] = None
 
 
 class ReplayTimeoutException(Exception):
@@ -259,9 +256,11 @@ def clear_progress_str():
 
 
 is_windows_ci = args.ci and 'windows' in args.ci
-script_dir = os.path.dirname(os.path.realpath(__file__))
-replays_dir = pathlib.Path(os.path.join(script_dir, 'replays'))
-test_results_path = replays_dir / 'test_results.json'
+if args.test_results_folder:
+    test_results_dir = pathlib.Path(args.test_results_folder).absolute()
+else:
+    test_results_dir = root_dir / f'.tmp/test_results/{int(time.time())}'
+test_results_path = test_results_dir / 'test_results.json'
 tests = list(replays_dir.glob('*.zplay'))
 grouped_snapshot_arg = group_arg(args.snapshot)
 grouped_frame_arg = group_arg(args.frame)
@@ -410,28 +409,6 @@ def parse_result_txt_file(path: pathlib.Path):
     return result
 
 
-def save_test_results():
-    json_result = {
-        'runs_on': runs_on,
-        'arch': arch,
-    }
-    if os.environ.get('CI'):
-        json_result['ci'] = True
-        json_result['ref'] = os.environ.get('GITHUB_REF')
-        json_result['run_id'] = os.environ.get('GITHUB_RUN_ID')
-
-    json_result['replays'] = []
-    for replay, test_result in test_results.items():
-        json_result['replays'].append({
-            'name': replay.name,
-            'success': test_result.success,
-            'failing_frame': test_result.failing_frame,
-            'zplay_result': test_result.zplay_result,
-        })
-
-    test_results_path.write_text(json.dumps(json_result, indent=2))
-
-
 tests.sort(key=lambda test: -get_replay_data(test)['estimated_duration'])
 
 if args.shard and args.print_shards:
@@ -457,13 +434,8 @@ if args.print_shards:
     exit(0)
 
 
-def run_replay_test(replay_file: pathlib.Path):
-    result = ReplayTestResult()
-    result.log = {
-        'stdout': None,
-        'stderr': None,
-        'allegro': None,
-    }
+def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
+    result = RunResult(name=replay_file.name, directory=str(output_dir.relative_to(test_results_dir)))
 
     # TODO: fix this common-ish error, and whatever else is causing random failures.
     # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
@@ -476,6 +448,7 @@ def run_replay_test(replay_file: pathlib.Path):
         f'-{mode}', replay_file,
         '-v1' if args.throttle_fps else '-v0',
         '-replay-exit-when-done',
+        '-replay-output-dir', output_dir,
     ]
 
     frame_arg = get_arg_for_replay(replay_file, grouped_frame_arg, is_int=True)
@@ -502,9 +475,10 @@ def run_replay_test(replay_file: pathlib.Path):
     allegro_log_path = None
     max_start_attempts = 5
     for i in range(0, max_start_attempts):
-        allegro_log_path = pathlib.Path(args.build_folder) / f'{replay_file.stem}.{i}.log'
+        allegro_log_path = output_dir / 'allegro.log'
+        p = None
         try:
-            result_path = replay_file.with_suffix('.zplay.result.txt')
+            result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
             if result_path.exists():
                 result_path.unlink()
 
@@ -530,10 +504,10 @@ def run_replay_test(replay_file: pathlib.Path):
                                  cwd=args.build_folder,
                                  env={
                                      **os.environ,
-                                     'ALLEGRO_LEGACY_TRACE': allegro_log_path.name
+                                     'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
                                  },
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE,
+                                 stdout=open(output_dir / 'stdout.txt', 'w'),
+                                 stderr=open(output_dir / 'stderr.txt', 'w'),
                                  encoding='utf-8',
                                  text=True)
 
@@ -548,12 +522,13 @@ def run_replay_test(replay_file: pathlib.Path):
 
                 sleep(0.1)
 
+            test_results.zc_version = watcher.result['zc_version']
+
             # .zplay.result.txt should be updated every second.
             while watcher.observer.is_alive():
                 if do_timeout and timer() - watcher.modified_time > 30:
                     watcher.observer.stop()
                     watcher.update_result()
-                    result.zplay_result = watcher.result
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
 
@@ -563,56 +538,53 @@ def run_replay_test(replay_file: pathlib.Path):
 
                 sleep(0.1)
 
+            p.wait()
             watcher.observer.stop()
             watcher.update_result()
-            result.zplay_result = watcher.result
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
 
-            result.log['stdout'], result.log['stderr'] = p.communicate()
-
-            result.success = result.zplay_result['stopped'] and result.zplay_result['success']
+            result.success = watcher.result['stopped'] and watcher.result['success']
             if p.returncode != 0 and p.returncode != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {p.returncode}')
             break
         except ReplayTimeoutException:
             # Will try again.
-            # TODO: stdout, stderr is lost here.
+            logging.exception('replay timed out')
             p.terminate()
             p.wait()
         except KeyboardInterrupt:
             exit(1)
         except:
-            logging.exception('replay failed')
-            result.log['stdout'], result.log['stderr'] = p.communicate()
+            logging.exception('replay encountered an error')
             return result
         finally:
-            p.wait()
-            if allegro_log_path:
-                result.log['allegro'] = allegro_log_path.read_text()
-                allegro_log_path.unlink(missing_ok=True)
+            if p:
+                p.wait()
             clear_progress_str()
 
     if not args.update and p.returncode == ASSERT_FAILED_EXIT_CODE:
-        roundtrip_path = pathlib.Path(f'{replay_file}.roundtrip')
-        if os.path.exists(roundtrip_path):
+        roundtrip_path = output_dir / f'{replay_file.name}.roundtrip'
+        if roundtrip_path.exists():
             with open(replay_file) as f:
                 fromlines = f.readlines()
             with open(roundtrip_path) as f:
                 tolines = f.readlines()
             diff_iter = difflib.context_diff(
                 fromlines, tolines,
-                str(replay_file.relative_to(replays_dir)),
-                str(roundtrip_path.relative_to(replays_dir)),
+                replay_file.name,
+                roundtrip_path.name,
                 n=3)
             trimmed_diff_lines = [x for _, x in zip(range(100), diff_iter)]
             result.diff = ''.join(trimmed_diff_lines)
         else:
             result.diff = 'missing roundtrip file, cannnot diff'
 
-    if not result.success and result.log['stderr']:
+    stderr_path = output_dir / 'stderr.txt'
+    if not result.success and stderr_path.exists():
+        # TODO make this part of .result.txt
         failing_frame_match = re.match(
-            r'.*expected:\n.*?(\d+)', result.log['stderr'], re.DOTALL)
+            r'.*expected:\n.*?(\d+)', stderr_path.read_text(), re.DOTALL)
         if failing_frame_match:
             result.failing_frame = int(failing_frame_match.group(1))
         else:
@@ -621,23 +593,43 @@ def run_replay_test(replay_file: pathlib.Path):
     return result
 
 
-test_results: Dict[pathlib.Path, ReplayTestResult] = {}
-for test in tests:
-    test_results[test] = ReplayTestResult()
+if test_results_dir.exists():
+    shutil.rmtree(test_results_dir)
+test_results_dir.mkdir(parents=True)
+
+is_ci = 'CI' in os.environ
+test_results = ReplayTestResults(
+    runs_on=runs_on,
+    arch=arch,
+    ci=is_ci,
+    git_ref=os.environ.get('GITHUB_REF') if is_ci else None,
+    workflow_run_id=os.environ.get('GITHUB_RUN_ID') if is_ci else None,
+    zc_version='unknown',
+    time=datetime.now(timezone.utc).isoformat(),
+    runs=[],
+)
 
 
 print(f'running {len(tests)} replays\n')
 iteration_count = 0
 for i in range(args.retries + 1):
-    if all(r.success for r in test_results.values()):
+    if i == 0:
+        tests_remaining = tests
+    else:
+        print('\nretrying failures...\n')
+        tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
+    if not tests_remaining:
         break
 
-    if i != 0:
-        print('\nretrying failures...\n')
-
-    for test in [t for t in tests if not test_results[t].success]:
+    runs_dir = test_results_dir / str(i)
+    runs: List[RunResult] = []
+    test_results.runs.append(runs)
+    for test in tests_remaining:
+        print(test)
         print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
-        result = test_results[test] = run_replay_test(test)
+        run_dir = runs_dir / test.with_suffix('').name
+        run_dir.mkdir(parents=True)
+        result = run_replay_test(test, run_dir)
         status_emoji = '✅' if result.success else '❌'
 
         message = f'{status_emoji} {time_format(result.duration)}'
@@ -646,23 +638,17 @@ for i in range(args.retries + 1):
         print(message)
 
         # Only print on failure and last attempt.
-        if not test_results[test].success and i == args.retries:
-            print('\nallegro:')
-            print(result.log['allegro'])
-            print('stdout:')
-            print(result.log['stdout'])
-            print('\nstderr:')
-            print(result.log['stderr'])
+        if not result.success and i == args.retries:
             print('\ndiff:')
             print(result.diff)
-            print('\nzplay result:')
-            print(result.zplay_result)
+
+        runs.append(result)
 
 
-save_test_results()
+test_results_path.write_text(test_results.to_json())
 
 if mode == 'assert':
-    failing_tests = [test for test, r in test_results.items() if not r.success]
+    failing_tests = [r.name for r in test_results.runs[-1] if not r.success]
 
     if len(failing_tests) == 0:
         print('all replay tests passed')
@@ -670,8 +656,8 @@ if mode == 'assert':
         print(f'{len(failing_tests)} replay tests failed')
 
         print('\nto collect baseline artifacts and then generate a report, run the following commands:\n')
-        print(f'python {script_dir}/run_test_workflow.py --test_results {replays_dir} --token <1>')
-        print(f'python {script_dir}/compare_replays.py --workflow_run <2> --local {replays_dir}')
+        print(f'python {script_dir}/run_test_workflow.py --test_results {test_results_dir} --token <1>')
+        print(f'python {script_dir}/compare_replays.py --workflow_run <2> --local {test_results_dir}')
         print('\n')
         print('<1>: github personal access token, with write actions access')
         print('<2>: workflow run id printed from the previous command')

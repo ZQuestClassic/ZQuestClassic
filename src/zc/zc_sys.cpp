@@ -6525,7 +6525,7 @@ int32_t onSaveReplay()
 			return D_CLOSE;
 
 			char replay_path[2048];
-			strcpy(replay_path, replay_get_filename().c_str());
+			strcpy(replay_path, replay_get_replay_path().string().c_str());
 			if (jwin_file_select_ex(
 					fmt::format("Save Replay (.{})", REPLAY_EXTENSION).c_str(),
 					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
