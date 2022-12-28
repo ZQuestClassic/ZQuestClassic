@@ -67,6 +67,8 @@ def theme(ind):
 theme(0)
 def popError(s):
     messagebox.showinfo(title = 'Error!', message = s)
+def popWarn(s):
+    messagebox.showinfo(title = 'Warning!', message = s)
 def update_file(fname):
     global cur_directory, cur_file
     args.inputfile = fname
@@ -184,10 +186,10 @@ def saver_json_as():
         mark_saved()
     except:
         popError(f'Error occurred saving file:\n{fname}')
-def saver_html(filename=None):
-    global json_obj, root, file_loaded
+def saver_html(filename=None,skipwarn=False):
+    global json_obj, root, file_loaded, htmlwarn_fname
     if not file_loaded:
-        return
+        return False
     _dir = os.path.dirname(args.outputfile)
     if filename:
         fname = filename
@@ -195,17 +197,51 @@ def saver_html(filename=None):
         fname = os.path.basename(args.outputfile)
         fname = filedialog.asksaveasfilename(parent = root, title = 'Export HTML', initialdir = _dir, initialfile = fname, filetypes = (('HTML','*.html'),),defaultextension = '.html')
     if len(fname) < 1:
-        return
+        return False
     try:
         lib.savehtml(fname,json_obj)
         args.outputfile = fname
+        return True
     except Exception as e:
-        popError(f"Error '{str(e)}'\nOccurred saving file:\n{fname}")
-        return None
+        popError(f"Error:\n{str(e)}\nOccurred saving file:\n{fname}")
+        return False
+    finally:
+        if not skipwarn and lib.parse_warnings:
+            popWarn('Warnings:\n'+'\n'.join(lib.parse_warnings)+f"\nOccurred saving file:\n{htmlwarn_fname}")
 def preview_html():
+    global mainframe
     tout = args.outputfile
-    saver_html('_preview.html')
-    openhtml(os.getcwd()+'\\'+'_preview.html')
+    
+    cx = mainframe.winfo_x()
+    cy = mainframe.winfo_y()
+    frw = mainframe.winfo_width()
+    frh = mainframe.winfo_height()
+    cx += frw/2
+    cy += frh/2
+    
+    fr = Frame(root, bg=BGC)
+    lb=Label(fr, text = 'Parsing preview HTML...')
+    style_label(lb)
+    lb.pack()
+    lb=Label(fr, text = 'Please Wait')
+    style_label(lb)
+    lb.pack()
+    
+    fr.config(highlightthickness=2,highlightbackground=FGC)
+    fr.grid()
+    root.update_idletasks()
+    fr.place(x=cx-fr.winfo_width()/2,y=cy-fr.winfo_height()/2)
+    root.update()
+    
+    if saver_html('_preview.html',skipwarn=True):
+        _go = True
+        if lib.parse_warnings:
+            _go = messagebox.askokcancel(parent=root,title='Warning!',message='Warnings:\n'+'\n'.join(lib.parse_warnings)+'\n\nPreview anyway?')
+        if _go:
+            openhtml(os.getcwd()+'\\'+'_preview.html')
+    
+    fr.destroy()
+    root.update()
     args.outputfile = tout
 def save_warn(_msg):
     global root, needs_save, needs_edit_save, warned
@@ -764,7 +800,7 @@ def style_btn(btn):
     disable_btn(btn,False)
 def disable_btn(btn,dis):
     if dis:
-        btn.config(relief=GROOVE)
+        btn.config(relief=GROOVE,background=BGC)
     else:
         btn.config(relief=RAISED)
 def style_txt(txt):

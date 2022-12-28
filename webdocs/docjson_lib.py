@@ -54,9 +54,17 @@ def savehtml(fname,obj):
 #        'val': str, the content
 
 #Called on program fatal error
+def _getloc():
+    global cur_body
+    loc = ''
+    if cur_body:
+        loc = f"At '{cur_body.location()}':\n -"
+    return loc
 def parse_fail(msg):
-    print(f'[FATAL] {msg}', file=sys.stderr)
-    exit(1)
+    raise Exception(f'{_getloc()}FATAL: {msg}')
+def parse_warn(msg):
+    global parse_warnings, cur_body
+    parse_warnings.append(_getloc()+msg)
 #Called to print state information
 def parse_state(msg):
     if debug_out:
@@ -69,6 +77,10 @@ def _namestrip(s):
     return re.sub('$','',s).upper().strip()
 def findNamed(title,name):
     global data_obj
+    notitle = title is None
+    if notitle:
+        title = 'MISC'
+    rep = f"'{name}'" if notitle else f"'{title},{name}'"
     _title = _namestrip(title)
     _name = _namestrip(name)
     for section in data_obj['named']['tabs']:
@@ -79,6 +91,9 @@ def findNamed(title,name):
             if _namestrip(line['name']) == _name:
                 return line['val']
         break
+    else:
+        if not notitle:
+            parse_warn(f"Named data section '{title}' does not exist!")
     #Not found in specified section
     #Search all sections as a fallback
     for section in data_obj['named']['tabs']:
@@ -86,7 +101,8 @@ def findNamed(title,name):
             if _namestrip(line['name']) == _name:
                 return line['val']
     #Not found anywhere, error
-    parse_fail(f"Error: named data {(title,name)} was not found!")
+    parse_warn(f"Named data {rep} was not found!")
+    return f"<todo>[NO DATA {rep}]</todo>"
 def trimtags(string:str) -> str:
     return re.sub(_pat_tags, '', string)
 def update_date():
@@ -170,6 +186,7 @@ class LeveledObj:
         self.tokens = tok
         self.insens = insens
         self.html_lvl = 0
+        self.nest_lvl = 0
         self.ind = 0
         self.token_data = []
         
@@ -192,6 +209,7 @@ class LeveledObj:
                 tkobj.set(tkobj.tkind,obj.ind,_strslice)
                 tkobj.tkind += 2
                 tkobj.token += 1
+                _reset = False
                 if tkobj.token == len(obj.tokens):
                     _l = len(obj.string)
                     obj.string = replfunc(obj.string, tkobj)
@@ -199,11 +217,21 @@ class LeveledObj:
                     obj.ind += _l2
                     #Reset state, continue parsing ('replace all')
                     obj.token_data[obj.html_lvl] = tkdata()
+                    _reset = True
                     tkobj = obj.token_data[obj.html_lvl]
-                obj.ind += len(_strslice)-1
+                obj.ind += len(_strslice)
                 if tkobj.tkind > 0:
-                    _dat = tkobj.set(tkobj.tkind-1,obj.ind+1,'')
-                #End 'found the current token'
+                    _dat = tkobj.set(tkobj.tkind-1,obj.ind,'')
+                if _reset and obj.nest_lvl > 0:
+                    # A nested end
+                    obj.nest_lvl -= 1
+                    obj.html_lvl -= 1
+                continue #End 'found the current token'
+            elif tkobj.token > 0 and obj.comparestr(_strslice,obj.tokens[0]):
+                #Found a nested start?
+                obj.nest_lvl += 1 #Track number of nests
+                obj.html_lvl += 1 #Reuse this
+                continue #Don't increment obj.ind
             elif _strslice[0] == '<': #Found an html tag?
                 squote = False
                 dquote = False
@@ -265,7 +293,7 @@ def parseTTip(display,ttip):
         ttip = findNamed('TTIPS', ttip[1:])
     ttip = parseBody(ttip)
     if ttip.find('<a class = "ttip">') > -1:
-        parse_fail("Error: tooltip '{display}' contains other tooltips!")
+        parse_fail(f"Tooltip '{display}' contains other tooltips!")
     return f'<a class = "ttip">{display}<span class = "ttt">{ttip}</span></a>'
 def repl_ttip_1(string,tkobj):
     return tkobj.replace(string,parseTTip(tkobj.getval(1),tkobj.getval(3)))
@@ -274,7 +302,7 @@ def repl_ttip_2(string,tkobj):
 def repl_named_1(string,tkobj):
     return tkobj.replace(string,parseBody(findNamed(tkobj.getval(1),tkobj.getval(3))))
 def repl_named_2(string,tkobj):
-    return tkobj.replace(string,parseBody(findNamed('MISC',tkobj.getval(1))))
+    return tkobj.replace(string,parseBody(findNamed(None,tkobj.getval(1))))
 def parseSpoiler(tip,body):
     return f"<span class = 'spoiler' showtext = {enquote(tip)}><span class = 'showbutton' data-active=0></span><span class = 'spoilbody' style = 'display:none' hidden>{parseBody(body)}</span></span>"
 def repl_spoil_1(string,tkobj):
@@ -325,8 +353,25 @@ def get_sheet(sheetname:str) -> int:
         if sheets[s]['name'] == sheetname:
             return s;
 
+class gen_body:
+    def __init__(self,sheetid,tabid,lineid,text):
+        self.text = text
+        self.sheetid = sheetid
+        self.tabid = tabid
+        self.lineid = lineid
+    def __str__(self):
+        return self.text
+    def location(self):
+        global data_obj
+        sh = data_obj['sheets'][self.sheetid]
+        tb = sh['tabs'][self.tabid]
+        li = tb['lines'][self.lineid]
+        return f"{sh['name']}->{tb['name']}->{get_line_display(li)}"
+
+cur_body = None
 def generate_output(obj) -> str:
-    global data_obj, debug_out, sheets, sz_tabs, broken_links
+    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body
+    parse_warnings = []
     data_obj = obj
     sz_tabs = 0
     sheets = data_obj['sheets']
@@ -343,14 +388,17 @@ def generate_output(obj) -> str:
     parse_state('Generating bodies...')
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
-        for line in tab['lines']:
+        for lind in range(len(tab['lines'])):
+            line = tab['lines'][lind]
             line['body'] = -1
             _val = line['val']
             if not _val or _val[0] == '$':
                 continue; #no body to generate for this line
             bid = len(generated_bodies)
             line['body'] = bid
-            generated_bodies.append(f'\t\t<div class = "cntnt" data-bid = {bid} data-tid = -1 hidden>{_val}</div>\n')
+            shind = get_tab_sheet(curtab)
+            tind = curtab-sheets[shind]['tabind']
+            generated_bodies.append(gen_body(shind,tind,lind,text=f'\t\t<div class = "cntnt" data-bid = {bid} data-tid = -1 hidden>{_val}</div>\n'))
 
     parse_state('Generating tabs...')
     for curtab in range(sz_tabs):
@@ -388,14 +436,16 @@ def generate_output(obj) -> str:
 
     parse_state('Parsing special body code...')
     for ind in range(len(generated_bodies)):
-        generated_bodies[ind] = parseBody(generated_bodies[ind])
+        cur_body = generated_bodies[ind]
+        generated_bodies[ind].text = parseBody(generated_bodies[ind].text)
+    cur_body = None
     parse_state('Generating final output...')
 
     generated_data = ''
     for tab in generated_tabs:
         generated_data += tab;
     for body in generated_bodies:
-        generated_data += body;
+        generated_data += body.text;
 
     generated_data = re.sub('<block>',"<span class='block'>",generated_data)
     generated_data = re.sub('<iblock>',"<span class='iblock'>",generated_data)
