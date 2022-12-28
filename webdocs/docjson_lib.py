@@ -3,7 +3,7 @@ from datetime import date
 from datetime import datetime
 import pytz
 
-def _dict_get(d:dict,s:str,default):
+def _dict_get(d:dict,s:str,default=None):
     try:
         return d[s]
     except:
@@ -15,32 +15,67 @@ def _dict_del(d:dict,s:str):
 
 def loadjson(fname):
     global data_obj, debug_out
-    parse_state('Loading Json...')
+    
+    parse_state('Loading Json...',0)
     with open(fname, 'r') as file:
         data_obj = json.loads(file.read())
-    parse_state('Validating Json...')
+    parse_state('Validating Json...',1)
     _key = '[MISSING]'
     try:
         _key = data_obj['key']
     except:
         pass
     if _key != 'zs_docjson_py':
-        parse_state('FAIL!')
+        parse_state('FAIL!',2)
         raise Exception(f'Invalid .json key: {_key}')
-    else:
-        parse_state('Done!')
-        return data_obj
+    
+    if data_obj['ver'] < 1:
+        data_obj['pagetitle'] = 'ZSDocs'
+        data_obj['header'] = 'ZScript Documentation (WIP)'
+        data_obj['url'] = 'https://www.zeldaclassic.com/zscript-docs/'
+        data_obj['urltxt'] = 'Latest'
+        data_obj['ver'] = 1
+    parse_state('Done!',2)
+    poll_html_callback()
+    return data_obj
 def savejson(fname,obj):
-    parse_state('Saving Json...')
+    parse_state('Saving Json...',0)
     with open(fname, 'w') as file:
         file.write(json.dumps(obj, indent=4))
-    parse_state('Done!')
-def savehtml(fname,obj):
+    parse_state('Done!',1)
+    poll_html_callback()
+NUM_HTML_CALLBACK = 7
+def poll_html_callback():
+    global NUM_HTML_CALLBACK
+    sz_tabs = 0
+    numlines = 0
+    numbodies = 0
+    for sheet in data_obj['sheets']:
+        sz_tabs += len(sheet['tabs'])
+        for tab in sheet['tabs']:
+            numlines += len(tab['lines'])
+            for line in tab['lines']:
+                v = line['val']
+                if not v or v[0] == '$':
+                    continue
+                numbodies += 1
+    
+    NUM_HTML_CALLBACK = 7 + (numlines*2) + numbodies
+def savehtml(fname,obj,load_messager=None):
+    global state_callback, stateind
+    
+    stateind = 0
+    state_callback = load_messager
+    
+    poll_html_callback()
+    
     outstr = generate_output(obj)
-    parse_state('Writing output file...')
+    parse_state('Writing output file...',stateind+1)
     with open(fname, 'w') as file:
         file.write(outstr)
-    parse_state('Done!')
+    parse_state('Writing output file...Done!')
+    
+    state_callback = None
 #data_obj has:
 #'sheets': list of objects having:
 #    'name': str, the sheet name
@@ -66,7 +101,15 @@ def parse_warn(msg):
     global parse_warnings, cur_body
     parse_warnings.append(_getloc()+msg)
 #Called to print state information
-def parse_state(msg):
+state_callback = None
+def parse_state(msg,ind=None):
+    global state_callback, stateind
+    if ind is None:
+        ind = stateind
+    else:
+        stateind = ind
+    if state_callback:
+        state_callback((ind,msg))
     if debug_out:
         print(f'[ST] {msg}')
 
@@ -200,9 +243,6 @@ class LeveledObj:
         return s1 == s2
     
     def replacer(obj, replfunc) -> str:
-        obj.db = cur_body.sheetid == 0 and cur_body.tabid == 0  and cur_body.lineid == 0 and obj.htmlwarn
-        if obj.db:
-            print(obj.string)
         while obj.ind < len(obj.string):
             if len(obj.token_data) < obj.html_lvl+1:
                 obj.token_data.append(tkdata())
@@ -257,12 +297,8 @@ class LeveledObj:
                     if not squote and not dquote and _c == '>':
                         break #Close html tag
                     q += 1
-                if obj.db:
-                    print(tstr)
                 if re.match(_pat_htmltag,tstr):
                     if len(tstr) > 1 and tstr[1] == '/':
-                        if obj.db:
-                            print(1,tstr)
                         obj.down_level()
                         if not obj.htmltags and obj.htmlwarn:
                             parse_warn(f'HTML CLOSE WITHOUT OPEN {tstr}')
@@ -286,20 +322,14 @@ class LeveledObj:
                         if obj.html_lvl < 0:
                             obj.html_lvl = 0
                     elif len(tstr) > 2 and tstr[-1] == '/':
-                        if obj.db:
-                            print(2)
                         #self-closing tag
                         pass
                     else:
-                        if obj.db:
-                            print(3)
                         obj.html_lvl += 1
                         obj.htmlindx += 1
                         ind = tstr.find(' ')
                         xstr = tstr[1:-1] if ind < 0 else tstr[1:ind]
                         tags = (tstr,xstr)
-                        if obj.db:
-                            print(f'tags[{obj.htmlindx}] = {tags}')
                         if len(obj.htmltags) > obj.htmlindx:
                             obj.htmltags[obj.htmlindx] = tags
                         else:
@@ -445,11 +475,12 @@ class gen_body:
 
 cur_body = None
 def generate_output(obj) -> str:
-    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body, main_body
+    global data_obj, debug_out, sheets, sz_tabs, broken_links, parse_warnings, cur_body, main_body, stateind
     parse_warnings = []
     data_obj = obj
     sz_tabs = 0
     sheets = data_obj['sheets']
+    stateind = -1
 
     for sheet in sheets:
         sheet['tabind'] = sz_tabs;
@@ -459,11 +490,17 @@ def generate_output(obj) -> str:
     generated_bodies = []
     generated_tabs = []
 
-
-    parse_state('Generating bodies...')
+    numlines = 0
+    for curtab in range(sz_tabs):
+        tab = get_tab_global(curtab)
+        numlines += len(tab['lines'])
+    curline = 0
+    parse_state(f'Generating bodies... 0/{numlines}',stateind+1)
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
         for lind in range(len(tab['lines'])):
+            curline += 1
+            parse_state(f'Generating bodies... {curline}/{numlines}')
             line = tab['lines'][lind]
             line['body'] = -1
             _val = line['val']
@@ -474,14 +511,17 @@ def generate_output(obj) -> str:
             shind = get_tab_sheet(curtab)
             tind = curtab-sheets[shind]['tabind']
             generated_bodies.append(gen_body(shind,tind,lind,text=f'\t\t<div class = "cntnt" data-bid = {bid} data-tid = -1 hidden>{_val}</div>\n'))
-
-    parse_state('Generating tabs...')
+    
+    curline = 0
+    parse_state(f'Generating tabs... 0/{numlines}',stateind+1)
     for curtab in range(sz_tabs):
         tab = get_tab_global(curtab)
         cursheetind = get_tab_sheet(curtab)
         hid_content = ' hidden style = "display:none"' if curtab > 0 else ''
         tab_content = f'\t\t<div class = "tab_container" data-bid = -1 data-tid = {curtab}{hid_content}>\n';
         for line in tab['lines']:
+            curline += 1
+            parse_state(f'Generating tabs... {curline}/{numlines}')
             line['linktab'] = curtab
             _name = line['name']
             _val = line['val']
@@ -508,14 +548,16 @@ def generate_output(obj) -> str:
         tab_content += "\t\t</div>\n"
         generated_tabs.append(tab_content);
         #end foreach tab
-
-    parse_state('Parsing special body code...')
+    
+    numlines = len(generated_bodies)
+    parse_state(f'Parsing special body code... 0/{numlines}',stateind+1)
     for ind in range(len(generated_bodies)):
+        parse_state(f'Parsing special body code... {ind+1}/{numlines}')
         cur_body = generated_bodies[ind]
         main_body = True
         generated_bodies[ind].text = parseBody(generated_bodies[ind].text)
     cur_body = None
-    parse_state('Generating final output...')
+    parse_state('Generating final output...',stateind+1)
 
     generated_data = ''
     for tab in generated_tabs:
@@ -1460,7 +1502,7 @@ def generate_output(obj) -> str:
 				let id = tab.id.toString();
 				if(tab.dataset.bid > -1 && cachetab[it_1] < 0)
 					cachetab[it_1] = tab.dataset.bid;
-				if(tab.innerHTML === '--')
+				if(tab.innerHTML.trim() === '--')
 				{
 					hide(tab, false);
 					continue;
@@ -1538,7 +1580,7 @@ def generate_output(obj) -> str:
 		if(urlParams.has('v'))
 			verboseLog = true;
 		let dbtn = document.getElementById('debug');
-		if(dbtn !== undefined)
+		if(dbtn !== null)
 			dbtn.addEventListener('click',function(){
 				verboseLog = true;
 				if(!urlParams.has('v'))
@@ -1603,7 +1645,7 @@ def generate_output(obj) -> str:
                 else:
                     print(broken_links[ind])
             print()
-    parse_state('Cleaning up...')
+    parse_state('Cleaning up...',stateind+1)
     for sheet in sheets:
         _dict_del(sheet,'tabind')
         for tab in sheet['tabs']:
@@ -1611,17 +1653,23 @@ def generate_output(obj) -> str:
                 _dict_del(line,'linktab')
                 _dict_del(line,'body')
     
+    url = _dict_get(data_obj,'url')
+    urltxt = _dict_get(data_obj,'urltxt','')
+    if url and urltxt:
+        url = f' (<a href="{url}" target="_blank" rel="noopener noreferrer">{urltxt}</a>)'
+    ptitle = _dict_get(data_obj,'pagetitle','JsonDocPage')
+    header = _dict_get(data_obj,'header','Page Header Here')
     ret = f"""<!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
 	<meta charset="utf-8">
-	<title>ZSDocs</title>
+	<title>{ptitle}</title>
 {css}
 </head>
 <body class = "pagecont">
 <header class = "pagecont">
-	<h1>ZScript Documentation (WIP)</h1>
-	<p>Last Updated: {update_date()} (<a href="https://www.zeldaclassic.com/zscript-docs/" target="_blank" rel="noopener noreferrer">Latest</a>)</p>
+	<h1>{header}</h1>
+	<p>Last Updated: {update_date()}{url}</p>
 </header>
 <main class = "pagecont">
 	<div class='modal' id = 'ttipmodal'>

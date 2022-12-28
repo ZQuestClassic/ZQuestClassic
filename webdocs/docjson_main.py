@@ -186,21 +186,60 @@ def saver_json_as():
         mark_saved()
     except:
         popError(f'Error occurred saving file:\n{fname}')
+def new_json():
+    global json_obj, file_loaded, cur_file
+    json_obj = {'key':'zs_docjson_py',
+        'ver':1,
+        'pagetitle':'JsonDocPage',
+        'header':'Page Header Here',
+        'url':'',
+        'urltxt':'Latest',
+        'sheets':[{'name':'MainData',
+            'tabs':[
+                {'name':'ROOT (HTML home)',
+                    'lines':[
+                        {'name':'--','val':'<todo>Edit this!</todo>'},
+                        {'name':'Other Page ;; pg2','val':'$-1$1'}
+                    ]
+                },
+                {'name':'Section 2',
+                    'lines':[
+                        {'name':'&lt;-- Back ;; root','val':'$-1'},
+                        {'name':'--','val':'<todo>Add some page content</todo>'}
+                    ]
+                }]
+            }],
+        'named':{'name':'Named_Data',
+            'tabs':[
+                {'name':'MISC','lines':[]},
+                {'name':'TTIPS','lines':[]}
+            ]}
+    }
+    mark_saved()
+    mark_autosaved()
+    local_edited(False)
+    cur_file = 'Untitled.json'
+    update_root_title()
+    args.inputfile = ''
+    file_loaded = True
+    navi.clear()
 import traceback
-def saver_html(filename=None,skipwarn=False):
+def get_save_html_name(filename=None):
+    if filename:
+        return filename
+    _dir = os.path.dirname(args.outputfile)
+    fname = os.path.basename(args.outputfile)
+    fname = filedialog.asksaveasfilename(parent = root, title = 'Export HTML', initialdir = _dir, initialfile = fname, filetypes = (('HTML','*.html'),),defaultextension = '.html')
+    return fname
+def saver_html(filename=None,skipwarn=False,load_messager=None):
     global json_obj, root, file_loaded, htmlwarn_fname
     if not file_loaded:
         return False
-    _dir = os.path.dirname(args.outputfile)
-    if filename:
-        fname = filename
-    else:
-        fname = os.path.basename(args.outputfile)
-        fname = filedialog.asksaveasfilename(parent = root, title = 'Export HTML', initialdir = _dir, initialfile = fname, filetypes = (('HTML','*.html'),),defaultextension = '.html')
-    if len(fname) < 1:
+    fname = get_save_html_name(filename)
+    if fname == '':
         return False
     try:
-        lib.savehtml(fname,json_obj)
+        lib.savehtml(fname,json_obj,load_messager=load_messager)
         args.outputfile = fname
         return True
     except Exception as e:
@@ -210,40 +249,155 @@ def saver_html(filename=None,skipwarn=False):
     finally:
         if not skipwarn and lib.parse_warnings:
             popWarn('Warnings:\n'+'\n'.join(lib.parse_warnings)+f"\nOccurred saving file:\n{htmlwarn_fname}")
-def preview_html():
-    global mainframe
-    tout = args.outputfile
+
+centered_popup_fr = None
+centered_popup_labels = None
+centered_popup_prog = None
+def centered_popup(fr:Frame):
+    global centered_popup_fr
+    centered_popup_fr = fr
     
+    fr.config(highlightthickness=2,highlightbackground=FGC)
+    fr.grid()
+    
+    update_popup_size()
+    return fr
+def update_popup_size():
+    global centered_popup_fr, centered_popup_prog
+    root.update_idletasks()
     cx = mainframe.winfo_x()
     cy = mainframe.winfo_y()
     frw = mainframe.winfo_width()
     frh = mainframe.winfo_height()
     cx += frw/2
     cy += frh/2
-    
-    fr = Frame(root, bg=BGC)
-    lb=Label(fr, text = 'Parsing preview HTML...')
-    style_label(lb)
-    lb.pack()
-    lb=Label(fr, text = 'Please Wait')
-    style_label(lb)
-    lb.pack()
-    
-    fr.config(highlightthickness=2,highlightbackground=FGC)
-    fr.grid()
-    root.update_idletasks()
-    fr.place(x=cx-fr.winfo_width()/2,y=cy-fr.winfo_height()/2)
+    w=centered_popup_fr.winfo_width()
+    h=centered_popup_fr.winfo_height()
+    centered_popup_fr.place(x=cx-w/2,y=cy-h/2)
+    if centered_popup_prog:
+        t1,prog = centered_popup_prog
+        pb,label,s = t1
+        pb.config(length=w-10)
+        pb['value'] = round((float(prog[0])*100)/prog[1])
+        if label:
+            label.config(text = s.format(prog[0],prog[1]))
+def build_labels(strs:list,parent=None,waitstr=None,prog=None)->Frame:
+    global root, centered_popup_labels
+    if not parent:
+        parent = root
+    if centered_popup_labels:
+        if parent == centered_popup_labels.master:
+            for widg in centered_popup_labels.winfo_children():
+                widg.destroy()
+            fr = centered_popup_labels
+        else:
+            centered_popup_labels.destroy()
+            centered_popup_labels = None
+    if not centered_popup_labels:
+        fr = Frame(parent,bg=BGC)
+        centered_popup_labels = fr
+        
+    for s in strs:
+        lb=Label(fr, text = s)
+        style_label(lb)
+        lb.pack()
+    return fr
+def build_prog(prog,waitstr=None,parent=None):
+    global centered_popup_prog, root
+    if not parent:
+        parent = root
+    fr = Frame(parent,bg=BGC)
+    centered_popup_prog = None
+    if prog and len(prog) == 2:
+        #prog is tuple(current, expected) representing progress
+        lb = None
+        if waitstr:
+            lb=Label(fr, text=waitstr.format(prog[0],prog[1]))
+            style_label(lb)
+            lb.pack()
+        pb = ttk.Progressbar(fr,orient='horizontal',mode='determinate',length=10)
+        pb.pack()
+        centered_popup_prog = ((pb,lb,waitstr),prog)
+    return fr
+def destroy_popup():
+    global centered_popup_fr, centered_popup_prog, centered_popup_labels
+    centered_popup_fr.destroy()
+    centered_popup_fr = None
+    centered_popup_prog = None
+    if centered_popup_labels:
+        centered_popup_labels.destroy()
+        centered_popup_labels = None
     root.update()
+def repop_centered_labels(l,fr=None,prog=None,waitstr=None):
+    global centered_popup_labels
+    if not fr:
+        fr = centered_popup_labels
+    par = None
+    if fr:
+        par = fr.master
+    fr = build_labels(l,parent=par,prog=prog,waitstr=waitstr)
+    root.update()
+    return fr
+def savehtml_callback(tpl:tuple):
+    global htmlcallcount, centered_popup_prog, root, htmlcallstr, labelstrs
+    ind,s = tpl
+    if ind >= 0:
+        while len(labelstrs) <= ind:
+            labelstrs.append('')
+        if ind+1 < len(labelstrs):
+            labelstrs = labelstrs[:ind+1]
+        labelstrs[ind] = s
+    repop_centered_labels([htmlcallstr]+labelstrs)
+    centered_popup_prog = (centered_popup_prog[0],(htmlcallcount,lib.NUM_HTML_CALLBACK-1))
+    update_popup_size()
+    root.update()
+    htmlcallcount += 1
+def save_html(filename=None,skipwarn=False):
+    global mainframe, htmlcallcount, htmlcallstr, labelstrs
+    filename = get_save_html_name(filename)
+    if filename == '':
+        return
     
-    if saver_html('_preview.html',skipwarn=True):
+    htmlcallstr = 'Saving HTML...'
+    labelstrs = [htmlcallstr]
+    tout = args.outputfile
+    
+    popup = centered_popup(Frame(root,bg=BGC))
+    
+    f1 = build_labels(labelstrs,parent=popup)
+    f1.pack()
+    lib.poll_html_callback()
+    f2 = build_prog(parent=popup,prog=(0,lib.NUM_HTML_CALLBACK-1),waitstr='Please Wait {}/{}')
+    f2.pack()
+    update_popup_size()
+    htmlcallcount = 0
+    
+    saver_html(filename,skipwarn=skipwarn,load_messager=savehtml_callback)
+    
+    destroy_popup()
+    args.outputfile = tout
+def preview_html():
+    global mainframe, htmlcallcount, htmlcallstr, labelstrs
+    htmlcallstr = 'Parsing preview HTML...'
+    labelstrs = [htmlcallstr]
+    tout = args.outputfile
+    
+    popup = centered_popup(Frame(root,bg=BGC))
+    
+    f1 = build_labels(labelstrs,parent=popup)
+    f1.pack()
+    lib.poll_html_callback()
+    f2 = build_prog(parent=popup,prog=(0,lib.NUM_HTML_CALLBACK-1),waitstr='Please Wait {}/{}')
+    f2.pack()
+    update_popup_size()
+    htmlcallcount = 0
+    if saver_html('_preview.html',skipwarn=True,load_messager=savehtml_callback):
         _go = True
         if lib.parse_warnings:
             _go = messagebox.askokcancel(parent=root,title='Warning!',message='Warnings:\n'+'\n'.join(lib.parse_warnings)+'\n\nPreview anyway?')
         if _go:
             openhtml(os.getcwd()+'\\'+'_preview.html')
-    
-    fr.destroy()
-    root.update()
+    destroy_popup()
     args.outputfile = tout
 def save_warn(_msg):
     global root, needs_save, needs_edit_save, warned
@@ -271,7 +425,7 @@ def onfile():
     global filemenu
     filemenu.entryconfig('Save', state = 'normal' if needs_save and file_loaded else 'disabled')
     filemenu.entryconfig('Save As', state = 'normal' if file_loaded else 'disabled')
-    filemenu.entryconfig('Save HTML', state = 'normal' if file_loaded else 'disabled')
+    filemenu.entryconfig('Export HTML', state = 'normal' if file_loaded else 'disabled')
 def onoption():
     global optmenu
     asmin = config['autosave_minutes']
@@ -851,6 +1005,9 @@ def stylize():
         indicatorforeground=[('disabled',FLD_DIS_FGC)],
         indicatorrelief=[('disabled',FLAT)])
     
+    # ttk.Progressbar
+    style.configure('TProgressbar',troughcolor=FLD_BGC,background=FGC)
+    
     # ttk.Scrollbar
     # print(style.layout('Vertical.TScrollbar'))
     # print(style.element_options('Vertical.Scrollbar.thumb'))
@@ -982,6 +1139,9 @@ class SheetsPage(Page):
         style_btn(_btn)
         _btn.pack()
         _btn=Button(f2, width=wid, text='Named Data', command=edit_named)
+        style_btn(_btn)
+        _btn.pack()
+        _btn=Button(f2, width=wid, text='Page Settings', command=popup_pagesetting)
         style_btn(_btn)
         _btn.pack()
         f2.pack(side='left')
@@ -1802,12 +1962,14 @@ def gen_menubar():
     global menubar,filemenu,optmenu,root
     menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
+    filemenu.add_command(label = 'New', command = new_json)
     filemenu.add_command(label = 'Load', command = loader_json)
-    filemenu.add_command(label = 'Save', command = saver_json)
-    filemenu.add_command(label = 'Save As', command = saver_json_as)
-    filemenu.add_command(label = 'Save HTML', command = saver_html)
     filemenu.add_separator()
     filemenu.add_command(label = 'Help [F1]', command = info_program)
+    filemenu.add_separator()
+    filemenu.add_command(label = 'Save', command = saver_json)
+    filemenu.add_command(label = 'Save As', command = saver_json_as)
+    filemenu.add_command(label = 'Export HTML', command = save_html)
     filemenu.add_separator()
     filemenu.add_command(label = 'Exit', command = quitter)
     menubar.add_cascade(label='File', menu=filemenu)
@@ -1816,6 +1978,89 @@ def gen_menubar():
     optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
     menubar.add_cascade(label='Options', menu=optmenu)
     root.config(menu=menubar)
+
+def clear_popup(toplevel,closers=[]):
+    global tl_frame_popup
+    for closer in closers:
+        closer()
+    if tl_frame_popup:
+        destroy_popup()
+    toplevel.grab_release()
+    toplevel.destroy()
+def setup_popup(title,closer=None):
+    popup = Toplevel(bg=BGC)
+    popup.title(title)
+    popup.grab_set()
+    popup.protocol("WM_DELETE_WINDOW", lambda: clear_popup(popup,[closer] if closer else []))
+    popup.grid_rowconfigure(0, weight=1)
+    popup.grid_columnconfigure(0, weight=1)
+    return popup
+def launch_popup(toplevel,frame,savers=[],closers=[]):
+    frame.grid()
+    Frame(frame,bg=BGC,width=0,height=15).pack()
+    btnfr = Frame(frame,bg=BGC)
+    btns = []
+    wid = 10
+    okb = Button(btnfr,width=wid,text='OK',command=lambda:clear_popup(toplevel,savers+closers))
+    btns.append(okb)
+    cb = okb
+    if savers:
+        cb = Button(btnfr,width=wid,text='Cancel',command=lambda:clear_popup(toplevel,closers))
+        btns.append(cb)
+    for b in btns:
+        style_btn(b)
+        b.pack(side='left')
+    btnfr.pack()
+    okb.focus_set()
+    toplevel.bind('<Return>',lambda *_:okb.invoke())
+    toplevel.bind('<Escape>',lambda *_:cb.invoke())
+    toplevel.mainloop()
+def pack_entry_rows(toplevel,frame,l:list,wid=50):
+    fr = Frame(frame, bg=BGC)
+    r = 0
+    evars = []
+    savers = []
+    for t in l:
+        # t is tuple(title,key)
+        _lbl = Label(fr, text=t[0])
+        style_label(_lbl)
+        _lbl.grid(row=r,column=0,sticky=E)
+        
+        default = t[2] if len(t) > 2 else None
+        default = getkey(t[1],default)
+        tvar = StringVar(toplevel, default)
+        
+        _ent = Entry(fr, width=wid, textvariable=tvar)
+        style_entry(_ent)
+        _ent.grid(row=r,column=1,sticky=W)
+        
+        r += 1
+        evars.append(tvar)
+        savers.append(lambda: setkey(t[1],tvar.get()))
+    fr.pack()
+    return (savers,evars)
+
+def getkey(key:str,default=None):
+    global json_obj
+    return lib._dict_get(json_obj,key,default)
+def setkey(key:str,val):
+    global json_obj
+    json_obj[key] = val
+
+def popup_pagesetting():
+    global json_obj, file_loaded, tl_frame_popup, packed_rows
+    if not file_loaded:
+        return
+    tl_frame_popup = build_labels(['Page Settings open...','Please Close Popup'])
+    tl = setup_popup('Page Settings')
+    topframe = Frame(tl, bg=BGC)
+    packed_rows = pack_entry_rows(tl,topframe,[
+        ('Page Title:','pagetitle'),
+        ('Header:','header'),
+        ('Host URL:','url'),
+        ('URL Text:','urltxt')])
+    tl.geometry('400x150')
+    launch_popup(tl,topframe,savers=packed_rows[0])
 
 root = Tk()
 style = ttk.Style(root)
