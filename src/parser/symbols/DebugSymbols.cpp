@@ -12,7 +12,7 @@ static AccessorTable DebugTable[] =
 	{ "getRefNPC",                  0,         ZTID_FLOAT,   DEBUGREFNPC,               0,  { ZTID_DEBUG },{} },
 	{ "getRefLWeapon",              0,         ZTID_FLOAT,   DEBUGREFLWEAPON,           0,  { ZTID_DEBUG },{} },
 	{ "getRefEWeapon",              0,         ZTID_FLOAT,   DEBUGREFEWEAPON,           0,  { ZTID_DEBUG },{} },
-	{ "getSP",                      0,         ZTID_FLOAT,   DEBUGSP,                   0,  { ZTID_DEBUG },{} },
+	{ "getSP",                      0,         ZTID_FLOAT,   SP,                        0,  { ZTID_DEBUG },{} },
 	{ "getPC",                      0,         ZTID_FLOAT,   PC,                        0,  { ZTID_DEBUG },{} },
 	{ "setRefFFC",                  0,         ZTID_FLOAT,   DEBUGREFFFC,               0,  { ZTID_DEBUG },{} },
 	{ "setRefItem",                 0,         ZTID_FLOAT,   DEBUGREFITEM,              0,  { ZTID_DEBUG },{} },
@@ -21,7 +21,7 @@ static AccessorTable DebugTable[] =
 	{ "setRefLWeapon",              0,         ZTID_FLOAT,   DEBUGREFLWEAPON,           0,  { ZTID_DEBUG },{} },
 	{ "setRefEWeapon",              0,         ZTID_FLOAT,   DEBUGREFEWEAPON,           0,  { ZTID_DEBUG },{} },
 	{ "setPC",                      0,         ZTID_FLOAT,   PC,                        0,  { ZTID_DEBUG },{} },
-	{ "setSP",                      0,         ZTID_FLOAT,   DEBUGSP,                   0,  { ZTID_DEBUG },{} },
+	{ "setSP",                      0,         ZTID_FLOAT,   SP,                        0,  { ZTID_DEBUG },{} },
 	{ "getGDR[]",                   0,         ZTID_FLOAT,   DEBUGGDR,                  0,  { ZTID_DEBUG, ZTID_FLOAT },{} },
 	{ "setGDR[]",                   0,          ZTID_VOID,   DEBUGGDR,                  0,  { ZTID_DEBUG, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
