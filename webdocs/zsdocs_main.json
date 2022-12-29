@@ -1,6 +1,6 @@
 {
     "key": "zs_docjson_py",
-    "ver": 0,
+    "ver": 1,
     "sheets": [
         {
             "name": "Base Data",
@@ -388,9 +388,26 @@
                         {
                             "name": "<em>dmapdata</em> ;; dmapdata",
                             "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${LoadDMapData}"
+                        },
+                        {
+                            "name": "Strings ;; dmapdatastrings",
+                            "val": "$-1$1"
                         }
                     ],
                     "todo": true
+                },
+                {
+                    "name": "DMapData Strings",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Back ;; dmapptr",
+                            "val": "$-1"
+                        },
+                        {
+                            "name": "Name ;; dmapdata::GetName / dmapdata::SetName",
+                            "val": "<todo>These functions aren't implemented yet!</todo>\n<h3>void GetName(char32[] buf);</h3>\nFills the buffer with the dmap's name.\n\n<h3>void SetName(char32[] buf);</h3>\nSets the DMap's name to the buffer contents."
+                        }
+                    ]
                 }
             ],
             "todo": true
@@ -2295,5 +2312,9 @@
                 ]
             }
         ]
-    }
+    },
+    "pagetitle": "ZSDocs",
+    "header": "ZScript Documentation (WIP)",
+    "url": "https://www.zeldaclassic.com/zscript-docs/",
+    "urltxt": "Latest"
 }

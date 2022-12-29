@@ -204,28 +204,34 @@ def loader_json():
 def saver_json():
     global json_obj, needs_save, file_loaded
     if not needs_save or not file_loaded:
-        return
+        return False
     if len(args.inputfile) < 1:
         saver_json_as()
-        return
+        return False
     try:
         lib.savejson(args.inputfile,json_obj)
         mark_saved()
-    except:
-        popError(f'Error occurred saving file:\n{args.inputfile}')
+        return True
+    except Exception as e:
+        popError(f"Error:\n{str(e)}\nOccurred saving file:\n{args.inputfile}")
+        print(traceback.print_exc())
+        return False
 def saver_json_as():
     global json_obj, root, file_loaded, needs_save, cur_directory, cur_file
     if not file_loaded:
-        return
+        return False
     fname = filedialog.asksaveasfilename(parent = root, title = 'Save As', initialdir = cur_directory, initialfile = cur_file, filetypes = (('Json','*.json'),),defaultextension = '.json')
     if len(fname) < 1:
-        return
+        return False
     try:
         lib.savejson(fname,json_obj)
         update_file(trim_auto(fname))
         mark_saved()
-    except:
-        popError(f'Error occurred saving file:\n{fname}')
+        return True
+    except Exception as e:
+        popError(f"Error:\n{str(e)}\nOccurred saving file:\n{fname}")
+        print(traceback.print_exc())
+        return False
 def new_json():
     global json_obj, file_loaded, cur_file
     if not save_warn('Create file'):
