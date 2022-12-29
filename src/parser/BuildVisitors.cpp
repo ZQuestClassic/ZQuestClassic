@@ -1159,7 +1159,6 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
-	zconsole_db("BuildOpcodes::caseExprArrow");
 	OpcodeContext *c = (OpcodeContext *)param;
 	bool isarray = host.arrayFunction;
 	bool isIndexed = isarray ? false : host.index;
@@ -3139,7 +3138,6 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
-	zconsole_db("LValBOHelper::caseExprArrow");
 	if(UserClassVar* ucv = host.u_datum)
 	{
 		BuildOpcodes oc(scope);
