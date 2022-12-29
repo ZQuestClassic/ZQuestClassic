@@ -1159,13 +1159,16 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		addOpcode(new OReadObject(new VarArgument(EXP1), new LiteralArgument(ucv->getIndex())));
 		return;
 	}
+	zconsole_db("BuildOpcodes::caseExprArrow");
 	OpcodeContext *c = (OpcodeContext *)param;
-	int32_t isIndexed = (host.index != NULL);
-	assert(host.readFunction->isInternal());
+	bool isarray = host.arrayFunction;
+	bool isIndexed = isarray ? false : host.index;
+	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
+	assert(readfunc->isInternal());
 	
-	if(host.readFunction->getFlag(FUNCFLAG_INLINE))
+	if(readfunc->getFlag(FUNCFLAG_INLINE))
 	{
-		if (!(host.readFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (!(readfunc->internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//push the lhs of the arrow
 			visit(host.left.get(), param);
@@ -1178,7 +1181,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
 		
-		std::vector<std::shared_ptr<Opcode>> const& funcCode = host.readFunction->getCode();
+		std::vector<std::shared_ptr<Opcode>> const& funcCode = readfunc->getCode();
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
@@ -1195,7 +1198,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		int32_t returnlabel = ScriptParser::getUniqueLabelID();
 		//push the return address
 		addOpcode(new OPushImmediate(new LabelArgument(returnlabel)));
-		if (!(host.readFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (!(readfunc->internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//push the lhs of the arrow
 			visit(host.left.get(), param);
@@ -1210,7 +1213,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		}
 
 		//call the function
-		int32_t label = host.readFunction->getLabel();
+		int32_t label = readfunc->getLabel();
 		addOpcode(new OGotoImmediate(new LabelArgument(label)));
 		//pop the stack frame
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
@@ -1222,10 +1225,14 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// If the left hand side is an arrow, then we'll let it run instead.
-	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
+	if (host.array->isTypeArrow())
 	{
-		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
-		return;
+		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
+		if(!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
+		{
+			caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
+			return;
+		}
 	}
 	std::optional<int32_t> arrVal = host.array->getCompileTimeValue(this,scope);
 	std::optional<int32_t> indxVal = host.index->getCompileTimeValue(this,scope);
@@ -3132,6 +3139,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 {
+	zconsole_db("LValBOHelper::caseExprArrow");
 	if(UserClassVar* ucv = host.u_datum)
 	{
 		BuildOpcodes oc(scope);
@@ -3246,10 +3254,14 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrows just fall back on the arrow implementation.
-	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
+	if (host.array->isTypeArrow())
 	{
-		caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
-		return;
+		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
+		if(!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
+		{
+			caseExprArrow(static_cast<ASTExprArrow&>(*host.array), param);
+			return;
+		}
 	}
 
 	vector<shared_ptr<Opcode>> opcodes;
