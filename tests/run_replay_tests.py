@@ -625,7 +625,6 @@ for i in range(args.retries + 1):
     runs: List[RunResult] = []
     test_results.runs.append(runs)
     for test in tests_remaining:
-        print(test)
         print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
         run_dir = runs_dir / test.with_suffix('').name
         run_dir.mkdir(parents=True)
