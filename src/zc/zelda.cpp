@@ -4039,7 +4039,7 @@ void game_loop()
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
 			{
-				playing_field_offset += zc::math::Sin((double)(--quakeclk*2-frame)) * 4;
+				playing_field_offset += (int32_t)(zc::math::Sin((double)(--quakeclk*2-frame)) * 4);
 			}
 			
 		if ( previous_DMap != currdmap )
