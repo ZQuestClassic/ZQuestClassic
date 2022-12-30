@@ -33,6 +33,7 @@ namespace ZScript
 		virtual void caseStmtSwitch(ASTStmtSwitch &host, void* param);
 		void caseStmtStrSwitch(ASTStmtSwitch &host, void* param);
 		virtual void caseStmtFor(ASTStmtFor &host, void *param);
+		virtual void caseStmtForEach(ASTStmtForEach &host, void *param);
 		virtual void caseStmtWhile(ASTStmtWhile &host, void *param);
 		virtual void caseStmtDo(ASTStmtDo &host, void *param);
 		virtual void caseStmtReturn(ASTStmtReturn &host, void *param);
@@ -168,14 +169,14 @@ namespace ZScript
 		GetLabels(std::set<int32_t>& usedLabels) : usedLabels(usedLabels) {}
 		
 		std::set<int32_t>& usedLabels;
-		std::vector<int32_t> newLabels;
+		std::set<int32_t> newLabels;
 		
 		void caseLabel(LabelArgument& host, void*)
 		{
 			int32_t id = host.getID();
 			if (find<int32_t>(usedLabels, id)) return;
 			usedLabels.insert(id);
-			newLabels.push_back(id);
+			newLabels.insert(id);
 		}
 	};
 
@@ -193,6 +194,16 @@ namespace ZScript
 			}
 			
 			host.setLineNo(lineno);
+		}
+	};
+	class MergeLabels : public ArgumentVisitor
+	{
+	public:
+		void caseLabel(LabelArgument &host, void *param)
+		{
+			int32_t* lbls = (int32_t*)param;
+			if(host.getID() == lbls[1])
+				host.setID(lbls[0]);
 		}
 	};
 }

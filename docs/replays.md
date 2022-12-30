@@ -11,3 +11,14 @@ At any time, you can playback a replay in the `ZC > Replay` menu to watch it aga
 Later work on this system may introduce more user-facing features, such as savestates, rewinding, or creating a new game file from a replay.
 
 In the meantime, **a great way to contribute to ZC development** is to enable the recording feature for your new games, and provide us your `.zplay` files. You don't have to finish the game, any amount of playthroughs could be helpful. The more we have, the better coverage our testing system will have, and the fewer regressions/compatability bugs there will be!
+
+## Test coverage
+
+- `pip install gcovr`
+- `cmake -S . -B build -G 'Ninja Multi-Config'` (can skip if already configured a ninja multi-config build)
+- `cmake --build build --config Coverage -t zelda`
+- `python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci`
+- `bash tests/generate_coverage_report.sh`
+- `open tests/.coverage/report/index.html`
+
+Coverage reports are hosted at https://armageddongames.github.io/ZQuestClassic/coverage and are updated automatically.

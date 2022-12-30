@@ -75,6 +75,7 @@ public:
 	byte misc_wflags;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
+	byte wscreengrid_ffc[MAXFFCS/8];
 	
 	int16_t death_spawnitem;
 	int16_t death_spawndropset;
@@ -154,24 +155,17 @@ public:
     // override hit detection to check for invicibility, etc
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
+	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
     virtual void draw(BITMAP *dest);
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
 };
 
-double WrapAngle(double radians);
-double WrapDegrees(double degrees);
-double DegreesToRadians(double deg);
-double RadiansToDegrees(double rad);
-double DirToRadians(int dir);
-double DirToDegrees(int dir);
-int32_t AngleToDir(double radians);
-int32_t AngleToDir4(double radians);
-
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);
 void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
+void do_generic_combo_ffc(weapon *w, int32_t ffcpos, int32_t cid, int32_t ft);
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe,
                int32_t parentid);
 	       

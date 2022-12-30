@@ -1827,7 +1827,7 @@ static int32_t enemy_weapon_scripts_list[] =
 static int32_t enemy_moveflag_list[] =
 {
 	371, 372, 373, 374, 375, 417, 418, 419,
-	420, 421, 422, 423, 424,
+	420, 421, 422, 423, 424, 425,
 	-1
 };
 static int32_t enemy_movement_list[] =
@@ -2033,7 +2033,7 @@ void build_bief_list()
 	{
 	//Load enemy names from the module
 		//if(moduledata.enem_type_names[i][0]!='-')
-	if (moduledata.enem_type_names[i][0]!=NULL)
+	if (moduledata.enem_type_names[i][0]!=0)
 	{
 		if(moduledata.enem_type_names[i][0]!='-')
 		{
@@ -2095,7 +2095,7 @@ void build_biea_list()
 	for(int32_t i=start; i<aMAX; i++)
 	{
 		
-	if ( moduledata.enem_anim_type_names[1][0] != NULL )
+	if ( moduledata.enem_anim_type_names[1][0] != 0 )
 	{
 		if(eneanim_string[i][0]!='-')
 		{
@@ -4434,15 +4434,16 @@ static DIALOG enedata_dlg[] =
 	//415
 	{  jwin_text_proc,           6,    216,     80,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "SwitchHook Weapon Defense:",                            NULL,   NULL                 },
 	{  jwin_droplist_proc,      126, 216-4,    115,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           0,    0, (void *) &defense_list,                                           NULL,   NULL                 },
-	{  jwin_check_proc,          6,    120,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Liquid",                               NULL,   NULL                 },
-	{  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Shallow Liquid",                       NULL,   NULL                 },
-	{  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Pitfalls",                             NULL,   NULL                 },
+	{  jwin_check_proc,          6,    130,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Liquid",                               NULL,   NULL                 },
+	{  jwin_check_proc,          6,    140,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Shallow Liquid",                       NULL,   NULL                 },
+	{  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can ONLY Walk On Pitfalls",                             NULL,   NULL                 },
 	//420
-	{  jwin_check_proc,          6,    150,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can walk through solidity",                             NULL,   NULL                 },
-	{  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can walk through No Enemies flags / etc",               NULL,   NULL                 },
-	{  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can walk through screen edge",                          NULL,   NULL                 },
+	{  jwin_check_proc,          6,    160,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can walk through solidity",                             NULL,   NULL                 },
+	{  jwin_check_proc,          6,    170,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can walk through No Enemies flags / etc",               NULL,   NULL                 },
+	{  jwin_check_proc,          6,    180,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can walk through screen edge",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Use 'scripted movement' for engine movement",           NULL,   NULL                 },
-	{  jwin_text_proc,           6,    110,    280,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Below flags only affect scripted movement functions",   NULL,   NULL                 },
+	{  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Cannot be pushed by moving solid objects",              NULL,   NULL                 },
+	{  jwin_text_proc,           6,    120,    280,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Below flags only affect scripted movement functions",   NULL,   NULL                 },
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                            NULL,   NULL                 }
 };
 
@@ -4781,11 +4782,11 @@ void edit_enemydata(int32_t index)
 		
 		//InitD Labels
 		strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
-		if ( npc_initd_labels[q][0] == NULL ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
+		if ( npc_initd_labels[q][0] == 0 ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[337+q].dp = npc_initd_labels[q];
 		
 		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
-		if ( weapon_initd_labels[q][0] == NULL ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
+		if ( weapon_initd_labels[q][0] == 0 ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
 		enedata_dlg[353+q].dp = weapon_initd_labels[q];
 	}
 
@@ -5092,6 +5093,7 @@ void edit_enemydata(int32_t index)
 	enedata_dlg[421].flags = (guysbuf[index].moveflags & FLAG_IGNORE_BLOCKFLAGS) ? D_SELECTED : 0;
 	enedata_dlg[422].flags = (guysbuf[index].moveflags & FLAG_IGNORE_SCREENEDGE) ? D_SELECTED : 0;
 	enedata_dlg[423].flags = (guysbuf[index].moveflags & FLAG_USE_NEW_MOVEMENT) ? D_SELECTED : 0;
+	enedata_dlg[424].flags = (guysbuf[index].moveflags & FLAG_NOT_PUSHABLE) ? D_SELECTED : 0;
 	
 	int32_t ret;
 	guydata test;
@@ -5439,6 +5441,8 @@ void edit_enemydata(int32_t index)
 			test.moveflags |= FLAG_IGNORE_SCREENEDGE;
 		if(enedata_dlg[423].flags & D_SELECTED)
 			test.moveflags |= FLAG_USE_NEW_MOVEMENT;
+		if(enedata_dlg[424].flags & D_SELECTED)
+			test.moveflags |= FLAG_NOT_PUSHABLE;
 	
 		//end npc scripts
 	

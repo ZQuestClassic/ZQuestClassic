@@ -102,7 +102,7 @@ void load_mice()
 {
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? get_config_float("zquest","cursor_scale_large",1.5) : get_config_float("zquest","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zquest","cursor_scale_large",1.5) : zc_get_config("zquest","cursor_scale_small",1))),16,80);
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int32_t j=0; j<4; j++)
@@ -1005,30 +1005,6 @@ int32_t onSpacebar()
     return D_O_K;
 }
 
-int32_t onSaveZQuestSettings()
-{
-	if(jwin_alert3(
-			"Save Configuration",
-			"Are you sure that you wish to save your present configuration settings?",
-			"This will overwrite your prior settings!",
-			NULL,
-		 "&Yes",
-		"&No",
-		NULL,
-		'y',
-		'n',
-		0,
-		lfont) == 1)
-	{
-		save_config_file();
-		return D_O_K;
-	}
-	else return D_O_K;
-
-}
-
-
-
 int32_t onClearQuestFilepath()
 {
 	if(jwin_alert3(
@@ -1222,7 +1198,7 @@ int32_t onAbout()
             sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
         }
 #endif
-        sprintf(buf2,"ZQuest Editor: %04X",INTERNAL_VERSION);
+        sprintf(buf2,"Tag: %s", getReleaseTag());
         sprintf(buf3,"This qst file: %04X",header.internal&0xFFFF);
         InfoDialog("About ZQuest", { buf1, buf2, buf3 }).show();
     }

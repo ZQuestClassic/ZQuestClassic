@@ -1074,8 +1074,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ZCLASS_OWN",   1,   0,   0,   0},
 	{ "STARTDESTRUCTOR",   0,   0,   0,   1},
 	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
-	{ "RESRVD_OP_EMILY07",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY08",   0,   0,   0,   0},
+	{ "LOADD",   2,   0,   1,   0},
+	{ "STORED",   2,   0,   1,   0},
 	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
@@ -1100,6 +1100,42 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY30",   0,   0,   0,   0},
 	{ "GETSCREENINDEXFORRPOS",     1,   0,   0,   0},
 
+	{ "CREATEPALDATA",           0,   0,   0,   0 },
+	{ "CREATEPALDATACLR",           1,   0,   0,   0 },
+	{ "MIXCLR",           0,   0,   0,   0 },
+	{ "CREATERGBHEX",           1,   0,   0,   0 },
+	{ "CREATERGB",           0,   0,   0,   0 },
+	{ "PALDATALOADLEVEL",           1,   0,   0,   0 },
+	{ "PALDATALOADSPRITE",           1,   0,   0,   0 },
+	{ "PALDATALOADMAIN",           0,   0,   0,   0 },
+	{ "PALDATALOADCYCLE",           1,   0,   0,   0 },
+	{ "PALDATALOADBITMAP",           1,   0,   0,   0 },
+	{ "PALDATAWRITELEVEL",           1,   0,   0,   0 },
+	{ "PALDATAWRITELEVELCS",           2,   0,   0,   0 },
+	{ "PALDATAWRITESPRITE",           1,   0,   0,   0 },
+	{ "PALDATAWRITESPRITECS",           2,   0,   0,   0 },
+	{ "PALDATAWRITEMAIN",           0,   0,   0,   0 },
+	{ "PALDATAWRITEMAINCS",           1,   0,   0,   0 },
+	{ "PALDATAWRITECYCLE",           1,   0,   0,   0 },
+	{ "PALDATAWRITECYCLECS",           2,   0,   0,   0 },
+	{ "PALDATAVALIDCLR",           1,   0,   0,   0 },
+	{ "PALDATACLEARCLR",           1,   0,   0,   0 },
+	{ "PALDATACLEARCSET",           1,   0,   0,   0 },
+	{ "PALDATAMIX",           0,   0,   0,   0 },
+	{ "PALDATAMIXCS",           0,   0,   0,   0 },
+	{ "PALDATACOPY",           1,   0,   0,   0 },
+	{ "PALDATACOPYCSET",           0,   0,   0,   0 },
+	{ "PALDATAFREE",           0,   0,   0,   0 },
+	{ "PALDATAOWN",           0,   0,   0,   0 },
+	{ "MAXVARG",           0,   0,   0,   0 },
+	{ "MINVARG",           0,   0,   0,   0 },
+	{ "CHOOSEVARG",           0,   0,   0,   0 },
+	{ "PUSHVARGV",           1,   1,   0,   0 },
+	{ "PUSHVARGR",           1,   0,   0,   0 },
+	{ "PRINTFVARG",           0,   0,   0,   0 },
+	{ "SPRINTFVARG",           0,   0,   0,   0 },
+	{ "TRACELR",             1,   0,   0,   0},
+	{ "WAITFRAMESR",             1,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2485,10 +2521,10 @@ script_variable variable_list[]=
 	{ "COMBODLIFTHEIGHT", COMBODLIFTHEIGHT, 0, 0 },
 	{ "COMBODLIFTTIME", COMBODLIFTTIME, 0, 0 },
 	{ "CLASS_THISKEY", CLASS_THISKEY, 0, 0 },
-	{ "RESRVD_VAR_EMILY01", RESRVD_VAR_EMILY01, 0, 0 },
-	{ "RESRVD_VAR_EMILY02", RESRVD_VAR_EMILY02, 0, 0 },
-	{ "RESRVD_VAR_EMILY03", RESRVD_VAR_EMILY03, 0, 0 },
-	{ "RESRVD_VAR_EMILY04", RESRVD_VAR_EMILY04, 0, 0 },
+	{ "ZELDABETATYPE", ZELDABETATYPE, 0, 0 },
+	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
+	{ "FFCLASTCHANGERX", FFCLASTCHANGERX, 0, 0 },
+	{ "FFCLASTCHANGERY", FFCLASTCHANGERY, 0, 0 },
 	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
 	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
 	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
@@ -2516,6 +2552,43 @@ script_variable variable_list[]=
 	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
 	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
 	
+	{ "REFPALDATA", REFPALDATA, 0, 0 },
+	{ "PALDATACOLOR", PALDATACOLOR, 0, 0 },
+	{ "PALDATAR", PALDATAR, 0, 0 },
+	{ "PALDATAG", PALDATAG, 0, 0 },
+	{ "PALDATAB", PALDATAB, 0, 0 },
+
+	{ "RESRVD_VAR_MOOSH01", RESRVD_VAR_MOOSH01, 0, 0 },
+	{ "RESRVD_VAR_MOOSH02", RESRVD_VAR_MOOSH02, 0, 0 },
+	{ "RESRVD_VAR_MOOSH03", RESRVD_VAR_MOOSH03, 0, 0 },
+	{ "RESRVD_VAR_MOOSH04", RESRVD_VAR_MOOSH04, 0, 0 },
+	{ "RESRVD_VAR_MOOSH05", RESRVD_VAR_MOOSH05, 0, 0 },
+	{ "RESRVD_VAR_MOOSH06", RESRVD_VAR_MOOSH06, 0, 0 },
+	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
+	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
+	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
+	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
+	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },
+	{ "RESRVD_VAR_MOOSH12", RESRVD_VAR_MOOSH12, 0, 0 },
+	{ "RESRVD_VAR_MOOSH13", RESRVD_VAR_MOOSH13, 0, 0 },
+	{ "RESRVD_VAR_MOOSH14", RESRVD_VAR_MOOSH14, 0, 0 },
+	{ "RESRVD_VAR_MOOSH15", RESRVD_VAR_MOOSH15, 0, 0 },
+	{ "RESRVD_VAR_MOOSH16", RESRVD_VAR_MOOSH16, 0, 0 },
+	{ "RESRVD_VAR_MOOSH17", RESRVD_VAR_MOOSH17, 0, 0 },
+	{ "RESRVD_VAR_MOOSH18", RESRVD_VAR_MOOSH18, 0, 0 },
+	{ "RESRVD_VAR_MOOSH19", RESRVD_VAR_MOOSH19, 0, 0 },
+	{ "RESRVD_VAR_MOOSH20", RESRVD_VAR_MOOSH20, 0, 0 },
+	{ "RESRVD_VAR_MOOSH21", RESRVD_VAR_MOOSH21, 0, 0 },
+	{ "RESRVD_VAR_MOOSH22", RESRVD_VAR_MOOSH22, 0, 0 },
+	{ "RESRVD_VAR_MOOSH23", RESRVD_VAR_MOOSH23, 0, 0 },
+	{ "RESRVD_VAR_MOOSH24", RESRVD_VAR_MOOSH24, 0, 0 },
+	{ "RESRVD_VAR_MOOSH25", RESRVD_VAR_MOOSH25, 0, 0 },
+	{ "RESRVD_VAR_MOOSH26", RESRVD_VAR_MOOSH26, 0, 0 },
+	{ "RESRVD_VAR_MOOSH27", RESRVD_VAR_MOOSH27, 0, 0 },
+	{ "RESRVD_VAR_MOOSH28", RESRVD_VAR_MOOSH28, 0, 0 },
+	{ "RESRVD_VAR_MOOSH29", RESRVD_VAR_MOOSH29, 0, 0 },
+	{ "RESRVD_VAR_MOOSH30", RESRVD_VAR_MOOSH30, 0, 0 },
+
 	{ " ",  -1, 0, 0 }
 };
 
@@ -2607,339 +2680,6 @@ int32_t parse_script(script_data **script)
 		return -1;
 	}
 	else return parse_script_file(script,temppath, true);
-}
-
-int32_t get_script_type(string const& name)
-{
-	if(name=="GLOBAL")
-		return SCRIPT_GLOBAL;
-	else if(name=="FFC")
-		return SCRIPT_FFC;
-	else if(name=="SCREEN")
-		return SCRIPT_SCREEN;
-	else if(name=="HERO" || name=="PLAYER" || name=="LINK")
-		return SCRIPT_PLAYER;
-	else if(name=="ITEMDATA" || name=="ITEM")
-		return SCRIPT_ITEM;
-	else if(name=="LWEAPON" || name=="LWPN")
-		return SCRIPT_LWPN;
-	else if(name=="NPC")
-		return SCRIPT_NPC;
-	else if(name=="EWEAPON" || name=="EWPN")
-		return SCRIPT_EWPN;
-	else if(name=="DMAP")
-		return SCRIPT_DMAP;
-	else if(name=="ITEMSPRITE")
-		return SCRIPT_ITEMSPRITE;
-	else if(name=="COMBO" || name=="COMBODATA")
-		return SCRIPT_COMBO;
-	
-	return SCRIPT_NONE;
-}
-
-string get_script_name(int32_t type)
-{
-	switch(type)
-	{
-		case SCRIPT_GLOBAL:
-			return "GLOBAL";
-		case SCRIPT_FFC:
-			return "FFC";
-		case SCRIPT_SCREEN:
-			return "SCREEN";
-		case SCRIPT_PLAYER:
-			return "HERO";
-		case SCRIPT_ITEM:
-			return "ITEMDATA";
-		case SCRIPT_LWPN:
-			return "LWEAPON";
-		case SCRIPT_NPC:
-			return "NPC";
-		case SCRIPT_EWPN:
-			return "EWEAPON";
-		case SCRIPT_DMAP:
-			return "DMAP";
-		case SCRIPT_ITEMSPRITE:
-			return "ITEMSPRITE";
-		case SCRIPT_COMBO:
-			return "COMBODATA";
-		case SCRIPT_GENERIC: case SCRIPT_GENERIC_FROZEN:
-			return "GENERIC";
-		case SCRIPT_NONE:
-		default:
-			return "UNKNOWN";
-	}
-}
-
-//Output metadata as a single string
-string get_meta(zasm_meta const& meta)
-{
-	ostringstream oss;
-	oss << "#ZASM_VERSION = " << meta.zasm_v
-		<< "\n#METADATA_VERSION = " << meta.meta_v
-		<< "\n#FFSCRIPT_VERSION = " << meta.ffscript_v
-		<< "\n#SCRIPT_NAME = " << meta.script_name;
-	if(meta.author.size())
-		oss << "\n#AUTHOR = " << meta.author;
-	oss << "\n#SCRIPT_TYPE = " << get_script_name(meta.script_type).c_str()
-		<< "\n#AUTO_GEN = " << ((meta.flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
-		<< "\n#COMPILER_V1 = " << meta.compiler_v1
-		<< "\n#COMPILER_V2 = " << meta.compiler_v2
-		<< "\n#COMPILER_V3 = " << meta.compiler_v3
-		<< "\n#COMPILER_V4 = " << meta.compiler_v4;
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(!meta.run_idens[q].size())
-			continue;
-		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getTypeName(meta.run_types[q])
-			<< "\n#PARAM_NAME_" << q << " = " << meta.run_idens[q];
-	}
-	for(auto q = 0; q < 10; ++q)
-	{
-		if(meta.attributes[q].size())
-			oss << "\n#ATTRIBUTE_" << q << " = " << meta.attributes[q];
-		if(meta.attributes_help[q].size())
-			oss << "\n#ATTRIBUTE_HELP_" << q << " = "
-				<< util::escape_characters(meta.attributes_help[q]);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(meta.attribytes[q].size())
-			oss << "\n#ATTRIBYTE_" << q << " = " << meta.attribytes[q];
-		if(meta.attribytes_help[q].size())
-			oss << "\n#ATTRIBYTE_HELP_" << q << " = "
-				<< util::escape_characters(meta.attribytes_help[q]);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(meta.attrishorts[q].size())
-			oss << "\n#ATTRISHORT_" << q << " = " << meta.attrishorts[q];
-		if(meta.attrishorts_help[q].size())
-			oss << "\n#ATTRISHORT_HELP_" << q << " = "
-				<< util::escape_characters(meta.attrishorts_help[q]);
-	}
-	for(auto q = 0; q < 16; ++q)
-	{
-		if(meta.usrflags[q].size())
-			oss << "\n#FLAG_" << q << " = " << meta.usrflags[q];
-		if(meta.usrflags_help[q].size())
-			oss << "\n#FLAG_HELP_" << q << " = "
-				<< util::escape_characters(meta.usrflags_help[q]);
-	}
-	for(auto q = 0; q < 8; ++q)
-	{
-		if(meta.initd[q].size())
-			oss << "\n#INITD_" << q << " = " << meta.initd[q];
-		if(meta.initd_help[q].size())
-			oss << "\n#INITD_HELP_" << q << " = "
-				<< util::escape_characters(meta.initd_help[q]);
-		if(meta.initd_type[q] > -1)
-			oss << "\n#INITD_TYPE_" << q << " = "
-				<< to_string(int32_t(meta.initd_type[q]));
-	}
-	oss << "\n";
-	return oss.str();
-}
-
-//Parse a single line of metadata
-bool parse_meta(zasm_meta& meta, const char *buffer)
-{
-	string line(buffer);
-	size_t space_pos = line.find_first_of(" \t=");
-	if(space_pos == string::npos) return false;
-	string cmd = line.substr(0, space_pos); //The command portion
-	size_t end_space_pos = line.find_first_not_of(" \t=", space_pos);
-	if(end_space_pos == string::npos) return false;
-	size_t semi = line.find_first_of(";",end_space_pos);
-	string val = line.substr(end_space_pos, (semi == string::npos ? semi : semi-end_space_pos-1)); //The value portion
-	size_t endpos = val.find_last_not_of(" \t\r\n\0");
-	if(endpos != string::npos) ++endpos;
-	val = val.substr(0, endpos); //trim trailing whitespace
-	
-	if(cmd == "#ZASM_VERSION")
-	{
-		meta.zasm_v = atoi(val.c_str());
-	}
-	else if(cmd == "#METADATA_VERSION")
-	{
-		meta.meta_v = atoi(val.c_str());
-	}
-	else if(cmd == "#FFSCRIPT_VERSION")
-	{
-		meta.ffscript_v = atoi(val.c_str());
-	}
-	else if(cmd == "#SCRIPT_TYPE" || cmd == "#TYPE")
-	{
-		upperstr(val);
-		meta.script_type = get_script_type(val);
-	}
-	else if(cmd == "#SCRIPT_NAME")
-	{
-		replchar(val, ' ', '_');
-		meta.script_name = val;
-	}
-	else if(cmd == "#AUTHOR")
-	{
-		meta.author = val;
-	}
-	else if(cmd == "#AUTO_GEN")
-	{
-		upperstr(val);
-		if(val=="TRUE")
-			meta.flags |= ZMETA_AUTOGEN;
-		else if(val=="FALSE")
-			meta.flags &= ~ZMETA_AUTOGEN;
-		else
-		{
-			if(atoi(val.c_str())!=0)
-			{
-				meta.flags |= ZMETA_AUTOGEN;
-			}
-			else meta.flags &= ~ZMETA_AUTOGEN;
-		}
-	}
-	else if(cmd == "#COMPILER_V1")
-	{
-		meta.compiler_v1 = atoi(val.c_str());
-	}
-	else if(cmd == "#COMPILER_V2")
-	{
-		meta.compiler_v2 = atoi(val.c_str());
-	}
-	else if(cmd == "#COMPILER_V3")
-	{
-		meta.compiler_v3 = atoi(val.c_str());
-	}
-	else if(cmd == "#COMPILER_V4")
-	{
-		meta.compiler_v4 = atoi(val.c_str());
-	}
-	else if(cmd.size() == 13 && !cmd.compare(0,12,"#PARAM_NAME_"))
-	{
-		byte ind = cmd.at(12) - '1';
-		if (ind < 8)
-		{
-			replchar(val, ' ', '_');
-			meta.run_idens[ind] = val;
-		}
-		else return false;
-	}
-	else if(cmd.size() == 13 && !cmd.compare(0,12,"#PARAM_TYPE_"))
-	{
-		byte ind = cmd.at(12) - '1';
-		if (ind < 8)
-		{
-			replchar(val, ' ', '_');
-			meta.run_types[ind] = ZScript::getTypeId(val);
-		}
-		else return false;
-	}
-	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
-	{
-		byte ind = cmd.at(11) - '0';
-		if (ind < 10)
-		{
-			meta.attributes[ind] = val;
-		}
-		else return false;
-	}
-	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
-	{
-		byte ind = cmd.at(16) - '0';
-		if (ind < 10)
-		{
-			meta.attributes_help[ind] = util::unescape_characters(val);
-		}
-		else return false;
-	}
-	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBYTE_"))
-	{
-		byte ind = cmd.at(11) - '0';
-		if (ind < 8)
-		{
-			meta.attribytes[ind] = val;
-		}
-		else return false;
-	}
-	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBYTE_HELP_"))
-	{
-		byte ind = cmd.at(16) - '0';
-		if (ind < 8)
-		{
-			meta.attribytes_help[ind] = util::unescape_characters(val);
-		}
-		else return false;
-	}
-	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#ATTRISHORT_"))
-	{
-		byte ind = cmd.at(12) - '0';
-		if (ind < 8)
-		{
-			meta.attrishorts[ind] = val;
-		}
-		else return false;
-	}
-	else if (cmd.size() == 18 && !cmd.compare(0, 17, "#ATTRISHORT_HELP_"))
-	{
-		byte ind = cmd.at(17) - '0';
-		if (ind < 8)
-		{
-			meta.attrishorts_help[ind] = util::unescape_characters(val);
-		}
-		else return false;
-	}
-	else if ((cmd.size() == 7 || cmd.size() == 8) && !cmd.compare(0, 6, "#FLAG_"))
-	{
-		byte ind = cmd.at(6) - '0';
-		if (cmd.size() == 8)
-			ind = (ind * 10) + cmd.at(7) - '0';
-		if (ind < 16)
-		{
-			meta.usrflags[ind] = val;
-		}
-		else return false;
-	}
-	else if ((cmd.size() == 12 || cmd.size() == 13) && !cmd.compare(0, 11, "#FLAG_HELP_"))
-	{
-		byte ind = cmd.at(11) - '0';
-		if (cmd.size() == 13)
-			ind = (ind * 10) + cmd.at(12) - '0';
-		if (ind < 16)
-		{
-			meta.usrflags_help[ind] = util::unescape_characters(val);
-		}
-		else return false;
-	}
-	else if (cmd.size() == 8 && !cmd.compare(0, 7, "#INITD_"))
-	{
-		byte ind = cmd.at(7) - '0';
-		if (ind < 8)
-		{
-			meta.initd[ind] = val;
-		}
-		else return false;
-	}
-	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_HELP_"))
-	{
-		byte ind = cmd.at(12) - '0';
-		if (ind < 8)
-		{
-			meta.initd_help[ind] = util::unescape_characters(val);
-		}
-		else return false;
-	}
-	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_TYPE_"))
-	{
-		byte ind = cmd.at(12) - '0';
-		if (ind < 8)
-		{
-			meta.initd_type[ind] = atoi(val.c_str());
-		}
-		else return false;
-	}
-	else return false;
-	
-	return true;
 }
 
 int32_t parse_script_file(script_data **script, const char *path, bool report_success)
@@ -3090,7 +2830,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			map<string,int32_t>::iterator it = labels.find(lbl);
 			if(it != labels.end())
 			{
-				char buf[80],buf2[80],buf3[80],name[13];
+				char buf[120],buf2[120],buf3[120],name[13];
 				extract_name(temppath,name,FILENAME8_3);
 				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				sprintf(buf2,"The error was: Duplicate Label");
@@ -3256,7 +2996,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			
 			if(meta_mode)
 			{
-				parse_meta((*script)->meta, buffer);
+				(*script)->meta.parse_meta(buffer);
 				--i; continue;
 			}
 			meta_done = true;
@@ -3471,6 +3211,11 @@ int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t ar
 		{
 			for(int32_t j=0; j<variable_list[i].maxcount; ++j)
 			{
+#ifndef _MSC_VER
+				if (__builtin_strlen(variable_list[i].name) > sizeof(((script_variable*)0)->name))
+					__builtin_unreachable();
+#endif
+
 				if(strcmp(variable_list[i].name,"A")==0)
 					sprintf(tempvar, "%s%d", variable_list[i].name, j+1);
 				else sprintf(tempvar, "%s%d", variable_list[i].name, j);

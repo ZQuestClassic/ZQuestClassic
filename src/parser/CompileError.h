@@ -86,7 +86,7 @@ namespace ZScript
 	class CompileErrorHandler
 	{
 	public:
-		virtual void handleError(CompileError const&) = 0;
+		virtual void handleError(CompileError const&, std::string const* inf = nullptr) = 0;
 		virtual bool hasError() const = 0;
 	};
 
@@ -97,7 +97,7 @@ namespace ZScript
 	public:
 		SimpleCompileErrorHandler() : errorCount_(0), warningCount_(0) {}
 
-		void handleError(CompileError const&);
+		void handleError(CompileError const&, std::string const* inf = nullptr);
 	
 		bool hasError() const {return errorCount_ > 0;}
 		int32_t getErrorCount() const {return errorCount_;}

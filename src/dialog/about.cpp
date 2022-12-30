@@ -21,7 +21,6 @@ std::shared_ptr<GUI::Widget> AboutDialog::view()
 	std::shared_ptr<GUI::Grid> windowGrid;
 	std::shared_ptr<GUI::Window> window = Window(
 		title = std::move(dlgTitle),
-		onEnter = 0,
 		onClose = 0,
 		hPadding = 0_px, 
 		windowGrid = Column(

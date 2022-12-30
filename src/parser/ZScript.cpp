@@ -553,7 +553,7 @@ Function::Function(DataType const* returnType, string const& name,
 	: node(NULL), internalScope(NULL), thisVar(NULL),
 	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames), opt_vals(),
 	  id(id), label(std::nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
-	  prototype(prototype), defaultReturn(defaultReturn)
+	  prototype(prototype), defaultReturn(defaultReturn), extra_vargs(0), shown_depr(false)
 {}
 
 Function::~Function()
@@ -612,6 +612,21 @@ bool Function::isTracing() const
 	std::string prefix = name.substr(0, 5);
 	return *returnType == DataType::ZVOID
 		&& (prefix == "Trace" || prefix == "print");
+}
+
+//Return true the first time it is called, if func is deprecated
+bool Function::shouldShowDepr(bool err) const
+{
+	if(!getFlag(FUNCFLAG_DEPRECATED)) return false;
+	if(err) return shown_depr < 2;
+	return !shown_depr;
+}
+void Function::ShownDepr(bool err)
+{
+	if(err)
+		shown_depr = 2;
+	else if(shown_depr < 2)
+		shown_depr = 1;
 }
 
 bool ZScript::isRun(Function const& function)

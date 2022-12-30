@@ -39,7 +39,6 @@ void call_item_editor(int32_t index)
 		_reload_editor = false;
 		ItemEditorDialog(static_ref, reset_name.c_str(), index).show();
 	}
-	zc_set_config("zquest","show_itemscript_meta_type",item_use_script_data);
 }
 
 static const GUI::ListData ScriptDataList
@@ -381,13 +380,29 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[0], "Extra Jumps:", "The number of times this item can be used in mid-air"
 				" without landing.");
 			_SET(misc[1], "Button", "If 0, the item must be equipped to a button to use it.\n"
-				"Otherwise, any of the specified buttons will activate the glove, even when not equipped to a button.\n"
+				"Otherwise, any of the specified buttons will jump, even when not equipped to a button.\n"
 				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
 			if(FLAG(1))
 				_SET(power, "Jump Power:", "The player will jump with a force of 'power'");
 			else _SET(power, "Jump Power:", "The player will jump with a force of '(power*80)+160)'");
+			if(FLAG(2))
+				_SET(misc[2], "Held Gravity", "Gravity applied to Link when this item is held. Used for variable jumps"
+					" such as holding the button to jump higher. Value is divided by 100 (314 would be equal to 3.14).");
+			if(FLAG(5))
+				_SET(misc[3], "Held Terminal Velocity", "Max fall speed of Link when this item is held. Useful for floating down while holding jump.");
+			_SET(misc[4], "Coyote Time", "Number of frames after leaving a ledge via non-jump that you can still jump");
 			_SET(flag[0], "Jump is Power/100", "If enabled, the player jumps with a force"
 				" of 'power' instead of '(power*80)+160'");
+			_SET(flag[1], "Hold to change player gravity", "If enabled, holding the button this item is attached to will change"
+				" the player's gravity to the value specified in attributes[2]");
+			_SET(flag[4], "Hold to change player terminal velocity", "If enabled, holding the button this item is attached to will change"
+				" the player's terminal velocity (max fall speed) to the value specified in attributes[3]");
+			if(FLAG(2))
+				_SET(flag[2], "Held Gravity doesn't affect downward momentum", "If enabled, 'Hold to change player gravity' will"
+					" not affect the player when falling.");
+			if(FLAG(2))
+				_SET(flag[3], "Held Gravity doesn't affect upward momentum", "If enabled, 'Hold to change player gravity' will"
+					" not affect the player when rising.");
 			inf->actionsnd[0] = "Jumping Sound:";
 			break;
 		}
@@ -795,6 +810,13 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_stompboots:
 		{
 			inf->power = "Damage:";
+			_SET(flag[0], "Can bounce off enemies", "If enabled, damaging an enemy with this will cause the player to bounce upwards."
+				" The jump speed gained is set by Attributes[0]");
+			if(FLAG(1))
+				_SET(misc[0], "Bounce Power:", "Amount of jump power gained from a bounce."
+					" This value is equal to setting Player->Jump by value divided by 100");
+			_SET(misc[1], "Block Flags:", "(Rock=1, Arrow=2, BRang=4, Fireball=8, Sword=16, Magic=32, Flame=64, Script=128, Fireball2=256)\n"
+				"Sum all of the values you want to apply. Weapons with their flags set will be blocked if the player lands on them.");
 			break;
 		}
 		case itype_bow:
@@ -1106,7 +1128,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		window = Window(
 			use_vsync = true,
 			title = titlebuf,
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				Row(
@@ -2429,6 +2450,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										onSelectFunc = [&](int32_t val)
 										{
 											item_use_script_data = val;
+											zc_set_config("zquest","show_itemscript_meta_type",val);
 											refreshScripts();
 										}
 									)
@@ -2477,7 +2499,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		window = Window(
 			use_vsync = true,
 			title = titlebuf,
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			Column(
 				TabPanel(
@@ -3757,6 +3778,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										onSelectFunc = [&](int32_t val)
 										{
 											item_use_script_data = val;
+											zc_set_config("zquest","show_itemscript_meta_type",val);
 											refreshScripts();
 										}
 									)

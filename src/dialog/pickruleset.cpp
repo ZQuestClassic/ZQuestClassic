@@ -50,7 +50,6 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 	
 	return Window(
 		title = "Pick Ruleset",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Label

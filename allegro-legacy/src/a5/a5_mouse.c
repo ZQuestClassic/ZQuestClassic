@@ -32,10 +32,10 @@ static bool mouse_hidden = false;
 static bool have_touch_input = false;
 
 // local edit
-static bool mouse_is_ready = false;
-void all_mouse_is_ready(bool b)
+static bool should_show_mouse = false;
+void all_should_show_mouse(bool b)
 {
-    mouse_is_ready = b;
+    should_show_mouse = b;
 }
 
 static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
@@ -54,9 +54,12 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
         al_register_event_source(queue, al_get_touch_input_event_source());
     while(!al_get_thread_should_stop(thread))
     {
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
         al_init_timeout(&timeout, 0.1);
+        if (al_wait_for_event_until(queue, &event, &timeout))
+#else
         al_wait_for_event(queue, &event);
-        if(true)
+#endif
         {
             switch(event.type)
             {
@@ -64,7 +67,14 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
                 {
                     _mouse_on = -1;
+#ifndef __EMSCRIPTEN__
+                    // https://github.com/liballeg/allegro5/issues/1388
+                    if (should_show_mouse)
+                        al_show_mouse_cursor(all_get_display());
+                    else
+                        al_hide_mouse_cursor(all_get_display());
                     break;
+#endif
                 }
                 case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
                 {
@@ -77,34 +87,7 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                     _mouse_y = event.mouse.y;
                     _mouse_z = event.mouse.z;
 
-                    // local edit
-                    // all of this complexity is because ZC is not coded to be resolution-independent
-                    // re: it's UI
-#ifndef __EMSCRIPTEN__
-                    int native_width, native_height, display_width, display_height, offset_x, offset_y;
-                    double scale;
-                    all_get_display_transform(&native_width, &native_height, &display_width, &display_height, &offset_x, &offset_y, &scale);
-
-                    if (all_get_fullscreen_flag() && (gfx_capabilities & GFX_HW_CURSOR))
-                    {
-                        _mouse_x -= offset_x;
-                        _mouse_y -= offset_y;
-                    }
-
-                    if (all_get_fullscreen_flag())
-                    {
-                        _mouse_x /= scale;
-                        _mouse_y /= scale;
-                    }
-                    else
-                    {
-                        _mouse_x = native_width * ((double)_mouse_x - offset_x) / ((double)display_width - offset_x * 2);
-                        _mouse_y = native_height * ((double)_mouse_y - offset_y) / ((double)display_height - offset_y * 2);
-                    }
-#endif
-
                     if (prevx != _mouse_x || prevy != _mouse_y || prevz != _mouse_z) {
-                        all_mark_screen_dirty();
                         prevx = event.mouse.x;
                         prevy = event.mouse.y;
                         prevz = event.mouse.z;
@@ -159,10 +142,10 @@ static int a5_mouse_init(void)
     }
     have_touch_input = al_install_touch_input();
 
-    if(_a5_display)
-    {
-        al_hide_mouse_cursor(_a5_display);
-    }
+    // if(_a5_display)
+    // {
+    //     al_hide_mouse_cursor(_a5_display);
+    // }
     a5_mouse_thread = al_create_thread(a5_mouse_thread_proc, NULL);
     al_start_thread(a5_mouse_thread);
     return 0;
@@ -170,14 +153,16 @@ static int a5_mouse_init(void)
 
 static void a5_mouse_exit(void)
 {
-    // al_destroy_thread(a5_mouse_thread);
-    // a5_mouse_thread = NULL;
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    al_destroy_thread(a5_mouse_thread);
+    a5_mouse_thread = NULL;
+#endif
     al_uninstall_mouse();
 }
 
 static void a5_mouse_position(int x, int y)
 {
-    al_set_mouse_xy(_a5_display, x, y);
+    // al_set_mouse_xy(_a5_display, x, y);
 }
 
 static void a5_mouse_get_mickeys(int * x, int * y)

@@ -1,0 +1,193 @@
+run-name: ${{ inputs.release-tag || 'Build' }}, ${{ inputs.runs-on }} ${{ inputs.arch }} ${{ inputs.config }} w/ ${{ inputs.compiler }}
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+      arch:
+        type: string
+      compiler:
+        type: string
+        required: false
+      config:
+        type: string
+        default: "Release"
+      cache:
+        type: boolean
+        default: true
+      sentry:
+        type: boolean
+        default: false
+        description: "Do not set this directly! Use release workflow."
+      release-tag:
+        type: string
+        required: false
+        description: "Do not set this directly! Use release workflow."
+      release-name:
+        type: string
+        required: false
+        description: "Do not set this directly! Use release workflow."
+    outputs:
+      artifact-name:
+        description: "The name of the artifact that should be downloaded by the caller workflow"
+        value: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
+      package-name:
+        description: "The name of the package inside the uploaded artifact"
+        value: ${{ jobs.build.outputs.package-name }}
+
+env:
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CCACHE_MAXSIZE: 400M
+  CCACHE_SLOPPINESS: time_macros
+  TARGET: zelda zquest zscript zlauncher
+
+jobs:
+  build:
+    runs-on: ${{ inputs.runs-on }}
+    outputs:
+      package-name: ${{ steps.set-package-name.outputs.package-name }}
+    steps:
+      # Install dependencies.
+      - name: git clone
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ inputs.arch }}
+
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        name: Install Dependencies
+        uses: crazy-max/ghaction-chocolatey@v1
+        with:
+          args: install .github/dependencies.config -y
+
+      - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+
+      - if: ${{ contains(inputs.runs-on, 'mac') }}
+        run: brew install ninja dylibbundler create-dmg ccache
+
+      - if: ${{ contains(inputs.runs-on, 'mac') }}
+        name: Build and install Bison
+        run: |
+          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
+          tar -zxvf bison-3.6.tar.gz
+          cd bison-3.6
+          ./configure
+          make
+          sudo make install
+
+      # Setup build cache via ccache.
+      - name: ccache cache files
+        if: inputs.cache
+        uses: actions/cache@v3
+        with:
+          path: .ccache
+          key: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-ccache-${{ github.run_id }}
+          restore-keys: ${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}-
+      - if: ${{ !inputs.cache }}
+        run: echo "CCACHE_DISABLE=1" >> "$GITHUB_ENV"
+
+      - name: Build ZScript docs
+        if: ${{ inputs.release-tag }}
+        run: |
+          pip install pytz
+          python webdocs/docjson_main.py --in webdocs/zsdocs_main.json --out resources/docs/ZScript_Docs.html -c
+
+      # Configure build.
+      - if: inputs.compiler == 'clang'
+        run: |
+          echo "CC=clang" >> "$GITHUB_ENV"
+          echo "CXX=clang++" >> "$GITHUB_ENV"
+      - if: inputs.compiler == 'gcc'
+        run: |
+          echo "CC=gcc" >> "$GITHUB_ENV"
+          echo "CXX=g++" >> "$GITHUB_ENV"
+      # Coverage builds only need zelda.
+      - name: Set environment variables
+        if: inputs.config == 'Coverage'
+        run: echo "TARGET=zelda" >> "$GITHUB_ENV"
+      - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - name: Configure build
+        run: >
+          cmake -S . -B build -G 'Ninja Multi-Config'
+          -DCOPY_RESOURCES=OFF
+          -DRELEASE_TAG="${{ inputs.release-tag }}"
+          -DWANT_SENTRY="${{ inputs.sentry }}"
+          -DCMAKE_WIN32_EXECUTABLE=1
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - run: ccache -z
+      - run: cmake --build build --config ${{ inputs.config }} --target ${{ env.TARGET }} -j 4 -- -k 0
+      - run: ccache -s
+
+      # Package.
+      - name: Set package name
+        id: set-package-name
+        shell: python
+        run: |
+          import platform
+          import os
+
+          release_tag = '${{ inputs.release-tag }}' or 'zc'
+          arch = '${{ inputs.arch }}'
+
+          system = platform.system()
+          if system == 'Windows':
+            arch_label = 'x86' if arch == 'win32' else 'x64'
+            package_name = f'{release_tag}-windows-{arch_label}.zip'
+          elif system == 'Darwin':
+            package_name = f'{release_tag}-mac.dmg'
+          elif system == 'Linux':
+            package_name = f'{release_tag}-ubuntu.tar.gz'
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            print('{0}={1}'.format('package-name', package_name), file=f)
+      - name: Package
+        if: inputs.config != 'Coverage'
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            python scripts/package.py --build_folder build/${{ inputs.config }}
+            mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+          macos: |
+            sh scripts/package_mac.sh
+            mv build/${{ inputs.config }}/packages/ZeldaClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+          linux: |
+            python scripts/package.py --build_folder build/${{ inputs.config }}
+            mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+      # Coverage builds need the entire build folder.
+      - name: Package
+        if: inputs.config == 'Coverage'
+        run: |
+          python scripts/package.py --build_folder build/${{ inputs.config }} --copy_to_build_folder
+          cd build
+          tar czpvf build.tar.gz * --preserve-permissions
+          mkdir ${{ inputs.config }}/packages
+          mv build.tar.gz ${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+
+      # Make build result available to other workflows.
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ inputs.compiler }}-${{ inputs.config }}
+          path: build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+
+      # Upload debug symbols to Sentry.
+      - name: Setup Sentry CLI
+        if: inputs.sentry
+        uses: mathieu-bour/setup-sentry-cli@1.2.0
+        with:
+          token: ${{ secrets.SENTRY_TOKEN }}
+          organization: zeldaclassic
+          project: zelda-classic
+      - name: Upload debugging symbols
+        if: inputs.sentry
+        run: sentry-cli upload-dif 'zelda-classic@${{ needs.create-tag.outputs.release_tag }}' --include-sources --wait build

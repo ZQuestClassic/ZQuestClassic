@@ -17,7 +17,8 @@ ZInfoDialog::ZInfoDialog() : lzinfo(),
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_combotype(GUI::ZCListData::combotype(true, true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
-	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true))
+	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true)),
+	list_weapon(GUI::ZCListData::weaptypes(true))
 {}
 
 static bool extzinf;
@@ -37,10 +38,10 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	}
 	else lzinfo.copyFrom(ZI); //Load ZInfo Data
 	
-	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0;
+	static int32_t selic = 0, selct = 0, selmf = 0, selctr = 0, selwpn = 0;
 	static char **icnameptr = nullptr, **ichelpptr = nullptr, **ctnameptr = nullptr,
 	            **cthelpptr = nullptr, **mfnameptr = nullptr, **mfhelpptr = nullptr,
-				**ctrnameptr = nullptr;
+				**ctrnameptr = nullptr, **wpnptr = nullptr;
 	extzinf = header.external_zinfo;
 	icnameptr = &(lzinfo.ic_name[selic]);
 	ichelpptr = &(lzinfo.ic_help_string[selic]);
@@ -49,12 +50,12 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	mfnameptr = &(lzinfo.mf_name[selmf]);
 	mfhelpptr = &(lzinfo.mf_help_string[selmf]);
 	ctrnameptr = &(lzinfo.ctr_name[selctr]);
+	wpnptr = &(lzinfo.weap_name[selwpn]);
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "ZInfo Editor",
 		info = "By unchecking 'default' for an itemclass, it will allow entry of a string which will be stored in"
 			" the quest's \"zinfo\". If 'External ZInfo' is checked, zinfo will not be saved to the quest file,"
 			" but instead to a separate '.zinfo' file. If the external file is not found, it will load default data instead.",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(ptr = &zinftab,
@@ -379,6 +380,63 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							})
 					)
 				)),
+				TabRef(name = "Weapons", Rows<3>(
+					vAlign = 0.0,
+					DropDownList(data = list_weapon,
+						colSpan = 3, fitParent = true,
+						selectedValue = selwpn,
+						onSelectFunc = [&](int32_t val)
+						{
+							selwpn = val;
+							wpnptr = &(lzinfo.weap_name[selwpn]);
+							fields[FLD_WPN_NAME]->setText((*wpnptr) ? (*wpnptr) : "");
+							fields[FLD_WPN_NAME]->setDisabled(!(*wpnptr));
+							defcheck[FLD_WPN_NAME]->setChecked(!(*wpnptr));
+						}
+					),
+					Label(text = "Weapon Name:"),
+					fields[FLD_WPN_NAME] = TextField(
+						maxLength = 255, text = ((*wpnptr) ? (*wpnptr) : ""),
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view sv,int32_t)
+						{
+							std::string str(sv);
+							assignchar(wpnptr, str.size() ? str.c_str() : nullptr);
+						}),
+					defcheck[FLD_WPN_NAME] = Checkbox(text = "Default",
+						onToggleFunc = [&](bool state)
+						{
+							if(state)
+							{
+								assignchar(wpnptr, nullptr);
+								fields[FLD_WPN_NAME]->setText("");
+								fields[FLD_WPN_NAME]->setDisabled(true);
+							}
+							else fields[FLD_WPN_NAME]->setDisabled(false);
+						}),
+					Row(
+						padding = 0_px,
+						colSpan = 3,
+						Label(text = "Reset all weapon..."),
+						Button(
+							text = "Names",
+							minwidth = 40_lpx,
+							onPressFunc = [&]()
+							{
+								AlertDialog("Are you sure?",
+									"This will clear ALL weapon names to default!",
+									[&](bool ret,bool)
+									{
+										if(ret)
+										{
+											lzinfo.clear_weap_name();
+											fields[FLD_WPN_NAME]->setText("");
+											fields[FLD_WPN_NAME]->setDisabled(true);
+											defcheck[FLD_WPN_NAME]->setChecked(true);
+										}
+									}).show();
+							})
+					)
+				)),
 				TabRef(name = "Counters", Rows<3>(
 					vAlign = 0.0,
 					DropDownList(data = list_counters,
@@ -494,6 +552,9 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 	fields[FLD_CTR_NAME]->setText((*ctrnameptr) ? (*ctrnameptr) : "");
 	fields[FLD_CTR_NAME]->setDisabled(!(*ctrnameptr));
 	defcheck[FLD_CTR_NAME]->setChecked(!(*ctrnameptr));
+	fields[FLD_WPN_NAME]->setText((*wpnptr) ? (*wpnptr) : "");
+	fields[FLD_WPN_NAME]->setDisabled(!(*wpnptr));
+	defcheck[FLD_WPN_NAME]->setChecked(!(*wpnptr));
 	return window;
 }
 

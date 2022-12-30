@@ -61,7 +61,6 @@ AL_LEGACY_FUNC(void, install_keyboard_hooks, (AL_LEGACY_METHOD(int, keypressed, 
 
 AL_LEGACY_ARRAY(volatile char, key);
 AL_LEGACY_VAR(volatile int, key_shifts);
-AL_LEGACY_VAR(volatile bool, locking_keys);
 
 AL_LEGACY_VAR(int, three_finger_flag);
 AL_LEGACY_VAR(int, key_led_flag);

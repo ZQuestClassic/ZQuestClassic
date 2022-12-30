@@ -76,6 +76,7 @@ static void update_key_shifts(ALLEGRO_EVENT* event) {
     }
 }
 
+
 static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT event;
@@ -84,9 +85,12 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
     al_register_event_source(queue, al_get_keyboard_event_source());
     while(!al_get_thread_should_stop(thread))
     {
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
         al_init_timeout(&timeout, 0.1);
+        if (al_wait_for_event_until(queue, &event, &timeout))
+#else
         al_wait_for_event(queue, &event);
-        if(true)
+#endif
         {
             switch(event.type)
             {
@@ -126,6 +130,8 @@ static void * a5_keyboard_thread_proc(ALLEGRO_THREAD * thread, void * data)
     return NULL;
 }
 
+#include <stdio.h>
+
 static int a5_keyboard_init(void)
 {
     int i;
@@ -156,7 +162,7 @@ static int a5_keyboard_init(void)
     queue = al_create_event_queue();
     if(!queue)
     {
-        return 0;
+        return -1;
     }
 
     a5_keyboard_thread = al_create_thread(a5_keyboard_thread_proc, NULL);
@@ -167,8 +173,11 @@ static int a5_keyboard_init(void)
 
 static void a5_keyboard_exit(void)
 {
-    // al_destroy_thread(a5_keyboard_thread);
-    // a5_keyboard_thread = NULL;
+#ifdef ALLEGRO_LEGACY_CLOSE_THREADS
+    al_destroy_thread(a5_keyboard_thread);
+    a5_keyboard_thread = NULL;
+#endif
+
     al_uninstall_keyboard();
 }
 

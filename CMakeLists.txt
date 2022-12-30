@@ -1,11 +1,17 @@
-cmake_minimum_required(VERSION 3.15)
-set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
+cmake_minimum_required(VERSION 3.24)
+set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(FetchContent)
+include(CodeCoverage)
+
+option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they do not exist yet" ON)
 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
-set(SENTRY_RELEASE_TAG "" CACHE STRING "Release tag for sentry")
+set(RELEASE_TAG "" CACHE STRING "Release tag")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,6 +25,8 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # don't clutter up the Solution file. https://gitlab.kitware.com/cmake/cmake/-/issues/21730
 set_property(GLOBAL PROPERTY CTEST_TARGETS_ADDED 1)
 
+set(BUILD_TESTING OFF CACHE BOOL "")
+
 if(UNIX AND NOT APPLE)
 	set(LINUX TRUE)
 endif()
@@ -26,6 +34,9 @@ endif()
 if(APPLE)
 	# Makes binaries look in their directory for shared libraries.
 	list(APPEND CMAKE_BUILD_RPATH "@loader_path")
+elseif(LINUX)
+	# https://stackoverflow.com/a/71321163/2788187
+	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
@@ -46,6 +57,59 @@ function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
 endfunction(enable_unity_build)
 
 #############################################################
+# zlib/libpng
+#############################################################
+
+if(NOT EMSCRIPTEN)
+	# TODO: can't use prebuilt zlib on Ubuntu, else get linker errors.
+	# Error from building gme:
+	#   /usr/bin/ld: _deps/zlib-build/Release/libz.a(trees.c.o): relocation R_X86_64_PC32 against
+	#   symbol `_length_code' can not be used when making a shared object; recompile with -fPIC
+	if(LINUX)
+		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE NEVER)
+	endif()
+
+	FetchContent_Declare(
+		zlib
+		GIT_REPOSITORY
+			https://github.com/Mizux/zlib.git
+		GIT_TAG
+			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
+		FIND_PACKAGE_ARGS NAMES ZLIB
+	)
+	FetchContent_MakeAvailable(zlib)
+	if(LINUX)
+		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
+	endif()
+
+	if(NOT ZLIB_LIBRARIES)
+		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})
+		set(ZLIB_LIBRARY ZLIB::ZLIB)
+		set(ZLIB_LIBRARIES ZLIB::ZLIB)
+	endif()
+
+	set(PNG_BUILD_ZLIB ON CACHE BOOL "")
+	set(PNG_STATIC OFF CACHE BOOL "")
+	set(PNG_TESTS OFF CACHE BOOL "")
+	set(WANT_IMAGE_PNG OFF)
+	FetchContent_Declare(
+		png
+		GIT_REPOSITORY
+			https://github.com/glennrp/libpng.git
+		GIT_TAG
+			v1.6.37
+		FIND_PACKAGE_ARGS NAMES PNG
+	)
+	FetchContent_MakeAvailable(png)
+
+	if(NOT PNG_LIBRARIES)
+		set(PNG_LIBRARIES png)
+		set(PNG_INCLUDE_DIRS "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+		set(PNG_INCLUDE_DIR "${png_SOURCE_DIR}" "${png_BINARY_DIR}")
+	endif()
+endif()
+
+#############################################################
 # Allegro
 #############################################################
 
@@ -62,7 +126,9 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
 
-include(FetchContent)
+set (MINIMP3_INCLUDE_DIRS ./include/minimp3)
+include_directories(./include/minimp3)
+
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
@@ -75,10 +141,11 @@ if(NOT allegro5_POPULATED)
 	option(WANT_EXAMPLES "" OFF)
 	option(WANT_DEMO "" OFF)
 	option(WANT_DOCS "" OFF)
+	option(WANT_IMAGE_WEBP "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
-  set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo CACHE STRING INTERNAL FORCE)
+  set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 endif()
 
 # These include files are typically copied into the correct places via allegro's install
@@ -107,12 +174,20 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/native_dialog/allegro5/allegro_native_di
 
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
+# Some performance problems with allegro legacy threaded event queues encouraged
+# NOT closing them on shutdown. This seemed to work ok on Windows and Mac, but on
+# Ubuntu it totally prevents the program from closing.
+# TODO: investigate this further - can performance problems with threaded event queues
+# be fixed?
+if(LINUX AND NOT EMSCRIPTEN)
+	set(ALLEGRO_LEGACY_CLOSE_THREADS 1)
+endif()
 add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
 
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
 target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
-target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_image allegro_main)
+target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_main)
 
 if (NOT EMSCRIPTEN)
 	target_link_libraries(allegro_with_legacy INTERFACE allegro_dialog)
@@ -122,8 +197,8 @@ endif()
 # Header and source file lists
 #############################################################
 
-include_directories(./include/zlib123)
 include_directories(./include/xxhash)
+# 
 include_directories(./src)
 # TODO: remove
 include_directories(./src/zc)
@@ -194,8 +269,6 @@ endif()
 
 # Windows
 
-string(TOLOWER "${CMAKE_VS_PLATFORM_NAME}" vs_platform)
-
 if(WIN32)
 	# Prevents definition of min and max macros, which conflict with std::min and std::max
 	add_definitions(-DNOMINMAX)
@@ -207,26 +280,13 @@ if(WIN32)
 endif()
 
 if(MSVC)
-	if("${vs_platform}" STREQUAL "win32")
-		set(IMAGELIBS "$<$<CONFIG:DEBUG>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32dbg/zlibd.lib>"
-					  "$<$<CONFIG:RELEASE>:$<SEMICOLON>${CMAKE_SOURCE_DIR}/libs/win32/zlib.lib>")
-	endif()
-
-	add_compile_options("$<$<CONFIG:DEBUG>:/MTd>")
-	add_compile_options("$<$<CONFIG:RELEASE>:/MT>")
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
-	if(MSVC_VERSION GREATER 1600)
-	# MSVC 2012, v11 or above
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
-		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
-	else()
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
-		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
-	endif()
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 
 	if(USE_PCH)
 		set(ZCPrecompiledBinary "${CMAKE_CURRENT_BINARY_DIR}/zcprecompiled.pch")
@@ -238,35 +298,42 @@ if(MSVC)
 	endif()
 
 elseif(EMSCRIPTEN)
-	# link_directories(/usr/lib/i386-linux-gnu)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
 
-	# TODO: figure out media libraries. probably replace this with w/e SDL offers.
-	# set(IMAGELIBS algif ldpng jpgal png z)
-	# set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
-	# set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
-
 	add_compile_options("-m32")
+	# TODO: remove?
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
 	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
 
 elseif(LINUX)
-	link_directories(/usr/lib/i386-linux-gnu)
-	link_directories(./libs/linux)
 	add_definitions(-DALLEGRO_LINUX) # Mistakenly used in the source.
+	add_definitions(-DALLEGRO_LEGACY_NO_FIX_ALIASES)
 
-	set(IMAGELIBS ldpng png z)
-	set(SOUNDLIBS aldmb almp3 alogg dumb gme asound)
-	set(X11_LIBRARIES X11 Xext Xcursor Xxf86vm pthread Xpm dl)
-
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32 -static-libgcc -export-dynamic")
-	SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -m32 -static-libgcc")
+	if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		# SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -export-dynamic")
+		SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc")
+		SET(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc")
+	endif()
 endif()
 
 if(MSVC)
 	# REQUIRED or else MSVC throws internal compiler error(!)
 	add_compile_options("/fp:fast")
-else(UNIX)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	# TODO: GCC w/ these flags don't quite match the behavior of MSVC or clang, as seen in a replay report:
+	#    https://zc-replay-compare-3700187020.surge.sh/
+	# The difference is trivial (and isolated to just stuff re: Patras, or maybe Sin/Cos, unclear), and actually GCC
+	# looks more "correct". Should re-assess fp-rounding to guarentee same playback for any compiler; should either:
+	# 1) ignore some frames for purposes of replay assert
+	# 2) investigate more how to get exact same behavior from gcc
+	# 3) investigate removing the fp flags from all compilers and seeing if results can be made to be consistent;
+	#    would require a workaround for the MSVC internal compiler error mentioned above.
+	#
+	# In the meantime, we just use clang for replay tests (and for building release), which seems fine long term.
+
+	# https://stackoverflow.com/a/36502370/2788187
+	add_compile_options(-funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fno-signaling-nans -fno-rounding-math -fcx-limited-range)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options("-ffp-model=fast")
 endif()
 
@@ -274,17 +341,32 @@ endif()
 # Allegro Graphics Addons
 #############################################################
 
-add_library(algif5 STATIC
-	allegro-addons/algif5/src/algif.c
-	allegro-addons/algif5/src/bitmap.c
-	allegro-addons/algif5/src/gif.c
-	allegro-addons/algif5/src/lzw.c
+add_library(alpng STATIC
+	allegro-addons/loadpng/loadpng.c
+	allegro-addons/loadpng/regpng.c
+	allegro-addons/loadpng/savepng.c
 )
-target_include_directories(algif5 PUBLIC
-	allegro-addons/algif5/src
+target_link_libraries(alpng PUBLIC
+	allegro_with_legacy
+	${PNG_LIBRARIES}
 )
-target_link_libraries(algif5 PUBLIC allegro_with_legacy)
-list(APPEND IMAGELIBS algif5)
+target_include_directories(alpng PUBLIC
+	allegro-addons/loadpng
+)
+target_include_directories(alpng PRIVATE
+	${PNG_INCLUDE_DIRS}
+)
+list(APPEND IMAGELIBS alpng)
+
+add_library(algif STATIC
+	allegro-addons/algif/src/save_gif.cpp
+	allegro-addons/algif/src/load_gif.cpp
+)
+target_include_directories(algif PUBLIC
+	allegro-addons/algif/include
+)
+target_link_libraries(algif PUBLIC allegro_with_legacy)
+list(APPEND IMAGELIBS algif)
 
 add_library(al5img STATIC
 	allegro-addons/al5img/src/al5img.c
@@ -292,7 +374,7 @@ add_library(al5img STATIC
 target_include_directories(al5img PUBLIC
 	allegro-addons/al5img/include
 )
-target_link_libraries(al5img PUBLIC allegro_with_legacy algif5)
+target_link_libraries(al5img PUBLIC allegro_with_legacy algif)
 list(APPEND IMAGELIBS al5img)
 
 #############################################################
@@ -314,6 +396,7 @@ set(zcbase_sources
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp
+	src/base/render.cpp
 	src/base/sin1.cpp
 	src/base/util.cpp
 	src/base/win32.cpp
@@ -380,8 +463,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(LINUX OR EMSCRIPTEN)
-	# TODO: Build sound deps from source on linux.
+if(EMSCRIPTEN)
 	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
 else()
 	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
@@ -393,21 +475,6 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	else()
 		set(SOUND_LIB_SHARED SHARED)
 	endif()
-	add_library(almp3 ${SOUND_LIB_SHARED}
-		allegro-addons/almp3/src/almp3.c
-		allegro-addons/almp3/decoder/common.c
-		allegro-addons/almp3/decoder/dct64_i386.c
-		allegro-addons/almp3/decoder/decode_i386.c
-		allegro-addons/almp3/decoder/interface.c
-		allegro-addons/almp3/decoder/layer2.c
-		allegro-addons/almp3/decoder/layer3.c
-		allegro-addons/almp3/decoder/tabinit.c
-	)
-	target_include_directories(almp3 PUBLIC
-		allegro-addons/almp3/include
-		allegro-addons/almp3/decoder
-	)
-	target_link_libraries(almp3 PUBLIC allegro_with_legacy)
 
 	add_library(alogg ${SOUND_LIB_SHARED}
 		allegro-addons/alogg/decoder/libogg/macos/compat/strdup.c
@@ -452,9 +519,11 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		GIT_TAG        6cd4bdb69be304f58c9253fb08b8362f541b3b4b
 	)
 	set(GME_YM2612_EMU "Nuked" CACHE STRING "Which YM2612 emulator to use: \"Nuked\" (LGPLv2.1+), \"MAME\" (GPLv2+), or \"GENS\" (LGPLv2.1+)")
+	option(ENABLE_UBSAN "" OFF)
 	FetchContent_MakeAvailable(gme_external)
 	add_library(gme_headers INTERFACE)
 	target_include_directories(gme_headers INTERFACE ${gme_external_SOURCE_DIR}/gme)
+	target_link_libraries(gme_headers INTERFACE ${ZLIB_LIBRARIES})
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
 	option(BUILD_EXAMPLES "" OFF)
@@ -470,21 +539,20 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	add_library(dumb_headers INTERFACE)
 	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
 
-	set(SOUNDLIBS almp3 alogg gme gme_headers aldmb dumb dumb_headers)
+	set(SOUNDLIBS alpng alogg gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
-target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA})
+target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
 else()
 	include_directories(./include/dumb)
 	include_directories(./include/alogg)
-	include_directories(./include/almp3)
 	include_directories(./include/gme)
 endif()
 
@@ -500,7 +568,6 @@ if(MSVC)
 
 elseif(LINUX)
 	list(APPEND ZELDAEXTRASOURCES zc_icon.c src/single_instance_unix.cpp)
-	set(ZELDALIBSEXTRA ${X11_LIBRARIES})
 endif()
 
 if(UNITY_BUILD)
@@ -512,7 +579,7 @@ endif()
 
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
-set_property(TARGET zelda PROPERTY VS_DPI_AWARE "OFF")
+set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zelda PRIVATE src/zc)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
@@ -537,7 +604,6 @@ if(MSVC)
 	list(APPEND ZQUESTEXTRASOURCES zq_icon.rc)
 elseif(LINUX)
 	list(APPEND ZQUESTEXTRASOURCES zq_icon.c src/single_instance_unix.cpp)
-	set(ZQUESTLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
 if(UNITY_BUILD)
@@ -557,7 +623,7 @@ if(Boost_FOUND)
 	include_directories(${Boost_INCLUDE_DIRS})
 	add_definitions(-DHAS_BOOST)
 	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
-	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "OFF")
+	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "PerMonitor")
 
 	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
 	target_include_directories(zquest PRIVATE src/zq)
@@ -589,10 +655,6 @@ endif()
 # ZScript parser
 #############################################################
 
-if(LINUX)
-	set(ZSCRIPTLIBSEXTRA ${X11_LIBRARIES})
-endif()
-
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src/zq)
@@ -606,15 +668,13 @@ endif()
 
 if(MSVC)
 	list(APPEND LAUNCHEREXTRASOURCES zl_icon.rc)
-
 elseif(LINUX)
 	list(APPEND LAUNCHEREXTRASOURCES zl_icon.c src/single_instance_unix.cpp)
-	set(LAUNCHERLIBSEXTRA ${X11_LIBRARIES})
 endif()
 
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
-set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "OFF")
+set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
 target_include_directories(zlauncher PRIVATE src/launcher)
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
@@ -643,10 +703,21 @@ endif()
 #############################################################
 
 set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger)
-set(zc_apps zquest zelda zlauncher)
-set(zc_warnings
+set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
+	-Werror=return-type
+	-Wno-write-strings
+	-Wno-switch
+)
+set(zc_gcc_errors
+	-Werror=format
+	-Werror=format-overflow
+	-Werror=return-type
+	-Wno-write-strings
+	-Wno-switch
+	# TODO
+	# -Wunused-result
 )
 
 foreach(target IN LISTS zc_targets)
@@ -655,7 +726,7 @@ foreach(target IN LISTS zc_targets)
 endforeach()
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.4.18)
+	set(SENTRY_VERSION 0.5.3)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
@@ -664,12 +735,13 @@ if(WANT_SENTRY)
 	foreach(target IN LISTS zc_targets)
 		target_link_libraries(${target} PRIVATE sentry)
 		target_compile_definitions(${target} PRIVATE HAS_SENTRY)
-		target_compile_definitions(${target} PRIVATE SENTRY_RELEASE_TAG="${SENTRY_RELEASE_TAG}")
+		target_compile_definitions(${target} PRIVATE RELEASE_TAG="${RELEASE_TAG}")
 	endforeach()
 endif()
 
 if (WIN32)
 	list(APPEND zc_targets zconsole)
+	add_dependencies(zelda zconsole)
 endif()
 foreach(target IN LISTS zc_targets)
 	if(WIN32)
@@ -680,16 +752,55 @@ foreach(target IN LISTS zc_targets)
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		# Uncomment to autofix. Only works for clang. When done, comment this line out again.
-		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_warnings} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
+		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_clang_errors} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
+		target_compile_options(${target} PRIVATE ${zc_clang_errors})
 	endif()
-	if(NOT CMAKE_COMPILER_IS_MSVC)
-		target_compile_options(${target} PRIVATE ${zc_warnings})
+	if(CMAKE_C_COMPILER_ID MATCHES "GNU")
+		target_compile_options(${target} PRIVATE ${zc_gcc_errors})
 	endif()
 endforeach()
 
 if(WIN32)
 	# Disable warnings for generated file.
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS /W0)
+endif()
+
+find_program(PYTHON python3 python REQUIRED)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --keep_existing_files
+	OUTPUT copy_resources_if_not_exist.stamp
+)
+add_custom_target(copy_resources_if_not_exist DEPENDS copy_resources_if_not_exist.stamp)
+set_source_files_properties(copy_resources_if_not_exist.stamp PROPERTIES SYMBOLIC 1)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+	OUTPUT copy_resources.stamp
+)
+add_custom_target(copy_resources DEPENDS copy_resources.stamp)
+set_source_files_properties(copy_resources.stamp PROPERTIES SYMBOLIC 1)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first
+	OUTPUT package.stamp
+	DEPENDS ${zc_targets}
+)
+add_custom_target(package DEPENDS package.stamp)
+set_source_files_properties(package.stamp PROPERTIES SYMBOLIC 1)
+
+add_custom_command(
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first --skip_archive
+	OUTPUT package_no_archive.stamp
+	DEPENDS ${zc_targets}
+)
+add_custom_target(package_no_archive DEPENDS package_no_archive.stamp)
+set_source_files_properties(package_no_archive.stamp PROPERTIES SYMBOLIC 1)
+
+if(COPY_RESOURCES)
+	foreach(target IN LISTS zc_targets)
+		add_dependencies(${target} copy_resources_if_not_exist)
+	endforeach()
 endif()
 
 #############################################################
@@ -707,10 +818,37 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zcsound gme dumb aldmb almp3 alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif5 al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
+	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
+	set_target_properties(gme dumb aldmb alogg PROPERTIES FOLDER Sound)
+	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)
 	endif()
+
+	# Put everything else in "Other" folder
+	function(get_all_targets var)
+		set(targets)
+		get_all_targets_recursive(targets ${CMAKE_CURRENT_SOURCE_DIR})
+		set(${var} ${targets} PARENT_SCOPE)
+	endfunction()
+
+	macro(get_all_targets_recursive targets dir)
+		get_property(subdirectories DIRECTORY ${dir} PROPERTY SUBDIRECTORIES)
+		foreach(subdir ${subdirectories})
+			get_all_targets_recursive(${targets} ${subdir})
+		endforeach()
+
+		get_property(current_targets DIRECTORY ${dir} PROPERTY BUILDSYSTEM_TARGETS)
+		list(APPEND ${targets} ${current_targets})
+	endmacro()
+
+	get_all_targets(all_targets)
+	foreach(target IN LISTS all_targets)
+		get_property(folder_set TARGET ${target} PROPERTY FOLDER SET)
+		if(NOT folder_set)
+			set_target_properties(${target} PROPERTIES FOLDER Other)
+		endif()
+	endforeach()
 endif()

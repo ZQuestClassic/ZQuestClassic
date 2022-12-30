@@ -26,7 +26,6 @@ std::shared_ptr<GUI::Widget> FooDialog::view()
 
 	return Window(
 		title = "Foo",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Rows<2>(

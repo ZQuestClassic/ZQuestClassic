@@ -32,7 +32,6 @@
 #include "jwin.h"
 
 extern volatile int32_t myvsync;
-extern int32_t zqwin_scale;
 void update_hw_screen(bool force);
 extern bool is_large;
 
@@ -161,7 +160,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
             }
         }
 		
-		update_hw_screen();
+		update_hw_screen(false);
     }
     
     return over;
@@ -196,7 +195,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             }
         }
         
-		update_hw_screen();
+		update_hw_screen(false);
     }
     
     if(over)
@@ -206,7 +205,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
         draw_button(screen,x,y,w,h,text,bg,fg,0);
         unscare_mouse();
         
-		update_hw_screen();
+		update_hw_screen(false);
     }
     
     return over;
@@ -350,8 +349,8 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                 panel[i].xy[counter*2]=current_object->x;
                 panel[i].xy[counter*2+1]=current_object->y;
                 //move the control offscreen
-                current_object->x=SCREEN_W*3;
-                current_object->y=SCREEN_H*3;
+                current_object->x=screen->w*3;
+                current_object->y=screen->h*3;
                 current_object->flags|=D_HIDDEN;
             }
         }
@@ -383,7 +382,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_IDLE:
     {
         //if we are off-screen
-        if(d->x>SCREEN_W||d->y>SCREEN_H)
+        if(d->x>screen->w||d->y>screen->h)
         {
             if(d->d2==1)
             {
@@ -399,8 +398,8 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                         //assign current_object to one of the controls handled by the tab
                         current_object=panel_dialog+(panel[i].dialog[counter]);
                         //move the control offscreen
-                        current_object->x=SCREEN_W*3;
-                        current_object->y=SCREEN_H*3;
+                        current_object->x=screen->w*3;
+                        current_object->y=screen->h*3;
                     }
                 }
                 
@@ -431,7 +430,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
         //backup the default font
         FONT *oldfont = font;
         
-        if(d->x<SCREEN_W&&d->y<SCREEN_H)
+        if(d->x<screen->w&&d->y<screen->h)
         {
             //do the tabs have a custom font?
             if(d->dp2)
@@ -545,8 +544,8 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                 //assign current_object to one of the controls handled by the tab
                 current_object=panel_dialog+(panel[d->d1&0x00FF].dialog[counter]);
                 //move them off screen
-                current_object->x=SCREEN_W*3;
-                current_object->y=SCREEN_H*3;
+                current_object->x=screen->w*3;
+                current_object->y=screen->h*3;
             }
         }
         

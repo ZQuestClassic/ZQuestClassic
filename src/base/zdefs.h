@@ -20,6 +20,13 @@
 //DEVLEVEL 3 ?? (Seems to do nothing special)
 //DEVLEVEL 4 = ignore quest passwords
 
+#ifdef _DEBUG
+#if DEVLEVEL < 4
+#undef DEVLEVEL
+#define DEVLEVEL 4
+#endif
+#endif
+
 #if DEVLEVEL > 0
 #define DEVLOGGING	dev_logging
 #define DEVDEBUG	dev_debug
@@ -127,6 +134,24 @@
 #include <set>
 #include <assert.h>
 #include <string>
+
+typedef uint8_t  byte;  //0-255  ( 8 bits)
+typedef uint16_t word;  //0-65,535  (16 bits)
+typedef uint32_t dword; //0-4,294,967,295  (32 bits)
+typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
+
+//Common struct array element sizes-Z
+#define INITIAL_A 2
+#define INITIAL_D 8
+#define FFSCRIPT_MISC 32
+#define MAXFFCS 128
+
+#define MAX_SIGNED_32 (2147483647)
+#define MIN_SIGNED_32 (-2147483647-1)
+#define MAX_DWORD dword(-1)
+#define MIN_DWORD 0
+
+#include "ffc.h"
 #include "metadata/metadata.h"
 #include "base/zc_alleg.h"
 #include "gamedata.h"
@@ -135,15 +160,9 @@
 #include "base/util.h"
 #include "base/process_management.h"
 #include "zconfig.h"
-
 #include "check.h"
 #include "dcheck.h"
 #include "notreached.h"
-
-typedef uint8_t  byte;  //0-255  ( 8 bits)
-typedef uint16_t word;  //0-65,535  (16 bits)
-typedef uint32_t dword; //0-4,294,967,295  (32 bits)
-typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 #include "user_object.h"
 
 
@@ -269,7 +288,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          35
 #define V_CSETS            5 //palette data
-#define V_MAPS            23
+#define V_MAPS            25
 #define V_DMAPS            17
 #define V_DOORS            1
 #define V_ITEMS           53
@@ -277,7 +296,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        32
+#define V_INITDATA        33
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -290,8 +309,8 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       33
-#define V_ZINFO            2
+#define V_COMPATRULE       36
+#define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
 
@@ -365,6 +384,8 @@ extern int32_t CSET_SHFT;
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
+
+extern volatile bool close_button_quit;
 
 // system colors
 #define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)
@@ -473,7 +494,6 @@ extern bool fake_pack_writing;
 #define BOUND_COMBO(c)	vbound(c, 0, MAXCOMBOS)
 #define MAXSUBSCREENITEMS	256
 #define MAXCUSTOMSUBSCREENS 128
-#define MAXFFCS			 32
 #define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 8
@@ -633,13 +653,6 @@ extern bool fake_pack_writing;
 #define ipONETIME2      2048                                // Getting this item sets mSPECIALITEM
 #define ipSECRETS       4096                                // Trigger Secrets when picked up
 #define ipCANGRAB       8192                                // Always grabbable to hookshot/arrows/brang
-
-
-//Common struct array element sizes-Z
-#define INITIAL_A 2
-#define INITIAL_D 8
-#define FFSCRIPT_MISC 32
-#define NUM_FFCS 32
 
 //We have definitions for this below, but this is for scripted stuff in 2,54. 
 enum { warpfxNONE, warpfxBLACKOUT, warpfxWIPE, warpfxSCROLL, warpfxZAP, warpfxZAPIN, warpfxZAPOUT, warpfxWAVY, 
@@ -830,7 +843,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK, cSHOOTER,
+	cCUSTOMBLOCK, cSHOOTER, cSLOPE,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1096,24 +1109,23 @@ enum
 	qr_MANHANDLA_BLOCK_SFX, qr_GRASS_SENSITIVE, qr_BETTER_RAFT, qr_BETTER_RAFT_2,
 	qr_RAFT_SOUND, qr_WARPS_RESTART_DMAPSCRIPT, qr_DMAP_0_CONTINUE_BUG, qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
 	//43
-	qr_OLD_SCRIPTED_KNOCKBACK, qr_OLD_KEESE_Z_AXIS, qr_POLVIRE_NO_SHADOW,
+	qr_OLD_SCRIPTED_KNOCKBACK, qr_OLD_KEESE_Z_AXIS, qr_POLVIRE_NO_SHADOW, qr_CONVEYORS_L1_L2,
+	qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN, qr_OLD_LOCKBLOCK_COLLISION,
+	//44
+	qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER, qr_GOHMA_UNDAMAGED_BUG,
+	qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE, qr_NO_LIFT_SPRITE,
+	//45
+	qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING, 
 	
 	//50
-	qr_CONVEYORS_L1_L2, qr_CUSTOMCOMBOS_EVERY_LAYER, qr_SUBSCR_BACKWARDS_ID_ORDER, qr_FASTCOUNTERDRAIN,
-	qr_OLD_LOCKBLOCK_COLLISION, qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER,
+	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX,
 	//60
-	qr_GOHMA_UNDAMAGED_BUG, qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE,
-	qr_NO_LIFT_SPRITE,
 	//70
 	
 	//ZScript Parser //room for 20 of these
 	//80
-	qr_PARSER_250DIVISION = 80*8, //2.50 integer division bug emulation
-	qr_PARSER_NO_LOGGING, //Default off. If on, `Trace()` does not do anything.
-	qr_PARSER_SHORT_CIRCUIT, //Default on.
-	qr_PARSER_BOOL_TRUE_DECIMAL, //Default off
-	qr_SPRITEXY_IS_FLOAT,
-	qr_PARSER_TRUE_INT_SIZE, //Default on
+	qr_PARSER_250DIVISION = 80*8, qr_PARSER_NO_LOGGING, qr_PARSER_SHORT_CIRCUIT, qr_PARSER_BOOL_TRUE_DECIMAL,
+	qr_SPRITEXY_IS_FLOAT, qr_PARSER_TRUE_INT_SIZE,
 	qr_WPNANIMFIX, /* Not Implemented : This was in 2.50.2, but never used. */ 
 	qr_NOSCRIPTSDURINGSCROLL, /* Not Implemented : This was in 2.50.2, but never used. */
 	//81
@@ -1131,6 +1143,8 @@ enum
 	//85
 	qr_OLD_SLASHNEXT_SECRETS, qr_STEP_IS_FLOAT, qr_OLDMAPDATAFLAGS, qr_OLD_PRINTF_ARGS,
 	qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS, qr_LOG_INVALID_UID_LOAD, qr_COMBODATA_INITD_MULT_TENK,
+	//86
+	qr_ZS_NO_NEG_ARRAY,
 	
     qr_MAX
 };
@@ -1162,10 +1176,14 @@ const direction oppositeDir[]= {down, up, right, left, r_down, l_down, r_up, l_u
 const direction normalDir[]={up,down,left,right,l_up,r_up,l_down,r_down,up,r_up,right,r_down,down,l_down,left,l_up};
 const direction xDir[] = { dir_invalid,dir_invalid,left,right,left,right,left,right };
 const direction yDir[] = { up,down,dir_invalid,dir_invalid,up,up,down,down };
-int32_t X_DIR(int32_t dir);
-int32_t Y_DIR(int32_t dir);
-direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy);
-#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : -1)
+direction X_DIR(int32_t dir);
+direction Y_DIR(int32_t dir);
+direction XY_DIR(int32_t xdir, int32_t ydir);
+direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy); // TODO ! remove? is this just XY_DIR?
+direction GET_XDIR(zfix const& sign);
+direction GET_YDIR(zfix const& sign);
+direction GET_DIR(zfix const& dx, zfix const& dy);
+#define NORMAL_DIR(dir)    ((dir >= 0 && dir < 16) ? normalDir[dir] : dir_invalid)
 
 // refill stuff
 enum { REFILL_NONE, REFILL_FAIRYDONE, REFILL_LIFE, REFILL_MAGIC, REFILL_ALL};
@@ -2300,21 +2318,22 @@ struct guydata
     
 };
 //Moveflags
-#define FLAG_OBEYS_GRAV               0x0001
-#define FLAG_CAN_PITFALL              0x0002
-#define FLAG_CAN_PITWALK              0x0004
-#define FLAG_CAN_WATERDROWN           0x0008
-#define FLAG_CAN_WATERWALK            0x0010
-#define FLAG_ONLY_WATERWALK           0x0020 //Only walks on water
-#define FLAG_ONLY_SHALLOW_WATERWALK   0x0040 //Only walks on shallow water
-#define FLAG_ONLY_PITWALK             0x0080 //Only walks on pitfalls
-#define FLAG_NO_FAKE_Z                0x0100
-#define FLAG_NO_REAL_Z                0x0200
-#define FLAG_USE_FAKE_Z               0x0400
-#define FLAG_IGNORE_SOLIDITY          0x0800
-#define FLAG_IGNORE_BLOCKFLAGS        0x1000
-#define FLAG_IGNORE_SCREENEDGE        0x2000
-#define FLAG_USE_NEW_MOVEMENT         0x4000
+#define FLAG_OBEYS_GRAV               0x00000001
+#define FLAG_CAN_PITFALL              0x00000002
+#define FLAG_CAN_PITWALK              0x00000004
+#define FLAG_CAN_WATERDROWN           0x00000008
+#define FLAG_CAN_WATERWALK            0x00000010
+#define FLAG_ONLY_WATERWALK           0x00000020 //Only walks on water
+#define FLAG_ONLY_SHALLOW_WATERWALK   0x00000040 //Only walks on shallow water
+#define FLAG_ONLY_PITWALK             0x00000080 //Only walks on pitfalls
+#define FLAG_NO_FAKE_Z                0x00000100
+#define FLAG_NO_REAL_Z                0x00000200
+#define FLAG_USE_FAKE_Z               0x00000400
+#define FLAG_IGNORE_SOLIDITY          0x00000800
+#define FLAG_IGNORE_BLOCKFLAGS        0x00001000
+#define FLAG_IGNORE_SCREENEDGE        0x00002000
+#define FLAG_USE_NEW_MOVEMENT         0x00004000
+#define FLAG_NOT_PUSHABLE             0x00008000
 
 #define MAX_PC dword(-1)
 class refInfo
@@ -2336,7 +2355,7 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
-	dword fileref, subscreenref, comboidref, directoryref, rngref, stackref;
+	dword fileref, subscreenref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -2345,6 +2364,7 @@ public:
 	
 	int32_t switchkey; //used for switch statements
 	dword thiskey; //used for user class 'this' pointers
+	dword waitframes; //wait multiple frames in a row
 	
 	void Clear()
 	{
@@ -2356,12 +2376,13 @@ public:
 		paletteref = 0, palcycleref = 0, tunesref = 0,
 		gamedataref = 0, cheatsref = 0; 
 		fileref = 0, subscreenref = 0;
-		comboidref = 0; directoryref = 0; rngref = 0; stackref = 0; bottletyperef = 0; bottleshopref = 0; genericdataref = 0;
+		comboidref = 0; directoryref = 0; rngref = 0; paldataref = 0; stackref = 0; bottletyperef = 0; bottleshopref = 0; genericdataref = 0;
 		comboposref = 0;
 		memset(d, 0, 8 * sizeof(int32_t));
 		a[0] = a[1] = 0;
 		switchkey = 0;
 		thiskey = 0;
+		waitframes = 0;
 	}
 	
 	refInfo()
@@ -2387,397 +2408,17 @@ public:
 		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
 		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
 		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
-		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, stackref = rhs.stackref, rngref = rhs.rngref;
+		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, stackref = rhs.stackref, rngref = rhs.rngref, paldataref = rhs.paldataref;
 		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref, genericdataref = rhs.genericdataref;
 		memcpy(d, rhs.d, 8 * sizeof(int32_t));
 		memcpy(a, rhs.a, 2 * sizeof(int32_t));
 		switchkey = rhs.switchkey;
 		thiskey = rhs.thiskey;
+		waitframes = rhs.waitframes;
 		return *this;
 	}
 };
 
-
-struct mapscr
-{
-	byte valid;
-	byte guy;
-	word str;
-	byte room;
-	byte item;
-	byte hasitem;
-	byte tilewarptype[4];
-	byte tilewarpoverlayflags;
-	word door_combo_set;
-	byte warpreturnx[4];
-	byte warpreturny[4];
-	word warpreturnc;
-	byte stairx;
-	byte stairy;
-	byte itemx;
-	byte itemy;
-	word color;
-	byte enemyflags;
-	byte door[4]; //need to add a dmapscreendoor command.
-	word tilewarpdmap[4];
-	byte tilewarpscr[4];
-	byte exitdir;
-	word enemy[10]; //GetSetScreenEnemies()
-	byte pattern;
-	byte sidewarptype[4];
-	byte sidewarpoverlayflags;
-	byte warparrivalx;
-	byte warparrivaly;
-	byte path[4];
-	byte sidewarpscr[4];
-	word sidewarpdmap[4];
-	byte sidewarpindex;
-	word undercombo;
-	byte undercset;
-	word catchall;
-	byte flags;
-	byte flags2;
-	byte flags3;
-	byte flags4;
-	byte flags5;
-	byte flags6;
-	byte flags7;
-	byte flags8;
-	byte flags9;
-	byte flags10;
-	byte csensitive;
-	word noreset;
-	word nocarry;
-	byte layermap[6];
-	byte layerscreen[6];
-	//  byte layerxsize[6];
-	//  byte layerxspeed[6];
-	//  byte layerxdelay[6];
-	//  byte layerysize[6];
-	//  byte layeryspeed[6];
-	//  byte layerydelay[6];
-	byte layeropacity[6]; //should be available to zscript.-Z
-	word timedwarptics;
-	byte nextmap;
-	byte nextscr;
-	word secretcombo[128]; //should be available to zscript.-Z
-	byte secretcset[128]; //should be available to zscript.-Z
-	byte secretflag[128]; //should be available to zscript.-Z
-	// you're listening to ptr radio, the sounds of insane. ;)
-	std::vector<word> data;
-	std::vector<byte> sflag;
-	std::vector<byte> cset;
-	word viewX;
-	word viewY;
-	byte scrWidth; //ooooh. Can we make this a variable set by script? -Z
-	byte scrHeight; //ooooh. Can we make this a variable set by script? -Z
-	
-	byte entry_x, entry_y; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
-	
-	//Why doesn't ffc get to be its own class?
-	dword numff;
-	word ffdata[NUM_FFCS];
-	byte ffcset[NUM_FFCS];
-	word ffdelay[NUM_FFCS];
-	int32_t ffx[NUM_FFCS];
-	int32_t ffy[NUM_FFCS];
-	int32_t ffxdelta[NUM_FFCS];
-	int32_t ffydelta[NUM_FFCS];
-	int32_t ffxdelta2[NUM_FFCS];
-	int32_t ffydelta2[NUM_FFCS];
-	dword ffflags[NUM_FFCS];
-	byte ffwidth[NUM_FFCS];
-	byte ffheight[NUM_FFCS];
-	byte fflink[NUM_FFCS];
-	
-	byte ffEffectWidth(size_t ind) const
-	{
-		return (ffwidth[ind]&0x3F)+1;
-	}
-	void ffEffectWidth(size_t ind, byte val)
-	{
-		ffwidth[ind] = (ffwidth[ind] & ~63) | ((val-1)&63);
-	}
-	byte ffEffectHeight(size_t ind) const
-	{
-		return (ffheight[ind]&0x3F)+1;
-	}
-	void ffEffectHeight(size_t ind, byte val)
-	{
-		ffheight[ind] = (ffheight[ind] & ~63) | ((val-1)&63);
-	}
-	byte ffTileWidth(size_t ind) const
-	{
-		return (ffwidth[ind]>>6)+1;
-	}
-	void ffTileWidth(size_t ind, byte val)
-	{
-		ffwidth[ind] = (ffwidth[ind] & 63) | (((val-1)&3)<<6);
-	}
-	byte ffTileHeight(size_t ind) const
-	{
-		return (ffheight[ind]>>6)+1;
-	}
-	void ffTileHeight(size_t ind, byte val)
-	{
-		ffheight[ind] = (ffheight[ind] & 63) | (((val-1)&3)<<6);
-	}
-	
-	//ffc script attachments
-	word ffscript[NUM_FFCS];
-	int32_t initd[NUM_FFCS][INITIAL_D];
-	int32_t inita[NUM_FFCS][INITIAL_A];
-	bool initialized[NUM_FFCS];
-	
-	/*int32_t d[32][8];
-	int32_t a[32][2];
-	word pc[32];
-	dword scriptflag[32];
-	byte sp[32]; //stack pointer
-	byte ffcref[32];
-	dword itemref[32];
-	byte itemclass[32];
-	dword lwpnref[32];
-	dword ewpnref[32];
-	dword guyref[32];*/
-	//byte lwpnclass[32]; Not implemented
-	//byte ewpnclass[32]; Not implemented
-	//byte guyclass[32]; Not implemented
-	
-	/*int32_t map_stack[256];
-	int32_t map_d[8];
-	word map_pc;
-	dword map_scriptflag;
-	byte map_sp;
-	byte map_itemref;
-	byte map_itemclass;
-	byte map_lwpnref;
-	byte map_lwpnclass;
-	byte map_ewpnref;
-	byte map_ewpnclass;
-	byte map_guyref;
-	byte map_guyclass;
-	byte map_ffcref;*/ //All this is trash because we don't have map scripts, waste of memory
-	word script_entry;
-	word script_occupancy;
-	word script_exit;
-	
-	byte oceansfx;
-	byte bosssfx;
-	byte secretsfx;
-	byte holdupsfx;
-	
-	// for importing older quests...
-	byte old_cpage;
-	int16_t screen_midi;
-	byte lens_layer;
-	
-	//for future versions after 2.54 -Z
-	int32_t npcstrings[10];
-	int16_t new_items[10];
-	int16_t new_item_x[10];
-	int16_t new_item_y[10];
-	
-	
-	word script;
-	int32_t screeninitd[8];
-	byte screen_waitdraw;
-	byte preloadscript;
-	uint32_t ffcswaitdraw;
-	byte screendatascriptInitialised;
-	
-	byte hidelayers;
-	byte hidescriptlayers;
-	byte doscript;
-	
-	void zero_memory()
-	{
-		//oh joy, this will be fun...
-		valid=0;
-		guy=0;
-		str=0;
-		room=0;
-		item=0;
-		hasitem=0;
-		tilewarpoverlayflags=0;
-		door_combo_set=0;
-		warpreturnc=0;
-		stairx=0;
-		stairy=0;
-		itemx=0;
-		itemy=0;
-		color=0;
-		enemyflags=0;
-		
-		exitdir=0;
-		pattern=0;
-		sidewarpoverlayflags=0;
-		warparrivalx=0;
-		warparrivaly=0;
-		
-		sidewarpindex=0;
-		undercombo=0;
-		undercset=0;
-		catchall=0;
-		flags=0;
-		flags2=0;
-		flags3=0;
-		flags4=0;
-		flags5=0;
-		flags6=0;
-		flags7=0;
-		flags8=0;
-		flags9=0;
-		flags10=0;
-		csensitive=0;
-		noreset=0;
-		nocarry=0;
-		timedwarptics=0;
-		nextmap=0;
-		nextscr=0;
-		// new for 2.6
-		//entry_x = entry_y = 0; //Where Hero entered the screen. Used for pits, and to prevent water walking. -Z
-		
-		
-		viewX=0;
-		viewY=0;
-		scrWidth=0;
-		scrHeight=0;
-		numff=0;
-		entry_x = 0;
-		entry_y = 0;
-		
-		old_cpage = 0;
-		screen_midi = 0;
-		
-		for(int32_t i(0); i<4; i++)
-		{
-			door[i]=0;
-			tilewarpdmap[i]=0;
-			tilewarpscr[i]=0;
-			tilewarptype[i]=0;
-			warpreturnx[i]=0;
-			warpreturny[i]=0;
-			path[i]=0;
-			sidewarpscr[i]=0;
-			sidewarpdmap[i]=0;
-			sidewarptype[i]=0;
-		}
-		
-		for(int32_t i(0); i<10; i++)
-			enemy[i]=0;
-			
-		for(int32_t i(0); i<128; i++)
-		{
-			secretcombo[i]=0;
-			secretcset[i]=0;
-			secretflag[i]=0;
-		}
-		
-		for(int32_t i(0); i<6; i++)
-		{
-			layermap[i]=0;
-			layerscreen[i]=0;
-			layeropacity[i]=0;
-		}
-		
-		for(int32_t i(0); i<32; i++)
-		{
-			for(int32_t j(0); j<8; j++)
-			{
-				//d[i][j]=0;
-				initd[i][j]=0;
-			}
-			
-			for(int32_t j(0); j<2; j++)
-			{
-				inita[i][j]=0;
-				//a[i][j]=0;
-			}
-			
-			initialized[i]=0;
-			/*pc[i]=0;
-			scriptflag[i]=0;
-			sp[i]=0;
-			ffcref[i]=0;
-			itemref[i]=0;
-			itemclass[i]=0;*/
-			ffdata[i]=0;
-			ffcset[i]=0;
-			ffdelay[i]=0;
-			ffx[i]=0;
-			ffy[i]=0;
-			ffxdelta[i]=0;
-			ffydelta[i]=0;
-			ffxdelta2[i]=0;
-			ffydelta2[i]=0;
-			ffflags[i]=0;
-			ffwidth[i]=0;
-			ffheight[i]=0;
-			fflink[i]=0;
-			ffscript[i]=0;
-		}
-		
-		/*	  for(int32_t i(0);i<256;i++)
-			  {
-			   map_stack[i]=0;
-			  }
-			   for(int32_t i(0);i<8;i++)
-			  {
-			   map_d[i]=0;
-			  }
-		   map_pc=0;
-		   map_scriptflag=0;
-		   map_sp=map_itemref=map_itemclass=0;
-		   map_lwpnref=0;
-		   map_lwpnclass=0;
-		   map_ewpnref=0;
-		   map_ewpnclass=0;
-		   map_guyref=0;
-		   map_guyclass=0;
-		   map_ffcref=0;*/
-		script_entry=0;
-		script_occupancy=0;
-		script_exit=0;
-		oceansfx=0;
-		bosssfx=0;
-		secretsfx=0;
-		holdupsfx=0;
-		lens_layer=0;
-	
-		for ( int32_t q = 0; q < 10; q++ ) npcstrings[q] = 0;
-		for ( int32_t q = 0; q < 10; q++ ) new_items[q] = 0;
-		for ( int32_t q = 0; q < 10; q++ ) new_item_x[q] = 0;
-		for ( int32_t q = 0; q < 10; q++ ) new_item_y[q] = 0;
-	
-		script = 0;
-		doscript = 0;
-		for ( int32_t q = 0; q < 8; q++) screeninitd[q] = 0;
-		preloadscript = 0;
-		
-		screen_waitdraw = 0;
-		ffcswaitdraw = 0;
-		screendatascriptInitialised = 0;
-		hidelayers = 0;
-		hidescriptlayers = 0;
-		data.assign(176,0);
-		sflag.assign(176,0);
-		cset.assign(176,0);
-		//data.assign(data.size(),0);
-		//sflag.assign(sflag.size(),0);
-		//cset.assign(cset.size(),0);
-	}
-	
-	mapscr()
-	{
-		data.resize(176,0);
-		sflag.resize(176,0);
-		cset.resize(176,0);
-		zero_memory();
-	}
-
-	mapscr(const mapscr&) = default;
-};
 
 //Build date info
 
@@ -3040,7 +2681,12 @@ struct zasm_meta
 	{
 		return !(*this == other);
 	}
+	
+	bool parse_meta(const char *buffer);
+	std::string get_meta() const;
 };
+int32_t get_script_type(std::string const& name);
+std::string get_script_name(int32_t type);
 
 struct ffscript
 {
@@ -3408,7 +3054,6 @@ struct newcombo
     byte walk; //8 bits
     byte type; //8 bits
     byte csets; //8 bits
-    word foo; // 8 bits ;  used in zq_tiles for some reason. May be redundant. -- L.
     byte frames; //8 bits
     byte speed; //8 bits
     word nextcombo; //16 bits
@@ -3486,7 +3131,6 @@ struct newcombo
 		walk = 0xF0;
 		type = 0;
 		csets = 0;
-		foo = 0;
 		frames = 0;
 		speed = 0;
 		nextcombo = 0;
@@ -3556,7 +3200,88 @@ struct newcombo
 		prompt_x = 12;
 		prompt_y = -8;
 	}
-
+	
+	void copy(newcombo const& other)
+	{
+		tile = other.tile;
+		flip = other.flip;
+		walk = other.walk;
+		type = other.type;
+		csets = other.csets;
+		frames = other.frames;
+		speed = other.speed;
+		nextcombo = other.nextcombo;
+		nextcset = other.nextcset;
+		flag = other.flag;
+		skipanim = other.skipanim;
+		skipanimy = other.skipanimy;
+		nexttimer = other.nexttimer;
+		animflags = other.animflags;
+		for(int32_t q = 0; q < 6; ++q)
+			expansion[q] = other.expansion[q];
+		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			attributes[q] = other.attributes[q];
+		usrflags = other.usrflags;
+		genflags = other.genflags;
+		for(int32_t q = 0; q < 3; ++q)
+			triggerflags[q] = other.triggerflags[q];
+		triggerlevel = other.triggerlevel;
+		triggerbtn = other.triggerbtn;
+		triggeritem = other.triggeritem;
+		trigtimer = other.trigtimer;
+		trigsfx = other.trigsfx;
+		trigprox = other.trigprox;
+		trigctr = other.trigctr;
+		trigctramnt = other.trigctramnt;
+		triglbeam = other.triglbeam;
+		trigcschange = other.trigcschange;
+		spawnitem = other.spawnitem;
+		spawnenemy = other.spawnenemy;
+		exstate = other.exstate;
+		spawnip = other.spawnip;
+		trigcopycat = other.trigcopycat;
+		trigcooldown = other.trigcooldown;
+		trigchange = other.trigchange;
+		for(int32_t q = 0; q < 11; ++q)
+			label[q] = other.label[q];
+		for(int32_t q = 0; q < 8; ++q)
+		{
+			attribytes[q] = other.attribytes[q];
+			attrishorts[q] = other.attrishorts[q];
+		}
+		script = other.script;
+		for(int32_t q = 0; q < 2; ++q)
+			initd[q] = other.initd[q];
+		o_tile = other.o_tile;
+		cur_frame = other.cur_frame;
+		aclk = other.aclk;
+		
+		liftcmb = other.liftcmb;
+		liftundercmb = other.liftundercmb;
+		liftcs = other.liftcs;
+		liftundercs = other.liftundercs;
+		liftdmg = other.liftdmg;
+		liftlvl = other.liftlvl;
+		liftitm = other.liftitm;
+		liftflags = other.liftflags;
+		liftgfx = other.liftgfx;
+		liftsprite = other.liftsprite;
+		liftsfx = other.liftsfx;
+		liftbreaksprite = other.liftbreaksprite;
+		liftbreaksfx = other.liftbreaksfx;
+		lifthei = other.lifthei;
+		lifttime = other.lifttime;
+		
+		prompt_cid = other.prompt_cid;
+		prompt_cs = other.prompt_cs;
+		prompt_x = other.prompt_x;
+		prompt_y = other.prompt_y;
+	}
+	
+	newcombo(){clear();}
+	newcombo(newcombo const& other){copy(other);}
+	newcombo& operator=(newcombo const& other){copy(other); return *this;}
+	
 	bool is_blank(bool ignoreEff = false)
 	{
 		if(tile) return false;
@@ -3679,6 +3404,8 @@ struct zquestheader
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
+    // NOTE: `version` and `minver` are fixed-length strings, unlike all other char strings here which are expected
+    // to end with a null-byte. They may not end in null!
     char  version[9];
     //73
     char  title[65];
@@ -3753,6 +3480,7 @@ struct zquestheader
 int8_t getProgramAlphaState();
 char const* getProgramAlphaVerStr();
 char const* getProgramVerStr();
+char const* getReleaseTag();
 
 enum { msLINKED };
 
@@ -4639,8 +4367,9 @@ struct gamedata
 	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
 	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
-	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	
+	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
@@ -4673,7 +4402,7 @@ struct gamedata
 	void load_user_objects();
 	
 	char *get_name();
-	void set_name(char *n);
+	void set_name(const char *n);
 	
 	byte get_quest();
 	void set_quest(byte q);
@@ -4881,6 +4610,8 @@ struct gamedata
 	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
 	void load_portal();
 	void clear_portal();
+
+	bool should_show_time();
 };
 
 // "initialization data" flags (bit numbers in bit string)
@@ -4966,6 +4697,43 @@ struct zinitdata
 	byte switchhookstyle;
 	
 	byte magicdrainrate;
+	
+	bool gen_doscript[NUMSCRIPTSGENERIC];
+	word gen_exitState[NUMSCRIPTSGENERIC];
+	word gen_reloadState[NUMSCRIPTSGENERIC];
+	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
+	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
+	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
+	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	
+	void clear_genscript()
+	{
+		memset(gen_doscript, 0, sizeof(gen_doscript));
+		memset(gen_exitState, 0, sizeof(gen_exitState));
+		memset(gen_reloadState, 0, sizeof(gen_reloadState));
+		memset(gen_eventstate, 0, sizeof(gen_eventstate));
+		memset(gen_initd, 0, sizeof(gen_initd));
+		memset(gen_dataSize, 0, sizeof(gen_dataSize));
+		for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
+		{
+			gen_data[q].clear();
+			gen_data[q].resize(0);
+		}
+	}
+	
+	void clear();
+	void copy(zinitdata const& other);
+	
+	zinitdata(){clear();}
+	zinitdata(zinitdata const& other)
+	{
+		copy(other);
+	}
+	zinitdata& operator=(zinitdata const& other)
+	{
+		copy(other);
+		return *this;
+	}
 };
 
 struct zcmap
@@ -5378,6 +5146,44 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
     return true;
 }
 
+INLINE bool p_igetzf(void *p,PACKFILE *f,bool keepdata)
+{
+    zfix *cp = (zfix *)p;
+    int32_t c;
+    
+    if(!f) return false;
+    
+#ifdef NEWALLEGRO
+    
+    if(f->normal.flags&PACKFILE_FLAG_WRITE) return false;     //must not be writing to file
+    
+#else
+    
+    if(f->flags&PACKFILE_FLAG_WRITE) return false;            //must not be writing to file
+    
+#endif
+    
+    if(pack_feof(f))
+    {
+        return false;
+    }
+    
+    c = pack_igetl(f);
+    
+    if(pack_ferror(f))
+    {
+        return false;
+    }
+    
+    if(keepdata==true)
+    {
+        *cp = zslongToFix(c);
+    }
+    
+    readsize+=4;
+    return true;
+}
+
 INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
 {
     int32_t temp;
@@ -5453,6 +5259,36 @@ INLINE bool p_iputl(int32_t c,PACKFILE *f)
 #endif
         
         pack_iputl(c,f);
+        success=(pack_ferror(f)==0);
+    }
+    
+    if(success)
+    {
+        writesize+=4;
+    }
+    
+    return success;
+}
+
+INLINE bool p_iputzf(zfix const& c,PACKFILE *f)
+{
+    bool success=true;
+    
+    if(!fake_pack_writing)
+    {
+        if(!f) return false;
+        
+#ifdef NEWALLEGRO
+        
+        if(!(f->normal.flags&PACKFILE_FLAG_WRITE)) return false;  //must be writing to file
+        
+#else
+        
+        if(!(f->flags&PACKFILE_FLAG_WRITE)) return false;         //must be writing to file
+        
+#endif
+        
+        pack_iputl(c.getZLong(),f);
         success=(pack_ferror(f)==0);
     }
     
@@ -5671,6 +5507,118 @@ INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
 	return true;
 }
 
+template<typename T>
+INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		vec->clear();
+	byte sz = 0;
+	if(!p_getc(&sz,f,keepdata))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f,keepdata))
+				return false;
+			if(keepdata)
+				vec->push_back(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f)
+{
+	byte sz = byte(zc_min(255,vec.size()));
+	if(!p_putc(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite(&(vec.at(q)),sizeof(T),f))
+				return false;
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		vec->clear();
+	word sz = 0;
+	if(!p_igetw(&sz,f,keepdata))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f,keepdata))
+				return false;
+			if(keepdata)
+				vec->push_back(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f)
+{
+	word sz = word(zc_min(65535,vec.size()));
+	if(!p_iputw(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite(&(vec.at(q)),sizeof(T),f))
+				return false;
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+{
+	if(keepdata)
+		vec->clear();
+	dword sz = 0;
+	if(!p_igetl(&sz,f,keepdata))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f,keepdata))
+				return false;
+			if(keepdata)
+				vec->push_back(dummy);
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f)
+{
+	dword sz = vec.size();
+	if(!p_iputl(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite((void*)&(vec.at(q)), sizeof(T), f))
+				return false;
+		}
+	}
+	return true;
+}
+
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -5820,8 +5768,8 @@ void load_themefile(char const* fpath, PALETTE pal);
 void load_themefile(char const* fpath);
 void save_themefile(char const* fpath, PALETTE pal);
 void save_themefile(char const* fpath);
-void load_udef_colorset(char const* fpath, PALETTE pal);
-void load_udef_colorset(char const* fpath);
+void load_udef_colorset(App a, PALETTE pal);
+void load_udef_colorset(App a);
 void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
 
@@ -5849,7 +5797,26 @@ extern int32_t global_z3_cur_scr_drawing;
 
 enum {nswapDEC, nswapHEX, nswapLDEC, nswapLHEX, nswapBOOL, nswapMAX};
 
-#define SMART_WRAP(x, mod) (x < 0 ? ((mod-(-x%mod))%mod) : (x%mod))
+
+double WrapAngle(double radians);
+double WrapDegrees(double degrees);
+double DegreesToRadians(double deg);
+double RadiansToDegrees(double rad);
+double DirToRadians(int dir);
+double DirToDegrees(int dir);
+int32_t AngleToDir(double radians);
+int32_t AngleToDir4(double degrees);
+int32_t AngleToDir4Rad(double radians);
+
+bool isNextType(int32_t type);
+bool isWarpType(int32_t type);
+int32_t getWarpLetter(int32_t type);
+int32_t simplifyWarpType(int32_t type);
+bool isStepType(int32_t type);
+bool isDamageType(int32_t type);
+
+#define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
+#define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))
 
 #undef cmb1
 #undef cmb2

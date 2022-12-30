@@ -29,7 +29,7 @@ extern RGB mixRGB(int32_t r1,int32_t g1,int32_t b1,int32_t r2,int32_t g2,int32_t
 extern void copy_pal(RGB *src,RGB *dest);
 extern void loadfullpal();
 extern void loadlvlpal(int32_t level);
-extern void loadpalset(int32_t cset,int32_t dataset);
+extern void loadpalset(int32_t cset,int32_t dataset,bool update_tint=true);
 extern void loadfadepal(int32_t dataset);
 extern void interpolatedfade();
 

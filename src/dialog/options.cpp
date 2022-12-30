@@ -20,6 +20,9 @@ void OptionsDialog::loadOptions()
 	opts[OPT_PALCYCLE] = CycleOn ? 1 : 0;
 	opts[OPT_VSYNC] = Vsync ? 1 : 0;
 	opts[OPT_FPS] = ShowFPS ? 1 : 0;
+	opts[OPT_SAVEDRAGRESIZE] = SaveDragResize ? 1 : 0;
+	opts[OPT_SAVEWINPOS] = SaveWinPos ? 1 : 0;
+	opts[OPT_DRAGASPECT] = DragAspect ? 1 : 0;
 	opts[OPT_COMB_BRUSH] = ComboBrush ? 1 : 0;
 	opts[OPT_FLOAT_BRUSH] = FloatBrush ? 1 : 0;
 	opts[OPT_RELOAD_QUEST] = OpenLastQuest ? 1 : 0;
@@ -60,53 +63,182 @@ void OptionsDialog::loadOptions()
 
 void OptionsDialog::saveOptions()
 {
-	MouseScroll = opts[OPT_MOUSESCROLL];
-	SavePaths = opts[OPT_SAVEPATHS];
-	CycleOn = opts[OPT_PALCYCLE];
-	Vsync = opts[OPT_VSYNC];
-	ShowFPS = opts[OPT_FPS];
-	ComboBrush = opts[OPT_COMB_BRUSH];
-	FloatBrush = opts[OPT_FLOAT_BRUSH];
-	OpenLastQuest = opts[OPT_RELOAD_QUEST];
-	ShowMisalignments = opts[OPT_MISALIGNS];
-	AnimationOn = opts[OPT_ANIM_COMBOS];
-	OverwriteProtection = opts[OPT_OW_PROT];
-	TileProtection = opts[OPT_TILE_PROT];
-	InvalidStatic = opts[OPT_STATIC_INVAL];
-	UseSmall = opts[OPT_SMALLMODE];
-	RulesetDialog = opts[OPT_RULESET];
-	EnableTooltips = opts[OPT_TOOLTIPS];
-	abc_patternmatch = opts[OPT_PATTERNSEARCH];
-	NoScreenPreview = opts[OPT_NEXTPREVIEW];
-	WarnOnInitChanged = opts[OPT_INITSCR_WARN];
-	AutoBackupRetention = opts[OPT_ABRETENTION];
-	if(AutoSaveInterval != opts[OPT_ASINTERVAL])
-		time(&auto_save_time_start); //Reset autosave timer
-	AutoSaveInterval = opts[OPT_ASINTERVAL];
-	AutoSaveRetention = opts[OPT_ASRETENTION];
-	UncompressedAutoSaves = opts[OPT_UNCOMP_AUTOSAVE];
-	GridColor = opts[OPT_GRIDCOL];
-	SnapshotFormat = opts[OPT_SNAPFORMAT];
-	KeyboardRepeatDelay = opts[OPT_KBREPDEL];
-	KeyboardRepeatRate = opts[OPT_KBREPRATE];
-	KeyboardRepeatRate = opts[OPT_KBREPRATE];
-	zc_set_config("zquest", "cursor_scale_large", opts[OPT_CURS_LARGE] / 10000.0);
-	zc_set_config("zquest", "cursor_scale_small", opts[OPT_CURS_SMALL] / 10000.0);
-	zc_set_config("Compiler", "compile_success_sample", opts[OPT_COMPILE_OK]);
-	zc_set_config("Compiler", "compile_error_sample", opts[OPT_COMPILE_ERR]);
-	zc_set_config("Compiler", "compile_finish_sample", opts[OPT_COMPILE_DONE]);
-	zc_set_config("Compiler", "compile_audio_volume", opts[OPT_COMPILE_VOL]);
-	DisableLPalShortcuts = opts[OPT_DISABLE_LPAL_SHORTCUT];
-	skipLayerWarning = opts[OPT_SKIP_LAYER_WARNING];
-	numericalFlags = opts[OPT_NUMERICAL_FLAG_LIST];
-	DisableCompileConsole = opts[OPT_DISABLE_COMPILE_CONSOLE];
-	load_mice(); //Reset cursor scale
+	for(auto ind = 0; ind < OPT_MAX; ++ind)
+	{
+		if(opt_changed[ind])
+			saveOption(ind);
+	}
+	
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
+	load_mice(); //Reset cursor scale
+}
+void OptionsDialog::saveOption(int ind)
+{
+	auto v = opts[ind];
+	switch(ind)
+	{
+		case OPT_SKIP_LAYER_WARNING:
+			skipLayerWarning = v;
+			zc_set_config("zquest", "skip_layer_warning", v);
+			break;
+		case OPT_MOUSESCROLL:
+			MouseScroll = v;
+			zc_set_config("zquest", "mouse_scroll", v);
+			break;
+		case OPT_DISABLE_LPAL_SHORTCUT:
+			DisableLPalShortcuts = v;
+			zc_set_config("zquest", "dis_lpal_shortcut", v);
+			break;
+		case OPT_DISABLE_COMPILE_CONSOLE:
+			DisableCompileConsole = v;
+			zc_set_config("zquest", "internal_compile_console", v);
+			break;
+		case OPT_INITSCR_WARN:
+			WarnOnInitChanged = v;
+			zc_set_config("zquest", "warn_initscript_changes", v);
+			break;
+		case OPT_STATIC_INVAL:
+			InvalidStatic = v;
+			zc_set_config("zquest", "invalid_static", v);
+			break;
+		case OPT_NUMERICAL_FLAG_LIST:
+			numericalFlags = v;
+			zc_set_config("zquest", "numerical_flags", v);
+			break;
+		case OPT_TILE_PROT:
+			TileProtection = v;
+			zc_set_config("zquest", "tile_protection", v);
+			break;
+		case OPT_GRIDCOL:
+			GridColor = v;
+			zc_set_config("zquest", "grid_color", v);
+			break;
+		case OPT_SNAPFORMAT:
+			SnapshotFormat = v;
+			zc_set_config("zquest", "snapshot_format", v);
+			break;
+		case OPT_RELOAD_QUEST:
+			OpenLastQuest = v;
+			zc_set_config("zquest", "open_last_quest", v);
+			break;
+		case OPT_MISALIGNS:
+			ShowMisalignments = v;
+			zc_set_config("zquest", "show_misalignments", v);
+			break;
+		case OPT_CURS_LARGE:
+			zc_set_config("zquest", "cursor_scale_large", v / 10000.0);
+			break;
+		case OPT_CURS_SMALL:
+			zc_set_config("zquest", "cursor_scale_small", v / 10000.0);
+			break;
+		case OPT_COMPILE_OK:
+			zc_set_config("Compiler", "compile_success_sample", v);
+			break;
+		case OPT_COMPILE_ERR:
+			zc_set_config("Compiler", "compile_error_sample", v);
+			break;
+		case OPT_COMPILE_DONE:
+			zc_set_config("Compiler", "compile_finish_sample", v);
+			break;
+		case OPT_COMPILE_VOL:
+			zc_set_config("Compiler", "compile_audio_volume", v);
+			break;
+		case OPT_NEXTPREVIEW:
+			NoScreenPreview = v;
+			zc_set_config("zquest","no_preview",v);
+			break;
+		case OPT_PATTERNSEARCH:
+			abc_patternmatch = v;
+			zc_set_config("zquest","lister_pattern_matching",v);
+			break;
+		case OPT_TOOLTIPS:
+			EnableTooltips = v;
+			zc_set_config("zquest","enable_tooltips",v);
+			break;
+		case OPT_RULESET:
+			RulesetDialog = v;
+			zc_set_config("zquest","rulesetdialog",v);
+			break;
+		case OPT_SMALLMODE:
+			UseSmall = v;
+			zc_set_config("zquest","small",v);
+			break;
+		case OPT_KBREPDEL:
+			KeyboardRepeatDelay = v;
+			zc_set_config("zquest","keyboard_repeat_delay",v);
+			break;
+		case OPT_KBREPRATE:
+			KeyboardRepeatRate = v;
+			zc_set_config("zquest","keyboard_repeat_rate",v);
+			break;
+		case OPT_ANIM_COMBOS:
+			AnimationOn = v;
+			zc_set_config("zquest","animation_on",v);
+			break;
+		case OPT_ABRETENTION:
+			AutoBackupRetention = v;
+			zc_set_config("zquest","auto_backup_retention",v);
+			break;
+		case OPT_ASINTERVAL:
+			time(&auto_save_time_start); //Reset autosave timer
+			AutoSaveInterval = v;
+			zc_set_config("zquest","auto_save_interval",v);
+			break;
+		case OPT_ASRETENTION:
+			AutoSaveRetention = v;
+			zc_set_config("zquest","auto_save_retention",v);
+			break;
+		case OPT_UNCOMP_AUTOSAVE:
+			UncompressedAutoSaves = v;
+			zc_set_config("zquest","uncompressed_auto_saves",v);
+			break;
+		case OPT_OW_PROT:
+			OverwriteProtection = v;
+			zc_set_config("zquest","overwrite_prevention",v);
+			break;
+		case OPT_SAVEPATHS:
+			SavePaths = v;
+			zc_set_config("zquest","save_paths",v);
+			break;
+		case OPT_PALCYCLE:
+			CycleOn = v;
+			zc_set_config("zquest","cycle_on",v);
+			break;
+		case OPT_VSYNC:
+			Vsync = v;
+			zc_set_config("zquest","vsync",v);
+			break;
+		case OPT_FPS:
+			ShowFPS = v;
+			zc_set_config("zquest","showfps",v);
+			break;
+		case OPT_SAVEDRAGRESIZE:
+			SaveDragResize = v;
+			zc_set_config("zquest","save_drag_resize",v);
+			break;
+		case OPT_DRAGASPECT:
+			DragAspect = v;
+			zc_set_config("zquest","drag_aspect",v);
+			break;
+		case OPT_SAVEWINPOS:
+			SaveWinPos = v;
+			zc_set_config("zquest","save_window_position",v);
+			break;
+		case OPT_COMB_BRUSH:
+			ComboBrush = v;
+			zc_set_config("zquest","combo_brush",v);
+			break;
+		case OPT_FLOAT_BRUSH:
+			FloatBrush = v;
+			zc_set_config("zquest","float_brush",v);
+			break;
+	}
 }
 
 OptionsDialog::OptionsDialog() : sfx_list(GUI::ZCListData::sfxnames(true))
 {
 	loadOptions();
+	memset(opt_changed, 0, sizeof(opt_changed));
 }
 
 //{ Macros
@@ -119,6 +251,7 @@ Checkbox( \
 	onToggleFunc = [&](bool state) \
 	{ \
 		opts[optind] = state ? 1 : 0; \
+		opt_changed[optind] = true; \
 	} \
 )
 
@@ -132,6 +265,7 @@ Checkbox( \
 	onToggleFunc = [&](bool state) \
 	{ \
 		opts[optind] = state ? 1 : 0; \
+		opt_changed[optind] = true; \
 	} \
 )
 
@@ -144,6 +278,7 @@ TextField(type = GUI::TextField::type::INT_DECIMAL, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		opts[optind] = val; \
+		opt_changed[optind] = true; \
 	}) \
 
 #define ROW_TF_FLOAT(optind, optlabel, minval, maxval) \
@@ -155,6 +290,7 @@ TextField(type = GUI::TextField::type::FIXED_DECIMAL, places = 4, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		opts[optind] = val; \
+		opt_changed[optind] = true; \
 	}) \
 
 #define ROW_DDOWN(optind, optlabel, lister) \
@@ -167,6 +303,7 @@ DropDownList( \
 	onSelectFunc = [&](int32_t val) \
 	{ \
 		opts[optind] = val; \
+		opt_changed[optind] = true; \
 	} \
 )
 
@@ -247,7 +384,6 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 
 	return Window(
 		title = "ZQuest Options",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(
@@ -277,7 +413,10 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
 					OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window"),
 					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
-					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number")
+					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
+					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
+					OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
+					OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
@@ -324,7 +463,6 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			[[fallthrough]];
 		default:
 			//cleanup
-			save_config_file();
 			setup_combo_animations();
 			setup_combo_animations2();
 			refresh(rALL);

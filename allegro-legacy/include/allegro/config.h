@@ -38,6 +38,7 @@ AL_LEGACY_FUNC(void, pop_config_state, (void));
 AL_LEGACY_FUNC(void, hook_config_section, (AL_CONST char *section, AL_LEGACY_METHOD(int, intgetter, (AL_CONST char *, int)), AL_LEGACY_METHOD(AL_CONST char *, stringgetter, (AL_CONST char *, AL_CONST char *)), AL_LEGACY_METHOD(void, stringsetter, (AL_CONST char *, AL_CONST char *))));
 AL_LEGACY_FUNC(int, config_is_hooked, (AL_CONST char *section));
 
+AL_LEGACY_FUNC(bool, get_config_defaulted, ());
 AL_LEGACY_FUNC(AL_CONST char *, get_config_string, (AL_CONST char *section, AL_CONST char *name, AL_CONST char *def));
 AL_LEGACY_FUNC(int, get_config_int, (AL_CONST char *section, AL_CONST char *name, int def));
 AL_LEGACY_FUNC(int, get_config_hex, (AL_CONST char *section, AL_CONST char *name, int def));

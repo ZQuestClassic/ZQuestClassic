@@ -35,6 +35,7 @@ int32_t COMBOX_REGION(rpos_t rpos);
 int32_t COMBOY_REGION(rpos_t rpos);
 
 int32_t mapind(int32_t map, int32_t scr);
+bool ffcIsAt(int32_t index, int32_t x, int32_t y);
 
 extern bool triggered_screen_secrets;
 
@@ -186,6 +187,7 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 bool iswater_type(int32_t type);
 bool ispitfall(int32_t combo);
 bool ispitfall_type(int32_t type);
+bool isdamage_type(int32_t type);
 bool ispitfall(int32_t x, int32_t y);
 int32_t getpitfall(int32_t x, int32_t y);
 bool isGrassType(int32_t type);
@@ -201,7 +203,7 @@ bool isstepable(int32_t combo);                                 //can use ladder
 bool isHSComboFlagType(int32_t type);
 bool isHSGrabbable(newcombo const& cmb);
 bool isSwitchHookable(newcombo const& cmb);
-rpos_t check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook);
+bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos = nullptr, rpos_t *retffcpos = nullptr);
 bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair2(mapscr *s, bool redraw);                      
@@ -217,7 +219,9 @@ void clear_xstatecombos_old(int32_t tmp, int32_t mi, bool triggers = false);
 void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
 
 bool remove_lockblocks(mapscr* s, int32_t screen_index);
+bool remove_lockblocks_old(int tmp);
 bool remove_bosslockblocks(mapscr* s, int32_t screen_index);
+bool remove_bosslockblocks_old(int32_t tmp);
 bool remove_chests(mapscr* s, int32_t screen_index);
 bool remove_lockedchests(mapscr* s, int32_t screen_index);
 bool remove_bosschests(mapscr* s, int32_t screen_index);
@@ -268,6 +272,7 @@ bool _effectflag_layer(int32_t x, int32_t y, int32_t layer=-1, int32_t cnt=1, bo
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink = false);
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
+bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign = nullptr);
 void map_bkgsfx(bool on);
 void toggle_switches(dword flags, bool entry);
 void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index);
@@ -289,7 +294,11 @@ bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
 
-//extern bool FuckIAlreadyDrewThatAlready[ 7 ];
+extern int16_t ffposx[MAXFFCS];
+extern int16_t ffposy[MAXFFCS];
+extern int32_t ffprvx[MAXFFCS];
+extern int32_t ffprvy[MAXFFCS];
+void init_ffpos();
 #endif
 
 /*** end of maps.cc ***/

@@ -29,7 +29,6 @@
 #include "qst.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "zqscale.h"
 #include "zc_custom.h"
 #include "questReport.h"
 #include "dialog/info.h"
@@ -53,7 +52,6 @@ static void massRecolorReset8Bit();
 static bool massRecolorSetup(int32_t cset);
 static void massRecolorApply(int32_t tile);
 extern int32_t last_droplist_sel;
-extern int32_t zqwin_scale;
 
 int32_t ex=0;
 int32_t nextcombo_fake_click=0;
@@ -263,6 +261,7 @@ struct tile_move_data
 	tile_move_data& operator=(tile_move_data const& other)
 	{
 		copy(other);
+		return *this;
 	}
 
 	void copy(tile_move_data const& other)
@@ -317,6 +316,7 @@ struct combo_move_data
 	combo_move_data& operator=(combo_move_data const& other)
 	{
 		copy(other);
+		return *this;
 	}
 	void copy(combo_move_data const& other)
 	{
@@ -1880,11 +1880,6 @@ void shift_selection_grid(int32_t xoffs, int32_t yoffs)
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
 	go();
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
-		disable_hardware_cursor();
-	}
 	undocount = tilesize(newtilebuf[tile].format);
 	clear_selection_grid();
 	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
@@ -3193,11 +3188,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	destroy_bitmap(selection_pattern);
 	destroy_bitmap(selecting_pattern);
 	destroy_bitmap(intersection_pattern);
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-		enable_hardware_cursor();
-	}
 }
 
 /*  Grab Tile Code  */
@@ -4226,11 +4216,23 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	
 	int32_t cdepth=leech_dlg[31].d1+1;
 	int32_t newformat=0;
-	LeechUpdate=atoi(updatestring);
-	LeechUpdateTiles=(leech_dlg[7].flags&D_SELECTED)?1:0;
+	auto lu = atoi(updatestring);
+	auto lut = (leech_dlg[7].flags&D_SELECTED)?1:0;
+	if(LeechUpdate!=lu)
+	{
+		LeechUpdate=lu;
+		zc_set_config("zquest","leech_update",LeechUpdate);
+	}
+	if(LeechUpdateTiles!=lut)
+	{
+		LeechUpdateTiles=lut;
+		zc_set_config("zquest","leech_update_tiles",LeechUpdateTiles);
+	}
 	
+	int32_t old_dupe[4];
 	for(int32_t j=0; j<4; j++)
 	{
+		old_dupe[j] = DuplicateAction[j];
 		for(int32_t i=0; i<3; i++)
 		{
 			if(leech_dlg[i+16+(j*3)].flags&D_SELECTED)
@@ -4239,8 +4241,21 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 			}
 		}
 	}
+	if(old_dupe[0] != DuplicateAction[0])
+		zc_set_config("zquest","normal_duplicate_action",DuplicateAction[0]);
+	if(old_dupe[1] != DuplicateAction[1])
+		zc_set_config("zquest","horizontal_duplicate_action",DuplicateAction[1]);
+	if(old_dupe[2] != DuplicateAction[2])
+		zc_set_config("zquest","vertical_duplicate_action",DuplicateAction[2]);
+	if(old_dupe[3] != DuplicateAction[3])
+		zc_set_config("zquest","both_duplicate_action",DuplicateAction[3]);
 	
-	OnlyCheckNewTilesForDuplicates=leech_dlg[10].flags&D_SELECTED?1:0;
+	auto ocntfd = leech_dlg[10].flags&D_SELECTED?1:0;
+	if(OnlyCheckNewTilesForDuplicates!=ocntfd)
+	{
+		OnlyCheckNewTilesForDuplicates=ocntfd;
+		zc_set_config("zquest","only_check_new_tiles_for_duplicates",ocntfd);
+	}
 	
 	leeching_from_tiles=false;
 	
@@ -8296,7 +8311,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -9851,7 +9866,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -11254,7 +11269,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -12921,7 +12936,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					}
 					else
 					{
-						if((guysbuf[bie[u].i].tile==0))
+						if(guysbuf[bie[u].i].tile==0)
 						{
 							continue;
 						}
@@ -13975,7 +13990,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			}
 			else
 			{
-				if((guysbuf[bie[u].i].tile==0))
+				if(guysbuf[bie[u].i].tile==0)
 				{
 					continue;
 				}
@@ -14186,32 +14201,36 @@ void do_movecombo(combo_move_data const& cmd)
 	{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{
+			mapscr& scr = TheMaps[i*MAPSCRS+j];
 			for(int32_t k=0; k<176; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].data[k]>=cmd.copy1)&&(TheMaps[i*MAPSCRS+j].data[k]<cmd.copy1+cmd.copycnt))
+				if((scr.data[k]>=cmd.copy1)&&(scr.data[k]<cmd.copy1+cmd.copycnt))
 				{
-					TheMaps[i*MAPSCRS+j].data[k] += diff;
+					scr.data[k] += diff;
 				}
 			}
 			
 			for(int32_t k=0; k<128; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].secretcombo[k]>=cmd.copy1)&& (TheMaps[i*MAPSCRS+j].secretcombo[k]<cmd.copy1+cmd.copycnt))
+				if((scr.secretcombo[k]>=cmd.copy1)&& (scr.secretcombo[k]<cmd.copy1+cmd.copycnt))
 				{
-					TheMaps[i*MAPSCRS+j].secretcombo[k] += diff;
+					scr.secretcombo[k] += diff;
 				}
 			}
 			
-			if((TheMaps[i*MAPSCRS+j].undercombo>=cmd.copy1)&&(TheMaps[i*MAPSCRS+j].undercombo<cmd.copy1+cmd.copycnt))
+			if((scr.undercombo>=cmd.copy1)&&(scr.undercombo<cmd.copy1+cmd.copycnt))
 			{
-				TheMaps[i*MAPSCRS+j].undercombo += diff;
+				scr.undercombo += diff;
 			}
 			
-			for(int32_t k=0; k<MAXFFCS; k++)
+			word maxffc = scr.numFFC();
+			for(word k=0; k<maxffc; k++)
 			{
-				if((TheMaps[i*MAPSCRS+j].ffdata[k] >= cmd.copy1) && (TheMaps[i*MAPSCRS+j].ffdata[k] < cmd.copy1+cmd.copycnt) && (TheMaps[i*MAPSCRS+j].ffdata[k] != 0))
+				ffcdata& ffc = scr.ffcs[k];
+				if((ffc.getData() >= cmd.copy1) && (ffc.getData() < cmd.copy1+cmd.copycnt)
+					&& (ffc.getData() != 0) && (ffc.getData()+diff!=0))
 				{
-					TheMaps[i*MAPSCRS+j].ffdata[k] += diff;
+					ffc.incData(diff);
 				}
 			}
 		}
@@ -16281,8 +16300,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				
 				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
-					strcpy(datapath, "tileset.bmp");
-					if(getname("Export Tile Page (.bmp)","bmp",NULL,datapath,true))
+					strcpy(datapath, "tileset.png");
+					if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
 					{
 						PALETTE temppal;
 						get_palette(temppal);
@@ -16421,7 +16440,7 @@ REDRAW:
 			select_tile_view_menu[1].flags = HIDE_UNUSED ? D_SELECTED : 0;
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
-			select_tile_view_menu[7].flags = (type!=0) ? D_DISABLED : 0;
+			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
 			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
@@ -16958,8 +16977,6 @@ void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols)
 		tile2 = tile;
 }
 
-word ctable[MAXCOMBOS];
-
 void draw_combo_list_window()
 {
 	int32_t window_xofs=0;
@@ -17002,10 +17019,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t copycnt=0;
 	
 	position_mouse_z(0);
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-		//   for (int32_t x=0; x<9; x++)
-		combobuf[i].foo=i;
 		
 	go();
 	int32_t window_xofs=0;
@@ -17338,26 +17351,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	}
 	while(!done);
 	
-	for(int32_t p=0; p<MAXCOMBOS; p+=256)
-	{
-		for(int32_t i=0; i<256; i++)
-		{
-			int32_t pos=0;
-			
-			for(int32_t j=0; j<256; j++)
-			{
-				if(combobuf[j+p].foo==i+p)
-				{
-					pos=j+p;
-					goto down;
-				}
-			}
-			
-down:
-			ctable[i+p]=pos;
-		}
-	}
-	
 	while(gui_mouse_b())
 	{
 		/* do nothing */
@@ -17583,11 +17576,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	int32_t t2;
 	
 	bool masscopy;
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-	{
-		combobuf[i].foo=i;
-	}
 	
 	go();
 	int32_t window_xofs=0;

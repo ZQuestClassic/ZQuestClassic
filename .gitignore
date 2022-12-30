@@ -37,6 +37,7 @@
 [Rr]elease/
 [Rr]elWithDebInfo/
 [Rr]eleases/
+[Ee]nc_temp_folder/
 x64/
 x86/
 bld/
@@ -130,7 +131,17 @@ output/_auto/zelda-classic-mac
 output/_auto/buildpack_zq
 output/_auto/buildpack_lazy
 output/_auto/*.zip
+resources/docs/ZScript_Docs.html
 
 # Other
+.tmp
 *.zplay.roundtrip
+*.zplay.result.txt
 *.zplay.*.bmp
+*.zplay.*.png
+test_results.json
+compare-report/
+.coverage
+.gha-cache-dir/
+__pycache__
+./packages/

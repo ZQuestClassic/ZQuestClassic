@@ -7,6 +7,7 @@
 #include "parserDefs.h"
 #include <assert.h>
 #include <cstdarg>
+#include "ZScript.h"
 
 using std::list;
 using std::vector;
@@ -35,7 +36,7 @@ bool RecursiveVisitor::breakRecursion(void* param) const
 	return failure_temp || failure_halt || breakNode;
 }
 
-void RecursiveVisitor::handleError(CompileError const& error)
+void RecursiveVisitor::handleError(CompileError const& error, std::string const* inf)
 {
 	bool hard_error = (scope && *ZScript::lookupOption(*scope, CompileOption::OPT_NO_ERROR_HALT) == 0);
 	// Scan through the node stack looking for a handler.
@@ -80,12 +81,43 @@ void RecursiveVisitor::handleError(CompileError const& error)
 		failure_temp = true;
 		if(!zscript_failcode)
 			zscript_failcode = *error.getId();
-		zconsole_error("%s",err_str_ptr);
+		if(inf && inf->size())
+			zconsole_error("%s\nINFO: %s",err_str_ptr,inf->c_str());
+		else zconsole_error("%s",err_str_ptr);
 	}
-	else zconsole_warn("%s",err_str_ptr);
+	else
+	{
+		if(inf && inf->size())
+			zconsole_warn("%s\nINFO: %s",err_str_ptr,inf->c_str());
+		else zconsole_warn("%s",err_str_ptr);
+	}
 	//log_error(error);
 }
 
+void RecursiveVisitor::deprecWarn(Function* func, AST* host, std::string const& s1, std::string const& s2)
+{
+	switch(*ZScript::lookupOption(*scope, CompileOption::OPT_WARN_DEPRECATED)/10000)
+	{
+		case 0: //No warn
+			break;
+		case 2: //Error
+			//Only show once, if func is deprecated. Show error even if warn shown before.
+			if(func->shouldShowDepr(true))
+			{
+				handleError(CompileError::DeprecatedError(host, s1, s2), &func->info);
+				func->ShownDepr(true);
+			}
+			break;
+		default: //Warn
+			//Only show once, if func is deprecated
+			if(func->shouldShowDepr(false))
+			{
+				handleError(CompileError::DeprecatedWarn(host, s1, s2), &func->info);
+				func->ShownDepr(false);
+			}
+			break;
+	}
+}
 void RecursiveVisitor::visit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
@@ -203,6 +235,35 @@ void RecursiveVisitor::caseStmtFor(ASTStmtFor& host, void* param)
 	visit(host.increment.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
+	if (breakRecursion(host, param)) return;
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
+}
+void RecursiveVisitor::caseStmtForEach(ASTStmtForEach& host, void* param)
+{
+	visit(host.arrExpr.get(), param);
+	if (breakRecursion(host, param)) return;
+	visit(host.body.get(), param);
+	if(host.indxdecl)
+	{
+		if (breakRecursion(host, param)) return;
+		visit(host.indxdecl.get(), param);
+	}
+	if(host.arrdecl)
+	{
+		if (breakRecursion(host, param)) return;
+		visit(host.arrdecl.get(), param);
+	}
+	if(host.decl)
+	{
+		if (breakRecursion(host, param)) return;
+		visit(host.decl.get(), param);
+	}
+	if(host.hasElse())
+	{
+		if (breakRecursion(host, param)) return;
+		visit(host.elseBlock.get(), param);
+	}
 }
 
 void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
@@ -210,6 +271,9 @@ void RecursiveVisitor::caseStmtWhile(ASTStmtWhile& host, void* param)
 	visit(host.test.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.body.get(), param);
+	if (breakRecursion(host, param)) return;
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
@@ -217,6 +281,9 @@ void RecursiveVisitor::caseStmtDo(ASTStmtDo& host, void* param)
 	visit(host.body.get(), param);
 	if (breakRecursion(host, param)) return;
 	visit(host.test.get(), param);
+	if (breakRecursion(host, param)) return;
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void RecursiveVisitor::caseStmtRepeat(ASTStmtRepeat& host, void* param)

@@ -43,7 +43,7 @@ void loadfullpal()
         RAMpal[i]=_RGB(colordata+i*3);
         
     for(int32_t i=240; i<255; i++)
-        RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
+        RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
         
     refreshpal=true;
 }
@@ -159,35 +159,59 @@ void loadlvlpal(int32_t level)
 	refreshpal=true;
 }
 
-void loadpalset(int32_t cset,int32_t dataset)
+void loadpalset(int32_t cset, int32_t dataset, bool update_tint)
 {
-    int32_t j = CSET(dataset)*3;
-    
-    for(int32_t i=0; i<16; i++,j+=3)
-    {
-	   // if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
-	    if ( isMonochrome() || isUserTinted() ) tempgreypal[CSET(cset)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
-		else 
-			RAMpal[CSET(cset)+i] = _RGB(&colordata[j]); 
-    }
-	
-	if(isMonochrome()){
-	    if(lastMonoPreset){
-		    restoreMonoPreset();
-	    } else {
-			setMonochrome(false);
-		    setMonochrome(true);
-	    }
-    }
-    
-    if(isUserTinted()){
-	    restoreTint();
-    }
-    
-    if(cset==6 && !get_bit(quest_rules,qr_NOLEVEL3FIX) && DMaps[currdmap].color==3){
+	int32_t j = CSET(dataset) * 3;
 
-	    RAMpal[CSET(6)+2] = NESpal(0x37);
+	for (int32_t i = 0; i < 16; i++, j += 3)
+	{
+		// if ( isMonochrome() ) tempgreypal[CSET(2)+i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
+		if (isMonochrome() || isUserTinted()) tempgreypal[CSET(cset) + i] = _RGB(&colordata[j]); //Use monochrome sprites and Hero pal... 
+		else
+			RAMpal[CSET(cset) + i] = _RGB(&colordata[j]);
+	}
+
+	if (update_tint){
+		if (isMonochrome()) {
+			if (lastMonoPreset) {
+				restoreMonoPreset();
+			}
+			else {
+				setMonochrome(false);
+				setMonochrome(true);
+			}
+		}
+
+		if (isUserTinted()) {
+			restoreTint();
+		}
+	}
+    
+	//If writing cset 6 or 14, record which sprite csets are being referenced
+    if(cset==6){
+		if (!get_bit(quest_rules, qr_NOLEVEL3FIX) && DMaps[currdmap].color == 3) {
+			RAMpal[CSET(6) + 2] = NESpal(0x37);
+		}
+		if (dataset >= poSPRITE255 && dataset < poSPRITE255 + pdSPRITE) 
+		{
+			currspal6 = dataset - poSPRITE255;
+		}
+		else
+		{
+			currspal6 = -1;
+		}
     }
+	if (cset == 14)
+	{
+		if (dataset >= poSPRITE255 && dataset < poSPRITE255 + pdSPRITE)
+		{
+			currspal14 = dataset - poSPRITE255;
+		}
+		else
+		{
+			currspal14 = -1;
+		}
+	}
     refreshpal=true;
 }
 

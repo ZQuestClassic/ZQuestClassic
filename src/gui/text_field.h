@@ -16,7 +16,7 @@ public:
 	enum class type
 	{
 		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT,
-		SWAP_ZSINT, FIXED_DECIMAL, SWAP_ZSINT2
+		SWAP_ZSINT, FIXED_DECIMAL, SWAP_ZSINT2, SWAP_ZSINT_NO_DEC
 	};
 	
 	TextField();
@@ -33,6 +33,7 @@ public:
 			case type::SWAP_BYTE:
 			case type::SWAP_SSHORT:
 			case type::SWAP_ZSINT:
+			case type::SWAP_ZSINT_NO_DEC:
 			case type::SWAP_ZSINT2:
 				return true;
 			default:
@@ -107,6 +108,7 @@ private:
 	size_t maxLength;
 	bool forced_length;
 	bool last_applied_vis;
+	bool last_applied_dis;
 	DialogRef alDialog;
 	DialogRef swapBtnDialog;
 	std::shared_ptr<GUI::Checkbox> swap_cb;

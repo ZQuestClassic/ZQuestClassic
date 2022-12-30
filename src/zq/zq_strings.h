@@ -2,6 +2,8 @@
 #define _ZQ_STRINGS_H_
 
 #include <map>
+#include <cstdint>
+
 struct DIALOG;
 
 int32_t onStrings();

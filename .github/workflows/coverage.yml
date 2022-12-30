@@ -1,0 +1,67 @@
+name: Code Coverage
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths: ["tests/**"]
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  build:
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/build.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    with:
+      runs-on: ubuntu-22.04
+      arch: x64
+      compiler: clang
+      config: Coverage
+
+  coverage:
+    needs: ["build"]
+    runs-on: ubuntu-22.04
+    if: github.repository == 'ArmageddonGames/ZQuestClassic'
+
+    steps:
+      - name: git clone
+        uses: nschloe/action-cached-lfs-checkout@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - run: sudo pip install requests PyGithub gcovr watchdog
+
+      - run: sudo apt-get install libopengl0 libglu1
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ${{ needs.build.outputs.artifact-name }}
+      - name: Prepare build folder
+        run: tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
+
+      - name: Run tests and collect coverage data
+        run: xvfb-run --auto-servernum sudo python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
+      - name: Generate coverage report
+        run: bash tests/generate_coverage_report.sh
+        env:
+          GCOV: llvm-cov-14 gcov
+
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          mkdir tmp
+          npx gh-pages --dist tests/.coverage/report --dest coverage -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # https://github.com/tschaub/gh-pages/issues/354
+          CACHE_DIR: tmp
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: tests/.coverage/coverage.json

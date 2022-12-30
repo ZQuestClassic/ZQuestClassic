@@ -180,7 +180,7 @@ const char default_ctype_strings[cMAX][255] =
 	"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
 	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
 	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block", "ButtonPrompt",
-	"Block Weapon (Custom)", "Shooter"
+	"Block Weapon (Custom)", "Shooter", "Slope"
 };
 const char old_mapflag_strings[mfMAX][255] =
 {
@@ -229,6 +229,48 @@ const char map_flag_default_string[mfMAX][255] =
 	"-mf220","-mf221","-mf222","-mf223","-mf224","-mf225","-mf226","-mf227","-mf228","-mf229", "-mf230","-mf231","-mf232","-mf233","-mf234","-mf235","-mf236","-mf237","-mf238","-mf239",
 	"-mf240","-mf241","-mf242","-mf243","-mf244","-mf245","-mf246","-mf247","-mf248","-mf249", "-mf250","-mf251","-mf252","-mf253","-mf254",
 	"-Extended (Extended Flag Editor)"
+};
+const char weap_name_default_string[wMax][255] =
+{
+	"(None)","-Sword","Sword Beam","Boomerang","Bomb Blast",
+	"Super Bomb Blast","Bomb","Super Bomb","Arrow","Fire",
+	//10
+	"Whistle","Bait","-Melee Handle","Magic","-Catching",
+	"Wind","Reflected Magic","Reflected Fireball","Reflected Rock","-Hammer",
+	//20
+	"-Hookshot","-Hookshot Handle","-Hookshot Chain","Sparkle","Fire Sparkle",
+	"-Smack","-Phantom","-Byrna","Reflected Beam","-Stomp",
+	//30
+	"-lwMax","Custom Weapon 1","Custom Weapon 2","Custom Weapon 3","Custom Weapon 4",
+	"Custom Weapon 5","Custom Weapon 6","Custom Weapon 7","Custom Weapon 8","Custom Weapon 9",
+	//40
+	"Custom Weapon 10","Ice","-Flame","-Sound","Thrown",
+	"-Pot","-Lit","-Med1","-Med2","-Med3",
+	//50
+	"-Sword180","-SwordLA","-Bug Net","","",
+	"","","","","",
+	//60
+	"","","","","","","","","","",
+	//70
+	"","","","","","","","","","",
+	//80
+	"","","","","","","","","","",
+	//90
+	"","","","","","","","","","",
+	//100
+	"","","","","","","","","","",
+	//110
+	"","","","","","","","","","",
+	//120
+	"","","","","",
+	"","","","-wEnemyWeapons","E Fireball",
+	//130
+	"E Arrow","E Boomerang","E Sword","E Rock","E Magic"
+	"E Bomb Blast","E Super Bomb Blast","E Bomb","E Super Bomb","E Fire Trail",
+	//140
+	"E Fire","E Wind","-E Fire 2","-E Fire Trail 2","-E Ice",
+	"-E Fireball 2"
+	//wMax
 };
 
 const char default_itype_strings[itype_max][255] = 
@@ -289,93 +331,6 @@ const char counter_default_names[MAX_COUNTERS][255] =
 	"Custom 23","Custom 24","Custom 25"	
 };
 
-zinfo ZI;
-
-zinfo::zinfo()
-{
-	memset(ic_help_string, 0, sizeof(ic_help_string));
-	memset(ctype_name, 0, sizeof(ctype_name));
-	memset(ctype_help_string, 0, sizeof(ctype_help_string));
-	memset(mf_name, 0, sizeof(mf_name));
-	memset(mf_help_string, 0, sizeof(mf_help_string));
-	memset(ic_name, 0, sizeof(ic_name));
-	memset(ctr_name, 0, sizeof(ctr_name));
-}
-
-void zinfo::clear_ic_help()
-{
-	for(auto q = 0; q < itype_max; ++q)
-	{
-		if(ic_help_string[q])
-			free(ic_help_string[q]);
-		ic_help_string[q] = nullptr;
-	}
-}
-void zinfo::clear_ic_name()
-{
-	for(auto q = 0; q < itype_max; ++q)
-	{
-		if(ic_name[q])
-			free(ic_name[q]);
-		ic_name[q] = nullptr;
-	}
-}
-void zinfo::clear_ctype_name()
-{
-	for(auto q = 0; q < cMAX; ++q)
-	{
-		if(ctype_name[q])
-			free(ctype_name[q]);
-		ctype_name[q] = nullptr;
-	}
-}
-void zinfo::clear_ctype_help()
-{
-	for(auto q = 0; q < cMAX; ++q)
-	{
-		if(ctype_help_string[q])
-			free(ctype_help_string[q]);
-		ctype_help_string[q] = nullptr;
-	}
-}
-void zinfo::clear_mf_name()
-{
-	for(auto q = 0; q < mfMAX; ++q)
-	{
-		if(mf_name[q])
-			free(mf_name[q]);
-		mf_name[q] = nullptr;
-	}
-}
-void zinfo::clear_mf_help()
-{
-	for(auto q = 0; q < mfMAX; ++q)
-	{
-		if(mf_help_string[q])
-			free(mf_help_string[q]);
-		mf_help_string[q] = nullptr;
-	}
-}
-void zinfo::clear_ctr_name()
-{
-	for(auto q = 0; q < MAX_COUNTERS; ++q)
-	{
-		if(ctr_name[q])
-			free(ctr_name[q]);
-		ctr_name[q] = nullptr;
-	}
-}
-void zinfo::clear()
-{
-	clear_ic_help();
-	clear_ic_name();
-	clear_ctype_name();
-	clear_ctype_help();
-	clear_mf_name();
-	clear_mf_help();
-	clear_ctr_name();
-}
-
 void assignchar(char** p, char const* str)
 {
 	if(*p) free(*p);
@@ -388,6 +343,87 @@ void assignchar(char** p, char const* str)
 	*p = (char*)malloc(len+1);
 	memcpy(*p, str, len);
 	(*p)[len] = 0;
+}
+zinfo ZI;
+
+zinfo::zinfo()
+{
+	memset(ic_help_string, 0, sizeof(ic_help_string));
+	memset(ctype_name, 0, sizeof(ctype_name));
+	memset(ctype_help_string, 0, sizeof(ctype_help_string));
+	memset(mf_name, 0, sizeof(mf_name));
+	memset(mf_help_string, 0, sizeof(mf_help_string));
+	memset(ic_name, 0, sizeof(ic_name));
+	memset(ctr_name, 0, sizeof(ctr_name));
+	memset(weap_name, 0, sizeof(weap_name));
+}
+
+void zinfo::clear_ic_help()
+{
+	for(auto q = 0; q < itype_max; ++q)
+	{
+		assignchar(ic_help_string+q,nullptr);
+	}
+}
+void zinfo::clear_ic_name()
+{
+	for(auto q = 0; q < itype_max; ++q)
+	{
+		assignchar(ic_name+q,nullptr);
+	}
+}
+void zinfo::clear_ctype_name()
+{
+	for(auto q = 0; q < cMAX; ++q)
+	{
+		assignchar(ctype_name+q,nullptr);
+	}
+}
+void zinfo::clear_ctype_help()
+{
+	for(auto q = 0; q < cMAX; ++q)
+	{
+		assignchar(ctype_help_string+q,nullptr);
+	}
+}
+void zinfo::clear_mf_name()
+{
+	for(auto q = 0; q < mfMAX; ++q)
+	{
+		assignchar(mf_name+q,nullptr);
+	}
+}
+void zinfo::clear_mf_help()
+{
+	for(auto q = 0; q < mfMAX; ++q)
+	{
+		assignchar(mf_help_string+q,nullptr);
+	}
+}
+void zinfo::clear_weap_name()
+{
+	for(auto q = 0; q < wMax; ++q)
+	{
+		assignchar(weap_name+q,nullptr);
+	}
+}
+void zinfo::clear_ctr_name()
+{
+	for(auto q = 0; q < MAX_COUNTERS; ++q)
+	{
+		assignchar(ctr_name+q,nullptr);
+	}
+}
+void zinfo::clear()
+{
+	clear_ic_help();
+	clear_ic_name();
+	clear_ctype_name();
+	clear_ctype_help();
+	clear_mf_name();
+	clear_mf_help();
+	clear_weap_name();
+	clear_ctr_name();
 }
 
 static char const* nilptr = "";
@@ -403,6 +439,10 @@ bool zinfo::isUsableComboType(size_t q)
 bool zinfo::isUsableMapFlag(size_t q)
 {
 	return valid_str(map_flag_default_string[q],'-');
+}
+bool zinfo::isUsableWeap(size_t q)
+{
+	return valid_str(weap_name_default_string[q],'-');
 }
 bool zinfo::isUsableCtr(int32_t q)
 {
@@ -462,6 +502,14 @@ char const* zinfo::getMapFlagHelp(size_t q)
 		return mf_help_buff.c_str();
 	return nilptr;
 }
+char const* zinfo::getWeapName(size_t q)
+{
+	if(valid_str(weap_name[q]))
+		return weap_name[q];
+	if(valid_str(weap_name_default_string[q]))
+		return weap_name_default_string[q];
+	return nilptr;
+}
 char const* zinfo::getCtrName(int32_t q)
 {
 	if(q == crNONE)
@@ -496,6 +544,10 @@ void zinfo::copyFrom(zinfo const& other)
 	{
 		assignchar(mf_name+q, other.mf_name[q]);
 		assignchar(mf_help_string+q, other.mf_help_string[q]);
+	}
+	for(auto q = 0; q < wMax; ++q)
+	{
+		assignchar(weap_name+q, other.weap_name[q]);
 	}
 }
 
@@ -633,6 +685,23 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 					new_return(23);
 		}
 		
+		if(!p_iputw(wMax,f)) //num counters
+		{
+			new_return(21);
+		}
+		for(auto q = 0; q < wMax; ++q)
+		{
+			byte namesize = (byte)(vbound(valid_str(z.weap_name[q]) ? strlen(z.weap_name[q]) : 0,0,255));
+			
+			if(!p_putc(namesize,f))
+			{
+				new_return(22);
+			}
+			if(namesize)
+				if(!pfwrite(z.weap_name[q],namesize,f))
+					new_return(23);
+		}
+		
 		if(writecycle==0)
 		{
 			section_size=writesize;
@@ -767,10 +836,6 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	}
 	else if (get_app_id() == App::zquest)
 	{
-		memset(z.ctype_name, 0, sizeof(z.ctype_name));
-		memset(z.ctype_help_string, 0, sizeof(z.ctype_help_string));
-		memset(z.mf_name, 0, sizeof(z.mf_name));
-		memset(z.mf_help_string, 0, sizeof(z.mf_help_string));
 		if(hdr.zelda_version == 0x255) //Old quest naming
 			for(auto q = 0; q < mfMAX; ++q)
 			{
@@ -814,9 +879,26 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 			}
 		}
 	}
-	else
+	if(section_version > 2)
 	{
-		memset(z.ctr_name, 0, sizeof(z.ctr_name));
+		word num_wpns;
+		if(!p_igetw(&num_wpns,f,true))
+			return qe_invalid;
+		for(auto q = 0; q < num_wpns; ++q)
+		{
+			byte namesize;
+			if(!p_getc(&namesize,f,true))
+				return qe_invalid;
+			if(namesize)
+			{
+				char* p = (char*)malloc(namesize+1);
+				if (!p) return qe_nomem;
+				if(!pfread(p,namesize,f,true))
+					return qe_invalid;
+				p[namesize] = 0;
+				z.weap_name[q] = p;
+			}
+		}
 	}
 	return 0;
 }

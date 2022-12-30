@@ -37,6 +37,9 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
+
+	void calculateSize() override;
+
 protected:
 	int32_t message;
 private:
@@ -49,7 +52,6 @@ private:
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
-	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 	void applyFont(FONT* newFont) override;
 	friend class TextField;

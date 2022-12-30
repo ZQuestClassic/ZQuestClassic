@@ -89,9 +89,7 @@ void BuildOpcodes::addOpcodes(Container const& container)
 
 void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
 {
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(arrayRef)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP2), new VarArgument(SFTEMP)));
+	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
 	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
 
@@ -643,9 +641,11 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	//Check for a constant FALSE condition
 	if(std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope))
 	{
-		if(*val == 0) //False, so restore scope and exit
+		if(*val == 0) //False, so run else, restore scope, and exit
 		{
 			scope = scope->getParent();
+			if(host.hasElse())
+				visit(host.elseBlock.get(), param);
 			return;
 		}
 	}
@@ -653,8 +653,9 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	int32_t loopstart = ScriptParser::getUniqueLabelID();
 	int32_t loopend = ScriptParser::getUniqueLabelID();
 	int32_t loopincr = ScriptParser::getUniqueLabelID();
-	//nop
-	Opcode *next = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
+	
+	Opcode *next = new ONoOp();
 	next->setLabel(loopstart);
 	addOpcode(next);
 	//test the termination condition
@@ -666,7 +667,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		arrayRefs.pop_back();
 	//Continue
 	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-	addOpcode(new OGotoTrueImmediate(new LabelArgument(loopend)));
+	addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
 	//run the loop body
 	//save the old break and continue values
 
@@ -683,8 +684,7 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 	continueRefCounts.pop_back();
 
 	//run the increment
-	//nop
-	next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next = new ONoOp();
 	next->setLabel(loopincr);
 	addOpcode(next);
 	int32_t incRefCount = arrayRefs.size(); //Store ref count
@@ -695,26 +695,125 @@ void BuildOpcodes::caseStmtFor(ASTStmtFor &host, void *param)
 		arrayRefs.pop_back();
 	//Continue
 	addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
+	
+	scope = scope->getParent();
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
+	}
+	
 	//nop
-	next = new OSetImmediate(new VarArgument(EXP2), new LiteralArgument(0));
+	next = new ONoOp();
 	next->setLabel(loopend);
 	addOpcode(next);
+}
+
+void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
+{
+	//Force to sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	//Declare the local variable that will hold the array ptr
+	literalVisit(host.arrdecl.get(), param);
+	//Declare the local variable that will hold the iterator
+	literalVisit(host.indxdecl.get(), param);
+	//Declare the local variable that will hold the current loop value
+	literalVisit(host.decl.get(), param);
+	
+	auto* optarg = opcodeTargets.back();
+	if(OStoreDirect* ocode = dynamic_cast<OStoreDirect*>(optarg->back().get()))
+	{
+		optarg->pop_back();
+	}
+	
+	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
+	int32_t arrdecloffset = 10000L * *getStackOffset(*host.arrdecl.get()->manager);
+	int32_t indxdecloffset = 10000L * *getStackOffset(*host.indxdecl.get()->manager);
+	
+	int32_t loopstart = ScriptParser::getUniqueLabelID();
+	int32_t loopend = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : loopend;
+	
+	Opcode* next = new ONoOp();
+	next->setLabel(loopstart);
+	addOpcode(next);
+	
+	//Check if we've reached the end of the array
+	addOpcode(new OLoadDirect(new VarArgument(INDEX), new LiteralArgument(arrdecloffset)));
+	addOpcode(new OArraySize(new VarArgument(INDEX))); //get sizeofarray
+	//Load the iterator
+	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
+	//If the iterator is >= the length
+	addOpcode(new OCompareRegister(new VarArgument(EXP2), new VarArgument(EXP1)));
+	addOpcode(new OSetMore(new VarArgument(EXP1)));
+	addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	//Goto the 'else' (end without break)
+	addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
+	
+	//Reaching here, we have a valid index! Load it.
+	addOpcode(new OReadPODArrayR(new VarArgument(EXP1), new VarArgument(EXP2)));
+	//... and store it in the local variable.
+	addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(decloffset)));
+	//Now increment the iterator for the next loop
+	addOpcode(new OAddImmediate(new VarArgument(EXP2), new LiteralArgument(10000)));
+	addOpcode(new OStoreDirect(new VarArgument(EXP2), new LiteralArgument(indxdecloffset)));
+	
+	//...and run the inside of the loop.
+	breaklabelids.push_back(loopend);
+	breakRefCounts.push_back(arrayRefs.size());
+	continuelabelids.push_back(loopstart);
+	continueRefCounts.push_back(arrayRefs.size());
+	
+	visit(host.body.get(), param);
+	
+	breaklabelids.pop_back();
+	continuelabelids.pop_back();
+	breakRefCounts.pop_back();
+	continueRefCounts.pop_back();
+	
+	//Return to top of loop
+	addOpcode(new OGotoImmediate(new LabelArgument(loopstart)));
+	
 	scope = scope->getParent();
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
+	}
+	
+	next = new ONoOp();
+	next->setLabel(loopend);
+	addOpcode(next);
 }
 
 void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 {
 	std::optional<int32_t> val = host.test->getCompileTimeValue(this, scope);
-	bool falsyval = val && !*val;
-	if(falsyval)
-		return; //never runs
+	if(val && (host.isInverted() != !*val)) //never runs, handle else only
+	{
+		if(host.hasElse())
+			visit(host.elseBlock.get(), param);
+		return;
+	}
+	
 	int32_t startlabel = ScriptParser::getUniqueLabelID();
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	//run the test
-	//nop to label start
-	Opcode *start = new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0));
-	start->setLabel(startlabel);
-	addOpcode(start);
+	Opcode *next = new ONoOp();
+	next->setLabel(startlabel);
+	addOpcode(next);
 	if(!val)
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -727,11 +826,11 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted()) //Is this `until` or `while`?
 		{
-			addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
 		}
 		else
 		{
-			addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
 		}
 	}
 
@@ -748,10 +847,17 @@ void BuildOpcodes::caseStmtWhile(ASTStmtWhile &host, void *param)
 	continueRefCounts.pop_back();
 
 	addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
-	//nop to end while
-	Opcode *end = new ONoOp();
-	end->setLabel(endlabel);
-	addOpcode(end);
+	
+	if(host.hasElse())
+	{
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
+	}
+	next = new ONoOp();
+	next->setLabel(endlabel);
+	addOpcode(next);
 }
 
 void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
@@ -761,14 +867,16 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	bool deadloop = val && !truthyval;
 	int32_t startlabel;
 	int32_t endlabel = ScriptParser::getUniqueLabelID();
+	int32_t elselabel = host.hasElse() ? ScriptParser::getUniqueLabelID() : endlabel;
 	int32_t continuelabel = ScriptParser::getUniqueLabelID();
+	Opcode* next;
 	if(!deadloop)
 	{
 		startlabel = ScriptParser::getUniqueLabelID();
 		//nop to label start
-		Opcode *start = new ONoOp();
-		start->setLabel(startlabel);
-		addOpcode(start);
+		next = new ONoOp();
+		next->setLabel(startlabel);
+		addOpcode(next);
 	}
 	
 	breaklabelids.push_back(endlabel);
@@ -783,15 +891,16 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 	breakRefCounts.pop_back();
 	continueRefCounts.pop_back();
 	
-	Opcode* start = new ONoOp();
-	start->setLabel(continuelabel);
-	addOpcode(start);
+	next = new ONoOp();
+	next->setLabel(continuelabel);
+	addOpcode(next);
 	
 	if(val)
 	{
 		if(truthyval) //infinite loop
 			addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
-		//else no loop at all
+		else if(host.hasElse())
+			visit(host.elseBlock.get(), param);
 	}
 	else
 	{
@@ -805,18 +914,23 @@ void BuildOpcodes::caseStmtDo(ASTStmtDo &host, void *param)
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		if(host.isInverted()) //Is this `until` or `while`?
 		{
-			addOpcode(new OGotoFalseImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoFalseImmediate(new LabelArgument(elselabel)));
 		}
 		else
 		{
-			addOpcode(new OGotoTrueImmediate(new LabelArgument(endlabel)));
+			addOpcode(new OGotoTrueImmediate(new LabelArgument(elselabel)));
 		}
 		addOpcode(new OGotoImmediate(new LabelArgument(startlabel)));
+		
+		next = new ONoOp();
+		next->setLabel(elselabel);
+		addOpcode(next);
+		visit(host.elseBlock.get(), param);
 	}
-	//nop to end dowhile
-	Opcode *end = new ONoOp();
-	end->setLabel(endlabel);
-	addOpcode(end);
+	
+	next = new ONoOp();
+	next->setLabel(endlabel);
+	addOpcode(next);
 }
 
 void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
@@ -921,11 +1035,9 @@ void BuildOpcodes::buildVariable(ASTDataDecl& host, OpcodeContext& context)
 	else
 	{
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
 		if (!host.getInitializer())
 			addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 	}
 }
 
@@ -973,9 +1085,7 @@ void BuildOpcodes::buildArrayUninit(
 	{
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1), new LiteralArgument(totalSize)));
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -1038,9 +1148,7 @@ void BuildOpcodes::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 
 	// Local variable, get its value from the stack.
 	int32_t offset = 10000L * *getStackOffset(*host.binding);
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+	addOpcode(new OLoadDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 }
 
 void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
@@ -1074,7 +1182,7 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone());
+			addOpcode((*it)->makeClone(false));
 		}
 	}
 	else
@@ -1148,6 +1256,9 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	OpcodeContext* c = (OpcodeContext*)param;
 	auto& func = *host.binding;
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
+	
+	auto* optarg = opcodeTargets.back();
+	
 	if(func.prototype) //Prototype function
 	{
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
@@ -1197,28 +1308,155 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
+		size_t num_actual_params = func.paramTypes.size() - func.extra_vargs;
+		size_t num_used_params = host.parameters.size();
 		
-		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
+		if (host.left->isTypeArrow())
 		{
-			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-			//visit(host.getLeft(), param);
-			//push it onto the stack
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			++num_used_params;
+			if (!(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
+			{
+				//load the value of the left-hand of the arrow into EXP1
+				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+				//visit(host.getLeft(), param);
+				//push it onto the stack
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
 		}
+		
+		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+		int v = num_used_params-num_actual_params;
+		
+		size_t vargcount = 0;
+		size_t used_opt_params = 0;
+		(v>0 ? vargcount : used_opt_params) = abs(v);
 		//push the parameters, in forward order
-		for (auto it = host.parameters.begin();
-			it != host.parameters.end(); ++it)
+		size_t param_indx = 0;
+		for (; param_indx < host.parameters.size()-vargcount; ++param_indx)
 		{
-			visit(*it, param);
-			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			auto& arg = host.parameters.at(param_indx);
+			//Compile-time constants can be optimized slightly...
+			if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
+				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
+			else
+			{
+				visit(arg, param);
+				//Optimize
+				Opcode* lastop = optarg->back().get();
+				if (OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if (destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushRegister(arg));
+						continue;
+					}
+				}
+				else if (OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if (destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushImmediate(arg));
+						continue;
+					}
+				}
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+		}
+		if(vargcount)
+		{
+			//push the vargs, in forward order
+			for (; param_indx < host.parameters.size(); ++param_indx)
+			{
+				auto& arg = host.parameters.at(param_indx);
+				//Compile-time constants can be optimized slightly...
+				if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
+					addOpcode(new OPushVargV(new LiteralArgument(*val)));
+				else
+				{
+					visit(arg, param);
+					//Optimize
+					Opcode* lastop = optarg->back().get();
+					if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+					{
+						VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+						if(destreg->ID == EXP1)
+						{
+							Argument* arg = tmp->getSecondArgument()->clone();
+							optarg->pop_back();
+							addOpcode(new OPushVargR(arg));
+							continue;
+						}
+					}
+					else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+					{
+						VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+						if(destreg->ID == EXP1)
+						{
+							Argument* arg = tmp->getSecondArgument()->clone();
+							optarg->pop_back();
+							addOpcode(new OPushVargV(arg));
+							continue;
+						}
+					}
+					addOpcode(new OPushVargR(new VarArgument(EXP1)));
+				}
+			}
+		}
+		else if(used_opt_params)
+		{
+			auto opt_param_count = func.opt_vals.size();
+			auto skipped_optional_params = opt_param_count - used_opt_params;
+			//push any optional parameter values
+			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+			{
+				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+			}
 		}
 		
 		std::vector<std::shared_ptr<Opcode>> const& funcCode = func.getCode();
-		for(auto it = funcCode.begin();
-			it != funcCode.end(); ++it)
+		auto it = funcCode.begin();
+		while(OPopRegister* ocode = dynamic_cast<OPopRegister*>(it->get()))
 		{
-			addOpcode((*it)->makeClone());
+			VarArgument const* destreg = static_cast<VarArgument*>(ocode->getArgument());
+			//Optimize
+			Opcode* lastop = optarg->back().get();
+			if(OPushRegister* tmp = dynamic_cast<OPushRegister*>(lastop))
+			{
+				VarArgument const* arg = static_cast<VarArgument*>(tmp->getArgument());
+				if(arg->ID == destreg->ID) //Same register!
+				{
+					optarg->pop_back();
+				}
+				else //Different register
+				{
+					Argument* a = arg->clone();
+					optarg->pop_back();
+					addOpcode(new OSetRegister(destreg->clone(), a));
+				}
+				if(++it == funcCode.end())
+					break;
+				continue;
+			}
+			else if(OPushImmediate* tmp = dynamic_cast<OPushImmediate*>(lastop))
+			{
+				Argument* arg = tmp->getArgument()->clone();
+				optarg->pop_back();
+				addOpcode(new OSetImmediate(destreg->clone(), arg));
+				if(++it == funcCode.end())
+					break;
+				continue;
+			}
+			else break;
+		}
+		for(;it != funcCode.end(); ++it)
+		{
+			addOpcode((*it)->makeClone(false));
 		}
 	
 		if(host.left->isTypeArrow())
@@ -1278,10 +1516,34 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				visit(*it, param);
+				//Optimize
+				Opcode* lastop = optarg->back().get();
+				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushRegister(arg));
+						continue;
+					}
+				}
+				else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushImmediate(arg));
+						continue;
+					}
+				}
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		//push any std::optional parameter values
+		//push any optional parameter values
 		auto num_actual_params = func.paramTypes.size();
 		auto used_opt_params = num_actual_params - host.parameters.size();
 		auto opt_param_count = func.opt_vals.size();
@@ -1343,6 +1605,30 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			else
 			{
 				visit(*it, param);
+				//Optimize
+				Opcode* lastop = optarg->back().get();
+				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushRegister(arg));
+						continue;
+					}
+				}
+				else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+				{
+					VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+					if(destreg->ID == EXP1)
+					{
+						Argument* arg = tmp->getSecondArgument()->clone();
+						optarg->pop_back();
+						addOpcode(new OPushImmediate(arg));
+						continue;
+					}
+				}
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
@@ -2437,9 +2723,7 @@ void BuildOpcodes::stringLiteralDeclaration(
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -2476,12 +2760,8 @@ void BuildOpcodes::stringLiteralFree(
 	addOpcode2(init, new OAllocateMemImmediate(
 						   new VarArgument(EXP1),
 						   new LiteralArgument(size * 10000L)));
-	addOpcode2(init, new OSetRegister(new VarArgument(SFTEMP),
-									new VarArgument(SFRAME)));
-	addOpcode2(init, new OAddImmediate(new VarArgument(SFTEMP),
-									 new LiteralArgument(offset)));
-	addOpcode2(init, new OStoreIndirect(new VarArgument(EXP1),
-									  new VarArgument(SFTEMP)));
+	addOpcode2(init, new OStoreDirect(new VarArgument(EXP1),
+									  new LiteralArgument(offset)));
 
 	// Initialize.
 	addOpcode2(init, new OWritePODString(new VarArgument(EXP1), new StringArgument(data)));
@@ -2502,12 +2782,8 @@ void BuildOpcodes::stringLiteralFree(
 	// Actual Code.
 
 	// Local variable, get its value from the stack.
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
+	addOpcode(new OLoadDirect(new VarArgument(EXP1),
 								new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1),
-								new VarArgument(SFTEMP)));
 
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
@@ -2577,9 +2853,7 @@ void BuildOpcodes::arrayLiteralDeclaration(
 		addOpcode(new OAllocateMemImmediate(new VarArgument(EXP1),
 											new LiteralArgument(size * 10000L)));
 		int32_t offset = 10000L * *getStackOffset(manager);
-		addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-		addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-		addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
+		addOpcode(new OStoreDirect(new VarArgument(EXP1), new LiteralArgument(offset)));
 		// Register for cleanup.
 		arrayRefs.push_back(offset);
 	}
@@ -2662,14 +2936,8 @@ void BuildOpcodes::arrayLiteralFree(
 			new OAllocateMemImmediate(new VarArgument(EXP1),
 									  new LiteralArgument(size * 10000L)));
 	addOpcode2(context.initCode,
-			new OSetRegister(new VarArgument(SFTEMP),
-							 new VarArgument(SFRAME)));
-	addOpcode2(context.initCode,
-			new OAddImmediate(new VarArgument(SFTEMP),
-							  new LiteralArgument(offset)));
-	addOpcode2(context.initCode,
-			new OStoreIndirect(new VarArgument(EXP1),
-							   new VarArgument(SFTEMP)));
+			new OStoreDirect(new VarArgument(EXP1),
+							   new LiteralArgument(offset)));
 
 	// Initialize.
 	std::vector<int32_t> constelements;
@@ -2714,12 +2982,8 @@ void BuildOpcodes::arrayLiteralFree(
 	// Actual Code.
 
 	// Local variable, get its value from the stack.
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
+	addOpcode(new OLoadDirect(new VarArgument(EXP1),
 								new LiteralArgument(offset)));
-	addOpcode(new OLoadIndirect(new VarArgument(EXP1),
-								new VarArgument(SFTEMP)));
 
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
@@ -2840,19 +3104,6 @@ void LValBOHelper::addOpcodes(Container const& container)
 		addOpcode(ptr);
 }
 
-/*
-void LValBOHelper::caseDataDecl(ASTDataDecl& host, void* param)
-{
-	// Cannot be a global variable, so just stuff it in the stack
-	OpcodeContext* c = (OpcodeContext*)param;
-	int32_t vid = host.manager->id;
-	int32_t offset = c->stackframe->getOffset(vid);
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP), new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP), new LiteralArgument(offset)));
-	addOpcode(new OStoreIndirect(new VarArgument(EXP1), new VarArgument(SFTEMP)));
-}
-*/
-
 void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 {
 	OpcodeContext* c = (OpcodeContext*)param;
@@ -2876,12 +3127,7 @@ void LValBOHelper::caseExprIdentifier(ASTExprIdentifier& host, void* param)
 	// Set the stack.
 	int32_t offset = 10000L * *getStackOffset(*host.binding);
 
-	addOpcode(new OSetRegister(new VarArgument(SFTEMP),
-							   new VarArgument(SFRAME)));
-	addOpcode(new OAddImmediate(new VarArgument(SFTEMP),
-								new LiteralArgument(offset)));
-	addOpcode(new OStoreIndirect(new VarArgument(EXP1),
-								 new VarArgument(SFTEMP)));
+	addOpcode(new OStoreDirect(new VarArgument(EXP1),new LiteralArgument(offset)));
 }
 
 void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
@@ -2942,7 +3188,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		for(auto it = funcCode.begin();
 			it != funcCode.end(); ++it)
 		{
-			addOpcode((*it)->makeClone());
+			addOpcode((*it)->makeClone(false));
 		}
 	}
 	else

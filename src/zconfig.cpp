@@ -1,10 +1,13 @@
 #include "base/zc_alleg.h"
 #include "zconfig.h"
-#include "base/zapp.h"
+#include <string>
 
-char const* zc_get_standard_config_name()
+char const* get_config_file_name(App a)
 {
-	switch (get_app_id()) {
+	if(a == App::undefined)
+		a = get_app_id();
+	switch (a)
+	{
 #ifdef __EMSCRIPTEN__
 		case App::zelda: return "local/zc.cfg";
 		case App::zquest: return "local/zquest.cfg";
@@ -18,115 +21,124 @@ char const* zc_get_standard_config_name()
 		default: exit(1);
 	}
 }
-
-void zc_set_config_standard()
+char const* get_config_base_name(App a)
 {
-	flush_config_file();
-	set_config_file(zc_get_standard_config_name());
+	if(a == App::undefined)
+		a = get_app_id();
+	switch (a)
+	{
+		case App::zelda: return "base_config/zc.cfg";
+		case App::zquest: return "base_config/zquest.cfg";
+		case App::zscript: return "base_config/zscript.cfg";
+		case App::launcher: return "base_config/zcl.cfg";
+		default: exit(1);
+	}
 }
 
-bool zc_config_standard_exists()
+void zc_config_file(char const* fl)
 {
-	return exists(zc_get_standard_config_name());
+	flush_config_file();
+	set_config_file(fl);
+}
+
+void zc_push_config()
+{
+	push_config_state();
+}
+
+void zc_pop_config()
+{
+	flush_config_file();
+	pop_config_state();
 }
 
 static char cfg_str[2048];
+bool zc_cfg_defaulted = false;
 
-int32_t zc_get_config(char const* header, char const* name, int32_t default_val)
+int32_t zc_get_config(char const* header, char const* name, int32_t default_val, App a)
 {
-	int32_t ret = get_config_int(header,name,default_val);
-	if(ret == default_val) //Might have been defaulted, so write it back
-		set_config_int(header, name, ret);
+	zc_push_config();
+	zc_config_file(get_config_base_name(a));
+	auto def = get_config_int(header,name,default_val);
+	zc_config_file(get_config_file_name(a));
+	auto ret = get_config_int(header,name,def);
+	zc_cfg_defaulted = get_config_defaulted();
+	zc_pop_config();
 	return ret;
 }
-double zc_get_config(char const* header, char const* name, double default_val)
+double zc_get_config(char const* header, char const* name, double default_val, App a)
 {
-	double ret = get_config_float(header,name,default_val);
-	if(ret == default_val) //Might have been defaulted, so write it back
-		set_config_float(header, name, ret);
+	zc_push_config();
+	zc_config_file(get_config_base_name(a));
+	auto def = get_config_float(header,name,default_val);
+	zc_config_file(get_config_file_name(a));
+	auto ret = get_config_float(header,name,def);
+	zc_cfg_defaulted = get_config_defaulted();
+	zc_pop_config();
 	return ret;
 }
-char const* zc_get_config(char const* header, char const* name, char const* default_val)
+char const* zc_get_config(char const* header, char const* name, char const* default_val, App a)
+{
+	zc_push_config();
+	zc_config_file(get_config_base_name(a));
+	std::string def = get_config_string(header,name,default_val?default_val:"");
+	zc_config_file(get_config_file_name(a));
+	char const* ret = get_config_string(header,name,def.c_str());
+	zc_cfg_defaulted = get_config_defaulted();
+	if(!ret)
+		cfg_str[0] = 0;
+	else strcpy(cfg_str, ret);
+	zc_pop_config();
+	return cfg_str;
+}
+void zc_set_config(char const* header, char const* name, int32_t val, App a)
+{
+	zc_push_config();
+	zc_config_file(get_config_file_name(a));
+	set_config_int(header,name,val);
+	zc_pop_config();
+}
+void zc_set_config(char const* header, char const* name, double default_val, App a)
+{
+	zc_push_config();
+	zc_config_file(get_config_file_name(a));
+	set_config_float(header, name, default_val);
+	zc_pop_config();
+}
+void zc_set_config(char const* header, char const* name, char const* val, App a)
+{
+	zc_push_config();
+	zc_config_file(get_config_file_name(a));
+	set_config_string(header,name,val);
+	zc_pop_config();
+}
+
+int32_t zc_get_config_basic(char const* header, char const* name, int32_t default_val)
+{
+	return get_config_int(header,name,default_val);;
+}
+double zc_get_config_basic(char const* header, char const* name, double default_val)
+{
+	return get_config_float(header,name,default_val);
+}
+char const* zc_get_config_basic(char const* header, char const* name, char const* default_val)
 {
 	char const* ret = get_config_string(header,name,default_val);
-	if(ret==default_val) //Defaulted, so write it back
-	{
-		if (!default_val)
-			set_config_string(header, name, "");
-		else if(default_val[0]) //Writing back the empty string destroys the value?? -Em
-			set_config_string(header, name, default_val);
-	}
 	if(!ret)
 		cfg_str[0] = 0;
 	else strcpy(cfg_str, ret);
 	return cfg_str;
 }
-void zc_set_config(char const* header, char const* name, int32_t val)
+void zc_set_config_basic(char const* header, char const* name, int32_t val)
 {
 	set_config_int(header,name,val);
 }
-void zc_set_config(char const* header, char const* name, double default_val)
+void zc_set_config_basic(char const* header, char const* name, double default_val)
 {
 	set_config_float(header, name, default_val);
 }
-void zc_set_config(char const* header, char const* name, char const* val)
+void zc_set_config_basic(char const* header, char const* name, char const* val)
 {
 	set_config_string(header,name,val);
-}
-
-int32_t zc_get_config(char const* cfg_file, char const* header, char const* name, int32_t default_val)
-{
-	push_config_state();
-	set_config_file(cfg_file);
-	int32_t ret = get_config_int(header,name,default_val);
-	if(ret == default_val) //Might have been defaulted, so write it back
-		set_config_int(header, name, ret);
-	pop_config_state();
-	return ret;
-}
-double zc_get_config(char const* cfg_file, char const* header, char const* name, double default_val)
-{
-	push_config_state();
-	set_config_file(cfg_file);
-	double ret = get_config_float(header,name,default_val);
-	if(ret == default_val) //Might have been defaulted, so write it back
-		set_config_float(header, name, ret);
-	pop_config_state();
-	return ret;
-}
-char const* zc_get_config(char const* cfg_file, char const* header, char const* name, char const* default_val)
-{
-	push_config_state();
-	set_config_file(cfg_file);
-	char const* ret = get_config_string(header,name,default_val);
-	if(ret==default_val) //Defaulted, so write it back
-	{
-		if(default_val[0]) //Writing back the empty string destroys the value?? -Em
-			set_config_string(header, name, default_val);
-	}
-	strcpy(cfg_str, ret);
-	pop_config_state();
-	return cfg_str;
-}
-void zc_set_config(char const* cfg_file, char const* header, char const* name, int32_t val)
-{
-	push_config_state();
-	set_config_file(cfg_file);
-	set_config_int(header,name,val);
-	pop_config_state();
-}
-void zc_set_config(char const* cfg_file, char const* header, char const* name, double default_val)
-{
-	push_config_state();
-	set_config_file(cfg_file);
-	set_config_float(header, name, default_val);
-	pop_config_state();
-}
-void zc_set_config(char const* cfg_file, char const* header, char const* name, char const* val)
-{
-	push_config_state();
-	set_config_file(cfg_file);
-	set_config_string(header,name,val);
-	pop_config_state();
 }
 

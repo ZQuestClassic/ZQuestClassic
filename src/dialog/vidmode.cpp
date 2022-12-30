@@ -25,7 +25,6 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 	std::shared_ptr<GUI::Grid> resbtn_grid;
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "Video Mode",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			hPadding = 0_px, 

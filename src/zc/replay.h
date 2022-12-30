@@ -4,6 +4,7 @@
 #include "base/random.h"
 #include "cheats.h"
 #include <string>
+#include <filesystem>
 
 // Records the button input state, RNG seeds, and interesting events to a .zplay file,
 // and play it back while optionally asserting that everything happens the same way
@@ -23,46 +24,53 @@ enum ReplayMode
     Assert,
     Update,
     ManualTakeover,
-    Snapshot,
 };
 
-void replay_start(ReplayMode mode_, std::string filename_);
-void replay_continue(std::string filename_);
+std::string replay_mode_to_string(ReplayMode mode);
+void replay_start(ReplayMode mode_, std::filesystem::path path_, int frame);
+void replay_continue(std::filesystem::path path_);
 void replay_poll();
+bool replay_add_snapshot_frame(std::string frames_shorthand);
 void replay_peek_quit();
 void replay_peek_input();
+void replay_do_cheats();
 bool replay_is_assert_done();
 void replay_forget_input();
 void replay_stop();
 void replay_quit();
 void replay_save();
-void replay_save(std::string filename);
+void replay_save(std::filesystem::path path);
 void replay_stop_manual_takeover();
 
 void replay_step_comment(std::string comment);
 void replay_step_gfx(uint32_t gfx_hash);
 void replay_step_quit(int quit_state);
-void replay_step_cheat(Cheat cheat, int arg1 = -1, int arg2 = -1);
+void replay_step_cheat(Cheat cheat, int arg1, int arg2, std::string arg3);
 
 void replay_set_meta(std::string key, std::string value);
 void replay_set_meta(std::string key, int value);
 void replay_set_meta_bool(std::string key, bool value);
 std::string replay_get_meta_str(std::string key);
+std::string replay_get_meta_str(std::string key, std::string defaultValue);
 int replay_get_meta_int(std::string key);
 int replay_get_meta_int(std::string key, int defaultValue);
 bool replay_get_meta_bool(std::string key);
 
 ReplayMode replay_get_mode();
 int replay_get_version();
-std::string replay_get_filename();
+void replay_set_output_dir(std::filesystem::path dir);
+std::filesystem::path replay_get_replay_path();
 std::string replay_get_buttons_string();
 bool replay_is_active();
 void replay_set_debug(bool enable_debug);
 bool replay_is_debug();
+void replay_set_snapshot_all_frames(bool snapshot_all_frames);
+bool replay_is_snapshot_all_frames();
 void replay_set_sync_rng(bool enable);
 bool replay_is_replaying();
 bool replay_is_recording();
 void replay_set_frame_arg(int frame);
+void replay_enable_exit_when_done();
 
 size_t replay_register_rng(zc_randgen *rng);
 void replay_set_rng_seed(zc_randgen *rng, int seed);

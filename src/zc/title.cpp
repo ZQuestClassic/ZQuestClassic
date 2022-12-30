@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <memory>
 #include "base/zc_alleg.h"
 
 #include "base/zdefs.h"
@@ -302,19 +303,19 @@ static void mainscreen(int32_t f)
 		
 	if(f==0)
 	{
-		blit((BITMAP*)data[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
+		blit((BITMAP*)datafile[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
 		char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	char copyrbuf[2][2048] = { {0}, {0} };
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	if ( moduledata.copyright_strings[0][0] != 0 ) 
 	{
 		strcpy(tbuf,"(C)");
 		strcat(tbuf,moduledata.copyright_strings[0]);
 	}
-	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	if ( moduledata.copyright_strings[1][0] != 0 ) 
 	{	
 		strcpy(tbuf2,"(C)");
 		strcat(tbuf2,moduledata.copyright_strings[2]);
@@ -816,12 +817,12 @@ static void DX_mainscreen(int32_t f)
 	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	char copyrbuf[2][2048] = { {0}, {0} };
 	
 	if(f>=1010)
 		return;
 		
-	DATAFILE *dat = (DATAFILE*)data[TITLE_DX].dat;
+	DATAFILE *dat = (DATAFILE*)datafile[TITLE_DX].dat;
 	BITMAP *bmp;
 	
 	if(f==0)
@@ -849,12 +850,12 @@ static void DX_mainscreen(int32_t f)
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	if ( moduledata.copyright_strings[0][0] != 0 ) 
 	{
 		strcpy(tbuf,"(C)");
 		strcat(tbuf,moduledata.copyright_strings[0]);
 	}
-	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	if ( moduledata.copyright_strings[1][0] != 0 ) 
 	{	
 		strcpy(tbuf2,"(C)");
 		strcat(tbuf2,moduledata.copyright_strings[2]);
@@ -1042,11 +1043,11 @@ static void v25_mainscreen(int32_t f)
 	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {NULL }, {NULL} };
+	char copyrbuf[2][2048] = { {0}, {0} };
 	if(f>=1010)
 		return;
 		
-	DATAFILE *dat = (DATAFILE*)data[TITLE_25].dat;
+	DATAFILE *dat = (DATAFILE*)datafile[TITLE_25].dat;
 	BITMAP *bmp;
 	
 	if(f==0)
@@ -1073,12 +1074,12 @@ static void v25_mainscreen(int32_t f)
 	//const char *copy_year = (char *)moduledata.copyright_strings[2];
 	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
 	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != NULL ) 
+	if ( moduledata.copyright_strings[0][0] != 0 ) 
 	{
 		strcpy(tbuf,"(C)");
 		strcat(tbuf,moduledata.copyright_strings[0]);
 	}
-	if ( moduledata.copyright_strings[1][0] != NULL ) 
+	if ( moduledata.copyright_strings[1][0] != 0 ) 
 	{	
 		strcpy(tbuf2,"(C)");
 		strcat(tbuf2,moduledata.copyright_strings[2]);
@@ -1443,13 +1444,14 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		
 		char temp;
 		
-		for(int32_t j=0; j<256; j++) // why not MAXITEMS ?
+		for(int32_t j=0; j<MAXITEMS; j++) // why not MAXITEMS ?
 		{
 			if(!p_getc(&temp, f, true))
 				return 18;
 				
-			savedata[i].set_item(j, (temp != 0));
+			savedata[i].set_item_no_flush(j, (temp != 0));
 		}
+		
 		
 		if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
 		{
@@ -2330,7 +2332,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	if(readsaves(saves,f)!=0)
 		goto reset;
 		
-		strcpy(iname, get_config_string("SAVEFILE","save_filename","zc.sav"));
+		strcpy(iname, zc_get_config("SAVEFILE","save_filename","zc.sav"));
 	
 	for(int32_t i=0; iname[i]!='\0'; iname[i]=='.'?iname[i]='\0':i++)
 	{
@@ -2360,7 +2362,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	//Load game icons
 	for(int32_t i=0; i<MAXSAVES; i++)
 	{
-		byte showmetadata = get_config_int("zeldadx","print_metadata_for_each_save_slot",0);
+		byte showmetadata = zc_get_config("zeldadx","print_metadata_for_each_save_slot",0);
 		//zprint2("Reading Save Slot %d\n", i);
 		
 		if(strlen(saves[i].qstpath))
@@ -2379,7 +2381,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			}
 			else
 			{
-				if(!iconbuffer[i].loaded || get_config_int("zeldadx","reload_game_icons",0))
+				if(!iconbuffer[i].loaded || zc_get_config("zeldadx","reload_game_icons",0))
 				{
 					int32_t ret2 = load_quest(saves+i, false, showmetadata);
 					
@@ -2888,7 +2890,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 	return 0;
 }
 
-int32_t save_savedgames()
+static int32_t do_save_games()
 {
 	if (disable_save_to_disk || saves==NULL)
 		return 1;
@@ -2953,6 +2955,15 @@ int32_t save_savedgames()
 #endif
 
 	return ret;
+}
+
+int32_t save_savedgames()
+{
+	Saving = true;
+	render_zc();
+	int32_t result = do_save_games();
+	Saving = false;
+	return result;
 }
 
 void load_game_icon(gamedata *g, bool, int32_t index)
@@ -4184,7 +4195,7 @@ int32_t custom_game(int32_t file)
 	show_mouse(NULL);
 	game_pal();
 	key[KEY_ESC]=0;
-	chosecustomquest = (ret==5);
+	chosecustomquest = (ret==5) && customized;
 	return (int32_t)chosecustomquest;
 }
 
@@ -4679,11 +4690,18 @@ void game_over(int32_t type)
 	int32_t htile = SaveScreenSettings[SAVESC_USETILE];
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
-	
-	do {
-		load_control_state();
+
+	if (replay_is_active() && replay_get_version() <= 6)
+	{
+		do {
+			load_control_state();
+		}
+		while(getInput(btnS, true, false, true));//rSbtn
 	}
-	while(getInput(btnS, true, false, true));//rSbtn
+	else
+	{
+		zc_readrawkey(Skey, true);
+	}
 	
 	do
 	{
@@ -4814,7 +4832,6 @@ void game_over(int32_t type)
 			iconbuffer[currgame].ring = zc_min(ring, 3);
 			
 			load_game_icon(saves+currgame,false,currgame);
-			show_saving(screen);
 			save_savedgames();
 			if (replay_get_mode() == ReplayMode::Record) replay_save();
 		}
@@ -4851,7 +4868,6 @@ void save_game(bool savepoint)
 	if (ring > 0) --ring;
 	iconbuffer[currgame].ring = zc_min(ring, 3);
 	load_game_icon(saves+currgame,false,currgame);
-	show_saving(screen);
 	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
@@ -4995,7 +5011,6 @@ bool save_game(bool savepoint, int32_t type)
 				if (ring > 0) --ring;
 				iconbuffer[currgame].ring = zc_min(ring, 3);
 				load_game_icon(saves+currgame,false,currgame);
-				show_saving(screen);
 				save_savedgames();
 				if (replay_get_mode() == ReplayMode::Record) replay_save();
 				didsaved=true;

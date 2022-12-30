@@ -84,7 +84,6 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 	{
 		return Window(
 			title = "Palette Editor",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			use_vsync = true,
 			onTick = [&]()
@@ -96,7 +95,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 			Column(
 				tabpan = TabPanel(
 					ptr = &paltab,
-					onSwitch = [&](size_t tab)
+					onSwitch = [&](size_t,size_t)
 					{
 						loadPal();
 					},
@@ -324,7 +323,6 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 	{
 		return Window(
 			title = "Palette Editor",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			use_vsync = true,
 			onTick = [&]()
@@ -337,7 +335,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 				tabpan = TabPanel(
 				
 					ptr = &paltab,
-					onSwitch = [&](size_t tab)
+					onSwitch = [&](size_t,size_t)
 					{
 						loadPal();
 					},

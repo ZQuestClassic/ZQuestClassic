@@ -594,9 +594,9 @@ void ASTRange::execute(ASTVisitor& visitor, void* param)
 
 ASTStmtFor::ASTStmtFor(
 		ASTStmt* setup, ASTExpr* test, ASTStmt* increment, ASTStmt* body,
-		LocationData const& location)
+		ASTStmt* elseBlock, LocationData const& location)
 	: ASTStmt(location), setup(setup), test(test), increment(increment),
-	  body(body), scope(NULL)
+	  body(body), elseBlock(elseBlock), scope(nullptr)
 {}
 
 void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
@@ -604,11 +604,27 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 	return visitor.caseStmtFor(*this, param);
 }
 
+// ASTStmtForEach
+
+ASTStmtForEach::ASTStmtForEach(
+	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
+	ASTStmt* elseBlock, LocationData const& location)
+	: ASTStmt(location), iden(identifier), arrExpr(expr), body(body),
+		elseBlock(elseBlock), decl(nullptr), arrdecl(nullptr),
+		indxdecl(nullptr), scope(nullptr)
+{}
+
+void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
+{
+	return visitor.caseStmtForEach(*this, param);
+}
+
 // ASTStmtWhile
 
-ASTStmtWhile::ASTStmtWhile(
-		ASTExpr* test, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), test(test), body(body), inverted(false)
+ASTStmtWhile::ASTStmtWhile(ASTExpr* test, ASTStmt* body,
+	ASTStmt* elseBlock, LocationData const& location)
+	: ASTStmt(location), test(test), body(body),
+		elseBlock(elseBlock), inverted(false)
 {}
 
 void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
@@ -618,9 +634,10 @@ void ASTStmtWhile::execute(ASTVisitor& visitor, void* param)
 
 // ASTStmtDo
 
-ASTStmtDo::ASTStmtDo(
-		ASTExpr* test, ASTStmt* body, LocationData const& location)
-	: ASTStmt(location), test(test), body(body), inverted(false)
+ASTStmtDo::ASTStmtDo(ASTExpr* test, ASTStmt* body,
+	ASTStmt* elseBlock, LocationData const& location)
+	: ASTStmt(location), test(test), body(body),
+		elseBlock(elseBlock), inverted(false)
 {}
 
 void ASTStmtDo::execute(ASTVisitor& visitor, void* param)

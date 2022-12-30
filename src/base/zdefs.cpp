@@ -8,6 +8,7 @@
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 using std::string;
+using std::ostringstream;
 using namespace util;
 
 extern PALETTE RAMpal;
@@ -17,6 +18,8 @@ bool global_z3_scrolling_extended_height_mode = !true;
 viewport_t viewport = {0};
 int32_t global_z3_cur_scr_drawing = -1;
 
+volatile bool close_button_quit = false;
+
 const char months[13][13] =
 { 
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
@@ -24,7 +27,7 @@ const char months[13][13] =
 
 char *VerStr(int32_t version)
 {
-    static char ver_str[12];
+    static char ver_str[15];
     sprintf(ver_str,"v%d.%02X",version>>8,version&0xFF);
     return ver_str;
 }
@@ -90,40 +93,40 @@ void load_themefile(char const* fpath)
 }
 void load_themefile(char const* fpath, PALETTE pal)
 {
-	push_config_state();
-	set_config_file(fpath);
-	pal[dvc(1)] = _RGB(zc_get_config("Theme","dvc1_r",4),zc_get_config("Theme","dvc1_g",38),zc_get_config("Theme","dvc1_b",46)); //box fg is text
-	pal[dvc(2)] = _RGB(zc_get_config("Theme","dvc2_r",(16*63/255)), zc_get_config("Theme","dvc2_g",(10*63/255)), zc_get_config("Theme","dvc2_b",0));
-	pal[dvc(3)] = _RGB(zc_get_config("Theme","dvc3_r",17),zc_get_config("Theme","dvc3_g",20),zc_get_config("Theme","dvc3_b",20)); //slate
-	pal[dvc(4)] = _RGB(zc_get_config("Theme","dvc4_r",13),zc_get_config("Theme","dvc4_g",14),zc_get_config("Theme","dvc4_b",14)); //menu background
-	pal[dvc(5)] = _RGB(zc_get_config("Theme","dvc5_r",0),zc_get_config("Theme","dvc5_g",0),zc_get_config("Theme","dvc5_b",0));//menu text bg
-	pal[dvc(6)] = _RGB(zc_get_config("Theme","dvc6_r",13),zc_get_config("Theme","dvc6_g",14),zc_get_config("Theme","dvc6_b",14));//menu selected text
-	pal[dvc(7)] = _RGB(zc_get_config("Theme","dvc7_r",42),zc_get_config("Theme","dvc7_g",60),zc_get_config("Theme","dvc7_b",48));
-	pal[dvc(8)] = _RGB(zc_get_config("Theme","dvc8_r",6),zc_get_config("Theme","dvc8_g",49),zc_get_config("Theme","dvc8_b",35));//highlight on selected menu text
+	zc_push_config();
+	zc_config_file(fpath);
+	pal[dvc(1)] = _RGB(zc_get_config_basic("Theme","dvc1_r",4),zc_get_config_basic("Theme","dvc1_g",38),zc_get_config_basic("Theme","dvc1_b",46)); //box fg is text
+	pal[dvc(2)] = _RGB(zc_get_config_basic("Theme","dvc2_r",(16*63/255)), zc_get_config_basic("Theme","dvc2_g",(10*63/255)), zc_get_config_basic("Theme","dvc2_b",0));
+	pal[dvc(3)] = _RGB(zc_get_config_basic("Theme","dvc3_r",17),zc_get_config_basic("Theme","dvc3_g",20),zc_get_config_basic("Theme","dvc3_b",20)); //slate
+	pal[dvc(4)] = _RGB(zc_get_config_basic("Theme","dvc4_r",13),zc_get_config_basic("Theme","dvc4_g",14),zc_get_config_basic("Theme","dvc4_b",14)); //menu background
+	pal[dvc(5)] = _RGB(zc_get_config_basic("Theme","dvc5_r",0),zc_get_config_basic("Theme","dvc5_g",0),zc_get_config_basic("Theme","dvc5_b",0));//menu text bg
+	pal[dvc(6)] = _RGB(zc_get_config_basic("Theme","dvc6_r",13),zc_get_config_basic("Theme","dvc6_g",14),zc_get_config_basic("Theme","dvc6_b",14));//menu selected text
+	pal[dvc(7)] = _RGB(zc_get_config_basic("Theme","dvc7_r",42),zc_get_config_basic("Theme","dvc7_g",60),zc_get_config_basic("Theme","dvc7_b",48));
+	pal[dvc(8)] = _RGB(zc_get_config_basic("Theme","dvc8_r",6),zc_get_config_basic("Theme","dvc8_g",49),zc_get_config_basic("Theme","dvc8_b",35));//highlight on selected menu text
 					   
-	jwin_pal[jcBOX]	=dvc(zc_get_config("Theme","jcbox",4));
-	jwin_pal[jcLIGHT]  =dvc(zc_get_config("Theme","jclight",5));
-	jwin_pal[jcMEDLT]  =dvc(zc_get_config("Theme","jcmedlt",4));
-	jwin_pal[jcMEDDARK]=dvc(zc_get_config("Theme","jcmeddark",3));
-	jwin_pal[jcDARK]   =dvc(zc_get_config("Theme","jcdark",2));
-	jwin_pal[jcBOXFG]  =dvc(zc_get_config("Theme","jcboxfg",1));
-	jwin_pal[jcTITLEL] =dvc(zc_get_config("Theme","jctitlel",3));
-	jwin_pal[jcTITLER] =dvc(zc_get_config("Theme","jctitler",5));
-	jwin_pal[jcTITLEFG]=dvc(zc_get_config("Theme","jctitlefg",7));
-	jwin_pal[jcTEXTBG] =dvc(zc_get_config("Theme","jctextbg",5));
-	jwin_pal[jcTEXTFG] =dvc(zc_get_config("Theme","jctextfg",1));
-	jwin_pal[jcSELBG]  =dvc(zc_get_config("Theme","jcselbg",8));
-	jwin_pal[jcSELFG]  =dvc(zc_get_config("Theme","jcselfg",6));
-	jwin_pal[jcCURSORMISC] = dvc(zc_get_config("Theme","jccursormisc",1));
-	jwin_pal[jcCURSOROUTLINE] = dvc(zc_get_config("Theme","jccursoroutline",2));
-	jwin_pal[jcCURSORLIGHT] = dvc(zc_get_config("Theme","jccursorlight",3));
-	jwin_pal[jcCURSORDARK] = dvc(zc_get_config("Theme","jccursordark",5));
-	jwin_pal[jcALT_TEXTFG] = dvc(zc_get_config("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcMEDDARK])));
-	jwin_pal[jcALT_TEXTBG] = dvc(zc_get_config("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcTEXTFG])));
-	jwin_pal[jcDISABLED_FG] = dvc(zc_get_config("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcMEDDARK])));
-	jwin_pal[jcDISABLED_BG] = dvc(zc_get_config("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcBOX])));
+	jwin_pal[jcBOX]	=dvc(zc_get_config_basic("Theme","jcbox",4));
+	jwin_pal[jcLIGHT]  =dvc(zc_get_config_basic("Theme","jclight",5));
+	jwin_pal[jcMEDLT]  =dvc(zc_get_config_basic("Theme","jcmedlt",4));
+	jwin_pal[jcMEDDARK]=dvc(zc_get_config_basic("Theme","jcmeddark",3));
+	jwin_pal[jcDARK]   =dvc(zc_get_config_basic("Theme","jcdark",2));
+	jwin_pal[jcBOXFG]  =dvc(zc_get_config_basic("Theme","jcboxfg",1));
+	jwin_pal[jcTITLEL] =dvc(zc_get_config_basic("Theme","jctitlel",3));
+	jwin_pal[jcTITLER] =dvc(zc_get_config_basic("Theme","jctitler",5));
+	jwin_pal[jcTITLEFG]=dvc(zc_get_config_basic("Theme","jctitlefg",7));
+	jwin_pal[jcTEXTBG] =dvc(zc_get_config_basic("Theme","jctextbg",5));
+	jwin_pal[jcTEXTFG] =dvc(zc_get_config_basic("Theme","jctextfg",1));
+	jwin_pal[jcSELBG]  =dvc(zc_get_config_basic("Theme","jcselbg",8));
+	jwin_pal[jcSELFG]  =dvc(zc_get_config_basic("Theme","jcselfg",6));
+	jwin_pal[jcCURSORMISC] = dvc(zc_get_config_basic("Theme","jccursormisc",1));
+	jwin_pal[jcCURSOROUTLINE] = dvc(zc_get_config_basic("Theme","jccursoroutline",2));
+	jwin_pal[jcCURSORLIGHT] = dvc(zc_get_config_basic("Theme","jccursorlight",3));
+	jwin_pal[jcCURSORDARK] = dvc(zc_get_config_basic("Theme","jccursordark",5));
+	jwin_pal[jcALT_TEXTFG] = dvc(zc_get_config_basic("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcMEDDARK])));
+	jwin_pal[jcALT_TEXTBG] = dvc(zc_get_config_basic("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcTEXTFG])));
+	jwin_pal[jcDISABLED_FG] = dvc(zc_get_config_basic("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcMEDDARK])));
+	jwin_pal[jcDISABLED_BG] = dvc(zc_get_config_basic("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcBOX])));
 	
-	pop_config_state();
+	zc_pop_config();
 	
     gui_bg_color=jwin_pal[jcBOX];
     gui_fg_color=jwin_pal[jcBOXFG];
@@ -137,38 +140,38 @@ void save_themefile(char const* fpath)
 }
 void save_themefile(char const* fpath, PALETTE pal)
 {
-	push_config_state();
-	set_config_file(fpath);
-	zc_set_config("Theme","dvc1_r",pal[dvc(1)].r); zc_set_config("Theme","dvc1_g",pal[dvc(1)].g); zc_set_config("Theme","dvc1_b",pal[dvc(1)].b);
-	zc_set_config("Theme","dvc2_r",pal[dvc(2)].r); zc_set_config("Theme","dvc2_g",pal[dvc(2)].g); zc_set_config("Theme","dvc2_b",pal[dvc(2)].b);
-	zc_set_config("Theme","dvc3_r",pal[dvc(3)].r); zc_set_config("Theme","dvc3_g",pal[dvc(3)].g); zc_set_config("Theme","dvc3_b",pal[dvc(3)].b);
-	zc_set_config("Theme","dvc4_r",pal[dvc(4)].r); zc_set_config("Theme","dvc4_g",pal[dvc(4)].g); zc_set_config("Theme","dvc4_b",pal[dvc(4)].b);
-	zc_set_config("Theme","dvc5_r",pal[dvc(5)].r); zc_set_config("Theme","dvc5_g",pal[dvc(5)].g); zc_set_config("Theme","dvc5_b",pal[dvc(5)].b);
-	zc_set_config("Theme","dvc6_r",pal[dvc(6)].r); zc_set_config("Theme","dvc6_g",pal[dvc(6)].g); zc_set_config("Theme","dvc6_b",pal[dvc(6)].b);
-	zc_set_config("Theme","dvc7_r",pal[dvc(7)].r); zc_set_config("Theme","dvc7_g",pal[dvc(7)].g); zc_set_config("Theme","dvc7_b",pal[dvc(7)].b);
-	zc_set_config("Theme","dvc8_r",pal[dvc(8)].r); zc_set_config("Theme","dvc8_g",pal[dvc(8)].g); zc_set_config("Theme","dvc8_b",pal[dvc(8)].b);
-	zc_set_config("Theme","jcbox",r_dvc(jwin_pal[jcBOX]));
-	zc_set_config("Theme","jclight",r_dvc(jwin_pal[jcLIGHT]));
-	zc_set_config("Theme","jcmedlt",r_dvc(jwin_pal[jcMEDLT]));
-	zc_set_config("Theme","jcmeddark",r_dvc(jwin_pal[jcMEDDARK]));
-	zc_set_config("Theme","jcdark",r_dvc(jwin_pal[jcDARK]));
-	zc_set_config("Theme","jcboxfg",r_dvc(jwin_pal[jcBOXFG]));
-	zc_set_config("Theme","jctitlel",r_dvc(jwin_pal[jcTITLEL]));
-	zc_set_config("Theme","jctitler",r_dvc(jwin_pal[jcTITLER]));
-	zc_set_config("Theme","jctitlefg",r_dvc(jwin_pal[jcTITLEFG]));
-	zc_set_config("Theme","jctextbg",r_dvc(jwin_pal[jcTEXTBG]));
-	zc_set_config("Theme","jctextfg",r_dvc(jwin_pal[jcTEXTFG]));
-	zc_set_config("Theme","jcselbg",r_dvc(jwin_pal[jcSELBG]));
-	zc_set_config("Theme","jcselfg",r_dvc(jwin_pal[jcSELFG]));
-	zc_set_config("Theme","jccursormisc",r_dvc(jwin_pal[jcCURSORMISC]));
-	zc_set_config("Theme","jccursoroutline",r_dvc(jwin_pal[jcCURSOROUTLINE]));
-	zc_set_config("Theme","jccursorlight",r_dvc(jwin_pal[jcCURSORLIGHT]));
-	zc_set_config("Theme","jccursordark",r_dvc(jwin_pal[jcCURSORDARK]));
-	zc_set_config("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcALT_TEXTFG]));
-	zc_set_config("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcALT_TEXTBG]));
-	zc_set_config("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcDISABLED_FG]));
-	zc_set_config("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcDISABLED_BG]));
-	pop_config_state();
+	zc_push_config();
+	zc_config_file(fpath);
+	zc_set_config_basic("Theme","dvc1_r",pal[dvc(1)].r); zc_set_config_basic("Theme","dvc1_g",pal[dvc(1)].g); zc_set_config_basic("Theme","dvc1_b",pal[dvc(1)].b);
+	zc_set_config_basic("Theme","dvc2_r",pal[dvc(2)].r); zc_set_config_basic("Theme","dvc2_g",pal[dvc(2)].g); zc_set_config_basic("Theme","dvc2_b",pal[dvc(2)].b);
+	zc_set_config_basic("Theme","dvc3_r",pal[dvc(3)].r); zc_set_config_basic("Theme","dvc3_g",pal[dvc(3)].g); zc_set_config_basic("Theme","dvc3_b",pal[dvc(3)].b);
+	zc_set_config_basic("Theme","dvc4_r",pal[dvc(4)].r); zc_set_config_basic("Theme","dvc4_g",pal[dvc(4)].g); zc_set_config_basic("Theme","dvc4_b",pal[dvc(4)].b);
+	zc_set_config_basic("Theme","dvc5_r",pal[dvc(5)].r); zc_set_config_basic("Theme","dvc5_g",pal[dvc(5)].g); zc_set_config_basic("Theme","dvc5_b",pal[dvc(5)].b);
+	zc_set_config_basic("Theme","dvc6_r",pal[dvc(6)].r); zc_set_config_basic("Theme","dvc6_g",pal[dvc(6)].g); zc_set_config_basic("Theme","dvc6_b",pal[dvc(6)].b);
+	zc_set_config_basic("Theme","dvc7_r",pal[dvc(7)].r); zc_set_config_basic("Theme","dvc7_g",pal[dvc(7)].g); zc_set_config_basic("Theme","dvc7_b",pal[dvc(7)].b);
+	zc_set_config_basic("Theme","dvc8_r",pal[dvc(8)].r); zc_set_config_basic("Theme","dvc8_g",pal[dvc(8)].g); zc_set_config_basic("Theme","dvc8_b",pal[dvc(8)].b);
+	zc_set_config_basic("Theme","jcbox",r_dvc(jwin_pal[jcBOX]));
+	zc_set_config_basic("Theme","jclight",r_dvc(jwin_pal[jcLIGHT]));
+	zc_set_config_basic("Theme","jcmedlt",r_dvc(jwin_pal[jcMEDLT]));
+	zc_set_config_basic("Theme","jcmeddark",r_dvc(jwin_pal[jcMEDDARK]));
+	zc_set_config_basic("Theme","jcdark",r_dvc(jwin_pal[jcDARK]));
+	zc_set_config_basic("Theme","jcboxfg",r_dvc(jwin_pal[jcBOXFG]));
+	zc_set_config_basic("Theme","jctitlel",r_dvc(jwin_pal[jcTITLEL]));
+	zc_set_config_basic("Theme","jctitler",r_dvc(jwin_pal[jcTITLER]));
+	zc_set_config_basic("Theme","jctitlefg",r_dvc(jwin_pal[jcTITLEFG]));
+	zc_set_config_basic("Theme","jctextbg",r_dvc(jwin_pal[jcTEXTBG]));
+	zc_set_config_basic("Theme","jctextfg",r_dvc(jwin_pal[jcTEXTFG]));
+	zc_set_config_basic("Theme","jcselbg",r_dvc(jwin_pal[jcSELBG]));
+	zc_set_config_basic("Theme","jcselfg",r_dvc(jwin_pal[jcSELFG]));
+	zc_set_config_basic("Theme","jccursormisc",r_dvc(jwin_pal[jcCURSORMISC]));
+	zc_set_config_basic("Theme","jccursoroutline",r_dvc(jwin_pal[jcCURSOROUTLINE]));
+	zc_set_config_basic("Theme","jccursorlight",r_dvc(jwin_pal[jcCURSORLIGHT]));
+	zc_set_config_basic("Theme","jccursordark",r_dvc(jwin_pal[jcCURSORDARK]));
+	zc_set_config_basic("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcALT_TEXTFG]));
+	zc_set_config_basic("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcALT_TEXTBG]));
+	zc_set_config_basic("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcDISABLED_FG]));
+	zc_set_config_basic("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcDISABLED_BG]));
+	zc_pop_config();
 }
 
 const char* get_app_theme_filename()
@@ -181,33 +184,33 @@ const char* get_app_theme_filename()
 	}
 }
 
-void load_udef_colorset(char const* fpath)
+void load_udef_colorset(App a)
 {
-	load_udef_colorset(fpath, RAMpal);
+	load_udef_colorset(a, RAMpal);
 }
-void load_udef_colorset(char const* fpath, PALETTE pal)
+void load_udef_colorset(App a, PALETTE pal)
 {
-	push_config_state();
-	set_config_file(fpath);
 	char const* darkthemename = "themes/dark.ztheme";
-	char const* tfnm = zc_get_config("Theme", "theme_filename", "-");
+	char const* tfnm = zc_get_config("Theme", "theme_filename", "-", a);
 	bool defaulted_theme = !(tfnm[0]&&tfnm[0]!='-');
 	strcpy(tmp_themefile, defaulted_theme ? darkthemename : tfnm);
 	
 	fix_filename_case(tmp_themefile);
 	fix_filename_slashes(tmp_themefile);
-	if(defaulted_theme
-		&& get_config_int("Theme","dvc1_r",4)==get_config_int("Theme","dvc1_r",5))
+	if(defaulted_theme &&
+		(zc_get_config("Theme", "dvc1_r", 1, a)
+		!= zc_get_config("Theme", "dvc1_r", 2, a)))
 	{
 		//Write these back to the custom theme file
 		strcpy(tmp_themefile, get_app_theme_filename());
-		load_themefile(zc_get_standard_config_name(), pal);
+		load_themefile(get_config_file_name(a), pal);
 		save_themefile(tmp_themefile, pal);
 	}
 	else load_themefile(tmp_themefile, pal);
 	if (defaulted_theme)
+	{
 		zc_set_config("Theme", "theme_filename", tmp_themefile);
-	pop_config_state();
+	}
 }
 
 void load_colorset(int32_t colorset)
@@ -452,7 +455,7 @@ void load_colorset(int32_t colorset, PALETTE pal)
 		case 99:  //User Defined
 		{
 			udef = true;
-			load_udef_colorset(zc_get_standard_config_name(), pal);
+			load_udef_colorset(App::undefined, pal);
 			strcpy(themefile, tmp_themefile);
 		}
 		break;
@@ -653,17 +656,56 @@ bool valid_str(char const* ptr, char cancel)
 	return ptr && ptr[0] && ptr[0] != cancel;
 }
 
-int32_t X_DIR(int32_t dir)
+direction X_DIR(int32_t dir)
 {
 	dir = NORMAL_DIR(dir);
-	if(dir < 0) return dir;
+	if(dir < 0) return dir_invalid;
 	return xDir[dir];
 }
-int32_t Y_DIR(int32_t dir)
+direction Y_DIR(int32_t dir)
 {
 	dir = NORMAL_DIR(dir);
-	if(dir < 0) return dir;
+	if(dir < 0) return dir_invalid;
 	return yDir[dir];
+}
+direction XY_DIR(int32_t xdir, int32_t ydir)
+{
+	if(X_DIR(xdir) < 0) return NORMAL_DIR(ydir);
+	if(Y_DIR(ydir) < 0) return NORMAL_DIR(xdir);
+	switch(X_DIR(xdir))
+	{
+		case right:
+			switch(Y_DIR(ydir))
+			{
+				case up: return r_up;
+				case down: return r_down;
+			}
+			break;
+		case left:
+			switch(Y_DIR(ydir))
+			{
+				case up: return l_up;
+				case down: return l_down;
+			}
+			break;
+	}
+	return dir_invalid;
+}
+direction GET_XDIR(zfix const& sign)
+{
+	if(sign < 0) return left;
+	if(sign) return right;
+	return dir_invalid;
+}
+direction GET_YDIR(zfix const& sign)
+{
+	if(sign < 0) return up;
+	if(sign) return down;
+	return dir_invalid;
+}
+direction GET_DIR(zfix const& dx, zfix const& dy)
+{
+	return XY_DIR(GET_XDIR(dx), GET_YDIR(dy));
 }
 
 direction XY_DELTA_TO_DIR(int32_t dx, int32_t dy)
@@ -685,6 +727,7 @@ string get_dbreport_string()
 	oss << "```\n"
 		<< ZQ_EDITOR_NAME
 		<< "\nVersion: " << ZQ_EDITOR_V << " " << ALPHA_VER_STR
+		<< "\nTag: " << getReleaseTag()
 		<< "\nBuild: " << VERSION_BUILD;
 		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
@@ -693,7 +736,7 @@ string get_dbreport_string()
 	oss << "\n" << buf
 		<< "\nDev Signoff: " << DEV_SIGNOFF
 		<< "\nQR:" << get_qr_hexstr(quest_rules, true, false)
-		<< "```";
+		<< "\n```";
 	return oss.str();
 }
 
@@ -809,6 +852,8 @@ string generate_zq_about()
 	char buf1[256];
 	std::ostringstream oss;
 	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
+	oss << buf1 << '\n';
+	sprintf(buf1,"Tag: %s", getReleaseTag());
 	oss << buf1 << '\n';
 	sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
 	oss << buf1 << '\n';
@@ -1110,10 +1155,10 @@ char const* zquestheader::getVerStr() const
 
 int32_t zquestheader::compareDate() const
 {
-	// zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
-		// new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
-		// new_version_id_date_hour, new_version_id_date_minute,
-		// BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
+	zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
+		new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
+		new_version_id_date_hour, new_version_id_date_minute,
+		BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
 	//!TODO handle timezones (build_timezone, __TIMEZONE__)
 	if(new_version_id_date_year > BUILDTM_YEAR)
 		return 1;
@@ -1178,7 +1223,7 @@ int32_t getProgramAlphaVer()
 
 char const* getProgramAlphaStr(bool ignoreNightly = false)
 {
-	static char buf[40] = "";
+	static char buf[60] = "";
 	char format[20] = "%s";
 	if(!ignoreNightly && ZC_IS_NIGHTLY) strcpy(format, "Nightly (%s)");
 	if(V_ZC_RELEASE) sprintf(buf, format, "Release");
@@ -1191,7 +1236,7 @@ char const* getProgramAlphaStr(bool ignoreNightly = false)
 
 char const* getProgramAlphaVerStr()
 {
-	static char buf[40] = "";
+	static char buf[100] = "";
 	if(ZC_IS_NIGHTLY)
 	{
 		if(getProgramAlphaVer() < 0)
@@ -1209,7 +1254,7 @@ char const* getProgramAlphaVerStr()
 
 char const* getProgramVerStr()
 {
-	static char buf[80] = "";
+	static char buf[120] = "";
 	if(V_ZC_FOURTH > 0)
 		sprintf(buf, "%d.%d.%d.%d %s", V_ZC_FIRST, V_ZC_SECOND,
 			V_ZC_THIRD, V_ZC_FOURTH, getProgramAlphaVerStr());
@@ -1217,4 +1262,465 @@ char const* getProgramVerStr()
 			V_ZC_THIRD, getProgramAlphaVerStr());
 	return buf;
 }
+
+char const* getReleaseTag()
+{
+#ifdef RELEASE_TAG
+	return RELEASE_TAG;
+#else
+	return getProgramVerStr();
+#endif
+}
+
+//double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
+double WrapAngle( double radians ) 
+{
+	while (radians <= -PI) radians += (PI*2);
+	while (radians > PI) radians -= (PI*2);
+	return radians;
+}
+double WrapDegrees( double degrees )
+{
+	while (degrees <= -180.0) degrees += 360.0;
+	while (degrees > 180.0) degrees -= 360.0;
+	return degrees;
+}
+
+double DegreesToRadians(double d)
+{
+	double dvs = PI/180.0;
+	return d*dvs;
+}
+
+double RadiansToDegrees(double rad)
+{
+	double dvs = 180.0/PI;
+	return rad*dvs;
+}
+
+double DirToRadians(int d)
+{
+	switch(d)
+	{
+		case up:
+			return DegreesToRadians(270);
+		case down:
+			return DegreesToRadians(90);
+		case left:
+			return DegreesToRadians(180);
+		case right:
+			return 0;
+		case 4:
+			return DegreesToRadians(225);
+		case 5:
+			return DegreesToRadians(315);
+		case 6:
+			return DegreesToRadians(135);
+		case 7:
+			return DegreesToRadians(45);
+	}
+	return 0;
+}
+
+double DirToDegrees(int d)
+{
+	switch(d)
+	{
+		case up:
+			return 270;
+		case down:
+			return 90;
+		case left:
+			return 180;
+		case right:
+			return 0;
+		case 4:
+			return 225;
+		case 5:
+			return 315;
+		case 6:
+			return 135;
+		case 7:
+			return 45;
+	}
+	return 0;
+}
+int32_t AngleToDir(double ddir)
+{
+	int32_t lookat=0;
+	
+	if((ddir<=(((-5)*PI)/8))&&(ddir>(((-7)*PI)/8)))
+	{
+		lookat=l_up;
+	}
+	else if((ddir<=(((-3)*PI)/8))&&(ddir>(((-5)*PI)/8)))
+	{
+		lookat=up;
+	}
+	else if((ddir<=(((-1)*PI)/8))&&(ddir>(((-3)*PI)/8)))
+	{
+		lookat=r_up;
+	}
+	else if((ddir<=(((1)*PI)/8))&&(ddir>(((-1)*PI)/8)))
+	{
+		lookat=right;
+	}
+	else if((ddir<=(((3)*PI)/8))&&(ddir>(((1)*PI)/8)))
+	{
+		lookat=r_down;
+	}
+	else if((ddir<=(((5)*PI)/8))&&(ddir>(((3)*PI)/8)))
+	{
+		lookat=down;
+	}
+	else if((ddir<=(((7)*PI)/8))&&(ddir>(((5)*PI)/8)))
+	{
+		lookat=l_down;
+	}
+	else
+	{
+		lookat=left;
+	}
+	return lookat;
+}
+int32_t AngleToDir4(double ddir)
+{
+	int32_t lookat=0;
+	
+	if(ddir <= 135.0 && ddir > 45.0)
+	{
+		lookat = down;
+	}
+	else if(ddir <= 45.0 && ddir > -45.0)
+	{
+		lookat = right;
+	}
+	else if(ddir <= -45.0 && ddir > -135.0)
+	{
+		lookat = up;
+	}
+	else
+	{
+		lookat = left;
+	}
+	return lookat;
+}
+int32_t AngleToDir4Rad(double ddir)
+{
+	int32_t lookat=0;
+	ddir = RadiansToDegrees(ddir);
+	
+	if(ddir <= 135.0 && ddir > 45.0)
+	{
+		lookat = down;
+	}
+	else if(ddir <= 45.0 && ddir > -45.0)
+	{
+		lookat = right;
+	}
+	else if(ddir <= -45.0 && ddir > -135.0)
+	{
+		lookat = up;
+	}
+	else
+	{
+		lookat = left;
+	}
+	return lookat;
+}
+
+
+bool isNextType(int32_t type)
+{
+	switch(type)
+	{
+		case cLIFTSLASHNEXT:
+		case cLIFTSLASHNEXTSPECITEM:
+		case cLIFTSLASHNEXTITEM:
+		case cDIGNEXT:
+		case cLIFTNEXT:
+		case cLIFTNEXTITEM:
+		case cLIFTNEXTSPECITEM:
+		case cSLASHNEXT:
+		case cBUSHNEXT:
+		case cTALLGRASSNEXT:
+		case cSLASHNEXTITEM:
+		case cSLASHNEXTTOUCHY:
+		case cSLASHNEXTITEMTOUCHY:
+		case cBUSHNEXTTOUCHY:
+		{
+			return true;
+		}
+		default: return false;
+	}
+}
+bool isWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return true;
+	}
+	return false;
+}
+int32_t getWarpLetter(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSWIMWARP: case cDIVEWARP: case cPIT:
+		case cAWARPA: case cSWARPA:
+			return 0;
+		case cSTAIRB: case cSWIMWARPB: case cDIVEWARPB: case cPITB:
+		case cAWARPB: case cSWARPB:
+			return 1;
+		case cSTAIRC: case cSWIMWARPC: case cDIVEWARPC: case cPITC:
+		case cAWARPC: case cSWARPC:
+			return 2;
+		case cSTAIRD: case cSWIMWARPD: case cDIVEWARPD: case cPITD:
+		case cAWARPD: case cSWARPD:
+			return 3;
+		case cSTAIRR: case cPITR: case cAWARPR: case cSWARPR:
+			return 4;
+	}
+	return -1;
+}
+int32_t simplifyWarpType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
+			return cSTAIR;
+		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
+			return cSWIMWARP;
+		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
+			return cDIVEWARP;
+		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
+			return cPIT;
+		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
+			return cAWARPA;
+		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
+			return cSWARPA;
+	}
+	return 0;
+}
+bool isStepType(int32_t type)
+{
+	switch(type)
+	{
+		case cSTEP: case cSTEPSAME:
+		case cSTEPALL: case cSTEPCOPY:
+			return true;
+	}
+	return false;
+}
+bool isDamageType(int32_t type)
+{
+	switch(type)
+	{
+		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
+		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
+			return true;
+	}
+	return false;
+}
+
+void zinitdata::clear()
+{
+	memset(items,0,sizeof(items));
+	hc = 0;
+	start_heart = 0;
+	cont_heart = 0;
+	hcp = 0;
+	hcp_per_hc = 4;
+	keys = 0;
+	rupies = 0;
+	triforce = 0;
+	memset(map,0,sizeof(map));
+	memset(compass,0,sizeof(compass));
+	memset(boss_key,0,sizeof(boss_key));
+	memset(misc,0,sizeof(misc));
+	last_map = 0;
+	last_screen = 0;
+	max_magic = 0;
+	magic = 0;
+	bomb_ratio = 4;
+	msg_more_x = 0;
+	msg_more_y = 0;
+	msg_more_is_offset = 0;
+	subscreen = 0;
+	start_dmap = 0;
+	heroAnimationStyle = 0;
+	memset(level_keys,0,sizeof(level_keys));
+	ss_grid_x = 0;
+	ss_grid_y = 0;
+	ss_grid_xofs = 0;
+	ss_grid_yofs = 0;
+	ss_grid_color = 0;
+	ss_bbox_1_color = 0;
+	ss_bbox_2_color = 0;
+	ss_flags = 0;
+	
+	subscreen_style = 0;
+	usecustomsfx = 0;
+	max_rupees = 255;
+	max_keys = 255;
+	gravity = 0;
+	gravity2 = 0;
+	terminalv = 0;
+	msg_speed = 0;
+	transition_type = 0;
+	jump_hero_layer_threshold = 0;
+	hero_swim_speed = 0;
+	
+	bombs = 0;
+	super_bombs = 0;
+	max_bombs = 0;
+	max_sbombs = 0;
+	arrows = 0;
+	max_arrows = 0;
+	heroStep = 0;
+	subscrSpeed = 0;
+	heroSideswimUpStep = 0;
+	heroSideswimSideStep = 0;
+	heroSideswimDownStep = 0;
+	
+	exitWaterJump = 0;
+
+	hp_per_heart = 0;
+	magic_per_block = 0;
+	hero_damage_multiplier = 0;
+	ene_damage_multiplier = 0;
+	
+	memset(scrcnt,0,sizeof(scrcnt));
+	memset(scrmaxcnt,0,sizeof(scrmaxcnt));
+	
+	swimgravity = 0;
+	
+	dither_type = 0;
+	dither_arg = 0;
+	dither_percent = 0;
+	def_lightrad = 0;
+	transdark_percent = 0;
+	darkcol = 0;
+	
+	bunny_ltm = 0;
+	switchhookstyle = 0;
+	
+	magicdrainrate = 0;
+	
+	memset(gen_doscript,0,sizeof(gen_doscript));
+	memset(gen_exitState,0,sizeof(gen_exitState));
+	memset(gen_reloadState,0,sizeof(gen_reloadState));
+	memset(gen_initd,0,sizeof(gen_initd));
+	memset(gen_dataSize,0,sizeof(gen_dataSize));
+	for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		gen_data[q].clear();
+	}
+	memset(gen_eventstate,0,sizeof(gen_eventstate));
+}
+
+void zinitdata::copy(zinitdata const& other)
+{
+	memcpy(items,other.items,sizeof(items));
+	hc = other.hc;
+	start_heart = other.start_heart;
+	cont_heart = other.cont_heart;
+	hcp = other.hcp;
+	hcp_per_hc = other.hcp_per_hc;
+	keys = other.keys;
+	rupies = other.rupies;
+	triforce = other.triforce;
+	memcpy(map,other.map,sizeof(map));
+	memcpy(compass,other.compass,sizeof(compass));
+	memcpy(boss_key,other.boss_key,sizeof(boss_key));
+	memcpy(misc,other.misc,sizeof(misc));
+	last_map = other.last_map;
+	last_screen = other.last_screen;
+	max_magic = other.max_magic;
+	magic = other.magic;
+	bomb_ratio = other.bomb_ratio;
+	msg_more_x = other.msg_more_x;
+	msg_more_y = other.msg_more_y;
+	msg_more_is_offset = other.msg_more_is_offset;
+	subscreen = other.subscreen;
+	start_dmap = other.start_dmap;
+	heroAnimationStyle = other.heroAnimationStyle;
+	memcpy(level_keys,other.level_keys,sizeof(level_keys));
+	ss_grid_x = other.ss_grid_x;
+	ss_grid_y = other.ss_grid_y;
+	ss_grid_xofs = other.ss_grid_xofs;
+	ss_grid_yofs = other.ss_grid_yofs;
+	ss_grid_color = other.ss_grid_color;
+	ss_bbox_1_color = other.ss_bbox_1_color;
+	ss_bbox_2_color = other.ss_bbox_2_color;
+	ss_flags = other.ss_flags;
+	
+	subscreen_style = other.subscreen_style;
+	usecustomsfx = other.usecustomsfx;
+	max_rupees = other.max_rupees;
+	max_keys = other.max_keys;
+	gravity = other.gravity;
+	gravity2 = other.gravity2;
+	terminalv = other.terminalv;
+	msg_speed = other.msg_speed;
+	transition_type = other.transition_type;
+	jump_hero_layer_threshold = other.jump_hero_layer_threshold;
+	hero_swim_speed = other.hero_swim_speed;
+	
+	bombs = other.bombs;
+	super_bombs = other.super_bombs;
+	max_bombs = other.max_bombs;
+	max_sbombs = other.max_sbombs;
+	arrows = other.arrows;
+	max_arrows = other.max_arrows;
+	heroStep = other.heroStep;
+	subscrSpeed = other.subscrSpeed;
+	heroSideswimUpStep = other.heroSideswimUpStep;
+	heroSideswimSideStep = other.heroSideswimSideStep;
+	heroSideswimDownStep = other.heroSideswimDownStep;
+	
+	exitWaterJump = other.exitWaterJump;
+
+	hp_per_heart = other.hp_per_heart;
+	magic_per_block = other.magic_per_block;
+	hero_damage_multiplier = other.hero_damage_multiplier;
+	ene_damage_multiplier = other.ene_damage_multiplier;
+	
+	memcpy(scrcnt,other.scrcnt,sizeof(scrcnt));
+	memcpy(scrmaxcnt,other.scrmaxcnt,sizeof(scrmaxcnt));
+	
+	swimgravity = other.swimgravity;
+	
+	dither_type = other.dither_type;
+	dither_arg = other.dither_arg;
+	dither_percent = other.dither_percent;
+	def_lightrad = other.def_lightrad;
+	transdark_percent = other.transdark_percent;
+	darkcol = other.darkcol;
+	
+	bunny_ltm = other.bunny_ltm;
+	switchhookstyle = other.switchhookstyle;
+	
+	magicdrainrate = other.magicdrainrate;
+	
+	memcpy(gen_doscript,other.gen_doscript,sizeof(gen_doscript));
+	memcpy(gen_exitState,other.gen_exitState,sizeof(gen_exitState));
+	memcpy(gen_reloadState,other.gen_reloadState,sizeof(gen_reloadState));
+	memcpy(gen_initd,other.gen_initd,sizeof(gen_initd));
+	memcpy(gen_dataSize,other.gen_dataSize,sizeof(gen_dataSize));
+	for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
+	{
+		gen_data[q].clear();
+		if(other.gen_data[q].size())
+			gen_data[q] = other.gen_data[q];
+	}
+	memcpy(gen_eventstate,other.gen_eventstate,sizeof(gen_eventstate));
+}
+
 

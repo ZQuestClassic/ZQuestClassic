@@ -43,7 +43,6 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 	
 	return Window(
 		title = "Combo Damage Convert",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Columns<9>(
 			Label

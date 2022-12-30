@@ -1,0 +1,120 @@
+body {
+    background-color: rgb(32, 30, 30);
+    color: white;
+    margin: 0;
+    padding: 0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+img {
+    image-rendering: pixelated;
+    aspect-ratio: 4/3;
+}
+
+.compare-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.snapshot-tracks {
+    display: inline-flex;
+    gap: 10px;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.snapshot-tracks::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 0;
+    height: 0;
+}
+
+.track-frame-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    height: fit-content;
+}
+
+.track-frame-container--skip {
+    background-color: #9f9726;
+    color: #9f9726;
+    width: 5px;
+    height: 100%;
+}
+
+.track-frame {
+    width: 256px;
+    height: 224px;
+}
+
+.track-frame--source {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    padding: 5px;
+}
+
+.track-frame-present {}
+
+.track-frame-missing {
+    background-color: rgb(139, 105, 105);
+}
+
+.track-frame__ok {
+    background-color: green;
+    height: 15px;
+}
+
+.track-frame__unexpected {
+    background-color: red;
+    height: 15px;
+}
+
+.track-frame__image {}
+
+.track-frame-number {}
+.track-frame-number--unexpected {
+    background-color: red;
+}
+
+.frame-view {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    height: 100%;
+}
+
+.frame-view img {
+    object-fit: contain;
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+
+.toolbar__options {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.replay-title {
+    font-weight: bold;
+    width: 50%;
+    overflow-x: auto;
+    white-space: nowrap;
+}

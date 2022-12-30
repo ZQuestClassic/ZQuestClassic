@@ -1,6 +1,120 @@
 // 2.55 Change Log
 // Updated 23rd Oct, 2022
 
+// Alpha 112
+
+Refactor configs to only make a config file when the user changes configs in ZC/ZQuest; 
+	allows copying over entire folder with a nightly while still remembering your old settings
+Negative array accessors from Python; allows using negative numbers in an array to get that 
+	many indexes away from the max of the array.
+	( EmilyV, 5th Dec, 2022 )
+
+Use new library for MP3s, less buggy MP3s
+Various fixes
+Improve ZScript docs for Input, Hold, and Button
+	( connorjclark, 3rd Dec, 2022 )
+
+Fix max rupees and keys in Init Data
+	( EmilyV, 1st Dec, 2022 )
+
+Change default controls
+	( Deedee, 1st Dec, 2022 )
+
+Global Symbols Refactor
+Fix Quit dialogue not popping up while paused
+	( EmilyV, 30th Nov, 2022 )
+
+Made FFCs work with Hookshots, SwitchHooks, and Light Triggers
+Made FFCs work with the Triggers tab
+	( Deedee, 30th Nov, 2022 )
+
+Entire rendering refactor
+Replay fixes
+	( connorjclark, 29th Nov, 2022 )
+
+Add %b and %B to printf
+	( EmilyV, 28th Nov, 2022 )
+
+Generic script init data
+	( EmilyV, 27th Nov, 2022 )
+
+Quest rule search window
+	( EmilyV, 26th Nov, 2022 )
+
+Replay fixes
+	( connorjclark, 26th Nov, 2022 )
+
+Backwards compat fixes
+	( Deedee, 26th Nov, 2022 )
+
+Added slopes, stairs, and diagonal walls
+	( Deedee, 25th Nov, 2022 )
+
+Added Combo Wizard to help with setting up combos
+	( EmilyV, 25th Nov, 2022 )
+
+Allow using playerdata cheats while recording replays
+	( connorjclark, 22nd Nov, 2022 )
+
+Added Solid FFCs
+Bump FFC count up to 128
+	( Deedee and Emily, 22nd Nov, 2022 )
+
+Fix old quests not properly having item costs for bombs and arrays
+	( EmilyV, 17th Nov, 2022 )
+
+Replay fixes
+	( connorjclark, 16th Nov, 2022 )
+
+Added Paldata access in scripts; allows mixing and blending palettes and read/write access to quest palettes via script.
+	( Moosh, 15th Nov, 2022 )
+
+Fix lag when starting up ZC
+	( Deedee, 13th Nov, 2022 )
+
+Fix crash on floodfilling placed flags
+Fix large enemy movement
+	( EmilyV, 13th Nov, 2022 )
+
+Fix palette flickering when changing palettes
+	( Deedee, 11th Nov, 2022 )
+
+New Config Options for remembering the last size and position of the program
+	( Deedee, 9th Nov, 2022 )
+
+Fix PNG/GIF import/export problems
+	( connorjclark, 8th Nov, 2022 )
+
+ZC and ZQ now obey windows scaling properly
+	( Deedee, 8th Nov, 2022 )
+
+Replay fixes
+	( connorjclark, 4th Nov, 2022 )
+
+Add Class Objects to ZScript
+	( EmilyV, 29th Oct, 2022 )
+
+Fix spacebar map setting screen states
+	( Deedee, 26th Oct, 2022 )
+
+Combo, FFC, and Item scripts now use variable names for InitD and can now have help text specified in their respective editors
+InitD values automatically swap input type based on script metadata and InitD variable types
+	( EmilyV, 26th Oct, 2022 )
+
+Added snapshot mode to replay. This allows you to specify specific frames at which ZC will 
+	automatically take a screenshot during replay playback.
+	( connorjclark, 25th Oct, 2022 )
+
+Combo editor can change names of attributes/bytes/shorts and flags based on script metadata of currently selected script
+	( EmilyV, 25th Oct, 2022 )
+
+Merged web port
+	( connorjclark, 24th Oct, 2022 )
+
+Fix import header guard issue with same-name files
+Fix string wrap breaking after multiple spaces in a row
+	( EmilyV, 24th Oct, 2022 )
+
 // Alpha 111
 
 Fix shadows not drawing on enemies that do not 'Obey Gravity'.

@@ -16,7 +16,6 @@ src/zq/zq_sprite.cpp
 src/zq/zq_subscr.cpp
 src/zq/zq_strings.cpp
 src/zq/zq_tiles.cpp
-src/zqscale.cpp
 src/play_midi.cpp
 src/jwin.cpp
 
@@ -55,6 +54,7 @@ src/dialog/bottletype.cpp
 src/dialog/bottleshop.cpp
 src/dialog/spritedata.cpp
 src/dialog/comboeditor.cpp
+src/dialog/combowizard.cpp
 src/dialog/misc_sfx.cpp
 src/dialog/misc_sprs.cpp
 src/dialog/scaletile.cpp
@@ -67,6 +67,8 @@ src/dialog/stringcontrolcode.cpp
 src/dialog/waterpit_convert.cpp
 src/dialog/vidmode.cpp
 src/dialog/combopool.cpp
+src/dialog/compilezscript.cpp
+src/dialog/vectorpick.cpp
 
 
 ## End of ZQuest GUI module

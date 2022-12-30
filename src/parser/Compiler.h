@@ -10,6 +10,7 @@
 #include "Types.h"
 #include "parserDefs.h"
 #include "ffasmexport.h"
+#include "ffasm.h"
 
 #include <cstdio>
 #include <map>
@@ -45,8 +46,8 @@ namespace ZScript
 	public:
 		Opcode() : label(-1) {}
 		virtual ~Opcode() {}
-		virtual std::string toString()=0;
-		int32_t getLabel()
+		virtual std::string toString() const = 0;
+		int32_t getLabel() const
 		{
 			return label;
 		}
@@ -64,15 +65,16 @@ namespace ZScript
 			sprintf(&buf[0], "l%d:", label);
 			return (showlabel ? std::string(&buf[0]) : " ")+ toString() + "\n";
 		}
-		Opcode * makeClone()
+		Opcode * makeClone(bool copylabel = true)
 		{
 			Opcode *dup = clone();
-			dup->setLabel(label);
+			if(copylabel)
+				dup->setLabel(label);
 			return dup;
 		}
 		virtual void execute(ArgumentVisitor&, void*) {}
 	protected:
-		virtual Opcode *clone()=0;
+		virtual Opcode *clone() const = 0;
 	private:
 		int32_t label;
 	};
@@ -83,11 +85,11 @@ namespace ZScript
 		ArbitraryOpcode(std::string data) : str(data) {}
 		ArbitraryOpcode(char const* data) : str(data) {}
 		std::string str;
-		std::string toString()
+		std::string toString() const
 		{
 			return str;
 		}
-		Opcode *clone()
+		Opcode *clone() const
 		{
 			return new ArbitraryOpcode(str);
 		}
@@ -116,6 +118,25 @@ namespace ZScript
 		}
 		disassembled_script_data() : format(SCRIPT_FORMAT_DEFAULT)
 		{}
+		void write(FILE* dest, bool al = false, bool spaced = false) const
+		{
+			std::string str = first.get_meta();
+			if(spaced) fwrite("\n\n", sizeof(char), 2, dest);
+			fwrite(str.c_str(), sizeof(char), str.size(), dest);
+			if(al)
+			{
+				al_trace("\n\n");
+				safe_al_trace(str.c_str());
+				al_trace("\n");
+			}
+			for(auto& line : second)
+			{
+				str = line->printLine();
+				if(al)
+					al_trace("%s",str.c_str());
+				fwrite(str.c_str(), sizeof(char), str.size(), dest);
+			}
+		}
 	};
 
 	class ScriptsData
@@ -168,6 +189,18 @@ namespace ZScript
 		static int32_t gid;
 		static int32_t lid;
 		static std::vector<std::string> includePaths;
+	};
+
+	class compile_exception : public std::exception
+	{
+	public:
+		const char * what() const noexcept override {
+			return msg.c_str();
+		}
+		compile_exception(std::string const& msg) : msg(msg)
+		{}
+	private:
+		std::string msg;
 	};
 }
 

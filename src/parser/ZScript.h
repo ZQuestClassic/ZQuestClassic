@@ -320,12 +320,15 @@ namespace ZScript
 		UserClass* getClass() const {return &(scope.getClass()->user_class);}
 		int32_t getIndex() const {return _index;}
 		void setIndex(int32_t ind) {_index = ind;}
+		int32_t getOrder() const {return _order_ind;}
+		void setOrder(int32_t ind) {_order_ind = ind;}
 		
 		bool is_arr;
 	private:
 		UserClassVar(Scope& scope, ASTDataDecl& node, DataType const& type);
 		
 		int32_t _index;
+		int32_t _order_ind;
 		ASTDataDecl& node;
 	};
 
@@ -427,8 +430,9 @@ namespace ZScript
 		~Function();
 		
 		DataType const* returnType;
-		std::string name;
+		std::string name, info;
 		bool hasPrefixType;
+		byte extra_vargs;
 		std::vector<DataType const*> paramTypes;
 		std::vector<std::string const*> paramNames;
 		std::vector<int32_t> opt_vals;
@@ -471,10 +475,14 @@ namespace ZScript
 		bool prototype;
 		ASTExprConst* defaultReturn;
 		
+		bool shouldShowDepr(bool err) const;
+		void ShownDepr(bool err);
+		
 	private:
 		mutable std::optional<int32_t> label;
 		mutable std::optional<int32_t> altlabel;
 		int32_t flags;
+		byte shown_depr;
 
 		// Code implementing this function.
 		std::vector<std::shared_ptr<Opcode>> ownedCode;

@@ -47,7 +47,6 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 
 	return Window(
 		title = "Header",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Row(

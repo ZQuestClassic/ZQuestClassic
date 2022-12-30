@@ -14,7 +14,6 @@ std::shared_ptr<GUI::Widget> ScaleTileDialog::view()
 
 	return Window(
 		title = "Scale Tile",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Columns<2>(

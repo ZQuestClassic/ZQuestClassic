@@ -4,9 +4,10 @@
 
 #include <set>
 #include "CompileError.h"
-#include "GlobalSymbols.h"
+#include "LibrarySymbols.h"
 #include "Types.h"
 #include "ZScript.h"
+#include <sstream>
 
 using namespace ZScript;
 using namespace util;
@@ -527,25 +528,42 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			it = functions.erase(it);
 			continue;
 		}
+		bool vargs = function.getFlag(FUNCFLAG_VARARGS);
 		
 		auto targetSize = parameterTypes.size();
 		auto maxSize = function.paramTypes.size();
 		auto minSize = maxSize - function.opt_vals.size();
 		// Match against parameter count, including std::optional params.
-		if (maxSize < targetSize || minSize > targetSize)
+		if (minSize > targetSize || (!vargs && maxSize < targetSize))
 		{
 			it = functions.erase(it);
 			continue;
 		}
-
+		auto lowsize = zc_min(maxSize, parameterTypes.size());
 		// Check parameter types.
 		bool parametersMatch = true;
-		for (size_t i = 0; i < parameterTypes.size(); ++i)
+		if(function.getFlag(FUNCFLAG_NOCAST)) //no casting params
 		{
-			if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+			Scope* scope = function.internalScope;
+			for (size_t i = 0; i < lowsize; ++i)
 			{
-				parametersMatch = false;
-				break;
+				if (getNaiveType(*parameterTypes[i],scope)
+					!= getNaiveType(*function.paramTypes[i],scope))
+				{
+					parametersMatch = false;
+					break;
+				}
+			}
+		}
+		else
+		{
+			for (size_t i = 0; i < lowsize; ++i)
+			{
+				if (!parameterTypes[i]->canCastTo(*function.paramTypes[i]))
+				{
+					parametersMatch = false;
+					break;
+				}
 			}
 		}
 		if (!parametersMatch)
@@ -995,7 +1013,7 @@ Function* BasicScope::addGetter(
 	if (find<Function*>(getters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
 	getters_[name] = fun;
 	return fun;
 }
@@ -1007,7 +1025,7 @@ Function* BasicScope::addSetter(
 	if (find<Function*>(setters_, name)) return NULL;
 
 	Function* fun = new Function(
-			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID());
+			returnType, name, paramTypes, paramNames, ScriptParser::getUniqueFuncID(), flags);
 	setters_[name] = fun;
 	return fun;
 }
@@ -1326,19 +1344,39 @@ namespace // file local
 RootScope::RootScope(TypeStore& typeStore)
 	: BasicScope(typeStore, "root")
 {
-	// Add global library functions.
-    GlobalSymbols::getInst().addSymbolsToScope(*this);
-
-	// Create builtin classes (not primitives like void, float, and bool).
-	for (DataTypeId typeId = ZVARTYPEID_CLASS_START;
-	     typeId < ZVARTYPEID_CLASS_END; ++typeId)
+	std::ostringstream errorstream;
+	
+	try
 	{
-		DataTypeClass const& type =
-			*static_cast<DataTypeClass const*>(DataType::get(typeId));
-		ZClass& klass = *typeStore.getClass(type.getClassId());
-		LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
-		library.addSymbolsToScope(klass);
+		// Add global library functions.
+		GlobalSymbols::getInst().addSymbolsToScope(*this);
 	}
+	catch(std::exception &e)
+	{
+		errorstream << e.what() << '\n';
+	}
+	
+	// Create builtin classes (not primitives like void, float, and bool).
+	for (DataTypeId typeId = ZTID_CLASS_START;
+	     typeId < ZTID_CLASS_END; ++typeId)
+	{
+		try
+		{
+			DataTypeClass const& type =
+				*static_cast<DataTypeClass const*>(DataType::get(typeId));
+			ZClass& klass = *typeStore.getClass(type.getClassId());
+			LibrarySymbols& library = *LibrarySymbols::getTypeInstance(typeId);
+			library.addSymbolsToScope(klass);
+		}
+		catch(std::exception &e)
+		{
+			errorstream << e.what() << '\n';
+		}
+	}
+	
+	std::string errors = errorstream.str();
+	if(!errors.empty())
+		throw compile_exception(errors);
 
 	// Add builtin pointers.
 	BuiltinConstant::create(*this, DataType::PLAYER, "Link", 1);
@@ -1364,8 +1402,8 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 1);
 	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 1);
 	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 1);
-	BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
-	BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
+	//BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
+	//BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
 	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 1);
 	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 1);
 	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 1);
@@ -1659,6 +1697,7 @@ bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 				return false;
 			}
 			classData_[*name] = ucv;
+			ucv->setOrder(classData_.size());
 			if (!ZScript::isGlobal(datum))
 			{
 				stackOffsets_[&datum] = stackDepth_++;
@@ -1674,13 +1713,20 @@ bool ClassScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 void ClassScope::parse_ucv()
 {
 	std::vector<UserClassVar*> ucvs = getSeconds<UserClassVar*>(classData_);
-	int32_t ind = 0;
+	
+	//Sort them in proper order, or access will be wrong
+	std::map<int32_t,UserClassVar*> ucv_map;
 	for(auto ucv : ucvs)
+		ucv_map[ucv->getOrder()] = ucv;
+	ucvs = getSeconds<UserClassVar*>(ucv_map);
+	
+	int32_t ind = 0;
+	for(auto ucv : ucvs) //Variables first
 	{
 		if(ucv->type.isArray()) continue;
 		ucv->setIndex(ind++);
 	}
-	for(auto ucv : ucvs)
+	for(auto ucv : ucvs) //Then arrays
 	{
 		if(!ucv->type.isArray()) continue;
 		ucv->setIndex(ind++);

@@ -69,7 +69,11 @@ process_killer launch_process(std::string file, const std::vector<std::string>& 
 #else
 	std::vector<char*> argv = create_argv_unix(file, args);
 	pid_t pid;
+#ifdef ALLEGRO_LINUX
+	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), environ);
+#else
 	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), NULL);
+#endif
 	for (auto arg : argv) free(arg);
 	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0);
 	return process_killer(pid);
@@ -148,7 +152,11 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 
 	std::vector<char*> argv = create_argv_unix(file, args);
 	pid_t child_pid;
+#ifdef ALLEGRO_LINUX
+	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), environ);
+#else
 	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), NULL);
+#endif
 	if (s != 0) ERR_EXIT("Failed posix_spawn", pm);
 	
 	pm->read_handle = pdes_r[0];
@@ -160,3 +168,25 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 #endif
 }
 
+void launch_file(std::string const& file)
+{
+#ifdef _WIN32
+	char path_buf[2048];
+	GetCurrentDirectory(2047, path_buf);
+	//trim trailing slashes
+	for (int32_t q = strlen(path_buf) - 1; q >= 0; --q)
+	{
+		if (path_buf[q] == '/' || path_buf[q] == '\\')
+			path_buf[q] = 0;
+		else break;
+	}
+	strcat(path_buf, "\\\\");
+	strcat(path_buf, file.c_str());
+	ShellExecute(0, 0, path_buf, 0, 0, SW_NORMAL);
+#elif defined(__EMSCRIPTEN__)
+	// TODO
+#else
+	std::string command = "open " + file;
+	system(command.c_str());
+#endif
+}

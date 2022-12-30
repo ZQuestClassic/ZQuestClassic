@@ -28,6 +28,7 @@ using std::getline;
 #include <conio.h>
 #endif
 
+#include "zsyssimple.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "zc_sys.h"
@@ -43,13 +44,11 @@ using std::getline;
 #endif
 
 extern volatile int32_t myvsync;
-extern int32_t zqwin_scale;
 extern bool update_hw_pal;
 void update_hw_screen(bool force);
 
 CConsoleLoggerEx zscript_coloured_console;
 extern bool is_zquest();
-bool zconsole = false;
 
 char *time_str_long(dword time)
 {
@@ -288,7 +287,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
 }
 
 
-void Z_error_fatal(const char *format,...)
+[[noreturn]] void Z_error_fatal(const char *format,...)
 {
     char buf[256];
     
@@ -299,6 +298,11 @@ void Z_error_fatal(const char *format,...)
     
 #if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
+#elif defined(ALLEGRO_WINDOWS)
+	if (!zscript_coloured_console.valid())
+	{
+		MessageBoxA(NULL, buf, "Zelda Classic", MB_OK | MB_ICONERROR);
+	}
 #endif
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
@@ -338,8 +342,6 @@ void Z_message(const char *format,...)
     al_trace("%s",buf);
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
-    if(zconsole)
-        printf("%s",buf);
 }
 
 void Z_title(const char *format,...)
@@ -383,9 +385,6 @@ void Z_title(const char *format,...)
 #else
     al_trace("%s\n",buf);
     
-    if(zconsole)
-        printf("%s\n",buf);
-    
 #endif
 	
     if(zscript_coloured_console.valid())
@@ -411,10 +410,6 @@ void zprint(const char * const format,...)
 		va_end(ap);
 		al_trace("%s",buf);
 		
-		if(zconsole)
-		{
-			printf("%s",buf);
-		}
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 	}
@@ -430,10 +425,6 @@ void zprint2(const char * const format,...)
 	va_end(ap);
 	safe_al_trace(buf);
 	
-	if(zconsole)
-	{
-		printf("%s",buf);
-	}
 	zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"%s",buf);
 }
@@ -975,15 +966,7 @@ void copy_file(const char *src, const char *dest)
     fclose(fin);
     fclose(fout);
 }
-/*
-#define BOX_W     MIN(512, SCREEN_W-16)
-#define BOX_H     MIN(256, (SCREEN_H-64)&0xFFF0)
 
-#define BOX_L     ((SCREEN_W - BOX_W) / 2)
-#define BOX_R     ((SCREEN_W + BOX_W) / 2)
-#define BOX_T     ((SCREEN_H - BOX_H) / 2)
-#define BOX_B     ((SCREEN_H + BOX_H) / 2)
-*/
 static int32_t box_x = 0;
 static int32_t box_y = 0;
 static bool box_active=false;
@@ -1034,14 +1017,8 @@ int32_t onSnapshot2()
 
 void set_default_box_size()
 {
-    int32_t screen_w=SCREEN_W;
-    int32_t screen_h=SCREEN_H;
-    
-    if(zqwin_scale>1)
-    {
-        screen_w/=zqwin_scale;
-        screen_h/=zqwin_scale;
-    }
+    int32_t screen_w = screen->w;
+    int32_t screen_h = screen->h;
     
     box_w=MIN(512, screen_w-16);
     box_h=MIN(256, (screen_h-64)&0xFFF0);
@@ -1054,14 +1031,9 @@ void set_default_box_size()
 /* resizes the box */
 void set_box_size(int32_t w, int32_t h)
 {
-	int32_t screen_w=SCREEN_W;
-	int32_t screen_h=SCREEN_H;
+	int32_t screen_w = screen->w;
+	int32_t screen_h = screen->h;
 	
-	if(zqwin_scale>1)
-	{
-		screen_w/=zqwin_scale;
-		screen_h/=zqwin_scale;
-	}
 	if(w <= 0) w = 512;
 	if(h <= 0) h = 256;
 	box_w=MIN(w, screen_w-16);
@@ -1159,7 +1131,7 @@ void box_out(const char *msg)
             stretch_blit(tempbit, screen, 0, 0, length, box_message_height/box_text_scale, box_l+8+box_x, box_t+(box_y+1)*box_message_height, length*box_text_scale, box_message_height);
             destroy_bitmap(tempbit);
         }
-        set_clip_rect(screen, 0, 0, SCREEN_W-1, SCREEN_H-1);
+        set_clip_rect(screen, 0, 0, screen->w-1, screen->h-1);
         unscare_mouse();
         remainder = temp.substr(i,temp.size()-i);
     }
@@ -2467,7 +2439,10 @@ int32_t zc_trace_handler(const char * msg)
     // printf("%s", msg);
     if(trace_file == 0)
     {
-        trace_file = fopen("allegro.log", "a+");
+        if (getenv("ALLEGRO_LEGACY_TRACE"))
+            trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "a+");
+        else
+            trace_file = fopen("allegro.log", "a+");
         
         if(0==trace_file)
         {
@@ -2487,7 +2462,10 @@ void zc_trace_clear()
         fclose(trace_file);
     }
     
-    trace_file = fopen("allegro.log", "w");
+    if (getenv("ALLEGRO_LEGACY_TRACE"))
+        trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "w");
+    else
+        trace_file = fopen("allegro.log", "w");
     ASSERT(trace_file);
 }
 

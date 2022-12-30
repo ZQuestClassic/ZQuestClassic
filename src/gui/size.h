@@ -63,6 +63,11 @@ public:
 		return Size(value*v);
 	}
 	
+	inline constexpr Size operator*(const double v) const noexcept
+	{
+		return Size(int32_t(value*v));
+	}
+	
 	inline constexpr Size operator*(const Size& other) const noexcept
 	{
 		return Size(value*other.value);
@@ -75,6 +80,11 @@ public:
 	inline constexpr Size operator/(const int32_t v) const noexcept
 	{
 		return Size(value/v);
+	}
+	
+	inline constexpr Size operator/(const double v) const noexcept
+	{
+		return Size(int32_t(value/v));
 	}
 	
 	inline constexpr Size operator/(const Size& other) const noexcept
@@ -93,10 +103,34 @@ public:
 	{
 		return value < other.value;
 	}
+	inline constexpr bool operator<(int32_t val) const noexcept
+	{
+		return value < val;
+	}
+	inline constexpr bool operator<=(const Size& other) const noexcept
+	{
+		return value <= other.value;
+	}
+	inline constexpr bool operator<=(int32_t val) const noexcept
+	{
+		return value <= val;
+	}
 
 	inline constexpr bool operator>(const Size& other) const noexcept
 	{
 		return value > other.value;
+	}
+	inline constexpr bool operator>(int32_t val) const noexcept
+	{
+		return value > val;
+	}
+	inline constexpr bool operator>=(const Size& other) const noexcept
+	{
+		return value >= other.value;
+	}
+	inline constexpr bool operator>=(int32_t val) const noexcept
+	{
+		return value >= val;
 	}
 
 	inline constexpr bool operator==(const Size& other) const noexcept
@@ -109,6 +143,27 @@ public:
 		return value != other.value;
 	}
 
+	inline Size& operator-=(Size const& other)
+	{
+		value -= other.value;
+		return *this;
+	}
+	inline Size& operator-=(int32_t val)
+	{
+		value -= val;
+		return *this;
+	}
+	inline Size& operator+=(Size const& other)
+	{
+		value += other.value;
+		return *this;
+	}
+	inline Size& operator+=(int32_t val)
+	{
+		value += val;
+		return *this;
+	}
+
 private:
 	int32_t value;
 
@@ -117,7 +172,7 @@ private:
     static Size sized(int32_t size) noexcept;
 };
 
-inline Size operator ""_em(uint64_t size)
+inline Size operator ""_em(unsigned long long int size)
 {
 	return Size::em(size);
 }
@@ -127,17 +182,17 @@ inline Size operator ""_em(long double size)
 	return Size::em(size);
 }
 
-inline constexpr Size operator ""_px(uint64_t size)
+inline constexpr Size operator ""_px(unsigned long long int size)
 {
 	return Size::pixels(size);
 }
 
-inline Size operator ""_lpx(uint64_t size)
+inline Size operator ""_lpx(unsigned long long int size)
 {
 	return Size::largePixels(size);
 }
 
-inline Size operator ""_spx(uint64_t size)
+inline Size operator ""_spx(unsigned long long int size)
 {
 	return Size::smallPixels(size);
 }

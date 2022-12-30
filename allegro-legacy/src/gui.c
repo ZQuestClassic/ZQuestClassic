@@ -55,6 +55,7 @@ static MENU_PLAYER *active_menu_player = NULL;
 static int active_menu_player_zombie = FALSE;
 DIALOG *active_dialog = NULL;
 MENU *active_menu = NULL;
+int dialog_count = 0;
 
 
 static BITMAP *gui_screen = NULL;
@@ -338,14 +339,14 @@ int object_message(DIALOG *dialog, int msg, int c)
       if (dialog->flags & D_HIDDEN)
 	 return D_O_K;
 
-#ifdef ALLEGRO_LEGACY_WINDOWS
-      if (dialog->proc == _d_clear_proc)
-#else
-      if (dialog->proc == d_clear_proc)
-#endif
-	 scare_mouse();
-      else
-	 scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
+// #ifdef ALLEGRO_LEGACY_WINDOWS
+//       if (dialog->proc == _d_clear_proc)
+// #else
+//       if (dialog->proc == d_clear_proc)
+// #endif
+// 	 scare_mouse();
+//       else
+// 	 scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
 
       acquire_screen();
    }
@@ -354,7 +355,7 @@ int object_message(DIALOG *dialog, int msg, int c)
 
    if (msg == MSG_DRAW) {
       release_screen();
-      unscare_mouse();
+      // unscare_mouse();
    }
 
    if (ret & D_REDRAWME) {
@@ -880,6 +881,8 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
    int c;
    ASSERT(dialog);
 
+   dialog_count += 1;
+
    /* close any menu opened by a d_menu_proc */
    if (active_menu_player)
       object_message(active_menu_player->dialog, MSG_LOSTMOUSE, 0);
@@ -1347,6 +1350,8 @@ int shutdown_dialog(DIALOG_PLAYER *player)
    struct al_active_dialog_player *iter, *prev;
    int obj;
    ASSERT(player);
+
+   dialog_count -= 1;
 
    /* send the finish messages */
    dialog_message(player->dialog, MSG_END, 0, &player->obj);

@@ -40,7 +40,6 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 
 	return Window(
 		title = std::move(dlgTitle),
-		onEnter = 0,
 		onClose = 0,
 		hPadding = 0_px, 
 		Column(

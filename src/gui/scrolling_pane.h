@@ -24,6 +24,10 @@ public:
 	{
 		content = std::move(newContent);
 	}
+	inline void setTargHeight(Size const& sz) noexcept
+	{
+		targHei = sz;
+	}
 	void setPtr(int32_t* ptr);
 
 private:
@@ -37,12 +41,14 @@ private:
 	mousePosFunc* oldMouseX;
 	mousePosFunc* oldMouseY;
 	int32_t* scrollptr;
+	Size targHei;
 
 	void scroll(int32_t amount) noexcept;
 	bool scrollToShowChild(int32_t childPos);
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void calculateSize() override;
+	void growToTarget();
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 

@@ -14,11 +14,14 @@ src/md5.cpp
 src/particles.cpp
 src/qst.cpp
 src/sprite.cpp
+src/solidobject.cpp
 src/subscr.cpp
 src/zc/zc_custom.cpp
 src/init.cpp
 src/zinfo.cpp
 src/zconfig.cpp
+src/ffc.cpp
+src/slopes.cpp
 
 ## End of ZQuest Core module
 )

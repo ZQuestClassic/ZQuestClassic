@@ -263,7 +263,7 @@ char *gamedata::get_name()
 {
     return _name;
 }
-void gamedata::set_name(char *n)
+void gamedata::set_name(const char *n)
 {
     strncpy(_name, n, 8);
     _name[8]='\0';
@@ -1159,6 +1159,15 @@ void gamedata::clear_portal()
 	portalsfx = 0;
 	portalwarpfx = 0;
 	portalspr = 0;
+}
+
+bool gamedata::should_show_time()
+{
+	// Drawing the time makes manually updating replays much more difficult.
+	if (replay_is_active() && replay_is_debug())
+		return false;
+
+	return get_timevalid() && !did_cheat() && get_bit(quest_rules,qr_TIME);
 }
 
 /*** end of gamedata.cpp ***/

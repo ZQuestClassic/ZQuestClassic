@@ -999,7 +999,7 @@ void build_biic_list()
 		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
 		char const* itname = ZI.getItemClassName(i);
-        if(i < itype_last || itname[0] != NULL )
+        if(i < itype_last || itname[0] != 0 )
 		{
             char* name = new char[strlen(itname) + 7];
             sprintf(name, "%s (%03d)", itname, i);
@@ -1075,7 +1075,7 @@ const char *familylist(int32_t index, int32_t *list_size)
 // to modify the max counter. BUT the counter value should NOT be updated, ie, starting with
 // the bomb item does not give 8 free bombs at quest start.
 // I don't like this solution one bit, but can't come up with anything better -DD
-void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
+void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 {
     game2->set_life(zc_max(1,zinit2->start_heart)*zinit2->hp_per_heart);
     game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
@@ -1091,7 +1091,8 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
-            getitem(i,true,false);
+            if (!game2->get_item(i))
+                getitem(i,true,false);
         }
         else
             game2->set_item_no_flush(i,false);
@@ -1143,7 +1144,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
     {
         // Kludge to prevent two bits (liTRIFORCE and liBOSS) which aren't
         // completely stored in Init Data, from being erased when this is run in-game.
-        if(lvlitems)
+        if(freshquest)
             game2->lvlitems[i]=0;
         else
             game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY| (i>0 && i<=8 ? liTRIFORCE : 0));
@@ -1171,6 +1172,19 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool lvlitems)
 		game2->set_counter(zinit2->scrcnt[q], q+7);
 		game2->set_maxcounter(zinit2->scrmaxcnt[q], q+7);
 	}
+	
+	if(freshquest)
+	{
+		memcpy(game2->gen_doscript, zinit2->gen_doscript, sizeof(game2->gen_doscript));
+		memcpy(game2->gen_exitState, zinit2->gen_exitState, sizeof(game2->gen_exitState));
+		memcpy(game2->gen_reloadState, zinit2->gen_reloadState, sizeof(game2->gen_reloadState));
+		memcpy(game2->gen_initd, zinit2->gen_initd, sizeof(game2->gen_initd));
+		memcpy(game2->gen_dataSize, zinit2->gen_dataSize, sizeof(game2->gen_dataSize));
+		for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
+			game2->gen_data[q] = zinit2->gen_data[q];
+		memcpy(game2->gen_eventstate, zinit2->gen_eventstate, sizeof(game2->gen_eventstate));
+	}
+	
     //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
     flushItemCache();
 }

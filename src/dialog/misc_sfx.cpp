@@ -39,7 +39,6 @@ std::shared_ptr<GUI::Widget> MiscSFXDialog::view()
 	using namespace GUI::Props;
 	return Window(
 		title = "Misc Sounds",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			maxwidth = sized(308_px, 800_px),

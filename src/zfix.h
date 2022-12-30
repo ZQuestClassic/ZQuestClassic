@@ -5,9 +5,10 @@
 
 #ifndef ZFIX_H
 #define ZFIX_H
-#include "base/zdefs.h"
+#include <cstdint>
 #include <math.h>
 #include <limits>
+#include <assert.h>
 #define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()
 
@@ -84,9 +85,18 @@ public:
 	{
 		return val;
 	}
-	int32_t getDPart() const
+	int32_t getZLongDPart() const
 	{
 		return val%10000;
+	}
+	zfix getDPart() const
+	{
+		return zslongToFix(val%10000);
+	}
+	zfix& doDPart()
+	{
+		val %= 10000;
+		return *this;
 	}
 	
 	
@@ -171,8 +181,8 @@ public:
 	zfix(const zfix &v) : val(v.val)						{}
 	zfix(const int32_t v) : val(v*10000L)				{}
 	zfix(const uint32_t v) : val(v*10000L)		{}
-	zfix(const float v) : val(v*10000L)			{}
-	zfix(const double v) : val(v*10000L)			{}
+	zfix(const float v) : val(int32_t(v*10000L))			{}
+	zfix(const double v) : val(int32_t(v*10000L))			{}
 	explicit zfix(const int32_t ip, const int32_t dp)
 	{
 		val = ip*10000L + dp;
@@ -189,18 +199,18 @@ public:
 	zfix& operator = (const zfix &fx)			{ val = fx.val; return *this; }
 	zfix& operator = (const int32_t v)				{ val = v*10000L; return *this; }
 	zfix& operator = (const uint32_t v)		{ val = v*10000L; return *this; }
-	zfix& operator = (const float v)			{ val = v*10000L; return *this; }
-	zfix& operator = (const double v)			{ val = v*10000L; return *this; }
+	zfix& operator = (const float v)			{ val = int32_t(v*10000L); return *this; }
+	zfix& operator = (const double v)			{ val = int32_t(v*10000L); return *this; }
 	
 	zfix& operator +=  (const zfix fx)	{ val += fx.val; return *this; }
 	zfix& operator +=  (const int32_t v)	{ val += v*10000L; return *this; }
-	zfix& operator +=  (const float v)	{ val += v*10000L; return *this; }
-	zfix& operator +=  (const double v)	{ val += v*10000L; return *this; }
+	zfix& operator +=  (const float v)	{ val += int32_t(v*10000L); return *this; }
+	zfix& operator +=  (const double v)	{ val += int32_t(v*10000L); return *this; }
 	
 	zfix& operator -=  (const zfix fx)	{ val -= fx.val; return *this; }
 	zfix& operator -=  (const int32_t v)	{ val -= v*10000L; return *this; }
-	zfix& operator -=  (const float v)	{ val -= v*10000L; return *this; }
-	zfix& operator -=  (const double v)	{ val -= v*10000L; return *this; }
+	zfix& operator -=  (const float v)	{ val -= int32_t(v*10000L); return *this; }
+	zfix& operator -=  (const double v)	{ val -= int32_t(v*10000L); return *this; }
 	
 	static int32_t longMul(int32_t a, int32_t b)	{ zint64 c = int64_t(a)*b; return (int32_t)(c/10000L);}
 	zfix& operator *=  (const zfix fx)	{ val = longMul(val, fx.val); return *this; }

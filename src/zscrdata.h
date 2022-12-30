@@ -3,6 +3,7 @@
 
 #include "base/zdefs.h"
 #include "ConsoleLogger.h"
+#include <sstream>
 
 #ifndef IS_PARSER
 #include "zquest.h"
@@ -307,136 +308,36 @@ static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
-void zconsole_db2(const char *format,...)
+void _print_zconsole(const char *buf, char const* header, int32_t color)
 {
 	if (!DisableCompileConsole)
 	{
-		int32_t v = parser_console.cprintf( DB_COLOR, "[DEBUG] ");
+		int32_t v = parser_console.safeprint( color,header);
 		if(v < 0) return; //Failed to print
 	}
-	//{
-	int32_t ret;
-	char tmp[1024];
 	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( DB_COLOR, "%s\n", tmp);
-	else
-	{
-		box_out(tmp);
-		box_eol();
-	}
-}
-void zconsole_warn2(const char *format,...)
-{
+	safe_al_trace(buf);
+	safe_al_trace("\n");
 	if (!DisableCompileConsole)
 	{
-		int32_t v = parser_console.cprintf( WARN_COLOR, "[Warn] ");
-		if(v < 0) return; //Failed to print
+		parser_console.safeprint( color, buf);
+		parser_console.safeprint( color, "\n");
 	}
-	//{
-	int32_t ret;
-	char tmp[1024];
-	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( WARN_COLOR, "%s\n", tmp);
 	else
 	{
-		box_out(tmp);
-		box_eol();
-	}
-}
-void zconsole_error2(const char *format,...)
-{
-	if (!DisableCompileConsole)
-	{
-		int32_t v = parser_console.cprintf( ERR_COLOR,"[Error] ");
-		if(v < 0) return; //Failed to print
-	}
-	//{
-	int32_t ret;
-	char tmp[1024];
-	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( ERR_COLOR, "%s\n", tmp);
-	else
-	{
-		box_out(tmp);
-		box_eol();
-	}
-}
-void zconsole_info2(const char *format,...)
-{
-	if (!DisableCompileConsole)
-	{
-		int32_t v = parser_console.cprintf( INFO_COLOR,"[Info] ");
-		if(v < 0) return; //Failed to print
-	}
-	//{
-	int32_t ret;
-	char tmp[1024];
-	
-	va_list argList;
-	va_start(argList, format);
-	#ifdef WIN32
-	 		ret = _vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#else
-	 		ret = vsnprintf(tmp,sizeof(tmp)-1,format,argList);
-	#endif
-	tmp[vbound(ret,0,1023)]=0;
-	
-	va_end(argList);
-	//}
-	al_trace("%s\n", tmp);
-	if (!DisableCompileConsole) parser_console.cprintf( INFO_COLOR, "%s\n", tmp);
-	else
-	{
-		box_out(tmp);
+		box_out(buf);
 		box_eol();
 	}
 }
 
 void ReadConsole(char buf[], int code)
 {
-	//al_trace("%s\n", buf);
 	switch(code)
 	{
-		case ZC_CONSOLE_DB_CODE: zconsole_db2("%s", buf); break;
-		case ZC_CONSOLE_WARN_CODE: zconsole_warn2("%s", buf); break;
-		case ZC_CONSOLE_ERROR_CODE: zconsole_error2("%s", buf); break;
-		default: zconsole_info2("%s", buf); break;
+		case ZC_CONSOLE_DB_CODE: _print_zconsole(buf,"[Debug] ",DB_COLOR); break;
+		case ZC_CONSOLE_WARN_CODE: _print_zconsole(buf,"[Warn] ",WARN_COLOR); break;
+		case ZC_CONSOLE_ERROR_CODE: _print_zconsole(buf,"[Error] ",ERR_COLOR); break;
+		default: _print_zconsole(buf,"[Info] ",INFO_COLOR); break;
 	}
 }
 #endif //!IS_PARSER
@@ -454,6 +355,340 @@ void write_compile_data(map<string, ZScript::ScriptType>& stypes, map<string, di
 }
 
 #endif //IS_PARSER
+
+
+int32_t get_script_type(string const& name)
+{
+	if(name=="GLOBAL")
+		return SCRIPT_GLOBAL;
+	else if(name=="FFC")
+		return SCRIPT_FFC;
+	else if(name=="SCREEN")
+		return SCRIPT_SCREEN;
+	else if(name=="HERO" || name=="PLAYER" || name=="LINK")
+		return SCRIPT_PLAYER;
+	else if(name=="ITEMDATA" || name=="ITEM")
+		return SCRIPT_ITEM;
+	else if(name=="LWEAPON" || name=="LWPN")
+		return SCRIPT_LWPN;
+	else if(name=="NPC")
+		return SCRIPT_NPC;
+	else if(name=="EWEAPON" || name=="EWPN")
+		return SCRIPT_EWPN;
+	else if(name=="DMAP")
+		return SCRIPT_DMAP;
+	else if(name=="ITEMSPRITE")
+		return SCRIPT_ITEMSPRITE;
+	else if(name=="COMBO" || name=="COMBODATA")
+		return SCRIPT_COMBO;
+	
+	return SCRIPT_NONE;
+}
+
+string get_script_name(int32_t type)
+{
+	switch(type)
+	{
+		case SCRIPT_GLOBAL:
+			return "GLOBAL";
+		case SCRIPT_FFC:
+			return "FFC";
+		case SCRIPT_SCREEN:
+			return "SCREEN";
+		case SCRIPT_PLAYER:
+			return "HERO";
+		case SCRIPT_ITEM:
+			return "ITEMDATA";
+		case SCRIPT_LWPN:
+			return "LWEAPON";
+		case SCRIPT_NPC:
+			return "NPC";
+		case SCRIPT_EWPN:
+			return "EWEAPON";
+		case SCRIPT_DMAP:
+			return "DMAP";
+		case SCRIPT_ITEMSPRITE:
+			return "ITEMSPRITE";
+		case SCRIPT_COMBO:
+			return "COMBODATA";
+		case SCRIPT_GENERIC: case SCRIPT_GENERIC_FROZEN:
+			return "GENERIC";
+		case SCRIPT_NONE:
+		default:
+			return "UNKNOWN";
+	}
+}
+
+//Output metadata as a single string
+string zasm_meta::get_meta() const
+{
+	std::ostringstream oss;
+	oss << "#ZASM_VERSION = " << zasm_v
+		<< "\n#METADATA_VERSION = " << meta_v
+		<< "\n#FFSCRIPT_VERSION = " << ffscript_v
+		<< "\n#SCRIPT_NAME = " << script_name;
+	if(author.size())
+		oss << "\n#AUTHOR = " << author;
+	oss << "\n#SCRIPT_TYPE = " << get_script_name(script_type).c_str()
+		<< "\n#AUTO_GEN = " << ((flags & ZMETA_AUTOGEN) ? "TRUE" : "FALSE")
+		<< "\n#COMPILER_V1 = " << compiler_v1
+		<< "\n#COMPILER_V2 = " << compiler_v2
+		<< "\n#COMPILER_V3 = " << compiler_v3
+		<< "\n#COMPILER_V4 = " << compiler_v4;
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(!run_idens[q].size())
+			continue;
+		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getTypeName(run_types[q])
+			<< "\n#PARAM_NAME_" << q << " = " << run_idens[q];
+	}
+	for(auto q = 0; q < 10; ++q)
+	{
+		if(attributes[q].size())
+			oss << "\n#ATTRIBUTE_" << q << " = " << attributes[q];
+		if(attributes_help[q].size())
+			oss << "\n#ATTRIBUTE_HELP_" << q << " = "
+				<< util::escape_characters(attributes_help[q]);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(attribytes[q].size())
+			oss << "\n#ATTRIBYTE_" << q << " = " << attribytes[q];
+		if(attribytes_help[q].size())
+			oss << "\n#ATTRIBYTE_HELP_" << q << " = "
+				<< util::escape_characters(attribytes_help[q]);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(attrishorts[q].size())
+			oss << "\n#ATTRISHORT_" << q << " = " << attrishorts[q];
+		if(attrishorts_help[q].size())
+			oss << "\n#ATTRISHORT_HELP_" << q << " = "
+				<< util::escape_characters(attrishorts_help[q]);
+	}
+	for(auto q = 0; q < 16; ++q)
+	{
+		if(usrflags[q].size())
+			oss << "\n#FLAG_" << q << " = " << usrflags[q];
+		if(usrflags_help[q].size())
+			oss << "\n#FLAG_HELP_" << q << " = "
+				<< util::escape_characters(usrflags_help[q]);
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		if(initd[q].size())
+			oss << "\n#INITD_" << q << " = " << initd[q];
+		if(initd_help[q].size())
+			oss << "\n#INITD_HELP_" << q << " = "
+				<< util::escape_characters(initd_help[q]);
+		if(initd_type[q] > -1)
+			oss << "\n#INITD_TYPE_" << q << " = "
+				<< to_string(int32_t(initd_type[q]));
+	}
+	oss << "\n";
+	return oss.str();
+}
+
+//Parse a single line of metadata
+bool zasm_meta::parse_meta(const char *buffer)
+{
+	string line(buffer);
+	size_t space_pos = line.find_first_of(" \t=");
+	if(space_pos == string::npos) return false;
+	string cmd = line.substr(0, space_pos); //The command portion
+	size_t end_space_pos = line.find_first_not_of(" \t=", space_pos);
+	if(end_space_pos == string::npos) return false;
+	size_t semi = line.find_first_of(";",end_space_pos);
+	string val = line.substr(end_space_pos, (semi == string::npos ? semi : semi-end_space_pos-1)); //The value portion
+	size_t endpos = val.find_last_not_of(" \t\r\n\0");
+	if(endpos != string::npos) ++endpos;
+	val = val.substr(0, endpos); //trim trailing whitespace
+	
+	if(cmd == "#ZASM_VERSION")
+	{
+		zasm_v = atoi(val.c_str());
+	}
+	else if(cmd == "#METADATA_VERSION")
+	{
+		meta_v = atoi(val.c_str());
+	}
+	else if(cmd == "#FFSCRIPT_VERSION")
+	{
+		ffscript_v = atoi(val.c_str());
+	}
+	else if(cmd == "#SCRIPT_TYPE" || cmd == "#TYPE")
+	{
+		upperstr(val);
+		script_type = get_script_type(val);
+	}
+	else if(cmd == "#SCRIPT_NAME")
+	{
+		replchar(val, ' ', '_');
+		script_name = val;
+	}
+	else if(cmd == "#AUTHOR")
+	{
+		author = val;
+	}
+	else if(cmd == "#AUTO_GEN")
+	{
+		upperstr(val);
+		if(val=="TRUE")
+			flags |= ZMETA_AUTOGEN;
+		else if(val=="FALSE")
+			flags &= ~ZMETA_AUTOGEN;
+		else
+		{
+			if(atoi(val.c_str())!=0)
+			{
+				flags |= ZMETA_AUTOGEN;
+			}
+			else flags &= ~ZMETA_AUTOGEN;
+		}
+	}
+	else if(cmd == "#COMPILER_V1")
+	{
+		compiler_v1 = atoi(val.c_str());
+	}
+	else if(cmd == "#COMPILER_V2")
+	{
+		compiler_v2 = atoi(val.c_str());
+	}
+	else if(cmd == "#COMPILER_V3")
+	{
+		compiler_v3 = atoi(val.c_str());
+	}
+	else if(cmd == "#COMPILER_V4")
+	{
+		compiler_v4 = atoi(val.c_str());
+	}
+	else if(cmd.size() == 13 && !cmd.compare(0,12,"#PARAM_NAME_"))
+	{
+		byte ind = cmd.at(12) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			run_idens[ind] = val;
+		}
+		else return false;
+	}
+	else if(cmd.size() == 13 && !cmd.compare(0,12,"#PARAM_TYPE_"))
+	{
+		byte ind = cmd.at(12) - '1';
+		if (ind < 8)
+		{
+			replchar(val, ' ', '_');
+			run_types[ind] = ZScript::getTypeId(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBUTE_"))
+	{
+		byte ind = cmd.at(11) - '0';
+		if (ind < 10)
+		{
+			attributes[ind] = val;
+		}
+		else return false;
+	}
+	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBUTE_HELP_"))
+	{
+		byte ind = cmd.at(16) - '0';
+		if (ind < 10)
+		{
+			attributes_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 12 && !cmd.compare(0, 11, "#ATTRIBYTE_"))
+	{
+		byte ind = cmd.at(11) - '0';
+		if (ind < 8)
+		{
+			attribytes[ind] = val;
+		}
+		else return false;
+	}
+	else if (cmd.size() == 17 && !cmd.compare(0, 16, "#ATTRIBYTE_HELP_"))
+	{
+		byte ind = cmd.at(16) - '0';
+		if (ind < 8)
+		{
+			attribytes_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#ATTRISHORT_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			attrishorts[ind] = val;
+		}
+		else return false;
+	}
+	else if (cmd.size() == 18 && !cmd.compare(0, 17, "#ATTRISHORT_HELP_"))
+	{
+		byte ind = cmd.at(17) - '0';
+		if (ind < 8)
+		{
+			attrishorts_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if ((cmd.size() == 7 || cmd.size() == 8) && !cmd.compare(0, 6, "#FLAG_"))
+	{
+		byte ind = cmd.at(6) - '0';
+		if (cmd.size() == 8)
+			ind = (ind * 10) + cmd.at(7) - '0';
+		if (ind < 16)
+		{
+			usrflags[ind] = val;
+		}
+		else return false;
+	}
+	else if ((cmd.size() == 12 || cmd.size() == 13) && !cmd.compare(0, 11, "#FLAG_HELP_"))
+	{
+		byte ind = cmd.at(11) - '0';
+		if (cmd.size() == 13)
+			ind = (ind * 10) + cmd.at(12) - '0';
+		if (ind < 16)
+		{
+			usrflags_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 8 && !cmd.compare(0, 7, "#INITD_"))
+	{
+		byte ind = cmd.at(7) - '0';
+		if (ind < 8)
+		{
+			initd[ind] = val;
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_HELP_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			initd_help[ind] = util::unescape_characters(val);
+		}
+		else return false;
+	}
+	else if (cmd.size() == 13 && !cmd.compare(0, 12, "#INITD_TYPE_"))
+	{
+		byte ind = cmd.at(12) - '0';
+		if (ind < 8)
+		{
+			initd_type[ind] = atoi(val.c_str());
+		}
+		else return false;
+	}
+	else return false;
+	
+	return true;
+}
 
 #endif
 

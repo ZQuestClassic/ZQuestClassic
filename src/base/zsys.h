@@ -17,6 +17,7 @@
 
 #include "base/zdefs.h"
 #include "jwin.h"
+#include "zsyssimple.h"
 
 #include <functional>
 
@@ -63,9 +64,8 @@ bool toggle_bit(byte *bitstr,int32_t bit);
 int32_t  get_bitl(int32_t bitstr,int32_t bit);
 void set_bitl(int32_t bitstr,int32_t bit,byte val);
 
-void Z_error_fatal(const char *format,...);
+[[noreturn]] void Z_error_fatal(const char *format,...);
 void Z_error(const char *format,...);
-void Z_message(const char *format,...);
 void Z_title(const char *format,...);
 void set_should_zprint_cb(std::function<bool()> cb);
 void zprint(const char * const format,...);
@@ -81,14 +81,8 @@ extern const char *snapshotformatlist(int32_t index, int32_t *list_size);
 
 
 /*0=normal, 1=jwin*/
-void box_start(int32_t style , const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w = -1, int32_t h = -1, uint8_t scale = 1);
-//void box_start();
-void box_out(const char *msg);
-void box_out_nl(const char *msg);
 void box_save_x();
 void box_load_x();
-void box_eol();
-void box_end(bool pause);
 void box_pause();
 void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                  int32_t src_color1, int32_t src_color2, byte dest_color1,
@@ -190,7 +184,5 @@ int32_t zc_trace_handler(const char *);
 void zc_trace_clear();
 
 void sane_destroy_bitmap(BITMAP **bmp);
-
-extern bool zconsole;
 
 #endif                                                      // _ZSYS_H_

@@ -18,11 +18,11 @@ using std::vector;
 TypeStore::TypeStore()
 {
 	// Assign builtin types.
-	for (DataTypeId id = ZVARTYPEID_START; id < ZVARTYPEID_END; ++id)
+	for (DataTypeId id = ZTID_START; id < ZTID_END; ++id)
 		assignTypeId(*DataType::get(id));
 
 	// Assign builtin classes.
-	for (int32_t id = ZVARTYPEID_CLASS_START; id < ZVARTYPEID_CLASS_END; ++id)
+	for (int32_t id = ZTID_CLASS_START; id < ZTID_CLASS_END; ++id)
 	{
 		DataTypeClass& type = *(DataTypeClass*)DataType::get(id);
 		assert(type.getClassId() == ownedClasses.size());
@@ -127,98 +127,102 @@ bool TypeStore::TypeIdMapComparator::operator()(
 ////////////////////////////////////////////////////////////////
 
 // Standard Type definitions.
-DataTypeSimpleConst DataType::CUNTYPED(ZVARTYPEID_UNTYPED, "const untyped");
-DataTypeSimpleConst DataType::CFLOAT(ZVARTYPEID_FLOAT, "const float");
-DataTypeSimpleConst DataType::CCHAR(ZVARTYPEID_CHAR, "const char32");
-DataTypeSimpleConst DataType::CLONG(ZVARTYPEID_LONG, "const int32_t");
-DataTypeSimpleConst DataType::CBOOL(ZVARTYPEID_BOOL, "const bool");
-DataTypeSimple DataType::UNTYPED(ZVARTYPEID_UNTYPED, "untyped", &CUNTYPED);
-DataTypeSimple DataType::ZVOID(ZVARTYPEID_VOID, "void", NULL);
-DataTypeSimple DataType::FLOAT(ZVARTYPEID_FLOAT, "float", &CFLOAT);
-DataTypeSimple DataType::CHAR(ZVARTYPEID_CHAR, "char32", &CCHAR);
-DataTypeSimple DataType::LONG(ZVARTYPEID_LONG, "int32_t", &CLONG);
-DataTypeSimple DataType::BOOL(ZVARTYPEID_BOOL, "bool", &CBOOL);
+DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
+DataTypeSimpleConst DataType::CFLOAT(ZTID_FLOAT, "const int");
+DataTypeSimpleConst DataType::CCHAR(ZTID_CHAR, "const char32");
+DataTypeSimpleConst DataType::CLONG(ZTID_LONG, "const long");
+DataTypeSimpleConst DataType::CBOOL(ZTID_BOOL, "const bool");
+DataTypeSimpleConst DataType::CRGBDATA(ZTID_RGBDATA, "const rgb");
+DataTypeSimple DataType::UNTYPED(ZTID_UNTYPED, "untyped", &CUNTYPED);
+DataTypeSimple DataType::ZVOID(ZTID_VOID, "void", NULL);
+DataTypeSimple DataType::FLOAT(ZTID_FLOAT, "int", &CFLOAT);
+DataTypeSimple DataType::CHAR(ZTID_CHAR, "char32", &CCHAR);
+DataTypeSimple DataType::LONG(ZTID_LONG, "long", &CLONG);
+DataTypeSimple DataType::BOOL(ZTID_BOOL, "bool", &CBOOL);
+DataTypeSimple DataType::RGBDATA(ZTID_RGBDATA, "rgb", &CRGBDATA);
 DataTypeArray DataType::STRING(CHAR);
 //Classes: Global Pointer
-DataTypeClassConst DataType::GAME(ZCLASSID_GAME, "Game");
-DataTypeClassConst DataType::PLAYER(ZCLASSID_PLAYER, "Player");
-DataTypeClassConst DataType::SCREEN(ZCLASSID_SCREEN, "Screen");
-DataTypeClassConst DataType::REGION(ZCLASSID_REGION, "Region");
-DataTypeClassConst DataType::AUDIO(ZCLASSID_AUDIO, "Audio");
-DataTypeClassConst DataType::DEBUG(ZCLASSID_DEBUG, "Debug");
-DataTypeClassConst DataType::GRAPHICS(ZCLASSID_GRAPHICS, "Graphics");
-DataTypeClassConst DataType::INPUT(ZCLASSID_INPUT, "Input");
-DataTypeClassConst DataType::TEXT(ZCLASSID_TEXT, "Text");
-DataTypeClassConst DataType::FILESYSTEM(ZCLASSID_FILESYSTEM, "FileSystem");
-DataTypeClassConst DataType::MODULE(ZCLASSID_MODULE, "Module");
+DataTypeClassConst DataType::GAME(ZCLID_GAME, "Game");
+DataTypeClassConst DataType::PLAYER(ZCLID_PLAYER, "Player");
+DataTypeClassConst DataType::SCREEN(ZCLID_SCREEN, "Screen");
+DataTypeClassConst DataType::REGION(ZCLID_REGION, "Region");
+DataTypeClassConst DataType::AUDIO(ZCLID_AUDIO, "Audio");
+DataTypeClassConst DataType::DEBUG(ZCLID_DEBUG, "Debug");
+DataTypeClassConst DataType::GRAPHICS(ZCLID_GRAPHICS, "Graphics");
+DataTypeClassConst DataType::INPUT(ZCLID_INPUT, "Input");
+DataTypeClassConst DataType::TEXT(ZCLID_TEXT, "Text");
+DataTypeClassConst DataType::FILESYSTEM(ZCLID_FILESYSTEM, "FileSystem");
+DataTypeClassConst DataType::MODULE(ZCLID_MODULE, "Module");
 //Class: Types
-DataTypeClassConst DataType::CBITMAP(ZCLASSID_BITMAP, "const Bitmap");
-DataTypeClassConst DataType::CCHEATS(ZCLASSID_CHEATS, "const Cheats");
-DataTypeClassConst DataType::CCOMBOS(ZCLASSID_COMBOS, "const Combos");
-DataTypeClassConst DataType::CDOORSET(ZCLASSID_DOORSET, "const DoorSet");
-DataTypeClassConst DataType::CDROPSET(ZCLASSID_DROPSET, "const DropSet");
-DataTypeClassConst DataType::CDMAPDATA(ZCLASSID_DMAPDATA, "const DMapData");
-DataTypeClassConst DataType::CEWPN(ZCLASSID_EWPN, "const EWeapon");
-DataTypeClassConst DataType::CFFC(ZCLASSID_FFC, "const FFC");
-DataTypeClassConst DataType::CGAMEDATA(ZCLASSID_GAMEDATA, "const GameData");
-DataTypeClassConst DataType::CITEM(ZCLASSID_ITEM, "const Item");
-DataTypeClassConst DataType::CITEMCLASS(ZCLASSID_ITEMCLASS, "const ItemData");
-DataTypeClassConst DataType::CLWPN(ZCLASSID_LWPN, "const LWeapon");
-DataTypeClassConst DataType::CMAPDATA(ZCLASSID_MAPDATA, "const MapData");
-DataTypeClassConst DataType::CZMESSAGE(ZCLASSID_ZMESSAGE, "const ZMessage");
-DataTypeClassConst DataType::CZUICOLOURS(ZCLASSID_ZUICOLOURS, "const ZuiColours");
-DataTypeClassConst DataType::CNPC(ZCLASSID_NPC, "const NPC");
-DataTypeClassConst DataType::CNPCDATA(ZCLASSID_NPCDATA, "const NPCData");
-DataTypeClassConst DataType::CPALCYCLE(ZCLASSID_PALCYCLE, "const PalCycle");
-DataTypeClassConst DataType::CPALETTE(ZCLASSID_PALETTE, "const Palette");
-DataTypeClassConst DataType::CPONDS(ZCLASSID_PONDS, "const Ponds");
-DataTypeClassConst DataType::CRGBDATA(ZCLASSID_RGBDATA, "const RgbData");
-DataTypeClassConst DataType::CSHOPDATA(ZCLASSID_SHOPDATA, "const ShopData");
-DataTypeClassConst DataType::CSPRITEDATA(ZCLASSID_SPRITEDATA, "const SpriteData");
-DataTypeClassConst DataType::CTUNES(ZCLASSID_TUNES, "const Tunes");
-DataTypeClassConst DataType::CWARPRING(ZCLASSID_WARPRING, "const WarpRing");
-DataTypeClassConst DataType::CSUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "const SubscreenData");
-DataTypeClassConst DataType::CFILE(ZCLASSID_FILE, "const File");
-DataTypeClassConst DataType::CDIRECTORY(ZCLASSID_DIRECTORY, "const Directory");
-DataTypeClassConst DataType::CSTACK(ZCLASSID_STACK, "const Stack");
-DataTypeClassConst DataType::CRNG(ZCLASSID_RNG, "const RNG");
-DataTypeClassConst DataType::CBOTTLETYPE(ZCLASSID_BOTTLETYPE, "const bottledata");
-DataTypeClassConst DataType::CBOTTLESHOP(ZCLASSID_BOTTLESHOP, "const bottleshopdata");
-DataTypeClassConst DataType::CGENERICDATA(ZCLASSID_GENERICDATA, "const genericdata");
+DataTypeClassConst DataType::CBITMAP(ZCLID_BITMAP, "const Bitmap");
+DataTypeClassConst DataType::CCHEATS(ZCLID_CHEATS, "const Cheats");
+DataTypeClassConst DataType::CCOMBOS(ZCLID_COMBOS, "const Combos");
+DataTypeClassConst DataType::CDOORSET(ZCLID_DOORSET, "const DoorSet");
+DataTypeClassConst DataType::CDROPSET(ZCLID_DROPSET, "const DropSet");
+DataTypeClassConst DataType::CDMAPDATA(ZCLID_DMAPDATA, "const DMapData");
+DataTypeClassConst DataType::CEWPN(ZCLID_EWPN, "const EWeapon");
+DataTypeClassConst DataType::CFFC(ZCLID_FFC, "const FFC");
+DataTypeClassConst DataType::CGAMEDATA(ZCLID_GAMEDATA, "const GameData");
+DataTypeClassConst DataType::CITEM(ZCLID_ITEM, "const Item");
+DataTypeClassConst DataType::CITEMCLASS(ZCLID_ITEMCLASS, "const ItemData");
+DataTypeClassConst DataType::CLWPN(ZCLID_LWPN, "const LWeapon");
+DataTypeClassConst DataType::CMAPDATA(ZCLID_MAPDATA, "const MapData");
+DataTypeClassConst DataType::CZMESSAGE(ZCLID_ZMESSAGE, "const ZMessage");
+DataTypeClassConst DataType::CZUICOLOURS(ZCLID_ZUICOLOURS, "const ZuiColours");
+DataTypeClassConst DataType::CNPC(ZCLID_NPC, "const NPC");
+DataTypeClassConst DataType::CNPCDATA(ZCLID_NPCDATA, "const NPCData");
+DataTypeClassConst DataType::CPALCYCLE(ZCLID_PALCYCLE, "const PalCycle");
+DataTypeClassConst DataType::CPALETTEOLD(ZTID_PALETTEOLD, "const paletteold");
+DataTypeClassConst DataType::CPONDS(ZCLID_PONDS, "const Ponds");
+DataTypeClassConst DataType::CRGBDATAOLD(ZTID_RGBDATAOLD, "const rgbdataold");
+DataTypeClassConst DataType::CSHOPDATA(ZCLID_SHOPDATA, "const ShopData");
+DataTypeClassConst DataType::CSPRITEDATA(ZCLID_SPRITEDATA, "const SpriteData");
+DataTypeClassConst DataType::CTUNES(ZCLID_TUNES, "const Tunes");
+DataTypeClassConst DataType::CWARPRING(ZCLID_WARPRING, "const WarpRing");
+DataTypeClassConst DataType::CSUBSCREENDATA(ZCLID_SUBSCREENDATA, "const SubscreenData");
+DataTypeClassConst DataType::CFILE(ZCLID_FILE, "const File");
+DataTypeClassConst DataType::CDIRECTORY(ZCLID_DIRECTORY, "const Directory");
+DataTypeClassConst DataType::CSTACK(ZCLID_STACK, "const Stack");
+DataTypeClassConst DataType::CRNG(ZCLID_RNG, "const RNG");
+DataTypeClassConst DataType::CPALDATA(ZCLID_PALDATA, "const paldata");
+DataTypeClassConst DataType::CBOTTLETYPE(ZCLID_BOTTLETYPE, "const bottledata");
+DataTypeClassConst DataType::CBOTTLESHOP(ZCLID_BOTTLESHOP, "const bottleshopdata");
+DataTypeClassConst DataType::CGENERICDATA(ZCLID_GENERICDATA, "const genericdata");
 //Class: Var Types
-DataTypeClass DataType::BITMAP(ZCLASSID_BITMAP, "Bitmap", &CBITMAP);
-DataTypeClass DataType::CHEATS(ZCLASSID_CHEATS, "Cheats", &CCHEATS);
-DataTypeClass DataType::COMBOS(ZCLASSID_COMBOS, "Combos", &CCOMBOS);
-DataTypeClass DataType::DOORSET(ZCLASSID_DOORSET, "DoorSet", &CDOORSET);
-DataTypeClass DataType::DROPSET(ZCLASSID_DROPSET, "DropSet", &CDROPSET);
-DataTypeClass DataType::DMAPDATA(ZCLASSID_DMAPDATA, "DMapData", &CDMAPDATA);
-DataTypeClass DataType::EWPN(ZCLASSID_EWPN, "EWeapon", &CEWPN);
-DataTypeClass DataType::FFC(ZCLASSID_FFC, "FFC", &CFFC);
-DataTypeClass DataType::GAMEDATA(ZCLASSID_GAMEDATA, "GameData", &CGAMEDATA);
-DataTypeClass DataType::ITEM(ZCLASSID_ITEM, "Item", &CITEM);
-DataTypeClass DataType::ITEMCLASS(ZCLASSID_ITEMCLASS, "ItemData", &CITEMCLASS);
-DataTypeClass DataType::LWPN(ZCLASSID_LWPN, "LWeapon", &CLWPN);
-DataTypeClass DataType::MAPDATA(ZCLASSID_MAPDATA, "MapData", &CMAPDATA);
-DataTypeClass DataType::ZMESSAGE(ZCLASSID_ZMESSAGE, "ZMessage", &CZMESSAGE);
-DataTypeClass DataType::ZUICOLOURS(ZCLASSID_ZUICOLOURS, "ZuiColours", &CZUICOLOURS);
-DataTypeClass DataType::NPC(ZCLASSID_NPC, "NPC", &CNPC);
-DataTypeClass DataType::NPCDATA(ZCLASSID_NPCDATA, "NPCData", &CNPCDATA);
-DataTypeClass DataType::PALCYCLE(ZCLASSID_PALCYCLE, "PalCycle", &CPALCYCLE);
-DataTypeClass DataType::PALETTE(ZCLASSID_PALETTE, "Palette", &CPALETTE);
-DataTypeClass DataType::PONDS(ZCLASSID_PONDS, "Ponds", &CPONDS);
-DataTypeClass DataType::RGBDATA(ZCLASSID_RGBDATA, "RgbData", &CRGBDATA);
-DataTypeClass DataType::SHOPDATA(ZCLASSID_SHOPDATA, "ShopData", &CSHOPDATA);
-DataTypeClass DataType::SPRITEDATA(ZCLASSID_SPRITEDATA, "SpriteData", &CSPRITEDATA);
-DataTypeClass DataType::TUNES(ZCLASSID_TUNES, "Tunes", &CTUNES);
-DataTypeClass DataType::WARPRING(ZCLASSID_WARPRING, "WarpRing", &CWARPRING);
-DataTypeClass DataType::SUBSCREENDATA(ZCLASSID_SUBSCREENDATA, "SubscreenData", &CSUBSCREENDATA);
-DataTypeClass DataType::FILE(ZCLASSID_FILE, "File", &CFILE);
-DataTypeClass DataType::DIRECTORY(ZCLASSID_DIRECTORY, "Directory", &CDIRECTORY);
-DataTypeClass DataType::STACK(ZCLASSID_STACK, "Stack", &CSTACK);
-DataTypeClass DataType::RNG(ZCLASSID_RNG, "RNG", &CRNG);
-DataTypeClass DataType::BOTTLETYPE(ZCLASSID_BOTTLETYPE, "bottledata", &CBOTTLETYPE);
-DataTypeClass DataType::BOTTLESHOP(ZCLASSID_BOTTLESHOP, "bottleshopdata", &CBOTTLESHOP);
-DataTypeClass DataType::GENERICDATA(ZCLASSID_GENERICDATA, "genericdata", &CGENERICDATA);
+DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP);
+DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
+DataTypeClass DataType::COMBOS(ZCLID_COMBOS, "Combos", &CCOMBOS);
+DataTypeClass DataType::DOORSET(ZCLID_DOORSET, "DoorSet", &CDOORSET);
+DataTypeClass DataType::DROPSET(ZCLID_DROPSET, "DropSet", &CDROPSET);
+DataTypeClass DataType::DMAPDATA(ZCLID_DMAPDATA, "DMapData", &CDMAPDATA);
+DataTypeClass DataType::EWPN(ZCLID_EWPN, "EWeapon", &CEWPN);
+DataTypeClass DataType::FFC(ZCLID_FFC, "FFC", &CFFC);
+DataTypeClass DataType::GAMEDATA(ZCLID_GAMEDATA, "GameData", &CGAMEDATA);
+DataTypeClass DataType::ITEM(ZCLID_ITEM, "Item", &CITEM);
+DataTypeClass DataType::ITEMCLASS(ZCLID_ITEMCLASS, "ItemData", &CITEMCLASS);
+DataTypeClass DataType::LWPN(ZCLID_LWPN, "LWeapon", &CLWPN);
+DataTypeClass DataType::MAPDATA(ZCLID_MAPDATA, "MapData", &CMAPDATA);
+DataTypeClass DataType::ZMESSAGE(ZCLID_ZMESSAGE, "ZMessage", &CZMESSAGE);
+DataTypeClass DataType::ZUICOLOURS(ZCLID_ZUICOLOURS, "ZuiColours", &CZUICOLOURS);
+DataTypeClass DataType::NPC(ZCLID_NPC, "NPC", &CNPC);
+DataTypeClass DataType::NPCDATA(ZCLID_NPCDATA, "NPCData", &CNPCDATA);
+DataTypeClass DataType::PALCYCLE(ZCLID_PALCYCLE, "PalCycle", &CPALCYCLE);
+DataTypeClass DataType::PALETTEOLD(ZCLID_PALETTE, "paletteold", &CPALETTEOLD);
+DataTypeClass DataType::PONDS(ZCLID_PONDS, "Ponds", &CPONDS);
+DataTypeClass DataType::RGBDATAOLD(ZCLID_RGBDATA, "rgbdataold", &CRGBDATAOLD);
+DataTypeClass DataType::SHOPDATA(ZCLID_SHOPDATA, "ShopData", &CSHOPDATA);
+DataTypeClass DataType::SPRITEDATA(ZCLID_SPRITEDATA, "SpriteData", &CSPRITEDATA);
+DataTypeClass DataType::TUNES(ZCLID_TUNES, "Tunes", &CTUNES);
+DataTypeClass DataType::WARPRING(ZCLID_WARPRING, "WarpRing", &CWARPRING);
+DataTypeClass DataType::SUBSCREENDATA(ZCLID_SUBSCREENDATA, "SubscreenData", &CSUBSCREENDATA);
+DataTypeClass DataType::FILE(ZCLID_FILE, "File", &CFILE);
+DataTypeClass DataType::DIRECTORY(ZCLID_DIRECTORY, "Directory", &CDIRECTORY);
+DataTypeClass DataType::STACK(ZCLID_STACK, "Stack", &CSTACK);
+DataTypeClass DataType::RNG(ZCLID_RNG, "RNG", &CRNG);
+DataTypeClass DataType::PALDATA(ZCLID_PALDATA, "PALDATA", &CPALDATA);
+DataTypeClass DataType::BOTTLETYPE(ZCLID_BOTTLETYPE, "bottledata", &CBOTTLETYPE);
+DataTypeClass DataType::BOTTLESHOP(ZCLID_BOTTLESHOP, "bottleshopdata", &CBOTTLESHOP);
+DataTypeClass DataType::GENERICDATA(ZCLID_GENERICDATA, "genericdata", &CGENERICDATA);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -236,56 +240,58 @@ DataType const* DataType::get(DataTypeId id)
 {
 	switch (id)
 	{
-		case ZVARTYPEID_UNTYPED: return &UNTYPED;
-		case ZVARTYPEID_VOID: return &ZVOID;
-		case ZVARTYPEID_FLOAT: return &FLOAT;
-		case ZVARTYPEID_CHAR: return &CHAR;
-		case ZVARTYPEID_LONG: return &LONG;
-		case ZVARTYPEID_BOOL: return &BOOL;
-		case ZVARTYPEID_GAME: return &GAME;
-		case ZVARTYPEID_PLAYER: return &PLAYER;
-		case ZVARTYPEID_SCREEN: return &SCREEN;
-		case ZVARTYPEID_REGION: return &REGION;
-		case ZVARTYPEID_FFC: return &FFC;
-		case ZVARTYPEID_ITEM: return &ITEM;
-		case ZVARTYPEID_ITEMCLASS: return &ITEMCLASS;
-		case ZVARTYPEID_NPC: return &NPC;
-		case ZVARTYPEID_LWPN: return &LWPN;
-		case ZVARTYPEID_EWPN: return &EWPN;
-		case ZVARTYPEID_NPCDATA: return &NPCDATA;
-		case ZVARTYPEID_DEBUG: return &DEBUG;
-		case ZVARTYPEID_AUDIO: return &AUDIO;
-		case ZVARTYPEID_COMBOS: return &COMBOS;
-		case ZVARTYPEID_SPRITEDATA: return &SPRITEDATA;
-		case ZVARTYPEID_SUBSCREENDATA: return &SUBSCREENDATA;
-		case ZVARTYPEID_FILE: return &FILE;
-		case ZVARTYPEID_DIRECTORY: return &DIRECTORY;
-		case ZVARTYPEID_STACK: return &STACK;
-		case ZVARTYPEID_RNG: return &RNG;
-		case ZVARTYPEID_BOTTLETYPE: return &BOTTLETYPE;
-		case ZVARTYPEID_BOTTLESHOP: return &BOTTLESHOP;
-		case ZVARTYPEID_GENERICDATA: return &GENERICDATA;
-		case ZVARTYPEID_GRAPHICS: return &GRAPHICS;
-		case ZVARTYPEID_BITMAP: return &BITMAP;
-		case ZVARTYPEID_TEXT: return &TEXT;
-		case ZVARTYPEID_INPUT: return &INPUT;
-		case ZVARTYPEID_MAPDATA: return &MAPDATA;
-		case ZVARTYPEID_DMAPDATA: return &DMAPDATA;
-		case ZVARTYPEID_ZMESSAGE: return &ZMESSAGE;
-		case ZVARTYPEID_SHOPDATA: return &SHOPDATA;
-		case ZVARTYPEID_DROPSET: return &DROPSET;
-		case ZVARTYPEID_PONDS: return &PONDS;
-		case ZVARTYPEID_WARPRING: return &WARPRING;
-		case ZVARTYPEID_DOORSET: return &DOORSET;
-		case ZVARTYPEID_ZUICOLOURS: return &ZUICOLOURS;
-		case ZVARTYPEID_RGBDATA: return &RGBDATA;
-		case ZVARTYPEID_PALETTE: return &PALETTE;
-		case ZVARTYPEID_TUNES: return &TUNES;
-		case ZVARTYPEID_PALCYCLE: return &PALCYCLE;
-		case ZVARTYPEID_GAMEDATA: return &GAMEDATA;
-		case ZVARTYPEID_CHEATS: return &CHEATS;
-		case ZVARTYPEID_FILESYSTEM: return &FILESYSTEM;
-		case ZVARTYPEID_MODULE: return &MODULE;
+		case ZTID_UNTYPED: return &UNTYPED;
+		case ZTID_VOID: return &ZVOID;
+		case ZTID_FLOAT: return &FLOAT;
+		case ZTID_CHAR: return &CHAR;
+		case ZTID_LONG: return &LONG;
+		case ZTID_BOOL: return &BOOL;
+		case ZTID_RGBDATA: return &RGBDATA;
+		case ZTID_GAME: return &GAME;
+		case ZTID_PLAYER: return &PLAYER;
+		case ZTID_SCREEN: return &SCREEN;
+		case ZTID_REGION: return &REGION;
+		case ZTID_FFC: return &FFC;
+		case ZTID_ITEM: return &ITEM;
+		case ZTID_ITEMCLASS: return &ITEMCLASS;
+		case ZTID_NPC: return &NPC;
+		case ZTID_LWPN: return &LWPN;
+		case ZTID_EWPN: return &EWPN;
+		case ZTID_NPCDATA: return &NPCDATA;
+		case ZTID_DEBUG: return &DEBUG;
+		case ZTID_AUDIO: return &AUDIO;
+		case ZTID_COMBOS: return &COMBOS;
+		case ZTID_SPRITEDATA: return &SPRITEDATA;
+		case ZTID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZTID_FILE: return &FILE;
+		case ZTID_DIRECTORY: return &DIRECTORY;
+		case ZTID_STACK: return &STACK;
+		case ZTID_RNG: return &RNG;
+		case ZTID_PALDATA: return &PALDATA;
+		case ZTID_BOTTLETYPE: return &BOTTLETYPE;
+		case ZTID_BOTTLESHOP: return &BOTTLESHOP;
+		case ZTID_GENERICDATA: return &GENERICDATA;
+		case ZTID_GRAPHICS: return &GRAPHICS;
+		case ZTID_BITMAP: return &BITMAP;
+		case ZTID_TEXT: return &TEXT;
+		case ZTID_INPUT: return &INPUT;
+		case ZTID_MAPDATA: return &MAPDATA;
+		case ZTID_DMAPDATA: return &DMAPDATA;
+		case ZTID_ZMESSAGE: return &ZMESSAGE;
+		case ZTID_SHOPDATA: return &SHOPDATA;
+		case ZTID_DROPSET: return &DROPSET;
+		case ZTID_PONDS: return &PONDS;
+		case ZTID_WARPRING: return &WARPRING;
+		case ZTID_DOORSET: return &DOORSET;
+		case ZTID_ZUICOLOURS: return &ZUICOLOURS;
+		case ZTID_RGBDATAOLD: return &RGBDATAOLD;
+		case ZTID_PALETTEOLD: return &PALETTEOLD;
+		case ZTID_TUNES: return &TUNES;
+		case ZTID_PALCYCLE: return &PALCYCLE;
+		case ZTID_GAMEDATA: return &GAMEDATA;
+		case ZTID_CHEATS: return &CHEATS;
+		case ZTID_FILESYSTEM: return &FILESYSTEM;
+		case ZTID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
@@ -294,50 +300,51 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 {
 	switch (classId)
 	{
-		case ZCLASSID_GAME: return &GAME;
-		case ZCLASSID_PLAYER: return &PLAYER;
-		case ZCLASSID_SCREEN: return &SCREEN;
-		case ZCLASSID_REGION: return &REGION;
-		case ZCLASSID_FFC: return &FFC;
-		case ZCLASSID_ITEM: return &ITEM;
-		case ZCLASSID_ITEMCLASS: return &ITEMCLASS;
-		case ZCLASSID_NPC: return &NPC;
-		case ZCLASSID_LWPN: return &LWPN;
-		case ZCLASSID_EWPN: return &EWPN;
-		case ZCLASSID_NPCDATA: return &NPCDATA;
-		case ZCLASSID_DEBUG: return &DEBUG;
-		case ZCLASSID_AUDIO: return &AUDIO;
-		case ZCLASSID_COMBOS: return &COMBOS;
-		case ZCLASSID_SPRITEDATA: return &SPRITEDATA;
-		case ZCLASSID_SUBSCREENDATA: return &SUBSCREENDATA;
-		case ZCLASSID_FILE: return &FILE;
-		case ZCLASSID_DIRECTORY: return &DIRECTORY;
-		case ZCLASSID_STACK: return &STACK;
-		case ZCLASSID_RNG: return &RNG;
-		case ZCLASSID_BOTTLETYPE: return &BOTTLETYPE;
-		case ZCLASSID_BOTTLESHOP: return &BOTTLESHOP;
-		case ZCLASSID_GENERICDATA: return &GENERICDATA;
-		case ZCLASSID_GRAPHICS: return &GRAPHICS;
-		case ZCLASSID_BITMAP: return &BITMAP;
-		case ZCLASSID_TEXT: return &TEXT;
-		case ZCLASSID_INPUT: return &INPUT;
-		case ZCLASSID_MAPDATA: return &MAPDATA;
-		case ZCLASSID_DMAPDATA: return &DMAPDATA;
-		case ZCLASSID_ZMESSAGE: return &ZMESSAGE;
-		case ZCLASSID_SHOPDATA: return &SHOPDATA;
-		case ZCLASSID_DROPSET: return &DROPSET;
-		case ZCLASSID_PONDS: return &PONDS;
-		case ZCLASSID_WARPRING: return &WARPRING;
-		case ZCLASSID_DOORSET: return &DOORSET;
-		case ZCLASSID_ZUICOLOURS: return &ZUICOLOURS;
-		case ZCLASSID_RGBDATA: return &RGBDATA;
-		case ZCLASSID_PALETTE: return &PALETTE;
-		case ZCLASSID_TUNES: return &TUNES;
-		case ZCLASSID_PALCYCLE: return &PALCYCLE;
-		case ZCLASSID_GAMEDATA: return &GAMEDATA;
-		case ZCLASSID_CHEATS: return &CHEATS;
-		case ZCLASSID_FILESYSTEM: return &FILESYSTEM;
-		case ZCLASSID_MODULE: return &MODULE;
+		case ZCLID_GAME: return &GAME;
+		case ZCLID_PLAYER: return &PLAYER;
+		case ZCLID_SCREEN: return &SCREEN;
+		case ZCLID_REGION: return &REGION;
+		case ZCLID_FFC: return &FFC;
+		case ZCLID_ITEM: return &ITEM;
+		case ZCLID_ITEMCLASS: return &ITEMCLASS;
+		case ZCLID_NPC: return &NPC;
+		case ZCLID_LWPN: return &LWPN;
+		case ZCLID_EWPN: return &EWPN;
+		case ZCLID_NPCDATA: return &NPCDATA;
+		case ZCLID_DEBUG: return &DEBUG;
+		case ZCLID_AUDIO: return &AUDIO;
+		case ZCLID_COMBOS: return &COMBOS;
+		case ZCLID_SPRITEDATA: return &SPRITEDATA;
+		case ZCLID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZCLID_FILE: return &FILE;
+		case ZCLID_DIRECTORY: return &DIRECTORY;
+		case ZCLID_STACK: return &STACK;
+		case ZCLID_RNG: return &RNG;
+		case ZCLID_PALDATA: return &PALDATA;
+		case ZCLID_BOTTLETYPE: return &BOTTLETYPE;
+		case ZCLID_BOTTLESHOP: return &BOTTLESHOP;
+		case ZCLID_GENERICDATA: return &GENERICDATA;
+		case ZCLID_GRAPHICS: return &GRAPHICS;
+		case ZCLID_BITMAP: return &BITMAP;
+		case ZCLID_TEXT: return &TEXT;
+		case ZCLID_INPUT: return &INPUT;
+		case ZCLID_MAPDATA: return &MAPDATA;
+		case ZCLID_DMAPDATA: return &DMAPDATA;
+		case ZCLID_ZMESSAGE: return &ZMESSAGE;
+		case ZCLID_SHOPDATA: return &SHOPDATA;
+		case ZCLID_DROPSET: return &DROPSET;
+		case ZCLID_PONDS: return &PONDS;
+		case ZCLID_WARPRING: return &WARPRING;
+		case ZCLID_DOORSET: return &DOORSET;
+		case ZCLID_ZUICOLOURS: return &ZUICOLOURS;
+		// case ZCLID_RGBDATA: return &RGBDATA;
+		// case ZCLID_PALETTE: return &PALETTE;
+		case ZCLID_TUNES: return &TUNES;
+		case ZCLID_PALCYCLE: return &PALCYCLE;
+		case ZCLID_GAMEDATA: return &GAMEDATA;
+		case ZCLID_CHEATS: return &CHEATS;
+		case ZCLID_FILESYSTEM: return &FILESYSTEM;
+		case ZCLID_MODULE: return &MODULE;
 		default: return NULL;
 	}
 }
@@ -480,7 +487,7 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 {
 	if (isVoid() || target.isVoid()) return false;
 	if (isUntyped() || target.isUntyped()) return true;
-	if (simpleId == ZVARTYPEID_CHAR || simpleId == ZVARTYPEID_LONG)
+	if (simpleId == ZTID_CHAR || simpleId == ZTID_LONG)
 		return FLOAT.canCastTo(target); //Char/Long cast the same as float.
 
 	if (DataTypeArray const* t =
@@ -490,15 +497,15 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 	if (DataTypeSimple const* t =
 			dynamic_cast<DataTypeSimple const*>(&target))
 	{
-		if (t->simpleId == ZVARTYPEID_CHAR || t->simpleId == ZVARTYPEID_LONG)
+		if (t->simpleId == ZTID_CHAR || t->simpleId == ZTID_LONG)
 			return canCastTo(FLOAT); //Char/Long cast the same as float.
-		if (simpleId == ZVARTYPEID_UNTYPED || t->simpleId == ZVARTYPEID_UNTYPED)
+		if (simpleId == ZTID_UNTYPED || t->simpleId == ZTID_UNTYPED)
 			return true;
-		if (simpleId == ZVARTYPEID_VOID || t->simpleId == ZVARTYPEID_VOID)
+		if (simpleId == ZTID_VOID || t->simpleId == ZTID_VOID)
 			return false;
 		if (simpleId == t->simpleId)
 			return true;
-		if (simpleId == ZVARTYPEID_FLOAT && t->simpleId == ZVARTYPEID_BOOL)
+		if (simpleId == ZTID_FLOAT && t->simpleId == ZTID_BOOL)
 			return true;
 	}
 	
@@ -508,7 +515,7 @@ bool DataTypeSimple::canCastTo(DataType const& target) const
 bool DataTypeSimple::canBeGlobal() const
 {
 	return true; //All types can be global, now. 
-	//return simpleId == ZVARTYPEID_FLOAT || simpleId == ZVARTYPEID_BOOL;
+	//return simpleId == ZTID_FLOAT || simpleId == ZTID_BOOL;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -624,11 +631,11 @@ bool DataTypeCustom::canCastTo(DataType const& target) const
 				dynamic_cast<DataTypeSimple const*>(&target))
 		{
 			//Enum-declared types can be cast to any non-void simple
-			return(t->getId() == ZVARTYPEID_UNTYPED
-				|| t->getId() == ZVARTYPEID_BOOL
-				|| t->getId() == ZVARTYPEID_FLOAT
-				|| t->getId() == ZVARTYPEID_LONG
-				|| t->getId() == ZVARTYPEID_CHAR);
+			return(t->getId() == ZTID_UNTYPED
+				|| t->getId() == ZTID_BOOL
+				|| t->getId() == ZTID_FLOAT
+				|| t->getId() == ZTID_LONG
+				|| t->getId() == ZTID_CHAR);
 		}
 	}
 	
@@ -661,21 +668,21 @@ namespace // file local
 	};
 	//the 'this' 'this->' stuff. -Z
 	ScriptTypeData scriptTypes[ScriptType::idEnd] = {
-		{"invalid", ZVARTYPEID_VOID},
-		{"global", ZVARTYPEID_VOID},
-		{"ffc", ZVARTYPEID_FFC},
-		{"item", ZVARTYPEID_ITEMCLASS},
-		{"npc", ZVARTYPEID_NPC},
-		{"eweapon", ZVARTYPEID_EWPN},
-		{"lweapon", ZVARTYPEID_LWPN},
-		{"player", ZVARTYPEID_PLAYER},
-		{"screendata", ZVARTYPEID_SCREEN},
-		{"dmapdata", ZVARTYPEID_DMAPDATA},
-		{"itemsprite", ZVARTYPEID_ITEM},
-		{"untyped", ZVARTYPEID_VOID},
-		{"combodata", ZVARTYPEID_COMBOS},
-		{"subscreendata", ZVARTYPEID_VOID},
-		{"generic",ZVARTYPEID_GENERICDATA},
+		{"invalid", ZTID_VOID},
+		{"global", ZTID_VOID},
+		{"ffc", ZTID_FFC},
+		{"item", ZTID_ITEMCLASS},
+		{"npc", ZTID_NPC},
+		{"eweapon", ZTID_EWPN},
+		{"lweapon", ZTID_LWPN},
+		{"player", ZTID_PLAYER},
+		{"screendata", ZTID_SCREEN},
+		{"dmapdata", ZTID_DMAPDATA},
+		{"itemsprite", ZTID_ITEM},
+		{"untyped", ZTID_VOID},
+		{"combodata", ZTID_COMBOS},
+		{"subscreendata", ZTID_VOID},
+		{"generic",ZTID_GENERICDATA},
 	};
 }
 

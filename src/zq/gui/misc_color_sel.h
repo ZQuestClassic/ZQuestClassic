@@ -34,7 +34,7 @@ private:
 	std::shared_ptr<MiscColorRow> mc_cs_row;
 	
 	int32_t c1, c2;
-	int32_t c2s[11];
+	int32_t c2s[12];
 	
 	void doUpdate1(int32_t val, bool func = true);
 	void doUpdate2(int32_t val, bool func = true);

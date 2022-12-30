@@ -5,7 +5,7 @@
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "CompileOption.h"
-#include "GlobalSymbols.h"
+#include "LibrarySymbols.h"
 #include "y.tab.hpp"
 #include <iostream>
 #include <assert.h>
@@ -20,6 +20,7 @@
 #include "BuildVisitors.h"
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
+#include <fmt/format.h>
 using std::unique_ptr;
 using std::shared_ptr;
 using namespace ZScript;
@@ -58,66 +59,75 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	zscript_error_out = false;
 	ScriptParser::initialize();
 	
-	zconsole_info("%s", "Pass 1: Parsing");
-
-	unique_ptr<ASTFile> root(parseFile(filename, true));
-	if(zscript_error_out) return nullptr;
-	if (!root.get())
+	try
 	{
-		log_error(CompileError::CantOpenSource(NULL));
+		zconsole_info("%s", "Pass 1: Parsing");
+
+		unique_ptr<ASTFile> root(parseFile(filename, true));
+		if(zscript_error_out) return nullptr;
+		if (!root.get())
+		{
+			log_error(CompileError::CantOpenSource(NULL));
+			return nullptr;
+		}
+
+		zconsole_info("%s", "Pass 2: Preprocessing");
+
+		if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		SimpleCompileErrorHandler handler;
+		Program program(*root, &handler);
+		if (handler.hasError())
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		zconsole_info("%s", "Pass 3: Registration");
+
+		RegistrationVisitor regVisitor(program);
+		if(regVisitor.hasFailed()) return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		zconsole_info("%s", "Pass 4: Analyzing Code");
+
+		SemanticAnalyzer semanticAnalyzer(program);
+		if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+
+		FunctionData fd(program);
+		if(zscript_error_out) return nullptr;
+		if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
+		{
+			log_error(CompileError::TooManyGlobal(NULL));
+			return nullptr;
+		}
+
+		zconsole_info("%s", "Pass 5: Generating object code");
+
+		unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
+		if (!id.get())
+			return nullptr;
+		if(zscript_error_out) return nullptr;
+		
+		zconsole_info("%s", "Pass 6: Assembling");
+
+		ScriptParser::assemble(id.get());
+
+		unique_ptr<ScriptsData> result(new ScriptsData(program));
+		if(zscript_error_out) return nullptr;
+
+		zconsole_info("%s", "Success!");
+
+		return unique_ptr<ScriptsData>(result.release());
+	}
+	catch (std::exception &e)
+	{
+		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
+		zscript_had_warn_err = zscript_error_out = true;
 		return nullptr;
 	}
-
-	zconsole_info("%s", "Pass 2: Preprocessing");
-
-	if (!ScriptParser::preprocess(root.get(), ScriptParser::recursionLimit))
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	SimpleCompileErrorHandler handler;
-	Program program(*root, &handler);
-	if (handler.hasError())
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	zconsole_info("%s", "Pass 3: Registration");
-
-	RegistrationVisitor regVisitor(program);
-	if(regVisitor.hasFailed()) return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	zconsole_info("%s", "Pass 4: Analyzing Code");
-
-	SemanticAnalyzer semanticAnalyzer(program);
-	if (semanticAnalyzer.hasFailed() || regVisitor.hasFailed())
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-
-	FunctionData fd(program);
-	if(zscript_error_out) return nullptr;
-	if (fd.globalVariables.size() > MAX_SCRIPT_REGISTERS)
-	{
-		log_error(CompileError::TooManyGlobal(NULL));
-		return nullptr;
-	}
-
-	zconsole_info("%s", "Pass 5: Generating object code");
-
-	unique_ptr<IntermediateData> id(ScriptParser::generateOCode(fd));
-	if (!id.get())
-		return nullptr;
-	if(zscript_error_out) return nullptr;
-	
-	zconsole_info("%s", "Pass 6: Assembling");
-
-	ScriptParser::assemble(id.get());
-
-	unique_ptr<ScriptsData> result(new ScriptsData(program));
-	if(zscript_error_out) return nullptr;
-
-	zconsole_info("%s", "Success!");
-
-	return unique_ptr<ScriptsData>(result.release());
 }
 
 int32_t ScriptParser::vid = 0;
@@ -647,30 +657,21 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 
 	// Grab all labels directly jumped to.
 	std::set<int32_t> usedLabels;
-	for (vector<shared_ptr<Opcode>>::iterator it = runCode.begin();
-	     it != runCode.end(); ++it)
-	{
-		GetLabels temp(usedLabels);
-		(*it)->execute(temp, NULL);
-	}
+	GetLabels getlabel(usedLabels);
+	getlabel.execute(runCode, nullptr);
 	std::set<int32_t> unprocessedLabels(usedLabels);
 
 	// Grab labels used by each function until we run out of functions.
 	while (!unprocessedLabels.empty())
 	{
 		int32_t label = *unprocessedLabels.begin();
-		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
+		Function* function = find<Function*>(functionsByLabel, label).value_or(nullptr);
 		if (function)
 		{
 			vector<shared_ptr<Opcode>> const& functionCode = function->getCode();
-			for (vector<shared_ptr<Opcode>>::const_iterator it = functionCode.begin();
-			     it != functionCode.end(); ++it)
-			{
-				GetLabels temp(usedLabels);
-				(*it)->execute(temp, NULL);
-				insertElements(unprocessedLabels, temp.newLabels);
-			}
+			GetLabels temp(usedLabels);
+			temp.execute(functionCode, nullptr);
+			insertElements(unprocessedLabels, temp.newLabels);
 		}
 
 		unprocessedLabels.erase(label);
@@ -686,7 +687,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	{
 		int32_t label = *it;
 		Function* function =
-			find<Function*>(functionsByLabel, label).value_or(boost::add_pointer<Function>::type());
+			find<Function*>(functionsByLabel, label).value_or(nullptr);
 		if (!function) continue;
 
 		vector<shared_ptr<Opcode>> functionCode = function->getCode();
@@ -694,13 +695,103 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		     it != functionCode.end(); ++it)
 			addOpcode2(rval, (*it)->makeClone());
 	}
-
+	
+	// Run automatic optimizations
+	// functionsByLabel and function labels are rendered invalid here
+	// ...but they've already been handled, so that's fine.
+	for(auto it = rval.begin(); it != rval.end();)
+	{
+		Opcode* ocode = it->get();
+		
+		//Merge multiple consecutive pops to the same register
+		OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
+		OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
+		if(popreg || popargs)
+		{
+			auto it2 = it;
+			++it2;
+			Argument const* regarg = popreg
+				? (popreg->getArgument())
+				: (popargs->getFirstArgument());
+			std::string targreg = regarg->toString();
+			size_t addcount = 0;
+			while(it2 != rval.end())
+			{
+				Opcode* nextcode = it2->get();
+				if(nextcode->getLabel() != -1)
+					break; //can't combine
+				OPopRegister* nextreg = dynamic_cast<OPopRegister*>(nextcode);
+				OPopArgsRegister* nextargs = dynamic_cast<OPopArgsRegister*>(nextcode);
+				if(!(nextreg || nextargs))
+					break; //can't combine
+				if(targreg.compare(nextreg
+					? (nextreg->getArgument()->toString())
+					: (nextargs->getFirstArgument()->toString())))
+					break; //Different registers, can't combine
+				if(nextargs)
+				{
+					LiteralArgument const* larg =
+						dynamic_cast<LiteralArgument*>(nextargs->getSecondArgument());
+					addcount += larg->value;
+				}
+				else //if nextreg
+					++addcount;
+				it2 = rval.erase(it2);
+			}
+			if(addcount)
+			{
+				if(popreg)
+				{
+					Argument* reg = regarg->clone();
+					it = rval.erase(it);
+					it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
+				}
+				else //if popargs
+				{
+					LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+					litarg->value += addcount;
+				}
+			}
+			++it;
+			continue;
+		}
+		
+		//Remove No Ops, handling their labels
+		if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
+		{
+			auto lbl = nop->getLabel();
+			if(lbl == -1) //no label, just trash it
+			{
+				it = rval.erase(it);
+				continue;
+			}
+			auto it2 = it;
+			++it2;
+			Opcode* nextcode = it2->get();
+			auto lbl2 = nextcode->getLabel();
+			if(lbl2 == -1) //next code has no label, pass the label
+			{
+				nextcode->setLabel(lbl);
+				it = rval.erase(it);
+				continue;
+			}
+			//Else merge the two labels!
+			it = rval.erase(it);
+			MergeLabels temp;
+			int32_t lbls[2] = { lbl2, lbl };
+			temp.execute(rval, lbls);
+			continue;
+		}
+		
+		//Not an opcode that has any special optimizations
+		++it;
+	}
+	
 	// Set the label line numbers.
 	map<int32_t, int32_t> linenos;
 	int32_t lineno = 1;
 
-	for (vector<shared_ptr<Opcode>>::iterator it = rval.begin();
-	     it != rval.end(); ++it)
+	for (auto it = rval.begin(); it != rval.end(); ++it)
 	{
 		if ((*it)->getLabel() != -1)
 			linenos[(*it)->getLabel()] = lineno;
@@ -708,12 +799,8 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	}
 
 	// Now fill in those labels
-	for (vector<shared_ptr<Opcode>>::iterator it = rval.begin();
-	     it != rval.end(); ++it)
-	{
-		SetLabels temp;
-		(*it)->execute(temp, &linenos);
-	}
+	SetLabels setlabel;
+	setlabel.execute(rval, &linenos);
 
 	return rval;
 }
@@ -826,18 +913,18 @@ ScriptsData::ScriptsData(Program& program)
 				it != run->paramTypes.end(); ++it)
 			{
 				std::optional<DataTypeId> id = program.getTypeStore().getTypeId(**it);
-				meta.run_types[ind] = id ? *id : ZVARTYPEID_VOID;
+				meta.run_types[ind] = id ? *id : ZTID_VOID;
 				int8_t ty = -1;
 				if(id) switch(*id)
 				{
-					case ZVARTYPEID_BOOL:
+					case ZTID_BOOL:
 						ty = nswapBOOL;
 						break;
-					case ZVARTYPEID_LONG:
+					case ZTID_LONG:
 						ty = nswapLDEC;
 						break;
-					case ZVARTYPEID_FLOAT:
-					case ZVARTYPEID_UNTYPED:
+					case ZTID_FLOAT:
+					case ZTID_UNTYPED:
 						ty = nswapDEC;
 						break;
 				}

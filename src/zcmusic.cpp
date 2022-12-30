@@ -9,12 +9,17 @@
 
 //#include "precompiled.h" //always first
 
-
 #include "base/zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
 #include <string.h>
+
+#ifdef _DEBUG
+#ifdef _malloca
+#undef _malloca
+#endif
+#endif
+
 #include <aldumb.h>
 #include <alogg.h>
-#include <almp3.h>
 #ifdef SOUND_LIBS_BUILT_FROM_SOURCE
 #include <gme.h>
 #endif
@@ -23,6 +28,8 @@
 #include "base/util.h"
 #include "zcmusic.h"
 #include <filesystem>
+#include <stdlib.h>
+#include <allegro5/allegro_audio.h>
 
 using namespace util;
 
@@ -133,8 +140,7 @@ typedef struct OGGEXFILE : public ZCMUSIC
 
 typedef struct MP3FILE : public ZCMUSIC
 {
-    ALMP3_MP3STREAM *s;
-    PACKFILE *f;
+    ALLEGRO_AUDIO_STREAM *s;
     char *fname;
     int32_t vol;
 } MP3FILE;
@@ -174,12 +180,7 @@ void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs);
 void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed);
 
 MP3FILE *load_mp3_file(const char *filename);
-int32_t poll_mp3_file(MP3FILE *mp3);
 void unload_mp3_file(MP3FILE *mp3);
-bool mp3_pause(MP3FILE *mp3);
-bool mp3_resume(MP3FILE *mp3);
-bool mp3_reset(MP3FILE *mp3);
-void mp3_stop(MP3FILE *mp3);
 
 Music_Emu* gme_load_file(const char* filename, const char* ext);
 int32_t poll_gme_file(GMEFILE *gme);
@@ -291,7 +292,6 @@ bool zcmusic_poll(int32_t flags)                              /* = -1 */
 				break;
 				
 			case ZCMF_MP3:
-				poll_mp3_file((MP3FILE*)*b);
 				break;
 				
 			case ZCMF_GME:
@@ -608,8 +608,7 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 		case ZCMF_MP3:
 			if(((MP3FILE*)zcm)->s != NULL)
 			{
-				/*pan*/
-				almp3_adjust_mp3stream(((MP3FILE*)zcm)->s, vol, 128, 1000/*speed*/);
+				al_set_audio_stream_gain(((MP3FILE*)zcm)->s, vol / 255.0);
 				((MP3FILE*)zcm)->vol = vol;
 			}
 			
@@ -667,9 +666,8 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 		case ZCMF_MP3:
 			if(((MP3FILE*)zcm)->s != NULL)
 			{
-				if(almp3_play_mp3stream(((MP3FILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALMP3_OK)
-					ret = FALSE;
-					
+				ret = al_set_audio_stream_playing(((MP3FILE*)zcm)->s, true);
+				al_set_audio_stream_gain(((MP3FILE*)zcm)->s, vol / 255.0);
 				((MP3FILE*)zcm)->vol = vol;
 		/*
 		//Should be possible to establish loops for these file types. -Z
@@ -782,11 +780,7 @@ bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause = -1)
 				break;
 				
 			case ZCMF_MP3:
-				if(p == ZCM_PAUSED)
-					mp3_pause((MP3FILE*)zcm);
-				else
-					mp3_resume((MP3FILE*)zcm);
-					
+				al_set_audio_stream_playing(((MP3FILE*)zcm)->s, p != ZCM_PAUSED);
 				break;
 				
 			case ZCMF_GME:
@@ -844,7 +838,8 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 		break;
 		
 	case ZCMF_MP3:
-		mp3_stop((MP3FILE*)zcm);
+		al_set_audio_stream_playing(((MP3FILE*)zcm)->s, false);
+		al_seek_audio_stream_secs(((MP3FILE*)zcm)->s, 0);
 		break;
 		
 	case ZCMF_GME:
@@ -1054,116 +1049,35 @@ return;
 MP3FILE *load_mp3_file(const char *filename)
 {
     MP3FILE *p = NULL;
-    PACKFILE *f = NULL;
-    ALMP3_MP3STREAM *s = NULL;
-    char *data = new char[(zcmusic_bufsz_private*512)];
-    int32_t len;
-    
-    if((p = (MP3FILE *)malloc(sizeof(MP3FILE)))==NULL)
-        goto error;
-        
-    if((f = pack_fopen_password(filename, F_READ,""))==NULL)
-        goto error;
-    
-    // ID3 tags sometimes cause problems with almp3, so try to skip them
-    if((len = pack_fread(data, 10, f)) <= 0)
-        goto error;
-    
-    if(strncmp(data, "ID3", 3)==0)
-    {
-        int32_t id3Size=10;
-        
-        id3Size=((data[6]&0x7F)<<21)|((data[7]&0x7F)<<14)|((data[8]&0x7F)<<7)|(data[9]&0x7F);
-        pack_fseek(f, id3Size-10);
-        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-            goto error;
-    }
-    else // no ID3
-    {
-        //if((len = pack_fread(data+10, (zcmusic_bufsz_private*512)-10, f)) <= 0)
-        if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-            goto error;
-    }
-    
-    if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-        goto error;
-    
-    if(len < (zcmusic_bufsz_private*512))
-    {
-        if((s = almp3_create_mp3stream(data, len, TRUE))==NULL)
-            goto error;
-    }
-    else
-    {
-        if((s = almp3_create_mp3stream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
-            goto error;
-    }
-    
-    p->f = f;
-    p->s = s;
-    delete[] data;
-    return p;
-    
+
+	if((p = (MP3FILE *)malloc(sizeof(MP3FILE)))==NULL)
+        return NULL;
+
+	al_reserve_samples(5);
+	ALLEGRO_AUDIO_STREAM* stream = al_play_audio_stream(filename);
+	if (!stream)
+		goto error;
+	al_set_audio_stream_playing(stream, false);
+
+	p->s = stream;
+
+	return p;
+
 error:
 
-    if(f)
-        pack_fclose(f);
-        
     if(p)
         free(p);
         
-    delete[] data;
     return NULL;
-}
-
-int32_t poll_mp3_file(MP3FILE *mp3)
-{
-    if(mp3 == NULL) return ALMP3_POLL_NOTPLAYING;
-    
-    if(mp3->s == NULL) return ALMP3_POLL_NOTPLAYING;
-    
-    char *data = (char *)almp3_get_mp3stream_buffer(mp3->s);
-    
-    if(data)
-    {
-        int32_t len = pack_fread(data, (zcmusic_bufsz_private*512), mp3->f);
-        
-        if(len < (zcmusic_bufsz_private*512))
-            almp3_free_mp3stream_buffer(mp3->s, len);
-        else
-            almp3_free_mp3stream_buffer(mp3->s, -1);
-    }
-    
-    int32_t ret = almp3_poll_mp3stream(mp3->s);
-    
-    if(ret != ALMP3_OK)
-    {
-        mp3_reset(mp3);
-        almp3_play_mp3stream(mp3->s, (zcmusic_bufsz_private*1024), mp3->vol, 128);
-        mp3->playing = ZCM_PLAYING;
-    }
-    
-    return ret;
 }
 
 void unload_mp3_file(MP3FILE *mp3)
 {
     if(mp3 != NULL)
     {
-        if(mp3->f != NULL)
-        {
-            pack_fclose(mp3->f);
-            mp3->f = NULL;
-        }
-        
         if(mp3->s != NULL)
         {
-            AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            almp3_destroy_mp3stream(mp3->s);
+			al_set_audio_stream_playing(mp3->s, false);
             mp3->s = NULL;
         }
         
@@ -1171,97 +1085,6 @@ void unload_mp3_file(MP3FILE *mp3)
         {
             free(mp3->fname);
             free(mp3);
-        }
-    }
-}
-
-bool mp3_pause(MP3FILE *mp3)
-{
-    AUDIOSTREAM* a = NULL;
-    
-    if(mp3->s != NULL)
-        a = almp3_get_audiostream_mp3stream(mp3->s);
-        
-    if(a != NULL)
-    {
-        voice_stop(a->voice);
-        return true;
-    }
-    
-    return false;
-}
-
-bool mp3_resume(MP3FILE *mp3)
-{
-    AUDIOSTREAM* a = NULL;
-    
-    if(mp3->s != NULL)
-        a = almp3_get_audiostream_mp3stream(mp3->s);
-        
-    if(a != NULL)
-    {
-        voice_start(a->voice);
-        return true;
-    }
-    
-    return false;
-}
-
-bool mp3_reset(MP3FILE *mp3)
-{
-    if(mp3->fname != NULL)
-    {
-        if(mp3->f != NULL)
-        {
-            pack_fclose(mp3->f);
-            mp3->f = NULL;
-        }
-        
-        if(mp3->s != NULL)
-        {
-            AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            almp3_destroy_mp3stream(mp3->s);
-            mp3->s = NULL;
-        }
-        
-        MP3FILE* tmp3 = load_mp3_file(mp3->fname);
-        
-        if(tmp3 != NULL)
-        {
-            mp3->playing = ZCM_STOPPED;
-            mp3->s = tmp3->s;
-            mp3->f = tmp3->f;
-            free(tmp3);
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-void mp3_stop(MP3FILE *mp3)
-{
-    if(mp3->fname != NULL)
-    {
-        if(mp3->f != NULL)
-        {
-            pack_fclose(mp3->f);
-            mp3->f = NULL;
-        }
-        
-        if(mp3->s != NULL)
-        {
-            AUDIOSTREAM* a = almp3_get_audiostream_mp3stream(mp3->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            almp3_destroy_mp3stream(mp3->s);
-            mp3->s = NULL;
         }
     }
 }

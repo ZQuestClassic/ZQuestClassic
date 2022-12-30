@@ -43,9 +43,7 @@ If flex-bison is not found, CMake will fail to build.
 
 **6))**
 
-The compiled binaries **will not run** on their own without support files. These files ARE now included in the repository.
-
-On windows, you can run `output/_auto/buildpack.bat` to generate a folder with all the required files.
+The compiled binaries require a number of resource files to be available at runtime. By default, building the project will copy those files to the correct location. They will only be copied if they do not already exist–so you can modify these files (like the various `.cfg` files) in your build directory to your liking. To completely refresh the resources file, build the `copy_resources` target (ex: `cmake --build build -t copy_resources`)
 
 To debug any issues, open `allegro.log` after opening a binary.
 
@@ -57,18 +55,9 @@ When it asks you for compiler settings, be sure to set MSVC 2019, with `32-bit` 
 
 Click "Generate." This will create a Visual Studio project file for you in the build directory. You can then open up the project file in MSVC and do editing/compilation/debugging in MSVC. You do not need to touch CMake again unless you want to change project configuration options or add/remove source files.
 
-### Quick-start: Linux with gcc (OLD INSTRUCTIONS, UNTESTED)
+### Quick-start: Linux with gcc
 
-Linux builds are currently not entirely functional. This section will be updated with new instructions at a later date. (-EmilyV, Jan 9th 2022)
-
-Ensure you have CMake 3.5+ install and execute the following commands:
-```
-cd build
-cmake ..
-make
-```
-
-Binaries will be created in the `build` folder. You will need to copy the data files created by the buildpack.sh script to the Debug/Release folder.
+See `docs/building.md`.
 
 ## Contributing to Zelda Classic
 

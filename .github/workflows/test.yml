@@ -1,0 +1,128 @@
+name: Test
+run-name: Test (${{ inputs.runs-on }}, ${{ inputs.arch }}) ${{ inputs.extra-args }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs-on:
+        type: string
+        description: 'runs-on'
+      arch:
+        type: string
+        description: 'arch'
+      compiler:
+        type: string
+        description: 'compiler'
+      extra-args:
+        type: string
+        description: 'extra-args'
+  workflow_call:
+    inputs:
+      runs-on:
+        type: string
+      arch:
+        type: string
+      compiler:
+        type: string
+      extra-args:
+        type: string
+
+env:
+  PYTHONUNBUFFERED: '1'
+
+jobs:
+  build:
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/build.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    with:
+      runs-on: ${{ inputs.runs-on }}
+      arch: ${{ inputs.arch }}
+      compiler: ${{ inputs.compiler }}
+
+  test:
+    needs: ["build"]
+    strategy:
+      matrix:
+        num_shards: [6]
+        shard_index: [1, 2, 3, 4, 5, 6]
+      fail-fast: false
+    name: Replays ${{ matrix.shard_index }}/${{ matrix.num_shards }}
+    runs-on: ${{ inputs.runs-on }}
+    steps:
+      - name: git clone
+        uses: nschloe/action-cached-lfs-checkout@v1
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10' 
+      - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
+        run: pip install requests PyGithub watchdog
+      - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: sudo pip install requests PyGithub watchdog
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.build.outputs.artifact-name }}
+          path: ${{ needs.build.outputs.artifact-name }}
+      - name: Prepare build folder
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            chcp 65001
+            echo ("BUILD_FOLDER=zc-extracted") >> $env:GITHUB_ENV
+            mkdir zc-extracted
+            cd zc-extracted
+            7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
+          macos: |
+            echo "BUILD_FOLDER=zc-extracted/Contents/Resources" >> "$GITHUB_ENV"
+            hdiutil attach -mountpoint zc-mounted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
+            cp -r zc-mounted/ZeldaClassic.app zc-extracted
+            hdiutil unmount zc-mounted
+          linux: |
+            echo "BUILD_FOLDER=zc-extracted" >> "$GITHUB_ENV"
+            mkdir zc-extracted
+            tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C zc-extracted
+
+      - run: sudo apt-get install libopengl0 libglu1
+        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+
+      - if: ${{ matrix.shard_index == 1 }}
+        name: Test zscript
+        uses: knicknic/os-specific-run@v1.0.3
+        with:
+          windows: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript.exe -input "include/std.zh" -unlinked
+          macos: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript -input "include/std.zh" -unlinked
+          linux: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript -input "include/std.zh" -unlinked
+
+      - name: Run replay tests
+        if: ${{ contains(inputs.runs-on, 'ubuntu') }}
+        run: >
+          xvfb-run --auto-servernum sudo -E python -Xutf8 tests/run_replay_tests.py 
+          --build_folder ${{ env.BUILD_FOLDER }}
+          --test_results_folder .tmp/test_results
+          --retries 1
+          --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
+          --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
+          ${{ inputs.extra-args }}
+      - name: Run replay tests
+        if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
+        run: >
+          python -Xutf8 tests/run_replay_tests.py 
+          --build_folder ${{ env.BUILD_FOLDER }}
+          --test_results_folder .tmp/test_results
+          --retries 1
+          --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
+          --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
+          ${{ inputs.extra-args }}
+
+      - uses: actions/upload-artifact@v3
+        if: github.event_name == 'workflow_dispatch' || failure()
+        with:
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          path: ${{ github.workspace }}/.tmp/test_results

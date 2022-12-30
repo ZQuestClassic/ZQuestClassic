@@ -20,7 +20,6 @@ extern int32_t scheme[];
 //#endif
 
 extern volatile int32_t myvsync;
-extern int32_t zqwin_scale;
 void update_hw_screen(bool force);
 
 extern bool is_zquest();
@@ -373,11 +372,10 @@ void BasicEditboxView::draw()
 	
 	set_clip_rect(dbuf, 0,0,host->w,host->h);
 	drawExtraComponents();
-	//vsync();
 	blit(dbuf, screen, 0, 0, host->x, host->y,host->w, host->h);
-	set_clip_rect(screen, 0, 0,SCREEN_W,SCREEN_H);
+	set_clip_rect(screen, 0, 0,screen->w,screen->h);
 	
-	update_hw_screen();
+	update_hw_screen(false);
 }
 
 bool BasicEditboxView::mouseClick(int32_t x, int32_t y)

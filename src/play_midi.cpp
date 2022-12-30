@@ -9,12 +9,20 @@
 MIDI *current_midi = NULL;
 Mix_Music *current_mus = NULL;
 bool has_opened_audio;
-#endif
+
+void on_music(void *udata, Uint8 *stream, int len)
+{
+  if (current_midi && current_mus)
+    midi_pos = Mix_GetMusicBeat();
+  else
+    midi_pos = -1;
+}
 
 void on_music_finished()
 {
-  midi_pos = 0;
+  midi_pos = -1;
 }
+#endif
 
 int play_midi_em(MIDI *midi, int32_t loop)
 {
@@ -25,7 +33,7 @@ int play_midi_em(MIDI *midi, int32_t loop)
     {
       Mix_HaltMusic();
       current_midi = NULL;
-      midi_pos = 0;
+      midi_pos = -1;
     }
     return 0;
   }
@@ -42,7 +50,8 @@ int play_midi_em(MIDI *midi, int32_t loop)
       al_trace("Mix_OpenAudioDevice error: %s\n", Mix_GetError());
       return 1;
     }
-    Mix_HookMusicFinished(on_music_finished);
+    Mix_SetPostMix(on_music, NULL);
+	Mix_HookMusicFinished(on_music_finished);
     has_opened_audio = true;
   }
 
@@ -71,7 +80,7 @@ int play_midi_em(MIDI *midi, int32_t loop)
     return 1;
   }
 
-  midi_pos = 1;
+  midi_pos = 0;
   current_midi = midi;
   return 0;
 #else
@@ -126,7 +135,7 @@ void zc_set_volume(int digi_volume, int midi_volume)
 void zc_midi_seek(int pos)
 {
 #ifdef __EMSCRIPTEN__
-  Mix_SetMusicPosition(pos);
+  Mix_SetMusicBeat(pos - 1);
 #else
   midi_seek(pos);
 #endif

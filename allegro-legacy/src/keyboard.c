@@ -32,7 +32,6 @@ int key_led_flag = TRUE;
 
 volatile char key[KEY_MAX];                  /* key pressed flags */
 volatile char _key[KEY_MAX];
-volatile bool locking_keys = FALSE;
 
 volatile int key_shifts = 0;                 /* current shift state */
 volatile int _key_shifts = 0;
@@ -102,18 +101,18 @@ AL_CONST char *_keyboard_common_names[KEY_MAX] =
    "F2",         "F3",         "F4",         "F5",
    "F6",         "F7",         "F8",         "F9",
    "F10",        "F11",        "F12",        "ESC",
-   "KEY60",      "KEY61",      "KEY62",      "BACKSPACE",
-   "TAB",        "KEY65",      "KEY66",      "ENTER",
-   "KEY68",      "KEY69",      "BACKSLASH",  "KEY71",
+   "~",          "-",          "=",          "BACKSPACE",
+   "TAB",        "[",          "]",          "ENTER",
+   ":",          "KEY69",      "BACKSLASH",  "KEY71",
    "KEY72",      "KEY73",      "KEY74",      "SPACE",
    "INSERT",     "DEL",        "HOME",       "END",
    "PGUP",       "PGDN",       "LEFT",       "RIGHT",
    "UP",         "DOWN",       "/ PAD",      "* PAD",
    "- PAD",      "+ PAD",      "DEL PAD",    "ENTER PAD",
    "PRINT",      "PAUSE",      "KEY94",      "KEY95",
-   "KEY96",      "KEY97",      "KEY98",      "KEY99",
+   "KEY96",      "KEY97",      "KEY98",      "@",
    "KEY100",     "KEY101",     "KEY102",     "= PAD",
-   "KEY104",     "KEY105",     "KEY106",     "KEY107",
+   "`",          ";",          "CMD",        "KEY107",
    "KEY108",     "KEY109",     "KEY110",     "KEY111",
    "KEY112",     "KEY113",     "KEY114",     "LSHIFT",
    "RSHIFT",     "LCONTROL",   "RCONTROL",   "ALT",
@@ -433,8 +432,6 @@ static INLINE void update_shifts(void)
  */
 void _handle_key_press(int keycode, int scancode)
 {
-   while (locking_keys);
-
    if ((keyboard_driver->poll) || (!keyboard_polled)) {
       /* process immediately */
       if (scancode > 0) {
@@ -616,8 +613,6 @@ AL_CONST char *scancode_to_name(int scancode)
 
    return name;
 }
-
-
 
 /* install_keyboard:
  *  Installs Allegro's keyboard handler. You must call this before using

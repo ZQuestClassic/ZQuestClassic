@@ -9,5 +9,6 @@ X(	NO_ERROR_HALT,                                                      0,       
 X(	TRUE_INT_SIZE,                                qr_PARSER_TRUE_INT_SIZE,            OPTTYPE_QR,                     10000)
 X(	FORCE_INLINE,                                  qr_PARSER_FORCE_INLINE,            OPTTYPE_QR,                         0)
 X(	BINARY_32BIT,                                  qr_PARSER_BINARY_32BIT,            OPTTYPE_QR,                         0)
-X(	APPROX_EQUAL_MARGIN,                                                0,        OPTTYPE_CONFIG,                       100)
+X(	APPROX_EQUAL_MARGIN,                                                0,  OPTTYPE_CONFIG_FLOAT,                       100)
 X(	STRING_SWITCH_CASE_INSENSITIVE,    qr_PARSER_STRINGSWITCH_INSENSITIVE,            OPTTYPE_QR,                         0)
+X(	WARN_DEPRECATED,                                                    0,        OPTTYPE_CONFIG,                         0)

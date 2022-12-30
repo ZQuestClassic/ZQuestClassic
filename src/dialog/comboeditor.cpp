@@ -1,4 +1,5 @@
 #include "comboeditor.h"
+#include "combowizard.h"
 #include "info.h"
 #include "alert.h"
 #include "base/zsys.h"
@@ -16,6 +17,8 @@ extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
+
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
@@ -53,24 +56,26 @@ bool hasCTypeEffects(int32_t type)
 	return false;
 }
 
-static bool edited = false, cleared = false;
+static bool edited = false;
+#if DEVLEVEL > 0
+static int32_t force_wizard = 0;
+#endif
 bool call_combo_editor(int32_t index)
 {
 	combo_use_script_data = zc_get_config("zquest","show_comboscript_meta_attribs",1)?true:false;
+#if DEVLEVEL > 0
+	force_wizard = 0;
+	if(key_shifts&KB_CTRL_FLAG)
+		force_wizard = (key_shifts&KB_SHIFT_FLAG)?2:1;
+#endif
 	int32_t cs = CSet;
-	edited = false; cleared = false;
+	edited = false;
 	ComboEditorDialog(index).show();
-	while(cleared)
-	{
-		cleared = false;
-		ComboEditorDialog(index, true).show();
-	}
 	if(!edited) CSet = cs;
-	zc_set_config("zquest","show_comboscript_meta_attribs",combo_use_script_data?1:0);
 	return edited;
 }
 
-ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool clrd):
+ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	local_comboref(ref), index(index),
 	list_ctype(GUI::ZCListData::combotype(true)),
 	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
@@ -78,19 +83,13 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index, bool cl
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
-	list_weaptype(GUI::ZCListData::lweaptypes()),
+	list_weaptype(GUI::ZCListData::weaptypes(true)),
+	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_deftypes(GUI::ZCListData::deftypes())
-{
-	if(clrd)
-	{
-		word foo = local_comboref.foo; //Might need to store this?
-		local_comboref.clear();
-		local_comboref.foo = foo;
-	}
-}
+{}
 
-ComboEditorDialog::ComboEditorDialog(int32_t index, bool clrd):
-	ComboEditorDialog(combobuf[index], index, clrd)
+ComboEditorDialog::ComboEditorDialog(int32_t index):
+	ComboEditorDialog(combobuf[index], index)
 {}
 
 //{ Help Strings
@@ -607,7 +606,6 @@ void cflag_help(int32_t id)
 void ComboEditorDialog::refreshScript()
 {
 	loadComboType();
-	string l_initd[2];
 	int32_t sw_initd[2];
 	for(auto q = 0; q < 2; ++q)
 	{
@@ -644,10 +642,6 @@ void ComboEditorDialog::refreshScript()
 void ComboEditorDialog::loadComboType()
 {
 	static std::string dirstr[] = {"up","down","left","right"};
-	string l_flag[16];
-	string l_attribyte[8];
-	string l_attrishort[8];
-	string l_attribute[4];
 	#define FL(fl) (local_comboref.usrflags & (fl))
 	for(size_t q = 0; q < 16; ++q)
 	{
@@ -673,6 +667,34 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_attribyte[0] = "Sound:";
 			h_attribyte[0] = "SFX to play during the warp";
+			break;
+		}
+		case cSLOPE:
+		{
+			l_attrishort[0] = "X Offset 1:";
+			h_attrishort[0] = "X Offset of the starting point of the slope line.";
+			l_attrishort[1] = "Y Offset 1:";
+			h_attrishort[1] = "Y Offset of the starting point of the slope line.";
+			l_attrishort[2] = "X Offset 2:";
+			h_attrishort[2] = "X Offset of the ending point of the slope line.";
+			l_attrishort[3] = "Y Offset 2:";
+			h_attrishort[3] = "Y Offset of the ending point of the slope line.";
+			l_attribute[0] = "Slipperiness:";
+			h_attribute[0] = "Pixels per frame to slide down the slope in sideview.";
+			l_flag[0] = "Is Stairs";
+			h_flag[0] = "You must hold up or be in the air for this slope to be active from the top. Bottom is always passthrough.";
+			l_flag[1] = "Pass through bottom";
+			h_flag[1] = "Disables the slope's collision from below, allowing sprites to pass through from the bottom.";
+			l_flag[2] = "Pass through top";
+			h_flag[2] = "Disables the slope's collision from above, allowing sprites to pass through from the top.";
+			l_flag[3] = "Pass through left side";
+			h_flag[3] = "Disables the slope's collision from the left, allowing sprites to pass through from the left side."
+				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
+			l_flag[4] = "Pass through right side";
+			h_flag[4] = "Disables the slope's collision from the right, allowing sprites to pass through from the right side."
+				"\nThis flag is not needed if you have either pass through top or pass through bottom checked.";
+			l_flag[5] = "Can fall through";
+			h_flag[5] = "Treats the slope like a Sideview Platform Flag, allowing you to fall through it depending on quest rules.";
 			break;
 		}
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
@@ -710,6 +732,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[0] = "The minimum level flippers required to swim in the water. Flippers of lower level will have no effect.";
 			l_attribyte[4] = "Drown SFX:";
 			h_attribyte[4] = "The SFX played when drowning";
+			l_attribyte[5] = "Splash SFX:";
+			h_attribyte[5] = "SFX ID to play when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -736,10 +760,24 @@ void ComboEditorDialog::loadComboType()
 			l_flag[1] = "Modify HP (Passive)";
 			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
 				" (either healing or damaging).";
-			l_attribyte[0] = "Sound";
-			h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
+			if (get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
+			{
+				l_attribyte[0] = "Splash Sound";
+				h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";
+			}
+			else
+			{
+				l_attribyte[5] = "Splash Sound";
+				h_attribyte[5] = "SFX ID to play when stepping in the shallow liquid";
+			}
 			if(FL(cflag2)) //Modify HP
 			{
+				l_flag[4] = "Rings affect HP Mod";
+				h_flag[4] = "Ring items defense reduces damage from HP Mod";
+				l_flag[5] = "Mod SFX only on HP change";
+				h_flag[5] = "Only play the HP Mod SFX when HP actually changes";
+				l_flag[6] = "Damage causes hit anim";
+				h_flag[6] = "HP Mod Damage triggers the hit animation and invincibility frames";
 				l_attribute[1] = "HP Modification:";
 				h_attribute[1] = "How much HP should be modified by (negative for damage)";
 				l_attribute[2] = "HP Mod SFX:";
@@ -1266,14 +1304,15 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[2] = "Sprite:";
 			h_attribyte[2] = "The sprite of the spawned weapon";
 			//byte[3] : multishot shot count
-			l_attribyte[4] = "Unblockable";
+			l_attribyte[4] = "Unblockable:";
 			h_attribyte[4] = "Sum the following values to create a flagset:"
 				"\n1: Bypass 'Block' defense"
 				"\n2: Bypass 'Ignore' defense"
 				"\n4: Bypass enemy/player shield blocking"
 				"\n8: Bypass player shield reflecting";
-			l_attribyte[5] = "Script";
-			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons";
+			l_attribyte[5] = "Script:";
+			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
+				"\nNote that there is no way to supply InitD to such scripts.";
 			
 			//short[0],[1] : Rate
 			l_attrishort[2] = "Damage:";
@@ -1892,6 +1931,7 @@ void ComboEditorDialog::loadComboType()
 		l_attributes[q]->setText(l_attribute[q]);
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
+	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	pendDraw();
 }
 void ComboEditorDialog::updateCSet()
@@ -2164,7 +2204,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				"-/+: Change CSet\n"
 				"H/V/R: Flip (Horz,Vert,Rotate)\n"
 				"T: Change tile",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			shortcuts={
 				V=message::VFLIP,
@@ -2177,7 +2216,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				T=message::TILESEL,
 			},
 			Column(
-				Rows<3>(padding = 0_px,
+				Rows<4>(padding = 0_px,
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_ctype, fitParent = true,
 						maxwidth = sized(220_px, 400_px),
@@ -2190,6 +2229,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						{
 							ctype_help(local_comboref.type);
 						}
+					),
+					wizardButton = Button(
+						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
+						padding = 0_px, forceFitH = true, onClick = message::WIZARD
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
@@ -3201,6 +3244,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								combo_use_script_data = state;
+								zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
 								loadComboType();
 							})
 					))
@@ -3235,7 +3279,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				"-/+: Change CSet\n"
 				"H/V/R: Flip (Horz,Vert,Rotate)\n"
 				"T: Change tile",
-			onEnter = message::OK,
 			onClose = message::CANCEL,
 			shortcuts={
 				V=message::VFLIP,
@@ -3248,7 +3291,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				T=message::TILESEL,
 			},
 			Column(
-				Rows<3>(padding = 0_px,
+				Rows<4>(padding = 0_px,
 					Label(text = "Type:", hAlign = 1.0),
 					DropDownList(data = list_ctype, fitParent = true,
 						maxwidth = sized(220_px, 400_px),
@@ -3261,6 +3304,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						{
 							ctype_help(local_comboref.type);
 						}
+					),
+					wizardButton = Button(
+						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
+						padding = 0_px, forceFitH = true, onClick = message::WIZARD
 					),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
@@ -4277,6 +4324,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								combo_use_script_data = state;
+								zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
 								loadComboType();
 							})
 					))
@@ -4304,6 +4352,25 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	l_minmax_trig->setText((local_comboref.triggerflags[0] & (combotriggerINVERTMINMAX))
 		? maxstr : minstr);
 	refreshScript();
+#if DEVLEVEL > 0
+	if(force_wizard)
+	{
+		if(force_wizard==1)
+		{
+			local_comboref.type = cSHALLOWWATER;
+			call_combo_wizard(*this);
+		}
+		else for(auto q = 0; q < cMAX; ++q)
+		{
+			if(hasComboWizard(q))
+			{
+				local_comboref.type = q;
+				call_combo_wizard(*this);
+			}
+		}
+		return nullptr;
+	}
+#endif
 	return window;
 }
 
@@ -4391,19 +4458,37 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		}
 		case message::CLEAR:
+		{
+			bool doclear = false;
 			AlertDialog("Are you sure?",
 				"Clearing the combo will reset all values",
 				[&](bool ret,bool)
 				{
-					cleared = ret;
+					doclear = ret;
 				}).show();
-			if(cleared) return true;
+			if(doclear)
+			{
+				local_comboref.clear();
+				rerun_dlg = true;
+				return true;
+			}
+			return false;
+		}
+		
+		case message::WIZARD:
+			if(hasComboWizard(local_comboref.type))
+			{
+				call_combo_wizard(*this);
+				rerun_dlg = true;
+				return true;
+			}
 			break;
+		
 		case message::OK:
 			saved = false;
 			if(!hasCTypeEffects(local_comboref.type))
 				local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
-			memcpy(&combobuf[index], &local_comboref, sizeof(local_comboref));
+			combobuf[index] = local_comboref;
 			edited = true;
 			return true;
 

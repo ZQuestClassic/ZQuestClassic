@@ -11,7 +11,7 @@ enum App {
 
 void common_main_setup(App id, int argc, char **argv);
 App get_app_id();
-void zc_install_mouse_event_handler();
-void zc_process_mouse_events();
+double zc_get_monitor_scale();
+void zc_process_display_events();
 
 #endif

@@ -26,6 +26,7 @@
 #include "zscriptversion.h"
 #include "particles.h"
 #include "base/zc_math.h"
+#include "slopes.h"
 
 extern particle_list particles;
 
@@ -355,12 +356,12 @@ bool flyerblocked(int32_t dx, int32_t dy, int32_t special, guydata const& gd)
 
   */
 
-eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eFire::eFire(eFire const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -405,12 +406,12 @@ eFire::eFire(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	}
 }
 
-eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eOther::eOther(eOther const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -458,12 +459,12 @@ eOther::eOther(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 
 
 
-eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eScript::eScript(eScript const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -508,12 +509,12 @@ eScript::eScript(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eFriendly::eFriendly(eFriendly const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	shield(shield)
+	clk4(other.clk4),
+	shield(other.shield)
 
 {
 	
@@ -558,14 +559,14 @@ eFriendly::eFriendly(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGhini::eGhini(eGhini const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	ox(ox),
-	oy(oy),
-	c(c)
+	clk4(other.clk4),
+	ox(other.ox),
+	oy(other.oy),
+	c(other.c)
 
 {
 	
@@ -610,14 +611,14 @@ eGhini::eGhini(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTektite::eTektite(eTektite const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	old_y(old_y),
-	clk2start(clk2start),
-	cstart(cstart),
-	c(c)
+	old_y(other.old_y),
+	clk2start(other.clk2start),
+	cstart(other.cstart),
+	c(other.c)
 
 {
 	
@@ -662,7 +663,7 @@ eTektite::eTektite(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eItemFairy::eItemFairy(eItemFairy const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -709,13 +710,13 @@ eItemFairy::eItemFairy(enemy const & other, bool new_script_uid, bool clear_pare
 	}
 }
 
-ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+ePeahat::ePeahat(ePeahat const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	ox(ox),
-	oy(oy),
-	c(c)
+	ox(other.ox),
+	oy(other.oy),
+	c(other.c)
 {
 	
 	//arrays
@@ -759,11 +760,11 @@ ePeahat::ePeahat(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eLeever::eLeever(eLeever const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	temprule(temprule)
+	temprule(other.temprule)
 {
 	
 	//arrays
@@ -807,7 +808,7 @@ eLeever::eLeever(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eWallM::eWallM(eWallM const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -854,18 +855,18 @@ eWallM::eWallM(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eStalfos::eStalfos(eStalfos const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4),
-	clk5(clk5),
-	fired(fired),
-	shield(shield),
-	dashing(dashing),
-	multishot(multishot),
-	fy(fy),
-	shadowdistance(shadowdistance)
+	clk4(other.clk4),
+	clk5(other.clk5),
+	fired(other.fired),
+	shield(other.shield),
+	dashing(other.dashing),
+	multishot(other.multishot),
+	fy(other.fy),
+	shadowdistance(other.shadowdistance)
 {
 	
 	//arrays
@@ -909,7 +910,7 @@ eStalfos::eStalfos(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eZora::eZora(eZora const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -956,7 +957,7 @@ eZora::eZora(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	}
 }
 
-eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eSpinTile::eSpinTile(eSpinTile const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1003,7 +1004,7 @@ eSpinTile::eSpinTile(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eNPC::eNPC(eNPC const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1050,7 +1051,7 @@ eNPC::eNPC(enemy const & other, bool new_script_uid, bool clear_parent_script_UI
 	}
 }
 
-eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTrigger::eTrigger(eTrigger const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1097,11 +1098,11 @@ eTrigger::eTrigger(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eProjectile::eProjectile(eProjectile const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	minRange(minRange)
+	minRange(other.minRange)
 {
 	
 	//arrays
@@ -1145,7 +1146,7 @@ eProjectile::eProjectile(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 }
 
-eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eBoulder::eBoulder(eBoulder const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1192,7 +1193,7 @@ eBoulder::eBoulder(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eRock::eRock(eRock const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1239,7 +1240,7 @@ eRock::eRock(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	}
 }
 
-eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTrap2::eTrap2(eTrap2 const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1286,12 +1287,12 @@ eTrap2::eTrap2(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eTrap::eTrap(eTrap const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	ox(ox),
-	oy(oy)
+	ox(other.ox),
+	oy(other.oy)
 {
 	
 	//arrays
@@ -1338,14 +1339,14 @@ eTrap::eTrap(enemy const & other, bool new_script_uid, bool clear_parent_script_
 
 
 
-eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eKeese::eKeese(eKeese const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	ox(ox),
-	c(c),
-	clk4(clk4),
-	oy(oy)
+	ox(other.ox),
+	c(other.c),
+	clk4(other.clk4),
+	oy(other.oy)
 {
 	
 	//arrays
@@ -1389,13 +1390,13 @@ eKeese::eKeese(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eWizzrobe::eWizzrobe(eWizzrobe const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	charging(charging),
-	firing(firing),
-	fclk(fclk)
+	charging(other.charging),
+	firing(other.firing),
+	fclk(other.fclk)
 {
 	
 	//arrays
@@ -1439,7 +1440,7 @@ eWizzrobe::eWizzrobe(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eDodongo::eDodongo(eDodongo const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1486,11 +1487,11 @@ eDodongo::eDodongo(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eDodongo2::eDodongo2(eDodongo2 const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	previous_dir(previous_dir)
+	previous_dir(other.previous_dir)
 {
 	
 	//arrays
@@ -1534,12 +1535,12 @@ eDodongo2::eDodongo2(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 
-eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eAquamentus::eAquamentus(eAquamentus const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	fbx(fbx),
-	clk4(clk4)
+	fbx(other.fbx),
+	clk4(other.clk4)
 {
 	
 	//arrays
@@ -1583,11 +1584,11 @@ eAquamentus::eAquamentus(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 }
 
-eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGohma::eGohma(eGohma const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	clk4(clk4)
+	clk4(other.clk4)
 {
 	
 	//arrays
@@ -1631,7 +1632,7 @@ eGohma::eGohma(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eLilDig::eLilDig(eLilDig const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1678,7 +1679,7 @@ eLilDig::eLilDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eBigDig::eBigDig(eBigDig const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1725,11 +1726,11 @@ eBigDig::eBigDig(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGanon::eGanon(eGanon const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	Stunclk(Stunclk)
+	Stunclk(other.Stunclk)
 
 {
 	
@@ -1774,12 +1775,12 @@ eGanon::eGanon(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eMoldorm::eMoldorm(eMoldorm const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	segcnt(segcnt),
-	segid(segid)
+	segcnt(other.segcnt),
+	segid(other.segid)
 
 {
 	
@@ -1824,11 +1825,11 @@ eMoldorm::eMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esMoldorm::esMoldorm(esMoldorm const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
-	parentclk(parentclk)
+	parentclk(other.parentclk)
 {
 	
 	//arrays
@@ -1872,7 +1873,7 @@ esMoldorm::esMoldorm(enemy const & other, bool new_script_uid, bool clear_parent
 	}
 }
 /*
-eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eManhandla::eManhandla(eManhandla const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -1928,7 +1929,7 @@ eManhandla::eManhandla(enemy const & other, bool new_script_uid, bool clear_pare
 	}
 }
 
-esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esManhandla::esManhandla(esManhandla const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -1974,7 +1975,7 @@ esManhandla::esManhandla(enemy const & other, bool new_script_uid, bool clear_pa
 	}
 }
 
-eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+eGleeok::eGleeok(eGleeok const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2025,7 +2026,7 @@ eGleeok::eGleeok(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esGleeok::esGleeok(esGleeok const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2091,7 +2092,7 @@ esGleeok::esGleeok(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+ePatra::ePatra(ePatra const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2148,7 +2149,7 @@ ePatra::ePatra(enemy const & other, bool new_script_uid, bool clear_parent_scrip
 	}
 }
 
-ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+ePatraBS::ePatraBS(ePatraBS const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other),
@@ -2201,7 +2202,7 @@ ePatraBS::ePatraBS(enemy const & other, bool new_script_uid, bool clear_parent_s
 	}
 }
 
-esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esPatra::esPatra(esPatra const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -2257,7 +2258,7 @@ esPatra::esPatra(enemy const & other, bool new_script_uid, bool clear_parent_scr
 	}
 }
 
-esPatraBS::esPatraBS(enemy const & other, bool new_script_uid, bool clear_parent_script_UID):
+esPatraBS::esPatraBS(esPatraBS const & other, bool new_script_uid, bool clear_parent_script_UID):
 	 //Struct Element			Type		Purpose
 	//sprite(other),
 	enemy(other)
@@ -2436,7 +2437,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	}
 	
 	stickclk = 0;
-	submerged = 0;
+	submerged = false;
+	ffcactivated = 0;
 	hitdir = -1;
 	dialogue_str = 0; //set by spawn flags. 
 	editorflags = d->editorflags; //set by Enemy Editor 
@@ -2635,6 +2637,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	stickclk(other.stickclk),			//int32_t
 	hitdir(other.hitdir),			//int32_t
 	submerged(other.submerged),			//int32_t
+	ffcactivated(other.ffcactivated),			//word
 	
 	dialogue_str(other.dialogue_str),			//int32_t
 	editorflags(other.editorflags),			//int32_t
@@ -2676,7 +2679,7 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
    
 	wpn(other.wpn),			//int32_t
 	SIZEflags(other.SIZEflags),			//int32_t
-	hashero(hashero)
+	hashero(other.hashero)
 
 {
 	
@@ -2749,6 +2752,11 @@ void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
 	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
+	if(hashero)
+	{
+		Hero.setEaten(0);
+		hashero=false;
+	}
 }
 
 
@@ -2894,12 +2902,12 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	return false;
 }
 
-bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
+bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 {
 	if(!(dx || dy)) return true;
 	zfix bx = x+hxofs, by = y+hyofs; //left/top
 	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
-	if(dy < 0) //check gravity
+	if(!ign_sv && dy < 0) //check gravity
 	{
 		if((moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
 			return false;
@@ -2913,10 +2921,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t tx = (bx+dx).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, left, tx, by, kb))
+				if(scr_walkflag(tx, by+ty, special, left, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, left, tx, by, kb))
+			if(scr_walkflag(tx, ry, special, left, bx, by, kb))
 				return false;
 		}
 		else
@@ -2924,10 +2932,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t tx = (rx+dx).getCeil();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, right, tx, by, kb))
+				if(scr_walkflag(tx, by+ty, special, right, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, right, tx, by, kb))
+			if(scr_walkflag(tx, ry, special, right, bx, by, kb))
 				return false;
 		}
 	}
@@ -2939,10 +2947,10 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t ty = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, up, bx, ty, kb))
+				if(scr_walkflag(bx+tx, ty, special, up, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, up, bx, ty, kb))
+			if(scr_walkflag(rx, ty, special, up, bx, by, kb))
 				return false;
 		}
 		else
@@ -2950,16 +2958,16 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb)
 			int32_t ty = (ry+dy).getCeil();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, down, bx, ty, kb))
+				if(scr_walkflag(bx+tx, ty, special, down, bx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, down, bx, ty, kb))
+			if(scr_walkflag(rx, ty, special, down, bx, by, kb))
 				return false;
 		}
 	}
 	else
 	{
-		return scr_canmove(dx, 0, special, kb) && scr_canmove(dy, 0, special, kb);
+		return scr_canmove(dx, 0, special, kb, ign_sv) && scr_canmove(dy, 0, special, kb, ign_sv);
 	}
 	return true;
 }
@@ -2989,17 +2997,17 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	return true;
 }
 
-bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
+bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 {
 	bool ret = true;
-	if(dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
+	if(!ign_sv && dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
 		dy = 0;
 	while(abs(dx) > 8 || abs(dy) > 8)
 	{
 		if(abs(dx) > abs(dy))
 		{
 			int32_t tdx = dx.sign() * 8;
-			if(movexy(tdx, 0, special, kb))
+			if(movexy(tdx, 0, special, kb, ign_sv))
 				dx -= tdx;
 			else
 			{
@@ -3010,7 +3018,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 		else
 		{
 			int32_t tdy = dy.sign() * 8;
-			if(movexy(0, tdy, special, kb))
+			if(movexy(0, tdy, special, kb, ign_sv))
 				dy -= tdy;
 			else
 			{
@@ -3021,18 +3029,18 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 	}
 	if(dx)
 	{
-		if(scr_canmove(dx, 0, special, kb))
+		if(scr_canmove(dx, 0, special, kb, ign_sv))
 			x += dx;
 		else
 		{
 			ret = false;
 			int32_t xsign = dx.sign();
-			while(scr_canmove(xsign, 0, special, kb))
+			while(scr_canmove(xsign, 0, special, kb, ign_sv))
 			{
 				x += xsign;
 				dx -= xsign;
 			}
-			if(scr_canmove(dx.decsign(), 0, special, kb)) //can move 0.0001 to 0.9999 px in this direction
+			if(scr_canmove(dx.decsign(), 0, special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
 			{
 				if(dx > 0)
 					x.doCeil();
@@ -3042,18 +3050,18 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb)
 	}
 	if(dy)
 	{
-		if(scr_canmove(0, dy, special, kb))
+		if(scr_canmove(0, dy, special, kb, ign_sv))
 			y += dy;
 		else
 		{
 			ret = false;
 			int32_t ysign = dy.sign();
-			while(scr_canmove(0, ysign, special, kb))
+			while(scr_canmove(0, ysign, special, kb, ign_sv))
 			{
 				y += ysign;
 				dy -= ysign;
 			}
-			if(scr_canmove(0, dy.decsign(), special, kb)) //can move 0.0001 to 0.9999 px in this direction
+			if(scr_canmove(0, dy.decsign(), special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
 			{
 				if(dy > 0)
 					y.doCeil();
@@ -3343,42 +3351,78 @@ bool enemy::animate(int32_t index)
 	{
 		if(isSideViewGravity())
 		{
-			if(!isOnSideviewPlatform())
+			if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE))
 			{
-				bool willHitSVPlatform = false;
-				int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
-				int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16;
-				for(int32_t nx = x+4; nx < x+usewid; nx+=16)
+				if(!isOnSideviewPlatform())
 				{
-					if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
+					bool willHitSVPlatform = false;
+					int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
+					int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16;
+					for(int32_t nx = x+4; nx < x+usewid; nx+=16)
 					{
-						willHitSVPlatform = true;
-						break;
+						if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
+						{
+							willHitSVPlatform = true;
+							break;
+						}
 					}
-				}
-				if(willHitSVPlatform)
-				{
-					y+=fall/100;
-					//y-=int32_t(y)%16; //Fix to top of SV Ladder
-					do_fix(y, 16); //Fix to top of SV Ladder
-					fall = 0;
+					if(willHitSVPlatform)
+					{
+						y+=fall/100;
+						//y-=int32_t(y)%16; //Fix to top of SV Ladder
+						do_fix(y, 16); //Fix to top of SV Ladder
+						fall = 0;
+					}
+					else
+					{
+						y+=fall/100;
+						if(fall <= (int32_t)zinit.terminalv)
+							fall += (zinit.gravity2/100);
+					}
 				}
 				else
 				{
-					y+=fall/100;
-					if(fall <= (int32_t)zinit.terminalv)
-						fall += (zinit.gravity2/100);
+					if(fall!=0)   // Only fix pos once
+					{
+						//y-=(int32_t)y%8; // Fix position
+						do_fix(y, 8); //Fix position
+					}
+						
+					fall = 0;
 				}
 			}
 			else
 			{
-				if(fall!=0)   // Only fix pos once
+				if(isOnSideviewPlatform())
+					fall = 0;
+				else
 				{
-					//y-=(int32_t)y%8; // Fix position
-					do_fix(y, 8); //Fix position
+					zfix fall_amnt = fall/100;
+					bool hit = false;
+					while(fall_amnt >= 1)
+					{
+						--fall_amnt;
+						++y;
+						if(isOnSideviewPlatform())
+						{
+							y = y.getInt();
+							fall_amnt = 0;
+							hit = true;
+							break;
+						}
+					}
+					if(fall_amnt > 0)
+						y += fall_amnt;
+					if(fall_amnt < 0)
+					{
+						if(!movexy(0,fall_amnt,spw_none))
+							hit = true;
+					}
+					if(hit)
+						fall = 0;
+					else if(fall <= (int32_t)zinit.terminalv)
+							fall += (zinit.gravity2/100);
 				}
-					
-				fall = 0;
 			}
 		}
 		else
@@ -3458,6 +3502,52 @@ bool enemy::animate(int32_t index)
 	// returns true when enemy is defeated
 	return Dead(index);
 }
+
+bool enemy::setSolid(bool set)
+{
+	bool actual = set && !isSubmerged();
+	bool ret = solid_object::setSolid(actual);
+	solid = set;
+	return ret;
+}
+void enemy::doContactDamage(int32_t hdir)
+{
+	Hero.hithero(guys.find(this), hdir);
+}
+
+void enemy::solid_push(solid_object *obj)
+{
+	if(obj == this) return; //can't push self
+	if(moveflags&FLAG_NOT_PUSHABLE) return; //not pushable
+	zfix dx, dy;
+	int32_t hdir = -1;
+	solid_push_int(obj,dx,dy,hdir);
+	
+	if(!dx && !dy) return;
+	
+	bool t = obj->getTempNonsolid();
+	obj->setTempNonsolid(true);
+	
+	int32_t ydir = dy > 0 ? down : up;
+	int32_t xdir = dx > 0 ? right : left;
+	
+	auto special = isflier(id) ? spw_floater : spw_none;
+	if(!movexy(dx,dy,special,true,true))
+	{
+		//Crushed?
+	}
+	
+	obj->setTempNonsolid(t);
+}
+bool enemy::is_unpushable() const
+{
+	return isSubmerged();
+}
+bool enemy::sideview_mode() const
+{
+	return isSideViewGravity() && (moveflags&FLAG_OBEYS_GRAV) && !(moveflags&FLAG_NOT_PUSHABLE);
+}
+
 bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int32_t y)
 {
 	int32_t yg = (special==spw_floater)?8:0;
@@ -3667,12 +3757,12 @@ bool enemy::isOnSideviewPlatform()
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
 	if(y + usehei >= world_h && currscr>=0x70 && !(tmpscr.flags2&wfDOWN)) return true; //Bottom of the map
-	for(int32_t nx = x+4; nx < x + usewid; nx+=16)
+	if(check_slope(x, y+1, usewid, usehei)) return true;
+	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{
-		if(_walkflag(nx,y+usehei,0)) return true;
+		if(_walkflag(nx,y+usehei,1)) return true;
 		if(IGNORE_SIDEVIEW_PLATFORMS || ((int32_t(y)+usehei)%16)!=0) continue;
 		if(checkSVLadderPlatform(nx,y+usehei)) return true;
-		if(checkSVLadderPlatform(nx+8,y+usehei)) return true;
 	}
 	return false;
 }
@@ -3790,9 +3880,10 @@ void enemy::kickbucket()
 		hp=-1000;                                               // don't call death_sfx()
 }
 
-bool enemy::isSubmerged()
+bool enemy::isSubmerged() const
 {
 	return submerged;
+	//!TODO SOLIDPUSH more things like teleporting wizzrobes
 }
 
 void enemy::FireBreath(bool seekhero)
@@ -6508,6 +6599,10 @@ bool enemy::hit(sprite *s)
 bool enemy::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
 	return (dying || hclk>0) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
+}
+bool enemy::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
+{
+	return (dying || hclk>0) ? false : sprite::hit(tx,ty,txsz2,tysz2);
 }
 
 bool enemy::hit(weapon *w)
@@ -9974,7 +10069,7 @@ bool eFire::animate(int32_t index)
 			fading=0;
 			
 			if(flags2&cmbflag_armos && z==0 && fakez==0)
-				removearmos(x,y);
+				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
 			
@@ -9987,7 +10082,7 @@ bool eFire::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y);
+			removearmos(x,y,ffcactivated);
 	}
 	
 	return enemy::animate(index);
@@ -10088,7 +10183,7 @@ bool eOther::animate(int32_t index)
 			fading=0;
 			
 			if(flags2&cmbflag_armos && z==0 && fakez==0)
-				removearmos(x,y);
+				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
 			
@@ -10101,7 +10196,7 @@ bool eOther::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y);
+			removearmos(x,y,ffcactivated);
 	}
 	
 	return enemy::animate(index);
@@ -10201,7 +10296,7 @@ bool eScript::animate(int32_t index)
 			fading=0;
 			
 			if(flags2&cmbflag_armos && z==0 && fakez==0)
-				removearmos(x,y);
+				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
 			
@@ -10214,7 +10309,7 @@ bool eScript::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y);
+			removearmos(x,y,ffcactivated);
 	}
 	
 	return enemy::animate(index);
@@ -10315,7 +10410,7 @@ bool eFriendly::animate(int32_t index)
 			fading=0;
 			
 			if(flags2&cmbflag_armos && z==0 && fakez==0)
-				removearmos(x,y);
+				removearmos(x,y,ffcactivated);
 				
 			clk2=0;
 			
@@ -10328,7 +10423,7 @@ bool eFriendly::animate(int32_t index)
 			return Dead(index);
 		}
 		else if(flags2&cmbflag_armos && z==0 && fakez==0 && clk==0)
-			removearmos(x,y);
+			removearmos(x,y,ffcactivated);
 	}
 	
 	return enemy::animate(index);
@@ -10373,8 +10468,13 @@ void eFriendly::break_shield()
 }
 
 
-void enemy::removearmos(int32_t ax,int32_t ay)
+void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 {
+	if (ffcactive) 
+	{
+		removearmosffc(ffcactive-1);
+		return;
+	}
 	if(did_armos)
 	{
 		return;
@@ -10424,6 +10524,46 @@ void enemy::removearmos(int32_t ax,int32_t ay)
 	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
+void enemy::removearmosffc(int32_t pos)
+{
+	if(did_armos)
+	{
+		return;
+	}
+	
+	did_armos=true;
+	ffcdata& ffc = tmpscr.ffcs[pos];
+	newcombo const& cmb = combobuf[ffc.getData()];
+	int32_t f2 = cmb.flag;
+	
+	if(cmb.type!=cARMOS)
+	{
+		return;
+	}
+	
+	ffc.setData(tmpscr.undercombo);
+	ffc.cset = tmpscr.undercset;
+	
+	if(f2 == mfARMOS_SECRET)
+	{
+		ffc.setData(tmpscr.secretcombo[sSTAIRS]);
+		ffc.cset = tmpscr.secretcset[sSTAIRS];
+		sfx(tmpscr.secretsfx);
+	}
+	
+	if(f2 == mfARMOS_ITEM)
+	{
+		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN))
+		{
+			additem(ffc.x,ffc.y,tmpscr.catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr.flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0));
+			sfx(tmpscr.secretsfx);
+		}
+	}
+	
+	putcombo(scrollbuf,ffc.x,ffc.y,ffc.getData(),ffc.cset);
+}
+
+
 eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	fading=fade_flicker;
@@ -10469,15 +10609,24 @@ bool eGhini::animate(int32_t index)
 				misc=2;
 				
 			floater_walk((misc==1)?0:rate,hrate,zslongToFix(dstep*100),zslongToFix(dstep*10),10,dmisc16,dmisc17); //120,10);
-			removearmos(x,y);
+			removearmos(x,y,ffcactivated);
 		}
 		else if(clk4>=60)
 		{
 			misc=1;
 			clk3=32;
 			fading=0;
-			guygrid[((int32_t(y)&0xF0)+(int32_t(x)>>4))%176]=0;
-			removearmos(x,y);
+			if (ffcactivated > 0) 
+			{
+				guygridffc[ffcactivated-1] = 0;
+				removearmosffc(ffcactivated-1);
+			}
+			else 
+			{
+				// TODO zc ?
+				guygrid[((int32_t(y)&0xF0)+(int32_t(x)>>4))%176]=0;
+				removearmos(x,y);
+			}
 		}
 	}
 	
@@ -10545,7 +10694,7 @@ bool eTektite::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(get_bit(quest_rules,qr_ENEMIESZAXIS))
@@ -10838,7 +10987,7 @@ bool eItemFairy::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	return enemy::animate(index);
@@ -10894,7 +11043,7 @@ bool ePeahat::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(stunclk==0 && clk>96)
@@ -10998,7 +11147,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	clk3 = 0;
 	//nets+1460;
 	temprule=(get_bit(quest_rules,qr_NEWENEMYTILES)) != 0;
-	submerged = 0;
+	submerged = false;
 	SIZEflags = d->SIZEflags;
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
@@ -11020,7 +11169,7 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
 }
 
-bool eLeever::isSubmerged()
+bool eLeever::isSubmerged() const
 {
 	Z_scripterrlog("misc is: %d\n", misc);
 	return misc <= 0;
@@ -11039,7 +11188,7 @@ bool eLeever::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(clk>=0 && !slide())
@@ -11312,7 +11461,7 @@ bool eWallM::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	hxofs=1000;
@@ -11510,7 +11659,7 @@ void eWallM::draw(BITMAP *dest)
 	//    tile = clk&8 ? 128:129;
 }
 
-bool eWallM::isSubmerged()
+bool eWallM::isSubmerged() const
 {
 	return ( !misc );
 }
@@ -11558,7 +11707,7 @@ bool eTrap::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(misc==0)                                               // waiting
@@ -11899,7 +12048,7 @@ bool eTrap2::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(!get_bit(quest_rules,qr_PHANTOMPLACEDTRAPS))
@@ -12049,7 +12198,7 @@ bool eRock::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(++clk2==0)                                             // start it
@@ -12188,7 +12337,7 @@ bool eBoulder::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	zfix *vert;
@@ -12351,7 +12500,7 @@ bool eProjectile::animate(int32_t index)
 	if(fallclk||drownclk) return enemy::animate(index);
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	double _MSVC2022_tmp1, _MSVC2022_tmp2;
@@ -12484,7 +12633,7 @@ bool eNPC::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	switch(dmisc2)
@@ -12638,7 +12787,7 @@ bool eSpinTile::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	++misc;
@@ -12766,7 +12915,7 @@ bool eZora::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(watch)
@@ -12852,7 +13001,7 @@ void eZora::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-bool eZora::isSubmerged()
+bool eZora::isSubmerged() const
 {
 	return ( clk < 3 );
 }
@@ -13053,28 +13202,33 @@ bool eStalfos::animate(int32_t index)
 		//if a custom size (not 16px by 16px)
 			
 		//if a custom size (not 16px by 16px)
-		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
+		if (ffcactivated)
+			removearmosffc(ffcactivated-1); 
+		else
 		{
-			//zprint("spawn big enemy from armos\n");
-			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
-			for(int32_t dx = 0; dx < tysz; dx ++)
+			if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
 			{
-				for(int32_t dy = 0; dy < tysz; dy++)
+				//zprint("spawn big enemy from armos\n");
+				 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
+				for(int32_t dx = 0; dx < tysz; dx ++)
 				{
-					removearmos((int32_t)x+(dx*16),(int32_t)y+(dy*16)+1);
+					for(int32_t dy = 0; dy < tysz; dy++)
+					{
+						removearmos((int32_t)x+(dx*16),(int32_t)y+(dy*16)+1);
+						did_armos = false;
+					}
+					removearmos((int32_t)x+(dx*16), (int32_t)y+((tysz-1)*16)+1);
 					did_armos = false;
 				}
-				removearmos((int32_t)x+(dx*16), (int32_t)y+((tysz-1)*16)+1);
-				did_armos = false;
+				for(int32_t dy = 0; dy < tysz; dy ++)
+				{
+					removearmos((int32_t)x+((txsz-1)*16), (int32_t)y+(dy*16)+1);
+					did_armos = false;
+				}
+				removearmos((int32_t)x+((txsz-1)*16), (int32_t)y+((tysz-1)*16)+1);
 			}
-			for(int32_t dy = 0; dy < tysz; dy ++)
-			{
-				removearmos((int32_t)x+((txsz-1)*16), (int32_t)y+(dy*16)+1);
-				did_armos = false;
-			}
-			removearmos((int32_t)x+((txsz-1)*16), (int32_t)y+((tysz-1)*16)+1);
+			else removearmos(x,y); 
 		}
-				else removearmos(x,y); 
 		/*
 		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
 		{
@@ -13083,20 +13237,20 @@ bool eStalfos::animate(int32_t index)
 			{
 				for(int32_t dy = 0; dy < hysz; dy += 16)
 				{
-					removearmos((int32_t)x+dx+hxofs,(int32_t)y+dy+hyofs+1);
+					removearmos((int32_t)x+dx+hxofs,(int32_t)y+dy+hyofs+1,ffcactivated);
 					did_armos = false;
 				}
-				removearmos((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-1);
+				removearmos((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-1,ffcactivated);
 				did_armos = false;
 			}
 			for(int32_t dy = 0; dy < hysz; dy += 16)
 			{
-				removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-1);
+				removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-1,ffcactivated);
 				did_armos = false;
 			}
-			removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-1);
+			removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-1,ffcactivated);
 		}
-				else removearmos(x,y);
+				else removearmos(x,y,ffcactivated);
 		*/		
 	   
 		}
@@ -13108,7 +13262,7 @@ bool eStalfos::animate(int32_t index)
 		else return enemy::animate(index);
 	}
 	else if(flags2&cmbflag_armos && z==0 && fakez == 0 && clk==0)
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 		
 	
 	if(hashero)
@@ -13946,7 +14100,7 @@ bool eKeese::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(dmisc1 == 1) //Walk style. 0 is keese, 1 is bat.
@@ -14054,13 +14208,27 @@ void eKeese::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
+void eWizzrobe::submerge(bool set)
+{
+	if(get_bit(quest_rules,qr_OLD_WIZZROBE_SUBMERGING))
+	{
+		hxofs = set?1000:0;
+		return;
+	}
+	if(submerged == set) return;
+	submerged = set;
+	if(set)
+		hxofs+=1000;
+	else hxofs -= 1000;
+}
 eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
-//  switch(d->misc1)
+	hxofs = 0;
+	submerged = false;
 	switch(dmisc1)
 	{
 	case 0:
-		hxofs=1000;
+		submerge(true);
 		fading=fade_invisible;
 		// Set clk to just before the 'reappear' threshold
 		clk=zc_min(clk+(146+zc_max(0,dmisc5))+14,(146+zc_max(0,dmisc5))-1);
@@ -14078,14 +14246,17 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	fclk=0;
 	if(!dmisc1) frate=1200+146; //1200 = 20 seconds
 	SIZEflags = d->SIZEflags;
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
+	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
-	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
-	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
+	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
+	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 )
+	{
+		hxofs = (submerged?hxofs:0)+d->hxofs;
+	}
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 //    if ( (SIZEflags&guyflagOVERRIDEHITZOFFSET) != 0 ) hzofs = hzofs;
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = d->xofs;
@@ -14109,7 +14280,7 @@ bool eWizzrobe::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(dmisc1) // Floating
@@ -14121,7 +14292,8 @@ bool eWizzrobe::animate(int32_t index)
 		if(watch || (!get_bit(quest_rules, qr_WIZZROBES_DONT_OBEY_STUN) && stunclk))
 		{
 			fading=0;
-			hxofs=0;
+			submerge(false);
+			solid_update(false);
 		}
 		else switch(clk)
 		{
@@ -14245,7 +14417,8 @@ bool eWizzrobe::animate(int32_t index)
 				}
 				
 				fading=fade_flicker;
-				hxofs=0;
+				submerge(false);
+				solid_update(false);
 				break;
 				
 			case 64:
@@ -14274,7 +14447,8 @@ bool eWizzrobe::animate(int32_t index)
 				
 			case 146:
 				fading=fade_invisible;
-				hxofs=1000;
+				submerge(true);
+				solid_update(false);
 
 				[[fallthrough]];
 			default:
@@ -14669,7 +14843,7 @@ bool eDodongo::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(clk2)                                                  // ate a bomb
@@ -14817,7 +14991,7 @@ bool eDodongo2::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(clk2)                                                  // ate a bomb
@@ -15026,7 +15200,7 @@ bool eAquamentus::animate(int32_t index)
 	//  fbx=x+((id==eRAQUAM)?4:-4);
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	fbx=x;
@@ -15245,11 +15419,15 @@ bool eGohma::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(zc_max(x-16, zfix(0)),y);
-		did_armos = false;
-		removearmos(x,y);
-		did_armos = false;
-		removearmos(zc_min(x+16, zfix(255)),y);
+		if (ffcactivated) removearmosffc(ffcactivated-1);
+		else
+		{
+			removearmos(zc_max(x-16, zfix(0)),y);
+			did_armos = false;
+			removearmos(x,y);
+			did_armos = false;
+			removearmos(zc_min(x+16, zfix(255)),y);
+		}
 	}
 	
 	if(clk<0) return enemy::animate(index);
@@ -15445,7 +15623,7 @@ bool eLilDig::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(misc<=128)
@@ -15564,7 +15742,7 @@ bool eBigDig::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	switch(misc)
@@ -15727,7 +15905,7 @@ bool eGanon::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	switch(misc)
@@ -16034,7 +16212,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
    
 	switch(misc)
@@ -16409,7 +16587,7 @@ bool eMoldorm::animate(int32_t index)
 
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(clk2)
@@ -16734,7 +16912,7 @@ bool eLanmola::animate(int32_t index)
 	if(switch_hooked) return enemy::animate(index);
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(clk2)
@@ -17039,7 +17217,7 @@ bool eManhandla::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	
@@ -17437,7 +17615,7 @@ bool esManhandla::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if(--clk2<=0)
@@ -17567,7 +17745,7 @@ bool eGleeok::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	// Check if a head was killed somehow...
@@ -18218,7 +18396,7 @@ bool ePatra::animate(int32_t index)
 	
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	if ((clk4 <=0 || clk4%2) && (clk7 <= 0 || clk6 <= -16))
@@ -19112,7 +19290,7 @@ bool ePatraBS::animate(int32_t index)
 		
 	if(clk==0)
 	{
-		removearmos(x,y);
+		removearmos(x,y,ffcactivated);
 	}
 	
 	variable_walk_8(rate,homing,hrate,spw_floater);
@@ -21256,6 +21434,35 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	}
 }
 
+void update_slope_combopos(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
+	mapscr* s = FFCore.tempScreens[lyr];
+	newcombo const& cmb = combobuf[s->data[pos]];
+	
+	auto id = (176*lyr)+pos;
+	auto it = slopes.find(id);
+	
+	bool wasSlope = it!=slopes.end();
+	bool isSlope = cmb.type == cSLOPE;
+	
+	if(isSlope && !wasSlope)
+	{
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, pos);
+	}
+	else if(wasSlope && !isSlope)
+	{
+		slopes.erase(it);
+	}
+}
+void update_slope_comboposes()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+			update_slope_combopos(lyr,pos);
+	}
+}
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
@@ -21272,6 +21479,12 @@ void screen_combo_modify_preroutine(const pos_handle_t& pos_handle)
 	delete_fireball_shooter(pos_handle);
 }
 
+//Placeholder in case we need it.
+void screen_ffc_modify_preroutine(word index)
+{
+	return;
+}
+
 // TODO z3 !
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
@@ -21285,9 +21498,8 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 		// TODO z3 !
 		awaken_spinning_tile(s, (rpos_t)pos);
 	}
-	/* Shouldn't be needed anymore?
 	int32_t lyr = -1;
-	if(s == tmpscr) lyr = 0;
+	if(s == &tmpscr) lyr = 0;
 	else for(size_t q = 0; q < 6; ++q)
 	{
 		if(s == tmpscr2+q)
@@ -21297,9 +21509,61 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 		}
 	}
 	if(lyr > -1)
+		update_slope_combopos(lyr,pos);
+}
+
+void screen_ffc_modify_postroutine(word index)
+{
+	ffcdata& ff = tmpscr.ffcs[index];
+	newcombo const& cmb = combobuf[ff.getData()];
+	
+	auto id = (176*7)+int32_t(index);
+	auto it = slopes.find(id);
+	
+	bool wasSlope = it!=slopes.end();
+	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffCHANGER);
+	if(isSlope && !wasSlope)
 	{
-		FFCore.reset_combo_script(lyr, pos);
-	} */
+		slopes.try_emplace(id, nullptr, &ff, id);
+	}
+	else if(wasSlope && !isSlope)
+	{
+		slopes.erase(it);
+	}
+}
+
+void screen_combo_modify_pre(int32_t cid)
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* t = FFCore.tempScreens[lyr];
+		for(int32_t i = 0; i < 176; i++)
+		{
+			if(t->data[i] == cid)
+			{
+				screen_combo_modify_preroutine(get_pos_handle((rpos_t)i, i));
+			}
+		}
+	}
+}
+void screen_combo_modify_post(int32_t cid)
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* t = FFCore.tempScreens[lyr];
+		for(int32_t i = 0; i < 176; i++)
+		{
+			if(t->data[i] == cid)
+			{
+				screen_combo_modify_postroutine(t,i);
+			}
+		}
+	}
+	for(word ind = 0; ind < MAXFFCS; ++ind)
+	{
+		if(tmpscr.ffcs[ind].getData() == cid)
+			screen_ffc_modify_postroutine(ind);
+	}
 }
 
 void awaken_spinning_tile(mapscr *s, rpos_t rpos)

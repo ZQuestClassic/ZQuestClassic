@@ -169,6 +169,11 @@ class HeroClass : public sprite
 			return flags;
 		}
 		
+		void setFlags(int32_t val)
+		{
+			flags = val;;
+		}
+		
 		bool isUnwalkable()
 		{
 			return (flags & UNWALKABLE) != 0;
@@ -194,7 +199,7 @@ class HeroClass : public sprite
 	
 public:
 	std::map<int16_t, int32_t> usecounts;
-	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg;
+	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg,inair;
 	rpos_t stepnext,    // location of step->next just triggered (don't recursively trigger it)
 	       stepsecret;  // location of step->secrets just triggered (don't recursively trigger it)
 	int32_t refilling,
@@ -260,6 +265,7 @@ public:
 	int32_t landswim; // incremental time spent swimming against land
 	bool ilswim; // is land swimming?
 	bool walkable;
+	int32_t justmoved;
 	actiontype action, tempaction; // current action, cached action.
 	int32_t hshandle_id, hshead_id;
 	byte conveyor_flags;
@@ -289,6 +295,7 @@ public:
 	bool shield_active;
 	int8_t shield_forcedir;
 	int32_t active_shield_id;
+	word coyotetime;
 	
 	void set_respawn_point(bool setwarp = true);
 	void go_respawn_point();
@@ -342,7 +349,7 @@ public:
 	void movehero();
 	void move(int32_t d, int32_t forceRate = -1);
 	void moveOld(int32_t d2);
-	int32_t hithero(int32_t hit);
+	int32_t hithero(int32_t hit, int32_t force_hdir = -1);
 	int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
 	bool nextcombo_wf(int32_t d);
@@ -414,7 +421,7 @@ private:
 	void masked_draw(BITMAP *dest);
 	void prompt_draw(BITMAP *dest);
 	void getTriforce(int32_t id);
-	int32_t weaponattackpower();
+	int32_t weaponattackpower(int32_t itid = -1);
 	void positionNet(weapon* w,int32_t itemid);
 	void positionSword(weapon* w,int32_t itemid);
 	bool checkstab();
@@ -455,6 +462,10 @@ public:
 	virtual void drawshadow(BITMAP* dest, bool translucent);
 	virtual void draw(BITMAP* dest);
 	virtual bool animate(int32_t index);
+	bool push_pixel(zfix dx, zfix dy);
+	int32_t push_move(zfix dx, zfix dy);
+	virtual bool setSolid(bool set);
+	virtual void solid_push(solid_object* pusher);
 	bool dowarp(int32_t type, int32_t index, int32_t warpsfx=0);
 	
 	void herostep();
@@ -595,6 +606,8 @@ public:
 	bool canSideviewLadder(bool down = false);
 	void trySideviewLadder();
 	bool canSideviewLadderRemote(int32_t wx, int32_t wy, bool down = false);
+	virtual bool sideview_mode() const;
+	virtual bool is_unpushable() const;
 };
 
 bool usingActiveShield(int32_t itmid = -1);
@@ -635,6 +648,7 @@ const int32_t SEL_VERIFY_RIGHT = 5;
 int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
+int32_t getRocsPressed();
 bool isItmPressed(int32_t itmid);
 int32_t selectSword();
 int32_t selectItemclass(int32_t itemclass);

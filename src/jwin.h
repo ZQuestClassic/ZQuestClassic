@@ -40,6 +40,7 @@
 #ifndef _JWIN_H_
 #define _JWIN_H_
 
+#include "base/zdefs.h"
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
 
@@ -228,6 +229,7 @@ int32_t jwin_swapbtn_proc(int32_t msg,DIALOG *d,int32_t c); //Button to swap num
 int32_t jwin_numedit_swap_byte_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to unsigned byte, dec and hex modes
 int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int16_t, dec and hex modes
 int32_t jwin_numedit_swap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes
+int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, no dec places
 int32_t jwin_numedit_swap_zsint2_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes, bool mode
 //
 int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);

@@ -6,6 +6,8 @@ extern zcmodule moduledata;
 extern char *weapon_string[];
 extern char *sfx_string[];
 extern char *item_string[];
+extern char *guy_string[eMAXGUYS];
+extern const char *old_guy_string[OLDMAXGUYS];
 extern miscQdata QMisc;
 
 #ifndef IS_PARSER
@@ -169,6 +171,46 @@ GUI::ListData const& GUI::ZCListData::buttons()
 	return button;
 }
 
+GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
+{
+	map<std::string, int32_t> ids;
+	std::set<std::string> names;
+	
+	for(int32_t q=1; q < eMAXGUYS; ++q)
+	{
+		if(defaultFilter)
+		{
+			if(q >= 11 && q <= 19) //Segment components
+				continue;
+			if(q < OLDMAXGUYS && old_guy_string[q][strlen(old_guy_string[q])-1]==' ')
+				continue; //'Hidden' enemies
+			if(guysbuf[q].family == eeGUY)
+				continue; //Guys
+		}
+		char const* npcname = guy_string[q];
+		if(numbered)
+		{
+			char* name = new char[strlen(npcname) + 7];
+			sprintf(name, "%s (%03d)", npcname, q);
+			npcname = name;
+		}
+		std::string sname(npcname);
+		
+		ids[sname] = q;
+		names.insert(sname);
+		if(numbered)
+			delete[] npcname;
+	}
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, ids[*it]);
+	}
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::items(bool numbered)
 {
 	map<std::string, int32_t> ids;
@@ -200,12 +242,12 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::itemclass(bool numbered)
+GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 {
 	map<std::string, int32_t> fams;
 	std::set<std::string> famnames;
 	
-	for(int32_t i=0; i<itype_max; ++i)
+	for(int32_t i=zero_none?1:0; i<itype_max; ++i)
 	{
 		if(!ZI.isUsableItemclass(i))
 			continue; //Hidden
@@ -237,7 +279,8 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered)
 	}
 	
 	GUI::ListData ls;
-	
+	if(zero_none)
+		ls.add("(None)", 0);
 	for(auto it = famnames.begin(); it != famnames.end(); ++it)
 	{
 		ls.add(*it, fams[*it]);
@@ -471,6 +514,32 @@ GUI::ListData GUI::ZCListData::lweaptypes()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
+{
+	std::map<std::string, int32_t> vals;
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	for(int32_t q=1; q<wMax; ++q)
+	{
+		if(!ZI.isUsableWeap(q))
+			continue; //Hidden
+		char const* module_str = ZI.getWeapName(q);
+		char* name = new char[strlen(module_str) + 8];
+		if(numbered)
+			sprintf(name, "%s (%03d)", module_str, q);
+		else strcpy(name, module_str);
+		
+		std::string sname(name);
+		
+		ls.add(sname, q);
+		
+		delete[] name;
+	}
+	
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 {
 	std::map<std::string, int32_t> vals;
@@ -577,12 +646,38 @@ GUI::ListData GUI::ZCListData::lweapon_script()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::eweapon_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+	
+	load_scriptnames(names,vals,ewpnmap,NUMSCRIPTWEAPONS-1);
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::combodata_script()
 {
 	std::map<std::string, int32_t> vals;
 	std::set<std::string> names;
 	
 	load_scriptnames(names,vals,comboscriptmap,NUMSCRIPTSCOMBODATA-1);
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::generic_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+	
+	load_scriptnames(names,vals,genericmap,NUMSCRIPTSGENERIC-1);
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);

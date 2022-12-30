@@ -3482,8 +3482,8 @@ static int32_t onToggleInvis()
 static int32_t onEditGrid()
 {
     grid_dlg[0].dp2=lfont;
-    char xsize[4];
-    char ysize[4];
+    char xsize[11];
+    char ysize[11];
     char xoffset[4];
     char yoffset[4];
     sprintf(xsize, "%d", zc_max(zinit.ss_grid_x,1));

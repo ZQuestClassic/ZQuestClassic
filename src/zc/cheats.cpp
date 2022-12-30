@@ -2,14 +2,15 @@
 #include "zelda.h"
 #include "hero.h"
 #include "guys.h"
-#include "cheats.h"
+#include "zc_init.h"
+#include "init.h"
 #include <queue>
 #include <tuple>
 #include <algorithm>
 
 extern HeroClass Hero;
 
-static std::queue<std::tuple<Cheat, int, int>> cheats;
+static std::queue<std::tuple<Cheat, int, int, std::string>> cheats;
 
 static const std::vector<std::string> CheatStrings = {
     "None",
@@ -29,6 +30,7 @@ static const std::vector<std::string> CheatStrings = {
     "MaxLife",
     "MaxMagic",
     "MaxBombs",
+    "PlayerData",
     "Last",
 };
 
@@ -44,23 +46,14 @@ std::string cheat_to_string(Cheat cheat)
     return CheatStrings[cheat];
 }
 
-void cheats_enqueue(Cheat cheat, int arg1, int arg2)
+void cheats_enqueue(Cheat cheat, int arg1, int arg2, std::string arg3)
 {
-    cheats.push({cheat, arg1, arg2});
+    cheats.push({cheat, arg1, arg2, arg3});
 }
 
-void cheats_execute_queued()
+static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 {
-    while (!cheats.empty())
-    {
-        std::apply(cheats_execute, cheats.front());
-        cheats.pop();
-    }
-}
-
-void cheats_execute(Cheat cheat, int arg1, int arg2)
-{
-    replay_step_cheat(cheat, arg1, arg2);
+    replay_step_cheat(cheat, arg1, arg2, arg3);
 
     switch (cheat)
     {
@@ -187,8 +180,31 @@ void cheats_execute(Cheat cheat, int arg1, int arg2)
     }
     break;
 
+    case PlayerData:
+    {
+		zinitdata* base = copyIntoZinit(game);
+		zinitdata* new_init = apply_init_data_delta(base, arg3);
+		if (new_init)
+		{
+			resetItems(game, new_init, false);
+			ringcolor(false);
+			delete new_init;
+		}
+		delete base;
+    }
+    break;
+
     case None:
     case Last:
         break;
+    }
+}
+
+void cheats_execute_queued()
+{
+    while (!cheats.empty())
+    {
+        std::apply(cheats_execute, cheats.front());
+        cheats.pop();
     }
 }

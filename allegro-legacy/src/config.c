@@ -66,6 +66,8 @@ static char **config_argv = NULL;
 static char *argv_buf = NULL;
 static int argv_buf_size = 0;
 
+static bool al_defaulted_config = false;
+
 
 
 /* flush_config:
@@ -754,7 +756,10 @@ static CONFIG_ENTRY *find_config_string(CONFIG *config, AL_CONST char *section, 
    return NULL;
 }
 
-
+bool get_config_defaulted()
+{
+	return al_defaulted_config;
+}
 
 /* get_config_string:
  *  Reads a string from the configuration file.
@@ -768,7 +773,9 @@ AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL
    init_config(TRUE);
 
    prettify_section_name(section, section_name, sizeof(section_name));
-
+   
+   al_defaulted_config = false;
+   
    /* check for hooked sections */
    hook = config_hook;
 
@@ -777,7 +784,10 @@ AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL
 	 if (hook->stringgetter)
 	    return hook->stringgetter(name, def);
 	 else
+	 {
+	    al_defaulted_config = true;
 	    return def;
+	 }
       }
       hook = hook->next;
    }
@@ -795,7 +805,10 @@ AL_CONST char *get_config_string(AL_CONST char *section, AL_CONST char *name, AL
    if (p && p->data && (ustrlen(p->data) != 0))
       return p->data;
    else
+   {
+      al_defaulted_config = true;
       return def;
+   }
 }
 
 
@@ -810,6 +823,8 @@ int get_config_int(AL_CONST char *section, AL_CONST char *name, int def)
    AL_CONST char *s;
 
    prettify_section_name(section, section_name, sizeof(section_name));
+   
+   al_defaulted_config = false;
 
    /* check for hooked sections */
    hook = config_hook;
@@ -824,10 +839,16 @@ int get_config_int(AL_CONST char *section, AL_CONST char *name, int def)
 	    if ((s) && (ugetc(s)))
 	       return ustrtol(s, NULL, 0);
 	    else
+	    {
+	       al_defaulted_config = true;
 	       return def;
+	    }
 	 }
 	 else
+	 {
+	    al_defaulted_config = true;
 	    return def;
+	 }
       }
       hook = hook->next;
    }
@@ -838,6 +859,7 @@ int get_config_int(AL_CONST char *section, AL_CONST char *name, int def)
    if ((s) && (ugetc(s)))
       return ustrtol(s, NULL, 0);
 
+   al_defaulted_config = true;
    return def;
 }
 
@@ -851,14 +873,17 @@ int get_config_hex(AL_CONST char *section, AL_CONST char *name, int def)
    AL_CONST char *s = get_config_string(section, name, NULL);
    char tmp[64];
    int i;
-
+   
+   al_defaulted_config = false;
+   
    if ((s) && (ugetc(s))) {
       i = ustrtol(s, NULL, 16);
       if ((i == 0x7FFFFFFF) && (ustricmp(s, uconvert_ascii("7FFFFFFF", tmp)) != 0))
 	 i = -1;
       return i;
    }
-
+   
+   al_defaulted_config = true;
    return def;
 }
 
@@ -870,9 +895,13 @@ int get_config_hex(AL_CONST char *section, AL_CONST char *name, int def)
 float get_config_float(AL_CONST char *section, AL_CONST char *name, float def)
 {
    AL_CONST char* s = get_config_string(section, name, NULL);
-
+   
+   al_defaulted_config = false;
+   
    if ((s) && (ugetc(s)))
       return uatof(s);
+
+   al_defaulted_config = true;
 
    return def;
 }
@@ -888,7 +917,7 @@ int get_config_id(AL_CONST char *section, AL_CONST char *name, int def)
    char tmp[4];
    char* endp;
    int val, i;
-
+   al_defaulted_config = false;
    if ((s) && (ugetc(s))) {
       val = ustrtol(s, &endp, 0);
       if (!ugetc(endp))
@@ -905,7 +934,7 @@ int get_config_id(AL_CONST char *section, AL_CONST char *name, int def)
 
       return AL_ID(tmp[0], tmp[1], tmp[2], tmp[3]);
    }
-
+   al_defaulted_config = true;
    return def;
 }
 

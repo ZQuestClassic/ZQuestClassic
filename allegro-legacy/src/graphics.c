@@ -657,9 +657,12 @@ static int _set_gfx_mode(int card, int w, int h, int v_w, int v_h, int allow_con
       while (vram_bitmap_list)
 	 destroy_bitmap(vram_bitmap_list->bmp);
 
-      bmp_read_line(screen, 0);
-      bmp_write_line(screen, 0);
-      bmp_unwrite_line(screen);
+      if (screen)
+      {
+         bmp_read_line(screen, 0);
+         bmp_write_line(screen, 0);
+         bmp_unwrite_line(screen);
+      }
 
       if (gfx_driver->scroll)
 	 gfx_driver->scroll(0, 0);

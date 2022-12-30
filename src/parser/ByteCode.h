@@ -1438,10 +1438,10 @@
 #define COMBODLIFTHEIGHT        1355
 #define COMBODLIFTTIME          1356
 #define CLASS_THISKEY           1357
-#define RESRVD_VAR_EMILY01      1358
-#define RESRVD_VAR_EMILY02      1359
-#define RESRVD_VAR_EMILY03      1360
-#define RESRVD_VAR_EMILY04      1361
+#define ZELDABETATYPE           1358
+#define HEROCOYOTETIME          1359
+#define FFCLASTCHANGERX      1360
+#define FFCLASTCHANGERY      1361
 #define RESRVD_VAR_EMILY05      1362
 #define RESRVD_VAR_EMILY06      1363
 #define RESRVD_VAR_EMILY07      1364
@@ -1468,21 +1468,71 @@
 #define RESRVD_VAR_EMILY28      1385
 #define RESRVD_VAR_EMILY29      1386
 #define RESRVD_VAR_EMILY30      1387
-#define REGIONID                1388 // region_max_rpos of these
-#define REGIONTD                1389 // region_max_rpos of these
-#define REGIONSD                1390 // region_max_rpos of these
-#define REGIONED                1391 // region_max_rpos of these
-#define REGIONDD                1392 // region_max_rpos of these
-#define REGIONCD                1393 // region_max_rpos of these
-#define REGIONFD                1394 // region_max_rpos of these
-#define REGIONWORLDWIDTH        1395
-#define REGIONWORLDHEIGHT       1396
-#define REGIONSCREENWIDTH       1397
-#define REGIONSCREENHEIGHT      1398
 
-#define LAST_BYTECODE           1399
+#define REFPALDATA              1388
+
+#define PALDATACOLOR            1389
+#define PALDATAR                1390
+#define PALDATAG                1391
+#define PALDATAB                1392
+
+#define RESRVD_VAR_MOOSH01      1393
+#define RESRVD_VAR_MOOSH02      1394
+#define RESRVD_VAR_MOOSH03      1395
+#define RESRVD_VAR_MOOSH04      1396
+#define RESRVD_VAR_MOOSH05      1397
+#define RESRVD_VAR_MOOSH06      1398
+#define RESRVD_VAR_MOOSH07      1399
+#define RESRVD_VAR_MOOSH08      1400
+#define RESRVD_VAR_MOOSH09      1401
+#define RESRVD_VAR_MOOSH10      1402
+#define RESRVD_VAR_MOOSH11      1403
+#define RESRVD_VAR_MOOSH12      1404
+#define RESRVD_VAR_MOOSH13      1405
+#define RESRVD_VAR_MOOSH14      1406
+#define RESRVD_VAR_MOOSH15      1407
+#define RESRVD_VAR_MOOSH16      1408
+#define RESRVD_VAR_MOOSH17      1409
+#define RESRVD_VAR_MOOSH18      1410
+#define RESRVD_VAR_MOOSH19      1411
+#define RESRVD_VAR_MOOSH20      1412
+#define RESRVD_VAR_MOOSH21      1413
+#define RESRVD_VAR_MOOSH22      1414
+#define RESRVD_VAR_MOOSH23      1415
+#define RESRVD_VAR_MOOSH24      1416
+#define RESRVD_VAR_MOOSH25      1417
+#define RESRVD_VAR_MOOSH26      1418
+#define RESRVD_VAR_MOOSH27      1419
+#define RESRVD_VAR_MOOSH28      1420
+#define RESRVD_VAR_MOOSH29      1421
+#define RESRVD_VAR_MOOSH30      1422
+
+#define REGIONID                1423 // region_max_rpos of these
+#define REGIONTD                1424 // region_max_rpos of these
+#define REGIONSD                1425 // region_max_rpos of these
+#define REGIONED                1426 // region_max_rpos of these
+#define REGIONDD                1427 // region_max_rpos of these
+#define REGIONCD                1428 // region_max_rpos of these
+#define REGIONFD                1429 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1430
+#define REGIONWORLDHEIGHT       1431
+#define REGIONSCREENWIDTH       1432
+#define REGIONSCREENHEIGHT      1433
+
+#define LAST_BYTECODE           1434
 
 //} END OF BYTECODE
+
+//{ INTERNAL ARRAYS
+
+#define INTARR_OFFS 65536
+#define INTARR_SCREEN_NPC       (65536+0)
+#define INTARR_SCREEN_ITEMSPR   (65536+1)
+#define INTARR_SCREEN_LWPN      (65536+2)
+#define INTARR_SCREEN_EWPN      (65536+3)
+#define INTARR_SCREEN_FFC       (65536+4)
+
+//} END INTERNAL ARRAYS
 
 namespace ZScript
 {
@@ -1502,15 +1552,29 @@ namespace ZScript
 		virtual void caseVar(VarArgument&, void *){}
 		virtual void caseLabel(LabelArgument&, void *){}
 		virtual void caseGlobal(GlobalArgument&, void *){}
+		void execute(std::vector<std::shared_ptr<Opcode>>& vec, void* param)
+		{
+			for (auto it = vec.begin(); it != vec.end(); ++it)
+			{
+				(*it)->execute(*this, param);
+			}
+		}
+		void execute(std::vector<std::shared_ptr<Opcode>> const& vec, void* param)
+		{
+			for (auto it = vec.cbegin(); it != vec.cend(); ++it)
+			{
+				(*it)->execute(*this, param);
+			}
+		}
 		virtual ~ArgumentVisitor() {}
 	};
 
 	class Argument
 	{
 	public:
-		virtual std::string toString()=0;
+		virtual std::string toString() const = 0;
 		virtual void execute(ArgumentVisitor &host, void *param)=0;
-		virtual Argument *clone()=0;
+		virtual Argument* clone() const = 0;
 		virtual ~Argument() {}
 	};
 
@@ -1518,16 +1582,15 @@ namespace ZScript
 	{
 	public:
 		LiteralArgument(int32_t Value) : value(Value) {}
-		std::string toString();
+		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseLiteral(*this, param);
 		}
-		Argument *clone()
+		Argument* clone() const
 		{
 			return new LiteralArgument(value);
 		}
-	private:
 		int32_t value;
 	};
 	
@@ -1535,12 +1598,12 @@ namespace ZScript
 	{
 	public:
 		StringArgument(std::string const& Value) : value(Value) {}
-		std::string toString();
+		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseString(*this, param);
 		}
-		Argument *clone()
+		Argument* clone() const
 		{
 			return new StringArgument(value);
 		}
@@ -1551,12 +1614,12 @@ namespace ZScript
 	{
 	public:
 		VectorArgument(std::vector<int32_t> const& Value) : value(Value) {}
-		std::string toString();
+		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseVector(*this, param);
 		}
-		Argument *clone()
+		Argument* clone() const
 		{
 			return new VectorArgument(value);
 		}
@@ -1570,16 +1633,15 @@ namespace ZScript
 	{
 	public:
 		VarArgument(int32_t id) : ID(id) {}
-		std::string toString();
+		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseVar(*this,param);
 		}
-		Argument *clone()
+		Argument* clone() const
 		{
 			return new VarArgument(ID);
 		}
-	private:
 		int32_t ID;
 	};
 
@@ -1587,12 +1649,12 @@ namespace ZScript
 	{
 	public:
 		GlobalArgument(int32_t id) : ID(id) {}
-		std::string toString();
+		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseGlobal(*this,param);
 		}
-		Argument *clone()
+		Argument* clone() const
 		{
 			return new GlobalArgument(ID);
 		}
@@ -1604,15 +1666,19 @@ namespace ZScript
 	{
 	public:
 		LabelArgument(int32_t id) : ID(id), haslineno(false) {}
-		std::string toString();
-		std::string toStringSetV();
+		std::string toString() const;
+		std::string toStringSetV() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{
 			host.caseLabel(*this,param);
 		}
-		Argument *clone()
+		Argument* clone() const
 		{
 			return new LabelArgument(ID);
+		}
+		void setID(int32_t newid)
+		{
+			ID = newid;
 		}
 		int32_t getID()
 		{
@@ -1637,7 +1703,11 @@ namespace ZScript
 		{
 			delete a;
 		}
-		Argument *getArgument()
+		Argument* getArgument()
+		{
+			return a;
+		}
+		Argument const* getArgument() const
 		{
 			return a;
 		}
@@ -1658,11 +1728,19 @@ namespace ZScript
 			delete a;
 			delete b;
 		}
-		Argument *getFirstArgument()
+		Argument* getFirstArgument()
 		{
 			return a;
 		}
-		Argument *getSecondArgument()
+		Argument const* getFirstArgument() const
+		{
+			return a;
+		}
+		Argument* getSecondArgument()
+		{
+			return b;
+		}
+		Argument const* getSecondArgument() const
 		{
 			return b;
 		}
@@ -1680,8 +1758,8 @@ namespace ZScript
 	{
 	public:
 		OSetTrue(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetTrue(a->clone());
 		}
@@ -1691,8 +1769,8 @@ namespace ZScript
 	{
 	public:
 		OSetTrueI(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetTrueI(a->clone());
 		}
@@ -1702,8 +1780,8 @@ namespace ZScript
 	{
 	public:
 		OSetFalse(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetFalse(a->clone());
 		}
@@ -1713,8 +1791,8 @@ namespace ZScript
 	{
 	public:
 		OSetFalseI(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetFalseI(a->clone());
 		}
@@ -1724,8 +1802,8 @@ namespace ZScript
 	{
 	public:
 		OSetMore(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetMore(a->clone());
 		}
@@ -1735,8 +1813,8 @@ namespace ZScript
 	{
 	public:
 		OSetMoreI(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetMoreI(a->clone());
 		}
@@ -1746,8 +1824,8 @@ namespace ZScript
 	{
 	public:
 		OSetLess(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetLess(a->clone());
 		}
@@ -1757,8 +1835,8 @@ namespace ZScript
 	{
 	public:
 		OSetLessI(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetLessI(a->clone());
 		}
@@ -1768,8 +1846,8 @@ namespace ZScript
 	{
 	public:
 		OSetImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetImmediate(a->clone(),b->clone());
 		}
@@ -1779,8 +1857,8 @@ namespace ZScript
 	{
 	public:
 		OSetRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetRegister(a->clone(),b->clone());
 		}
@@ -1790,8 +1868,8 @@ namespace ZScript
 	{
 	public:
 		OReadPODArrayR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReadPODArrayR(a->clone(),b->clone());
 		}
@@ -1801,8 +1879,8 @@ namespace ZScript
 	{
 	public:
 		OReadPODArrayI(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReadPODArrayI(a->clone(),b->clone());
 		}
@@ -1812,8 +1890,8 @@ namespace ZScript
 	{
 	public:
 		OWritePODArrayRR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWritePODArrayRR(a->clone(),b->clone());
 		}
@@ -1823,8 +1901,8 @@ namespace ZScript
 	{
 	public:
 		OWritePODArrayRI(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWritePODArrayRI(a->clone(),b->clone());
 		}
@@ -1834,8 +1912,8 @@ namespace ZScript
 	{
 	public:
 		OWritePODArrayIR(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWritePODArrayIR(a->clone(),b->clone());
 		}
@@ -1845,8 +1923,8 @@ namespace ZScript
 	{
 	public:
 		OWritePODArrayII(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWritePODArrayII(a->clone(),b->clone());
 		}
@@ -1855,8 +1933,8 @@ namespace ZScript
 	{
 	public:
 		OWritePODString(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWritePODString(a->clone(),b->clone());
 		}
@@ -1865,8 +1943,8 @@ namespace ZScript
 	{
 	public:
 		OWritePODArray(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWritePODArray(a->clone(),b->clone());
 		}
@@ -1875,8 +1953,8 @@ namespace ZScript
 	{
 	public:
 		OConstructClass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OConstructClass(a->clone(),b->clone());
 		}
@@ -1885,8 +1963,8 @@ namespace ZScript
 	{
 	public:
 		OReadObject(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReadObject(a->clone(),b->clone());
 		}
@@ -1895,8 +1973,8 @@ namespace ZScript
 	{
 	public:
 		OWriteObject(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWriteObject(a->clone(),b->clone());
 		}
@@ -1905,8 +1983,8 @@ namespace ZScript
 	{
 	public:
 		OFreeObject(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFreeObject(a->clone());
 		}
@@ -1915,8 +1993,8 @@ namespace ZScript
 	{
 	public:
 		OOwnObject(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOwnObject(a->clone());
 		}
@@ -1925,8 +2003,8 @@ namespace ZScript
 	{
 	public:
 		ODestructor(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODestructor(a->clone());
 		}
@@ -1935,38 +2013,18 @@ namespace ZScript
 	{
 	public:
 		OGlobalObject(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGlobalObject(a->clone());
-		}
-	};
-	class OReservedEmily07 : public BinaryOpcode
-	{
-	public:
-		OReservedEmily07(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new OReservedEmily07(a->clone(),b->clone());
-		}
-	};
-	class OReservedEmily08 : public BinaryOpcode
-	{
-	public:
-		OReservedEmily08(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
-		{
-			return new OReservedEmily08(a->clone(),b->clone());
 		}
 	};
 	class OReservedEmily09 : public BinaryOpcode
 	{
 	public:
 		OReservedEmily09(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily09(a->clone(),b->clone());
 		}
@@ -1975,8 +2033,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily10(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily10(a->clone(),b->clone());
 		}
@@ -1985,8 +2043,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily11(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily11(a->clone(),b->clone());
 		}
@@ -1995,8 +2053,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily12(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily12(a->clone(),b->clone());
 		}
@@ -2005,8 +2063,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily13(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily13(a->clone(),b->clone());
 		}
@@ -2015,8 +2073,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily14(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily14(a->clone(),b->clone());
 		}
@@ -2025,8 +2083,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily15(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily15(a->clone(),b->clone());
 		}
@@ -2035,8 +2093,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily16(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily16(a->clone(),b->clone());
 		}
@@ -2045,8 +2103,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily17(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily17(a->clone(),b->clone());
 		}
@@ -2055,8 +2113,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily18(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily18(a->clone(),b->clone());
 		}
@@ -2065,8 +2123,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily19(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily19(a->clone(),b->clone());
 		}
@@ -2075,8 +2133,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily20(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily20(a->clone(),b->clone());
 		}
@@ -2085,8 +2143,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily21(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily21(a->clone(),b->clone());
 		}
@@ -2095,8 +2153,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily22(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily22(a->clone(),b->clone());
 		}
@@ -2105,8 +2163,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily23(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily23(a->clone(),b->clone());
 		}
@@ -2115,8 +2173,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily24(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily24(a->clone(),b->clone());
 		}
@@ -2125,8 +2183,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily25(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily25(a->clone(),b->clone());
 		}
@@ -2135,8 +2193,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily26(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily26(a->clone(),b->clone());
 		}
@@ -2145,8 +2203,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily27(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily27(a->clone(),b->clone());
 		}
@@ -2155,8 +2213,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily28(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily28(a->clone(),b->clone());
 		}
@@ -2165,8 +2223,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily29(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily29(a->clone(),b->clone());
 		}
@@ -2175,8 +2233,8 @@ namespace ZScript
 	{
 	public:
 		OReservedEmily30(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReservedEmily30(a->clone(),b->clone());
 		}
@@ -2187,8 +2245,8 @@ namespace ZScript
 	{
 	public:
 		OAddImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAddImmediate(a->clone(),b->clone());
 		}
@@ -2198,8 +2256,8 @@ namespace ZScript
 	{
 	public:
 		OAddRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAddRegister(a->clone(),b->clone());
 		}
@@ -2209,8 +2267,8 @@ namespace ZScript
 	{
 	public:
 		OSubImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSubImmediate(a->clone(),b->clone());
 		}
@@ -2220,8 +2278,8 @@ namespace ZScript
 	{
 	public:
 		OSubImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSubImmediate2(a->clone(),b->clone());
 		}
@@ -2231,8 +2289,8 @@ namespace ZScript
 	{
 	public:
 		OSubRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSubRegister(a->clone(),b->clone());
 		}
@@ -2242,8 +2300,8 @@ namespace ZScript
 	{
 	public:
 		OMultImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMultImmediate(a->clone(),b->clone());
 		}
@@ -2253,8 +2311,8 @@ namespace ZScript
 	{
 	public:
 		OMultRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMultRegister(a->clone(),b->clone());
 		}
@@ -2264,8 +2322,8 @@ namespace ZScript
 	{
 	public:
 		ODivImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODivImmediate(a->clone(),b->clone());
 		}
@@ -2275,8 +2333,8 @@ namespace ZScript
 	{
 	public:
 		ODivImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODivImmediate2(a->clone(),b->clone());
 		}
@@ -2286,8 +2344,8 @@ namespace ZScript
 	{
 	public:
 		ODivRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODivRegister(a->clone(),b->clone());
 		}
@@ -2297,8 +2355,8 @@ namespace ZScript
 	{
 	public:
 		OCompareImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCompareImmediate(a->clone(),b->clone());
 		}
@@ -2308,8 +2366,8 @@ namespace ZScript
 	{
 	public:
 		OCompareImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCompareImmediate2(a->clone(),b->clone());
 		}
@@ -2319,8 +2377,8 @@ namespace ZScript
 	{
 	public:
 		OCompareRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCompareRegister(a->clone(),b->clone());
 		}
@@ -2330,8 +2388,8 @@ namespace ZScript
 	{
 	public:
 		OInternalStringCompare(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OInternalStringCompare(a->clone(),b->clone());
 		}
@@ -2341,8 +2399,8 @@ namespace ZScript
 	{
 	public:
 		OInternalInsensitiveStringCompare(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OInternalInsensitiveStringCompare(a->clone(),b->clone());
 		}
@@ -2351,18 +2409,29 @@ namespace ZScript
 	class OWaitframe : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWaitframe();
+		}
+	};
+	
+	class OWaitframes : public UnaryOpcode
+	{
+	public:
+		OWaitframes(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWaitframes(a->clone());
 		}
 	};
 
 	class OWaitdraw : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWaitdraw();
 		}
@@ -2372,8 +2441,8 @@ namespace ZScript
 	{
 	public:
 		OWaitTo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWaitTo(a->clone(),b->clone());
 		}
@@ -2382,8 +2451,8 @@ namespace ZScript
 	class OWaitEvent : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWaitEvent();
 		}
@@ -2392,8 +2461,8 @@ namespace ZScript
 	class ONoOp : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONoOp();
 		}
@@ -2403,8 +2472,8 @@ namespace ZScript
 	{
 	public:
 		OCastBoolI(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCastBoolI(a->clone());
 		}
@@ -2414,8 +2483,8 @@ namespace ZScript
 	{
 	public:
 		OCastBoolF(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCastBoolF(a->clone());
 		}
@@ -2425,8 +2494,8 @@ namespace ZScript
 	{
 	public:
 		OGotoImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGotoImmediate(a->clone());
 		}
@@ -2436,8 +2505,8 @@ namespace ZScript
 	{
 	public:
 		OGotoTrueImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGotoTrueImmediate(a->clone());
 		}
@@ -2447,8 +2516,8 @@ namespace ZScript
 	{
 	public:
 		OGotoFalseImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGotoFalseImmediate(a->clone());
 		}
@@ -2458,8 +2527,8 @@ namespace ZScript
 	{
 	public:
 		OGotoMoreImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGotoMoreImmediate(a->clone());
 		}
@@ -2469,8 +2538,8 @@ namespace ZScript
 	{
 	public:
 		OGotoLessImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGotoLessImmediate(a->clone());
 		}
@@ -2480,8 +2549,8 @@ namespace ZScript
 	{
 	public:
 		OPushRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPushRegister(a->clone());
 		}
@@ -2491,8 +2560,8 @@ namespace ZScript
 	{
 	public:
 		OPushImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPushImmediate(a->clone());
 		}
@@ -2502,8 +2571,8 @@ namespace ZScript
 	{
 	public:
 		OPopRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPopRegister(a->clone());
 		}
@@ -2513,10 +2582,32 @@ namespace ZScript
 	{
 	public:
 		OPopArgsRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPopArgsRegister(a->clone(),b->clone());
+		}
+	};
+	
+	class OPushVargV : public UnaryOpcode
+	{
+	public:
+		OPushVargV(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushVargV(a->clone());
+		}
+	};
+	
+	class OPushVargR : public UnaryOpcode
+	{
+	public:
+		OPushVargR(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPushVargR(a->clone());
 		}
 	};
 
@@ -2524,8 +2615,8 @@ namespace ZScript
 	{
 	public:
 		OLoadIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadIndirect(a->clone(),b->clone());
 		}
@@ -2535,18 +2626,39 @@ namespace ZScript
 	{
 	public:
 		OStoreIndirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStoreIndirect(a->clone(),b->clone());
+		}
+	};
+
+	class OLoadDirect : public BinaryOpcode
+	{
+	public:
+		OLoadDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadDirect(a->clone(),b->clone());
+		}
+	};
+	class OStoreDirect : public BinaryOpcode
+	{
+	public:
+		OStoreDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OStoreDirect(a->clone(),b->clone());
 		}
 	};
 
 	class OQuit : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OQuit();
 		}
@@ -2556,8 +2668,8 @@ namespace ZScript
 	{
 	public:
 		OGotoRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGotoRegister(a->clone());
 		}
@@ -2567,10 +2679,31 @@ namespace ZScript
 	{
 	public:
 		OTraceRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTraceRegister(a->clone());
+		}
+	};
+	class OTraceImmediate : public UnaryOpcode
+	{
+	public:
+		OTraceImmediate(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OTraceImmediate(a->clone());
+		}
+	};
+
+	class OTraceLRegister : public UnaryOpcode
+	{
+	public:
+		OTraceLRegister(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OTraceLRegister(a->clone());
 		}
 	};
 
@@ -2578,8 +2711,8 @@ namespace ZScript
 	{
 	public:
 		OTrace2Register(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTrace2Register(a->clone());
 		}
@@ -2588,8 +2721,8 @@ namespace ZScript
 	class OTrace3 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTrace3();
 		}
@@ -2598,8 +2731,8 @@ namespace ZScript
 	class OTrace4 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTrace4();
 		}
@@ -2608,8 +2741,8 @@ namespace ZScript
 	class OTrace5Register : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTrace5Register();
 		}
@@ -2619,8 +2752,8 @@ namespace ZScript
 	{
 	public:
 		OTrace6Register(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTrace6Register(a->clone());
 		}
@@ -2630,8 +2763,8 @@ namespace ZScript
 	{
 	public:
 		OPrintfImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPrintfImmediate(a->clone());
 		}
@@ -2641,10 +2774,30 @@ namespace ZScript
 	{
 	public:
 		OSPrintfImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSPrintfImmediate(a->clone());
+		}
+	};
+
+	class OPrintfVargs : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPrintfVargs();
+		}
+	};
+
+	class OSPrintfVargs : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSPrintfVargs();
 		}
 	};
 
@@ -2652,8 +2805,8 @@ namespace ZScript
 	{
 	public:
 		OBreakpoint(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBreakpoint(a->clone());
 		}
@@ -2663,8 +2816,8 @@ namespace ZScript
 	{
 	public:
 		OAndImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAndImmediate(a->clone(),b->clone());
 		}
@@ -2674,8 +2827,8 @@ namespace ZScript
 	{
 	public:
 		OAndRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAndRegister(a->clone(),b->clone());
 		}
@@ -2685,8 +2838,8 @@ namespace ZScript
 	{
 	public:
 		OOrImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOrImmediate(a->clone(),b->clone());
 		}
@@ -2696,8 +2849,8 @@ namespace ZScript
 	{
 	public:
 		OOrRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOrRegister(a->clone(),b->clone());
 		}
@@ -2707,8 +2860,8 @@ namespace ZScript
 	{
 	public:
 		OXorImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OXorImmediate(a->clone(), b->clone());
 		}
@@ -2718,8 +2871,8 @@ namespace ZScript
 	{
 	public:
 		OXorRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OXorRegister(a->clone(), b->clone());
 		}
@@ -2729,8 +2882,8 @@ namespace ZScript
 	{
 	public:
 		ONot(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONot(a->clone());
 		}
@@ -2740,8 +2893,8 @@ namespace ZScript
 	{
 	public:
 		OLShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLShiftImmediate(a->clone(), b->clone());
 		}
@@ -2751,8 +2904,8 @@ namespace ZScript
 	{
 	public:
 		OLShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLShiftRegister(a->clone(), b->clone());
 		}
@@ -2762,8 +2915,8 @@ namespace ZScript
 	{
 	public:
 		ORShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORShiftImmediate(a->clone(), b->clone());
 		}
@@ -2773,8 +2926,8 @@ namespace ZScript
 	{
 	public:
 		ORShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORShiftRegister(a->clone(), b->clone());
 		}
@@ -2784,8 +2937,8 @@ namespace ZScript
 	{
 	public:
 		O32BitAndImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitAndImmediate(a->clone(),b->clone());
 		}
@@ -2795,8 +2948,8 @@ namespace ZScript
 	{
 	public:
 		O32BitAndRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitAndRegister(a->clone(),b->clone());
 		}
@@ -2806,8 +2959,8 @@ namespace ZScript
 	{
 	public:
 		O32BitOrImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitOrImmediate(a->clone(),b->clone());
 		}
@@ -2817,8 +2970,8 @@ namespace ZScript
 	{
 	public:
 		O32BitOrRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitOrRegister(a->clone(),b->clone());
 		}
@@ -2828,8 +2981,8 @@ namespace ZScript
 	{
 	public:
 		O32BitXorImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitXorImmediate(a->clone(), b->clone());
 		}
@@ -2839,8 +2992,8 @@ namespace ZScript
 	{
 	public:
 		O32BitXorRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitXorRegister(a->clone(), b->clone());
 		}
@@ -2850,8 +3003,8 @@ namespace ZScript
 	{
 	public:
 		O32BitNot(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitNot(a->clone());
 		}
@@ -2861,8 +3014,8 @@ namespace ZScript
 	{
 	public:
 		O32BitLShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitLShiftImmediate(a->clone(), b->clone());
 		}
@@ -2872,8 +3025,8 @@ namespace ZScript
 	{
 	public:
 		O32BitLShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitLShiftRegister(a->clone(), b->clone());
 		}
@@ -2883,8 +3036,8 @@ namespace ZScript
 	{
 	public:
 		O32BitRShiftImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitRShiftImmediate(a->clone(), b->clone());
 		}
@@ -2894,8 +3047,8 @@ namespace ZScript
 	{
 	public:
 		O32BitRShiftRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new O32BitRShiftRegister(a->clone(), b->clone());
 		}
@@ -2905,8 +3058,8 @@ namespace ZScript
 	{
 	public:
 		OModuloImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OModuloImmediate(a->clone(), b->clone());
 		}
@@ -2916,8 +3069,8 @@ namespace ZScript
 	{
 	public:
 		OModuloImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OModuloImmediate2(a->clone(), b->clone());
 		}
@@ -2927,8 +3080,8 @@ namespace ZScript
 	{
 	public:
 		OModuloRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OModuloRegister(a->clone(), b->clone());
 		}
@@ -2938,8 +3091,8 @@ namespace ZScript
 	{
 	public:
 		OSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSinRegister(a->clone(), b->clone());
 		}
@@ -2949,8 +3102,8 @@ namespace ZScript
 	{
 	public:
 		OArcSinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArcSinRegister(a->clone(), b->clone());
 		}
@@ -2960,8 +3113,8 @@ namespace ZScript
 	{
 	public:
 		OCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCosRegister(a->clone(), b->clone());
 		}
@@ -2971,8 +3124,8 @@ namespace ZScript
 	{
 	public:
 		OArcCosRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArcCosRegister(a->clone(), b->clone());
 		}
@@ -2982,8 +3135,8 @@ namespace ZScript
 	{
 	public:
 		OTanRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTanRegister(a->clone(), b->clone());
 		}
@@ -2993,8 +3146,8 @@ namespace ZScript
 	{
 	public:
 		OEngineDegtoRad(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEngineDegtoRad(a->clone(), b->clone());
 		}
@@ -3004,8 +3157,8 @@ namespace ZScript
 	{
 	public:
 		OEngineRadtoDeg(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEngineRadtoDeg(a->clone(), b->clone());
 		}
@@ -3015,8 +3168,8 @@ namespace ZScript
 	{
 	public:
 		Ostrlen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrlen(a->clone(), b->clone());
 		}
@@ -3026,8 +3179,8 @@ namespace ZScript
 	{
 	public:
 		OATanRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OATanRegister(a->clone());
 		}
@@ -3037,8 +3190,8 @@ namespace ZScript
 	{
 	public:
 		OMaxRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMaxRegister(a->clone(), b->clone());
 		}
@@ -3048,10 +3201,40 @@ namespace ZScript
 	{
 	public:
 		OMinRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMinRegister(a->clone(), b->clone());
+		}
+	};
+	
+	class OMaxNew: public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OMaxNew();
+		}
+	};
+	
+	class OMinNew: public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OMinNew();
+		}
+	};
+	
+	class OChoose: public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OChoose();
 		}
 	};
 
@@ -3059,8 +3242,8 @@ namespace ZScript
 	{
 	public:
 		OPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPowRegister(a->clone(), b->clone());
 		}
@@ -3069,8 +3252,8 @@ namespace ZScript
 	{
 	public:
 		OPowImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPowImmediate(a->clone(), b->clone());
 		}
@@ -3079,8 +3262,8 @@ namespace ZScript
 	{
 	public:
 		OPowImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPowImmediate2(a->clone(), b->clone());
 		}
@@ -3090,8 +3273,8 @@ namespace ZScript
 	{
 	public:
 		OLPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLPowRegister(a->clone(), b->clone());
 		}
@@ -3100,8 +3283,8 @@ namespace ZScript
 	{
 	public:
 		OLPowImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLPowImmediate(a->clone(), b->clone());
 		}
@@ -3110,8 +3293,8 @@ namespace ZScript
 	{
 	public:
 		OLPowImmediate2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLPowImmediate2(a->clone(), b->clone());
 		}
@@ -3121,8 +3304,8 @@ namespace ZScript
 	{
 	public:
 		OInvPowRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OInvPowRegister(a->clone(), b->clone());
 		}
@@ -3132,8 +3315,8 @@ namespace ZScript
 	{
 	public:
 		OFactorial(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFactorial(a->clone());
 		}
@@ -3143,8 +3326,8 @@ namespace ZScript
 	{
 	public:
 		OAbsRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAbsRegister(a->clone());
 		}
@@ -3154,8 +3337,8 @@ namespace ZScript
 	{
 	public:
 		OLog10Register(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLog10Register(a->clone());
 		}
@@ -3165,8 +3348,8 @@ namespace ZScript
 	{
 	public:
 		OLogERegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLogERegister(a->clone());
 		}
@@ -3176,8 +3359,8 @@ namespace ZScript
 	{
 	public:
 		OArraySize(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySize(a->clone());
 		}
@@ -3188,8 +3371,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeF(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeF(a->clone());
 		}
@@ -3198,8 +3381,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeN(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeN(a->clone());
 		}
@@ -3208,8 +3391,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeE(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeE(a->clone());
 		}
@@ -3218,8 +3401,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeL(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeL(a->clone());
 		}
@@ -3228,8 +3411,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeB(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeB(a->clone());
 		}
@@ -3238,8 +3421,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeI(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeI(a->clone());
 		}
@@ -3248,8 +3431,8 @@ namespace ZScript
 	{
 	public:
 		OArraySizeID(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArraySizeID(a->clone());
 		}
@@ -3258,8 +3441,8 @@ namespace ZScript
 	class OCheckTrig : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCheckTrig();
 		}
@@ -3269,8 +3452,8 @@ namespace ZScript
 	{
 	public:
 		ORandRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORandRegister(a->clone(), b->clone());
 		}
@@ -3280,8 +3463,8 @@ namespace ZScript
 	{
 	public:
 		OSRandRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSRandRegister(a->clone());
 		}
@@ -3291,8 +3474,8 @@ namespace ZScript
 	{
 	public:
 		OSRandImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSRandImmediate(a->clone());
 		}
@@ -3302,8 +3485,8 @@ namespace ZScript
 	{
 	public:
 		OSRandRand(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSRandRand(a->clone());
 		}
@@ -3313,8 +3496,8 @@ namespace ZScript
 	{
 	public:
 		ORNGRand1() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGRand1();
 		}
@@ -3324,8 +3507,8 @@ namespace ZScript
 	{
 	public:
 		ORNGRand2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGRand2(a->clone());
 		}
@@ -3335,8 +3518,8 @@ namespace ZScript
 	{
 	public:
 		ORNGRand3(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGRand3(a->clone(), b->clone());
 		}
@@ -3346,8 +3529,8 @@ namespace ZScript
 	{
 	public:
 		ORNGLRand1() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGLRand1();
 		}
@@ -3357,8 +3540,8 @@ namespace ZScript
 	{
 	public:
 		ORNGLRand2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGLRand2(a->clone());
 		}
@@ -3368,8 +3551,8 @@ namespace ZScript
 	{
 	public:
 		ORNGLRand3(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGLRand3(a->clone(), b->clone());
 		}
@@ -3379,8 +3562,8 @@ namespace ZScript
 	{
 	public:
 		ORNGSeed(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGSeed(a->clone());
 		}
@@ -3390,8 +3573,8 @@ namespace ZScript
 	{
 	public:
 		ORNGRSeed() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGRSeed();
 		}
@@ -3401,8 +3584,8 @@ namespace ZScript
 	{
 	public:
 		ORNGFree() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGFree();
 		}
@@ -3412,8 +3595,8 @@ namespace ZScript
 	{
 	public:
 		OSqrtRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSqrtRegister(a->clone(),b->clone());
 		}
@@ -3423,8 +3606,8 @@ namespace ZScript
 	{
 	public:
 		OCalcSplineRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCalcSplineRegister(a->clone(),b->clone());
 		}
@@ -3433,8 +3616,8 @@ namespace ZScript
 	class OSetColorRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetColorRegister();
 		}
@@ -3443,8 +3626,8 @@ namespace ZScript
 	class OSetDepthRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetDepthRegister();
 		}
@@ -3454,8 +3637,8 @@ namespace ZScript
 	{
 	public:
 		OCollisionRectRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCollisionRectRegister(a->clone());
 		}
@@ -3465,8 +3648,8 @@ namespace ZScript
 	{
 	public:
 		OCollisionBoxRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCollisionBoxRegister(a->clone());
 		}
@@ -3476,8 +3659,8 @@ namespace ZScript
 	{
 	public:
 		OWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWarp(a->clone(), b->clone());
 		}
@@ -3487,8 +3670,8 @@ namespace ZScript
 	{
 	public:
 		OPitWarp(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPitWarp(a->clone(), b->clone());
 		}
@@ -3498,8 +3681,8 @@ namespace ZScript
 	{
 	public:
 		OCreateItemRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCreateItemRegister(a->clone());
 		}
@@ -3509,8 +3692,8 @@ namespace ZScript
 	{
 	public:
 		OCreateNPCRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCreateNPCRegister(a->clone());
 		}
@@ -3520,8 +3703,8 @@ namespace ZScript
 	{
 	public:
 		OCreateLWpnRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCreateLWpnRegister(a->clone());
 		}
@@ -3531,8 +3714,8 @@ namespace ZScript
 	{
 	public:
 		OCreateEWpnRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCreateEWpnRegister(a->clone());
 		}
@@ -3542,8 +3725,8 @@ namespace ZScript
 	{
 	public:
 		OLoadItemRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadItemRegister(a->clone());
 		}
@@ -3553,8 +3736,8 @@ namespace ZScript
 	{
 	public:
 		OLoadItemDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadItemDataRegister(a->clone());
 		}
@@ -3564,8 +3747,8 @@ namespace ZScript
 	{
 	public:
 		OLoadShopDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadShopDataRegister(a->clone());
 		}
@@ -3576,8 +3759,8 @@ namespace ZScript
 	{
 	public:
 		OLoadInfoShopDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadInfoShopDataRegister(a->clone());
 		}
@@ -3587,8 +3770,8 @@ namespace ZScript
 	{
 	public:
 		OLoadNPCDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadNPCDataRegister(a->clone());
 		}
@@ -3599,8 +3782,8 @@ namespace ZScript
 	{
 	public:
 		OLoadMessageDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadMessageDataRegister(a->clone());
 		}
@@ -3611,8 +3794,8 @@ namespace ZScript
 	{
 	public:
 		OLoadDMapDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadDMapDataRegister(a->clone());
 		}
@@ -3622,8 +3805,8 @@ namespace ZScript
 	{
 	public:
 		OLoadStack() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadStack();
 		}
@@ -3633,8 +3816,8 @@ namespace ZScript
 	{
 	public:
 		OLoadDirectoryRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadDirectoryRegister(a->clone());
 		}
@@ -3644,20 +3827,294 @@ namespace ZScript
 	{
 	public:
 		OLoadRNG() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadRNG();
 		}
 	};
 
+	class OCreatePalData : public Opcode
+	{
+	public:
+		OCreatePalData() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCreatePalData();
+		}
+	};
+	
+	class OCreatePalDataClr : public UnaryOpcode
+	{
+	public:
+		OCreatePalDataClr(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCreatePalDataClr(a->clone());
+		}
+	};
 
+	class OCreateRGBHex : public UnaryOpcode
+	{
+	public:
+		OCreateRGBHex(Argument* A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCreateRGBHex(a->clone());
+		}
+	};
+
+	class OCreateRGB : public Opcode
+	{
+	public:
+		OCreateRGB() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCreateRGB();
+		}
+	};
+	
+	class OMixColorArray : public Opcode
+	{
+	public:
+		OMixColorArray() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OMixColorArray();
+		}
+	};
+	
+	class OLoadLevelPalette : public UnaryOpcode
+	{
+	public:
+		OLoadLevelPalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadLevelPalette(a->clone());
+		}
+	};
+
+	class OLoadSpritePalette : public UnaryOpcode
+	{
+	public:
+		OLoadSpritePalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadSpritePalette(a->clone());
+		}
+	};
+
+	class OLoadMainPalette : public Opcode
+	{
+	public:
+		OLoadMainPalette() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadMainPalette();
+		}
+	};
+
+	class OLoadCyclePalette : public UnaryOpcode
+	{
+	public:
+		OLoadCyclePalette(Argument* A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadCyclePalette(a->clone());
+		}
+	};
+
+	class OLoadBitmapPalette : public UnaryOpcode
+	{
+	public:
+		OLoadBitmapPalette(Argument* A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OLoadBitmapPalette(a->clone());
+		}
+	};
+	
+	class OWriteLevelPalette : public UnaryOpcode
+	{
+	public:
+		OWriteLevelPalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteLevelPalette(a->clone());
+		}
+	};
+	
+	class OWriteLevelCSet : public BinaryOpcode
+	{
+	public:
+		OWriteLevelCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteLevelCSet(a->clone(), b->clone());
+		}
+	};
+	
+	class OWriteSpritePalette : public UnaryOpcode
+	{
+	public:
+		OWriteSpritePalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteSpritePalette(a->clone());
+		}
+	};
+	
+	class OWriteSpriteCSet : public BinaryOpcode
+	{
+	public:
+		OWriteSpriteCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteSpriteCSet(a->clone(), b->clone());
+		}
+	};
+	
+	class OWriteMainPalette : public Opcode
+	{
+	public:
+		OWriteMainPalette() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteMainPalette();
+		}
+	};
+	
+	class OWriteMainCSet : public UnaryOpcode
+	{
+	public:
+		OWriteMainCSet(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteMainCSet(a->clone());
+		}
+	};
+
+	class OWriteCyclePalette : public UnaryOpcode
+	{
+	public:
+		OWriteCyclePalette(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteCyclePalette(a->clone());
+		}
+	};
+
+	class OWriteCycleCSet : public BinaryOpcode
+	{
+	public:
+		OWriteCycleCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OWriteCycleCSet(a->clone(), b->clone());
+		}
+	};
+	
+	class OPalDataColorValid : public UnaryOpcode
+	{
+	public:
+		OPalDataColorValid(Argument* A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataColorValid(a->clone());
+		}
+	};
+	
+	class OPalDataClearColor : public UnaryOpcode
+	{
+	public:
+		OPalDataClearColor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataClearColor(a->clone());
+		}
+	};
+
+	class OPalDataClearCSet : public UnaryOpcode
+	{
+	public:
+		OPalDataClearCSet(Argument* A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataClearCSet(a->clone());
+		}
+	};
+
+	class OPalDataMix : public Opcode
+	{
+	public:
+		OPalDataMix() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataMix();
+		}
+	};
+	
+	class OPalDataMixCSet : public Opcode
+	{
+	public:
+		OPalDataMixCSet() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataMixCSet();
+		}
+	};
+	
+	class OPalDataCopy : public UnaryOpcode
+	{
+	public:
+		OPalDataCopy(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataCopy(a->clone());
+		}
+	};
+
+	class OPalDataCopyCSet : public Opcode
+	{
+	public:
+		OPalDataCopyCSet() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataCopyCSet();
+		}
+	};
+	
 	class OLoadDropsetRegister : public UnaryOpcode
 	{
 	public:
 		OLoadDropsetRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadDropsetRegister(a->clone());
 		}
@@ -3667,8 +4124,8 @@ namespace ZScript
 	{
 	public:
 		OGetBottleShopName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetBottleShopName(a->clone());
 		}
@@ -3678,8 +4135,8 @@ namespace ZScript
 	{
 	public:
 		OSetBottleShopName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetBottleShopName(a->clone());
 		}
@@ -3689,8 +4146,8 @@ namespace ZScript
 	{
 	public:
 		OGetBottleName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetBottleName(a->clone());
 		}
@@ -3700,8 +4157,8 @@ namespace ZScript
 	{
 	public:
 		OSetBottleName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetBottleName(a->clone());
 		}
@@ -3711,8 +4168,8 @@ namespace ZScript
 	{
 	public:
 		OLoadBottleTypeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadBottleTypeRegister(a->clone());
 		}
@@ -3722,8 +4179,8 @@ namespace ZScript
 	{
 	public:
 		OLoadBShopRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadBShopRegister(a->clone());
 		}
@@ -3733,8 +4190,8 @@ namespace ZScript
 	{
 	public:
 		OLoadGenericDataR(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadGenericDataR(a->clone());
 		}
@@ -3744,8 +4201,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataGetNameRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataGetNameRegister(a->clone());
 		}
@@ -3755,8 +4212,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataSetNameRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataSetNameRegister(a->clone());
 		}
@@ -3766,8 +4223,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataGetTitleRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataGetTitleRegister(a->clone());
 		}
@@ -3777,8 +4234,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataSetTitleRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataSetTitleRegister(a->clone());
 		}
@@ -3788,8 +4245,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataGetIntroRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataGetIntroRegister(a->clone());
 		}
@@ -3799,8 +4256,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataSetIntroRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataSetIntroRegister(a->clone());
 		}
@@ -3810,8 +4267,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataGetMusicRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataGetMusicRegister(a->clone());
 		}
@@ -3821,8 +4278,8 @@ namespace ZScript
 	{
 	public:
 		ODMapDataSetMusicRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODMapDataSetMusicRegister(a->clone());
 		}
@@ -3833,8 +4290,8 @@ namespace ZScript
 	{
 	public:
 		OMessageDataSetStringRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMessageDataSetStringRegister(a->clone());
 		}
@@ -3845,8 +4302,8 @@ namespace ZScript
 	{
 	public:
 		OMessageDataGetStringRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMessageDataGetStringRegister(a->clone());
 		}
@@ -3856,8 +4313,8 @@ namespace ZScript
 	{
 	public:
 		OLoadComboDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadComboDataRegister(a->clone());
 		}
@@ -3867,8 +4324,8 @@ namespace ZScript
 	{
 	public:
 		OLoadMapDataRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadMapDataRegister(a->clone(), b->clone());
 		}
@@ -3879,8 +4336,8 @@ namespace ZScript
 	{
 	public:
 		OLoadSpriteDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadSpriteDataRegister(a->clone());
 		}
@@ -3891,8 +4348,8 @@ namespace ZScript
 	{
 	public:
 		OLoadScreenDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadScreenDataRegister(a->clone());
 		}
@@ -3903,8 +4360,8 @@ namespace ZScript
 	{
 	public:
 		OLoadBitmapDataRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadBitmapDataRegister(a->clone());
 		}
@@ -3914,8 +4371,8 @@ namespace ZScript
 	{
 	public:
 		OLoadNPCRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadNPCRegister(a->clone());
 		}
@@ -3925,8 +4382,8 @@ namespace ZScript
 	{
 	public:
 		OLoadLWpnRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadLWpnRegister(a->clone());
 		}
@@ -3936,8 +4393,8 @@ namespace ZScript
 	{
 	public:
 		OLoadEWpnRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadEWpnRegister(a->clone());
 		}
@@ -3947,8 +4404,8 @@ namespace ZScript
 	{
 	public:
 		OPlaySoundRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPlaySoundRegister(a->clone());
 		}
@@ -3961,8 +4418,8 @@ namespace ZScript
 	{
 	public:
 		OAdjustVolumeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAdjustVolumeRegister(a->clone());
 		}
@@ -3973,8 +4430,8 @@ namespace ZScript
 	{
 	public:
 		OAdjustSFXVolumeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAdjustSFXVolumeRegister(a->clone());
 		}
@@ -3985,8 +4442,8 @@ namespace ZScript
 	{
 	public:
 		OEndSoundRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEndSoundRegister(a->clone());
 		}
@@ -3997,8 +4454,8 @@ namespace ZScript
 	{
 	public:
 		OPauseSoundRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPauseSoundRegister(a->clone());
 		}
@@ -4009,8 +4466,8 @@ namespace ZScript
 	{
 	public:
 		OResumeSoundRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OResumeSoundRegister(a->clone());
 		}
@@ -4021,8 +4478,8 @@ namespace ZScript
 	{
 	public:
 		OPauseSFX(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPauseSFX(a->clone());
 		}
@@ -4032,8 +4489,8 @@ namespace ZScript
 	{
 	public:
 		OResumeSFX(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OResumeSFX(a->clone());
 		}
@@ -4043,8 +4500,8 @@ namespace ZScript
 	{
 	public:
 		OContinueSFX(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OContinueSFX(a->clone());
 		}
@@ -4054,8 +4511,8 @@ namespace ZScript
 	class OPauseMusic : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPauseMusic();
 		}
@@ -4064,8 +4521,8 @@ namespace ZScript
 	class OResumeMusic : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OResumeMusic();
 		}
@@ -4078,8 +4535,8 @@ namespace ZScript
 	{
 	public:
 		OPlayMIDIRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPlayMIDIRegister(a->clone());
 		}
@@ -4089,8 +4546,8 @@ namespace ZScript
 	{
 	public:
 		OPlayEnhancedMusic(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPlayEnhancedMusic(a->clone(), b->clone());
 		}
@@ -4100,8 +4557,8 @@ namespace ZScript
 	{
 	public:
 		OPlayEnhancedMusicEx(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPlayEnhancedMusicEx(a->clone(), b->clone());
 		}
@@ -4111,8 +4568,8 @@ namespace ZScript
 	{
 	public:
 		OGetEnhancedMusicPos(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetEnhancedMusicPos(a->clone());
 		}
@@ -4122,8 +4579,8 @@ namespace ZScript
 	{
 	public:
 		OSetEnhancedMusicPos(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetEnhancedMusicPos(a->clone());
 		}
@@ -4133,8 +4590,8 @@ namespace ZScript
 	{
 	public:
 		OSetEnhancedMusicSpeed(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetEnhancedMusicSpeed(a->clone());
 		}
@@ -4144,8 +4601,8 @@ namespace ZScript
 	{
 	public:
 		OGetDMapMusicFilename(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetDMapMusicFilename(a->clone(), b->clone());
 		}
@@ -4155,8 +4612,8 @@ namespace ZScript
 	{
 	public:
 		OGetNPCDataInitDLabel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetNPCDataInitDLabel(a->clone(), b->clone());
 		}
@@ -4166,8 +4623,8 @@ namespace ZScript
 	{
 	public:
 		OGetDMapMusicTrack(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetDMapMusicTrack(a->clone());
 		}
@@ -4176,8 +4633,8 @@ namespace ZScript
 	class OSetDMapEnhancedMusic : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetDMapEnhancedMusic();
 		}
@@ -4187,8 +4644,8 @@ namespace ZScript
 	{
 	public:
 		OGetSaveName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetSaveName(a->clone());
 		}
@@ -4198,8 +4655,8 @@ namespace ZScript
 	{
 	public:
 		OGetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetDMapName(a->clone(), b->clone());
 		}
@@ -4209,8 +4666,8 @@ namespace ZScript
 	{
 	public:
 		OSetDMapName(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetDMapName(a->clone(), b->clone());
 		}
@@ -4220,8 +4677,8 @@ namespace ZScript
 	{
 	public:
 		OSetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetDMapIntro(a->clone(), b->clone());
 		}
@@ -4231,8 +4688,8 @@ namespace ZScript
 	{
 	public:
 		OSetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetDMapTitle(a->clone(), b->clone());
 		}
@@ -4243,8 +4700,8 @@ namespace ZScript
 	{
 	public:
 		OSetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetMessage(a->clone(), b->clone());
 		}
@@ -4255,8 +4712,8 @@ namespace ZScript
 	{
 	public:
 		OGetDMapIntro(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetDMapIntro(a->clone(), b->clone());
 		}
@@ -4266,8 +4723,8 @@ namespace ZScript
 	{
 	public:
 		OGetDMapTitle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetDMapTitle(a->clone(), b->clone());
 		}
@@ -4277,8 +4734,8 @@ namespace ZScript
 	{
 	public:
 		OSetSaveName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetSaveName(a->clone());
 		}
@@ -4288,8 +4745,8 @@ namespace ZScript
 	{
 	public:
 		OGetItemName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetItemName(a->clone());
 		}
@@ -4299,8 +4756,8 @@ namespace ZScript
 	{
 	public:
 		OGetNPCName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetNPCName(a->clone());
 		}
@@ -4310,8 +4767,8 @@ namespace ZScript
 	{
 	public:
 		OGetMessage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetMessage(a->clone(), b->clone());
 		}
@@ -4321,8 +4778,8 @@ namespace ZScript
 	{
 	public:
 		OClearSpritesRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OClearSpritesRegister(a->clone());
 		}
@@ -4332,8 +4789,8 @@ namespace ZScript
 	{
 	public:
 		OMessageRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMessageRegister(a->clone());
 		}
@@ -4343,8 +4800,8 @@ namespace ZScript
 	{
 	public:
 		OIsSolid(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsSolid(a->clone());
 		}
@@ -4354,8 +4811,8 @@ namespace ZScript
 	{
 	public:
 		OIsSolidMapdata(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsSolidMapdata(a->clone());
 		}
@@ -4365,8 +4822,8 @@ namespace ZScript
 	{
 	public:
 		OIsSolidMapdataLayer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsSolidMapdataLayer(a->clone());
 		}
@@ -4376,8 +4833,8 @@ namespace ZScript
 	{
 	public:
 		OIsSolidLayer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsSolidLayer(a->clone());
 		}
@@ -4387,8 +4844,8 @@ namespace ZScript
 	{
 	public:
 		OLoadTmpScr(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadTmpScr(a->clone());
 		}
@@ -4398,8 +4855,8 @@ namespace ZScript
 	{
 	public:
 		OLoadScrollScr(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadScrollScr(a->clone());
 		}
@@ -4408,8 +4865,8 @@ namespace ZScript
 	class OSetSideWarpRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetSideWarpRegister();
 		}
@@ -4418,8 +4875,8 @@ namespace ZScript
 	class OSetTileWarpRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetTileWarpRegister();
 		}
@@ -4429,8 +4886,8 @@ namespace ZScript
 	{
 	public:
 		OGetSideWarpDMap(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetSideWarpDMap(a->clone());
 		}
@@ -4440,8 +4897,8 @@ namespace ZScript
 	{
 	public:
 		OGetSideWarpScreen(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetSideWarpScreen(a->clone());
 		}
@@ -4451,8 +4908,8 @@ namespace ZScript
 	{
 	public:
 		OGetSideWarpType(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetSideWarpType(a->clone());
 		}
@@ -4462,8 +4919,8 @@ namespace ZScript
 	{
 	public:
 		OGetTileWarpDMap(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetTileWarpDMap(a->clone());
 		}
@@ -4473,8 +4930,8 @@ namespace ZScript
 	{
 	public:
 		OGetTileWarpScreen(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetTileWarpScreen(a->clone());
 		}
@@ -4484,8 +4941,8 @@ namespace ZScript
 	{
 	public:
 		OGetTileWarpType(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetTileWarpType(a->clone());
 		}
@@ -4495,8 +4952,8 @@ namespace ZScript
 	{
 	public:
 		OLayerScreenRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLayerScreenRegister(a->clone(), b->clone());
 		}
@@ -4506,8 +4963,8 @@ namespace ZScript
 	{
 	public:
 		OLayerMapRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLayerMapRegister(a->clone(), b->clone());
 		}
@@ -4516,8 +4973,8 @@ namespace ZScript
 	class OTriggerSecrets : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTriggerSecrets();
 		}
@@ -4527,8 +4984,8 @@ namespace ZScript
 	{
 	public:
 		OIsValidArray(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsValidArray(a->clone());
 		}
@@ -4538,8 +4995,8 @@ namespace ZScript
 	{
 	public:
 		OIsValidItem(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsValidItem(a->clone());
 		}
@@ -4549,8 +5006,8 @@ namespace ZScript
 	{
 	public:
 		OIsValidNPC(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsValidNPC(a->clone());
 		}
@@ -4560,8 +5017,8 @@ namespace ZScript
 	{
 	public:
 		OIsValidLWpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsValidLWpn(a->clone());
 		}
@@ -4571,8 +5028,8 @@ namespace ZScript
 	{
 	public:
 		OIsValidEWpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsValidEWpn(a->clone());
 		}
@@ -4582,8 +5039,8 @@ namespace ZScript
 	{
 	public:
 		OMakeAngularLwpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMakeAngularLwpn(a->clone());
 		}
@@ -4593,8 +5050,8 @@ namespace ZScript
 	{
 	public:
 		OMakeAngularEwpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMakeAngularEwpn(a->clone());
 		}
@@ -4604,8 +5061,8 @@ namespace ZScript
 	{
 	public:
 		OMakeDirectionalLwpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMakeDirectionalLwpn(a->clone());
 		}
@@ -4615,8 +5072,8 @@ namespace ZScript
 	{
 	public:
 		OMakeDirectionalEwpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMakeDirectionalEwpn(a->clone());
 		}
@@ -4626,8 +5083,8 @@ namespace ZScript
 	{
 	public:
 		OUseSpriteLWpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OUseSpriteLWpn(a->clone());
 		}
@@ -4637,8 +5094,8 @@ namespace ZScript
 	{
 	public:
 		OUseSpriteEWpn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OUseSpriteEWpn(a->clone());
 		}
@@ -4647,8 +5104,8 @@ namespace ZScript
 	class ORectangleRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORectangleRegister();
 		}
@@ -4657,8 +5114,8 @@ namespace ZScript
 	class OFrameRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFrameRegister();
 		}
@@ -4667,8 +5124,8 @@ namespace ZScript
 	class OCircleRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCircleRegister();
 		}
@@ -4677,8 +5134,8 @@ namespace ZScript
 	class OArcRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OArcRegister();
 		}
@@ -4687,8 +5144,8 @@ namespace ZScript
 	class OEllipseRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEllipseRegister();
 		}
@@ -4697,8 +5154,8 @@ namespace ZScript
 	class OLineRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLineRegister();
 		}
@@ -4707,8 +5164,8 @@ namespace ZScript
 	class OSplineRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSplineRegister();
 		}
@@ -4717,8 +5174,8 @@ namespace ZScript
 	class OPutPixelRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPutPixelRegister();
 		}
@@ -4727,8 +5184,8 @@ namespace ZScript
 	class OPutPixelArrayRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPutPixelArrayRegister();
 		}
@@ -4737,8 +5194,8 @@ namespace ZScript
 	class OPutTileArrayRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPutTileArrayRegister();
 		}
@@ -4747,8 +5204,8 @@ namespace ZScript
 	class OPutLinesArrayRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPutLinesArrayRegister();
 		}
@@ -4757,8 +5214,8 @@ namespace ZScript
 	class OFastComboArrayRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFastComboArrayRegister();
 		}
@@ -4767,8 +5224,8 @@ namespace ZScript
 	class ODrawCharRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawCharRegister();
 		}
@@ -4777,8 +5234,8 @@ namespace ZScript
 	class ODrawIntRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawIntRegister();
 		}
@@ -4787,8 +5244,8 @@ namespace ZScript
 	class ODrawTileRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawTileRegister();
 		}
@@ -4797,8 +5254,8 @@ namespace ZScript
 	class ODrawTileCloakedRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawTileCloakedRegister();
 		}
@@ -4807,8 +5264,8 @@ namespace ZScript
 	class ODrawComboRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawComboRegister();
 		}
@@ -4817,8 +5274,8 @@ namespace ZScript
 	class ODrawComboCloakedRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawComboCloakedRegister();
 		}
@@ -4827,8 +5284,8 @@ namespace ZScript
 	class OQuadRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OQuadRegister();
 		}
@@ -4837,8 +5294,8 @@ namespace ZScript
 	class OTriangleRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTriangleRegister();
 		}
@@ -4847,8 +5304,8 @@ namespace ZScript
 	class OQuad3DRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OQuad3DRegister();
 		}
@@ -4857,8 +5314,8 @@ namespace ZScript
 	class OTriangle3DRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTriangle3DRegister();
 		}
@@ -4867,8 +5324,8 @@ namespace ZScript
 	class OFastTileRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFastTileRegister();
 		}
@@ -4877,8 +5334,8 @@ namespace ZScript
 	class OFastComboRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFastComboRegister();
 		}
@@ -4887,8 +5344,8 @@ namespace ZScript
 	class ODrawStringRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawStringRegister();
 		}
@@ -4897,8 +5354,8 @@ namespace ZScript
 	class ODrawString2Register : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawString2Register();
 		}
@@ -4907,8 +5364,8 @@ namespace ZScript
 	class ODrawLayerRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawLayerRegister();
 		}
@@ -4917,8 +5374,8 @@ namespace ZScript
 	class ODrawScreenRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawScreenRegister();
 		}
@@ -4927,8 +5384,8 @@ namespace ZScript
 	class ODrawBitmapRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawBitmapRegister();
 		}
@@ -4938,8 +5395,8 @@ namespace ZScript
 	class ODrawBitmapExRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODrawBitmapExRegister();
 		}
@@ -4948,8 +5405,8 @@ namespace ZScript
 	class OSetRenderTargetRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetRenderTargetRegister();
 		}
@@ -4958,8 +5415,8 @@ namespace ZScript
 	class OSetDepthBufferRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetDepthBufferRegister();
 		}
@@ -4968,8 +5425,8 @@ namespace ZScript
 	class OGetDepthBufferRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetDepthBufferRegister();
 		}
@@ -4978,8 +5435,8 @@ namespace ZScript
 	class OSetColorBufferRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetColorBufferRegister();
 		}
@@ -4988,8 +5445,8 @@ namespace ZScript
 	class OGetColorBufferRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetColorBufferRegister();
 		}
@@ -4999,8 +5456,8 @@ namespace ZScript
 	{
 	public:
 		OCopyTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCopyTileRegister(a->clone(),b->clone());
 		}
@@ -5010,8 +5467,8 @@ namespace ZScript
 	{
 	public:
 		Ostrcpy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrcpy(a->clone(),b->clone());
 		}
@@ -5021,8 +5478,8 @@ namespace ZScript
 	{
 	public:
 		oARRAYCOPY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new oARRAYCOPY(a->clone(),b->clone());
 		}
@@ -5033,8 +5490,8 @@ namespace ZScript
 	{
 	public:
 		OOverlayTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOverlayTileRegister(a->clone(),b->clone());
 		}
@@ -5044,8 +5501,8 @@ namespace ZScript
 	{
 	public:
 		OSwapTileRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSwapTileRegister(a->clone(),b->clone());
 		}
@@ -5055,8 +5512,8 @@ namespace ZScript
 	{
 	public:
 		OClearTileRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OClearTileRegister(a->clone());
 		}
@@ -5066,8 +5523,8 @@ namespace ZScript
 	{
 	public:
 		OAllocateMemRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAllocateMemRegister(a->clone(),b->clone());
 		}
@@ -5077,8 +5534,8 @@ namespace ZScript
 	{
 	public:
 		OAllocateMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAllocateMemImmediate(a->clone(),b->clone());
 		}
@@ -5088,8 +5545,8 @@ namespace ZScript
 	{
 	public:
 		OAllocateGlobalMemImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAllocateGlobalMemImmediate(a->clone(),b->clone());
 		}
@@ -5099,8 +5556,8 @@ namespace ZScript
 	{
 	public:
 		OAllocateGlobalMemRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAllocateGlobalMemRegister(a->clone(),b->clone());
 		}
@@ -5110,8 +5567,8 @@ namespace ZScript
 	{
 	public:
 		ODeallocateMemRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODeallocateMemRegister(a->clone());
 		}
@@ -5121,8 +5578,8 @@ namespace ZScript
 	{
 	public:
 		ODeallocateMemImmediate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODeallocateMemImmediate(a->clone());
 		}
@@ -5132,8 +5589,8 @@ namespace ZScript
 	{
 	public:
 		OResizeArrayRegister(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OResizeArrayRegister(a->clone(), b->clone());
 		}
@@ -5142,8 +5599,8 @@ namespace ZScript
 	{
 	public:
 		OOwnArrayRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOwnArrayRegister(a->clone());
 		}
@@ -5152,8 +5609,8 @@ namespace ZScript
 	{
 	public:
 		ODestroyArrayRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODestroyArrayRegister(a->clone());
 		}
@@ -5162,8 +5619,8 @@ namespace ZScript
 	class OSave : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSave();
 		}
@@ -5173,8 +5630,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenFlags(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenFlags(a->clone());
 		}
@@ -5184,8 +5641,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenEFlags(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenEFlags(a->clone());
 		}
@@ -5194,8 +5651,8 @@ namespace ZScript
 	class OEnd : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEnd();
 		}
@@ -5204,8 +5661,8 @@ namespace ZScript
 	class OGameReload : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGameReload();
 		}
@@ -5214,8 +5671,8 @@ namespace ZScript
 	class OGameContinue : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGameContinue();
 		}
@@ -5224,8 +5681,8 @@ namespace ZScript
 	class OGameSaveQuit : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGameSaveQuit();
 		}
@@ -5234,8 +5691,8 @@ namespace ZScript
 	class OGameSaveContinue : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGameSaveContinue();
 		}
@@ -5244,8 +5701,8 @@ namespace ZScript
 	class OShowF6Screen : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OShowF6Screen();
 		}
@@ -5255,8 +5712,8 @@ namespace ZScript
 	{
 	public:
 		OComboTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OComboTile(a->clone(), b->clone());
 		}
@@ -5266,8 +5723,8 @@ namespace ZScript
 	{
 	public:
 		OBreakShield(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBreakShield(a->clone());
 		}
@@ -5277,8 +5734,8 @@ namespace ZScript
 	{
 	public:
 		OShowSaveScreen(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OShowSaveScreen(a->clone());
 		}
@@ -5287,8 +5744,8 @@ namespace ZScript
 	class OShowSaveQuitScreen : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OShowSaveQuitScreen();
 		}
@@ -5298,8 +5755,8 @@ namespace ZScript
 	{
 	public:
 		OSelectAWeaponRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSelectAWeaponRegister(a->clone());
 		}
@@ -5309,8 +5766,8 @@ namespace ZScript
 	{
 	public:
 		OSelectBWeaponRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSelectBWeaponRegister(a->clone());
 		}
@@ -5320,8 +5777,8 @@ namespace ZScript
 	{
 	public:
 		OSelectXWeaponRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSelectXWeaponRegister(a->clone());
 		}
@@ -5331,8 +5788,8 @@ namespace ZScript
 	{
 	public:
 		OSelectYWeaponRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSelectYWeaponRegister(a->clone());
 		}
@@ -5342,8 +5799,8 @@ namespace ZScript
 	{
 	public:
 		OGetFFCScript(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetFFCScript(a->clone());
 		}
@@ -5353,8 +5810,8 @@ namespace ZScript
 	{
 	public:
 		OGetComboScript(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetComboScript(a->clone());
 		}
@@ -5364,8 +5821,8 @@ namespace ZScript
 	{
 	public:
 		OGetItemScript(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetItemScript(a->clone());
 		}
@@ -5378,8 +5835,8 @@ namespace ZScript
 	class OZapIn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OZapIn();
 		}
@@ -5388,8 +5845,8 @@ namespace ZScript
 	class OZapOut : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OZapOut();
 		}
@@ -5399,8 +5856,8 @@ namespace ZScript
 	class OGreyscaleOn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGreyscaleOn();
 		}
@@ -5409,8 +5866,8 @@ namespace ZScript
 	class OGreyscaleOff : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGreyscaleOff();
 		}
@@ -5421,8 +5878,8 @@ namespace ZScript
 	class OWavyIn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWavyIn();
 		}
@@ -5432,8 +5889,8 @@ namespace ZScript
 	class OWavyOut : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWavyOut();
 		}
@@ -5442,8 +5899,8 @@ namespace ZScript
 	class OOpenWipe : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOpenWipe();
 		}
@@ -5452,8 +5909,8 @@ namespace ZScript
 	class OCloseWipe : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCloseWipe();
 		}
@@ -5463,8 +5920,8 @@ namespace ZScript
 	{
 	public:
 		OOpenWipeShape(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OOpenWipeShape(a->clone());
 		}
@@ -5474,8 +5931,8 @@ namespace ZScript
 	{
 	public:
 		OCloseWipeShape(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCloseWipeShape(a->clone());
 		}
@@ -5485,8 +5942,8 @@ namespace ZScript
 	{
 	public:
 		OGetFFCPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetFFCPointer(a->clone());
 		}
@@ -5496,8 +5953,8 @@ namespace ZScript
 	{
 	public:
 		OSetFFCPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetFFCPointer(a->clone());
 		}
@@ -5508,8 +5965,8 @@ namespace ZScript
 	{
 	public:
 		OGetNPCPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetNPCPointer(a->clone());
 		}
@@ -5520,8 +5977,8 @@ namespace ZScript
 	{
 	public:
 		OSetNPCPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetNPCPointer(a->clone());
 		}
@@ -5532,8 +5989,8 @@ namespace ZScript
 	{
 	public:
 		OGetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetLWeaponPointer(a->clone());
 		}
@@ -5544,8 +6001,8 @@ namespace ZScript
 	{
 	public:
 		OSetLWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetLWeaponPointer(a->clone());
 		}
@@ -5556,8 +6013,8 @@ namespace ZScript
 	{
 	public:
 		OGetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetEWeaponPointer(a->clone());
 		}
@@ -5568,8 +6025,8 @@ namespace ZScript
 	{
 	public:
 		OSetEWeaponPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetEWeaponPointer(a->clone());
 		}
@@ -5580,8 +6037,8 @@ namespace ZScript
 	{
 	public:
 		OGetItemPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetItemPointer(a->clone());
 		}
@@ -5592,8 +6049,8 @@ namespace ZScript
 	{
 	public:
 		OSetItemPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetItemPointer(a->clone());
 		}
@@ -5604,8 +6061,8 @@ namespace ZScript
 	{
 	public:
 		OGetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetItemDataPointer(a->clone());
 		}
@@ -5616,8 +6073,8 @@ namespace ZScript
 	{
 	public:
 		OSetItemDataPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetItemDataPointer(a->clone());
 		}
@@ -5628,8 +6085,8 @@ namespace ZScript
 	{
 	public:
 		OGetBoolPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetBoolPointer(a->clone());
 		}
@@ -5640,8 +6097,8 @@ namespace ZScript
 	{
 	public:
 		OSetBoolPointer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSetBoolPointer(a->clone());
 		}
@@ -5652,8 +6109,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenDoor(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenDoor(a->clone());
 		}
@@ -5664,8 +6121,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenEnemy(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenEnemy(a->clone());
 		}
@@ -5675,8 +6132,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenLayerOpacity(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenLayerOpacity(a->clone());
 		}
@@ -5685,8 +6142,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenSecretCombo(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenSecretCombo(a->clone());
 		}
@@ -5695,8 +6152,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenSecretCSet(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenSecretCSet(a->clone());
 		}
@@ -5705,8 +6162,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenSecretFlag(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenSecretFlag(a->clone());
 		}
@@ -5715,8 +6172,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenLayerMap(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenLayerMap(a->clone());
 		}
@@ -5725,8 +6182,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenLayerScreen(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenLayerScreen(a->clone());
 		}
@@ -5735,8 +6192,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenPath(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenPath(a->clone());
 		}
@@ -5745,8 +6202,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenWarpReturnX(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenWarpReturnX(a->clone());
 		}
@@ -5755,8 +6212,8 @@ namespace ZScript
 	{
 	public:
 		OGetScreenWarpReturnY(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetScreenWarpReturnY(a->clone());
 		}
@@ -5766,8 +6223,8 @@ namespace ZScript
 	{
 	public:
 		OTriggerSecretRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTriggerSecretRegister(a->clone());
 		}
@@ -5776,8 +6233,8 @@ namespace ZScript
 	class OPolygonRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OPolygonRegister();
 		}
@@ -5786,8 +6243,8 @@ namespace ZScript
 	class OBMPPolygonRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPPolygonRegister();
 		}
@@ -5797,8 +6254,8 @@ namespace ZScript
 	{
 	public:
 		ONDataBaseTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataBaseTile(a->clone(), b->clone());
 		}
@@ -5808,8 +6265,8 @@ namespace ZScript
 	{
 	public:
 		ONDataEHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataEHeight(a->clone(), b->clone());
 		}
@@ -5820,8 +6277,8 @@ namespace ZScript
 	{
 	public:
 		ONDataFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataFlags(a->clone(), b->clone());
 		}
@@ -5831,8 +6288,8 @@ namespace ZScript
 	{
 	public:
 		ONDataFlags2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataFlags2(a->clone(), b->clone());
 		}
@@ -5842,8 +6299,8 @@ namespace ZScript
 	{
 	public:
 		ONDataWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataWidth(a->clone(), b->clone());
 		}
@@ -5853,8 +6310,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHeight(a->clone(), b->clone());
 		}
@@ -5864,8 +6321,8 @@ namespace ZScript
 	{
 	public:
 		ONDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataTile(a->clone(), b->clone());
 		}
@@ -5875,8 +6332,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSWidth(a->clone(), b->clone());
 		}
@@ -5886,8 +6343,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSHeight(a->clone(), b->clone());
 		}
@@ -5897,8 +6354,8 @@ namespace ZScript
 	{
 	public:
 		ONDataETile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataETile(a->clone(), b->clone());
 		}
@@ -5908,8 +6365,8 @@ namespace ZScript
 	{
 	public:
 		ONDataEWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataEWidth(a->clone(), b->clone());
 		}
@@ -5919,8 +6376,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHP(a->clone(), b->clone());
 		}
@@ -5930,8 +6387,8 @@ namespace ZScript
 	{
 	public:
 		ONDataFamily(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataFamily(a->clone(), b->clone());
 		}
@@ -5941,8 +6398,8 @@ namespace ZScript
 	{
 	public:
 		ONDataCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataCSet(a->clone(), b->clone());
 		}
@@ -5952,8 +6409,8 @@ namespace ZScript
 	{
 	public:
 		ONDataAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataAnim(a->clone(), b->clone());
 		}
@@ -5963,8 +6420,8 @@ namespace ZScript
 	{
 	public:
 		ONDataEAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataEAnim(a->clone(), b->clone());
 		}
@@ -5974,8 +6431,8 @@ namespace ZScript
 	{
 	public:
 		ONDataFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataFramerate(a->clone(), b->clone());
 		}
@@ -5985,8 +6442,8 @@ namespace ZScript
 	{
 	public:
 		ONDataEFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataEFramerate(a->clone(), b->clone());
 		}
@@ -5996,8 +6453,8 @@ namespace ZScript
 	{
 	public:
 		ONDataTouchDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataTouchDamage(a->clone(), b->clone());
 		}
@@ -6007,8 +6464,8 @@ namespace ZScript
 	{
 	public:
 		ONDataWeaponDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataWeaponDamage(a->clone(), b->clone());
 		}
@@ -6018,8 +6475,8 @@ namespace ZScript
 	{
 	public:
 		ONDataWeapon(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataWeapon(a->clone(), b->clone());
 		}
@@ -6029,8 +6486,8 @@ namespace ZScript
 	{
 	public:
 		ONDataRandom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataRandom(a->clone(), b->clone());
 		}
@@ -6040,8 +6497,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHalt(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHalt(a->clone(), b->clone());
 		}
@@ -6051,8 +6508,8 @@ namespace ZScript
 	{
 	public:
 		ONDataStep(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataStep(a->clone(), b->clone());
 		}
@@ -6062,8 +6519,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHoming(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHoming(a->clone(), b->clone());
 		}
@@ -6073,8 +6530,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHunger(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHunger(a->clone(), b->clone());
 		}
@@ -6084,8 +6541,8 @@ namespace ZScript
 	{
 	public:
 		ONDataropset(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataropset(a->clone(), b->clone());
 		}
@@ -6095,8 +6552,8 @@ namespace ZScript
 	{
 	public:
 		ONDataBGSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataBGSound(a->clone(), b->clone());
 		}
@@ -6106,8 +6563,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHitSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHitSound(a->clone(), b->clone());
 		}
@@ -6117,8 +6574,8 @@ namespace ZScript
 	{
 	public:
 		ONDataDeathSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataDeathSound(a->clone(), b->clone());
 		}
@@ -6128,8 +6585,8 @@ namespace ZScript
 	{
 	public:
 		ONDataXofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataXofs(a->clone(), b->clone());
 		}
@@ -6139,8 +6596,8 @@ namespace ZScript
 	{
 	public:
 		ONDataYofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataYofs(a->clone(), b->clone());
 		}
@@ -6150,8 +6607,8 @@ namespace ZScript
 	{
 	public:
 		ONDataZofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataZofs(a->clone(), b->clone());
 		}
@@ -6161,8 +6618,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHitXOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHitXOfs(a->clone(), b->clone());
 		}
@@ -6172,8 +6629,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHYOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHYOfs(a->clone(), b->clone());
 		}
@@ -6183,8 +6640,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHitWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHitWidth(a->clone(), b->clone());
 		}
@@ -6194,8 +6651,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHitHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHitHeight(a->clone(), b->clone());
 		}
@@ -6205,8 +6662,8 @@ namespace ZScript
 	{
 	public:
 		ONDataHitZ(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataHitZ(a->clone(), b->clone());
 		}
@@ -6216,8 +6673,8 @@ namespace ZScript
 	{
 	public:
 		ONDataTileWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataTileWidth(a->clone(), b->clone());
 		}
@@ -6227,8 +6684,8 @@ namespace ZScript
 	{
 	public:
 		ONDataTileHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataTileHeight(a->clone(), b->clone());
 		}
@@ -6238,8 +6695,8 @@ namespace ZScript
 	{
 	public:
 		ONDataWeapSprite(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataWeapSprite(a->clone(), b->clone());
 		}
@@ -6251,8 +6708,8 @@ namespace ZScript
 	{
 	public:
 		ONDataScriptDef(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataScriptDef(a->clone());
 		}
@@ -6263,8 +6720,8 @@ namespace ZScript
 	{
 	public:
 		ONDataDefense(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataDefense(a->clone());
 		}
@@ -6275,8 +6732,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSizeFlag(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSizeFlag(a->clone());
 		}
@@ -6287,8 +6744,8 @@ namespace ZScript
 	{
 	public:
 		ONDatattributes(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDatattributes(a->clone());
 		}
@@ -6298,8 +6755,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetBaseTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetBaseTile(a->clone(), b->clone());
 		}
@@ -6308,8 +6765,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetEHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetEHeight(a->clone(), b->clone());
 		}
@@ -6319,8 +6776,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetFlags(a->clone(), b->clone());
 		}
@@ -6330,8 +6787,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetFlags2(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetFlags2(a->clone(), b->clone());
 		}
@@ -6341,8 +6798,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetWidth(a->clone(), b->clone());
 		}
@@ -6352,8 +6809,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHeight(a->clone(), b->clone());
 		}
@@ -6363,8 +6820,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetTile(a->clone(), b->clone());
 		}
@@ -6374,8 +6831,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetSWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetSWidth(a->clone(), b->clone());
 		}
@@ -6385,8 +6842,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetSHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetSHeight(a->clone(), b->clone());
 		}
@@ -6396,8 +6853,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetETile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetETile(a->clone(), b->clone());
 		}
@@ -6407,8 +6864,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetEWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetEWidth(a->clone(), b->clone());
 		}
@@ -6418,8 +6875,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHP(a->clone(), b->clone());
 		}
@@ -6429,8 +6886,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetFamily(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetFamily(a->clone(), b->clone());
 		}
@@ -6440,8 +6897,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetCSet(a->clone(), b->clone());
 		}
@@ -6451,8 +6908,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetAnim(a->clone(), b->clone());
 		}
@@ -6462,8 +6919,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetEAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetEAnim(a->clone(), b->clone());
 		}
@@ -6473,8 +6930,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetFramerate(a->clone(), b->clone());
 		}
@@ -6484,8 +6941,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetEFramerate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetEFramerate(a->clone(), b->clone());
 		}
@@ -6495,8 +6952,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetTouchDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetTouchDamage(a->clone(), b->clone());
 		}
@@ -6506,8 +6963,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetWeaponDamage(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetWeaponDamage(a->clone(), b->clone());
 		}
@@ -6517,8 +6974,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetWeapon(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetWeapon(a->clone(), b->clone());
 		}
@@ -6528,8 +6985,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetRandom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetRandom(a->clone(), b->clone());
 		}
@@ -6539,8 +6996,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHalt(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHalt(a->clone(), b->clone());
 		}
@@ -6550,8 +7007,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetStep(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetStep(a->clone(), b->clone());
 		}
@@ -6561,8 +7018,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHoming(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHoming(a->clone(), b->clone());
 		}
@@ -6572,8 +7029,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHunger(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHunger(a->clone(), b->clone());
 		}
@@ -6583,8 +7040,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetropset(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetropset(a->clone(), b->clone());
 		}
@@ -6594,8 +7051,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHitSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHitSound(a->clone(), b->clone());
 		}
@@ -6606,8 +7063,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetBGSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetBGSound(a->clone(), b->clone());
 		}
@@ -6617,8 +7074,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetDeathSound(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetDeathSound(a->clone(), b->clone());
 		}
@@ -6628,8 +7085,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetXofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetXofs(a->clone(), b->clone());
 		}
@@ -6639,8 +7096,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetYofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetYofs(a->clone(), b->clone());
 		}
@@ -6650,8 +7107,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetZofs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetZofs(a->clone(), b->clone());
 		}
@@ -6661,8 +7118,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHitXOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHitXOfs(a->clone(), b->clone());
 		}
@@ -6672,8 +7129,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHYOfs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHYOfs(a->clone(), b->clone());
 		}
@@ -6683,8 +7140,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHitWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHitWidth(a->clone(), b->clone());
 		}
@@ -6694,8 +7151,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHitHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHitHeight(a->clone(), b->clone());
 		}
@@ -6705,8 +7162,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetHitZ(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetHitZ(a->clone(), b->clone());
 		}
@@ -6716,8 +7173,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetTileWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetTileWidth(a->clone(), b->clone());
 		}
@@ -6727,8 +7184,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetTileHeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetTileHeight(a->clone(), b->clone());
 		}
@@ -6738,8 +7195,8 @@ namespace ZScript
 	{
 	public:
 		ONDataSetWeapSprite(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONDataSetWeapSprite(a->clone(), b->clone());
 		}
@@ -6751,8 +7208,8 @@ namespace ZScript
 	{
 	public:
 		OCDataBlockEnemy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataBlockEnemy(a->clone(), b->clone());
 		}
@@ -6761,8 +7218,8 @@ namespace ZScript
 	{
 	public:
 		OCDataBlockHole(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataBlockHole(a->clone(), b->clone());
 		}
@@ -6771,8 +7228,8 @@ namespace ZScript
 	{
 	public:
 		OCDataBlockTrig(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataBlockTrig(a->clone(), b->clone());
 		}
@@ -6781,8 +7238,8 @@ namespace ZScript
 	{
 	public:
 		OCDataConveyX(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataConveyX(a->clone(), b->clone());
 		}
@@ -6791,8 +7248,8 @@ namespace ZScript
 	{
 	public:
 		OCDataConveyY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataConveyY(a->clone(), b->clone());
 		}
@@ -6801,8 +7258,8 @@ namespace ZScript
 	{
 	public:
 		OCDataCreateNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataCreateNPC(a->clone(), b->clone());
 		}
@@ -6811,8 +7268,8 @@ namespace ZScript
 	{
 	public:
 		OCDataCreateEnemW(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataCreateEnemW(a->clone(), b->clone());
 		}
@@ -6821,8 +7278,8 @@ namespace ZScript
 	{
 	public:
 		OCDataCreateEnemC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataCreateEnemC(a->clone(), b->clone());
 		}
@@ -6831,8 +7288,8 @@ namespace ZScript
 	{
 	public:
 		OCDataDirch(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataDirch(a->clone(), b->clone());
 		}
@@ -6841,8 +7298,8 @@ namespace ZScript
 	{
 	public:
 		OCDataDistTiles(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataDistTiles(a->clone(), b->clone());
 		}
@@ -6851,8 +7308,8 @@ namespace ZScript
 	{
 	public:
 		OCDataDiveItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataDiveItem(a->clone(), b->clone());
 		}
@@ -6861,8 +7318,8 @@ namespace ZScript
 	{
 	public:
 		OCDataAttrib(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataAttrib(a->clone(), b->clone());
 		}
@@ -6871,8 +7328,8 @@ namespace ZScript
 	{
 	public:
 		OCDataDecoTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataDecoTile(a->clone(), b->clone());
 		}
@@ -6881,8 +7338,8 @@ namespace ZScript
 	{
 	public:
 		OCDataDock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataDock(a->clone(), b->clone());
 		}
@@ -6891,8 +7348,8 @@ namespace ZScript
 	{
 	public:
 		OCDataFairy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataFairy(a->clone(), b->clone());
 		}
@@ -6901,8 +7358,8 @@ namespace ZScript
 	{
 	public:
 		OCDataDecoType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataDecoType(a->clone(), b->clone());
 		}
@@ -6911,8 +7368,8 @@ namespace ZScript
 	{
 	public:
 		OCDataHookshotGrab(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataHookshotGrab(a->clone(), b->clone());
 		}
@@ -6921,8 +7378,8 @@ namespace ZScript
 	{
 	public:
 		OCDataLockBlock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataLockBlock(a->clone(), b->clone());
 		}
@@ -6931,8 +7388,8 @@ namespace ZScript
 	{
 	public:
 		OCDataLockBlockChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataLockBlockChange(a->clone(), b->clone());
 		}
@@ -6941,8 +7398,8 @@ namespace ZScript
 	{
 	public:
 		OCDataMagicMirror(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataMagicMirror(a->clone(), b->clone());
 		}
@@ -6951,8 +7408,8 @@ namespace ZScript
 	{
 	public:
 		OCDataModHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataModHP(a->clone(), b->clone());
 		}
@@ -6961,8 +7418,8 @@ namespace ZScript
 	{
 	public:
 		OCDataModHPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataModHPDelay(a->clone(), b->clone());
 		}
@@ -6971,8 +7428,8 @@ namespace ZScript
 	{
 	public:
 		OCDataModHpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataModHpType(a->clone(), b->clone());
 		}
@@ -6981,8 +7438,8 @@ namespace ZScript
 	{
 	public:
 		OCDataModMP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataModMP(a->clone(), b->clone());
 		}
@@ -6991,8 +7448,8 @@ namespace ZScript
 	{
 	public:
 		OCDataMpdMPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataMpdMPDelay(a->clone(), b->clone());
 		}
@@ -7001,8 +7458,8 @@ namespace ZScript
 	{
 	public:
 		OCDataModMPType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataModMPType(a->clone(), b->clone());
 		}
@@ -7011,8 +7468,8 @@ namespace ZScript
 	{
 	public:
 		OCDataNoPush(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataNoPush(a->clone(), b->clone());
 		}
@@ -7021,8 +7478,8 @@ namespace ZScript
 	{
 	public:
 		OCDataOverhead(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataOverhead(a->clone(), b->clone());
 		}
@@ -7031,8 +7488,8 @@ namespace ZScript
 	{
 	public:
 		OCDataEnemyLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataEnemyLoc(a->clone(), b->clone());
 		}
@@ -7041,8 +7498,8 @@ namespace ZScript
 	{
 	public:
 		OCDataPushDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataPushDir(a->clone(), b->clone());
 		}
@@ -7051,8 +7508,8 @@ namespace ZScript
 	{
 	public:
 		OCDataPushWeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataPushWeight(a->clone(), b->clone());
 		}
@@ -7061,8 +7518,8 @@ namespace ZScript
 	{
 	public:
 		OCDataPushWait(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataPushWait(a->clone(), b->clone());
 		}
@@ -7071,8 +7528,8 @@ namespace ZScript
 	{
 	public:
 		OCDataPushed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataPushed(a->clone(), b->clone());
 		}
@@ -7081,8 +7538,8 @@ namespace ZScript
 	{
 	public:
 		OCDataRaft(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataRaft(a->clone(), b->clone());
 		}
@@ -7091,8 +7548,8 @@ namespace ZScript
 	{
 	public:
 		OCDataResetRoom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataResetRoom(a->clone(), b->clone());
 		}
@@ -7101,8 +7558,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSavePoint(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSavePoint(a->clone(), b->clone());
 		}
@@ -7111,8 +7568,8 @@ namespace ZScript
 	{
 	public:
 		OCDataFreeezeScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataFreeezeScreen(a->clone(), b->clone());
 		}
@@ -7121,8 +7578,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSecretCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSecretCombo(a->clone(), b->clone());
 		}
@@ -7131,8 +7588,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSingular(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSingular(a->clone(), b->clone());
 		}
@@ -7141,8 +7598,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSlowMove(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSlowMove(a->clone(), b->clone());
 		}
@@ -7151,8 +7608,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStatue(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStatue(a->clone(), b->clone());
 		}
@@ -7161,8 +7618,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStepType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStepType(a->clone(), b->clone());
 		}
@@ -7171,8 +7628,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSteoChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSteoChange(a->clone(), b->clone());
 		}
@@ -7181,8 +7638,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStrikeRem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStrikeRem(a->clone(), b->clone());
 		}
@@ -7191,8 +7648,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStrikeRemType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStrikeRemType(a->clone(), b->clone());
 		}
@@ -7201,8 +7658,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStrikeChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStrikeChange(a->clone(), b->clone());
 		}
@@ -7211,8 +7668,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStrikeChangeItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStrikeChangeItem(a->clone(), b->clone());
 		}
@@ -7221,8 +7678,8 @@ namespace ZScript
 	{
 	public:
 		OCDataTouchItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataTouchItem(a->clone(), b->clone());
 		}
@@ -7231,8 +7688,8 @@ namespace ZScript
 	{
 	public:
 		OCDataTouchStairs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataTouchStairs(a->clone(), b->clone());
 		}
@@ -7241,8 +7698,8 @@ namespace ZScript
 	{
 	public:
 		OCDataTriggerType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataTriggerType(a->clone(), b->clone());
 		}
@@ -7251,8 +7708,8 @@ namespace ZScript
 	{
 	public:
 		OCDataTriggerSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataTriggerSens(a->clone(), b->clone());
 		}
@@ -7261,8 +7718,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWarpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWarpType(a->clone(), b->clone());
 		}
@@ -7271,8 +7728,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWarpSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWarpSens(a->clone(), b->clone());
 		}
@@ -7281,8 +7738,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWarpDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWarpDirect(a->clone(), b->clone());
 		}
@@ -7291,8 +7748,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWarpLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWarpLoc(a->clone(), b->clone());
 		}
@@ -7301,8 +7758,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWater(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWater(a->clone(), b->clone());
 		}
@@ -7312,8 +7769,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWinGame(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWinGame(a->clone(), b->clone());
 		}
@@ -7323,8 +7780,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWhistle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWhistle(a->clone(), b->clone());
 		}
@@ -7333,8 +7790,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWeapBlockLevel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWeapBlockLevel(a->clone(), b->clone());
 		}
@@ -7343,8 +7800,8 @@ namespace ZScript
 	{
 	public:
 		OCDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataTile(a->clone(), b->clone());
 		}
@@ -7353,8 +7810,8 @@ namespace ZScript
 	{
 	public:
 		OCDataFlip(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataFlip(a->clone(), b->clone());
 		}
@@ -7363,8 +7820,8 @@ namespace ZScript
 	{
 	public:
 		OCDataWalkability(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataWalkability(a->clone(), b->clone());
 		}
@@ -7373,8 +7830,8 @@ namespace ZScript
 	{
 	public:
 		OCDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataType(a->clone(), b->clone());
 		}
@@ -7383,8 +7840,8 @@ namespace ZScript
 	{
 	public:
 		OCDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataCSets(a->clone(), b->clone());
 		}
@@ -7393,8 +7850,8 @@ namespace ZScript
 	{
 	public:
 		OCDataFoo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataFoo(a->clone(), b->clone());
 		}
@@ -7403,8 +7860,8 @@ namespace ZScript
 	{
 	public:
 		OCDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataFrames(a->clone(), b->clone());
 		}
@@ -7413,8 +7870,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSpeed(a->clone(), b->clone());
 		}
@@ -7423,8 +7880,8 @@ namespace ZScript
 	{
 	public:
 		OCDataNext(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataNext(a->clone(), b->clone());
 		}
@@ -7433,8 +7890,8 @@ namespace ZScript
 	{
 	public:
 		OCDataNextCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataNextCSet(a->clone(), b->clone());
 		}
@@ -7443,8 +7900,8 @@ namespace ZScript
 	{
 	public:
 		OCDataFlag(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataFlag(a->clone(), b->clone());
 		}
@@ -7453,8 +7910,8 @@ namespace ZScript
 	{
 	public:
 		OCDataSkipAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataSkipAnim(a->clone(), b->clone());
 		}
@@ -7463,8 +7920,8 @@ namespace ZScript
 	{
 	public:
 		OCDataTimer(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataTimer(a->clone(), b->clone());
 		}
@@ -7473,8 +7930,8 @@ namespace ZScript
 	{
 	public:
 		OCDataAnimY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataAnimY(a->clone(), b->clone());
 		}
@@ -7483,8 +7940,8 @@ namespace ZScript
 	{
 	public:
 		OCDataAnimFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataAnimFlags(a->clone(), b->clone());
 		}
@@ -7493,8 +7950,8 @@ namespace ZScript
 	{
 	public:
 		OCDataBlockWeapon(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataBlockWeapon(a->clone());
 		}
@@ -7503,8 +7960,8 @@ namespace ZScript
 	{
 	public:
 		OCDataExpansion(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataExpansion(a->clone());
 		}
@@ -7513,8 +7970,8 @@ namespace ZScript
 	{
 	public:
 		OCDataStrikeWeapon(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataStrikeWeapon(a->clone());
 		}
@@ -7525,8 +7982,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataBlockEnemy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataBlockEnemy(a->clone(), b->clone());
 		}
@@ -7535,8 +7992,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataBlockHole(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataBlockHole(a->clone(), b->clone());
 		}
@@ -7545,8 +8002,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataBlockTrig(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataBlockTrig(a->clone(), b->clone());
 		}
@@ -7555,8 +8012,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataConveyX(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataConveyX(a->clone(), b->clone());
 		}
@@ -7565,8 +8022,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataConveyY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataConveyY(a->clone(), b->clone());
 		}
@@ -7575,8 +8032,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataCreateNPC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataCreateNPC(a->clone(), b->clone());
 		}
@@ -7585,8 +8042,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataCreateEnemW(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataCreateEnemW(a->clone(), b->clone());
 		}
@@ -7595,8 +8052,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataCreateEnemC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataCreateEnemC(a->clone(), b->clone());
 		}
@@ -7605,8 +8062,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataDirch(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataDirch(a->clone(), b->clone());
 		}
@@ -7615,8 +8072,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataDistTiles(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataDistTiles(a->clone(), b->clone());
 		}
@@ -7625,8 +8082,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataDiveItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataDiveItem(a->clone(), b->clone());
 		}
@@ -7635,8 +8092,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataAttrib(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataAttrib(a->clone(), b->clone());
 		}
@@ -7645,8 +8102,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataDecoTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataDecoTile(a->clone(), b->clone());
 		}
@@ -7655,8 +8112,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataDock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataDock(a->clone(), b->clone());
 		}
@@ -7665,8 +8122,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataFairy(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataFairy(a->clone(), b->clone());
 		}
@@ -7675,8 +8132,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataDecoType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataDecoType(a->clone(), b->clone());
 		}
@@ -7685,8 +8142,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataHookshotGrab(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataHookshotGrab(a->clone(), b->clone());
 		}
@@ -7695,8 +8152,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataLockBlock(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataLockBlock(a->clone(), b->clone());
 		}
@@ -7705,8 +8162,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataLockBlockChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataLockBlockChange(a->clone(), b->clone());
 		}
@@ -7715,8 +8172,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataMagicMirror(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataMagicMirror(a->clone(), b->clone());
 		}
@@ -7725,8 +8182,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataModHP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataModHP(a->clone(), b->clone());
 		}
@@ -7735,8 +8192,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataModHPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataModHPDelay(a->clone(), b->clone());
 		}
@@ -7745,8 +8202,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataModHpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataModHpType(a->clone(), b->clone());
 		}
@@ -7755,8 +8212,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataModMP(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataModMP(a->clone(), b->clone());
 		}
@@ -7765,8 +8222,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataMpdMPDelay(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataMpdMPDelay(a->clone(), b->clone());
 		}
@@ -7775,8 +8232,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataModMPType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataModMPType(a->clone(), b->clone());
 		}
@@ -7785,8 +8242,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataNoPush(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataNoPush(a->clone(), b->clone());
 		}
@@ -7795,8 +8252,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataOverhead(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataOverhead(a->clone(), b->clone());
 		}
@@ -7805,8 +8262,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataEnemyLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataEnemyLoc(a->clone(), b->clone());
 		}
@@ -7815,8 +8272,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataPushDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataPushDir(a->clone(), b->clone());
 		}
@@ -7825,8 +8282,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataPushWeight(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataPushWeight(a->clone(), b->clone());
 		}
@@ -7835,8 +8292,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataPushWait(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataPushWait(a->clone(), b->clone());
 		}
@@ -7845,8 +8302,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataPushed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataPushed(a->clone(), b->clone());
 		}
@@ -7855,8 +8312,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataRaft(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataRaft(a->clone(), b->clone());
 		}
@@ -7865,8 +8322,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataResetRoom(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataResetRoom(a->clone(), b->clone());
 		}
@@ -7875,8 +8332,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSavePoint(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSavePoint(a->clone(), b->clone());
 		}
@@ -7885,8 +8342,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataFreeezeScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataFreeezeScreen(a->clone(), b->clone());
 		}
@@ -7895,8 +8352,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSecretCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSecretCombo(a->clone(), b->clone());
 		}
@@ -7905,8 +8362,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSingular(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSingular(a->clone(), b->clone());
 		}
@@ -7915,8 +8372,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSlowMove(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSlowMove(a->clone(), b->clone());
 		}
@@ -7925,8 +8382,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStatue(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStatue(a->clone(), b->clone());
 		}
@@ -7935,8 +8392,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStepType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStepType(a->clone(), b->clone());
 		}
@@ -7945,8 +8402,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSteoChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSteoChange(a->clone(), b->clone());
 		}
@@ -7955,8 +8412,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStrikeRem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStrikeRem(a->clone(), b->clone());
 		}
@@ -7965,8 +8422,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStrikeRemType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStrikeRemType(a->clone(), b->clone());
 		}
@@ -7975,8 +8432,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStrikeChange(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStrikeChange(a->clone(), b->clone());
 		}
@@ -7985,8 +8442,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStrikeChangeItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStrikeChangeItem(a->clone(), b->clone());
 		}
@@ -7995,8 +8452,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataTouchItem(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataTouchItem(a->clone(), b->clone());
 		}
@@ -8005,8 +8462,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataTouchStairs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataTouchStairs(a->clone(), b->clone());
 		}
@@ -8015,8 +8472,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataTriggerType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataTriggerType(a->clone(), b->clone());
 		}
@@ -8025,8 +8482,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataTriggerSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataTriggerSens(a->clone(), b->clone());
 		}
@@ -8035,8 +8492,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWarpType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWarpType(a->clone(), b->clone());
 		}
@@ -8045,8 +8502,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWarpSens(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWarpSens(a->clone(), b->clone());
 		}
@@ -8055,8 +8512,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWarpDirect(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWarpDirect(a->clone(), b->clone());
 		}
@@ -8065,8 +8522,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWarpLoc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWarpLoc(a->clone(), b->clone());
 		}
@@ -8075,8 +8532,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWater(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWater(a->clone(), b->clone());
 		}
@@ -8085,8 +8542,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWhistle(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWhistle(a->clone(), b->clone());
 		}
@@ -8095,8 +8552,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWeapBlockLevel(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWeapBlockLevel(a->clone(), b->clone());
 		}
@@ -8105,8 +8562,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataTile(a->clone(), b->clone());
 		}
@@ -8115,8 +8572,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataFlip(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataFlip(a->clone(), b->clone());
 		}
@@ -8125,8 +8582,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWalkability(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWalkability(a->clone(), b->clone());
 		}
@@ -8135,8 +8592,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataType(a->clone(), b->clone());
 		}
@@ -8145,8 +8602,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataCSets(a->clone(), b->clone());
 		}
@@ -8155,8 +8612,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataFoo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataFoo(a->clone(), b->clone());
 		}
@@ -8165,8 +8622,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataFrames(a->clone(), b->clone());
 		}
@@ -8175,8 +8632,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSpeed(a->clone(), b->clone());
 		}
@@ -8185,8 +8642,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataNext(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataNext(a->clone(), b->clone());
 		}
@@ -8195,8 +8652,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataNextCSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataNextCSet(a->clone(), b->clone());
 		}
@@ -8205,8 +8662,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataFlag(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataFlag(a->clone(), b->clone());
 		}
@@ -8215,8 +8672,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataSkipAnim(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataSkipAnim(a->clone(), b->clone());
 		}
@@ -8226,8 +8683,8 @@ namespace ZScript
 	{
 	public:
 		OCDataLadderPass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCDataLadderPass(a->clone(), b->clone());
 		}
@@ -8237,8 +8694,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataLadderPass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataLadderPass(a->clone(), b->clone());
 		}
@@ -8247,8 +8704,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataTimer(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataTimer(a->clone(), b->clone());
 		}
@@ -8257,8 +8714,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataAnimY(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataAnimY(a->clone(), b->clone());
 		}
@@ -8267,8 +8724,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataAnimFlags(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataAnimFlags(a->clone(), b->clone());
 		}
@@ -8277,8 +8734,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataBlockWeapon(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataBlockWeapon(a->clone());
 		}
@@ -8287,8 +8744,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataExpansion(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataExpansion(a->clone());
 		}
@@ -8297,8 +8754,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataStrikeWeapon(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataStrikeWeapon(a->clone());
 		}
@@ -8308,8 +8765,8 @@ namespace ZScript
 	{
 	public:
 		OCSetDataWinGame(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCSetDataWinGame(a->clone(), b->clone());
 		}
@@ -8320,8 +8777,8 @@ namespace ZScript
 	{
 	public:
 		OSDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSDataTile(a->clone(), b->clone());
 		}
@@ -8331,8 +8788,8 @@ namespace ZScript
 	{
 	public:
 		OSDataMisc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSDataMisc(a->clone(), b->clone());
 		}
@@ -8342,8 +8799,8 @@ namespace ZScript
 	{
 	public:
 		OSDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSDataCSets(a->clone(), b->clone());
 		}
@@ -8353,8 +8810,8 @@ namespace ZScript
 	{
 	public:
 		OSDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSDataFrames(a->clone(), b->clone());
 		}
@@ -8364,8 +8821,8 @@ namespace ZScript
 	{
 	public:
 		OSDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSDataSpeed(a->clone(), b->clone());
 		}
@@ -8374,8 +8831,8 @@ namespace ZScript
 	{
 	public:
 		OSDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSDataType(a->clone(), b->clone());
 		}
@@ -8385,8 +8842,8 @@ namespace ZScript
 	{
 	public:
 		OSSetDataTile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetDataTile(a->clone(), b->clone());
 		}
@@ -8396,8 +8853,8 @@ namespace ZScript
 	{
 	public:
 		OSSetDataMisc(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetDataMisc(a->clone(), b->clone());
 		}
@@ -8407,8 +8864,8 @@ namespace ZScript
 	{
 	public:
 		OSSetDataCSets(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetDataCSets(a->clone(), b->clone());
 		}
@@ -8418,8 +8875,8 @@ namespace ZScript
 	{
 	public:
 		OSSetDataFrames(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetDataFrames(a->clone(), b->clone());
 		}
@@ -8429,8 +8886,8 @@ namespace ZScript
 	{
 	public:
 		OSSetDataSpeed(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetDataSpeed(a->clone(), b->clone());
 		}
@@ -8439,8 +8896,8 @@ namespace ZScript
 	{
 	public:
 		OSSetDataType(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetDataType(a->clone(), b->clone());
 		}
@@ -8453,8 +8910,8 @@ namespace ZScript
 	{
 	public:
 		OSSetContinueScreen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetContinueScreen(a->clone(), b->clone());
 		}
@@ -8463,8 +8920,8 @@ namespace ZScript
 	{
 	public:
 		OSSetContinueString(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSSetContinueString	(a->clone(), b->clone());
 		}
@@ -8477,8 +8934,8 @@ namespace ZScript
 	{
 	public:
 		OWavyR(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWavyR(a->clone());
 		}
@@ -8488,8 +8945,8 @@ namespace ZScript
 	{
 	public:
 		OZapR(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OZapR(a->clone());
 		}
@@ -8499,8 +8956,8 @@ namespace ZScript
 	{
 	public:
 		OGreyscaleR(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGreyscaleR(a->clone());
 		}
@@ -8510,8 +8967,8 @@ namespace ZScript
 	{
 	public:
 		OMonochromeR(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMonochromeR(a->clone());
 		}
@@ -8520,8 +8977,8 @@ namespace ZScript
 	class OClearTint : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OClearTint();
 		}
@@ -8530,8 +8987,8 @@ namespace ZScript
 	class OTintR : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OTintR();
 		}
@@ -8540,8 +8997,8 @@ namespace ZScript
 	class OMonoHueR : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMonoHueR();
 		}
@@ -8552,8 +9009,8 @@ namespace ZScript
 	class OBMPDrawBitmapExRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawBitmapExRegister();
 		}
@@ -8561,8 +9018,8 @@ namespace ZScript
 	class OBMPBlitTO : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPBlitTO();
 		}
@@ -8571,8 +9028,8 @@ namespace ZScript
 	class OBMPGetPixel : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPGetPixel();
 		}
@@ -8580,8 +9037,8 @@ namespace ZScript
 	class OBMPMode7 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPMode7();
 		}
@@ -8589,8 +9046,8 @@ namespace ZScript
 	class OBMPQuadRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPQuadRegister();
 		}
@@ -8598,8 +9055,8 @@ namespace ZScript
 	class OBMPTriangleRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPTriangleRegister();
 		}
@@ -8607,8 +9064,8 @@ namespace ZScript
 	class OBMPQuad3DRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPQuad3DRegister();
 		}
@@ -8616,8 +9073,8 @@ namespace ZScript
 	class OBMPTriangle3DRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPTriangle3DRegister();
 		}
@@ -8625,8 +9082,8 @@ namespace ZScript
 	class OBMPDrawLayerRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawLayerRegister();
 		}
@@ -8634,8 +9091,8 @@ namespace ZScript
 	class OBMPDrawScreenRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenRegister();
 		}
@@ -8643,8 +9100,8 @@ namespace ZScript
 	class OBMPDrawStringRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawStringRegister();
 		}
@@ -8652,8 +9109,8 @@ namespace ZScript
 	class OBMPDrawString2Register : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawString2Register();
 		}
@@ -8661,8 +9118,8 @@ namespace ZScript
 	class OBMPFastComboRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPFastComboRegister();
 		}
@@ -8670,8 +9127,8 @@ namespace ZScript
 	class OBMPFastTileRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPFastTileRegister();
 		}
@@ -8679,8 +9136,8 @@ namespace ZScript
 	class OBMPDrawComboRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawComboRegister();
 		}
@@ -8688,8 +9145,8 @@ namespace ZScript
 	class OBMPDrawComboCloakedRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawComboCloakedRegister();
 		}
@@ -8697,8 +9154,8 @@ namespace ZScript
 	class OBMPDrawTileRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawTileRegister();
 		}
@@ -8706,8 +9163,8 @@ namespace ZScript
 	class OBMPDrawTileCloakedRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawTileCloakedRegister();
 		}
@@ -8715,8 +9172,8 @@ namespace ZScript
 	class OBMPDrawIntRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawIntRegister();
 		}
@@ -8725,8 +9182,8 @@ namespace ZScript
 	class OBMPDrawCharRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawCharRegister();
 		}
@@ -8734,8 +9191,8 @@ namespace ZScript
 	class OBMPPutPixelRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPPutPixelRegister();
 		}
@@ -8743,8 +9200,8 @@ namespace ZScript
 	class OBMPSplineRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPSplineRegister();
 		}
@@ -8752,8 +9209,8 @@ namespace ZScript
 	class OBMPLineRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPLineRegister();
 		}
@@ -8761,8 +9218,8 @@ namespace ZScript
 	class OBMPEllipseRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPEllipseRegister();
 		}
@@ -8770,8 +9227,8 @@ namespace ZScript
 	class OBMPArcRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPArcRegister();
 		}
@@ -8779,8 +9236,8 @@ namespace ZScript
 	class OBMPCircleRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPCircleRegister();
 		}
@@ -8788,8 +9245,8 @@ namespace ZScript
 	class OBMPRectangleRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPRectangleRegister();
 		}
@@ -8797,8 +9254,8 @@ namespace ZScript
 	class OBMPFrameRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPFrameRegister();
 		}
@@ -8808,8 +9265,8 @@ namespace ZScript
 	{
 	public:
 		OHeroWarpExRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OHeroWarpExRegister(a->clone());
 		}
@@ -8819,8 +9276,8 @@ namespace ZScript
 	{
 	public:
 		OHeroExplodeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OHeroExplodeRegister(a->clone());
 		}
@@ -8830,8 +9287,8 @@ namespace ZScript
 	{
 	public:
 		OSwitchNPC(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSwitchNPC(a->clone());
 		}
@@ -8840,8 +9297,8 @@ namespace ZScript
 	{
 	public:
 		OSwitchItem(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSwitchItem(a->clone());
 		}
@@ -8850,8 +9307,8 @@ namespace ZScript
 	{
 	public:
 		OSwitchLW(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSwitchLW(a->clone());
 		}
@@ -8860,8 +9317,8 @@ namespace ZScript
 	{
 	public:
 		OSwitchEW(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSwitchEW(a->clone());
 		}
@@ -8870,8 +9327,8 @@ namespace ZScript
 	{
 	public:
 		OSwitchCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSwitchCombo(a->clone(),b->clone());
 		}
@@ -8880,8 +9337,8 @@ namespace ZScript
 	{
 	public:
 		OKillPlayer(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OKillPlayer(a->clone());
 		}
@@ -8890,8 +9347,8 @@ namespace ZScript
 	{
 	public:
 		OScreenDoSpawn() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OScreenDoSpawn();
 		}
@@ -8900,8 +9357,8 @@ namespace ZScript
 	{
 	public:
 		OScreenTriggerCombo(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OScreenTriggerCombo(a->clone(),b->clone());
 		}
@@ -8911,8 +9368,8 @@ namespace ZScript
 	{
 	public:
 		ONPCMovePaused() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCMovePaused();
 		}
@@ -8921,8 +9378,8 @@ namespace ZScript
 	{
 	public:
 		ONPCMove() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCMove();
 		}
@@ -8931,8 +9388,8 @@ namespace ZScript
 	{
 	public:
 		ONPCMoveAngle() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCMoveAngle();
 		}
@@ -8941,8 +9398,8 @@ namespace ZScript
 	{
 	public:
 		ONPCMoveXY() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCMoveXY();
 		}
@@ -8951,8 +9408,8 @@ namespace ZScript
 	{
 	public:
 		ONPCCanMoveDir() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCCanMoveDir();
 		}
@@ -8961,8 +9418,8 @@ namespace ZScript
 	{
 	public:
 		ONPCCanMoveAngle() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCCanMoveAngle();
 		}
@@ -8971,8 +9428,8 @@ namespace ZScript
 	{
 	public:
 		ONPCCanMoveXY() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCCanMoveXY();
 		}
@@ -8982,8 +9439,8 @@ namespace ZScript
 	{
 	public:
 		OGetSystemRTCRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetSystemRTCRegister(a->clone());
 		}
@@ -8994,8 +9451,8 @@ namespace ZScript
 	{
 	public:
 		ONPCExplodeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCExplodeRegister(a->clone());
 		}
@@ -9005,8 +9462,8 @@ namespace ZScript
 	{
 	public:
 		OLWeaponExplodeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLWeaponExplodeRegister(a->clone());
 		}
@@ -9016,8 +9473,8 @@ namespace ZScript
 	{
 	public:
 		OEWeaponExplodeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEWeaponExplodeRegister(a->clone());
 		}
@@ -9027,8 +9484,8 @@ namespace ZScript
 	{
 	public:
 		OItemExplodeRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OItemExplodeRegister(a->clone());
 		}
@@ -9038,8 +9495,8 @@ namespace ZScript
 	{
 	public:
 		ORunItemScript(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORunItemScript(a->clone());
 		}
@@ -9048,8 +9505,8 @@ namespace ZScript
 	class ORunItemScript : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORunItemScript();
 		}
@@ -9061,8 +9518,8 @@ namespace ZScript
 	{
 	public:
 		ONPCDead(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCDead(a->clone());
 		}
@@ -9071,8 +9528,8 @@ namespace ZScript
 	{
 	public:
 		ONPCCanSlide(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCCanSlide(a->clone());
 		}
@@ -9081,8 +9538,8 @@ namespace ZScript
 	{
 	public:
 		ONPCSlide(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCSlide(a->clone());
 		}
@@ -9091,8 +9548,8 @@ namespace ZScript
 	{
 	public:
 		ONPCRemove(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCRemove(a->clone());
 		}
@@ -9102,8 +9559,8 @@ namespace ZScript
 	{
 	public:
 		OLWpnRemove() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLWpnRemove();
 		}
@@ -9112,8 +9569,8 @@ namespace ZScript
 	{
 	public:
 		OEWpnRemove() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OEWpnRemove();
 		}
@@ -9122,8 +9579,8 @@ namespace ZScript
 	{
 	public:
 		OItemRemove() : Opcode() {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OItemRemove();
 		}
@@ -9132,8 +9589,8 @@ namespace ZScript
 	{
 	public:
 		ONPCStopSFX(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCStopSFX(a->clone());
 		}
@@ -9142,8 +9599,8 @@ namespace ZScript
 	{
 	public:
 		ONPCAttack(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCAttack(a->clone());
 		}
@@ -9152,8 +9609,8 @@ namespace ZScript
 	{
 	public:
 		ONPCNewDir(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCNewDir(a->clone());
 		}
@@ -9162,8 +9619,8 @@ namespace ZScript
 	{
 	public:
 		ONPCConstWalk(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCConstWalk(a->clone());
 		}
@@ -9172,8 +9629,8 @@ namespace ZScript
 	{
 	public:
 		ONPCConstWalk8(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCConstWalk8(a->clone());
 		}
@@ -9182,8 +9639,8 @@ namespace ZScript
 	{
 	public:
 		ONPCVarWalk(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCVarWalk(a->clone());
 		}
@@ -9192,8 +9649,8 @@ namespace ZScript
 	{
 	public:
 		ONPCVarWalk8(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCVarWalk8(a->clone());
 		}
@@ -9202,8 +9659,8 @@ namespace ZScript
 	{
 	public:
 		ONPCHaltWalk(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCHaltWalk(a->clone());
 		}
@@ -9212,8 +9669,8 @@ namespace ZScript
 	{
 	public:
 		ONPCHaltWalk8(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCHaltWalk8(a->clone());
 		}
@@ -9222,8 +9679,8 @@ namespace ZScript
 	{
 	public:
 		ONPCFloatWalk(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCFloatWalk(a->clone());
 		}
@@ -9232,8 +9689,8 @@ namespace ZScript
 	{
 	public:
 		ONPCBreatheFire(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCBreatheFire(a->clone());
 		}
@@ -9242,8 +9699,8 @@ namespace ZScript
 	{
 	public:
 		ONPCNewDir8(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCNewDir8(a->clone());
 		}
@@ -9252,8 +9709,8 @@ namespace ZScript
 	{
 	public:
 		ONPCHeroInRange(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCHeroInRange(a->clone());
 		}
@@ -9262,8 +9719,8 @@ namespace ZScript
 	{
 	public:
 		ONPCAdd(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCAdd(a->clone());
 		}
@@ -9272,8 +9729,8 @@ namespace ZScript
 	{
 	public:
 		ONPCCanMove(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCCanMove(a->clone());
 		}
@@ -9282,8 +9739,8 @@ namespace ZScript
 	{
 	public:
 		ONPCHitWith(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCHitWith(a->clone());
 		}
@@ -9292,8 +9749,8 @@ namespace ZScript
 	{
 	public:
 		ONPCKnockback(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ONPCKnockback(a->clone(),b->clone());
 		}
@@ -9302,8 +9759,8 @@ namespace ZScript
 	{
 	public:
 		OGetNPCDataName(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGetNPCDataName(a->clone());
 		}
@@ -9313,8 +9770,8 @@ namespace ZScript
 	{
 	public:
 		OIsValidBitmap(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsValidBitmap(a->clone());
 		}
@@ -9324,8 +9781,8 @@ namespace ZScript
 	{
 	public:
 		OIsAllocatedBitmap(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OIsAllocatedBitmap(a->clone());
 		}
@@ -9335,8 +9792,8 @@ namespace ZScript
 	{
 	public:
 		OAllocateBitmap(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAllocateBitmap(a->clone());
 		}
@@ -9345,8 +9802,8 @@ namespace ZScript
 	class OReadBitmap : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReadBitmap();
 		}
@@ -9355,8 +9812,8 @@ namespace ZScript
 	class OClearBitmap : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OClearBitmap();
 		}
@@ -9365,8 +9822,8 @@ namespace ZScript
 	class OBitmapClearToColor : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapClearToColor();
 		}
@@ -9375,8 +9832,8 @@ namespace ZScript
 	class ORegenerateBitmap : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORegenerateBitmap();
 		}
@@ -9385,8 +9842,8 @@ namespace ZScript
 	class OWriteBitmap : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWriteBitmap();
 		}
@@ -9395,8 +9852,8 @@ namespace ZScript
 	class OBitmapFree : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapFree();
 		}
@@ -9405,8 +9862,8 @@ namespace ZScript
 	class OBitmapOwn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapOwn();
 		}
@@ -9414,8 +9871,8 @@ namespace ZScript
 	class OFileOwn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileOwn();
 		}
@@ -9423,8 +9880,8 @@ namespace ZScript
 	class ODirectoryOwn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODirectoryOwn();
 		}
@@ -9432,8 +9889,8 @@ namespace ZScript
 	class ORNGOwn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORNGOwn();
 		}
@@ -9442,8 +9899,8 @@ namespace ZScript
 	class OBitmapWriteTile : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapWriteTile();
 		}
@@ -9452,8 +9909,8 @@ namespace ZScript
 	class OBitmapDither : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapDither();
 		}
@@ -9462,8 +9919,8 @@ namespace ZScript
 	class OBitmapReplColor : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapReplColor();
 		}
@@ -9472,8 +9929,8 @@ namespace ZScript
 	class OBitmapShiftColor : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapShiftColor();
 		}
@@ -9482,8 +9939,8 @@ namespace ZScript
 	class OBitmapMaskDraw : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapMaskDraw();
 		}
@@ -9492,8 +9949,8 @@ namespace ZScript
 	class OBitmapMaskDraw2 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapMaskDraw2();
 		}
@@ -9502,8 +9959,8 @@ namespace ZScript
 	class OBitmapMaskDraw3 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapMaskDraw3();
 		}
@@ -9512,8 +9969,8 @@ namespace ZScript
 	class OBitmapMaskBlit : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapMaskBlit();
 		}
@@ -9522,8 +9979,8 @@ namespace ZScript
 	class OBitmapMaskBlit2 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapMaskBlit2();
 		}
@@ -9532,8 +9989,8 @@ namespace ZScript
 	class OBitmapMaskBlit3 : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBitmapMaskBlit3();
 		}
@@ -9542,8 +9999,8 @@ namespace ZScript
 	class OBMPDrawScreenSolidRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenSolidRegister();
 		}
@@ -9551,8 +10008,8 @@ namespace ZScript
 	class OBMPDrawScreenSolid2Register : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenSolid2Register();
 		}
@@ -9560,8 +10017,8 @@ namespace ZScript
 	class OBMPDrawScreenComboFRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenComboFRegister();
 		}
@@ -9569,8 +10026,8 @@ namespace ZScript
 	class OBMPDrawScreenComboIRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenComboIRegister();
 		}
@@ -9578,8 +10035,8 @@ namespace ZScript
 	class OBMPDrawScreenComboTRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenComboTRegister();
 		}
@@ -9588,8 +10045,8 @@ namespace ZScript
 	class OBMPDrawScreenSolidityRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenSolidityRegister();
 		}
@@ -9597,8 +10054,8 @@ namespace ZScript
 	class OBMPDrawScreenSolidMaskRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenSolidMaskRegister();
 		}
@@ -9606,8 +10063,8 @@ namespace ZScript
 	class OBMPDrawScreenCTypeRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenCTypeRegister();
 		}
@@ -9615,8 +10072,8 @@ namespace ZScript
 	class OBMPDrawScreenCFlagRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenCFlagRegister();
 		}
@@ -9624,8 +10081,8 @@ namespace ZScript
 	class OBMPDrawScreenCIFlagRegister : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OBMPDrawScreenCIFlagRegister();
 		}
@@ -9636,8 +10093,8 @@ namespace ZScript
 	{
 	public:
 		OFontHeight(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFontHeight(a->clone());
 		}
@@ -9647,8 +10104,8 @@ namespace ZScript
 	{
 	public:
 		OStringWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStringWidth(a->clone(),b->clone());
 		}
@@ -9658,8 +10115,8 @@ namespace ZScript
 	{
 	public:
 		OCharWidth(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCharWidth(a->clone(),b->clone());
 		}
@@ -9669,8 +10126,8 @@ namespace ZScript
 	{
 	public:
 		OMessageWidth(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMessageWidth(a->clone());
 		}
@@ -9680,8 +10137,8 @@ namespace ZScript
 	{
 	public:
 		OMessageHeight(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OMessageHeight(a->clone());
 		}
@@ -9692,8 +10149,8 @@ namespace ZScript
 	{
 	public:
 		OStrCmp(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStrCmp(a->clone());
 		}
@@ -9702,8 +10159,8 @@ namespace ZScript
 	{
 	public:
 		OStrNCmp(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStrNCmp(a->clone());
 		}
@@ -9712,8 +10169,8 @@ namespace ZScript
 	{
 	public:
 		OStrICmp(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStrICmp(a->clone());
 		}
@@ -9722,8 +10179,8 @@ namespace ZScript
 	{
 	public:
 		OStrNICmp(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStrNICmp(a->clone());
 		}
@@ -9733,8 +10190,8 @@ namespace ZScript
 	{
 	public:
 		Oxlen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oxlen(a->clone(), b->clone());
 		}
@@ -9744,8 +10201,8 @@ namespace ZScript
 	{
 	public:
 		Oxtoi(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oxtoi(a->clone(), b->clone());
 		}
@@ -9755,8 +10212,8 @@ namespace ZScript
 	{
 	public:
 		Oilen(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oilen(a->clone(), b->clone());
 		}
@@ -9767,8 +10224,8 @@ namespace ZScript
 	{
 	public:
 		Oatoi(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oatoi(a->clone(), b->clone());
 		}
@@ -9778,8 +10235,8 @@ namespace ZScript
 	{
 	public:
 		Ostrcspn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrcspn(a->clone());
 		}
@@ -9788,8 +10245,8 @@ namespace ZScript
 	{
 	public:
 		Ostrstr(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrstr(a->clone());
 		}
@@ -9800,8 +10257,8 @@ namespace ZScript
 	{
 	public:
 		Oitoa(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oitoa(a->clone(),b->clone());
 		}
@@ -9811,8 +10268,8 @@ namespace ZScript
 	{
 	public:
 		Oxtoa(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oxtoa(a->clone(),b->clone());
 		}
@@ -9822,8 +10279,8 @@ namespace ZScript
 	{
 	public:
 		Oitoacat(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oitoacat(a->clone(),b->clone());
 		}
@@ -9833,8 +10290,8 @@ namespace ZScript
 	{
 	public:
 		OSaveGameStructs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSaveGameStructs(a->clone(),b->clone());
 		}
@@ -9843,8 +10300,8 @@ namespace ZScript
 	{
 	public:
 		OReadGameStructs(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OReadGameStructs(a->clone(),b->clone());
 		}
@@ -9853,8 +10310,8 @@ namespace ZScript
 	{
 	public:
 		Ostrcat(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrcat(a->clone());
 		}
@@ -9863,8 +10320,8 @@ namespace ZScript
 	{
 	public:
 		Ostrspn(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrspn(a->clone());
 		}
@@ -9873,8 +10330,8 @@ namespace ZScript
 	{
 	public:
 		Ostrchr(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrchr(a->clone());
 		}
@@ -9883,8 +10340,8 @@ namespace ZScript
 	{
 	public:
 		Ostrrchr(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ostrrchr(a->clone());
 		}
@@ -9893,8 +10350,8 @@ namespace ZScript
 	{
 	public:
 		Oxlen2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oxlen2(a->clone());
 		}
@@ -9903,8 +10360,8 @@ namespace ZScript
 	{
 	public:
 		Oxtoi2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oxtoi2(a->clone());
 		}
@@ -9913,8 +10370,8 @@ namespace ZScript
 	{
 	public:
 		Oilen2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oilen2(a->clone());
 		}
@@ -9923,8 +10380,8 @@ namespace ZScript
 	{
 	public:
 		Oatoi2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oatoi2(a->clone());
 		}
@@ -9933,8 +10390,8 @@ namespace ZScript
 	{
 	public:
 		Oremchr2(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oremchr2(a->clone());
 		}
@@ -9945,8 +10402,8 @@ namespace ZScript
 	{
 	public:
 		Ouppertolower(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Ouppertolower(a->clone(), b->clone());
 		}
@@ -9956,8 +10413,8 @@ namespace ZScript
 	{
 	public:
 		Olowertoupper(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Olowertoupper(a->clone(), b->clone());
 		}
@@ -9967,8 +10424,8 @@ namespace ZScript
 	{
 	public:
 		Oconvertcase(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new Oconvertcase(a->clone(), b->clone());
 		}
@@ -9980,8 +10437,8 @@ namespace ZScript
 	{
 	public:
 		OGETNPCSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETNPCSCRIPT(a->clone());
 		}
@@ -9990,8 +10447,8 @@ namespace ZScript
 	{
 	public:
 		OGETLWEAPONSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETLWEAPONSCRIPT(a->clone());
 		}
@@ -10000,8 +10457,8 @@ namespace ZScript
 	{
 	public:
 		OGETEWEAPONSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETEWEAPONSCRIPT(a->clone());
 		}
@@ -10010,8 +10467,8 @@ namespace ZScript
 	{
 	public:
 		OGETGENERICSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETGENERICSCRIPT(a->clone());
 		}
@@ -10020,8 +10477,8 @@ namespace ZScript
 	{
 	public:
 		OGETHEROSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETHEROSCRIPT(a->clone());
 		}
@@ -10030,8 +10487,8 @@ namespace ZScript
 	{
 	public:
 		OGETGLOBALSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETGLOBALSCRIPT(a->clone());
 		}
@@ -10040,8 +10497,8 @@ namespace ZScript
 	{
 	public:
 		OGETDMAPSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETDMAPSCRIPT(a->clone());
 		}
@@ -10050,8 +10507,8 @@ namespace ZScript
 	{
 	public:
 		OGETSCREENSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETSCREENSCRIPT(a->clone());
 		}
@@ -10060,8 +10517,8 @@ namespace ZScript
 	{
 	public:
 		OGETSPRITESCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETSPRITESCRIPT(a->clone());
 		}
@@ -10070,8 +10527,8 @@ namespace ZScript
 	{
 	public:
 		OGETUNTYPEDSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETUNTYPEDSCRIPT(a->clone());
 		}
@@ -10080,8 +10537,8 @@ namespace ZScript
 	{
 	public:
 		OGETSUBSCREENSCRIPT(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETSUBSCREENSCRIPT(a->clone());
 		}
@@ -10090,8 +10547,8 @@ namespace ZScript
 	{
 	public:
 		OGETNPCBYNAME(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETNPCBYNAME(a->clone());
 		}
@@ -10100,8 +10557,8 @@ namespace ZScript
 	{
 	public:
 		OGETITEMBYNAME(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETITEMBYNAME(a->clone());
 		}
@@ -10110,8 +10567,8 @@ namespace ZScript
 	{
 	public:
 		OGETCOMBOBYNAME(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETCOMBOBYNAME(a->clone());
 		}
@@ -10120,8 +10577,8 @@ namespace ZScript
 	{
 	public:
 		OGETDMAPBYNAME(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGETDMAPBYNAME(a->clone());
 		}
@@ -10131,8 +10588,8 @@ namespace ZScript
 	{
 	public:
 		OLoadNPCBySUIDRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadNPCBySUIDRegister(a->clone());
 		}
@@ -10142,8 +10599,8 @@ namespace ZScript
 	{
 	public:
 		OLoadLWeaponBySUIDRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadLWeaponBySUIDRegister(a->clone());
 		}
@@ -10153,8 +10610,8 @@ namespace ZScript
 	{
 	public:
 		OLoadEWeaponBySUIDRegister(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OLoadEWeaponBySUIDRegister(a->clone());
 		}
@@ -10164,8 +10621,8 @@ namespace ZScript
 	{
 	public:
 		OByte(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OByte(a->clone());
 		}
@@ -10175,8 +10632,8 @@ namespace ZScript
 	{
 	public:
 		OCeiling(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OCeiling(a->clone());
 		}
@@ -10186,8 +10643,8 @@ namespace ZScript
 	{
 	public:
 		OFloor(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFloor(a->clone());
 		}
@@ -10197,8 +10654,8 @@ namespace ZScript
 	{
 	public:
 		OToInteger(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OToInteger(a->clone());
 		}
@@ -10208,8 +10665,8 @@ namespace ZScript
 	{
 	public:
 		OWord(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OWord(a->clone());
 		}
@@ -10219,8 +10676,8 @@ namespace ZScript
 	{
 	public:
 		OShort(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OShort(a->clone());
 		}
@@ -10231,8 +10688,8 @@ namespace ZScript
 	{
 	public:
 		OSByte(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OSByte(a->clone());
 		}
@@ -10241,16 +10698,19 @@ namespace ZScript
 	class OReturn : public Opcode
 	{
 	public:
-		std::string toString() /*override*/;
-		OReturn* clone() {return new OReturn();}
+		std::string toString() const;
+		OReturn* clone() const
+		{
+			return new OReturn();
+		}
 	};
 	
 	class OGraphicsGetpixel : public UnaryOpcode
 	{
 	public:
 		OGraphicsGetpixel(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGraphicsGetpixel(a->clone());
 		}
@@ -10260,8 +10720,8 @@ namespace ZScript
 	{
 	public:
 		OGraphicsCountColor(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OGraphicsCountColor(a->clone());
 		}
@@ -10271,8 +10731,8 @@ namespace ZScript
 	{
 	public:
 		ODirExists(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODirExists(a->clone());
 		}
@@ -10282,8 +10742,8 @@ namespace ZScript
 	{
 	public:
 		OFileExists(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileExists(a->clone());
 		}
@@ -10293,8 +10753,8 @@ namespace ZScript
 	{
 	public:
 		OFileSystemRemove(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileSystemRemove(a->clone());
 		}
@@ -10303,8 +10763,8 @@ namespace ZScript
 	class OFileClose : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileClose();
 		}
@@ -10313,8 +10773,8 @@ namespace ZScript
 	class OFileFree : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileFree();
 		}
@@ -10323,8 +10783,8 @@ namespace ZScript
 	class OFileIsAllocated : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileIsAllocated();
 		}
@@ -10333,8 +10793,8 @@ namespace ZScript
 	class OFileIsValid : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileIsValid();
 		}
@@ -10343,8 +10803,8 @@ namespace ZScript
 	class OAllocateFile : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OAllocateFile();
 		}
@@ -10353,8 +10813,8 @@ namespace ZScript
 	class OFileFlush : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileFlush();
 		}
@@ -10363,8 +10823,8 @@ namespace ZScript
 	class OFileGetChar : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileGetChar();
 		}
@@ -10373,8 +10833,8 @@ namespace ZScript
 	class OFileRewind : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileRewind();
 		}
@@ -10383,8 +10843,8 @@ namespace ZScript
 	class OFileClearError : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileClearError();
 		}
@@ -10394,8 +10854,8 @@ namespace ZScript
 	{
 	public:
 		OFileOpen(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileOpen(a->clone());
 		}
@@ -10405,8 +10865,8 @@ namespace ZScript
 	{
 	public:
 		OFileCreate(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileCreate(a->clone());
 		}
@@ -10416,8 +10876,8 @@ namespace ZScript
 	{
 	public:
 		OFileReadString(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileReadString(a->clone());
 		}
@@ -10427,8 +10887,8 @@ namespace ZScript
 	{
 	public:
 		OFileWriteString(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileWriteString(a->clone());
 		}
@@ -10438,8 +10898,8 @@ namespace ZScript
 	{
 	public:
 		OFilePutChar(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFilePutChar(a->clone());
 		}
@@ -10449,8 +10909,8 @@ namespace ZScript
 	{
 	public:
 		OFileUngetChar(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileUngetChar(a->clone());
 		}
@@ -10460,8 +10920,8 @@ namespace ZScript
 	{
 	public:
 		OFileGetError(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileGetError(a->clone());
 		}
@@ -10470,8 +10930,8 @@ namespace ZScript
 	class OFileRemove : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileRemove();
 		}
@@ -10481,8 +10941,8 @@ namespace ZScript
 	{
 	public:
 		OFileReadChars(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileReadChars(a->clone(), b->clone());
 		}
@@ -10492,8 +10952,8 @@ namespace ZScript
 	{
 	public:
 		OFileReadBytes(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileReadBytes(a->clone(), b->clone());
 		}
@@ -10503,8 +10963,8 @@ namespace ZScript
 	{
 	public:
 		OFileReadInts(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileReadInts(a->clone(), b->clone());
 		}
@@ -10514,8 +10974,8 @@ namespace ZScript
 	{
 	public:
 		OFileWriteChars(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileWriteChars(a->clone(), b->clone());
 		}
@@ -10525,8 +10985,8 @@ namespace ZScript
 	{
 	public:
 		OFileWriteBytes(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileWriteBytes(a->clone(), b->clone());
 		}
@@ -10536,8 +10996,8 @@ namespace ZScript
 	{
 	public:
 		OFileWriteInts(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileWriteInts(a->clone(), b->clone());
 		}
@@ -10547,8 +11007,8 @@ namespace ZScript
 	{
 	public:
 		OFileSeek(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileSeek(a->clone(), b->clone());
 		}
@@ -10558,8 +11018,8 @@ namespace ZScript
 	{
 	public:
 		OFileOpenMode(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OFileOpenMode(a->clone(), b->clone());
 		}
@@ -10569,8 +11029,8 @@ namespace ZScript
 	{
 	public:
 		ODirectoryGet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODirectoryGet(a->clone(), b->clone());
 		}
@@ -10579,8 +11039,8 @@ namespace ZScript
 	class ODirectoryReload : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODirectoryReload();
 		}
@@ -10589,8 +11049,8 @@ namespace ZScript
 	class ODirectoryFree : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ODirectoryFree();
 		}
@@ -10599,8 +11059,8 @@ namespace ZScript
 	class OStackFree : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackFree();
 		}
@@ -10608,8 +11068,8 @@ namespace ZScript
 	class OStackOwn : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackOwn();
 		}
@@ -10617,8 +11077,8 @@ namespace ZScript
 	class OStackClear : public Opcode
 	{
 	public:
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackClear();
 		}
@@ -10628,8 +11088,8 @@ namespace ZScript
 	{
 	public:
 		OStackPopBack(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackPopBack(a->clone());
 		}
@@ -10638,8 +11098,8 @@ namespace ZScript
 	{
 	public:
 		OStackPopFront(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackPopFront(a->clone());
 		}
@@ -10648,8 +11108,8 @@ namespace ZScript
 	{
 	public:
 		OStackPeekBack(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackPeekBack(a->clone());
 		}
@@ -10658,8 +11118,8 @@ namespace ZScript
 	{
 	public:
 		OStackPeekFront(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackPeekFront(a->clone());
 		}
@@ -10668,8 +11128,8 @@ namespace ZScript
 	{
 	public:
 		OStackPushBack(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackPushBack(a->clone());
 		}
@@ -10678,8 +11138,8 @@ namespace ZScript
 	{
 	public:
 		OStackPushFront(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackPushFront(a->clone());
 		}
@@ -10688,8 +11148,8 @@ namespace ZScript
 	{
 	public:
 		OStackGet(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackGet(a->clone());
 		}
@@ -10698,8 +11158,8 @@ namespace ZScript
 	{
 	public:
 		OStackSet(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OStackSet(a->clone(), b->clone());
 		}
@@ -10709,8 +11169,8 @@ namespace ZScript
 	{
 	public:
 		OModuleGetIC(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new OModuleGetIC(a->clone(), b->clone());
 		}
@@ -10719,8 +11179,8 @@ namespace ZScript
 	{
 	public:
 		ORunGenericFrozenScript(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode* clone() const
 		{
 			return new ORunGenericFrozenScript(a->clone());
 		}
@@ -10730,10 +11190,28 @@ namespace ZScript
 	{
 	public:
 		OGetScreenIndexForRpos(Argument *A) : UnaryOpcode(A) {}
-		std::string toString();
-		Opcode *clone()
+		std::string toString() const;
+		Opcode *clone() const
 		{
 			return new OGetScreenIndexForRpos(a->clone());
+		}
+	};
+	class OPalDataFree : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataFree();
+		}
+	};
+	class OPalDataOwn : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPalDataOwn();
 		}
 	};
 }

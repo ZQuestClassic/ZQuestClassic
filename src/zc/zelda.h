@@ -185,8 +185,6 @@ int32_t  init_game();
 int32_t  cont_game();
 void restart_level();
 int32_t  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
-void show_details();
-void show_ffscript_names();
 //int32_t  init_palnames();
 
 int32_t get_currdmap();
@@ -299,16 +297,16 @@ extern signed char pause_in_background_menu_init;
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table, trans_table2;
-extern BITMAP   *framebuf, *scrollbuf_old, *scrollbuf, *tmp_bmp, *tmp_scr, *screen2, *fps_undo,
+extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
                 *msg_txt_bmp_buf, *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf, *msg_bg_bmp_buf,
 				*msg_menu_bmp_buf, *msg_portrait_bmp_buf, *pricesdisplaybuf, *tb_page[3],
 				*temp_buf, *temp_buf2, *prim_bmp,
-				*script_menu_buf, *f6_menu_buf, *hw_screen;
+				*script_menu_buf, *f6_menu_buf;
 extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *lightbeam_bmp;
 extern BITMAP *zcmouse[4];
-extern DATAFILE *data, *sfxdata, *fontsdata, *mididata;
+extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 //extern FONT custom_fonts[MAXFONTS];
 extern PALETTE  RAMpal;
@@ -370,20 +368,19 @@ extern int32_t     lensid;
 extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
-extern byte ffcgrid[4];
+extern byte ffcgrid[MAXFFCS/8];
 extern volatile int32_t logic_counter;
 #ifdef _SCRIPT_COUNTER
 extern volatile int32_t script_counter;
 #endif
 extern bool halt;
 extern bool screenscrolling;
-extern bool close_button_quit;
 extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
-extern byte use_debug_console, console_on_top, use_win32_proc, zasm_debugger, zscript_debugger; //windows only
+extern byte use_win32_proc, zasm_debugger, zscript_debugger; //windows only
 
 #ifdef _SCRIPT_COUNTER
 void update_script_counter();
@@ -416,7 +413,7 @@ extern int32_t js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
 extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
-extern int32_t swordhearts[4], currcset, gfc, gfc2, pitx, pity, refill_what, refill_why;
+extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, nayruitem, title_version;
 extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern byte newconveyorclk;
@@ -425,7 +422,8 @@ extern float avgfps;
 
 extern bool cheats_execute_goto, cheats_execute_light;
 extern bool blockmoving;
-extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, disableClickToFreeze;
+extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal, Playing, FrameSkip, TransLayers, clearConsoleOnLoad, disableClickToFreeze, SaveDragResize, DragAspect, SaveWinPos;
+extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
 extern bool down_control_states[controls::btnLast];
@@ -441,7 +439,7 @@ extern int32_t switchhook_cost_item;
 extern int32_t is_conveyor_stunned;
 extern uint16_t hooked_layerbits;
 extern int32_t hooked_undercombos[14];
-extern sprite* switching_object;
+extern solid_object* switching_object;
 
 extern byte COOLSCROLL;
 
@@ -459,6 +457,7 @@ extern byte   guygrid[176];
 extern mapscr scrolling_screen;
 extern mapscr tmpscr;
 extern mapscr special_warp_return_screen;
+extern byte   guygridffc[MAXFFCS];
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];
@@ -499,11 +498,7 @@ dword getNumGlobalArrays();
 
 extern int32_t  resx,resy,scrx,scry;
 extern int32_t window_width, window_height;
-extern bool sbig;                                           // big screen
-extern bool sbig2;	//BIGGER SCREEN!!!!
-extern int32_t screen_scale; //user adjustable screen size.
 
-extern bool scanlines;                                      //do scanlines if sbig==1
 extern bool toogam;
 extern bool ignoreSideview;
 
@@ -518,6 +513,7 @@ extern gamedata *saves;
 extern gamedata *game;
 
 extern std::string load_qstpath;
+extern char header_version_nul_term[10];
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
@@ -552,6 +548,7 @@ extern const byte ten_rupies_y[10];
 extern zctune tunes[MAXMIDIS];
 //extern zcmidi_ tunes[MAXMIDIS];
 //extern emusic enhancedMusic[MAXMUSIC];
+
 #endif
 
 /*** end of zelda.h ***/

@@ -22,10 +22,64 @@ void call_qr_dialog(size_t qrs_per_tab, std::function<void(byte*)> setQRs)
 {
 	QRDialog(quest_rules, qrs_per_tab, setQRs).show();
 }
+void call_qrsearch_dialog(std::function<void(byte*)> setQRs)
+{
+	auto dlg = QRDialog(quest_rules, 0, setQRs);
+	dlg.searchmode = true;
+	dlg.show();
+}
 
-//{
+enum
+{
+	rules_anim,
+	rules_combo,
+	rules_compat,
+	rules_enemies,
+	rules_item,
+	rules_misc,
+	rules_nesfix,
+	rules_player,
+	rules_weapon,
+	rules_zs_script,
+	rules_zs_instruction,
+	rules_zs_object,
+	rules_zs_drawing,
+	rules_zs_bugfix,
+	rules_tagcount
+};
 
-static const GUI::ListData animRulesList
+std::string tagNames[rules_tagcount + 1] =
+{
+	"Animation",
+	"Combo",
+	"Compatibility",
+	"Enemy",
+	"Item",
+	"Misc",
+	"NESFix",
+	"Player",
+	"Weapon",
+	"ZS: Script",
+	"ZS: Instruction",
+	"ZS: Object",
+	"ZS: Drawing",
+	"ZS: Bugfix",
+	"??"
+};
+
+std::string const& getLongestTagName()
+{
+	return tagNames[rules_zs_instruction];
+}
+std::string const& getTagName(int32_t ruletype)
+{
+	if(unsigned(ruletype) < rules_tagcount)
+		return tagNames[ruletype];
+	return tagNames[rules_tagcount];
+}
+//{ Quest Rules
+
+static GUI::ListData animRulesList
 {
 	{ "BS-Zelda Animation Quirks", qr_BSZELDA, 
 		"Affects a number of small miscellaneous stuff to make Z1 more"
@@ -150,7 +204,7 @@ static const GUI::ListData animRulesList
 		" Limited only to Interpolated Fading."}
 };
 
-static const GUI::ListData comboRulesList
+static GUI::ListData comboRulesList
 {
 	{ "Player Drowns in Walkable Water", qr_DROWN,
 		"When the Player steps in water without powerful enough flippers"
@@ -382,7 +436,7 @@ static const GUI::ListData comboRulesList
 		" the highest layer conveyor will apply."}
 };
 
-static const GUI::ListData compatRulesList
+static GUI::ListData compatRulesList
 {
 	{ "Old GOTOLESS Behavior", qr_GOTOLESSNOTEQUAL, 
 		"If enabled, the ZASM GOTOLESS will return true if less"
@@ -779,8 +833,8 @@ static const GUI::ListData compatRulesList
 	{ "Old Scripted Knockback", qr_OLD_SCRIPTED_KNOCKBACK,
 		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." },
 	{ "Old Keese Z Axis Behavior", qr_OLD_KEESE_Z_AXIS,
-		"If enabled, Keese will barely change their z value unless over 128 pixels away from Link. If disabled,"
-		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to Link."},
+		"If enabled, Keese will barely change their z value unless over 128 pixels away from the Player. If disabled,"
+		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to the Player."},
 	{ "No Pols Voice/Vire Shadows with Z axis", qr_POLVIRE_NO_SHADOW,
 		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."},
 	{ "Old Subscreen Selector", qr_SUBSCR_OLD_SELECTOR,
@@ -798,10 +852,23 @@ static const GUI::ListData compatRulesList
 		"If enabled, FFCs that 'run on screen init' will not run before the opening wipe on the first screen"
 		" loading from the save select screen." },
 	{ "No lifting sprite", qr_NO_LIFT_SPRITE,
-		"If enabled, the player will not display a 'lifting' sprite." }
+		"If enabled, the player will not display a 'lifting' sprite." },
+	{ "Old Sideview Landing", qr_OLD_SIDEVIEW_LANDING_CODE,
+		"If enabled, the old code for landing in sideview will be used." },
+	{ "FFC 128 speed cap", qr_OLD_FFC_SPEED_CAP,
+		"If enabled, ffcs will cap to 128 speed." },
+	{ "Wizzrobes use old submerge code", qr_OLD_WIZZROBE_SUBMERGING,
+		"If enabled, wizzrobes will not read as 'Submerged' to ZScript, and will use hardcoded"
+			" offsets. If disabled, relative offsets will be used, and 'Submerged' will read"
+			" as true when vanished."},
+	{ "Old FFC Functionality", qr_OLD_FFC_FUNCTIONALITY,
+		"If enabled, FFCs will lack certain functionality, such as hookshotability, switch_hookability,"
+		" and ffc triggers, among other misc changes."},
+	{ "Old Shallow Water SFX Attribute", qr_OLD_SHALLOW_SFX,
+		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for it's splash sound." }
 };
 
-static const GUI::ListData enemiesRulesList
+static GUI::ListData enemiesRulesList
 {
 	{ "Use New Enemy Tiles", qr_NEWENEMYTILES,
 		"If enabled, enemies will use different, more modern animation instead of their"
@@ -907,7 +974,7 @@ static const GUI::ListData enemiesRulesList
 		" requires it."}
 };
 
-static const GUI::ListData itemRulesList
+static GUI::ListData itemRulesList
 {
 	{ "Enable Magic Counter", qr_ENABLEMAGIC,
 		"Enables Magic. Magic drops become enabled in dropsets, items that"
@@ -989,7 +1056,7 @@ static const GUI::ListData itemRulesList
 		" scripts will run." }
 };
 
-static const GUI::ListData miscRulesList
+static GUI::ListData miscRulesList
 {
 	{ "Allow Setting A Button Items", qr_SELECTAWPN,
 		"If enabled, you can select what item goes on the A button on the subscreen."
@@ -1150,7 +1217,7 @@ static const GUI::ListData miscRulesList
 		"If enabled, counters drain/refill at quadruple speed."}
 };
 
-static const GUI::ListData nesfixesRulesList
+static GUI::ListData nesfixesRulesList
 {
 	{ "Freeform Dungeons", qr_FREEFORM,
 		"If enabled, dungeons lose the hardcoded behaviors regarding the edge of the screen. Normally, when disabled,"
@@ -1291,7 +1358,7 @@ static const GUI::ListData nesfixesRulesList
 		" If looking for the player-created weapons version of this, look at the boomerang itemclass."}
 };
 
-static const GUI::ListData playerRulesList
+static GUI::ListData playerRulesList
 {
 	{ "Diagonal Movement", qr_LTTPWALK,
 		"If enabled, disables the built in player gridlock, and allows the player to move diagonally."
@@ -1317,7 +1384,7 @@ static const GUI::ListData playerRulesList
 		"If enabled, the Player will flicker when invincible or after taking damage instead of flashing colors."}
 };
 
-static const GUI::ListData weaponsRulesList
+static GUI::ListData weaponsRulesList
 {
 	{ "Prisms Reflect Angular Weapons At Angles", qr_ANGULAR_REFLECTED_WEAPONS,
 		"If enabled, Prisms will reflect and duplicate angular weapons, creating new weapons at"
@@ -1367,6 +1434,121 @@ static const GUI::ListData weaponsRulesList
 		" requires it. This can also cause certain issues with weapon types that only"
 		" allow one onscreen at a time, such as sword beams and etc."}
 };
+
+static GUI::ListData combinedRulesList;
+static bool inited_combined_rules = false;
+GUI::ListData const& combinedQRList()
+{
+	if(!inited_combined_rules)
+	{
+		animRulesList.tag(rules_anim);
+		comboRulesList.tag(rules_combo);
+		compatRulesList.tag(rules_compat);
+		enemiesRulesList.tag(rules_enemies);
+		itemRulesList.tag(rules_item);
+		miscRulesList.tag(rules_misc);
+		nesfixesRulesList.tag(rules_nesfix);
+		playerRulesList.tag(rules_player);
+		weaponsRulesList.tag(rules_weapon);
+		
+		combinedRulesList = animRulesList + comboRulesList + compatRulesList
+			+ enemiesRulesList + itemRulesList + miscRulesList + nesfixesRulesList
+			+ playerRulesList + weaponsRulesList;
+		combinedRulesList.alphabetize();
+		inited_combined_rules = true;
+	}
+	return combinedRulesList;
+}
+//}
+//{ Script Rules
+
+GUI::ListData scriptRulesList
+{
+	{ "Item Scripts Continue To Run", qr_ITEMSCRIPTSKEEPRUNNING },
+	{ "Clear InitD[] on Script Change", qr_CLEARINITDONSCRIPTCHANGE },
+	{ "Hero OnDeath script runs AFTER engine death animation", qr_ONDEATH_RUNS_AFTER_DEATH_ANIM },
+	{ "Passive Subscreen Script runs during Active Subscreen Script", qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT },
+	{ "DMap Active Script runs during Active Subscreen Script", qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT },
+	{ "Combos Run Scripts on Layer 0", qr_COMBOSCRIPTS_LAYER_0 },
+	{ "Combos Run Scripts on Layer 1", qr_COMBOSCRIPTS_LAYER_1 },
+	{ "Combos Run Scripts on Layer 2", qr_COMBOSCRIPTS_LAYER_2 },
+	{ "Combos Run Scripts on Layer 3", qr_COMBOSCRIPTS_LAYER_3 },
+	{ "Combos Run Scripts on Layer 4", qr_COMBOSCRIPTS_LAYER_4 },
+	{ "Combos Run Scripts on Layer 5", qr_COMBOSCRIPTS_LAYER_5 },
+	{ "Combos Run Scripts on Layer 6", qr_COMBOSCRIPTS_LAYER_6 },
+	{ "Use Old Global Init and SaveLoad Timing", qr_OLD_INIT_SCRIPT_TIMING },
+	{ "Passive Subscreen Script runs during wipes/refills", qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN }
+};
+
+GUI::ListData instructionRulesList
+{
+	{ "No Item Script Waitdraw()", qr_NOITEMWAITDRAW },
+	{ "No FFC Waitdraw()", qr_NOFFCWAITDRAW },
+	{ "Old eweapon->Parent", qr_OLDEWPNPARENT },
+	{ "Old Args for CreateBitmap() and bitmap->Create()", qr_OLDCREATEBITMAP_ARGS },
+	{ "Print Script Metadata on Traces", qr_TRACESCRIPTIDS },
+	{ "Writing to INPUT Overrides Drunk State", qr_FIXDRUNKINPUTS },
+	{ "Don't Allow Setting Action to Rafting", qr_DISALLOW_SETTING_RAFTING },
+	{ "Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences", qr_250WRITEEDEFSCRIPT },
+	{ "Writing npc->Weapon Sets its Weapon Sprite", qr_SETENEMYWEAPONSPRITESONWPNCHANGE },
+	{ "Broken DrawInteger and DrawCharacter Scaling", qr_BROKENCHARINTDRAWING },
+	{ "npc->Weapon Uses Sprite 246-255 for EW_CUSTOM*", qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES },
+	{ "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE },
+	{ "Don't allow overwriting hopping action", qr_NO_OVERWRITING_HOPPING },
+	{ "Sprite->Step uses new, precise values", qr_STEP_IS_FLOAT },
+	{ "Old printf() args", qr_OLD_PRINTF_ARGS },
+	{ "Writing Screen->EntryX, EntryY Resets Spawn Points", qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS },
+	{ "Log on Loading Invalid UID", qr_LOG_INVALID_UID_LOAD },
+	{ "Broken Combodata->InitD[]", qr_COMBODATA_INITD_MULT_TENK },
+	{ "Script writes to Hero->Step don't carry over", qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER },
+	{ "Disable accessing negative array indexes", qr_ZS_NO_NEG_ARRAY, "If enabled,"
+		" the new feature allowing accessing negative indexes of an array to backwards-index them"
+		" (i.e. 'arr[-1]' is the LAST element in the array) will be DISABLED if this is on."
+		"\nUseful for debugging if you're using this feature *by mistake*." }
+};
+
+GUI::ListData objectRulesList
+{
+	{ "Sprite Coordinates are Float", qr_SPRITEXY_IS_FLOAT },
+	{ "Weapons Have Shadows", qr_WEAPONSHADOWS },
+	{ "Items Have Shadows", qr_ITEMSHADOWS },
+	{ "Weapons Live One Extra Frame With WDS_DEAD", qr_WEAPONS_EXTRA_FRAME }
+};
+
+GUI::ListData drawingRulesList
+{
+	{ "Scripts Draw When Stepping Forward In Dungeons", qr_SCRIPTSRUNINHEROSTEPFORWARD },
+	{ "Scripts Draw During Warps", qr_SCRIPTDRAWSINWARPS }
+};
+
+GUI::ListData bugfixRulesList
+{
+	{ "Fix Scripts Running During Scrolling", qr_FIXSCRIPTSDURINGSCROLLING },
+	{ "Game->Misc[] is / 10000", qr_OLDQUESTMISC },
+	{ "GetPixel returns color / 10000", qr_BROKEN_GETPIXEL_VALUE },
+	{ "Always Deallocate Arrays", qr_ALWAYS_DEALLOCATE_ARRAYS },
+	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS }
+};
+
+static GUI::ListData combinedZSRulesList;
+static bool inited_combined_zsrules = false;
+GUI::ListData const& combinedZSRList()
+{
+	if(!inited_combined_zsrules)
+	{
+		scriptRulesList.tag(rules_zs_script);
+		instructionRulesList.tag(rules_zs_instruction);
+		objectRulesList.tag(rules_zs_object);
+		drawingRulesList.tag(rules_zs_drawing);
+		bugfixRulesList.tag(rules_zs_bugfix);
+		
+		combinedZSRulesList = scriptRulesList + instructionRulesList
+			+ objectRulesList + drawingRulesList + bugfixRulesList;
+		combinedZSRulesList.alphabetize();
+		inited_combined_zsrules = true;
+	}
+	return combinedZSRulesList;
+}
 
 //}
 int32_t onStrFix(); //zquest.cpp
@@ -1421,7 +1603,7 @@ void applyRuleTemplate(int32_t ruleTemplate)
 				qr_BROKENCHARINTDRAWING, qr_NO_OVERWRITING_HOPPING,
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
-				qr_BROKEN_GETPIXEL_VALUE,
+				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY,
 			};
 			for(int32_t qr : zsOnRules)
 			{
@@ -1438,178 +1620,296 @@ void applyRuleTemplate(int32_t ruleTemplate)
 	saved = false;
 }
 
+void QRDialog::reloadQRs()
+{
+	memcpy(local_qrs, realqrs, QR_SZ);
+}
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
-	setQRs(setQRs), qrs_per_tab(qrs_per_tab), realqrs(qrs)
-{}
+	setQRs(setQRs), qrs_per_tab(qrs_per_tab), realqrs(qrs), searchmode(false)
+{
+	reloadQRs();
+}
 
+static std::string searchstring;
+static int32_t scroll_pos1;
+static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	memcpy(local_qrs, realqrs, QR_SZ); //Load QRs
-	
-	return Window(
-		title = "Quest Options",
-		onEnter = message::OK,
-		onClose = message::CANCEL,
-		Column(
-			TabPanel(
-				maxwidth = sized(308_px, 800_px),
-				TabRef(
-					name = "Options",
-					Column(
-						Rows<2>(
-							hPadding = 0.5_em,
-							spacing = 1_em,
-							Button(
-								text = "&Header",
-								onClick = message::HEADER
-							),
-							Button(
-								text = "&Pick Ruleset",
-								onClick = message::RULESET
-							),
-							Button(
-								text = "&Cheats",
-								onClick = message::CHEATS
-							),
-							Button(
-								text = "&Pick Rule Templates",
-								onClick = message::RULETMP
-							),
-							Button(
-								text = "Copy QR String",
-								onClick = message::QRSTR_CPY),
-							Button(
-								text = "Load QR String",
-								onClick = message::QRSTR_LOAD)
-						),
-						Row(
-							Label(text = "Map Count:"),
-							mapCountTF = TextField(
-								type = GUI::TextField::type::INT_DECIMAL,
-								maxLength = 3,
-								text = std::to_string(map_count),
-								low = 1, high = 255
-							),
-							Button(width = 2_em, text = "?", hAlign = 1.0, onPressFunc = []()
+	if(searchmode)
+	{
+		std::string lower_search = searchstring;
+		lowerstr(lower_search);
+		
+		GUI::ListData tosearch = combinedQRList();
+		if(zs_search)
+			tosearch += combinedZSRList();
+		
+		window = Window(
+			title = "Search Quest Rules",
+			onClose = message::CANCEL,
+			Column(
+				QRPanel(
+					ptr = (size_t*)&scroll_pos1,
+					padding = 2_spx,
+					onToggle = message::TOGGLE_QR,
+					initializer = local_qrs,
+					count = 0, //scrollpane
+					scrollWidth = sized(300_px, 675_px),
+					scrollHeight = sized(160_px, 500_px),
+					data = tosearch.filter(
+						[&](GUI::ListItem& itm)
+						{
+							std::string tx = itm.text;
+							lowerstr(tx);
+							if(tx.find(lower_search) != std::string::npos)
+								return true;
+							if(info_search)
 							{
-								InfoDialog("Map Count","The number of 'maps' available in the quest file. The higher this value is,"
-									" the larger your quest file will be, and the more memory it takes to keep your quest loaded;"
-									" so it is generally suggested to only set this to a number of maps you will actually be "
-									"making use of.\n\nIf you set this to a number lower than it is currently, maps in excess"
-									" of the count will be entirely deleted.").show();
-							})
+								std::string inf = itm.info;
+								lowerstr(inf);
+								if(inf.find(lower_search) != std::string::npos)
+									return true;
+							}
+							return false;
+						})
+				),
+				Row(padding = 0_px,
+					Button(
+						text = "C", height = 24_lpx,
+						rightPadding = 0_px,
+						onClick = message::RERUN,
+						onPressFunc = [&]()
+						{
+							searchstring.clear();
+						}),
+					TextField(
+						focused = true, leftPadding = 0_px,
+						maxwidth = 15_em, maxLength = 255,
+						text = searchstring,
+						onValueChanged = message::RERUN,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							searchstring = str;
+						}
+					),
+					Column(padding = 0_px,
+						Checkbox(
+							bottomPadding = 0_px,
+							hAlign = 0.0,
+							text = "Search Help Text",
+							checked = info_search,
+							onToggle = message::RERUN,
+							onToggleFunc = [&](bool state)
+							{
+								info_search = state;
+							}
+						),
+						Checkbox(
+							topPadding = 0_px,
+							hAlign = 0.0,
+							text = "Search Script Rules",
+							checked = zs_search,
+							onToggle = message::RERUN,
+							onToggleFunc = [&](bool state)
+							{
+								zs_search = state;
+							}
+						)
+					),
+					Button(
+						text = "OK",
+						minwidth = sized(30_px,90_px),
+						onClick = message::OK),
+					Button(
+						text = "Cancel",
+						minwidth = sized(30_px,90_px),
+						onClick = message::CANCEL)
+				)
+			)
+		);
+	}
+	else
+	{
+		window = Window(
+			title = "Quest Options",
+			onClose = message::CANCEL,
+			Column(
+				TabPanel(
+					maxwidth = sized(308_px, 800_px),
+					TabRef(
+						name = "Options",
+						Column(
+							Rows<2>(
+								hPadding = 0.5_em,
+								//
+								Button(
+									text = "&Header",
+									fitParent = true,
+									onClick = message::HEADER
+								),
+								Button(
+									text = "&Pick Ruleset",
+									fitParent = true,
+									onClick = message::RULESET
+								),
+								//
+								Button(
+									text = "&Cheats",
+									fitParent = true,
+									onClick = message::CHEATS
+								),
+								Button(
+									text = " Pick Rule &Templates ",
+									fitParent = true,
+									onClick = message::RULETMP
+								),
+								//
+								Button(
+									text = "Search QRs",
+									fitParent = true,
+									onClick = message::SEARCH
+								),
+								DummyWidget(),
+								//
+								Button(
+									text = "Copy QR String",
+									fitParent = true,
+									onClick = message::QRSTR_CPY),
+								Button(
+									text = "Load QR String",
+									fitParent = true,
+									onClick = message::QRSTR_LOAD)
+							),
+							Row(
+								Label(text = "Map Count:"),
+								mapCountTF = TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									maxLength = 3,
+									text = std::to_string(map_count),
+									low = 1, high = 255
+								),
+								Button(width = 2_em, text = "?", hAlign = 1.0, onPressFunc = []()
+								{
+									InfoDialog("Map Count","The number of 'maps' available in the quest file. The higher this value is,"
+										" the larger your quest file will be, and the more memory it takes to keep your quest loaded;"
+										" so it is generally suggested to only set this to a number of maps you will actually be "
+										"making use of.\n\nIf you set this to a number lower than it is currently, maps in excess"
+										" of the count will be entirely deleted.").show();
+								})
+							)
+						)
+					),
+					TabRef(
+						name = "Anim",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = animRulesList
+						)
+					),
+					TabRef(
+						name = "Combo",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = comboRulesList
+						)
+					),
+					TabRef(
+						name = "Compat",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = compatRulesList
+						)
+					),
+					TabRef(
+						name = "Enemy",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = enemiesRulesList
+						)
+					),
+					TabRef(
+						name = "Item",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = itemRulesList
+						)
+					),
+					TabRef(
+						name = "Misc",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = miscRulesList
+						)
+					),
+					TabRef(
+						name = "NESFix",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = nesfixesRulesList
+						)
+					),
+					TabRef(
+						name = "Player",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = playerRulesList
+						)
+					),
+					TabRef(
+						name = "Weapon",
+						QRPanel(
+							padding = 2_spx,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = weaponsRulesList
 						)
 					)
 				),
-				TabRef(
-					name = "Anim",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = animRulesList
-					)
-				),
-				TabRef(
-					name = "Combo",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = comboRulesList
-					)
-				),
-				TabRef(
-					name = "Compat",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = compatRulesList
-					)
-				),
-				TabRef(
-					name = "Enemy",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = enemiesRulesList
-					)
-				),
-				TabRef(
-					name = "Item",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = itemRulesList
-					)
-				),
-				TabRef(
-					name = "Misc",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = miscRulesList
-					)
-				),
-				TabRef(
-					name = "NESFix",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = nesfixesRulesList
-					)
-				),
-				TabRef(
-					name = "Player",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = playerRulesList
-					)
-				),
-				TabRef(
-					name = "Weapon",
-					QRPanel(
-						padding = 2_spx,
-						onToggle = message::TOGGLE_QR,
-						initializer = local_qrs,
-						count = qrs_per_tab,
-						data = weaponsRulesList
-					)
+				Row(
+					topPadding = 0.5_em,
+					vAlign = 1.0,
+					spacing = 2_em,
+					Button(
+						text = "OK",
+						minwidth = 90_lpx,
+						onClick = message::OK),
+					Button(
+						text = "Cancel",
+						minwidth = 90_lpx,
+						onClick = message::CANCEL)
 				)
-			),
-			Row(
-				topPadding = 0.5_em,
-				vAlign = 1.0,
-				spacing = 2_em,
-				Button(
-					text = "OK",
-					minwidth = 90_lpx,
-					onClick = message::OK),
-				Button(
-					text = "Cancel",
-					minwidth = 90_lpx,
-					onClick = message::CANCEL)
 			)
-		)
-	);
+		);
+	}
+	return window;
 }
 
 bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
@@ -1624,10 +1924,12 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		case message::RULESET:
 			call_ruleset_dlg();
+			reloadQRs();
 			rerun_dlg = true;
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
+			reloadQRs();
 			rerun_dlg = true;
 			return true;
 		case message::CHEATS:
@@ -1641,42 +1943,64 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(load_qr_hexstr_clipboard())
 			{
 				popup_bugfix_dlg("dsa_compatrule2");
+				reloadQRs();
 				rerun_dlg = true;
 				return true;
 			}
 			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
 			return false;
+		case message::RERUN:
+			while(gui_mouse_b()) rest(1); //wait for mouseup
+			rerun_dlg = true;
+			return true;
+		case message::SEARCH:
+		{
+			bool do_rerun = false;
+			auto dlg = QRDialog(local_qrs, qrs_per_tab, [&](byte* qrs)
+				{
+					memcpy(quest_rules, qrs, QR_SZ);
+					reloadQRs();
+					do_rerun = true;
+				});
+			dlg.searchmode = true;
+			dlg.show();
+			rerun_dlg = do_rerun;
+			return do_rerun;
+		}
 		//Closing buttons
 		case message::OK:
 		{
 			setQRs(local_qrs);
-			word new_map_count = mapCountTF->getVal();
-			if(new_map_count < map_count)
+			if(!searchmode)
 			{
-				AlertDialog(
-					"WARNING! Map Deletion",
-					"This action will delete " + std::to_string(map_count-new_map_count)
-					+ " maps from the end of your map list!",
-					[&new_map_count](bool ret,bool)
-					{
-						if(ret)
+				word new_map_count = mapCountTF->getVal();
+				if(new_map_count < map_count)
+				{
+					AlertDialog(
+						"WARNING! Map Deletion",
+						"This action will delete " + std::to_string(map_count-new_map_count)
+						+ " maps from the end of your map list!",
+						[&new_map_count](bool ret,bool)
 						{
-							if(mapcount_will_affect_layers(new_map_count))
+							if(ret)
 							{
-								AlertDialog(
-									"WARNING! Layer Deletion!",
-									"Some of the maps being deleted are used as layermaps for screens that will remain!"
-									" If you continue, these screens will have their layermap set to 0!",
-									[&new_map_count](bool ret,bool)
-									{
-										if(ret) update_map_count(new_map_count);
-									}).show();
+								if(mapcount_will_affect_layers(new_map_count))
+								{
+									AlertDialog(
+										"WARNING! Layer Deletion!",
+										"Some of the maps being deleted are used as layermaps for screens that will remain!"
+										" If you continue, these screens will have their layermap set to 0!",
+										[&new_map_count](bool ret,bool)
+										{
+											if(ret) update_map_count(new_map_count);
+										}).show();
+								}
+								else update_map_count(new_map_count);
 							}
-							else update_map_count(new_map_count);
-						}
-					}).show();
+						}).show();
+				}
+				else update_map_count(new_map_count);
 			}
-			else update_map_count(new_map_count);
 		}
 		[[fallthrough]];
 		case message::CANCEL:
@@ -1684,3 +2008,4 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return true;
 	}
 }
+

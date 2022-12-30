@@ -16,6 +16,8 @@
 
 extern DIALOG_PLAYER *player;
 
+void     zc_set_gui_bmp(BITMAP* bmp);
+BITMAP*  zc_get_gui_bmp();
 int32_t  zc_do_dialog(DIALOG *d, int32_t f);
 int32_t  zc_popup_dialog(DIALOG *d, int32_t f);
 int32_t  PopUp_dialog(DIALOG *d,int32_t f);
@@ -26,9 +28,6 @@ int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
 int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
 
-void sp_acquire_screen();
-void sp_release_screen();
-void sp_release_screen_all();
 void popup_zqdialog_start();
 void popup_zqdialog_draw();
 void popup_zqdialog_end();

@@ -91,11 +91,6 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	
 	char cmdline[MAX_PATH];;
 	if (!helper_executable) {
-		// TODO: should remove this option now.
-		// helper_executable=
-		// 	( zc_get_config(STANDARD_CFG,"CONSOLE","console_on_top",0) ) 
-		// 	? "ZConsole_OnTop.exe"
-		// 	: "ZConsole.exe"; //DEFAULT_HELPER_EXE
 		helper_executable = DEFAULT_HELPER_EXE;
 	}
 	sprintf(cmdline,"%s %s",helper_executable,logger_name);
@@ -420,6 +415,16 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,tmp,ret);
 	else	return _cprint(attributes,tmp,ret);
 }
+int32_t CConsoleLoggerEx::safeprint(int32_t attributes,const char *str)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+	
+	int32_t sz = strlen(str);
+	
+	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,str,sz);
+	else return _cprint(attributes,str,sz);
+}
 
 //////////////////////////////////////////////////////////////////////////
 // cprintf(str,...) : prints a formatted string with current color
@@ -443,7 +448,16 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 	else return _cprint(m_dwCurrentAttributes,tmp,ret);
 
 }
-
+int32_t CConsoleLoggerEx::safeprint(const char *str)
+{
+	if (m_hPipe==INVALID_HANDLE_VALUE)
+		return -1;
+	
+	int32_t sz = strlen(str);
+	
+	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,str,sz);
+	else return _cprint(m_dwCurrentAttributes,str,sz);
+}
 //////////////////////////////////////////////////////////////////////////
 // the _cprintf() helper . do the actual output
 //////////////////////////////////////////////////////////////////////////
@@ -692,6 +706,17 @@ int32_t CConsoleLoggerEx::cprintf(int32_t attributes,const char *format,...)
 #endif
 	return ret;
 }
+int32_t CConsoleLoggerEx::safeprint(int32_t attributes,const char *str)
+{
+	int32_t sz = strlen(str);
+
+#ifdef __EMSCRIPTEN__
+	::printf("%s", str);
+#else
+	al_append_native_text_log(m_textlog, "%s", str);
+#endif
+	return sz;
+}
 
 //////////////////////////////////////////////////////////////////////////
 // cprintf(str,...) : prints a formatted string with current color
@@ -715,7 +740,17 @@ int32_t CConsoleLoggerEx::cprintf(const char *format,...)
 #endif
 	return ret;
 }
+int32_t CConsoleLoggerEx::safeprint(const char *str)
+{
+	int32_t sz = strlen(str);
 
+#ifdef __EMSCRIPTEN__
+	::printf("%s", str);
+#else
+	al_append_native_text_log(m_textlog, "%s", str);
+#endif
+	return sz;
+}
 //////////////////////////////////////////////////////////////////////////
 // the _cprintf() helper . do the actual output
 //////////////////////////////////////////////////////////////////////////

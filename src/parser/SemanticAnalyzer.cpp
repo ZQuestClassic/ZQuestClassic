@@ -138,14 +138,14 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 		DataTypeId thisTypeId = script->getType().getThisTypeId();
 		switch(thisTypeId)
 		{
-			case ZVARTYPEID_PLAYER:
+			case ZTID_PLAYER:
 				function.thisVar =
 					BuiltinConstant::create(functionScope, DataType::PLAYER, "this", 0);
 				break;
-			case ZVARTYPEID_SCREEN:
+			case ZTID_SCREEN:
 				function.thisVar =
 					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
-			case ZVARTYPEID_VOID:
+			case ZTID_VOID:
 				break;
 			default:
 				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);
@@ -323,6 +323,58 @@ void SemanticAnalyzer::caseStmtFor(ASTStmtFor& host, void*)
     if (breakRecursion(host)) return;
 
 	checkCast(*host.test->getReadType(scope, this), DataType::UNTYPED, &host);
+}
+void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
+{
+	//Use sub-scope
+	if(!host.getScope())
+	{
+		host.setScope(scope->makeChild());
+	}
+	scope = host.getScope();
+	
+	visit(host.arrExpr.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	//Get the type of the array expr
+	DataType const& arrtype = *host.arrExpr->getReadType(scope, this);
+	checkCast(arrtype, DataType::UNTYPED, &host);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	//Get the base type of this type
+	DataType const& ty = getNaiveType(arrtype, scope);
+	
+	//The array iter declaration
+	ASTDataDecl* indxdecl = new ASTDataDecl(host.location);
+	indxdecl->name = "__LOOP_ITER";
+	indxdecl->baseType = new ASTDataType(DataType::FLOAT, host.location);
+	host.indxdecl = indxdecl;
+	//The array holder declaration
+	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
+	arrdecl->name = "__LOOP_ARR";
+	arrdecl->setInitializer(host.arrExpr.clone());
+	arrdecl->baseType = new ASTDataType(arrtype, host.location);
+	host.arrdecl = arrdecl;
+	//The data declaration
+	ASTDataDecl* decl = new ASTDataDecl(host.location);
+	decl->name = host.iden;
+	decl->baseType = new ASTDataType(ty, host.location);
+	host.decl = decl;
+	
+	visit(host.indxdecl.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.arrdecl.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	visit(host.decl.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	visit(host.body.get(), param);
+    if (breakRecursion(host)) {scope = scope->getParent(); return;}
+	
+	scope = scope->getParent();
+    if (breakRecursion(host)) return;
+	
+	if(host.hasElse())
+		visit(host.elseBlock.get(), param);
 }
 
 void SemanticAnalyzer::caseStmtWhile(ASTStmtWhile& host, void*)
@@ -1186,6 +1238,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 							leftType->getName().c_str()));
 			return;
 		}
+		
+		deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right);
 	}
 
 	// Find write function.
@@ -1212,6 +1266,8 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 							leftType->getName().c_str()));
 			return;
 		}
+		
+		deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right);
 	}
 
 	if (host.index)
@@ -1274,7 +1330,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	if (arrow)
 	{
 		DataType const* arrtype = arrow->left->getReadType(scope, this);
-		if(user_class = arrtype->getUsrClass())
+		if((user_class = arrtype->getUsrClass()))
 			;
 		else parameterTypes.push_back(arrtype);
 	}
@@ -1325,7 +1381,8 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		// Count number of casts.
 		Function& function = **it;
 		int32_t castCount = 0;
-		for(size_t i = 0; i < parameterTypes.size(); ++i)
+		size_t lowsize = zc_min(parameterTypes.size(), function.paramTypes.size());
+		for(size_t i = 0; i < lowsize; ++i)
 		{
 			DataType const& from = getNaiveType(*parameterTypes[i], scope);
 			DataType const& to = getNaiveType(*function.paramTypes[i], scope);
@@ -1345,7 +1402,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 		else if (castCount == bestCastCount)
 			bestFunctions.push_back(&function);
 	}
-	// We may have failed, but let's check std::optional parameters first...
+	// We may have failed, but let's check optional parameters first...
 	if(bestFunctions.size() > 1)
 	{
 		auto targSize = parameterTypes.size();
@@ -1437,6 +1494,64 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			bestFunctions.push_back(bestFound);
 		}
 	}
+	// We may have failed, but give higher priority to 'untyped' first...
+	if(bestFunctions.size() > 1)
+	{
+		vector<Function*> newBestFunctions = bestFunctions;
+		size_t maxsize = 0;
+		for(auto it = newBestFunctions.begin(); it != newBestFunctions.end(); ++it)
+		{
+			if(maxsize < (*it)->paramTypes.size())
+				maxsize = (*it)->paramTypes.size();
+		}
+		//Remove any strictly-less-specific functions
+		for(size_t p = 0; p < maxsize; ++p)
+		{
+			int flag = 0;
+			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() < p)
+					continue;
+				bool ut = pty.at(p)->isUntyped();
+				if(ut) flag |= 1;
+				else flag |= 2;
+			}
+			if(flag != 3) continue;
+			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
+			{
+				auto& pty = (*it)->paramTypes;
+				if (pty.size() < p)
+				{
+					++it;
+					continue;
+				}
+				bool ut = pty.at(p)->isUntyped();
+				if (ut) //untyped, keep
+				{
+					++it;
+					continue;
+				}
+				else if(parameterTypes.size() > p)
+				{
+					DataType const& from = getNaiveType(*parameterTypes[p], scope);
+					DataType const& to = getNaiveType(*pty[p], scope);
+					if(from == to) //Exact match, keep
+					{
+						++it;
+						continue;
+					}
+				}
+				//Not exact match, not untyped; junk it.
+				it = newBestFunctions.erase(it);
+				continue;
+			}
+			if(newBestFunctions.size() == 0)
+				break; //Nothing left to loop on
+		}
+		if(newBestFunctions.size() > 0) //Don't overwrite if eliminated all
+			bestFunctions = newBestFunctions;
+	}
 	// We failed.
 	if (bestFunctions.size() != 1)
 	{
@@ -1482,6 +1597,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	}
 	
 	host.binding = bestFunctions.front();
+	deprecWarn(host.binding, &host, "Function", host.binding->getSignature().asString());
 }
 
 void SemanticAnalyzer::caseExprNegate(ASTExprNegate& host, void*)

@@ -97,7 +97,6 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 
 	return Window(
 		title = "Test Quest",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			Rows<2>(
@@ -137,7 +136,8 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 				Button(
 					text = "Test",
 					minwidth = 90_lpx,
-					onClick = message::OK),
+					onClick = message::OK,
+					focused = true),
 				Button(
 					text = "Cancel",
 					minwidth = 90_lpx,
@@ -163,11 +163,10 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			test_killer.kill();
 
-			// TODO: this should be a GUI checkbox.
 			bool should_record = zc_get_config("zquest", "test_mode_record", false);
 			std::filesystem::path replay_file_dir = zc_get_config("zquest", "replay_file_dir", "replays/");
 			std::filesystem::create_directory(replay_file_dir);
-			auto replay_path = (replay_file_dir / "latest_test_replay.zplay");
+			auto replay_path = replay_file_dir / fmt::format("test_{}.zplay", std::time(nullptr));
 
 			std::vector<std::string> args = {
 				"-test",

@@ -11,6 +11,7 @@
 #include "precompiled.h" //always first
 
 #include "matrix.h"
+#include "render.h"
 
 // external FONTs
 extern FONT *deffont, *mfont;
@@ -43,6 +44,8 @@ typedef struct zcMatrixCOLUMN
     int16_t speed, cnt;
 } zcMatrixCOLUMN;
 
+static RenderTreeItem rti_matrix;
+static BITMAP *target_bitmap = NULL;
 static BITMAP *linebmp = NULL;
 static zcMatrixTRACER tracer[MAX_TRACERS];
 static zcMatrixTRACER eraser[MAX_TRACERS];
@@ -64,22 +67,45 @@ extern void throttleFPS();
 
 void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
 {
+    rti_matrix.visible = true;
+
+    auto it = std::find(rti_root.children.begin(), rti_root.children.end(), &rti_menu);
+    ASSERT(it != rti_root.children.end());
+    rti_root.children.insert(it, &rti_matrix);
+
+    int w = al_get_bitmap_width(rti_game.bitmap);
+    int h = al_get_bitmap_height(rti_game.bitmap);
+    target_bitmap = create_bitmap_ex(8, w, h);
+    clear_bitmap(target_bitmap);
+    
+    if (rti_matrix.bitmap)
+        al_destroy_bitmap(rti_matrix.bitmap);
+    rti_matrix.bitmap = al_create_bitmap(w, h);
+    rti_matrix.a4_bitmap = target_bitmap;
+
     // speed 0-6, density 0-6
     _density = zc_max(zc_min(density, 6), 0);
     _speed = zc_max(zc_min(speed, 6), 0);
     
     InitMatrix();
+    input_idle(true);
     
     for(;;)
     {
         //vsync();
-		throttleFPS();
+        throttleFPS();
 
         AddTracer();
         AddEraser(-1);
         UpdateTracers();
         UpdateErasers();
         UpdateColumns();
+
+        rti_matrix.transform.x = rti_game.transform.x;
+        rti_matrix.transform.y = rti_game.transform.y;
+        rti_matrix.transform.scale = rti_game.transform.scale;
+
+        update_hw_screen();
         
         poll_joystick();
         
@@ -98,13 +124,14 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
         if(!idle)
             break;
     }
+
+    rti_root.children.erase(std::find(rti_root.children.begin(), rti_root.children.end(), &rti_matrix));
+    destroy_bitmap(target_bitmap);
     
     if(linebmp != NULL)
         destroy_bitmap(linebmp);
         
     clear_keybuf();
-    
-    clear_to_color(screen, BLACK);
 }
 
 static void InitMatrix()
@@ -119,8 +146,8 @@ static void InitMatrix()
     set_color(MED_GREEN, &c_mgrn);
     set_color(DARK_GREEN, &c_dgrn);
     
-    cols = zc_max(zc_min(SCREEN_W / 8, MAX_COLS), 1);
-    rows = zc_max(zc_min(SCREEN_H / 8, MAX_COLS), 1);
+    cols = zc_max(zc_min(target_bitmap->w / 8, MAX_COLS), 1);
+    rows = zc_max(zc_min(target_bitmap->h / 8, MAX_COLS), 1);
     
     linebmp = create_bitmap_ex(8,8, rows*8);
     
@@ -239,7 +266,7 @@ static void DrawLetter(int32_t x, int32_t y, int32_t color)
         
     FONT *fnt = (r&512) || ((letter&0xE0)==0x80) ? mfont : deffont;
     
-    textprintf_ex(screen, fnt, x<<3, y<<3, color, BLACK, "%c", letter);
+    textprintf_ex(target_bitmap, fnt, x<<3, y<<3, color, BLACK, "%c", letter);
 }
 
 static void DrawEraser(int32_t x, int32_t y, int32_t type)
@@ -249,17 +276,17 @@ static void DrawEraser(int32_t x, int32_t y, int32_t type)
     
     if(type == 0)
     {
-        rectfill(screen, x, y, x+7, y+7, BLACK);
+        rectfill(target_bitmap, x, y, x+7, y+7, BLACK);
     }
     else
     {
         for(int32_t i=0; i<8; i++)
             for(int32_t j=0; j<8; j++)
             {
-                int32_t pix = getpixel(screen, x+i, y+j);
+                int32_t pix = getpixel(target_bitmap, x+i, y+j);
                 
                 if(pix == LIGHT_GREEN || pix == MED_GREEN)
-                    putpixel(screen, x+i, y+j, DARK_GREEN);
+                    putpixel(target_bitmap, x+i, y+j, DARK_GREEN);
             }
     }
 }
@@ -289,8 +316,8 @@ static void UpdateColumns()
                 }
             }
             
-            blit(screen, linebmp, i*8, 0, 0, 0, 8, rows*8 - 8);
-            blit(linebmp, screen, 0, 0, i*8, 8, 8, rows*8 - 8);
+            blit(target_bitmap, linebmp, i*8, 0, 0, 0, 8, rows*8 - 8);
+            blit(linebmp, target_bitmap, 0, 0, i*8, 8, 8, rows*8 - 8);
             
             if(activecol[i])
             {

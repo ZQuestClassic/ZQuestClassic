@@ -93,54 +93,55 @@ bool ZModule::init(bool d) //bool default
 	al_trace("The Current ZQuest Player Module is: %s\n",moduledata.module_name); 
 	if(!fileexists((char*)moduledata.module_name))
 	{
-		al_trace("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
+		Z_error("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 		return false;
-	}	
+	}
+	if(!d) return true;
+	//Switch to the module to load its config properties.
+	zc_push_config();
+	zc_config_file(moduledata.module_name);
 	
-	set_config_file(moduledata.module_name);
-	if ( d )
 	{
 		
 		//zcm path
-		set_config_file(moduledata.module_name); //Switch to the module to load its config properties.
 		//al_trace("Module name set to %s\n",moduledata.module_name);
 		
 		//Metadata
-		strcpy(moduledata.moduletitle,zc_get_config("METADATA","title",""));
-		strcpy(moduledata.moduleauthor,zc_get_config("METADATA","author",""));
-		strcpy(moduledata.moduleinfo0,zc_get_config("METADATA","info_0",""));
-		strcpy(moduledata.moduleinfo1,zc_get_config("METADATA","info_1",""));
-		strcpy(moduledata.moduleinfo2,zc_get_config("METADATA","info_2",""));
-		strcpy(moduledata.moduleinfo3,zc_get_config("METADATA","info_3",""));
-		strcpy(moduledata.moduleinfo4,zc_get_config("METADATA","info_4",""));
-		strcpy(moduledata.moduletimezone,zc_get_config("METADATA","timezone","GMT"));
-		//strcpy(moduledata.module_base_nsf,zc_get_config("METADATA","nsf",""));
-		moduledata.modver_1 = zc_get_config("METADATA","version_first",0);
-		moduledata.modver_2 = zc_get_config("METADATA","version_second",0);	
-		moduledata.modver_3 = zc_get_config("METADATA","version_third",0);
-		moduledata.modver_4 = zc_get_config("METADATA","version_fourth",0);
-		moduledata.modbuild = zc_get_config("METADATA","version_build",0);
-		moduledata.modbeta = zc_get_config("METADATA","version_beta",0);
-		moduledata.modmonth = zc_get_config("METADATA","version_month",0);
-		moduledata.modday = zc_get_config("METADATA","version_day",0);
-		moduledata.modyear = zc_get_config("METADATA","version_year",0);
-		moduledata.modhour = zc_get_config("METADATA","version_hour",0);
-		moduledata.modminute = zc_get_config("METADATA","version_minute",0); 
+		strcpy(moduledata.moduletitle,zc_get_config_basic("METADATA","title",""));
+		strcpy(moduledata.moduleauthor,zc_get_config_basic("METADATA","author",""));
+		strcpy(moduledata.moduleinfo0,zc_get_config_basic("METADATA","info_0",""));
+		strcpy(moduledata.moduleinfo1,zc_get_config_basic("METADATA","info_1",""));
+		strcpy(moduledata.moduleinfo2,zc_get_config_basic("METADATA","info_2",""));
+		strcpy(moduledata.moduleinfo3,zc_get_config_basic("METADATA","info_3",""));
+		strcpy(moduledata.moduleinfo4,zc_get_config_basic("METADATA","info_4",""));
+		strcpy(moduledata.moduletimezone,zc_get_config_basic("METADATA","timezone","GMT"));
+		//strcpy(moduledata.module_base_nsf,zc_get_config_basic("METADATA","nsf",""));
+		moduledata.modver_1 = zc_get_config_basic("METADATA","version_first",0);
+		moduledata.modver_2 = zc_get_config_basic("METADATA","version_second",0);	
+		moduledata.modver_3 = zc_get_config_basic("METADATA","version_third",0);
+		moduledata.modver_4 = zc_get_config_basic("METADATA","version_fourth",0);
+		moduledata.modbuild = zc_get_config_basic("METADATA","version_build",0);
+		moduledata.modbeta = zc_get_config_basic("METADATA","version_beta",0);
+		moduledata.modmonth = zc_get_config_basic("METADATA","version_month",0);
+		moduledata.modday = zc_get_config_basic("METADATA","version_day",0);
+		moduledata.modyear = zc_get_config_basic("METADATA","version_year",0);
+		moduledata.modhour = zc_get_config_basic("METADATA","version_hour",0);
+		moduledata.modminute = zc_get_config_basic("METADATA","version_minute",0); 
 		
 		//quests
 		
-		moduledata.old_quest_serial_flow = zc_get_config("QUESTS","quest_flow",1);
-		moduledata.max_quest_files = vbound(zc_get_config("QUESTS","num_quest_files",0),0,10);
-		strcpy(moduledata.quests[0],zc_get_config("QUESTS","first_qst","-"));
-		strcpy(moduledata.quests[1],zc_get_config("QUESTS","second_qst","-"));
-		strcpy(moduledata.quests[2],zc_get_config("QUESTS","third_qst","-"));
-		strcpy(moduledata.quests[3],zc_get_config("QUESTS","fourth_qst","-"));
-		strcpy(moduledata.quests[4],zc_get_config("QUESTS","fifth_qst","-"));
-		strcpy(moduledata.quests[5],zc_get_config("QUESTS","sixth_qst","-"));
-		strcpy(moduledata.quests[6],zc_get_config("QUESTS","seventh_qst","-"));
-		strcpy(moduledata.quests[7],zc_get_config("QUESTS","eighth_qst","-"));
-		strcpy(moduledata.quests[8],zc_get_config("QUESTS","ninth_qst","-"));
-		strcpy(moduledata.quests[9],zc_get_config("QUESTS","tenth_qst","-"));
+		moduledata.old_quest_serial_flow = zc_get_config_basic("QUESTS","quest_flow",1);
+		moduledata.max_quest_files = vbound(zc_get_config_basic("QUESTS","num_quest_files",0),0,10);
+		strcpy(moduledata.quests[0],zc_get_config_basic("QUESTS","first_qst","-"));
+		strcpy(moduledata.quests[1],zc_get_config_basic("QUESTS","second_qst","-"));
+		strcpy(moduledata.quests[2],zc_get_config_basic("QUESTS","third_qst","-"));
+		strcpy(moduledata.quests[3],zc_get_config_basic("QUESTS","fourth_qst","-"));
+		strcpy(moduledata.quests[4],zc_get_config_basic("QUESTS","fifth_qst","-"));
+		strcpy(moduledata.quests[5],zc_get_config_basic("QUESTS","sixth_qst","-"));
+		strcpy(moduledata.quests[6],zc_get_config_basic("QUESTS","seventh_qst","-"));
+		strcpy(moduledata.quests[7],zc_get_config_basic("QUESTS","eighth_qst","-"));
+		strcpy(moduledata.quests[8],zc_get_config_basic("QUESTS","ninth_qst","-"));
+		strcpy(moduledata.quests[9],zc_get_config_basic("QUESTS","tenth_qst","-"));
 
 #ifdef __EMSCRIPTEN__
 		strcpy(moduledata.quests[0],"_quests/7th/7th.qst");
@@ -158,15 +159,15 @@ bool ZModule::init(bool d) //bool default
 		
 		//quest skip names
 		moduledata.skipnames[0][0] = 0;
-		strcpy(moduledata.skipnames[1],zc_get_config("NAMEENTRY","second_qst_skip","-"));
-		strcpy(moduledata.skipnames[2],zc_get_config("NAMEENTRY","third_qst_skip","-"));
-		strcpy(moduledata.skipnames[3],zc_get_config("NAMEENTRY","fourth_qst_skip","-"));
-		strcpy(moduledata.skipnames[4],zc_get_config("NAMEENTRY","fifth_qst_skip","-"));
-		strcpy(moduledata.skipnames[5],zc_get_config("NAMEENTRY","sixth_qst_skip","-"));
-		strcpy(moduledata.skipnames[6],zc_get_config("NAMEENTRY","seventh_qst_skip","-"));
-		strcpy(moduledata.skipnames[7],zc_get_config("NAMEENTRY","eighth_qst_skip","-"));
-		strcpy(moduledata.skipnames[8],zc_get_config("NAMEENTRY","ninth_qst_skip","-"));
-		strcpy(moduledata.skipnames[9],zc_get_config("NAMEENTRY","tenth_qst_skip","-"));
+		strcpy(moduledata.skipnames[1],zc_get_config_basic("NAMEENTRY","second_qst_skip","-"));
+		strcpy(moduledata.skipnames[2],zc_get_config_basic("NAMEENTRY","third_qst_skip","-"));
+		strcpy(moduledata.skipnames[3],zc_get_config_basic("NAMEENTRY","fourth_qst_skip","-"));
+		strcpy(moduledata.skipnames[4],zc_get_config_basic("NAMEENTRY","fifth_qst_skip","-"));
+		strcpy(moduledata.skipnames[5],zc_get_config_basic("NAMEENTRY","sixth_qst_skip","-"));
+		strcpy(moduledata.skipnames[6],zc_get_config_basic("NAMEENTRY","seventh_qst_skip","-"));
+		strcpy(moduledata.skipnames[7],zc_get_config_basic("NAMEENTRY","eighth_qst_skip","-"));
+		strcpy(moduledata.skipnames[8],zc_get_config_basic("NAMEENTRY","ninth_qst_skip","-"));
+		strcpy(moduledata.skipnames[9],zc_get_config_basic("NAMEENTRY","tenth_qst_skip","-"));
 		for ( auto q = 0; q < 10; q++ )
 		{
 			if ( moduledata.skipnames[q][0] == '-' )
@@ -176,36 +177,36 @@ bool ZModule::init(bool d) //bool default
 		//Quest starting screens and DMaps
 	
 		//dmaps
-		moduledata.startingdmap[0] = zc_get_config("QUESTS","first_startdmap",0);
-		moduledata.startingdmap[1] = zc_get_config("QUESTS","second_startdmap",0);
-		moduledata.startingdmap[2] = zc_get_config("QUESTS","third_startdmap",0);
-		moduledata.startingdmap[3] = zc_get_config("QUESTS","fourth_startdmap",0);
-		moduledata.startingdmap[4] = zc_get_config("QUESTS","fifth_startdmap",0);
-		moduledata.startingdmap[5] = zc_get_config("QUESTS","sixth_startdmap",0);
-		moduledata.startingdmap[6] = zc_get_config("QUESTS","seventh_startdmap",0);
-		moduledata.startingdmap[7] = zc_get_config("QUESTS","eighth_startdmap",0);
-		moduledata.startingdmap[8] = zc_get_config("QUESTS","ninth_startdmap",0);
-		moduledata.startingdmap[9] = zc_get_config("QUESTS","tenth_startdmap",0);
+		moduledata.startingdmap[0] = zc_get_config_basic("QUESTS","first_startdmap",0);
+		moduledata.startingdmap[1] = zc_get_config_basic("QUESTS","second_startdmap",0);
+		moduledata.startingdmap[2] = zc_get_config_basic("QUESTS","third_startdmap",0);
+		moduledata.startingdmap[3] = zc_get_config_basic("QUESTS","fourth_startdmap",0);
+		moduledata.startingdmap[4] = zc_get_config_basic("QUESTS","fifth_startdmap",0);
+		moduledata.startingdmap[5] = zc_get_config_basic("QUESTS","sixth_startdmap",0);
+		moduledata.startingdmap[6] = zc_get_config_basic("QUESTS","seventh_startdmap",0);
+		moduledata.startingdmap[7] = zc_get_config_basic("QUESTS","eighth_startdmap",0);
+		moduledata.startingdmap[8] = zc_get_config_basic("QUESTS","ninth_startdmap",0);
+		moduledata.startingdmap[9] = zc_get_config_basic("QUESTS","tenth_startdmap",0);
 		//screens
-		moduledata.startingscreen[0] = zc_get_config("QUESTS","first_startscreen",0x77);
-		moduledata.startingscreen[1] = zc_get_config("QUESTS","second_startscreen",0x77);
-		moduledata.startingscreen[2] = zc_get_config("QUESTS","third_startscreen",0x77);
-		moduledata.startingscreen[3] = zc_get_config("QUESTS","fourth_startscreen",0x77);
-		moduledata.startingscreen[4] = zc_get_config("QUESTS","fifth_startscreen",0x77);
-		moduledata.startingscreen[5] = zc_get_config("QUESTS","sixth_startscreen",0x77);
-		moduledata.startingscreen[6] = zc_get_config("QUESTS","seventh_startscreen",0x77);
-		moduledata.startingscreen[7] = zc_get_config("QUESTS","eighth_startscreen",0x77);
-		moduledata.startingscreen[8] = zc_get_config("QUESTS","ninth_startscreen",0x77);
-		moduledata.startingscreen[9] = zc_get_config("QUESTS","tenth_startscreen",0x77);
+		moduledata.startingscreen[0] = zc_get_config_basic("QUESTS","first_startscreen",0x77);
+		moduledata.startingscreen[1] = zc_get_config_basic("QUESTS","second_startscreen",0x77);
+		moduledata.startingscreen[2] = zc_get_config_basic("QUESTS","third_startscreen",0x77);
+		moduledata.startingscreen[3] = zc_get_config_basic("QUESTS","fourth_startscreen",0x77);
+		moduledata.startingscreen[4] = zc_get_config_basic("QUESTS","fifth_startscreen",0x77);
+		moduledata.startingscreen[5] = zc_get_config_basic("QUESTS","sixth_startscreen",0x77);
+		moduledata.startingscreen[6] = zc_get_config_basic("QUESTS","seventh_startscreen",0x77);
+		moduledata.startingscreen[7] = zc_get_config_basic("QUESTS","eighth_startscreen",0x77);
+		moduledata.startingscreen[8] = zc_get_config_basic("QUESTS","ninth_startscreen",0x77);
+		moduledata.startingscreen[9] = zc_get_config_basic("QUESTS","tenth_startscreen",0x77);
 	
 		//name entry icons, tiles, and csets
 		for ( int32_t q = 0; q < sels_tile_LAST; q++ ) 
 		{
-			moduledata.select_screen_tiles[q] = zc_get_config("NAMEENTRY",select_screen_tile_cats[q],0);
+			moduledata.select_screen_tiles[q] = zc_get_config_basic("NAMEENTRY",select_screen_tile_cats[q],0);
 		}
 		for ( int32_t q = 0; q < sels_tile_cset_LAST; q++ ) 
 		{
-			moduledata.select_screen_tile_csets[q] = zc_get_config("NAMEENTRY",select_screen_tile_cset_cats[q],( ( q == 0 || q == sels_heart_tilettile_cset || q == sels_cusror_cset )  ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
+			moduledata.select_screen_tile_csets[q] = zc_get_config_basic("NAMEENTRY",select_screen_tile_cset_cats[q],( ( q == 0 || q == sels_heart_tilettile_cset || q == sels_cusror_cset )  ? 0 : 9 )); //the player icon csets are 9 by default, and the tile frame is 0
 		}
 		
 		//datafiles
@@ -214,72 +215,72 @@ bool ZModule::init(bool d) //bool default
 		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
 		
 		
-		strcpy(moduledata.datafiles[zelda_dat],zc_get_config("DATAFILES","zcplayer_datafile","zelda.dat"));
+		strcpy(moduledata.datafiles[zelda_dat],zc_get_config_basic("DATAFILES","zcplayer_datafile","zelda.dat"));
 		al_trace("Module zelda_dat set to %s\n",moduledata.datafiles[zelda_dat]);
-		strcpy(moduledata.datafiles[zquest_dat],zc_get_config("DATAFILES","zquest_datafile","zquest.dat"));
+		strcpy(moduledata.datafiles[zquest_dat],zc_get_config_basic("DATAFILES","zquest_datafile","zquest.dat"));
 		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
-		strcpy(moduledata.datafiles[fonts_dat],zc_get_config("DATAFILES","fonts_datafile","fonts.dat"));
+		strcpy(moduledata.datafiles[fonts_dat],zc_get_config_basic("DATAFILES","fonts_datafile","fonts.dat"));
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
-		strcpy(moduledata.datafiles[qst_dat],zc_get_config("DATAFILES","quest_template_datafile","qst.dat"));
+		strcpy(moduledata.datafiles[qst_dat],zc_get_config_basic("DATAFILES","quest_template_datafile","qst.dat"));
 		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
-		strcpy(moduledata.base_NSF_file,zc_get_config("DATAFILES","base_NSF_file","zelda.nsf"));
+		strcpy(moduledata.base_NSF_file,zc_get_config_basic("DATAFILES","base_NSF_file","zelda.nsf"));
 		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);
 		
-		moduledata.title_track = zc_get_config("DATAFILES","title_track",0);
-		moduledata.ending_track = zc_get_config("DATAFILES","ending_track",1);
-		moduledata.tf_track = zc_get_config("DATAFILES","tf_track",5);
-		moduledata.gameover_track = zc_get_config("DATAFILES","gameover_track",0);
-		moduledata.dungeon_track = zc_get_config("DATAFILES","dungeon_track",0);
-		moduledata.overworld_track = zc_get_config("DATAFILES","overworld_track",0);
-		moduledata.lastlevel_track = zc_get_config("DATAFILES","lastlevel_track",0);
+		moduledata.title_track = zc_get_config_basic("DATAFILES","title_track",0);
+		moduledata.ending_track = zc_get_config_basic("DATAFILES","ending_track",1);
+		moduledata.tf_track = zc_get_config_basic("DATAFILES","tf_track",5);
+		moduledata.gameover_track = zc_get_config_basic("DATAFILES","gameover_track",0);
+		moduledata.dungeon_track = zc_get_config_basic("DATAFILES","dungeon_track",0);
+		moduledata.overworld_track = zc_get_config_basic("DATAFILES","overworld_track",0);
+		moduledata.lastlevel_track = zc_get_config_basic("DATAFILES","lastlevel_track",0);
 		
-		strcpy(moduledata.copyright_strings[0],zc_get_config("DATAFILES","copy_string_0","1986 NINTENDO"));
+		strcpy(moduledata.copyright_strings[0],zc_get_config_basic("DATAFILES","copy_string_0","1986 NINTENDO"));
 		if( moduledata.copyright_strings[0][0] == '-' ) strcpy(moduledata.copyright_strings[0],"");
-		strcpy(moduledata.copyright_strings[1],zc_get_config("DATAFILES","copy_string_1"," AG"));
+		strcpy(moduledata.copyright_strings[1],zc_get_config_basic("DATAFILES","copy_string_1"," AG"));
 		if( moduledata.copyright_strings[1][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
 		//year
-		strcpy(moduledata.copyright_strings[2],zc_get_config("DATAFILES","copy_string_year",COPYRIGHT_YEAR));
+		strcpy(moduledata.copyright_strings[2],zc_get_config_basic("DATAFILES","copy_string_year",COPYRIGHT_YEAR));
 		if( moduledata.copyright_strings[2][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
 		
 		
-		moduledata.copyright_string_vars[titleScreen250+0] = zc_get_config("DATAFILES","cpystr_5frame_var_font",0);//zfont);
-		moduledata.copyright_string_vars[titleScreen250+1] = zc_get_config("DATAFILES","cpystr_5frame_var_x",80);
-		moduledata.copyright_string_vars[titleScreen250+2] = zc_get_config("DATAFILES","cpystr_5frame_var_y",134);
-		moduledata.copyright_string_vars[titleScreen250+3] = zc_get_config("DATAFILES","cpystr_5frame_var_col",255);
-		moduledata.copyright_string_vars[titleScreen250+4] = zc_get_config("DATAFILES","cpystr_5frame_var_sz",-1);
+		moduledata.copyright_string_vars[titleScreen250+0] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+1] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_x",80);
+		moduledata.copyright_string_vars[titleScreen250+2] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_y",134);
+		moduledata.copyright_string_vars[titleScreen250+3] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen250+4] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[titleScreen250+5] = zc_get_config("DATAFILES","cpystr_5frame_var_font2",0);//zfont);
-		moduledata.copyright_string_vars[titleScreen250+6] = zc_get_config("DATAFILES","cpystr_5frame_var_x2",80);
-		moduledata.copyright_string_vars[titleScreen250+7] = zc_get_config("DATAFILES","cpystr_5frame_var_y2",142);
-		moduledata.copyright_string_vars[titleScreen250+8] = zc_get_config("DATAFILES","cpystr_5frame_var_col2",255);
-		moduledata.copyright_string_vars[titleScreen250+9] = zc_get_config("DATAFILES","cpystr_5frame_var_sz2",-1);
+		moduledata.copyright_string_vars[titleScreen250+5] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+6] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_x2",80);
+		moduledata.copyright_string_vars[titleScreen250+7] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_y2",142);
+		moduledata.copyright_string_vars[titleScreen250+8] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen250+9] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_sz2",-1);
 		
-		moduledata.copyright_string_vars[titleScreen210+0] = zc_get_config("DATAFILES","cpystr_4frame_var_font",0);//zfont);
-		moduledata.copyright_string_vars[titleScreen210+1] = zc_get_config("DATAFILES","cpystr_4frame_var_x",46);
-		moduledata.copyright_string_vars[titleScreen210+2] = zc_get_config("DATAFILES","cpystr_4frame_var_y",138);
-		moduledata.copyright_string_vars[titleScreen210+3] = zc_get_config("DATAFILES","cpystr_4frame_var_col",255);
-		moduledata.copyright_string_vars[titleScreen210+4] = zc_get_config("DATAFILES","cpystr_4frame_var_sz",-1);
+		moduledata.copyright_string_vars[titleScreen210+0] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+1] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_x",46);
+		moduledata.copyright_string_vars[titleScreen210+2] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_y",138);
+		moduledata.copyright_string_vars[titleScreen210+3] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_col",255);
+		moduledata.copyright_string_vars[titleScreen210+4] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[titleScreen210+5] = zc_get_config("DATAFILES","cpystr_4frame_var_font2",0);//zfont);
-		moduledata.copyright_string_vars[titleScreen210+6] = zc_get_config("DATAFILES","cpystr_4frame_var_x2",46);
-		moduledata.copyright_string_vars[titleScreen210+7] = zc_get_config("DATAFILES","cpystr_4frame_var_y2",146);
-		moduledata.copyright_string_vars[titleScreen210+8] = zc_get_config("DATAFILES","cpystr_4frame_var_col2",255);
-		moduledata.copyright_string_vars[titleScreen210+9] = zc_get_config("DATAFILES","cpystr_4frame_var_sz2",-1);
+		moduledata.copyright_string_vars[titleScreen210+5] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+6] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_x2",46);
+		moduledata.copyright_string_vars[titleScreen210+7] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_y2",146);
+		moduledata.copyright_string_vars[titleScreen210+8] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_col2",255);
+		moduledata.copyright_string_vars[titleScreen210+9] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_sz2",-1);
 		
-		moduledata.copyright_string_vars[titleScreenMAIN+0] = zc_get_config("DATAFILES","cpystr_1frame_var_font",0);//zfont);
-		moduledata.copyright_string_vars[titleScreenMAIN+1] = zc_get_config("DATAFILES","cpystr_1frame_var_x",86);
-		moduledata.copyright_string_vars[titleScreenMAIN+2] = zc_get_config("DATAFILES","cpystr_1frame_var_y",128);
-		moduledata.copyright_string_vars[titleScreenMAIN+3] = zc_get_config("DATAFILES","cpystr_1frame_var_col",13);
-		moduledata.copyright_string_vars[titleScreenMAIN+4] = zc_get_config("DATAFILES","cpystr_1frame_var_sz",-1);
+		moduledata.copyright_string_vars[titleScreenMAIN+0] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+1] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_x",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+2] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_y",128);
+		moduledata.copyright_string_vars[titleScreenMAIN+3] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_col",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+4] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[titleScreenMAIN+5] = zc_get_config("DATAFILES","cpystr_1frame_var_font2",0);//zfont);
-		moduledata.copyright_string_vars[titleScreenMAIN+6] = zc_get_config("DATAFILES","cpystr_1frame_var_x2",86);
-		moduledata.copyright_string_vars[titleScreenMAIN+7] = zc_get_config("DATAFILES","cpystr_1frame_var_y2",136);
-		moduledata.copyright_string_vars[titleScreenMAIN+8] = zc_get_config("DATAFILES","cpystr_1frame_var_col2",13);
-		moduledata.copyright_string_vars[titleScreenMAIN+9] = zc_get_config("DATAFILES","cpystr_1frame_var_sz2",-1);
+		moduledata.copyright_string_vars[titleScreenMAIN+5] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+6] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_x2",86);
+		moduledata.copyright_string_vars[titleScreenMAIN+7] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_y2",136);
+		moduledata.copyright_string_vars[titleScreenMAIN+8] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_col2",13);
+		moduledata.copyright_string_vars[titleScreenMAIN+9] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_sz2",-1);
 		
-		moduledata.animate_NES_title =  zc_get_config("DATAFILES","disable_title_NES_animation",0);
+		moduledata.animate_NES_title =  zc_get_config_basic("DATAFILES","disable_title_NES_animation",0);
 		
 		static const char roomtype_cats[rMAX][256] =
 		{
@@ -297,7 +298,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < rMAX; q++ )
 		{
-			strcpy(moduledata.roomtype_names[q],zc_get_config("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
+			strcpy(moduledata.roomtype_names[q],zc_get_config_basic("ROOMTYPES",roomtype_cats[q],roomtype_defaults[q]));
 			//al_trace("Map Flag ID %d is: %s\n", q, moduledata.roomtype_names[q]);
 		}
 		static const char lweapon_cats[wIce+1][255]=
@@ -320,7 +321,7 @@ bool ZModule::init(bool d) //bool default
 		};
 		for ( int32_t q = 0; q < wIce+1; q++ )
 		{
-			strcpy(moduledata.player_weapon_names[q],zc_get_config("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
+			strcpy(moduledata.player_weapon_names[q],zc_get_config_basic("LWEAPONS",lweapon_cats[q],lweapon_default_names[q]));
 			//al_trace("LWeapon ID %d is: %s\n", q, moduledata.player_weapon_names[q]);
 			//al_trace("LWEAPONS %d is: %s\n", q, moduledata.player_weapon_names[q]);
 		}
@@ -349,11 +350,7 @@ bool ZModule::init(bool d) //bool default
 		
 	}
 	
-	
-	
-	zc_set_config_standard(); //shift back to the normal config file, when done
-	
-	//int32_t x = zc_get_config("zeldadx","gui_colorset",0);
-	//al_trace("Checking that we have reverted to zc.cfg: %d\n",x);
+	//shift back to the normal config file, when done
+	zc_pop_config();
 	return true;
 }

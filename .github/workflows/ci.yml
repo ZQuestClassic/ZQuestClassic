@@ -2,125 +2,123 @@ name: CI
 
 on:
   push:
+    branches-ignore:
+      - 'compare-baseline-*'
   pull_request:
 
+env:
+  PYTHONUNBUFFERED: '1'
+
 jobs:
-  compile-windows:
-    runs-on: windows-2022
+  test:
     strategy:
       matrix:
-        arch:
-          - x64
-          - win32
+        include:
+          - runs-on: windows-2022
+            arch: x64
+            compiler: msvc
+          - runs-on: windows-2022
+            arch: win32
+            compiler: msvc
+          - runs-on: macos-12
+            arch: intel
+            compiler: clang
+          - runs-on: ubuntu-22.04
+            arch: x64
+            compiler: clang
       fail-fast: false
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/test.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      arch: ${{ matrix.arch }}
+      compiler: ${{ matrix.compiler }}
+
+  compare:
+    needs: ["test"]
+    runs-on: ubuntu-latest
+    if: failure()
+    env:
+      REPLAY_FAILURE_DISCORD_WEBHOOK: ${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}
 
     steps:
-    - uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: ${{ matrix.arch }}
-
-    - name: git clone
-      uses: nschloe/action-cached-lfs-checkout@v1
-
-    - name: Install Dependencies
-      uses: crazy-max/ghaction-chocolatey@v1
-      with:
-        args: install .github/dependencies.config -y
-
-    - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - run: cmake . -A ${{ matrix.arch }}
-
-    # Build things individually just to have some separation in the GHA UI.
-    - run: cmake --build . --config Release --target zcsound
-    - run: cmake --build . --config Release --target zquest
-    - run: cmake --build . --config Release --target zelda
-    - run: cmake --build . --config Release --target zscript
-    - run: cmake --build . --config Release --target zlauncher
-
-    # Build anything else that may not be covered above.
-    - run: cmake --build . --config Release
-    
-    # Check ZScript
-    - run: ./buildpack.bat y
-      working-directory: output/_auto
-    - run: ./zscript.exe -input "include/std.zh" -unlinked
-      working-directory: output/_auto/buildpack
-    
-    # Run replay tests.
-    - run: python3 -Xutf8 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci windows
-      working-directory: output/_auto/buildpack
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: replays ${{ matrix.arch }}
-        path: |
-          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
-          ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
-
-  compile-mac:
-    runs-on: macos-12
-
-    steps:
-    - name: git clone
-      uses: nschloe/action-cached-lfs-checkout@v1
-    
-    - run: brew install ninja dylibbundler create-dmg
-    - name: Install Bison
-      run: |
-        wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-        tar -zxvf bison-3.6.tar.gz
-        cd bison-3.6
-        ./configure
-        make
-        sudo make install
-
-    - run: cp src/metadata/*.h.sig src/metadata/sigs/
-    - run: cmake -S . -B build -G 'Ninja Multi-Config' .
-
-    #Build
-    - run: cmake --build build --config Release
-    
-    # Check ZScript
-    - run: ./buildpack_osx.sh
-      working-directory: output/_auto
-    - run: ./zscript -input "include/std.zh" -unlinked
-      working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
-    
-    # Run replay tests.
-    - run: python3 ${{ github.workspace }}/tests/run_replay_tests.py --build_folder=. --retries=1 --ci osx
-      working-directory: output/_auto/zelda-classic-mac/ZeldaClassic.app/Contents/Resources
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: replays osx
-        path: |
-          ${{ github.workspace }}/tests/replays/*.zplay.roundtrip
-          ${{ github.workspace }}/tests/replays/*.zplay.unexpected*
-
-  compile-web:
-    runs-on: macos-12
-
-    steps:
-      - name: git clone
-        uses: actions/checkout@v2
-
-      - uses: mymindstorm/setup-emsdk@v11
+      - uses: actions/setup-python@v4
         with:
-          version: '3.1.24'
-          actions-cache-folder: 'emsdk-cache'
-      - run: brew install ninja
-      - name: Install Bison
-        run: |
-          wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-          tar -zxvf bison-3.6.tar.gz
-          cd bison-3.6
-          ./configure
-          make
-          sudo make install
+          python-version: '3.10' 
+      - run: pip install PyGithub requests discord.py
       - name: Install Node.js 16.x
         uses: actions/setup-node@v1
         with:
           node-version: 16.x
+      - name: git clone
+        uses: actions/checkout@v3
+
+      # TODO: there is no simple way to download just the "replay-*" artifacts,
+      # so currently this also downloads each large build artifact.
+      # https://github.com/actions/download-artifact/issues/6
+      - uses: actions/download-artifact@v3
+        with:
+          path: test-results
+
+      # TODO: instead of starting baseline workflow runs when all platforms finish,
+      # kick each off as necessary in `test.yml` and just poll for their completion here.
+      - name: Collect baseline
+        run: python3 tests/run_test_workflow.py --test_results test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+        id: collect-baseline
+      - name: Generate report
+        run: python3 tests/compare_replays.py --workflow_run ${{ steps.collect-baseline.outputs.baseline_run_id }} --local test-results --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+
+      - run: npx surge ${{ github.workspace }}/tests/compare-report zc-replay-compare-${{ github.run_id }}.surge.sh --token ${{ secrets.SURGE_TOKEN }}
+        name: Upload to https://zc-replay-compare-${{ github.run_id }}.surge.sh
+
+      - name: Discord notification
+        shell: python
+        run: |
+          import inspect
+          import discord
+
+          url = '${{ secrets.REPLAY_FAILURE_DISCORD_WEBHOOK }}'
+          ref_name = '${{ github.ref_name }}'
+          run_id = '${{ github.run_id }}'
+          repository = '${{ github.repository }}'
+          actor = '${{ github.actor }}'
+
+          content = inspect.cleandoc(f'''
+              Report: https://zc-replay-compare-{run_id}.surge.sh
+              CI: https://github.com/{repository}/actions/runs/{run_id}
+              Actor: {actor}
+          ''')
+
+          webhook = discord.SyncWebhook.from_url(url)
+          webhook.send(
+              content,
+              thread_name=f'Replay tests failed for {ref_name}',
+              wait=True,
+          )
+
+  compile-web:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: git clone
+        uses: actions/checkout@v3
+
+      - uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: "3.1.24"
+          actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
+
+      - run: sudo apt-get install ccache ninja-build flex bison
+
+      # Setup build cache via ccache.
+      - name: ccache cache files
+        uses: actions/cache@v3
+        with:
+          path: .ccache
+          key: web-ccache-${{ github.run_id }}
+          restore-keys: web-ccache-
+      - run: ccache -z
 
       - run: |
           git clone https://github.com/psi29a/unsf.git
@@ -130,7 +128,13 @@ jobs:
           echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
 
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
-      - run: bash build_emscripten.sh
+      - run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+      - run: bash scripts/build_emscripten.sh
+        env:
+          ZC_EMCC_CMAKE_EXTRA_FLAGS: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - run: ccache -s
       - uses: actions/upload-artifact@v3
         if: failure()
         with:

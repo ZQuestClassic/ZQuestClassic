@@ -47,11 +47,7 @@ using namespace util;
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
-//#ifdef _ZQUEST_SCALE_
-extern volatile int32_t myvsync;
-extern int32_t zqwin_scale;
 void update_hw_screen(bool force);
-//#endif
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 
@@ -1823,7 +1819,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if((lower_c >= 32) && (lower_c <= 255))
+			else if(lower_c >= 32)
 			{
 				if(multiselect)
 				{
@@ -2291,7 +2287,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
-			else if((lower_c >= 32) && (lower_c <= 255))
+			else if(lower_c >= 32)
 			{
 				if(multiselect)
 				{
@@ -2626,6 +2622,9 @@ int32_t jwin_numedit_swap_byte_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -2726,6 +2725,9 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -2880,6 +2882,9 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 4; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -3041,7 +3046,7 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
-		if(ntype >= nswapLDEC) //No '.' in int32_t modes
+		if(ntype >= nswapLDEC) //No '.' in long modes
 			c&=~255;
 		else
 		{
@@ -3148,6 +3153,178 @@ int32_t jwin_numedit_swap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
 	
 	return ret;
 }
+int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 7;
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+1;
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			v = atoi(str);
+			v *= 10000;
+			break;
+        case nswapHEX:
+			v = zc_xtoi(str);
+			v *= 10000;
+			break;
+	}
+	int32_t b;
+	if ( v > 2147480000 )
+		b=2147480000;
+	else if ( v < -2147480000 )
+		b=-2147480000;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				if(b < 0)
+					sprintf(str, "-%ld", abs(b/10000L));
+				else sprintf(str, "%ld", b/10000L);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%lX", abs(b/10000L));
+				else sprintf(str, "%lX", b/10000L);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		c&=~255; //no '.' in nodec version
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 7; //7 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 6; //6 digits max (incl '-')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!isxdigit(c&255))
+					c&=~255;
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
 int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	const size_t maxlen = 13;
@@ -3161,6 +3338,9 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	{
 		d->bg = 0;
 		swapbtn->d2 = 5; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
 		swapbtn->dp3 = (void*)d;
 	}
 	int32_t ret = D_O_K;
@@ -3337,7 +3517,7 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(msg==MSG_CHAR && ((c&255)=='.'))
 	{
-		if(ntype >= nswapLDEC) //No '.' in int32_t modes
+		if(ntype >= nswapLDEC) //No '.' in long modes
 			c&=~255;
 		else
 		{
@@ -3441,6 +3621,9 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	
 	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	if(msg==MSG_START)
+		tf_obj->refresh_cb_swap();
 	
 	return ret;
 }
@@ -5087,6 +5270,12 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
     
     get_menu_pos(m, c, &x, &y, &w);
     if ( m->bar ) { /* */ }
+
+	if (gui_menu_draw_menu_item) {
+      gui_menu_draw_menu_item(&m->menu[c], x, y, w, text_height(font)+4,
+			      m->bar, (c == m->sel) ? TRUE : FALSE);
+      return;
+   }
     
     rectfill(screen, x, y, x+w-1, y+h-1, bg);
     //   text_mode(-1);
@@ -5177,11 +5366,18 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
 static void draw_menu(MENU_INFO *m)
 {
     int32_t c;
-    
-    if(m->bar)
-        rectfill(screen, zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+m->w-1, screen->w), zc_min(m->y+m->h-1, screen->h), scheme[jcBOX]);
-    else
-        jwin_draw_win(screen, m->x, m->y, m->w, m->h, FR_WIN);
+
+	int w = m->w;
+	int h = m->h;
+
+	if (gui_menu_draw_menu)
+		gui_menu_draw_menu(m->x, m->y, m->w, m->h);
+	else {
+		if(m->bar)
+			rectfill(screen, zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+w-1, screen->w), zc_min(m->y+h-1, screen->h), scheme[jcBOX]);
+		else
+			jwin_draw_win(screen, m->x, m->y, w, h, FR_WIN);
+	}
         
     for(c=0; m->menu[c].text; c++)
         draw_menu_item(m, c);
@@ -5429,6 +5625,11 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
     
     do
     {
+		if(close_button_quit)
+		{
+			ret = -1;
+			goto getout;
+		}
         rest(1);
         old_sel = m.sel;
         
@@ -6084,13 +6285,14 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			
 			jwin_center_dialog(selcolor_dlg);
 			int32_t val = popup_zqdialog(selcolor_dlg, 3);
+			ret = D_REDRAW;
 			
 			set_palette(oldpal);
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;
 				GUI_EVENT(d, geCHANGE_VALUE);
-				ret = D_REDRAWME;
+				ret |= D_REDRAWME;
 			}
 			break;
 		}
@@ -6552,6 +6754,7 @@ static int32_t droplist(DIALOG *d)
     ListData *data = (ListData *)d->dp;
     int32_t d1 = d->d1;
     int32_t listsize, x, y, w, h, max_w;
+	auto oz = gui_mouse_z();
 
     data->listFunc(-1, &listsize);
     y = d->y + d->h;
@@ -6598,11 +6801,11 @@ static int32_t droplist(DIALOG *d)
     }*/
     if(popup_zqdialog(droplist_dlg,1)==1)
     {
-        position_mouse_z(0);
+		position_mouse_z(oz);
         return droplist_dlg[1].d1;
     }
     
-    position_mouse_z(0);
+	position_mouse_z(oz);
     return d1;
 }
 
@@ -6756,7 +6959,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				//Find a different indexing type in the strings?
 				if(!foundmatch)
 				{
-					char buf[6];
+					char buf[16];
 					if(num < 0) sprintf(buf, "(%04d)", num);
 					else sprintf(buf, "(%03d)", num);
 					std::string cmp = buf;

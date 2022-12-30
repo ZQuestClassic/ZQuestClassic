@@ -51,9 +51,26 @@ static const int32_t WARN_COLOR = CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx
 static const int32_t ERR_COLOR = CConsoleLoggerEx::COLOR_RED;
 static const int32_t INFO_COLOR = CConsoleLoggerEx::COLOR_WHITE;
 
+void _console_print(char const* str, int32_t code)
+{
+	if(console_path.size())
+	{
+		FILE *console=fopen(console_path.c_str(), "a");
+		if(ConsoleWrite)
+			fprintf(console, "%s", str);
+		else
+			fprintf(console, "%s\n", str);
+		fclose(console);
+	}
+	if(ConsoleWrite)
+	{
+		ConsoleWrite->write(&code, sizeof(int32_t));
+		ConsoleWrite->read(&code, sizeof(int32_t));
+	}
+	else printf("%s\n", str);
+}
 void zconsole_db(const char *format,...)
 {
-	zscript_had_warn_err = true;
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -68,22 +85,12 @@ void zconsole_db(const char *format,...)
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
-	if(console_path.size())
-	{
-		FILE *console=fopen(console_path.c_str(), "a");
-		if(ConsoleWrite)
-			fprintf(console, "%s", tmp);
-		else
-			fprintf(console, "%s\n", tmp);
-		fclose(console);
-	}
-	if(ConsoleWrite)
-	{
-		int32_t errorcode = ZC_CONSOLE_DB_CODE;
-		ConsoleWrite->write(&errorcode, sizeof(int32_t));
-		ConsoleWrite->read(&errorcode, sizeof(int32_t));
-	}
-	else printf("%s\n", tmp);
+	//}
+	_console_print(tmp, ZC_CONSOLE_DB_CODE);
+}
+void zconsole_db(std::string const& str)
+{
+	_console_print(str.c_str(), ZC_CONSOLE_DB_CODE);
 }
 void zconsole_warn(const char *format,...)
 {
@@ -102,22 +109,13 @@ void zconsole_warn(const char *format,...)
 	tmp[vbound(ret,0,1023)]=0;
 	
 	va_end(argList);
-	if(console_path.size())
-	{
-		FILE *console=fopen(console_path.c_str(), "a");
-		if(ConsoleWrite)
-			fprintf(console, "%s", tmp);
-		else
-			fprintf(console, "%s\n", tmp);
-		fclose(console);
-	}
-	if(ConsoleWrite)
-	{
-		int32_t errorcode = ZC_CONSOLE_WARN_CODE;
-		ConsoleWrite->write(&errorcode, sizeof(int32_t));
-		ConsoleWrite->read(&errorcode, sizeof(int32_t));
-	}
-	else printf("%s\n", tmp);
+	//}
+	_console_print(tmp, ZC_CONSOLE_WARN_CODE);
+}
+void zconsole_warn(std::string const& str)
+{
+	zscript_had_warn_err = true;
+	_console_print(str.c_str(), ZC_CONSOLE_WARN_CODE);
 }
 void zconsole_error(const char *format,...)
 {
@@ -137,22 +135,12 @@ void zconsole_error(const char *format,...)
 	
 	va_end(argList);
 	//}
-	if(console_path.size())
-	{
-		FILE *console=fopen(console_path.c_str(), "a");
-		if(ConsoleWrite)
-			fprintf(console, "%s", tmp);
-		else
-			fprintf(console, "%s\n", tmp);
-		fclose(console);
-	}
-	if(ConsoleWrite)
-	{
-		int32_t errorcode = ZC_CONSOLE_ERROR_CODE;
-		ConsoleWrite->write(&errorcode, sizeof(int32_t));
-		ConsoleWrite->read(&errorcode, sizeof(int32_t));
-	}
-	else printf("%s\n", tmp);
+	_console_print(tmp, ZC_CONSOLE_ERROR_CODE);
+}
+void zconsole_error(std::string const& str)
+{
+	zscript_had_warn_err = true;
+	_console_print(str.c_str(), ZC_CONSOLE_ERROR_CODE);
 }
 void zconsole_info(const char *format,...)
 {
@@ -171,22 +159,11 @@ void zconsole_info(const char *format,...)
 	
 	va_end(argList);
 	//}
-	if(console_path.size())
-	{
-		FILE *console=fopen(console_path.c_str(), "a");
-		if(ConsoleWrite)
-			fprintf(console, "%s", tmp);
-		else
-			fprintf(console, "%s\n", tmp);
-		fclose(console);
-	}
-	if(ConsoleWrite)
-	{
-		int32_t errorcode = ZC_CONSOLE_INFO_CODE;
-		ConsoleWrite->write(&errorcode, sizeof(int32_t));
-		ConsoleWrite->read(&errorcode, sizeof(int32_t));
-	}
-	else printf("%s\n", tmp);
+	_console_print(tmp, ZC_CONSOLE_INFO_CODE);
+}
+void zconsole_info(std::string const& str)
+{
+	_console_print(str.c_str(), ZC_CONSOLE_INFO_CODE);
 }
 
 static bool linked = true;
@@ -293,6 +270,12 @@ int32_t main(int32_t argc, char **argv)
 		console_path = argv[console_path_index + 1];
 	else console_path = "";
 	
+	int32_t zasm_out_index = used_switch(argc, argv, "-zasm");
+	bool zasm_out_append = used_switch(argc, argv, "-append");
+	string zasm_out = "";
+	if(zasm_out_index)
+		zasm_out = argv[zasm_out_index + 1];
+	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
 	if(allegro_init() != 0)
@@ -343,9 +326,8 @@ int32_t main(int32_t argc, char **argv)
 		cph->write(&syncthing, sizeof(int32_t));
 	}
 	
-	zc_set_config_standard();
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
-	char const* runstr = zc_get_config(zc_get_standard_config_name(),"Compiler","run_string","run");
+	char const* runstr = zc_get_config("Compiler","run_string","run");
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
@@ -395,9 +377,21 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 	}
+	if(!zasm_out.empty())
+	{
+		FILE *outfile = fopen(zasm_out.c_str(), zasm_out_append ? "a" : "w");
+		for(auto& p : result->theScripts)
+		{
+			disassembled_script_data const& data = p.second;
+			data.write(outfile,false,true);
+		}
+		fclose(outfile);
+	}
+	
 	if(cph) delete cph;
 	return res;
 }
 END_OF_MAIN()
 
-
+// TODO: make this not needed to compile...
+bool DragAspect = false;

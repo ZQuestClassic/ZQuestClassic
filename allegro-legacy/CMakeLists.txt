@@ -466,6 +466,11 @@ add_headers(allegro/inline   ${ALLEGRO_LEGACY_INCLUDE_ALLEGRO_LEGACY_INLINE_FILE
 add_headers(allegro/internal ${ALLEGRO_LEGACY_INCLUDE_ALLEGRO_LEGACY_INTERNAL_FILES})
 add_headers(allegro/platform ${ALLEGRO_LEGACY_INCLUDE_ALLEGRO_LEGACY_PLATFORM_FILES})
 
+# local edit
+if(ALLEGRO_LEGACY_CLOSE_THREADS)
+    add_definitions(-DALLEGRO_LEGACY_CLOSE_THREADS)
+endif()
+
 # Platform-specific top-level headers.
 if(ALLEGRO_LEGACY_LINUX)
     add_headers("" include/linalleg.h)
@@ -532,6 +537,20 @@ set_target_properties(allegro-legacy
     VERSION ${ALLEGRO_LEGACY_VERSION}
     SOVERSION ${ALLEGRO_LEGACY_SOVERSION}
     )
+
+# local edit
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    set_property(TARGET allegro-legacy
+        APPEND_STRING PROPERTY COMPILE_FLAGS "/O2"
+    )
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set_property(TARGET allegro-legacy
+        APPEND_STRING PROPERTY COMPILE_FLAGS "-O3"
+    )
+endif()
+
+STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
 
 # local edit
 if(APPLE)

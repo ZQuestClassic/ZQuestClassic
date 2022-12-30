@@ -34,31 +34,6 @@ char *palname_spaced(int32_t pal)
     return buf;
 }
 
-static bool isNextType(int32_t type)
-{
-	switch(type)
-	{
-		case cLIFTSLASHNEXT:
-		case cLIFTSLASHNEXTSPECITEM:
-		case cLIFTSLASHNEXTITEM:
-		case cDIGNEXT:
-		case cLIFTNEXT:
-		case cLIFTNEXTITEM:
-		case cLIFTNEXTSPECITEM:
-		case cSLASHNEXT:
-		case cBUSHNEXT:
-		case cTALLGRASSNEXT:
-		case cSLASHNEXTITEM:
-		case cSLASHNEXTTOUCHY:
-		case cSLASHNEXTITEMTOUCHY:
-		case cBUSHNEXTTOUCHY:
-		{
-			return true;
-		}
-		default: return false;
-	}
-}
-
 static int32_t usesSecretTriggerFlag(int32_t type)
 {
 	switch(type)
@@ -1008,10 +983,11 @@ void integrityCheckSaveCombo()
                 }
             }
             
-            for(int32_t c=0; c< MAXFFCS; c++)
+			word maxffc = ts->numFFC();
+            for(word c=0; c< maxffc; c++)
             {
                 // Checks both combos and secret combos.
-                if(integrityBoolSaveCombo(ts,combobuf[ts->ffdata[c]].type))
+                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].getData()].type))
                     case_found = true;
             }
             
@@ -2194,11 +2170,12 @@ void scriptLocationReport()
             sc=m*MAPSCRS+s;
             ts=&TheMaps[sc];
             
-            for(int32_t i=0; i<32; i++)
+			word c = ts->numFFC();
+            for(word i=0; i<c; i++)
             {
-                int32_t script = ts->ffscript[i];
+                int32_t script = ts->ffcs[i].script;
                 
-                if(!script || !ts->ffdata[i]) continue;
+                if(!script || !ts->ffcs[i].getData()) continue;
                 
                 tempnode=&(script_location_grid[script]);
                 
@@ -2216,7 +2193,7 @@ void scriptLocationReport()
                 newnode->pal=ts->color;
                 
                 for(int32_t j=0; j<8; ++j)
-                    newnode->d[j] = ts->initd[i][j];
+                    newnode->d[j] = ts->ffcs[i].initd[j];
                     
                 newnode->next=NULL;
                 tempnode->next=newnode;
@@ -2321,23 +2298,15 @@ void ComboLocationReport()
             int32_t ffuses = 0;
             bool undercombouses = false;
             
-            for(int32_t c=0; c<337; ++c)
+			word maxffc = ts->numFFC();
+			word max = zc_max(maxffc,176);
+            for(int32_t c=0; c<max; ++c)
             {
-                // Checks both combos and secret combos.
-                if(c<176)
-                {
-                    if(ts->data[c] == Combo) uses++;
-                }
-                else if(c<304)
-                {
-                    if(ts->secretcombo[c-176] == Combo) secretuses++;
-                }
-                else if(c<336)
-                {
-                    if(ts->ffdata[c-304] == Combo && Combo > 0) ffuses++;
-                }
-                else if(ts->undercombo == Combo) undercombouses = true;
+				if(c < 128 && ts->secretcombo[c] == Combo) secretuses++;
+				if(c < 176 && ts->data[c] == Combo) uses++;
+				if(c < maxffc && ts->ffcs[c].getData() == Combo && Combo > 0) ffuses++;
             }
+			if(ts->undercombo == Combo) undercombouses = true;
             
             if(uses > 0 || secretuses > 0 || ffuses > 0 || undercombouses)
             {
@@ -2514,7 +2483,7 @@ void ComboTypeLocationReport()
                     }
                     else if(c<336)
                     {
-                        if(combobuf[ts->ffdata[c-304]].type == Type) ffuses++;
+                        if(combobuf[ts->ffcs[c-304].getData()].type == Type) ffuses++;
                     }
                     else if(combobuf[ts->undercombo].type == Type) undercombouses = true;
                 }

@@ -358,28 +358,6 @@ struct script_bitmaps
 	}
 };
 
-#define MAX_USER_PALETTES 256
-
-struct user_palette
-{
-	PALETTE* u_pal;
-	byte colours[256];
-	int32_t current_id;
-};
-
-struct script_palettes
-{
-	int32_t num_active;
-	user_palette script_created_palettes[MAX_USER_PALETTES];
-};
-
-#define MAX_USER_RGB 256
-struct user_rgb
-{
-	RGB usr_rgb[256][MAX_USER_RGB];
-	int32_t current_active;
-};
-
 #define MAX_USER_FILES 256
 struct user_file
 {
@@ -643,6 +621,69 @@ struct user_rng
 	}
 };
 
+#define MAX_USER_PALDATAS 256
+#define PALDATA_NUM_COLORS 256
+#define PALDATA_BITSTREAM_SIZE 32
+struct user_paldata
+{
+	bool reserved;
+
+	RGB colors[PALDATA_NUM_COLORS];
+	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
+
+	int32_t owned_type, owned_i;
+
+	enum { CSPACE_RGB, CSPACE_CMYK, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
+
+	void clear()
+	{
+		for(int32_t q = 0; q < 32; ++q)
+			colors_used[q] = 0;
+		reserved = false;
+		owned_type = -1;
+		owned_i = 0;
+	}
+	
+	//Sets a color index on the paldata
+	void set_color(int32_t ind, RGB c)
+	{
+		c.r = vbound(c.r, 0, 63);
+		c.g = vbound(c.g, 0, 63);
+		c.b = vbound(c.b, 0, 63);
+		colors[ind] = c;
+		set_bit(colors_used, ind, true);
+	}
+
+	void load_cset(int32_t cset, int32_t dataset);
+	void write_cset(int32_t cset, int32_t dataset);
+	bool check_cset(int32_t cset, int32_t dataset);
+	void load_cset_main(int32_t cset);
+	void write_cset_main(int32_t cset);
+	bool check_cset_main(int32_t cset);
+	static RGB mix_color(RGB start, RGB end, double percent, int32_t color_space = CSPACE_RGB);
+	static void RGBTo(RGB c, double arr[], int32_t color_space);
+	static RGB RGBFrom(double arr[], int32_t color_space);
+	static double HueToRGB(double v1, double v2, double vH);
+	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
+	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
+
+	void own(int32_t type, int32_t i)
+	{
+		owned_type = type;
+		owned_i = i;
+	}
+	void own_clear(int32_t type, int32_t i)
+	{
+		if (owned_type == type && owned_i == i)
+			clear();
+	}
+	void own_clear_any()
+	{
+		if (owned_type != -1 || owned_i != 0)
+			clear();
+	}
+};
+
 //Module System.
 //Putting this here for now.
 #include "base/module.h"
@@ -880,6 +921,7 @@ void countGenScripts();
 void timeExitAllGenscript(byte exState);
 void throwGenScriptEvent(int32_t event);
 void load_genscript(const gamedata& gd);
+void load_genscript(const zinitdata& gd);
 void save_genscript(gamedata& gd);
 
 class FFScript
@@ -1030,18 +1072,22 @@ void do_xtoa();
 
 void do_tracebool(const bool v);
 void do_tracestring();
-void do_printf(const bool v);
-void do_sprintf(const bool v);
+void do_printf(const bool v, const bool varg);
+void do_sprintf(const bool v, const bool varg);
+void do_varg_max();
+void do_varg_min();
+void do_varg_choose();
 void do_breakpoint();
 void do_trace(bool v);
+void do_tracel(bool v);
 void do_tracenl();
 void do_cleartrace();
 bool print_ZASM;
 void do_tracetobase();
 void ZScriptConsole(bool open);
-void ZScriptConsole(int32_t attributes,const char *format,...);
+template <typename ...Params>
+void ZScriptConsole(int32_t attributes,const char *format, Params&&... params);
 void TraceScriptIDs(bool zasm_console = false);
-void ZScriptConsolePrint(int32_t colourformat, const char * const format,...);
 void ZASMPrint(bool open);
 void ZASMPrintCommand(const word scommand);
 void ZASMPrintVarSet(const int32_t arg, int32_t argval);
@@ -1067,11 +1113,13 @@ void user_dirs_init();
 void user_objects_init();
 void user_stacks_init();
 void user_rng_init();
+void user_paldata_init();
 int32_t get_free_file(bool skipError = false);
 int32_t get_free_directory(bool skipError = false);
 int32_t get_free_object(bool skipError = false);
 int32_t get_free_stack(bool skipError = false);
 int32_t get_free_rng(bool skipError = false);
+int32_t get_free_paldata(bool skipError = false);
 
 bool get_scriptfile_path(char* buf, const char* path);
 
@@ -1102,6 +1150,35 @@ void do_file_geterr();
 void do_loaddirectory();
 void do_loadstack();
 void do_loadrng();
+void do_create_paldata();
+void do_create_paldata_clr();
+void do_mix_clr();
+void do_create_rgb_hex();
+void do_create_rgb();
+void do_paldata_load_level();
+void do_paldata_load_sprite();
+void do_paldata_load_main();
+void do_paldata_load_cycle();
+void do_paldata_load_bitmap();
+void do_paldata_write_level();
+void do_paldata_write_levelcset();
+void do_paldata_write_sprite();
+void do_paldata_write_spritecset();
+void do_paldata_write_main();
+void do_paldata_write_maincset();
+void do_paldata_write_cycle();
+void do_paldata_write_cyclecset();
+void do_paldata_colorvalid();
+void do_paldata_getcolor();
+void do_paldata_setcolor();
+void do_paldata_clearcolor();
+void do_paldata_clearcset();
+int32_t do_paldata_getrgb(int32_t v);
+void do_paldata_setrgb(int32_t v, int32_t val);
+void do_paldata_mix();
+void do_paldata_mixcset();
+void do_paldata_copy();
+void do_paldata_copycset();
 void do_directory_get();
 void do_directory_reload();
 void do_directory_free();
@@ -1561,10 +1638,6 @@ static void set_screenlayermap(mapscr *m, int32_t d, int32_t value);
 static void set_screenlayerscreen(mapscr *m, int32_t d, int32_t value);
 static void set_screenpath(mapscr *m, int32_t d, int32_t value);
 static void set_screenwarpReturnX(mapscr *m, int32_t d, int32_t value);
-static void set_screenWidth(mapscr *m, int32_t value);
-static void set_screenHeight(mapscr *m, int32_t value);
-static void set_screenViewX(mapscr *m, int32_t value);
-static void set_screenViewY(mapscr *m, int32_t value);
 static void set_screenGuy(mapscr *m, int32_t value);
 static void set_screenString(mapscr *m, int32_t value);
 static void set_screenRoomtype(mapscr *m, int32_t value);
@@ -1574,8 +1647,6 @@ static void set_screenitem(mapscr *m, int32_t value);
 static void set_screenundercombo(mapscr *m, int32_t value);
 static void set_screenundercset(mapscr *m, int32_t value);
 static void set_screenatchall(mapscr *m, int32_t value);
-static int32_t get_screenWidth(mapscr *m);
-static int32_t get_screenHeight(mapscr *m);
 static void deallocateZScriptArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
@@ -1775,7 +1846,6 @@ static void setHeroBigHitbox(bool v);
 	static void getComboData_walk();
 	static void getComboData_type();
 	static void getComboData_csets();
-	static void getComboData_foo();
 	static void getComboData_frames();
 	static void getComboData_speed();
 	static void getComboData_nextcombo();
@@ -1860,7 +1930,6 @@ static void setHeroBigHitbox(bool v);
 	static void setComboData_walk();
 	static void setComboData_type();
 	static void setComboData_csets();
-	static void setComboData_foo();
 	static void setComboData_frames();
 	static void setComboData_speed();
 	static void setComboData_nextcombo();
@@ -2178,8 +2247,8 @@ enum __Error
     int32_t sid;
 };
 
-extern int32_t ffmisc[32][16];
-extern refInfo ffcScriptData[32];
+extern int32_t ffmisc[MAXFFCS][16];
+extern refInfo ffcScriptData[MAXFFCS];
 extern refInfo screenScriptData;
 extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale
@@ -2212,7 +2281,6 @@ int32_t get_screenpath(mapscr *m, int32_t d);
 int32_t get_screenwarpReturnX(mapscr *m, int32_t d);
 int32_t get_screenwarpReturnY(mapscr *m, int32_t d);
 
-int32_t get_screenViewX(mapscr *m);
 int32_t get_screenGuy(mapscr *m);
 int32_t get_screenString(mapscr *m);
 int32_t get_screenRoomtype(mapscr *m);
@@ -2237,7 +2305,6 @@ void do_getscreenUndercombo();
 void do_getscreenUnderCSet();
 void do_getscreenWidth();
 void do_getscreenHeight();
-void do_getscreenViewX();
 void do_getscreenGuy();
 void do_getscreenString();
 void do_getscreenRoomType();
@@ -3292,8 +3359,8 @@ enum ASM_DEFINE
 	ZCLASS_OWN,
 	STARTDESTRUCTOR,
 	ZCLASS_GLOBALIZE,
-	RESRVD_OP_EMILY07,
-	RESRVD_OP_EMILY08,
+	LOADD,
+	STORED,
 	RESRVD_OP_EMILY09,
 	RESRVD_OP_EMILY10,
 	RESRVD_OP_EMILY11,
@@ -3316,9 +3383,46 @@ enum ASM_DEFINE
 	RESRVD_OP_EMILY28,
 	RESRVD_OP_EMILY29,
 	RESRVD_OP_EMILY30,
+	
+	CREATEPALDATA,
+	CREATEPALDATACLR,
+	MIXCLR,
+	CREATERGBHEX,
+	CREATERGB,
+	PALDATALOADLEVEL,
+	PALDATALOADSPRITE,
+	PALDATALOADMAIN,
+	PALDATALOADCYCLE,
+	PALDATALOADBITMAP,
+	PALDATAWRITELEVEL,
+	PALDATAWRITELEVELCS,
+	PALDATAWRITESPRITE,
+	PALDATAWRITESPRITECS,
+	PALDATAWRITEMAIN,
+	PALDATAWRITEMAINCS,
+	PALDATAWRITECYCLE,
+	PALDATAWRITECYCLECS,
+	PALDATAVALIDCLR,
+	PALDATACLEARCLR,
+	PALDATACLEARCSET,
+	PALDATAMIX,
+	PALDATAMIXCS,
+	PALDATACOPY,
+	PALDATACOPYCSET,
+	PALDATAFREE,
+	PALDATAOWN,
+	MAXVARG,
+	MINVARG,
+	CHOOSEVARG,
+	PUSHVARGV,
+	PUSHVARGR,
+	PRINTFVARG,
+	SPRINTFVARG,
+	TRACELR,
+	WAITFRAMESR,
 	GETSCREENINDEXFORRPOS,
 	
-	NUMCOMMANDS           //0x01DC
+	NUMCOMMANDS           //0x01F8
 };
 
 
@@ -4841,10 +4945,10 @@ enum ASM_DEFINE
 #define COMBODLIFTHEIGHT        0x1481
 #define COMBODLIFTTIME          0x1482
 #define CLASS_THISKEY           0x1483
-#define RESRVD_VAR_EMILY01      0x1484
-#define RESRVD_VAR_EMILY02      0x1485
-#define RESRVD_VAR_EMILY03      0x1486
-#define RESRVD_VAR_EMILY04      0x1487
+#define ZELDABETATYPE           0x1484
+#define HEROCOYOTETIME          0x1485
+#define FFCLASTCHANGERX      0x1486
+#define FFCLASTCHANGERY      0x1487
 #define RESRVD_VAR_EMILY05      0x1488
 #define RESRVD_VAR_EMILY06      0x1489
 #define RESRVD_VAR_EMILY07      0x148A
@@ -4871,21 +4975,71 @@ enum ASM_DEFINE
 #define RESRVD_VAR_EMILY28      0x149F
 #define RESRVD_VAR_EMILY29      0x14A0
 #define RESRVD_VAR_EMILY30      0x14A1
-#define REGIONDD                0x14A2
-#define REGIONCD                0x14A3
-#define REGIONFD                0x14A4
-#define REGIONTD                0x14A5
-#define REGIONID                0x14A6
-#define REGIONSD                0x14A7
-#define REGIONED                0x14A8
-#define REGIONWORLDWIDTH        0x14A9
-#define REGIONWORLDHEIGHT       0x14AA
-#define REGIONSCREENWIDTH       0x14AB
-#define REGIONSCREENHEIGHT      0x14AC
 
-#define NUMVARIABLES         	0x14AD
+#define REFPALDATA 			    0x14A2
+
+#define PALDATACOLOR 		    0x14A3
+#define PALDATAR     		    0x14A4
+#define PALDATAG     		    0x14A5
+#define PALDATAB     		    0x14A6
+
+#define RESRVD_VAR_MOOSH01      0x14A7
+#define RESRVD_VAR_MOOSH02      0x14A8
+#define RESRVD_VAR_MOOSH03      0x14A9
+#define RESRVD_VAR_MOOSH04      0x14AA
+#define RESRVD_VAR_MOOSH05      0x14AB
+#define RESRVD_VAR_MOOSH06      0x14AC
+#define RESRVD_VAR_MOOSH07      0x14AD
+#define RESRVD_VAR_MOOSH08      0x14AE
+#define RESRVD_VAR_MOOSH09      0x14AF
+#define RESRVD_VAR_MOOSH10      0x14B0
+#define RESRVD_VAR_MOOSH11      0x14B1
+#define RESRVD_VAR_MOOSH12      0x14B2
+#define RESRVD_VAR_MOOSH13      0x14B3
+#define RESRVD_VAR_MOOSH14      0x14B4
+#define RESRVD_VAR_MOOSH15      0x14B5
+#define RESRVD_VAR_MOOSH16      0x14B6
+#define RESRVD_VAR_MOOSH17      0x14B7
+#define RESRVD_VAR_MOOSH18      0x14B8
+#define RESRVD_VAR_MOOSH19      0x14B9
+#define RESRVD_VAR_MOOSH20      0x14BA
+#define RESRVD_VAR_MOOSH21      0x14BB
+#define RESRVD_VAR_MOOSH22      0x14BC
+#define RESRVD_VAR_MOOSH23      0x14BD
+#define RESRVD_VAR_MOOSH24      0x14BE
+#define RESRVD_VAR_MOOSH25      0x14BF
+#define RESRVD_VAR_MOOSH26      0x14C0
+#define RESRVD_VAR_MOOSH27      0x14C1
+#define RESRVD_VAR_MOOSH28      0x14C2
+#define RESRVD_VAR_MOOSH29      0x14C3
+#define RESRVD_VAR_MOOSH30      0x14C4
+
+#define REGIONDD                0x14C5
+#define REGIONCD                0x14C6
+#define REGIONFD                0x14C7
+#define REGIONTD                0x14C8
+#define REGIONID                0x14C9
+#define REGIONSD                0x14CA
+#define REGIONED                0x14CB
+#define REGIONWORLDWIDTH        0x14CC
+#define REGIONWORLDHEIGHT       0x14CD
+#define REGIONSCREENWIDTH       0x14CE
+#define REGIONSCREENHEIGHT      0x14CF
+
+#define NUMVARIABLES         	0x14D0
 
 //} End variables
+
+//{ Start internal arrays
+
+#define INTARR_OFFS 65536
+#define INTARR_SCREEN_NPC       (65536+0)
+#define INTARR_SCREEN_ITEMSPR   (65536+1)
+#define INTARR_SCREEN_LWPN      (65536+2)
+#define INTARR_SCREEN_EWPN      (65536+3)
+#define INTARR_SCREEN_FFC       (65536+4)
+
+//} End internal arrays
 
 struct quad3Dstruct
 {

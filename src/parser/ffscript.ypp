@@ -144,6 +144,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token ZFLOAT
 %token ZCHAR
 %token ZLONG
+%token ZRGB
 %token BITMAP
 %token CHEAT
 %token COMBO
@@ -162,9 +163,9 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token NPC
 %token NPCDATA
 %token PALCYCLE
-%token PALETTE
+// %token PALETTE
 %token POND
-%token RGB
+// %token RGB
 %token SHOP
 %token SPRITE
 %token TUNE
@@ -183,6 +184,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token GENERICDATA
 %token PARTICLE
 %token DECORATION
+%token PALDATA
 
  // Syntax
 %token COMMA
@@ -190,6 +192,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token SEMICOLON
 %token SCOPERES
 %token COLON
+%token IN
 %token LPAREN
 %token RPAREN
 %token LBRACKET
@@ -554,6 +557,7 @@ DataType : ZCONST DataType {
 	| ZFLOAT {$$ = new ASTDataType(DataType::FLOAT, @$);}
 	| ZCHAR {$$ = new ASTDataType(DataType::CHAR, @$);}
 	| ZLONG {$$ = new ASTDataType(DataType::LONG, @$);}
+	| ZRGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
 	| BITMAP {$$ = new ASTDataType(DataType::BITMAP, @$);}
 	| CHEAT {$$ = new ASTDataType(DataType::CHEATS, @$);}
 	| COMBO {$$ = new ASTDataType(DataType::COMBOS, @$);}
@@ -572,9 +576,9 @@ DataType : ZCONST DataType {
 	| NPC {$$ = new ASTDataType(DataType::NPC, @$);}
 	| NPCDATA {$$ = new ASTDataType(DataType::NPCDATA, @$);}
 	| PALCYCLE {$$ = new ASTDataType(DataType::PALCYCLE, @$);}
-	| PALETTE {$$ = new ASTDataType(DataType::PALETTE, @$);}
+	// | PALETTE {$$ = new ASTDataType(DataType::PALETTE, @$);}
 	| POND {$$ = new ASTDataType(DataType::PONDS, @$);}
-	| RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
+	// | RGB {$$ = new ASTDataType(DataType::RGBDATA, @$);}
 	| SHOP {$$ = new ASTDataType(DataType::SHOPDATA, @$);}
 	| SPRITE {$$ = new ASTDataType(DataType::SPRITEDATA, @$);}
 	| FILE {$$ = new ASTDataType(DataType::FILE, @$);}
@@ -587,6 +591,7 @@ DataType : ZCONST DataType {
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
+	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}
 	//Typedef types
 	| Identifier_List {
 			ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
@@ -1469,6 +1474,11 @@ Statement_Switch_Cases :
 	;
 
 Statement_For :
+	Statement_For_Standard {$$ = $1;}
+	| Statement_For_Each {$$ = $1;}
+	;
+
+Statement_For_Standard :
 	FOR LPAREN
 		Statement_NoSemicolon SEMICOLON
 		Expression SEMICOLON
@@ -1479,19 +1489,72 @@ Statement_For :
 		ASTExpr* test = (ASTExpr*)$5;
 		ASTStmt* increment = (ASTExpr*)$7;
 		ASTStmt* body = (ASTStmt*)$9;
-		$$ = new ASTStmtFor(setup, test, increment, body, @$);
+		$$ = new ASTStmtFor(setup, test, increment, body, nullptr, @$);
+	} | FOR LPAREN
+		Statement_NoSemicolon SEMICOLON
+		Expression SEMICOLON
+		Statement_NoSemicolon RPAREN
+		Block_Statement ELSE Block_Statement
+	{
+		ASTStmt* setup = (ASTStmt*)$3;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTStmt* increment = (ASTExpr*)$7;
+		ASTStmt* body = (ASTStmt*)$9;
+		ASTBlock* elseStatement = (ASTBlock*)$11;
+		$$ = new ASTStmtFor(setup, test, increment, body, elseStatement, @$);
 	}
+	;
+
+Statement_For_Each :
+	FOR LPAREN Identifier Token_In Expression RPAREN
+		Block_Statement
+	{
+		ASTString* iden = (ASTString*)$3;
+		ASTExpr* expr = (ASTExpr*)$5;
+		ASTStmt* body = (ASTExpr*)$7;
+		
+		$$ = new ASTStmtForEach(iden->getValue(), expr, body, nullptr, @$);
+		delete iden;
+	}
+	| FOR LPAREN Identifier Token_In Expression RPAREN
+		Block_Statement ELSE Block_Statement
+	{
+		ASTString* iden = (ASTString*)$3;
+		ASTExpr* expr = (ASTExpr*)$5;
+		ASTStmt* body = (ASTExpr*)$7;
+		ASTStmt* elseblock = (ASTExpr*)$9;
+		
+		$$ = new ASTStmtForEach(iden->getValue(), expr, body, elseblock, @$);
+		delete iden;
+	}
+	;
+
+Token_In :
+	COLON {$$ = $1;}
+	| IN {$$ = $1;}
 	;
 
 Statement_While :
 	WHILE LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
-		$$ = new ASTStmtWhile(test, body, @$);}
+		$$ = new ASTStmtWhile(test, body, nullptr, @$);}
+	| WHILE LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$7;
+		$$ = new ASTStmtWhile(test, body, elseblock, @$);}
 	| UNTIL LPAREN Expression RPAREN Block_Statement {
 		ASTExpr* test = (ASTExpr*)$3;
 		ASTStmt* body = (ASTStmt*)$5;
-		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, @$);
+		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, nullptr, @$);
+		stmt->invert();
+		$$ = stmt;}
+	| UNTIL LPAREN Expression RPAREN Block_Statement ELSE Block_Statement {
+		ASTExpr* test = (ASTExpr*)$3;
+		ASTStmt* body = (ASTStmt*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$7;
+		ASTStmtWhile* stmt = new ASTStmtWhile(test, body, elseblock, @$);
 		stmt->invert();
 		$$ = stmt;}
 	;
@@ -1500,11 +1563,23 @@ Statement_Do :
 	DO Block_Statement WHILE LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
-		$$ = new ASTStmtDo(test, body, @$);}
+		$$ = new ASTStmtDo(test, body, nullptr, @$);}
+	| DO Block_Statement WHILE LPAREN Expression RPAREN ELSE Block_Statement {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$8;
+		$$ = new ASTStmtDo(test, body, elseblock, @$);}
 	| DO Block_Statement UNTIL LPAREN Expression RPAREN {
 		ASTStmt* body = (ASTStmt *)$2;
 		ASTExpr* test = (ASTExpr*)$5;
-		ASTStmtDo* stmt = new ASTStmtDo(test, body, @$);
+		ASTStmtDo* stmt = new ASTStmtDo(test, body, nullptr, @$);
+		stmt->invert();
+		$$ = stmt;}
+	| DO Block_Statement UNTIL LPAREN Expression RPAREN ELSE Block_Statement {
+		ASTStmt* body = (ASTStmt *)$2;
+		ASTExpr* test = (ASTExpr*)$5;
+		ASTBlock* elseblock = (ASTBlock*)$8;
+		ASTStmtDo* stmt = new ASTStmtDo(test, body, elseblock, @$);
 		stmt->invert();
 		$$ = stmt;}
 	;
@@ -2053,16 +2128,12 @@ Literal_Array_Body :
 
 /*        programs */
 
-static bool is_buffer_file = false;
 std::string yyerrstr(string const& msg, int32_t row, int32_t col, char const* txt)
 {
 	ostringstream out;
-	out << msg << " [";
-	if (is_buffer_file)
-		out << "ZQ_BUFFER ";
-	else
-		out << curfilename << " ";
-	out << "Line " << row << " "
+	out << msg << " ["
+	    << curfilename << " "
+	    << "Line " << row << " "
 	    << "Column " << col;
 	if (yyleng)
 	    out << " '" << txt << "'";
@@ -2096,7 +2167,6 @@ namespace ZScript
 {
 	std::unique_ptr<ASTFile> parseFile(std::string const& filename, bool is_buf)
 	{
-		is_buffer_file = is_buf;
 		std::unique_ptr<ASTFile> result;
 
 		// Reset lexer.
@@ -2110,7 +2180,7 @@ namespace ZScript
 			zconsole_error("Can't open input file");
 			return nullptr;
 		}
-		curfilename = filename;
+		curfilename = is_buf ? "ZQ_BUFFER" : filename;
 
 		// Run the parser.
 		if (yyparse(result))

@@ -14,7 +14,7 @@
 #ifndef _AGLOGO_H_
 #define _AGLOGO_H_
 
-extern DATAFILE* data;
+extern DATAFILE* datafile;
 
 int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy);
 #endif

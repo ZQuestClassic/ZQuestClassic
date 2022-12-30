@@ -119,6 +119,8 @@ X(	NameMismatchD,			S,	A,	E,	STR,	STR,	"Destructor name '%s' must match class na
 X(	DestructorParam,			S,	A,	E,	STR,	VOID,	"Destructor '~%s' must take no parameters."				)
 X(	NoClass,			S,	A,	E,	STR,	VOID,	"The class '%s' was not found to construct."				)
 X(	BadDelete,			T,	A,	E,	VOID,	VOID,	"'delete' may only be used on objects of classes."								)
+X(	DeprecatedWarn,			S,	A,	W,	STR,	STR,	"%s '%s' is deprecated, and should not be used."								)
+X(	DeprecatedError,			S,	A,	E,	STR,	STR,	"%s '%s' is deprecated, and cannot be used due to current compiler settings."								)
 
 
 #undef STR

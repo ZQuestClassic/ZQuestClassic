@@ -36,13 +36,18 @@ private:
 		OPT_DISABLE_COMPILE_CONSOLE,
 		OPT_SKIP_LAYER_WARNING,
 		OPT_NUMERICAL_FLAG_LIST,
+		OPT_SAVEDRAGRESIZE,
+		OPT_DRAGASPECT,
+		OPT_SAVEWINPOS,
 		//
 		OPT_MAX
 	};
 	int32_t opts[OPT_MAX];
+	bool opt_changed[OPT_MAX];
 	GUI::ListData sfx_list;
 	void loadOptions();
 	void saveOptions();
+	void saveOption(int ind);
 };
 
 #endif

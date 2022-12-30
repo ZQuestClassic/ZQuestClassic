@@ -31,19 +31,23 @@ AL_LEGACY_FUNC(void, all_render_a5_bitmap, (BITMAP * bp, ALLEGRO_BITMAP * a5bp))
 AL_LEGACY_FUNC(void, all_render_screen, (void));
 AL_LEGACY_FUNC(void, all_disable_threaded_display, (void));
 // local edit
-AL_LEGACY_FUNC(void, all_mark_screen_dirty, (void));
+AL_LEGACY_FUNC(void, all_process_display_events, ());
 AL_LEGACY_FUNC(void, all_set_scale, (int scale));
+AL_LEGACY_FUNC(void, all_set_force_integer_scale, (bool force));
 AL_LEGACY_FUNC(int, all_get_scale, (void));
 AL_LEGACY_FUNC(void, all_get_display_transform, (int* out_native_width, int* out_native_height, int* out_display_width, int* out_display_height, int* out_offset_x, int* out_offset_y, double* out_scale));
 AL_LEGACY_FUNC(void, all_set_fullscreen_flag, (bool fullscreen));
 AL_LEGACY_FUNC(bool, all_get_fullscreen_flag, (void));
 AL_LEGACY_FUNC(void, all_set_display_flags, (int flags));
 AL_LEGACY_FUNC(int, all_get_display_flags, (void));
+AL_LEGACY_FUNC(void, all_set_bitmap_flags, (int flags));
+AL_LEGACY_FUNC(int, all_get_bitmap_flags, (void));
 
 // local edit
 AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
-AL_LEGACY_FUNC(void, all_mouse_is_ready, (bool));
+AL_LEGACY_FUNC(void, all_should_show_mouse, (bool));
+AL_LEGACY_FUNC(void, all_set_transparent_palette_index, (int));
 AL_LEGACY_FUNC(void, all_keyboard_queue_register_event_source, (ALLEGRO_EVENT_SOURCE *));
 
 #ifdef __cplusplus

@@ -45,7 +45,7 @@ extern bool is_large;
 extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
-extern int32_t zq_scale, TileProtection;
+extern int32_t TileProtection;
 
 extern uint8_t PreFillTileEditorPage, PreFillComboEditorPage, PreFillMapTilePage;
 extern int32_t DMapEditorLastMaptileUsed;
@@ -140,10 +140,9 @@ extern int32_t  Flip,Combo,CSet,First[3];
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
-extern bool Vsync, ShowFPS;
+extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
-extern int32_t BrushPosition;                                   //top left, middle, bottom right, etc.
 extern int32_t FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
 
 extern int32_t OpenLastQuest;                                   //makes the program reopen the quest that was
@@ -161,7 +160,6 @@ extern int32_t ImportMapBias;                                   //tells what has
 extern int32_t BrushWidth, BrushHeight;
 extern bool quit,saved;
 extern bool __debug;
-extern byte LayerMask[2];                                   //determines which layers are on or off.  0-15
 extern int32_t LayerMaskInt[7];
 extern int32_t CurrentLayer;
 extern int32_t DuplicateAction[4];
@@ -197,6 +195,8 @@ extern bool rules_done, save_rules;
 extern bool init_done, save_init;
 extern bool doorcombos_done, save_doorcombos;
 
+extern int32_t window_width, window_height;
+void set_last_timed_save(char const* buf);
 void loadlvlpal(int32_t level);
 
 bool get_debug();
@@ -407,7 +407,6 @@ int32_t onTemplates();
 extern BITMAP *pic;
 extern PALETTE picpal;
 extern int32_t  pblack,pwhite;
-extern double scale;
 extern bool vp_showpal, vp_showsize, vp_center;
 
 INLINE int32_t pal_sum(RGB p)
@@ -771,6 +770,7 @@ enum
 	cmdTestQuest,
     cmdRedo,
 	cmdDrawingModePool,
+	cmdQRSearch,
     cmdMAX
 };
 
@@ -1168,7 +1168,6 @@ extern volatile int32_t myvsync;
 void myvsync_callback();
 void fps_callback();
 
-extern BITMAP *hw_screen;
 extern bool update_hw_pal;
 void update_hw_screen(bool force);
 

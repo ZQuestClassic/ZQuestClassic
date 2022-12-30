@@ -656,7 +656,6 @@ void ending()
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
-	show_saving(scrollbuf);
 	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
@@ -758,7 +757,7 @@ void ending_scripted()
     
 	//  setPackfilePassword(datapwd);
 	load_quest(game);
-	strcpy(game->title,QHeader.title);
+	strncpy(game->title,QHeader.title, sizeof(QHeader.title)-1);
 	//  setPackfilePassword(NULL);
 	game->save_user_objects();
 	saves[currgame] = *game;
@@ -782,7 +781,6 @@ void ending_scripted()
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
 	game->set_hasplayed(false);
-	show_saving(scrollbuf);
 	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }

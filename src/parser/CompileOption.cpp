@@ -124,6 +124,7 @@ void CompileOption::initialize()
 	}
 	//Update default values, always:
 	updateDefaults();
+	flush_config_file();
 }
 
 void CompileOption::updateDefaults()
@@ -138,9 +139,20 @@ void CompileOption::updateDefaults()
 				break;
 			
 			case OPTTYPE_CONFIG:
+			{
 				int32_t val = zc_get_config("Compiler", entries[i].name.c_str(), int32_t(entries[i].defaultValue/10000L));
-				entries[i].defaultValue = val * 10000L;
+				if(!zc_cfg_defaulted)
+					entries[i].defaultValue = val * 10000L;
 				break;
+			}
+			
+			case OPTTYPE_CONFIG_FLOAT:
+			{
+				double val = zc_get_config("Compiler", entries[i].name.c_str(), entries[i].defaultValue/10000.0);
+				if(!zc_cfg_defaulted)
+					entries[i].defaultValue = val * 10000L;
+				break;
+			}
 		}
 	}
 }

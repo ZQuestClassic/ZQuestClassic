@@ -18,7 +18,7 @@ namespace GUI
 TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1),
 	fixedPlaces(4), valSet(false), forced_length(false), swap_type_start(0),
-	last_applied_vis(true)
+	last_applied_vis(true), last_applied_dis(false)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_lpx);
@@ -84,6 +84,13 @@ void TextField::setVal(int32_t val)
 					buf[q] = 0;
 			}
 			break;
+		case type::SWAP_ZSINT_NO_DEC:
+		{
+			auto v = val / 10000;
+			startVal = v*10000;
+			sprintf(buf,"%d",v);
+			break;
+		}
 		case type::FIXED_DECIMAL:
 		{
 			int32_t scale = int32_t(pow(10, fixedPlaces));
@@ -121,10 +128,17 @@ void TextField::setVal(int32_t val)
 			}
 			break;
 		case type::SWAP_BYTE:
+			s = 3;
+			break;
 		case type::SWAP_SSHORT:
+			s = 6;
+			break;
 		case type::SWAP_ZSINT:
 		case type::SWAP_ZSINT2:
 			s = 12;
+			break;
+		case type::SWAP_ZSINT_NO_DEC:
+			s = 7;
 			break;
 	}
 	check_len(s);
@@ -190,6 +204,7 @@ int32_t TextField::getVal()
 		case type::SWAP_BYTE:
 		case type::SWAP_SSHORT:
 		case type::SWAP_ZSINT:
+		case type::SWAP_ZSINT_NO_DEC:
 		case type::SWAP_ZSINT2:
 			if(alDialog)
 				value = alDialog->fg;
@@ -239,6 +254,20 @@ int32_t TextField::getSwapType()
 }
 void TextField::setSwapType(int32_t newtype)
 {
+	switch(tfType)
+	{
+		case type::SWAP_BYTE:
+		case type::SWAP_SSHORT:
+		case type::SWAP_ZSINT_NO_DEC:
+			if(unsigned(newtype) > 1) newtype = 0;
+			break;
+		case type::SWAP_ZSINT:
+			if(unsigned(newtype) > 3) newtype = 0;
+			break;
+		case type::SWAP_ZSINT2:
+			if(unsigned(newtype) > 4) newtype = 0;
+			break;
+	}
 	swap_type_start = newtype;
 	if(swapBtnDialog)
 	{
@@ -370,18 +399,32 @@ void TextField::realize(DialogRunner& runner)
 		{
 			case type::SWAP_BYTE:
 				proc = newGUIProc<jwin_numedit_swap_byte_proc>;
+				if(unsigned(swap_type_start) > 1)
+					swap_type_start = 0;
 				break;
 
 			case type::SWAP_SSHORT:
 				proc = newGUIProc<jwin_numedit_swap_sshort_proc>;
+				if(unsigned(swap_type_start) > 1)
+					swap_type_start = 0;
 				break;
 
 			case type::SWAP_ZSINT:
 				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
+				if(unsigned(swap_type_start) > 3)
+					swap_type_start = 0;
+				break;
+			
+			case type::SWAP_ZSINT_NO_DEC:
+				proc = newGUIProc<jwin_numedit_swap_zsint_nodec_proc>;
+				if(unsigned(swap_type_start) > 1)
+					swap_type_start = 0;
 				break;
 
 			case type::SWAP_ZSINT2:
 				proc = newGUIProc<jwin_numedit_swap_zsint2_proc>;
+				if(unsigned(swap_type_start) > 4)
+					swap_type_start = 0;
 				hascb = true;
 				break;
 
@@ -478,10 +521,16 @@ void TextField::applyVisibility(bool visible)
 
 void TextField::applyDisabled(bool dis)
 {
+	last_applied_dis = dis;
+	bool sw4 = false;
 	Widget::applyDisabled(dis);
-	if(alDialog) alDialog.applyDisabled(dis);
+	if(swap_cb)
+	{
+		sw4 = getSwapType() == nswapBOOL;
+		swap_cb->applyDisabled(!sw4 || dis);
+	}
+	if(alDialog) alDialog.applyDisabled(sw4 || dis);
 	if(swapBtnDialog) swapBtnDialog.applyDisabled(dis);
-	if(swap_cb) swap_cb->applyDisabled(dis);
 	applyReadableFont();
 }
 
@@ -567,6 +616,7 @@ void TextField::refresh_cb_swap()
 	if(swap_cb)
 	{
 		applyVisibility(last_applied_vis);
+		applyDisabled(last_applied_dis);
 		pendDraw();
 	}
 }

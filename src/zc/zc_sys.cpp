@@ -26,11 +26,12 @@
 #include "base/zc_alleg.h"
 #include "gamedata.h"
 #include "zc_init.h"
-//#include "zquest.h"
 #include "init.h"
 #include "replay.h"
 #include "cheats.h"
+#include "render.h"
 #include "base/zc_math.h"
+#include "base/zapp.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -85,7 +86,6 @@ extern particle_list particles;
 extern int32_t loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
-byte disable_direct_updating;
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
@@ -133,8 +133,6 @@ char qst_files_path[2048];
 #define getcwd _getcwd
 #endif
 
-bool rF12();
-bool rF5();
 bool rF11();
 bool rI();
 bool rQ();
@@ -269,6 +267,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /**********************************/
 
 static char cfg_sect[] = "zeldadx"; //We need to rename this.
+static char ctrl_sect[] = "Controls";
+static char sfx_sect[] = "Volume";
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
@@ -277,76 +277,74 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 
 void load_game_configs()
 {
-	//set_config_file("zc.cfg"); //shift back when done
-	//load the module
-	strcpy(moduledata.module_name,get_config_string("ZCMODULE",qst_module_name,"classic.zmod"));
-	joystick_index = zc_get_config(cfg_sect,"joystick_index",0);
-	js_stick_1_x_stick = zc_get_config(cfg_sect,"js_stick_1_x_stick",0);
-	js_stick_1_x_axis = zc_get_config(cfg_sect,"js_stick_1_x_axis",0);
-	js_stick_1_x_offset = zc_get_config(cfg_sect,"js_stick_1_x_offset",0) ? 128 : 0;
-	js_stick_1_y_stick = zc_get_config(cfg_sect,"js_stick_1_y_stick",0);
-	js_stick_1_y_axis = zc_get_config(cfg_sect,"js_stick_1_y_axis",1);
-	js_stick_1_y_offset = zc_get_config(cfg_sect,"js_stick_1_y_offset",0) ? 128 : 0;
-	js_stick_2_x_stick = zc_get_config(cfg_sect,"js_stick_2_x_stick",1);
-	js_stick_2_x_axis = zc_get_config(cfg_sect,"js_stick_2_x_axis",0);
-	js_stick_2_x_offset = zc_get_config(cfg_sect,"js_stick_2_x_offset",0) ? 128 : 0;
-	js_stick_2_y_stick = zc_get_config(cfg_sect,"js_stick_2_y_stick",1);
-	js_stick_2_y_axis = zc_get_config(cfg_sect,"js_stick_2_y_axis",1);
-	js_stick_2_y_offset = zc_get_config(cfg_sect,"js_stick_2_y_offset",0) ? 128 : 0;
-	analog_movement = (zc_get_config(cfg_sect,"analog_movement",1));
+	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
+	joystick_index = zc_get_config(ctrl_sect,"joystick_index",0);
+	js_stick_1_x_stick = zc_get_config(ctrl_sect,"js_stick_1_x_stick",0);
+	js_stick_1_x_axis = zc_get_config(ctrl_sect,"js_stick_1_x_axis",0);
+	js_stick_1_x_offset = zc_get_config(ctrl_sect,"js_stick_1_x_offset",0) ? 128 : 0;
+	js_stick_1_y_stick = zc_get_config(ctrl_sect,"js_stick_1_y_stick",0);
+	js_stick_1_y_axis = zc_get_config(ctrl_sect,"js_stick_1_y_axis",1);
+	js_stick_1_y_offset = zc_get_config(ctrl_sect,"js_stick_1_y_offset",0) ? 128 : 0;
+	js_stick_2_x_stick = zc_get_config(ctrl_sect,"js_stick_2_x_stick",1);
+	js_stick_2_x_axis = zc_get_config(ctrl_sect,"js_stick_2_x_axis",0);
+	js_stick_2_x_offset = zc_get_config(ctrl_sect,"js_stick_2_x_offset",0) ? 128 : 0;
+	js_stick_2_y_stick = zc_get_config(ctrl_sect,"js_stick_2_y_stick",1);
+	js_stick_2_y_axis = zc_get_config(ctrl_sect,"js_stick_2_y_axis",1);
+	js_stick_2_y_offset = zc_get_config(ctrl_sect,"js_stick_2_y_offset",0) ? 128 : 0;
+	analog_movement = (zc_get_config(ctrl_sect,"analog_movement",1));
    
 	//cheat modifier keya
-	cheat_modifier_keys[0] = zc_get_config(cfg_sect,"key_cheatmod_a1",KEY_LSHIFT);
-	cheat_modifier_keys[1] = zc_get_config(cfg_sect,"key_cheatmod_a2",0);
-	cheat_modifier_keys[2] = zc_get_config(cfg_sect,"key_cheatmod_b1",KEY_RSHIFT);
-	cheat_modifier_keys[3] = zc_get_config(cfg_sect,"key_cheatmod_b2",0);
+	cheat_modifier_keys[0] = zc_get_config(ctrl_sect,"key_cheatmod_a1",KEY_ZC_LCONTROL);
+	cheat_modifier_keys[1] = zc_get_config(ctrl_sect,"key_cheatmod_a2",0);
+	cheat_modifier_keys[2] = zc_get_config(ctrl_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
+	cheat_modifier_keys[3] = zc_get_config(ctrl_sect,"key_cheatmod_b2",0);
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
 	   
-	Akey = zc_get_config(cfg_sect,"key_a",KEY_ALT);
-	Bkey = zc_get_config(cfg_sect,"key_b",KEY_ZC_LCONTROL);
-	Skey = zc_get_config(cfg_sect,"key_s",KEY_ENTER);
-	Lkey = zc_get_config(cfg_sect,"key_l",KEY_Z);
-	Rkey = zc_get_config(cfg_sect,"key_r",KEY_X);
-	Pkey = zc_get_config(cfg_sect,"key_p",KEY_SPACE);
-	Exkey1 = zc_get_config(cfg_sect,"key_ex1",KEY_Q);
-	Exkey2 = zc_get_config(cfg_sect,"key_ex2",KEY_W);
-	Exkey3 = zc_get_config(cfg_sect,"key_ex3",KEY_A);
-	Exkey4 = zc_get_config(cfg_sect,"key_ex4",KEY_S);
+	Akey = zc_get_config(ctrl_sect,"key_a",KEY_Z);
+	Bkey = zc_get_config(ctrl_sect,"key_b",KEY_X);
+	Skey = zc_get_config(ctrl_sect,"key_s",KEY_ENTER);
+	Lkey = zc_get_config(ctrl_sect,"key_l",KEY_Q);
+	Rkey = zc_get_config(ctrl_sect,"key_r",KEY_W);
+	Pkey = zc_get_config(ctrl_sect,"key_p",KEY_SPACE);
+	Exkey1 = zc_get_config(ctrl_sect,"key_ex1",KEY_A);
+	Exkey2 = zc_get_config(ctrl_sect,"key_ex2",KEY_S);
+	Exkey3 = zc_get_config(ctrl_sect,"key_ex3",KEY_D);
+	Exkey4 = zc_get_config(ctrl_sect,"key_ex4",KEY_C);
    
-	DUkey = zc_get_config(cfg_sect,"key_up",   KEY_UP);
-	DDkey = zc_get_config(cfg_sect,"key_down", KEY_DOWN);
-	DLkey = zc_get_config(cfg_sect,"key_left", KEY_LEFT);
-	DRkey = zc_get_config(cfg_sect,"key_right",KEY_RIGHT);
+	DUkey = zc_get_config(ctrl_sect,"key_up",   KEY_UP);
+	DDkey = zc_get_config(ctrl_sect,"key_down", KEY_DOWN);
+	DLkey = zc_get_config(ctrl_sect,"key_left", KEY_LEFT);
+	DRkey = zc_get_config(ctrl_sect,"key_right",KEY_RIGHT);
    
-	Abtn = zc_get_config(cfg_sect,"btn_a",2);
-	Bbtn = zc_get_config(cfg_sect,"btn_b",1);
-	Sbtn = zc_get_config(cfg_sect,"btn_s",10);
-	Mbtn = zc_get_config(cfg_sect,"btn_m",9);
-	Lbtn = zc_get_config(cfg_sect,"btn_l",5);
-	Rbtn = zc_get_config(cfg_sect,"btn_r",6);
-	Pbtn = zc_get_config(cfg_sect,"btn_p",12);
-	Exbtn1 = zc_get_config(cfg_sect,"btn_ex1",7);
-	Exbtn2 = zc_get_config(cfg_sect,"btn_ex2",8);
-	Exbtn3 = zc_get_config(cfg_sect,"btn_ex3",4);
-	Exbtn4 = zc_get_config(cfg_sect,"btn_ex4",3);
+	Abtn = zc_get_config(ctrl_sect,"btn_a",2);
+	Bbtn = zc_get_config(ctrl_sect,"btn_b",1);
+	Sbtn = zc_get_config(ctrl_sect,"btn_s",10);
+	Mbtn = zc_get_config(ctrl_sect,"btn_m",9);
+	Lbtn = zc_get_config(ctrl_sect,"btn_l",5);
+	Rbtn = zc_get_config(ctrl_sect,"btn_r",6);
+	Pbtn = zc_get_config(ctrl_sect,"btn_p",12);
+	Exbtn1 = zc_get_config(ctrl_sect,"btn_ex1",7);
+	Exbtn2 = zc_get_config(ctrl_sect,"btn_ex2",8);
+	Exbtn3 = zc_get_config(ctrl_sect,"btn_ex3",4);
+	Exbtn4 = zc_get_config(ctrl_sect,"btn_ex4",3);
    
-	DUbtn = zc_get_config(cfg_sect,"btn_up",13);
-	DDbtn = zc_get_config(cfg_sect,"btn_down",14);
-	DLbtn = zc_get_config(cfg_sect,"btn_left",15);
-	DRbtn = zc_get_config(cfg_sect,"btn_right",16);
+	DUbtn = zc_get_config(ctrl_sect,"btn_up",13);
+	DDbtn = zc_get_config(ctrl_sect,"btn_down",14);
+	DLbtn = zc_get_config(ctrl_sect,"btn_left",15);
+	DRbtn = zc_get_config(ctrl_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
 
-	digi_volume = zc_get_config(cfg_sect,"digi",248);
-	midi_volume = zc_get_config(cfg_sect,"midi",255);
-	sfx_volume = zc_get_config(cfg_sect,"sfx",248);
-	emusic_volume = zc_get_config(cfg_sect,"emusic",248);
-	pan_style = zc_get_config(cfg_sect,"pan",1);
+	digi_volume = zc_get_config(sfx_sect,"digi",248);
+	midi_volume = zc_get_config(sfx_sect,"midi",255);
+	sfx_volume = zc_get_config(sfx_sect,"sfx",248);
+	emusic_volume = zc_get_config(sfx_sect,"emusic",248);
+	pan_style = zc_get_config(sfx_sect,"pan",1);
 	// 1 <= zcmusic_bufsz <= 128
-	zcmusic_bufsz = vbound(zc_get_config(cfg_sect,"zcmusic_bufsz",64),1,128);
-	volkeys = zc_get_config(cfg_sect,"volkeys",0)!=0;
+	zcmusic_bufsz = vbound(zc_get_config(sfx_sect,"zcmusic_bufsz",64),1,128);
+	volkeys = zc_get_config(sfx_sect,"volkeys",0)!=0;
 	zc_vsync = zc_get_config(cfg_sect,"vsync",0);
 	Throttlefps = zc_get_config(cfg_sect,"throttlefps",1)!=0;
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
@@ -363,19 +361,15 @@ void load_game_configs()
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
    
 	//default - scale x2, 640 x 480
-	window_width = resx = zc_get_config(cfg_sect,"resx",640);
-	window_height = resy = zc_get_config(cfg_sect,"resy",480);
-	//screen_scale = zc_get_config(cfg_sect,"screen_scale",2);
+	window_width = resx = zc_get_config(cfg_sect,"window_width",640);
+	window_height = resy = zc_get_config(cfg_sect,"window_height",480);
+	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
+	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
+	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
    
-	scanlines = zc_get_config(cfg_sect,"scanlines",0)!=0;
 	loadlast = zc_get_config(cfg_sect,"load_last",0);
    
-// Fullscreen may be problematic on newer windows systems.
-#ifdef _WIN32
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
-#else
-	fullscreen = zc_get_config(cfg_sect,"fullscreen",1);
-#endif
    
 	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
    
@@ -390,15 +384,10 @@ void load_game_configs()
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
    
 #ifdef _WIN32
-	use_debug_console = (byte) zc_get_config(cfg_sect,"debug_console",0);
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
-	console_on_top = (byte) zc_get_config("CONSOLE","console_on_top",0);
 	//use_win7_keyboard_fix = (byte) zc_get_config(cfg_sect,"use_win7_key_fix",0);
 	use_win32_proc = (byte) zc_get_config(cfg_sect,"zc_win_proc_fix",0); //buggy
-   
-	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
    
 	// This one's for Aero
 	use_dwm_flush = (byte) zc_get_config("zeldadx","use_dwm_flush",0);
@@ -407,14 +396,14 @@ void load_game_configs()
 	midi_patch_fix = (byte) zc_get_config("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
-	use_debug_console = false;//(byte) zc_get_config(cfg_sect,"debug_console",0);
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
+	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
 
-	char* default_path = "";
-	strcpy(qstdir,get_config_string(cfg_sect,qst_dir_name,default_path));
+	char const* default_path = "";
+	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,default_path));
    
 	if(strlen(qstdir)==0)
 	{
@@ -434,145 +423,106 @@ void load_game_configs()
 	ss_speed = vbound(zc_get_config(cfg_sect,"ss_speed",2), 0, 6);
 	ss_density = vbound(zc_get_config(cfg_sect,"ss_density",3), 0, 6);
 	heart_beep = zc_get_config(cfg_sect,"heart_beep",1)!=0;
-	gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
+	//gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
 	sfxdat = zc_get_config(cfg_sect,"use_sfx_dat",1);
-	fullscreen = zc_get_config(cfg_sect,"fullscreen",1);
+	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
 	use_save_indicator = zc_get_config(cfg_sect,"save_indicator",0);
 	zc_192b163_warp_compatibility = zc_get_config(cfg_sect,"zc_192b163_warp_compatibility",0);
+}
+
+void save_control_configs(bool kb)
+{
+	if(kb)
+	{
+		zc_set_config(ctrl_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
+		zc_set_config(ctrl_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
+		zc_set_config(ctrl_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
+		zc_set_config(ctrl_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
+		
+		if (!replay_is_replaying())
+		{
+			zc_set_config(ctrl_sect,"key_a",Akey);
+			zc_set_config(ctrl_sect,"key_b",Bkey);
+			zc_set_config(ctrl_sect,"key_s",Skey);
+			zc_set_config(ctrl_sect,"key_l",Lkey);
+			zc_set_config(ctrl_sect,"key_r",Rkey);
+			zc_set_config(ctrl_sect,"key_p",Pkey);
+			zc_set_config(ctrl_sect,"key_ex1",Exkey1);
+			zc_set_config(ctrl_sect,"key_ex2",Exkey2);
+			zc_set_config(ctrl_sect,"key_ex3",Exkey3);
+			zc_set_config(ctrl_sect,"key_ex4",Exkey4);
+			zc_set_config(ctrl_sect,"key_up",   DUkey);
+			zc_set_config(ctrl_sect,"key_down", DDkey);
+			zc_set_config(ctrl_sect,"key_left", DLkey);
+			zc_set_config(ctrl_sect,"key_right",DRkey);
+		}
+	}
+	else
+	{
+		zc_set_config(ctrl_sect,"joystick_index",joystick_index);
+		zc_set_config(ctrl_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
+		zc_set_config(ctrl_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
+		zc_set_config(ctrl_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
+		zc_set_config(ctrl_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
+		zc_set_config(ctrl_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
+		zc_set_config(ctrl_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
+		zc_set_config(ctrl_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
+		zc_set_config(ctrl_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
+		zc_set_config(ctrl_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
+		zc_set_config(ctrl_sect,"analog_movement",analog_movement);
+		
+		zc_set_config(ctrl_sect,"btn_a",Abtn);
+		zc_set_config(ctrl_sect,"btn_b",Bbtn);
+		zc_set_config(ctrl_sect,"btn_s",Sbtn);
+		zc_set_config(ctrl_sect,"btn_m",Mbtn);
+		zc_set_config(ctrl_sect,"btn_l",Lbtn);
+		zc_set_config(ctrl_sect,"btn_r",Rbtn);
+		zc_set_config(ctrl_sect,"btn_p",Pbtn);
+		zc_set_config(ctrl_sect,"btn_ex1",Exbtn1);
+		zc_set_config(ctrl_sect,"btn_ex2",Exbtn2);
+		zc_set_config(ctrl_sect,"btn_ex3",Exbtn3);
+		zc_set_config(ctrl_sect,"btn_ex4",Exbtn4);
+		
+		zc_set_config(ctrl_sect,"btn_up",DUbtn);
+		zc_set_config(ctrl_sect,"btn_down",DDbtn);
+		zc_set_config(ctrl_sect,"btn_left",DLbtn);
+		zc_set_config(ctrl_sect,"btn_right",DRbtn);
+	}
 }
 
 void save_game_configs()
 {
 	packfile_password("");
- 
-	set_config_string("ZCMODULE",qst_module_name,moduledata.module_name);
 	
-	set_config_int(cfg_sect,"joystick_index",joystick_index);
-	set_config_int(cfg_sect,"js_stick_1_x_stick",js_stick_1_x_stick);
-	set_config_int(cfg_sect,"js_stick_1_x_axis",js_stick_1_x_axis);
-	set_config_int(cfg_sect,"js_stick_1_x_offset",js_stick_1_x_offset ? 1 : 0);
-	set_config_int(cfg_sect,"js_stick_1_y_stick",js_stick_1_y_stick);
-	set_config_int(cfg_sect,"js_stick_1_y_axis",js_stick_1_y_axis);
-	set_config_int(cfg_sect,"js_stick_1_y_offset",js_stick_1_y_offset ? 1 : 0);
-	set_config_int(cfg_sect,"js_stick_2_x_stick",js_stick_2_x_stick);
-	set_config_int(cfg_sect,"js_stick_2_x_axis",js_stick_2_x_axis);
-	set_config_int(cfg_sect,"js_stick_2_x_offset",js_stick_2_x_offset ? 1 : 0);
-	set_config_int(cfg_sect,"js_stick_2_y_stick",js_stick_2_y_stick);
-	set_config_int(cfg_sect,"js_stick_2_y_axis",js_stick_2_y_axis);
-	set_config_int(cfg_sect,"js_stick_2_y_offset",js_stick_2_y_offset ? 1 : 0);
-	set_config_int(cfg_sect,"analog_movement",analog_movement);
+	zc_set_config("ZCMODULE",qst_module_name,moduledata.module_name);
 	
-	 //cheat modifier keya
-   
-	set_config_int(cfg_sect,"key_cheatmod_a1",cheat_modifier_keys[0]);
-	set_config_int(cfg_sect,"key_cheatmod_a2",cheat_modifier_keys[1]);
-	set_config_int(cfg_sect,"key_cheatmod_b1",cheat_modifier_keys[2]);
-	set_config_int(cfg_sect,"key_cheatmod_b2",cheat_modifier_keys[3]);
-   
-   
-   
-   
-	set_config_int(cfg_sect,"key_a",Akey);
-	set_config_int(cfg_sect,"key_b",Bkey);
-	set_config_int(cfg_sect,"key_s",Skey);
-	set_config_int(cfg_sect,"key_l",Lkey);
-	set_config_int(cfg_sect,"key_r",Rkey);
-	set_config_int(cfg_sect,"key_p",Pkey);
-	set_config_int(cfg_sect,"key_ex1",Exkey1);
-	set_config_int(cfg_sect,"key_ex2",Exkey2);
-	set_config_int(cfg_sect,"key_ex3",Exkey3);
-	set_config_int(cfg_sect,"key_ex4",Exkey4);
-   
-	set_config_int(cfg_sect,"key_up",   DUkey);
-	set_config_int(cfg_sect,"key_down", DDkey);
-	set_config_int(cfg_sect,"key_left", DLkey);
-	set_config_int(cfg_sect,"key_right",DRkey);
-   
-	set_config_int(cfg_sect,"btn_a",Abtn);
-	set_config_int(cfg_sect,"btn_b",Bbtn);
-	set_config_int(cfg_sect,"btn_s",Sbtn);
-	set_config_int(cfg_sect,"btn_m",Mbtn);
-	set_config_int(cfg_sect,"btn_l",Lbtn);
-	set_config_int(cfg_sect,"btn_r",Rbtn);
-	set_config_int(cfg_sect,"btn_p",Pbtn);
-	set_config_int(cfg_sect,"btn_ex1",Exbtn1);
-	set_config_int(cfg_sect,"btn_ex2",Exbtn2);
-	set_config_int(cfg_sect,"btn_ex3",Exbtn3);
-	set_config_int(cfg_sect,"btn_ex4",Exbtn4);
-   
-	set_config_int(cfg_sect,"btn_up",DUbtn);
-	set_config_int(cfg_sect,"btn_down",DDbtn);
-	set_config_int(cfg_sect,"btn_left",DLbtn);
-	set_config_int(cfg_sect,"btn_right",DRbtn);
+	if (all_get_display() && !all_get_fullscreen_flag()&& SaveWinPos)
+	{
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		zc_set_config(cfg_sect,"window_x",o_window_x);
+		zc_set_config(cfg_sect,"window_y",o_window_y);
+	}
 	
-	set_config_int(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
-   
-	set_config_int(cfg_sect,"digi",digi_volume);
-	set_config_int(cfg_sect,"midi",midi_volume);
-	set_config_int(cfg_sect,"sfx",sfx_volume);
-	set_config_int(cfg_sect,"emusic",emusic_volume);
-	set_config_int(cfg_sect,"pan",pan_style);
-	set_config_int(cfg_sect,"zcmusic_bufsz",zcmusic_bufsz);
-	set_config_int(cfg_sect,"volkeys",(int32_t)volkeys);
-	set_config_int(cfg_sect,"vsync",zc_vsync);
-	set_config_int(cfg_sect,"throttlefps", (int32_t)Throttlefps);
-	set_config_int(cfg_sect,"translayers",(int32_t)TransLayers);
-	set_config_int(cfg_sect,"snapshot_format",SnapshotFormat);
-	set_config_int(cfg_sect,"name_entry_mode",NameEntryMode);
-	set_config_int(cfg_sect,"showfps",(int32_t)ShowFPS);
-	set_config_int(cfg_sect,"fastquit",(int32_t)NESquit);
-	set_config_int(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
-	set_config_int(cfg_sect,"title",title_version);
-	//set_config_int(cfg_sect,"lister_pattern_matching",abc_patternmatch);  //Enable once there is a GUI way to toggle this. 
-   
+	if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize)
+	{
+		double monitor_scale = zc_get_monitor_scale();
+		window_width = al_get_display_width(all_get_display()) / monitor_scale;
+		window_height = al_get_display_height(all_get_display()) / monitor_scale;
+		zc_set_config(cfg_sect,"window_width",window_width);
+		zc_set_config(cfg_sect,"window_height",window_height);
+	}
 	
-   
-	set_config_int(cfg_sect,"resx",window_width);
-	set_config_int(cfg_sect,"resy",window_height);
-   
-	//sbig depricated as of 2.5 RC3. handled exclusively by resx, resy now.
-	//set_config_int(cfg_sect,"screen_scale",screen_scale);
-	//set_config_int(cfg_sect,"sbig",sbig);
-	//set_config_int(cfg_sect,"sbig2",sbig2);
-   
-	set_config_int(cfg_sect,"scanlines",scanlines);
-	set_config_int(cfg_sect,"load_last",loadlast);
+	zc_set_config(cfg_sect,"load_last",loadlast);
 	chop_path(qstdir);
-	set_config_string(cfg_sect,qst_dir_name,qstdir);
-	set_config_string("SAVEFILE","save_filename",save_file_name);
-	set_config_int(cfg_sect,"ss_enable",ss_enable);
-	set_config_int(cfg_sect,"ss_after",ss_after);
-	set_config_int(cfg_sect,"ss_speed",ss_speed);
-	set_config_int(cfg_sect,"ss_density",ss_density);
-	set_config_int(cfg_sect,"heart_beep",heart_beep);
-	set_config_int(cfg_sect,"gui_colorset",gui_colorset);
-	set_config_int(cfg_sect,"use_sfx_dat",sfxdat);
-	set_config_int(cfg_sect,"fullscreen",fullscreen);
-	set_config_int(cfg_sect,"color_depth",zc_color_depth);
-	set_config_int(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
-	set_config_int(cfg_sect,"force_exit",forceExit);
-   
-#ifdef _WIN32
-	set_config_int(cfg_sect,"debug_console",use_debug_console);
-	set_config_int("CONSOLE","print_ZASM",zasm_debugger);
-	set_config_int("CONSOLE","ZScript_Debugger",zscript_debugger);
-	set_config_int("CONSOLE","console_on_top",console_on_top);
-	//set_config_int(cfg_sect,"use_win7_key_fix",use_win7_keyboard_fix);
-	set_config_int(cfg_sect,"zc_win_proc_fix",use_win32_proc);
-	set_config_int("graphics","disable_direct_updating",disable_direct_updating);
-	set_config_int("zeldadx","use_dwm_flush",use_dwm_flush);
-	set_config_int("zeldadx","midi_patch_fix",midi_patch_fix);
-	set_config_int("CONSOLE","monochrome_debuggers",monochrome_console);
-	set_config_int("zeldadx","debug_console",zconsole);
-#endif
-   
-#ifdef ALLEGRO_LINUX
-	set_config_string("sound","patches",samplepath); // set to sample sound path set for DIGMIDI driver in Linux ~ Takuya
-#endif
-   
-	set_config_int(cfg_sect,"save_indicator",use_save_indicator);
-	set_config_int(cfg_sect,"zc_192b163_warp_compatibility",zc_192b163_warp_compatibility);
-   
+	zc_set_config(cfg_sect,qst_dir_name,qstdir);
+	zc_set_config("SAVEFILE","save_filename",save_file_name);
+	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
+	zc_set_config(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
+	
 	flush_config_file();
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
@@ -644,87 +594,6 @@ void dump_pal(BITMAP *dest)
 		rectfill(dest,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
 }
 
-void show_paused(BITMAP *target)
-{
-	//  return;
-	char buf[7] = "PAUSED";
-	
-	for(int32_t i=0; buf[i]!=0; i++)
-		buf[i]+=0x60;
-		
-	//  text_mode(-1);
-	if(sbig)
-	{
-		int32_t x = scrx+40-((screen_scale-1)*120);
-		int32_t y = scry+224+((screen_scale-1)*104);
-		textout_ex(target,zfont,buf,x,y,-1,-1);
-	}
-	else
-		textout_ex(target,zfont,buf,scrx+40,scry+224,-1,-1);
-}
-
-void show_fps(BITMAP *target)
-{
-	char buf[50];
-	
-	//  text_mode(-1);
-	sprintf(buf,"%2d/60",lastfps);
-	
-	//  sprintf(buf,"%d/%u/%f/%u",lastfps,int32_t(avgfps),avgfps,fps_secs);
-	for(int32_t i=0; buf[i]!=0; i++)
-		if(buf[i]!=' ')
-			buf[i]+=0x60;
-			
-	if(sbig)
-	{
-		int32_t x = scrx+40-((screen_scale-1)*120);
-		int32_t y = scry+216+((screen_scale-1)*104);
-		textout_ex(target,zfont,buf,x,y,-1,-1);
-		// textout_ex(target,zfont,buf,scrx+40-120,scry+216+104,-1,-1);
-	}
-	else
-	{
-		textout_ex(target,zfont,buf,scrx+40,scry+216,-1,-1);
-	}
-}
-
-void show_saving(BITMAP *target)
-{
-	if(!use_save_indicator)
-		return;
-	
-	char buf[10] = "SAVING...";
-	
-	for(int32_t i=0; buf[i]!=0; i++)
-		buf[i]+=0x60;
-		
-	if(sbig)
-	{
-		int32_t x = scrx+200+((screen_scale-1)*120);
-		int32_t y = scry+224+((screen_scale-1)*104);
-		textout_ex(target,zfont,buf,x,y,-1,-1);
-	}
-	else
-		textout_ex(target,zfont,buf,scrx+200,scry+224,-1,-1);
-}
-
-void show_replay_controls(BITMAP *target)
-{
-	if (!replay_is_replaying())
-		return;
-	
-	std::string text = replay_get_buttons_string();
-		
-	if(sbig)
-	{
-		int32_t x = scrx+140+((screen_scale-1)*120);
-		int32_t y = scry+224+((screen_scale-1)*104);
-		textout_ex(target,zfont,text.c_str(),x,y,-1,0);
-	}
-	else
-		textout_ex(target,zfont,text.c_str(),scrx+140,scry+224,-1,0);
-}
-
 //----------------------------------------------------------------
 
 //Handles converting the mouse sprite from the .dat file
@@ -733,7 +602,7 @@ void load_mouse()
 	system_pal();
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? get_config_float("zeldadx","cursor_scale_large",1.5) : get_config_float("zeldadx","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zeldadx","cursor_scale_large",1.5) : zc_get_config("zeldadx","cursor_scale_small",1))),16,80);
 	for(int32_t j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
@@ -744,7 +613,7 @@ void load_mouse()
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
 		clear_bitmap(subbmp);
-		blit((BITMAP*)data[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
+		blit((BITMAP*)datafile[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
 		for(int32_t x = 0; x < 16; ++x)
 		{
 			for(int32_t y = 0; y < 16; ++y)
@@ -776,6 +645,12 @@ void load_mouse()
 		destroy_bitmap(subbmp);
 	}
 	set_mouse_sprite(zcmouse[0]);
+	
+	// Must attempt to show cursor for allegro 5 to render it with the associated palette.
+	set_palette(*hw_palette);
+	show_mouse(screen);
+	show_mouse(NULL);
+
 	unscare_mouse();
 	game_pal();
 }
@@ -796,7 +671,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	set_mouse_sprite(zcmouse[0]);
 	
 	for(int32_t i=240; i<256; i++)
-		RAMpal[i]=((RGB*)data[PAL_GUI].dat)[i];
+		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
 		
 	set_palette(RAMpal);
 	clear_to_color(screen,BLACK);
@@ -3656,7 +3531,10 @@ void draw_lens_under(BITMAP *dest, bool layer)
 		if(tmpscr.stairx + tmpscr.stairy)
 		{
 			if(!hints)
-				if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,tmpscr.stairx,tmpscr.stairy+playing_field_offset,tmpscr.secretcombo[sSTAIRS],tmpscr.secretcset[sSTAIRS]);
+			{
+				if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))
+					putcombo(dest,tmpscr.stairx,tmpscr.stairy+playing_field_offset,tmpscr.secretcombo[sSTAIRS],tmpscr.secretcset[sSTAIRS]);
+			}
 			else
 			{
 				if(tmpscr.flags&fWHISTLE)
@@ -3808,7 +3686,7 @@ void draw_fuzzy(int32_t fuzz)
 	}
 }
 
-void updatescr(bool allowwavy, bool record_gfx)
+void updatescr(bool allowwavy)
 {
 	static BITMAP *wavybuf = create_bitmap_ex(8,256,224);
 	static BITMAP *panorama = create_bitmap_ex(8,256,224);
@@ -3870,11 +3748,6 @@ void updatescr(bool allowwavy, bool record_gfx)
 		}
 	}
 	
-	if(details)
-		show_details();
-	if(show_ff_scripts)
-		show_ffscript_names();
-	
 	bool clearwavy = (wavy <= 0);
 	
 	if(wavy <= 0)
@@ -3930,79 +3803,7 @@ void updatescr(bool allowwavy, bool record_gfx)
 	
 	//TODO: Optimize blit 'overcalls' -Gleeok
 	BITMAP *source = nosubscr ? panorama : wavybuf;
-		
-	static BITMAP *scanlinesbmp=NULL;
-	
-	if(resx != SCREEN_W || resy != SCREEN_H)
-	{
-		Z_message("Conflicting variables warning: screen_scale %i, resx %i, resy %i, w %i, h %i\n", screen_scale, resx, resy, SCREEN_W, SCREEN_H);
-		resx = SCREEN_W;
-		resy = SCREEN_H;
-		screen_scale = zc_max(zc_min(resx / 320, resy / 240), 1);
-	}
-	
-	if(!sbig && screen_scale > 1)
-		sbig = true;
-		
-	const int32_t sx = 256 * screen_scale;
-	const int32_t sy = 224 * screen_scale;
-	const int32_t scale_mul = screen_scale - 1;
-	const int32_t mx = scale_mul * 128;
-	const int32_t my = scale_mul * 112;
-	
-	if(sbig)
-	{
-		if(scanlines)
-		{
-			if(!scanlinesbmp)
-				scanlinesbmp = create_bitmap_ex(8, sx, sy);
-				
-			stretch_blit(source, scanlinesbmp, 0, 0, 256, 224, 0, 0, sx, sy);
-			
-			for(int32_t i=0; i<224; ++i)
-				_allegro_hline(scanlinesbmp, 0, (i*screen_scale)+1, sx, BLACK);
-				
-			blit(scanlinesbmp, screen, 0, 0, scrx+32-mx, scry+8-my, sx, sy);
-		}
-		else
-		{
-			stretch_blit(source, screen, 0, 0, 256, 224, scrx+32-mx, scry+8-my, sx, sy);
-		}
-		
-		if(quakeclk>0)
-			rectfill(screen, // I don't know if these are right...
-					 scrx+32 - mx, //x1
-					 scry+8 - my + sy, //y1
-					 scrx+32 - mx + sx, //x2
-					 scry+8 - my + sy + (16 * scale_mul), //y2
-					 BLACK);
-					 
-		//stretch_blit(nosubscr?panorama:wavybuf,screen,0,0,256,224,scrx+32-128,scry+8-112,512,448);
-		//if(quakeclk>0) rectfill(screen,scrx+32-128,scry+8-112+448,scrx+32-128+512,scry+8-112+456,0);
-	}
-	else
-	{
-		blit(source,screen,0,0,scrx+32,scry+8,256,224);
-		
-		if(quakeclk>0) rectfill(screen,scrx+32,scry+8+224,scrx+32+256,scry+8+232,BLACK);
-	}
-	
-	if(ShowFPS)// &&(frame&1))
-		show_fps(screen);
-	
-	show_replay_controls(screen);
-		
-	if(Paused)
-		show_paused(screen);
-		
-	if(details)
-	{
-		textprintf_ex(screen,font,0,SCREEN_H-8,254,BLACK,"%-6d (%s)", idle_count, time_str_long(idle_count));
-	}
-	
-	//if(panorama!=NULL) destroy_bitmap(panorama);
-	
-	++framecnt;
+	blit(source,framebuf,0,0,0,0,256,224);
 	
 	update_hw_screen();
 }
@@ -4089,7 +3890,7 @@ int32_t onNonGUISnapshot()
 	PALETTE tempRAMpal;
 	get_palette(tempRAMpal);
 	
-	if(tmpscr->flags3&fNOSUBSCR)
+	if(tmpscr.flags3&fNOSUBSCR)
 	{
 		clear_to_color(panorama,0);
 		blit(framebuf,panorama,0,playing_field_offset,0,0,256,168);
@@ -4206,10 +4007,6 @@ int32_t onSaveMapPic()
 						const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 						
 						tmpscr2[i]=TheMaps[(special_warp_return_screen.layermap[i]-1)*MAPSCRS+special_warp_return_screen.layerscreen[i]];
-						
-						tmpscr2[i].data.resize(_mapsSize, 0);
-						tmpscr2[i].sflag.resize(_mapsSize, 0);
-						tmpscr2[i].cset.resize(_mapsSize, 0);
 					}
 				}
 				
@@ -4394,58 +4191,56 @@ void f_Quit(int32_t type)
 {
 	if(type==qQUIT && !Playing)
 		return;
-		
-	music_pause();
-	pause_all_sfx();
-	system_pal();
+	
+	bool from_menu = is_sys_pal;
+	
+	if(!from_menu)
+	{
+		music_pause();
+		pause_all_sfx();
+	}
+	enter_sys_pal();
 	clear_keybuf();
 	
-	switch(type)
-	{
-	case qQUIT:
-		if (replay_is_replaying())
+	replay_poll();
+	if (replay_is_replaying())
+		replay_peek_quit();
+
+	if (!replay_is_replaying())
+		switch(type)
 		{
-			disableClickToFreeze=false;
-			Quit=qQUIT;
-			
-			// Trying to evade a door repair charge?
-			if(repaircharge)
-			{
-				game->change_drupy(-repaircharge);
-				repaircharge=0;
-			}
-		}
-		else
-		{
+		case qQUIT:
 			onQuit();
+			break;
+			
+		case qRESET:
+			onReset();
+			break;
+			
+		case qEXIT:
+			onExit();
+			break;
 		}
-		break;
-		
-	case qRESET:
-		onReset();
-		break;
-		
-	case qEXIT:
-		onExit();
-		break;
-	}
 	
 	if(Quit)
 	{
 		kill_sfx();
 		music_stop();
-		game_pal();
-		clear_to_color(screen,BLACK);
+		exit_sys_pal();
 		update_hw_screen();
 	}
 	else
 	{
-		game_pal();
-		music_resume();
-		resume_all_sfx();
+		exit_sys_pal();
+		if(!from_menu)
+		{
+			music_resume();
+			resume_all_sfx();
+		}
 	}
 	
-	show_mouse(NULL);
+	if(!from_menu)
+		show_mouse(NULL);
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
@@ -4472,7 +4267,7 @@ int32_t input_idle(bool checkmouse)
 	static int32_t mx, my, mz, mb;
 	
 	if(keypressed() || zc_key_pressed() ||
-	   (checkmouse && (mx != gui_mouse_x() || my != gui_mouse_y() || mz != gui_mouse_z() || mb != gui_mouse_b())))
+	   (checkmouse && (mx != mouse_x || my != mouse_y || mz != mouse_z || mb != mouse_b)))
 	{
 		idle_count = 0;
 		
@@ -4487,10 +4282,10 @@ int32_t input_idle(bool checkmouse)
 		active_count = 0;
 	}
 	
-	mx = gui_mouse_x();
-	my = gui_mouse_y();
-	mz = gui_mouse_z();
-	mb = gui_mouse_b();
+	mx = mouse_x;
+	my = mouse_y;
+	mz = mouse_z;
+	mb = mouse_b;
 	
 	return idle_count;
 }
@@ -4592,62 +4387,9 @@ int32_t onLightSwitch()
 int32_t onGoTo();
 int32_t onGoToComplete();
 
-// Used in syskeys() to prevent keys from being read as both game and system input
-/*static int32_t storedInput[14];
-static void backupAndClearInput()
-{
-	storedInput[0]=key[DUkey];
-	key[DUkey]=false;
-	storedInput[1]=key[DDkey];
-	key[DDkey]=false;
-	storedInput[2]=key[DLkey];
-	key[DLkey]=false;
-	storedInput[3]=key[DRkey];
-	key[DRkey]=false;
-	storedInput[4]=key[Akey];
-	key[Akey]=false;
-	storedInput[5]=key[Bkey];
-	key[Bkey]=false;
-	storedInput[6]=key[Skey];
-	key[Skey]=false;
-	storedInput[7]=key[Lkey];
-	key[Lkey]=false;
-	storedInput[8]=key[Rkey];
-	key[Rkey]=false;
-	storedInput[9]=key[Pkey];
-	key[Pkey]=false;
-	storedInput[10]=key[Exkey1];
-	key[Exkey1]=false;
-	storedInput[11]=key[Exkey2];
-	key[Exkey2]=false;
-	storedInput[12]=key[Exkey3];
-	key[Exkey3]=false;
-	storedInput[13]=key[Exkey4];
-	key[Exkey4]=false;
-}
-
-static void restoreInput()
-{
-	key[DUkey]=storedInput[0];
-	key[DDkey]=storedInput[1];
-	key[DLkey]=storedInput[2];
-	key[DRkey]=storedInput[3];
-	key[Akey]=storedInput[4];
-	key[Bkey]=storedInput[5];
-	key[Skey]=storedInput[6];
-	key[Lkey]=storedInput[7];
-	key[Rkey]=storedInput[8];
-	key[Pkey]=storedInput[9];
-	key[Exkey1]=storedInput[10];
-	key[Exkey2]=storedInput[11];
-	key[Exkey3]=storedInput[12];
-	key[Exkey4]=storedInput[13];
-}
-*/
 void syskeys()
 {
-	  //Saffith's method of separating system and game key bindings. Can't do this!!
-	//backupAndClearInput(); //This caused input to become randomly 'stuck'. -Z
+	update_system_keys();
 	
 	int32_t oldtitle_version;
 	
@@ -4667,9 +4409,9 @@ void syskeys()
 	
 	mouse_down=gui_mouse_b();
 	
-	if(zc_readkey(KEY_F1))
+	if(zc_read_system_key(KEY_F1))
 	{
-		if(zc_getkey(KEY_ZC_LCONTROL) || zc_getkey(KEY_ZC_RCONTROL))
+		if(zc_get_system_key(KEY_ZC_LCONTROL) || zc_get_system_key(KEY_ZC_RCONTROL))
 		{
 			halt=!halt;
 			//zinit.subscreen=(zinit.subscreen+1)%ssdtMAX;
@@ -4677,6 +4419,7 @@ void syskeys()
 		else
 		{
 			Throttlefps=!Throttlefps;
+			zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
 			logic_counter=0;
 		}
 	}
@@ -4687,39 +4430,43 @@ void syskeys()
 	  1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
 	  */
 	
-	if(zc_readkey(KEY_OPENBRACE))	if(frame_rest_suggest > 0) frame_rest_suggest--;
+	if(zc_read_system_key(KEY_OPENBRACE))	if(frame_rest_suggest > 0) frame_rest_suggest--;
 	
-	if(zc_readkey(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
+	if(zc_read_system_key(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
 	
-	if(zc_readkey(KEY_F2))	ShowFPS=!ShowFPS;
+	if(zc_read_system_key(KEY_F2))
+	{
+		ShowFPS=!ShowFPS;
+		zc_set_config(cfg_sect,"showfps",(int32_t)ShowFPS);
+	}
 	
-	if(zc_readrawkey(KEY_F3) && Playing)	Paused=!Paused;
+	if(zc_read_system_key(KEY_F3) && Playing)	Paused=!Paused;
 	
-	if(zc_readrawkey(KEY_F4) && Playing)
+	if(zc_read_system_key(KEY_F4) && Playing)
 	{
 		Paused=true;
 		Advance=true;
 	}
 	
-	if(zc_readrawkey(KEY_F6)) onTryQuit();
+	if(zc_read_system_key(KEY_F6)) onTryQuit();
 	
 #ifndef ALLEGRO_MACOSX
-	if(zc_readrawkey(KEY_F9))	f_Quit(qRESET);
+	if(zc_read_system_key(KEY_F9))	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
+	if(zc_read_system_key(KEY_F10))   f_Quit(qEXIT);
 #else
-	if(zc_readrawkey(KEY_F7))	f_Quit(qRESET);
+	if(zc_read_system_key(KEY_F7))	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
+	if(zc_read_system_key(KEY_F8))   f_Quit(qEXIT);
 #endif
-	if(rF5()&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
+	if(zc_read_system_key(KEY_F5)&&(Playing && currscr<128 && DMaps[currdmap].flags&dmfVIEWMAP))	onSaveMapPic();
 	
-	if(rF12())
+	if (zc_read_system_key(KEY_F12))
 	{
 		onSnapshot();
 	}
 	
-	if(debug_enabled && zc_readkey(KEY_TAB))
+	if(debug_enabled && zc_read_system_key(KEY_TAB))
 		set_debug(!get_debug());
 		
 	if(get_debug() || cheat>=1)
@@ -4811,16 +4558,16 @@ void syskeys()
 	
 	if(volkeys)
 	{
-		if(zc_readkey(KEY_PGUP)) master_volume(-1,midi_volume+8);
+		if(zc_read_system_key(KEY_PGUP)) master_volume(-1,midi_volume+8);
 		
-		if(zc_readkey(KEY_PGDN)) master_volume(-1,midi_volume==255?248:midi_volume-8);
+		if(zc_read_system_key(KEY_PGDN)) master_volume(-1,midi_volume==255?248:midi_volume-8);
 		
-		if(zc_readkey(KEY_HOME)) master_volume(digi_volume+8,-1);
+		if(zc_read_system_key(KEY_HOME)) master_volume(digi_volume+8,-1);
 		
-		if(zc_readkey(KEY_END))  master_volume(digi_volume==255?248:digi_volume-8,-1);
+		if(zc_read_system_key(KEY_END))  master_volume(digi_volume==255?248:digi_volume-8,-1);
 	}
 	
-	if(!get_debug() || !SystemKeys)
+	if(!get_debug() || !SystemKeys || replay_is_replaying())
 		goto bottom;
 		
 	if(zc_readkey(KEY_D))
@@ -4924,14 +4671,6 @@ void syskeys()
 	
 	if(zc_readkey(KEY_STOP))   jukebox(currmidi+1);
 	
-	/*
-	  if(zc_readkey(KEY_TILDE)) {
-	  wavyout();
-	  zinit.subscreen=(zinit.subscreen+1)%3;
-	  wavyin();
-	  }
-	  */
-	
 	verifyBothWeapons();
 	
 bottom:
@@ -4965,6 +4704,11 @@ void checkQuitKeys()
 
 bool CheatModifierKeys()
 {
+	// Cheats are replayed via the X cheat step, no need to check for keyboard input
+	// to trigger cheats.
+	if (replay_is_replaying())
+		return false;
+
 	if ( ( cheat_modifier_keys[0] > 0 && key[cheat_modifier_keys[0]] ) ||
 		( cheat_modifier_keys[1] > 0 && key[cheat_modifier_keys[1]] ) ||
 		(cheat_modifier_keys[0] <= 0 && cheat_modifier_keys[1] <= 0))
@@ -4999,8 +4743,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		// to keep fps constant
-		updatescr(allowwavy);
+		if (replay_get_mode() != ReplayMode::Assert)
+			updatescr(allowwavy);
 		throttleFPS();
 		
 #ifdef _WIN32
@@ -5017,6 +4761,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			zcmusic_poll();
 		}
+
+		update_hw_screen();
 	}
 	
 	if(Quit)
@@ -5027,26 +4773,42 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		
 	Advance=false;
 
-	locking_keys = true;
-	if (replay_is_active() && replay_get_version() >= 3)
-		replay_poll();
+	updatescr(allowwavy);
+
+	if (replay_is_active())
+	{
+		if (replay_get_version() >= 3)
+			replay_poll();
+
+		// Replay compatability.
+		if (replay_get_version() >= 6 && replay_get_version() < 8)
+			replay_peek_input();
+	}
+
+	update_keys();
+
 	++frame;
-	update_keys(); //Update ZScript key arrays
-	locking_keys = false;
 	
+	if (replay_is_replaying())
+		replay_do_cheats();
 	syskeys();
+
+	// Cheats used via the System menu (called by syskeys) will call cheats_enqueue. syskeys
+	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
+	// approach here means it doesn't matter which call adds the cheat.
+	cheats_execute_queued();
+
 	if (replay_is_replaying())
 		replay_peek_quit();
-	if (Quit)
-		replay_step_quit(Quit);
 	if (GameFlags & GAMEFLAG_TRYQUIT)
 		replay_step_quit(0);
 	if(allowF6Script)
 	{
 		FFCore.runF6Engine();
 	}
+	if (Quit)
+		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
-	updatescr(allowwavy, true);
 	throttleFPS();
 	
 #ifdef _WIN32
@@ -5254,7 +5016,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 	script_drawing_commands.Clear();
 	
 	FFCore.warpScriptCheck();
-	bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
+	bool showtime = game->should_show_time();
 	while(fcnt>0)
 	{
 		clear_bitmap(framebuf);
@@ -5433,14 +5195,21 @@ int32_t onEsc() // Unused?? -L
 int32_t onVsync()
 {
 	Throttlefps = !Throttlefps;
-	save_game_configs();
+	zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
+	return D_O_K;
+}
+
+int32_t onWinPosSave()
+{
+	SaveWinPos = !SaveWinPos;
+	zc_set_config(cfg_sect,"save_window_position",(int32_t)SaveWinPos);
 	return D_O_K;
 }
 
 int32_t onClickToFreeze()
 {
 	ClickToFreeze = !ClickToFreeze;
-	save_game_configs();
+	zc_set_config(cfg_sect,"clicktofreeze", (int32_t)ClickToFreeze);
 	return D_O_K;
 }
 
@@ -5480,11 +5249,9 @@ int32_t OnnClearQuestDir()
 		0, 
 		lfont) == 1)	
 	{
-		set_config_string("zeldadx","win_qst_dir","");
+		zc_set_config("zeldadx","win_qst_dir","");
 		flush_config_file();
-		strcpy(qstdir,get_config_string("zeldadx","win_qst_dir",""));
-		//strcpy(filepath,get_config_string("zeldadx","win_qst_dir",""));
-		save_game_configs();
+		strcpy(qstdir,"");
 #ifdef __EMSCRIPTEN__
 		em_sync_fs();
 #endif
@@ -5513,16 +5280,12 @@ int32_t onConsoleZASM()
 				if(ret)
 				{
 					FFCore.ZASMPrint(true);
-					zasm_debugger = 1;
-					save_game_configs();
 				}
 			}).show();
 		return D_O_K;
 	}
 	else
 	{
-		zasm_debugger = 0;
-		save_game_configs();
 		FFCore.ZASMPrint(false);
 		return D_O_K;
 	}
@@ -5543,19 +5306,22 @@ int32_t onConsoleZScript()
 				if(ret)
 				{
 					FFCore.ZScriptConsole(true);
-					zscript_debugger = 1;
-					save_game_configs();
 				}
 			}).show();
 		return D_O_K;
 	}
 	else
 	{
-		zscript_debugger = 0;
-		save_game_configs();
 		FFCore.ZScriptConsole(false);
 		return D_O_K;
 	}
+}
+
+int32_t onClrConsoleOnLoad()
+{
+	clearConsoleOnLoad = !clearConsoleOnLoad;
+	zc_set_config("CONSOLE","clear_console_on_load",clearConsoleOnLoad?1:0);
+	return D_O_K;
 }
 
 
@@ -5565,45 +5331,45 @@ int32_t onFrameSkip()
 	return D_O_K;
 }
 
+int32_t onSaveDragResize()
+{
+	SaveDragResize = !SaveDragResize;
+	zc_set_config(cfg_sect,"save_drag_resize",(int32_t)SaveDragResize);
+	return D_O_K;
+}
+
+int32_t onDragAspect()
+{
+	DragAspect = !DragAspect;
+	zc_set_config(cfg_sect,"drag_aspect",(int32_t)DragAspect);
+	return D_O_K;
+}
+
 int32_t onTransLayers()
 {
 	TransLayers = !TransLayers;
-	save_game_configs();
+	zc_set_config(cfg_sect,"translayers",(int32_t)TransLayers);
 	return D_O_K;
 }
 
 int32_t onNESquit()
 {
 	NESquit = !NESquit;
-	save_game_configs();
+	zc_set_config(cfg_sect,"fastquit",(int32_t)NESquit);
 	return D_O_K;
 }
 
 int32_t onVolKeys()
 {
 	volkeys = !volkeys;
-	save_game_configs();
+	zc_set_config(sfx_sect,"volkeys",(int32_t)volkeys);
 	return D_O_K;
 }
 
 int32_t onShowFPS()
 {
 	ShowFPS = !ShowFPS;
-	scare_mouse();
-	
-	if(ShowFPS)
-		show_fps(screen);
-		
-	if(sbig)
-		stretch_blit(fps_undo,screen,0,0,64,16,scrx+40-120,scry+216+96,128,32);
-	else
-		blit(fps_undo,screen,0,0,scrx+40,scry+216,64,16);
-		
-	if(Paused)
-		show_paused(screen);
-		
-	unscare_mouse();
-	save_game_configs();
+	zc_set_config(cfg_sect,"showfps",(int32_t)ShowFPS);
 	return D_O_K;
 }
 
@@ -5635,10 +5401,10 @@ void kb_getkey(DIALOG *d)
 	
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
+	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	textout_centre_ex(screen, font, "Press a key", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "Press a key", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
 	update_hw_screen(true);
@@ -5665,13 +5431,13 @@ void kb_clearjoystick(DIALOG *d)
 	
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 168, 48, FR_WIN);
+	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 168, 48, FR_WIN);
 	//  text_mode(vc(11));
-	textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
-	update_hw_screen();
+	update_hw_screen(true);
 	
 	clear_keybuf();
 	int32_t k = next_press_key();
@@ -5696,13 +5462,13 @@ void kb_clearkey(DIALOG *d)
 	
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
+	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	textout_centre_ex(screen, font, "Press any key to clear", resx/2, resy/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", resx/2, resy/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
-	update_hw_screen();
+	update_hw_screen(true);
 	
 	clear_keybuf();
 	int32_t k = next_press_key();
@@ -5787,15 +5553,15 @@ void j_getbtn(DIALOG *d)
 	d->flags|=D_SELECTED;
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(screen, (resx-160)/2, (resy-48)/2, 160, 48, FR_WIN);
+	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	int32_t y = resy/2 - 12;
-	textout_centre_ex(screen, font, "Press a button", resx/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", resx/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "SPACE to disable", resx/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	int32_t y = gui_bmp->h/2 - 12;
+	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
-	update_hw_screen();
+	update_hw_screen(true);
 	
 	int32_t b = next_press_btn();
 	
@@ -5804,10 +5570,8 @@ void j_getbtn(DIALOG *d)
 		
 	d->flags&=~D_SELECTED;
 	
-	if(!player) //safety first...
-		player = init_dialog(d,-1);
-		
-	player->joy_on = TRUE;
+	if (player)
+		player->joy_on = TRUE;
 }
 
 int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -5927,11 +5691,11 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 				break;
 				
 			case 2:
-				sprintf(str_a,"%3d",midi_volume);
-				sprintf(str_b,"%3d",digi_volume);
-				sprintf(str_l,"%3d",emusic_volume);
-				sprintf(str_m,"%3dKB",zcmusic_bufsz);
-				sprintf(str_r,"%3d",sfx_volume);
+				sprintf(str_a,"   %3d",midi_volume);
+				sprintf(str_b,"   %3d",digi_volume);
+				sprintf(str_l,"   %3d",emusic_volume);
+				sprintf(str_m,"   %3dKB",zcmusic_bufsz);
+				sprintf(str_r,"   %3d",sfx_volume);
 				strcpy(str_s,pan_str[pan_style]);
 				sprintf(str_leftmod1,"%3d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
 				sprintf(str_leftmod2,"%3d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
@@ -6306,7 +6070,7 @@ static DIALOG quest_dlg[] =
 	{ jwin_text_proc,		 89,   84,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Number:", NULL,  NULL },
 	{ jwin_text_proc,		 152,  84,   24,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_a, NULL,  NULL },
 	{ jwin_text_proc,		 89,   94,   141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Version:", NULL,  NULL },
-	{ jwin_text_proc,		 160,  94,   64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   QHeader.version, NULL,  NULL },
+	{ jwin_text_proc,		 160,  94,   64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   header_version_nul_term, NULL,  NULL },
 	{ jwin_text_proc,		 89,   104,  141,  8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "ZQ Version:", NULL,  NULL },
 	{ jwin_text_proc,		 184,  104,  64,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_s, NULL,  NULL },
 	{ jwin_text_proc,		 84,   126,  80,   8,	vc(0),   vc(11),  0,	   0,		 0,		0, (void *) "Title:", NULL,  NULL },
@@ -6525,8 +6289,7 @@ int32_t zc_load_zmod_module_file()
 		memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 		strcpy(moduledata.module_name, modulepath);
 		al_trace("New Module Path is: %s \n", moduledata.module_name);
-		set_config_string("ZCMODULE","current_module",moduledata.module_name);
-		//save_game_configs();
+		zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 		zcm.init(true); //Load the module values.
 		moduledata.refresh_title_screen = 1;
 //		refresh_select_screen = 1;
@@ -6570,21 +6333,21 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
-	if ( moduledata.moduletitle[0] != NULL )
+	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
-	if ( moduledata.moduleauthor[0] != NULL )
+	if ( moduledata.moduleauthor[0] != 0 )
 		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
 	
-	if ( moduledata.moduleinfo0[0] != NULL )
+	if ( moduledata.moduleinfo0[0] != 0 )
 		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != NULL )
+	if ( moduledata.moduleinfo1[0] != 0 )
 		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != NULL )
+	if ( moduledata.moduleinfo2[0] != 0 )
 		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != NULL )
+	if ( moduledata.moduleinfo3[0] != 0 )
 		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != NULL )
+	if ( moduledata.moduleinfo4[0] != 0 )
 		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
 	
 	char module_date[255];
@@ -6651,6 +6414,12 @@ int32_t onToggleRecordingNewSaves()
 	return D_O_K;
 }
 
+int32_t onToggleSnapshotAllFrames()
+{
+	replay_set_snapshot_all_frames(!replay_is_snapshot_all_frames());
+	return D_O_K;
+}
+
 int32_t onStopReplayOrRecord()
 {
 	if (replay_is_replaying())
@@ -6679,7 +6448,7 @@ int32_t onStopReplayOrRecord()
 	return D_O_K;
 }
 
-int32_t onLoadReplay()
+static int32_t handle_on_load_replay(ReplayMode mode)
 {
 	if (Playing)
 	{
@@ -6691,10 +6460,23 @@ int32_t onLoadReplay()
 		return D_CLOSE;
 	}
 
-	if (jwin_alert("Replay",
-		"Select a replay file to play back.",
-		"You won't be able to save, and it won't effect existing saves.",
-		"You can stop the replay and take over manually any time.",
+	std::string mode_string = replay_mode_to_string(mode);
+	mode_string[0] = std::toupper(mode_string[0]);
+
+	std::string line_1 = "Select a replay file to play back.";
+	std::string line_2 = "You won't be able to save, and it won't effect existing saves.";
+	std::string line_3 = "You can stop the replay and take over manually any time.";
+	if (mode == ReplayMode::Update)
+	{
+		line_1 = "Select a replay file to update.";
+		line_2 = "WARNING: be sure to back up the zplay file";
+		line_3 = "and verify that the updated replay works as expected!";
+	}
+
+	if (jwin_alert(mode_string.c_str(),
+		line_1.c_str(),
+		line_2.c_str(),
+		line_3.c_str(),
 		"OK","Nevermind",13,27,lfont) == 1)
 	{
 		char replay_path[2048];
@@ -6705,11 +6487,26 @@ int32_t onLoadReplay()
 			return D_CLOSE;
 
 		replay_quit();
-		load_replay_file_deferred(ReplayMode::Replay, replay_path);
+		load_replay_file_deferred(mode, replay_path);
 		Quit = qRESET;
 		return D_CLOSE;
 	}
 	return D_O_K;
+}
+
+int32_t onLoadReplay()
+{
+	return handle_on_load_replay(ReplayMode::Replay);
+}
+
+int32_t onLoadReplayAssert()
+{
+	return handle_on_load_replay(ReplayMode::Assert);
+}
+
+int32_t onLoadReplayUpdate()
+{
+	return handle_on_load_replay(ReplayMode::Update);
 }
 
 int32_t onSaveReplay()
@@ -6726,7 +6523,7 @@ int32_t onSaveReplay()
 			return D_CLOSE;
 
 			char replay_path[2048];
-			strcpy(replay_path, replay_get_filename().c_str());
+			strcpy(replay_path, replay_get_replay_path().string().c_str());
 			if (jwin_file_select_ex(
 					fmt::format("Save Replay (.{})", REPLAY_EXTENSION).c_str(),
 					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
@@ -6754,7 +6551,10 @@ static MENU replay_menu[] =
 	{ (char *)"Record new saves",		   onToggleRecordingNewSaves, NULL,					 0,			NULL   },
 	{ (char *)"Stop replay",				onStopReplayOrRecord,	  NULL,					 0,			NULL   },
 	{ (char *)"Load replay",				onLoadReplay,			  NULL,					 0,			NULL   },
+	{ (char *)"Load replay (assert)",		onLoadReplayAssert,		  NULL,					 0,			NULL   },
+	{ (char *)"Load replay (update)",		onLoadReplayUpdate,		  NULL,					 0,			NULL   },
 	{ (char *)"Save replay",				onSaveReplay,			  NULL,					 0,			NULL   },
+	{ (char *)"Enable snapshot all frames", onToggleSnapshotAllFrames,NULL,					 0,			NULL   },
 	
 	{  NULL,								NULL,					  NULL,					 0,			NULL   }
 };
@@ -6845,25 +6645,31 @@ int32_t onCredits()
 	int32_t c=0;
 	int32_t l=0;
 	int32_t ol=-1;
-	RLE_SPRITE *rle = (RLE_SPRITE*)(data[RLE_CREDITS].dat);
-	RGB *pal = (RGB*)(data[PAL_CREDITS].dat);
+	RLE_SPRITE *rle = (RLE_SPRITE*)(datafile[RLE_CREDITS].dat);
+	RGB *pal = (RGB*)(datafile[PAL_CREDITS].dat);
 	PALETTE tmppal;
-	
-	clear_bitmap(win);
+
+	rti_gui.transparency_index = 1;
+
+	clear_to_color(win, rti_gui.transparency_index);
 	draw_rle_sprite(win,rle,0,0);
 	credits_dlg[0].dp2=lfont;
 	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
 	credits_dlg[2].dp = win;
+
 	set_palette_range(black_palette,0,127,false);
 	
 	DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
+
+	BITMAP* old_screen = screen;
+	BITMAP* gui_bmp = zc_get_gui_bmp();
+	ASSERT(gui_bmp);
+	clear_to_color(gui_bmp, rti_gui.transparency_index);
+	screen = gui_bmp;
 	
 	while(update_dialog(p))
 	{
 		throttleFPS();
-#ifdef __EMSCRIPTEN__
-		all_render_screen();
-#endif
 		++c;
 		l = zc_max((c>>1)-30,0);
 		
@@ -6889,11 +6695,19 @@ int32_t onCredits()
 			SCRFIX();
 			ol=l;
 		}
+
+		update_hw_screen();
 	}
+
+	screen = old_screen;
+	system_pal();
 	
 	shutdown_dialog(p);
 	destroy_bitmap(win);
-	comeback();
+	//comeback();
+
+	rti_gui.transparency_index = 0;
+
 	return D_O_K;
 }
 
@@ -7158,6 +6972,8 @@ int32_t onAbout()
 	oss << buf1 << '\n';
 	sprintf(buf1, "Built By: %s", DEV_SIGNOFF);
 	oss << buf1 << '\n';
+	sprintf(buf1, "Tag: %s", getReleaseTag());
+	oss << buf1 << '\n';
 	
 	InfoDialog("About ZC", oss.str()).show();
 	return D_O_K;
@@ -7284,7 +7100,10 @@ int32_t onKeyboard()
 				}
 			}
 			if(uniqueError.size() == 0)
+			{
 				done = true;
+				save_control_configs(true);
+			}
 			else
 			{
 				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
@@ -7414,7 +7233,6 @@ int32_t onKeyboard()
         rest(1);
 	}
 	
-	save_game_configs();
 	return D_O_K;
 }
 
@@ -7448,7 +7266,10 @@ int32_t onGamepad()
 	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
 	
 	if(ret == 4) //OK
+	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
+		save_control_configs(false);
+	}
 	else //Cancel
 	{
 		Abtn = a;
@@ -7468,7 +7289,6 @@ int32_t onGamepad()
 		DRbtn = right;
 	}
 	
-	save_game_configs();
 	return D_O_K;
 }
 
@@ -7539,6 +7359,12 @@ int32_t onSound()
 			if(sfx_voice[i] > 0)
 				voice_set_volume(sfx_voice[i], sfx_volume);
 		}
+		zc_set_config(sfx_sect,"digi",digi_volume);
+		zc_set_config(sfx_sect,"midi",midi_volume);
+		zc_set_config(sfx_sect,"sfx",sfx_volume);
+		zc_set_config(sfx_sect,"emusic",emusic_volume);
+		zc_set_config(sfx_sect,"pan",pan_style);
+		zc_set_config(sfx_sect,"zcmusic_bufsz",zcmusic_bufsz);
 	}
 	else
 	{
@@ -7550,7 +7376,6 @@ int32_t onSound()
 		pan_style	 = p;
 	}
 	
-	save_game_configs();
 	return D_O_K;
 }
 
@@ -7654,16 +7479,19 @@ int32_t onExit()
 int32_t onTitle_NES()
 {
 	title_version=0;
+	zc_set_config(cfg_sect,"title",title_version);
 	return D_O_K;
 }
 int32_t onTitle_DX()
 {
 	title_version=1;
+	zc_set_config(cfg_sect,"title",title_version);
 	return D_O_K;
 }
 int32_t onTitle_25()
 {
 	title_version=2;
+	zc_set_config(cfg_sect,"title",title_version);
 	return D_O_K;
 }
 
@@ -7671,21 +7499,20 @@ int32_t onDebug()
 {
 	if(debug_enabled)
 		set_debug(!get_debug());
-	save_game_configs();	
 	return D_O_K;
 }
 
 int32_t onHeartBeep()
 {
 	heart_beep=!heart_beep;
-	save_game_configs();
+	zc_set_config(cfg_sect,"heart_beep",heart_beep);
 	return D_O_K;
 }
 
 int32_t onSaveIndicator()
 {
 	use_save_indicator=!use_save_indicator;
-	save_game_configs();
+	zc_set_config(cfg_sect,"save_indicator",use_save_indicator);
 	return D_O_K;
 }
 
@@ -7701,13 +7528,12 @@ int32_t onEpilepsy()
 		NULL, 
 		'y', 
 		'n', 
-		NULL, 
+		0, 
 		lfont) == 1)
 	{
-		if ( epilepsyFlashReduction ) epilepsyFlashReduction = 0;
-		else epilepsyFlashReduction = 1;
-		set_config_int("zeldadx","checked_epilepsy",1);
-		save_game_configs();
+		epilepsyFlashReduction = epilepsyFlashReduction ? 0 : 1;
+		zc_set_config("zeldadx","checked_epilepsy",1);
+		zc_set_config(cfg_sect,"epilepsy_flash_reduction",epilepsyFlashReduction);
 	}
 	return D_O_K;
 }
@@ -7954,9 +7780,10 @@ static DIALOG scrsaver_dlg[] =
 int32_t onScreenSaver()
 {
 	scrsaver_dlg[0].dp2=lfont;
-	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = ss_after;
-	scrsaver_dlg[6].d2 = ss_speed;
-	scrsaver_dlg[7].d2 = ss_density;
+	int32_t oldcfgs[3];
+	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = oldcfgs[0] = ss_after;
+	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
+	scrsaver_dlg[7].d2 = oldcfgs[2] = ss_density;
 	
 	if(is_large)
 		large_dialog(scrsaver_dlg);
@@ -7968,6 +7795,12 @@ int32_t onScreenSaver()
 		ss_after   = scrsaver_dlg[5].d1;
 		ss_speed   = scrsaver_dlg[6].d2;
 		ss_density = scrsaver_dlg[7].d2;
+		if(oldcfgs[0] != ss_after)
+			zc_set_config(cfg_sect,"ss_after",ss_after);
+		if(oldcfgs[1] != ss_speed)
+			zc_set_config(cfg_sect,"ss_speed",ss_speed);
+		if(oldcfgs[2] != ss_density)
+			zc_set_config(cfg_sect,"ss_density",ss_density);
 	}
 	
 	if(ret == 9)
@@ -8045,8 +7878,8 @@ static void set_controls_menu_active()
 
 static MENU settings_menu[] =
 {
-	{ (char *)"C&ontrols",				  NULL,					controls_menu,			 0, NULL },
 	{ (char *)"&Sound...",				  onSound,				 NULL,					  0, NULL },
+	{ (char *)"C&ontrols",				  NULL,					controls_menu,			 0, NULL },
 	{ (char *)"&Title Screen",			  NULL,					title_menu,				0, NULL },
 	{ (char *)"Name &Entry Mode",		   NULL,					name_entry_mode_menu,	  0, NULL },
 	{ (char *)"",						   NULL,					NULL,					  0, NULL },
@@ -8055,6 +7888,9 @@ static MENU settings_menu[] =
 	{ (char *)"Show Trans. &Layers",		onTransLayers,		   NULL,					  0, NULL },
 	{ (char *)"Up+A+B To &Quit",			onNESquit,			   NULL,					  0, NULL },
 	{ (char *)"Click to Freeze",			onClickToFreeze,		 NULL,					  0, NULL },
+	{ (char *)"Autosave Window Size Changes",			onSaveDragResize,		 NULL,					  0, NULL },
+	{ (char *)"Lock Aspect Ratio",			onDragAspect,		 NULL,					  0, NULL },
+	{ (char *)"Window Position Saving",		   onWinPosSave,					NULL,	  0, NULL },
 	{ (char *)"Volume &Keys",			   onVolKeys,			   NULL,					  0, NULL },
 	{ (char *)"Cont. &Heart Beep",		  onHeartBeep,			 NULL,					  0, NULL },
 	{ (char *)"Sa&ve Indicator",			onSaveIndicator,		 NULL,					  0, NULL },
@@ -8074,15 +7910,19 @@ static MENU misc_menu[] =
 	{ (char *)"&Fullscreen",				onFullscreenMenu,		NULL,					  0, NULL },
 	{ (char *)"&Video Mode...",			 onVidMode,			   NULL,					  0, NULL },
 	{ (char *)"",						   NULL,					NULL,					  0, NULL },
+	//5
 	{ (char *)"&Quest Info...",			 onQuest,				 NULL,					  0, NULL },
 	{ (char *)"Quest &MIDI Info...",		onMIDICredits,		   NULL,					  0, NULL },
 	{ (char *)"Quest &Directory...",		onQstPath,			   NULL,					  0, NULL },
 	{ (char *)"",						   NULL,					NULL,					  0, NULL },
 	{ (char *)"Take &Snapshot\tF12",		onSnapshot,			  NULL,					  0, NULL },
+	//10
 	{ (char *)"Sc&reen Saver...",		   onScreenSaver,		   NULL,					  0, NULL },
 	{ (char *)"Save ZC Configuration",	  OnSaveZCConfig,		  NULL,					  0, NULL },
 	{ (char *)"Show ZASM Debugger",		 onConsoleZASM,		   NULL,					  0, NULL },
 	{ (char *)"Show ZScript Debugger",	  onConsoleZScript,		NULL,					  0, NULL },
+	{ (char *)"Clear Console on Qst Load",	  onClrConsoleOnLoad,		NULL,					  0, NULL },
+	//15
 	{ (char *)"Clear Directory Cache",	  OnnClearQuestDir,		NULL,					  0, NULL },
 	{ (char *)"Modules",					NULL,					zcmodule_menu,			 0, NULL },
 	{ (char *)"Replay",					 NULL,					replay_menu,			   0, NULL },
@@ -8153,14 +7993,26 @@ static MENU fixes_menu[] =
 #if DEVLEVEL > 0
 int32_t devLogging();
 int32_t devDebug();
+int32_t devTimestmp();
 #if DEVLEVEL > 1
 int32_t setCheat();
 #endif //DEVLEVEL > 1
+enum
+{
+	dv_log,
+	// dv_dbg,
+	dv_tmpstmp,
+	#if DEVLEVEL > 1
+	dv_nil,
+	dv_setcheat,
+	#endif //DEVLEVEL > 1
+	dv_max
+};
 static MENU dev_menu[] =
 {
-	{ (char *)"&Force Error Log",		   devLogging,			  NULL,			 D_SELECTED, NULL },
-	{ (char *)"&Extra Debug Log",		   devDebug,				NULL,			 D_SELECTED, NULL },
-	{ (char *)"&Timestamp Log",			 devTimestmp,			 NULL,			 D_SELECTED, NULL },
+	{ (char *)"&Force Error Log",		   devLogging,			  NULL,			 0, NULL },
+	// { (char *)"&Extra Debug Log",		   devDebug,				NULL,			 0, NULL },
+	{ (char *)"&Timestamp Log",			 devTimestmp,			 NULL,			 0, NULL },
 	#if DEVLEVEL > 1
 	{ (char *)"",						   NULL,					NULL,			 0,		  NULL },
 	{ (char *)"Set &Cheat",				 setCheat,				NULL,			 0,		  NULL },
@@ -8170,19 +8022,19 @@ static MENU dev_menu[] =
 int32_t devLogging()
 {
 	dev_logging = !dev_logging;
-	dev_menu[0].flags = dev_logging ? D_SELECTED : 0;
+	dev_menu[dv_log].flags = dev_logging ? D_SELECTED : 0;
 	return D_O_K;
 }
-int32_t devDebug()
-{
-	dev_debug = !dev_debug;
-	dev_menu[1].flags = dev_debug ? D_SELECTED : 0;
-	return D_O_K;
-}
+// int32_t devDebug()
+// {
+	// dev_debug = !dev_debug;
+	// dev_menu[dv_dbg].flags = dev_debug ? D_SELECTED : 0;
+	// return D_O_K;
+// }
 int32_t devTimestmp()
 {
 	dev_timestmp = !dev_timestmp;
-	dev_menu[2].flags = dev_timestmp ? D_SELECTED : 0;
+	dev_menu[dv_tmpstmp].flags = dev_timestmp ? D_SELECTED : 0;
 	return D_O_K;
 }
 #if DEVLEVEL > 1
@@ -8200,14 +8052,11 @@ MENU the_player_menu[] =
 	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
 	{ (char *)"&Cheat",					 NULL,					cheat_menu,				0, NULL },
 	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
+	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	#if DEVLEVEL > 0
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-	#else
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
 	#endif
+	{ NULL,								 NULL,					NULL,					  0, NULL }
 };
 
 MENU the_player_menu2[] =
@@ -8215,16 +8064,11 @@ MENU the_player_menu2[] =
 	{ (char *)"&Game",					  NULL,					game_menu,				 0, NULL },
 	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
 	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
-	
+	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	#if DEVLEVEL > 0
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
 	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-	#else
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
 	#endif
-	
+	{ NULL,								 NULL,					NULL,					  0, NULL }
 };
 
 int32_t onMIDIPatch()
@@ -8239,40 +8083,47 @@ int32_t onMIDIPatch()
 		NULL, 
 		'y', 
 		'n', 
-		NULL, 
+		0, 
 		lfont) == 1)
 	{
-		if (midi_patch_fix) midi_patch_fix = 0;
-		
-		else midi_patch_fix = 1;	
-		
+		midi_patch_fix = midi_patch_fix ? 0 : 1;
+		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);
 	}
 	fixes_menu[0].flags =(midi_patch_fix)?D_SELECTED:0;
-	save_game_configs();
 	return D_O_K;
 }
 
 int32_t onKeyboardEntry()
 {
 	NameEntryMode=0;
+	zc_set_config(cfg_sect,"name_entry_mode",NameEntryMode);
 	return D_O_K;
 }
 
 int32_t onLetterGridEntry()
 {
 	NameEntryMode=1;
+	zc_set_config(cfg_sect,"name_entry_mode",NameEntryMode);
 	return D_O_K;
 }
 
 int32_t onExtLetterGridEntry()
 {
 	NameEntryMode=2;
+	zc_set_config(cfg_sect,"name_entry_mode",NameEntryMode);
 	return D_O_K;
 }
 
+static BITMAP* oldscreen;
 int32_t onFullscreenMenu()
 {
-	onFullscreen();
+	// super hacks
+	screen = oldscreen;
+	if (onFullscreen() == D_REDRAW)
+	{
+		oldscreen = screen;
+	}
+	screen = menu_bmp;
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
 	return D_O_K;
 }
@@ -8280,7 +8131,7 @@ int32_t onFullscreenMenu()
 void fix_menu()
 {
 	if(!debug_enabled)
-		settings_menu[15].text = NULL;
+		settings_menu[18].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -8363,6 +8214,7 @@ int32_t onSetSnapshotFormat()
 		SnapshotFormat=6;
 		break;
 	}
+	zc_set_config("zeldadx", "snapshot_format", SnapshotFormat);
 	
 	snapshot_format_menu[SnapshotFormat].flags=D_SELECTED;
 	return D_O_K;
@@ -8387,7 +8239,7 @@ void system_pal()
 {
 	is_sys_pal = true;
 	static PALETTE pal;
-	copy_pal((RGB*)data[PAL_GUI].dat, pal);
+	copy_pal((RGB*)datafile[PAL_GUI].dat, pal);
 	
 	// set up the grayscale palette
 	for(int32_t i=128; i<192; i++)
@@ -8462,24 +8314,10 @@ void system_pal()
 	
 	destroy_bitmap(panorama);
 	
-	// save the fps_undo section
-	blit(tmp_scr,fps_undo,40,216,0,0,64,16);
-	
 	// display everything
 	vsync();
 	hw_palette = &pal;
 	update_hw_pal = true;
-	
-	if(sbig)
-		stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
-	else
-		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-		
-	if(ShowFPS)
-		show_fps(screen);
-		
-	if(Paused)
-		show_paused(screen);
 		
 	//  sys_pal = pal;
 	memcpy(sys_pal,pal,sizeof(pal));
@@ -8489,7 +8327,7 @@ void system_pal2()
 {
 	is_sys_pal = true;
 	static PALETTE RAMpal2;
-	copy_pal((RGB*)data[PAL_GUI].dat, RAMpal2);
+	copy_pal((RGB*)datafile[PAL_GUI].dat, RAMpal2);
 	
 	/* Windows 2000 colors
 	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
@@ -8688,25 +8526,12 @@ void system_pal2()
 	
 	destroy_bitmap(panorama);
 	
-	// save the fps_undo section
-	blit(tmp_scr,fps_undo,40,216,0,0,64,16);
-	
 	// display everything
 	vsync();
 	hw_palette = &RAMpal2;
 	update_hw_pal = true;
 	
-	if(sbig)
-		//stretch_blit(tmp_scr,screen,0,0,320,240,scrx-160,scry-120,640,480);
-		stretch_blit(tmp_scr,screen,0,0,320,240,scrx-(160*(screen_scale-1)),scry-(120*(screen_scale-1)),screen_scale*320,screen_scale*240);
-	else
-		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-		
-	if(ShowFPS)
-		show_fps(screen);
-		
-	if(Paused)
-		show_paused(screen);
+	blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 		
 	//  sys_pal = pal;
 	memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
@@ -8825,10 +8650,11 @@ void System()
 	//  font=tfont;
 	
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
+	misc_menu[3].flags =(isFullScreen()==1)?D_DISABLED:0;
 	
 	game_menu[2].flags = getsaveslot() > -1 ? 0 : D_DISABLED;
 	#if DEVLEVEL > 1
-	dev_menu[4].flags = Playing ? 0 : D_DISABLED;
+	dev_menu[dv_setcheat].flags = Playing ? 0 : D_DISABLED;
 	#endif
 	game_menu[3].flags =
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
@@ -8838,7 +8664,11 @@ void System()
 	show_mouse(screen);
 	
 	DIALOG_PLAYER *p;
-	
+
+	clear_bitmap(menu_bmp);
+	oldscreen = screen;
+	screen = menu_bmp;
+
 	if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode))
 	{
 		p = init_dialog(system_dlg2,-1);
@@ -8854,6 +8684,12 @@ void System()
 		
 	do
 	{
+		if(close_button_quit)
+		{
+			close_button_quit = false;
+			f_Quit(qEXIT);
+			if(Quit) break;
+		}
 		rest(17);
 		
 		if(mouse_down && !gui_mouse_b())
@@ -8863,15 +8699,18 @@ void System()
 		title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
 		title_menu[2].flags = (title_version==2) ? D_SELECTED : 0;
 		
-		settings_menu[0].flags = replay_is_replaying() ? D_DISABLED : 0;
+		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
 		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
 		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
 		settings_menu[7].flags = TransLayers?D_SELECTED:0;
 		settings_menu[8].flags = NESquit?D_SELECTED:0;
 		settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
-		settings_menu[10].flags = volkeys?D_SELECTED:0;
+		settings_menu[10].flags = SaveDragResize?D_SELECTED:0;
+		settings_menu[11].flags = DragAspect?D_SELECTED:0;
+		settings_menu[12].flags = SaveWinPos?D_SELECTED:0;
+		settings_menu[13].flags = volkeys?D_SELECTED:0;
 		//Epilepsy Prevention
-		settings_menu[13].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		settings_menu[16].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8879,14 +8718,14 @@ void System()
 	
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
+		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
 		
+		the_player_menu[2].flags = replay_is_replaying() ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
 		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
 		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
 		cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
 		cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
-		// TODO add onCheatConsole to new cheats_enqueue system for replay support.
-		cheat_menu[9].flags = replay_is_active() ? D_DISABLED : 0;
 		cheat_menu[10].text = (cheat >= 4) || get_debug() ? bar_str : NULL;
 		cheat_menu[4].flags = getClock() ? D_SELECTED : 0;
 		cheat_menu[11].flags = toogam ? D_SELECTED : 0;
@@ -8909,8 +8748,8 @@ void System()
 		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
 		show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
 		
-		settings_menu[11].flags = heart_beep ? D_SELECTED : 0;
-		settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
+		settings_menu[14].flags = heart_beep ? D_SELECTED : 0;
+		settings_menu[15].flags = use_save_indicator ? D_SELECTED : 0;
 
 		replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
 			(char *)"Disable recording new saves" :
@@ -8919,14 +8758,17 @@ void System()
 		replay_menu[1].text = replay_get_mode() == ReplayMode::Record ?
 			(char *)"Stop recording" :
 			(char *)"Stop replaying";
-		replay_menu[3].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
+		replay_menu[5].flags = replay_get_mode() == ReplayMode::Record ? 0 : D_DISABLED;
+		replay_menu[6].text = replay_is_snapshot_all_frames() ?
+			(char *)"Disable snapshot all frames" :
+			(char *)"Enable snapshot all frames";
 	
 		reset_snapshot_format_menu();
 		snapshot_format_menu[SnapshotFormat].flags = D_SELECTED;
 		
 		if(debug_enabled)
 		{
-			settings_menu[16].flags = get_debug() ? D_SELECTED : 0;
+			settings_menu[19].flags = get_debug() ? D_SELECTED : 0;
 		}
 		
 		if(gui_mouse_b() && !mouse_down)
@@ -8935,23 +8777,24 @@ void System()
 		// press menu to drop the menu
 		if(rMbtn())
 			simulate_keypress(KEY_G << 8);
-			
+		
+		if(input_idle(true) > after_time())
+			// run Screeen Saver
 		{
-			if(input_idle(true) > after_time())
-				// run Screeen Saver
-			{
-				// Screen saver enabled for now.
-				clear_keybuf();
-				scare_mouse();
-				Matrix(ss_speed, ss_density, 0);
-				system_pal();
-				unscare_mouse();
-				broadcast_dialog_message(MSG_DRAW, 0);
-			}
+			// Screen saver enabled for now.
+			clear_keybuf();
+			scare_mouse();
+			Matrix(ss_speed, ss_density, 0);
+			system_pal();
+			unscare_mouse();
+			broadcast_dialog_message(MSG_DRAW, 0);
 		}
+		
 		update_hw_screen();
 	}
 	while(update_dialog(p));
+
+	screen = oldscreen;
 	
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
@@ -8962,7 +8805,6 @@ void System()
 	{
 		kill_sfx();
 		music_stop();
-		clear_to_color(screen,BLACK);
 		update_hw_screen();
 	}
 	else
@@ -8982,31 +8824,8 @@ void System()
 	//  text_mode(0);
 }
 
-void fix_dialog(DIALOG *d)
-{
-	for(; d->proc != NULL; d++)
-	{
-		d->x += scrx;
-		d->y += scry;
-	}
-}
-
 void fix_dialogs()
 {
-	/*
-	  int32_t x = scrx-(sbig?160:0);
-	  int32_t y = scry-(sbig?120:0);
-	  if(x>0) x+=3;
-	  if(y>0) y+=3;
-	  if(x<0) x=0;
-	  if(y<0) y=0;
-	
-	  system_dlg[0].x = x;
-	  system_dlg[0].y = y;
-	  system_dlg2[0].x = x;
-	  system_dlg2[0].y = y;
-	*/
-	
 	jwin_center_dialog(about_dlg);
 	jwin_center_dialog(gamepad_dlg);
 	jwin_center_dialog(credits_dlg);
@@ -9020,18 +8839,18 @@ void fix_dialogs()
 	jwin_center_dialog(sound_dlg);
 	jwin_center_dialog(triforce_dlg);
 	
-	digi_dp[1] += scrx;
-	digi_dp[2] += scry;
-	midi_dp[1] += scrx;
-	midi_dp[2] += scry;
-	pan_dp[1]  += scrx;
-	pan_dp[2]  += scry;
-	emus_dp[1]  += scrx;
-	emus_dp[2]  += scry;
-	buf_dp[1]  += scrx;
-	buf_dp[2]  += scry;
-	sfx_dp[1]  += scrx;
-	sfx_dp[2]  += scry;
+	// digi_dp[1] += scrx;
+	// digi_dp[2] += scry;
+	// midi_dp[1] += scrx;
+	// midi_dp[2] += scry;
+	// pan_dp[1]  += scrx;
+	// pan_dp[2]  += scry;
+	// emus_dp[1]  += scrx;
+	// emus_dp[2]  += scry;
+	// buf_dp[1]  += scrx;
+	// buf_dp[2]  += scry;
+	// sfx_dp[1]  += scrx;
+	// sfx_dp[2]  += scry;
 }
 
 /*****************************/
@@ -9513,20 +9332,7 @@ const char* joybtn_name(int32_t b)
 
 int32_t next_press_key()
 {
-	char k[127];
-
-	for(int32_t i=0; i<127; i++)
-		k[i]=key[i];
-		
-	for(;;)
-	{
-		for(int32_t i=0; i<127; i++)
-			if(key[i]!=k[i])
-				return i;
-		rest(1);
-	}
-
-	//	return (readkey()>>8);
+	return readkey()>>8;
 }
 
 int32_t next_press_btn()
@@ -9589,34 +9395,12 @@ int32_t next_press_btn()
 	}
 }
 
-static bool rButton(bool(proc)(),bool &flag)
+static bool rButton(bool &btn, bool &flag, bool* rawbtn = nullptr)
 {
-	if(!proc())
-	{
-		flag=false;
-	}
-	else if(!flag)
-	{
-		flag=true;
-		return true;
-	}
+	bool ret = btn && !flag;
+	flag = rawbtn ? *rawbtn : btn;
 	
-	return false;
-}
-
-static bool rButton(bool &btn, bool &flag)
-{
-	if(!btn)
-	{
-		flag=false;
-	}
-	else if(!flag)
-	{
-		flag=true;
-		return true;
-	}
-	
-	return false;
+	return ret;
 }
 static bool rButtonPeek(bool btn, bool flag)
 {
@@ -9635,71 +9419,27 @@ static bool rButtonPeek(bool btn, bool flag)
 // Updated only by keyboard/gamepad.
 // If in replay mode, this is set directly by the replay system.
 // This should never be read from directly - use control_state instead.
-bool raw_control_state[ZC_CONTROL_STATES]=
-{
-	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-};
+bool raw_control_state[ZC_CONTROL_STATES];
 
 // Every call to load_control_state (pretty much every frame) resets this to be equal to raw_control_state.
 // This state can drift from raw_control_state if button states are "eaten" or overriden by a script. But that only
 // lasts until the next call to load_control_state.
-bool control_state[ZC_CONTROL_STATES]=
-{
-	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-};
+bool control_state[ZC_CONTROL_STATES];
+bool disable_control[ZC_CONTROL_STATES];
+bool drunk_toggle_state[11];
+bool disabledKeys[127];
+bool KeyInput[127];
+bool KeyPress[127];
 
-bool disable_control[ZC_CONTROL_STATES]=
-{
-	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
-};
+bool key_current_frame[127];
+bool key_previous_frame[127];
 
-bool drunk_toggle_state[11]=
-{
-	false, false, false, false, false, false, false, false, false, false, false
-};
+static bool key_system[127];
+static bool key_system_previous[127];
+static bool key_system_press[127];
 
-bool disabledKeys[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
-
-bool KeyInput[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
-
-bool KeyPress[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
-
-bool key_truestate[127]=
-{
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,
-	false,false,false,false,false,false,false
-};
-
-bool button_press[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
-bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
+bool button_press[ZC_CONTROL_STATES];
+bool button_hold[ZC_CONTROL_STATES];
 
 #define STICK_1_X joy[joystick_index].stick[js_stick_1_x_stick].axis[js_stick_1_x_axis]
 #define STICK_1_Y joy[joystick_index].stick[js_stick_1_y_stick].axis[js_stick_1_y_axis]
@@ -9709,7 +9449,12 @@ bool button_hold[ZC_CONTROL_STATES] = {false, false, false, false, false, false,
 
 void load_control_state()
 {
-	locking_keys = true;
+	if (!replay_is_active() || replay_get_version() >= 8)
+	{
+		for (int i = 0; i < ZC_CONTROL_STATES; i++)
+			down_control_states[i] = raw_control_state[i];
+	}
+
 	if (!replay_is_replaying())
 	{
 		raw_control_state[0]=zc_getrawkey(DUkey, true)||(analog_movement ? STICK_1_Y.d1 || STICK_1_Y.pos - js_stick_1_y_offset < -STICK_PRECISION : joybtn(DUbtn));
@@ -9748,18 +9493,22 @@ void load_control_state()
 	{
 		if (replay_get_version() < 3)
 			replay_poll();
-		else if (replay_is_replaying())
+		else if (replay_is_replaying() && replay_get_version() < 6)
+			replay_peek_input();
+		else if (replay_is_replaying() && replay_get_version() >= 8)
 			replay_peek_input();
 	}
-	locking_keys = false;
+
+	if (!replay_is_active() || replay_get_version() >= 8)
+		update_keys();
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
-	bool botched_input = replay_is_replaying() && replay_get_version() == 1;
+	bool botched_input = replay_is_active() && replay_get_version() != 1 && replay_get_version() < 8;
 	for (int i = 0; i < ZC_CONTROL_STATES; i++)
 	{
 		control_state[i] = raw_control_state[i];
-		if(!botched_input && !control_state[i])
+		if (botched_input && !control_state[i])
 			down_control_states[i] = false;
 	}
 	
@@ -9809,33 +9558,38 @@ bool zc_key_pressed()
 
 bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
-	bool ret = false, drunkstate = false;
+	bool ret = false, drunkstate = false, rawret = false;
 	bool* flag = &down_control_states[btn];
 	switch(btn)
 	{
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F12, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F11, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F5, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
+			rawret = zc_getrawkey(KEY_Q, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
+			rawret = zc_getrawkey(KEY_I, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
+			rawret = ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			eatEntirely = false;
 			break;
 		default: //control_state[] index
@@ -9843,13 +9597,15 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
+			rawret = raw_control_state[btn];
 	}
 	assert(flag);
 	if(press)
 	{
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
-		else ret = rButton(ret, *flag);
+		else if (replay_is_active() && replay_get_version() < 8) ret = rButton(ret, *flag);
+		else ret = rButton(ret, *flag, &rawret);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
@@ -10050,17 +9806,9 @@ bool rAxisRight()
 	return getInput(btnAxisRight, true);
 }
 
-bool rF12()
-{
-	return getInput(btnF12, true);
-}
 bool rF11()
 {
 	return getInput(btnF11, true);
-}
-bool rF5()
-{
-	return getInput(btnF5, true);
 }
 bool rQ()
 {
@@ -10200,6 +9948,10 @@ void eat_buttons()
 	getInput(btnEx4, true, false, true);
 }
 
+// Is true for the _first frame_ of a key press.
+// But! it is possible that a script manually sets the value of KeyPress,
+// in which case it will be restored to the "true" value based on `key_current_frame`
+// and `key_previous_frame` on the next frame.
 bool zc_readkey(int32_t k, bool ignoreDisable)
 {
 	if(ignoreDisable) return KeyPress[k];
@@ -10215,6 +9967,10 @@ bool zc_readkey(int32_t k, bool ignoreDisable)
 	}
 }
 
+// Is true for _every frame_ a key is held down.
+// But! it is possible that a script manually sets the value of KeyInput,
+// in which case it will be restored to the "true" value based on `key_current_frame`
+// on the next frame.
 bool zc_getkey(int32_t k, bool ignoreDisable)
 {
 	if(ignoreDisable) return KeyInput[k];
@@ -10230,39 +9986,98 @@ bool zc_getkey(int32_t k, bool ignoreDisable)
 	}
 }
 
+// Reads (and then clears) the current frame key state directly.
+// Scripts can also modify `key_current_frame`.
 bool zc_readrawkey(int32_t k, bool ignoreDisable)
 {
 	if(zc_getrawkey(k, ignoreDisable))
 	{
-		key[k]=0;
+		_key[k]=key[k]=key_current_frame[k]=0;
 		return true;
 	}
-	key[k]=0;
+	_key[k]=key[k]=key_current_frame[k]=0;
 	return false;
 }
 
+// Reads the current frame key state directly.
+// Scripts can also modify `key_current_frame`.
 bool zc_getrawkey(int32_t k, bool ignoreDisable)
 {
-	if(ignoreDisable) return key[k];
+	if(ignoreDisable) return key_current_frame[k];
 	switch(k)
 	{
 		case KEY_F7:
 		case KEY_F8:
 		case KEY_F9:
-			return key[k];
+			return key_current_frame[k];
 			
 		default:
-			return key[k] && !disabledKeys[k];
+			return key_current_frame[k] && !disabledKeys[k];
+	}
+}
+
+// Only used for a handful of keys, like tilde and Function keys.
+// This state is never read within the game.
+// It exists so that all keyboard input still functions during replay,
+// without inadvertently doing things like toggling throttling if the player
+// presses ~
+bool zc_get_system_key(int32_t k)
+{
+	return key_system[k];
+}
+
+// True for the _first_ frame of a key press.
+bool zc_read_system_key(int32_t k)
+{
+	return key_system_press[k];
+}
+
+bool is_system_key(int32_t k)
+{
+	switch (k)
+	{
+		case KEY_BACKQUOTE:
+		case KEY_CLOSEBRACE:
+		case KEY_END:
+		case KEY_HOME:
+		case KEY_OPENBRACE:
+		case KEY_PGDN:
+		case KEY_PGUP:
+		case KEY_TAB:
+		case KEY_TILDE:
+			return true;
+	}
+	return is_Fkey(k);
+}
+
+void update_system_keys()
+{
+	poll_keyboard();
+	for (int32_t q = 0; q < 127; ++q)
+	{
+		if (!is_system_key(q))
+			continue;
+
+		key_system[q] = key[q];
+		key_system_press[q] = key_system[q] && !key_system_previous[q];
+		key_system_previous[q] = key_system[q];
 	}
 }
 
 void update_keys()
 {
-	for(int32_t q = 0; q < 127; ++q)
+	if (!replay_is_replaying())
+		poll_keyboard();
+
+	for (int32_t q = 0; q < 127; ++q)
 	{
-		KeyPress[q] = key[q] && !key_truestate[q];
-		KeyInput[q] = key[q];
-		key_truestate[q] = key[q];
+		// When replaying, replay.cpp takes care of updating `key_current_frame`.
+		if (!replay_is_replaying())
+			key_current_frame[q] = key[q];
+
+		KeyPress[q] = key_current_frame[q] && !key_previous_frame[q];
+		KeyInput[q] = key_current_frame[q];
+		key_previous_frame[q] = key_current_frame[q];
 	}
 }
 

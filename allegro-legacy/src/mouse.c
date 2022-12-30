@@ -205,10 +205,10 @@ static void draw_mouse(int remove, int add)
    int newmy = _mouse_y;
 
    // local edit - hack to apply correct scaling to mouse position
-   if (!all_get_fullscreen_flag()) {
-      newmx /= all_get_scale();
-      newmy /= all_get_scale();
-   }
+   // if (!all_get_fullscreen_flag()) {
+   newmx = gui_mouse_x();
+   newmy = gui_mouse_y();
+   // }
 
    int cf = _mouse_screen->clip;
    int cl = _mouse_screen->cl;

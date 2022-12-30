@@ -887,7 +887,7 @@ int32_t onSave()
         jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
     }
     
-    last_timed_save[0]=0;
+	set_last_timed_save(nullptr);
     return D_O_K;
 }
 
@@ -945,7 +945,7 @@ int32_t onSaveAs()
     }
     
     refresh(rMENU);
-    last_timed_save[0]=0;
+	set_last_timed_save(nullptr);
     return D_O_K;
 }
 
@@ -1009,7 +1009,7 @@ int32_t open_quest(char const* path)
 	rebuild_string_list();
 	onDrawingModeNormal();
 	refresh(rALL);
-	last_timed_save[0]=0;
+	set_last_timed_save(nullptr);
 	return ret;
 }
 
@@ -1093,7 +1093,7 @@ int32_t onRevert()
     }
     
     onDrawingModeNormal();
-    last_timed_save[0]=0;
+	set_last_timed_save(nullptr);
     return D_O_K;
 }
 
@@ -1131,6 +1131,7 @@ int32_t get_import_map_bias()
             if(import_map_bias_dlg[i+4].flags&D_SELECTED)
             {
                 ImportMapBias=i;
+				zc_set_config("zquest","import_map_bias",ImportMapBias);
                 break;
             }
         }

@@ -10,7 +10,6 @@
 #include "zq_custom.h"
 #include "zq_misc.h"
 #include "zq_tiles.h"
-#include "zqscale.h"
 #include "zquest.h"
 #include "base/zsys.h"
 #include <map>
@@ -561,7 +560,7 @@ int32_t onStrings()
 	
 	strlist_dlg[0].dp2=lfont;
 	int32_t index=0;
-	char msgmore_xstring[5], msgmore_ystring[5], msgspeed_string[3], template_string[6];
+	char msgmore_xstring[5], msgmore_ystring[5], msgspeed_string[5], template_string[6];
 	int32_t morex=zinit.msg_more_x;
 	int32_t morey=zinit.msg_more_y;
 	int32_t msgspeed = zinit.msg_speed;
@@ -1381,8 +1380,6 @@ const char *stringcatlist(int32_t index, int32_t *list_size)
 
 // Dialog procs
  //
-
-extern int32_t zqwin_scale;
 
 int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c)
 {

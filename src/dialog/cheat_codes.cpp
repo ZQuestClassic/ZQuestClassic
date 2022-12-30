@@ -18,7 +18,6 @@ std::shared_ptr<GUI::Widget> CheatCodesDialog::view()
 
 	return Window(
 		title = "Cheat Codes",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Column(
 			enabledCB = Checkbox(

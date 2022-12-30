@@ -42,6 +42,7 @@ particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
 #include <al5img.h>
+#include <loadpng.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/room.h"
@@ -61,6 +62,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zquest.h"
 #include "zquestdat.h"
 #include "ffasm.h"
+#include "render.h"
 
 // the following are used by both zelda.cc and zquest.cc
 #include "base/zdefs.h"
@@ -89,10 +91,11 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "ffasmexport.h"
 #include <fstream>
 #include "base/module.h"
-#include "zscrdata.h"
+//#include "zscrdata.h"
 #include "drawing.h"
 #include "ConsoleLogger.h"
 
+extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -171,7 +174,6 @@ extern CConsoleLoggerEx zscript_coloured_console;
 uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
 
-#include "zqscale.h"
 #include "base/util.h"
 
 #ifdef __EMSCRIPTEN__
@@ -204,16 +206,9 @@ int32_t passive_subscreen_height=56;
 int32_t passive_subscreen_offset=0;
 
 bool disable_saving=false, OverwriteProtection;
-int32_t scale_arg;
-int32_t zq_scale_small, zq_scale_large, zq_scale;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
-
-byte compile_success_sample = 0;
-byte compile_error_sample = 0;
-byte compile_finish_sample = 0;
-byte compile_audio_volume = 0;
 
 // Used to find FFC script names
 vector<string> asffcscripts;
@@ -293,6 +288,14 @@ int32_t favorite_combos[MAXFAVORITECOMBOS];
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int32_t favorite_commands[MAXFAVORITECOMMANDS];
 
+void write_fav_command(int ind, int val)
+{
+	favorite_commands[ind] = val;
+    char buf[32];
+	sprintf(buf, "command%02d", ind+1);
+	zc_set_config("zquest", buf, val);
+}
+
 #define MAXPOOLCOMBOS MAXFAVORITECOMBOS
 
 struct cmbdat_pair
@@ -354,7 +357,6 @@ int32_t showxypos_cursor_x;
 int32_t showxypos_cursor_y;
 bool showxypos_cursor_icon=false;
 
-bool close_button_quit=false;
 bool canfill=true;                                          //to prevent double-filling (which stops undos)
 bool resize_mouse_pos=false;                                //for eyeball combos
 int32_t lens_hint_item[MAXITEMS][2];                            //aclk, aframe
@@ -397,7 +399,7 @@ script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 // Dummy - needed to compile, but unused
-refInfo ffcScriptData[32];
+refInfo ffcScriptData[MAXFFCS];
 
 extern string zScript;
 char zScriptBytes[512];
@@ -494,13 +496,13 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 0, DisableCompileConsole = 0, numericalFlags = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
-bool Vsync = false, ShowFPS = false;
+int32_t window_width, window_height;
+bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
-int32_t BrushPosition = 0;                                          //top left, middle, bottom right, etc.
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
@@ -522,7 +524,6 @@ int32_t BrushWidth=1, BrushHeight=1;
 bool quit=false,saved=true;
 bool __debug=false;
 //bool usetiles=true;
-byte LayerMask[2]={0};                                          //determines which layers are on or off.  0-15
 int32_t LayerMaskInt[7]={0};
 int32_t CurrentLayer=0;
 int32_t DuplicateAction[4]={0};
@@ -544,7 +545,7 @@ int32_t SnapshotFormat = 0;
 int32_t memrequested = 0;
 byte Color = 0;
 extern int32_t jwin_pal[jcMAX];
-int32_t gui_colorset=0;
+int32_t gui_colorset=99;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 static int32_t combo_apos=0; //currently selected combo alias
@@ -576,11 +577,24 @@ int32_t ff_combo = 0;
 
 int32_t Frameskip = 0, RequestedFPS = 60, zqUseWin32Proc = 1, ForceExit = 0;
 int32_t zqColorDepth = 8;
-byte disable_direct_updating = 0;
 int32_t joystick_index=0;
 
 char *getBetaControlString();
 
+void set_last_timed_save(char const* buf)
+{
+	if(buf && buf[0])
+	{
+		if(buf != last_timed_save)
+			strcpy(last_timed_save, buf);
+    }
+	else
+	{
+		last_timed_save[0] = 0;
+		buf = nullptr;
+	}
+	zc_set_config("zquest","last_timed_save",buf);
+}
 
 void loadlvlpal(int32_t level);
 bool get_debug()
@@ -922,6 +936,7 @@ void update_recent_quest(char const* path)
 	}
 	strncpy(rec_menu_strs[0], buf, 63);
 	refresh_recent_menu();
+	zc_set_config("zquest",last_quest_name,path);
 	write_recent_quests();
 }
 
@@ -1051,6 +1066,12 @@ int32_t onTestQst()
 int32_t onRulesDlg()
 {
 	call_qr_dialog((is_large?21:12), set_rules);
+	return D_O_K;
+}
+
+int32_t onRulesSearch()
+{
+	call_qrsearch_dialog(set_rules);
 	return D_O_K;
 }
 
@@ -1367,9 +1388,8 @@ static MENU etc_menu[] =
 	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
-	{ (char *)"Save ZQuest &Configuraton",  onSaveZQuestSettings,      NULL,                     0,            NULL   },
-	// 15
 	{ (char *)"C&lear Quest Filepath",      onClearQuestFilepath,      NULL,                     0,            NULL   },
+	// 15
 	{ (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1421,13 +1441,12 @@ static MENU etc_menu_smallmode[] =
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	// 10
-	{ (char *)"Save ZQuest Configuraton",   onSaveZQuestSettings,      NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
 	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	// 15
 	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
+	// 15
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 void set_console_state()
@@ -1532,8 +1551,6 @@ int32_t onResetTransparency()
     return D_O_K;
 }
 
-extern int32_t zqwin_scale;
-
 int32_t onFullScreen()
 {
 	
@@ -1550,7 +1567,6 @@ int32_t onFullScreen()
 		0, 
 		lfont) == 1)	
     {
-	    int32_t old_scale = zqwin_scale;
 	#ifdef ALLEGRO_DOS
 	    return D_O_K;
 	#endif
@@ -1558,63 +1574,13 @@ int32_t onFullScreen()
 	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
-	    if(windowed)
-	    {
-		zqwin_set_scale(1);
-	    }
-	    else
-	    {
-		zqwin_set_scale(scale_arg);
-	    }
-
-	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-	    
+	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
 	    if(ret!=0)
 	    {
-		if(zqwin_scale==1&&windowed)
-		{
-		    zqwin_set_scale(2);
-		    ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-		    
-		    if(ret!=0)
-		    {
-			zqwin_set_scale(scale_arg);
-			ret=set_gfx_mode(GFX_AUTODETECT_WINDOWED,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-			
-			if(ret!=0)
-			{
-			    /*FFCore.ZScriptConsole
-			    (
-				
-				CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Can't set video mode (%d).\n", ret
-			    );*/
-			    Z_message("Can't set video mode (%d).\n", ret);
-			    Z_message(allegro_error);
-			    //quit_game();
-			    exit(1);
-			}
-		    }
-		}
-		else
-		{
-		    zqwin_set_scale(old_scale);
-		    ret=set_gfx_mode(GFX_AUTODETECT_FULLSCREEN,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0);
-		    
-		    if(ret!=0)
-		    {
-			/*FFCore.ZScriptConsole
-			(
-				CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"Can't set video mode (%d).\n", ret
-			);*/
-			
 			Z_message("Can't set video mode (%d).\n", ret);
 			Z_message(allegro_error);
 			// quit_game();
 			exit(1);
-		    }
-		}
 	    }
 	    
 	    gui_mouse_focus=0;
@@ -1627,6 +1593,7 @@ int32_t onFullScreen()
 	    set_display_switch_mode(SWITCH_BACKGROUND);
 	    set_display_switch_callback(SWITCH_OUT, switch_out);
 	    set_display_switch_callback(SWITCH_IN, switch_in);
+		zc_set_config("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
 	    return D_REDRAW;
     }
     else return D_O_K;
@@ -1663,10 +1630,12 @@ int32_t onToggleGrid()
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
     {
         GridColor=(GridColor+8)%16;
+		zc_set_config("zquest", "grid_color", GridColor);
     }
     else
     {
         ShowGrid=!ShowGrid;
+		zc_set_config("zquest","show_grid",ShowGrid);
     }
     
     return D_O_K;
@@ -1675,18 +1644,21 @@ int32_t onToggleGrid()
 int32_t onToggleShowScripts()
 {
     ShowFFScripts=!ShowFFScripts;
+    zc_set_config("zquest","showffscripts",ShowFFScripts);
     return D_O_K;
 }
 
 int32_t onToggleShowSquares()
 {
     ShowSquares=!ShowSquares;
+    zc_set_config("zquest","showsquares",ShowSquares);
     return D_O_K;
 }
 
 int32_t onToggleShowInfo()
 {
     ShowInfo=!ShowInfo;
+	zc_set_config("zquest","showinfo",ShowInfo);
     return D_O_K;
 }
 
@@ -1986,14 +1958,14 @@ void savesometiles(const char *prompt,int32_t initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, NEWMAXTILES-first_tile_id);
 		if(getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
 		{  
-			char name[256];
+			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
 				writetilefile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -2039,21 +2011,21 @@ void about_module(const char *prompt,int32_t initialval)
 {	
 	
 	module_info_dlg[0].dp2 = lfont;
-	if ( moduledata.moduletitle[0] != NULL )
+	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
-	if ( moduledata.moduleauthor[0] != NULL )
+	if ( moduledata.moduleauthor[0] != 0 )
 		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
 	
-	if ( moduledata.moduleinfo0[0] != NULL )
+	if ( moduledata.moduleinfo0[0] != 0 )
 		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != NULL )
+	if ( moduledata.moduleinfo1[0] != 0 )
 		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != NULL )
+	if ( moduledata.moduleinfo2[0] != 0 )
 		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != NULL )
+	if ( moduledata.moduleinfo3[0] != 0 )
 		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != NULL )
+	if ( moduledata.moduleinfo4[0] != 0 )
 		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
 	
 	char module_date[255];
@@ -2223,14 +2195,14 @@ void savesomecombos(const char *prompt,int32_t initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOS-1)-first_tile_id);
 		if(getname("Save ZCOMBO(.zcombo)", "zcombo", NULL,datapath,false))
 		{  
-			char name[256];
+			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
 				writecombofile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -2572,16 +2544,16 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 		{
 			if(!writesomedmaps(f,first_dmap_id,last_dmap_id,MAXDMAPS))
 			{
-				char buf[80],name[256];
+				char buf[PATH_MAX+20],name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
 				sprintf(buf,"Unable to load %s",name);
 				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
 			else
 			{
-				char name[256];
+				char name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -2644,14 +2616,14 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 		the_tile_count = vbound(atoi(tilecount), 1, (MAXCOMBOALIASES-1)-first_tile_id);
 		if(getname("Save ZALIAS(.zalias)", "zalias", NULL,datapath,false))
 		{  
-			char name[256];
+			char name[PATH_MAX];
 			extract_name(temppath,name,FILENAMEALL);
 			PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
 			if(f)
 			{
 				writecomboaliasfile(f,first_tile_id,the_tile_count);
 				pack_fclose(f);
-				char tmpbuf[80]={0};
+				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
 				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 			}
@@ -3089,6 +3061,7 @@ static ListData autosave_list(autosavelist, &font);
 static ListData autosave_list2(autosavelist2, &font);
 static ListData color_list(colorlist, &font);
 static ListData snapshotformat_list(snapshotformatlist, &font);
+void init_ffpos();
 
 static DIALOG options_dlg[] =
 {
@@ -3304,24 +3277,13 @@ int32_t onRedo()
     return D_O_K;
 }
 
-extern int16_t ffposx[32];
-extern int16_t ffposy[32];
-extern int32_t ffprvx[32];
-extern int32_t ffprvy[32];
-
 int32_t onCopy()
 {
     if(prv_mode)
     {
         Map.set_prvcmb(Map.get_prvcmb()==0?1:0);
         
-        for(int32_t i=0; i<32; i++)
-        {
-            ffposx[i]=-1000;
-            ffposy[i]=-1000;
-            ffprvx[i]=-10000000;
-            ffprvy[i]=-10000000;
-        }
+        init_ffpos();
         
         return D_O_K;
     }
@@ -4859,7 +4821,7 @@ void EditGameMiscArray()
 		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
 		
 		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
-		if ( miscvalue_labels[q][0] == NULL ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
+		if ( miscvalue_labels[q][0] == 0 ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
 		gamemiscarray_dlg[5+q].dp = miscvalue_labels[q];
 		
 	}
@@ -4965,7 +4927,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     set_palette(dstpal);
     
-    BITMAP *graypic = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
+    BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
     int32_t _w = screen->w-1;
     int32_t _h = screen->h-1;
     
@@ -4980,8 +4942,11 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
         }
     }
     
-    blit(graypic,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+    blit(graypic,screen,0,0,0,0,screen->w,screen->h);
     destroy_bitmap(graypic);
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
     char extbuf[2][80];
     memset(extbuf[0],0,80);
     memset(extbuf[1],0,80);
@@ -4995,6 +4960,9 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     }
     
     sprintf(extbuf[0], "%s)", extbuf[0]);
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
     
     int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
     
@@ -5871,7 +5839,7 @@ void tile_warp_notification(int32_t which, char *buf)
         
     default:
     {
-        char buf2[25];
+        char buf2[30];
         
         if(strlen(DMaps[Map.CurrScr()->tilewarpdmap[which]].name)==0)
         {
@@ -6446,7 +6414,7 @@ void refresh(int32_t flags)
             
             for(int32_t btn=0; btn<(showedges?9:8); ++btn)
             {
-                char tbuf[10];
+                char tbuf[15];
                 sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
                 draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
             }
@@ -7166,14 +7134,19 @@ void refresh(int32_t flags)
         int32_t ypos = ShowFPS ? 28 : 18;
         size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
 		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,text_height(is_large ? lfont_l : font));
-        for(int32_t i=0; i< MAXFFCS; i++)
-            if(Map.CurrScr()->ffscript[i] && Map.CurrScr()->ffdata[i])
+		word c = Map.CurrScr()->numFFC();
+        for(word i=0; i< c; i++)
+		{
+			if(ypos > (is_large ? 420 : 180))
+				break;
+            if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
             {
 				clear_bitmap(tempbmp);
-                textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+                textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
                 masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
-				ypos+=16;
+				ypos+=(is_large?14:10);
             }
+		}
 		destroy_bitmap(tempbmp);
     }
     
@@ -7201,7 +7174,7 @@ void refresh(int32_t flags)
 		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
             int32_t m = Map.getLayerTargetMultiple();
             sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
-            char buf2[16];
+            char buf2[24];
             
             if(m>0)
             {
@@ -7344,7 +7317,7 @@ void refresh(int32_t flags)
 			{
 				strcat(buf,item_string[misc.shop[shop].item[j]]);
 				strcat(buf,":");
-				char pricebuf[4];
+				char pricebuf[8];
 				sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
 				strcat(buf,pricebuf);
 				
@@ -7364,7 +7337,7 @@ void refresh(int32_t flags)
 			{
 				strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
 				strcat(buf,":");
-				char pricebuf[4];
+				char pricebuf[8];
 				sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
 				strcat(buf,pricebuf);
 				
@@ -7429,16 +7402,17 @@ void refresh(int32_t flags)
         
         bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
         
-        for(int32_t c=0; c<176+128+1+MAXFFCS; ++c)
+		word maxffc = Map.CurrScr()->numFFC();
+        for(int32_t c=0; c<176+128+1+maxffc; ++c)
         {
             // Checks both combos, secret combos, undercombos and FFCs
 //Fixme:
             int32_t ctype =
                 combobuf[vbound(
-                             (c>=305 ? Map.CurrScr()->ffdata[c-305] :
+                             (c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
                               c>=304 ? Map.CurrScr()->undercombo :
                               c>=176 ? Map.CurrScr()->secretcombo[c-176] :
-                              Map.CurrScr()->data.empty() ? 0 : // Sanity check: does room combo data exist?
+                              !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
                               Map.CurrScr()->data[c]
                              ), 0, MAXCOMBOS-1)].type;
                              
@@ -7633,9 +7607,7 @@ void refresh(int32_t flags)
     
     unscare_mouse();
     SCRFIX();
-#ifdef __EMSCRIPTEN__
-    all_render_screen();
-#endif
+	update_hw_screen();
 }
 
 void select_scr()
@@ -7983,7 +7955,12 @@ void draw(bool justcset)
             int32_t cxstart=(x-startxint)/int32_t(16*mapscreensize);
             int32_t cystart=(y-startyint)/int32_t(16*mapscreensize);
             int32_t cstart=(cystart*16)+cxstart;
-			if(cstart == lastpos) continue;
+			if(cstart == lastpos)
+			{
+				do_animations();
+				refresh(rALL);
+				continue;
+			}
 			lastpos = cstart;
             combo_alias *combo = &combo_aliases[combo_apos];
             
@@ -8522,38 +8499,38 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
     }
 }
 
-static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
+static void fill_flag(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal)
 {
 	if((fillscr->sflag[((sy<<4)+sx)])!=targetflag)
 		return;
 	
-    Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), (sy<<4)+sx, Flag);
+    Map.DoSetFlagCommand(map, screen_index, (sy<<4)+sx, Flag);
 	
 	if((sy>0) && (dir!=down))
-		fill_flag(fillscr, targetflag, sx, sy-1, up, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx, sy-1, up, diagonal);
 		
 	if((sy<10) && (dir!=up))
-		fill_flag(fillscr, targetflag, sx, sy+1, down, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx, sy+1, down, diagonal);
 		
 	if((sx>0) && (dir!=right))
-		fill_flag(fillscr, targetflag, sx-1, sy, left, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy, left, diagonal);
 		
 	if((sx<15) && (dir!=left))
-		fill_flag(fillscr, targetflag, sx+1, sy, right, diagonal);
+		fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy, right, diagonal);
 		
 	if(diagonal==1)
 	{
 		if((sy>0) && (sx>0) && (dir!=r_down))
-			fill_flag(fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy-1, l_up, diagonal);
 			
 		if((sy<10) && (sx<15) && (dir!=l_up))
-			fill_flag(fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy+1, r_down, diagonal);
 			
 		if((sx>0) && (sy<10) && (dir!=r_up))
-			fill_flag(fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx-1, sy+1, l_down, diagonal);
 			
 		if((sx<15) && (sy>0) && (dir!=l_down))
-			fill_flag(fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
+			fill_flag(map, screen_index, fillscr, targetflag, sx+1, sy-1, r_up, diagonal);
 	}
 	
 }
@@ -8652,7 +8629,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
         if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
             scare_mouse();
-            zq_set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
+            set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
             
             while(gui_mouse_b()==1)
             {
@@ -8686,7 +8663,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
                 py2=byte(vbound(y,0,255)&mask);
             }
             
-            zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+            set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
             unscare_mouse();
             done=true;
         }
@@ -8734,11 +8711,6 @@ finished:
 
 void doflags()
 {
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		select_mouse_cursor(MOUSE_CURSOR_ALLEGRO);
-		disable_hardware_cursor();
-	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	int32_t of=Flags;
 	Flags=cFLAGS;
@@ -8922,16 +8894,10 @@ void doflags()
 		
 		do_animations();
 		refresh(rALL | rNOCURSOR);
-		zc_process_mouse_events();
 	}
 	
 finished:
 	Flags=of;
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-		enable_hardware_cursor();
-	}
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	refresh(rMAP+rMENU);
 	
@@ -8945,17 +8911,17 @@ finished:
 // Drag FFCs around
 void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
-    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffx[i]/10000.0),0,240);
-    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffy[i]/10000.0),0,160);
+    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffcs[i].x.getFloat()),0,240);
+    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffcs[i].y.getFloat()),0,160);
 	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
-    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,((1+(Map.CurrScr()->ffwidth[i]>>6))*16),((1+(Map.CurrScr()->ffheight[i]>>6))*16));
+    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));
     if(ffx > 240) ffx = 240;
     if(ffy > 160) ffy = 160;
     if((ffx != offx) || (ffy != offy))
     {
-        Map.CurrScr()->ffx[i] = ffx*10000;
-        Map.CurrScr()->ffy[i] = ffy*10000;
+        Map.CurrScr()->ffcs[i].x = ffx;
+        Map.CurrScr()->ffcs[i].y = ffy;
         saved = false;
     }
 }
@@ -9307,7 +9273,7 @@ void fill_4_flag()
         }
         
         Map.StartListCommand();
-		fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+		fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
         Map.FinishListCommand();
@@ -9398,7 +9364,7 @@ void fill_8_flag()
         }
         
         Map.StartListCommand();
-        fill_flag(Map.AbsoluteScr(drawmap, drawscr),
+        fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
              (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
         Map.FinishListCommand();
@@ -10012,14 +9978,14 @@ void domouse()
 	if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
 	{
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
-			if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+			if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 			{
-				int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-				int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+				int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+				int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 				int32_t cx2 = (x-startxint)/mapscreensize;
 				int32_t cy2 = (y-startyint)/mapscreensize;
 				
-				if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+				if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 				{
 					// FFC tooltip
 					if(tooltip_current_ffc != i)
@@ -10030,9 +9996,9 @@ void domouse()
 					tooltip_current_ffc = i;
 					char msg[1024] = {0};
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-							i+1, Map.CurrScr()->ffdata[i],Map.CurrScr()->ffcset[i],
-							combo_class_buf[combobuf[Map.CurrScr()->ffdata[i]].type].name,
-							(Map.CurrScr()->ffscript[i]<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffscript[i]-1].scriptname.substr(0,400).c_str()));
+							i+1, Map.CurrScr()->ffcs[i].getData(),Map.CurrScr()->ffcs[i].getData(),
+							combo_class_buf[combobuf[Map.CurrScr()->ffcs[i].getData()].type].name,
+							(Map.CurrScr()->ffcs[i].script<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,400).c_str()));
 					update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
 					break;
 				}
@@ -10213,12 +10179,12 @@ void domouse()
 			
 			// Move FFCs
 			for(int32_t i=MAXFFCS-1; i>=0; i--)
-				if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+				if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 				{
-					int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-					int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+					int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+					int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 					
-					if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+					if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 					{
 						moveffc(i,cx2,cy2);
 						break;
@@ -10287,7 +10253,7 @@ void domouse()
 		{
 			for(int32_t btn=0; btn<(showedges?9:8); ++btn)
 			{
-				char tbuf[10];
+				char tbuf[15];
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
 				
 				if(isinRect(x,y,mapscreen_x+(btn*16*2*mapscreensize),mapscreen_y+((showedges?13:11)*16*mapscreensize),mapscreen_x+(btn*16*2*mapscreensize)+map_page_bar[btn].w,mapscreen_y+((showedges?13:11)*16*mapscreensize)+map_page_bar[btn].h))
@@ -10854,11 +10820,11 @@ void domouse()
 						font=tfont;
 						if(ctrl)
 						{
-							favorite_commands[cmd]=0;
+							write_fav_command(cmd,0);
 						}
 						else if(shift || favorite_commands[cmd]==0)
 						{
-							favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
+							write_fav_command(cmd,onCommand(favorite_commands[cmd]));
 						}
 						else
 						{
@@ -10928,26 +10894,31 @@ void domouse()
 			ComboBrushPause=0;
 			
 			bool clickedffc = false;
-			int32_t earliestfreeffc = MAXFFCS;
+			uint32_t earliestfreeffc = MAXFFCS;
 			
 			// FFC right-click menu
 			// This loop also serves to find the free ffc with the smallest slot number.
 			for(int32_t i=MAXFFCS-1; i>=0; i--)
 			{
-				if(Map.CurrScr()->ffdata[i]==0 && i < earliestfreeffc)
-					earliestfreeffc = i;
-					
+				auto data = Map.CurrScr()->ffcs[i].getData();
+				if(data==0)
+				{
+					if(i < earliestfreeffc)
+						earliestfreeffc = i;
+					continue;
+				}
+				
 				if(clickedffc || !(Map.CurrScr()->valid&mVALID))
 					continue;
 					
-				if(Map.CurrScr()->ffdata[i]!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffflags[i]&ffOVERLAY)))
+				if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 				{
-					int32_t ffx = int32_t(Map.CurrScr()->ffx[i]/10000.0);
-					int32_t ffy = int32_t(Map.CurrScr()->ffy[i]/10000.0);
+					int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+					int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 					int32_t cx2 = (x-startxint)/mapscreensize;
 					int32_t cy2 = (y-startyint)/mapscreensize;
 					
-					if(cx2 >= ffx && cx2 < ffx+((1+(Map.CurrScr()->ffwidth[i]>>6))*16) && cy2 >= ffy && cy2 < ffy+((1+(Map.CurrScr()->ffheight[i]>>6))*16))
+					if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 					{
 						draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
 						
@@ -10963,7 +10934,7 @@ void domouse()
 							{
 								if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
-                                    Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
+									Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
 									saved=false;
 								}
 							}
@@ -10976,16 +10947,28 @@ void domouse()
 							case 3:
 								if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
-									Map.CurrScr()->ffdata[i] = Map.CurrScr()->ffcset[i] = Map.CurrScr()->ffx[i] = Map.CurrScr()->ffy[i] = Map.CurrScr()->ffxdelta[i] =
-																   Map.CurrScr()->ffydelta[i] = Map.CurrScr()->ffxdelta2[i] = Map.CurrScr()->ffydelta2[i] = Map.CurrScr()->ffflags[i] = Map.CurrScr()->ffscript[i] =
-																		   Map.CurrScr()->fflink[i] = Map.CurrScr()->ffdelay[i] = 0;
-									Map.CurrScr()->ffwidth[i] = Map.CurrScr()->ffheight[i] = 15;
+									Map.CurrScr()->ffcs[i].setData(0);
+									Map.CurrScr()->ffcs[i].cset = 0;
+									Map.CurrScr()->ffcs[i].x = 0;
+									Map.CurrScr()->ffcs[i].y = 0;
+									Map.CurrScr()->ffcs[i].vx = 0;
+									Map.CurrScr()->ffcs[i].vy = 0;
+									Map.CurrScr()->ffcs[i].ax = 0;
+									Map.CurrScr()->ffcs[i].ay = 0;
+									Map.CurrScr()->ffcs[i].flags = 0;
+									Map.CurrScr()->ffcs[i].script = 0;
+									Map.CurrScr()->ffcs[i].link = 0;
+									Map.CurrScr()->ffcs[i].delay = 0;
+									Map.CurrScr()->ffcs[i].hxsz = 16;
+									Map.CurrScr()->ffcs[i].hysz = 16;
+									Map.CurrScr()->ffcs[i].txsz = 1;
+									Map.CurrScr()->ffcs[i].tysz = 1;
 									
 									for(int32_t j=0; j<8; j++)
-										Map.CurrScr()->initd[i][j] = 0;
+										Map.CurrScr()->ffcs[i].initd[j] = 0;
 										
 									for(int32_t j=0; j<2; j++)
-										Map.CurrScr()->inita[i][j] = 10000;
+										Map.CurrScr()->ffcs[i].inita[j] = 10000;
 										
 									saved = false;
 								}
@@ -10993,15 +10976,13 @@ void domouse()
 							
 							case 4: //snap to grid
 							{
-								int32_t oldffx = Map.CurrScr()->ffx[i]/10000;
-								int32_t oldffy = Map.CurrScr()->ffy[i]/10000;
+								int32_t oldffx = Map.CurrScr()->ffcs[i].x.getInt();
+								int32_t oldffy = Map.CurrScr()->ffcs[i].y.getInt();
 								int32_t pos = COMBOPOS(oldffx,oldffy);
-								int32_t newffy = COMBOY(pos)*10000;
-								int32_t newffx = COMBOX(pos)*10000;
-								Map.CurrScr()->ffx[i] = newffx;
-								Map.CurrScr()->ffy[i] = newffy;
-								//Map.CurrScr()->ffx[i] = (Map.CurrScr()->ffx[i]-(Map.CurrScr()->ffx[i] % 16));
-								//Map.CurrScr()->ffy[i] = (Map.CurrScr()->ffy[i]-(Map.CurrScr()->ffy[i] % 16));
+								int32_t newffy = COMBOY(pos);
+								int32_t newffx = COMBOX(pos);
+								Map.CurrScr()->ffcs[i].x = newffx;
+								Map.CurrScr()->ffcs[i].y = newffy;
 								saved = false;
 								break;
 							}
@@ -11181,9 +11162,9 @@ void domouse()
 					
 					case 14:
 					{
-						Map.CurrScr()->ffx[earliestfreeffc] = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-						Map.CurrScr()->ffy[earliestfreeffc] = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-                        Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
+						Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
+						Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
+						Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
 					}
 					break;
 					
@@ -11353,7 +11334,7 @@ void domouse()
 						true,
 						isFavCmdSelected(favorite_commands[cmd])))*/
 					{
-						favorite_commands[cmd]=onCommand(favorite_commands[cmd]);
+						write_fav_command(cmd,onCommand(favorite_commands[cmd]));
 					}
 					
 					font=tfont;
@@ -13572,7 +13553,7 @@ const char *sfxlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static char lenseffect_str_buf[15];
+static char lenseffect_str_buf[30];
 
 const char *lenseffectlist(int32_t index, int32_t *list_size)
 {
@@ -13947,7 +13928,7 @@ int32_t onScrData()
 	char timedstring[6];
 	// char nmapstring[4];
 	// char nscrstring[3];
-	char csensstring[2];
+	char csensstring[4];
 	char tics_secs_str[80];
 	sprintf(tics_secs_str, "=0.00 seconds");
 	char zora_str[85];
@@ -15641,7 +15622,7 @@ int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
     {
     case MSG_DRAW:
     {
-        BITMAP *tempbmp = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
+        BITMAP *tempbmp = create_bitmap_ex(8,screen->w,screen->h);
         clear_bitmap(tempbmp);
         int32_t x=d->x;
         int32_t y=d->y;
@@ -15670,7 +15651,7 @@ int32_t col_width=(is_large ? d->d1 ? 22:11:(d->d1?14:7));
             }
         }
         
-        masked_blit(tempbmp,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        masked_blit(tempbmp,screen,0,0,0,0,screen->w,screen->h);
         destroy_bitmap(tempbmp);
     }
     break;
@@ -16282,7 +16263,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 
 char dmap_title[21];
-char dmap_name[33];
+char dmap_name[21];
 char dmap_intro[73];
 
 
@@ -16738,7 +16719,7 @@ static DIALOG editdmap_dlg[] =
 void editdmap(int32_t index)
 {
 	//DMapEditorLastMaptileUsed = 0;
-	char levelstr[4], compassstr[4], contstr[4], mirrordmapstr[4], tmusicstr[56], dmapnumstr[60];
+	char levelstr[7], compassstr[7], contstr[7], mirrordmapstr[7], tmusicstr[56], dmapnumstr[60];
 	char *tmfname;
 	byte gridstring[8];
 	byte region_indices[8][8];
@@ -16756,9 +16737,9 @@ void editdmap(int32_t index)
 		strcpy(initd_labels[q], DMaps[index].initD_label[q]);
 		strcpy(sub_initd_labels[q], DMaps[index].sub_initD_label[q]);
 		strcpy(onmap_initd_labels[q], DMaps[index].onmap_initD_label[q]);
-		if ( initd_labels[q][0] == NULL ) sprintf(initd_labels[q],"InitD[%d]",q);
-		if ( sub_initd_labels[q][0] == NULL ) sprintf(sub_initd_labels[q],"InitD[%d]",q);
-		if ( onmap_initd_labels[q][0] == NULL ) sprintf(onmap_initd_labels[q],"InitD[%d]",q);
+		if ( initd_labels[q][0] == 0 ) sprintf(initd_labels[q],"InitD[%d]",q);
+		if ( sub_initd_labels[q][0] == 0 ) sprintf(sub_initd_labels[q],"InitD[%d]",q);
+		if ( onmap_initd_labels[q][0] == 0 ) sprintf(onmap_initd_labels[q],"InitD[%d]",q);
 		editdmap_dlg[130+q].dp = initd_labels[q];
 		editdmap_dlg[148+q].dp = sub_initd_labels[q];
 		editdmap_dlg[169+q].dp = onmap_initd_labels[q];
@@ -19636,7 +19617,7 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
                 if(!mousedown||!inrect)
                 {
                     set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-                    zq_set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
+                    set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
                 }
                 
                 rect(bmp, px2, py2, px2+15, py2+15, vc(15));
@@ -19648,7 +19629,7 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
             {
                 if(mousedown||!inrect)
                 {
-                    zq_set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+                    set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
                     set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
                 }
                 
@@ -19978,30 +19959,30 @@ int32_t onTileWarp()
     restore_mouse();
     warp_dlg[0].dp=(void *) "Tile Warp";
     warp_dlg[0].dp2=lfont;
-    warp_dlg[5].x = SCREEN_W+10;
-    warp_dlg[6].x = SCREEN_W+10;
-    warp_dlg[10].x = SCREEN_W+10;
-    warp_dlg[11].x = SCREEN_W+10;
-    warp_dlg[12].x = SCREEN_W+10;
-    warp_dlg[13].x = SCREEN_W+10;
-    warp_dlg[20].x = SCREEN_W+10;
-    warp_dlg[21].x = SCREEN_W+10;
-    warp_dlg[25].x = SCREEN_W+10;
-    warp_dlg[26].x = SCREEN_W+10;
-    warp_dlg[27].x = SCREEN_W+10;
-    warp_dlg[28].x = SCREEN_W+10;
-    warp_dlg[32].x = SCREEN_W+10;
-    warp_dlg[33].x = SCREEN_W+10;
-    warp_dlg[37].x = SCREEN_W+10;
-    warp_dlg[38].x = SCREEN_W+10;
-    warp_dlg[39].x = SCREEN_W+10;
-    warp_dlg[40].x = SCREEN_W+10;
-    warp_dlg[44].x = SCREEN_W+10;
-    warp_dlg[45].x = SCREEN_W+10;
-    warp_dlg[49].x = SCREEN_W+10;
-    warp_dlg[50].x = SCREEN_W+10;
-    warp_dlg[51].x = SCREEN_W+10;
-    warp_dlg[52].x = SCREEN_W+10;
+    warp_dlg[5].x = screen->w + 10;
+    warp_dlg[6].x = screen->w + 10;
+    warp_dlg[10].x = screen->w + 10;
+    warp_dlg[11].x = screen->w + 10;
+    warp_dlg[12].x = screen->w + 10;
+    warp_dlg[13].x = screen->w + 10;
+    warp_dlg[20].x = screen->w + 10;
+    warp_dlg[21].x = screen->w + 10;
+    warp_dlg[25].x = screen->w + 10;
+    warp_dlg[26].x = screen->w + 10;
+    warp_dlg[27].x = screen->w + 10;
+    warp_dlg[28].x = screen->w + 10;
+    warp_dlg[32].x = screen->w + 10;
+    warp_dlg[33].x = screen->w + 10;
+    warp_dlg[37].x = screen->w + 10;
+    warp_dlg[38].x = screen->w + 10;
+    warp_dlg[39].x = screen->w + 10;
+    warp_dlg[40].x = screen->w + 10;
+    warp_dlg[44].x = screen->w + 10;
+    warp_dlg[45].x = screen->w + 10;
+    warp_dlg[49].x = screen->w + 10;
+    warp_dlg[50].x = screen->w + 10;
+    warp_dlg[51].x = screen->w + 10;
+    warp_dlg[52].x = screen->w + 10;
     
     for(int32_t i=0; i<4; i++)
     {
@@ -20890,7 +20871,7 @@ int32_t onBottleShopTypes()
 }
 
 
-static char item_drop_set_str_buf[40];
+static char item_drop_set_str_buf[70];
 int32_t item_drop_set_list_size=MAXITEMDROPSETS;
 
 const char *itemdropsetlist(int32_t index, int32_t *list_size)
@@ -21165,56 +21146,17 @@ void EditWarpRingScr(int32_t ring,int32_t index)
         
         if(m!=67)
         {
-            warpring_warp_dlg[m].x = SCREEN_W+10;
+            warpring_warp_dlg[m].x = screen->w + 10;
         }
     }
     
-    /*int32_t tempx20=warpring_warp_dlg[20].x;
-      int32_t tempx21=warpring_warp_dlg[21].x;
-      int32_t tempx25=warpring_warp_dlg[25].x;
-      int32_t tempx26=warpring_warp_dlg[26].x;
-      int32_t tempx27=warpring_warp_dlg[27].x;
-      int32_t tempx28=warpring_warp_dlg[28].x;
+    warpring_warp_dlg[5].x = screen->w + 10;
+    warpring_warp_dlg[6].x = screen->w + 10;
+    warpring_warp_dlg[10].x = screen->w + 10;
+    warpring_warp_dlg[11].x = screen->w + 10;
+    warpring_warp_dlg[12].x = screen->w + 10;
+    warpring_warp_dlg[13].x = screen->w + 10;
     
-      int32_t tempx32=warpring_warp_dlg[32].x;
-      int32_t tempx33=warpring_warp_dlg[33].x;
-      int32_t tempx37=warpring_warp_dlg[37].x;
-      int32_t tempx38=warpring_warp_dlg[38].x;
-      int32_t tempx39=warpring_warp_dlg[39].x;
-      int32_t tempx40=warpring_warp_dlg[40].x;
-    
-      int32_t tempx44=warpring_warp_dlg[44].x;
-      int32_t tempx45=warpring_warp_dlg[45].x;
-      int32_t tempx49=warpring_warp_dlg[49].x;
-      int32_t tempx50=warpring_warp_dlg[50].x;
-      int32_t tempx51=warpring_warp_dlg[51].x;
-      int32_t tempx52=warpring_warp_dlg[52].x;*/
-    
-    warpring_warp_dlg[5].x = SCREEN_W+10;
-    warpring_warp_dlg[6].x = SCREEN_W+10;
-    warpring_warp_dlg[10].x = SCREEN_W+10;
-    warpring_warp_dlg[11].x = SCREEN_W+10;
-    warpring_warp_dlg[12].x = SCREEN_W+10;
-    warpring_warp_dlg[13].x = SCREEN_W+10;
-    
-    /*warpring_warp_dlg[20].x = SCREEN_W+10;
-      warpring_warp_dlg[21].x = SCREEN_W+10;
-      warpring_warp_dlg[25].x = SCREEN_W+10;
-      warpring_warp_dlg[26].x = SCREEN_W+10;
-      warpring_warp_dlg[27].x = SCREEN_W+10;
-      warpring_warp_dlg[28].x = SCREEN_W+10;
-      warpring_warp_dlg[32].x = SCREEN_W+10;
-      warpring_warp_dlg[33].x = SCREEN_W+10;
-      warpring_warp_dlg[37].x = SCREEN_W+10;
-      warpring_warp_dlg[38].x = SCREEN_W+10;
-      warpring_warp_dlg[39].x = SCREEN_W+10;
-      warpring_warp_dlg[40].x = SCREEN_W+10;
-      warpring_warp_dlg[44].x = SCREEN_W+10;
-      warpring_warp_dlg[45].x = SCREEN_W+10;
-      warpring_warp_dlg[49].x = SCREEN_W+10;
-      warpring_warp_dlg[50].x = SCREEN_W+10;
-      warpring_warp_dlg[51].x = SCREEN_W+10;
-      warpring_warp_dlg[52].x = SCREEN_W+10;*/
     for(int32_t i=0; i<4; i++)
     {
         warpring_warp_dlg[10+i].d2 = 0;
@@ -21274,26 +21216,6 @@ void EditWarpRingScr(int32_t ring,int32_t index)
         warpring_warp_dlg[m].x=tempx[m-17];
     }
     
-    /*warpring_warp_dlg[20].x = tempx20;
-      warpring_warp_dlg[21].x = tempx21;
-      warpring_warp_dlg[25].x = tempx25;
-      warpring_warp_dlg[26].x = tempx26;
-      warpring_warp_dlg[27].x = tempx27;
-      warpring_warp_dlg[28].x = tempx28;
-    
-      warpring_warp_dlg[32].x = tempx32;
-      warpring_warp_dlg[33].x = tempx33;
-      warpring_warp_dlg[37].x = tempx37;
-      warpring_warp_dlg[38].x = tempx38;
-      warpring_warp_dlg[39].x = tempx39;
-      warpring_warp_dlg[40].x = tempx40;
-    
-      warpring_warp_dlg[44].x = tempx44;
-      warpring_warp_dlg[45].x = tempx45;
-      warpring_warp_dlg[49].x = tempx49;
-      warpring_warp_dlg[50].x = tempx50;
-      warpring_warp_dlg[51].x = tempx51;
-      warpring_warp_dlg[52].x = tempx52;*/
     for(int32_t i=0; i<4; i++)
     {
         warpring_warp_dlg[10+i].d2 = 0x80;
@@ -22041,7 +21963,7 @@ int32_t onEnemies()
 	word oldenemy[10];
 	memcpy(oldenemy,Map.CurrScr()->enemy,10*sizeof(word));
 	restore_mouse();
-	char buf[24] = " ";
+	char buf[26] = " ";
 	int32_t ret;
 	int32_t copy=-1;
 	
@@ -22914,8 +22836,8 @@ int32_t onNewComboAlias()
     combo_alias *combo;
     combo = &temp_aliases[comboa_cnt];
     
-    char cwidth[3];
-    char cheight[3];
+    char cwidth[5];
+    char cheight[5];
     // char cp[3];
     
     word temp_combos[16*11*7];
@@ -23534,8 +23456,8 @@ int32_t onEditComboAlias()
     return D_O_K;
 }
 
-static char ffcombo_str_buf[32];
-static char fflink_str_buf[32];
+static char ffcombo_str_buf[MAXFFCS];
+static char fflink_str_buf[MAXFFCS];
 
 BITMAP* ffcur;
 
@@ -23543,12 +23465,12 @@ const char *ffcombolist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
-        bound(index,0,31);
+        bound(index,0,MAXFFCS-1);
         sprintf(ffcombo_str_buf,"%d",index+1);
         return ffcombo_str_buf;
     }
     
-    *list_size=32;
+    *list_size=MAXFFCS;
     return NULL;
 }
 
@@ -23585,7 +23507,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         if(buf)
         {
             clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffdata[d1],Map.CurrScr()->ffcset[d1]);
+            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].getData(),Map.CurrScr()->ffcs[d1].cset);
             stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
             destroy_bitmap(buf);
         }
@@ -23599,46 +23521,46 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         rectfill(screen,xd,y2,x+196*int32_t(is_large?1.5:1),y+127*int32_t(is_large?1.5:1),jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdata[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getData());
         
         textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcset[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffx[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].x.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Pos:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffy[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*3,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].y.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*4,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].vx.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Speed:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*5,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].vy.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"X Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffxdelta2[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*6,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].ax.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Y Accel:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffydelta2[d1]/10000.0);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*7,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%.4f",Map.CurrScr()->ffcs[d1].ay.getFloat());
         
         textprintf_ex(screen,tempfont,xd,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Linked To:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->fflink[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*8,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].link);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Move Delay:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffdelay[d1]);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*9,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].delay);
         
         textprintf_ex(screen,tempfont,xd,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*10,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffEffectWidth(d1)));
         
         textprintf_ex(screen,tempfont,xd,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]&63)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*11,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffEffectHeight(d1)));
         
         textprintf_ex(screen,tempfont,xd,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile W:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffwidth[d1]>>6)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*12,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffTileWidth(d1)));
         
         textprintf_ex(screen,tempfont,xd,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile H:");
-        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffheight[d1]>>6)+1);
+        textprintf_ex(screen,tempfont,xd+x2,y2+yd*13,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",(Map.CurrScr()->ffTileHeight(d1)));
         
         break;
     }
@@ -23653,7 +23575,7 @@ int32_t onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
-    putcombo(ffcur,0,0,Map.CurrScr()->ffdata[ff_combo],Map.CurrScr()->ffcset[ff_combo]);
+    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].getData(),Map.CurrScr()->ffcs[ff_combo].cset);
     ffcombo_sel_dlg[5].dp = ffcur;
     
     if(is_large)
@@ -24431,7 +24353,7 @@ const char *comboscriptlist2(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static char gscript_str_buf2[32];
+static char gscript_str_buf2[40];
 
 const char *gscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -24477,22 +24399,6 @@ const char *gscriptlist2(int32_t index, int32_t *list_size)
         
     return NULL;
 }
-
-static DIALOG compile_dlg[] =
-{
-	//                      x       y       w       h       fg      bg      key     flags   d1  d2  dp
-	{ jwin_win_proc,        0,      0,      200,    130,    vc(14), vc(1),  0,      D_EXIT,  0,  0, (void *)"Compile ZScript", NULL, NULL },
-	{ jwin_button_proc,     109,    89,     61,     21,     vc(14), vc(1),  27,     D_EXIT,  0,  0, (void *)"Cancel", NULL, NULL },
-	{ jwin_button_proc,     131,    30,     61,     21,     vc(14), vc(1),  'e',    D_EXIT,  0,  0, (void *)"&Edit", NULL, NULL },
-	{ jwin_button_proc,     30,     60,     61,     21,     vc(14), vc(1),  'l',    D_EXIT,  0,  0, (void *)"&Load", NULL, NULL },
-	{ jwin_text_proc,       8,      35,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zScriptBytes, NULL, NULL },
-	{ jwin_button_proc,     30,     89,     61,     21,     vc(14), vc(1),  'c',    D_EXIT,  0,  0, (void *)"&Compile!", NULL, NULL },
-	{ jwin_button_proc,     109,    60,     61,     21,     vc(14), vc(1),  'x',    D_EXIT,  0,  0, (void *)"E&xport", NULL, NULL },
-	{ d_timer_proc,         0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL },
-	{ jwin_text_proc,       8,      25,     61,     21,     vc(14), vc(1),  0,           0,  0,  0, (void *)zLastVer, NULL, NULL },
-	{ jwin_check_proc,      8,      112,    90,     8,      vc(14), vc(1),  0,  D_DISABLED,  0,  0, (void *)"Recover ZASM for scripts missing during compile", NULL, NULL },
-	{ NULL,                 0,      0,      0,      0,      0,      0,      0,           0,  0,  0, NULL, NULL, NULL }
-};
 
 static int32_t as_ffc_list[] = { 4, 5, 6, -1};
 static int32_t as_global_list[] = { 7, 8, 9, -1}; //Why does putting 15 in here not place my message only on the global tab? ~Joe
@@ -25097,7 +25003,7 @@ void showScriptInfo(zasm_meta const* meta)
 
 static int32_t compiler_tab_list_global[] =
 {
-	10,11,12,13,14,15,16,18,19,20,21,
+	10,11,12,13,14,15,16,18,19,20,21,25,26,
 	-1
 };
 
@@ -25143,32 +25049,57 @@ static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
 
 const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 {
-    if(index >= 0)
-    {
-        bound(index,0,3);
-        
-	switch(index)
-        {
-        case 0:
-            return "Disable";
-            
-        case 1:
-            return "Enable";
+	if(index >= 0)
+	{
+		bound(index,0,3);
+		
+		switch(index)
+		{
+			case 0:
+				return "Disable";
+			
+			case 1:
+				return "Enable";
+			
+			case 2:
+				return "Error, Enable";
+			
+			case 3:
+				return "Warn, Enable";
+		}
+	}
 	
-	case 2:
-            return "Error, Enable";
-	
-	case 3:
-            return "Warn, Enable";
-        }
-	
-    }
-    
-    *list_size = 4;
-    return NULL;
+	*list_size = 4;
+	return NULL;
 }
 
 static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+
+const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
+{
+	if(index >= 0)
+	{
+		if(index < 0 || index > 2)
+			index = 1;
+		
+		switch(index)
+		{
+			case 0:
+				return "Ignore";
+			
+			case 1:
+				return "Warn";
+			
+			case 2:
+				return "Error";
+		}
+	}
+	
+	*list_size = 3;
+	return NULL;
+}
+
+static ListData zcompiler_depr_list(zcompiler_deprlist, &pfont);
 
 char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
@@ -25220,6 +25151,12 @@ static DIALOG zscript_parser_dlg[] =
 	{ jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
 	{ jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
 	
+	//25
+	{ jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
+		(void *) ": On Deprecated Use",                  NULL,   NULL                  },
+	{ jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
+		(void *) &zcompiler_depr_list,						 NULL,   NULL 				   },
+	
 	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
 };
 
@@ -25230,18 +25167,18 @@ static int32_t zscripparsertrules[] =
 	qr_PARSER_NO_LOGGING,
 	qr_PARSER_SHORT_CIRCUIT,
 	qr_PARSER_BOOL_TRUE_DECIMAL,
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
 	qr_PARSER_TRUE_INT_SIZE,
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
-	NULL, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
+	0, //this dialogue index is used by global settings
 	qr_PARSER_FORCE_INLINE,
 	qr_PARSER_BINARY_32BIT,
 	qr_PARSER_STRINGSWITCH_INSENSITIVE,
@@ -25256,10 +25193,10 @@ int32_t onZScriptCompilerSettings()
 		
 	zscript_parser_dlg[0].dp2=lfont;
 	
-	set_config_file("zscript.cfg");
-	zscript_parser_dlg[13].d1 = zc_get_config("Compiler","NO_ERROR_HALT",0);
-	zscript_parser_dlg[15].d1 = zc_get_config("Compiler","HEADER_GUARD",1);
-	set_config_file("zquest.cfg");
+	int32_t old_cfgs[3];
+	zscript_parser_dlg[13].d1 = old_cfgs[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
+	zscript_parser_dlg[15].d1 = old_cfgs[1] = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
+	zscript_parser_dlg[26].d1 = old_cfgs[2] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
 	//memset(tempincludepath,0,sizeof(tempincludepath));
 	strcpy(tempincludepath,FFCore.includePathString);
 	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
@@ -25294,21 +25231,19 @@ int32_t onZScriptCompilerSettings()
 		{
 			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
 		}
-		al_trace("Current include path string: ");
-		safe_al_trace(tempincludepath);
-		al_trace("\n");
 		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 		strcpy(FFCore.includePathString,tempincludepath);
-		set_config_file("zscript.cfg");
-		zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1);
-		zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1);
+		if(old_cfgs[0] != zscript_parser_dlg[13].d1)
+			zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1,App::zscript);
+		if(old_cfgs[1] != zscript_parser_dlg[15].d1)
+			zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1,App::zscript);
+		if(old_cfgs[2] != zscript_parser_dlg[26].d1)
+			zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1,App::zscript);
 		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
 		strcpy(FFCore.scriptRunString,temprunstring);
-		set_config_file("zquest.cfg");
 		FFCore.updateIncludePaths();
 		ZQincludePaths = FFCore.includePaths;
 		write_includepaths();
-		
 	}
 	
 	return D_O_K;
@@ -25590,466 +25525,8 @@ void clear_map_states()
 	}
 }
 
-bool doCompileOpenHeaderDlg()
+void clearAssignSlotDlg()
 {
-    call_header_dlg();
-    return false;
-}
-
-void compile_sfx(bool success)
-{
-	if ( success )
-	{
-		compile_error_sample = 0;
-		compile_success_sample = vbound(zc_get_config("Compiler","compile_success_sample",20),0,255);
-		if ( compile_success_sample > 0 )
-		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
-			if(sfxdat)
-				sfx_voice[compile_success_sample]=allocate_voice((SAMPLE*)sfxdata[compile_success_sample].dat);
-			else sfx_voice[compile_success_sample]=allocate_voice(&customsfxdata[compile_success_sample]);
-			voice_set_volume(sfx_voice[compile_success_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_success_sample]);
-		}
-	}
-	else
-	{
-		compile_success_sample = 0;
-		compile_error_sample = vbound(zc_get_config("Compiler","compile_error_sample",20),0,255);
-		if ( compile_error_sample > 0 )
-		{
-			compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
-			if(sfxdat)
-				sfx_voice[compile_error_sample]=allocate_voice((SAMPLE*)sfxdata[compile_error_sample].dat);
-			else sfx_voice[compile_error_sample]=allocate_voice(&customsfxdata[compile_error_sample]);
-			voice_set_volume(sfx_voice[compile_error_sample], compile_audio_volume);
-			voice_start(sfx_voice[compile_error_sample]);
-		}
-	}
-}
-
-int32_t onCompileScript()
-{
-	compile_dlg[0].dp2 = lfont;
-	int32_t memuse = 0;
-    bool hasWarnErr = false;
-	#ifdef _WIN32
-	PROCESS_MEMORY_COUNTERS memCounter;
-	BOOL memresult = false;
-	#endif
-	
-	/*if(try_recovering_missing_scripts!=0)
-	{
-		compile_dlg[9].flags |= D_SELECTED;
-	}
-	else*/
-	{
-		compile_dlg[9].flags &= ~D_SELECTED;
-	}
-	
-	if(is_large)
-		large_dialog(compile_dlg);
-
-    int32_t retval = D_O_K;
-    popup_zqdialog_start();
-	for(;;) //while(true)
-	{
-		sprintf(zScriptBytes, "%d Bytes in Buffer", (int32_t)(zScript.size()));
-		sprintf(zLastVer, "Last Compiled Using ZScript: v.%d",(FFCore.quest_format[vLastCompile]));
-		int32_t ret = zc_popup_dialog(compile_dlg,5);
-		bool ctrl = key_shifts & KB_CTRL_FLAG;
-		try_recovering_missing_scripts = (compile_dlg[9].flags & D_SELECTED) ? 1 : 0;
-		switch(ret)
-		{
-			case 0:
-			case 1:
-				//Cancel
-				goto exit_oncompilescript;
-				
-			case 2:
-				//Edit
-				doEditZScript(vc(15),vc(0));
-				break;
-				
-			case 3:
-			{
-				//Load from File
-				if(zScript.size() > 0)
-				{
-					if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
-						break;
-						
-					zScript.clear();
-				}
-				
-				if(!getname("Load ZScript (.z, .zh, .zs, .zlib, etc.)", (char *)"z,zh,zs,zlib,zasm,zscript,squid" ,NULL,datapath,false))
-					break;
-					
-				FILE *zscript = fopen(temppath,"r");
-				
-				if(zscript == NULL)
-				{
-					jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					break;
-				}
-				
-				char c = fgetc(zscript);
-				
-				while(!feof(zscript))
-				{
-					zScript += c;
-					c = fgetc(zscript);
-				}
-				
-				fclose(zscript);
-				saved = false;
-				break;
-			}
-			
-			case 6:
-				//Export
-			{
-				if(!getname("Save ZScript (.zs)", "zs", NULL,datapath,false))
-					break;
-					
-				if(exists(temppath))
-				{
-					if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
-						break;
-				}
-				
-				FILE *zscript = fopen(temppath,"w");
-				
-				if(!zscript)
-				{
-					jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					break;
-				}
-				
-				int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
-				
-				if(written != (int32_t)zScript.size())
-					jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					
-				fclose(zscript);
-				break;
-			}
-			
-			case 5:
-			{
-				#ifdef _WIN32
-				memresult = GetProcessMemoryInfo(GetCurrentProcess(), &memCounter, sizeof( memCounter ));
-				memuse = memCounter.WorkingSetSize / 1024 / 1024;
-				zprint2("Mem use: %d\n", memuse);
-				if ( memuse >= 3072 )
-				{
-					jwin_alert("Memory exhausted!","Please save your quest, then close and"," relaunch ZQuest before compiling.",NULL,"O&K",NULL,'k',0,lfont);
-					goto exit_oncompilescript;
-				}	
-				#endif
-				//need elseif for linux here! -Z
-				//Compile!
-				char tmpfilename[L_tmpnam];
-				std::tmpnam(tmpfilename);
-				FILE *tempfile = fopen(tmpfilename,"w");
-
-				char consolefilename[L_tmpnam];
-				std::tmpnam(consolefilename);
-
-				if(!tempfile)
-				{
-					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-					goto exit_oncompilescript;
-				}
-				
-				fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-				fclose(tempfile);
-				
-				script_data old_init_script(*globalscripts[0]);
-				uint32_t lastInitSize = old_init_script.size();
-				map<string, ZScript::ScriptTypeID> stypes;
-				map<string, disassembled_script_data> scripts;
-				
-                std::string quest_rules_hex = get_qr_hexstr();
-                clock_t start_compile_time = clock();
-#ifdef __EMSCRIPTEN__
-                int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
-#else
-				int32_t code = -9999;
-				if(!fileexists(ZSCRIPT_FILE))
-				{
-					InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
-					break;
-				}
-				parser_console.kill();
-				if (!DisableCompileConsole) 
-				{
-					parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
-					parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-					parser_console.gotoxy(0,0);
-					zconsole_info2("%s", "External ZScript Parser\n");
-				}
-				else
-				{
-					box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
-				}
-
-				std::vector<std::string> args = {
-					"-input", tmpfilename,
-					"-console", consolefilename,
-					"-qr", quest_rules_hex.c_str(),
-					"-linked",
-				};
-				if(zc_get_config("Compiler","noclose_compile_console",0))
-					args.push_back("-noclose");
-				#ifdef _DEBUG
-				if(ctrl)
-					args.push_back("-delay");
-				#endif
-				process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
-				if(!pm)
-				{
-					InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
-					break;
-				}
-				
-				int current = 0, last = 0;
-				int syncthing = 0;
-				pm->read(&syncthing, sizeof(int32_t));
-
-				FILE *console = fopen(consolefilename, "r");
-				char buf4[512];
-				bool hasWarnErr = false;
-				bool running = true;
-				if (console) 
-				{
-					while(running)
-					{
-						pm->read(&code, sizeof(int32_t));
-						switch(code)
-						{
-							case ZC_CONSOLE_DB_CODE:
-							case ZC_CONSOLE_ERROR_CODE:
-							case ZC_CONSOLE_WARN_CODE:
-								hasWarnErr = true;
-								[[fallthrough]];
-							case ZC_CONSOLE_INFO_CODE:
-								fseek(console, 0, SEEK_END);
-								current = ftell(console);
-								if (current != last)
-								{
-									int amount = (current-last);
-									fseek(console, last, SEEK_SET);
-									last = current;
-									int end = fread(&buf4, sizeof(char), amount, console);
-									buf4[end] = 0;
-									ReadConsole(buf4, code);
-								}
-								pm->write(&code, sizeof(int32_t));
-								break;
-							default:
-								running = false;
-								break;
-						}
-					}
-				}
-				pm->read(&code, sizeof(int32_t));
-                delete pm;
-#endif
-				clock_t end_compile_time = clock();
-				
-				
-				char tmp[128] = {0};
-				sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
-				for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
-				{
-					if(tmp[ind] == '0' && tmp[ind-1] != '.') tmp[ind] = 0;
-					else break;
-				}
-				char buf[1024] = {0};
-				sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
-					"Compile took %s seconds (%ld cycles)%s",
-					code, code ? "failure" : "success",
-					tmp, (long)end_compile_time - start_compile_time,
-					code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
-				
-				if(!code)
-				{
-					read_compile_data(stypes, scripts);
-					if (!(DisableCompileConsole || hasWarnErr)) 
-					{
-						parser_console.kill();
-					}
-				}
-				else if (DisableCompileConsole)
-				{
-					char buf3[256] = {0};
-					sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
-					box_out(buf3);
-					box_eol();
-					box_out("Compilation failed.");
-					box_eol();
-				}
-				compile_sfx(!code);
-				if (DisableCompileConsole) box_end(true);
-				
-				bool cancel = code;
-				if (!DisableCompileConsole) 
-				{
-					if(code)
-						InfoDialog("ZScript Parser", buf).show();
-					else AlertDialog("ZScript Parser", buf,
-						[&](bool ret,bool)
-						{
-							cancel = !ret;
-						}, "Continue", "Cancel").show();
-				}
-				if ( compile_success_sample > 0 )
-				{
-					if(sfx_voice[compile_success_sample]!=-1)
-					{
-						deallocate_voice(sfx_voice[compile_success_sample]);
-						sfx_voice[compile_success_sample]=-1;
-					}
-				}
-				if ( compile_error_sample > 0 )
-				{
-					if(sfx_voice[compile_error_sample]!=-1)
-					{
-						deallocate_voice(sfx_voice[compile_error_sample]);
-						sfx_voice[compile_error_sample]=-1;
-					}
-				}
-				//refresh(rALL);
-				
-				if(cancel)
-					break;
-				
-				asffcscripts.clear();
-				asffcscripts.push_back("<none>");
-				asglobalscripts.clear();
-				asglobalscripts.push_back("<none>");
-				asitemscripts.clear();
-				asitemscripts.push_back("<none>");
-				asnpcscripts.clear();
-				asnpcscripts.push_back("<none>");
-				aseweaponscripts.clear();
-				aseweaponscripts.push_back("<none>");
-				aslweaponscripts.clear();
-				aslweaponscripts.push_back("<none>");
-				asplayerscripts.clear();
-				asplayerscripts.push_back("<none>");
-				asdmapscripts.clear();
-				asdmapscripts.push_back("<none>");
-				asscreenscripts.clear();
-				asscreenscripts.push_back("<none>");
-				asitemspritescripts.clear();
-				asitemspritescripts.push_back("<none>");
-				ascomboscripts.clear();
-				ascomboscripts.push_back("<none>");
-				asgenericscripts.clear();
-				asgenericscripts.push_back("<none>");
-				clear_map_states();
-				globalmap[0].updateName("~Init"); //force name to ~Init
-				
-				using namespace ZScript;
-				for (auto it = stypes.begin(); it != stypes.end(); ++it)
-				{
-					string const& name = it->first;
-					switch(it->second)
-					{
-						case scrTypeIdFfc:
-							asffcscripts.push_back(name);
-							break;
-						case scrTypeIdItem:
-							asitemscripts.push_back(name);
-							break;
-						case scrTypeIdNPC:
-							asnpcscripts.push_back(name);
-							break;
-						case scrTypeIdEWeapon:
-							aseweaponscripts.push_back(name);
-							break;
-						case scrTypeIdLWeapon:
-							aslweaponscripts.push_back(name);
-							break;
-						case scrTypeIdPlayer:
-							asplayerscripts.push_back(name);
-							break;
-						case scrTypeIdDMap:
-							asdmapscripts.push_back(name);
-							break;
-						case scrTypeIdScreen:
-							asscreenscripts.push_back(name);
-							break;
-						case scrTypeIdItemSprite:
-							asitemspritescripts.push_back(name);
-							break;
-						case scrTypeIdComboData:
-							ascomboscripts.push_back(name);
-							break;
-						case scrTypeIdGeneric:
-							asgenericscripts.push_back(name);
-							break;
-						case scrTypeIdGlobal:
-							if (name != "~Init")
-							{
-								asglobalscripts.push_back(name);
-							}
-							break;
-					}
-				}
-			
-				//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
-				misc.zscript_last_compiled_version = V_FFSCRIPT;
-				FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
-				al_trace("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
-				
-				assignscript_dlg[0].dp2 = lfont;
-				assignscript_dlg[4].d1 = -1;
-				assignscript_dlg[5].d1 = -1;
-				assignscript_dlg[7].d1 = -1;
-				assignscript_dlg[8].d1 = -1;
-				assignscript_dlg[10].d1 = -1;
-				assignscript_dlg[11].d1 = -1;
-				assignscript_dlg[13].flags = 0;
-				
-				do_script_disassembly(scripts, true);
-				
-				//assign scripts to slots
-				do_slots(scripts);
-				
-				if(WarnOnInitChanged)
-				{
-					script_data const& new_init_script = *globalscripts[0];
-					if(new_init_script != old_init_script) //Global init changed
-					{
-						auto newInitSize = new_init_script.size();
-						AlertFuncDialog("Init Script Changed",
-							"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
-							"This can break existing save files of your quest. To prevent users "
-							"from loading save files that would break, you can raise the \"Quest "
-							"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
-							"Ensure that both versions are higher than \"Quest Ver\" was previously, "
-							"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
-							2, 1, //2 buttons, where buttons[1] is focused
-							"Header", doCompileOpenHeaderDlg,
-						    "OK", NULL
-						).show();
-					}
-				}
-				goto exit_oncompilescript;
-			}
-		}
-	}
-exit_oncompilescript:
-    popup_zqdialog_end();
-    return retval;
-}
-
-int32_t onSlotAssign()
-{
-	//setup dlg
 	assignscript_dlg[0].dp2 = lfont;
 	assignscript_dlg[4].d1 = -1;
 	assignscript_dlg[5].d1 = -1;
@@ -26058,6 +25535,11 @@ int32_t onSlotAssign()
 	assignscript_dlg[10].d1 = -1;
 	assignscript_dlg[11].d1 = -1;
 	assignscript_dlg[13].flags = 0;
+}
+
+int32_t onSlotAssign()
+{
+	clearAssignSlotDlg();
 	//Clear right-hand side of names
 	asffcscripts.clear();
 	asffcscripts.push_back("<none>");
@@ -26112,6 +25594,7 @@ void inc_script_name(string& name)
 
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile)
 {
+	clearAssignSlotDlg();
 	bool skipDisassembled = fromCompile && try_recovering_missing_scripts == 0;
 	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 	{
@@ -27092,6 +26575,8 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 
 void doClearSlots(byte* flags);
 
+extern byte compile_success_sample, compile_error_sample,
+	compile_finish_sample, compile_audio_volume;
 bool do_slots(map<string, disassembled_script_data> &scripts)
 {
 	if(is_large)
@@ -27135,26 +26620,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&ffscripts[it->first+1],tempfile,false);
@@ -27182,26 +26648,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&globalscripts[it->first],tempfile,false);
@@ -27229,26 +26676,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&itemscripts[it->first+1],tempfile,false);
@@ -27275,26 +26703,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&guyscripts[it->first+1],tempfile,false);
@@ -27321,26 +26730,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&lwpnscripts[it->first+1],tempfile,false);
@@ -27367,26 +26757,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&ewpnscripts[it->first+1],tempfile,false);
@@ -27413,26 +26784,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&playerscripts[it->first+1],tempfile,false);
@@ -27459,26 +26811,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&dmapscripts[it->first+1],tempfile,false);
@@ -27505,26 +26838,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&screenscripts[it->first+1],tempfile,false);
@@ -27551,26 +26865,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&itemspritescripts[it->first+1],tempfile,false);
@@ -27598,26 +26893,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&comboscripts[it->first+1],tempfile,false);
@@ -27644,26 +26920,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 							goto exit_do_slots;
 						}
 						
-						string meta_str = get_meta(scripts[it->second.scriptname].first);
-						if(output)
-						{
-							al_trace("\n");
-							al_trace("%s",it->second.scriptname.c_str());
-							al_trace("\n");
-							safe_al_trace(meta_str.c_str());
-						}
-						fwrite(meta_str.c_str(), sizeof(char), meta_str.size(), tempfile);
-						
-						for(auto line = scripts[it->second.scriptname].second.begin(); line != scripts[it->second.scriptname].second.end(); line++)
-						{
-							string theline = (*line)->printLine();
-							fwrite(theline.c_str(), sizeof(char), theline.size(),tempfile);
-							
-							if(output)
-							{
-								al_trace("%s",theline.c_str());
-							}
-						}
+						scripts[it->second.scriptname].write(tempfile, output);
 						
 						fseek(tempfile, 0, SEEK_SET);
 						parse_script_file(&genericscripts[it->first+1],tempfile,false);
@@ -28806,8 +28063,7 @@ int32_t load_zmod_module_file()
 	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
 	    strcpy(moduledata.module_name, temppath);
 	    al_trace("New Module Path is: %s \n", moduledata.module_name);
-	    set_config_string("ZCMODULE","current_module",moduledata.module_name);
-	    //save_game_configs();
+	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	    zcm.init(true); //Load the module values.
 	    build_biic_list();
 	    build_bief_list();
@@ -29275,7 +28531,7 @@ int32_t onEditSFX(int32_t index)
 			
 			case 10:
 			{
-				memset(temppath, 0, sizeof(temppath));
+				temppath[0]=0;//memset(temppath, 0, sizeof(temppath));
 				char tempname[36];
 				strcpy(tempname,sfx_string[index]);
 				//change spaces to dashes for f/s safety
@@ -30452,10 +29708,7 @@ void custom_vsync()
     
     while(!myvsync) rest(1);
     
-    all_mark_screen_dirty();
-#ifdef __EMSCRIPTEN__
-    all_render_screen();
-#endif
+	update_hw_screen();
     
     myvsync=0;
     
@@ -30467,31 +29720,27 @@ void custom_vsync()
 
 void switch_out()
 {
-    zcmusic_pause(zcmusic, ZCM_PAUSE);
-    zc_midi_pause();
+	zcmusic_pause(zcmusic, ZCM_PAUSE);
+	zc_midi_pause();
 }
 
 void switch_in()
 {
-    if(quit)
-        return;
-        
-    BITMAP *ts=screen;
-    screen=menu1;
-    
-    /*
-    if (!is_large) 
+	if(quit)
+		return;
+	
+	/*
+	if (!is_large) 
 	{
 		dialogs[0].dp = (void *) the_menu;
 	}
 	else dialogs[0].dp = (void *) the_menu_large;
-    */
-    //dialogs[0].dp2 = z3font;
-    jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
-    
-    screen=ts;
-    zcmusic_pause(zcmusic, ZCM_RESUME);
-    zc_midi_resume();
+	*/
+	//dialogs[0].dp2 = z3font;
+	//jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	
+	zcmusic_pause(zcmusic, ZCM_RESUME);
+	zc_midi_resume();
 }
 
 void Z_eventlog(const char *format,...)
@@ -30602,7 +29851,6 @@ bool no_subscreen()
 int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 int32_t exittimer = 10000, exittimer2 = 100;
-
 
 int32_t main(int32_t argc,char **argv)
 {
@@ -30786,7 +30034,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	// Merge old a4 config into a5 system config.
-	ALLEGRO_CONFIG *tempcfg = al_load_config_file(zc_get_standard_config_name());
+	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
@@ -30800,17 +30048,27 @@ int32_t main(int32_t argc,char **argv)
 	}
 
 	al5img_init();
+	register_png_file_type();
+
+	if(!al_install_audio())
+	{
+		// We can continue even with no audio.
+		Z_error("Failed al_install_audio");
+	}
+
+	if(!al_init_acodec_addon())
+	{
+		Z_error("Failed al_init_acodec_addon");
+	}
+
+	all_disable_threaded_display();
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
-	all_disable_threaded_display();
 	em_init_fs();
 #endif
-	
-	//set_config_file("ag.cfg");
-	zc_set_config_standard();
 
-#ifdef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
 	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
 		initConsole();
 #endif
@@ -31050,13 +30308,12 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!helpbuf)
 	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
+		FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
+			"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
+		);
 
 		Z_error_fatal("Error allocating help buffer.");
 		quit_game();
@@ -31333,7 +30590,7 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
-	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",0);
+	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",1);
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
@@ -31347,8 +30604,10 @@ int32_t main(int32_t argc,char **argv)
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
 	Vsync						  = zc_get_config("zquest","vsync",1)!=0;
 	ShowFPS						= zc_get_config("zquest","showfps",0)!=0;
+	SaveDragResize						= zc_get_config("zquest","save_drag_resize",0)!=0;
+	DragAspect						= zc_get_config("zquest","drag_aspect",0)!=0;
+	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
-	BrushPosition				  = zc_get_config("zquest","brush_position",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
 	UseSmall					   = zc_get_config("zquest","small",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
@@ -31382,7 +30641,6 @@ int32_t main(int32_t argc,char **argv)
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
 	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
-	zc_get_config("zquest","auto_filenew_bugfixes",1);
 	
 	//This is too much work to fix for 2.5. :| -Gleeok
 	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);
@@ -31390,13 +30648,13 @@ int32_t main(int32_t argc,char **argv)
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
 	
-	// This seems to fix some problems on Windows 7
-	disable_direct_updating = (byte) zc_get_config("graphics","disable_direct_updating",1);
 #endif
 	
-	if(RequestedFPS < 12) RequestedFPS = 12;
-	
-	if(RequestedFPS > 60) RequestedFPS = 60;
+	if(RequestedFPS < 12 || RequestedFPS> 60)
+	{
+		RequestedFPS = vbound(RequestedFPS,12,60);
+		zc_set_config("zquest","fps",RequestedFPS);
+	}
 	
 	LOCK_VARIABLE(myvsync);
 	LOCK_FUNCTION(myvsync_callback);
@@ -31409,15 +30667,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	// 1 <= zcmusic_bufsz <= 128
 	zcmusic_bufsz = vbound(zc_get_config("zquest","zqmusic_bufsz",64),1,128);
-	int32_t tempvalue				  = zc_get_config("zquest","layer_mask",-1);
-	int32_t usefullscreen				 = zc_get_config("zquest","fullscreen",0);
+	byte layermask = zc_get_config("zquest","layer_mask",0x7F);
+	int32_t usefullscreen = zc_get_config("zquest","fullscreen",0);
 	tempmode = (usefullscreen == 0 ? GFX_AUTODETECT_WINDOWED : GFX_AUTODETECT_FULLSCREEN);
-	LayerMask[0]=byte(tempvalue&0xFF);
-	LayerMask[1]=byte((tempvalue>>8)&0xFF);
 	
 	for(int32_t x=0; x<7; x++)
 	{
-		LayerMaskInt[x]=get_bit(LayerMask,x);
+		LayerMaskInt[x]=get_bit(&layermask,x);
 	}
 	
 	DuplicateAction[0]			 = zc_get_config("zquest","normal_duplicate_action",2);
@@ -31427,14 +30683,14 @@ int32_t main(int32_t argc,char **argv)
 	LeechUpdate					= zc_get_config("zquest","leech_update",500);
 	LeechUpdateTiles			   = zc_get_config("zquest","leech_update_tiles",1);
 	OnlyCheckNewTilesForDuplicates = zc_get_config("zquest","only_check_new_tiles_for_duplicates",0);
-	gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
+	//gui_colorset				   = zc_get_config("zquest","gui_colorset",0);
 	
 	strcpy(last_timed_save,zc_get_config("zquest","last_timed_save",""));
 	
 	midi_volume					= zc_get_config("zquest", "midi", 255);
 	
 	abc_patternmatch			   = zc_get_config("zquest", "lister_pattern_matching", 1);
-	NoScreenPreview			   = zc_get_config("zquest", "no_preview", 1);
+	NoScreenPreview			   = zc_get_config("zquest", "no_preview", 0);
 	
 	monochrome_console = zc_get_config("CONSOLE","monochrome_debuggers",0)?1:0;
 	
@@ -31860,12 +31116,11 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(used_switch(argc,argv,"-q"))
 	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"-q switch used, quitting program.\n"
-	);
+		FFCore.ZScriptConsole
+		(
+			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"-q switch used, quitting program.\n"
+		);
 
 		Z_message("-q switch used, quitting program.\n");
 		quit_game();
@@ -31907,41 +31162,13 @@ int32_t main(int32_t argc,char **argv)
 	
 	set_close_button_callback((void (*)()) hit_close_button);
 	
-#ifndef ALLEGRO_DOS
-	zq_scale_small = zc_get_config("zquest","scale",1);
-	zq_scale_large = zc_get_config("zquest","scale_large",1);
-	zq_scale = is_large ? zq_scale_large : zq_scale_small;
-	scale_arg = used_switch(argc,argv,"-scale");
-	
-	if(scale_arg && (argc>(scale_arg+1)))
-	{
-		scale_arg = atoi(argv[scale_arg+1]);
-		
-		if(scale_arg == 0)
-		{
-			scale_arg = 1;
-		}
-		
-		zq_scale=scale_arg;
-	}
-	else
-	{
-		scale_arg = zq_scale;
-	}
-	
-	zqwin_set_scale(scale_arg);
-	
-#endif
-	
 	if(used_switch(argc,argv,"-fullscreen"))
 	{
 		tempmode = GFX_AUTODETECT_FULLSCREEN;
-		zqwin_set_scale(1);
 	}
 	else if(used_switch(argc,argv,"-windowed"))
 	{
 		tempmode=GFX_AUTODETECT_WINDOWED;
-		zqwin_set_scale(scale_arg);
 	}
 	
 	/*if (tempmode==GFX_AUTODETECT_FULLSCREEN)
@@ -31961,118 +31188,8 @@ int32_t main(int32_t argc,char **argv)
 	  zqwin_set_scale(scale_arg);
 	}*/
 
-	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w*zqwin_scale,zq_screen_h*zqwin_scale,0,0));
+	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
 
-	if(videofail!=0)
-	{
-		allegro_init();
-		three_finger_flag=false;
-
-#ifndef __EMSCRIPTEN__
-		al5img_init();
-#endif
-		
-		//set_config_file("ag.cfg");
-		zc_set_config_standard();
-		if(install_timer() < 0)
-		{
-
-			/*
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to init allegro timers!"
-		);
-			*/
-
-		Z_error_fatal(allegro_error);
-		quit_game();
-		}
-		
-		if(install_keyboard() < 0)
-		{
-
-			/*
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to install keyboard!"
-		);
-			*/
-
-		Z_error_fatal(allegro_error);
-		quit_game();
-		}
-		
-		if(install_mouse() < 0)
-		{
-
-		/*FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to install mouse!"
-		);
-			*/
-
-		Z_error_fatal(allegro_error);
-		quit_game();
-		}
-		zc_install_mouse_event_handler();
-		
-		LOCK_VARIABLE(lastfps);
-		
-		LOCK_VARIABLE(framecnt);
-		LOCK_FUNCTION(fps_callback);
-		
-		if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
-		{
-
-		/*
-			FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to allocate timer fps callback!"
-		);
-			*/
-
-		Z_error_fatal("couldn't allocate timer");
-		quit_game();
-		}
-		
-		
-		LOCK_VARIABLE(dclick_status);
-		LOCK_VARIABLE(dclick_time);
-		lock_dclick_function();
-		install_int(dclick_check, 20);
-	
-		//while(!quit && (--exittimer > 0))
-		//{
-			
-			
-		//}
-		//Z_error_fatal("Vid");
-		
-			//The console requires the allegro process to exist, vefore it can lwaunch. 
-		//Let's hope that this doesn't create a magical memory leak, or thread issues.
-		CConsoleLoggerEx zq_scale_console;
-		zq_scale_console.Create("ZQuest Creator Logging Console", 600, 200);
-		zq_scale_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		zq_scale_console.gotoxy(0,0);
-		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Logging Console\n");
-
-		zq_scale_console.cprintf( CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-						CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator cannot run at the selected scale (%d) \nwith your current video hardware.\nPlease try a lower-resolution setting or a smaller scale.\n", zq_scale);
-
-
-		Z_error_fatal(allegro_error);
-	//quit_game here crashes if we call console code
-	//I think that there is no process by the time that the console tries to attach itself?
-	}
 	//extra block here is intentional
 	if(videofail!=0)
 	{
@@ -32082,26 +31199,38 @@ int32_t main(int32_t argc,char **argv)
 	else
 	{
 		Z_message("gfx mode set at -%d %dbpp %d x %d \n",
-				  tempmode, get_color_depth(), zq_screen_w*zqwin_scale, zq_screen_h*zqwin_scale);
+				  tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
 		//Z_message("OK\n");
 	}
 
-	if (zc_get_config("zquest","hw_cursor",0) == 1)
-	{
-		// Must wait for the display thread to create the a5 display before the
-		// hardware cursor can be enabled.
-		while (!all_get_display()) rest(1);
-		enable_hardware_cursor();
-		select_mouse_cursor(MOUSE_CURSOR_ARROW);
-		show_mouse(screen);
+#ifndef __EMSCRIPTEN__
+	if (!all_get_fullscreen_flag()) {
+		// Just in case.
+		while (!all_get_display()) {
+			al_rest(1);
+		}
+
+		window_width = is_large ? zc_get_config("zquest","large_window_width",zq_screen_w) : zc_get_config("zquest","small_window_width",zq_screen_w);
+		window_height = is_large ? zc_get_config("zquest","large_window_height",zq_screen_h) : zc_get_config("zquest","small_window_height",zq_screen_h);
+		double monitor_scale = zc_get_monitor_scale();
+		al_resize_display(all_get_display(), window_width*monitor_scale, window_height*monitor_scale);
+
+		int window_w = al_get_display_width(all_get_display());
+		int window_h = al_get_display_height(all_get_display());
+
+		int new_x = zc_get_config("zquest","window_x",0);
+		int new_y = zc_get_config("zquest","window_y",0);
+		if (new_x == 0 && new_y == 0)
+		{
+			ALLEGRO_MONITOR_INFO info;
+			al_get_monitor_info(0, &info);
+
+			new_x = (info.x2 - info.x1) / 2 - window_w / 2;
+			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
+		}
+		al_set_window_position(all_get_display(), new_x, new_y);
 	}
-	else
-	{
-#ifdef _WIN32
-		while (!all_get_display()) rest(1);
-		al_hide_mouse_cursor(all_get_display());
 #endif
-	}
 
 	//check and log RTC date and time
 	for (int32_t q = 0; q < curTimeLAST; q++) 
@@ -32464,6 +31593,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
 	
+	init_ffpos();
 	
 	/*
 	if (!is_large) 
@@ -32491,7 +31621,6 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 #endif
-		
 		check_autosave();
 		/*
 		if (!is_large) 
@@ -32602,8 +31731,8 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
+		etc_menu[2].flags=etc_menu_smallmode[2].flags=(isFullScreen()==1)?D_DISABLED:0;
 		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
-		zc_process_mouse_events();
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
@@ -32619,10 +31748,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 	parser_console.kill();
 	killConsole();
-#ifndef ALLEGRO_DOS
-	zqwin_set_scale(1);
-#endif
-	
 	
 	quit_game();
 	
@@ -32632,7 +31757,6 @@ int32_t main(int32_t argc,char **argv)
 	return 0;
 // memset(qtpathtitle,0,10);//UNREACHABLE
 }
-
 END_OF_MAIN()
 
 
@@ -32697,7 +31821,7 @@ void quit_game()
     deallocate_biic_list();
     
     
-    last_timed_save[0]=0;
+    set_last_timed_save(nullptr);
     save_config_file();
     set_palette(black_palette);
     zc_stop_midi();
@@ -32880,7 +32004,7 @@ void quit_game2()
     deallocate_biic_list();
     
     
-    last_timed_save[0]=0;
+    set_last_timed_save(nullptr);
     save_config_file();
     set_palette(black_palette);
     zc_stop_midi();
@@ -33066,7 +32190,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(cpage_dlg);
     center_zq_cset_dialogs();
     jwin_center_dialog(change_track_dlg);
-    jwin_center_dialog(compile_dlg);
     jwin_center_dialog(csetfix_dlg);
     jwin_center_dialog(dmapmaps_dlg);
     center_zq_door_dialogs();
@@ -33202,7 +32325,7 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
         ComboBrushPause=1;
         refresh(rMAP);
         ComboBrushPause=0;
-        restore_mouse();
+        // restore_mouse();
         clear_tooltip();
     }
     
@@ -33458,86 +32581,46 @@ int32_t save_config_file()
     chop_path(imagepath2);
     chop_path(tmusicpath2);
     
-	set_config_string("ZCMODULE","current_module",moduledata.module_name);
+	zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	//
 	write_includepaths();
-	//
-	set_config_string("Compiler","run_string",FFCore.scriptRunString);
 	
-    set_config_string("zquest",data_path_name,datapath2);
-    set_config_string("zquest",midi_path_name,midipath2);
-    set_config_string("zquest",image_path_name,imagepath2);
-    set_config_string("zquest",tmusic_path_name,tmusicpath2);
-    set_config_string("zquest",last_quest_name,filepath);
-    set_config_string("zquest","last_timed_save",last_timed_save);
-    set_config_int("zquest","mouse_scroll",MouseScroll);
-	set_config_int("zquest","dis_lpal_shortcut",DisableLPalShortcuts);
-	set_config_int("zquest","internal_compile_console",DisableCompileConsole);
-    set_config_int("zquest","warn_initscript_changes",WarnOnInitChanged);
-    set_config_int("zquest","invalid_static",InvalidStatic);
-//	set_config_int("zquest","cursorblink_style",MMapCursorStyle); // You cannot do this unless the value is changed by the user via the GUI! -Z
-    set_config_int("zquest","skip_layer_warning",skipLayerWarning);
-    set_config_int("zquest","numerical_flags",numericalFlags);
-    set_config_int("zquest","tile_protection",TileProtection);
-    set_config_int("zquest","showinfo",ShowInfo);
-    set_config_int("zquest","show_grid",ShowGrid);
-    set_config_int("zquest","grid_color",GridColor);
-    set_config_int("zquest","snapshot_format",SnapshotFormat);
-    set_config_int("zquest","save_paths",SavePaths);
-    set_config_int("zquest","cycle_on",CycleOn);
-    set_config_int("zquest","vsync",Vsync);
-    set_config_int("zquest","showfps",ShowFPS);
-    set_config_int("zquest","combo_brush",ComboBrush);
-    set_config_int("zquest","brush_position",BrushPosition);
-    set_config_int("zquest","float_brush",FloatBrush);
-    set_config_int("zquest","open_last_quest",OpenLastQuest);
-    set_config_int("zquest","show_misalignments",ShowMisalignments);
-    set_config_int("zquest","scale",zq_scale_small);
-    set_config_int("zquest","scale_large",zq_scale_large);
-    set_config_int("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
-    set_config_int("zquest","showffscripts",ShowFFScripts);
-    set_config_int("zquest","showsquares",ShowSquares);
+    zc_set_config("zquest",data_path_name,datapath2);
+    zc_set_config("zquest",midi_path_name,midipath2);
+    zc_set_config("zquest",image_path_name,imagepath2);
+    zc_set_config("zquest",tmusic_path_name,tmusicpath2);
+	
+    if (all_get_display() && !all_get_fullscreen_flag() && SaveDragResize) 
+    {
+		double monitor_scale = zc_get_monitor_scale();
+		window_width = al_get_display_width(all_get_display()) / monitor_scale;
+		window_height = al_get_display_height(all_get_display()) / monitor_scale;
+		if (is_large) 
+		{
+			zc_set_config("zquest","large_window_width",window_width);
+			zc_set_config("zquest","large_window_height",window_height);
+		}
+		else
+		{
+			zc_set_config("zquest","small_window_width",window_width);
+			zc_set_config("zquest","small_window_height",window_height);
+		}
+    }
+    if (all_get_display() && !all_get_fullscreen_flag() && SaveWinPos)
+    {
+		int o_window_x, o_window_y;
+		al_get_window_position(all_get_display(), &o_window_x, &o_window_y);
+		zc_set_config("zquest", "window_x", o_window_x);
+		zc_set_config("zquest", "window_y", o_window_y);
+    }
     
-    set_config_int("zquest","animation_on",AnimationOn);
-    set_config_int("zquest","auto_backup_retention",AutoBackupRetention);
-    set_config_int("zquest","auto_save_interval",AutoSaveInterval);
-    set_config_int("zquest","auto_save_retention",AutoSaveRetention);
-    set_config_int("zquest","uncompressed_auto_saves",UncompressedAutoSaves);
-    set_config_int("zquest","overwrite_prevention",OverwriteProtection);
-    set_config_int("zquest","import_map_bias",ImportMapBias);
-    
-    set_config_int("zquest","keyboard_repeat_delay",KeyboardRepeatDelay);
-    set_config_int("zquest","keyboard_repeat_rate",KeyboardRepeatRate);
-    
-    set_config_int("zquest","zqmusic_bufsz",zcmusic_bufsz);
-    set_config_int("zquest","small",UseSmall);
-    set_config_int("zquest","rulesetdialog",RulesetDialog);
-    set_config_int("zquest","enable_tooltips",EnableTooltips);
-    
+	byte b = 0;
     for(int32_t x=0; x<7; x++)
     {
-        set_bit(LayerMask,x, LayerMaskInt[x]);
+        set_bit(&b,x,LayerMaskInt[x]);
     }
     
-    int32_t tempvalue=LayerMask[0]+(LayerMask[1]<<8);
-    set_config_int("zquest","layer_mask",tempvalue);
-    set_config_int("zquest","normal_duplicate_action",DuplicateAction[0]);
-    set_config_int("zquest","horizontal_duplicate_action",DuplicateAction[1]);
-    set_config_int("zquest","vertical_duplicate_action",DuplicateAction[2]);
-    set_config_int("zquest","both_duplicate_action",DuplicateAction[3]);
-    set_config_int("zquest","leech_update",LeechUpdate);
-    set_config_int("zquest","leech_update_tiles",LeechUpdateTiles);
-    set_config_int("zquest","only_check_new_tiles_for_duplicates",OnlyCheckNewTilesForDuplicates);
-    set_config_int("zquest","gui_colorset",gui_colorset);
-    set_config_int("zquest","lister_pattern_matching",abc_patternmatch);
-    set_config_int("zquest","no_preview",NoScreenPreview);
-	//set_config_int("Compiler","try_recovering_missing_scripts",try_recovering_missing_scripts);
-    
-    for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
-    {
-        sprintf(cmdnametitle, "command%02d", x+1);
-        set_config_int("zquest",cmdnametitle,favorite_commands[x]);
-    }
+    zc_set_config("zquest","layer_mask",b);
     
     for(int32_t x=1; x<qt_count+1; x++)
     {
@@ -33546,8 +32629,8 @@ int32_t save_config_file()
         
         if(QuestTemplates[x].path[0]!=0)
         {
-            set_config_string("zquest",qtnametitle,QuestTemplates[x].name);
-            set_config_string("zquest",qtpathtitle,QuestTemplates[x].path);
+            zc_set_config("zquest",qtnametitle,QuestTemplates[x].name);
+            zc_set_config("zquest",qtpathtitle,QuestTemplates[x].path);
         }
         else
         {
@@ -33555,24 +32638,10 @@ int32_t save_config_file()
         }
     }
     
-    //purge old section names here
-    set_config_string("zquest","auto_backup",NULL);
-    
     //save the beta warning confirmation info
 	char *uniquestr = getBetaControlString();
-	set_config_string("zquest", "beta_warning", uniquestr);
+	zc_set_config("zquest", "beta_warning", uniquestr);
 	delete[] uniquestr;
-    
-    set_config_int("zquest","fps",RequestedFPS);
-    set_config_int("zquest","frameskip",Frameskip);
-// set_config_int("zquest","zq_color_depth",zqColorDepth);
-    set_config_int("zquest","force_exit",ForceExit);
-    
-#ifdef _WIN32
-    set_config_int("zquest","zq_win_proc_fix",zqUseWin32Proc);
-    set_config_int("graphics","disable_direct_updating",disable_direct_updating);
-#endif
-    
     
     flush_config_file();
 #ifdef __EMSCRIPTEN__
@@ -33622,6 +32691,7 @@ void check_autosave()
                 replace_extension(last_timed_save, filepath, "qt0", 2047);
             else
                 strcpy(last_timed_save, "untitled.qt0");
+			set_last_timed_save(last_timed_save);
             go();
             
             if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
@@ -33637,10 +32707,9 @@ void check_autosave()
             if(ret)
             {
                 jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                last_timed_save[0]=0;
+                set_last_timed_save(nullptr);
             }
             
-//        jwin_alert("Timed Save","A timed save should happen here",NULL,NULL,"OK",NULL,13,27,lfont);
             save_config_file();
             time(&auto_save_time_start);
             comeback();
@@ -33851,7 +32920,7 @@ command_pair commands[cmdMAX]=
     { "Report: Script Locations",           0, (intF) onScriptLocationReport },
     { "Report: What Links Here",            0, (intF) onWhatWarpsReport },
     { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll },
-    { "Save ZQuest Settings",               0, (intF) onSaveZQuestSettings },
+    { " Save ZQuest Settings",              0, NULL },
     { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath },
     { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport },
     { "Rules - ZScript",                    0, (intF) onZScriptSettings },
@@ -33869,7 +32938,8 @@ command_pair commands[cmdMAX]=
     { "Effect Square Fix",                  0, (intF) onEffectFix },
     { "Test Quest",                         0, (intF) onTestQst },
     { "Redo",                               0, (intF) onRedo },
-    { "Combo Pool Mode",                    0, (intF) onDrawingModePool }
+    { "Combo Pool Mode",                    0, (intF) onDrawingModePool },
+    { "Quest Rules Search",                 0, (intF) onRulesSearch }
 };
 
 /********************************/
@@ -34055,14 +33125,10 @@ void clear_tooltip()
     update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
 
-void ZQ_ClearQuestPath(){
-	//last_quest_name = "";
-	//SetAllegroString last_quest_name ""
-	set_config_string("zquest","win_last_quest",NULL);
-	strcpy(filepath,zc_get_config("zquest","win_last_quest",""));
-	
-	
-	
+void ZQ_ClearQuestPath()
+{
+	zc_set_config("zquest","win_last_quest",(char const*)nullptr);
+	strcpy(filepath,"");
 }
 
 void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
@@ -34175,9 +33241,7 @@ void FFScript::updateIncludePaths()
 void FFScript::initRunString()
 {
 	memset(scriptRunString,0,sizeof(scriptRunString));
-	set_config_file("zscript.cfg");
-	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run"));
-	zc_set_config_standard();
+	strcpy(scriptRunString,zc_get_config("Compiler","run_string","run",App::zscript));
 }
 
 void FFScript::initIncludePaths()
@@ -34350,22 +33414,12 @@ void FFScript::ZScriptConsole(bool open)
 	#endif	
 }
 
-void FFScript::ZScriptConsole(int32_t attributes,const char *format,...)
+template <typename ...Params>
+void FFScript::ZScriptConsole(int32_t attributes,const char *format, Params&&... params)
 {
 	#ifdef _WIN32
 	initConsole();
-	zscript_coloured_console.cprintf( attributes, format );
-	#endif	
-}
-
-
-
-void FFScript::ZScriptConsolePrint(int32_t attributes,const char *format,...)
-{
-	#ifdef _WIN32
-	
-	coloured_console.cprintf( attributes,format);
-	//coloured_console.print();
+	zscript_coloured_console.cprintf( attributes, format, std::forward<Params>(params)... );
 	#endif	
 }
 
@@ -34441,17 +33495,15 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		zc_process_mouse_events();
+		zc_process_display_events();
 		if(update_hw_pal)
 		{
 			set_palette(RAMpal);
 			update_hw_pal=false;
 		}
+		if (myvsync)
+			render_zq();
 		myvsync=0;
-		all_mark_screen_dirty();
-#ifdef __EMSCRIPTEN__
-		all_render_screen();
-#endif
 	}
 }
 
@@ -34525,6 +33577,7 @@ void exit_sys_pal(){}
 
 void replay_step_comment(std::string comment) {}
 bool replay_is_active() {return false;}
+int replay_get_version() {return 0;}
 bool replay_is_debug() {return false;}
 
 #ifdef __EMSCRIPTEN__

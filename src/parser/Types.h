@@ -75,170 +75,172 @@ namespace ZScript
 
 	enum DataTypeIdBuiltin
 	{
-		ZVARTYPEID_START = 0,
+		ZTID_START = 0,
 
-		ZVARTYPEID_PRIMITIVE_START = 0,
-		ZVARTYPEID_UNTYPED = 0,
-		ZVARTYPEID_VOID,
-		ZVARTYPEID_FLOAT,
-		ZVARTYPEID_CHAR,
-		ZVARTYPEID_BOOL,
-		ZVARTYPEID_LONG,
-		ZVARTYPEID_PRIMITIVE_END,
+		ZTID_PRIMITIVE_START = 0,
+		ZTID_UNTYPED = 0,
+		ZTID_VOID,
+		ZTID_FLOAT,
+		ZTID_CHAR,
+		ZTID_BOOL,
+		ZTID_LONG,
+		ZTID_RGBDATA,
+		ZTID_PRIMITIVE_END,
 
-		ZVARTYPEID_CLASS_START = ZVARTYPEID_PRIMITIVE_END,
-		ZVARTYPEID_GAME = ZVARTYPEID_CLASS_START,
-		ZVARTYPEID_PLAYER,
-		ZVARTYPEID_SCREEN,
-		ZVARTYPEID_REGION,
-		ZVARTYPEID_FFC,
-		ZVARTYPEID_ITEM,
-		ZVARTYPEID_ITEMCLASS,
-		ZVARTYPEID_NPC,
-		ZVARTYPEID_LWPN,
-		ZVARTYPEID_EWPN,
-		ZVARTYPEID_NPCDATA,
-		ZVARTYPEID_DEBUG,
-		ZVARTYPEID_AUDIO,
-		ZVARTYPEID_COMBOS,
-		ZVARTYPEID_SPRITEDATA,
-		ZVARTYPEID_GRAPHICS,
-		ZVARTYPEID_BITMAP,
-		ZVARTYPEID_TEXT,
-		ZVARTYPEID_INPUT,
-		ZVARTYPEID_MAPDATA,
-		ZVARTYPEID_DMAPDATA,
-		ZVARTYPEID_ZMESSAGE,
-		ZVARTYPEID_SHOPDATA,
-		ZVARTYPEID_DROPSET,
-		ZVARTYPEID_PONDS,
-		ZVARTYPEID_WARPRING,
-		ZVARTYPEID_DOORSET,
-		ZVARTYPEID_ZUICOLOURS,
-		ZVARTYPEID_RGBDATA,
-		ZVARTYPEID_PALETTE,
-		ZVARTYPEID_TUNES,
-		ZVARTYPEID_PALCYCLE,
-		ZVARTYPEID_GAMEDATA,
-		ZVARTYPEID_CHEATS,
-		ZVARTYPEID_FILESYSTEM,
-		ZVARTYPEID_SUBSCREENDATA,
-		ZVARTYPEID_FILE,
-		ZVARTYPEID_MODULE,
-		ZVARTYPEID_DIRECTORY,
-		ZVARTYPEID_RNG,
-		ZVARTYPEID_BOTTLETYPE,
-		ZVARTYPEID_BOTTLESHOP,
-		ZVARTYPEID_GENERICDATA,
-		ZVARTYPEID_STACK,
-		ZVARTYPEID_CLASS_END,
+		ZTID_CLASS_START = ZTID_PRIMITIVE_END,
+		ZTID_GAME = ZTID_CLASS_START,
+		ZTID_PLAYER,
+		ZTID_SCREEN,
+		ZTID_REGION,
+		ZTID_FFC,
+		ZTID_ITEM,
+		ZTID_ITEMCLASS,
+		ZTID_NPC,
+		ZTID_LWPN,
+		ZTID_EWPN,
+		ZTID_NPCDATA,
+		ZTID_DEBUG,
+		ZTID_AUDIO,
+		ZTID_COMBOS,
+		ZTID_SPRITEDATA,
+		ZTID_GRAPHICS,
+		ZTID_BITMAP,
+		ZTID_TEXT,
+		ZTID_INPUT,
+		ZTID_MAPDATA,
+		ZTID_DMAPDATA,
+		ZTID_ZMESSAGE,
+		ZTID_SHOPDATA,
+		ZTID_DROPSET,
+		ZTID_PONDS,
+		ZTID_WARPRING,
+		ZTID_DOORSET,
+		ZTID_ZUICOLOURS,
+		ZTID_RGBDATAOLD, // ZTID_RGBDATA,
+		ZTID_PALETTEOLD, // ZTID_PALETTE
+		ZTID_TUNES,
+		ZTID_PALCYCLE,
+		ZTID_GAMEDATA,
+		ZTID_CHEATS,
+		ZTID_FILESYSTEM,
+		ZTID_SUBSCREENDATA,
+		ZTID_FILE,
+		ZTID_MODULE,
+		ZTID_DIRECTORY,
+		ZTID_RNG,
+		ZTID_BOTTLETYPE,
+		ZTID_BOTTLESHOP,
+		ZTID_GENERICDATA,
+		ZTID_STACK,
+		ZTID_PALDATA,
+		ZTID_CLASS_END,
 
-		ZVARTYPEID_END = ZVARTYPEID_CLASS_END
+		ZTID_END = ZTID_CLASS_END
 	};
 
 	static std::string getTypeName(DataTypeId id)
 	{
 		switch(id)
 		{
-			case ZVARTYPEID_UNTYPED:
+			case ZTID_UNTYPED:
 				return "UNTYPED";
-			case ZVARTYPEID_VOID:
+			case ZTID_VOID:
 				return "";
-			case ZVARTYPEID_FLOAT:
+			case ZTID_FLOAT:
 				return "INT";
-			case ZVARTYPEID_CHAR:
+			case ZTID_CHAR:
 				return "CHAR32";
-			case ZVARTYPEID_LONG:
+			case ZTID_LONG:
 				return "LONG";
-			case ZVARTYPEID_BOOL:
+			case ZTID_BOOL:
 				return "BOOL";
-			case ZVARTYPEID_GAME:
+			case ZTID_RGBDATA:
+				return "RGB";
+			case ZTID_GAME:
 				return "GAME";
-			case ZVARTYPEID_PLAYER:
+			case ZTID_PLAYER:
 				return "PLAYER";
-			case ZVARTYPEID_SCREEN:
+			case ZTID_SCREEN:
 				return "SCREEN";
-			case ZVARTYPEID_REGION:
+			case ZTID_REGION:
 				return "REGION";
-			case ZVARTYPEID_FFC:
+			case ZTID_FFC:
 				return "FFC";
-			case ZVARTYPEID_ITEM:
+			case ZTID_ITEM:
 				return "ITEMSPRITE";
-			case ZVARTYPEID_ITEMCLASS:
+			case ZTID_ITEMCLASS:
 				return "ITEMDATA";
-			case ZVARTYPEID_NPC:
+			case ZTID_NPC:
 				return "NPC";
-			case ZVARTYPEID_LWPN:
+			case ZTID_LWPN:
 				return "LWEAPON";
-			case ZVARTYPEID_EWPN:
+			case ZTID_EWPN:
 				return "EWEAPON";
-			case ZVARTYPEID_NPCDATA:
+			case ZTID_NPCDATA:
 				return "NPCDATA";
-			case ZVARTYPEID_DEBUG:
+			case ZTID_DEBUG:
 				return "DEBUG";
-			case ZVARTYPEID_AUDIO:
+			case ZTID_AUDIO:
 				return "AUDIO";
-			case ZVARTYPEID_COMBOS:
+			case ZTID_COMBOS:
 				return "COMBOS";
-			case ZVARTYPEID_SPRITEDATA:
+			case ZTID_SPRITEDATA:
 				return "SPRITEDATA";
-			case ZVARTYPEID_GRAPHICS:
+			case ZTID_GRAPHICS:
 				return "GRAPHICS";
-			case ZVARTYPEID_BITMAP:
+			case ZTID_BITMAP:
 				return "BITMAP";
-			case ZVARTYPEID_TEXT:
+			case ZTID_TEXT:
 				return "TEXT";
-			case ZVARTYPEID_INPUT:
+			case ZTID_INPUT:
 				return "INPUT";
-			case ZVARTYPEID_MAPDATA:
+			case ZTID_MAPDATA:
 				return "MAPDATA";
-			case ZVARTYPEID_DMAPDATA:
+			case ZTID_DMAPDATA:
 				return "DMAPDATA";
-			case ZVARTYPEID_ZMESSAGE:
+			case ZTID_ZMESSAGE:
 				return "ZMESSAGE";
-			case ZVARTYPEID_SHOPDATA:
+			case ZTID_SHOPDATA:
 				return "SHOPDATA";
-			case ZVARTYPEID_DROPSET:
+			case ZTID_DROPSET:
 				return "DROPSET";
-			case ZVARTYPEID_PONDS:
+			case ZTID_PONDS:
 				return "PONDS";
-			case ZVARTYPEID_WARPRING:
+			case ZTID_WARPRING:
 				return "WARPRING";
-			case ZVARTYPEID_DOORSET:
+			case ZTID_DOORSET:
 				return "DOORSET";
-			case ZVARTYPEID_ZUICOLOURS:
+			case ZTID_ZUICOLOURS:
 				return "ZUICOLOURS";
-			case ZVARTYPEID_RGBDATA:
-				return "RGBDATA";
-			case ZVARTYPEID_PALETTE:
-				return "PALETTE";
-			case ZVARTYPEID_TUNES:
+			case ZTID_TUNES:
 				return "TUNES";
-			case ZVARTYPEID_PALCYCLE:
+			case ZTID_PALCYCLE:
 				return "PALCYCLE";
-			case ZVARTYPEID_GAMEDATA:
+			case ZTID_GAMEDATA:
 				return "GAMEDATA";
-			case ZVARTYPEID_CHEATS:
+			case ZTID_CHEATS:
 				return "CHEATS";
-			case ZVARTYPEID_FILESYSTEM:
+			case ZTID_FILESYSTEM:
 				return "FILESYSTEM";
-			case ZVARTYPEID_SUBSCREENDATA:
+			case ZTID_SUBSCREENDATA:
 				return "SUBSCREENDATA";
-			case ZVARTYPEID_FILE:
+			case ZTID_FILE:
 				return "FILE";
-			case ZVARTYPEID_DIRECTORY:
+			case ZTID_DIRECTORY:
 				return "DIRECTORY";
-			case ZVARTYPEID_STACK:
+			case ZTID_STACK:
 				return "STACK";
-			case ZVARTYPEID_RNG:
+			case ZTID_RNG:
 				return "RNG";
-			case ZVARTYPEID_BOTTLETYPE:
+			case ZTID_PALDATA:
+				return "PALDATA";
+			case ZTID_BOTTLETYPE:
 				return "BOTTLETYPE";
-			case ZVARTYPEID_BOTTLESHOP:
+			case ZTID_BOTTLESHOP:
 				return "BOTTLESHOP";
-			case ZVARTYPEID_GENERICDATA:
+			case ZTID_GENERICDATA:
 				return "GENERICDATA";
-			case ZVARTYPEID_MODULE:
+			case ZTID_MODULE:
 				return "MODULE";
 			default:
 				return "INT";
@@ -254,107 +256,111 @@ namespace ZScript
 		if(int32_t v = atoi(name.c_str()))
 			return v;
 		else if(name == "UNTYPED")
-			return ZVARTYPEID_UNTYPED;
+			return ZTID_UNTYPED;
 		else if(name == "")
-			return ZVARTYPEID_VOID;
+			return ZTID_VOID;
 		else if(name == "INT")
-			return ZVARTYPEID_FLOAT;
+			return ZTID_FLOAT;
 		else if(name == "CHAR32")
-			return ZVARTYPEID_CHAR;
+			return ZTID_CHAR;
 		else if(name == "LONG")
-			return ZVARTYPEID_LONG;
+			return ZTID_LONG;
 		else if(name == "BOOL")
-			return ZVARTYPEID_BOOL;
+			return ZTID_BOOL;
+		else if (name == "RGB")
+			return ZTID_RGBDATA;
 		else if(name == "GAME")
-			return ZVARTYPEID_GAME;
+			return ZTID_GAME;
 		else if(name == "PLAYER")
-			return ZVARTYPEID_PLAYER;
+			return ZTID_PLAYER;
 		else if(name == "SCREEN")
-			return ZVARTYPEID_SCREEN;
+			return ZTID_SCREEN;
 		else if(name == "REGION")
-			return ZVARTYPEID_REGION;
+			return ZTID_REGION;
 		else if(name == "FFC")
-			return ZVARTYPEID_FFC;
+			return ZTID_FFC;
 		else if(name == "ITEMSPRITE")
-			return ZVARTYPEID_ITEM;
+			return ZTID_ITEM;
 		else if(name == "ITEMDATA")
-			return ZVARTYPEID_ITEMCLASS;
+			return ZTID_ITEMCLASS;
 		else if(name == "NPC")
-			return ZVARTYPEID_NPC;
+			return ZTID_NPC;
 		else if(name == "LWEAPON")
-			return ZVARTYPEID_LWPN;
+			return ZTID_LWPN;
 		else if(name == "EWEAPON")
-			return ZVARTYPEID_EWPN;
+			return ZTID_EWPN;
 		else if(name == "NPCDATA")
-			return ZVARTYPEID_NPCDATA;
+			return ZTID_NPCDATA;
 		else if(name == "DEBUG")
-			return ZVARTYPEID_DEBUG;
+			return ZTID_DEBUG;
 		else if(name == "AUDIO")
-			return ZVARTYPEID_AUDIO;
+			return ZTID_AUDIO;
 		else if(name == "COMBOS")
-			return ZVARTYPEID_COMBOS;
+			return ZTID_COMBOS;
 		else if(name == "SPRITEDATA")
-			return ZVARTYPEID_SPRITEDATA;
+			return ZTID_SPRITEDATA;
 		else if(name == "GRAPHICS")
-			return ZVARTYPEID_GRAPHICS;
+			return ZTID_GRAPHICS;
 		else if(name == "BITMAP")
-			return ZVARTYPEID_BITMAP;
+			return ZTID_BITMAP;
 		else if(name == "TEXT")
-			return ZVARTYPEID_TEXT;
+			return ZTID_TEXT;
 		else if(name == "INPUT")
-			return ZVARTYPEID_INPUT;
+			return ZTID_INPUT;
 		else if(name == "MAPDATA")
-			return ZVARTYPEID_MAPDATA;
+			return ZTID_MAPDATA;
 		else if(name == "DMAPDATA")
-			return ZVARTYPEID_DMAPDATA;
+			return ZTID_DMAPDATA;
 		else if(name == "ZMESSAGE")
-			return ZVARTYPEID_ZMESSAGE;
+			return ZTID_ZMESSAGE;
 		else if(name == "SHOPDATA")
-			return ZVARTYPEID_SHOPDATA;
+			return ZTID_SHOPDATA;
 		else if(name == "DROPSET")
-			return ZVARTYPEID_DROPSET;
+			return ZTID_DROPSET;
 		else if(name == "PONDS")
-			return ZVARTYPEID_PONDS;
+			return ZTID_PONDS;
 		else if(name == "WARPRING")
-			return ZVARTYPEID_WARPRING;
+			return ZTID_WARPRING;
 		else if(name == "DOORSET")
-			return ZVARTYPEID_DOORSET;
+			return ZTID_DOORSET;
 		else if(name == "ZUICOLOURS")
-			return ZVARTYPEID_ZUICOLOURS;
-		else if(name == "RGBDATA")
-			return ZVARTYPEID_RGBDATA;
-		else if(name == "PALETTE")
-			return ZVARTYPEID_PALETTE;
+			return ZTID_ZUICOLOURS;
+		// else if(name == "RGBDATA")
+		// 	return ZTID_RGBDATA;
+		// else if(name == "PALETTE")
+		// 	return ZTID_PALETTE;
 		else if(name == "TUNES")
-			return ZVARTYPEID_TUNES;
+			return ZTID_TUNES;
 		else if(name == "PALCYCLE")
-			return ZVARTYPEID_PALCYCLE;
+			return ZTID_PALCYCLE;
 		else if(name == "GAMEDATA")
-			return ZVARTYPEID_GAMEDATA;
+			return ZTID_GAMEDATA;
 		else if(name == "CHEATS")
-			return ZVARTYPEID_CHEATS;
+			return ZTID_CHEATS;
 		else if(name == "FILESYSTEM")
-			return ZVARTYPEID_FILESYSTEM;
+			return ZTID_FILESYSTEM;
 		else if(name == "SUBSCREENDATA")
-			return ZVARTYPEID_SUBSCREENDATA;
+			return ZTID_SUBSCREENDATA;
 		else if(name == "FILE")
-			return ZVARTYPEID_FILE;
+			return ZTID_FILE;
 		else if(name == "DIRECTORY")
-			return ZVARTYPEID_DIRECTORY;
+			return ZTID_DIRECTORY;
 		else if(name == "STACK")
-			return ZVARTYPEID_STACK;
+			return ZTID_STACK;
 		else if(name == "MODULE")
-			return ZVARTYPEID_MODULE;
+			return ZTID_MODULE;
 		else if(name == "RNG")
-			return ZVARTYPEID_RNG;
+			return ZTID_RNG;
+		else if(name == "PALDATA")
+			return ZTID_PALDATA;
 		else if(name == "BOTTLETYPE")
-			return ZVARTYPEID_BOTTLETYPE;
+			return ZTID_BOTTLETYPE;
 		else if(name == "BOTTLESHOP")
-			return ZVARTYPEID_BOTTLESHOP;
+			return ZTID_BOTTLESHOP;
 		else if(name == "GENERICDATA")
-			return ZVARTYPEID_GENERICDATA;
+			return ZTID_GENERICDATA;
 		
-		return ZVARTYPEID_VOID;
+		return ZTID_VOID;
 	}
 	
 	class DataTypeSimple;
@@ -426,12 +432,14 @@ namespace ZScript
 		static DataTypeSimpleConst CCHAR;
 		static DataTypeSimpleConst CLONG;
 		static DataTypeSimpleConst CBOOL;
+		static DataTypeSimpleConst CRGBDATA;
 		static DataTypeSimple UNTYPED;
 		static DataTypeSimple ZVOID;
 		static DataTypeSimple FLOAT;
 		static DataTypeSimple CHAR;
 		static DataTypeSimple LONG;
 		static DataTypeSimple BOOL;
+		static DataTypeSimple RGBDATA;
 		static DataTypeArray STRING;
 		//Classes: Global Pointer
 		static DataTypeClassConst GAME;
@@ -464,9 +472,9 @@ namespace ZScript
 		static DataTypeClassConst CNPC;
 		static DataTypeClassConst CNPCDATA;
 		static DataTypeClassConst CPALCYCLE;
-		static DataTypeClassConst CPALETTE;
+		static DataTypeClassConst CPALETTEOLD; //unused
 		static DataTypeClassConst CPONDS;
-		static DataTypeClassConst CRGBDATA;
+		static DataTypeClassConst CRGBDATAOLD; //unused
 		static DataTypeClassConst CSHOPDATA;
 		static DataTypeClassConst CSPRITEDATA;
 		static DataTypeClassConst CTUNES;
@@ -476,6 +484,7 @@ namespace ZScript
 		static DataTypeClassConst CDIRECTORY;
 		static DataTypeClassConst CSTACK;
 		static DataTypeClassConst CRNG;
+		static DataTypeClassConst CPALDATA;
 		static DataTypeClassConst CBOTTLETYPE;
 		static DataTypeClassConst CBOTTLESHOP;
 		static DataTypeClassConst CGENERICDATA;
@@ -498,9 +507,9 @@ namespace ZScript
 		static DataTypeClass NPC;
 		static DataTypeClass NPCDATA;
 		static DataTypeClass PALCYCLE;
-		static DataTypeClass PALETTE;
+		static DataTypeClass PALETTEOLD; //unused
 		static DataTypeClass PONDS;
-		static DataTypeClass RGBDATA;
+		static DataTypeClass RGBDATAOLD; //unused
 		static DataTypeClass SHOPDATA;
 		static DataTypeClass SPRITEDATA;
 		static DataTypeClass TUNES;
@@ -510,6 +519,7 @@ namespace ZScript
 		static DataTypeClass DIRECTORY;
 		static DataTypeClass STACK;
 		static DataTypeClass RNG;
+		static DataTypeClass PALDATA;
 		static DataTypeClass BOTTLETYPE;
 		static DataTypeClass BOTTLESHOP;
 		static DataTypeClass GENERICDATA;
@@ -561,9 +571,9 @@ namespace ZScript
 		virtual bool canCastTo(DataType const& target) const;
 		virtual bool canBeGlobal() const;
 		virtual bool isConstant() const {return false;}
-		virtual bool isUntyped() const {return simpleId == ZVARTYPEID_UNTYPED;}
-		virtual bool isVoid() const {return simpleId == ZVARTYPEID_VOID;}
-		virtual bool isLong() const {return simpleId == ZVARTYPEID_LONG;}
+		virtual bool isUntyped() const {return simpleId == ZTID_UNTYPED;}
+		virtual bool isVoid() const {return simpleId == ZTID_VOID;}
+		virtual bool isLong() const {return simpleId == ZTID_LONG;}
 
 		int32_t getId() const {return simpleId;}
 

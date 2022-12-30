@@ -286,6 +286,7 @@ bool movingblock::animate(int32_t)
 			blockmoving=false;
 		}
 		clk = 0;
+		solid_update(false);
 		return false;
 	}
 	if(drownclk)
@@ -298,10 +299,14 @@ bool movingblock::animate(int32_t)
 			blockmoving=false;
 		}
 		clk = 0;
+		solid_update(false);
 		return false;
 	}
 	if(clk<=0)
+	{
+		solid_update(false);
 		return false;
+	}
 		
 	move(step);
 	
@@ -310,7 +315,7 @@ bool movingblock::animate(int32_t)
 		trigger = false; bhole = false;
 		blockmoving=false;
 		
-		if(fallCombo = getpitfall(x+8,y+8))
+		if((fallCombo = getpitfall(x+8,y+8)))
 		{
 			fallclk = PITFALL_FALL_FRAMES;
 		}

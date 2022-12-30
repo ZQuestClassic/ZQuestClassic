@@ -24,6 +24,8 @@ void TabPanel::switchTo(size_t index)
 
 	assert(index<children.size());
 	
+	if(onSwitch)
+		onSwitch(visibleChild, index);
 	children[visibleChild]->setExposed(false); //Hide the old child
 	visibleChild = index;
 	if(indexptr) *indexptr = index;
@@ -158,12 +160,10 @@ int32_t TabPanel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
 	assert(event == geCHANGE_SELECTION);
 	
-	if(onSwitch)
-		onSwitch(visibleChild);
 	return -1;
 }
 
-void TabPanel::setOnSwitch(std::function<void(size_t)> newOnSwitch)
+void TabPanel::setOnSwitch(std::function<void(size_t,size_t)> newOnSwitch)
 {
 	onSwitch = std::move(newOnSwitch);
 }

@@ -42,7 +42,6 @@ std::shared_ptr<GUI::Widget> PaletteConvertDialog::view()
 	
 	return Window(
 		title = "Convert Palette",
-		onEnter = message::OK,
 		onClose = message::CANCEL,
 		Columns<10>(
 			Label

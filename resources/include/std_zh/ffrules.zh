@@ -1,0 +1,563 @@
+///////////////////////////////////
+/// FFRules[] --- Array Indices ///
+///     and Details of Each     ///
+///  -------------------------- ///
+///    Document Revision 1.6    ///
+///       11th July, 2020       ///
+///////////////////////////////////
+
+/*<< Enumerated list for Game->FFRules[] and Quest Rules get_bit. */
+enum ffruletype
+{
+
+//0
+qr_SOLIDBLK, 				/*<<	Combos (>>>) Can't Push Blocks Onto Unwalkable Combos */
+qr_NOTMPNORET, 				/*<<	Enemies (>>>) Temporary No Return Disabled */
+qr_ALWAYSRET, 				/*<<	Enemies (>>>) Enemies Always Return  */
+qr_MEANTRAPS, 				/*<<	Enemies (>>>) Multi-Directional Traps */
+qr_BSZELDA, 				/*<<	Animation (>>>) BS Zelda Animation */
+
+//5
+qr_FADE, 				/*<<	Animation (>>>) Interpolated Fading */
+qr_FADECS5, 				/*<<	Animation (>>>) Fade CSet 5 */
+qr_FASTDNGN, 				/*<<	Animation (>>>) Fast Dungeon Scrolling */
+qr_NOLEVEL3FIX, 			/*<<	NES (>>>) No Palette 3 Level 6 CSet Fix */
+qr_COOLSCROLL, 				/*<<	Animation (>>>) Circle Opening/Closing Wipes  */
+
+//10
+qr_NOSCROLL,  				/*<<	Animation (>>>) No Screen Scrolling */
+qr_4TRI, 				/*<<	Items (>>>) Big Triforce Pieces */
+qr_EXPLICIT_RAFTING, 			/*<<	Unused  */
+qr_FASTFILL, 				/*<<	Misc (>>>) Fast Heart Refill  */
+qr_CAVEEXITNOSTOPMUSIC, 		/*<<	NES (>>>) Leaving Item Cellar/Passageway Doesn't Restart Music */
+
+//15
+qr_3TRI, 				/*<<	Items (>>>) 3 or 6 Triforce Total */
+qr_TIME, 				/*<<	Misc (>>>) Show Time On Subscreen */
+qr_FREEFORM, 				/*<<	NES (>>>) Freeform Dungeons */
+qr_KILLALL, 				/*<<	Enemies (>>>) Must Kill All Bosses To Set 'No Return' Screen State */
+qr_NOFLICKER, 				/*<<	NES (>>>) No NES 'Sprite Flicker' */
+
+//20
+qr_CONTFULL_DEP,			/*<<	DEPRECATED */
+qr_RLFIX, 				/*<<	NES (>>>) Raft/Ladder Sprite Direction Fix  */
+qr_LENSHINTS, 				/*<<	DEPRECATED*/ /*<<	Items (>>>) Show Secret Combo Hints When Using The Lens  */
+qr_LINKDUNGEONPOSFIX, 			/*<<	NES (>>>) Fix Link's Position in Dungeons */
+qr_HOLDITEMANIMATION, 			/*<<	Animation (>>>) Items Held Above Link's Head Continue To Animate */
+
+//25
+qr_HESITANTPUSHBLOCKS, 			/*<<	Combos (>>>) Push Blocks Don't Move When Bumped */
+qr_HIDECARRIEDITEMS, 			/*<<	Items (>>>) Hide Enemy-Carried Items  */
+qr_FFCSCROLL, 				/*<<	Animation (>>>) FFCs Are Visible While The Screen Is Scrolling */
+qr_RAFTLENS, 				/*<<	DEPRECATED	Items (>>>) Lens Shows Raft Paths  */
+qr_SMOOTHVERTICALSCROLLING,	 	/*<<	Animation (>>>) Smooth Vertical Scrolling */
+
+//30
+qr_WHIRLWINDMIRROR, 			/*<<	Combos (>>>) Magic Mirrors Reflect Scripted Whirlwinds */
+qr_NOFLASHDEATH, 			/*<<	Enemies (>>>) Enemies Don't Flash When Dying */
+qr_HOLDNOSTOPMUSIC, 			/*<<	NES (>>>) Holding Up Items Doesn't Restart Music  */
+qr_FIREPROOFLINK, 			/*<<	Items (>>>) Scripted Fire LWeapons Don't Hurt Link */
+qr_OUCHBOMBS, 				/*<<	Items (>>>) Scripted Bomb LWeapons Hurt Link */
+
+//35
+qr_NOCLOCKS_DEP,			/*<<	DEPRECATED */
+qr_TEMPCLOCKS_DEP,			/*<<	DEPRECATED */
+qr_BRKBLSHLDS_DEP,			/*<<	DEPRECATED */
+qr_BRKNSHLDTILES, 			/*<<	Enemies (>>>) Broken Enemy Shield Tiles  */
+qr_MEANPLACEDTRAPS, 			/*<<	Enemies (>>>) Line-of-Sight Traps Can Move Across Entire Screen  */
+
+//40
+qr_PHANTOMPLACEDTRAPS, 			/*<<	Enemies (>>>) Constant Traps Can Pass Through Enemies */
+qr_ALLOWFASTMSG, 			/*<<	Misc (>>>) Messages Can Be Sped Up With The A Button */
+qr_LINKEDCOMBOS,			/*<<	DEPRECATED */
+qr_NOGUYFIRES, 				/*<<	Misc (>>>) No Fires In Special Rooms */
+qr_HEARTRINGFIX, 			/*<<	Misc (>>>) Healing Fairy Heart Circle Is Centered Around Link */
+
+//45
+qr_NOHEARTRING, 			/*<<	Misc (>>>) No Healing Fairy Heart Circle */
+qr_OVERWORLDTUNIC, 			/*<<	NES (>>>) Tunic Color Can Change On Overworld */
+qr_SWORDWANDFLIPFIX, 			/*<<	NES (>>>) Sword/Wand Flip Fix */
+qr_ENABLEMAGIC, 			/*<<	Items (>>>) Enable Magic */
+qr_MAGICWAND_DEP,			/*<<	DEPRECATED */
+
+//50
+qr_MAGICCANDLE_DEP,			/*<<	DEPRECATED */
+qr_MAGICBOOTS_DEP,			/*<<	DEPRECATED */
+qr_NONBUBBLEMEDICINE, 			/*<<	Items (>>>) Medicine Doesn't Remove Sword Jinxes */
+qr_NONBUBBLEFAIRIES, 			/*<<	Items (>>>) Fairy Combos Don't Remove Sword Jinxes */
+qr_NONBUBBLETRIFORCE, 			/*<<	Items (>>>) Triforce Doesn't Remove Sword Jinxes */
+
+//55
+qr_NEWENEMYTILES, 			/*<<	Enemies (>>>) Use New Enemy Tiles */
+qr_NOROPE2FLASH_DEP,			/*<<	DEPRECATED */
+qr_NOBUBBLEFLASH_DEP,			/*<<	DEPRECATED */
+qr_GHINI2BLINK_DEP, 			/*<<	DEPRECATED */
+qr_BITMAPOFFSETFIX, 			/*<<	Compatibility (>>>) Use DrawBitmap() Offsets Prior to 2.50.2  */
+
+//60
+qr_PHANTOMGHINI2_DEP,			/*<<	DEPRECATED */
+qr_Z3BRANG_HSHOT, 			/*<<	Items (>>>) New Boomerang/Hookshot  */
+qr_NOITEMMELEE,				/*<<	Items (>>>) Wand Can't Be Used As Melee Weapon	/DEPRECATED/  */
+qr_SHADOWS, 				/*<<	Enemies (>>>) Show Shadows */
+qr_TRANSSHADOWS, 			/*<<	Enemies (>>>) Translucent Shadows  */
+
+//65
+qr_QUICKSWORD, 				/*<<	Items (>>>) Quick Sword  */
+qr_BOMBHOLDFIX, 			/*<<	NES (>>>) Link Holds Special Bombs Over His Head  */
+qr_EXPANDEDLTM, 			/*<<	Animation (>>>) Expanded Link Tile Modifiers */
+qr_NOPOTIONCOMBINE_DEP,			/*<<	DEPRECATED */
+qr_LINKFLICKER, 			/*<<	Animation (>>>) Invincible Link Flickers */
+
+//70
+qr_SHADOWSFLICKER, 			/*<<	Enemies (>>>) Shadows Flicker */
+qr_WALLFLIERS, 				/*<<	Enemies (>>>) Flying Enemies Can Appear on Unwalkable Combos */
+qr_NOBOMBPALFLASH, 			/*<<	Animation (>>>) Bomb Explosions Don't Flash Palette */
+qr_HEARTSREQUIREDFIX, 			/*<<	Items (>>>) Hearts Required' Affects Non-Special Items */
+qr_PUSHBLOCKCSETFIX, 			/*<<	NES (>>>) Push Block CSet Fix */
+
+//75
+qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP,	/*<<	DEPRECATED */
+qr_FLICKERINGNAYRUSLOVEROCKET_DEP,	/*<<	DEPRECATED */
+qr_CMBCYCLELAYERS, 			/*<<	Combos (>>>) Combo Cycling On Layers */
+qr_DMGCOMBOPRI, 			/*<<	Combos (>>>) Full Priority Damage Combos */
+qr_WARPSIGNOREARRIVALPOINT, 		/*<<	Combos (>>>) Warps Ignore Arrival X/Y Position When Setting Continue Screen */
+
+//80
+qr_LTTPCOLLISION, 			/*<<	Player (>>>) Full Tile Collision */
+qr_LTTPWALK, 				/*<<	Player (>>>) Diagonal Movement */
+qr_SLOWENEMYANIM_DEP,			/*<<	DEPRECATED */
+qr_TRUEARROWS, 				/*<<	Items (>>>) True Arrows */
+qr_NOSAVE, 				/*<<	Misc (>>>) No Saving When Continuing */
+
+//85
+qr_NOCONTINUE, 				/*<<	Misc (>>>) Skip Continue Screen */
+qr_QUARTERHEART, 			/*<<	Misc (>>>) Enable 1/4 Heart Life Bar  */
+qr_NOARRIVALPOINT, 			/*<<	Combos (>>>) Use Warp Return Points Only */
+qr_NOGUYPOOF, 				/*<<	Misc (>>>) Special Room Guys Don't Create A Puff When Appearing  */
+qr_ALLOWMSGBYPASS, 			/*<<	Misc (>>>) Messages Can Be Bypassed With The B Button  */
+
+//90
+qr_NODIVING, 				/*<<	Items (>>>) No Diving */
+qr_LAYER12UNDERCAVE, 			/*<<	Animation (>>>) Layers 1 and 2 Are Drawn Under Caves */
+qr_NOSCROLLCONTINUE, 			/*<<	Combos (>>>) Scrolling Warps Don't Set The Continue Point */
+qr_SMARTSCREENSCROLL, 			/*<<	Combos>>Smart Screen Scrolling */
+qr_RINGAFFECTDAMAGE, 			/*<<	Items (>>>) Rings Affect Damage Combos /DEPRECATED/  */
+
+//95
+qr_ALLOW10RUPEEDROPS_DEP, 		/*<<	DEPRECATED  */
+qr_TRAPPOSFIX, 				/*<<	NES (>>>) Trap Position Fix  */
+qr_TEMPCANDLELIGHT, 			/*<<	Items (>>>) Scripted and Enemy Fire Lights Temporarily */
+qr_REDPOTIONONCE_DEP,			/*<<	DEPRECATED  */
+qr_OLDSTYLEWARP, 			/*<<	Combos (>>>) Use Old-Style Warp Detection (NES Movement Only) */
+
+//100
+qr_NOBORDER, 				/*<<	NES (>>>) No Invisible Border on Non-Dungeon Dmaps */
+qr_OLDTRIBBLES_DEP,			/*<<	DEPRECATED */
+qr_REFLECTROCKS,			/*<<	DEPRECATED */
+qr_OLDPICKUP, 				/*<<	NES (>>>) Items Disappear During Hold-Up */
+qr_ENEMIESZAXIS, 			/*<<	Enemies (>>>) Enemies Jump/Fly Through Z-Axis */
+
+//105
+qr_SAFEENEMYFADE, 			/*<<	NES (>>>) Can Safely Trigger Armos/Grave From The South */
+qr_MORESOUNDS, 				/*<<	Misc (>>>) More Sound Effects  */
+qr_BRANGPICKUP, 			/*<<	Items (>>>) Boomerang/Hookshot Grabs All Items */
+qr_HEARTPIECEINCR_DEP,			/*<<	DEPRECATED */
+qr_ITEMSONEDGES, 			/*<<	NES (>>>) Can Use Items/Weapons on Edge of Screen */
+
+//110
+qr_EATSMALLSHIELD_DEP,			/*<<	DEPRECATED */
+qr_MSGFREEZE, 				/*<<	Misc (>>>) Messages Freeze All Action */
+qr_SLASHFLIPFIX,			/*<<	Items (>>>) Flip Right-Facing Slash /DEPRECATED/  */
+qr_FIREMAGICSPRITE_DEP, 		/*<<	DEPRECATED */
+qr_SLOWCHARGINGWALK, 			/*<<	Items (>>>) Slow Walk While Charging /DEPRECATED/ */
+
+//115
+qr_NOWANDMELEE, 			/*<<	Items (>>>) Wand Can't Be Used As Melee Weapon /DEPRECATED/  */
+qr_SLOWBOMBFUSES_DEP,			/*<<	DEPRECATED */
+qr_SWORDMIRROR, 			/*<<	Combos (>>>) Magic Mirror/Prism Combos Reflect Enemy and Scripted Sword Beams */
+qr_SELECTAWPN, 				/*<<	Misc (>>>) Can Select A-Button Weapon On Subscreen  */
+qr_LENSSEESENEMIES,  			/*<<	Items (>>>) Lens Reveals Invisible Enemies /DEPRECATED/  */
+
+//120
+qr_INSTABURNFLAGS, 			/*<<	Combos>>Burn Flags Are Triggered Instantly */
+qr_DROWN, 				/*<<	Combos>>Link Drowns in Walkable Water */
+qr_MSGDISAPPEAR, 			/*<<	Misc (>>>) Messages Disappear  */
+qr_SUBSCREENOVERSPRITES, 		/*<<	NES (>>>) Subscreen Appears Above Sprites */
+qr_BOMBDARKNUTFIX, 			/*<<	NES (>>>) Correct Bomb/Darknut Interaction */
+
+//125
+qr_LONGBOMBBOOM_DEP,			/*<<	DEPRECATED */
+qr_OFFSETEWPNCOLLISIONFIX, 		/*<<	NES (>>>) Correct Offset Enemy Weapon Collision Detection */
+qr_DMGCOMBOLAYERFIX, 			/*<<	Combos (>>>) Damage Combos Work On Layers 1 And 2 */
+qr_ITEMSINPASSAGEWAYS, 			/*<<	NES (>>>) Special Items Don't Appear In Passageways */
+qr_LOG, 				/*<<	Misc (>>>) Log Game Events To Allegro.log  */
+
+//130
+qr_FIREPROOFLINK2, 			/*<<	NES (>>>) Invincible Link Isn't Hurt By Own Fire Weapons */
+qr_NOITEMOFFSET, 			/*<<	NES (>>>) No Position Offset Of Screen Items */
+qr_ITEMBUBBLE, 				/*<<	Items (>>>) "Fairy Combos Remove Item Jinxes */
+qr_GOTOLESSNOTEQUAL, 			/*<<	Compatibility (>>>) Old GOTOLESS Behavior */
+qr_LADDERANYWHERE, 			/*<<	NES (>>>) Allow Ladder Anywhere */
+
+//135
+qr_HOOKSHOTLAYERFIX, 			/*<<	Combos (>>>) Hookshot Grab Combos Work On Layers 1 And 2 */
+qr_REPLACEOPENDOORS, 			/*<<	Compatibility (>>>) Fix Open Door Solidity  */
+qr_OLDLENSORDER, 			/*<<	Compatibility (>>>) Old Lens Drawing Order */
+qr_NOFAIRYGUYFIRES, 			/*<<	Compatibility (>>>) No Fairy Guy Fires */
+qr_SCRIPTERRLOG, 			/*<<	Misc (>>>) Log Script Errors To Allegro.log */
+
+//140
+qr_TRIGGERSREPEAT, 			/*<<	Compatibility (>>>) Continuous Step Triggers  */
+qr_ENEMIESFLICKER, 			/*<<	Enemies (>>>) Enemies Flicker When Hit  */
+qr_OVALWIPE, 				/*<<	Animation (>>>) Oval Opening/Closing Wipes */
+qr_TRIANGLEWIPE, 			/*<<	Animation (>>>) Triangle Opening/Closing Wipes" */
+qr_SMASWIPE, 				/*<<	Animation (>>>) Super Mario All-Stars Opening/Closing Wipes */
+
+//145
+qr_NOSOLIDDAMAGECOMBOS, 		/*<<	Compatibility (>>>) No Solid Damage Combos */
+qr_SHOPCHEAT, 				/*<<	Misc (>>>) Draining Rupees Can Still Be Spent */
+qr_HOOKSHOTDOWNBUG, 			/*<<	Compatibility (>>>) Downward Hookshot Bug */
+qr_OLDHOOKSHOTGRAB, 			/*<<	Compatibility (>>>) Old Hookshot Grab Checking  */
+qr_PEAHATCLOCKVULN, 			/*<<	Compatibility (>>>) Peahats Are Vulnerable When Frozen By Clocks  */
+
+//150
+qr_VERYFASTSCROLLING, 			/*<<	Animation (>>>) Very Fast Scrolling */
+qr_OFFSCREENWEAPONS, 			/*<<	Compatibility (>>>) Weapons With No Collision Detection Move Offscreen */
+qr_BROKENSTATUES, 			/*<<	Enemies (>>>) No Statue Minimum Range Or Double Fireballs */
+qr_BOMBCHUSUPERBOMB, 			/*<<	Enemies (>>>) Use Super Bomb Explosions for Explode on Contact */
+qr_ITEMPICKUPSETSBELOW, 		/*<<	Compatibility (>>>) Screen Item Pickup Disables Hunger/Special Item */
+
+//155
+qr_NOGANONINTRO, 			/*<<	Misc (>>>) No Intro String in Ganon Room */
+qr_MELEEMAGICCOST, 			/*<<	Items (>>>) Melee Weapons Require Magic Cost /DEPRECATED/  */
+qr_OLDMIRRORCOMBOS, 			/*<<	Combos (>>>) Broken Mirror and Weapon Interaction */
+qr_BROKENBOOKCOST, 			/*<<	Items (>>>) Broken Magic Book Costs */
+qr_OLDSIDEVIEWSPIKES, 			/*<<	Compatibility (>>>) Sideview Spike Detection Prior to 2.50.1RC3 */
+
+//160
+qr_OLDINFMAGIC, 			/*<<	Compatibility (>>>) Infinite Magic Prevents Items From Draining Rupees */
+qr_NEVERDISABLEAMMOONSUBSCREEN,		/*<<	Misc (>>>) No Ammo Required to Display Subscreen Items */
+qr_ITEMSCRIPTSKEEPRUNNING, 		/*<<	ZScript (>>>) Item Scripts Continue To Run */
+qr_SCRIPTSRUNINLINKSTEPFORWARD,		/*<<	ZScript (>>>) Scripts Draw When Stepping Forward In Dungeons */
+qr_FIXSCRIPTSDURINGSCROLLING,		/*<<	ZScript (>>>) Scripts Draw During Scrolling */
+
+//165
+qr_SCRIPTDRAWSINWARPS,  		/*<<	ZScript (>>>) Scripts Draw During Warps */
+qr_DYINGENEMYESDONTHURTLINK, 		/*<<	t.b.a */
+qr_SIDEVIEWTRIFORCECELLAR, 		/*<<	Misc (>>>) Triforce in Cellar Warps Link Out */
+qr_OUTOFBOUNDSENEMIES, 			/*<<	Enemies (>>>) Enemies Can Go Out of Bounds */
+qr_EPILEPSY, 				/*<<	Misc (>>>) Reduced Flashing (Epilepsy Protection) */
+
+//170
+qr_SCRIPT_FRIENDLY_ENEMY_TYPES,		/*<<	Enemies (>>>) Disable Spawning Custom and Friendly Enemy Types */
+qr_SMARTDROPS, 				/*<<	Items (>>>) Reroll Useless Drops */
+qr_NO_L_R_BUTTON_INVENTORY_SWAP,	/*<<	Misc (>>>) No L/R Inventory Shifting */
+qr_USE_EX1_EX2_INVENTORYSWAP, 		/*<<	Misc (>>>) Ex3 and Ex4 Shift A-Button Items */
+qr_NOFASTMODE, 				/*<<	Misc (>>>) Disable Fast Mode (Uncap) */
+
+//175
+qr_OLD_F6, 				/*<<	Compatibility (>>>) Old (Instant) F6 Menu */
+qr_BROKEN_ASKIP_Y_FRAMES,		/*<<	Compatibility (>>>) Broken ASkipY Animation Frames */
+qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY,	/*<<	Compatibility (>>>) Enemies Clip Through Top-Half Partial Solids */
+qr_SIDEVIEWLADDER_FACEUP,		/*<<	Combos (>>>) 2 (>>>) Always Face Up on Sideview Ladders */
+qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,	/*<<	Items (>>>) Items Ignore Sideview Platforms */
+
+//180
+qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,/*<<	Combos (>>>) 2 (>>>) Press 'Down' to Fall Through Sideview Platforms */
+qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK, 	/*<<	Combos (>>>) 2 (>>>) Falling Through Sideview Platforms Respects 'Drunk' Inputs */
+qr_DOWN_DOESNT_GRAB_LADDERS, 		/*<<	Combos (>>>) 2 (>>>) Pressing Down Will Not Grab Sideview Ladders */
+qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,
+					/*<<	Combos (>>>) 2 (>>>) Press 'Down+Jump' to Fall Through Sideview Platforms */
+
+qr_OLD_SIDEVIEW_CEILING_COLLISON, 	/*<<	Compatibility (>>>) Old Sideview Ceiling Collision */
+
+//185
+qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, /*<<	Compatibility (>>>) Items set to 0 AFrames ignore AFrame changes */
+qr_OLD_ENEMY_KNOCKBACK_COLLISION,	/*<<	Compatibility (>>>) Old Enemy Knockback Collision */
+qr_FADEBLACKWIPE, 			/*<<	Animation (>>>) Fade to/from Black Opening/Closing Wipes */
+qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT,
+					/*<<	ZScript (>>>) Scripts (>>>) Passive Subscreen Script runs during Active Subscreen */
+qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT,
+					/*<<	ZScript (>>>) Scripts (>>>) DMap Active Script runs during Active Subscreen */
+
+//190
+qr_ANIMATECUSTOMWEAPONS,
+qr_WEAPONSMOVEOFFSCREEN, 		/*<<	Compatibility (>>>) Weapons Can Go Out of Bounds (Offscreen) */
+qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, 	/*<<	Compatibility (>>>) Check Clip for Custom / Script Type Weapons on Screen Edge */
+qr_SHORTDGNWALK, 			/*<<	Compatibility (>>>) 1.92 Diagonal Walk Speed */
+qr_SCRIPT_WEAPONS_UNIQUE_SPRITES,	/*<<	Weapons (>>>) npc->Weapon Uses Unique Sprites for Custom EWeapons */
+
+//195
+qr_ANGULAR_REFLECTED_WEAPONS, 		/*<<	Weapons (>>>) Angular Reflected Weapons */
+qr_MIRRORS_USE_WEAPON_CENTRE, 		/*<<	Weapons (>>>) Mirrors Use Weapon Centre for Collision */
+qr_CUSTOMCOMBOSLAYERS1AND2,		/*<<	Combos (>>>) 2 (>>>) Custom Combos Work on Layers 1 and 2 */
+qr_BUSHESONLAYERS1AND2,			/*<<	Combos (>>>) 2 (>>>) Slash Combos Work on Layers 1 and 2 */
+qr_NEW_HERO_MOVEMENT,	/*<<	Hero (>>>) New Hero Movement */
+
+//200
+qr_DISABLE_4WAY_GRIDLOCK,	/*<<	Hero (>>>) Disable 4-Way Movement's Gridlock */
+qr_NEW_COMBO_ANIMATION,	/*<<	Combos (>>>) New Combo Animation */
+qr_OLD_STRING_EDITOR_MARGINS, 	/*<<	Compatibility (>>>) Old String Margins */
+qr_NO_OVERWRITING_HOPPING,	/*<<	ZScript (>>>) Don't allow overwriting hopping action */
+qr_DUNGEON_DMAPS_PERM_SECRETS,	/*<<	Other (>>>) Allow permanent secrets on Dungeon-type dmaps */
+
+//205
+qr_STRING_FRAME_OLD_WIDTH_HEIGHT,	/*<<	Compatibility (>>>) Old String Frame Width/Height */
+qr_NO_SCROLL_WHILE_IN_AIR,	/*<<	Other (>>>) No Scrolling Screen While In Air */
+qr_INSTANT_RESPAWN,	/*<<	Other (>>>) Instant Reload On Death */
+qr_BROKEN_OVERWORLD_MINIMAP,	/*<<	Compatibility (>>>) Overworld Minimap Ignores Map Item */
+qr_NO_STUNLOCK,	/*<<	Weapons (>>>) Weapons Cannot Stunlock Enemies */
+
+//210
+qr_GREATER_MAX_TIME,	/*<<	Other (>>>) Higher Maximum Playtime */
+qr_BROKEN_RING_POWER,	/*<<	Compatibility (>>>) Old (Broken) Ring Power Maths */
+qr_NO_OVERWORLD_MAP_CHARTING,	/*<<	Compatibility (>>>) Overworld DMaps Do Not Chart Progress */
+qr_DUNGEONS_USE_CLASSIC_CHARTING,	/*<<	Compatibility (>>>) Dungeon DMaps Use Classic Charting */
+qr_ARROWS_ALWAYS_PENETRATE,	/*<<	Weapons (>>>) Arrows Always Penetrate */
+
+//215
+qr_SWORDBEAMS_ALWAYS_PENETRATE,	/*<<	Weapons (>>>) Swordbeams Always Penetrate */
+qr_SET_XBUTTON_ITEMS,	/*<<	Other (>>>) Allow Setting X Button Items */
+qr_SMARTER_WATER,	/*<<	Combos (>>>) New Water Collision */
+qr_NO_HOPPING,	/*<<	Combos (>>>) No Water Hopping */
+qr_NO_SOLID_SWIM,	/*<<	Combos (>>>) Can't Swim in Solid Water */
+
+//220
+qr_WATER_ON_LAYER_1,	/*<<	Combos (>>>) Water works on Layer 1 */
+qr_WATER_ON_LAYER_2,	/*<<	Combos (>>>) Water works on Layer 2 */
+qr_SHALLOW_SENSITIVE,	/*<<	Combos (>>>) New Shallow Water Detection */
+qr_SMARTER_SMART_SCROLL,	/*<<	Combos (>>>) Fixed Smart Scrolling */
+qr_INSTANT_CONTINUE,	/*<<	Other (>>>) Instant Continue On Death */
+
+//225
+qr_NONHEAVY_BLOCKTRIGGER_PERM,	/*<<	Combos (>>>) Block Triggers Are Perm For Non-Heavy Blocks */
+qr_SET_YBUTTON_ITEMS,	/*<<	Other (>>>) Allow Setting Y Button Items */
+qr_CORRECTED_EW_BRANG_ANIM,	/*<<	Weapons (>>>) Boomerang EWeapons Corrected Animation */
+qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER,	/*<<	ZScript (>>>) Script writes to Hero->Step don't carry over */
+qr_OVERHEAD_COMBOS_L1_L2,
+//230
+qr_ALLOW_EDITING_COMBO_0,
+qr_OLD_CHEST_COLLISION,
+qr_AUTOCOMBO_LAYER_1,
+qr_AUTOCOMBO_LAYER_2,
+qr_TRUEFIXEDBOMBSHIELD,
+//235
+qr_BOMBSPIERCESHIELD,
+qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
+qr_NEW_DARKROOM,
+qr_NEWDARK_L6,
+qr_ENEMIES_SECRET_ONLY_16_31,
+//240
+qr_SCREEN80_OWN_MUSIC,
+qr_OLDCS2,
+qr_HARDCODED_ENEMY_ANIMS,
+qr_OLD_ITEMDATA_SCRIPT_TIMING,
+qr_SIDESWIM,
+//245
+qr_SIDESWIMDIR,
+qr_PUSHBLOCK_LAYER_1_2,
+qr_NEWDARK_SCROLLEDGE,
+qr_STEPTEMP_SECRET_ONLY_16_31,
+qr_ALLTRIG_PERMSEC_NO_TEMP,
+//250
+qr_HARDCODED_LITEM_LTMS,
+qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
+qr_LIGHTBEAM_TRANSPARENT,
+qr_CANDLES_SHARED_LIMIT,
+qr_OLD_RESPAWN_POINTS,
+//255
+qr_HOOKSHOTALLLAYER,
+qr_ANONE_NOANIM,
+qr_BLOCKHOLE_SAME_ONLY,
+qr_SWITCHOBJ_RUN_SCRIPT,
+qr_ITEMCOMBINE_NEW_PSTR,
+//260
+qr_ITEMCOMBINE_CONTINUOUS,
+qr_SCC_ITEM_COMBINES_ITEMS,
+qr_SCROLLING_KILLS_CHARGE,
+qr_CUSTOMWEAPON_IGNORE_COST,
+qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
+//265
+qr_SCC_GOTO_RESPECTS_CONTFLAG,
+qr_BROKEN_KEEPOLD_FLAG,
+qr_KEEPOLD_APPLIES_RETROACTIVELY,
+qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,
+qr_OLD_HALF_MAGIC,
+//270
+qr_LEVEL_RESTART_CONT_POINT,
+qr_SUBSCR_OLD_SELECTOR,
+qr_OLD_FAIRY_LIMIT,
+qr_FAIRYDIR,
+qr_ARROWCLIP,
+//275
+qr_CONT_SWORD_TRIGGERS,
+qr_OLD_210_WATER,
+qr_8WAY_SHOT_SFX,
+qr_COPIED_SWIM_SPRITES,
+qr_WRONG_BRANG_TRAIL_DIR,
+//280
+qr_192b163_WARP,
+qr_210_WARPRETURN,
+qr_LESS_AWFUL_SIDESPIKES,
+qr_OLD_LADDER_ITEM_SIDEVIEW,
+qr_OLD_SECRETMONEY,
+//285
+qr_OLD_DOORREPAIR,
+qr_OLD_POTION_OR_HC,
+qr_NO_LANMOLA_RINGLEADER,
+qr_HARDCODED_BS_PATRA,
+qr_PATRAS_USE_HARDCODED_OFFSETS,
+//290
+qr_BROKEN_BIG_ENEMY_ANIMATION,
+qr_BROKEN_ATTRIBUTE_31_32,
+qr_CAN_PLACE_GANON,
+qr_CAN_PLACE_TRAPS,
+qr_FIND_CLOSEST_BAIT,
+//295
+qr_OLD_FLAMETRAIL_DURATION,
+qr_PERMANENT_WHISTLE_SECRETS,
+qr_SMARTER_DROPS,
+qr_WAVY_NO_EPILEPSY,
+qr_WAVY_NO_EPILEPSY_2,
+//300
+qr_DYING_ENEMIES_IGNORE_STUN,
+qr_SHOP_ITEMS_VANISH,
+qr_ANGULAR_REFLECT_BROKEN,
+qr_CSET1_LEVEL,
+qr_CSET5_LEVEL,
+//305
+qr_CSET7_LEVEL,
+qr_CSET8_LEVEL,
+qr_FADECS1,
+qr_FADECS7,
+qr_FADECS8,
+//310
+qr_FADECS9,
+qr_UNBEATABLES_DONT_KEEP_DEAD,
+qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK,
+qr_OLD_BRIDGE_COMBOS,
+qr_BROKEN_Z3_ANIMATION,
+//315
+qr_OLD_TILE_INITIALIZATION,
+qr_FLUCTUATING_ENEMY_JUMP,
+qr_SPRITE_JUMP_IS_TRUNCATED,
+qr_BUGGY_BUGGY_SLASH_TRIGGERS,
+qr_OLD_DRAWOFFSET,
+//320
+qr_BROKEN_DRAWSCREEN_FUNCTIONS,
+qr_ENEMY_DROPS_USE_HITOFFSETS,
+qr_BROKEN_ITEM_CARRYING,
+qr_LEEVERS_DONT_OBEY_STUN,
+qr_QUAKE_STUNS_LEEVERS,
+//325
+qr_GANON_CANT_SPAWN_ON_CONTINUE,
+qr_WIZZROBES_DONT_OBEY_STUN,
+qr_OLD_BUG_NET,
+qr_MANHANDLA_BLOCK_SFX,
+qr_GRASS_SENSITIVE,
+//330
+qr_BETTER_RAFT,
+qr_BETTER_RAFT_2,
+qr_RAFT_SOUND,
+qr_WARPS_RESTART_DMAPSCRIPT,
+qr_DMAP_0_CONTINUE_BUG,
+//335
+qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
+qr_OLD_SCRIPTED_KNOCKBACK,
+qr_OLD_KEESE_Z_AXIS,
+qr_POLVIRE_NO_SHADOW,
+qr_CONVEYORS_L1_L2,
+//340
+qr_CUSTOMCOMBOS_EVERY_LAYER,
+qr_SUBSCR_BACKWARDS_ID_ORDER,
+qr_FASTCOUNTERDRAIN,
+qr_OLD_LOCKBLOCK_COLLISION,
+qr_DECO_2_YOFFSET,
+//345
+qr_SCREENSTATE_80s_BUG,
+qr_AUTOCOMBO_ANY_LAYER,
+qr_GOHMA_UNDAMAGED_BUG,
+qr_FFCPRELOAD_BUGGED_LOAD,
+qr_SWITCHES_AFFECT_MOVINGBLOCKS,
+//350
+qr_BROKEN_GETPIXEL_VALUE,
+qr_NO_LIFT_SPRITE,
+qr_OLD_SIDEVIEW_LANDING_CODE,
+qr_OLD_FFC_SPEED_CAP,
+qr_OLD_WIZZROBE_SUBMERGING,
+//355
+
+//400
+qr_OLD_FFC_FUNCTIONALITY = 50*8,
+qr_OLD_SHALLOW_SFX,
+
+//640
+qr_PARSER_250DIVISION = 80*8, 		/*<<	ZScript (>>>) 2.50 Division Truncation */
+qr_PARSER_NO_LOGGING, 			/*<<	ZScript (>>>) Disable Tracing */
+qr_PARSER_SHORT_CIRCUIT, 		/*<<	ZScript (>>>) Short-Circuit Boolean Operations */
+qr_SPRITEXY_IS_FLOAT, 		/*<<	ZScript (>>>) Short-Circuit Boolean Operations */
+qr_PARSER_BOOL_TRUE_DECIMAL, 		/*<<	ZScript (>>>) Sprite Coordinates are Float */
+
+//645
+qr_PARSER_TRUE_INT_SIZE, 		/*<<	Compilation (>>>) True MAX_INT sizing */
+qr_WPNANIMFIX, 				/*<< 	Not Implemented : This was in 2.50.2, but never used. */
+qr_NOSCRIPTSDURINGSCROLL, 		/*<< 	Not Implemented : This was in 2.50.2, but never used. */
+qr_OLDSPRITEDRAWS, 			/*<<	Compatibility (>>>) Old (Faster) Sprite Drawing */
+qr_WEAPONSHADOWS,  			/*<<	ZScript (>>>) Draw Shadows on Weapons */
+
+//650
+qr_ITEMSHADOWS, 			/*<<	ZScript (>>>) Draw Shadows on Items */
+qr_OLDEWPNPARENT, 			/*<<	ZScript (>>>) Old eweapon->Parent */
+qr_OLDCREATEBITMAP_ARGS,		/*<<	ZScript (>>>) Old Args for CreateBitmap() and bitmap->Create() */
+qr_OLDQUESTMISC, 			/*<<	ZScript (>>>) Game->Misc[] is not *10000" */
+qr_PARSER_FORCE_INLINE,			/*<<	Compilation (>>>) Inline all possible functions */
+
+//655
+qr_CLEARINITDONSCRIPTCHANGE,		/*<<	ZScript (>>>) Clear InitD[] on Script Change */
+qr_NOFFCWAITDRAW,			/*<<	ZScript (>>>) No FFC Waitdraw() */
+qr_NOITEMWAITDRAW,			/*<<	ZScript (>>>) No Item Script Waitdraw() */
+qr_TRACESCRIPTIDS,			/*<<	ZScript (>>>) Print Script Metadata on Traces */
+qr_FIXDRUNKINPUTS,			/*<<	ZScript (>>>) Writing to INPUT Overrides Drunk State */
+
+//660
+qr_32BIT_BINARY,			/*<<	Compilation (>>>) Binary Operations use true 32-bit Int */
+qr_ALWAYS_DEALLOCATE_ARRAYS,		/*<<	ZScript (>>>) Always Deallocate Arrays */
+qr_ONDEATH_RUNS_AFTER_DEATH_ANIM,	/*<<	ZScript (>>>) Hero OnDeath script runs AFTER engine death animation */
+qr_DISALLOW_SETTING_RAFTING,		/*<<	ZScript (>>>) Don't Allow Setting Action to Rafting */
+qr_WEAPONS_EXTRA_FRAME,			/*<<	ZScript (>>>) Weapons Live One Extra Frame With WDS_DEAD */
+
+//665
+qr_250WRITEEDEFSCRIPT,			/*<<	ZScript (>>>) Writing npc->Defense[NPCD_SCRIPT] Sets All Script Defences */
+qr_SETENEMYWEAPONSPRITESONWPNCHANGE,	/*<<	ZScript (>>>) Writing npc->Weapon Sets its Weapon Sprite */
+qr_BROKENCHARINTDRAWING,		/*<<	ZScript (>>>) Broken DrawInteger and DrawCharacter Scaling */
+qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES,	/*<<	ZScript (>>>) npc->Weapon Uses Sprite 246-255 for EW_CUSTOM* */
+qr_COMBOSCRIPTS_LAYER_0,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 0 */
+
+//670
+qr_COMBOSCRIPTS_LAYER_1,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 1 */
+qr_COMBOSCRIPTS_LAYER_2,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 2 */
+qr_COMBOSCRIPTS_LAYER_3,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 3 */
+qr_COMBOSCRIPTS_LAYER_4,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 4 */
+qr_COMBOSCRIPTS_LAYER_5,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 5 */
+
+//675
+qr_COMBOSCRIPTS_LAYER_6,	/*<<	ZScript (>>>) Combos Run Scripts On Layer 6 */
+qr_OLD_INIT_SCRIPT_TIMING,	/*<<	ZScript (>>>) Use Old Global Init and SaveLoad Timing */
+qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,	/*<<	ZScript (>>>) Don't Deallocate Init/SaveLoad Local Arrays */
+qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE, 	/*<<	ZScript (>>>) All bitmap-> and FileSystem-> paths relative to quest 'files' folder */
+qr_PARSER_STRINGSWITCH_INSENSITIVE,	/*<<	Compilation (>>>) Switch/case of strings is case-insensitive */
+
+//680
+qr_SLASH_NEXT_SECRET_BUG,	/*<<	Compatibility (>>>) Bugged ->Next Combos */
+qr_STEP_IS_FLOAT,	/*<<	ZScript (>>>) Sprite->Step uses new, precise values */
+qr_OLDMAPDATAFLAGS,	/*<<	??? (>>>) ??? */
+qr_OLD_PRINTF_ARGS,	/*<<	ZScript (>>>) Old printf() args */
+qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,	/*<<	ZScript (>>>) Passive Subscreen Script runs during wipes/refills */
+
+//685
+qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,	/*<<	ZScript (>>>) Writing Screen->EntryX, EntryY Resets Spawn Points */
+qr_LOG_INVALID_UID_LOAD,	/*<<	ZScript (>>>) Log on Loading Invalid UID */
+qr_COMBODATA_INITD_MULT_TENK,	/*<<	ZScript (>>>) Broken Combodata->InitD[] */
+
+qr_MAX
+};

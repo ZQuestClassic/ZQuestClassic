@@ -63,4 +63,63 @@ void ListData::add(set<string> names, map<string, int32_t> vals)
 	}
 }
 
+ListData ListData::operator+(ListData const& other) const
+{
+	ListData ld = *this;
+	return ld += other;
+}
+ListData& ListData::operator+=(ListData const& other)
+{
+	listItems.insert(listItems.end(), other.listItems.begin(), other.listItems.end());
+	return *this;
+}
+
+ListData& ListData::filter(std::function<bool(ListItem&)> filt_func)
+{
+	for(auto it = listItems.begin(); it != listItems.end();)
+	{
+		ListItem& itm = *it;
+		
+		if(filt_func(itm)) ++it;
+		else it = listItems.erase(it);
+	}
+	return *this;
+}
+
+ListData& ListData::alphabetize()
+{
+	map<string,ListItem> list;
+	for(ListItem& li : listItems)
+		list[li.text] = li;
+	listItems.clear();
+	for(auto& p : list)
+		listItems.push_back(p.second);
+	return *this;
+}
+
+ListData& ListData::tag(int32_t tagval, bool onlyUntagged)
+{
+	for(ListItem& li : listItems)
+	{
+		if(onlyUntagged && li.tag != -1)
+			continue;
+		li.tag = tagval;
+	}
+	return *this;
+}
+
+ListItem& ListData::accessItem(int32_t key)
+{
+	for(ListItem& li : listItems)
+	{
+		if(li.value == key)
+			return li;
+	}
+	static ListItem nil("",0);
+	return nil;
+}
+ListItem& ListData::accessIndex(size_t index)
+{
+	return listItems.at(index);
+}
 }

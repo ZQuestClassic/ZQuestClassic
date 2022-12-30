@@ -1,9 +1,6 @@
 name: Release
 
 on:
-  schedule:
-    # Once a week at midnight EST on saturday.
-    - cron: '0 4 * * 6'
   workflow_dispatch:
     inputs:
       number:
@@ -13,196 +10,122 @@ on:
       versiontype:
         type: choice
         description: Whether the build specified is an Alpha/Beta/Gamma/Release
-        options: 
-        - alpha
-        - beta
-        - gamma
-        - release
+        options:
+          - alpha
+          - beta
+          - gamma
+          - release
         required: true
         default: alpha
       full_release:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
         default: false
+      sentry:
+        type: boolean
+        description: Perform a sentry release
+        default: true
 
 jobs:
-  check-date:
-    runs-on: ubuntu-latest
-    outputs:
-      should_run: ${{ steps.should_run_cron.outputs.should_run || steps.should_run_normal.outputs.should_run }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: print latest_commit
-        run: echo ${{ github.sha }}
-
-      - id: should_run_cron
-        continue-on-error: true
-        if: github.event_name == 'schedule' && github.event.pull_request.head.repo.full_name == 'ArmageddonGames/ZQuestClassic'
-        run: test -z $(git rev-list --after="1 week" ${{ github.sha }}) || echo "::set-output name=should_run::true"
-      - id: should_run_normal
-        continue-on-error: true
-        if: github.event_name != 'schedule'
-        run: echo "::set-output name=should_run::true"
-
   create-tag:
-    needs:
-      - check-date
-    if: ${{ needs.check-date.outputs.should_run == 'true' }}
-
     runs-on: ubuntu-latest
-    env:
-       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
     outputs:
-      release_tag_name: ${{ steps.make-vars.outputs.release_tag_name }}
-      release_name: ${{ steps.make-vars.outputs.release_name }}
+      release-tag: ${{ steps.make-vars.outputs.release-tag }}
+      release-name: ${{ steps.make-vars.outputs.release-name }}
     steps:
       - name: git clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - run: git fetch --prune --unshallow --tags
-      - name: Get current time
-        uses: josStorer/get-current-time@v2
-        id: current-time
-        with:
-          format: YYYY-MM-DD
       - id: make-vars
         run: |
           python3 .github/workflows/print-release-name-vars.py \
             --github_org=${{ github.repository_owner }} \
             --full_release=${{ github.event.inputs.full_release }} \
             --version_type=${{ github.event.inputs.versiontype }} \
-            --formatted_time=${{ steps.current-time.outputs.formattedTime }} \
             --number=${{ inputs.number }}
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@1.2.0
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+        if: inputs.sentry
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
-      - run: sentry-cli releases new ${{ steps.make-vars.outputs.release_tag_name }}
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+      - run: sentry-cli releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
+        if: inputs.sentry
 
-  release-win:
-    needs:
-      - check-date
-      - create-tag
-    if: ${{ needs.check-date.outputs.should_run == 'true' }}
-
-    runs-on: windows-2022
-    env:
-       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
+  build-release:
+    needs: ["create-tag"]
     strategy:
       matrix:
-        arrays: [
-          {arch: x64, name: windows-x64},
-          {arch: win32, name: windows-x86},
-        ]
+        include:
+          - runs-on: windows-2022
+            arch: x64
+            compiler: msvc
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
+          - runs-on: windows-2022
+            arch: win32
+            compiler: msvc
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
+          - runs-on: macos-12
+            arch: intel
+            compiler: clang
+            config: Release
+            sentry: false
+          - runs-on: ubuntu-22.04
+            arch: x64
+            compiler: clang
+            config: Release
+            sentry: false
       fail-fast: false
+    # See https://github.com/community/community/discussions/40777
+    # uses: ./.github/workflows/build.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    with:
+      runs-on: ${{ matrix.runs-on }}
+      arch: ${{ matrix.arch }}
+      compiler: ${{ matrix.compiler }}
+      config: ${{ matrix.config }}
+      sentry: ${{ matrix.sentry }}
+      release-tag: ${{ needs.create-tag.outputs.release-tag }}
+      release-name: ${{ needs.create-tag.outputs.release-name }}
+      cache: false
+    secrets: inherit
 
-    steps:
-    - uses: ilammy/msvc-dev-cmd@v1
-      with:
-        arch: ${{ matrix.arrays.arch }}
-
-    - name: git clone
-      uses: actions/checkout@v2
-
-    - name: Install Dependencies
-      uses: crazy-max/ghaction-chocolatey@v1
-      with:
-        args: install .github/dependencies.config -y
-    - name: Setup Sentry CLI
-      if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-      uses: mathieu-bour/setup-sentry-cli@1.2.0
-      with:
-        token: ${{ secrets.SENTRY_TOKEN }}
-        organization: zeldaclassic
-        project: zelda-classic
-
-    - run: bash .github/workflows/configure-signatures.sh win ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
-    - run: cmake . -A ${{ matrix.arrays.arch }} -DWANT_SENTRY=ON -DSENTRY_RELEASE_TAG=${{ needs.create-tag.outputs.release_tag_name }}
-    - run: cmake --build . --config RelWithDebInfo
-    - run: mv RelWithDebInfo Release
-    - run: echo y | ./buildpack.bat
-      working-directory: output/_auto
-    - run: mv output/_auto/buildpack.zip "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
-
-    - name: Upload debugging symbols
-      if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
-      run: sentry-cli upload-dif ${{ needs.create-tag.outputs.release_tag_name }} --include-sources --wait Release
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: ${{ needs.create-tag.outputs.release_name }}
-        tag_name: ${{ needs.create-tag.outputs.release_tag_name }}
-        files: "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-${{ matrix.arrays.name }}.zip"
-        prerelease: ${{ !inputs.full_release }}
-        fail_on_unmatched_files: true
-        generate_release_notes: true
-
-  release-mac:
-    needs:
-      - check-date
-      - create-tag
-    if: ${{ needs.check-date.outputs.should_run == 'true' }}
-
-    runs-on: macos-12
-
-    steps:
-    - name: git clone
-      uses: actions/checkout@v2
-
-    - run: brew install ninja dylibbundler create-dmg
-    - name: Install Bison
-      run: |
-        wget http://ftp.gnu.org/gnu/bison/bison-3.6.tar.gz
-        tar -zxvf bison-3.6.tar.gz
-        cd bison-3.6
-        ./configure
-        make
-        sudo make install
-
-    - run: bash .github/workflows/configure-signatures.sh mac ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
-    - run: cmake -S . -B build -G 'Ninja Multi-Config' .
-    - run: cmake --build build --config Release
-
-    - run: ./buildpack_osx.sh
-      working-directory: output/_auto
-    - run: mv output/_auto/ZeldaClassic.dmg "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-mac.dmg"
-
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        name: ${{ needs.create-tag.outputs.release_name }}
-        tag_name: ${{ needs.create-tag.outputs.release_tag_name }}
-        files: "output/_auto/${{ needs.create-tag.outputs.release_tag_name }}-mac.dmg"
-        prerelease: ${{ !inputs.full_release }}
-        fail_on_unmatched_files: true
-        generate_release_notes: true
-
-  finalize:
+  publish:
     needs:
       - create-tag
-      - release-win
-      - release-mac
-    runs-on: ubuntu-latest
-    env:
-       HAVE_SENTRY_TOKEN: ${{ secrets.SENTRY_TOKEN != '' }}
-
+      - build-release
+    if: ${{ always() }}
+    runs-on: ubuntu-22.04
     steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: release-packages
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ needs.create-tag.outputs.release-name }}
+          tag_name: ${{ needs.create-tag.outputs.release-tag }}
+          files: release-packages/**/*
+          prerelease: ${{ !inputs.full_release }}
+          fail_on_unmatched_files: true
+          generate_release_notes: true
+
       - name: git clone
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup Sentry CLI
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+        if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@1.2.0
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - name: Finalize sentry
-        if: ${{ env.HAVE_SENTRY_TOKEN == 'true' }}
+        if: inputs.sentry
         run: |
-          sentry-cli releases set-commits ${{ needs.create-tag.outputs.release_tag_name }} --auto
-          sentry-cli releases finalize ${{ needs.create-tag.outputs.release_tag_name }}
+          sentry-cli releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto
+          sentry-cli releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
