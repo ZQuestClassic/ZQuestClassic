@@ -708,8 +708,10 @@ void setmapflag(int32_t mi2, int32_t flag)
     char buf[20];
     sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
     
-    game->maps[mi2] |= flag;
     float temp=log2((float)flag);
+    if (replay_is_active() && !(game->maps[mi2] & flag))
+        replay_step_comment(fmt::format("map {} scr {} flag {}", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+    game->maps[mi2] |= flag;
     Z_eventlog("%s's State was set: %s\n",
                mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen",
                flag>0 ? screenstate_string[(int32_t)temp] : "<Unknown>");
@@ -727,7 +729,9 @@ void setmapflag(int32_t mi2, int32_t flag)
         {
             if((tmpscr->nocarry&flag)!=flag)
             {
-                Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
+                Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
+                if (replay_is_active() & !(game->maps[((nmap-1)<<7)+nscr] & flag))
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
             }
             
