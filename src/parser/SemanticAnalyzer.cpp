@@ -1214,11 +1214,15 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
         return;
 	}
 	host.leftClass = program.getTypeStore().getClass(leftType->getClassId());
-
+	// zconsole_db("Arrow for type '%s->'", leftType->getName());
+	Function* reader = lookupGetter(*host.leftClass, host.right);
+	if(reader && reader->getFlag(FUNCFLAG_INTARRAY))
+		host.arrayFunction = reader;
+	
 	// Find read function.
 	if (!param || param == paramRead || param == paramReadWrite)
 	{
-		host.readFunction = lookupGetter(*host.leftClass, host.right);
+		host.readFunction = reader;
 		if (!host.readFunction)
 		{
 			handleError(
@@ -1228,8 +1232,9 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 							leftType->getName().c_str()));
 			return;
 		}
+		
 		vector<DataType const*>& paramTypes = host.readFunction->paramTypes;
-		if (paramTypes.size() != (host.index ? 2 : 1) || *paramTypes[0] != *leftType)
+		if (paramTypes.size() != ((host.index && !host.arrayFunction) ? 2 : 1) || *paramTypes[0] != *leftType)
 		{
 			handleError(
 					CompileError::ArrowNoVar(
@@ -1239,35 +1244,55 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 			return;
 		}
 		
-		deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right);
+		if(host.arrayFunction)
+			deprecWarn(host.arrayFunction, &host, "IntArray", leftType->getName() + "->" + host.right);
+		else deprecWarn(host.readFunction, &host, "Variable", leftType->getName() + "->" + host.right);
 	}
 
 	// Find write function.
 	if (param == paramWrite || param == paramReadWrite)
 	{
-		host.writeFunction = lookupSetter(*host.leftClass, host.right);
-		if (!host.writeFunction)
+		if(host.arrayFunction)
 		{
-			handleError(
-					CompileError::ArrowNoVar(
-							&host,
-							host.right + (host.index ? "[]" : ""),
-							leftType->getName().c_str()));
-			return;
+			vector<DataType const*>& paramTypes = host.arrayFunction->paramTypes;
+			if (paramTypes.size() != 1 || *paramTypes[0] != *leftType)
+			{
+				handleError(
+						CompileError::ArrowNoVar(
+								&host,
+								host.right + (host.index ? "[]" : ""),
+								leftType->getName().c_str()));
+				return;
+			}
 		}
-		vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
-		if (paramTypes.size() != (host.index ? 3 : 2)
-		    || *paramTypes[0] != *leftType)
+		else
 		{
-			handleError(
-					CompileError::ArrowNoVar(
-							&host,
-							host.right + (host.index ? "[]" : ""),
-							leftType->getName().c_str()));
-			return;
+			host.writeFunction = lookupSetter(*host.leftClass, host.right);
+			if (!host.writeFunction)
+			{
+				handleError(
+						CompileError::ArrowNoVar(
+								&host,
+								host.right + (host.index ? "[]" : ""),
+								leftType->getName().c_str()));
+				return;
+			}
+			vector<DataType const*>& paramTypes = host.writeFunction->paramTypes;
+			if (paramTypes.size() != (host.index ? 3 : 2)
+				|| *paramTypes[0] != *leftType)
+			{
+				handleError(
+						CompileError::ArrowNoVar(
+								&host,
+								host.right + (host.index ? "[]" : ""),
+								leftType->getName().c_str()));
+				return;
+			}
 		}
 		
-		deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right);
+		if(host.arrayFunction)
+			deprecWarn(host.arrayFunction, &host, "Constant", leftType->getName() + "->" + host.right);
+		else deprecWarn(host.writeFunction, &host, "Variable", leftType->getName() + "->" + host.right);
 	}
 
 	if (host.index)
@@ -1284,11 +1309,17 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 {
 	// Arrow handles its own indexing.
-	if (host.array->isTypeArrow() && !host.array->isTypeArrowUsrClass())
+	if (host.array->isTypeArrow())
 	{
-		static_cast<ASTExprArrow&>(*host.array).index = host.index;
-		visit(host.array.get(), param);
-		return;
+		ASTExprArrow* arrow = static_cast<ASTExprArrow*>(host.array.get());
+		if (!arrow->arrayFunction && !arrow->isTypeArrowUsrClass())
+		{
+			arrow->index = host.index;
+			visit(host.array.get(), param);
+			if(!arrow->arrayFunction)
+				return;
+			arrow->index = nullptr;
+		}
 	}
 	
 	RecursiveVisitor::caseExprIndex(host);

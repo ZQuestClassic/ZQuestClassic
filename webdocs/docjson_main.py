@@ -1,15 +1,6 @@
 import docjson_lib as lib
 import argparse
-import os, time, json, re, sys
-import webbrowser
-from tkinter import *
-from tkinter import filedialog
-from tkinter import messagebox
-from tkinter import simpledialog
-from tkinter import ttk
-
-# import traceback
-# print(traceback.print_exc())
+import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--in', dest='inputfile', default='zsdocs_main.json',metavar='FILE',
@@ -21,9 +12,27 @@ parser.add_argument('--cli','-c', dest='edit', action='store_false', help='Just 
 args = parser.parse_args()
 
 lib.debug_out = args.db
-if args.edit:
-    #If opened by double-click, starts in system32??
-    os.chdir(os.path.dirname(__file__))
+
+if not args.edit:
+    if os.path.exists(args.inputfile):
+        if not args.edit:
+            json_obj = lib.loadjson(args.inputfile)
+            lib.savehtml(args.outputfile,json_obj)
+            exit(0)
+    lib.parse_fail(f"Input file '{args.inputfile}' does not exist!")
+    #Exception raised
+## END CLI
+import traceback, json, re, sys
+import time, webbrowser, pyperclip
+from tkinter import *
+from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import simpledialog
+from tkinter import ttk
+
+#If opened by double-click, starts in system32??
+os.chdir(os.path.dirname(__file__))
+
 cur_directory = ''
 cur_file = ''
 file_loaded = False
@@ -37,6 +46,8 @@ curjump = 0
 root = None
 mainframe = None
 copiedentry = None
+copiedsec = None
+copiedsheet = None
 # For refreshing
 refr_entry = None
 #Colors
@@ -65,10 +76,13 @@ def theme(ind):
     if mainframe:
         mainframe.refresh()
 theme(0)
-def popError(s):
-    messagebox.showinfo(title = 'Error!', message = s)
-def popWarn(s):
-    messagebox.showinfo(title = 'Warning!', message = s)
+
+def popInfo(message,title='Info'):
+    messagebox.showinfo(title = title, message = message)
+def popError(message,title='Error!'):
+    messagebox.showerror(title = title, message = message)
+def popWarn(message,title='Warning!'):
+    messagebox.showwarning(title = title, message = message)
 def update_file(fname):
     global cur_directory, cur_file
     args.inputfile = fname
@@ -91,22 +105,14 @@ def update_root_title():
     root.title(_title)
 
 if os.path.exists(args.inputfile):
-    if not args.edit:
-        json_obj = lib.loadjson(args.inputfile)
-        lib.savehtml(args.outputfile,json_obj)
-        exit(0)
-    
     try:
         json_obj = lib.loadjson(args.inputfile)
         file_loaded = True
     except Exception as e:
         popError(f"Error '{str(e)}' occurred loading input file:\n{args.inputfile}")
 else:
-    if args.edit:
-        update_file(args.inputfile)
-        cur_file = ''
-    else:
-        lib.parse_fail(f"Input file '{args.inputfile}' does not exist!")
+    update_file(args.inputfile)
+    cur_file = ''
 
 ## Configs
 def _def_config(key,defval):
@@ -132,6 +138,40 @@ def write_config():
 
 config = None
 read_config()
+
+def clipboard_copy(s:str):
+    pyperclip.copy(s)
+def clipboard_paste()->str:
+    return pyperclip.paste()
+# Take what is on the system clipboard, as a json object, and try to copy it
+def copy_from_sys_clipboard():
+    s = clipboard_paste()
+    try:
+        jobj = json.loads(s)
+    except:
+        jobj = None
+    if jobj:
+        if validate_sheet(jobj):
+            copy_sheet(jobj)
+            popInfo(f"Imported sheet '{sheet_disp_name(jobj)}' from clipboard!")
+            return
+        if validate_sec(jobj):
+            copy_sec(jobj)
+            popInfo(f"Imported section '{sec_disp_name(jobj)}' from clipboard!")
+            return
+        if validate_entry(jobj):
+            copy_entry(jobj)
+            popInfo(f"Imported entry '{entry_disp_name(jobj)}' from clipboard!")
+            return
+    errstr = s
+    if len(errstr) > 40:
+        errstr = errstr[:40]+'...'
+    errstr = re.sub('\r?\n','\\n',errstr)
+    popError(f"Clipboard string '{errstr}'\nNot recognized as valid Sheet, Section, or Entry object!")
+def onedit():
+    global editmenu
+    #editmenu.entryconfig('Copy From Clipboard', state = 'normal' if file_loaded else 'disabled')
+    pass
 
 def openlink(url):
     webbrowser.open_new(url)
@@ -164,30 +204,38 @@ def loader_json():
 def saver_json():
     global json_obj, needs_save, file_loaded
     if not needs_save or not file_loaded:
-        return
+        return False
     if len(args.inputfile) < 1:
         saver_json_as()
-        return
+        return False
     try:
         lib.savejson(args.inputfile,json_obj)
         mark_saved()
-    except:
-        popError(f'Error occurred saving file:\n{args.inputfile}')
+        return True
+    except Exception as e:
+        popError(f"Error:\n{str(e)}\nOccurred saving file:\n{args.inputfile}")
+        print(traceback.print_exc())
+        return False
 def saver_json_as():
     global json_obj, root, file_loaded, needs_save, cur_directory, cur_file
     if not file_loaded:
-        return
+        return False
     fname = filedialog.asksaveasfilename(parent = root, title = 'Save As', initialdir = cur_directory, initialfile = cur_file, filetypes = (('Json','*.json'),),defaultextension = '.json')
     if len(fname) < 1:
-        return
+        return False
     try:
         lib.savejson(fname,json_obj)
         update_file(trim_auto(fname))
         mark_saved()
-    except:
-        popError(f'Error occurred saving file:\n{fname}')
+        return True
+    except Exception as e:
+        popError(f"Error:\n{str(e)}\nOccurred saving file:\n{fname}")
+        print(traceback.print_exc())
+        return False
 def new_json():
     global json_obj, file_loaded, cur_file
+    if not save_warn('Create file'):
+        return
     json_obj = {'key':'zs_docjson_py',
         'ver':1,
         'pagetitle':'JsonDocPage',
@@ -223,7 +271,7 @@ def new_json():
     args.inputfile = ''
     file_loaded = True
     navi.clear()
-import traceback
+
 def get_save_html_name(filename=None):
     if filename:
         return filename
@@ -466,6 +514,8 @@ def onoption():
     global optmenu
     asmin = config['autosave_minutes']
     optmenu.entryconfig(0, label = f"Autosave ({asmin} min)" if asmin else "Autosave (off)")
+def onpage():
+    pass
 def opt_autosave():
     global config
     val = simpledialog.askinteger('Input', f"Autosave every how many minutes? (current: {config['autosave_minutes']})", minvalue=0, parent=root)
@@ -843,7 +893,7 @@ def toggle_todo(d:dict):
     mark_edited()
 ## Info
 def info_program():
-    messagebox.showinfo('Info','''Working files are saved in '.json' format. Saving to HTML exports a preview of the docs with your changes, but does not actually save your changes.
+    popInfo('''Working files are saved in '.json' format. Saving to HTML exports a preview of the docs with your changes, but does not actually save your changes.
 
 Keybinds:
 F1 - Display this help message
@@ -860,18 +910,18 @@ In the Section editor, double-clicking a [LINK] entry will follow the link inste
 Right-Click will 'Edit' any entry in the entry list, or will 'Rename' things in other lists.
 ''')
 def info_sheets():
-    messagebox.showinfo('Info','''Double-clicked sheets will be edited.
+    popInfo('''Double-clicked sheets will be edited.
 Pressing 'Enter' has the same effect as double-clicking the current selection.
 Right-clicked sheets will be renamed.
 Sheet names are used to link to sections in sheets.
 The top sheet cannot be re-ordered, it contains the root of the document as its' first entry.''')
 def info_editsheet():
-    messagebox.showinfo('Info','''Double-clicked sections will be edited.
+    popInfo('''Double-clicked sections will be edited.
 Pressing 'Enter' has the same effect as double-clicking the current selection.
 Right-clicked sections will be renamed.
 Section names are not displayed in the html, and have no meaning except in Named_Data (where they are used for search priority)''')
 def info_editsec():
-    messagebox.showinfo('Info','''Entries named exactly '--' will be hidden from the list.
+    popInfo('''Entries named exactly '--' will be hidden from the list.
 The first Page type Entry will be displayed by default for the section, even if named '--'.
 Making a '--' first entry can work if there are no other pages to display a body alongside a section full of links.
 
@@ -879,7 +929,7 @@ A double-clicked entry is edited unless it is a link, in which case it is follow
 Pressing 'Enter' has the same effect as double-clicking the current selection.
 Right-clicking an entry will edit it, even if it is a link.''')
 def info_editentry():
-    messagebox.showinfo('Info','''Entry Types:
+    popInfo('''Entry Types:
 Empty- An empty entry placeholder.
 Link- A link to another section.
 Page- An html page to display content.
@@ -892,9 +942,9 @@ def switch(pageclass):
     if mainframe is not None:
         mainframe.destroy()
     mainframe = pageclass(root)
+    curpage = pageclass
     mainframe._postinit()
     mainframe.grid()
-    curpage = pageclass
     root.update()
 
 def hover_scroll(scr,hv):
@@ -1028,7 +1078,6 @@ def stylize():
         selectbackground=[('disabled',FLD_DIS_BGC),('readonly',ACT_FLD_BGC)])
     root.option_add('*TCombobox*Listbox*Background',FLD_BGC)
     root.option_add('*TCombobox*Listbox*Foreground',FLD_FGC)
-    # print(style.lookup('Vertical.Scrollbar.thumb','lightcolor'))
     
     # ttk.Radiobutton
     style.configure('TRadiobutton',padding=1,background=BGC,
@@ -1090,6 +1139,11 @@ class Page(Frame):
         pass
     def paste(self):
         pass
+    def copytext(self,txt):
+        try:
+            self.copylabel.config(text=txt)
+        except:
+            pass
 
 class InfoPage(Page):
     def __init__(self, root):
@@ -1104,11 +1158,91 @@ class InfoPage(Page):
     def postinit(self):
         pass
 
+curpage = InfoPage
 def sheet_disp_name(sheet)->str:
     name = sheet['name']
     if lib._dict_get(sheet,'todo',False):
         name = f'[TODO] {name}'
     return name
+def nil_sheet(sheet)->bool:
+    try:
+        if sheet['tabs'] != []:
+            return False
+        if sheet['name'] != '' and sheet['name'] != 'New Sheet':
+            return False
+        if lib._dict_get(sheet,'todo',False):
+            return False
+    except:
+        pass
+    return True
+def validate_sheet(sheet)->bool:
+    try:
+        if type(sheet['name']) is not str:
+            return False
+        if type(sheet['tabs']) is not list:
+            return False
+    except:
+        return False
+    return True
+def copy_sheet(force=False):
+    global cursheet, copiedsheet, mainframe
+    if force is not False:
+        if not force:
+            force = None
+        elif not validate_sheet(force):
+            return
+        copiedsheet = force
+    else:
+        try:
+            copiedsheet = json_obj['sheets'][cursheet]
+            try:
+                clipboard_copy(json.dumps(copiedsheet,indent=4))
+            except:
+                pass
+        except:
+            copiedsheet = None
+    if curpage != SheetsPage:
+        return
+    try:
+        if copiedsheet:
+            dispname = sheet_disp_name(copiedsheet)
+            ctext = dispname
+            if dispname[0] == '[':
+                ind = 0
+                while dispname[ind] == '[':
+                    while dispname[ind] != ']':
+                        ind += 1
+                    ind +=1
+                ctext = ' '+dispname[:ind]+'\n'
+                while dispname[ind] == ' ':
+                    ind += 1
+                ctext += dispname[ind:]
+            else:
+                ctext = '\n'+ctext
+            mainframe.copytext(f'Copied:{ctext}')
+        else:
+            mainframe.copytext('')
+    except:
+        pass
+    try:
+        disable_widg(mainframe.pastebtn,not copiedsheet)
+    except:
+        pass
+def paste_sheet():
+    global cursheet, copiedsheet
+    if not copiedsheet:
+        return
+    e = json_obj['sheets'][cursheet]
+    if e == copiedsheet: #Identical object
+        return
+    if not nil_sheet(e):
+        name = sheet_disp_name(e)
+        cname = sheet_disp_name(copiedsheet)
+        if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The sheet '{name}' will be replaced with the copied sheet '{cname}'."):
+            return
+    json_obj['sheets'][cursheet] = copiedsheet
+    mainframe.reload_lists()
+    mark_edited()
 def sh_rclick(evt):
     sel = sel_clicked_lb(evt) #Selects the clicked entry
     if sel > -1: #could be off of elements
@@ -1147,40 +1281,24 @@ class SheetsPage(Page):
         f_space.pack()
         f1.pack(side='left')
         
-        f2 = Frame(self, bg=BGC)
-        _btn=Button(f2, text = '?', command=info_sheets)
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        wid = 5
-        _btn=Button(f2, width=wid, text='↑', command=lambda:sheetshift(-1))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        _btn=Button(f2, width=wid, text='↓', command=lambda:sheetshift(1))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        wid = 10
-        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sheet(cursheet))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Mark Todo', command=lambda:toggle_todo(json_obj['sheets'][cursheet]))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Add', command=lambda:add_sheet(cursheet))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Delete', command=lambda:del_sheet(cursheet))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Rename', command=lambda:ren_sheet(cursheet))
-        style_btn(_btn)
-        _btn.pack()
-        f2.pack(side='left')
+        cmd_inf = info_sheets
+        cmd_up = lambda:sheetshift(-1)
+        cmd_dn = lambda:sheetshift(1)
+        cmd_edit = lambda:edit_sheet(cursheet)
+        cmd_todo = lambda:toggle_todo(json_obj['sheets'][cursheet])
+        cmd_add = lambda:add_sheet(cursheet)
+        cmd_del = lambda:del_sheet(cursheet)
+        exbtn_txt = 'Rename'
+        exbtn_cmd = lambda:ren_sheet(cursheet)
+        exit_txt = 'Exit Program'
+        makeButtonGrid(self,cmd_inf,cmd_up,cmd_dn,cmd_edit,cmd_todo,cmd_add,cmd_del,exbtn_txt,exbtn_cmd,exit_txt)
     def reload_sheets(self,selind):
         global json_obj, cursheet, sheetlistbox
         cursheet = selind
         _load_list(sheetlistbox, selind, json_obj['sheets'], sheet_disp_name)
     def postinit(self):
-        pass
+        global copiedsheet
+        copy_sheet(copiedsheet)
     def reload(self):
         navi.refresh()
     def confirm(self):
@@ -1189,12 +1307,95 @@ class SheetsPage(Page):
     def reload_lists(self):
         global cursheet
         self.reload_sheets(cursheet)
+    def copy(self):
+        copy_sheet()
+    def paste(self):
+        paste_sheet()
 
 def sec_disp_name(sec)->str:
     name = sec['name']
     if lib._dict_get(sec,'todo',False):
         name = f'[TODO] {name}'
     return name
+def nil_sec(sec)->bool:
+    try:
+        if sec['lines'] != []:
+            return False
+        if sec['name'] != '' and sec['name'] != 'New Section':
+            return False
+        if lib._dict_get(sec,'todo',False):
+            return False
+    except:
+        pass
+    return True
+def validate_sec(sec)->bool:
+    try:
+        if type(sec['name']) is not str:
+            return False
+        if type(sec['lines']) is not list:
+            return False
+    except:
+        return False
+    return True
+def copy_sec(force=False):
+    global cursheet, cursec, copiedsec, mainframe
+    if force is not False:
+        if not force:
+            force = None
+        elif not validate_sec(force):
+            return
+        copiedsec = force
+    else:
+        try:
+            copiedsec = json_obj['sheets'][cursheet]['tabs'][cursec]
+            try:
+                clipboard_copy(json.dumps(copiedsec,indent=4))
+            except:
+                pass
+        except:
+            copiedsec = None
+    if curpage != EditShPage:
+        return
+    try:
+        if copiedsec:
+            dispname = sec_disp_name(copiedsec)
+            ctext = dispname
+            if dispname[0] == '[':
+                ind = 0
+                while dispname[ind] == '[':
+                    while dispname[ind] != ']':
+                        ind += 1
+                    ind +=1
+                ctext = ' '+dispname[:ind]+'\n'
+                while dispname[ind] == ' ':
+                    ind += 1
+                ctext += dispname[ind:]
+            else:
+                ctext = '\n'+ctext
+            mainframe.copytext(f'Copied:{ctext}')
+        else:
+            mainframe.copytext('')
+    except:
+        pass
+    try:
+        disable_widg(mainframe.pastebtn,not copiedsec)
+    except:
+        pass
+def paste_sec():
+    global cursheet, cursec, copiedsec
+    if not copiedsec:
+        return
+    e = json_obj['sheets'][cursheet]['tabs'][cursec]
+    if e == copiedsec: #Identical object
+        return
+    if not nil_sec(e):
+        name = sec_disp_name(e)
+        cname = sec_disp_name(copiedsec)
+        if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The section '{name}' will be replaced with the copied section '{cname}'."):
+            return
+    json_obj['sheets'][cursheet]['tabs'][cursec] = copiedsec
+    mainframe.reload_lists()
+    mark_edited()
 def sec_rclick(evt):
     sel = sel_clicked_lb(evt) #Selects the clicked entry
     if sel > -1: #could be off of elements
@@ -1231,44 +1432,25 @@ class EditShPage(Page):
         f_space.pack()
         f1.pack(side='left')
         
-        f2 = Frame(self, bg=BGC)
-        _btn=Button(f2, text = '?', command=info_editsheet)
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        wid = 5
-        _btn=Button(f2, width=wid, text='↑', command=lambda:secshift(-1))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        _btn=Button(f2, width=wid, text='↓', command=lambda:secshift(1))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        wid = 10
-        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_sec(cursec))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Mark Todo', command=lambda:toggle_todo(json_obj['sheets'][cursheet]['tabs'][cursec]))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Add', command=lambda:add_sec(cursec))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Delete', command=lambda:del_sec(cursec))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Rename', command=lambda:ren_sec(cursec))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Exit (Up)', command=lambda:navi.up())
-        style_btn(_btn)
-        _btn.pack()
-        f2.pack(side='left')
+        cmd_inf = info_editsheet
+        cmd_up = lambda:secshift(-1)
+        cmd_dn = lambda:secshift(1)
+        cmd_edit = lambda:edit_sec(cursec)
+        cmd_todo = lambda:toggle_todo(json_obj['sheets'][cursheet]['tabs'][cursec])
+        cmd_add = lambda:add_sec(cursec)
+        cmd_del = lambda:del_sec(cursec)
+        exbtn_txt = 'Rename'
+        exbtn_cmd = lambda:ren_sec(cursec)
+        makeButtonGrid(self,cmd_inf,cmd_up,cmd_dn,cmd_edit,cmd_todo,cmd_add,cmd_del,exbtn_txt,exbtn_cmd)
+        
     def reload_sections(self,selind):
         global cursheet, cursec, seclistbox
         cursec = selind
         sheet = _getsheet(cursheet)
         _load_list(seclistbox, selind, sheet['tabs'], sec_disp_name)
     def postinit(self):
-        pass
+        global copiedsec
+        copy_sec(copiedsec)
     def reload(self):
         navi.refresh()
     def confirm(self):
@@ -1277,6 +1459,10 @@ class EditShPage(Page):
     def reload_lists(self):
         global cursec
         self.reload_sections(cursec)
+    def copy(self):
+        copy_sec()
+    def paste(self):
+        paste_sec()
 
 def entry_disp_name(entry)->str:
     name = lib.get_line_display(entry)
@@ -1304,12 +1490,55 @@ def nil_entry(entry)->bool:
     except:
         pass
     return True
-def copy_entry():
-    global cursheet, cursec, curentry, copiedentry
+def validate_entry(entry)->bool:
     try:
-        copiedentry = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+        if type(entry['name']) is not str:
+            return False
+        if type(entry['val']) is not str:
+            return False
     except:
-        copiedentry = None
+        return False
+    return True
+def copy_entry(force=False):
+    global cursheet, cursec, curentry, copiedentry, mainframe
+    if force is not False:
+        if not force:
+            force = None
+        elif not validate_entry(force):
+            return
+        copiedentry = force
+    else:
+        try:
+            copiedentry = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+            try:
+                clipboard_copy(json.dumps(copiedentry,indent=4))
+            except:
+                pass
+        except:
+            copiedentry = None
+    if curpage != EditSecPage:
+        return
+    try:
+        if copiedentry:
+            dispname = entry_disp_name(copiedentry)
+            ctext = dispname
+            if dispname[0] == '[':
+                ind = 0
+                while dispname[ind] == '[':
+                    while dispname[ind] != ']':
+                        ind += 1
+                    ind +=1
+                ctext = ' '+dispname[:ind]+'\n'
+                while dispname[ind] == ' ':
+                    ind += 1
+                ctext += dispname[ind:]
+            else:
+                ctext = '\n'+ctext
+            mainframe.copytext(f'Copied:{ctext}')
+        else:
+            mainframe.copytext('')
+    except:
+        pass
     try:
         disable_widg(mainframe.pastebtn,not copiedentry)
     except:
@@ -1367,54 +1596,20 @@ class EditSecPage(Page):
         f_space.pack()
         f1.pack(side='left')
         
-        gr = Frame(self, bg=BGC)
-        f2 = Frame(gr, bg=BGC)
-        _btn=Button(f2, text = '?', command=info_editsec)
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        wid = 5
-        _btn=Button(f2, width=wid, text='↑', command=lambda:entryshift(-1))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        _btn=Button(f2, width=wid, text='↓', command=lambda:entryshift(1))
-        style_btn(_btn)
-        _btn.pack(anchor=W)
-        f2.grid(row=0,column=0,sticky=SW)
-        f2 = Frame(gr, bg=BGC)
-        wid = 10
-        _btn=Button(f2, width=wid, text='Edit', command=lambda:edit_entry(curentry))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Mark Todo', command=lambda:toggle_todo(json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Add', command=lambda:add_entry(curentry))
-        style_btn(_btn)
-        _btn.pack()
-        _btn=Button(f2, width=wid, text='Delete', command=lambda:del_entry(curentry))
-        style_btn(_btn)
-        _btn.pack()
-        f2.grid(row=1,column=0,sticky=NW)
-        f2 = Frame(gr, bg=BGC)
-        _btn=Button(f2, width=wid, text='Copy', command=lambda:copy_entry())
-        style_btn(_btn)
-        _btn.pack()
-        self.pastebtn=Button(f2, width=wid, text='Paste', command=lambda:paste_entry())
-        style_btn(self.pastebtn)
-        disable_widg(self.pastebtn,not copiedentry)
-        self.pastebtn.pack()
-        self.linkbtn = Button(f2, width=wid, text='Follow Link', command=lambda:link_entry(curentry))
-        style_btn(self.linkbtn)
-        self.linkbtn.pack()
-        _btn=Button(f2, width=wid, text='Exit (Up)', command=lambda:navi.up())
-        style_btn(_btn)
-        _btn.pack()
-        f2.grid(row=1,column=1,sticky=NW)
-        gr.pack(side='left')
+        cmd_inf = info_editsec
+        cmd_up = lambda:entryshift(-1)
+        cmd_dn = lambda:entryshift(1)
+        cmd_edit = lambda:edit_entry(curentry)
+        cmd_todo = lambda:toggle_todo(json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry])
+        cmd_add = lambda:add_entry(curentry)
+        cmd_del = lambda:del_entry(curentry)
+        exbtn_txt = 'Follow Link'
+        exbtn_cmd = lambda:link_entry(curentry)
+        makeButtonGrid(self,cmd_inf,cmd_up,cmd_dn,cmd_edit,cmd_todo,cmd_add,cmd_del,exbtn_txt,exbtn_cmd)
     def reload_entry_link(self):
         global curentry
         link = get_entry_link(curentry)
-        disable_widg(self.linkbtn,not link)
+        disable_widg(self.exbtn,not link)
     def reload_entry(self,selind):
         global cursheet, curentry, cursec, entrylistbox
         curentry = selind
@@ -1422,7 +1617,9 @@ class EditSecPage(Page):
         sheet = _getsheet(cursheet)
         _load_list(entrylistbox, selind, sheet['tabs'][cursec]['lines'], entry_disp_name)
     def postinit(self):
+        global curentry, copiedentry
         self.reload_entry(curentry)
+        copy_entry(copiedentry)
     def reload(self):
         navi.refresh()
     def confirm(self):
@@ -1486,6 +1683,59 @@ def txt_insert(txt,getter):
     txt.tag_add('sel',f'1.0+{first}c',f'1.0+{last}c')
     txt.mark_set(INSERT,f'1.0+{last}c')
 
+def makeButtonGrid(fr,cmd_inf=None,cmd_up=None,cmd_dn=None,cmd_edit=None,cmd_todo=None,
+    cmd_add=None,cmd_del=None,exbtn_txt='',exbtn_cmd=None,exit_txt='Exit (Up)'):
+    gr = Frame(fr, bg=BGC)
+    f2 = Frame(gr, bg=BGC)
+    _btn=Button(f2, text = '?', command=cmd_inf)
+    style_btn(_btn)
+    _btn.pack(anchor=W)
+    wid = 5
+    _btn=Button(f2, width=wid, text='↑', command=cmd_up)
+    style_btn(_btn)
+    _btn.pack(anchor=W)
+    _btn=Button(f2, width=wid, text='↓', command=cmd_dn)
+    style_btn(_btn)
+    _btn.pack(anchor=W)
+    f2.grid(row=0,column=0,sticky=SW)
+    f2 = Frame(gr, bg=BGC)
+    fr.copylabel = Label(f2, text='', wraplength=125)
+    style_label(fr.copylabel)
+    fr.copylabel.pack()
+    f2.grid(row=0,column=1,columnspan=3,sticky=SW)
+    f2 = Frame(gr, bg=BGC)
+    wid = 10
+    _btn=Button(f2, width=wid, text='Edit', command=cmd_edit)
+    style_btn(_btn)
+    _btn.pack()
+    _btn=Button(f2, width=wid, text='Mark Todo', command=cmd_todo)
+    style_btn(_btn)
+    _btn.pack()
+    _btn=Button(f2, width=wid, text='Add', command=cmd_add)
+    style_btn(_btn)
+    _btn.pack()
+    _btn=Button(f2, width=wid, text='Delete', command=cmd_del)
+    style_btn(_btn)
+    _btn.pack()
+    f2.grid(row=1,column=0,columnspan=2,sticky=NW)
+    f2 = Frame(gr, bg=BGC)
+    _btn=Button(f2, width=wid, text='Copy', command=lambda:fr.copy())
+    style_btn(_btn)
+    _btn.pack()
+    fr.pastebtn=Button(f2, width=wid, text='Paste', command=lambda:fr.paste())
+    style_btn(fr.pastebtn)
+    fr.pastebtn.pack()
+    fr.exbtn = Button(f2, width=wid, text=exbtn_txt, command=exbtn_cmd)
+    style_btn(fr.exbtn)
+    disable_widg(fr.exbtn,not exbtn_txt)
+    fr.exbtn.pack()
+    _btn=Button(f2, width=wid, text=exit_txt, command=lambda:navi.up())
+    style_btn(_btn)
+    _btn.pack()
+    f2.grid(row=1,column=2,sticky=NW)
+    f2 = Frame(gr, bg=BGC, width=25)
+    f2.grid(row=1,column=3)
+    gr.pack(side='left')
 
 def jump_rclick(evt):
     sel = sel_clicked_lb(evt) #Selects the clicked entry
@@ -1866,11 +2116,16 @@ class navigation:
             self.update(self.index + 1)
     # Go up a menu
     def up(self):
-        l = len(self.history[self.index])
+        l = len(self.current())
         if l == 4: #Nowhere to go but back one... don't clutter history
             self.back() 
         elif l > 1: #Go up one page
-            self.visit_new(self.history[self.index][:-1])
+            lastnode = None if self.index==0 else self.history[self.index-1]
+            upnode = self.history[self.index][:-1]
+            if upnode == lastnode:
+                self.back() #Less clutter in the history
+            else:
+                self.visit_new(upnode)
         else: #Attempt to exit, but always ask for confirmation
             quitter(False)
     # Go to Named Data
@@ -1930,6 +2185,11 @@ class navigation:
         if not file_loaded:
             return 0
         return len(self.history[self.index])
+    def current(self):
+        global file_loaded
+        if not file_loaded:
+            return None
+        return self.history[self.index]
 navi = navigation()
 
 def get_entry(addjumps=None):
@@ -1953,8 +2213,10 @@ def get_entry(addjumps=None):
         ret['todo'] = True
     return ret
 def entry_changed():
-    global cursheet, cursec, curentry
-    return _getsheet(cursheet)['tabs'][cursec]['lines'][curentry] != get_entry()
+    global cursheet, cursec, curentry, needs_edit_save
+    changed = _getsheet(cursheet)['tabs'][cursec]['lines'][curentry] != get_entry()
+    local_edited(changed)
+    return changed
 def save_entry():
     global needs_edit_save, cursheet, cursec, curentry
     if not needs_edit_save:
@@ -2000,7 +2262,7 @@ def reset_entry():
         switch(EditEntryPage)
     local_edited(False)
 def gen_menubar():
-    global menubar,filemenu,optmenu,root
+    global menubar,filemenu,optmenu,pagemenu,editmenu,root
     menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
     filemenu.add_command(label = 'New', command = new_json)
@@ -2014,11 +2276,14 @@ def gen_menubar():
     filemenu.add_separator()
     filemenu.add_command(label = 'Exit', command = quitter)
     menubar.add_cascade(label='File', menu=filemenu)
+    editmenu = Menu(menubar, tearoff=0, postcommand=onedit)
+    editmenu.add_command(label = 'Copy From Clipboard', command = copy_from_sys_clipboard)
+    menubar.add_cascade(label='Edit', menu=editmenu)
     optmenu = Menu(menubar, tearoff=0, postcommand=onoption)
     optmenu.add_command(label = 'Autosave', command = opt_autosave)
     optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
     menubar.add_cascade(label='Options', menu=optmenu)
-    pagemenu = Menu(menubar, tearoff=0, postcommand=onoption)
+    pagemenu = Menu(menubar, tearoff=0, postcommand=onpage)
     pagemenu.add_command(label = 'Settings', command = popup_pagesetting)
     pagemenu.add_command(label = 'Named Data', command = edit_named)
     menubar.add_cascade(label='Page', menu=pagemenu)

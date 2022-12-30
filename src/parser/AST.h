@@ -1231,6 +1231,7 @@ namespace ZScript
 		owning_ptr<ASTExpr> index;
 
 		ZClass* leftClass;
+		Function* arrayFunction;
 		Function* readFunction;
 		Function* writeFunction;
 		DataType const* rtype;

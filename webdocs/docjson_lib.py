@@ -40,10 +40,10 @@ def loadjson(fname):
     return data_obj
 def savejson(fname,obj):
     sm = StateMachine()
-    sm.new('Saving Json...',0)
+    sm.new('Saving Json...')
     with open(fname, 'w') as file:
         file.write(json.dumps(obj, indent=4))
-    sm.new('Done!',1)
+    sm.new('Done!')
     poll_html_callback()
 NUM_HTML_CALLBACK = 7
 def poll_html_callback():
