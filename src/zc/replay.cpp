@@ -1316,9 +1316,7 @@ void replay_stop()
     {
         check_assert();
         bool log_size_mismatch = replay_log.size() != record_log.size();
-        if (frame_arg == -1)
-            has_assert_failed |= log_size_mismatch;
-        has_assert_failed |= has_rng_desynced;
+        has_assert_failed |= log_size_mismatch || has_rng_desynced;
         if (has_assert_failed)
         {
             replay_save(get_file_path(".roundtrip"));
