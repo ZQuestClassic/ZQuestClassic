@@ -7508,7 +7508,7 @@ void ViewMap()
 		
 		if(!redraw)
 		{
-			blit(scrollbuf,framebuf,256,0,0,0,256,224);
+			blit(scrollbuf_old,framebuf,256,0,0,0,256,224);
 		}
 		else
 		{
@@ -7517,7 +7517,7 @@ void ViewMap()
 						 int32_t(256+(int64_t(px)-mappic->w)*scale)/2,int32_t(224+(int64_t(py)-mappic->h)*scale)/2,
 						 int32_t(mappic->w*scale),int32_t(mappic->h*scale));
 						 
-			blit(framebuf,scrollbuf,0,0,256,0,256,224);
+			blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
 			redraw=false;
 		}
 		
