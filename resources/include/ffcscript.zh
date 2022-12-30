@@ -7,7 +7,7 @@ const int FFCS_INVISIBLE_COMBO = 1;
 
 // Range of FFCs to use. Numbers must be between 1 and 32.
 const int FFCS_MIN_FFC = 1;
-const int FFCS_MAX_FFC = 32;
+const int FFCS_MAX_FFC = 128;
 
 int CheckFFCScript(char32 scriptname)
 {
@@ -75,7 +75,7 @@ int FindFFCRunning(int scriptNum)
     
     ffc f;
     
-    for(int i=1; i<=32; i++)
+    for(int i=1; i<=128; i++)
     {
         f=Screen->LoadFFC(i);
         if(f->Script==scriptNum)
@@ -94,7 +94,7 @@ int FindNthFFCRunning(int scriptNum, int n)
     
     ffc f;
     
-    for(int i=1; i<=32; i++)
+    for(int i=1; i<=128; i++)
     {
         f=Screen->LoadFFC(i);
         if(f->Script==scriptNum)
@@ -118,7 +118,7 @@ int CountFFCsRunning(int scriptNum)
     ffc f;
     int numFFCs=0;
     
-    for(int i=1; i<=32; i++)
+    for(int i=1; i<=128; i++)
     {
         f=Screen->LoadFFC(i);
         if(f->Script==scriptNum)
