@@ -3787,7 +3787,7 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer
 			(&tmpscr3[layer-1]) :
 			(layer ? NULL : &special_warp_return_screen);
 	}
-	do_layer(bmp, type, map, scr, layer, basescr, layerscr, x, y, scrolling, drawprimitives, tempscreen == 3);
+	do_layer(bmp, type, map, scr, layer, basescr, layerscr, x, y, scrolling, tempscreen == 3, drawprimitives);
 }
 
 void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, mapscr* layerscr, int32_t x, int32_t y, bool scrolling, bool is_from_old_scr, bool drawprimitives)
