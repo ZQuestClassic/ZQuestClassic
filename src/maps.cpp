@@ -134,6 +134,7 @@ static bool is_same_region_id(int region_origin_scr, int dmap, int scr)
 
 static bool is_in_region(int region_origin_scr, int dmap, int scr)
 {
+	if (region_origin_scr == scr) return true;
 	if (!is_same_region_id(region_origin_scr, dmap, scr)) return false;
 
 	if (region_origin_scr != z3_origin_screen_index)
