@@ -298,12 +298,11 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     
 #if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
-#elif defined(ALLEGRO_WINDOWS)
-	if (!zscript_coloured_console.valid())
-	{
-		MessageBoxA(NULL, buf, "Zelda Classic", MB_OK | MB_ICONERROR);
-	}
 #endif
+    if (!zscript_coloured_console.valid())
+    {
+        al_show_native_message_box(all_get_display(), "Zelda Classic: I AM ERROR", "", buf, NULL, ALLEGRO_MESSAGEBOX_ERROR);
+    }
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
