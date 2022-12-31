@@ -1883,7 +1883,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     // 1: slow, bounds checking
     int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 || x%8 || y%8 ? 1 : 0;
 
-    if (draw_mode == 1)
+    if (is_z3_scrolling_mode() && draw_mode == 1)
     {
         byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
         draw_tile8_unified(dest, si, x, y, cset, flip, false);
@@ -2081,7 +2081,8 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     // 1: slow, bounds checking
     int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 ? 1 : 0;
 
-    if (draw_mode == 1)
+	// TODO z3 !
+    if (is_z3_scrolling_mode() && draw_mode == 1)
     {
         draw_tile8_unified(dest, si, x, y, cset, flip, true);
         return;
@@ -2103,6 +2104,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         {
             // the `x<0 ? 0 : x` 100% doesn't work as the author thought it did. combos get "pinned"
             // to the edge of the screen when drawn like this (when x is negative). -connor
+			// TODO z3 !
             byte* di = &(dest->line[y+dy][x<0 ? 0 : x]);
             
             for(int32_t i=0; i<8; ++i)
@@ -2226,7 +2228,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           }
           */
         
-        if (draw_mode == 1)
+        if (is_z3_scrolling_mode() && draw_mode == 1)
         {
             byte *si = unpackbuf;
             
@@ -2289,7 +2291,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           }
           */
         
-        if (draw_mode == 1)
+        if (is_z3_scrolling_mode() && draw_mode == 1)
         {
             // 1 byte at a time
             byte *si = unpackbuf;
