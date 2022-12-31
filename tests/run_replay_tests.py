@@ -428,7 +428,8 @@ if args.ci:
     total_frames = sum(get_replay_data(test)['frames'] for test in tests)
     total_frames_limited = sum(get_replay_data(test)['frames_limited'] for test in tests)
     frames_limited_ratio = total_frames_limited / total_frames
-    print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
+    if frames_limited_ratio < 1:
+        print(f'\nframes limited: {frames_limited_ratio * 100:.2f}%')
 
 if args.print_shards:
     exit(0)
