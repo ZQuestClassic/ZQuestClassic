@@ -3789,6 +3789,9 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 
 void HeroClass::check_slash_block(int32_t bx, int32_t by)
 {
+	// TODO !
+	replay_step_comment(fmt::format("check_slash_block: {} {}", bx, by));
+	
 	// keep things inside the screen boundaries
 	bx=vbound(bx, 0, world_w-1);
 	by=vbound(by, 0, world_h-1);
@@ -3803,6 +3806,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	//first things first
 	if(attack!=wSword)
 		return;
+	
+	replay_step_comment(fmt::format("check_slash_block 2: {} {}", fx, fy));
 		
 	if(z>8||fakez>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
 			|| (attackclk>SWORDTAPFRAME && tapping))

@@ -1984,6 +1984,7 @@ void sprite::draw8(BITMAP* dest)
         
     if(clk>=0)
     {
+		replay_step_comment(fmt::format("sprite::draw8: {} {}", sx, sy));
         switch(drawstyle)
         {
         case 0:                                               //normal

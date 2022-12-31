@@ -423,10 +423,12 @@ void dFlowerClippings::draw(BITMAP *dest)
 	}
 }
 
+#include <fmt/format.h>
 dGrassClippings::dGrassClippings(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
 {
 	ox=X;
 	oy=Y;
+	replay_step_comment(fmt::format("dGrassClippings ctor: {} {}", ox, oy));
 	id=Id;
 	clk=Clk;
 	the_deco_sprite = vbound(wpnSpr,0,255);
