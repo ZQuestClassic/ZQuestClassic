@@ -617,10 +617,11 @@ for i in range(args.retries + 1):
     if i == 0:
         tests_remaining = tests
     else:
-        print('\nretrying failures...\n')
         tests_remaining = [replays_dir / r.name for r in test_results.runs[-1] if not r.success]
     if not tests_remaining:
         break
+    if i != 0:
+        print('\nretrying failures...\n')
 
     runs_dir = test_results_dir / str(i)
     runs: List[RunResult] = []
