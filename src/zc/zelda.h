@@ -401,6 +401,8 @@ extern int32_t currscr;
 extern int32_t initial_region_scr;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern direction scrolling_dir;
+// See dowarp.
+extern int32_t currscr_for_passive_subscr;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;

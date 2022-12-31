@@ -3794,6 +3794,12 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	by=vbound(by, 0, world_h-1);
 	int32_t fx=bx;
 	int32_t fy=by;
+	// TODO z3 ! ??
+	// bx=vbound(bx, 0, 255);
+	// by=vbound(by, 0, 176);
+	// int32_t fx=vbound(bx, 0, 255);
+	// int32_t fy=vbound(by, 0, 176);
+
 	//first things first
 	if(attack!=wSword)
 		return;
@@ -22568,6 +22574,15 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	{
 		// cave/item room
 		ALLOFF();
+
+		// some draw_screen code (the passive subscreen compass dot) depends
+		// on currscr and homescr being set first when drawing the screen during a warp.
+		// Without this the compass dot would remain drawn while warping.
+		// This might be better, but for now this code keeps the rendering
+		// equivalent to before z3 draw_screen refactor.
+		// demosp253.zplay and first_quest_layered.zplay showcases this behavior.
+		// TODO z3: remove this, but when we have more replay coverage.
+		currscr_for_passive_subscr = 0x80;
 		
 		if(DMaps[currdmap].flags&dmfCAVES)                                         // cave
 		{
@@ -22631,16 +22646,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			map_bkgsfx(false);
 			kill_enemy_sfx();
 
-			int32_t prev_homescr = homescr;
-			int32_t prev_currscr = currscr;
-			// some draw_screen code (like passive subscreen compass dot) depends
-			// on these variables. Without this the compass dot would remain drawn while
-			// warping. This actually seems better, but for now this code keeps the rendering
-			// equivalent to before z3 loadscr refactor.
-			// demosp253.zplay showcases this behavior.
-			// TODO z3: remove this, but when we have more replay coverage.
-			homescr = currscr;
-			currscr = 0x80;
 			draw_screen(false);
 			
 			//unless the room is already dark, fade to black
@@ -22651,8 +22656,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 			
 			blackscr(30,true);
-			homescr = prev_homescr; // see above comment.
-			currscr = prev_currscr;
 
 			bool no_x80_dir = true; // TODO: is this necessary?
 			loadscr(wdmap, 0x80, down, false, no_x80_dir);
@@ -22699,6 +22702,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	
 	case wtPASS:                                            // passageway
 	{
+		currscr_for_passive_subscr = 0x81;
+
 		map_bkgsfx(false);
 		kill_enemy_sfx();
 		ALLOFF();
@@ -23534,7 +23539,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		return false;
 	}
 	
-	
+	currscr_for_passive_subscr = -1;
 	
 	// Stop Hero from drowning!
 	if(action==drowning || action==lavadrowning || action==sidedrowning)

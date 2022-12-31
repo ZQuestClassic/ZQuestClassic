@@ -5641,6 +5641,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 
 	homescr = scr >= 0x80 ? currscr : scr;
+	currscr_for_passive_subscr = -1;
 	currscr = scr;
 	z3_load_region(destdmap);
 
