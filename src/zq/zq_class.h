@@ -185,7 +185,7 @@ public:
     void PasteAllToAll(const mapscr& copymapscr);
     void PasteUnderCombo(const mapscr& copymapscr);
     void PasteSecretCombos(const mapscr& copymapscr);
-    void PasteFFCombos(const mapscr& copymapscr);
+    void PasteFFCombos(mapscr& copymapscr);
     void PasteOneFFC(const mapscr& copymapscr, int32_t i);
     void PasteWarps(const mapscr& copymapscr);
     void PasteScreenData(const mapscr& copymapscr);

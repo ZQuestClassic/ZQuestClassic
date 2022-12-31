@@ -1635,155 +1635,7 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 
 void copy_mapscr(mapscr *dest, const mapscr *src)
 {
-    // oops, my bad. ..nvrmnd. XD
-    
-    dest->valid=src->valid;
-    dest->guy=src->guy;
-    dest->str=src->str;
-    dest->room=src->room;
-    dest->item=src->item;
-    dest->hasitem=src->hasitem;
-    
-    for(int32_t i=0; i<4; i++)
-        dest->tilewarptype[i]=src->tilewarptype[i];
-        
-    dest->tilewarpoverlayflags=src->tilewarpoverlayflags;
-    dest->door_combo_set=src->door_combo_set;
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        dest->warpreturnx[i]=src->warpreturnx[i];
-        dest->warpreturny[i]=src->warpreturny[i];
-    }
-    
-    dest->warpreturnc=src->warpreturnc;
-    dest->stairx=src->stairx;
-    dest->stairy=src->stairy;
-    dest->itemx=src->itemx;
-    dest->itemy=src->itemy;
-    dest->color=src->color;
-    dest->enemyflags=src->enemyflags;
-    
-    for(int32_t i=0; i<4; i++)
-        dest->door[i]=src->door[i];
-        
-    for(int32_t i=0; i<4; i++)
-    {
-        dest->tilewarpdmap[i]=src->tilewarpdmap[i];
-        dest->tilewarpscr[i]=src->tilewarpscr[i];
-    }
-    
-    dest->exitdir=src->exitdir;
-    
-    for(int32_t i=0; i<10; i++)
-        dest->enemy[i]=src->enemy[i];
-        
-    dest->pattern=src->pattern;
-    
-    for(int32_t i=0; i<4; i++)
-        dest->sidewarptype[i]=src->sidewarptype[i];
-        
-    dest->sidewarpoverlayflags=src->sidewarpoverlayflags;
-    dest->warparrivalx=src->warparrivalx;
-    dest->warparrivaly=src->warparrivaly;
-    
-    for(int32_t i=0; i<4; i++)
-        dest->path[i]=src->path[i];
-        
-    for(int32_t i=0; i<4; i++)
-    {
-        dest->sidewarpscr[i]=src->sidewarpscr[i];
-        dest->sidewarpdmap[i]=src->sidewarpdmap[i];
-    }
-    
-    dest->sidewarpindex=src->sidewarpindex;
-    dest->undercombo=src->undercombo;
-    dest->undercset=src->undercset;
-    dest->catchall=src->catchall;
-    dest->flags=src->flags;
-    dest->flags2=src->flags2;
-    dest->flags3=src->flags3;
-    dest->flags4=src->flags4;
-    dest->flags5=src->flags5;
-    dest->flags6=src->flags6;
-    dest->flags7=src->flags7;
-    dest->flags8=src->flags8;
-    dest->flags9=src->flags9;
-    dest->flags10=src->flags10;
-    dest->csensitive=src->csensitive;
-    dest->noreset=src->noreset;
-    dest->nocarry=src->nocarry;
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        dest->layermap[i]=src->layermap[i];
-        dest->layerscreen[i]=src->layerscreen[i];
-        dest->layeropacity[i]=src->layeropacity[i];
-    }
-    
-    dest->timedwarptics=src->timedwarptics;
-    dest->nextmap=src->nextmap;
-    dest->nextscr=src->nextscr;
-    
-    for(int32_t i=0; i<128; i++)
-    {
-        dest->secretcombo[i]=src->secretcombo[i];
-        dest->secretcset[i]=src->secretcset[i];
-        dest->secretflag[i]=src->secretflag[i];
-    }
-    
-	MEMCPY_ARR(dest->data,src->data);
-	MEMCPY_ARR(dest->sflag,src->sflag);
-	MEMCPY_ARR(dest->cset,src->cset);
-    
-	word c = src->numFFC();
-    for(word i=0; i<c; ++i)
-		dest->ffcs[i] = src->ffcs[i];
-    for(word i=c; i<MAXFFCS; ++i)
-		dest->ffcs[i].clear();
-    
-    /*for(int32_t i=0; i<256; i++)
-      dest->map_stack[i]=src->map_stack[i];
-    for(int32_t i=0; i<8; i++)
-      dest->map_d[i]=src->map_d[i];
-    dest->map_pc=src->map_pc;
-    dest->map_scriptflag=src->map_scriptflag;
-    dest->map_sp=src->map_sp;
-    dest->map_itemref=src->map_itemref;
-    dest->map_itemclass=src->map_itemclass;
-    dest->map_lwpnref=src->map_lwpnref;
-    dest->map_lwpnclass=src->map_lwpnclass;
-    dest->map_ewpnref=src->map_ewpnref;
-    dest->map_ewpnclass=src->map_ewpnclass;
-    dest->map_guyref=src->map_guyref;
-    dest->map_guyclass=src->map_guyclass;
-    dest->map_ffcref=src->map_ffcref;*/ //Not implemented
-    dest->script_entry=src->script_entry;
-    dest->script_occupancy=src->script_occupancy;
-    dest->script_exit=src->script_exit;
-    dest->oceansfx=src->oceansfx;
-    dest->bosssfx=src->bosssfx;
-    dest->secretsfx=src->secretsfx;
-    dest->holdupsfx=src->holdupsfx;
-    dest->old_cpage=src->old_cpage;
-    dest->screen_midi=src->screen_midi;
-    dest->lens_layer=src->lens_layer;
-    for ( int32_t q = 0; q < 10; q++ ) dest->npcstrings[q]=src->npcstrings[q];
-    for ( int32_t q = 0; q < 10; q++ ) dest->new_items[q]=src->new_items[q];
-    for ( int32_t q = 0; q < 10; q++ ) dest->new_item_x[q]=src->new_item_x[q];
-    for ( int32_t q = 0; q < 10; q++ ) dest->new_item_y[q]=src->new_item_y[q];
-    
-    dest->script=src->script;
-    
-    for ( int32_t q = 0; q < 8; q++ ) dest->screeninitd[q]=src->screeninitd[q];
-    
-    dest->screen_waitdraw=src->screen_waitdraw;
-    dest->preloadscript=src->preloadscript;
-    dest->ffcswaitdraw=src->ffcswaitdraw;
-    dest->screendatascriptInitialised=src->screendatascriptInitialised;
-    dest->hidelayers=src->hidelayers;
-    dest->hidescriptlayers=src->hidescriptlayers;
-    dest->doscript=src->doscript;
+	*dest = *src;
 }
 
 void zmap::put_door(BITMAP *dest,int32_t pos,int32_t side,int32_t type,int32_t xofs,int32_t yofs,bool ignorepos, int32_t scr)
@@ -4950,7 +4802,8 @@ void zmap::PasteSecretCombos(const mapscr& copymapscr)
     }
 }
 
-void zmap::PasteFFCombos(const mapscr& copymapscr)
+// TODO const mapscr& copymapscr
+void zmap::PasteFFCombos(mapscr& copymapscr)
 {
     if(can_paste)
     {

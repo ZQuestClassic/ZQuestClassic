@@ -10,34 +10,55 @@ extern sprite_list guys;
 extern HeroClass Hero;
 #endif
 
-using std::vector;
+static solid_object* curobject = NULL;
 
-vector<solid_object*> solid_objects;
-
-bool remove_object(solid_object* obj)
+template <class F>
+static bool for_every_solid_object(const F& fn)
 {
-    bool ret = false;
-    for(auto it = solid_objects.begin(); it != solid_objects.end();)
-    {
-        if(*it == obj)
-        {
-            it = solid_objects.erase(it);
-            // return true; //don't keep iterating - optimization
-            ret = true;
-        }
-        else
-            ++it;
-    }
-    return ret;
+#ifdef IS_PLAYER
+	word c = tmpscr->numFFC();
+	for (word i=0; i < c; i++)
+	{
+		if (tmpscr->ffcs[i].flags & ffCHANGER) continue;
+		solid_object* obj = &tmpscr->ffcs[i];
+		if (!obj->getSolid()) continue;
+		if (fn(obj)) return true;
+	}
+
+	for (int i = 0; i < guys.Count(); i++)
+	{
+		solid_object* obj = guys.spr(i);
+		if (!obj->getSolid()) continue;
+		if (fn(obj)) return true;
+	}
+#endif
+
+	return false;
 }
 
 void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 {
-	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
-		(*it)->draw(dest, x, y, col);
+	for_every_solid_object([&](solid_object* obj) {
+		obj->draw(dest, x, y, col);
+		return false;
+	});
 }
 
-static solid_object* curobject = NULL;
+bool collide_object(solid_object const* collide_with_obj)
+{
+	return for_every_solid_object([&](solid_object* obj) {
+		if (collide_with_obj == obj) return false;
+		return obj->collide(collide_with_obj);
+	});
+}
+
+bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign)
+{
+	return for_every_solid_object([&](solid_object* obj) {
+		if (obj == ign || obj == curobject) return false;
+		return obj->collide(tx, ty, tw, th);
+	});
+}
 
 void setCurObject(solid_object* obj)
 {
@@ -49,92 +70,12 @@ solid_object* getCurObject()
 	return curobject;
 }
 
-bool collide_object(solid_object const* obj)
-{
-	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
-	{
-		if (*it == obj || *it == curobject) continue;
-		if ((*it)->collide(obj))
-			return true;
-	}
-	return false;
-}
-
-bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign)
-{
-	for(auto it = solid_objects.begin(); it != solid_objects.end(); ++it)
-	{
-		if (*it == ign || *it == curobject) continue;
-		if ((*it)->collide(tx, ty, tw, th))
-			return true;
-	}
-	return false;
-}
-
-solid_object::solid_object() : solid(false), in_solid_arr(false),
-	ignore_solid_temp(false),
-	hxsz(16), hysz(16), hxofs(0), hyofs(0),
-	sxofs(0), syofs(0), sxsz_ofs(0), sysz_ofs(0),
-	solidflags(0), dir(-1), switch_hooked(false)
-{}
-
-solid_object::~solid_object()
-{
-	if(in_solid_arr)
-	{
-	    remove_object(this);
-	}
-}
-
-void solid_object::copy(solid_object const& other)
-{
-	x = other.x;
-	y = other.y;
-	old_x = other.old_x;
-	old_y = other.old_y;
-	vx = other.vx;
-	vy = other.vy;
-	hxsz = other.hxsz;
-	hysz = other.hysz;
-	hxofs = other.hxofs;
-	hyofs = other.hyofs;
-	sxofs = other.sxofs;
-	syofs = other.syofs;
-	sxsz_ofs = other.sxsz_ofs;
-	sysz_ofs = other.sysz_ofs;
-	solidflags = other.solidflags;
-	dir = other.dir;
-	switch_hooked = other.switch_hooked;
-	setSolid(other.solid);
-}
-
-solid_object::solid_object(solid_object const& other) 
-{
-	copy(other);
-}
-
-solid_object& solid_object::operator=(solid_object const& other)
-{
-	copy(other);
-	return *this;
-}
-
 bool solid_object::setSolid(bool set)
 {
+	bool changed = solid != set;
 	solid = set;
-	if(solid && !in_solid_arr)
-	{
-		solid_objects.push_back(this);
-		in_solid_arr = true;
-		return true;
-	}
-	else if(in_solid_arr && !solid)
-	{
-		remove_object(this);
-		in_solid_arr = false;
-		return true;
-	}
-	return false;
+	// TODO is this still needed?
+	return changed;
 }
 bool solid_object::getSolid() const
 {
