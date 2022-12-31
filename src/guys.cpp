@@ -21530,6 +21530,8 @@ void screen_ffc_modify_postroutine(word index)
 	{
 		slopes.erase(it);
 	}
+
+	tmpscr.ffcCountMarkDirty();
 }
 
 void screen_combo_modify_pre(int32_t cid)

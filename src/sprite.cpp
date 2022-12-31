@@ -76,7 +76,7 @@ void sprite::alloc_scriptmem()
 	}
 }
 
-sprite::sprite()
+sprite::sprite(): solid_object()
 {
     uid = getNextUID();
 	isspawning = false;

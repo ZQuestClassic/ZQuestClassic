@@ -5741,6 +5741,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		{
 			screen->ffcs[i].setLoaded(true);
 			screen->ffcs[i].solid_update(false);
+			screen_ffc_modify_postroutine(i);
 		}
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;

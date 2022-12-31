@@ -5556,7 +5556,7 @@ int main(int argc, char **argv)
 		ASSERT(zqtesting_mode);
 		int replay_name_arg = used_switch(argc, argv, "-replay-name");
 
-		replay_start(ReplayMode::Record, argv[record_arg + 1], -1);
+		replay_start(ReplayMode::Record, argv[record_arg + 1], frame);
 		replay_set_debug(replay_debug);
 		replay_set_sync_rng(true);
 		replay_set_meta("qst", testingqst_name);

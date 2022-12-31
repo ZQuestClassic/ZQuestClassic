@@ -16,16 +16,10 @@ class solid_object
 public:
 	zfix x, y, vx, vy;
 	zfix old_x, old_y, old_x2, old_y2;
-	int32_t hxsz,hysz,hxofs,hyofs;
+	int32_t hxsz=16,hysz=16,hxofs,hyofs;
 	int32_t sxofs,syofs,sxsz_ofs,sysz_ofs;
-	int32_t solidflags, dir;
+	int32_t solidflags, dir=-1;
 	bool switch_hooked;
-	
-	solid_object();
-	~solid_object();
-	virtual void copy(solid_object const& other);
-	solid_object(solid_object const& other);
-	solid_object& operator=(solid_object const& other);
 	
 	virtual bool setSolid(bool set);
 	virtual bool getSolid() const;
@@ -50,8 +44,6 @@ protected:
 	int32_t push_dir() const;
 	
 	virtual bool is_unpushable() const {return false;}
-private:
-	bool in_solid_arr;
 };
 
 
