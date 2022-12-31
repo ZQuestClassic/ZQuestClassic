@@ -1135,20 +1135,25 @@ void replay_poll()
     if (std::chrono::system_clock::now() - time_result_saved > 1s)
         save_result();
 
-    if (mode == ReplayMode::Assert)
+    if (mode == ReplayMode::Assert || mode == ReplayMode::Record)
     {
         if (frame_arg != -1 && frame_arg == frame_count)
         {
+            if (mode == ReplayMode::Record) replay_save();
+
             Throttlefps = true;
             Paused = true;
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            jwin_alert("Recording", "Assert stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert(replay_mode_to_string(mode).c_str(), "Stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, lfont);
             exit_sys_pal();
             return;
         }
+    }
 
+    if (mode == ReplayMode::Assert)
+    {
         if (replay_log_current_index == assert_current_index && assert_current_index == replay_log.size())
         {
             replay_stop();
