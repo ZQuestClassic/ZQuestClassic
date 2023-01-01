@@ -200,8 +200,8 @@ class HeroClass : public sprite
 public:
 	std::map<int16_t, int32_t> usecounts;
 	bool autostep,superman,inwallm,tapping,stomping,last_hurrah,onpassivedmg,inair;
-	rpos_t stepnext,    // location of step->next just triggered (don't recursively trigger it)
-	       stepsecret;  // location of step->secrets just triggered (don't recursively trigger it)
+	rpos_t stepnext,    // location of step->next just triggered (don't repeatedly trigger it)
+	       stepsecret;  // location of step->secrets just triggered (don't repeatedly trigger it)
 	int32_t refilling,
 		ladderx,
 		laddery,

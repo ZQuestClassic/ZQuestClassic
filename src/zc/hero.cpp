@@ -21152,16 +21152,16 @@ void HeroClass::checkspecial2(int32_t *ls)
 				return;
 			}
 			
-			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=COMBOPOS_REGION(x+j,y+i))
+			rpos_t rpos = COMBOPOS_REGION(x+j, y+i);
+			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=rpos)
 			{
-				rpos_t new_stepsecret = COMBOPOS_REGION(x+j, y+i);
-				auto pos_handle = get_pos_handle(new_stepsecret, 0);
+				auto pos_handle = get_pos_handle(rpos, 0);
 				
 				if(stype==cSTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = new_stepsecret;
+						stepsecret = rpos;
 						
 						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
 						{
@@ -21178,7 +21178,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = new_stepsecret;
+						stepsecret = rpos;
 
 						bool high16only = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
 						trigger_secrets_for_screen(pos_handle.screen_index, high16only);
