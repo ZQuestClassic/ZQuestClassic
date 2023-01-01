@@ -146,7 +146,7 @@ if os.name == 'nt':
     sys.stdout.reconfigure(encoding='utf-8')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--build_folder', default='build/Debug',
+parser.add_argument('--build_folder', default='build/Release',
     help='The folder containing the exe files',metavar='DIRECTORY')
 parser.add_argument('--test_results_folder',
     help='Where to save the replay test artifacts. By default, somewhere in .tmp')

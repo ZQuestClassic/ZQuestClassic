@@ -2326,6 +2326,16 @@ void sprite_list::animate()
 	
 	while(active_iterator<count)
 	{
+		// TODO: add a higher debug mode for this. For now, just comment out as-needed for debugging.
+		// if (replay_is_active() && replay_is_debug() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
+		// {
+		// 	enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
+		// 	replay_step_comment(fmt::format("enemy {} id: {} x: {} y: {} clk: {} {} {}",
+		// 		guy_string[as_enemy->id&0xFFF], as_enemy->id, as_enemy->x.getInt(), as_enemy->y.getInt(),
+		// 		as_enemy->clk, as_enemy->clk2, as_enemy->clk3)
+		// 	);
+		// }
+
 		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
 		{
 			setCurObject(sprites[active_iterator]);

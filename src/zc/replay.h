@@ -58,6 +58,7 @@ bool replay_get_meta_bool(std::string key);
 
 ReplayMode replay_get_mode();
 int replay_get_version();
+int replay_get_frame();
 void replay_set_output_dir(std::filesystem::path dir);
 std::filesystem::path replay_get_replay_path();
 std::string replay_get_buttons_string();
