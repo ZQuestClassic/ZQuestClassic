@@ -1647,6 +1647,11 @@ int replay_get_version()
     return version;
 }
 
+int replay_get_frame()
+{
+    return frame_count;
+}
+
 void replay_set_output_dir(std::filesystem::path dir)
 {
 	output_dir = dir;
