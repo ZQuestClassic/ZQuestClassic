@@ -21035,14 +21035,15 @@ void HeroClass::checkspecial2(int32_t *ls)
 				return;
 			}
 			
-			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=MAPCOMBO(x+j,y+i))
+			int32_t pos = COMBOPOS(x+j, y+i);
+			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=pos)
 			{
 				// zprint("Step Secs\n");
 				if(stype==cSTRIGFLAG && canPermSecret())
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
+						stepsecret = pos;
 						
 						if(!(tmpscr->flags5&fTEMPSECRETS))
 						{
@@ -21059,7 +21060,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 				{ 
 					if(!didstrig)
 					{
-						stepsecret = ((int32_t)(y+i)&0xF0)+((int32_t)(x+j)>>4);
+						stepsecret = pos;
 						bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
 						hidden_entrance(0,true,only16_31); 
 						didstrig = true;
