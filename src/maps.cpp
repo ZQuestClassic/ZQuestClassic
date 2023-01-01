@@ -543,6 +543,9 @@ int32_t COMBOY(int32_t pos)
 
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 {
+	x = vbound(x, 0, world_w-1);
+	y = vbound(y, 0, world_h-1);
+
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
 	int pos = COMBOPOS(x%256, y%176);
