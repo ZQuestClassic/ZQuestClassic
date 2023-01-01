@@ -842,7 +842,8 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 
 int32_t COMBOTYPE(int32_t x,int32_t y)
 {
-	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
+	// TODO z3 this just break replays, delete ?
+	// if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
 
 	int32_t b=1;
 	if(x&8) b<<=2;
