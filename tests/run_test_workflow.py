@@ -155,10 +155,6 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
                 failing_frames_by_replay[run.name] = []
             failing_frames_by_replay[run.name].append(run.failing_frame)
 
-        if run.name not in failing_frames_by_replay:
-            print(f'all failing replays were invalid for {test_results.runs_on} {test_results.arch}')
-            continue
-
     extra_args = []
     for replay_name, failing_frames in failing_frames_by_replay.items():
         for failing_frame in set(failing_frames):

@@ -179,7 +179,16 @@ int_group.add_argument('--ci', nargs='?',
 int_group.add_argument('--shard')
 int_group.add_argument('--print_shards', action='store_true')
 
+parser.add_argument('replays', nargs='*',
+    help='If provided, will only run these replays rather than those in tests/replays')
+
 args = parser.parse_args()
+
+if args.replays:
+    tests = [pathlib.Path(x) for x in args.replays]
+    replays_dir = tests[0].parent
+else:
+    tests = list(replays_dir.glob('*.zplay'))
 
 mode = 'assert'
 if args.update:
@@ -261,7 +270,6 @@ if args.test_results_folder:
 else:
     test_results_dir = root_dir / f'.tmp/test_results/{int(time.time())}'
 test_results_path = test_results_dir / 'test_results.json'
-tests = list(replays_dir.glob('*.zplay'))
 grouped_snapshot_arg = group_arg(args.snapshot)
 grouped_frame_arg = group_arg(args.frame)
 
@@ -656,11 +664,12 @@ if mode == 'assert':
     else:
         print(f'{len(failing_tests)} replay tests failed')
 
-        print('\nto collect baseline artifacts and then generate a report, run the following commands:\n')
-        print(f'python {script_dir}/run_test_workflow.py --test_results {test_results_dir} --token <1>')
-        print(f'python {script_dir}/compare_replays.py --workflow_run <2> --local {test_results_dir}')
-        print('\n')
-        print('<1>: github personal access token, with write actions access')
-        print('<2>: workflow run id printed from the previous command')
+        if replays_dir == script_dir / 'replays':
+            print('\nto collect baseline artifacts and then generate a report, run the following commands:\n')
+            print(f'python {script_dir}/run_test_workflow.py --test_results {test_results_dir} --token <1>')
+            print(f'python {script_dir}/compare_replays.py --workflow_run <2> --local {test_results_dir}')
+            print('\n')
+            print('<1>: github personal access token, with write actions access')
+            print('<2>: workflow run id printed from the previous command')
 
         exit(1)
