@@ -1,8 +1,8 @@
-
 #include "base/util.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <filesystem>
 #include <sys/stat.h>
 
 using namespace std;
@@ -126,11 +126,7 @@ namespace util
 	
 	string get_ext(string const& path)
 	{
-		size_t dot_pos = path.find_last_of(".");
-		if(dot_pos == string::npos) return "";
-		size_t last_slash_pos = path.find_last_of("/\\");
-		if(last_slash_pos != string::npos && last_slash_pos > dot_pos) return ""; //. found is in a dir name, not filename!
-		string ext = path.substr(dot_pos);
+		string ext = std::filesystem::path(path).extension().string();
 		lowerstr(ext);
 		return ext;
 	}
