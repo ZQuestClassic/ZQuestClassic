@@ -3704,6 +3704,7 @@ static bool register_name()
 						
 						while(key[KEY_ESC])
 						{
+							poll_keyboard();
 							/* do nothing */
 							rest(1);
 						}
