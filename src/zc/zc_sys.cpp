@@ -4682,13 +4682,6 @@ bottom:
 		Matrix(ss_speed, ss_density, 0);
 		game_pal();
 	}
-	//Saffith's method of separating system and game key bindings. Can't do this!!
-	//restoreInput(); //This caused input to become randomly 'stuck'. -Z
-	
-	//while(Playing && keypressed())
-	//readkey();
-	// What's the Playing check for?
-	clear_keybuf();
 }
 
 void checkQuitKeys()
