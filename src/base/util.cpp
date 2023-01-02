@@ -221,17 +221,23 @@ namespace util
 			if(path[q] == '/' || path[q] == '\\')
 			{
 				string strpath(buf+last_slash+1);
+				last_slash = q;
+				if(strpath == ". /" || strpath == ".\\")
+					continue;
+				if(strpath.find_first_of(":") != string::npos)
+					continue; //Non-creatable; ex "C:\"
 				if(!valid_single_dir(strpath))
 				{
 					return false; //Failure; invalid path
 				}
-				last_slash = q;
-				if(strpath.find_first_of(":") != string::npos) continue; //Non-creatable; ex "C:\"
+				
 				struct stat info;
 				if(stat( buf, &info ) != 0)
 				{
 					if (do_mkdir(buf, PATH_MODE) != 0 && errno != EEXIST)
+					{
 						return false; //Failure; could not create
+					}
 				}
 				else if((info.st_mode & S_IFDIR)==0)
 				{
