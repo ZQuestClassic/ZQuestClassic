@@ -3142,7 +3142,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									}
 								),
 								//
-								INFOBTN("The item will be the room's 'Special Item', and will not 'time out'."),
+								INFOBTN("The item will be the room's 'Special Item' (i.e. sets the special item screen state, does not return once collected once), and will not 'time out'."),
 								Checkbox(colSpan = 2,
 									text = "Drops Special Item", hAlign = 0.0,
 									checked = local_comboref.liftflags & LF_SPECIALITEM,
@@ -4223,7 +4223,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									}
 								),
 								//
-								INFOBTN("The item will be the room's 'Special Item', and will not 'time out'."),
+								INFOBTN("The item will be the room's 'Special Item' (i.e. sets the special item screen state, does not return once collected once), and will not 'time out'."),
 								Checkbox(colSpan = 2,
 									text = "Drops Special Item", hAlign = 0.0,
 									checked = local_comboref.liftflags & LF_SPECIALITEM,
