@@ -1,8 +1,8 @@
-
 #include "base/util.h"
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <filesystem>
 #include <sys/stat.h>
 
 using namespace std;
@@ -126,11 +126,7 @@ namespace util
 	
 	string get_ext(string const& path)
 	{
-		size_t dot_pos = path.find_last_of(".");
-		if(dot_pos == string::npos) return "";
-		size_t last_slash_pos = path.find_last_of("/\\");
-		if(last_slash_pos != string::npos && last_slash_pos > dot_pos) return ""; //. found is in a dir name, not filename!
-		string ext = path.substr(dot_pos);
+		string ext = std::filesystem::path(path).extension().string();
 		lowerstr(ext);
 		return ext;
 	}
@@ -221,17 +217,23 @@ namespace util
 			if(path[q] == '/' || path[q] == '\\')
 			{
 				string strpath(buf+last_slash+1);
+				last_slash = q;
+				if(strpath == ". /" || strpath == ".\\")
+					continue;
+				if(strpath.find_first_of(":") != string::npos)
+					continue; //Non-creatable; ex "C:\"
 				if(!valid_single_dir(strpath))
 				{
 					return false; //Failure; invalid path
 				}
-				last_slash = q;
-				if(strpath.find_first_of(":") != string::npos) continue; //Non-creatable; ex "C:\"
+				
 				struct stat info;
 				if(stat( buf, &info ) != 0)
 				{
 					if (do_mkdir(buf, PATH_MODE) != 0 && errno != EEXIST)
+					{
 						return false; //Failure; could not create
+					}
 				}
 				else if((info.st_mode & S_IFDIR)==0)
 				{

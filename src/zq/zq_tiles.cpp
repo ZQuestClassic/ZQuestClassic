@@ -5310,6 +5310,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			
 			while(key[KEY_ESC])
 			{
+				poll_keyboard();
 				/* do nothing */
 				rest(1);
 			}
@@ -5329,6 +5330,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			{
 				while(key[KEY_ESC])
 				{
+					poll_keyboard();
 					/* do nothing */
 					rest(1);
 				}
