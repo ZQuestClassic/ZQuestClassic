@@ -3883,37 +3883,8 @@ int32_t onNonGUISnapshot()
 	}
 	while(num<99999 && exists(buf));
 	
-	BITMAP *panorama = create_bitmap_ex(8,256,168);
-	/*
-	PALETTE tempRAMpal;
-	get_palette(tempRAMpal);
+	save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
 	
-	if(tmpscr->flags3&fNOSUBSCR)
-	{
-		clear_to_color(panorama,0);
-		blit(framebuf,panorama,0,playing_field_offset,0,0,256,168);
-		save_bitmap(buf,panorama,realpal?temppal:tempRAMpal);
-	}
-	else
-	{
-		save_bitmap(buf,framebuf,realpal?temppal:tempRAMpal);
-	}
-	
-	destroy_bitmap(panorama);
-	return D_O_K;
-	*/
-	if(tmpscr->flags3&fNOSUBSCR && !(key[KEY_ALT]))
-	{
-		clear_to_color(panorama,0);
-		blit(framebuf,panorama,0,playing_field_offset,0,0,256,168);
-		save_bitmap(buf,panorama,realpal?temppal:RAMpal);
-	}
-	else
-	{
-		save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
-	}
-	
-	destroy_bitmap(panorama);
 	return D_O_K;
 }
 
