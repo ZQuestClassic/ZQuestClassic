@@ -3647,7 +3647,7 @@ void draw_fuzzy(int32_t fuzz)
 	
 	for(y=0; y<224;)
 	{
-		start = &(scrollbuf->line[y][256]);
+		start = &(scrollbuf_old->line[y][256]);
 		
 		for(dy=0; dy<ystep && dy+y<224; dy++)
 		{
@@ -4791,8 +4791,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 
 void zapout()
 {
-	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-	blit(framebuf,scrollbuf,0,0,256,0,256,224);
+	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
+	blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 	script_drawing_commands.Clear();
@@ -4815,9 +4815,9 @@ void zapin()
 {
 	FFCore.warpScriptCheck();
 	draw_screen();
-	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
+	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
 	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-	blit(framebuf,scrollbuf,0,0,256,0,256,224);
+	blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
 	
 	// zap out
 	FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
