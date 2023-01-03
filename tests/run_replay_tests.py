@@ -339,6 +339,7 @@ def get_replay_data(file):
     estimated_fps_overrides = {
         'classic_1st.zplay': 1400,
         'demosp253.zplay': 800,
+        'dreamy_cambria.zplay': 900,
         'first_quest_layered.zplay': 1700,
         'nes-remastered.zplay': 1400,
         'stellar_seas_randomizer.zplay': 150,
