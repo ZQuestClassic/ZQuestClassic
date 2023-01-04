@@ -4701,6 +4701,8 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		zcmusic_poll();
 	}
 	
+	updatescr(allowwavy);
+
 	while(Paused && !Advance && !Quit)
 	{
 		// have to call this, otherwise we'll get an infinite loop
@@ -4709,8 +4711,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		if (replay_get_mode() != ReplayMode::Assert)
-			updatescr(allowwavy);
 		throttleFPS();
 		
 #ifdef _WIN32
@@ -4738,8 +4738,6 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		game->change_time(1);
 		
 	Advance=false;
-
-	updatescr(allowwavy);
 
 	if (replay_is_active())
 	{
