@@ -84,6 +84,7 @@ void ffdata::save(mapscr* scr, int32_t ind)
 	scr->ffcs[ind].ax = zslongToFix(ax);
 	scr->ffcs[ind].ay = zslongToFix(ay);
 	scr->ffcs[ind].setData(data);
+	scr->ffcCountMarkDirty();
 	scr->ffcs[ind].cset = cset;
 	scr->ffcs[ind].delay = delay;
 	scr->ffcs[ind].flags = flags;
