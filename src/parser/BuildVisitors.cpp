@@ -1640,6 +1640,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		}
 		//push any std::optional parameter values
 		auto num_actual_params = func.paramTypes.size();
+		if(host.left->isTypeArrow())
+			--num_actual_params; //Don't count the arrow param!
 		auto used_opt_params = num_actual_params - host.parameters.size();
 		auto opt_param_count = func.opt_vals.size();
 		auto skipped_optional_params = opt_param_count - used_opt_params;
