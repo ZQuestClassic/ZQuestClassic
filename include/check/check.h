@@ -11,6 +11,8 @@
 #define CLIB_CHECK_H
 
 // thank you brother tj & stephen (https://github.com/clibs/unlikely)
+#undef likely
+#undef unlikely
 #if defined(__GNUC__) && (__GNUC__ > 2) && defined(__OPTIMIZE__)
 #  define likely(expr) (__builtin_expect(!!(expr), 1))
 #  define unlikely(expr) (__builtin_expect(!!(expr), 0))
