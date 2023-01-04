@@ -224,7 +224,7 @@ bool doThrottle()
 	int toggle_key = KEY_TILDE;
 #endif
 	return (Throttlefps ^ (zc_get_system_key(toggle_key)!=0))
-		|| get_bit(quest_rules, qr_NOFASTMODE);
+		|| (get_bit(quest_rules, qr_NOFASTMODE) && !replay_is_replaying());
 }
 
 void throttleFPS()
