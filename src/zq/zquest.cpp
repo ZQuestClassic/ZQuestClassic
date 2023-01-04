@@ -10948,6 +10948,7 @@ void domouse()
 								if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
 								{
 									Map.CurrScr()->ffcs[i].setData(0);
+									Map.CurrScr()->ffcCountMarkDirty();
 									Map.CurrScr()->ffcs[i].cset = 0;
 									Map.CurrScr()->ffcs[i].x = 0;
 									Map.CurrScr()->ffcs[i].y = 0;

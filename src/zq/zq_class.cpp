@@ -4823,6 +4823,7 @@ void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ff
         return;
 
     screens[currscr].ffcs[i].setData(copymapscr.ffcs[copyffc].getData());
+    screens[currscr].ffcCountMarkDirty();
     screens[currscr].ffcs[i].cset = copymapscr.ffcs[copyffc].cset;
     // Don't copy X or Y
     screens[currscr].ffcs[i].vx = copymapscr.ffcs[copyffc].vx;

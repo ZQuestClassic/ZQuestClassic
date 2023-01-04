@@ -1204,6 +1204,11 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 				host.wtype = &dat->type;
 			host.u_datum = dat;
 		}
+		else handleError(
+			CompileError::ArrowNoVar(
+					&host,
+					host.right,
+					user_class->getName().c_str()));
 		return;
 	}
     DataTypeClass const* leftType =

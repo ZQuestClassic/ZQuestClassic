@@ -16611,6 +16611,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		int32_t m;
 		float tempfloat;
 		word tempw;
+		temp_mapscr->ffcCountMarkDirty();
 		
 		for(m=0; m<32; m++)
 		{
@@ -17287,6 +17288,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		byte tempbyte;
 		word tempw;
 		static ffcdata nil_ffc;
+		temp_mapscr->ffcCountMarkDirty();
 		for(word m = 0; m < numffc; ++m)
 		{
 			ffcdata& tempffc = (m < MAXFFCS)
