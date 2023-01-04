@@ -100,7 +100,7 @@ struct mapscr
 	byte flags8;
 	byte flags9;
 	byte flags10;
-	byte csensitive;
+	byte csensitive = 1;
 	word noreset;
 	word nocarry;
 	byte layermap[6];
@@ -111,7 +111,7 @@ struct mapscr
 	//  byte layerysize[6];
 	//  byte layeryspeed[6];
 	//  byte layerydelay[6];
-	byte layeropacity[6];
+	byte layeropacity[6] = {255, 255, 255, 255, 255, 255};
 	word timedwarptics;
 	byte nextmap;
 	byte nextscr;
@@ -168,12 +168,12 @@ struct mapscr
 	
 	byte oceansfx;
 	byte bosssfx;
-	byte secretsfx;
-	byte holdupsfx;
+	byte secretsfx = 27;
+	byte holdupsfx = 20;
 	
 	// for importing older quests...
 	byte old_cpage;
-	int16_t screen_midi;
+	int16_t screen_midi = -1;
 	byte lens_layer;
 	
 	//Currently unused
