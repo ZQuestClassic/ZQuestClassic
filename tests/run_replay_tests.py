@@ -342,6 +342,7 @@ def get_replay_data(file):
         'dreamy_cambria.zplay': 900,
         'first_quest_layered.zplay': 1700,
         'nes-remastered.zplay': 1400,
+        'ss_jenny.zplay': 1200,
         'stellar_seas_randomizer.zplay': 150,
         'solid.zplay': 800,
         'link_to_the_zelda.zplay': 1000,
