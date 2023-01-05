@@ -16,9 +16,12 @@
 #include <stdlib.h>
 #include <fstream>
 #include <filesystem>
+#include <fmt/format.h>
 //
 
 #include "zc_sys.h"
+#include "jit.h"
+#include "script_debug.h"
 #include "base/zc_alleg.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
@@ -53,34 +56,22 @@ using std::ostringstream;
 #define NUL		5
 #define MAX_ZC_ARRAY_SIZE 214748
 
-/* Registers
- SP - stack pointer
- D4 - stack frame pointer
- D6 - stack frame offset accumulator
- D2 - expression accumulator #1 (sarg1)
- D3 - expression accumulator #2 (sarg2)
- D0 - array index accumulator
- D1 - secondary array index accumulator
- D5 - pure SETR sink
- */
+// #define _SCRIPT_COUNTER
 
-#define rINDEX                   0
-#define rINDEX2                  1
-#define rEXP1                    2
-#define rEXP2                    3
-#define rSFRAME                  4
-#define rNUL                     5
-#define rSFTEMP                  6
-#define rWHAT_NO_7               7 // What, no 7?
-#define rPC               	8 // What, no 8?
-#define rZELDAVERSION               9 // What, no 9?
-#define rSP                     10
+#ifdef _SCRIPT_COUNTER
+static int64_t script_timer[NUMCOMMANDS];
+static int64_t script_execount[NUMCOMMANDS];
+#endif
 
 extern zinitdata zinit;
 int32_t hangcount = 0;
 bool can_neg_array = true;
 
 extern byte monochrome_console;
+
+static std::set<int> seen_scripts;
+static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
+int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
@@ -544,7 +535,6 @@ byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
 	
 miscQdata *misc;
-int32_t run_script_int(const byte type, const word script, const int32_t i);
 int32_t get_int_arr(const int32_t ptr, int32_t indx);
 void set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
 int32_t sz_int_arr(const int32_t ptr);
@@ -560,9 +550,13 @@ int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 std::vector<int32_t> zs_vargs;
 byte curScriptType;
 word curScriptNum;
+int32_t curScriptIndex;
 bool script_funcrun = false;
 std::string* destructstr = nullptr;
 
+static std::vector<int32_t> curScriptType_cache;
+static std::vector<int32_t> curScriptNum_cache;
+static std::vector<int32_t> curScriptIndex_cache;
 static std::vector<int32_t> sarg1cache;
 static std::vector<int32_t> sarg2cache;
 static std::vector<std::vector<int32_t>*> sargvec_cache;
@@ -574,6 +568,9 @@ void push_ri()
 {
 	sarg1cache.push_back(sarg1);
 	sarg2cache.push_back(sarg2);
+	curScriptType_cache.push_back(curScriptType);
+	curScriptNum_cache.push_back(curScriptNum);
+	curScriptIndex_cache.push_back(curScriptIndex);
 	sargvec_cache.push_back(sargvec);
 	sargstr_cache.push_back(sargstr);
 	ricache.push_back(ri);
@@ -584,6 +581,9 @@ void pop_ri()
 {
 	sarg1 = sarg1cache.back(); sarg1cache.pop_back();
 	sarg2 = sarg2cache.back(); sarg2cache.pop_back();
+	curScriptType = curScriptType_cache.back(); curScriptType_cache.pop_back();
+	curScriptNum = curScriptNum_cache.back(); curScriptNum_cache.pop_back();
+	curScriptIndex = curScriptIndex_cache.back(); curScriptIndex_cache.pop_back();
 	sargvec = sargvec_cache.back(); sargvec_cache.pop_back();
 	sargstr = sargstr_cache.back(); sargstr_cache.pop_back();
 	ri = ricache.back(); ricache.pop_back();
@@ -3171,7 +3171,6 @@ int32_t do_msgwidth(int32_t msg, char const* str);
 
 int32_t get_register(const int32_t arg)
 {
-
 	int32_t ret = 0;
 	
 	//Macros
@@ -12585,7 +12584,6 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
-		//Most of this is deprecated I believe ~Joe123
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
@@ -12603,7 +12601,7 @@ int32_t get_register(const int32_t arg)
 //Setter Instructions
 
 
-void set_register(const int32_t arg, const int32_t value)
+void set_register(int32_t arg, int32_t value)
 {
 	if ( zasm_debugger ) FFCore.ZASMPrintVarSet(arg, value);
 	//Macros
@@ -21940,6 +21938,7 @@ void set_register(const int32_t arg, const int32_t value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
+			ri->sp &= (1 << BITS_SP) - 1;
 			break;
 			
 		case PC:
@@ -22342,6 +22341,7 @@ void do_push(const bool v)
 {
 	const int32_t value = SH::get_arg(sarg1, v);
 	--ri->sp;
+	ri->sp &= (1 << BITS_SP) - 1;
 	SH::write_stack(ri->sp, value);
 }
 void do_push_varg(const bool v)
@@ -22354,6 +22354,7 @@ void do_pop()
 {
 	const int32_t value = SH::read_stack(ri->sp);
 	++ri->sp;
+	ri->sp &= (1 << BITS_SP) - 1;
 	set_register(sarg1, value);
 }
 
@@ -22361,6 +22362,7 @@ void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the sta
 {
 	int32_t num = sarg2;
 	ri->sp += num;
+	ri->sp &= (1 << BITS_SP) - 1;
 	word read = (ri->sp-1) & ((1<<BITS_SP)-1);
 	int32_t value = SH::read_stack(read);
 	set_register(sarg1, value);
@@ -28678,21 +28680,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	combopos_modified = -1;
 	curScriptType=type;
 	curScriptNum=script;
+	curScriptIndex=i;
 	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
-#ifdef _SCRIPT_COUNTER
-	dword script_timer[NUMCOMMANDS];
-	dword script_execount[NUMCOMMANDS];
-	
-	for(int32_t j = 0; j < NUMCOMMANDS; j++)
-	{
-		script_timer[j]=0;
-		script_execount[j]=0;
-	}
-	
-	dword start_time, end_time;
-	
-	script_counter = 0;
-#endif
+
+	bool got_initialized = false;
 	switch(type)
 	{
 		//Z_scripterrlog("The script type is: %d\n", type);
@@ -28705,6 +28696,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if(!tmpscr->ffcs[i].initialized)
 			{
+				got_initialized = true;
 				memcpy(ri->d, tmpscr->ffcs[i].initd, 8 * sizeof(int32_t));
 				memcpy(ri->a, tmpscr->ffcs[i].inita, 2 * sizeof(int32_t));
 			}
@@ -28728,6 +28720,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = wa->initD[q];
@@ -28752,6 +28745,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 	
@@ -28779,6 +28773,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->ewpn = wa->getUID();
 			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					
@@ -28805,6 +28800,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->itemref = wa->getUID();
 			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					
@@ -28829,6 +28825,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if ( !(itemscriptInitialised[new_i]) )
 			{
+				got_initialized = true;
 				al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
 				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
 				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
@@ -28859,6 +28856,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			scr.waitevent = false;
 			if(!scr.initialized)
 			{
+				got_initialized = true;
 				scr.initialized = true;
 				memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
 			}
@@ -28873,6 +28871,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			stack = generic_active_stack.back();
 			if(!gen_active_initialized)
 			{
+				got_initialized = true;
 				gen_active_initialized = true;
 				memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
 			}
@@ -28898,6 +28897,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			//how do we clear initialised on dmap change?
 			if ( !dmapscriptInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
@@ -28915,6 +28915,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->dmapsref = i;
 			if ( !onmapInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
@@ -28932,6 +28933,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->dmapsref = i;
 			if ( !activeSubscreenInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
@@ -28949,6 +28951,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->dmapsref = i;
 			if ( !passiveSubscreenInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
@@ -28965,6 +28968,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			stack = &(screen_stack);
 			if ( !tmpscr->screendatascriptInitialised )
 			{
+				got_initialized = true;
 				al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
@@ -28987,6 +28991,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			int32_t id = FFCore.tempScreens[lyr]->data[pos];
 			if(!(combo_initialised[pos] & (1<<lyr)))
 			{
+				got_initialized = true;
 				memset(ri->d, 0, 8 * sizeof(int32_t));
 				for ( int32_t q = 0; q < 2; q++ )
 					ri->d[q] = combobuf[id].initd[q];
@@ -29004,13 +29009,107 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			return RUNSCRIPT_ERROR;
 		}
 	}
-	
+
 	script_funcrun = false;
-	return run_script_int(type,script,i);
+
+	if (DEBUG_PRINT_ZASM && seen_scripts.find(curscript->debug_id) == seen_scripts.end())
+	{
+		seen_scripts.insert(curscript->debug_id);
+		script_debug_set_file_type(1);
+		script_debug_print_zasm(curscript);
+	}
+
+	JittedScriptHandle* jitted_script = nullptr;
+	if (jit_is_enabled())
+	{
+		auto it = jitted_scripts.find({curscript, ri});
+		if (it == jitted_scripts.end())
+		{
+			jitted_scripts[{curscript, ri}] = jitted_script = jit_create_script_handle(curscript, ri);
+		}
+		else
+		{
+			jitted_script = it->second;
+		}
+	}
+
+	if (script_debug_is_runtime_debugging())
+	{
+		script_debug_set_file_type(0);
+		script_debug_print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, type, i, script).c_str());
+	}
+	if (script_debug_is_runtime_debugging() == 1)
+	{
+		script_debug_print(script_debug_registers_and_stack_to_string().c_str());
+		script_debug_print("\n");
+	}
+
+	int32_t result;
+	if (jitted_script)
+	{
+		if (got_initialized)
+			jit_reinit(jitted_script);
+		if (ri->waitframes)
+		{
+			--ri->waitframes;
+			result = RUNSCRIPT_OK;
+		}
+		else
+		{
+			result = jit_run_script(jitted_script);
+		}
+	}
+	else
+	{
+		result = run_script_int(false);
+	}
+
+	if (replay_is_active() && replay_get_meta_bool("debug_script_state"))
+	{
+		std::string str = script_debug_registers_and_stack_to_string();
+		util::replstr(str, "\n", " ");
+		replay_step_comment(str);
+	}
+
+#ifdef _SCRIPT_COUNTER
+	if (replay_get_frame() > 10000-50)
+	{
+		al_trace("\nPrinting ZASM timings:\n\n");
+
+		std::vector<std::pair<int, int>> timing_results;
+		for (int j = 0; j < NUMCOMMANDS; j++)
+		{
+			if (script_execount[j])
+			{
+				int32_t ms = script_timer[j] / 1000000.0;
+				timing_results.push_back({j, ms});
+			}
+		}
+		std::sort(timing_results.begin(), timing_results.end(), [](auto &left, auto &right) {
+			return left.second > right.second;
+		});
+		for (auto &it : timing_results)
+		{
+			al_trace("Command %s took %d ms complete in %ld executions.\n",
+					script_debug_command_to_string(it.first).c_str(), it.second, script_execount[it.first]);
+		}
+	}
+#endif
+
+	if (script_debug_is_runtime_debugging())
+		script_debug_print(fmt::format("result: {}\n", result).c_str());
+	return result;
 }
 
-int32_t run_script_int(const byte type, const word script, const int32_t i)
+int32_t run_script_int(bool is_jitted)
 {
+	byte type = curScriptType;
+	word script = curScriptNum;
+	int32_t i = curScriptIndex;
+
+	int commands_run = 0;
+	if (is_jitted) goto j_command;
+
 	if(ri->waitframes)
 	{
 		--ri->waitframes;
@@ -29044,8 +29143,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	
 #endif
 	
-	bool increment = true;
-	
 	if( FFCore.zasm_break_mode == ZASM_BREAK_ADVANCE_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT )
 	{
 		if( zasm_debugger )
@@ -29065,16 +29162,29 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
 	}
-	
+
+j_command:
+	bool is_debugging = script_debug_is_runtime_debugging() == 2;
+	bool increment = true;
 	word scommand = curscript->zasm[ri->pc].command;
 	bool hit_invalid_zasm = false;
 	while(scommand != 0xFFFF)
 	{
+#ifdef _SCRIPT_COUNTER
+		std::chrono::steady_clock::time_point start_time, end_time;
+		start_time = std::chrono::steady_clock::now();
+#endif
+
 		scommand = curscript->zasm[ri->pc].command;
 		sarg1 = curscript->zasm[ri->pc].arg1;
 		sarg2 = curscript->zasm[ri->pc].arg2;
 		sargstr = curscript->zasm[ri->pc].strptr;
 		sargvec = curscript->zasm[ri->pc].vecptr;
+
+		if (is_debugging && (!is_jitted || commands_run > 0))
+		{
+			script_debug_pre_command();
+		}
 		
 		bool waiting = true;
 		switch(scommand) //Handle waitframe-type commands first
@@ -29192,6 +29302,8 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		}
 		if(waiting && scommand != NOP)
 			break;
+		if(waiting && is_jitted)
+			break;
 		
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -29216,14 +29328,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				break;
 			}
 		}
-#ifdef _FFDEBUG
-#ifdef _FFDISSASSEMBLY
-		ffdebug::print_dissassembly(scommand);
-#endif
-#ifdef _SCRIPT_COUNTER
-		start_time = script_counter;
-#endif
-#endif
 		
 		if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
 		switch(scommand)
@@ -29551,6 +29655,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			{
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
+				ri->sp &= (1 << BITS_SP) - 1;
 				increment = false;
 				break;
 			}
@@ -32753,10 +32858,11 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		if(hit_invalid_zasm) break;
 		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
+
 #ifdef _SCRIPT_COUNTER
-		end_time = script_counter;
-		script_timer[*command] += end_time - start_time;
-		++script_execount[*command];
+		end_time = std::chrono::steady_clock::now();
+		script_timer[scommand] += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+		script_execount[scommand] += 1;
 #endif
 		
 		if (type == SCRIPT_COMBO)
@@ -32775,6 +32881,10 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			ri->pc = 0;
 			scommand = 0xFFFF;
 		}
+
+		// If running a JIT compiled script, we're only here to do a few commands.
+		commands_run += 1;
+		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
 	}
 	if(script_funcrun) return RUNSCRIPT_OK;
 	
@@ -33027,19 +33137,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	}
 	else
 		ri->pc++;
-	
-#ifdef _SCRIPT_COUNTER
-	
-	for(int32_t j = 0; j < NUMCOMMANDS; j++)
-	{
-		if(script_execount[j] != 0)
-			al_trace("Command %s took %ld ticks in all to complete in %ld executions.\n",
-					 command_list[j].name, script_timer[j], script_execount[j]);
-	}
-	
-	remove_int(update_script_counter);
-#endif
-	
 	
 	return RUNSCRIPT_OK;
 }
@@ -35297,12 +35394,6 @@ int32_t FFScript::GetScriptObjectUID(int32_t type)
 	return script_UIDs[type];
 }
 
-/*
-FFScript::FFScript()
-{
-	init();
-}
-*/
 void FFScript::init()
 {
 	eventData.clear();
@@ -35393,6 +35484,12 @@ void FFScript::init()
 	{
 		ffcScriptData[q].Clear();
 	}
+	for (auto &it : jitted_scripts)
+	{
+		jit_delete_script_handle(it.second);
+	}
+	jitted_scripts.clear();
+	seen_scripts.clear();
 }
 
 
@@ -40727,6 +40824,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
+
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -40740,6 +40838,7 @@ void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
+
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -40765,6 +40864,8 @@ void FFScript::do_trace(bool v)
 	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4) + "\n";
 	TraceScriptIDs();
 	al_trace("%s", s2.c_str());
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment("trace: " + s2);
 	
 	if ( zscript_debugger ) 
 	{
@@ -40780,6 +40881,8 @@ void FFScript::do_tracel(bool v)
 	sprintf(tmp, "%d\n", temp);
 	TraceScriptIDs();
 	al_trace("%s", tmp);
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment(fmt::format("trace: {}", temp));
 	
 	if ( zscript_debugger ) 
 	{
@@ -40794,6 +40897,8 @@ void FFScript::do_tracebool(const bool v)
 	TraceScriptIDs();
 	char const* str = temp ? "true\n" : "false\n";
 	al_trace("%s", str);
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment(fmt::format("trace: {}", (bool)temp));
 	
 	if ( zscript_debugger ) 
 	{
@@ -40806,6 +40911,8 @@ void traceStr(string const& str)
 {
 	FFCore.TraceScriptIDs();
 	safe_al_trace(str.c_str());
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment("trace: " + str);
 	
 	if ( zscript_debugger ) 
 	{
@@ -47343,9 +47450,58 @@ void FFScript::do_distance()
 	//ret = result*10000;
 
 }
-		
-		
 
+bool command_is_wait(int command)
+{
+	switch (command)
+	{
+	case WAITFRAME:
+	case WAITDRAW:
+	case WAITTO:
+	case WAITEVENT:
+	case WAITFRAMESR:
+		return true;
+	}
+	return false;
+}
 
+bool command_uses_comparison_result(int command)
+{
+	switch (command)
+	{
+	case GOTOTRUE:
+	case GOTOFALSE:
+	case GOTOMORE:
+	case GOTOLESS:
+	case SETTRUE:
+	case SETTRUEI:
+	case SETFALSE:
+	case SETFALSEI:
+	case SETMOREI:
+	case SETLESSI:
+	case SETMORE:
+	case SETLESS:
+		return true;
+	}
+	return false;
+}
 
+bool command_could_return_not_ok(int command)
+{
+	switch (command)
+	{
+	case EWPNDEL:
+	case ITEMDEL:
+	case LWPNDEL:
+	case NPCKICKBUCKET:
+	case SETSCREENDOOR:
+	case SETSCREENENEMY:
+		return true;
+	}
+	return false;
+}
 
+const script_command& get_script_command(int command)
+{
+	return ZASMcommands[command];
+}

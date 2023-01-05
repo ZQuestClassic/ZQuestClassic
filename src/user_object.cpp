@@ -9,12 +9,12 @@ extern script_data* curscript;
 extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 extern byte curScriptType;
 extern word curScriptNum;
+extern int32_t curScriptIndex;
 extern bool script_funcrun;
 extern std::string* destructstr;
 
 void destroy_object_arr(int32_t ptr);
 script_data* load_scrdata(int32_t type, word script, int32_t i);
-int32_t run_script_int(const byte type, const word script, const int32_t i);
 
 void scr_func_exec::clear()
 {
@@ -62,12 +62,13 @@ void scr_func_exec::execute()
 		stack = &static_stack;
 		curScriptType = type;
 		curScriptNum = script;
+		curScriptIndex = i;
 		memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
 		//
 		std::string* oldstr = destructstr;
 		destructstr = &name;
 		script_funcrun = true;
-		run_script_int(type,script,i);
+		run_script_int(false);
 		script_funcrun = false;
 		destructstr = oldstr;
 		//

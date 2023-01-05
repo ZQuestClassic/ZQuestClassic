@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-//#include <sdl/sdl.h>
 #include <string>
 #include <map>
 #include <vector>
@@ -49,6 +48,8 @@
 #include "particles.h"
 #include "gamedata.h"
 #include "ffscript.h"
+#include "jit.h"
+#include "script_debug.h"
 #include "combos.h"
 #include "qst.h"
 #include "base/util.h"
@@ -206,15 +207,6 @@ void update_logic_counter()
     ++logic_counter;
 }
 END_OF_FUNCTION(update_logic_counter)
-
-#ifdef _SCRIPT_COUNTER
-volatile int32_t script_counter=0;
-void update_script_counter()
-{
-    ++script_counter;
-}
-END_OF_FUNCTION(update_script_counter)
-#endif
 
 bool doThrottle()
 {
@@ -1786,10 +1778,9 @@ void init_dmap()
     return;
 }
 
-
-
 int32_t init_game()
 {
+	jit_reset_all();
 	current_subscreen_active = nullptr;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
@@ -1952,18 +1943,23 @@ int32_t init_game()
 	//Load the quest
 	//setPackfilePassword(datapwd);
 	int32_t ret = load_quest(game);
-	if (!firstplay) load_genscript(*game);
-	genscript_timing = SCR_TIMING_START_FRAME;
-	timeExitAllGenscript(GENSCR_ST_RELOAD);
-	if(firstplay) load_genscript(zinit);
-	countGenScripts();
-	
 	if(ret != qe_OK)
 	{
 		Quit = qERROR;
 		//setPackfilePassword(NULL);
 		return 1;
 	}
+	
+	if (jit_is_enabled() && zc_get_config("ZSCRIPT", "jit_precompile", false))
+	{
+		jit_precompile_scripts();
+	}
+
+	if (!firstplay) load_genscript(*game);
+	genscript_timing = SCR_TIMING_START_FRAME;
+	timeExitAllGenscript(GENSCR_ST_RELOAD);
+	if(firstplay) load_genscript(zinit);
+	countGenScripts();
 	
 	ResetSaveScreenSettings();
 	
@@ -2241,20 +2237,6 @@ int32_t init_game()
 	FFCore.initZScriptItemScripts();
 	
 	
-	//Run the init script or the oncontinue script with the highest priority.
-	//GLobal Script Init ~Init
-/*
-	if(firstplay)
-	{
-		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-	}
-	else
-	{
-		//Global script OnContinue
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-	}
-*/
 	global_wait=0;
 	
 	//show quest metadata when loading it
@@ -2485,18 +2467,7 @@ int32_t init_game()
 	
 	
 	
-	//if(firstplay)
-	//{
-	//	memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-	//	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-	//ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT);
-	//}
-	//else
-	//if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
-	//{
-	//	ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-	//	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
-	//}
+	
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	FFCore.runOnLaunchEngine();
 	FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
@@ -4710,7 +4681,7 @@ int main(int argc, char **argv)
 		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 	}
 	
-#ifdef _WIN32
+#if defined(_WIN32) || defined(ALLEGRO_MACOSX)
 	
 	if ( zscript_debugger )
 	{
@@ -4836,11 +4807,6 @@ int main(int argc, char **argv)
 		quit_game();
 	}
 	
-#ifdef _SCRIPT_COUNTER
-	LOCK_VARIABLE(script_counter);
-	LOCK_FUNCTION(update_script_counter);
-	install_int_ex(update_script_counter, 1);
-#endif
 	LOCK_VARIABLE(myvsync);
 	LOCK_FUNCTION(myvsync_callback);
 	
@@ -5159,6 +5125,7 @@ int main(int argc, char **argv)
 		guy_string[i] = new char[64];
 	}
 	
+	next_script_data_debug_id = 0;
 	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
 	{
 		ffscripts[i] = new script_data();
@@ -5610,7 +5577,11 @@ int main(int argc, char **argv)
 	game = new gamedata;
 	game->Clear();
 	
+	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
+	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false);
+	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_exit_on_failure", false);
 	hangcount = zc_get_config("ZSCRIPT","ZASM_Hangcount",1000);
+	jit_set_enabled(zc_get_config("ZSCRIPT", "jit", false) || used_switch(argc, argv, "-jit") > 0);
 	
 #ifdef _WIN32
 	
@@ -5967,10 +5938,6 @@ void remove_installed_timers()
     al_trace("Removing timers. \n");
     remove_int(update_logic_counter);
     Z_remove_timers();
-#ifdef _SCRIPT_COUNTER
-    remove_int(update_script_counter);
-#endif
-    
 }
 
 

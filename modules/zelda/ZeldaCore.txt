@@ -6,6 +6,8 @@ set(ZELDA_CORE_SOURCES
 ################################
 src/zscriptversion.cpp
 src/zc/ffscript.cpp
+src/zc/script_debug.cpp
+src/zc/jit.cpp
 src/gamedata.cpp
 src/zc/zelda.cpp
 src/defdata.cpp

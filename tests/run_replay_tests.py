@@ -158,6 +158,8 @@ parser.add_argument('--throttle_fps', action='store_true',
     help='Supply this to cap the replay\'s FPS')
 parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
+parser.add_argument('--jit', action='store_true',
+    help='Enables JIT compilation')
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -484,6 +486,9 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
         print(f"(-frame {frames_limited}, only doing {100 * frames_limited / frames:.2f}%) ", end='', flush=True)
         exe_args.extend(['-frame', str(frames_limited)])
 
+    if args.jit:
+        exe_args.append('-jit')
+
     allegro_log_path = None
     max_start_attempts = 5
     for i in range(0, max_start_attempts):
@@ -538,7 +543,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
             # .zplay.result.txt should be updated every second.
             while watcher.observer.is_alive():
-                if do_timeout and timer() - watcher.modified_time > 30:
+                if do_timeout and timer() - watcher.modified_time > 60:
                     watcher.observer.stop()
                     watcher.update_result()
                     last_frame = watcher.result['frame']

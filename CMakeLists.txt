@@ -16,6 +16,11 @@ set(RELEASE_TAG "" CACHE STRING "Release tag")
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Uncomment for ASAN on MSVC.
+# Will also need to use `-s` flag to disable sound, as there is a known problem there.
+# string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+# add_compile_options(/fsanitize=address)
+
 # This allows outputs to be run where they are by putting their libaries in
 # the same folder. 
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -593,6 +598,19 @@ endif()
 if(MSVC AND USE_PCH)
 	set_target_properties(zelda PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZCPrecompiledBinary}\"" OBJECT_DEPENDS "${ZCPrecompiledBinary}")
 	target_compile_definitions(zelda PRIVATE ZC_PCH)
+endif()
+
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	FetchContent_Declare(
+		asmjit
+		GIT_REPOSITORY
+			https://github.com/asmjit/asmjit.git
+		GIT_TAG
+			e13642567393a4bfc8c5607b33337b2ed3b0d01e
+	)
+	FetchContent_MakeAvailable(asmjit)
+	target_link_libraries(zelda PRIVATE asmjit)
+	target_compile_definitions(zelda PRIVATE ZC_JIT)
 endif()
 
 #############################################################

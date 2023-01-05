@@ -463,25 +463,6 @@ void HeroClass::ClearhitHeroUIDs()
 void HeroClass::sethitHeroUID(int32_t type, int32_t screen_index)
 {
 	lastHitBy[type][0] = screen_index;
-	//lastHitBy[type][1] = frame;
-	/* Let's figure out how to clear this...
-	if ( global_wait ) lastHitBy[type] = screen_index;
-	else lastHitBy[type] = 0;
-	//No, we clear it in Zelda.cpp, with this:
-	    if(global_wait)
-	    {
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-		global_wait=false;
-	    }
-	    
-	    
-	    draw_screen(tmpscr);
-	    
-	    //clear Hero's last hits 
-	    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
-	    
-	*/
-	
 }
 
 int32_t HeroClass::gethitHeroUID(int32_t type)

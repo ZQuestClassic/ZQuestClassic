@@ -1,6 +1,7 @@
 // import "std.zh"
 // import "string.zh"
-// import "ghost.zh"
+import "ghost.zh"
+
 const int ARMOS_JUMP_HEIGHT = 1.5;
 // npc->Attribute[] indices
 const int ARMOS_ATTR_START_SOUND = 0;
