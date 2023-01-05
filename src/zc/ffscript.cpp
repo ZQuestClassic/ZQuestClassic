@@ -33528,7 +33528,7 @@ void FFScript::do_file_writebytes()
 		std::vector<uint8_t> data(count);
 		for(uint32_t q = 0; q < count; ++q)
 		{
-			data[q] = am.get(q+pos);
+			data[q] = am.get(q+pos) / 10000;
 		}
 		ri->d[rEXP1] = 10000L * fwrite((const void*)&(data[0]), 1, count, f->file);
 		check_file_error(ri->fileref);
