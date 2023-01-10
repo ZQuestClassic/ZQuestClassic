@@ -456,6 +456,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Save Window Position",App::zelda,"zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zelda,"zeldadx","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling"),
+						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zelda,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability",App::zelda,"gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
@@ -542,13 +543,13 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Reload Last Quest",App::zquest,"zquest","open_last_quest",1,"On launching, immediately attempt to open the last file edited."),
 						CONFIG_CHECKBOX("Save Paths",App::zquest,"zquest","save_paths",1),
 						CONFIG_CHECKBOX_I("Show Misalignments",App::zquest,"zquest","show_misalignments",0,"Shows blinking arrows on the sides of the screen where the solidity does not match across the screen border."),
-						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest",App::zquest,"zquest","rulesetdialog",0,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
 						CONFIG_CHECKBOX("Tile Protection",App::zquest,"zquest","tile_protection",1)
 					),
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Uncompressed Autosaves",App::zquest,"zquest","uncompressed_auto_saves",1),
 						CONFIG_CHECKBOX_I("Static effect for invalid data",App::zquest,"zquest","invalid_static",0,"Uses an animated static effect for 'invalid' things (filtered out combos, nonexistant screens on the minimap, etc)"),
 						CONFIG_CHECKBOX_I("Warn on Init Script Change",App::zquest,"zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
+						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest",App::zquest,"zquest","rulesetdialog",0,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zquest,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability",App::zquest,"gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts",App::zquest,"zquest","dis_lpal_shortcut",1,"If enabled, keyboard shortcuts that change the screen's palette are disabled."),
@@ -557,6 +558,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Save Window Position",App::zquest,"zquest","save_window_position",0,"Remembers the last position of the ZQuest Window."),
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zquest,"zquest","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zquest,"zquest","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling"),
+						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zquest,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
 						CONFIG_CHECKBOX_I("Record During Test Feature",App::zquest,"zquest","test_mode_record",0,"Save a recording to replays/test_XXXXXXXX.zplay when using the GUI test feature.")
 					),
 					Rows<3>(fitParent = true,
@@ -600,7 +602,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					Label(text = "ZCL options may require relaunching ZCL to take effect!"),
 					Row(framed = true,
 						Rows<2>(fitParent = true,
-							CONFIG_CHECKBOX_I_ZCL("Text Readability","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)")
+							CONFIG_CHECKBOX_I_ZCL("Text Readability","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
+							CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::launcher,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)")
 						),
 						Rows<3>(fitParent = true,
 							Button(hAlign = 1.0, forceFitH = true,
