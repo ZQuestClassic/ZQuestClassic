@@ -22,7 +22,7 @@ if not args.edit:
     lib.parse_fail(f"Input file '{args.inputfile}' does not exist!")
     #Exception raised
 ## END CLI
-import traceback, json, re, sys
+import traceback, json, re, sys, copy
 import time, webbrowser, pyperclip
 from tkinter import *
 from tkinter import filedialog
@@ -1665,6 +1665,14 @@ def get_block(hld=None):
     return ('<block>',hld if hld else 'TEXT','</block>')
 def get_iblock(hld=None):
     return ('<iblock>',hld if hld else 'TEXT','</iblock>')
+def get_monospace(hld=None):
+    return ('<mono>',hld if hld else 'TEXT','</mono>')
+def get_lt(hld=None):
+    return ('&lt;','','')
+def get_gt(hld=None):
+    return ('&gt;','','')
+def get_amp(hld=None):
+    return ('&amp;','','')
 def get_todo(hld=None):
     return ('<todo>',hld if hld else 'TEXT','</todo>')
 def get_header(hld=None):
@@ -1921,7 +1929,8 @@ class EditEntryPage(Page):
         self.txt_body.bind_all('<<Modified>>', lambda *_:self.update_val()) 
         pack_scrollable_text(self.txt_body)
         fr.grid(row=1,column=4,sticky=NW,rowspan=2)
-        fr = Frame(col1, bg=BGC)
+        insrow = Frame(col1, bg=BGC)
+        fr = Frame(insrow, bg=BGC)
         btns = []
         wid=12
         b=Button(fr, width=wid, text='Spoiler', command=lambda:txt_insert(self.txt_body,get_spoil))
@@ -1951,8 +1960,32 @@ class EditEntryPage(Page):
         for btn in btns:
             style_btn(btn)
             btn.pack()
+        fr.pack(side='left',anchor=N)
         self.insert_btns = btns
-        fr.grid(row=1,column=5,sticky=NW,rowspan=2)
+        btns = []
+        fr = Frame(insrow, bg=BGC)
+        b=Button(fr, width=wid, text='Monospaced', command=lambda:txt_insert(self.txt_body,get_monospace))
+        btns.append(b)
+        for btn in btns:
+            style_btn(btn)
+            btn.pack()
+        self.insert_btns = self.insert_btns + btns
+        btns = []
+        br = Frame(fr, bg=BGC)
+        wid = 3
+        b=Button(br, width=wid, text='<', command=lambda:txt_insert(self.txt_body,get_lt))
+        btns.append(b)
+        b=Button(br, width=wid, text='>', command=lambda:txt_insert(self.txt_body,get_gt))
+        btns.append(b)
+        b=Button(br, width=wid, text='&', command=lambda:txt_insert(self.txt_body,get_amp))
+        btns.append(b)
+        for btn in btns:
+            style_btn(btn)
+            btn.pack(side='left')
+        br.pack()
+        self.insert_btns = self.insert_btns + btns
+        fr.pack(side='left',anchor=N)
+        insrow.grid(row=1,column=5,sticky=NW,rowspan=2)
         
         col1.pack(side = 'left')
         toprow.pack()
@@ -2253,7 +2286,8 @@ def preview_entry():
     
     if cursheet == -1: #named data
         json_obj['named']['tabs'][cursec]['lines'][curentry] = new_e
-        json_obj['sheets'].append(json_obj['named'])
+        json_obj['sheets'].append(copy.deepcopy(json_obj['named']))
+        json_obj['named']['tabs'][cursec]['lines'][curentry] = get_entry()
         preview_html()
         json_obj['named']['tabs'][cursec]['lines'][curentry] = old_e
         json_obj['sheets'] = json_obj['sheets'][:-1]
@@ -2406,7 +2440,7 @@ root = Tk()
 style = ttk.Style(root)
 root.config(bg=BGC)
 update_file(args.inputfile) #Update title to include loaded file
-root.geometry('1000x400')
+root.geometry('1100x400')
 _darktheme = BooleanVar(root)
 _darktheme.set(config['theme']==1)
 def settheme(val):

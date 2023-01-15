@@ -1511,8 +1511,13 @@
 #define IDATAGRADUAL            1424
 #define IDATASPRSCRIPT          1425
 #define IDATAPSOUND             1426
+#define IDATACONSTSCRIPT        1427
+#define IDATASSWIMDISABLED      1428
+#define IDATABUNNYABLE          1429
+#define IDATAJINXIMMUNE         1430
+#define IDATAJINXSWAP           1431
 
-#define LAST_BYTECODE           1427
+#define LAST_BYTECODE           1432
 
 //} END OF BYTECODE
 

@@ -407,7 +407,7 @@
                         },
                         {
                             "name": "Active Script ;; dmapdata::Script / dmapdata::InitD",
-                            "val": "<h3>int Script;</h3>\nThe dmapdata script to run on this dmap.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD values for the active dmap script."
+                            "val": "<h3>int Script;</h3>\nThe dmapdata script to run on this dmap.\n\n<h3>untyped InitD[8];</h3>\nThe 8 InitD values for the active dmap script."
                         },
                         {
                             "name": "--&gt; Next ;; dmapdata2",
@@ -424,14 +424,14 @@
                         },
                         {
                             "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD",
-                            "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>int SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
+                            "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>untyped SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
                         },
                         {
                             "name": "Map Script ;; dmapdata::MapScript / dmapdata::MapInitD",
-                            "val": "<h3>int MapScript;</h3>\nWhich dmapdata script to use as a replacement for the engine fullscreen map (0 for none).\n\n<h3>int MapInitD[8];</h3>\nThe 8 InitD values used by the Map Script."
+                            "val": "<h3>int MapScript;</h3>\nWhich dmapdata script to use as a replacement for the engine fullscreen map (0 for none).\n\n<h3>untyped MapInitD[8];</h3>\nThe 8 InitD values used by the Map Script."
                         },
                         {
-                            "name": "Subscreen Maps ;; dmapdata::Grid / dmapdata::MapTile / dmapdata::MapCSet / dmapdata::MiniMapTile / dmapdata::MiniMapCSet",
+                            "name": "Subscreen Maps ;; dmapdata::Grid / dmapdata::Charted / dmapdata::MapTile / dmapdata::MapCSet / dmapdata::MiniMapTile / dmapdata::MiniMapCSet",
                             "val": "<h3>int Grid[8];</h3>\nBitwise values representing the state of the map grid. Make use of the functions in `std_zh/dmapgrid.zh` to access these values.\n\n<h3>int Charted[128];</h3>\nStores the large map exploration data for each screen on the dmap. <todo>Test if works on overworld dmaps.</todo>\nData is stored in a bitwise format. Access each index using the [[`CHRT_`|$CHRT_]] constants\n\n<h3>int MapTile[2];</h3>\nThe tile used for the engine subscreen Large Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. <todo>What's the default here?</todo>\n\n<h3>int MapCSet[2];</h3>\nThe csets used for the engine subscreen Large Map, to go along with the MapTile[].\n\n<h3>int MiniMapTile[2];</h3>\nThe tile used for the engine subscreen Small Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. The default is set in 'Graphics->Map Styles' in ZQuest.\n\n<h3>int MiniMapCSet[2];</h3>\nThe csets used for the engine subscreen Small Map, to go along with the MiniMapTile[].\n"
                         },
                         {
@@ -521,8 +521,8 @@
                             "val": "<h3>ItemData Pointers</h3>   `itemdata`\n\nThese pointers represent an inventory item and all its' associated attributes.\n\nSee: ${LoadItemData}"
                         },
                         {
-                            "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power",
-                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>int Family;\nint Type;</h3>\nThe type (`itemclass`) of the item. Uses the `IC_` constants.\n<todo>Add `IC_` constant infopage</todo>\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons."
+                            "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power / itemdata::Attributes",
+                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons.\n\n<h3>int Family;\nint Type;</h3>\nThe type (`itemclass`) of the item. Uses the `IC_` constants.\n<todo>Add `IC_` constant infopage</todo>\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>untyped Attributes[10];</h3>\nThe 10 item attributes."
                         },
                         {
                             "name": "Pickup Info ;; itemdata::Amount / itemdata::Gradual / itemdata::Counter / itemdata::MaxIncrement / itemdata::Max / itemdata::PickupSound / itemdata::MinHearts / itemdata::KeepOld / itemdata::GainLower / itemdata::Combine / itemdata::PString / itemdata::PickupString / itemdata::PickupStringFlags",
@@ -533,16 +533,12 @@
                             "val": "<h3>int UseSound;</h3>\nThe item's usage sound. If/how this is used depends on itemclass.\n\n<h3>int UseSound2;</h3>\nThe item's second usage sound. If/how this is used depends on itemclass.\n\n<h3>bool Downgrade;</h3>\nThe 'Remove Item When Used' flag.\n\n<h3>int Cost;\nint Cost2;</h3>\nThe 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>int CostCounter;\nint CostCounter2;</h3>\nThe counter for the 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>int CostTimer;\nint CostTimer2;</h3>\nThe timer for the 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>bool Validate;\nbool Validate2;</h3>\nThe 'Only Validate Cost'/'Only Validate Cost 2' checkboxes"
                         },
                         {
-                            "name": "Graphics Info ;; itemdata::TileMod",
-                            "val": "<h3>int TileMod;</h3>\nThe Player Tile Modifier associated with this item."
-                        },
-                        {
                             "name": "Script Info ;; itemdata::Script / itemdata::PScript / itemdata::SpriteScript / itemdata::InitD / itemdata::RunScript",
-                            "val": "<h3>int Script;</h3>\nThe item's Action Script\n\n<h3>int PScript;</h3>\nThe item's Pickup Script\n\n<h3>int SpriteScript;</h3>\nThe item's ItemSprite Script\n\n<h3>int InitD[8];</h3>\nThe 8 InitD values shared by the item's Action, Pickup, and Sprite scripts.\n\n<h3>void RunScript(int mode = ISCR_RUN);</h3>\nRuns or ends the item script, depending on the mode:#{ISCR_ constants|$[ISCR_]}"
+                            "val": "<h3>int Script;</h3>\nThe item's Action Script\n\n<h3>int PScript;</h3>\nThe item's Pickup Script\n\n<h3>int SpriteScript;</h3>\nThe item's ItemSprite Script\n\n<h3>untyped InitD[8];</h3>\nThe 8 InitD values shared by the item's Action, Pickup, and Sprite scripts.\n\n<h3>void RunScript(int mode = ISCR_RUN);</h3>\nRuns or ends the item script, depending on the mode:#{ISCR_ constants|$[ISCR_]}"
                         },
                         {
                             "name": "Weapon Script Info ;; itemdata::WeaponScript / itemdata::WeaponInitD",
-                            "val": "<h3>int WeaponScript;</h3>\nThe item's lweapon script\n\n<h3>int WeaponInitD[8];</h3>\nThe 8 InitD values for the weapon script."
+                            "val": "<h3>int WeaponScript;</h3>\nThe item's lweapon script\n\n<h3>untyped WeaponInitD[8];</h3>\nThe 8 InitD values for the weapon script."
                         },
                         {
                             "name": "--&gt; Next ;; dmapdata2",
@@ -556,6 +552,22 @@
                         {
                             "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
                             "val": "$0$6"
+                        },
+                        {
+                            "name": "Flags Info ;; itemdata::Flags / itemdata::Edible / itemdata::ConstantScript / itemdata::SideSwimDisabled / itemdata::BunnyUsable / itemdata::JinxImmune / itemdata::JinxSwapped",
+                            "val": "<h3>bool Flags[16];</h3>\nThe 16 item flags. `Flags[0]` through `Flags[14]` change depending on the item type; `Flags[15]` is the `Constant Script` flag.\n\n<h3>bool Edible;</h3>\nThe `Can Be Eaten By Enemies` flag.\n\n<h3>bool ConstantScript;</h3>\nThe `Constant Script` flag.\n\n<h3>bool SideSwimDisabled;</h3>\nThe `Disabled In Sideview Water` flag.\n\n<h3>bool BunnyUsable;</h3>\nThe `Usable as a Bunny` flag.\n\n<h3>bool JinxImmune;</h3>\nThe `Immune to jinxes` flag.\n\n<h3>bool JinxSwapped;</h3>\nThe `Uses Other Jinx` flag."
+                        },
+                        {
+                            "name": "Pickup Flags ;; itemdata::Pickup / itemdata::PickupType",
+                            "val": "<h3>int Pickup;</h3>\nThe item pickup flags, as a bitwise flagset. Use the `IP_` constants to access. Take care when using any `INTERNAL` flags.\n#{IP_ constants|$[IP_]}\n\n<h3>int PickupType;</h3>\nHow the pickup flags are applied to items upon item creation.\n#{IPTYPE_ constants|$[IPTYPE_]}"
+                        },
+                        {
+                            "name": "Graphics Info ;; itemdata::Tile / itemdata::CSet / itemdata::MiscFlags / itemdata::AFrames / itemdata::ASpeed / itemdata::Delay / itemdata::TileMod / itemdata::Sprites",
+                            "val": "<h3>int Tile;</h3>\nThe starting tile of the item's animation\n\n<h3>int CSet;</h3>\nThe CSet the item sprite uses\n\n<h3>int MiscFlags</h3>\nMisc flags for the item graphics, bitwise flagset. Use the `IMISC_` constants to access.\n#{IMISC_ constants|$[IMISC_]}\n<todo>Item editor can't flip the tile?</todo>\n\n<h3>int AFrames;</h3>\nThe number of frames in the animation\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the animation.\n\n<h3>int TileMod;</h3>\nThe Player Tile Modifier associated with this item.\n\n<h3>int Sprites[10];</h3>\nThe 10 sprites used by the item. How they are used depends on the item type."
+                        },
+                        {
+                            "name": "New Entry",
+                            "val": ""
                         },
                         {
                             "name": "&lt;-- Prev ;; dmapdataptr",
@@ -2371,7 +2383,7 @@
                     },
                     {
                         "name": "CHRT_",
-                        "val": "```CHRT_VISITED = 10000000b\nCHRT_UP      = 00000001b\nCHRT_DOWN    = 00000010b\nCHRT_LEFT    = 00000100b\nCHRT_RIGHT   = 00001000b```"
+                        "val": "<mono>CHRT_VISITED = 10000000b\nCHRT_UP      = 00000001b\nCHRT_DOWN    = 00000010b\nCHRT_LEFT    = 00000100b\nCHRT_RIGHT   = 00001000b</mono>"
                     },
                     {
                         "name": "DMAP_",
@@ -2417,6 +2429,18 @@
                     {
                         "name": "ISCR_",
                         "val": "Modes for `itemdata-&gt;RunScript()`\n<ol start='0'><li>[[ISCR_KILL|Ends the item script if it was running]]</li>\n<li>[[ISCR_RUN|Runs the item script normally]]</li>\n<li>[[ISCR_PERPETUAL|Runs the item script allowing it to run for multiple frames even if the QR 'Item Scripts Continue To Run' is off.\nYou probably don't ever need this? Most quests should just have that QR on...]]</li></ol>"
+                    },
+                    {
+                        "name": "IP_",
+                        "val": "Flags for `itemdata-&gt;Pickup` and `itemsprite-&gt;Pickup`\n<mono>[[IP_BIGRANGE       = 0x0001|INTERNAL Collision rectangle is large]]\n[[IP_HOLDUP         = 0x0002|Link holds it up when collecting it.]]\n[[IP_ST_ITEM        = 0x0004|Sets the screen state \"Item\" when collected.]]\n[[IP_DUMMY          = 0x0008|A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.]]\n[[IP_CHECK          = 0x0010|INTERNAL Check restrictions (money in a shop, etc.)]]\n[[IP_MONEY          = 0x0020|INTERNAL This item causes money loss (bomb upgrade, swindle room, etc.)]]\n[[IP_FADE           = 0x0040|INTERNAL Blinks if fadeclk>0]]\n[[IP_ENEMYCARRIED   = 0x0080|The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.]]\n[[IP_TIMEOUT        = 0x0100|Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.]]\n[[IP_BIGTRIFORCE    = 0x0200|INTERNAL Large collision rectangle (used for large triforce)]]\n[[IP_NODRAW         = 0x0400|INTERNAL Don't draw this (for underwater items)]]\n[[IP_ST_SPECIALITEM = 0x0800|Sets the screen state \"Special Item\" when collected.]]\n[[IP_TRIGGERSECRETS = 0x1000| Triggers screen secrets when collected]]\n[[IP_ALWAYSGRAB     = 0x2000| Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons)]]</mono>"
+                    },
+                    {
+                        "name": "IPTYPE_",
+                        "val": "Flags for `itemdata-&gt;PickupType`\n<ol start=\"0\"><li>[[IPTYPE_DISABLED|Item pickup flags are not applied]]</li>\n<li>[[IPTYPE_SET|Overrides all pickup flags to these exact settings. WARNING: Do not select this unless you know what you are doing.]]</li>\n<li>[[IPTYPE_ADD|Add the selected pickup flags.]]</li>\n<li>[[IPTYPE_SUB|Remove the selected pickup flags.]]</li>\n<li>[[IPTYPE_LIMIT|Remove any non-selected pickup flags. WARNING: Do not select this unless you know what you are doing.]]</li></ol>"
+                    },
+                    {
+                        "name": "IMISC_",
+                        "val": "Flags for `itemdata-&gt;MiscFlags`\n<mono>[[IMISC_FLASH   = 0x01|The item flashes]]\n[[IMISC_TWOHAND = 0x02|When held up, the item is held with 2 hands]]\n[[IMISC_HFLIP   = 0x04|Flips the tile horizontally]]\n[[IMISC_VFLIP   = 0x08|Flips the tile vertically]]\n</mono>"
                     }
                 ]
             }

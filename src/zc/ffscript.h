@@ -4802,8 +4802,13 @@ enum ASM_DEFINE
 #define IDATAGRADUAL            0x14C6
 #define IDATASPRSCRIPT          0x14C7
 #define IDATAPSOUND             0x14C8
+#define IDATACONSTSCRIPT        0x14C9
+#define IDATASSWIMDISABLED      0x14CA
+#define IDATABUNNYABLE          0x14CB
+#define IDATAJINXIMMUNE         0x14CC
+#define IDATAJINXSWAP           0x14CD
 
-#define NUMVARIABLES            0x14C9
+#define NUMVARIABLES            0x14CE
 
 //} End variables
 

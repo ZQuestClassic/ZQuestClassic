@@ -64,8 +64,8 @@ static AccessorTable itemclassTable[] =
 	{ "setMinHearts",               0,          ZTID_VOID,   IDATAMINHEARTS,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getTile",                    0,         ZTID_FLOAT,   IDATATILE,                 0,  { ZTID_ITEMCLASS },{} },
 	{ "setTile",                    0,          ZTID_VOID,   IDATATILE,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "getFlash",                   0,         ZTID_FLOAT,   IDATAMISC,                 0,  { ZTID_ITEMCLASS },{} },
-	{ "setFlash",                   0,          ZTID_VOID,   IDATAMISC,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getMiscFlags",               0,         ZTID_FLOAT,   IDATAMISC,                 0,  { ZTID_ITEMCLASS },{} },
+	{ "setMiscFlags",               0,          ZTID_VOID,   IDATAMISC,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCSet",                    0,         ZTID_FLOAT,   IDATACSET,                 0,  { ZTID_ITEMCLASS },{} },
 	{ "setCSet",                    0,          ZTID_VOID,   IDATACSET,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getAFrames",                 0,         ZTID_FLOAT,   IDATAFRAMES,               0,  { ZTID_ITEMCLASS },{} },
@@ -82,16 +82,12 @@ static AccessorTable itemclassTable[] =
 	{ "setKeepOld",                 0,          ZTID_VOID,   IDATAKEEPOLD,              0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getGradual",                 0,          ZTID_BOOL,   IDATAGRADUAL,              0,  { ZTID_ITEMCLASS },{} },
 	{ "setGradual",                 0,          ZTID_VOID,   IDATAGRADUAL,              0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
-	{ "getRupeeCost",               0,          ZTID_BOOL,   IDATARUPEECOST,            0,  { ZTID_ITEMCLASS },{} },
-	{ "setRupeeCost",               0,          ZTID_VOID,   IDATARUPEECOST,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getEdible",                  0,          ZTID_BOOL,   IDATAEDIBLE,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setEdible",                  0,          ZTID_VOID,   IDATAEDIBLE,               0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getGainLower",               0,          ZTID_BOOL,   IDATAGAINLOWER,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setGainLower",               0,          ZTID_VOID,   IDATAGAINLOWER,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getAttributes[]",            0,       ZTID_UNTYPED,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setAttributes[]",            0,          ZTID_VOID,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
-	{ "getMisc[]",                  0,       ZTID_UNTYPED,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "setMisc[]",                  0,          ZTID_VOID,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   IDATAFLAGS,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   IDATAFLAGS,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_BOOL },{} },
 	
@@ -102,27 +98,9 @@ static AccessorTable itemclassTable[] =
 	{ "setWeapon",                  0,          ZTID_VOID,   IDATAUSEWPN,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getDefense",                 0,         ZTID_FLOAT,   IDATAUSEDEF,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setDefense",                 0,          ZTID_VOID,   IDATAUSEDEF,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "getDefence",                 0,         ZTID_FLOAT,   IDATAUSEDEF,               0,  { ZTID_ITEMCLASS },{} },
-	{ "setDefence",                 0,          ZTID_VOID,   IDATAUSEDEF,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "getRange",                   0,         ZTID_FLOAT,   IDATAWRANGE,               0,  { ZTID_ITEMCLASS },{} },
-	{ "setRange",                   0,          ZTID_VOID,   IDATAWRANGE,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	
-	{ "getDuration",                0,         ZTID_FLOAT,   IDATADURATION,             0,  { ZTID_ITEMCLASS },{} },
-	{ "setDuration",                0,          ZTID_VOID,   IDATADURATION,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
 	{ "getWeaponInitD[]",           0,       ZTID_UNTYPED,   IDATAWPNINITD,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setWeaponInitD[]",           0,          ZTID_VOID,   IDATAWPNINITD,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
-	{ "getWeaponMisc[]",            0,       ZTID_UNTYPED,   IDATAMISCD,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "setWeaponMisc[]",            0,          ZTID_VOID,   IDATAMISCD,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
-	
-	{ "getDuplicates",              0,         ZTID_FLOAT,   IDATADUPLICATES,           0,  { ZTID_ITEMCLASS },{} },
-	{ "setDuplicates",              0,          ZTID_VOID,   IDATADUPLICATES,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	
-	{ "getDrawLayer",               0,         ZTID_FLOAT,   IDATADRAWLAYER,            0,  { ZTID_ITEMCLASS },{} },
-	{ "setDrawLayer",               0,          ZTID_VOID,   IDATADRAWLAYER,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	
-	{ "getCollectFlags",            0,         ZTID_FLOAT,   IDATACOLLECTFLAGS,         0,  { ZTID_ITEMCLASS },{} },
-	{ "setCollectFlags",            0,          ZTID_VOID,   IDATACOLLECTFLAGS,         0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
 	{ "getWeaponScript",            0,         ZTID_FLOAT,   IDATAWEAPONSCRIPT,         0,  { ZTID_ITEMCLASS },{} },
 	{ "setWeaponScript",            0,          ZTID_VOID,   IDATAWEAPONSCRIPT,         0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
@@ -180,21 +158,32 @@ static AccessorTable itemclassTable[] =
 	{ "getPickup",                  0,         ZTID_FLOAT,   IDATAPICKUP,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setPickup",                  0,          ZTID_VOID,   IDATAPICKUP,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
-	{ "getOverrideFlags",           0,         ZTID_FLOAT,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS },{} },
-	{ "setOverrideFlags",           0,          ZTID_VOID,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getSizeFlags",               0,         ZTID_FLOAT,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setSizeFlags",               0,          ZTID_VOID,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
 	{ "getWeaponTileWidth",         0,         ZTID_FLOAT,   IDATATILEWWEAP,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setWeaponTileWidth",         0,          ZTID_VOID,   IDATATILEWWEAP,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getWeaponTileHeight",        0,         ZTID_FLOAT,   IDATATILEHWEAP,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setWeaponTileHeight",        0,          ZTID_VOID,   IDATATILEHWEAP,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
-	{ "getWeaponOverrideFlags",     0,         ZTID_FLOAT,   IDATAOVERRIDEFLWEAP,       0,  { ZTID_ITEMCLASS },{} },
-	{ "setWeaponOverrideFlags",     0,          ZTID_VOID,   IDATAOVERRIDEFLWEAP,       0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getWeaponSizeFlags",         0,         ZTID_FLOAT,   IDATAOVERRIDEFLWEAP,       0,  { ZTID_ITEMCLASS },{} },
+	{ "setWeaponSizeFlags",         0,          ZTID_VOID,   IDATAOVERRIDEFLWEAP,       0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	
 	{ "getValidate",                0,          ZTID_BOOL,   IDATAVALIDATE,             0,  { ZTID_ITEMCLASS },{} },
 	{ "setValidate",                0,          ZTID_VOID,   IDATAVALIDATE,             0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getValidate2",               0,          ZTID_BOOL,   IDATAVALIDATE2,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setValidate2",               0,          ZTID_VOID,   IDATAVALIDATE2,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	
+	{ "getConstantScript",          0,          ZTID_BOOL,   IDATACONSTSCRIPT,          0,  { ZTID_ITEMCLASS },{} },
+	{ "setConstantScript",          0,          ZTID_VOID,   IDATACONSTSCRIPT,          0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getSideSwimDisabled",        0,          ZTID_BOOL,   IDATASSWIMDISABLED,        0,  { ZTID_ITEMCLASS },{} },
+	{ "setSideSwimDisabled",        0,          ZTID_VOID,   IDATASSWIMDISABLED,        0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getBunnyUsable",             0,          ZTID_BOOL,   IDATABUNNYABLE,            0,  { ZTID_ITEMCLASS },{} },
+	{ "setBunnyUsable",             0,          ZTID_VOID,   IDATABUNNYABLE,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getJinxImmune",              0,          ZTID_BOOL,   IDATAJINXIMMUNE,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setJinxImmune",              0,          ZTID_VOID,   IDATAJINXIMMUNE,           0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getJinxSwapped",             0,          ZTID_BOOL,   IDATAJINXSWAP,             0,  { ZTID_ITEMCLASS },{} },
+	{ "setJinxSwapped",             0,          ZTID_VOID,   IDATAJINXSWAP,             0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	
 	//Intentionally undocumented
 	{ "getKeep",                    0,          ZTID_BOOL,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS },{} },
@@ -205,9 +194,35 @@ static AccessorTable itemclassTable[] =
 	{ "setMagicCost",               0,          ZTID_VOID,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getMagicCostTimer",          0,         ZTID_FLOAT,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS },{} },
 	{ "setMagicCostTimer",          0,          ZTID_VOID,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getMisc[]",                  0,       ZTID_UNTYPED,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "setMisc[]",                  0,          ZTID_VOID,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	{ "getFlash",                   0,         ZTID_FLOAT,   IDATAMISC,                 0,  { ZTID_ITEMCLASS },{} },
+	{ "setFlash",                   0,          ZTID_VOID,   IDATAMISC,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getOverrideFlags",           0,         ZTID_FLOAT,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setOverrideFlags",           0,          ZTID_VOID,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getWeaponOverrideFlags",     0,         ZTID_FLOAT,   IDATAOVERRIDEFLWEAP,       0,  { ZTID_ITEMCLASS },{} },
+	{ "setWeaponOverrideFlags",     0,          ZTID_VOID,   IDATAOVERRIDEFLWEAP,       0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	
+	{ "getDefence",                 0,         ZTID_FLOAT,   IDATAUSEDEF,               0,  { ZTID_ITEMCLASS },{} },
+	{ "setDefence",                 0,          ZTID_VOID,   IDATAUSEDEF,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getRange",                   0,         ZTID_FLOAT,   IDATAWRANGE,               0,  { ZTID_ITEMCLASS },{} },
+	{ "setRange",                   0,          ZTID_VOID,   IDATAWRANGE,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getDuration",                0,         ZTID_FLOAT,   IDATADURATION,             0,  { ZTID_ITEMCLASS },{} },
+	{ "setDuration",                0,          ZTID_VOID,   IDATADURATION,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getDuplicates",              0,         ZTID_FLOAT,   IDATADUPLICATES,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setDuplicates",              0,          ZTID_VOID,   IDATADUPLICATES,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getDrawLayer",               0,         ZTID_FLOAT,   IDATADRAWLAYER,            0,  { ZTID_ITEMCLASS },{} },
+	{ "setDrawLayer",               0,          ZTID_VOID,   IDATADRAWLAYER,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+
+	{ "getRupeeCost",               0,          ZTID_BOOL,   IDATARUPEECOST,            0,  { ZTID_ITEMCLASS },{} },
+	{ "setRupeeCost",               0,          ZTID_VOID,   IDATARUPEECOST,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	//Unused?
 	{ "getUnused",                  0,          ZTID_BOOL,   IDATAFLAGUNUSED,           0,  { ZTID_ITEMCLASS },{} },
 	{ "setUnused",                  0,          ZTID_VOID,   IDATAFLAGUNUSED,           0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getCollectFlags",            0,         ZTID_FLOAT,   IDATACOLLECTFLAGS,         0,  { ZTID_ITEMCLASS },{} },
+	{ "setCollectFlags",            0,          ZTID_VOID,   IDATACOLLECTFLAGS,         0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getWeaponMisc[]",            0,       ZTID_UNTYPED,   IDATAMISCD,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "setWeaponMisc[]",            0,          ZTID_VOID,   IDATAMISCD,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

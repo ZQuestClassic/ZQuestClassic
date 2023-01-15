@@ -2022,17 +2022,16 @@ struct itemdata
   
 //Guydata Enemy Editor Size Panel FLags
 
-#define itemdataOVERRIDE_TILEWIDTH	0x00000001
-#define itemdataOVERRIDE_TILEHEIGHT	0x00000002
-#define itemdataOVERRIDE_HIT_WIDTH	0x00000004
-#define itemdataOVERRIDE_HIT_HEIGHT	0x00000008
-#define itemdataOVERRIDE_HIT_Z_HEIGHT	0x00000010
-#define itemdataOVERRIDE_HIT_X_OFFSET	0x00000020
-#define itemdataOVERRIDE_HIT_Y_OFFSET	0x00000040
-#define itemdataOVERRIDE_DRAW_X_OFFSET	0x00000080
-#define itemdataOVERRIDE_DRAW_Y_OFFSET	0x00000100
-#define itemdataOVERRIDE_DRAW_Z_OFFSET	0x00000200
-#define itemdataOVERRIDE_PICKUP		0x00000400
+#define itemdataOVERRIDE_TILEWIDTH      0x00000001
+#define itemdataOVERRIDE_TILEHEIGHT     0x00000002
+#define itemdataOVERRIDE_HIT_WIDTH      0x00000004
+#define itemdataOVERRIDE_HIT_HEIGHT     0x00000008
+#define itemdataOVERRIDE_HIT_Z_HEIGHT   0x00000010
+#define itemdataOVERRIDE_HIT_X_OFFSET   0x00000020
+#define itemdataOVERRIDE_HIT_Y_OFFSET   0x00000040
+#define itemdataOVERRIDE_DRAW_X_OFFSET  0x00000080
+#define itemdataOVERRIDE_DRAW_Y_OFFSET  0x00000100
+#define itemdataOVERRIDE_DRAW_Z_OFFSET  0x00000200
 
     int32_t overrideFLAGS; //Override flags.
     int32_t weapoverrideFLAGS; 

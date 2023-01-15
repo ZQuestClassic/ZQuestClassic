@@ -3145,6 +3145,24 @@ int32_t whichlayer(int32_t scr)
 
 sprite *s;
 
+int32_t item_flag(int32_t flag)
+{
+	if(unsigned(ri->idata) >= MAXITEMS)
+	{
+		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		return 0;
+	}
+	return (itemsbuf[ri->idata].flags & flag) ? 10000 : 0;
+}
+void item_flag(int32_t flag, bool val)
+{
+	if(unsigned(ri->idata) >= MAXITEMS)
+	{
+		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		return;
+	}
+	SETFLAG(itemsbuf[ri->idata].flags, flag, val);
+}
 
 //Forward decl
 int32_t do_msgheight(int32_t msg, char const* str);
@@ -4976,13 +4994,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case IDATAKEEP:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_GAMEDATA)?10000:0;
+			ret = item_flag(ITEM_GAMEDATA);
 			break;
 			
 		case IDATAAMOUNT:
@@ -5008,6 +5020,21 @@ int32_t get_register(const int32_t arg)
 			ret = (itemsbuf[ri->idata].amount&0x8000) ? 10000 : 0;
 			break;
 		}
+		case IDATACONSTSCRIPT:
+			ret = item_flag(ITEM_PASSIVESCRIPT);
+			break;
+		case IDATASSWIMDISABLED:
+			ret = item_flag(ITEM_SIDESWIM_DISABLED);
+			break;
+		case IDATABUNNYABLE:
+			ret = item_flag(ITEM_BUNNY_ENABLED);
+			break;
+		case IDATAJINXIMMUNE:
+			ret = item_flag(ITEM_JINX_IMMUNE);
+			break;
+		case IDATAJINXSWAP:
+			ret = item_flag(ITEM_FLIP_JINX);
+			break;
 			
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5077,8 +5104,7 @@ int32_t get_register(const int32_t arg)
 			}
 			ret=(itemsbuf[ri->idata].power)*10000;
 			break;
-			
-		//2.54
+		
 		//Get the ID of an item.
 		case IDATAID:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5339,42 +5365,18 @@ int32_t get_register(const int32_t arg)
 			break;
 		// teo of this item upgrades
 		case IDATACOMBINE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
+			ret = item_flag(ITEM_COMBINE);
 			break;
 		//Use item, and get the lower level one
 		case IDATADOWNGRADE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
+			ret = item_flag(ITEM_DOWNGRADE);
 			break;
 		//Only validate the cost, don't charge it
 		case IDATAVALIDATE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY)?10000:0;
+			ret = item_flag(ITEM_VALIDATEONLY);
 			break;
 		case IDATAVALIDATE2:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY2)?10000:0;
+			ret = item_flag(ITEM_VALIDATEONLY2);
 			break;
 		//->Flags[5]
 		case IDATAFLAGS:
@@ -5385,7 +5387,7 @@ int32_t get_register(const int32_t arg)
 				ret = 0;
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,15);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -5422,62 +5424,33 @@ int32_t get_register(const int32_t arg)
 					ret=(itemsbuf[ri->idata].flags & ITEM_PASSIVESCRIPT)?10000:0; break;
 				
 				
-				default: 
-					ret = 0; break;
+				default:
+					Z_scripterrlog("Invalid itemdata->Flags[] index: %d\n", index);
+					ret = 0;
+					break;
 			}
-				
 			break;
 		}
 			
 		//->Keep Old
 		case IDATAKEEPOLD:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+			ret = item_flag(ITEM_KEEPOLD);
 			break;
 		//Use rupees instead of magic
 		case IDATARUPEECOST:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+			ret = item_flag(ITEM_RUPEE_MAGIC);
 			break;
 		//Can be eaten
 		case IDATAEDIBLE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+			ret = item_flag(ITEM_EDIBLE);
 			break;
-		//Not int32_t he editor, could become flags[6], but I'm reserving this one for other item uses. 
+		//currently unused
 		case IDATAFLAGUNUSED:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+			ret = item_flag(ITEM_UNUSED);
 			break;
 		//Gain lower level items when collected
 		case IDATAGAINLOWER:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+			ret = item_flag(ITEM_GAINOLD);
 			break;
 		//Unchanged from master
 		case IDATAINITDD:
@@ -14921,12 +14894,7 @@ void set_register(const int32_t arg, const int32_t value)
 			flushItemCache();
 			break;
 		case IDATAKEEP:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
+			item_flag(ITEM_GAMEDATA, value);
 			break;
 		case IDATAAMOUNT:
 		{
@@ -14950,7 +14918,21 @@ void set_register(const int32_t arg, const int32_t value)
 			SETFLAG(itemsbuf[ri->idata].amount, 0x8000, value!=0);
 			break;
 		}
-			
+		case IDATACONSTSCRIPT:
+			item_flag(ITEM_PASSIVESCRIPT, value);
+			break;
+		case IDATASSWIMDISABLED:
+			item_flag(ITEM_SIDESWIM_DISABLED, value);
+			break;
+		case IDATABUNNYABLE:
+			item_flag(ITEM_BUNNY_ENABLED, value);
+			break;
+		case IDATAJINXIMMUNE:
+			item_flag(ITEM_JINX_IMMUNE, value);
+			break;
+		case IDATAJINXSWAP:
+			item_flag(ITEM_FLIP_JINX, value);
+			break;
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -15018,40 +15000,20 @@ void set_register(const int32_t arg, const int32_t value)
 		//My additions begin here. -Z
 		//Stack item to gain next level
 		case IDATACOMBINE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_COMBINE: (itemsbuf[ri->idata].flags)&= ~ITEM_COMBINE;
+			item_flag(ITEM_COMBINE, value);
 			break;
 		//using a level of an item downgrades to a lower one
 		case IDATADOWNGRADE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_DOWNGRADE: (itemsbuf[ri->idata].flags)&= ~ITEM_DOWNGRADE;
+			item_flag(ITEM_DOWNGRADE, value);
 			break;
 		  //Only validate the cost, don't charge it
 		case IDATAVALIDATE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_VALIDATEONLY: (itemsbuf[ri->idata].flags)&= ~ITEM_VALIDATEONLY;
+			item_flag(ITEM_VALIDATEONLY, value);
 			break;
 		case IDATAVALIDATE2:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			SETFLAG(itemsbuf[ri->idata].flags, ITEM_VALIDATEONLY2, value);
+			item_flag(ITEM_VALIDATEONLY2, value);
 			break;
-
+		
 		//Flags[5]
 		case IDATAFLAGS:
 		{
@@ -15060,60 +15022,56 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,15);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG1 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG1; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG1, value);
 					break;
 				case 1:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG2 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG2; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG2, value);
 					break;
 				case 2:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG3 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG3; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG3, value);
 					break;
 				case 3:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG4 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG4; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG4, value);
 					break;
 				case 4:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG5 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG5; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG5, value);
 					break;
 				case 5:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG6 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG6;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG6, value);
 					break;
 				case 6:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG7 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG7;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG7, value);
 					break;
 				case 7:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG8 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG8; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG8, value);
 					break;
 				case 8:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG9 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG9; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG9, value);
 					break;
 				case 9:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG10 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG10;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG10, value);
 					break;
 				case 10:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG11 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG11; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG11, value);
 					break;
 				case 11:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG12 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG12;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG12, value);
 					break;
 				case 12:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG13 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG13; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG13, value);
 					break;
 				case 13:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG14 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG14; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG14, value);
 					break;
 				case 14:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG15 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG15;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG15, value);
 					break;
 				case 15:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_PASSIVESCRIPT : (itemsbuf[ri->idata].flags)&= ~ITEM_PASSIVESCRIPT; 
-					break;
-				
-				
-				default: 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_PASSIVESCRIPT, value);
 					break;
 			}
 				
@@ -15121,48 +15079,23 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		//Keep Old in editor
 		case IDATAKEEPOLD:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_KEEPOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_KEEPOLD;
+			item_flag(ITEM_KEEPOLD, value);
 			break;
 		//Ruppes for magic
 		case IDATARUPEECOST:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_RUPEE_MAGIC : (itemsbuf[ri->idata].flags)&= ~ITEM_RUPEE_MAGIC;
+			item_flag(ITEM_RUPEE_MAGIC, value);
 			break;
 		//can be eaten
 		case IDATAEDIBLE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_EDIBLE : (itemsbuf[ri->idata].flags)&= ~ITEM_EDIBLE;
+			item_flag(ITEM_EDIBLE, value);
 			break;
-		//Reserving this for item editor stuff. 
+		//Unused at this time
 		case IDATAFLAGUNUSED:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_UNUSED : (itemsbuf[ri->idata].flags)&= ~ITEM_UNUSED;
+			item_flag(ITEM_UNUSED, value);
 			break;
 		//gain lower level items
 		case IDATAGAINLOWER:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_GAINOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_GAINOLD;
+			item_flag(ITEM_GAINOLD, value);
 			break;
 		//Set the action script
 		case IDATASCRIPT:
@@ -40490,6 +40423,11 @@ script_variable ZASMVars[]=
 	{ "IDATAGRADUAL", IDATAGRADUAL, 0, 0 },
 	{ "IDATASPRSCRIPT", IDATASPRSCRIPT, 0, 0 },
 	{ "IDATAPSOUND", IDATAPSOUND, 0, 0 },
+	{ "IDATACONSTSCRIPT", IDATACONSTSCRIPT, 0, 0 },
+	{ "IDATASSWIMDISABLED", IDATASSWIMDISABLED, 0, 0 },
+	{ "IDATABUNNYABLE", IDATABUNNYABLE, 0, 0 },
+	{ "IDATAJINXIMMUNE", IDATAJINXIMMUNE, 0, 0 },
+	{ "IDATAJINXSWAP", IDATAJINXSWAP, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
