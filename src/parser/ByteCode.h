@@ -1508,8 +1508,11 @@
 #define RESRVD_VAR_MOOSH29      1421
 #define RESRVD_VAR_MOOSH30      1422
 #define DMAPDATAMIRRDMAP        1423
+#define IDATAGRADUAL            1424
+#define IDATASPRSCRIPT          1425
+#define IDATAPSOUND             1426
 
-#define LAST_BYTECODE           1424
+#define LAST_BYTECODE           1427
 
 //} END OF BYTECODE
 

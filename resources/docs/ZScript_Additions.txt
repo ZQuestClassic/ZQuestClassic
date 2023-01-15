@@ -5881,18 +5881,27 @@ int ID;
 bool EquipmentItem;
  * Identical to bool Keep, but with more logical naming.
 
+int PickupSound;
+ * The pickup sound
+
+int SpriteScript;
+ * The itemsprite script
+
+bool Gradual;
+ * The gradual checkbox from the pickup tabs
+
 int Damage;
  * The damage produced by weapons generated from tis item.
  * Identical to itemdata->Power, provided for uniformity it weapons.
 
-void RunScript(int mode = 1);
+void RunScript(int mode = ISCR_RUN);
  * Runs the script assigned to this item at any arbitrary time.
  * Mode Settings:
- * 0 : SCRIPT_MODE_END 
+ * 0 : ISCR_KILL 
  * 	THIS TERMINATES THE RUNNING SCRIPT.
- * 1: SCRIPT_MODE_NORMAL
+ * 1: ISCR_RUN
  * 	Runs the script either once, or perpetually, based on the ZScript Rule.
- * 2: SCRIPT_MODE_PERPETUAL
+ * 2: ISCR_PERPETUAL
  * 	Runs the script perpetually, even if the QR if off. 
 
 int Family;

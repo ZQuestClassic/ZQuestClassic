@@ -17,12 +17,12 @@ static AccessorTable itemclassTable[] =
 	{ "setMax",                     0,          ZTID_VOID,   ITEMCLASSMAX,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getMaxIncrement",            0,         ZTID_FLOAT,   ITEMCLASSSETMAX,           0,  { ZTID_ITEMCLASS },{} },
 	{ "setMaxIncrement",            0,          ZTID_VOID,   ITEMCLASSSETMAX,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "getKeep",                    0,          ZTID_BOOL,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS },{} },
-	{ "setKeep",                    0,          ZTID_VOID,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getEquipmentItem",           0,          ZTID_BOOL,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS },{} },
 	{ "setEquipmentItem",           0,          ZTID_VOID,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getCounter",                 0,         ZTID_FLOAT,   ITEMCLASSCOUNTER,          0,  { ZTID_ITEMCLASS },{} },
 	{ "setCounter",                 0,          ZTID_VOID,   ITEMCLASSCOUNTER,          0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getPickupSound",             0,         ZTID_FLOAT,   IDATAPSOUND,               0,  { ZTID_ITEMCLASS },{} },
+	{ "setPickupSound",             0,          ZTID_VOID,   IDATAPSOUND,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getUseSound",                0,         ZTID_FLOAT,   ITEMCLASSUSESOUND,         0,  { ZTID_ITEMCLASS },{} },
 	{ "setUseSound",                0,          ZTID_VOID,   ITEMCLASSUSESOUND,         0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getUseSound2",               0,         ZTID_FLOAT,   IDATAUSESOUND2,            0,  { ZTID_ITEMCLASS },{} },
@@ -38,22 +38,20 @@ static AccessorTable itemclassTable[] =
 	{ "GetName",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "RunScript",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{ 10000 } },
 	
-	{ "getModifier",                0,         ZTID_FLOAT,   IDATALTM,                  0,  { ZTID_ITEMCLASS },{} },
-	{ "setModifier",                0,          ZTID_VOID,   IDATALTM,                  0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getTileMod",                 0,         ZTID_FLOAT,   IDATALTM,                  0,  { ZTID_ITEMCLASS },{} },
 	{ "setTileMod",                 0,          ZTID_VOID,   IDATALTM,                  0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getScript",                  0,         ZTID_FLOAT,   IDATASCRIPT,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setScript",                  0,          ZTID_VOID,   IDATASCRIPT,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getPScript",                 0,         ZTID_FLOAT,   IDATAPSCRIPT,              0,  { ZTID_ITEMCLASS },{} },
 	{ "setPScript",                 0,          ZTID_VOID,   IDATAPSCRIPT,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getSpriteScript",            0,         ZTID_FLOAT,   IDATASPRSCRIPT,            0,  { ZTID_ITEMCLASS },{} },
+	{ "setSpriteScript",            0,          ZTID_VOID,   IDATASPRSCRIPT,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getPString",                 0,         ZTID_FLOAT,   IDATAPSTRING,              0,  { ZTID_ITEMCLASS },{} },
 	{ "setPString",                 0,          ZTID_VOID,   IDATAPSTRING,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getPickupString",            0,         ZTID_FLOAT,   IDATAPSTRING,              0,  { ZTID_ITEMCLASS },{} },
 	{ "setPickupString",            0,          ZTID_VOID,   IDATAPSTRING,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getPickupStringFlags",       0,         ZTID_FLOAT,   IDATAPFLAGS,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setPickupStringFlags",       0,          ZTID_VOID,   IDATAPFLAGS,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "getMagicCost",               0,         ZTID_FLOAT,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS },{} },
-	{ "setMagicCost",               0,          ZTID_VOID,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCost",                    0,         ZTID_FLOAT,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS },{} },
 	{ "setCost",                    0,          ZTID_VOID,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCost2",                   0,         ZTID_FLOAT,   IDATACOST2,                0,  { ZTID_ITEMCLASS },{} },
@@ -70,8 +68,6 @@ static AccessorTable itemclassTable[] =
 	{ "setFlash",                   0,          ZTID_VOID,   IDATAMISC,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCSet",                    0,         ZTID_FLOAT,   IDATACSET,                 0,  { ZTID_ITEMCLASS },{} },
 	{ "setCSet",                    0,          ZTID_VOID,   IDATACSET,                 0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-//	{ "getFrame",                   0,         ZTID_FLOAT,   IDATAFRAME,                0,  { ZTID_ITEMCLASS },{} },
-//	{ "setFrame",                   0,          ZTID_VOID,   IDATAFRAME,                0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getAFrames",                 0,         ZTID_FLOAT,   IDATAFRAMES,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setAFrames",                 0,          ZTID_VOID,   IDATAFRAMES,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getASpeed",                  0,         ZTID_FLOAT,   IDATAASPEED,               0,  { ZTID_ITEMCLASS },{} },
@@ -84,12 +80,12 @@ static AccessorTable itemclassTable[] =
 	{ "setDowngrade",               0,          ZTID_VOID,   IDATADOWNGRADE,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getKeepOld",                 0,          ZTID_BOOL,   IDATAKEEPOLD,              0,  { ZTID_ITEMCLASS },{} },
 	{ "setKeepOld",                 0,          ZTID_VOID,   IDATAKEEPOLD,              0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getGradual",                 0,          ZTID_BOOL,   IDATAGRADUAL,              0,  { ZTID_ITEMCLASS },{} },
+	{ "setGradual",                 0,          ZTID_VOID,   IDATAGRADUAL,              0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getRupeeCost",               0,          ZTID_BOOL,   IDATARUPEECOST,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setRupeeCost",               0,          ZTID_VOID,   IDATARUPEECOST,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getEdible",                  0,          ZTID_BOOL,   IDATAEDIBLE,               0,  { ZTID_ITEMCLASS },{} },
 	{ "setEdible",                  0,          ZTID_VOID,   IDATAEDIBLE,               0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
-	{ "getUnused",                  0,          ZTID_BOOL,   IDATAFLAGUNUSED,           0,  { ZTID_ITEMCLASS },{} },
-	{ "setUnused",                  0,          ZTID_VOID,   IDATAFLAGUNUSED,           0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getGainLower",               0,          ZTID_BOOL,   IDATAGAINLOWER,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setGainLower",               0,          ZTID_VOID,   IDATAGAINLOWER,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getAttributes[]",            0,       ZTID_UNTYPED,   IDATAATTRIB,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
@@ -113,11 +109,6 @@ static AccessorTable itemclassTable[] =
 	
 	{ "getDuration",                0,         ZTID_FLOAT,   IDATADURATION,             0,  { ZTID_ITEMCLASS },{} },
 	{ "setDuration",                0,          ZTID_VOID,   IDATADURATION,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	
-	
-	
-//	{ "getMovement[]",              0,         ZTID_FLOAT,   IDATAUSEMVT,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-//	{ "setMovement[]",              0,          ZTID_VOID,   IDATAUSEMVT,               0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	{ "getWeaponInitD[]",           0,       ZTID_UNTYPED,   IDATAWPNINITD,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setWeaponInitD[]",           0,          ZTID_VOID,   IDATAWPNINITD,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
@@ -156,8 +147,6 @@ static AccessorTable itemclassTable[] =
 	{ "setWeaponDrawYOffset",       0,          ZTID_VOID,   IDATAWEAPYOFS,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getWeaponDrawZOffset",       0,         ZTID_FLOAT,   IDATAWEAPZOFS,             0,  { ZTID_ITEMCLASS },{} },
 	{ "setWeaponDrawZOffset",       0,          ZTID_VOID,   IDATAWEAPZOFS,             0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-	{ "getMagicCostTimer",          0,         ZTID_FLOAT,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS },{} },
-	{ "setMagicCostTimer",          0,          ZTID_VOID,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCostTimer",               0,         ZTID_FLOAT,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS },{} },
 	{ "setCostTimer",               0,          ZTID_VOID,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "getCostTimer2",              0,         ZTID_FLOAT,   IDATAMAGICTIMER2,          0,  { ZTID_ITEMCLASS },{} },
@@ -193,7 +182,6 @@ static AccessorTable itemclassTable[] =
 	
 	{ "getOverrideFlags",           0,         ZTID_FLOAT,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS },{} },
 	{ "setOverrideFlags",           0,          ZTID_VOID,   IDATAOVERRIDEFL,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
-//	Weapon-forwarded Variables
 	
 	{ "getWeaponTileWidth",         0,         ZTID_FLOAT,   IDATATILEWWEAP,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setWeaponTileWidth",         0,          ZTID_VOID,   IDATATILEWWEAP,            0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
@@ -207,6 +195,19 @@ static AccessorTable itemclassTable[] =
 	{ "setValidate",                0,          ZTID_VOID,   IDATAVALIDATE,             0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	{ "getValidate2",               0,          ZTID_BOOL,   IDATAVALIDATE2,            0,  { ZTID_ITEMCLASS },{} },
 	{ "setValidate2",               0,          ZTID_VOID,   IDATAVALIDATE2,            0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	
+	//Intentionally undocumented
+	{ "getKeep",                    0,          ZTID_BOOL,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS },{} },
+	{ "setKeep",                    0,          ZTID_VOID,   ITEMCLASSSETGAME,          0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
+	{ "getModifier",                0,         ZTID_FLOAT,   IDATALTM,                  0,  { ZTID_ITEMCLASS },{} },
+	{ "setModifier",                0,          ZTID_VOID,   IDATALTM,                  0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getMagicCost",               0,         ZTID_FLOAT,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS },{} },
+	{ "setMagicCost",               0,          ZTID_VOID,   IDATAMAGCOST,              0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "getMagicCostTimer",          0,         ZTID_FLOAT,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setMagicCostTimer",          0,          ZTID_VOID,   IDATAMAGICTIMER,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	//Unused?
+	{ "getUnused",                  0,          ZTID_BOOL,   IDATAFLAGUNUSED,           0,  { ZTID_ITEMCLASS },{} },
+	{ "setUnused",                  0,          ZTID_VOID,   IDATAFLAGUNUSED,           0,  { ZTID_ITEMCLASS, ZTID_BOOL },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

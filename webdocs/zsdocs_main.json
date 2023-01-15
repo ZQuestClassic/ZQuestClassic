@@ -211,6 +211,10 @@
                             "val": "$DropsetData"
                         },
                         {
+                            "name": "Itemdata Pointers ;; itemdataptr",
+                            "val": "$Itemdata"
+                        },
+                        {
                             "name": "MessageData Pointers ;; messagedataptr",
                             "val": "$MessageData"
                         },
@@ -402,7 +406,7 @@
                             "val": "<h3>int MIDI;</h3>\nThe MIDI set to play on this dmap.\n\n<h3>int MusicTrack;</h3>\nThe track number to use for enhanced music. See ${dmapdata::GetMusic|GetMusic/SetMusic}."
                         },
                         {
-                            "name": "Active Script ;; dmapdata::Script / dmapdata::InitD[]",
+                            "name": "Active Script ;; dmapdata::Script / dmapdata::InitD",
                             "val": "<h3>int Script;</h3>\nThe dmapdata script to run on this dmap.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD values for the active dmap script."
                         },
                         {
@@ -419,15 +423,15 @@
                             "val": "$0$6"
                         },
                         {
-                            "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD[]",
+                            "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD",
                             "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>int SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
                         },
                         {
-                            "name": "Map Script ;; dmapdata::MapScript / dmapdata::MapInitD[]",
+                            "name": "Map Script ;; dmapdata::MapScript / dmapdata::MapInitD",
                             "val": "<h3>int MapScript;</h3>\nWhich dmapdata script to use as a replacement for the engine fullscreen map (0 for none).\n\n<h3>int MapInitD[8];</h3>\nThe 8 InitD values used by the Map Script."
                         },
                         {
-                            "name": "Subscreen Maps ;; dmapdata::Grid[] / dmapdata::MapTile[] / dmapdata::MapCSet[] / dmapdata::MiniMapTile[] / dmapdata::MiniMapCSet[]",
+                            "name": "Subscreen Maps ;; dmapdata::Grid / dmapdata::MapTile / dmapdata::MapCSet / dmapdata::MiniMapTile / dmapdata::MiniMapCSet",
                             "val": "<h3>int Grid[8];</h3>\nBitwise values representing the state of the map grid. Make use of the functions in `std_zh/dmapgrid.zh` to access these values.\n\n<h3>int Charted[128];</h3>\nStores the large map exploration data for each screen on the dmap. <todo>Test if works on overworld dmaps.</todo>\nData is stored in a bitwise format. Access each index using the [[`CHRT_`|$CHRT_]] constants\n\n<h3>int MapTile[2];</h3>\nThe tile used for the engine subscreen Large Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. <todo>What's the default here?</todo>\n\n<h3>int MapCSet[2];</h3>\nThe csets used for the engine subscreen Large Map, to go along with the MapTile[].\n\n<h3>int MiniMapTile[2];</h3>\nThe tile used for the engine subscreen Small Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. The default is set in 'Graphics->Map Styles' in ZQuest.\n\n<h3>int MiniMapCSet[2];</h3>\nThe csets used for the engine subscreen Small Map, to go along with the MiniMapTile[].\n"
                         },
                         {
@@ -435,7 +439,7 @@
                             "val": "<h3>bool DisabledItems[NUM_ITEMDATA];</h3>\nIf each item on the dmap is disabled.\n\n<h3>int MirrorDMap;</h3>\nThe DMap ID that using a Mirror will take you to. If this is '-1', Mirrors will not be able to warp you to another dmap. If the ${dmapdata::Flagset[]|flag} 'Mirror Continues instead of Warping' is set, the mirror dmap setting is not used."
                         },
                         {
-                            "name": "Flags ;; dmapdata::Sideview / dmapdata::Flagset[]",
+                            "name": "Flags ;; dmapdata::Sideview / dmapdata::Flagset",
                             "val": "<h3>bool Sideview;</h3>\nIf true, the dmap is treated as sideview by default; screens with the sideview flag enabled will toggle sideview back *off*.\n\n<h3>bool Flagset[DMFS_MAX];</h3>\nThe flags for the dmap. Uses the `DMFS_` constants.\n#{DMFS_ constants|$[DMFS_]}"
                         },
                         {
@@ -504,7 +508,62 @@
         },
         {
             "name": "Itemdata",
-            "tabs": [],
+            "tabs": [
+                {
+                    "name": "Itemdata ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "<em>itemdata</em> ;; itemdata",
+                            "val": "<h3>ItemData Pointers</h3>   `itemdata`\n\nThese pointers represent an inventory item and all its' associated attributes.\n\nSee: ${LoadItemData}"
+                        },
+                        {
+                            "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power",
+                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>int Family;\nint Type;</h3>\nThe type (`itemclass`) of the item. Uses the `IC_` constants.\n<todo>Add `IC_` constant infopage</todo>\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons."
+                        },
+                        {
+                            "name": "Pickup Info ;; itemdata::Amount / itemdata::Gradual / itemdata::Counter / itemdata::MaxIncrement / itemdata::Max / itemdata::PickupSound / itemdata::MinHearts / itemdata::KeepOld / itemdata::GainLower / itemdata::Combine / itemdata::PString / itemdata::PickupString / itemdata::PickupStringFlags",
+                            "val": "<h3>int Amount;</h3>\nThe amount of the 'Counter' to increase when this item is picked up. Range `-9999 to 16383`.\n\n<h3>bool Gradual;</h3>\nThe 'Gradual' flag.\n\n<h3>int Counter;</h3>\nThe counter to increase when this item is picked up.\n\n<h3>int MaxIncrement;</h3>\nHow much to increase the max of the 'Counter' by\n\n<h3>int Max;</h3>\nThe '...But not above' field- the amount the max of 'Counter' will not be increased above.\n\n<h3>int PickupSound;</h3>\nThe sound to play when the item is picked up.\n\n<h3>int MinHearts;</h3>\nThe number of max hearts required to pick up the item.\n\n<h3>bool KeepOld;</h3>\nThe 'Keep Lower Level Items' flag\n\n<h3>bool GainLower;</h3>\nThe 'Gain All Lower Level Items' flag\n\n<h3>bool Combine;</h3>\nThe 'Upgrade When Collected Twice' flag\n\n<h3>int PString;\nint PickupString;</h3>\nThe message string to display upon picking up the item.\n\n<h3>int PickupStringFlags;</h3>\nThe flags associated with the pickup string, as bitwise flags. Use the `IPSTR_` constants to access this.\n\n"
+                        },
+                        {
+                            "name": "Action Info ;; itemdata::UseSound / itemdata::UseSound2 / itemdata::Downgrade / itemdata::Cost / itemdata::Cost2 / itemdata::CostCounter / itemdata::CostCounter2 / itemdata::CostTimer / itemdata::CostTimer2 / itemdata::Validate / itemdata::Validate2",
+                            "val": "<h3>int UseSound;</h3>\nThe item's usage sound. If/how this is used depends on itemclass.\n\n<h3>int UseSound2;</h3>\nThe item's second usage sound. If/how this is used depends on itemclass.\n\n<h3>bool Downgrade;</h3>\nThe 'Remove Item When Used' flag.\n\n<h3>int Cost;\nint Cost2;</h3>\nThe 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>int CostCounter;\nint CostCounter2;</h3>\nThe counter for the 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>int CostTimer;\nint CostTimer2;</h3>\nThe timer for the 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>bool Validate;\nbool Validate2;</h3>\nThe 'Only Validate Cost'/'Only Validate Cost 2' checkboxes"
+                        },
+                        {
+                            "name": "Graphics Info ;; itemdata::TileMod",
+                            "val": "<h3>int TileMod;</h3>\nThe Player Tile Modifier associated with this item."
+                        },
+                        {
+                            "name": "Script Info ;; itemdata::Script / itemdata::PScript / itemdata::SpriteScript / itemdata::InitD / itemdata::RunScript",
+                            "val": "<h3>int Script;</h3>\nThe item's Action Script\n\n<h3>int PScript;</h3>\nThe item's Pickup Script\n\n<h3>int SpriteScript;</h3>\nThe item's ItemSprite Script\n\n<h3>int InitD[8];</h3>\nThe 8 InitD values shared by the item's Action, Pickup, and Sprite scripts.\n\n<h3>void RunScript(int mode = ISCR_RUN);</h3>\nRuns or ends the item script, depending on the mode:#{ISCR_ constants|$[ISCR_]}"
+                        },
+                        {
+                            "name": "Weapon Script Info ;; itemdata::WeaponScript / itemdata::WeaponInitD",
+                            "val": "<h3>int WeaponScript;</h3>\nThe item's lweapon script\n\n<h3>int WeaponInitD[8];</h3>\nThe 8 InitD values for the weapon script."
+                        },
+                        {
+                            "name": "--&gt; Next ;; dmapdata2",
+                            "val": "$-1$1"
+                        }
+                    ]
+                },
+                {
+                    "name": "Itemdata 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; dmapdataptr",
+                            "val": "$-1"
+                        }
+                    ]
+                }
+            ],
             "todo": true
         },
         {
@@ -2354,6 +2413,10 @@
                     {
                         "name": "DMFS_",
                         "val": "Indexes for `dmapdata-&gt;Flagset[]`\n<ol start='0'><li>[[DMFS_CAVESNOTCELLARS|Use Caves Instead Of Item Cellars]]</li>\n<li>[[DMFS_3STAIRWARPS|Allow 3-Stair Warp Rooms]]</li>\n<li>[[DMFS_WWIND|Allow Whistle Whirlwinds]]</li>\n<li>[[DMFS_GUYCAVES|Special Rooms and Guys Are In Caves Only]]</li>\n<li>[[DMFS_NOCOMPASS|Don't Display Compass Marker On Minimap]]</li>\n<li>[[DMFS_WAVY|Underwater Wave Effect]]</li>\n<li>[[DMFS_WWINDRET|Whistle Whirlwind Returns Player To Start]]</li>\n<li>[[DMFS_ALWAYSINTROMSG|Always Display Intro String]]</li>\n<li>[[DMFS_VIEWMAP|View Overworld Map By Pressing 'Map']]</li>\n<li>[[DMFS_DMAPMAP|...But Only Show Screens Marked In Minimap]]</li>\n<li>[[DMFS_MINIMAPCOLORFIX|Use Minimap Foreground Color 2]]</li>\n<li>[[DMFS_SCRIPT1|Script 1]]</li>\n<li>[[DMFS_SCRIPT2|Script 2]]</li>\n<li>[[DMFS_SCRIPT3|Script 3]]</li>\n<li>[[DMFS_SCRIPT4|Script 4]]</li>\n<li>[[DMFS_SCRIPT5|Script 5]]</li>\n<li>[[DMFS_SIDEVIEW|Sideview (same as `bool Sideview;`)]]</li>\n<li>[[DMFS_LAYER3ISBACKGROUND|Layer 3 is Background on All Screens]]</li>\n<li>[[DMFS_LAYER2ISBACKGROUND|Layer 2 is Background on All Screens]]</li>\n<li>[[DMFS_TRUECELLARENEMIES|Use Enemy List for Cellar Enemies]]</li>\n<li>[[DMFS_BUNNY|Become Bunny with no Pearl]]</li>\n<li>[[DMFS_MIRRORCONTINUE|Mirror Continues instead of Warping]]</li></ol>"
+                    },
+                    {
+                        "name": "ISCR_",
+                        "val": "Modes for `itemdata-&gt;RunScript()`\n<ol start='0'><li>[[ISCR_KILL|Ends the item script if it was running]]</li>\n<li>[[ISCR_RUN|Runs the item script normally]]</li>\n<li>[[ISCR_PERPETUAL|Runs the item script allowing it to run for multiple frames even if the QR 'Item Scripts Continue To Run' is off.\nYou probably don't ever need this? Most quests should just have that QR on...]]</li></ol>"
                     }
                 ]
             }

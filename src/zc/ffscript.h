@@ -4799,8 +4799,11 @@ enum ASM_DEFINE
 #define RESRVD_VAR_MOOSH29      0x14C3
 #define RESRVD_VAR_MOOSH30      0x14C4
 #define DMAPDATAMIRRDMAP        0x14C5
+#define IDATAGRADUAL            0x14C6
+#define IDATASPRSCRIPT          0x14C7
+#define IDATAPSOUND             0x14C8
 
-#define NUMVARIABLES         	0x14C6
+#define NUMVARIABLES            0x14C9
 
 //} End variables
 

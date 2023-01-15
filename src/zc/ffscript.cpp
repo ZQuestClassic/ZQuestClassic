@@ -4986,14 +4986,28 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case IDATAAMOUNT:
+		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].amount)*10000;
+			int32_t v = itemsbuf[ri->idata].amount;
+			ret = ((v&0x4000)?-1:1)*(v & 0x3FFF)*10000;
 			break;
+		}
+		case IDATAGRADUAL:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret = (itemsbuf[ri->idata].amount&0x8000) ? 10000 : 0;
+			break;
+		}
 			
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5025,6 +5039,15 @@ int32_t get_register(const int32_t arg)
 			ret=(itemsbuf[ri->idata].count)*10000;
 			break;
 			
+		case IDATAPSOUND:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].playsound)*10000;
+			break;
 		case IDATAUSESOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -5076,6 +5099,15 @@ int32_t get_register(const int32_t arg)
 				break;
 			}
 			ret=(itemsbuf[ri->idata].script)*10000;
+			break;
+		case IDATASPRSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].sprite_script)*10000;
 			break;
 		//Get the ->Attributes[] of an item
 		case IDATAATTRIB:
@@ -14879,8 +14911,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}
 		
-		
-		//item level
 		case IDATALEVEL:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -14890,7 +14920,6 @@ void set_register(const int32_t arg, const int32_t value)
 			(itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
 			flushItemCache();
 			break;
-			//bool keep
 		case IDATAKEEP:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -14899,15 +14928,28 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
 			break;
-			//Need the legal range -Z
 		case IDATAAMOUNT:
+		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].amount)=value/10000;
+			int32_t v = vbound(value/10000, -9999, 16383);
+			itemsbuf[ri->idata].amount &= 0x8000;
+			itemsbuf[ri->idata].amount |= (abs(v)&0x3FFF)|(v<0?0x4000:0);
 			break;
+		}
+		case IDATAGRADUAL:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			SETFLAG(itemsbuf[ri->idata].amount, 0x8000, value!=0);
+			break;
+		}
 			
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -14943,6 +14985,15 @@ void set_register(const int32_t arg, const int32_t value)
 				break;
 			}
 			(itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
+			break;
+			
+		case IDATAPSOUND:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			(itemsbuf[ri->idata].playsound)=vbound(value/10000, 0, 255);
 			break;
 			
 		case IDATAUSESOUND:
@@ -15122,6 +15173,14 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
 			itemsbuf[ri->idata].script=vbound(value/10000,0,255);
+			break;
+		case IDATASPRSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].sprite_script=vbound(value/10000,0,255);
 			break;
 		
 		/*
@@ -40428,6 +40487,9 @@ script_variable ZASMVars[]=
 	{ "RESRVD_VAR_MOOSH29", RESRVD_VAR_MOOSH29, 0, 0 },
 	{ "RESRVD_VAR_MOOSH30", RESRVD_VAR_MOOSH30, 0, 0 },
 	{ "DMAPDATAMIRRDMAP", DMAPDATAMIRRDMAP, 0, 0 },
+	{ "IDATAGRADUAL", IDATAGRADUAL, 0, 0 },
+	{ "IDATASPRSCRIPT", IDATASPRSCRIPT, 0, 0 },
+	{ "IDATAPSOUND", IDATAPSOUND, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
