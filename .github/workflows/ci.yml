@@ -109,7 +109,7 @@ jobs:
           version: "3.1.24"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
-      - run: sudo apt-get install ccache ninja-build flex bison
+      - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
 
       # Setup build cache via ccache.
       - name: ccache cache files

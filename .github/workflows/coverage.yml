@@ -33,7 +33,7 @@ jobs:
           python-version: "3.10"
       - run: sudo pip install requests PyGithub gcovr watchdog
 
-      - run: sudo apt-get install libopengl0 libglu1
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
 
       - uses: actions/download-artifact@v3
         with:
