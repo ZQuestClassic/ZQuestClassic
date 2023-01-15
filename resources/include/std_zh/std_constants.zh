@@ -2129,7 +2129,7 @@ enum
 	DMFS_BUNNY,               //Become Bunny with no Pearl
 	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
 	DMFS_MAX
-}
+};
 
 //Screen states. Use these with Screen->State[], etc.
 DEFINE ST_DOORUP             = 0; // The locked/bomb door has been permanently unlocked/bombed
