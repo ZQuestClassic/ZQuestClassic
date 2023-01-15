@@ -521,8 +521,8 @@
                             "val": "<h3>ItemData Pointers</h3>   `itemdata`\n\nThese pointers represent an inventory item and all its' associated attributes.\n\nSee: ${LoadItemData}"
                         },
                         {
-                            "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power / itemdata::Attributes",
-                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons.\n\n<h3>int Family;\nint Type;</h3>\nThe type (`itemclass`) of the item. Uses the `IC_` constants.\n<todo>Add `IC_` constant infopage</todo>\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>untyped Attributes[10];</h3>\nThe 10 item attributes."
+                            "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power / itemdata::Attributes / itemdata::GetName",
+                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons.\n\n<h3>int Family;\nint Type;</h3>\nThe type (`itemclass`) of the item. Uses the `IC_` constants.\n<todo>Add `IC_` constant infopage</todo>\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>untyped Attributes[10];</h3>\nThe 10 item attributes.\n\n<h3>void GetName(char32 buf[]);</h3>\nFills the buffer with the item's Name."
                         },
                         {
                             "name": "Pickup Info ;; itemdata::Amount / itemdata::Gradual / itemdata::Counter / itemdata::MaxIncrement / itemdata::Max / itemdata::PickupSound / itemdata::MinHearts / itemdata::KeepOld / itemdata::GainLower / itemdata::Combine / itemdata::PString / itemdata::PickupString / itemdata::PickupStringFlags",
@@ -566,8 +566,16 @@
                             "val": "<h3>int Tile;</h3>\nThe starting tile of the item's animation\n\n<h3>int CSet;</h3>\nThe CSet the item sprite uses\n\n<h3>int MiscFlags</h3>\nMisc flags for the item graphics, bitwise flagset. Use the `IMISC_` constants to access.\n#{IMISC_ constants|$[IMISC_]}\n<todo>Item editor can't flip the tile?</todo>\n\n<h3>int AFrames;</h3>\nThe number of frames in the animation\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the animation.\n\n<h3>int TileMod;</h3>\nThe Player Tile Modifier associated with this item.\n\n<h3>int Sprites[10];</h3>\nThe 10 sprites used by the item. How they are used depends on the item type."
                         },
                         {
-                            "name": "New Entry",
-                            "val": ""
+                            "name": "Size Info ;; itemdata::SizeFlags / itemdata::TileWidth / itemdata::TileHeight / itemdata::HitWidth / itemdata::HitHeight / itemdata::HitZHeight / itemdata::DrawXOffset / itemdata::DrawYOffset / itemdata::HitXOffset / itemdata::HitYOffset",
+                            "val": "<h3>int SizeFlags;</h3>\nA bitwise flagset representing all the checkboxes for which sizes to apply from the itemdata. Use the `SZFLAG_` constants to access.\n#{SZFLAG_ constants|$[SZFLAG_]}\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe visual size of the sprite, in tiles.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe hitbox size of the sprite, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe Z-Height of the hitbox, in pixels.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset of the sprite, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset of the sprite, in pixels."
+                        },
+                        {
+                            "name": "Weapon Size Info ;; itemdata::WeaponSizeFlags / itemdata::WeaponTileWidth / itemdata::WeaponTileHeight / itemdata::WeaponHitWidth / itemdata::WeaponHitHeight / itemdata::WeaponHitZHeight / itemdata::WeaponDrawXOffset / itemdata::WeaponDrawYOffset / itemdata::WeaponHitXOffset / itemdata::WeaponHitYOffset",
+                            "val": "<h3>int WeaponSizeFlags;</h3>\nA bitwise flagset representing all the checkboxes for which sizes to apply from the itemdata. Use the `SZFLAG_` constants to access.\n#{SZFLAG_ constants|$[SZFLAG_]}\n\n<h3>int WeaponTileWidth;\nint WeaponTileHeight;</h3>\nThe visual size of the sprite, in tiles.\n\n<h3>int WeaponHitWidth;\nint WeaponHitHeight;</h3>\nThe hitbox size of the sprite, in pixels.\n\n<h3>int WeaponHitZHeight;</h3>\nThe Z-Height of the hitbox, in pixels.\n\n<h3>int WeaponDrawXOffset;\nint WeaponDrawYOffset;</h3>\nThe visual offset of the sprite, in pixels.\n\n<h3>int WeaponHitXOffset;\nint WeaponHitYOffset;</h3>\nThe hitbox offset of the sprite, in pixels."
+                        },
+                        {
+                            "name": "Weapon Info ;; itemdata::Weapon / itemdata::Defense",
+                            "val": "<h3>int Weapon;</h3>\nThe overrided weapon type that the weapon will act like.\n\n<h3>int Defense;</h3>\nThe default defense of the weapon."
                         },
                         {
                             "name": "&lt;-- Prev ;; dmapdataptr",
@@ -2441,6 +2449,10 @@
                     {
                         "name": "IMISC_",
                         "val": "Flags for `itemdata-&gt;MiscFlags`\n<mono>[[IMISC_FLASH   = 0x01|The item flashes]]\n[[IMISC_TWOHAND = 0x02|When held up, the item is held with 2 hands]]\n[[IMISC_HFLIP   = 0x04|Flips the tile horizontally]]\n[[IMISC_VFLIP   = 0x08|Flips the tile vertically]]\n</mono>"
+                    },
+                    {
+                        "name": "SZFLAG_",
+                        "val": "Flags for `itemdata-&gt;SizeFlags` and `itemdata-&gt;WeaponSizeFlags`\n<mono>SZFLAG_TILEHEIGHT     = 0x0002\nSZFLAG_HIT_WIDTH      = 0x0004\nSZFLAG_HIT_HEIGHT     = 0x0008\nSZFLAG_HIT_Z_HEIGHT   = 0x0010\nSZFLAG_HIT_X_OFFSET   = 0x0020\nSZFLAG_HIT_Y_OFFSET   = 0x0040\nSZFLAG_DRAW_X_OFFSET  = 0x0080\nSZFLAG_DRAW_Y_OFFSET  = 0x0100\nSZFLAG_DRAW_Z_OFFSET  = 0x0200\nSZFLAG_ALL            = 0x03FF</mono>"
                     }
                 ]
             }
