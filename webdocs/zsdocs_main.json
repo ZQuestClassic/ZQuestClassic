@@ -390,14 +390,61 @@
                             "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${LoadDMapData}"
                         },
                         {
-                            "name": "DMap Strings ;; dmapdata::GetName / dmapdata::SetName / dmapdata::GetTitle / dmapdata::SetTitle / dmapdata::GetIntro / dmapdata::SetIntro / dmapdata::GetMusic / dmapdata::SetMusic / _PREVIEW_JUMP",
-                            "val": "<h3>void GetName([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's name.\n<h3>void SetName([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's name to the buffer contents.\n\n<h3>void GetTitle([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's title.\n<h3>void SetTitle([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's title to the buffer contents.\n\n<h3>void GetIntro([[char32[] buf|At least size 73]]);</h3>\nFills the buffer with the dmap's intro.\n<h3>void SetIntro([[char32[] buf|At most 72 characters]]);</h3>\nSets the DMap's intro to the buffer contents.\n\n<h3>void GetMusic([[char32[] buf|At least size 56]]);</h3>\nFills the buffer with the dmap's enhanced music filename.\n<h3>void SetMusic([[char32[] buf|At most 55 characters]]);</h3>\nSets the DMap's enhanced music filename to the buffer contents."
+                            "name": "DMap Strings ;; dmapdata::GetName / dmapdata::SetName / dmapdata::GetTitle / dmapdata::SetTitle / dmapdata::GetIntro / dmapdata::SetIntro / dmapdata::GetMusic / dmapdata::SetMusic",
+                            "val": "<h3>void GetName([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's name.\n<h3>void SetName([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's name to the buffer contents.\n\n<h3>void GetTitle([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's title.\n<h3>void SetTitle([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's title to the buffer contents.\n\n<h3>void GetIntro([[char32[] buf|At least size 73]]);</h3>\nFills the buffer with the dmap's intro.\n<h3>void SetIntro([[char32[] buf|At most 72 characters]]);</h3>\nSets the DMap's intro to the buffer contents.\n\n<h3>void GetMusic([[char32[] buf|At least size 56]]);</h3>\nFills the buffer with the dmap's enhanced music filename. See ${dmapdata::MusicTrack|MusicTrack}.\n<h3>void SetMusic([[char32[] buf|At most 55 characters]]);</h3>\nSets the DMap's enhanced music filename to the buffer contents. See ${dmapdata::MusicTrack|MusicTrack}."
+                        },
+                        {
+                            "name": "Basic Info ;; dmapdata::ID / dmapdata::Map / dmapdata::Level / dmapdata::Compass / dmapdata::Continue / dmapdata::Offset / dmapdata::Type / dmapdata::Palette",
+                            "val": "<h3>int ID;</h3>\nRead-Only. The DMap's ID number.\n\n<h3>int Map;</h3>\nWhich map this DMap is associated with.\n\n<h3>int Level;</h3>\nThe Level Number of this dmap.\n\n<h3>int Compass;\nint Continue;</h3>\nThe compass marker and continue screen numbers.\n\n<h3>int Offset;</h3>\nThe DMap offset.\n\n<h3>int Type;</h3>\nThe type of the dmap, using the [[`DMAP_`|$DMAP_]] constants.\n\n<h3>int Palette;</h3>\nThe level palette to use for this DMap"
+                        },
+                        {
+                            "name": "Music ;; dmapdata::MIDI / dmapdata::MusicTrack",
+                            "val": "<h3>int MIDI;</h3>\nThe MIDI set to play on this dmap.\n\n<h3>int MusicTrack;</h3>\nThe track number to use for enhanced music. See ${dmapdata::GetMusic|GetMusic/SetMusic}."
+                        },
+                        {
+                            "name": "Active Script ;; dmapdata::Script / dmapdata::InitD[]",
+                            "val": "<h3>int Script;</h3>\nThe dmapdata script to run on this dmap.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD values for the active dmap script."
+                        },
+                        {
+                            "name": "--&gt; Next ;; dmapdata2",
+                            "val": "$-1$1"
                         }
-                    ],
-                    "todo": true
+                    ]
+                },
+                {
+                    "name": "DMapData 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD[]",
+                            "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>int SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
+                        },
+                        {
+                            "name": "Map Script ;; dmapdata::MapScript / dmapdata::MapInitD[]",
+                            "val": "<h3>int MapScript;</h3>\nWhich dmapdata script to use as a replacement for the engine fullscreen map (0 for none).\n\n<h3>int MapInitD[8];</h3>\nThe 8 InitD values used by the Map Script."
+                        },
+                        {
+                            "name": "Subscreen Maps ;; dmapdata::Grid[] / dmapdata::MapTile[] / dmapdata::MapCSet[] / dmapdata::MiniMapTile[] / dmapdata::MiniMapCSet[]",
+                            "val": "<h3>int Grid[8];</h3>\nBitwise values representing the state of the map grid. Make use of the functions in `std_zh/dmapgrid.zh` to access these values.\n\n<h3>int Charted[128];</h3>\nStores the large map exploration data for each screen on the dmap. <todo>Test if works on overworld dmaps.</todo>\nData is stored in a bitwise format. Access each index using the [[`CHRT_`|$CHRT_]] constants\n\n<h3>int MapTile[2];</h3>\nThe tile used for the engine subscreen Large Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. <todo>What's the default here?</todo>\n\n<h3>int MapCSet[2];</h3>\nThe csets used for the engine subscreen Large Map, to go along with the MapTile[].\n\n<h3>int MiniMapTile[2];</h3>\nThe tile used for the engine subscreen Small Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. The default is set in 'Graphics->Map Styles' in ZQuest.\n\n<h3>int MiniMapCSet[2];</h3>\nThe csets used for the engine subscreen Small Map, to go along with the MiniMapTile[].\n"
+                        },
+                        {
+                            "name": "Items ;; dmapdata::DisabledItems / dmapdata::MirrorDMap",
+                            "val": "<h3>bool DisabledItems[NUM_ITEMDATA];</h3>\nIf each item on the dmap is disabled.\n\n<h3>int MirrorDMap;</h3>\nThe DMap ID that using a Mirror will take you to. If this is '-1', Mirrors will not be able to warp you to another dmap. If the ${dmapdata::Flagset[]|flag} 'Mirror Continues instead of Warping' is set, the mirror dmap setting is not used."
+                        },
+                        {
+                            "name": "Flags ;; dmapdata::Sideview / dmapdata::Flagset[]",
+                            "val": "<h3>bool Sideview;</h3>\nIf true, the dmap is treated as sideview by default; screens with the sideview flag enabled will toggle sideview back *off*.\n\n<h3>bool Flagset[DMFS_MAX];</h3>\nThe flags for the dmap. Uses the `DMFS_` constants.\n#{DMFS_ constants|$[DMFS_]}"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; dmapdataptr",
+                            "val": "$-1"
+                        }
+                    ]
                 }
-            ],
-            "todo": true
+            ]
         },
         {
             "name": "Weapon",
@@ -2253,7 +2300,7 @@
                     },
                     {
                         "name": "OBJTYPE_",
-                        "val": "<ol start=\"0\"><li>OBJTYPE_NPC</li>\r\n<li>OBJTYPE_LWPN</li>\r\n<li>OBJTYPE_EWPN</li>\r\n<li>OBJTYPE_ITSPR</li>\r\n<li>OBJTYPE_COMBODATA</li></ol>"
+                        "val": "<ol start=\"0\"><li>OBJTYPE_NPC</li>\n<li>OBJTYPE_LWPN</li>\n<li>OBJTYPE_EWPN</li>\n<li>OBJTYPE_ITSPR</li>\n<li>OBJTYPE_COMBODATA</li></ol>"
                     },
                     {
                         "name": "Unblockable",
@@ -2262,6 +2309,14 @@
                     {
                         "name": "Trigger Requirement",
                         "val": "This condition does not trigger the combo itself- instead, when something tries to trigger this combo, it must ALSO pass this condition.\nTo make this act as a trigger in itself, combine with the 'Always Triggered' (`TRIGFLAG_AUTO`) flag."
+                    },
+                    {
+                        "name": "CHRT_",
+                        "val": "```CHRT_VISITED = 10000000b\nCHRT_UP      = 00000001b\nCHRT_DOWN    = 00000010b\nCHRT_LEFT    = 00000100b\nCHRT_RIGHT   = 00001000b```"
+                    },
+                    {
+                        "name": "DMAP_",
+                        "val": "<ol start=\"0\"><li>DMAP_DUNGEON</li>\n<li>DMAP_OVERWORLD</li>\n<li>DMAP_CAVE</li>\n<li>DMAP_BSOVERWORLD</li></ol>\n"
                     }
                 ]
             },
@@ -2295,6 +2350,10 @@
                     {
                         "name": "LF_",
                         "val": "Indexes for `combodata-&gt;LiftFlags[]`\n<ol start='0'><li>[[LF_LIFTABLE|Combo can be lifted]]</li>\n<li>[[LF_DROPSET|The `LiftItem` is a dropset instead of an item ID]]</li>\n<li>[[LF_DROPONLIFT|The `LiftItem` is dropped on lift, instead of break.]]</li>\n<li>[[LF_SPECIALITEM|The `LiftItem` is the room's special item.]]</li>\n<li>[[LF_NOUCSET|Leaves the combo's CSet behind, instead of the UnderCSet.]]</li>\n<li>[[LF_NOWPNCMBCSET|Uses the combo's CSet, instead of the `LiftGFXCSet`]]</li>\n<li>[[LF_BREAKONSOLID|The weapon breaks upon colliding with a solid object, instead of going through solids.]]</li></ol>"
+                    },
+                    {
+                        "name": "DMFS_",
+                        "val": "Indexes for `dmapdata-&gt;Flagset[]`\n<ol start='0'><li>[[DMFS_CAVESNOTCELLARS|Use Caves Instead Of Item Cellars]]</li>\n<li>[[DMFS_3STAIRWARPS|Allow 3-Stair Warp Rooms]]</li>\n<li>[[DMFS_WWIND|Allow Whistle Whirlwinds]]</li>\n<li>[[DMFS_GUYCAVES|Special Rooms and Guys Are In Caves Only]]</li>\n<li>[[DMFS_NOCOMPASS|Don't Display Compass Marker On Minimap]]</li>\n<li>[[DMFS_WAVY|Underwater Wave Effect]]</li>\n<li>[[DMFS_WWINDRET|Whistle Whirlwind Returns Player To Start]]</li>\n<li>[[DMFS_ALWAYSINTROMSG|Always Display Intro String]]</li>\n<li>[[DMFS_VIEWMAP|View Overworld Map By Pressing 'Map']]</li>\n<li>[[DMFS_DMAPMAP|...But Only Show Screens Marked In Minimap]]</li>\n<li>[[DMFS_MINIMAPCOLORFIX|Use Minimap Foreground Color 2]]</li>\n<li>[[DMFS_SCRIPT1|Script 1]]</li>\n<li>[[DMFS_SCRIPT2|Script 2]]</li>\n<li>[[DMFS_SCRIPT3|Script 3]]</li>\n<li>[[DMFS_SCRIPT4|Script 4]]</li>\n<li>[[DMFS_SCRIPT5|Script 5]]</li>\n<li>[[DMFS_SIDEVIEW|Sideview (same as `bool Sideview;`)]]</li>\n<li>[[DMFS_LAYER3ISBACKGROUND|Layer 3 is Background on All Screens]]</li>\n<li>[[DMFS_LAYER2ISBACKGROUND|Layer 2 is Background on All Screens]]</li>\n<li>[[DMFS_TRUECELLARENEMIES|Use Enemy List for Cellar Enemies]]</li>\n<li>[[DMFS_BUNNY|Become Bunny with no Pearl]]</li>\n<li>[[DMFS_MIRRORCONTINUE|Mirror Continues instead of Warping]]</li></ol>"
                     }
                 ]
             }
