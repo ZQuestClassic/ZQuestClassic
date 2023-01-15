@@ -1194,7 +1194,7 @@ def copy_sheet(force=False):
         copiedsheet = force
     else:
         try:
-            copiedsheet = json_obj['sheets'][cursheet]
+            copiedsheet = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
             try:
                 clipboard_copy(json.dumps(copiedsheet,indent=4))
             except:
@@ -1232,7 +1232,7 @@ def paste_sheet():
     global cursheet, copiedsheet
     if not copiedsheet:
         return
-    e = json_obj['sheets'][cursheet]
+    e = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
     if e == copiedsheet: #Identical object
         return
     if not nil_sheet(e):
@@ -1240,7 +1240,10 @@ def paste_sheet():
         cname = sheet_disp_name(copiedsheet)
         if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The sheet '{name}' will be replaced with the copied sheet '{cname}'."):
             return
-    json_obj['sheets'][cursheet] = copiedsheet
+    if cursheet == -1:
+        json_obj['named'] = copiedsheet
+    else:
+        json_obj['sheets'][cursheet] = copiedsheet
     mainframe.reload_lists()
     mark_edited()
 def sh_rclick(evt):
@@ -1347,7 +1350,8 @@ def copy_sec(force=False):
         copiedsec = force
     else:
         try:
-            copiedsec = json_obj['sheets'][cursheet]['tabs'][cursec]
+            sh = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
+            copiedsec = sh['tabs'][cursec]
             try:
                 clipboard_copy(json.dumps(copiedsec,indent=4))
             except:
@@ -1385,7 +1389,8 @@ def paste_sec():
     global cursheet, cursec, copiedsec
     if not copiedsec:
         return
-    e = json_obj['sheets'][cursheet]['tabs'][cursec]
+    sh = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
+    e = sh['tabs'][cursec]
     if e == copiedsec: #Identical object
         return
     if not nil_sec(e):
@@ -1393,7 +1398,10 @@ def paste_sec():
         cname = sec_disp_name(copiedsec)
         if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The section '{name}' will be replaced with the copied section '{cname}'."):
             return
-    json_obj['sheets'][cursheet]['tabs'][cursec] = copiedsec
+    if cursheet == -1:
+        json_obj['named']['tabs'][cursec] = copiedsec
+    else:
+        json_obj['sheets'][cursheet]['tabs'][cursec] = copiedsec
     mainframe.reload_lists()
     mark_edited()
 def sec_rclick(evt):
@@ -1509,7 +1517,8 @@ def copy_entry(force=False):
         copiedentry = force
     else:
         try:
-            copiedentry = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+            sh = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
+            copiedentry = sh['tabs'][cursec]['lines'][curentry]
             try:
                 clipboard_copy(json.dumps(copiedentry,indent=4))
             except:
@@ -1547,7 +1556,8 @@ def paste_entry():
     global cursheet, cursec, curentry, copiedentry
     if not copiedentry:
         return
-    e = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+    sh = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
+    e = sh['tabs'][cursec]['lines'][curentry]
     if e == copiedentry: #Identical object
         return
     if not nil_entry(e):
@@ -1555,7 +1565,10 @@ def paste_entry():
         cname = entry_disp_name(copiedentry)
         if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The entry '{name}' will be replaced with the copied entry '{cname}'."):
             return
-    json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = copiedentry
+    if cursheet == -1:
+        json_obj['named']['tabs'][cursec]['lines'][curentry] = copiedentry
+    else:
+        json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = copiedentry
     mainframe.reload_lists()
     mark_edited()
 def entry_rclick(evt):
@@ -2202,7 +2215,7 @@ def get_entry(addjumps=None):
     if addjumps:
         if not jumps:
             jumps = [s.strip() for s in re.split('/',name)]
-        jumps += addjumps
+        jumps = jumps + addjumps
     if jumps:
         outname += ' ;; ' + ' / '.join(jumps)
     
@@ -2234,12 +2247,20 @@ def save_entry():
     mark_edited()
 def preview_entry():
     global cursheet, cursec, curentry
-    old_e = json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry]
+    sh = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
+    old_e = sh['tabs'][cursec]['lines'][curentry]
     new_e = get_entry(['_PREVIEW_JUMP'])
     
-    json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = new_e
-    preview_html()
-    json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = old_e
+    if cursheet == -1: #named data
+        json_obj['named']['tabs'][cursec]['lines'][curentry] = new_e
+        json_obj['sheets'].append(json_obj['named'])
+        preview_html()
+        json_obj['named']['tabs'][cursec]['lines'][curentry] = old_e
+        json_obj['sheets'] = json_obj['sheets'][:-1]
+    else:
+        json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = new_e
+        preview_html()
+        json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = old_e
 
 def save_entry_exit():
     save_entry()
