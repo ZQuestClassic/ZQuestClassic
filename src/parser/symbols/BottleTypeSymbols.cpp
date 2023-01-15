@@ -29,7 +29,7 @@ BottleTypeSymbols::BottleTypeSymbols()
 
 void BottleTypeSymbols::generateCode()
 {
-	//void GetName(bottledata, int32_t)
+	//void GetName(bottledata, char)
 	{
 		Function* function = getFunction("GetName");
 		int32_t label = function->getLabel();
@@ -43,7 +43,7 @@ void BottleTypeSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void SetName(bottledata, int32_t)
+	//void SetName(bottledata, char)
 	{
 		Function* function = getFunction("SetName");
 		int32_t label = function->getLabel();

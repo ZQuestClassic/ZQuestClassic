@@ -390,24 +390,11 @@
                             "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${LoadDMapData}"
                         },
                         {
-                            "name": "Strings ;; dmapdatastrings",
-                            "val": "$-1$1"
+                            "name": "DMap Strings ;; dmapdata::GetName / dmapdata::SetName / dmapdata::GetTitle / dmapdata::SetTitle / dmapdata::GetIntro / dmapdata::SetIntro / dmapdata::GetMusic / dmapdata::SetMusic / _PREVIEW_JUMP",
+                            "val": "<h3>void GetName([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's name.\n<h3>void SetName([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's name to the buffer contents.\n\n<h3>void GetTitle([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's title.\n<h3>void SetTitle([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's title to the buffer contents.\n\n<h3>void GetIntro([[char32[] buf|At least size 73]]);</h3>\nFills the buffer with the dmap's intro.\n<h3>void SetIntro([[char32[] buf|At most 72 characters]]);</h3>\nSets the DMap's intro to the buffer contents.\n\n<h3>void GetMusic([[char32[] buf|At least size 56]]);</h3>\nFills the buffer with the dmap's enhanced music filename.\n<h3>void SetMusic([[char32[] buf|At most 55 characters]]);</h3>\nSets the DMap's enhanced music filename to the buffer contents."
                         }
                     ],
                     "todo": true
-                },
-                {
-                    "name": "DMapData Strings",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Back ;; dmapptr",
-                            "val": "$-1"
-                        },
-                        {
-                            "name": "Name ;; dmapdata::GetName / dmapdata::SetName",
-                            "val": "<todo>These functions aren't implemented yet!</todo>\n<h3>void GetName(char32[] buf);</h3>\nFills the buffer with the dmap's name.\n\n<h3>void SetName(char32[] buf);</h3>\nSets the DMap's name to the buffer contents."
-                        }
-                    ]
                 }
             ],
             "todo": true

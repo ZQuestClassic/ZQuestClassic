@@ -4,16 +4,15 @@ DMapDataSymbols DMapDataSymbols::singleton = DMapDataSymbols();
 
 static AccessorTable DMapDataTable[] =
 {
-//	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "GetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "GetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "GetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "GetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "GetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "GetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
 	//
 	{ "getID",                      0,         ZTID_FLOAT,   DMAPDATAID,                0,  { ZTID_DMAPDATA },{} },
 	{ "getMap",                     0,         ZTID_FLOAT,   DMAPDATAMAP,               0,  { ZTID_DMAPDATA },{} },
@@ -91,5 +90,118 @@ DMapDataSymbols::DMapDataSymbols()
 
 void DMapDataSymbols::generateCode()
 {
+	//void GetName(dmapdata, char)
+	{
+		Function* function = getFunction("GetName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetNameRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetName(bottledata, char)
+	{
+		Function* function = getFunction("SetName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetNameRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetTitle(dmapdata, char)
+	{
+		Function* function = getFunction("GetTitle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetTitleRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetTitle(bottledata, char)
+	{
+		Function* function = getFunction("SetTitle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetTitleRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetIntro(dmapdata, char)
+	{
+		Function* function = getFunction("GetIntro");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetIntroRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetIntro(bottledata, char)
+	{
+		Function* function = getFunction("SetIntro");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetIntroRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetMusic(dmapdata, char)
+	{
+		Function* function = getFunction("GetMusic");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetMusicRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetMusic(bottledata, char)
+	{
+		Function* function = getFunction("SetMusic");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetMusicRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
 }
 
