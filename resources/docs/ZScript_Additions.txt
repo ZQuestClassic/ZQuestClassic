@@ -6386,6 +6386,9 @@ bool Sideview;
  * UNLESS the screen flag Toggle Sideview is enabled.
  * If calse, all screens on the DMap are treated as overhead
  * UNLESS the screen flag Toggle Sideview is enabled.
+
+int MirrorDMap;
+ * The mirror DMap for this dmap.
  
 int Script;
  * The standard DMap Active Script ID.
@@ -6423,37 +6426,29 @@ int Charted[128];
 void SetName(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 
  * DMap name. 
- * UNIMPLEMENTED at this time.
  
 void GetName(char32 buffer[]);
  * Copies the name of the DMap into a client string 'buffer'.
- * UNIMPLEMENTED at this time.
 
 void SetTitle(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 
  * DMap title. 
- * UNIMPLEMENTED at this time.
  
 void GetTitle(char32 buffer[]);
  * Copies the title of the DMap into a client string 'buffer'.
- * UNIMPLEMENTED at this time.
  
 void SetIntro(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 
  * DMap intro text. 
- * UNIMPLEMENTED at this time.
  
 void GetIntro(char32 buffer[]);
  * Copies the intro text of the DMap into a client string 'buffer'.
- * UNIMPLEMENTED at this time.
 
 void SetMusic(char32 "filename"); 
  * Sets the enhanced music used by the DMap to a specified filename.
- * UNIMPLEMENTED at this time.
  
 void GetMusic(char2 buffer[]);
  * Copies the filename of the DMap enhanced music into a client string 'buffer'.
- * UNIMPLEMENTED at this time.
 
 
 //////////////////
