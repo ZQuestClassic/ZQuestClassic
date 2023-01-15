@@ -1507,8 +1507,9 @@
 #define RESRVD_VAR_MOOSH28      1420
 #define RESRVD_VAR_MOOSH29      1421
 #define RESRVD_VAR_MOOSH30      1422
+#define DMAPDATAMIRRDMAP        1423
 
-#define LAST_BYTECODE           1423
+#define LAST_BYTECODE           1424
 
 //} END OF BYTECODE
 

@@ -39,10 +39,6 @@ static AccessorTable DMapDataTable[] =
 	{ "setActiveSubscreen",         0,          ZTID_VOID,   DMAPDATASUBSCRA,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getPassiveSubscreen",        0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
 	{ "setPassiveSubscreen",        0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-//	{ "getGravity[]",               0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
-//	{ "setGravity[]",               0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-//	{ "getJumpThreshold",           0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
-//	{ "setJumpThreshold",           0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getGrid[]",                  0,         ZTID_FLOAT,   DMAPDATAGRID,              0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setGrid[]",                  0,          ZTID_VOID,   DMAPDATAGRID,              0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getMiniMapTile[]",           0,         ZTID_FLOAT,   DMAPDATAMINIMAPTILE,       0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
@@ -56,10 +52,8 @@ static AccessorTable DMapDataTable[] =
 	{ "setMapTile[]",               0,          ZTID_VOID,   DMAPDATALARGEMAPTILE,      0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getMapCSet[]",               0,         ZTID_FLOAT,   DMAPDATALARGEMAPCSET,      0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setMapCSet[]",               0,          ZTID_VOID,   DMAPDATALARGEMAPCSET,      0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "getDisabledItems[]",         0,         ZTID_FLOAT,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "setDisabledItems[]",         0,          ZTID_VOID,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "getFlags",                   0,         ZTID_FLOAT,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA },{} },
-	{ "setFlags",                   0,          ZTID_VOID,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "getDisabledItems[]",         0,          ZTID_BOOL,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "setDisabledItems[]",         0,          ZTID_VOID,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getFlagset[]",               0,         ZTID_FLOAT,   DMAPDATAFLAGARR,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setFlagset[]",               0,          ZTID_VOID,   DMAPDATAFLAGARR,           0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
@@ -78,6 +72,13 @@ static AccessorTable DMapDataTable[] =
 	{ "setMapInitD[]",              0,          ZTID_VOID,   DMAPDATAMAPINITD,          0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getCharted[]",               0,         ZTID_FLOAT,   DMAPDATACHARTED,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setCharted[]",               0,          ZTID_VOID,   DMAPDATACHARTED,           0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
+	{ "getMirrorDMap",              0,         ZTID_FLOAT,   DMAPDATAMIRRDMAP,          0,  { ZTID_DMAPDATA },{} },
+	{ "setMirrorDMap",              0,          ZTID_VOID,   DMAPDATAMIRRDMAP,          0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	
+	//Intentionally undocumented
+	{ "getFlags",                   0,         ZTID_FLOAT,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA },{} },
+	{ "setFlags",                   0,          ZTID_VOID,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
