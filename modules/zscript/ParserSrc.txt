@@ -50,7 +50,7 @@ src/parser/symbols/DirectorySymbols.cpp
 src/parser/symbols/StackSymbols.cpp
 src/parser/symbols/RNGSymbols.cpp
 src/parser/symbols/PalDataSymbols.cpp
-src/parser/symbols/ModuleSymbols.cpp
+src/parser/symbols/ZInfoSymbols.cpp
 src/parser/symbols/BottleTypeSymbols.cpp
 src/parser/symbols/BottleShopSymbols.cpp
 src/parser/symbols/GenericDataSymbols.cpp

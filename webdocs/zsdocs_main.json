@@ -126,6 +126,10 @@
                         {
                             "name": "Debug Pointer ;; debugptr",
                             "val": "$Debug"
+                        },
+                        {
+                            "name": "ZInfo Pointer ;; zinfoptr",
+                            "val": "$ZInfo"
                         }
                     ]
                 },
@@ -595,9 +599,26 @@
             "todo": true
         },
         {
-            "name": "Module",
-            "tabs": [],
-            "todo": true
+            "name": "ZInfo",
+            "tabs": [
+                {
+                    "name": "ZInfo ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Global Pointers ;; function_globalptr",
+                            "val": "$Base Data$3"
+                        },
+                        {
+                            "name": "<em>ZInfo</em> ;; zinfo",
+                            "val": "The `ZInfo-&gt;` pointer allows accessing zinfo strings.\n\n<todo>add more getter functions to `ZInfo-&gt;`</todo>\n"
+                        },
+                        {
+                            "name": "itemclass ;; ZInfo::GetItemClass",
+                            "val": "<h3>void GetItemClass(char32 [[buf[]|256 chars]], int itemclass_id);</h3>\nCopies the name of the specified itemclass (use `IC_` constants) into the buffer.\n"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "NPCData",

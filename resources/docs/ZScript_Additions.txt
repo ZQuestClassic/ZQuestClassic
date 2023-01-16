@@ -491,8 +491,8 @@ That said, they *have* normal array pointers, and as such can be used by basical
 	FileSystem->
 		Used to get information on the user filesystem, such as FileExists(), DirExists().
 	
-	Module->
-		Use to read values or strings used by the current module.
+	ZInfo->
+		Use to read ZInfo strings.
 	
 	RandGen->
 		Use to generate random numbers, using the engine's RNG
@@ -3757,27 +3757,15 @@ float Mouse[6];
 
 /************************************************************************************************************/
 
-//////////////											// Module
-//  Module  //
-//////////////
+///////////////											// ZInfo
+//   ZInfo   //
+///////////////
 
-int GetInt(char32[] "section_id", char32[] "element_id");
- * Returns the value of a specified element of a specified section of the current module.
- * Example: 
- * 	int a = Module->GetInt("METADATA", "version_year");
- 
-void GetString(char32 buffer[256], char32[] "section_id", char32[] "element_id");
- * Copies a string used by a specified element of a specified section of the current module to 
- * a buffer string. The buffer should be sized to 256.
+void GetItemClass(char32 buffer[256], int itemclass_id);
+ * Copies the name of the specified itemclass to the buffer.
  * Example:
  * 	char32 buf[256];
- * 	Module->GetString(buf, "METADATA", "author");
- 
- void GetItemClass(char32 buffer[256], int itemclass_id);
- * Copies a string used for itemclass ID 'itemclass_id' in the current module to the buffer string.
- * Example:
- * 	char32 buf[256];
- * 	Module->GetItemClass(buf, IC_SWORD);
+ * 	ZInfo->GetItemClass(buf, IC_SWORD);
  
  /************************************************************************************************************/
 

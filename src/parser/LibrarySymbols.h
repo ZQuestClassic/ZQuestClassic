@@ -473,17 +473,17 @@ private:
     void generateCode();
 };
 
-class ModuleSymbols : public LibrarySymbols
+class ZInfoSymbols : public LibrarySymbols
 {
 public:
-    static ModuleSymbols &getInst()
+    static ZInfoSymbols &getInst()
     {
         return singleton;
     }
 protected:
 private:
-    static ModuleSymbols singleton;
-    ModuleSymbols();
+    static ZInfoSymbols singleton;
+    ZInfoSymbols();
     void generateCode();
 };
 

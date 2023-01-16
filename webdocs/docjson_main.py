@@ -2421,6 +2421,7 @@ def setup_toplevel(title,closers=[]):
     toplevel.protocol("WM_DELETE_WINDOW", lambda: clear_toplevel(toplevel,closers))
     toplevel.grid_rowconfigure(0, weight=1)
     toplevel.grid_columnconfigure(0, weight=1)
+    toplevel.confirm = None
     return toplevel
 def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150,postinit=None):
     frame.grid()

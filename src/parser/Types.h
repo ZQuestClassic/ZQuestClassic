@@ -124,7 +124,7 @@ namespace ZScript
 		ZTID_FILESYSTEM,
 		ZTID_SUBSCREENDATA,
 		ZTID_FILE,
-		ZTID_MODULE,
+		ZTID_ZINFO,
 		ZTID_DIRECTORY,
 		ZTID_RNG,
 		ZTID_BOTTLETYPE,
@@ -237,8 +237,8 @@ namespace ZScript
 				return "BOTTLESHOP";
 			case ZTID_GENERICDATA:
 				return "GENERICDATA";
-			case ZTID_MODULE:
-				return "MODULE";
+			case ZTID_ZINFO:
+				return "ZINFO";
 			default:
 				return "INT";
 				/*char buf[16];
@@ -343,7 +343,9 @@ namespace ZScript
 		else if(name == "STACK")
 			return ZTID_STACK;
 		else if(name == "MODULE")
-			return ZTID_MODULE;
+			return ZTID_ZINFO;
+		else if(name == "ZINFO")
+			return ZTID_ZINFO;
 		else if(name == "RNG")
 			return ZTID_RNG;
 		else if(name == "PALDATA")
@@ -446,7 +448,7 @@ namespace ZScript
 		static DataTypeClassConst INPUT;
 		static DataTypeClassConst TEXT;
 		static DataTypeClassConst FILESYSTEM;
-		static DataTypeClassConst MODULE;
+		static DataTypeClassConst ZINFO;
 		//Class: Types
 		static DataTypeClassConst CBITMAP;
 		static DataTypeClassConst CCHEATS;

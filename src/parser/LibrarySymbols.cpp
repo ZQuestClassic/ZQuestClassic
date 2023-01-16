@@ -43,7 +43,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_FILE: return &FileSymbols::getInst();
 		case ZTID_DIRECTORY: return &DirectorySymbols::getInst();
 		case ZTID_STACK: return &StackSymbols::getInst();
-		case ZTID_MODULE: return &ModuleSymbols::getInst();
+		case ZTID_ZINFO: return &ZInfoSymbols::getInst();
 		case ZTID_RNG: return &RNGSymbols::getInst();
 		case ZTID_PALDATA: return &PalDataSymbols::getInst();
 		case ZTID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
