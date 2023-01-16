@@ -523,6 +523,7 @@ def onoption():
 def ontool():
     global toolmenu
     toolmenu.entryconfig('Broken Links', state = 'normal' if file_loaded else 'disabled')
+    toolmenu.entryconfig('Todos', state = 'normal' if file_loaded else 'disabled')
 def onpage():
     global pagemenu
     pagemenu.entryconfig('Settings', state = 'normal' if file_loaded else 'disabled')
@@ -547,11 +548,11 @@ def add_auto(s):
     if len(s2) > 1 and s2[1] == '.auto':
         return s
     return f'{s1}.auto{ext}'
-def check_brlink(skippop=False,parent=None):
+def check_brlink():
     global mainframe, brlinks
     tout = args.outputfile
     lib.poll_html_callback()
-    ProgressPopup.open(titlestrs=['Parsing HTML...'],cmax=lib.NUM_HTML_CALLBACK-1,parent=parent)
+    ProgressPopup.open(titlestrs=['Parsing HTML...'],cmax=lib.NUM_HTML_CALLBACK-1)
     
     brlinks = []
     if saver_html('_preview.html',skipwarn=True,load_messager=ProgressPopup.callback):
@@ -560,8 +561,15 @@ def check_brlink(skippop=False,parent=None):
     ProgressPopup.close()
     args.outputfile = tout
     
-    if brlinks and not skippop:
+    if brlinks:
         popup_brlink()
+def check_todo():
+    global mainframe
+    todos = search_todo()
+    if todos:
+        popup_todo(todos)
+    else:
+        popInfo('No todos found!')
 
 time_minute = 1000*60
 def schedule_autosave(i=1):
@@ -1178,7 +1186,7 @@ class InfoPage(Page):
         Docs are stored in .json format, which can be saved/loaded in the 'File' menu.
         You can also export the generated .html file.
         
-        You must load a .json file to continue.''')
+        You must use 'Load' or 'New' to continue.''')
         style_label(lb)
         lb.pack()
     def postinit(self):
@@ -2018,6 +2026,8 @@ class EditEntryPage(Page):
         butrow = Frame(self, bg=BGC)
         btns = []
         wid = 8
+        self.upbtn=Button(butrow, width=wid, text='Exit (Up)', command=lambda:navi.up())
+        btns.append(self.upbtn)
         self.backbtn = Button(butrow, width=wid, text='←', command=lambda:navi.back())
         btns.append(self.backbtn)
         self.fwdbtn = Button(butrow, width=wid, text='→', command=lambda:navi.fwd())
@@ -2191,9 +2201,7 @@ class navigation:
     # Go up a menu
     def up(self):
         l = len(self.current())
-        if l == 4: #Nowhere to go but back one... don't clutter history
-            self.back() 
-        elif l > 1: #Go up one page
+        if l > 1: #Go up one page
             lastnode = None if self.index==0 else self.history[self.index-1]
             upnode = self.history[self.index][:-1]
             if upnode == lastnode:
@@ -2266,6 +2274,16 @@ class navigation:
         return self.history[self.index]
 navi = navigation()
 
+def addjump(obj, addjumps):
+    newobj = copy.deepcopy(obj)
+    if not addjumps:
+        return newobj
+    name = obj['name']
+    if ';;' in name:
+        newobj['name'] = name + ' / ' + ' / '.join(addjumps)
+    else:
+        newobj['name'] = name + ' ;; ' + name + ' / ' + ' / '.join(addjumps)
+    return newobj
 def get_entry(addjumps=None):
     global mainframe
     
@@ -2306,18 +2324,27 @@ def save_entry():
     _setsheet(cursheet, sheet)
     local_edited(False)
     mark_edited()
-def preview_entry():
+def preview_entry(other=None):
     global cursheet, cursec, curentry
-    sh = json_obj['named'] if cursheet == -1 else json_obj['sheets'][cursheet]
-    old_e = sh['tabs'][cursec]['lines'][curentry]
-    new_e = get_entry(['_PREVIEW_JUMP'])
+    if other and other[0] != -2:
+        sheetnum,tabnum,linenum,*_ = other
+    else:
+        sheetnum = cursheet
+        tabnum = cursec
+        linenum = curentry
+    sh = json_obj['named'] if sheetnum == -1 else json_obj['sheets'][sheetnum]
+    old_e = sh['tabs'][tabnum]['lines'][linenum]
+    if other:
+        new_e = addjump(old_e, ['_PREVIEW_JUMP'])
+    else:
+        new_e = get_entry(['_PREVIEW_JUMP'])
     
-    if cursheet == -1: #named data
-        json_obj['named']['tabs'][cursec]['lines'][curentry] = new_e
+    if sheetnum == -1: #named data
+        json_obj['named']['tabs'][tabnum]['lines'][linenum] = new_e
         json_obj['sheets'].append(copy.deepcopy(json_obj['named']))
-        json_obj['named']['tabs'][cursec]['lines'][curentry] = get_entry()
+        json_obj['named']['tabs'][tabnum]['lines'][linenum] = get_entry()
         preview_html()
-        json_obj['named']['tabs'][cursec]['lines'][curentry] = old_e
+        json_obj['named']['tabs'][tabnum]['lines'][linenum] = old_e
         json_obj['sheets'] = json_obj['sheets'][:-1]
     else:
         json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = new_e
@@ -2368,6 +2395,7 @@ def gen_menubar():
     menubar.add_cascade(label='Options', menu=optmenu)
     toolmenu = Menu(menubar, tearoff=0, postcommand=ontool)
     toolmenu.add_command(label = 'Broken Links', command = check_brlink)
+    toolmenu.add_command(label = 'Todos', command = check_todo)
     #toolmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
     menubar.add_cascade(label='Tools', menu=toolmenu)
     pagemenu = Menu(menubar, tearoff=0, postcommand=onpage)
@@ -2376,12 +2404,15 @@ def gen_menubar():
     menubar.add_cascade(label='Page', menu=pagemenu)
     root.config(menu=menubar)
 
-def clear_toplevel(toplevel,closers=[]):
+def clear_toplevel(tl,closers=[]):
+    global toplevel
     for closer in closers:
         closer()
     destroy_popup()
-    toplevel.grab_release()
-    toplevel.destroy()
+    tl.grab_release()
+    tl.destroy()
+    if toplevel is tl:
+        toplevel = None
 def setup_toplevel(title,closers=[]):
     global toplevel
     toplevel = Toplevel(bg=BGC)
@@ -2391,7 +2422,7 @@ def setup_toplevel(title,closers=[]):
     toplevel.grid_rowconfigure(0, weight=1)
     toplevel.grid_columnconfigure(0, weight=1)
     return toplevel
-def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150):
+def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150,postinit=None):
     frame.grid()
     Frame(frame,bg=BGC,width=0,height=15).pack()
     btnfr = Frame(frame,bg=BGC)
@@ -2408,8 +2439,12 @@ def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150):
         b.pack(side='left')
     btnfr.pack()
     okb.focus_set()
+    toplevel.okb = okb
+    toplevel.cb = cb
     toplevel.protocol("WM_DELETE_WINDOW", lambda *_:cb.invoke())
-    toplevel.bind('<Return>',lambda *_:okb.invoke())
+    if not toplevel.confirm:
+        toplevel.confirm = lambda *_: okb.invoke()
+    toplevel.bind('<Return>',toplevel.confirm)
     toplevel.bind('<Escape>',lambda *_:cb.invoke())
     toplevel.geometry(f'{w}x{h}')
     toplevel.okb = okb
@@ -2419,7 +2454,8 @@ def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150):
     rw = root.winfo_width()
     rh = root.winfo_height()
     toplevel.geometry("+%d+%d" %(rx+(rw-w)/2,ry+(rh-h)/2))
-    
+    if postinit:
+        postinit(toplevel)
     toplevel.mainloop()
 def pack_entry_rows(toplevel,frame,l:list,wid=50):
     fr = Frame(frame, bg=BGC)
@@ -2453,6 +2489,10 @@ def setkey(key:str,val):
     global json_obj
     json_obj[key] = val
 
+def sel_toplvl(evt):
+    global curtop
+    curtop = get_sel(evt.widget)
+
 def popup_pagesetting():
     global json_obj, file_loaded
     if not file_loaded:
@@ -2471,9 +2511,7 @@ def popup_pagesetting():
         ('URL Text:','urltxt')])
     savers.append(mark_edited)
     launch_toplevel(toplevel,topframe,w=400,h=150,savers=savers)
-def sel_toplvl(evt):
-    global curtop
-    curtop = get_sel(evt.widget)
+
 def sub_brlink(br,s,txt):
     global _sub_count
     output = txt
@@ -2490,7 +2528,7 @@ def sub_brlink(br,s,txt):
         _sub_count += count
     return output
 def repl_brlink(ind):
-    global brlinks, _sub_count, toplevel, toplistbox
+    global brlinks, _sub_count, toplevel, toplistbox, needs_edit_save
     br = brlinks[ind]
     s = simpledialog.askstring('Re-Link', f"Replace links to '{br}' with links to?", parent=toplevel)
     if not s:
@@ -2513,14 +2551,41 @@ def repl_brlink(ind):
             txt = sub_brlink(br,s,txt)
             mainframe.txt_body.delete('1.0',END)
             mainframe.txt_body.insert(END,txt)
-    if _sub_count > 0:
-        local_edited()
+    if _sub_count > 0 and needs_edit_save:
         total += _sub_count
     _sub_count = 0
     s1 = "" if total == 1 else "s"
     s2 = "a link" if total == 1 else "links"
     popInfo(f'Replaced {total} instance{s1} of {s2} to "{br}" with {s2} to "{s}"')
     toplistbox.focus_set()
+def search_todo():
+    global needs_edit_save
+    total = 0
+    todos = []
+    pat = re.compile('<todo>(.+)</todo>')
+    for sh in range(len(json_obj['sheets'])):
+        for tab in range(len(json_obj['sheets'][sh]['tabs'])):
+            for line in range(len(json_obj['sheets'][sh]['tabs'][tab]['lines'])):
+                val = json_obj['sheets'][sh]['tabs'][tab]['lines'][line]['val']
+                count = len(re.findall(pat, val))
+                if count:
+                    re.sub(pat, lambda m:todos.append((sh,tab,line,m.group(1))), val)
+                    total += count
+    for tab in range(len(json_obj['named']['tabs'])):
+        for line in range(len(json_obj['named']['tabs'][tab]['lines'])):
+            val = json_obj['named']['tabs'][tab]['lines'][line]['val']
+            count = len(re.findall(pat, val))
+            if count:
+                re.sub(pat, lambda m:todos.append((-1,tab,line,m.group(1))), val)
+                total += count
+    if isinstance(mainframe, EditEntryPage) and needs_edit_save:
+        if mainframe.get_ty() == 'Page':
+            val = mainframe.get_val()
+            count = len(re.findall(pat, val))
+            if count:
+                re.sub(pat, lambda m:todos.append((-2,-2,-2,m.group(1))), val)
+                total += count
+    return todos
 def reload_brlist():
     global toplistbox, toplevel
     toplevel.okb.invoke()
@@ -2564,6 +2629,60 @@ def popup_brlink():
         fr.pack(side='left')
         row.pack()
     launch_toplevel(toplevel,topframe,w=250,h=250,savers=[])
+
+def goto_todo(todo):
+    global toplevel
+    sh,tab,line,txt = todo
+    toplevel.okb.invoke()
+    if (sh,tab,line) == (-2,-2,-2):
+        return #exit w/o navigation
+    navi.visit_new((sh,tab,line,0))
+def preview_todo(todo):
+    global toplevel
+    goto_todo(todo)
+    preview_entry(todo)
+def popup_todo(todos):
+    global json_obj, file_loaded, toplistbox, curtop
+    if not file_loaded:
+        return
+    popup = centered_popup(Frame(root,bg=BGC))
+    f1 = build_labels(['Todos tool open...','Please Close Popup'],parent=popup)
+    f1.pack()
+    update_popup_size()
+    
+    toplevel = setup_toplevel('Todos')
+    topframe = Frame(toplevel, bg=BGC)
+    
+    if not todos:
+        _lbl = Label(topframe, text="No Todos Found!")
+        style_label(_lbl)
+        _lbl.pack()
+        toplevel.confirm = None
+    else:
+        curtop = 0
+        row = Frame(topframe, bg=BGC)
+        fr = Frame(row, bg=BGC)
+        toplistbox = Listbox(fr, width = 50)
+        style_lb(toplistbox)
+        toplistbox.bind('<<ListboxSelect>>', sel_toplvl)
+        toplevel.confirm = lambda *_:goto_todo(todos[curtop])
+        toplistbox.bind('<Double-1>', toplevel.confirm)
+        pack_scrollable_listbox(toplistbox)
+        toplistbox.focus_set()
+        _load_list(toplistbox, 0, [x[3] for x in todos], lambda a:a)
+        fr.pack(side='left')
+        fr = Frame(row, bg=BGC)
+        wid = 10
+        btn = Button(fr, width=wid, text='Go To', command=toplevel.confirm)
+        style_btn(btn)
+        btn.pack()
+        btn = Button(fr, width=wid, text='Preview', command=lambda *_:preview_todo(todos[curtop]))
+        style_btn(btn)
+        btn.pack()
+        fr.pack(side='left')
+        row.pack()
+    launch_toplevel(toplevel,topframe,w=450,h=250,savers=[])
+
 root = Tk()
 style = ttk.Style(root)
 root.config(bg=BGC)

@@ -466,7 +466,7 @@
                         },
                         {
                             "name": "--",
-                            "val": "<todo>Under Construction!</todo>"
+                            "val": "<todo>Weapons Section Under Construction!</todo>\n"
                         },
                         {
                             "name": "EWeapon Only ;; ewpnptr",
@@ -488,7 +488,7 @@
                         },
                         {
                             "name": "--",
-                            "val": "<todo>Under Construction!</todo>"
+                            "val": "<todo>EWeapons Section Under Construction!</todo>\n"
                         }
                     ],
                     "todo": true
@@ -502,7 +502,7 @@
                         },
                         {
                             "name": "--",
-                            "val": "<todo>Under Construction!</todo>"
+                            "val": "<todo>LWeapons Section Under Construction!</todo>\n"
                         }
                     ],
                     "todo": true
