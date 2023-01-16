@@ -223,6 +223,10 @@
                             "val": "$ShopData"
                         },
                         {
+                            "name": "SpriteData Pointers ;; spritedataptr",
+                            "val": "$SpriteData"
+                        },
+                        {
                             "name": "GenericData Pointers ;; genericdataptr ;; GenericData Pointers",
                             "val": "$GenericData"
                         }
@@ -696,8 +700,8 @@
                             "val": "<h3>SpriteData Pointers</h3>   `spritedata`\n\nThese pointers represent the `Quest-&gt;Graphics-&gt;Sprites-&gt;Sprite Data` sprite information.\n\nSee: ${LoadSpriteData}"
                         },
                         {
-                            "name": "Data ;; spritedata::Tile / spritedata::CSet / spritedata::FlashCSet / spritedata::Frames / spritedata::Speed / spritedata::Flags / spritedata::Type",
-                            "val": "<h3>int Tile;</h3>\nThe tile of the sprite.\n\n<h3>int CSet;</h3>\nThe cset of the sprite.\n\n<h3>int FlashCSet;</h3>\nThe flash cset of the sprite.\n\n<h3>int Frames;</h3>\nThe frame count of the sprite.\n\n<h3>int Speed;</h3>\nThe speed of the sprite, in frames per frame\n\n<h3>bool Flags[5];</h3>\nThe sprite's flags. Use the `SPRFL_` constants as indexes.\n#{SPRFL_ constants|$[SPRFL_]}\n\n<h3>int Type;</h3>\nThe 'Type' field of the sprite."
+                            "name": "Data ;; spritedata::ID / spritedata::Tile / spritedata::CSet / spritedata::FlashCSet / spritedata::Frames / spritedata::Speed / spritedata::Flags / spritedata::Type",
+                            "val": "<h3>int ID;</h3>\nRead-only. The sprite ID this spritedata is associated with.\n\n<h3>int Tile;</h3>\nThe tile of the sprite.\n\n<h3>int CSet;</h3>\nThe cset of the sprite.\n\n<h3>int FlashCSet;</h3>\nThe flash cset of the sprite.\n\n<h3>int Frames;</h3>\nThe frame count of the sprite.\n\n<h3>int Speed;</h3>\nThe speed of the sprite, in frames per frame\n\n<h3>bool Flags[5];</h3>\nThe sprite's flags. Use the `SPRFL_` constants as indexes.\n#{SPRFL_ constants|$[SPRFL_]}\n<h3>int Type;</h3>\nThe 'Type' field of the sprite."
                         }
                     ]
                 }
@@ -730,8 +734,8 @@
                             "val": "<h3>untyped Misc[32];\nuntyped Misc2[256];\nuntyped Misc3[256];</h3>\n\n3 misc data arrays."
                         },
                         {
-                            "name": "Basic Loaders ;; Game::LoadGenericData / Game::LoadBottleShopData / Game::LoadBottleData / Game::LoadDropset / Game::LoadDMapData / Game::LoadMessageData / Game::LoadInfoShopData / Game::LoadShopData / Game::LoadSpriteData / Game::LoadComboData / Game::LoadNPCData / Game::LoadItemData ;; LoadItemData / LoadNPCData / LoadComboData / LoadSpriteData / LoadShopData / LoadInfoShopData / LoadMessageData / LoadDMapData / LoadDropset / LoadBottleData / LoadBottleShopData / LoadGenericData",
-                            "val": "<h3>${itemdata} LoadItemData(int item_id);</h3>\n<h3>${npcdata} LoadNPCData(int npc_id);</h3>\n<h3>${combodata} LoadComboData(int combo_id);</h3>\n<h3>${spritedata} LoadSpriteData(int misc_spr_id);</h3>\n<h3>${shopdata} LoadShopData(int shop_id);</h3>\n<h3>${shopdata} LoadInfoShopData(int shop_id);</h3>\n<h3>${messagedata} LoadMessageData(int string_id);</h3>\n<h3>${dmapdata} LoadDMapData(int dmap_id);</h3>\n<h3>${dropsetdata} LoadDropset(int dropset_id);</h3>\n<h3>${bottledata} LoadBottleData(int bottle_type_id);</h3>\n<h3>${bottleshopdata} LoadBottleShopData(int bottleshop_id);</h3>\n<h3>${genericdata} LoadGenericData(int generic_script_id);</h3>\n\nThese functions load the specified pointer, returning `NULL` on a failure."
+                            "name": "Basic Loaders ;; Game::LoadGenericData / Game::LoadBottleShopData / Game::LoadBottleData / Game::LoadDropset / Game::LoadDMapData / Game::LoadMessageData / Game::LoadInfoShopData / Game::LoadShopData / Game::LoadSpriteData / Game::LoadComboData / Game::LoadNPCData / Game::LoadItemData",
+                            "val": "<mono>\n<h3>${itemdata}       LoadItemData       (int item_id);</h3>\n<h3>${npcdata}        LoadNPCData        (int npc_id);</h3>\n<h3>${combodata}      LoadComboData      (int combo_id);</h3>\n<h3>${spritedata}     LoadSpriteData     (int misc_spr_id);</h3>\n<h3>${shopdata}       LoadShopData       (int shop_id);</h3>\n<h3>${shopdata}       LoadInfoShopData   (int shop_id);</h3>\n<h3>${messagedata}    LoadMessageData    (int string_id);</h3>\n<h3>${dmapdata}       LoadDMapData       (int dmap_id);</h3>\n<h3>${dropsetdata}    LoadDropset        (int dropset_id);</h3>\n<h3>${bottledata}     LoadBottleData     (int bottle_type_id);</h3>\n<h3>${bottleshopdata} LoadBottleShopData (int bottleshop_id);</h3>\n<h3>${genericdata}    LoadGenericData    (int generic_script_id);</h3></mono>\n\nThese functions load the specified pointer, returning `NULL` on a failure."
                         },
                         {
                             "name": "Other Loaders ;; Game::LoadStack / Game::LoadRNG / Game::LoadBitmapID / Game::CreateBitmap / Game::AllocateBitmap / Game::LoadScrollingScreen / Game::LoadTempScreen / Game::LoadMapData ;; LoadMapData / LoadTempScreen / LoadScrollingScreen / LoadBitmapID / CreateBitmap / AllocateBitmap / LoadRNG / LoadStack",
