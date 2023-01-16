@@ -8,8 +8,8 @@ static AccessorTable ZInfoTable[] =
 	{ "GetItemClass",               0,          ZTID_VOID,   -1,                        0,  { ZTID_ZINFO, ZTID_CHAR, ZTID_FLOAT },{} },
 	
 	// Deprecated
-	{ "GetInt",                     0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR },{},0,"Module->GetInt() is no longer supported!" },
-	{ "GetString",                  0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_MODULE, ZTID_CHAR, ZTID_CHAR, ZTID_CHAR },{},0,"Module->GetString() is no longer supported!" },
+	{ "GetInt",                     0,         ZTID_FLOAT,   -1,                  FL_DEPR,  { ZTID_ZINFO, ZTID_CHAR, ZTID_CHAR },{},0,"Module->GetInt() is no longer supported!" },
+	{ "GetString",                  0,          ZTID_VOID,   -1,                  FL_DEPR,  { ZTID_ZINFO, ZTID_CHAR, ZTID_CHAR, ZTID_CHAR },{},0,"Module->GetString() is no longer supported!" },
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
