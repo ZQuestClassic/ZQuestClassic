@@ -833,6 +833,9 @@ def generate_output(obj,sm=None) -> str:
 		.pagecont .mono {
 			font-family: var(--mono-font);
 		}
+		.pagecont .mono * {
+			font-family: var(--mono-font);
+		}
 		*[data-iblock] {
 			display: inline-block;
 		}
