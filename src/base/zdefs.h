@@ -2097,11 +2097,11 @@ struct wpndata
 	word script;
 };
 
-#define     WF_AUTOFLASH        0x01
-#define     WF_2PFLASH          0x02
-#define     WF_HFLIP            0x04
-#define     WF_VFLIP            0x08
-#define		WF_BEHIND			0x10	//Weapon renders behind other sprites
+#define WF_AUTOFLASH  0x01
+#define WF_2PFLASH    0x02
+#define WF_HFLIP      0x04
+#define WF_VFLIP      0x08
+#define WF_BEHIND     0x10 //Weapon renders behind other sprites
 
 struct quest_template
 {

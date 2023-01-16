@@ -3178,10 +3178,10 @@ int32_t get_register(const int32_t arg)
 	
 	#define GET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) )    \
+		if(unsigned(ri->spritesref) > (MAXWPNS-1) )    \
 		{ \
 			ret = -10000; \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str);\
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000));\
 		} \
 		else \
 			ret = (wpnsbuf[ri->spritesref].member * 10000); \
@@ -9185,10 +9185,60 @@ int32_t get_register(const int32_t arg)
 			
 		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
 		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
-		case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
+		case SPRITEDATACSETS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritesref*10000));
+			}
+			else
+				ret = ((wpnsbuf[ri->spritesref].csets & 0xF) * 10000);
+			break;
+		}
+		case SPRITEDATAFLCSET:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), "FlashCSet");
+				break;
+			}
+			ret = (((wpnsbuf[ri->spritesref].csets & 0xF0)>>4) * 10000);
+			break;
+		}
 		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
 		case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed, "Speed") break;
 		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
+		case SPRITEDATAFLAGS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = 0;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritesref*10000));
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(unsigned(index) >= 5)
+			{
+				ret = 0;
+				Z_scripterrlog("Invalid index passed to spritedata->Flags[]: %d\n", index);
+				break;
+			}
+			ret = (wpnsbuf[ri->spritesref].misc & (1<<index)) ? 10000 : 0;
+			break;
+		}
+		case SPRITEDATAID:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->ID: %d\n", (ri->spritesref*10000));
+				break;
+			}
+			ret = ri->spritesref*10000;
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//mapdata m-> variables
@@ -12563,9 +12613,9 @@ void set_register(const int32_t arg, const int32_t value)
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) ) \
+		if(unsigned(ri->spritesref) > (MAXWPNS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str); \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000)); \
 		} \
 		else \
 		{ \
@@ -12575,9 +12625,9 @@ void set_register(const int32_t arg, const int32_t value)
 
 	#define	SET_SPRITEDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) ) \
+		if(unsigned(ri->spritesref) > (MAXWPNS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str); \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000)); \
 		} \
 		else \
 		{ \
@@ -19049,10 +19099,51 @@ void set_register(const int32_t arg, const int32_t value)
 	//spritedata sp-> Variables
 		case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
 		case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
-		case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
+		case SPRITEDATACSETS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritesref*10000));
+			}
+			else
+			{
+				wpnsbuf[ri->spritesref].csets &= 0xF0;
+				wpnsbuf[ri->spritesref].csets |= vbound((value / 10000),0,15);
+			}
+			break;
+		}
+		case SPRITEDATAFLCSET:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->FlashCSet: %d\n", (ri->spritesref*10000));
+			}
+			else
+			{
+				wpnsbuf[ri->spritesref].csets &= 0x0F;
+				wpnsbuf[ri->spritesref].csets |= vbound((value / 10000),0,15)<<4;
+			}
+			break;
+		}
 		case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
 		case SPRITEDATASPEED: SET_SPRITEDATA_VAR_BYTE(speed, "Speed"); break;
 		case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
+		case SPRITEDATAFLAGS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritesref*10000));
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(unsigned(index) >= 5)
+			{
+				Z_scripterrlog("Invalid index passed to spritedata->Flags[]: %d\n", index);
+				break;
+			}
+			SETFLAG(wpnsbuf[ri->spritesref].misc, 1<<index, value);
+			break;
+		}
 		
 	///----------------------------------------------------------------------------------------------------//
 	//mapdata m-> Variables
@@ -40428,6 +40519,9 @@ script_variable ZASMVars[]=
 	{ "IDATABUNNYABLE", IDATABUNNYABLE, 0, 0 },
 	{ "IDATAJINXIMMUNE", IDATAJINXIMMUNE, 0, 0 },
 	{ "IDATAJINXSWAP", IDATAJINXSWAP, 0, 0 },
+	{ "SPRITEDATAFLCSET", SPRITEDATAFLCSET, 0, 0 },
+	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
+	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

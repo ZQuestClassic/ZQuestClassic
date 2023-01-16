@@ -7390,14 +7390,16 @@ sd->Tile = 600;
 
 */
 
+int ID;
+ * The read-only ID of the sprite.
+
 int Tile;
  * The tile used by the weapon sprite.
 
-int Misc;
- * The Misc Type. (or is this Type?)
-
 int CSet;
  * The CSet used by the sprite.
+int FlashCSet;
+ * The FlashCSet used by the sprite.
 
 int Frames;
  * The number of frames in the animation cycle.
@@ -7406,9 +7408,10 @@ int Speed;
  * The speed of the animation cycle.
 
 int Type;
- * The Misc Type. (or is this Misc?)
-
-//Where are Flash, and Flags?! -Z
+ * The Misc Type.
+ 
+bool Flags[5];
+ * The flags of the sprite - 'SPRFL_' constants
 
 /////////////////////
 ///  dropsetdata  ///

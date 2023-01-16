@@ -583,8 +583,7 @@
                         }
                     ]
                 }
-            ],
-            "todo": true
+            ]
         },
         {
             "name": "Itemsprite",
@@ -684,8 +683,25 @@
         },
         {
             "name": "SpriteData",
-            "tabs": [],
-            "todo": true
+            "tabs": [
+                {
+                    "name": "SpriteData ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "<em>spritedata</em> ;; spritedata",
+                            "val": "<h3>SpriteData Pointers</h3>   `spritedata`\n\nThese pointers represent the `Quest-&gt;Graphics-&gt;Sprites-&gt;Sprite Data` sprite information.\n\nSee: ${LoadSpriteData}"
+                        },
+                        {
+                            "name": "Data ;; spritedata::Tile / spritedata::CSet / spritedata::FlashCSet / spritedata::Frames / spritedata::Speed / spritedata::Flags / spritedata::Type",
+                            "val": "<h3>int Tile;</h3>\nThe tile of the sprite.\n\n<h3>int CSet;</h3>\nThe cset of the sprite.\n\n<h3>int FlashCSet;</h3>\nThe flash cset of the sprite.\n\n<h3>int Frames;</h3>\nThe frame count of the sprite.\n\n<h3>int Speed;</h3>\nThe speed of the sprite, in frames per frame\n\n<h3>bool Flags[5];</h3>\nThe sprite's flags. Use the `SPRFL_` constants as indexes.\n#{SPRFL_ constants|$[SPRFL_]}\n\n<h3>int Type;</h3>\nThe 'Type' field of the sprite."
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "Game",
@@ -2453,6 +2469,10 @@
                     {
                         "name": "SZFLAG_",
                         "val": "Flags for `itemdata-&gt;SizeFlags` and `itemdata-&gt;WeaponSizeFlags`\n<mono>SZFLAG_TILEHEIGHT     = 0x0002\nSZFLAG_HIT_WIDTH      = 0x0004\nSZFLAG_HIT_HEIGHT     = 0x0008\nSZFLAG_HIT_Z_HEIGHT   = 0x0010\nSZFLAG_HIT_X_OFFSET   = 0x0020\nSZFLAG_HIT_Y_OFFSET   = 0x0040\nSZFLAG_DRAW_X_OFFSET  = 0x0080\nSZFLAG_DRAW_Y_OFFSET  = 0x0100\nSZFLAG_DRAW_Z_OFFSET  = 0x0200\nSZFLAG_ALL            = 0x03FF</mono>"
+                    },
+                    {
+                        "name": "SPRFL_",
+                        "val": "Indexes for `spritedata-&gt;Flags[]`\n<ol start=\"0\"><li>SPRFL_AUTOFLASH</li>\n<li>SPRFL_2PFLASH</li>\n<li>SPRFL_HFLIP</li>\n<li>SPRFL_VFLIP</li>\n<li>SPRFL_BEHIND</li></ol>"
                     }
                 ]
             }

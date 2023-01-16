@@ -4807,8 +4807,11 @@ enum ASM_DEFINE
 #define IDATABUNNYABLE          0x14CB
 #define IDATAJINXIMMUNE         0x14CC
 #define IDATAJINXSWAP           0x14CD
+#define SPRITEDATAFLCSET        0x14CE
+#define SPRITEDATAFLAGS         0x14CF
+#define SPRITEDATAID            0x14D0
 
-#define NUMVARIABLES            0x14CE
+#define NUMVARIABLES            0x14D1
 
 //} End variables
 

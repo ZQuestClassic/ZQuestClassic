@@ -1516,8 +1516,11 @@
 #define IDATABUNNYABLE          1429
 #define IDATAJINXIMMUNE         1430
 #define IDATAJINXSWAP           1431
+#define SPRITEDATAFLCSET        1432
+#define SPRITEDATAFLAGS         1433
+#define SPRITEDATAID            1434
 
-#define LAST_BYTECODE           1432
+#define LAST_BYTECODE           1435
 
 //} END OF BYTECODE
 
