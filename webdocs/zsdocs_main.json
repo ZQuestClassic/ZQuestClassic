@@ -321,7 +321,7 @@
                         },
                         {
                             "name": "<em>combodata</em>",
-                            "val": "<h3>ComboData Pointers</h3>   `combodata`\n\nThese pointers represent a combo ID, and all its' associated attributes.\n\nSee: ${LoadComboData}"
+                            "val": "<h3>ComboData Pointers</h3>   `combodata`\n\nThese pointers represent a combo ID, and all its' associated attributes.\n\nSee: ${Game::LoadComboData|LoadComboData}"
                         },
                         {
                             "name": "ID ;; combodata::ID",
@@ -395,7 +395,7 @@
                         },
                         {
                             "name": "<em>dmapdata</em> ;; dmapdata",
-                            "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${LoadDMapData}"
+                            "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${Game::LoadDMapData|LoadDMapData}"
                         },
                         {
                             "name": "DMap Strings ;; dmapdata::GetName / dmapdata::SetName / dmapdata::GetTitle / dmapdata::SetTitle / dmapdata::GetIntro / dmapdata::SetIntro / dmapdata::GetMusic / dmapdata::SetMusic",
@@ -440,7 +440,7 @@
                         },
                         {
                             "name": "Items ;; dmapdata::DisabledItems / dmapdata::MirrorDMap",
-                            "val": "<h3>bool DisabledItems[NUM_ITEMDATA];</h3>\nIf each item on the dmap is disabled.\n\n<h3>int MirrorDMap;</h3>\nThe DMap ID that using a Mirror will take you to. If this is '-1', Mirrors will not be able to warp you to another dmap. If the ${dmapdata::Flagset[]|flag} 'Mirror Continues instead of Warping' is set, the mirror dmap setting is not used."
+                            "val": "<h3>bool DisabledItems[NUM_ITEMDATA];</h3>\nIf each item on the dmap is disabled.\n\n<h3>int MirrorDMap;</h3>\nThe DMap ID that using a Mirror will take you to. If this is '-1', Mirrors will not be able to warp you to another dmap. If the ${dmapdata::Flagset|flag} 'Mirror Continues instead of Warping' is set, the mirror dmap setting is not used."
                         },
                         {
                             "name": "Flags ;; dmapdata::Sideview / dmapdata::Flagset",
@@ -522,7 +522,7 @@
                         },
                         {
                             "name": "<em>itemdata</em> ;; itemdata",
-                            "val": "<h3>ItemData Pointers</h3>   `itemdata`\n\nThese pointers represent an inventory item and all its' associated attributes.\n\nSee: ${LoadItemData}"
+                            "val": "<h3>ItemData Pointers</h3>   `itemdata`\n\nThese pointers represent an inventory item and all its' associated attributes.\n\nSee: ${Game::LoadItemData|LoadItemData}"
                         },
                         {
                             "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power / itemdata::Attributes / itemdata::GetName",
@@ -697,7 +697,7 @@
                         },
                         {
                             "name": "<em>spritedata</em> ;; spritedata",
-                            "val": "<h3>SpriteData Pointers</h3>   `spritedata`\n\nThese pointers represent the `Quest-&gt;Graphics-&gt;Sprites-&gt;Sprite Data` sprite information.\n\nSee: ${LoadSpriteData}"
+                            "val": "<h3>SpriteData Pointers</h3>   `spritedata`\n\nThese pointers represent the `Quest-&gt;Graphics-&gt;Sprites-&gt;Sprite Data` sprite information.\n\nSee: ${Game::LoadSpriteData|LoadSpriteData}"
                         },
                         {
                             "name": "Data ;; spritedata::ID / spritedata::Tile / spritedata::CSet / spritedata::FlashCSet / spritedata::Frames / spritedata::Speed / spritedata::Flags / spritedata::Type",
@@ -1200,7 +1200,7 @@
                         },
                         {
                             "name": "<em>genericdata</em>",
-                            "val": "<h3>GenericData Pointers</h3>   `genericdata`\n\n`genericdata` pointers allow interacting with and running `generic` scripts.\n\nSee: ${LoadGenericData}, ${WaitTo}, ${WaitEvent}"
+                            "val": "<h3>GenericData Pointers</h3>   `genericdata`\n\n`genericdata` pointers allow interacting with and running `generic` scripts.\n\nSee: ${Game::LoadGenericData|LoadGenericData}, ${WaitTo}, ${WaitEvent}"
                         },
                         {
                             "name": "Script Running ;; genericdata::Running / genericdata::RunFrozen / genericdata::ExitState / genericdata::ReloadState",
@@ -1534,7 +1534,7 @@
                         },
                         {
                             "name": "<em>bottledata</em>",
-                            "val": "<h3>BottleData Pointers</h3>   `bottledata`\n\n`bottledata` pointers allow accessing data relating to 'Bottle Types'.\n\nSee: ${LoadBottleData}"
+                            "val": "<h3>BottleData Pointers</h3>   `bottledata`\n\n`bottledata` pointers allow accessing data relating to 'Bottle Types'.\n\nSee: ${Game::LoadBottleData|LoadBottleData}"
                         },
                         {
                             "name": "Name ;; bottledata::name / bottledata::GetName / bottledata::SetName",
@@ -1576,7 +1576,7 @@
                         },
                         {
                             "name": "<em>bottleshopdata</em>",
-                            "val": "<h3>BottleShopData Pointers</h3>   `bottleshopdata`\n\n`bottleshopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${LoadBottleShopData}\n\nRelated: ${bottledata}"
+                            "val": "<h3>BottleShopData Pointers</h3>   `bottleshopdata`\n\n`bottleshopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${Game::LoadBottleShopData|LoadBottleShopData}\n\nRelated: ${bottledata}"
                         },
                         {
                             "name": "Name ;; bottleshopdata::GetName / bottleshopdata::SetName",
@@ -1618,7 +1618,7 @@
                         },
                         {
                             "name": "<em>dropsetdata</em>",
-                            "val": "<h3>DropsetData Pointers</h3>   `dropsetdata`\n\n`dropsetdata` pointers allow accessing dropsets, and using them to pick random items.\n\nSee: ${LoadDropset}"
+                            "val": "<h3>DropsetData Pointers</h3>   `dropsetdata`\n\n`dropsetdata` pointers allow accessing dropsets, and using them to pick random items.\n\nSee: ${Game::LoadDropset|LoadDropset}"
                         },
                         {
                             "name": "Choose ;; dropsetdata::Choose",
@@ -1652,7 +1652,7 @@
                         },
                         {
                             "name": "<em>messagedata</em>",
-                            "val": "<h3>MessageData Pointers</h3>   `messagedata`\n\n`messagedata` pointers allow accessing and editing ${message strings}.\n\nSee: ${LoadMessageData}"
+                            "val": "<h3>MessageData Pointers</h3>   `messagedata`\n\n`messagedata` pointers allow accessing and editing ${message strings}.\n\nSee: ${Game::LoadMessageData|LoadMessageData}"
                         },
                         {
                             "name": "Message ;; messagedata::Get / messagedata::Set / messagedata::Length",
@@ -1714,7 +1714,7 @@
                         },
                         {
                             "name": "<em>shopdata</em>",
-                            "val": "<h3>ShopData Pointers</h3>   `shopdata`\n\n`shopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${LoadShopData}, ${LoadInfoShopData}"
+                            "val": "<h3>ShopData Pointers</h3>   `shopdata`\n\n`shopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${Game::LoadShopData|LoadShopData}, ${Game::LoadInfoShopData|LoadInfoShopData}"
                         },
                         {
                             "name": "Type ;; shopdata::Type",

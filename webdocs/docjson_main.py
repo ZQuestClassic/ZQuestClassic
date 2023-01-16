@@ -405,13 +405,17 @@ class ProgressTracker:
             self.modcb(self.labelstrs)
 progpop_inst = None
 class ProgressPopup:
-    def __init__(self,titlestrs=[],waitstr='Please Wait {}/{}',ccount=0,cmax=0,tracker=None):
+    def __init__(self,titlestrs=[],waitstr='Please Wait {}/{}',ccount=0,cmax=0,parent=None,tracker=None):
+        global root
         self.titlestrs = titlestrs
         self.waitstr = waitstr
         self.popup = None
         self.callcount = ccount
         self.callmax = cmax
         self.tracker = tracker
+        if not parent:
+            parent = root
+        self.parent = parent
     def pop(self):
         global root
         if self.popup:
@@ -439,9 +443,11 @@ class ProgressPopup:
         root.update()
         self.callcount += 1
     @staticmethod
-    def open(titlestrs=[],waitstr='Please Wait {}/{}',ccount=0,cmax=0):
-        global progpop_inst
-        progpop_inst = ProgressPopup(titlestrs,waitstr,ccount,cmax)
+    def open(titlestrs=[],waitstr='Please Wait {}/{}',ccount=0,cmax=0,parent=None):
+        global progpop_inst, root
+        if not parent:
+            parent = root
+        progpop_inst = ProgressPopup(titlestrs,waitstr,ccount,cmax,parent)
         progpop_inst.pop()
     @staticmethod
     def close():
@@ -514,8 +520,13 @@ def onoption():
     global optmenu
     asmin = config['autosave_minutes']
     optmenu.entryconfig(0, label = f"Autosave ({asmin} min)" if asmin else "Autosave (off)")
+def ontool():
+    global toolmenu
+    toolmenu.entryconfig('Broken Links', state = 'normal' if file_loaded else 'disabled')
 def onpage():
-    pass
+    global pagemenu
+    pagemenu.entryconfig('Settings', state = 'normal' if file_loaded else 'disabled')
+    pagemenu.entryconfig('Named Data', state = 'normal' if file_loaded else 'disabled')
 def opt_autosave():
     global config
     val = simpledialog.askinteger('Input', f"Autosave every how many minutes? (current: {config['autosave_minutes']})", minvalue=0, parent=root)
@@ -536,6 +547,21 @@ def add_auto(s):
     if len(s2) > 1 and s2[1] == '.auto':
         return s
     return f'{s1}.auto{ext}'
+def check_brlink(skippop=False,parent=None):
+    global mainframe, brlinks
+    tout = args.outputfile
+    lib.poll_html_callback()
+    ProgressPopup.open(titlestrs=['Parsing HTML...'],cmax=lib.NUM_HTML_CALLBACK-1,parent=parent)
+    
+    brlinks = []
+    if saver_html('_preview.html',skipwarn=True,load_messager=ProgressPopup.callback):
+        brlinks = lib.broken_links
+    
+    ProgressPopup.close()
+    args.outputfile = tout
+    
+    if brlinks and not skippop:
+        popup_brlink()
 
 time_minute = 1000*60
 def schedule_autosave(i=1):
@@ -2049,6 +2075,8 @@ class EditEntryPage(Page):
             self.ignore_modify -= 1
             return
         local_edited()
+    def get_ty(self):
+        return self.field_ty.get()
     def get_val(self):
         ty = self.field_ty.get()
         match ty:
@@ -2068,7 +2096,7 @@ class EditEntryPage(Page):
                     return f'${sheet}${sec}'
                 return f'${sheet}'
             case 'Page':
-                return self.txt_body.get("1.0", "end-1c")
+                return self.txt_body.get('1.0', END)
     def reload_jump(self,selind):
         global jumplistbox, curjump
         curjump = selind
@@ -2317,7 +2345,7 @@ def reset_entry():
         switch(EditEntryPage)
     local_edited(False)
 def gen_menubar():
-    global menubar,filemenu,optmenu,pagemenu,editmenu,root
+    global menubar,filemenu,optmenu,toolmenu,pagemenu,editmenu,root
     menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
     filemenu.add_command(label = 'New', command = new_json)
@@ -2338,6 +2366,10 @@ def gen_menubar():
     optmenu.add_command(label = 'Autosave', command = opt_autosave)
     optmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
     menubar.add_cascade(label='Options', menu=optmenu)
+    toolmenu = Menu(menubar, tearoff=0, postcommand=ontool)
+    toolmenu.add_command(label = 'Broken Links', command = check_brlink)
+    #toolmenu.add_checkbutton(label='Dark Theme', onvalue=1, offvalue=0, variable=_darktheme)
+    menubar.add_cascade(label='Tools', menu=toolmenu)
     pagemenu = Menu(menubar, tearoff=0, postcommand=onpage)
     pagemenu.add_command(label = 'Settings', command = popup_pagesetting)
     pagemenu.add_command(label = 'Named Data', command = edit_named)
@@ -2351,6 +2383,7 @@ def clear_toplevel(toplevel,closers=[]):
     toplevel.grab_release()
     toplevel.destroy()
 def setup_toplevel(title,closers=[]):
+    global toplevel
     toplevel = Toplevel(bg=BGC)
     toplevel.title(title)
     toplevel.grab_set()
@@ -2375,9 +2408,12 @@ def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150):
         b.pack(side='left')
     btnfr.pack()
     okb.focus_set()
+    toplevel.protocol("WM_DELETE_WINDOW", lambda *_:cb.invoke())
     toplevel.bind('<Return>',lambda *_:okb.invoke())
     toplevel.bind('<Escape>',lambda *_:cb.invoke())
     toplevel.geometry(f'{w}x{h}')
+    toplevel.okb = okb
+    toplevel.cb = cb
     rx = root.winfo_x()
     ry = root.winfo_y()
     rw = root.winfo_width()
@@ -2435,7 +2471,99 @@ def popup_pagesetting():
         ('URL Text:','urltxt')])
     savers.append(mark_edited)
     launch_toplevel(toplevel,topframe,w=400,h=150,savers=savers)
-
+def sel_toplvl(evt):
+    global curtop
+    curtop = get_sel(evt.widget)
+def sub_brlink(br,s,txt):
+    global _sub_count
+    output = txt
+    escbr = re.escape(br)
+    pat1 = re.compile('\$\{'+escbr+'\}')
+    count = len(re.findall(pat1, output))
+    if count:
+        output = re.sub(pat1, '${'+s+'|'+br+'}', output)
+        _sub_count += count
+    pat2 = re.compile('\$\{'+escbr+'\|')
+    count = len(re.findall(pat2, output))
+    if count:
+        output = re.sub(pat2, '${'+s+'|', output)
+        _sub_count += count
+    return output
+def repl_brlink(ind):
+    global brlinks, _sub_count, toplevel, toplistbox
+    br = brlinks[ind]
+    s = simpledialog.askstring('Re-Link', f"Replace links to '{br}' with links to?", parent=toplevel)
+    if not s:
+        return
+    _sub_count = 0
+    for sh in range(len(json_obj['sheets'])):
+        for tab in range(len(json_obj['sheets'][sh]['tabs'])):
+            for line in range(len(json_obj['sheets'][sh]['tabs'][tab]['lines'])):
+                json_obj['sheets'][sh]['tabs'][tab]['lines'][line]['val'] = sub_brlink(br,s,json_obj['sheets'][sh]['tabs'][tab]['lines'][line]['val'])
+    for tab in range(len(json_obj['named']['tabs'])):
+        for line in range(len(json_obj['named']['tabs'][tab]['lines'])):
+            json_obj['named']['tabs'][tab]['lines'][line]['val'] = sub_brlink(br,s,json_obj['named']['tabs'][tab]['lines'][line]['val'])
+    if _sub_count > 0:
+        mark_edited()
+    total = _sub_count
+    _sub_count = 0
+    if isinstance(mainframe, EditEntryPage):
+        if mainframe.get_ty() == 'Page':
+            txt = mainframe.get_val()
+            txt = sub_brlink(br,s,txt)
+            mainframe.txt_body.delete('1.0',END)
+            mainframe.txt_body.insert(END,txt)
+    if _sub_count > 0:
+        local_edited()
+        total += _sub_count
+    _sub_count = 0
+    s1 = "" if total == 1 else "s"
+    s2 = "a link" if total == 1 else "links"
+    popInfo(f'Replaced {total} instance{s1} of {s2} to "{br}" with {s2} to "{s}"')
+    toplistbox.focus_set()
+def reload_brlist():
+    global toplistbox, toplevel
+    toplevel.okb.invoke()
+    check_brlink()
+def popup_brlink():
+    global json_obj, file_loaded, toplistbox, curtop, brlinks
+    if not file_loaded:
+        return
+    popup = centered_popup(Frame(root,bg=BGC))
+    f1 = build_labels(['Broken Link tool open...','Please Close Popup'],parent=popup)
+    f1.pack()
+    update_popup_size()
+    
+    toplevel = setup_toplevel('Broken Links')
+    topframe = Frame(toplevel, bg=BGC)
+    
+    if not brlinks:
+        _lbl = Label(topframe, text="No Broken Links Found!")
+        style_label(_lbl)
+        _lbl.pack()
+    else:
+        curtop = 0
+        row = Frame(topframe, bg=BGC)
+        fr = Frame(row, bg=BGC)
+        toplistbox = Listbox(fr)
+        style_lb(toplistbox)
+        toplistbox.bind('<<ListboxSelect>>', sel_toplvl)
+        toplistbox.bind('<Double-1>', lambda *_:repl_brlink(curtop))
+        pack_scrollable_listbox(toplistbox)
+        toplistbox.focus_set()
+        _load_list(toplistbox, 0, brlinks, lambda a:a)
+        fr.pack(side='left')
+        fr = Frame(row, bg=BGC)
+        wid = 10
+        btn = Button(fr, width=wid, text='Refresh', command=reload_brlist)
+        style_btn(btn)
+        btn.pack()
+        btn = Button(fr, width=wid, text='Replace', command=lambda *_:repl_brlink(curtop))
+        style_btn(btn)
+        btn.pack()
+        fr.pack(side='left')
+        row.pack()
+    launch_toplevel(toplevel,topframe,w=250,h=250,savers=[])
 root = Tk()
 style = ttk.Style(root)
 root.config(bg=BGC)
