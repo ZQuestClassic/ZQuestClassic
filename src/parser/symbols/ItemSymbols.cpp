@@ -85,8 +85,6 @@ static AccessorTable itemTable[] =
 	{ "setPickupString",            0,          ZTID_VOID,   ITEMPSTRING,               0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getPickupStringFlags",       0,         ZTID_FLOAT,   ITEMPSTRINGFLAGS,          0,  { ZTID_ITEM },{} },
 	{ "setPickupStringFlags",       0,          ZTID_VOID,   ITEMPSTRINGFLAGS,          0,  { ZTID_ITEM, ZTID_FLOAT },{} },
-	{ "getSizeFlags",               0,         ZTID_FLOAT,   ITEMOVERRIDEFLAGS,         0,  { ZTID_ITEM },{} },
-	{ "setSizeFlags",               0,          ZTID_VOID,   ITEMOVERRIDEFLAGS,         0,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "Explode",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	{ "getRotation",                0,         ZTID_FLOAT,   ITEMROTATION,              0,  { ZTID_ITEM },{} },
 	{ "setRotation",                0,          ZTID_VOID,   ITEMROTATION,              0,  { ZTID_ITEM, ZTID_FLOAT },{} },
@@ -135,6 +133,8 @@ static AccessorTable itemTable[] =
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   ITEMSCRIPTUID,       FL_DEPR,  { ZTID_ITEM },{} },
+	{ "getSizeFlags",               0,         ZTID_FLOAT,   ITEMOVERRIDEFLAGS,   FL_DEPR,  { ZTID_ITEM },{} },
+	{ "setSizeFlags",               0,          ZTID_VOID,   ITEMOVERRIDEFLAGS,   FL_DEPR,  { ZTID_ITEM, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

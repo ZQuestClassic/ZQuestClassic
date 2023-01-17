@@ -4336,10 +4336,7 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		case ITEMOVERRIDEFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
-			{
-				ret=((item*)(s))->overrideFLAGS*10000;
-			}
+			ret=0;
 			break;
 			
 		case ITEMOTILE:
@@ -14203,11 +14200,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		
 		case ITEMOVERRIDEFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
-			{
-				(((item *)s)->overrideFLAGS)=(value/10000);
-			}
-			
 			break;
 			
 		case ITEMOTILE:

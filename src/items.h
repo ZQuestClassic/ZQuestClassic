@@ -49,7 +49,6 @@ public:
     word pstring; //pickup string
     word pickup_string_flags;
     //int32_t script_UID;
-    int32_t overrideFLAGS; //Override flags.
     int32_t family;
     byte lvl;
     int32_t linked_parent;

@@ -620,8 +620,8 @@
                             "val": "<h3>Itemsprite Pointers</h3>   `itemsprite`\n\nThese pointers represent item objects on screen. These may be screen items, enemy drops, shop items, etc; or you may create your own items via script.\n\nSee: ${LoadItem}, ${CreateItem}\n"
                         },
                         {
-                            "name": "Basic Info ;; itemsprite::ID / itemsprite::Type / itemsprite::Family / itemsprite::Level / itemsprite::Dir / itemsprite::Animation",
-                            "val": "<h3>int ID;</h3>\nThe item ID to give when the item is collected.\n\n<h3>int Type;\nint Family;</h3>\nThe type ${itemclass|(itemclass)} of the item. Uses the `IC_` constants.\n\n<h3>int Level;</h3>\nThe item's level\n\n<h3>int Dir;</h3>\nThe item's direction\n\n<h3>bool Animation;</h3>\nIf the engine should animate the item's graphics\n"
+                            "name": "Basic Info ;; itemsprite::ID / itemsprite::isValid / itemsprite::Type / itemsprite::Family / itemsprite::Level / itemsprite::Dir / itemsprite::Animation",
+                            "val": "<h3>int ID;</h3>\nThe item ID to give when the item is collected.\n\n<h3>bool isValid();</h3>\nReturns true if this pointer points to a valid itemsprite. If this returns false, using any other value of this pointer will error.\n\n<h3>int Type;\nint Family;</h3>\nThe type ${itemclass|(itemclass)} of the item. Uses the `IC_` constants.\n\n<h3>int Level;</h3>\nThe item's level\n\n<h3>int Dir;</h3>\nThe item's direction\n\n<h3>bool Animation;</h3>\nIf the engine should animate the item's graphics\n\n"
                         },
                         {
                             "name": "Position ;; itemsprite::X / itemsprite::Y / itemsprite::Z / itemsprite::Jump / itemsprite::Gravity / itemsprite::MoveFlags / itemsprite::FakeZ / itemsprite::FakeJump",
@@ -632,13 +632,53 @@
                             "val": "<h3>int Max();</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n"
                         },
                         {
-                            "name": "Graphical Info ;; itemsprite::OriginalTile / itemsprite::Tile / itemsprite::CSet / itemsprite::NumFrames / itemsprite::Frame / itemsprite::ASpeed / itemsprite::AClock / itemsprite::Delay / itemsprite::Flash / itemsprite::FlashCSet / itemsprite::Flip / itemsprite::ScriptTile / itemsprite::ScriptFlip",
-                            "val": "<h3>int OriginalTile;</h3>\nThe starting tile of the itemsprite's animation.\n\n<h3>int Tile;</h3>\nThe currently displaying tile of the itemsprite's animation. Set by the engine each frame if ${itemsprite::Animation|animation} is enabled.\n\n<h3>int CSet;</h3>\nThe CSet of the itemsprite.\n\n<h3>int NumFrames;</h3>\nThe number of frames in the itemsprite's animation.\n\n<h3>int Frame;</h3>\nThe current frame number that the animation is on.\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int AClock;</h3>\nThe timer that ASpeed is used with.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the itemsprite's animation.\n\n<h3>bool Flash;</h3>\nIf the itemsprite is flashing or not. When flashing, it changes between its' CSet and FlashCSet.\n\n<h3>int FlashCSet;</h3>\nThe secondary CSet used for flashing.\n\n<h3>int Flip;</h3>\nThe flip status of the itemsprite's tile. Uses the [[`FLIP_`|$FLIP_]] constants.\n\n<h3>int ScriptTile;</h3>\n-1 by default. If this is set > -1, this tile will be displayed by the engine, regardless of the normal engine animation. Set back to -1 to restore engine animation.\n\n<h3>int ScriptFlip;</h3>\n-1 by default. If this is set > -1, this flip value will be used instead of the normal 'Flip' value. Set back to -1 to restore normal flip.\n\n"
+                            "name": "Graphical Info ;; itemsprite::OriginalTile / itemsprite::Tile / itemsprite::CSet / itemsprite::NumFrames / itemsprite::Frame / itemsprite::ASpeed / itemsprite::AClock / itemsprite::Delay / itemsprite::Flash / itemsprite::FlashCSet / itemsprite::Flip",
+                            "val": "<h3>int OriginalTile;</h3>\nThe starting tile of the itemsprite's animation.\n\n<h3>int Tile;</h3>\nThe currently displaying tile of the itemsprite's animation. Set by the engine each frame if ${itemsprite::Animation|animation} is enabled.\n\n<h3>int CSet;</h3>\nThe CSet of the itemsprite.\n\n<h3>int NumFrames;</h3>\nThe number of frames in the itemsprite's animation.\n\n<h3>int Frame;</h3>\nThe current frame number that the animation is on.\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int AClock;</h3>\nThe timer that ASpeed is used with.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the itemsprite's animation.\n\n<h3>bool Flash;</h3>\nIf the itemsprite is flashing or not. When flashing, it changes between its' CSet and FlashCSet.\n\n<h3>int FlashCSet;</h3>\nThe secondary CSet used for flashing.\n\n<h3>int Flip;</h3>\nThe flip status of the itemsprite's tile. Uses the [[`FLIP_`|$FLIP_]] constants.\n\n"
+                        },
+                        {
+                            "name": "Graphical Info 2 ;; itemsprite::ScriptTile / itemsprite::ScriptFlip / itemsprite::ShadowXOffset / itemsprite::ShadowYOffset / itemsprite::ShadowSprite / itemsprite::DrawStyle / itemsprite::Rotation / itemsprite::Scale / itemsprite::LightShape / itemsprite::LightRadius",
+                            "val": "<h3>int ScriptTile;</h3>\n-1 by default. If this is set > -1, this tile will be displayed by the engine, regardless of the normal engine animation. Set back to -1 to restore engine animation.\n\n<h3>int ScriptFlip;</h3>\n-1 by default. If this is set > -1, this flip value will be used instead of the normal 'Flip' value. Set back to -1 to restore normal flip.\n\n<h3>int ShadowXOffset;\nint ShadowYOffset;</h3>\nThe x/y offset of the sprite's shadow.\n\n<h3>int ShadowSprite;</h3>\nThe ${spritedata} sprite ID to use for the item's shadow.\n\n<h3>int DrawStyle;</h3>\nThe mode for the sprite's draws, using the `DS_` constants.\n#{DS_ constants|$[DS_]}\n<h3>float Rotation;</h3>\nA rotation of the sprite draw, in degrees.\n\n<h3>float Scale;</h3>\nA scale of the sprite draw, as a multiplier.\n\n<h3>int LightShape;</h3>\nThe shape of light emitted by this sprite. Uses the `LIGHT_` constants.\n#{LIGHT_ constants|$[LIGHT_]}\n<h3>int LightRadius;</h3>\nThe size of the light emitted by this sprite, in pixels.\n\n\n"
+                        },
+                        {
+                            "name": "Size Info ;; itemsprite::Extend / itemsprite::HitWidth / itemsprite::HitHeight / itemsprite::HitZHeight / itemsprite::TileWidth / itemsprite::TileHeight / itemsprite::DrawXOffset / itemsprite::DrawYOffset / itemsprite::DrawZOffset / itemsprite::HitXOffset / itemsprite::HitYOffset",
+                            "val": "<h3>int Extend;</h3>\nIf the item sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels.\n"
+                        },
+                        {
+                            "name": "--&gt; Next ;; itemsprite2",
+                            "val": "$-1$1"
+                        }
+                    ]
+                },
+                {
+                    "name": "Itemsprite 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
+                        },
+                        {
+                            "name": "Pickup Info ;; itemsprite::Pickup / itemsprite::PickupString / itemsprite::PickupStringFlags",
+                            "val": "<h3>int Pickup;</h3>\nThe item pickup flags, as a bitwise flagset. Use the `IP_` constants to access. Take care when using any `INTERNAL` flags.\n#{IP_ constants|$[IP_]}\n\n<h3>int PickupString;</h3>\nThe message string to display upon picking up the item.\n\n<h3>int PickupStringFlags;</h3>\nThe flags associated with the pickup string, as bitwise flags. Use the `IPSTR_` constants to access this.\n\n"
+                        },
+                        {
+                            "name": "Script Info ;; itemsprite::Script / itemsprite::InitD / itemsprite::Misc",
+                            "val": "<h3>int Script;</h3>\nThe itemsprite script running on this itemsprite.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD[] arguments for the itemsprite script.\n\n<h3>int Misc[32];</h3>\nAn array of misc values for script use.\n"
+                        },
+                        {
+                            "name": "Status ;; itemsprite::Falling / itemsprite::FallCombo / itemsprite::Drowning / itemsprite::DrownCombo / itemsprite::SwitchHooked / itemsprite::Switch",
+                            "val": "<h3>int Falling;</h3>\nThe timer indicating how long left the sprite will be falling. If 0, the sprite is not falling. Max value of 70, which is the value at the start of falling.\n\n<h3>int FallCombo;</h3>\nThe pitfall combo the sprite is falling into, if it is falling.\n\n<h3>int Drowning;</h3>\nThe timer indicating how long left the sprite will be drowning. If 0, the sprite is not drowning. Max value of 64, which is the value at the start of drowning.\n\n<h3>int DrownCombo;</h3>\nThe liquid combo the sprite is drowning in, if it is drowning.\n\n<h3>bool SwitchHooked;</h3>\nIf the sprite is currently being switch-hooked.\n\n<h3>bool Switch(int effect);</h3>\nSwitch the player with this sprite. Use the `SW_EFF_` constants for 'effect' to select a visual style for the switch.\nReturns true if it succeeds, and false otherwise.\n"
+                        },
+                        {
+                            "name": "Misc Info ;; itemsprite::Explode / itemsprite::Remove / itemsprite::DroppedBy / itemsprite::ForceGrab",
+                            "val": "<h3>void Explode(int mode);</h3>\nCreates an explosion particle effect in mode 0, 1, or 2 of the sprite.\n\n<h3>void Remove();</h3>\nInstantly deletes the itemsprite.\n\n<h3>int DroppedBy;</h3>\nThe dropset that this item was dropped by. Will be set for engine-dropped items, can be written by scripts as well.\n\n<h3>bool ForceGrab;</h3>\nIf set to true, the item will automatically be collected by the player as soon as possible.\n"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; itemspriteptr",
+                            "val": "$-1"
                         }
                     ]
                 }
-            ],
-            "todo": true
+            ]
         },
         {
             "name": "ZInfo",
@@ -2548,6 +2588,14 @@
                     {
                         "name": "ITEMMV_",
                         "val": "Indexes for `itemsprite-&gt;MoveFlags`\n<ol start=\"0\"><li>[[ITEMMV_OBEYS_GRAVITY|If the item is affected by gravity.]]</li>\n<li>[[ITEMMV_CAN_PITFALL|If the item can fall in pitfalls.]]</li>\n<li value=\"8\">[[ITEMMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[ITEMMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n"
+                    },
+                    {
+                        "name": "DS_",
+                        "val": "Values for `itemsprite-&gt;DrawStyle`\n<ol start=\"0\"><li>[[DS_NORMAL|Draw the sprite normally.]]</li>\n<li>[[DS_PHANTOM|Draw the sprite transparently.]]</li>\n<li>[[DS_CLOAKED|Draw the sprite cloaked (invisible).]]</li>\n<li>[[DS_LINK|Draw the sprite normally, used for the player.]]</li></ol>\n\n\n"
+                    },
+                    {
+                        "name": "LIGHT_",
+                        "val": "The light shapes for dark rooms.\n<ol start=\"0\"><li>[[LIGHT_CIRCLE|Emit light in a circle around the sprite. The radius is the circle's radius.]]</li>\n<li>[[LIGHT_CONE|Emit light in a directional cone in the facing direction. The radius is the length of the cone.]]</li></ol>\n"
                     }
                 ]
             }

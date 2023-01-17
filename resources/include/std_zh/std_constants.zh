@@ -3774,3 +3774,9 @@ enum //spritedata->Flags[] indexes
 	SPRFL_BEHIND,
 	NUM_SPRFL
 };
+
+enum
+{
+	LIGHT_CIRCLE,
+	LIGHT_CONE
+};
