@@ -32656,7 +32656,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				
 				if ( ((unsigned)element) > 511 )
 				{
-					Z_scripterrlog("Illegal itemclass supplied to Module->GetItemClass().\nLegal values are 1 to 511.\n");
+					Z_scripterrlog("Illegal itemclass supplied to ZInfo->GetItemClass().\nLegal values are 1 to 511.\n");
 				}
 				else
 				{

@@ -77,6 +77,14 @@
                         {
                             "name": "String Control Codes ;; SCCs ;; String Control Codes",
                             "val": "<h3>String Control Codes</h3> [[v|Rev July 17th, 2022 for 2.55 A107]] \n\nSpecial effects can be created when ${message strings} are displayed by inserting special control codes into the string. All valid codes are listed below.\n\n<h3>Formatting Codes</h3>\nThese codes have formatting effects on the string being displayed, such as changing the font, text color, or inserting characters or tiles into the message.\n#{<ul><li>`\\1\\cset\\color` : Changes the text color to the specified color.</li>\n<li>`\\26\\cset\\color` : Changes the shadow color to the specified color.</li>\n<li>`\\27\\[[shadow_type|$Shadow Type]]` : Changes the shadow type to the specified style.</li>\n<li>`\\2\\speed` : Changes the text speed. 'speed' is the number of frames between each character, where '0' is instantaneous.</li>\n<li>`\\25` : New Line - breaks to the next line</li>\n<li>`\\22` : Inserts the save file name as text</li>\n<li>`\\28\\tile\\cset\\[[width|In pixels]]\\[[height|In pixels]]\\flip` : Draws a tile block inline with the text, as though it were a custom font character.</li>\n<li>`\\32` through `\\126` : Inserts the corresponding ASCII character. Ex: `\\91` shows `\\`</li>\n<li>`\\24\\???` : Unimplemented; reserved for changing portrait</li></ul>}\n\n<h3>Menu Codes</h3>\nThese codes relate to popping up a menu for the player to select a choice from.\n#{<ul><li>`\\128\\tile\\cset\\width\\height\\flip` : Sets the menu cursor, args same as '\\28' above.</li>\n<li>`\\129\\pos\\up_pos\\down_pos\\left_pos\\right_pos` : Creates a menu cursor position. 'pos' is the index of this position, while the 4 directional values are the position that will be moved to when that direction is pressed. If a directional pos is the same as 'pos', that direction will be disabled.</li>\n<li>`\\130` : Start running menu. If no '\\129' codes have been run, the menu instantly exitswith the '0' pos selected.</li>\n<li>`\\131\\pos\\newstring` : Goto if menu selection. Switches to the new string if 'pos' is the selected menu position.</li></ul>}\n\n<h3>Switch Codes</h3>\nThese codes change from the current string immediately to a different string. If you attempt to switch to a string that does not exist, it will instead act as though you switched to a string that is entirely empty.\n#{<ul><li>`\\3\\register\\value\\newstring` : if `Screen->D[register] &gt;= value`, switches to `newstring`.</li>\n<li>`\\23\\dmap\\screen\\register\\value\\newstring` : Same as `\\3`, but for any screen.</li>\n<li>`\\4\\factor\\newstring` : Randomly has a `1/factor` chance to switch to `newstring`.</li>\n<li>`\\5\\itemid\\newstring` : Goes to `newstring` if the specified item is owned.</li>\n<li>`\\6\\counter\\value\\newstring` : Goto `newstring` if the specified counter is `>= value`.</li>\n<li>`\\7\\counter\\percent\\newstring` : Goto `newstring` if the specified counter is at least `percent` full.</li>\n<li>`\\8\\levelid\\newstring` : Goto `newstring` if the triforce from the specified level is owned.</li>\n<li>`\\9\\numtriforce\\newstring` : Goto `newstring` if at least `numtriforce` triforce pieces are owned.</li>\n<li>`\\131\\pos\\newstring` : Goto if menu selection. Switches to the new string if 'pos' is the selected menu position.</li></ul>}\n\n<h3>Counter Mod Codes</h3>\nThese codes all center around modifying counter values.\n#{<ul><li>`\\10\\ctr\\val` : Adds 'val' to 'ctr'.</li>\n<li>`\\11\\ctr\\val` : Subtracts 'val' from 'ctr'.</li>\n<li>`\\12\\ctr\\val` : Sets 'ctr' to 'val'.</li>\n<li>`\\13\\ctr\\percent` : Adds 'percent' % to 'ctr'.</li>\n<li>`\\14\\ctr\\percent` : Subtracts 'percent' % from 'ctr'.</li>\n<li>`\\15\\ctr\\percent` : Sets 'ctr' to 'percent' % full.</li>\n<li>`\\16\\itemid` : Gives the player 'itemid', silently. The item is not held up, nor does its' pickup script run; though its' counter effects will.</li>\n<li>`\\17\\itemid` : Takes 'itemid' from the player, silently. Its' pickup counter modifications will be reversed when removed.</li></ul>}\n\n<h3>Misc Codes</h3>\n#{<ul><li>`\\18\\dmap\\screen\\[[x\\y|<block>If `x &lt; 0`, then y is treated as a return square(0-3 for return squares A-D, 5 for pit warp).\nIf `x &gt;= 0`, then x+y act as destination coordinates.</block>]]\\[[effect|$WARPEFFECT_]]\\sound` : Warps the player to 'dmap,screen'.</li>\n<li>`\\19\\dmap\\screen\\register\\value` : Sets `Screen->D[register] = value;` for the specified screen.</li>\n<li>`\\20\\sfxid` : Plays a specified sfx</li>\n<li>`\\21\\MIDIid` : Plays a specified quest midi (cannot play the built-in midis)</li>\n<li>`\\29` : Immediately exits the current string. If there is a 'next string', it will begin immediately. The prompt to press 'A' to continue will be skipped.</li>\n<li>`\\30` : Pauses the string and prompts the player to press A to continue (as normally occurs at the end of a string)</li>\n<li>`\\132\\perm` : Triggers secrets, which are permanent unless 'perm' is '0'</li>\n<li>`\\133\\[[flag|Use the 'ST_' constants from 'std_constants.zh']]\\[[state|1 for on, 0 for off]]` : Sets a screen state on the current screen.</li>\n<li>`\\134\\map\\screen\\[[flag|Use the 'ST_' constants from 'std_constants.zh']]\\[[state|1 for on, 0 for off]]` : Same as \\133 above, for a remote map/screen</li></ul>}"
+                        },
+                        {
+                            "name": "Quest Rules ;; quest_rules / qrs",
+                            "val": "<h3>Quest Rules</h3>\nQuest Rules are global settings configurable in ZQuest. Scripts can read and modify these settings using ${Game::FFRules|Game-&gt;FFRules}.\n\nTo find a QR by name, go to `Quest-&gt;Options-&gt;Search QRs` in ZQuest.\n"
+                        },
+                        {
+                            "name": "Itemclasses ;; itemclass",
+                            "val": "<todo>Add `IC_` constant infopage</todo>\n"
                         }
                     ]
                 },
@@ -176,6 +184,10 @@
                         {
                             "name": "NPC Pointers ;; npcptr",
                             "val": "$NPC"
+                        },
+                        {
+                            "name": "Itemsprite Pointers ;; itemspriteptr",
+                            "val": "$Itemsprite"
                         },
                         {
                             "name": "Weapon Pointers ;; wpnptr",
@@ -530,7 +542,7 @@
                         },
                         {
                             "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power / itemdata::Attributes / itemdata::GetName",
-                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons.\n\n<h3>int Family;\nint Type;</h3>\nThe type (`itemclass`) of the item. Uses the `IC_` constants.\n<todo>Add `IC_` constant infopage</todo>\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>untyped Attributes[10];</h3>\nThe 10 item attributes.\n\n<h3>void GetName(char32 buf[]);</h3>\nFills the buffer with the item's Name."
+                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons.\n\n<h3>int Family;\nint Type;</h3>\nThe type ${itemclass|(itemclass)} of the item. Uses the `IC_` constants.\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>untyped Attributes[10];</h3>\nThe 10 item attributes.\n\n<h3>void GetName(char32 buf[]);</h3>\nFills the buffer with the item's Name.\n\n"
                         },
                         {
                             "name": "Pickup Info ;; itemdata::Amount / itemdata::Gradual / itemdata::Counter / itemdata::MaxIncrement / itemdata::Max / itemdata::PickupSound / itemdata::MinHearts / itemdata::KeepOld / itemdata::GainLower / itemdata::Combine / itemdata::PString / itemdata::PickupString / itemdata::PickupStringFlags",
@@ -595,7 +607,37 @@
         },
         {
             "name": "Itemsprite",
-            "tabs": [],
+            "tabs": [
+                {
+                    "name": "Itemsprite ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
+                        },
+                        {
+                            "name": "<em>itemsprite</em>",
+                            "val": "<h3>Itemsprite Pointers</h3>   `itemsprite`\n\nThese pointers represent item objects on screen. These may be screen items, enemy drops, shop items, etc; or you may create your own items via script.\n\nSee: ${LoadItem}, ${CreateItem}\n"
+                        },
+                        {
+                            "name": "Basic Info ;; itemsprite::ID / itemsprite::Type / itemsprite::Family / itemsprite::Level / itemsprite::Dir / itemsprite::Animation",
+                            "val": "<h3>int ID;</h3>\nThe item ID to give when the item is collected.\n\n<h3>int Type;\nint Family;</h3>\nThe type ${itemclass|(itemclass)} of the item. Uses the `IC_` constants.\n\n<h3>int Level;</h3>\nThe item's level\n\n<h3>int Dir;</h3>\nThe item's direction\n\n<h3>bool Animation;</h3>\nIf the engine should animate the item's graphics\n"
+                        },
+                        {
+                            "name": "Position ;; itemsprite::X / itemsprite::Y / itemsprite::Z / itemsprite::Jump / itemsprite::Gravity / itemsprite::MoveFlags / itemsprite::FakeZ / itemsprite::FakeJump",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the itemsprite's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n<h3>int Jump;</h3>\nThe itemsprite's upward velocity, in pixels per frame. Affected by gravity each frame, if gravity is enabled for this itemsprite.\n\n<h3>bool Gravity;</h3>\nTrue by default. If false, gravity will no longer affect this itemsprite.\n\n<h3>bool MoveFlags[];</h3>\nThe movement flags of the itemsprite. See `ITEMMV_` constants.\n#{ITEMMV_ constants|$[ITEMMV_]}\n<h3>int FakeZ;</h3>\nThe position of the itemsprite on the FakeZ axis.\n\n<h3>int FakeJump;</h3>\nThe velocity of the itemsprite in the FakeZ axis.\n"
+                        },
+                        {
+                            "name": "Sprite Limit ;; itemsprite::Max",
+                            "val": "<h3>int Max();</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n"
+                        },
+                        {
+                            "name": "Graphical Info ;; itemsprite::OriginalTile / itemsprite::Tile / itemsprite::CSet / itemsprite::NumFrames / itemsprite::Frame / itemsprite::ASpeed / itemsprite::AClock / itemsprite::Delay / itemsprite::Flash / itemsprite::FlashCSet / itemsprite::Flip / itemsprite::ScriptTile / itemsprite::ScriptFlip",
+                            "val": "<h3>int OriginalTile;</h3>\nThe starting tile of the itemsprite's animation.\n\n<h3>int Tile;</h3>\nThe currently displaying tile of the itemsprite's animation. Set by the engine each frame if ${itemsprite::Animation|animation} is enabled.\n\n<h3>int CSet;</h3>\nThe CSet of the itemsprite.\n\n<h3>int NumFrames;</h3>\nThe number of frames in the itemsprite's animation.\n\n<h3>int Frame;</h3>\nThe current frame number that the animation is on.\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int AClock;</h3>\nThe timer that ASpeed is used with.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the itemsprite's animation.\n\n<h3>bool Flash;</h3>\nIf the itemsprite is flashing or not. When flashing, it changes between its' CSet and FlashCSet.\n\n<h3>int FlashCSet;</h3>\nThe secondary CSet used for flashing.\n\n<h3>int Flip;</h3>\nThe flip status of the itemsprite's tile. Uses the [[`FLIP_`|$FLIP_]] constants.\n\n<h3>int ScriptTile;</h3>\n-1 by default. If this is set > -1, this tile will be displayed by the engine, regardless of the normal engine animation. Set back to -1 to restore engine animation.\n\n<h3>int ScriptFlip;</h3>\n-1 by default. If this is set > -1, this flip value will be used instead of the normal 'Flip' value. Set back to -1 to restore normal flip.\n\n"
+                        }
+                    ]
+                }
+            ],
             "todo": true
         },
         {
@@ -641,7 +683,7 @@
                         },
                         {
                             "name": "Position",
-                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the enemy's position on each of the three axes.\nIf the quest rule [['Sprite Coordinates are Float'|at \"ZScript->Quest Script Settings->Object\"]] is checked, these values can include up to 4 decimal places; otherwise values are truncated to int."
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the enemy's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n"
                         },
                         {
                             "name": "Movement ;; npcMovement",
@@ -1639,7 +1681,7 @@
                         },
                         {
                             "name": "<em>dropsetdata</em>",
-                            "val": "<h3>DropsetData Pointers</h3>   `dropsetdata`\n\n`dropsetdata` pointers allow accessing dropsets, and using them to pick random items.\n\nSee: ${Game::LoadDropset|LoadDropset}"
+                            "val": "<h3>DropsetData Pointers</h3>   `dropsetdata`\n\n`dropsetdata` pointers allow accessing dropsets, and using them to pick random items.\n\nSee: ${Game::LoadDropset|LoadDropset}\n\n<todo>Name getter/setter, Create(x,y,z=0)</todo>\n"
                         },
                         {
                             "name": "Choose ;; dropsetdata::Choose",
@@ -2437,6 +2479,10 @@
                     {
                         "name": "DMAP_",
                         "val": "<ol start=\"0\"><li>DMAP_DUNGEON</li>\n<li>DMAP_OVERWORLD</li>\n<li>DMAP_CAVE</li>\n<li>DMAP_BSOVERWORLD</li></ol>\n"
+                    },
+                    {
+                        "name": "FLIP_",
+                        "val": "<mono>FLIP_NONE        = 0\nFLIP_HORIZONTAL  = 1\nFLIP_VERTICAL    = 2\nFLIP_HV          = 3\nFLIP_VH          = 3\nFLIP_BOTH        = 3\n//rotation and flip\nROT_CW           = 4\nROT_CW_FLIP      = 5\nROT_CCW_FLIP     = 6\nROT_CCW          = 7</mono>\n"
                     }
                 ]
             },
@@ -2498,6 +2544,10 @@
                     {
                         "name": "SPRFL_",
                         "val": "Indexes for `spritedata-&gt;Flags[]`\n<ol start=\"0\"><li>SPRFL_AUTOFLASH</li>\n<li>SPRFL_2PFLASH</li>\n<li>SPRFL_HFLIP</li>\n<li>SPRFL_VFLIP</li>\n<li>SPRFL_BEHIND</li></ol>"
+                    },
+                    {
+                        "name": "ITEMMV_",
+                        "val": "Indexes for `itemsprite-&gt;MoveFlags`\n<ol start=\"0\"><li>[[ITEMMV_OBEYS_GRAVITY|If the item is affected by gravity.]]</li>\n<li>[[ITEMMV_CAN_PITFALL|If the item can fall in pitfalls.]]</li>\n<li value=\"8\">[[ITEMMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[ITEMMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n"
                     }
                 ]
             }
