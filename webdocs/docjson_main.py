@@ -115,11 +115,12 @@ else:
     cur_file = ''
 
 ## Configs
+bookmarks = []
 def _def_config(key,defval):
     global config
     return lib._dict_get(config,key,defval)
 def read_config():
-    global config
+    global config, bookmarks
     try:
         with open('docjson_config.json', 'r') as file:
             config = json.loads(file.read())
@@ -127,6 +128,11 @@ def read_config():
         config = {}
     _def_config('autosave_minutes',5)
     _def_config('theme',0)
+    _def_config('finddupe',0)
+    _def_config('findmode',0)
+    for q in range(10):
+        _def_config(f'bookmark{q}','')
+    bookmarks = [Bookmark(indx=q) for q in range(10)]
     theme(config['theme'])
 def write_config():
     global config
@@ -137,7 +143,6 @@ def write_config():
         print(e, file=sys.stderr)
 
 config = None
-read_config()
 
 def clipboard_copy(s:str):
     pyperclip.copy(s)
@@ -528,6 +533,36 @@ def onpage():
     global pagemenu
     pagemenu.entryconfig('Settings', state = 'normal' if file_loaded else 'disabled')
     pagemenu.entryconfig('Named Data', state = 'normal' if file_loaded else 'disabled')
+def onbkmrk():
+    global bkmrkmenu
+    curnode = navi.current() if file_loaded else None
+    cansave = curnode and navi.validate(curnode)
+    bkmrkmenu.entryconfig(0, state = 'normal' if cansave else 'disabled')
+    validbk = False
+    if file_loaded:
+        for b in bookmarks:
+            if b.valid():
+                validbk = True
+                break
+    bkmrkmenu.entryconfig(1, state = 'normal' if validbk else 'disabled')
+    bkmrkmenu.entryconfig(2, state = 'normal' if validbk else 'disabled')
+def onbkmrk_save():
+    global bkmrkmenu_save, bookmarks
+    curnode = navi.current()
+    cansave = curnode and navi.validate(curnode)
+    for q in range(10):
+        bkmrkmenu_save.entryconfig(q, label = bookmarks[q].save_str(),
+            state = 'normal' if cansave else 'disabled')
+def onbkmrk_load():
+    global bkmrkmenu_load, bookmarks
+    for q in range(10):
+        bkmrkmenu_load.entryconfig(q, label = bookmarks[q].load_str(),
+            state = 'normal' if bookmarks[q].valid() else 'disabled')
+def onbkmrk_clr():
+    global bkmrkmenu_clear, bookmarks
+    for q in range(10):
+        bkmrkmenu_clear.entryconfig(q, label = bookmarks[q].clear_str(),
+            state = 'normal' if bookmarks[q].valid() else 'disabled')
 def opt_autosave():
     global config
     val = simpledialog.askinteger('Input', f"Autosave every how many minutes? (current: {config['autosave_minutes']})", minvalue=0, parent=root)
@@ -661,8 +696,10 @@ def ren_sheet(ind):
     if ind < 0:
         return
     
-    name = simpledialog.askstring('Input', f"Rename '{json_obj['sheets'][ind]['name']}' to?", parent=root)
-    if not name:
+    oldname = json_obj['sheets'][ind]['name']
+    name = popup_editstring('Sheet Name',oldname,'Rename Sheet',f"Rename the sheet '{oldname}'?")
+    
+    if name is None:
         return
     mark_edited()
     json_obj['sheets'][ind]['name'] = name
@@ -706,7 +743,8 @@ def ren_sec(ind):
         return
     
     sheet = _getsheet(cursheet)
-    name = simpledialog.askstring('Input', f"Rename '{sheet['tabs'][ind]['name']}' to?", parent=root)
+    oldname = sheet['tabs'][ind]['name']
+    name = popup_editstring('Tab Name',oldname,'Rename Tab',f"Rename the tab '{oldname}'?")
     if not name:
         return
     mark_edited()
@@ -791,7 +829,8 @@ def edit_jump(ind):
     global mainframe
     if ind < 0 or ind >= len(mainframe.list_jumps):
         return
-    string = simpledialog.askstring('Input', f"Change '{mainframe.list_jumps[ind]}' to?", parent=root)
+    oldname = mainframe.list_jumps[ind]
+    string = popup_editstring('Jump Name',oldname,'Rename Jump',f"Rename the jump '{oldname}'?")
     if not string:
         return
     string = string.strip()
@@ -802,7 +841,7 @@ def edit_jump(ind):
     mainframe.reload_jump(ind)
 def add_jump(ind):
     global mainframe
-    string = simpledialog.askstring('Input', f"New jump string?", parent=root)
+    string = popup_editstring('Add Jump String','','New Jump',f"New jump string?")
     if not string:
         return
     string = string.strip()
@@ -811,6 +850,41 @@ def add_jump(ind):
     mainframe.list_jumps = mainframe.list_jumps[:ind+1] + [string] + mainframe.list_jumps[ind+1:]
     local_edited()
     mainframe.reload_jump(ind+1)
+def repl_jump():
+    global mainframe
+    tpl = popup_findrepl('Replace a given string in all these jumps?',candupe=True)
+    if not tpl:
+        return
+    findstr,replstr,mode,dupl = tpl
+    if mode == 0:
+        findstr = re.escape(findstr)
+    updated = 0
+    oldjumps = mainframe.list_jumps
+    newjumps = []
+    endjumps = []
+    for q in range(len(oldjumps)):
+        oldstr = oldjumps[q]
+        if re.search(findstr,oldstr):
+            newstr = re.sub(findstr, replstr, oldstr)
+            match dupl:
+                case 1: #Add inbetween
+                    newjumps.append(oldstr)
+                    newjumps.append(newstr)
+                case 2: #Add at end
+                    newjumps.append(oldstr)
+                    endjumps.append(newstr)
+                case 0: #Replace
+                    newjumps.append(newstr)
+            updated += 1
+        else:
+            newjumps.append(oldstr)
+    if updated > 0:
+        mainframe.list_jumps = newjumps+endjumps
+        mainframe.reload_lists()
+        popInfo(f'{"Duplicated" if dupl else "Replaced"} {updated} instances!')
+        local_edited(True)
+    else:
+        popInfo(f'Found no instances!')
 def del_jump(ind):
     global mainframe
     if not del_conf():
@@ -919,7 +993,7 @@ def get_secnums(sheetind):
 
 def toggle_todo(d:dict):
     global mainframe
-    if lib._dict_get(d,'todo',False):
+    if lib._dict_get(d,'todo'):
         lib._dict_del(d,'todo')
     else:
         d['todo'] = True
@@ -1036,6 +1110,8 @@ def disable_widg(widg,dis):
         widg.config(state=NORMAL)
     if issubclass(type(widg),Button):
         disable_btn(widg,dis)
+    elif issubclass(type(widg),Checkbutton):
+        disable_check(widg,dis)
     elif issubclass(type(widg),Text):
         disable_txt(widg,dis)
     elif issubclass(type(widg),ttk.Combobox):
@@ -1079,6 +1155,18 @@ def disable_btn(btn,dis):
         btn.config(relief=GROOVE,background=BGC)
     else:
         btn.config(relief=RAISED)
+def style_check(chkbtn):
+    chkbtn.config(bd=2,bg=BGC,fg=FLD_FGC,disabledforeground=DIS_FGC,
+        activebackground=ACT_BGC,activeforeground=FLD_FGC,highlightcolor=FLD_FGC)
+    # style.configure('TRadiobutton',padding=1,background=BGC,
+        # foreground=FGC,indicatorbackground=FLD_BGC,indicatorforeground=FLD_FGC,
+        # indicatorrelief=RAISED,indicatorsize=12,focuscolor=FGC)
+    disable_check(chkbtn,False)
+def disable_check(chkbtn,dis):
+    if dis:
+        chkbtn.config(relief=GROOVE,background=BGC)
+    else:
+        chkbtn.config(relief=RAISED)
 def style_txt(txt):
     txt.config(relief=SUNKEN,wrap='char')
     disable_txt(txt,False)
@@ -1195,7 +1283,7 @@ class InfoPage(Page):
 curpage = InfoPage
 def sheet_disp_name(sheet)->str:
     name = sheet['name']
-    if lib._dict_get(sheet,'todo',False):
+    if lib._dict_get(sheet,'todo'):
         name = f'[TODO] {name}'
     return name
 def nil_sheet(sheet)->bool:
@@ -1204,7 +1292,7 @@ def nil_sheet(sheet)->bool:
             return False
         if sheet['name'] != '' and sheet['name'] != 'New Sheet':
             return False
-        if lib._dict_get(sheet,'todo',False):
+        if lib._dict_get(sheet,'todo'):
             return False
     except:
         pass
@@ -1351,7 +1439,7 @@ class SheetsPage(Page):
 
 def sec_disp_name(sec)->str:
     name = sec['name']
-    if lib._dict_get(sec,'todo',False):
+    if lib._dict_get(sec,'todo'):
         name = f'[TODO] {name}'
     return name
 def nil_sec(sec)->bool:
@@ -1360,7 +1448,7 @@ def nil_sec(sec)->bool:
             return False
         if sec['name'] != '' and sec['name'] != 'New Section':
             return False
-        if lib._dict_get(sec,'todo',False):
+        if lib._dict_get(sec,'todo'):
             return False
     except:
         pass
@@ -1509,7 +1597,7 @@ class EditShPage(Page):
 def entry_disp_name(entry)->str:
     name = lib.get_line_display(entry)
     pref = ''
-    if lib._dict_get(entry,'todo',False):
+    if lib._dict_get(entry,'todo'):
         pref = '[TODO]'
     try:
         if entry['val'][0] == '$':
@@ -1527,7 +1615,7 @@ def nil_entry(entry)->bool:
             return False
         if entry['name'] != '' and entry['name'] != 'New Entry':
             return False
-        if lib._dict_get(entry,'todo',False):
+        if lib._dict_get(entry,'todo'):
             return False
     except:
         pass
@@ -1902,6 +1990,9 @@ class EditEntryPage(Page):
         _btn=Button(fr, width=wid, text='Delete', command=lambda:del_jump(curjump))
         style_btn(_btn)
         _btn.pack(anchor=W)
+        _btn=Button(fr, width=wid, text='Repl', command=lambda:repl_jump())
+        style_btn(_btn)
+        _btn.pack(anchor=W)
         fr.grid(row=1,column=2,sticky=NW)
         
         self.field_ty = StringVar(self, typestr)
@@ -2239,7 +2330,9 @@ class navigation:
     def atStart(self)->bool:
         return self.index == 0
     def validate(self,node:tuple)->bool:
-        global json_obj
+        global json_obj, file_loaded
+        if not file_loaded:
+            return False
         l = len(node)-1
         if l < 1:
             return True
@@ -2262,18 +2355,98 @@ class navigation:
             return False
         
         return True
-    def depth(self)->int:
-        global file_loaded
-        if not file_loaded:
-            return 0
-        return len(self.history[self.index])
-    def current(self):
+    def current(self,offs=0):
         global file_loaded
         if not file_loaded:
             return None
-        return self.history[self.index]
+        newind = self.index+offs
+        if newind < 0 or newind >= len(self.history):
+            return None
+        return self.history[newind]
+    def depth(self,offs=0)->int:
+        node = self.current(offs)
+        if not node:
+            return 0
+        return len(node)
+    def string(self,node:tuple)->str:
+        global json_obj, file_loaded
+        if not file_loaded:
+            return '(Not Loaded)'
+        if not self.validate(node):
+            return '(Invalid)'
+        l = len(node)-1
+        if l < 0:
+            return '(None)'
+        if l < 1:
+            return '(Root)'
+        
+        sh = node[0]
+        s = '('+json_obj['sheets'][sh]['name']
+        
+        if l < 2:
+            return s+')'
+        sheet = _getsheet(sh)
+        sec = node[1]
+        s += ', '+sheet['tabs'][sec]['name']
+        
+        if l < 3:
+            return s+')'
+        entr = node[2]
+        s += ', '+sheet['tabs'][sec]['lines'][entr]['name']
+        
+        return s+')'
+        
 navi = navigation()
 
+class Bookmark:
+    def __init__(self,dest=None,indx=None):
+        self.dest = dest
+        self.indx = indx
+        if not dest:
+            self.load_config_str()
+    def valid(self):
+        if not self.dest:
+            return False
+        return navi.validate(self.dest)
+    def save(self):
+        self.dest = navi.current()
+        if self.indx is not None:
+            config[f'bookmark{self.indx}'] = self.config_str()
+    def load(self):
+        navi.visit_new(self.dest)
+    def clear(self):
+        self.dest = None
+        if self.indx is not None:
+            config[f'bookmark{self.indx}'] = ''
+    def __str__(self):
+        if not self.dest:
+            return '(None)'
+        if not self.valid():
+            return '(Invalid)'
+        return f'{navi.string(self.dest)}'
+    def save_str(self):
+        if not self.valid():
+            return f'Save {self.indx}: --'
+        return f'Save {self.indx}: {str(self)}'
+    def load_str(self):
+        if not self.valid():
+            return f'Load {self.indx}: --'
+        return f'Load {self.indx}: {str(self)}'
+    def clear_str(self):
+        if not self.valid():
+            return f'Clear {self.indx}: --'
+        return f'Clear {self.indx}: {str(self)}'
+    def config_str(self)->str:
+        if not self.dest:
+            return ''
+        return ','.join([str(x) for x in self.dest])
+    def load_config_str(self,s:str=None):
+        if s is None and self.indx is not None:
+            s = config[f'bookmark{self.indx}']
+        if not s:
+            self.dest = None
+            return
+        self.dest = tuple([int(x) for x in s.split(',')])
 def addjump(obj, addjumps):
     newobj = copy.deepcopy(obj)
     if not addjumps:
@@ -2373,6 +2546,7 @@ def reset_entry():
     local_edited(False)
 def gen_menubar():
     global menubar,filemenu,optmenu,toolmenu,pagemenu,editmenu,root
+    global bkmrkmenu,bkmrkmenu_save,bkmrkmenu_load,bkmrkmenu_clear
     menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0, postcommand=onfile)
     filemenu.add_command(label = 'New', command = new_json)
@@ -2402,63 +2576,153 @@ def gen_menubar():
     pagemenu.add_command(label = 'Settings', command = popup_pagesetting)
     pagemenu.add_command(label = 'Named Data', command = edit_named)
     menubar.add_cascade(label='Page', menu=pagemenu)
+    bkmrkmenu = Menu(menubar, tearoff=0, postcommand=onbkmrk)
+    bkmrkmenu_save = Menu(bkmrkmenu, tearoff=0, postcommand=onbkmrk_save)
+    bkmrkmenu_load = Menu(bkmrkmenu, tearoff=0, postcommand=onbkmrk_load)
+    bkmrkmenu_clear = Menu(bkmrkmenu, tearoff=0, postcommand=onbkmrk_clr)
+    for q in range(10):
+        bk = bookmarks[q]
+        bkmrkmenu_save.add_command(label=f'Save {q}', command = bk.save)
+        bkmrkmenu_load.add_command(label=f'Load {q}', command = bk.load)
+        bkmrkmenu_clear.add_command(label=f'Clear {q}', command = bk.clear)
+    bkmrkmenu.add_cascade(label='Save', menu=bkmrkmenu_save)
+    bkmrkmenu.add_cascade(label='Load', menu=bkmrkmenu_load)
+    bkmrkmenu.add_cascade(label='Clear', menu=bkmrkmenu_clear)
+    menubar.add_cascade(label='Bkmrk', menu=bkmrkmenu)
     root.config(menu=menubar)
 
-def clear_toplevel(tl,closers=[]):
-    global toplevel
-    for closer in closers:
-        closer()
-    destroy_popup()
-    tl.grab_release()
-    tl.destroy()
-    if toplevel is tl:
-        toplevel = None
-def setup_toplevel(title,closers=[]):
-    global toplevel
-    toplevel = Toplevel(bg=BGC)
-    toplevel.title(title)
-    toplevel.grab_set()
-    toplevel.protocol("WM_DELETE_WINDOW", lambda: clear_toplevel(toplevel,closers))
-    toplevel.grid_rowconfigure(0, weight=1)
-    toplevel.grid_columnconfigure(0, weight=1)
-    toplevel.confirm = None
-    return toplevel
-def launch_toplevel(toplevel,frame,savers=[],closers=[],w=400,h=150,postinit=None):
-    frame.grid()
-    Frame(frame,bg=BGC,width=0,height=15).pack()
-    btnfr = Frame(frame,bg=BGC)
-    btns = []
-    wid = 10
-    okb = Button(btnfr,width=wid,text='OK',command=lambda:clear_toplevel(toplevel,savers+closers))
-    btns.append(okb)
-    cb = okb
-    if savers:
-        cb = Button(btnfr,width=wid,text='Cancel',command=lambda:clear_toplevel(toplevel,closers))
+class widgTopLevel:
+    def __init__(self,title=''):
+        self.root = None
+        self.closers = []
+        self.savers = []
+        self.index = -1
+        self.retval = None
+        self.confirmfunc = None
+        self.cancelfunc = None
+        self.saved = False
+        self.focused = None
+        tl = Toplevel(bg=BGC)
+        tl.title(title)
+        tl.grab_set()
+        tl.protocol("WM_DELETE_WINDOW", lambda:self.clear(False))
+        tl.grid_rowconfigure(0, weight=1)
+        tl.grid_columnconfigure(0, weight=1)
+        tl.confirm = None
+        self.root = tl
+    def clear(self,save=False):
+        self.saved = save
+        if save:
+            for saver in self.savers:
+                saver()
+        for closer in self.closers:
+            closer()
+        destroy_popup()
+        self.root.grab_release()
+        self.root.destroy()
+        popup_manager.close(self.index)
+    def confirm(self):
+        if self.confirmfunc:
+            self.confirmfunc()
+        elif self.okb:
+            self.okb.invoke()
+    def cancel(self):
+        if self.cancelfunc:
+            self.cancelfunc()
+        elif self.cb:
+            self.cb.invoke()
+    def launch(self,frame,savers=[],closers=[],w=400,h=150,postinit=None):
+        frame.grid()
+        Frame(frame,bg=BGC,width=0,height=15).pack()
+        btnfr = Frame(frame,bg=BGC)
+        btns = []
+        wid = 10
+        okb = Button(btnfr,width=wid,text='OK',command=lambda:self.clear(True))
+        btns.append(okb)
+        cb = Button(btnfr,width=wid,text='Cancel',command=lambda:self.clear(False))
         btns.append(cb)
-    for b in btns:
-        style_btn(b)
-        b.pack(side='left')
-    btnfr.pack()
-    okb.focus_set()
-    toplevel.okb = okb
-    toplevel.cb = cb
-    toplevel.protocol("WM_DELETE_WINDOW", lambda *_:cb.invoke())
-    if not toplevel.confirm:
-        toplevel.confirm = lambda *_: okb.invoke()
-    toplevel.bind('<Return>',toplevel.confirm)
-    toplevel.bind('<Escape>',lambda *_:cb.invoke())
-    toplevel.geometry(f'{w}x{h}')
-    toplevel.okb = okb
-    toplevel.cb = cb
-    rx = root.winfo_x()
-    ry = root.winfo_y()
-    rw = root.winfo_width()
-    rh = root.winfo_height()
-    toplevel.geometry("+%d+%d" %(rx+(rw-w)/2,ry+(rh-h)/2))
-    if postinit:
-        postinit(toplevel)
-    toplevel.mainloop()
-def pack_entry_rows(toplevel,frame,l:list,wid=50):
+        for b in btns:
+            style_btn(b)
+            b.pack(side='left')
+        btnfr.pack()
+        self.okb = okb
+        self.cb = cb
+        if not self.focused:
+            self.focused = okb
+        self.focused.focus_set()
+        self.root.protocol("WM_DELETE_WINDOW", lambda *_:cb.invoke())
+        self.root.bind('<Return>',lambda *_:self.confirm())
+        self.root.bind('<Escape>',lambda *_:cb.invoke())
+        self.root.geometry(f'{w}x{h}')
+        self.savers = savers
+        self.closers = closers
+        rx = root.winfo_x()
+        ry = root.winfo_y()
+        rw = root.winfo_width()
+        rh = root.winfo_height()
+        self.root.geometry("+%d+%d" %(rx+(rw-w)/2,ry+(rh-h)/2))
+        if postinit:
+            postinit(self.root)
+        self.index = popup_manager.add(self)
+        while popup_manager.update(self.index):
+            pass
+        if not self.saved:
+            return None
+        return self.retval
+    def setret(self,val):
+        self.retval = val
+    def setret_ind(self,ind,val):
+        self.retval[ind] = val
+class tlManager:
+    def __init__(self):
+        self.tls = []
+    def add(self,tl)->int:
+        if tl in self.tls:
+            return self.get(tl)
+        self.tls.append(tl)
+        return len(self.tls)-1
+    def get(self,tl)->int:
+        if tl in self.tls:
+            for q in range(len(self.tls)):
+                if self.tls[q] is tl:
+                    return q
+        return -1
+    def update(self,ind):
+        if not self.tls:
+            return False
+        if ind < 0:
+            return False
+        if ind < len(self.tls)-1:
+            return True #not the current popup focused
+        if ind > len(self.tls)-1:
+            return False #closed
+        tl = self.tls[-1]
+        if not tl:
+            return False
+        tl.root.update_idletasks()
+        tl.root.update()
+        return True
+    def close(self,ind):
+        if not self.tls:
+            return
+        if ind > len(self.tls)-1:
+            return
+        if ind < 0:
+            return
+        tl = self.tls[-1]
+        if not tl:
+            return False
+        self.tls[ind] = None
+        lasthas = -1
+        for q in range(len(self.tls)):
+            if self.tls[q]:
+                lasthas = q
+        if lasthas < 0:
+            return
+        self.tls = self.tls[:lasthas]
+popup_manager = tlManager()
+
+def pack_entry_rows(tl,frame,l:list,wid=50):
     fr = Frame(frame, bg=BGC)
     r = 0
     evars = []
@@ -2471,7 +2735,7 @@ def pack_entry_rows(toplevel,frame,l:list,wid=50):
         
         default = t[2] if len(t) > 2 else None
         default = getkey(t[1],default)
-        tvar = StringVar(toplevel, default)
+        tvar = StringVar(tl, default)
         
         _ent = Entry(fr, width=wid, textvariable=tvar)
         style_entry(_ent)
@@ -2479,9 +2743,60 @@ def pack_entry_rows(toplevel,frame,l:list,wid=50):
         
         r += 1
         evars.append(tvar)
-        savers.append(lambda: setkey(t[1],tvar.get()))
+        if len(t) > 3:
+            savers.append(lambda: t[3](tvar.get()))
+        else:
+            savers.append(lambda: setkey(t[1],tvar.get()))
     fr.pack()
     return (savers,evars)
+def pack_entry_rows_2(tl,frame,l:list,wid=50):
+    fr = Frame(frame, bg=BGC)
+    r = 0
+    evars = []
+    savers = []
+    objs = []
+    for t in l:
+        # t is tuple(title,default,lambda)
+        _lbl = Label(fr, text=t[0])
+        style_label(_lbl)
+        _lbl.grid(row=r,column=0,sticky=E)
+        
+        tvar = StringVar(tl, t[1])
+        
+        _ent = Entry(fr, width=wid, textvariable=tvar)
+        style_entry(_ent)
+        _ent.grid(row=r,column=1,sticky=W)
+        
+        evars.append(tvar)
+        r += 1
+        objs += [_lbl, _ent]
+    for q in range(len(evars)):
+        if l[q][2]:
+            savers.append(lambda: l[q][2](evars[q].get()))
+    fr.pack()
+    return (objs,savers,evars)
+def pack_checkboxes(tl,frame,l:list):
+    fr = Frame(frame, bg=BGC)
+    
+    ivars = []
+    savers = []
+    objs = []
+    for t in l:
+        # t is tuple(title,default,lambda)
+        
+        ivar = IntVar(tl, 1 if t[1] else 0)
+        
+        _chk = Checkbutton(fr, text=t[0], variable=ivar, onvalue=1, offvalue=0)
+        style_check(_chk)
+        _chk.pack()
+        
+        objs.append(_chk)
+        ivars.append(ivar)
+        if t[2]:
+            savers.append(lambda: t[2](True if ivar.get() == 1 else False))
+    fr.pack()
+    return (objs,savers,ivars)
+
 
 def getkey(key:str,default=None):
     global json_obj
@@ -2503,16 +2818,80 @@ def popup_pagesetting():
     f1.pack()
     update_popup_size()
     
-    toplevel = setup_toplevel('Page Settings')
-    topframe = Frame(toplevel, bg=BGC)
-    savers,evars = pack_entry_rows(toplevel,topframe,[
+    tl = widgTopLevel('Page Settings')
+    topframe = Frame(tl.root, bg=BGC)
+    savers,evars = pack_entry_rows(tl.root,topframe,[
         ('Page Title:','pagetitle'),
         ('Header:','header'),
         ('Host URL:','url'),
         ('URL Text:','urltxt')])
     savers.append(mark_edited)
-    launch_toplevel(toplevel,topframe,w=400,h=150,savers=savers)
+    tl.launch(topframe,w=400,h=150,savers=savers)
 
+def popup_editstring(strname:str='',oldstr:str='',title:str='',info:str=None,txtwid=25):
+    popup = centered_popup(Frame(root,bg=BGC))
+    f1 = build_labels(['String Popup open...','Please Close Popup'],parent=popup)
+    f1.pack()
+    update_popup_size()
+    
+    if not title:
+        title = 'Rename?'
+    if not strname:
+        strname = 'Name'
+    
+    tl = widgTopLevel(title)
+    topframe = Frame(tl.root, bg=BGC)
+    if info:
+        _lbl = Label(topframe, text = info)
+        style_label(_lbl)
+        _lbl.pack()
+    objs1,savers1,vars1 = pack_entry_rows_2(tl.root,topframe,[
+        (f'{strname}:',oldstr,lambda s:tl.setret(s))],wid=txtwid)
+    tl.focused = objs1[1] #Textfield
+    return tl.launch(topframe,w=450,h=100,savers=savers1)
+findstr = ''
+replstr = ''
+def popup_findrepl(info:str=None,txtwid=25,candupe=False):
+    global findstr, replstr
+    findmode = config['findmode']
+    finddupe = config['finddupe']
+    popup = centered_popup(Frame(root,bg=BGC))
+    f1 = build_labels(['String Popup open...','Please Close Popup'],parent=popup)
+    f1.pack()
+    update_popup_size()
+    
+    tl = widgTopLevel('Find+Replace')
+    topframe = Frame(tl.root, bg=BGC)
+    if info:
+        _lbl = Label(topframe, text = info)
+        style_label(_lbl)
+        _lbl.pack()
+    tl.setret(['','',0])
+    objs1,_,vars1 = pack_entry_rows_2(tl.root,topframe,[
+        ('Find:',findstr,None),
+        ('Replace:',replstr,None)],wid=txtwid)
+    objs2,_,vars2= pack_checkboxes(tl.root,topframe,[
+        ('Use Regex Search',True if findmode else False,None)])
+    if candupe:
+        objs3,_,vars3= pack_checkboxes(tl.root,topframe,[
+            ('Duplicate instead of Replace',True if finddupe else False,None),
+            ('...Add dupes to end',True if finddupe == 2 else False,None)])
+    
+    tl.focused = objs1[1] #Top textfield
+    tl.launch(topframe,w=450,h=200)
+    if tl.saved:
+        findstr = vars1[0].get()
+        replstr = vars1[1].get()
+        findmode = vars2[0].get()
+        if candupe:
+            finddupe = vars3[0].get()
+            if finddupe and vars3[1].get():
+                finddupe = 2
+            config['finddupe'] = finddupe
+        config['findmode'] = findmode
+        r = (findstr,replstr,findmode,finddupe if candupe else 0)
+        return r
+    return None
 def sub_brlink(br,s,txt):
     global _sub_count
     output = txt
@@ -2531,7 +2910,7 @@ def sub_brlink(br,s,txt):
 def repl_brlink(ind):
     global brlinks, _sub_count, toplevel, toplistbox, needs_edit_save
     br = brlinks[ind]
-    s = simpledialog.askstring('Re-Link', f"Replace links to '{br}' with links to?", parent=toplevel)
+    s = popup_editstring('Replace Links',br,'New Link',f"Replace links to {br} with links to?")
     if not s:
         return
     _sub_count = 0
@@ -2600,8 +2979,8 @@ def popup_brlink():
     f1.pack()
     update_popup_size()
     
-    toplevel = setup_toplevel('Broken Links')
-    topframe = Frame(toplevel, bg=BGC)
+    tl = widgTopLevel('Broken Links')
+    topframe = Frame(tl.root, bg=BGC)
     
     if not brlinks:
         _lbl = Label(topframe, text="No Broken Links Found!")
@@ -2629,7 +3008,7 @@ def popup_brlink():
         btn.pack()
         fr.pack(side='left')
         row.pack()
-    launch_toplevel(toplevel,topframe,w=250,h=250,savers=[])
+    tl.launch(topframe,w=250,h=250,savers=[])
 
 def goto_todo(todo):
     global toplevel
@@ -2651,14 +3030,13 @@ def popup_todo(todos):
     f1.pack()
     update_popup_size()
     
-    toplevel = setup_toplevel('Todos')
-    topframe = Frame(toplevel, bg=BGC)
+    tl = widgTopLevel('Todos')
+    topframe = Frame(tl.root, bg=BGC)
     
     if not todos:
         _lbl = Label(topframe, text="No Todos Found!")
         style_label(_lbl)
         _lbl.pack()
-        toplevel.confirm = None
     else:
         curtop = 0
         row = Frame(topframe, bg=BGC)
@@ -2666,15 +3044,15 @@ def popup_todo(todos):
         toplistbox = Listbox(fr, width = 50)
         style_lb(toplistbox)
         toplistbox.bind('<<ListboxSelect>>', sel_toplvl)
-        toplevel.confirm = lambda *_:goto_todo(todos[curtop])
-        toplistbox.bind('<Double-1>', toplevel.confirm)
+        tl.confirmfunc = lambda *_:goto_todo(todos[curtop])
+        toplistbox.bind('<Double-1>', tl.confirmfunc)
         pack_scrollable_listbox(toplistbox)
         toplistbox.focus_set()
         _load_list(toplistbox, 0, [x[3] for x in todos], lambda a:a)
         fr.pack(side='left')
         fr = Frame(row, bg=BGC)
         wid = 10
-        btn = Button(fr, width=wid, text='Go To', command=toplevel.confirm)
+        btn = Button(fr, width=wid, text='Go To', command=tl.confirmfunc)
         style_btn(btn)
         btn.pack()
         btn = Button(fr, width=wid, text='Preview', command=lambda *_:preview_todo(todos[curtop]))
@@ -2682,8 +3060,9 @@ def popup_todo(todos):
         btn.pack()
         fr.pack(side='left')
         row.pack()
-    launch_toplevel(toplevel,topframe,w=450,h=250,savers=[])
+    tl.launch(topframe,w=450,h=250,savers=[])
 
+read_config()
 root = Tk()
 style = ttk.Style(root)
 root.config(bg=BGC)

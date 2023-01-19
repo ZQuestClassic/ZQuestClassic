@@ -7,7 +7,7 @@ def _dict_get(d:dict,s:str,default=None):
     try:
         return d[s]
     except:
-        if default: #Set the default value
+        if default is not None: #Set the default value
             d[s] = default
         return default
 def _dict_del(d:dict,s:str):
