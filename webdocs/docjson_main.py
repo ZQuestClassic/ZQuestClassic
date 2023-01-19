@@ -856,26 +856,30 @@ def repl_jump():
     if not tpl:
         return
     findstr,replstr,mode,dupl = tpl
+    escstr = findstr
     if mode == 0:
-        findstr = re.escape(findstr)
+        escstr = re.escape(findstr)
     updated = 0
     oldjumps = mainframe.list_jumps
     newjumps = []
     endjumps = []
     for q in range(len(oldjumps)):
         oldstr = oldjumps[q]
-        if re.search(findstr,oldstr):
-            newstr = re.sub(findstr, replstr, oldstr)
-            match dupl:
-                case 1: #Add inbetween
-                    newjumps.append(oldstr)
-                    newjumps.append(newstr)
-                case 2: #Add at end
-                    newjumps.append(oldstr)
-                    endjumps.append(newstr)
-                case 0: #Replace
-                    newjumps.append(newstr)
-            updated += 1
+        if re.search(escstr,oldstr):
+            newstr = re.sub(escstr, replstr, oldstr)
+            if dupl > 0:
+                newjumps.append(oldstr)
+            if newstr:
+                match dupl:
+                    case 1: #Add inbetween
+                        newjumps.append(newstr)
+                    case 2: #Add at end
+                        endjumps.append(newstr)
+                    case 0: #Replace
+                        newjumps.append(newstr)
+                updated += 1
+            elif not dupl:
+                updated += 1
         else:
             newjumps.append(oldstr)
     if updated > 0:
@@ -1771,60 +1775,139 @@ class EditSecPage(Page):
     def paste(self):
         paste_entry()
 
-def get_ttip(hld=None):
-    return ('[[',hld if hld else 'TITLE','|TIP TEXT]]')
-def get_named(hld=None):
-    return ('$[',hld if hld else 'DATA_NAME',']')
-def get_spoil(hld=None):
-    return ('#{TITLE|',hld if hld else 'HIDDEN TEXT','}')
-def get_link(hld=None):
-    return ('${KEY|',hld if hld else 'DISPLAY TEXT','}')
-def get_code1(hld=None):
-    return ('`',hld if hld else 'CODE','`')
-def get_code2(hld=None):
-    return ('```',hld if hld else 'CODE','```')
-def get_block(hld=None):
-    return ('<block>',hld if hld else 'TEXT','</block>')
-def get_iblock(hld=None):
-    return ('<iblock>',hld if hld else 'TEXT','</iblock>')
-def get_monospace(hld=None):
-    return ('<mono>',hld if hld else 'TEXT','</mono>')
-def get_lt(hld=None):
-    return ('&lt;','','')
-def get_gt(hld=None):
-    return ('&gt;','','')
-def get_amp(hld=None):
-    return ('&amp;','','')
-def get_todo(hld=None):
-    return ('<todo>',hld if hld else 'TEXT','</todo>')
-def get_header(hld=None):
-    return ('<h3>',hld if hld else 'HEADER TEXT','</h3>')
-def get_bold(hld=None):
-    return ('<strong>',hld if hld else 'TEXT','</strong>')
-def get_italic(hld=None):
-    return ('<em>',hld if hld else 'TEXT','</em>')
+def text_pack(before='',sel='',after='',replall=False):
+    return (before,sel,after,replall)
+def get_ttip(before:str,after:str,sel:str=None):
+    return text_pack('[[',sel if sel else 'TITLE','|TIP TEXT]]')
+def get_named(before:str,after:str,sel:str=None):
+    return text_pack('$[',sel if sel else 'DATA_NAME',']')
+def get_spoil(before:str,after:str,sel:str=None):
+    return text_pack('#{TITLE|',sel if sel else 'HIDDEN TEXT','}')
+def get_link(before:str,after:str,sel:str=None):
+    return text_pack('${KEY|',sel if sel else 'DISPLAY TEXT','}')
+def get_code1(before:str,after:str,sel:str=None):
+    return text_pack('`',sel if sel else 'CODE','`')
+def get_code2(before:str,after:str,sel:str=None):
+    return text_pack('```',sel if sel else 'CODE','```')
+def get_block(before:str,after:str,sel:str=None):
+    return text_pack('<block>',sel if sel else 'TEXT','</block>')
+def get_iblock(before:str,after:str,sel:str=None):
+    return text_pack('<iblock>',sel if sel else 'TEXT','</iblock>')
+def get_monospace(before:str,after:str,sel:str=None):
+    return text_pack('<mono>',sel if sel else 'TEXT','</mono>')
+def get_lt(before:str,after:str,sel:str=None):
+    return text_pack('&lt;','','')
+def get_gt(before:str,after:str,sel:str=None):
+    return text_pack('&gt;','','')
+def get_amp(before:str,after:str,sel:str=None):
+    return text_pack('&amp;','','')
+def get_todo(before:str,after:str,sel:str=None):
+    return text_pack('<todo>',sel if sel else 'TEXT','</todo>')
+def get_header(before:str,after:str,sel:str=None):
+    return text_pack('<h3>',sel if sel else 'HEADER TEXT','</h3>')
+def get_bold(before:str,after:str,sel:str=None):
+    return text_pack('<strong>',sel if sel else 'TEXT','</strong>')
+def get_italic(before:str,after:str,sel:str=None):
+    return text_pack('<em>',sel if sel else 'TEXT','</em>')
+
+def get_escapes(before:str,after:str,sel:str=None):
+    if not sel:
+        return None
+    #Escape ampersands and gt/lt tags
+    sel = re.sub('&', '&amp;', sel)
+    sel = re.sub('<', '&lt;', sel)
+    sel = re.sub('>', '&gt;', sel)
+    #...but don't escape the ampersand of an escape code
+    sel = re.sub('&amp;(amp|lt|gt);', lambda m:f'&{m.group(1)};', sel)
+    return text_pack(sel=sel)
+def get_unescapes(before:str,after:str,sel:str=None):
+    if not sel:
+        return None
+    sel = re.sub('&amp;', '&', sel)
+    sel = re.sub('&lt;', '<', sel)
+    sel = re.sub('&gt;', '>', sel)
+    return text_pack(sel=sel)
+def get_findrepl(before:str,after:str,sel:str=None):
+    global findstr, replstr
+    if sel:
+        findstr = sel
+    tpl = popup_findrepl(f"Replace a given string in {'the selection' if sel else 'the page text'}?")
+    if not tpl:
+        return None
+    findstr,replstr,mode,dupl = tpl
+    escstr = findstr
+    if mode == 0:
+        escstr = re.escape(findstr)
+    updated = 0
+    s1,s2,s3 = '','',''
+    if sel: #Search in selection
+        if re.search(escstr,sel):
+            updated = len(re.findall(escstr,sel))
+            s2 = re.sub(escstr, replstr, sel)
+        else:
+            s2 = sel
+    else: #Search in the total page
+        if re.search(escstr,before):
+            updated = len(re.findall(escstr,before))
+            s1 = re.sub(escstr, replstr, before)
+        else:
+            s1 = before
+        if re.search(escstr,after):
+            updated += len(re.findall(escstr,after))
+            s3 = re.sub(escstr, replstr, after)
+        else:
+            s3 = after
+    if not updated:
+        popInfo('Found no instances!')
+        return None
+    popInfo(f'Replaced {updated} instances!')
+    return text_pack(s1,s2,s3,replall=not sel)
 
 def txt_insert(txt,getter):
-    sel = None
     has_sel = bool(txt.tag_ranges(SEL))
     if has_sel:
         sel = txt.get(SEL_FIRST, SEL_LAST)
-    vls = getter(sel)
-    if not vls: #Cancelled?
-        return;
-    s = vls[0]+vls[1]+vls[2]
+        before = txt.get('1.0', SEL_FIRST)
+        after = txt.get(SEL_LAST, END)
+    else:
+        sel = None
+        before = txt.get('1.0', INSERT)
+        after = txt.get(INSERT, END)
+    tpl = getter(before,after,sel)
+    if not tpl: #Cancelled?
+        return
+    str_bef,str_sel,str_aft,replall = tpl
     
-    if has_sel:
+    s = str_bef+str_sel+str_aft
+    
+    if replall:
+        if before == str_bef and after == str_aft and sel == str_sel:
+            return
+    elif has_sel:
+        if sel == str_sel and not str_bef and not str_aft:
+            return
+    elif not s:
+        return
+    txt.edit_separator()
+    txt.config(autoseparator=False)
+    ## In a textfield edit bubble
+    if replall:
+        tmp = 0
+        txt.delete('1.0',END)
+    elif has_sel:
         tmp = txt.count('1.0',SEL_FIRST)
         txt.delete(SEL_FIRST, SEL_LAST)
     else:
         tmp = txt.count('1.0',INSERT)
     first = tmp[0] if tmp else 0
-    first += len(vls[0])
-    last = first + len(vls[1])
+    first += len(str_bef)
+    last = first + len(str_sel)
     txt.insert(INSERT, s)
     txt.tag_add('sel',f'1.0+{first}c',f'1.0+{last}c')
     txt.mark_set(INSERT,f'1.0+{last}c')
+    ## End textfield edit bubble
+    txt.config(autoseparator=True)
+    txt.edit_separator()
 
 def makeButtonGrid(fr,cmd_inf=None,cmd_up=None,cmd_dn=None,cmd_edit=None,cmd_todo=None,
     cmd_add=None,cmd_del=None,exbtn_txt='',exbtn_cmd=None,exit_txt='Exit (Up)'):
@@ -1933,6 +2016,7 @@ class EditEntryPage(Page):
             linknum = get_sheetind_named(linkname)
         
         pageval = '' if is_link else val
+        pageval = ('\n'*2)+pageval.strip('\r\n \t')+('\n'*10)
         
         sheetnames = get_sheetnames()
         sheetnums = get_sheetnums()
@@ -2108,6 +2192,17 @@ class EditEntryPage(Page):
             style_btn(btn)
             btn.pack(side='left')
         br.pack()
+        self.insert_btns = self.insert_btns + btns
+        wid = 12
+        b=Button(fr, width=wid, text='Esc <>&', command=lambda:txt_insert(self.txt_body,get_escapes))
+        btns.append(b)
+        b=Button(fr, width=wid, text='Unesc <>&', command=lambda:txt_insert(self.txt_body,get_unescapes))
+        btns.append(b)
+        b=Button(fr, width=wid, text='FindRepl', command=lambda:txt_insert(self.txt_body,get_findrepl))
+        btns.append(b)
+        for btn in btns:
+            style_btn(btn)
+            btn.pack()
         self.insert_btns = self.insert_btns + btns
         fr.pack(side='left',anchor=N)
         insrow.grid(row=1,column=5,sticky=NW,rowspan=2)
@@ -2471,7 +2566,7 @@ def get_entry(addjumps=None):
     if jumps:
         outname += ' ;; ' + ' / '.join(jumps)
     
-    outval = mainframe.get_val()
+    outval = mainframe.get_val().strip('\r\n \t')
     
     ret = {'name':outname,'val':outval}
     if mainframe.todo:
