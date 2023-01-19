@@ -326,6 +326,187 @@
             "todo": true
         },
         {
+            "name": "Debug",
+            "tabs": [
+                {
+                    "name": "Debug ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Global Pointers ;; function_globalptr",
+                            "val": "$Base Data$3"
+                        },
+                        {
+                            "name": "<em>Debug</em> ;; Debug",
+                            "val": "The `Debug->` pointer holds some internal debug variables.\n\nYou probably won't need to use it."
+                        }
+                    ],
+                    "todo": true
+                }
+            ],
+            "todo": true
+        },
+        {
+            "name": "NPCData",
+            "tabs": [],
+            "todo": true
+        },
+        {
+            "name": "NPC",
+            "tabs": [
+                {
+                    "name": "0",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
+                        },
+                        {
+                            "name": "<em>npc</em>",
+                            "val": "<h3>NPC Pointers</h3>   `npc`\n\nThese pointers represent an enemy on the screen, and its' various attributes and functions.\nUsing these pointers, you can move them, damage them, make them move, make them invincible, etc.\n\nSee: ${LoadNPC}, ${CreateNPC}"
+                        },
+                        {
+                            "name": "Position",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the enemy's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n"
+                        },
+                        {
+                            "name": "Movement ;; npcMovement",
+                            "val": "$-1$1"
+                        },
+                        {
+                            "name": "More Under Construction....",
+                            "val": ""
+                        }
+                    ]
+                },
+                {
+                    "name": "1",
+                    "lines": [
+                        {
+                            "name": "&lt;-- NPC Pointers",
+                            "val": "$-1$0"
+                        },
+                        {
+                            "name": "--",
+                            "val": "<h3>NPC Movement</h3>\n\nThese functions relate to npc movement."
+                        },
+                        {
+                            "name": "<u>Script Movement</u>",
+                            "val": ""
+                        },
+                        {
+                            "name": "MoveXY",
+                            "val": "<h3>bool MoveXY(float dx, float dy, int special);\nbool CanMoveXY(float dx, float dy, int special);</h3>\n\nAttempts to move the enemy by 'dx' in the x direction and 'dy' in the y direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveXY' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                        },
+                        {
+                            "name": "Move",
+                            "val": "<h3>bool Move(int dir, float pxamnt, int special);\nbool CanMove(int dir, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'dir' direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMove' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                        },
+                        {
+                            "name": "MoveAtAngle",
+                            "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                        },
+                        {
+                            "name": "MovePaused",
+                            "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise."
+                        },
+                        {
+                            "name": "Knockback",
+                            "val": "<h3>bool Knockback(int time, int dir, int speed);</h3>\n\nAttempt to knock back the npc in 'dir' direction, for 'time' frames, at a rate of 'speed' pixels per frame.\n\nReturns true if successful, false if the enemy could not be knocked back.\n\nRelated: ${NoScriptKnockback|bool npc->NoScriptKnockback;}"
+                        },
+                        {
+                            "name": "<u>Variables</u>",
+                            "val": ""
+                        },
+                        {
+                            "name": "NoScriptKnockback",
+                            "val": "<h3>bool NoScriptKnockback;</h3>\n\nFalse by default. If set to 'true', scripted knockback via '${Knockback|npc->Knockback()}' is ignored."
+                        }
+                    ]
+                }
+            ],
+            "todo": true
+        },
+        {
+            "name": "PalData",
+            "tabs": [],
+            "todo": true
+        },
+        {
+            "name": "Weapon",
+            "tabs": [
+                {
+                    "name": "Weapon ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$Base Data$5"
+                        },
+                        {
+                            "name": "<em>lweapon / eweapon</em>",
+                            "val": "<h3>Weapon Pointers</h3>   `lweapon`, `eweapon`\n\nThese pointers represent weapon objects on screen. `lweapon` pointers represent the player's weapons, while `eweapon` pointers represent enemy weapons.\nSee: ${LoadLWeapon}, ${CreateLWeapon}, ${LoadEWeapon}, ${CreateEWeapon}\n\n"
+                        },
+                        {
+                            "name": "EWeapon / LWeapon exclusive ;; lwpnptr / ewpnptr / eweapon::Parent / lweapon::Parent / lweapon::Weapon / lweapon::Defense / lweapon::Special",
+                            "val": "<h2>EWeapon Exclusive</h2>\n\n<h3>npc Parent;</h3>\nThe npc pointer to the parent NPC.\n\n<h2>LWeapon Exclusive</h2>\n\n<h3>int Parent;</h3>\nThe item ID of the parent item.\n\n<h3>int Weapon;</h3>\nThe UseWeapon property for this weapon. If set to a value greater than 0, this value will be used instead of the weapon's type when interacting with npcs and triggers. Uses `LW_` constants.\n\n<h3>int Defense;</h3>\nThe default defense of the weapon. If set to a value greater than 0, this defense will be used instead of the `(None)` defense when hitting enemies. Uses `NPCDT_` constants.\n\n<h3>int Special;</h3>\nThe special info for the lweapon. Used by wind lweapons, instead of Level, to determine their effects. \n"
+                        },
+                        {
+                            "name": "Basic Info ;; lweapon::ID / eweapon::ID / lweapon::Type / eweapon::Type / lweapon::Family / eweapon::Family / lweapon::isValid / eweapon::isValid / lweapon::Level / eweapon::Level / lweapon::Dir / eweapon::Dir / lweapon::Angle / eweapon::Angle / lweapon::DegAngle / eweapon::DegAngle / lweapon::Angular / eweapon::Angular / lweapon::MakeAngular / eweapon::MakeAngular / lweapon::MakeDirectional / eweapon::MakeDirectional / lweapon::Vx / eweapon::Vx / lweapon::Vy / eweapon::Vy / lweapon::Animation / eweapon::Animation",
+                            "val": "<h3>int ID;\nint Type;\nint Family;</h3>\nThe weapon type of the weapon. Some types have hardcoded behaviors.\n\n<h3>bool isValid();</h3>\nReturns true if this pointer points to a valid weapon. If this returns false, using any other value of this pointer will error.\n\n<h3>int Level;</h3>\nFor lweapons, the level of the weapon.\nFor eweapons, bitwise. The `1` bit represents it being a \"boss\" weapon (ex. 'boss fireball')\n\n<h3>int Dir;</h3>\nThe weapon's direction.\n\n<h3>float Angle;\nfloat DegAngle;</h3>\nThe angle of the weapon, in radians for Angle or degrees for DegAngle. Has no real effect if the weapon is not `Angular`.\n\n<h3>bool Angular;</h3>\nIf the weapon is angular (instead of directional)\n\n<h3>void MakeAngular();</h3>\nIf the weapon is not Angular, makes it Angular, and sets its' Angle based on its' Dir.\n\n<h3>void MakeDirectional();</h3>\nIf the weapon is Angular, makes it not Angular, and sets its' Dir based on its' Angle.\n\n<h3>float Vx;\nfloat Vy;</h3>\nThe velocity on the X or Y axis. Setting these will make the weapon Angular if it isn't already, and will adjust the weapon's Angle and Step speed.\n\n<h3>bool Animation;</h3>\nIf the engine should animate the weapon's graphics.\n\n\n"
+                        },
+                        {
+                            "name": "Position ;; lweapon::X / eweapon::X / lweapon::Y / eweapon::Y / lweapon::Z / eweapon::Z / lweapon::Jump / eweapon::Jump / lweapon::Gravity / eweapon::Gravity / lweapon::MoveFlags / eweapon::MoveFlags / lweapon::FakeZ / eweapon::FakeZ / lweapon::FakeJump / eweapon::FakeJump",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the weapon's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n<h3>int Jump;</h3>\nThe weapon's upward velocity, in pixels per frame. Affected by gravity each frame, if gravity is enabled for this weapon.\n\n<h3>bool Gravity;</h3>\nTrue by default. If false, gravity will no longer affect this weapon.\n\n<h3>bool MoveFlags[];</h3>\nThe movement flags of the weapon. See `WPNMV_` constants.\n#{WPNMV_ constants|$[WPNMV_]}\n<h3>int FakeZ;</h3>\nThe position of the weapon on the FakeZ axis.\n\n<h3>int FakeJump;</h3>\nThe velocity of the weapon in the FakeZ axis.\n\n\n\n\n\n"
+                        },
+                        {
+                            "name": "Sprite Limit ;; lweapon::Max / eweapon::Max",
+                            "val": "<h3>int Max();</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n\n"
+                        },
+                        {
+                            "name": "Graphical Info ;; lweapon::OriginalTile / eweapon::OriginalTile / lweapon::Tile / eweapon::Tile / lweapon::OriginalCSet / eweapon::OriginalCSet / lweapon::CSet / eweapon::CSet / lweapon::NumFrames / eweapon::NumFrames / lweapon::Frame / eweapon::Frame / lweapon::ASpeed / eweapon::ASpeed / lweapon::Flash / eweapon::Flash / lweapon::FlashCSet / eweapon::FlashCSet / lweapon::Flip / eweapon::Flip / lweapon::UseSprite / eweapon::UseSprite",
+                            "val": "<h3>int OriginalTile;</h3>\nThe starting tile of the weapon's animation.\n\n<h3>int Tile;</h3>\nThe currently displaying tile of the weapon's animation. Set by the engine each frame if ${lweapon::Animation|animation} is enabled.\n\n<h3>int OriginalCSet;</h3>\nThe starting cset of the weapon.\n\n<h3>int CSet;</h3>\nThe CSet of the weapon.\n\n<h3>int NumFrames;</h3>\nThe number of frames in the weapon's animation.\n\n<h3>int Frame;</h3>\nThe current frame number that the animation is on.\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>bool Flash;</h3>\nIf the weapon is flashing or not. When flashing, it changes between its' CSet and FlashCSet.\n\n<h3>int FlashCSet;</h3>\nThe secondary CSet used for flashing.\n\n<h3>int Flip;</h3>\nThe flip status of the weapon's tile. Uses the [[`FLIP_`|$FLIP_]] constants.\n\n<h3>void UseSprite(int spriteid);</h3>\nLoads the graphical information from the ${spritedata} indicated by `spriteid` to the weapon.\n\n\n\n"
+                        },
+                        {
+                            "name": "Graphical Info 2 ;; lweapon::ScriptTile / eweapon::ScriptTile / lweapon::ScriptFlip / eweapon::ScriptFlip / lweapon::ShadowXOffset / eweapon::ShadowXOffset / lweapon::ShadowYOffset / eweapon::ShadowYOffset / lweapon::ShadowSprite / eweapon::ShadowSprite / lweapon::DrawStyle / eweapon::DrawStyle / lweapon::Rotation / eweapon::Rotation / lweapon::Scale / eweapon::Scale / lweapon::AutoRotate / eweapon::AutoRotate / lweapon::LightShape / eweapon::LightShape / lweapon::LightRadius / eweapon::LightRadius",
+                            "val": "<h3>int ScriptTile;</h3>\n-1 by default. If this is set > -1, this tile will be displayed by the engine, regardless of the normal engine animation. Set back to -1 to restore engine animation.\n\n<h3>int ScriptFlip;</h3>\n-1 by default. If this is set > -1, this flip value will be used instead of the normal 'Flip' value. Set back to -1 to restore normal flip.\n\n<h3>int ShadowXOffset;\nint ShadowYOffset;</h3>\nThe x/y offset of the sprite's shadow.\n\n<h3>int ShadowSprite;</h3>\nThe ${spritedata} sprite ID to use for the item's shadow.\n\n<h3>int DrawStyle;</h3>\nThe mode for the sprite's draws, using the `DS_` constants.\n#{DS_ constants|$[DS_]}\n<h3>float Rotation;</h3>\nA rotation of the sprite draw, in degrees.\n\n<h3>float Scale;</h3>\nA scale of the sprite draw, as a multiplier.\n\n<h3>bool AutoRotate;</h3>\nIf true, the weapon's 'Rotation' will be automatically set based on its' Angle.\n\n<h3>int LightShape;</h3>\nThe shape of light emitted by this sprite. Uses the `LIGHT_` constants.\n#{LIGHT_ constants|$[LIGHT_]}\n<h3>int LightRadius;</h3>\nThe size of the light emitted by this sprite, in pixels.\n\n"
+                        },
+                        {
+                            "name": "Next -&gt; ;; weaponptr2",
+                            "val": "$-1$1"
+                        }
+                    ]
+                },
+                {
+                    "name": "Weapon 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$Base Data$5"
+                        },
+                        {
+                            "name": "Size Info ;; lweapon::Extend / eweapon::Extend / lweapon::HitWidth / eweapon::HitWidth / lweapon::HitHeight / eweapon::HitHeight / lweapon::HitZHeight / eweapon::HitZHeight / lweapon::TileWidth / eweapon::TileWidth / lweapon::TileHeight / eweapon::TileHeight / lweapon::DrawXOffset / eweapon::DrawXOffset / lweapon::DrawYOffset / eweapon::DrawYOffset / lweapon::TotalDYOffset / eweapon::TotalDYOffset / lweapon::DrawZOffset / eweapon::DrawZOffset / lweapon::HitXOffset / eweapon::HitXOffset / lweapon::HitYOffset / eweapon::HitYOffset",
+                            "val": "<h3>int Extend;</h3>\nIf the item sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int TotalDYOffset;</h3>\nRead-only, the weapon's total visual Y-offset.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels.\n\n"
+                        },
+                        {
+                            "name": "Script Info ;; lweapon::Script / eweapon::Script / lweapon::InitD / eweapon::InitD / lweapon::Misc / eweapon::Misc",
+                            "val": "<h3>int Script;</h3>\nThe weapon script running on this weapon.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD[] arguments for the weapon script.\n\n<h3>int Misc[32];</h3>\nAn array of misc values for script use.\n\n"
+                        },
+                        {
+                            "name": "Status ;; lweapon::Falling / eweapon::Falling / lweapon::FallCombo / eweapon::FallCombo / lweapon::Drowning / eweapon::Drowning / lweapon::DrownCombo / eweapon::DrownCombo / lweapon::SwitchHooked / eweapon::SwitchHooked / lweapon::Switch / eweapon::Switch",
+                            "val": "<h3>int Falling;</h3>\nThe timer indicating how long left the sprite will be falling. If 0, the sprite is not falling. Max value of 70, which is the value at the start of falling.\n\n<h3>int FallCombo;</h3>\nThe pitfall combo the sprite is falling into, if it is falling.\n\n<h3>int Drowning;</h3>\nThe timer indicating how long left the sprite will be drowning. If 0, the sprite is not drowning. Max value of 64, which is the value at the start of drowning.\n\n<h3>int DrownCombo;</h3>\nThe liquid combo the sprite is drowning in, if it is drowning.\n\n<h3>bool SwitchHooked;</h3>\nIf the sprite is currently being switch-hooked.\n\n<h3>bool Switch(int effect);</h3>\nSwitch the player with this sprite. Use the `SW_EFF_` constants for 'effect' to select a visual style for the switch.\nReturns true if it succeeds, and false otherwise.\n\n"
+                        },
+                        {
+                            "name": "Misc Info ;; lweapon::Explode / eweapon::Explode / lweapon::Remove / eweapon::Remove / lweapon::DeadState / eweapon::DeadState / lweapon::Step / eweapon::Step / lweapon::Power / eweapon::Power / lweapon::Damage / eweapon::Damage / lweapon::Behind / eweapon::Behind / lweapon::Unblockable / eweapon::Unblockable / lweapon::CollDetection / eweapon::CollDetection / lweapon::Flags / eweapon::Flags",
+                            "val": "<h3>void Explode(int mode);</h3>\nCreates an explosion particle effect in mode 0, 1, or 2 of the sprite.\n\n<h3>void Remove();</h3>\nInstantly deletes the weapon.\n\n<h3>int DeadState;</h3>\nThe deadstate of the weapon, denoted by the `WDS_` constants.\n\n<h3>int Step;</h3>\nThe movement speed of the weapon, in 100th's/pixel per frame.\n\n<h3>int Power;\nint Damage;</h3>\nThe amount of damage the weapon deals.\n\n<h3>bool Behind;</h3>\nIf true, the weapon's sprite will draw behind the player and enemies.\n\n<h3>int Unblockable;</h3>\nA bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.\n#{UNBLOCK_ constants|$[UNBLOCK_]}\n<h3>bool CollDetection;</h3>\nIf the weapon's collision is enabled. Set to false to disable collision entirely.\n\n<h3>bool Flags[1];</h3>\nA set of weapon flags. Use the `WFLAG_` constants as indexes.\n#{WFLAG_ constants|$[WFLAG_]}\n\n\n"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; weaponptr",
+                            "val": "$-1"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Combodata",
             "tabs": [
                 {
@@ -378,26 +559,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "Debug",
-            "tabs": [
-                {
-                    "name": "Debug ROOT",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Global Pointers ;; function_globalptr",
-                            "val": "$Base Data$3"
-                        },
-                        {
-                            "name": "<em>Debug</em> ;; Debug",
-                            "val": "The `Debug->` pointer holds some internal debug variables.\n\nYou probably won't need to use it."
-                        }
-                    ],
-                    "todo": true
-                }
-            ],
-            "todo": true
         },
         {
             "name": "DMapData",
@@ -469,62 +630,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "Weapon",
-            "tabs": [
-                {
-                    "name": "Weapon ROOT",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
-                            "val": "$Base Data$5"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<todo>Weapons Section Under Construction!</todo>\n"
-                        },
-                        {
-                            "name": "EWeapon Only ;; ewpnptr",
-                            "val": "$-1$1"
-                        },
-                        {
-                            "name": "LWeapon Only ;; lwpnptr",
-                            "val": "$-1$2"
-                        }
-                    ],
-                    "todo": true
-                },
-                {
-                    "name": "EWeapon Only",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Weapon Pointer ;; wpnptr",
-                            "val": "$-1"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<todo>EWeapons Section Under Construction!</todo>\n"
-                        }
-                    ],
-                    "todo": true
-                },
-                {
-                    "name": "LWeapon Only",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Weapon Pointer ;; wpnptr",
-                            "val": "$-1"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<todo>LWeapons Section Under Construction!</todo>\n"
-                        }
-                    ],
-                    "todo": true
-                }
-            ],
-            "todo": true
         },
         {
             "name": "Itemdata",
@@ -701,92 +806,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "name": "NPCData",
-            "tabs": [],
-            "todo": true
-        },
-        {
-            "name": "NPC",
-            "tabs": [
-                {
-                    "name": "0",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
-                            "val": "$0$5"
-                        },
-                        {
-                            "name": "<em>npc</em>",
-                            "val": "<h3>NPC Pointers</h3>   `npc`\n\nThese pointers represent an enemy on the screen, and its' various attributes and functions.\nUsing these pointers, you can move them, damage them, make them move, make them invincible, etc.\n\nSee: ${LoadNPC}, ${CreateNPC}"
-                        },
-                        {
-                            "name": "Position",
-                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the enemy's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n"
-                        },
-                        {
-                            "name": "Movement ;; npcMovement",
-                            "val": "$-1$1"
-                        },
-                        {
-                            "name": "More Under Construction....",
-                            "val": ""
-                        }
-                    ]
-                },
-                {
-                    "name": "1",
-                    "lines": [
-                        {
-                            "name": "&lt;-- NPC Pointers",
-                            "val": "$-1$0"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<h3>NPC Movement</h3>\n\nThese functions relate to npc movement."
-                        },
-                        {
-                            "name": "<u>Script Movement</u>",
-                            "val": ""
-                        },
-                        {
-                            "name": "MoveXY",
-                            "val": "<h3>bool MoveXY(float dx, float dy, int special);\nbool CanMoveXY(float dx, float dy, int special);</h3>\n\nAttempts to move the enemy by 'dx' in the x direction and 'dy' in the y direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveXY' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
-                        },
-                        {
-                            "name": "Move",
-                            "val": "<h3>bool Move(int dir, float pxamnt, int special);\nbool CanMove(int dir, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'dir' direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMove' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
-                        },
-                        {
-                            "name": "MoveAtAngle",
-                            "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
-                        },
-                        {
-                            "name": "MovePaused",
-                            "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise."
-                        },
-                        {
-                            "name": "Knockback",
-                            "val": "<h3>bool Knockback(int time, int dir, int speed);</h3>\n\nAttempt to knock back the npc in 'dir' direction, for 'time' frames, at a rate of 'speed' pixels per frame.\n\nReturns true if successful, false if the enemy could not be knocked back.\n\nRelated: ${NoScriptKnockback|bool npc->NoScriptKnockback;}"
-                        },
-                        {
-                            "name": "<u>Variables</u>",
-                            "val": ""
-                        },
-                        {
-                            "name": "NoScriptKnockback",
-                            "val": "<h3>bool NoScriptKnockback;</h3>\n\nFalse by default. If set to 'true', scripted knockback via '${Knockback|npc->Knockback()}' is ignored."
-                        }
-                    ]
-                }
-            ],
-            "todo": true
-        },
-        {
-            "name": "PalData",
-            "tabs": [],
-            "todo": true
         },
         {
             "name": "SpriteData",
@@ -2590,12 +2609,24 @@
                         "val": "Indexes for `itemsprite-&gt;MoveFlags`\n<ol start=\"0\"><li>[[ITEMMV_OBEYS_GRAVITY|If the item is affected by gravity.]]</li>\n<li>[[ITEMMV_CAN_PITFALL|If the item can fall in pitfalls.]]</li>\n<li value=\"8\">[[ITEMMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[ITEMMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n"
                     },
                     {
+                        "name": "WPNMV_",
+                        "val": "Indexes for `lweapon-&gt;MoveFlags` and `eweapon-&gt;MoveFlags`\n<ol start=\"0\"><li>[[WPNMV_OBEYS_GRAVITY|If the weapon is affected by gravity.]]</li>\n<li>[[WPNMV_CAN_PITFALL|If the weapon can fall in pitfalls.]]</li>\n<li value=\"8\">[[WPNMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[WPNMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n\n"
+                    },
+                    {
                         "name": "DS_",
-                        "val": "Values for `itemsprite-&gt;DrawStyle`\n<ol start=\"0\"><li>[[DS_NORMAL|Draw the sprite normally.]]</li>\n<li>[[DS_PHANTOM|Draw the sprite transparently.]]</li>\n<li>[[DS_CLOAKED|Draw the sprite cloaked (invisible).]]</li>\n<li>[[DS_LINK|Draw the sprite normally, used for the player.]]</li></ol>\n\n\n"
+                        "val": "Values for `itemsprite-&gt;DrawStyle`\n<ol start=\"0\"><li>[[DS_NORMAL|Draw the sprite normally.]]</li>\n<li>[[DS_PHANTOM|Draw the sprite transparently.]]</li>\n<li>[[DS_CLOAKED|Draw the sprite cloaked (invisible).]]</li>\n<li>[[DS_LINK|Draw the sprite normally, used for the player.]]</li></ol>\n"
                     },
                     {
                         "name": "LIGHT_",
                         "val": "The light shapes for dark rooms.\n<ol start=\"0\"><li>[[LIGHT_CIRCLE|Emit light in a circle around the sprite. The radius is the circle's radius.]]</li>\n<li>[[LIGHT_CONE|Emit light in a directional cone in the facing direction. The radius is the length of the cone.]]</li></ol>\n"
+                    },
+                    {
+                        "name": "UNBLOCK_",
+                        "val": "Flags for `lweapon-&gt;Unblockable` and `eweapon-&gt;Unblockable`\n<mono>UNBLOCK_NONE   = 0000b\nUNBLOCK_NORM   = 0001b\nUNBLOCK_IGNR   = 0010b\nUNBLOCK_SHLD   = 0100b\nUNBLOCK_REFL   = 1000b\nUNBLOCK_ALL    = 1111b</mono>\n"
+                    },
+                    {
+                        "name": "WFLAG_",
+                        "val": "Flags for `lweapon-&gt;Flags[]` and `eweapon-&gt;Flags[]`\n<ol start=\"0\"><li>[[WFLAG_PICKUP_ITEMS|If true, the weapon collects any items it touches, similar to engine melee weapons.]]</li></ol>\n\n"
                     }
                 ]
             }
