@@ -354,7 +354,7 @@
             "name": "NPC",
             "tabs": [
                 {
-                    "name": "0",
+                    "name": "NPC ROOT",
                     "lines": [
                         {
                             "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
@@ -365,61 +365,82 @@
                             "val": "<h3>NPC Pointers</h3>   `npc`\n\nThese pointers represent an enemy on the screen, and its' various attributes and functions.\nUsing these pointers, you can move them, damage them, make them move, make them invincible, etc.\n\nSee: ${LoadNPC}, ${CreateNPC}"
                         },
                         {
-                            "name": "Position",
-                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the enemy's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n"
+                            "name": "Basic Info ;; npc::ID / npc::Type / npc::Family / npc::isValid / npc::Dir / npc::Animation",
+                            "val": "<h3>int ID;</h3>\nThe enemy ID of the enemy, read-only.\n\n<h3>int Type;\nint Family;</h3>\nThe type, or 'enemy class' of the enemy. Use the `NPCT_` constants.\n<todo>NPCT_ constant info, copyright-neutral names</todo>\n\n<h3>bool isValid();</h3>\nReturns true if this pointer points to a valid npc. If this returns false, using any other value of this pointer will error.\n\n<h3>int Dir;</h3>\nThe npc's direction.\n\n<h3>bool Animation;</h3>\nIf the engine should animate the npc's graphics."
+                        },
+                        {
+                            "name": "Position ;; npc::X / npc::Y / npc::Z / npc::Jump / npc::Gravity / npc::MoveFlags / npc::FakeZ / npc::FakeJump",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the npc's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n<h3>int Jump;</h3>\nThe npc's upward velocity, in pixels per frame. Affected by gravity each frame, if gravity is enabled for this npc.\n\n<h3>bool Gravity;</h3>\nIf false, gravity will not affect this npc.\n\n<h3>bool MoveFlags[];</h3>\nThe movement flags of the npc. See `NPCMV_` constants.\n#{NPCMV_ constants|$[NPCMV_]}\n<h3>int FakeZ;</h3>\nThe position of the npc on the FakeZ axis.\n\n<h3>int FakeJump;</h3>\nThe velocity of the npc in the FakeZ axis.\n"
+                        },
+                        {
+                            "name": "Sprite Limit ;; npc::Max",
+                            "val": "<h3>int Max();</h3>\nReturns the max number of npcs currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of npcs allowed to a new value. Range `1-1024`.\n"
                         },
                         {
                             "name": "Movement ;; npcMovement",
-                            "val": "$-1$1"
+                            "val": "$-1$2"
                         },
                         {
-                            "name": "More Under Construction....",
-                            "val": ""
+                            "name": "Next -&gt; ;; weaponptr2",
+                            "val": "$-1$1"
                         }
                     ]
                 },
                 {
-                    "name": "1",
+                    "name": "NPC 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
+                        },
+                        {
+                            "name": "Size Info ;; npc::Extend / npc::HitWidth / npc::HitHeight / npc::HitZHeight / npc::TileWidth / npc::TileHeight / npc::DrawXOffset / npc::DrawYOffset / npc::TotalDYOffset / npc::DrawZOffset / npc::HitXOffset / npc::HitYOffset",
+                            "val": "<h3>int Extend;</h3>\nIf the sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int TotalDYOffset;</h3>\nRead-only, the weapon's total visual Y-offset.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels."
+                        },
+                        {
+                            "name": "Script Info ;; npc::Script / npc::InitD / npc::Misc",
+                            "val": "<h3>int Script;</h3>\nThe npc script running on this npc.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD[] arguments for the npc script.\n\n<h3>int Misc[32];</h3>\nAn array of misc values for script use."
+                        },
+                        {
+                            "name": "Status ;; npc::Falling / npc::FallCombo / npc::Drowning / npc::DrownCombo / npc::SwitchHooked / npc::Switch / npc::Stun / npc::Submerged / npc::Ringleader / npc::HasItem / npc::Shield",
+                            "val": "<h3>int Falling;</h3>\nThe timer indicating how long left the sprite will be falling. If 0, the sprite is not falling. Max value of 70, which is the value at the start of falling.\n\n<h3>int FallCombo;</h3>\nThe pitfall combo the sprite is falling into, if it is falling.\n\n<h3>int Drowning;</h3>\nThe timer indicating how long left the sprite will be drowning. If 0, the sprite is not drowning. Max value of 64, which is the value at the start of drowning.\n\n<h3>int DrownCombo;</h3>\nThe liquid combo the sprite is drowning in, if it is drowning.\n\n<h3>bool SwitchHooked;</h3>\nIf the sprite is currently being switch-hooked.\n\n<h3>bool Switch(int effect);</h3>\nSwitch the player with this sprite. Use the `SW_EFF_` constants for 'effect' to select a visual style for the switch.\nReturns true if it succeeds, and false otherwise.\n\n<h3>int Stun;</h3>\nThe duration the npc is stunned for. If 0, the npc is not stunned.\n\n<h3>bool Submerged();</h3>\nReturns true if the npc is submerged (ex. underground/underwater)\n\n<h3>bool Ringleader;</h3>\nIf true, the enemy is a Ringleader, and killing this npc will kill every npc in the room.\n\n<h3>bool HasItem;</h3>\nTrue if the enemy is carrying an item.\n\n<h3>bool Shield[5];</h3>\nFlags related to the enemy's shield. Use the `SHLD_` constants to access.\n#{SHLD_ constants|$[SHLD_]}"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; weaponptr",
+                            "val": "$-1"
+                        }
+                    ]
+                },
+                {
+                    "name": "NPC Movement",
                     "lines": [
                         {
                             "name": "&lt;-- NPC Pointers",
                             "val": "$-1$0"
                         },
                         {
-                            "name": "--",
-                            "val": "<h3>NPC Movement</h3>\n\nThese functions relate to npc movement."
+                            "name": "MoveXY ;; npc::MoveXY / npc::CanMoveXY",
+                            "val": "<h3>bool MoveXY(float dx, float dy, int special);\nbool CanMoveXY(float dx, float dy, int special);</h3>\n\nAttempts to move the enemy by 'dx' in the x direction and 'dy' in the y direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveXY' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
                         },
                         {
-                            "name": "<u>Script Movement</u>",
-                            "val": ""
+                            "name": "Move ;; npc::Move / npc::CanMove",
+                            "val": "<h3>bool Move(int dir, float pxamnt, int special);\nbool CanMove(int dir, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'dir' direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMove' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
                         },
                         {
-                            "name": "MoveXY",
-                            "val": "<h3>bool MoveXY(float dx, float dy, int special);\nbool CanMoveXY(float dx, float dy, int special);</h3>\n\nAttempts to move the enemy by 'dx' in the x direction and 'dy' in the y direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveXY' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                            "name": "MoveAtAngle ;; npc::MoveAtAngle / npc::CanMoveAtAngle",
+                            "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
                         },
                         {
-                            "name": "Move",
-                            "val": "<h3>bool Move(int dir, float pxamnt, int special);\nbool CanMove(int dir, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'dir' direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMove' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                            "name": "MovePaused ;; npc::MovePaused",
+                            "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise.\n"
                         },
                         {
-                            "name": "MoveAtAngle",
-                            "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                            "name": "Knockback ;; npc::Knockback / npc::NoScriptKnockback / npc::NoSlide / npc::SlideSpeed",
+                            "val": "<h3>bool Knockback(int time, int dir, int speed);</h3>\n\nAttempt to knock back the npc in 'dir' direction, for 'time' frames, at a rate of 'speed' pixels per frame.\n\nReturns true if successful, false if the enemy could not be knocked back.\n\n<h3>bool NoScriptKnockback;</h3>\n\nFalse by default. If set to 'true', scripted knockback via 'npc-&gt;Knockback()' is ignored.\n\n<h3>bool NoSlide;</h3>\nFalse by default. If set to 'true', engine knockback is ignored.\n\n<h3>int SlideSpeed;</h3>\nThe number of pixels engine knockback moves the enemy at a time. Default 4."
                         },
                         {
-                            "name": "MovePaused",
-                            "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise."
-                        },
-                        {
-                            "name": "Knockback",
-                            "val": "<h3>bool Knockback(int time, int dir, int speed);</h3>\n\nAttempt to knock back the npc in 'dir' direction, for 'time' frames, at a rate of 'speed' pixels per frame.\n\nReturns true if successful, false if the enemy could not be knocked back.\n\nRelated: ${NoScriptKnockback|bool npc->NoScriptKnockback;}"
-                        },
-                        {
-                            "name": "<u>Variables</u>",
-                            "val": ""
-                        },
-                        {
-                            "name": "NoScriptKnockback",
-                            "val": "<h3>bool NoScriptKnockback;</h3>\n\nFalse by default. If set to 'true', scripted knockback via '${Knockback|npc->Knockback()}' is ignored."
+                            "name": "Engine Walking ;; npc::ConstantWalk / npc::ConstantWalk8 / npc::VariableWalk / npc::VariableWalk8 / npc::HaltingWalk / npc::HaltingWalk8 / npc::FloatingWalk",
+                            "val": "For 'special' args, use 'SPW_NONE' for ground enemies, and 'SPW_FLOATER' for flying enemies. These functions are generally kinda bad, but they are here if you really want them.\n\n<h3>void ConstantWalk([[int arr[]|NULL for no args, or\n{int rate,int homing,int special}]]);</h3>\nAccess to the engine ConstantWalk behavior.\n\n<h3>void ConstantWalk8([[int arr[]|NULL for no args, or\n{int rate,int homing,int special}]]);</h3>\nAccess to the engine ConstantWalk8 behavior. Like ConstantWalk, but 8-dir.\n\n<h3>void VariableWalk([[int arr[]|{int rate,int homing,int special}]]);</h3>\nAccess to the engine VariableWalk behavior.\n\n<h3>void VariableWalk8([[int arr[]|{int rate,int homing,int special} or\n{int rate,int homing,int special,int dx1,int dy1,int dx2,int dy2}]]);</h3>\nAccess to the engine VariableWalk8 behavior. Like VariableWalk, but 8-dir.\n\n<h3>void HaltingWalk([[int arr[]|{int rate,int homing,int special,int hrate,int haltcnt}]]);</h3>\nAccess to the engine HaltingWalk behavior.\n\n<h3>void HaltingWalk8([[int arr[]|{int rate,int homing,int special,int hrate,int haltcnt}]]);</h3>\nAccess to the engine HaltingWalk8 behavior. Like HaltingWalk, but 8-dir.\n\n<h3>void FloatingWalk([[int arr[]|?? <todo>Figure out how this function works</todo>]]);</h3>\nAccess to the engine FloatingWalk behavior."
                         }
                     ]
                 }
@@ -459,7 +480,7 @@
                         },
                         {
                             "name": "Sprite Limit ;; lweapon::Max / eweapon::Max",
-                            "val": "<h3>int Max();</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n\n"
+                            "val": "<h3>int Max();</h3>\nReturns the max number of weapons currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of weapons allowed to a new value. Range `1-1024`.\n"
                         },
                         {
                             "name": "Graphical Info ;; lweapon::OriginalTile / eweapon::OriginalTile / lweapon::Tile / eweapon::Tile / lweapon::OriginalCSet / eweapon::OriginalCSet / lweapon::CSet / eweapon::CSet / lweapon::NumFrames / eweapon::NumFrames / lweapon::Frame / eweapon::Frame / lweapon::ASpeed / eweapon::ASpeed / lweapon::Flash / eweapon::Flash / lweapon::FlashCSet / eweapon::FlashCSet / lweapon::Flip / eweapon::Flip / lweapon::UseSprite / eweapon::UseSprite",
@@ -484,7 +505,7 @@
                         },
                         {
                             "name": "Size Info ;; lweapon::Extend / eweapon::Extend / lweapon::HitWidth / eweapon::HitWidth / lweapon::HitHeight / eweapon::HitHeight / lweapon::HitZHeight / eweapon::HitZHeight / lweapon::TileWidth / eweapon::TileWidth / lweapon::TileHeight / eweapon::TileHeight / lweapon::DrawXOffset / eweapon::DrawXOffset / lweapon::DrawYOffset / eweapon::DrawYOffset / lweapon::TotalDYOffset / eweapon::TotalDYOffset / lweapon::DrawZOffset / eweapon::DrawZOffset / lweapon::HitXOffset / eweapon::HitXOffset / lweapon::HitYOffset / eweapon::HitYOffset",
-                            "val": "<h3>int Extend;</h3>\nIf the item sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int TotalDYOffset;</h3>\nRead-only, the weapon's total visual Y-offset.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels.\n\n"
+                            "val": "<h3>int Extend;</h3>\nIf the sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int TotalDYOffset;</h3>\nRead-only, the weapon's total visual Y-offset.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels.\n\n\n"
                         },
                         {
                             "name": "Script Info ;; lweapon::Script / eweapon::Script / lweapon::InitD / eweapon::InitD / lweapon::Misc / eweapon::Misc",
@@ -2613,6 +2634,10 @@
                         "val": "Indexes for `lweapon-&gt;MoveFlags` and `eweapon-&gt;MoveFlags`\n<ol start=\"0\"><li>[[WPNMV_OBEYS_GRAVITY|If the weapon is affected by gravity.]]</li>\n<li>[[WPNMV_CAN_PITFALL|If the weapon can fall in pitfalls.]]</li>\n<li value=\"8\">[[WPNMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[WPNMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n\n"
                     },
                     {
+                        "name": "NPCMV_",
+                        "val": "Indexes for `npc-&gt;MoveFlags` and `npcdata-&gt;MoveFlags`\n<ol start=\"0\"><li>[[NPCMV_OBEYS_GRAVITY|If the npc is affected by gravity.]]</li>\n<li>[[NPCMV_CAN_PITFALL|If the npc can fall in pitfalls.]]</li>\n<li>[[NPCMV_CAN_PIT_WALK|If the npc can walk into pitfalls]]</li>\n<li>[[NPCMV_CAN_WATERDROWN|If the npc can drown in water]]</li>\n<li>[[NPCMV_CAN_WATER_WALK|If the npc can walk into water]]</li>\n<li>[[NPCMV_ONLY_WATER_WALK|If the npc has limited movement, restricted to water]]</li>\n<li>[[NPCMV_ONLY_SHALLOW_WATER_WALK|If the npc has limited movement, restricted to shallow water]]</li>\n<li>[[NPCMV_ONLY_PIT_WALK|If the npc has limited movement, restricted to pitfalls]]</li>\n<li>[[NPCMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[NPCMV_NO_REAL_Z|If the Z axis is disabled.]]</li>\n<li>[[NPCMV_USE_FAKE_Z|If the npc should use the FakeZ axis]]</li>\n<li>[[NPCMV_IGNORE_SOLIDITY|If the npc should ignore solidity]]</li>\n<li>[[NPCMV_IGNORE_BLOCKFLAGS|If the npc should ignore flags that would block it, such as `No Enemies` flags]]</li>\n<li>[[NPCMV_IGNORE_SCREENEDGE|If the npc should treat the edge of the screen as a non-boundary]]</li>\n<li>[[NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE|If the npc's engine movement should use the script movement flags]]</li>\n<li>[[NPCMV_NOT_PUSHABLE_BY_SOLIDS|If the npc is immune to being pushed by moving solids]]</li></ol>\n"
+                    },
+                    {
                         "name": "DS_",
                         "val": "Values for `itemsprite-&gt;DrawStyle`\n<ol start=\"0\"><li>[[DS_NORMAL|Draw the sprite normally.]]</li>\n<li>[[DS_PHANTOM|Draw the sprite transparently.]]</li>\n<li>[[DS_CLOAKED|Draw the sprite cloaked (invisible).]]</li>\n<li>[[DS_LINK|Draw the sprite normally, used for the player.]]</li></ol>\n"
                     },
@@ -2627,6 +2652,10 @@
                     {
                         "name": "WFLAG_",
                         "val": "Flags for `lweapon-&gt;Flags[]` and `eweapon-&gt;Flags[]`\n<ol start=\"0\"><li>[[WFLAG_PICKUP_ITEMS|If true, the weapon collects any items it touches, similar to engine melee weapons.]]</li></ol>\n\n"
+                    },
+                    {
+                        "name": "SHLD_",
+                        "val": "Indexes for `npc-&gt;Shield[]`\n<ol start=\"0\"><li>[[SHLD_FRONT|If true, the enemy's front is shielded.]]</li>\n<li>[[SHLD_BACK|If true, the enemy's back is shielded.]]</li>\n<li>[[SHLD_LEFT|If true, the enemy's left is shielded.]]</li>\n<li>[[SHLD_RIGHT|If true, the enemy's right is shielded.]]</li>\n<li>[[SHLD_CAN_BREAK|If true, the enemy's shield is breakable.]]</li></ol>"
                     }
                 ]
             }
