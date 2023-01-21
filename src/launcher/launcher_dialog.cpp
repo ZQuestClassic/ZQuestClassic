@@ -455,7 +455,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize",App::zelda,"zeldadx","drag_aspect",1,"Makes any changes to the window size by dragging get snapped to ZC's default (4:3) aspect ratio."),
 						CONFIG_CHECKBOX_I("Save Window Position",App::zelda,"zeldadx","save_window_position",0,"Remembers the last position of the ZC Window."),
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zelda,"zeldadx","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
-						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling"),
+						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zelda,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
 						CONFIG_CHECKBOX_I("Text Readability",App::zelda,"gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
@@ -559,7 +559,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize",App::zquest,"zquest","drag_aspect",1,"Makes any changes to the window size by dragging get snapped to ZQuest's default (4:3) aspect ratio."),
 						CONFIG_CHECKBOX_I("Save Window Position",App::zquest,"zquest","save_window_position",0,"Remembers the last position of the ZQuest Window."),
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zquest,"zquest","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
-						CONFIG_CHECKBOX_I("Linear Scaling",App::zquest,"zquest","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling"),
+						CONFIG_CHECKBOX_I("Linear Scaling",App::zquest,"zquest","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zquest,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
 						CONFIG_CHECKBOX_I("Record During Test Feature",App::zquest,"zquest","test_mode_record",0,"Save a recording to replays/test_XXXXXXXX.zplay when using the GUI test feature.")
 					),
