@@ -1761,6 +1761,19 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	return ret;
 }
 
+std::string create_replay_path_for_save(const gamedata* save)
+{
+	std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
+	std::filesystem::create_directory(replay_file_dir);
+	std::string filename_prefix = fmt::format("{}-{}", save->title, save->_name);
+	{
+		trimstr(filename_prefix);
+		std::regex re(R"([^a-zA-Z0-9_+\-]+)");
+		filename_prefix = std::regex_replace(filename_prefix, re, "_");
+	}
+	return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
+}
+
 void init_dmap()
 {
     // readjust disabled items; could also do dmap-specific scripts here
@@ -1804,26 +1817,9 @@ int32_t init_game()
 	bool replay_new_saves = zc_get_config("zeldadx", "replay_new_saves", false);
 	if (!zqtesting_mode && (replay_new_saves || !firstplay) && !replay_is_active())
 	{
-		std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
-		std::filesystem::create_directory(replay_file_dir);
 		if (firstplay && replay_new_saves)
 		{
-			std::string filename_prefix = fmt::format("{}-{}", saves[currgame].title, saves[currgame]._name);
-			{
-				trimstr(filename_prefix);
-				std::regex re(R"([^a-zA-Z0-9_+\-]+)");
-				filename_prefix = std::regex_replace(filename_prefix, re, "_");
-			}
-			auto replay_path_prefix = replay_file_dir / filename_prefix;
-			std::string replay_path = fmt::format("{}.{}", replay_path_prefix.string(), REPLAY_EXTENSION);
-			if (std::filesystem::exists(replay_path))
-			{
-				int i = 1;
-				do {
-					i += 1;
-					replay_path = fmt::format("{}-{}.{}", replay_path_prefix.string(), i, REPLAY_EXTENSION);
-				} while (std::filesystem::exists(replay_path));
-			}
+			std::string replay_path = create_replay_path_for_save(&saves[currgame]);
 			enter_sys_pal();
 			if (jwin_alert("Recording",
 				"You are about to create a new recording at:",

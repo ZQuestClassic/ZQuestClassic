@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
+#include <fmt/format.h>
 #include <sys/stat.h>
 
 using namespace std;
@@ -825,7 +826,20 @@ namespace util
 		if(!in_str) return 0;
 		return q-start+1;
 	}
+
+	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext)
+	{
+		auto path_prefix = dir / filename_prefix;
+		std::filesystem::path new_path;
+		int i = 1;
+		do {
+			new_path = fmt::format("{}-{:03}.{}", path_prefix.string(), i, ext);
+			i += 1;
+		} while (std::filesystem::exists(new_path));
+		return new_path;
+	}
 }
+
 using namespace util;
 int32_t vbound(int32_t val, int32_t low, int32_t high)
 {
