@@ -373,14 +373,6 @@ void load_game_configs()
    
 	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
    
-	//workaround for the 100% CPU bug. -Gleeok
-#ifdef ALLEGRO_MACOSX //IIRC rest(0) was a mac issue fix.
-	frame_rest_suggest = (byte) zc_get_config(cfg_sect,"frame_rest_suggest",0);
-#else
-	frame_rest_suggest = (byte) zc_get_config(cfg_sect,"frame_rest_suggest",1);
-#endif
-	frame_rest_suggest = zc_min(2, frame_rest_suggest);
-   
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
    
 #ifdef _WIN32
@@ -521,7 +513,6 @@ void save_game_configs()
 	zc_set_config(cfg_sect,qst_dir_name,qstdir);
 	zc_set_config("SAVEFILE","save_filename",save_file_name);
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
-	zc_set_config(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
 	
 	flush_config_file();
 #ifdef __EMSCRIPTEN__
@@ -4402,10 +4393,6 @@ void syskeys()
 	  if(zc_readkey(KEY_F1))	set_bit(QHeader.rules4,qr4_NEWENEMYTILES,
 	  1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
 	  */
-	
-	if(zc_read_system_key(KEY_OPENBRACE))	if(frame_rest_suggest > 0) frame_rest_suggest--;
-	
-	if(zc_read_system_key(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
 	
 	if(zc_read_system_key(KEY_F2))
 	{

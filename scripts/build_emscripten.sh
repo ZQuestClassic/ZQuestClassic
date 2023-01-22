@@ -252,7 +252,7 @@ build_js
 
 echo "done configuring emscripten build."
 echo ""
-echo "run the ninja build rule (ex: ninja $CONFIG/zelda.js) to rebuild a target"
+echo "run the ninja build rule (ex: ninja -f build-$CONFIG.ninja $CONFIG/zelda.js) to rebuild a target"
 echo "you only need to re-run build_emscripten.sh if something in this file is changed"
 echo ""
 echo "be sure to start a local webserver in the build_emscripten folder:"

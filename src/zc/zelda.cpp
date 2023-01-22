@@ -219,21 +219,51 @@ bool doThrottle()
 		|| (get_bit(quest_rules, qr_NOFASTMODE) && !replay_is_replaying());
 }
 
+// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
+static void preciseThrottle(double seconds)
+{
+	static double estimate = 5e-3;
+	static double mean = 5e-3;
+	static double m2 = 0;
+	static int64_t count = 1;
+
+	while (seconds > estimate) {
+		auto start = std::chrono::high_resolution_clock::now();
+		rest(1);
+		auto end = std::chrono::high_resolution_clock::now();
+
+		double observed = (end - start).count() / 1e9;
+		seconds -= observed;
+
+		++count;
+		double delta = observed - mean;
+		mean += delta / count;
+		m2   += delta * (observed - mean);
+		double stddev = sqrt(m2 / (count - 1));
+		estimate = mean + stddev;
+	}
+
+	// spin lock
+	while(logic_counter < 1);
+}
+
 void throttleFPS()
 {
+    static auto last_time = std::chrono::high_resolution_clock::now();
+
     if( doThrottle() || Paused)
     {
         if(zc_vsync == FALSE)
         {
-			int32_t t = 0;
-            while(logic_counter < 1)
-			{
-				// bugfix: win xp/7/8 have incompatible timers.
-				// preserve 60 fps and CPU based on user settings. -Gleeok
-				int32_t ms = t >= 16 ? 0 : frame_rest_suggest;
-                rest(ms);
-				t += frame_rest_suggest;
-			}
+            if (!logic_counter)
+            {
+                int freq = 60;
+                double target = 1.0 / freq;
+                auto now_time = std::chrono::high_resolution_clock::now();
+                double delta = (now_time - last_time).count() / 1e9;
+                if (delta < target)
+                    preciseThrottle(target - delta);
+            }
         }
         else
         {
@@ -243,6 +273,7 @@ void throttleFPS()
     }
 
     logic_counter = 0;
+    last_time = std::chrono::high_resolution_clock::now();
 }
 
 int32_t onHelp()
@@ -364,7 +395,7 @@ int32_t sfxdat=1;
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 int32_t fullscreen = 0;
-byte frame_rest_suggest=0,forceExit=0,zc_vsync=0;
+byte forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;

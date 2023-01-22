@@ -376,7 +376,7 @@ extern bool screenscrolling;
 extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;
-extern byte frame_rest_suggest, forceExit, zc_vsync;
+extern byte forceExit, zc_vsync;
 extern byte zc_color_depth;
 extern byte use_win32_proc, zasm_debugger, zscript_debugger; //windows only
 

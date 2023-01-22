@@ -467,7 +467,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", App::zelda,"zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
-						CONFIG_DROPDOWN_I("Frame Rest Suggest:", App::zelda,"zeldadx","frame_rest_suggest",0,frameRestSuggestList,"Adjusts vsync to attempt to reduce lag. What value works best depends on your hardware / OS.\nPressing '[' and ']' during gameplay will lower/raise this value."),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zelda,"zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", App::zelda,"zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_DROPDOWN_I("Title Screen:", App::zelda,"zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
