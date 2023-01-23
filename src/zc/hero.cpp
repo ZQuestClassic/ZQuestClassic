@@ -20059,7 +20059,7 @@ static const int32_t SPTYPE_SOLID = -1;
 #define BEAM_AGE_LIMIT 32
 
 void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl, std::map<size_t, byte>& prism_dir_seen_map)
-{	
+{
 	int map_size = region_scr_width * 16 * region_scr_height * 11;
 	int combos_wide = region_scr_width  * 16;
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
@@ -20187,6 +20187,7 @@ void HeroClass::handleSpotlights()
 	int map_size = region_scr_width * 16 * region_scr_height * 11;
 	typeMap.resize(map_size);
 	istrig.resize(map_size);
+	std::fill(typeMap.begin(), typeMap.end(), 0);
 
 	typedef byte spot_t;
 	//Store each different tile/color as grids
@@ -20221,7 +20222,8 @@ void HeroClass::handleSpotlights()
 						break;
 					case cGLASS:
 						// Even if solid, is always OK to pass through.
-						typeMap[realpos] = 0;
+						// Already been initialized to zero.
+						// typeMap[realpos] = 0;
 						break;
 					case cSPOTLIGHT:
 						foundany = true;
@@ -22414,9 +22416,6 @@ const char *roomtype_string[rMAX] =
 
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
-	if (currscr == 34) {
-		int lol = 1;
-	}
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
 	{
