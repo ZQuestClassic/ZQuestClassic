@@ -5237,7 +5237,7 @@ bool weapon::animate(int32_t index)
 				
 				if(tx > -1)
 				{
-					hooked = check_hshot(-1,tx, ty, sw, &cpos, &ffcpos);
+					hooked = check_hshot(0,tx, ty, sw, &cpos, &ffcpos);
 					
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
 						hooked = check_hshot(lyr,tx,ty,sw, &cpos);
@@ -5247,7 +5247,7 @@ bool weapon::animate(int32_t index)
 				}
 				if(tx2 > -1 && !hooked)
 				{
-					hooked = check_hshot(-1,tx2, ty2, sw, &cpos, &ffcpos);
+					hooked = check_hshot(0,tx2, ty2, sw, &cpos, &ffcpos);
 					
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
 						hooked = check_hshot(lyr,tx2,ty2,sw, &cpos);

@@ -18129,22 +18129,22 @@ void HeroClass::checkpushblock()
 			switch(dir)
 			{
 			case up:
-				if (_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
+				if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
 				
 				break;
 				
 			case down:
-				if (_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
+				if(_walkflag(bx,by+24,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by+24)==mfBLOCKHOLE))   doit=false;
 				
 				break;
 				
 			case left:
-				if (_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
+				if(_walkflag(bx-16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx-16,by+8)==mfBLOCKHOLE)) doit=false;
 				
 				break;
 				
 			case right:
-				if (_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
+				if(_walkflag(bx+16,by+8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx+16,by+8)==mfBLOCKHOLE)) doit=false;
 				
 				break;
 			}
