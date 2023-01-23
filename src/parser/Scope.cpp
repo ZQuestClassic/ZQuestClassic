@@ -1379,7 +1379,7 @@ RootScope::RootScope(TypeStore& typeStore)
 		throw compile_exception(errors);
 
 	// Add builtin pointers.
-	BuiltinConstant::create(*this, DataType::PLAYER, "Link", 1);
+	BuiltinConstant::create(*this, DataType::PLAYER, "Link", 1); //compat
 	BuiltinConstant::create(*this, DataType::PLAYER, "Hero", 1);
 	BuiltinConstant::create(*this, DataType::PLAYER, "Player", 1);
 	BuiltinConstant::create(*this, DataType::SCREEN, "Screen", 1);
@@ -1402,14 +1402,13 @@ RootScope::RootScope(TypeStore& typeStore)
 	BuiltinConstant::create(*this, DataType::WARPRING, "WarpRing", 1);
 	BuiltinConstant::create(*this, DataType::DOORSET, "DoorSet", 1);
 	BuiltinConstant::create(*this, DataType::ZUICOLOURS, "MiscColors", 1);
-	//BuiltinConstant::create(*this, DataType::RGBDATA, "RGBData", 1);
-	//BuiltinConstant::create(*this, DataType::PALETTE, "Palette", 1);
 	BuiltinConstant::create(*this, DataType::TUNES, "MusicTrack", 1);
 	BuiltinConstant::create(*this, DataType::PALCYCLE, "PalCycle", 1);
 	BuiltinConstant::create(*this, DataType::GAMEDATA, "GameData", 1);
 	BuiltinConstant::create(*this, DataType::CHEATS, "Cheats", 1);
 	BuiltinConstant::create(*this, DataType::FILESYSTEM, "FileSystem", 1);
-	BuiltinConstant::create(*this, DataType::MODULE, "Module", 1);
+	BuiltinConstant::create(*this, DataType::ZINFO, "Module", 1); //compat
+	BuiltinConstant::create(*this, DataType::ZINFO, "ZInfo", 1);
 	BuiltinConstant::create(*this, DataType::CRNG, "RandGen", 0); //Nullptr is valid for engine RNG
 }
 

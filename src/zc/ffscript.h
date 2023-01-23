@@ -729,6 +729,8 @@ static char **config_argv = NULL;
 static char *argv_buf = NULL;
 static int32_t argv_buf_size = 0;
 
+int32_t run_script_int(bool is_jitted);
+
 //Config files
 void zscript_flush_config(ZSCRIPT_CONFIG *cfg);
 void zscript_flush_config_file(void);
@@ -4798,20 +4800,32 @@ enum ASM_DEFINE
 #define RESRVD_VAR_MOOSH28      0x14C2
 #define RESRVD_VAR_MOOSH29      0x14C3
 #define RESRVD_VAR_MOOSH30      0x14C4
+#define DMAPDATAMIRRDMAP        0x14C5
+#define IDATAGRADUAL            0x14C6
+#define IDATASPRSCRIPT          0x14C7
+#define IDATAPSOUND             0x14C8
+#define IDATACONSTSCRIPT        0x14C9
+#define IDATASSWIMDISABLED      0x14CA
+#define IDATABUNNYABLE          0x14CB
+#define IDATAJINXIMMUNE         0x14CC
+#define IDATAJINXSWAP           0x14CD
+#define SPRITEDATAFLCSET        0x14CE
+#define SPRITEDATAFLAGS         0x14CF
+#define SPRITEDATAID            0x14D0
 
-#define REGIONDD                0x14C5
-#define REGIONCD                0x14C6
-#define REGIONFD                0x14C7
-#define REGIONTD                0x14C8
-#define REGIONID                0x14C9
-#define REGIONSD                0x14CA
-#define REGIONED                0x14CB
-#define REGIONWORLDWIDTH        0x14CC
-#define REGIONWORLDHEIGHT       0x14CD
-#define REGIONSCREENWIDTH       0x14CE
-#define REGIONSCREENHEIGHT      0x14CF
+#define REGIONDD                0x14D1
+#define REGIONCD                0x14D2
+#define REGIONFD                0x14D3
+#define REGIONTD                0x14D4
+#define REGIONID                0x14D5
+#define REGIONSD                0x14D6
+#define REGIONED                0x14D7
+#define REGIONWORLDWIDTH        0x14D8
+#define REGIONWORLDHEIGHT       0x14D9
+#define REGIONSCREENWIDTH       0x14DA
+#define REGIONSCREENHEIGHT      0x14DB
 
-#define NUMVARIABLES         	0x14D0
+#define NUMVARIABLES         	0x14DC
 
 //} End variables
 
@@ -4840,11 +4854,32 @@ struct triangle3Dstruct
     int32_t size[2], color[3];
 };
 
+/* Registers
+ SP - stack pointer
+ D4 - stack frame pointer
+ D6 - stack frame offset accumulator
+ D2 - expression accumulator #1 (sarg1)
+ D3 - expression accumulator #2 (sarg2)
+ D0 - array index accumulator
+ D1 - secondary array index accumulator
+ D5 - pure SETR sink
+*/
+
+#define rINDEX                   0
+#define rINDEX2                  1
+#define rEXP1                    2
+#define rEXP2                    3
+#define rSFRAME                  4
+#define rNUL                     5
+#define rSFTEMP                  6
+#define rWHAT_NO_7               7 // What, no 7?
+#define rPC               	     8 // What, no 8?
+#define rZELDAVERSION            9 // What, no 9?
+#define rSP                     10
+
+bool command_is_wait(int command);
+bool command_uses_comparison_result(int command);
+bool command_could_return_not_ok(int command);
+const script_command& get_script_command(int command);
+
 #endif
-
-//extern FFCScript FFEngine;
-
-
-
-
-

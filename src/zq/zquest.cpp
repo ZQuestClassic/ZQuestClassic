@@ -33572,6 +33572,10 @@ void paymagiccost(int32_t itemid, bool ignoreTimer)
 {
 	return;
 }
+bool is_z3_scrolling_mode()
+{
+	return false;
+}
 
 void enter_sys_pal(){}
 void exit_sys_pal(){}

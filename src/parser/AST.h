@@ -1237,6 +1237,7 @@ namespace ZScript
 		DataType const* rtype;
 		DataType const* wtype;
 		UserClassVar* u_datum;
+		bool iscall;
 	};
 
 	class ASTExprIndex : public ASTExpr

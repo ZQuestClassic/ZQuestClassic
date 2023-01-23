@@ -20,6 +20,8 @@ int32_t global_z3_cur_scr_drawing = -1;
 
 volatile bool close_button_quit = false;
 
+int next_script_data_debug_id = 0;
+
 const char months[13][13] =
 { 
 	"Nonetober", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"

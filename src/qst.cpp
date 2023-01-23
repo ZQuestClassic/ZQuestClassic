@@ -12993,6 +12993,7 @@ void reset_scripts()
         if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
     
+    next_script_data_debug_id = 0;
     for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
     {
         if(genericscripts[i]!=NULL) delete genericscripts[i];

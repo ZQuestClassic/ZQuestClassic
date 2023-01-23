@@ -106,6 +106,12 @@ byte lsteps[8] = { 1, 1, 2, 1, 1, 2, 1, 1 };
 #define SWITCHBLOCK_STATE (switchblock_z<0?switchblock_z:(switchblock_z+z+fakez < 0 ? zslongToFix(2147483647) : switchblock_z+z+fakez))
 #define FIXED_Z3_ANIMATION ((zinit.heroAnimationStyle==las_zelda3||zinit.heroAnimationStyle==las_zelda3slow)&&!get_bit(quest_rules,qr_BROKEN_Z3_ANIMATION))
 
+bool item_error()
+{
+	if(QMisc.miscsfx[sfxERROR])
+		sfx(QMisc.miscsfx[sfxERROR]);
+	return false;
+}
 static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t oldy)
 {
 	if(check_new_slope(x, y+1, 16, 16, oldx, oldy) < 0) return true;
@@ -459,25 +465,6 @@ void HeroClass::ClearhitHeroUIDs()
 void HeroClass::sethitHeroUID(int32_t type, int32_t screen_index)
 {
 	lastHitBy[type][0] = screen_index;
-	//lastHitBy[type][1] = frame;
-	/* Let's figure out how to clear this...
-	if ( global_wait ) lastHitBy[type] = screen_index;
-	else lastHitBy[type] = 0;
-	//No, we clear it in Zelda.cpp, with this:
-	    if(global_wait)
-	    {
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-		global_wait=false;
-	    }
-	    
-	    
-	    draw_screen();
-	    
-	    //clear Hero's last hits 
-	    //for ( int32_t q = 0; q < 4; q++ ) Hero.sethitHeroUID(q, 0);
-	    
-	*/
-	
 }
 
 int32_t HeroClass::gethitHeroUID(int32_t type)
@@ -10196,8 +10183,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 	
 	if((tmpscr.flags9&fDISABLE_MIRROR) || !(checkbunny(mirrorid) && checkmagiccost(mirrorid)))
 	{
-		if(QMisc.miscsfx[sfxERROR])
-			sfx(QMisc.miscsfx[sfxERROR]);
+		item_error();
 		return;
 	}
 	static const int32_t sens = 4; //sensitivity of 'No Mirror' combos (0 most, 8 least)
@@ -10207,8 +10193,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 	{
 		if(HASFLAG_ANY(mfNOMIRROR, pos)) //"No Mirror" flag touching the player
 		{
-			if(QMisc.miscsfx[sfxERROR])
-				sfx(QMisc.miscsfx[sfxERROR]);
+			item_error();
 			return;
 		}
 	}
@@ -10323,8 +10308,7 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(!(coyotejump || standing || extra_jump_count < itm.misc1)) return false;
 	if(!(checkbunny(jumpid) && checkmagiccost(jumpid)))
 	{
-		if(QMisc.miscsfx[sfxERROR])
-			sfx(QMisc.miscsfx[sfxERROR]);
+		item_error();
 		return false;
 	}
 	
@@ -10403,8 +10387,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 	if(!(had_weapon || //Allow throwing while bunnied/don't charge magic for throwing
 		(checkbunny(liftid) && checkmagiccost(liftid))))
 	{
-		if(QMisc.miscsfx[sfxERROR])
-			sfx(QMisc.miscsfx[sfxERROR]);
+		item_error();
 		return;
 	}
 	if(glove.script!=0 && (item_doscript[liftid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
@@ -10919,9 +10902,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -10953,9 +10934,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			if(itm.script!=0 && (item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 				return false;
@@ -11071,9 +11050,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			if(!msg_active && itm.misc1 > 0 && itm.misc1 < MAXMSGS)
 			{
@@ -11130,9 +11107,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11220,9 +11195,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11262,9 +11235,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11296,9 +11267,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!checkbunny(itemid) || !(misc_internal_hero_flags & LF_PAID_WAND_COST || checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			if(Lwpns.idCount(wBeam))
@@ -11377,9 +11346,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		{
 			if(!(checkbunny(itemid) || !(misc_internal_hero_flags & LF_PAID_SWORD_COST || checkmagiccost(itemid))))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			if((Lwpns.idCount(wBeam) && spins==0)||Lwpns.idCount(wMagic))
@@ -11431,9 +11398,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			paymagiccost(itemid);
@@ -11458,9 +11423,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			if(!get_bit(quest_rules, qr_CUSTOMWEAPON_IGNORE_COST))
@@ -11479,9 +11442,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			if(!get_bit(quest_rules, qr_CUSTOMWEAPON_IGNORE_COST))
@@ -11500,9 +11461,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			paymagiccost(itemid);
@@ -11514,36 +11473,49 @@ bool HeroClass::startwpn(int32_t itemid)
 		break;
 		
 		case itype_bait:
+		{
 			if(Lwpns.idCount(wBait)) //TODO: More than one Bait per screen?
 				return false;
+			
+			if(!checkbunny(itemid))
+				return item_error();
+			
+			// TODO z3
+			bool grumble = (tmpscr.room==rGRUMBLE && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)));
+			bool checkcost = grumble || !(itm.flags & ITEM_FLAG4);
+			bool paycost = grumble || !(itm.flags & (ITEM_FLAG4|ITEM_FLAG5));
+			
+			if(!grumble && (itm.flags & ITEM_FLAG2))
+				return item_error(); //Only usable for grumble rooms
+			
+			if(checkcost && !checkmagiccost(itemid))
+				return item_error();
 				
-			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
-			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
-			}
-				
-			paymagiccost(itemid);
+			if(paycost)
+				paymagiccost(itemid);
 			sfx(itm.usesound,pan(wx));
 			
-			if(tmpscr.room==rGRUMBLE && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
+			if(grumble)
 			{
-				items.add(new item((zfix)wx,(zfix)wy,(zfix)0,iBait,ipDUMMY+ipFADE,0));
+				items.add(new item((zfix)wx,(zfix)wy,(zfix)0,itemid,ipDUMMY+ipFADE,0));
 				fadeclk=66;
 				dismissmsg();
 				clear_bitmap(pricesdisplaybuf);
 				set_clip_state(pricesdisplaybuf, 1);
 				//    putscr(scrollbuf,0,0,&tmpscr);
 				setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-				removeItemsOfFamily(game,itemsbuf,itype_bait);
-				verifyBothWeapons();
+				if(!(itm.flags & ITEM_FLAG3)) //"Don't remove when feeding" flag
+				{
+					removeItemsOfFamily(game,itemsbuf,itype_bait);
+					verifyBothWeapons();
+				}
 				sfx(tmpscr.secretsfx);
 				return false;
 			}
 			
 			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wBait,0,0,dir,itemid,getUID(),false,false,true));
 			break;
+		}
 			
 		case itype_brang:
 		{
@@ -11552,9 +11524,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11571,9 +11541,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			bool sw = itm.family == itype_switchhook;
 			
@@ -11810,9 +11778,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11827,9 +11793,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11844,9 +11808,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 				
 			paymagiccost(itemid);
@@ -11900,9 +11862,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				break;
 			if(!(checkbunny(itemid) && checkmagiccost(itemid))) //cost/bunny check
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			paymagiccost(itemid);
@@ -11925,9 +11885,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(!(checkbunny(itemid) && checkmagiccost(itemid))
 				|| !can_kill_em_all()) //No enemies onscreen
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			paymagiccost(itemid);
@@ -11940,9 +11898,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		{
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			
 			bool did_something = false;
@@ -12000,9 +11956,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			}
 			if(!did_something)
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
-				return false;
+				return item_error();
 			}
 			paymagiccost(itemid);
 			sfx(itm.usesound);
@@ -13522,8 +13476,7 @@ void HeroClass::movehero()
 			{
 				if(!checkmagiccost(dowpn))
 				{
-					if(QMisc.miscsfx[sfxERROR])
-						sfx(QMisc.miscsfx[sfxERROR]);
+					item_error();
 				}
 				else
 				{
@@ -13544,8 +13497,7 @@ void HeroClass::movehero()
 		}
 		else
 		{
-			if(QMisc.miscsfx[sfxERROR])
-				sfx(QMisc.miscsfx[sfxERROR]);
+			item_error();
 		}
 	}
 	else
@@ -13626,8 +13578,7 @@ void HeroClass::movehero()
 			}
 			else
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
+				item_error();
 			}
 		}
 		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
@@ -13636,8 +13587,7 @@ void HeroClass::movehero()
 			no_jinx = checkitem_jinx(dowpn);
 			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
+				item_error();
 			}
 			else
 			{
@@ -13679,8 +13629,7 @@ void HeroClass::movehero()
 			}
 			else
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
+				item_error();
 			}
 		}
 		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
@@ -13698,8 +13647,7 @@ void HeroClass::movehero()
 			}
 			else
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
+				item_error();
 			}
 		}
 		else
@@ -13740,8 +13688,7 @@ void HeroClass::movehero()
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
-				if(QMisc.miscsfx[sfxERROR])
-					sfx(QMisc.miscsfx[sfxERROR]);
+				item_error();
 			}
 			else
 			{

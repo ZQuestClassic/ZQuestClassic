@@ -185,6 +185,7 @@ int32_t  init_game();
 int32_t  cont_game();
 void restart_level();
 int32_t  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
+std::string create_replay_path_for_save(const gamedata* save);
 //int32_t  init_palnames();
 
 int32_t get_currdmap();
@@ -370,9 +371,6 @@ extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
 extern byte ffcgrid[MAXFFCS/8];
 extern volatile int32_t logic_counter;
-#ifdef _SCRIPT_COUNTER
-extern volatile int32_t script_counter;
-#endif
 extern bool halt;
 extern bool screenscrolling;
 extern int32_t jwin_pal[jcMAX];
@@ -381,10 +379,6 @@ extern int32_t fullscreen;
 extern byte frame_rest_suggest, forceExit, zc_vsync;
 extern byte zc_color_depth;
 extern byte use_win32_proc, zasm_debugger, zscript_debugger; //windows only
-
-#ifdef _SCRIPT_COUNTER
-void update_script_counter();
-#endif
 
 extern PALETTE tempbombpal;
 extern bool usebombpal;

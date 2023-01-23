@@ -1274,7 +1274,7 @@ ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
 	  arrayFunction(NULL), readFunction(NULL), writeFunction(NULL), leftClass(NULL),
-	  rtype(NULL), wtype(NULL), u_datum(NULL)
+	  rtype(NULL), wtype(NULL), u_datum(NULL), iscall(false)
 {}
 
 void ASTExprArrow::execute(ASTVisitor& visitor, void* param)

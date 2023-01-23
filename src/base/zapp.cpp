@@ -1,5 +1,6 @@
 #include "zapp.h"
 #include "zc_alleg.h"
+#include "zconfig.h"
 #include <filesystem>
 #include <string>
 
@@ -90,6 +91,11 @@ App get_app_id()
 // But it's better to do it in the application manifest, hence `set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")`
 double zc_get_monitor_scale()
 {
+#ifdef __EMSCRIPTEN__
+	return 1.0;
+#endif
+	if(zc_get_config("gui","ignore_monitor_scale",1))
+		return 1.0;
 #ifdef _WIN32
 	if (all_get_display())
 	{
@@ -115,8 +121,6 @@ double zc_get_monitor_scale()
 	int dpi = GetDeviceCaps(hdc, LOGPIXELSX);
 	ReleaseDC(NULL, hdc);
 	return dpi / 96.0;
-#elif __EMSCRIPTEN__
-	return 1.0;
 #else
 	return al_get_monitor_dpi(0) / 96.0;
 #endif

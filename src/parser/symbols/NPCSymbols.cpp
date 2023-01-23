@@ -147,14 +147,6 @@ static AccessorTable npcTable[] =
 	{ "getBFlags[]",                0,          ZTID_BOOL,   NPCBEHAVIOUR,              0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "setBFlags[]",                0,          ZTID_VOID,   NPCBEHAVIOUR,              0,  { ZTID_NPC, ZTID_FLOAT, ZTID_BOOL },{} },
 	
-	{ "getFrozen",                  0,         ZTID_FLOAT,   NPCFROZEN,                 0,  { ZTID_NPC },{} },
-	{ "setFrozen",                  0,          ZTID_VOID,   NPCFROZEN,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
-	
-	{ "getFrozenTile",              0,         ZTID_FLOAT,   NPCFROZENTILE,             0,  { ZTID_NPC },{} },
-	{ "setFrozenTile",              0,          ZTID_VOID,   NPCFROZENTILE,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
-	
-	{ "getFrozenCSet",              0,         ZTID_FLOAT,   NPCFROZENCSET,             0,  { ZTID_NPC },{} },
-	{ "setFrozenCSet",              0,          ZTID_VOID,   NPCFROZENCSET,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getHitDir",                  0,         ZTID_FLOAT,   NPCHITDIR,                 0,  { ZTID_NPC },{} },
 	{ "setHitDir",                  0,          ZTID_VOID,   NPCHITDIR,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getScript",                  0,         ZTID_FLOAT,   NPCSCRIPT,                 0,  { ZTID_NPC },{} },
@@ -221,8 +213,8 @@ static AccessorTable npcTable[] =
 	{ "CanMove",                    1,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "CanMoveAtAngle",             0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "CanMoveXY",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
-	{ "setInvFlicker",              0,          ZTID_VOID,   NPCCANFLICKER,             0,  { ZTID_NPC, ZTID_BOOL },{} },
 	{ "getInvFlicker",              0,          ZTID_BOOL,   NPCCANFLICKER,             0,  { ZTID_NPC },{} },
+	{ "setInvFlicker",              0,          ZTID_VOID,   NPCCANFLICKER,             0,  { ZTID_NPC, ZTID_BOOL },{} },
 	{ "getDrowning",                0,         ZTID_FLOAT,   NPCDROWNCLK,               0,  { ZTID_NPC },{} },
 	{ "setDrowning",                0,          ZTID_VOID,   NPCDROWNCLK,               0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	{ "getDrownCombo",              0,         ZTID_FLOAT,   NPCDROWNCMB,               0,  { ZTID_NPC },{} },
@@ -236,10 +228,16 @@ static AccessorTable npcTable[] =
 	{ "getShadowYOffset",           0,         ZTID_FLOAT,   NPCSHADOWYOFS,             0,  { ZTID_NPC },{} },
 	{ "setShadowYOffset",           0,          ZTID_VOID,   NPCSHADOWYOFS,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
 	
+	//Not yet implemented
+	{ "getFrozen",                  0,         ZTID_FLOAT,   NPCFROZEN,                 0,  { ZTID_NPC },{} },
+	{ "setFrozen",                  0,          ZTID_VOID,   NPCFROZEN,                 0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFrozenTile",              0,         ZTID_FLOAT,   NPCFROZENTILE,             0,  { ZTID_NPC },{} },
+	{ "setFrozenTile",              0,          ZTID_VOID,   NPCFROZENTILE,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	{ "getFrozenCSet",              0,         ZTID_FLOAT,   NPCFROZENCSET,             0,  { ZTID_NPC },{} },
+	{ "setFrozenCSet",              0,          ZTID_VOID,   NPCFROZENCSET,             0,  { ZTID_NPC, ZTID_FLOAT },{} },
+	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   NPCSCRIPTUID,        FL_DEPR,  { ZTID_NPC },{} },
-//	{ "setUID",                     0,          ZTID_VOID,   NPCSCRIPTUID,        FL_DEPR,  { ZTID_NPC, ZTID_FLOAT },{} },
-	
 	{ "getParentUID",               0,         ZTID_FLOAT,   NPCPARENTUID,        FL_DEPR,  { ZTID_NPC },{} },
 	{ "setParentUID",               0,          ZTID_VOID,   NPCPARENTUID,        FL_DEPR,  { ZTID_NPC, ZTID_FLOAT },{} },
 	

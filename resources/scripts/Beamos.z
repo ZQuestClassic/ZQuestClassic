@@ -1,3 +1,5 @@
+import "ghost.zh"
+
 const int LAYER_BEAMOS1 = 2; //Beamos use this layer to draw the bottom half
 const int LAYER_BEAMOS2 = 3; //Beamos use this layer to draw the top half and eye
 const int BEAMOS_IMPRECISION = 6; //How close the beamos must be aiming at Link to shoot

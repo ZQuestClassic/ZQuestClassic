@@ -2102,28 +2102,34 @@ DEFINE DMF_LAYER3ISBACKGROUND 	= 0x20000; //Exceeds the bounds of ZScript LONG_M
 //DEFINE DMF_LAYER2ISBACKGROUND 	= 0x40000;
 //DEFINE DMF_TRUECELLARENEMIES 	= 0x80000; //(1<<19)
 
-//dmapdata->Flagset[32] indices
-DEFINE DMFS_CAVESNOTCELLARS		= 0; //Use caves instead of item cellars
-DEFINE DMFS_3STAIRWARPS		= 1; //Allow 3-stair warps
-DEFINE DMFS_WWIND			= 2; //Allow whistle whirlwinds
-DEFINE DMFS_GUYCAVES			= 3; //Special rooms and guys are in caves only
-DEFINE DMFS_NOCOMPASS		= 4; //Don't display compass marker in minimap
-DEFINE DMFS_WAVY 			= 5; //Underwater wave effect
-DEFINE DMFS_WWINDRET			= 6; //Whistle whirlwind returns Link to beginning
-DEFINE DMFS_ALWAYSINTROMSG		= 7; //Always display intro string
-DEFINE DMFS_VIEWMAP       		= 8; //View overworld map by pressing 'Map'
-DEFINE DMFS_DMAPMAP         		= 9; //...But only show screens marked in minimap
-DEFINE DMFS_MINIMAPCOLORFIX 		= 10; //Use minimap foreground colour 2
-DEFINE DMFS_MINIMAPCOLOURFIX 	= 10; //Use minimap foreground colour 2
-DEFINE DMFS_SCRIPT1 			= 11; //DMap Script Flags
-DEFINE DMFS_SCRIPT2 			= 12;
-DEFINE DMFS_SCRIPT3 			= 13;
-DEFINE DMFS_SCRIPT4 			= 14;
-DEFINE DMFS_SCRIPT5 			= 15;
-DEFINE DMFS_SIDEVIEW 		= 16; //DMap is Sideview
-DEFINE DMFS_LAYER3ISBACKGROUND 	= 17; //Layer 3 is Background
-DEFINE DMFS_LAYER2ISBACKGROUND 	= 18; //Layer 2 is bBackground
-DEFINE DMFS_TRUECELLARENEMIES 	= 19; //True Cellar Enemies
+//dmapdata->Flagset[] indices
+enum
+{
+	DMFS_CAVESNOTCELLARS,     //Use caves instead of item cellars
+	DMFS_3STAIRWARPS,         //Allow 3-stair warps
+	DMFS_WWIND,               //Allow whistle whirlwinds
+	DMFS_GUYCAVES,            //Special rooms and guys are in caves only
+	DMFS_NOCOMPASS,           //Don't display compass marker in minimap
+	DMFS_WAVY,                //Underwater wave effect
+	DMFS_WWINDRET,            //Whistle whirlwind returns Link to beginning
+	DMFS_ALWAYSINTROMSG,      //Always display intro string
+	DMFS_VIEWMAP,             //View overworld map by pressing 'Map'
+	DMFS_DMAPMAP,             //...But only show screens marked in minimap
+	DMFS_MINIMAPCOLORFIX,     //Use minimap foreground colour 2
+	DMFS_MINIMAPCOLOURFIX,    //Use minimap foreground colour 2
+	DMFS_SCRIPT1,             //DMap Script Flag 1
+	DMFS_SCRIPT2,             //DMap Script Flag 2
+	DMFS_SCRIPT3,             //DMap Script Flag 3
+	DMFS_SCRIPT4,             //DMap Script Flag 4
+	DMFS_SCRIPT5,             //DMap Script Flag 5
+	DMFS_SIDEVIEW,            //DMap is Sideview
+	DMFS_LAYER3ISBACKGROUND,  //Layer 3 is Background
+	DMFS_LAYER2ISBACKGROUND,  //Layer 2 is bBackground
+	DMFS_TRUECELLARENEMIES,   //True Cellar Enemies
+	DMFS_BUNNY,               //Become Bunny with no Pearl
+	DMFS_MIRRORCONTINUE,      //Mirror Continues instead of Warping
+	DMFS_MAX
+};
 
 //Screen states. Use these with Screen->State[], etc.
 DEFINE ST_DOORUP             = 0; // The locked/bomb door has been permanently unlocked/bombed
@@ -3723,4 +3729,60 @@ enum
 	CSPACE_LAB, 
 	CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW,
 	CSPACE_NUMCSPACE
+};
+
+DEFINE IPSTR_ALWAYS   = 0x01;
+DEFINE IPSTR_ONLYHELD = 0x02;
+
+enum //For 'itemdata->RunScript()'
+{
+	ISCR_KILL, ISCR_RUN, ISCR_PERPETUAL
+};
+
+enum //For 'itemdata->PickupType'
+{
+	IPTYPE_DISABLED,
+	IPTYPE_SET,
+	IPTYPE_ADD,
+	IPTYPE_SUB,
+	IPTYPE_LIMIT
+};
+
+DEFINE IMISC_FLASH   = 0x01;
+DEFINE IMISC_TWOHAND = 0x02;
+DEFINE IMISC_HFLIP   = 0x04;
+DEFINE IMISC_VFLIP   = 0x08;
+
+DEFINE SZFLAG_TILEWIDTH      = 0x0001;
+DEFINE SZFLAG_TILEHEIGHT     = 0x0002;
+DEFINE SZFLAG_HIT_WIDTH      = 0x0004;
+DEFINE SZFLAG_HIT_HEIGHT     = 0x0008;
+DEFINE SZFLAG_HIT_Z_HEIGHT   = 0x0010;
+DEFINE SZFLAG_HIT_X_OFFSET   = 0x0020;
+DEFINE SZFLAG_HIT_Y_OFFSET   = 0x0040;
+DEFINE SZFLAG_DRAW_X_OFFSET  = 0x0080;
+DEFINE SZFLAG_DRAW_Y_OFFSET  = 0x0100;
+DEFINE SZFLAG_DRAW_Z_OFFSET  = 0x0200;
+DEFINE SZFLAG_ALL            = 0x03FF;
+
+enum //spritedata->Flags[] indexes
+{
+	SPRFL_AUTOFLASH,
+	SPRFL_2PFLASH,
+	SPRFL_HFLIP,
+	SPRFL_VFLIP,
+	SPRFL_BEHIND,
+	NUM_SPRFL
+};
+
+enum
+{
+	LIGHT_CIRCLE,
+	LIGHT_CONE
+};
+
+enum
+{
+	SHLD_FRONT, SHLD_BACK, SHLD_LEFT, SHLD_RIGHT,
+	SHLD_CAN_BREAK
 };

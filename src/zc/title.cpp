@@ -3856,6 +3856,12 @@ static bool copy_file(int32_t file)
 	if(savecnt<MAXSAVES && file<savecnt)
 	{
 		saves[savecnt]=saves[file];
+		if (!saves[savecnt].replay_file.empty())
+		{
+			std::string new_replay_path = create_replay_path_for_save(&saves[savecnt]);
+			saves[savecnt].replay_file = new_replay_path;
+			std::filesystem::copy(saves[file].replay_file, new_replay_path);
+		}
 		iconbuffer[savecnt]=iconbuffer[file];
 		++savecnt;
 		listpos=((savecnt-1)/3)*3;

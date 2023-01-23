@@ -1204,11 +1204,11 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 				host.wtype = &dat->type;
 			host.u_datum = dat;
 		}
-		else handleError(
-			CompileError::ArrowNoVar(
-					&host,
-					host.right,
-					user_class->getName().c_str()));
+		else if(!host.iscall)
+			handleError(CompileError::ArrowNoVar(
+				&host,
+				host.right,
+				user_class->getName().c_str()));
 		return;
 	}
     DataTypeClass const* leftType =
@@ -1344,7 +1344,10 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 	// Cast left.
 	ASTExprArrow* arrow = NULL;
 	if (host.left->isTypeArrow())
+	{
 		arrow = static_cast<ASTExprArrow*>(host.left.get());
+		arrow->iscall = true;
+	}
 	ASTExprIdentifier* identifier = NULL;
 	if (host.left->isTypeIdentifier())
 		identifier = static_cast<ASTExprIdentifier*>(host.left.get());

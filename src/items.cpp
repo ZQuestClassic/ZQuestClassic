@@ -355,7 +355,6 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	flip = itm.misc_flags>>2;
 	family = itm.family;
 	lvl = itm.fam_type;
-	overrideFLAGS = itm.overrideFLAGS; 
 	pstring = itm.pstring;
 	pickup_string_flags = itm.pickup_string_flags;
 	linked_parent = family == itype_progressive_itm ? -1 : 0;

@@ -16,9 +16,12 @@
 #include <stdlib.h>
 #include <fstream>
 #include <filesystem>
+#include <fmt/format.h>
 //
 
 #include "zc_sys.h"
+#include "jit.h"
+#include "script_debug.h"
 #include "base/zc_alleg.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
@@ -53,34 +56,22 @@ using std::ostringstream;
 #define NUL		5
 #define MAX_ZC_ARRAY_SIZE 214748
 
-/* Registers
- SP - stack pointer
- D4 - stack frame pointer
- D6 - stack frame offset accumulator
- D2 - expression accumulator #1 (sarg1)
- D3 - expression accumulator #2 (sarg2)
- D0 - array index accumulator
- D1 - secondary array index accumulator
- D5 - pure SETR sink
- */
+// #define _SCRIPT_COUNTER
 
-#define rINDEX                   0
-#define rINDEX2                  1
-#define rEXP1                    2
-#define rEXP2                    3
-#define rSFRAME                  4
-#define rNUL                     5
-#define rSFTEMP                  6
-#define rWHAT_NO_7               7 // What, no 7?
-#define rPC               	8 // What, no 8?
-#define rZELDAVERSION               9 // What, no 9?
-#define rSP                     10
+#ifdef _SCRIPT_COUNTER
+static int64_t script_timer[NUMCOMMANDS];
+static int64_t script_execount[NUMCOMMANDS];
+#endif
 
 extern zinitdata zinit;
 int32_t hangcount = 0;
 bool can_neg_array = true;
 
 extern byte monochrome_console;
+
+static std::set<int> seen_scripts;
+static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
+int32_t jitted_uncompiled_command_count;
 
 CScriptDrawingCommands scriptdraws;
 FFScript FFCore;
@@ -544,7 +535,6 @@ byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
 	
 miscQdata *misc;
-int32_t run_script_int(const byte type, const word script, const int32_t i);
 int32_t get_int_arr(const int32_t ptr, int32_t indx);
 void set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
 int32_t sz_int_arr(const int32_t ptr);
@@ -560,9 +550,13 @@ int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 std::vector<int32_t> zs_vargs;
 byte curScriptType;
 word curScriptNum;
+int32_t curScriptIndex;
 bool script_funcrun = false;
 std::string* destructstr = nullptr;
 
+static std::vector<int32_t> curScriptType_cache;
+static std::vector<int32_t> curScriptNum_cache;
+static std::vector<int32_t> curScriptIndex_cache;
 static std::vector<int32_t> sarg1cache;
 static std::vector<int32_t> sarg2cache;
 static std::vector<std::vector<int32_t>*> sargvec_cache;
@@ -574,6 +568,9 @@ void push_ri()
 {
 	sarg1cache.push_back(sarg1);
 	sarg2cache.push_back(sarg2);
+	curScriptType_cache.push_back(curScriptType);
+	curScriptNum_cache.push_back(curScriptNum);
+	curScriptIndex_cache.push_back(curScriptIndex);
 	sargvec_cache.push_back(sargvec);
 	sargstr_cache.push_back(sargstr);
 	ricache.push_back(ri);
@@ -584,6 +581,9 @@ void pop_ri()
 {
 	sarg1 = sarg1cache.back(); sarg1cache.pop_back();
 	sarg2 = sarg2cache.back(); sarg2cache.pop_back();
+	curScriptType = curScriptType_cache.back(); curScriptType_cache.pop_back();
+	curScriptNum = curScriptNum_cache.back(); curScriptNum_cache.pop_back();
+	curScriptIndex = curScriptIndex_cache.back(); curScriptIndex_cache.pop_back();
 	sargvec = sargvec_cache.back(); sargvec_cache.pop_back();
 	sargstr = sargstr_cache.back(); sargstr_cache.pop_back();
 	ri = ricache.back(); ricache.pop_back();
@@ -3161,6 +3161,24 @@ int32_t whichlayer(int32_t scr)
 
 sprite *s;
 
+int32_t item_flag(int32_t flag)
+{
+	if(unsigned(ri->idata) >= MAXITEMS)
+	{
+		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		return 0;
+	}
+	return (itemsbuf[ri->idata].flags & flag) ? 10000 : 0;
+}
+void item_flag(int32_t flag, bool val)
+{
+	if(unsigned(ri->idata) >= MAXITEMS)
+	{
+		Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+		return;
+	}
+	SETFLAG(itemsbuf[ri->idata].flags, flag, val);
+}
 
 //Forward decl
 int32_t do_msgheight(int32_t msg, char const* str);
@@ -3169,17 +3187,16 @@ int32_t do_msgwidth(int32_t msg, char const* str);
 
 int32_t get_register(const int32_t arg)
 {
-
 	int32_t ret = 0;
 	
 	//Macros
 	
 	#define GET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) )    \
+		if(unsigned(ri->spritesref) > (MAXWPNS-1) )    \
 		{ \
 			ret = -10000; \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str);\
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000));\
 		} \
 		else \
 			ret = (wpnsbuf[ri->spritesref].member * 10000); \
@@ -4334,10 +4351,7 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		case ITEMOVERRIDEFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
-			{
-				ret=((item*)(s))->overrideFLAGS*10000;
-			}
+			ret=0;
 			break;
 			
 		case ITEMOTILE:
@@ -4992,23 +5006,46 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case IDATAKEEP:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_GAMEDATA)?10000:0;
+			ret = item_flag(ITEM_GAMEDATA);
 			break;
 			
 		case IDATAAMOUNT:
+		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				ret = -10000;
 				break;
 			}
-			ret=(itemsbuf[ri->idata].amount)*10000;
+			int32_t v = itemsbuf[ri->idata].amount;
+			ret = ((v&0x4000)?-1:1)*(v & 0x3FFF)*10000;
+			break;
+		}
+		case IDATAGRADUAL:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret = (itemsbuf[ri->idata].amount&0x8000) ? 10000 : 0;
+			break;
+		}
+		case IDATACONSTSCRIPT:
+			ret = item_flag(ITEM_PASSIVESCRIPT);
+			break;
+		case IDATASSWIMDISABLED:
+			ret = item_flag(ITEM_SIDESWIM_DISABLED);
+			break;
+		case IDATABUNNYABLE:
+			ret = item_flag(ITEM_BUNNY_ENABLED);
+			break;
+		case IDATAJINXIMMUNE:
+			ret = item_flag(ITEM_JINX_IMMUNE);
+			break;
+		case IDATAJINXSWAP:
+			ret = item_flag(ITEM_FLIP_JINX);
 			break;
 			
 		case IDATASETMAX:
@@ -5041,6 +5078,15 @@ int32_t get_register(const int32_t arg)
 			ret=(itemsbuf[ri->idata].count)*10000;
 			break;
 			
+		case IDATAPSOUND:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].playsound)*10000;
+			break;
 		case IDATAUSESOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -5070,8 +5116,7 @@ int32_t get_register(const int32_t arg)
 			}
 			ret=(itemsbuf[ri->idata].power)*10000;
 			break;
-			
-		//2.54
+		
 		//Get the ID of an item.
 		case IDATAID:
 			if(unsigned(ri->idata) >= MAXITEMS)
@@ -5092,6 +5137,15 @@ int32_t get_register(const int32_t arg)
 				break;
 			}
 			ret=(itemsbuf[ri->idata].script)*10000;
+			break;
+		case IDATASPRSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				ret = -10000;
+				break;
+			}
+			ret=(itemsbuf[ri->idata].sprite_script)*10000;
 			break;
 		//Get the ->Attributes[] of an item
 		case IDATAATTRIB:
@@ -5323,42 +5377,18 @@ int32_t get_register(const int32_t arg)
 			break;
 		// teo of this item upgrades
 		case IDATACOMBINE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_COMBINE)?10000:0;
+			ret = item_flag(ITEM_COMBINE);
 			break;
 		//Use item, and get the lower level one
 		case IDATADOWNGRADE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_DOWNGRADE)?10000:0;
+			ret = item_flag(ITEM_DOWNGRADE);
 			break;
 		//Only validate the cost, don't charge it
 		case IDATAVALIDATE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY)?10000:0;
+			ret = item_flag(ITEM_VALIDATEONLY);
 			break;
 		case IDATAVALIDATE2:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_VALIDATEONLY2)?10000:0;
+			ret = item_flag(ITEM_VALIDATEONLY2);
 			break;
 		//->Flags[5]
 		case IDATAFLAGS:
@@ -5369,7 +5399,7 @@ int32_t get_register(const int32_t arg)
 				ret = 0;
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,15);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
@@ -5406,62 +5436,33 @@ int32_t get_register(const int32_t arg)
 					ret=(itemsbuf[ri->idata].flags & ITEM_PASSIVESCRIPT)?10000:0; break;
 				
 				
-				default: 
-					ret = 0; break;
+				default:
+					Z_scripterrlog("Invalid itemdata->Flags[] index: %d\n", index);
+					ret = 0;
+					break;
 			}
-				
 			break;
 		}
 			
 		//->Keep Old
 		case IDATAKEEPOLD:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_KEEPOLD)?10000:0;
+			ret = item_flag(ITEM_KEEPOLD);
 			break;
 		//Use rupees instead of magic
 		case IDATARUPEECOST:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_RUPEE_MAGIC)?10000:0;
+			ret = item_flag(ITEM_RUPEE_MAGIC);
 			break;
 		//Can be eaten
 		case IDATAEDIBLE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_EDIBLE)?10000:0;
+			ret = item_flag(ITEM_EDIBLE);
 			break;
-		//Not int32_t he editor, could become flags[6], but I'm reserving this one for other item uses. 
+		//currently unused
 		case IDATAFLAGUNUSED:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_UNUSED)?10000:0;
+			ret = item_flag(ITEM_UNUSED);
 			break;
 		//Gain lower level items when collected
 		case IDATAGAINLOWER:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				ret = 0;
-				break;
-			}
-			ret=(itemsbuf[ri->idata].flags & ITEM_GAINOLD)?10000:0;
+			ret = item_flag(ITEM_GAINOLD);
 			break;
 		//Unchanged from master
 		case IDATAINITDD:
@@ -9285,10 +9286,60 @@ int32_t get_register(const int32_t arg)
 			
 		case SPRITEDATATILE: GET_SPRITEDATA_VAR_INT(tile, "Tile") break;
 		case SPRITEDATAMISC: GET_SPRITEDATA_VAR_INT(misc, "Misc") break;
-		case SPRITEDATACSETS: GET_SPRITEDATA_VAR_INT(csets, "CSet") break;
+		case SPRITEDATACSETS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritesref*10000));
+			}
+			else
+				ret = ((wpnsbuf[ri->spritesref].csets & 0xF) * 10000);
+			break;
+		}
+		case SPRITEDATAFLCSET:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), "FlashCSet");
+				break;
+			}
+			ret = (((wpnsbuf[ri->spritesref].csets & 0xF0)>>4) * 10000);
+			break;
+		}
 		case SPRITEDATAFRAMES: GET_SPRITEDATA_VAR_INT(frames, "Frames") break;
 		case SPRITEDATASPEED: GET_SPRITEDATA_VAR_INT(speed, "Speed") break;
 		case SPRITEDATATYPE: GET_SPRITEDATA_VAR_INT(type, "Type") break;
+		case SPRITEDATAFLAGS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = 0;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritesref*10000));
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(unsigned(index) >= 5)
+			{
+				ret = 0;
+				Z_scripterrlog("Invalid index passed to spritedata->Flags[]: %d\n", index);
+				break;
+			}
+			ret = (wpnsbuf[ri->spritesref].misc & (1<<index)) ? 10000 : 0;
+			break;
+		}
+		case SPRITEDATAID:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				ret = -10000;
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->ID: %d\n", (ri->spritesref*10000));
+				break;
+			}
+			ret = ri->spritesref*10000;
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//mapdata m-> variables
@@ -10633,6 +10684,10 @@ int32_t get_register(const int32_t arg)
 		case DMAPDATAFLAGS:	 //int32_t
 		{
 			ret = (DMaps[ri->dmapsref].flags) * 10000; break;
+		}
+		case DMAPDATAMIRRDMAP:
+		{
+			ret = (DMaps[ri->dmapsref].mirrorDMap) * 10000; break;
 		}
 		case DMAPDATAASUBSCRIPT:	//word
 		{
@@ -12634,7 +12689,6 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
-		//Most of this is deprecated I believe ~Joe123
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
@@ -12652,16 +12706,16 @@ int32_t get_register(const int32_t arg)
 //Setter Instructions
 
 
-void set_register(const int32_t arg, const int32_t value)
+void set_register(int32_t arg, int32_t value)
 {
 	if ( zasm_debugger ) FFCore.ZASMPrintVarSet(arg, value);
 	//Macros
 	
 	#define	SET_SPRITEDATA_VAR_INT(member, str) \
 	{ \
-		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) ) \
+		if(unsigned(ri->spritesref) > (MAXWPNS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str); \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000)); \
 		} \
 		else \
 		{ \
@@ -12671,9 +12725,9 @@ void set_register(const int32_t arg, const int32_t value)
 
 	#define	SET_SPRITEDATA_VAR_BYTE(member, str) \
 	{ \
-		if(ri->spritesref < 0 || ri->spritesref > (MAXWPNS-1) ) \
+		if(unsigned(ri->spritesref) > (MAXWPNS-1) ) \
 		{ \
-			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", (ri->spritesref*10000), str); \
+			Z_scripterrlog("Invalid Sprite ID passed to spritedata->%s: %d\n", str, (ri->spritesref*10000)); \
 		} \
 		else \
 		{ \
@@ -14249,11 +14303,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		
 		case ITEMOVERRIDEFLAGS:
-			if(0!=(s=checkItem(ri->itemref)))
-			{
-				(((item *)s)->overrideFLAGS)=(value/10000);
-			}
-			
 			break;
 			
 		case ITEMOTILE:
@@ -14980,8 +15029,6 @@ void set_register(const int32_t arg, const int32_t value)
 			break;
 		}
 		
-		
-		//item level
 		case IDATALEVEL:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -14991,25 +15038,46 @@ void set_register(const int32_t arg, const int32_t value)
 			(itemsbuf[ri->idata].fam_type)=vbound(value/10000, 0, 512);
 			flushItemCache();
 			break;
-			//bool keep
 		case IDATAKEEP:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(itemsbuf[ri->idata].flags)|=(value/10000)?ITEM_GAMEDATA:0;
+			item_flag(ITEM_GAMEDATA, value);
 			break;
-			//Need the legal range -Z
 		case IDATAAMOUNT:
+		{
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			(itemsbuf[ri->idata].amount)=value/10000;
+			int32_t v = vbound(value/10000, -9999, 16383);
+			itemsbuf[ri->idata].amount &= 0x8000;
+			itemsbuf[ri->idata].amount |= (abs(v)&0x3FFF)|(v<0?0x4000:0);
 			break;
-			
+		}
+		case IDATAGRADUAL:
+		{
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			SETFLAG(itemsbuf[ri->idata].amount, 0x8000, value!=0);
+			break;
+		}
+		case IDATACONSTSCRIPT:
+			item_flag(ITEM_PASSIVESCRIPT, value);
+			break;
+		case IDATASSWIMDISABLED:
+			item_flag(ITEM_SIDESWIM_DISABLED, value);
+			break;
+		case IDATABUNNYABLE:
+			item_flag(ITEM_BUNNY_ENABLED, value);
+			break;
+		case IDATAJINXIMMUNE:
+			item_flag(ITEM_JINX_IMMUNE, value);
+			break;
+		case IDATAJINXSWAP:
+			item_flag(ITEM_FLIP_JINX, value);
+			break;
 		case IDATASETMAX:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -15046,6 +15114,15 @@ void set_register(const int32_t arg, const int32_t value)
 			(itemsbuf[ri->idata].count)=vbound(value/10000,0,31);
 			break;
 			
+		case IDATAPSOUND:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			(itemsbuf[ri->idata].playsound)=vbound(value/10000, 0, 255);
+			break;
+			
 		case IDATAUSESOUND:
 			if(unsigned(ri->idata) >= MAXITEMS)
 			{
@@ -15068,40 +15145,20 @@ void set_register(const int32_t arg, const int32_t value)
 		//My additions begin here. -Z
 		//Stack item to gain next level
 		case IDATACOMBINE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_COMBINE: (itemsbuf[ri->idata].flags)&= ~ITEM_COMBINE;
+			item_flag(ITEM_COMBINE, value);
 			break;
 		//using a level of an item downgrades to a lower one
 		case IDATADOWNGRADE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_DOWNGRADE: (itemsbuf[ri->idata].flags)&= ~ITEM_DOWNGRADE;
+			item_flag(ITEM_DOWNGRADE, value);
 			break;
 		  //Only validate the cost, don't charge it
 		case IDATAVALIDATE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_VALIDATEONLY: (itemsbuf[ri->idata].flags)&= ~ITEM_VALIDATEONLY;
+			item_flag(ITEM_VALIDATEONLY, value);
 			break;
 		case IDATAVALIDATE2:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			SETFLAG(itemsbuf[ri->idata].flags, ITEM_VALIDATEONLY2, value);
+			item_flag(ITEM_VALIDATEONLY2, value);
 			break;
-
+		
 		//Flags[5]
 		case IDATAFLAGS:
 		{
@@ -15110,60 +15167,56 @@ void set_register(const int32_t arg, const int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			int32_t index = vbound(ri->d[rINDEX]/10000,0,15);
+			int32_t index = ri->d[rINDEX]/10000;
 			switch(index)
 			{
 				case 0:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG1 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG1; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG1, value);
 					break;
 				case 1:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG2 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG2; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG2, value);
 					break;
 				case 2:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG3 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG3; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG3, value);
 					break;
 				case 3:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG4 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG4; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG4, value);
 					break;
 				case 4:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG5 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG5; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG5, value);
 					break;
 				case 5:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG6 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG6;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG6, value);
 					break;
 				case 6:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG7 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG7;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG7, value);
 					break;
 				case 7:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG8 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG8; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG8, value);
 					break;
 				case 8:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG9 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG9; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG9, value);
 					break;
 				case 9:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG10 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG10;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG10, value);
 					break;
 				case 10:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG11 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG11; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG11, value);
 					break;
 				case 11:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG12 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG12;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG12, value);
 					break;
 				case 12:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG13 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG13; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG13, value);
 					break;
 				case 13:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG14 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG14; 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG14, value);
 					break;
 				case 14:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_FLAG15 : (itemsbuf[ri->idata].flags)&= ~ITEM_FLAG15;  
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_FLAG15, value);
 					break;
 				case 15:
-					(value) ? (itemsbuf[ri->idata].flags)|=ITEM_PASSIVESCRIPT : (itemsbuf[ri->idata].flags)&= ~ITEM_PASSIVESCRIPT; 
-					break;
-				
-				
-				default: 
+					SETFLAG(itemsbuf[ri->idata].flags, ITEM_PASSIVESCRIPT, value);
 					break;
 			}
 				
@@ -15171,48 +15224,23 @@ void set_register(const int32_t arg, const int32_t value)
 		}
 		//Keep Old in editor
 		case IDATAKEEPOLD:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_KEEPOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_KEEPOLD;
+			item_flag(ITEM_KEEPOLD, value);
 			break;
 		//Ruppes for magic
 		case IDATARUPEECOST:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_RUPEE_MAGIC : (itemsbuf[ri->idata].flags)&= ~ITEM_RUPEE_MAGIC;
+			item_flag(ITEM_RUPEE_MAGIC, value);
 			break;
 		//can be eaten
 		case IDATAEDIBLE:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_EDIBLE : (itemsbuf[ri->idata].flags)&= ~ITEM_EDIBLE;
+			item_flag(ITEM_EDIBLE, value);
 			break;
-		//Reserving this for item editor stuff. 
+		//Unused at this time
 		case IDATAFLAGUNUSED:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_UNUSED : (itemsbuf[ri->idata].flags)&= ~ITEM_UNUSED;
+			item_flag(ITEM_UNUSED, value);
 			break;
 		//gain lower level items
 		case IDATAGAINLOWER:
-			if(unsigned(ri->idata) >= MAXITEMS)
-			{
-				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
-				break;
-			}
-			(value) ? (itemsbuf[ri->idata].flags)|=ITEM_GAINOLD : (itemsbuf[ri->idata].flags)&= ~ITEM_GAINOLD;
+			item_flag(ITEM_GAINOLD, value);
 			break;
 		//Set the action script
 		case IDATASCRIPT:
@@ -15223,6 +15251,14 @@ void set_register(const int32_t arg, const int32_t value)
 			}
 			FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
 			itemsbuf[ri->idata].script=vbound(value/10000,0,255);
+			break;
+		case IDATASPRSCRIPT:
+			if(unsigned(ri->idata) >= MAXITEMS)
+			{
+				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
+				break;
+			}
+			itemsbuf[ri->idata].sprite_script=vbound(value/10000,0,255);
 			break;
 		
 		/*
@@ -19335,10 +19371,51 @@ void set_register(const int32_t arg, const int32_t value)
 	//spritedata sp-> Variables
 		case SPRITEDATATILE: SET_SPRITEDATA_VAR_INT(tile, "Tile"); break;
 		case SPRITEDATAMISC: SET_SPRITEDATA_VAR_BYTE(misc, "Misc"); break;
-		case SPRITEDATACSETS: SET_SPRITEDATA_VAR_BYTE(csets, "CSet"); break;
+		case SPRITEDATACSETS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->CSet: %d\n", (ri->spritesref*10000));
+			}
+			else
+			{
+				wpnsbuf[ri->spritesref].csets &= 0xF0;
+				wpnsbuf[ri->spritesref].csets |= vbound((value / 10000),0,15);
+			}
+			break;
+		}
+		case SPRITEDATAFLCSET:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->FlashCSet: %d\n", (ri->spritesref*10000));
+			}
+			else
+			{
+				wpnsbuf[ri->spritesref].csets &= 0x0F;
+				wpnsbuf[ri->spritesref].csets |= vbound((value / 10000),0,15)<<4;
+			}
+			break;
+		}
 		case SPRITEDATAFRAMES: SET_SPRITEDATA_VAR_BYTE(frames, "Frames"); break;
 		case SPRITEDATASPEED: SET_SPRITEDATA_VAR_BYTE(speed, "Speed"); break;
 		case SPRITEDATATYPE: SET_SPRITEDATA_VAR_BYTE(type, "Type"); break;
+		case SPRITEDATAFLAGS:
+		{
+			if(unsigned(ri->spritesref) > (MAXWPNS-1) )
+			{
+				Z_scripterrlog("Invalid Sprite ID passed to spritedata->Flags[]: %d\n", (ri->spritesref*10000));
+				break;
+			}
+			int32_t index = ri->d[rINDEX]/10000;
+			if(unsigned(index) >= 5)
+			{
+				Z_scripterrlog("Invalid index passed to spritedata->Flags[]: %d\n", index);
+				break;
+			}
+			SETFLAG(wpnsbuf[ri->spritesref].misc, 1<<index, value);
+			break;
+		}
 		
 	///----------------------------------------------------------------------------------------------------//
 	//mapdata m-> Variables
@@ -20719,6 +20796,10 @@ void set_register(const int32_t arg, const int32_t value)
 		case DMAPDATAFLAGS:	 //int32_t
 		{
 			DMaps[ri->dmapsref].flags = (value / 10000); break;
+		}
+		case DMAPDATAMIRRDMAP:
+		{
+			DMaps[ri->dmapsref].mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
@@ -22139,6 +22220,7 @@ void set_register(const int32_t arg, const int32_t value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
+			ri->sp &= (1 << BITS_SP) - 1;
 			break;
 			
 		case PC:
@@ -22541,6 +22623,7 @@ void do_push(const bool v)
 {
 	const int32_t value = SH::get_arg(sarg1, v);
 	--ri->sp;
+	ri->sp &= (1 << BITS_SP) - 1;
 	SH::write_stack(ri->sp, value);
 }
 void do_push_varg(const bool v)
@@ -22553,6 +22636,7 @@ void do_pop()
 {
 	const int32_t value = SH::read_stack(ri->sp);
 	++ri->sp;
+	ri->sp &= (1 << BITS_SP) - 1;
 	set_register(sarg1, value);
 }
 
@@ -22560,6 +22644,7 @@ void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the sta
 {
 	int32_t num = sarg2;
 	ri->sp += num;
+	ri->sp &= (1 << BITS_SP) - 1;
 	word read = (ri->sp-1) & ((1<<BITS_SP)-1);
 	int32_t value = SH::read_stack(read);
 	set_register(sarg1, value);
@@ -28890,21 +28975,10 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	combopos_modified = -1;
 	curScriptType=type;
 	curScriptNum=script;
+	curScriptIndex=i;
 	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
-#ifdef _SCRIPT_COUNTER
-	dword script_timer[NUMCOMMANDS];
-	dword script_execount[NUMCOMMANDS];
-	
-	for(int32_t j = 0; j < NUMCOMMANDS; j++)
-	{
-		script_timer[j]=0;
-		script_execount[j]=0;
-	}
-	
-	dword start_time, end_time;
-	
-	script_counter = 0;
-#endif
+
+	bool got_initialized = false;
 	switch(type)
 	{
 		//Z_scripterrlog("The script type is: %d\n", type);
@@ -28917,6 +28991,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if(!tmpscr.ffcs[i].initialized)
 			{
+				got_initialized = true;
 				memcpy(ri->d, tmpscr.ffcs[i].initd, 8 * sizeof(int32_t));
 				memcpy(ri->a, tmpscr.ffcs[i].inita, 2 * sizeof(int32_t));
 			}
@@ -28940,6 +29015,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = wa->initD[q];
@@ -28964,6 +29040,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 	
@@ -28991,6 +29068,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->ewpn = wa->getUID();
 			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					
@@ -29017,6 +29095,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->itemref = wa->getUID();
 			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					
@@ -29041,6 +29120,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			
 			if ( !(itemscriptInitialised[new_i]) )
 			{
+				got_initialized = true;
 				al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
 				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
 				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
@@ -29071,6 +29151,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			scr.waitevent = false;
 			if(!scr.initialized)
 			{
+				got_initialized = true;
 				scr.initialized = true;
 				memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
 			}
@@ -29085,6 +29166,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			stack = generic_active_stack.back();
 			if(!gen_active_initialized)
 			{
+				got_initialized = true;
 				gen_active_initialized = true;
 				memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
 			}
@@ -29110,6 +29192,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			//how do we clear initialised on dmap change?
 			if ( !dmapscriptInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
@@ -29127,6 +29210,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->dmapsref = i;
 			if ( !onmapInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
@@ -29144,6 +29228,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->dmapsref = i;
 			if ( !activeSubscreenInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
@@ -29161,6 +29246,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			ri->dmapsref = i;
 			if ( !passiveSubscreenInitialised )
 			{
+				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
@@ -29177,6 +29263,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			stack = &(screen_stack);
 			if ( !tmpscr.screendatascriptInitialised )
 			{
+				got_initialized = true;
 				al_trace("tmpscr.screendatascriptInitialised is %d\n",tmpscr.screendatascriptInitialised);
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
@@ -29199,6 +29286,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			int32_t id = FFCore.tempScreens[lyr]->data[pos];
 			if(!(combo_initialised[pos] & (1<<lyr)))
 			{
+				got_initialized = true;
 				memset(ri->d, 0, 8 * sizeof(int32_t));
 				for ( int32_t q = 0; q < 2; q++ )
 					ri->d[q] = combobuf[id].initd[q];
@@ -29216,13 +29304,107 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			return RUNSCRIPT_ERROR;
 		}
 	}
-	
+
 	script_funcrun = false;
-	return run_script_int(type,script,i);
+
+	if (DEBUG_PRINT_ZASM && seen_scripts.find(curscript->debug_id) == seen_scripts.end())
+	{
+		seen_scripts.insert(curscript->debug_id);
+		script_debug_set_file_type(1);
+		script_debug_print_zasm(curscript);
+	}
+
+	JittedScriptHandle* jitted_script = nullptr;
+	if (jit_is_enabled())
+	{
+		auto it = jitted_scripts.find({curscript, ri});
+		if (it == jitted_scripts.end())
+		{
+			jitted_scripts[{curscript, ri}] = jitted_script = jit_create_script_handle(curscript, ri);
+		}
+		else
+		{
+			jitted_script = it->second;
+		}
+	}
+
+	if (script_debug_is_runtime_debugging())
+	{
+		script_debug_set_file_type(0);
+		script_debug_print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, type, i, script).c_str());
+	}
+	if (script_debug_is_runtime_debugging() == 1)
+	{
+		script_debug_print(script_debug_registers_and_stack_to_string().c_str());
+		script_debug_print("\n");
+	}
+
+	int32_t result;
+	if (jitted_script)
+	{
+		if (got_initialized)
+			jit_reinit(jitted_script);
+		if (ri->waitframes)
+		{
+			--ri->waitframes;
+			result = RUNSCRIPT_OK;
+		}
+		else
+		{
+			result = jit_run_script(jitted_script);
+		}
+	}
+	else
+	{
+		result = run_script_int(false);
+	}
+
+	if (replay_is_active() && replay_get_meta_bool("debug_script_state"))
+	{
+		std::string str = script_debug_registers_and_stack_to_string();
+		util::replstr(str, "\n", " ");
+		replay_step_comment(str);
+	}
+
+#ifdef _SCRIPT_COUNTER
+	if (replay_get_frame() > 10000-50)
+	{
+		al_trace("\nPrinting ZASM timings:\n\n");
+
+		std::vector<std::pair<int, int>> timing_results;
+		for (int j = 0; j < NUMCOMMANDS; j++)
+		{
+			if (script_execount[j])
+			{
+				int32_t ms = script_timer[j] / 1000000.0;
+				timing_results.push_back({j, ms});
+			}
+		}
+		std::sort(timing_results.begin(), timing_results.end(), [](auto &left, auto &right) {
+			return left.second > right.second;
+		});
+		for (auto &it : timing_results)
+		{
+			al_trace("Command %s took %d ms complete in %ld executions.\n",
+					script_debug_command_to_string(it.first).c_str(), it.second, script_execount[it.first]);
+		}
+	}
+#endif
+
+	if (script_debug_is_runtime_debugging())
+		script_debug_print(fmt::format("result: {}\n", result).c_str());
+	return result;
 }
 
-int32_t run_script_int(const byte type, const word script, const int32_t i)
+int32_t run_script_int(bool is_jitted)
 {
+	byte type = curScriptType;
+	word script = curScriptNum;
+	int32_t i = curScriptIndex;
+
+	int commands_run = 0;
+	if (is_jitted) goto j_command;
+
 	if(ri->waitframes)
 	{
 		--ri->waitframes;
@@ -29256,8 +29438,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	
 #endif
 	
-	bool increment = true;
-	
 	if( FFCore.zasm_break_mode == ZASM_BREAK_ADVANCE_SCRIPT || FFCore.zasm_break_mode == ZASM_BREAK_SKIP_SCRIPT )
 	{
 		if( zasm_debugger )
@@ -29277,16 +29457,29 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		coloured_console.safeprint((CConsoleLoggerEx::COLOR_RED | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),"Start of script\n");
 	}
-	
+
+j_command:
+	bool is_debugging = script_debug_is_runtime_debugging() == 2;
+	bool increment = true;
 	word scommand = curscript->zasm[ri->pc].command;
 	bool hit_invalid_zasm = false;
 	while(scommand != 0xFFFF)
 	{
+#ifdef _SCRIPT_COUNTER
+		std::chrono::steady_clock::time_point start_time, end_time;
+		start_time = std::chrono::steady_clock::now();
+#endif
+
 		scommand = curscript->zasm[ri->pc].command;
 		sarg1 = curscript->zasm[ri->pc].arg1;
 		sarg2 = curscript->zasm[ri->pc].arg2;
 		sargstr = curscript->zasm[ri->pc].strptr;
 		sargvec = curscript->zasm[ri->pc].vecptr;
+
+		if (is_debugging && (!is_jitted || commands_run > 0))
+		{
+			script_debug_pre_command();
+		}
 		
 		bool waiting = true;
 		switch(scommand) //Handle waitframe-type commands first
@@ -29404,6 +29597,8 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		}
 		if(waiting && scommand != NOP)
 			break;
+		if(waiting && is_jitted)
+			break;
 		
 		numInstructions++;
 		if(numInstructions==hangcount) // No need to check frequently
@@ -29428,14 +29623,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				break;
 			}
 		}
-#ifdef _FFDEBUG
-#ifdef _FFDISSASSEMBLY
-		ffdebug::print_dissassembly(scommand);
-#endif
-#ifdef _SCRIPT_COUNTER
-		start_time = script_counter;
-#endif
-#endif
 		
 		if ( zasm_debugger ) FFCore.ZASMPrintCommand(scommand);
 		switch(scommand)
@@ -29763,6 +29950,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			{
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
+				ri->sp &= (1 << BITS_SP) - 1;
 				increment = false;
 				break;
 			}
@@ -32861,7 +33049,7 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 				
 				if ( ((unsigned)element) > 511 )
 				{
-					Z_scripterrlog("Illegal itemclass supplied to Module->GetItemClass().\nLegal values are 1 to 511.\n");
+					Z_scripterrlog("Illegal itemclass supplied to ZInfo->GetItemClass().\nLegal values are 1 to 511.\n");
 				}
 				else
 				{
@@ -32970,10 +33158,11 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 		if(hit_invalid_zasm) break;
 		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
+
 #ifdef _SCRIPT_COUNTER
-		end_time = script_counter;
-		script_timer[*command] += end_time - start_time;
-		++script_execount[*command];
+		end_time = std::chrono::steady_clock::now();
+		script_timer[scommand] += std::chrono::duration_cast<std::chrono::nanoseconds>(end_time - start_time).count();
+		script_execount[scommand] += 1;
 #endif
 		
 		if (type == SCRIPT_COMBO)
@@ -32992,6 +33181,10 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 			ri->pc = 0;
 			scommand = 0xFFFF;
 		}
+
+		// If running a JIT compiled script, we're only here to do a few commands.
+		commands_run += 1;
+		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
 	}
 	if(script_funcrun) return RUNSCRIPT_OK;
 	
@@ -33244,19 +33437,6 @@ int32_t run_script_int(const byte type, const word script, const int32_t i)
 	}
 	else
 		ri->pc++;
-	
-#ifdef _SCRIPT_COUNTER
-	
-	for(int32_t j = 0; j < NUMCOMMANDS; j++)
-	{
-		if(script_execount[j] != 0)
-			al_trace("Command %s took %ld ticks in all to complete in %ld executions.\n",
-					 command_list[j].name, script_timer[j], script_execount[j]);
-	}
-	
-	remove_int(update_script_counter);
-#endif
-	
 	
 	return RUNSCRIPT_OK;
 }
@@ -33828,7 +34008,7 @@ void FFScript::do_file_writebytes()
 		std::vector<uint8_t> data(count);
 		for(uint32_t q = 0; q < count; ++q)
 		{
-			data[q] = am.get(q+pos);
+			data[q] = am.get(q+pos) / 10000;
 		}
 		ri->d[rEXP1] = 10000L * fwrite((const void*)&(data[0]), 1, count, f->file);
 		check_file_error(ri->fileref);
@@ -35514,12 +35694,6 @@ int32_t FFScript::GetScriptObjectUID(int32_t type)
 	return script_UIDs[type];
 }
 
-/*
-FFScript::FFScript()
-{
-	init();
-}
-*/
 void FFScript::init()
 {
 	eventData.clear();
@@ -35610,6 +35784,12 @@ void FFScript::init()
 	{
 		ffcScriptData[q].Clear();
 	}
+	for (auto &it : jitted_scripts)
+	{
+		jit_delete_script_handle(it.second);
+	}
+	jitted_scripts.clear();
+	seen_scripts.clear();
 }
 
 
@@ -40685,6 +40865,56 @@ script_variable ZASMVars[]=
 	{ "RESRVD_VAR_EMILY28", RESRVD_VAR_EMILY28, 0, 0 },
 	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
 	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
+
+	{ "REFPALDATA", REFPALDATA, 0, 0 },
+
+	{ "PALDATACOLOR", PALDATACOLOR, 0, 0 },
+	{ "PALDATAR", PALDATAR, 0, 0 },
+	{ "PALDATAG", PALDATAG, 0, 0 },
+	{ "PALDATAB", PALDATAB, 0, 0 },
+
+	{ "RESRVD_VAR_MOOSH01", RESRVD_VAR_MOOSH01, 0, 0 },
+	{ "RESRVD_VAR_MOOSH02", RESRVD_VAR_MOOSH02, 0, 0 },
+	{ "RESRVD_VAR_MOOSH03", RESRVD_VAR_MOOSH03, 0, 0 },
+	{ "RESRVD_VAR_MOOSH04", RESRVD_VAR_MOOSH04, 0, 0 },
+	{ "RESRVD_VAR_MOOSH05", RESRVD_VAR_MOOSH05, 0, 0 },
+	{ "RESRVD_VAR_MOOSH06", RESRVD_VAR_MOOSH06, 0, 0 },
+	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
+	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
+	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
+	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
+	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },
+	{ "RESRVD_VAR_MOOSH12", RESRVD_VAR_MOOSH12, 0, 0 },
+	{ "RESRVD_VAR_MOOSH13", RESRVD_VAR_MOOSH13, 0, 0 },
+	{ "RESRVD_VAR_MOOSH14", RESRVD_VAR_MOOSH14, 0, 0 },
+	{ "RESRVD_VAR_MOOSH15", RESRVD_VAR_MOOSH15, 0, 0 },
+	{ "RESRVD_VAR_MOOSH16", RESRVD_VAR_MOOSH16, 0, 0 },
+	{ "RESRVD_VAR_MOOSH17", RESRVD_VAR_MOOSH17, 0, 0 },
+	{ "RESRVD_VAR_MOOSH18", RESRVD_VAR_MOOSH18, 0, 0 },
+	{ "RESRVD_VAR_MOOSH19", RESRVD_VAR_MOOSH19, 0, 0 },
+	{ "RESRVD_VAR_MOOSH20", RESRVD_VAR_MOOSH20, 0, 0 },
+	{ "RESRVD_VAR_MOOSH21", RESRVD_VAR_MOOSH21, 0, 0 },
+	{ "RESRVD_VAR_MOOSH22", RESRVD_VAR_MOOSH22, 0, 0 },
+	{ "RESRVD_VAR_MOOSH23", RESRVD_VAR_MOOSH23, 0, 0 },
+	{ "RESRVD_VAR_MOOSH24", RESRVD_VAR_MOOSH24, 0, 0 },
+	{ "RESRVD_VAR_MOOSH25", RESRVD_VAR_MOOSH25, 0, 0 },
+	{ "RESRVD_VAR_MOOSH26", RESRVD_VAR_MOOSH26, 0, 0 },
+	{ "RESRVD_VAR_MOOSH27", RESRVD_VAR_MOOSH27, 0, 0 },
+	{ "RESRVD_VAR_MOOSH28", RESRVD_VAR_MOOSH28, 0, 0 },
+	{ "RESRVD_VAR_MOOSH29", RESRVD_VAR_MOOSH29, 0, 0 },
+	{ "RESRVD_VAR_MOOSH30", RESRVD_VAR_MOOSH30, 0, 0 },
+	{ "DMAPDATAMIRRDMAP", DMAPDATAMIRRDMAP, 0, 0 },
+	{ "IDATAGRADUAL", IDATAGRADUAL, 0, 0 },
+	{ "IDATASPRSCRIPT", IDATASPRSCRIPT, 0, 0 },
+	{ "IDATAPSOUND", IDATAPSOUND, 0, 0 },
+	{ "IDATACONSTSCRIPT", IDATACONSTSCRIPT, 0, 0 },
+	{ "IDATASSWIMDISABLED", IDATASSWIMDISABLED, 0, 0 },
+	{ "IDATABUNNYABLE", IDATABUNNYABLE, 0, 0 },
+	{ "IDATAJINXIMMUNE", IDATAJINXIMMUNE, 0, 0 },
+	{ "IDATAJINXSWAP", IDATAJINXSWAP, 0, 0 },
+	{ "SPRITEDATAFLCSET", SPRITEDATAFLCSET, 0, 0 },
+	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
+	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
@@ -40898,6 +41128,7 @@ void FFScript::ZASMPrintCommand(const word scommand)
 void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
+
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -40911,6 +41142,7 @@ void FFScript::ZASMPrintVarSet(const int32_t arg, int32_t argval)
 void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 {
 	if(SKIPZASMPRINT()) return;
+
 	//if ( !zasm_debugger ) return;
 	// script_variable s_v = ZASMVars[arg];
 	//s_v.name is the string with the instruction
@@ -40936,6 +41168,8 @@ void FFScript::do_trace(bool v)
 	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4) + "\n";
 	TraceScriptIDs();
 	al_trace("%s", s2.c_str());
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment("trace: " + s2);
 	
 	if ( zscript_debugger ) 
 	{
@@ -40951,6 +41185,8 @@ void FFScript::do_tracel(bool v)
 	sprintf(tmp, "%d\n", temp);
 	TraceScriptIDs();
 	al_trace("%s", tmp);
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment(fmt::format("trace: {}", temp));
 	
 	if ( zscript_debugger ) 
 	{
@@ -40965,6 +41201,8 @@ void FFScript::do_tracebool(const bool v)
 	TraceScriptIDs();
 	char const* str = temp ? "true\n" : "false\n";
 	al_trace("%s", str);
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment(fmt::format("trace: {}", (bool)temp));
 	
 	if ( zscript_debugger ) 
 	{
@@ -40977,6 +41215,8 @@ void traceStr(string const& str)
 {
 	FFCore.TraceScriptIDs();
 	safe_al_trace(str.c_str());
+	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+		replay_step_comment("trace: " + str);
 	
 	if ( zscript_debugger ) 
 	{
@@ -47514,9 +47754,58 @@ void FFScript::do_distance()
 	//ret = result*10000;
 
 }
-		
-		
 
+bool command_is_wait(int command)
+{
+	switch (command)
+	{
+	case WAITFRAME:
+	case WAITDRAW:
+	case WAITTO:
+	case WAITEVENT:
+	case WAITFRAMESR:
+		return true;
+	}
+	return false;
+}
 
+bool command_uses_comparison_result(int command)
+{
+	switch (command)
+	{
+	case GOTOTRUE:
+	case GOTOFALSE:
+	case GOTOMORE:
+	case GOTOLESS:
+	case SETTRUE:
+	case SETTRUEI:
+	case SETFALSE:
+	case SETFALSEI:
+	case SETMOREI:
+	case SETLESSI:
+	case SETMORE:
+	case SETLESS:
+		return true;
+	}
+	return false;
+}
 
+bool command_could_return_not_ok(int command)
+{
+	switch (command)
+	{
+	case EWPNDEL:
+	case ITEMDEL:
+	case LWPNDEL:
+	case NPCKICKBUCKET:
+	case SETSCREENDOOR:
+	case SETSCREENENEMY:
+		return true;
+	}
+	return false;
+}
 
+const script_command& get_script_command(int command)
+{
+	return ZASMcommands[command];
+}

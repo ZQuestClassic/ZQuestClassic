@@ -7,7 +7,7 @@ def _dict_get(d:dict,s:str,default=None):
     try:
         return d[s]
     except:
-        if default: #Set the default value
+        if default is not None: #Set the default value
             d[s] = default
         return default
 def _dict_del(d:dict,s:str):
@@ -390,11 +390,12 @@ def repl_links_1(string,tkobj):
 def repl_links_2(string,tkobj):
     return tkobj.replace(string,parseLink(tkobj.getval(1),tkobj.getval(1)))
 def parseTTip(display,ttip):
-    if ttip[0] == '$':
-        ttip = findNamed('TTIPS', ttip[1:])
-    ttip = parseBody(ttip)
-    if ttip.find('<a class = "ttip">') > -1:
-        parse_fail(f"Tooltip '{display}' contains other tooltips!")
+    if len(ttip) > 0:
+        if ttip[0] == '$':
+            ttip = findNamed('TTIPS', ttip[1:])
+        ttip = parseBody(ttip)
+        if ttip.find('<a class = "ttip">') > -1:
+            parse_fail(f"Tooltip '{display}' contains other tooltips!")
     return f'<a class = "ttip">{display}<span class = "ttt">{ttip}</span></a>'
 def repl_ttip_1(string,tkobj):
     return tkobj.replace(string,parseTTip(tkobj.getval(1),tkobj.getval(3)))
@@ -569,12 +570,14 @@ def generate_output(obj,sm=None) -> str:
     generated_data = re.sub('<block>',"<span class='block'>",generated_data)
     generated_data = re.sub('<iblock>',"<span class='iblock'>",generated_data)
     generated_data = re.sub('<todo>',"<span class='todo'><strong>TODO:</strong> ",generated_data)
-    generated_data = re.sub('</(i?block|todo)>',"</span>",generated_data)
+    generated_data = re.sub('<mono>',"<span class='mono'>",generated_data)
+    generated_data = re.sub('</(i?block|todo|mono)>',"</span>",generated_data)
 
     css = """	<style>
 		:root
 		{
 			--page-font: sans-serif;
+			--mono-font: monospace;
 			--spoiler-font-scale: 80%;
 			--lineheight: 1.2;
 			--ttip-color: #0078A3;
@@ -768,7 +771,7 @@ def generate_output(obj,sm=None) -> str:
 			border: 1px solid black;
 		}
 		.pagecont .code1, .pagecont .code2 {
-			font-family: monospace;
+			font-family: var(--mono-font);
 			background-color: #FFF;
 			border: 1px solid black;
 			padding: 0 5px;
@@ -827,11 +830,20 @@ def generate_output(obj,sm=None) -> str:
 			display: inline-block;
 			white-space: pre;
 		}
+		.pagecont .mono {
+			font-family: var(--mono-font);
+		}
+		.pagecont .mono * {
+			font-family: var(--mono-font);
+		}
 		*[data-iblock] {
 			display: inline-block;
 		}
 		*[data-block] {
 			display: block;
+		}
+		*[data-mono] {
+			font-family: var(--mono-font);
 		}
 		.pagecont .todo {
 			color: #0C0;

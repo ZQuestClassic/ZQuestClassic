@@ -58,7 +58,6 @@
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
-//#define _SCRIPT_COUNTER
 //#define _FFDISSASSEMBLY
 //#define _FFONESCRIPTDISSASSEMBLY
 
@@ -2029,17 +2028,16 @@ struct itemdata
   
 //Guydata Enemy Editor Size Panel FLags
 
-#define itemdataOVERRIDE_TILEWIDTH	0x00000001
-#define itemdataOVERRIDE_TILEHEIGHT	0x00000002
-#define itemdataOVERRIDE_HIT_WIDTH	0x00000004
-#define itemdataOVERRIDE_HIT_HEIGHT	0x00000008
-#define itemdataOVERRIDE_HIT_Z_HEIGHT	0x00000010
-#define itemdataOVERRIDE_HIT_X_OFFSET	0x00000020
-#define itemdataOVERRIDE_HIT_Y_OFFSET	0x00000040
-#define itemdataOVERRIDE_DRAW_X_OFFSET	0x00000080
-#define itemdataOVERRIDE_DRAW_Y_OFFSET	0x00000100
-#define itemdataOVERRIDE_DRAW_Z_OFFSET	0x00000200
-#define itemdataOVERRIDE_PICKUP		0x00000400
+#define itemdataOVERRIDE_TILEWIDTH      0x00000001
+#define itemdataOVERRIDE_TILEHEIGHT     0x00000002
+#define itemdataOVERRIDE_HIT_WIDTH      0x00000004
+#define itemdataOVERRIDE_HIT_HEIGHT     0x00000008
+#define itemdataOVERRIDE_HIT_Z_HEIGHT   0x00000010
+#define itemdataOVERRIDE_HIT_X_OFFSET   0x00000020
+#define itemdataOVERRIDE_HIT_Y_OFFSET   0x00000040
+#define itemdataOVERRIDE_DRAW_X_OFFSET  0x00000080
+#define itemdataOVERRIDE_DRAW_Y_OFFSET  0x00000100
+#define itemdataOVERRIDE_DRAW_Z_OFFSET  0x00000200
 
     int32_t overrideFLAGS; //Override flags.
     int32_t weapoverrideFLAGS; 
@@ -2105,11 +2103,11 @@ struct wpndata
 	word script;
 };
 
-#define     WF_AUTOFLASH        0x01
-#define     WF_2PFLASH          0x02
-#define     WF_HFLIP            0x04
-#define     WF_VFLIP            0x08
-#define		WF_BEHIND			0x10	//Weapon renders behind other sprites
+#define WF_AUTOFLASH  0x01
+#define WF_2PFLASH    0x02
+#define WF_HFLIP      0x04
+#define WF_VFLIP      0x08
+#define WF_BEHIND     0x10 //Weapon renders behind other sprites
 
 struct quest_template
 {
@@ -2344,7 +2342,7 @@ public:
 	
 	int32_t d[8]; //d registers
 	int32_t a[2]; //a regsisters (reference to another ffc on screen)
-	word sp : BITS_SP; //stack pointer for current script
+	uint32_t sp; //stack pointer for current script
 	dword scriptflag; //stores whether various operations were true/false etc.
 	
 	byte ffcref;
@@ -2365,57 +2363,11 @@ public:
 	int32_t switchkey; //used for switch statements
 	dword thiskey; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
+	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	
 	void Clear()
 	{
-		pc = 0, sp = 0, scriptflag = 0;
-		ffcref = 0, idata = 0, itemref = 0, guyref = 0, lwpn = 0, ewpn = 0;
-		mapsref = 0, screenref = 0, npcdataref = 0, bitmapref = 0, spritesref = 0, combosref = 0, dmapsref = 0, 
-		zmsgref = 0, shopsref = 0, untypedref = 0,
-		dropsetref = 0, pondref = 0, warpringref = 0, doorsref = 0, zcoloursref = 0, rgbref = 0, 
-		paletteref = 0, palcycleref = 0, tunesref = 0,
-		gamedataref = 0, cheatsref = 0; 
-		fileref = 0, subscreenref = 0;
-		comboidref = 0; directoryref = 0; rngref = 0; paldataref = 0; stackref = 0; bottletyperef = 0; bottleshopref = 0; genericdataref = 0;
-		comboposref = 0;
-		memset(d, 0, 8 * sizeof(int32_t));
-		a[0] = a[1] = 0;
-		switchkey = 0;
-		thiskey = 0;
-		waitframes = 0;
-	}
-	
-	refInfo()
-	{
-		Clear();
-	}
-	
-	refInfo(const refInfo &copy)
-	{
-		*this = copy;
-	}
-	
-	refInfo &operator = (const refInfo &rhs)
-	{
-		pc = rhs.pc, sp = rhs.sp, scriptflag = rhs.scriptflag;
-		ffcref = rhs.ffcref, idata = rhs.idata;
-		itemref = rhs.itemref, guyref = rhs.guyref, lwpn = rhs.lwpn, ewpn = rhs.ewpn;
-		
-		mapsref = rhs.mapsref, screenref = rhs.screenref, npcdataref = rhs.npcdataref, 
-		bitmapref = rhs.bitmapref, spritesref = rhs.spritesref, combosref = rhs.combosref, dmapsref = rhs.dmapsref, 
-		zmsgref = rhs.zmsgref, shopsref = rhs.shopsref, untypedref = rhs.untypedref,
-		dropsetref = rhs.dropsetref, pondref = rhs.pondref, warpringref = rhs.warpringref, 
-		doorsref = rhs.doorsref, zcoloursref = rhs.zcoloursref, rgbref = rhs.rgbref, 
-		paletteref = rhs.paletteref, palcycleref = rhs.palcycleref, tunesref = rhs.tunesref,
-		gamedataref = rhs.gamedataref, cheatsref = rhs.cheatsref; 
-		fileref = rhs.fileref, subscreenref = rhs.subscreenref, directoryref = rhs.directoryref, stackref = rhs.stackref, rngref = rhs.rngref, paldataref = rhs.paldataref;
-		bottletyperef = rhs.bottletyperef, bottleshopref = rhs.bottleshopref, genericdataref = rhs.genericdataref;
-		memcpy(d, rhs.d, 8 * sizeof(int32_t));
-		memcpy(a, rhs.a, 2 * sizeof(int32_t));
-		switchkey = rhs.switchkey;
-		thiskey = rhs.thiskey;
-		waitframes = rhs.waitframes;
-		return *this;
+		*this = refInfo();
 	}
 };
 
@@ -2795,10 +2747,13 @@ struct ffscript
 	}
 };
 
+extern int next_script_data_debug_id;
+
 struct script_data
 {
 	ffscript* zasm;
 	zasm_meta meta;
+	int debug_id;
 	
 	void null_script()
 	{
@@ -2854,6 +2809,7 @@ struct script_data
 	
 	script_data(int32_t cmds) : zasm(NULL)
 	{
+		debug_id = next_script_data_debug_id++;
 		if(cmds > 0)
 		{
 			zasm = new ffscript[cmds];
@@ -2866,6 +2822,7 @@ struct script_data
 	
 	script_data() : zasm(NULL)
 	{
+		debug_id = next_script_data_debug_id++;
 		null_script();
 	}
 	

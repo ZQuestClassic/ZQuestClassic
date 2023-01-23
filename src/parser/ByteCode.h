@@ -1506,20 +1506,32 @@
 #define RESRVD_VAR_MOOSH28      1420
 #define RESRVD_VAR_MOOSH29      1421
 #define RESRVD_VAR_MOOSH30      1422
+#define DMAPDATAMIRRDMAP        1423
+#define IDATAGRADUAL            1424
+#define IDATASPRSCRIPT          1425
+#define IDATAPSOUND             1426
+#define IDATACONSTSCRIPT        1427
+#define IDATASSWIMDISABLED      1428
+#define IDATABUNNYABLE          1429
+#define IDATAJINXIMMUNE         1430
+#define IDATAJINXSWAP           1431
+#define SPRITEDATAFLCSET        1432
+#define SPRITEDATAFLAGS         1433
+#define SPRITEDATAID            1434
 
-#define REGIONID                1423 // region_max_rpos of these
-#define REGIONTD                1424 // region_max_rpos of these
-#define REGIONSD                1425 // region_max_rpos of these
-#define REGIONED                1426 // region_max_rpos of these
-#define REGIONDD                1427 // region_max_rpos of these
-#define REGIONCD                1428 // region_max_rpos of these
-#define REGIONFD                1429 // region_max_rpos of these
-#define REGIONWORLDWIDTH        1430
-#define REGIONWORLDHEIGHT       1431
-#define REGIONSCREENWIDTH       1432
-#define REGIONSCREENHEIGHT      1433
+#define REGIONID                1435 // region_max_rpos of these
+#define REGIONTD                1436 // region_max_rpos of these
+#define REGIONSD                1437 // region_max_rpos of these
+#define REGIONED                1438 // region_max_rpos of these
+#define REGIONDD                1439 // region_max_rpos of these
+#define REGIONCD                1440 // region_max_rpos of these
+#define REGIONFD                1441 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1442
+#define REGIONWORLDHEIGHT       1443
+#define REGIONSCREENWIDTH       1444
+#define REGIONSCREENHEIGHT      1445
 
-#define LAST_BYTECODE           1434
+#define LAST_BYTECODE           1446
 
 //} END OF BYTECODE
 

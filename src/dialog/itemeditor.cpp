@@ -668,9 +668,18 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		}
 		case itype_bait: //!TODO Help Text
 		{
-			inf->misc[0] = "Duration:";
-			inf->misc[1] = "Bait Range (0 = infinite)";
-			inf->flag[0] = "Repels enemies";
+			_SET(flag[1], "Only for feeding", "The bait cannot be placed except when feeding a hungry NPC");
+			_SET(flag[2], "Don't remove when feeding", "The item will not be removed from the inventory upon feeding a hungry NPC.");
+			_SET(flag[3], "Only require cost when feeding", "The item's Use Cost will only be checked when feeding hungry NPCs, not when luring enemies.");
+			if(!FLAG(4))
+				_SET(flag[4], "Only charge cost when feeding", "The item's Use Cost will only be charged when feeding hungry NPCs, not when luring enemies."
+					"\nIt will still be CHECKED when luring enemies.");
+			if(!FLAG(2)) //Not only for feeding
+			{
+				_SET(misc[0], "Duration:", "The duration, in frames, the bait sits on the ground for when luring enemies");
+				_SET(misc[1], "Bait Range (0 = infinite)", "The range, in pixels, to lure enemies in");
+				_SET(flag[0], "Repels enemies", "Repel enemies instead of luring them");
+			}
 			inf->wpn[0] = "Bait Sprite:";
 			inf->actionsnd[0] = "Baiting Sound:";
 			break;

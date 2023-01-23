@@ -7,6 +7,7 @@
 #include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <filesystem>
 #ifndef _WIN32
 #include <stdlib.h>
 #else
@@ -51,6 +52,7 @@ namespace util
 	void unstringify_vector(std::vector<int32_t>& vec, std::string const& str, bool dec);
 	void unstringify_vector(std::vector<int32_t>& vec, char const* str, bool dec);
 	size_t vecstr_size(char const* str);
+	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext);
 }
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 double vbound(double val, double low, double high);

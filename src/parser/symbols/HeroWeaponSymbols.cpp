@@ -97,8 +97,6 @@ static AccessorTable lwpnTable[] =
 	{ "setCollDetection",           0,          ZTID_VOID,   LWPNCOLLDET,               0,  { ZTID_LWPN, ZTID_BOOL },{} },
 	{ "getAnimation",               0,          ZTID_BOOL,   LWPNENGINEANIMATE,         0,  { ZTID_LWPN },{} },
 	{ "setAnimation",               0,          ZTID_VOID,   LWPNENGINEANIMATE,         0,  { ZTID_LWPN, ZTID_BOOL },{} },
-//	{ "getRange",                   0,         ZTID_FLOAT,   LWPNRANGE,                 0,  { ZTID_LWPN },{} },
-//	{ "setRange",                   0,          ZTID_VOID,   LWPNRANGE,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getParent",                  0,         ZTID_FLOAT,   LWPNPARENT,                0,  { ZTID_LWPN },{} },
 	{ "setParent",                  0,          ZTID_VOID,   LWPNPARENT,                0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getLevel",                   0,         ZTID_FLOAT,   LWPNLEVEL,                 0,  { ZTID_LWPN },{} },
@@ -109,8 +107,6 @@ static AccessorTable lwpnTable[] =
 	{ "setWeapon",                  0,          ZTID_VOID,   LWPNUSEWEAPON,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getDefense",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
 	{ "setDefense",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
-	{ "getDefence",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
-	{ "setDefence",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   LWPNINITD,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   LWPNINITD,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
@@ -166,6 +162,8 @@ static AccessorTable lwpnTable[] =
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_LWPN },{} },
+	{ "getDefence",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
+	{ "setDefence",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

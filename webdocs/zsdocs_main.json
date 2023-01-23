@@ -77,6 +77,14 @@
                         {
                             "name": "String Control Codes ;; SCCs ;; String Control Codes",
                             "val": "<h3>String Control Codes</h3> [[v|Rev July 17th, 2022 for 2.55 A107]] \n\nSpecial effects can be created when ${message strings} are displayed by inserting special control codes into the string. All valid codes are listed below.\n\n<h3>Formatting Codes</h3>\nThese codes have formatting effects on the string being displayed, such as changing the font, text color, or inserting characters or tiles into the message.\n#{<ul><li>`\\1\\cset\\color` : Changes the text color to the specified color.</li>\n<li>`\\26\\cset\\color` : Changes the shadow color to the specified color.</li>\n<li>`\\27\\[[shadow_type|$Shadow Type]]` : Changes the shadow type to the specified style.</li>\n<li>`\\2\\speed` : Changes the text speed. 'speed' is the number of frames between each character, where '0' is instantaneous.</li>\n<li>`\\25` : New Line - breaks to the next line</li>\n<li>`\\22` : Inserts the save file name as text</li>\n<li>`\\28\\tile\\cset\\[[width|In pixels]]\\[[height|In pixels]]\\flip` : Draws a tile block inline with the text, as though it were a custom font character.</li>\n<li>`\\32` through `\\126` : Inserts the corresponding ASCII character. Ex: `\\91` shows `\\`</li>\n<li>`\\24\\???` : Unimplemented; reserved for changing portrait</li></ul>}\n\n<h3>Menu Codes</h3>\nThese codes relate to popping up a menu for the player to select a choice from.\n#{<ul><li>`\\128\\tile\\cset\\width\\height\\flip` : Sets the menu cursor, args same as '\\28' above.</li>\n<li>`\\129\\pos\\up_pos\\down_pos\\left_pos\\right_pos` : Creates a menu cursor position. 'pos' is the index of this position, while the 4 directional values are the position that will be moved to when that direction is pressed. If a directional pos is the same as 'pos', that direction will be disabled.</li>\n<li>`\\130` : Start running menu. If no '\\129' codes have been run, the menu instantly exitswith the '0' pos selected.</li>\n<li>`\\131\\pos\\newstring` : Goto if menu selection. Switches to the new string if 'pos' is the selected menu position.</li></ul>}\n\n<h3>Switch Codes</h3>\nThese codes change from the current string immediately to a different string. If you attempt to switch to a string that does not exist, it will instead act as though you switched to a string that is entirely empty.\n#{<ul><li>`\\3\\register\\value\\newstring` : if `Screen->D[register] &gt;= value`, switches to `newstring`.</li>\n<li>`\\23\\dmap\\screen\\register\\value\\newstring` : Same as `\\3`, but for any screen.</li>\n<li>`\\4\\factor\\newstring` : Randomly has a `1/factor` chance to switch to `newstring`.</li>\n<li>`\\5\\itemid\\newstring` : Goes to `newstring` if the specified item is owned.</li>\n<li>`\\6\\counter\\value\\newstring` : Goto `newstring` if the specified counter is `>= value`.</li>\n<li>`\\7\\counter\\percent\\newstring` : Goto `newstring` if the specified counter is at least `percent` full.</li>\n<li>`\\8\\levelid\\newstring` : Goto `newstring` if the triforce from the specified level is owned.</li>\n<li>`\\9\\numtriforce\\newstring` : Goto `newstring` if at least `numtriforce` triforce pieces are owned.</li>\n<li>`\\131\\pos\\newstring` : Goto if menu selection. Switches to the new string if 'pos' is the selected menu position.</li></ul>}\n\n<h3>Counter Mod Codes</h3>\nThese codes all center around modifying counter values.\n#{<ul><li>`\\10\\ctr\\val` : Adds 'val' to 'ctr'.</li>\n<li>`\\11\\ctr\\val` : Subtracts 'val' from 'ctr'.</li>\n<li>`\\12\\ctr\\val` : Sets 'ctr' to 'val'.</li>\n<li>`\\13\\ctr\\percent` : Adds 'percent' % to 'ctr'.</li>\n<li>`\\14\\ctr\\percent` : Subtracts 'percent' % from 'ctr'.</li>\n<li>`\\15\\ctr\\percent` : Sets 'ctr' to 'percent' % full.</li>\n<li>`\\16\\itemid` : Gives the player 'itemid', silently. The item is not held up, nor does its' pickup script run; though its' counter effects will.</li>\n<li>`\\17\\itemid` : Takes 'itemid' from the player, silently. Its' pickup counter modifications will be reversed when removed.</li></ul>}\n\n<h3>Misc Codes</h3>\n#{<ul><li>`\\18\\dmap\\screen\\[[x\\y|<block>If `x &lt; 0`, then y is treated as a return square(0-3 for return squares A-D, 5 for pit warp).\nIf `x &gt;= 0`, then x+y act as destination coordinates.</block>]]\\[[effect|$WARPEFFECT_]]\\sound` : Warps the player to 'dmap,screen'.</li>\n<li>`\\19\\dmap\\screen\\register\\value` : Sets `Screen->D[register] = value;` for the specified screen.</li>\n<li>`\\20\\sfxid` : Plays a specified sfx</li>\n<li>`\\21\\MIDIid` : Plays a specified quest midi (cannot play the built-in midis)</li>\n<li>`\\29` : Immediately exits the current string. If there is a 'next string', it will begin immediately. The prompt to press 'A' to continue will be skipped.</li>\n<li>`\\30` : Pauses the string and prompts the player to press A to continue (as normally occurs at the end of a string)</li>\n<li>`\\132\\perm` : Triggers secrets, which are permanent unless 'perm' is '0'</li>\n<li>`\\133\\[[flag|Use the 'ST_' constants from 'std_constants.zh']]\\[[state|1 for on, 0 for off]]` : Sets a screen state on the current screen.</li>\n<li>`\\134\\map\\screen\\[[flag|Use the 'ST_' constants from 'std_constants.zh']]\\[[state|1 for on, 0 for off]]` : Same as \\133 above, for a remote map/screen</li></ul>}"
+                        },
+                        {
+                            "name": "Quest Rules ;; quest_rules / qrs",
+                            "val": "<h3>Quest Rules</h3>\nQuest Rules are global settings configurable in ZQuest. Scripts can read and modify these settings using ${Game::FFRules|Game-&gt;FFRules}.\n\nTo find a QR by name, go to `Quest-&gt;Options-&gt;Search QRs` in ZQuest.\n"
+                        },
+                        {
+                            "name": "Itemclasses ;; itemclass",
+                            "val": "<todo>Add `IC_` constant infopage</todo>\n"
                         }
                     ]
                 },
@@ -126,6 +134,10 @@
                         {
                             "name": "Debug Pointer ;; debugptr",
                             "val": "$Debug"
+                        },
+                        {
+                            "name": "ZInfo Pointer ;; zinfoptr",
+                            "val": "$ZInfo"
                         }
                     ]
                 },
@@ -174,6 +186,10 @@
                             "val": "$NPC"
                         },
                         {
+                            "name": "Itemsprite Pointers ;; itemspriteptr",
+                            "val": "$Itemsprite"
+                        },
+                        {
                             "name": "Weapon Pointers ;; wpnptr",
                             "val": "$Weapon"
                         }
@@ -211,12 +227,20 @@
                             "val": "$DropsetData"
                         },
                         {
+                            "name": "Itemdata Pointers ;; itemdataptr",
+                            "val": "$Itemdata"
+                        },
+                        {
                             "name": "MessageData Pointers ;; messagedataptr",
                             "val": "$MessageData"
                         },
                         {
                             "name": "ShopData Pointers ;; shopdataptr",
                             "val": "$ShopData"
+                        },
+                        {
+                            "name": "SpriteData Pointers ;; spritedataptr",
+                            "val": "$SpriteData"
                         },
                         {
                             "name": "GenericData Pointers ;; genericdataptr ;; GenericData Pointers",
@@ -302,6 +326,208 @@
             "todo": true
         },
         {
+            "name": "Debug",
+            "tabs": [
+                {
+                    "name": "Debug ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Global Pointers ;; function_globalptr",
+                            "val": "$Base Data$3"
+                        },
+                        {
+                            "name": "<em>Debug</em> ;; Debug",
+                            "val": "The `Debug->` pointer holds some internal debug variables.\n\nYou probably won't need to use it."
+                        }
+                    ],
+                    "todo": true
+                }
+            ],
+            "todo": true
+        },
+        {
+            "name": "NPCData",
+            "tabs": [],
+            "todo": true
+        },
+        {
+            "name": "NPC",
+            "tabs": [
+                {
+                    "name": "NPC ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
+                        },
+                        {
+                            "name": "<em>npc</em>",
+                            "val": "<h3>NPC Pointers</h3>   `npc`\n\nThese pointers represent an enemy on the screen, and its' various attributes and functions.\nUsing these pointers, you can move them, damage them, make them move, make them invincible, etc.\n\nSee: ${LoadNPC}, ${CreateNPC}"
+                        },
+                        {
+                            "name": "Basic Info ;; npc::ID / npc::Type / npc::Family / npc::isValid / npc::Dir / npc::Animation",
+                            "val": "<h3>int ID;</h3>\nThe enemy ID of the enemy, read-only.\n\n<h3>int Type;\nint Family;</h3>\nThe type, or 'enemy class' of the enemy. Use the `NPCT_` constants.\n<todo>NPCT_ constant info, copyright-neutral names</todo>\n\n<h3>bool isValid();</h3>\nReturns true if this pointer points to a valid npc. If this returns false, using any other value of this pointer will error.\n\n<h3>int Dir;</h3>\nThe npc's direction.\n\n<h3>bool Animation;</h3>\nIf the engine should animate the npc's graphics."
+                        },
+                        {
+                            "name": "Position ;; npc::X / npc::Y / npc::Z / npc::Jump / npc::Gravity / npc::MoveFlags / npc::FakeZ / npc::FakeJump",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the npc's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n<h3>int Jump;</h3>\nThe npc's upward velocity, in pixels per frame. Affected by gravity each frame, if gravity is enabled for this npc.\n\n<h3>bool Gravity;</h3>\nIf false, gravity will not affect this npc.\n\n<h3>bool MoveFlags[];</h3>\nThe movement flags of the npc. See `NPCMV_` constants.\n#{NPCMV_ constants|$[NPCMV_]}\n<h3>int FakeZ;</h3>\nThe position of the npc on the FakeZ axis.\n\n<h3>int FakeJump;</h3>\nThe velocity of the npc in the FakeZ axis.\n"
+                        },
+                        {
+                            "name": "Sprite Limit ;; npc::Max",
+                            "val": "<h3>int Max();</h3>\nReturns the max number of npcs currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of npcs allowed to a new value. Range `1-1024`.\n"
+                        },
+                        {
+                            "name": "Movement ;; npcMovement",
+                            "val": "$-1$2"
+                        },
+                        {
+                            "name": "Next -&gt; ;; weaponptr2",
+                            "val": "$-1$1"
+                        }
+                    ]
+                },
+                {
+                    "name": "NPC 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
+                        },
+                        {
+                            "name": "Size Info ;; npc::Extend / npc::HitWidth / npc::HitHeight / npc::HitZHeight / npc::TileWidth / npc::TileHeight / npc::DrawXOffset / npc::DrawYOffset / npc::TotalDYOffset / npc::DrawZOffset / npc::HitXOffset / npc::HitYOffset",
+                            "val": "<h3>int Extend;</h3>\nIf the sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int TotalDYOffset;</h3>\nRead-only, the weapon's total visual Y-offset.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels."
+                        },
+                        {
+                            "name": "Script Info ;; npc::Script / npc::InitD / npc::Misc",
+                            "val": "<h3>int Script;</h3>\nThe npc script running on this npc.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD[] arguments for the npc script.\n\n<h3>int Misc[32];</h3>\nAn array of misc values for script use."
+                        },
+                        {
+                            "name": "Status ;; npc::Falling / npc::FallCombo / npc::Drowning / npc::DrownCombo / npc::SwitchHooked / npc::Switch / npc::Stun / npc::Submerged / npc::Ringleader / npc::HasItem / npc::Shield",
+                            "val": "<h3>int Falling;</h3>\nThe timer indicating how long left the sprite will be falling. If 0, the sprite is not falling. Max value of 70, which is the value at the start of falling.\n\n<h3>int FallCombo;</h3>\nThe pitfall combo the sprite is falling into, if it is falling.\n\n<h3>int Drowning;</h3>\nThe timer indicating how long left the sprite will be drowning. If 0, the sprite is not drowning. Max value of 64, which is the value at the start of drowning.\n\n<h3>int DrownCombo;</h3>\nThe liquid combo the sprite is drowning in, if it is drowning.\n\n<h3>bool SwitchHooked;</h3>\nIf the sprite is currently being switch-hooked.\n\n<h3>bool Switch(int effect);</h3>\nSwitch the player with this sprite. Use the `SW_EFF_` constants for 'effect' to select a visual style for the switch.\nReturns true if it succeeds, and false otherwise.\n\n<h3>int Stun;</h3>\nThe duration the npc is stunned for. If 0, the npc is not stunned.\n\n<h3>bool Submerged();</h3>\nReturns true if the npc is submerged (ex. underground/underwater)\n\n<h3>bool Ringleader;</h3>\nIf true, the enemy is a Ringleader, and killing this npc will kill every npc in the room.\n\n<h3>bool HasItem;</h3>\nTrue if the enemy is carrying an item.\n\n<h3>bool Shield[5];</h3>\nFlags related to the enemy's shield. Use the `SHLD_` constants to access.\n#{SHLD_ constants|$[SHLD_]}"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; weaponptr",
+                            "val": "$-1"
+                        }
+                    ]
+                },
+                {
+                    "name": "NPC Movement",
+                    "lines": [
+                        {
+                            "name": "&lt;-- NPC Pointers",
+                            "val": "$-1$0"
+                        },
+                        {
+                            "name": "MoveXY ;; npc::MoveXY / npc::CanMoveXY",
+                            "val": "<h3>bool MoveXY(float dx, float dy, int special);\nbool CanMoveXY(float dx, float dy, int special);</h3>\n\nAttempts to move the enemy by 'dx' in the x direction and 'dy' in the y direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveXY' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
+                        },
+                        {
+                            "name": "Move ;; npc::Move / npc::CanMove",
+                            "val": "<h3>bool Move(int dir, float pxamnt, int special);\nbool CanMove(int dir, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'dir' direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMove' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
+                        },
+                        {
+                            "name": "MoveAtAngle ;; npc::MoveAtAngle / npc::CanMoveAtAngle",
+                            "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
+                        },
+                        {
+                            "name": "MovePaused ;; npc::MovePaused",
+                            "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise.\n"
+                        },
+                        {
+                            "name": "Knockback ;; npc::Knockback / npc::NoScriptKnockback / npc::NoSlide / npc::SlideSpeed",
+                            "val": "<h3>bool Knockback(int time, int dir, int speed);</h3>\n\nAttempt to knock back the npc in 'dir' direction, for 'time' frames, at a rate of 'speed' pixels per frame.\n\nReturns true if successful, false if the enemy could not be knocked back.\n\n<h3>bool NoScriptKnockback;</h3>\n\nFalse by default. If set to 'true', scripted knockback via 'npc-&gt;Knockback()' is ignored.\n\n<h3>bool NoSlide;</h3>\nFalse by default. If set to 'true', engine knockback is ignored.\n\n<h3>int SlideSpeed;</h3>\nThe number of pixels engine knockback moves the enemy at a time. Default 4."
+                        },
+                        {
+                            "name": "Engine Walking ;; npc::ConstantWalk / npc::ConstantWalk8 / npc::VariableWalk / npc::VariableWalk8 / npc::HaltingWalk / npc::HaltingWalk8 / npc::FloatingWalk",
+                            "val": "For 'special' args, use 'SPW_NONE' for ground enemies, and 'SPW_FLOATER' for flying enemies. These functions are generally kinda bad, but they are here if you really want them.\n\n<h3>void ConstantWalk([[int arr[]|NULL for no args, or\n{int rate,int homing,int special}]]);</h3>\nAccess to the engine ConstantWalk behavior.\n\n<h3>void ConstantWalk8([[int arr[]|NULL for no args, or\n{int rate,int homing,int special}]]);</h3>\nAccess to the engine ConstantWalk8 behavior. Like ConstantWalk, but 8-dir.\n\n<h3>void VariableWalk([[int arr[]|{int rate,int homing,int special}]]);</h3>\nAccess to the engine VariableWalk behavior.\n\n<h3>void VariableWalk8([[int arr[]|{int rate,int homing,int special} or\n{int rate,int homing,int special,int dx1,int dy1,int dx2,int dy2}]]);</h3>\nAccess to the engine VariableWalk8 behavior. Like VariableWalk, but 8-dir.\n\n<h3>void HaltingWalk([[int arr[]|{int rate,int homing,int special,int hrate,int haltcnt}]]);</h3>\nAccess to the engine HaltingWalk behavior.\n\n<h3>void HaltingWalk8([[int arr[]|{int rate,int homing,int special,int hrate,int haltcnt}]]);</h3>\nAccess to the engine HaltingWalk8 behavior. Like HaltingWalk, but 8-dir.\n\n<h3>void FloatingWalk([[int arr[]|?? <todo>Figure out how this function works</todo>]]);</h3>\nAccess to the engine FloatingWalk behavior."
+                        }
+                    ]
+                }
+            ],
+            "todo": true
+        },
+        {
+            "name": "PalData",
+            "tabs": [],
+            "todo": true
+        },
+        {
+            "name": "Weapon",
+            "tabs": [
+                {
+                    "name": "Weapon ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$Base Data$5"
+                        },
+                        {
+                            "name": "<em>lweapon / eweapon</em>",
+                            "val": "<h3>Weapon Pointers</h3>   `lweapon`, `eweapon`\n\nThese pointers represent weapon objects on screen. `lweapon` pointers represent the player's weapons, while `eweapon` pointers represent enemy weapons.\nSee: ${LoadLWeapon}, ${CreateLWeapon}, ${LoadEWeapon}, ${CreateEWeapon}\n\n"
+                        },
+                        {
+                            "name": "EWeapon / LWeapon exclusive ;; lwpnptr / ewpnptr / eweapon::Parent / lweapon::Parent / lweapon::Weapon / lweapon::Defense / lweapon::Special",
+                            "val": "<h2>EWeapon Exclusive</h2>\n\n<h3>npc Parent;</h3>\nThe npc pointer to the parent NPC.\n\n<h2>LWeapon Exclusive</h2>\n\n<h3>int Parent;</h3>\nThe item ID of the parent item.\n\n<h3>int Weapon;</h3>\nThe UseWeapon property for this weapon. If set to a value greater than 0, this value will be used instead of the weapon's type when interacting with npcs and triggers. Uses `LW_` constants.\n\n<h3>int Defense;</h3>\nThe default defense of the weapon. If set to a value greater than 0, this defense will be used instead of the `(None)` defense when hitting enemies. Uses `NPCDT_` constants.\n\n<h3>int Special;</h3>\nThe special info for the lweapon. Used by wind lweapons, instead of Level, to determine their effects. \n"
+                        },
+                        {
+                            "name": "Basic Info ;; lweapon::ID / eweapon::ID / lweapon::Type / eweapon::Type / lweapon::Family / eweapon::Family / lweapon::isValid / eweapon::isValid / lweapon::Level / eweapon::Level / lweapon::Dir / eweapon::Dir / lweapon::Angle / eweapon::Angle / lweapon::DegAngle / eweapon::DegAngle / lweapon::Angular / eweapon::Angular / lweapon::MakeAngular / eweapon::MakeAngular / lweapon::MakeDirectional / eweapon::MakeDirectional / lweapon::Vx / eweapon::Vx / lweapon::Vy / eweapon::Vy / lweapon::Animation / eweapon::Animation",
+                            "val": "<h3>int ID;\nint Type;\nint Family;</h3>\nThe weapon type of the weapon. Some types have hardcoded behaviors.\n\n<h3>bool isValid();</h3>\nReturns true if this pointer points to a valid weapon. If this returns false, using any other value of this pointer will error.\n\n<h3>int Level;</h3>\nFor lweapons, the level of the weapon.\nFor eweapons, bitwise. The `1` bit represents it being a \"boss\" weapon (ex. 'boss fireball')\n\n<h3>int Dir;</h3>\nThe weapon's direction.\n\n<h3>float Angle;\nfloat DegAngle;</h3>\nThe angle of the weapon, in radians for Angle or degrees for DegAngle. Has no real effect if the weapon is not `Angular`.\n\n<h3>bool Angular;</h3>\nIf the weapon is angular (instead of directional)\n\n<h3>void MakeAngular();</h3>\nIf the weapon is not Angular, makes it Angular, and sets its' Angle based on its' Dir.\n\n<h3>void MakeDirectional();</h3>\nIf the weapon is Angular, makes it not Angular, and sets its' Dir based on its' Angle.\n\n<h3>float Vx;\nfloat Vy;</h3>\nThe velocity on the X or Y axis. Setting these will make the weapon Angular if it isn't already, and will adjust the weapon's Angle and Step speed.\n\n<h3>bool Animation;</h3>\nIf the engine should animate the weapon's graphics.\n\n\n"
+                        },
+                        {
+                            "name": "Position ;; lweapon::X / eweapon::X / lweapon::Y / eweapon::Y / lweapon::Z / eweapon::Z / lweapon::Jump / eweapon::Jump / lweapon::Gravity / eweapon::Gravity / lweapon::MoveFlags / eweapon::MoveFlags / lweapon::FakeZ / eweapon::FakeZ / lweapon::FakeJump / eweapon::FakeJump",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the weapon's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n<h3>int Jump;</h3>\nThe weapon's upward velocity, in pixels per frame. Affected by gravity each frame, if gravity is enabled for this weapon.\n\n<h3>bool Gravity;</h3>\nTrue by default. If false, gravity will no longer affect this weapon.\n\n<h3>bool MoveFlags[];</h3>\nThe movement flags of the weapon. See `WPNMV_` constants.\n#{WPNMV_ constants|$[WPNMV_]}\n<h3>int FakeZ;</h3>\nThe position of the weapon on the FakeZ axis.\n\n<h3>int FakeJump;</h3>\nThe velocity of the weapon in the FakeZ axis.\n\n\n\n\n\n"
+                        },
+                        {
+                            "name": "Sprite Limit ;; lweapon::Max / eweapon::Max",
+                            "val": "<h3>int Max();</h3>\nReturns the max number of weapons currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of weapons allowed to a new value. Range `1-1024`.\n"
+                        },
+                        {
+                            "name": "Graphical Info ;; lweapon::OriginalTile / eweapon::OriginalTile / lweapon::Tile / eweapon::Tile / lweapon::OriginalCSet / eweapon::OriginalCSet / lweapon::CSet / eweapon::CSet / lweapon::NumFrames / eweapon::NumFrames / lweapon::Frame / eweapon::Frame / lweapon::ASpeed / eweapon::ASpeed / lweapon::Flash / eweapon::Flash / lweapon::FlashCSet / eweapon::FlashCSet / lweapon::Flip / eweapon::Flip / lweapon::UseSprite / eweapon::UseSprite",
+                            "val": "<h3>int OriginalTile;</h3>\nThe starting tile of the weapon's animation.\n\n<h3>int Tile;</h3>\nThe currently displaying tile of the weapon's animation. Set by the engine each frame if ${lweapon::Animation|animation} is enabled.\n\n<h3>int OriginalCSet;</h3>\nThe starting cset of the weapon.\n\n<h3>int CSet;</h3>\nThe CSet of the weapon.\n\n<h3>int NumFrames;</h3>\nThe number of frames in the weapon's animation.\n\n<h3>int Frame;</h3>\nThe current frame number that the animation is on.\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>bool Flash;</h3>\nIf the weapon is flashing or not. When flashing, it changes between its' CSet and FlashCSet.\n\n<h3>int FlashCSet;</h3>\nThe secondary CSet used for flashing.\n\n<h3>int Flip;</h3>\nThe flip status of the weapon's tile. Uses the [[`FLIP_`|$FLIP_]] constants.\n\n<h3>void UseSprite(int spriteid);</h3>\nLoads the graphical information from the ${spritedata} indicated by `spriteid` to the weapon.\n\n\n\n"
+                        },
+                        {
+                            "name": "Graphical Info 2 ;; lweapon::ScriptTile / eweapon::ScriptTile / lweapon::ScriptFlip / eweapon::ScriptFlip / lweapon::ShadowXOffset / eweapon::ShadowXOffset / lweapon::ShadowYOffset / eweapon::ShadowYOffset / lweapon::ShadowSprite / eweapon::ShadowSprite / lweapon::DrawStyle / eweapon::DrawStyle / lweapon::Rotation / eweapon::Rotation / lweapon::Scale / eweapon::Scale / lweapon::AutoRotate / eweapon::AutoRotate / lweapon::LightShape / eweapon::LightShape / lweapon::LightRadius / eweapon::LightRadius",
+                            "val": "<h3>int ScriptTile;</h3>\n-1 by default. If this is set > -1, this tile will be displayed by the engine, regardless of the normal engine animation. Set back to -1 to restore engine animation.\n\n<h3>int ScriptFlip;</h3>\n-1 by default. If this is set > -1, this flip value will be used instead of the normal 'Flip' value. Set back to -1 to restore normal flip.\n\n<h3>int ShadowXOffset;\nint ShadowYOffset;</h3>\nThe x/y offset of the sprite's shadow.\n\n<h3>int ShadowSprite;</h3>\nThe ${spritedata} sprite ID to use for the item's shadow.\n\n<h3>int DrawStyle;</h3>\nThe mode for the sprite's draws, using the `DS_` constants.\n#{DS_ constants|$[DS_]}\n<h3>float Rotation;</h3>\nA rotation of the sprite draw, in degrees.\n\n<h3>float Scale;</h3>\nA scale of the sprite draw, as a multiplier.\n\n<h3>bool AutoRotate;</h3>\nIf true, the weapon's 'Rotation' will be automatically set based on its' Angle.\n\n<h3>int LightShape;</h3>\nThe shape of light emitted by this sprite. Uses the `LIGHT_` constants.\n#{LIGHT_ constants|$[LIGHT_]}\n<h3>int LightRadius;</h3>\nThe size of the light emitted by this sprite, in pixels.\n\n"
+                        },
+                        {
+                            "name": "Next -&gt; ;; weaponptr2",
+                            "val": "$-1$1"
+                        }
+                    ]
+                },
+                {
+                    "name": "Weapon 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$Base Data$5"
+                        },
+                        {
+                            "name": "Size Info ;; lweapon::Extend / eweapon::Extend / lweapon::HitWidth / eweapon::HitWidth / lweapon::HitHeight / eweapon::HitHeight / lweapon::HitZHeight / eweapon::HitZHeight / lweapon::TileWidth / eweapon::TileWidth / lweapon::TileHeight / eweapon::TileHeight / lweapon::DrawXOffset / eweapon::DrawXOffset / lweapon::DrawYOffset / eweapon::DrawYOffset / lweapon::TotalDYOffset / eweapon::TotalDYOffset / lweapon::DrawZOffset / eweapon::DrawZOffset / lweapon::HitXOffset / eweapon::HitXOffset / lweapon::HitYOffset / eweapon::HitYOffset",
+                            "val": "<h3>int Extend;</h3>\nIf the sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int TotalDYOffset;</h3>\nRead-only, the weapon's total visual Y-offset.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels.\n\n\n"
+                        },
+                        {
+                            "name": "Script Info ;; lweapon::Script / eweapon::Script / lweapon::InitD / eweapon::InitD / lweapon::Misc / eweapon::Misc",
+                            "val": "<h3>int Script;</h3>\nThe weapon script running on this weapon.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD[] arguments for the weapon script.\n\n<h3>int Misc[32];</h3>\nAn array of misc values for script use.\n\n"
+                        },
+                        {
+                            "name": "Status ;; lweapon::Falling / eweapon::Falling / lweapon::FallCombo / eweapon::FallCombo / lweapon::Drowning / eweapon::Drowning / lweapon::DrownCombo / eweapon::DrownCombo / lweapon::SwitchHooked / eweapon::SwitchHooked / lweapon::Switch / eweapon::Switch",
+                            "val": "<h3>int Falling;</h3>\nThe timer indicating how long left the sprite will be falling. If 0, the sprite is not falling. Max value of 70, which is the value at the start of falling.\n\n<h3>int FallCombo;</h3>\nThe pitfall combo the sprite is falling into, if it is falling.\n\n<h3>int Drowning;</h3>\nThe timer indicating how long left the sprite will be drowning. If 0, the sprite is not drowning. Max value of 64, which is the value at the start of drowning.\n\n<h3>int DrownCombo;</h3>\nThe liquid combo the sprite is drowning in, if it is drowning.\n\n<h3>bool SwitchHooked;</h3>\nIf the sprite is currently being switch-hooked.\n\n<h3>bool Switch(int effect);</h3>\nSwitch the player with this sprite. Use the `SW_EFF_` constants for 'effect' to select a visual style for the switch.\nReturns true if it succeeds, and false otherwise.\n\n"
+                        },
+                        {
+                            "name": "Misc Info ;; lweapon::Explode / eweapon::Explode / lweapon::Remove / eweapon::Remove / lweapon::DeadState / eweapon::DeadState / lweapon::Step / eweapon::Step / lweapon::Power / eweapon::Power / lweapon::Damage / eweapon::Damage / lweapon::Behind / eweapon::Behind / lweapon::Unblockable / eweapon::Unblockable / lweapon::CollDetection / eweapon::CollDetection / lweapon::Flags / eweapon::Flags",
+                            "val": "<h3>void Explode(int mode);</h3>\nCreates an explosion particle effect in mode 0, 1, or 2 of the sprite.\n\n<h3>void Remove();</h3>\nInstantly deletes the weapon.\n\n<h3>int DeadState;</h3>\nThe deadstate of the weapon, denoted by the `WDS_` constants.\n\n<h3>int Step;</h3>\nThe movement speed of the weapon, in 100th's/pixel per frame.\n\n<h3>int Power;\nint Damage;</h3>\nThe amount of damage the weapon deals.\n\n<h3>bool Behind;</h3>\nIf true, the weapon's sprite will draw behind the player and enemies.\n\n<h3>int Unblockable;</h3>\nA bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.\n#{UNBLOCK_ constants|$[UNBLOCK_]}\n<h3>bool CollDetection;</h3>\nIf the weapon's collision is enabled. Set to false to disable collision entirely.\n\n<h3>bool Flags[1];</h3>\nA set of weapon flags. Use the `WFLAG_` constants as indexes.\n#{WFLAG_ constants|$[WFLAG_]}\n\n\n"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; weaponptr",
+                            "val": "$-1"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
             "name": "Combodata",
             "tabs": [
                 {
@@ -313,7 +539,7 @@
                         },
                         {
                             "name": "<em>combodata</em>",
-                            "val": "<h3>ComboData Pointers</h3>   `combodata`\n\nThese pointers represent a combo ID, and all its' associated attributes.\n\nSee: ${LoadComboData}"
+                            "val": "<h3>ComboData Pointers</h3>   `combodata`\n\nThese pointers represent a combo ID, and all its' associated attributes.\n\nSee: ${Game::LoadComboData|LoadComboData}"
                         },
                         {
                             "name": "ID ;; combodata::ID",
@@ -356,26 +582,6 @@
             ]
         },
         {
-            "name": "Debug",
-            "tabs": [
-                {
-                    "name": "Debug ROOT",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Global Pointers ;; function_globalptr",
-                            "val": "$Base Data$3"
-                        },
-                        {
-                            "name": "<em>Debug</em> ;; Debug",
-                            "val": "The `Debug->` pointer holds some internal debug variables.\n\nYou probably won't need to use it."
-                        }
-                    ],
-                    "todo": true
-                }
-            ],
-            "todo": true
-        },
-        {
             "name": "DMapData",
             "tabs": [
                 {
@@ -387,192 +593,262 @@
                         },
                         {
                             "name": "<em>dmapdata</em> ;; dmapdata",
-                            "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${LoadDMapData}"
+                            "val": "<h3>DMapData Pointers</h3>   `dmapdata`\n\nThese pointers represent a dmap and all its' associated attributes.\n\nSee: ${Game::LoadDMapData|LoadDMapData}"
                         },
                         {
-                            "name": "Strings ;; dmapdatastrings",
+                            "name": "DMap Strings ;; dmapdata::GetName / dmapdata::SetName / dmapdata::GetTitle / dmapdata::SetTitle / dmapdata::GetIntro / dmapdata::SetIntro / dmapdata::GetMusic / dmapdata::SetMusic",
+                            "val": "<h3>void GetName([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's name.\n<h3>void SetName([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's name to the buffer contents.\n\n<h3>void GetTitle([[char32[] buf|At least size 21]]);</h3>\nFills the buffer with the dmap's title.\n<h3>void SetTitle([[char32[] buf|At most 20 characters]]);</h3>\nSets the DMap's title to the buffer contents.\n\n<h3>void GetIntro([[char32[] buf|At least size 73]]);</h3>\nFills the buffer with the dmap's intro.\n<h3>void SetIntro([[char32[] buf|At most 72 characters]]);</h3>\nSets the DMap's intro to the buffer contents.\n\n<h3>void GetMusic([[char32[] buf|At least size 56]]);</h3>\nFills the buffer with the dmap's enhanced music filename. See ${dmapdata::MusicTrack|MusicTrack}.\n<h3>void SetMusic([[char32[] buf|At most 55 characters]]);</h3>\nSets the DMap's enhanced music filename to the buffer contents. See ${dmapdata::MusicTrack|MusicTrack}."
+                        },
+                        {
+                            "name": "Basic Info ;; dmapdata::ID / dmapdata::Map / dmapdata::Level / dmapdata::Compass / dmapdata::Continue / dmapdata::Offset / dmapdata::Type / dmapdata::Palette",
+                            "val": "<h3>int ID;</h3>\nRead-Only. The DMap's ID number.\n\n<h3>int Map;</h3>\nWhich map this DMap is associated with.\n\n<h3>int Level;</h3>\nThe Level Number of this dmap.\n\n<h3>int Compass;\nint Continue;</h3>\nThe compass marker and continue screen numbers.\n\n<h3>int Offset;</h3>\nThe DMap offset.\n\n<h3>int Type;</h3>\nThe type of the dmap, using the [[`DMAP_`|$DMAP_]] constants.\n\n<h3>int Palette;</h3>\nThe level palette to use for this DMap"
+                        },
+                        {
+                            "name": "Music ;; dmapdata::MIDI / dmapdata::MusicTrack",
+                            "val": "<h3>int MIDI;</h3>\nThe MIDI set to play on this dmap.\n\n<h3>int MusicTrack;</h3>\nThe track number to use for enhanced music. See ${dmapdata::GetMusic|GetMusic/SetMusic}."
+                        },
+                        {
+                            "name": "Active Script ;; dmapdata::Script / dmapdata::InitD",
+                            "val": "<h3>int Script;</h3>\nThe dmapdata script to run on this dmap.\n\n<h3>untyped InitD[8];</h3>\nThe 8 InitD values for the active dmap script."
+                        },
+                        {
+                            "name": "--&gt; Next ;; dmapdata2",
                             "val": "$-1$1"
                         }
-                    ],
-                    "todo": true
+                    ]
                 },
                 {
-                    "name": "DMapData Strings",
+                    "name": "DMapData 2",
                     "lines": [
                         {
-                            "name": "&lt;-- Back ;; dmapptr",
-                            "val": "$-1"
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
                         },
                         {
-                            "name": "Name ;; dmapdata::GetName / dmapdata::SetName",
-                            "val": "<todo>These functions aren't implemented yet!</todo>\n<h3>void GetName(char32[] buf);</h3>\nFills the buffer with the dmap's name.\n\n<h3>void SetName(char32[] buf);</h3>\nSets the DMap's name to the buffer contents."
+                            "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD",
+                            "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>untyped SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
+                        },
+                        {
+                            "name": "Map Script ;; dmapdata::MapScript / dmapdata::MapInitD",
+                            "val": "<h3>int MapScript;</h3>\nWhich dmapdata script to use as a replacement for the engine fullscreen map (0 for none).\n\n<h3>untyped MapInitD[8];</h3>\nThe 8 InitD values used by the Map Script."
+                        },
+                        {
+                            "name": "Subscreen Maps ;; dmapdata::Grid / dmapdata::Charted / dmapdata::MapTile / dmapdata::MapCSet / dmapdata::MiniMapTile / dmapdata::MiniMapCSet",
+                            "val": "<h3>int Grid[8];</h3>\nBitwise values representing the state of the map grid. Make use of the functions in `std_zh/dmapgrid.zh` to access these values.\n\n<h3>int Charted[128];</h3>\nStores the large map exploration data for each screen on the dmap. <todo>Test if works on overworld dmaps.</todo>\nData is stored in a bitwise format. Access each index using the [[`CHRT_`|$CHRT_]] constants\n\n<h3>int MapTile[2];</h3>\nThe tile used for the engine subscreen Large Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. <todo>What's the default here?</todo>\n\n<h3>int MapCSet[2];</h3>\nThe csets used for the engine subscreen Large Map, to go along with the MapTile[].\n\n<h3>int MiniMapTile[2];</h3>\nThe tile used for the engine subscreen Small Map. The [0] index tile is used without the dungeon map, and the [1] index with the dungeon map.\nIf a tile is '0', the default background is used. The default is set in 'Graphics->Map Styles' in ZQuest.\n\n<h3>int MiniMapCSet[2];</h3>\nThe csets used for the engine subscreen Small Map, to go along with the MiniMapTile[].\n"
+                        },
+                        {
+                            "name": "Items ;; dmapdata::DisabledItems / dmapdata::MirrorDMap",
+                            "val": "<h3>bool DisabledItems[NUM_ITEMDATA];</h3>\nIf each item on the dmap is disabled.\n\n<h3>int MirrorDMap;</h3>\nThe DMap ID that using a Mirror will take you to. If this is '-1', Mirrors will not be able to warp you to another dmap. If the ${dmapdata::Flagset|flag} 'Mirror Continues instead of Warping' is set, the mirror dmap setting is not used."
+                        },
+                        {
+                            "name": "Flags ;; dmapdata::Sideview / dmapdata::Flagset",
+                            "val": "<h3>bool Sideview;</h3>\nIf true, the dmap is treated as sideview by default; screens with the sideview flag enabled will toggle sideview back *off*.\n\n<h3>bool Flagset[DMFS_MAX];</h3>\nThe flags for the dmap. Uses the `DMFS_` constants.\n#{DMFS_ constants|$[DMFS_]}"
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; dmapdataptr",
+                            "val": "$-1"
                         }
                     ]
                 }
-            ],
-            "todo": true
-        },
-        {
-            "name": "Weapon",
-            "tabs": [
-                {
-                    "name": "Weapon ROOT",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
-                            "val": "$Base Data$5"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<todo>Under Construction!</todo>"
-                        },
-                        {
-                            "name": "EWeapon Only ;; ewpnptr",
-                            "val": "$-1$1"
-                        },
-                        {
-                            "name": "LWeapon Only ;; lwpnptr",
-                            "val": "$-1$2"
-                        }
-                    ],
-                    "todo": true
-                },
-                {
-                    "name": "EWeapon Only",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Weapon Pointer ;; wpnptr",
-                            "val": "$-1"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<todo>Under Construction!</todo>"
-                        }
-                    ],
-                    "todo": true
-                },
-                {
-                    "name": "LWeapon Only",
-                    "lines": [
-                        {
-                            "name": "&lt;-- Weapon Pointer ;; wpnptr",
-                            "val": "$-1"
-                        },
-                        {
-                            "name": "--",
-                            "val": "<todo>Under Construction!</todo>"
-                        }
-                    ],
-                    "todo": true
-                }
-            ],
-            "todo": true
+            ]
         },
         {
             "name": "Itemdata",
-            "tabs": [],
-            "todo": true
+            "tabs": [
+                {
+                    "name": "Itemdata ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "<em>itemdata</em> ;; itemdata",
+                            "val": "<h3>ItemData Pointers</h3>   `itemdata`\n\nThese pointers represent an inventory item and all its' associated attributes.\n\nSee: ${Game::LoadItemData|LoadItemData}"
+                        },
+                        {
+                            "name": "Basic Info ;; itemdata::ID / itemdata::EquipmentItem / itemdata::Family / itemdata::Type / itemdata::Level / itemdata::Power / itemdata::Attributes / itemdata::GetName",
+                            "val": "<h3>int ID;</h3>\nRead-only, the item ID this itemdata is associated with.\n\n<h3>bool EquipmentItem;</h3>\nIf the item is an equipment item or not. Items which are not equipment items cannot be \"owned\" by the player or put on buttons.\n\n<h3>int Family;\nint Type;</h3>\nThe type ${itemclass|(itemclass)} of the item. Uses the `IC_` constants.\n\n<h3>int Level;</h3>\nThe level of the item.\n\n<h3>int Power;\nint Damage;</h3>\nThe item power. Usage depends on itemclass.\n\n<h3>untyped Attributes[10];</h3>\nThe 10 item attributes.\n\n<h3>void GetName(char32 buf[]);</h3>\nFills the buffer with the item's Name.\n\n"
+                        },
+                        {
+                            "name": "Pickup Info ;; itemdata::Amount / itemdata::Gradual / itemdata::Counter / itemdata::MaxIncrement / itemdata::Max / itemdata::PickupSound / itemdata::MinHearts / itemdata::KeepOld / itemdata::GainLower / itemdata::Combine / itemdata::PString / itemdata::PickupString / itemdata::PickupStringFlags",
+                            "val": "<h3>int Amount;</h3>\nThe amount of the 'Counter' to increase when this item is picked up. Range `-9999 to 16383`.\n\n<h3>bool Gradual;</h3>\nThe 'Gradual' flag.\n\n<h3>int Counter;</h3>\nThe counter to increase when this item is picked up.\n\n<h3>int MaxIncrement;</h3>\nHow much to increase the max of the 'Counter' by\n\n<h3>int Max;</h3>\nThe '...But not above' field- the amount the max of 'Counter' will not be increased above.\n\n<h3>int PickupSound;</h3>\nThe sound to play when the item is picked up.\n\n<h3>int MinHearts;</h3>\nThe number of max hearts required to pick up the item.\n\n<h3>bool KeepOld;</h3>\nThe 'Keep Lower Level Items' flag\n\n<h3>bool GainLower;</h3>\nThe 'Gain All Lower Level Items' flag\n\n<h3>bool Combine;</h3>\nThe 'Upgrade When Collected Twice' flag\n\n<h3>int PString;\nint PickupString;</h3>\nThe message string to display upon picking up the item.\n\n<h3>int PickupStringFlags;</h3>\nThe flags associated with the pickup string, as bitwise flags. Use the `IPSTR_` constants to access this.\n\n"
+                        },
+                        {
+                            "name": "Action Info ;; itemdata::UseSound / itemdata::UseSound2 / itemdata::Downgrade / itemdata::Cost / itemdata::Cost2 / itemdata::CostCounter / itemdata::CostCounter2 / itemdata::CostTimer / itemdata::CostTimer2 / itemdata::Validate / itemdata::Validate2",
+                            "val": "<h3>int UseSound;</h3>\nThe item's usage sound. If/how this is used depends on itemclass.\n\n<h3>int UseSound2;</h3>\nThe item's second usage sound. If/how this is used depends on itemclass.\n\n<h3>bool Downgrade;</h3>\nThe 'Remove Item When Used' flag.\n\n<h3>int Cost;\nint Cost2;</h3>\nThe 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>int CostCounter;\nint CostCounter2;</h3>\nThe counter for the 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>int CostTimer;\nint CostTimer2;</h3>\nThe timer for the 'Use Cost'/'Use Cost 2' of the item.\n\n<h3>bool Validate;\nbool Validate2;</h3>\nThe 'Only Validate Cost'/'Only Validate Cost 2' checkboxes"
+                        },
+                        {
+                            "name": "Script Info ;; itemdata::Script / itemdata::PScript / itemdata::SpriteScript / itemdata::InitD / itemdata::RunScript",
+                            "val": "<h3>int Script;</h3>\nThe item's Action Script\n\n<h3>int PScript;</h3>\nThe item's Pickup Script\n\n<h3>int SpriteScript;</h3>\nThe item's ItemSprite Script\n\n<h3>untyped InitD[8];</h3>\nThe 8 InitD values shared by the item's Action, Pickup, and Sprite scripts.\n\n<h3>void RunScript(int mode = ISCR_RUN);</h3>\nRuns or ends the item script, depending on the mode:#{ISCR_ constants|$[ISCR_]}"
+                        },
+                        {
+                            "name": "Weapon Script Info ;; itemdata::WeaponScript / itemdata::WeaponInitD",
+                            "val": "<h3>int WeaponScript;</h3>\nThe item's lweapon script\n\n<h3>untyped WeaponInitD[8];</h3>\nThe 8 InitD values for the weapon script."
+                        },
+                        {
+                            "name": "--&gt; Next ;; dmapdata2",
+                            "val": "$-1$1"
+                        }
+                    ]
+                },
+                {
+                    "name": "Itemdata 2",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "Flags Info ;; itemdata::Flags / itemdata::Edible / itemdata::ConstantScript / itemdata::SideSwimDisabled / itemdata::BunnyUsable / itemdata::JinxImmune / itemdata::JinxSwapped",
+                            "val": "<h3>bool Flags[16];</h3>\nThe 16 item flags. `Flags[0]` through `Flags[14]` change depending on the item type; `Flags[15]` is the `Constant Script` flag.\n\n<h3>bool Edible;</h3>\nThe `Can Be Eaten By Enemies` flag.\n\n<h3>bool ConstantScript;</h3>\nThe `Constant Script` flag.\n\n<h3>bool SideSwimDisabled;</h3>\nThe `Disabled In Sideview Water` flag.\n\n<h3>bool BunnyUsable;</h3>\nThe `Usable as a Bunny` flag.\n\n<h3>bool JinxImmune;</h3>\nThe `Immune to jinxes` flag.\n\n<h3>bool JinxSwapped;</h3>\nThe `Uses Other Jinx` flag."
+                        },
+                        {
+                            "name": "Pickup Flags ;; itemdata::Pickup / itemdata::PickupType",
+                            "val": "<h3>int Pickup;</h3>\nThe item pickup flags, as a bitwise flagset. Use the `IP_` constants to access. Take care when using any `INTERNAL` flags.\n#{IP_ constants|$[IP_]}\n\n<h3>int PickupType;</h3>\nHow the pickup flags are applied to items upon item creation.\n#{IPTYPE_ constants|$[IPTYPE_]}"
+                        },
+                        {
+                            "name": "Graphics Info ;; itemdata::Tile / itemdata::CSet / itemdata::MiscFlags / itemdata::AFrames / itemdata::ASpeed / itemdata::Delay / itemdata::TileMod / itemdata::Sprites",
+                            "val": "<h3>int Tile;</h3>\nThe starting tile of the item's animation\n\n<h3>int CSet;</h3>\nThe CSet the item sprite uses\n\n<h3>int MiscFlags</h3>\nMisc flags for the item graphics, bitwise flagset. Use the `IMISC_` constants to access.\n#{IMISC_ constants|$[IMISC_]}\n<todo>Item editor can't flip the tile?</todo>\n\n<h3>int AFrames;</h3>\nThe number of frames in the animation\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the animation.\n\n<h3>int TileMod;</h3>\nThe Player Tile Modifier associated with this item.\n\n<h3>int Sprites[10];</h3>\nThe 10 sprites used by the item. How they are used depends on the item type."
+                        },
+                        {
+                            "name": "Size Info ;; itemdata::SizeFlags / itemdata::TileWidth / itemdata::TileHeight / itemdata::HitWidth / itemdata::HitHeight / itemdata::HitZHeight / itemdata::DrawXOffset / itemdata::DrawYOffset / itemdata::HitXOffset / itemdata::HitYOffset",
+                            "val": "<h3>int SizeFlags;</h3>\nA bitwise flagset representing all the checkboxes for which sizes to apply from the itemdata. Use the `SZFLAG_` constants to access.\n#{SZFLAG_ constants|$[SZFLAG_]}\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe visual size of the sprite, in tiles.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe hitbox size of the sprite, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe Z-Height of the hitbox, in pixels.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset of the sprite, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset of the sprite, in pixels."
+                        },
+                        {
+                            "name": "Weapon Size Info ;; itemdata::WeaponSizeFlags / itemdata::WeaponTileWidth / itemdata::WeaponTileHeight / itemdata::WeaponHitWidth / itemdata::WeaponHitHeight / itemdata::WeaponHitZHeight / itemdata::WeaponDrawXOffset / itemdata::WeaponDrawYOffset / itemdata::WeaponHitXOffset / itemdata::WeaponHitYOffset",
+                            "val": "<h3>int WeaponSizeFlags;</h3>\nA bitwise flagset representing all the checkboxes for which sizes to apply from the itemdata. Use the `SZFLAG_` constants to access.\n#{SZFLAG_ constants|$[SZFLAG_]}\n\n<h3>int WeaponTileWidth;\nint WeaponTileHeight;</h3>\nThe visual size of the sprite, in tiles.\n\n<h3>int WeaponHitWidth;\nint WeaponHitHeight;</h3>\nThe hitbox size of the sprite, in pixels.\n\n<h3>int WeaponHitZHeight;</h3>\nThe Z-Height of the hitbox, in pixels.\n\n<h3>int WeaponDrawXOffset;\nint WeaponDrawYOffset;</h3>\nThe visual offset of the sprite, in pixels.\n\n<h3>int WeaponHitXOffset;\nint WeaponHitYOffset;</h3>\nThe hitbox offset of the sprite, in pixels."
+                        },
+                        {
+                            "name": "Weapon Info ;; itemdata::Weapon / itemdata::Defense",
+                            "val": "<h3>int Weapon;</h3>\nThe overrided weapon type that the weapon will act like.\n\n<h3>int Defense;</h3>\nThe default defense of the weapon."
+                        },
+                        {
+                            "name": "&lt;-- Prev ;; dmapdataptr",
+                            "val": "$-1"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "Itemsprite",
-            "tabs": [],
-            "todo": true
-        },
-        {
-            "name": "Module",
-            "tabs": [],
-            "todo": true
-        },
-        {
-            "name": "NPCData",
-            "tabs": [],
-            "todo": true
-        },
-        {
-            "name": "NPC",
             "tabs": [
                 {
-                    "name": "0",
+                    "name": "Itemsprite ROOT",
                     "lines": [
                         {
                             "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
                             "val": "$0$5"
                         },
                         {
-                            "name": "<em>npc</em>",
-                            "val": "<h3>NPC Pointers</h3>   `npc`\n\nThese pointers represent an enemy on the screen, and its' various attributes and functions.\nUsing these pointers, you can move them, damage them, make them move, make them invincible, etc.\n\nSee: ${LoadNPC}, ${CreateNPC}"
+                            "name": "<em>itemsprite</em>",
+                            "val": "<h3>Itemsprite Pointers</h3>   `itemsprite`\n\nThese pointers represent item objects on screen. These may be screen items, enemy drops, shop items, etc; or you may create your own items via script.\n\nSee: ${LoadItem}, ${CreateItem}\n"
                         },
                         {
-                            "name": "Position",
-                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the enemy's position on each of the three axes.\nIf the quest rule [['Sprite Coordinates are Float'|at \"ZScript->Quest Script Settings->Object\"]] is checked, these values can include up to 4 decimal places; otherwise values are truncated to int."
+                            "name": "Basic Info ;; itemsprite::ID / itemsprite::isValid / itemsprite::Type / itemsprite::Family / itemsprite::Level / itemsprite::Dir / itemsprite::Animation",
+                            "val": "<h3>int ID;</h3>\nThe item ID to give when the item is collected.\n\n<h3>bool isValid();</h3>\nReturns true if this pointer points to a valid itemsprite. If this returns false, using any other value of this pointer will error.\n\n<h3>int Type;\nint Family;</h3>\nThe type ${itemclass|(itemclass)} of the item. Uses the `IC_` constants.\n\n<h3>int Level;</h3>\nThe item's level\n\n<h3>int Dir;</h3>\nThe item's direction\n\n<h3>bool Animation;</h3>\nIf the engine should animate the item's graphics\n\n"
                         },
                         {
-                            "name": "Movement ;; npcMovement",
+                            "name": "Position ;; itemsprite::X / itemsprite::Y / itemsprite::Z / itemsprite::Jump / itemsprite::Gravity / itemsprite::MoveFlags / itemsprite::FakeZ / itemsprite::FakeJump",
+                            "val": "<h3>int X; int Y; int Z;</h3>\n\nRead/Write; These values store the itemsprite's position on each of the three axes.\nIf the ${QRS|quest rule} `Sprite Coordinates are Float` is checked, these values can include up to 4 decimal places; otherwise values are truncated.\n\n<h3>int Jump;</h3>\nThe itemsprite's upward velocity, in pixels per frame. Affected by gravity each frame, if gravity is enabled for this itemsprite.\n\n<h3>bool Gravity;</h3>\nTrue by default. If false, gravity will no longer affect this itemsprite.\n\n<h3>bool MoveFlags[];</h3>\nThe movement flags of the itemsprite. See `ITEMMV_` constants.\n#{ITEMMV_ constants|$[ITEMMV_]}\n<h3>int FakeZ;</h3>\nThe position of the itemsprite on the FakeZ axis.\n\n<h3>int FakeJump;</h3>\nThe velocity of the itemsprite in the FakeZ axis.\n"
+                        },
+                        {
+                            "name": "Sprite Limit ;; itemsprite::Max",
+                            "val": "<h3>int Max();</h3>\nReturns the max number of itemsprites currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of itemsprites allowed to a new value. Range `1-1024`.\n"
+                        },
+                        {
+                            "name": "Graphical Info ;; itemsprite::OriginalTile / itemsprite::Tile / itemsprite::CSet / itemsprite::NumFrames / itemsprite::Frame / itemsprite::ASpeed / itemsprite::AClock / itemsprite::Delay / itemsprite::Flash / itemsprite::FlashCSet / itemsprite::Flip",
+                            "val": "<h3>int OriginalTile;</h3>\nThe starting tile of the itemsprite's animation.\n\n<h3>int Tile;</h3>\nThe currently displaying tile of the itemsprite's animation. Set by the engine each frame if ${itemsprite::Animation|animation} is enabled.\n\n<h3>int CSet;</h3>\nThe CSet of the itemsprite.\n\n<h3>int NumFrames;</h3>\nThe number of frames in the itemsprite's animation.\n\n<h3>int Frame;</h3>\nThe current frame number that the animation is on.\n\n<h3>int ASpeed;</h3>\nThe speed of the animation, in frames per frame.\n\n<h3>int AClock;</h3>\nThe timer that ASpeed is used with.\n\n<h3>int Delay;</h3>\nThe number of delay frames at the start of the itemsprite's animation.\n\n<h3>bool Flash;</h3>\nIf the itemsprite is flashing or not. When flashing, it changes between its' CSet and FlashCSet.\n\n<h3>int FlashCSet;</h3>\nThe secondary CSet used for flashing.\n\n<h3>int Flip;</h3>\nThe flip status of the itemsprite's tile. Uses the [[`FLIP_`|$FLIP_]] constants.\n\n"
+                        },
+                        {
+                            "name": "Graphical Info 2 ;; itemsprite::ScriptTile / itemsprite::ScriptFlip / itemsprite::ShadowXOffset / itemsprite::ShadowYOffset / itemsprite::ShadowSprite / itemsprite::DrawStyle / itemsprite::Rotation / itemsprite::Scale / itemsprite::LightShape / itemsprite::LightRadius",
+                            "val": "<h3>int ScriptTile;</h3>\n-1 by default. If this is set > -1, this tile will be displayed by the engine, regardless of the normal engine animation. Set back to -1 to restore engine animation.\n\n<h3>int ScriptFlip;</h3>\n-1 by default. If this is set > -1, this flip value will be used instead of the normal 'Flip' value. Set back to -1 to restore normal flip.\n\n<h3>int ShadowXOffset;\nint ShadowYOffset;</h3>\nThe x/y offset of the sprite's shadow.\n\n<h3>int ShadowSprite;</h3>\nThe ${spritedata} sprite ID to use for the item's shadow.\n\n<h3>int DrawStyle;</h3>\nThe mode for the sprite's draws, using the `DS_` constants.\n#{DS_ constants|$[DS_]}\n<h3>float Rotation;</h3>\nA rotation of the sprite draw, in degrees.\n\n<h3>float Scale;</h3>\nA scale of the sprite draw, as a multiplier.\n\n<h3>int LightShape;</h3>\nThe shape of light emitted by this sprite. Uses the `LIGHT_` constants.\n#{LIGHT_ constants|$[LIGHT_]}\n<h3>int LightRadius;</h3>\nThe size of the light emitted by this sprite, in pixels.\n\n\n"
+                        },
+                        {
+                            "name": "Size Info ;; itemsprite::Extend / itemsprite::HitWidth / itemsprite::HitHeight / itemsprite::HitZHeight / itemsprite::TileWidth / itemsprite::TileHeight / itemsprite::DrawXOffset / itemsprite::DrawYOffset / itemsprite::DrawZOffset / itemsprite::HitXOffset / itemsprite::HitYOffset",
+                            "val": "<h3>int Extend;</h3>\nIf the item sprite should be extended (large). Set to 3 to extend, 0 otherwise.\n\n<h3>int HitWidth;\nint HitHeight;</h3>\nThe width/height of the hitbox, in pixels.\n\n<h3>int HitZHeight;</h3>\nThe height of the hitbox in the Z-axis, in pixels.\n\n<h3>int TileWidth;\nint TileHeight;</h3>\nThe width/height of the sprite's graphic, in tiles.\n\n<h3>int DrawXOffset;\nint DrawYOffset;</h3>\nThe visual offset, in pixels.\n\n<h3>int DrawZOffset;</h3>\nThe Z offset, in pixels.\n\n<h3>int HitXOffset;\nint HitYOffset;</h3>\nThe hitbox offset, in pixels.\n"
+                        },
+                        {
+                            "name": "--&gt; Next ;; itemsprite2",
                             "val": "$-1$1"
-                        },
-                        {
-                            "name": "More Under Construction....",
-                            "val": ""
                         }
                     ]
                 },
                 {
-                    "name": "1",
+                    "name": "Itemsprite 2",
                     "lines": [
                         {
-                            "name": "&lt;-- NPC Pointers",
-                            "val": "$-1$0"
+                            "name": "&lt;-- Sprite Pointers ;; function_data_sprite",
+                            "val": "$0$5"
                         },
                         {
-                            "name": "--",
-                            "val": "<h3>NPC Movement</h3>\n\nThese functions relate to npc movement."
+                            "name": "Pickup Info ;; itemsprite::Pickup / itemsprite::PickupString / itemsprite::PickupStringFlags",
+                            "val": "<h3>int Pickup;</h3>\nThe item pickup flags, as a bitwise flagset. Use the `IP_` constants to access. Take care when using any `INTERNAL` flags.\n#{IP_ constants|$[IP_]}\n\n<h3>int PickupString;</h3>\nThe message string to display upon picking up the item.\n\n<h3>int PickupStringFlags;</h3>\nThe flags associated with the pickup string, as bitwise flags. Use the `IPSTR_` constants to access this.\n\n"
                         },
                         {
-                            "name": "<u>Script Movement</u>",
-                            "val": ""
+                            "name": "Script Info ;; itemsprite::Script / itemsprite::InitD / itemsprite::Misc",
+                            "val": "<h3>int Script;</h3>\nThe itemsprite script running on this itemsprite.\n\n<h3>int InitD[8];</h3>\nThe 8 InitD[] arguments for the itemsprite script.\n\n<h3>int Misc[32];</h3>\nAn array of misc values for script use.\n"
                         },
                         {
-                            "name": "MoveXY",
-                            "val": "<h3>bool MoveXY(float dx, float dy, int special);\nbool CanMoveXY(float dx, float dy, int special);</h3>\n\nAttempts to move the enemy by 'dx' in the x direction and 'dy' in the y direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveXY' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                            "name": "Status ;; itemsprite::Falling / itemsprite::FallCombo / itemsprite::Drowning / itemsprite::DrownCombo / itemsprite::SwitchHooked / itemsprite::Switch",
+                            "val": "<h3>int Falling;</h3>\nThe timer indicating how long left the sprite will be falling. If 0, the sprite is not falling. Max value of 70, which is the value at the start of falling.\n\n<h3>int FallCombo;</h3>\nThe pitfall combo the sprite is falling into, if it is falling.\n\n<h3>int Drowning;</h3>\nThe timer indicating how long left the sprite will be drowning. If 0, the sprite is not drowning. Max value of 64, which is the value at the start of drowning.\n\n<h3>int DrownCombo;</h3>\nThe liquid combo the sprite is drowning in, if it is drowning.\n\n<h3>bool SwitchHooked;</h3>\nIf the sprite is currently being switch-hooked.\n\n<h3>bool Switch(int effect);</h3>\nSwitch the player with this sprite. Use the `SW_EFF_` constants for 'effect' to select a visual style for the switch.\nReturns true if it succeeds, and false otherwise.\n"
                         },
                         {
-                            "name": "Move",
-                            "val": "<h3>bool Move(int dir, float pxamnt, int special);\nbool CanMove(int dir, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'dir' direction, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMove' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
+                            "name": "Misc Info ;; itemsprite::Explode / itemsprite::Remove / itemsprite::DroppedBy / itemsprite::ForceGrab",
+                            "val": "<h3>void Explode(int mode);</h3>\nCreates an explosion particle effect in mode 0, 1, or 2 of the sprite.\n\n<h3>void Remove();</h3>\nInstantly deletes the itemsprite.\n\n<h3>int DroppedBy;</h3>\nThe dropset that this item was dropped by. Will be set for engine-dropped items, can be written by scripts as well.\n\n<h3>bool ForceGrab;</h3>\nIf set to true, the item will automatically be collected by the player as soon as possible.\n"
                         },
                         {
-                            "name": "MoveAtAngle",
-                            "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked."
-                        },
-                        {
-                            "name": "MovePaused",
-                            "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise."
-                        },
-                        {
-                            "name": "Knockback",
-                            "val": "<h3>bool Knockback(int time, int dir, int speed);</h3>\n\nAttempt to knock back the npc in 'dir' direction, for 'time' frames, at a rate of 'speed' pixels per frame.\n\nReturns true if successful, false if the enemy could not be knocked back.\n\nRelated: ${NoScriptKnockback|bool npc->NoScriptKnockback;}"
-                        },
-                        {
-                            "name": "<u>Variables</u>",
-                            "val": ""
-                        },
-                        {
-                            "name": "NoScriptKnockback",
-                            "val": "<h3>bool NoScriptKnockback;</h3>\n\nFalse by default. If set to 'true', scripted knockback via '${Knockback|npc->Knockback()}' is ignored."
+                            "name": "&lt;-- Prev ;; itemspriteptr",
+                            "val": "$-1"
                         }
                     ]
                 }
-            ],
-            "todo": true
+            ]
         },
         {
-            "name": "PalData",
-            "tabs": [],
-            "todo": true
+            "name": "ZInfo",
+            "tabs": [
+                {
+                    "name": "ZInfo ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Global Pointers ;; function_globalptr",
+                            "val": "$Base Data$3"
+                        },
+                        {
+                            "name": "<em>ZInfo</em> ;; zinfo",
+                            "val": "The `ZInfo-&gt;` pointer allows accessing zinfo strings.\n\n<todo>add more getter functions to `ZInfo-&gt;`</todo>\n"
+                        },
+                        {
+                            "name": "itemclass ;; ZInfo::GetItemClass",
+                            "val": "<h3>void GetItemClass(char32 [[buf[]|256 chars]], int itemclass_id);</h3>\nCopies the name of the specified itemclass (use `IC_` constants) into the buffer.\n"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "SpriteData",
-            "tabs": [],
-            "todo": true
+            "tabs": [
+                {
+                    "name": "SpriteData ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Misc Data Pointers ;; function_data_misc",
+                            "val": "$0$6"
+                        },
+                        {
+                            "name": "<em>spritedata</em> ;; spritedata",
+                            "val": "<h3>SpriteData Pointers</h3>   `spritedata`\n\nThese pointers represent the `Quest-&gt;Graphics-&gt;Sprites-&gt;Sprite Data` sprite information.\n\nSee: ${Game::LoadSpriteData|LoadSpriteData}"
+                        },
+                        {
+                            "name": "Data ;; spritedata::ID / spritedata::Tile / spritedata::CSet / spritedata::FlashCSet / spritedata::Frames / spritedata::Speed / spritedata::Flags / spritedata::Type",
+                            "val": "<h3>int ID;</h3>\nRead-only. The sprite ID this spritedata is associated with.\n\n<h3>int Tile;</h3>\nThe tile of the sprite.\n\n<h3>int CSet;</h3>\nThe cset of the sprite.\n\n<h3>int FlashCSet;</h3>\nThe flash cset of the sprite.\n\n<h3>int Frames;</h3>\nThe frame count of the sprite.\n\n<h3>int Speed;</h3>\nThe speed of the sprite, in frames per frame\n\n<h3>bool Flags[5];</h3>\nThe sprite's flags. Use the `SPRFL_` constants as indexes.\n#{SPRFL_ constants|$[SPRFL_]}\n<h3>int Type;</h3>\nThe 'Type' field of the sprite."
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "Game",
@@ -601,8 +877,8 @@
                             "val": "<h3>untyped Misc[32];\nuntyped Misc2[256];\nuntyped Misc3[256];</h3>\n\n3 misc data arrays."
                         },
                         {
-                            "name": "Basic Loaders ;; Game::LoadGenericData / Game::LoadBottleShopData / Game::LoadBottleData / Game::LoadDropset / Game::LoadDMapData / Game::LoadMessageData / Game::LoadInfoShopData / Game::LoadShopData / Game::LoadSpriteData / Game::LoadComboData / Game::LoadNPCData / Game::LoadItemData ;; LoadItemData / LoadNPCData / LoadComboData / LoadSpriteData / LoadShopData / LoadInfoShopData / LoadMessageData / LoadDMapData / LoadDropset / LoadBottleData / LoadBottleShopData / LoadGenericData",
-                            "val": "<h3>${itemdata} LoadItemData(int item_id);</h3>\n<h3>${npcdata} LoadNPCData(int npc_id);</h3>\n<h3>${combodata} LoadComboData(int combo_id);</h3>\n<h3>${spritedata} LoadSpriteData(int misc_spr_id);</h3>\n<h3>${shopdata} LoadShopData(int shop_id);</h3>\n<h3>${shopdata} LoadInfoShopData(int shop_id);</h3>\n<h3>${messagedata} LoadMessageData(int string_id);</h3>\n<h3>${dmapdata} LoadDMapData(int dmap_id);</h3>\n<h3>${dropsetdata} LoadDropset(int dropset_id);</h3>\n<h3>${bottledata} LoadBottleData(int bottle_type_id);</h3>\n<h3>${bottleshopdata} LoadBottleShopData(int bottleshop_id);</h3>\n<h3>${genericdata} LoadGenericData(int generic_script_id);</h3>\n\nThese functions load the specified pointer, returning `NULL` on a failure."
+                            "name": "Basic Loaders ;; Game::LoadGenericData / Game::LoadBottleShopData / Game::LoadBottleData / Game::LoadDropset / Game::LoadDMapData / Game::LoadMessageData / Game::LoadInfoShopData / Game::LoadShopData / Game::LoadSpriteData / Game::LoadComboData / Game::LoadNPCData / Game::LoadItemData",
+                            "val": "<mono>\n<h3>${itemdata}       LoadItemData       (int item_id);</h3>\n<h3>${npcdata}        LoadNPCData        (int npc_id);</h3>\n<h3>${combodata}      LoadComboData      (int combo_id);</h3>\n<h3>${spritedata}     LoadSpriteData     (int misc_spr_id);</h3>\n<h3>${shopdata}       LoadShopData       (int shop_id);</h3>\n<h3>${shopdata}       LoadInfoShopData   (int shop_id);</h3>\n<h3>${messagedata}    LoadMessageData    (int string_id);</h3>\n<h3>${dmapdata}       LoadDMapData       (int dmap_id);</h3>\n<h3>${dropsetdata}    LoadDropset        (int dropset_id);</h3>\n<h3>${bottledata}     LoadBottleData     (int bottle_type_id);</h3>\n<h3>${bottleshopdata} LoadBottleShopData (int bottleshop_id);</h3>\n<h3>${genericdata}    LoadGenericData    (int generic_script_id);</h3></mono>\n\nThese functions load the specified pointer, returning `NULL` on a failure."
                         },
                         {
                             "name": "Other Loaders ;; Game::LoadStack / Game::LoadRNG / Game::LoadBitmapID / Game::CreateBitmap / Game::AllocateBitmap / Game::LoadScrollingScreen / Game::LoadTempScreen / Game::LoadMapData ;; LoadMapData / LoadTempScreen / LoadScrollingScreen / LoadBitmapID / CreateBitmap / AllocateBitmap / LoadRNG / LoadStack",
@@ -1067,7 +1343,7 @@
                         },
                         {
                             "name": "<em>genericdata</em>",
-                            "val": "<h3>GenericData Pointers</h3>   `genericdata`\n\n`genericdata` pointers allow interacting with and running `generic` scripts.\n\nSee: ${LoadGenericData}, ${WaitTo}, ${WaitEvent}"
+                            "val": "<h3>GenericData Pointers</h3>   `genericdata`\n\n`genericdata` pointers allow interacting with and running `generic` scripts.\n\nSee: ${Game::LoadGenericData|LoadGenericData}, ${WaitTo}, ${WaitEvent}"
                         },
                         {
                             "name": "Script Running ;; genericdata::Running / genericdata::RunFrozen / genericdata::ExitState / genericdata::ReloadState",
@@ -1401,7 +1677,7 @@
                         },
                         {
                             "name": "<em>bottledata</em>",
-                            "val": "<h3>BottleData Pointers</h3>   `bottledata`\n\n`bottledata` pointers allow accessing data relating to 'Bottle Types'.\n\nSee: ${LoadBottleData}"
+                            "val": "<h3>BottleData Pointers</h3>   `bottledata`\n\n`bottledata` pointers allow accessing data relating to 'Bottle Types'.\n\nSee: ${Game::LoadBottleData|LoadBottleData}"
                         },
                         {
                             "name": "Name ;; bottledata::name / bottledata::GetName / bottledata::SetName",
@@ -1443,7 +1719,7 @@
                         },
                         {
                             "name": "<em>bottleshopdata</em>",
-                            "val": "<h3>BottleShopData Pointers</h3>   `bottleshopdata`\n\n`bottleshopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${LoadBottleShopData}\n\nRelated: ${bottledata}"
+                            "val": "<h3>BottleShopData Pointers</h3>   `bottleshopdata`\n\n`bottleshopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${Game::LoadBottleShopData|LoadBottleShopData}\n\nRelated: ${bottledata}"
                         },
                         {
                             "name": "Name ;; bottleshopdata::GetName / bottleshopdata::SetName",
@@ -1485,7 +1761,7 @@
                         },
                         {
                             "name": "<em>dropsetdata</em>",
-                            "val": "<h3>DropsetData Pointers</h3>   `dropsetdata`\n\n`dropsetdata` pointers allow accessing dropsets, and using them to pick random items.\n\nSee: ${LoadDropset}"
+                            "val": "<h3>DropsetData Pointers</h3>   `dropsetdata`\n\n`dropsetdata` pointers allow accessing dropsets, and using them to pick random items.\n\nSee: ${Game::LoadDropset|LoadDropset}\n\n<todo>Name getter/setter, Create(x,y,z=0)</todo>\n"
                         },
                         {
                             "name": "Choose ;; dropsetdata::Choose",
@@ -1519,7 +1795,7 @@
                         },
                         {
                             "name": "<em>messagedata</em>",
-                            "val": "<h3>MessageData Pointers</h3>   `messagedata`\n\n`messagedata` pointers allow accessing and editing ${message strings}.\n\nSee: ${LoadMessageData}"
+                            "val": "<h3>MessageData Pointers</h3>   `messagedata`\n\n`messagedata` pointers allow accessing and editing ${message strings}.\n\nSee: ${Game::LoadMessageData|LoadMessageData}"
                         },
                         {
                             "name": "Message ;; messagedata::Get / messagedata::Set / messagedata::Length",
@@ -1581,7 +1857,7 @@
                         },
                         {
                             "name": "<em>shopdata</em>",
-                            "val": "<h3>ShopData Pointers</h3>   `shopdata`\n\n`shopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${LoadShopData}, ${LoadInfoShopData}"
+                            "val": "<h3>ShopData Pointers</h3>   `shopdata`\n\n`shopdata` pointers allow accessing data relating to 'Bottle Shop Types'.\n\nSee: ${Game::LoadShopData|LoadShopData}, ${Game::LoadInfoShopData|LoadInfoShopData}"
                         },
                         {
                             "name": "Type ;; shopdata::Type",
@@ -2266,7 +2542,7 @@
                     },
                     {
                         "name": "OBJTYPE_",
-                        "val": "<ol start=\"0\"><li>OBJTYPE_NPC</li>\r\n<li>OBJTYPE_LWPN</li>\r\n<li>OBJTYPE_EWPN</li>\r\n<li>OBJTYPE_ITSPR</li>\r\n<li>OBJTYPE_COMBODATA</li></ol>"
+                        "val": "<ol start=\"0\"><li>OBJTYPE_NPC</li>\n<li>OBJTYPE_LWPN</li>\n<li>OBJTYPE_EWPN</li>\n<li>OBJTYPE_ITSPR</li>\n<li>OBJTYPE_COMBODATA</li></ol>"
                     },
                     {
                         "name": "Unblockable",
@@ -2275,6 +2551,18 @@
                     {
                         "name": "Trigger Requirement",
                         "val": "This condition does not trigger the combo itself- instead, when something tries to trigger this combo, it must ALSO pass this condition.\nTo make this act as a trigger in itself, combine with the 'Always Triggered' (`TRIGFLAG_AUTO`) flag."
+                    },
+                    {
+                        "name": "CHRT_",
+                        "val": "<mono>CHRT_VISITED = 10000000b\nCHRT_UP      = 00000001b\nCHRT_DOWN    = 00000010b\nCHRT_LEFT    = 00000100b\nCHRT_RIGHT   = 00001000b</mono>"
+                    },
+                    {
+                        "name": "DMAP_",
+                        "val": "<ol start=\"0\"><li>DMAP_DUNGEON</li>\n<li>DMAP_OVERWORLD</li>\n<li>DMAP_CAVE</li>\n<li>DMAP_BSOVERWORLD</li></ol>\n"
+                    },
+                    {
+                        "name": "FLIP_",
+                        "val": "<mono>FLIP_NONE        = 0\nFLIP_HORIZONTAL  = 1\nFLIP_VERTICAL    = 2\nFLIP_HV          = 3\nFLIP_VH          = 3\nFLIP_BOTH        = 3\n//rotation and flip\nROT_CW           = 4\nROT_CW_FLIP      = 5\nROT_CCW_FLIP     = 6\nROT_CCW          = 7</mono>\n"
                     }
                 ]
             },
@@ -2308,6 +2596,66 @@
                     {
                         "name": "LF_",
                         "val": "Indexes for `combodata-&gt;LiftFlags[]`\n<ol start='0'><li>[[LF_LIFTABLE|Combo can be lifted]]</li>\n<li>[[LF_DROPSET|The `LiftItem` is a dropset instead of an item ID]]</li>\n<li>[[LF_DROPONLIFT|The `LiftItem` is dropped on lift, instead of break.]]</li>\n<li>[[LF_SPECIALITEM|The `LiftItem` is the room's special item.]]</li>\n<li>[[LF_NOUCSET|Leaves the combo's CSet behind, instead of the UnderCSet.]]</li>\n<li>[[LF_NOWPNCMBCSET|Uses the combo's CSet, instead of the `LiftGFXCSet`]]</li>\n<li>[[LF_BREAKONSOLID|The weapon breaks upon colliding with a solid object, instead of going through solids.]]</li></ol>"
+                    },
+                    {
+                        "name": "DMFS_",
+                        "val": "Indexes for `dmapdata-&gt;Flagset[]`\n<ol start='0'><li>[[DMFS_CAVESNOTCELLARS|Use Caves Instead Of Item Cellars]]</li>\n<li>[[DMFS_3STAIRWARPS|Allow 3-Stair Warp Rooms]]</li>\n<li>[[DMFS_WWIND|Allow Whistle Whirlwinds]]</li>\n<li>[[DMFS_GUYCAVES|Special Rooms and Guys Are In Caves Only]]</li>\n<li>[[DMFS_NOCOMPASS|Don't Display Compass Marker On Minimap]]</li>\n<li>[[DMFS_WAVY|Underwater Wave Effect]]</li>\n<li>[[DMFS_WWINDRET|Whistle Whirlwind Returns Player To Start]]</li>\n<li>[[DMFS_ALWAYSINTROMSG|Always Display Intro String]]</li>\n<li>[[DMFS_VIEWMAP|View Overworld Map By Pressing 'Map']]</li>\n<li>[[DMFS_DMAPMAP|...But Only Show Screens Marked In Minimap]]</li>\n<li>[[DMFS_MINIMAPCOLORFIX|Use Minimap Foreground Color 2]]</li>\n<li>[[DMFS_SCRIPT1|Script 1]]</li>\n<li>[[DMFS_SCRIPT2|Script 2]]</li>\n<li>[[DMFS_SCRIPT3|Script 3]]</li>\n<li>[[DMFS_SCRIPT4|Script 4]]</li>\n<li>[[DMFS_SCRIPT5|Script 5]]</li>\n<li>[[DMFS_SIDEVIEW|Sideview (same as `bool Sideview;`)]]</li>\n<li>[[DMFS_LAYER3ISBACKGROUND|Layer 3 is Background on All Screens]]</li>\n<li>[[DMFS_LAYER2ISBACKGROUND|Layer 2 is Background on All Screens]]</li>\n<li>[[DMFS_TRUECELLARENEMIES|Use Enemy List for Cellar Enemies]]</li>\n<li>[[DMFS_BUNNY|Become Bunny with no Pearl]]</li>\n<li>[[DMFS_MIRRORCONTINUE|Mirror Continues instead of Warping]]</li></ol>"
+                    },
+                    {
+                        "name": "ISCR_",
+                        "val": "Modes for `itemdata-&gt;RunScript()`\n<ol start='0'><li>[[ISCR_KILL|Ends the item script if it was running]]</li>\n<li>[[ISCR_RUN|Runs the item script normally]]</li>\n<li>[[ISCR_PERPETUAL|Runs the item script allowing it to run for multiple frames even if the QR 'Item Scripts Continue To Run' is off.\nYou probably don't ever need this? Most quests should just have that QR on...]]</li></ol>"
+                    },
+                    {
+                        "name": "IP_",
+                        "val": "Flags for `itemdata-&gt;Pickup` and `itemsprite-&gt;Pickup`\n<mono>[[IP_BIGRANGE       = 0x0001|INTERNAL Collision rectangle is large]]\n[[IP_HOLDUP         = 0x0002|Link holds it up when collecting it.]]\n[[IP_ST_ITEM        = 0x0004|Sets the screen state \"Item\" when collected.]]\n[[IP_DUMMY          = 0x0008|A 'dummy' item, such as rupee markers in shops. Can't be collected and ignores gravity.]]\n[[IP_CHECK          = 0x0010|INTERNAL Check restrictions (money in a shop, etc.)]]\n[[IP_MONEY          = 0x0020|INTERNAL This item causes money loss (bomb upgrade, swindle room, etc.)]]\n[[IP_FADE           = 0x0040|INTERNAL Blinks if fadeclk>0]]\n[[IP_ENEMYCARRIED   = 0x0080|The item-carrying NPC carries it. If no NPC has an item, the most recently created NPC carries it.]]\n[[IP_TIMEOUT        = 0x0100|Disappears after 512 frames. Can be collected by melee weapons if the related quest rule is not set.]]\n[[IP_BIGTRIFORCE    = 0x0200|INTERNAL Large collision rectangle (used for large triforce)]]\n[[IP_NODRAW         = 0x0400|INTERNAL Don't draw this (for underwater items)]]\n[[IP_ST_SPECIALITEM = 0x0800|Sets the screen state \"Special Item\" when collected.]]\n[[IP_TRIGGERSECRETS = 0x1000| Triggers screen secrets when collected]]\n[[IP_ALWAYSGRAB     = 0x2000| Item is always able to be picked up (ex. brang/hshot/arrows/melee weapons)]]</mono>"
+                    },
+                    {
+                        "name": "IPTYPE_",
+                        "val": "Flags for `itemdata-&gt;PickupType`\n<ol start=\"0\"><li>[[IPTYPE_DISABLED|Item pickup flags are not applied]]</li>\n<li>[[IPTYPE_SET|Overrides all pickup flags to these exact settings. WARNING: Do not select this unless you know what you are doing.]]</li>\n<li>[[IPTYPE_ADD|Add the selected pickup flags.]]</li>\n<li>[[IPTYPE_SUB|Remove the selected pickup flags.]]</li>\n<li>[[IPTYPE_LIMIT|Remove any non-selected pickup flags. WARNING: Do not select this unless you know what you are doing.]]</li></ol>"
+                    },
+                    {
+                        "name": "IMISC_",
+                        "val": "Flags for `itemdata-&gt;MiscFlags`\n<mono>[[IMISC_FLASH   = 0x01|The item flashes]]\n[[IMISC_TWOHAND = 0x02|When held up, the item is held with 2 hands]]\n[[IMISC_HFLIP   = 0x04|Flips the tile horizontally]]\n[[IMISC_VFLIP   = 0x08|Flips the tile vertically]]\n</mono>"
+                    },
+                    {
+                        "name": "SZFLAG_",
+                        "val": "Flags for `itemdata-&gt;SizeFlags` and `itemdata-&gt;WeaponSizeFlags`\n<mono>SZFLAG_TILEHEIGHT     = 0x0002\nSZFLAG_HIT_WIDTH      = 0x0004\nSZFLAG_HIT_HEIGHT     = 0x0008\nSZFLAG_HIT_Z_HEIGHT   = 0x0010\nSZFLAG_HIT_X_OFFSET   = 0x0020\nSZFLAG_HIT_Y_OFFSET   = 0x0040\nSZFLAG_DRAW_X_OFFSET  = 0x0080\nSZFLAG_DRAW_Y_OFFSET  = 0x0100\nSZFLAG_DRAW_Z_OFFSET  = 0x0200\nSZFLAG_ALL            = 0x03FF</mono>"
+                    },
+                    {
+                        "name": "SPRFL_",
+                        "val": "Indexes for `spritedata-&gt;Flags[]`\n<ol start=\"0\"><li>SPRFL_AUTOFLASH</li>\n<li>SPRFL_2PFLASH</li>\n<li>SPRFL_HFLIP</li>\n<li>SPRFL_VFLIP</li>\n<li>SPRFL_BEHIND</li></ol>"
+                    },
+                    {
+                        "name": "ITEMMV_",
+                        "val": "Indexes for `itemsprite-&gt;MoveFlags`\n<ol start=\"0\"><li>[[ITEMMV_OBEYS_GRAVITY|If the item is affected by gravity.]]</li>\n<li>[[ITEMMV_CAN_PITFALL|If the item can fall in pitfalls.]]</li>\n<li value=\"8\">[[ITEMMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[ITEMMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n"
+                    },
+                    {
+                        "name": "WPNMV_",
+                        "val": "Indexes for `lweapon-&gt;MoveFlags` and `eweapon-&gt;MoveFlags`\n<ol start=\"0\"><li>[[WPNMV_OBEYS_GRAVITY|If the weapon is affected by gravity.]]</li>\n<li>[[WPNMV_CAN_PITFALL|If the weapon can fall in pitfalls.]]</li>\n<li value=\"8\">[[WPNMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[WPNMV_NO_REAL_Z|If the Z axis is disabled.]]</li></ol>\n\n"
+                    },
+                    {
+                        "name": "NPCMV_",
+                        "val": "Indexes for `npc-&gt;MoveFlags` and `npcdata-&gt;MoveFlags`\n<ol start=\"0\"><li>[[NPCMV_OBEYS_GRAVITY|If the npc is affected by gravity.]]</li>\n<li>[[NPCMV_CAN_PITFALL|If the npc can fall in pitfalls.]]</li>\n<li>[[NPCMV_CAN_PIT_WALK|If the npc can walk into pitfalls]]</li>\n<li>[[NPCMV_CAN_WATERDROWN|If the npc can drown in water]]</li>\n<li>[[NPCMV_CAN_WATER_WALK|If the npc can walk into water]]</li>\n<li>[[NPCMV_ONLY_WATER_WALK|If the npc has limited movement, restricted to water]]</li>\n<li>[[NPCMV_ONLY_SHALLOW_WATER_WALK|If the npc has limited movement, restricted to shallow water]]</li>\n<li>[[NPCMV_ONLY_PIT_WALK|If the npc has limited movement, restricted to pitfalls]]</li>\n<li>[[NPCMV_NO_FAKE_Z|If the FakeZ axis is disabled.]]</li>\n<li>[[NPCMV_NO_REAL_Z|If the Z axis is disabled.]]</li>\n<li>[[NPCMV_USE_FAKE_Z|If the npc should use the FakeZ axis]]</li>\n<li>[[NPCMV_IGNORE_SOLIDITY|If the npc should ignore solidity]]</li>\n<li>[[NPCMV_IGNORE_BLOCKFLAGS|If the npc should ignore flags that would block it, such as `No Enemies` flags]]</li>\n<li>[[NPCMV_IGNORE_SCREENEDGE|If the npc should treat the edge of the screen as a non-boundary]]</li>\n<li>[[NPCMV_USE_SCRIPTED_MOVEMENT_ENGINE|If the npc's engine movement should use the script movement flags]]</li>\n<li>[[NPCMV_NOT_PUSHABLE_BY_SOLIDS|If the npc is immune to being pushed by moving solids]]</li></ol>\n"
+                    },
+                    {
+                        "name": "DS_",
+                        "val": "Values for `itemsprite-&gt;DrawStyle`\n<ol start=\"0\"><li>[[DS_NORMAL|Draw the sprite normally.]]</li>\n<li>[[DS_PHANTOM|Draw the sprite transparently.]]</li>\n<li>[[DS_CLOAKED|Draw the sprite cloaked (invisible).]]</li>\n<li>[[DS_LINK|Draw the sprite normally, used for the player.]]</li></ol>\n"
+                    },
+                    {
+                        "name": "LIGHT_",
+                        "val": "The light shapes for dark rooms.\n<ol start=\"0\"><li>[[LIGHT_CIRCLE|Emit light in a circle around the sprite. The radius is the circle's radius.]]</li>\n<li>[[LIGHT_CONE|Emit light in a directional cone in the facing direction. The radius is the length of the cone.]]</li></ol>\n"
+                    },
+                    {
+                        "name": "UNBLOCK_",
+                        "val": "Flags for `lweapon-&gt;Unblockable` and `eweapon-&gt;Unblockable`\n<mono>UNBLOCK_NONE   = 0000b\nUNBLOCK_NORM   = 0001b\nUNBLOCK_IGNR   = 0010b\nUNBLOCK_SHLD   = 0100b\nUNBLOCK_REFL   = 1000b\nUNBLOCK_ALL    = 1111b</mono>\n"
+                    },
+                    {
+                        "name": "WFLAG_",
+                        "val": "Flags for `lweapon-&gt;Flags[]` and `eweapon-&gt;Flags[]`\n<ol start=\"0\"><li>[[WFLAG_PICKUP_ITEMS|If true, the weapon collects any items it touches, similar to engine melee weapons.]]</li></ol>\n\n"
+                    },
+                    {
+                        "name": "SHLD_",
+                        "val": "Indexes for `npc-&gt;Shield[]`\n<ol start=\"0\"><li>[[SHLD_FRONT|If true, the enemy's front is shielded.]]</li>\n<li>[[SHLD_BACK|If true, the enemy's back is shielded.]]</li>\n<li>[[SHLD_LEFT|If true, the enemy's left is shielded.]]</li>\n<li>[[SHLD_RIGHT|If true, the enemy's right is shielded.]]</li>\n<li>[[SHLD_CAN_BREAK|If true, the enemy's shield is breakable.]]</li></ol>"
                     }
                 ]
             }

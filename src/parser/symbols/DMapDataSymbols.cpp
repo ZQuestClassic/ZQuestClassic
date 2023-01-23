@@ -4,16 +4,15 @@ DMapDataSymbols DMapDataSymbols::singleton = DMapDataSymbols();
 
 static AccessorTable DMapDataTable[] =
 {
-//	All of these return a function label error when used:
 	//name,                       tag,            rettype,   var,               funcFlags,  params,optparams
-	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "GetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "GetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "GetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "SetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "GetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetTitle",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "GetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetIntro",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "GetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
+	{ "SetMusic",                   0,          ZTID_VOID,   -1,                        0,  { ZTID_DMAPDATA, ZTID_CHAR },{} },
 	//
 	{ "getID",                      0,         ZTID_FLOAT,   DMAPDATAID,                0,  { ZTID_DMAPDATA },{} },
 	{ "getMap",                     0,         ZTID_FLOAT,   DMAPDATAMAP,               0,  { ZTID_DMAPDATA },{} },
@@ -40,10 +39,6 @@ static AccessorTable DMapDataTable[] =
 	{ "setActiveSubscreen",         0,          ZTID_VOID,   DMAPDATASUBSCRA,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getPassiveSubscreen",        0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
 	{ "setPassiveSubscreen",        0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-//	{ "getGravity[]",               0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
-//	{ "setGravity[]",               0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-//	{ "getJumpThreshold",           0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
-//	{ "setJumpThreshold",           0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getGrid[]",                  0,         ZTID_FLOAT,   DMAPDATAGRID,              0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setGrid[]",                  0,          ZTID_VOID,   DMAPDATAGRID,              0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getMiniMapTile[]",           0,         ZTID_FLOAT,   DMAPDATAMINIMAPTILE,       0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
@@ -57,10 +52,8 @@ static AccessorTable DMapDataTable[] =
 	{ "setMapTile[]",               0,          ZTID_VOID,   DMAPDATALARGEMAPTILE,      0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getMapCSet[]",               0,         ZTID_FLOAT,   DMAPDATALARGEMAPCSET,      0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setMapCSet[]",               0,          ZTID_VOID,   DMAPDATALARGEMAPCSET,      0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "getDisabledItems[]",         0,         ZTID_FLOAT,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
-	{ "setDisabledItems[]",         0,          ZTID_VOID,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "getFlags",                   0,         ZTID_FLOAT,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA },{} },
-	{ "setFlags",                   0,          ZTID_VOID,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "getDisabledItems[]",         0,          ZTID_BOOL,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "setDisabledItems[]",         0,          ZTID_VOID,   DMAPDATADISABLEDITEMS,     0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getFlagset[]",               0,         ZTID_FLOAT,   DMAPDATAFLAGARR,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setFlagset[]",               0,          ZTID_VOID,   DMAPDATAFLAGARR,           0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
@@ -80,6 +73,13 @@ static AccessorTable DMapDataTable[] =
 	{ "getCharted[]",               0,         ZTID_FLOAT,   DMAPDATACHARTED,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setCharted[]",               0,          ZTID_VOID,   DMAPDATACHARTED,           0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
+	{ "getMirrorDMap",              0,         ZTID_FLOAT,   DMAPDATAMIRRDMAP,          0,  { ZTID_DMAPDATA },{} },
+	{ "setMirrorDMap",              0,          ZTID_VOID,   DMAPDATAMIRRDMAP,          0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	
+	//Intentionally undocumented
+	{ "getFlags",                   0,         ZTID_FLOAT,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA },{} },
+	{ "setFlags",                   0,          ZTID_VOID,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
@@ -91,5 +91,118 @@ DMapDataSymbols::DMapDataSymbols()
 
 void DMapDataSymbols::generateCode()
 {
+	//void GetName(dmapdata, char)
+	{
+		Function* function = getFunction("GetName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetNameRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetName(bottledata, char)
+	{
+		Function* function = getFunction("SetName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetNameRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetTitle(dmapdata, char)
+	{
+		Function* function = getFunction("GetTitle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetTitleRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetTitle(bottledata, char)
+	{
+		Function* function = getFunction("SetTitle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetTitleRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetIntro(dmapdata, char)
+	{
+		Function* function = getFunction("GetIntro");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetIntroRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetIntro(bottledata, char)
+	{
+		Function* function = getFunction("SetIntro");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetIntroRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetMusic(dmapdata, char)
+	{
+		Function* function = getFunction("GetMusic");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataGetMusicRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetMusic(bottledata, char)
+	{
+		Function* function = getFunction("SetMusic");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new ODMapDataSetMusicRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
 }
 
