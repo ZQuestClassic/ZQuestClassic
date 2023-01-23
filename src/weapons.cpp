@@ -6760,7 +6760,10 @@ bool weapon::animate(int32_t index)
 	if(misc_wflags & WFLAG_BREAK_ON_SOLID)
 	{
 		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
+		{
 			dead = 0;
+			findcombotriggers(); //Hit solid triggers
+		}
 	}
 	
 	if(bounce)
