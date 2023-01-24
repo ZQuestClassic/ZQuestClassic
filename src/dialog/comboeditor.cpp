@@ -450,7 +450,7 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp = "If all targets onscreen are lit by light beams, secrets will be triggered.";
 			break;
 		case cCSWITCH:
-			typehelp = "Switch combos, when triggered (Triggers tab), toggle a switch state for the current 'level'."
+			typehelp = "Switch combos, when triggered (Triggers tab w/ 'ComboType Effects' checked), toggle a switch state for the current 'level'."
 				" These states affect Switchblock combos in any dmaps of the same level, and are saved between sessions."
 				" If the 'Use Global State' flag is set, a set of 256 global states shared between levels will be used instead.";
 			break;
