@@ -18088,11 +18088,6 @@ void HeroClass::checkpushblock()
 		int32_t f = MAPFLAG2(lyr-1,bx,by);
 		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
 		int32_t t = lyr == 0 ? combobuf[MAPCOMBO(bx,by)].type : combobuf[MAPCOMBOL(lyr,bx,by)].type;
-
-		if (replay_get_frame() > 11790 && replay_get_frame() < 11900)
-		{
-			replay_step_comment(fmt::format("checkpushblock layer {} {} {} {}", lyr, f, f2, t));
-		}
 		
 		if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) continue;
 		
@@ -18179,10 +18174,6 @@ void HeroClass::checkpushblock()
 		
 		if(doit)
 		{
-			if (replay_get_frame() > 11790 && replay_get_frame() < 11900)
-			{
-				replay_step_comment(fmt::format("checkpushblock layer {} doit", lyr));
-			}
 			if(limitedpush)
 				++usecounts[itemid];
 			

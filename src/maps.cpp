@@ -730,32 +730,22 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
+	// TODO z3 !
 	// DCHECK(layer >= 1 && layer <= 6);
 
 	int r = 0;
-	int32_t combo = COMBOPOS(x%256, y%176);
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h || layer <= 0)
 	{
-		r = 0;
+		return 0;
 	}
-	else
-	{
-		mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
-		if (!m->valid) {
-			r = 0;
-		}
-		else
-		{
-			r = m->data[combo];
-		}
+
+	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
+	if (!m->valid) {
+		return 0;
 	}
-	
-	if (replay_get_frame() > 11790 && replay_get_frame() < 11900)
-	{
-		replay_step_comment(fmt::format("MAPCOMBOL {} {} {} {} {}", layer, x, y, combo, r));
-	}
-    
-    return r;
+
+	int32_t combo = COMBOPOS(x%256, y%176);
+	return m->data[combo];
 }
 
 int32_t MAPCSETL(int32_t layer,int32_t x,int32_t y)
@@ -858,10 +848,6 @@ int32_t MAPFLAG(int32_t x, int32_t y)
 		return 0;
 	mapscr* scr = get_screen_for_world_xy(x, y);
 	int32_t combo = COMBOPOS(x%256, y%176);
-	if (replay_get_frame() > 11790 && replay_get_frame() < 11900)
-	{
-		replay_step_comment(fmt::format("MAPFLAG {} {} {} {}", x, y, combo, scr->sflag[combo]));
-	}
 	return scr->sflag[combo];
 }
 

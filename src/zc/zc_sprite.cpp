@@ -313,6 +313,9 @@ bool movingblock::animate(int32_t)
 	
 	if(--clk==0)
 	{
+		// TODO z3 just set pos handle to this above.
+		auto base_pos_handle = get_pos_handle_for_world_xy(x, y, 0);
+
 		trigger = false; bhole = false;
 		blockmoving=false;
 		
@@ -518,34 +521,34 @@ bool movingblock::animate(int32_t)
 				}
 			}
 			
-			if(hiddenstair2(pos_handle.screen,true))
+			if(hiddenstair2(base_pos_handle.screen,true))
 			{
-				sfx(pos_handle.screen->secretsfx);
+				sfx(base_pos_handle.screen->secretsfx);
 			}
 			else
 			{
-				trigger_secrets_for_screen(pos_handle.screen_index, true);
+				trigger_secrets_for_screen(base_pos_handle.screen_index, true);
 				
 				if((combobuf[bcombo].type == cPUSH_WAIT) ||
 						(combobuf[bcombo].type == cPUSH_HW) ||
 						(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 				{
-					sfx(pos_handle.screen->secretsfx);
+					sfx(base_pos_handle.screen->secretsfx);
 				}
 			}
 			
-			if (isdungeon() && pos_handle.screen->flags&fSHUTTERS)
+			if (isdungeon() && base_pos_handle.screen->flags&fSHUTTERS)
 			{
 				opendoors=8;
 			}
 			
-			if(canPermSecret(currdmap, pos_handle.screen_index))
+			if(canPermSecret(currdmap, base_pos_handle.screen_index))
 			{
 				if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 					(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 						|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 				{
-					if (!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
+					if (!(base_pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag2(base_pos_handle.screen, base_pos_handle.screen_index, mSECRET);
 				}
 			}
 		}

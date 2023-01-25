@@ -33584,6 +33584,8 @@ void replay_step_comment(std::string comment) {}
 bool replay_is_active() {return false;}
 int replay_get_version() {return 0;}
 bool replay_is_debug() {return false;}
+// TODO z3 !
+int32_t homescr, currscr, currscr_for_passive_subscr;
 
 #ifdef __EMSCRIPTEN__
 extern "C" void open_test_mode()
