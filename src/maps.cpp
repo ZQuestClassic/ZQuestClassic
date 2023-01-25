@@ -5662,6 +5662,22 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
 
+	for (word x=0; x<animated_combos; x++)
+	{
+		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
+		{
+			combobuf[animated_combo_table4[x][0]].aclk = 0;
+		}
+	}
+	for (word x=0; x<animated_combos2; x++)
+	{
+		if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
+		{
+			combobuf[animated_combo_table24[x][0]].aclk = 0;
+		}
+	}
+	reset_combo_animations2();
+
 	homescr = scr >= 0x80 ? currscr : scr;
 	currscr_for_passive_subscr = -1;
 	currscr = scr;
