@@ -20959,7 +20959,7 @@ void HeroClass::checkspecial()
 		}
 
 		int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-		clear_xstatecombos2(z3_scr, scr, mi);
+		clear_xstatecombos2(z3_scr, scr, mi, true);
 	});
 	
 	if((hasitem&8) && triggered_screen_secrets)

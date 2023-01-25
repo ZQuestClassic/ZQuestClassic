@@ -740,7 +740,8 @@ int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 	}
 
 	mapscr* m = get_layer_scr_for_xy(x, y, layer - 1);
-	if (!m->valid) {
+	if (!m->valid)
+	{
 		return 0;
 	}
 
