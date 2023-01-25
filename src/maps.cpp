@@ -1446,7 +1446,7 @@ int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
     return (QMisc.warp[ring].dmap[index] << 8) + QMisc.warp[ring].scr[index];
 }
 
-void update_combo_cycling()
+static void update_combo_cycling(mapscr* scr)
 {
     int32_t x,y;
     y = 0;
@@ -1469,14 +1469,16 @@ void update_combo_cycling()
             newcset2[i]=-1;
         }
         
+		// TODO z3 ! can rm these two lines
         memset(restartanim, 0, MAXCOMBOS);
         memset(restartanim2, 0, MAXCOMBOS);
         initialized=true;
     }
     
+	// TODO z3 these next two loops could be combined.
     for(int32_t i=0; i<176; i++)
     {
-        x=tmpscr.data[i];
+        x=scr->data[i];
         //y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
@@ -1500,7 +1502,7 @@ void update_combo_cycling()
     
     for(int32_t i=0; i<176; i++)
     {
-        x=tmpscr.data[i];
+        x=scr->data[i];
         //y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
@@ -1527,20 +1529,20 @@ void update_combo_cycling()
         if(newdata[i]==-1)
             continue;
             
-        screen_combo_modify_preroutine(&tmpscr,i);
-        tmpscr.data[i]=newdata[i];
+        screen_combo_modify_preroutine(scr,i);
+        scr->data[i]=newdata[i];
 		if(newcset[i]>-1)
-			tmpscr.cset[i]=newcset[i];
-        screen_combo_modify_postroutine(&tmpscr,i);
+			scr->cset[i]=newcset[i];
+        screen_combo_modify_postroutine(scr,i);
         
         newdata[i]=-1;
         newcset[i]=-1;
     }
     
-	word c = tmpscr.numFFC();
+	word c = scr->numFFC();
     for(word i=0; i<c; i++)
     {
-		ffcdata& ffc = tmpscr.ffcs[i];
+		ffcdata& ffc = scr->ffcs[i];
 		newcombo const& cmb = combobuf[ffc.getData()];
         
 		bool fresh = cmb.animflags & AF_FRESH;
@@ -1567,6 +1569,7 @@ void update_combo_cycling()
         {
             for(int32_t i=0; i<176; i++)
             {
+				// TODO z3 !
                 x=(tmpscr2+j)->data[i];
                // y=animated_combo_table[x][0];
                 
@@ -1665,6 +1668,12 @@ void update_combo_cycling()
             restartanim2[i]=false;
         }
     }
+}
+
+void update_combo_cycling()
+{
+	// TODO z3 !
+	update_combo_cycling(&tmpscr);
 }
 
 bool iswater_type(int32_t type)
