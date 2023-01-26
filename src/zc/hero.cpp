@@ -18711,11 +18711,11 @@ void HeroClass::oldcheckchest(int32_t type)
 		case cLOCKEDCHEST:
 			if(!usekey()) return;
 			
-			setmapflag(screen, found_screen_index, mLOCKEDCHEST);
+			setmapflag2(screen, found_screen_index, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
-			setmapflag(screen, found_screen_index, mCHEST);
+			setmapflag2(screen, found_screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -18739,7 +18739,7 @@ void HeroClass::oldcheckchest(int32_t type)
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 			}
-			setmapflag(screen, found_screen_index, mBOSSCHEST);
+			setmapflag2(screen, found_screen_index, mBOSSCHEST);
 			break;
 	}
 	
