@@ -398,6 +398,7 @@ set(zcbase_sources
 	src/base/fonts.cpp
 	src/base/gui.cpp
 	src/base/jwinfsel.cpp
+	src/base/mapscr.cpp
 	src/base/module.cpp
 	src/base/process_management.cpp
 	src/base/random.cpp

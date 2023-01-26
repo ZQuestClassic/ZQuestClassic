@@ -159,8 +159,8 @@ typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 #include "base/util.h"
 #include "base/process_management.h"
 #include "zconfig.h"
-
 #include "user_object.h"
+#include "mapscr.h"
 
 
 

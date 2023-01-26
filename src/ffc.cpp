@@ -11,6 +11,8 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 #include "combos.h"
 #include "maps.h"
 #include "hero.h"
+#include "base/mapscr.h"
+
 extern newcombo *combobuf;
 extern mapscr tmpscr[2];
 extern int16_t lensclk;
@@ -224,34 +226,4 @@ void ffcdata::doContactDamage(int32_t hdir)
 	if(data && isdamage_type(cmb.type))
 		trigger_damage_combo(data, hdir, true);
 #endif
-}
-
-void mapscr::zero_memory()
-{
-	*this = mapscr();
-}
-
-word mapscr::numFFC()
-{
-	if (!ffc_count_dirty) return num_ffcs;
-
-	int lastffc = 0;
-	for(int w = MAXFFCS-1; w >= 0; --w)
-	{
-		if(ffcs[w].getData())
-		{
-			lastffc = w;
-			break;
-		}
-	}
-	if (lastffc < 31 && get_bit(quest_rules, qr_OLD_FFC_FUNCTIONALITY))
-		lastffc = 31;
-	num_ffcs = lastffc+1;
-	ffc_count_dirty = false;
-	return num_ffcs;
-}
-
-void mapscr::ffcCountMarkDirty()
-{
-	ffc_count_dirty = true;
 }
