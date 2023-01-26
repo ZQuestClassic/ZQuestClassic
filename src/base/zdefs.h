@@ -2999,44 +2999,42 @@ enum {cfOFFSET, cfMAX};
 
 struct newcombo
 {
-    int32_t tile; //32 bits
-    byte flip; //8 bits
-    byte walk; //8 bits
-    byte type; //8 bits
-    byte csets; //8 bits
-    byte frames; //8 bits
-    byte speed; //8 bits
-    word nextcombo; //16 bits
-    byte nextcset; //8 bits
-    byte flag; //8 bits
-    byte skipanim; //8 bits
-    word nexttimer; //16 bits
-    byte skipanimy; //8 bits
-    byte animflags; //8 bits
-    byte expansion[6]; //48 bits
-	
-	int32_t attributes[NUM_COMBO_ATTRIBUTES]; //32 bits; combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
-	int32_t usrflags; //32 bits ; combodata->Flags and Screen->ComboFlags[pos]
-	int16_t genflags; //16 bits ; general flags
-	int32_t triggerflags[3]; //96 bits
-	int32_t triggerlevel; //32 bits
-	byte triggerbtn; //8 bits
-	byte triggeritem; //8 bits
-	byte trigtimer; //8 bits
-	byte trigsfx; //8 bits
-	int32_t trigchange; //32 bits
-	word trigprox; //16 bits
-	byte trigctr; //8 bits
-	int32_t trigctramnt; //32 bits
-	byte triglbeam; //8 bits
-	int8_t trigcschange; //8 bits
-	int16_t spawnitem; //16 bits
-	int16_t spawnenemy; //16 bits
-	int8_t exstate; //8 bits
-	int32_t spawnip; //32 bits
-	byte trigcopycat; //8 bits
-	byte trigcooldown; //8 bits
-	
+    int32_t tile;
+    byte flip;
+    byte walk = 0xF0;
+    byte type;
+    byte csets;
+    byte frames;
+    byte speed;
+    word nextcombo;
+    byte nextcset;
+    byte flag;
+    byte skipanim;
+    word nexttimer;
+    byte skipanimy;
+    byte animflags;
+    byte expansion[6];
+	int32_t attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
+	int32_t usrflags; // combodata->Flags and Screen->ComboFlags[pos]
+	int16_t genflags; // general flags
+	int32_t triggerflags[3];
+	int32_t triggerlevel;
+	byte triggerbtn;
+	byte triggeritem;
+	byte trigtimer;
+	byte trigsfx;
+	int32_t trigchange;
+	word trigprox;
+	byte trigctr;
+	int32_t trigctramnt;
+	byte triglbeam;
+	int8_t trigcschange;
+	int16_t spawnitem;
+	int16_t spawnenemy;
+	int8_t exstate = -1;
+	int32_t spawnip;
+	byte trigcopycat;
+	byte trigcooldown;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -3046,24 +3044,19 @@ struct newcombo
 	byte liftcs, liftundercs;
 	byte liftsprite;
 	byte liftdmg;
-	int16_t liftbreaksprite;
+	int16_t liftbreaksprite = -1;
 	byte liftbreaksfx;
-	byte lifthei, lifttime;
+	byte lifthei = 8;
+	byte lifttime = 16;
 	word prompt_cid;
 	byte prompt_cs;
-	int16_t prompt_x, prompt_y;
-	
+	int16_t prompt_x = 12;
+	int16_t prompt_y = -8;
 	char label[11];
-		//Only one of these per combo: Otherwise we would have 
-		//int32_t triggerlevel[54] (1,728 bits extra per combo in a quest, and in memory) !!
-		//Thus, a weapon level affects all triggers for that combo type. 
-    //384 bits total per object
-    byte attribytes[8];
-    int16_t attrishorts[8];
-    word script;
-    int32_t initd[2];
-    //refinfo scriptData; //no, better to have 176 refinfos*layers, than one per combo. 
-    //byte initialised; //no, better to have 176 inits, each bit for a layter,  
+	byte attribytes[8];
+	int16_t attrishorts[8];
+	word script;
+	int32_t initd[2];
 	int32_t o_tile;
 	byte cur_frame;
 	byte aclk;
@@ -3076,161 +3069,8 @@ struct newcombo
 	
 	void clear()
 	{
-		tile = 0;
-		flip = 0;
-		walk = 0xF0;
-		type = 0;
-		csets = 0;
-		frames = 0;
-		speed = 0;
-		nextcombo = 0;
-		nextcset = 0;
-		flag = 0;
-		skipanim = 0;
-		skipanimy = 0;
-		nexttimer = 0;
-		animflags = 0;
-		for(int32_t q = 0; q < 6; ++q)
-			expansion[q] = 0;
-		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
-			attributes[q] = 0;
-		usrflags = 0;
-		genflags = 0;
-		for(int32_t q = 0; q < 3; ++q)
-			triggerflags[q] = 0;
-		triggerlevel = 0;
-		triggerbtn = 0;
-		triggeritem = 0;
-		trigtimer = 0;
-		trigsfx = 0;
-		trigprox = 0;
-		trigctr = 0;
-		trigctramnt = 0;
-		triglbeam = 0;
-		trigcschange = 0;
-		spawnitem = 0;
-		spawnenemy = 0;
-		exstate = -1;
-		spawnip = 0;
-		trigcopycat = 0;
-		trigcooldown = 0;
-		trigchange = 0;
-		for(int32_t q = 0; q < 11; ++q)
-			label[q] = 0;
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			attribytes[q] = 0;
-			attrishorts[q] = 0;
-		}
-		script = 0;
-		for(int32_t q = 0; q < 2; ++q)
-			initd[q] = 0;
-		o_tile = 0;
-		cur_frame = 0;
-		aclk = 0;
-		
-		liftcmb = 0;
-		liftundercmb = 0;
-		liftcs = 0;
-		liftundercs = 0;
-		liftdmg = 0;
-		liftlvl = 0;
-		liftitm = 0;
-		liftflags = 0;
-		liftgfx = 0;
-		liftsprite = 0;
-		liftsfx = 0;
-		liftbreaksprite = -1;
-		liftbreaksfx = 0;
-		lifthei = 8;
-		lifttime = 16;
-		
-		prompt_cid = 0;
-		prompt_cs = 0;
-		prompt_x = 12;
-		prompt_y = -8;
+		*this = newcombo();
 	}
-	
-	void copy(newcombo const& other)
-	{
-		tile = other.tile;
-		flip = other.flip;
-		walk = other.walk;
-		type = other.type;
-		csets = other.csets;
-		frames = other.frames;
-		speed = other.speed;
-		nextcombo = other.nextcombo;
-		nextcset = other.nextcset;
-		flag = other.flag;
-		skipanim = other.skipanim;
-		skipanimy = other.skipanimy;
-		nexttimer = other.nexttimer;
-		animflags = other.animflags;
-		for(int32_t q = 0; q < 6; ++q)
-			expansion[q] = other.expansion[q];
-		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
-			attributes[q] = other.attributes[q];
-		usrflags = other.usrflags;
-		genflags = other.genflags;
-		for(int32_t q = 0; q < 3; ++q)
-			triggerflags[q] = other.triggerflags[q];
-		triggerlevel = other.triggerlevel;
-		triggerbtn = other.triggerbtn;
-		triggeritem = other.triggeritem;
-		trigtimer = other.trigtimer;
-		trigsfx = other.trigsfx;
-		trigprox = other.trigprox;
-		trigctr = other.trigctr;
-		trigctramnt = other.trigctramnt;
-		triglbeam = other.triglbeam;
-		trigcschange = other.trigcschange;
-		spawnitem = other.spawnitem;
-		spawnenemy = other.spawnenemy;
-		exstate = other.exstate;
-		spawnip = other.spawnip;
-		trigcopycat = other.trigcopycat;
-		trigcooldown = other.trigcooldown;
-		trigchange = other.trigchange;
-		for(int32_t q = 0; q < 11; ++q)
-			label[q] = other.label[q];
-		for(int32_t q = 0; q < 8; ++q)
-		{
-			attribytes[q] = other.attribytes[q];
-			attrishorts[q] = other.attrishorts[q];
-		}
-		script = other.script;
-		for(int32_t q = 0; q < 2; ++q)
-			initd[q] = other.initd[q];
-		o_tile = other.o_tile;
-		cur_frame = other.cur_frame;
-		aclk = other.aclk;
-		
-		liftcmb = other.liftcmb;
-		liftundercmb = other.liftundercmb;
-		liftcs = other.liftcs;
-		liftundercs = other.liftundercs;
-		liftdmg = other.liftdmg;
-		liftlvl = other.liftlvl;
-		liftitm = other.liftitm;
-		liftflags = other.liftflags;
-		liftgfx = other.liftgfx;
-		liftsprite = other.liftsprite;
-		liftsfx = other.liftsfx;
-		liftbreaksprite = other.liftbreaksprite;
-		liftbreaksfx = other.liftbreaksfx;
-		lifthei = other.lifthei;
-		lifttime = other.lifttime;
-		
-		prompt_cid = other.prompt_cid;
-		prompt_cs = other.prompt_cs;
-		prompt_x = other.prompt_x;
-		prompt_y = other.prompt_y;
-	}
-	
-	newcombo(){clear();}
-	newcombo(newcombo const& other){copy(other);}
-	newcombo& operator=(newcombo const& other){copy(other); return *this;}
 	
 	bool is_blank(bool ignoreEff = false)
 	{
