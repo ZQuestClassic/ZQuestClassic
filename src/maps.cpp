@@ -6423,7 +6423,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	if (x >= max_x - 8 && cnt == 2) return false;
 	if (y >= max_y) return false;
 	
-	return _walkflag_new(x, y, switchblockstate) || (cnt == 2 && _walkflag_new(x + 8, y, switchblockstate));
+	return _walkflag_new(x, y, switchblockstate) || (cnt != 1 && _walkflag_new(x + 8, y, switchblockstate));
 }
 
 bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
