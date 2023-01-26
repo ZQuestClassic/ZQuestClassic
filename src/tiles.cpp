@@ -1881,7 +1881,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
-    int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 || x%8 || y%8 ? 1 : 0;
+    int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 || x%8 || y%8 ? 1 : 0;
 
     if (is_z3_scrolling_mode() && draw_mode == 1)
     {
@@ -2079,7 +2079,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
     // 0: fast, no bounds checking
     // 1: slow, bounds checking
-    int draw_mode = x < 0 || y < 0 || x > dest->w-8 || y > dest->h-8 ? 1 : 0;
+    int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 ? 1 : 0;
 
 	// TODO z3 !
     if (is_z3_scrolling_mode() && draw_mode == 1)
@@ -2175,10 +2175,10 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
-    if (x <= -16 || y <= -16)
-        return;
-    if (x >= dest->w || y >= dest->h)
-        return;
+	if (x <= -16 || y <= -16)
+		return;
+	if (x >= dest->w || y >= dest->h)
+		return;
         
     if(tile<0 || tile>=NEWMAXTILES)
     {
@@ -2198,7 +2198,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 
     // 0: fast, 4 bytes at a time, no bounds checking
     // 1: slow, 1 byte at a time, bounds checking
-    int draw_mode = x < 0 || y < 0 || x > dest->w-16 || y > dest->h-16 ? 1 : 0;
+    int draw_mode = x < 0 || y < 0 || x >= dest->w-16 || y >= dest->h-16 ? 1 : 0;
     
     switch(flip&2)
     {
@@ -2228,7 +2228,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           }
           */
         
-        if (is_z3_scrolling_mode() && draw_mode == 1)
+        if (draw_mode == 1)
         {
             byte *si = unpackbuf;
             
@@ -2291,7 +2291,7 @@ void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
           }
           */
         
-        if (is_z3_scrolling_mode() && draw_mode == 1)
+        if (draw_mode == 1)
         {
             // 1 byte at a time
             byte *si = unpackbuf;
