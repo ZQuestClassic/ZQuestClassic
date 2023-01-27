@@ -4744,6 +4744,13 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		replay_do_cheats();
 	syskeys();
 
+	// The mouse variables can change from the mouse thread at anytime during a frame,
+	// so save the result at the start so that replaying is consistent.
+	script_mouse_x = gui_mouse_x();
+	script_mouse_y = gui_mouse_y();
+	script_mouse_z = mouse_z;
+	script_mouse_b = mouse_b;
+
 	// Cheats used via the System menu (called by syskeys) will call cheats_enqueue. syskeys
 	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
 	// approach here means it doesn't matter which call adds the cheat.

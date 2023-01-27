@@ -485,6 +485,11 @@ extern int32_t window_width, window_height;
 extern bool toogam;
 extern bool ignoreSideview;
 
+extern int32_t script_mouse_x;
+extern int32_t script_mouse_y;
+extern int32_t script_mouse_z;
+extern int32_t script_mouse_b;
+
 extern int32_t cheat;                                           // 0 = none; 1,2,3,4 = cheat level
 extern int32_t maxcheat;
 

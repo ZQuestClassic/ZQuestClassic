@@ -77,4 +77,7 @@ size_t replay_register_rng(zc_randgen *rng);
 void replay_set_rng_seed(zc_randgen *rng, int seed);
 void replay_sync_rng();
 
+int replay_get_mouse(int index);
+void replay_set_mouse(int index, int value);
+
 #endif

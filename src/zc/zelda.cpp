@@ -617,6 +617,10 @@ extern byte pause_in_background;
 extern signed char pause_in_background_menu_init;
 bool toogam=false;
 bool ignoreSideview=false;
+int32_t script_mouse_x;
+int32_t script_mouse_y;
+int32_t script_mouse_z;
+int32_t script_mouse_b;
 
 int32_t cheat = (DEVLEVEL > 1) ? 4 : 0;                         // 0 = none; 1,2,3,4 = cheat level
 int32_t maxcheat = (DEVLEVEL > 1) ? 4 : 0;
