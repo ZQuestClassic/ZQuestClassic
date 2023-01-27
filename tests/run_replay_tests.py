@@ -494,6 +494,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
     for i in range(0, max_start_attempts):
         allegro_log_path = output_dir / 'allegro.log'
         p = None
+        watcher = None
         try:
             result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
             if result_path.exists():
@@ -544,19 +545,16 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             # .zplay.result.txt should be updated every second.
             while watcher.observer.is_alive():
                 if do_timeout and timer() - watcher.modified_time > 60:
-                    watcher.observer.stop()
                     watcher.update_result()
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
 
                 if p.poll() != None:
-                    watcher.observer.stop()
                     break
 
                 sleep(0.1)
 
             p.wait()
-            watcher.observer.stop()
             watcher.update_result()
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
@@ -576,6 +574,8 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             logging.exception('replay encountered an error')
             return result
         finally:
+            if watcher:
+                watcher.observer.stop()
             if p:
                 p.wait()
             clear_progress_str()
