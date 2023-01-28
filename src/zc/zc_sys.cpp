@@ -1702,7 +1702,6 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		{
 			draw_screen(tmpscr);
 			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-			syskeys();
 			advanceframe(true);
 			
 			if(Quit)
@@ -1745,7 +1744,6 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		{
 			draw_screen(tmpscr);
 			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-			syskeys();
 			advanceframe(true);
 			
 			if(Quit)
@@ -4741,6 +4739,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	}
 	load_control_called_this_frame = false;
 
+	poll_keyboard();
 	update_keys();
 
 	++frame;
@@ -4800,7 +4799,6 @@ void zapout()
 	for(int32_t i=1; i<=24; i++)
 	{
 		draw_fuzzy(i);
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -4823,7 +4821,6 @@ void zapin()
 	for(int32_t i=24; i>=1; i--)
 	{
 		draw_fuzzy(i);
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -4889,7 +4886,6 @@ void wavyout(bool showhero)
 			}
 		}
 		
-		syskeys();
 		advanceframe(true);
 		
 		//	animate_combos();
@@ -4962,7 +4958,6 @@ void wavyin()
 			}
 		}
 		
-		syskeys();
 		advanceframe(true);
 		//	animate_combos();
 		
@@ -4993,7 +4988,6 @@ void blackscr(int32_t fcnt,bool showsubscr)
 			}
 		}
 		
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -5038,18 +5032,6 @@ void openscreen(int32_t shape)
 			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
 		}
 		
-		//	x=((80-i)/2)*4;
-		/*
-		  --x;
-		  switch(++c)
-		  {
-		  case 5: c=0;
-		  case 0:
-		  case 2:
-		  case 3: --x; break;
-		  }
-		  */
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -5098,18 +5080,6 @@ void closescreen(int32_t shape)
 			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
 		}
 		
-		//	x=((80-i)/2)*4;
-		/*
-		  --x;
-		  switch(++c)
-		  {
-		  case 5: c=0;
-		  case 0:
-		  case 2:
-		  case 3: --x; break;
-		  }
-		  */
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -9461,8 +9431,10 @@ void load_control_state()
 			replay_peek_input();
 	}
 
-	if (!replay_is_active() || replay_get_version() >= 8)
+	if (replay_get_version() == 8)
+	{
 		update_keys();
+	}
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
@@ -10014,7 +9986,6 @@ bool is_system_key(int32_t k)
 
 void update_system_keys()
 {
-	poll_keyboard();
 	for (int32_t q = 0; q < 127; ++q)
 	{
 		if (!is_system_key(q))
@@ -10028,9 +9999,6 @@ void update_system_keys()
 
 void update_keys()
 {
-	if (!replay_is_replaying())
-		poll_keyboard();
-
 	for (int32_t q = 0; q < 127; ++q)
 	{
 		// When replaying, replay.cpp takes care of updating `key_current_frame`.
