@@ -99,6 +99,7 @@ byte epilepsyFlashReduction;
 signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
 bool is_sys_pal = false;
+static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
@@ -4728,6 +4729,9 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 
 	if (replay_is_active())
 	{
+		if (replay_get_version() >= 8 && !load_control_called_this_frame)
+			replay_peek_input();
+
 		if (replay_get_version() >= 3)
 			replay_poll();
 
@@ -4735,6 +4739,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		if (replay_get_version() >= 6 && replay_get_version() < 8)
 			replay_peek_input();
 	}
+	load_control_called_this_frame = false;
 
 	update_keys();
 
@@ -9404,6 +9409,8 @@ bool button_hold[ZC_CONTROL_STATES];
 
 void load_control_state()
 {
+	load_control_called_this_frame = true;
+
 	if (!replay_is_active() || replay_get_version() >= 8)
 	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
