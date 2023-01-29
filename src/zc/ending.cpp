@@ -580,6 +580,7 @@ void ending()
 		load_control_state();
 	}
 	while(!getInput(btnS, true, false, true)); //rSbtn()
+	advanceframe(true);
 	
 	credits_skip:
 	
