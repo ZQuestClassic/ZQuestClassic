@@ -10,7 +10,7 @@ void call_combo_wizard(ComboEditorDialog& dlg);
 class ComboWizardDialog: public GUI::Dialog<ComboWizardDialog>
 {
 public:
-	enum class message { OK, CANCEL, UPDATE,
+	enum class message { OK, CANCEL, UPDATE, DEFAULT,
 		RSET0,RSET1,RSET2,RSET3,RSET4,RSET5,RSET6,RSET7,RSET8,RSET9 };
 	
 	std::shared_ptr<GUI::Widget> view() override;
@@ -35,7 +35,7 @@ private:
 	
 	GUI::ListData lists[10];
 	
-	GUI::ListData list_lwscript, list_ewscript, list_sprites;
+	GUI::ListData list_lwscript, list_ewscript, list_sprites, list_dropsets, list_items, list_sfx;
 	
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);
@@ -44,9 +44,12 @@ private:
 	void endUpdate();
 	
 	void updateTitle();
+	void do_default(bool typeonly);
 	
 	ComboWizardDialog(ComboEditorDialog& parent);
 	friend void call_combo_wizard(ComboEditorDialog& dlg);
+	friend bool def_all();
+	friend bool def_some();
 };
 
 #endif

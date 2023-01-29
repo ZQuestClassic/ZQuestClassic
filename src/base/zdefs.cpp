@@ -1516,6 +1516,15 @@ bool isDamageType(int32_t type)
 	}
 	return false;
 }
+bool isConveyorType(int32_t type)
+{
+	switch(type)
+	{
+		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
+			return true;
+	}
+	return false;
+}
 
 void zinitdata::clear()
 {

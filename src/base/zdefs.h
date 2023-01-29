@@ -5582,6 +5582,7 @@ int32_t getWarpLetter(int32_t type);
 int32_t simplifyWarpType(int32_t type);
 bool isStepType(int32_t type);
 bool isDamageType(int32_t type);
+bool isConveyorType(int32_t type);
 
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 #define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))
@@ -5602,6 +5603,23 @@ bool isDamageType(int32_t type);
 #undef cmb14
 #undef cmb15
 #undef cmb16
+
+#undef rad1
+#undef rad2
+#undef rad3
+#undef rad4
+#undef rad5
+#undef rad6
+#undef rad7
+#undef rad8
+#undef rad9
+#undef rad10
+#undef rad11
+#undef rad12
+#undef rad13
+#undef rad14
+#undef rad15
+#undef rad16
 
 #endif                                                      //_ZDEFS_H_
 

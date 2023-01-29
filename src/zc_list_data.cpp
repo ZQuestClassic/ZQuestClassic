@@ -9,6 +9,7 @@ extern char *item_string[];
 extern char *guy_string[eMAXGUYS];
 extern const char *old_guy_string[OLDMAXGUYS];
 extern miscQdata QMisc;
+extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
 #ifndef IS_PARSER
 #ifndef IS_ZQUEST
@@ -235,6 +236,38 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	
 	GUI::ListData ls;
 	ls.add("(None)", -1);
+	for(auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, ids[*it]);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
+{
+	map<std::string, int32_t> ids;
+	std::set<std::string> names;
+	
+	for(int32_t q=0; q < MAXITEMDROPSETS; ++q)
+	{
+		char const* dropname = item_drop_sets[q].name;
+		if(numbered)
+		{
+			char* name = new char[strlen(dropname) + 7];
+			sprintf(name, "%s (%03d)", dropname, q);
+			dropname = name;
+		}
+		std::string sname(dropname);
+		
+		ids[sname] = q;
+		names.insert(sname);
+		if(numbered)
+			delete[] dropname;
+	}
+	
+	GUI::ListData ls;
+	if(none)
+		ls.add("(None)", -1);
 	for(auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);
