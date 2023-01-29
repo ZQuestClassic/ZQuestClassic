@@ -33166,6 +33166,8 @@ j_command:
 				break;
 			}
 		}
+
+		return RUNSCRIPT_STOPPED;
 	}
 	else
 		ri->pc++;
@@ -47523,6 +47525,11 @@ bool command_could_return_not_ok(int command)
 	switch (command)
 	{
 	case EWPNDEL:
+	case GAMECONTINUE:
+	case GAMEEND:
+	case GAMERELOAD:
+	case GAMESAVECONTINUE:
+	case GAMESAVEQUIT:
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:

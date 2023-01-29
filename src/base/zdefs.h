@@ -5466,6 +5466,7 @@ extern void removeFromItemCache(int32_t itemid);
 #define RUNSCRIPT_OK			0
 #define RUNSCRIPT_ERROR			1
 #define RUNSCRIPT_SELFDELETE	2
+#define RUNSCRIPT_STOPPED		3
 
 #define CHAS_ATTRIB   0x01
 #define CHAS_FLAG     0x02
