@@ -24,7 +24,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 9;
+static const int VERSION = 10;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -51,6 +51,7 @@ static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
 static std::vector<int> snapshot_frames;
 static size_t replay_log_current_index;
+static size_t replay_log_current_quit_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
@@ -780,6 +781,7 @@ static void load_replay(std::filesystem::path path)
 
     file.close();
     replay_log_current_index = 0;
+    replay_log_current_quit_index = 0;
     version = replay_get_meta_int("version", 1);
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
@@ -913,6 +915,8 @@ static void do_replaying_poll()
         }
         replay_log_current_index += 1;
     }
+
+    replay_log_current_quit_index = replay_log_current_index;
 }
 
 static void check_assert()
@@ -1347,7 +1351,7 @@ bool replay_add_snapshot_frame(std::string frames_shorthand)
 
 void replay_peek_quit()
 {
-    int i = replay_log_current_index;
+    int i = replay_log_current_quit_index;
     while (i < replay_log.size() && replay_log[i]->frame == frame_count)
     {
         if (replay_log[i]->type == TypeQuit)
@@ -1357,6 +1361,7 @@ void replay_peek_quit()
                 GameFlags |= GAMEFLAG_TRYQUIT;
             else
                 Quit = quit_replay_step->quit_state;
+            replay_log_current_quit_index = i + 1;
             break;
         }
         i++;

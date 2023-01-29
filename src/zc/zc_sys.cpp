@@ -4165,7 +4165,8 @@ void f_Quit(int32_t type)
 	enter_sys_pal();
 	clear_keybuf();
 	
-	replay_poll();
+	if (replay_is_active() && replay_get_version() <= 9)
+		replay_poll();
 	if (replay_is_replaying())
 		replay_peek_quit();
 
