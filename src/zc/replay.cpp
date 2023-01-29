@@ -800,7 +800,7 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     std::ofstream out(filename, std::ios::binary);
     for (auto it : meta_map)
         out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
-    for (int i = 0; i < log.size(); i++)
+    for (size_t i = 0; i < log.size(); i++)
     {
         auto step = log[i];
         std::string step_as_string = step->print();
@@ -815,6 +815,29 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
                     << replay_log_step->print();
         }
         out << '\n';
+    }
+    if (insert_baseline_annotations && replay_log.size() > log.size())
+    {
+        size_t num_extra = replay_log.size() - log.size();
+        size_t num_extra_to_print_limit = 20;
+        size_t num_extra_to_print = std::min(num_extra, num_extra_to_print_limit);
+        for (size_t i = log.size(); i < log.size() + num_extra_to_print; i++)
+        {
+            auto replay_log_step = replay_log[i];
+            out << std::string(60, ' ')
+                << ANNOTATION_MARKER
+                << ' '
+                << replay_log_step->print()
+                << '\n';
+        }
+        if (num_extra > num_extra_to_print)
+        {
+            out << std::string(60, ' ')
+                << ANNOTATION_MARKER
+                << ' '
+                << fmt::format("{} more ...", num_extra - num_extra_to_print)
+                << '\n';
+        }
     }
     out.close();
 }
