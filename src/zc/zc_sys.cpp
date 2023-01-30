@@ -99,6 +99,7 @@ byte epilepsyFlashReduction;
 signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
 bool is_sys_pal = false;
+static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
@@ -373,14 +374,6 @@ void load_game_configs()
    
 	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
    
-	//workaround for the 100% CPU bug. -Gleeok
-#ifdef ALLEGRO_MACOSX //IIRC rest(0) was a mac issue fix.
-	frame_rest_suggest = (byte) zc_get_config(cfg_sect,"frame_rest_suggest",0);
-#else
-	frame_rest_suggest = (byte) zc_get_config(cfg_sect,"frame_rest_suggest",1);
-#endif
-	frame_rest_suggest = zc_min(2, frame_rest_suggest);
-   
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
    
 #ifdef _WIN32
@@ -521,7 +514,6 @@ void save_game_configs()
 	zc_set_config(cfg_sect,qst_dir_name,qstdir);
 	zc_set_config("SAVEFILE","save_filename",save_file_name);
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
-	zc_set_config(cfg_sect,"frame_rest_suggest",frame_rest_suggest);
 	
 	flush_config_file();
 #ifdef __EMSCRIPTEN__
@@ -1710,7 +1702,6 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
         {
             draw_screen();
             //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-            syskeys();
             advanceframe(true);
             
             if(Quit)
@@ -1753,7 +1744,6 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		{
 			draw_screen();
 			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-			syskeys();
 			advanceframe(true);
 			
 			if(Quit)
@@ -4173,7 +4163,8 @@ void f_Quit(int32_t type)
 	enter_sys_pal();
 	clear_keybuf();
 	
-	replay_poll();
+	if (replay_is_active() && replay_get_version() <= 9)
+		replay_poll();
 	if (replay_is_replaying())
 		replay_peek_quit();
 
@@ -4400,10 +4391,6 @@ void syskeys()
 	  if(zc_readkey(KEY_F1))	set_bit(QHeader.rules4,qr4_NEWENEMYTILES,
 	  1-((get_bit(QHeader.rules4,qr4_NEWENEMYTILES))));
 	  */
-	
-	if(zc_read_system_key(KEY_OPENBRACE))	if(frame_rest_suggest > 0) frame_rest_suggest--;
-	
-	if(zc_read_system_key(KEY_CLOSEBRACE))	if(frame_rest_suggest <= 2) frame_rest_suggest++;
 	
 	if(zc_read_system_key(KEY_F2))
 	{
@@ -4739,6 +4726,9 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 
 	if (replay_is_active())
 	{
+		if (replay_get_version() >= 8 && !load_control_called_this_frame)
+			replay_peek_input();
+
 		if (replay_get_version() >= 3)
 			replay_poll();
 
@@ -4746,7 +4736,9 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		if (replay_get_version() >= 6 && replay_get_version() < 8)
 			replay_peek_input();
 	}
+	load_control_called_this_frame = false;
 
+	poll_keyboard();
 	update_keys();
 
 	++frame;
@@ -4754,6 +4746,13 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if (replay_is_replaying())
 		replay_do_cheats();
 	syskeys();
+
+	// The mouse variables can change from the mouse thread at anytime during a frame,
+	// so save the result at the start so that replaying is consistent.
+	script_mouse_x = gui_mouse_x();
+	script_mouse_y = gui_mouse_y();
+	script_mouse_z = mouse_z;
+	script_mouse_b = mouse_b;
 
 	// Cheats used via the System menu (called by syskeys) will call cheats_enqueue. syskeys
 	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
@@ -4799,7 +4798,6 @@ void zapout()
 	for(int32_t i=1; i<=24; i++)
 	{
 		draw_fuzzy(i);
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -4822,7 +4820,6 @@ void zapin()
 	for(int32_t i=24; i>=1; i--)
 	{
 		draw_fuzzy(i);
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -4888,7 +4885,6 @@ void wavyout(bool showhero)
 			}
 		}
 		
-		syskeys();
 		advanceframe(true);
 		
 		//	animate_combos();
@@ -4961,7 +4957,6 @@ void wavyin()
 			}
 		}
 		
-		syskeys();
 		advanceframe(true);
 		//	animate_combos();
 		
@@ -4992,7 +4987,6 @@ void blackscr(int32_t fcnt,bool showsubscr)
 			}
 		}
 		
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -5037,18 +5031,6 @@ void openscreen(int32_t shape)
 			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
 		}
 		
-		//	x=((80-i)/2)*4;
-		/*
-		  --x;
-		  switch(++c)
-		  {
-		  case 5: c=0;
-		  case 0:
-		  case 2:
-		  case 3: --x; break;
-		  }
-		  */
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -5097,18 +5079,6 @@ void closescreen(int32_t shape)
 			rectfill(framebuf,256-x,playing_field_offset,255,167+playing_field_offset,0);
 		}
 		
-		//	x=((80-i)/2)*4;
-		/*
-		  --x;
-		  switch(++c)
-		  {
-		  case 5: c=0;
-		  case 0:
-		  case 2:
-		  case 3: --x; break;
-		  }
-		  */
-		syskeys();
 		advanceframe(true);
 		
 		if(Quit)
@@ -9411,6 +9381,8 @@ bool button_hold[ZC_CONTROL_STATES];
 
 void load_control_state()
 {
+	load_control_called_this_frame = true;
+
 	if (!replay_is_active() || replay_get_version() >= 8)
 	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
@@ -9461,8 +9433,10 @@ void load_control_state()
 			replay_peek_input();
 	}
 
-	if (!replay_is_active() || replay_get_version() >= 8)
+	if (replay_get_version() == 8)
+	{
 		update_keys();
+	}
 
 	// Some test replay files were made before a serious input bug was fixed, so instead
 	// of re-doing them or tossing them out, just check for that zplay version.
@@ -10014,7 +9988,6 @@ bool is_system_key(int32_t k)
 
 void update_system_keys()
 {
-	poll_keyboard();
 	for (int32_t q = 0; q < 127; ++q)
 	{
 		if (!is_system_key(q))
@@ -10028,9 +10001,6 @@ void update_system_keys()
 
 void update_keys()
 {
-	if (!replay_is_replaying())
-		poll_keyboard();
-
 	for (int32_t q = 0; q < 127; ++q)
 	{
 		// When replaying, replay.cpp takes care of updating `key_current_frame`.

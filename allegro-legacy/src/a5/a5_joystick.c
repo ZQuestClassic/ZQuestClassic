@@ -36,10 +36,14 @@ static int a5_get_joystick(ALLEGRO_JOYSTICK * joystick)
     return -1;
 }
 
+static int stick_to_btn[10];
+
 static void a5_reconfigure_joysticks()
 {
     ALLEGRO_JOYSTICK * joystick;
     int i, j, k;
+
+    memset(stick_to_btn, 0, sizeof(stick_to_btn));
 
     num_joysticks = al_get_num_joysticks();
     for(i = 0; i < num_joysticks; i++)
@@ -67,6 +71,17 @@ static void a5_reconfigure_joysticks()
                 for(k = 0; k < joy[i].stick[j].num_axis; k++)
                 {
                     joy[i].stick[j].axis[k].name = al_get_joystick_axis_name(joystick, j, k);
+                }
+
+                // local edit - treat trigger-like sticks as a button.
+                // This is quite hacky, and is only done so that the rest of the control code
+                // can deal in only buttons. Ideally, the control dialog would be able to select
+                // a stick and a given threshold to treat as a button press.
+                if (joy[i].stick[j].num_axis == 1)
+                {
+                    stick_to_btn[j] = joy[i].num_buttons;
+                    joy[i].button[joy[i].num_buttons].name = joy[i].stick[j].name;
+                    joy[i].num_buttons++;
                 }
             }
         }
@@ -136,6 +151,13 @@ static void * a5_joystick_thread_proc(ALLEGRO_THREAD * thread, void * data)
                             joy[i].stick[event.joystick.stick].axis[event.joystick.axis].d2 = 0;
                         }
                         joy[i].stick[event.joystick.stick].axis[event.joystick.axis].pos = event.joystick.pos * 128.0;
+
+                        // local edit - treat like a button
+                        if (joy[i].stick[event.joystick.stick].num_axis == 1)
+                        {
+                            int btn = stick_to_btn[event.joystick.stick];
+                            joy[i].button[btn].b = event.joystick.pos > 0.1;
+                        }
                     }
                     break;
                 }

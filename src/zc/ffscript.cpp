@@ -898,6 +898,38 @@ void FFScript::initZScriptItemScripts()
 	}
 }
 
+static int get_mouse_state(int index)
+{
+	int value = 0;
+	if (replay_is_replaying())
+	{
+		value = replay_get_mouse(index);
+	}
+	else if (index == 0)
+	{
+		value = script_mouse_x;
+	}
+	else if (index == 1)
+	{
+		value = script_mouse_y;
+	}
+	else if (index == 2)
+	{
+		value = script_mouse_z;
+	}
+	else if (index == 3)
+	{
+		value = script_mouse_b;
+	}
+
+	if (replay_is_recording())
+	{
+		replay_set_mouse(index, value);
+	}
+
+	return value;
+}
+
 /*
 void FFScript::initZScriptItemScripts()
 {
@@ -3923,7 +3955,7 @@ int32_t get_register(const int32_t arg)
 			
 		case INPUTMOUSEX:
 		{
-			ret=gui_mouse_x()*10000;
+			ret=get_mouse_state(0)*10000;
 			break;
 		}
 		
@@ -3931,16 +3963,16 @@ int32_t get_register(const int32_t arg)
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-			ret=((gui_mouse_y()-tempoffset))*10000;
+			ret=((get_mouse_state(1)-tempoffset))*10000;
 			break;
 		}
 		
 		case INPUTMOUSEZ:
-			ret=(gui_mouse_z())*10000;
+			ret=(get_mouse_state(2))*10000;
 			break;
 			
 		case INPUTMOUSEB:
-			ret=(gui_mouse_b())*10000;
+			ret=(get_mouse_state(3))*10000;
 			break;
 		
 		case INPUTPRESSSTART:
@@ -4142,7 +4174,7 @@ int32_t get_register(const int32_t arg)
 			{
 				case 0: //MouseX
 				{
-					rv=gui_mouse_x()*10000;
+					rv=get_mouse_state(0)*10000;
 					break;	
 				}
 				case 1: //MouseY
@@ -4150,27 +4182,27 @@ int32_t get_register(const int32_t arg)
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset= (112-tempoffset);
-					rv=(gui_mouse_y()-topOffset)*10000;
+					rv=(get_mouse_state(1)-topOffset)*10000;
 					break;
 				}
 				case 2: //MouseZ
 				{
-					rv=(gui_mouse_z())*10000;
+					rv=(get_mouse_state(2))*10000;
 					break;
 				}
 				case 3: //Left Click
 				{
-					rv=((gui_mouse_b()&0x1))*10000;
+					rv=((get_mouse_state(3)&0x1))*10000;
 					break;
 				}
 				case 4: //Right Click
 				{
-					rv=((gui_mouse_b()&0x2))*10000;
+					rv=((get_mouse_state(3)&0x2))*10000;
 					break;
 				}
 				case 5: //Middle Click
 				{
-					rv=((gui_mouse_b()&0x4))*10000;
+					rv=((get_mouse_state(3)&0x4))*10000;
 					break;
 				}
 				default:
@@ -33434,6 +33466,8 @@ j_command:
 				break;
 			}
 		}
+
+		return RUNSCRIPT_STOPPED;
 	}
 	else
 		ri->pc++;
@@ -47795,6 +47829,11 @@ bool command_could_return_not_ok(int command)
 	switch (command)
 	{
 	case EWPNDEL:
+	case GAMECONTINUE:
+	case GAMEEND:
+	case GAMERELOAD:
+	case GAMESAVECONTINUE:
+	case GAMESAVEQUIT:
 	case ITEMDEL:
 	case LWPNDEL:
 	case NPCKICKBUCKET:

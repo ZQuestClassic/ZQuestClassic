@@ -44,7 +44,7 @@ static int zc_gui_mouse_y()
 	}
 	else
 	{
-		return rti_game.global_to_local_x(mouse_y);
+		return rti_game.global_to_local_y(mouse_y);
 	}
 }
 

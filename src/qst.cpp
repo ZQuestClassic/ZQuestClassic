@@ -22358,7 +22358,10 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 {
 	loading_qst_name = filename;
 	loading_qst_num = qst_num;
-	loadquest_report = report;
+	// In CI, builds are cached for replay tests, which can result in their build dates being earlier than what it would be locally.
+	// So to avoid a more-recently update .qst file from hitting the "last saved in a newer version" prompt, we disable for replaying.
+	if (!replay_is_replaying())
+		loadquest_report = report;
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, compressed, encrypted, keepall, skip_flags,printmetadata);
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;

@@ -230,6 +230,9 @@ async function main() {
 
 // This is exactly the code from Emscripten's `instantiateWasm` except it uses
 // ZC.fetch to provide progress updates when downloading the wasm file.
+// TODO: no it doesn't, because of a chrome bug where caching won't work with a wrapper Response object,
+// which is used for progress tracking. So for now, this just won't give a progress indicator.
+// https://bugs.chromium.org/p/chromium/issues/detail?id=719172#c102
 function instantiateWasm(info, receiveInstance) {
   function instantiateArrayBuffer(receiver) {
     return getBinaryPromise().then(function (binary) {
@@ -250,7 +253,8 @@ function instantiateWasm(info, receiveInstance) {
   }
 
   if (!wasmBinary && typeof WebAssembly.instantiateStreaming == "function" && !isDataURI(wasmBinaryFile) && !isFileURI(wasmBinaryFile) && typeof fetch == "function") {
-    return ZC.fetch(wasmBinaryFile, {
+    // TODO should be ZC.fetch, but see above TODO comment.
+    return fetch(wasmBinaryFile, {
       credentials: "same-origin"
     }).then(function (response) {
       var result = WebAssembly.instantiateStreaming(response, info);

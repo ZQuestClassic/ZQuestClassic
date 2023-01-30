@@ -4559,7 +4559,11 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		return;
 	}
 
-	if (replay_get_mode() == ReplayMode::Record) replay_stop();
+	if (replay_get_mode() == ReplayMode::Record)
+	{
+		replay_save();
+		replay_stop();
+	}
 	
 	if(q==qRESET && !skip_title)
 	{

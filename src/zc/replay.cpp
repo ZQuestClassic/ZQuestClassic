@@ -24,7 +24,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 8;
+static const int VERSION = 10;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -35,6 +35,7 @@ static const char TypeQuit = 'Q';
 static const char TypeCheat = 'X';
 static const char TypeRng = 'R';
 static const char TypeKeyMap = 'K';
+static const char TypeMouse = 'V';
 
 static ReplayMode mode = ReplayMode::Off;
 static int version;
@@ -50,6 +51,7 @@ static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
 static std::vector<int> snapshot_frames;
 static size_t replay_log_current_index;
+static size_t replay_log_current_quit_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
@@ -65,6 +67,8 @@ static bool prev_gfx_hash_was_same;
 static int prev_debug_x;
 static int prev_debug_y;
 static bool gfx_got_mismatch;
+static std::array<int, 4> prev_mouse_state;
+static std::array<int, 4> current_mouse_state;
 static std::chrono::time_point<std::chrono::system_clock> time_started;
 static std::chrono::time_point<std::chrono::system_clock> time_result_saved;
 
@@ -326,6 +330,34 @@ struct RngReplayStep : ReplayStep
     }
 };
 
+struct MouseReplayStep : ReplayStep
+{
+	std::array<int, 4> state;
+
+	MouseReplayStep(int frame, std::array<int, 4> state) : ReplayStep(frame, TypeMouse), state(state)
+	{
+	}
+
+	void run()
+	{
+		current_mouse_state = state;
+	}
+
+	std::string print()
+	{
+		int x = state[0];
+		int y = state[1];
+		int z = state[2];
+		int b = state[3];
+		if (z == 0 && b == 0)
+			return fmt::format("{} {} {} {}", type, frame, x, y);
+		else if (b == 0)
+			return fmt::format("{} {} {} {} {}", type, frame, x, y, z);
+		else
+			return fmt::format("{} {} {} {} {} {}", type, frame, x, y, z, b);
+	}
+};
+
 static int get_rng_index(zc_randgen *rng)
 {
     auto it = std::find(rngs.begin(), rngs.end(), rng);
@@ -427,6 +459,13 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 			are_equal = map_replay_step->button_keys == map_record_step->button_keys;
 		}
 		break;
+		case TypeMouse:
+		{
+			auto mouse_replay_step = static_cast<const MouseReplayStep *>(step1);
+			auto mouse_record_step = static_cast<const MouseReplayStep *>(step2);
+			are_equal = mouse_replay_step->state == mouse_record_step->state;
+		}
+		break;
 		}
 
 	return are_equal;
@@ -519,6 +558,12 @@ static void do_recording_poll()
 			record_log.push_back(std::make_shared<KeyReplayStep>(frame_count, state ? TypeKeyDown : TypeKeyUp, -1, i));
 			previous_keys[i] = state;
 		}
+	}
+
+	if (current_mouse_state != prev_mouse_state)
+	{
+		record_log.push_back(std::make_shared<MouseReplayStep>(frame_count, current_mouse_state));
+		prev_mouse_state = current_mouse_state;
 	}
 }
 
@@ -714,6 +759,18 @@ static void load_replay(std::filesystem::path path)
 
             replay_log.push_back(std::make_shared<KeyReplayStep>(frame, type, button_index, key_index));
         }
+        else if (type == TypeMouse)
+        {
+            int x, y, z, b;
+            iss >> x;
+            iss >> y;
+            if (!(iss >> z))
+                z = 0;
+            if (!(iss >> b))
+                b = 0;
+            std::array<int, 4> state = {x, y, z, b};
+            replay_log.push_back(std::make_shared<MouseReplayStep>(frame, state));
+        }
 
         if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg && mode != ReplayMode::ManualTakeover)
         {
@@ -724,6 +781,7 @@ static void load_replay(std::filesystem::path path)
 
     file.close();
     replay_log_current_index = 0;
+    replay_log_current_quit_index = 0;
     version = replay_get_meta_int("version", 1);
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
@@ -744,7 +802,7 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     std::ofstream out(filename, std::ios::binary);
     for (auto it : meta_map)
         out << fmt::format("{} {} {}", TypeMeta, it.first, it.second) << '\n';
-    for (int i = 0; i < log.size(); i++)
+    for (size_t i = 0; i < log.size(); i++)
     {
         auto step = log[i];
         std::string step_as_string = step->print();
@@ -759,6 +817,29 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
                     << replay_log_step->print();
         }
         out << '\n';
+    }
+    if (insert_baseline_annotations && replay_log.size() > log.size())
+    {
+        size_t num_extra = replay_log.size() - log.size();
+        size_t num_extra_to_print_limit = 20;
+        size_t num_extra_to_print = std::min(num_extra, num_extra_to_print_limit);
+        for (size_t i = log.size(); i < log.size() + num_extra_to_print; i++)
+        {
+            auto replay_log_step = replay_log[i];
+            out << std::string(60, ' ')
+                << ANNOTATION_MARKER
+                << ' '
+                << replay_log_step->print()
+                << '\n';
+        }
+        if (num_extra > num_extra_to_print)
+        {
+            out << std::string(60, ' ')
+                << ANNOTATION_MARKER
+                << ' '
+                << fmt::format("{} more ...", num_extra - num_extra_to_print)
+                << '\n';
+        }
     }
     out.close();
 }
@@ -824,7 +905,8 @@ static void do_replaying_poll()
     {
         if (version >= 6)
         {
-            if (replay_log[replay_log_current_index]->type != TypeKeyDown && replay_log[replay_log_current_index]->type != TypeKeyUp)
+            char type = replay_log[replay_log_current_index]->type;
+            if (type != TypeKeyDown && type != TypeKeyUp && type != TypeMouse)
                 replay_log[replay_log_current_index]->run();
         }
         else
@@ -833,6 +915,8 @@ static void do_replaying_poll()
         }
         replay_log_current_index += 1;
     }
+
+    replay_log_current_quit_index = replay_log_current_index;
 }
 
 static void check_assert()
@@ -941,6 +1025,25 @@ static void maybe_take_snapshot()
 	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 }
 
+static void fail_replay(std::string error)
+{
+	int line_number = replay_log_current_index + meta_map.size() + 1;
+	std::string error1 = fmt::format("<{}> {}! stopping replay", line_number, error);
+	std::string error2 = fmt::format("frame {}", frame_count);
+	fprintf(stderr, "%s\n", error1.c_str());
+	fprintf(stderr, "%s\n", error2.c_str());
+
+	if (!exit_when_done)
+	{
+		enter_sys_pal();
+		jwin_alert(replay_mode_to_string(mode).c_str(), error1.c_str(), error2.c_str(), NULL, "OK", NULL, 13, 27, lfont);
+		exit_sys_pal();
+	}
+
+	save_history_snapshots();
+	replay_stop();
+}
+
 std::string replay_mode_to_string(ReplayMode mode)
 {
 	switch (mode)
@@ -974,6 +1077,8 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     prev_gfx_hash = 0;
     prev_gfx_hash_was_same = false;
     prev_debug_x = prev_debug_y = -1;
+    prev_mouse_state = {0, 0, 0, 0};
+    current_mouse_state = {0, 0, 0, 0};
     replay_log.clear();
     record_log.clear();
 	snapshot_frames.clear();
@@ -1028,6 +1133,8 @@ void replay_continue(std::filesystem::path path)
     ASSERT(mode == ReplayMode::Off);
     mode = ReplayMode::Record;
     frame_arg = -1;
+    prev_mouse_state = {0, 0, 0, 0};
+    current_mouse_state = {0, 0, 0, 0};
     replay_forget_input();
     replay_path = path;
     load_replay(replay_path);
@@ -1244,7 +1351,7 @@ bool replay_add_snapshot_frame(std::string frames_shorthand)
 
 void replay_peek_quit()
 {
-    int i = replay_log_current_index;
+    int i = replay_log_current_quit_index;
     while (i < replay_log.size() && replay_log[i]->frame == frame_count)
     {
         if (replay_log[i]->type == TypeQuit)
@@ -1254,6 +1361,7 @@ void replay_peek_quit()
                 GameFlags |= GAMEFLAG_TRYQUIT;
             else
                 Quit = quit_replay_step->quit_state;
+            replay_log_current_quit_index = i + 1;
             break;
         }
         i++;
@@ -1265,7 +1373,8 @@ void replay_peek_input()
     size_t i = replay_log_current_index;
     while (i < replay_log.size() && replay_log[i]->frame == frame_count)
     {
-        if (replay_log[i]->type == TypeKeyDown || replay_log[i]->type == TypeKeyUp)
+        char type = replay_log[i]->type;
+        if (type == TypeKeyDown || type == TypeKeyUp || type == TypeMouse)
         {
             replay_log[i]->run();
         }
@@ -1769,18 +1878,7 @@ void replay_set_rng_seed(zc_randgen *rng, int seed)
         else if (mode != ReplayMode::Update)
         {
             has_rng_desynced = true;
-
-            int line_number = replay_log_current_index + meta_map.size() + 1;
-            std::string error = fmt::format("<{}> rng desync! stopping replay", line_number);
-            std::string error2 = fmt::format("frame {}", frame_count);
-            fprintf(stderr, "%s\n", error.c_str());
-            fprintf(stderr, "%s\n", error2.c_str());
-            save_history_snapshots();
-            replay_stop();
-
-            enter_sys_pal();
-            jwin_alert("Recording", error.c_str(), error2.c_str(), NULL, "OK", NULL, 13, 27, lfont);
-            exit_sys_pal();
+            fail_replay("rng desync");
         }
     }
 
@@ -1830,4 +1928,14 @@ void replay_sync_rng()
     }
 
     frame = 0;
+}
+
+int replay_get_mouse(int index)
+{
+	return current_mouse_state[index];
+}
+
+void replay_set_mouse(int index, int value)
+{
+	current_mouse_state[index] = value;
 }

@@ -376,7 +376,7 @@ extern bool screenscrolling;
 extern int32_t jwin_pal[jcMAX];
 extern int32_t gui_colorset;
 extern int32_t fullscreen;
-extern byte frame_rest_suggest, forceExit, zc_vsync;
+extern byte forceExit, zc_vsync;
 extern byte zc_color_depth;
 extern byte use_win32_proc, zasm_debugger, zscript_debugger; //windows only
 
@@ -497,6 +497,11 @@ extern int32_t window_width, window_height;
 
 extern bool toogam;
 extern bool ignoreSideview;
+
+extern int32_t script_mouse_x;
+extern int32_t script_mouse_y;
+extern int32_t script_mouse_z;
+extern int32_t script_mouse_b;
 
 extern int32_t cheat;                                           // 0 = none; 1,2,3,4 = cheat level
 extern int32_t maxcheat;

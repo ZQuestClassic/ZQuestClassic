@@ -10,7 +10,16 @@ env:
   PYTHONUNBUFFERED: '1'
 
 jobs:
+  # Get the LFS cache ready. This avoids every shard of each environment downloads the LFS objects
+  # at the same time whenever any change, which is disastrous for quota.
+  warm-lfs-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: git clone
+        uses: nschloe/action-cached-lfs-checkout@v1
+
   test:
+    needs: warm-lfs-cache
     strategy:
       matrix:
         include:

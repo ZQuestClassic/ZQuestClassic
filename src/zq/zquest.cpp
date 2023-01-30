@@ -33582,6 +33582,7 @@ void exit_sys_pal(){}
 
 void replay_step_comment(std::string comment) {}
 bool replay_is_active() {return false;}
+bool replay_is_replaying() {return false;}
 int replay_get_version() {return 0;}
 bool replay_is_debug() {return false;}
 // TODO z3 !
