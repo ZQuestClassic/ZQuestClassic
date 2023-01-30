@@ -1104,16 +1104,13 @@ void ComboEditorDialog::loadComboType()
 				l_flag[1] = "Require Item";
 				h_flag[1] = "Only the required item can open this chest (instead of ALSO allowing a key)";
 			}
-			else
+			if(!(FL(cflag1)&&FL(cflag2)))
 			{
 				l_attribute[0] = "Amount:";
 				if(FL(cflag4))
 					h_attribute[0] = "The amount of the arbitrary counter required to open this chest";
 				else
 					h_attribute[0] = "The amount of keys required to open this chest";
-			}
-			if(!(FL(cflag1)&&FL(cflag2)))
-			{
 				l_flag[3] = "Counter";
 				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
 				if(FL(cflag4))

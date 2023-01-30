@@ -258,6 +258,17 @@ void ComboWizardDialog::update(bool first)
 			
 			ddls[2]->setDisabled(rad1!=0);
 			ddls[3]->setDisabled(rad1!=1);
+			
+			//Prompts
+			bool prompt = lvl > 0 && cboxes[1]->getChecked();
+			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
+			
+			// switcher[0]->switchTo(prompt ? 1 : 0);
+			// switcher[1]->switchTo(lockprompt ? 1 : 0);
+			frames[0]->setDisabled(!prompt);
+			frames[1]->setDisabled(!lockprompt);
+			cmbswatches[1]->setCSet(cmbswatches[0]->getCSet());
+			cboxes[2]->setDisabled(lvl < 2 || !prompt);
 			break;
 		}
 	}
@@ -498,6 +509,29 @@ void ComboWizardDialog::endUpdate()
 			auto rad1 = getRadio(1);
 			
 			contains_item = ddls[rad1==1 ? 3 : 2]->getSelectedValue();
+			
+			bool prompt = lvl > 0 && cboxes[1]->getChecked();
+			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
+			
+			int32_t& prompt_combo = local_ref.attributes[1];
+			int32_t& prompt_combo2 = local_ref.attributes[2];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			prompt_combo = 0;
+			prompt_cset = 0;
+			prompt_xoff = 12;
+			prompt_yoff = -8;
+			prompt_combo2 = 0;
+			if(prompt)
+			{
+				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_cset = cmbswatches[0]->getCSet();
+				prompt_xoff = tfs[1]->getVal();
+				prompt_yoff = tfs[2]->getVal();
+				if(lockprompt)
+					prompt_combo2 = cmbswatches[1]->getCombo()*10000;
+			}
 			break;
 		}
 	}
@@ -656,8 +690,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		)
 	);
 	
-	thelp = getComboTypeHelpText(local_ref.type);
-	
 	bool wip = false;
 	switch(local_ref.type)
 	{
@@ -680,7 +712,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							local_ref.type = val;
 						}),
-					INFOBTN(thelp),
+					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
 					//
 					Label(text = "Warp Sound:", hAlign = 1.0),
 					ddls[1] = DropDownList(data = parent.list_sfx,
@@ -1354,7 +1386,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.type = val;
 								updateTitle();
 							}),
-						INFOBTN(thelp),
+						INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
 						//
 						rset[0][1] = Radio(
 							hAlign = 0.0,
@@ -1796,7 +1828,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.type = val;
 								updateTitle();
 							}),
-						INFOBTN(thelp),
+						INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
 						//
 						rset[0][1] = Radio(
 							hAlign = 0.0,
@@ -2306,6 +2338,14 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
 		{
+			size_t lvl = 0;
+			if(local_ref.type == cCHEST)
+				lvl = 1;
+			else if(local_ref.type == cBOSSCHEST)
+				lvl = 2;
+			else if(local_ref.type == cLOCKEDCHEST)
+				lvl = 3;
+			
 			byte& exstate = local_ref.attribytes[5];
 			byte& openbtn = local_ref.attribytes[2];
 			byte& opensfx = local_ref.attribytes[3];
@@ -2323,6 +2363,27 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				radmode2 = 1;
 				spitem_def = -1;
 				normitem_def = contains_item;
+			}
+			
+			int32_t& prompt_combo = local_ref.attributes[1];
+			int32_t& prompt_combo2 = local_ref.attributes[2];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			
+			int32_t def_prompt_combo = 0;
+			int32_t def_prompt_combo2 = 0;
+			byte def_prompt_cset = 0;
+			int16_t def_prompt_xoff = 12;
+			int16_t def_prompt_yoff = -8;
+			if(local_ref.usrflags&cflag13)
+			{
+				def_prompt_combo = prompt_combo/10000;
+				def_prompt_cset = prompt_cset;
+				def_prompt_xoff = prompt_xoff;
+				def_prompt_yoff = prompt_yoff;
+				if(lvl > 1) //boss or locked
+					def_prompt_combo2 = prompt_combo2/10000;
 			}
 			
 			lists[0] = GUI::ZCListData::combotype(true).filter(
@@ -2349,7 +2410,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							updateTitle();
 							update();
 						}),
-					INFOBTN(thelp)
+					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);})
 				),
 				tpan[0] = TabPanel(
 					TabRef(name = "State", Rows<3>(
@@ -2552,7 +2613,86 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							}),
 						INFOBTN("Which item to put in the chest")
 					)),
-					TabRef(name = "Prompts", Column(DummyWidget())),
+					TabRef(name = "Prompts", Row(
+						Columns<2>(padding = 0_px,
+							Row(padding = 0_px,
+								cboxes[1] = Checkbox(
+									text = "Display Prompt", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag13,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag13,state);
+										update();
+									}
+								),
+								INFOBTN("Displays a prompt combo when able to interact")
+							),
+							frames[0] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<3>(
+									Label(text = "Prompt Combo:"),
+									cmbswatches[0] = SelComboSwatch(
+										combo = def_prompt_combo,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo = cmb*10000;
+											prompt_cset = c;
+										}
+									),
+									INFOBTN("The combo/cset to use for the prompt"),
+									//
+									Label(text = "Prompt XOffset:"),
+									tfs[1] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_xoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_xoff = val;
+										}),
+									INFOBTN("The x-offset in pixels of the prompt"),
+									//
+									Label(text = "Prompt YOffset:"),
+									tfs[2] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_yoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_yoff = val;
+										}),
+									INFOBTN("The y-offset in pixels of the prompt")
+								)
+							),
+							Row(padding = 0_px,
+								cboxes[2] = Checkbox(
+									text = "Separate Locked Prompt", hAlign = 0.0,
+									checked = lvl > 1 && (local_ref.usrflags&cflag13) && def_prompt_combo2,
+									disabled = lvl < 2 || !(local_ref.usrflags&cflag13),
+									onToggleFunc = [&](bool state)
+									{
+										update();
+									}
+								),
+								INFOBTN("Displays a separate prompt combo when unable to unlock")
+							),
+							frames[1] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Row(
+									Label(text = "Locked Prompt Combo:"),
+									cmbswatches[1] = SelComboSwatch(
+										combo = def_prompt_combo2,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo2 = cmb*10000;
+											cmbswatches[1]->setCSet(prompt_cset);
+										}
+									),
+									INFOBTN("The combo to use for the locked prompt")
+								)
+							)
+						)
+					)),
 					TabRef(name = "Locking", Column(DummyWidget()))
 				)
 			));

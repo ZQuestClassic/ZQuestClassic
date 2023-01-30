@@ -971,6 +971,7 @@ int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	BITMAP* oldscreen = screen;
 	if(msg==MSG_DRAW)
 	{
+		if(d->flags & D_HIDDEN) return D_O_K;
 		screen = create_bitmap_ex(8,oldscreen->w,oldscreen->h);
 		clear_bitmap(screen);
 		set_clip_rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1);
@@ -1892,7 +1893,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	if(d->h >= 2+((text_height(d->dp2 ? (FONT*)d->dp2 : font)+2)*2))
 		return jwin_vedit_proc(msg, d, c);
-	int32_t f, l, p, w, x, y, fg, bg;
+	int32_t f, l, p, w, x, y, fg, bg, fg2 = -1, bg2 = -1, fg3, bg3;
 	int32_t b;
 	int32_t scroll;
 	char *s;
@@ -1977,18 +1978,28 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(d->flags & D_DISABLED)
 			{
+				fg2 = scheme[jcLIGHT];
+				bg2 = scheme[jcDISABLED_BG];
 				fg = scheme[jcDISABLED_FG];
-				bg = scheme[jcDISABLED_BG];
+				bg = -1;
+				fg3 = fg;
+				bg3 = bg2;
 			}
 			else if(d->flags & D_READONLY)
 			{
+				fg2 = scheme[jcLIGHT];
+				bg2 = scheme[jcALT_TEXTBG];
 				fg = scheme[jcALT_TEXTFG];
-				bg = scheme[jcALT_TEXTBG];
+				bg = -1;
+				fg3 = fg;
+				bg3 = bg2;
 			}
 			else
 			{
 				fg = scheme[jcTEXTFG];
 				bg = scheme[jcTEXTBG];
+				fg3 = fg;
+				bg3 = bg;
 			}
 			
 			x = 3;
@@ -1997,12 +2008,12 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			/* first fill in the edges */
 			
 			if(y > d->y+2)
-				rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg);
+				rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg3);
 				
 			if(y+text_height(font)-1 < d->y+d->h-2)
-				rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg);
+				rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg3);
 				
-			_allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg);
+			_allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg3);
 			
 			/* now the text */
 			
@@ -2023,13 +2034,17 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				bool focused = (cursor_end>-1)
 					? (p >= low_cursor && p <= high_cursor)
 					: (p == cursor_start);
-				f = (focused && (d->flags & D_GOTFOCUS));
+				f = fg2 < 0 && (focused && (d->flags & D_GOTFOCUS));
+				if(fg2 > -1)
+				{
+					textout_ex(screen, font, buf, d->x+x+1, y+1, fg2, bg2);
+				}
 				textout_ex(screen, font, buf, d->x+x, y, f ? bg : fg,f ? fg : bg);
 				x += w;
 			}
 			
 			if(x < d->w-2)
-				rectfill(screen, d->x+x, y, d->x+d->w-3, y+text_height(font)-1, bg);
+				rectfill(screen, d->x+x, y, d->x+d->w-3, y+text_height(font)-1, bg3);
 				
 			jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
 			font = oldfont;

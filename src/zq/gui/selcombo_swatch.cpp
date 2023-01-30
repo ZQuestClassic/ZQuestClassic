@@ -14,6 +14,7 @@
 
 int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 {
+	bool dis = d->flags & D_DISABLED;
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -55,12 +56,17 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			
 			if(buf && bigbmp)
 			{
-				clear_bitmap(buf);
-				
-				if(d->d1)
-					overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
+				if(dis)
+					rectfill(bigbmp,0,0,d->h-1,d->h-1,jwin_pal[jcBOX]);
+				else
+				{
+					clear_bitmap(buf);
 					
-				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
+					if(d->d1)
+						overtile16(buf,combobuf[d->d1].tile,2,2,d->d2,combobuf[d->d1].flip);
+						
+					stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
+				}
 				destroy_bitmap(buf);
 				jwin_draw_frame(bigbmp,0,0,d->h,d->h,FR_DEEP);
 				blit(bigbmp,screen,0,0,d->x,d->y,d->h,d->h);
@@ -73,8 +79,19 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				FONT *fonty = (is_large ? font : pfont);
 				if(d->dp2) fonty = (FONT*)d->dp2;
 				int32_t xo = (3_spx).resolve();
-				textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
-				textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+				if(dis)
+				{
+					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"Combo: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Combo: %d",d->d1);
+					
+					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
+				}
+				else
+				{
+					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Combo: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->h+xo,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+				}
 			}
 			break;
 	}

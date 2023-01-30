@@ -3,6 +3,7 @@
 
 #include "comboeditor.h"
 #include <gui/switcher.h>
+#include <gui/frame.h>
 #include <gui/tabpanel.h>
 #include <gui/drop_down_list.h>
 #include <gui/radioset.h>
@@ -28,11 +29,14 @@ private:
 	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TabPanel> tpan[10];
+	std::shared_ptr<GUI::Button> btns[10];
 	std::shared_ptr<GUI::TextField> tfs[10];
 	std::shared_ptr<GUI::DropDownList> ddls[10];
 	std::shared_ptr<GUI::Checkbox> cboxes[10];
 	std::shared_ptr<GUI::Switcher> switcher[10];
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
+	std::shared_ptr<GUI::SelComboSwatch> cmbswatches[3];
+	std::shared_ptr<GUI::Frame> frames[3];
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	size_t rs_sz[10];
 	

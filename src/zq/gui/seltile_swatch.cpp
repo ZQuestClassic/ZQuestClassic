@@ -13,6 +13,7 @@
 
 int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 {
+	bool dis = d->flags & D_DISABLED;
 	GUI::SelTileSwatch* ptr = (GUI::SelTileSwatch*)d->dp3;
 	switch(msg)
 	{
@@ -76,29 +77,34 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			if(buf && bigbmp)
 			{
 				clear_bitmap(buf);
-				int32_t tile = (d->d1 ? d->d1 : ptr->getDefTile());
-				int32_t cset = (d->d1 ? d->d2 : ptr->getDefCS());
-				if(tile || ptr->getShowT0())
+				if(dis)
+					rectfill(bigbmp,0,0,d->h-1,d->h-1,jwin_pal[jcBOX]);
+				else
 				{
-					if(tw > 1 || th > 1)
-						overtileblock16(buf,tile,2,2,tw,th,cset,d->fg);
-					else overtile16(buf,tile,2,2,cset,d->fg);
-				}
-				
-				if(ptr->getIsMini()) //Minitile corner
-				{
-					int32_t crn = ptr->getMiniCrn()% 4;
-					int32_t cx = (2+((crn&1)?8:0));
-					int32_t cy = (2+((crn&2)?8:0));
-					int32_t toffs = (ptr->getMiniCrn() / 4);
-					cx += (toffs%tw) * 16;
-					cy += (toffs/tw) * 16;
-					rect(buf,cx,cy,cx+7,cy+7,ptr->sel_color);
+					int32_t tile = (d->d1 ? d->d1 : ptr->getDefTile());
+					int32_t cset = (d->d1 ? d->d2 : ptr->getDefCS());
+					if(tile || ptr->getShowT0())
+					{
+						if(tw > 1 || th > 1)
+							overtileblock16(buf,tile,2,2,tw,th,cset,d->fg);
+						else overtile16(buf,tile,2,2,cset,d->fg);
+					}
+					
+					if(ptr->getIsMini()) //Minitile corner
+					{
+						int32_t crn = ptr->getMiniCrn()% 4;
+						int32_t cx = (2+((crn&1)?8:0));
+						int32_t cy = (2+((crn&2)?8:0));
+						int32_t toffs = (ptr->getMiniCrn() / 4);
+						cx += (toffs%tw) * 16;
+						cy += (toffs/tw) * 16;
+						rect(buf,cx,cy,cx+7,cy+7,ptr->sel_color);
+					}
 				}
 				
 				stretch_blit(buf, bigbmp, 2,2, (16*tw), (16*th), 2, 2, d->w-4, d->h-4);
 				destroy_bitmap(buf);
-				jwin_draw_frame(bigbmp,0,0,d->w,d->h,FR_DEEP);
+				jwin_draw_frame(bigbmp,0,0,d->w,d->h,dis ? FR_ETCHED : FR_DEEP);
 				blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
 				destroy_bitmap(bigbmp);
 			}
@@ -108,8 +114,19 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				FONT *fonty = (is_large ? font : pfont);
 				if(d->dp2) fonty = (FONT*)d->dp2;
-				textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile: %d",d->d1);
-				textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+				if(dis)
+				{
+					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"Tile: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Tile: %d",d->d1);
+					
+					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
+				}
+				else
+				{
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
+				}
 			}
 		}
 		break;
