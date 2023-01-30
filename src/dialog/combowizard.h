@@ -7,6 +7,7 @@
 #include <gui/radioset.h>
 bool hasComboWizard(int32_t type);
 void call_combo_wizard(ComboEditorDialog& dlg);
+void combo_default(newcombo& ref, bool typeonly = true);
 class ComboWizardDialog: public GUI::Dialog<ComboWizardDialog>
 {
 public:
@@ -44,7 +45,6 @@ private:
 	void endUpdate();
 	
 	void updateTitle();
-	void do_default(bool typeonly);
 	
 	ComboWizardDialog(ComboEditorDialog& parent);
 	friend void call_combo_wizard(ComboEditorDialog& dlg);

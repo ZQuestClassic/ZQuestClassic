@@ -866,7 +866,7 @@ void ComboEditorDialog::loadComboType()
 			}
 			break;
 		}
-		case cTALLGRASS:
+		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
 		{
 			l_flag[0] = "Decoration Sprite";
 			h_flag[0] = "Spawn a decoration when slashed";
@@ -914,51 +914,9 @@ void ComboEditorDialog::loadComboType()
 			break;
 		}
 		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
-		{
-			l_flag[0] = "Decoration Sprite";
-			h_flag[0] = "Spawn a decoration when slashed";
-			if(FL(cflag1))
-			{
-				l_flag[9] = "Use Clippings Sprite";
-				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
-				if(FL(cflag10))
-				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
-				}
-				else
-				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
-				}
-			}
-			l_flag[1] = "Set Dropset";
-			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			l_flag[2] = "Custom SFX";
-			h_flag[2] = "Specify a custom slash SFX";
-			if(FL(cflag2))
-			{
-				l_flag[10] = "Specific Item";
-				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(FL(cflag11))
-				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
-				}
-				else
-				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
-				}
-			}
-			if(FL(cflag3))
-			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
-			}
-			break;
-		}
-		case cSLASHITEM:
+		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
 			l_flag[0] = "Decoration Sprite";
 			h_flag[0] = "Spawn a decoration when slashed";
@@ -1380,99 +1338,6 @@ void ComboEditorDialog::loadComboType()
 			}
 			break;
 		}
-		case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
-		{
-			l_flag[0] = "Decoration Sprite";
-			h_flag[0] = "Spawn a decoration when slashed";
-			if(FL(cflag1))
-			{
-				l_flag[9] = "Use Clippings Sprite";
-				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
-				if(FL(cflag10))
-				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
-				}
-				else
-				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
-				}
-			}
-			l_flag[1] = "Set Dropset";
-			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			l_flag[2] = "Custom SFX";
-			h_flag[2] = "Specify a custom slash SFX";
-			l_attribyte[3] = "Walking Sound:";
-			h_attribyte[3] = "The SFX to play when the player walks through this combo. If 0, no sound is played.";
-			if(FL(cflag2))
-			{
-				l_flag[10] = "Specific Item";
-				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(FL(cflag11))
-				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
-				}
-				else
-				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
-				}
-			}
-			if(FL(cflag3))
-			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
-			}
-			break;
-		}
-		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
-		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
-		{
-			l_flag[0] = "Decoration Sprite";
-			h_flag[0] = "Spawn a decoration when slashed";
-			if(FL(cflag1))
-			{
-				l_flag[9] = "Use Clippings Sprite";
-				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
-				if(FL(cflag10))
-				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
-				}
-				else
-				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
-				}
-			}
-			l_flag[1] = "Set Dropset";
-			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			l_flag[2] = "Custom SFX";
-			h_flag[2] = "Specify a custom slash SFX";
-			if(FL(cflag2))
-			{
-				l_flag[10] = "Specific Item";
-				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(FL(cflag11))
-				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
-				}
-				else
-				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
-				}
-			}
-			if(FL(cflag3))
-			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
-			}
-			break;
-		}
 		case cSLASHNEXT:
 		{
 			l_flag[0] = "Decoration Sprite";
@@ -1494,51 +1359,6 @@ void ComboEditorDialog::loadComboType()
 			}
 			l_flag[2] = "Custom SFX";
 			h_flag[2] = "Specify a custom slash SFX";
-			if(FL(cflag3))
-			{
-				l_attribyte[2] = "Slash Sound:";
-				h_attribyte[2] = "The SFX to play when slashed";
-			}
-			break;
-		}
-		case cSLASHNEXTITEMTOUCHY:
-		{
-			l_flag[0] = "Decoration Sprite";
-			h_flag[0] = "Spawn a decoration when slashed";
-			if(FL(cflag1))
-			{
-				l_flag[9] = "Use Clippings Sprite";
-				h_flag[9] = "Use a system clipping sprite instead of a Sprite Data sprite";
-				if(FL(cflag10))
-				{
-					l_attribyte[0] = "Clipping Sprite:";
-					h_attribyte[0] = "0 and 1 = Bush Leaves, 2 = Flowers, 3 = Grass";
-				}
-				else
-				{
-					l_attribyte[0] = "Sprite:";
-					h_attribyte[0] = "Sprite Data sprite ID to display as a clipping";
-				}
-			}
-			l_flag[1] = "Set Dropset";
-			h_flag[1] = "Allows specifying the dropset to use as an attribyte";
-			l_flag[2] = "Custom SFX";
-			h_flag[2] = "Specify a custom slash SFX";
-			if(FL(cflag2))
-			{
-				l_flag[10] = "Specific Item";
-				h_flag[10] = "Drop a specific item instead of an item from a dropset";
-				if(FL(cflag11))
-				{
-					l_attribyte[1] = "Item:";
-					h_attribyte[1] = "The item ID to drop";
-				}
-				else
-				{
-					l_attribyte[1] = "Dropset:";
-					h_attribyte[1] = "The dropset to select a drop item from";
-				}
-			}
 			if(FL(cflag3))
 			{
 				l_attribyte[2] = "Slash Sound:";

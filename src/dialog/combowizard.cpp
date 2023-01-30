@@ -24,19 +24,22 @@ bool hasComboWizard(int32_t type)
 {
 	switch(type)
 	{
+		// Not adding
 		// case cSCRIPT1: case cSCRIPT2: case cSCRIPT3: case cSCRIPT4: case cSCRIPT5:
 		// case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
+		// case cSLASH: case cSLASHTOUCHY:
+		//!Todo combo wizards -Em
 		// case cTRIGGERGENERIC: case cCSWITCH: case cSIGNPOST:
-		// case cSLASH: case cSLASHITEM: case cBUSH: case cFLOWERS:
-		// case cTALLGRASSNEXT:case cSLASHNEXT: case cSLASHNEXTITEM: case cBUSHNEXT:
-		// case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
-		// case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
-		// case cBUSHNEXTTOUCHY:
 		// case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		// case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
-		case cTALLGRASS:
+		case cSLASHNEXT:
+		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
+		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
+		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		case cARMOS: case cGRAVE: case cBSGRAVE:
 		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
@@ -137,7 +140,12 @@ void ComboWizardDialog::update(bool first)
 			tfs[2]->setDisabled(!rad0);
 			break;
 		}
-		case cTALLGRASS:
+		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
+			[[fallthrough]];
+		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
+		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
 			auto rad0 = getRadio(0);
 			ddls[0]->setDisabled(rad0 != 1);
@@ -145,6 +153,15 @@ void ComboWizardDialog::update(bool first)
 			auto rad1 = getRadio(1);
 			ddls[2]->setDisabled(rad1 != 1);
 			ddls[3]->setDisabled(rad1 != 2);
+			auto rad2 = getRadio(2);
+			ddls[4]->setDisabled(rad2 != 1);
+			break;
+		}
+		case cSLASHNEXT:
+		{
+			auto rad0 = getRadio(0);
+			ddls[0]->setDisabled(rad0 != 1);
+			ddls[1]->setDisabled(rad0 != 2);
 			auto rad2 = getRadio(2);
 			ddls[4]->setDisabled(rad2 != 1);
 			break;
@@ -345,7 +362,12 @@ void ComboWizardDialog::endUpdate()
 			}
 			break;
 		}
-		case cTALLGRASS:
+		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
+			[[fallthrough]];
+		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
+		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
 			size_t decoty = getRadio(0);
 			byte& decospr = local_ref.attribytes[0];
@@ -385,6 +407,32 @@ void ComboWizardDialog::endUpdate()
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
 		}
+		case cSLASHNEXT:
+		{
+			size_t decoty = getRadio(0);
+			byte& decospr = local_ref.attribytes[0];
+			
+			SETFLAG(local_ref.usrflags,cflag1,decoty != 0);
+			SETFLAG(local_ref.usrflags,cflag10,decoty == 1);
+			switch(decoty)
+			{
+				case 0:
+					decospr = 0;
+					break;
+				case 1:
+					decospr = ddls[0]->getSelectedValue();
+					break;
+				case 2:
+					decospr = ddls[1]->getSelectedValue();
+					break;
+			}
+			
+			if(getRadio(2)==0)
+				local_ref.attribytes[2] = 0;
+			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
+			break;
+		}
+		
 	}
 }
 
@@ -431,22 +479,22 @@ void ComboWizardDialog::updateTitle()
 	}
 	window->setTitle("Combo Wizard (" + ctyname + ")");
 }
-void ComboWizardDialog::do_default(bool typeonly)
+void combo_default(newcombo& ref, bool typeonly)
 {
 	if(typeonly)
 	{
-		memset(local_ref.attributes, 0, sizeof(local_ref.attributes));
-		memset(local_ref.attribytes, 0, sizeof(local_ref.attribytes));
-		memset(local_ref.attrishorts, 0, sizeof(local_ref.attrishorts));
-		local_ref.usrflags = 0;
+		memset(ref.attributes, 0, sizeof(ref.attributes));
+		memset(ref.attribytes, 0, sizeof(ref.attribytes));
+		memset(ref.attrishorts, 0, sizeof(ref.attrishorts));
+		ref.usrflags = 0;
 	}
 	else
 	{
-		auto ty = local_ref.type;
-		local_ref.clear();
-		local_ref.type = ty;
+		auto ty = ref.type;
+		ref.clear();
+		ref.type = ty;
 	}
-	switch(local_ref.type)
+	switch(ref.type)
 	{
 		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
 		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
@@ -456,8 +504,8 @@ void ComboWizardDialog::do_default(bool typeonly)
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 			break;
 		case cSLOPE:
-			local_ref.attrishorts[0] = 15;
-			local_ref.attrishorts[3] = 15;
+			ref.attrishorts[0] = 15;
+			ref.attrishorts[3] = 15;
 			break;
 		case cTRIGNOFLAG: case cSTRIGNOFLAG:
 		case cTRIGFLAG: case cSTRIGFLAG:
@@ -467,7 +515,7 @@ void ComboWizardDialog::do_default(bool typeonly)
 		case cARMOS: case cGRAVE: case cBSGRAVE:
 			break;
 		case cWATER:
-			local_ref.attributes[0] = 40000;
+			ref.attributes[0] = 40000;
 			break;
 		case cSHALLOWWATER:
 			break;
@@ -475,18 +523,25 @@ void ComboWizardDialog::do_default(bool typeonly)
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 			break;
 		case cSHOOTER:
-			local_ref.attribytes[1] = ewARROW;
-			local_ref.attribytes[2] = 19;
-			local_ref.attrishorts[0] = 60;
-			local_ref.attrishorts[2] = 2;
-			local_ref.attributes[0] = -10000;
-			local_ref.attributes[1] = 40000;
-			local_ref.attributes[2] = 2000000;
-			local_ref.usrflags = cflag1 | cflag4;
+			ref.attribytes[1] = ewARROW;
+			ref.attribytes[2] = 19;
+			ref.attrishorts[0] = 60;
+			ref.attrishorts[2] = 2;
+			ref.attributes[0] = -10000;
+			ref.attributes[1] = 40000;
+			ref.attributes[2] = 2000000;
+			ref.usrflags = cflag1 | cflag4;
 			break;
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 			break;
-		case cTALLGRASS:
+		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
+			break;
+		case cSLASHNEXT:
+			break;
+		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
+		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 			break;
 	}
 }
@@ -1754,7 +1809,172 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			);
 			break;
 		}
-		case cTALLGRASS:
+		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
+		{
+			byte& decospr = local_ref.attribytes[0];
+			byte& dropitem = local_ref.attribytes[1];
+			byte& cutsfx = local_ref.attribytes[2];
+			byte& walksfx = local_ref.attribytes[3];
+			auto radmode = 0;
+			if(local_ref.usrflags&cflag1)
+			{
+				radmode = 2;
+				if(local_ref.usrflags&cflag10)
+					radmode = 1;
+			}
+			auto radmode2 = 0;
+			if(local_ref.usrflags&cflag2)
+			{
+				radmode2 = 1;
+				if(local_ref.usrflags&cflag11)
+					radmode2 = 2;
+			}
+			
+			byte defcut = cutsfx;
+			if(!(local_ref.usrflags&cflag3))
+				defcut = misc.miscsfx[sfxBUSHGRASS];
+			
+			windowRow->add(
+				Column(padding = 0_px,
+					Rows<3>(
+						Label(text = "Sprite", colSpan = 3),
+						//
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 0,
+							text = "Default Sprite",
+							indx = 0,
+							onToggle = message::RSET0
+						),
+						DummyWidget(),
+						INFOBTN("Display default clippings"),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 1,
+							text = "Custom Clipping",
+							indx = 1,
+							onToggle = message::RSET0
+						),
+						ddls[0] = DropDownList(data = list_clippings,
+							fitParent = true, selectedValue = radmode==1 ? decospr : 0,
+							disabled = radmode != 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								decospr = val;
+							}),
+						INFOBTN("Which clipping sprite to display when broken"),
+						//
+						rset[0][2] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 2,
+							text = "Custom Sprite",
+							indx = 2,
+							onToggle = message::RSET0
+						),
+						ddls[1] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = radmode==2 ? decospr : 0,
+							disabled = radmode != 2,
+							onSelectFunc = [&](int32_t val)
+							{
+								decospr = val;
+							}),
+						INFOBTN("Which custom sprite to display when broken"),
+						//
+						//
+						Label(text = "Drops", colSpan = 3),
+						//
+						rset[1][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode2 == 0,
+							text = "Default Dropset",
+							set = 1, indx = 0,
+							onToggle = message::RSET1
+						),
+						DummyWidget(),
+						INFOBTN("Drop an item from the default dropset"),
+						//
+						rset[1][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode2 == 1,
+							text = "Custom Dropset",
+							set = 1, indx = 1,
+							onToggle = message::RSET1
+						),
+						ddls[2] = DropDownList(data = list_dropsets,
+							fitParent = true, selectedValue = radmode==1 ? dropitem : 0,
+							disabled = radmode != 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								dropitem = val;
+							}),
+						INFOBTN("Which dropset to drop an item from when broken"),
+						//
+						rset[1][2] = Radio(
+							hAlign = 0.0,
+							checked = radmode2 == 2,
+							text = "Custom Item",
+							set = 1, indx = 2,
+							onToggle = message::RSET1
+						),
+						ddls[3] = DropDownList(data = list_items,
+							fitParent = true, selectedValue = radmode==2 ? dropitem : 0,
+							disabled = radmode != 2,
+							onSelectFunc = [&](int32_t val)
+							{
+								dropitem = val;
+							}),
+						INFOBTN("Which item to drop when broken"),
+						//
+						//
+						Label(text = "SFX", colSpan = 3),
+						//
+						rset[2][0] = Radio(
+							hAlign = 0.0,
+							checked = !(local_ref.usrflags&cflag3),
+							text = "Default Cut SFX",
+							set = 2, indx = 0,
+							onToggle = message::RSET2
+						),
+						DummyWidget(),
+						INFOBTN("Play the default cut SFX"),
+						//
+						rset[2][1] = Radio(
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag3,
+							text = "Custom Cut SFX",
+							set = 2, indx = 1,
+							onToggle = message::RSET2
+						),
+						ddls[4] = DropDownList(data = list_sfx,
+							fitParent = true, selectedValue = defcut,
+							disabled = !(local_ref.usrflags&cflag3),
+							onSelectFunc = [&](int32_t val)
+							{
+								cutsfx = val;
+							}),
+						INFOBTN("What SFX to play when cut"),
+						//
+						Label(text = "Walk SFX"),
+						ddls[5] = DropDownList(data = list_sfx,
+							fitParent = true, selectedValue = walksfx,
+							onSelectFunc = [&](int32_t val)
+							{
+								walksfx = val;
+							}),
+						INFOBTN("The SFX to play when the player walks through this combo. If 0, no sound is played.")
+					)
+				)
+			);
+			rs_sz[0] = 3;
+			rs_sz[1] = 3;
+			rs_sz[2] = 2;
+			break;
+		}
+		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
+		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
+		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
+		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 		{
 			byte& decospr = local_ref.attribytes[0];
 			byte& dropitem = local_ref.attribytes[1];
@@ -1876,7 +2096,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						rset[2][0] = Radio(
 							hAlign = 0.0,
 							checked = !(local_ref.usrflags&cflag3),
-							text = "Default SFX",
+							text = "Default Cut SFX",
 							set = 2, indx = 0,
 							onToggle = message::RSET2
 						),
@@ -1886,7 +2106,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						rset[2][1] = Radio(
 							hAlign = 0.0,
 							checked = local_ref.usrflags&cflag3,
-							text = "Custom SFX",
+							text = "Custom Cut SFX",
 							set = 2, indx = 1,
 							onToggle = message::RSET2
 						),
@@ -1897,13 +2117,110 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								cutsfx = val;
 							}),
-						INFOBTN("What SFX to play when broken")
-						//
+						INFOBTN("What SFX to play when cut")
 					)
 				)
 			);
 			rs_sz[0] = 3;
 			rs_sz[1] = 3;
+			rs_sz[2] = 2;
+			break;
+		}
+		case cSLASHNEXT:
+		{
+			byte& decospr = local_ref.attribytes[0];
+			byte& cutsfx = local_ref.attribytes[2];
+			auto radmode = 0;
+			if(local_ref.usrflags&cflag1)
+			{
+				radmode = 2;
+				if(local_ref.usrflags&cflag10)
+					radmode = 1;
+			}
+			
+			byte defcut = cutsfx;
+			if(!(local_ref.usrflags&cflag3))
+				defcut = misc.miscsfx[sfxBUSHGRASS];
+			
+			windowRow->add(
+				Column(padding = 0_px,
+					Rows<3>(
+						Label(text = "Sprite", colSpan = 3),
+						//
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 0,
+							text = "Default Sprite",
+							indx = 0,
+							onToggle = message::RSET0
+						),
+						DummyWidget(),
+						INFOBTN("Display default clippings"),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 1,
+							text = "Custom Clipping",
+							indx = 1,
+							onToggle = message::RSET0
+						),
+						ddls[0] = DropDownList(data = list_clippings,
+							fitParent = true, selectedValue = radmode==1 ? decospr : 0,
+							disabled = radmode != 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								decospr = val;
+							}),
+						INFOBTN("Which clipping sprite to display when broken"),
+						//
+						rset[0][2] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 2,
+							text = "Custom Sprite",
+							indx = 2,
+							onToggle = message::RSET0
+						),
+						ddls[1] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = radmode==2 ? decospr : 0,
+							disabled = radmode != 2,
+							onSelectFunc = [&](int32_t val)
+							{
+								decospr = val;
+							}),
+						INFOBTN("Which custom sprite to display when broken"),
+						//
+						//
+						Label(text = "SFX", colSpan = 3),
+						//
+						rset[2][0] = Radio(
+							hAlign = 0.0,
+							checked = !(local_ref.usrflags&cflag3),
+							text = "Default Cut SFX",
+							set = 2, indx = 0,
+							onToggle = message::RSET2
+						),
+						DummyWidget(),
+						INFOBTN("Play the default cut SFX"),
+						//
+						rset[2][1] = Radio(
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag3,
+							text = "Custom Cut SFX",
+							set = 2, indx = 1,
+							onToggle = message::RSET2
+						),
+						ddls[4] = DropDownList(data = list_sfx,
+							fitParent = true, selectedValue = defcut,
+							disabled = !(local_ref.usrflags&cflag3),
+							onSelectFunc = [&](int32_t val)
+							{
+								cutsfx = val;
+							}),
+						INFOBTN("What SFX to play when cut")
+					)
+				)
+			);
+			rs_sz[0] = 3;
 			rs_sz[2] = 2;
 			break;
 		}
@@ -1923,13 +2240,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 static ComboWizardDialog* _instance = nullptr;
 bool def_all()
 {
-	_instance->do_default(false);
+	combo_default(_instance->local_ref, false);
 	_instance->rerun_dlg = true;
 	return true;
 }
 bool def_some()
 {
-	_instance->do_default(true);
+	combo_default(_instance->local_ref, true);
 	_instance->rerun_dlg = true;
 	return true;
 }
