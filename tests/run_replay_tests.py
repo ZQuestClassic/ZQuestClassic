@@ -349,6 +349,7 @@ def get_replay_data(file):
         'solid.zplay': 800,
         'link_to_the_zelda.zplay': 1000,
         'freedom_in_chains.zplay': 460,
+        'hollow_forest.zplay': 200,
     }
     if file.name in estimated_fps_overrides:
         estimated_fps = estimated_fps_overrides[file.name]
