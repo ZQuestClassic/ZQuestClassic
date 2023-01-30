@@ -3,6 +3,7 @@
 
 #include "comboeditor.h"
 #include <gui/switcher.h>
+#include <gui/tabpanel.h>
 #include <gui/drop_down_list.h>
 #include <gui/radioset.h>
 bool hasComboWizard(int32_t type);
@@ -26,6 +27,7 @@ private:
 	
 	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::TabPanel> tpan[10];
 	std::shared_ptr<GUI::TextField> tfs[10];
 	std::shared_ptr<GUI::DropDownList> ddls[10];
 	std::shared_ptr<GUI::Checkbox> cboxes[10];

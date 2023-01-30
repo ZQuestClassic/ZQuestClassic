@@ -1525,6 +1525,16 @@ bool isConveyorType(int32_t type)
 	}
 	return false;
 }
+bool isChestType(int32_t type)
+{
+	switch(type)
+	{
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+			return true;
+	}
+	return false;
+}
 
 void zinitdata::clear()
 {

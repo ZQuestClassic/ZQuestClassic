@@ -30,10 +30,11 @@ bool hasComboWizard(int32_t type)
 		// case cSLASH: case cSLASHTOUCHY:
 		//!Todo combo wizards -Em
 		// case cTRIGGERGENERIC: case cCSWITCH: case cSIGNPOST:
-		// case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 		// case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
 		case cSLASHNEXT:
 		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
 		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
@@ -94,6 +95,19 @@ static const GUI::ListData list_clippings
 	{ "Bush Leaves", 0 },
 	{ "Flowers", 2 },
 	{ "Grass", 3 },
+};
+
+static const GUI::ListData list_chest_content
+{
+	{ "Screen Catchall ('Special Item')", -1 },
+	{ "Screen->D[0]", -10 },
+	{ "Screen->D[1]", -11 },
+	{ "Screen->D[2]", -12 },
+	{ "Screen->D[3]", -13 },
+	{ "Screen->D[4]", -14 },
+	{ "Screen->D[5]", -15 },
+	{ "Screen->D[6]", -16 },
+	{ "Screen->D[7]", -17 },
 };
 
 void ComboWizardDialog::setRadio(size_t rs, size_t ind)
@@ -213,6 +227,37 @@ void ComboWizardDialog::update(bool first)
 			size_t adir = getRadio(0);
 			ddls[5]->setDisabled(adir!=0);
 			tfs[2]->setDisabled(adir!=1);
+			break;
+		}
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cCHEST)
+				lvl = 1;
+			else if(local_ref.type == cBOSSCHEST)
+				lvl = 2;
+			else if(local_ref.type == cLOCKEDCHEST)
+				lvl = 3;
+			
+			tpan[0]->setDisabled(1, lvl < 1); //Opening
+			tpan[0]->setDisabled(2, lvl < 1); //Content
+			tpan[0]->setDisabled(3, lvl < 1); //Prompts
+			tpan[0]->setDisabled(4, lvl < 3); //Locking
+			
+			cboxes[0]->setDisabled(lvl < 1); //'Use Special Item State'
+			//
+			
+			byte& exstate = local_ref.attribytes[5];
+			auto rad0 = getRadio(0);
+			
+			tfs[0]->setDisabled(rad0==0);
+			
+			int16_t& contains_item = local_ref.attrishorts[2];
+			auto rad1 = getRadio(1);
+			
+			ddls[2]->setDisabled(rad1!=0);
+			ddls[3]->setDisabled(rad1!=1);
 			break;
 		}
 	}
@@ -432,7 +477,29 @@ void ComboWizardDialog::endUpdate()
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
 		}
-		
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cCHEST)
+				lvl = 1;
+			else if(local_ref.type == cBOSSCHEST)
+				lvl = 2;
+			else if(local_ref.type == cLOCKEDCHEST)
+				lvl = 3;
+			
+			byte& exstate = local_ref.attribytes[5];
+			auto rad0 = getRadio(0);
+			
+			if(rad0==0)
+				exstate = 0;
+			
+			int16_t& contains_item = local_ref.attrishorts[2];
+			auto rad1 = getRadio(1);
+			
+			contains_item = ddls[rad1==1 ? 3 : 2]->getSelectedValue();
+			break;
+		}
 	}
 }
 
@@ -542,6 +609,18 @@ void combo_default(newcombo& ref, bool typeonly)
 		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
 		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
 		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
+			break;
+		case cLOCKEDCHEST:
+			ref.attributes[0] = 1;
+			[[fallthrough]];
+		case cBOSSCHEST:
+			[[fallthrough]];
+		case cCHEST:
+			ref.attribytes[2] = 0x01;
+			ref.attrishorts[2] = -1;
+			ref.usrflags = cflag7|cflag9|cflag11|cflag12;
+			[[fallthrough]];
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
 			break;
 	}
 }
@@ -2222,6 +2301,263 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			);
 			rs_sz[0] = 3;
 			rs_sz[2] = 2;
+			break;
+		}
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			byte& exstate = local_ref.attribytes[5];
+			byte& openbtn = local_ref.attribytes[2];
+			byte& opensfx = local_ref.attribytes[3];
+			int16_t& contains_item = local_ref.attrishorts[2];
+			
+			auto radmode = 0;
+			if(local_ref.usrflags&cflag16)
+				radmode = 1;
+			
+			auto radmode2 = 0;
+			auto spitem_def = contains_item;
+			auto normitem_def = 0;
+			if(unsigned(contains_item) < 256)
+			{
+				radmode2 = 1;
+				spitem_def = -1;
+				normitem_def = contains_item;
+			}
+			
+			lists[0] = GUI::ZCListData::combotype(true).filter(
+				[](GUI::ListItem& itm)
+				{
+					switch(itm.value)
+					{
+						case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+							itm.tag = 0;
+							return true;
+						case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+							itm.tag = 1;
+							return true;
+					}
+					return false;
+				}).tagsort();
+			windowRow->add(Column(
+				Row(
+					ddls[0] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = local_ref.type,
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.type = val;
+							updateTitle();
+							update();
+						}),
+					INFOBTN(thelp)
+				),
+				tpan[0] = TabPanel(
+					TabRef(name = "State", Rows<3>(
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 0,
+							text = "Chest State",
+							indx = 0,
+							onToggle = message::RSET0
+						),
+						DummyWidget(),
+						INFOBTN("Chest will use the standard 'Chest'/'Locked Chest'/'Boss Chest' screen state."),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode == 1,
+							text = "Ex State",
+							indx = 1,
+							onToggle = message::RSET0
+						),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							val = exstate, disabled = radmode == 0,
+							high = 31,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								exstate = val;
+							}),
+						INFOBTN("Which ExtraState (0 to 31) to use instead of the standard screen state"),
+						//
+						cboxes[0] = Checkbox(
+							text = "Use Special Item State", hAlign = 0.0,
+							checked = local_ref.usrflags&cflag7,
+							colSpan = 2,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag7,state);
+							}
+						),
+						INFOBTN("Link the contained item to 'Special Item' screen state."
+							"\nThis means that picking up the item will count as collecting the screen's Special Item."
+							"\nThis does NOT make the chest contain the item set in Screen Data - see the Content tab for that.")
+					)),
+					TabRef(name = "Opening", Row(
+						Rows<2>(padding = 0_px,
+							Checkbox(
+								text = "Can't use from top", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag9,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag9,state);
+								}
+							),
+							INFOBTN("Cannot be activated standing to the top side if checked"),
+							//
+							Checkbox(
+								text = "Can't use from bottom", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag10,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag10,state);
+								}
+							),
+							INFOBTN("Cannot be activated standing to the bottom side if checked"),
+							//
+							Checkbox(
+								text = "Can't use from left", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag11,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag11,state);
+								}
+							),
+							INFOBTN("Cannot be activated standing to the left side if checked"),
+							//
+							Checkbox(
+								text = "Can't use from right", hAlign = 0.0,
+								checked = local_ref.usrflags&cflag12,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag12,state);
+								}
+							),
+							INFOBTN("Cannot be activated standing to the right side if checked")
+						),
+						Column(padding = 0_px,
+							Row(padding = 0_px,
+								Label(text = "Buttons:"),
+								INFOBTN("Which buttons should interact with the chest?"
+									"\nIf no buttons are selected, walking into the chest will interact with it.")
+							),
+							Columns<4>(
+								Checkbox(
+									text = "A", hAlign = 0.0,
+									checked = openbtn&0x1,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x1,state);
+									}
+								),
+								Checkbox(
+									text = "B", hAlign = 0.0,
+									checked = openbtn&0x2,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x2,state);
+									}
+								),
+								Checkbox(
+									text = "L", hAlign = 0.0,
+									checked = openbtn&0x4,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x4,state);
+									}
+								),
+								Checkbox(
+									text = "R", hAlign = 0.0,
+									checked = openbtn&0x8,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x8,state);
+									}
+								),
+								Checkbox(
+									text = "Ex1", hAlign = 0.0,
+									checked = openbtn&0x10,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x10,state);
+									}
+								),
+								Checkbox(
+									text = "Ex2", hAlign = 0.0,
+									checked = openbtn&0x20,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x20,state);
+									}
+								),
+								Checkbox(
+									text = "Ex3", hAlign = 0.0,
+									checked = openbtn&0x40,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x40,state);
+									}
+								),
+								Checkbox(
+									text = "Ex4", hAlign = 0.0,
+									checked = openbtn&0x80,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(openbtn,0x80,state);
+									}
+								)
+							)
+						)
+					)),
+					TabRef(name = "Content", Rows<3>(
+						Label(text = "Open SFX:"),
+						ddls[1] = DropDownList(data = list_sfx,
+							fitParent = true, selectedValue = opensfx,
+							onSelectFunc = [&](int32_t val)
+							{
+								opensfx = val;
+							}),
+						INFOBTN("The sound to play when opening the chest"),
+						//
+						Label(text = "Contains:", colSpan = 3),
+						//
+						rset[1][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode2 == 0,
+							text = "Variable Content:",
+							indx = 0,
+							onToggle = message::RSET1
+						),
+						ddls[2] = DropDownList(data = list_chest_content,
+							fitParent = true, selectedValue = spitem_def,
+							onSelectFunc = [&](int32_t val)
+							{
+								contains_item = val;
+							}),
+						INFOBTN("Which value to use as an item for the chest to contain"),
+						//
+						rset[1][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode2 == 1,
+							text = "Specific Item:",
+							indx = 1,
+							onToggle = message::RSET1
+						),
+						ddls[3] = DropDownList(data = list_items,
+							fitParent = true, selectedValue = normitem_def,
+							onSelectFunc = [&](int32_t val)
+							{
+								contains_item = val;
+							}),
+						INFOBTN("Which item to put in the chest")
+					)),
+					TabRef(name = "Prompts", Column(DummyWidget())),
+					TabRef(name = "Locking", Column(DummyWidget()))
+				)
+			));
+			rs_sz[0] = 2;
+			rs_sz[1] = 2;
 			break;
 		}
 		default: //Should be unreachable

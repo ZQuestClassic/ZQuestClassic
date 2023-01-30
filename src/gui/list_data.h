@@ -159,6 +159,7 @@ public:
 	
 	//Modifies the listdata, and returns a self-reference
 	ListData& filter(std::function<bool(ListItem&)>);
+	ListData& tagsort();
 	ListData& alphabetize();
 	ListData& tag(int32_t tagval, bool onlyUntagged = false);
 	

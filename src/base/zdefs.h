@@ -5584,6 +5584,7 @@ int32_t simplifyWarpType(int32_t type);
 bool isStepType(int32_t type);
 bool isDamageType(int32_t type);
 bool isConveyorType(int32_t type);
+bool isChestType(int32_t type);
 
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 #define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))

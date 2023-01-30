@@ -8411,8 +8411,12 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 						}
 						
 						tx+=4;
-						gui_textout_ln(screen, (uint8_t*)(panel->getName(i)), tx+4, d->y+sd+4, scheme[jcBOXFG], scheme[jcBOX], 0);
-						tx+=text_length(font, panel->getName(i))+10;
+						uint8_t* pname = (uint8_t*)(panel->getName(i));
+						bool dis = panel->getDisabled(i);
+						if(dis)
+							gui_textout_ln(screen, pname, tx+5, d->y+sd+5, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						gui_textout_ln(screen, pname, tx+4, d->y+sd+4, scheme[dis ? jcDISABLED_FG : jcBOXFG], dis ? -1 : scheme[jcBOX], 0);
+						tx+=text_length(font, (const char*)pname)+10;
 						
 						if((i+1>=panel->getSize()) || (i+1!=panel->getCurrentIndex()))
 						{
@@ -8452,31 +8456,40 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		case MSG_CHAR:
 		{
 			int32_t ind = panel->getCurrentIndex();
+			auto oldind = ind;
 			switch(c>>8)
 			{
 				case KEY_LEFT:
-					if(ind > 0)
+					do
 					{
-						--ind;
+						if(ind > 0)
+						{
+							--ind;
+						}
+						else
+						{
+							ind = panel->getSize()-1;
+						}
 					}
-					else
-					{
-						ind = panel->getSize()-1;
-					}
+					while(ind != oldind && panel->getDisabled(ind));
 					break;
 				case KEY_RIGHT:
-					if(ind+1 < signed(panel->getSize()))
+					do
 					{
-						++ind;
+						if(ind+1 < signed(panel->getSize()))
+						{
+							++ind;
+						}
+						else
+						{
+							ind = 0;
+						}
 					}
-					else
-					{
-						ind = 0;
-					}
+					while(ind != oldind && panel->getDisabled(ind));
 					break;
 				default: ind = -1;
 			}
-			if(ind > -1 && ind != panel->getCurrentIndex())
+			if(ind > -1 && ind != oldind)
 			{
 				panel->switchTo(ind);
 				GUI_EVENT(d, geCHANGE_SELECTION);
@@ -8521,7 +8534,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				// find out what the new tab (tb) will be (where the mouse is)
 				int32_t newtab = discern_tab(panel, d->d1, gui_mouse_x()-d->x-2);
-				if(newtab > -1 && newtab != panel->getCurrentIndex())
+				if(newtab > -1 && newtab != panel->getCurrentIndex() && !panel->getDisabled(newtab))
 				{
 					panel->switchTo(newtab);
 					GUI_EVENT(d, geCHANGE_SELECTION);

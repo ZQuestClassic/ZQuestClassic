@@ -29,7 +29,7 @@ public:
 	{
 		return visibleChild;
 	}
-
+	
 	/* Returns the TabRef at the given index */
 	std::shared_ptr<TabRef> get(size_t index)
 	{
@@ -37,6 +37,9 @@ public:
 			return nullptr;
 		return children.at(index);
 	}
+	
+	void setDisabled(size_t index, bool newdis);
+	bool getDisabled(size_t index) const;
 	
 	size_t getSize() const {return children.size();}
 	const char* getName(size_t index) const

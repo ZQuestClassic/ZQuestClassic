@@ -32,6 +32,32 @@ void TabPanel::switchTo(size_t index)
 	pendDraw(); //Draw the tabpanel again, with the correct tab selected
 	children[index]->setExposed(true); //Show the new child
 }
+void TabPanel::setDisabled(size_t index, bool newdis)
+{
+	if(index >= children.size())
+		return;
+	children.at(index)->setDisabled(newdis);
+	//Select a new tab if current tab is disabled?
+	if(index == visibleChild && newdis)
+	{
+		auto oldind = index;
+		do
+		{
+			++index;
+			if(index >= children.size())
+				index = 0;
+		}
+		while(index != oldind && getDisabled(index));
+		if(index != oldind)
+			switchTo(index);
+	}
+}
+bool TabPanel::getDisabled(size_t index) const
+{
+	if(index >= children.size())
+		return true;
+	return children.at(index)->getDisabled();
+}
 
 void TabPanel::setPtr(size_t* ptr)
 {
@@ -162,7 +188,6 @@ int32_t TabPanel::onEvent(int32_t event, MessageDispatcher& sendMessage)
 	
 	return -1;
 }
-
 void TabPanel::setOnSwitch(std::function<void(size_t,size_t)> newOnSwitch)
 {
 	onSwitch = std::move(newOnSwitch);
