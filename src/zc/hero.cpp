@@ -20891,11 +20891,15 @@ void HeroClass::checkspecial2(int32_t *ls)
 {
 	if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
 	{
-		if(y.getInt()&7)
-			return;
-			
-		if(x.getInt()&7)
-			return;
+		// Must run fairycircle stuff if currently active, otherwise hero gets stuck!
+		if (!fairyclk)
+		{
+			if(y.getInt()&7)
+				return;
+
+			if(x.getInt()&7)
+				return;
+		}
 	}
 	
 	if(toogam) return;
