@@ -92,7 +92,7 @@ def collect_test_run_from_dir(directory: Path):
                 break
         if last_run_dir_for_replay:
             snapshots = [
-                s for s in snapshots if last_run_dir_for_replay.directory in str(s)]
+                s for s in snapshots if last_run_dir_for_replay.directory.replace('\\', '/') in str(s)]
 
         snapshots = [{
             'path': s,
