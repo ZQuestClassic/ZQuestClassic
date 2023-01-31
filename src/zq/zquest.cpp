@@ -944,6 +944,20 @@ void update_recent_quest(char const* path)
 	write_recent_quests();
 }
 
+void toggle_is_compact()
+{
+	is_compact = !is_compact;
+	zc_set_config("ZQ_GUI","compact_mode",is_compact?1:0);
+	if(is_compact)
+	{
+		current_combolist = 2;
+		current_cpoollist = 2;
+		current_comboalist = 2;
+	}
+	load_size_poses();
+	refresh(rCLEAR|rALL);
+}
+
 enum
 {
 	fileSave = 4,
@@ -5944,8 +5958,7 @@ void refresh(int32_t flags)
     
     if(flags&rCLEAR)
 	{
-        clear_to_color(menu1,vc(0));
-		jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+        clear_to_color(menu1,0xED/*vc(0)*/); //!TODO revert bg color
 	}
 	
     if(flags&rMAP)
@@ -7645,6 +7658,7 @@ void refresh(int32_t flags)
     if(flags&rCLEAR)
     {
         blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+		jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
     }
     else
     {
@@ -10705,16 +10719,7 @@ void domouse()
 		
 		if(isinRect(x,y,compactbtn.x,compactbtn.y,compactbtn.x+compactbtn.w-1,compactbtn.y+compactbtn.h-1) && !mouse_down)
 		{
-			is_compact = !is_compact;
-			if(is_compact)
-			{
-				current_combolist = 2;
-				current_cpoollist = 2;
-				current_comboalist = 2;
-			}
-			load_size_poses();
-			refresh(rCLEAR);
-			refresh(rALL);
+			toggle_is_compact();
 		}
 		
 		//on the favorites list
@@ -30615,6 +30620,7 @@ int32_t main(int32_t argc,char **argv)
 		BMM=1;
 	}
 	
+	is_compact = zc_get_config("ZQ_GUI","compact_mode",0)!=0;
 	load_size_poses();
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
@@ -32255,7 +32261,7 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
     static int32_t ret=D_O_K;
     domouse();
     do_animations();
-    refresh(rALL);
+    refresh(rCLEAR|rALL);
 	//d.dp2 = 5;
     
     //  if (msg!=MSG_IDLE)
