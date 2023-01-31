@@ -5954,242 +5954,242 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 }
 void refresh(int32_t flags)
 {
-    // CPage = Map.CurrScr()->cpage;
-    
-    if(flags&rCLEAR)
+	// CPage = Map.CurrScr()->cpage;
+	
+	if(flags&rCLEAR)
 	{
-        clear_to_color(menu1,0xED/*vc(0)*/); //!TODO revert bg color
+		clear_to_color(menu1,0xED/*vc(0)*/); //!TODO revert bg color
 	}
 	
-    if(flags&rMAP)
-    {
-        if(!layers_valid(Map.CurrScr()))
-            fix_layers(Map.CurrScr(), true);
-            
-        clear_to_color(mapscreenbmp,vc(0));
-        Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
-        if(showedges)
-        {
-            if(Map.getCurrScr()<128)
-            {
-                //not the first row of screens
-                if(Map.getCurrScr()>15 && !NoScreenPreview)
-                {
-                    Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
-                }
-                else
-                {
-                    Map.drawstaticrow(mapscreenbmp, 16, 0);
-                }
-                
-                //not the last row of screens
-                if(Map.getCurrScr()<112 && !NoScreenPreview)
-                {
-                    Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
-                }
-                else
-                {
-                    Map.drawstaticrow(mapscreenbmp, 16, 192);
-                }
-                
-                //not the first column of screens
-                if(Map.getCurrScr()&0x0F && !NoScreenPreview)
-                {
-                    Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
-                }
-                else
-                {
-                    Map.drawstaticcolumn(mapscreenbmp, 0, 16);
-                }
-                
-                //not the last column of screens
-                if((Map.getCurrScr()&0x0F)<15 && !NoScreenPreview)
-                {
-                    Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
-                }
-                else
-                {
-                    Map.drawstaticcolumn(mapscreenbmp, 272, 16);
-                }
-                
-                //not the first row or first column of screens
-                if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 0, 0);
-                }
-                
-                //not the first row or last column of screens
-                if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 272, 0);
-                }
-                
-                //not the last row or first column of screens
-                if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 0, 192);
-                }
-                
-                //not the last row or last column of screens
-                if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
-                {
-                    Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
-                }
-                else
-                {
-                    Map.drawstaticblock(mapscreenbmp, 272, 192);
-                }
-            }
-        }
-        
-        if(showxypos_icon)
-        {
-            if(showxypos_color==vc(15))
-                safe_rect(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
-            else
-                rectfill(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
-        }
-        
-        if(showxypos_cursor_icon)
-        {
-            safe_rect(mapscreenbmp,showxypos_cursor_x+(showedges?16:0),showxypos_cursor_y+(showedges?16:0),showxypos_cursor_x+(showedges?16:0)+showxypos_w-1,showxypos_cursor_y+(showedges?16:0)+showxypos_h-1,vc(15));
-        }
-        
-        if(ShowSquares)
-        {
-            if(Map.CurrScr()->stairx || Map.CurrScr()->stairy)
-            {
-                int32_t x1 = Map.CurrScr()->stairx+(showedges?16:0);
-                int32_t y1 = Map.CurrScr()->stairy+(showedges?16:0);
-                safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
-            }
-            
-            if(Map.CurrScr()->warparrivalx || Map.CurrScr()->warparrivaly)
-            {
-                int32_t x1 = Map.CurrScr()->warparrivalx +(showedges?16:0);
-                int32_t y1 = Map.CurrScr()->warparrivaly +(showedges?16:0);
-                safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
-            }
-            
-            for(int32_t i=0; i<4; i++) if(Map.CurrScr()->warpreturnx[i] || Map.CurrScr()->warpreturny[i])
-                {
-                    int32_t x1 = Map.CurrScr()->warpreturnx[i]+(showedges?16:0);
-                    int32_t y1 = Map.CurrScr()->warpreturny[i]+(showedges?16:0);
-                    int32_t clr = vc(9);
-                    
-                    if(FlashWarpSquare==i)
-                    {
-                        if(!FlashWarpClk)
-                            FlashWarpSquare=-1;
-                        else if(!(--FlashWarpClk%3))
-                            clr = vc(15);
-                    }
-                    
-                    safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,clr);
-                }
-                
-            /*
-                  for (int32_t i=0; i<4; i++) for (int32_t j=0; j<9; i++)
-                  {
-                    int32_t x1 = stx[i][j]+(showedges?16:0);
-                    int32_t y1 = sty[i][j]+(showedges?16:0);
-                    rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(15));
-                  }
-            */
-            
-        }
-        
-        if(mapscreensize==1)
-        {
-            blit(mapscreenbmp,menu1,0,0,mapscreen_x,mapscreen_y,mapscreenbmp->w,mapscreenbmp->h);
-        }
-        else
-        {
-            stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int32_t(mapscreensize*mapscreenbmp->w),int32_t(mapscreensize*mapscreenbmp->h));
-        }
-        
-        if(showedges)
-        {
-            //top preview
-            for(int32_t j=0; j<int32_t(16*mapscreensize); j++)
-            {
-                for(int32_t i=0; i<288*mapscreensize; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-            }
-            
-            //bottom preview
-            for(int32_t j=int32_t(192*mapscreensize); j<int32_t(208*mapscreensize); j++)
-            {
-                for(int32_t i=0; i<288*mapscreensize; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-            }
-            
-            //left preview
-            for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
-            {
-                for(int32_t i=0; i<16*mapscreensize; i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-                
-            }
-            
-            //right preview
-            for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
-            {
-                for(int32_t i=int32_t(272*mapscreensize); i<int32_t(288*mapscreensize); i++)
-                {
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
-                    }
-                }
-            }
-        }
-        
-        if(!(Flags&cDEBUG))
-        {
-            for(int32_t j=int32_t(168*mapscreensize); j<int32_t(176*mapscreensize); j++)
-            {
-                for(int32_t i=0; i<int32_t(256*mapscreensize); i++)
-                {
-                
-                    if(((i^j)&1)==0)
-                    {
-                        putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
-                                 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
-                    }
-                }
-            }
-        }
-        
-        if(Map.isDark())
-        {
+	if(flags&rMAP)
+	{
+		if(!layers_valid(Map.CurrScr()))
+			fix_layers(Map.CurrScr(), true);
+			
+		clear_to_color(mapscreenbmp,vc(0));
+		Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
+		if(showedges)
+		{
+			if(Map.getCurrScr()<128)
+			{
+				//not the first row of screens
+				if(Map.getCurrScr()>15 && !NoScreenPreview)
+				{
+					Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
+				}
+				else
+				{
+					Map.drawstaticrow(mapscreenbmp, 16, 0);
+				}
+				
+				//not the last row of screens
+				if(Map.getCurrScr()<112 && !NoScreenPreview)
+				{
+					Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
+				}
+				else
+				{
+					Map.drawstaticrow(mapscreenbmp, 16, 192);
+				}
+				
+				//not the first column of screens
+				if(Map.getCurrScr()&0x0F && !NoScreenPreview)
+				{
+					Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
+				}
+				else
+				{
+					Map.drawstaticcolumn(mapscreenbmp, 0, 16);
+				}
+				
+				//not the last column of screens
+				if((Map.getCurrScr()&0x0F)<15 && !NoScreenPreview)
+				{
+					Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
+				}
+				else
+				{
+					Map.drawstaticcolumn(mapscreenbmp, 272, 16);
+				}
+				
+				//not the first row or first column of screens
+				if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
+				{
+					Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
+				}
+				else
+				{
+					Map.drawstaticblock(mapscreenbmp, 0, 0);
+				}
+				
+				//not the first row or last column of screens
+				if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
+				{
+					Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
+				}
+				else
+				{
+					Map.drawstaticblock(mapscreenbmp, 272, 0);
+				}
+				
+				//not the last row or first column of screens
+				if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
+				{
+					Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
+				}
+				else
+				{
+					Map.drawstaticblock(mapscreenbmp, 0, 192);
+				}
+				
+				//not the last row or last column of screens
+				if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
+				{
+					Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
+				}
+				else
+				{
+					Map.drawstaticblock(mapscreenbmp, 272, 192);
+				}
+			}
+		}
+		
+		if(showxypos_icon)
+		{
+			if(showxypos_color==vc(15))
+				safe_rect(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
+			else
+				rectfill(mapscreenbmp,showxypos_x+(showedges?16:0),showxypos_y+(showedges?16:0),showxypos_x+(showedges?16:0)+showxypos_w-1,showxypos_y+(showedges?16:0)+showxypos_h-1,showxypos_color);
+		}
+		
+		if(showxypos_cursor_icon)
+		{
+			safe_rect(mapscreenbmp,showxypos_cursor_x+(showedges?16:0),showxypos_cursor_y+(showedges?16:0),showxypos_cursor_x+(showedges?16:0)+showxypos_w-1,showxypos_cursor_y+(showedges?16:0)+showxypos_h-1,vc(15));
+		}
+		
+		if(ShowSquares)
+		{
+			if(Map.CurrScr()->stairx || Map.CurrScr()->stairy)
+			{
+				int32_t x1 = Map.CurrScr()->stairx+(showedges?16:0);
+				int32_t y1 = Map.CurrScr()->stairy+(showedges?16:0);
+				safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(14));
+			}
+			
+			if(Map.CurrScr()->warparrivalx || Map.CurrScr()->warparrivaly)
+			{
+				int32_t x1 = Map.CurrScr()->warparrivalx +(showedges?16:0);
+				int32_t y1 = Map.CurrScr()->warparrivaly +(showedges?16:0);
+				safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(10));
+			}
+			
+			for(int32_t i=0; i<4; i++) if(Map.CurrScr()->warpreturnx[i] || Map.CurrScr()->warpreturny[i])
+				{
+					int32_t x1 = Map.CurrScr()->warpreturnx[i]+(showedges?16:0);
+					int32_t y1 = Map.CurrScr()->warpreturny[i]+(showedges?16:0);
+					int32_t clr = vc(9);
+					
+					if(FlashWarpSquare==i)
+					{
+						if(!FlashWarpClk)
+							FlashWarpSquare=-1;
+						else if(!(--FlashWarpClk%3))
+							clr = vc(15);
+					}
+					
+					safe_rect(mapscreenbmp,x1,y1,x1+15,y1+15,clr);
+				}
+				
+			/*
+				  for (int32_t i=0; i<4; i++) for (int32_t j=0; j<9; i++)
+				  {
+					int32_t x1 = stx[i][j]+(showedges?16:0);
+					int32_t y1 = sty[i][j]+(showedges?16:0);
+					rect(mapscreenbmp,x1,y1,x1+15,y1+15,vc(15));
+				  }
+			*/
+			
+		}
+		
+		if(mapscreensize==1)
+		{
+			blit(mapscreenbmp,menu1,0,0,mapscreen_x,mapscreen_y,mapscreenbmp->w,mapscreenbmp->h);
+		}
+		else
+		{
+			stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int32_t(mapscreensize*mapscreenbmp->w),int32_t(mapscreensize*mapscreenbmp->h));
+		}
+		
+		if(showedges)
+		{
+			//top preview
+			for(int32_t j=0; j<int32_t(16*mapscreensize); j++)
+			{
+				for(int32_t i=0; i<288*mapscreensize; i++)
+				{
+					if(((i^j)&1)==0)
+					{
+						putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+					}
+				}
+			}
+			
+			//bottom preview
+			for(int32_t j=int32_t(192*mapscreensize); j<int32_t(208*mapscreensize); j++)
+			{
+				for(int32_t i=0; i<288*mapscreensize; i++)
+				{
+					if(((i^j)&1)==0)
+					{
+						putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+					}
+				}
+			}
+			
+			//left preview
+			for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
+			{
+				for(int32_t i=0; i<16*mapscreensize; i++)
+				{
+					if(((i^j)&1)==0)
+					{
+						putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+					}
+				}
+				
+			}
+			
+			//right preview
+			for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
+			{
+				for(int32_t i=int32_t(272*mapscreensize); i<int32_t(288*mapscreensize); i++)
+				{
+					if(((i^j)&1)==0)
+					{
+						putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+					}
+				}
+			}
+		}
+		
+		if(!(Flags&cDEBUG))
+		{
+			for(int32_t j=int32_t(168*mapscreensize); j<int32_t(176*mapscreensize); j++)
+			{
+				for(int32_t i=0; i<int32_t(256*mapscreensize); i++)
+				{
+				
+					if(((i^j)&1)==0)
+					{
+						putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
+								 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
+					}
+				}
+			}
+		}
+		
+		if(Map.isDark())
+		{
 			if((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM))
 			{
 				BITMAP* tmpDark = create_bitmap_ex(8,16*16,16*11);
@@ -6271,178 +6271,178 @@ void refresh(int32_t flags)
 				}
 			}
 		}
-        
-        double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-        double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-        bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1));
-        
-        if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
-        {
-            arrowcursor = false;
-            int32_t mgridscale=16*mapscreensize;
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-            int32_t mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
-            int32_t my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
-            clear_bitmap(brushscreen);
-            int32_t tempbw=BrushWidth;
-            int32_t tempbh=BrushHeight;
-            
-            if(draw_mode==dm_alias)
-            {
-                BrushWidth = combo_aliases[combo_apos].width+1;
-                BrushHeight = combo_aliases[combo_apos].height+1;
-            }
-            
-            if((FloatBrush)&&(draw_mode!=dm_alias))
-            {
-                if(is_large)
-                {
-                    stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), my+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                }
-                else
-                {
-                    blit(brushbmp, brushscreen, 0, 0, mx+(showedges?mgridscale:0)-SHADOW_DEPTH, my+(showedges?mgridscale:0)-SHADOW_DEPTH, BrushWidth*mgridscale, BrushHeight*mgridscale);
-                }
-                
-                //shadow
-                for(int32_t i=0; i<SHADOW_DEPTH*mapscreensize; i++)
-                {
-                    for(int32_t j=0; j<BrushHeight*mgridscale; j++)
-                    {
-                        if((((i^j)&1)==1) && (my+j)<12*mgridscale)
-                        {
-                            putpixel(brushscreen,mx+(showedges?mgridscale:0)+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+(showedges?mgridscale:0)+j,vc(0));
-                        }
-                    }
-                }
-                
-                for(int32_t i=0; i<BrushWidth*mgridscale; i++)
-                {
-                    for(int32_t j=0; j<SHADOW_DEPTH*mapscreensize; j++)
-                    {
-                        if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
-                        {
-                            putpixel(brushscreen,mx+(showedges?mgridscale:0)+i,my+(showedges?mgridscale:0)+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
-                        }
-                    }
-                }
-            }
-            else
-            {
-                if(draw_mode!=dm_alias)
-                {
-                    if(is_large)
-                    {
-                        stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                    }
-                    else
-                    {
-                        blit(brushbmp, brushscreen, 0, 0, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                    }
-                }
-                else
-                {
-                    combo_alias *combo = &combo_aliases[combo_apos];
-                    
-                    if(is_large)
-                    {
-                        switch(alias_origin)
-                        {
-                        case 0:
-                            stretch_blit(brushbmp, brushscreen, 0,                                                                   0,                                                                     BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 1:
-                            stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0,                                                                     BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 2:
-                            stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 3:
-                            stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        switch(alias_origin)
-                        {
-                        case 0:
-                            blit(brushbmp, brushscreen, 0,                                             0,                                               mx+(showedges?mgridscale:0),                               my+(showedges?mgridscale:0),                                BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 1:
-                            blit(brushbmp, brushscreen, (mx<combo->width*16)?((combo->width)*16)-mx:0, 0,                                               zc_max((mx-(combo->width)*16),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 2:
-                            blit(brushbmp, brushscreen, 0, (my<combo->height*16)?((combo->height)*16)-my:0, mx+(showedges?mgridscale:0),                               zc_max((my-(combo->height)*16),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                            
-                        case 3:
-                            blit(brushbmp, brushscreen, (mx<combo->width*16)?((combo->width)*16)-mx:0, (my<combo->height*16)?((combo->height)*16)-my:0, zc_max((mx-(combo->width)*16),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*16),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
-                            break;
-                        }
-                    }
-                }
-            }
-            
-            masked_blit(brushscreen, menu1, 0, 0, 0, 16, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
-            BrushWidth=tempbw;
-            BrushHeight=tempbh;
-        }
-        else
-        {
-            if(!arrowcursor)
-            {
-                set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-                arrowcursor = true;
-            }
-        }
-        
-        if(ShowGrid)
-        {
-            int32_t w=16;
-            int32_t h=11;
-            
-            if(showedges)
-            {
-                w=18;
-                h=13;
-            }
-            
-            for(int32_t x=16; x<w*16; x+=16)
-            {
-                _allegro_vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
-            }
-            
-            for(int32_t y=16; y<h*16; y+=16)
-            {
-                _allegro_hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
-            }
-        }
-        
-        // Map tabs
-        if(is_large)
-        {
-            map_page[current_mappage].map=Map.getCurrMap();
-            map_page[current_mappage].screen=Map.getCurrScr();
-            
-            for(int32_t btn=0; btn<(showedges?9:8); ++btn)
-            {
-                char tbuf[15];
-                sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-                draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
-            }
-            
-            draw_text_button(menu1,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
-        }
-    }
-    
+		
+		double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
+		double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
+		int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+		int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
+		bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1));
+		
+		if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
+		{
+			arrowcursor = false;
+			int32_t mgridscale=16*mapscreensize;
+			set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+			int32_t mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
+			int32_t my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
+			clear_bitmap(brushscreen);
+			int32_t tempbw=BrushWidth;
+			int32_t tempbh=BrushHeight;
+			
+			if(draw_mode==dm_alias)
+			{
+				BrushWidth = combo_aliases[combo_apos].width+1;
+				BrushHeight = combo_aliases[combo_apos].height+1;
+			}
+			
+			if((FloatBrush)&&(draw_mode!=dm_alias))
+			{
+				if(is_large)
+				{
+					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), my+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
+				}
+				else
+				{
+					blit(brushbmp, brushscreen, 0, 0, mx+(showedges?mgridscale:0)-SHADOW_DEPTH, my+(showedges?mgridscale:0)-SHADOW_DEPTH, BrushWidth*mgridscale, BrushHeight*mgridscale);
+				}
+				
+				//shadow
+				for(int32_t i=0; i<SHADOW_DEPTH*mapscreensize; i++)
+				{
+					for(int32_t j=0; j<BrushHeight*mgridscale; j++)
+					{
+						if((((i^j)&1)==1) && (my+j)<12*mgridscale)
+						{
+							putpixel(brushscreen,mx+(showedges?mgridscale:0)+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+(showedges?mgridscale:0)+j,vc(0));
+						}
+					}
+				}
+				
+				for(int32_t i=0; i<BrushWidth*mgridscale; i++)
+				{
+					for(int32_t j=0; j<SHADOW_DEPTH*mapscreensize; j++)
+					{
+						if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
+						{
+							putpixel(brushscreen,mx+(showedges?mgridscale:0)+i,my+(showedges?mgridscale:0)+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
+						}
+					}
+				}
+			}
+			else
+			{
+				if(draw_mode!=dm_alias)
+				{
+					if(is_large)
+					{
+						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+					}
+					else
+					{
+						blit(brushbmp, brushscreen, 0, 0, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+					}
+				}
+				else
+				{
+					combo_alias *combo = &combo_aliases[combo_apos];
+					
+					if(is_large)
+					{
+						switch(alias_origin)
+						{
+							case 0:
+								stretch_blit(brushbmp, brushscreen, 0,                                                                   0,                                                                     BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+								
+							case 1:
+								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0,                                                                     BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+								
+							case 2:
+								stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+								
+							case 3:
+								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+						}
+					}
+					else
+					{
+						switch(alias_origin)
+						{
+							case 0:
+								blit(brushbmp, brushscreen, 0,                                             0,                                               mx+(showedges?mgridscale:0),                               my+(showedges?mgridscale:0),                                BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+								
+							case 1:
+								blit(brushbmp, brushscreen, (mx<combo->width*16)?((combo->width)*16)-mx:0, 0,                                               zc_max((mx-(combo->width)*16),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+								
+							case 2:
+								blit(brushbmp, brushscreen, 0, (my<combo->height*16)?((combo->height)*16)-my:0, mx+(showedges?mgridscale:0),                               zc_max((my-(combo->height)*16),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+								
+							case 3:
+								blit(brushbmp, brushscreen, (mx<combo->width*16)?((combo->width)*16)-mx:0, (my<combo->height*16)?((combo->height)*16)-my:0, zc_max((mx-(combo->width)*16),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*16),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								break;
+						}
+					}
+				}
+			}
+			
+			masked_blit(brushscreen, menu1, 0, 0, 0, 16, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
+			BrushWidth=tempbw;
+			BrushHeight=tempbh;
+		}
+		else
+		{
+			if(!arrowcursor)
+			{
+				set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+				arrowcursor = true;
+			}
+		}
+		
+		if(ShowGrid)
+		{
+			int32_t w=16;
+			int32_t h=11;
+			
+			if(showedges)
+			{
+				w=18;
+				h=13;
+			}
+			
+			for(int32_t x=16; x<w*16; x+=16)
+			{
+				_allegro_vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
+			}
+			
+			for(int32_t y=16; y<h*16; y+=16)
+			{
+				_allegro_hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
+			}
+		}
+		
+		// Map tabs
+		if(is_large)
+		{
+			map_page[current_mappage].map=Map.getCurrMap();
+			map_page[current_mappage].screen=Map.getCurrScr();
+			
+			for(int32_t btn=0; btn<(showedges?9:8); ++btn)
+			{
+				char tbuf[15];
+				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
+				draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
+			}
+			
+			draw_text_button(menu1,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
+		}
+	}
+	
 	if(flags&rSCRMAP)
 	{
 		//  text_mode(vc(0));
@@ -6458,7 +6458,7 @@ void refresh(int32_t flags)
 			//Black BG fill
 			rectfill(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
 		}*/
-        
+		
 		if(Map.getCurrMap()<Map.getMapCount())
 		{
 			for(int32_t i=0; i<MAPSCRS; i++)
@@ -6554,67 +6554,67 @@ void refresh(int32_t flags)
 			}
 		}
 	}
-    
-    if((flags&rCOMBOS) || (draw_mode == dm_cpool && (flags&rFAVORITES)))
-    {
+	
+	if((flags&rCOMBOS) || (draw_mode == dm_cpool && (flags&rFAVORITES)))
+	{
 		if(is_compact)
 		{
-            jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,combolist_window.h, FR_WIN);
-            rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+combolist_window.h-3,jwin_pal[jcBOX]);
+			jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,combolist_window.h, FR_WIN);
+			rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+combolist_window.h-3,jwin_pal[jcBOX]);
 		}
-        else if(is_large)
-        {
+		else if(is_large)
+		{
 			auto real_h = combolist_window.h;
 			if(draw_mode==dm_cpool)
 				real_h = (favorites_window.y-combolist_window.y)+favorites_window.h;
-            jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,real_h, FR_WIN);
-            rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+real_h-3,jwin_pal[jcBOX]);
-            //Scrollers[0]
+			jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,real_h, FR_WIN);
+			rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+real_h-3,jwin_pal[jcBOX]);
+			//Scrollers[0]
 			jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+4+i, combolistscrollers[0].x+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[0].x+combolistscrollers[0].w,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[0].x+combolistscrollers[0].w+5-i,combolistscrollers[0].y+6-i, combolistscrollers[0].x+combolistscrollers[0].w+5+i, vc(0));
-            }
-            
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				_allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+4+i, combolistscrollers[0].x+5+i, vc(0));
+			}
+			
+			jwin_draw_frame(menu1,combolistscrollers[0].x+combolistscrollers[0].w,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				_allegro_hline(menu1,combolistscrollers[0].x+combolistscrollers[0].w+5-i,combolistscrollers[0].y+6-i, combolistscrollers[0].x+combolistscrollers[0].w+5+i, vc(0));
+			}
+			
 			//Scrollers[1]
-            jwin_draw_frame(menu1,combolistscrollers[1].x,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[1].x+5-i,combolistscrollers[1].y+4+i, combolistscrollers[1].x+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[1].x+combolistscrollers[1].w,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[1].x+combolistscrollers[1].w+5-i,combolistscrollers[1].y+6-i, combolistscrollers[1].x+combolistscrollers[1].w+5+i, vc(0));
-            }
+			jwin_draw_frame(menu1,combolistscrollers[1].x,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				_allegro_hline(menu1,combolistscrollers[1].x+5-i,combolistscrollers[1].y+4+i, combolistscrollers[1].x+5+i, vc(0));
+			}
+			
+			jwin_draw_frame(menu1,combolistscrollers[1].x+combolistscrollers[1].w,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				_allegro_hline(menu1,combolistscrollers[1].x+combolistscrollers[1].w+5-i,combolistscrollers[1].y+6-i, combolistscrollers[1].x+combolistscrollers[1].w+5+i, vc(0));
+			}
 		}
 		if(is_large)
 		{
 			//Scrollers[2]
 			jwin_draw_frame(menu1,combolistscrollers[2].x,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[2].x+5-i,combolistscrollers[2].y+4+i, combolistscrollers[2].x+5+i, vc(0));
-            }
-            
-            jwin_draw_frame(menu1,combolistscrollers[2].x+combolistscrollers[2].w,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
-            
-            for(int32_t i=0; i<3; i++)
-            {
-                _allegro_hline(menu1,combolistscrollers[2].x+combolistscrollers[2].w+5-i,combolistscrollers[2].y+6-i, combolistscrollers[2].x+combolistscrollers[2].w+5+i, vc(0));
-            }
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				_allegro_hline(menu1,combolistscrollers[2].x+5-i,combolistscrollers[2].y+4+i, combolistscrollers[2].x+5+i, vc(0));
+			}
+			
+			jwin_draw_frame(menu1,combolistscrollers[2].x+combolistscrollers[2].w,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
+			
+			for(int32_t i=0; i<3; i++)
+			{
+				_allegro_hline(menu1,combolistscrollers[2].x+combolistscrollers[2].w+5-i,combolistscrollers[2].y+6-i, combolistscrollers[2].x+combolistscrollers[2].w+5+i, vc(0));
+			}
 			//Compact button
 			jwin_draw_frame(menu1, compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, FR_ETCHED);
 			char const* txt = is_compact ? "<" : ">";
@@ -6727,7 +6727,7 @@ void refresh(int32_t flags)
 			{
 				auto sx = comboaliaslist[0].x, sy = comboaliaslist[0].y;
 				auto sw = (comboaliaslist[0].w<<4),
-				     sh = (combopool_preview.y-comboaliaslist[0].y)+combopool_preview.h;
+					 sh = (combopool_preview.y-comboaliaslist[0].y)+combopool_preview.h;
 				rectfill(menu1,sx,sy,sx+sw-1,sy+sh-1,jwin_pal[jcBOX]);
 				jwin_draw_frame(menu1,sx,sy,sw,sh,FR_DEEP);
 			}
@@ -6763,7 +6763,7 @@ void refresh(int32_t flags)
 			//Handle Preview
 			combo_pool const& cpool = combo_pools[combo_pool_pos];
 			
-            int32_t cid; int8_t cs;
+			int32_t cid; int8_t cs;
 			size_t total = weighted_cpool ? cpool.getTotalWeight() : cpool.combos.size();
 			size_t ind = 0;
 			size_t indw = combopool_preview.w/16;
@@ -6871,7 +6871,7 @@ void refresh(int32_t flags)
 				safe_rect(menu1, (rect_pos&(combolist[current_combolist].w-1))*16+combolist[current_combolist].x, (rect_pos/combolist[current_combolist].w)*16+combolist[current_combolist].y, ((rect_pos&(combolist[current_combolist].w-1))*16+combolist[current_combolist].x)+15, ((rect_pos/combolist[current_combolist].w)*16+combolist[current_combolist].y)+15, 255);
 		}
 	}
-    
+	
 	if(flags&rCOMBO)
 	{
 		int32_t drawmap, drawscr;
@@ -6889,7 +6889,7 @@ void refresh(int32_t flags)
 		{
 			combo_pool const& cpool = combo_pools[combo_pool_pos];
 			cid = 0;
-            cpool.get_w(cid,cs,0);
+			cpool.get_w(cid,cs,0);
 		}
 		if(is_large)
 		{
@@ -6996,685 +6996,675 @@ void refresh(int32_t flags)
 		}
 	}
 	
-    if(flags&rMENU)
-    {
-        drawpanel(is_large?-1:menutype);
-        set_clip_rect(menu1,0,0,zq_screen_w-1,zq_screen_h-1);
-    }
-    
-    if(flags&rFAVORITES)
-    {
-        if(is_large && draw_mode!=dm_cpool)
-        {
-            jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
-            rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
-            jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w<<4)+4,(favorites_list.h<<4)+4, FR_DEEP);
-            rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w<<4)-1,favorites_list.y+(favorites_list.h<<4)-1,jwin_pal[jcBOXFG]);
-            
+	if(flags&rMENU)
+	{
+		drawpanel(is_large?-1:menutype);
+		set_clip_rect(menu1,0,0,zq_screen_w-1,zq_screen_h-1);
+	}
+	
+	if(flags&rFAVORITES)
+	{
+		if(is_large && draw_mode!=dm_cpool)
+		{
+			jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
+			rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
+			jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w<<4)+4,(favorites_list.h<<4)+4, FR_DEEP);
+			rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w<<4)-1,favorites_list.y+(favorites_list.h<<4)-1,jwin_pal[jcBOXFG]);
+			
 			jwin_draw_frame(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,FR_ETCHED);
 			const auto szval = 2;
 			line(menu1, favorites_x.x+szval, favorites_x.y+szval, favorites_x.x+(10-szval), favorites_x.y+(10-szval),jwin_pal[jcBOXFG]);
 			line(menu1, favorites_x.x+szval, favorites_x.y+(10-szval), favorites_x.x+(10-szval), favorites_x.y+szval,jwin_pal[jcBOXFG]);
 			textprintf_ex(menu1,font,favorites_list.x-2,favorites_list.y-11,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
 			if(draw_mode==dm_alias)
-            {
-				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
-                {
-                    if(favorite_comboaliases[i]==-1)
-                    {
-                        if(InvalidStatic)
-                        {
-                            for(int32_t dy=0; dy<16; dy++)
-                            {
-                                for(int32_t dx=0; dx<16; dx++)
-                                {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            xout(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15), vc(0));
-                        }
-                    }
-                    else
-                    {
-                        draw_combo_alias_thumbnail(menu1, &combo_aliases[favorite_comboaliases[i]], (i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,1);
-                    }
-                }
-            }
-            else
 			{
 				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
-                {
-                    if(favorite_combos[i]==-1)
-                    {
-                        if(InvalidStatic)
-                        {
-                            for(int32_t dy=0; dy<16; dy++)
-                            {
-                                for(int32_t dx=0; dx<16; dx++)
-                                {
-                                    menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-                                }
-                            }
-                        }
-                        else
-                        {
-                            xout(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15), vc(0));
-                        }
-                    }
-                    else
-                    {
-                        put_combo(menu1,(i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
-                    }
-                }
-            }
-        }
-    }
-    
-    if(flags&rCOMMANDS)
-    {
-        if(is_large)
-        {
-            jwin_draw_frame(menu1,commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
-            rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
-            jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*command_buttonwidth)+4,(commands_list.h*command_buttonheight)+4, FR_DEEP);
-            rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*command_buttonwidth)-1,commands_list.y+(commands_list.h*command_buttonheight)-1,jwin_pal[jcBOXFG]);
-            textprintf_ex(menu1,font,commands_list.x-2,commands_list.y-14,jwin_pal[jcBOXFG],-1,"Favorite Commands");
-            FONT *tfont=font;
-            font=pfont;
-            
-            for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
-            {
+				{
+					if(favorite_comboaliases[i]==-1)
+					{
+						if(InvalidStatic)
+						{
+							for(int32_t dy=0; dy<16; dy++)
+							{
+								for(int32_t dx=0; dx<16; dx++)
+								{
+									menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+								}
+							}
+						}
+						else
+						{
+							xout(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15), vc(0));
+						}
+					}
+					else
+					{
+						draw_combo_alias_thumbnail(menu1, &combo_aliases[favorite_comboaliases[i]], (i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,1);
+					}
+				}
+			}
+			else
+			{
+				for(int32_t i=0; i<(favorites_list.w*favorites_list.h); i++)
+				{
+					if(favorite_combos[i]==-1)
+					{
+						if(InvalidStatic)
+						{
+							for(int32_t dy=0; dy<16; dy++)
+							{
+								for(int32_t dx=0; dx<16; dx++)
+								{
+									menu1->line[(i/favorites_list.w)*16+favorites_list.y+dy][(i%favorites_list.w)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+								}
+							}
+						}
+						else
+						{
+							xout(menu1, (i%favorites_list.w)*16+favorites_list.x, (i/favorites_list.w)*16+favorites_list.y, (i%favorites_list.w)*16+favorites_list.x+15, (i/favorites_list.w)*16+favorites_list.y+15, vc(15), vc(0));
+						}
+					}
+					else
+					{
+						put_combo(menu1,(i%favorites_list.w)*16+favorites_list.x,(i/favorites_list.w)*16+favorites_list.y,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
+					}
+				}
+			}
+		}
+	}
+	
+	if(flags&rCOMMANDS)
+	{
+		if(is_large)
+		{
+			jwin_draw_frame(menu1,commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
+			rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
+			jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*command_buttonwidth)+4,(commands_list.h*command_buttonheight)+4, FR_DEEP);
+			rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*command_buttonwidth)-1,commands_list.y+(commands_list.h*command_buttonheight)-1,jwin_pal[jcBOXFG]);
+			textprintf_ex(menu1,font,commands_list.x-2,commands_list.y-14,jwin_pal[jcBOXFG],-1,"Favorite Commands");
+			FONT *tfont=font;
+			font=pfont;
+			
+			for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
+			{
 				draw_layer_button(menu1,
-                                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
-                                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
-                                 command_buttonwidth,
-                                 command_buttonheight,
-                                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
-                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
-                /*draw_text_button(menu1,
-                                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
-                                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
-                                 command_buttonwidth,
-                                 command_buttonheight,
-                                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
-                                 vc(1),
-                                 vc(14),
-                                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags,
-                                 true);*///Old button style
-            }
-            
-            font=tfont;
-        }
-    }
-    
-    if(is_large) // Layer panels
-    {
-        jwin_draw_frame(menu1,layer_panel.x-2,layer_panel.y,layer_panel.w+2,layer_panel.h,FR_DEEP);
-        rectfill(menu1,layer_panel.x+2,layer_panel.y+2,layer_panel.x+layer_panel.w-3,layer_panel.y+layer_panel.h-3,jwin_pal[jcBOX]);
-        
-        bool groundlayers = false;
-        bool overheadlayers = false;
-        bool flyinglayers = false;
-        
-        for(int32_t i=0; i<=6; ++i)
-        {
-            char tbuf[15];
-            
-            if(i>0 && Map.CurrScr()->layermap[i-1])
-            {
-                if(i<3) groundlayers = true;
-                else if(i<5) overheadlayers = true;
-                else if(i<7) flyinglayers = true;
-                
-                sprintf(tbuf, "%s%d (%d:%02X)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
-            }
-            else
-            {
-                sprintf(tbuf, "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
-            }
-            
-            int32_t rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
-            int32_t ry = layer_panel.y+16;
-            //draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
-            draw_layer_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-            draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
-            
-            // Draw the group divider
-            if(i==3 || i==5)
-            {
-                _allegro_vline(menu1, rx-4, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcLIGHT]);
-                _allegro_vline(menu1, rx-5, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcMEDDARK]);
-            }
-        }
-        
+				                 (cmd%commands_list.w)*command_buttonwidth+commands_list.x,
+				                 (cmd/commands_list.w)*command_buttonheight+commands_list.y,
+				                 command_buttonwidth,
+				                 command_buttonheight,
+				                 (favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
+				                 (isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
+			}
+			
+			font=tfont;
+		}
+	}
+	
+	if(is_large) // Layer panels
+	{
+		jwin_draw_frame(menu1,layer_panel.x-2,layer_panel.y,layer_panel.w+2,layer_panel.h,FR_DEEP);
+		rectfill(menu1,layer_panel.x+2,layer_panel.y+2,layer_panel.x+layer_panel.w-3,layer_panel.y+layer_panel.h-3,jwin_pal[jcBOX]);
+		
+		bool groundlayers = false;
+		bool overheadlayers = false;
+		bool flyinglayers = false;
+		
+		for(int32_t i=0; i<=6; ++i)
+		{
+			char tbuf[15];
+			
+			if(i>0 && Map.CurrScr()->layermap[i-1])
+			{
+				if(i<3) groundlayers = true;
+				else if(i<5) overheadlayers = true;
+				else if(i<7) flyinglayers = true;
+				
+				sprintf(tbuf, "%s%d (%d:%02X)", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
+			}
+			else
+			{
+				sprintf(tbuf, "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
+			}
+			
+			int32_t rx = (i * (layerpanel_buttonwidth+23)) + layer_panel.x+6;
+			int32_t ry = layer_panel.y+16;
+			//draw_text_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14), CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0,true);
+			draw_layer_button(menu1, rx,ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
+			draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+2,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
+			
+			// Draw the group divider
+			if(i==3 || i==5)
+			{
+				_allegro_vline(menu1, rx-4, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcLIGHT]);
+				_allegro_vline(menu1, rx-5, layer_panel.y+3, layer_panel.y+36, jwin_pal[jcMEDDARK]);
+			}
+		}
+		
 		groundlayers=overheadlayers=flyinglayers=true; //don't do disabled draws
-        if(groundlayers)
-            textprintf_ex(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Ground (Walkable) Layers");
-        else
-            textprintf_disabled(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Ground (Walkable) Layers");
-            
-        if(overheadlayers)
-            textprintf_ex(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Ground)");
-        else
-            textprintf_disabled(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Ground)");
-            
-        if(flyinglayers)
-            textprintf_ex(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Flying)");
-        else
-            textprintf_disabled(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Flying)");
-            
-        //font=tfont;
-    }
-    
-    // } //if(true)
-    if(zq_showpal)
-    {
-        for(int32_t i=0; i<256; i++)
-        {
-            rectfill(menu1,((i&15)<<2)+256,((i>>4)<<2)+176,((i&15)<<2)+259,((i>>4)<<2)+179,i);
-        }
-    }
-    
-    if(ShowFPS)
-    {
-        textprintf_shadowed_ex(menu1,is_large?lfont:sfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",lastfps);
-    }
-    
-    if(prv_mode)
-    {
-        textout_shadowed_ex(menu1,sfont,"Preview Mode",0,16,vc(15),vc(0),-1);
-        
-        if(prv_twon)
-        {
-            textprintf_shadowed_ex(menu1,sfont,0,24,vc(15),vc(0),-1,"T Warp=%d tics", Map.get_prvtime());
-        }
-        
-        do_previewtext();
-        
-    }
-    
-    if(ShowFFScripts && !prv_mode)
-    {
-        int32_t ypos = ShowFPS ? 28 : 18;
-        size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
+		if(groundlayers)
+			textprintf_ex(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Ground (Walkable) Layers");
+		else
+			textprintf_disabled(menu1,font,layer_panel.x+60,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Ground (Walkable) Layers");
+			
+		if(overheadlayers)
+			textprintf_ex(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Ground)");
+		else
+			textprintf_disabled(menu1,font,layer_panel.x+268,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Ground)");
+			
+		if(flyinglayers)
+			textprintf_ex(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcBOXFG],-1,"Overhead Layers (Flying)");
+		else
+			textprintf_disabled(menu1,font,layer_panel.x+434,layer_panel.y+4,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Overhead Layers (Flying)");
+			
+		//font=tfont;
+	}
+	
+	// } //if(true)
+	if(zq_showpal)
+	{
+		for(int32_t i=0; i<256; i++)
+		{
+			rectfill(menu1,((i&15)<<2)+256,((i>>4)<<2)+176,((i&15)<<2)+259,((i>>4)<<2)+179,i);
+		}
+	}
+	
+	if(ShowFPS)
+	{
+		textprintf_shadowed_ex(menu1,is_large?lfont:sfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",lastfps);
+	}
+	
+	if(prv_mode)
+	{
+		textout_shadowed_ex(menu1,sfont,"Preview Mode",0,16,vc(15),vc(0),-1);
+		
+		if(prv_twon)
+		{
+			textprintf_shadowed_ex(menu1,sfont,0,24,vc(15),vc(0),-1,"T Warp=%d tics", Map.get_prvtime());
+		}
+		
+		do_previewtext();
+		
+	}
+	
+	if(ShowFFScripts && !prv_mode)
+	{
+		int32_t ypos = ShowFPS ? 28 : 18;
+		size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
 		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,text_height(is_large ? lfont_l : font));
 		word c = Map.CurrScr()->numFFC();
-        for(word i=0; i< c; i++)
+		for(word i=0; i< c; i++)
 		{
 			if(ypos > (is_large ? 420 : 180))
 				break;
-            if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
-            {
+			if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
+			{
 				clear_bitmap(tempbmp);
-                textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
-                masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
+				textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+				masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
 				ypos+=(is_large?14:10);
-            }
+			}
 		}
 		destroy_bitmap(tempbmp);
-    }
-    
-    // Show Errors & Details
-    //This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
-    //'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
-    // the String, every Room Type and Catch All, and all four Tile and Side Warps.
-    if(is_large && !prv_mode && ShowInfo)
-    {
-        int32_t i=0;
-        char buf[2048];
-        
-        // Start with general information
-        if(Map.CurrScr()->flags3&fINVISHERO)
-        {
-            sprintf(buf,"Invisible Player");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.getLayerTargetMap() > 0)
-        {
-	    Map.setlayertarget(); //Now the text does not carry over when changing maps, but shifting back, it does not **re-appear** until you change screens.
-                //It was also required to set some updates in onDecMap and onIncMap. #
-		//This fixes Screen Info not displaying properly when changing maps. -Z 
-		//Needed to refresh the screen info. -Z ( 26th March, 2019 )
-            int32_t m = Map.getLayerTargetMultiple();
-            sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
-            char buf2[24];
-            
-            if(m>0)
-            {
-                sprintf(buf2," and %d other%s",m,m>1?"s":"");
-                strcat(buf,buf2);
-            }
-            
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->nextmap)
-        {
-            sprintf(buf,"Screen State carries over to %d:%02X",Map.CurrScr()->nextmap,Map.CurrScr()->nextscr);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->timedwarptics)
-        {
-            sprintf(buf,"%s%sTimed Warp: %s",(Map.CurrScr()->flags4&fTIMEDDIRECT)?"Direct ":"",(Map.CurrScr()->flags5&fRANDOMTIMEDWARP)?"Random ":"",ticksstr(Map.CurrScr()->timedwarptics));
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->flags&fMAZE)
-        {
-            sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),dirstr[Map.CurrScr()->exitdir]);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        bool continuescreen = false, savecombo = false;
-        
-        if(Map.CurrScr()->flags4&fAUTOSAVE)
-        {
-            sprintf(buf,"Automatic Save%s Screen", (Map.CurrScr()->flags6&fCONTINUEHERE) ? "-Continue":"");
-            show_screen_error(buf,i++,vc(15));
-            continuescreen = ((Map.CurrScr()->flags6&fCONTINUEHERE)!=0);
-            savecombo = true;
-        }
-        else if(Map.CurrScr()->flags6&fCONTINUEHERE)
-        {
-            sprintf(buf,"Continue Screen");
-            show_screen_error(buf,i++,vc(15));
-            continuescreen = true;
-        }
-        
-        if(isSideViewGravity())
-        {
-            sprintf(buf,"Sideview Gravity");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM))
-        {
-            sprintf(buf,"Treat As %s%s Screen", (Map.CurrScr()->flags6&fCAVEROOM) ? "Interior":"NES Dungeon",
-                    (Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM)) == (fCAVEROOM|fDUNGEONROOM) ? " or NES Dungeon":"");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->oceansfx != 0)
-        {
-            sprintf(buf,"Ambient Sound: %s",sfx_string[Map.CurrScr()->oceansfx]);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->bosssfx != 0)
-        {
-            sprintf(buf,"Boss Roar Sound: %s",sfx_string[Map.CurrScr()->bosssfx]);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if(Map.CurrScr()->str)
-        {
-            strncpy(buf,MsgString(Map.CurrScr()->str, true, false),72);
-            buf[72] = '\0';
-            char shortbuf[72];
-            strip_extra_spaces(buf);
-            shorten_string(shortbuf, buf, lfont_l, 72, 280);
-            sprintf(buf,"String %s",shortbuf);
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        if((Map.CurrScr()->flags&fWHISTLE) || (Map.CurrScr()->flags7&fWHISTLEWATER))
-        {
-            sprintf(buf,"Whistle ->%s%s%s",(Map.CurrScr()->flags&fWHISTLE)?" Stairs":"",
-                    (Map.CurrScr()->flags&fWHISTLE && Map.CurrScr()->flags7&fWHISTLEWATER)?", ":"",
-                    (Map.CurrScr()->flags7&fWHISTLEWATER)?"Dry Lake":"");
-            show_screen_error(buf,i++,vc(15));
-        }
-        
-        switch(Map.CurrScr()->room)
-        {
-        case rSP_ITEM:
-            sprintf(buf,"Special Item is %s",item_string[Map.CurrScr()->catchall]);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rINFO:
-        {
-            int32_t shop = Map.CurrScr()->catchall;
-            sprintf(buf,"Pay For Info: -%d, -%d, -%d",
-                    misc.info[shop].price[0],misc.info[shop].price[1],misc.info[shop].price[2]);
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
-        
-        case rMONEY:
-            sprintf(buf,"Secret Money: %d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rGAMBLE:
-            show_screen_error("Gamble Room",i++, vc(15));
-            break;
-            
-        case rREPAIR:
-            sprintf(buf,"Door Repair: -%d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rRP_HC:
-            sprintf(buf,"Take %s or %s", item_string[iRPotion], item_string[iHeartC]);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rGRUMBLE:
-            show_screen_error("Feed the Goriya",i++, vc(15));
-            break;
-            
-        case rTRIFORCE:
-            show_screen_error("Triforce Check",i++, vc(15));
-            break;
-            
-        case rP_SHOP:
-        case rSHOP:
-        {
-            int32_t shop = Map.CurrScr()->catchall;
-            sprintf(buf,"%sShop: ",
-                    Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
-                    
-            for(int32_t j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
-			{
-				strcat(buf,item_string[misc.shop[shop].item[j]]);
-				strcat(buf,":");
-				char pricebuf[8];
-				sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
-				strcat(buf,pricebuf);
-				
-				if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
-			}
-                
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
+	}
+	
+	// Show Errors & Details
+	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
+	//'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
+	// the String, every Room Type and Catch All, and all four Tile and Side Warps.
+	if(is_large && !prv_mode && ShowInfo)
+	{
+		int32_t i=0;
+		char buf[2048];
 		
-		case rBOTTLESHOP:
-        {
-            int32_t shop = Map.CurrScr()->catchall;
-            sprintf(buf,"Bottle Shop: ");
-                    
-            for(int32_t j=0; j<3; j++) if(misc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
+		// Start with general information
+		if(Map.CurrScr()->flags3&fINVISHERO)
+		{
+			sprintf(buf,"Invisible Player");
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.getLayerTargetMap() > 0)
+		{
+			Map.setlayertarget(); //Now the text does not carry over when changing maps, but shifting back, it does not **re-appear** until you change screens.
+			//It was also required to set some updates in onDecMap and onIncMap. #
+			//This fixes Screen Info not displaying properly when changing maps. -Z 
+			//Needed to refresh the screen info. -Z ( 26th March, 2019 )
+			int32_t m = Map.getLayerTargetMultiple();
+			sprintf(buf,"Used as a layer by screen %d:%02X",Map.getLayerTargetMap(),Map.getLayerTargetScr());
+			char buf2[24];
+			
+			if(m>0)
 			{
-				strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
-				strcat(buf,":");
-				char pricebuf[8];
-				sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
-				strcat(buf,pricebuf);
-				
-				if(j<2 && misc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
+				sprintf(buf2," and %d other%s",m,m>1?"s":"");
+				strcat(buf,buf2);
 			}
-                
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
-        
-        case rTAKEONE:
-        {
-            int32_t shop = Map.CurrScr()->catchall;
-            sprintf(buf,"Take Only One: %s%s%s%s%s",
-                    misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
-                    misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
-                    misc.shop[shop].item[2]<1?"":item_string[misc.shop[shop].item[2]]);
-            show_screen_error(buf,i++, vc(15));
-        }
-        break;
-        
-        case rBOMBS:
-            sprintf(buf,"More Bombs: -%d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rARROWS:
-            sprintf(buf,"More Arrows: -%d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case rSWINDLE:
-            sprintf(buf,"Leave Life or %d Rupees",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-            
-        case r10RUPIES:
-            show_screen_error("10 Rupees",i++, vc(15));
-            break;
-            
-        case rGANON:
-            show_screen_error("Ganon Room",i++, vc(15));
-            break;
-            
-        case rZELDA:
-            show_screen_error("Zelda Room",i++, vc(15));
-            break;
-            
-        case rMUPGRADE:
-            show_screen_error("1/2 Magic Upgrade",i++, vc(15));
-            break;
-            
-        case rLEARNSLASH:
-            show_screen_error("Learn Slash",i++, vc(15));
-            break;
-            
-        case rWARP:
-            sprintf(buf,"3-Stair Warp: Warp Ring %d",Map.CurrScr()->catchall);
-            show_screen_error(buf,i++, vc(15));
-            break;
-        }
-        
-        bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
-        
+			
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->nextmap)
+		{
+			sprintf(buf,"Screen State carries over to %d:%02X",Map.CurrScr()->nextmap,Map.CurrScr()->nextscr);
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->timedwarptics)
+		{
+			sprintf(buf,"%s%sTimed Warp: %s",(Map.CurrScr()->flags4&fTIMEDDIRECT)?"Direct ":"",(Map.CurrScr()->flags5&fRANDOMTIMEDWARP)?"Random ":"",ticksstr(Map.CurrScr()->timedwarptics));
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->flags&fMAZE)
+		{
+			sprintf(buf,"Maze Path: %s (Exit %s)",pathstr(Map.CurrScr()->path),dirstr[Map.CurrScr()->exitdir]);
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		bool continuescreen = false, savecombo = false;
+		
+		if(Map.CurrScr()->flags4&fAUTOSAVE)
+		{
+			sprintf(buf,"Automatic Save%s Screen", (Map.CurrScr()->flags6&fCONTINUEHERE) ? "-Continue":"");
+			show_screen_error(buf,i++,vc(15));
+			continuescreen = ((Map.CurrScr()->flags6&fCONTINUEHERE)!=0);
+			savecombo = true;
+		}
+		else if(Map.CurrScr()->flags6&fCONTINUEHERE)
+		{
+			sprintf(buf,"Continue Screen");
+			show_screen_error(buf,i++,vc(15));
+			continuescreen = true;
+		}
+		
+		if(isSideViewGravity())
+		{
+			sprintf(buf,"Sideview Gravity");
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM))
+		{
+			sprintf(buf,"Treat As %s%s Screen", (Map.CurrScr()->flags6&fCAVEROOM) ? "Interior":"NES Dungeon",
+					(Map.CurrScr()->flags6 & (fCAVEROOM|fDUNGEONROOM)) == (fCAVEROOM|fDUNGEONROOM) ? " or NES Dungeon":"");
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->oceansfx != 0)
+		{
+			sprintf(buf,"Ambient Sound: %s",sfx_string[Map.CurrScr()->oceansfx]);
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->bosssfx != 0)
+		{
+			sprintf(buf,"Boss Roar Sound: %s",sfx_string[Map.CurrScr()->bosssfx]);
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if(Map.CurrScr()->str)
+		{
+			strncpy(buf,MsgString(Map.CurrScr()->str, true, false),72);
+			buf[72] = '\0';
+			char shortbuf[72];
+			strip_extra_spaces(buf);
+			shorten_string(shortbuf, buf, lfont_l, 72, 280);
+			sprintf(buf,"String %s",shortbuf);
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		if((Map.CurrScr()->flags&fWHISTLE) || (Map.CurrScr()->flags7&fWHISTLEWATER))
+		{
+			sprintf(buf,"Whistle ->%s%s%s",(Map.CurrScr()->flags&fWHISTLE)?" Stairs":"",
+				    (Map.CurrScr()->flags&fWHISTLE && Map.CurrScr()->flags7&fWHISTLEWATER)?", ":"",
+			        (Map.CurrScr()->flags7&fWHISTLEWATER)?"Dry Lake":"");
+			show_screen_error(buf,i++,vc(15));
+		}
+		
+		switch(Map.CurrScr()->room)
+		{
+			case rSP_ITEM:
+				sprintf(buf,"Special Item is %s",item_string[Map.CurrScr()->catchall]);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case rINFO:
+			{
+				int32_t shop = Map.CurrScr()->catchall;
+				sprintf(buf,"Pay For Info: -%d, -%d, -%d",
+						misc.info[shop].price[0],misc.info[shop].price[1],misc.info[shop].price[2]);
+				show_screen_error(buf,i++, vc(15));
+			}
+			break;
+			
+			case rMONEY:
+				sprintf(buf,"Secret Money: %d Rupees",Map.CurrScr()->catchall);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case rGAMBLE:
+				show_screen_error("Gamble Room",i++, vc(15));
+				break;
+				
+			case rREPAIR:
+				sprintf(buf,"Door Repair: -%d Rupees",Map.CurrScr()->catchall);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case rRP_HC:
+				sprintf(buf,"Take %s or %s", item_string[iRPotion], item_string[iHeartC]);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case rGRUMBLE:
+				show_screen_error("Feed the Goriya",i++, vc(15));
+				break;
+				
+			case rTRIFORCE:
+				show_screen_error("Triforce Check",i++, vc(15));
+				break;
+				
+			case rP_SHOP:
+			case rSHOP:
+			{
+				int32_t shop = Map.CurrScr()->catchall;
+				sprintf(buf,"%sShop: ",
+						Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
+						
+				for(int32_t j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
+				{
+					strcat(buf,item_string[misc.shop[shop].item[j]]);
+					strcat(buf,":");
+					char pricebuf[8];
+					sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
+					strcat(buf,pricebuf);
+					
+					if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
+				}
+					
+				show_screen_error(buf,i++, vc(15));
+			}
+			break;
+			
+			case rBOTTLESHOP:
+			{
+				int32_t shop = Map.CurrScr()->catchall;
+				sprintf(buf,"Bottle Shop: ");
+						
+				for(int32_t j=0; j<3; j++) if(misc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
+				{
+					strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
+					strcat(buf,":");
+					char pricebuf[8];
+					sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
+					strcat(buf,pricebuf);
+					
+					if(j<2 && misc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
+				}
+					
+				show_screen_error(buf,i++, vc(15));
+			}
+			break;
+			
+			case rTAKEONE:
+			{
+				int32_t shop = Map.CurrScr()->catchall;
+				sprintf(buf,"Take Only One: %s%s%s%s%s",
+						misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
+						misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
+						misc.shop[shop].item[2]<1?"":item_string[misc.shop[shop].item[2]]);
+				show_screen_error(buf,i++, vc(15));
+			}
+			break;
+			
+			case rBOMBS:
+				sprintf(buf,"More Bombs: -%d Rupees",Map.CurrScr()->catchall);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case rARROWS:
+				sprintf(buf,"More Arrows: -%d Rupees",Map.CurrScr()->catchall);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case rSWINDLE:
+				sprintf(buf,"Leave Life or %d Rupees",Map.CurrScr()->catchall);
+				show_screen_error(buf,i++, vc(15));
+				break;
+				
+			case r10RUPIES:
+				show_screen_error("10 Rupees",i++, vc(15));
+				break;
+				
+			case rGANON:
+				show_screen_error("Ganon Room",i++, vc(15));
+				break;
+				
+			case rZELDA:
+				show_screen_error("Zelda Room",i++, vc(15));
+				break;
+				
+			case rMUPGRADE:
+				show_screen_error("1/2 Magic Upgrade",i++, vc(15));
+				break;
+				
+			case rLEARNSLASH:
+				show_screen_error("Learn Slash",i++, vc(15));
+				break;
+				
+			case rWARP:
+				sprintf(buf,"3-Stair Warp: Warp Ring %d",Map.CurrScr()->catchall);
+				show_screen_error(buf,i++, vc(15));
+				break;
+		}
+		
+		bool undercombo = false, warpa = false, warpb = false, warpc = false, warpd = false, warpr = false;
+		
 		word maxffc = Map.CurrScr()->numFFC();
-        for(int32_t c=0; c<176+128+1+maxffc; ++c)
-        {
-            // Checks both combos, secret combos, undercombos and FFCs
-//Fixme:
-            int32_t ctype =
-                combobuf[vbound(
-                             (c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
-                              c>=304 ? Map.CurrScr()->undercombo :
-                              c>=176 ? Map.CurrScr()->secretcombo[c-176] :
-                              !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
-                              Map.CurrScr()->data[c]
-                             ), 0, MAXCOMBOS-1)].type;
-                             
-            if(!undercombo && integrityBoolUnderCombo(Map.CurrScr(),ctype))
-            {
-                undercombo = true;
-                show_screen_error("Under Combo is combo 0",i++, vc(7));
-            }
-            
-            // Tile Warp types
-            switch(ctype)
-            {
-            case cSAVE:
-            case cSAVE2:
-                if(!savecombo)
-                {
-                    savecombo = true;
-                    
-                    if(integrityBoolSaveCombo(Map.CurrScr(),ctype))
-                        show_screen_error("Save Screen",i++, vc(15));
-                    else
-                        show_screen_error("Save-Continue Screen",i++, vc(15));
-                }
-                
-                break;
-                
-            case cSTAIRR:
-            case cPITR:
-            case cSWARPR:
-                if(!warpr && (Map.CurrScr()->tilewarptype[0]==wtCAVE || Map.CurrScr()->tilewarptype[1]==wtCAVE ||
-                              Map.CurrScr()->tilewarptype[2]==wtCAVE || Map.CurrScr()->tilewarptype[3]==wtCAVE))
-                {
-                    warpr = true;
-                    show_screen_error("Random Tile Warp contains Cave/Item Cellar",i++, vc(7));
-                }
-                
-                break;
-                
-            case cCAVED:
-            case cPITD:
-            case cSTAIRD:
-            case cCAVE2D:
-            case cSWIMWARPD:
-            case cDIVEWARPD:
-            case cSWARPD:
-                if(!warpd)
-                {
-                    warpd = true;
-                    tile_warp_notification(3,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-                
-            case cCAVEC:
-            case cPITC:
-            case cSTAIRC:
-            case cCAVE2C:
-            case cSWIMWARPC:
-            case cDIVEWARPC:
-            case cSWARPC:
-                if(!warpc)
-                {
-                    warpc = true;
-                    tile_warp_notification(2,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-                
-            case cCAVEB:
-            case cPITB:
-            case cSTAIRB:
-            case cCAVE2B:
-            case cSWIMWARPB:
-            case cDIVEWARPB:
-            case cSWARPB:
-                if(!warpb)
-                {
-                    warpb = true;
-                    tile_warp_notification(1,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-                
-            case cCAVE:
-            case cPIT:
-            case cSTAIR:
-            case cCAVE2:
-            case cSWIMWARP:
-            case cDIVEWARP:
-            case cSWARPA:
-                if(!warpa)
-                {
-                    warpa = true;
-                    tile_warp_notification(0,buf);
-                    show_screen_error(buf,i++, vc(15));
-                }
-                
-                break;
-            }
-        }
-        
-        int32_t sidewarpnotify = 0;
-        
-        if(Map.CurrScr()->flags2&wfUP)
-        {
-            side_warp_notification(Map.CurrScr()->sidewarpindex&3,0,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<(Map.CurrScr()->sidewarpindex&3));
-        }
-        
-        if(Map.CurrScr()->flags2&wfDOWN)
-        {
-            side_warp_notification((Map.CurrScr()->sidewarpindex>>2)&3,1,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>2)&3));
-        }
-        
-        if(Map.CurrScr()->flags2&wfLEFT)
-        {
-            side_warp_notification((Map.CurrScr()->sidewarpindex>>4)&3,2,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>4)&3));
-        }
-        
-        if(Map.CurrScr()->flags2&wfRIGHT)
-        {
-            side_warp_notification((Map.CurrScr()->sidewarpindex>>6)&3,3,buf);
-            show_screen_error(buf,i++, vc(15));
-            sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>6)&3));
-        }
-        
-        if(!(sidewarpnotify&1) && Map.CurrScr()->timedwarptics)
-        {
-            side_warp_notification(0,4,buf); // Timed Warp
-            show_screen_error(buf,i++, vc(15));
-        }
-        
-        // Now for errors
-        if((Map.CurrScr()->flags4&fSAVEROOM) && !savecombo) show_screen_error("Save Point->Continue Here, but no Save Point combo?",i++, vc(14));
-        
-        if(integrityBoolEnemiesItem(Map.CurrScr())) show_screen_error("Enemies->Item, but no enemies",i++, vc(7));
-        
-        if(integrityBoolEnemiesSecret(Map.CurrScr())) show_screen_error("Enemies->Secret, but no enemies",i++, vc(7));
-        
-        if(integrityBoolStringNoGuy(Map.CurrScr())) show_screen_error("String, but Guy is (none)",i++, vc(14));
-        
-        if(integrityBoolGuyNoString(Map.CurrScr())) show_screen_error("Non-Fairy Guy, but String is (none)",i++, vc(14));
-        
-        if(integrityBoolRoomNoGuy(Map.CurrScr())) show_screen_error("Guy is (none)",i++, vc(14));
-        
-        if(integrityBoolRoomNoString(Map.CurrScr())) show_screen_error("String is (none)",i++, vc(14));
-        
-        if(integrityBoolRoomNoGuyNoString(Map.CurrScr())) show_screen_error("Guy and String are (none)",i++, vc(14));
-    }
-    
-    if(!is_large)
-    {
-        if(draw_mode!=dm_normal)
-        {
-            textout_shadowed_right_ex(menu1,sfont,dm_names[draw_mode],mapscreen_x+((16+(showedges?1:0))*16*mapscreensize)-1,mapscreen_y+((showedges?1:0)*16*mapscreensize),vc(15),vc(0),-1);
-        }
-    }
-    
-    if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
-    {
-        masked_blit(tooltipbmp, menu1, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
-    }
-    
+		for(int32_t c=0; c<176+128+1+maxffc; ++c)
+		{
+			// Checks both combos, secret combos, undercombos and FFCs
+			//Fixme:
+			int32_t ctype =
+				combobuf[vbound(
+					(c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
+					 c>=304 ? Map.CurrScr()->undercombo :
+					 c>=176 ? Map.CurrScr()->secretcombo[c-176] :
+					 !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
+					 Map.CurrScr()->data[c]
+					), 0, MAXCOMBOS-1)].type;
+							 
+			if(!undercombo && integrityBoolUnderCombo(Map.CurrScr(),ctype))
+			{
+				undercombo = true;
+				show_screen_error("Under Combo is combo 0",i++, vc(7));
+			}
+			
+			// Tile Warp types
+			switch(ctype)
+			{
+				case cSAVE:
+				case cSAVE2:
+					if(!savecombo)
+					{
+						savecombo = true;
+						
+						if(integrityBoolSaveCombo(Map.CurrScr(),ctype))
+							show_screen_error("Save Screen",i++, vc(15));
+						else
+							show_screen_error("Save-Continue Screen",i++, vc(15));
+					}
+					
+					break;
+					
+				case cSTAIRR:
+				case cPITR:
+				case cSWARPR:
+					if(!warpr && (Map.CurrScr()->tilewarptype[0]==wtCAVE || Map.CurrScr()->tilewarptype[1]==wtCAVE ||
+								  Map.CurrScr()->tilewarptype[2]==wtCAVE || Map.CurrScr()->tilewarptype[3]==wtCAVE))
+					{
+						warpr = true;
+						show_screen_error("Random Tile Warp contains Cave/Item Cellar",i++, vc(7));
+					}
+					
+					break;
+					
+				case cCAVED:
+				case cPITD:
+				case cSTAIRD:
+				case cCAVE2D:
+				case cSWIMWARPD:
+				case cDIVEWARPD:
+				case cSWARPD:
+					if(!warpd)
+					{
+						warpd = true;
+						tile_warp_notification(3,buf);
+						show_screen_error(buf,i++, vc(15));
+					}
+					
+					break;
+					
+				case cCAVEC:
+				case cPITC:
+				case cSTAIRC:
+				case cCAVE2C:
+				case cSWIMWARPC:
+				case cDIVEWARPC:
+				case cSWARPC:
+					if(!warpc)
+					{
+						warpc = true;
+						tile_warp_notification(2,buf);
+						show_screen_error(buf,i++, vc(15));
+					}
+					
+					break;
+					
+				case cCAVEB:
+				case cPITB:
+				case cSTAIRB:
+				case cCAVE2B:
+				case cSWIMWARPB:
+				case cDIVEWARPB:
+				case cSWARPB:
+					if(!warpb)
+					{
+						warpb = true;
+						tile_warp_notification(1,buf);
+						show_screen_error(buf,i++, vc(15));
+					}
+					
+					break;
+					
+				case cCAVE:
+				case cPIT:
+				case cSTAIR:
+				case cCAVE2:
+				case cSWIMWARP:
+				case cDIVEWARP:
+				case cSWARPA:
+					if(!warpa)
+					{
+						warpa = true;
+						tile_warp_notification(0,buf);
+						show_screen_error(buf,i++, vc(15));
+					}
+					
+					break;
+			}
+		}
+		
+		int32_t sidewarpnotify = 0;
+		
+		if(Map.CurrScr()->flags2&wfUP)
+		{
+			side_warp_notification(Map.CurrScr()->sidewarpindex&3,0,buf);
+			show_screen_error(buf,i++, vc(15));
+			sidewarpnotify|=(1<<(Map.CurrScr()->sidewarpindex&3));
+		}
+		
+		if(Map.CurrScr()->flags2&wfDOWN)
+		{
+			side_warp_notification((Map.CurrScr()->sidewarpindex>>2)&3,1,buf);
+			show_screen_error(buf,i++, vc(15));
+			sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>2)&3));
+		}
+		
+		if(Map.CurrScr()->flags2&wfLEFT)
+		{
+			side_warp_notification((Map.CurrScr()->sidewarpindex>>4)&3,2,buf);
+			show_screen_error(buf,i++, vc(15));
+			sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>4)&3));
+		}
+		
+		if(Map.CurrScr()->flags2&wfRIGHT)
+		{
+			side_warp_notification((Map.CurrScr()->sidewarpindex>>6)&3,3,buf);
+			show_screen_error(buf,i++, vc(15));
+			sidewarpnotify|=(1<<((Map.CurrScr()->sidewarpindex>>6)&3));
+		}
+		
+		if(!(sidewarpnotify&1) && Map.CurrScr()->timedwarptics)
+		{
+			side_warp_notification(0,4,buf); // Timed Warp
+			show_screen_error(buf,i++, vc(15));
+		}
+		
+		// Now for errors
+		if((Map.CurrScr()->flags4&fSAVEROOM) && !savecombo) show_screen_error("Save Point->Continue Here, but no Save Point combo?",i++, vc(14));
+		
+		if(integrityBoolEnemiesItem(Map.CurrScr())) show_screen_error("Enemies->Item, but no enemies",i++, vc(7));
+		
+		if(integrityBoolEnemiesSecret(Map.CurrScr())) show_screen_error("Enemies->Secret, but no enemies",i++, vc(7));
+		
+		if(integrityBoolStringNoGuy(Map.CurrScr())) show_screen_error("String, but Guy is (none)",i++, vc(14));
+		
+		if(integrityBoolGuyNoString(Map.CurrScr())) show_screen_error("Non-Fairy Guy, but String is (none)",i++, vc(14));
+		
+		if(integrityBoolRoomNoGuy(Map.CurrScr())) show_screen_error("Guy is (none)",i++, vc(14));
+		
+		if(integrityBoolRoomNoString(Map.CurrScr())) show_screen_error("String is (none)",i++, vc(14));
+		
+		if(integrityBoolRoomNoGuyNoString(Map.CurrScr())) show_screen_error("Guy and String are (none)",i++, vc(14));
+	}
+	
+	if(!is_large)
+	{
+		if(draw_mode!=dm_normal)
+		{
+			textout_shadowed_right_ex(menu1,sfont,dm_names[draw_mode],mapscreen_x+((16+(showedges?1:0))*16*mapscreensize)-1,mapscreen_y+((showedges?1:0)*16*mapscreensize),vc(15),vc(0),-1);
+		}
+	}
+	
+	if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
+	{
+		masked_blit(tooltipbmp, menu1, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
+	}
+	
 //  textprintf_ex(menu1,font,16, 200,vc(15),-1,"%d %d %d %d %d",tooltip_timer,tooltip_box.x,tooltip_box.y,tooltip_box.w,tooltip_box.h);
 
-    scare_mouse();
-    
-    if(flags&rCLEAR)
-    {
-        blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+	scare_mouse();
+	
+	if(flags&rCLEAR)
+	{
+		blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
 		jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
-    }
-    else
-    {
-        blit(menu1,screen,0,16,0,16,zq_screen_w,zq_screen_h-16);
-        blit(menu1,screen,combolist_window.x-64,0,combolist_window.x-64,0,combolist_window.w+64,16);
-        
-        if(flags&rCOMBO)
-        {
-            blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
-        }
-    }
-    
-    ComboBrushPause=0;
-    
-    unscare_mouse();
-    SCRFIX();
+	}
+	else
+	{
+		blit(menu1,screen,0,16,0,16,zq_screen_w,zq_screen_h-16);
+		blit(menu1,screen,combolist_window.x-64,0,combolist_window.x-64,0,combolist_window.w+64,16);
+		
+		if(flags&rCOMBO)
+		{
+			blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
+		}
+	}
+	
+	ComboBrushPause=0;
+	
+	unscare_mouse();
+	SCRFIX();
 	update_hw_screen();
 }
 
