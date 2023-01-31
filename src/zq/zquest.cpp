@@ -505,6 +505,7 @@ int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp re
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
+double aspect_ratio = LARGE_H / double(LARGE_W);
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
@@ -29785,7 +29786,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 	
 		// Initialize the display
-		int32_t w=800, h=600;
+		int32_t w=LARGE_W, h=LARGE_H;
 		int32_t desired_bpp=8;
 		Uint32 video_flags=SDL_HWSURFACE|SDL_HWPALETTE;
 		sdl_screen = SDL_SetVideoMode(w, h, desired_bpp, video_flags);
@@ -30611,6 +30612,14 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	is_compact = zc_get_config("ZQ_GUI","compact_mode",0)!=0;
+	mapscreenbmp = nullptr;
+	brushbmp = nullptr;
+	brushscreen = nullptr;
+	screen2 = nullptr;
+	tmp_scr = nullptr;
+	menu1 = nullptr;
+	menu3 = nullptr;
+	tooltipbmp = nullptr;
 	load_size_poses();
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
@@ -30818,25 +30827,8 @@ int32_t main(int32_t argc,char **argv)
 	
 	position_mouse(zq_screen_w/2,zq_screen_h/2);
 	
-	center_zq_class_dialogs();
-	center_zq_custom_dialogs();
-	center_zq_files_dialogs();
-	center_zq_subscreen_dialogs();
-	center_zq_tiles_dialogs();
-	center_zquest_dialogs();
-	
-	screen2 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-	menu1 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-	clear_bitmap(menu1);
-	menu3 = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-	mapscreenbmp = create_bitmap_ex(8,16*(showedges?18:16),16*(showedges?13:11));
 	dmapbmp_small = create_bitmap_ex(8,65,33);
 	dmapbmp_large = create_bitmap_ex(8,(is_large?177:113),(is_large?81:57));
-	brushbmp = create_bitmap_ex(8,256*mapscreensize, 176*mapscreensize);
-	brushscreen = create_bitmap_ex(8,(256+(showedges?16:0))*mapscreensize, (176+(showedges?16:0))*mapscreensize);
-	tooltipbmp = create_bitmap_ex(8,zq_screen_w,zq_screen_h); // Decrease size at your own risk.
-	clear_bitmap(tooltipbmp);
 	
 	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
 	{
@@ -31337,6 +31329,13 @@ int32_t main(int32_t argc,char **argv)
 }
 END_OF_MAIN()
 
+void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
+{
+	if(*bmp)
+		destroy_bitmap(*bmp);
+	*bmp = create_bitmap_ex(8,w,h);
+	clear_bitmap(*bmp);
+}
 void load_size_poses()
 {
 	tooltip_box.x=-1;
@@ -31349,16 +31348,179 @@ void load_size_poses()
 	tooltip_trigger.w=0;
 	tooltip_trigger.h=0;
 	
-	if(is_large)
+	if(is_compact)
 	{
 		memcpy(the_menu, the_menu_large, sizeof(the_menu));
 		blackout_color=8;
-		zq_screen_w=800;
-		zq_screen_h=600;
+		zq_screen_w=LARGE_W;
+		zq_screen_h=LARGE_H;
 		
-		combolist_window.x=576;
+		combolist_window.w=(1*64)+(2*8)+24;
+		combolist_window.x=zq_screen_w-combolist_window.w;
 		combolist_window.y=0;
-		combolist_window.w=224;
+		combolist_window.h=464;
+		combo_preview.x=combolist_window.x+20;
+		combo_preview.y=combolist_window.y+6;
+		combo_preview.w=32;
+		combo_preview.h=32;
+		
+		drawmode_btn.x = combolist_window.x-64;
+		drawmode_btn.y = 0;
+		drawmode_btn.w = 64;
+		drawmode_btn.h = 16;
+		
+		combolist[2].x=combolist_window.x+8;
+		combolist[2].y=combolist_window.y+64;
+		combolist[2].w=4;
+		combolist[2].h=24;
+		
+		comboaliaslist[2].x=combolist[2].x;
+		comboaliaslist[2].y=combolist[2].y;
+		comboaliaslist[2].w=combolist[2].w;
+		comboaliaslist[2].h=combolist[2].h-5;
+		comboalias_preview[2].x=comboaliaslist[2].x;
+		comboalias_preview[2].y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
+		comboalias_preview[2].w=comboaliaslist[2].w<<4;
+		comboalias_preview[2].h=64;
+		
+		mapscreen_x=0;
+		mapscreen_y=16;
+		mapscreensize=3;
+		showedges=0;
+		showallpanels=0;
+		
+		for(int32_t i=0; i<=8; i++)
+		{
+			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
+			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
+			map_page_bar[i].w = 64;
+			map_page_bar[i].h = 20;
+		}
+		
+		minimap.w=7+48*BMM;
+		minimap.h=16+27*BMM;
+		
+		layer_panel.x=map_page_bar[0].x;
+		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
+		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
+		layer_panel.h=40;
+		
+		for(int32_t i=0; i<9; i++)
+		{
+			panel[i].x=10+48*BMM;
+			panel[i].y=layer_panel.y+layer_panel.h;
+			panel[i].w=(map_page_bar[6].x)-(minimap.w+3);
+			panel[i].h=76+32;
+		}
+		
+		minimap.x=3;
+		minimap.y=panel[0].y+4;
+		
+		combolistscrollers[2].w=11;
+		combolistscrollers[2].h=11;
+		combolistscrollers[2].x=combolist[2].x+21;
+		combolistscrollers[2].y=combolist[2].y-combolistscrollers[2].h-11;
+		
+		compactbtn.x = zq_screen_w-22;
+		compactbtn.y = 2;
+		compactbtn.w = 20;
+		compactbtn.h = 58;
+		
+		mouse_scroll_h=10;
+		
+		favorites_window.x=combolist_window.x;
+		favorites_window.y=464;
+		favorites_window.w=combolist_window.w;
+		favorites_window.h=136;
+		
+		favorites_list.x=favorites_window.x+8;
+		favorites_list.y=favorites_window.y+16;
+		favorites_list.w=(favorites_window.w-16)>>4;
+		favorites_list.h=(favorites_window.h-24)>>4;
+		
+		favorites_x.x = favorites_window.x + favorites_window.w - 9 - 12;
+		favorites_x.y = favorites_list.y - 14;
+		favorites_x.w = 12;
+		favorites_x.h = 12;
+		
+		commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
+		commands_window.h=zq_screen_h-panel[0].y;
+		commands_window.x=favorites_window.x-commands_window.w;
+		commands_window.y=panel[0].y;
+		
+		commands_list.x=commands_window.x+8;
+		commands_list.y=commands_window.y+20;
+		commands_list.w=2;
+		commands_list.h=4;
+		
+		combopool_preview.x=comboaliaslist[2].x;
+		combopool_preview.y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
+		combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[2].x;
+		combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10+16;
+		combopool_preview.h -= combopool_preview.h%16;
+		
+		FONT* tfont = is_large?lfont_l:nfont;
+		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
+		combopool_prevbtn.h = 11;
+		combopool_prevbtn.x = combopool_preview.x;
+		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
+		
+		//Help Dialogue Sizing
+		help_dlg[0].w=zq_screen_w;
+		help_dlg[0].h=zq_screen_h;
+		help_dlg[1].w=zq_screen_w-8;
+		help_dlg[1].h=zq_screen_h-27;
+		help_dlg[2].w=zq_screen_w-8-4;
+		help_dlg[2].h=zq_screen_h-27-4;
+	
+	
+		zscripthelp_dlg[0].w=zq_screen_w;
+		zscripthelp_dlg[0].h=zq_screen_h;
+		zscripthelp_dlg[1].w=zq_screen_w-8;
+		zscripthelp_dlg[1].h=zq_screen_h-27;
+		zscripthelp_dlg[2].w=zq_screen_w-8-4;
+		zscripthelp_dlg[2].h=zq_screen_h-27-4;
+	
+		Zstringshelp_dlg[0].w=zq_screen_w;
+		Zstringshelp_dlg[0].h=zq_screen_h;
+		Zstringshelp_dlg[1].w=zq_screen_w-8;
+		Zstringshelp_dlg[1].h=zq_screen_h-27;
+		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
+		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
+	
+		shieldblockhelp_dlg[0].w=zq_screen_w;
+		shieldblockhelp_dlg[0].h=zq_screen_h;
+		shieldblockhelp_dlg[1].w=zq_screen_w-8;
+		shieldblockhelp_dlg[1].h=zq_screen_h-27;
+		shieldblockhelp_dlg[2].w=zq_screen_w-8-4;
+		shieldblockhelp_dlg[2].h=zq_screen_h-27-4;
+		
+		edit_zscript_dlg[0].w=zq_screen_w;
+		edit_zscript_dlg[0].h=zq_screen_h;
+		edit_zscript_dlg[1].w=zq_screen_w-8;
+		edit_zscript_dlg[1].h=zq_screen_h-27;
+		edit_zscript_dlg[2].w=zq_screen_w-8-4;
+		edit_zscript_dlg[2].h=zq_screen_h-27-4;
+		
+		editmsg_help_dlg[0].w=zq_screen_w;
+		editmsg_help_dlg[0].h=zq_screen_h;
+		editmsg_help_dlg[1].w=zq_screen_w-8;
+		editmsg_help_dlg[1].h=zq_screen_h-27;
+		editmsg_help_dlg[2].w=zq_screen_w-8-4;
+		editmsg_help_dlg[2].h=zq_screen_h-27-4;
+		
+		enlargeIntegrityReportDialog();
+	}
+	else if(is_large)
+	{
+		memcpy(the_menu, the_menu_large, sizeof(the_menu));
+		blackout_color=8;
+		zq_screen_w=LARGE_W;
+		zq_screen_h=LARGE_H;
+		
+		combolist_window.w=(4*64)+(5*8);
+		combolist_window.x=zq_screen_w-combolist_window.w;
+		combolist_window.y=0;
 		combolist_window.h=464;
 		combo_preview.x=combolist_window.x+96-24;
 		combo_preview.y=combolist_window.y+6;
@@ -31501,71 +31663,50 @@ void load_size_poses()
 		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
 		
 		//Help Dialogue Sizing
-		help_dlg[0].w=800;
-		help_dlg[0].h=600;
-		help_dlg[1].w=800-8;
-		help_dlg[1].h=600-27;
-		help_dlg[2].w=800-8-4;
-		help_dlg[2].h=600-27-4;
+		help_dlg[0].w=zq_screen_w;
+		help_dlg[0].h=zq_screen_h;
+		help_dlg[1].w=zq_screen_w-8;
+		help_dlg[1].h=zq_screen_h-27;
+		help_dlg[2].w=zq_screen_w-8-4;
+		help_dlg[2].h=zq_screen_h-27-4;
 	
 	
-	zscripthelp_dlg[0].w=800;
-		zscripthelp_dlg[0].h=600;
-		zscripthelp_dlg[1].w=800-8;
-		zscripthelp_dlg[1].h=600-27;
-		zscripthelp_dlg[2].w=800-8-4;
-		zscripthelp_dlg[2].h=600-27-4;
+		zscripthelp_dlg[0].w=zq_screen_w;
+		zscripthelp_dlg[0].h=zq_screen_h;
+		zscripthelp_dlg[1].w=zq_screen_w-8;
+		zscripthelp_dlg[1].h=zq_screen_h-27;
+		zscripthelp_dlg[2].w=zq_screen_w-8-4;
+		zscripthelp_dlg[2].h=zq_screen_h-27-4;
 	
-	Zstringshelp_dlg[0].w=800;
-		Zstringshelp_dlg[0].h=600;
-		Zstringshelp_dlg[1].w=800-8;
-		Zstringshelp_dlg[1].h=600-27;
-		Zstringshelp_dlg[2].w=800-8-4;
-		Zstringshelp_dlg[2].h=600-27-4;
+		Zstringshelp_dlg[0].w=zq_screen_w;
+		Zstringshelp_dlg[0].h=zq_screen_h;
+		Zstringshelp_dlg[1].w=zq_screen_w-8;
+		Zstringshelp_dlg[1].h=zq_screen_h-27;
+		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
+		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
 	
-	shieldblockhelp_dlg[0].w=800;
-		shieldblockhelp_dlg[0].h=600;
-		shieldblockhelp_dlg[1].w=800-8;
-		shieldblockhelp_dlg[1].h=600-27;
-		shieldblockhelp_dlg[2].w=800-8-4;
-		shieldblockhelp_dlg[2].h=600-27-4;
+		shieldblockhelp_dlg[0].w=zq_screen_w;
+		shieldblockhelp_dlg[0].h=zq_screen_h;
+		shieldblockhelp_dlg[1].w=zq_screen_w-8;
+		shieldblockhelp_dlg[1].h=zq_screen_h-27;
+		shieldblockhelp_dlg[2].w=zq_screen_w-8-4;
+		shieldblockhelp_dlg[2].h=zq_screen_h-27-4;
 		
-		edit_zscript_dlg[0].w=800;
-		edit_zscript_dlg[0].h=600;
-		edit_zscript_dlg[1].w=800-8;
-		edit_zscript_dlg[1].h=600-27;
-		edit_zscript_dlg[2].w=800-8-4;
-		edit_zscript_dlg[2].h=600-27-4;
+		edit_zscript_dlg[0].w=zq_screen_w;
+		edit_zscript_dlg[0].h=zq_screen_h;
+		edit_zscript_dlg[1].w=zq_screen_w-8;
+		edit_zscript_dlg[1].h=zq_screen_h-27;
+		edit_zscript_dlg[2].w=zq_screen_w-8-4;
+		edit_zscript_dlg[2].h=zq_screen_h-27-4;
 		
-		editmsg_help_dlg[0].w=800;
-		editmsg_help_dlg[0].h=600;
-		editmsg_help_dlg[1].w=800-8;
-		editmsg_help_dlg[1].h=600-27;
-		editmsg_help_dlg[2].w=800-8-4;
-		editmsg_help_dlg[2].h=600-27-4;
+		editmsg_help_dlg[0].w=zq_screen_w;
+		editmsg_help_dlg[0].h=zq_screen_h;
+		editmsg_help_dlg[1].w=zq_screen_w-8;
+		editmsg_help_dlg[1].h=zq_screen_h-27;
+		editmsg_help_dlg[2].w=zq_screen_w-8-4;
+		editmsg_help_dlg[2].h=zq_screen_h-27-4;
 		
 		enlargeIntegrityReportDialog();
-		
-		if(is_compact) //Compact some stuff
-		{
-			combolist_window.x=720;
-			combolist_window.y=0;
-			combolist_window.w=80;
-			combolist_window.h=464;
-			combo_preview.x=combolist_window.x+20;
-			combo_preview.y=combolist_window.y+6;
-			
-			combopool_preview.x=comboaliaslist[2].x;
-			combopool_preview.y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
-			combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[2].x;
-			combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10+16;
-			combopool_preview.h -= combopool_preview.h%16;
-			
-			combopool_prevbtn.x = combopool_preview.x;
-			combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
-			
-			drawmode_btn.x = combolist_window.x-64;
-		}
 	}
 	else
 	{
@@ -31694,6 +31835,25 @@ void load_size_poses()
 		layer_panel.w=-1;
 		layer_panel.h=-1;
 	}
+	
+	init_bitmap(&mapscreenbmp,16*(showedges?18:16),16*(showedges?13:11));
+	init_bitmap(&brushbmp,256*mapscreensize,176*mapscreensize);
+	init_bitmap(&brushscreen,(256+(showedges?16:0))*mapscreensize,(176+(showedges?16:0))*mapscreensize);
+	
+	init_bitmap(&screen2,zq_screen_w,zq_screen_h);
+	init_bitmap(&tmp_scr,zq_screen_w,zq_screen_h);
+	init_bitmap(&menu1,zq_screen_w,zq_screen_h);
+	init_bitmap(&menu3,zq_screen_w,zq_screen_h);
+	init_bitmap(&tooltipbmp,zq_screen_w,zq_screen_h); //Decrease size at your own risk.
+	
+	center_zq_class_dialogs();
+	center_zq_custom_dialogs();
+	center_zq_files_dialogs();
+	center_zq_subscreen_dialogs();
+	center_zq_tiles_dialogs();
+	center_zquest_dialogs();
+	
+	aspect_ratio = zq_screen_h / double(zq_screen_w);
 }
 
 void remove_locked_params_on_exit()

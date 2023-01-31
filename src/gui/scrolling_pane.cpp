@@ -10,7 +10,7 @@ int32_t screen_w, screen_h;
 #define START_CLIP(d) set_clip_rect( \
 	gui_get_screen(), d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
 #define END_CLIP() set_clip_rect( \
-	gui_get_screen(), 0, 0, 800, 600)
+	gui_get_screen(), 0, 0, LARGE_W, LARGE_H)
 
 namespace GUI
 {
@@ -65,7 +65,7 @@ int32_t ScrollingPane::mouseFixerProc(int32_t msg, DIALOG* d, int32_t c)
 		return D_DONTWANTMOUSE;
 	}
 	case MSG_DRAW:
-		set_clip_rect(gui_get_screen(), 0, 0, 800, 600);
+		set_clip_rect(gui_get_screen(), 0, 0, LARGE_W, LARGE_H);
 		break;
 	}
 	return D_O_K;

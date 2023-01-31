@@ -393,6 +393,9 @@ extern volatile bool close_button_quit;
 #define BLACK         253
 #define WHITE         254
 
+#define LARGE_W       872
+#define LARGE_H       600
+
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
 #define SIDE_TO_DIAG		1.4142
