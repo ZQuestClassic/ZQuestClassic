@@ -34,15 +34,17 @@ private:
 	std::shared_ptr<GUI::DropDownList> ddls[10];
 	std::shared_ptr<GUI::Checkbox> cboxes[10];
 	std::shared_ptr<GUI::Switcher> switcher[10];
+	std::shared_ptr<GUI::Label> lbls[10];
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
 	std::shared_ptr<GUI::SelComboSwatch> cmbswatches[3];
-	std::shared_ptr<GUI::Frame> frames[3];
+	std::shared_ptr<GUI::Frame> frames[10];
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	size_t rs_sz[10];
 	
 	GUI::ListData lists[10];
 	
-	GUI::ListData list_lwscript, list_ewscript, list_sprites, list_dropsets, list_items, list_sfx;
+	GUI::ListData list_lwscript, list_ewscript, list_sprites,
+		list_dropsets, list_items, list_sfx, list_counters;
 	
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);

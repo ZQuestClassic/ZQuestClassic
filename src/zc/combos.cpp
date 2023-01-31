@@ -932,16 +932,18 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 	else if((cmb.usrflags&cflag1) && itemonly) return false; //Nothing but item works
 	else if ((cmb.usrflags&cflag4))
 	{
+		bool nodrain = (cmb.usrflags&cflag8);
+		bool thief = !nodrain && (cmb.usrflags&cflag6);
 		if ( game->get_counter(thecounter) >= ctr_amount )
 		{
 			//flag 6 only checks the required count; it doesn't drain it
-			if (!(cmb.usrflags&cflag8)) game->change_counter(-(ctr_amount), thecounter);
+			if (!nodrain)
+				game->change_counter(-(ctr_amount), thecounter);
 			return true;
 		}
-		else if (cmb.usrflags&cflag6) //eat counter even if insufficient, but don't unlock
+		else if (thief) //eat counter even if insufficient, but don't unlock
 		{
-			//shadowtiger requested this on 29th Dec, 2019 -Z
-			if (!(cmb.usrflags&cflag7)) game->change_counter(-(game->get_counter(thecounter)), thecounter);
+			game->change_counter(-(game->get_counter(thecounter)), thecounter);
 			return false;
 		}
 	}
