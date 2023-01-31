@@ -801,9 +801,9 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attribytes[2] = 19;
 			ref.attrishorts[0] = 60;
 			ref.attrishorts[2] = 2;
-			ref.attributes[0] = -10000;
-			ref.attributes[1] = 40000;
-			ref.attributes[2] = 2000000;
+			ref.attributes[0] = -1*10000;
+			ref.attributes[1] = 4*10000;
+			ref.attributes[2] = 200*10000;
 			ref.usrflags = cflag1 | cflag4;
 			break;
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
@@ -819,7 +819,7 @@ void combo_default(newcombo& ref, bool typeonly)
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
-			ref.attributes[0] = 1;
+			ref.attributes[0] = 1*10000;
 			[[fallthrough]];
 		case cBOSSCHEST:
 			[[fallthrough]];
@@ -834,7 +834,7 @@ void combo_default(newcombo& ref, bool typeonly)
 			break;
 		//LOCKBLOCKS
 		case cLOCKBLOCK:
-			ref.attributes[0] = 1;
+			ref.attributes[0] = 1*10000;
 			[[fallthrough]];
 		case cBOSSLOCKBLOCK:
 			ref.attribytes[3] = WAV_DOOR;
@@ -3518,18 +3518,32 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 	return window;
 }
 
-static ComboWizardDialog* _instance = nullptr;
+static newcombo* _instance = nullptr;
+static bool defaulted = false;
 bool def_all()
 {
-	combo_default(_instance->local_ref, false);
-	_instance->rerun_dlg = true;
+	combo_default(*_instance, false);
+	defaulted = true;
 	return true;
 }
 bool def_some()
 {
-	combo_default(_instance->local_ref, true);
-	_instance->rerun_dlg = true;
+	combo_default(*_instance, true);
+	defaulted = true;
 	return true;
+}
+bool do_combo_default(newcombo& ref)
+{
+	defaulted = false;
+	_instance = &ref;
+	AlertFuncDialog("Are you sure?",
+		"Reset the combo to default?",
+		3, 2, //3 buttons, where buttons[2] is focused
+		"Whole Combo", def_all,
+		"Only attributes/flags", def_some,
+		"Cancel", NULL
+	).show();
+	return defaulted;
 }
 bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
@@ -3544,15 +3558,8 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 		case message::DEFAULT:
 		{
-			_instance = this;
-			bool reload = false;
-			AlertFuncDialog("Are you sure?",
-				"Reset the combo to default?",
-				3, 2, //3 buttons, where buttons[2] is focused
-				"Whole Combo", def_all,
-				"Only attributes/flags", def_some,
-				"Cancel", NULL
-			).show();
+			if(do_combo_default(local_ref))
+				rerun_dlg = true;
 			return rerun_dlg;
 		}
 		case message::CANCEL:

@@ -3070,13 +3070,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
-						text = "Cancel",
-						minwidth = 90_lpx,
-						onClick = message::CANCEL),
-					Button(
 						text = "Clear",
 						minwidth = 90_lpx,
-						onClick = message::CLEAR)
+						onClick = message::CLEAR),
+					Button(
+						text = "Default",
+						minwidth = 90_lpx,
+						onClick = message::DEFAULT),
+					Button(
+						text = "Cancel",
+						minwidth = 90_lpx,
+						onClick = message::CANCEL)
 				)
 			)
 		);
@@ -4150,13 +4154,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
-						text = "Cancel",
-						minwidth = 90_lpx,
-						onClick = message::CANCEL),
-					Button(
 						text = "Clear",
 						minwidth = 90_lpx,
-						onClick = message::CLEAR)
+						onClick = message::CLEAR),
+					Button(
+						text = "Default",
+						minwidth = 90_lpx,
+						onClick = message::DEFAULT),
+					Button(
+						text = "Cancel",
+						minwidth = 90_lpx,
+						onClick = message::CANCEL)
 				)
 			)
 		);
@@ -4285,6 +4293,12 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return true;
 			}
 			return false;
+		}
+		case message::DEFAULT:
+		{
+			if(do_combo_default(local_comboref))
+				rerun_dlg = true;
+			return rerun_dlg;
 		}
 		
 		case message::WIZARD:

@@ -10,6 +10,7 @@
 bool hasComboWizard(int32_t type);
 void call_combo_wizard(ComboEditorDialog& dlg);
 void combo_default(newcombo& ref, bool typeonly = true);
+bool do_combo_default(newcombo& ref);
 class ComboWizardDialog: public GUI::Dialog<ComboWizardDialog>
 {
 public:
