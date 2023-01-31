@@ -519,6 +519,9 @@ static JittedFunction compile_script(script_data *script)
 	cc.setArg(6, ptrCallStackRetIndex);
 	cc.setArg(7, ptrWaitIndex);
 
+	vRetVal = cc.newInt32("return_val");
+	zero(cc, vRetVal); // RUNSCRIPT_OK
+
 	x86::Gp vStackIndex = cc.newUInt32("stack_index");
 	cc.mov(vStackIndex, x86::ptr_32(ptrStackIndex));
 
@@ -628,10 +631,7 @@ static JittedFunction compile_script(script_data *script)
 	}
 
 	cc.jmp(target, annotation);
-
 	cc.bind(L_Start);
-	vRetVal = cc.newInt32();
-	zero(cc, vRetVal); // RUNSCRIPT_OK
 
 	// Next, transform each ZASM command to the equivalent assembly.
 	size_t label_index = 0;
@@ -1211,10 +1211,10 @@ static JittedFunction compile_script(script_data *script)
 			}
 			script_debug_print("\n");
 		}
-	}
 
-	script_debug_printf("time to preprocess: %d ms\n", preprocess_ms);
-	script_debug_printf("time to compile:    %d ms\n\n", compile_ms);
+		script_debug_printf("time to preprocess: %d ms\n", preprocess_ms);
+		script_debug_printf("time to compile:    %d ms\n\n", compile_ms);
+	}
 
 	rt.add(&fn, &code);
 
