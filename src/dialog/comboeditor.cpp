@@ -1743,7 +1743,8 @@ void ComboEditorDialog::loadComboType()
 		l_attributes[q]->setText(l_attribute[q]);
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
-	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
+	if(is_large)
+		wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	pendDraw();
 }
 void ComboEditorDialog::updateCSet()
@@ -3121,10 +3122,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							ctype_help(local_comboref.type);
 						}
 					),
-					wizardButton = Button(
-						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
-						padding = 0_px, forceFitH = true, onClick = message::WIZARD
-					),
+					DummyWidget(),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
 						maxwidth = sized(220_px, 400_px),
