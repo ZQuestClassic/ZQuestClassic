@@ -246,6 +246,7 @@ END_OF_MAIN()
 
 //Things required to compile from shared files... le sigh -Em
 bool is_large = true; //scaling
+bool is_compact = false;
 bool DragAspect = true;
 bool is_zquest() //Used for sizing purposes
 {

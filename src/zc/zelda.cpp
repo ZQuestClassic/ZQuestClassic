@@ -174,6 +174,7 @@ extern int32_t hangcount;
 extern bool kb_typing_mode;
 
 bool is_large=false;
+bool is_compact = false;
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;

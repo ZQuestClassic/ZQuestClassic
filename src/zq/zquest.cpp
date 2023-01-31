@@ -190,6 +190,7 @@ FFScript FFCore;
 ZModule zcm;
 zcmodule moduledata;
 
+void load_size_poses();
 void do_previewtext();
 bool do_slots(map<string, disassembled_script_data> &scripts);
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
@@ -256,6 +257,8 @@ size_and_pos map_page_bar[9];
 
 size_and_pos combolist[3];
 size_and_pos combolistscrollers[3];
+
+size_and_pos compactbtn;
 
 size_and_pos comboaliaslist[3];
 size_and_pos comboalias_preview[3];
@@ -382,6 +385,7 @@ midi_info Midi_Info;
 bool zq_showpal=false;
 bool combo_cols=true;
 bool is_large = true;
+bool is_compact = false;
 byte BMM = 3; // Big Minimap
 
 script_data *ffscripts[NUMSCRIPTFFC];
@@ -5939,8 +5943,11 @@ void refresh(int32_t flags)
     // CPage = Map.CurrScr()->cpage;
     
     if(flags&rCLEAR)
+	{
         clear_to_color(menu1,vc(0));
-        
+		jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
+	}
+	
     if(flags&rMAP)
     {
         if(!layers_valid(Map.CurrScr()))
@@ -6537,14 +6544,20 @@ void refresh(int32_t flags)
     
     if((flags&rCOMBOS) || (draw_mode == dm_cpool && (flags&rFAVORITES)))
     {
-        if(is_large)
+		if(is_compact)
+		{
+            jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,combolist_window.h, FR_WIN);
+            rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+combolist_window.h-3,jwin_pal[jcBOX]);
+		}
+        else if(is_large)
         {
 			auto real_h = combolist_window.h;
 			if(draw_mode==dm_cpool)
 				real_h = (favorites_window.y-combolist_window.y)+favorites_window.h;
             jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,real_h, FR_WIN);
             rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+real_h-3,jwin_pal[jcBOX]);
-            jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
+            //Scrollers[0]
+			jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
             
             for(int32_t i=0; i<3; i++)
             {
@@ -6558,6 +6571,7 @@ void refresh(int32_t flags)
                 _allegro_hline(menu1,combolistscrollers[0].x+combolistscrollers[0].w+5-i,combolistscrollers[0].y+6-i, combolistscrollers[0].x+combolistscrollers[0].w+5+i, vc(0));
             }
             
+			//Scrollers[1]
             jwin_draw_frame(menu1,combolistscrollers[1].x,combolistscrollers[1].y,combolistscrollers[1].w,combolistscrollers[1].h,FR_ETCHED);
             
             for(int32_t i=0; i<3; i++)
@@ -6571,8 +6585,11 @@ void refresh(int32_t flags)
             {
                 _allegro_hline(menu1,combolistscrollers[1].x+combolistscrollers[1].w+5-i,combolistscrollers[1].y+6-i, combolistscrollers[1].x+combolistscrollers[1].w+5+i, vc(0));
             }
-            
-            jwin_draw_frame(menu1,combolistscrollers[2].x,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
+		}
+		if(is_large)
+		{
+			//Scrollers[2]
+			jwin_draw_frame(menu1,combolistscrollers[2].x,combolistscrollers[2].y,combolistscrollers[2].w,combolistscrollers[2].h,FR_ETCHED);
             
             for(int32_t i=0; i<3; i++)
             {
@@ -6585,37 +6602,44 @@ void refresh(int32_t flags)
             {
                 _allegro_hline(menu1,combolistscrollers[2].x+combolistscrollers[2].w+5-i,combolistscrollers[2].y+6-i, combolistscrollers[2].x+combolistscrollers[2].w+5+i, vc(0));
             }
-        }
-		
+			//Compact button
+			jwin_draw_frame(menu1, compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, FR_ETCHED);
+			char const* txt = is_compact ? "<" : ">";
+			textprintf_ex(menu1,font,compactbtn.x+compactbtn.w/2-text_length(font,txt)/2,compactbtn.y+compactbtn.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],txt);
+		}
 		if(draw_mode==dm_alias)
 		{
 			if(is_large)
 			{
-				jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-2,(comboaliaslist[0].w<<4)+4,(comboaliaslist[0].h<<4)+4,FR_DEEP);
-				jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-2,(comboaliaslist[1].w<<4)+4,(comboaliaslist[1].h<<4)+4,FR_DEEP);
+				if(!is_compact)
+				{
+					jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-2,(comboaliaslist[0].w<<4)+4,(comboaliaslist[0].h<<4)+4,FR_DEEP);
+					jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-2,(comboaliaslist[1].w<<4)+4,(comboaliaslist[1].h<<4)+4,FR_DEEP);
+				}
 				jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-2,(comboaliaslist[2].w<<4)+4,(comboaliaslist[2].h<<4)+4,FR_DEEP);
 				
-				//jwin_draw_frame(menu1,comboalias_preview[0].x-2,comboalias_preview[0].y-2,comboalias_preview[0].w+4,comboalias_preview[0].h+4,FR_DEEP);
-				jwin_draw_frame(menu1,comboalias_preview[1].x-2,comboalias_preview[1].y-2,comboalias_preview[1].w+4,comboalias_preview[1].h+4,FR_DEEP);
-				//jwin_draw_frame(menu1,comboalias_preview[2].x-2,comboalias_preview[2].y-2,comboalias_preview[2].w+4,comboalias_preview[2].h+4,FR_DEEP);
+				size_and_pos const& prev = comboalias_preview[is_compact ? 2 : 1];
+				jwin_draw_frame(menu1,prev.x-2,prev.y-2,prev.w+4,prev.h+4,FR_DEEP);
 				
 				if(MouseScroll)
 				{
-					jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-10,(comboaliaslist[0].w<<4)+4,6,FR_DEEP);
-					jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-10,(comboaliaslist[1].w<<4)+4,6,FR_DEEP);
+					if(!is_compact)
+					{
+						jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-10,(comboaliaslist[0].w<<4)+4,6,FR_DEEP);
+						jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-10,(comboaliaslist[1].w<<4)+4,6,FR_DEEP);
+					}
 					jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-10,(comboaliaslist[2].w<<4)+4,6,FR_DEEP);
 					
-					rectfill(menu1,comboaliaslist[0].x,comboaliaslist[0].y-8,comboaliaslist[0].x+(comboaliaslist[0].w<<4)-1,comboaliaslist[0].y-7,jwin_pal[jcBOXFG]);
-					rectfill(menu1,comboaliaslist[1].x,comboaliaslist[1].y-8,comboaliaslist[1].x+(comboaliaslist[1].w<<4)-1,comboaliaslist[1].y-7,jwin_pal[jcBOXFG]);
+					if(!is_compact)
+					{
+						rectfill(menu1,comboaliaslist[0].x,comboaliaslist[0].y-8,comboaliaslist[0].x+(comboaliaslist[0].w<<4)-1,comboaliaslist[0].y-7,jwin_pal[jcBOXFG]);
+						rectfill(menu1,comboaliaslist[1].x,comboaliaslist[1].y-8,comboaliaslist[1].x+(comboaliaslist[1].w<<4)-1,comboaliaslist[1].y-7,jwin_pal[jcBOXFG]);
+					}
 					rectfill(menu1,comboaliaslist[2].x,comboaliaslist[2].y-8,comboaliaslist[2].x+(comboaliaslist[2].w<<4)-1,comboaliaslist[2].y-7,jwin_pal[jcBOXFG]);
 					
-					//jwin_draw_frame(menu1,comboalias_preview[0].x-2,comboalias_preview[0].y+comboalias_preview[0].h+4,comboalias_preview[0].w+4,6,FR_DEEP);
-					jwin_draw_frame(menu1,comboalias_preview[1].x-2,comboalias_preview[1].y+comboalias_preview[1].h+4,comboalias_preview[1].w+4,6,FR_DEEP);
-					//jwin_draw_frame(menu1,comboalias_preview[2].x-2,comboalias_preview[2].y+comboalias_preview[2].h+4,comboalias_preview[2].w+4,6,FR_DEEP);
+					jwin_draw_frame(menu1,prev.x-2,prev.y+prev.h+4,prev.w+4,6,FR_DEEP);
 					
-					//rectfill(menu1,comboalias_preview[0].x,comboalias_preview[0].y+comboalias_preview[0].h+6,comboalias_preview[0].x+comboalias_preview[0].w-1,comboalias_preview[0].y+comboalias_preview[0].h+7,jwin_pal[jcBOXFG]);
-					rectfill(menu1,comboalias_preview[1].x,comboalias_preview[1].y+comboalias_preview[1].h+6,comboalias_preview[1].x+comboalias_preview[1].w-1,comboalias_preview[1].y+comboalias_preview[1].h+7,jwin_pal[jcBOXFG]);
-					//rectfill(menu1,comboalias_preview[2].x,comboalias_preview[2].y+comboalias_preview[2].h+6,comboalias_preview[2].x+comboalias_preview[2].w-1,comboalias_preview[2].y+comboalias_preview[2].h+7,jwin_pal[jcBOXFG]);
+					rectfill(menu1,prev.x,prev.y+prev.h+6,prev.x+prev.w-1,prev.y+prev.h+7,jwin_pal[jcBOXFG]);
 				}
 			}
 			
@@ -6625,7 +6649,7 @@ void refresh(int32_t flags)
 			
 			for(int32_t j=0; j<3; ++j)
 			{
-				if(j==0||is_large)
+				if(is_compact ? j==2 : (j==0||is_large))
 				{
 					for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
 					{
@@ -6641,7 +6665,7 @@ void refresh(int32_t flags)
 						scalefactor=2;
 					}
 					
-					if(!is_large || j==1)
+					if(is_compact || !is_large || j==1)
 					{
 						stretch_blit(brushbmp, prv, 0,0,scalefactor*64,zc_min(scalefactor*64,176),0,0,64,scalefactor==4?44:64);
 						blit(prv,menu1,0,0,comboalias_preview[j].x,comboalias_preview[j].y,comboalias_preview[j].w,comboalias_preview[j].h);
@@ -6660,18 +6684,27 @@ void refresh(int32_t flags)
 		{
 			if(is_large) //frames and stuff?
 			{
-				jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-2,(comboaliaslist[0].w<<4)+4,(comboaliaslist[0].h<<4)+4,FR_DEEP);
-				jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-2,(comboaliaslist[1].w<<4)+4,(comboaliaslist[1].h<<4)+4,FR_DEEP);
+				if(!is_compact)
+				{
+					jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-2,(comboaliaslist[0].w<<4)+4,(comboaliaslist[0].h<<4)+4,FR_DEEP);
+					jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-2,(comboaliaslist[1].w<<4)+4,(comboaliaslist[1].h<<4)+4,FR_DEEP);
+				}
 				jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-2,(comboaliaslist[2].w<<4)+4,(comboaliaslist[2].h<<4)+4,FR_DEEP);
 				
 				if(MouseScroll)
 				{
-					jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-10,(comboaliaslist[0].w<<4)+4,6,FR_DEEP);
-					jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-10,(comboaliaslist[1].w<<4)+4,6,FR_DEEP);
+					if(!is_compact)
+					{
+						jwin_draw_frame(menu1,comboaliaslist[0].x-2,comboaliaslist[0].y-10,(comboaliaslist[0].w<<4)+4,6,FR_DEEP);
+						jwin_draw_frame(menu1,comboaliaslist[1].x-2,comboaliaslist[1].y-10,(comboaliaslist[1].w<<4)+4,6,FR_DEEP);
+					}
 					jwin_draw_frame(menu1,comboaliaslist[2].x-2,comboaliaslist[2].y-10,(comboaliaslist[2].w<<4)+4,6,FR_DEEP);
 					
-					rectfill(menu1,comboaliaslist[0].x,comboaliaslist[0].y-8,comboaliaslist[0].x+(comboaliaslist[0].w<<4)-1,comboaliaslist[0].y-7,jwin_pal[jcBOXFG]);
-					rectfill(menu1,comboaliaslist[1].x,comboaliaslist[1].y-8,comboaliaslist[1].x+(comboaliaslist[1].w<<4)-1,comboaliaslist[1].y-7,jwin_pal[jcBOXFG]);
+					if(!is_compact)
+					{
+						rectfill(menu1,comboaliaslist[0].x,comboaliaslist[0].y-8,comboaliaslist[0].x+(comboaliaslist[0].w<<4)-1,comboaliaslist[0].y-7,jwin_pal[jcBOXFG]);
+						rectfill(menu1,comboaliaslist[1].x,comboaliaslist[1].y-8,comboaliaslist[1].x+(comboaliaslist[1].w<<4)-1,comboaliaslist[1].y-7,jwin_pal[jcBOXFG]);
+					}
 					rectfill(menu1,comboaliaslist[2].x,comboaliaslist[2].y-8,comboaliaslist[2].x+(comboaliaslist[2].w<<4)-1,comboaliaslist[2].y-7,jwin_pal[jcBOXFG]);
 					
 					rectfill(menu1,combopool_preview.x,combopool_preview.y+combopool_preview.h+6,combopool_preview.x+combopool_preview.w-1,combopool_preview.y+combopool_preview.h+7,jwin_pal[jcBOXFG]);
@@ -6688,6 +6721,7 @@ void refresh(int32_t flags)
 			
 			for(int32_t j=0; j<(is_large?3:1); ++j) //the actual panes
 			{
+				if(is_compact) j = 2;
 				for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
 				{
 					int32_t cid=-1; int8_t cs=CSet;
@@ -6735,7 +6769,7 @@ void refresh(int32_t flags)
 				draw_text_button(menu1,combopool_prevbtn.x,combopool_prevbtn.y,
 					combopool_prevbtn.w,combopool_prevbtn.h,
 					weighted_cpool ? "Weighted" : "Unweighted",vc(1),vc(14),0,true);
-				if(is_large)
+				if(!is_compact && is_large)
 					textprintf_ex(menu1,font,combopool_prevbtn.x+combopool_prevbtn.w+5,
 						combopool_prevbtn.y,jwin_pal[jcBOXFG],-1,"Preview");
 				for(auto y = 0; y < real_height; y += 16)
@@ -6764,26 +6798,41 @@ void refresh(int32_t flags)
 		{
 			if(is_large)
 			{
-				jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y-2,(combolist[0].w<<4)+4,(combolist[0].h<<4)+4,FR_DEEP);
-				jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y-2,(combolist[1].w<<4)+4,(combolist[1].h<<4)+4,FR_DEEP);
+				if(!is_compact)
+				{
+					jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y-2,(combolist[0].w<<4)+4,(combolist[0].h<<4)+4,FR_DEEP);
+					jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y-2,(combolist[1].w<<4)+4,(combolist[1].h<<4)+4,FR_DEEP);
+				}
 				jwin_draw_frame(menu1,combolist[2].x-2,combolist[2].y-2,(combolist[2].w<<4)+4,(combolist[2].h<<4)+4,FR_DEEP);
 				
 				if(MouseScroll)
 				{
-					jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y-10,(combolist[0].w<<4)+4,6,FR_DEEP);
-					jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y-10,(combolist[1].w<<4)+4,6,FR_DEEP);
+					if(!is_compact)
+					{
+						jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y-10,(combolist[0].w<<4)+4,6,FR_DEEP);
+						jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y-10,(combolist[1].w<<4)+4,6,FR_DEEP);
+					}
 					jwin_draw_frame(menu1,combolist[2].x-2,combolist[2].y-10,(combolist[2].w<<4)+4,6,FR_DEEP);
 					
-					rectfill(menu1,combolist[0].x,combolist[0].y-8,combolist[0].x+(combolist[0].w<<4)-1,combolist[0].y-7,jwin_pal[jcBOXFG]);
-					rectfill(menu1,combolist[1].x,combolist[1].y-8,combolist[1].x+(combolist[1].w<<4)-1,combolist[1].y-7,jwin_pal[jcBOXFG]);
+					if(!is_compact)
+					{
+						rectfill(menu1,combolist[0].x,combolist[0].y-8,combolist[0].x+(combolist[0].w<<4)-1,combolist[0].y-7,jwin_pal[jcBOXFG]);
+						rectfill(menu1,combolist[1].x,combolist[1].y-8,combolist[1].x+(combolist[1].w<<4)-1,combolist[1].y-7,jwin_pal[jcBOXFG]);
+					}
 					rectfill(menu1,combolist[2].x,combolist[2].y-8,combolist[2].x+(combolist[2].w<<4)-1,combolist[2].y-7,jwin_pal[jcBOXFG]);
 					
-					jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y+(combolist[0].h<<4)+4,(combolist[0].w<<4)+4,6,FR_DEEP);
-					jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y+(combolist[1].h<<4)+4,(combolist[1].w<<4)+4,6,FR_DEEP);
+					if(!is_compact)
+					{
+						jwin_draw_frame(menu1,combolist[0].x-2,combolist[0].y+(combolist[0].h<<4)+4,(combolist[0].w<<4)+4,6,FR_DEEP);
+						jwin_draw_frame(menu1,combolist[1].x-2,combolist[1].y+(combolist[1].h<<4)+4,(combolist[1].w<<4)+4,6,FR_DEEP);
+					}
 					jwin_draw_frame(menu1,combolist[2].x-2,combolist[2].y+(combolist[2].h<<4)+4,(combolist[2].w<<4)+4,6,FR_DEEP);
 					
-					rectfill(menu1,combolist[0].x,combolist[0].y+(combolist[0].h<<4)+6,combolist[0].x+(combolist[0].w<<4)-1,combolist[0].y+(combolist[0].h<<4)+7,jwin_pal[jcBOXFG]);
-					rectfill(menu1,combolist[1].x,combolist[1].y+(combolist[1].h<<4)+6,combolist[1].x+(combolist[1].w<<4)-1,combolist[1].y+(combolist[1].h<<4)+7,jwin_pal[jcBOXFG]);
+					if(!is_compact)
+					{
+						rectfill(menu1,combolist[0].x,combolist[0].y+(combolist[0].h<<4)+6,combolist[0].x+(combolist[0].w<<4)-1,combolist[0].y+(combolist[0].h<<4)+7,jwin_pal[jcBOXFG]);
+						rectfill(menu1,combolist[1].x,combolist[1].y+(combolist[1].h<<4)+6,combolist[1].x+(combolist[1].w<<4)-1,combolist[1].y+(combolist[1].h<<4)+7,jwin_pal[jcBOXFG]);
+					}
 					rectfill(menu1,combolist[2].x,combolist[2].y+(combolist[2].h<<4)+6,combolist[2].x+(combolist[2].w<<4)-1,combolist[2].y+(combolist[2].h<<4)+7,jwin_pal[jcBOXFG]);
 				}
 			}
@@ -6794,7 +6843,7 @@ void refresh(int32_t flags)
 			
 			for(int32_t j=0; j<3; ++j)
 			{
-				if(j==0||is_large)
+				if(is_compact ? j==2 : (j==0||is_large))
 				{
 					for(int32_t i=0; i<(combolist[j].w*combolist[j].h); i++)
 					{
@@ -6838,90 +6887,95 @@ void refresh(int32_t flags)
 			jwin_draw_frame(menu1,combo_preview.x-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
 			stretch_blit(combo_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x, combo_preview.y, combo_preview.w, combo_preview.h);
 			
-			if(draw_mode == dm_cpool)
+			if(!is_compact)
 			{
-				char buf[17];
-				sprintf(buf,"Pool: %d",combo_pool_pos);
-				textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-			}
-			else if(draw_mode != dm_alias)
-			{
-				char buf[17];
-				sprintf(buf,"Combo: %d",Combo);
-				textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-				sprintf(buf,"CSet: %d",CSet);
-				int32_t offs = 8;
-				textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-				strncpy(buf,combo_class_buf[combobuf[Combo].type].name,16);
-				
-				if(strlen(combo_class_buf[combobuf[Combo].type].name) > 16)
+				if(draw_mode == dm_cpool)
 				{
-					buf[15]='.';
-					buf[14]='.';
-					offs = 5;
+					char buf[17];
+					sprintf(buf,is_compact ? "%d" : "Pool: %d",combo_pool_pos);
+					textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
 				}
-				
-				buf[16]='\0';
-				//if (combobuf[Combo].type != 0)
-				textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+				else if(draw_mode != dm_alias)
+				{
+					char buf[17];
+					sprintf(buf,is_compact ? "%d" : "Combo: %d",Combo);
+					textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+					sprintf(buf,is_compact ? "%d" : "CSet: %d",CSet);
+					int32_t offs = 8;
+					textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+					strncpy(buf,combo_class_buf[combobuf[Combo].type].name,16);
+					
+					if(strlen(combo_class_buf[combobuf[Combo].type].name) > 16)
+					{
+						buf[15]='.';
+						buf[14]='.';
+						offs = 5;
+					}
+					
+					buf[16]='\0';
+					//if (combobuf[Combo].type != 0)
+					textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+				}
 			}
 			
 			// Cycle
-			int32_t NextCombo=combobuf[Combo].nextcombo;
-			int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
-			jwin_draw_frame(menu1,combo_preview.x+int32_t(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
-			bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool;
-			if(NextCombo>0 && normal_dm)
+			if(!is_compact)
 			{
-				put_combo(cycle_preview_bmp,0,0,NextCombo,NextCSet,Flags&(cFLAGS|cWALK),0);
-				
-				if(Flags&cWALK) put_walkflags(cycle_preview_bmp,0,0,NextCombo,0);
-				
-				if(Flags&cFLAGS) put_flags(cycle_preview_bmp,0,0,NextCombo,0,cFLAGS,0);
-				
-				stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x+int32_t(combo_preview.w*1.5), combo_preview.y, combo_preview.w, combo_preview.h);
-			}
-			else
-			{
-				if(InvalidStatic)
+				int32_t NextCombo=combobuf[Combo].nextcombo;
+				int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
+				bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool;
+				jwin_draw_frame(menu1,combo_preview.x+int32_t(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
+				if(NextCombo>0 && normal_dm)
 				{
-					for(int32_t dy=0; dy<32; dy++)
-					{
-						for(int32_t dx=0; dx<32; dx++)
-						{
-							menu1->line[dy+combo_preview.y][dx+combo_preview.x+int32_t(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-						}
-					}
+					put_combo(cycle_preview_bmp,0,0,NextCombo,NextCSet,Flags&(cFLAGS|cWALK),0);
+					
+					if(Flags&cWALK) put_walkflags(cycle_preview_bmp,0,0,NextCombo,0);
+					
+					if(Flags&cFLAGS) put_flags(cycle_preview_bmp,0,0,NextCombo,0,cFLAGS,0);
+					
+					stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x+int32_t(combo_preview.w*1.5), combo_preview.y, combo_preview.w, combo_preview.h);
 				}
 				else
 				{
-					rectfill(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(0));
-					safe_rect(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-					line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-					line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y+combo_preview.h, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y,vc(15));
+					if(InvalidStatic)
+					{
+						for(int32_t dy=0; dy<32; dy++)
+						{
+							for(int32_t dx=0; dx<32; dx++)
+							{
+								menu1->line[dy+combo_preview.y][dx+combo_preview.x+int32_t(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+							}
+						}
+					}
+					else
+					{
+						rectfill(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(0));
+						safe_rect(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
+						line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
+						line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y+combo_preview.h, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y,vc(15));
+					}
 				}
-			}
-			
-			if(normal_dm)
-			{
-			
-				textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle: %d",NextCombo);
-				textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",NextCSet);
-				char buf[17];
-				int32_t offs = 8;
-				strncpy(buf,combo_class_buf[combobuf[NextCombo].type].name,16);
 				
-				if(strlen(combo_class_buf[combobuf[NextCombo].type].name) > 15)
+				if(normal_dm)
 				{
-					buf[15]='.';
-					buf[14]='.';
-					offs = 5;
-				}
 				
-				buf[16]='\0';
-				textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+					textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle: %d",NextCombo);
+					textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",NextCSet);
+					char buf[17];
+					int32_t offs = 8;
+					strncpy(buf,combo_class_buf[combobuf[NextCombo].type].name,16);
+					
+					if(strlen(combo_class_buf[combobuf[NextCombo].type].name) > 15)
+					{
+						buf[15]='.';
+						buf[14]='.';
+						offs = 5;
+					}
+					
+					buf[16]='\0';
+					textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+				}
 			}
-			
 		}
 		else
 		{
@@ -10085,7 +10139,7 @@ void domouse()
 	{
 		for(int32_t j=0; j<3; ++j)
 		{
-			if(j==0||is_large)
+			if(is_compact ? j==2 : (j==0||is_large))
 			{
 				if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
 				{
@@ -10103,7 +10157,7 @@ void domouse()
 	{
 		for(int32_t j=0; j<3; ++j)
 		{
-			if(j==0||is_large)
+			if(is_compact ? j==2 : (j==0||is_large))
 			{
 				if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
 				{
@@ -10133,7 +10187,7 @@ void domouse()
 	{
 		for(int32_t j=0; j<3; ++j)
 		{
-			if(j==0||is_large)
+			if(is_compact ? j==2 : (j==0||is_large))
 			{
 				if(isinRect(x,y,combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
 				{
@@ -10453,6 +10507,7 @@ void domouse()
 		{
 			for(int32_t temp_counter=0; temp_counter<3; ++temp_counter)
 			{
+				if(is_compact) temp_counter = 2;
 				int32_t temp_x1=combolistscrollers[temp_counter].x;
 				int32_t temp_y1=combolistscrollers[temp_counter].y;
 				int32_t temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
@@ -10490,7 +10545,7 @@ void domouse()
 		
 			for(int32_t j=0; j<3; ++j)
 			{
-				if(j==0||is_large)
+				if(is_compact ? j==2 : (j==0||is_large))
 				{
 					if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
 					{
@@ -10503,6 +10558,7 @@ void domouse()
 		{
 			for(int32_t temp_counter=0; temp_counter<3; ++temp_counter)
 			{
+				if(is_compact) temp_counter = 2;
 				int32_t temp_x1=combolistscrollers[temp_counter].x;
 				int32_t temp_y1=combolistscrollers[temp_counter].y;
 				int32_t temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
@@ -10540,7 +10596,7 @@ void domouse()
 		
 			for(int32_t j=0; j<3; ++j)
 			{
-				if(j==0||is_large)
+				if(is_compact ? j==2 : (j==0||is_large))
 				{
 					if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
 					{
@@ -10553,6 +10609,7 @@ void domouse()
 		{
 			for(int32_t temp_counter=0; temp_counter<3; ++temp_counter)
 			{
+				if(is_compact) temp_counter = 2;
 				int32_t temp_x1=combolistscrollers[temp_counter].x;
 				int32_t temp_y1=combolistscrollers[temp_counter].y;
 				int32_t temp_x2=combolistscrollers[temp_counter].x+combolistscrollers[temp_counter].w-1;
@@ -10636,7 +10693,7 @@ void domouse()
 			
 			for(int32_t j=0; j<3; ++j)
 			{
-				if(j==0||is_large)
+				if(is_compact ? j==2 : (j==0||is_large))
 				{
 					if(isinRect(x,y,combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
 					{
@@ -10644,6 +10701,20 @@ void domouse()
 					}
 				}
 			}
+		}
+		
+		if(isinRect(x,y,compactbtn.x,compactbtn.y,compactbtn.x+compactbtn.w-1,compactbtn.y+compactbtn.h-1) && !mouse_down)
+		{
+			is_compact = !is_compact;
+			if(is_compact)
+			{
+				current_combolist = 2;
+				current_cpoollist = 2;
+				current_comboalist = 2;
+			}
+			load_size_poses();
+			refresh(rCLEAR);
+			refresh(rALL);
 		}
 		
 		//on the favorites list
@@ -11177,7 +11248,7 @@ void domouse()
 		
 		for(int32_t j=0; j<3; ++j)
 		{
-			if(j==0||is_large)
+			if(is_compact ? j==2 : (j==0||is_large))
 			{
 				if(draw_mode == dm_alias)
 				{
@@ -11431,7 +11502,7 @@ void domouse()
 				z*=combolist[j].h;
 			}
 			
-			if(j==0||is_large)
+			if(is_compact ? j==2 : (j==0||is_large))
 			{
 				if(draw_mode == dm_alias)
 				{
@@ -30544,335 +30615,7 @@ int32_t main(int32_t argc,char **argv)
 		BMM=1;
 	}
 	
-	tooltip_box.x=-1;
-	tooltip_box.y=-1;
-	tooltip_box.w=0;
-	tooltip_box.h=0;
-	
-	tooltip_trigger.x=-1;
-	tooltip_trigger.y=-1;
-	tooltip_trigger.w=0;
-	tooltip_trigger.h=0;
-	
-	if(is_large)
-	{
-		memcpy(the_menu, the_menu_large, sizeof(the_menu));
-		blackout_color=8;
-		zq_screen_w=800;
-		zq_screen_h=600;
-		
-		combolist_window.x=576;
-		combolist_window.y=0;
-		combolist_window.w=224;
-		combolist_window.h=464;
-		combo_preview.x=combolist_window.x+96-24;
-		combo_preview.y=combolist_window.y+6;
-		combo_preview.w=32;
-		combo_preview.h=32;
-		
-		drawmode_btn.x = combolist_window.x-64;
-		drawmode_btn.y = 0;
-		drawmode_btn.w = 64;
-		drawmode_btn.h = 16;
-		
-		combolist[0].x=combolist_window.x+8;
-		combolist[0].y=combolist_window.y+64;
-		combolist[0].w=4;
-		combolist[0].h=24;
-		combolist[1].x=combolist[0].x+72;
-		combolist[1].y=combolist[0].y;
-		combolist[1].w=combolist[0].w;
-		combolist[1].h=combolist[0].h;
-		combolist[2].x=combolist[1].x+72;
-		combolist[2].y=combolist[1].y;
-		combolist[2].w=combolist[1].w;
-		combolist[2].h=combolist[1].h;
-		
-		comboaliaslist[0].x=combolist[0].x;
-		comboaliaslist[0].y=combolist[0].y;
-		comboaliaslist[0].w=combolist[0].w;
-		comboaliaslist[0].h=combolist[0].h-5;
-		comboalias_preview[0].x=comboaliaslist[0].x;
-		comboalias_preview[0].y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
-		comboalias_preview[0].w=comboaliaslist[0].w<<4;
-		comboalias_preview[0].h=64;
-		
-		comboaliaslist[1].x=combolist[1].x;
-		comboaliaslist[1].y=combolist[1].y;
-		comboaliaslist[1].w=comboaliaslist[0].w;
-		comboaliaslist[1].h=comboaliaslist[0].h;
-		comboalias_preview[1].x=comboaliaslist[1].x;
-		comboalias_preview[1].y=comboaliaslist[1].y+(comboaliaslist[1].h<<4)+16;
-		comboalias_preview[1].w=comboaliaslist[1].w<<4;
-		comboalias_preview[1].h=64;
-		
-		comboaliaslist[2].x=combolist[2].x;
-		comboaliaslist[2].y=combolist[2].y;
-		comboaliaslist[2].w=comboaliaslist[1].w;
-		comboaliaslist[2].h=comboaliaslist[1].h;
-		comboalias_preview[2].x=comboaliaslist[2].x;
-		comboalias_preview[2].y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
-		comboalias_preview[2].w=comboaliaslist[2].w<<4;
-		comboalias_preview[2].h=64;
-		
-		mapscreen_x=0;
-		mapscreen_y=16;
-		mapscreensize=2;
-		showedges=1;
-		showallpanels=0;
-		
-		for(int32_t i=0; i<=8; i++)
-		{
-			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
-			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
-			map_page_bar[i].w = 64;
-			map_page_bar[i].h = 20;
-		}
-		
-		minimap.w=7+48*BMM;
-		minimap.h=16+27*BMM;
-		
-		layer_panel.x=map_page_bar[0].x;
-		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
-		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
-		layer_panel.h=40;
-		
-		for(int32_t i=0; i<9; i++)
-		{
-			panel[i].x=10+48*BMM;
-			panel[i].y=layer_panel.y+layer_panel.h;
-			panel[i].w=(map_page_bar[6].x)-(minimap.w+3);
-			panel[i].h=76+32;
-		}
-		
-		minimap.x=3;
-		minimap.y=panel[0].y+4;
-		
-		combolistscrollers[0].w=11;
-		combolistscrollers[0].h=11;
-		combolistscrollers[0].x=combolist[0].x+21;
-		combolistscrollers[0].y=combolist[0].y-combolistscrollers[0].h-11;
-		combolistscrollers[1].w=11;
-		combolistscrollers[1].h=11;
-		combolistscrollers[1].x=combolist[1].x+21;
-		combolistscrollers[1].y=combolist[1].y-combolistscrollers[1].h-11;
-		combolistscrollers[2].w=11;
-		combolistscrollers[2].h=11;
-		combolistscrollers[2].x=combolist[2].x+21;
-		combolistscrollers[2].y=combolist[2].y-combolistscrollers[2].h-11;
-		
-		mouse_scroll_h=10;
-		
-		favorites_window.x=combolist_window.x;
-		favorites_window.y=464;
-		favorites_window.w=combolist_window.w;
-		favorites_window.h=136;
-		
-		favorites_list.x=favorites_window.x+8;
-		favorites_list.y=favorites_window.y+16;
-		favorites_list.w=(favorites_window.w-16)>>4;
-		favorites_list.h=(favorites_window.h-24)>>4;
-		
-		favorites_x.x = favorites_window.x + favorites_window.w - 9 - 12;
-		favorites_x.y = favorites_list.y - 14;
-		favorites_x.w = 12;
-		favorites_x.h = 12;
-		
-		commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
-		commands_window.h=zq_screen_h-panel[0].y;
-		commands_window.x=favorites_window.x-commands_window.w;
-		commands_window.y=panel[0].y;
-		
-		commands_list.x=commands_window.x+8;
-		commands_list.y=commands_window.y+20;
-		commands_list.w=2;
-		commands_list.h=4;
-		
-		combopool_preview.x=comboaliaslist[0].x;
-		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
-		combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[0].x;
-		combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10;
-		combopool_preview.h -= combopool_preview.h%16;
-		
-		FONT* tfont = is_large?lfont_l:nfont;
-		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
-		combopool_prevbtn.h = 11;
-		combopool_prevbtn.x = combopool_preview.x;
-		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
-		
-		//Help Dialogue Sizing
-		help_dlg[0].w=800;
-		help_dlg[0].h=600;
-		help_dlg[1].w=800-8;
-		help_dlg[1].h=600-27;
-		help_dlg[2].w=800-8-4;
-		help_dlg[2].h=600-27-4;
-	
-	
-	zscripthelp_dlg[0].w=800;
-		zscripthelp_dlg[0].h=600;
-		zscripthelp_dlg[1].w=800-8;
-		zscripthelp_dlg[1].h=600-27;
-		zscripthelp_dlg[2].w=800-8-4;
-		zscripthelp_dlg[2].h=600-27-4;
-	
-	Zstringshelp_dlg[0].w=800;
-		Zstringshelp_dlg[0].h=600;
-		Zstringshelp_dlg[1].w=800-8;
-		Zstringshelp_dlg[1].h=600-27;
-		Zstringshelp_dlg[2].w=800-8-4;
-		Zstringshelp_dlg[2].h=600-27-4;
-	
-	shieldblockhelp_dlg[0].w=800;
-		shieldblockhelp_dlg[0].h=600;
-		shieldblockhelp_dlg[1].w=800-8;
-		shieldblockhelp_dlg[1].h=600-27;
-		shieldblockhelp_dlg[2].w=800-8-4;
-		shieldblockhelp_dlg[2].h=600-27-4;
-		
-		edit_zscript_dlg[0].w=800;
-		edit_zscript_dlg[0].h=600;
-		edit_zscript_dlg[1].w=800-8;
-		edit_zscript_dlg[1].h=600-27;
-		edit_zscript_dlg[2].w=800-8-4;
-		edit_zscript_dlg[2].h=600-27-4;
-		
-		editmsg_help_dlg[0].w=800;
-		editmsg_help_dlg[0].h=600;
-		editmsg_help_dlg[1].w=800-8;
-		editmsg_help_dlg[1].h=600-27;
-		editmsg_help_dlg[2].w=800-8-4;
-		editmsg_help_dlg[2].h=600-27-4;
-		
-		enlargeIntegrityReportDialog();
-	}
-	else
-	{
-		//the_menu[8] = the_menu[9]; //end menus at visible length
-		memcpy(the_menu, the_menu_small, sizeof(the_menu));
-		blackout_color=0;
-		zq_screen_w=320;
-		zq_screen_h=240;
-		minimap.x=3;
-		minimap.y=195;
-		minimap.w=55;
-		minimap.h=43;
-		combolist[0].x=256;
-		combolist[0].y=16;
-		combolist[0].w=4;
-		combolist[0].h=14;
-		combolist[1].x=-1;
-		combolist[1].y=-1;
-		combolist[1].w=-1;
-		combolist[1].h=-1;
-		combolist[2].x=-1;
-		combolist[2].y=-1;
-		combolist[2].w=-1;
-		combolist[2].h=-1;
-		
-		comboaliaslist[0].x=256;
-		comboaliaslist[0].y=16;
-		comboaliaslist[0].w=4;
-		comboaliaslist[0].h=10;
-		comboalias_preview[0].x=256;
-		comboalias_preview[0].y=176;
-		comboalias_preview[0].w=64;
-		comboalias_preview[0].h=64;
-		comboaliaslist[1].x=-1;
-		comboaliaslist[1].y=-1;
-		comboaliaslist[1].w=-1;
-		comboaliaslist[1].h=-1;
-		comboalias_preview[1].x=-1;
-		comboalias_preview[1].y=-1;
-		comboalias_preview[1].w=-1;
-		comboalias_preview[1].h=-1;
-		comboaliaslist[2].x=-1;
-		comboaliaslist[2].y=-1;
-		comboaliaslist[2].w=-1;
-		comboaliaslist[2].h=-1;
-		comboalias_preview[2].x=-1;
-		comboalias_preview[2].y=-1;
-		comboalias_preview[2].w=-1;
-		comboalias_preview[2].h=-1;
-		
-		combopool_preview.x=comboaliaslist[0].x;
-		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
-		combopool_preview.w=comboaliaslist[0].w<<4;
-		combopool_preview.h=48;
-		
-		FONT* tfont = is_large?lfont_l:nfont;
-		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
-		combopool_prevbtn.h = 11;
-		combopool_prevbtn.x = combopool_preview.x+4;
-		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
-		
-		mapscreen_x=0;
-		mapscreen_y=16;
-		mapscreensize=1;
-		showedges=0;
-		showallpanels=0;
-		
-		for(int32_t i=0; i<9; i++)
-		{
-			panel[i].x=58;
-			panel[i].y=192;
-			panel[i].w=198;
-			panel[i].h=48;
-		}
-		
-		combolist_window.x=-1;
-		combolist_window.y=-1;
-		combolist_window.w=-1;
-		combolist_window.h=-1;
-		combo_preview.x=304;
-		combo_preview.y=0;
-		combo_preview.w=16;
-		combo_preview.h=16;
-		combolistscrollers[0].w=11;
-		combolistscrollers[0].h=11;
-		combolistscrollers[0].x=panel[0].x+panel[0].w-15;
-		combolistscrollers[0].y=panel[0].y+9;
-		combolistscrollers[1].w=-1;
-		combolistscrollers[1].h=-1;
-		combolistscrollers[1].x=-1;
-		combolistscrollers[1].y=-1;
-		combolistscrollers[2].w=-1;
-		combolistscrollers[2].h=-1;
-		combolistscrollers[2].x=-1;
-		combolistscrollers[2].y=-1;
-		
-		mouse_scroll_h=16;
-		
-		favorites_window.x=-1;
-		favorites_window.y=-1;
-		favorites_window.w=-1;
-		favorites_window.h=-1;
-		
-		favorites_list.x=-1;
-		favorites_list.y=-1;
-		favorites_list.w=-1;
-		favorites_list.h=-1;
-		
-		favorites_x.x = -1;
-		favorites_x.y = -1;
-		favorites_x.w = -1;
-		favorites_x.h = -1;
-		
-		commands_window.x=-1;
-		commands_window.y=-1;
-		commands_window.w=-1;
-		commands_window.h=-1;
-		
-		commands_list.x=-1;
-		commands_list.y=-1;
-		commands_list.w=-1;
-		commands_list.h=-1;
-		
-		layer_panel.x=-1;
-		layer_panel.y=-1;
-		layer_panel.w=-1;
-		layer_panel.h=-1;
-	}
+	load_size_poses();
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
@@ -31598,6 +31341,364 @@ int32_t main(int32_t argc,char **argv)
 }
 END_OF_MAIN()
 
+void load_size_poses()
+{
+	tooltip_box.x=-1;
+	tooltip_box.y=-1;
+	tooltip_box.w=0;
+	tooltip_box.h=0;
+	
+	tooltip_trigger.x=-1;
+	tooltip_trigger.y=-1;
+	tooltip_trigger.w=0;
+	tooltip_trigger.h=0;
+	
+	if(is_large)
+	{
+		memcpy(the_menu, the_menu_large, sizeof(the_menu));
+		blackout_color=8;
+		zq_screen_w=800;
+		zq_screen_h=600;
+		
+		combolist_window.x=576;
+		combolist_window.y=0;
+		combolist_window.w=224;
+		combolist_window.h=464;
+		combo_preview.x=combolist_window.x+96-24;
+		combo_preview.y=combolist_window.y+6;
+		combo_preview.w=32;
+		combo_preview.h=32;
+		
+		drawmode_btn.x = combolist_window.x-64;
+		drawmode_btn.y = 0;
+		drawmode_btn.w = 64;
+		drawmode_btn.h = 16;
+		
+		combolist[0].x=combolist_window.x+8;
+		combolist[0].y=combolist_window.y+64;
+		combolist[0].w=4;
+		combolist[0].h=24;
+		combolist[1].x=combolist[0].x+72;
+		combolist[1].y=combolist[0].y;
+		combolist[1].w=combolist[0].w;
+		combolist[1].h=combolist[0].h;
+		combolist[2].x=combolist[1].x+72;
+		combolist[2].y=combolist[1].y;
+		combolist[2].w=combolist[1].w;
+		combolist[2].h=combolist[1].h;
+		
+		comboaliaslist[0].x=combolist[0].x;
+		comboaliaslist[0].y=combolist[0].y;
+		comboaliaslist[0].w=combolist[0].w;
+		comboaliaslist[0].h=combolist[0].h-5;
+		comboalias_preview[0].x=comboaliaslist[0].x;
+		comboalias_preview[0].y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
+		comboalias_preview[0].w=comboaliaslist[0].w<<4;
+		comboalias_preview[0].h=64;
+		
+		comboaliaslist[1].x=combolist[1].x;
+		comboaliaslist[1].y=combolist[1].y;
+		comboaliaslist[1].w=comboaliaslist[0].w;
+		comboaliaslist[1].h=comboaliaslist[0].h;
+		comboalias_preview[1].x=comboaliaslist[1].x;
+		comboalias_preview[1].y=comboaliaslist[1].y+(comboaliaslist[1].h<<4)+16;
+		comboalias_preview[1].w=comboaliaslist[1].w<<4;
+		comboalias_preview[1].h=64;
+		
+		comboaliaslist[2].x=combolist[2].x;
+		comboaliaslist[2].y=combolist[2].y;
+		comboaliaslist[2].w=comboaliaslist[1].w;
+		comboaliaslist[2].h=comboaliaslist[1].h;
+		comboalias_preview[2].x=comboaliaslist[2].x;
+		comboalias_preview[2].y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
+		comboalias_preview[2].w=comboaliaslist[2].w<<4;
+		comboalias_preview[2].h=64;
+		
+		mapscreen_x=0;
+		mapscreen_y=16;
+		mapscreensize=2;
+		showedges=1;
+		showallpanels=0;
+		
+		for(int32_t i=0; i<=8; i++)
+		{
+			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
+			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
+			map_page_bar[i].w = 64;
+			map_page_bar[i].h = 20;
+		}
+		
+		minimap.w=7+48*BMM;
+		minimap.h=16+27*BMM;
+		
+		layer_panel.x=map_page_bar[0].x;
+		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
+		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
+		layer_panel.h=40;
+		
+		for(int32_t i=0; i<9; i++)
+		{
+			panel[i].x=10+48*BMM;
+			panel[i].y=layer_panel.y+layer_panel.h;
+			panel[i].w=(map_page_bar[6].x)-(minimap.w+3);
+			panel[i].h=76+32;
+		}
+		
+		minimap.x=3;
+		minimap.y=panel[0].y+4;
+		
+		combolistscrollers[0].w=11;
+		combolistscrollers[0].h=11;
+		combolistscrollers[0].x=combolist[0].x+21;
+		combolistscrollers[0].y=combolist[0].y-combolistscrollers[0].h-11;
+		combolistscrollers[1].w=11;
+		combolistscrollers[1].h=11;
+		combolistscrollers[1].x=combolist[1].x+21;
+		combolistscrollers[1].y=combolist[1].y-combolistscrollers[1].h-11;
+		combolistscrollers[2].w=11;
+		combolistscrollers[2].h=11;
+		combolistscrollers[2].x=combolist[2].x+21;
+		combolistscrollers[2].y=combolist[2].y-combolistscrollers[2].h-11;
+		
+		compactbtn.x = zq_screen_w-22;
+		compactbtn.y = 2;
+		compactbtn.w = 20;
+		compactbtn.h = 58;
+		
+		mouse_scroll_h=10;
+		
+		favorites_window.x=combolist_window.x;
+		favorites_window.y=464;
+		favorites_window.w=combolist_window.w;
+		favorites_window.h=136;
+		
+		favorites_list.x=favorites_window.x+8;
+		favorites_list.y=favorites_window.y+16;
+		favorites_list.w=(favorites_window.w-16)>>4;
+		favorites_list.h=(favorites_window.h-24)>>4;
+		
+		favorites_x.x = favorites_window.x + favorites_window.w - 9 - 12;
+		favorites_x.y = favorites_list.y - 14;
+		favorites_x.w = 12;
+		favorites_x.h = 12;
+		
+		commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
+		commands_window.h=zq_screen_h-panel[0].y;
+		commands_window.x=favorites_window.x-commands_window.w;
+		commands_window.y=panel[0].y;
+		
+		commands_list.x=commands_window.x+8;
+		commands_list.y=commands_window.y+20;
+		commands_list.w=2;
+		commands_list.h=4;
+		
+		combopool_preview.x=comboaliaslist[0].x;
+		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
+		combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[0].x;
+		combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10;
+		combopool_preview.h -= combopool_preview.h%16;
+		
+		FONT* tfont = is_large?lfont_l:nfont;
+		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
+		combopool_prevbtn.h = 11;
+		combopool_prevbtn.x = combopool_preview.x;
+		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
+		
+		//Help Dialogue Sizing
+		help_dlg[0].w=800;
+		help_dlg[0].h=600;
+		help_dlg[1].w=800-8;
+		help_dlg[1].h=600-27;
+		help_dlg[2].w=800-8-4;
+		help_dlg[2].h=600-27-4;
+	
+	
+	zscripthelp_dlg[0].w=800;
+		zscripthelp_dlg[0].h=600;
+		zscripthelp_dlg[1].w=800-8;
+		zscripthelp_dlg[1].h=600-27;
+		zscripthelp_dlg[2].w=800-8-4;
+		zscripthelp_dlg[2].h=600-27-4;
+	
+	Zstringshelp_dlg[0].w=800;
+		Zstringshelp_dlg[0].h=600;
+		Zstringshelp_dlg[1].w=800-8;
+		Zstringshelp_dlg[1].h=600-27;
+		Zstringshelp_dlg[2].w=800-8-4;
+		Zstringshelp_dlg[2].h=600-27-4;
+	
+	shieldblockhelp_dlg[0].w=800;
+		shieldblockhelp_dlg[0].h=600;
+		shieldblockhelp_dlg[1].w=800-8;
+		shieldblockhelp_dlg[1].h=600-27;
+		shieldblockhelp_dlg[2].w=800-8-4;
+		shieldblockhelp_dlg[2].h=600-27-4;
+		
+		edit_zscript_dlg[0].w=800;
+		edit_zscript_dlg[0].h=600;
+		edit_zscript_dlg[1].w=800-8;
+		edit_zscript_dlg[1].h=600-27;
+		edit_zscript_dlg[2].w=800-8-4;
+		edit_zscript_dlg[2].h=600-27-4;
+		
+		editmsg_help_dlg[0].w=800;
+		editmsg_help_dlg[0].h=600;
+		editmsg_help_dlg[1].w=800-8;
+		editmsg_help_dlg[1].h=600-27;
+		editmsg_help_dlg[2].w=800-8-4;
+		editmsg_help_dlg[2].h=600-27-4;
+		
+		enlargeIntegrityReportDialog();
+		
+		if(is_compact) //Compact some stuff
+		{
+			combolist_window.x=720;
+			combolist_window.y=0;
+			combolist_window.w=80;
+			combolist_window.h=464;
+			combo_preview.x=combolist_window.x+20;
+			combo_preview.y=combolist_window.y+6;
+			
+			combopool_preview.x=comboaliaslist[2].x;
+			combopool_preview.y=comboaliaslist[2].y+(comboaliaslist[2].h<<4)+16;
+			combopool_preview.w=(comboaliaslist[2].x+(comboaliaslist[2].w<<4))-comboaliaslist[2].x;
+			combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10+16;
+			combopool_preview.h -= combopool_preview.h%16;
+			
+			combopool_prevbtn.x = combopool_preview.x;
+			combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
+			
+			drawmode_btn.x = combolist_window.x-64;
+		}
+	}
+	else
+	{
+		//the_menu[8] = the_menu[9]; //end menus at visible length
+		memcpy(the_menu, the_menu_small, sizeof(the_menu));
+		blackout_color=0;
+		zq_screen_w=320;
+		zq_screen_h=240;
+		minimap.x=3;
+		minimap.y=195;
+		minimap.w=55;
+		minimap.h=43;
+		combolist[0].x=256;
+		combolist[0].y=16;
+		combolist[0].w=4;
+		combolist[0].h=14;
+		combolist[1].x=-1;
+		combolist[1].y=-1;
+		combolist[1].w=-1;
+		combolist[1].h=-1;
+		combolist[2].x=-1;
+		combolist[2].y=-1;
+		combolist[2].w=-1;
+		combolist[2].h=-1;
+		
+		comboaliaslist[0].x=256;
+		comboaliaslist[0].y=16;
+		comboaliaslist[0].w=4;
+		comboaliaslist[0].h=10;
+		comboalias_preview[0].x=256;
+		comboalias_preview[0].y=176;
+		comboalias_preview[0].w=64;
+		comboalias_preview[0].h=64;
+		comboaliaslist[1].x=-1;
+		comboaliaslist[1].y=-1;
+		comboaliaslist[1].w=-1;
+		comboaliaslist[1].h=-1;
+		comboalias_preview[1].x=-1;
+		comboalias_preview[1].y=-1;
+		comboalias_preview[1].w=-1;
+		comboalias_preview[1].h=-1;
+		comboaliaslist[2].x=-1;
+		comboaliaslist[2].y=-1;
+		comboaliaslist[2].w=-1;
+		comboaliaslist[2].h=-1;
+		comboalias_preview[2].x=-1;
+		comboalias_preview[2].y=-1;
+		comboalias_preview[2].w=-1;
+		comboalias_preview[2].h=-1;
+		
+		combopool_preview.x=comboaliaslist[0].x;
+		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
+		combopool_preview.w=comboaliaslist[0].w<<4;
+		combopool_preview.h=48;
+		
+		FONT* tfont = is_large?lfont_l:nfont;
+		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
+		combopool_prevbtn.h = 11;
+		combopool_prevbtn.x = combopool_preview.x+4;
+		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
+		
+		mapscreen_x=0;
+		mapscreen_y=16;
+		mapscreensize=1;
+		showedges=0;
+		showallpanels=0;
+		
+		for(int32_t i=0; i<9; i++)
+		{
+			panel[i].x=58;
+			panel[i].y=192;
+			panel[i].w=198;
+			panel[i].h=48;
+		}
+		
+		combolist_window.x=-1;
+		combolist_window.y=-1;
+		combolist_window.w=-1;
+		combolist_window.h=-1;
+		combo_preview.x=304;
+		combo_preview.y=0;
+		combo_preview.w=16;
+		combo_preview.h=16;
+		combolistscrollers[0].w=11;
+		combolistscrollers[0].h=11;
+		combolistscrollers[0].x=panel[0].x+panel[0].w-15;
+		combolistscrollers[0].y=panel[0].y+9;
+		combolistscrollers[1].w=-1;
+		combolistscrollers[1].h=-1;
+		combolistscrollers[1].x=-1;
+		combolistscrollers[1].y=-1;
+		combolistscrollers[2].w=-1;
+		combolistscrollers[2].h=-1;
+		combolistscrollers[2].x=-1;
+		combolistscrollers[2].y=-1;
+		
+		mouse_scroll_h=16;
+		
+		favorites_window.x=-1;
+		favorites_window.y=-1;
+		favorites_window.w=-1;
+		favorites_window.h=-1;
+		
+		favorites_list.x=-1;
+		favorites_list.y=-1;
+		favorites_list.w=-1;
+		favorites_list.h=-1;
+		
+		favorites_x.x = -1;
+		favorites_x.y = -1;
+		favorites_x.w = -1;
+		favorites_x.h = -1;
+		
+		commands_window.x=-1;
+		commands_window.y=-1;
+		commands_window.w=-1;
+		commands_window.h=-1;
+		
+		commands_list.x=-1;
+		commands_list.y=-1;
+		commands_list.w=-1;
+		commands_list.h=-1;
+		
+		layer_panel.x=-1;
+		layer_panel.y=-1;
+		layer_panel.w=-1;
+		layer_panel.h=-1;
+	}
+}
 
 void remove_locked_params_on_exit()
 {
