@@ -1313,6 +1313,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 
 void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 {
+	bool did_array = false;
 	// Arrow handles its own indexing.
 	if (host.array->isTypeArrow())
 	{
@@ -1321,22 +1322,23 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 		{
 			arrow->index = host.index;
 			visit(host.array.get(), param);
-			if(!arrow->arrayFunction)
-				return;
-			arrow->index = nullptr;
+			did_array = true;
+			if(arrow->arrayFunction)
+				arrow->index = nullptr;
 		}
 	}
-	
-	RecursiveVisitor::caseExprIndex(host);
+	if(!did_array)
+		visit(host.array.get(), param);
 	if (breakRecursion(host)) return;
 
 	// The index must be a number.
-    if (host.index)
-    {
-	    checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
-	              host.index.get());
-        if (breakRecursion(host)) return;
-    }
+	if (host.index)
+	{
+		visit(host.index.get(), param);
+		checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
+				  host.index.get());
+		if (breakRecursion(host)) return;
+	}
 }
 
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
