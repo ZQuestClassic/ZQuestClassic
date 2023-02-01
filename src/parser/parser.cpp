@@ -395,3 +395,4 @@ END_OF_MAIN()
 
 // TODO: make this not needed to compile...
 bool DragAspect = false;
+double aspect_ratio = LARGE_H / double(LARGE_W);

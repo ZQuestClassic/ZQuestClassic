@@ -120,6 +120,8 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 			ry->setVal(resy);
 		}));
 	}
+	resx = rx->getVal();
+	resy = ry->getVal();
 	return window;
 }
 

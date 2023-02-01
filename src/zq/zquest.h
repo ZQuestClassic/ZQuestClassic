@@ -141,6 +141,7 @@ extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
+extern double aspect_ratio;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
 extern int32_t FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow

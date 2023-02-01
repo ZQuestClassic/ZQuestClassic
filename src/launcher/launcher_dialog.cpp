@@ -384,8 +384,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	queue_revert = 0;
 	int32_t scale = zc_get_config("zquest","scale",3,App::zquest);
 	int32_t scale_large = zc_get_config("zquest","scale_large",1,App::zquest);
-	int32_t def_large_w = 800*scale_large;
-	int32_t def_large_h = 600*scale_large;
+	int32_t def_large_w = LARGE_W*scale_large;
+	int32_t def_large_h = LARGE_H*scale_large;
 	int32_t def_small_w = 320*scale;
 	int32_t def_small_h = 240*scale;
 	int rightmost;

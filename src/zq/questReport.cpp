@@ -106,19 +106,19 @@ DIALOG integrity_report_dlg[] =
 
 void enlargeIntegrityReportDialog()
 {
-    integrity_report_dlg[0].w=800;
-    integrity_report_dlg[0].h=600;
-    integrity_report_dlg[1].w=800-8;
-    integrity_report_dlg[1].h=(600-27)-40;
-    integrity_report_dlg[2].w=800-8-4;
-    integrity_report_dlg[2].h=((600-27)-40)-4;
+    integrity_report_dlg[0].w=zq_screen_w;
+    integrity_report_dlg[0].h=zq_screen_h;
+    integrity_report_dlg[1].w=zq_screen_w-8;
+    integrity_report_dlg[1].h=(zq_screen_h-27)-40;
+    integrity_report_dlg[2].w=zq_screen_w-8-4;
+    integrity_report_dlg[2].h=((zq_screen_h-27)-40)-4;
     integrity_report_dlg[5].x=200-48;
-    integrity_report_dlg[5].y=600-38;
+    integrity_report_dlg[5].y=zq_screen_h-38;
     integrity_report_dlg[5].w=61*1.5;
     integrity_report_dlg[5].h=21*1.5;
     integrity_report_dlg[5].dp2 = lfont_l;
-    integrity_report_dlg[6].x=600-48;
-    integrity_report_dlg[6].y=600-38;
+    integrity_report_dlg[6].x=zq_screen_h-48;
+    integrity_report_dlg[6].y=zq_screen_h-38;
     integrity_report_dlg[6].w=61*1.5;
     integrity_report_dlg[6].h=21*1.5;
     integrity_report_dlg[6].dp2 = lfont_l;

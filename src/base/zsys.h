@@ -28,6 +28,7 @@
 extern int32_t jwin_pal[jcMAX];
 
 extern bool is_large;
+extern bool is_compact;
 extern void large_dialog(DIALOG *d);
 
 extern volatile int32_t dclick_status, dclick_time;
