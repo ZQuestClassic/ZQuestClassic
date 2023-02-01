@@ -6672,7 +6672,7 @@ void refresh(int32_t flags)
 			//Compact button
 			jwin_draw_frame(menu1, compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, FR_ETCHED);
 			char const* txt = is_compact ? "<" : ">";
-			textprintf_ex(menu1,font,compactbtn.x+compactbtn.w/2-text_length(font,txt)/2,compactbtn.y+compactbtn.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],txt);
+			textprintf_ex(menu1,font,compactbtn.x+compactbtn.w/2-text_length(font,txt)/2,compactbtn.y+compactbtn.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",txt);
 		}
 		if(draw_mode==dm_alias)
 		{
