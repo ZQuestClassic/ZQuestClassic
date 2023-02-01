@@ -281,6 +281,13 @@ size_and_pos layer_panel;
 size_and_pos tooltip_box;
 size_and_pos tooltip_trigger;
 
+size_and_pos itemsqr_pos;
+size_and_pos flagsqr_pos;
+size_and_pos stairsqr_pos;
+size_and_pos warparrival_pos;
+size_and_pos warpret_pos[4];
+size_and_pos enemy_prev_pos;
+
 int32_t command_buttonwidth = 88;
 int32_t command_buttonheight = 19;
 
@@ -5459,9 +5466,11 @@ void drawpanel(int32_t pnl)
     }
     else
     {
-        jwin_draw_frame(menu1,0,panel[0].y,panel[0].x+panel[0].w,panel[0].h, FR_WIN);
-        rectfill(menu1,panel[0].x,panel[0].y+2,panel[0].x+panel[0].w-3,panel[0].y+panel[0].h-3,jwin_pal[jcBOX]);
-        
+		auto x1 = 0, y1 = panel[8].y, x2 = panel[0].x+panel[0].w-1, y2 = panel[0].y+panel[0].h-1;
+		rectfill(menu1,x1,y1,x2,y2, jwin_pal[jcBOX]);
+		jwin_draw_frame(menu1,x1,y1,x2-x1+1,y2-y1+1, FR_WIN);
+		refresh(rSCRMAP);
+		
         if(!is_large)
         {
             jwin_draw_frame(menu1,combolistscrollers[0].x,combolistscrollers[0].y,combolistscrollers[0].w,combolistscrollers[0].h,FR_ETCHED);
@@ -5477,74 +5486,148 @@ void drawpanel(int32_t pnl)
             {
                 _allegro_hline(menu1,combolistscrollers[0].x+5-i,combolistscrollers[0].y+combolistscrollers[0].h+4-i, combolistscrollers[0].x+5+i, vc(0));
             }
+			
+			textprintf_disabled(menu1,spfont,x2-7,y1+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"%d",menutype+1);
         }
         
-        textprintf_disabled(menu1,spfont,panel[0].x+panel[0].w-7,panel[0].y+3,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"%d",menutype+1);
         
         switch(pnl)
         {
             // New Large Mode single panel
         case -1:
-        {
-            // Coords1
-            set_clip_rect(menu1,panel[0].x,panel[0].y,panel[0].x+panel[0].w-5,panel[0].y+panel[0].h);
-            
-            for(int32_t i=0; i<4; i++)
-            {
-                jwin_draw_frame(menu1,panel[0].x+14+(32*i),panel[0].y+12,20,20,FR_DEEP);
-                
-                if(i==0 && scr->hasitem && scr->item > 0)
-                {
-                    rectfill(menu1,panel[0].x+16+(32*i),panel[0].y+14,panel[0].x+31+(32*i),panel[0].y+29,0);
-                    overtile16(menu1, itemsbuf[scr->item].tile,panel[0].x+16+(32*i),panel[0].y+14,itemsbuf[scr->item].csets&15,0);
-                }
-                else
-                    blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel[0].x+16+(32*i),panel[0].y+14, 16, 16);
-            }
-            
-            textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",scr->itemx);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",scr->stairx);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivalx);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+3*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",Flag);
-            
-            textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->itemy);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->stairy);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivaly);
-            
-            // Coords2
-            for(int32_t i=0; i<4; i++)
-            {
-                jwin_draw_frame(menu1,panel[0].x+14+(32*i),panel[0].y+54,20,20,FR_DEEP);
-                blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, panel[0].x+16+(32*i),panel[0].y+56, 16, 16);
-            }
-            
-            textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[0]);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[1]);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[2]);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+3*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[3]);
-            
-            textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[0]);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[1]);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[2]);
-            textprintf_centre_ex(menu1,font,panel[0].x+24+3*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[3]);
-            
-            // Enemies
-            int32_t epx = 2+panel[0].x+14+4*32;
-            int32_t epy = 2+panel[0].y+12;
-            jwin_draw_frame(menu1, epx-2,epy-2, 16*4+4,16*3+4,FR_DEEP);
-            rectfill(menu1, epx, epy, -1+epx+16*4,-1+epy+16*3,vc(0));
-            
-            for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
-            {
-                int32_t id = Map.CurrScr()->enemy[i];
-                int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
-                int32_t cset = guysbuf[id].cset;
-                
-                if(tile)
-                    overtile16(menu1, tile+efrontfacingtile(id),epx+(i%4)*16,epy+((i/4)*16),cset,0);
-            }
+		{
+			if(is_compact)
+			{
+				// Coords1
+				set_clip_rect(menu1,panel[0].x,panel[0].y,panel[0].x+panel[0].w-5,panel[0].y+panel[0].h);
+				
+				for(int32_t i=0; i<4; i++)
+				{
+					jwin_draw_frame(menu1,panel[0].x+14+(32*i),panel[0].y+12,20,20,FR_DEEP);
+					
+					if(i==0 && scr->hasitem && scr->item > 0)
+					{
+						rectfill(menu1,panel[0].x+16+(32*i),panel[0].y+14,panel[0].x+31+(32*i),panel[0].y+29,0);
+						overtile16(menu1, itemsbuf[scr->item].tile,panel[0].x+16+(32*i),panel[0].y+14,itemsbuf[scr->item].csets&15,0);
+					}
+					else
+						blit(icon_bmp[i][coord_frame], menu1, 0, 0, panel[0].x+16+(32*i),panel[0].y+14, 16, 16);
+				}
+				
+				textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",scr->itemx);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",scr->stairx);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivalx);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+3*32,panel[0].y+34,jwin_pal[jcBOXFG],-1,"%d",Flag);
+				
+				textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->itemy);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->stairy);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+42,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivaly);
+				
+				// Coords2
+				for(int32_t i=0; i<4; i++)
+				{
+					jwin_draw_frame(menu1,panel[0].x+14+(32*i),panel[0].y+54,20,20,FR_DEEP);
+					blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, panel[0].x+16+(32*i),panel[0].y+56, 16, 16);
+				}
+				
+				textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[0]);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[1]);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[2]);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+3*32,panel[0].y+76,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[3]);
+				
+				textprintf_centre_ex(menu1,font,panel[0].x+24+0*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[0]);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+1*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[1]);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+2*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[2]);
+				textprintf_centre_ex(menu1,font,panel[0].x+24+3*32,panel[0].y+84,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[3]);
+				
+				// Enemies
+				int32_t epx = 2+panel[0].x+14+4*32;
+				int32_t epy = 2+panel[0].y+12;
+				jwin_draw_frame(menu1, epx-2,epy-2, 16*4+4,16*3+4,FR_DEEP);
+				rectfill(menu1, epx, epy, -1+epx+16*4,-1+epy+16*3,vc(0));
+				
+				for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+				{
+					int32_t id = Map.CurrScr()->enemy[i];
+					int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+					int32_t cset = guysbuf[id].cset;
+					
+					if(tile)
+						overtile16(menu1, tile+efrontfacingtile(id),epx+(i%4)*16,epy+((i/4)*16),cset,0);
+				}
+			}
+			else
+			{
+				set_clip_rect(menu1,panel[0].x,panel[0].y,panel[0].x+panel[0].w-5,panel[0].y+panel[0].h);
+				
+				//Item:
+				auto itemx = itemsqr_pos.x;
+				auto itemy = itemsqr_pos.y;
+				jwin_draw_frame(menu1,itemx,itemy,20,20,FR_DEEP);
+				if(scr->hasitem && scr->item > 0)
+				{
+					rectfill(menu1,itemx+2,itemy+2,itemx+17,itemy+17,0);
+					overtile16(menu1, itemsbuf[scr->item].tile,itemx+2,itemy+2,itemsbuf[scr->item].csets&15,0);
+				}
+				else blit(icon_bmp[0][coord_frame], menu1, 0, 0, itemx+2,itemy+2, 16, 16);
+				
+				textprintf_ex(menu1,font,itemx+22,itemy+2,jwin_pal[jcBOXFG],-1,"%d",scr->itemx);
+				textprintf_ex(menu1,font,itemx+22,itemy+10,jwin_pal[jcBOXFG],-1,"%d",scr->itemy);
+				
+				//Flag:
+				auto flagx = flagsqr_pos.x;
+				auto flagy = flagsqr_pos.y;
+				jwin_draw_frame(menu1,flagx,flagy,20,20,FR_DEEP);
+				blit(icon_bmp[3][coord_frame], menu1, 0, 0, flagx+2,flagy+2, 16, 16);
+				
+				textprintf_ex(menu1,font,flagx+22,flagy+6,jwin_pal[jcBOXFG],-1,"%d",Flag);
+				
+				//Stairs:
+				auto stairx = stairsqr_pos.x;
+				auto stairy = stairsqr_pos.y;
+				jwin_draw_frame(menu1,stairx,stairy,20,20,FR_DEEP);
+				blit(icon_bmp[1][coord_frame], menu1, 0, 0, stairx+2,stairy+2, 16, 16);
+				
+				textprintf_ex(menu1,font,stairx+22,stairy+2,jwin_pal[jcBOXFG],-1,"%d",scr->stairx);
+				textprintf_ex(menu1,font,stairx+22,stairy+10,jwin_pal[jcBOXFG],-1,"%d",scr->stairy);
+				
+				//Green arrival square:
+				auto arrivalx = warparrival_pos.x;
+				auto arrivaly = warparrival_pos.y;
+				jwin_draw_frame(menu1,arrivalx,arrivaly,20,20,FR_DEEP);
+				blit(icon_bmp[2][coord_frame], menu1, 0, 0, arrivalx+2,arrivaly+2, 16, 16);
+				
+				textprintf_ex(menu1,font,arrivalx+22,arrivaly+2,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivalx);
+				textprintf_ex(menu1,font,arrivalx+22,arrivaly+10,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivaly);
+				
+				//Blue return squares:
+				for(int32_t i=0; i<4; i++)
+				{
+					jwin_draw_frame(menu1,warpret_pos[i].x,warpret_pos[i].y,20,20,FR_DEEP);
+					blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, warpret_pos[i].x+2, warpret_pos[i].y+2, 16, 16);
+					
+					textprintf_ex(menu1,font,warpret_pos[i].x+22,warpret_pos[i].y+2,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[i]);
+					textprintf_ex(menu1,font,warpret_pos[i].x+22,warpret_pos[i].y+10,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[i]);
+				}
+				
+				// Enemies
+				int32_t epx = enemy_prev_pos.x;
+				int32_t epy = enemy_prev_pos.y;
+				jwin_draw_frame(menu1, epx-2,epy-2, 16*4+4,16*3+4,FR_DEEP);
+				rectfill(menu1, epx, epy, -1+epx+16*4,-1+epy+16*3,vc(0));
+				
+				for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+				{
+					int32_t id = Map.CurrScr()->enemy[i];
+					int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+					int32_t cset = guysbuf[id].cset;
+					
+					if(tile)
+						overtile16(menu1, tile+efrontfacingtile(id),epx+(i%4)*16,epy+((i/4)*16),cset,0);
+				}
+			}
         }
-        break;
+		break;
         
         case m_block:
         {
@@ -5955,7 +6038,9 @@ void refresh(int32_t flags)
 	
 	if(flags&rCLEAR)
 	{
-		clear_to_color(menu1,0xED/*vc(0)*/); //!TODO revert bg color
+		//magic pink = 0xED
+		//system black = vc(0)
+		clear_to_color(menu1,vc(0));
 	}
 	
 	if(flags&rSCRMAP)
@@ -7561,9 +7646,20 @@ void refresh(int32_t flags)
 	
 	if(flags&rCLEAR)
 	{
+		//Draw the whole gui
 		blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-		rectfill(screen,dialogs[0].w,0,drawmode_btn.x-1,drawmode_btn.h-1,jwin_pal[jcBOX]);
-		jwin_draw_frame(screen,dialogs[0].w+2,0,drawmode_btn.x-dialogs[0].w-2,drawmode_btn.h,FR_WIN);
+		
+		//Get width of main menu
+		jwin_menu_proc(MSG_START, &dialogs[0], 0);
+		
+		//Draw bar at the top
+		if(is_large)
+		{
+			rectfill(screen,dialogs[0].w,0,drawmode_btn.x-1,drawmode_btn.h-1,jwin_pal[jcBOX]);
+			jwin_draw_frame(screen,dialogs[0].w+2,0,drawmode_btn.x-dialogs[0].w-2,drawmode_btn.h,FR_WIN);
+		}
+		
+		//Draw the main menu
 		jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
 	}
 	else
@@ -9869,6 +9965,9 @@ static char paste_ffc_menu_text2[21];
 static char follow_warp_menu_text[21];
 static char follow_warp_menu_text2[21];
 
+#define isin_sqr(mx,my,szpos) \
+isinRect(mx,my,szpos.x,szpos.y,szpos.x+szpos.w-1,szpos.y+szpos.h-1)
+
 void domouse()
 {
 	static bool mouse_down = false;
@@ -10040,10 +10139,30 @@ void domouse()
 	{
 		for(int32_t j=0; j<4; j++)
 		{
-			int32_t xx = panel[0].x+14+(32*j);
-			int32_t yy = panel[0].y+12;
+			int32_t x1 = panel[0].x+14+(32*j);
+			int32_t y1 = panel[0].y+12;
+			int32_t x2 = x1+19;
+			int32_t y2 = y1+19;
+			if(!is_compact)
+			{
+				size_and_pos* sqr = nullptr;
+				switch(j)
+				{
+					case 0:
+						sqr = &itemsqr_pos;
+						break;
+					case 3:
+						sqr = &flagsqr_pos;
+						break;
+				}
+				if(!sqr) continue;
+				x1 = sqr->x;
+				y1 = sqr->y;
+				x2 = x1 + sqr->w-1;
+				y2 = y1 + sqr->h-1;
+			}
 			
-			if(isinRect(x,y,xx,yy,xx+20,yy+20))
+			if(isinRect(x,y,x1,y1,x2,y2))
 			{
 				char msg[160];
 				sprintf(msg,
@@ -10051,33 +10170,53 @@ void domouse()
 						j==1 ? "Stairs Secret\nTriggered when a Trigger Push Block is pushed." :
 						j==2 ? "Arrival Square\nPlayer's location when they begin/resume the game." :
 						"Combo Flags");
-				update_tooltip(x,y,xx,yy,20,20,msg);
+				update_tooltip(x,y,x1,y1,x2-x1+1,y2-y1+1,msg);
 			}
 		}
 		
 		// Warp Returns
 		for(int32_t j=0; j<4; j++)
 		{
-			int32_t xx = panel[0].x+14+(32*j);
-			int32_t yy = panel[0].y+54;
+			int32_t x1 = panel[0].x+14+(32*j);
+			int32_t y1 = panel[0].y+54;
+			int32_t x2 = x1+19;
+			int32_t y2 = y1+19;
+			if(!is_compact)
+			{
+				size_and_pos& sqr = warpret_pos[j];
+				x1 = sqr.x;
+				y1 = sqr.y;
+				x2 = x1 + sqr.w-1;
+				y2 = y1 + sqr.h-1;
+			}
 			
-			if(isinRect(x,y,xx,yy,xx+20,yy+20))
+			if(isinRect(x,y,x1,y1,x2,y2))
 			{
 				char msg[160];
 				sprintf(msg,"Warp Return Square %c\nPlayer's destination after warping to this screen.",(char)('A'+j));
-				update_tooltip(x,y,xx,yy,20,20,msg);
+				update_tooltip(x,y,x1,y1,x2-x1+1,y2-y1+1,msg);
 			}
 		}
 		
 		// Enemies
 		int32_t epx = 2+panel[0].x+14+4*32;
 		int32_t epy = 2+panel[0].y+12;
+		int32_t epx2 = epx+16*4+3;
+		int32_t epy2 = epy+16*3+3;
+		if(!is_compact)
+		{
+			size_and_pos& sqr = enemy_prev_pos;
+			epx = sqr.x;
+			epy = sqr.y;
+			epx2 = epx + sqr.w-1;
+			epy2 = epy + sqr.h-1;
+		}
 		
-		if(isinRect(x,y,epx,epy,epx+16*4+4,epy+16*3+4))
+		if(isinRect(x,y,epx,epy,epx2,epy2))
 		{
 			char msg[160];
 			sprintf(msg,"Enemies that appear on this screen.");
-			update_tooltip(x,y,epx,epy,16*4+4,16*3+4,msg);
+			update_tooltip(x,y,epx,epy,epx2-epx+1,epy2-epy+1,msg);
 		}
 	}
 	
@@ -10282,60 +10421,106 @@ void domouse()
 		
 		if(is_large)
 		{
-			if(isinRect(x,y,panel[0].x+16,panel[0].y+14,panel[0].x+16+15,panel[0].y+14+15))
+			if(is_compact)
 			{
-				onItem();
+				if(isinRect(x,y,panel[0].x+16,panel[0].y+14,panel[0].x+16+15,panel[0].y+14+15))
+				{
+					onItem();
+					
+					if(Map.CurrScr()->hasitem)
+						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
+				}
 				
-				if(Map.CurrScr()->hasitem)
-					doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
+				if(isinRect(x,y,panel[0].x+16+32,panel[0].y+14,panel[0].x+16+32+15,panel[0].y+14+15))
+				{
+					doxypos(Map.CurrScr()->stairx,Map.CurrScr()->stairy,14,0xF0);
+				}
+				
+				if(isinRect(x,y,panel[0].x+16+(32*2),panel[0].y+14,panel[0].x+16+(32*2)+15,panel[0].y+14+15))
+				{
+					if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+						jwin_alert("Obsolete Square","The arrival square is obsolete if you use the recommended",
+								   "quest rule, 'Use Warp Return Points Only' It is included",
+								   "only for backwards-compatibility purposes.","O&K",NULL,'k',0,lfont);
+								   
+					doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
+				}
+				
+				if(isinRect(x,y,panel[0].x+16+(32*3),panel[0].y+14,panel[0].x+16+(32*3)+15,panel[0].y+14+15))
+				{
+					onFlags();
+				}
+				
+				if(isinRect(x,y,panel[0].x+16,panel[0].y+56,panel[0].x+16+15,panel[0].y+56+15))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[0],Map.CurrScr()->warpreturny[0],9,0xF8);
+				}
+				
+				if(isinRect(x,y,panel[0].x+16+32,panel[0].y+56,panel[0].x+16+32+15,panel[0].y+56+15))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[1],Map.CurrScr()->warpreturny[1],9,0xF8);
+				}
+				
+				if(isinRect(x,y,panel[0].x+16+(32*2),panel[0].y+56,panel[0].x+16+(32*2)+15,panel[0].y+56+15))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[2],Map.CurrScr()->warpreturny[2],9,0xF8);
+				}
+				
+				if(isinRect(x,y,panel[0].x+16+(32*3),panel[0].y+56,panel[0].x+16+(32*3)+15,panel[0].y+56+15))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[3],Map.CurrScr()->warpreturny[3],9,0xF8);
+				}
+				
+				int32_t epx = 2+panel[0].x+14+4*32;
+				int32_t epy = 2+panel[0].y+12;
+				
+				if(isinRect(x,y,epx,epy,epx+16*4,epy+16*3))
+				{
+					onEnemies();
+				}
 			}
-			
-			if(isinRect(x,y,panel[0].x+16+32,panel[0].y+14,panel[0].x+16+32+15,panel[0].y+14+15))
+			else
 			{
-				doxypos(Map.CurrScr()->stairx,Map.CurrScr()->stairy,14,0xF0);
-			}
-			
-			if(isinRect(x,y,panel[0].x+16+(32*2),panel[0].y+14,panel[0].x+16+(32*2)+15,panel[0].y+14+15))
-			{
-				if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-					jwin_alert("Obsolete Square","The arrival square is obsolete if you use the recommended",
-							   "quest rule, 'Use Warp Return Points Only' It is included",
-							   "only for backwards-compatibility purposes.","O&K",NULL,'k',0,lfont);
-							   
-				doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
-			}
-			
-			if(isinRect(x,y,panel[0].x+16+(32*3),panel[0].y+14,panel[0].x+16+(32*3)+15,panel[0].y+14+15))
-			{
-				onFlags();
-			}
-			
-			if(isinRect(x,y,panel[0].x+16,panel[0].y+56,panel[0].x+16+15,panel[0].y+56+15))
-			{
-				doxypos(Map.CurrScr()->warpreturnx[0],Map.CurrScr()->warpreturny[0],9,0xF8);
-			}
-			
-			if(isinRect(x,y,panel[0].x+16+32,panel[0].y+56,panel[0].x+16+32+15,panel[0].y+56+15))
-			{
-				doxypos(Map.CurrScr()->warpreturnx[1],Map.CurrScr()->warpreturny[1],9,0xF8);
-			}
-			
-			if(isinRect(x,y,panel[0].x+16+(32*2),panel[0].y+56,panel[0].x+16+(32*2)+15,panel[0].y+56+15))
-			{
-				doxypos(Map.CurrScr()->warpreturnx[2],Map.CurrScr()->warpreturny[2],9,0xF8);
-			}
-			
-			if(isinRect(x,y,panel[0].x+16+(32*3),panel[0].y+56,panel[0].x+16+(32*3)+15,panel[0].y+56+15))
-			{
-				doxypos(Map.CurrScr()->warpreturnx[3],Map.CurrScr()->warpreturny[3],9,0xF8);
-			}
-			
-			int32_t epx = 2+panel[0].x+14+4*32;
-			int32_t epy = 2+panel[0].y+12;
-			
-			if(isinRect(x,y,epx,epy,epx+16*4,epy+16*3))
-			{
-				onEnemies();
+				if(isin_sqr(x,y,itemsqr_pos))
+				{
+					onItem();
+					
+					if(Map.CurrScr()->hasitem)
+						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
+				}
+				
+				//No stair
+				//No green square
+				
+				if(isin_sqr(x,y,flagsqr_pos))
+				{
+					onFlags();
+				}
+				
+				if(isin_sqr(x,y,warpret_pos[0]))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[0],Map.CurrScr()->warpreturny[0],9,0xF8);
+				}
+				
+				if(isin_sqr(x,y,warpret_pos[1]))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[1],Map.CurrScr()->warpreturny[1],9,0xF8);
+				}
+				
+				if(isin_sqr(x,y,warpret_pos[2]))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[2],Map.CurrScr()->warpreturny[2],9,0xF8);
+				}
+				
+				if(isin_sqr(x,y,warpret_pos[3]))
+				{
+					doxypos(Map.CurrScr()->warpreturnx[3],Map.CurrScr()->warpreturny[3],9,0xF8);
+				}
+				
+				if(isin_sqr(x,y,enemy_prev_pos))
+				{
+					onEnemies();
+				}
 			}
 		}
 		else
@@ -11234,9 +11419,19 @@ void domouse()
 		// Right click main panel
 		if(is_large)
 		{
-			if(isinRect(x,y,panel[0].x+16,panel[0].y+14,panel[0].x+16+15,panel[0].y+14+15))
+			if(is_compact)
 			{
-				onItem();
+				if(isinRect(x,y,panel[0].x+16,panel[0].y+14,panel[0].x+16+15,panel[0].y+14+15))
+				{
+					onItem();
+				}
+			}
+			else
+			{
+				if(isin_sqr(x,y,itemsqr_pos))
+				{
+					onItem();
+				}
 			}
 		}
 		else
@@ -11248,30 +11443,6 @@ void domouse()
 					onItem();
 				}
 			}
-		}
-		
-		if((isinRect(x,y,panel[0].x+panel[0].w-28,panel[0].y+32,panel[0].x+panel[0].w-28+24,panel[0].y+32+5) && menutype==m_block && !mouse_down) ||
-		   (isinRect(x,y,panel[6].x+panel[6].w-28,panel[6].y+36,panel[6].x+panel[6].w-28+24,panel[6].y+36+5) && menutype==m_layers && !mouse_down))
-		{
-			CSet=wrap(CSet-1,0,11);
-			refresh(rCOMBOS+rMENU+rCOMBO);
-		}
-		
-		if(isinRect(x,y,panel[0].x+panel[0].w-32,panel[0].y+39,panel[0].x+panel[0].w-32+28,panel[0].y+39+5) && menutype==m_block && !mouse_down)
-		{
-			bool validlayer=false;
-			
-			while(!validlayer)
-			{
-				CurrentLayer=wrap(CurrentLayer-1,0,6);
-				
-				if((CurrentLayer==0)||(Map.CurrScr()->layermap[CurrentLayer-1]))
-				{
-					validlayer=true;
-				}
-			}
-			
-			refresh(rMENU);
 		}
 		
 		if(is_large)
@@ -11313,74 +11484,100 @@ void domouse()
 					font=tfont;
 				}
 			}
-		}
-		
-		if(isinRect(x,y,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
-		{
-			bool valid=select_favorite();
 			
-			if(valid)
+			if(isinRect(x,y,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
 			{
-				if(isinRect(gui_mouse_x(),gui_mouse_y(),favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
+				bool valid=select_favorite();
+				
+				if(valid)
 				{
-					SETFLAG(fav_rc_menu[4].flags, D_DISABLED, draw_mode == dm_alias);
-					SETFLAG(fav_rc_menu[5].flags, D_DISABLED, draw_mode == dm_alias);
-					int32_t m = popup_menu(fav_rc_menu,x,y);
-					int32_t row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
-					int32_t col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
-					int32_t f=(row*FAVORITECOMBO_PER_ROW)+col;
-					
-					switch(m)
+					if(isinRect(gui_mouse_x(),gui_mouse_y(),favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*16)-1,favorites_list.y+(favorites_list.h*16)-1))
 					{
-						case 0:
-							First[current_combolist]=vbound((Combo/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
-							break;
-							
-						case 1:
-							if(draw_mode != dm_alias)
-							{
-								reset_combo_animations();
-								reset_combo_animations2();
-								edit_combo(Combo,true,CSet);
-								setup_combo_animations();
-								setup_combo_animations2();
-							}
-							else
-							{
-								comboa_cnt = combo_apos;
-								onEditComboAlias();
-							}
-							
-							redraw|=rALL;
-							break;
-							
-						case 2:
-							if(draw_mode == dm_alias)
-							{
-								favorite_comboaliases[f]=-1;
-								saved = false;
-							}
-							else
-							{
-								favorite_combos[f]=-1;
-								saved = false;
-							}
-							
-							break;
-						case 4:
-							combo_screen(Combo>>8,Combo);
-							redraw|=rALL;
-							break;
-						case 5:
+						SETFLAG(fav_rc_menu[4].flags, D_DISABLED, draw_mode == dm_alias);
+						SETFLAG(fav_rc_menu[5].flags, D_DISABLED, draw_mode == dm_alias);
+						int32_t m = popup_menu(fav_rc_menu,x,y);
+						int32_t row=vbound(((y-favorites_list.y)>>4),0,favorites_list.h-1);
+						int32_t col=vbound(((x-favorites_list.x)>>4),0,favorites_list.w-1);
+						int32_t f=(row*FAVORITECOMBO_PER_ROW)+col;
+						
+						switch(m)
 						{
-							int32_t t = combobuf[Combo].tile;
-							int32_t f = 0;
-							select_tile(t,f,0,CSet,true);
-							redraw|=rALL;
-							break;
+							case 0:
+								First[current_combolist]=vbound((Combo/combolist[0].w*combolist[0].w)-(combolist[0].w*combolist[0].h/2),0,MAXCOMBOS-(combolist[0].w*combolist[0].h));
+								break;
+								
+							case 1:
+								if(draw_mode != dm_alias)
+								{
+									reset_combo_animations();
+									reset_combo_animations2();
+									edit_combo(Combo,true,CSet);
+									setup_combo_animations();
+									setup_combo_animations2();
+								}
+								else
+								{
+									comboa_cnt = combo_apos;
+									onEditComboAlias();
+								}
+								
+								redraw|=rALL;
+								break;
+								
+							case 2:
+								if(draw_mode == dm_alias)
+								{
+									favorite_comboaliases[f]=-1;
+									saved = false;
+								}
+								else
+								{
+									favorite_combos[f]=-1;
+									saved = false;
+								}
+								
+								break;
+							case 4:
+								combo_screen(Combo>>8,Combo);
+								redraw|=rALL;
+								break;
+							case 5:
+							{
+								int32_t t = combobuf[Combo].tile;
+								int32_t f = 0;
+								select_tile(t,f,0,CSet,true);
+								redraw|=rALL;
+								break;
+							}
 						}
 					}
 				}
+			}
+		}
+		else
+		{
+			if((isinRect(x,y,panel[0].x+panel[0].w-28,panel[0].y+32,panel[0].x+panel[0].w-28+24,panel[0].y+32+5) && menutype==m_block && !mouse_down) ||
+			   (isinRect(x,y,panel[6].x+panel[6].w-28,panel[6].y+36,panel[6].x+panel[6].w-28+24,panel[6].y+36+5) && menutype==m_layers && !mouse_down))
+			{
+				CSet=wrap(CSet-1,0,11);
+				refresh(rCOMBOS+rMENU+rCOMBO);
+			}
+			
+			if(isinRect(x,y,panel[0].x+panel[0].w-32,panel[0].y+39,panel[0].x+panel[0].w-32+28,panel[0].y+39+5) && menutype==m_block && !mouse_down)
+			{
+				bool validlayer=false;
+				
+				while(!validlayer)
+				{
+					CurrentLayer=wrap(CurrentLayer-1,0,6);
+					
+					if((CurrentLayer==0)||(Map.CurrScr()->layermap[CurrentLayer-1]))
+					{
+						validlayer=true;
+					}
+				}
+				
+				refresh(rMENU);
 			}
 		}
 		
@@ -30714,13 +30911,24 @@ int32_t main(int32_t argc,char **argv)
 
 		int new_x = zc_get_config("zquest","window_x",0);
 		int new_y = zc_get_config("zquest","window_y",0);
-		if (new_x == 0 && new_y == 0)
+		if(zc_get_config("zquest","save_window_position",0) && (new_x || new_y))
 		{
+			//load saved position
+			//already stored in new_x/new_y
+		}
+		else
+		{
+			//Get default position
 			ALLEGRO_MONITOR_INFO info;
 			al_get_monitor_info(0, &info);
-
-			new_x = (info.x2 - info.x1) / 2 - window_w / 2;
-			new_y = (info.y2 - info.y1) / 2 - window_h / 2;
+			
+			int mw = (info.x2 - info.x1);
+			int mh = (info.y2 - info.y1);
+			new_x = mw / 2 - window_w / 2;
+			new_y = mh / 2 - window_h / 2;
+			//Don't spawn the window too far down (taskbar?)
+			if(new_y + window_h > mh - 72)
+				new_y = mh-72-window_h;
 		}
 		al_set_window_position(all_get_display(), new_x, new_y);
 	}
@@ -30927,7 +31135,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	load_recent_quests();
 	refresh_recent_menu();
-	clearConsole();
+	//clearConsole();
 	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
 	{
 		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
@@ -31364,7 +31572,7 @@ void load_size_poses()
 		favorites_list.w=(favorites_window.w-16)>>4;
 		favorites_list.h=(favorites_window.h-24)>>4;
 		
-		favorites_x.x = favorites_window.x + favorites_window.w - 9 - 12;
+		favorites_x.x = favorites_window.x + favorites_window.w - 2 - 12;
 		favorites_x.y = favorites_list.y - 14;
 		favorites_x.w = 12;
 		favorites_x.h = 12;
@@ -31380,7 +31588,6 @@ void load_size_poses()
 		commands_list.x=commands_window.x+8;
 		commands_list.y=commands_window.y+20;
 		
-		panel[8] = panel[0];
 		panel[0].w = commands_window.x - panel[0].x;
 		panel[8].x = 0;
 		panel[8].w = commands_window.x - panel[8].x;
@@ -31452,10 +31659,18 @@ void load_size_poses()
 		zq_screen_w=LARGE_W;
 		zq_screen_h=LARGE_H;
 		
+		favorites_window.h=136;
+		favorites_window.y=zq_screen_h-favorites_window.h;
+		
 		combolist_window.w=(4*64)+(5*8);
 		combolist_window.x=zq_screen_w-combolist_window.w;
 		combolist_window.y=0;
-		combolist_window.h=464;
+		combolist_window.h=favorites_window.y-combolist_window.y;
+		
+		favorites_window.x=combolist_window.x;
+		favorites_window.w=combolist_window.w;
+		
+		
 		combo_preview.x=(zq_screen_w-(combolist_window.w/2))-40;
 		combo_preview.y=combolist_window.y+6;
 		combo_preview.w=32;
@@ -31470,24 +31685,24 @@ void load_size_poses()
 		for(int q = numcolumns-1; q >= 0; --q)
 		{
 			combolist[q].x=(q==numcolumns-1 ? (zq_screen_w-72) : combolist[q+1].x-72);
-			combolist[q].y=combolist_window.y+64;
+			combolist[q].y=combolist_window.y+60;
 			combolist[q].w=4;
-			combolist[q].h=24;
+			combolist[q].h=28;
 			
 			comboaliaslist[q].x=combolist[q].x;
-			comboaliaslist[q].y=combolist_window.y+64;
+			comboaliaslist[q].y=combolist[q].y;
 			comboaliaslist[q].w=4;
-			comboaliaslist[q].h=19;
+			comboaliaslist[q].h=23;
 			
 			combolistscrollers[q].w=11;
 			combolistscrollers[q].h=11;
 			combolistscrollers[q].x=combolist[q].x+21;
-			combolistscrollers[q].y=combolist[q].y-combolistscrollers[q].h-11;
+			combolistscrollers[q].y=combolist[q].y-combolistscrollers[q].h-2;
 		}
 		comboalias_preview.x=zq_screen_w-((combolist_window.w+64)/2);
-		comboalias_preview.y=combolist_window.y+64+(19<<4)+16;
 		comboalias_preview.h=64;
 		comboalias_preview.w=64;
+		comboalias_preview.y=favorites_window.y-comboalias_preview.h-8;
 		
 		mapscreen_x=0;
 		mapscreen_y=16;
@@ -31509,7 +31724,7 @@ void load_size_poses()
 		layer_panel.x=map_page_bar[0].x;
 		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
 		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
-		layer_panel.h=40;
+		layer_panel.h=34;
 		layerpanel_buttonwidth = 58;
 		layerpanel_buttonheight = 16;
 		layerpanel_checkbox_sz = 13;
@@ -31535,30 +31750,77 @@ void load_size_poses()
 		
 		mouse_scroll_h=10;
 		
-		favorites_window.x=combolist_window.x;
-		favorites_window.y=464;
-		favorites_window.w=combolist_window.w;
-		favorites_window.h=136;
-		
 		favorites_list.x=favorites_window.x+8;
 		favorites_list.y=favorites_window.y+16;
 		favorites_list.w=(favorites_window.w-16)>>4;
 		favorites_list.h=(favorites_window.h-24)>>4;
 		
-		favorites_x.x = favorites_window.x + favorites_window.w - 9 - 12;
+		favorites_x.x = favorites_window.x + favorites_window.w - 2 - 12;
 		favorites_x.y = favorites_list.y - 14;
 		favorites_x.w = 12;
 		favorites_x.h = 12;
 		
-		commands_window.w=combolist_window.x-(panel[0].x+panel[0].w);
-		commands_window.h=zq_screen_h-panel[0].y;
-		commands_window.x=favorites_window.x-commands_window.w;
+		commands_list.w=4;
+		commands_list.h=8;
+		
+		commands_window.w=commands_list.w*command_buttonwidth+16;
+		commands_window.x=combolist_window.x-commands_window.w;
 		commands_window.y=panel[0].y;
+		commands_window.h=zq_screen_h-commands_window.y;
 		
 		commands_list.x=commands_window.x+8;
 		commands_list.y=commands_window.y+20;
-		commands_list.w=2;
-		commands_list.h=4;
+		
+		//buttons panel
+		panel[0].x = 0;
+		panel[0].w = commands_window.x - panel[0].x;
+		panel[0].h = zq_screen_h - panel[0].y;
+		
+		panel[8] = panel[0]; //preview panel 
+		
+		itemsqr_pos.x = minimap.x+minimap.w+4;
+		itemsqr_pos.y = panel[0].y+10;
+		itemsqr_pos.w = 4+16;
+		itemsqr_pos.h = 4+16;
+		flagsqr_pos.x = itemsqr_pos.x;
+		flagsqr_pos.y = itemsqr_pos.y+24;
+		flagsqr_pos.w = 4+16;
+		flagsqr_pos.h = 4+16;
+		stairsqr_pos.x = flagsqr_pos.x;
+		stairsqr_pos.y = flagsqr_pos.y+24;
+		stairsqr_pos.w = 4+16;
+		stairsqr_pos.h = 4+16;
+		warparrival_pos.x = stairsqr_pos.x;
+		warparrival_pos.y = stairsqr_pos.y+24;
+		warparrival_pos.w = 4+16;
+		warparrival_pos.h = 4+16;
+		
+		enemy_prev_pos.x = panel[0].x+14;
+		enemy_prev_pos.y = panel[0].y+12 + minimap.h;
+		enemy_prev_pos.w = 4+(16*4);
+		enemy_prev_pos.h = 4+(16*3);
+		
+		auto x2 = warparrival_pos.x;
+		auto y1 = warparrival_pos.y+24;
+		auto y2 = y1+24;
+		auto x1 = x2 - (20+(8*3)+2);
+		
+		warpret_pos[0].x = x1;
+		warpret_pos[0].y = y1;
+		warpret_pos[0].w = 4+16;
+		warpret_pos[0].h = 4+16;
+		warpret_pos[1].x = x1;
+		warpret_pos[1].y = y2;
+		warpret_pos[1].w = 4+16;
+		warpret_pos[1].h = 4+16;
+		warpret_pos[2].x = x2;
+		warpret_pos[2].y = y1;
+		warpret_pos[2].w = 4+16;
+		warpret_pos[2].h = 4+16;
+		warpret_pos[3].x = x2;
+		warpret_pos[3].y = y2;
+		warpret_pos[3].w = 4+16;
+		warpret_pos[3].h = 4+16;
 		
 		combopool_preview.x=comboaliaslist[0].x;
 		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
