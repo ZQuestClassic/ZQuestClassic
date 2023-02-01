@@ -8747,8 +8747,8 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 				auto minx = zc_min(xpos,xpos2);
 				auto miny = zc_min(ypos,ypos2);
 				rectfill(screen,minx-4,miny-2,minx+maxlen,miny+text_height(font)+2,vc(0));
-                textprintf_ex(screen,font,xpos,ypos,vc(15),vc(0),b1);
-                textprintf_ex(screen,font,xpos2,ypos2,vc(15),vc(0),b2);
+                textprintf_ex(screen,font,xpos,ypos,vc(15),vc(0),"%s",b1);
+                textprintf_ex(screen,font,xpos2,ypos2,vc(15),vc(0),"%s",b2);
             }
             
             if(gui_mouse_b()==0)
