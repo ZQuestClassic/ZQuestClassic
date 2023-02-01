@@ -1334,7 +1334,7 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 	// The index must be a number.
 	if (host.index)
 	{
-		visit(host.index.get(), param);
+		visit(host.index.get(), paramRead); //only READ the index!
 		checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
 				  host.index.get());
 		if (breakRecursion(host)) return;
