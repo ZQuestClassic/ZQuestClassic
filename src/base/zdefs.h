@@ -394,7 +394,7 @@ extern volatile bool close_button_quit;
 #define WHITE         254
 
 #define LARGE_W       872
-#define LARGE_H       600
+#define LARGE_H       664
 
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
@@ -492,9 +492,11 @@ extern volatile bool close_button_quit;
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXNPCS	512
 
-#define MAXFAVORITECOMMANDS 8
-#define MAXFAVORITECOMBOS 100
-#define MAXFAVORITECOMBOALIASES 100
+#define MAXFAVORITECOMMANDS 16
+#define MAXFAVORITECOMBOS 119
+#define MAXFAVORITECOMBOALIASES MAXFAVORITECOMBOS
+
+#define FAVORITECOMBO_PER_ROW 17
 
 #define PALNAMESIZE     17
 // mapscr "valid" byte

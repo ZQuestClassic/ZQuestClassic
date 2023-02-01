@@ -1,14 +1,5 @@
 TODO COMPACT MODE:
-Tallen the window to make room for bottom stuff
-Re-code the bottom stuff to fit nicely
-	Map:Screen buttons x9
-	Layer buttons x7
-	Minimap area
-	Squares (important only)
-	Favorite commands (how many fit?)
 Use extra tallened space in large mode
-Add 4th combo pane in large mode
-Make combo pane code more loop-like to be less duplicated
-Make the compact mode single combo pane be combo pane 0 instead of 2
-Handle different sizes of favorite combos (with shape-keeping math? or leave it?)
-Compacting button at bottom-middle of large mode to remove some of the squares and add more favorite commands
+
+GENERAL:
+'Large Font' config, making the program use a bigger font
