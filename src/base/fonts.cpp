@@ -11,6 +11,142 @@ FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont
 		*futharkfont, *gaiafont, *hirafont, *jpfont, *kongfont, *manafont, *mlfont, *motfont,
 		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
 		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont;
+extern bool is_large;
+extern bool is_compact;
+
+FONT *get_zc_font(int32_t index)
+{
+    switch(index)
+    {
+		default:
+			return zfont;
+			
+		case font_z3font:
+			return z3font;
+			
+		case font_z3smallfont:
+			return z3smallfont;
+			
+		case font_deffont:
+			return deffont;
+			
+		case font_lfont:
+			return lfont;
+			
+		case font_lfont_l:
+			return lfont_l;
+			
+		case font_pfont:
+			return pfont;
+			
+		case font_mfont:
+			return mfont;
+			
+		case font_ztfont:
+			return ztfont;
+			
+		case font_sfont:
+			return sfont;
+			
+		case font_sfont2:
+			return sfont2;
+			
+		case font_spfont:
+			return spfont;
+			
+		case font_ssfont1:
+			return ssfont1;
+			
+		case font_ssfont2:
+			return ssfont2;
+			
+		case font_ssfont3:
+			return ssfont3;
+			
+		case font_ssfont4:
+			return ssfont4;
+			
+		case font_gblafont:
+			return gblafont;
+			
+		case font_goronfont:
+			return goronfont;
+			
+		case font_zoranfont:
+			return zoranfont;
+			
+		case font_hylian1font:
+			return hylian1font;
+			
+		case font_hylian2font:
+			return hylian2font;
+			
+		case font_hylian3font:
+			return hylian3font;
+			
+		case font_hylian4font:
+			return hylian4font;
+			
+		case font_gboraclefont:
+			return gboraclefont;
+			
+		case font_gboraclepfont:
+			return gboraclepfont;
+			
+		case font_dsphantomfont:
+			return dsphantomfont;
+			
+		case font_dsphantompfont:
+			return dsphantompfont;
+		case font_atari800font: return atari800font;
+		case font_acornfont: return acornfont;
+		case font_adosfont: return adosfont;
+		case font_baseallegrofont: return  baseallegrofont;  
+		case font_apple2font: return apple2font;
+		case font_apple280colfont: return apple280colfont;   
+		case font_apple2gsfont: return  apple2gsfont;
+		case font_aquariusfont: return  aquariusfont;  
+		case font_atari400font: return  atari400font;  
+		case font_c64font: return c64font;   
+		case font_c64hiresfont: return c64hiresfont;   
+		case font_cgafont: return cgafont;   
+		case font_cocofont: return cocofont;
+		case font_coco2font: return coco2font;
+		case font_coupefon: return  coupefont;
+		case font_cpcfon: return  cpcfont;
+		case font_fantasyfon: return  fantasyfont;
+		case font_fdskanafon: return  fdskanafont;
+		case font_fdslikefon: return  fdslikefont;
+		case font_fdsromanfon: return fdsromanfont; 
+		case font_finalffont: return finalffont; 
+		case font_futharkfont: return  futharkfont;
+		case font_gaiafont: return gaiafont; 
+		case font_hirafont: return hirafont; 
+		case font_jpfont: return jpfont; 
+		case font_kongfont: return  kongfont;
+		case font_manafont: return manafont; 
+		case font_mlfont: return  mlfont;
+		case font_motfont: return motfont;
+		case font_msxmode0font: return  msxmode0font;
+		case font_msxmode1font: return  msxmode1font;
+		case font_petfont: return  petfont;
+		case font_pstartfont: return  pstartfont;
+		case font_saturnfont: return  saturnfont;
+		case font_scififont: return  scififont;
+		case font_sherwoodfont: return sherwoodfont;
+		case font_sinqlfont: return  sinqlfont;
+		case font_spectrumfont: return  spectrumfont;
+		case font_speclgfont: return  speclgfont;
+		case font_ti99font: return  ti99font;
+		case font_trsfont: return  trsfont;
+		case font_z2font: return  z2font;
+		case font_zxfont: return zxfont;
+		case font_lisafont: return lisafont;
+    }
+}
+
+FONT* customfonts[CFONT_MAX];
+FONT* deffonts[CFONT_MAX];
 
 void initFonts()
 {
@@ -89,4 +225,72 @@ void initFonts()
 	z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
 	zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
 	lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
+	memset(customfonts, 0, sizeof(customfonts));
+	init_custom_fonts();
 }
+
+FONT* load_cfont(char const* name)
+{
+	char path[512];
+	char pref[16];
+	
+	if(is_compact)
+		strcpy(pref, "compact");
+	else if(is_large)
+		strcpy(pref, "large");
+	else
+		strcpy(pref, "small");
+	
+	sprintf(path, "customfonts/%s_%s.bmp", pref, name);
+	
+	if(!exists(path))
+		return nullptr;
+	FONT* f = load_font(path,nullptr,nullptr);
+	if(!f)
+		zprint2("Error loading font: '%s'\n", path);
+	return f;
+}
+
+FONT* pickfont(FONT* largefont, FONT* smallfont, FONT* compactfont)
+{
+	if(is_compact) return compactfont;
+	if(is_large) return largefont;
+	return smallfont;
+}
+
+void init_custom_fonts()
+{
+	deffonts[CFONT_DLG] = pickfont(lfont_l, nfont, lfont_l);
+	deffonts[CFONT_TITLE] = lfont;
+	if(zc_get_config("gui","custom_fonts",1))
+	{
+		customfonts[CFONT_DLG] = load_cfont("dialog");
+		customfonts[CFONT_TITLE] = load_cfont("title");
+	}
+	else
+	{
+		for(int q = 0; q < CFONT_MAX; ++q)
+		{
+			if(customfonts[q])
+			{
+				destroy_font(customfonts[q]);
+				customfonts[q] = nullptr;
+			}
+		}
+	}
+}
+
+FONT* get_custom_font(int cfont)
+{
+	if(unsigned(cfont) >= CFONT_MAX)
+		return lfont_l;
+	if(zc_get_config("gui","custom_fonts",1) && customfonts[cfont])
+		return customfonts[cfont];
+	return deffonts[cfont];
+}
+
+FONT* get_gui_def_font()
+{
+	return get_custom_font(CFONT_DLG);
+}
+

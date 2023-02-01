@@ -128,7 +128,7 @@ void Window::realize(DialogRunner& runner)
 		0, // key
 		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
 		0, 0, // d1, d2
-		title.data(), lfont, (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
+		title.data(), get_custom_font(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
 	});
 
 	if(content)

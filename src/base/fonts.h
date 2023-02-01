@@ -13,6 +13,15 @@ extern FONT *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *l
 		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont;
 
 void initFonts();
+FONT *get_zc_font(int32_t index);
+void init_custom_fonts();
 
+enum
+{
+	CFONT_DLG,
+	CFONT_TITLE,
+	CFONT_MAX
+};
+FONT* get_custom_font(int cfont);
 #endif
 

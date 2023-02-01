@@ -55,6 +55,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_DISABLE_COMPILE_CONSOLE] = DisableCompileConsole;
 	opts[OPT_SKIP_LAYER_WARNING] = skipLayerWarning;
 	opts[OPT_NUMERICAL_FLAG_LIST] = numericalFlags;
+	opts[OPT_CUSTOMFONT] = zc_get_config("gui","custom_fonts",1);
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -68,6 +69,8 @@ void OptionsDialog::saveOptions()
 		if(opt_changed[ind])
 			saveOption(ind);
 	}
+	if(opt_changed[OPT_CUSTOMFONT])
+		init_custom_fonts();
 	
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 	load_mice(); //Reset cursor scale
@@ -231,6 +234,9 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_FLOAT_BRUSH:
 			FloatBrush = v;
 			zc_set_config("zquest","float_brush",v);
+			break;
+		case OPT_CUSTOMFONT:
+			zc_set_config("gui","custom_fonts",v);
 			break;
 	}
 }
@@ -416,7 +422,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
 					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
 					OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
-					OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position")
+					OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
+					OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),

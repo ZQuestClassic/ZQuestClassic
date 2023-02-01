@@ -12,9 +12,9 @@
 #include <vector>
 #include "base/fonts.h"
 
-#define GUI_DEF_FONT_SMALL nfont
-#define GUI_DEF_FONT_LARGE lfont_l
-#define GUI_DEF_FONT sized(GUI_DEF_FONT_SMALL, GUI_DEF_FONT_LARGE)
+FONT* get_gui_def_font();
+#define GUI_DEF_FONT get_gui_def_font()
+
 #define DEFAULT_PADDING       sized(1_px,3_px)
 #define DEFAULT_PADDING_INT   sized(1,3)
 namespace GUI

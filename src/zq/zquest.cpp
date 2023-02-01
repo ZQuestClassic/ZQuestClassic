@@ -959,6 +959,7 @@ void toggle_is_compact()
 	is_compact = !is_compact;
 	zc_set_config("ZQ_GUI","compact_mode",is_compact?1:0);
 	load_size_poses();
+	init_custom_fonts();
 	refresh(rCLEAR|rALL);
 }
 
@@ -30715,7 +30716,9 @@ int32_t main(int32_t argc,char **argv)
 		BMM=1;
 	}
 	
-	is_compact = zc_get_config("ZQ_GUI","compact_mode",0)!=0;
+	is_compact = is_large && zc_get_config("ZQ_GUI","compact_mode",0);
+	if(is_compact)
+		init_custom_fonts();
 	mapscreenbmp = nullptr;
 	brushbmp = nullptr;
 	brushscreen = nullptr;
