@@ -1731,3 +1731,24 @@ void zinitdata::copy(zinitdata const& other)
 }
 
 
+void size_and_pos::clear()
+{
+	*this = size_and_pos();
+}
+bool size_and_pos::rect(int32_t mx, int32_t my)
+{
+	if(x < 0 || y < 0 || w < 0 || h < 0)
+		return false;
+	auto sw = w * xscale;
+	auto sh = h * yscale;
+	return isinRect(mx,my,x,y,x+sw-1,y+sh-1);
+}
+void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
+{
+	x = nx;
+	y = ny;
+	w = nw;
+	h = nh;
+}
+
+

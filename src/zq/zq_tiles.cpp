@@ -859,17 +859,57 @@ void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,cons
 		--w;
 		--h;
 	}
-	//rect(dest,x+1,y+1,x+w-1,y+h-1,jwin_pal[jcDARK]);
 	rectfill(dest,x+1,y+1,x+w-3,y+h-3,jwin_pal[(flags&D_SELECTED ? jcMEDDARK : jcBOX)]);
-	//rect(dest,x,y,x+w-2,y+h-2,jwin_pal[jcDARK]);
 	jwin_draw_frame(dest, x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
-	if(flags&D_DISABLED)
+	
+	//Forcibly fit the text within the button
+	char buf[512] = {0};
+	strcpy(buf, text);
+	
+	bool dis = (flags&D_DISABLED);
+	auto hei = text_height(font);
+	auto len = text_length(font,buf);
+	auto borderwid = 8;
+	if(len > w - borderwid + (dis ? 1 : 0))
 	{
-		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
-		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcDISABLED_FG],-1);
+		auto ind = strlen(buf) - 1;
+		auto dotcount = 0;
+		while(len > w - borderwid + (dis ? 1 : 0))
+		{
+			if(dotcount >= 2)
+				buf[ind+2] = 0;
+			else ++dotcount;
+			buf[ind--] = '.';
+			len = text_length(font,buf);
+		}
+	}
+	if(dis)
+	{
+		++len; ++hei;
+	}
+	BITMAP* tmp = create_bitmap_ex(8,len,hei);
+	clear_bitmap(tmp);
+	if(dis)
+	{
+		textout_ex(tmp,font,buf,1,1,jwin_pal[jcLIGHT],-1);
+		textout_ex(tmp,font,buf,0,0,jwin_pal[jcDISABLED_FG],-1);
 	}
 	else
-		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
+		textout_ex(tmp,font,buf,0,0,jwin_pal[jcBOXFG],-1);
+	auto tx = x+((w-len)/2);
+	auto ty = y+((h-hei)/2);
+	if(len > w-borderwid)
+	{
+		tx = x+borderwid/2;
+		len = w-borderwid;
+	}
+	if(hei > h-borderwid)
+	{
+		ty = y+borderwid/2;
+		hei = h-borderwid;
+	}
+	masked_blit(tmp,dest, 0,0, tx,ty, len, hei);
+	destroy_bitmap(tmp);
 }
 
 bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)

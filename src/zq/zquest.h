@@ -1209,6 +1209,7 @@ int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
+void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char *tipmsg);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg);
 void clear_tooltip();
 void ZQ_ClearQuestPath();
