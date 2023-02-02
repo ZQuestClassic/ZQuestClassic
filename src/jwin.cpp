@@ -6003,11 +6003,16 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
     
     rest(1);
     
+	FONT* oldfont = font;
+	if(d->dp2)
+	{
+		font = (FONT *)d->dp2;
+	}
     switch(msg)
     {
     
     case MSG_START:
-        fill_menu_info(&m, (MENU*)d->dp, NULL, TRUE, d->x-1, d->y-1, d->w+2, d->h+2);
+        fill_menu_info(&m, (MENU*)d->dp, NULL, TRUE, d->x-1, d->y-1, 2, 2);
         d->w = m.w-2;
         d->h = m.h-2;
         break;
@@ -6045,6 +6050,7 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
         break;
     }
     
+	font = oldfont;
     return ret;
 }
 

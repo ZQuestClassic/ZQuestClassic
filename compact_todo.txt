@@ -1,5 +1,0 @@
-TODO COMPACT MODE:
-Use extra tallened space in large mode
-
-GENERAL:
-'Large Font' config, making the program use a bigger font
