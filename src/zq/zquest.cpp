@@ -6058,19 +6058,19 @@ void refresh(int32_t flags)
 	
 	if(flags&rSCRMAP)
 	{
-		//  text_mode(vc(0));
-		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
-		// The frame.
-		jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
-		/*
-		if(is_large)
-			jwin_draw_minimap_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, 8, FR_DEEP);
-		else
+		auto mmx = minimap.x+3;
+		auto mmy = minimap.y+12;
+		auto txt_x = minimap.x;
+		auto txt_y = minimap.y;
+		
+		if(is_large) //Adjust the old style positioning
 		{
-			jwin_draw_frame(menu1,minimap.x,minimap.y+9,minimap.w-1, minimap.h-10, FR_DEEP);
-			//Black BG fill
-			rectfill(menu1, minimap.x+2,minimap.y+11,minimap.x+3+48*BMM,minimap.y+12+27*BMM,vc(0));
-		}*/
+			mmy -= 7;
+			txt_x += (8*3*BMM)+3+5;
+			txt_y += (8*3*BMM)+8;
+		}
+		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
+		jwin_draw_minimap_frame(menu1,mmx-3,mmy-3,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
 		
 		if(Map.getCurrMap()<Map.getMapCount())
 		{
@@ -6080,18 +6080,17 @@ void refresh(int32_t flags)
 				{
 					if(((Map.Scr(i)->color)&15)>0)
 					{
-						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-								 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
+						rectfill(menu1,(i&15)*3*BMM+mmx,(i/16)*3*BMM+mmy,
+								 (i&15)*3*BMM+(is_large?8:2)+mmx,(i/16)*3*BMM+mmy+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
 						if(!is_large)
-							putpixel(menu1,(i&15)*3*BMM+1+minimap.x+3,(i/16)*3*BMM+minimap.y+12+1,lc2((Map.Scr(i)->color)&15));
+							putpixel(menu1,(i&15)*3*BMM+1+mmx,(i/16)*3*BMM+mmy+1,lc2((Map.Scr(i)->color)&15));
 						else
-							rectfill(menu1,(i&15)*3*BMM+2+minimap.x+4,(i/16)*3*BMM+minimap.y+11+4,(i&15)*3*BMM+2+minimap.x+6,(i/16)*3* BMM+minimap.y+11+6, lc2((Map.Scr(i)->color)&15));
+							rectfill(menu1,(i&15)*3*BMM+3+mmx,(i/16)*3*BMM+mmy+3,(i&15)*3*BMM+5+mmx,(i/16)*3* BMM+mmy+5, lc2((Map.Scr(i)->color)&15));
 					}
 					else
 					{
-						rectfill(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,
-										 (i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
-										 //(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2), (int32_t)(&(misc.colors.text)));
+						rectfill(menu1,(i&15)*3*BMM+mmx,(i/16)*3*BMM+mmy,
+										 (i&15)*3*BMM+(is_large?8:2)+mmx,(i/16)*3*BMM+mmy+(is_large?8:2), lc1((Map.Scr(i)->color)&15));
 					}
 					if(!(is_large || InvalidStatic))
 					{
@@ -6099,7 +6098,7 @@ void refresh(int32_t flags)
 						RGB* col = &RAMpal[lc1(Map.Scr(i)->color&15)];
 						RGB* col2 = &RAMpal[lc2(Map.Scr(i)->color&15)];
 						if(col->r <= 10 && col->b <= 10 && col->g <= 10 && (!(((Map.Scr(i)->color)&15)>0) || (col2->r <= 10 && col2->b <= 10 && col2->g <= 10)))
-							safe_rect(menu1,(i&15)*3*BMM+minimap.x+3,(i/16)*3*BMM+minimap.y+12,(i&15)*3*BMM+(is_large?8:2)+minimap.x+3,(i/16)*3*BMM+minimap.y+12+(is_large?8:2),vc(15));
+							safe_rect(menu1,(i&15)*3*BMM+mmx,(i/16)*3*BMM+mmy,(i&15)*3*BMM+(is_large?8:2)+mmx,(i/16)*3*BMM+mmy+(is_large?8:2),vc(15));
 					}
 				}
 				else
@@ -6110,7 +6109,7 @@ void refresh(int32_t flags)
 						{
 							for(int32_t dx=0; dx<3*BMM; dx++)
 							{
-								menu1->line[dy+(i/16)*3*BMM+minimap.y+12][dx+(i&15)*3*BMM+minimap.x+3]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+								menu1->line[dy+(i/16)*3*BMM+mmy][dx+(i&15)*3*BMM+mmx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 							}
 						}
 					}
@@ -6119,12 +6118,12 @@ void refresh(int32_t flags)
 						if(is_large)
 						{
 							int32_t offs = 2;
-							draw_x(menu1, (i&15)*3*BMM+minimap.x+3+offs, (i/16)*3*BMM+minimap.y+12+offs, (i&15)*3*BMM+minimap.x+2+(BMM*BMM)-offs, (i/16)*3*BMM+minimap.y+11+(BMM*BMM)-offs, vc(15));
+							draw_x(menu1, (i&15)*3*BMM+mmx+offs, (i/16)*3*BMM+mmy+offs, (i&15)*3*BMM+mmx-1+(BMM*BMM)-offs, (i/16)*3*BMM+mmy-1+(BMM*BMM)-offs, vc(15));
 						}
 						else
 						{
-							rectfill(menu1, (i&15)*3*BMM+minimap.x+3, (i/16)*3*BMM+minimap.y+12,
-									 (i&15)*3*BMM+minimap.x+2+(BMM*BMM), (i/16)*3*BMM+minimap.y+11+(BMM*BMM), vc(0));
+							rectfill(menu1, (i&15)*3*BMM+mmx, (i/16)*3*BMM+mmy,
+									 (i&15)*3*BMM+mmx-1+(BMM*BMM), (i/16)*3*BMM+mmy-1+(BMM*BMM), vc(0));
 						}
 					}
 				}
@@ -6146,25 +6145,36 @@ void refresh(int32_t flags)
 					break;
 			}
 			if(cursor_color)
-				safe_rect(menu1,(s&15)*3*BMM+minimap.x+3,(s/16)*3*BMM+minimap.y+12,(s&15)*3*BMM+(is_large?8:2)+minimap.x+3,(s/16)*3*BMM+minimap.y+12+(is_large?8:2),cursor_color);
+				safe_rect(menu1,(s&15)*3*BMM+mmx,(s/16)*3*BMM+mmy,(s&15)*3*BMM+(is_large?8:2)+mmx,(s/16)*3*BMM+mmy+(is_large?8:2),cursor_color);
 			
+			FONT* oldfont = font;
+			font = nfont;
 			if(is_large)
 			{
 				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
-				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-				textprintf_ex(menu1,font,minimap.x+spc_m,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				textprintf_disabled(menu1,font,txt_x,txt_y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				//textprintf_ex(menu1,font,txt_x,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"M");
+				textprintf_ex(menu1,font,txt_x+spc_m,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
-				textprintf_disabled(menu1,font,minimap.x+spc_m+space,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-				textprintf_ex(menu1,font,minimap.x+spc_m+space+spc_s,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
+				textprintf_disabled(menu1,font,txt_x+spc_m+space,txt_y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				//textprintf_ex(menu1,font,txt_x+spc_m+space,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"S");
+				bool vertical = !is_compact;
+				if(vertical)
+				{
+					textprintf_ex(menu1,font,txt_x+spc_m+space+spc_s,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X", s);
+					textprintf_ex(menu1,font,txt_x+spc_m+space+spc_s,txt_y+text_height(font)+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"(%d)", s);
+				}
+				else textprintf_ex(menu1,font,txt_x+spc_m+space+spc_s,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
 			}
 			else
 			{
-				textprintf_disabled(menu1,font,minimap.x,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-				textprintf_ex(menu1,font,minimap.x+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				textprintf_disabled(menu1,font,txt_x,txt_y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				textprintf_ex(menu1,font,txt_x+8,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
-				textprintf_disabled(menu1,font,minimap.x+36,minimap.y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-				textprintf_ex(menu1,font,minimap.x+36+8,minimap.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
+				textprintf_disabled(menu1,font,txt_x+36,txt_y,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				textprintf_ex(menu1,font,txt_x+36+8,txt_y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%02X",s);
 			}
+			font = oldfont;
 		}
 	}
 	
@@ -31496,7 +31506,7 @@ void load_size_poses()
 		}
 		
 		minimap.x=3;
-		minimap.y=layer_panel.y+layer_panel.h+2;
+		minimap.y=layer_panel.y+layer_panel.h+4;
 		
 		compactbtn.x = zq_screen_w-20;
 		compactbtn.y = 0;
@@ -32486,10 +32496,16 @@ void do_previewtext()
 }
 
 
-
+bool reload_fonts = false;
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	static int32_t ret=D_O_K;
+	if(reload_fonts)
+	{
+		init_custom_fonts();
+		load_size_poses();
+		reload_fonts = false;
+	}
 	domouse();
 	do_animations();
 	refresh(rCLEAR|rALL);

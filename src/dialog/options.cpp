@@ -6,6 +6,9 @@
 #include "zq_misc.h"
 #include "zc_list_data.h"
 
+extern bool reload_fonts;
+void load_size_poses();
+
 void call_options_dlg()
 {
 	OptionsDialog().show();
@@ -70,8 +73,7 @@ void OptionsDialog::saveOptions()
 			saveOption(ind);
 	}
 	if(opt_changed[OPT_CUSTOMFONT])
-		init_custom_fonts();
-	
+		reload_fonts = true;
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate); //Reset keyboard rate
 	load_mice(); //Reset cursor scale
 }
