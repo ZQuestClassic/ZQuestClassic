@@ -7112,7 +7112,17 @@ void refresh(int32_t flags)
 					for(int32_t row=0; row<favorites_list.h; ++row)
 					{
 						auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-						if(favorite_comboaliases[i]==-1)
+						if(i >= MAXFAVORITECOMBOALIASES)
+						{
+							for(int32_t dy=0; dy<16; dy++)
+							{
+								for(int32_t dx=0; dx<16; dx++)
+								{
+									menu1->line[(row)*16+favorites_list.y+dy][(col)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+								}
+							}
+						}
+						else if(favorite_comboaliases[i]==-1)
 						{
 							if(InvalidStatic)
 							{
@@ -7143,7 +7153,17 @@ void refresh(int32_t flags)
 					for(int32_t row=0; row<favorites_list.h; ++row)
 					{
 						auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-						if(favorite_combos[i]==-1)
+						if(i >= MAXFAVORITECOMBOS)
+						{
+							for(int32_t dy=0; dy<16; dy++)
+							{
+								for(int32_t dx=0; dx<16; dx++)
+								{
+									menu1->line[(row)*16+favorites_list.y+dy][(col)*16+favorites_list.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+								}
+							}
+						}
+						else if(favorite_combos[i]==-1)
 						{
 							if(InvalidStatic)
 							{
@@ -7834,7 +7854,11 @@ bool select_favorite()
         
         int32_t tempc=(((y-favorites_list.y)>>4)*FAVORITECOMBO_PER_ROW)+((x-favorites_list.x)>>4);
         
-		if(draw_mode==dm_alias)
+		if(i >= draw_mode==dm_alias ? MAXFAVORITECOMBOALIASES : MAXFAVORITECOMBOS)
+		{
+			//Nothing, invalid
+		}
+		else if(draw_mode==dm_alias)
         {
             if(favorite_comboaliases[tempc]!=-1)
             {
