@@ -323,6 +323,7 @@ extern const char *loaderror[];
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer);
 void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag);
 void put_flag(BITMAP* dest, int32_t x, int32_t y, int32_t flag);
+void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag,int32_t scale);
 void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag);
 void copy_mapscr(mapscr *dest, const mapscr *src);
 void delete_mapscr(mapscr *dest);

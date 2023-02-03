@@ -1570,14 +1570,23 @@ void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	}
 }
 
+void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag,int32_t scale)
+{
+	BITMAP* b = create_bitmap_ex(8,scale*16,scale*16);
+	put_combo(b,0,0,cmbdat,cset,flags,sflag);
+	masked_stretch_blit(b,dest,0,0,16,16,x,y,16*scale,16*scale);
+	destroy_bitmap(b);
+}
 void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag)
 {
-
-	newcombo c = combobuf[cmbdat];
+	static newcombo nilcombo;
+	nilcombo.tile = 0;
+	
+	newcombo& c = cmbdat < MAXCOMBOS ? combobuf[cmbdat] : nilcombo;
 	
 	if(c.tile==0)
 	{
-		rectfill(dest,x,y,x+15,y+15,0);
+		rectfill(dest,x,y,x+15,y+15,vc(0));
 		rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
 		return;
 	}
