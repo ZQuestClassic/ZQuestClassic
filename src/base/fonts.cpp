@@ -315,27 +315,27 @@ FONT* pickfont(FONT* largefont, FONT* smallfont, FONT* compactfont)
 
 void init_custom_fonts()
 {
+	font = nfont;
+	
 	deffonts[CFONT_DLG] = pickfont(lfont_l, nfont, lfont_l);
 	deffonts[CFONT_TITLE] = pickfont(lfont,lfont,lfont);
 	deffonts[CFONT_FAVCMD] = pickfont(pfont,pfont,pfont);
 	deffonts[CFONT_GUI] = pickfont(nfont,nfont,nfont);
+	
+	for(int q = 0; q < CFONT_MAX; ++q)
+	{
+		if(customfonts[q])
+		{
+			destroy_font(customfonts[q]);
+			customfonts[q] = nullptr;
+		}
+	}
 	if(zc_get_config("gui","custom_fonts",1))
 	{
 		customfonts[CFONT_DLG] = load_cfont("dialog");
 		customfonts[CFONT_TITLE] = load_cfont("title");
 		customfonts[CFONT_FAVCMD] = load_cfont("favcmd");
 		customfonts[CFONT_GUI] = load_cfont("gui");
-	}
-	else
-	{
-		for(int q = 0; q < CFONT_MAX; ++q)
-		{
-			if(customfonts[q])
-			{
-				destroy_font(customfonts[q]);
-				customfonts[q] = nullptr;
-			}
-		}
 	}
 }
 
