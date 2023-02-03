@@ -393,8 +393,8 @@ extern volatile bool close_button_quit;
 #define BLACK         253
 #define WHITE         254
 
-#define LARGE_W       872
-#define LARGE_H       664
+#define LARGE_W       912
+#define LARGE_H       684
 
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
@@ -493,7 +493,7 @@ extern volatile bool close_button_quit;
 #define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 64
-#define MAXFAVORITECOMBOS 119
+#define MAXFAVORITECOMBOS 200
 #define MAXFAVORITECOMBOALIASES MAXFAVORITECOMBOS
 
 #define FAVORITECOMBO_PER_ROW 17

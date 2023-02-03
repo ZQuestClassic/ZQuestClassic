@@ -261,6 +261,7 @@ size_and_pos combolistscrollers[4];
 int32_t num_combo_cols = 4;
 
 size_and_pos compactbtn;
+size_and_pos mainbar;
 
 size_and_pos screrrorpos;
 
@@ -301,7 +302,8 @@ int32_t command_buttonheight = 19;
 int32_t layerpanel_buttonwidth = 58;
 int32_t layerpanel_buttonheight = 16;
 
-int32_t layerpanel_checkbox_sz = 13;
+int32_t layerpanel_checkbox_hei = 13;
+int32_t layerpanel_checkbox_wid = 13;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS];
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
@@ -5908,19 +5910,19 @@ void drawpanel(int32_t pnl)
                 
                 textprintf_centre_disabled(menu1,font,panel[6].x+88,panel[6].y+2,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"Layers");
                 textprintf_centre_disabled(menu1,font,panel[6].x+13,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"0");
-                draw_checkbox(menu1,panel[6].x+9-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[0]!=0);
+                draw_checkbox(menu1,panel[6].x+9-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[0]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+38,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"1");
-                draw_checkbox(menu1,panel[6].x+34-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[1]!=0);
+                draw_checkbox(menu1,panel[6].x+34-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[1]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+63,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"2");
-                draw_checkbox(menu1,panel[6].x+59-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[2]!=0);
+                draw_checkbox(menu1,panel[6].x+59-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[2]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+88,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"3");
-                draw_checkbox(menu1,panel[6].x+84-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[3]!=0);
+                draw_checkbox(menu1,panel[6].x+84-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[3]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+113,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"4");
-                draw_checkbox(menu1,panel[6].x+109-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[4]!=0);
+                draw_checkbox(menu1,panel[6].x+109-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[4]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+138,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"5");
-                draw_checkbox(menu1,panel[6].x+134-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[5]!=0);
+                draw_checkbox(menu1,panel[6].x+134-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[5]!=0);
                 textprintf_centre_disabled(menu1,font,panel[6].x+163,panel[6].y+11,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"6");
-                draw_checkbox(menu1,panel[6].x+159-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[6]!=0);
+                draw_checkbox(menu1,panel[6].x+159-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[6]!=0);
                 draw_layerradio(menu1,panel[6].x+9,panel[6].y+30,vc(1),vc(14), CurrentLayer);
                 
                 textprintf_disabled(menu1,spfont,panel[6].x+panel[6].w-28,panel[6].y+36,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"CSet");
@@ -6643,7 +6645,7 @@ void refresh(int32_t flags)
 			}
 		}
 		
-		// Map tabs + Draw mode button
+		// Map tabs
 		if(is_large)
 		{
 			FONT* tfont = font;
@@ -6658,8 +6660,6 @@ void refresh(int32_t flags)
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
 				draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
 			}
-			
-			draw_text_button(menu1,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
 			
 			font=tfont;
 		}
@@ -6693,11 +6693,6 @@ void refresh(int32_t flags)
 					_allegro_hline(menu1,pos.x+pos.w+5-i,pos.y+6-i, pos.x+pos.w+5+i, vc(0));
 				}
 			}
-			
-			//Compact button
-			jwin_draw_frame(menu1, compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, FR_ETCHED);
-			char const* txt = is_compact ? "<" : ">";
-			textprintf_ex(menu1,font,compactbtn.x+compactbtn.w/2-text_length(font,txt)/2,compactbtn.y+compactbtn.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",txt);
 		}
 		if(draw_mode==dm_alias)
 		{
@@ -6934,22 +6929,21 @@ void refresh(int32_t flags)
 			}
 			else if(draw_mode != dm_alias)
 			{
-				char buf[17];
+				char buf[256];
 				int32_t offs = is_compact ? 4 : 8;
 				sprintf(buf,is_compact ? "%d" : "Combo: %d",Combo);
 				textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
 				sprintf(buf,is_compact ? "%d" : "CSet: %d",CSet);
 				textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-				strncpy(buf,combo_class_buf[combobuf[Combo].type].name,16);
+				strcpy(buf,combo_class_buf[combobuf[Combo].type].name);
 				
-				buf[16]='\0';
 				int32_t x = combo_preview.x-offs;
 				auto ind = strlen(buf)-1;
-				if(x - text_length(pfont, buf) < combolist_window.x)
+				if(x - text_length(pfont, buf) <= combolist_window.x)
 				{
 					auto dotlen = text_length(pfont, "..");
 					x -= dotlen;
-					while(x - text_length(pfont, buf) < combolist_window.x)
+					while(x - text_length(pfont, buf) <= combolist_window.x)
 					{
 						if(ind < 0) break;
 						buf[ind--] = '\0';
@@ -7161,20 +7155,12 @@ void refresh(int32_t flags)
 				sprintf(tbuf, "%s%d", (i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"", i);
 			}
 			
-			int32_t spacing_offs = is_compact ? 5 : 10;
-			int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_sz)) + layer_panel.x+(is_compact?2:6);
+			int32_t spacing_offs = is_compact ? 2 : 10;
+			int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 			int32_t ry = layer_panel.y;
-			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_sz)/2;
+			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 			draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-			draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]!=0);
-			
-			// Draw the group divider
-			if(i==3 || i==5)
-			{
-				auto divx = rx-(spacing_offs/2)-1;
-				_allegro_vline(menu1, divx-1, layer_panel.y+3, layer_panel.y+layer_panel.h-3, jwin_pal[jcLIGHT]);
-				_allegro_vline(menu1, divx,   layer_panel.y+3, layer_panel.y+layer_panel.h-3, jwin_pal[jcMEDDARK]);
-			}
+			draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]!=0);
 		}
 		
 		font=tfont;
@@ -7680,22 +7666,24 @@ void refresh(int32_t flags)
 		{
 			blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
 		}
-		
-		//Draw bar at the top
-		if(is_large)
-		{
-			rectfill(screen,dialogs[0].w,0,drawmode_btn.x-1,drawmode_btn.h-1,jwin_pal[jcBOX]);
-			jwin_draw_frame(screen,dialogs[0].w+2,0,drawmode_btn.x-dialogs[0].w-2,drawmode_btn.h,FR_WIN);
-		}
 	}
 	
 	//Draw the Main Menu
 	jwin_menu_proc(MSG_START, &dialogs[0], 0);
 	if(is_large)
 	{
-		rectfill(screen,dialogs[0].w,0,drawmode_btn.x-1,drawmode_btn.h-1,jwin_pal[jcBOX]);
-		jwin_draw_frame(screen,dialogs[0].w+2,0,drawmode_btn.x-dialogs[0].w-2,drawmode_btn.h,FR_WIN);
+		rectfill(screen,mainbar.x,mainbar.y,mainbar.x+mainbar.w-1,mainbar.y+mainbar.h-1,jwin_pal[jcBOX]);
+		jwin_draw_frame(screen,mainbar.x,mainbar.y,mainbar.w,mainbar.h,FR_WIN);
+		
+		FONT* oldfont = font;
+		font = get_custom_font(CFONT_GUI);
+		//Drawmode button
+		draw_text_button(menu1,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
+		//Compact button
+		draw_text_button(menu1,compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),0,true);
+		font = oldfont;
 	}
+	
 	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
 	
 	ComboBrushPause=0;
@@ -10384,11 +10372,19 @@ void domouse()
 		{
 			FONT* tfont = font;
 			font = get_custom_font(CFONT_GUI);
+			
 			if(isinRect(x,y,drawmode_btn.x,drawmode_btn.y,drawmode_btn.x+drawmode_btn.w-1,drawmode_btn.y+drawmode_btn.h-1))
 			{
 				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
 					onDrawingMode();
 			}
+			
+			if(isinRect(x,y,compactbtn.x,compactbtn.y,compactbtn.x+compactbtn.w-1,compactbtn.y+compactbtn.h-1) && !mouse_down)
+			{
+				if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
+					toggle_is_compact();
+			}
+			
 			font=tfont;
 		}
 		
@@ -10493,39 +10489,39 @@ void domouse()
 			}
 			else if(menutype==m_layers)
 			{
-				if(isinRect(x, y, panel[6].x+9,panel[6].y+20,panel[6].x+9+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+9,panel[6].y+20,panel[6].x+9+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+9-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[0]);
+					do_checkbox(menu1,panel[6].x+9-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[0]);
 				}
 				
-				if(isinRect(x, y, panel[6].x+34,panel[6].y+20,panel[6].x+34+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+34,panel[6].y+20,panel[6].x+34+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+34-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[1]);
+					do_checkbox(menu1,panel[6].x+34-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[1]);
 				}
 				
-				if(isinRect(x, y, panel[6].x+59,panel[6].y+20,panel[6].x+59+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+59,panel[6].y+20,panel[6].x+59+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+59-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[2]);
+					do_checkbox(menu1,panel[6].x+59-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[2]);
 				}
 				
-				if(isinRect(x, y, panel[6].x+84,panel[6].y+20,panel[6].x+84+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+84,panel[6].y+20,panel[6].x+84+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+84-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[3]);
+					do_checkbox(menu1,panel[6].x+84-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[3]);
 				}
 				
-				if(isinRect(x, y, panel[6].x+109,panel[6].y+20,panel[6].x+109+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+109,panel[6].y+20,panel[6].x+109+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+109-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[4]);
+					do_checkbox(menu1,panel[6].x+109-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[4]);
 				}
 				
-				if(isinRect(x, y, panel[6].x+134,panel[6].y+20,panel[6].x+134+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+134,panel[6].y+20,panel[6].x+134+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+134-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[5]);
+					do_checkbox(menu1,panel[6].x+134-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[5]);
 				}
 				
-				if(isinRect(x, y, panel[6].x+159,panel[6].y+20,panel[6].x+159+layerpanel_checkbox_sz-1,panel[6].y+20+layerpanel_checkbox_sz-1))
+				if(isinRect(x, y, panel[6].x+159,panel[6].y+20,panel[6].x+159+layerpanel_checkbox_wid-1,panel[6].y+20+layerpanel_checkbox_hei-1))
 				{
-					do_checkbox(menu1,panel[6].x+159-3,panel[6].y+20,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[6]);
+					do_checkbox(menu1,panel[6].x+159-3,panel[6].y+20,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[6]);
 				}
 				
 				if(isinRect(x, y, panel[6].x+9,panel[6].y+30, panel[6].x+9+(6*25)+8,panel[6].y+30+8))
@@ -10710,11 +10706,6 @@ void domouse()
 					refresh(rMENU);
 				}
 			}
-		}
-		
-		if(isinRect(x,y,compactbtn.x,compactbtn.y,compactbtn.x+compactbtn.w-1,compactbtn.y+compactbtn.h-1) && !mouse_down)
-		{
-			toggle_is_compact();
 		}
 		
 		//on the favorites list
@@ -10907,7 +10898,7 @@ void domouse()
 			for(int32_t i=0; i<=6; ++i)
 			{
 				int32_t spacing_offs = is_compact ? 5 : 10;
-				int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_sz)) + layer_panel.x+(is_compact?2:6);
+				int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 				int32_t ry = layer_panel.y;
 				
 				if((i==0 || Map.CurrScr()->layermap[i-1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
@@ -10940,9 +10931,9 @@ void domouse()
 					}
 				}
 				
-				auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_sz)/2;
-				if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_sz-1,ry+2+layerpanel_checkbox_sz-1))
-					do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_sz,vc(1),vc(14), LayerMaskInt[i]);
+				auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
+				if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
+					do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
 			}
 			font=tfont;
 		}
@@ -31355,6 +31346,7 @@ void load_size_poses()
 	FONT* guifont = get_custom_font(CFONT_GUI);
 	
 	dialogs[0].dp2 = guifont;
+	jwin_menu_proc(MSG_START, &dialogs[0], 0);
 	
 	commands_list.xscale = command_buttonwidth;
 	//commands_list.yscale = command_buttonheight;
@@ -31413,13 +31405,21 @@ void load_size_poses()
 	//Main GUI objects
 	if(is_compact)
 	{
-		num_combo_cols = 2;
 		memcpy(the_menu, the_menu_large, sizeof(the_menu));
+		
+		num_combo_cols = 2;
+		mapscreen_x=0;
+		mapscreen_y=text_height(guifont)+10;
+		mapscreensize=3;
+		showedges=0;
+		showallpanels=0;
+		
 		blackout_color=8;
 		zq_screen_w=LARGE_W;
 		zq_screen_h=LARGE_H;
 		
-		combolist_window.w=(1*64)+(2*8)+24;
+		auto mapscr_wid = (((showedges?2:0)+16)*16*mapscreensize);
+		combolist_window.w=zq_screen_w-mapscr_wid;
 		combolist_window.x=zq_screen_w-combolist_window.w;
 		
 		favorites_window.x=combolist_window.x;
@@ -31430,7 +31430,7 @@ void load_size_poses()
 		combolist_window.y=0;
 		combolist_window.h=favorites_window.y-combolist_window.y;
 		
-		combo_preview.x=combolist_window.x+48;
+		combo_preview.x=combolist_window.x+88;
 		combo_preview.y=combolist_window.y+6;
 		combo_preview.w=32;
 		combo_preview.h=32;
@@ -31467,16 +31467,20 @@ void load_size_poses()
 		comboalias_preview.y=favorites_window.y-comboalias_preview.h-8;
 		comboalias_preview.w=64;
 		
-		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+10;
-		mapscreensize=3;
-		showedges=0;
-		showallpanels=0;
-		
 		drawmode_btn.x = combolist_window.x-64;
 		drawmode_btn.y = 0;
 		drawmode_btn.w = 64;
 		drawmode_btn.h = mapscreen_y;
+		
+		compactbtn.w = text_length(guifont,"> Compact")+10;
+		compactbtn.x = drawmode_btn.x-compactbtn.w;
+		compactbtn.y = drawmode_btn.y;
+		compactbtn.h = drawmode_btn.h;
+		
+		mainbar.x = dialogs[0].w+2;
+		mainbar.y = 0;
+		mainbar.w = compactbtn.x-mainbar.x;
+		mainbar.h = drawmode_btn.h;
 		
 		for(int32_t i=0; i<=8; i++)
 		{
@@ -31493,9 +31497,10 @@ void load_size_poses()
 		layer_panel.y=map_page_bar[0].y;
 		layer_panel.w=combolist_window.x - layer_panel.x;
 		layer_panel.h=map_page_bar[0].h;
-		layerpanel_buttonwidth = 44;
+		layerpanel_buttonwidth = 51;
 		layerpanel_buttonheight = layer_panel.h;
-		layerpanel_checkbox_sz = layerpanel_buttonheight-8;
+		layerpanel_checkbox_hei = layerpanel_buttonheight-8;
+		layerpanel_checkbox_wid = 15;
 		
 		for(int32_t i=0; i<9; i++)
 		{
@@ -31507,11 +31512,6 @@ void load_size_poses()
 		
 		minimap.x=3;
 		minimap.y=layer_panel.y+layer_panel.h+4;
-		
-		compactbtn.x = zq_screen_w-20;
-		compactbtn.y = 0;
-		compactbtn.w = 20;
-		compactbtn.h = 58;
 		
 		screrrorpos.x = combolist_window.x - 3;
 		screrrorpos.y = layer_panel.y - 16;
@@ -31535,9 +31535,9 @@ void load_size_poses()
 		commands_window.y=layer_panel.y+layer_panel.h;
 		commands_window.h=zq_screen_h-commands_window.y;
 		
-		commands_list.y=commands_window.y+4;
-		commands_list.h=(zq_screen_h - commands_list.y) / commands_list.yscale;
+		commands_list.h=(zq_screen_h - (commands_window.y+4)) / commands_list.yscale;
 		commands_list.x=commands_window.x+8;
+		commands_list.y=commands_window.y+(commands_window.h-(commands_list.h*commands_list.yscale))/2;
 		
 		panel[0].w = commands_window.x - panel[0].x;
 		panel[8].x = 0;
@@ -31596,8 +31596,15 @@ void load_size_poses()
 	}
 	else if(is_large)
 	{
-		num_combo_cols = 4;
 		memcpy(the_menu, the_menu_large, sizeof(the_menu));
+		
+		num_combo_cols = 4;
+		mapscreen_x=0;
+		mapscreen_y=text_height(guifont)+10;
+		mapscreensize=2;
+		showedges=1;
+		showallpanels=0;
+		
 		blackout_color=8;
 		zq_screen_w=LARGE_W;
 		zq_screen_h=LARGE_H;
@@ -31605,7 +31612,8 @@ void load_size_poses()
 		favorites_window.h=136;
 		favorites_window.y=zq_screen_h-favorites_window.h;
 		
-		combolist_window.w=(4*64)+(5*8);
+		auto mapscr_wid = (((showedges?2:0)+16)*16*mapscreensize);
+		combolist_window.w=zq_screen_w-mapscr_wid;
 		combolist_window.x=zq_screen_w-combolist_window.w;
 		combolist_window.y=0;
 		combolist_window.h=favorites_window.y-combolist_window.y;
@@ -31646,16 +31654,20 @@ void load_size_poses()
 		comboalias_preview.w=64;
 		comboalias_preview.y=favorites_window.y-comboalias_preview.h-8;
 		
-		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+10;
-		mapscreensize=2;
-		showedges=1;
-		showallpanels=0;
-		
 		drawmode_btn.x = combolist_window.x-64;
 		drawmode_btn.y = 0;
 		drawmode_btn.w = 64;
 		drawmode_btn.h = mapscreen_y;
+		
+		compactbtn.w = text_length(guifont,"> Compact")+10;
+		compactbtn.x = drawmode_btn.x-compactbtn.w;
+		compactbtn.y = drawmode_btn.y;
+		compactbtn.h = drawmode_btn.h;
+		
+		mainbar.x = dialogs[0].w+2;
+		mainbar.y = 0;
+		mainbar.w = compactbtn.x-mainbar.x;
+		mainbar.h = drawmode_btn.h;
 		
 		for(int32_t i=0; i<=8; i++)
 		{
@@ -31674,7 +31686,8 @@ void load_size_poses()
 		layer_panel.h=text_height(guifont)+8;
 		layerpanel_buttonwidth = 58;
 		layerpanel_buttonheight = layer_panel.h;
-		layerpanel_checkbox_sz = layerpanel_buttonheight-4;
+		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
+		layerpanel_checkbox_wid = 14;
 		
 		for(int32_t i=0; i<9; i++)
 		{
@@ -31686,11 +31699,6 @@ void load_size_poses()
 		
 		minimap.x=3;
 		minimap.y=panel[0].y+4;
-		
-		compactbtn.x = zq_screen_w-20;
-		compactbtn.y = 0;
-		compactbtn.w = 20;
-		compactbtn.h = 58;
 		
 		screrrorpos.x = 575;
 		screrrorpos.y = 388;
@@ -31714,9 +31722,9 @@ void load_size_poses()
 		commands_window.y=panel[0].y;
 		commands_window.h=zq_screen_h-commands_window.y;
 		
-		commands_list.y=commands_window.y+4;
-		commands_list.h=(zq_screen_h - commands_list.y) / commands_list.yscale;
+		commands_list.h=(zq_screen_h - (commands_window.y+4)) / commands_list.yscale;
 		commands_list.x=commands_window.x+8;
+		commands_list.y=commands_window.y+(commands_window.h-(commands_list.h*commands_list.yscale))/2;
 		
 		//buttons panel
 		panel[0].x = 0;
@@ -31800,6 +31808,9 @@ void load_size_poses()
 		blackout_color=0;
 		zq_screen_w=320;
 		zq_screen_h=240;
+		
+		mainbar.clear();
+		
 		minimap.x=3;
 		minimap.y=195;
 		minimap.w=55;
@@ -31893,7 +31904,8 @@ void load_size_poses()
 		layer_panel.h=-1;
 		layerpanel_buttonwidth = 58;
 		layerpanel_buttonheight = 16;
-		layerpanel_checkbox_sz = 13;
+		layerpanel_checkbox_hei = 13;
+		layerpanel_checkbox_wid = 13;
 		
 		screrrorpos.x = 575;
 		screrrorpos.y = 388;
