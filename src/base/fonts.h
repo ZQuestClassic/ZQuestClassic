@@ -15,6 +15,7 @@ extern FONT *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *l
 void initFonts();
 FONT *get_zc_font(int32_t index);
 char const* get_zc_fontname(int32_t index);
+bool isBrokenFont(int32_t index);
 void init_custom_fonts();
 
 enum

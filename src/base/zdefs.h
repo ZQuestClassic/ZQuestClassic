@@ -3399,6 +3399,7 @@ enum
 		 font_z2font, 
 		 font_zxfont,
 		 font_lisafont,
+		 font_nfont,
 		 
     font_max
 };

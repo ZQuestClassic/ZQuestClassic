@@ -3,6 +3,7 @@
 
 #include <gui/dialog.h>
 #include <gui/text_field.h>
+#include <gui/label.h>
 #include <functional>
 #include <string_view>
 
@@ -11,7 +12,7 @@ void call_options_dlg();
 class OptionsDialog: public GUI::Dialog<OptionsDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { OK, CANCEL, RELOAD };
 
 	OptionsDialog();
 
@@ -32,21 +33,29 @@ private:
 		OPT_CURS_LARGE, OPT_CURS_SMALL,
 		OPT_COMPILE_OK, OPT_COMPILE_ERR, OPT_COMPILE_DONE, OPT_COMPILE_VOL,
 		//
-		OPT_DISABLE_LPAL_SHORTCUT,
-		OPT_DISABLE_COMPILE_CONSOLE,
-		OPT_SKIP_LAYER_WARNING,
-		OPT_NUMERICAL_FLAG_LIST,
-		OPT_SAVEDRAGRESIZE,
-		OPT_DRAGASPECT,
-		OPT_SAVEWINPOS,
-		OPT_CUSTOMFONT,
-		OPT_BOTTOM8,
+		OPT_DISABLE_LPAL_SHORTCUT, OPT_DISABLE_COMPILE_CONSOLE, OPT_SKIP_LAYER_WARNING,
+		OPT_NUMERICAL_FLAG_LIST, OPT_SAVEDRAGRESIZE, OPT_DRAGASPECT,
+		OPT_SAVEWINPOS, OPT_CUSTOMFONT, OPT_BOTTOM8,
+		
+		OPT_LARGEFONT_DIALOG, OPT_LARGEFONT_GUI,
+		OPT_LARGEFONT_TITLE, OPT_LARGEFONT_FAVCMD,
+		
+		OPT_COMPACTFONT_DIALOG, OPT_COMPACTFONT_GUI,
+		OPT_COMPACTFONT_TITLE, OPT_COMPACTFONT_FAVCMD,
+		
+		OPT_SMALLFONT_DIALOG, OPT_SMALLFONT_GUI,
+		OPT_SMALLFONT_TITLE,
+		
 		//
 		OPT_MAX
 	};
+	
 	int32_t opts[OPT_MAX];
 	bool opt_changed[OPT_MAX];
 	GUI::ListData sfx_list;
+	std::shared_ptr<GUI::Label> fprev, fprev_lab;
+	
+	void preview_font(int fontind);
 	void loadOptions();
 	void saveOptions();
 	void saveOption(int ind);

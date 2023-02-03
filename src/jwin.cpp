@@ -4011,8 +4011,11 @@ void _jwin_draw_abclistbox(DIALOG *d)
     char s[1024] = { 0 };
 	ListData *data = (ListData *)d->dp;
 
+	FONT* oldfont = font;
+	font = *data->font;
+	
 	data->listFunc(-1, &listsize);
-	height = (d->h-3) / text_height(*data->font);
+	height = (d->h-3) / text_height(font);
 	bar = (listsize > height);
 	w = (bar ? d->w-21 : d->w-5);
 	rectfill(screen, d->x,  d->y, d->x+d->w-1, d->y+d->h+9, scheme[jcBOX]);
@@ -4026,7 +4029,7 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	_allegro_vline(screen, d->x+w+2, d->y+4, d->y+d->h-3, bg_color);
 	//al_trace("Drawing %s\n", abc_keypresses);
 	{
-		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+d->h+9, bg_color);
+		rectfill(screen, d->x+1,  d->y+d->h+2, d->x+d->w-2, d->y+1+d->h+text_height(font), bg_color);
 		strncpy(s, abc_keypresses, 1023);
 		char* s2 = s;
 		int32_t tw = (d->w-1);
@@ -4090,6 +4093,8 @@ void _jwin_draw_abclistbox(DIALOG *d)
 	             
 	/* draw frame, maybe with scrollbar */
 	_jwin_draw_scrollable_frame(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
+	
+	font = oldfont;
 }
 
 /* _jwin_draw_listbox:

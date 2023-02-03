@@ -994,6 +994,7 @@ FONT *setmsgfont()
 		 case font_z2font: return  z2font;
 		 case font_zxfont: return zxfont;
 		 case font_lisafont: return lisafont;
+		case font_nfont: return nfont;
     }
 }
 

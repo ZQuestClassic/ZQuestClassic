@@ -1722,21 +1722,23 @@ int32_t onToggleShowInfo()
     return D_O_K;
 }
 
-void onKeySlash()
+int onKeySlash()
 {
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 	{
 		onAbout();
 	}
+	return D_O_K;
 }
 
-void onAKey()
+int onAKey()
 {
 	if(prv_mode)
 		Map.set_prvadvance(1);
+	return D_O_K;
 }
 
-void onRKey()
+int onRKey()
 {
 	if(prv_mode)
 	{
@@ -1745,9 +1747,10 @@ void onRKey()
 	}
 	else
 		onRoom();
+	return D_O_K;
 }
 
-void onSKey()
+int onSKey()
 {
 	if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 	{
@@ -1767,6 +1770,7 @@ void onSKey()
 		refresh(rALL);
 	}
 	else onStrings();
+	return D_O_K;
 }
 
 /* Notice: If you insert or remove entries from dialogs[], you will need
@@ -7006,6 +7010,8 @@ void refresh(int32_t flags)
 						if(ind < 0) break;
 						buf[ind--] = '\0';
 					}
+					while(ind >= 0 && buf[ind] == ' ')
+						buf[ind--] = 0; //trim spaces
 					x -= text_length(pfont, buf);
 					strcat(buf, "..");
 				}
@@ -31591,6 +31597,14 @@ void load_size_poses()
 		enlargeIntegrityReportDialog();
 	}
 	
+	auto drawmode_wid = 64;
+	for(auto q = 0; q < dm_max; ++q)
+	{
+		auto wid = text_length(guifont, dm_names[q]);
+		if(wid > drawmode_wid)
+			drawmode_wid = wid;
+	}
+	
 	//Main GUI objects
 	if(is_compact)
 	{
@@ -31671,9 +31685,9 @@ void load_size_poses()
 			combolistscrollers[0].x += 10;
 			combo_merge_btn.x -= 10;
 		}
-		drawmode_btn.x = combolist_window.x-64;
+		drawmode_btn.x = combolist_window.x-drawmode_wid;
 		drawmode_btn.y = 0;
-		drawmode_btn.w = 64;
+		drawmode_btn.w = drawmode_wid;
 		drawmode_btn.h = mapscreen_y;
 		
 		compactbtn.w = text_length(guifont,"> Compact")+10;
@@ -31873,9 +31887,9 @@ void load_size_poses()
 		combo_merge_btn.x = zq_screen_w-(combolist_window.w+combo_merge_btn.w)/2;
 		combo_merge_btn.y = combolist[0].y-combo_merge_btn.h;
 		
-		drawmode_btn.x = combolist_window.x-64;
+		drawmode_btn.x = combolist_window.x-drawmode_wid;
 		drawmode_btn.y = 0;
-		drawmode_btn.w = 64;
+		drawmode_btn.w = drawmode_wid;
 		drawmode_btn.h = mapscreen_y;
 		
 		compactbtn.w = text_length(guifont,"> Compact")+10;

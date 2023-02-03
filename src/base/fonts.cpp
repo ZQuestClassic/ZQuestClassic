@@ -61,7 +61,8 @@ const char *msgfont_str[font_max] =
 	"TRS",
 	"Zelda 2",
 	"ZX",
-	"Lisa"
+	"Lisa",
+	"nfont"
 };
 
 FONT *get_zc_font(int32_t index)
@@ -192,6 +193,7 @@ FONT *get_zc_font(int32_t index)
 		case font_z2font: return  z2font;
 		case font_zxfont: return zxfont;
 		case font_lisafont: return lisafont;
+		case font_nfont: return nfont;
     }
 }
 
@@ -200,6 +202,32 @@ char const* get_zc_fontname(int32_t index)
 	if(unsigned(index) >= font_max) return "Unknown Font?";
 	return msgfont_str[index];
 }
+
+//Illegible / incomplete / non-english fonts
+bool isBrokenFont(int32_t index)
+{
+	switch(index)
+	{
+		case font_ztfont:
+		case font_ssfont1:
+		case font_ssfont2:
+		case font_ssfont4:
+		case font_goronfont:
+		case font_zoranfont:
+    	case font_hylian1font:
+    	case font_hylian2font:
+    	case font_hylian3font:
+    	case font_hylian4font:
+    	case font_cocofont:
+    	case font_fdskanafon:
+    	case font_futharkfont:
+    	case font_hirafont:
+    	case font_jpfont:
+			return true;
+	}
+	return false;
+}
+
 FONT* customfonts[CFONT_MAX];
 FONT* deffonts[CFONT_MAX];
 
@@ -306,7 +334,8 @@ FONT* load_cfont(char const* name)
 	return f;
 }
 
-FONT* pickfont(FONT* largefont, FONT* smallfont, FONT* compactfont)
+template<typename T>
+T pickfont(T largefont, T smallfont, T compactfont)
 {
 	if(is_compact) return compactfont;
 	if(is_large) return largefont;
@@ -317,10 +346,23 @@ void init_custom_fonts()
 {
 	font = nfont;
 	
-	deffonts[CFONT_DLG] = pickfont(lfont_l, nfont, lfont_l);
-	deffonts[CFONT_TITLE] = pickfont(lfont,lfont,lfont);
-	deffonts[CFONT_FAVCMD] = pickfont(pfont,pfont,pfont);
-	deffonts[CFONT_GUI] = pickfont(nfont,nfont,nfont);
+	char pref[16];
+	if(is_compact)
+		strcpy(pref, "compact");
+	else if(is_large)
+		strcpy(pref, "large");
+	else
+		strcpy(pref, "small");
+	
+	char buf[512];
+	sprintf(buf, "font_%s_%s", pref, "dialog");
+	deffonts[CFONT_DLG] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont_l,font_nfont,font_lfont_l)));
+	sprintf(buf, "font_%s_%s", pref, "title");
+	deffonts[CFONT_TITLE] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont,font_lfont)));
+	sprintf(buf, "font_%s_%s", pref, "favcmd");
+	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_pfont,font_pfont,font_pfont)));
+	sprintf(buf, "font_%s_%s", pref, "gui");
+	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_nfont,font_nfont,font_nfont)));
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
