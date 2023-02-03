@@ -1202,6 +1202,10 @@ void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_
 
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg, bool value)
 {
+	draw_checkbox(dest,x,y,sz,sz,bg,fg,value);
+}
+void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg, bool value)
+{
 	//these are here to bypass compiler warnings about unused arguments
 	bg=bg;
 	fg=fg;
@@ -1210,20 +1214,23 @@ void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_
 	//  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
 	//  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
 	
-	jwin_draw_frame(dest, x, y, sz, sz, FR_DEEP);
-	rectfill(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTBG]);
+	jwin_draw_frame(dest, x, y, wid, hei, FR_DEEP);
+	rectfill(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTBG]);
 	
 	if(value)
 	{
-		line(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTFG]);
-		line(dest, x+2, y+sz-3, x+sz-3, y+2, jwin_pal[jcTEXTFG]);
+		line(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTFG]);
+		line(dest, x+2, y+hei-3, x+wid-3, y+2, jwin_pal[jcTEXTFG]);
 	}
-	
 }
 
 
 
 bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value)
+{
+	return do_checkbox(dest,x,y,sz,sz,bg,fg,value);
+}
+bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value)
 {
 	bool over=false;
 	
@@ -1231,13 +1238,13 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t 
 	{
 		custom_vsync();
 		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+sz-1,y+sz-1))               //if on checkbox
+		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+wid-1,y+hei-1))               //if on checkbox
 		{
 			if(!over)                                             //if wasn't here before
 			{
 				scare_mouse();
 				value=!value;
-				draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
+				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
 				refresh(rMENU);
 				unscare_mouse();
 				over=true;
@@ -1249,7 +1256,7 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t 
 			{
 				scare_mouse();
 				value=!value;
-				draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
+				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
 				refresh(rMENU);
 				unscare_mouse();
 				over=false;
