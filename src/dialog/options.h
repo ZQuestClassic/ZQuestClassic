@@ -40,6 +40,7 @@ private:
 		OPT_DRAGASPECT,
 		OPT_SAVEWINPOS,
 		OPT_CUSTOMFONT,
+		OPT_BOTTOM8,
 		//
 		OPT_MAX
 	};

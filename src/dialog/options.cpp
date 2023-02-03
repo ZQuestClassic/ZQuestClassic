@@ -14,7 +14,8 @@ void call_options_dlg()
 	OptionsDialog().show();
 }
 
-extern int32_t UseSmall, EnableTooltips, GridColor, KeyboardRepeatDelay, KeyboardRepeatRate;
+extern int32_t UseSmall, EnableTooltips, GridColor, KeyboardRepeatDelay, KeyboardRepeatRate,
+	pixeldb;
 
 void OptionsDialog::loadOptions()
 {
@@ -59,6 +60,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_SKIP_LAYER_WARNING] = skipLayerWarning;
 	opts[OPT_NUMERICAL_FLAG_LIST] = numericalFlags;
 	opts[OPT_CUSTOMFONT] = zc_get_config("gui","custom_fonts",1);
+	opts[OPT_BOTTOM8] = pixeldb;
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -240,6 +242,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_CUSTOMFONT:
 			zc_set_config("gui","custom_fonts",v);
 			break;
+		case OPT_BOTTOM8:
+			pixeldb = v;
+			zc_set_config("zquest","bottom_8_pixels",v);
+			break;
 	}
 }
 
@@ -318,7 +324,8 @@ DropDownList( \
 //}
 
 //{ Listers
-static const GUI::ListData abRetentionList {
+static const GUI::ListData abRetentionList
+{
 	{ "Disabled", 0 },
 	{ " 1", 1 },
 	{ " 2", 2 },
@@ -331,7 +338,8 @@ static const GUI::ListData abRetentionList {
 	{ " 9", 9 },
 	{ "10", 10 }
 };
-static const GUI::ListData asIntervalList {
+static const GUI::ListData asIntervalList
+{
 	{ "Disabled", 0 },
 	{ " 1 Minute", 1 },
 	{ " 2 Minutes", 2 },
@@ -344,7 +352,8 @@ static const GUI::ListData asIntervalList {
 	{ " 9 Minutes", 9 },
 	{ "10 Minutes", 10 }
 };
-static const GUI::ListData asRetentionList {
+static const GUI::ListData asRetentionList
+{
 	{ " 1", 0 },
 	{ " 2", 1 },
 	{ " 3", 2 },
@@ -356,7 +365,8 @@ static const GUI::ListData asRetentionList {
 	{ " 9", 8 },
 	{ "10", 9 }
 };
-static const GUI::ListData colorList {
+static const GUI::ListData colorList
+{
 	{ "Black", 0 },
 	{ "Blue", 1 },
 	{ "Green", 2 },
@@ -374,13 +384,20 @@ static const GUI::ListData colorList {
 	{ "Yellow", 14 },
 	{ "White", 15 }
 };
-static const GUI::ListData snapFormatList {
+static const GUI::ListData snapFormatList
+{
 	{ "BMP", 0 },
 	{ "GIF", 1 },
 	{ "JPG", 2 },
 	{ "PNG", 3 },
 	{ "PCX", 4 },
 	{ "TGA", 5 }
+};
+static const GUI::ListData bottom8_list
+{
+	{ "No Cover", 0 },
+	{ "Pixelated Cover", 1 },
+	{ "Normal Cover", 2 }
 };
 
 //}
@@ -397,25 +414,22 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 			TabPanel(
 				minwidth = sized(120_px, 360_px),
 				TabRef(name = "1", Column( hAlign = 0.0, vAlign = 0.0,
-					OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
 					OPT_CHECK(OPT_SAVEPATHS, "Save Paths"),
 					OPT_CHECK(OPT_PALCYCLE, "Palette Cycle"),
 					OPT_CHECK(OPT_VSYNC, "VSync"),
 					OPT_CHECK(OPT_FPS, "Show FPS"),
-					OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
-					OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
 					OPT_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
-					OPT_CHECK(OPT_MISALIGNS, "Show Misaligns"),
 					OPT_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
 					OPT_CHECK(OPT_OW_PROT, "Overwrite Protection"),
 					OPT_CHECK(OPT_TILE_PROT, "Tile Protection"),
 					OPT_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
+					OPT_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
+					OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
+					OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
 					OPT_CHECK(OPT_SMALLMODE, "Use Small Mode")
 				)),
 				TabRef(name = "2", Column( hAlign = 0.0, vAlign = 0.0,
-					OPT_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
 					OPT_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
-					OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
 					OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
 					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
 					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
@@ -425,7 +439,10 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
 					OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
 					OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
-					OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts")
+					OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
+					OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
+					OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
+					OPT_CHECK(OPT_MISALIGNS, "Show Misaligns")
 				)),
 				TabRef(name = "3", Rows<2>(
 					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
@@ -435,7 +452,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
 					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
 					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
-					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999)
+					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
+					ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list)
 				)),
 				TabRef(name = "4", Rows<2>(
 					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale (Large Mode)", 1, 5),

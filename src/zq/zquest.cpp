@@ -404,6 +404,9 @@ bool zq_showpal=false;
 bool combo_cols=true;
 bool is_large = true;
 bool is_compact = false;
+
+int pixeldb = 1;
+
 byte BMM = 3; // Big Minimap
 
 script_data *ffscripts[NUMSCRIPTFFC];
@@ -6330,6 +6333,21 @@ void refresh(int32_t flags)
 			
 		}
 		
+		if(!(Flags&cDEBUG) && pixeldb==1)
+		{
+			for(int32_t j=168; j<176; j++)
+			{
+				for(int32_t i=0; i<256; i++)
+				{
+					if(((i^j)&1)==0)
+					{
+						putpixel(mapscreenbmp,(showedges?16:0)+i,
+							(showedges?16:0)+j,vc(blackout_color));
+					}
+				}
+			}
+		}
+		
 		if(mapscreensize==1)
 		{
 			blit(mapscreenbmp,menu1,0,0,mapscreen_x,mapscreen_y,mapscreenbmp->w,mapscreenbmp->h);
@@ -6391,7 +6409,7 @@ void refresh(int32_t flags)
 			}
 		}
 		
-		if(!(Flags&cDEBUG))
+		if(!(Flags&cDEBUG) && pixeldb==2)
 		{
 			for(int32_t j=int32_t(168*mapscreensize); j<int32_t(176*mapscreensize); j++)
 			{
@@ -30533,11 +30551,8 @@ int32_t main(int32_t argc,char **argv)
 	PreFillTileEditorPage	  = zc_get_config("zquest","PreFillTileEditorPage",0);
 	PreFillComboEditorPage	  = zc_get_config("zquest","PreFillComboEditorPage",0);
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
-	//ViewLayer3BG = zc_get_config("zquest","ViewLayer3BG",0);
-	//ViewLayer2BG = zc_get_config("zquest","ViewLayer2BG",0);
 	
-	//This is too much work to fix for 2.5. :| -Gleeok
-	//zqColorDepth				  = zc_get_config("zquest","zq_color_depth",8);
+	pixeldb = zc_get_config("zquest","bottom_8_pixels",1);
 	
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
@@ -31499,7 +31514,7 @@ void load_size_poses()
 		layer_panel.h=map_page_bar[0].h;
 		layerpanel_buttonwidth = 51;
 		layerpanel_buttonheight = layer_panel.h;
-		layerpanel_checkbox_hei = layerpanel_buttonheight-8;
+		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
 		layerpanel_checkbox_wid = 15;
 		
 		for(int32_t i=0; i<9; i++)

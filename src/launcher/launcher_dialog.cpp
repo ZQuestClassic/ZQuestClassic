@@ -68,7 +68,12 @@ namespace GUI::Lists
 		{ "PCX", 4 },
 		{ "TGA", 5 }
 	};
-
+	static const ListData bottom8_list
+	{
+		{ "No Cover", 0 },
+		{ "Pixelated Cover", 1 },
+		{ "Normal Cover", 2 }
+	};
 	static const ListData autoBackupCopiesList = ListData::numbers(false, 0, 11);
 	static const ListData autoSaveCopiesList = ListData::numbers(false, 1, 10);
 	static const ListData frameRestSuggestList = ListData::numbers(false, 0, 3);
@@ -566,6 +571,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", App::zquest,"zquest","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"zquest","bottom_8_pixels",1,bottom8_list,"How to hide the bottom 8 screen pixels"),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zquest,"zquest","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", App::zquest,"zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", App::zquest,"zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),
