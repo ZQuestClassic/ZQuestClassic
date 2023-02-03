@@ -7854,7 +7854,7 @@ bool select_favorite()
         
         int32_t tempc=(((y-favorites_list.y)>>4)*FAVORITECOMBO_PER_ROW)+((x-favorites_list.x)>>4);
         
-		if(i >= draw_mode==dm_alias ? MAXFAVORITECOMBOALIASES : MAXFAVORITECOMBOS)
+		if(tempc >= ((draw_mode==dm_alias) ? MAXFAVORITECOMBOALIASES : MAXFAVORITECOMBOS))
 		{
 			//Nothing, invalid
 		}
@@ -8845,8 +8845,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 					ypos[0] = layer_panel.y - 21;
 					xpos[1] = xpos[0];
 					ypos[1] = ypos[0]+10;
-					xpos[2] = xpos[0];
-					ypos[2] = ypos[0]-10;
 				}
 				else if(is_large)
                 {
@@ -8854,8 +8852,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
                     ypos[0] = 405;
 					xpos[1] = xpos[0];
 					ypos[1] = ypos[0]+10;
-					xpos[2] = xpos[0];
-					ypos[2] = ypos[0]-10;
                 }
                 else
                 {
@@ -8863,8 +8859,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
                     ypos[0] = 500;
 					xpos[1] = xpos[0];
 					ypos[1] = ypos[0]+10;
-					xpos[2] = xpos[0];
-					ypos[2] = ypos[0]-10;
                 }
 				
 				x1 = xpos[0];
