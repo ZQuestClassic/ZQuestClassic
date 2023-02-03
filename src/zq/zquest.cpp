@@ -973,29 +973,31 @@ void update_recent_quest(char const* path)
 	write_recent_quests();
 }
 
+void reload_zq_gui()
+{
+	init_custom_fonts();
+	load_size_poses();
+	refresh(rCLEAR|rALL);
+}
 void toggle_is_compact()
 {
 	is_compact = !is_compact;
 	zc_set_config("ZQ_GUI","compact_mode",is_compact?1:0);
-	init_custom_fonts();
-	load_size_poses();
-	refresh(rCLEAR|rALL);
+	reload_zq_gui();
 }
 void toggle_merged_mode()
 {
 	if(is_compact)
 	{
 		compact_merged_combopane = !compact_merged_combopane;
-		zc_set_config("zquest","merge_cpane_compact",compact_merged_combopane?1:0);
+		zc_set_config("ZQ_GUI","merge_cpane_compact",compact_merged_combopane?1:0);
 	}
 	else
 	{
 		large_merged_combopane = !large_merged_combopane;
-		zc_set_config("zquest","merge_cpane_large",large_merged_combopane?1:0);
+		zc_set_config("ZQ_GUI","merge_cpane_large",large_merged_combopane?1:0);
 	}
-	init_custom_fonts();
-	load_size_poses();
-	refresh(rCLEAR|rALL);
+	reload_zq_gui();
 }
 
 enum
@@ -30704,9 +30706,9 @@ int32_t main(int32_t argc,char **argv)
 	PreFillComboEditorPage	  = zc_get_config("zquest","PreFillComboEditorPage",0);
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	
-	pixeldb = zc_get_config("zquest","bottom_8_pixels",1);
-	large_merged_combopane = zc_get_config("zquest","merge_cpane_large",0);
-	compact_merged_combopane = zc_get_config("zquest","merge_cpane_compact",1);
+	pixeldb = zc_get_config("ZQ_GUI","bottom_8_pixels",0);
+	large_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_large",0);
+	compact_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_compact",1);
 	
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
@@ -30768,7 +30770,7 @@ int32_t main(int32_t argc,char **argv)
 		BMM=1;
 	}
 	
-	is_compact = is_large && zc_get_config("ZQ_GUI","compact_mode",0);
+	is_compact = is_large && zc_get_config("ZQ_GUI","compact_mode",1);
 	if(is_compact)
 		init_custom_fonts();
 	mapscreenbmp = nullptr;

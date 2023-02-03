@@ -244,7 +244,7 @@ void OptionsDialog::saveOption(int ind)
 			break;
 		case OPT_BOTTOM8:
 			pixeldb = v;
-			zc_set_config("zquest","bottom_8_pixels",v);
+			zc_set_config("ZQ_GUI","bottom_8_pixels",v);
 			break;
 	}
 }
