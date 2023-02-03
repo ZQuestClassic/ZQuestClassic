@@ -604,7 +604,6 @@ static void NES_titlescreen()
 	
 	do
 	{
-		load_control_state();
 		mainscreen(f);
 		storyscreen(f);
 		treasures(f);
@@ -630,6 +629,7 @@ static void NES_titlescreen()
 		}
 		
 		advanceframe(true);
+		load_control_state();
 		
 		if(rSbtn())
 			done=true;
@@ -833,7 +833,6 @@ static void DX_titlescreen()
 	
 	do
 	{
-		load_control_state();
 		DX_mainscreen(f);
 		storyscreen(f);
 		treasures(f);
@@ -855,6 +854,7 @@ static void DX_titlescreen()
 		}
 		
 		advanceframe(true);
+		load_control_state();
 		
 		if(rSbtn())
 			done=true;
@@ -1059,7 +1059,6 @@ static void v25_titlescreen()
 	
 	do
 	{
-		load_control_state();
 		v25_mainscreen(f);
 		storyscreen(f);
 		treasures(f);
@@ -1081,6 +1080,7 @@ static void v25_titlescreen()
 		}
 		
 		advanceframe(true);
+		load_control_state();
 		
 		if(rSbtn())
 			done=true;
@@ -4211,12 +4211,12 @@ static void select_game(bool skip = false)
 			selectscreen();
 			moduledata.refresh_title_screen = 0;
 		}
-		load_control_state();
 		sfxdat=1;
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
 		list_saves();
 		draw_cursor(pos,mode);
 		advanceframe(true);
+		load_control_state();
 		saveslot = pos + listpos;
 
 		if(!load_qstpath.empty())
