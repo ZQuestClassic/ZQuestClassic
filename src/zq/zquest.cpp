@@ -33426,73 +33426,73 @@ command_pair commands[cmdMAX]=
 /********************************/
 int32_t strchrnum(char *str, char c)
 {
-    for(int32_t i=0; str[i]; ++i)
-    {
-        if(str[i]==c)
-        {
-            return i;
-        }
-    }
-    
-    return -1;
+	for(int32_t i=0; str[i]; ++i)
+	{
+		if(str[i]==c)
+		{
+			return i;
+		}
+	}
+	
+	return -1;
 }
 
 int32_t get_longest_line_length(FONT *f, char *str)
 {
-    int32_t maxlen=0;
-    //char *kill=(char *)calloc(strlen(str),1);
-    char *tmpstr=str;
-    char temp=0;
-    //sprintf(tmpstr, "%s", str);
-    int32_t t=0;
-    int32_t new_t=-1;
-    while(tmpstr[0])
-    {
-        t=strchrnum(tmpstr, '\n');
-        
-        if(t==-1)
-        {
-            t=(int32_t)strlen(tmpstr);
-        }
-        
-        if((uint32_t)t!=strlen(tmpstr))
-        {
-            new_t=t+1;
-        }
-        else
-        {
-            new_t=-1;
-        }
-        
-        temp = tmpstr[t];
-        tmpstr[t]=0;
-        maxlen=zc_max(maxlen,text_length(f, tmpstr));
-        tmpstr[t]=temp;
-        
-        if(new_t!=-1)
-        {
-            tmpstr+=new_t;
-        }
+	int32_t maxlen=0;
+	//char *kill=(char *)calloc(strlen(str),1);
+	char *tmpstr=str;
+	char temp=0;
+	//sprintf(tmpstr, "%s", str);
+	int32_t t=0;
+	int32_t new_t=-1;
+	while(tmpstr[0])
+	{
+		t=strchrnum(tmpstr, '\n');
+		
+		if(t==-1)
+		{
+			t=(int32_t)strlen(tmpstr);
+		}
+		
+		if((uint32_t)t!=strlen(tmpstr))
+		{
+			new_t=t+1;
+		}
+		else
+		{
+			new_t=-1;
+		}
+		
+		temp = tmpstr[t];
+		tmpstr[t]=0;
+		maxlen=zc_max(maxlen,text_length(f, tmpstr));
+		tmpstr[t]=temp;
+		
+		if(new_t!=-1)
+		{
+			tmpstr+=new_t;
+		}
 		else break;
-    }
-    
-    //free(kill);
-    return maxlen;
+	}
+	
+	//free(kill);
+	return maxlen;
 }
 
 int32_t count_lines(char *str)
 {
-    int32_t count=1;
-    
-    for(word i=0; i<strlen(str); ++i)
-    {
-        if(str[i]=='\n')
-        {
-            ++count;
-        }
-    }
-    
-    return count;
+	int32_t count=1;
+	
+	for(word i=0; i<strlen(str); ++i)
+	{
+		if(str[i]=='\n')
+		{
+			++count;
+		}
+	}
+	
+	return count;
 }
 
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char *tipmsg)
@@ -33501,115 +33501,115 @@ void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char *tipmsg)
 }
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg)
 {
-    if(!EnableTooltips)
-    {
-        return;
-    }
-    
-    tooltip_trigger.x=trigger_x;
-    tooltip_trigger.y=trigger_y;
-    tooltip_trigger.w=trigger_w;
-    tooltip_trigger.h=trigger_h;
-    
-    
-    if(x<0||y<0) //if we want to clear the tooltip
-    {
-        tooltip_box.x=x;
-        tooltip_box.y=y;
-        tooltip_box.w=0;
-        tooltip_box.h=0;
-        tooltip_timer=0;
+	if(!EnableTooltips)
+	{
+		return;
+	}
+	
+	tooltip_trigger.x=trigger_x;
+	tooltip_trigger.y=trigger_y;
+	tooltip_trigger.w=trigger_w;
+	tooltip_trigger.h=trigger_h;
+	
+	
+	if(x<0||y<0) //if we want to clear the tooltip
+	{
+		tooltip_box.x=x;
+		tooltip_box.y=y;
+		tooltip_box.w=0;
+		tooltip_box.h=0;
+		tooltip_timer=0;
 		tooltip_highlight.clear();
-        return; //cancel
-    }
+		return; //cancel
+	}
 	tooltip_highlight.set(trigger_x, trigger_y, trigger_w, trigger_h);
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
-    
-    y+=16;
-    
-    if(tooltip_timer<=tooltip_maxtimer)
-    {
-        ++tooltip_timer;
-    }
-    
-    if(tooltip_timer==tooltip_maxtimer)
-    {
-        tooltip_box.x=x;
-        tooltip_box.y=y;
-        int32_t lines=count_lines(tipmsg);
-        tooltip_box.w=get_longest_line_length(font, tipmsg)+8+1;
-        tooltip_box.h = (lines * text_height(font)) + 8 + 1;
-        if (tooltip_box.w > zq_screen_w)
-            tooltip_box.w = zq_screen_w;
-        if (tooltip_box.h > zq_screen_h)
-            tooltip_box.h = zq_screen_h;
-        
-        if(tooltip_box.x+tooltip_box.w>=zq_screen_w)
-        {
-            tooltip_box.x=(zq_screen_w - tooltip_box.w);
-        }
-        
-        if(tooltip_box.y+tooltip_box.h>=zq_screen_h)
-        {
-            tooltip_box.y=(zq_screen_h - tooltip_box.h);
-        }
-        
-        rectfill(tooltipbmp, 1, 1, tooltip_box.w-3, tooltip_box.h-3, jwin_pal[jcTEXTBG]);
-        rect(tooltipbmp, 0, 0, tooltip_box.w-2, tooltip_box.h-2, jwin_pal[jcTEXTFG]);
-        vline(tooltipbmp, tooltip_box.w-1, 0,           tooltip_box.h-1, jwin_pal[jcTEXTFG]);
-        hline(tooltipbmp,           1, tooltip_box.h-1, tooltip_box.w-2, jwin_pal[jcTEXTFG]);
-        tooltipbmp->line[tooltip_box.h-1][0]=0;
-        tooltipbmp->line[0][tooltip_box.w-1]=0;
-        
-        //char *kill=(char *)calloc(strlen(tipmsg)*2,1);
-        char *tmpstr=tipmsg;
-        char temp = 0;
-        //sprintf(tmpstr, "%s", tipmsg);
-        int32_t t=0;
-        int32_t new_t=-1;
-        int32_t i=0;
-        
-        while(tmpstr[t])
-        {
-            t=strchrnum(tmpstr, '\n');
-            
-            if(t==-1)
-            {
-                t=(int32_t)strlen(tmpstr);
-            }
-            
-            if((uint32_t)t!=strlen(tmpstr))
-            {
-                new_t=t+1;
-            }
-            else
-            {
-                new_t=-1;
-            }
-            
-            temp = tmpstr[t];
-            tmpstr[t]=0;
-            textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
-            tmpstr[t]=temp;
-            ++i;
-            
-            if(new_t!=-1)
-            {
-                tmpstr+=new_t;
-                t=0;
-            }
-        }
-        
-        //free(kill);
-    }
-    font = oldfont;
-    return;
+	
+	y+=16;
+	
+	if(tooltip_timer<=tooltip_maxtimer)
+	{
+		++tooltip_timer;
+	}
+	
+	if(tooltip_timer==tooltip_maxtimer)
+	{
+		tooltip_box.x=x;
+		tooltip_box.y=y;
+		int32_t lines=count_lines(tipmsg);
+		tooltip_box.w=get_longest_line_length(font, tipmsg)+8+1;
+		tooltip_box.h = (lines * text_height(font)) + 8 + 1;
+		if (tooltip_box.w > zq_screen_w)
+			tooltip_box.w = zq_screen_w;
+		if (tooltip_box.h > zq_screen_h)
+			tooltip_box.h = zq_screen_h;
+		
+		if(tooltip_box.x+tooltip_box.w>=zq_screen_w)
+		{
+			tooltip_box.x=(zq_screen_w - tooltip_box.w);
+		}
+		
+		if(tooltip_box.y+tooltip_box.h>=zq_screen_h)
+		{
+			tooltip_box.y=(zq_screen_h - tooltip_box.h);
+		}
+		
+		rectfill(tooltipbmp, 1, 1, tooltip_box.w-3, tooltip_box.h-3, jwin_pal[jcTEXTBG]);
+		rect(tooltipbmp, 0, 0, tooltip_box.w-2, tooltip_box.h-2, jwin_pal[jcTEXTFG]);
+		vline(tooltipbmp, tooltip_box.w-1, 0,           tooltip_box.h-1, jwin_pal[jcTEXTFG]);
+		hline(tooltipbmp,           1, tooltip_box.h-1, tooltip_box.w-2, jwin_pal[jcTEXTFG]);
+		tooltipbmp->line[tooltip_box.h-1][0]=0;
+		tooltipbmp->line[0][tooltip_box.w-1]=0;
+		
+		//char *kill=(char *)calloc(strlen(tipmsg)*2,1);
+		char *tmpstr=tipmsg;
+		char temp = 0;
+		//sprintf(tmpstr, "%s", tipmsg);
+		int32_t t=0;
+		int32_t new_t=-1;
+		int32_t i=0;
+		
+		while(tmpstr[t])
+		{
+			t=strchrnum(tmpstr, '\n');
+			
+			if(t==-1)
+			{
+				t=(int32_t)strlen(tmpstr);
+			}
+			
+			if((uint32_t)t!=strlen(tmpstr))
+			{
+				new_t=t+1;
+			}
+			else
+			{
+				new_t=-1;
+			}
+			
+			temp = tmpstr[t];
+			tmpstr[t]=0;
+			textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
+			tmpstr[t]=temp;
+			++i;
+			
+			if(new_t!=-1)
+			{
+				tmpstr+=new_t;
+				t=0;
+			}
+		}
+		
+		//free(kill);
+	}
+	font = oldfont;
+	return;
 }
 
 void clear_tooltip()
 {
-    update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
+	update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
 }
 
 void ZQ_ClearQuestPath()
