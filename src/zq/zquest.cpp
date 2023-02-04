@@ -10350,6 +10350,25 @@ void domouse()
 			sprintf(msg,"Enemies that appear on this screen.");
 			update_tooltip(x,y,enemy_prev_pos,msg);
 		}
+		
+		for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
+		{
+			int32_t check_x=(cmd%commands_list.w)*commands_list.xscale+commands_list.x;
+			int32_t check_y=(cmd/commands_list.w)*commands_list.yscale+commands_list.y;
+			
+			if(isinRect(x,y,check_x,check_y,check_x+commands_list.xscale-1,check_y+commands_list.yscale-1))
+			{
+				FONT *tfont=font;
+				font=get_custom_font(CFONT_FAVCMD);
+				
+				char msg[160];
+				sprintf(msg,"Fav Command %d\n%s", cmd, commands[favorite_commands[cmd]].name);
+				
+				update_tooltip(x,y,check_x,check_y,commands_list.xscale,commands_list.yscale,msg);
+				
+				font=tfont;
+			}
+		}
 	}
 	
 	if(draw_mode==dm_alias)
