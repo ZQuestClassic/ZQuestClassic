@@ -31547,56 +31547,6 @@ void load_size_poses()
 	//commands_list.yscale = command_buttonheight;
 	commands_list.yscale = 10+text_height(favcmdfont);
 	
-	
-	//Dialog popups
-	if(is_large)
-	{
-		//Help Dialogue Sizing
-		help_dlg[0].w=zq_screen_w;
-		help_dlg[0].h=zq_screen_h;
-		help_dlg[1].w=zq_screen_w-8;
-		help_dlg[1].h=zq_screen_h-27;
-		help_dlg[2].w=zq_screen_w-8-4;
-		help_dlg[2].h=zq_screen_h-27-4;
-		
-		zscripthelp_dlg[0].w=zq_screen_w;
-		zscripthelp_dlg[0].h=zq_screen_h;
-		zscripthelp_dlg[1].w=zq_screen_w-8;
-		zscripthelp_dlg[1].h=zq_screen_h-27;
-		zscripthelp_dlg[2].w=zq_screen_w-8-4;
-		zscripthelp_dlg[2].h=zq_screen_h-27-4;
-	
-		Zstringshelp_dlg[0].w=zq_screen_w;
-		Zstringshelp_dlg[0].h=zq_screen_h;
-		Zstringshelp_dlg[1].w=zq_screen_w-8;
-		Zstringshelp_dlg[1].h=zq_screen_h-27;
-		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
-		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
-	
-		shieldblockhelp_dlg[0].w=zq_screen_w;
-		shieldblockhelp_dlg[0].h=zq_screen_h;
-		shieldblockhelp_dlg[1].w=zq_screen_w-8;
-		shieldblockhelp_dlg[1].h=zq_screen_h-27;
-		shieldblockhelp_dlg[2].w=zq_screen_w-8-4;
-		shieldblockhelp_dlg[2].h=zq_screen_h-27-4;
-		
-		edit_zscript_dlg[0].w=zq_screen_w;
-		edit_zscript_dlg[0].h=zq_screen_h;
-		edit_zscript_dlg[1].w=zq_screen_w-8;
-		edit_zscript_dlg[1].h=zq_screen_h-27;
-		edit_zscript_dlg[2].w=zq_screen_w-8-4;
-		edit_zscript_dlg[2].h=zq_screen_h-27-4;
-		
-		editmsg_help_dlg[0].w=zq_screen_w;
-		editmsg_help_dlg[0].h=zq_screen_h;
-		editmsg_help_dlg[1].w=zq_screen_w-8;
-		editmsg_help_dlg[1].h=zq_screen_h-27;
-		editmsg_help_dlg[2].w=zq_screen_w-8-4;
-		editmsg_help_dlg[2].h=zq_screen_h-27-4;
-		
-		enlargeIntegrityReportDialog();
-	}
-	
 	auto drawmode_wid = 64;
 	for(auto q = 0; q < dm_max; ++q)
 	{
@@ -32143,6 +32093,55 @@ void load_size_poses()
 		screrrorpos.x = 575;
 		screrrorpos.y = 388;
 		mappage_count = 8;
+	}
+	
+	//Dialog popups
+	if(is_large)
+	{
+		//Help Dialogue Sizing
+		help_dlg[0].w=zq_screen_w;
+		help_dlg[0].h=zq_screen_h;
+		help_dlg[1].w=zq_screen_w-8;
+		help_dlg[1].h=zq_screen_h-27;
+		help_dlg[2].w=zq_screen_w-8-4;
+		help_dlg[2].h=zq_screen_h-27-4;
+		
+		zscripthelp_dlg[0].w=zq_screen_w;
+		zscripthelp_dlg[0].h=zq_screen_h;
+		zscripthelp_dlg[1].w=zq_screen_w-8;
+		zscripthelp_dlg[1].h=zq_screen_h-27;
+		zscripthelp_dlg[2].w=zq_screen_w-8-4;
+		zscripthelp_dlg[2].h=zq_screen_h-27-4;
+	
+		Zstringshelp_dlg[0].w=zq_screen_w;
+		Zstringshelp_dlg[0].h=zq_screen_h;
+		Zstringshelp_dlg[1].w=zq_screen_w-8;
+		Zstringshelp_dlg[1].h=zq_screen_h-27;
+		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
+		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
+	
+		shieldblockhelp_dlg[0].w=zq_screen_w;
+		shieldblockhelp_dlg[0].h=zq_screen_h;
+		shieldblockhelp_dlg[1].w=zq_screen_w-8;
+		shieldblockhelp_dlg[1].h=zq_screen_h-27;
+		shieldblockhelp_dlg[2].w=zq_screen_w-8-4;
+		shieldblockhelp_dlg[2].h=zq_screen_h-27-4;
+		
+		edit_zscript_dlg[0].w=zq_screen_w;
+		edit_zscript_dlg[0].h=zq_screen_h;
+		edit_zscript_dlg[1].w=zq_screen_w-8;
+		edit_zscript_dlg[1].h=zq_screen_h-27;
+		edit_zscript_dlg[2].w=zq_screen_w-8-4;
+		edit_zscript_dlg[2].h=zq_screen_h-27-4;
+		
+		editmsg_help_dlg[0].w=zq_screen_w;
+		editmsg_help_dlg[0].h=zq_screen_h;
+		editmsg_help_dlg[1].w=zq_screen_w-8;
+		editmsg_help_dlg[1].h=zq_screen_h-27;
+		editmsg_help_dlg[2].w=zq_screen_w-8-4;
+		editmsg_help_dlg[2].h=zq_screen_h-27-4;
+		
+		enlargeIntegrityReportDialog();
 	}
 	
 	//Ensure current combo list selected is valid
