@@ -33479,6 +33479,8 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
         tooltip_timer=0;
         return; //cancel
     }
+	FONT* oldfont = font;
+	font = get_custom_font(CFONT_TTIP);
     
     y+=16;
     
@@ -33557,7 +33559,7 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
         
         //free(kill);
     }
-    
+    font = oldfont;
     return;
 }
 

@@ -25,6 +25,7 @@ enum
 	CFONT_FAVCMD,
 	CFONT_GUI,
 	CFONT_TEXTBOX,
+	CFONT_TTIP,
 	CFONT_MAX
 };
 FONT* get_custom_font(int cfont);

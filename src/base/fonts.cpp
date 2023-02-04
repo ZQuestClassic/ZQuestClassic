@@ -367,6 +367,8 @@ void init_custom_fonts()
 	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_nfont,font_nfont,font_nfont)));
 	sprintf(buf, "font_%s_%s", pref, "textbox");
 	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_sfont3,font_sfont2,font_sfont3)));
+	sprintf(buf, "font_%s_%s", pref, "ttip");
+	deffonts[CFONT_TTIP] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont,font_lfont)));
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
@@ -383,6 +385,7 @@ void init_custom_fonts()
 		customfonts[CFONT_FAVCMD] = load_cfont("favcmd");
 		customfonts[CFONT_GUI] = load_cfont("gui");
 		customfonts[CFONT_TEXTBOX] = load_cfont("textbox");
+		customfonts[CFONT_TTIP] = load_cfont("ttip");
 	}
 }
 
