@@ -7267,7 +7267,8 @@ void refresh(int32_t flags)
 	
 	if(ShowFPS)
 	{
-		textprintf_shadowed_ex(menu1,is_large?lfont:sfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",lastfps);
+		FONT* fpsfont = is_large ? lfont_l : font;
+		textprintf_shadowed_ex(menu1,fpsfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",lastfps);
 	}
 	
 	if(prv_mode)
@@ -7285,20 +7286,22 @@ void refresh(int32_t flags)
 	
 	if(ShowFFScripts && !prv_mode)
 	{
-		int32_t ypos = ShowFPS ? 28 : 18;
+		FONT* ffcfont = is_large ? lfont_l : font;
+		int ff_fonth = text_height(ffcfont);
+		int32_t ypos = mapscreen_y+(ShowFPS ? ff_fonth+1 : 0);
 		size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
-		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,text_height(is_large ? lfont_l : font));
+		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,ff_fonth);
 		word c = Map.CurrScr()->numFFC();
 		for(word i=0; i< c; i++)
 		{
-			if(ypos > (is_large ? 420 : 180))
+			if(ypos+ff_fonth-1 > (is_large ? map_page_bar[0].y : 180))
 				break;
 			if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
 			{
 				clear_bitmap(tempbmp);
-				textout_shadowed_ex(tempbmp,is_large ? lfont_l : font, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
+				textout_shadowed_ex(tempbmp,ffcfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
 				masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
-				ypos+=(is_large?14:10);
+				ypos+=ff_fonth+1;
 			}
 		}
 		destroy_bitmap(tempbmp);
