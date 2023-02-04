@@ -684,7 +684,7 @@ void GameSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
