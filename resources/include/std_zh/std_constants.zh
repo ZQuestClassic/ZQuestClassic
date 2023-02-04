@@ -1728,7 +1728,7 @@ DEFINE FONT_NFONT        = 70;
 DEFINE FONT_S3           = 71;
 
 DEFINE MIN_FONT = 0;
-DEFINE MAX_FONT = FONT_SFONT3;
+DEFINE MAX_FONT = FONT_S3;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
 //Font heights, in pixels, for the above fonts:
