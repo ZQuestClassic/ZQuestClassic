@@ -285,6 +285,7 @@ size_and_pos layer_panel;
 
 size_and_pos tooltip_box;
 size_and_pos tooltip_trigger;
+size_and_pos tooltip_highlight;
 
 size_and_pos itemsqr_pos;
 size_and_pos flagsqr_pos;
@@ -528,7 +529,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0;
+	ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 int32_t window_width, window_height;
@@ -1340,6 +1341,7 @@ MENU view_menu[] =
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"Show Screen &Info\tN",       onToggleShowInfo,          NULL,                     0,            NULL   },
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
+    { (char *)"Show FFCs",                  onToggleShowFFCs,          NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
     { (char *)"Show &Darkness\tL",          onShowDarkness,            NULL,                     0,            NULL   },
@@ -1705,6 +1707,13 @@ int32_t onToggleShowScripts()
 {
     ShowFFScripts=!ShowFFScripts;
     zc_set_config("zquest","showffscripts",ShowFFScripts);
+    return D_O_K;
+}
+
+int32_t onToggleShowFFCs()
+{
+    ShowFFCs=!ShowFFCs;
+    zc_set_config("zquest","showffcs",ShowFFCs);
     return D_O_K;
 }
 
@@ -6362,6 +6371,20 @@ void refresh(int32_t flags)
 			
 		}
 		
+		if(ShowFFCs)
+		{
+			for(int32_t i=MAXFFCS-1; i>=0; i--)
+			{
+				ffcdata& ff = Map.CurrScr()->ffcs[i];
+				if(ff.getData() !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
+				{
+					auto x = ff.x+(showedges?16:0);
+					auto y = ff.y+(showedges?16:0);
+					safe_rect(mapscreenbmp, x+0, y+0, x+ff.txsz*16-1, y+ff.tysz*16-1, vc(12));
+				}
+			}
+		}
+		
 		if(!(Flags&cDEBUG) && pixeldb==1)
 		{
 			for(int32_t j=168; j<176; j++)
@@ -7738,6 +7761,12 @@ void refresh(int32_t flags)
 	
 	if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
 	{
+		auto& rec = tooltip_highlight;
+		if(rec.x >= 0)
+		{
+			safe_rect(menu1, rec.x, rec.y, rec.x+rec.w-1, rec.y+rec.h-1, 0xED);
+			safe_rect(menu1, rec.x+1, rec.y+1, rec.x+rec.w-2, rec.y+rec.h-2, 0xED);
+		}
 		masked_blit(tooltipbmp, menu1, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
 	}
 	
@@ -10218,15 +10247,18 @@ void domouse()
 //-------------
 	if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
 	{
+		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 			if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 			{
-				int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
-				int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
+				int32_t ffx = Map.CurrScr()->ffcs[i].x.getInt();
+				int32_t ffy = Map.CurrScr()->ffcs[i].y.getInt();
+				int32_t ffw = Map.CurrScr()->ffTileWidth(i)*16;
+				int32_t ffh = Map.CurrScr()->ffTileHeight(i)*16;
 				int32_t cx2 = (x-startxint)/mapscreensize;
 				int32_t cy2 = (y-startyint)/mapscreensize;
 				
-				if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
+				if(cx2 >= ffx && cx2 < ffx+ffw && cy2 >= ffy && cy2 < ffy+ffh)
 				{
 					// FFC tooltip
 					if(tooltip_current_ffc != i)
@@ -10236,45 +10268,49 @@ void domouse()
 					
 					tooltip_current_ffc = i;
 					char msg[1024] = {0};
+					auto& ff = Map.CurrScr()->ffcs[i];
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-							i+1, Map.CurrScr()->ffcs[i].getData(),Map.CurrScr()->ffcs[i].getData(),
-							combo_class_buf[combobuf[Map.CurrScr()->ffcs[i].getData()].type].name,
-							(Map.CurrScr()->ffcs[i].script<=0 ? "(None)" : ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,400).c_str()));
-					update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
+							i+1, ff.getData(),ff.getData(),
+							combo_class_buf[combobuf[ff.getData()].type].name,
+							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
+					update_tooltip(x, y, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, msg);
+					did_ffttip = true;
 					break;
 				}
 			}
-			
-		int32_t drawmap;
-		int32_t drawscr;
-		
-		if(CurrentLayer==0)
+		if(!did_ffttip)
 		{
-			drawmap=Map.getCurrMap();
-			drawscr=Map.getCurrScr();
-		}
-		else
-		{
-			drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-			drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+			int32_t drawmap;
+			int32_t drawscr;
 			
-			if(drawmap<0)
+			if(CurrentLayer==0)
 			{
+				drawmap=Map.getCurrMap();
+				drawscr=Map.getCurrScr();
 			}
+			else
+			{
+				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+				
+				if(drawmap<0)
+				{
+				}
+			}
+			
+			if(tooltip_current_combo != c)
+			{
+				clear_tooltip();
+			}
+			
+			tooltip_current_combo = c;
+			char msg[512] = {0};
+			sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
+					c, Map.AbsoluteScr(drawmap, drawscr)->data[c],
+					Map.AbsoluteScr(drawmap, drawscr)->cset[c], Map.CurrScr()->sflag[c],combobuf[Map.CurrScr()->data[c]].flag,
+					combo_class_buf[combobuf[(Map.AbsoluteScr(drawmap, drawscr)->data[c])].type].name);
+			update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, msg);
 		}
-		
-		if(tooltip_current_combo != c)
-		{
-			clear_tooltip();
-		}
-		
-		tooltip_current_combo = c;
-		char msg[512] = {0};
-		sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
-				c, Map.AbsoluteScr(drawmap, drawscr)->data[c],
-				Map.AbsoluteScr(drawmap, drawscr)->cset[c], Map.CurrScr()->sflag[c],combobuf[Map.CurrScr()->data[c]].flag,
-				combo_class_buf[combobuf[(Map.AbsoluteScr(drawmap, drawscr)->data[c])].type].name);
-		update_tooltip(x, y, startxint, startyint, int32_t(256*mapscreensize),int32_t(176*mapscreensize), msg);
 	}
 	
 	if(is_large)
@@ -10320,14 +10356,15 @@ void domouse()
 	{
 		for(int32_t j=0; j<num_combo_cols; ++j)
 		{
-			if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
+			auto& sqr = comboaliaslist[j];
+			if(isinRect(x,y,sqr.x,sqr.y,sqr.x+(sqr.w*sqr.xscale)-1,sqr.y+(sqr.h*sqr.yscale)-1))
 			{
-				int32_t cc=((x-comboaliaslist[j].x)>>4);
-				int32_t cr=((y-comboaliaslist[j].y)>>4);
-				int32_t c2=(cr*comboaliaslist[j].w)+cc+combo_alistpos[j];
+				int32_t cc=((x-sqr.x)/sqr.xscale);
+				int32_t cr=((y-sqr.y)/sqr.yscale);
+				int32_t c2=(cr*sqr.w)+cc+combo_alistpos[j];
 				char msg[80];
 				sprintf(msg, "Combo alias %d", c2);
-				update_tooltip(x,y,comboaliaslist[j].x+(cc<<4),comboaliaslist[j].y+(cr<<4),16,16, msg);
+				update_tooltip(x,y,sqr.x+(cc*sqr.xscale),sqr.y+(cr*sqr.yscale),sqr.xscale,sqr.yscale, msg);
 			}
 		}
 	}
@@ -10335,14 +10372,15 @@ void domouse()
 	{
 		for(int32_t j=0; j<num_combo_cols; ++j)
 		{
-			if(isinRect(x,y,comboaliaslist[j].x,comboaliaslist[j].y,comboaliaslist[j].x+(comboaliaslist[j].w*16)-1,comboaliaslist[j].y+(comboaliaslist[j].h*16)-1))
+			auto& sqr = comboaliaslist[j];
+			if(isinRect(x,y,sqr.x,sqr.y,sqr.x+(sqr.w*sqr.xscale)-1,sqr.y+(sqr.h*sqr.yscale)-1))
 			{
-				int32_t cc=((x-comboaliaslist[j].x)>>4);
-				int32_t cr=((y-comboaliaslist[j].y)>>4);
-				int32_t c2=(cr*comboaliaslist[j].w)+cc+combo_pool_listpos[j];
+				int32_t cc=((x-sqr.x)/sqr.xscale);
+				int32_t cr=((y-sqr.y)/sqr.yscale);
+				int32_t c2=(cr*sqr.w)+cc+combo_pool_listpos[j];
 				char msg[80];
 				sprintf(msg, "Combo Pool %d", c2);
-				update_tooltip(x,y,comboaliaslist[j].x+(cc<<4),comboaliaslist[j].y+(cr<<4),16,16, msg);
+				update_tooltip(x,y,sqr.x+(cc*sqr.xscale),sqr.y+(cr*sqr.yscale),sqr.xscale,sqr.yscale, msg);
 			}
 		}
 		if(cpool_prev_visible
@@ -10362,11 +10400,12 @@ void domouse()
 	{
 		for(int32_t j=0; j<num_combo_cols; ++j)
 		{
-			if(isinRect(x,y,combolist[j].x,combolist[j].y,combolist[j].x+(combolist[j].w*16)-1,combolist[j].y+(combolist[j].h*16)-1))
+			auto& sqr = combolist[j];
+			if(isinRect(x,y,sqr.x,sqr.y,sqr.x+(sqr.w*sqr.xscale)-1,sqr.y+(sqr.h*sqr.yscale)-1))
 			{
-				int32_t cc=((x-combolist[j].x)>>4);
-				int32_t cr=((y-combolist[j].y)>>4);
-				int32_t c2=(cr*combolist[j].w)+cc+First[j];
+				int32_t cc=((x-sqr.x)/sqr.xscale);
+				int32_t cr=((y-sqr.y)/sqr.yscale);
+				int32_t c2=(cr*sqr.w)+cc+First[j];
 				char msg[160];
 				
 				if(combobuf[c2].flag != 0)
@@ -10374,7 +10413,7 @@ void domouse()
 				else
 					sprintf(msg, "Combo %d: %s", c2, combo_class_buf[combobuf[c2].type].name);
 					
-				update_tooltip(x,y,combolist[j].x+(cc<<4),combolist[j].y+(cr<<4),16,16, msg);
+				update_tooltip(x,y,sqr.x+(cc*sqr.xscale),sqr.y+(cr*sqr.yscale),sqr.xscale,sqr.yscale, msg);
 			}
 		}
 	}
@@ -30707,6 +30746,7 @@ int32_t main(int32_t argc,char **argv)
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	ShowFFScripts				  = zc_get_config("zquest","showffscripts",1);
 	ShowSquares					= zc_get_config("zquest","showsquares",1);
+	ShowFFCs					= zc_get_config("zquest","showffcs",0);
 	ShowInfo					   = zc_get_config("zquest","showinfo",1);
 	skipLayerWarning			   = zc_get_config("zquest","skip_layer_warning",0);
 	numericalFlags			  	 = zc_get_config("zquest","numerical_flags",0);
@@ -31489,13 +31529,14 @@ int32_t main(int32_t argc,char **argv)
 		view_menu[4].flags=(Flags&cFLAGS)?D_SELECTED:0; // Show Flags
 		view_menu[5].flags=(Flags&cCSET)?D_SELECTED:0; // Show CSet
 		view_menu[6].flags=(Flags&cCTYPE)?D_SELECTED:0; // Show Type
-		view_menu[11].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
-		view_menu[12].flags=(get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
-		view_menu[13].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
-		view_menu[14].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
-		view_menu[10].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
-		view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
 		view_menu[8].flags=(!is_large)?D_DISABLED:(ShowInfo)?D_SELECTED:0; // Show Info
+		view_menu[9].flags=(ShowSquares)?D_SELECTED:0; // Show Squares
+		view_menu[10].flags=(ShowFFCs)?D_SELECTED:0; // Show Squares
+		view_menu[11].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
+		view_menu[12].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
+		view_menu[13].flags=(get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
+		view_menu[14].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
+		view_menu[15].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
 		
 		maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
@@ -31539,6 +31580,7 @@ void load_size_poses()
 {
 	tooltip_box.set(-1,-1,0,0);
 	tooltip_trigger.set(-1,-1,0,0);
+	tooltip_highlight.clear();
 	
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
@@ -33404,8 +33446,7 @@ int32_t get_longest_line_length(FONT *f, char *str)
     //sprintf(tmpstr, "%s", str);
     int32_t t=0;
     int32_t new_t=-1;
-    
-    while(tmpstr[t])
+    while(tmpstr[0])
     {
         t=strchrnum(tmpstr, '\n');
         
@@ -33432,6 +33473,7 @@ int32_t get_longest_line_length(FONT *f, char *str)
         {
             tmpstr+=new_t;
         }
+		else break;
     }
     
     //free(kill);
@@ -33477,8 +33519,10 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
         tooltip_box.w=0;
         tooltip_box.h=0;
         tooltip_timer=0;
+		tooltip_highlight.clear();
         return; //cancel
     }
+	tooltip_highlight.set(trigger_x, trigger_y, trigger_w, trigger_h);
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
     

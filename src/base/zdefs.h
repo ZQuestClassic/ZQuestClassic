@@ -1849,9 +1849,9 @@ struct size_and_pos
     int32_t x = -1, y = -1;
     int32_t w = -1, h = -1;
 	int32_t xscale = 1, yscale = 1;
-	void clear();
-	bool rect(int32_t mx, int32_t my);
-	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh);
+	void clear(); //Clear to default vals
+	bool rect(int32_t mx, int32_t my); //Check rect collision
+	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh); //Set coord values
 };
 
 //#define OLDITEMCNT i90

@@ -848,6 +848,7 @@ int32_t isFullScreen();
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleShowSquares();
+int32_t onToggleShowFFCs();
 int32_t onToggleShowInfo();
 
 //char msgbuf[MSGSTRS*3];
