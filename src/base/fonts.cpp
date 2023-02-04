@@ -62,7 +62,8 @@ const char *msgfont_str[font_max] =
 	"Zelda 2",
 	"ZX",
 	"Lisa",
-	"nfont"
+	"nfont",
+	"Small 3"
 };
 
 FONT *get_zc_font(int32_t index)
@@ -194,6 +195,7 @@ FONT *get_zc_font(int32_t index)
 		case font_zxfont: return zxfont;
 		case font_lisafont: return lisafont;
 		case font_nfont: return nfont;
+		case font_sfont3: return sfont3;
     }
 }
 
@@ -363,6 +365,8 @@ void init_custom_fonts()
 	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_pfont,font_pfont,font_pfont)));
 	sprintf(buf, "font_%s_%s", pref, "gui");
 	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_nfont,font_nfont,font_nfont)));
+	sprintf(buf, "font_%s_%s", pref, "textbox");
+	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_sfont3,font_sfont2,font_sfont3)));
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
@@ -378,6 +382,7 @@ void init_custom_fonts()
 		customfonts[CFONT_TITLE] = load_cfont("title");
 		customfonts[CFONT_FAVCMD] = load_cfont("favcmd");
 		customfonts[CFONT_GUI] = load_cfont("gui");
+		customfonts[CFONT_TEXTBOX] = load_cfont("textbox");
 	}
 }
 

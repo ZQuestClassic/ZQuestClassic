@@ -67,15 +67,18 @@ void OptionsDialog::loadOptions()
 	opts[OPT_LARGEFONT_GUI] = zc_get_config("ZQ_GUI", "font_large_gui", font_nfont);
 	opts[OPT_LARGEFONT_TITLE] = zc_get_config("ZQ_GUI", "font_large_title", font_lfont);
 	opts[OPT_LARGEFONT_FAVCMD] = zc_get_config("ZQ_GUI", "font_large_favcmd", font_pfont);
+	opts[OPT_LARGEFONT_TEXTBOX] = zc_get_config("ZQ_GUI", "font_large_textbox", font_sfont3);
 	
 	opts[OPT_COMPACTFONT_DIALOG] = zc_get_config("ZQ_GUI", "font_compact_dialog", font_lfont_l);
 	opts[OPT_COMPACTFONT_GUI] = zc_get_config("ZQ_GUI", "font_compact_gui", font_nfont);
 	opts[OPT_COMPACTFONT_TITLE] = zc_get_config("ZQ_GUI", "font_compact_title", font_lfont);
 	opts[OPT_COMPACTFONT_FAVCMD] = zc_get_config("ZQ_GUI", "font_compact_favcmd", font_pfont);
+	opts[OPT_COMPACTFONT_TEXTBOX] = zc_get_config("ZQ_GUI", "font_compact_textbox", font_sfont3);
 	
 	opts[OPT_SMALLFONT_DIALOG] = zc_get_config("ZQ_GUI", "font_small_dialog", font_lfont_l);
 	opts[OPT_SMALLFONT_GUI] = zc_get_config("ZQ_GUI", "font_small_gui", font_nfont);
 	opts[OPT_SMALLFONT_TITLE] = zc_get_config("ZQ_GUI", "font_small_title", font_lfont);
+	opts[OPT_SMALLFONT_TEXTBOX] = zc_get_config("ZQ_GUI", "font_small_textbox", font_sfont2);
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
@@ -285,6 +288,9 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_LARGEFONT_FAVCMD:
 			zc_set_config("ZQ_GUI", "font_large_favcmd", opts[OPT_LARGEFONT_FAVCMD]);
 			break;
+		case OPT_LARGEFONT_TEXTBOX:
+			zc_set_config("ZQ_GUI", "font_large_textbox", opts[OPT_LARGEFONT_TEXTBOX]);
+			break;
 		
 		case OPT_COMPACTFONT_DIALOG:
 			zc_set_config("ZQ_GUI", "font_compact_dialog", opts[OPT_COMPACTFONT_DIALOG]);
@@ -298,6 +304,9 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_COMPACTFONT_FAVCMD:
 			zc_set_config("ZQ_GUI", "font_compact_favcmd", opts[OPT_COMPACTFONT_FAVCMD]);
 			break;
+		case OPT_COMPACTFONT_TEXTBOX:
+			zc_set_config("ZQ_GUI", "font_compact_textbox", opts[OPT_COMPACTFONT_TEXTBOX]);
+			break;
 		
 		case OPT_SMALLFONT_DIALOG:
 			zc_set_config("ZQ_GUI", "font_small_dialog", opts[OPT_SMALLFONT_DIALOG]);
@@ -307,6 +316,9 @@ void OptionsDialog::saveOption(int ind)
 			break;
 		case OPT_SMALLFONT_TITLE:
 			zc_set_config("ZQ_GUI", "font_small_title", opts[OPT_SMALLFONT_TITLE]);
+			break;
+		case OPT_SMALLFONT_TEXTBOX:
+			zc_set_config("ZQ_GUI", "font_compact_textbox", opts[OPT_COMPACTFONT_TEXTBOX]);
 			break;
 	}
 }
@@ -525,18 +537,21 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 								FONT_ROW_DDOWN(OPT_LARGEFONT_DIALOG, "Dialog Font:", fontlist),
 								FONT_ROW_DDOWN(OPT_LARGEFONT_GUI, "GUI Font:", fontlist),
 								FONT_ROW_DDOWN(OPT_LARGEFONT_TITLE, "Title Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_LARGEFONT_FAVCMD, "FavCMD Font:", fontlist)
+								FONT_ROW_DDOWN(OPT_LARGEFONT_FAVCMD, "FavCMD Font:", fontlist),
+								FONT_ROW_DDOWN(OPT_LARGEFONT_TEXTBOX, "Textbox Font:", fontlist)
 							)),
 							TabRef(name = "Compact", Rows<3>(
 								FONT_ROW_DDOWN(OPT_COMPACTFONT_DIALOG, "Dialog Font:", fontlist),
 								FONT_ROW_DDOWN(OPT_COMPACTFONT_GUI, "GUI Font:", fontlist),
 								FONT_ROW_DDOWN(OPT_COMPACTFONT_TITLE, "Title Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_FAVCMD, "FavCMD Font:", fontlist)
+								FONT_ROW_DDOWN(OPT_COMPACTFONT_FAVCMD, "FavCMD Font:", fontlist),
+								FONT_ROW_DDOWN(OPT_COMPACTFONT_TEXTBOX, "Textbox Font:", fontlist)
 							)),
 							TabRef(name = "Small", Rows<3>(
 								FONT_ROW_DDOWN(OPT_SMALLFONT_DIALOG, "Dialog Font:", fontlist),
 								FONT_ROW_DDOWN(OPT_SMALLFONT_GUI, "GUI Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_SMALLFONT_TITLE, "Title Font:", fontlist)
+								FONT_ROW_DDOWN(OPT_SMALLFONT_TITLE, "Title Font:", fontlist),
+								FONT_ROW_DDOWN(OPT_SMALLFONT_TEXTBOX, "Textbox Font:", fontlist)
 							))
 						),
 						Button(text = "Default",
@@ -556,29 +571,35 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 								opts[OPT_LARGEFONT_TITLE] = font_lfont;
 								opts[OPT_LARGEFONT_FAVCMD] = font_pfont;
 								opts[OPT_LARGEFONT_GUI] = font_nfont;
+								opts[OPT_LARGEFONT_TEXTBOX] = font_sfont3;
 								
 								opts[OPT_COMPACTFONT_DIALOG] = font_lfont_l;
 								opts[OPT_COMPACTFONT_TITLE] = font_lfont;
 								opts[OPT_COMPACTFONT_FAVCMD] = font_pfont;
 								opts[OPT_COMPACTFONT_GUI] = font_nfont;
+								opts[OPT_COMPACTFONT_TEXTBOX] = font_sfont3;
 								
 								opts[OPT_SMALLFONT_DIALOG] = font_nfont;
 								opts[OPT_SMALLFONT_TITLE] = font_lfont;
 								opts[OPT_SMALLFONT_GUI] = font_nfont;
+								opts[OPT_SMALLFONT_TEXTBOX] = font_sfont2;
 								
 								opt_changed[OPT_LARGEFONT_DIALOG] = true;
 								opt_changed[OPT_LARGEFONT_TITLE] = true;
 								opt_changed[OPT_LARGEFONT_FAVCMD] = true;
 								opt_changed[OPT_LARGEFONT_GUI] = true;
+								opt_changed[OPT_LARGEFONT_TEXTBOX] = true;
 								
 								opt_changed[OPT_COMPACTFONT_DIALOG] = true;
 								opt_changed[OPT_COMPACTFONT_TITLE] = true;
 								opt_changed[OPT_COMPACTFONT_FAVCMD] = true;
 								opt_changed[OPT_COMPACTFONT_GUI] = true;
+								opt_changed[OPT_COMPACTFONT_TEXTBOX] = true;
 								
 								opt_changed[OPT_SMALLFONT_DIALOG] = true;
 								opt_changed[OPT_SMALLFONT_TITLE] = true;
 								opt_changed[OPT_SMALLFONT_GUI] = true;
+								opt_changed[OPT_SMALLFONT_TEXTBOX] = true;
 								
 								preview_font(opts[is_compact ? OPT_COMPACTFONT_DIALOG :
 									(is_large ? OPT_LARGEFONT_DIALOG : OPT_SMALLFONT_DIALOG)]);

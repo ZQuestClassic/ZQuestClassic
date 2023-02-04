@@ -496,14 +496,14 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					onPressFunc = []()
 					{
 						// Show string help
-						editmsg_help_dlg[0].dp2= lfont;
+						editmsg_help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
 						FILE *stringshelpfile = fopen("docs/zstrings.txt", "r");
 						if (!stringshelpfile )
 						{
 							stringshelpfile = fopen("zstrings.txt", "r");
 							if ( stringshelpfile )
 							{
-								editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
+								editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],get_custom_font(CFONT_TEXTBOX),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"zstrings.txt");
 							}
 							else
 							{
@@ -512,7 +512,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 						}
 						else
 						{
-							editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],(is_large?sfont3:font),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
+							editmsg_help_dlg[2].dp = new EditboxModel(helpstr, new EditboxScriptView(&editmsg_help_dlg[2],get_custom_font(CFONT_TEXTBOX),vc(0),vc(15),BasicEditboxView::HSTYLE_EOTEXT), true, (char *)"docs/zstrings.txt");
 						}
 						editmsg_help_dlg[2].fg = vc(0);
 						editmsg_help_dlg[2].bg = vc(15);

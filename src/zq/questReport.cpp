@@ -126,8 +126,8 @@ void enlargeIntegrityReportDialog()
 
 void showQuestReport(int32_t bg,int32_t fg)
 {
-    integrity_report_dlg[0].dp2= lfont;
-    integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], is_large? sfont3 : sfont2, fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    integrity_report_dlg[0].dp2= get_custom_font(CFONT_TITLE);
+    integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], get_custom_font(CFONT_TEXTBOX), fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     integrity_report_dlg[2].bg = bg;
     int32_t ret=zc_popup_dialog(integrity_report_dlg,2);
     delete(EditboxModel*)(integrity_report_dlg[2].dp);

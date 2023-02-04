@@ -25356,8 +25356,8 @@ static DIALOG edit_zscript_dlg[] =
 void doEditZScript(int32_t bg,int32_t fg)
 {
     string old = zScript;
-    EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],(is_large?sfont3:sfont2),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
-    edit_zscript_dlg[0].dp2= lfont;
+    EditboxModel *em = new EditboxModel(zScript, new EditboxScriptView(&edit_zscript_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT), false, (char *)"zscript.txt");
+    edit_zscript_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     edit_zscript_dlg[2].dp = em;
     edit_zscript_dlg[2].bg = bg;
     
@@ -29108,8 +29108,8 @@ static DIALOG help_dlg[] =
 
 void doHelp(int32_t bg,int32_t fg)
 {
-    help_dlg[0].dp2= lfont;
-    help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
+    help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     help_dlg[2].bg = bg;
     zc_popup_dialog(help_dlg,2);
     delete(EditboxModel*)(help_dlg[2].dp);
@@ -29137,8 +29137,8 @@ static DIALOG shieldblockhelp_dlg[] =
 
 void doshieldblockhelp(int32_t bg,int32_t fg)
 {
-    shieldblockhelp_dlg[0].dp2= lfont;
-    shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    shieldblockhelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
+    shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     shieldblockhelp_dlg[2].bg = bg;
     zc_popup_dialog(shieldblockhelp_dlg,2);
     delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
@@ -29166,8 +29166,8 @@ static DIALOG zscripthelp_dlg[] =
 
 void dozscripthelp(int32_t bg,int32_t fg)
 {
-    zscripthelp_dlg[0].dp2= lfont;
-    zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    zscripthelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
+    zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     zscripthelp_dlg[2].bg = bg;
     zc_popup_dialog(zscripthelp_dlg,2);
     delete(EditboxModel*)(zscripthelp_dlg[2].dp);
@@ -29195,8 +29195,8 @@ static DIALOG Zstringshelp_dlg[] =
 
 void doZstringshelp(int32_t bg,int32_t fg)
 {
-    Zstringshelp_dlg[0].dp2= lfont;
-    Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],is_large?sfont3:font,fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+    Zstringshelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
+    Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     Zstringshelp_dlg[2].bg = bg;
     zc_popup_dialog(Zstringshelp_dlg,2);
     delete(EditboxModel*)(Zstringshelp_dlg[2].dp);

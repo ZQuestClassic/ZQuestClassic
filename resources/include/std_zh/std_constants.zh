@@ -1725,9 +1725,10 @@ DEFINE FONT_TRS          = 67;
 DEFINE FONT_Z2           = 68;    //Zelda 2 plus custom lowercase.
 DEFINE FONT_LISA         = 69;    //Lisa OS System Font
 DEFINE FONT_NFONT        = 70;
+DEFINE FONT_S3           = 71;
 
 DEFINE MIN_FONT = 0;
-DEFINE MAX_FONT = FONT_NFONT;
+DEFINE MAX_FONT = FONT_SFONT3;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
 //Font heights, in pixels, for the above fonts:

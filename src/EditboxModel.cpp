@@ -10,6 +10,7 @@
 #include "base/zc_alleg.h"
 #include "jwin.h"
 #include "base/zdefs.h"
+#include "base/fonts.h"
 #include "editbox.h"
 #include "base/gui.h"
 #include <stdio.h>
@@ -652,7 +653,7 @@ void EditboxModel::doHelp()
 	
 	fclose(hb);
 	
-	help_dlg[0].dp2= lfont;
+	help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
 	
 	if(is_large)
 	{
@@ -664,7 +665,7 @@ void EditboxModel::doHelp()
 		help_dlg[2].h=zq_screen_h-27-4;
 	}
 	
-	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],(is_large?sfont3:pfont),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
+	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
 	help_dlg[2].bg = view->getDialog()->bg;
 	zc_popup_dialog(help_dlg,2);
 	delete(EditboxModel*)(help_dlg[2].dp);
