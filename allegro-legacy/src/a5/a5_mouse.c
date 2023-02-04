@@ -31,13 +31,6 @@ static int prevz = -1;
 static bool mouse_hidden = false;
 static bool have_touch_input = false;
 
-// local edit
-static bool should_show_mouse = false;
-void all_should_show_mouse(bool b)
-{
-    should_show_mouse = b;
-}
-
 static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
@@ -67,14 +60,6 @@ static void * a5_mouse_thread_proc(ALLEGRO_THREAD * thread, void * data)
                 case ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY:
                 {
                     _mouse_on = -1;
-#ifndef __EMSCRIPTEN__
-                    // https://github.com/liballeg/allegro5/issues/1388
-                    if (should_show_mouse)
-                        al_show_mouse_cursor(all_get_display());
-                    else
-                        al_hide_mouse_cursor(all_get_display());
-                    break;
-#endif
                 }
                 case ALLEGRO_EVENT_MOUSE_LEAVE_DISPLAY:
                 {

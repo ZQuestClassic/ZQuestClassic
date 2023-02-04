@@ -46,7 +46,6 @@ AL_LEGACY_FUNC(int, all_get_bitmap_flags, (void));
 // local edit
 AL_LEGACY_FUNC(void, all_lock_screen, (void));
 AL_LEGACY_FUNC(void, all_unlock_screen, (void));
-AL_LEGACY_FUNC(void, all_should_show_mouse, (bool));
 AL_LEGACY_FUNC(void, all_set_transparent_palette_index, (int));
 AL_LEGACY_FUNC(void, all_keyboard_queue_register_event_source, (ALLEGRO_EVENT_SOURCE *));
 

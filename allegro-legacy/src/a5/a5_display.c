@@ -521,7 +521,6 @@ int a5_display_set_mouse_sprite(struct BITMAP *sprite, int xfocus, int yfocus)
 
 static int a5_display_show_mouse(BITMAP * bp, int x, int y)
 {
-  all_should_show_mouse(true); 
   al_show_mouse_cursor(_a5_display);
   // a5_display_move_mouse(x, y);
   return 0;
@@ -529,7 +528,6 @@ static int a5_display_show_mouse(BITMAP * bp, int x, int y)
 
 static void a5_display_hide_mouse(void)
 {
-  all_should_show_mouse(false); 
   al_hide_mouse_cursor(_a5_display);
 }
 

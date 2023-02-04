@@ -137,7 +137,7 @@ include_directories(./include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        cf819df50e1554e4cdef2d28fa41ad96dcdfd5ba
+  GIT_TAG        ac72675719edd5795384371e047e5f9519d681cf
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
