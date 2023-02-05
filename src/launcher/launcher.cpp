@@ -527,7 +527,7 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_screen.bitmap);
 		float scale = std::min((float)resx/w, (float)resy/h);
 		if (scaling_force_integer)
-			scale = (int) scale;
+			scale = std::max((int) scale, 1);
 		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
 		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
 		rti_screen.transform.scale = scale;
