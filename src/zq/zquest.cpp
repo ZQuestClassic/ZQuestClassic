@@ -31374,8 +31374,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	rgb_map = &zq_rgb_table;
 
-	Map.setCurrMap(zinit.last_map);
-	Map.setCurrScr(zinit.last_screen);
 #ifdef __EMSCRIPTEN__
 	{
 		int qs_map = EM_ASM_INT({
