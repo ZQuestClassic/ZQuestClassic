@@ -30857,8 +30857,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	is_compact = is_large && zc_get_config("ZQ_GUI","compact_mode",1);
-	if(is_compact)
-		init_custom_fonts();
+	init_custom_fonts();
 	mapscreenbmp = nullptr;
 	brushbmp = nullptr;
 	brushscreen = nullptr;
