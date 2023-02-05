@@ -2135,7 +2135,6 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 {
 	int32_t dummy;
 	zquestheader tempheader;
-	memcpy(&tempheader, Header, sizeof(tempheader));
 	char dummybuf[80];
 	byte temp_map_count;
 	byte temp_midi_flags[MIDIFLAGS_SIZE];
@@ -2261,7 +2260,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			return qe_invalid;
 		}
 		
-		if(!pfread(tempheader.version,sizeof(tempheader.version),f,true))
+		if(!pfread(tempheader.version,9,f,true))
 		{
 			return qe_invalid;
 		}
@@ -2303,14 +2302,14 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		{
 			//memset(tempheader.minver,0,20);                          //   char minver[9], byte build, byte foo[10]
 			// Not anymore...
-			memset(tempheader.minver,0,9);
+			memset(tempheader.minver,0,17);
 			tempheader.build=0;
 			tempheader.use_keyfile=0;
 			memset(tempheader.old_foo, 0, 9);
 		}
 		else
 		{
-			if(!pfread(tempheader.minver,sizeof(tempheader.minver),f,true))
+			if(!pfread(tempheader.minver,9,f,true))
 			{
 				return qe_invalid;
 			}
@@ -2491,14 +2490,15 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		
 		FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
 		
-		if(!pfread(tempheader.version,sizeof(tempheader.version),f,true))
+		size_t versz = version < 8 ? 9 : 16;
+		if(!pfread(tempheader.version,versz,f,true))
 		{
 			return qe_invalid;
 		}
 	
 		//FFCore.quest_format[qQuestVersion] = tempheader.version;
 		//needs to be copied as char[9] or stored as a s.str
-		if(!pfread(tempheader.minver,sizeof(tempheader.minver),f,true))
+		if(!pfread(tempheader.minver,versz,f,true))
 		{
 			return qe_invalid;
 		}

@@ -17,9 +17,9 @@ void call_header_dlg()
 		{
 			saved = false;
 
-			vals[0].copy(header.version, 9);
+			vals[0].copy(header.version, 16);
 			header.version[vals[0].size()] = 0;
-			vals[1].copy(header.minver, 9);
+			vals[1].copy(header.minver, 16);
 			header.minver[vals[1].size()] = 0;
 			vals[2].copy(header.title, 64);
 			header.title[vals[2].size()] = 0;
@@ -58,7 +58,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 				Column(
 					Rows<6>(
 						Label(text = "Quest Ver:", rightPadding = 0_px, hAlign = 1.0),
-						questRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 9, text = vals[0]),
+						questRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 16, text = vals[0]),
 						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
 							onPressFunc = []()
 							{
@@ -75,7 +75,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 							}),
 						//
 						Label(text = "Min. Ver:", rightPadding = 0_px, hAlign = 1.0),
-						minRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 9, text = vals[1]),
+						minRev = TextField(width = HEADER_TEXTFIELD_WID, rightPadding = 0_px, maxLength = 16, text = vals[1]),
 						Button(width = 2_em, leftPadding = 0_px, forceFitH = true, text = "?",
 							onPressFunc = []()
 							{

@@ -7047,12 +7047,12 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
             new_return(11);
         }
         
-        if(!pfwrite(Header->version,sizeof(Header->version),f))
+        if(!pfwrite(Header->version,16,f))
         {
             new_return(12);
         }
         
-        if(!pfwrite(Header->minver,sizeof(Header->minver),f))
+        if(!pfwrite(Header->minver,16,f))
         {
             new_return(13);
         }

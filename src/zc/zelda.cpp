@@ -654,7 +654,7 @@ gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
-char header_version_nul_term[10];
+char header_version_nul_term[17];
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;

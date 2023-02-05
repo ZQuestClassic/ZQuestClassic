@@ -1319,8 +1319,8 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			savedata[i].set_item_no_flush(j, (temp != 0));
 		}
 		
-		
-		if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
+		size_t versz = section_version<31 ? 9 : 16;
+		if(!pfread(savedata[i].version,versz,f,true))
 		{
 			return 20;
 		}
@@ -2419,7 +2419,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 				return 18;
 		}
 		
-		if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
+		if(!pfwrite(savedata[i].version,16,f))
 		{
 			return 20;
 		}

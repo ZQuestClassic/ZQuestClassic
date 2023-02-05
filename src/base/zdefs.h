@@ -274,7 +274,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
-#define V_HEADER           7
+#define V_HEADER           8
 #define V_RULES           17
 #define V_STRINGS         10
 #define V_MISC            15
@@ -293,7 +293,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        30
+#define V_SAVEGAME        31
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -3190,31 +3190,24 @@ struct ZCHEATS
 struct zquestheader
 {
     char  id_str[31];
-    //32
     int16_t zelda_version;
     word  internal;
     byte  quest_number;
     byte  old_rules[2];
     byte  old_map_count;
     char  old_str_count;
-    //41
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
-    // NOTE: `version` and `minver` are fixed-length strings, unlike all other char strings here which are expected
-    // to end with a null-byte. They may not end in null!
-    char  version[9];
-    //73
+    char  version[17];
     char  title[65];
     char  author[65];
     //byte  padding;
-    //204
     //  int16_t pwdkey;
     bool  dirty_password;
     char  password[256];
     uint8_t pwd_hash[16];
-    //236
-    char  minver[9];
+    char  minver[17];
     byte  build;
     byte  use_keyfile;
     byte  old_foo[9];
@@ -3260,7 +3253,6 @@ struct zquestheader
     char build_timezone[6];
     //made in module_name
     
-    //603
 	bool external_zinfo;
 	
 	
@@ -4110,7 +4102,7 @@ struct gamedata
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
 	
-	char  version[9];
+	char  version[17];
 	char  title[65];
 	//354
 	byte  _hasplayed;
