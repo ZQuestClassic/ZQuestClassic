@@ -1237,18 +1237,21 @@ void box_end(bool pause)
             
             do
             {
+				update_hw_screen();
                 rest(1);
             }
             while(gui_mouse_b());
             
             do
             {
+				update_hw_screen();
                 rest(1);
             }
             while((!keypressed()) && (!gui_mouse_b()));
             
             do
             {
+				update_hw_screen();
                 rest(1);
             }
             while(gui_mouse_b());
