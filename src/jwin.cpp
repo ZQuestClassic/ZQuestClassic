@@ -1987,12 +1987,10 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(d->flags & D_READONLY)
 			{
-				fg2 = scheme[jcLIGHT];
-				bg2 = scheme[jcALT_TEXTBG];
 				fg = scheme[jcALT_TEXTFG];
-				bg = -1;
+				bg = scheme[jcALT_TEXTBG];
 				fg3 = fg;
-				bg3 = bg2;
+				bg3 = bg;
 			}
 			else
 			{
