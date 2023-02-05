@@ -245,7 +245,21 @@ static void preciseThrottle(double seconds)
 	}
 
 	// spin lock
+#ifdef __EMSCRIPTEN__
+	while (logic_counter < 1)
+	{
+		volatile int i = 0;
+		while (i < 10000000)
+		{
+			if (logic_counter != 0) return;
+			i += 1;
+		}
+
+		rest(1);
+	}
+#else
 	while(logic_counter < 1);
+#endif
 }
 
 void throttleFPS()
