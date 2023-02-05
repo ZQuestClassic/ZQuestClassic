@@ -158,7 +158,7 @@ parser.add_argument('--throttle_fps', action='store_true',
     help='Supply this to cap the replay\'s FPS')
 parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
-parser.add_argument('--jit', action='store_true',
+parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
     help='Enables JIT compilation')
 
 
@@ -266,7 +266,7 @@ def clear_progress_str():
         last_progress_str = None
 
 
-is_windows_ci = args.ci and 'windows' in args.ci
+is_mac_ci = args.ci and 'mac' in args.ci
 if args.test_results_folder:
     test_results_dir = pathlib.Path(args.test_results_folder).absolute()
 else:
@@ -336,23 +336,27 @@ def get_replay_data(file):
     last_step = read_last_contentful_line(file)
     frames = int(last_step.split(' ')[1])
 
-    # Based on speed found on win32 in CI. Should be manually updated occasionally.
+    # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
     estimated_fps = 1500
     estimated_fps_overrides = {
-        'classic_1st.zplay': 1400,
-        'demosp253.zplay': 800,
-        'dreamy_cambria.zplay': 900,
-        'first_quest_layered.zplay': 1700,
-        'nes-remastered.zplay': 1400,
-        'ss_jenny.zplay': 1200,
-        'stellar_seas_randomizer.zplay': 150,
-        'solid.zplay': 800,
-        'link_to_the_zelda.zplay': 1000,
-        'freedom_in_chains.zplay': 460,
-        'hollow_forest.zplay': 200,
+        'classic_1st_lvl1.zplay': 3000,
+        'classic_1st.zplay': 3000,
+        'demosp253.zplay': 1600,
+        'dreamy_cambria.zplay': 1100,
+        'first_quest_layered.zplay': 2500,
+        'freedom_in_chains.zplay': 1300,
+        'hollow_forest.zplay': 500,
+        'link_to_the_zelda.zplay': 2100,
+        'nes-remastered.zplay': 3000,
+        'new2013.zplay': 2800,
+        'solid.zplay': 1400,
+        'ss_jenny.zplay': 1500,
+        'stellar_seas_randomizer.zplay': 500,
     }
     if file.name in estimated_fps_overrides:
         estimated_fps = estimated_fps_overrides[file.name]
+    if is_mac_ci:
+        estimated_fps /= 2
 
     frames_limited = frames
     frame_arg = get_arg_for_replay(file.name, grouped_frame_arg, is_int=True)
