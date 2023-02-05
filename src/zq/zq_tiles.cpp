@@ -3853,7 +3853,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	case ftBMP:
 	{
 		textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
-		draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
+		draw_text_button(screen,window_xofs+117*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
 		break;
 	}
 	
@@ -4877,8 +4877,20 @@ void grab_tile(int32_t tile,int32_t &cs)
 	int32_t leech_button_y = 166;
 	int32_t grab_cancel_button_y = 192;
 	int32_t file_button_y = 216;
-	int32_t rec_button_x = 141;
+	int32_t rec_button_x = 117;
 	int32_t rec_button_y = 192;
+	
+	int32_t screen_y1 = 0;
+	int32_t screen_y2 = 160*mul;
+	
+	int32_t crect_x = 184;
+	int32_t crect_y = 168;
+	int32_t crect_w = 8;
+	int32_t crect_h = 8;
+	
+	int32_t xrect_x = -1;
+	int32_t xrect_y = -1;
+	
 	
 	if(is_large)
 	{
@@ -4887,6 +4899,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 		screen_xofs=window_xofs+6;
 		screen_yofs=window_yofs+25;
 		mul=2;
+		
 		button_x *= mul;
 		grab_ok_button_y *= mul;
 		leech_button_x *= mul;
@@ -4894,10 +4907,28 @@ void grab_tile(int32_t tile,int32_t &cs)
 		grab_cancel_button_y *= mul;
 		file_button_y *= mul;
 		rec_button_y *= mul;
-		rec_button_x *= mul;
-		rec_button_x -= 30;
+		rec_button_x = leech_button_x;
+		
 		bwidth = int32_t(bwidth*1.5);
 		bheight = int32_t(bheight*1.5);
+		
+		grab_ok_button_y += 16 + 26;
+		leech_button_y += 16 + 26;
+		grab_cancel_button_y += 16 + 26;
+		file_button_y += 16 + 26;
+		rec_button_y += 16 + 26;
+		
+		screen_y1 = 24;
+		screen_y2 = screen_y1+(160*mul)-1;
+		
+		crect_x += 190;
+		crect_y *= mul;
+		crect_y += 32;
+		crect_w *= mul;
+		crect_h *= mul;
+		
+		xrect_x = 640 + 12 - 21;
+		xrect_y = 5;
 	}
 	
 	byte newtile[200][256];
@@ -5173,9 +5204,9 @@ void grab_tile(int32_t tile,int32_t &cs)
 		{
 			if(is_large)
 			{
-				if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + 320 + 12 - 21, window_yofs + 5, window_xofs + 320 +12 - 21 + 15, window_yofs + 5 + 13))
+				if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + xrect_x, window_yofs + xrect_y, window_xofs + xrect_x + 15, window_yofs + xrect_y + 13))
 				{
-					if(do_x_button(screen, 320+12+window_xofs - 21, 5+window_yofs))
+					if(do_x_button(screen, window_xofs+xrect_x, window_yofs+xrect_y))
 					{
 						done=1;
 					}
@@ -5187,14 +5218,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 				bool regrab=false;
 				bdown=true;
 				int32_t x=gui_mouse_x()-window_xofs;
-				int32_t y=gui_mouse_y()-window_xofs;
+				int32_t y=gui_mouse_y()-window_yofs;
 				// Large Mode: change font temporarily
 				FONT* oldfont = font;
 				
 				if(is_large)
 					font = lfont_l;
-					
-				if(y>=0 && y<=160*mul)
+				
+				if(y>=screen_y1 && y<=screen_y2)
 				{
 					while(gui_mouse_b())
 					{
@@ -5275,7 +5306,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 						dofile=true;
 					}
 				}
-				else if(isinRect(x,y,rec_button_x, rec_button_y, rec_button_x+bwidth, rec_button_y+bheight))
+				else if(imagetype == ftBMP && isinRect(x,y,rec_button_x, rec_button_y, rec_button_x+bwidth, rec_button_y+bheight))
 				{
 					if(do_text_button(rec_button_x+window_xofs,rec_button_y+(is_large?76:0),bwidth,bheight,"Recolor",vc(1),vc(14),true))
 					{
@@ -5302,22 +5333,22 @@ void grab_tile(int32_t tile,int32_t &cs)
 						redraw=true;
 					}
 				}
-				else if(isinRect(x,y+panel_yofs,184+(is_large?190:0),168*(is_large?2:1),190+(is_large?200:0),176*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x,crect_y,crect_x+(is_large?16:6),crect_y+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=1;
 				}
-				else if(isinRect(x,y+panel_yofs,192+(is_large?198:0),168*(is_large?2:1),198+(is_large?208:0)-1,176*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x+crect_w,crect_y,crect_x+(is_large?32:14)-1,crect_y+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=2;
 				}
-				else if(isinRect(x,y+panel_yofs,184+(is_large?190:0),176*(is_large?2:1),190+(is_large?200:0)-1,184*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x,crect_y+crect_h,crect_x+(is_large?16:6)-1,crect_y+crect_h+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=4;
 				}
-				else if(isinRect(x,y+panel_yofs,192+(is_large?198:0),176*(is_large?2:1),198+(is_large?208:0)-1,184*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x+crect_w,crect_y+crect_h,crect_x+(is_large?32:14)-1,crect_y+crect_h+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=8;
