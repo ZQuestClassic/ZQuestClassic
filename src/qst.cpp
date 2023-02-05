@@ -3661,6 +3661,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		set_bit(quest_rules,qr_OLD_SHALLOW_SFX,1);
 	}
+	if(compatrule_version < 37)
+	{
+		set_bit(quest_rules,qr_SPARKLES_INHERIT_PROPERTIES,1);
+	}
 	
 	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);

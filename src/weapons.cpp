@@ -1163,9 +1163,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	has_shadow = true;
 	if ( Parentitem > -1 )
 	{
-		weaponscript = itemsbuf[Parentitem].weaponscript;
-		useweapon = itemsbuf[Parentitem].useweapon;
-		usedefence = itemsbuf[Parentitem].usedefence;
+		if(get_bit(quest_rules,qr_SPARKLES_INHERIT_PROPERTIES)
+			|| (id != wSSparkle && id != wFSparkle))
+		{
+			//Sparkles shouldn't have these behaviors!
+			weaponscript = itemsbuf[Parentitem].weaponscript;
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
+			}
+			useweapon = itemsbuf[Parentitem].useweapon;
+			usedefence = itemsbuf[Parentitem].usedefence;
+		}
 		if (id == wLitBomb || id == wLitSBomb) 
 		{
 			useweapondummy = useweapon;
@@ -1174,17 +1183,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			usedefence = 0;
 		}
 		quantity_iterator = type; //wCByrna uses this for positioning.
-		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) )
+			type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
 			//Note: eweapons use this for boss weapon block flags
 			// Note: wInd uses type for special properties.
 			//Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
-		//load initd
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			//load InitD
-			weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
-				
-		}
 	}
 	
 	if ( isLW ) goto skip_eweapon_script;
