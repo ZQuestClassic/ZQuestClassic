@@ -34015,7 +34015,7 @@ void update_hw_screen(bool force)
 			set_palette(RAMpal);
 			update_hw_pal=false;
 		}
-		if (myvsync)
+		if (force || myvsync)
 			render_zq();
 		myvsync=0;
 	}

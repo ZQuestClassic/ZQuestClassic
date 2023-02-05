@@ -559,7 +559,7 @@ void update_hw_screen(bool force)
 			load_mouse();
 		}
 		update_hw_pal=false;
-		if (myvsync)
+		if (force || myvsync)
 			render_launcher();
 	}
 }
