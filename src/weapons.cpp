@@ -7139,38 +7139,38 @@ offscreenCheck:
         
         break;
         
-    case wRefMagic:
-    case wMagic:
-        dead=1; //remove the dead part to make the wand only die when clipped
-        
-	if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
-	{
-	//Create an ER to sue this in older quests -V
-		//used a QR. -Z
-		if(((id==wMagic && current_item(itype_book) &&
-			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+	case wRefMagic:
+	case wMagic:
+		dead=1; //remove the dead part to make the wand only die when clipped
+		
+		if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
 		{
-		    Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
-		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
-		    {
-			sfx(WAV_FIRE,pan(x));
-		    }
-			
-		    else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
+			//Create an ER to sue this in older quests -V
+			//used a QR. -Z
+			if(((id==wMagic && current_item(itype_book) &&
+				(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			{
+				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1,false,0,1));
+				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+				{
+					sfx(WAV_FIRE,pan(x));
+				}
+				
+				else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
+			}
 		}
-	}
-	else
-	{
-		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
-			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+		else
 		{
-		    Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1));
-		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
-		    {
-			sfx(WAV_FIRE,pan(x));
-		    }
-		    else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
-		}
+			if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
+				(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			{
+				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[linkedItem].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1,false,0,1));
+				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+				{
+					sfx(WAV_FIRE,pan(x));
+				}
+				else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
+			}
         }
         break;
         
