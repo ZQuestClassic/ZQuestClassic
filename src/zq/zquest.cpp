@@ -7844,8 +7844,11 @@ void select_scr()
         
         int32_t x=gui_mouse_x();
         int32_t y=gui_mouse_y();
-        int32_t s=(vbound(((y-(minimap.y+9+3))/(3*BMM)),0,8)  <<4)+ vbound(((x-(minimap.x+3))/(3*BMM)),0,15);
-        
+		auto mmx = minimap.x+3;
+		auto mmy = minimap.y+12;
+		if(is_large) mmy -= 7;
+		
+        int32_t s=(vbound(((y-mmy)/(3*BMM)),0,8)  <<4)+ vbound(((x-mmx)/(3*BMM)),0,15);
         if(s>=MAPSCRS)
             s-=16;
             
