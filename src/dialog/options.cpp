@@ -15,8 +15,8 @@ void call_options_dlg()
 	OptionsDialog().show();
 }
 
-extern int32_t UseSmall, EnableTooltips, GridColor, KeyboardRepeatDelay, KeyboardRepeatRate,
-	pixeldb;
+extern int32_t UseSmall, EnableTooltips, GridColor, KeyboardRepeatDelay,
+	TooltipsHighlight, KeyboardRepeatRate, pixeldb;
 
 void OptionsDialog::loadOptions()
 {
@@ -39,6 +39,8 @@ void OptionsDialog::loadOptions()
 	opts[OPT_SMALLMODE] = UseSmall ? 1 : 0;
 	opts[OPT_RULESET] = RulesetDialog ? 1 : 0;
 	opts[OPT_TOOLTIPS] = EnableTooltips ? 1 : 0;
+	opts[OPT_TOOLTIP_HIGHLIGHT] = TooltipsHighlight ? 1 : 0;
+	opts[OPT_TOOLTIP_TIMER] = tooltip_maxtimer;
 	opts[OPT_PATTERNSEARCH] = abc_patternmatch ? 1 : 0;
 	opts[OPT_NEXTPREVIEW] = NoScreenPreview ? 1 : 0;
 	opts[OPT_INITSCR_WARN] = WarnOnInitChanged ? 1 : 0;
@@ -194,6 +196,14 @@ void OptionsDialog::saveOption(int ind)
 			EnableTooltips = v;
 			zc_set_config("zquest","enable_tooltips",v);
 			break;
+		case OPT_TOOLTIP_HIGHLIGHT:
+			TooltipsHighlight = v;
+			zc_set_config("zquest","ttip_highlight",v);
+			break;
+		case OPT_TOOLTIP_TIMER:
+			tooltip_maxtimer = v;
+			zc_set_config("zquest","ttip_timer",v);
+			break;
 		case OPT_RULESET:
 			RulesetDialog = v;
 			zc_set_config("zquest","rulesetdialog",v);
@@ -347,7 +357,7 @@ Checkbox( \
 	checked = opts[optind], \
 	text = optlabel, \
 	hAlign = 0.0, \
-	vPadding = DEFAULT_PADDING/2, \
+	vPadding = is_large ? DEFAULT_PADDING : (DEFAULT_PADDING/2+1), \
 	onToggleFunc = [&](bool state) \
 	{ \
 		opts[optind] = state ? 1 : 0; \
@@ -411,7 +421,7 @@ DropDownList( \
 Label(text = optlabel, hAlign = 0.0), \
 DropDownList( \
 	fitParent = true, \
-	maxwidth = sized(18_em, 14_em), \
+	maxwidth = sized(10_em, 14_em), \
 	data = lister, \
 	selectedValue = opts[optind], \
 	onSelectFunc = [&](int32_t val) \
@@ -533,7 +543,260 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 			return !isBrokenFont(itm.value);
 		}
 	);
-
+	std::shared_ptr<GUI::TabRef> fontstab;
+	std::shared_ptr<GUI::TabRef> togglestab;
+	std::shared_ptr<GUI::TabRef> settingstab;
+	
+	if(is_large)
+	{
+		fontstab = TabRef(name = "Fonts",
+			Columns<3>(
+				DummyWidget(),
+				TabPanel(ptr = &font_tab_ptr, fitParent = true,
+					TabRef(name = "Large", Rows<3>(
+						FONT_ROW_DDOWN(OPT_LARGEFONT_DIALOG, "Dialog Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_LARGEFONT_GUI, "GUI Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_LARGEFONT_TITLE, "Title Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_LARGEFONT_FAVCMD, "FavCMD Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_LARGEFONT_TEXTBOX, "Textbox Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_LARGEFONT_TTIP, "Tooltip Font:", fontlist)
+					)),
+					TabRef(name = "Compact", Rows<3>(
+						FONT_ROW_DDOWN(OPT_COMPACTFONT_DIALOG, "Dialog Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_COMPACTFONT_GUI, "GUI Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_COMPACTFONT_TITLE, "Title Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_COMPACTFONT_FAVCMD, "FavCMD Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_COMPACTFONT_TEXTBOX, "Textbox Font:", fontlist),
+						FONT_ROW_DDOWN(OPT_COMPACTFONT_TTIP, "Tooltip Font:", fontlist)
+					))
+				),
+				Button(text = "Default",
+					onClick = message::RELOAD,
+					vAlign = 0.0,
+					onPressFunc = [&]()
+					{
+						bool doclear = false;
+						AlertDialog("Default Fonts",
+							"Reset all font dropdowns to defaults?",
+							[&](bool ret,bool)
+							{
+								doclear = ret;
+							}).show();
+						if(!doclear) return;
+						
+						opts[OPT_LARGEFONT_DIALOG] = font_lfont_l;
+						opts[OPT_LARGEFONT_TITLE] = font_lfont;
+						opts[OPT_LARGEFONT_FAVCMD] = font_pfont;
+						opts[OPT_LARGEFONT_GUI] = font_nfont;
+						opts[OPT_LARGEFONT_TEXTBOX] = font_sfont3;
+						opts[OPT_LARGEFONT_TTIP] = font_lfont;
+						
+						opts[OPT_COMPACTFONT_DIALOG] = font_lfont_l;
+						opts[OPT_COMPACTFONT_TITLE] = font_lfont;
+						opts[OPT_COMPACTFONT_FAVCMD] = font_pfont;
+						opts[OPT_COMPACTFONT_GUI] = font_nfont;
+						opts[OPT_COMPACTFONT_TEXTBOX] = font_sfont3;
+						opts[OPT_COMPACTFONT_TTIP] = font_lfont;
+						
+						opt_changed[OPT_LARGEFONT_DIALOG] = true;
+						opt_changed[OPT_LARGEFONT_TITLE] = true;
+						opt_changed[OPT_LARGEFONT_FAVCMD] = true;
+						opt_changed[OPT_LARGEFONT_GUI] = true;
+						opt_changed[OPT_LARGEFONT_TEXTBOX] = true;
+						opt_changed[OPT_LARGEFONT_TTIP] = true;
+						
+						opt_changed[OPT_COMPACTFONT_DIALOG] = true;
+						opt_changed[OPT_COMPACTFONT_TITLE] = true;
+						opt_changed[OPT_COMPACTFONT_FAVCMD] = true;
+						opt_changed[OPT_COMPACTFONT_GUI] = true;
+						opt_changed[OPT_COMPACTFONT_TEXTBOX] = true;
+						opt_changed[OPT_COMPACTFONT_TTIP] = true;
+						
+						preview_font(opts[is_compact ? OPT_COMPACTFONT_DIALOG : OPT_LARGEFONT_DIALOG]);
+					}),
+				fprev_lab = Label(text = "Font Preview", textAlign = 1),
+				fprev = Label(text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+					" sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim"
+					" ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip"
+					" ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate"
+					" velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat"
+					" cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id"
+					" est laborum.",
+					rowSpan = 2,
+					maxLines = 15, minheight = 15_em,
+					maxwidth = 200_px, fitParent = true)
+			)
+		);
+		togglestab = TabRef(name = "Toggles",
+			TabPanel(ptr = &tabpos2,
+				TabRef(name = "1", Column( hAlign = 0.0, vAlign = 0.0,
+					OPT_CHECK(OPT_SAVEPATHS, "Save Paths"),
+					OPT_CHECK(OPT_PALCYCLE, "Palette Cycle"),
+					OPT_CHECK(OPT_VSYNC, "VSync"),
+					OPT_CHECK(OPT_FPS, "Show FPS"),
+					OPT_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
+					OPT_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
+					OPT_CHECK(OPT_OW_PROT, "Overwrite Protection"),
+					OPT_CHECK(OPT_TILE_PROT, "Tile Protection"),
+					OPT_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
+					OPT_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
+					OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
+					OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
+					OPT_CHECK(OPT_SMALLMODE, "Use Small Mode"),
+					OPT_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
+					OPT_CHECK(OPT_TOOLTIP_HIGHLIGHT, "Tooltips Highlight Target"),
+					OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
+					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
+					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
+					OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window")
+				)),
+				TabRef(name = "2", Column( hAlign = 0.0, vAlign = 0.0,
+					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
+					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
+					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
+					OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
+					OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
+					OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
+					OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
+					OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
+					OPT_CHECK(OPT_MISALIGNS, "Show Misaligns")
+				))
+			)
+		);
+		settingstab = TabRef(name = "Settings",
+			TabPanel(ptr = &tabpos3,
+				TabRef(name = "1", Rows<2>(
+					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
+					ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
+					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
+					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
+					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
+					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
+					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
+					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
+					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale (Large Mode)", 1, 5),
+					ROW_TF_FLOAT(OPT_CURS_SMALL, "Cursor Scale (Small Mode)", 1, 5)
+				)),
+				TabRef(name = "2", Rows<2>(
+					ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
+					ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500),
+					ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list),
+					ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 15, 60*60)
+				))
+			)
+		);
+	}
+	else
+	{
+		fontstab = TabRef(name = "Fonts",
+			Columns<3>(
+				Rows<3>(rowSpan = 2,
+					FONT_ROW_DDOWN(OPT_SMALLFONT_DIALOG, "Dialog:", fontlist),
+					FONT_ROW_DDOWN(OPT_SMALLFONT_GUI, "GUI:", fontlist),
+					FONT_ROW_DDOWN(OPT_SMALLFONT_TITLE, "Title:", fontlist),
+					FONT_ROW_DDOWN(OPT_SMALLFONT_TEXTBOX, "Textbox:", fontlist),
+					FONT_ROW_DDOWN(OPT_SMALLFONT_TTIP, "Tooltip:", fontlist)
+				),
+				Button(text = "Default",
+					onClick = message::RELOAD,
+					onPressFunc = [&]()
+					{
+						bool doclear = false;
+						AlertDialog("Default Fonts",
+							"Reset all font dropdowns to defaults?",
+							[&](bool ret,bool)
+							{
+								doclear = ret;
+							}).show();
+						if(!doclear) return;
+						
+						opts[OPT_SMALLFONT_DIALOG] = font_nfont;
+						opts[OPT_SMALLFONT_TITLE] = font_lfont;
+						opts[OPT_SMALLFONT_GUI] = font_nfont;
+						opts[OPT_SMALLFONT_TEXTBOX] = font_sfont2;
+						opts[OPT_SMALLFONT_TTIP] = font_lfont;
+						
+						opt_changed[OPT_SMALLFONT_DIALOG] = true;
+						opt_changed[OPT_SMALLFONT_TITLE] = true;
+						opt_changed[OPT_SMALLFONT_GUI] = true;
+						opt_changed[OPT_SMALLFONT_TEXTBOX] = true;
+						opt_changed[OPT_SMALLFONT_TTIP] = true;
+						
+						preview_font(opts[OPT_SMALLFONT_DIALOG]);
+					}),
+				fprev_lab = Label(text = "Font Preview", textAlign = 1),
+				fprev = Label(text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
+					" sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim"
+					" ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip"
+					" ex ea commodo consequat.",
+					rowSpan = 2,
+					maxLines = 15, minheight = 15_em,
+					maxwidth = 200_px, fitParent = true)
+			)
+		);
+		togglestab = TabRef(name = "Toggles",
+			TabPanel(ptr = &tabpos2,
+				TabRef(name = "1", Column( hAlign = 0.0, vAlign = 0.0,
+					OPT_CHECK(OPT_SAVEPATHS, "Save Paths"),
+					OPT_CHECK(OPT_PALCYCLE, "Palette Cycle"),
+					OPT_CHECK(OPT_VSYNC, "VSync"),
+					OPT_CHECK(OPT_FPS, "Show FPS"),
+					OPT_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
+					OPT_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
+					OPT_CHECK(OPT_OW_PROT, "Overwrite Protection"),
+					OPT_CHECK(OPT_TILE_PROT, "Tile Protection"),
+					OPT_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
+					OPT_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
+					OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
+					OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
+					OPT_CHECK(OPT_SMALLMODE, "Use Small Mode"),
+					OPT_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
+					OPT_CHECK(OPT_TOOLTIP_HIGHLIGHT, "Tooltips Highlight Target")
+				)),
+				TabRef(name = "2", Column( hAlign = 0.0, vAlign = 0.0,
+					OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
+					OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
+					OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
+					OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window"),
+					OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
+					OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
+					OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
+					OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
+					OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
+					OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
+					OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
+					OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
+					OPT_CHECK(OPT_MISALIGNS, "Show Misaligns")
+				))
+			)
+		);
+		settingstab = TabRef(name = "Settings",
+			TabPanel(ptr = &tabpos3,
+				TabRef(name = "1", Rows<2>(
+					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
+					ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
+					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
+					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
+					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
+					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
+					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
+					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999)
+				)),
+				TabRef(name = "2", Rows<2>(
+					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale (Large Mode)", 1, 5),
+					ROW_TF_FLOAT(OPT_CURS_SMALL, "Cursor Scale (Small Mode)", 1, 5),
+					ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
+					ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500),
+					ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list)
+				))
+			)
+		);
+	}
+	
 	std::shared_ptr<GUI::Window> window = Window(
 		title = "ZQuest Options",
 		onClose = message::CANCEL,
@@ -541,160 +804,9 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 			TabPanel(ptr = &tabpos1,
 				minwidth = sized(120_px, 360_px),
 				
-				TabRef(name = "Fonts",
-					Columns<3>(
-						TabPanel(ptr = &font_tab_ptr, fitParent = true,
-							rowSpan = 2,
-							TabRef(name = "Large", Rows<3>(
-								FONT_ROW_DDOWN(OPT_LARGEFONT_DIALOG, "Dialog Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_LARGEFONT_GUI, "GUI Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_LARGEFONT_TITLE, "Title Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_LARGEFONT_FAVCMD, "FavCMD Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_LARGEFONT_TEXTBOX, "Textbox Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_LARGEFONT_TTIP, "Tooltip Font:", fontlist)
-							)),
-							TabRef(name = "Compact", Rows<3>(
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_DIALOG, "Dialog Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_GUI, "GUI Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_TITLE, "Title Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_FAVCMD, "FavCMD Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_TEXTBOX, "Textbox Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_COMPACTFONT_TTIP, "Tooltip Font:", fontlist)
-							)),
-							TabRef(name = "Small", Rows<3>(
-								FONT_ROW_DDOWN(OPT_SMALLFONT_DIALOG, "Dialog Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_SMALLFONT_GUI, "GUI Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_SMALLFONT_TITLE, "Title Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_SMALLFONT_TEXTBOX, "Textbox Font:", fontlist),
-								FONT_ROW_DDOWN(OPT_SMALLFONT_TTIP, "Tooltip Font:", fontlist)
-							))
-						),
-						Button(text = "Default",
-							onClick = message::RELOAD,
-							onPressFunc = [&]()
-							{
-								bool doclear = false;
-								AlertDialog("Default Fonts",
-									"Reset all font dropdowns to defaults?",
-									[&](bool ret,bool)
-									{
-										doclear = ret;
-									}).show();
-								if(!doclear) return;
-								
-								opts[OPT_LARGEFONT_DIALOG] = font_lfont_l;
-								opts[OPT_LARGEFONT_TITLE] = font_lfont;
-								opts[OPT_LARGEFONT_FAVCMD] = font_pfont;
-								opts[OPT_LARGEFONT_GUI] = font_nfont;
-								opts[OPT_LARGEFONT_TEXTBOX] = font_sfont3;
-								opt_changed[OPT_LARGEFONT_TTIP] = font_lfont;
-								
-								opts[OPT_COMPACTFONT_DIALOG] = font_lfont_l;
-								opts[OPT_COMPACTFONT_TITLE] = font_lfont;
-								opts[OPT_COMPACTFONT_FAVCMD] = font_pfont;
-								opts[OPT_COMPACTFONT_GUI] = font_nfont;
-								opts[OPT_COMPACTFONT_TEXTBOX] = font_sfont3;
-								opt_changed[OPT_COMPACTFONT_TTIP] = font_lfont;
-								
-								opts[OPT_SMALLFONT_DIALOG] = font_nfont;
-								opts[OPT_SMALLFONT_TITLE] = font_lfont;
-								opts[OPT_SMALLFONT_GUI] = font_nfont;
-								opts[OPT_SMALLFONT_TEXTBOX] = font_sfont2;
-								opt_changed[OPT_SMALLFONT_TTIP] = font_lfont;
-								
-								opt_changed[OPT_LARGEFONT_DIALOG] = true;
-								opt_changed[OPT_LARGEFONT_TITLE] = true;
-								opt_changed[OPT_LARGEFONT_FAVCMD] = true;
-								opt_changed[OPT_LARGEFONT_GUI] = true;
-								opt_changed[OPT_LARGEFONT_TEXTBOX] = true;
-								opt_changed[OPT_LARGEFONT_TTIP] = true;
-								
-								opt_changed[OPT_COMPACTFONT_DIALOG] = true;
-								opt_changed[OPT_COMPACTFONT_TITLE] = true;
-								opt_changed[OPT_COMPACTFONT_FAVCMD] = true;
-								opt_changed[OPT_COMPACTFONT_GUI] = true;
-								opt_changed[OPT_COMPACTFONT_TEXTBOX] = true;
-								opt_changed[OPT_COMPACTFONT_TTIP] = true;
-								
-								opt_changed[OPT_SMALLFONT_DIALOG] = true;
-								opt_changed[OPT_SMALLFONT_TITLE] = true;
-								opt_changed[OPT_SMALLFONT_GUI] = true;
-								opt_changed[OPT_SMALLFONT_TEXTBOX] = true;
-								opt_changed[OPT_SMALLFONT_TTIP] = true;
-								
-								preview_font(opts[is_compact ? OPT_COMPACTFONT_DIALOG :
-									(is_large ? OPT_LARGEFONT_DIALOG : OPT_SMALLFONT_DIALOG)]);
-							}),
-						fprev_lab = Label(text = "Font Preview", textAlign = 1),
-						fprev = Label(text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit,"
-							" sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim"
-							" ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip"
-							" ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate"
-							" velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat"
-							" cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id"
-							" est laborum.",
-							maxLines = 15, minheight = 400_px,
-							maxwidth = 200_px, fitParent = true)
-					)
-				),
-				TabRef(name = "Toggles",
-					TabPanel(ptr = &tabpos2,
-						TabRef(name = "1", Column( hAlign = 0.0, vAlign = 0.0,
-							OPT_CHECK(OPT_SAVEPATHS, "Save Paths"),
-							OPT_CHECK(OPT_PALCYCLE, "Palette Cycle"),
-							OPT_CHECK(OPT_VSYNC, "VSync"),
-							OPT_CHECK(OPT_FPS, "Show FPS"),
-							OPT_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
-							OPT_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
-							OPT_CHECK(OPT_OW_PROT, "Overwrite Protection"),
-							OPT_CHECK(OPT_TILE_PROT, "Tile Protection"),
-							OPT_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
-							OPT_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
-							OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
-							OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
-							OPT_CHECK(OPT_SMALLMODE, "Use Small Mode")
-						)),
-						TabRef(name = "2", Column( hAlign = 0.0, vAlign = 0.0,
-							OPT_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
-							OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
-							OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
-							OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
-							OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window"),
-							OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
-							OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
-							OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
-							OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
-							OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
-							OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
-							OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
-							OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
-							OPT_CHECK(OPT_MISALIGNS, "Show Misaligns")
-						))
-					)
-				),
-				TabRef(name = "Settings",
-					TabPanel(ptr = &tabpos3,
-						TabRef(name = "1", Rows<2>(
-							ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
-							ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
-							ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
-							ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
-							ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
-							ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
-							ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
-							ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
-							ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list)
-						)),
-						TabRef(name = "2", Rows<2>(
-							ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale (Large Mode)", 1, 5),
-							ROW_TF_FLOAT(OPT_CURS_SMALL, "Cursor Scale (Small Mode)", 1, 5),
-							ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
-							ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
-							ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
-							ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500)
-						))
-					)
-				)
+				fontstab,
+				togglestab,
+				settingstab
 			),
 			Row(
 				topPadding = 0.5_em,
@@ -711,6 +823,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 			)
 		)
 	);
+	
 	auto cur_font = opts[is_compact ? OPT_COMPACTFONT_DIALOG :
 		(is_large ? OPT_LARGEFONT_DIALOG : OPT_SMALLFONT_DIALOG)];
 	preview_font(cur_font);

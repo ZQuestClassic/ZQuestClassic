@@ -528,8 +528,12 @@ static int32_t do_NewQuest()
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0, 
-	ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0;
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0,
+	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	BlinkSpeed = 20, UseSmall = 0, RulesetDialog = 0, EnableTooltips = 0,
+	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
+	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
+	DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
 int32_t window_width, window_height;
@@ -7762,7 +7766,7 @@ void refresh(int32_t flags)
 	if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
 	{
 		auto& rec = tooltip_highlight;
-		if(rec.x >= 0)
+		if(TooltipsHighlight && rec.x >= 0)
 		{
 			safe_rect(menu1, rec.x, rec.y, rec.x+rec.w-1, rec.y+rec.h-1, 0xED);
 			safe_rect(menu1, rec.x+1, rec.y+1, rec.x+rec.w-2, rec.y+rec.h-2, 0xED);
@@ -30763,6 +30767,8 @@ int32_t main(int32_t argc,char **argv)
 	UseSmall					   = zc_get_config("zquest","small",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
+	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
+	tooltip_maxtimer				 = vbound(zc_get_config("zquest","ttip_timer",30),15,60*60);
 	ShowFFScripts				  = zc_get_config("zquest","showffscripts",1);
 	ShowSquares					= zc_get_config("zquest","showsquares",1);
 	ShowFFCs					= zc_get_config("zquest","showffcs",0);
