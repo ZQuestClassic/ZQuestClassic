@@ -31368,7 +31368,6 @@ int32_t main(int32_t argc,char **argv)
 	load_selections();
 	load_arrows();
 	clear_to_color(menu1,vc(0));
-	refresh(rALL);
 	DIALOG_PLAYER *player2=init_dialog(dialogs,-1);
 	
 	get_palette(RAMpal);

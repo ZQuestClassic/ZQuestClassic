@@ -6896,7 +6896,7 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 		}
 		else
 		{
-			Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
+			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
