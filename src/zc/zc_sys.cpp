@@ -4645,13 +4645,13 @@ bottom:
 void checkQuitKeys()
 {
 #ifndef ALLEGRO_MACOSX
-	if(zc_readrawkey(KEY_F9))	f_Quit(qRESET);
+	if(key[KEY_F9])	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
+	if(key[KEY_F10])   f_Quit(qEXIT);
 #else
-	if(zc_readrawkey(KEY_F7))	f_Quit(qRESET);
+	if(key[KEY_F7])	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
+	if(key[KEY_F8])   f_Quit(qEXIT);
 #endif
 }
 

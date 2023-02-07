@@ -28664,25 +28664,25 @@ void do_freeclass()
 
 bool zasm_advance()
 {
-	if( zc_readrawkey(KEY_INSERT, true) )
+	if( key[KEY_INSERT] )
 	{
-		if(zc_getrawkey(KEY_LSHIFT, true) || zc_getrawkey(KEY_RSHIFT, true))
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
-			if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP_SCRIPT;
 			}
 			else FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
 		}
-		else if(zc_getrawkey(KEY_ALT, true) || zc_getrawkey(KEY_ALTGR, true))
+		else if(key[KEY_ALT] || key[KEY_ALTGR])
 		{
-			if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP;
 			}
 			else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 		}
-		else if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+		else if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
 		{
 			FFCore.ZASMPrint(false); //Close debugger
 			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
@@ -29352,6 +29352,7 @@ j_command:
 		//Break
 		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
 		{
+			poll_keyboard();
 			if(zasm_advance()) break;
 			checkQuitKeys();
 			if(Quit)
