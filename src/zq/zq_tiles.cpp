@@ -5725,8 +5725,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	FONT *tf = font;
 	font = tfont;
 	
-	draw_text_button(screen2,150*mul,213*mul+yofs,28*mul,21*mul,"Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-	draw_text_button(screen2,(150+28)*mul,213*mul+yofs,28*mul,21*mul,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+	draw_text_button(screen2,150*mul,213*mul+yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+	draw_text_button(screen2,(150+28)*mul,213*mul+yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*2)*mul,213*mul+yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*3)*mul,213*mul+yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*4)*mul,213*mul+yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
