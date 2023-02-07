@@ -1398,7 +1398,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
 			{
 				user_class = &scope->getClass()->user_class;
-				if(parsing_user_class == puc_construct)
+				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
 					functions = lookupConstructors(*user_class, parameterTypes);
 				if(!functions.size())
 					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
