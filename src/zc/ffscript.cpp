@@ -12453,6 +12453,7 @@ int32_t get_register(const int32_t arg)
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
 		case REFRNG: ret = ri->rngref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
+		case CLASS_THISKEY2: ret = ri->thiskey2; break;
 		case REFPALDATA: ret = ri->paldataref; break;
 		
 			
@@ -22048,6 +22049,7 @@ void set_register(int32_t arg, int32_t value)
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
+		case CLASS_THISKEY2: ri->thiskey2 = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
 		
 		//-------------------------------------------------------------------------------------------------
@@ -40646,6 +40648,7 @@ script_variable ZASMVars[]=
 	{ "SPRITEDATAFLCSET", SPRITEDATAFLCSET, 0, 0 },
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
+	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };

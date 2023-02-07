@@ -1968,6 +1968,7 @@ string ZScript::VarToString(int32_t ID)
 	case REFRNG: return "REFRNG";
 	
 	case CLASS_THISKEY: return "CLASS_THISKEY";
+	case CLASS_THISKEY2: return "CLASS_THISKEY2";
 	case ZELDABETATYPE: return "ZELDABETATYPE";
 	case HEROCOYOTETIME: return "HEROCOYOTETIME";
 	case FFCLASTCHANGERX: return "FFCLASTCHANGERX";

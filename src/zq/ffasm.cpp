@@ -2588,6 +2588,7 @@ script_variable variable_list[]=
 	{ "SPRITEDATAFLCSET", SPRITEDATAFLCSET, 0, 0 },
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
+	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
 
 	{ " ",  -1, 0, 0 }
 };

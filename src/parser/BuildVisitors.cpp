@@ -1564,6 +1564,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			//A constructor calling another constructor to inherit it's code
 			//Use the alt label of the constructor, which is after the constructy bits
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
 		}
 		else addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));

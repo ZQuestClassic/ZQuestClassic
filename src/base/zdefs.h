@@ -2361,7 +2361,7 @@ public:
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
-	dword thiskey; //used for user class 'this' pointers
+	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	

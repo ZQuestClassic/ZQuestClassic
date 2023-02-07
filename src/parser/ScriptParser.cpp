@@ -391,6 +391,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 					new LiteralArgument(0)));
 				first->setLabel(function.getLabel());
 				funccode.push_back(std::move(first));
+				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
 				std::shared_ptr<Opcode> alt(new ONoOp());
@@ -432,7 +433,10 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			next->setLabel(bo.getReturnLabelID());
 			funccode.push_back(std::move(next));
 			if (puc == puc_construct) //return val
+			{
 				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
+				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(CLASS_THISKEY2)));
+			}
 			addOpcode2(funccode, new OReturn());
 			function.giveCode(funccode);
 		}

@@ -1519,8 +1519,9 @@
 #define SPRITEDATAFLCSET        1432
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
+#define CLASS_THISKEY2          1435
 
-#define LAST_BYTECODE           1435
+#define LAST_BYTECODE           1436
 
 //} END OF BYTECODE
 

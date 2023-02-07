@@ -4812,8 +4812,9 @@ enum ASM_DEFINE
 #define SPRITEDATAFLCSET        0x14CE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
+#define CLASS_THISKEY2          0x14D1
 
-#define NUMVARIABLES            0x14D1
+#define NUMVARIABLES            0x14D2
 
 //} End variables
 
