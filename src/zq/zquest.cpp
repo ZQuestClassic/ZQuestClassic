@@ -31678,8 +31678,7 @@ void load_size_poses()
 		
 		if(num_combo_cols == 1)
 		{
-			combolistscrollers[0].x += 10;
-			combo_merge_btn.x -= 10;
+			combolistscrollers[0].x += 34;
 		}
 		drawmode_btn.x = combolist_window.x-drawmode_wid;
 		drawmode_btn.y = 0;
