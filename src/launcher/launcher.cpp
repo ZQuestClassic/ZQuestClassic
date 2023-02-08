@@ -245,7 +245,6 @@ int32_t main(int32_t argc, char* argv[])
 END_OF_MAIN()
 
 //Things required to compile from shared files... le sigh -Em
-bool is_large = true; //scaling
 bool is_compact = false;
 bool DragAspect = true;
 double aspect_ratio = LARGE_H / double(LARGE_W);

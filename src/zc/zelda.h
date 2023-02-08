@@ -323,8 +323,6 @@ extern byte     use_cheats;
 extern byte     use_tiles;
 extern char     palnames[MAXLEVELS][17];
 
-extern bool is_large;
-
 extern bool standalone_mode;
 extern char *standalone_quest;
 extern bool skip_title;

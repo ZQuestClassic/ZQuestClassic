@@ -21,7 +21,7 @@ TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
 	last_applied_vis(true), last_applied_dis(false)
 {
 	setPreferredWidth(1_em);
-	setPreferredHeight(24_lpx);
+	setPreferredHeight(24_px);
 	fgColor = vc(12);
 	bgColor = vc(1);
 }
@@ -42,7 +42,7 @@ void TextField::setText(std::string_view newText)
 	}
 	else buffer[0] = '\0';
 	
-	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
 	
@@ -145,7 +145,7 @@ void TextField::setVal(int32_t val)
 	//
 	strcpy(buffer.get(), v.c_str());
 	
-	Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
 	
@@ -331,7 +331,7 @@ void TextField::_updateBuf(size_t sz)
 	if(z) buffer[0] = 0;
 	maxLength = sz;
 	
-	setPreferredWidth(Size::largePixels(isSwapType() ? 16 : 0)+Size::em(std::min((sz+sized(2,1))*0.75, 20.0)));
+	setPreferredWidth(Size::pixels(isSwapType() ? 16 : 0)+Size::em(std::min((sz+1)*0.75, 20.0)));
 	if(alDialog)
 	{
 		alDialog->dp = buffer.get();
@@ -357,21 +357,21 @@ void TextField::setFixedPlaces(size_t places)
 
 void TextField::applyReadableFont()
 {
-	if(GUI_DEF_FONT == GUI_READABLE_FONT) return;
+	if(GUI_DEF_FONT == GUI_DEF_FONT) return;
 	
 	bool use_readable = getReadOnly() || getDisabled();
 	
 	if(use_readable && widgFont == GUI_DEF_FONT)
 	{
-		applyFont(GUI_READABLE_FONT);
+		applyFont(GUI_DEF_FONT);
 	}
-	else if(!use_readable && widgFont == GUI_READABLE_FONT)
+	else if(!use_readable && widgFont == GUI_DEF_FONT)
 	{
 		applyFont(GUI_DEF_FONT);
 	}
 	if (valSet)
 	{
-		Size nsz = Size::largePixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+		Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 		if(getWidth() < nsz)
 			setPreferredWidth(nsz);
 	}
@@ -386,7 +386,7 @@ void TextField::realize(DialogRunner& runner)
 	using namespace GUI::Props;
 	
 	if(widgFont == GUI_DEF_FONT && getReadOnly())
-		widgFont = GUI_READABLE_FONT;
+		widgFont = GUI_DEF_FONT;
 	Widget::realize(runner);
 	assert(maxLength > 0);
 
@@ -433,7 +433,7 @@ void TextField::realize(DialogRunner& runner)
 		}
 		
 		int32_t totalwid = getWidth();
-		int32_t btnwid = (24_lpx).resolve();
+		int32_t btnwid = (24_px).resolve();
 		int32_t txtfwid = totalwid-btnwid;
 		
 		alDialog = runner.push(shared_from_this(), DIALOG {

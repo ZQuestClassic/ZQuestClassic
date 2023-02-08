@@ -2,7 +2,6 @@
 #include "base/fonts.h"
 #include "fontsdat.h"
 extern DATAFILE *fontsdata;
-extern bool is_large;
 extern bool is_compact;
 FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
 		*goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont,
@@ -321,10 +320,8 @@ FONT* load_cfont(char const* name)
 	
 	if(is_compact)
 		strcpy(pref, "compact");
-	else if(is_large)
-		strcpy(pref, "large");
 	else
-		strcpy(pref, "small");
+		strcpy(pref, "large");
 	
 	sprintf(path, "customfonts/%s_%s.bmp", pref, name);
 	
@@ -337,11 +334,10 @@ FONT* load_cfont(char const* name)
 }
 
 template<typename T>
-T pickfont(T largefont, T smallfont, T compactfont)
+T pickfont(T largefont, T compactfont)
 {
 	if(is_compact) return compactfont;
-	if(is_large) return largefont;
-	return smallfont;
+	return largefont;
 }
 
 void init_custom_fonts()
@@ -351,24 +347,22 @@ void init_custom_fonts()
 	char pref[16];
 	if(is_compact)
 		strcpy(pref, "compact");
-	else if(is_large)
-		strcpy(pref, "large");
 	else
-		strcpy(pref, "small");
+		strcpy(pref, "large");
 	
 	char buf[512];
 	sprintf(buf, "font_%s_%s", pref, "dialog");
-	deffonts[CFONT_DLG] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont_l,font_nfont,font_lfont_l)));
+	deffonts[CFONT_DLG] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont_l,font_lfont_l)));
 	sprintf(buf, "font_%s_%s", pref, "title");
-	deffonts[CFONT_TITLE] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont,font_lfont)));
+	deffonts[CFONT_TITLE] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont)));
 	sprintf(buf, "font_%s_%s", pref, "favcmd");
-	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_pfont,font_pfont,font_pfont)));
+	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_pfont,font_pfont)));
 	sprintf(buf, "font_%s_%s", pref, "gui");
-	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_nfont,font_nfont,font_nfont)));
+	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_nfont,font_nfont)));
 	sprintf(buf, "font_%s_%s", pref, "textbox");
-	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_sfont3,font_sfont2,font_sfont3)));
+	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_sfont3,font_sfont3)));
 	sprintf(buf, "font_%s_%s", pref, "ttip");
-	deffonts[CFONT_TTIP] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont,font_lfont)));
+	deffonts[CFONT_TTIP] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont)));
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{

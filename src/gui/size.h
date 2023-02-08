@@ -20,18 +20,6 @@ public:
     }
 
     template<typename T>
-    static inline Size largePixels(T t) noexcept
-    {
-        return Size::sized(static_cast<int32_t>(t));
-    }
-
-    template<typename T>
-    static inline Size smallPixels(T t) noexcept
-    {
-        return Size::sized(static_cast<int32_t>(t)*3/2);
-    }
-
-    template<typename T>
 	static inline constexpr Size pixels(T t) noexcept
 	{
 		return Size(static_cast<int32_t>(t));
@@ -169,7 +157,6 @@ private:
 
 	inline constexpr Size(int32_t raw) noexcept: value(raw) {}
     static int32_t emSize();
-    static Size sized(int32_t size) noexcept;
 };
 
 inline Size operator ""_em(unsigned long long int size)
@@ -185,16 +172,6 @@ inline Size operator ""_em(long double size)
 inline constexpr Size operator ""_px(unsigned long long int size)
 {
 	return Size::pixels(size);
-}
-
-inline Size operator ""_lpx(unsigned long long int size)
-{
-	return Size::largePixels(size);
-}
-
-inline Size operator ""_spx(unsigned long long int size)
-{
-	return Size::smallPixels(size);
 }
 
 inline Size operator-(const Size s, const int32_t v)

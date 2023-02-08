@@ -224,9 +224,9 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		frameDialog->y = y-topPadding;
 		frameDialog->w = getPaddedWidth();
 		frameDialog->h = getPaddedHeight();
-		frameTextDialog->x = x-leftPadding+4_spx;
+		frameTextDialog->x = x-leftPadding+6_px;
 		frameTextDialog->y = y-topPadding-(text_height(widgFont)/2);
-		frameTextDialog->w = getPaddedWidth()-4_spx;
+		frameTextDialog->w = getPaddedWidth()-6_px;
 		frameTextDialog->h = text_height(widgFont);
 	}
 }
@@ -247,7 +247,7 @@ void Widget::realize(DialogRunner& runner)
 		});
 		frameTextDialog = runner.push(shared_from_this(), DIALOG {
 			newGUIProc<new_text_proc>,
-			x-leftPadding+4_spx, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-4_spx, text_height(widgFont),
+			x-leftPadding+6_px, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-6_px, text_height(widgFont),
 			fgColor, bgColor,
 			0,
 			getFlags(),

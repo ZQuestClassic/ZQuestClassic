@@ -463,7 +463,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zelda,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
-						CONFIG_CHECKBOX_I("Text Readability",App::zelda,"gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
 						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file"),
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT script compilation",App::zelda,"ZSCRIPT","jit",0,"Compile scripts to machine code. Depending on the script, can be up to 10x faster. 64-bit only"),
@@ -557,7 +556,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Warn on Init Script Change",App::zquest,"zquest","warn_initscript_changes",1,"When compiling ZScript, receive a warning when the global init script changes (which may break existing save files for the quest)"),
 						CONFIG_CHECKBOX_I("Show Ruleset Dialog on New Quest",App::zquest,"zquest","rulesetdialog",0,"On creating a 'New' quest, automatically pop up the 'Pick Ruleset' menu. (This can be found any time at 'Quest->Options->Pick Ruleset')"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zquest,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
-						CONFIG_CHECKBOX_I("Text Readability",App::zquest,"gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 						CONFIG_CHECKBOX_I("Disable Level Palette Shortcuts",App::zquest,"zquest","dis_lpal_shortcut",1,"If enabled, keyboard shortcuts that change the screen's palette are disabled."),
 						CONFIG_CHECKBOX_I("Autosave Window Size Changes",App::zquest,"zquest","save_drag_resize",0,"Makes any changes to the window size by dragging get saved for whenever you open the program next."),
 						CONFIG_CHECKBOX_I("Lock Aspect Ratio On Resize",App::zquest,"zquest","drag_aspect",1,"Makes any changes to the window size by dragging get snapped to ZQuest's default (4:3) aspect ratio."),
@@ -610,7 +608,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					Label(text = "ZCL options may require relaunching ZCL to take effect!"),
 					Row(framed = true,
 						Rows<2>(fitParent = true,
-							CONFIG_CHECKBOX_I_ZCL("Text Readability","gui","bolder_font",0,"Attempts to make text more readable in some areas (ex. larger, bolder)"),
 							CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::launcher,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)")
 						),
 						Rows<3>(fitParent = true,
@@ -766,11 +763,11 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "ZC Player",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::ZC),
 				Button(
 					text = "ZQ Creator",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::ZQ)
 			)
 		)

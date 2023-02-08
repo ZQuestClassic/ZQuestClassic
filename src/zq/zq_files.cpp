@@ -139,8 +139,7 @@ void edit_qt(int32_t index)
         strcpy(temppath, QuestTemplates[index].path);
         bool gotname;
         
-        if(is_large)
-            large_dialog(editqt_dlg);
+        large_dialog(editqt_dlg);
             
         ret=zc_popup_dialog(editqt_dlg,6);
         
@@ -257,15 +256,14 @@ int32_t ListQTs(bool edit)
             }
         }
         
-        if(is_large)
-            large_dialog(qtlist_dlg);
+        large_dialog(qtlist_dlg);
             
-        qtlist_dlg[2].x=int32_t(qtlist_dlg[0].x+(edit?5:15)*(is_large?1.5:1));
+        qtlist_dlg[2].x=int32_t(qtlist_dlg[0].x+(edit?5:15)*1.5);
         qtlist_dlg[3].proc=edit?jwin_button_proc:d_dummy_proc;
         qtlist_dlg[4].proc=edit?jwin_button_proc:d_dummy_proc;
         qtlist_dlg[5].proc=edit?jwin_button_proc:d_dummy_proc;
-        qtlist_dlg[6].x=int32_t(qtlist_dlg[0].x+(edit?110:80)*(is_large?1.5:1));
-        qtlist_dlg[7].x=int32_t(qtlist_dlg[0].x+(edit?190:160)*(is_large?1.5:1));
+        qtlist_dlg[6].x=int32_t(qtlist_dlg[0].x+(edit?110:80)*1.5);
+        qtlist_dlg[7].x=int32_t(qtlist_dlg[0].x+(edit?190:160)*1.5);
         qtlist_dlg[8].proc=edit?d_keyboard_proc:d_dummy_proc;
         
         int32_t ret=zc_popup_dialog(qtlist_dlg,2);
@@ -466,111 +464,58 @@ int32_t d_ruleset_radio_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_rulesettext_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    if(msg!=MSG_DRAW)
-        return D_O_K;
-        
-    char buf[42];
-    char buf2[42];
-    char buf3[42];
-    char buf4[42];
-    
-    switch(ruleset)
-    {
-    case rulesetNES: // Original NES
-	if(is_large)
-	{
-		sprintf(buf,  "Emulates the behaviour, the quirks,");
-		sprintf(buf2, "bugs, and oddities found in the NES");
-		sprintf(buf3, "game 'The Legend of Zelda'.");
-		sprintf(buf4, "All but a few rules are off.");
-	}
-	else
-	{
-		sprintf(buf,  "Traditional NES");
-		sprintf(buf2,  "bugs and quirks.");
-		sprintf(buf3,  " ");
-		sprintf(buf4,  " ");
+	if(msg!=MSG_DRAW)
+		return D_O_K;
 		
-	}
-        break;
-        
-    case rulesetFixedNES: // Fixed NES
-	if(is_large)
+	char buf[42];
+	char buf2[42];
+	char buf3[42];
+	char buf4[42];
+	
+	switch(ruleset)
 	{
-		sprintf(buf,  "Corrects a large number of oddities");
-		sprintf(buf2, "found in the original NES engine, ");
-		sprintf(buf3, "such as bomb interactions. ");
-		sprintf(buf4, "Enables all 'NES Fixes' Rules");
-	}
-	else
-	{
-		sprintf(buf,  "Applies all NES");
-		sprintf(buf2,  "fixes rules.");
-		sprintf(buf3,  " ");
-		sprintf(buf4,  " ");
-	}
-        break;
-        
-    case rulesetBSZ: // BS Zelda
-	if(is_large)
-	{
-		sprintf(buf,  "Adds expanded animations befitting a");
-		sprintf(buf2, "Super Famicom era game: Expanded");
-		sprintf(buf3, "enemy tiles, fast scrolling, new push-");
-		sprintf(buf4, "blocks, transition wipes, etc.");
-	}
-	else
-	{
-		sprintf(buf,  "Expanded graphics");
-		sprintf(buf2,  "and sounds.");
-		sprintf(buf3,  " ");
-		sprintf(buf4,  " ");
+		case rulesetNES: // Original NES
+			sprintf(buf,  "Emulates the behaviour, the quirks,");
+			sprintf(buf2, "bugs, and oddities found in the NES");
+			sprintf(buf3, "game 'The Legend of Zelda'.");
+			sprintf(buf4, "All but a few rules are off.");
+			break;
+			
+		case rulesetFixedNES: // Fixed NES
+			sprintf(buf,  "Corrects a large number of oddities");
+			sprintf(buf2, "found in the original NES engine, ");
+			sprintf(buf3, "such as bomb interactions. ");
+			sprintf(buf4, "Enables all 'NES Fixes' Rules");
+			break;
+			
+		case rulesetBSZ: // BS Zelda
+			sprintf(buf,  "Adds expanded animations befitting a");
+			sprintf(buf2, "Super Famicom era game: Expanded");
+			sprintf(buf3, "enemy tiles, fast scrolling, new push-");
+			sprintf(buf4, "blocks, transition wipes, etc.");
+			break;
+			
+		case rulesetZ3: // Zelda 3-esque
+			sprintf(buf,  "As 16-bit, plus diagonal movement,");
+			sprintf(buf2, "new message strings, magic use, real");
+			sprintf(buf3, "arrows, more sounds, drowning, ");
+			sprintf(buf4, "modern boomerang/item interaction.");
+			break;
 		
+		case rulesetModern: // 255
+			sprintf(buf,  "Enables all new 2.55 features including");
+			sprintf(buf2, "new Hero movement/step speed, new");
+			sprintf(buf3, "combo animations, scripting extensions,");
+			sprintf(buf4, "and other engine enhancements.");
+			break;
 	}
-        break;
-        
-    case rulesetZ3: // Zelda 3-esque
-	if(is_large)
-	{
-		sprintf(buf,  "As 16-bit, plus diagonal movement,");
-		sprintf(buf2, "new message strings, magic use, real");
-		sprintf(buf3, "arrows, more sounds, drowning, ");
-		sprintf(buf4, "modern boomerang/item interaction.");
-	}
-	else
-	{
-		sprintf(buf,  "Diagonal movement");
-		sprintf(buf2,  "and other enhancements.");
-		sprintf(buf3,  " ");
-		sprintf(buf4,  " ");
-	}
-        break;
-    
-    case rulesetModern: // 255
-	if(is_large)
-	{
-		sprintf(buf,  "Enables all new 2.55 features including");
-		sprintf(buf2, "new Hero movement/step speed, new");
-		sprintf(buf3, "combo animations, scripting extensions,");
-		sprintf(buf4, "and other engine enhancements.");
-	}
-	else
-	{
-		sprintf(buf,  "All new, core 2.55");
-		sprintf(buf2,  "features are enabled.");
-		sprintf(buf3,  " ");
-		sprintf(buf4,  " ");
-		
-	}
-        break;
-    }
-    
-    FONT *f = is_large ? font : sfont2;
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?12:8),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf2);
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?24:16),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf3);
-    textprintf_ex(screen,f,d->x-1+(is_large?0:28),d->y-11+(is_large?36:24),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf4);
-    return D_O_K;
+	
+	FONT *f = font;
+	textprintf_ex(screen,f,d->x-1,d->y-11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+	textprintf_ex(screen,f,d->x-1,d->y-11+12,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf2);
+	textprintf_ex(screen,f,d->x-1,d->y-11+24,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf3);
+	textprintf_ex(screen,f,d->x-1,d->y-11+36,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf4);
+	return D_O_K;
 }
 
 void alwaysOnRules()
@@ -1121,8 +1066,7 @@ int32_t get_import_map_bias()
     
     import_map_bias_dlg[ImportMapBias+4].flags=D_SELECTED;
     
-    if(is_large)
-        large_dialog(import_map_bias_dlg);
+    large_dialog(import_map_bias_dlg);
         
     if(zc_popup_dialog(import_map_bias_dlg,2)==2)
     {

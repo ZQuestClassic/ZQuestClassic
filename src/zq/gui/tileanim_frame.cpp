@@ -109,7 +109,7 @@ namespace GUI
 
 TileFrame::TileFrame(): alDialog()
 {
-	Size s = sized(16_px,32_px)+4_px;
+	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 	bgColor = palette_color[scheme[jcBOX]];
@@ -200,8 +200,8 @@ void TileFrame::applyDisabled(bool dis)
 
 void TileFrame::calculateSize()
 {
-	setPreferredWidth(sized(16_px,32_px)*(data[tfr_dosized]?data[tfr_skipx]+1:1)+4_px);
-	setPreferredHeight(sized(16_px,32_px)*(data[tfr_dosized]?data[tfr_skipy]+1:1)+4_px);
+	setPreferredWidth(32_px*(data[tfr_dosized]?data[tfr_skipx]+1:1)+4_px);
+	setPreferredHeight(32_px*(data[tfr_dosized]?data[tfr_skipy]+1:1)+4_px);
 	Widget::calculateSize();
 }
 

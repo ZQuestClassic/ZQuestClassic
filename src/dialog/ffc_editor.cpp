@@ -420,12 +420,12 @@ std::shared_ptr<GUI::Widget> FFCDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					focused = true,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

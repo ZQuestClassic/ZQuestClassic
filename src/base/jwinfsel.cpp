@@ -890,31 +890,29 @@ void enlarge_file_selector(int32_t width, int32_t height)
     
     bool show_extlist = file_selector[FS_TYPES].proc != fs_dummy_proc;
     
-    if(is_large)
-    {
-        large_dialog(file_selector);
-        int32_t bottom =
+	large_dialog(file_selector);
+	int32_t bottom =
 #ifndef HAVE_DIR_LIST
-            file_selector[FS_OK].y;
+		file_selector[FS_OK].y;
 #else
-            file_selector[FS_WIN].y+file_selector[FS_WIN].h-8;
+		file_selector[FS_WIN].y+file_selector[FS_WIN].h-8;
 #endif
-        file_selector[FS_FILES].dp2=NULL;
-        file_selector[FS_TYPES].y = bottom-file_selector[FS_TYPES].h-5;
-        file_selector[FS_FILES].h=show_extlist ? 152 : 168;
-        file_selector[FS_FILES].y = (show_extlist ? file_selector[FS_TYPES].y:bottom)-(file_selector[FS_FILES].h+5);
-        file_selector[FS_EDIT].y = file_selector[FS_FILES].y-26;
-        ((ListData *)file_selector[FS_FILES].dp)->font = &lfont_l;
-        file_selector[FS_TYPES].dp2=NULL;
-        file_selector[FS_TYPES].h=20;
-        ((ListData *)file_selector[FS_TYPES].dp)->font = &lfont_l;
+	file_selector[FS_FILES].dp2=NULL;
+	file_selector[FS_TYPES].y = bottom-file_selector[FS_TYPES].h-5;
+	file_selector[FS_FILES].h=show_extlist ? 152 : 168;
+	file_selector[FS_FILES].y = (show_extlist ? file_selector[FS_TYPES].y:bottom)-(file_selector[FS_FILES].h+5);
+	file_selector[FS_EDIT].y = file_selector[FS_FILES].y-26;
+	((ListData *)file_selector[FS_FILES].dp)->font = &lfont_l;
+	file_selector[FS_TYPES].dp2=NULL;
+	file_selector[FS_TYPES].h=20;
+	((ListData *)file_selector[FS_TYPES].dp)->font = &lfont_l;
 #ifdef HAVE_DIR_LIST
-        file_selector[FS_DISKS].dp2=NULL;
-        file_selector[FS_DISKS].h=20;
-        ((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
+	file_selector[FS_DISKS].dp2=NULL;
+	file_selector[FS_DISKS].h=20;
+	((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
 #endif
-    }
-	#define DIFF_VAL int32_t(20 * (is_large ? 1.5 : 1.0))
+	
+	#define DIFF_VAL 30
 	if(file_selector[FS_EDIT].y - DIFF_VAL < file_selector[FS_WIN].y)
 	{
 		int32_t diff = file_selector[FS_WIN].y - (file_selector[FS_EDIT].y - DIFF_VAL);

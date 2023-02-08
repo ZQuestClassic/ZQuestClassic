@@ -1,6 +1,8 @@
 #ifndef ZC_GUI_BUILDER_HPP
 #define ZC_GUI_BUILDER_HPP
 
+#include "use_size.h"
+extern int32_t zq_screen_w, zq_screen_h;
 #include "button.h"
 #include "checkbox.h"
 #include "checkbox_qr.h"
@@ -537,8 +539,6 @@ namespace GUI::Props
 // We want these in scope for setting sizes.
 using ::GUI::operator ""_em;
 using ::GUI::operator ""_px;
-using ::GUI::operator ""_lpx;
-using ::GUI::operator ""_spx;
 
 } // namespace GUI::Props
 

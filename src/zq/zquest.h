@@ -41,7 +41,6 @@ extern int32_t midi_strict; //L
 #endif
 extern bool cancelgetnum;
 
-extern bool is_large;
 extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;

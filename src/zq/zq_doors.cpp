@@ -191,8 +191,7 @@ int32_t onDoors()
     for(int32_t i=0; i<4; i++)
         old_door[i] = Map.CurrScr()->door[i];
         
-    if(is_large)
-        large_dialog(door_select_dlg, 1.5);
+    large_dialog(door_select_dlg, 1.5);
     
     Map.StartListCommand();
     do
@@ -1436,10 +1435,7 @@ int32_t edit_dcs(int32_t index)
     
     doorcomboset_dlg[294].flags = get_bit(working_dcs.flags,df_walktrans) ? D_SELECTED : 0;
     
-    if(is_large)
-    {
-        large_dialog(doorcomboset_dlg, 2.0);
-    }
+    large_dialog(doorcomboset_dlg, 2.0);
     
     int32_t ret;
     
@@ -1749,8 +1745,7 @@ int32_t onDoorCombos()
             strcpy(DoorComboSets[door_combo_set_count++].name,"<New Door Combo Set>");
         }
         
-        if(is_large)
-            large_dialog(doorcombosetlist_dlg,1.5);
+        large_dialog(doorcombosetlist_dlg,1.5);
             
         int32_t ret=zc_popup_dialog(doorcombosetlist_dlg,2);
         index=doorcombosetlist_dlg[2].d1;

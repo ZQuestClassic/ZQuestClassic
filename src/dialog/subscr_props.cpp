@@ -7,7 +7,6 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "gui/common.h"
-using GUI::sized;
 extern miscQdata misc;
 #define QMisc misc
 
@@ -164,7 +163,6 @@ Frame(fitParent = true, Column(fitParent = true, \
 ))
 
 //Tile block max preview tiledim
-#define TB_SM 4
 #define TB_LA 12
 
 char* repl_escchar(char* buf, char const* ptr, bool compact)
@@ -250,13 +248,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				Button(
 					text = "&OK",
 					topPadding = 0.5_em,
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK,
 					focused = true),
 				Button(
 					text = "&Cancel",
 					topPadding = 0.5_em,
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)
@@ -522,7 +520,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	std::shared_ptr<GUI::Grid> attrib_grid;
 	bool addattrib = true;
 	enum { mtNONE, mtFORCE_TAB, mtLOCTOP };
-	int32_t mergetype = is_large ? mtNONE : mtFORCE_TAB;
+	int32_t mergetype = mtNONE;
 	//Generate 'attributes' grid
 	{
 		switch(local_subref.type)
@@ -901,7 +899,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				attrib_grid = Rows<2>(
 					Label(text = "Tile:", hAlign = 1.0),
 					tswatches[0] = SelTileSwatch(
-						width = 4_px + (sized(16_px,32_px)*9),
+						width = 4_px + (32_px*9),
 						hAlign = 0.0,
 						tile = tl,
 						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(),cs_sel[0]->getC2()),
@@ -1045,7 +1043,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						maxLength = 256,
 						colSpan = 2,
 						text = tbuf,
-						width = 200_spx,
+						width = 300_px,
 						minheight = 15_px,
 						fitParent = true,
 						useFont = ss_font(local_subref.d1),
@@ -1077,7 +1075,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						maxLength = 1024,
 						colSpan = 2,
 						text = (local_subref.dp1 ? (char*)local_subref.dp1 : ""),
-						width = 200_spx,
+						width = 300_px,
 						minheight = 15_px,
 						fitParent = true,
 						useFont = ss_font(local_subref.d1),
@@ -1098,13 +1096,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				attrib_grid = Column(
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
-						minwidth = sized(16_px,32_px)*sized(TB_SM,TB_LA)+4_px,
-						minheight = sized(16_px,32_px)*sized(TB_SM,TB_LA)+4_px,
+						minwidth = 32_px*TB_LA+4_px,
+						minheight = 32_px*TB_LA+4_px,
 						tile = local_subref.d1,
 						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						showvals = false,
-						tilewid = std::min(local_subref.w, (word)sized(TB_SM,TB_LA)),
-						tilehei = std::min(local_subref.h, (word)sized(TB_SM,TB_LA)),
+						tilewid = std::min(local_subref.w, (word)TB_LA),
+						tilehei = std::min(local_subref.h, (word)TB_LA),
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							local_subref.d1 = t;
@@ -1115,7 +1113,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							}
 						}
 					),
-					Label(text = "Note: Preview max size is " + std::to_string(sized(TB_SM,TB_LA)) + "x" + std::to_string(sized(TB_SM,TB_LA))),
+					Label(text = "Note: Preview max size is " + std::to_string(TB_LA) + "x" + std::to_string(TB_LA)),
 					Checkbox(
 						text = "Overlay", hAlign = 0.0,
 						checked = local_subref.d3,
@@ -1143,8 +1141,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						rowSpan = 2,
-						minwidth = sized(16_px,32_px)*7+4_px,
-						minheight = sized(16_px,32_px)*7+4_px,
+						minwidth = 32_px*7+4_px,
+						minheight = 32_px*7+4_px,
 						tile = local_subref.d1,
 						cset = local_subref.d2,
 						showvals = false,
@@ -1161,8 +1159,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Piece Tile"),
 					tswatches[1] = SelTileSwatch(
 						hAlign = 0.0,
-						minwidth = sized(16_px,32_px)*2+4_px,
-						minheight = sized(16_px,32_px)*3+4_px,
+						minwidth = 32_px*2+4_px,
+						minheight = 32_px*3+4_px,
 						tile = local_subref.d3,
 						cset = local_subref.d4,
 						showvals = false,
@@ -1205,8 +1203,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Tile:", hAlign = 1.0),
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
-						// minwidth = sized(16_px,32_px)*2+4_px,
-						// minheight = sized(16_px,32_px)*3+4_px,
 						tile = local_subref.d1,
 						cset = local_subref.d2,
 						showvals = false,
@@ -1235,7 +1231,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			default: attrib_grid = Column(Label(text = "ERROR")); break;
 		}
 	}
-	if(!is_large) mergetype = mtFORCE_TAB;
 	switch(mergetype)
 	{
 		default:
@@ -1296,8 +1291,8 @@ void SubscrPropDialog::update_wh()
 	switch(local_subref.type)
 	{
 		case ssoTILEBLOCK:
-			tswatches[0]->setTileWid(std::min(local_subref.w, (word)sized(TB_SM,TB_LA)));
-			tswatches[0]->setTileHei(std::min(local_subref.h, (word)sized(TB_SM,TB_LA)));
+			tswatches[0]->setTileWid(std::min(local_subref.w, (word)TB_LA));
+			tswatches[0]->setTileHei(std::min(local_subref.h, (word)TB_LA));
 			break;
 	}
 }

@@ -102,7 +102,7 @@ void load_mice()
 {
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zquest","cursor_scale_large",1.5) : zc_get_config("zquest","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(zc_get_config("zquest","cursor_scale_large",1.5))),16,80);
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
 		for(int32_t j=0; j<4; j++)

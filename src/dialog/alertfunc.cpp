@@ -33,9 +33,7 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 		onClose = message::OK,
 		Column(
 			Label(noHLine = true,
-				maxwidth = sized(
-					GUI::Size::pixels(zq_screen_w)-(2*((2*DEFAULT_PADDING)+1_em)),
-					30_em),
+				maxwidth = 30_em,
 				hPadding = 1_em,
 				maxLines = 30,
 				textAlign = 1,
@@ -71,7 +69,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 				buttons.push_back(
 					Button(
 						text = btntext,
-						minwidth = 90_lpx,
+						minwidth = 90_px,
 						onPressFunc = [&,func]()
 						{
 							BITMAP* tmp = create_bitmap_ex(8, screen->w, screen->h);
@@ -89,7 +87,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 				buttons.push_back(
 					Button(
 						text = btntext,
-						minwidth = 90_lpx,
+						minwidth = 90_px,
 						onClick = message::OK,
 						focused = (q==focused_button)
 					));
@@ -101,7 +99,7 @@ void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t fo
 		buttons.push_back(
 			Button(
 				text = "OK",
-				minwidth = 90_lpx,
+				minwidth = 90_px,
 				onClick = message::OK,
 				focused = true
 			));

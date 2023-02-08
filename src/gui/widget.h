@@ -15,8 +15,8 @@
 FONT* get_gui_def_font();
 #define GUI_DEF_FONT get_gui_def_font()
 
-#define DEFAULT_PADDING       sized(1_px,3_px)
-#define DEFAULT_PADDING_INT   sized(1,3)
+#define DEFAULT_PADDING       3_px
+#define DEFAULT_PADDING_INT   3
 namespace GUI
 {
 

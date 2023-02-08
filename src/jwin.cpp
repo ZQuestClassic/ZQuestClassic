@@ -6111,9 +6111,9 @@ int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
 	int32_t numcol = numcsets*0x10;
 	if(msg==MSG_START)
 	{
-		d->w = d->h = (16*8) * (is_large?1.5:1);
+		d->w = d->h = (16*8) * 1.5;
 	}
-	int32_t csz = 8*(is_large?1.5:1);
+	int32_t csz = 12;
 	d->w = csz * 16;
 	d->h = csz * numcsets;
 	switch(msg)
@@ -6292,8 +6292,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			selcolor_dlg[3].fg = scheme[jcBOX];
 			selcolor_dlg[3].d1 = d->d1;
 			selcolor_dlg[3].d2 = d->d2;
-			if(is_large)
-				large_dialog(selcolor_dlg);
+			large_dialog(selcolor_dlg);
 			
 			while(gui_mouse_b()); //wait for mouseup
 			
@@ -6356,7 +6355,7 @@ int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const cha
     int32_t maxlen = 0;
     int32_t len1, len2, len3;
     int32_t avg_w = text_length(font, " ");
-    int32_t avg_h = text_height(font)+is_large;
+    int32_t avg_h = text_height(font)+1;
     int32_t buttons = 0;
     int32_t yofs = (title ? 22 : 0);
     int32_t b[3];
@@ -6466,11 +6465,8 @@ int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const cha
     }
     while(gui_mouse_b());
     
-    if(is_large)
-    {
-        large_dialog(alert_dialog);
-        alert_dialog[0].d1 = 0;
-    }
+	large_dialog(alert_dialog);
+	alert_dialog[0].d1 = 0;
     
     c = popup_zqdialog(alert_dialog, A_B1);
     
@@ -6617,7 +6613,7 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
     int32_t maxlen = 0;
     int32_t len1, len2, len3;
     int32_t avg_w = text_length(font, " ");
-    int32_t avg_h = text_height(font)+is_large;
+    int32_t avg_h = text_height(font)+1;
     int32_t buttons = 0;
     int32_t yofs = (title ? 22 : 0);
     int32_t b[3];
@@ -6669,20 +6665,16 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
     alert2_dialog[A2_S1].w = lenlim;
     alert2_dialog[A2_S1].d1 = vspace;
     
-    if(is_large)
-    {
-        large_dialog(alert2_dialog);
-        alert2_dialog[0].d1 = 0;
-    }
+	large_dialog(alert2_dialog);
+	alert2_dialog[0].d1 = 0;
+	
 	object_message(&alert2_dialog[A2_S1], MSG_START, 0); //calculate height
 	
-    if(is_large)
-    {
-		alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
-		alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
-		alert2_dialog[A2_S1].w = lenlim;
-		alert2_dialog[A2_S1].d1 = vspace;
-	}
+	alert2_dialog[A2_S1].x = alert2_dialog[0].x + maxlen/2;
+	alert2_dialog[A2_S1].y = alert2_dialog[0].y + avg_h + yofs;
+	alert2_dialog[A2_S1].w = lenlim;
+	alert2_dialog[A2_S1].d1 = vspace;
+	
     alert2_dialog[A2_B1].w = alert2_dialog[A2_B2].w = alert2_dialog[A2_B3].w = len1;
     
     alert2_dialog[A2_B1].x = alert2_dialog[A2_B2].x = alert2_dialog[A2_B3].x =
@@ -6720,11 +6712,8 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
     }
     while(gui_mouse_b());
     
-    if(is_large)
-    {
-        large_dialog(alert2_dialog);
-        alert2_dialog[0].d1 = 0;
-    }
+	large_dialog(alert2_dialog);
+	alert2_dialog[0].d1 = 0;
     
     c = popup_zqdialog(alert2_dialog, A2_B1);
     
@@ -6818,11 +6807,6 @@ static int32_t droplist(DIALOG *d)
     droplist_dlg[0].w = zq_screen_w;
     droplist_dlg[0].h = zq_screen_h;
     
-    /*if (is_large)
-    {
-      large_dialog(droplist_dlg);
-    alert_dialog[0].d1 = 0;
-    }*/
     if(popup_zqdialog(droplist_dlg,1)==1)
     {
 		position_mouse_z(oz);

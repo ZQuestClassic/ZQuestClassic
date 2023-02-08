@@ -111,7 +111,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 							forceFitW = true,
 							framed = true,
 							height = 3_em,
-							vPadding = 4_spx,
+							vPadding = 6_px,
 							leftMargin = DEFAULT_PADDING,
 							text = vals[2],
 							textAlign = 1
@@ -122,7 +122,7 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 							forceFitW = true,
 							framed = true,
 							height = 3_em,
-							vPadding = 4_spx,
+							vPadding = 6_px,
 							rightMargin = DEFAULT_PADDING,
 							text = vals[3],
 							textAlign = 1
@@ -137,11 +137,11 @@ std::shared_ptr<GUI::Widget> HeaderDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

@@ -232,11 +232,11 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 				spacing = 2_em,
 				Button(focused = true,
 					text = "Save",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

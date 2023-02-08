@@ -594,7 +594,7 @@ void load_mouse()
 	system_pal();
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zeldadx","cursor_scale_large",1.5) : zc_get_config("zeldadx","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(zc_get_config("zeldadx","cursor_scale_large",1.5))),16,80);
 	for(int32_t j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
@@ -5665,7 +5665,7 @@ int32_t set_vol(void *dp3, int32_t d2)
 	
 	scare_mouse();
 	// text_mode(vc(11));
-	textprintf_right_ex(screen,is_large ? lfont_l : font, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
 	unscare_mouse();
 	return D_O_K;
 }
@@ -5675,7 +5675,7 @@ int32_t set_pan(void *dp3, int32_t d2)
 	pan_style = vbound(d2,0,3);
 	scare_mouse();
 	// text_mode(vc(11));
-	textout_right_ex(screen,is_large ? lfont_l : font, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_right_ex(screen,lfont_l, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	return D_O_K;
 }
@@ -5685,7 +5685,7 @@ int32_t set_buf(void *dp3, int32_t d2)
 	scare_mouse();
 	// text_mode(vc(11));
 	zcmusic_bufsz = d2 + 1;
-	textprintf_right_ex(screen,is_large ? lfont_l : font, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
+	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
 	unscare_mouse();
 	return D_O_K;
 }
@@ -6309,8 +6309,7 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 	module_info_dlg[13].dp = (char*)module_vers;
 	module_info_dlg[14].dp = (char*)module_build;
 	
-	if(is_large)
-		large_dialog(module_info_dlg);
+	large_dialog(module_info_dlg);
 	
 	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
@@ -6532,8 +6531,7 @@ int32_t onGoTo()
 	
 	clear_keybuf();
 	
-	if(is_large)
-		large_dialog(goto_dlg);
+	large_dialog(goto_dlg);
 		
 	if(zc_popup_dialog(goto_dlg,4)==1)
 	{
@@ -6873,8 +6871,7 @@ int32_t onMIDICredits()
 	
 	dialog_running=true;
 	
-	if(is_large)
-		large_dialog(midi_dlg);
+	large_dialog(midi_dlg);
 		
 	zc_popup_dialog(midi_dlg,0);
 	dialog_running=false;
@@ -6930,8 +6927,7 @@ int32_t onQuest()
 	quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
 	quest_dlg[11].d2 = quest_dlg[9].d2 = 0;
 	
-	if(is_large)
-		large_dialog(quest_dlg);
+	large_dialog(quest_dlg);
 		
 	zc_popup_dialog(quest_dlg, 0);
 	return D_O_K;
@@ -7008,8 +7004,7 @@ int32_t onKeyboard()
 	
 	keyboard_control_dlg[0].dp2=lfont;
 	
-	if(is_large)
-		large_dialog(keyboard_control_dlg);
+	large_dialog(keyboard_control_dlg);
 		
 	while(!done)
 	{
@@ -7194,8 +7189,7 @@ int32_t onGamepad()
 	else
 		gamepad_dlg[56].flags&=~D_SELECTED;
 	
-	if(is_large)
-		large_dialog(gamepad_dlg);
+	large_dialog(gamepad_dlg);
 		
 	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
 	
@@ -7259,8 +7253,7 @@ int32_t onSound()
 	
 	sound_dlg[0].dp2=lfont;
 	
-	if(is_large)
-		large_dialog(sound_dlg);
+	large_dialog(sound_dlg);
 		
 	midi_dp[1] = sound_dlg[6].x;
 	midi_dp[2] = sound_dlg[6].y;
@@ -7540,8 +7533,7 @@ int32_t getnumber(const char *prompt,int32_t initialval)
 	getnum_dlg[0].dp2=lfont;
 	getnum_dlg[2].dp=buf;
 	
-	if(is_large)
-		large_dialog(getnum_dlg);
+	large_dialog(getnum_dlg);
 		
 	if(zc_popup_dialog(getnum_dlg,2)==3)
 		return atoi(buf);
@@ -7719,8 +7711,7 @@ int32_t onScreenSaver()
 	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
 	scrsaver_dlg[7].d2 = oldcfgs[2] = ss_density;
 	
-	if(is_large)
-		large_dialog(scrsaver_dlg);
+	large_dialog(scrsaver_dlg);
 		
 	int32_t ret = zc_popup_dialog(scrsaver_dlg,-1);
 	

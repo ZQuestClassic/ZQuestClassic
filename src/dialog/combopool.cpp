@@ -34,12 +34,9 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 	using namespace GUI::Props;
 	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
-	size_t per_row = is_large ? 4 : 3;
-	size_t vis_rows = is_large ? 3 : 2;
-	if(is_large)
-		sgrid = Rows<4>();
-	else
-		sgrid = Rows<3>();
+	size_t per_row = 4;
+	size_t vis_rows = 3;
+	sgrid = Rows<4>();
 	window = Window(
 		title = "Combo Pool Editor",
 		use_vsync = true,
@@ -69,14 +66,14 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 				vAlign = 1.0,
 				spacing = 2_em,
 				Button(text = "Tidy",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::RELOAD,
 					onPressFunc = [&]()
 					{
 						temp_cpool.trim();
 					}),
 				Button(text = "Copy",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						copy_cpool = temp_cpool;
@@ -84,7 +81,7 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 						pastebtn->setDisabled(false);
 					}),
 				pastebtn = Button(text = "Paste",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					disabled = !copied_cpool,
 					onClick = message::RELOAD,
 					onPressFunc = [&]()
@@ -99,11 +96,11 @@ std::shared_ptr<GUI::Widget> ComboPoolDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

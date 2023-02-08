@@ -946,7 +946,7 @@ ItemEditorDialog::ItemEditorDialog(int32_t index):
 #define DISABLE_WEAP_DATA true
 #define ATTR_WID 6_em
 #define ATTR_LAB_WID 12_em
-#define SPR_LAB_WID sized(14_em,10_em)
+#define SPR_LAB_WID 10_em
 #define ACTION_LAB_WID 8_em
 #define ACTION_FIELD_WID 6_em
 #define FLAGS_WID 20_em
@@ -1036,7 +1036,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::SPRITE_DROP_IMPL(T* mem, int inde
 				InfoDialog("Sprite Info",h_spr[index]).show();
 			}),
 		DropDownList(
-			maxwidth = sized(18_em, 14_em),
+			maxwidth = 14_em,
 			data = list_sprites,
 			selectedValue = *mem,
 			onSelectFunc = [mem](int32_t val)
@@ -1132,2293 +1132,932 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());
-	if(is_large)
-	{
-		window = Window(
-			use_vsync = true,
-			title = titlebuf,
-			onClose = message::CANCEL,
-			Column(
-				Row(
-					Rows<2>(padding = 0_px,
-						Label(text = "Name:"),
-						TextField(
-							fitParent = true,
-							maxLength = 63,
-							text = itemname,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
-							{
-								itemname = str;
-								char buf[256];
-								sprintf(buf, "Item Editor (%d): %s", index, itemname.c_str());
-								window->setTitle(buf);
-							}
-						),
-						Label(text = "Type:"),
-						Row(
-							height = sized(16_px, 21_px),
-							DropDownList(data = list_items,
-								fitParent = true, padding = 0_px,
-								selectedValue = local_itemref.family,
-								onSelectionChanged = message::ITEMCLASS
-							),
-							Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
-							{
-								InfoDialog(ZI.getItemClassName(local_itemref.family),
-									ZI.getItemClassHelp(local_itemref.family)
-								).show();
-							})
-						)
+	window = Window(
+		use_vsync = true,
+		title = titlebuf,
+		onClose = message::CANCEL,
+		Column(
+			Row(
+				Rows<2>(padding = 0_px,
+					Label(text = "Name:"),
+					TextField(
+						fitParent = true,
+						maxLength = 63,
+						text = itemname,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							itemname = str;
+							char buf[256];
+							sprintf(buf, "Item Editor (%d): %s", index, itemname.c_str());
+							window->setTitle(buf);
+						}
 					),
-					Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
-						Checkbox(
-							hAlign = 0.0,
-							checked = (local_itemref.flags & ITEM_GAMEDATA),
-							text = "Equipment Item",
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
-							}
-						)
+					Label(text = "Type:"),
+					Row(
+						height = 21_px,
+						DropDownList(data = list_items,
+							fitParent = true, padding = 0_px,
+							selectedValue = local_itemref.family,
+							onSelectionChanged = message::ITEMCLASS
+						),
+						Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
+						{
+							InfoDialog(ZI.getItemClassName(local_itemref.family),
+								ZI.getItemClassHelp(local_itemref.family)
+							).show();
+						})
 					)
 				),
-				TabPanel(
-					ptr = &itmtabs[0],
-					TabRef(name = "Data", TabPanel(
-						ptr = &itmtabs[1],
-						TabRef(name = "Attrib", Column(
-							Rows<6>(framed = true,
-								Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
-								Button(forceFitH = true, text = "?",
-									onPressFunc = [&]()
-									{
-										InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
-											"By default, subscreens use the highest level item of an itemclass for displaying.").show();
-									}),
-								NUM_FIELD(fam_type, 1, 255, ATTR_WID),
-								l_power = Label(width=ATTR_LAB_WID,textAlign=2),
-								ib_power = Button(forceFitH = true, text = "?",
-									disabled = true,
-									onPressFunc = [&]()
-									{
-										InfoDialog("Power Info",h_power).show();
-									}),
-								NUM_FIELD(power, 0, 255, ATTR_WID)
-							),
-							Rows<6>(framed = true,
-								ATTRIB_FIELD(misc1,0),
-								ATTRIB_FIELD(misc6,5),
-								
-								ATTRIB_FIELD(misc2,1),
-								ATTRIB_FIELD(misc7,6),
-								
-								ATTRIB_FIELD(misc3,2),
-								ATTRIB_FIELD(misc8,7),
-								
-								ATTRIB_FIELD(misc4,3),
-								ATTRIB_FIELD(misc9,8),
-								
-								ATTRIB_FIELD(misc5,4),
-								ATTRIB_FIELD(misc10,9)
-							)
-						)),
-						TabRef(name = "Flags", Column(padding = 0_px,
-							Rows<4>(
-								framed = true,
-								frameText = "General Flags",
-								topPadding = DEFAULT_PADDING+0.4_em,
-								bottomPadding = DEFAULT_PADDING+1_px,
-								bottomMargin = 1_em,
-								DINFOBTN(),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_EDIBLE),
-									text = "Can Be Eaten By Enemies",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
-									}
-								),
-								INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
-									"\ninstead of when the item is 'used'."),
-								FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
-								DINFOBTN(),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
-									text = "Disabled In Sideview Water",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
-									}
-								),
-								DINFOBTN(),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
-									text = "Usable as a Bunny",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
-									}
-								),
-								DINFOBTN(),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
-									text = "Immune to jinxes",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
-									}
-								),
-								INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
-								Checkbox(
-									width = FLAGS_WID,
-									checked = (local_itemref.flags & ITEM_FLIP_JINX),
-									text = "Uses Other Jinx",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
-									}
-								)
-							),
-							Columns<8>(
-								framed = true,
-								frameText = "Variable Flags",
-								topPadding = DEFAULT_PADDING+0.4_em,
-								bottomPadding = DEFAULT_PADDING+1_px,
-								FLAG_CHECK(0,ITEM_FLAG1),
-								FLAG_CHECK(1,ITEM_FLAG2),
-								FLAG_CHECK(2,ITEM_FLAG3),
-								FLAG_CHECK(3,ITEM_FLAG4),
-								FLAG_CHECK(4,ITEM_FLAG5),
-								FLAG_CHECK(5,ITEM_FLAG6),
-								FLAG_CHECK(6,ITEM_FLAG7),
-								FLAG_CHECK(7,ITEM_FLAG8),
-								FLAG_CHECK(8,ITEM_FLAG9),
-								FLAG_CHECK(9,ITEM_FLAG10),
-								FLAG_CHECK(10,ITEM_FLAG11),
-								FLAG_CHECK(11,ITEM_FLAG12),
-								FLAG_CHECK(12,ITEM_FLAG13),
-								FLAG_CHECK(13,ITEM_FLAG14),
-								FLAG_CHECK(14,ITEM_FLAG15)
-							)
-						)),
-						TabRef(name = "Action", Row(
-							Column(
-								Rows<2>(framed = true, frameText = "Use Cost",
-									padding = DEFAULT_PADDING*2,
-									margins = DEFAULT_PADDING,
-									TextField(
-										val = local_itemref.cost_amount[0],
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -32768, high = 32767,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.cost_amount[0] = val;
-										}
-									),
-									DropDownList(
-										data = list_counters,
-										selectedValue = local_itemref.cost_counter[0],
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.cost_counter[0] = val;
-										}
-									),
-									Label(text = "Timer:", textAlign = 2, forceFitW = true),
-									TextField(
-										val = local_itemref.magiccosttimer[0],
-										type = GUI::TextField::type::INT_DECIMAL,
-										minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.magiccosttimer[0] = val;
-										}
-									),
-									DummyWidget(),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.flags & ITEM_VALIDATEONLY),
-										text = "Only Validate Cost",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
-										}
-									)
-								),
-								Rows<2>(framed = true, frameText = "Use Cost 2",
-									padding = DEFAULT_PADDING*2,
-									margins = DEFAULT_PADDING,
-									TextField(
-										val = local_itemref.cost_amount[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -32768, high = 32767,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.cost_amount[1] = val;
-										}
-									),
-									DropDownList(
-										data = list_counters,
-										selectedValue = local_itemref.cost_counter[1],
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.cost_counter[1] = val;
-										}
-									),
-									Label(text = "Timer:", textAlign = 2, forceFitW = true),
-									TextField(
-										val = local_itemref.magiccosttimer[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.magiccosttimer[1] = val;
-										}
-									),
-									DummyWidget(),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.flags & ITEM_VALIDATEONLY2),
-										text = "Only Validate Cost 2",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY2,state);
-										}
-									)
-								)
-							),
-							Column(
-								Rows<3>(framed = true, frameText = "SFX",
-									padding = DEFAULT_PADDING*2,
-									margins = DEFAULT_PADDING,
-									l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
-									ib_sfx[0] = Button(forceFitH = true, text = "?",
-										disabled = true,
-										onPressFunc = [&]()
-										{
-											InfoDialog("SFX Info",h_sfx[0]).show();
-										}),
-									TextField(
-										val = local_itemref.usesound,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.usesound = val;
-										}
-									),
-									l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
-									ib_sfx[1] = Button(forceFitH = true, text = "?",
-										disabled = true,
-										onPressFunc = [&]()
-										{
-											InfoDialog("SFX Info",h_sfx[1]).show();
-										}),
-									TextField(
-										val = local_itemref.usesound2,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.usesound2 = val;
-										}
-									)
-								),
-								Rows<2>(
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.flags & ITEM_DOWNGRADE),
-										text = "Remove Item When Used",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
-										}
-									)
-								)
-							)
-						)),
-						TabRef(name = "Pickup", Column(
-							Rows<4>(
-								//
-								Label(text = "Counter:", hAlign = 1.0),
-								DropDownList(
-									fitParent = true,
-									data = list_counters,
-									selectedValue = local_itemref.count,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.count = val;
-									}
-								),_d,_d,
-								//
-								Label(text = "Increase By:", hAlign = 1.0),
-								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, low = -9999, high = 16383,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.amount & 0x8000),
-									text = "Gradual",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.amount,0x8000,state);
-									}
-								),_d,
-								//
-								Label(text = "Increase Max:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.setmax,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, low = -32768, high = 32767,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.setmax = val;
-									}
-								),
-								Label(text = "But Not Above:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.max,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.max = val;
-									}
-								),
-								//
-								Label(text = "Sound:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.playsound,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.playsound = val;
-									}
-								),_d,_d,
-								//
-								Label(text = "Hearts Required:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.pickup_hearts,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.pickup_hearts = val;
-									}
-								),_d,_d
-							),
-							Column(
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_KEEPOLD),
-									text = "Keep Lower Level Items",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_KEEPOLD,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_GAINOLD),
-									text = "Gain All Lower Level Items",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_GAINOLD,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_COMBINE),
-									text = "Upgrade When Collected Twice",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_COMBINE,state);
-									}
-								)
-							),
-							Row(
-								Label(text = "String:"),
-								TextField(
-									val = local_itemref.pstring,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.pstring = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
-									text = "Always",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
-									text = "Only Held",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
-									}
-								)
-							)
-						)),
-						TabRef(name = "P. Flags", Column(
-							Row(
-								Label(text = "Flag Behavior:"),
-								DropDownList(
-									maxwidth = 10_em,
-									data = PFlagTypeList,
-									selectedValue = local_itemref.pickupflag,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.pickupflag = val;
-									}
-								)
-							),
-							Columns<8>(
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<0)),
-									text = "Large Collision Rectangle (INTERNAL)",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<0),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<1)),
-									text = "Hold Up Item",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<1),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<2)),
-									text = "Sets Screen State ST_ITEM",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<2),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<3)),
-									text = "Dummy Item",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<3),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<4)),
-									text = "Shop Item (INTERNAL)",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<4),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<5)),
-									text = "Pay for Info (INTERNAL)",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<5),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<6)),
-									text = "Item Fades",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<6),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<7)),
-									text = "Enemy Carries Item",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<7),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<8)),
-									text = "Item Disappears",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<8),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<9)),
-									text = "Big Triforce (INTERNAL)",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<9),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<10)),
-									text = "Invisible",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<10),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<11)),
-									text = "Triggers Screen State ST_SP_ITEM",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<11),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<12)),
-									text = "Triggers Screen Secrets",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<12),state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<13)),
-									text = "Always Grabbable",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup,(1<<13),state);
-									}
-								),
-								Checkbox(
-									disabled = true,
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<14)),
-									text = "--",
-									onToggleFunc = [&](bool state)
-									{
-										//SETFLAG(local_itemref.pickup,(1<<14),state);
-									}
-								),
-								Checkbox(
-									disabled = true,
-									hAlign = 0.0,
-									checked = (local_itemref.pickup & (1<<15)),
-									text = "--",
-									onToggleFunc = [&](bool state)
-									{
-										//SETFLAG(local_itemref.pickup,(1<<15),state);
-									}
-								)
-							)
-						)),
-						TabRef(name = "Weapon Data", Row(
-							Row(
-								vAlign = 0.0,
-								Rows<4>(
-									Label(hAlign = 1.0, text = "Weapon Type:"),
-									DropDownList(
-										fitParent = true,
-										data = list_weaptype,
-										selectedValue = local_itemref.useweapon,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.useweapon = val;
-										}
-									), _d, _d,
-									Label(hAlign = 1.0, text = "Default Defense:"),
-									DropDownList(
-										fitParent = true,
-										data = list_deftypes,
-										selectedValue = local_itemref.usedefence,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.usedefence = val;
-										}
-									), _d, _d,
-									Label(hAlign = 1.0, text = "Movement Pattern:"),
-									DropDownList(
-										disabled = DISABLE_WEAP_DATA,
-										fitParent = true,
-										data = WeapMoveTypeList,
-										selectedValue = local_itemref.weap_pattern[0],
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.weap_pattern[0] = val;
-										}
-									), _d, _d,
-									Label(hAlign = 1.0, text = "Movement Arg 1:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[1] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Weapon Range:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weaprange,
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weaprange = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Arg 2:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[2],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[2] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Weapon Duration:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weapduration,
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weapduration = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Arg 3:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[3],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[3] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Other 1:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[5],
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[5] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Arg 4:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[4],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[4] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Other 2:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[6],
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[6] = val;
-										}
-									)
-								)
-							)
-						))
-					)),
-					TabRef(name = "Graphics", TabPanel(
-						ptr = &itmtabs[2],
-						TabRef(name = "GFX", Row(
-							Rows<3>(
-								Label(text = "Flash CSet:", hAlign = 1.0),
-								TextField(
-									val = (local_itemref.csets>>4), rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 16,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.csets &= 0x0F;
-										local_itemref.csets |= val<<4;
-									}
-								),
-								DummyWidget(),
-								Label(text = "Animation Frames:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.frames, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.frames = val;
-										animFrame->setFrames(val);
-									}
-								),
-								DummyWidget(),
-								Label(text = "Animation Speed:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.speed, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.speed = val;
-										animFrame->setSpeed(val);
-									}
-								),
-								DummyWidget(),
-								Label(text = "Initial Delay:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.delay, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.delay = val;
-										animFrame->setDelay(val);
-									}
-								),
-								DummyWidget(),
-								Label(text = "Player Tile Modifier:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.ltm, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.ltm = val;
-									}
-								),
-								Button(
-									width = 1.5_em, leftPadding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Tile Modifiers",
-											"The tile modifiers of the highest level item owned from each itemclass"
-											" are added up, and the total is added to the Player's tile.\n"
-											"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
-											" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
-											" found in Init Data is also added."
-										).show();
-									}
-								)
-							),
-							Column(
-								SelTileSwatch(
-									tile = local_itemref.tile,
-									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
-									{
-										local_itemref.tile = t;
-										local_itemref.csets &= 0xF0;
-										local_itemref.csets |= c&0x0F;
-										animFrame->setTile(calcBottleTile(local_itemref, bottleType));
-										animFrame->setCSet(c);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.misc_flags & 1),
-									text = "Flash",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.misc_flags,1,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.misc_flags & 2),
-									text = "2-Hand",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.misc_flags,2,state);
-									}
-								)
-							),
-							Column(
-								animSwitcher = Switcher(
-									DummyWidget(),
-									DropDownList(data = list_bottletypes,
-										fitParent = true, padding = 0_px,
-										selectedValue = bottleType,
-										onSelectFunc = [&](int32_t val)
-										{
-											bottleType = (byte)val;
-											animFrame->setTile(calcBottleTile(local_itemref, bottleType));
-											pendDraw();
-										}
-									)
-								),
-								animFrame = TileFrame(
-									hAlign = 0.0,
-									tile = local_itemref.tile,
-									cset = (local_itemref.csets & 0xF),
-									frames = local_itemref.frames,
-									speed = local_itemref.speed,
-									delay = local_itemref.delay,
-									skipx = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
-										? local_itemref.tilew-1 : 0,
-									skipy = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
-										? local_itemref.tileh-1 : 0,
-									do_sized = true
-								),
-								Button(text = "Refresh Preview", onClick = message::RELOAD)
-							)
-						)),
-						TabRef(name = "Sprites", Columns<5>(
-							SPRITE_DROP(0,wpn),
-							SPRITE_DROP(1,wpn2),
-							SPRITE_DROP(2,wpn3),
-							SPRITE_DROP(3,wpn4),
-							SPRITE_DROP(4,wpn5),
-							SPRITE_DROP(5,wpn6),
-							SPRITE_DROP(6,wpn7),
-							SPRITE_DROP(7,wpn8),
-							SPRITE_DROP(8,wpn9),
-							SPRITE_DROP(9,wpn10)
-						)),
-						TabRef(name = "Size", Row(
-							Columns<5>(
-								vAlign = 0.0,
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
-									TextField(
-										val = local_itemref.tilew,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 32,
-										onValueChanged = message::GFXSIZE,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.tilew = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
-										text = "Enabled",
-										onToggle = message::GFXSIZE,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
-									TextField(
-										val = local_itemref.tileh,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 32,
-										onValueChanged = message::GFXSIZE,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.tileh = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
-										text = "Enabled",
-										onToggle = message::GFXSIZE,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
-									TextField(
-										val = local_itemref.hxofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.hxofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
-									TextField(
-										val = local_itemref.hyofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.hyofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Y_OFFSET,state);
-										}
-									)
-								),
-								_d,
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
-									TextField(
-										val = local_itemref.hxsz,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.hxsz = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
-									TextField(
-										val = local_itemref.hysz,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.hysz = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
-									TextField(
-										val = local_itemref.hzsz,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.hzsz = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
-									TextField(
-										val = local_itemref.xofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.xofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
-									TextField(
-										val = local_itemref.yofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.yofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_Y_OFFSET,state);
-										}
-									)
-								)
-							)
-						)),
-						TabRef(name = "Weapon Size", Row(
-							Columns<5>(
-								vAlign = 0.0,
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
-									TextField(
-										val = local_itemref.weap_tilew,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 32,
-										onValueChanged = message::GFXSIZE,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_tilew = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
-										text = "Enabled",
-										onToggle = message::GFXSIZE,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
-									TextField(
-										val = local_itemref.weap_tileh,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 32,
-										onValueChanged = message::GFXSIZE,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_tileh = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
-										text = "Enabled",
-										onToggle = message::GFXSIZE,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
-									TextField(
-										val = local_itemref.weap_hxofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_hxofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
-									TextField(
-										val = local_itemref.weap_hyofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_hyofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Y_OFFSET,state);
-										}
-									)
-								),
-								_d,
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
-									TextField(
-										val = local_itemref.weap_hxsz,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_hxsz = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
-									TextField(
-										val = local_itemref.weap_hysz,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_hysz = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
-									TextField(
-										val = local_itemref.weap_hzsz,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_hzsz = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
-									TextField(
-										val = local_itemref.weap_xofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_xofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
-										}
-									)
-								),
-								Row(
-									Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
-									TextField(
-										val = local_itemref.weap_yofs,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_yofs = val;
-										}
-									),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
-										text = "Enabled",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_Y_OFFSET,state);
-										}
-									)
-								)
-							)
-						))
-					)),
-					TabRef(name = "Scripts", TabPanel(
-						ptr = &itmtabs[3],
-						TabRef(name = "Item", Row(
-							Column(
-								IT_INITD(0),
-								IT_INITD(1),
-								IT_INITD(2),
-								IT_INITD(3),
-								IT_INITD(4),
-								IT_INITD(5),
-								IT_INITD(6),
-								IT_INITD(7)
-							),
-							Column(
-								padding = 0_px, fitParent = true,
-								Rows<2>(vAlign = 0.0,
-									SCRIPT_LIST_PROC("Action Script:", list_itemdatscript, local_itemref.script, refreshScripts),
-									SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
-									SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
-								),
-								Rows<2>(hAlign = 1.0,
-									Label(text = "A1:"),
-									TextField(
-										val = local_itemref.initiala[0],
-										type = GUI::TextField::type::INT_DECIMAL,
-										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.initiala[0] = val;
-										}
-									),
-									Label(text = "A2:"),
-									TextField(
-										val = local_itemref.initiala[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.initiala[1] = val;
-										}
-									)
-								),
-								Row(
-									Label(text = "Script Info:"),
-									DropDownList(
-										maxwidth = 10_em,
-										data = ScriptDataList,
-										selectedValue = item_use_script_data,
-										onSelectFunc = [&](int32_t val)
-										{
-											item_use_script_data = val;
-											zc_set_config("zquest","show_itemscript_meta_type",val);
-											refreshScripts();
-										}
-									)
-								)
-							)
-						)),
-						TabRef(name = "Weapon", Row(
-							Column(
-								WP_INITD(0),
-								WP_INITD(1),
-								WP_INITD(2),
-								WP_INITD(3),
-								WP_INITD(4),
-								WP_INITD(5),
-								WP_INITD(6),
-								WP_INITD(7)
-							),
-							Rows<2>(vAlign = 0.0,
-								SCRIPT_LIST_PROC("Weapon Script:", list_weaponscript, local_itemref.weaponscript, refreshScripts)
-							)
-						))
-					))
-				),
-				Row(
-					vAlign = 1.0,
-					spacing = 2_em,
-					Button(
-						focused = true,
-						text = "OK",
-						minwidth = 90_lpx,
-						onClick = message::OK),
-					Button(
-						text = "Cancel",
-						minwidth = 90_lpx,
-						onClick = message::CANCEL),
-					Button(
-						text = "Default",
-						minwidth = 90_lpx,
-						onClick = message::DEFAULT)
+				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
+					Checkbox(
+						hAlign = 0.0,
+						checked = (local_itemref.flags & ITEM_GAMEDATA),
+						text = "Equipment Item",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
+						}
+					)
 				)
-			)
-		);
-	}
-	else
-	{
-		window = Window(
-			use_vsync = true,
-			title = titlebuf,
-			onClose = message::CANCEL,
-			Column(
-				TabPanel(
-					ptr = &itmtabs[0],
-					TabRef(name = "Basic", Column(
-						Rows<2>(padding = 0_px,
-							Label(text = "Name:"),
-							TextField(
-								fitParent = true,
-								maxLength = 63,
-								text = itemname,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+			),
+			TabPanel(
+				ptr = &itmtabs[0],
+				TabRef(name = "Data", TabPanel(
+					ptr = &itmtabs[1],
+					TabRef(name = "Attrib", Column(
+						Rows<6>(framed = true,
+							Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
+							Button(forceFitH = true, text = "?",
+								onPressFunc = [&]()
 								{
-									itemname = str;
-									char buf[256];
-									sprintf(buf, "Item Editor (%d): %s", index, itemname.c_str());
-									window->setTitle(buf);
-								}
-							),
-							Label(text = "Type:"),
-							Row(
-								height = sized(16_px, 21_px),
-								DropDownList(data = list_items,
-									fitParent = true, padding = 0_px,
-									selectedValue = local_itemref.family,
-									onSelectionChanged = message::ITEMCLASS
-								),
-								Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
+									InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
+										"By default, subscreens use the highest level item of an itemclass for displaying.").show();
+								}),
+							NUM_FIELD(fam_type, 1, 255, ATTR_WID),
+							l_power = Label(width=ATTR_LAB_WID,textAlign=2),
+							ib_power = Button(forceFitH = true, text = "?",
+								disabled = true,
+								onPressFunc = [&]()
 								{
-									InfoDialog(ZI.getItemClassName(local_itemref.family),
-										ZI.getItemClassHelp(local_itemref.family)
-									).show();
-								})
-							)
+									InfoDialog("Power Info",h_power).show();
+								}),
+							NUM_FIELD(power, 0, 255, ATTR_WID)
 						),
-						Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
+						Rows<6>(framed = true,
+							ATTRIB_FIELD(misc1,0),
+							ATTRIB_FIELD(misc6,5),
+							
+							ATTRIB_FIELD(misc2,1),
+							ATTRIB_FIELD(misc7,6),
+							
+							ATTRIB_FIELD(misc3,2),
+							ATTRIB_FIELD(misc8,7),
+							
+							ATTRIB_FIELD(misc4,3),
+							ATTRIB_FIELD(misc9,8),
+							
+							ATTRIB_FIELD(misc5,4),
+							ATTRIB_FIELD(misc10,9)
+						)
+					)),
+					TabRef(name = "Flags", Column(padding = 0_px,
+						Rows<4>(
+							framed = true,
+							frameText = "General Flags",
+							topPadding = DEFAULT_PADDING+0.4_em,
+							bottomPadding = DEFAULT_PADDING+1_px,
+							bottomMargin = 1_em,
+							DINFOBTN(),
 							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_GAMEDATA),
-								text = "Equipment Item",
+								width = FLAGS_WID,
+								checked = (local_itemref.flags & ITEM_EDIBLE),
+								text = "Can Be Eaten By Enemies",
 								onToggleFunc = [&](bool state)
 								{
-									SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
+									SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
+								}
+							),
+							INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
+								"\ninstead of when the item is 'used'."),
+							FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
+							DINFOBTN(),
+							Checkbox(
+								width = FLAGS_WID,
+								checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
+								text = "Disabled In Sideview Water",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
+								}
+							),
+							DINFOBTN(),
+							Checkbox(
+								width = FLAGS_WID,
+								checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
+								text = "Usable as a Bunny",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
+								}
+							),
+							DINFOBTN(),
+							Checkbox(
+								width = FLAGS_WID,
+								checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
+								text = "Immune to jinxes",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
+								}
+							),
+							INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
+							Checkbox(
+								width = FLAGS_WID,
+								checked = (local_itemref.flags & ITEM_FLIP_JINX),
+								text = "Uses Other Jinx",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
+								}
+							)
+						),
+						Columns<8>(
+							framed = true,
+							frameText = "Variable Flags",
+							topPadding = DEFAULT_PADDING+0.4_em,
+							bottomPadding = DEFAULT_PADDING+1_px,
+							FLAG_CHECK(0,ITEM_FLAG1),
+							FLAG_CHECK(1,ITEM_FLAG2),
+							FLAG_CHECK(2,ITEM_FLAG3),
+							FLAG_CHECK(3,ITEM_FLAG4),
+							FLAG_CHECK(4,ITEM_FLAG5),
+							FLAG_CHECK(5,ITEM_FLAG6),
+							FLAG_CHECK(6,ITEM_FLAG7),
+							FLAG_CHECK(7,ITEM_FLAG8),
+							FLAG_CHECK(8,ITEM_FLAG9),
+							FLAG_CHECK(9,ITEM_FLAG10),
+							FLAG_CHECK(10,ITEM_FLAG11),
+							FLAG_CHECK(11,ITEM_FLAG12),
+							FLAG_CHECK(12,ITEM_FLAG13),
+							FLAG_CHECK(13,ITEM_FLAG14),
+							FLAG_CHECK(14,ITEM_FLAG15)
+						)
+					)),
+					TabRef(name = "Action", Row(
+						Column(
+							Rows<2>(framed = true, frameText = "Use Cost",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
+								TextField(
+									val = local_itemref.cost_amount[0],
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -32768, high = 32767,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.cost_amount[0] = val;
+									}
+								),
+								DropDownList(
+									data = list_counters,
+									selectedValue = local_itemref.cost_counter[0],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.cost_counter[0] = val;
+									}
+								),
+								Label(text = "Timer:", textAlign = 2, forceFitW = true),
+								TextField(
+									val = local_itemref.magiccosttimer[0],
+									type = GUI::TextField::type::INT_DECIMAL,
+									minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.magiccosttimer[0] = val;
+									}
+								),
+								DummyWidget(),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_VALIDATEONLY),
+									text = "Only Validate Cost",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
+									}
+								)
+							),
+							Rows<2>(framed = true, frameText = "Use Cost 2",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
+								TextField(
+									val = local_itemref.cost_amount[1],
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, low = -32768, high = 32767,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.cost_amount[1] = val;
+									}
+								),
+								DropDownList(
+									data = list_counters,
+									selectedValue = local_itemref.cost_counter[1],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.cost_counter[1] = val;
+									}
+								),
+								Label(text = "Timer:", textAlign = 2, forceFitW = true),
+								TextField(
+									val = local_itemref.magiccosttimer[1],
+									type = GUI::TextField::type::INT_DECIMAL,
+									minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.magiccosttimer[1] = val;
+									}
+								),
+								DummyWidget(),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_VALIDATEONLY2),
+									text = "Only Validate Cost 2",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY2,state);
+									}
+								)
+							)
+						),
+						Column(
+							Rows<3>(framed = true, frameText = "SFX",
+								padding = DEFAULT_PADDING*2,
+								margins = DEFAULT_PADDING,
+								l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[0] = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("SFX Info",h_sfx[0]).show();
+									}),
+								TextField(
+									val = local_itemref.usesound,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.usesound = val;
+									}
+								),
+								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
+								ib_sfx[1] = Button(forceFitH = true, text = "?",
+									disabled = true,
+									onPressFunc = [&]()
+									{
+										InfoDialog("SFX Info",h_sfx[1]).show();
+									}),
+								TextField(
+									val = local_itemref.usesound2,
+									type = GUI::TextField::type::INT_DECIMAL,
+									width = ACTION_FIELD_WID, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.usesound2 = val;
+									}
+								)
+							),
+							Rows<2>(
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_DOWNGRADE),
+									text = "Remove Item When Used",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
+									}
+								)
+							)
+						)
+					)),
+					TabRef(name = "Pickup", Column(
+						Rows<4>(
+							//
+							Label(text = "Counter:", hAlign = 1.0),
+							DropDownList(
+								fitParent = true,
+								data = list_counters,
+								selectedValue = local_itemref.count,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_itemref.count = val;
+								}
+							),_d,_d,
+							//
+							Label(text = "Increase By:", hAlign = 1.0),
+							TextField(
+								val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
+								type = GUI::TextField::type::INT_DECIMAL,
+								fitParent = true, low = -9999, high = 16383,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.amount &= 0x8000;
+									local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.amount & 0x8000),
+								text = "Gradual",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.amount,0x8000,state);
+								}
+							),_d,
+							//
+							Label(text = "Increase Max:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.setmax,
+								type = GUI::TextField::type::INT_DECIMAL,
+								fitParent = true, low = -32768, high = 32767,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.setmax = val;
+								}
+							),
+							Label(text = "But Not Above:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.max,
+								type = GUI::TextField::type::INT_DECIMAL,
+								fitParent = true, high = 65535,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.max = val;
+								}
+							),
+							//
+							Label(text = "Sound:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.playsound,
+								type = GUI::TextField::type::INT_DECIMAL,
+								fitParent = true, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.playsound = val;
+								}
+							),_d,_d,
+							//
+							Label(text = "Hearts Required:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.pickup_hearts,
+								type = GUI::TextField::type::INT_DECIMAL,
+								fitParent = true, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.pickup_hearts = val;
+								}
+							),_d,_d
+						),
+						Column(
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.flags & ITEM_KEEPOLD),
+								text = "Keep Lower Level Items",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_KEEPOLD,state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.flags & ITEM_GAINOLD),
+								text = "Gain All Lower Level Items",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_GAINOLD,state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.flags & ITEM_COMBINE),
+								text = "Upgrade When Collected Twice",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.flags,ITEM_COMBINE,state);
+								}
+							)
+						),
+						Row(
+							Label(text = "String:"),
+							TextField(
+								val = local_itemref.pstring,
+								type = GUI::TextField::type::INT_DECIMAL,
+								fitParent = true, high = 65535,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.pstring = val;
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
+								text = "Always",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
+								text = "Only Held",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
 								}
 							)
 						)
 					)),
-					TabRef(name = "Data", TabPanel(
-						ptr = &itmtabs[1],
-						TabRef(name = "Attrib", ScrollingPane(
-							ptr = &scroll_pos1,
-							Rows<3>(
-								Label(width=ATTR_LAB_WID,textAlign=2,text="Level:"),
-								Button(forceFitH = true, text = "?",
-									onPressFunc = [&]()
-									{
-										InfoDialog("Level Info","Most passive items only take effect if they are the highest level you own.\n"
-											"By default, subscreens use the highest level item of an itemclass for displaying.").show();
-									}),
-								NUM_FIELD(fam_type, 1, 255, ATTR_WID),
-								
-								l_power = Label(width=ATTR_LAB_WID,textAlign=2),
-								ib_power = Button(forceFitH = true, text = "?",
-									disabled = true,
-									onPressFunc = [&]()
-									{
-										InfoDialog("Attribute Info",h_power).show();
-									}),
-								NUM_FIELD(power, 0, 255, ATTR_WID),
-								
-								ATTRIB_FIELD(misc1,0),
-								ATTRIB_FIELD(misc2,1),
-								ATTRIB_FIELD(misc3,2),
-								ATTRIB_FIELD(misc4,3),
-								ATTRIB_FIELD(misc5,4),
-								ATTRIB_FIELD(misc6,5),
-								ATTRIB_FIELD(misc7,6),
-								ATTRIB_FIELD(misc8,7),
-								ATTRIB_FIELD(misc9,8),
-								ATTRIB_FIELD(misc10,9)
-							)
-						)),
-						TabRef(name = "Flags", ScrollingPane(
-							ptr = &scroll_pos2,
-							Column(
-								topMargin = 6_px,
-								Rows<2>(
-									framed = true,
-									frameText = "General Flags",
-									topPadding = DEFAULT_PADDING+0.4_em,
-									bottomPadding = DEFAULT_PADDING+1_px,
-									bottomMargin = 1_em,
-									DINFOBTN(),
-									Checkbox(
-										width = FLAGS_WID,
-										checked = (local_itemref.flags & ITEM_EDIBLE),
-										text = "Can Be Eaten By Enemies",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_EDIBLE,state);
-										}
-									),
-									INFOBTN("The item's 'Action Script' runs every frame while the item is owned,"
-										"\ninstead of when the item is 'used'."),
-									FLAG_CHECK_NOINFO(15,ITEM_PASSIVESCRIPT),
-									DINFOBTN(),
-									Checkbox(
-										width = FLAGS_WID,
-										checked = (local_itemref.flags & ITEM_SIDESWIM_DISABLED),
-										text = "Disabled In Sideview Water",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
-										}
-									),
-									DINFOBTN(),
-									Checkbox(
-										width = FLAGS_WID,
-										checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
-										text = "Usable as a Bunny",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_BUNNY_ENABLED,state);
-										}
-									),
-									DINFOBTN(),
-									Checkbox(
-										width = FLAGS_WID,
-										checked = (local_itemref.flags & ITEM_JINX_IMMUNE),
-										text = "Immune to jinxes",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_JINX_IMMUNE,state);
-										}
-									),
-									INFOBTN("With this checked, swords will use the item jinx, and vice-versa."),
-									Checkbox(
-										width = FLAGS_WID,
-										checked = (local_itemref.flags & ITEM_FLIP_JINX),
-										text = "Uses Other Jinx",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_FLIP_JINX,state);
-										}
-									)
-								),
-								Column(
-									framed = true,
-									frameText = "Variable Flags",
-									topPadding = DEFAULT_PADDING+0.4_em,
-									bottomPadding = DEFAULT_PADDING+1_px,
-									FLAG_CHECK(0,ITEM_FLAG1),
-									FLAG_CHECK(1,ITEM_FLAG2),
-									FLAG_CHECK(2,ITEM_FLAG3),
-									FLAG_CHECK(3,ITEM_FLAG4),
-									FLAG_CHECK(4,ITEM_FLAG5),
-									FLAG_CHECK(5,ITEM_FLAG6),
-									FLAG_CHECK(6,ITEM_FLAG7),
-									FLAG_CHECK(7,ITEM_FLAG8),
-									FLAG_CHECK(8,ITEM_FLAG9),
-									FLAG_CHECK(9,ITEM_FLAG10),
-									FLAG_CHECK(10,ITEM_FLAG11),
-									FLAG_CHECK(11,ITEM_FLAG12),
-									FLAG_CHECK(12,ITEM_FLAG13),
-									FLAG_CHECK(13,ITEM_FLAG14),
-									FLAG_CHECK(14,ITEM_FLAG15)
-								)
-							)
-						)),
-						TabRef(name = "Action", Row(
-							Column(
-								Rows<2>(framed = true, frameText = "Use Cost",
-									padding = DEFAULT_PADDING*2,
-									margins = DEFAULT_PADDING,
-									TextField(
-										val = local_itemref.cost_amount[0],
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -32768, high = 32767,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.cost_amount[0] = val;
-										}
-									),
-									DropDownList(
-										data = list_counters,
-										selectedValue = local_itemref.cost_counter[0],
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.cost_counter[0] = val;
-										}
-									),
-									Label(text = "Timer:", textAlign = 2, forceFitW = true),
-									TextField(
-										val = local_itemref.magiccosttimer[0],
-										type = GUI::TextField::type::INT_DECIMAL,
-										minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.magiccosttimer[0] = val;
-										}
-									),
-									DummyWidget(),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.flags & ITEM_VALIDATEONLY),
-										text = "Only Validate Cost",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY,state);
-										}
-									)
-								),
-								Rows<2>(framed = true, frameText = "Use Cost 2",
-									padding = DEFAULT_PADDING*2,
-									margins = DEFAULT_PADDING,
-									TextField(
-										val = local_itemref.cost_amount[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, low = -32768, high = 32767,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.cost_amount[1] = val;
-										}
-									),
-									DropDownList(
-										data = list_counters,
-										selectedValue = local_itemref.cost_counter[1],
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.cost_counter[1] = val;
-										}
-									),
-									Label(text = "Timer:", textAlign = 2, forceFitW = true),
-									TextField(
-										val = local_itemref.magiccosttimer[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										minwidth = ACTION_FIELD_WID, fitParent = true, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.magiccosttimer[1] = val;
-										}
-									),
-									DummyWidget(),
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.flags & ITEM_VALIDATEONLY2),
-										text = "Only Validate Cost 2",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_VALIDATEONLY2,state);
-										}
-									)
-								)
-							),
-							Column(
-								Rows<3>(framed = true, frameText = "SFX",
-									padding = DEFAULT_PADDING*2,
-									margins = DEFAULT_PADDING,
-									l_sfx[0] = Label(textAlign = 2, width = ACTION_LAB_WID),
-									ib_sfx[0] = Button(forceFitH = true, text = "?",
-										disabled = true,
-										onPressFunc = [&]()
-										{
-											InfoDialog("SFX Info",h_sfx[0]).show();
-										}),
-									TextField(
-										val = local_itemref.usesound,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.usesound = val;
-										}
-									),
-									l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
-									ib_sfx[1] = Button(forceFitH = true, text = "?",
-										disabled = true,
-										onPressFunc = [&]()
-										{
-											InfoDialog("SFX Info",h_sfx[1]).show();
-										}),
-									TextField(
-										val = local_itemref.usesound2,
-										type = GUI::TextField::type::INT_DECIMAL,
-										width = ACTION_FIELD_WID, high = 255,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.usesound2 = val;
-										}
-									)
-								),
-								Rows<2>(
-									Checkbox(
-										hAlign = 0.0,
-										checked = (local_itemref.flags & ITEM_DOWNGRADE),
-										text = "Remove Item When Used",
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(local_itemref.flags,ITEM_DOWNGRADE,state);
-										}
-									)
-								)
-							)
-						)),
-						TabRef(name = "Pickup", Column(
-							Rows<4>(
-								//
-								Label(text = "Counter:", hAlign = 1.0),
-								DropDownList(
-									fitParent = true,
-									data = list_counters,
-									selectedValue = local_itemref.count,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.count = val;
-									}
-								),_d,_d,
-								//
-								Label(text = "Increase By:", hAlign = 1.0),
-								TextField(
-									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, low = -9999, high = 16383,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.amount &= 0x8000;
-										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.amount & 0x8000),
-									text = "Gradual",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.amount,0x8000,state);
-									}
-								),_d,
-								//
-								Label(text = "Increase Max:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.setmax,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, low = -32768, high = 32767,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.setmax = val;
-									}
-								),
-								Label(text = "But Not Above:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.max,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.max = val;
-									}
-								),
-								//
-								Label(text = "Sound:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.playsound,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.playsound = val;
-									}
-								),_d,_d,
-								//
-								Label(text = "Hearts Required:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.pickup_hearts,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.pickup_hearts = val;
-									}
-								),_d,_d
-							),
-							Column(
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_KEEPOLD),
-									text = "Keep Lower Level Items",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_KEEPOLD,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_GAINOLD),
-									text = "Gain All Lower Level Items",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_GAINOLD,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.flags & ITEM_COMBINE),
-									text = "Upgrade When Collected Twice",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.flags,ITEM_COMBINE,state);
-									}
-								)
-							),
-							Row(
-								Label(text = "String:"),
-								TextField(
-									val = local_itemref.pstring,
-									type = GUI::TextField::type::INT_DECIMAL,
-									fitParent = true, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.pstring = val;
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
-									text = "Always",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
-									text = "Only Held",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
-									}
-								)
-							)
-						)),
-						TabRef(name = "P. Flags", Column(
-							Row(
-								Label(text = "Flag Behavior:"),
-								DropDownList(
-									maxwidth = 10_em,
-									data = PFlagTypeList,
-									selectedValue = local_itemref.pickupflag,
-									onSelectFunc = [&](int32_t val)
-									{
-										local_itemref.pickupflag = val;
-									}
-								)
-							),
-							TabPanel(padding = 0_px,
-								TabRef(name = "1",
-									Column(
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<0)),
-											text = "Large Collision Rectangle (INTERNAL)",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<0),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<1)),
-											text = "Hold Up Item",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<1),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<2)),
-											text = "Sets Screen State ST_ITEM",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<2),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<3)),
-											text = "Dummy Item",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<3),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<4)),
-											text = "Shop Item (INTERNAL)",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<4),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<5)),
-											text = "Pay for Info (INTERNAL)",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<5),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<6)),
-											text = "Item Fades",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<6),state);
-											}
-										)
-									)
-								),
-								TabRef(name = "2",
-									Column(
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<7)),
-											text = "Enemy Carries Item",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<7),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<8)),
-											text = "Item Disappears",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<8),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<9)),
-											text = "Big Triforce (INTERNAL)",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<9),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<10)),
-											text = "Invisible",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<10),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<11)),
-											text = "Triggers Screen State ST_SP_ITEM",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<11),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<12)),
-											text = "Triggers Screen Secrets",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<12),state);
-											}
-										),
-										Checkbox(
-											hAlign = 0.0,
-											checked = (local_itemref.pickup & (1<<13)),
-											text = "Always Grabbable",
-											onToggleFunc = [&](bool state)
-											{
-												SETFLAG(local_itemref.pickup,(1<<13),state);
-											}
-										)
-									)
-								)
-							)
-						)),
-						TabRef(name = "Weapon Data", Row(
-							Column(
-								vAlign = 0.0,
-								Rows<2>(
-									Label(hAlign = 1.0, text = "Weapon Type:"),
-									DropDownList(
-										fitParent = true,
-										data = list_weaptype,
-										selectedValue = local_itemref.useweapon,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.useweapon = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Default Defense:"),
-									DropDownList(
-										fitParent = true,
-										data = list_deftypes,
-										selectedValue = local_itemref.usedefence,
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.usedefence = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Pattern:"),
-									DropDownList(
-										disabled = DISABLE_WEAP_DATA,
-										fitParent = true,
-										data = WeapMoveTypeList,
-										selectedValue = local_itemref.weap_pattern[0],
-										onSelectFunc = [&](int32_t val)
-										{
-											local_itemref.weap_pattern[0] = val;
-										}
-									)
-								),
-								Rows<4>(
-									Label(hAlign = 1.0, text = "Movement Arg 1:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[1] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Weapon Range:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weaprange,
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weaprange = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Arg 2:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[2],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[2] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Weapon Duration:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weapduration,
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weapduration = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Arg 3:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[3],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[3] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Other 1:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[5],
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[5] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Movement Arg 4:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[4],
-										type = GUI::TextField::type::INT_DECIMAL,
-										hAlign = 0.0, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[4] = val;
-										}
-									),
-									Label(hAlign = 1.0, text = "Other 2:"),
-									TextField(disabled = DISABLE_WEAP_DATA,
-										val = local_itemref.weap_pattern[6],
-										type = GUI::TextField::type::INT_DECIMAL,
-										fitParent = true, low = -214748, high = 214748,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.weap_pattern[6] = val;
-										}
-									)
-								)
-							)
-						))
-					)),
-					TabRef(name = "Graphics", TabPanel(
-						ptr = &itmtabs[2],
-						TabRef(name = "GFX", Row(
-							Rows<3>(
-								Label(text = "Flash CSet:", hAlign = 1.0),
-								TextField(
-									val = (local_itemref.csets>>4), rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 16,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.csets &= 0x0F;
-										local_itemref.csets |= val<<4;
-									}
-								),
-								DummyWidget(),
-								Label(text = "Animation Frames:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.frames, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.frames = val;
-										animFrame->setFrames(val);
-									}
-								),
-								DummyWidget(),
-								Label(text = "Animation Speed:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.speed, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.speed = val;
-										animFrame->setSpeed(val);
-									}
-								),
-								DummyWidget(),
-								Label(text = "Initial Delay:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.delay, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.delay = val;
-										animFrame->setDelay(val);
-									}
-								),
-								DummyWidget(),
-								Label(text = "Player Tile Modifier:", hAlign = 1.0),
-								TextField(
-									val = local_itemref.ltm, rightPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_itemref.ltm = val;
-									}
-								),
-								Button(
-									width = 1.5_em, leftPadding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Tile Modifiers",
-											"The tile modifiers of the highest level item owned from each itemclass"
-											" are added up, and the total is added to the Player's tile.\n"
-											"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
-											" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
-											" found in Init Data is also added."
-										).show();
-									}
-								)
-							),
-							Column(
-								SelTileSwatch(
-									tile = local_itemref.tile,
-									cset = (local_itemref.csets & 0x0F),
-									onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
-									{
-										local_itemref.tile = t;
-										local_itemref.csets &= 0xF0;
-										local_itemref.csets |= c&0x0F;
-										animFrame->setTile(calcBottleTile(local_itemref, bottleType));
-										animFrame->setCSet(c);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.misc_flags & 1),
-									text = "Flash",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.misc_flags,1,state);
-									}
-								),
-								Checkbox(
-									hAlign = 0.0,
-									checked = (local_itemref.misc_flags & 2),
-									text = "2-Hand",
-									onToggleFunc = [&](bool state)
-									{
-										SETFLAG(local_itemref.misc_flags,2,state);
-									}
-								)
-							),
-							Column(
-								animSwitcher = Switcher(
-									DummyWidget(),
-									DropDownList(data = list_bottletypes,
-										fitParent = true, padding = 0_px,
-										selectedValue = bottleType,
-										onSelectFunc = [&](int32_t val)
-										{
-											bottleType = (byte)val;
-											animFrame->setTile(calcBottleTile(local_itemref, bottleType));
-											pendDraw();
-										}
-									)
-								),
-								animFrame = TileFrame(
-									hAlign = 0.0,
-									tile = local_itemref.tile,
-									cset = (local_itemref.csets & 0xF),
-									frames = local_itemref.frames,
-									speed = local_itemref.speed,
-									delay = local_itemref.delay,
-									skipx = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
-										? local_itemref.tilew-1 : 0,
-									skipy = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
-										? local_itemref.tileh-1 : 0,
-									do_sized = true
-								),
-								Button(text = "Refresh Preview", onClick = message::RELOAD)
-							)
-						)),
-						TabRef(name = "Sprites", 
-							TabPanel(
-								TabRef(name = "1", Column(
-									SPRITE_DROP(0,wpn),
-									SPRITE_DROP(1,wpn2),
-									SPRITE_DROP(2,wpn3),
-									SPRITE_DROP(3,wpn4),
-									SPRITE_DROP(4,wpn5)
-								)),
-								TabRef(name = "2", Column(
-									SPRITE_DROP(5,wpn6),
-									SPRITE_DROP(6,wpn7),
-									SPRITE_DROP(7,wpn8),
-									SPRITE_DROP(8,wpn9),
-									SPRITE_DROP(9,wpn10)
-								))
+					TabRef(name = "P. Flags", Column(
+						Row(
+							Label(text = "Flag Behavior:"),
+							DropDownList(
+								maxwidth = 10_em,
+								data = PFlagTypeList,
+								selectedValue = local_itemref.pickupflag,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_itemref.pickupflag = val;
+								}
 							)
 						),
-						TabRef(name = "Size", Row(
-							Rows<2>(
-								vAlign = 0.0,
-								Label(textAlign = 2, text = "TileWidth:"),
+						Columns<8>(
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<0)),
+								text = "Large Collision Rectangle (INTERNAL)",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<0),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<1)),
+								text = "Hold Up Item",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<1),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<2)),
+								text = "Sets Screen State ST_ITEM",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<2),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<3)),
+								text = "Dummy Item",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<3),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<4)),
+								text = "Shop Item (INTERNAL)",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<4),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<5)),
+								text = "Pay for Info (INTERNAL)",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<5),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<6)),
+								text = "Item Fades",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<6),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<7)),
+								text = "Enemy Carries Item",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<7),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<8)),
+								text = "Item Disappears",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<8),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<9)),
+								text = "Big Triforce (INTERNAL)",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<9),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<10)),
+								text = "Invisible",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<10),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<11)),
+								text = "Triggers Screen State ST_SP_ITEM",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<11),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<12)),
+								text = "Triggers Screen Secrets",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<12),state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<13)),
+								text = "Always Grabbable",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.pickup,(1<<13),state);
+								}
+							),
+							Checkbox(
+								disabled = true,
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<14)),
+								text = "--",
+								onToggleFunc = [&](bool state)
+								{
+									//SETFLAG(local_itemref.pickup,(1<<14),state);
+								}
+							),
+							Checkbox(
+								disabled = true,
+								hAlign = 0.0,
+								checked = (local_itemref.pickup & (1<<15)),
+								text = "--",
+								onToggleFunc = [&](bool state)
+								{
+									//SETFLAG(local_itemref.pickup,(1<<15),state);
+								}
+							)
+						)
+					)),
+					TabRef(name = "Weapon Data", Row(
+						Row(
+							vAlign = 0.0,
+							Rows<4>(
+								Label(hAlign = 1.0, text = "Weapon Type:"),
+								DropDownList(
+									fitParent = true,
+									data = list_weaptype,
+									selectedValue = local_itemref.useweapon,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.useweapon = val;
+									}
+								), _d, _d,
+								Label(hAlign = 1.0, text = "Default Defense:"),
+								DropDownList(
+									fitParent = true,
+									data = list_deftypes,
+									selectedValue = local_itemref.usedefence,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.usedefence = val;
+									}
+								), _d, _d,
+								Label(hAlign = 1.0, text = "Movement Pattern:"),
+								DropDownList(
+									disabled = DISABLE_WEAP_DATA,
+									fitParent = true,
+									data = WeapMoveTypeList,
+									selectedValue = local_itemref.weap_pattern[0],
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.weap_pattern[0] = val;
+									}
+								), _d, _d,
+								Label(hAlign = 1.0, text = "Movement Arg 1:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[1],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weap_pattern[1] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Weapon Range:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weaprange,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weaprange = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Movement Arg 2:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[2],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weap_pattern[2] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Weapon Duration:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weapduration,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weapduration = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Movement Arg 3:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[3],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weap_pattern[3] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Other 1:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[5],
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weap_pattern[5] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Movement Arg 4:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[4],
+									type = GUI::TextField::type::INT_DECIMAL,
+									hAlign = 0.0, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weap_pattern[4] = val;
+									}
+								),
+								Label(hAlign = 1.0, text = "Other 2:"),
+								TextField(disabled = DISABLE_WEAP_DATA,
+									val = local_itemref.weap_pattern[6],
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = -214748, high = 214748,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.weap_pattern[6] = val;
+									}
+								)
+							)
+						)
+					))
+				)),
+				TabRef(name = "Graphics", TabPanel(
+					ptr = &itmtabs[2],
+					TabRef(name = "GFX", Row(
+						Rows<3>(
+							Label(text = "Flash CSet:", hAlign = 1.0),
+							TextField(
+								val = (local_itemref.csets>>4), rightPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 16,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.csets &= 0x0F;
+									local_itemref.csets |= val<<4;
+								}
+							),
+							DummyWidget(),
+							Label(text = "Animation Frames:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.frames, rightPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.frames = val;
+									animFrame->setFrames(val);
+								}
+							),
+							DummyWidget(),
+							Label(text = "Animation Speed:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.speed, rightPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.speed = val;
+									animFrame->setSpeed(val);
+								}
+							),
+							DummyWidget(),
+							Label(text = "Initial Delay:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.delay, rightPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, high = 255,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.delay = val;
+									animFrame->setDelay(val);
+								}
+							),
+							DummyWidget(),
+							Label(text = "Player Tile Modifier:", hAlign = 1.0),
+							TextField(
+								val = local_itemref.ltm, rightPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								width = ACTION_FIELD_WID, low = (0-(NEWMAXTILES-1)), high = (NEWMAXTILES-1),
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_itemref.ltm = val;
+								}
+							),
+							Button(
+								width = 1.5_em, leftPadding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Tile Modifiers",
+										"The tile modifiers of the highest level item owned from each itemclass"
+										" are added up, and the total is added to the Player's tile.\n"
+										"If the player is a Bunny, then only items which have the 'Usable as a Bunny'"
+										" flag checked will have their tile modifiers count, but the 'Bunny Tile Mod'"
+										" found in Init Data is also added."
+									).show();
+								}
+							)
+						),
+						Column(
+							SelTileSwatch(
+								tile = local_itemref.tile,
+								cset = (local_itemref.csets & 0x0F),
+								onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+								{
+									local_itemref.tile = t;
+									local_itemref.csets &= 0xF0;
+									local_itemref.csets |= c&0x0F;
+									animFrame->setTile(calcBottleTile(local_itemref, bottleType));
+									animFrame->setCSet(c);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.misc_flags & 1),
+								text = "Flash",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.misc_flags,1,state);
+								}
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = (local_itemref.misc_flags & 2),
+								text = "2-Hand",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_itemref.misc_flags,2,state);
+								}
+							)
+						),
+						Column(
+							animSwitcher = Switcher(
+								DummyWidget(),
+								DropDownList(data = list_bottletypes,
+									fitParent = true, padding = 0_px,
+									selectedValue = bottleType,
+									onSelectFunc = [&](int32_t val)
+									{
+										bottleType = (byte)val;
+										animFrame->setTile(calcBottleTile(local_itemref, bottleType));
+										pendDraw();
+									}
+								)
+							),
+							animFrame = TileFrame(
+								hAlign = 0.0,
+								tile = local_itemref.tile,
+								cset = (local_itemref.csets & 0xF),
+								frames = local_itemref.frames,
+								speed = local_itemref.speed,
+								delay = local_itemref.delay,
+								skipx = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH)
+									? local_itemref.tilew-1 : 0,
+								skipy = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
+									? local_itemref.tileh-1 : 0,
+								do_sized = true
+							),
+							Button(text = "Refresh Preview", onClick = message::RELOAD)
+						)
+					)),
+					TabRef(name = "Sprites", Columns<5>(
+						SPRITE_DROP(0,wpn),
+						SPRITE_DROP(1,wpn2),
+						SPRITE_DROP(2,wpn3),
+						SPRITE_DROP(3,wpn4),
+						SPRITE_DROP(4,wpn5),
+						SPRITE_DROP(5,wpn6),
+						SPRITE_DROP(6,wpn7),
+						SPRITE_DROP(7,wpn8),
+						SPRITE_DROP(8,wpn9),
+						SPRITE_DROP(9,wpn10)
+					)),
+					TabRef(name = "Size", Row(
+						Columns<5>(
+							vAlign = 0.0,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
 								TextField(
 									val = local_itemref.tilew,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
+									onValueChanged = message::GFXSIZE,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.tilew = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
 									text = "Enabled",
+									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
 									}
-								),
-								Label(textAlign = 2, text = "TileHeight:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
 								TextField(
 									val = local_itemref.tileh,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
+									onValueChanged = message::GFXSIZE,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.tileh = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
 									text = "Enabled",
+									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitXOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
 								TextField(
 									val = local_itemref.hxofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3428,7 +2067,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.hxofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
 									text = "Enabled",
@@ -3436,8 +2075,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitYOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
 								TextField(
 									val = local_itemref.hyofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3447,7 +2088,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.hyofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
 									text = "Enabled",
@@ -3457,9 +2098,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							),
-							Rows<2>(
-								vAlign = 0.0,
-								Label(textAlign = 2, text = "HitWidth:"),
+							_d,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
 								TextField(
 									val = local_itemref.hxsz,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3469,7 +2110,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.hxsz = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
 									text = "Enabled",
@@ -3477,8 +2118,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitHeight:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
 								TextField(
 									val = local_itemref.hysz,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3488,7 +2131,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.hysz = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
 									text = "Enabled",
@@ -3496,8 +2139,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitZHeight:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
 								TextField(
 									val = local_itemref.hzsz,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3507,7 +2152,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.hzsz = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
 									text = "Enabled",
@@ -3515,8 +2160,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
 									}
-								),
-								Label(textAlign = 2, text = "DrawXOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
 								TextField(
 									val = local_itemref.xofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3526,7 +2173,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.xofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
 									text = "Enabled",
@@ -3534,8 +2181,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.overrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
 									}
-								),
-								Label(textAlign = 2, text = "DrawYOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
 								TextField(
 									val = local_itemref.yofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3545,7 +2194,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.yofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.overrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
 									text = "Enabled",
@@ -3555,49 +2204,59 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							)
-						)),
-						TabRef(name = "Weapon Size", Row(
-							Rows<2>(
-								vAlign = 0.0,
-								Label(textAlign = 2, text = "TileWidth:"),
+						)
+					)),
+					TabRef(name = "Weapon Size", Row(
+						Columns<5>(
+							vAlign = 0.0,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileWidth:"),
 								TextField(
 									val = local_itemref.weap_tilew,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
+									onValueChanged = message::GFXSIZE,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_tilew = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEWIDTH),
 									text = "Enabled",
+									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEWIDTH,state);
 									}
-								),
-								Label(textAlign = 2, text = "TileHeight:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "TileHeight:"),
 								TextField(
 									val = local_itemref.weap_tileh,
 									type = GUI::TextField::type::INT_DECIMAL,
 									width = ACTION_FIELD_WID, high = 32,
+									onValueChanged = message::GFXSIZE,
 									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 									{
 										local_itemref.weap_tileh = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_TILEHEIGHT),
 									text = "Enabled",
+									onToggle = message::GFXSIZE,
 									onToggleFunc = [&](bool state)
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_TILEHEIGHT,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitXOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitXOffset:"),
 								TextField(
 									val = local_itemref.weap_hxofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3607,7 +2266,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_hxofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET),
 									text = "Enabled",
@@ -3615,8 +2274,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_X_OFFSET,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitYOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitYOffset:"),
 								TextField(
 									val = local_itemref.weap_hyofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3626,7 +2287,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_hyofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET),
 									text = "Enabled",
@@ -3636,9 +2297,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							),
-							Rows<2>(
-								vAlign = 0.0,
-								Label(textAlign = 2, text = "HitWidth:"),
+							_d,
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitWidth:"),
 								TextField(
 									val = local_itemref.weap_hxsz,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3648,7 +2309,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_hxsz = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_WIDTH),
 									text = "Enabled",
@@ -3656,8 +2317,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_WIDTH,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitHeight:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitHeight:"),
 								TextField(
 									val = local_itemref.weap_hysz,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3667,7 +2330,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_hysz = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT),
 									text = "Enabled",
@@ -3675,8 +2338,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_HEIGHT,state);
 									}
-								),
-								Label(textAlign = 2, text = "HitZHeight:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "HitZHeight:"),
 								TextField(
 									val = local_itemref.weap_hzsz,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3686,7 +2351,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_hzsz = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_HIT_Z_HEIGHT),
 									text = "Enabled",
@@ -3694,8 +2359,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_HIT_Z_HEIGHT,state);
 									}
-								),
-								Label(textAlign = 2, text = "DrawXOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawXOffset:"),
 								TextField(
 									val = local_itemref.weap_xofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3705,7 +2372,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_xofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_X_OFFSET),
 									text = "Enabled",
@@ -3713,8 +2380,10 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										SETFLAG(local_itemref.weapoverrideFLAGS,itemdataOVERRIDE_DRAW_X_OFFSET,state);
 									}
-								),
-								Label(textAlign = 2, text = "DrawYOffset:"),
+								)
+							),
+							Row(
+								Label(textAlign = 2, width = 6_em, text = "DrawYOffset:"),
 								TextField(
 									val = local_itemref.weap_yofs,
 									type = GUI::TextField::type::INT_DECIMAL,
@@ -3724,7 +2393,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.weap_yofs = val;
 									}
 								),
-								_d,Checkbox(
+								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.weapoverrideFLAGS & itemdataOVERRIDE_DRAW_Y_OFFSET),
 									text = "Enabled",
@@ -3734,103 +2403,103 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									}
 								)
 							)
-						))
-					)),
-					TabRef(name = "Scripts", TabPanel(
-						ptr = &itmtabs[3],
-						TabRef(name = "Item", Row(
-							Column(
-								IT_INITD(0),
-								IT_INITD(1),
-								IT_INITD(2),
-								IT_INITD(3),
-								IT_INITD(4),
-								IT_INITD(5),
-								IT_INITD(6),
-								IT_INITD(7)
+						)
+					))
+				)),
+				TabRef(name = "Scripts", TabPanel(
+					ptr = &itmtabs[3],
+					TabRef(name = "Item", Row(
+						Column(
+							IT_INITD(0),
+							IT_INITD(1),
+							IT_INITD(2),
+							IT_INITD(3),
+							IT_INITD(4),
+							IT_INITD(5),
+							IT_INITD(6),
+							IT_INITD(7)
+						),
+						Column(
+							padding = 0_px, fitParent = true,
+							Rows<2>(vAlign = 0.0,
+								SCRIPT_LIST_PROC("Action Script:", list_itemdatscript, local_itemref.script, refreshScripts),
+								SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
+								SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
 							),
-							Column(
-								padding = 0_px, fitParent = true,
-								Rows<2>(vAlign = 0.0,
-									SCRIPT_LIST_PROC("Action Script:", list_itemdatscript, local_itemref.script, refreshScripts),
-									SCRIPT_LIST_PROC("Pickup Script:", list_itemdatscript, local_itemref.collect_script, refreshScripts),
-									SCRIPT_LIST_PROC("Sprite Script:", list_itemsprscript, local_itemref.sprite_script, refreshScripts)
+							Rows<2>(hAlign = 1.0,
+								Label(text = "A1:"),
+								TextField(
+									val = local_itemref.initiala[0],
+									type = GUI::TextField::type::INT_DECIMAL,
+									high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.initiala[0] = val;
+									}
 								),
-								Rows<2>(hAlign = 1.0,
-									Label(text = "A1:"),
-									TextField(
-										val = local_itemref.initiala[0],
-										type = GUI::TextField::type::INT_DECIMAL,
-										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.initiala[0] = val;
-										}
-									),
-									Label(text = "A2:"),
-									TextField(
-										val = local_itemref.initiala[1],
-										type = GUI::TextField::type::INT_DECIMAL,
-										high = 32,
-										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-										{
-											local_itemref.initiala[1] = val;
-										}
-									)
-								),
-								Row(
-									Label(text = "Script Info:"),
-									DropDownList(
-										maxwidth = 10_em,
-										data = ScriptDataList,
-										selectedValue = item_use_script_data,
-										onSelectFunc = [&](int32_t val)
-										{
-											item_use_script_data = val;
-											zc_set_config("zquest","show_itemscript_meta_type",val);
-											refreshScripts();
-										}
-									)
+								Label(text = "A2:"),
+								TextField(
+									val = local_itemref.initiala[1],
+									type = GUI::TextField::type::INT_DECIMAL,
+									high = 32,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.initiala[1] = val;
+									}
+								)
+							),
+							Row(
+								Label(text = "Script Info:"),
+								DropDownList(
+									maxwidth = 10_em,
+									data = ScriptDataList,
+									selectedValue = item_use_script_data,
+									onSelectFunc = [&](int32_t val)
+									{
+										item_use_script_data = val;
+										zc_set_config("zquest","show_itemscript_meta_type",val);
+										refreshScripts();
+									}
 								)
 							)
-						)),
-						TabRef(name = "Weapon", Row(
-							Column(
-								WP_INITD(0),
-								WP_INITD(1),
-								WP_INITD(2),
-								WP_INITD(3),
-								WP_INITD(4),
-								WP_INITD(5),
-								WP_INITD(6),
-								WP_INITD(7)
-							),
-							Rows<2>(vAlign = 0.0,
-								SCRIPT_LIST_PROC("Weapon Script:", list_weaponscript, local_itemref.weaponscript, refreshScripts)
-							)
-						))
+						)
+					)),
+					TabRef(name = "Weapon", Row(
+						Column(
+							WP_INITD(0),
+							WP_INITD(1),
+							WP_INITD(2),
+							WP_INITD(3),
+							WP_INITD(4),
+							WP_INITD(5),
+							WP_INITD(6),
+							WP_INITD(7)
+						),
+						Rows<2>(vAlign = 0.0,
+							SCRIPT_LIST_PROC("Weapon Script:", list_weaponscript, local_itemref.weaponscript, refreshScripts)
+						)
 					))
-				),
-				Row(
-					vAlign = 1.0,
-					spacing = 2_em,
-					Button(
-						focused = true,
-						text = "OK",
-						minwidth = 90_lpx,
-						onClick = message::OK),
-					Button(
-						text = "Cancel",
-						minwidth = 90_lpx,
-						onClick = message::CANCEL),
-					Button(
-						text = "Default",
-						minwidth = 90_lpx,
-						onClick = message::DEFAULT)
-				)
+				))
+			),
+			Row(
+				vAlign = 1.0,
+				spacing = 2_em,
+				Button(
+					focused = true,
+					text = "OK",
+					minwidth = 90_px,
+					onClick = message::OK),
+				Button(
+					text = "Cancel",
+					minwidth = 90_px,
+					onClick = message::CANCEL),
+				Button(
+					text = "Default",
+					minwidth = 90_px,
+					onClick = message::DEFAULT)
 			)
-		);
-	}
+		)
+	);
 	refreshScripts();
 	return window;
 }

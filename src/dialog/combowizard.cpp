@@ -716,7 +716,7 @@ Button(height = hei, text = "?", \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
-#define DDH sized(16_px, 21_px)
+#define DDH 21_px
 
 void ComboWizardDialog::updateTitle()
 {
@@ -862,15 +862,15 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Default",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::DEFAULT),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)
@@ -3507,7 +3507,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		}
 		default: //Should be unreachable
 			wip = true;
-			windowRow->add(Button(text = "Exit",minwidth = 90_lpx,onClick = message::CANCEL));
+			windowRow->add(Button(text = "Exit",minwidth = 90_px,onClick = message::CANCEL));
 			break;
 	}
 	update(true);
