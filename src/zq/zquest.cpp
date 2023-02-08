@@ -6775,22 +6775,12 @@ void refresh(int32_t flags)
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = comboaliaslist[c];
+					rectfill(menu1,pos.x,pos.y,pos.x+(pos.w*pos.xscale)-1,pos.y+(pos.h*pos.yscale)-1,0);
 					jwin_draw_frame(menu1,pos.x-2,pos.y-2,(pos.w*pos.xscale)+4,(pos.h*pos.yscale)+4,FR_DEEP);
-					
-					if(MouseScroll)
-					{
-						jwin_draw_frame(menu1,pos.x-2,pos.y-10,(pos.w*pos.xscale)+4,6,FR_DEEP);
-						rectfill(menu1,pos.x,pos.y-8,pos.x+(pos.w*pos.xscale)-1,pos.y-7,jwin_pal[jcBOXFG]);
-					}
 				}
 				
                 auto& prev = comboalias_preview;
 				jwin_draw_frame(menu1, prev.x-2, prev.y-2, prev.w+4, prev.h+4,FR_DEEP);
-				if(MouseScroll)
-				{
-					jwin_draw_frame(menu1,prev.x-2,prev.y+prev.h+4,prev.w+4,6,FR_DEEP);
-					rectfill(menu1,prev.x,prev.y+prev.h+6,prev.x+prev.w-1,prev.y+prev.h+7,jwin_pal[jcBOXFG]);
-				}
 			}
 			
 			BITMAP *prv = create_bitmap_ex(8,64,64);
@@ -6842,16 +6832,10 @@ void refresh(int32_t flags)
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = comboaliaslist[c];
+					rectfill(menu1,pos.x,pos.y,pos.x+(pos.w*pos.xscale)-1,pos.y+(pos.h*pos.yscale)-1,0);
 					jwin_draw_frame(menu1,pos.x-2,pos.y-2,(pos.w*comboaliaslist[c].xscale)+4,(pos.h*comboaliaslist[c].yscale)+4,FR_DEEP);
-					
-					if(MouseScroll)
-					{
-						jwin_draw_frame(menu1,pos.x-2,pos.y-10,(pos.w<<4)+4,6,FR_DEEP);
-						rectfill(menu1,pos.x,pos.y-8,pos.x+(pos.w<<4)-1,pos.y-7,jwin_pal[jcBOXFG]);
-					}
 				}
-				if(MouseScroll)
-					rectfill(menu1,combopool_preview.x,combopool_preview.y+combopool_preview.h+6,combopool_preview.x+combopool_preview.w-1,combopool_preview.y+combopool_preview.h+7,jwin_pal[jcBOXFG]);
+				rectfill(menu1,combopool_preview.x,combopool_preview.y+combopool_preview.h+6,combopool_preview.x+combopool_preview.w-1,combopool_preview.y+combopool_preview.h+7,jwin_pal[jcBOXFG]);
 			}
 			else
 			{
@@ -6943,16 +6927,8 @@ void refresh(int32_t flags)
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = combolist[c];
+					rectfill(menu1,pos.x,pos.y,pos.x+(pos.w*pos.xscale)-1,pos.y+(pos.h*pos.yscale)-1,0);
 					jwin_draw_frame(menu1,pos.x-2,pos.y-2,(pos.w*pos.xscale)+4,(pos.h*pos.yscale)+4,FR_DEEP);
-					
-					if(MouseScroll)
-					{
-						jwin_draw_frame(menu1,pos.x-2,pos.y-10,(pos.w<<4)+4,6,FR_DEEP);
-						rectfill(menu1,pos.x,pos.y-8,pos.x+(pos.w<<4)-1,pos.y-7,jwin_pal[jcBOXFG]);
-						
-						jwin_draw_frame(menu1,pos.x-2,pos.y+(pos.h<<4)+4,(pos.w<<4)+4,6,FR_DEEP);
-						rectfill(menu1,pos.x,pos.y+(pos.h<<4)+6,pos.x+(pos.w<<4)-1,pos.y+(pos.h<<4)+7,jwin_pal[jcBOXFG]);
-					}
 				}
 			}
 			
@@ -10183,9 +10159,10 @@ void domouse()
 	
 	if(MouseScroll &&
 		(
-			((x>=combolist[0].x) && (x<combolist[0].x+(16*combolist[0].w)))||
-			((x>=combolist[1].x) && (x<combolist[1].x+(16*combolist[1].w)))||
-			((x>=combolist[2].x) && (x<combolist[2].x+(16*combolist[2].w)))
+			((x>=combolist[0].x) && (x<combolist[0].x+(combolist[0].xscale*combolist[0].w)))||
+			((x>=combolist[1].x) && (x<combolist[1].x+(combolist[1].xscale*combolist[1].w)))||
+			((x>=combolist[2].x) && (x<combolist[2].x+(combolist[2].xscale*combolist[2].w)))||
+			((x>=combolist[3].x) && (x<combolist[3].x+(combolist[3].xscale*combolist[3].w)))
 		) && (key[KEY_LSHIFT] || key[KEY_RSHIFT] || (scrolldelay&3)==0))
 	{
 	
