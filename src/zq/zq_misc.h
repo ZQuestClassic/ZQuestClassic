@@ -311,6 +311,7 @@ void KeyFileName(char *kfname);
 
 int32_t onSpacebar();
 int32_t onSnapshot();
+char const* getSnapName();
 int32_t onMapscrSnapshot();
 int32_t onClearQuestFilepath();
 void go();

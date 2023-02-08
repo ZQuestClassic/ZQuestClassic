@@ -1028,21 +1028,26 @@ int32_t onClearQuestFilepath()
 
 }
 
+char const* getSnapName()
+{
+	static char snapbuf[200];
+	int32_t num = 0;
+	
+	do
+	{
+		sprintf(snapbuf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
+	}
+	while(num<99999 && exists(snapbuf));
+	
+	return snapbuf;
+}
+
 int32_t onSnapshot()
 {
-    char buf[200];
-    int32_t num=0;
-
-    do
-    {
-        sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-    }
-    while(num<99999 && exists(buf));
-
     blit(screen,screen2,0,0,0,0,zq_screen_w,zq_screen_h);
     PALETTE RAMpal2;
     get_palette(RAMpal2);
-    save_bitmap(buf,screen2,RAMpal2);
+    save_bitmap(getSnapName(),screen2,RAMpal2);
     return D_O_K;
 }
 
@@ -1054,15 +1059,6 @@ int32_t onMapscrSnapshot()
 	PALETTE usepal;
 	get_palette(usepal);
 
-	char buf[200];
-	int32_t num=0;
-	
-	do
-	{
-		sprintf(buf, "%szquest_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
-	}
-	while(num<99999 && exists(buf));
-
 	bool useflags = (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]); //Only use visibility flags (flags, walkability, etc) if CTRL is held
 	int32_t misal = ShowMisalignments; //Store misalignments, so it can be disabled, and restored after.
 	ShowMisalignments = 0;
@@ -1073,7 +1069,7 @@ int32_t onMapscrSnapshot()
 
 	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
 	
-	save_bitmap(buf,panorama,usepal);
+	save_bitmap(getSnapName(),panorama,usepal);
 	destroy_bitmap(panorama);
 
 	ShowMisalignments = misal; //Restore misalignments.

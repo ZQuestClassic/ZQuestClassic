@@ -15348,16 +15348,26 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					redraw=true;
 					break;
 				}
+				
 				case KEY_Z:
+				case KEY_F12:
 				{
 					if(!did_snap)
 					{
-						onSnapshot();
+						//Export tile page as screenshot
+						PALETTE temppal;
+						get_palette(temppal);
+						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+						save_bitmap(getSnapName(), tempbmp, RAMpal);
+						destroy_bitmap(tempbmp);
+						
 						redraw = true;
 						did_snap = true;
 					}
 					break;
 				}
+				
 				case KEY_S:
 				{
 					if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
@@ -15996,9 +16006,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					redraw=true;
 					break;
 				
-				case KEY_F12:
-					onSnapshot();
-					break;
 				
 				case KEY_V:
 					if(copy==-1)
@@ -16246,7 +16253,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 			clear_keybuf();
 		}
 		
-		if(!key[KEY_Z]) did_snap = false;
+		if(!(key[KEY_Z] || key[KEY_F12]))
+			did_snap = false;
 		
 		if(gui_mouse_b()&1)
 		{
@@ -20170,50 +20178,51 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				redraw=true;
 				break;
 			}
-		case KEY_Z:
-		{
-			if(!did_snap)
+			case KEY_Z:
+			case KEY_F12:
 			{
-				onSnapshot();
-				redraw = true;
-				did_snap = true;
+				if(!did_snap)
+				{
+					onSnapshot();
+					redraw = true;
+					did_snap = true;
+				}
+				break;
 			}
-			break;
-		}
 			case KEY_S:
-		{
-		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
-		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-		if(!f) break;
-		al_trace("Saving tile: %d\n", tile);
-		writetilefile(f,tile,1);
-		pack_fclose(f);
-		break;
-		}
-		case KEY_L:
-		{
-		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
-		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-		if(!f) break;
-		al_trace("Saving tile: %d\n", tile);
-		if (!readtilefile(f))
-		{
-			al_trace("Could not read from .ztile packfile %s\n", temppath);
-			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-		else
-		{
-			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-	
-		pack_fclose(f);
-		//register_blank_tiles();
-		//register_used_tiles();
-		redraw=true;
-		break;
-		}
+			{
+				if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					break;   
+				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+				if(!f) break;
+				al_trace("Saving tile: %d\n", tile);
+				writetilefile(f,tile,1);
+				pack_fclose(f);
+				break;
+			}
+			case KEY_L:
+			{
+				if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					break;   
+				PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+				if(!f) break;
+				al_trace("Saving tile: %d\n", tile);
+				if (!readtilefile(f))
+				{
+					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+			
+				pack_fclose(f);
+				//register_blank_tiles();
+				//register_used_tiles();
+				redraw=true;
+				break;
+			}
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 			{
@@ -20812,10 +20821,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				redraw=true;
 				break;
 				
-			case KEY_F12:
-				onSnapshot();
-				break;
-				
 			case KEY_V:
 				if(copy==-1)
 				{
@@ -20998,7 +21003,8 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			clear_keybuf();
 		}
 		
-		if(!key[KEY_Z]) did_snap = false;
+		if(!(key[KEY_Z] || key[KEY_F12]))
+			did_snap = false;
 		
 		if(gui_mouse_b()&1)
 		{
