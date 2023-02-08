@@ -466,7 +466,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT precompile",App::zelda,"ZSCRIPT","jit_precompile",0,"Do all JIT compilation upfront on quest load. Can take a couple minutes, but will avoid random pauses during play.")
 					),
 					Rows<3>(fitParent = true,
-						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zelda,"zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", App::zelda,"zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
 						CONFIG_DROPDOWN_I("Title Screen:", App::zelda,"zeldadx","title",0,titleScreenList,"Which title screen will be displayed."),
@@ -536,6 +536,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Animate Combos",App::zquest,"zquest","animation_on",1),
 						CONFIG_CHECKBOX("Combo Brush",App::zquest,"zquest","combo_brush",0),
 						CONFIG_CHECKBOX("Enable Tooltips",App::zquest,"zquest","enable_tooltips",1),
+						CONFIG_CHECKBOX("Tooltips Highlight Target",App::zquest,"zquest","ttip_highlight",1),
 						CONFIG_CHECKBOX("Floating Brush",App::zquest,"zquest","float_brush",0),
 						CONFIG_CHECKBOX("Mouse Scroll",App::zquest,"zquest","mouse_scroll",0),
 						CONFIG_CHECKBOX("Overwrite Protection",App::zquest,"zquest","overwrite_prevention",0),
@@ -562,7 +563,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Custom Fonts",App::zquest,"gui","custom_fonts",1,"Use custom fonts from the 'customfonts' folder for UI elements.")
 					),
 					Rows<3>(fitParent = true,
-						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_TEXTFIELD_FL("Cursor Scale:", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"ZQ_GUI","bottom_8_pixels",0,bottom8_list,"How to hide the bottom 8 screen pixels"),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zquest,"zquest","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", App::zquest,"zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),

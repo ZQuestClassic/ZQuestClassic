@@ -16,7 +16,7 @@ void call_options_dlg()
 }
 
 extern int32_t EnableTooltips, GridColor, KeyboardRepeatDelay,
-	TooltipsHighlight, KeyboardRepeatRate, pixeldb;
+	TooltipsHighlight, KeyboardRepeatRate, pixeldb, MMapCursorStyle;
 
 void OptionsDialog::loadOptions()
 {
@@ -40,6 +40,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_TOOLTIPS] = EnableTooltips ? 1 : 0;
 	opts[OPT_TOOLTIP_HIGHLIGHT] = TooltipsHighlight ? 1 : 0;
 	opts[OPT_TOOLTIP_TIMER] = tooltip_maxtimer;
+	opts[OPT_MAPCURSOR] = MMapCursorStyle;
 	opts[OPT_PATTERNSEARCH] = abc_patternmatch ? 1 : 0;
 	opts[OPT_NEXTPREVIEW] = NoScreenPreview ? 1 : 0;
 	opts[OPT_INITSCR_WARN] = WarnOnInitChanged ? 1 : 0;
@@ -194,6 +195,10 @@ void OptionsDialog::saveOption(int ind)
 			tooltip_maxtimer = v;
 			zc_set_config("zquest","ttip_timer",v);
 			break;
+		case OPT_MAPCURSOR:
+			MMapCursorStyle = v;
+			zc_set_config("zquest","cursorblink_style",v);
+			break;
 		case OPT_RULESET:
 			RulesetDialog = v;
 			zc_set_config("zquest","rulesetdialog",v);
@@ -346,7 +351,28 @@ Checkbox( \
 		opts[optind] = state ? 1 : 0; \
 		opt_changed[optind] = true; \
 	} \
-)
+), \
+DummyWidget()
+
+#define ROW_CHECK_I(optind, optlabel, info) \
+Checkbox( \
+	colSpan = 2, \
+	checked = opts[optind], \
+	text = optlabel, \
+	hAlign = 0.0, \
+	vPadding = DEFAULT_PADDING/2, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		opts[optind] = state ? 1 : 0; \
+		opt_changed[optind] = true; \
+	} \
+), \
+Button(forceFitH = true, text = "?", \
+	disabled = !info[0], \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",info).show(); \
+	})
 
 #define ROW_TF_RANGE(optind, optlabel, minval, maxval) \
 Label(text = optlabel, hAlign = 0.0), \
@@ -358,7 +384,26 @@ TextField(type = GUI::TextField::type::INT_DECIMAL, \
 	{ \
 		opts[optind] = val; \
 		opt_changed[optind] = true; \
-	}) \
+	}), \
+DummyWidget()
+
+#define ROW_TF_RANGE_I(optind, optlabel, minval, maxval, info) \
+Label(text = optlabel, hAlign = 0.0), \
+TextField(type = GUI::TextField::type::INT_DECIMAL, \
+	fitParent = true, \
+	hAlign = 1.0, low = minval, high = maxval, val = opts[optind], \
+	minwidth = 4.5_em, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		opts[optind] = val; \
+		opt_changed[optind] = true; \
+	}), \
+Button(forceFitH = true, text = "?", \
+	disabled = !info[0], \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",info).show(); \
+	})
 
 #define ROW_TF_FLOAT(optind, optlabel, minval, maxval) \
 Label(text = optlabel, hAlign = 0.0), \
@@ -370,7 +415,26 @@ TextField(type = GUI::TextField::type::FIXED_DECIMAL, places = 4, \
 	{ \
 		opts[optind] = val; \
 		opt_changed[optind] = true; \
-	}) \
+	}), \
+DummyWidget()
+
+#define ROW_TF_FLOAT_I(optind, optlabel, minval, maxval, info) \
+Label(text = optlabel, hAlign = 0.0), \
+TextField(type = GUI::TextField::type::FIXED_DECIMAL, places = 4, \
+	fitParent = true, maxLength = 8, \
+	hAlign = 1.0, low = minval*10000, high = maxval*10000, val = opts[optind], \
+	minwidth = 4.5_em, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		opts[optind] = val; \
+		opt_changed[optind] = true; \
+	}), \
+Button(forceFitH = true, text = "?", \
+	disabled = !info[0], \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",info).show(); \
+	})
 
 #define ROW_DDOWN(optind, optlabel, lister) \
 Label(text = optlabel, hAlign = 0.0), \
@@ -384,7 +448,28 @@ DropDownList( \
 		opts[optind] = val; \
 		opt_changed[optind] = true; \
 	} \
-)
+), \
+DummyWidget()
+
+#define ROW_DDOWN_I(optind, optlabel, lister, info) \
+Label(text = optlabel, hAlign = 0.0), \
+DropDownList( \
+	fitParent = true, \
+	maxwidth = 14_em, \
+	data = lister, \
+	selectedValue = opts[optind], \
+	onSelectFunc = [&](int32_t val) \
+	{ \
+		opts[optind] = val; \
+		opt_changed[optind] = true; \
+	} \
+), \
+Button(forceFitH = true, text = "?", \
+	disabled = !info[0], \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",info).show(); \
+	})
 
 #define FONT_ROW_DDOWN(optind, optlabel, lister) \
 Label(text = optlabel, hAlign = 0.0), \
@@ -469,6 +554,12 @@ static const GUI::ListData colorList
 	{ "Light Magenta", 13 },
 	{ "Yellow", 14 },
 	{ "White", 15 }
+};
+static const GUI::ListData mmapCursList
+{
+	{ "White", 0 },
+	{ "Black+White", 1 },
+	{ "Red+Blue", 2 }
 };
 static const GUI::ListData snapFormatList
 {
@@ -631,18 +722,21 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 	);
 	settingstab = TabRef(name = "Settings",
 		TabPanel(ptr = &tabpos3,
-			TabRef(name = "1", Rows<2>(
+			TabRef(name = "1", Rows<3>(
 				ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
 				ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
 				ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
 				ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
 				ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
+				ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
+					"The color of the current screen outline on the minimap."
+					" Either solid or blinking between two colors."),
 				ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
 				ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
 				ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
-				ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale (Large Mode)", 1, 5)
+				ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale", 1, 5)
 			)),
-			TabRef(name = "2", Rows<2>(
+			TabRef(name = "2", Rows<3>(
 				ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
 				ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
 				ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
