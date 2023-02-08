@@ -357,24 +357,6 @@ void TextField::setFixedPlaces(size_t places)
 
 void TextField::applyReadableFont()
 {
-	if(GUI_DEF_FONT == GUI_DEF_FONT) return;
-	
-	bool use_readable = getReadOnly() || getDisabled();
-	
-	if(use_readable && widgFont == GUI_DEF_FONT)
-	{
-		applyFont(GUI_DEF_FONT);
-	}
-	else if(!use_readable && widgFont == GUI_DEF_FONT)
-	{
-		applyFont(GUI_DEF_FONT);
-	}
-	if (valSet)
-	{
-		Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
-		if(getWidth() < nsz)
-			setPreferredWidth(nsz);
-	}
 }
 void TextField::updateReadOnly(bool ro)
 {
@@ -385,8 +367,6 @@ void TextField::realize(DialogRunner& runner)
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	if(widgFont == GUI_DEF_FONT && getReadOnly())
-		widgFont = GUI_DEF_FONT;
 	Widget::realize(runner);
 	assert(maxLength > 0);
 

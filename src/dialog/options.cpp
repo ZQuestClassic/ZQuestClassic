@@ -15,7 +15,7 @@ void call_options_dlg()
 	OptionsDialog().show();
 }
 
-extern int32_t UseSmall, EnableTooltips, GridColor, KeyboardRepeatDelay,
+extern int32_t EnableTooltips, GridColor, KeyboardRepeatDelay,
 	TooltipsHighlight, KeyboardRepeatRate, pixeldb;
 
 void OptionsDialog::loadOptions()
@@ -54,7 +54,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_CURS_LARGE] = int32_t(zc_get_config("zquest","cursor_scale_large",1.5)*10000);
 	opts[OPT_COMPILE_OK] = zc_get_config("Compiler", "compile_success_sample", 20);
 	opts[OPT_COMPILE_ERR] = zc_get_config("Compiler", "compile_error_sample", 28);
-	opts[OPT_COMPILE_DONE] = zc_get_config("Compiler", "compile_finish_sample", 34);
+	opts[OPT_COMPILE_DONE] = zc_get_config("Compiler", "compile_finish_sample", 20);
 	opts[OPT_COMPILE_VOL] = zc_get_config("Compiler", "compile_audio_volume", 100);
 	opts[OPT_DISABLE_LPAL_SHORTCUT] = DisableLPalShortcuts;
 	opts[OPT_DISABLE_COMPILE_CONSOLE] = DisableCompileConsole;

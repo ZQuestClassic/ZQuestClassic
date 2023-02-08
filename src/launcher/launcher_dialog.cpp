@@ -387,12 +387,9 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Lists;
 	queue_revert = 0;
-	int32_t scale = zc_get_config("zquest","scale",3,App::zquest);
 	int32_t scale_large = zc_get_config("zquest","scale_large",1,App::zquest);
 	int32_t def_large_w = LARGE_W*scale_large;
 	int32_t def_large_h = LARGE_H*scale_large;
-	int32_t def_small_w = 320*scale;
-	int32_t def_small_h = 240*scale;
 	int rightmost;
 	int bottommost;
 	ALLEGRO_MONITOR_INFO info;
@@ -469,7 +466,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT precompile",App::zelda,"ZSCRIPT","jit_precompile",0,"Do all JIT compilation upfront on quest load. Can take a couple minutes, but will avoid random pauses during play.")
 					),
 					Rows<3>(fitParent = true,
-						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", App::zelda,"zeldadx","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zelda,"zeldadx","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zelda,"zeldadx","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Name Entry Mode:", App::zelda,"zeldadx","name_entry_mode",0,nameEntryList,"The entry method of save file names."),
@@ -534,7 +530,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 				TabRef(name = "ZQ Creator", Row(framed = true,
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX_I("Fullscreen",App::zquest,"zquest","fullscreen",0,"Exactly stable."),
-						CONFIG_CHECKBOX_I("Small Mode",App::zquest,"zquest","small",0,"If enabled, the 'classic' small mode interface will be used. This mode has less screen space, and lacks features such as favorite combos, favorite commands, multiple combo rows, next-screen preview, etc."),
 						CONFIG_CHECKBOX("VSync",App::zquest,"zquest","vsync",1),
 						CONFIG_CHECKBOX("Show FPS",App::zquest,"zquest","showfps",0),
 						CONFIG_CHECKBOX("Disable Sound",App::zquest,"zquest","nosound",0),
@@ -567,7 +562,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Custom Fonts",App::zquest,"gui","custom_fonts",1,"Use custom fonts from the 'customfonts' folder for UI elements.")
 					),
 					Rows<3>(fitParent = true,
-						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", App::zquest,"zquest","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
 						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"ZQ_GUI","bottom_8_pixels",0,bottom8_list,"How to hide the bottom 8 screen pixels"),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zquest,"zquest","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
@@ -576,8 +570,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Auto-Save Interval:", App::zquest, "zquest", "auto_save_interval", 5, 0, 300, "Frequency of auto saves, in minutes. Valid range is 0-300, where '0' disables autosaves alltogether."),
 						CONFIG_TEXTFIELD_I("Window Width (Large Mode):",App::zquest,"zquest","large_window_width", def_large_w, 200, 3000, "The width of the ZQuest window in large mode"),
 						CONFIG_TEXTFIELD_I("Window Height (Large Mode):",App::zquest,"zquest","large_window_height", def_large_h, 150, 2250, "The height of the ZQuest window in large mode"),
-						CONFIG_TEXTFIELD_I("Window Width (Small Mode):",App::zquest,"zquest","small_window_width", def_small_w, 200, 3000, "The width of the ZQuest window in small mode"),
-						CONFIG_TEXTFIELD_I("Window Height (Small Mode):",App::zquest,"zquest","small_window_height", def_small_h, 150, 2250, "The height of the ZQuest window in small mode"),
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zquest,"zquest","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zquest,"zquest","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zquest, "graphics", "driver", 0, gfxDriverList),

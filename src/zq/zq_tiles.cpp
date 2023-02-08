@@ -1454,26 +1454,8 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	PALETTE tpal;
 	static BITMAP *tbar = create_bitmap_ex(8,zq_screen_w-6, 18);
 	static BITMAP *preview_bmp = create_bitmap_ex(8, 64, 64);
-//  int32_t screen_xofs=(zq_screen_w-320)>>1;
-//  int32_t screen_yofs=(zq_screen_h-240)>>1;
 	jwin_draw_win(screen2, 0, 0, zq_screen_w, zq_screen_h, FR_WIN);
 	
-	/*
-	  FONT *oldfont = font;
-	  if (!create_tbar)
-	  {
-		blit(tbar, screen2, 0, 0, 3, 3, 320-6, 18);
-	  }
-	  else
-	  {
-		font = lfont;
-		char buf[80];
-		sprintf(buf,"Tile Editor (%d)", tile);
-		jwin_draw_titlebar(tbar, 0, 0, 320-6, 18, buf, true);
-		font = oldfont;
-		blit(tbar, screen2, 0, 0, 3, 3, 320-6, 18);
-	  }
-	*/
 	if(!create_tbar)
 	{
 		blit(tbar, screen2, 0, 0, 3, 3, zq_screen_w-6, 18);
@@ -1560,7 +1542,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			rectfill(screen2,x,y,x+palette_scale-1,y+palette_scale-1,i);
 		}
 		
-//      little_x(screen2,94,172,210,2);
 		little_x(screen2,palette_x+1,palette_y+palette_scale+1,invcol,(palette_scale/2)-1);
 		break;
 	}
@@ -1582,14 +1563,6 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	{
 		little_x(screen2, fgbg_btn_x+fgbg_btn_size/4, fgbg_btn_y+fgbg_btn_size/4, invcol, fgbg_btn_size/2);
 	}
-	
-//  masked_blit((BITMAP *)zcdata[BMP_MOUSELARGE].dat, screen2, 0, 0, mouse_pic_x, mouse_pic_y, mouse_pic_w, mouse_pic_h);
-//  little_x(screen2,mouse_pic_x+mouse_lb_x,mouse_pic_y+mouse_lb_y,c1==0?210:208,2);
-//  little_x(screen2,mouse_pic_x+mouse_rb_x,mouse_pic_y+mouse_rb_y,c2==0?210:209,2);
-
-	//masked_blit((BITMAP *)zcdata[BMP_MOUSESMALL].dat, screen2, 0, 0, 144, 172, 42, 39);
-	//little_x(screen2,149,179,c1==0?210:208,2);
-	//little_x(screen2,159,176,c2==0?210:209,2);
 	
 	draw_text_button(screen2,ok_button_x,ok_button_y,61,21,"OK",vc(1),vc(14),0,true);
 	draw_text_button(screen2,cancel_button_x,cancel_button_y,61,21,"Cancel",vc(1),vc(14),0,true);
@@ -5409,7 +5382,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				
 			int32_t selxl = selx* 2;
 			int32_t selyl = sely* 2;
-			int32_t w = 16*2;
+			int32_t w = 32;
 			
 			if(f&8)
 			{
@@ -5658,8 +5631,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	
 	font = tf;
 
-	int32_t w = 320 * mul;
-	int32_t h = 240 * mul;
+	int32_t w = 640;
+	int32_t h = 480;
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
 	int32_t screen_xofs=window_xofs+6;
@@ -16802,8 +16775,8 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	textprintf_centre_ex(screen2,tfont,(309*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
 	textprintf_ex(screen2,font,(305*mul),(228*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
 
-	int32_t w = 320 * mul;
-	int32_t h = 240 * mul;
+	int32_t w = 640;
+	int32_t h = 480;
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
 	int32_t screen_xofs=window_xofs+6;
