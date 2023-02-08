@@ -10170,7 +10170,7 @@ void domouse()
 		
 		for(test_list=0; test_list<3; ++test_list)
 		{
-			if((x>=combolist[test_list].x) && (x<combolist[test_list].x+(16*combolist[test_list].w)))
+			if((x>=combolist[test_list].x) && (x<combolist[test_list].x+(combolist[test_list].xscale*combolist[test_list].w)))
 			{
 				break;
 			}
@@ -10200,7 +10200,7 @@ void domouse()
 				redraw|=rCOMBOS;
 			}
 			
-			if(y>=combolist[test_list].y+(combolist[test_list].h*16)-1 && y<combolist[test_list].y+(combolist[test_list].h*16)+mouse_scroll_h-1 && First[test_list]<(MAXCOMBOS-(combolist[test_list].w*combolist[test_list].h)))
+			if(y>=combolist[test_list].y+(combolist[test_list].h*combolist[test_list].yscale)-1 && y<combolist[test_list].y+(combolist[test_list].h*combolist[test_list].yscale)+mouse_scroll_h-1 && First[test_list]<(MAXCOMBOS-(combolist[test_list].w*combolist[test_list].h)))
 			{
 				int32_t offset = combolist[test_list].w*combolist[test_list].h;
 				
