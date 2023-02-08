@@ -5523,8 +5523,8 @@ void drawpanel(int32_t pnl)
     {
 		auto x1 = 0, y1 = panel[8].y, x2 = panel[0].x+panel[0].w-1, y2 = panel[0].y+panel[0].h-1;
 		rectfill(menu1,x1,y1,x2,y2, jwin_pal[jcBOX]);
-		jwin_draw_frame(menu1,x1,y1,x2-x1+1,y2-y1+1, FR_WIN);
 		refresh(rSCRMAP);
+		jwin_draw_frame(menu1,x1,y1,x2-x1+1,y2-y1+1, FR_WIN);
 		
         if(!is_large)
         {
@@ -6116,7 +6116,7 @@ void refresh(int32_t flags)
 			txt_x += (8*3*BMM)+3+5;
 			txt_y += (8*3*BMM)+8;
 		}
-		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h+(is_large?4:-1),jwin_pal[jcBOX]);
+		rectfill(menu1, minimap.x-1, minimap.y-2,minimap.x+minimap.w-1,minimap.y+minimap.h-1,jwin_pal[jcBOX]);
 		jwin_draw_minimap_frame(menu1,mmx-3,mmy-3,minimap.w-1, minimap.h-10, (is_large?9:3), FR_DEEP);
 		
 		if(Map.getCurrMap()<Map.getMapCount())
