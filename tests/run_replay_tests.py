@@ -566,6 +566,11 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 print(f'replay failed with unexpected code {p.returncode}')
             break
         except ReplayTimeoutException:
+            print('\nSTDOUT:\n\n', pathlib.Path(output_dir / 'stdout.txt').read_text())
+            print('\n\nSTDERR:\n\n', pathlib.Path(output_dir / 'stderr.txt').read_text())
+            if pathlib.Path(allegro_log_path).exists():
+                print('\n\nALLEGRO LOG:\n\n', pathlib.Path(allegro_log_path).read_text())
+
             # Will try again.
             logging.exception('replay timed out')
             p.terminate()
@@ -573,6 +578,11 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
         except KeyboardInterrupt:
             exit(1)
         except:
+            print('\nSTDOUT:\n\n', pathlib.Path(output_dir / 'stdout.txt').read_text())
+            print('\n\nSTDERR:\n\n', pathlib.Path(output_dir / 'stderr.txt').read_text())
+            if pathlib.Path(allegro_log_path).exists():
+                print('\n\nALLEGRO LOG:\n\n', pathlib.Path(allegro_log_path).read_text())
+
             logging.exception('replay encountered an error')
             return result
         finally:

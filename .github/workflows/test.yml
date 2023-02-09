@@ -100,23 +100,13 @@ jobs:
             cd ${{ env.BUILD_FOLDER }}
             ./zscript -input "include/std.zh" -unlinked
 
-      - if: ${{ matrix.shard_index == 1 }}
+        # TODO why does this result in "could not open file: test.zplay" on Windows?
+      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' }}
         name: Test recording
-        uses: knicknic/os-specific-run@v1.0.3
-        with:
-          # TODO why does this result in "could not open file: test.zplay"?
-          # windows: |
-          #   cd ${{ env.BUILD_FOLDER }}
-          #   ./zelda.exe -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-          #   ./zelda.exe -replay-exit-when-done -assert test.zplay
-          macos: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zelda -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-            ./zelda -replay-exit-when-done -assert test.zplay
-          linux: |
-            cd ${{ env.BUILD_FOLDER }}
-            xvfb-run --auto-servernum sudo -E ./zelda -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-            xvfb-run --auto-servernum sudo -E ./zelda -replay-exit-when-done -assert test.zplay
+        run: |
+          cd ${{ env.BUILD_FOLDER }}
+          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
+          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -assert test.zplay
 
       - name: Run replay tests
         run: >
