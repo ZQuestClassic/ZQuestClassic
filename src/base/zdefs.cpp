@@ -1743,6 +1743,17 @@ bool size_and_pos::rect(int32_t mx, int32_t my)
 	auto sh = h * yscale;
 	return isinRect(mx,my,x,y,x+sw-1,y+sh-1);
 }
+int32_t size_and_pos::rectind(int32_t mx, int32_t my)
+{
+	if(!rect(mx,my)) return -1; //not in rect
+	//Where in rect?
+	mx -= x;
+	my -= y;
+	auto row = (my / yscale);
+	auto col = (mx / xscale);
+	int32_t ind = col + (row * w);
+	return ind;
+}
 void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
 {
 	x = nx;
@@ -1750,5 +1761,23 @@ void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
 	w = nw;
 	h = nh;
 }
-
+static size_and_pos nilsqr;
+static size_and_pos tempsqr;
+size_and_pos const* size_and_pos::subsquare(int32_t ind)
+{
+	if(w < 1 || h < 1)
+		return &nilsqr;
+	return subsquare(ind%w, ind/w);
+}
+size_and_pos const* size_and_pos::subsquare(int32_t col, int32_t row)
+{
+	if(w < 1 || h < 1)
+		return &nilsqr;
+	tempsqr.clear();
+	tempsqr.set(x+(col*xscale),y+(row*yscale),xscale,yscale);
+	return &tempsqr;
+}
+size_and_pos::size_and_pos(int32_t nx, int32_t ny, int32_t nw, int32_t nh, int32_t xsc, int32_t ysc)
+	: x(nx), y(ny), w(nw), h(nh), xscale(xsc), yscale(ysc)
+{}
 

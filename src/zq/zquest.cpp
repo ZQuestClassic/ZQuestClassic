@@ -7137,16 +7137,8 @@ void refresh(int32_t flags)
 		if(integrityBoolRoomNoGuyNoString(Map.CurrScr())) show_screen_error("Guy and String are (none)",i++, vc(14));
 	}
 	
-	if((tooltip_timer>=tooltip_maxtimer)&&(tooltip_box.x>=0&&tooltip_box.y>=0))
-	{
-		auto& rec = tooltip_highlight;
-		if(TooltipsHighlight && rec.x >= 0)
-		{
-			safe_rect(menu1, rec.x, rec.y, rec.x+rec.w-1, rec.y+rec.h-1, 0xED);
-			safe_rect(menu1, rec.x+1, rec.y+1, rec.x+rec.w-2, rec.y+rec.h-2, 0xED);
-		}
-		masked_blit(tooltipbmp, menu1, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
-	}
+	highlight_ttip(menu1);
+	draw_ttip(menu1);
 	
 //  textprintf_ex(menu1,font,16, 200,vc(15),-1,"%d %d %d %d %d",tooltip_timer,tooltip_box.x,tooltip_box.y,tooltip_box.w,tooltip_box.h);
 
@@ -21408,6 +21400,39 @@ bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
     return over;
 }
 
+bool do_question_button(BITMAP *dest, int32_t x, int32_t y)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        custom_vsync();
+        
+        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+15,y+13))
+        {
+            if(!over)
+            {
+                scare_mouse();
+                draw_question_button(dest, x, y, D_SELECTED);
+                unscare_mouse();
+                over=true;
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                scare_mouse();
+                draw_question_button(dest, x, y, 0);
+                unscare_mouse();
+                over=false;
+            }
+        }
+    }
+    
+    return over;
+}
+
 
 int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 {
@@ -32264,7 +32289,7 @@ command_pair commands[cmdMAX]=
 /********************************/
 /*****      Tool Tips      ******/
 /********************************/
-int32_t strchrnum(char *str, char c)
+int32_t strchrnum(char const* str, char c)
 {
 	for(int32_t i=0; str[i]; ++i)
 	{
@@ -32277,13 +32302,11 @@ int32_t strchrnum(char *str, char c)
 	return -1;
 }
 
-int32_t get_longest_line_length(FONT *f, char *str)
+int32_t get_longest_line_length(FONT *f, char* str)
 {
 	int32_t maxlen=0;
-	//char *kill=(char *)calloc(strlen(str),1);
-	char *tmpstr=str;
+	char* tmpstr = str;
 	char temp=0;
-	//sprintf(tmpstr, "%s", str);
 	int32_t t=0;
 	int32_t new_t=-1;
 	while(tmpstr[0])
@@ -32315,12 +32338,10 @@ int32_t get_longest_line_length(FONT *f, char *str)
 		}
 		else break;
 	}
-	
-	//free(kill);
 	return maxlen;
 }
 
-int32_t count_lines(char *str)
+int32_t count_lines(char const* str)
 {
 	int32_t count=1;
 	
@@ -32335,11 +32356,40 @@ int32_t count_lines(char *str)
 	return count;
 }
 
-void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char *tipmsg)
+void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick)
+{
+	for(int q = 0; q < thick; ++q)
+	{
+		safe_rect(dest, x+q, y+q, x+w-1-q, y+h-1-q, 0xED);
+	}
+}
+void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick)
+{
+	highlight_sqr(dest, color, rec.x, rec.y, rec.w, rec.h, thick);
+}
+void highlight_ttip(BITMAP* dest)
+{
+	if(tooltip_timer < tooltip_maxtimer)
+		return;
+	if(TooltipsHighlight && tooltip_highlight.x >= 0)
+	{
+		highlight_sqr(dest, 0xED, tooltip_highlight, 2);
+	}
+}
+void draw_ttip(BITMAP* dest)
+{
+	if(tooltip_timer < tooltip_maxtimer)
+		return;
+	if(tooltip_box.x>=0&&tooltip_box.y>=0)
+	{
+		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
+	}
+}
+void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg)
 {
 	update_tooltip(x,y,sqr.x,sqr.y,sqr.w,sqr.h,tipmsg);
 }
-void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg)
+void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg)
 {
 	if(!EnableTooltips)
 	{
@@ -32375,76 +32425,84 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
 	
 	if(tooltip_timer==tooltip_maxtimer)
 	{
-		tooltip_box.x=x;
-		tooltip_box.y=y;
-		int32_t lines=count_lines(tipmsg);
-		tooltip_box.w=get_longest_line_length(font, tipmsg)+8+1;
-		tooltip_box.h = (lines * text_height(font)) + 8 + 1;
-		if (tooltip_box.w > zq_screen_w)
-			tooltip_box.w = zq_screen_w;
-		if (tooltip_box.h > zq_screen_h)
-			tooltip_box.h = zq_screen_h;
-		
-		if(tooltip_box.x+tooltip_box.w>=zq_screen_w)
+		if(!tipmsg || !tipmsg[0])
 		{
-			tooltip_box.x=(zq_screen_w - tooltip_box.w);
+			tooltip_box.clear();
+			clear_bitmap(tooltipbmp);
 		}
-		
-		if(tooltip_box.y+tooltip_box.h>=zq_screen_h)
+		else
 		{
-			tooltip_box.y=(zq_screen_h - tooltip_box.h);
+			char* kill = (char*)malloc(strlen(tipmsg)+1);
+			char *tmpstr = kill;
+			strcpy(tmpstr,tipmsg);
+			
+			tooltip_box.x=x;
+			tooltip_box.y=y;
+			int32_t lines=count_lines(tmpstr);
+			tooltip_box.w=get_longest_line_length(font, tmpstr)+8+1;
+			tooltip_box.h = (lines * text_height(font)) + 8 + 1;
+			if (tooltip_box.w > zq_screen_w)
+				tooltip_box.w = zq_screen_w;
+			if (tooltip_box.h > zq_screen_h)
+				tooltip_box.h = zq_screen_h;
+			
+			if(tooltip_box.x+tooltip_box.w>=zq_screen_w)
+			{
+				tooltip_box.x=(zq_screen_w - tooltip_box.w);
+			}
+			
+			if(tooltip_box.y+tooltip_box.h>=zq_screen_h)
+			{
+				tooltip_box.y=(zq_screen_h - tooltip_box.h);
+			}
+			
+			rectfill(tooltipbmp, 1, 1, tooltip_box.w-3, tooltip_box.h-3, jwin_pal[jcTEXTBG]);
+			rect(tooltipbmp, 0, 0, tooltip_box.w-2, tooltip_box.h-2, jwin_pal[jcTEXTFG]);
+			vline(tooltipbmp, tooltip_box.w-1, 0,           tooltip_box.h-1, jwin_pal[jcTEXTFG]);
+			hline(tooltipbmp,           1, tooltip_box.h-1, tooltip_box.w-2, jwin_pal[jcTEXTFG]);
+			tooltipbmp->line[tooltip_box.h-1][0]=0;
+			tooltipbmp->line[0][tooltip_box.w-1]=0;
+			
+			char temp = 0;
+			int32_t t=0;
+			int32_t new_t=-1;
+			int32_t i=0;
+			
+			while(tmpstr[t])
+			{
+				t=strchrnum(tmpstr, '\n');
+				
+				if(t==-1)
+				{
+					t=(int32_t)strlen(tmpstr);
+				}
+				
+				if((uint32_t)t!=strlen(tmpstr))
+				{
+					new_t=t+1;
+				}
+				else
+				{
+					new_t=-1;
+				}
+				
+				temp = tmpstr[t];
+				tmpstr[t]=0;
+				textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
+				tmpstr[t]=temp;
+				++i;
+				
+				if(new_t!=-1)
+				{
+					tmpstr+=new_t;
+					t=0;
+				}
+			}
+			
+			free(kill);
 		}
-		
-		rectfill(tooltipbmp, 1, 1, tooltip_box.w-3, tooltip_box.h-3, jwin_pal[jcTEXTBG]);
-		rect(tooltipbmp, 0, 0, tooltip_box.w-2, tooltip_box.h-2, jwin_pal[jcTEXTFG]);
-		vline(tooltipbmp, tooltip_box.w-1, 0,           tooltip_box.h-1, jwin_pal[jcTEXTFG]);
-		hline(tooltipbmp,           1, tooltip_box.h-1, tooltip_box.w-2, jwin_pal[jcTEXTFG]);
-		tooltipbmp->line[tooltip_box.h-1][0]=0;
-		tooltipbmp->line[0][tooltip_box.w-1]=0;
-		
-		//char *kill=(char *)calloc(strlen(tipmsg)*2,1);
-		char *tmpstr=tipmsg;
-		char temp = 0;
-		//sprintf(tmpstr, "%s", tipmsg);
-		int32_t t=0;
-		int32_t new_t=-1;
-		int32_t i=0;
-		
-		while(tmpstr[t])
-		{
-			t=strchrnum(tmpstr, '\n');
-			
-			if(t==-1)
-			{
-				t=(int32_t)strlen(tmpstr);
-			}
-			
-			if((uint32_t)t!=strlen(tmpstr))
-			{
-				new_t=t+1;
-			}
-			else
-			{
-				new_t=-1;
-			}
-			
-			temp = tmpstr[t];
-			tmpstr[t]=0;
-			textprintf_ex(tooltipbmp, font, 4, (i*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
-			tmpstr[t]=temp;
-			++i;
-			
-			if(new_t!=-1)
-			{
-				tmpstr+=new_t;
-				t=0;
-			}
-		}
-		
-		//free(kill);
 	}
 	font = oldfont;
-	return;
 }
 
 void clear_tooltip()

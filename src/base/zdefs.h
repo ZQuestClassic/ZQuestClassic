@@ -1851,7 +1851,11 @@ struct size_and_pos
 	int32_t xscale = 1, yscale = 1;
 	void clear(); //Clear to default vals
 	bool rect(int32_t mx, int32_t my); //Check rect collision
+	int32_t rectind(int32_t mx, int32_t my); //Check scaled collision
 	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh); //Set coord values
+	size_and_pos const* subsquare(int32_t ind);
+	size_and_pos const* subsquare(int32_t col, int32_t row);
+	size_and_pos(int32_t nx = -1, int32_t ny = -1, int32_t nw = -1, int32_t nh = -1, int32_t xsc = 1, int32_t ysc = 1);
 };
 
 //#define OLDITEMCNT i90
