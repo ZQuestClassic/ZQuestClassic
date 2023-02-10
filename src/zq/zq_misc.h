@@ -38,14 +38,14 @@
 #define cDEBUG        0x080
 #define cNEWDARK      0x100
 
-#define rMAP             1
-#define rCOMBOS          2
-#define rSCRMAP          4
-#define rMENU            8
-#define rCOMBO          16
-#define rFAVORITES      32
-#define rCOMMANDS       64
-#define rOTHER         128
+#define rMAP        0x0001
+#define rCOMBOS     0x0002
+#define rSCRMAP     0x0004
+#define rMENU       0x0008
+#define rCOMBO      0x0010
+#define rFAVORITES  0x0020
+#define rCOMMANDS   0x0040
+#define rOTHER      0x0080
 #define rALL        0x0FFF
 #define rCLEAR      0x1000
 #define rNOCURSOR   0x2000

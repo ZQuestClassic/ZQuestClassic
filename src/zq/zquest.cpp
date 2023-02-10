@@ -6094,13 +6094,17 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 }
 void refresh(int32_t flags)
 {
-	// CPage = Map.CurrScr()->cpage;
+	static bool refreshing = false;
+	bool earlyret = refreshing;
+	refreshing = true;
+	//^ These prevent recursive calls from updating the screen early
 	
 	if(flags&rCLEAR)
 	{
 		//magic pink = 0xED
 		//system black = vc(0)
 		clear_to_color(menu1,jwin_pal[jcBOX]);
+		flags |= rALL; //Clears should refresh everything!
 	}
 	
 	if(flags&rSCRMAP)
@@ -7770,6 +7774,9 @@ void refresh(int32_t flags)
 		}
 	}
 	
+	if(earlyret)
+		return;
+	
 	//Draw the Main Menu
 	jwin_menu_proc(MSG_START, &dialogs[0], 0);
 	if(is_large)
@@ -7781,9 +7788,9 @@ void refresh(int32_t flags)
 		font = get_custom_font(CFONT_GUI);
 		
 		//Drawmode button
-		draw_text_button(menu1,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
+		draw_text_button(screen,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
 		//Compact button
-		draw_text_button(menu1,compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),0,true);
+		draw_text_button(screen,compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),0,true);
 		
 		font = oldfont;
 	}
@@ -7794,7 +7801,8 @@ void refresh(int32_t flags)
 	
 	unscare_mouse();
 	SCRFIX();
-	update_hw_screen();
+	update_hw_screen(true);
+	refreshing = false;
 }
 
 void select_scr()
