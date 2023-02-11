@@ -11146,7 +11146,7 @@ void domouse()
 			font = get_custom_font(CFONT_GUI);
 			for(int32_t i=0; i<=6; ++i)
 			{
-				int32_t spacing_offs = is_compact ? 5 : 10;
+				int32_t spacing_offs = is_compact ? 2 : 10;
 				int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 				int32_t ry = layer_panel.y;
 				
