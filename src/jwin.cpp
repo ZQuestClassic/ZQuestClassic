@@ -1794,7 +1794,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					int paste_end = paste_start+paste_len;
 					ind = strlen(s);
 					ind2 = ind+paste_len;
-					while(ind2 >= d->d1)
+					while(ind2 > d->d1)
 					{
 						--paste_len;
 						--paste_end;
@@ -1814,7 +1814,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					{
 						s[paste_start+q] = cb.at(q);
 					}
-					s[new_l] = 0;
+					s[paste_start+paste_len] = 0;
 					scursor = paste_start + paste_len;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
@@ -2274,7 +2274,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					int paste_end = paste_start+paste_len;
 					ind = strlen(s);
 					ind2 = ind+paste_len;
-					while(ind2 >= d->d1)
+					while(ind2 > d->d1)
 					{
 						--paste_len;
 						--paste_end;
@@ -2294,7 +2294,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					{
 						s[paste_start+q] = cb.at(q);
 					}
-					s[new_l] = 0;
+					s[paste_start+paste_len] = 0;
 					scursor = paste_start + paste_len;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
@@ -6993,7 +6993,6 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 						size_t trimpos = str.find_last_not_of("-(0123456789)");
 						if(trimpos != std::string::npos) ++trimpos;
 						str.erase(0, trimpos);
-						zprint2("checking '%s'\n", str.c_str());
 						if(cmp == str)
 						{
 							d->d1 = listpos;
