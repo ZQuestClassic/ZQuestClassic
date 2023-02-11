@@ -32330,6 +32330,23 @@ int32_t count_lines(char const* str)
 	return count;
 }
 
+void debug_pos(size_and_pos const& pos, int color)
+{
+	if(pos.w < 1 || pos.h < 1)
+		return;
+	if(pos.xscale > 1 || pos.yscale > 1)
+	{
+		auto maxind = pos.w*pos.h;
+		for(auto q = 0; q < maxind; ++q)
+		{
+			auto& sub = *pos.subsquare(q);
+			highlight_sqr(screen, color, sub, 1);
+		}
+		return;
+	}
+	highlight_sqr(screen, color, pos, 1);
+}
+
 void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick)
 {
 	for(int q = 0; q < thick; ++q)

@@ -1763,13 +1763,13 @@ void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
 }
 static size_and_pos nilsqr;
 static size_and_pos tempsqr;
-size_and_pos const* size_and_pos::subsquare(int32_t ind)
+size_and_pos const* size_and_pos::subsquare(int32_t ind) const
 {
 	if(w < 1 || h < 1)
 		return &nilsqr;
 	return subsquare(ind%w, ind/w);
 }
-size_and_pos const* size_and_pos::subsquare(int32_t col, int32_t row)
+size_and_pos const* size_and_pos::subsquare(int32_t col, int32_t row) const
 {
 	if(w < 1 || h < 1)
 		return &nilsqr;
