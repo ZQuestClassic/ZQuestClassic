@@ -1820,6 +1820,11 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
 			}
+			else if(ctrl && (lower_c=='a' || lower_c=='A'))
+			{
+				scursor = 0;
+				ecursor = d->d1;
+			}
 			else if(lower_c >= 32)
 			{
 				if(multiselect)
@@ -2299,6 +2304,11 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
 				}
+			}
+			else if(ctrl && (lower_c=='a' || lower_c=='A'))
+			{
+				scursor = 0;
+				ecursor = d->d1;
 			}
 			else if(lower_c >= 32)
 			{
