@@ -28644,23 +28644,6 @@ void HeroClass::heroDeathAnimation()
         bool clearedit = false;
 	do
 	{
-		//if ( player_doscript ) 
-		//{
-		//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
-			//if ( f ) --f; 
-		//	load_control_state(); //goto adv;
-		//}
-		//else
-		//{
-		//	if ( !clearedit )
-		//	{
-				
-				
-		//		clearedit = true;
-				
-		//	}
-		//}
-		//else Playing = false;
 		if(f<254)
 		{
 			if(f<=32)

@@ -132,7 +132,8 @@ void dosubscr(miscQdata *misc)
     
     do
     {
-		load_control_state();
+		if (replay_is_active() && replay_get_version() < 11)
+			load_control_state();
 		int32_t pos = Bpos;
 		
 		if(rUp())         Bpos = selectWpn_new(SEL_UP, pos);
@@ -312,6 +313,8 @@ void dosubscr(miscQdata *misc)
         
         
         advanceframe(false);
+		if (!replay_is_active() || replay_get_version() >= 11)
+			load_control_state();
         
         if(NESquit && Up() && cAbtn() && cBbtn())
         {

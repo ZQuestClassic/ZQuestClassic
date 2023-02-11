@@ -5610,13 +5610,17 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 }
 void refresh(int32_t flags)
 {
-	// CPage = Map.CurrScr()->cpage;
+	static bool refreshing = false;
+	bool earlyret = refreshing;
+	refreshing = true;
+	//^ These prevent recursive calls from updating the screen early
 	
 	if(flags&rCLEAR)
 	{
 		//magic pink = 0xED
 		//system black = vc(0)
 		clear_to_color(menu1,jwin_pal[jcBOX]);
+		flags |= rALL; //Clears should refresh everything!
 	}
 	
 	if(flags&rSCRMAP)
@@ -7160,6 +7164,9 @@ void refresh(int32_t flags)
 		}
 	}
 	
+	if(earlyret)
+		return;
+	
 	//Draw the Main Menu
 	jwin_menu_proc(MSG_START, &dialogs[0], 0);
 	
@@ -7182,7 +7189,8 @@ void refresh(int32_t flags)
 	
 	unscare_mouse();
 	SCRFIX();
-	update_hw_screen();
+	update_hw_screen(true);
+	refreshing = false;
 }
 
 void select_scr()
@@ -10334,7 +10342,7 @@ void domouse()
 		font = get_custom_font(CFONT_GUI);
 		for(int32_t i=0; i<=6; ++i)
 		{
-			int32_t spacing_offs = is_compact ? 5 : 10;
+			int32_t spacing_offs = is_compact ? 2 : 10;
 			int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 			int32_t ry = layer_panel.y;
 			

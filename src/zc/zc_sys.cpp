@@ -4726,18 +4726,19 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		
 	Advance=false;
 
+	if (!replay_is_active() || replay_get_version() >= 11)
+		for (int i = 0; i < ZC_CONTROL_STATES; i++)
+			down_control_states[i] = raw_control_state[i];
+
 	if (replay_is_active())
 	{
-		if (replay_get_version() >= 8 && !load_control_called_this_frame)
-			replay_peek_input();
-
 		if (replay_get_version() >= 3)
 			replay_poll();
 
-		// Replay compatability.
-		if (replay_get_version() >= 6 && replay_get_version() < 8)
+		if (replay_get_version() >= 11 || (replay_get_version() >= 6 && replay_get_version() < 8))
 			replay_peek_input();
 	}
+
 	load_control_called_this_frame = false;
 
 	poll_keyboard();
@@ -9249,7 +9250,7 @@ void load_control_state()
 {
 	load_control_called_this_frame = true;
 
-	if (!replay_is_active() || replay_get_version() >= 8)
+	if (replay_get_version() >= 8 && replay_get_version() < 11)
 	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
@@ -9295,13 +9296,10 @@ void load_control_state()
 			replay_poll();
 		else if (replay_is_replaying() && replay_get_version() < 6)
 			replay_peek_input();
-		else if (replay_is_replaying() && replay_get_version() >= 8)
+		else if (replay_is_replaying() && replay_get_version() >= 8 && replay_get_version() < 11)
 			replay_peek_input();
-	}
-
-	if (replay_get_version() == 8)
-	{
-		update_keys();
+		if (replay_get_version() == 8)
+			update_keys();
 	}
 
 	// Some test replay files were made before a serious input bug was fixed, so instead

@@ -1504,13 +1504,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
-		
-		if (store_this)
-		{
-			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
-		}
 
 		//push the parameters, in forward order
 		for (auto it = host.parameters.begin();
@@ -1557,6 +1550,12 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
 		{
 			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+		}
+		if (store_this)
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
 		}
 		//goto
 		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)

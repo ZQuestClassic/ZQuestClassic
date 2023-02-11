@@ -43,7 +43,7 @@ jobs:
         run: tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
 
       - name: Run tests and collect coverage data
-        run: xvfb-run --auto-servernum sudo python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
+        run: sudo xvfb-run --auto-servernum python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
       - name: Generate coverage report
         run: bash tests/generate_coverage_report.sh
         env:

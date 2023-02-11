@@ -4554,17 +4554,6 @@ int main(int argc, char **argv)
 		quit_game();
 	}
 
-	if(!al_install_audio())
-	{
-		// We can continue even with no audio.
-		Z_error("Failed al_install_audio");
-	}
-
-	if(!al_init_acodec_addon())
-	{
-		Z_error("Failed al_init_acodec_addon");
-	}
-
 	al5img_init();
 	register_png_file_type();
 
@@ -5114,6 +5103,17 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+		if(!al_install_audio())
+		{
+			// We can continue even with no audio.
+			Z_error("Failed al_install_audio");
+		}
+
+		if(!al_init_acodec_addon())
+		{
+			Z_error("Failed al_init_acodec_addon");
+		}
+
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 		{
 			//      Z_error_fatal(allegro_error);
