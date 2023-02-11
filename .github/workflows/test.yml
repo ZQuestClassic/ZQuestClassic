@@ -108,6 +108,7 @@ jobs:
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -assert test.zplay
 
+      # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
           bash .github/workflows/run_replay_tests.sh
@@ -118,16 +119,23 @@ jobs:
           --shard ${{ matrix.shard_index }}/${{ matrix.num_shards }}
           ${{ inputs.extra-args }}
 
-      # Just run a few replays with JIT enabled.
-      - if: ${{ matrix.shard_index == 1 && inputs.arch != 'win32' && inputs.extra-args == '' }}
-        name: Test JIT
+      # Just run a few replays with JIT disabled.
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.arch != 'win32' }}
+        name: Test w/o JIT
         run: >
           bash .github/workflows/run_replay_tests.sh
           --build_folder ${{ env.BUILD_FOLDER }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
-          --filter script_playground_bumper.zplay --filter script_playground_circle.zplay --filter script_playground_prime.zplay --filter script_playground_maths.zplay --filter script_playground_early_exit.zplay --filter ghost_armos.zplay --filter keys.zplay
-          --jit
+          --filter script_playground_bumper.zplay
+          --filter script_playground_circle.zplay
+          --filter script_playground_prime.zplay
+          --filter script_playground_maths.zplay
+          --filter script_playground_early_exit.zplay
+          --filter script_playground_end_game.zplay
+          --filter ghost_armos.zplay
+          --filter keys.zplay
+          --no-jit
 
       - uses: actions/upload-artifact@v3
         if: github.event_name == 'workflow_dispatch' || failure()
