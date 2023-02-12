@@ -1,6 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+char const* get_color_name(int r, int g, int b);
+char const* get_color_name(int c);
+
 enum dithType
 {
 	//Every odd index is the inverted of the index before it, always.

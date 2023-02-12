@@ -34,6 +34,7 @@
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
 #include "dialog/alert.h"
+#include "drawing.h"
 
 extern zcmodule moduledata;
 
@@ -56,6 +57,7 @@ extern int32_t last_droplist_sel;
 int32_t ex=0;
 int32_t nextcombo_fake_click=0;
 int32_t invcol=0;
+int32_t tthighlight = 1;
 
 tiledata     *newundotilebuf;
 newcombo     *undocombobuf;
@@ -626,6 +628,11 @@ void little_x(BITMAP *dest, int32_t x, int32_t y, int32_t c, int32_t s)
 {
 	line(dest,x,y,x+s,y+s,c);
 	line(dest,x+s,y,x,y+s,c);
+}
+void little_x(BITMAP *dest, int32_t x, int32_t y, int32_t c, int32_t w, int32_t h)
+{
+	line(dest,x,y,x+w,y+h,c);
+	line(dest,x+w,y,x,y+h,c);
 }
 
 enum {gm_light, gm_dark, gm_max};
@@ -1245,7 +1252,6 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_
 				scare_mouse();
 				value=!value;
 				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
-				refresh(rMENU);
 				unscare_mouse();
 				over=true;
 			}
@@ -1257,7 +1263,6 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_
 				scare_mouse();
 				value=!value;
 				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
-				refresh(rMENU);
 				unscare_mouse();
 				over=false;
 			}
@@ -1323,19 +1328,22 @@ void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c)
 size_and_pos ok_button(282,562,71,21);
 size_and_pos cancel_button(356,562,71,21);
 size_and_pos edit_button(530,562,86,21);
+size_and_pos hlcbox(722,392,16,16);
+size_and_pos hov_prev(722,338,50,50);
 size_and_pos cpalette_4(628,416,4,4,64,64);
-size_and_pos cpalette_8(628,416,16,15,16,16);
-size_and_pos fg_prev(652,316,50,50);
-size_and_pos bg_prev(652+30,316+30,50,50);
+size_and_pos cpalette_8(628,416,16,12,16,21);
+size_and_pos fg_prev(628,316,50,50);
+size_and_pos bg_prev(628+30,316+30,50,50);
 size_and_pos zoomtile(104,32,16,16,32,32);
-size_and_pos prev_til_1(628,31,64,64);
-size_and_pos prev_til_2(700,31,64,64);
-size_and_pos prev_til_3(628,103,64,64);
-size_and_pos prev_til_4(700,103,64,64);
-size_and_pos status_info(628,308-(6*8),1,6,1,8);
+size_and_pos prev_til_1(628,31,96,96);
+size_and_pos prev_til_2(732,31,96,96);
+size_and_pos prev_til_3(628,135,96,96);
+size_and_pos prev_til_4(732,135,96,96);
+size_and_pos status_info(628,308-(4*8),1,4,1,8);
+size_and_pos hover_info(722,338-(3*8),1,3,1,8);
 size_and_pos tool_btns(22,29,2,4,39,39);
-size_and_pos x_btn(894,5,15,13);
-size_and_pos info_btn(876,5,15,13);
+size_and_pos x_btn(890,5,15,13);
+size_and_pos info_btn(872,5,15,13);
 
 int32_t c1=1;
 int32_t c2=0;
@@ -1479,14 +1487,11 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			
 			for(int32_t i=0; i<cpalette_4.w*cpalette_4.h; i++)
 			{
-				int32_t x=((i%cpalette_4.w)*cpalette_4.xscale)+cpalette_4.x;
-				int32_t y=((i/cpalette_4.w)*cpalette_4.yscale)+cpalette_4.y;
-				int32_t c=CSET(cs)+i;
-				rectfill(screen2,x,y,x+cpalette_4.xscale-1,y+cpalette_4.yscale-1,c);
+				size_and_pos const& s = *cpalette_4.subsquare(i);
+				rectfill(screen2,s.x,s.y,s.x+s.w-1,s.y+s.h-1,CSET(cs)+i);
 			}
 			
-			little_x(screen2,cpalette_4.x+1,cpalette_4.y+1,invcol,cpalette_4.xscale-5);
-			//little_x(screen2,cpalette_4.x+(cpalette_4.xscale/4),cpalette_4.y+(cpalette_4.yscale/4),invcol,(cpalette_4.xscale/2)-1);
+			little_x(screen2,cpalette_4.x+1,cpalette_4.y+1,invcol,cpalette_4.xscale-5,cpalette_4.yscale-5);
 			break;
 			
 		case tf8Bit:
@@ -1494,12 +1499,11 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			
 			for(int32_t i=0; i<cpalette_8.w*cpalette_8.h; ++i)
 			{
-				int32_t x=((i%cpalette_8.w)*cpalette_8.xscale)+cpalette_8.x;
-				int32_t y=((i/cpalette_8.w)*cpalette_8.yscale)+cpalette_8.y;
-				rectfill(screen2,x,y,x+cpalette_8.xscale-1,y+cpalette_8.yscale-1,i);
+				size_and_pos const& s = *cpalette_8.subsquare(i);
+				rectfill(screen2,s.x,s.y,s.x+s.w-1,s.y+s.h-1,i);
 			}
 			
-			little_x(screen2,cpalette_8.x+1,cpalette_8.y+1,invcol,cpalette_8.xscale-5);
+			little_x(screen2,cpalette_8.x+1,cpalette_8.y+1,invcol,cpalette_8.xscale-5,cpalette_8.yscale-5);
 			break;
 	}
 	
@@ -1509,7 +1513,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	
 	if(c2==0)
 	{
-		little_x(screen2, bg_prev.x+1, bg_prev.y+1, invcol, bg_prev.w-2);
+		little_x(screen2, bg_prev.x+1, bg_prev.y+1, invcol, bg_prev.w-2, bg_prev.h-2);
 	}
 	
 	rect(screen2, fg_prev.x, fg_prev.y, fg_prev.x+fg_prev.w-1, fg_prev.y+fg_prev.h-1, jwin_pal[jcTEXTFG]);
@@ -1518,12 +1522,14 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	
 	if(c1==0)
 	{
-		little_x(screen2, fg_prev.x+1, fg_prev.y+1, invcol, fg_prev.w-2);
+		little_x(screen2, fg_prev.x+1, fg_prev.y+1, invcol, fg_prev.w-2, fg_prev.h-2);
 	}
 	
 	draw_text_button(screen2,ok_button.x,ok_button.y,ok_button.w,ok_button.h,"OK",vc(1),vc(14),0,true);
 	draw_text_button(screen2,cancel_button.x,cancel_button.y,cancel_button.w,cancel_button.h,"Cancel",vc(1),vc(14),0,true);
 	draw_text_button(screen2,edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal",vc(1),vc(14),0,true);
+	draw_checkbox(screen2,hlcbox.x, hlcbox.y, hlcbox.w, hlcbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], tthighlight);
+	gui_textout_ln(screen2,font,(unsigned char*)"Highlight Hover",hlcbox.x+hlcbox.w+2,hlcbox.y+hlcbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
 	//tool buttons
 	for(int32_t toolbtn = 0; toolbtn < t_max; ++toolbtn)
@@ -1538,31 +1544,78 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	
 	//coordinates
 	{
-		int32_t ind = zoomtile.rectind(gui_mouse_x(),gui_mouse_y());
+		auto mx = gui_mouse_x();
+		auto my = gui_mouse_y();
+		int32_t ind = zoomtile.rectind(mx,my);
 		int32_t temp_x=ind%zoomtile.w;
 		int32_t temp_y=ind/zoomtile.w;
+		int color = -1;
 		
+		bool is8b = newtilebuf[tile].format > tf4Bit;
 		if(ind > -1)
 		{
 			char xbuf[16];
 			sprintf(xbuf, "x: %d", temp_x);
-			textprintf_ex(screen2,font,status_info.x,status_info.y+(4*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",xbuf);
-			textprintf_ex(screen2,font,status_info.x+text_length(font,xbuf)+8,status_info.y+(4*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
+			textprintf_ex(screen2,font,status_info.x,status_info.y+(3*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",xbuf);
+			textprintf_ex(screen2,font,status_info.x+text_length(font,xbuf)+8,status_info.y+(3*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"y: %d",temp_y);
 			unpack_tile(newtilebuf, tile, 0, false);
 			byte *si = unpackbuf;
 			si+=ind;
+			color = *si;
+		}
+		else if(fg_prev.rect(mx,my))
+			color = c1;
+		else if(bg_prev.rect(mx,my))
+			color = c2;
+		else color = (is8b ? cpalette_8 : cpalette_4).rectind(mx,my);
+		if(color > -1)
+		{
 			get_palette(tpal);
 			char separator = ' ';
-			char buf[256] = {0};
-			if(newtilebuf[tile].format<=tf4Bit)
+			char buf[512] = {0};
+			
+			int realcol = color+(is8b?0:CSET(cs));
+			bool xcolor = (is8b ? realcol == 0 : (realcol%16)==0);
+			auto& c = tpal[realcol];
+			
+			if(tthighlight)
 			{
-				sprintf(buf, "%02d %02d %02d %c(%d) (0x%02X)",tpal[CSET(cs)+(*si)].r,tpal[CSET(cs)+(*si)].g,tpal[CSET(cs)+(*si)].b,separator,*si,(*si)+(0x10*cs));
+				size_and_pos const& mainsqr = is8b ? cpalette_8 : cpalette_4;
+				size_and_pos const& csqr = *mainsqr.subsquare(color);
+				
+				int hlcol = getHighlightColor(tpal[realcol]);
+				int hlthick = 4;
+				int extraborder = is8b ? 8 : 0;
+				int borderthick = hlthick+extraborder;
+				
+				highlight_sqr(screen2, 0xED, csqr.x, mainsqr.y, csqr.w, mainsqr.h*mainsqr.yscale, hlthick);
+				highlight_sqr(screen2, 0xED, mainsqr.x, csqr.y, mainsqr.w*mainsqr.xscale, csqr.h, hlthick);
+				highlight_sqr(screen2, 0xED, csqr.x-borderthick, csqr.y-borderthick, csqr.w+borderthick*2, csqr.h+borderthick*2, hlthick);
+				if(extraborder)
+				{
+					rectfill(screen2, csqr.x-extraborder, csqr.y-extraborder, csqr.x+csqr.w-1+extraborder, csqr.y+csqr.h-1+extraborder, realcol);
+					if(xcolor)
+						little_x(screen2, csqr.x-extraborder+4, csqr.y-extraborder+4, invcol, csqr.w+(extraborder*2)-8, csqr.h+(extraborder*2)-8);
+				}
+				highlight_sqr(screen2, hlcol, csqr.x-extraborder, csqr.y-extraborder, csqr.w+extraborder*2, csqr.h+extraborder*2, 1);
 			}
-			else
-			{
-				sprintf(buf, "%02d %02d %02d %c(%d) (0x%02X)",tpal[(*si)].r,tpal[(*si)].g,tpal[(*si)].b,separator,*si,*si);
-			}
-			gui_textout_ln(screen2,font,(unsigned char*)buf,status_info.x,status_info.y+(5*status_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			
+			sprintf(buf, "%02d %02d %02d %c(0x%02X %d)",c.r,c.g,c.b,separator,realcol,color);
+			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(2*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			
+			if(!xcolor)
+				strcpy(buf, get_color_name(realcol));
+			else sprintf(buf, "%s (Transparent)", get_color_name(realcol));
+			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(1*hover_info.yscale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			
+			sprintf(buf, "#%02X%02X%02X", tpal[realcol].r*4,tpal[realcol].g*4,tpal[realcol].b*4);
+			gui_textout_ln(screen2,font,(unsigned char*)buf,hover_info.x,hover_info.y+(0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			
+			rect(screen2, hov_prev.x, hov_prev.y, hov_prev.x+hov_prev.w-1, hov_prev.y+hov_prev.h-1, jwin_pal[jcTEXTFG]);
+			rectfill(screen2, hov_prev.x+1, hov_prev.y+1, hov_prev.x+hov_prev.w-2, hov_prev.y+hov_prev.h-2, jwin_pal[jcTEXTBG]);
+			rectfill(screen2, hov_prev.x+3, hov_prev.y+3, hov_prev.x+hov_prev.w-4, hov_prev.y+hov_prev.h-4, realcol);
+			if(xcolor)
+				little_x(screen2, hov_prev.x+1, hov_prev.y+1, invcol, hov_prev.w-2, hov_prev.h-2);
 		}
 	}
 	
@@ -1849,8 +1902,18 @@ void shift_selection_grid(int32_t xoffs, int32_t yoffs)
 
 void show_edit_tile_help()
 {
-	InfoDialog("Edit Tile", "Some Help Here (WIP)").show();
-	//!TODO WRITE HELP INFO
+	InfoDialog("Help: Tile Editor", "Hotkeys:"
+		"\nF1: This Help Dialog"
+		"\nEnter: Unfloat Sel / OK | Esc: Unfloat Sel / Cancel"
+		"\nDelete: Clear Tile/Sel | Ctrl+Delete: Clear Tile"
+		"\nA: Sel All | D: Unselect Sel | I: Invert Sel"
+		"\nH/V: Flip | (Shift+)R: Rotate"
+		"\n+/-: Change CSet | Ctrl +/-: Shift Colors"
+		"\n(Ctrl+)S: Swap Colors | U/Ctrl+Z: Undo"
+		"\nF12: Screenshot (whole screen)"
+		"\nArrows: Shift Pixel | Ctrl+Arrows: Change Tile"
+		"\nWhen not on Select tools, hold to swap:"
+		"\nCtrl - Fill | Alt - Grab | Ctrl+Alt - Recolor").show();
 }
 
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
@@ -1860,10 +1923,14 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	edit_button.h = ok_button.h = cancel_button.h = 12+text_height(font);
 	status_info.yscale = text_height(font);
 	status_info.y = 308-(status_info.h*status_info.yscale);
+	hover_info.yscale = status_info.yscale;
+	hover_info.y = 338-(hover_info.h*hover_info.yscale);
 	go();
 	undocount = tilesize(newtilebuf[tile].format);
 	clear_selection_grid();
 	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
+	
+	tthighlight = zc_get_config("ZQ_GUI","tile_edit_fancyhighlight",1);
 	
 	PALETTE tpal;
 	byte oldtile[256];
@@ -2002,6 +2069,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		
 		if(keypressed())
 		{
+			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
 			switch(readkey()>>8)
 			{
 				case KEY_F1:
@@ -2197,7 +2265,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					gridmode=(gridmode+1)%gm_max;
 					redraw=true;
 					break;
-					
+				
+				case KEY_Z:
+					if(!ctrl)
+						break;
+					//Ctrl+Z == undo
+				[[fallthrough]];
 				case KEY_U:
 					for(int32_t i=0; i<undocount; i++)
 						zc_swap(undotile[i],newtilebuf[tile].data[i]);
@@ -2634,6 +2707,14 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					redraw=true;
 				}
 			}
+			if(hlcbox.rect(temp_mouse_x,temp_mouse_y))
+			{
+				if(do_checkbox(screen2,hlcbox.x,hlcbox.y,hlcbox.w,hlcbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],tthighlight))
+				{
+					zc_set_config("ZQ_GUI","tile_edit_fancyhighlight",tthighlight);
+					redraw=true;
+				}
+			}
 			
 			switch(newtilebuf[tile].format)
 			{
@@ -2947,7 +3028,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		
 		const char *toolnames[t_max]=
 		{
-			"Pencil", "Fill\nCtrl", "Replace Color\nCtrl+Alt", "Grab Color\nAlt", "Move", "Select", "Select Color"
+			"Pen\nDraw Single Pixels", "Fill\nCtrl", "Replace Color\nCtrl+Alt", "Grab Color\nAlt", "Move\nMove Selections", "Select Pixels", "Select Color"
 		};
 		
 		int32_t toolbtn = tool_btns.rectind(temp_mouse_x,temp_mouse_y);

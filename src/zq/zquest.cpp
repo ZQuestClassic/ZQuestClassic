@@ -288,7 +288,8 @@ size_and_pos tooltip_box;
 size_and_pos tooltip_trigger;
 size_and_pos tooltip_highlight;
 
-int tt_highlight_thick = 2;
+int32_t tt_highlight_thick = 2;
+int32_t tt_highlight_color = 0xED;
 
 size_and_pos itemsqr_pos;
 size_and_pos flagsqr_pos;
@@ -537,7 +538,7 @@ int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0
 	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
 	DisableCompileConsole = 0, numericalFlags = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
-uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0; 
+uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
 double aspect_ratio = LARGE_H / double(LARGE_W);
@@ -32364,7 +32365,7 @@ void highlight_ttip(BITMAP* dest)
 		return;
 	if(TooltipsHighlight && tooltip_highlight.x >= 0)
 	{
-		highlight_sqr(dest, 0xED, tooltip_highlight, tt_highlight_thick);
+		highlight_sqr(dest, tt_highlight_color, tooltip_highlight, tt_highlight_thick);
 	}
 }
 void draw_ttip(BITMAP* dest)
@@ -32405,6 +32406,7 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
 	}
 	tooltip_highlight.set(trigger_x, trigger_y, trigger_w, trigger_h);
 	tt_highlight_thick = 2;
+	tt_highlight_color = 0xED;
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
 	

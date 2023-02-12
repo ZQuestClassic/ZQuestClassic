@@ -104,7 +104,7 @@ extern size_and_pos tooltip_trigger;
 
 extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
-extern int32_t tooltip_timer, tooltip_maxtimer;
+extern int32_t tooltip_timer, tooltip_maxtimer, tt_highlight_thick, tt_highlight_color;
 
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
 extern bool resize_mouse_pos;                               //for eyeball combos
