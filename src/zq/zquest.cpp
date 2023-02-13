@@ -9282,52 +9282,66 @@ static MENU paste_screen_menu[] =
     { NULL,                              NULL,            NULL,    0, NULL }
 };
 
- void onRCSelectCombo(int32_t c)
- {
-	    int32_t drawmap, drawscr;
-	    
-	    if(CurrentLayer==0)
-	    {
-		drawmap=Map.getCurrMap();
-		drawscr=Map.getCurrScr();
-	    }
-	    else
-	    {
-		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		
-		if(drawmap<0)
-		{
-		    return;
-		}
-	    }
-	    
-	   Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+int32_t scrollto_cmb(int32_t cid)
+{
+	auto& sqr = combolist[current_combolist];
+	int32_t res = vbound(cid-(sqr.w*sqr.h/2),0,MAXCOMBOS-(sqr.w*sqr.h));
+	res -= res%sqr.w;
+	return res;
+}
+int32_t scrollto_alias(int32_t alid)
+{
+	auto& sqr = comboaliaslist[current_comboalist];
+	int32_t res = vbound(alid-(sqr.w*sqr.h/2),0,MAXCOMBOALIASES-(sqr.w*sqr.h));
+	res -= res%sqr.w;
+	return res;
 }
 
- void onRCScrollToombo(int32_t c)
- {
-	    int32_t drawmap, drawscr;
-	    
-	    if(CurrentLayer==0)
-	    {
+void onRCSelectCombo(int32_t c)
+{
+	int32_t drawmap, drawscr;
+
+	if(CurrentLayer==0)
+	{
 		drawmap=Map.getCurrMap();
 		drawscr=Map.getCurrScr();
-	    }
-	    else
-	    {
+	}
+	else
+	{
 		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
 		
 		if(drawmap<0)
 		{
-		    return;
+			return;
 		}
-	    }
-	    
-	    
-		auto& sqr = combolist[current_combolist];
-		First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/sqr.w*sqr.w)-(sqr.w*sqr.h/2),0,MAXCOMBOS-(sqr.w*sqr.h));
+	}
+
+	Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+}
+
+void onRCScrollToombo(int32_t c)
+{
+	int32_t drawmap, drawscr;
+	
+	if(CurrentLayer==0)
+	{
+		drawmap=Map.getCurrMap();
+		drawscr=Map.getCurrScr();
+	}
+	else
+	{
+		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+		
+		if(drawmap<0)
+		{
+			return;
+		}
+	}
+	
+	auto& sqr = combolist[current_combolist];
+	First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
 }
 
 static MENU rc_menu_combo[] =
@@ -9398,7 +9412,7 @@ static MENU combosel_rc_menu[] =
     { NULL,                         NULL,  NULL, 0, NULL }
 };
 
-static MENU fav_rc_menu[] =
+static MENU fav_cmb_rc_menu[] =
 {
     { (char *)"Scroll to Combo  ",       NULL,  NULL, 0, NULL },
     { (char *)"Edit Combo  ",            NULL,  NULL, 0, NULL },
@@ -9406,6 +9420,14 @@ static MENU fav_rc_menu[] =
     { (char *)"",                        NULL,  NULL, 0, NULL },
     { (char *)"Open Combo Page  ",       NULL,  NULL, 0, NULL },
     { (char *)"Open Tile Page  ",        NULL,  NULL, 0, NULL },
+    { NULL,                              NULL,  NULL, 0, NULL }
+};
+
+static MENU fav_alias_rc_menu[] =
+{
+    { (char *)"Scroll to Alias  ",       NULL,  NULL, 0, NULL },
+    { (char *)"Edit Alias  ",            NULL,  NULL, 0, NULL },
+    { (char *)"Remove Alias  ",          NULL,  NULL, 0, NULL },
     { NULL,                              NULL,  NULL, 0, NULL }
 };
 
@@ -10128,10 +10150,7 @@ void domouse()
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 						CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
 					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-						First[current_combolist]=vbound(
-						  (Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),
-						  0,
-						  MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
+						First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
 				}
 				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
@@ -10349,7 +10368,7 @@ void domouse()
 							
 							if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
 							{
-								First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),0,MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
+								First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
 							}
 						}
 						break;
@@ -10811,11 +10830,14 @@ void domouse()
 					{
 						switch(draw_mode)
 						{
-							case dm_alias:
 							case dm_cpool:
 								break;
+							case dm_alias:
+								combo_alistpos[current_comboalist]=scrollto_alias(combo_apos);
+								break;
 							default:
-								First[current_combolist]=vbound((Combo/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),0,MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
+								First[current_combolist]=scrollto_cmb(Combo);
+								break;
 						}
 					}
 				}
@@ -10830,9 +10852,8 @@ void domouse()
 				
 				if(valid)
 				{
-					SETFLAG(fav_rc_menu[4].flags, D_DISABLED, draw_mode == dm_alias);
-					SETFLAG(fav_rc_menu[5].flags, D_DISABLED, draw_mode == dm_alias);
-					int32_t m = popup_menu(fav_rc_menu,x,y);
+					MENU* rc_menu = draw_mode == dm_alias ? fav_alias_rc_menu : fav_cmb_rc_menu;
+					int32_t m = popup_menu(rc_menu,x,y);
 					int32_t f=favorites_list.rectind(x,y);
 					int32_t row=f/favorites_list.w;
 					int32_t col=f%favorites_list.w;
@@ -10841,12 +10862,24 @@ void domouse()
 					size_and_pos const& list = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
 					switch(m)
 					{
-						case 0:
-							First[current_combolist]=vbound((Combo/list.w*list.w)-(list.w*list.h/2),0,MAXCOMBOS-(list.w*list.h));
+						case 0: //Scroll to Combo/Alias
+							if(draw_mode == dm_alias)
+							{
+								combo_alistpos[current_comboalist]=scrollto_alias(combo_apos);
+							}
+							else
+							{
+								First[current_combolist]=scrollto_cmb(Combo);
+							}
 							break;
 							
-						case 1:
-							if(draw_mode != dm_alias)
+						case 1: //Edit Combo/Alias
+							if(draw_mode == dm_alias)
+							{
+								comboa_cnt = combo_apos;
+								onEditComboAlias();
+							}
+							else
 							{
 								reset_combo_animations();
 								reset_combo_animations2();
@@ -10854,16 +10887,11 @@ void domouse()
 								setup_combo_animations();
 								setup_combo_animations2();
 							}
-							else
-							{
-								comboa_cnt = combo_apos;
-								onEditComboAlias();
-							}
 							
 							redraw|=rALL;
 							break;
 							
-						case 2:
+						case 2: //Remove Combo/Alias
 							if(draw_mode == dm_alias)
 							{
 								favorite_comboaliases[f]=-1;
@@ -10874,13 +10902,15 @@ void domouse()
 								favorite_combos[f]=-1;
 								saved = false;
 							}
-							
 							break;
-						case 4:
+							
+						case 4: //Open Combo Page
+						{
 							combo_screen(Combo>>8,Combo);
 							redraw|=rALL;
 							break;
-						case 5:
+						}
+						case 5: //Open Tile Page
 						{
 							int32_t t = combobuf[Combo].tile;
 							int32_t f = 0;
