@@ -7254,32 +7254,42 @@ void refresh(int32_t flags)
 
 void select_scr()
 {
-    if(Map.getCurrMap()>=Map.getMapCount())
-        return;
-        
-    int32_t tempcb=ComboBrush;
-    ComboBrush=0;
-    
-    //scooby
-    while(gui_mouse_b())
-    {
-        int32_t x=gui_mouse_x();
-        int32_t y=gui_mouse_y();
+	if(Map.getCurrMap()>=Map.getMapCount())
+		return;
 		
-        int32_t s = real_minimap.rectind(x,y);
-        if(s>=MAPSCRS)
-            s-=16;
-            
-        if(s > -1 && s != Map.getCurrScr())
-        {
-            Map.setCurrScr(s);
-        }
-        
-        do_animations();
-        refresh(rALL);
-    }
-    
-    ComboBrush=tempcb;
+	int32_t tempcb=ComboBrush;
+	ComboBrush=0;
+	
+	//scooby
+	while(gui_mouse_b())
+	{
+		int32_t x=gui_mouse_x();
+		int32_t y=gui_mouse_y();
+		
+		int32_t ind = real_minimap.rectind(x,y);
+		
+		if(ind > -1 && ind < MAPSCRS)
+		{
+			char buf[80];
+			sprintf(buf,"0x%02X (%d)", ind, ind);
+			tooltip_timer = tooltip_maxtimer-1;
+			update_tooltip(real_minimap.x+(real_minimap.w*real_minimap.xscale), real_minimap.y-16, *real_minimap.subsquare(ind), buf);
+			tt_highlight_thick = 1;
+		}
+		
+		if(ind>=MAPSCRS)
+			ind-=16;
+			
+		if(ind > -1 && ind != Map.getCurrScr())
+		{
+			Map.setCurrScr(ind);
+		}
+		
+		do_animations();
+		refresh(rALL);
+	}
+	
+	ComboBrush=tempcb;
 }
 
 void clear_cpool()
@@ -9902,7 +9912,7 @@ void domouse()
 	}
 	
 	auto ind = real_minimap.rectind(x,y);
-	if(ind > -1 && ind < 0x88)
+	if(ind > -1 && ind < MAPSCRS)
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
@@ -30624,7 +30634,7 @@ int32_t main(int32_t argc,char **argv)
 				commands[cmdTemplate].flags = (Map.getCurrScr()<TEMPLATE) ? 0 : D_DISABLED;
 					
 	data_menu[7].flags = //Allow setting doors on template screens > 0x82. -Z ( 1st July, 2019 )
-		commands[cmdDoors].flags = (Map.getCurrScr()<0x88) ? 0 : D_DISABLED;
+		commands[cmdDoors].flags = (Map.getCurrScr()<MAPSCRS) ? 0 : D_DISABLED;
 		
 		defs_menu[1].flags =
 			commands[cmdDefault_Tiles].flags = 0;
