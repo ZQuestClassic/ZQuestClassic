@@ -1,8 +1,9 @@
 #ifndef DRAW_H
 #define DRAW_H
 
-char const* get_color_name(int r, int g, int b);
-char const* get_color_name(int c);
+std::string const& get_color_name(int r, int g, int b);
+std::string const& get_color_name(int c, bool is8b); //Includes '(Trans)' for transparents
+std::string const& get_color_name(int c);
 
 enum dithType
 {

@@ -3159,6 +3159,8 @@ struct newcombo
 		
 		return true;
 	}
+	
+	int each_tile(std::function<bool(int32_t)> proc) const;
 };
 
 #define AF_FRESH          0x01

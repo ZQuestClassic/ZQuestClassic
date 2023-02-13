@@ -94,6 +94,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 //#include "zscrdata.h"
 #include "drawing.h"
 #include "ConsoleLogger.h"
+#include "colorname.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -7268,17 +7269,21 @@ bool select_favorite()
         valid=false;
         int32_t x=gui_mouse_x();
         
-        if(x<favorites_list.x) x=favorites_list.x;
+        if(x<favorites_list.x)
+			x=favorites_list.x;
         
-        if(x>favorites_list.x+(favorites_list.w*16)-1) x=favorites_list.x+(favorites_list.w*16)-1;
+        if(x>favorites_list.x+(favorites_list.w*favorites_list.xscale)-1)
+			x=favorites_list.x+(favorites_list.w*favorites_list.xscale)-1;
         
         int32_t y=gui_mouse_y();
         
-        if(y<favorites_list.y) y=favorites_list.y;
+        if(y<favorites_list.y)
+			y=favorites_list.y;
         
-        if(y>favorites_list.y+(favorites_list.h*16)-1) y=favorites_list.y+(favorites_list.h*16)-1;
+        if(y>favorites_list.y+(favorites_list.h*favorites_list.yscale)-1)
+			y=favorites_list.y+(favorites_list.h*favorites_list.yscale)-1;
         
-        int32_t tempc=(((y-favorites_list.y)>>4)*FAVORITECOMBO_PER_ROW)+((x-favorites_list.x)>>4);
+        int32_t tempc=(((y-favorites_list.y)/favorites_list.yscale)*FAVORITECOMBO_PER_ROW)+((x-favorites_list.x)/favorites_list.xscale);
         
 		if(tempc >= ((draw_mode==dm_alias) ? MAXFAVORITECOMBOALIASES : MAXFAVORITECOMBOS))
 		{
@@ -9739,7 +9744,23 @@ void domouse()
 	
 	if(draw_mode==dm_alias)
 	{
-		for(int32_t j=0; j<num_combo_cols; ++j)
+		if(favorites_list.rect(x,y))
+		{
+			int32_t f=favorites_list.rectind(x,y);
+			int32_t row=f/favorites_list.w;
+			int32_t col=f%favorites_list.w;
+			f = (row*FAVORITECOMBO_PER_ROW)+col;
+			
+			auto& sqr = *favorites_list.subsquare(col,row);
+			
+			char buf[180];
+			sprintf(buf, "Fav Alias %d", f);
+			if(favorite_comboaliases[f] == -1)
+				sprintf(buf, "Fav Alias %d\nEmpty", f);
+			else sprintf(buf, "Fav Alias %d\nAlias %d", f, favorite_comboaliases[f]);
+			update_tooltip(x,y,sqr,buf);
+		}
+		else for(int32_t j=0; j<num_combo_cols; ++j)
 		{
 			auto& sqr = comboaliaslist[j];
 			auto ind = sqr.rectind(x,y);
@@ -9778,7 +9799,27 @@ void domouse()
 	}
 	else
 	{
-		for(int32_t j=0; j<num_combo_cols; ++j)
+		if(favorites_list.rect(x,y))
+		{
+			int32_t f=favorites_list.rectind(x,y);
+			int32_t row=f/favorites_list.w;
+			int32_t col=f%favorites_list.w;
+			f = (row*FAVORITECOMBO_PER_ROW)+col;
+			
+			auto& sqr = *favorites_list.subsquare(col,row);
+			
+			char buf[180];
+			if(favorite_combos[f] == -1)
+				sprintf(buf, "Fav Combo %d\nEmpty", f);
+			else sprintf(buf, "Fav Combo %d\nCombo %d", f, favorite_combos[f]);
+			update_tooltip(x,y,sqr,buf);
+		}
+		else if(combo_preview.rect(x,y))
+		{
+			auto str = "Combo Colors:\n"+get_combo_colornames(Combo,CSet);
+			update_tooltip(x,y,combo_preview,str.c_str());
+		}
+		else for(int32_t j=0; j<num_combo_cols; ++j)
 		{
 			auto& sqr = combolist[j];
 			auto ind = sqr.rectind(x,y);
@@ -9817,943 +9858,764 @@ void domouse()
 		mouse_down = false;
 		canfill=true;
 	}
-	else
+	else if(lclick||rclick)
 	{
-		if(lclick)
+		//on the map tabs
+		font = get_custom_font(CFONT_GUI);
+		for(int32_t btn=0; btn<mappage_count; ++btn)
 		{
+			char tbuf[15];
+			sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
+			auto& sqr = map_page_bar[btn];
+			if(sqr.rect(x,y))
+			{
+				if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
+				{
+					draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
+					map_page[current_mappage].map=Map.getCurrMap();
+					map_page[current_mappage].screen=Map.getCurrScr();
+					current_mappage=btn;
+					Map.setCurrMap(map_page[current_mappage].map);
+					Map.setCurrScr(map_page[current_mappage].screen);
+					rebuild_trans_table(); //Woo
+				}
+			}
 		}
-		if(lclick||rclick)
+		
+		if(compactbtn.rect(x,y))
 		{
-			//on the map tabs
-			font = get_custom_font(CFONT_GUI);
-			for(int32_t btn=0; btn<mappage_count; ++btn)
+			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
+				toggle_is_compact();
+		}
+		
+		font = lfont_l;
+		if(combo_merge_btn.rect(x,y))
+		{
+			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
+			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),true))
+			{
+				toggle_merged_mode();
+			}
+		}
+		font=tfont;
+		
+		//on the minimap
+		if(real_minimap.rect(x,y))
+		{
+			select_scr();
+		}
+		
+		if(favorites_x.rect(x,y))
+		{
+			switch(draw_mode)
+			{
+				case dm_cpool: break;
+				case dm_alias:
+					AlertDialog("Clear Favorite Aliases",
+						"Are you sure you want to clear all favorite aliases?",
+						[&](bool ret,bool)
+						{
+							if(ret)
+							{
+								for(auto q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
+								{
+									favorite_comboaliases[q] = -1;
+								}
+								saved = false;
+								refresh(rFAVORITES);
+							}
+						}).show();
+					break;
+				default:
+					AlertDialog("Clear Favorite Combos",
+						"Are you sure you want to clear all favorite combos?",
+						[&](bool ret,bool)
+						{
+							if(ret)
+							{
+								for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
+								{
+									favorite_combos[q] = -1;
+								}
+								saved = false;
+								refresh(rFAVORITES);
+							}
+						}).show();
+					break;
+			}
+		}
+		
+		// On the layer panel
+		font = get_custom_font(CFONT_GUI);
+		for(int32_t i=0; i<=6; ++i)
+		{
+			int32_t spacing_offs = is_compact ? 2 : 10;
+			int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
+			int32_t ry = layer_panel.y;
+			
+			if((i==0 || Map.CurrScr()->layermap[i-1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
 			{
 				char tbuf[15];
-				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-				auto& sqr = map_page_bar[btn];
-				if(sqr.rect(x,y))
-				{
-					if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
-					{
-						draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
-						map_page[current_mappage].map=Map.getCurrMap();
-						map_page[current_mappage].screen=Map.getCurrScr();
-						current_mappage=btn;
-						Map.setCurrMap(map_page[current_mappage].map);
-						Map.setCurrScr(map_page[current_mappage].screen);
-						rebuild_trans_table(); //Woo
-					}
-				}
-			}
-			
-			if(compactbtn.rect(x,y))
-			{
-				if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
-					toggle_is_compact();
-			}
-			
-			font = lfont_l;
-			if(combo_merge_btn.rect(x,y))
-			{
-				bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
-				if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),true))
-				{
-					toggle_merged_mode();
-				}
-			}
-			font=tfont;
-			
-			//on the minimap
-			if(real_minimap.rect(x,y))
-			{
-				select_scr();
-			}
-			
-			if(favorites_x.rect(x,y))
-			{
-				switch(draw_mode)
-				{
-					case dm_cpool: break;
-					case dm_alias:
-						AlertDialog("Clear Favorite Aliases",
-							"Are you sure you want to clear all favorite aliases?",
-							[&](bool ret,bool)
-							{
-								if(ret)
-								{
-									for(auto q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
-									{
-										favorite_comboaliases[q] = -1;
-									}
-									saved = false;
-									refresh(rFAVORITES);
-								}
-							}).show();
-						break;
-					default:
-						AlertDialog("Clear Favorite Combos",
-							"Are you sure you want to clear all favorite combos?",
-							[&](bool ret,bool)
-							{
-								if(ret)
-								{
-									for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
-									{
-										favorite_combos[q] = -1;
-									}
-									saved = false;
-									refresh(rFAVORITES);
-								}
-							}).show();
-						break;
-				}
-			}
-			
-			// On the layer panel
-			font = get_custom_font(CFONT_GUI);
-			for(int32_t i=0; i<=6; ++i)
-			{
-				int32_t spacing_offs = is_compact ? 2 : 10;
-				int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
-				int32_t ry = layer_panel.y;
 				
-				if((i==0 || Map.CurrScr()->layermap[i-1]) && isinRect(x,y,rx,ry,rx+layerpanel_buttonwidth-1,ry+layerpanel_buttonheight-1))
+				if(i!=0 && Map.CurrScr()->layermap[i-1])
 				{
-					char tbuf[15];
-					
-					if(i!=0 && Map.CurrScr()->layermap[i-1])
+					if(is_compact)
 					{
-						if(is_compact)
-						{
-							sprintf(tbuf, "%s%d %d:%02X",
-								(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
-								i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
-						}
-						else
-						{
-							sprintf(tbuf, "%s%d (%d:%02X)",
-								(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
-								i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
-						}
+						sprintf(tbuf, "%s%d %d:%02X",
+							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
+							i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
 					}
 					else
 					{
-						sprintf(tbuf, "%d", i);
+						sprintf(tbuf, "%s%d (%d:%02X)",
+							(i==2 && Map.CurrScr()->flags7&fLAYER2BG) || (i==3 && Map.CurrScr()->flags7&fLAYER3BG) ? "-":"",
+							i, Map.CurrScr()->layermap[i-1], Map.CurrScr()->layerscreen[i-1]);
 					}
-					
-					if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14),true))
-					{
-						CurrentLayer = i;
-					}
+				}
+				else
+				{
+					sprintf(tbuf, "%d", i);
 				}
 				
-				auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
-				if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
-					do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
-			}
-			font=tfont;
-			
-			//Uses lclick/rclick separately
-			
-			//on the map screen
-			if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
-			{
-				if(lclick)
+				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14),true))
 				{
-					int32_t cx2 = (x-startxint)/mapscreensize;
-					int32_t cy2 = (y-startyint)/mapscreensize;
-					
-					// Move items
-					if(Map.CurrScr()->hasitem)
-					{
-						int32_t ix = Map.CurrScr()->itemx;
-						int32_t iy = Map.CurrScr()->itemy;
-						
-						if(cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
-							doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8,true,0,0,16,16);
-					}
-					
-					// Move FFCs
-					for(int32_t i=MAXFFCS-1; i>=0; i--)
-						if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
-						{
-							int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
-							int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
-							
-							if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
-							{
-								moveffc(i,cx2,cy2);
-								break;
-							}
-						}
-					
-					if(key[KEY_ALT]||key[KEY_ALTGR])
-					{
-						int32_t drawmap, drawscr;
-						if(CurrentLayer==0)
-						{
-							drawmap=Map.getCurrMap();
-							drawscr=Map.getCurrScr();
-						}
-						else
-						{
-							drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-							drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-						}
-						if(drawmap<0)
-							return;
-						Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
-						if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-							CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
-						if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-							First[current_combolist]=vbound(
-							  (Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),
-							  0,
-							  MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
-					}
-					else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-					{
-						if(canfill)
-						{
-							switch(fill_type)
-							{
-							case 0:
-								flood();
-								break;
-								
-							case 1:
-								fill_4();
-								break;
-								
-							case 2:
-								fill_8();
-								break;
-								
-							case 3:
-								fill2_4();
-								break;
-								
-							case 4:
-								fill2_8();
-								break;
-							}
-							
-							canfill=false;
-						}
-					}
-					else draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+					CurrentLayer = i;
 				}
-				else if(rclick)
+			}
+			
+			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
+			if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
+				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
+		}
+		font=tfont;
+		
+		//Uses lclick/rclick separately
+		
+		//on the map screen
+		if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+		{
+			if(lclick)
+			{
+				int32_t cx2 = (x-startxint)/mapscreensize;
+				int32_t cy2 = (y-startyint)/mapscreensize;
+				
+				// Move items
+				if(Map.CurrScr()->hasitem)
 				{
-					ComboBrushPause=1;
-					refresh(rMAP);
-					restore_mouse();
-					ComboBrushPause=0;
+					int32_t ix = Map.CurrScr()->itemx;
+					int32_t iy = Map.CurrScr()->itemy;
 					
-					bool clickedffc = false;
-					uint32_t earliestfreeffc = MAXFFCS;
-					
-					// FFC right-click menu
-					// This loop also serves to find the free ffc with the smallest slot number.
-					for(int32_t i=MAXFFCS-1; i>=0; i--)
+					if(cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
+						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8,true,0,0,16,16);
+				}
+				
+				// Move FFCs
+				for(int32_t i=MAXFFCS-1; i>=0; i--)
+					if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 					{
-						auto data = Map.CurrScr()->ffcs[i].getData();
-						if(data==0)
-						{
-							if(i < earliestfreeffc)
-								earliestfreeffc = i;
-							continue;
-						}
+						int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+						int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
 						
-						if(clickedffc || !(Map.CurrScr()->valid&mVALID))
-							continue;
-							
-						if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+						if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 						{
-							int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
-							int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
-							int32_t cx2 = (x-startxint)/mapscreensize;
-							int32_t cy2 = (y-startyint)/mapscreensize;
-							
-							if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
-							{
-								draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
-								
-								int32_t m = popup_menu(draw_ffc_rc_menu,x,y);
-								
-								switch(m)
-								{
-									case 0:
-										Map.CopyFFC(i);
-										break;
-									
-									case 1: // Paste Copied FFC
-									{
-										if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
-										{
-											Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
-											saved=false;
-										}
-									}
-									break;
-									
-									case 2:
-										call_ffc_dialog(i);
-										break;
-									
-									case 3:
-										if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
-										{
-											Map.CurrScr()->ffcs[i].setData(0);
-											Map.CurrScr()->ffcCountMarkDirty();
-											Map.CurrScr()->ffcs[i].cset = 0;
-											Map.CurrScr()->ffcs[i].x = 0;
-											Map.CurrScr()->ffcs[i].y = 0;
-											Map.CurrScr()->ffcs[i].vx = 0;
-											Map.CurrScr()->ffcs[i].vy = 0;
-											Map.CurrScr()->ffcs[i].ax = 0;
-											Map.CurrScr()->ffcs[i].ay = 0;
-											Map.CurrScr()->ffcs[i].flags = 0;
-											Map.CurrScr()->ffcs[i].script = 0;
-											Map.CurrScr()->ffcs[i].link = 0;
-											Map.CurrScr()->ffcs[i].delay = 0;
-											Map.CurrScr()->ffcs[i].hxsz = 16;
-											Map.CurrScr()->ffcs[i].hysz = 16;
-											Map.CurrScr()->ffcs[i].txsz = 1;
-											Map.CurrScr()->ffcs[i].tysz = 1;
-											
-											for(int32_t j=0; j<8; j++)
-												Map.CurrScr()->ffcs[i].initd[j] = 0;
-												
-											for(int32_t j=0; j<2; j++)
-												Map.CurrScr()->ffcs[i].inita[j] = 10000;
-												
-											saved = false;
-										}
-										break;
-									
-									case 4: //snap to grid
-									{
-										int32_t oldffx = Map.CurrScr()->ffcs[i].x.getInt();
-										int32_t oldffy = Map.CurrScr()->ffcs[i].y.getInt();
-										int32_t pos = COMBOPOS(oldffx,oldffy);
-										int32_t newffy = COMBOY(pos);
-										int32_t newffx = COMBOX(pos);
-										Map.CurrScr()->ffcs[i].x = newffx;
-										Map.CurrScr()->ffcs[i].y = newffy;
-										saved = false;
-										break;
-									}
-								}
-								
-								clickedffc = true;
-								break;
-							}
+							moveffc(i,cx2,cy2);
+							break;
 						}
-						
 					}
-					
-					// Combo right-click menu
-					if(!clickedffc)
+				
+				if(key[KEY_ALT]||key[KEY_ALTGR])
+				{
+					int32_t drawmap, drawscr;
+					if(CurrentLayer==0)
 					{
-						// FFC-specific options
-						if(earliestfreeffc < MAXFFCS)
+						drawmap=Map.getCurrMap();
+						drawscr=Map.getCurrScr();
+					}
+					else
+					{
+						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+					}
+					if(drawmap<0)
+						return;
+					Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+						CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+						First[current_combolist]=vbound(
+						  (Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),
+						  0,
+						  MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
+				}
+				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					if(canfill)
+					{
+						switch(fill_type)
 						{
-							sprintf(paste_ffc_menu_text, "Place + Edit FFC %d",earliestfreeffc+1);
-							sprintf(paste_ffc_menu_text2,"Paste FFC as FFC %d",earliestfreeffc+1);
-							draw_rc_menu[13].text = paste_ffc_menu_text;
-							draw_rc_menu[13].flags = 0;
-							
-							if(Map.getCopyFFC()>-1)
-							{
-								draw_rc_menu[14].text = paste_ffc_menu_text2;
-								draw_rc_menu[14].flags = 0;
-							}
-							else draw_rc_menu[14].flags = D_DISABLED;
-						}
-						else
-						{
-							draw_rc_menu[13].text = (char*)"Place + Edit FFC";
-							draw_rc_menu[14].text = (char*)"Paste FFC";
-							draw_rc_menu[14].flags = draw_rc_menu[13].flags = D_DISABLED;
-						}
-						
-						int32_t warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
-						
-						if(warpindex > -1)
-						{
-							sprintf(follow_warp_menu_text, "Follow Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
-							sprintf(follow_warp_menu_text2,"Edit Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
-							draw_rc_menu[10].text = follow_warp_menu_text;
-							draw_rc_menu[11].text = follow_warp_menu_text2;
-							draw_rc_menu[10].flags = draw_rc_menu[11].flags = 0;
-						}
-						else
-						{
-							draw_rc_menu[10].text = (char*)"Follow Tile Warp";
-							draw_rc_menu[11].text = (char*)"Edit Tile Warp";
-							draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
-						}
-						
-						int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
-						
-						switch(m)
-						{
-							case 0:
-							case 1:
-							{
-								int32_t drawmap, drawscr;
-								
-								if(CurrentLayer==0)
-								{
-									drawmap=Map.getCurrMap();
-									drawscr=Map.getCurrScr();
-								}
-								else
-								{
-									drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-									drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-									
-									if(drawmap<0)
-									{
-										return;
-									}
-								}
-								
-								if(m==0)
-								{
-									Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
-								}
-								
-								if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-								{
-									First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),0,MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
-								}
-							}
+						case 0:
+							flood();
 							break;
 							
-							case 2:
-							{
-								int32_t drawmap, drawscr;
-								
-								if(CurrentLayer==0)
-								{
-								
-									drawmap=Map.getCurrMap();
-									drawscr=Map.getCurrScr();
-								}
-								else
-								{
-									drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-									drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-									
-									if(drawmap<0)
-									{
-										return;
-									}
-								}
-								
-								edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],true,Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
-							}
+						case 1:
+							fill_4();
 							break;
 							
-							case 4:
-								replace(c);
-								break;
-								
-							case 10: // Follow Tile Warp
-							{
-								if(warpindex>=4)
-								{
-									jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-									warpindex=zc_oldrand()&3;
-								}
-								
-								int32_t tm = Map.getCurrMap();
-								int32_t ts = Map.getCurrScr();
-								int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
-								
-								if(wt==wtCAVE || wt==wtNOWARP)
-								{
-									char buf[56];
-									sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
-									jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,lfont);
-									break;
-									break;
-								}
-								
-								Map.dowarp(0,warpindex);
-								
-								if(ts!=Map.getCurrScr() || tm!=Map.getCurrMap())
-								{
-									FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(warpindex*2))&3;
-									FlashWarpClk = 32;
-								}
-								
-								break;
-							}
-							
-							case 11: // Edit Tile Warp
-							{
-								if(warpindex>=4)
-								{
-									jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
-									warpindex=0;
-								}
-								
-								if(warpindex > -1 && warpindex < 4)
-									onTileWarpIndex(warpindex);
-									
-								break;
-							}
-							
-							case 13:
-							{
-								ffdata tempdat;
-								tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-								tempdat.y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
-								tempdat.data = Combo;
-								tempdat.cset = CSet;
-								call_ffc_dialog(earliestfreeffc, tempdat);
-							}
+						case 2:
+							fill_8();
 							break;
 							
-							case 14:
-							{
-								Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
-								Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
-								Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
-							}
+						case 3:
+							fill2_4();
 							break;
 							
-							default:
-								break;
+						case 4:
+							fill2_8();
+							break;
 						}
+						
+						canfill=false;
 					}
 				}
+				else draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 			}
-			
-			//on the drawing mode button
-			if(drawmode_btn.rect(x,y))
+			else if(rclick)
 			{
-				if(lclick)
-				{
-					if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
-						onDrawingMode();
-				}
-				else if(rclick)
-					popup_menu(drawing_mode_menu,x,y);
-			}
-			
-			//Squares
-			{
-				bool do_dummyxy = false;
-				bool dummymode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
+				ComboBrushPause=1;
+				refresh(rMAP);
+				restore_mouse();
+				ComboBrushPause=0;
 				
-				if(itemsqr_pos.rect(x,y))
+				bool clickedffc = false;
+				uint32_t earliestfreeffc = MAXFFCS;
+				
+				// FFC right-click menu
+				// This loop also serves to find the free ffc with the smallest slot number.
+				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
-					if(dummymode) do_dummyxy = true;
-					else
+					auto data = Map.CurrScr()->ffcs[i].getData();
+					if(data==0)
 					{
-						onItem();
-						
-						if(!rclick && Map.CurrScr()->hasitem)
-							doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
+						if(i < earliestfreeffc)
+							earliestfreeffc = i;
+						continue;
 					}
-				}
-				
-				if(stairsqr_pos.rect(x,y))
-				{
-					if(dummymode) do_dummyxy = true;
-					else
-					{
-						doxypos(Map.CurrScr()->stairx,Map.CurrScr()->stairy,14,0xF0);
-					}
-				}
-				
-				if(warparrival_pos.rect(x,y))
-				{
-					if(dummymode) do_dummyxy = true;
-					else
-					{
-						if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-						{
-							if(!zc_get_config("zquest","dsa_warparrival",0))
-							{
-								AlertDialog("Arrival Square",
-									"The arrival square cannot be used unless the QR 'Use Warp Return "
-									"Points Only' under 'Quest->Options->Combos' is disabled."
-									"\nGenerally, this square only exists for compatibility purposes, and is not used"
-									" in creating new quests.",
-									[&](bool ret,bool dsa)
-									{
-										if(dsa)
-										{
-											zc_set_config("zquest","dsa_warparrival",1);
-										}
-									},
-									"OK","",
-									0,false, //timeout - none
-									true //"Don't show this again"
-								).show();
-							}
-						}
-						else doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
-					}
-				}
-				
-				if(flagsqr_pos.rect(x,y))
-				{
-					if(dummymode) do_dummyxy = true;
-					else
-					{
-						onFlags();
-					}
-				}
-				
-				for(auto q = 0; q < 4; ++q)
-				{
-					if(warpret_pos[q].rect(x,y))
-					{
-						if(dummymode) do_dummyxy = true;
-						else
-						{
-							doxypos(Map.CurrScr()->warpreturnx[q],Map.CurrScr()->warpreturny[q],9,0xF8);
-						}
-					}
-				}
-				
-				if(enemy_prev_pos.rect(x,y))
-				{
-					if(dummymode) do_dummyxy = true;
-					else
-					{
-						onEnemies();
-					}
-				}
-				
-				if(do_dummyxy)
-				{
-					byte x = 0, y = 0;
-					showxypos_dummy = true;
-					doxypos(x,y,13,0xF8);
-				}
-			}
-			
-			if(draw_mode==dm_alias)
-			{
-				for(int32_t j=0; j<num_combo_cols; ++j)
-				{
-					int32_t temp_x1=combolistscrollers[j].x;
-					int32_t temp_y1=combolistscrollers[j].y;
-					int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
-					int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
 					
-					int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
-					int32_t temp_y3=combolistscrollers[j].y;
-					int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
-					int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
-					
-					if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_alistpos[j]<(MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
-					{
-						combo_alistpos[j]=zc_min((MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h)),combo_alistpos[j]+(comboaliaslist[j].w*comboaliaslist[j].h));
-						refresh(rCOMBOS);
-					}
-					else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_alistpos[j]>0) && !mouse_down)
-					{
-						combo_alistpos[j]-=zc_min(combo_alistpos[j],(comboaliaslist[j].w*comboaliaslist[j].h));
-						refresh(rCOMBOS);
-					}
-					else if(comboaliaslist[j].rect(x,y))
-					{
-						select_comboa(j);
+					if(clickedffc || !(Map.CurrScr()->valid&mVALID))
+						continue;
 						
-						if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
-						{
-							comboa_cnt = combo_apos;
-							onEditComboAlias();
-							redraw|=rALL;
-						}
-					}
-				}
-			}
-			else if(draw_mode==dm_cpool)
-			{
-				for(int32_t j=0; j<num_combo_cols; ++j)
-				{
-					int32_t temp_x1=combolistscrollers[j].x;
-					int32_t temp_y1=combolistscrollers[j].y;
-					int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
-					int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
-					
-					int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
-					int32_t temp_y3=combolistscrollers[j].y;
-					int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
-					int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
-					
-					if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_pool_listpos[j]<(MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+					if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 					{
-						combo_pool_listpos[j]=zc_min((MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h)),combo_pool_listpos[j]+(comboaliaslist[j].w*comboaliaslist[j].h));
-						refresh(rCOMBOS);
-					}
-					else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_pool_listpos[j]>0) && !mouse_down)
-					{
-						combo_pool_listpos[j]-=zc_min(combo_pool_listpos[j],(comboaliaslist[j].w*comboaliaslist[j].h));
-						refresh(rCOMBOS);
-					}
-					else if(comboaliaslist[j].rect(x,y))
-					{
-						select_combop(j);
+						int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
+						int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
+						int32_t cx2 = (x-startxint)/mapscreensize;
+						int32_t cy2 = (y-startyint)/mapscreensize;
 						
-						if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
+						if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 						{
-							onEditComboPool();
-							redraw|=rALL;
-						}
-					}
-				}
-			}
-			else
-			{
-				for(int32_t j=0; j<num_combo_cols; ++j)
-				{
-					int32_t temp_x1=combolistscrollers[j].x;
-					int32_t temp_y1=combolistscrollers[j].y;
-					int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
-					int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
-					
-					int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
-					int32_t temp_y3=combolistscrollers[j].y;
-					int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
-					int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
-					
-					if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && First[j]>0 && !mouse_down)
-					{
-						if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-						{
-							First[j]-=zc_min(First[j],256);
-						}
-						else
-						{
-							First[j]-=zc_min(First[j],(combolist[j].w*combolist[j].h));
-						}
-						
-						redraw|=rCOMBOS;
-					}
-					else if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && First[j]<(MAXCOMBOS-(combolist[j].w*combolist[j].h)) && !mouse_down)
-					{
-						if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-						{
-							First[j]+=zc_min((MAXCOMBOS-256)-First[j],256);
-						}
-						else
-						{
-							First[j]+=zc_min((MAXCOMBOS-(combolist[j].w*combolist[j].h))-First[j],(combolist[j].w*combolist[j].h));
-						}
-						
-						redraw|=rCOMBOS;
-					}
-					else if(combolist[j].rect(x,y))
-					{
-						select_combo(j);
-						
-						if(rclick && combolist[j].rect(gui_mouse_x(),gui_mouse_y()))
-						{
-							int32_t m = popup_menu(combosel_rc_menu,x,y);
+							draw_ffc_rc_menu[1].flags = (Map.getCopyFFC()>-1) ? 0 : D_DISABLED;
+							
+							int32_t m = popup_menu(draw_ffc_rc_menu,x,y);
 							
 							switch(m)
 							{
 								case 0:
-									reset_combo_animations();
-									reset_combo_animations2();
-									edit_combo(Combo,true,CSet);
-									setup_combo_animations();
-									setup_combo_animations2();
-									redraw|=rALL;
+									Map.CopyFFC(i);
 									break;
-									
-								case 1:
-									combo_screen(Combo>>8,Combo);
-									redraw|=rALL;
-									break;
-									
-								case 2:
+								
+								case 1: // Paste Copied FFC
 								{
-									int32_t t = combobuf[Combo].tile;
-									int32_t f = 0;
-									select_tile(t,f,0,CSet,true);
-									redraw|=rALL;
-									break;
+									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
+									{
+										Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
+										saved=false;
+									}
 								}
+								break;
+								
+								case 2:
+									call_ffc_dialog(i);
+									break;
 								
 								case 3:
-									onComboLocationReport();
+									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+									{
+										Map.CurrScr()->ffcs[i].setData(0);
+										Map.CurrScr()->ffcCountMarkDirty();
+										Map.CurrScr()->ffcs[i].cset = 0;
+										Map.CurrScr()->ffcs[i].x = 0;
+										Map.CurrScr()->ffcs[i].y = 0;
+										Map.CurrScr()->ffcs[i].vx = 0;
+										Map.CurrScr()->ffcs[i].vy = 0;
+										Map.CurrScr()->ffcs[i].ax = 0;
+										Map.CurrScr()->ffcs[i].ay = 0;
+										Map.CurrScr()->ffcs[i].flags = 0;
+										Map.CurrScr()->ffcs[i].script = 0;
+										Map.CurrScr()->ffcs[i].link = 0;
+										Map.CurrScr()->ffcs[i].delay = 0;
+										Map.CurrScr()->ffcs[i].hxsz = 16;
+										Map.CurrScr()->ffcs[i].hysz = 16;
+										Map.CurrScr()->ffcs[i].txsz = 1;
+										Map.CurrScr()->ffcs[i].tysz = 1;
+										
+										for(int32_t j=0; j<8; j++)
+											Map.CurrScr()->ffcs[i].initd[j] = 0;
+											
+										for(int32_t j=0; j<2; j++)
+											Map.CurrScr()->ffcs[i].inita[j] = 10000;
+											
+										saved = false;
+									}
 									break;
-									
-								case 5:
+								
+								case 4: //snap to grid
 								{
-									onGotoPage();
-									redraw|=rALL;
+									int32_t oldffx = Map.CurrScr()->ffcs[i].x.getInt();
+									int32_t oldffy = Map.CurrScr()->ffcs[i].y.getInt();
+									int32_t pos = COMBOPOS(oldffx,oldffy);
+									int32_t newffy = COMBOY(pos);
+									int32_t newffx = COMBOX(pos);
+									Map.CurrScr()->ffcs[i].x = newffx;
+									Map.CurrScr()->ffcs[i].y = newffy;
+									saved = false;
 									break;
 								}
 							}
+							
+							clickedffc = true;
+							break;
 						}
+					}
+					
+				}
+				
+				// Combo right-click menu
+				if(!clickedffc)
+				{
+					// FFC-specific options
+					if(earliestfreeffc < MAXFFCS)
+					{
+						sprintf(paste_ffc_menu_text, "Place + Edit FFC %d",earliestfreeffc+1);
+						sprintf(paste_ffc_menu_text2,"Paste FFC as FFC %d",earliestfreeffc+1);
+						draw_rc_menu[13].text = paste_ffc_menu_text;
+						draw_rc_menu[13].flags = 0;
+						
+						if(Map.getCopyFFC()>-1)
+						{
+							draw_rc_menu[14].text = paste_ffc_menu_text2;
+							draw_rc_menu[14].flags = 0;
+						}
+						else draw_rc_menu[14].flags = D_DISABLED;
+					}
+					else
+					{
+						draw_rc_menu[13].text = (char*)"Place + Edit FFC";
+						draw_rc_menu[14].text = (char*)"Paste FFC";
+						draw_rc_menu[14].flags = draw_rc_menu[13].flags = D_DISABLED;
+					}
+					
+					int32_t warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
+					
+					if(warpindex > -1)
+					{
+						sprintf(follow_warp_menu_text, "Follow Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
+						sprintf(follow_warp_menu_text2,"Edit Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
+						draw_rc_menu[10].text = follow_warp_menu_text;
+						draw_rc_menu[11].text = follow_warp_menu_text2;
+						draw_rc_menu[10].flags = draw_rc_menu[11].flags = 0;
+					}
+					else
+					{
+						draw_rc_menu[10].text = (char*)"Follow Tile Warp";
+						draw_rc_menu[11].text = (char*)"Edit Tile Warp";
+						draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
+					}
+					
+					int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
+					
+					switch(m)
+					{
+						case 0:
+						case 1:
+						{
+							int32_t drawmap, drawscr;
+							
+							if(CurrentLayer==0)
+							{
+								drawmap=Map.getCurrMap();
+								drawscr=Map.getCurrScr();
+							}
+							else
+							{
+								drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+								drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+								
+								if(drawmap<0)
+								{
+									return;
+								}
+							}
+							
+							if(m==0)
+							{
+								Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+							}
+							
+							if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
+							{
+								First[current_combolist]=vbound((Map.AbsoluteScr(drawmap, drawscr)->data[c]/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),0,MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
+							}
+						}
+						break;
+						
+						case 2:
+						{
+							int32_t drawmap, drawscr;
+							
+							if(CurrentLayer==0)
+							{
+							
+								drawmap=Map.getCurrMap();
+								drawscr=Map.getCurrScr();
+							}
+							else
+							{
+								drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+								drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+								
+								if(drawmap<0)
+								{
+									return;
+								}
+							}
+							
+							edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],true,Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
+						}
+						break;
+						
+						case 4:
+							replace(c);
+							break;
+							
+						case 10: // Follow Tile Warp
+						{
+							if(warpindex>=4)
+							{
+								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+								warpindex=zc_oldrand()&3;
+							}
+							
+							int32_t tm = Map.getCurrMap();
+							int32_t ts = Map.getCurrScr();
+							int32_t wt = Map.CurrScr()->tilewarptype[warpindex];
+							
+							if(wt==wtCAVE || wt==wtNOWARP)
+							{
+								char buf[56];
+								sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
+								jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,lfont);
+								break;
+								break;
+							}
+							
+							Map.dowarp(0,warpindex);
+							
+							if(ts!=Map.getCurrScr() || tm!=Map.getCurrMap())
+							{
+								FlashWarpSquare = (TheMaps[tm*MAPSCRS+ts].warpreturnc>>(warpindex*2))&3;
+								FlashWarpClk = 32;
+							}
+							
+							break;
+						}
+						
+						case 11: // Edit Tile Warp
+						{
+							if(warpindex>=4)
+							{
+								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+								warpindex=0;
+							}
+							
+							if(warpindex > -1 && warpindex < 4)
+								onTileWarpIndex(warpindex);
+								
+							break;
+						}
+						
+						case 13:
+						{
+							ffdata tempdat;
+							tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
+							tempdat.y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+							tempdat.data = Combo;
+							tempdat.cset = CSet;
+							call_ffc_dialog(earliestfreeffc, tempdat);
+						}
+						break;
+						
+						case 14:
+						{
+							Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
+							Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
+							Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
+						}
+						break;
+						
+						default:
+							break;
+					}
+				}
+			}
+		}
+		
+		//on the drawing mode button
+		font = get_custom_font(CFONT_GUI);
+		if(drawmode_btn.rect(x,y))
+		{
+			if(lclick)
+			{
+				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
+					onDrawingMode();
+			}
+			else if(rclick)
+				popup_menu(drawing_mode_menu,x,y);
+		}
+		font=tfont;
+		
+		//Squares
+		{
+			bool do_dummyxy = false;
+			bool dummymode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
+			
+			if(itemsqr_pos.rect(x,y))
+			{
+				if(dummymode) do_dummyxy = true;
+				else
+				{
+					onItem();
+					
+					if(!rclick && Map.CurrScr()->hasitem)
+						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
+				}
+			}
+			
+			if(stairsqr_pos.rect(x,y))
+			{
+				if(dummymode) do_dummyxy = true;
+				else
+				{
+					doxypos(Map.CurrScr()->stairx,Map.CurrScr()->stairy,14,0xF0);
+				}
+			}
+			
+			if(warparrival_pos.rect(x,y))
+			{
+				if(dummymode) do_dummyxy = true;
+				else
+				{
+					if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+					{
+						if(!zc_get_config("zquest","dsa_warparrival",0))
+						{
+							AlertDialog("Arrival Square",
+								"The arrival square cannot be used unless the QR 'Use Warp Return "
+								"Points Only' under 'Quest->Options->Combos' is disabled."
+								"\nGenerally, this square only exists for compatibility purposes, and is not used"
+								" in creating new quests.",
+								[&](bool ret,bool dsa)
+								{
+									if(dsa)
+									{
+										zc_set_config("zquest","dsa_warparrival",1);
+									}
+								},
+								"OK","",
+								0,false, //timeout - none
+								true //"Don't show this again"
+							).show();
+						}
+					}
+					else doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
+				}
+			}
+			
+			if(flagsqr_pos.rect(x,y))
+			{
+				if(dummymode) do_dummyxy = true;
+				else
+				{
+					onFlags();
+				}
+			}
+			
+			for(auto q = 0; q < 4; ++q)
+			{
+				if(warpret_pos[q].rect(x,y))
+				{
+					if(dummymode) do_dummyxy = true;
+					else
+					{
+						doxypos(Map.CurrScr()->warpreturnx[q],Map.CurrScr()->warpreturny[q],9,0xF8);
 					}
 				}
 			}
 			
-			//on the favorites list
-			if(draw_mode != dm_cpool && favorites_list.rect(x,y))
+			if(enemy_prev_pos.rect(x,y))
 			{
-				if(lclick)
+				if(dummymode) do_dummyxy = true;
+				else
 				{
-					int32_t f=favorites_list.rectind(x,y);
-					int32_t row=f/favorites_list.w;
-					int32_t col=f%favorites_list.w;
-					bool dmcond;
-					if(draw_mode==dm_alias) dmcond = favorite_comboaliases[f] < 0;
-					else dmcond = favorite_combos[f] < 0;
-					if(key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond)
+					onEnemies();
+				}
+			}
+			
+			if(do_dummyxy)
+			{
+				byte x = 0, y = 0;
+				showxypos_dummy = true;
+				doxypos(x,y,13,0xF8);
+			}
+		}
+		
+		if(draw_mode==dm_alias)
+		{
+			for(int32_t j=0; j<num_combo_cols; ++j)
+			{
+				int32_t temp_x1=combolistscrollers[j].x;
+				int32_t temp_y1=combolistscrollers[j].y;
+				int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
+				int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
+				
+				int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
+				int32_t temp_y3=combolistscrollers[j].y;
+				int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
+				int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
+				
+				if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_alistpos[j]<(MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+				{
+					combo_alistpos[j]=zc_min((MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h)),combo_alistpos[j]+(comboaliaslist[j].w*comboaliaslist[j].h));
+					refresh(rCOMBOS);
+				}
+				else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_alistpos[j]>0) && !mouse_down)
+				{
+					combo_alistpos[j]-=zc_min(combo_alistpos[j],(comboaliaslist[j].w*comboaliaslist[j].h));
+					refresh(rCOMBOS);
+				}
+				else if(comboaliaslist[j].rect(x,y))
+				{
+					select_comboa(j);
+					
+					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						int32_t tempcb=ComboBrush;
-						ComboBrush=0;
-						
-						while(gui_mouse_b())
-						{
-							x=gui_mouse_x();
-							y=gui_mouse_y();
-							
-							if(draw_mode == dm_alias)
-							{
-								if(favorite_comboaliases[f]!=combo_apos)
-								{
-									favorite_comboaliases[f]=combo_apos;
-									saved=false;
-								}
-							}
-							else
-							{
-								if(favorite_combos[f]!=Combo)
-								{
-									favorite_combos[f]=Combo;
-									saved=false;
-								}
-							}
-							
-							do_animations();
-							refresh(rALL | rFAVORITES);
-						}
-						
-						ComboBrush=tempcb;
+						comboa_cnt = combo_apos;
+						onEditComboAlias();
+						redraw|=rALL;
 					}
-					else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				}
+			}
+		}
+		else if(draw_mode==dm_cpool)
+		{
+			for(int32_t j=0; j<num_combo_cols; ++j)
+			{
+				int32_t temp_x1=combolistscrollers[j].x;
+				int32_t temp_y1=combolistscrollers[j].y;
+				int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
+				int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
+				
+				int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
+				int32_t temp_y3=combolistscrollers[j].y;
+				int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
+				int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
+				
+				if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_pool_listpos[j]<(MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+				{
+					combo_pool_listpos[j]=zc_min((MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h)),combo_pool_listpos[j]+(comboaliaslist[j].w*comboaliaslist[j].h));
+					refresh(rCOMBOS);
+				}
+				else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_pool_listpos[j]>0) && !mouse_down)
+				{
+					combo_pool_listpos[j]-=zc_min(combo_pool_listpos[j],(comboaliaslist[j].w*comboaliaslist[j].h));
+					refresh(rCOMBOS);
+				}
+				else if(comboaliaslist[j].rect(x,y))
+				{
+					select_combop(j);
+					
+					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						int32_t tempcb=ComboBrush;
-						ComboBrush=0;
-						
-						while(gui_mouse_b())
-						{
-							x=gui_mouse_x();
-							y=gui_mouse_y();
-							
-							if(draw_mode == dm_alias)
-							{
-								if(favorite_comboaliases[f]!=-1)
-								{
-									favorite_comboaliases[f]=-1;
-									saved=false;
-								}
-							}
-							else
-							{
-								if(favorite_combos[f]!=-1)
-								{
-									favorite_combos[f]=-1;
-									saved=false;
-								}
-							}
-							
-							do_animations();
-							refresh(rALL | rFAVORITES);
-						}
-						
-						ComboBrush=tempcb;
+						onEditComboPool();
+						redraw|=rALL;
 					}
-					else if(key[KEY_ALT] || key[KEY_ALTGR])
+				}
+			}
+		}
+		else
+		{
+			for(int32_t j=0; j<num_combo_cols; ++j)
+			{
+				int32_t temp_x1=combolistscrollers[j].x;
+				int32_t temp_y1=combolistscrollers[j].y;
+				int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
+				int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
+				
+				int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
+				int32_t temp_y3=combolistscrollers[j].y;
+				int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
+				int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
+				
+				if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && First[j]>0 && !mouse_down)
+				{
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 					{
-						if(select_favorite())
-						{
-							switch(draw_mode)
-							{
-								case dm_alias:
-								case dm_cpool:
-									break;
-								default:
-									First[current_combolist]=vbound((Combo/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),0,MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
-							}
-						}
+						First[j]-=zc_min(First[j],256);
 					}
 					else
 					{
-						select_favorite();
+						First[j]-=zc_min(First[j],(combolist[j].w*combolist[j].h));
 					}
-				}
-				else if(rclick)
-				{
-					bool valid=select_favorite();
 					
-					if(valid)
+					redraw|=rCOMBOS;
+				}
+				else if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && First[j]<(MAXCOMBOS-(combolist[j].w*combolist[j].h)) && !mouse_down)
+				{
+					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 					{
-						SETFLAG(fav_rc_menu[4].flags, D_DISABLED, draw_mode == dm_alias);
-						SETFLAG(fav_rc_menu[5].flags, D_DISABLED, draw_mode == dm_alias);
-						int32_t m = popup_menu(fav_rc_menu,x,y);
-						int32_t f=favorites_list.rectind(x,y);
-						int32_t row=f/favorites_list.w;
-						int32_t col=f%favorites_list.w;
+						First[j]+=zc_min((MAXCOMBOS-256)-First[j],256);
+					}
+					else
+					{
+						First[j]+=zc_min((MAXCOMBOS-(combolist[j].w*combolist[j].h))-First[j],(combolist[j].w*combolist[j].h));
+					}
+					
+					redraw|=rCOMBOS;
+				}
+				else if(combolist[j].rect(x,y))
+				{
+					select_combo(j);
+					
+					if(rclick && combolist[j].rect(gui_mouse_x(),gui_mouse_y()))
+					{
+						int32_t m = popup_menu(combosel_rc_menu,x,y);
 						
-						size_and_pos const& list = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
 						switch(m)
 						{
 							case 0:
-								First[current_combolist]=vbound((Combo/list.w*list.w)-(list.w*list.h/2),0,MAXCOMBOS-(list.w*list.h));
+								reset_combo_animations();
+								reset_combo_animations2();
+								edit_combo(Combo,true,CSet);
+								setup_combo_animations();
+								setup_combo_animations2();
+								redraw|=rALL;
 								break;
 								
 							case 1:
-								if(draw_mode != dm_alias)
-								{
-									reset_combo_animations();
-									reset_combo_animations2();
-									edit_combo(Combo,true,CSet);
-									setup_combo_animations();
-									setup_combo_animations2();
-								}
-								else
-								{
-									comboa_cnt = combo_apos;
-									onEditComboAlias();
-								}
-								
+								combo_screen(Combo>>8,Combo);
 								redraw|=rALL;
 								break;
 								
 							case 2:
-								if(draw_mode == dm_alias)
-								{
-									favorite_comboaliases[f]=-1;
-									saved = false;
-								}
-								else
-								{
-									favorite_combos[f]=-1;
-									saved = false;
-								}
-								
-								break;
-							case 4:
-								combo_screen(Combo>>8,Combo);
-								redraw|=rALL;
-								break;
-							case 5:
 							{
 								int32_t t = combobuf[Combo].tile;
 								int32_t f = 0;
@@ -10761,63 +10623,240 @@ void domouse()
 								redraw|=rALL;
 								break;
 							}
+							
+							case 3:
+								onComboLocationReport();
+								break;
+								
+							case 5:
+							{
+								onGotoPage();
+								redraw|=rALL;
+								break;
+							}
 						}
 					}
 				}
 			}
-			
-			//on the commands buttons
-			int32_t cmd = commands_list.rectind(x,y);
-			if(cmd > -1)
+		}
+		
+		//on the favorites list
+		if(draw_mode != dm_cpool && favorites_list.rect(x,y))
+		{
+			if(lclick)
 			{
-				bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
-				bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
-				auto& btn = *commands_list.subsquare(cmd);
+				int32_t f=favorites_list.rectind(x,y);
+				int32_t row=f/favorites_list.w;
+				int32_t col=f%favorites_list.w;
+				f = (row*FAVORITECOMBO_PER_ROW)+col;
 				
-				if(commands[favorite_commands[cmd]].flags!=D_DISABLED||(shift||ctrl))
+				bool dmcond;
+				if(draw_mode==dm_alias) dmcond = favorite_comboaliases[f] < 0;
+				else dmcond = favorite_combos[f] < 0;
+				if(key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond)
 				{
-					FONT *tfont=font;
-					font=get_custom_font(CFONT_FAVCMD);
+					int32_t tempcb=ComboBrush;
+					ComboBrush=0;
 					
-					if(do_layer_button_reset(btn.x,btn.y,btn.w,btn.h,
-						favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
-							? catchall_string[Map.CurrScr()->room]
-							: commands[favorite_commands[cmd]].name,
-						isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
-						true))
+					while(gui_mouse_b())
 					{
-						font=tfont;
-						if(lclick)
+						x=gui_mouse_x();
+						y=gui_mouse_y();
+						
+						if(draw_mode == dm_alias)
 						{
-							if(ctrl)
+							if(favorite_comboaliases[f]!=combo_apos)
 							{
-								write_fav_command(cmd,0);
+								favorite_comboaliases[f]=combo_apos;
+								saved=false;
 							}
-							else if(shift || favorite_commands[cmd]==0)
+						}
+						else
+						{
+							if(favorite_combos[f]!=Combo)
 							{
-								write_fav_command(cmd,onCommand(favorite_commands[cmd]));
+								favorite_combos[f]=Combo;
+								saved=false;
+							}
+						}
+						
+						do_animations();
+						refresh(rALL | rFAVORITES);
+					}
+					
+					ComboBrush=tempcb;
+				}
+				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					int32_t tempcb=ComboBrush;
+					ComboBrush=0;
+					
+					while(gui_mouse_b())
+					{
+						x=gui_mouse_x();
+						y=gui_mouse_y();
+						
+						if(draw_mode == dm_alias)
+						{
+							if(favorite_comboaliases[f]!=-1)
+							{
+								favorite_comboaliases[f]=-1;
+								saved=false;
+							}
+						}
+						else
+						{
+							if(favorite_combos[f]!=-1)
+							{
+								favorite_combos[f]=-1;
+								saved=false;
+							}
+						}
+						
+						do_animations();
+						refresh(rALL | rFAVORITES);
+					}
+					
+					ComboBrush=tempcb;
+				}
+				else if(key[KEY_ALT] || key[KEY_ALTGR])
+				{
+					if(select_favorite())
+					{
+						switch(draw_mode)
+						{
+							case dm_alias:
+							case dm_cpool:
+								break;
+							default:
+								First[current_combolist]=vbound((Combo/combolist[current_combolist].w*combolist[current_combolist].w)-(combolist[current_combolist].w*combolist[current_combolist].h/2),0,MAXCOMBOS-(combolist[current_combolist].w*combolist[current_combolist].h));
+						}
+					}
+				}
+				else
+				{
+					select_favorite();
+				}
+			}
+			else if(rclick)
+			{
+				bool valid=select_favorite();
+				
+				if(valid)
+				{
+					SETFLAG(fav_rc_menu[4].flags, D_DISABLED, draw_mode == dm_alias);
+					SETFLAG(fav_rc_menu[5].flags, D_DISABLED, draw_mode == dm_alias);
+					int32_t m = popup_menu(fav_rc_menu,x,y);
+					int32_t f=favorites_list.rectind(x,y);
+					int32_t row=f/favorites_list.w;
+					int32_t col=f%favorites_list.w;
+					f = (row*FAVORITECOMBO_PER_ROW)+col;
+					
+					size_and_pos const& list = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+					switch(m)
+					{
+						case 0:
+							First[current_combolist]=vbound((Combo/list.w*list.w)-(list.w*list.h/2),0,MAXCOMBOS-(list.w*list.h));
+							break;
+							
+						case 1:
+							if(draw_mode != dm_alias)
+							{
+								reset_combo_animations();
+								reset_combo_animations2();
+								edit_combo(Combo,true,CSet);
+								setup_combo_animations();
+								setup_combo_animations2();
 							}
 							else
 							{
-								int32_t (*pfun)();
-								pfun=commands[favorite_commands[cmd]].command;
-								pfun();
+								comboa_cnt = combo_apos;
+								onEditComboAlias();
 							}
+							
+							redraw|=rALL;
+							break;
+							
+						case 2:
+							if(draw_mode == dm_alias)
+							{
+								favorite_comboaliases[f]=-1;
+								saved = false;
+							}
+							else
+							{
+								favorite_combos[f]=-1;
+								saved = false;
+							}
+							
+							break;
+						case 4:
+							combo_screen(Combo>>8,Combo);
+							redraw|=rALL;
+							break;
+						case 5:
+						{
+							int32_t t = combobuf[Combo].tile;
+							int32_t f = 0;
+							select_tile(t,f,0,CSet,true);
+							redraw|=rALL;
+							break;
 						}
-						else if(rclick)
+					}
+				}
+			}
+		}
+		
+		//on the commands buttons
+		int32_t cmd = commands_list.rectind(x,y);
+		if(cmd > -1)
+		{
+			bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+			bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+			auto& btn = *commands_list.subsquare(cmd);
+			
+			if(commands[favorite_commands[cmd]].flags!=D_DISABLED||(shift||ctrl))
+			{
+				FONT *tfont=font;
+				font=get_custom_font(CFONT_FAVCMD);
+				
+				if(do_layer_button_reset(btn.x,btn.y,btn.w,btn.h,
+					favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
+						? catchall_string[Map.CurrScr()->room]
+						: commands[favorite_commands[cmd]].name,
+					isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
+					true))
+				{
+					font=tfont;
+					if(lclick)
+					{
+						if(ctrl)
+						{
+							write_fav_command(cmd,0);
+						}
+						else if(shift || favorite_commands[cmd]==0)
 						{
 							write_fav_command(cmd,onCommand(favorite_commands[cmd]));
 						}
+						else
+						{
+							int32_t (*pfun)();
+							pfun=commands[favorite_commands[cmd]].command;
+							pfun();
+						}
 					}
-					
-					font=tfont;
+					else if(rclick)
+					{
+						write_fav_command(cmd,onCommand(favorite_commands[cmd]));
+					}
 				}
+				
+				font=tfont;
 			}
-			
-			mouse_down = true;
 		}
+		
+		mouse_down = true;
 	}
-	
 	if(mouse_z!=0)
 	{
 		int32_t z=0;
@@ -32429,6 +32468,12 @@ void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, 
 			char* kill = (char*)malloc(strlen(tipmsg)+1);
 			char *tmpstr = kill;
 			strcpy(tmpstr,tipmsg);
+			
+			while(tmpstr[0] == '\n')
+				++tmpstr;
+			int len = strlen(tmpstr);
+			while(tmpstr[len-1] == '\n')
+				tmpstr[--len] = 0;
 			
 			tooltip_box.x=x;
 			tooltip_box.y=y;
