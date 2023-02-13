@@ -1588,16 +1588,16 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 				int extraborder = is8b ? 8 : 0;
 				int borderthick = hlthick+extraborder;
 				
-				highlight_sqr(screen2, 0xED, csqr.x, mainsqr.y, csqr.w, mainsqr.h*mainsqr.yscale, hlthick);
-				highlight_sqr(screen2, 0xED, mainsqr.x, csqr.y, mainsqr.w*mainsqr.xscale, csqr.h, hlthick);
-				highlight_sqr(screen2, 0xED, csqr.x-borderthick, csqr.y-borderthick, csqr.w+borderthick*2, csqr.h+borderthick*2, hlthick);
-				if(extraborder)
+				if(is8b)
 				{
-					rectfill(screen2, csqr.x-extraborder, csqr.y-extraborder, csqr.x+csqr.w-1+extraborder, csqr.y+csqr.h-1+extraborder, realcol);
-					if(xcolor)
-						little_x(screen2, csqr.x-extraborder+4, csqr.y-extraborder+4, invcol, csqr.w+(extraborder*2)-8, csqr.h+(extraborder*2)-8);
+					highlight_sqr(screen2, 0xED, csqr.x, mainsqr.y, csqr.w, mainsqr.h*mainsqr.yscale, hlthick); //column
+					highlight_sqr(screen2, 0xED, mainsqr.x, csqr.y, mainsqr.w*mainsqr.xscale, csqr.h, hlthick); //row
 				}
-				highlight_sqr(screen2, hlcol, csqr.x-extraborder, csqr.y-extraborder, csqr.w+extraborder*2, csqr.h+extraborder*2, 1);
+				highlight_sqr(screen2, 0xED, csqr.x-borderthick, csqr.y-borderthick, csqr.w+borderthick*2, csqr.h+borderthick*2, hlthick); //square hl
+				rectfill(screen2, csqr.x-extraborder, csqr.y-extraborder, csqr.x+csqr.w-1+extraborder, csqr.y+csqr.h-1+extraborder, realcol); //square color
+				if(xcolor)
+					little_x(screen2, csqr.x-extraborder+4, csqr.y-extraborder+4, invcol, csqr.w+(extraborder*2)-8, csqr.h+(extraborder*2)-8); //transparent X
+				highlight_sqr(screen2, hlcol, csqr.x-extraborder, csqr.y-extraborder, csqr.w+extraborder*2, csqr.h+extraborder*2, 1); //highlight border
 			}
 			
 			sprintf(buf, "%02d %02d %02d %c(0x%02X %d)",c.r,c.g,c.b,separator,realcol,color);
