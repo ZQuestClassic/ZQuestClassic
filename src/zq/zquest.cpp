@@ -276,6 +276,9 @@ size_and_pos combo_merge_btn;
 size_and_pos zoomfav_btn;
 
 size_and_pos combo_preview;
+size_and_pos combo_preview2;
+size_and_pos combo_preview_text1;
+size_and_pos combo_preview_text2;
 size_and_pos combolist_window;
 size_and_pos drawmode_btn;
 size_and_pos panel[9];
@@ -317,6 +320,10 @@ int32_t layerpanel_checkbox_wid = 13;
 int32_t favorite_combos[MAXFAVORITECOMBOS];
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int32_t favorite_commands[MAXFAVORITECOMMANDS];
+
+char comboprev_buf[512] = {0};
+char comboprev_buf2[512] = {0};
+FONT* txfont;
 
 void write_fav_command(int ind, int val)
 {
@@ -5638,6 +5645,7 @@ bool isFavCmdSelected(int32_t cmd)
 	return false;
 }
 
+void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
 void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 {
 	//BG Fill
@@ -6453,41 +6461,48 @@ void refresh(int32_t flags)
 		jwin_draw_frame(menu1,combo_preview.x-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
 		stretch_blit(combo_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x, combo_preview.y, combo_preview.w, combo_preview.h);
 		
+		comboprev_buf[0] = 0;
+		comboprev_buf2[0] = 0;
 		if(draw_mode == dm_cpool)
 		{
-			char buf[17];
-			sprintf(buf,"Pool: %d",combo_pool_pos);
-			textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-8,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+			sprintf(comboprev_buf,"Pool: %d",combo_pool_pos);
+			int x = combo_preview_text1.x+(combo_preview_text1.w*combo_preview_text1.xscale);
+			textbox_out(menu1,txfont,x,combo_preview_text1.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],comboprev_buf,2,&combo_preview_text1);
 		}
 		else if(draw_mode != dm_alias)
 		{
-			char buf[256];
-			int32_t offs = is_compact ? 4 : 8;
-			sprintf(buf,"Combo: %d",Combo);
-			textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-			sprintf(buf,"CSet: %d",CSet);
-			textprintf_ex(menu1,pfont,combo_preview.x-text_length(pfont,buf)-offs,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
-			strcpy(buf,combo_class_buf[combobuf[Combo].type].name);
+			int x = combo_preview_text1.x+(combo_preview_text1.w*combo_preview_text1.xscale);
 			
-			int32_t x = combo_preview.x-offs;
+			char shortbuf[512];
+			char buf[256];
+			strcpy(buf,combo_class_buf[combobuf[Combo].type].name);
+			sprintf(comboprev_buf,"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
 			auto ind = strlen(buf)-1;
-			if(x - text_length(pfont, buf) <= combolist_window.x)
+			int x2 = x;
+			if(x2 - text_length(pfont, buf) <= combolist_window.x)
 			{
 				auto dotlen = text_length(pfont, "..");
-				x -= dotlen;
-				while(x - text_length(pfont, buf) <= combolist_window.x)
+				x2 -= dotlen;
+				while(x2 - text_length(pfont, buf) <= combolist_window.x)
 				{
 					if(ind < 0) break;
 					buf[ind--] = '\0';
 				}
 				while(ind >= 0 && buf[ind] == ' ')
 					buf[ind--] = 0; //trim spaces
-				x -= text_length(pfont, buf);
 				strcat(buf, "..");
 			}
-			else x -= text_length(pfont, buf);
 			
-			textprintf_ex(menu1,pfont,x,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+			if(is_compact)
+			{
+				char b2[256];
+				sprintf(b2, "Combo %d CS %d", Combo, CSet);
+				if(x-text_length(txfont, b2) <= combolist_window.x)
+					sprintf(b2, "Cmb %d CS %d", Combo, CSet);
+				sprintf(shortbuf,"%s\n%s",b2,buf);
+			}
+			else sprintf(shortbuf,"Combo: %d\nCSet: %d\n%s",Combo,CSet,buf);
+			textbox_out(menu1,txfont,x,combo_preview_text1.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],shortbuf,2,&combo_preview_text1);
 		}
 		
 		// Cycle
@@ -6496,7 +6511,7 @@ void refresh(int32_t flags)
 			int32_t NextCombo=combobuf[Combo].nextcombo;
 			int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
 			bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool;
-			jwin_draw_frame(menu1,combo_preview.x+int32_t(combo_preview.w*1.5)-2,combo_preview.y-2,combo_preview.w+4,combo_preview.h+4, FR_DEEP);
+			jwin_draw_frame(menu1,combo_preview2.x-2,combo_preview2.y-2,combo_preview2.w+4,combo_preview2.h+4, FR_DEEP);
 			if(NextCombo>0 && normal_dm)
 			{
 				put_combo(cycle_preview_bmp,0,0,NextCombo,NextCSet,Flags&(cFLAGS|cWALK),0);
@@ -6505,47 +6520,53 @@ void refresh(int32_t flags)
 				
 				if(Flags&cFLAGS) put_flags(cycle_preview_bmp,0,0,NextCombo,0,cFLAGS,0);
 				
-				stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview.x+int32_t(combo_preview.w*1.5), combo_preview.y, combo_preview.w, combo_preview.h);
+				stretch_blit(cycle_preview_bmp, menu1, 0, 0, 16, 16, combo_preview2.x, combo_preview2.y, combo_preview2.w, combo_preview2.h);
 			}
 			else
 			{
 				if(InvalidStatic)
 				{
-					for(int32_t dy=0; dy<32; dy++)
+					for(int32_t dy=0; dy<combo_preview2.w; dy++)
 					{
-						for(int32_t dx=0; dx<32; dx++)
+						for(int32_t dx=0; dx<combo_preview2.w; dx++)
 						{
-							menu1->line[dy+combo_preview.y][dx+combo_preview.x+int32_t(combo_preview.w*1.5)]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+							menu1->line[dy+combo_preview2.y][dx+combo_preview2.x]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 						}
 					}
 				}
 				else
 				{
-					rectfill(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(0));
-					safe_rect(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-					line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y+combo_preview.h,vc(15));
-					line(menu1, combo_preview.x+int32_t(combo_preview.w*1.5),combo_preview.y+combo_preview.h, combo_preview.x+int32_t(combo_preview.w*2.5),combo_preview.y,vc(15));
+					rectfill(menu1, combo_preview2.x,combo_preview2.y, combo_preview2.x+32,combo_preview2.y+combo_preview2.h,vc(0));
+					safe_rect(menu1, combo_preview2.x,combo_preview2.y, combo_preview2.x+32,combo_preview2.y+combo_preview2.h,vc(15));
+					line(menu1, combo_preview2.x,combo_preview2.y, combo_preview2.x+32,combo_preview2.y+combo_preview2.h,vc(15));
+					line(menu1, combo_preview2.x,combo_preview2.y+combo_preview2.h, combo_preview2.x+32,combo_preview2.y,vc(15));
 				}
 			}
 			
 			if(normal_dm)
 			{
-			
-				textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Cycle: %d",NextCombo);
-				textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+11,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",NextCSet);
-				char buf[17];
-				int32_t offs = 8;
-				strncpy(buf,combo_class_buf[combobuf[NextCombo].type].name,16);
-				
-				if(strlen(combo_class_buf[combobuf[NextCombo].type].name) > 15)
+				char shortbuf[512];
+				char buf[256];
+				strcpy(buf,combo_class_buf[combobuf[NextCombo].type].name);
+				sprintf(comboprev_buf2, "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
+				auto ind = strlen(buf)-1;
+				int x2 = combo_preview_text2.x;
+				if(x2 + text_length(pfont, buf) > zq_screen_w-2)
 				{
-					buf[15]='.';
-					buf[14]='.';
-					offs = 5;
+					auto dotlen = text_length(pfont, "..");
+					x2 += dotlen;
+					while(x2 + text_length(pfont, buf) > zq_screen_w-2)
+					{
+						if(ind < 0) break;
+						buf[ind--] = '\0';
+					}
+					while(ind >= 0 && buf[ind] == ' ')
+						buf[ind--] = 0; //trim spaces
+					strcat(buf, "..");
 				}
 				
-				buf[16]='\0';
-				textprintf_ex(menu1,pfont,combo_preview.x+int32_t(combo_preview.w*2.5)+6,combo_preview.y+20,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",buf);
+				sprintf(shortbuf, "Cycle: %d\nCSet: %d\n%s", NextCombo, NextCSet, buf);
+				textbox_out(menu1,txfont,combo_preview_text2.x,combo_preview_text2.y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],shortbuf,0,&combo_preview_text2);
 			}
 		}
 		
@@ -6568,8 +6589,8 @@ void refresh(int32_t flags)
 			
 			jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
 			rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
-			jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w<<4)+4,(favorites_list.h<<4)+4, FR_DEEP);
-			rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w<<4)-1,favorites_list.y+(favorites_list.h<<4)-1,jwin_pal[jcBOXFG]);
+			jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
+			rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
 			
 			jwin_draw_frame(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,FR_ETCHED);
 			const auto szval = 2;
@@ -6648,7 +6669,7 @@ void refresh(int32_t flags)
 			destroy_bitmap(subb);
 			
 			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-			draw_text_button(menu1,zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "[-]" : "[+]",vc(1),vc(14),0,true);
+			draw_text_button(menu1,zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
 			
 			font = oldfont;
 		}
@@ -9833,6 +9854,14 @@ void domouse()
 			auto str = "Combo Colors:\n"+get_combo_colornames(Combo,CSet);
 			update_tooltip(x,y,combo_preview,str.c_str());
 		}
+		else if(comboprev_buf[0] && combo_preview_text1.rect(x,y))
+		{
+			update_tooltip(x,y,combo_preview_text1,comboprev_buf);
+		}
+		else if(comboprev_buf2[0] && combo_preview_text2.rect(x,y))
+		{
+			update_tooltip(x,y,combo_preview_text2,comboprev_buf2);
+		}
 		else for(int32_t j=0; j<num_combo_cols; ++j)
 		{
 			auto& sqr = combolist[j];
@@ -9914,7 +9943,7 @@ void domouse()
 		if(draw_mode != dm_cpool && zoomfav_btn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-			if(do_text_button(zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "[-]" : "[+]",vc(1),vc(14),true))
+			if(do_text_button(zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
 			{
 				toggle_favzoom_mode();
 			}
@@ -30650,6 +30679,7 @@ void load_size_poses()
 		combo_preview.y=combolist_window.y+6;
 		combo_preview.w=32;
 		combo_preview.h=32;
+		combo_preview2.clear();
 		
 		auto col_wid = 4*combo_col_scale;
 		auto cols_wid = col_wid * num_combo_cols;
@@ -30764,19 +30794,6 @@ void load_size_poses()
 			favorites_list.h /= 2;
 		}
 		
-		zoomfav_btn.w = 32;
-		zoomfav_btn.h = 14;
-		auto tl = text_length(lfont_l,"Favorite Aliases");
-		if(auto tl2 = text_length(lfont_l, "Favorite Combos"); tl2 > tl)
-			tl = tl2;
-		zoomfav_btn.x = favorites_list.x+tl+2;
-		zoomfav_btn.y = favorites_list.y-zoomfav_btn.h-1;
-		
-		favorites_x.x = favorites_window.x + favorites_window.w - 2 - 12;
-		favorites_x.y = favorites_list.y - 14;
-		favorites_x.w = 12;
-		favorites_x.h = 12;
-		
 		commands_list.w=4;
 		
 		commands_window.w=commands_list.w*commands_list.xscale+16;
@@ -30830,8 +30847,8 @@ void load_size_poses()
 		
 		auto& last_alias_list = comboaliaslist[num_combo_cols-1];
 		combopool_preview.x=comboaliaslist[0].x;
-		combopool_preview.y=comboaliaslist[num_combo_cols-1].y+(last_alias_list.h*last_alias_list.yscale)+16;
-		combopool_preview.w=(comboaliaslist[num_combo_cols-1].x+(last_alias_list.w*last_alias_list.xscale))-comboaliaslist[0].x;
+		combopool_preview.y=last_alias_list.y+(last_alias_list.h*last_alias_list.yscale)+16;
+		combopool_preview.w=(last_alias_list.x+(last_alias_list.w*last_alias_list.xscale))-comboaliaslist[0].x;
 		combopool_preview.h=zq_screen_h-8-combopool_preview.y;
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
@@ -30843,6 +30860,10 @@ void load_size_poses()
 		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
 		
 		mappage_count = 6;
+		
+		txfont = lfont_l;
+		combo_preview_text1.set(combo_preview.x-5,combo_preview.y,1,3,1,text_height(txfont));
+		combo_preview_text2.clear();
 	}
 	else
 	{
@@ -30882,6 +30903,8 @@ void load_size_poses()
 		combo_preview.y=combolist_window.y+6;
 		combo_preview.w=32;
 		combo_preview.h=32;
+		combo_preview2 = combo_preview;
+		combo_preview2.x += 48;
 		
 		auto col_wid = 4*combo_col_scale;
 		auto cols_wid = col_wid * num_combo_cols;
@@ -30992,19 +31015,6 @@ void load_size_poses()
 			favorites_list.h /= 2;
 		}
 		
-		zoomfav_btn.w = 32;
-		zoomfav_btn.h = 14;
-		auto tl = text_length(lfont_l,"Favorite Aliases");
-		if(auto tl2 = text_length(lfont_l, "Favorite Combos"); tl2 > tl)
-			tl = tl2;
-		zoomfav_btn.x = favorites_list.x+tl+2;
-		zoomfav_btn.y = favorites_list.y-zoomfav_btn.h-1;
-		
-		favorites_x.x = favorites_window.x + favorites_window.w - 2 - 12;
-		favorites_x.y = favorites_list.y - 14;
-		favorites_x.w = 12;
-		favorites_x.h = 12;
-		
 		commands_list.w=4;
 		
 		commands_window.w=commands_list.w*commands_list.xscale+16;
@@ -31075,9 +31085,10 @@ void load_size_poses()
 		warpret_pos[3].w = 4+16;
 		warpret_pos[3].h = 4+16;
 		
+		auto& last_alias_list = comboaliaslist[num_combo_cols-1];
 		combopool_preview.x=comboaliaslist[0].x;
-		combopool_preview.y=comboaliaslist[0].y+(comboaliaslist[0].h<<4)+16;
-		combopool_preview.w=(comboaliaslist[num_combo_cols-1].x+(comboaliaslist[num_combo_cols-1].w<<4))-comboaliaslist[0].x;
+		combopool_preview.y=last_alias_list.y+(last_alias_list.h*last_alias_list.yscale)+16;
+		combopool_preview.w=(last_alias_list.x+(last_alias_list.w*last_alias_list.xscale))-comboaliaslist[0].x;
 		combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10;
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
@@ -31089,8 +31100,26 @@ void load_size_poses()
 		combopool_prevbtn.y = combopool_preview.y-combopool_prevbtn.h;
 		
 		mappage_count = 9;
+		
+		txfont = lfont_l;
+		combo_preview_text1.set(combo_preview.x-9,combo_preview.y,1,3,1,text_height(txfont));
+		combo_preview_text2.set(combo_preview2.x+combo_preview2.w+8,combo_preview2.y,1,3,1,text_height(txfont));
 	}
-	
+	//Same in all modes
+	{
+		zoomfav_btn.w = 20;
+		zoomfav_btn.h = 14;
+		auto tl = text_length(lfont_l,"Favorite Aliases");
+		if(auto tl2 = text_length(lfont_l, "Favorite Combos"); tl2 > tl)
+			tl = tl2;
+		zoomfav_btn.x = favorites_list.x+tl+2;
+		zoomfav_btn.y = favorites_list.y-zoomfav_btn.h-1;
+		
+		favorites_x.x = favorites_window.x + favorites_window.w - 2 - 12;
+		favorites_x.y = favorites_list.y - 14;
+		favorites_x.w = 12;
+		favorites_x.h = 12;
+	}
 	//Dialog popups
 	{
 		//Help Dialogue Sizing
@@ -32447,6 +32476,84 @@ void debug_pos(size_and_pos const& pos, int color)
 	highlight_sqr(screen, color, pos, 1);
 }
 
+void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims)
+{
+	static size_and_pos nilsz;
+	size_and_pos& txbox = dims ? *dims : nilsz;
+	
+	char* kill = (char*)malloc(strlen(str)+1);
+	char *tmpstr = kill;
+	strcpy(tmpstr,str);
+	
+	while(tmpstr[0] == '\n')
+		++tmpstr;
+	int len = strlen(tmpstr);
+	while(tmpstr[len-1] == '\n')
+		tmpstr[--len] = 0;
+	
+	txbox.x=x;
+	txbox.y=y;
+	int32_t lines=count_lines(tmpstr);
+	txbox.w = 1;
+	txbox.h = lines;
+	txbox.xscale = get_longest_line_length(font, tmpstr);
+	txbox.yscale = text_height(font);
+	
+	int ax = 0; //Aligned x
+	switch(align)
+	{
+		case 0: //left
+			break;
+		case 1: //center
+			txbox.x -= txbox.xscale/2;
+			ax = txbox.xscale/2;
+			break;
+		case 2: //right
+			txbox.x -= txbox.xscale;
+			ax = txbox.xscale;
+			break;
+	}
+	
+	int bw = txbox.w*txbox.xscale;
+	int bh = txbox.h*txbox.yscale;
+	BITMAP* outbmp = create_bitmap_ex(8, bw, bh);
+	clear_to_color(outbmp, bg);
+	
+	char temp = 0;
+	int32_t t=0;
+	int32_t new_t=-1;
+	int32_t line=0;
+	
+	while(tmpstr[t])
+	{
+		t=strchrnum(tmpstr, '\n');
+		
+		if(t==-1)
+			t=(int32_t)strlen(tmpstr);
+		
+		if((uint32_t)t!=strlen(tmpstr))
+			new_t=t+1;
+		else
+			new_t=-1;
+		
+		temp = tmpstr[t];
+		tmpstr[t]=0;
+		gui_textout_ln(outbmp, font, (ucc*)tmpstr, ax, (line*txbox.yscale), fg, -1, align);
+		tmpstr[t]=temp;
+		++line;
+		
+		if(new_t!=-1)
+		{
+			tmpstr+=new_t;
+			t=0;
+		}
+	}
+	
+	blit(outbmp, dest, 0, 0, txbox.x, txbox.y, bw, bh);
+	destroy_bitmap(outbmp);
+	free(kill);
+}
+
 void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick)
 {
 	for(int q = 0; q < thick; ++q)
@@ -32478,7 +32585,7 @@ void draw_ttip(BITMAP* dest)
 }
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg)
 {
-	update_tooltip(x,y,sqr.x,sqr.y,sqr.w,sqr.h,tipmsg);
+	update_tooltip(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg);
 }
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg)
 {

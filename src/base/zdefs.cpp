@@ -1756,10 +1756,14 @@ int32_t size_and_pos::rectind(int32_t mx, int32_t my)
 }
 void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
 {
-	x = nx;
-	y = ny;
-	w = nw;
-	h = nh;
+	x = nx; y = ny;
+	w = nw; h = nh;
+}
+void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh, int32_t xs, int32_t ys)
+{
+	x = nx; y = ny;
+	w = nw; h = nh;
+	xscale = xs; yscale = ys;
 }
 static size_and_pos nilsqr;
 static size_and_pos tempsqr;

@@ -139,6 +139,8 @@ typedef uint16_t word;  //0-65,535  (16 bits)
 typedef uint32_t dword; //0-4,294,967,295  (32 bits)
 typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
 
+typedef unsigned const char ucc;
+
 //Common struct array element sizes-Z
 #define INITIAL_A 2
 #define INITIAL_D 8
@@ -1852,7 +1854,9 @@ struct size_and_pos
 	void clear(); //Clear to default vals
 	bool rect(int32_t mx, int32_t my); //Check rect collision
 	int32_t rectind(int32_t mx, int32_t my); //Check scaled collision
-	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh); //Set coord values
+	//Set coord values
+	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh);
+	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh, int32_t xs, int32_t ys);
 	size_and_pos const* subsquare(int32_t ind) const;
 	size_and_pos const* subsquare(int32_t col, int32_t row) const;
 	size_and_pos(int32_t nx = -1, int32_t ny = -1, int32_t nw = -1, int32_t nh = -1, int32_t xsc = 1, int32_t ysc = 1);
