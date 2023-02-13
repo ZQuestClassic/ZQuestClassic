@@ -273,7 +273,6 @@ size_and_pos combopool_preview;
 size_and_pos combopool_prevbtn;
 
 size_and_pos combo_merge_btn;
-size_and_pos zoomfav_btn;
 
 size_and_pos combo_preview;
 size_and_pos combo_preview2;
@@ -284,10 +283,13 @@ size_and_pos drawmode_btn;
 size_and_pos panel[9];
 size_and_pos favorites_window;
 size_and_pos favorites_list;
-size_and_pos favorites_x;
 size_and_pos commands_window;
 size_and_pos commands_list;
 size_and_pos layer_panel;
+
+size_and_pos favorites_x;
+size_and_pos favorites_infobtn;
+size_and_pos zoomfav_btn;
 
 size_and_pos tooltip_box;
 size_and_pos tooltip_trigger;
@@ -6592,10 +6594,6 @@ void refresh(int32_t flags)
 			jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
 			rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
 			
-			jwin_draw_frame(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,FR_ETCHED);
-			const auto szval = 2;
-			line(menu1, favorites_x.x+szval, favorites_x.y+szval, favorites_x.x+(10-szval), favorites_x.y+(10-szval),jwin_pal[jcBOXFG]);
-			line(menu1, favorites_x.x+szval, favorites_x.y+(10-szval), favorites_x.x+(10-szval), favorites_x.y+szval,jwin_pal[jcBOXFG]);
 			textprintf_ex(menu1,lfont_l,favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
 			BITMAP* subb = create_bitmap_ex(8,16,16);
 			if(draw_mode==dm_alias)
@@ -6670,7 +6668,8 @@ void refresh(int32_t flags)
 			
 			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
 			draw_text_button(menu1,zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
-			
+			draw_text_button(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),0,true);
+			draw_text_button(menu1,favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),0,true);
 			font = oldfont;
 		}
 	}
@@ -9940,12 +9939,88 @@ void domouse()
 				toggle_merged_mode();
 			}
 		}
-		if(draw_mode != dm_cpool && zoomfav_btn.rect(x,y))
+		if(draw_mode != dm_cpool)
 		{
-			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-			if(do_text_button(zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			if(zoomfav_btn.rect(x,y))
 			{
-				toggle_favzoom_mode();
+				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
+				if(do_text_button(zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+				{
+					toggle_favzoom_mode();
+				}
+			}
+			else if(favorites_x.rect(x,y))
+			{
+				if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
+				{
+					switch(draw_mode)
+					{
+						case dm_cpool: break;
+						case dm_alias:
+							AlertDialog("Clear Favorite Aliases",
+								"Are you sure you want to clear all favorite aliases?",
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										for(auto q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
+										{
+											favorite_comboaliases[q] = -1;
+										}
+										saved = false;
+										refresh(rFAVORITES);
+									}
+								}).show();
+							break;
+						default:
+							AlertDialog("Clear Favorite Combos",
+								"Are you sure you want to clear all favorite combos?",
+								[&](bool ret,bool)
+								{
+									if(ret)
+									{
+										for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
+										{
+											favorite_combos[q] = -1;
+										}
+										saved = false;
+										refresh(rFAVORITES);
+									}
+								}).show();
+							break;
+					}
+				}
+			}
+			else if(favorites_infobtn.rect(x,y))
+			{
+				if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
+				{
+					switch(draw_mode)
+					{
+						case dm_cpool: break;
+						case dm_alias:
+							InfoDialog("Favorite Aliases",
+								"On LClick (empty): Sets clicked favorite to the current alias."
+								"\nOn LClick: Sets current alias to clicked favorite."
+								"\nShift+LClick: Sets clicked favorite to current alias."
+								"\nCtrl+LClick: Clears clicked favorite."
+								"\nRClick: Opens context menu."
+								"\n\nClick the Zoom button (+/-) to toggle zoom level."
+								"\nClick the X button to clear all favorite aliases.").show();
+							break;
+						default:
+							InfoDialog("Favorite Combos",
+								"On LClick (empty): Sets clicked favorite to the current combo."
+								"\nOn LClick: Sets current combo to clicked favorite."
+								"\nShift+LClick: Sets clicked favorite to current combo."
+								"\nCtrl+LClick: Clears clicked favorite."
+								"\nAlt+LClick: Scrolls to clicked favorite."
+								"\nRClick: Opens context menu."
+								"\n\nClick the Zoom button (+/-) to toggle zoom level."
+								"\nClick the X button to clear all favorite combos.").show();
+							break;
+					}
+				}
 			}
 		}
 		font=tfont;
@@ -9954,46 +10029,6 @@ void domouse()
 		if(real_minimap.rect(x,y))
 		{
 			select_scr();
-		}
-		
-		if(favorites_x.rect(x,y))
-		{
-			switch(draw_mode)
-			{
-				case dm_cpool: break;
-				case dm_alias:
-					AlertDialog("Clear Favorite Aliases",
-						"Are you sure you want to clear all favorite aliases?",
-						[&](bool ret,bool)
-						{
-							if(ret)
-							{
-								for(auto q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
-								{
-									favorite_comboaliases[q] = -1;
-								}
-								saved = false;
-								refresh(rFAVORITES);
-							}
-						}).show();
-					break;
-				default:
-					AlertDialog("Clear Favorite Combos",
-						"Are you sure you want to clear all favorite combos?",
-						[&](bool ret,bool)
-						{
-							if(ret)
-							{
-								for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
-								{
-									favorite_combos[q] = -1;
-								}
-								saved = false;
-								refresh(rFAVORITES);
-							}
-						}).show();
-					break;
-			}
 		}
 		
 		// On the layer panel
@@ -30864,6 +30899,10 @@ void load_size_poses()
 		txfont = lfont_l;
 		combo_preview_text1.set(combo_preview.x-5,combo_preview.y,1,3,1,text_height(txfont));
 		combo_preview_text2.clear();
+		
+		favorites_x.w = 17;
+		favorites_infobtn.w = 17;
+		zoomfav_btn.w = 17;
 	}
 	else
 	{
@@ -31104,21 +31143,26 @@ void load_size_poses()
 		txfont = lfont_l;
 		combo_preview_text1.set(combo_preview.x-9,combo_preview.y,1,3,1,text_height(txfont));
 		combo_preview_text2.set(combo_preview2.x+combo_preview2.w+8,combo_preview2.y,1,3,1,text_height(txfont));
+		
+		favorites_x.w = 30;
+		favorites_infobtn.w = 30;
+		zoomfav_btn.w = 30;
 	}
 	//Same in all modes
 	{
-		zoomfav_btn.w = 20;
-		zoomfav_btn.h = 14;
-		auto tl = text_length(lfont_l,"Favorite Aliases");
-		if(auto tl2 = text_length(lfont_l, "Favorite Combos"); tl2 > tl)
-			tl = tl2;
-		zoomfav_btn.x = favorites_list.x+tl+2;
-		zoomfav_btn.y = favorites_list.y-zoomfav_btn.h-1;
 		
-		favorites_x.x = favorites_window.x + favorites_window.w - 2 - 12;
-		favorites_x.y = favorites_list.y - 14;
-		favorites_x.w = 12;
-		favorites_x.h = 12;
+		favorites_x.h = 14;
+		favorites_x.x = favorites_window.x + favorites_window.w - favorites_x.w - 2;
+		favorites_x.y = favorites_list.y-15;
+		
+		favorites_infobtn.h = favorites_x.h;
+		favorites_infobtn.x = favorites_x.x - favorites_infobtn.w;
+		favorites_infobtn.y = favorites_x.y;
+		
+		zoomfav_btn.h = favorites_infobtn.h;
+		zoomfav_btn.x = favorites_infobtn.x - zoomfav_btn.w;
+		zoomfav_btn.y = favorites_infobtn.y;
+		
 	}
 	//Dialog popups
 	{

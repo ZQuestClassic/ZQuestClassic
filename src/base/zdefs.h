@@ -1851,12 +1851,20 @@ struct size_and_pos
     int32_t x = -1, y = -1;
     int32_t w = -1, h = -1;
 	int32_t xscale = 1, yscale = 1;
+	
+	//Get virtual values
+	int32_t tw() const;
+	int32_t th() const;
+	
 	void clear(); //Clear to default vals
-	bool rect(int32_t mx, int32_t my); //Check rect collision
-	int32_t rectind(int32_t mx, int32_t my); //Check scaled collision
+	
+	bool rect(int32_t mx, int32_t my) const; //Check rect collision
+	int32_t rectind(int32_t mx, int32_t my) const; //Check scaled collision
+	
 	//Set coord values
 	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh);
 	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh, int32_t xs, int32_t ys);
+	
 	size_and_pos const* subsquare(int32_t ind) const;
 	size_and_pos const* subsquare(int32_t col, int32_t row) const;
 	size_and_pos(int32_t nx = -1, int32_t ny = -1, int32_t nw = -1, int32_t nh = -1, int32_t xsc = 1, int32_t ysc = 1);

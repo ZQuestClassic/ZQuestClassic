@@ -1730,12 +1730,20 @@ void zinitdata::copy(zinitdata const& other)
 	memcpy(gen_eventstate,other.gen_eventstate,sizeof(gen_eventstate));
 }
 
+int32_t size_and_pos::tw() const
+{
+	return w*xscale;
+}
+int32_t size_and_pos::th() const
+{
+	return h*yscale;
+}
 
 void size_and_pos::clear()
 {
 	*this = size_and_pos();
 }
-bool size_and_pos::rect(int32_t mx, int32_t my)
+bool size_and_pos::rect(int32_t mx, int32_t my) const
 {
 	if(x < 0 || y < 0 || w < 0 || h < 0)
 		return false;
@@ -1743,7 +1751,7 @@ bool size_and_pos::rect(int32_t mx, int32_t my)
 	auto sh = h * yscale;
 	return isinRect(mx,my,x,y,x+sw-1,y+sh-1);
 }
-int32_t size_and_pos::rectind(int32_t mx, int32_t my)
+int32_t size_and_pos::rectind(int32_t mx, int32_t my) const
 {
 	if(!rect(mx,my)) return -1; //not in rect
 	//Where in rect?
