@@ -1027,11 +1027,11 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
     }
     
     if(!(flags & D_DISABLED))
-        gui_textout_ex(dest, str, x+w/2+g, y+h/2-text_height(font)/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
     else
     {
-        gui_textout_ex(dest, str, x+w/2+1,y+h/2-text_height(font)/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
-        gui_textout_ex(dest, str, x+w/2,  y+h/2-text_height(font)/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
+        gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
     }
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
