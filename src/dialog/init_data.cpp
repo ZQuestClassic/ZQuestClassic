@@ -110,7 +110,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::COUNTER_FRAME(const char* name, std
 
 	return Rows<2>(
 		framed = true, frameText = name, hAlign = 0.0,
-		margins = 3_px,
 		Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 		Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 		field1,
@@ -342,7 +341,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					TabRef(name = "Engine", Rows<2>(hAlign = 0.0, vAlign = 0.0,
 						Rows<2>(
 							framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
-							margins = 3_px,
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 							WORD_FIELD(&local_zinit.bombs),
@@ -356,7 +354,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						),
 						Rows<3>(
 							framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
-							margins = 3_px,
 							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
@@ -469,7 +466,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							}
 						)
 					),
-					Row(
+					Row(nopad = true,
 						Row(
 							framed = true,
 							Label(text = "Continue HP:"),
@@ -496,18 +493,18 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					Row(
 						Rows<2>(
 							framed = true, frameText = "Hearts ("+std::string(ZI.getCtrName(crLIFE))+")",
-							Label(hAlign = 0.0, topMargin = 2_px, bottomPadding = 0_px, text = "Start"),
-							Label(hAlign = 1.0, topMargin = 2_px, bottomPadding = 0_px, text = "Max"),
+							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 							BYTE_FIELD(start_heart),
 							BYTE_FIELD(hc)
 						),
 						Rows<3>(
 							framed = true, frameText = ZI.getCtrName(crMAGIC),
-							Label(hAlign = 0.0, text = "Start"),
-							Label(hAlign = 1.0, text = "Max"),
-							Row(
-								Label(hAlign = 1.0, text = "Drain Rate"),
-								INFOBTN("Magic costs are multiplied by this amount. Every time you use a"
+							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+							Row(padding = 0_px,
+								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Drain Rate"),
+								INFOBTN_EX(bottomPadding = 0_px, "Magic costs are multiplied by this amount. Every time you use a"
 									" 'Learn Half Magic' room, this value is halved (rounded down)."
 									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
 									" >-1, that piece will only show up when it's 'Show' value is equal to"
@@ -522,7 +519,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					),
 					Columns<2>(
 						framed = true, frameText = "Triforce",
-						topMargin = 3_px,
 						TRICHECK(0),
 						TRICHECK(1),
 						TRICHECK(2),

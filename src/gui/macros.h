@@ -171,6 +171,7 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(padding, setPadding, ::GUI::Size)                                            \
     ZCGUI_ACCEPT_PROP(focused, setFocused, bool)                                                   \
     ZCGUI_ACCEPT_PROP(framed, setFramed, bool)                                                     \
+    ZCGUI_ACCEPT_PROP(nopad, setNoPad, bool)                                                     \
     ZCGUI_ACCEPT_PROP(fitParent, setFitParent, bool)                                               \
     ZCGUI_ACCEPT_PROP(forceFitW, setForceFitWid, bool)                                             \
     ZCGUI_ACCEPT_PROP(forceFitH, setForceFitHei, bool)                                             \

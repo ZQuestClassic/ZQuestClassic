@@ -633,6 +633,18 @@ Button(forceFitH = true, hAlign = hal, text = "?", \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
+#define INFOBTN_NOPAD(inf) \
+Button(forceFitH = true, padding = 0_px, text = "?", \
+	onPressFunc = [=]() \
+	{ \
+		InfoDialog("Info",inf).show(); \
+	})
+#define INFOBTN_EX(ex, inf) \
+Button(forceFitH = true, ex, text = "?", \
+	onPressFunc = [=]() \
+	{ \
+		InfoDialog("Info",inf).show(); \
+	})
 #define INFOBTN_FUNC(getter) \
 Button(forceFitH = true, text = "?", \
 	onPressFunc = [=]() \

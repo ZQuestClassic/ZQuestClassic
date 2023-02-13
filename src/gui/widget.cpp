@@ -86,18 +86,21 @@ void Widget::setPreferredHeight(Size newHeight) noexcept
 
 void Widget::setHMargins(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftMargin = size.resolve();
 	rightMargin = size.resolve();
 }
 
 void Widget::setVMargins(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	topMargin = size.resolve();
 	bottomMargin = size.resolve();
 }
 
 void Widget::setMargins(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftMargin = size.resolve();
 	rightMargin = size.resolve();
 	topMargin = size.resolve();
@@ -106,18 +109,21 @@ void Widget::setMargins(Size size) noexcept
 
 void Widget::setHPadding(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftPadding = size.resolve();
 	rightPadding = size.resolve();
 }
 
 void Widget::setVPadding(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	topPadding = size.resolve();
 	bottomPadding = size.resolve();
 }
 
 void Widget::setPadding(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftPadding = size.resolve();
 	rightPadding = size.resolve();
 	topPadding = size.resolve();
@@ -164,6 +170,20 @@ void Widget::setExposed(bool exposed)
 		if(hideCount == 0 && (flags&f_INVISIBLE) == 0)
 			applyVisibility(false);
 		++hideCount;
+	}
+}
+
+void Widget::calculateSize()
+{
+	setPreferredWidth(Size::pixels(width));
+	setPreferredHeight(Size::pixels(height));
+	if(frameText.size())
+	{
+		int sz = 1+0.5_em.resolve();
+		if(topMargin < sz)
+			topMargin = sz;
+		if(topPadding < sz)
+			topPadding = sz;
 	}
 }
 
@@ -283,6 +303,19 @@ void Widget::setFramed(bool framed) noexcept
 		flags &= ~f_FRAMED;
 }
 
+void Widget::setNoPad(bool nopad) noexcept
+{
+	if(nopad)
+	{
+		flags &= ~f_NO_PAD;
+		setPadding(0_px);
+		setMargins(0_px);
+		flags |= f_NO_PAD;
+	}
+	else
+		flags &= ~f_NO_PAD;
+}
+
 void Widget::setFitParent(bool fit) noexcept
 {
 	if(fit)
@@ -314,6 +347,14 @@ void Widget::setFrameText(std::string const& newstr)
 	{
 		frameTextDialog->dp = frameText.data();
 		pendDraw();
+	}
+	else if(newstr.size())
+	{
+		int sz = 0.5_em.resolve();
+		if(topMargin < sz)
+			topMargin = sz;
+		if(topPadding < sz)
+			topPadding = sz;
 	}
 }
 
