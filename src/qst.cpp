@@ -7550,8 +7550,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     break;
                     
                 case itype_wand:
-                case itype_book:
                     tempitem.usesound = WAV_WAND;
+                    break;
+                    
+                case itype_book:
+                    tempitem.usesound = WAV_FIRE;
                     break;
                     
                 case itype_arrow:
