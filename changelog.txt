@@ -1,7 +1,145 @@
 // 2.55 Change Log
-// Updated 23rd Oct, 2022
+// Updated 13th Feb, 2023
 
 // Alpha 112
+
+Fix mp3 music not looping
+	( connorjclark, 13th Feb, 2023 )
+
+add 'ctrl+a' to select all in textfields
+	( EmilyV, 11th Feb, 2023 )
+
+Fix GUI flickering
+	( EmilyV, 10th Feb, 2023 )
+
+Fix class 'this' pointer changing before function params parsed
+	( EmilyV, 9th Feb, 2023 )
+
+Screenshot key in Tile Pages takes Export view
+	( EmilyV, 8th Feb, 2023 )
+
+Fix calling functions from class constructors
+Fix constructing objects in class constructors causing havoc
+	( EmilyV, 7th Feb, 2023 )
+
+fix small initial window size applying a bad clip to the screen bitmap
+	( connorjclark, 5th Feb, 2023 )
+
+Fix books with lweapon scripts crashing
+Fix sparkle weapons inheriting script/useweapon/usedefense of parent item
+Cleanup header 'version'/'minver' fields, increase their length to 16 chars.
+	( EmilyV, 5th Feb, 2023 )
+
+Add Compact Mode
+Add Custom Fonts (ZQ)
+	( EmilyV, 1st Feb, 2023 )
+
+Add more Combo Wizards
+	( EmilyV, 30th Jan, 2023 )
+
+remove frame_rest_suggest
+	( connorjclark, 25th Jan, 2023 )
+
+Fix thrown weapons not triggering solid triggers from right/bottom
+	( EmilyV, 22nd Jan, 2023 )
+
+add JIT compilation for scripts (experimental!)
+	( connorjclark, 21st Jan, 2023 )
+
+Implement dmapdata string getter/setter functions
+Add dmapdata->MirrorDMap and update DMFS_ constants
+	( EmilyV, 14th Jan, 2023 )
+
+New bait features for hungry npc rooms
+	( EmilyV, 5th Jan, 2023 )
+
+Fix zscript class functions
+fix writebytes not /10000
+	( EmilyV, 4th Jan, 2023 )
+
+Fix FFCs not saving in ZQuest
+	( Deedee, 3rd Jan, 2023 )
+fix default values for some mapscr fields
+	( connorjclark, 3rd Jan, 2023 )
+
+Fix parser hang related to zscript classes
+Fix some zscript functions being HORRIBLY broken
+	( EmilyV, 3rd Jan, 2023 )
+
+Fix keyboard stuff
+	( connorjclark, 2nd Jan, 2023 )
+
+Fix zscript file creation not being able to create directories
+Fix hang when using 'Esc' to exit name entry
+	( EmilyV, 2nd Jan, 2023 )
+
+//HAPPY NEW YEAR
+
+Update ffcscript to use more than 32 ffcs.
+	( Deedee, 30th Dec, 2022 )
+
+Fix internal special arrays being weird when directly accessed
+	( EmilyV, 29th Dec, 2022 )
+
+Fix user class bug when declaring multiple arrays
+	( EmilyV, 26th Dec, 2022 )
+
+Fix main menu drawing over dialogs on switch-in
+	( EmilyV, 22nd Dec, 2022 )
+
+Fix Hero->ScriptCSet
+	( EmilyV, 21st Dec, 2022 )
+
+Fix hitting OK when loading '1st.qst' treating it as loading a custom qst
+	( EmilyV, 16th Dec, 2022 )
+
+Fix snapping to the floor when sideswimming
+Fix bad warp returns with triggered warps
+Fixed Panoply's ladders being broken.
+	( Deedee, 16th Dec, 2022 )
+
+Fix softlock on enemy eating the hero being deleted
+Fix 'bitmap->Create()' swapping width/height when called on a null bitmap
+	( EmilyV, 15th Dec, 2022 )
+
+Fix custom weapons not having correct Step
+	( Deedee, 12th Dec, 2022 )
+
+Add 'For Each' to ZScript
+	( EmilyV, 11th Dec, 2022 )
+
+Add 'For/Else', 'While/Else', 'Do/While/Else' to ZScript
+Optimize ZScript:
+	Optimize local var access
+	Merge consecutive POPs
+	Prune NOPs
+	Condense function call params
+	( EmilyV, 10th Dec, 2022 )
+
+Add Coyote Time for Roc's Feather
+	( EmilyV, 9th Dec, 2022 )
+
+Scripts now terminate on 'Invalid ZASM command'
+Fix compile bug
+Make 'Enter' work more normally in dialogs
+Improve 'untyped' function matching
+	( EmilyV, 8th Dec, 2022 )
+
+Fix swimming through screen transitions
+Compat Rule for shallow water splash sfx
+Fix bombs not being added to the subscreen on pickup
+Fix hookshots not going over solid hookshot/water combos
+	( Deedee, 8th Dec, 2022 )
+
+Shallow Water shows walkability
+	( Deedee, 7th Dec, 2022 )
+
+Cleanup std_zh
+	( EmilyV, 7th Dec, 2022 )
+
+Stomp boots bouncing/block flags
+Variable Jump Height for Roc's Feather
+	( Deedee, 6th Dec, 2022 )
 
 Refactor configs to only make a config file when the user changes configs in ZC/ZQuest; 
 	allows copying over entire folder with a nightly while still remembering your old settings
@@ -607,7 +745,7 @@ Fix enemies causing death SFX when they shouldn't
 	( EmilyV, May 9th, 2022 )
 
 Add zscript angled weapon features
-	( DeeDee, May 9th, 2022 )
+	( Deedee, May 9th, 2022 )
 	
 Fix separate 'item override' active shields not using
 	the correct shield.
@@ -622,7 +760,7 @@ Active Shields: Step speed modifier, lock direction (strafing)
 	( EmilyV, May 7th, 2022 )
 
 Add 'fakez' for sprites, with 'fakejump'
-	( DeeDee, May 3rd, 2022 )
+	( Deedee, May 3rd, 2022 )
 
 -- May 2nd nightly build
 
