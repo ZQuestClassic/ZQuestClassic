@@ -35,6 +35,7 @@
 #include "dialog/scaletile.h"
 #include "dialog/alert.h"
 #include "drawing.h"
+#include "colorname.h"
 
 extern zcmodule moduledata;
 
@@ -58,6 +59,7 @@ int32_t ex=0;
 int32_t nextcombo_fake_click=0;
 int32_t invcol=0;
 int32_t tthighlight = 1;
+int32_t showcolortip = 1;
 
 tiledata     *newundotilebuf;
 newcombo     *undocombobuf;
@@ -1325,22 +1327,24 @@ void tile_floodfill(int32_t tile,int32_t x,int32_t y,byte c)
 }
 
 //***************** tile editor  stuff *****************
-size_and_pos ok_button(282,562,71,21);
-size_and_pos cancel_button(356,562,71,21);
-size_and_pos edit_button(530,562,86,21);
-size_and_pos hlcbox(722,392,16,16);
-size_and_pos hov_prev(722,338,50,50);
-size_and_pos cpalette_4(628,416,4,4,64,64);
-size_and_pos cpalette_8(628,416,16,12,16,21);
-size_and_pos fg_prev(628,316,50,50);
-size_and_pos bg_prev(628+30,316+30,50,50);
-size_and_pos zoomtile(104,32,16,16,32,32);
-size_and_pos prev_til_1(628,31,96,96);
-size_and_pos prev_til_2(732,31,96,96);
-size_and_pos prev_til_3(628,135,96,96);
-size_and_pos prev_til_4(732,135,96,96);
-size_and_pos status_info(628,308-(4*8),1,4,1,8);
-size_and_pos hover_info(722,338-(3*8),1,3,1,8);
+size_and_pos ok_button(302,562,71,21);
+size_and_pos cancel_button(376,562,71,21);
+size_and_pos edit_button(550,562,86,21);
+size_and_pos hlcbox(742,392,16,16);
+size_and_pos hov_prev(742,338,50,50);
+size_and_pos cpalette_4(648,416,4,4,64,64);
+size_and_pos cpalette_8(648,416,16,12,16,21);
+size_and_pos fg_prev(648,316,50,50);
+size_and_pos bg_prev(648+30,316+30,50,50);
+size_and_pos zoomtile(124,32,16,16,32,32);
+size_and_pos prev_til_1(648,31,96,96);
+size_and_pos prev_til_2(752,31,96,96);
+size_and_pos prev_til_3(648,135,96,96);
+size_and_pos prev_til_4(752,135,96,96);
+size_and_pos status_info(648,308-(4*8),1,4,1,8);
+size_and_pos hover_info(742,338-(3*8),1,3,1,8);
+size_and_pos color_info(4,189,1,1,116,8);
+size_and_pos color_info_btn(24,189,96,21);
 size_and_pos tool_btns(22,29,2,4,39,39);
 size_and_pos x_btn(890,5,15,13);
 size_and_pos info_btn(872,5,15,13);
@@ -1463,6 +1467,74 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	jwin_draw_win(screen2, prev_til_4.x-2,prev_til_4.y-2, prev_til_4.w+4, prev_til_4.h+4, FR_DEEP);
 	overtile16(preview_bmp,tile,0,0,cs,flip);
 	masked_stretch_blit(preview_bmp, screen2, 0, 0, 16, 16, prev_til_4.x, prev_til_4.y, prev_til_4.w, prev_til_4.h);
+	
+	//Color info
+	{
+		auto fh = color_info.yscale = text_height(font);
+		int y = color_info.y;
+		int rx = color_info.x+color_info.xscale;
+		color_info.h = 1;
+		if(showcolortip)
+		{
+			gui_textout_ln(screen2,font,(unsigned char*)"Colors:",
+				rx,y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],2);
+			auto str = get_tile_colornames(tile,cs);
+			size_t pos = 0;
+			char buf[512] = {0};
+			char cbuf[16] = {0};
+			while(pos < str.size())
+			{
+				y += fh;
+				if(y+fh > zq_screen_h)
+					break; //Out of space!
+				auto endpos = str.find_first_of('\n',pos);
+				
+				if(endpos == std::string::npos)
+				{
+					strcpy(buf,str.substr(pos).c_str());
+					pos = str.size();
+				}
+				else
+				{
+					strcpy(buf,str.substr(pos,endpos-pos+1).c_str());
+					pos = endpos+1;
+				}
+				//Ensure the name fits horizontally
+				if(text_length(font,buf) > color_info.xscale)
+				{
+					size_t pos = 0;
+					for(; buf[pos]; ++pos)
+					{
+						if(buf[pos] == ':')
+						{
+							strcpy(cbuf, buf+pos);
+							buf[pos] = 0;
+							break;
+						}
+					}
+					size_t clen = text_length(font,cbuf);
+					size_t dotlen = text_length(font,"..");
+					
+					while(pos > 0 && (dotlen+clen+text_length(font,buf) > color_info.xscale))
+						buf[--pos] = 0;
+					while(buf[pos] == ' ')
+						buf[pos] = 0;
+					strcat(buf,"..");
+					strcat(buf,cbuf);
+				}
+				gui_textout_ln(screen2,font,(unsigned char const*)buf,
+					rx,y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],2);
+				++color_info.h;
+			}
+			jwin_draw_frame(screen2,color_info.x-2,color_info.y-2,(color_info.w*color_info.xscale)+4,(color_info.h*color_info.yscale)+4,FR_DEEP);
+		}
+		else
+		{
+			draw_text_button(screen2,color_info_btn.x,color_info_btn.y,color_info_btn.w,color_info_btn.h,
+				"Show Colors",vc(1),vc(14),0,true);
+		}
+	}
+	
 	zc_swap(tmpptr,newtilebuf[tile].data); //Swap the real tile back to the buffer
 	
 	jwin_draw_win(screen2, zoomtile.x-3, zoomtile.y-3, (zoomtile.w*zoomtile.xscale)+5, (zoomtile.h*zoomtile.yscale)+5, FR_DEEP);
@@ -1929,6 +2001,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	selecting_x1=selecting_x2=selecting_y1=selecting_y2=-1;
 	
 	tthighlight = zc_get_config("ZQ_GUI","tile_edit_fancyhighlight",1);
+	showcolortip = zc_get_config("ZQ_GUI","tile_edit_colornames",1);
 	
 	PALETTE tpal;
 	byte oldtile[256];
@@ -2705,6 +2778,28 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					redraw=true;
 				}
 			}
+			
+			if(showcolortip)
+			{
+				if(color_info.rect(temp_mouse_x,temp_mouse_y))
+				{
+					showcolortip = 0;
+					zc_set_config("ZQ_GUI","tile_edit_colornames",0);
+				}
+			}
+			else
+			{
+				if(color_info_btn.rect(temp_mouse_x,temp_mouse_y))
+				{
+					if(do_text_button(color_info_btn.x,color_info_btn.y,color_info_btn.w,color_info_btn.h,"Show Colors",vc(1),vc(14),true))
+					{
+						showcolortip = 1;
+						zc_set_config("ZQ_GUI","tile_edit_colornames",1);
+						redraw=true;
+					}
+				}
+			}
+			
 			if(hlcbox.rect(temp_mouse_x,temp_mouse_y))
 			{
 				if(do_checkbox(screen2,hlcbox.x,hlcbox.y,hlcbox.w,hlcbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],tthighlight))

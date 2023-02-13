@@ -584,14 +584,16 @@ std::string const& get_color_name(int r, int g, int b)
 	if(closename)
 	{
 		char qbuf[10] = {0};
-		int qind = 0;
+		int qind = 1;
 		for(zfix q = weight; q > 10; q -= 5)
 		{
 			qbuf[qind++] = '?';
 			if(qind == 9) break;
 		}
+		if(qind > 1)
+			qbuf[0] = ' ';
 		qbuf[qind] = 0;
-		sprintf(buf, "%s %s", closename->c_str(), qbuf);
+		sprintf(buf, "%s%s", closename->c_str(), qbuf);
 		addname(ind, buf, true);
 		return colornames[ind];
 	}
