@@ -3,6 +3,9 @@
 
 // Alpha 112
 
+Fix old quest load putting wand SFX on book items
+	( EmilyV, 13th Feb, 2023 )
+
 Fix mp3 music not looping
 	( connorjclark, 13th Feb, 2023 )
 
