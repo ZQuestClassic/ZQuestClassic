@@ -504,13 +504,13 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
 							Row(padding = 0_px,
 								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Drain Rate"),
-								INFOBTN_EX(bottomPadding = 0_px, "Magic costs are multiplied by this amount. Every time you use a"
+								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
 									" 'Learn Half Magic' room, this value is halved (rounded down)."
 									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
 									" >-1, that piece will only show up when it's 'Show' value is equal to"
 									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
 									" your starting value is high enough, you can allow stacking several"
-									" levels of lowered magic cost)")
+									" levels of lowered magic cost)", bottomPadding = 0_px)
 							),
 							WORD_FIELD(&local_zinit.magic),
 							WORD_FIELD(&local_zinit.max_magic),

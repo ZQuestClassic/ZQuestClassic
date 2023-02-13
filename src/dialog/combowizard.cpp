@@ -1088,7 +1088,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			bool sens = (local_ref.type==cSTRIGNOFLAG||local_ref.type==cSTRIGFLAG);
 			windowRow->add(
 				Rows<3>(
-					INFOBTN_HAL(1.0,"If checked, the combo will trigger secrets permanently."),
+					INFOBTN_EX("If checked, the combo will trigger secrets permanently.",hAlign = 1.0),
 					cboxes[0] = Checkbox(
 							text = "Permanent", hAlign = 0.0,
 							checked = perm, colSpan = 2,
@@ -1112,7 +1112,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							}
 						),
 					//
-					INFOBTN_HAL(1.0,"If checked, the combo will trigger even if barely touched."),
+					INFOBTN_EX("If checked, the combo will trigger even if barely touched.",hAlign = 1.0),
 					cboxes[1] = Checkbox(
 							text = "Sensitive", hAlign = 0.0,
 							checked = sens, colSpan = 2,
@@ -1726,8 +1726,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					),
 					Rows<2>(
 						Label(text = "Unblockable"),
-						INFOBTN_HAL(0.0,"The following checkboxes can make the weapon bypass"
-							"types of blocking."),
+						INFOBTN_EX("The following checkboxes can make the weapon bypass"
+							"types of blocking.", hAlign = 0.0),
 						cboxes[0] = Checkbox(
 							text = "Bypass 'Block' Defense",
 							hAlign = 0.0, colSpan = 2,
