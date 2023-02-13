@@ -286,24 +286,29 @@ void jwin_draw_minimap_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t 
         break;
     }
     
-	rectfill(dest, x, y, x+w-1, y+h-scrsz-2, vc(0));
-	rectfill(dest, x, y+h-scrsz-2, x+4+(scrsz*8), y+h-1, vc(0));
+	int xc = x+(scrsz*8);
+	int yc = y+(scrsz*8);
+	int x2 = x+w-1;
+	int y2 = y+h-1;
 	
-    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y,0,dest->h-1)  , vbound(x+w-2, 0,dest->w-1), palette_color[scheme[c1]]);
-    _allegro_vline(dest, vbound(x,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-2, 0, dest->h-1), palette_color[scheme[c1]]);
+	rectfill(dest, x, y, x2, yc, vc(0));
+	rectfill(dest, x, yc, xc, y2, vc(0));
+	
+    _allegro_hline(dest, x-2, y-2, x2+2, palette_color[scheme[c1]]);
+    _allegro_vline(dest, x-2, y-2, y2+2, palette_color[scheme[c1]]);
     
-    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(x+w-3,0,dest->w-1), palette_color[scheme[c2]]);
-    _allegro_vline(dest, vbound(x+1,0,dest->w-1), vbound(y+2,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c2]]);
+    _allegro_hline(dest, x-1, y-1, x2+1, palette_color[scheme[c2]]);
+    _allegro_vline(dest, x-1, y-1, y2+1, palette_color[scheme[c2]]);
     
-    _allegro_hline(dest, vbound(x+1,0,dest->w-1), vbound(y+h-2,0,dest->h-1), vbound(x+(scrsz*8)+4,0,dest->w-1), palette_color[scheme[c3]]);
-    _allegro_vline(dest, vbound(x+w-2,0,dest->w-1), vbound(y+1,0,dest->h-1), vbound(y+h-4-scrsz,0,dest->h-1), palette_color[scheme[c3]]);
-    _allegro_hline(dest, vbound(x+5+(scrsz*8),0,dest->w-1), vbound(y+h-3-scrsz,0,dest->h-1), vbound(x+w-2,0,dest->w-1), palette_color[scheme[c3]]);
-    _allegro_vline(dest, vbound(x+6+(scrsz*8)-2,0,dest->w-1), vbound(y+1+h-4-scrsz,0,dest->h-1), vbound(y+h-3,0,dest->h-1), palette_color[scheme[c3]]);
+    _allegro_hline(dest, x-2, y2+2, xc, palette_color[scheme[c3]]);
+    _allegro_vline(dest, x2+2, y-2, yc, palette_color[scheme[c3]]);
+    _allegro_hline(dest, xc, yc, x2+2, palette_color[scheme[c3]]);
+    _allegro_vline(dest, xc, yc, y2+2, palette_color[scheme[c3]]);
     
-    _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+(scrsz*8)+5,0, dest->w-1), palette_color[scheme[c4]]);
-    _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-3-scrsz,0,dest->h-1), palette_color[scheme[c4]]);
-    _allegro_hline(dest, vbound(x+5+(scrsz*8),0,dest->w-1), vbound(y+h-2-scrsz,0,dest->h-1), vbound(x+w-1,0, dest->w-1), palette_color[scheme[c4]]);
-    _allegro_vline(dest, vbound(x+6+(scrsz*8)-1,0,dest->w-1), vbound(y+h-2-scrsz,0,dest->h-1), vbound(y+h-2,0,dest->h-1), palette_color[scheme[c4]]);
+    _allegro_hline(dest, x-1, y2+1, xc, palette_color[scheme[c4]]);
+    _allegro_vline(dest, x2+1, y-1, yc, palette_color[scheme[c4]]);
+    _allegro_hline(dest, xc, yc, x2+1, palette_color[scheme[c4]]);
+    _allegro_vline(dest, xc, yc, y2+1, palette_color[scheme[c4]]);
 }
 
 /*  jwin_draw_win:

@@ -3165,7 +3165,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			set_palette(tpal);
 			draw_edit_scr(tile,flip,cs,oldtile, false);
 			
-			highlight_ttip(screen);
 			draw_ttip(screen);
 		}
 		else

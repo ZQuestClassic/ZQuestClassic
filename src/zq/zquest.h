@@ -104,7 +104,7 @@ extern size_and_pos tooltip_trigger;
 
 extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
-extern int32_t tooltip_timer, tooltip_maxtimer, tt_highlight_thick, tt_highlight_color;
+extern int32_t tooltip_timer, tooltip_maxtimer;
 
 extern bool canfill;                                        //to prevent double-filling (which stops undos)
 extern bool resize_mouse_pos;                               //for eyeball combos
@@ -119,7 +119,7 @@ extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
-extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *brushshadowbmp;
+extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
@@ -1213,11 +1213,14 @@ void check_autosave();
 void debug_pos(size_and_pos const& pos, int color = 0xED);
 void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick = 2);
 void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
-void highlight_ttip(BITMAP* dest);
 void draw_ttip(BITMAP* dest);
+void draw_ttip2(BITMAP* dest);
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg);
+void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg);
+void update_tooltip2(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg);
 void clear_tooltip();
+void clear_tooltip2();
 void ZQ_ClearQuestPath();
 void cflag_help(int32_t id);
 void ctype_help(int32_t id);

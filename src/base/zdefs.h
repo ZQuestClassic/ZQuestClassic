@@ -1852,6 +1852,8 @@ struct size_and_pos
     int32_t w = -1, h = -1;
 	int32_t xscale = 1, yscale = 1;
 	
+	int32_t data[8] = {0};
+	
 	//Get virtual values
 	int32_t tw() const;
 	int32_t th() const;
