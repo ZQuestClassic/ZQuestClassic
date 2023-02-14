@@ -1848,28 +1848,29 @@ enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos
 {
-    int32_t x = -1, y = -1;
-    int32_t w = -1, h = -1;
-	int32_t xscale = 1, yscale = 1;
+	int x = -1, y = -1;
+	int w = -1, h = -1;
+	int xscale = 1, yscale = 1;
+	int fw = -1, fh = -1;
 	
-	int32_t data[8] = {0};
+	int data[8] = {0};
 	
 	//Get virtual values
-	int32_t tw() const;
-	int32_t th() const;
+	int tw() const;
+	int th() const;
 	
 	void clear(); //Clear to default vals
 	
-	bool rect(int32_t mx, int32_t my) const; //Check rect collision
-	int32_t rectind(int32_t mx, int32_t my) const; //Check scaled collision
+	bool rect(int mx, int my) const; //Check rect collision
+	int rectind(int mx, int my) const; //Check scaled collision
 	
 	//Set coord values
-	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh);
-	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh, int32_t xs, int32_t ys);
+	void set(int nx, int ny, int nw, int nh);
+	void set(int nx, int ny, int nw, int nh, int xs, int ys);
 	
-	size_and_pos const* subsquare(int32_t ind) const;
-	size_and_pos const* subsquare(int32_t col, int32_t row) const;
-	size_and_pos(int32_t nx = -1, int32_t ny = -1, int32_t nw = -1, int32_t nh = -1, int32_t xsc = 1, int32_t ysc = 1);
+	size_and_pos const& subsquare(int ind) const;
+	size_and_pos const& subsquare(int col, int row) const;
+	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
 };
 
 //#define OLDITEMCNT i90

@@ -1559,7 +1559,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			
 			for(int32_t i=0; i<cpalette_4.w*cpalette_4.h; i++)
 			{
-				size_and_pos const& s = *cpalette_4.subsquare(i);
+				size_and_pos const& s = cpalette_4.subsquare(i);
 				rectfill(screen2,s.x,s.y,s.x+s.w-1,s.y+s.h-1,CSET(cs)+i);
 			}
 			
@@ -1571,7 +1571,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			
 			for(int32_t i=0; i<cpalette_8.w*cpalette_8.h; ++i)
 			{
-				size_and_pos const& s = *cpalette_8.subsquare(i);
+				size_and_pos const& s = cpalette_8.subsquare(i);
 				rectfill(screen2,s.x,s.y,s.x+s.w-1,s.y+s.h-1,i);
 			}
 			
@@ -1653,7 +1653,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 			if(tthighlight)
 			{
 				size_and_pos const& mainsqr = is8b ? cpalette_8 : cpalette_4;
-				size_and_pos const& csqr = *mainsqr.subsquare(color);
+				size_and_pos const& csqr = mainsqr.subsquare(color);
 				
 				int hlcol = getHighlightColor(tpal[realcol]);
 				int hlthick = 4;

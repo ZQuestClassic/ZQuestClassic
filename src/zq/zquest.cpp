@@ -5585,19 +5585,19 @@ void drawpanel()
 		}
 		
 		// Enemies
-		int32_t epx = enemy_prev_pos.x;
-		int32_t epy = enemy_prev_pos.y;
-		jwin_draw_frame(menu1, epx-2,epy-2, enemy_prev_pos.w,enemy_prev_pos.h,FR_DEEP);
-		rectfill(menu1, epx, epy, -1+epx+16*4,-1+epy+16*3,vc(0));
+		auto& ep = enemy_prev_pos;
+		rectfill(menu1, ep.x, ep.y, ep.x+ep.tw()-1,ep.y+ep.th()-1,vc(0));
+		rectfill(menu1, ep.x+ep.fw, ep.y+ep.fh, ep.x+ep.tw()-1, ep.y+ep.th()-1, jwin_pal[jcBOX]);
+		jwin_draw_frag_frame(menu1, ep.x, ep.y, ep.tw(), ep.th(), ep.fw, ep.fh, FR_DEEP);
 		
 		for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
 		{
 			int32_t id = Map.CurrScr()->enemy[i];
 			int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
 			int32_t cset = guysbuf[id].cset;
-			
+			auto& sqr = ep.subsquare(i);
 			if(tile)
-				overtile16(menu1, tile+efrontfacingtile(id),epx+(i%4)*16,epy+((i/4)*16),cset,0);
+				overtile16(menu1, tile+efrontfacingtile(id),sqr.x,sqr.y,cset,0);
 		}
 	}
 }
@@ -5745,7 +5745,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				for(int32_t i=0; i<MAPSCRS; i++)
 				{
-					auto& sqr = *real_mini_sqr->subsquare(i);
+					auto& sqr = real_mini_sqr->subsquare(i);
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
@@ -5799,7 +5799,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				if(cursor_color)
 				{
-					auto& sqr = *real_mini_sqr->subsquare(s);
+					auto& sqr = real_mini_sqr->subsquare(s);
 					highlight_sqr(menu1,cursor_color,sqr,1);
 				}
 				
@@ -6303,7 +6303,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				auto& pos = combolistscrollers[c];
 				
 				{ //Scroll up
-					auto& p = *pos.subsquare(0);
+					auto& p = pos.subsquare(0);
 					jwin_draw_frame(menu1,p.x,p.y,p.w,p.h,FR_ETCHED);
 					
 					for(int32_t i=0; i<3; i++)
@@ -6313,7 +6313,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				
 				{ //Scroll down
-					auto& p = *pos.subsquare(1);
+					auto& p = pos.subsquare(1);
 					jwin_draw_frame(menu1,p.x,p.y,p.w,p.h,FR_ETCHED);
 					
 					for(int32_t i=0; i<3; i++)
@@ -6655,7 +6655,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						for(int32_t row=0; row<favorites_list.h; ++row)
 						{
 							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-							auto& sqr = *favorites_list.subsquare(col,row);
+							auto& sqr = favorites_list.subsquare(col,row);
 							if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
 							{
 								if(InvalidStatic)
@@ -6689,7 +6689,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						for(int32_t row=0; row<favorites_list.h; ++row)
 						{
 							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-							auto& sqr = *favorites_list.subsquare(col,row);
+							auto& sqr = favorites_list.subsquare(col,row);
 							if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
 							{
 								if(InvalidStatic)
@@ -7378,7 +7378,7 @@ void select_scr()
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
 			clear_tooltip();
-			update_tooltip2(real_mini.x+(real_mini.w*real_mini.xscale), real_mini.y-16, *real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
 			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
 		}
 		
@@ -10574,7 +10574,7 @@ void domouse()
 			char msg[160];
 			sprintf(msg,"Fav Command %d\n%s", cmd, commands[favorite_commands[cmd]].name);
 			
-			update_tooltip(x,y,*commands_list.subsquare(cmd),msg);
+			update_tooltip(x,y,commands_list.subsquare(cmd),msg);
 		}
 	}
 	
@@ -10587,7 +10587,7 @@ void domouse()
 			int32_t col=f%favorites_list.w;
 			f = (row*FAVORITECOMBO_PER_ROW)+col;
 			
-			auto& sqr = *favorites_list.subsquare(col,row);
+			auto& sqr = favorites_list.subsquare(col,row);
 			
 			char buf[180];
 			sprintf(buf, "Fav Alias %d", f);
@@ -10605,7 +10605,7 @@ void domouse()
 				auto c2=ind+combo_alistpos[j];
 				char msg[80];
 				sprintf(msg, "Combo alias %d", c2);
-				update_tooltip(x,y,*sqr.subsquare(ind), msg);
+				update_tooltip(x,y,sqr.subsquare(ind), msg);
 			}
 		}
 	}
@@ -10620,7 +10620,7 @@ void domouse()
 				auto c2=ind+combo_pool_listpos[j];
 				char msg[80];
 				sprintf(msg, "Combo Pool %d", c2);
-				update_tooltip(x,y,*sqr.subsquare(ind), msg);
+				update_tooltip(x,y,sqr.subsquare(ind), msg);
 			}
 		}
 		if(cpool_prev_visible && combopool_prevbtn.rect(x,y))
@@ -10642,7 +10642,7 @@ void domouse()
 			int32_t col=f%favorites_list.w;
 			f = (row*FAVORITECOMBO_PER_ROW)+col;
 			
-			auto& sqr = *favorites_list.subsquare(col,row);
+			auto& sqr = favorites_list.subsquare(col,row);
 			
 			char buf[180];
 			if(favorite_combos[f] == -1)
@@ -10676,7 +10676,7 @@ void domouse()
 				else
 					sprintf(msg, "Combo %d: %s", c2, combo_class_buf[combobuf[c2].type].name);
 					
-				update_tooltip(x,y,*sqr.subsquare(ind), msg);
+				update_tooltip(x,y,sqr.subsquare(ind), msg);
 			}
 		}
 	}
@@ -10688,7 +10688,7 @@ void domouse()
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
 		clear_tooltip();
-		update_tooltip2(real_mini.x+(real_mini.w*real_mini.xscale), real_mini.y-16, *real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+		update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
 		tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
 	}
 	
@@ -11741,7 +11741,7 @@ void domouse()
 			bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 			bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
 			bool dis = commands[favorite_commands[cmd]].flags==D_DISABLED;
-			auto& btn = *commands_list.subsquare(cmd);
+			auto& btn = commands_list.subsquare(cmd);
 			if(!dis||rclick||shift||ctrl||alt)
 			{
 				FONT *tfont=font;
@@ -13147,7 +13147,7 @@ void load_item(int32_t index = -1);
 DIALOG ilist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24,  148+20,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
+    { jwin_win_proc,     60-12,   40,   200+24+24+56,  148+20,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,            0,       NULL, NULL, NULL },
     { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  90+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
     { jwin_button_proc,     90,   163+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
@@ -15361,55 +15361,23 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 			//Item editor power display in Select Item dialogue. 
 			if(bii[d->d1].i>=0)
 			{
-				textprintf_ex(screen,spfont,x,y+20*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d  ",bii[d->d1].i);
-				
-				textprintf_ex(screen,spfont,x,y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pow:    ");
-				textprintf_ex(screen,spfont,x,y+38*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Lev:    ");
-				textprintf_ex(screen,spfont,x,y+44*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam:    ");
-				// textprintf_ex(screen,spfont,x,y+44*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile:    ");
-				textprintf_ex(screen,spfont,x,y+50*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet:    ");
-				textprintf_ex(screen,spfont,x,y+56*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:    ");
-				textprintf_ex(screen,spfont,x,y+62*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Act:    ");
-				textprintf_ex(screen,spfont,x,y+68*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pkp:    ");
-				textprintf_ex(screen,spfont,x,y+74*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Spr:    ");
-				textprintf_ex(screen,spfont,x,y+80*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Wpn:    ");
-				char itempower[10]; char itemlvl[10]; char itmtile[16]; char itmcset[10]; char itmfam[10];
-				char ascript[10];
-				char pscript[10];
-				char sscript[10];
-				char wscript[10];
-				sprintf(itempower, "%03d", itemsbuf[bii[d->d1].i].power); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(itemlvl, "%03d", itemsbuf[bii[d->d1].i].fam_type); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(itmtile, "%03d", itemsbuf[bii[d->d1].i].tile); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(itmcset, "%03d", itemsbuf[bii[d->d1].i].csets); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(itmfam, "%03d", itemsbuf[bii[d->d1].i].family); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(ascript, "%03d", itemsbuf[bii[d->d1].i].script); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(pscript, "%03d", itemsbuf[bii[d->d1].i].collect_script); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(sscript, "%03d", itemsbuf[bii[d->d1].i].sprite_script); //Give leading zeros so that we don't have graphical corruption in the display. 
-				sprintf(wscript, "%03d", itemsbuf[bii[d->d1].i].weaponscript); //Give leading zeros so that we don't have graphical corruption in the display. 
-				//textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+26*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].power);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
-				textprintf_ex(screen,spfont,x,y+26*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"T: %d  ",itemsbuf[bii[d->d1].i].tile);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+38*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itemlvl);
-				//textprintf_ex(screen,spfont,x,y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"LV: %d  ",itemsbuf[bii[d->d1].i].family_type);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+44*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmfam);
-				//textprintf_ex(screen,spfont,x,y+38*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"F: %d  ",itemsbuf[bii[d->d1].i].family);
-				
-				//textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+44*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmtile);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+50*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itmcset);
-				//Scripts
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",itempower);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+62*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",ascript);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+68*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",pscript);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+74*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",sscript);
-				textprintf_ex(screen,spfont,x+int32_t(16*1.5),y+80*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s",wscript);
+				FONT* tfont = lfont_l;
+				int fh = text_height(tfont);
+				rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
+				textprintf_ex(screen,tfont,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",bii[d->d1].i);
+				textprintf_ex(screen,tfont,x,y+40+(1*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Power: %d", itemsbuf[bii[d->d1].i].power);
+				textprintf_ex(screen,tfont,x,y+40+(2*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Level: %d", itemsbuf[bii[d->d1].i].fam_type);
+				textprintf_ex(screen,tfont,x,y+40+(3*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Type: %d", itemsbuf[bii[d->d1].i].family);
+				textprintf_ex(screen,tfont,x,y+40+(4*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet: %d", itemsbuf[bii[d->d1].i].csets);
+				textprintf_ex(screen,tfont,x,y+40+(5*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:");
+				textprintf_ex(screen,tfont,x,y+40+(6*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Action: %d", itemsbuf[bii[d->d1].i].script);
+				textprintf_ex(screen,tfont,x,y+40+(7*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pickup: %d", itemsbuf[bii[d->d1].i].collect_script);
+				textprintf_ex(screen,tfont,x,y+40+(8*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Sprite: %d", itemsbuf[bii[d->d1].i].sprite_script);
+				textprintf_ex(screen,tfont,x,y+40+(9*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Weapon: %d", itemsbuf[bii[d->d1].i].weaponscript);
 			}
 			
-			// Might be a bit confusing for new users
-			/*textprintf_ex(screen,font,x,y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Cost:   ");
-			textprintf_ex(screen,font,x+int32_t(16*1.5),y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",itemsbuf[bii[d->d1].i].magic);*/
-			
 			unscare_mouse();
+			break;
 	}
 	
 	return ret;
@@ -21663,9 +21631,9 @@ void load_enemy(int32_t index = -1);
 DIALOG elist_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     50,   40,   200+24+24,  145+20,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
+    { jwin_win_proc,     50,   40,   288,  175,  vc(14),  vc(1),  0,       D_EXIT,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { d_enelist_proc,    62,   68,   188,  88,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { d_enelist_proc,    62,   68,   188,  98,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_button_proc,     90,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
     { jwin_button_proc,     170,  160+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
     { jwin_button_proc,     220,   160+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
@@ -21768,6 +21736,7 @@ static ListData enemy_dlg_list(enemy_viewer, &font);
 
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
 {
+	FONT* oldfont = font;
 	bool is_screen_select = d->dp == &enemy_dlg_list;
     int32_t ret;
 	
@@ -21840,32 +21809,25 @@ int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
             destroy_bitmap(bigbmp);
         }
         
-        /*
-            rectfill(screen, x, y+20*2, x+int32_t(w*1.5)-1, y+32*2-1, vc(4));
-        */
-        textprintf_ex(screen,font,x,y+20*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d   ",id);
-	
-	textprintf_ex(screen,font,x,y+26*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile: %d   ",guysbuf[id].tile);
-	
-	textprintf_ex(screen,font,x,y+32*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sTil: %d   ",guysbuf[id].s_tile);
-	textprintf_ex(screen,font,x,y+38*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d   ",guysbuf[id].e_tile);
+		font = lfont_l;
+		int fh = text_height(font);
+		rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
+        textprintf_ex(screen,font,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",id);
+		
+		textprintf_ex(screen,font,x,y+40+(1*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Tile: %d",guysbuf[id].tile);
+		
+		textprintf_ex(screen,font,x,y+40+(2*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"sTil: %d",guysbuf[id].s_tile);
+		textprintf_ex(screen,font,x,y+40+(3*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"eTil: %d",guysbuf[id].e_tile);
         
-        textprintf_ex(screen,font,x,y+44*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: ");
-        textprintf_ex(screen,font,x+int32_t(14*1.5),y+44*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].hp);
-        
-        textprintf_ex(screen,font,x,y+50*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: ");
-        textprintf_ex(screen,font,x+int32_t(14*1.5),y+50*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d   ",guysbuf[id].dp);
-	
-	
-	
-	textprintf_ex(screen,font,x,y+56*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam: %d   ",guysbuf[id].family);
-	textprintf_ex(screen,font,x,y+62*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Drop: %d   ",guysbuf[id].item_set);
-	textprintf_ex(screen,font,x,y+68*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Script: %d   ",guysbuf[id].script);
-	textprintf_ex(screen,font,x,y+74*2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"WScript: %d   ",guysbuf[id].weaponscript);
-    
-	
+        textprintf_ex(screen,font,x,y+40+(4*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"HP: %d",guysbuf[id].hp);
+        textprintf_ex(screen,font,x,y+40+(5*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Dmg: %d",guysbuf[id].dp);
+		
+		textprintf_ex(screen,font,x,y+40+(6*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Fam: %d",guysbuf[id].family);
+		textprintf_ex(screen,font,x,y+40+(7*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Drop: %d",guysbuf[id].item_set);
+		textprintf_ex(screen,font,x,y+40+(8*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Script: %d",guysbuf[id].script);
+		textprintf_ex(screen,font,x,y+40+(9*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"WScript: %d",guysbuf[id].weaponscript);
     }
-    
+    font = oldfont;
     return ret;
 }
 
@@ -31728,10 +31690,14 @@ void load_size_poses()
 			warpret_pos[q].w = 4+16;
 			warpret_pos[q].h = 4+16;
 		}
-		enemy_prev_pos.x = 2+main_panel.x+14+4*32;
-		enemy_prev_pos.y = 2+main_panel.y+12;
-		enemy_prev_pos.w = 4+(16*4);
-		enemy_prev_pos.h = 4+(16*3);
+		enemy_prev_pos.x = main_panel.x+14+4*32;
+		enemy_prev_pos.y = main_panel.y+12;
+		enemy_prev_pos.w = 4;
+		enemy_prev_pos.h = 3;
+		enemy_prev_pos.xscale = 16;
+		enemy_prev_pos.yscale = 16;
+		enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
+		enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
 		
 		auto& last_alias_list = comboaliaslist[num_combo_cols-1];
 		combopool_preview.x=comboaliaslist[0].x;
@@ -31870,6 +31836,13 @@ void load_size_poses()
 		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
 		layerpanel_checkbox_wid = 14;
 		
+		//buttons panel
+		main_panel.x = 0;
+		main_panel.y = layer_panel.y+layer_panel.h;
+		main_panel.w = commands_window.x - main_panel.x;
+		main_panel.h = zq_screen_h - main_panel.y;
+		preview_panel = main_panel;
+		
 		minimap.x=3;
 		minimap.y=main_panel.y+4;
 		
@@ -31939,14 +31912,6 @@ void load_size_poses()
 		favorites_zoombtn.x = favorites_infobtn.x - favorites_zoombtn.w;
 		favorites_zoombtn.y = favorites_infobtn.y;
 		
-		//buttons panel
-		main_panel.x = 0;
-		main_panel.y = layer_panel.y+layer_panel.h;
-		main_panel.w = commands_window.x - main_panel.x;
-		main_panel.h = zq_screen_h - main_panel.y;
-		
-		preview_panel = main_panel; //preview panel 
-		
 		txtoffs_single.x = 22;
 		txtoffs_single.y = 6;
 		txtoffs_double_1.x = 22;
@@ -31968,8 +31933,12 @@ void load_size_poses()
 		
 		enemy_prev_pos.x = main_panel.x+14;
 		enemy_prev_pos.y = main_panel.y+12 + minimap.h;
-		enemy_prev_pos.w = 4+(16*4);
-		enemy_prev_pos.h = 4+(16*3);
+		enemy_prev_pos.w = 4;
+		enemy_prev_pos.h = 3;
+		enemy_prev_pos.xscale = 16;
+		enemy_prev_pos.yscale = 16;
+		enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
+		enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
 		
 		warpret_pos[0].set(x1,y1+(4*offs),sw,sh);
 		warpret_pos[1].set(x1,y1+(5*offs),sw,sh);
@@ -33385,7 +33354,7 @@ void debug_pos(size_and_pos const& pos, int color)
 		auto maxind = pos.w*pos.h;
 		for(auto q = 0; q < maxind; ++q)
 		{
-			auto& sub = *pos.subsquare(q);
+			auto& sub = pos.subsquare(q);
 			highlight_sqr(screen, color, sub, 1);
 		}
 		return;
@@ -33480,16 +33449,43 @@ void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thic
 }
 void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick)
 {
-	highlight_sqr(dest, color, rec.x, rec.y, rec.w, rec.h, thick);
+	highlight_sqr(dest, color, rec.x, rec.y, rec.tw(), rec.th(), thick);
+}
+void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick)
+{
+	int xc = x1+fw-1;
+	int yc = y1+fh-1;
+	int x2 = x1+w-1;
+	int y2 = y1+h-1;
+	
+    _allegro_hline(dest, x1, y1, x2, color);
+    _allegro_vline(dest, x1, y1, y2, color);
+    
+    _allegro_hline(dest, x1, y2, xc, color);
+    _allegro_vline(dest, x2, y1, yc, color);
+    _allegro_hline(dest, xc, yc, x2, color);
+    _allegro_vline(dest, xc, yc, y2, color);
+}
+void highlight_frag(BITMAP* dest, int color, size_and_pos& rec, int thick)
+{
+	highlight_frag(dest, color, rec.x, rec.y, rec.tw(), rec.th(), rec.fw, rec.fh, thick);
 }
 
+void highlight(BITMAP* dest, size_and_pos& hl)
+{
+	if(hl.fw > -1 && hl.fh > -1)
+	{
+		highlight_frag(dest, hl.data[1], hl, hl.data[0]);
+	}
+	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
+}
 void draw_ttip(BITMAP* dest)
 {
 	if(tooltip_timer < tooltip_maxtimer)
 		return;
 	if(TooltipsHighlight && tooltip_highlight.x >= 0)
 	{
-		highlight_sqr(dest, tooltip_highlight.data[1], tooltip_highlight, tooltip_highlight.data[0]);
+		highlight(dest,tooltip_highlight);
 	}
 	if(tooltip_box.x>=0&&tooltip_box.y>=0)
 	{
@@ -33500,7 +33496,7 @@ void draw_ttip2(BITMAP* dest)
 {
 	if(tooltip_highlight2.x >= 0)
 	{
-		highlight_sqr(dest, tooltip_highlight2.data[1], tooltip_highlight2, tooltip_highlight2.data[0]);
+		highlight(dest,tooltip_highlight2);
 	}
 	if(tooltip_box2.x>=0&&tooltip_box2.y>=0)
 	{
@@ -33598,9 +33594,9 @@ void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txs
 
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale)
 {
-	update_tooltip(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,scale);
+	update_tooltip(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,sqr.fw,sqr.fh,scale);
 }
-void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, double scale)
+void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
 {
 	if(!EnableTooltips)
 	{
@@ -33623,6 +33619,8 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		return; //cancel
 	}
 	tooltip_highlight.set(tx, ty, tw, th);
+	tooltip_highlight.fw = fw;
+	tooltip_highlight.fh = fh;
 	tooltip_highlight.data[0] = 2;
 	tooltip_highlight.data[1] = 0xED;
 	FONT* oldfont = font;
@@ -33654,9 +33652,9 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 
 void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale)
 {
-	update_tooltip2(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,scale);
+	update_tooltip2(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,sqr.fw,sqr.fh,scale);
 }
-void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, double scale)
+void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
 {
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
@@ -33668,6 +33666,8 @@ void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, i
 		return; //cancel
 	}
 	tooltip_highlight2.set(tx, ty, tw, th);
+	tooltip_highlight2.fw = fw;
+	tooltip_highlight2.fh = fh;
 	tooltip_highlight2.data[0] = 2;
 	tooltip_highlight2.data[1] = 0xED;
 	

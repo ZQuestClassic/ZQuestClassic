@@ -229,9 +229,9 @@ void jwin_draw_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_
     _allegro_hline(dest, vbound(x,0,dest->w-1), vbound(y+h-1,0,dest->h-1), vbound(x+w-1,0, dest->w-1), palette_color[scheme[c4]]);
     _allegro_vline(dest, vbound(x+w-1,0,dest->w-1), vbound(y,0,dest->h-1), vbound(y+h-2,0,dest->h-1), palette_color[scheme[c4]]);
 }
-void jwin_draw_minimap_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t scrsz,int32_t style)
+void jwin_draw_frag_frame(BITMAP* dest, int x1, int y1, int w, int h, int fw, int fh, int style)
 {
-    int32_t c1,c2,c3,c4;
+    int c1,c2,c3,c4;
     
     switch(style)
     {
@@ -286,29 +286,35 @@ void jwin_draw_minimap_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t 
         break;
     }
     
-	int xc = x+(scrsz*8);
-	int yc = y+(scrsz*8);
-	int x2 = x+w-1;
-	int y2 = y+h-1;
+	int xc = x1+fw-1;
+	int yc = y1+fh-1;
+	int x2 = x1+w-1;
+	int y2 = y1+h-1;
 	
-	rectfill(dest, x, y, x2, yc, vc(0));
-	rectfill(dest, x, yc, xc, y2, vc(0));
+	rectfill(dest, x1, y1, x2, yc, vc(0));
+	rectfill(dest, x1, yc, xc, y2, vc(0));
 	
-    _allegro_hline(dest, x-2, y-2, x2+2, palette_color[scheme[c1]]);
-    _allegro_vline(dest, x-2, y-2, y2+2, palette_color[scheme[c1]]);
+    _allegro_hline(dest, x1-2, y1-2, x2+2, palette_color[scheme[c1]]);
+    _allegro_hline(dest, x1-1, y1-1, x2+1, palette_color[scheme[c2]]);
     
-    _allegro_hline(dest, x-1, y-1, x2+1, palette_color[scheme[c2]]);
-    _allegro_vline(dest, x-1, y-1, y2+1, palette_color[scheme[c2]]);
+    _allegro_vline(dest, x1-2, y1-2, y2+2, palette_color[scheme[c1]]);
+    _allegro_vline(dest, x1-1, y1-1, y2+1, palette_color[scheme[c2]]);
     
-    _allegro_hline(dest, x-2, y2+2, xc, palette_color[scheme[c3]]);
-    _allegro_vline(dest, x2+2, y-2, yc, palette_color[scheme[c3]]);
-    _allegro_hline(dest, xc, yc, x2+2, palette_color[scheme[c3]]);
-    _allegro_vline(dest, xc, yc, y2+2, palette_color[scheme[c3]]);
-    
-    _allegro_hline(dest, x-1, y2+1, xc, palette_color[scheme[c4]]);
-    _allegro_vline(dest, x2+1, y-1, yc, palette_color[scheme[c4]]);
-    _allegro_hline(dest, xc, yc, x2+1, palette_color[scheme[c4]]);
-    _allegro_vline(dest, xc, yc, y2+1, palette_color[scheme[c4]]);
+    _allegro_hline(dest, x1-2, y2+2, xc+2, palette_color[scheme[c3]]);
+    _allegro_hline(dest, x1-1, y2+1, xc+1, palette_color[scheme[c4]]);
+	
+    _allegro_vline(dest, x2+2, y1-2, yc+2, palette_color[scheme[c3]]);
+    _allegro_vline(dest, x2+1, y1-1, yc+1, palette_color[scheme[c4]]);
+	
+    _allegro_hline(dest, xc+2, yc+2, x2+2, palette_color[scheme[c3]]);
+    _allegro_hline(dest, xc+1, yc+1, x2+1, palette_color[scheme[c4]]);
+	
+    _allegro_vline(dest, xc+2, yc+2, y2+2, palette_color[scheme[c3]]);
+    _allegro_vline(dest, xc+1, yc+1, y2+1, palette_color[scheme[c4]]);
+}
+void jwin_draw_minimap_frame(BITMAP *dest,int x,int y,int w,int h,int scrsz,int style)
+{
+	jwin_draw_frag_frame(dest,x,y,w,h,scrsz*8,scrsz*8,style);
 }
 
 /*  jwin_draw_win:

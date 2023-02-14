@@ -195,6 +195,7 @@ void jwin_set_colors(int32_t *colors);
 
 /* drawing routines */
 void jwin_draw_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t style);
+void jwin_draw_frag_frame(BITMAP* dest, int x1, int y1, int w, int h, int fw, int fh, int style);
 void jwin_draw_minimap_frame(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t scrsz,int32_t style);
 void jwin_draw_win(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame);
 void jwin_draw_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type);
