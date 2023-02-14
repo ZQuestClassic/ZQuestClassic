@@ -5649,7 +5649,6 @@ bool isFavCmdSelected(int32_t cmd)
 	return false;
 }
 
-void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
 void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 {
 	//BG Fill
@@ -5699,8 +5698,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					{
 						if(((Map.Scr(i)->color)&15)>0)
 						{
+							int scl = 2;
+							int woffs = (sqr.w-(sqr.w/scl))/2;
+							int hoffs = (sqr.h-(sqr.h/scl))/2;
 							rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, lc1((Map.Scr(i)->color)&15));
-							rectfill(menu1,sqr.x+3,sqr.y+3,sqr.x+sqr.w-4,sqr.y+sqr.h-4, lc2((Map.Scr(i)->color)&15));
+							rectfill(menu1,sqr.x+woffs,sqr.y+hoffs,sqr.x+sqr.w-1-woffs,sqr.y+sqr.h-1-hoffs, lc2((Map.Scr(i)->color)&15));
 						}
 						else
 						{
@@ -5750,7 +5752,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
 				clear_bitmap(txtbmp);
-				int txtscale = zoomed_minimap ? 2 : 1;
+				int txtscale = zoomed_minimap ? (is_compact ? 2 : 3) : 1;
 				font = lfont_l;
 				
 				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
@@ -5758,13 +5760,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				textprintf_ex(txtbmp,font,spc_m,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
 				textprintf_disabled(txtbmp,font,spc_m+space,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-				bool vertical = !is_compact;
-				if(vertical)
-				{
-					textprintf_ex(txtbmp,font,spc_m+space+spc_s,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X", s);
-					textprintf_ex(txtbmp,font,spc_m+space+spc_s,text_height(font)+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"(%d)", s);
-				}
-				else textprintf_ex(txtbmp,font,spc_m+space+spc_s,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
+				textprintf_ex(txtbmp,font,spc_m+space+spc_s,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
 				masked_stretch_blit(txtbmp, menu1, 0, 0, 256, 64, txt_x, txt_y, 256*txtscale, 64*txtscale);
 				destroy_bitmap(txtbmp);
 			}
@@ -30960,10 +30956,11 @@ void load_size_poses()
 		real_minimap.xscale = 9;
 		real_minimap.yscale = 9;
 		
-		int xwid = real_minimap.tw()*2;
-		int xhei = real_minimap.th()*2;
-		real_minimap_zoomed.set(real_minimap.x, real_minimap.y-xhei, real_minimap.w, real_minimap.h, real_minimap.xscale*3, real_minimap.yscale*3);
+		int upscale_mm = 3;
+		int xwid = real_minimap.tw()*(upscale_mm-1);
+		int xhei = real_minimap.th()*(upscale_mm-1);
 		minimap_zoomed.set(minimap.x, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
+		real_minimap_zoomed.set(minimap_zoomed.x+3, minimap_zoomed.y+5, real_minimap.w, real_minimap.h, real_minimap.xscale*upscale_mm, real_minimap.yscale*upscale_mm);
 		
 		screrrorpos.x = combolist_window.x - 3;
 		screrrorpos.y = layer_panel.y - 16;
@@ -31190,10 +31187,12 @@ void load_size_poses()
 		real_minimap.xscale = 9;
 		real_minimap.yscale = 9;
 		
-		int xwid = real_minimap.tw()*2;
-		int xhei = real_minimap.th()*2;
-		real_minimap_zoomed.set(real_minimap.x, real_minimap.y-xhei, real_minimap.w, real_minimap.h, real_minimap.xscale*3, real_minimap.yscale*3);
-		minimap_zoomed.set(minimap.x, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
+		int upscale_mm = 4;
+		int xwid = real_minimap.tw()*(upscale_mm-1);
+		int xhei = real_minimap.th()*(upscale_mm-1);
+		int zh = minimap.h+xhei+4;
+		minimap_zoomed.set(minimap.x, zq_screen_h-zh, minimap.w+xwid, zh);
+		real_minimap_zoomed.set(minimap_zoomed.x+3, minimap_zoomed.y+5, real_minimap.w, real_minimap.h, real_minimap.xscale*upscale_mm, real_minimap.yscale*upscale_mm);
 		
 		screrrorpos.x = 575;
 		screrrorpos.y = 388;
@@ -31242,49 +31241,26 @@ void load_size_poses()
 		txtoffs_double_2.y = 10;
 		panel_align = 0;
 		
-		itemsqr_pos.x = minimap.x+minimap.w+4;
-		itemsqr_pos.y = panel[0].y+10;
-		itemsqr_pos.w = 4+16;
-		itemsqr_pos.h = 4+16;
-		flagsqr_pos.x = itemsqr_pos.x;
-		flagsqr_pos.y = itemsqr_pos.y+24;
-		flagsqr_pos.w = 4+16;
-		flagsqr_pos.h = 4+16;
-		stairsqr_pos.x = flagsqr_pos.x;
-		stairsqr_pos.y = flagsqr_pos.y+24;
-		stairsqr_pos.w = 4+16;
-		stairsqr_pos.h = 4+16;
-		warparrival_pos.x = stairsqr_pos.x;
-		warparrival_pos.y = stairsqr_pos.y+24;
-		warparrival_pos.w = 4+16;
-		warparrival_pos.h = 4+16;
+		int x2 = minimap.x+minimap.w+4;
+		int x1 = x2 - (20+(8*3)+2);
+		int y1 = panel[0].y+10;
+		int sw = 20, sh = 20;
+		int offs = sh+4;
+		
+		itemsqr_pos.set(x2,y1+(0*offs),sw,sh);
+		flagsqr_pos.set(x2,y1+(1*offs),sw,sh);
+		stairsqr_pos.set(x2,y1+(2*offs),sw,sh);
+		warparrival_pos.set(x2,y1+(6*offs),sw,sh);
 		
 		enemy_prev_pos.x = panel[0].x+14;
 		enemy_prev_pos.y = panel[0].y+12 + minimap.h;
 		enemy_prev_pos.w = 4+(16*4);
 		enemy_prev_pos.h = 4+(16*3);
 		
-		auto x2 = warparrival_pos.x;
-		auto y1 = warparrival_pos.y+24;
-		auto y2 = y1+24;
-		auto x1 = x2 - (20+(8*3)+2);
-		
-		warpret_pos[0].x = x1;
-		warpret_pos[0].y = y1;
-		warpret_pos[0].w = 4+16;
-		warpret_pos[0].h = 4+16;
-		warpret_pos[1].x = x1;
-		warpret_pos[1].y = y2;
-		warpret_pos[1].w = 4+16;
-		warpret_pos[1].h = 4+16;
-		warpret_pos[2].x = x2;
-		warpret_pos[2].y = y1;
-		warpret_pos[2].w = 4+16;
-		warpret_pos[2].h = 4+16;
-		warpret_pos[3].x = x2;
-		warpret_pos[3].y = y2;
-		warpret_pos[3].w = 4+16;
-		warpret_pos[3].h = 4+16;
+		warpret_pos[0].set(x1,y1+(4*offs),sw,sh);
+		warpret_pos[1].set(x1,y1+(5*offs),sw,sh);
+		warpret_pos[2].set(x2,y1+(4*offs),sw,sh);
+		warpret_pos[3].set(x2,y1+(5*offs),sw,sh);
 		
 		auto& last_alias_list = comboaliaslist[num_combo_cols-1];
 		combopool_preview.x=comboaliaslist[0].x;

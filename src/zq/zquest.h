@@ -1211,6 +1211,7 @@ int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
 void debug_pos(size_and_pos const& pos, int color = 0xED);
+void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
 void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick = 2);
 void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
 void draw_ttip(BITMAP* dest);
