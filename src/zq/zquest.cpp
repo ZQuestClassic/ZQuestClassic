@@ -284,15 +284,20 @@ size_and_pos combo_preview_text2;
 size_and_pos combolist_window;
 size_and_pos drawmode_btn;
 size_and_pos panel[9];
-size_and_pos favorites_window;
-size_and_pos favorites_list;
-size_and_pos commands_window;
-size_and_pos commands_list;
 size_and_pos layer_panel;
 
+size_and_pos favorites_window;
+size_and_pos favorites_list;
 size_and_pos favorites_x;
 size_and_pos favorites_infobtn;
-size_and_pos zoomfav_btn;
+size_and_pos favorites_zoombtn;
+
+size_and_pos commands_window;
+size_and_pos commands_list;
+size_and_pos commands_x;
+size_and_pos commands_infobtn;
+size_and_pos commands_zoombtn;
+size_and_pos commands_txt;
 
 size_and_pos tooltip_box;
 size_and_pos tooltip_box2;
@@ -334,7 +339,7 @@ void write_fav_command(int ind, int val)
 	favorite_commands[ind] = val;
     char buf[32];
 	sprintf(buf, "command%02d", ind+1);
-	zc_set_config("zquest", buf, val);
+	zc_set_config("favcmd", buf, val);
 }
 
 #define MAXPOOLCOMBOS MAXFAVORITECOMBOS
@@ -431,6 +436,8 @@ bool large_merged_combopane = false;
 bool compact_merged_combopane = true;
 bool large_zoomed_fav = false;
 bool compact_zoomed_fav = true;
+bool large_zoomed_cmd = false;
+bool compact_zoomed_cmd = true;
 bool zoomed_minimap = false;
 int combo_col_scale = 1;
 
@@ -912,7 +919,7 @@ void load_recent_quests()
 	for(auto q = 0; q < 10; ++q)
 	{
 		sprintf(ptr, "%d", q); //increment the configname value
-		char const* qst_str = zc_get_config("zquest",configname,nullptr);
+		char const* qst_str = zc_get_config("recent",configname,nullptr);
 		if(qst_str[0])
 		{
 			strncpy(rec_menu_fullpaths[q], qst_str, 511);
@@ -941,7 +948,7 @@ void write_recent_quests()
 	for(auto q = 0; q < 10; ++q)
 	{
 		sprintf(ptr, "%d", q); //increment the configname value
-		zc_set_config("zquest",configname,(rec_menu_fullpaths[q][0]!='-') ? rec_menu_fullpaths[q] : nullptr);
+		zc_set_config("recent",configname,(rec_menu_fullpaths[q][0]!='-') ? rec_menu_fullpaths[q] : nullptr);
 	}
 }
 
@@ -1033,6 +1040,20 @@ void toggle_favzoom_mode()
 	{
 		large_zoomed_fav = !large_zoomed_fav;
 		zc_set_config("ZQ_GUI","zoom_fav_large",large_zoomed_fav?1:0);
+	}
+	reload_zq_gui();
+}
+void toggle_cmdzoom_mode()
+{
+	if(is_compact)
+	{
+		compact_zoomed_cmd = !compact_zoomed_cmd; 
+		zc_set_config("ZQ_GUI","zoom_cmd_compact",compact_zoomed_cmd?1:0);
+	}
+	else
+	{
+		large_zoomed_cmd = !large_zoomed_cmd;
+		zc_set_config("ZQ_GUI","zoom_cmd_large",large_zoomed_cmd?1:0);
 	}
 	reload_zq_gui();
 }
@@ -6659,7 +6680,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				destroy_bitmap(subb);
 				
 				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				draw_text_button(menu1,zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
+				draw_text_button(menu1,favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
 				draw_text_button(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),0,true);
 				draw_text_button(menu1,favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),0,true);
 			}
@@ -6671,7 +6692,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
 			jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*commands_list.xscale)+4,(commands_list.h*commands_list.yscale)+4, FR_DEEP);
 			rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*commands_list.xscale)-1,commands_list.y+(commands_list.h*commands_list.yscale)-1,jwin_pal[jcBOXFG]);
-			//textprintf_ex(menu1,font,commands_list.x-2,commands_list.y-14,jwin_pal[jcBOXFG],-1,"Favorite Commands");
 			font=get_custom_font(CFONT_FAVCMD);
 			
 			for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
@@ -6684,6 +6704,17 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					(favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," "))?catchall_string[Map.CurrScr()->room]:commands[favorite_commands[cmd]].name,
 					(isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
 			}
+			
+			font = lfont_l;
+			if(commands_txt.x > 0)
+			{
+				gui_textout_ln(menu1, lfont_l, (ucc*)"Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
+			}
+			
+			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
+			draw_text_button(menu1,commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
+			draw_text_button(menu1,commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),0,true);
+			draw_text_button(menu1,commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),0,true);
 		}
 		break;
 	}
@@ -9512,6 +9543,652 @@ static int32_t comboa_cnt=0;
 static int32_t combop_cnt=0;
 static int32_t layer_cnt=0;
 
+bool has_command_info(int cmd)
+{
+	switch(cmd)
+	{
+		case cmdAbout:
+		case cmdChangeTrack:
+		case cmdCheats:
+		case cmdCSetFix:
+		case cmdDrawingModeAlias:
+		case cmdEditComboAlias:
+		case cmdCombos:
+		case cmdCompileScript:
+		case cmdCopy:
+		case cmdDefault_Combos:
+		case cmdDeleteMap:
+		case cmdDelete:
+		case cmdDmaps:
+		case cmdDoorCombos:
+		case cmdDoors:
+		case cmdPasteDoors:
+		case cmdDrawingModeDungeon:
+		case cmdEndString:
+		case cmdCustomEnemies:
+		case cmdDefault_Guys:
+		case cmdEnemies:
+		case cmdPasteEnemies:
+		case cmdCmdExit:
+		case cmdExport_Combos:
+		case cmdExport_DMaps:
+		case cmdExport_Map:
+		case cmdExport_Pals:
+		case cmdExport_ZQT:
+		case cmdExport_Msgs:
+		case cmdExport_Subscreen:
+		case cmdExport_Tiles:
+		case cmdExport_UnencodedQuest:
+		case cmdExport_ZGP:
+		case cmdFlags:
+		case cmdPasteFFCombos:
+		case cmdSelectFFCombo:
+		case cmdFullScreen:
+		case cmdIcons:
+		case cmdGotoMap:
+		case cmdPasteGuy:
+		case cmdHeader:
+		case cmdHelp:
+		case cmdImportZASM:
+		case cmdImport_Combos:
+		case cmdImport_DMaps:
+		case cmdImport_ZGP:
+		case cmdImport_Map:
+		case cmdImport_Pals:
+		case cmdImport_ZQT:
+		case cmdImport_Msgs:
+		case cmdImport_Subscreen:
+		case cmdImport_Tiles:
+		case cmdImport_UnencodedQuest:
+		case cmdInfoTypes:
+		case cmdInit:
+		case cmdIntegrityCheckAll:
+		case cmdIntegrityCheckRooms:
+		case cmdIntegrityCheckWarps:
+		case cmdItem:
+		case cmdCustomItems:
+		case cmdLayers:
+		case cmdPasteLayers:
+		case cmdColors_Levels:
+		case cmdCustomHero:
+		case cmdUsedCombos:
+		case cmdColors_Main:
+		case cmdDefault_MapStyles:
+		case cmdMapStyles:
+		case cmdSubscreen:
+		case cmdMidis:
+		case cmdMiscColors:
+		case cmdNew:
+		case cmdDrawingModeNormal:
+		case cmdOpen:
+		case cmdOptions:
+		case cmdScreenPalette:
+		case cmdDefault_Pals:
+		case cmdPaste:
+		case cmdPasteAll:
+		case cmdPasteAllToAll:
+		case cmdPasteToAll:
+		case cmdPath:
+		case cmdPlayMusic:
+		case cmdX:
+		case cmdQuestTemplates:
+		case cmdReTemplate:
+		case cmdDrawingModeRelational:
+		case cmdRevert:
+		case cmdRType:
+		case cmdPasteRoom:
+		case cmdSave:
+		case cmdSaveAs:
+		case cmdPasteScreenData:
+		case cmdScrData:
+		case cmdPasteSecretCombos:
+		case cmdSecretCombo:
+		case cmdEditSFX:
+		case cmdShopTypes:
+		case cmdSideWarp:
+		case cmdColors_Sprites:
+		case cmdDefault_Weapons:
+		case cmdStopMusic:
+		case cmdStrings:
+		case cmdEditSubscreens:
+		case cmdSnapshot:
+		case cmdPlayTune:
+		case cmdTemplate:
+		case cmdTemplates:
+		case cmdTileWarp:
+		case cmdDefault_Tiles:
+		case cmdTiles:
+		case cmdToggleGrid:
+		case cmdTriPieces:
+		case cmdUnderCombo:
+		case cmdPasteUnderCombo:
+		case cmdUndo:
+		case cmdZQVidMode:
+		case cmdViewMap:
+		case cmdShowPal:
+		case cmdViewPic:
+		case cmdPasteWarpLocations:
+		case cmdWarpRings:
+		case cmdPasteWarps:
+		case cmdCustomWpns:
+		case cmdShowDark:
+		case cmdShowWalkable:
+		case cmdShowFlags:
+		case cmdShowCSet:
+		case cmdShowType:
+		case cmdDefault_Items:
+		case cmdItemDropSets:
+		case cmdPastePalette:
+		case cmdQuestRules:
+		case cmdComboLocations:
+		case cmdComboTypeLocations:
+		case cmdEnemyLocations:
+		case cmdItemLocations:
+		case cmdScriptLocations:
+		case cmdWhatLinksHere:
+		case cmdOnClearQuestFilepath:
+		case cmdFindBuggyNext:
+		case cmdZScriptRules:
+		case cmdExportZASM:
+		case cmdZScriptCompilerRules:
+		case cmdScreenScript:
+		case cmdScreenSnapshot:
+		case cmdViewL2BG:
+		case cmdViewL3BG:
+		case cmdBottleTypes:
+		case cmdBottleShopTypes:
+		case cmdWaterSolidFix:
+		case cmdEffectSquareFix:
+		case cmdTestQuest:
+		case cmdRedo:
+		case cmdDrawingModePool:
+		case cmdQRSearch:
+			return true;
+	}
+	return false;
+}
+std::string get_command_infostr(int cmd)
+{
+	std::string infostr;
+	switch(cmd)
+	{
+		case cmdAbout:
+			infostr = "Shows the program information";
+			break;
+		case cmdChangeTrack:
+			infostr = "Change the track of the currently playing music";
+			break;
+		case cmdCheats:
+			infostr = "Allows changing the quest's Cheat Codes";
+			break;
+		case cmdCSetFix:
+			infostr = "Opens the CSet Fix tool";
+			break;
+		case cmdDrawingModeAlias:
+			infostr = "Switches to Alias drawing mode";
+			break;
+		case cmdEditComboAlias:
+			infostr = "Edits the current combo alias";
+			break;
+		case cmdCombos:
+			infostr = "Opens the combo pages";
+			break;
+		case cmdCompileScript:
+			infostr = "Opens the ZScript Compile dialog";
+			break;
+		case cmdCopy:
+			infostr = "Copies the current screen";
+			break;
+		case cmdDefault_Combos:
+			infostr = "Reset the quest's Combos to default";
+			break;
+		case cmdDeleteMap:
+			infostr = "Clear the current Map";
+			break;
+		case cmdDelete:
+			infostr = "Clear the current Screen";
+			break;
+		case cmdDmaps:
+			infostr = "Open the DMap Editor";
+			break;
+		case cmdDoorCombos:
+			infostr = "Edit the quest's NES Door Combo Sets";
+			break;
+		case cmdDoors:
+			infostr = "Edit the screen's NES Doors";
+			break;
+		case cmdPasteDoors:
+			infostr = "Paste the NES Doors from the copied screen";
+			break;
+		case cmdDrawingModeDungeon:
+			infostr = "Switches to Dungeon Carving drawing mode";
+			break;
+		case cmdEndString:
+			infostr = "Allows selecting the game win string";
+			break;
+		case cmdCustomEnemies:
+			infostr = "Open the Enemy Editor";
+			break;
+		case cmdDefault_Guys:
+			infostr = "Reset Enemy Editor data to the default quest's data";
+			break;
+		case cmdEnemies:
+			infostr = "Set the screen's Enemies";
+			break;
+		case cmdPasteEnemies:
+			infostr = "Paste the Enemies from the copied screen";
+			break;
+		case cmdCmdExit:
+			infostr = "Exit ZQuest";
+			break;
+		case cmdExport_Combos:
+			infostr = "Export Combos";
+			break;
+		case cmdExport_DMaps:
+			infostr = "Export DMaps";
+			break;
+		case cmdExport_Map:
+			infostr = "Export Maps";
+			break;
+		case cmdExport_Pals:
+			infostr = "Export Palettes";
+			break;
+		case cmdExport_ZQT:
+			infostr = "Export Quest Template";
+			break;
+		case cmdExport_Msgs:
+			infostr = "Export Strings";
+			break;
+		case cmdExport_Subscreen:
+			infostr = "Export Subscreens";
+			break;
+		case cmdExport_Tiles:
+			infostr = "Export Tiles";
+			break;
+		case cmdExport_UnencodedQuest:
+			infostr = "Export Unencoded Quest File";
+			break;
+		case cmdExport_ZGP:
+			infostr = "Export Graphics Package";
+			break;
+		case cmdFlags:
+			infostr = "Place mapflags";
+			break;
+		case cmdPasteFFCombos:
+			infostr = "Paste FFCs from the copied screen";
+			break;
+		case cmdSelectFFCombo:
+			infostr = "Edit this screen's FFCs";
+			break;
+		case cmdFullScreen:
+			infostr = "Toggle Fullscreen";
+			break;
+		case cmdIcons:
+			infostr = "Edit the quest's Game Icons";
+			break;
+		case cmdGotoMap:
+			infostr = "Go to a specified Map";
+			break;
+		case cmdPasteGuy:
+			infostr = "Paste the room's Guy and String from the copied screen";
+			break;
+		case cmdHeader:
+			infostr = "Edit the quest's Header information";
+			break;
+		case cmdHelp:
+			infostr = "Open the ZQ Help Popup (Outdated)";
+			break;
+		case cmdImportZASM:
+			infostr = "Import ZASM script assembly files";
+			break;
+		case cmdImport_Combos:
+			infostr = "Import Combos";
+			break;
+		case cmdImport_DMaps:
+			infostr = "Import DMaps";
+			break;
+		case cmdImport_ZGP:
+			infostr = "Import Graphics Packs";
+			break;
+		case cmdImport_Map:
+			infostr = "Import Maps";
+			break;
+		case cmdImport_Pals:
+			infostr = "Import Palettes";
+			break;
+		case cmdImport_ZQT:
+			infostr = "Import Quest Templates";
+			break;
+		case cmdImport_Msgs:
+			infostr = "Import Strings";
+			break;
+		case cmdImport_Subscreen:
+			infostr = "Import Subscreens";
+			break;
+		case cmdImport_Tiles:
+			infostr = "Import Tiles";
+			break;
+		case cmdImport_UnencodedQuest:
+			infostr = "Import Unencoded Quests";
+			break;
+		case cmdInfoTypes:
+			infostr = "Edit Info Shop info";
+			break;
+		case cmdInit:
+			infostr = "Edit quest Init Data";
+			break;
+		case cmdIntegrityCheckAll:
+			infostr = "Check for misc possible quest issues";
+			break;
+		case cmdIntegrityCheckRooms:
+			infostr = "Check for misc possible quest issues, relating to rooms";
+			break;
+		case cmdIntegrityCheckWarps:
+			infostr = "Check for misc possible quest issues, relating to warps";
+			break;
+		case cmdItem:
+			infostr = "Set the screen item";
+			break;
+		case cmdCustomItems:
+			infostr = "Open the Item Editor";
+			break;
+		case cmdLayers:
+			infostr = "Edit the screen's Layers";
+			break;
+		case cmdPasteLayers:
+			infostr = "Paste the Layers from the copied screen";
+			break;
+		case cmdColors_Levels:
+			infostr = "Open the Level Palettes";
+			break;
+		case cmdCustomHero:
+			infostr = "Edit the Player's sprites";
+			break;
+		case cmdUsedCombos:
+			infostr = "List the combos used on the current screen";
+			break;
+		case cmdColors_Main:
+			infostr = "Open the Main Palette";
+			break;
+		case cmdDefault_MapStyles:
+			infostr = "Reset the Map Styles to default";
+			break;
+		case cmdMapStyles:
+			infostr = "Edit the Map Styles";
+			break;
+		case cmdSubscreen:
+			infostr = "Edit Subscreens";
+			break;
+		case cmdMidis:
+			infostr = "Edit MIDIs";
+			break;
+		case cmdMiscColors:
+			infostr = "Edit the quest's Misc Colors";
+			break;
+		case cmdNew:
+			infostr = "Create a new .qst";
+			break;
+		case cmdDrawingModeNormal:
+			infostr = "Revert to normal drawing mode";
+			break;
+		case cmdOpen:
+			infostr = "Open a .qst file";
+			break;
+		case cmdOptions:
+			infostr = "Open ZQ's Options dialog";
+			break;
+		case cmdScreenPalette:
+			infostr = "Change the current screen's Palette, as previewed in ZQ";
+			break;
+		case cmdDefault_Pals:
+			infostr = "Default the quest's Palettes";
+			break;
+		case cmdPaste:
+			infostr = "Paste most of the copied screen";
+			break;
+		case cmdPasteAll:
+			infostr = "Paste everything from the copied screen";
+			break;
+		case cmdPasteAllToAll:
+			infostr = "Paste everything from the copied screen, to every screen on this map";
+			break;
+		case cmdPasteToAll:
+			infostr = "Paste most of the copied screen, to every screen on this map";
+			break;
+		case cmdPath:
+			infostr = "Edit the screen's Maze Path";
+			break;
+		case cmdPlayMusic:
+			infostr = "Play a music file in ZQ while you edit";
+			break;
+		case cmdX:
+			infostr = "Enable Preview Mode";
+			break;
+		case cmdQuestTemplates:
+			infostr = "Select a Quest Template";
+			break;
+		case cmdReTemplate:
+			infostr = "??"; //!TODO Check this command out
+			break;
+		case cmdDrawingModeRelational:
+			infostr = "Switches to Relational drawing mode";
+			break;
+		case cmdRevert:
+			infostr = "Reverts changes made to the quest file, re-loading it's last save";
+			break;
+		case cmdRType:
+			infostr = "Edit the screen's Room Data";
+			break;
+		case cmdPasteRoom:
+			infostr = "Paste the Room Data from the copied screen";
+			break;
+		case cmdSave:
+			infostr = "Save the quest";
+			break;
+		case cmdSaveAs:
+			infostr = "Save the quest as a new filename";
+			break;
+		case cmdPasteScreenData:
+			infostr = "Paste the Screen Data from the copied screen";
+			break;
+		case cmdScrData:
+			infostr = "Edit the current screen's Screen Data";
+			break;
+		case cmdPasteSecretCombos:
+			infostr = "Paste the Secret Combos from the copied screen";
+			break;
+		case cmdSecretCombo:
+			infostr = "Edit the current screen's Secret Combos";
+			break;
+		case cmdEditSFX:
+			infostr = "Edit the quest's SFX Data";
+			break;
+		case cmdShopTypes:
+			infostr = "Edit the Shop Types";
+			break;
+		case cmdSideWarp:
+			infostr = "Edit the current screen's Side Warps";
+			break;
+		case cmdColors_Sprites:
+			infostr = "Open the Sprite Palettes";
+			break;
+		case cmdDefault_Weapons:
+			infostr = "Default the quest's Sprite Data";
+			break;
+		case cmdStopMusic:
+			infostr = "Stop playing music";
+			break;
+		case cmdStrings:
+			infostr = "Open the String Editor";
+			break;
+		case cmdEditSubscreens:
+			infostr = "Edit the quest's Subscreens";
+			break;
+		case cmdSnapshot:
+			infostr = "Take a screenshot";
+			break;
+		case cmdPlayTune:
+			infostr = "Play built-in ambient music";
+			break;
+		case cmdTemplate:
+			infostr = "Create the current screen from Screen 0x83";
+			break;
+		case cmdTemplates:
+			infostr = "Load a .zqt file";
+			break;
+		case cmdTileWarp:
+			infostr = "Edit the current screen's Tile Warps";
+			break;
+		case cmdDefault_Tiles:
+			infostr = "Reset the quest's Tiles to default";
+			break;
+		case cmdTiles:
+			infostr = "Opens the Tile Pages";
+			break;
+		case cmdToggleGrid:
+			infostr = "Toggle the Grid Lines over the screen area";
+			break;
+		case cmdTriPieces:
+			infostr = "Arrange the MCGuffins on your subscreen";
+			break;
+		case cmdUnderCombo:
+			infostr = "Edit the screen's Undercombo";
+			break;
+		case cmdPasteUnderCombo:
+			infostr = "Paste the Undercombo from the copied screen";
+			break;
+		case cmdUndo:
+			infostr = "Undo the last edit";
+			break;
+		case cmdZQVidMode:
+			infostr = "Adjust the resolution of the ZQ window";
+			break;
+		case cmdViewMap:
+			infostr = "View the full map";
+			break;
+		case cmdShowPal:
+			infostr = "View the quest's Palette";
+			break;
+		case cmdViewPic:
+			infostr = "View image files";
+			break;
+		case cmdPasteWarpLocations:
+			infostr = "Paste warp return squares from the copied screen";
+			break;
+		case cmdWarpRings:
+			infostr = "Edit the quest's Warp Rings";
+			break;
+		case cmdPasteWarps:
+			infostr = "Paste the Tile and Side warps from the copied screen";
+			break;
+		case cmdCustomWpns:
+			infostr = "Edit Sprite Data";
+			break;
+		case cmdShowDark:
+			infostr = "Toggle previewing dark rooms";
+			break;
+		case cmdShowWalkable:
+			infostr = "Draw solidity masks on the screen";
+			break;
+		case cmdShowFlags:
+			infostr = "Draw mapflags placed on the screen";
+			break;
+		case cmdShowCSet:
+			infostr = "Show CSet numbers placed on the screen";
+			break;
+		case cmdShowType:
+			infostr = "Show combo type numbers placed on the screen";
+			break;
+		case cmdDefault_Items:
+			infostr = "Reset the quest's Items to default";
+			break;
+		case cmdItemDropSets:
+			infostr = "Edit Dropsets";
+			break;
+		case cmdPastePalette:
+			infostr = "Paste the ZQ Screen Palette from the copied screen";
+			break;
+		case cmdQuestRules:
+			infostr = "Edit Quest Rules";
+			break;
+		case cmdComboLocations:
+			infostr = "List what locations the currently selected combo appears in";
+			break;
+		case cmdComboTypeLocations:
+			infostr = "List what locations various combo types appear in";
+			break;
+		case cmdEnemyLocations:
+			infostr = "List what screens enemies are placed on";
+			break;
+		case cmdItemLocations:
+			infostr = "List what items are placed on screens";
+			break;
+		case cmdScriptLocations:
+			infostr = "List what FFC Scripts are placed on screens";
+			break;
+		case cmdWhatLinksHere:
+			infostr = "List what other screens warp to the current screen, or use the current screen as a layer";
+			break;
+		case cmdOnClearQuestFilepath:
+			infostr = "Reset the filepath that file browsers use";
+			break;
+		case cmdFindBuggyNext:
+			infostr = "Find instances of ->Next combos using buggy secrets behavior";
+			break;
+		case cmdZScriptRules:
+			infostr = "Open ZScript Quest Rules";
+			break;
+		case cmdExportZASM:
+			infostr = "Export ZASM";
+			break;
+		case cmdZScriptCompilerRules:
+			infostr = "Edit Compiler Settings";
+			break;
+		case cmdScreenScript:
+			infostr = "Edit the current screen's Script";
+			break;
+		case cmdScreenSnapshot:
+			infostr = "Take a screenshot of just the screen area of the screen";
+			break;
+		case cmdViewL2BG:
+			infostr = "Toggle viewing Layer 2 as background";
+			break;
+		case cmdViewL3BG:
+			infostr = "Toggle viewing Layer 3 as background";
+			break;
+		case cmdBottleTypes:
+			infostr = "Edit the types of things that can be put in Bottles";
+			break;
+		case cmdBottleShopTypes:
+			infostr = "Edit the types of bottle shops";
+			break;
+		case cmdWaterSolidFix:
+			infostr = "Fix solid water";
+			break;
+		case cmdEffectSquareFix:
+			infostr = "Fix effect squares";
+			break;
+		case cmdTestQuest:
+			infostr = "Test your quest";
+			break;
+		case cmdRedo:
+			infostr = "Redo the last undone change";
+			break;
+		case cmdDrawingModePool:
+			infostr = "Switches to Combo Pool drawing mode";
+			break;
+		case cmdQRSearch:
+			infostr = "Search all Quest Rules";
+			break;
+	}
+	return infostr;
+}
+void show_command_info(int cmd)
+{
+	std::string infostr = get_command_infostr(cmd);
+	InfoDialog(commands[cmd].name, infostr).show();
+}
+void onCmdInfo();
 static DIALOG clist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -9520,8 +10197,14 @@ static DIALOG clist_dlg[] =
     { jwin_abclist_proc,       72-12-4,   60+4,   176+24+8,  92+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
     { jwin_button_proc,     90,   163,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,     170,  163,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_func_button_proc,     240,  163,  20,   21,   vc(14),  vc(1),  0,      0,     0,             0, (void *) "?", NULL, (void*)onCmdInfo },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
+void onCmdInfo()
+{
+	int cmd = bic[clist_dlg[2].d1].i;
+	show_command_info(cmd);
+}
 
 
 command_struct bic[cmdMAX];
@@ -10055,10 +10738,10 @@ void domouse()
 		}
 		if(draw_mode != dm_cpool)
 		{
-			if(zoomfav_btn.rect(x,y))
+			if(favorites_zoombtn.rect(x,y))
 			{
 				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				if(do_text_button(zoomfav_btn.x,zoomfav_btn.y,zoomfav_btn.w,zoomfav_btn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+				if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
 				{
 					toggle_favzoom_mode();
 				}
@@ -10139,6 +10822,52 @@ void domouse()
 				}
 				goto domouse_doneclick;
 			}
+		}
+		if(commands_zoombtn.rect(x,y))
+		{
+			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
+			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			{
+				toggle_cmdzoom_mode();
+			}
+			goto domouse_doneclick;
+		}
+		else if(commands_x.rect(x,y))
+		{
+			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),true))
+			{
+				AlertDialog("Clear Favorite Commands",
+					"Are you sure you want to clear all favorite commands?",
+					[&](bool ret,bool)
+					{
+						if(ret)
+						{
+							char buf[20];
+							for(auto q = 0; q < MAXFAVORITECOMMANDS; ++q)
+							{
+								write_fav_command(q,0);
+							}
+							refresh(rFAVORITES);
+						}
+					}).show();
+			}
+			goto domouse_doneclick;
+		}
+		else if(commands_infobtn.rect(x,y))
+		{
+			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),true))
+			{
+				InfoDialog("Favorite Commands",
+					"On LClick (empty): Choose a favorite command"
+					"\nOn LClick: Runs the favorite command"
+					"\nShift+Click: Choose a favorite command"
+					"\nRClick: Choose a favorite command"
+					"\nCtrl+Click: Clears clicked command"
+					"\nAlt+Click: Shows info on the favorite command"
+					"\n\nClick the Zoom button (+/-) to toggle zoom level"
+					"\nClick the X button to clear all favorite commands").show();
+			}
+			goto domouse_doneclick;
 		}
 		font=tfont;
 		
@@ -10717,7 +11446,6 @@ void domouse()
 					
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
-						comboa_cnt = combo_apos;
 						onEditComboAlias();
 						redraw|=rALL;
 					}
@@ -10987,7 +11715,6 @@ void domouse()
 						case 1: //Edit Combo/Alias
 							if(draw_mode == dm_alias)
 							{
-								comboa_cnt = combo_apos;
 								onEditComboAlias();
 							}
 							else
@@ -11041,9 +11768,10 @@ void domouse()
 		{
 			bool shift=(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 			bool ctrl=(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
+			bool alt=(key[KEY_ALT] || key[KEY_ALTGR]);
+			bool dis = commands[favorite_commands[cmd]].flags==D_DISABLED;
 			auto& btn = *commands_list.subsquare(cmd);
-			
-			if(commands[favorite_commands[cmd]].flags!=D_DISABLED||(shift||ctrl))
+			if(!dis||rclick||shift||ctrl||alt)
 			{
 				FONT *tfont=font;
 				font=get_custom_font(CFONT_FAVCMD);
@@ -11056,26 +11784,24 @@ void domouse()
 					true))
 				{
 					font=tfont;
-					if(lclick)
+					if(alt)
 					{
-						if(ctrl)
-						{
-							write_fav_command(cmd,0);
-						}
-						else if(shift || favorite_commands[cmd]==0)
-						{
-							write_fav_command(cmd,onCommand(favorite_commands[cmd]));
-						}
-						else
-						{
-							int32_t (*pfun)();
-							pfun=commands[favorite_commands[cmd]].command;
-							pfun();
-						}
+						if(has_command_info(favorite_commands[cmd]))
+							show_command_info(favorite_commands[cmd]);
 					}
-					else if(rclick)
+					else if(ctrl)
+					{
+						write_fav_command(cmd,0);
+					}
+					else if(rclick || shift || favorite_commands[cmd]==0)
 					{
 						write_fav_command(cmd,onCommand(favorite_commands[cmd]));
+					}
+					else
+					{
+						int32_t (*pfun)();
+						pfun=commands[favorite_commands[cmd]].command;
+						pfun();
 					}
 				}
 				
@@ -22777,6 +23503,7 @@ int32_t onEditComboPool()
 }
 int32_t onEditComboAlias()
 {
+    comboa_cnt = combo_apos;
     reset_combo_animations();
     reset_combo_animations2();
     
@@ -22941,7 +23668,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         int32_t y2 = y+int32_t(55*1.5);
         int32_t yd = 9;
         
-        rectfill(screen,xd,y2,x+196*2,y+127*2,jwin_pal[jcBOX]);
+        rectfill(screen,xd,y2,xd+x2+100,y2+yd*14,jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
         textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getData());
@@ -30038,6 +30765,8 @@ int32_t main(int32_t argc,char **argv)
 	
 	large_zoomed_fav = zc_get_config("ZQ_GUI","zoom_fav_large",0);
 	compact_zoomed_fav = zc_get_config("ZQ_GUI","zoom_fav_compact",1);
+	large_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_large",1);
+	compact_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_compact",1);
 	
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
@@ -30123,7 +30852,7 @@ int32_t main(int32_t argc,char **argv)
 	for(int32_t x=0; x<MAXFAVORITECOMMANDS; ++x)
 	{
 		sprintf(cmdnametitle, "command%02d", x+1);
-		favorite_commands[x]=zc_get_config("zquest",cmdnametitle,0);
+		favorite_commands[x]=zc_get_config("favcmd",cmdnametitle,0);
 		if(favorite_commands[x] >= cmdMAX || favorite_commands[x] < 0)
 		{
 			favorite_commands[x] = 0;
@@ -30812,7 +31541,6 @@ void load_size_poses()
 	jwin_menu_proc(MSG_START, &dialogs[0], 0);
 	
 	commands_list.xscale = command_buttonwidth;
-	//commands_list.yscale = command_buttonheight;
 	commands_list.yscale = 10+text_height(favcmdfont);
 	
 	auto drawmode_wid = 64;
@@ -30985,14 +31713,34 @@ void load_size_poses()
 		
 		commands_list.w=4;
 		
-		commands_window.w=commands_list.w*commands_list.xscale+16;
+		int bh = 14;
+		int bw = 26;
+		commands_window.w=commands_list.w*commands_list.xscale+10+bw;
 		commands_window.x=combolist_window.x-commands_window.w;
 		commands_window.y=layer_panel.y+layer_panel.h;
 		commands_window.h=zq_screen_h-commands_window.y;
+		int bx = commands_window.x+2;
 		
-		commands_list.h=(zq_screen_h - (commands_window.y+4)) / commands_list.yscale;
-		commands_list.x=commands_window.x+8;
-		commands_list.y=commands_window.y+(commands_window.h-(commands_list.h*commands_list.yscale))/2;
+		commands_list.y=commands_window.y+4;
+		commands_list.h=(zq_screen_h - commands_list.y) / commands_list.yscale;
+		commands_list.x=bx+bw;
+		
+		commands_zoombtn.w = bw;
+		commands_zoombtn.h = bh;
+		commands_zoombtn.x = bx;
+		commands_zoombtn.y = commands_list.y;
+		
+		commands_infobtn.w = bw;
+		commands_infobtn.h = bh;
+		commands_infobtn.x = bx;
+		commands_infobtn.y = commands_zoombtn.y + commands_infobtn.h;
+		
+		commands_x.w = bw;
+		commands_x.h = bh;
+		commands_x.x = bx;
+		commands_x.y = commands_infobtn.y + commands_x.h;
+		
+		commands_txt.clear();
 		
 		panel[0].w = commands_window.x - panel[0].x;
 		panel[8].x = 0;
@@ -31056,7 +31804,7 @@ void load_size_poses()
 		
 		favorites_x.w = 17;
 		favorites_infobtn.w = 17;
-		zoomfav_btn.w = 17;
+		favorites_zoombtn.w = 17;
 	}
 	else
 	{
@@ -31222,9 +31970,38 @@ void load_size_poses()
 		commands_window.y=panel[0].y;
 		commands_window.h=zq_screen_h-commands_window.y;
 		
-		commands_list.h=(zq_screen_h - (commands_window.y+4)) / commands_list.yscale;
+		int bh = 16;
+		int by = commands_window.y+4;
+		commands_list.y=by+bh;
+		commands_list.h=(zq_screen_h - commands_list.y) / commands_list.yscale;
 		commands_list.x=commands_window.x+8;
-		commands_list.y=commands_window.y+(commands_window.h-(commands_list.h*commands_list.yscale))/2;
+		
+		commands_x.w = 20;
+		commands_x.h = bh;
+		commands_x.x = commands_list.x + commands_list.tw() - commands_x.w;
+		commands_x.y = by;
+		
+		commands_infobtn.w = 20;
+		commands_infobtn.h = bh;
+		commands_infobtn.x = commands_x.x - commands_infobtn.w;
+		commands_infobtn.y = by;
+		
+		commands_zoombtn.w = 20;
+		commands_zoombtn.h = bh;
+		commands_zoombtn.x = commands_infobtn.x - commands_zoombtn.w;
+		commands_zoombtn.y = by;
+		
+		commands_txt.x = commands_list.x;
+		commands_txt.y = by+(bh-text_height(lfont_l))/2;
+		
+		favorites_x.x = favorites_window.x + favorites_window.w - favorites_x.w - 2;
+		favorites_x.y = favorites_list.y-15;
+		
+		favorites_infobtn.x = favorites_x.x - favorites_infobtn.w;
+		favorites_infobtn.y = favorites_x.y;
+		
+		favorites_zoombtn.x = favorites_infobtn.x - favorites_zoombtn.w;
+		favorites_zoombtn.y = favorites_infobtn.y;
 		
 		//buttons panel
 		panel[0].x = 0;
@@ -31284,11 +32061,10 @@ void load_size_poses()
 		
 		favorites_x.w = 30;
 		favorites_infobtn.w = 30;
-		zoomfav_btn.w = 30;
+		favorites_zoombtn.w = 30;
 	}
 	//Same in all modes
 	{
-		
 		favorites_x.h = 14;
 		favorites_x.x = favorites_window.x + favorites_window.w - favorites_x.w - 2;
 		favorites_x.y = favorites_list.y-15;
@@ -31297,10 +32073,16 @@ void load_size_poses()
 		favorites_infobtn.x = favorites_x.x - favorites_infobtn.w;
 		favorites_infobtn.y = favorites_x.y;
 		
-		zoomfav_btn.h = favorites_infobtn.h;
-		zoomfav_btn.x = favorites_infobtn.x - zoomfav_btn.w;
-		zoomfav_btn.y = favorites_infobtn.y;
+		favorites_zoombtn.h = favorites_infobtn.h;
+		favorites_zoombtn.x = favorites_infobtn.x - favorites_zoombtn.w;
+		favorites_zoombtn.y = favorites_infobtn.y;
 		
+		bool zoomed_cmd = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
+		if(zoomed_cmd)
+		{
+			commands_list.w /= 2;
+			commands_list.xscale *= 2;
+		}
 	}
 	//Dialog popups
 	{
@@ -32556,7 +33338,7 @@ command_pair commands[cmdMAX]=
     { "Report: Item Locations",             0, (intF) onItemLocationReport },
     { "Report: Script Locations",           0, (intF) onScriptLocationReport },
     { "Report: What Links Here",            0, (intF) onWhatWarpsReport },
-    { "Report: Integrity Check",            0, (intF) onIntegrityCheckAll },
+    { " Report: Integrity Check",            0, (intF) onIntegrityCheckAll },
     { " Save ZQuest Settings",              0, NULL },
     { "Clear Quest Filepath",               0, (intF) onClearQuestFilepath },
     { "Find Buggy Next->",                  0, (intF) onBuggedNextComboLocationReport },
