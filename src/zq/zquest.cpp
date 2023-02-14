@@ -1551,58 +1551,17 @@ void set_console_state()
 	SETFLAG(etc_menu[13].flags, D_SELECTED, console_is_open);
 }
 
-MENU the_menu_large_old[] =
-{
-    
-    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
-    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
-    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
-    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
-    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
-    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    { (char *)"Et&c",                       NULL, (MENU *) etc_menu,        0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 MENU the_menu[] =
 {
-    { (char *)"Z&C",                       NULL, (MENU *) etc_menu,        0,            NULL   },
     { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
     { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
     { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
     { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
     { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
     { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
-MENU the_menu_large[] =
-{
-    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
-    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
-    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
-    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
-    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
-    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
+    { (char *)"&ZScript",                   NULL, (MENU *) zscript_menu,    0,            NULL   },
     { (char *)"Et&C",                       NULL, (MENU *) etc_menu,        0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
-MENU the_menu_large_zcleft[] =
-{
-    { (char *)"Z&C",                       NULL, (MENU *) etc_menu,        0,            NULL   },
-    { (char *)"&File",                      NULL, (MENU *) file_menu,       0,            NULL   },
-    { (char *)"&Quest",                     NULL, (MENU *) quest_menu,      0,            NULL   },
-    { (char *)"&Edit",                      NULL, (MENU *) edit_menu,       0,            NULL   },
-    { (char *)"&View",                      NULL, (MENU *) view_menu,       0,            NULL   },
-    { (char *)"&Tools",                     NULL, (MENU *) tool_menu,       0,            NULL   },
-    { (char *)"&Screen",                    NULL, (MENU *) data_menu,       0,            NULL   },
-    { (char *)"&ZScript",                       NULL, (MENU *) zscript_menu,        0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+    {  NULL,                                NULL, NULL,                     0,            NULL   }
 };
 
 void rebuild_trans_table();
@@ -31482,8 +31441,6 @@ void load_size_poses()
 	//Main GUI objects
 	if(is_compact)
 	{
-		memcpy(the_menu, the_menu_large, sizeof(the_menu));
-		
 		num_combo_cols = 2;
 		combo_col_scale = 16;
 		if(compact_merged_combopane)
@@ -31570,11 +31527,6 @@ void load_size_poses()
 		compactbtn.x = drawmode_btn.x-compactbtn.w;
 		compactbtn.y = drawmode_btn.y;
 		compactbtn.h = drawmode_btn.h;
-		
-		mainbar.x = dialogs[0].w+2;
-		mainbar.y = 0;
-		mainbar.w = compactbtn.x-mainbar.x;
-		mainbar.h = drawmode_btn.h;
 		
 		for(int32_t i=0; i<=8; i++)
 		{
@@ -31724,8 +31676,6 @@ void load_size_poses()
 	}
 	else
 	{
-		memcpy(the_menu, the_menu_large, sizeof(the_menu));
-		
 		num_combo_cols = 4;
 		combo_col_scale = 16;
 		if(large_merged_combopane)
@@ -31809,11 +31759,6 @@ void load_size_poses()
 		compactbtn.x = drawmode_btn.x-compactbtn.w;
 		compactbtn.y = drawmode_btn.y;
 		compactbtn.h = drawmode_btn.h;
-		
-		mainbar.x = dialogs[0].w+2;
-		mainbar.y = 0;
-		mainbar.w = compactbtn.x-mainbar.x;
-		mainbar.h = drawmode_btn.h;
 		
 		for(int32_t i=0; i<=8; i++)
 		{
@@ -32006,6 +31951,11 @@ void load_size_poses()
 		favorites_zoombtn.h = favorites_infobtn.h;
 		favorites_zoombtn.x = favorites_infobtn.x - favorites_zoombtn.w;
 		favorites_zoombtn.y = favorites_infobtn.y;
+		
+		mainbar.x = dialogs[0].x+dialogs[0].w+2;
+		mainbar.y = 0;
+		mainbar.w = compactbtn.x-mainbar.x;
+		mainbar.h = drawmode_btn.h;
 	}
 	//Dialog popups
 	{
@@ -32654,7 +32604,8 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	static int32_t ret=D_O_K;
 	
-	run_zq_frame();
+	if(msg != MSG_START)
+		run_zq_frame();
 	
 	if(msg==MSG_GOTMOUSE||msg==MSG_XCHAR)
 	{
