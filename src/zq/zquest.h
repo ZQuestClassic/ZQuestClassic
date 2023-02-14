@@ -1216,10 +1216,10 @@ void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thic
 void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
 void draw_ttip(BITMAP* dest);
 void draw_ttip2(BITMAP* dest);
-void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg);
-void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg);
-void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg);
-void update_tooltip2(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg);
+void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
+void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, double scale = 1);
+void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
+void update_tooltip2(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, double scale = 1);
 void clear_tooltip();
 void clear_tooltip2();
 void ZQ_ClearQuestPath();

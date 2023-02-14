@@ -5744,7 +5744,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						}
 						else
 						{
-							int32_t offs = 2;
+							int32_t offs = 2*(sqr.w/9);
 							draw_x(menu1, sqr.x+offs, sqr.y+offs, sqr.x+sqr.w-1-offs, sqr.y+sqr.h-1-offs, vc(15));
 						}
 					}
@@ -7339,7 +7339,7 @@ void select_scr()
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
 			clear_tooltip();
-			update_tooltip2(real_mini.x+(real_mini.w*real_mini.xscale), real_mini.y-16, *real_mini.subsquare(ind), buf);
+			update_tooltip2(real_mini.x+(real_mini.w*real_mini.xscale), real_mini.y-16, *real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
 			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
 		}
 		
@@ -10655,7 +10655,7 @@ void domouse()
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
 		clear_tooltip();
-		update_tooltip2(real_mini.x+(real_mini.w*real_mini.xscale), real_mini.y-16, *real_mini.subsquare(ind), buf);
+		update_tooltip2(real_mini.x+(real_mini.w*real_mini.xscale), real_mini.y-16, *real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
 		tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
 	}
 	
@@ -33564,8 +33564,9 @@ void draw_ttip2(BITMAP* dest)
 }
 
 
-void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg)
+void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)
 {
+	if(txscale < 1) txscale = 1;
 	char* kill = (char*)malloc(strlen(tipmsg)+1);
 	char *tmpstr = kill;
 	strcpy(tmpstr,tipmsg);
@@ -33580,8 +33581,12 @@ void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg)
 	clear_bitmap(destbmp);
 	
 	int32_t lines=count_lines(tmpstr);
-	box.w=get_longest_line_length(font, tmpstr)+8+1;
-	box.h = (lines * text_height(font)) + 8 + 1;
+	int txlen = get_longest_line_length(font, tmpstr);
+	int txhei = lines*text_height(font);
+	int tx_sclen = (txlen * txscale);
+	int tx_schei = (txhei * txscale);
+	box.w = tx_sclen + 8 + 1;
+	box.h = tx_schei + 8 + 1;
 	if (box.w > zq_screen_w)
 		box.w = zq_screen_w;
 	if (box.h > zq_screen_h)
@@ -33609,6 +33614,8 @@ void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg)
 	int32_t new_t=-1;
 	int32_t line=0;
 	
+	BITMAP* txbmp = create_bitmap_ex(8,box.w,box.h);
+	clear_bitmap(txbmp);
 	while(tmpstr[t])
 	{
 		t=strchrnum(tmpstr, '\n');
@@ -33629,7 +33636,7 @@ void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg)
 		
 		temp = tmpstr[t];
 		tmpstr[t]=0;
-		textprintf_ex(destbmp, font, 4, (line*text_height(font))+4, jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
+		textprintf_ex(txbmp, font, 0, (line*text_height(font)), jwin_pal[jcTEXTFG], -1, "%s", tmpstr);
 		tmpstr[t]=temp;
 		++line;
 		
@@ -33639,15 +33646,16 @@ void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg)
 			t=0;
 		}
 	}
-	
+	masked_stretch_blit(txbmp,destbmp,0,0,txlen,txhei,4,4,tx_sclen,tx_schei);
+	destroy_bitmap(txbmp);
 	free(kill);
 }
 
-void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg)
+void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale)
 {
-	update_tooltip(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg);
+	update_tooltip(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,scale);
 }
-void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg)
+void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, double scale)
 {
 	if(!EnableTooltips)
 	{
@@ -33693,17 +33701,17 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		{
 			tooltip_box.x = x;
 			tooltip_box.y = y;
-			draw_box(tooltipbmp, &tooltip_box, tipmsg);
+			draw_box(tooltipbmp, &tooltip_box, tipmsg, scale);
 		}
 	}
 	font = oldfont;
 }
 
-void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg)
+void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale)
 {
-	update_tooltip2(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg);
+	update_tooltip2(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,scale);
 }
-void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg)
+void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, double scale)
 {
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
@@ -33732,7 +33740,7 @@ void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, i
 	{
 		tooltip_box2.x = x;
 		tooltip_box2.y = y;
-		draw_box(tooltipbmp2, &tooltip_box2, tipmsg);
+		draw_box(tooltipbmp2, &tooltip_box2, tipmsg, scale);
 	}
 	
 	font = oldfont;
