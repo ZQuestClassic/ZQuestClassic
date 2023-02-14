@@ -46,8 +46,47 @@ def glob_files(base_dir: Path, pattern: str):
     return files
 
 
+def preprocess_base_config(config_text: str, system: str):
+    new_config_lines = []
+    for line in config_text.splitlines():
+        if '#?' not in line:
+            new_config_lines.append(line)
+            continue
+
+        statement_text, directives_text = line.split('#?')
+        key, default_value = [x.strip() for x in statement_text.split('=')]
+        value = default_value
+
+        directives = [x.strip().lower() for x in directives_text.split(';')]
+        for directive in directives:
+            condition_text, directive_value = [
+                x.strip().lower() for x in directive.split('=')]
+
+            should_negate = False
+            if condition_text[0] == '!':
+                condition_text = condition_text[1:]
+                should_negate = True
+            is_match = False
+            if condition_text == 'windows' and system == 'Windows':
+                is_match = True
+            elif condition_text == 'mac' and system == 'Darwin':
+                is_match = True
+            elif condition_text == 'linux' and system == 'Linux':
+                is_match = True
+
+            if should_negate:
+                is_match = not is_match
+            if is_match:
+                value = directive_value
+                break
+
+        new_config_lines.append(f'{key} = {value}')
+
+    return '\n'.join(new_config_lines)
+
+
 def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
-    files_flat = []
+    files_flat: List[Path] = []
     for file in files:
         if not file:
             continue
@@ -71,7 +110,10 @@ def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
             continue
 
         dest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(src, dest)
+        if src.parent.name == 'base_config':
+            dest.write_text(preprocess_base_config(src.read_text(), system))
+        else:
+            shutil.copy2(src, dest)
 
 
 def prepare_package(package_dir: Path):
@@ -102,7 +144,18 @@ extras = [
     resources_dir / 'utilities',
 ]
 
-if args.extras:
+if 'TEST' in os.environ:
+    import unittest
+
+    tc = unittest.TestCase()
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0', 'windows'), 'ignore_monitor_scale = 0')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1', 'Windows'), 'ignore_monitor_scale = 1')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? !windows = 1', 'Windows'), 'ignore_monitor_scale = 0')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1', 'Darwin'), 'ignore_monitor_scale = 0')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'Darwin'), 'ignore_monitor_scale = 2')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'Windows'), 'ignore_monitor_scale = 1')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'Linux'), 'ignore_monitor_scale = 0')
+elif args.extras:
     do_packaging(packages_dir / 'extras', extras)
 else:
     files = [
