@@ -10582,7 +10582,7 @@ void domouse()
 		}
 		
 		//on the minimap
-		if(isinRect(x,y,minimap.x+3,minimap.y+12,minimap.x+minimap.w-5,minimap.y+minimap.h-4))
+		if(isinRect(x,y,minimap.x+3,minimap.y+(is_large?5:12),minimap.x+minimap.w-5,minimap.y+minimap.h-4))
 		{
 			select_scr();
 		}
