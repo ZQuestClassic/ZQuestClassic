@@ -3973,23 +3973,23 @@ int32_t onDown()
     return D_O_K;
 }
 
-int32_t onPgUp()
+void scrollup(int j)
 {
     switch(draw_mode)
 	{
 		case dm_alias:
 		{
-			auto& sqr = comboaliaslist[current_comboalist];
-			if(combo_alistpos[current_comboalist]>0)
+			auto& sqr = comboaliaslist[j];
+			if(combo_alistpos[j]>0)
 			{
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
-					combo_alistpos[current_comboalist]=0;
+					combo_alistpos[j]=0;
 					clear_tooltip();
 				}
 				else
 				{
-					combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],(sqr.w*sqr.h));
+					combo_alistpos[j]-=zc_min(combo_alistpos[j],(sqr.w*sqr.h));
 					clear_tooltip();
 				}
 				
@@ -3999,17 +3999,17 @@ int32_t onPgUp()
 		}
 		case dm_cpool:
 		{
-			auto& sqr = comboaliaslist[current_cpoollist];
-			if(combo_pool_listpos[current_cpoollist]>0)
+			auto& sqr = comboaliaslist[j];
+			if(combo_pool_listpos[j]>0)
 			{
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
-					combo_pool_listpos[current_cpoollist]=0;
+					combo_pool_listpos[j]=0;
 					clear_tooltip();
 				}
 				else
 				{
-					combo_pool_listpos[current_cpoollist]-=zc_min(combo_pool_listpos[current_cpoollist],(sqr.w*sqr.h));
+					combo_pool_listpos[j]-=zc_min(combo_pool_listpos[j],(sqr.w*sqr.h));
 					clear_tooltip();
 				}
 				
@@ -4019,23 +4019,106 @@ int32_t onPgUp()
 		}
 		default:
 		{
-			auto& sqr = combolist[current_combolist];
-			if(First[current_combolist]>0)
+			auto& sqr = combolist[j];
+			if(First[j]>0)
 			{
 				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
-					First[current_combolist]-=zc_min(First[current_combolist],256);
+					First[j]-=zc_min(First[j],256);
 					clear_tooltip();
 				}
 				else
 				{
-					First[current_combolist]-=zc_min(First[current_combolist],(sqr.w*sqr.h));
+					First[j]-=zc_min(First[j],(sqr.w*sqr.h));
 					clear_tooltip();
 				}
 				
 				refresh(rCOMBOS);
 			}
+			break;
 		}
+	}
+}
+void scrolldown(int j)
+{
+	switch(draw_mode)
+	{
+		case dm_alias:
+		{
+			auto& sqr = comboaliaslist[j];
+			if(combo_alistpos[j]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
+			{
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					combo_alistpos[j]=MAXCOMBOALIASES-(sqr.w*sqr.h);
+					clear_tooltip();
+				}
+				else
+				{
+					combo_alistpos[j]=zc_min((MAXCOMBOALIASES-(sqr.w*sqr.h)),combo_alistpos[j]+(sqr.w*sqr.h));
+					clear_tooltip();
+				}
+				
+				refresh(rCOMBOS);
+			}
+			break;
+		}
+		case dm_cpool:
+		{
+			auto& sqr = comboaliaslist[j];
+			if(combo_pool_listpos[j]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
+			{
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					combo_pool_listpos[j]=MAXCOMBOALIASES-(sqr.w*sqr.h);
+					clear_tooltip();
+				}
+				else
+				{
+					combo_pool_listpos[j]=zc_min((MAXCOMBOALIASES-(sqr.w*sqr.h)),combo_pool_listpos[j]+(sqr.w*sqr.h));
+					clear_tooltip();
+				}
+				
+				refresh(rCOMBOS);
+			}
+			break;
+		}
+		default:
+		{
+			auto& sqr = combolist[j];
+			if(First[j]<(MAXCOMBOS-(sqr.w*sqr.h)))
+			{
+				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					First[j]=zc_min((MAXCOMBOS-sqr.w*sqr.h),First[j]+256);
+					clear_tooltip();
+				}
+				else
+				{
+					First[j]=zc_min((MAXCOMBOS-(sqr.w*sqr.h)),First[j]+(sqr.w*sqr.h));
+					clear_tooltip();
+				}
+				
+				refresh(rCOMBOS);
+			}
+			break;
+		}
+	}
+}
+
+int32_t onPgUp()
+{
+    switch(draw_mode)
+	{
+		case dm_alias:
+			scrollup(current_comboalist);
+			break;
+		case dm_cpool:
+			scrollup(current_cpoollist);
+			break;
+		default:
+			scrollup(current_combolist);
+			break;
 	}
     return D_O_K;
 }
@@ -4045,67 +4128,15 @@ int32_t onPgDn()
     switch(draw_mode)
 	{
 		case dm_alias:
-		{
-			auto& sqr = comboaliaslist[current_comboalist];
-			if(combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
-			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-				{
-					combo_alistpos[current_comboalist]=MAXCOMBOALIASES-(sqr.w*sqr.h);
-					clear_tooltip();
-				}
-				else
-				{
-					combo_alistpos[current_comboalist]=zc_min((MAXCOMBOALIASES-(sqr.w*sqr.h)),combo_alistpos[current_comboalist]+(sqr.w*sqr.h));
-					clear_tooltip();
-				}
-				
-				refresh(rCOMBOS);
-			}
+			scrolldown(current_comboalist);
 			break;
-		}
 		case dm_cpool:
-		{
-			auto& sqr = comboaliaslist[current_cpoollist];
-			if(combo_pool_listpos[current_cpoollist]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))
-			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-				{
-					combo_pool_listpos[current_cpoollist]=MAXCOMBOALIASES-(sqr.w*sqr.h);
-					clear_tooltip();
-				}
-				else
-				{
-					combo_pool_listpos[current_cpoollist]=zc_min((MAXCOMBOALIASES-(sqr.w*sqr.h)),combo_pool_listpos[current_cpoollist]+(sqr.w*sqr.h));
-					clear_tooltip();
-				}
-				
-				refresh(rCOMBOS);
-			}
+			scrolldown(current_cpoollist);
 			break;
-		}
 		default:
-		{
-			auto& sqr = combolist[current_combolist];
-			if(First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))
-			{
-				if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-				{
-					First[current_combolist]=zc_min((MAXCOMBOS-sqr.w*sqr.h),First[current_combolist]+256);
-					clear_tooltip();
-				}
-				else
-				{
-					First[current_combolist]=zc_min((MAXCOMBOS-(sqr.w*sqr.h)),First[current_combolist]+(sqr.w*sqr.h));
-					clear_tooltip();
-				}
-				
-				refresh(rCOMBOS);
-			}
+			scrolldown(current_combolist);
 			break;
-		}
 	}
-    
     return D_O_K;
 }
 
@@ -6269,18 +6300,25 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			for(int32_t c = 0; c < num_combo_cols; ++c)
 			{
 				auto& pos = combolistscrollers[c];
-				jwin_draw_frame(menu1,pos.x,pos.y,pos.w,pos.h,FR_ETCHED);
 				
-				for(int32_t i=0; i<3; i++)
-				{
-					_allegro_hline(menu1,pos.x+5-i,pos.y+4+i, pos.x+5+i, vc(0));
+				{ //Scroll up
+					auto& p = *pos.subsquare(0);
+					jwin_draw_frame(menu1,p.x,p.y,p.w,p.h,FR_ETCHED);
+					
+					for(int32_t i=0; i<3; i++)
+					{
+						_allegro_hline(menu1, p.x+5-i, p.y+4+i, p.x+5+i, jwin_pal[jcBOXFG]);
+					}
 				}
 				
-				jwin_draw_frame(menu1,pos.x+pos.w,pos.y,pos.w,pos.h,FR_ETCHED);
-				
-				for(int32_t i=0; i<3; i++)
-				{
-					_allegro_hline(menu1,pos.x+pos.w+5-i,pos.y+6-i, pos.x+pos.w+5+i, vc(0));
+				{ //Scroll down
+					auto& p = *pos.subsquare(1);
+					jwin_draw_frame(menu1,p.x,p.y,p.w,p.h,FR_ETCHED);
+					
+					for(int32_t i=0; i<3; i++)
+					{
+						_allegro_hline(menu1,p.x+5-i,p.y+6-i, p.x+5+i, jwin_pal[jcBOXFG]);
+					}
 				}
 			}
 			
@@ -10343,8 +10381,6 @@ void domouse()
 	int32_t c=(cy*16)+cx;
 	mousecomboposition=c;
 	
-	int32_t redraw=0;
-	
 	update_combobrush();
 	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
@@ -10396,8 +10432,6 @@ void domouse()
 				{
 					First[test_list]-=zc_min(First[test_list],combolist[test_list].w);
 				}
-				
-				redraw|=rCOMBOS;
 			}
 			
 			if(y>=combolist[test_list].y+(combolist[test_list].h*combolist[test_list].yscale)-1 && y<combolist[test_list].y+(combolist[test_list].h*combolist[test_list].yscale)+mouse_scroll_h-1 && First[test_list]<(MAXCOMBOS-(combolist[test_list].w*combolist[test_list].h)))
@@ -10420,8 +10454,6 @@ void domouse()
 				{
 					First[test_list] = zc_min(MAXCOMBOS - offset, First[test_list] + combolist[test_list].w);
 				}
-				
-				redraw|=rCOMBOS;
 			}
 		}
 	}
@@ -11418,26 +11450,14 @@ void domouse()
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
 			{
-				int32_t temp_x1=combolistscrollers[j].x;
-				int32_t temp_y1=combolistscrollers[j].y;
-				int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
-				int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
-				
-				int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
-				int32_t temp_y3=combolistscrollers[j].y;
-				int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
-				int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
-				
-				if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_alistpos[j]<(MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+				if(combolistscrollers[j].rectind(x,y)==0 && (combo_alistpos[j]<(MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
 				{
-					combo_alistpos[j]=zc_min((MAXCOMBOALIASES-(comboaliaslist[j].w*comboaliaslist[j].h)),combo_alistpos[j]+(comboaliaslist[j].w*comboaliaslist[j].h));
-					refresh(rCOMBOS);
+					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_alistpos[j]>0) && !mouse_down)
+				else if(combolistscrollers[j].rectind(x,y)==1 && (combo_alistpos[j]>0) && !mouse_down)
 				{
-					combo_alistpos[j]-=zc_min(combo_alistpos[j],(comboaliaslist[j].w*comboaliaslist[j].h));
-					refresh(rCOMBOS);
+					scrolldown(j);
 					goto domouse_doneclick;
 				}
 				else if(comboaliaslist[j].rect(x,y))
@@ -11447,7 +11467,6 @@ void domouse()
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
 						onEditComboAlias();
-						redraw|=rALL;
 					}
 					goto domouse_doneclick;
 				}
@@ -11457,26 +11476,14 @@ void domouse()
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
 			{
-				int32_t temp_x1=combolistscrollers[j].x;
-				int32_t temp_y1=combolistscrollers[j].y;
-				int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
-				int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
-				
-				int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
-				int32_t temp_y3=combolistscrollers[j].y;
-				int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
-				int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
-				
-				if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && (combo_pool_listpos[j]<(MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
+				if(combolistscrollers[j].rectind(x,y)==0 && (combo_pool_listpos[j]<(MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h))) && !mouse_down)
 				{
-					combo_pool_listpos[j]=zc_min((MAXCOMBOPOOLS-(comboaliaslist[j].w*comboaliaslist[j].h)),combo_pool_listpos[j]+(comboaliaslist[j].w*comboaliaslist[j].h));
-					refresh(rCOMBOS);
+					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && (combo_pool_listpos[j]>0) && !mouse_down)
+				else if(combolistscrollers[j].rectind(x,y)==1 && (combo_pool_listpos[j]>0) && !mouse_down)
 				{
-					combo_pool_listpos[j]-=zc_min(combo_pool_listpos[j],(comboaliaslist[j].w*comboaliaslist[j].h));
-					refresh(rCOMBOS);
+					scrolldown(j);
 					goto domouse_doneclick;
 				}
 				else if(comboaliaslist[j].rect(x,y))
@@ -11486,7 +11493,6 @@ void domouse()
 					if(rclick && comboaliaslist[j].rect(gui_mouse_x(),gui_mouse_y()))
 					{
 						onEditComboPool();
-						redraw|=rALL;
 					}
 					goto domouse_doneclick;
 				}
@@ -11496,42 +11502,14 @@ void domouse()
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
 			{
-				int32_t temp_x1=combolistscrollers[j].x;
-				int32_t temp_y1=combolistscrollers[j].y;
-				int32_t temp_x2=combolistscrollers[j].x+combolistscrollers[j].w-1;
-				int32_t temp_y2=combolistscrollers[j].y+combolistscrollers[j].h-1;
-				
-				int32_t temp_x3=combolistscrollers[j].x+combolistscrollers[j].w;
-				int32_t temp_y3=combolistscrollers[j].y;
-				int32_t temp_x4=combolistscrollers[j].x+combolistscrollers[j].w*2-1;
-				int32_t temp_y4=combolistscrollers[j].y+combolistscrollers[j].h-1;
-				
-				if(isinRect(x,y,temp_x1,temp_y1,temp_x2,temp_y2) && First[j]>0 && !mouse_down)
+				if(combolistscrollers[j].rectind(x,y)==0 && First[j]>0 && !mouse_down)
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-					{
-						First[j]-=zc_min(First[j],256);
-					}
-					else
-					{
-						First[j]-=zc_min(First[j],(combolist[j].w*combolist[j].h));
-					}
-					
-					redraw|=rCOMBOS;
+					scrollup(j);
 					goto domouse_doneclick;
 				}
-				else if(isinRect(x,y,temp_x3,temp_y3,temp_x4,temp_y4) && First[j]<(MAXCOMBOS-(combolist[j].w*combolist[j].h)) && !mouse_down)
+				else if(combolistscrollers[j].rectind(x,y)==1 && First[j]<(MAXCOMBOS-(combolist[j].w*combolist[j].h)) && !mouse_down)
 				{
-					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-					{
-						First[j]+=zc_min((MAXCOMBOS-256)-First[j],256);
-					}
-					else
-					{
-						First[j]+=zc_min((MAXCOMBOS-(combolist[j].w*combolist[j].h))-First[j],(combolist[j].w*combolist[j].h));
-					}
-					
-					redraw|=rCOMBOS;
+					scrolldown(j);
 					goto domouse_doneclick;
 				}
 				else if(combolist[j].rect(x,y))
@@ -11550,12 +11528,10 @@ void domouse()
 								edit_combo(Combo,true,CSet);
 								setup_combo_animations();
 								setup_combo_animations2();
-								redraw|=rALL;
 								break;
 								
 							case 1:
 								combo_screen(Combo>>8,Combo);
-								redraw|=rALL;
 								break;
 								
 							case 2:
@@ -11563,7 +11539,6 @@ void domouse()
 								int32_t t = combobuf[Combo].tile;
 								int32_t f = 0;
 								select_tile(t,f,0,CSet,true);
-								redraw|=rALL;
 								break;
 							}
 							
@@ -11574,7 +11549,6 @@ void domouse()
 							case 5:
 							{
 								onGotoPage();
-								redraw|=rALL;
 								break;
 							}
 						}
@@ -11725,8 +11699,6 @@ void domouse()
 								setup_combo_animations();
 								setup_combo_animations2();
 							}
-							
-							redraw|=rALL;
 							break;
 							
 						case 2: //Remove Combo/Alias
@@ -11745,7 +11717,6 @@ void domouse()
 						case 4: //Open Combo Page
 						{
 							combo_screen(Combo>>8,Combo);
-							redraw|=rALL;
 							break;
 						}
 						case 5: //Open Tile Page
@@ -11753,7 +11724,6 @@ void domouse()
 							int32_t t = combobuf[Combo].tile;
 							int32_t f = 0;
 							select_tile(t,f,0,CSet,true);
-							redraw|=rALL;
 							break;
 						}
 					}
@@ -11836,15 +11806,12 @@ domouse_doneclick:
 					{
 						combo_alistpos[current_comboalist] = zc_min(MAXCOMBOALIASES - comboaliaslist[j].w*comboaliaslist[j].h,
 															 combo_alistpos[current_comboalist]+comboaliaslist[j].w*z);
-						redraw|=rALL;
 					}
 					else //scroll up
 					{
 						if(combo_alistpos[current_comboalist]>0)
 						{
 							combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],comboaliaslist[j].w*z);
-							//          refresh(rCOMBOS);
-							redraw|=rALL;
 						}
 					}
 				}
@@ -11857,15 +11824,12 @@ domouse_doneclick:
 					{
 						combo_pool_listpos[current_cpoollist] = zc_min(MAXCOMBOPOOLS - comboaliaslist[j].w*comboaliaslist[j].h,
 															 combo_pool_listpos[current_cpoollist]+comboaliaslist[j].w*z);
-						redraw|=rALL;
 					}
 					else //scroll up
 					{
 						if(combo_pool_listpos[current_cpoollist]>0)
 						{
 							combo_pool_listpos[current_cpoollist]-=zc_min(combo_pool_listpos[current_cpoollist],comboaliaslist[j].w*z);
-							//          refresh(rCOMBOS);
-							redraw|=rALL;
 						}
 					}
 				}
@@ -11877,16 +11841,13 @@ domouse_doneclick:
 					if(mouse_z<0)  //scroll down
 					{
 						First[current_combolist] = zc_min(MAXCOMBOS-combolist[j].w*combolist[j].h,
-														  First[current_combolist] + combolist[j].w*z);
-						redraw|=rALL;
+							First[current_combolist] + combolist[j].w*z);
 					}
 					else //scroll up
 					{
 						if(First[current_combolist]>0)
 						{
 							First[current_combolist]-=zc_min(First[current_combolist],combolist[j].w*z);
-							//          refresh(rCOMBOS);
-							redraw|=rALL;
 						}
 					}
 				}
@@ -31611,10 +31572,12 @@ void load_size_poses()
 			comboaliaslist[q].xscale = combo_col_scale;
 			comboaliaslist[q].yscale = combo_col_scale;
 			
-			combolistscrollers[q].w=11;
-			combolistscrollers[q].h=11;
+			combolistscrollers[q].w=2;
+			combolistscrollers[q].h=1;
+			combolistscrollers[q].xscale=11;
+			combolistscrollers[q].yscale=11;
 			combolistscrollers[q].x=combolist[q].x+(combolist[q].w*combolist[q].xscale/2)-11;
-			combolistscrollers[q].y=combolist[q].y-combolistscrollers[q].h-3;
+			combolistscrollers[q].y=combolist[q].y-combolistscrollers[q].th()-3;
 		}
 		
 		comboalias_preview.x=zq_screen_w-((combolist_window.w+64)/2);
@@ -31866,10 +31829,12 @@ void load_size_poses()
 			comboaliaslist[q].xscale = combo_col_scale;
 			comboaliaslist[q].yscale = combo_col_scale;
 			
-			combolistscrollers[q].w=11;
-			combolistscrollers[q].h=11;
+			combolistscrollers[q].w=2;
+			combolistscrollers[q].h=1;
+			combolistscrollers[q].xscale=11;
+			combolistscrollers[q].yscale=11;
 			combolistscrollers[q].x=combolist[q].x+(combolist[q].w*combolist[q].xscale/2)-11;
-			combolistscrollers[q].y=combolist[q].y-combolistscrollers[q].h-2;
+			combolistscrollers[q].y=combolist[q].y-combolistscrollers[q].th()-2;
 		}
 		
 		comboalias_preview.x=zq_screen_w-((combolist_window.w+64)/2);
