@@ -5460,10 +5460,10 @@ void drawpanel()
 	}
 	else
 	{
-		auto x1 = 0, y1 = preview_panel.y, x2 = main_panel.x+main_panel.w-1, y2 = main_panel.y+main_panel.h-1;
-		rectfill(menu1,x1,y1,x2,y2, jwin_pal[jcBOX]);
+		auto& sqr = main_panel;
+		rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, jwin_pal[jcBOX]);
 		refresh(rSCRMAP);
-		jwin_draw_frame(menu1,x1,y1,x2-x1+1,y2-y1+1, FR_WIN);
+		jwin_draw_frame(menu1,sqr.x,sqr.y,sqr.w,sqr.h, FR_WIN);
 		
 		//Item:
 		auto itemx = itemsqr_pos.x;
@@ -10729,6 +10729,9 @@ void domouse()
 			}
 			goto domouse_doneclick;
 		}
+		
+		if(zoomed_minimap && minimap_zoomed.rect(x,y))
+			goto domouse_doneclick; //Eat clicks
 		
 		//on the map tabs
 		font = get_custom_font(CFONT_GUI);
@@ -31656,7 +31659,7 @@ void load_size_poses()
 		
 		commands_txt.clear();
 		
-		main_panel.x = 10+48*3;
+		main_panel.x = 0;
 		main_panel.y = layer_panel.y+layer_panel.h;
 		main_panel.w = commands_window.x - main_panel.x;
 		main_panel.h = 76+32;
@@ -31664,7 +31667,7 @@ void load_size_poses()
 		preview_panel.x = 0;
 		preview_panel.w = commands_window.x - preview_panel.x;
 		
-		preview_text.x = preview_panel.x+1;
+		preview_text.x = preview_panel.x+3;
 		preview_text.y = preview_panel.y+3;
 		preview_text.w = 2;
 		preview_text.h = 6;
@@ -31679,35 +31682,19 @@ void load_size_poses()
 		txtoffs_double_2.y = 30;
 		panel_align = 1;
 		
-		itemsqr_pos.x = main_panel.x+14;
-		itemsqr_pos.y = main_panel.y+12;
-		itemsqr_pos.w = 4+16;
-		itemsqr_pos.h = 4+16;
-		stairsqr_pos.x = main_panel.x+14+32;
-		stairsqr_pos.y = main_panel.y+12;
-		stairsqr_pos.w = 4+16;
-		stairsqr_pos.h = 4+16;
-		warparrival_pos.x = main_panel.x+14+64;
-		warparrival_pos.y = main_panel.y+12;
-		warparrival_pos.w = 4+16;
-		warparrival_pos.h = 4+16;
-		flagsqr_pos.x = main_panel.x+14+96;
-		flagsqr_pos.y = main_panel.y+12;
-		flagsqr_pos.w = 4+16;
-		flagsqr_pos.h = 4+16;
+		int sqr_x1 = main_panel.x+minimap.w+24;
+		int sqr_y1 = main_panel.y+12;
+		int sqr_y2 = sqr_y1+42;
+		int sqr_xdist = 32;
+		itemsqr_pos.set(sqr_x1+(sqr_xdist*0),sqr_y1,20,20);
+		stairsqr_pos.set(sqr_x1+(sqr_xdist*1),sqr_y1,20,20);
+		warparrival_pos.set(sqr_x1+(sqr_xdist*2),sqr_y1,20,20);
+		flagsqr_pos.set(sqr_x1+(sqr_xdist*3),sqr_y1,20,20);
 		for(auto q = 0; q < 4; ++q)
 		{
-			warpret_pos[q].x = main_panel.x+14+(32*q);
-			warpret_pos[q].y = main_panel.y+54;
-			warpret_pos[q].w = 4+16;
-			warpret_pos[q].h = 4+16;
+			warpret_pos[q].set(sqr_x1+(sqr_xdist*q),sqr_y2,20,20);
 		}
-		enemy_prev_pos.x = main_panel.x+14+4*32;
-		enemy_prev_pos.y = main_panel.y+12;
-		enemy_prev_pos.w = 4;
-		enemy_prev_pos.h = 3;
-		enemy_prev_pos.xscale = 16;
-		enemy_prev_pos.yscale = 16;
+		enemy_prev_pos.set(sqr_x1+(sqr_xdist*4), sqr_y1, 4, 3, 16, 16);
 		enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
 		enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
 		
@@ -31848,6 +31835,12 @@ void load_size_poses()
 		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
 		layerpanel_checkbox_wid = 14;
 		
+		commands_list.w=4;
+		commands_window.w=commands_list.w*commands_list.xscale+16;
+		commands_window.x=combolist_window.x-commands_window.w;
+		commands_window.y=layer_panel.y+layer_panel.h;
+		commands_window.h=zq_screen_h-commands_window.y;
+		
 		//buttons panel
 		main_panel.x = 0;
 		main_panel.y = layer_panel.y+layer_panel.h;
@@ -31855,7 +31848,7 @@ void load_size_poses()
 		main_panel.h = zq_screen_h - main_panel.y;
 		preview_panel = main_panel;
 		
-		preview_text.x = preview_panel.x+1;
+		preview_text.x = preview_panel.x+3;
 		preview_text.y = preview_panel.y+3;
 		preview_text.w = 1;
 		preview_text.h = 12;
@@ -31894,13 +31887,6 @@ void load_size_poses()
 		favorites_list.yscale = 16;
 		favorites_list.w=(favorites_window.w-16)/favorites_list.xscale;
 		favorites_list.h=(favorites_window.h-24)/favorites_list.yscale;
-		
-		commands_list.w=4;
-		
-		commands_window.w=commands_list.w*commands_list.xscale+16;
-		commands_window.x=combolist_window.x-commands_window.w;
-		commands_window.y=main_panel.y;
-		commands_window.h=zq_screen_h-commands_window.y;
 		
 		int bh = 16;
 		int by = commands_window.y+4;

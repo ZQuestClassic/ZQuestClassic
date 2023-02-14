@@ -1215,19 +1215,23 @@ int32_t onShowWalkability()
 
 int32_t onPreviewMode()
 {
-    prv_mode=(prv_mode+1)%2;
+	prv_mode=(prv_mode+1)%2;
 
-    if(prv_mode)
-    {
-        Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
-    }
-
-    bool tempcb=ComboBrush!=0;
-    ComboBrush=0;
-    restore_mouse();
-    dopreview();
-    ComboBrush=tempcb;
-    return D_O_K;
+	if(prv_mode)
+	{
+		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
+		
+		zoomed_minimap = false;
+		
+		bool tempcb=ComboBrush!=0;
+		ComboBrush=0;
+		restore_mouse();
+		clear_tooltip();
+		clear_tooltip2();
+		dopreview();
+		ComboBrush=tempcb;
+	}
+	return D_O_K;
 }
 
 int32_t onShowFlags()
