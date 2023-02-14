@@ -283,7 +283,8 @@ size_and_pos combo_preview_text1;
 size_and_pos combo_preview_text2;
 size_and_pos combolist_window;
 size_and_pos drawmode_btn;
-size_and_pos panel[9];
+size_and_pos main_panel;
+size_and_pos preview_panel;
 size_and_pos layer_panel;
 
 size_and_pos favorites_window;
@@ -5453,12 +5454,12 @@ void drawpanel()
 	
 	if(prv_mode)
 	{
-		jwin_draw_frame(menu1,0,panel[8].y,panel[8].x+panel[8].w, panel[8].h, FR_WIN);
-		rectfill(menu1,panel[8].x,panel[8].y+2,panel[8].x+panel[8].w-3,panel[8].y+panel[8].h-3,jwin_pal[jcBOX]);
+		jwin_draw_frame(menu1,0,preview_panel.y,preview_panel.x+preview_panel.w, preview_panel.h, FR_WIN);
+		rectfill(menu1,preview_panel.x,preview_panel.y+2,preview_panel.x+preview_panel.w-3,preview_panel.y+preview_panel.h-3,jwin_pal[jcBOX]);
 	}
 	else
 	{
-		auto x1 = 0, y1 = panel[8].y, x2 = panel[0].x+panel[0].w-1, y2 = panel[0].y+panel[0].h-1;
+		auto x1 = 0, y1 = preview_panel.y, x2 = main_panel.x+main_panel.w-1, y2 = main_panel.y+main_panel.h-1;
 		rectfill(menu1,x1,y1,x2,y2, jwin_pal[jcBOX]);
 		refresh(rSCRMAP);
 		jwin_draw_frame(menu1,x1,y1,x2-x1+1,y2-y1+1, FR_WIN);
@@ -31629,14 +31630,6 @@ void load_size_poses()
 		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
 		layerpanel_checkbox_wid = 15;
 		
-		for(int32_t i=0; i<9; i++)
-		{
-			panel[i].x=10+48*3;
-			panel[i].y=layer_panel.y+layer_panel.h;
-			panel[i].w=64;
-			panel[i].h=zq_screen_h-panel[i].y;
-		}
-		
 		minimap.x=3;
 		minimap.y=layer_panel.y+layer_panel.h+4;
 		
@@ -31664,19 +31657,10 @@ void load_size_poses()
 		favorites_list.yscale = 16;
 		favorites_list.w=(favorites_window.w-16)/favorites_list.xscale;
 		favorites_list.h=(favorites_window.h-24)/favorites_list.yscale;
-		if(compact_zoomed_fav)
-		{
-			if(favorites_list.w%2)
-				favorites_list.x += (favorites_list.xscale / 2);
-			favorites_list.xscale *= 2;
-			favorites_list.yscale *= 2;
-			favorites_list.w /= 2;
-			favorites_list.h /= 2;
-		}
 		
 		commands_list.w=4;
 		
-		int bh = 14;
+		int bh = commands_list.yscale;
 		int bw = 26;
 		commands_window.w=commands_list.w*commands_list.xscale+10+bw;
 		commands_window.x=combolist_window.x-commands_window.w;
@@ -31705,9 +31689,13 @@ void load_size_poses()
 		
 		commands_txt.clear();
 		
-		panel[0].w = commands_window.x - panel[0].x;
-		panel[8].x = 0;
-		panel[8].w = commands_window.x - panel[8].x;
+		main_panel.x = 10+48*3;
+		main_panel.y = layer_panel.y+layer_panel.h;
+		main_panel.w = commands_window.x - main_panel.x;
+		main_panel.h = 76+32;
+		preview_panel = main_panel;
+		preview_panel.x = 0;
+		preview_panel.w = commands_window.x - preview_panel.x;
 		
 		txtoffs_single.x = 10;
 		txtoffs_single.y = 22;
@@ -31717,31 +31705,31 @@ void load_size_poses()
 		txtoffs_double_2.y = 30;
 		panel_align = 1;
 		
-		itemsqr_pos.x = panel[0].x+14;
-		itemsqr_pos.y = panel[0].y+12;
+		itemsqr_pos.x = main_panel.x+14;
+		itemsqr_pos.y = main_panel.y+12;
 		itemsqr_pos.w = 4+16;
 		itemsqr_pos.h = 4+16;
-		stairsqr_pos.x = panel[0].x+14+32;
-		stairsqr_pos.y = panel[0].y+12;
+		stairsqr_pos.x = main_panel.x+14+32;
+		stairsqr_pos.y = main_panel.y+12;
 		stairsqr_pos.w = 4+16;
 		stairsqr_pos.h = 4+16;
-		warparrival_pos.x = panel[0].x+14+64;
-		warparrival_pos.y = panel[0].y+12;
+		warparrival_pos.x = main_panel.x+14+64;
+		warparrival_pos.y = main_panel.y+12;
 		warparrival_pos.w = 4+16;
 		warparrival_pos.h = 4+16;
-		flagsqr_pos.x = panel[0].x+14+96;
-		flagsqr_pos.y = panel[0].y+12;
+		flagsqr_pos.x = main_panel.x+14+96;
+		flagsqr_pos.y = main_panel.y+12;
 		flagsqr_pos.w = 4+16;
 		flagsqr_pos.h = 4+16;
 		for(auto q = 0; q < 4; ++q)
 		{
-			warpret_pos[q].x = panel[0].x+14+(32*q);
-			warpret_pos[q].y = panel[0].y+54;
+			warpret_pos[q].x = main_panel.x+14+(32*q);
+			warpret_pos[q].y = main_panel.y+54;
 			warpret_pos[q].w = 4+16;
 			warpret_pos[q].h = 4+16;
 		}
-		enemy_prev_pos.x = 2+panel[0].x+14+4*32;
-		enemy_prev_pos.y = 2+panel[0].y+12;
+		enemy_prev_pos.x = 2+main_panel.x+14+4*32;
+		enemy_prev_pos.y = 2+main_panel.y+12;
 		enemy_prev_pos.w = 4+(16*4);
 		enemy_prev_pos.h = 4+(16*3);
 		
@@ -31882,16 +31870,8 @@ void load_size_poses()
 		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
 		layerpanel_checkbox_wid = 14;
 		
-		for(int32_t i=0; i<9; i++)
-		{
-			panel[i].x=10+48*3;
-			panel[i].y=layer_panel.y+layer_panel.h;
-			panel[i].w=(map_page_bar[6].x)-(minimap.w+3);
-			panel[i].h=76+32;
-		}
-		
 		minimap.x=3;
-		minimap.y=panel[0].y+4;
+		minimap.y=main_panel.y+4;
 		
 		real_minimap.x = minimap.x+3;
 		real_minimap.y = minimap.y+5;
@@ -31918,21 +31898,12 @@ void load_size_poses()
 		favorites_list.yscale = 16;
 		favorites_list.w=(favorites_window.w-16)/favorites_list.xscale;
 		favorites_list.h=(favorites_window.h-24)/favorites_list.yscale;
-		if(large_zoomed_fav)
-		{
-			if(favorites_list.w%2)
-				favorites_list.x += (favorites_list.xscale / 2);
-			favorites_list.xscale *= 2;
-			favorites_list.yscale *= 2;
-			favorites_list.w /= 2;
-			favorites_list.h /= 2;
-		}
 		
 		commands_list.w=4;
 		
 		commands_window.w=commands_list.w*commands_list.xscale+16;
 		commands_window.x=combolist_window.x-commands_window.w;
-		commands_window.y=panel[0].y;
+		commands_window.y=main_panel.y;
 		commands_window.h=zq_screen_h-commands_window.y;
 		
 		int bh = 16;
@@ -31969,11 +31940,12 @@ void load_size_poses()
 		favorites_zoombtn.y = favorites_infobtn.y;
 		
 		//buttons panel
-		panel[0].x = 0;
-		panel[0].w = commands_window.x - panel[0].x;
-		panel[0].h = zq_screen_h - panel[0].y;
+		main_panel.x = 0;
+		main_panel.y = layer_panel.y+layer_panel.h;
+		main_panel.w = commands_window.x - main_panel.x;
+		main_panel.h = zq_screen_h - main_panel.y;
 		
-		panel[8] = panel[0]; //preview panel 
+		preview_panel = main_panel; //preview panel 
 		
 		txtoffs_single.x = 22;
 		txtoffs_single.y = 6;
@@ -31985,7 +31957,7 @@ void load_size_poses()
 		
 		int x2 = minimap.x+minimap.w+4;
 		int x1 = x2 - (20+(8*3)+2);
-		int y1 = panel[0].y+10;
+		int y1 = main_panel.y+10;
 		int sw = 20, sh = 20;
 		int offs = sh+4;
 		
@@ -31994,8 +31966,8 @@ void load_size_poses()
 		stairsqr_pos.set(x2,y1+(2*offs),sw,sh);
 		warparrival_pos.set(x2,y1+(6*offs),sw,sh);
 		
-		enemy_prev_pos.x = panel[0].x+14;
-		enemy_prev_pos.y = panel[0].y+12 + minimap.h;
+		enemy_prev_pos.x = main_panel.x+14;
+		enemy_prev_pos.y = main_panel.y+12 + minimap.h;
 		enemy_prev_pos.w = 4+(16*4);
 		enemy_prev_pos.h = 4+(16*3);
 		
@@ -32030,6 +32002,21 @@ void load_size_poses()
 	}
 	//Same in all modes
 	{
+		if(is_compact ? compact_zoomed_cmd : large_zoomed_cmd)
+		{
+			commands_list.w /= 2;
+			commands_list.xscale *= 2;
+		}
+		if(is_compact ? compact_zoomed_fav : large_zoomed_fav)
+		{
+			if(favorites_list.w%2)
+				favorites_list.x += (favorites_list.xscale / 2);
+			favorites_list.xscale *= 2;
+			favorites_list.yscale *= 2;
+			favorites_list.w /= 2;
+			favorites_list.h /= 2;
+		}
+		
 		favorites_x.h = 14;
 		favorites_x.x = favorites_window.x + favorites_window.w - favorites_x.w - 2;
 		favorites_x.y = favorites_list.y-15;
@@ -32041,13 +32028,6 @@ void load_size_poses()
 		favorites_zoombtn.h = favorites_infobtn.h;
 		favorites_zoombtn.x = favorites_infobtn.x - favorites_zoombtn.w;
 		favorites_zoombtn.y = favorites_infobtn.y;
-		
-		bool zoomed_cmd = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-		if(zoomed_cmd)
-		{
-			commands_list.w /= 2;
-			commands_list.xscale *= 2;
-		}
 	}
 	//Dialog popups
 	{
@@ -32655,13 +32635,13 @@ void do_animations()
 void do_previewtext()
 {
     //Put in help areas
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+1]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+2]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+3]);
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+4]);
+    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos]);
+    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+1]);
+    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+2]);
+    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+3]);
+    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+4]);
         
-    textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+5]);
+    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+5]);
     
 	if(is_compact)
 	{
@@ -32673,21 +32653,21 @@ void do_previewtext()
 				offs = len;
 		}
 		offs += 2;
-		textprintf_ex(menu1,font,panel[8].x+1+offs,panel[8].y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
-		textprintf_ex(menu1,font,panel[8].x+1+offs,panel[8].y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
-		textprintf_ex(menu1,font,panel[8].x+1+offs,panel[8].y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
-		textprintf_ex(menu1,font,panel[8].x+1+offs,panel[8].y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
-		textprintf_ex(menu1,font,panel[8].x+1+offs,panel[8].y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
-		textprintf_ex(menu1,font,panel[8].x+1+offs,panel[8].y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
+		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
+		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
+		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
+		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
+		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
+		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
 	}
 	else
 	{
-		textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+48+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
-		textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+56+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
-		textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+64+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
-		textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+72+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
-		textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+81+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
-		textprintf_ex(menu1,font,panel[8].x+1,panel[8].y+90+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
+		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+48+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
+		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+56+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
+		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+64+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
+		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+72+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
+		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+81+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
+		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+90+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
 	}
 }
 
