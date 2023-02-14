@@ -5800,7 +5800,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				if(cursor_color)
 				{
 					auto& sqr = real_mini_sqr->subsquare(s);
-					highlight_sqr(menu1,cursor_color,sqr,1);
+					highlight_sqr(menu1,cursor_color,sqr,zoomed_minimap ? 2 : 1);
 				}
 				
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
@@ -7373,7 +7373,7 @@ void select_scr()
 		
 		int32_t ind = real_mini.rectind(x,y);
 		
-		if(ind > -1 && ind < MAPSCRS)
+		if(ind > -1)
 		{
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
@@ -10683,7 +10683,7 @@ void domouse()
 	
 	size_and_pos const& real_mini = zoomed_minimap ? real_minimap_zoomed : real_minimap;
 	auto ind = real_mini.rectind(x,y);
-	if(ind > -1 && ind < MAPSCRS)
+	if(ind > -1)
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
@@ -10694,7 +10694,7 @@ void domouse()
 	
 	// Mouse clicking stuff
 	int real_mb = gui_mouse_b();
-	int mb = real_mb & ~mouse_down;
+	int mb = real_mb & ~mouse_down; //Only handle clicks that have not been handled already
 	auto mz = mouse_z;
 	bool lclick = mb&1;
 	bool rclick = mb&2;
@@ -31601,12 +31601,16 @@ void load_size_poses()
 		real_minimap.h = 9;
 		real_minimap.xscale = 9;
 		real_minimap.yscale = 9;
+		real_minimap.fw = real_minimap.xscale*8;
+		real_minimap.fh = real_minimap.yscale*8;
 		
 		int upscale_mm = 3;
 		int xwid = real_minimap.tw()*(upscale_mm-1);
 		int xhei = real_minimap.th()*(upscale_mm-1);
 		minimap_zoomed.set(minimap.x, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
 		real_minimap_zoomed.set(minimap_zoomed.x+3, minimap_zoomed.y+5, real_minimap.w, real_minimap.h, real_minimap.xscale*upscale_mm, real_minimap.yscale*upscale_mm);
+		real_minimap_zoomed.fw = real_minimap_zoomed.xscale*8;
+		real_minimap_zoomed.fh = real_minimap_zoomed.yscale*8;
 		
 		screrrorpos.x = combolist_window.x - 3;
 		screrrorpos.y = layer_panel.y - 16;
@@ -31852,6 +31856,8 @@ void load_size_poses()
 		real_minimap.h = 9;
 		real_minimap.xscale = 9;
 		real_minimap.yscale = 9;
+		real_minimap.fw = real_minimap.xscale*8;
+		real_minimap.fh = real_minimap.yscale*8;
 		
 		int upscale_mm = 4;
 		int xwid = real_minimap.tw()*(upscale_mm-1);
@@ -31859,6 +31865,8 @@ void load_size_poses()
 		int zh = minimap.h+xhei+4;
 		minimap_zoomed.set(minimap.x, zq_screen_h-zh, minimap.w+xwid, zh);
 		real_minimap_zoomed.set(minimap_zoomed.x+3, minimap_zoomed.y+5, real_minimap.w, real_minimap.h, real_minimap.xscale*upscale_mm, real_minimap.yscale*upscale_mm);
+		real_minimap_zoomed.fw = real_minimap_zoomed.xscale*8;
+		real_minimap_zoomed.fh = real_minimap_zoomed.yscale*8;
 		
 		screrrorpos.x = 575;
 		screrrorpos.y = 388;
@@ -33355,11 +33363,16 @@ void debug_pos(size_and_pos const& pos, int color)
 		for(auto q = 0; q < maxind; ++q)
 		{
 			auto& sub = pos.subsquare(q);
+			if(sub.x < 0) break;
 			highlight_sqr(screen, color, sub, 1);
 		}
-		return;
 	}
-	highlight_sqr(screen, color, pos, 1);
+	else
+	{
+		if(pos.fw > -1 && pos.fh > -1)
+			highlight_frag(screen, color, pos, 1);
+		else highlight_sqr(screen, color, pos, 1);
+	}
 }
 
 void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims)
@@ -33466,7 +33479,7 @@ void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int f
     _allegro_hline(dest, xc, yc, x2, color);
     _allegro_vline(dest, xc, yc, y2, color);
 }
-void highlight_frag(BITMAP* dest, int color, size_and_pos& rec, int thick)
+void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick)
 {
 	highlight_frag(dest, color, rec.x, rec.y, rec.tw(), rec.th(), rec.fw, rec.fh, thick);
 }
