@@ -10659,17 +10659,17 @@ void domouse()
 	bool lclick = mb&1;
 	bool rclick = mb&2;
 	
+	FONT* tfont = font;
 	if(zoomed_minimap)
 	{
 		if((lclick||rclick) && !minimap_zoomed.rect(x,y))
 		{
 			// 'Clicked off'
 			zoomed_minimap = false;
-			return;
+			goto domouse_doneclick;
 		}
 	}
 	
-	FONT* tfont = font;
 	if(real_mb==0)
 	{
 		mouse_down = 0;
