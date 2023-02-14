@@ -286,6 +286,7 @@ size_and_pos drawmode_btn;
 size_and_pos main_panel;
 size_and_pos preview_panel;
 size_and_pos layer_panel;
+size_and_pos preview_text;
 
 size_and_pos favorites_window;
 size_and_pos favorites_list;
@@ -1795,7 +1796,7 @@ int onSKey()
 static DIALOG dialogs[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-    { d_nbmenu_proc,     0,    2,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
+    { d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
     
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
     { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
@@ -31489,7 +31490,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+10;
+		mapscreen_y=text_height(guifont)+11;
 		mapscreensize=3;
 		showedges=0;
 		showallpanels=0;
@@ -31663,6 +31664,13 @@ void load_size_poses()
 		preview_panel.x = 0;
 		preview_panel.w = commands_window.x - preview_panel.x;
 		
+		preview_text.x = preview_panel.x+1;
+		preview_text.y = preview_panel.y+3;
+		preview_text.w = 2;
+		preview_text.h = 6;
+		preview_text.xscale = 10;
+		preview_text.yscale = text_height(lfont_l);
+		
 		txtoffs_single.x = 10;
 		txtoffs_single.y = 22;
 		txtoffs_double_1.x = 10;
@@ -31740,7 +31748,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=text_height(guifont)+10;
+		mapscreen_y=text_height(guifont)+11;
 		mapscreensize=2;
 		showedges=1;
 		showallpanels=0;
@@ -31846,6 +31854,13 @@ void load_size_poses()
 		main_panel.w = commands_window.x - main_panel.x;
 		main_panel.h = zq_screen_h - main_panel.y;
 		preview_panel = main_panel;
+		
+		preview_text.x = preview_panel.x+1;
+		preview_text.y = preview_panel.y+3;
+		preview_text.w = 1;
+		preview_text.h = 12;
+		preview_text.xscale = 10;
+		preview_text.yscale = text_height(lfont_l);
 		
 		minimap.x=3;
 		minimap.y=main_panel.y+4;
@@ -32569,8 +32584,6 @@ void animate_coords()
     }
 }
 
-static int32_t help_pos=0;
-
 static const char *help_list[] =
 {
     "PREVIEW MODE",
@@ -32611,41 +32624,29 @@ void do_animations()
 
 void do_previewtext()
 {
-    //Put in help areas
-    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos]);
-    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+1]);
-    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+2]);
-    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+3]);
-    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+4]);
-        
-    textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+5]);
-    
-	if(is_compact)
+	FONT* oldfont = font;
+	font = lfont_l;
+	
+	//Put in help areas
+	auto& sqr = preview_text;
+	int ind = 0, len = 0;
+	for(int q = 0; q < 12; ++q)
 	{
-		int offs = 0;
-		for(auto q = 0; q < 6; ++q)
+		int l = text_length(font, help_list[q]);
+		if(len < l) len = l;
+	}
+	sqr.xscale = len+2;
+	sqr.yscale = text_height(font);
+	for(int col = 0; col < sqr.w; ++col)
+	{
+		for(int row = 0; row < sqr.h; ++row)
 		{
-			int len = text_length(font,help_list[help_pos+q]);
-			if(len > offs)
-				offs = len;
+			auto& line = sqr.subsquare(col,row);
+			textprintf_ex(menu1,font,line.x,line.y,jwin_pal[jcTEXTFG],-1,"%s",help_list[ind++]);
 		}
-		offs += 2;
-		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
-		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+8+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
-		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+16+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
-		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+24+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
-		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+32+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
-		textprintf_ex(menu1,font,preview_panel.x+1+offs,preview_panel.y+40+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
 	}
-	else
-	{
-		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+48+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+6]);
-		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+56+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+7]);
-		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+64+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+8]);
-		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+72+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+9]);
-		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+81+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+10]);
-		textprintf_ex(menu1,font,preview_panel.x+1,preview_panel.y+90+3,jwin_pal[jcTEXTFG],-1,"%s",help_list[help_pos+11]);
-	}
+	
+	font = oldfont;
 }
 
 
@@ -32689,198 +32690,172 @@ bool prv_press=false;
 
 void dopreview()
 {
-    //set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-    refresh(rMAP);
-    
-    while(!(gui_mouse_b()))
-    {
-        //ret = jwin_menu_proc(msg,d,c);
-        if(keypressed())
-        {
-            if(!prv_press)
-            {
-                prv_press=true;
-                
-                switch(readkey()>>8)
-                {
-                case KEY_ESC:
-                case KEY_ENTER:
-                case KEY_ENTER_PAD:
-                    goto finished;
-                    break;
-                    
-                case KEY_F:
-                    Flags^=cFLAGS;
-                    refresh(rMAP);
-                    break;
-                    
-                case KEY_R:
-                    onRKey();
-                    break;
-                    
-                case KEY_S:
-                    onSKey();
-                    break;
-                    
-                    /*
-                              case KEY_E:
-                                Map.prv_secrets(true);
-                                refresh(rALL);
-                                break;
-                    */
-                case KEY_C:
-                    onCopy();
-                    break;
-                    
-                case KEY_A:
-                    onAKey();
-                    break;
-                    
-                case KEY_P:
-                    onP();
-                    break;
+	//set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+	refresh(rMAP);
+	
+	while(!(gui_mouse_b()))
+	{
+		//ret = jwin_menu_proc(msg,d,c);
+		if(keypressed())
+		{
+			if(!prv_press)
+			{
+				prv_press=true;
 				
-				case KEY_L:
-					onShowDarkness();
-					break;
-                    
-                case KEY_1:
-                    Map.prv_dowarp(0,0);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_2:
-                    Map.prv_dowarp(0,1);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_3:
-                    Map.prv_dowarp(0,2);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_4:
-                    Map.prv_dowarp(0,3);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_5:
-                    Map.prv_dowarp(1,0);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_6:
-                    Map.prv_dowarp(1,1);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_7:
-                    Map.prv_dowarp(1,2);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_8:
-                    Map.prv_dowarp(1,3);
-                    prv_warp=0;
-                    break;
-                    
-                case KEY_9:
-                    if(prv_twon)
-                    {
-                        prv_twon=0;
-                        Map.set_prvtime(0);
-                        prv_warp=0;
-                    }
-                    else
-                    {
-                        Map.set_prvtime(Map.get_prvscr()->timedwarptics);
-                        prv_twon=1;
-                    }
-                    
-                    break;
-                    
-                case KEY_W:
-                    onShowWalkability();
-                    break;
-                    
-                case KEY_Q:
-                    onShowComboInfoCSet();
-                    break;
-                    
-                case KEY_PGUP:
-                    help_pos--;
-                    
-                    if(help_pos<0)
-                    {
-                        help_pos=0;
-                    }
-                    
-                    break;
-                    
-                case KEY_PGDN:
-                    help_pos++;
-                    
-                    if(help_pos>1)
-                    {
-                        help_pos--;
-                    }
-                    
-                    break;
-                }
-            }
-            else
-            {
-                readkey();
-            }
-        }
-        else
-        {
-            prv_press=false;
-        }
-        
-        if(prv_warp)
-        {
-            Map.prv_dowarp(1,0);
-            prv_warp=0;
-        }
-        
-        if(Map.get_prvfreeze())
-        {
-            if(Map.get_prvadvance())
-            {
-                do_animations();
-                Map.set_prvadvance(0);
-            }
-        }
-        else
-        {
-            do_animations();
-            Map.set_prvadvance(0);
-        }
-        
-        refresh(rALL);
-    }
-    
+				switch(readkey()>>8)
+				{
+					case KEY_ESC:
+					case KEY_ENTER:
+					case KEY_ENTER_PAD:
+						goto finished;
+						break;
+						
+					case KEY_F:
+						Flags^=cFLAGS;
+						refresh(rMAP);
+						break;
+						
+					case KEY_R:
+						onRKey();
+						break;
+						
+					case KEY_S:
+						onSKey();
+						break;
+						
+					case KEY_C:
+						onCopy();
+						break;
+						
+					case KEY_A:
+						onAKey();
+						break;
+						
+					case KEY_P:
+						onP();
+						break;
+					
+					case KEY_L:
+						onShowDarkness();
+						break;
+						
+					case KEY_1:
+						Map.prv_dowarp(0,0);
+						prv_warp=0;
+						break;
+						
+					case KEY_2:
+						Map.prv_dowarp(0,1);
+						prv_warp=0;
+						break;
+						
+					case KEY_3:
+						Map.prv_dowarp(0,2);
+						prv_warp=0;
+						break;
+						
+					case KEY_4:
+						Map.prv_dowarp(0,3);
+						prv_warp=0;
+						break;
+						
+					case KEY_5:
+						Map.prv_dowarp(1,0);
+						prv_warp=0;
+						break;
+						
+					case KEY_6:
+						Map.prv_dowarp(1,1);
+						prv_warp=0;
+						break;
+						
+					case KEY_7:
+						Map.prv_dowarp(1,2);
+						prv_warp=0;
+						break;
+						
+					case KEY_8:
+						Map.prv_dowarp(1,3);
+						prv_warp=0;
+						break;
+						
+					case KEY_9:
+						if(prv_twon)
+						{
+							prv_twon=0;
+							Map.set_prvtime(0);
+							prv_warp=0;
+						}
+						else
+						{
+							Map.set_prvtime(Map.get_prvscr()->timedwarptics);
+							prv_twon=1;
+						}
+						
+						break;
+						
+					case KEY_W:
+						onShowWalkability();
+						break;
+						
+					case KEY_Q:
+						onShowComboInfoCSet();
+						break;
+				}
+			}
+			else
+			{
+				readkey();
+			}
+		}
+		else
+		{
+			prv_press=false;
+		}
+		
+		if(prv_warp)
+		{
+			Map.prv_dowarp(1,0);
+			prv_warp=0;
+		}
+		
+		if(Map.get_prvfreeze())
+		{
+			if(Map.get_prvadvance())
+			{
+				do_animations();
+				Map.set_prvadvance(0);
+			}
+		}
+		else
+		{
+			do_animations();
+			Map.set_prvadvance(0);
+		}
+		
+		refresh(rALL);
+	}
+	
 finished:
-    //Flags=of;
-    reset_combo_animations();
-    reset_combo_animations2();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    prv_mode=0;
-    Map.set_prvcmb(0);
-    Map.set_prvadvance(0);
-    Map.set_prvfreeze(0);
-    Map.set_prvtime(0);
-    prv_warp=0;
-    loadlvlpal(Map.getcolor());
-    rebuild_trans_table();
-    refresh(rMAP+rMENU);
-    
-    while(gui_mouse_b())
-    {
-        /* do nothing */
-        rest(1);
-    }
+	//Flags=of;
+	reset_combo_animations();
+	reset_combo_animations2();
+	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	prv_mode=0;
+	Map.set_prvcmb(0);
+	Map.set_prvadvance(0);
+	Map.set_prvfreeze(0);
+	Map.set_prvtime(0);
+	prv_warp=0;
+	loadlvlpal(Map.getcolor());
+	rebuild_trans_table();
+	refresh(rMAP+rMENU);
+	
+	while(gui_mouse_b())
+	{
+		/* do nothing */
+		rest(1);
+	}
 }
 
 void call_vidmode_dlg();
