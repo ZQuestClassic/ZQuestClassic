@@ -113,7 +113,7 @@ def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
         if src.parent.name == 'base_config':
             dest.write_text(preprocess_base_config(src.read_text(), system))
         else:
-            shutil.copy2(src, dest)
+            shutil.copy2(src, dest, follow_symlinks=False)
 
 
 def prepare_package(package_dir: Path):
