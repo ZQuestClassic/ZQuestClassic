@@ -72,13 +72,13 @@ jobs:
           - runs-on: macos-12
             arch: intel
             compiler: clang
-            config: RelWithDebInfo
-            sentry: ${{ inputs.sentry }}
+            config: Release
+            sentry: false
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang
-            config: Release
-            sentry: false
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/build.yml
