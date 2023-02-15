@@ -21,6 +21,12 @@
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
 #include <fmt/format.h>
+
+#ifdef HAS_SENTRY
+#define SENTRY_BUILD_STATIC 1
+#include "sentry.h"
+#endif
+
 using std::unique_ptr;
 using std::shared_ptr;
 using namespace ZScript;
@@ -131,6 +137,14 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 #ifndef _DEBUG
 	catch (std::exception &e)
 	{
+#ifdef HAS_SENTRY
+		sentry_value_t event = sentry_value_new_event();
+		sentry_value_t exc = sentry_value_new_exception("Parser Runtime Error", e.what());
+		sentry_value_set_stacktrace(exc, NULL, 0);
+		sentry_event_add_exception(event, exc);
+		sentry_capture_event(event);
+#endif
+
 		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
 		zscript_had_warn_err = zscript_error_out = true;
 		return nullptr;
