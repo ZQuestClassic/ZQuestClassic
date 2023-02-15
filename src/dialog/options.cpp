@@ -611,7 +611,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 		Columns<3>(
 			DummyWidget(),
 			TabPanel(ptr = &font_tab_ptr, fitParent = true,
-				TabRef(name = "Large", Rows<3>(
+				TabRef(name = "Expanded", Rows<3>(
 					FONT_ROW_DDOWN(OPT_LARGEFONT_DIALOG, "Dialog Font:", fontlist),
 					FONT_ROW_DDOWN(OPT_LARGEFONT_GUI, "GUI Font:", fontlist),
 					FONT_ROW_DDOWN(OPT_LARGEFONT_TITLE, "Title Font:", fontlist),
