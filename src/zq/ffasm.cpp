@@ -3243,8 +3243,16 @@ int32_t parse_script_section(char const* combuf, char const* arg1buf, char const
 	auto& zas = (*script)->zasm[com];
 	zas.arg1 = 0;
 	zas.arg2 = 0;
-	zas.vecptr = vptr;
-	zas.strptr = sptr;
+	zas.vecptr = nullptr;
+	zas.strptr = nullptr;
+	if(vptr)
+	{
+		zas.vecptr = new std::vector<int32_t>(*vptr);
+	}
+	if(sptr)
+	{
+		zas.strptr = new std::string(*sptr);
+	}
 	bool found_command=false;	
 	
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)
