@@ -33768,7 +33768,7 @@ void FFScript::initIncludePaths()
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %zu: ",q);
-		safe_al_trace(includePaths.at(q).c_str());
+		safe_al_trace(includePaths.at(q));
 		al_trace("\n");
 	}
 }

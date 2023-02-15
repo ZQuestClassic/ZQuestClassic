@@ -126,14 +126,14 @@ namespace ZScript
 			if(al)
 			{
 				al_trace("\n\n");
-				safe_al_trace(str.c_str());
+				safe_al_trace(str);
 				al_trace("\n");
 			}
 			for(auto& line : second)
 			{
 				str = line->printLine();
 				if(al)
-					al_trace("%s",str.c_str());
+					safe_al_trace(str);
 				fwrite(str.c_str(), sizeof(char), str.size(), dest);
 			}
 		}
