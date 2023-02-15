@@ -121,6 +121,7 @@ jobs:
           -DCOPY_RESOURCES=OFF
           -DRELEASE_TAG="${{ inputs.release-tag }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
+          -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
           -DCMAKE_WIN32_EXECUTABLE=1
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -159,7 +160,7 @@ jobs:
             python scripts/package.py --build_folder build/${{ inputs.config }}
             mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           macos: |
-            sh scripts/package_mac.sh
+            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }}
             mv build/${{ inputs.config }}/packages/ZeldaClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           linux: |
             python scripts/package.py --build_folder build/${{ inputs.config }}

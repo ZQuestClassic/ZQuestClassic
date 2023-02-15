@@ -11,6 +11,7 @@ option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
+set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -42,6 +43,17 @@ if(APPLE)
 elseif(LINUX)
 	# https://stackoverflow.com/a/71321163/2788187
 	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+endif()
+
+if(APPLE AND WANT_MAC_DEBUG_FILES)
+	find_program(DSYMUTIL_PROGRAM dsymutil)
+	if (DSYMUTIL_PROGRAM)
+		foreach(lang C CXX)
+			foreach(var LINK_EXECUTABLE CREATE_SHARED_LIBRARY)
+				set(CMAKE_${lang}_${var} "${CMAKE_${lang}_${var}}" "${DSYMUTIL_PROGRAM} <TARGET>")
+			endforeach()
+		endforeach()
+	endif()
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
