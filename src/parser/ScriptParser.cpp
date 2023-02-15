@@ -122,12 +122,20 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 		return unique_ptr<ScriptsData>(result.release());
 	}
+	catch (compile_exception &e)
+	{
+		zconsole_error(fmt::format("An unexpected compile error has occurred:\n{}",e.what()));
+		zscript_had_warn_err = zscript_error_out = true;
+		return nullptr;
+	}
+#ifndef _DEBUG
 	catch (std::exception &e)
 	{
 		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
 		zscript_had_warn_err = zscript_error_out = true;
 		return nullptr;
 	}
+#endif
 }
 
 int32_t ScriptParser::vid = 0;
