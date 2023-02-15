@@ -13138,9 +13138,10 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 			}
 			if(sz)
 			{
+				auto& str = *zas.strptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
-					if(!p_putc(zas.strptr->at(q),f))
+					if(!p_putc(str[q],f))
 					{
 						new_return(24);
 					}
@@ -13155,9 +13156,10 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 			}
 			if(sz) //vector found
 			{
+				auto& vec = *zas.vecptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
-					if(!p_iputl(zas.vecptr->at(q),f))
+					if(!p_iputl(vec[q],f))
 					{
 						new_return(26);
 					}
