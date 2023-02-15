@@ -59,11 +59,11 @@ namespace ZScript
 		{
 			char buf[100];
         
-			if(label == -1)
+			if(!showlabel || label == -1)
 				return " " + toString() + "\n";
             
-			sprintf(&buf[0], "l%d:", label);
-			return (showlabel ? std::string(&buf[0]) : " ")+ toString() + "\n";
+			sprintf(buf, "l%d:", label);
+			return std::string(buf)+toString()+"\n";
 		}
 		Opcode * makeClone(bool copylabel = true)
 		{
