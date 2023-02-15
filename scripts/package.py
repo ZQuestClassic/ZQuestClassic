@@ -175,9 +175,13 @@ else:
             binary_file(build_dir / 'zscript'),
             binary_file(build_dir / 'zlauncher'),
             binary_file(build_dir / 'zconsole') if system == 'Windows' else None,
-            binary_file(build_dir / 'crashpad_handler'),
             *(glob_files(build_dir, '*.dll') if system == 'Windows' else []),
             *(glob_files(build_dir, '*.so*') if system == 'Linux' else []),
             *(glob_files(build_dir, '*.dylib') if system == 'Darwin' else []),
         ])
+
+        crashpad_binary = binary_file(build_dir / 'crashpad_handler')
+        if crashpad_binary.exists():
+            files.append(crashpad_binary)
+
     do_packaging(packages_dir / 'zc', files)
