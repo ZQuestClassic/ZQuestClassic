@@ -11820,7 +11820,7 @@ domouse_doneclick:
 		
 		z=abs(mouse_z);
 		
-		if(real_minimap.rect(x,y))
+		if(real_mini.rect(x,y))
 		{
 			for(int32_t i=0; i<z; ++i)
 			{
