@@ -72,8 +72,8 @@ jobs:
           - runs-on: macos-12
             arch: intel
             compiler: clang
-            config: Release
-            sentry: false
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang

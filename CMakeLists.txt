@@ -739,7 +739,7 @@ set(zc_gcc_errors
 )
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.5.3)
+	set(SENTRY_VERSION 0.6.0)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
