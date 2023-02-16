@@ -56,6 +56,17 @@ if(APPLE AND WANT_MAC_DEBUG_FILES)
 	endif()
 endif()
 
+if(LINUX)
+	find_program(EU_STRIP_PROGRAM eu-strip)
+	if (EU_STRIP_PROGRAM)
+		foreach(lang C CXX)
+			foreach(var LINK_EXECUTABLE CREATE_SHARED_LIBRARY)
+				set(CMAKE_${lang}_${var} "${CMAKE_${lang}_${var}}" "${EU_STRIP_PROGRAM} --strip-debug -f <TARGET>.debug <TARGET>")
+			endforeach()
+		endforeach()
+	endif()
+endif()
+
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
   set(files ${${SOURCE_VARIABLE_NAME}})
   # Generate a unique filename for the unity build translation unit
