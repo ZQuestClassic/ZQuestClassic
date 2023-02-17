@@ -16,7 +16,7 @@ void call_options_dlg()
 }
 
 extern int32_t EnableTooltips, GridColor, KeyboardRepeatDelay,
-	TooltipsHighlight, KeyboardRepeatRate, pixeldb, MMapCursorStyle;
+	TooltipsHighlight, KeyboardRepeatRate, pixeldb, infobg, MMapCursorStyle;
 
 void OptionsDialog::loadOptions()
 {
@@ -63,6 +63,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_NUMERICAL_FLAG_LIST] = numericalFlags;
 	opts[OPT_CUSTOMFONT] = zc_get_config("gui","custom_fonts",1);
 	opts[OPT_BOTTOM8] = pixeldb;
+	opts[OPT_INFO_BG] = infobg;
 	
 	opts[OPT_LARGEFONT_DIALOG] = zc_get_config("ZQ_GUI", "font_large_dialog", font_lfont_l);
 	opts[OPT_LARGEFONT_GUI] = zc_get_config("ZQ_GUI", "font_large_gui", font_nfont);
@@ -70,6 +71,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_LARGEFONT_FAVCMD] = zc_get_config("ZQ_GUI", "font_large_favcmd", font_pfont);
 	opts[OPT_LARGEFONT_TEXTBOX] = zc_get_config("ZQ_GUI", "font_large_textbox", font_sfont3);
 	opts[OPT_LARGEFONT_TTIP] = zc_get_config("ZQ_GUI", "font_large_ttip", font_lfont);
+	opts[OPT_LARGEFONT_INFO] = zc_get_config("ZQ_GUI", "font_large_info", font_lfont_l);
 	
 	opts[OPT_COMPACTFONT_DIALOG] = zc_get_config("ZQ_GUI", "font_compact_dialog", font_lfont_l);
 	opts[OPT_COMPACTFONT_GUI] = zc_get_config("ZQ_GUI", "font_compact_gui", font_nfont);
@@ -77,6 +79,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_COMPACTFONT_FAVCMD] = zc_get_config("ZQ_GUI", "font_compact_favcmd", font_pfont);
 	opts[OPT_COMPACTFONT_TEXTBOX] = zc_get_config("ZQ_GUI", "font_compact_textbox", font_sfont3);
 	opts[OPT_COMPACTFONT_TTIP] = zc_get_config("ZQ_GUI", "font_compact_ttip", font_lfont);
+	opts[OPT_COMPACTFONT_INFO] = zc_get_config("ZQ_GUI", "font_compact_info", font_lfont_l);
 	
 	//cleanup
     reset_combo_animations();
@@ -95,7 +98,7 @@ void OptionsDialog::saveOptions()
 		reload_fonts = true;
 	else
 	{
-		for(int ind = OPT_LARGEFONT_DIALOG; ind <= OPT_COMPACTFONT_TTIP; ++ind)
+		for(int ind = OPT_FIRSTFONT; ind <= OPT_LASTFONT; ++ind)
 		{
 			if(opt_changed[ind])
 			{
@@ -279,6 +282,10 @@ void OptionsDialog::saveOption(int ind)
 			pixeldb = v;
 			zc_set_config("ZQ_GUI","bottom_8_pixels",v);
 			break;
+		case OPT_INFO_BG:
+			infobg = v;
+			zc_set_config("ZQ_GUI","info_text_bg",v);
+			break;
 		
 		case OPT_LARGEFONT_DIALOG:
 			zc_set_config("ZQ_GUI", "font_large_dialog", opts[OPT_LARGEFONT_DIALOG]);
@@ -298,6 +305,9 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_LARGEFONT_TTIP:
 			zc_set_config("ZQ_GUI", "font_large_ttip", opts[OPT_LARGEFONT_TTIP]);
 			break;
+		case OPT_LARGEFONT_INFO:
+			zc_set_config("ZQ_GUI", "font_large_info", opts[OPT_LARGEFONT_INFO]);
+			break;
 		
 		case OPT_COMPACTFONT_DIALOG:
 			zc_set_config("ZQ_GUI", "font_compact_dialog", opts[OPT_COMPACTFONT_DIALOG]);
@@ -316,6 +326,9 @@ void OptionsDialog::saveOption(int ind)
 			break;
 		case OPT_COMPACTFONT_TTIP:
 			zc_set_config("ZQ_GUI", "font_compact_ttip", opts[OPT_COMPACTFONT_TTIP]);
+			break;
+		case OPT_COMPACTFONT_INFO:
+			zc_set_config("ZQ_GUI", "font_compact_info", opts[OPT_COMPACTFONT_INFO]);
 			break;
 	}
 }
@@ -617,7 +630,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					FONT_ROW_DDOWN(OPT_LARGEFONT_TITLE, "Title Font:", fontlist),
 					FONT_ROW_DDOWN(OPT_LARGEFONT_FAVCMD, "FavCMD Font:", fontlist),
 					FONT_ROW_DDOWN(OPT_LARGEFONT_TEXTBOX, "Textbox Font:", fontlist),
-					FONT_ROW_DDOWN(OPT_LARGEFONT_TTIP, "Tooltip Font:", fontlist)
+					FONT_ROW_DDOWN(OPT_LARGEFONT_TTIP, "Tooltip Font:", fontlist),
+					FONT_ROW_DDOWN(OPT_LARGEFONT_INFO, "Info Font:", fontlist)
 				)),
 				TabRef(name = "Compact", Rows<3>(
 					FONT_ROW_DDOWN(OPT_COMPACTFONT_DIALOG, "Dialog Font:", fontlist),
@@ -625,7 +639,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					FONT_ROW_DDOWN(OPT_COMPACTFONT_TITLE, "Title Font:", fontlist),
 					FONT_ROW_DDOWN(OPT_COMPACTFONT_FAVCMD, "FavCMD Font:", fontlist),
 					FONT_ROW_DDOWN(OPT_COMPACTFONT_TEXTBOX, "Textbox Font:", fontlist),
-					FONT_ROW_DDOWN(OPT_COMPACTFONT_TTIP, "Tooltip Font:", fontlist)
+					FONT_ROW_DDOWN(OPT_COMPACTFONT_TTIP, "Tooltip Font:", fontlist),
+					FONT_ROW_DDOWN(OPT_COMPACTFONT_INFO, "Info Font:", fontlist)
 				))
 			),
 			Button(text = "Default",
@@ -648,6 +663,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					opts[OPT_LARGEFONT_GUI] = font_nfont;
 					opts[OPT_LARGEFONT_TEXTBOX] = font_sfont3;
 					opts[OPT_LARGEFONT_TTIP] = font_lfont;
+					opts[OPT_LARGEFONT_INFO] = font_lfont_l;
 					
 					opts[OPT_COMPACTFONT_DIALOG] = font_lfont_l;
 					opts[OPT_COMPACTFONT_TITLE] = font_lfont;
@@ -655,6 +671,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					opts[OPT_COMPACTFONT_GUI] = font_nfont;
 					opts[OPT_COMPACTFONT_TEXTBOX] = font_sfont3;
 					opts[OPT_COMPACTFONT_TTIP] = font_lfont;
+					opts[OPT_COMPACTFONT_INFO] = font_lfont_l;
 					
 					opt_changed[OPT_LARGEFONT_DIALOG] = true;
 					opt_changed[OPT_LARGEFONT_TITLE] = true;
@@ -662,6 +679,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					opt_changed[OPT_LARGEFONT_GUI] = true;
 					opt_changed[OPT_LARGEFONT_TEXTBOX] = true;
 					opt_changed[OPT_LARGEFONT_TTIP] = true;
+					opt_changed[OPT_LARGEFONT_INFO] = true;
 					
 					opt_changed[OPT_COMPACTFONT_DIALOG] = true;
 					opt_changed[OPT_COMPACTFONT_TITLE] = true;
@@ -669,6 +687,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					opt_changed[OPT_COMPACTFONT_GUI] = true;
 					opt_changed[OPT_COMPACTFONT_TEXTBOX] = true;
 					opt_changed[OPT_COMPACTFONT_TTIP] = true;
+					opt_changed[OPT_COMPACTFONT_INFO] = true;
 					
 					preview_font(opts[is_compact ? OPT_COMPACTFONT_DIALOG : OPT_LARGEFONT_DIALOG]);
 				}),
@@ -716,7 +735,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 				OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
 				OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
 				OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
-				OPT_CHECK(OPT_MISALIGNS, "Show Misaligns")
+				OPT_CHECK(OPT_MISALIGNS, "Show Misaligns"),
+				OPT_CHECK(OPT_INFO_BG, "Show BG behind infotext")
 			))
 		)
 	);

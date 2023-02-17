@@ -917,3 +917,9 @@ char const* get_snap_str()
 		return snap;
 	return nil;
 }
+
+void clear_clip_rect(BITMAP* bitmap)
+{
+	set_clip_rect(bitmap, 0, 0, bitmap->w-1, bitmap->h-1);
+}
+

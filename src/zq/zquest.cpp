@@ -434,6 +434,7 @@ bool combo_cols=true;
 bool is_compact = false;
 
 int pixeldb = 1;
+int infobg = 1;
 bool large_merged_combopane = false;
 bool compact_merged_combopane = true;
 bool large_zoomed_fav = false;
@@ -6797,49 +6798,48 @@ void refresh(int32_t flags)
 			rectfill(menu1,((i&15)<<2)+256,((i>>4)<<2)+176,((i&15)<<2)+259,((i>>4)<<2)+179,i);
 		}
 	}
-	
-	if(ShowFPS)
-	{
-		FONT* fpsfont = lfont_l;
-		textprintf_shadowed_ex(menu1,fpsfont,0,prv_mode?32:16,vc(15),vc(0),-1,"FPS:%-3d",lastfps);
-	}
-	
-	if(prv_mode)
-	{
-		textout_shadowed_ex(menu1,sfont,"Preview Mode",0,16,vc(15),vc(0),-1);
-		
-		if(prv_twon)
+	{ //Show top-left info
+		size_t maxwid = (mapscreensize*mapscreenbmp->w)-1;
+		size_t maxhei = (mapscreensize*mapscreenbmp->w);
+		set_clip_rect(menu1,mapscreen_x,mapscreen_y,mapscreen_x+maxwid-1,mapscreen_y+maxhei-1);
+		FONT* showfont = get_custom_font(CFONT_INFO);
+		int showfont_h = text_height(showfont);
+		int32_t ypos = mapscreen_y;
+		if(prv_mode)
 		{
-			textprintf_shadowed_ex(menu1,sfont,0,24,vc(15),vc(0),-1,"T Warp=%d tics", Map.get_prvtime());
+			textout_shadowed_ex(menu1,showfont,"Preview Mode",0,ypos,vc(15),vc(0),infobg?vc(0):-1);
+			ypos += showfont_h+1;
+			if(prv_twon)
+			{
+				textprintf_shadowed_ex(menu1,showfont,0,ypos,vc(15),vc(0),infobg?vc(0):-1,"T Warp=%d tics", Map.get_prvtime());
+				ypos += showfont_h+1;
+			}
+			
+			do_previewtext();
+			
+		}
+		if(ShowFPS)
+		{
+			textprintf_shadowed_ex(menu1,showfont,0,ypos,vc(15),vc(0),infobg?vc(0):-1,"FPS: %3d",lastfps);
+			ypos += showfont_h+1;
 		}
 		
-		do_previewtext();
-		
-	}
-	
-	if(ShowFFScripts && !prv_mode)
-	{
-		FONT* ffcfont = lfont_l;
-		int ff_fonth = text_height(ffcfont);
-		int32_t ypos = mapscreen_y+(ShowFPS ? ff_fonth+1 : 0);
-		size_t maxwid = mapscreen_x+(mapscreensize*mapscreenbmp->w);
-		BITMAP* tempbmp = create_bitmap_ex(8,maxwid,ff_fonth);
-		word c = Map.CurrScr()->numFFC();
-		for(word i=0; i< c; i++)
+		if(ShowFFScripts && !prv_mode)
 		{
-			if(ypos+ff_fonth-1 > map_page_bar[0].y)
-				break;
-			if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
+			word c = Map.CurrScr()->numFFC();
+			for(word i=0; i< c; i++)
 			{
-				clear_bitmap(tempbmp);
-				textout_shadowed_ex(tempbmp,ffcfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),2,0,vc(showxypos_ffc==i ? 14 : 15),vc(0),-1);
-				masked_blit(tempbmp,menu1,0,0,0,ypos,tempbmp->w, tempbmp->h);
-				ypos+=ff_fonth+1;
+				if(ypos+showfont_h-1 > map_page_bar[0].y)
+					break;
+				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
+				{
+					textout_shadowed_ex(menu1, showfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
+					ypos+=showfont_h+1;
+				}
 			}
 		}
-		destroy_bitmap(tempbmp);
+		clear_clip_rect(menu1);
 	}
-	
 	// Show Errors & Details
 	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
 	//'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
@@ -30648,6 +30648,7 @@ int32_t main(int32_t argc,char **argv)
 	PreFillMapTilePage		  =  zc_get_config("zquest","PreFillMapTilePage",0);
 	
 	pixeldb = zc_get_config("ZQ_GUI","bottom_8_pixels",0);
+	infobg = zc_get_config("ZQ_GUI","info_text_bg",0);
 	
 	large_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_large",0);
 	compact_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_compact",1);
