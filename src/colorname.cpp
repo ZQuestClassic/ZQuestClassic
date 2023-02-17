@@ -575,7 +575,7 @@ std::string const& get_color_name(int r, int g, int b)
 {
 	init_color_names();
 	int ind = makehex(r,g,b);
-	auto* it = colornames.find(ind);
+	auto& it = colornames.find(ind);
 	if(it != colornames.end())
 		return it->second;
 	char buf[256];
