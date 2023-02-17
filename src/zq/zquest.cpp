@@ -7311,7 +7311,8 @@ void refresh(int32_t flags)
 	
 	unscare_mouse();
 	SCRFIX();
-	update_hw_screen(true);
+	if(!(flags&rNOUPDATE))
+		update_hw_screen(true);
 	refreshing = false;
 }
 
@@ -8352,7 +8353,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             canedit=true;
         }
         
-        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+        if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1)))
         {
             scare_mouse();
             set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
@@ -8360,13 +8361,13 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             while(gui_mouse_b()==1)
             {
                 x=int32_t((gui_mouse_x()-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffx;
-                y=int32_t((gui_mouse_y()-16-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffy;
+                y=int32_t((gui_mouse_y()-startyint-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffy;
                 showxypos_cursor_icon=true;
 				showxypos_cursor_color = showxypos_color;
                 showxypos_cursor_x=x&mask;
                 showxypos_cursor_y=y&mask;
                 do_animations();
-                refresh(rALL | rNOCURSOR);
+                refresh(rALL | rNOCURSOR | rNOUPDATE);
                 int32_t xpos[2], ypos[2];
 				int32_t x1,y1,x2,y2;
                 
@@ -8418,6 +8419,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 				rectfill(screen,x1,y1,x2,y2,vc(0));
                 textprintf_ex(screen,font,xpos[0],ypos[0],vc(15),vc(0),"%s",b1);
                 textprintf_ex(screen,font,xpos[1],ypos[1],vc(15),vc(0),"%s",b2);
+				update_hw_screen(true);
             }
             
             if(gui_mouse_b()==0)
@@ -8676,8 +8678,8 @@ finished:
 // Drag FFCs around
 void moveffc(int32_t i, int32_t cx, int32_t cy)
 {
-    int32_t ffx = vbound(int32_t(Map.CurrScr()->ffcs[i].x.getFloat()),0,240);
-    int32_t ffy = vbound(int32_t(Map.CurrScr()->ffcs[i].y.getFloat()),0,160);
+    int32_t ffx = vbound(Map.CurrScr()->ffcs[i].x.getFloor(),0,240);
+    int32_t ffy = vbound(Map.CurrScr()->ffcs[i].y.getFloor(),0,160);
 	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
     doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));
@@ -10423,14 +10425,14 @@ void domouse()
 //tooltip stuff
 //-------------
 	clear_tooltip2(); //always clear
-	if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+	if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 	{
 		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 			if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 			{
-				int32_t ffx = Map.CurrScr()->ffcs[i].x.getInt();
-				int32_t ffy = Map.CurrScr()->ffcs[i].y.getInt();
+				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
+				int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
 				int32_t ffw = Map.CurrScr()->ffTileWidth(i)*16;
 				int32_t ffh = Map.CurrScr()->ffTileHeight(i)*16;
 				int32_t cx2 = (x-startxint)/mapscreensize;
@@ -10918,7 +10920,7 @@ void domouse()
 		//Uses lclick/rclick separately
 		
 		//on the map screen
-		if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+		if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 		{
 			if(lclick)
 			{
@@ -10939,8 +10941,8 @@ void domouse()
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 					if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 					{
-						int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
-						int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
+						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
+						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
 						
 						if(cx2 >= ffx && cx2 < ffx+(Map.CurrScr()->ffTileWidth(i)*16) && cy2 >= ffy && cy2 < ffy+(Map.CurrScr()->ffTileHeight(i)*16))
 						{
@@ -11029,8 +11031,8 @@ void domouse()
 						
 					if(data!=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 					{
-						int32_t ffx = int32_t(Map.CurrScr()->ffcs[i].x.getFloat());
-						int32_t ffy = int32_t(Map.CurrScr()->ffcs[i].y.getFloat());
+						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
+						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
 						int32_t cx2 = (x-startxint)/mapscreensize;
 						int32_t cy2 = (y-startyint)/mapscreensize;
 						
