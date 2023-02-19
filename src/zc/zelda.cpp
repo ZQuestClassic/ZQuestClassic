@@ -64,7 +64,7 @@
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
-extern byte epilepsyFlashReduction;
+extern bool epilepsyFlashReduction;
 #include "ConsoleLogger.h"
 #ifndef _WIN32 //Unix
 	#include <fcntl.h>

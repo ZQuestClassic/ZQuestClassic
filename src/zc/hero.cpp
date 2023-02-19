@@ -92,7 +92,6 @@ extern word g_doscript;
 extern word player_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
-extern byte epilepsyFlashReduction;
 extern int32_t script_hero_cset;
 
 void playLevelMusic();
@@ -28215,8 +28214,7 @@ void HeroClass::getTriforce(int32_t id2)
 		{
 		    if(get_bit(quest_rules,qr_FADE))
 		    {
-			//int32_t flashbit = ;
-			if((f&(((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)) ? 6 : 3))==0)
+			if (!flash_reduction_enabled() && (f&7) == 0)
 			{
 			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
 			    refreshpal=true;
@@ -28234,7 +28232,7 @@ void HeroClass::getTriforce(int32_t id2)
 		    }
 		    else
 		    {
-			if((f&((get_bit(quest_rules,qr_EPILEPSY)) ? 10 : 7))==0)
+			if(!flash_reduction_enabled() && (f&7) == 0)
 			{
 			    for(int32_t cs2=2; cs2<5; cs2++)
 			    {
