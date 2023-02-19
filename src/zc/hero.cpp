@@ -25895,14 +25895,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 		advanceframe(true/*,true,false*/);
-		script_drawing_commands.Clear();
+		
+		//Don't clear the last frame, unless 'fixed'
+		if(cx > 0 || get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+			script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
-		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setHeroAction(lastaction);
-	}//end main scrolling loop (2 spaces tab width makes me sad =( )
+	} //end main scrolling loop
 	currdmap = olddmap;
 	
 	clear_bitmap(msg_txt_display_buf);
@@ -26083,9 +26085,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		//script_drawing_commands.Clear();
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
-		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 	}
 }
 
