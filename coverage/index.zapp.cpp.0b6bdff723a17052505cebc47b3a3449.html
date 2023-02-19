@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-01-30 06:44:06</td>
+      <td>2023-02-19 12:28:32</td>
     </tr>
   </table>
 </div>
@@ -81,7 +81,7 @@
         <a href="#l40">40</a>
       </td>
       <td>
-        <a href="#l40"> called 26 times</a>
+        <a href="#l40"> called 28 times</a>
       </td>
     </tr>
     <tr>
@@ -92,18 +92,18 @@
         <a href="#l130">130</a>
       </td>
       <td>
-        <a href="#l130"> called 4642138 times</a>
+        <a href="#l130"> called 4809427 times</a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="#l82">get_app_id()</a>
+        <a href="#l81">get_app_id()</a>
       </td>
       <td>
-        <a href="#l82">82</a>
+        <a href="#l81">81</a>
       </td>
       <td>
-        <a href="#l82"> called 8844 times</a>
+        <a href="#l81"> called 13147 times</a>
       </td>
     </tr>
     <tr>
@@ -119,13 +119,13 @@
     </tr>
     <tr>
       <td>
-        <a href="#l92">zc_get_monitor_scale()</a>
+        <a href="#l91">zc_get_monitor_scale()</a>
       </td>
       <td>
-        <a href="#l92">92</a>
+        <a href="#l91">91</a>
       </td>
       <td>
-        <a href="#l92"> called 26 times</a>
+        <a href="#l91"> called 28 times</a>
       </td>
     </tr>
     <tr>
@@ -136,7 +136,7 @@
         <a href="#l163">163</a>
       </td>
       <td>
-        <a href="#l163"> called 4642138 times</a>
+        <a href="#l163"> called 4809427 times</a>
       </td>
     </tr>
   </table>
@@ -470,7 +470,7 @@
       <td class="lineno"><a id="l40" href="#l40">40</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">common_main_setup</span><span class="p">(</span><span class="n">App</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
@@ -486,7 +486,7 @@
       <td class="lineno"><a id="l42" href="#l42">42</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">app_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
@@ -535,7 +535,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">sentry_options_set_handler_path</span><span class="p">(</span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;crashpad_handler.exe&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="n">sentry_init</span><span class="p">(</span><span class="n">options</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -543,7 +543,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">sentry_init</span><span class="p">(</span><span class="n">options</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -551,7 +551,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -559,7 +559,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">zelda</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -567,7 +567,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">zelda</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zelda&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -575,7 +575,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zelda&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -583,7 +583,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">zquest</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -591,7 +591,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">zquest</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zquest&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -599,7 +599,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zquest&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -607,7 +607,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">zscript</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -615,7 +615,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">zscript</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zscript&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -623,7 +623,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;zscript&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -631,7 +631,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">launcher</span><span class="o">:</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -639,7 +639,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="k">case</span><span class="w"> </span><span class="n">App</span><span class="o">::</span><span class="n">launcher</span><span class="o">:</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;launcher&quot;</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -647,7 +647,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="s">&quot;app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;launcher&quot;</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -655,7 +655,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">            </span><span class="k">break</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -663,7 +663,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="n">atexit</span><span class="p">(</span><span class="n">sentry_atexit</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -671,7 +671,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="n">atexit</span><span class="p">(</span><span class="n">sentry_atexit</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -679,7 +679,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -687,7 +687,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">    </span><span class="c1">// This allows for opening a binary from Finder and having ZC be in its expected</span></td>
     </tr>
 
     <tr class="source-line">
@@ -695,7 +695,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// This allows for opening a binary from Finder and having ZC be in its expected</span></td>
+      <td class="src "><span class="w">    </span><span class="c1">// working directory (the same as the binary). Only used when not inside an application bundle,</span></td>
     </tr>
 
     <tr class="source-line">
@@ -703,7 +703,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// working directory (the same as the binary). Only used when not inside an application bundle,</span></td>
+      <td class="src "><span class="w">    </span><span class="c1">// and only for testing purposes really. See comment about `SKIP_APP_BUNDLE` in package_mac.sh</span></td>
     </tr>
 
     <tr class="source-line">
@@ -711,7 +711,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// and only for testing purposes really. See comment about `SKIP_APP_BUNDLE` in package_mac.sh</span></td>
+      <td class="src "><span class="cp">#ifdef __APPLE__</span></td>
     </tr>
 
     <tr class="source-line">
@@ -719,7 +719,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef __APPLE__</span></td>
+      <td class="src "><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is_in_osx_application_bundle</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -727,7 +727,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">is_in_osx_application_bundle</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">argc</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span></td>
+      <td class="src "><span class="w">        </span><span class="n">chdir</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="n">parent_path</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -735,7 +735,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="n">chdir</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">filesystem</span><span class="o">::</span><span class="n">path</span><span class="p">(</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]).</span><span class="n">parent_path</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span><span class="w"></span></td>
+      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -743,7 +743,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -751,7 +751,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -759,7 +759,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_SDL</span></td>
     </tr>
 
     <tr class="source-line">
@@ -767,7 +767,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_SDL</span></td>
+      <td class="src "><span class="w">	</span><span class="n">SDL_LogSetAllPriority</span><span class="p">(</span><span class="n">SDL_LOG_PRIORITY_DEBUG</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -775,27 +775,19 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">SDL_LogSetAllPriority</span><span class="p">(</span><span class="n">SDL_LOG_PRIORITY_DEBUG</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
-    </tr>
-
-    <tr class="source-line">
-      <td class="lineno"><a id="l80" href="#l80">80</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l81" href="#l81">81</a></td>
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -803,15 +795,15 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l82" href="#l82">82</a></td>
+      <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8844</td>
+      <td class="linecount coveredLine">13147</td>
       <td class="src coveredLine"><span class="n">App</span><span class="w"> </span><span class="nf">get_app_id</span><span class="p">()</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l83" href="#l83">83</a></td>
+      <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -819,15 +811,15 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l84" href="#l84">84</a></td>
+      <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">8844</td>
+      <td class="linecount coveredLine">13147</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">app_id</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l85" href="#l85">85</a></td>
+      <td class="lineno"><a id="l84" href="#l84">84</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -835,7 +827,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l86" href="#l86">86</a></td>
+      <td class="lineno"><a id="l85" href="#l85">85</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -843,7 +835,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l87" href="#l87">87</a></td>
+      <td class="lineno"><a id="l86" href="#l86">86</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -851,7 +843,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l88" href="#l88">88</a></td>
+      <td class="lineno"><a id="l87" href="#l87">87</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -859,7 +851,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l89" href="#l89">89</a></td>
+      <td class="lineno"><a id="l88" href="#l88">88</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -867,7 +859,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l90" href="#l90">90</a></td>
+      <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -875,7 +867,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l91" href="#l91">91</a></td>
+      <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -883,15 +875,15 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l92" href="#l92">92</a></td>
+      <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="kt">double</span><span class="w"> </span><span class="nf">zc_get_monitor_scale</span><span class="p">()</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l93" href="#l93">93</a></td>
+      <td class="lineno"><a id="l92" href="#l92">92</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -899,7 +891,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l94" href="#l94">94</a></td>
+      <td class="lineno"><a id="l93" href="#l93">93</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -907,7 +899,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l95" href="#l95">95</a></td>
+      <td class="lineno"><a id="l94" href="#l94">94</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -915,7 +907,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l96" href="#l96">96</a></td>
+      <td class="lineno"><a id="l95" href="#l95">95</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -923,30 +915,30 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l97" href="#l97">97</a></td>
+      <td class="lineno"><a id="l96" href="#l96">96</a></td>
       <td class="linebranch">
         <details class="linebranchDetails">
         <summary class="linebranchSummary">1/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 26 times.</div>
-          <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
+          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
+          <div class="takenBranch">&check; Branch 1 taken 28 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">zc_get_config</span><span class="p">(</span><span class="s">&quot;gui&quot;</span><span class="p">,</span><span class="s">&quot;ignore_monitor_scale&quot;</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l98" href="#l98">98</a></td>
+      <td class="lineno"><a id="l97" href="#l97">97</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">return</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l99" href="#l99">99</a></td>
+      <td class="lineno"><a id="l98" href="#l98">98</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -954,7 +946,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l100" href="#l100">100</a></td>
+      <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -962,7 +954,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l101" href="#l101">101</a></td>
+      <td class="lineno"><a id="l100" href="#l100">100</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -970,7 +962,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l102" href="#l102">102</a></td>
+      <td class="lineno"><a id="l101" href="#l101">101</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -978,7 +970,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l103" href="#l103">103</a></td>
+      <td class="lineno"><a id="l102" href="#l102">102</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -986,7 +978,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l104" href="#l104">104</a></td>
+      <td class="lineno"><a id="l103" href="#l103">103</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -994,7 +986,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l105" href="#l105">105</a></td>
+      <td class="lineno"><a id="l104" href="#l104">104</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1002,7 +994,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l106" href="#l106">106</a></td>
+      <td class="lineno"><a id="l105" href="#l105">105</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1010,7 +1002,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l107" href="#l107">107</a></td>
+      <td class="lineno"><a id="l106" href="#l106">106</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1018,7 +1010,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l108" href="#l108">108</a></td>
+      <td class="lineno"><a id="l107" href="#l107">107</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1026,7 +1018,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l109" href="#l109">109</a></td>
+      <td class="lineno"><a id="l108" href="#l108">108</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1034,7 +1026,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l110" href="#l110">110</a></td>
+      <td class="lineno"><a id="l109" href="#l109">109</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1042,7 +1034,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l111" href="#l111">111</a></td>
+      <td class="lineno"><a id="l110" href="#l110">110</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1050,7 +1042,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l112" href="#l112">112</a></td>
+      <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1058,7 +1050,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l113" href="#l113">113</a></td>
+      <td class="lineno"><a id="l112" href="#l112">112</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1066,7 +1058,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l114" href="#l114">114</a></td>
+      <td class="lineno"><a id="l113" href="#l113">113</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1074,7 +1066,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l115" href="#l115">115</a></td>
+      <td class="lineno"><a id="l114" href="#l114">114</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1082,7 +1074,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l116" href="#l116">116</a></td>
+      <td class="lineno"><a id="l115" href="#l115">115</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1090,7 +1082,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l117" href="#l117">117</a></td>
+      <td class="lineno"><a id="l116" href="#l116">116</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1098,7 +1090,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l118" href="#l118">118</a></td>
+      <td class="lineno"><a id="l117" href="#l117">117</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1106,7 +1098,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l119" href="#l119">119</a></td>
+      <td class="lineno"><a id="l118" href="#l118">118</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1114,7 +1106,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l120" href="#l120">120</a></td>
+      <td class="lineno"><a id="l119" href="#l119">119</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1122,7 +1114,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l121" href="#l121">121</a></td>
+      <td class="lineno"><a id="l120" href="#l120">120</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1130,7 +1122,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l122" href="#l122">122</a></td>
+      <td class="lineno"><a id="l121" href="#l121">121</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1138,7 +1130,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l123" href="#l123">123</a></td>
+      <td class="lineno"><a id="l122" href="#l122">122</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1146,7 +1138,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l124" href="#l124">124</a></td>
+      <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1154,15 +1146,15 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l125" href="#l125">125</a></td>
+      <td class="lineno"><a id="l124" href="#l124">124</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">al_get_monitor_dpi</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount coveredLine">28</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">al_get_monitor_dpi</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mf">96.0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l126" href="#l126">126</a></td>
+      <td class="lineno"><a id="l125" href="#l125">125</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1170,15 +1162,15 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l127" href="#l127">127</a></td>
+      <td class="lineno"><a id="l126" href="#l126">126</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l128" href="#l128">128</a></td>
+      <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1186,7 +1178,7 @@
     </tr>
 
     <tr class="source-line">
-      <td class="lineno"><a id="l129" href="#l129">129</a></td>
+      <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
@@ -1194,10 +1186,18 @@
     </tr>
 
     <tr class="source-line">
+      <td class="lineno"><a id="l129" href="#l129">129</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">aspect_ratio</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+
+    <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">doAspectResize</span><span class="p">()</span><span class="w"></span></td>
     </tr>
 
@@ -1215,14 +1215,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 4642138 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 4809427 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 4642138 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 4809427 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">DragAspect</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">all_get_fullscreen_flag</span><span class="p">())</span><span class="w"></span></td>
     </tr>
 
@@ -1255,7 +1255,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="w">	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1264,14 +1264,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 4642112 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 26 times.</div>
-          <div class="takenBranch">&check; Branch 2 taken 4642112 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 4809399 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 28 times.</div>
+          <div class="takenBranch">&check; Branch 2 taken 4809399 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prev_width</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">prev_height</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
@@ -1287,7 +1287,7 @@
       <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">prev_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span><span class="w"></span></td>
     </tr>
 
@@ -1295,7 +1295,7 @@
       <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">prev_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span><span class="w"></span></td>
     </tr>
 
@@ -1303,7 +1303,7 @@
       <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">26</td>
+      <td class="linecount coveredLine">28</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
     </tr>
 
@@ -1321,14 +1321,14 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/4</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 4642138 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 4809427 times.</div>
           <div class="notTakenBranch">&cross; Branch 1 not taken.</div>
           <div class="notTakenBranch">&cross; Branch 2 not taken.</div>
-          <div class="takenBranch">&check; Branch 3 taken 4642138 times.</div>
+          <div class="takenBranch">&check; Branch 3 taken 4809427 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">prev_width</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">prev_height</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">()))</span><span class="w"></span></td>
     </tr>
 
@@ -1393,7 +1393,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_resize_display</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">(),</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">()),</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="o">*</span><span class="mf">0.75</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_resize_display</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">(),</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">()),</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="o">*</span><span class="n">aspect_ratio</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1425,7 +1425,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_resize_display</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">(),</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="o">/</span><span class="mf">0.75</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">()));</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">			</span><span class="n">al_resize_display</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">(),</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">())</span><span class="o">/</span><span class="n">aspect_ratio</span><span class="p">,</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">()));</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1456,7 +1456,7 @@
       <td class="lineno"><a id="l159" href="#l159">159</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">prev_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_display_width</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span><span class="w"></span></td>
     </tr>
 
@@ -1464,7 +1464,7 @@
       <td class="lineno"><a id="l160" href="#l160">160</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">prev_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_display_height</span><span class="p">(</span><span class="n">all_get_display</span><span class="p">());</span><span class="w"></span></td>
     </tr>
 
@@ -1472,7 +1472,7 @@
       <td class="lineno"><a id="l161" href="#l161">161</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
 
@@ -1488,7 +1488,7 @@
       <td class="lineno"><a id="l163" href="#l163">163</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zc_process_display_events</span><span class="p">()</span><span class="w"></span></td>
     </tr>
 
@@ -1504,7 +1504,7 @@
       <td class="lineno"><a id="l165" href="#l165">165</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">all_process_display_events</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
@@ -1520,7 +1520,7 @@
       <td class="lineno"><a id="l167" href="#l167">167</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="w">	</span><span class="n">doAspectResize</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
@@ -1528,12 +1528,20 @@
       <td class="lineno"><a id="l168" href="#l168">168</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4642138</td>
+      <td class="linecount coveredLine">4809427</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
       <td class="lineno"><a id="l169" href="#l169">169</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l170" href="#l170">170</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
