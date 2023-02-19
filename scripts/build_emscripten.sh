@@ -29,7 +29,7 @@ npm install
 cd -
 
 packages_dir="$ROOT/build_emscripten/packages"
-python scripts/package.py --build_folder build_emscripten --skip_binaries --skip_archive
+python scripts/package.py --build_folder build_emscripten --skip_binaries --skip_archive --cfg_os web
 
 cd "$packages_dir/zc"
 rm -rf docs/ghost docs/tango
