@@ -25,6 +25,7 @@ parser.add_argument('--bad')
 parser.add_argument('--token', required=True)
 parser.add_argument('--list_releases', action='store_true')
 parser.add_argument('--download_release')
+parser.add_argument('--channel')
 
 args = parser.parse_args()
 
@@ -37,7 +38,9 @@ gh = Github(args.token)
 repo = gh.get_repo('ArmageddonGames/ZQuestClassic')
 
 system = platform.system()
-if system == 'Darwin':
+if args.channel:
+    channel = args.channel
+elif system == 'Darwin':
     channel = 'mac'
 elif system == 'Windows':
     channel = 'windows'
@@ -61,9 +64,12 @@ def get_releases():
 
     for tag in tags:
         commit_count = get_release_commit_count(tag)
-        # TODO: support releases older than alpha 107
-        if commit_count < 6252:
-            continue
+        if channel == 'windows' and commit_count < 6252:
+            # Every release after this commit will have binaries, but before only some do.
+            try:
+                get_release_package_url(tag)
+            except:
+                continue
         if channel == 'mac' and commit_count < 6384:
             continue
         if channel == 'linux' and commit_count < 7404:
@@ -85,7 +91,7 @@ def get_release_package_url(tag):
         asset = next(asset for asset in assets if asset.name.endswith('.dmg'))
     elif channel == 'windows':
         if len(assets) == 1:
-            asset = assets[0].url
+            asset = assets[0]
         else:
             assets = [asset for asset in assets if 'windows' in asset.name]
             asset = next((asset for asset in assets if 'x64' in asset.name), None) or \
