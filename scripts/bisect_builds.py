@@ -2,6 +2,10 @@
 #   python scripts/bisect_builds.py --token $GH_PAT --good 2.55-alpha-108 --bad 2.55-alpha-109
 #   python scripts/bisect_builds.py --token $GH_PAT --bad 2.55-alpha-108 --good 2.55-alpha-109
 #
+# You can automate running a command on each bisect script, like this:
+#   -c '%zq'
+#   -c '%zc -test modules/classic/classic_1st.qst 0 119'
+#
 # To download a specific build:
 #   python scripts/bisect_builds.py --token $GH_PAT --download_release 2.55-alpha-109
 
@@ -26,6 +30,8 @@ parser.add_argument('--token', required=True)
 parser.add_argument('--list_releases', action='store_true')
 parser.add_argument('--download_release')
 parser.add_argument('--channel')
+parser.add_argument('-c', '--command',
+                    help='command to run on each step. \'%zc\' is replaced with the path to the player, \'%zq\' is the editor, and \'%zl\' is the launcher')
 
 args = parser.parse_args()
 
@@ -109,7 +115,7 @@ def download_release(tag: str):
     url = get_release_package_url(tag)
     dest = releases_dir / tag
     if dest.exists():
-        return
+        return dest
 
     dest.mkdir(parents=True)
     print(f'downloading {tag}')
@@ -130,6 +136,27 @@ def download_release(tag: str):
         zip.close()
 
     print(f'finished downloading {tag}')
+    return dest
+
+
+def get_release_binaries(tag: str):
+    dir = download_release(tag)
+
+    binaries = {}
+    if channel == 'mac':
+        binaries['zc'] = dir / 'ZeldaClassic.app/Contents/Resources/zelda'
+        binaries['zq'] = dir / 'ZeldaClassic.app/Contents/Resources/zquest'
+        binaries['zl'] = dir / 'ZeldaClassic.app/Contents/MacOS/zlauncher'
+    elif channel == 'windows':
+        binaries['zc'] = dir / 'zelda.exe'
+        binaries['zq'] = dir / 'zquest.exe'
+        binaries['zl'] = dir / 'zlauncher.exe'
+    elif channel == 'linux':
+        binaries['zc'] = dir / 'zelda'
+        binaries['zq'] = dir / 'zquest'
+        binaries['zl'] = dir / 'zlauncher'
+
+    return binaries
 
 
 def AskIsGoodBuild():
@@ -196,10 +223,18 @@ def run_bisect(releases: List):
 
         tag = release['tag']
         print(f'checking {tag}')
-        download_release(tag)
+        binaries = get_release_binaries(tag)
 
         down_pivot = int((pivot - lower) / 2) + lower
         up_pivot = int((upper - pivot) / 2) + pivot
+
+        if args.command:
+            cmd = args.command
+            cmd = cmd.replace('%zc', str(binaries['zc']))
+            cmd = cmd.replace('%zq', str(binaries['zq']))
+            cmd = cmd.replace('%zl', str(binaries['zl']))
+            print(f'running command: {cmd}')
+            subprocess.call(cmd)
 
         answer = AskIsGoodBuild()
         if answer == 'g':
