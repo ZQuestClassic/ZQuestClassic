@@ -228,12 +228,15 @@ def run_bisect(releases: List):
         print(state, revs[i]['tag'])
     print()
 
+    lower_tag = revs[lower]['tag']
+    upper_tag = revs[upper]['tag']
     if good_rev > bad_rev:
-        print(DONE_MESSAGE_GOOD_MAX % (str(revs[lower]['tag']),
-                                       str(revs[upper]['tag'])))
+        print(DONE_MESSAGE_GOOD_MAX % (lower_tag, upper_tag))
     else:
-        print(DONE_MESSAGE_GOOD_MIN % (str(revs[lower]['tag']),
-                                       str(revs[upper]['tag'])))
+        print(DONE_MESSAGE_GOOD_MIN % (lower_tag, upper_tag))
+
+    print(
+        f'changelog: https://github.com/ArmageddonGames/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
 
 
 releases = get_releases()
