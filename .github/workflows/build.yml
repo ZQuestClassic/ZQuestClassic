@@ -16,6 +16,7 @@ on:
       cache:
         type: boolean
         default: true
+      # The following is for releases only.
       sentry:
         type: boolean
         default: false
@@ -28,6 +29,18 @@ on:
         type: string
         required: false
         description: "Do not set this directly! Use release workflow."
+      number:
+        description: Version number (Alpha/Beta/Gamma/Release).
+        type: string
+        required: false
+      versiontype:
+        type: string
+        description: Whether the build specified is an Alpha/Beta/Gamma/Release
+        required: false
+      full_release:
+        type: boolean
+        description: Full Version (i.e. NOT a nightly)
+        required: false
     outputs:
       artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
@@ -115,6 +128,8 @@ jobs:
         if: inputs.config == 'Coverage'
         run: echo "TARGET=zelda" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
+        if: ${{ inputs.versiontype }}
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'

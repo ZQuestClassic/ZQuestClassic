@@ -92,6 +92,9 @@ jobs:
       release-tag: ${{ needs.create-tag.outputs.release-tag }}
       release-name: ${{ needs.create-tag.outputs.release-name }}
       cache: false
+      number: ${{ inputs.number }}
+      versiontype: ${{ inputs.versiontype }}
+      full_release: ${{ inputs.full_release }}
     secrets: inherit
 
   publish:
