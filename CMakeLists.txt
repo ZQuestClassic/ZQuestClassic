@@ -204,7 +204,7 @@ include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
 # Some performance problems with allegro legacy threaded event queues encouraged
 # NOT closing them on shutdown. This seemed to work ok on Windows and Mac, but on
-# Ubuntu it totally prevents the program from closing.
+# Linux it totally prevents the program from closing.
 # TODO: investigate this further - can performance problems with threaded event queues
 # be fixed?
 if(LINUX AND NOT EMSCRIPTEN)

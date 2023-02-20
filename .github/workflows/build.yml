@@ -148,7 +148,7 @@ jobs:
           elif system == 'Darwin':
             package_name = f'{release_tag}-mac.dmg'
           elif system == 'Linux':
-            package_name = f'{release_tag}-ubuntu.tar.gz'
+            package_name = f'{release_tag}-linux.tar.gz'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('package-name', package_name), file=f)
