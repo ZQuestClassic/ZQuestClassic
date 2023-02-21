@@ -1504,13 +1504,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
 		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
-		
-		if (store_this)
-		{
-			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
-		}
 
 		//push the parameters, in forward order
 		for (auto it = host.parameters.begin();
@@ -1558,12 +1551,19 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 		}
+		if (store_this)
+		{
+			//load the value of the left-hand of the arrow into EXP1
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
+		}
 		//goto
 		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
 			&& !host.isConstructor())
 		{
 			//A constructor calling another constructor to inherit it's code
 			//Use the alt label of the constructor, which is after the constructy bits
+			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));
 		}
 		else addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));

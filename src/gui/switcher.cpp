@@ -70,9 +70,9 @@ void Switcher::realize(DialogRunner& runner)
 	for(size_t i = 0; i < children.size(); ++i)
 	{
 		children[i]->realize(runner);
-		if(i != visibleChild)
-			children[i]->setExposed(false);
+		children[i]->setExposed(false);
 	}
+	children[visibleChild]->setExposed(true);
 }
 
 }

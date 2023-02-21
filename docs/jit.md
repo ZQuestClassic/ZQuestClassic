@@ -1,6 +1,6 @@
 # JIT
 
-JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] jit = 1` conifg option, found in the launcher. There is also the `-j` command line switch, or `--jit` for `run_replay_tests.py`.
+JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] jit = 1` conifg option, found in the launcher. There is also the `-j` command line switch, or `--(no-)jit` for `run_replay_tests.py`.
 
 `[ZSCRIPT] jit_precompile = 1` can be set to compile all scripts on quest load, instead of as they are encountered.
 
@@ -95,7 +95,7 @@ Given a replay that fails only when using JIT, this is how you can debug what's 
 
 The above _usually_ works to pinpoint the instruction that first messes up.
 
-Because it takes so long to debug print the state of scripts after each instruction, it isn't feasible to just debug print for every frame, hence the early exit in step 2. But it's possible that even looking back at 100, 1000, 10000+ frames won't show you the first time a register or stack value differs from what is expected. The state of a script's memory can mess up far before it ever causes a visual regression in the replay. To get a better value, you can repeat the above steps but instead  set `runtime_debug` in `script_debug.cpp` to `2`. Use this more exact value to repeat the above process.
+Because it takes so long to debug print the state of scripts after each instruction, it isn't feasible to just debug print for every frame, hence the early exit in step 2. But it's possible that even looking back at 100, 1000, 10000+ frames won't show you the first time a register or stack value differs from what is expected. The state of a script's memory can mess up far before it ever causes a visual regression in the replay. To get a better value, you can repeat the above steps but instead  set `runtime_debug` in `script_debug.cpp` to `1`. Use this more exact value to repeat the above process.
 
 It can also be useful to compile only the script you're debugging in `jit_create_script_handle`: `if (script->debug_id != 3598) return nullptr;`
 

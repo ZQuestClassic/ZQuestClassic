@@ -64,7 +64,7 @@
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
-extern byte epilepsyFlashReduction;
+extern bool epilepsyFlashReduction;
 #include "ConsoleLogger.h"
 #ifndef _WIN32 //Unix
 	#include <fcntl.h>
@@ -174,6 +174,7 @@ extern int32_t hangcount;
 extern bool kb_typing_mode;
 
 bool is_large=false;
+bool is_compact = false;
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
@@ -244,7 +245,21 @@ static void preciseThrottle(double seconds)
 	}
 
 	// spin lock
+#ifdef __EMSCRIPTEN__
+	while (logic_counter < 1)
+	{
+		volatile int i = 0;
+		while (i < 10000000)
+		{
+			if (logic_counter != 0) return;
+			i += 1;
+		}
+
+		rest(1);
+	}
+#else
 	while(logic_counter < 1);
+#endif
 }
 
 void throttleFPS()
@@ -435,6 +450,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
+double aspect_ratio = 0.75;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -658,7 +674,7 @@ gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
-char header_version_nul_term[10];
+char header_version_nul_term[17];
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
@@ -871,134 +887,7 @@ zctune tunes[MAXMIDIS] =
 
 FONT *setmsgfont()
 {
-    switch(MsgStrings[msgstr].font)
-    {
-    default:
-        return zfont;
-        
-    case font_z3font:
-        return z3font;
-        
-    case font_z3smallfont:
-        return z3smallfont;
-        
-    case font_deffont:
-        return deffont;
-        
-    case font_lfont:
-        return lfont;
-        
-    case font_lfont_l:
-        return lfont_l;
-        
-    case font_pfont:
-        return pfont;
-        
-    case font_mfont:
-        return mfont;
-        
-    case font_ztfont:
-        return ztfont;
-        
-    case font_sfont:
-        return sfont;
-        
-    case font_sfont2:
-        return sfont2;
-        
-    case font_spfont:
-        return spfont;
-        
-    case font_ssfont1:
-        return ssfont1;
-        
-    case font_ssfont2:
-        return ssfont2;
-        
-    case font_ssfont3:
-        return ssfont3;
-        
-    case font_ssfont4:
-        return ssfont4;
-        
-    case font_gblafont:
-        return gblafont;
-        
-    case font_goronfont:
-        return goronfont;
-        
-    case font_zoranfont:
-        return zoranfont;
-        
-    case font_hylian1font:
-        return hylian1font;
-        
-    case font_hylian2font:
-        return hylian2font;
-        
-    case font_hylian3font:
-        return hylian3font;
-        
-    case font_hylian4font:
-        return hylian4font;
-        
-    case font_gboraclefont:
-        return gboraclefont;
-        
-    case font_gboraclepfont:
-        return gboraclepfont;
-        
-    case font_dsphantomfont:
-        return dsphantomfont;
-        
-    case font_dsphantompfont:
-        return dsphantompfont;
-    
-     case font_atari800font: return atari800font;
-		 case font_acornfont: return acornfont;
-		 case font_adosfont: return adosfont;
-		 case font_baseallegrofont: return  baseallegrofont;  
-		 case font_apple2font: return apple2font;
-		 case font_apple280colfont: return apple280colfont;   
-		 case font_apple2gsfont: return  apple2gsfont;
-		 case font_aquariusfont: return  aquariusfont;  
-		 case font_atari400font: return  atari400font;  
-		 case font_c64font: return c64font;   
-		 case font_c64hiresfont: return c64hiresfont;   
-		 case font_cgafont: return cgafont;   
-		 case font_cocofont: return cocofont;
-		 case font_coco2font: return coco2font;
-		 case font_coupefon: return  coupefont;
-		 case font_cpcfon: return  cpcfont;
-		 case font_fantasyfon: return  fantasyfont;
-		 case font_fdskanafon: return  fdskanafont;
-		 case font_fdslikefon: return  fdslikefont;
-		 case font_fdsromanfon: return fdsromanfont; 
-		 case font_finalffont: return finalffont; 
-		 case font_futharkfont: return  futharkfont;
-		 case font_gaiafont: return gaiafont; 
-		 case font_hirafont: return hirafont; 
-		 case font_jpfont: return jpfont; 
-		 case font_kongfont: return  kongfont;
-		 case font_manafont: return manafont; 
-		 case font_mlfont: return  mlfont;
-		 case font_motfont: return motfont;
-		 case font_msxmode0font: return  msxmode0font;
-		 case font_msxmode1font: return  msxmode1font;
-		 case font_petfont: return  petfont;
-		 case font_pstartfont: return  pstartfont;
-		 case font_saturnfont: return  saturnfont;
-		 case font_scififont: return  scififont;
-		 case font_sherwoodfont: return sherwoodfont;
-		 case font_sinqlfont: return  sinqlfont;
-		 case font_spectrumfont: return  spectrumfont;
-		 case font_speclgfont: return  speclgfont;
-		 case font_ti99font: return  ti99font;
-		 case font_trsfont: return  trsfont;
-		 case font_z2font: return  z2font;
-		 case font_zxfont: return zxfont;
-		 case font_lisafont: return lisafont;
-    }
+	return get_zc_font(MsgStrings[msgstr].font);
 }
 
 void zc_trans_blit(BITMAP* dest, BITMAP* src, int32_t sx, int32_t sy, int32_t dx, int32_t dy, int32_t w, int32_t h)
@@ -4712,17 +4601,6 @@ int main(int argc, char **argv)
 		quit_game();
 	}
 
-	if(!al_install_audio())
-	{
-		// We can continue even with no audio.
-		Z_error("Failed al_install_audio");
-	}
-
-	if(!al_init_acodec_addon())
-	{
-		Z_error("Failed al_init_acodec_addon");
-	}
-
 	al5img_init();
 	register_png_file_type();
 
@@ -5274,6 +5152,17 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+		if(!al_install_audio())
+		{
+			// We can continue even with no audio.
+			Z_error("Failed al_install_audio");
+		}
+
+		if(!al_init_acodec_addon())
+		{
+			Z_error("Failed al_init_acodec_addon");
+		}
+
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 		{
 			//      Z_error_fatal(allegro_error);

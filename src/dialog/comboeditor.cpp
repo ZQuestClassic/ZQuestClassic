@@ -413,7 +413,7 @@ std::string getComboTypeHelpText(int32_t id)
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
 			typehelp = "If no button is assigned, the chest opens when pushed against from a valid side. If buttons are assigned,"
 				" then when the button is pressed while facing the chest from a valid side.\n"
-				"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the player will recieve the item set in the screen's catchall value, and the combo will advance to the next combo.";
+				"When the chest is opened, if it has the 'Armos/Chest->Item' combo flag, the player will recieve the contained item, and the combo will advance to the next combo.";
 			if(id==cLOCKEDCHEST)
 				typehelp += "\nRequires a key to open.";
 			else if(id==cBOSSCHEST)
@@ -424,16 +424,14 @@ std::string getComboTypeHelpText(int32_t id)
 				" or variable. The message will display either on button press of a"
 				" set button or walking into the sign if no button is set.";
 			break;
-		case cCHEST2:
-			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Normal)' is opened on the screen.";
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			std::string str = (id == cLOCKEDCHEST2) ? "Locked"
+				: ((id == cBOSSCHEST2) ? "Boss"
+				: "Basic");
+			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest ("+str+")' is opened on the screen.";
 			break;
-		case cLOCKEDCHEST2:
-			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Locked)' is opened on the screen.";
-			break;
-		case cBOSSCHEST2:
-			typehelp = "Acts as a chest that can't be opened. Becomes 'opened' (advancing to the next combo) when any 'Treasure Chest (Boss)' is opened on the screen.";
-			break;
-		
+		}
 		case cHSBRIDGE: case cZELDA: case cUNDEF: case cCHANGE: case cSPINTILE2:
 			typehelp = "Unimplemented type, do not use!";
 			break;
@@ -999,16 +997,13 @@ void ComboEditorDialog::loadComboType()
 				l_flag[1] = "Require Item";
 				h_flag[1] = "Only the required item can open this block (instead of ALSO allowing a key)";
 			}
-			else
+			if(!(FL(cflag1)&&FL(cflag2)))
 			{
 				l_attribute[0] = "Amount:";
 				if(FL(cflag4))
 					h_attribute[0] = "The amount of the arbitrary counter required to open this block";
 				else
 					h_attribute[0] = "The amount of keys required to open this block";
-			}
-			if(!(FL(cflag1)&&FL(cflag2)))
-			{
 				l_flag[3] = "Counter";
 				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
 				if(FL(cflag4))
@@ -1104,16 +1099,13 @@ void ComboEditorDialog::loadComboType()
 				l_flag[1] = "Require Item";
 				h_flag[1] = "Only the required item can open this chest (instead of ALSO allowing a key)";
 			}
-			else
+			if(!(FL(cflag1)&&FL(cflag2)))
 			{
 				l_attribute[0] = "Amount:";
 				if(FL(cflag4))
 					h_attribute[0] = "The amount of the arbitrary counter required to open this chest";
 				else
 					h_attribute[0] = "The amount of keys required to open this chest";
-			}
-			if(!(FL(cflag1)&&FL(cflag2)))
-			{
 				l_flag[3] = "Counter";
 				h_flag[3] = "If checked, uses an arbitrary counter instead of keys";
 				if(FL(cflag4))
@@ -1751,7 +1743,8 @@ void ComboEditorDialog::loadComboType()
 		l_attributes[q]->setText(l_attribute[q]);
 	}
 	cteff_tflag->setDisabled(!hasCTypeEffects(local_comboref.type));
-	wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
+	if(is_large)
+		wizardButton->setDisabled(!hasComboWizard(local_comboref.type));
 	pendDraw();
 }
 void ComboEditorDialog::updateCSet()
@@ -3078,13 +3071,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
-						text = "Cancel",
-						minwidth = 90_lpx,
-						onClick = message::CANCEL),
-					Button(
 						text = "Clear",
 						minwidth = 90_lpx,
-						onClick = message::CLEAR)
+						onClick = message::CLEAR),
+					Button(
+						text = "Default",
+						minwidth = 90_lpx,
+						onClick = message::DEFAULT),
+					Button(
+						text = "Cancel",
+						minwidth = 90_lpx,
+						onClick = message::CANCEL)
 				)
 			)
 		);
@@ -3125,10 +3122,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							ctype_help(local_comboref.type);
 						}
 					),
-					wizardButton = Button(
-						text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
-						padding = 0_px, forceFitH = true, onClick = message::WIZARD
-					),
+					DummyWidget(),
 					Label(text = "Inherent Flag:", hAlign = 1.0),
 					DropDownList(data = list_flag, fitParent = true,
 						maxwidth = sized(220_px, 400_px),
@@ -4158,13 +4152,17 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						minwidth = 90_lpx,
 						onClick = message::OK),
 					Button(
-						text = "Cancel",
-						minwidth = 90_lpx,
-						onClick = message::CANCEL),
-					Button(
 						text = "Clear",
 						minwidth = 90_lpx,
-						onClick = message::CLEAR)
+						onClick = message::CLEAR),
+					Button(
+						text = "Default",
+						minwidth = 90_lpx,
+						onClick = message::DEFAULT),
+					Button(
+						text = "Cancel",
+						minwidth = 90_lpx,
+						onClick = message::CANCEL)
 				)
 			)
 		);
@@ -4293,6 +4291,12 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				return true;
 			}
 			return false;
+		}
+		case message::DEFAULT:
+		{
+			if(do_combo_default(local_comboref))
+				rerun_dlg = true;
+			return rerun_dlg;
 		}
 		
 		case message::WIZARD:

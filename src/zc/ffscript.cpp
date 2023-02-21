@@ -12558,6 +12558,7 @@ int32_t get_register(const int32_t arg)
 		case REFSUBSCREEN: ret = ri->subscreenref; break;
 		case REFRNG: ret = ri->rngref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
+		case CLASS_THISKEY2: ret = ri->thiskey2; break;
 		case REFPALDATA: ret = ri->paldataref; break;
 		
 			
@@ -22330,6 +22331,7 @@ void set_register(int32_t arg, int32_t value)
 		case REFSUBSCREEN: ri->subscreenref = value; break;
 		case REFRNG: ri->rngref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
+		case CLASS_THISKEY2: ri->thiskey2 = value; break;
 		case REFPALDATA: ri->paldataref = value; break;
 		
 		//-------------------------------------------------------------------------------------------------
@@ -28959,25 +28961,25 @@ void do_freeclass()
 
 bool zasm_advance()
 {
-	if( zc_readrawkey(KEY_INSERT, true) )
+	if( key[KEY_INSERT] )
 	{
-		if(zc_getrawkey(KEY_LSHIFT, true) || zc_getrawkey(KEY_RSHIFT, true))
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
 		{
-			if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP_SCRIPT;
 			}
 			else FFCore.zasm_break_mode = ZASM_BREAK_ADVANCE_SCRIPT;
 		}
-		else if(zc_getrawkey(KEY_ALT, true) || zc_getrawkey(KEY_ALTGR, true))
+		else if(key[KEY_ALT] || key[KEY_ALTGR])
 		{
-			if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+			if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
 			{
 				FFCore.zasm_break_mode = ZASM_BREAK_SKIP;
 			}
 			else FFCore.zasm_break_mode = ZASM_BREAK_NONE;
 		}
-		else if(zc_getrawkey(KEY_LCONTROL, true) || zc_getrawkey(KEY_RCONTROL, true))
+		else if(key[KEY_LCONTROL] || key[KEY_RCONTROL])
 		{
 			FFCore.ZASMPrint(false); //Close debugger
 			FFCore.zasm_break_mode = ZASM_BREAK_NONE;
@@ -29647,6 +29649,7 @@ j_command:
 		//Break
 		while( FFCore.zasm_break_mode == ZASM_BREAK_HALT )
 		{
+			poll_keyboard();
 			if(zasm_advance()) break;
 			checkQuitKeys();
 			if(Quit)
@@ -36919,7 +36922,7 @@ void FFScript::initIncludePaths()
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %zu: ",q);
-		safe_al_trace(includePaths.at(q).c_str());
+		safe_al_trace(includePaths.at(q));
 		al_trace("\n");
 	}
 }
@@ -40949,6 +40952,7 @@ script_variable ZASMVars[]=
 	{ "SPRITEDATAFLCSET", SPRITEDATAFLCSET, 0, 0 },
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
+	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
 	
 	{ " ", -1, 0, 0 }
 };
@@ -41248,7 +41252,7 @@ void FFScript::do_tracebool(const bool v)
 void traceStr(string const& str)
 {
 	FFCore.TraceScriptIDs();
-	safe_al_trace(str.c_str());
+	safe_al_trace(str);
 	if (replay_is_active() && replay_get_meta_bool("script_trace"))
 		replay_step_comment("trace: " + str);
 	

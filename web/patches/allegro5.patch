@@ -14,19 +14,6 @@ index 777324259..636d7d381 100644
     want.callback = audio_callback;
     want.userdata = sv;
  
-diff --git a/src/sdl/sdl_display.c b/src/sdl/sdl_display.c
-index 3a1939490..e0af6d1ad 100644
---- a/src/sdl/sdl_display.c
-+++ b/src/sdl/sdl_display.c
-@@ -409,7 +409,7 @@ static bool sdl_acknowledge_resize(ALLEGRO_DISPLAY *display)
-    _al_ogl_setup_gl(display);
- 
-    if (display->flags & ALLEGRO_PROGRAMMABLE_PIPELINE) {
--      display->default_shader = _al_create_default_shader(display->flags);
-+      display->default_shader = _al_create_default_shader(display);
-       al_use_shader(display->default_shader);
-    }
- 
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
 index 332c8b9d5..dd81f0e8f 100644
 --- a/src/sdl/sdl_system.c

@@ -95,7 +95,7 @@ byte midi_suspended = 0;
 byte callback_switchin = 0;
 byte zc_192b163_warp_compatibility;
 char modulepath[2048];
-byte epilepsyFlashReduction;
+bool epilepsyFlashReduction;
 signed char pause_in_background_menu_init = 0;
 byte pause_in_background = 0;
 bool is_sys_pal = false;
@@ -166,6 +166,11 @@ void do_DwmFlush()
 }
 
 #endif // _WIN32
+
+bool flash_reduction_enabled(bool check_qr)
+{
+	return (check_qr && get_bit(quest_rules, qr_EPILEPSY)) || epilepsyFlashReduction || replay_is_debug();
+}
 
 // Dialogue largening
 void large_dialog(DIALOG *d)
@@ -2417,7 +2422,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 	
 	//  int32_t page = tmpscr.cpage;
 	{
-		int32_t blink_rate=((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)?6:1);
+		int32_t blink_rate=flash_reduction_enabled()?6:1;
 		//	int32_t temptimer=0;
 		int32_t tempitem, tempweapon=0;
 		strike_hint=strike_hint_table[strike_hint_counter];
@@ -3587,9 +3592,9 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 	//  int32_t amplitude=8;
 	//  int32_t wavelength=4;
 	amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
-	if((epilepsyFlashReduction || get_bit(quest_rules,qr_EPILEPSY)) && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
+	if(flash_reduction_enabled() && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
 	int32_t amp2=168;
-	if((epilepsyFlashReduction || get_bit(quest_rules,qr_EPILEPSY)) && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
+	if(flash_reduction_enabled() && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
 	int32_t i=frame%amp2;
 	
 	for(int32_t j=0; j<168; j++)
@@ -4643,13 +4648,13 @@ bottom:
 void checkQuitKeys()
 {
 #ifndef ALLEGRO_MACOSX
-	if(zc_readrawkey(KEY_F9))	f_Quit(qRESET);
+	if(key[KEY_F9])	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F10))   f_Quit(qEXIT);
+	if(key[KEY_F10])   f_Quit(qEXIT);
 #else
-	if(zc_readrawkey(KEY_F7))	f_Quit(qRESET);
+	if(key[KEY_F7])	f_Quit(qRESET);
 	
-	if(zc_readrawkey(KEY_F8))   f_Quit(qEXIT);
+	if(key[KEY_F8])   f_Quit(qEXIT);
 #endif
 }
 
@@ -4724,18 +4729,19 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		
 	Advance=false;
 
+	if (!replay_is_active() || replay_get_version() >= 11)
+		for (int i = 0; i < ZC_CONTROL_STATES; i++)
+			down_control_states[i] = raw_control_state[i];
+
 	if (replay_is_active())
 	{
-		if (replay_get_version() >= 8 && !load_control_called_this_frame)
-			replay_peek_input();
-
 		if (replay_get_version() >= 3)
 			replay_poll();
 
-		// Replay compatability.
-		if (replay_get_version() >= 6 && replay_get_version() < 8)
+		if (replay_get_version() >= 11 || (replay_get_version() >= 6 && replay_get_version() < 8))
 			replay_peek_input();
 	}
+
 	load_control_called_this_frame = false;
 
 	poll_keyboard();
@@ -9383,7 +9389,7 @@ void load_control_state()
 {
 	load_control_called_this_frame = true;
 
-	if (!replay_is_active() || replay_get_version() >= 8)
+	if (replay_get_version() >= 8 && replay_get_version() < 11)
 	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
@@ -9429,13 +9435,10 @@ void load_control_state()
 			replay_poll();
 		else if (replay_is_replaying() && replay_get_version() < 6)
 			replay_peek_input();
-		else if (replay_is_replaying() && replay_get_version() >= 8)
+		else if (replay_is_replaying() && replay_get_version() >= 8 && replay_get_version() < 11)
 			replay_peek_input();
-	}
-
-	if (replay_get_version() == 8)
-	{
-		update_keys();
+		if (replay_get_version() == 8)
+			update_keys();
 	}
 
 	// Some test replay files were made before a serious input bug was fixed, so instead

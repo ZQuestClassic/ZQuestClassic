@@ -3,11 +3,14 @@
 
 #include "comboeditor.h"
 #include <gui/switcher.h>
+#include <gui/frame.h>
+#include <gui/tabpanel.h>
 #include <gui/drop_down_list.h>
 #include <gui/radioset.h>
 bool hasComboWizard(int32_t type);
 void call_combo_wizard(ComboEditorDialog& dlg);
 void combo_default(newcombo& ref, bool typeonly = true);
+bool do_combo_default(newcombo& ref);
 class ComboWizardDialog: public GUI::Dialog<ComboWizardDialog>
 {
 public:
@@ -26,17 +29,23 @@ private:
 	
 	int32_t flags;
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::TabPanel> tpan[10];
+	std::shared_ptr<GUI::Button> btns[10];
 	std::shared_ptr<GUI::TextField> tfs[10];
 	std::shared_ptr<GUI::DropDownList> ddls[10];
 	std::shared_ptr<GUI::Checkbox> cboxes[10];
 	std::shared_ptr<GUI::Switcher> switcher[10];
+	std::shared_ptr<GUI::Label> lbls[10];
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
+	std::shared_ptr<GUI::SelComboSwatch> cmbswatches[3];
+	std::shared_ptr<GUI::Frame> frames[10];
 	std::shared_ptr<GUI::Radio> rset[10][10];
 	size_t rs_sz[10];
 	
 	GUI::ListData lists[10];
 	
-	GUI::ListData list_lwscript, list_ewscript, list_sprites, list_dropsets, list_items, list_sfx;
+	GUI::ListData list_lwscript, list_ewscript, list_sprites,
+		list_dropsets, list_items, list_sfx, list_counters;
 	
 	void setRadio(size_t rs, size_t ind);
 	size_t getRadio(size_t rs);

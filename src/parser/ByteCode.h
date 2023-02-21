@@ -1518,20 +1518,21 @@
 #define SPRITEDATAFLCSET        1432
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
+#define CLASS_THISKEY2          1435
 
-#define REGIONID                1435 // region_max_rpos of these
-#define REGIONTD                1436 // region_max_rpos of these
-#define REGIONSD                1437 // region_max_rpos of these
-#define REGIONED                1438 // region_max_rpos of these
-#define REGIONDD                1439 // region_max_rpos of these
-#define REGIONCD                1440 // region_max_rpos of these
-#define REGIONFD                1441 // region_max_rpos of these
-#define REGIONWORLDWIDTH        1442
-#define REGIONWORLDHEIGHT       1443
-#define REGIONSCREENWIDTH       1444
-#define REGIONSCREENHEIGHT      1445
+#define REGIONID                1436 // region_max_rpos of these
+#define REGIONTD                1437 // region_max_rpos of these
+#define REGIONSD                1438 // region_max_rpos of these
+#define REGIONED                1439 // region_max_rpos of these
+#define REGIONDD                1440 // region_max_rpos of these
+#define REGIONCD                1441 // region_max_rpos of these
+#define REGIONFD                1442 // region_max_rpos of these
+#define REGIONWORLDWIDTH        1443
+#define REGIONWORLDHEIGHT       1444
+#define REGIONSCREENWIDTH       1445
+#define REGIONSCREENHEIGHT      1446
 
-#define LAST_BYTECODE           1446
+#define LAST_BYTECODE           1447
 
 //} END OF BYTECODE
 

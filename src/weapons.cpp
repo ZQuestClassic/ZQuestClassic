@@ -40,7 +40,6 @@ extern int32_t directWpn;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
-extern byte epilepsyFlashReduction;
 
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
@@ -1166,9 +1165,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	has_shadow = true;
 	if ( Parentitem > -1 )
 	{
-		weaponscript = itemsbuf[Parentitem].weaponscript;
-		useweapon = itemsbuf[Parentitem].useweapon;
-		usedefence = itemsbuf[Parentitem].usedefence;
+		if(get_bit(quest_rules,qr_SPARKLES_INHERIT_PROPERTIES)
+			|| (id != wSSparkle && id != wFSparkle))
+		{
+			//Sparkles shouldn't have these behaviors!
+			weaponscript = itemsbuf[Parentitem].weaponscript;
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
+			}
+			useweapon = itemsbuf[Parentitem].useweapon;
+			usedefence = itemsbuf[Parentitem].usedefence;
+		}
 		if (id == wLitBomb || id == wLitSBomb) 
 		{
 			useweapondummy = useweapon;
@@ -1177,17 +1185,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			usedefence = 0;
 		}
 		quantity_iterator = type; //wCByrna uses this for positioning.
-		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) ) type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
+		if ( id != wPhantom /*&& (id != wWind && !specialinfo)*/ && /*id != wFSparkle && id != wSSparkle &&*/ ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10) ) )
+			type = itemsbuf[Parentitem].fam_type; //the weapon level for real lweapons.
 			//Note: eweapons use this for boss weapon block flags
 			// Note: wInd uses type for special properties.
 			//Note: wFire is bonkers. If it writes this, then red candle and above use the wrong sprites. 
-		//load initd
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			//load InitD
-			weap_initd[q] = itemsbuf[Parentitem].weap_initiald[q];
-				
-		}
 	}
 	
 	if ( isLW ) goto skip_eweapon_script;
@@ -4539,7 +4541,7 @@ bool weapon::animate(int32_t index)
 					}
 				}
 				
-				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !epilepsyFlashReduction)
+				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
 				{
 					if(!usebombpal)
 					{
@@ -7150,38 +7152,38 @@ offscreenCheck:
         
         break;
         
-    case wRefMagic:
-    case wMagic:
-        dead=1; //remove the dead part to make the wand only die when clipped
-        
-	if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
-	{
-	//Create an ER to sue this in older quests -V
-		//used a QR. -Z
-		if(((id==wMagic && current_item(itype_book) &&
-			(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+	case wRefMagic:
+	case wMagic:
+		dead=1; //remove the dead part to make the wand only die when clipped
+		
+		if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
 		{
-		    Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1));
-		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
-		    {
-			sfx(WAV_FIRE,pan(x));
-		    }
-			
-		    else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
+			//Create an ER to sue this in older quests -V
+			//used a QR. -Z
+			if(((id==wMagic && current_item(itype_book) &&
+				(itemsbuf[current_item_id(itype_book)].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			{
+				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,current_item_id(itype_book),-1,false,0,1));
+				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+				{
+					sfx(WAV_FIRE,pan(x));
+				}
+				
+				else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
+			}
 		}
-	}
-	else
-	{
-		if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
-			(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+		else
 		{
-		    Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[current_item_id(itype_book)].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1));
-		    if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
-		    {
-			sfx(WAV_FIRE,pan(x));
-		    }
-		    else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
-		}
+			if(((id==wMagic && linkedItem && itemsbuf[linkedItem].family==itype_book &&
+				(itemsbuf[linkedItem].flags&ITEM_FLAG1))) && Lwpns.idCount(wFire)<2)
+			{
+				Lwpns.add(new weapon(x,y-fakez,z,wFire,2,zc_max(1, itemsbuf[linkedItem].misc4)*game->get_hero_dmgmult(),0,linkedItem,-1,false,0,1));
+				if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
+				{
+					sfx(WAV_FIRE,pan(x));
+				}
+				else sfx(itemsbuf[linkedItem].usesound > 0 ? itemsbuf[linkedItem].usesound : WAV_FIRE,pan(x));
+			}
         }
         break;
         

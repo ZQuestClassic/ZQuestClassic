@@ -7457,7 +7457,9 @@ void ViewMap()
 	
 	do
 	{
-		load_control_state();
+		if (replay_is_active() && replay_get_version() < 11)
+			load_control_state();
+
 		int32_t step = int32_t(16.0/scales[sc]);
 		step = (step>>1) + (step&1);
 		bool r = cRbtn();
@@ -7586,9 +7588,9 @@ void ViewMap()
 			textprintf_ex(framebuf,font,0,216,WHITE,BLACK,"x: %d %d",x,y);
 		}
 		
-		//since stuff in here accesses tmpscr and tmpscr2... -DD
 		advanceframe(false, false);
-		
+		if (!replay_is_active() || replay_get_version() >= 11)
+			load_control_state();
 		
 		if(getInput(btnS, true, false, true)) //rSbtn
 			done = true;

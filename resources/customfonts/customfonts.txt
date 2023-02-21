@@ -1,0 +1,28 @@
+How to customize a font:
+Place a file with a specific name in the 'customfonts' folder, which is a valid allegro font bitmap.
+The valid names are:
+
+For large mode-
+large_dialog.bmp
+large_favcmd.bmp
+large_gui.bmp
+large_title.bmp
+large_textbox.bmp
+large_ttip.bmp
+
+For compact mode-
+compact_dialog.bmp
+compact_favcmd.bmp
+compact_gui.bmp
+compact_title.bmp
+compact_textbox.bmp
+compact_ttip.bmp
+
+For small mode-
+small_dialog.bmp
+small_gui.bmp
+small_title.bmp
+small_textbox.bmp
+small_ttip.bmp
+
+If any of these files is found, and is valid, and the 'Custom Fonts' option is enabled in ZQuest, then the custom font will be used instead of the font set in font settings.

@@ -16,6 +16,7 @@ on:
       cache:
         type: boolean
         default: true
+      # The following is for releases only.
       sentry:
         type: boolean
         default: false
@@ -28,6 +29,18 @@ on:
         type: string
         required: false
         description: "Do not set this directly! Use release workflow."
+      number:
+        description: Version number (Alpha/Beta/Gamma/Release).
+        type: string
+        required: false
+      versiontype:
+        type: string
+        description: Whether the build specified is an Alpha/Beta/Gamma/Release
+        required: false
+      full_release:
+        type: boolean
+        description: Full Version (i.e. NOT a nightly)
+        required: false
     outputs:
       artifact-name:
         description: "The name of the artifact that should be downloaded by the caller workflow"
@@ -69,7 +82,7 @@ jobs:
           args: install .github/dependencies.config -y
 
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
+        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev libcurl4-gnutls-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils
 
       - if: ${{ contains(inputs.runs-on, 'mac') }}
         run: brew install ninja dylibbundler create-dmg ccache
@@ -115,12 +128,15 @@ jobs:
         if: inputs.config == 'Coverage'
         run: echo "TARGET=zelda" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
+        if: ${{ inputs.versiontype }}
       - name: Configure build
         run: >
           cmake -S . -B build -G 'Ninja Multi-Config'
           -DCOPY_RESOURCES=OFF
           -DRELEASE_TAG="${{ inputs.release-tag }}"
           -DWANT_SENTRY="${{ inputs.sentry }}"
+          -DWANT_MAC_DEBUG_FILES="${{ inputs.config == 'RelWithDebInfo' }}"
           -DCMAKE_WIN32_EXECUTABLE=1
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -147,7 +163,7 @@ jobs:
           elif system == 'Darwin':
             package_name = f'{release_tag}-mac.dmg'
           elif system == 'Linux':
-            package_name = f'{release_tag}-ubuntu.tar.gz'
+            package_name = f'{release_tag}-linux.tar.gz'
 
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             print('{0}={1}'.format('package-name', package_name), file=f)
@@ -159,7 +175,7 @@ jobs:
             python scripts/package.py --build_folder build/${{ inputs.config }}
             mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           macos: |
-            sh scripts/package_mac.sh
+            sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }}
             mv build/${{ inputs.config }}/packages/ZeldaClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           linux: |
             python scripts/package.py --build_folder build/${{ inputs.config }}

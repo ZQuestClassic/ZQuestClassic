@@ -30,6 +30,23 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 	using namespace GUI::Key;
 	bool dsa = dontshowagain;
 	dontshowagain = false;
+	
+	std::shared_ptr<GUI::Widget> trueb = DummyWidget();
+	std::shared_ptr<GUI::Widget> falseb = DummyWidget();
+	if (truebtn.size())
+		trueb = Button(
+			text = truebtn,
+			minwidth = 90_lpx,
+			onClick = message::OK,
+			focused = true
+		);
+	if (falsebtn.size())
+		falseb = Button(
+			text = falsebtn,
+			minwidth = 90_lpx,
+			onClick = message::CANCEL
+		);
+	
 	return Window(
 		title = std::move(dlgTitle),
 		onClose = message::CANCEL,
@@ -56,17 +73,8 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 				topPadding = 0.5_em,
 				vAlign = 1.0,
 				spacing = 2_em,
-				Button(
-					text = truebtn,
-					minwidth = 90_lpx,
-					onClick = message::OK,
-					focused=true
-				),
-				Button(
-					text = falsebtn,
-					minwidth = 90_lpx,
-					onClick = message::CANCEL
-				)
+				trueb,
+				falseb
 			)
 		)
 	);

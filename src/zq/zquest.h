@@ -141,6 +141,7 @@ extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
+extern double aspect_ratio;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
 extern int32_t FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
@@ -847,6 +848,7 @@ int32_t isFullScreen();
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleShowSquares();
+int32_t onToggleShowFFCs();
 int32_t onToggleShowInfo();
 
 //char msgbuf[MSGSTRS*3];
@@ -1208,6 +1210,7 @@ int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
+void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char *tipmsg);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg);
 void clear_tooltip();
 void ZQ_ClearQuestPath();

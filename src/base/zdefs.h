@@ -281,7 +281,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define ID_ZINFO          ZC_ID('Z','I','N','F')              //ZInfo data
 
 //Version number of the different section types
-#define V_HEADER           7
+#define V_HEADER           8
 #define V_RULES           17
 #define V_STRINGS         10
 #define V_MISC            15
@@ -300,7 +300,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        30
+#define V_SAVEGAME        31
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -309,7 +309,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        1
 
-#define V_COMPATRULE       36
+#define V_COMPATRULE       37
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -398,6 +398,9 @@ extern volatile bool close_button_quit;
 #define r_dvc(x) ((x)-240)
 #define BLACK         253
 #define WHITE         254
+
+#define LARGE_W       912
+#define LARGE_H       684
 
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
@@ -496,9 +499,11 @@ extern volatile bool close_button_quit;
 #define MAXCUSTOMSUBSCREENS 128
 #define MAXNPCS	512
 
-#define MAXFAVORITECOMMANDS 8
-#define MAXFAVORITECOMBOS 100
-#define MAXFAVORITECOMBOALIASES 100
+#define MAXFAVORITECOMMANDS 64
+#define MAXFAVORITECOMBOS 200
+#define MAXFAVORITECOMBOALIASES MAXFAVORITECOMBOS
+
+#define FAVORITECOMBO_PER_ROW 17
 
 #define PALNAMESIZE     17
 // mapscr "valid" byte
@@ -1115,7 +1120,7 @@ enum
 	qr_DECO_2_YOFFSET, qr_SCREENSTATE_80s_BUG, qr_AUTOCOMBO_ANY_LAYER, qr_GOHMA_UNDAMAGED_BUG,
 	qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE, qr_NO_LIFT_SPRITE,
 	//45
-	qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING, 
+	qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING, qr_SPARKLES_INHERIT_PROPERTIES,
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX,
@@ -1849,10 +1854,12 @@ enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos
 {
-    int32_t x;
-    int32_t y;
-    int32_t w;
-    int32_t h;
+    int32_t x = -1, y = -1;
+    int32_t w = -1, h = -1;
+	int32_t xscale = 1, yscale = 1;
+	void clear(); //Clear to default vals
+	bool rect(int32_t mx, int32_t my); //Check rect collision
+	void set(int32_t nx, int32_t ny, int32_t nw, int32_t nh); //Set coord values
 };
 
 //#define OLDITEMCNT i90
@@ -2362,7 +2369,7 @@ public:
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	int32_t switchkey; //used for switch statements
-	dword thiskey; //used for user class 'this' pointers
+	dword thiskey, thiskey2; //used for user class 'this' pointers
 	dword waitframes; //wait multiple frames in a row
 	dword wait_index; // nth WaitX instruction (0 being pc 0) last execution stopped at. for jit only
 	
@@ -3191,31 +3198,24 @@ struct ZCHEATS
 struct zquestheader
 {
     char  id_str[31];
-    //32
     int16_t zelda_version;
     word  internal;
     byte  quest_number;
     byte  old_rules[2];
     byte  old_map_count;
     char  old_str_count;
-    //41
     byte  data_flags[ZQ_MAXDATA];
     byte  old_rules2[2];
     char  old_options;
-    // NOTE: `version` and `minver` are fixed-length strings, unlike all other char strings here which are expected
-    // to end with a null-byte. They may not end in null!
-    char  version[9];
-    //73
+    char  version[17];
     char  title[65];
     char  author[65];
     //byte  padding;
-    //204
     //  int16_t pwdkey;
     bool  dirty_password;
     char  password[256];
     uint8_t pwd_hash[16];
-    //236
-    char  minver[9];
+    char  minver[17];
     byte  build;
     byte  use_keyfile;
     byte  old_foo[9];
@@ -3261,7 +3261,6 @@ struct zquestheader
     char build_timezone[6];
     //made in module_name
     
-    //603
 	bool external_zinfo;
 	
 	
@@ -3328,80 +3327,82 @@ enum { msLINKED };
 
 enum
 {
-    font_zfont, /* 24, 32, 26, 5 */
-    font_z3font,
-    font_z3smallfont,
-    font_deffont,
-    font_lfont,
-    font_lfont_l,
-    font_pfont,
-    font_mfont,
-    font_ztfont,
-    font_sfont,
-    font_sfont2,
-    font_spfont,
-    font_ssfont1,
-    font_ssfont2,
-    font_ssfont3,
-    font_ssfont4,
-    font_gblafont,
-    font_goronfont,
-    font_zoranfont,
-    font_hylian1font,
-    font_hylian2font,
-    font_hylian3font,
-    font_hylian4font,
-    font_gboraclefont,
-    font_gboraclepfont,
-    font_dsphantomfont,
-    font_dsphantompfont,
-    
-     font_atari800font,   
-		 font_acornfont,   
-		 font_adosfont,   
-		 font_baseallegrofont,   
-		 font_apple2font,   
-		 font_apple280colfont,   
-		 font_apple2gsfont, 
-		 font_aquariusfont,   
-		 font_atari400font,   
-		 font_c64font,   
-		 font_c64hiresfont,   
-		 font_cgafont,   
-		 font_cocofont,
-		 font_coco2font, 
-		 font_coupefon, 
-		 font_cpcfon, 
-		 font_fantasyfon, 
-		 font_fdskanafon, 
-		 font_fdslikefon, 
-		 font_fdsromanfon, 
-		 font_finalffont, 
-		 font_futharkfont, 
-		 font_gaiafont, 
-		 font_hirafont, 
-		 font_jpfont, 
-		 font_kongfont, 
-		 font_manafont, 
-		 font_mlfont, 
-		 font_motfont, 
-		 font_msxmode0font, 
-		 font_msxmode1font, 
-		 font_petfont, 
-		 font_pstartfont, 
-		 font_saturnfont, 
-		 font_scififont, 
-		 font_sherwoodfont, 
-		 font_sinqlfont, 
-		 font_spectrumfont, 
-		 font_speclgfont, 
-		 font_ti99font, 
-		 font_trsfont, 
-		 font_z2font, 
-		 font_zxfont,
-		 font_lisafont,
-		 
-    font_max
+	font_zfont, /* 24, 32, 26, 5 */
+	font_z3font,
+	font_z3smallfont,
+	font_deffont,
+	font_lfont,
+	font_lfont_l,
+	font_pfont,
+	font_mfont,
+	font_ztfont,
+	font_sfont,
+	font_sfont2,
+	font_spfont,
+	font_ssfont1,
+	font_ssfont2,
+	font_ssfont3,
+	font_ssfont4,
+	font_gblafont,
+	font_goronfont,
+	font_zoranfont,
+	font_hylian1font,
+	font_hylian2font,
+	font_hylian3font,
+	font_hylian4font,
+	font_gboraclefont,
+	font_gboraclepfont,
+	font_dsphantomfont,
+	font_dsphantompfont,
+
+	font_atari800font,   
+	font_acornfont,   
+	font_adosfont,   
+	font_baseallegrofont,   
+	font_apple2font,   
+	font_apple280colfont,   
+	font_apple2gsfont, 
+	font_aquariusfont,   
+	font_atari400font,   
+	font_c64font,   
+	font_c64hiresfont,   
+	font_cgafont,   
+	font_cocofont,
+	font_coco2font, 
+	font_coupefon, 
+	font_cpcfon, 
+	font_fantasyfon, 
+	font_fdskanafon, 
+	font_fdslikefon, 
+	font_fdsromanfon, 
+	font_finalffont, 
+	font_futharkfont, 
+	font_gaiafont, 
+	font_hirafont, 
+	font_jpfont, 
+	font_kongfont, 
+	font_manafont, 
+	font_mlfont, 
+	font_motfont, 
+	font_msxmode0font, 
+	font_msxmode1font, 
+	font_petfont, 
+	font_pstartfont, 
+	font_saturnfont, 
+	font_scififont, 
+	font_sherwoodfont, 
+	font_sinqlfont, 
+	font_spectrumfont, 
+	font_speclgfont, 
+	font_ti99font, 
+	font_trsfont, 
+	font_z2font, 
+	font_zxfont,
+	font_lisafont,
+	font_nfont,
+	font_sfont3,
+
+	font_max
 };
 
 #define MSGSIZE 144
@@ -4105,7 +4106,7 @@ struct gamedata
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
 	
-	char  version[9];
+	char  version[17];
 	char  title[65];
 	//354
 	byte  _hasplayed;
@@ -5616,6 +5617,7 @@ int32_t simplifyWarpType(int32_t type);
 bool isStepType(int32_t type);
 bool isDamageType(int32_t type);
 bool isConveyorType(int32_t type);
+bool isChestType(int32_t type);
 
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 #define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))

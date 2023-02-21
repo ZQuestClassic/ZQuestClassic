@@ -19,7 +19,7 @@ void TabRef::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(content)
-		content->applyVisibility(visible);
+		content->setExposed(visible);
 }
 
 void TabRef::applyDisabled(bool dis)

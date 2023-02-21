@@ -6,6 +6,7 @@
 #include "gui/builder.h"
 #include "zc_list_data.h"
 #include "weapons.h"
+#include "sfx.h"
 
 extern bool saved;
 extern zcmodule moduledata;
@@ -15,6 +16,7 @@ extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern miscQdata misc;
+extern itemdata *itemsbuf;
 
 char *ordinal(int32_t num);
 using std::string;
@@ -30,10 +32,12 @@ bool hasComboWizard(int32_t type)
 		// case cSLASH: case cSLASHTOUCHY:
 		//!Todo combo wizards -Em
 		// case cTRIGGERGENERIC: case cCSWITCH: case cSIGNPOST:
-		// case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-		// case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
 		case cSLASHNEXT:
 		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
 		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
@@ -72,7 +76,8 @@ ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : parent(parent)
 	list_ewscript(GUI::ZCListData::eweapon_script()),
 	list_items(GUI::ZCListData::items(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_dropsets(GUI::ZCListData::dropsets(true))
+	list_dropsets(GUI::ZCListData::dropsets(true)),
+	list_counters(GUI::ZCListData::counters(true,true))
 {
 	memset(rs_sz, 0, sizeof(rs_sz));
 }
@@ -94,6 +99,19 @@ static const GUI::ListData list_clippings
 	{ "Bush Leaves", 0 },
 	{ "Flowers", 2 },
 	{ "Grass", 3 },
+};
+
+static const GUI::ListData list_chest_content
+{
+	{ "Screen Catchall ('Special Item')", -1 },
+	{ "Screen->D[0]", -10 },
+	{ "Screen->D[1]", -11 },
+	{ "Screen->D[2]", -12 },
+	{ "Screen->D[3]", -13 },
+	{ "Screen->D[4]", -14 },
+	{ "Screen->D[5]", -15 },
+	{ "Screen->D[6]", -16 },
+	{ "Screen->D[7]", -17 },
 };
 
 void ComboWizardDialog::setRadio(size_t rs, size_t ind)
@@ -213,6 +231,115 @@ void ComboWizardDialog::update(bool first)
 			size_t adir = getRadio(0);
 			ddls[5]->setDisabled(adir!=0);
 			tfs[2]->setDisabled(adir!=1);
+			break;
+		}
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cCHEST)
+				lvl = 1;
+			else if(local_ref.type == cBOSSCHEST)
+				lvl = 2;
+			else if(local_ref.type == cLOCKEDCHEST)
+				lvl = 3;
+			
+			tpan[0]->setDisabled(1, lvl < 1); //Opening
+			tpan[0]->setDisabled(2, lvl < 1); //Content
+			tpan[0]->setDisabled(3, lvl < 1); //Prompts
+			tpan[0]->setDisabled(4, lvl < 3); //Locking
+			
+			cboxes[0]->setDisabled(lvl < 1); //'Use Special Item State'
+			//
+			
+			byte& exstate = local_ref.attribytes[5];
+			auto rad0 = getRadio(0);
+			
+			tfs[0]->setDisabled(rad0==0);
+			
+			int16_t& contains_item = local_ref.attrishorts[2];
+			auto rad1 = getRadio(1);
+			
+			ddls[2]->setDisabled(rad1!=0);
+			ddls[3]->setDisabled(rad1!=1);
+			
+			//Prompts
+			bool prompt = lvl > 0 && cboxes[1]->getChecked();
+			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
+			
+			frames[0]->setDisabled(!prompt);
+			frames[1]->setDisabled(!lockprompt);
+			cmbswatches[1]->setCSet(cmbswatches[0]->getCSet());
+			cboxes[2]->setDisabled(lvl < 2 || !prompt);
+			
+			//Locking
+			bool itemkey = lvl == 3 && (local_ref.usrflags&cflag1);
+			bool counterkey = lvl == 3 && !(itemkey && (local_ref.usrflags&cflag2));
+			
+			frames[2]->setDisabled(!itemkey);
+			frames[3]->setDisabled(!counterkey);
+			
+			if(counterkey)
+			{
+				auto rad2 = getRadio(2);
+				ddls[5]->setDisabled(rad2 != 1);
+				
+				rset[3][0]->setDisabled(rad2 != 1);
+				btns[0]->setDisabled(rad2 != 1);
+				rset[3][1]->setDisabled(rad2 != 1);
+				btns[1]->setDisabled(rad2 != 1);
+				rset[3][2]->setDisabled(rad2 != 1);
+				btns[2]->setDisabled(rad2 != 1);
+			}
+			break;
+		}
+		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cBOSSLOCKBLOCK)
+				lvl = 2;
+			else if(local_ref.type == cLOCKBLOCK)
+				lvl = 3;
+			
+			tpan[0]->setDisabled(1, lvl < 1); //Opening
+			tpan[0]->setDisabled(2, lvl < 1); //Prompts
+			tpan[0]->setDisabled(3, lvl < 3); //Locking
+			//
+			
+			byte& exstate = local_ref.attribytes[5];
+			auto rad0 = getRadio(0);
+			
+			tfs[0]->setDisabled(rad0==0);
+			
+			//Prompts
+			bool prompt = lvl > 0 && cboxes[1]->getChecked();
+			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
+			
+			frames[0]->setDisabled(!prompt);
+			frames[1]->setDisabled(!lockprompt);
+			cmbswatches[1]->setCSet(cmbswatches[0]->getCSet());
+			cboxes[2]->setDisabled(lvl < 2 || !prompt);
+			
+			//Locking
+			bool itemkey = lvl == 3 && (local_ref.usrflags&cflag1);
+			bool counterkey = lvl == 3 && !(itemkey && (local_ref.usrflags&cflag2));
+			
+			frames[2]->setDisabled(!itemkey);
+			frames[3]->setDisabled(!counterkey);
+			
+			if(counterkey)
+			{
+				auto rad2 = getRadio(2);
+				ddls[5]->setDisabled(rad2 != 1);
+				
+				rset[3][0]->setDisabled(rad2 != 1);
+				btns[0]->setDisabled(rad2 != 1);
+				rset[3][1]->setDisabled(rad2 != 1);
+				btns[1]->setDisabled(rad2 != 1);
+				rset[3][2]->setDisabled(rad2 != 1);
+				btns[2]->setDisabled(rad2 != 1);
+			}
 			break;
 		}
 	}
@@ -432,10 +559,157 @@ void ComboWizardDialog::endUpdate()
 			else local_ref.attribytes[2] = ddls[4]->getSelectedValue();
 			break;
 		}
-		
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cCHEST)
+				lvl = 1;
+			else if(local_ref.type == cBOSSCHEST)
+				lvl = 2;
+			else if(local_ref.type == cLOCKEDCHEST)
+				lvl = 3;
+			
+			byte& exstate = local_ref.attribytes[5];
+			auto rad0 = getRadio(0);
+			
+			if(rad0==0)
+				exstate = 0;
+			
+			int16_t& contains_item = local_ref.attrishorts[2];
+			auto rad1 = getRadio(1);
+			
+			contains_item = ddls[rad1==1 ? 3 : 2]->getSelectedValue();
+			
+			//Prompts
+			bool prompt = lvl > 0 && cboxes[1]->getChecked();
+			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
+			
+			int32_t& prompt_combo = local_ref.attributes[1];
+			int32_t& prompt_combo2 = local_ref.attributes[2];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			prompt_combo = 0;
+			prompt_cset = 0;
+			prompt_xoff = 12;
+			prompt_yoff = -8;
+			prompt_combo2 = 0;
+			if(prompt)
+			{
+				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_cset = cmbswatches[0]->getCSet();
+				prompt_xoff = tfs[1]->getVal();
+				prompt_yoff = tfs[2]->getVal();
+				if(lockprompt)
+					prompt_combo2 = cmbswatches[1]->getCombo()*10000;
+			}
+			
+			//Locking
+			bool itemkey = lvl == 3 && (local_ref.usrflags&cflag1);
+			bool counterkey = lvl == 3 && !(itemkey && (local_ref.usrflags&cflag2));
+			
+			auto rad2 = getRadio(2);
+			byte& usecounter = local_ref.attribytes[1];
+			byte& reqitem = local_ref.attribytes[0];
+			int32_t& amount = local_ref.attributes[0];
+			
+			if(!itemkey)
+			{
+				local_ref.usrflags &= ~(cflag2|cflag5);
+				reqitem = 0;
+			}
+			else reqitem = ddls[4]->getSelectedValue();
+			
+			usecounter = 0;
+			amount = 0;
+			if(counterkey)
+			{
+				if(rad2 == 1)
+					usecounter = ddls[5]->getSelectedValue();
+				amount = tfs[3]->getVal();
+				
+				auto rad3 = getRadio(3);
+				if(rad2 == 0)
+					rad3 = 0;
+				SETFLAG(local_ref.usrflags, cflag8, rad3 == 1);
+				SETFLAG(local_ref.usrflags, cflag6, rad3 == 2);
+			}
+			break;
+		}
+		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cBOSSLOCKBLOCK)
+				lvl = 2;
+			else if(local_ref.type == cLOCKBLOCK)
+				lvl = 3;
+			
+			byte& exstate = local_ref.attribytes[5];
+			auto rad0 = getRadio(0);
+			
+			if(rad0==0)
+				exstate = 0;
+			
+			//Prompts
+			bool prompt = lvl > 0 && cboxes[1]->getChecked();
+			bool lockprompt = lvl > 1 && prompt && cboxes[2]->getChecked();
+			
+			int32_t& prompt_combo = local_ref.attributes[1];
+			int32_t& prompt_combo2 = local_ref.attributes[2];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			prompt_combo = 0;
+			prompt_cset = 0;
+			prompt_xoff = 12;
+			prompt_yoff = -8;
+			prompt_combo2 = 0;
+			if(prompt)
+			{
+				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_cset = cmbswatches[0]->getCSet();
+				prompt_xoff = tfs[1]->getVal();
+				prompt_yoff = tfs[2]->getVal();
+				if(lockprompt)
+					prompt_combo2 = cmbswatches[1]->getCombo()*10000;
+			}
+			
+			//Locking
+			bool itemkey = lvl == 3 && (local_ref.usrflags&cflag1);
+			bool counterkey = lvl == 3 && !(itemkey && (local_ref.usrflags&cflag2));
+			
+			auto rad2 = getRadio(2);
+			byte& usecounter = local_ref.attribytes[1];
+			byte& reqitem = local_ref.attribytes[0];
+			int32_t& amount = local_ref.attributes[0];
+			
+			if(!itemkey)
+			{
+				local_ref.usrflags &= ~(cflag2|cflag5);
+				reqitem = 0;
+			}
+			else reqitem = ddls[4]->getSelectedValue();
+			
+			usecounter = 0;
+			amount = 0;
+			if(counterkey)
+			{
+				if(rad2 == 1)
+					usecounter = ddls[5]->getSelectedValue();
+				amount = tfs[3]->getVal();
+				
+				auto rad3 = getRadio(3);
+				if(rad2 == 0)
+					rad3 = 0;
+				SETFLAG(local_ref.usrflags, cflag8, rad3 == 1);
+				SETFLAG(local_ref.usrflags, cflag6, rad3 == 2);
+			}
+			break;
+		}
 	}
 }
-
 #define IH_BTN(hei, inf) \
 Button(height = hei, text = "?", \
 	onPressFunc = [=]() \
@@ -527,9 +801,9 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attribytes[2] = 19;
 			ref.attrishorts[0] = 60;
 			ref.attrishorts[2] = 2;
-			ref.attributes[0] = -10000;
-			ref.attributes[1] = 40000;
-			ref.attributes[2] = 2000000;
+			ref.attributes[0] = -1*10000;
+			ref.attributes[1] = 4*10000;
+			ref.attributes[2] = 200*10000;
 			ref.usrflags = cflag1 | cflag4;
 			break;
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
@@ -543,6 +817,31 @@ void combo_default(newcombo& ref, bool typeonly)
 		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
 		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 			break;
+		//CHESTS
+		case cLOCKEDCHEST:
+			ref.attributes[0] = 1*10000;
+			[[fallthrough]];
+		case cBOSSCHEST:
+			[[fallthrough]];
+		case cCHEST:
+			ref.attribytes[2] = 0x01;
+			ref.attrishorts[2] = -1;
+			ref.usrflags = cflag7|cflag9|cflag11|cflag12;
+			if(!typeonly)
+				ref.flag = mfARMOS_ITEM;
+			[[fallthrough]];
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+			break;
+		//LOCKBLOCKS
+		case cLOCKBLOCK:
+			ref.attributes[0] = 1*10000;
+			[[fallthrough]];
+		case cBOSSLOCKBLOCK:
+			ref.attribytes[3] = WAV_DOOR;
+			[[fallthrough]];
+		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
+			break;
+		//
 	}
 }
 std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
@@ -577,8 +876,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		)
 	);
 	
-	thelp = getComboTypeHelpText(local_ref.type);
-	
 	bool wip = false;
 	switch(local_ref.type)
 	{
@@ -601,7 +898,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							local_ref.type = val;
 						}),
-					INFOBTN(thelp),
+					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
 					//
 					Label(text = "Warp Sound:", hAlign = 1.0),
 					ddls[1] = DropDownList(data = parent.list_sfx,
@@ -1275,7 +1572,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.type = val;
 								updateTitle();
 							}),
-						INFOBTN(thelp),
+						INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
 						//
 						rset[0][1] = Radio(
 							hAlign = 0.0,
@@ -1717,7 +2014,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.type = val;
 								updateTitle();
 							}),
-						INFOBTN(thelp),
+						INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
 						//
 						rset[0][1] = Radio(
 							hAlign = 0.0,
@@ -2224,6 +2521,990 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			rs_sz[2] = 2;
 			break;
 		}
+		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+		case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cCHEST)
+				lvl = 1;
+			else if(local_ref.type == cBOSSCHEST)
+				lvl = 2;
+			else if(local_ref.type == cLOCKEDCHEST)
+				lvl = 3;
+			
+			byte& exstate = local_ref.attribytes[5];
+			byte& openbtn = local_ref.attribytes[2];
+			byte& opensfx = local_ref.attribytes[3];
+			int16_t& contains_item = local_ref.attrishorts[2];
+			
+			auto radmode0 = 0;
+			if(local_ref.usrflags&cflag16)
+				radmode0 = 1;
+			
+			auto radmode1 = 0;
+			auto spitem_def = contains_item;
+			auto normitem_def = 0;
+			if(unsigned(contains_item) < 256)
+			{
+				radmode1 = 1;
+				spitem_def = -1;
+				normitem_def = contains_item;
+			}
+			
+			auto radmode2 = 0;
+			auto radmode3 = 0;
+			if((local_ref.usrflags & cflag1) && (local_ref.usrflags & cflag2))
+			{
+				if(local_ref.usrflags & cflag4)
+					radmode2 = 1;
+				if(local_ref.usrflags & cflag8)
+					radmode3 = 1;
+				else if(local_ref.usrflags & cflag6)
+					radmode3 = 2;
+			}
+			
+			int32_t& prompt_combo = local_ref.attributes[1];
+			int32_t& prompt_combo2 = local_ref.attributes[2];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			
+			int32_t def_prompt_combo = 0;
+			int32_t def_prompt_combo2 = 0;
+			byte def_prompt_cset = 0;
+			int16_t def_prompt_xoff = 12;
+			int16_t def_prompt_yoff = -8;
+			if(local_ref.usrflags&cflag13)
+			{
+				def_prompt_combo = prompt_combo/10000;
+				def_prompt_cset = prompt_cset;
+				def_prompt_xoff = prompt_xoff;
+				def_prompt_yoff = prompt_yoff;
+				if(lvl > 1) //boss or locked
+					def_prompt_combo2 = prompt_combo2/10000;
+			}
+			
+			byte& reqitem = local_ref.attribytes[0];
+			
+			byte& usecounter = local_ref.attribytes[1];
+			int32_t& amount = local_ref.attributes[0];
+			
+			lists[0] = GUI::ZCListData::combotype(true).filter(
+				[](GUI::ListItem& itm)
+				{
+					switch(itm.value)
+					{
+						case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
+							itm.tag = 0;
+							return true;
+						case cCHEST2: case cLOCKEDCHEST2: case cBOSSCHEST2:
+							itm.tag = 1;
+							return true;
+					}
+					return false;
+				}).tagsort();
+			lists[1] = list_items.copy().filter(
+				[](GUI::ListItem& itm)
+				{
+					if(unsigned(itm.value) >= MAXITEMS) return false;
+					return (itemsbuf[itm.value].flags & ITEM_GAMEDATA) != 0;
+				});
+			windowRow->add(Column(
+				Row(
+					ddls[0] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = local_ref.type,
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.type = val;
+							updateTitle();
+							update();
+						}),
+					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);})
+				),
+				tpan[0] = TabPanel(
+					TabRef(name = "State", Rows<3>(
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode0 == 0,
+							text = "Chest State",
+							indx = 0,
+							onToggle = message::RSET0
+						),
+						DummyWidget(),
+						INFOBTN("Chest will use the standard 'Chest'/'Locked Chest'/'Boss Chest' screen state."),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode0 == 1,
+							text = "Ex State",
+							indx = 1,
+							onToggle = message::RSET0
+						),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							val = exstate, disabled = radmode0 == 0,
+							high = 31,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								exstate = val;
+							}),
+						INFOBTN("Which ExtraState (0 to 31) to use instead of the standard screen state"),
+						//
+						cboxes[0] = Checkbox(
+							text = "Use Special Item State", hAlign = 0.0,
+							checked = local_ref.usrflags&cflag7,
+							colSpan = 2,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag7,state);
+							}
+						),
+						INFOBTN("Link the contained item to 'Special Item' screen state."
+							"\nThis means that picking up the item will count as collecting the screen's Special Item."
+							"\nThis does NOT make the chest contain the item set in Screen Data - see the Content tab for that.")
+					)),
+					TabRef(name = "Opening", Column(
+						Row(
+							Rows<2>(padding = 0_px,
+								Checkbox(
+									text = "Can't use from top", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag9,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag9,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the top side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from bottom", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag10,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag10,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the bottom side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from left", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag11,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag11,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the left side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from right", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag12,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag12,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the right side if checked")
+							),
+							Column(padding = 0_px,
+								Row(padding = 0_px,
+									Label(text = "Buttons:"),
+									INFOBTN("Which buttons should interact with the chest?"
+										"\nIf no buttons are selected, walking into the chest will interact with it.")
+								),
+								Columns<4>(
+									Checkbox(
+										text = "A", hAlign = 0.0,
+										checked = openbtn&0x1,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x1,state);
+										}
+									),
+									Checkbox(
+										text = "B", hAlign = 0.0,
+										checked = openbtn&0x2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x2,state);
+										}
+									),
+									Checkbox(
+										text = "L", hAlign = 0.0,
+										checked = openbtn&0x4,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x4,state);
+										}
+									),
+									Checkbox(
+										text = "R", hAlign = 0.0,
+										checked = openbtn&0x8,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x8,state);
+										}
+									),
+									Checkbox(
+										text = "Ex1", hAlign = 0.0,
+										checked = openbtn&0x10,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x10,state);
+										}
+									),
+									Checkbox(
+										text = "Ex2", hAlign = 0.0,
+										checked = openbtn&0x20,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x20,state);
+										}
+									),
+									Checkbox(
+										text = "Ex3", hAlign = 0.0,
+										checked = openbtn&0x40,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x40,state);
+										}
+									),
+									Checkbox(
+										text = "Ex4", hAlign = 0.0,
+										checked = openbtn&0x80,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x80,state);
+										}
+									)
+								)
+							)
+						),
+						Row(
+							Label(text = "Open SFX:"),
+							ddls[1] = DropDownList(data = list_sfx,
+								fitParent = true, selectedValue = opensfx,
+								onSelectFunc = [&](int32_t val)
+								{
+									opensfx = val;
+								}),
+							INFOBTN("The sound to play when opening the chest")
+						)
+					)),
+					TabRef(name = "Content", Rows<3>(
+						Label(text = "Contains:", colSpan = 3),
+						//
+						rset[1][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode1 == 0,
+							text = "Variable Content:",
+							indx = 0,
+							onToggle = message::RSET1,
+							set = 1
+						),
+						ddls[2] = DropDownList(data = list_chest_content,
+							fitParent = true, selectedValue = spitem_def,
+							onSelectFunc = [&](int32_t val)
+							{
+								contains_item = val;
+							}),
+						INFOBTN("Which value to use as an item for the chest to contain"),
+						//
+						rset[1][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode1 == 1,
+							text = "Specific Item:",
+							indx = 1,
+							onToggle = message::RSET1,
+							set = 1
+						),
+						ddls[3] = DropDownList(data = list_items,
+							fitParent = true, selectedValue = normitem_def,
+							onSelectFunc = [&](int32_t val)
+							{
+								contains_item = val;
+							}),
+						INFOBTN("Which item to put in the chest")
+					)),
+					TabRef(name = "Prompts", Row(
+						Columns<2>(padding = 0_px,
+							Row(padding = 0_px,
+								cboxes[1] = Checkbox(
+									text = "Display Prompt", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag13,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag13,state);
+										update();
+									}
+								),
+								INFOBTN("Displays a prompt combo when able to interact")
+							),
+							frames[0] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<3>(
+									Label(text = "Prompt Combo:"),
+									cmbswatches[0] = SelComboSwatch(
+										combo = def_prompt_combo,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo = cmb*10000;
+											prompt_cset = c;
+											cmbswatches[1]->setCSet(prompt_cset);
+										}
+									),
+									INFOBTN("The combo/cset to use for the prompt"),
+									//
+									Label(text = "Prompt XOffset:"),
+									tfs[1] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_xoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_xoff = val;
+										}),
+									INFOBTN("The x-offset in pixels of the prompt"),
+									//
+									Label(text = "Prompt YOffset:"),
+									tfs[2] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_yoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_yoff = val;
+										}),
+									INFOBTN("The y-offset in pixels of the prompt")
+								)
+							),
+							Row(padding = 0_px,
+								cboxes[2] = Checkbox(
+									text = "Separate Locked Prompt", hAlign = 0.0,
+									checked = lvl > 1 && (local_ref.usrflags&cflag13) && def_prompt_combo2,
+									disabled = lvl < 2 || !(local_ref.usrflags&cflag13),
+									onToggleFunc = [&](bool state)
+									{
+										update();
+									}
+								),
+								INFOBTN("Displays a separate prompt combo when unable to unlock")
+							),
+							frames[1] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Row(
+									Label(text = "Locked Prompt Combo:"),
+									cmbswatches[1] = SelComboSwatch(
+										combo = def_prompt_combo2,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo2 = cmb*10000;
+											prompt_cset = c;
+											cmbswatches[0]->setCSet(prompt_cset);
+										}
+									),
+									INFOBTN("The combo to use for the locked prompt")
+								)
+							)
+						)
+					)),
+					TabRef(name = "Locking", Row(
+						Columns<2>(padding = 0_px,
+							Row(padding = 0_px,
+								cboxes[3] = Checkbox(
+									text = "Use Item", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag1,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag1,state);
+										update();
+									}
+								),
+								INFOBTN("Allow an item in your inventory to unlock the chest")
+							),
+							frames[2] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<3>(
+									cboxes[4] = Checkbox(
+										text = "Require Item (disables counters)", hAlign = 0.0,
+										checked = local_ref.usrflags&cflag2,
+										colSpan = 2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.usrflags,cflag2,state);
+											update();
+										}
+									),
+									INFOBTN("Only the required item can open this chest (instead of ALSO allowing a key/counter)"),
+									//
+									cboxes[5] = Checkbox(
+										text = "Consume Item", hAlign = 0.0,
+										checked = local_ref.usrflags&cflag5,
+										colSpan = 2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.usrflags,cflag5,state);
+											update();
+										}
+									),
+									INFOBTN("Consume the required item instead of simply requiring its presence"),
+									//
+									Label(text = "Required Item:"),
+									ddls[4] = DropDownList(data = lists[1],
+										fitParent = true, selectedValue = (local_ref.usrflags&cflag1) ? reqitem : 0,
+										onSelectFunc = [&](int32_t val)
+										{
+											reqitem = val;
+										}),
+									INFOBTN("The item that can open the chest.")
+								)
+							),
+							Label(text = "Counter"),
+							frames[3] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<4>(
+									rset[2][0] = Radio(
+										hAlign = 0.0,
+										checked = radmode2 == 0,
+										text = "Keys",
+										indx = 0,
+										onToggle = message::RSET2,
+										colSpan = 3, set = 2
+									),
+									INFOBTN("Use level or general keys"),
+									//
+									rset[2][1] = Radio(
+										hAlign = 0.0,
+										checked = radmode2 == 1,
+										text = "Specified Counter:",
+										indx = 1,
+										onToggle = message::RSET2,
+										colSpan = 2, set = 2
+									),
+									ddls[5] = DropDownList(data = list_counters,
+										fitParent = true, selectedValue = (radmode2==1) ? usecounter : crMONEY,
+										onSelectFunc = [&](int32_t val)
+										{
+											usecounter = val;
+										}),
+									INFOBTN("Use a specified counter instead of keys"),
+									//
+									DummyWidget(),
+									lbls[0] = Label(text = "Amount:"),
+									tfs[3] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+										low = 10000, high = MAX_SIGNED_32, val = amount,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											amount = val;
+										}),
+									INFOBTN("The amount of keys/specified counter to cost"),
+									//
+									
+									//Radio for 'normal'/'no drain'/'thief'
+									rset[3][0] = Radio(
+										hAlign = 0.0,
+										checked = radmode3 == 0,
+										text = "Normal Cost",
+										indx = 0,
+										onToggle = message::RSET3,
+										colSpan = 3, set = 3
+									),
+									btns[0] = INFOBTN("Spend the specified cost to open, if you have enough."),
+									//
+									rset[3][1] = Radio(
+										hAlign = 0.0,
+										checked = radmode3 == 1,
+										text = "No Drain",
+										indx = 1,
+										onToggle = message::RSET3,
+										colSpan = 3, set = 3
+									),
+									btns[1] = INFOBTN("Open if the specified cost is met, without spending."),
+									//
+									rset[3][2] = Radio(
+										hAlign = 0.0,
+										checked = radmode3 == 2,
+										text = "Thief",
+										indx = 2,
+										onToggle = message::RSET3,
+										colSpan = 3, set = 3
+									),
+									btns[2] = INFOBTN("Spend the specified cost to open, if you have enough."
+										"\nIf you don't have enough, steal what you do have!")
+								)
+							)
+						)
+					))
+				)
+			));
+			rs_sz[0] = 2;
+			rs_sz[1] = 2;
+			rs_sz[2] = 2;
+			rs_sz[3] = 3;
+			break;
+		}
+		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
+		{
+			size_t lvl = 0;
+			if(local_ref.type == cBOSSLOCKBLOCK)
+				lvl = 2;
+			else if(local_ref.type == cLOCKBLOCK)
+				lvl = 3;
+			
+			byte& exstate = local_ref.attribytes[5];
+			byte& openbtn = local_ref.attribytes[2];
+			byte& opensfx = local_ref.attribytes[3];
+			
+			auto radmode0 = 0;
+			if(local_ref.usrflags&cflag16)
+				radmode0 = 1;
+			
+			auto radmode2 = 0;
+			auto radmode3 = 0;
+			if((local_ref.usrflags & cflag1) && (local_ref.usrflags & cflag2))
+			{
+				if(local_ref.usrflags & cflag4)
+					radmode2 = 1;
+				if(local_ref.usrflags & cflag8)
+					radmode3 = 1;
+				else if(local_ref.usrflags & cflag6)
+					radmode3 = 2;
+			}
+			
+			int32_t& prompt_combo = local_ref.attributes[1];
+			int32_t& prompt_combo2 = local_ref.attributes[2];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			
+			int32_t def_prompt_combo = 0;
+			int32_t def_prompt_combo2 = 0;
+			byte def_prompt_cset = 0;
+			int16_t def_prompt_xoff = 12;
+			int16_t def_prompt_yoff = -8;
+			if(local_ref.usrflags&cflag13)
+			{
+				def_prompt_combo = prompt_combo/10000;
+				def_prompt_cset = prompt_cset;
+				def_prompt_xoff = prompt_xoff;
+				def_prompt_yoff = prompt_yoff;
+				if(lvl > 1) //boss or locked
+					def_prompt_combo2 = prompt_combo2/10000;
+			}
+			
+			byte& reqitem = local_ref.attribytes[0];
+			
+			byte& usecounter = local_ref.attribytes[1];
+			int32_t& amount = local_ref.attributes[0];
+			
+			lists[0] = GUI::ZCListData::combotype(true).filter(
+				[](GUI::ListItem& itm)
+				{
+					switch(itm.value)
+					{
+						case cLOCKBLOCK: case cBOSSLOCKBLOCK:
+							itm.tag = 0;
+							return true;
+						case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
+							itm.tag = 1;
+							return true;
+					}
+					return false;
+				}).tagsort();
+			lists[1] = list_items.copy().filter(
+				[](GUI::ListItem& itm)
+				{
+					if(unsigned(itm.value) >= MAXITEMS) return false;
+					return (itemsbuf[itm.value].flags & ITEM_GAMEDATA) != 0;
+				});
+			windowRow->add(Column(
+				Row(
+					ddls[0] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = local_ref.type,
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.type = val;
+							updateTitle();
+							update();
+						}),
+					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);})
+				),
+				tpan[0] = TabPanel(
+					TabRef(name = "State", Rows<3>(
+						rset[0][0] = Radio(
+							hAlign = 0.0,
+							checked = radmode0 == 0,
+							text = "Block State",
+							indx = 0,
+							onToggle = message::RSET0
+						),
+						DummyWidget(),
+						INFOBTN("Block will use the standard 'Lockblock'/'Boss Block' screen state."),
+						//
+						rset[0][1] = Radio(
+							hAlign = 0.0,
+							checked = radmode0 == 1,
+							text = "Ex State",
+							indx = 1,
+							onToggle = message::RSET0
+						),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_BYTE,
+							val = exstate, disabled = radmode0 == 0,
+							high = 31,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								exstate = val;
+							}),
+						INFOBTN("Which ExtraState (0 to 31) to use instead of the standard screen state")
+					)),
+					TabRef(name = "Opening", Column(
+						Row(
+							Rows<2>(padding = 0_px,
+								Checkbox(
+									text = "Can't use from top", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag9,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag9,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the top side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from bottom", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag10,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag10,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the bottom side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from left", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag11,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag11,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the left side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from right", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag12,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag12,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the right side if checked")
+							),
+							Column(padding = 0_px,
+								Row(padding = 0_px,
+									Label(text = "Buttons:"),
+									INFOBTN("Which buttons should interact with the chest?"
+										"\nIf no buttons are selected, walking into the chest will interact with it.")
+								),
+								Columns<4>(
+									Checkbox(
+										text = "A", hAlign = 0.0,
+										checked = openbtn&0x1,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x1,state);
+										}
+									),
+									Checkbox(
+										text = "B", hAlign = 0.0,
+										checked = openbtn&0x2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x2,state);
+										}
+									),
+									Checkbox(
+										text = "L", hAlign = 0.0,
+										checked = openbtn&0x4,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x4,state);
+										}
+									),
+									Checkbox(
+										text = "R", hAlign = 0.0,
+										checked = openbtn&0x8,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x8,state);
+										}
+									),
+									Checkbox(
+										text = "Ex1", hAlign = 0.0,
+										checked = openbtn&0x10,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x10,state);
+										}
+									),
+									Checkbox(
+										text = "Ex2", hAlign = 0.0,
+										checked = openbtn&0x20,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x20,state);
+										}
+									),
+									Checkbox(
+										text = "Ex3", hAlign = 0.0,
+										checked = openbtn&0x40,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x40,state);
+										}
+									),
+									Checkbox(
+										text = "Ex4", hAlign = 0.0,
+										checked = openbtn&0x80,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x80,state);
+										}
+									)
+								)
+							)
+						),
+						Row(
+							Label(text = "Unlock SFX:"),
+							ddls[1] = DropDownList(data = list_sfx,
+								fitParent = true, selectedValue = opensfx,
+								onSelectFunc = [&](int32_t val)
+								{
+									opensfx = val;
+								}),
+							INFOBTN("The sound to play when opening the block")
+						)
+					)),
+					TabRef(name = "Prompts", Row(
+						Columns<2>(padding = 0_px,
+							Row(padding = 0_px,
+								cboxes[1] = Checkbox(
+									text = "Display Prompt", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag13,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag13,state);
+										update();
+									}
+								),
+								INFOBTN("Displays a prompt combo when able to interact")
+							),
+							frames[0] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<3>(
+									Label(text = "Prompt Combo:"),
+									cmbswatches[0] = SelComboSwatch(
+										combo = def_prompt_combo,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo = cmb*10000;
+											prompt_cset = c;
+											cmbswatches[1]->setCSet(prompt_cset);
+										}
+									),
+									INFOBTN("The combo/cset to use for the prompt"),
+									//
+									Label(text = "Prompt XOffset:"),
+									tfs[1] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_xoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_xoff = val;
+										}),
+									INFOBTN("The x-offset in pixels of the prompt"),
+									//
+									Label(text = "Prompt YOffset:"),
+									tfs[2] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_yoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_yoff = val;
+										}),
+									INFOBTN("The y-offset in pixels of the prompt")
+								)
+							),
+							Row(padding = 0_px,
+								cboxes[2] = Checkbox(
+									text = "Separate Locked Prompt", hAlign = 0.0,
+									checked = lvl > 1 && (local_ref.usrflags&cflag13) && def_prompt_combo2,
+									disabled = lvl < 2 || !(local_ref.usrflags&cflag13),
+									onToggleFunc = [&](bool state)
+									{
+										update();
+									}
+								),
+								INFOBTN("Displays a separate prompt combo when unable to unlock")
+							),
+							frames[1] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Row(
+									Label(text = "Locked Prompt Combo:"),
+									cmbswatches[1] = SelComboSwatch(
+										combo = def_prompt_combo2,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo2 = cmb*10000;
+											prompt_cset = c;
+											cmbswatches[0]->setCSet(prompt_cset);
+										}
+									),
+									INFOBTN("The combo to use for the locked prompt")
+								)
+							)
+						)
+					)),
+					TabRef(name = "Locking", Row(
+						Columns<2>(padding = 0_px,
+							Row(padding = 0_px,
+								cboxes[3] = Checkbox(
+									text = "Use Item", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag1,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag1,state);
+										update();
+									}
+								),
+								INFOBTN("Allow an item in your inventory to unlock the block")
+							),
+							frames[2] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<3>(
+									cboxes[4] = Checkbox(
+										text = "Require Item (disables counters)", hAlign = 0.0,
+										checked = local_ref.usrflags&cflag2,
+										colSpan = 2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.usrflags,cflag2,state);
+											update();
+										}
+									),
+									INFOBTN("Only the required item can open this block (instead of ALSO allowing a key/counter)"),
+									//
+									cboxes[5] = Checkbox(
+										text = "Consume Item", hAlign = 0.0,
+										checked = local_ref.usrflags&cflag5,
+										colSpan = 2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(local_ref.usrflags,cflag5,state);
+											update();
+										}
+									),
+									INFOBTN("Consume the required item instead of simply requiring its presence"),
+									//
+									Label(text = "Required Item:"),
+									ddls[4] = DropDownList(data = lists[1],
+										fitParent = true, selectedValue = (local_ref.usrflags&cflag1) ? reqitem : 0,
+										onSelectFunc = [&](int32_t val)
+										{
+											reqitem = val;
+										}),
+									INFOBTN("The item that can open the block.")
+								)
+							),
+							Label(text = "Counter"),
+							frames[3] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<4>(
+									rset[2][0] = Radio(
+										hAlign = 0.0,
+										checked = radmode2 == 0,
+										text = "Keys",
+										indx = 0,
+										onToggle = message::RSET2,
+										colSpan = 3, set = 2
+									),
+									INFOBTN("Use level or general keys"),
+									//
+									rset[2][1] = Radio(
+										hAlign = 0.0,
+										checked = radmode2 == 1,
+										text = "Specified Counter:",
+										indx = 1,
+										onToggle = message::RSET2,
+										colSpan = 2, set = 2
+									),
+									ddls[5] = DropDownList(data = list_counters,
+										fitParent = true, selectedValue = (radmode2==1) ? usecounter : crMONEY,
+										onSelectFunc = [&](int32_t val)
+										{
+											usecounter = val;
+										}),
+									INFOBTN("Use a specified counter instead of keys"),
+									//
+									DummyWidget(),
+									lbls[0] = Label(text = "Amount:"),
+									tfs[3] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+										low = 10000, high = MAX_SIGNED_32, val = amount,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											amount = val;
+										}),
+									INFOBTN("The amount of keys/specified counter to cost"),
+									//
+									
+									//Radio for 'normal'/'no drain'/'thief'
+									rset[3][0] = Radio(
+										hAlign = 0.0,
+										checked = radmode3 == 0,
+										text = "Normal Cost",
+										indx = 0,
+										onToggle = message::RSET3,
+										colSpan = 3, set = 3
+									),
+									btns[0] = INFOBTN("Spend the specified cost to open, if you have enough."),
+									//
+									rset[3][1] = Radio(
+										hAlign = 0.0,
+										checked = radmode3 == 1,
+										text = "No Drain",
+										indx = 1,
+										onToggle = message::RSET3,
+										colSpan = 3, set = 3
+									),
+									btns[1] = INFOBTN("Open if the specified cost is met, without spending."),
+									//
+									rset[3][2] = Radio(
+										hAlign = 0.0,
+										checked = radmode3 == 2,
+										text = "Thief",
+										indx = 2,
+										onToggle = message::RSET3,
+										colSpan = 3, set = 3
+									),
+									btns[2] = INFOBTN("Spend the specified cost to open, if you have enough."
+										"\nIf you don't have enough, steal what you do have!")
+								)
+							)
+						)
+					))
+				)
+			));
+			rs_sz[0] = 2;
+			rs_sz[2] = 2;
+			rs_sz[3] = 3;
+			break;
+		}
 		default: //Should be unreachable
 			wip = true;
 			windowRow->add(Button(text = "Exit",minwidth = 90_lpx,onClick = message::CANCEL));
@@ -2237,18 +3518,32 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 	return window;
 }
 
-static ComboWizardDialog* _instance = nullptr;
+static newcombo* _instance = nullptr;
+static bool defaulted = false;
 bool def_all()
 {
-	combo_default(_instance->local_ref, false);
-	_instance->rerun_dlg = true;
+	combo_default(*_instance, false);
+	defaulted = true;
 	return true;
 }
 bool def_some()
 {
-	combo_default(_instance->local_ref, true);
-	_instance->rerun_dlg = true;
+	combo_default(*_instance, true);
+	defaulted = true;
 	return true;
+}
+bool do_combo_default(newcombo& ref)
+{
+	defaulted = false;
+	_instance = &ref;
+	AlertFuncDialog("Are you sure?",
+		"Reset the combo to default?",
+		3, 2, //3 buttons, where buttons[2] is focused
+		"Whole Combo", def_all,
+		"Only attributes/flags", def_some,
+		"Cancel", NULL
+	).show();
+	return defaulted;
 }
 bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
@@ -2263,15 +3558,8 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 		case message::DEFAULT:
 		{
-			_instance = this;
-			bool reload = false;
-			AlertFuncDialog("Are you sure?",
-				"Reset the combo to default?",
-				3, 2, //3 buttons, where buttons[2] is focused
-				"Whole Combo", def_all,
-				"Only attributes/flags", def_some,
-				"Cancel", NULL
-			).show();
+			if(do_combo_default(local_ref))
+				rerun_dlg = true;
 			return rerun_dlg;
 		}
 		case message::CANCEL:

@@ -1058,6 +1058,7 @@ MP3FILE *load_mp3_file(const char *filename)
 	if (!stream)
 		goto error;
 	al_set_audio_stream_playing(stream, false);
+	al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
 
 	p->s = stream;
 

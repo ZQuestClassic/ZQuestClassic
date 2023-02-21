@@ -859,17 +859,57 @@ void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,cons
 		--w;
 		--h;
 	}
-	//rect(dest,x+1,y+1,x+w-1,y+h-1,jwin_pal[jcDARK]);
 	rectfill(dest,x+1,y+1,x+w-3,y+h-3,jwin_pal[(flags&D_SELECTED ? jcMEDDARK : jcBOX)]);
-	//rect(dest,x,y,x+w-2,y+h-2,jwin_pal[jcDARK]);
 	jwin_draw_frame(dest, x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
-	if(flags&D_DISABLED)
+	
+	//Forcibly fit the text within the button
+	char buf[512] = {0};
+	strcpy(buf, text);
+	
+	bool dis = (flags&D_DISABLED);
+	auto hei = text_height(font);
+	auto len = text_length(font,buf);
+	auto borderwid = 8;
+	if(len > w - borderwid + (dis ? 1 : 0))
 	{
-		textout_centre_ex(dest,font,text,((x+x+w)>>1) +1,((y+y+h)>>1)-4 +1,jwin_pal[jcLIGHT],-1);
-		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcDISABLED_FG],-1);
+		auto ind = strlen(buf) - 1;
+		auto dotcount = 0;
+		while(len > w - borderwid + (dis ? 1 : 0))
+		{
+			if(dotcount >= 2)
+				buf[ind+2] = 0;
+			else ++dotcount;
+			buf[ind--] = '.';
+			len = text_length(font,buf);
+		}
+	}
+	if(dis)
+	{
+		++len; ++hei;
+	}
+	BITMAP* tmp = create_bitmap_ex(8,len,hei);
+	clear_bitmap(tmp);
+	if(dis)
+	{
+		textout_ex(tmp,font,buf,1,1,jwin_pal[jcLIGHT],-1);
+		textout_ex(tmp,font,buf,0,0,jwin_pal[jcDISABLED_FG],-1);
 	}
 	else
-		textout_centre_ex(dest,font,text,(x+x+w)>>1,((y+y+h)>>1)-4,jwin_pal[jcBOXFG],-1);
+		textout_ex(tmp,font,buf,0,0,jwin_pal[jcBOXFG],-1);
+	auto tx = x+((w-len)/2);
+	auto ty = y+((h-hei)/2);
+	if(len > w-borderwid)
+	{
+		tx = x+borderwid/2;
+		len = w-borderwid;
+	}
+	if(hei > h-borderwid)
+	{
+		ty = y+borderwid/2;
+		hei = h-borderwid;
+	}
+	masked_blit(tmp,dest, 0,0, tx,ty, len, hei);
+	destroy_bitmap(tmp);
 }
 
 bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)
@@ -1162,6 +1202,10 @@ void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_
 
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg, bool value)
 {
+	draw_checkbox(dest,x,y,sz,sz,bg,fg,value);
+}
+void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg, bool value)
+{
 	//these are here to bypass compiler warnings about unused arguments
 	bg=bg;
 	fg=fg;
@@ -1170,20 +1214,23 @@ void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_
 	//  line(dest,x+1,y+1,x+7,y+7,value?fg:bg);
 	//  line(dest,x+1,y+7,x+7,y+1,value?fg:bg);
 	
-	jwin_draw_frame(dest, x, y, sz, sz, FR_DEEP);
-	rectfill(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTBG]);
+	jwin_draw_frame(dest, x, y, wid, hei, FR_DEEP);
+	rectfill(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTBG]);
 	
 	if(value)
 	{
-		line(dest, x+2, y+2, x+sz-3, y+sz-3, jwin_pal[jcTEXTFG]);
-		line(dest, x+2, y+sz-3, x+sz-3, y+2, jwin_pal[jcTEXTFG]);
+		line(dest, x+2, y+2, x+wid-3, y+hei-3, jwin_pal[jcTEXTFG]);
+		line(dest, x+2, y+hei-3, x+wid-3, y+2, jwin_pal[jcTEXTFG]);
 	}
-	
 }
 
 
 
 bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value)
+{
+	return do_checkbox(dest,x,y,sz,sz,bg,fg,value);
+}
+bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value)
 {
 	bool over=false;
 	
@@ -1191,13 +1238,13 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t 
 	{
 		custom_vsync();
 		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+sz-1,y+sz-1))               //if on checkbox
+		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+wid-1,y+hei-1))               //if on checkbox
 		{
 			if(!over)                                             //if wasn't here before
 			{
 				scare_mouse();
 				value=!value;
-				draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
+				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
 				refresh(rMENU);
 				unscare_mouse();
 				over=true;
@@ -1209,7 +1256,7 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t 
 			{
 				scare_mouse();
 				value=!value;
-				draw_checkbox(dest,x,y,sz,bg,fg,value!=0);
+				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
 				refresh(rMENU);
 				unscare_mouse();
 				over=false;
@@ -3806,7 +3853,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	case ftBMP:
 	{
 		textprintf_ex(screen,font,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %dx%d",imgstr[imagetype],((BITMAP*)imagebuf)->w,((BITMAP*)imagebuf)->h);
-		draw_text_button(screen,window_yofs+141*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
+		draw_text_button(screen,window_xofs+117*mul,window_yofs+(192+yofs)*mul,int32_t(61*(is_large?1.5:1)),int32_t(20*(is_large?1.5:1)),"Recolor",vc(1),vc(14),0,true);
 		break;
 	}
 	
@@ -4830,8 +4877,20 @@ void grab_tile(int32_t tile,int32_t &cs)
 	int32_t leech_button_y = 166;
 	int32_t grab_cancel_button_y = 192;
 	int32_t file_button_y = 216;
-	int32_t rec_button_x = 141;
+	int32_t rec_button_x = 117;
 	int32_t rec_button_y = 192;
+	
+	int32_t screen_y1 = 0;
+	int32_t screen_y2 = 160*mul;
+	
+	int32_t crect_x = 184;
+	int32_t crect_y = 168;
+	int32_t crect_w = 8;
+	int32_t crect_h = 8;
+	
+	int32_t xrect_x = -1;
+	int32_t xrect_y = -1;
+	
 	
 	if(is_large)
 	{
@@ -4840,6 +4899,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 		screen_xofs=window_xofs+6;
 		screen_yofs=window_yofs+25;
 		mul=2;
+		
 		button_x *= mul;
 		grab_ok_button_y *= mul;
 		leech_button_x *= mul;
@@ -4847,10 +4907,28 @@ void grab_tile(int32_t tile,int32_t &cs)
 		grab_cancel_button_y *= mul;
 		file_button_y *= mul;
 		rec_button_y *= mul;
-		rec_button_x *= mul;
-		rec_button_x -= 30;
+		rec_button_x = leech_button_x;
+		
 		bwidth = int32_t(bwidth*1.5);
 		bheight = int32_t(bheight*1.5);
+		
+		grab_ok_button_y += 16 + 26;
+		leech_button_y += 16 + 26;
+		grab_cancel_button_y += 16 + 26;
+		file_button_y += 16 + 26;
+		rec_button_y += 16 + 26;
+		
+		screen_y1 = 24;
+		screen_y2 = screen_y1+(160*mul)-1;
+		
+		crect_x += 190;
+		crect_y *= mul;
+		crect_y += 32;
+		crect_w *= mul;
+		crect_h *= mul;
+		
+		xrect_x = 640 + 12 - 21;
+		xrect_y = 5;
 	}
 	
 	byte newtile[200][256];
@@ -5126,9 +5204,9 @@ void grab_tile(int32_t tile,int32_t &cs)
 		{
 			if(is_large)
 			{
-				if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + 320 + 12 - 21, window_yofs + 5, window_xofs + 320 +12 - 21 + 15, window_yofs + 5 + 13))
+				if(isinRect(gui_mouse_x(),gui_mouse_y(),window_xofs + xrect_x, window_yofs + xrect_y, window_xofs + xrect_x + 15, window_yofs + xrect_y + 13))
 				{
-					if(do_x_button(screen, 320+12+window_xofs - 21, 5+window_yofs))
+					if(do_x_button(screen, window_xofs+xrect_x, window_yofs+xrect_y))
 					{
 						done=1;
 					}
@@ -5140,14 +5218,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 				bool regrab=false;
 				bdown=true;
 				int32_t x=gui_mouse_x()-window_xofs;
-				int32_t y=gui_mouse_y()-window_xofs;
+				int32_t y=gui_mouse_y()-window_yofs;
 				// Large Mode: change font temporarily
 				FONT* oldfont = font;
 				
 				if(is_large)
 					font = lfont_l;
-					
-				if(y>=0 && y<=160*mul)
+				
+				if(y>=screen_y1 && y<=screen_y2)
 				{
 					while(gui_mouse_b())
 					{
@@ -5228,7 +5306,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 						dofile=true;
 					}
 				}
-				else if(isinRect(x,y,rec_button_x, rec_button_y, rec_button_x+bwidth, rec_button_y+bheight))
+				else if(imagetype == ftBMP && isinRect(x,y,rec_button_x, rec_button_y, rec_button_x+bwidth, rec_button_y+bheight))
 				{
 					if(do_text_button(rec_button_x+window_xofs,rec_button_y+(is_large?76:0),bwidth,bheight,"Recolor",vc(1),vc(14),true))
 					{
@@ -5255,22 +5333,22 @@ void grab_tile(int32_t tile,int32_t &cs)
 						redraw=true;
 					}
 				}
-				else if(isinRect(x,y+panel_yofs,184+(is_large?190:0),168*(is_large?2:1),190+(is_large?200:0),176*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x,crect_y,crect_x+(is_large?16:6),crect_y+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=1;
 				}
-				else if(isinRect(x,y+panel_yofs,192+(is_large?198:0),168*(is_large?2:1),198+(is_large?208:0)-1,176*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x+crect_w,crect_y,crect_x+(is_large?32:14)-1,crect_y+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=2;
 				}
-				else if(isinRect(x,y+panel_yofs,184+(is_large?190:0),176*(is_large?2:1),190+(is_large?200:0)-1,184*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x,crect_y+crect_h,crect_x+(is_large?16:6)-1,crect_y+crect_h+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=4;
 				}
-				else if(isinRect(x,y+panel_yofs,192+(is_large?198:0),176*(is_large?2:1),198+(is_large?208:0)-1,184*(is_large?2:1)-1))
+				else if(isinRect(x,y+panel_yofs,crect_x+crect_w,crect_y+crect_h,crect_x+(is_large?32:14)-1,crect_y+crect_h+crect_h-1))
 				{
 					regrab=true;
 					grabmask^=8;
@@ -5647,8 +5725,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	FONT *tf = font;
 	font = tfont;
 	
-	draw_text_button(screen2,150*mul,213*mul+yofs,28*mul,21*mul,"Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
-	draw_text_button(screen2,(150+28)*mul,213*mul+yofs,28*mul,21*mul,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+	draw_text_button(screen2,150*mul,213*mul+yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+	draw_text_button(screen2,(150+28)*mul,213*mul+yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*2)*mul,213*mul+yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*3)*mul,213*mul+yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*4)*mul,213*mul+yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
@@ -15270,16 +15348,26 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					redraw=true;
 					break;
 				}
+				
 				case KEY_Z:
+				case KEY_F12:
 				{
 					if(!did_snap)
 					{
-						onSnapshot();
+						//Export tile page as screenshot
+						PALETTE temppal;
+						get_palette(temppal);
+						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+						save_bitmap(getSnapName(), tempbmp, RAMpal);
+						destroy_bitmap(tempbmp);
+						
 						redraw = true;
 						did_snap = true;
 					}
 					break;
 				}
+				
 				case KEY_S:
 				{
 					if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
@@ -15918,9 +16006,6 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					redraw=true;
 					break;
 				
-				case KEY_F12:
-					onSnapshot();
-					break;
 				
 				case KEY_V:
 					if(copy==-1)
@@ -16168,7 +16253,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 			clear_keybuf();
 		}
 		
-		if(!key[KEY_Z]) did_snap = false;
+		if(!(key[KEY_Z] || key[KEY_F12]))
+			did_snap = false;
 		
 		if(gui_mouse_b()&1)
 		{
@@ -20092,50 +20178,51 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				redraw=true;
 				break;
 			}
-		case KEY_Z:
-		{
-			if(!did_snap)
+			case KEY_Z:
+			case KEY_F12:
 			{
-				onSnapshot();
-				redraw = true;
-				did_snap = true;
+				if(!did_snap)
+				{
+					onSnapshot();
+					redraw = true;
+					did_snap = true;
+				}
+				break;
 			}
-			break;
-		}
 			case KEY_S:
-		{
-		if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
-		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-		if(!f) break;
-		al_trace("Saving tile: %d\n", tile);
-		writetilefile(f,tile,1);
-		pack_fclose(f);
-		break;
-		}
-		case KEY_L:
-		{
-		if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
-			break;   
-		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-		if(!f) break;
-		al_trace("Saving tile: %d\n", tile);
-		if (!readtilefile(f))
-		{
-			al_trace("Could not read from .ztile packfile %s\n", temppath);
-			jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-		else
-		{
-			jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
-		}
-	
-		pack_fclose(f);
-		//register_blank_tiles();
-		//register_used_tiles();
-		redraw=true;
-		break;
-		}
+			{
+				if(!getname("Save ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					break;   
+				PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+				if(!f) break;
+				al_trace("Saving tile: %d\n", tile);
+				writetilefile(f,tile,1);
+				pack_fclose(f);
+				break;
+			}
+			case KEY_L:
+			{
+				if(!getname("Load ZTILE(.ztile)", "ztile", NULL,datapath,false))
+					break;   
+				PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
+				if(!f) break;
+				al_trace("Saving tile: %d\n", tile);
+				if (!readtilefile(f))
+				{
+					al_trace("Could not read from .ztile packfile %s\n", temppath);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+				else
+				{
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				}
+			
+				pack_fclose(f);
+				//register_blank_tiles();
+				//register_used_tiles();
+				redraw=true;
+				break;
+			}
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
 			{
@@ -20734,10 +20821,6 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				redraw=true;
 				break;
 				
-			case KEY_F12:
-				onSnapshot();
-				break;
-				
 			case KEY_V:
 				if(copy==-1)
 				{
@@ -20920,7 +21003,8 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			clear_keybuf();
 		}
 		
-		if(!key[KEY_Z]) did_snap = false;
+		if(!(key[KEY_Z] || key[KEY_F12]))
+			did_snap = false;
 		
 		if(gui_mouse_b()&1)
 		{

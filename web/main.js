@@ -578,6 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // If using gamepad, probably want to go fullscreen.
-if (TARGET === 'zelda') {
-  window.addEventListener('gamepadconnected', goFullscreen, { once: true });
-}
+// TODO https://bugs.chromium.org/p/chromium/issues/detail?id=1413066
+// if (TARGET === 'zelda') {
+//   window.addEventListener('gamepadconnected', goFullscreen, { once: true });
+// }

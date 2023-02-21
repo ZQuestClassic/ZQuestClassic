@@ -42,6 +42,7 @@ namespace util
 	int32_t zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);
+	void safe_al_trace(std::string const& str);
 	bool zc_isalpha(int c);
 	std::string escape_string(char const* str);
 	std::string escape_string(std::string const& str);

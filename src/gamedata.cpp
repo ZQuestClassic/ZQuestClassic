@@ -51,7 +51,7 @@ void gamedata::Clear()
     std::fill(_maxcounter, _maxcounter+32, 0);
     std::fill(_counter, _counter+32, 0);
     std::fill(_dcounter, _dcounter+32, 0);
-    std::fill(version, version+9, 0);
+    std::fill(version, version+17, 0);
     std::fill(title, title+65, 0);
     _hasplayed=false;
     _time=0;
@@ -116,7 +116,7 @@ void gamedata::Copy(const gamedata& g)
         _dcounter[i] = g._dcounter[i];
     }
     
-    for(byte i = 0; i < 9; i++)
+    for(byte i = 0; i < 17; i++)
         version[i] = g.version[i];
         
     for(byte i = 0; i < 65; i++)

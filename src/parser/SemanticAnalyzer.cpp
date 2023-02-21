@@ -1313,6 +1313,7 @@ void SemanticAnalyzer::caseExprArrow(ASTExprArrow& host, void* param)
 
 void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 {
+	bool did_array = false;
 	// Arrow handles its own indexing.
 	if (host.array->isTypeArrow())
 	{
@@ -1321,22 +1322,23 @@ void SemanticAnalyzer::caseExprIndex(ASTExprIndex& host, void* param)
 		{
 			arrow->index = host.index;
 			visit(host.array.get(), param);
-			if(!arrow->arrayFunction)
-				return;
-			arrow->index = nullptr;
+			did_array = true;
+			if(arrow->arrayFunction)
+				arrow->index = nullptr;
 		}
 	}
-	
-	RecursiveVisitor::caseExprIndex(host);
+	if(!did_array)
+		visit(host.array.get(), param);
 	if (breakRecursion(host)) return;
 
 	// The index must be a number.
-    if (host.index)
-    {
-	    checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
-	              host.index.get());
-        if (breakRecursion(host)) return;
-    }
+	if (host.index)
+	{
+		visit(host.index.get(), paramRead); //only READ the index!
+		checkCast(*host.index->getReadType(scope, this), DataType::FLOAT,
+				  host.index.get());
+		if (breakRecursion(host)) return;
+	}
 }
 
 void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
@@ -1396,7 +1398,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			if(identifier->components.size() == 1 && parsing_user_class > puc_vars)
 			{
 				user_class = &scope->getClass()->user_class;
-				if(parsing_user_class == puc_construct)
+				if(parsing_user_class == puc_construct && identifier->components[0] == user_class->getName())
 					functions = lookupConstructors(*user_class, parameterTypes);
 				if(!functions.size())
 					functions = lookupFunctions(*scope, identifier->components[0], parameterTypes, identifier->noUsing, true);
@@ -1550,7 +1552,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
 			{
 				auto& pty = (*it)->paramTypes;
-				if (pty.size() < p)
+				if (pty.size() <= p)
 					continue;
 				bool ut = pty.at(p)->isUntyped();
 				if(ut) flag |= 1;
@@ -1560,7 +1562,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
 			{
 				auto& pty = (*it)->paramTypes;
-				if (pty.size() < p)
+				if (pty.size() <= p)
 				{
 					++it;
 					continue;

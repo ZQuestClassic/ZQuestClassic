@@ -13,7 +13,7 @@ using namespace util;
 	{ \
 		if(pm) \
 			delete pm; \
-		safe_al_trace(fmt::format("[PROCESS_LAUNCH: '{}' ERROR]: {}\n", file, str).c_str()); \
+		safe_al_trace(fmt::format("[PROCESS_LAUNCH: '{}' ERROR]: {}\n", file, str)); \
 		return NULL; \
 	} while(false)
 

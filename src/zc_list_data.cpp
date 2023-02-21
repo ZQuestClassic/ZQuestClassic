@@ -20,56 +20,7 @@ extern zctune *customtunes;
 #endif
 #endif
 
-const char *msgfont_str[font_max] =
-{
-	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
-	"S. Proportional", "SS 1 (Numerals)", "SS 2 (Incomplete)", "SS 3", "SS 4 (Numerals)", "Link's Awakening", "Goron", "Zoran", "Hylian 1", "Hylian 2",
-	"Hylian 3", "Hylian 4", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
-	"Atari 800", 
-	"Acorn",
-	"ADOS",
-	"Allegro",
-	"Apple II",
-	"Apple II 80 Column",
-	"Apple IIgs",
-	"Aquarius",
-	"Atari 400",
-	"C64",
-	"C64 HiRes",
-	"IBM CGA",
-	"COCO Mode I",
-	"COCO Mode II",
-	"Coupe",
-	"Amstrad CPC",
-	"Fantasy Letters",
-	"FDS Katakana",
-	"FDSesque",
-	"FDS Roman",
-	"FF",
-	"Elder Futhark",
-	"Gaia",
-	"Hira",
-	"JP Unsorted",
-	"Kong",
-	"Mana",
-	"Mario",
-	"Mot CPU",
-	"MSX Mode 0",
-	"MSX Mode 1",
-	"PET",
-	"Homebrew",
-	"Mr. Saturn",
-	"Sci-Fi",
-	"Sherwood",
-	"Sinclair QL",
-	"Spectrum",
-	"Spectrum Large",
-	"TI99",
-	"TRS",
-	"Zelda 2",
-	"ZX",
-	"Lisa"
-};
+extern const char *msgfont_str[font_max];
 const char *ssfont2_str[] =
 {
 	"Zelda NES", "SS 1", "SS 2", "SS 3", "SS 4", "BS Time", "Small", "Small Prop.", "LttP Small", "Link's Awakening", "Link to the Past",

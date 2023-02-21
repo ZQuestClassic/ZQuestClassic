@@ -92,7 +92,6 @@ extern word g_doscript;
 extern word player_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
-extern byte epilepsyFlashReduction;
 extern int32_t script_hero_cset;
 
 void playLevelMusic();
@@ -18087,7 +18086,9 @@ void HeroClass::checkpushblock()
 
 		int32_t f = MAPFLAG2(lyr-1,bx,by);
 		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
-		int32_t t = lyr == 0 ? combobuf[MAPCOMBO(bx,by)].type : combobuf[MAPCOMBOL(lyr,bx,by)].type;
+		int32_t t = lyr == 0 ?
+			combobuf[MAPCOMBO(bx,by)].type :
+			combobuf[MAPCOMBOL(lyr,bx,by)].type;
 		
 		if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) continue;
 		
@@ -21010,11 +21011,15 @@ void HeroClass::checkspecial2(int32_t *ls)
 {
 	if(get_bit(quest_rules,qr_OLDSTYLEWARP) && !(diagonalMovement||NO_GRIDLOCK))
 	{
-		if(y.getInt()&7)
-			return;
-			
-		if(x.getInt()&7)
-			return;
+		// Must run fairycircle stuff if currently active, otherwise hero gets stuck!
+		if (!fairyclk)
+		{
+			if(y.getInt()&7)
+				return;
+
+			if(x.getInt()&7)
+				return;
+		}
 	}
 	
 	if(toogam) return;
@@ -27136,13 +27141,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 		advanceframe(true/*,true,false*/);
-		script_drawing_commands.Clear();
+		
+		//Don't clear the last frame, unless 'fixed'
+		if(cx > 0 || get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+			script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
 		action=lastaction; FFCore.setHeroAction(lastaction);
-	}//end main scrolling loop (2 spaces tab width makes me sad =( )
+	} //end main scrolling loop
 	currdmap = olddmap;
 	
 	clear_bitmap(msg_txt_display_buf);
@@ -27323,9 +27331,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		//script_drawing_commands.Clear();
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
-		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 	}
 }
 
@@ -29457,8 +29463,7 @@ void HeroClass::getTriforce(int32_t id2)
 		{
 		    if(get_bit(quest_rules,qr_FADE))
 		    {
-			//int32_t flashbit = ;
-			if((f&(((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)) ? 6 : 3))==0)
+			if (!flash_reduction_enabled() && (f&7) == 0)
 			{
 			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
 			    refreshpal=true;
@@ -29476,7 +29481,7 @@ void HeroClass::getTriforce(int32_t id2)
 		    }
 		    else
 		    {
-			if((f&((get_bit(quest_rules,qr_EPILEPSY)) ? 10 : 7))==0)
+			if(!flash_reduction_enabled() && (f&7) == 0)
 			{
 			    for(int32_t cs2=2; cs2<5; cs2++)
 			    {
@@ -29886,23 +29891,6 @@ void HeroClass::heroDeathAnimation()
         bool clearedit = false;
 	do
 	{
-		//if ( player_doscript ) 
-		//{
-		//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
-			//if ( f ) --f; 
-		//	load_control_state(); //goto adv;
-		//}
-		//else
-		//{
-		//	if ( !clearedit )
-		//	{
-				
-				
-		//		clearedit = true;
-				
-		//	}
-		//}
-		//else Playing = false;
 		if(f<254)
 		{
 			if(f<=32)

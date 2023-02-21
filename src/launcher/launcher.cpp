@@ -28,8 +28,8 @@ volatile int32_t framecnt = 0;
 int32_t joystick_index = 0;
 int32_t readsize = 0, writesize = 0;
 volatile int32_t myvsync=0;
-int32_t zq_screen_w=800;
-int32_t zq_screen_h=600;
+int32_t zq_screen_w=LARGE_W;
+int32_t zq_screen_h=LARGE_H;
 BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
@@ -246,7 +246,9 @@ END_OF_MAIN()
 
 //Things required to compile from shared files... le sigh -Em
 bool is_large = true; //scaling
+bool is_compact = false;
 bool DragAspect = true;
+double aspect_ratio = LARGE_H / double(LARGE_W);
 bool is_zquest() //Used for sizing purposes
 {
 	return true;
@@ -525,7 +527,7 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_screen.bitmap);
 		float scale = std::min((float)resx/w, (float)resy/h);
 		if (scaling_force_integer)
-			scale = (int) scale;
+			scale = std::max((int) scale, 1);
 		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
 		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
 		rti_screen.transform.scale = scale;
@@ -557,7 +559,7 @@ void update_hw_screen(bool force)
 			load_mouse();
 		}
 		update_hw_pal=false;
-		if (myvsync)
+		if (force || myvsync)
 			render_launcher();
 	}
 }

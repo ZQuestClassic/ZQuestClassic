@@ -67,139 +67,6 @@ static bool chosecustomquest = false;
 
 extern char runningItemScripts[256];
 
-FONT *get_zcfont(int32_t index)
-{
-	//return getfont(index);
-	switch(index)
-	{
-	default:
-		return zfont;
-		
-	case font_z3font:
-		return z3font;
-		
-	case font_z3smallfont:
-		return z3smallfont;
-		
-	case font_deffont:
-		return deffont;
-		
-	case font_lfont:
-		return lfont;
-		
-	case font_lfont_l:
-		return lfont_l;
-		
-	case font_pfont:
-		return pfont;
-		
-	case font_mfont:
-		return mfont;
-		
-	case font_ztfont:
-		return ztfont;
-		
-	case font_sfont:
-		return sfont;
-		
-	case font_sfont2:
-		return sfont2;
-		
-	case font_spfont:
-		return spfont;
-		
-	case font_ssfont1:
-		return ssfont1;
-		
-	case font_ssfont2:
-		return ssfont2;
-		
-	case font_ssfont3:
-		return ssfont3;
-		
-	case font_ssfont4:
-		return ssfont4;
-		
-	case font_gblafont:
-		return gblafont;
-		
-	case font_goronfont:
-		return goronfont;
-		
-	case font_zoranfont:
-		return zoranfont;
-		
-	case font_hylian1font:
-		return hylian1font;
-		
-	case font_hylian2font:
-		return hylian2font;
-		
-	case font_hylian3font:
-		return hylian3font;
-		
-	case font_hylian4font:
-		return hylian4font;
-		
-	case font_gboraclefont:
-		return gboraclefont;
-		
-	case font_gboraclepfont:
-		return gboraclepfont;
-		
-	case font_dsphantomfont:
-		return dsphantomfont;
-		
-	case font_dsphantompfont:
-		return dsphantompfont;
-	 case font_atari800font: return atari800font;
-		 case font_acornfont: return acornfont;
-		 case font_adosfont: return adosfont;
-		 case font_baseallegrofont: return  baseallegrofont;  
-		 case font_apple2font: return apple2font;
-		 case font_apple280colfont: return apple280colfont;   
-		 case font_apple2gsfont: return  apple2gsfont;
-		 case font_aquariusfont: return  aquariusfont;  
-		 case font_atari400font: return  atari400font;  
-		 case font_c64font: return c64font;   
-		 case font_c64hiresfont: return c64hiresfont;   
-		 case font_cgafont: return cgafont;   
-		 case font_cocofont: return cocofont;
-		 case font_coco2font: return coco2font;
-		 case font_coupefon: return  coupefont;
-		 case font_cpcfon: return  cpcfont;
-		 case font_fantasyfon: return  fantasyfont;
-		 case font_fdskanafon: return  fdskanafont;
-		 case font_fdslikefon: return  fdslikefont;
-		 case font_fdsromanfon: return fdsromanfont; 
-		 case font_finalffont: return finalffont; 
-		 case font_futharkfont: return  futharkfont;
-		 case font_gaiafont: return gaiafont; 
-		 case font_hirafont: return hirafont; 
-		 case font_jpfont: return jpfont; 
-		 case font_kongfont: return  kongfont;
-		 case font_manafont: return manafont; 
-		 case font_mlfont: return  mlfont;
-		 case font_motfont: return motfont;
-		 case font_msxmode0font: return  msxmode0font;
-		 case font_msxmode1font: return  msxmode1font;
-		 case font_petfont: return  petfont;
-		 case font_pstartfont: return  pstartfont;
-		 case font_saturnfont: return  saturnfont;
-		 case font_scififont: return  scififont;
-		 case font_sherwoodfont: return sherwoodfont;
-		 case font_sinqlfont: return  sinqlfont;
-		 case font_spectrumfont: return  spectrumfont;
-		 case font_speclgfont: return  speclgfont;
-		 case font_ti99font: return  ti99font;
-		 case font_trsfont: return  trsfont;
-		 case font_z2font: return  z2font;
-		 case font_zxfont: return zxfont;
-		 case font_lisafont: return lisafont;
-	}
-}
-
-
 /********************************/
 /*****   NES title screen   *****/
 /********************************/
@@ -340,12 +207,12 @@ static void mainscreen(int32_t f)
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
 		//textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
 		//al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
 	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
 	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
 		//tbuf[0]=(char)0xBC;
 	   // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreenMAIN+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
+		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
 	}
 	if ( !moduledata.animate_NES_title ) //if we aren't disabling this
 	{
@@ -737,7 +604,6 @@ static void NES_titlescreen()
 	
 	do
 	{
-		load_control_state();
 		mainscreen(f);
 		storyscreen(f);
 		treasures(f);
@@ -763,6 +629,7 @@ static void NES_titlescreen()
 		}
 		
 		advanceframe(true);
+		load_control_state();
 		
 		if(rSbtn())
 			done=true;
@@ -889,12 +756,12 @@ static void DX_mainscreen(int32_t f)
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
 		//textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
 		al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen210+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
 	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
 	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
 		//tbuf[0]=(char)0xBC;
 	   // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen210+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
+		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
    
 		//    text_mode(0);
 	}
@@ -966,7 +833,6 @@ static void DX_titlescreen()
 	
 	do
 	{
-		load_control_state();
 		DX_mainscreen(f);
 		storyscreen(f);
 		treasures(f);
@@ -988,6 +854,7 @@ static void DX_titlescreen()
 		}
 		
 		advanceframe(true);
+		load_control_state();
 		
 		if(rSbtn())
 			done=true;
@@ -1113,12 +980,12 @@ static void v25_mainscreen(int32_t f)
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
 		//textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
 		//al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen250+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
 	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
 	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
 		//tbuf[0]=(char)0xBC;
 	   // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zcfont(moduledata.copyright_string_vars[titleScreen250+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
+		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
    
 		//    text_mode(0);
 	}
@@ -1192,7 +1059,6 @@ static void v25_titlescreen()
 	
 	do
 	{
-		load_control_state();
 		v25_mainscreen(f);
 		storyscreen(f);
 		treasures(f);
@@ -1214,6 +1080,7 @@ static void v25_titlescreen()
 		}
 		
 		advanceframe(true);
+		load_control_state();
 		
 		if(rSbtn())
 			done=true;
@@ -1452,8 +1319,8 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			savedata[i].set_item_no_flush(j, (temp != 0));
 		}
 		
-		
-		if(!pfread(savedata[i].version,sizeof(savedata[i].version),f,true))
+		size_t versz = section_version<31 ? 9 : 16;
+		if(!pfread(savedata[i].version,versz,f,true))
 		{
 			return 20;
 		}
@@ -2552,7 +2419,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 				return 18;
 		}
 		
-		if(!pfwrite(savedata[i].version,sizeof(savedata[i].version),f))
+		if(!pfwrite(savedata[i].version,16,f))
 		{
 			return 20;
 		}
@@ -4344,12 +4211,12 @@ static void select_game(bool skip = false)
 			selectscreen();
 			moduledata.refresh_title_screen = 0;
 		}
-		load_control_state();
 		sfxdat=1;
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
 		list_saves();
 		draw_cursor(pos,mode);
 		advanceframe(true);
+		load_control_state();
 		saveslot = pos + listpos;
 
 		if(!load_qstpath.empty())

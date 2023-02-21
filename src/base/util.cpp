@@ -468,27 +468,13 @@ namespace util
 
 	void safe_al_trace(const char* str)
 	{
-		size_t len = strlen(str);
-		if(len < 512) //safe already
-		{
-			al_trace("%s",str);
-			return;
-		}
-		else //Would crash al_trace
-		{
-			char buf[512] = {0};
-			size_t q = 0;
-			while(len-q >= 512)
-			{
-				memcpy(buf, str+q, 511);
-				al_trace("%s",buf);
-				q+=511;
-			}
-			if(len-q > 0)
-			{
-				al_trace("%s",str+q);
-			}
-		}
+		FILE* al_log = (FILE*)al_trace_file();
+		fwrite(str, sizeof(char), strlen(str), al_log);
+		fflush(al_log);
+	}
+	void safe_al_trace(std::string const& str)
+	{
+		safe_al_trace(str.c_str());
 	}
 	bool zc_isalpha(int c)
 	{

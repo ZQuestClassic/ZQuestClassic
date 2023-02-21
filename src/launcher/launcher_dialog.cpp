@@ -68,7 +68,12 @@ namespace GUI::Lists
 		{ "PCX", 4 },
 		{ "TGA", 5 }
 	};
-
+	static const ListData bottom8_list
+	{
+		{ "No Cover", 0 },
+		{ "Pixelated Cover", 1 },
+		{ "Normal Cover", 2 }
+	};
 	static const ListData autoBackupCopiesList = ListData::numbers(false, 0, 11);
 	static const ListData autoSaveCopiesList = ListData::numbers(false, 1, 10);
 	static const ListData frameRestSuggestList = ListData::numbers(false, 0, 3);
@@ -384,8 +389,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	queue_revert = 0;
 	int32_t scale = zc_get_config("zquest","scale",3,App::zquest);
 	int32_t scale_large = zc_get_config("zquest","scale_large",1,App::zquest);
-	int32_t def_large_w = 800*scale_large;
-	int32_t def_large_h = 600*scale_large;
+	int32_t def_large_w = LARGE_W*scale_large;
+	int32_t def_large_h = LARGE_H*scale_large;
 	int32_t def_small_w = 320*scale;
 	int32_t def_small_h = 240*scale;
 	int rightmost;
@@ -560,11 +565,13 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Force Integer Values for Scale",App::zquest,"zquest","scaling_force_integer",0,"Locks the screen to only scale by an integer value. Results in perfect pixel art scaling, at the expense of not using the entire availabe window space."),
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zquest,"zquest","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zquest,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
-						CONFIG_CHECKBOX_I("Record During Test Feature",App::zquest,"zquest","test_mode_record",0,"Save a recording to replays/test_XXXXXXXX.zplay when using the GUI test feature.")
+						CONFIG_CHECKBOX_I("Record During Test Feature",App::zquest,"zquest","test_mode_record",0,"Save a recording to replays/test_XXXXXXXX.zplay when using the GUI test feature."),
+						CONFIG_CHECKBOX_I("Custom Fonts",App::zquest,"gui","custom_fonts",1,"Use custom fonts from the 'customfonts' folder for UI elements.")
 					),
 					Rows<3>(fitParent = true,
 						CONFIG_TEXTFIELD_FL("Cursor Scale (small):", App::zquest,"zquest","cursor_scale_small",1.0,1.0,5.0, 4),
 						CONFIG_TEXTFIELD_FL("Cursor Scale (large):", App::zquest,"zquest","cursor_scale_large",1.5,1.0,5.0, 4),
+						CONFIG_DROPDOWN_I("Bottom 8 pixels:", App::zquest,"ZQ_GUI","bottom_8_pixels",0,bottom8_list,"How to hide the bottom 8 screen pixels"),
 						CONFIG_DROPDOWN_I("Screenshot Output:", App::zquest,"zquest","snapshot_format",3,screenshotOutputList,"The output format of screenshots"),
 						CONFIG_DROPDOWN_I("Auto-Backup Retention:", App::zquest,"zquest","auto_backup_retention",0,autoBackupCopiesList,"The number of auto-backups to keep"),
 						CONFIG_DROPDOWN_I("Auto-Save Retention:", App::zquest,"zquest","auto_save_retention",9,autoSaveCopiesList,"The number of auto-saves to keep"),

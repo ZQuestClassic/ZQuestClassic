@@ -668,7 +668,27 @@ void al_trace(AL_CONST char *msg, ...)
    errno = olderr;
 }
 
+/* al_trace_file:
+ * Returns the log trace file, opening it if needed.
+ */
+void* al_trace_file()
+{
+   char *s;
+   if (debug_trace_virgin) {
+      s = getenv("ALLEGRO_LEGACY_TRACE");
 
+      if (s)
+	 trace_file = fopen(s, "w");
+      else
+	 trace_file = fopen(LOGFILE, "w");
+
+      if (debug_assert_virgin)
+	 _add_exit_func(debug_exit, "debug_exit");
+
+      debug_trace_virgin = FALSE;
+   }
+   return (void*)trace_file;
+}
 
 /* register_assert_handler:
  *  Installs a user handler for assert failures.

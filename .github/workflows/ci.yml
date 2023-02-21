@@ -29,6 +29,7 @@ jobs:
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
+            extra-args: --max_duration 60
           - runs-on: macos-12
             arch: intel
             compiler: clang
@@ -43,6 +44,7 @@ jobs:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
+      extra-args: ${{ matrix.extra-args }}
 
   compare:
     needs: ["test"]

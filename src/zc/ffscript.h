@@ -4812,20 +4812,21 @@ enum ASM_DEFINE
 #define SPRITEDATAFLCSET        0x14CE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
+#define CLASS_THISKEY2          0x14D1
 
-#define REGIONDD                0x14D1
-#define REGIONCD                0x14D2
-#define REGIONFD                0x14D3
-#define REGIONTD                0x14D4
-#define REGIONID                0x14D5
-#define REGIONSD                0x14D6
-#define REGIONED                0x14D7
-#define REGIONWORLDWIDTH        0x14D8
-#define REGIONWORLDHEIGHT       0x14D9
-#define REGIONSCREENWIDTH       0x14DA
-#define REGIONSCREENHEIGHT      0x14DB
+#define REGIONDD                0x14D2
+#define REGIONCD                0x14D3
+#define REGIONFD                0x14D4
+#define REGIONTD                0x14D5
+#define REGIONID                0x14D6
+#define REGIONSD                0x14D7
+#define REGIONED                0x14D8
+#define REGIONWORLDWIDTH        0x14D9
+#define REGIONWORLDHEIGHT       0x14DA
+#define REGIONSCREENWIDTH       0x14DB
+#define REGIONSCREENHEIGHT      0x14DC
 
-#define NUMVARIABLES         	0x14DC
+#define NUMVARIABLES         	0x14DD
 
 //} End variables
 

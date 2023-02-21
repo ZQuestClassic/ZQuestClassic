@@ -24,10 +24,9 @@ void Frame::applyVisibility(bool visible)
 	if(alDialog)
 	{
 		alDialog.applyVisibility(visible);
-		alDialog.applyVisibility(visible,1);
 	}
 	if(content)
-		content->applyVisibility(visible);
+		content->setExposed(visible);
 }
 
 void Frame::applyDisabled(bool dis)

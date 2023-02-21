@@ -21,6 +21,12 @@
 #include "RegistrationVisitor.h"
 #include "ZScript.h"
 #include <fmt/format.h>
+
+#ifdef HAS_SENTRY
+#define SENTRY_BUILD_STATIC 1
+#include "sentry.h"
+#endif
+
 using std::unique_ptr;
 using std::shared_ptr;
 using namespace ZScript;
@@ -122,12 +128,28 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 
 		return unique_ptr<ScriptsData>(result.release());
 	}
+	catch (compile_exception &e)
+	{
+		zconsole_error(fmt::format("An unexpected compile error has occurred:\n{}",e.what()));
+		zscript_had_warn_err = zscript_error_out = true;
+		return nullptr;
+	}
+#ifndef _DEBUG
 	catch (std::exception &e)
 	{
+#ifdef HAS_SENTRY
+		sentry_value_t event = sentry_value_new_event();
+		sentry_value_t exc = sentry_value_new_exception("Parser Runtime Error", e.what());
+		sentry_value_set_stacktrace(exc, NULL, 0);
+		sentry_event_add_exception(event, exc);
+		sentry_capture_event(event);
+#endif
+
 		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
 		zscript_had_warn_err = zscript_error_out = true;
 		return nullptr;
 	}
+#endif
 }
 
 int32_t ScriptParser::vid = 0;
@@ -391,6 +413,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 					new LiteralArgument(0)));
 				first->setLabel(function.getLabel());
 				funccode.push_back(std::move(first));
+				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
 				std::shared_ptr<Opcode> alt(new ONoOp());
@@ -432,7 +455,10 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			next->setLabel(bo.getReturnLabelID());
 			funccode.push_back(std::move(next));
 			if (puc == puc_construct) //return val
+			{
 				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
+				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(CLASS_THISKEY2)));
+			}
 			addOpcode2(funccode, new OReturn());
 			function.giveCode(funccode);
 		}

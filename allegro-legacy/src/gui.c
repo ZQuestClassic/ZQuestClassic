@@ -966,7 +966,8 @@ DIALOG_PLAYER *init_dialog(DIALOG *dialog, int focus_obj)
       gui_install_count++;
 
    /* initialise the dialog */
-   set_clip_rect(gui_bmp, 0, 0, SCREEN_W-1, SCREEN_H-1);
+   // local edit
+   set_clip_rect(gui_bmp, 0, 0, screen->w-1, screen->h-1);
    set_clip_state(gui_bmp, TRUE);
    player->res |= dialog_message(dialog, MSG_START, 0, &player->obj);
 

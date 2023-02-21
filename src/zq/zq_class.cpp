@@ -1570,14 +1570,23 @@ void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	}
 }
 
+void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag,int32_t scale)
+{
+	BITMAP* b = create_bitmap_ex(8,scale*16,scale*16);
+	put_combo(b,0,0,cmbdat,cset,flags,sflag);
+	masked_stretch_blit(b,dest,0,0,16,16,x,y,16*scale,16*scale);
+	destroy_bitmap(b);
+}
 void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag)
 {
-
-	newcombo c = combobuf[cmbdat];
+	static newcombo nilcombo;
+	nilcombo.tile = 0;
+	
+	newcombo& c = cmbdat < MAXCOMBOS ? combobuf[cmbdat] : nilcombo;
 	
 	if(c.tile==0)
 	{
-		rectfill(dest,x,y,x+15,y+15,0);
+		rectfill(dest,x,y,x+15,y+15,vc(0));
 		rectfill(dest,x+3,y+3,x+12,y+12,vc(4));
 		return;
 	}
@@ -6888,7 +6897,8 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 		}
 		else
 		{
-			Map.setCurrMap(vbound(Map.getCurrMap(),0,map_count-1));
+			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
+			Map.setCurrScr(zinit.last_screen);
 			refresh(rALL);
 			refresh_pal();
 			set_rules(quest_rules);
@@ -7038,12 +7048,12 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
             new_return(11);
         }
         
-        if(!pfwrite(Header->version,sizeof(Header->version),f))
+        if(!pfwrite(Header->version,16,f))
         {
             new_return(12);
         }
         
-        if(!pfwrite(Header->minver,sizeof(Header->minver),f))
+        if(!pfwrite(Header->minver,16,f))
         {
             new_return(13);
         }
@@ -13140,9 +13150,10 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 			}
 			if(sz)
 			{
+				auto& str = *zas.strptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
-					if(!p_putc(zas.strptr->at(q),f))
+					if(!p_putc(str[q],f))
 					{
 						new_return(24);
 					}
@@ -13157,9 +13168,10 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 			}
 			if(sz) //vector found
 			{
+				auto& vec = *zas.vecptr;
 				for(size_t q = 0; q < sz; ++q)
 				{
-					if(!p_iputl(zas.vecptr->at(q),f))
+					if(!p_iputl(vec[q],f))
 					{
 						new_return(26);
 					}

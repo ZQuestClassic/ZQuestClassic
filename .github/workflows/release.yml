@@ -72,13 +72,13 @@ jobs:
           - runs-on: macos-12
             arch: intel
             compiler: clang
-            config: Release
-            sentry: false
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
           - runs-on: ubuntu-22.04
             arch: x64
             compiler: clang
-            config: Release
-            sentry: false
+            config: RelWithDebInfo
+            sentry: ${{ inputs.sentry }}
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/build.yml
@@ -92,6 +92,9 @@ jobs:
       release-tag: ${{ needs.create-tag.outputs.release-tag }}
       release-name: ${{ needs.create-tag.outputs.release-name }}
       cache: false
+      number: ${{ inputs.number }}
+      versiontype: ${{ inputs.versiontype }}
+      full_release: ${{ inputs.full_release }}
     secrets: inherit
 
   publish:

@@ -18,7 +18,7 @@ void Grid::applyVisibility(bool visible)
 	for(auto& child: children)
 	{
 		if(child.second)
-			child.second->applyVisibility(visible);
+			child.second->setExposed(visible);
 	}
 }
 

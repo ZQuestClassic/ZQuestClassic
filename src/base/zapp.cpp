@@ -45,7 +45,6 @@ void common_main_setup(App id, int argc, char **argv)
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
     sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
-    sentry_options_set_handler_path(options, "crashpad_handler.exe");
     sentry_init(options);
     switch (id)
     {
@@ -127,13 +126,14 @@ double zc_get_monitor_scale()
 }
 
 extern bool DragAspect;
+extern double aspect_ratio;
 static void doAspectResize()
 {
 	if (!DragAspect || all_get_fullscreen_flag())
 		return;
 
 	static int prev_width = 0, prev_height = 0;
-
+	
 	if (prev_width == 0 || prev_height == 0)
 	{
 		prev_width = al_get_display_width(all_get_display());
@@ -148,11 +148,11 @@ static void doAspectResize()
 		
 		if (width_first)
 		{
-			al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*0.75);
+			al_resize_display(all_get_display(), al_get_display_width(all_get_display()), al_get_display_width(all_get_display())*aspect_ratio);
 		}
 		else
 		{
-			al_resize_display(all_get_display(), al_get_display_height(all_get_display())/0.75, al_get_display_height(all_get_display()));
+			al_resize_display(all_get_display(), al_get_display_height(all_get_display())/aspect_ratio, al_get_display_height(all_get_display()));
 		}
 	}
 
@@ -166,3 +166,4 @@ void zc_process_display_events()
 	// TODO: should do this only in response to a resize event
 	doAspectResize();
 }
+
