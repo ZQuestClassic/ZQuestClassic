@@ -179,7 +179,7 @@ void Widget::calculateSize()
 	setPreferredHeight(Size::pixels(height));
 	if(frameText.size())
 	{
-		int sz = 1+0.5_em.resolve();
+		int sz = 1+(0.5_em).resolve();
 		if(topMargin < sz)
 			topMargin = sz;
 		if(topPadding < sz)
@@ -350,7 +350,7 @@ void Widget::setFrameText(std::string const& newstr)
 	}
 	else if(newstr.size())
 	{
-		int sz = 0.5_em.resolve();
+		int sz = (0.5_em).resolve();
 		if(topMargin < sz)
 			topMargin = sz;
 		if(topPadding < sz)
