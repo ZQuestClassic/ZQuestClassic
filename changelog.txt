@@ -1,7 +1,16 @@
 // 2.55 Change Log
-// Updated 13th Feb, 2023
+// Updated 21st Feb, 2023
 
 // Alpha 112
+
+Fix filled arc script draw crash
+	( connorjclark, 21st Feb, 2023 )
+
+Fix script draw flicker at end of screen scroll
+	( EmilyV, 15th Feb, 2023 )
+
+Fix parser crash
+	( EmilyV, 14th Feb, 2023 )
 
 Fix old quest load putting wand SFX on book items
 	( EmilyV, 13th Feb, 2023 )
