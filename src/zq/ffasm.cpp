@@ -2595,18 +2595,13 @@ script_variable variable_list[]=
 
 
 
-int32_t ffparse(char *string)
+int32_t ffparse(char const* string)
 {
-	//return int32_t(atof(string)*10000);
-	
-	//this function below isn't working too well yet
-	//clean_numeric_string(string);
 	double negcheck = atof(string);
 	
-	//if no decimal point, ascii to int32_t conversion
-	char *ptr=strchr(string, '.');
-	
-	if(!ptr)
+	//if no decimal point, just atoi
+	char const* ptr1=strchr(string, '.');
+	if(!ptr1)
 	{
 		return atoi(string)*10000;
 	}
@@ -2621,7 +2616,7 @@ int32_t ffparse(char *string)
 		tempstring1[strlen(string)+i]='0';
 	}
 	
-	ptr=strchr(tempstring1, '.');
+	char* ptr=strchr(tempstring1, '.');
 	*ptr=0;
 	ret=atoi(tempstring1)*10000;
 	
@@ -2638,7 +2633,7 @@ int32_t ffparse(char *string)
 		free(tempstring1);
 	return ret;
 }
-bool ffcheck(char *arg)
+bool ffcheck(char const* arg)
 {
 
 	for(int32_t i=0; i<0x100; i++)
@@ -2693,10 +2688,15 @@ int32_t parse_script_file(script_data **script, const char *path, bool report_su
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
 	saved=false;
-	char *buffer = new char[0x401];
-	char *combuf = new char[0x100];
-	char *arg1buf = new char[0x100];
-	char *arg2buf = new char[0x100];
+#define SUBBUFSZ 0x200
+	std::string buffer;
+	char combuf[SUBBUFSZ] = {0};
+	char arg1buf[SUBBUFSZ] = {0};
+	char arg2buf[SUBBUFSZ] = {0};
+	std::vector<int32_t> arr_vec;
+	std::string arr_str;
+	bool has_vec = false;
+	bool has_str = false;
 	bool stop=false;
 	bool success=true;
 	bool meta_done=false;
@@ -2704,7 +2704,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 	
 	for(int32_t i=0;; i++)
 	{
-		buffer[0]=0;
+		buffer.clear();
 		
 		if(stop)
 		{
@@ -2713,24 +2713,22 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		}
 		
 		bool meta = false;
-		for(int32_t j=0; j<0x400; j++)
+		bool running = true;
+		while(running)
 		{
-			char temp;
-			temp = getc(fscript);
+			char c;
+			c = getc(fscript);
 			
 			if(feof(fscript))
 			{
-				stop=true;
-				buffer[j]='\0';
-				j=0x400;
-				ungetc(temp,fscript);
+				stop = true;
+				ungetc(c,fscript);
+				break;
 			}
 			else
 			{
-				ungetc(temp,fscript);
-				buffer[j] = getc(fscript);
-				buffer[j+1] = '\0';
-				if(j==0 && buffer[j] == '#' && !meta_done) //Metadata line
+				buffer += c;
+				if(buffer[0] == '#' && !meta_done) //Metadata line
 				{
 					while(getc(fscript)!='\n')
 					{
@@ -2741,12 +2739,12 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 						}
 					}
 					--i;
-					meta=true;
-					j=0x400;
+					meta = true;
+					break;
 				}
-				else if(buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == 13)
+				else if(c == ';' || c == '\n' || c == 13)
 				{
-					if(buffer[j] != '\n')
+					if(c != '\n')
 					{
 						while(getc(fscript)!='\n')
 						{
@@ -2757,31 +2755,29 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 							}
 						}
 					}
-					buffer[j] = '\0';
-					j=0x400;
+					buffer.pop_back();
+					break;
 				}
-				else if (buffer[j] == '"' || buffer[j] == '{')
+				else if (c == '"' || c == '{')
 				{
-					bool vec = buffer[j] == '{';
-					auto ind = j+1;
+					bool vec = c == '{';
+					auto j = buffer.size()-1;
 					while(true)
 					{
-						char c = fgetc(fscript);
+						char c2 = fgetc(fscript);
 						if(feof(fscript))
 						{
 							stop=true;
-							buffer[j]='\0';
-							j=0x400;
-							ungetc(c,fscript);
+							ungetc(c2,fscript);
+							running = false;
 							break;
 						}
-						buffer[ind++] = vec ? toupper(c) : c;
-						buffer[ind] = '\0';
+						buffer += vec ? toupper(c2) : c2;
 						if(vec)
 						{
-							if(c == '}')
+							if(c2 == '}')
 							{
-								size_t sz = vecstr_size(buffer+j);
+								size_t sz = vecstr_size(buffer.c_str()+j);
 								if(sz)
 								{
 									j += sz;
@@ -2791,9 +2787,9 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 						}
 						else
 						{
-							if(c == '"')
+							if(c2 == '"')
 							{
-								size_t sz = escstr_size(buffer+j);
+								size_t sz = escstr_size(buffer.c_str()+j);
 								if(sz)
 								{
 									j += sz;
@@ -2859,16 +2855,15 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 	stop = false;
 	meta_done = false;
 	
-	if((*script)!=NULL) delete (*script);
+	if((*script)!=NULL)
+		delete (*script);
 	(*script) = new script_data(num_commands);
 	for(int32_t i=0; i<num_commands; i++)
 	{
 		(*script)->zasm[i].clear();
 	}
 	
-	//(*script) = new ffscript[num_commands];
-	
-	for(int32_t i=0; i<num_commands; i++)
+	for(int32_t i=0; i<num_commands; ++i)
 	{
 		if(stop)
 		{
@@ -2877,36 +2872,33 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		}
 		else
 		{
-			/*
-				sprintf(buffer, "");
-				sprintf(combuf, "");
-				sprintf(arg1buf, "");
-				sprintf(arg2buf, "");
-			*/
-			memset(buffer, 0, 0x400);
+			buffer.clear();
 			combuf[0]=0;
 			arg1buf[0]=0;
 			arg2buf[0]=0;
 			bool meta_mode = false;
-			std::vector<int32_t> *arr_vec = nullptr;
-			std::string *arr_str = nullptr;
+			arr_vec.clear();
+			arr_str.clear();
+			has_vec = false;
+			has_str = false;
 			
-			for(int32_t j=0; j<0x400; j++)
+			bool running = true;
+			while(running)
 			{
-				char temp;
-				temp = getc(fscript);
+				char c;
+				c = getc(fscript);
 				
 				if(feof(fscript))
 				{
 					stop=true;
-					buffer[j]='\0';
-					j=0x400;
-					ungetc(temp,fscript);
+					ungetc(c,fscript);
+					break;
 				}
 				else
 				{
-					buffer[j] = toupper(temp);
-					if (j == 0 && buffer[j] == '#' && !meta_done) //Metadata line
+					c = toupper(c);
+					buffer += c;
+					if (buffer[0] == '#' && !meta_done) //Metadata line
 					{
 						meta_mode = true;
 						char temp;
@@ -2924,19 +2916,18 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 								} while (getc(fscript) != '\n');
 								break;
 							}
-							else buffer[++j] = temp;
+							else buffer += temp;
 							if (feof(fscript))
 							{
 								stop = true;
 								break;
 							}
 						}
-						buffer[++j] = '\0';
-						j = 0x400;
+						break;
 					}
-					else if (buffer[j] == ';' || buffer[j] == '\n' || buffer[j] == '\r')
+					else if (c == ';' || c == '\n' || c == '\r')
 					{
-						if (buffer[j] != '\n')
+						if (c != '\n')
 						{
 							while (getc(fscript) != '\n')
 							{
@@ -2947,30 +2938,29 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 								}
 							}
 						}
-						buffer[j] = '\0';
-						j = 0x400;
+						buffer.pop_back();
+						break;
 					}
-					else if (buffer[j] == '"' || buffer[j] == '{')
+					else if (c == '"' || c == '{')
 					{
-						bool vec = buffer[j] == '{';
-						auto ind = j+1;
+						bool vec = c == '{';
+						auto j = buffer.size()-1;
 						while(true)
 						{
-							char c = fgetc(fscript);
+							char c2 = fgetc(fscript);
 							if(feof(fscript))
 							{
 								stop=true;
-								buffer[j]='\0';
-								j=0x400;
-								ungetc(c,fscript);
+								ungetc(c2,fscript);
+								running = false;
 								break;
 							}
-							buffer[ind++] = vec ? toupper(c) : c;
+							buffer += vec ? toupper(c2) : c2;
 							if(vec)
 							{
-								if(c == '}')
+								if(c2 == '}')
 								{
-									size_t sz = vecstr_size(buffer+j);
+									size_t sz = vecstr_size(buffer.c_str()+j);
 									if(sz)
 									{
 										j += sz;
@@ -2980,9 +2970,9 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 							}
 							else
 							{
-								if(c == '"')
+								if(c2 == '"')
 								{
-									size_t sz = escstr_size(buffer+j);
+									size_t sz = escstr_size(buffer.c_str()+j);
 									if(sz)
 									{
 										j += sz;
@@ -2997,7 +2987,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			
 			if(meta_mode)
 			{
-				(*script)->meta.parse_meta(buffer);
+				(*script)->meta.parse_meta(buffer.c_str());
 				--i; continue;
 			}
 			meta_done = true;
@@ -3038,14 +3028,15 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			
 			if(buffer[k] == '"') //string
 			{
-				arr_str = new std::string(unescape_string(buffer+k));
-				k += escstr_size(buffer+k);
+				arr_str = unescape_string(buffer.c_str()+k);
+				has_str = true;
+				k += escstr_size(buffer.c_str()+k);
 			}
 			else if(buffer[k] == '{') //array
 			{
-				arr_vec = new std::vector<int32_t>();
-				unstringify_vector(*arr_vec, buffer+k, true);
-				k += vecstr_size(buffer+k);
+				unstringify_vector(arr_vec, buffer.c_str()+k, true);
+				has_vec = true;
+				k += vecstr_size(buffer.c_str()+k);
 			}
 			else while(buffer[k] != ',' && buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg1
 			{
@@ -3063,22 +3054,23 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			bool bad_dvec = false;
 			if(buffer[k] == '"') //string
 			{
-				if(arr_str) bad_dstr = true;
+				if(has_str) bad_dstr = true;
 				else
 				{
-					arr_str = new std::string(unescape_string(buffer+k));
+					arr_str = unescape_string(buffer.c_str()+k);
+					has_str = true;
 				}
-				k += escstr_size(buffer+k);
+				k += escstr_size(buffer.c_str()+k);
 			}
 			else if(buffer[k] == '{') //array
 			{
-				if(arr_vec) bad_dvec = true;
+				if(has_vec) bad_dvec = true;
 				else
 				{
-					arr_vec = new std::vector<int32_t>();
-					unstringify_vector(*arr_vec, buffer+k, true);
+					unstringify_vector(arr_vec, buffer.c_str()+k, true);
+					has_vec = true;
 				}
-				k += vecstr_size(buffer+k);
+				k += vecstr_size(buffer.c_str()+k);
 			}
 			else while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg2
 			{
@@ -3093,49 +3085,51 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 			
 			if(buffer[k] == '"') //string
 			{
-				if(arr_str) bad_dstr = true;
+				if(has_str) bad_dstr = true;
 				else
 				{
-					arr_str = new std::string(unescape_string(buffer+k));
+					arr_str = unescape_string(buffer.c_str()+k);
+					has_str = true;
 				}
-				k += escstr_size(buffer+k);
+				k += escstr_size(buffer.c_str()+k);
 			}
 			else if(buffer[k] == '{') //array
 			{
-				if(arr_vec) bad_dvec = true;
+				if(has_vec) bad_dvec = true;
 				else
 				{
-					arr_vec = new std::vector<int32_t>();
-					unstringify_vector(*arr_vec, buffer+k, true);
+					unstringify_vector(arr_vec, buffer.c_str()+k, true);
+					has_vec = true;
 				}
-				k += vecstr_size(buffer+k);
+				k += vecstr_size(buffer.c_str()+k);
 			}
 			
 			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
 			
 			if(buffer[k] == '"') //string
 			{
-				if(arr_str) bad_dstr = true;
+				if(has_str) bad_dstr = true;
 				else
 				{
-					arr_str = new std::string(unescape_string(buffer+k));
+					arr_str = unescape_string(buffer.c_str()+k);
+					has_str = true;
 				}
-				k += escstr_size(buffer+k);
+				k += escstr_size(buffer.c_str()+k);
 			}
 			else if(buffer[k] == '{') //array
 			{
-				if(arr_vec) bad_dvec = true;
+				if(has_vec) bad_dvec = true;
 				else
 				{
-					arr_vec = new std::vector<int32_t>();
-					unstringify_vector(*arr_vec, buffer+k, true);
+					unstringify_vector(arr_vec, buffer.c_str()+k, true);
+					has_vec = true;
 				}
-				k += vecstr_size(buffer+k);
+				k += vecstr_size(buffer.c_str()+k);
 			}
 			
 			int32_t parse_err;
 			if(bad_dstr || bad_dvec ||
-				!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err, arr_vec, arr_str)))
+				!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
 			{
 				if(bad_dstr) parse_err = 3;
 				if(bad_dvec) parse_err = 4;
@@ -3151,8 +3145,8 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				};
 				extract_name(temppath,name,FILENAME8_3);
 				char vstrbuf[64] = {0};
-				if(arr_str || arr_vec)
-					sprintf(vstrbuf," (%s%s%s)",arr_str ? "str" : "", arr_str&&arr_vec ? "," : "", arr_vec ? "vec" : "");
+				if(has_str || has_vec)
+					sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
 				sprintf(buf,"Unable to parse instruction %d from script %s"
 					"\nThe error was: %s"
 					"\nThe command was (%s) (%s,%s)%s"
@@ -3169,8 +3163,6 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				(*script)->zasm[i].strptr = nullptr;
 				(*script)->zasm[i].vecptr = nullptr;
 				(*script)->disable();
-				if(arr_str) delete arr_str;
-				if(arr_vec) delete arr_vec;
 			}
 		}
 	}
@@ -3183,14 +3175,10 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
 	}
 zasmfile_fail:
-	delete [] buffer;
-	delete [] combuf;
-	delete [] arg1buf;
-	delete [] arg2buf;
 	return success?D_O_K:D_CLOSE;
 }
 
-int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t argument)
+int32_t set_argument(char const* argbuf, script_data **script, int32_t com, int32_t argument)
 {
 	int32_t *arg;
 	
@@ -3250,13 +3238,21 @@ int32_t set_argument(char *argbuf, script_data **script, int32_t com, int32_t ar
 #define ERR_STR    3
 #define ERR_VEC    4
 
-int32_t parse_script_section(char *combuf, char *arg1buf, char *arg2buf, script_data **script, int32_t com, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
+int32_t parse_script_section(char const* combuf, char const* arg1buf, char const* arg2buf, script_data **script, int32_t com, int32_t &retcode, std::vector<int32_t> *vptr, std::string *sptr)
 {
 	auto& zas = (*script)->zasm[com];
 	zas.arg1 = 0;
 	zas.arg2 = 0;
-	zas.vecptr = vptr;
-	zas.strptr = sptr;
+	zas.vecptr = nullptr;
+	zas.strptr = nullptr;
+	if(vptr)
+	{
+		zas.vecptr = new std::vector<int32_t>(*vptr);
+	}
+	if(sptr)
+	{
+		zas.strptr = new std::string(*sptr);
+	}
 	bool found_command=false;	
 	
 	for(int32_t i=0; i<NUMCOMMANDS&&!found_command; ++i)

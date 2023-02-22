@@ -40,7 +40,6 @@ extern int32_t directWpn;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
-extern byte epilepsyFlashReduction;
 
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
@@ -4536,7 +4535,7 @@ bool weapon::animate(int32_t index)
 					}
 				}
 				
-				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !epilepsyFlashReduction)
+				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
 				{
 					if(!usebombpal)
 					{

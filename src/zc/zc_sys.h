@@ -21,6 +21,8 @@ extern bool is_sys_pal;
 
 void render_zc();
 
+bool flash_reduction_enabled(bool check_qr = true);
+
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
 

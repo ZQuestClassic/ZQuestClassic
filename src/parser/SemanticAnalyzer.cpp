@@ -1552,7 +1552,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			for(auto it = bestFunctions.begin(); flag != 3 && it != bestFunctions.end();++it)
 			{
 				auto& pty = (*it)->paramTypes;
-				if (pty.size() < p)
+				if (pty.size() <= p)
 					continue;
 				bool ut = pty.at(p)->isUntyped();
 				if(ut) flag |= 1;
@@ -1562,7 +1562,7 @@ void SemanticAnalyzer::caseExprCall(ASTExprCall& host, void* param)
 			for(auto it = newBestFunctions.begin(); it != newBestFunctions.end();)
 			{
 				auto& pty = (*it)->paramTypes;
-				if (pty.size() < p)
+				if (pty.size() <= p)
 				{
 					++it;
 					continue;

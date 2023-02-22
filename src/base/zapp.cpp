@@ -45,7 +45,6 @@ void common_main_setup(App id, int argc, char **argv)
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
     sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
-    sentry_options_set_handler_path(options, "crashpad_handler.exe");
     sentry_init(options);
     switch (id)
     {

@@ -22,11 +22,6 @@ cd "$ROOT"
 
 python scripts/package.py --build_folder "$build_dir" --skip_archive
 
-# Change some defaults.
-sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$package_dir/base_config/zquest.cfg"
-sed -i -e 's/fullscreen = 0/fullscreen = 1/' "$package_dir/base_config/zc.cfg"
-find "$package_dir" -name "*.cfg-e" -exec rm {} \;
-
 # Set SKIP_APP_BUNDLE=1 to skip building an osx application bundle.
 # This won't be able to distribute easily, because OSX will prevent users from running
 # unverified binaries unless they right-click->Open and ignore a scary warning. Even then,

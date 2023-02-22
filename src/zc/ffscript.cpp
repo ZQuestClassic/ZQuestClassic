@@ -36622,7 +36622,7 @@ void FFScript::initIncludePaths()
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %zu: ",q);
-		safe_al_trace(includePaths.at(q).c_str());
+		safe_al_trace(includePaths.at(q));
 		al_trace("\n");
 	}
 }
@@ -40948,7 +40948,7 @@ void FFScript::do_tracebool(const bool v)
 void traceStr(string const& str)
 {
 	FFCore.TraceScriptIDs();
-	safe_al_trace(str.c_str());
+	safe_al_trace(str);
 	if (replay_is_active() && replay_get_meta_bool("script_trace"))
 		replay_step_comment("trace: " + str);
 	

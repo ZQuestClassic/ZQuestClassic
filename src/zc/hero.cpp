@@ -73,7 +73,7 @@ extern bool active_subscreen_waitdraw;
 
 int32_t hero_count = -1;
 int32_t hero_animation_speed = 1; //lower is faster animation
-int32_t z3step = 2;
+static int32_t z3step = 2;
 static zfix hero_newstep(1.5);
 static zfix hero_newstep_diag(1.5);
 bool did_scripta=false;
@@ -92,7 +92,6 @@ extern word g_doscript;
 extern word player_doscript;
 extern word dmap_doscript;
 extern word passive_subscreen_doscript;
-extern byte epilepsyFlashReduction;
 extern int32_t script_hero_cset;
 
 void playLevelMusic();
@@ -1566,6 +1565,9 @@ void HeroClass::init()
 						//are properly set by the engine.
 	}
 	FFCore.nostepforward = 0;
+
+	if (!replay_is_active() || replay_get_version() >= 12)
+		z3step = 2;
 }
 
 void HeroClass::draw_under(BITMAP* dest)
@@ -25895,14 +25897,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 		advanceframe(true/*,true,false*/);
-		script_drawing_commands.Clear();
+		
+		//Don't clear the last frame, unless 'fixed'
+		if(cx > 0 || get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+			script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		FFCore.runF6Engine();
-		//FFCore.runF6EngineScrolling(newscr,oldscr,tx,ty,tx2,ty2,sx,sy,scrolldir);
 		action=lastaction; FFCore.setHeroAction(lastaction);
-	}//end main scrolling loop (2 spaces tab width makes me sad =( )
+	} //end main scrolling loop
 	currdmap = olddmap;
 	
 	clear_bitmap(msg_txt_display_buf);
@@ -26083,9 +26087,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		//script_drawing_commands.Clear();
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
-		//ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
 	}
 }
 
@@ -28215,8 +28217,7 @@ void HeroClass::getTriforce(int32_t id2)
 		{
 		    if(get_bit(quest_rules,qr_FADE))
 		    {
-			//int32_t flashbit = ;
-			if((f&(((get_bit(quest_rules,qr_EPILEPSY) || epilepsyFlashReduction)) ? 6 : 3))==0)
+			if (!flash_reduction_enabled() && (f&7) == 0)
 			{
 			    fade_interpolate(RAMpal,flash_pal,RAMpal,42,0,CSET(6)-1);
 			    refreshpal=true;
@@ -28234,7 +28235,7 @@ void HeroClass::getTriforce(int32_t id2)
 		    }
 		    else
 		    {
-			if((f&((get_bit(quest_rules,qr_EPILEPSY)) ? 10 : 7))==0)
+			if(!flash_reduction_enabled() && (f&7) == 0)
 			{
 			    for(int32_t cs2=2; cs2<5; cs2++)
 			    {

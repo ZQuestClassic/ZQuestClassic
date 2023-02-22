@@ -11,6 +11,7 @@ option(COPY_RESOURCES "Copy runtime resources to build folder, but only if they 
 set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
+set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -42,6 +43,28 @@ if(APPLE)
 elseif(LINUX)
 	# https://stackoverflow.com/a/71321163/2788187
 	SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+endif()
+
+if(APPLE AND WANT_MAC_DEBUG_FILES)
+	find_program(DSYMUTIL_PROGRAM dsymutil)
+	if (DSYMUTIL_PROGRAM)
+		foreach(lang C CXX)
+			foreach(var LINK_EXECUTABLE CREATE_SHARED_LIBRARY)
+				set(CMAKE_${lang}_${var} "${CMAKE_${lang}_${var}}" "${DSYMUTIL_PROGRAM} <TARGET>")
+			endforeach()
+		endforeach()
+	endif()
+endif()
+
+if(LINUX)
+	find_program(EU_STRIP_PROGRAM eu-strip)
+	if (EU_STRIP_PROGRAM)
+		foreach(lang C CXX)
+			foreach(var LINK_EXECUTABLE CREATE_SHARED_LIBRARY)
+				set(CMAKE_${lang}_${var} "${CMAKE_${lang}_${var}}" "${EU_STRIP_PROGRAM} --strip-debug -f <TARGET>.debug <TARGET>")
+			endforeach()
+		endforeach()
+	endif()
 endif()
 
 function(enable_unity_build UB_SUFFIX SOURCE_VARIABLE_NAME)
@@ -181,7 +204,7 @@ include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
 # Some performance problems with allegro legacy threaded event queues encouraged
 # NOT closing them on shutdown. This seemed to work ok on Windows and Mac, but on
-# Ubuntu it totally prevents the program from closing.
+# Linux it totally prevents the program from closing.
 # TODO: investigate this further - can performance problems with threaded event queues
 # be fixed?
 if(LINUX AND NOT EMSCRIPTEN)
@@ -739,7 +762,7 @@ set(zc_gcc_errors
 )
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.5.3)
+	set(SENTRY_VERSION 0.6.0)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
