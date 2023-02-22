@@ -8,8 +8,6 @@
 #include "gui/use_size.h"
 #include "zc_list_data.h"
 
-using GUI::sized;
-
 static const GUI::ListData miscSprsList
 {
 	{ "Falling Sprite:", sprFALL, "Shown when an enemy/item/etc falls in a pit" },
@@ -35,9 +33,9 @@ std::shared_ptr<GUI::Widget> MiscSprsDialog::view()
 		title = "Misc Sprites",
 		onClose = message::CANCEL,
 		Column(
-			maxwidth = sized(308_px, 800_px),
+			maxwidth = Size::pixels(zq_screen_w),
 			DDPanel(
-				padding = 2_spx,
+				padding = 3_px,
 				values = local_sprs,
 				count = vals_per_tab,
 				ddlist = sprs_list,
@@ -49,11 +47,11 @@ std::shared_ptr<GUI::Widget> MiscSprsDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

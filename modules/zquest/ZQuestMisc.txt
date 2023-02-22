@@ -13,6 +13,7 @@ src/tab_ctl.cpp
 src/tiles.cpp
 src/zq/ffasmexport.cpp
 src/drawing.cpp
+src/colorname.cpp
 
 
 ## End of ZQuest Misc module

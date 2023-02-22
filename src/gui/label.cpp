@@ -115,7 +115,7 @@ void Label::fitText()
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
 	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
-	setPreferredWidth(Size::pixels(max_width)+4_spx);
+	setPreferredWidth(Size::pixels(max_width)+6_px);
 	if(alDialog)
 	{
 		Widget::arrange(contX, contY, contW, contH);

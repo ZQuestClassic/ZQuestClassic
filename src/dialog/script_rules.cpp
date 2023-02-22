@@ -26,12 +26,12 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			TabPanel(
-				maxwidth = sized(308_px, 800_px),
+				maxwidth = Size::pixels(zq_screen_w),
 				TabRef(
 					name = "Script",
 					QRPanel(
 						margins = 0_px,
-						padding = 2_spx,
+						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -42,7 +42,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 					name = "Instructions",
 					QRPanel(
 						margins = 0_px,
-						padding = 2_spx,
+						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -53,7 +53,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 					name = "Object",
 					QRPanel(
 						margins = 0_px,
-						padding = 2_spx,
+						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -64,7 +64,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 					name = "Drawing",
 					QRPanel(
 						margins = 0_px,
-						padding = 2_spx,
+						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -75,7 +75,7 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 					name = "Compat",
 					QRPanel(
 						margins = 0_px,
-						padding = 2_spx,
+						padding = 3_px,
 						onToggle = message::TOGGLE_QR,
 						initializer = local_qrs,
 						count = qrs_per_tab,
@@ -89,11 +89,11 @@ std::shared_ptr<GUI::Widget> ScriptRulesDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

@@ -86,18 +86,21 @@ void Widget::setPreferredHeight(Size newHeight) noexcept
 
 void Widget::setHMargins(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftMargin = size.resolve();
 	rightMargin = size.resolve();
 }
 
 void Widget::setVMargins(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	topMargin = size.resolve();
 	bottomMargin = size.resolve();
 }
 
 void Widget::setMargins(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftMargin = size.resolve();
 	rightMargin = size.resolve();
 	topMargin = size.resolve();
@@ -106,18 +109,21 @@ void Widget::setMargins(Size size) noexcept
 
 void Widget::setHPadding(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftPadding = size.resolve();
 	rightPadding = size.resolve();
 }
 
 void Widget::setVPadding(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	topPadding = size.resolve();
 	bottomPadding = size.resolve();
 }
 
 void Widget::setPadding(Size size) noexcept
 {
+	if(flags&f_NO_PAD) return;
 	leftPadding = size.resolve();
 	rightPadding = size.resolve();
 	topPadding = size.resolve();
@@ -164,6 +170,20 @@ void Widget::setExposed(bool exposed)
 		if(hideCount == 0 && (flags&f_INVISIBLE) == 0)
 			applyVisibility(false);
 		++hideCount;
+	}
+}
+
+void Widget::calculateSize()
+{
+	setPreferredWidth(Size::pixels(width));
+	setPreferredHeight(Size::pixels(height));
+	if(frameText.size())
+	{
+		int sz = 1+(0.5_em).resolve();
+		if(topMargin < sz)
+			topMargin = sz;
+		if(topPadding < sz)
+			topPadding = sz;
 	}
 }
 
@@ -224,9 +244,9 @@ void Widget::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		frameDialog->y = y-topPadding;
 		frameDialog->w = getPaddedWidth();
 		frameDialog->h = getPaddedHeight();
-		frameTextDialog->x = x-leftPadding+4_spx;
+		frameTextDialog->x = x-leftPadding+6_px;
 		frameTextDialog->y = y-topPadding-(text_height(widgFont)/2);
-		frameTextDialog->w = getPaddedWidth()-4_spx;
+		frameTextDialog->w = getPaddedWidth()-6_px;
 		frameTextDialog->h = text_height(widgFont);
 	}
 }
@@ -247,7 +267,7 @@ void Widget::realize(DialogRunner& runner)
 		});
 		frameTextDialog = runner.push(shared_from_this(), DIALOG {
 			newGUIProc<new_text_proc>,
-			x-leftPadding+4_spx, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-4_spx, text_height(widgFont),
+			x-leftPadding+6_px, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-6_px, text_height(widgFont),
 			fgColor, bgColor,
 			0,
 			getFlags(),
@@ -283,6 +303,19 @@ void Widget::setFramed(bool framed) noexcept
 		flags &= ~f_FRAMED;
 }
 
+void Widget::setNoPad(bool nopad) noexcept
+{
+	if(nopad)
+	{
+		flags &= ~f_NO_PAD;
+		setPadding(0_px);
+		setMargins(0_px);
+		flags |= f_NO_PAD;
+	}
+	else
+		flags &= ~f_NO_PAD;
+}
+
 void Widget::setFitParent(bool fit) noexcept
 {
 	if(fit)
@@ -314,6 +347,14 @@ void Widget::setFrameText(std::string const& newstr)
 	{
 		frameTextDialog->dp = frameText.data();
 		pendDraw();
+	}
+	else if(newstr.size())
+	{
+		int sz = (0.5_em).resolve();
+		if(topMargin < sz)
+			topMargin = sz;
+		if(topPadding < sz)
+			topPadding = sz;
 	}
 }
 

@@ -108,8 +108,8 @@ void SCCDialog::default_args()
 
 #define NUM_FIELD(v,_min,_max) \
 TextField( \
-	fitParent = true, width = sized(5.25_em, 4.5_em), \
-	maxheight = 24_lpx, \
+	fitParent = true, width = 4.5_em, \
+	maxheight = 24_px, \
 	type = GUI::TextField::type::INT_DECIMAL, \
 	low = _min, high = _max, val = v, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
@@ -119,8 +119,8 @@ TextField( \
 
 #define HEX_FIELD(v,_min,_max) \
 TextField( \
-	fitParent = true, width = sized(5.25_em, 4.5_em), \
-	maxheight = 24_lpx, \
+	fitParent = true, width = 4.5_em, \
+	maxheight = 24_px, \
 	type = GUI::TextField::type::INT_HEX, \
 	low = _min, high = _max, val = v, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
@@ -269,11 +269,11 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "Copy",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::COPY),
 				Button(
 					text = "Paste",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::PASTE)
 			),
 			Row(
@@ -282,11 +282,11 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)
@@ -964,7 +964,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			break;
 	}
 	wingrid->add(
-		Frame(minheight = sized(120_px,180_px), fitParent = true,
+		Frame(minheight = 180_px, fitParent = true,
 			sgrid
 		)
 	);

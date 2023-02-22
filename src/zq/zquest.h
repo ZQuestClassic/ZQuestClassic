@@ -41,7 +41,6 @@ extern int32_t midi_strict; //L
 #endif
 extern bool cancelgetnum;
 
-extern bool is_large;
 extern int32_t RulesetDialog;
 
 extern bool disable_saving, OverwriteProtection;
@@ -120,7 +119,7 @@ extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
-extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp; //, *brushshadowbmp;
+extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
@@ -133,6 +132,7 @@ extern PALETTE RAMpal;
 extern midi_info Midi_Info;
 extern bool zq_showpal;
 extern bool combo_cols;
+extern bool zoomed_minimap;
 
 
 extern int32_t alignment_arrow_timer;
@@ -1100,6 +1100,7 @@ void draw_edit_dataset_specs(int32_t index,int32_t copy);
 void init_colormixer();
 void colormixer(int32_t color,int32_t gray,int32_t ratio);
 bool do_x_button(BITMAP *dest, int32_t x, int32_t y);
+bool do_question_button(BITMAP *dest, int32_t x, int32_t y);
 bool edit_dataset(int32_t dataset);
 int32_t pal_index(RGB *pal,RGB c);
 bool grab_dataset(int32_t dataset);
@@ -1210,9 +1211,20 @@ int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
-void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char *tipmsg);
-void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char *tipmsg);
+void debug_pos(size_and_pos const& pos, int color = 0xED);
+void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
+void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick = 2);
+void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
+void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick = 2);
+void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
+void draw_ttip(BITMAP* dest);
+void draw_ttip2(BITMAP* dest);
+void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
+void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
+void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
+void update_tooltip2(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void clear_tooltip();
+void clear_tooltip2();
 void ZQ_ClearQuestPath();
 void cflag_help(int32_t id);
 void ctype_help(int32_t id);

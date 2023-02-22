@@ -33,7 +33,6 @@
 
 extern volatile int32_t myvsync;
 void update_hw_screen(bool force);
-extern bool is_large;
 
 extern bool is_zquest();
 

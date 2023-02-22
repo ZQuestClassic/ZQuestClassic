@@ -65,6 +65,8 @@ int32_t compare(int32_t a, int32_t b);
 
 char const* get_snap_str();
 
+void clear_clip_rect(BITMAP* bitmap);
+
 //#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif

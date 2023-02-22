@@ -329,7 +329,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 		}
 	}
 	
-	stretch_blit(buf,screen,0,0,256,168,x,y,256*(is_large?2:1),168*(is_large?2:1));
+	stretch_blit(buf,screen,0,0,256,168,x,y,256*2,168*2);
 	destroy_bitmap(buf);
 }
 
@@ -360,8 +360,8 @@ namespace GUI
 
 MsgPreview::MsgPreview(): text(), str_data(NULL), index(-1)
 {
-	setPreferredWidth(256_px*sized(1, 2)+4_px);
-	setPreferredHeight(168_px*sized(1, 2)+4_px);
+	setPreferredWidth(256_px*2+4_px);
+	setPreferredHeight(168_px*2+4_px);
 }
 
 void MsgPreview::setText(std::string newText)

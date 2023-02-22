@@ -13,13 +13,13 @@ namespace GUI
 Radio::Radio(): checked(false), text(),
 	alDialog(), message(-1), procset(0)
 {
-	setPreferredHeight(9_spx);
+	setPreferredHeight(14_px);
 }
 
 void Radio::setText(std::string newText)
 {
 	int32_t textWidth = text_length(widgFont, newText.c_str());
-	setPreferredWidth(Size::pixels(textWidth)+13_lpx);
+	setPreferredWidth(Size::pixels(textWidth)+13_px);
 	text = std::move(newText);
 }
 
@@ -92,7 +92,7 @@ void Radio::realize(DialogRunner& runner)
 
 void Radio::calculateSize()
 {
-	setPreferredWidth(9_spx+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	setPreferredWidth(14_px+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 	Widget::calculateSize();
 }
 

@@ -461,7 +461,7 @@ int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(d->d1!=old_d1)
     {
-        (d-14)->h=is_large?32:16;
+        (d-14)->h=32;
         (d-15)->h=(d-14)->h+4;
         
         switch(d->d1-1)
@@ -485,7 +485,7 @@ int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c)
             break;
         }
         
-        (d-14)->w*=is_large?2:1;
+        (d-14)->w*=2;
         (d-15)->w=(d-14)->w+4;
         (d-14)->bg=vbound((d-14)->bg,0,((d-14)->w-1)>>2);
         (d-17)->flags|=D_DIRTY;
@@ -530,18 +530,18 @@ static TABPANEL sso_properties_tabs[] =
 int32_t jwin_tflpcheck_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     bool selected=(d->flags&D_SELECTED)!=0;
-    int32_t ret= is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
+    int32_t ret = jwin_checkfont_proc(msg,d,c);
     bool new_selected=(d->flags&D_SELECTED)!=0;
     
     if(new_selected!=selected)
     {
-        (d-3)->w=(new_selected?32:16)*(is_large+1);
-        (d-3)->h=(new_selected?48:16)*(is_large+1);
+        (d-3)->w=(new_selected?32:16)*2;
+        (d-3)->h=(new_selected?48:16)*2;
         (d-4)->w=(d-3)->w+4;
         (d-4)->h=(d-3)->h+4;
 //    (d-5)->x=((d-4)->x)+(((d-4)->w)/2);
-        (d-6)->w=(new_selected?112:96)*(is_large+1);
-        (d-6)->h=(new_selected?112:48)*(is_large+1);
+        (d-6)->w=(new_selected?112:96)*2;
+        (d-6)->h=(new_selected?112:48)*2;
         (d-7)->w=(d-6)->w+4;
         (d-7)->h=(d-6)->h+4;
 //    (d-8)->x=((d-7)->x)+(((d-7)->w)/2);
@@ -560,13 +560,13 @@ int32_t jwin_tflpcheck_proc(int32_t msg,DIALOG *d,int32_t c)
 int32_t jwin_lscheck_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     bool selected=(d->flags&D_SELECTED)!=0;
-    int32_t ret=is_large ? jwin_checkfont_proc(msg,d,c) : jwin_check_proc(msg, d, c);
+    int32_t ret = jwin_checkfont_proc(msg,d,c);
     bool new_selected=(d->flags&D_SELECTED)!=0;
     
     if(new_selected!=selected || msg==MSG_START)
     {
-        (d-6)->w=(new_selected?32:16)*(is_large+1);
-        (d-6)->h=(new_selected?48:16)*(is_large+1);
+        (d-6)->w=(new_selected?32:16)*2;
+        (d-6)->h=(new_selected?48:16)*2;
         (d-7)->w=(d-6)->w+4;
         (d-7)->h=(d-6)->h+4;
         (d-6)->flags|=D_DIRTY;
@@ -584,14 +584,8 @@ int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_DRAW:
     {
-        int32_t dw = d->w;
-        int32_t dh = d->h;
-        
-        if(is_large)
-        {
-            dw /= 2;
-            dh /= 2;
-        }
+        int32_t dw = d->w / 2;
+        int32_t dh = d->h / 2;
         
         BITMAP *buf = create_bitmap_ex(8,dw,dh);
         
@@ -614,7 +608,7 @@ int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c)
                  ((t2&2)<<2),
                  (t<<4)+((t2&1)<<3)+7,
                  ((t2&2)<<2)+7, jwin_pal[jcTITLER]);
-            stretch_blit(buf,screen,0,0,dw,dh,d->x-is_large,d->y-is_large,dw*(is_large?2:1),dh*(is_large?2:1));
+            stretch_blit(buf,screen,0,0,dw,dh,d->x-1,d->y-1,dw*2,dh*2);
             destroy_bitmap(buf);
         }
         
@@ -629,15 +623,9 @@ int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(gui_mouse_b()&2)  //right mouse button
         {
-            int32_t old_bg=d->bg;
-            int32_t mx=vbound(gui_mouse_x()-d->x,0,d->w-1);
-            int32_t my=vbound(gui_mouse_y()-d->y,0,d->h-1);
-            
-            if(is_large)
-            {
-                mx/=2;
-                my/=2;
-            }
+            int32_t old_bg = d->bg;
+            int32_t mx = vbound(gui_mouse_x()-d->x,0,d->w-1) / 2;
+            int32_t my = vbound(gui_mouse_y()-d->y,0,d->h-1) / 2;
             
             int32_t t=mx>>4;
             d->bg=(t<<2)+((my>>3)<<1)+((mx-(t<<4))>>3);
@@ -678,7 +666,7 @@ int32_t d_spectile_proc(int32_t msg,DIALOG *d,int32_t c)
         (d+14)->d1=0;
         (d+14)->d2=0;
         (d+14)->flags|=D_DIRTY;
-        d->w=16*(is_large+1);
+        d->w=32;
         (d-1)->w=d->w+4;
         d->flags|=D_DIRTY;
         (d-1)->flags|=D_DIRTY;
@@ -991,8 +979,7 @@ int32_t sso_raw_data(subscreen_object *tempsso)
     sso_raw_data_dlg[2].dp=raw_text;
     sso_raw_data_dlg[2].d2=0;
     
-    if(is_large)
-        large_dialog(sso_raw_data_dlg);
+    large_dialog(sso_raw_data_dlg);
         
     zc_popup_dialog(sso_raw_data_dlg,2);
     return D_O_K;
@@ -1288,10 +1275,10 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
     {
         for(int32_t i=ss_objects(css)-1; i>=0; --i)
         {
-            int32_t x=sso_x(&css->objects[i])*(1+is_large);
-            int32_t y=sso_y(&css->objects[i])*(1+is_large);
-            int32_t w=sso_w(&css->objects[i])*(1+is_large);
-            int32_t h=sso_h(&css->objects[i])*(1+is_large);
+            int32_t x=sso_x(&css->objects[i])*2;
+            int32_t y=sso_y(&css->objects[i])*2;
+            int32_t w=sso_w(&css->objects[i])*2;
+            int32_t h=sso_h(&css->objects[i])*2;
             
             switch(get_alignment(&css->objects[i]))
             {
@@ -1417,14 +1404,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
                 }
             }
             
-            if(is_large)
-            {
-                stretch_blit(buf,screen,0,0,d->w/(1+is_large),d->h/(1+is_large),d->x,d->y,d->w,d->h);
-            }
-            else
-            {
-                blit(buf,screen,0,0,d->x,d->y,d->w,d->h);
-            }
+            stretch_blit(buf,screen,0,0,d->w/2,d->h/2,d->x,d->y,d->w,d->h);
             
             destroy_bitmap(buf);
         }
@@ -2695,13 +2675,13 @@ int32_t onActivePassive()
     if(css->ss_type == sstACTIVE)
     {
         css->ss_type = sstPASSIVE;
-        subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
+        subscreen_dlg[3].h=116;
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
     }
     else if(css->ss_type == sstPASSIVE)
     {
         css->ss_type = sstACTIVE;
-        subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
+        subscreen_dlg[3].h=172*2-4;
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
     }
     
@@ -2958,8 +2938,7 @@ int32_t onNewSubscreenObject()
     ssolist_dlg[0].dp2=lfont;
     build_bisso_list();
     
-    if(is_large)
-        large_dialog(ssolist_dlg);
+    large_dialog(ssolist_dlg);
         
     ret=zc_popup_dialog(ssolist_dlg,2);
     
@@ -3496,8 +3475,7 @@ static int32_t onEditGrid()
     grid_dlg[10].dp=yoffset;
     grid_dlg[12].d1=zinit.ss_grid_color;
     
-    if(is_large)
-        large_dialog(grid_dlg);
+    large_dialog(grid_dlg);
         
     int32_t ret = zc_popup_dialog(grid_dlg,2);
     
@@ -3528,8 +3506,7 @@ int32_t onSelectionOptions()
     sel_options_dlg[6].d1=zinit.ss_bbox_1_color;
     sel_options_dlg[8].d1=zinit.ss_bbox_2_color;
     
-    if(is_large)
-        large_dialog(sel_options_dlg);
+    large_dialog(sel_options_dlg);
         
     int32_t ret = zc_popup_dialog(sel_options_dlg,2);
     
@@ -3826,26 +3803,23 @@ void edit_subscreen()
     
     selectBwpn(0, 0);
     
-    if(is_large)
-    {
-        bool enlarge = subscreen_dlg[0].d1==0;
-        
-        if(enlarge)
-        {
-            large_dialog(subscreen_dlg,2);
-            subscreen_dlg[4].y-=32;
-            subscreen_dlg[3].y-=31;
-            subscreen_dlg[3].x+=1;
-            
-            if(css->ss_type == sstPASSIVE)
-                subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
-            else if(css->ss_type == sstACTIVE)
-                subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
-                
-            subscreen_dlg[4].h=subscreen_dlg[3].h-4;
-        }
-    }
-    
+	bool enlarge = subscreen_dlg[0].d1==0;
+	
+	if(enlarge)
+	{
+		large_dialog(subscreen_dlg,2);
+		subscreen_dlg[4].y-=32;
+		subscreen_dlg[3].y-=31;
+		subscreen_dlg[3].x+=1;
+		
+		if(css->ss_type == sstPASSIVE)
+			subscreen_dlg[3].h=60*2-4;
+		else if(css->ss_type == sstACTIVE)
+			subscreen_dlg[3].h=172*2-4;
+			
+		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
+	}
+	
     int32_t ret = zc_popup_dialog(subscreen_dlg,2);
     
     if(ret==1)
@@ -4118,8 +4092,7 @@ int32_t onEditSubscreens()
     sslist_dlg[0].dp2=lfont;
     sstemplatelist_dlg[0].dp2=lfont;
     
-    if(is_large)
-        large_dialog(sslist_dlg);
+    large_dialog(sslist_dlg);
         
     while(ret!=0&&ret!=5)
     {
@@ -4139,18 +4112,18 @@ int32_t onEditSubscreens()
         {
             if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstACTIVE)
             {
-                subscreen_dlg[3].h=172*(1+is_large)-(is_large?4:0);
+                subscreen_dlg[3].h=340;
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
             }
             else if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstPASSIVE)
             {
-                subscreen_dlg[3].h=60*(1+is_large)-(is_large?4:0);
+                subscreen_dlg[3].h=116;
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                 //iu;hukl;kh;
             }
             else
             {
-                subscreen_dlg[3].h=20*(1+is_large);
+                subscreen_dlg[3].h=40;
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
             }
             
@@ -4159,8 +4132,7 @@ int32_t onEditSubscreens()
             
             if(css->objects[0].type==ssoNULL)
             {
-                if(is_large)
-                    large_dialog(sstemplatelist_dlg);
+                large_dialog(sstemplatelist_dlg);
                     
                 ret=zc_popup_dialog(sstemplatelist_dlg,4);
                 
@@ -4210,14 +4182,14 @@ int32_t onEditSubscreens()
                         {
                             css->ss_type=sstACTIVE;
                             strcpy(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=172*(1+is_large);
+                            subscreen_dlg[3].h=172*2;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                         else
                         {
                             css->ss_type=sstPASSIVE;
                             strcpy(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=60*(1+is_large);
+                            subscreen_dlg[3].h=120;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                     }
@@ -4262,7 +4234,7 @@ int32_t onEditSubscreens()
                         {
                             css->ss_type=sstACTIVE;
                             strcpy(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=172*(1+is_large);
+                            subscreen_dlg[3].h=344;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                             
                         }
@@ -4270,7 +4242,7 @@ int32_t onEditSubscreens()
                         {
                             css->ss_type=sstPASSIVE;
                             strcpy(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
-                            subscreen_dlg[3].h=60*(1+is_large);
+                            subscreen_dlg[3].h=120;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                     }

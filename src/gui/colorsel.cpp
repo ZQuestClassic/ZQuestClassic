@@ -15,8 +15,8 @@ namespace GUI
 
 ColorSel::ColorSel(): onValueChangedMsg(-1), colorVal(0)
 {
-	setPreferredWidth(24_lpx);
-	setPreferredHeight(24_lpx);
+	setPreferredWidth(24_px);
+	setPreferredHeight(24_px);
 }
 
 void ColorSel::setVal(byte val)

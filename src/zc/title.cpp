@@ -4017,8 +4017,7 @@ int32_t custom_game(int32_t file)
 	
 	clear_keybuf();
 	
-	if(is_large)
-		large_dialog(gamemode_dlg);
+	large_dialog(gamemode_dlg);
    
 	bool customized = false;
 	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)

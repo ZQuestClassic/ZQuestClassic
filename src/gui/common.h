@@ -6,10 +6,6 @@
 
 struct DIALOG;
 
-extern bool is_large;
-#define USE_READABLE_FONT zc_get_config("gui","bolder_font",0)
-#define GUI_READABLE_FONT (USE_READABLE_FONT ? sized(nfont, lfont) : GUI_DEF_FONT)
-
 namespace GUI
 {
 
@@ -26,13 +22,6 @@ int32_t newGUIProc(int32_t msg, DIALOG* d, int32_t c)
  * Returns 0 if no character was found.
  */
 int32_t getAccelKey(const std::string_view text);
-
-/* Returns a in small mode, b in large mode. */
-template<typename T>
-inline T sized(T a, T b) noexcept
-{
-	return is_large ? b : a;
-}
 
 }
 

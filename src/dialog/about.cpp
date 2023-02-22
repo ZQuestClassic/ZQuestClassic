@@ -26,9 +26,9 @@ std::shared_ptr<GUI::Widget> AboutDialog::view()
 		windowGrid = Column(
 			hPadding = 0_px, 
 			Label(noHLine = true,
-				hPadding = sized(1_em,2_em),
+				hPadding = 2_em,
 				maxLines = 20,
-				maxwidth = sized(320_px-8_px-2_em, 800_px-12_px-4_em)-1_em,
+				maxwidth = Size::pixels(zq_screen_w)-12_px-5_em,
 				textAlign = 1,
 				text = std::move(dlgText)),
 			Row(

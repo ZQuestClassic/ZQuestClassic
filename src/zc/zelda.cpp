@@ -173,7 +173,6 @@ extern int32_t hangcount;
 
 extern bool kb_typing_mode;
 
-bool is_large=false;
 bool is_compact = false;
 
 bool standalone_mode=false;
@@ -5197,13 +5196,6 @@ int main(int argc, char **argv)
 		bool old_sbig = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big")==0 : 0;
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 	}
-	
-	// TODO: delete this and is_large variable. we always large now
-	// if(resx>=640 && resy>=480)
-	// {
-	// 	is_large=true;
-	// }
-	is_large = true;
 	
 	//request_refresh_rate(60);
 	

@@ -282,7 +282,7 @@ char *MsgString(int32_t index, bool show_number, bool pad_number)
 	}
 	
 	auto prevIndex = addtomsglist(index)-1;
-	bool indent = is_large && index>0 && MsgStrings[prevIndex].nextstring==index;
+	bool indent = index>0 && MsgStrings[prevIndex].nextstring==index;
 	sprintf(u, pad_number?"%s%3d":"%s%d",indent?"--> ":"",index);
 	char *s=strcat(u,": ");
 	
@@ -553,7 +553,7 @@ int32_t strlist_del()
 void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter);
 int32_t onStrings()
 {
-	if(is_large && !strlist_dlg[0].d1)
+	if(!strlist_dlg[0].d1)
 	{
 		large_dialog(strlist_dlg,2);
 	}
@@ -1400,14 +1400,8 @@ int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c)
 		
 	case MSG_DRAW:
 	{
-		int32_t dw = d->w;
-		int32_t dh = d->h;
-		
-		if(is_large)
-		{
-			dw /= 2;
-			dh /= 2;
-		}
+		int32_t dw = d->w / 2;
+		int32_t dh = d->h / 2;
 		
 		BITMAP *buf = create_bitmap_ex(8,dw,dh);
 		
@@ -1418,7 +1412,7 @@ int32_t d_msgtile_proc(int32_t msg,DIALOG *d,int32_t c)
 			if(d->d1)
 				puttile16(buf,d->d1,0,0,d->fg,0);
 				
-			stretch_blit(buf,screen,0,0,dw,dh,d->x-is_large,d->y-is_large,dw*(is_large?2:1),dh*(is_large?2:1));
+			stretch_blit(buf,screen,0,0,dw,dh,d->x,d->y,dw*2,dh*2);
 			destroy_bitmap(buf);
 		}
 	}

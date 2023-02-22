@@ -16,8 +16,8 @@ namespace GUI
 PaletteFrame::PaletteFrame(): alDialog(), bmp(NULL), plt(NULL), ColorData(NULL), count(14),
 	onUpdate(NULL)
 {
-	setPreferredWidth(128_spx);
-	setPreferredHeight(8_spx*count);
+	setPreferredWidth(192_px);
+	setPreferredHeight(12_px*count);
 	bgColor = palette_color[scheme[jcLIGHT]];
 	fgColor = palette_color[scheme[jcBOXFG]];
 }
@@ -78,7 +78,7 @@ void PaletteFrame::applyDisabled(bool dis)
 
 void PaletteFrame::calculateSize()
 {
-	setPreferredHeight(8_spx*count);
+	setPreferredHeight(12_px*count);
 	Widget::calculateSize();
 }
 

@@ -17,7 +17,6 @@
 
 extern FONT *lfont, *sfont3;
 extern FONT *pfont;
-extern bool is_large;
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
@@ -655,15 +654,12 @@ void EditboxModel::doHelp()
 	
 	help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
 	
-	if(is_large)
-	{
-		help_dlg[0].w=zq_screen_w;
-		help_dlg[0].h=zq_screen_h;
-		help_dlg[1].w=zq_screen_w-8;
-		help_dlg[1].h=zq_screen_h-27;
-		help_dlg[2].w=zq_screen_w-8-4;
-		help_dlg[2].h=zq_screen_h-27-4;
-	}
+	help_dlg[0].w=zq_screen_w;
+	help_dlg[0].h=zq_screen_h;
+	help_dlg[1].w=zq_screen_w-8;
+	help_dlg[1].h=zq_screen_h-27;
+	help_dlg[2].w=zq_screen_w-8-4;
+	help_dlg[2].h=zq_screen_h-27-4;
 	
 	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
 	help_dlg[2].bg = view->getDialog()->bg;

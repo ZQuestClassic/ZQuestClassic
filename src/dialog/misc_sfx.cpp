@@ -8,8 +8,6 @@
 #include "gui/use_size.h"
 #include "zc_list_data.h"
 
-using GUI::sized;
-
 static const GUI::ListData miscSFXList
 {
 	{ "Grass Cut:", sfxBUSHGRASS, "Played when bush/grass/etc is cut, and does not have a custom SFX set." },
@@ -41,9 +39,9 @@ std::shared_ptr<GUI::Widget> MiscSFXDialog::view()
 		title = "Misc Sounds",
 		onClose = message::CANCEL,
 		Column(
-			maxwidth = sized(308_px, 800_px),
+			maxwidth = Size::pixels(zq_screen_w),
 			DDPanel(
-				padding = 2_spx,
+				padding = 3_px,
 				values = local_sfx,
 				count = vals_per_tab,
 				ddlist = sfx_list,
@@ -55,11 +53,11 @@ std::shared_ptr<GUI::Widget> MiscSFXDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

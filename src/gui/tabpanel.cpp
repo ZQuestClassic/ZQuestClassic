@@ -132,7 +132,7 @@ void TabPanel::calculateSize()
 		if(tabwid > maxW)
 			maxW = tabwid;
 		setPreferredWidth(Size::pixels(maxW+6));
-		setPreferredHeight(Size::pixels(text_height(widgFont) + sized(7,4)) + Size::pixels(maxH));
+		setPreferredHeight(Size::pixels(text_height(widgFont) + 4) + Size::pixels(maxH));
 	}
 	Widget::calculateSize();
 }
