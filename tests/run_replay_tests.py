@@ -346,6 +346,7 @@ def get_replay_data(file):
         'first_quest_layered.zplay': 2500,
         'freedom_in_chains.zplay': 1300,
         'hollow_forest.zplay': 500,
+        'lands_of_serenity.zplay': 1700,
         'link_to_the_zelda.zplay': 2100,
         'nes-remastered.zplay': 3000,
         'new2013.zplay': 2800,
