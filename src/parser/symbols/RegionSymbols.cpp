@@ -40,7 +40,7 @@ void RegionSymbols::generateCode()
 {
 	//int32_t GetScreenIndexForRpos(region, int32_t)
     {
-	    Function* function = getFunction("GetScreenIndexForRpos", 2);
+	    Function* function = getFunction("GetScreenIndexForRpos");
         int32_t label = function->getLabel();
         vector<shared_ptr<Opcode>> code;
         addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));

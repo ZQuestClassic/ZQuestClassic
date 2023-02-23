@@ -19,6 +19,7 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_FFC: return &FFCSymbols::getInst();
 		case ZTID_PLAYER: return &HeroSymbols::getInst();
 		case ZTID_SCREEN: return &ScreenSymbols::getInst();
+		case ZTID_REGION: return &RegionSymbols::getInst();
 		case ZTID_GAME: return &GameSymbols::getInst();
 		case ZTID_ITEM: return &ItemSymbols::getInst();
 		case ZTID_ITEMCLASS: return &ItemclassSymbols::getInst();
