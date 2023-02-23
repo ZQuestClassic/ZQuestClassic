@@ -80,12 +80,13 @@ void dosubscr(miscQdata *misc)
 	// copy to the bottom-left side the fully rendered frame. COOLSCROLL will decide
 	// which one of these will be used as the subscreen pushed the viewable screen out of
 	// and then back into view.
-	BITMAP* subscr_scrolling_bitmap = create_bitmap(256*2, 176*2);
+	int h = is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode ? 240 : 176;
+	BITMAP* subscr_scrolling_bitmap = create_bitmap(256*2, h*2);
 
     //make a copy of the blank playing field on the right side of scrollbuf
-    blit(scrollbuf, subscr_scrolling_bitmap, 0, playing_field_offset, 256, 0, 256, 176);
+    blit(scrollbuf, subscr_scrolling_bitmap, 0, playing_field_offset, 256, 0, 256, h);
     //make a copy of the complete playing field on the bottom of scrollbuf
-    blit(framebuf, subscr_scrolling_bitmap, 0, playing_field_offset, 0, 176, 256, 176);
+    blit(framebuf, subscr_scrolling_bitmap, 0, playing_field_offset, 0, h, 256, h);
     miny = 6;
     
 	bool use_a = get_bit(quest_rules,qr_SELECTAWPN), use_x = get_bit(quest_rules,qr_SET_XBUTTON_ITEMS),
@@ -104,6 +105,8 @@ void dosubscr(miscQdata *misc)
 			Bpos = zc_max(game->ywpn,0);
 		else Bpos = 0;
 	}
+
+	int offy = is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode ? 0 : passive_subscreen_height;
         
     for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
     {
@@ -115,12 +118,12 @@ void dosubscr(miscQdata *misc)
         if(COOLSCROLL)
         {
             //copy the playing field back onto the screen
-            blit(subscr_scrolling_bitmap, framebuf, 0, 176, 0, passive_subscreen_height, 256, 176);
+            blit(subscr_scrolling_bitmap, framebuf, 0, h, 0, offy, 256, h);
         }
         else
         {
             //scroll the playing field (copy the copy we made)
-            blit(subscr_scrolling_bitmap, framebuf, 256, 0, 0, 176-2-y+passive_subscreen_height, 256, y);
+            blit(subscr_scrolling_bitmap, framebuf, 256, 0, 0, h-2-y+offy, 256, y);
         }
         
         //throw the passive subscreen onto the screen
@@ -305,7 +308,7 @@ void dosubscr(miscQdata *misc)
         if(COOLSCROLL)
         {
             //copy the playing field back onto the screen
-            blit(subscr_scrolling_bitmap, framebuf, 0, 176, 0, passive_subscreen_height, 256, 176);
+            blit(subscr_scrolling_bitmap, framebuf, 0, h, 0, offy, 256, h);
         }
         else
         {
@@ -346,12 +349,12 @@ void dosubscr(miscQdata *misc)
         if(COOLSCROLL)
         {
             //copy the playing field back onto the screen
-            blit(subscr_scrolling_bitmap, framebuf, 0, 176, 0, passive_subscreen_height, 256, 176);
+            blit(subscr_scrolling_bitmap, framebuf, 0, h, 0, offy, 256, h);
         }
         else
         {
             //scroll the playing field (copy the copy we made)
-            blit(subscr_scrolling_bitmap, framebuf, 256, 0, 0, 176-2-y+passive_subscreen_height, 256, y);
+            blit(subscr_scrolling_bitmap, framebuf, 256, 0, 0, h-2-y+offy, 256, y);
         }
         
         //throw the passive subscreen onto the screen

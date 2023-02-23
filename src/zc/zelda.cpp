@@ -2060,33 +2060,6 @@ int32_t init_game()
 		cheat = 4;
 		maxcheat = 4;
 	}
-
-	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
-	// allowing for regions to display 4 more rows of combos (as many as ALTTP does). This part of
-	// screen is normally reserved for the passive subscreen, but in this mode mapscr combos are drawn below it.
-	// It is up to the quest designer to make their subscreen be actually transparent.
-	//
-	// When not in "extended height mode" (otherwise 56 is 0):
-	//  - playing_field_offset: 56-ish, but changes during earthquakes
-	//  - original_playing_field_offset: always 56
-	//
-	// These values are used to adjust where things are drawn on screen to account for the passive subscreen. Examples:
-	// - yofs of sprites
-	// - bitmap y offsets in draw_screen
-	// - drawing offsets for putscr, do_layer
-	// - drawing offsets for various calls to overtile16 (see bomb weapon explosion)
-	// - lots
-	//
-	// TODO z3 ! Ideally this could change on a per-dmap basis
-	// TODO z3 ! make a quest rule
-	if (global_z3_scrolling_extended_height_mode)
-	{
-		playing_field_offset = 0;
-		original_playing_field_offset = 0;
-		// A few sprites exist as globals, so we must manually reset them.
-		Hero.yofs = 0;
-		mblock2.yofs = 0;
-	}
 	
 	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
 	//setupherotiles(zinit.heroAnimationStyle);
@@ -3925,7 +3898,7 @@ void game_loop()
 		#endif
 
 			playing_field_offset = 56;
-			if (global_z3_scrolling_extended_height_mode) playing_field_offset = 0;
+			if (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode) playing_field_offset = 0;
 
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )

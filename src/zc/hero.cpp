@@ -25120,7 +25120,7 @@ static void for_every_nearby_screen_during_scroll(
 
 	int start_dy = -1;
 	int end_dy = 1;
-	if (global_z3_scrolling_extended_height_mode)
+	if (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode)
 	{
 		if (scrolling_dir == up) start_dy -= 1;
 		if (scrolling_dir == down) end_dy += 1;
@@ -25921,7 +25921,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
 
-		int mapscr_view_height = 168 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
+		int mapscr_view_height = 168 + (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode ? 56 : 0);
 		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, mapscr_view_height);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 

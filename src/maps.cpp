@@ -5696,6 +5696,39 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
 			}
 		}
+
+		// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
+		// allowing for regions to display 4 more rows of combos (as many as ALTTP does). This part of
+		// screen is normally reserved for the passive subscreen, but in this mode mapscr combos are drawn below it.
+		// It is up to the quest designer to make their subscreen be actually transparent.
+		//
+		// When not in "extended height mode" (otherwise 56 is 0):
+		//  - playing_field_offset: 56-ish, but changes during earthquakes
+		//  - original_playing_field_offset: always 56
+		//
+		// These values are used to adjust where things are drawn on screen to account for the passive subscreen. Examples:
+		// - yofs of sprites
+		// - bitmap y offsets in draw_screen
+		// - drawing offsets for putscr, do_layer
+		// - drawing offsets for various calls to overtile16 (see bomb weapon explosion)
+		// - lots
+		//
+		// TODO z3 ! make a quest rule
+		// TODO z3 this probably breaks things when switching between regions and normal screens.
+		//      maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
+		if (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode)
+		{
+			playing_field_offset = 0;
+			original_playing_field_offset = 0;
+			// A few sprites exist as globals, so we must manually reset them.
+			Hero.yofs = 0;
+			mblock2.yofs = 0;
+		}
+		else
+		{
+			playing_field_offset = 56;
+			original_playing_field_offset = 56;
+		}
 	}
 
 	game->load_portal();
