@@ -26059,9 +26059,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
-		// TODO z3
-		if (!global_z3_scrolling_extended_height_mode)
-			put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		

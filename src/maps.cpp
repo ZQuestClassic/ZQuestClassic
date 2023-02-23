@@ -4797,7 +4797,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	
 	//6b. Draw the subscreen, without clipping
-	if(!global_z3_scrolling_extended_height_mode && !get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	if(!get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
@@ -4914,17 +4914,17 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	set_clip_rect(framebuf,0,0,256,224);
 	
-	draw_msgstr(6);
-	
 	//13. Draw the subscreen, without clipping
 	// TODO z3
-	if(!global_z3_scrolling_extended_height_mode && get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 		
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set
 	}
+
+	draw_msgstr(6);
 	
 	//14. Handle high-drawn darkness
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
