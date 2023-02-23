@@ -378,6 +378,7 @@ public:
 	void checklocked();
 	void deselectbombs(int32_t super); // switch Hero's weapon if his current weapon (bombs) was depleted.
 	bool startwpn(int32_t itemid);
+	bool onWater(bool drownonly);
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();

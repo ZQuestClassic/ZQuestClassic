@@ -243,10 +243,41 @@ static bool is_immobile()
 	return rate != 0;
 }
 
+bool nomove_action(int action)
+{
+	switch(action)
+	{
+		case gothit:
+		case drowning:
+		case lavadrowning:
+		case sidedrowning:
+		case falling:
+		case freeze:
+		case sideswimfreeze:
+		case scrolling:
+		case casting:
+		case sideswimcasting:
+		case landhold1:
+		case landhold2:
+		case waterhold1:
+		case waterhold2:
+		case sidewaterhold1:
+		case sidewaterhold2:
+		case hopping:
+		case inwind:
+			return true;
+	}
+	return false;
+}
+
 bool HeroClass::isStanding(bool forJump)
 {
-	bool st = (z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
-	if(!st) return false;
+	if(z || fakez) return false;
+	if(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y)
+		&& !ladderx && !laddery && !getOnSideviewLadder())
+		return false;
+	if(hoverclk) return false;
+	if(nomove_action(action)) return false;
 	int32_t val = check_pitslide();
 	if(val == -2) return false;
 	if(val == -1) return true;
@@ -10056,6 +10087,60 @@ void HeroClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
+bool HeroClass::onWater(bool drownonly)
+{
+	int32_t water = 0;
+	int32_t types[4] = {0};
+	int32_t x1 = x+4, x2 = x+11,
+		y1 = y+9, y2 = y+15;
+	if (get_bit(quest_rules, qr_SMARTER_WATER))
+	{
+		if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
+		iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
+		iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
+		iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
+	}
+	else
+	{
+		types[0] = COMBOTYPE(x1,y1);
+		
+		if(MAPFFCOMBO(x1,y1))
+			types[0] = FFCOMBOTYPE(x1,y1);
+			
+		types[1] = COMBOTYPE(x1,y2);
+		
+		if(MAPFFCOMBO(x1,y2))
+			types[1] = FFCOMBOTYPE(x1,y2);
+			
+		types[2] = COMBOTYPE(x2,y1);
+		
+		if(MAPFFCOMBO(x2,y1))
+			types[2] = FFCOMBOTYPE(x2,y1);
+			
+		types[3] = COMBOTYPE(x2,y2);
+		
+		if(MAPFFCOMBO(x2,y2))
+			types[3] = FFCOMBOTYPE(x2,y2);
+			
+		int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+		if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
+			typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
+			
+		if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
+				combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
+			water = typec;
+	}
+	if(water > 0)
+	{
+		if(!drownonly) return true;
+		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool HeroClass::mirrorBonk()
 {
 	zfix tx = x, ty = y, tz = z;
@@ -10066,56 +10151,8 @@ bool HeroClass::mirrorBonk()
 	
 	if(!fail) //not solid, but check for water/pits...
 	{
-		//{ Check water collision.... GAAAAAAAH THIS IS A MESS
-		int32_t water = 0;
-		int32_t types[4] = {0};
-		int32_t x1 = x+4, x2 = x+11,
-			y1 = y+9, y2 = y+15;
-		if (get_bit(quest_rules, qr_SMARTER_WATER))
-		{
-			if (iswaterex(0, currmap, currscr, -1, x1, y1, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x1, y2, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x2, y1, true, false) &&
-			iswaterex(0, currmap, currscr, -1, x2, y2, true, false)) water = iswaterex(0, currmap, currscr, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-		}
-		else
-		{
-			types[0] = COMBOTYPE(x1,y1);
-			
-			if(MAPFFCOMBO(x1,y1))
-				types[0] = FFCOMBOTYPE(x1,y1);
-				
-			types[1] = COMBOTYPE(x1,y2);
-			
-			if(MAPFFCOMBO(x1,y2))
-				types[1] = FFCOMBOTYPE(x1,y2);
-				
-			types[2] = COMBOTYPE(x2,y1);
-			
-			if(MAPFFCOMBO(x2,y1))
-				types[2] = FFCOMBOTYPE(x2,y1);
-				
-			types[3] = COMBOTYPE(x2,y2);
-			
-			if(MAPFFCOMBO(x2,y2))
-				types[3] = FFCOMBOTYPE(x2,y2);
-				
-			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-				
-			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-				water = typec;
-		}
-		if(water > 0)
-		{
-			if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
-			{
-				fail = true;
-			}
-		}
-		//}
+		if(onWater(true))
+			fail = true;
 		if(pitslide() || fallclk)
 			fail = true;
 		fallclk = 0;
@@ -10243,6 +10280,9 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 {
 	if(passive) did_passive_jump = false;
 	else if(did_passive_jump) return false; //don't jump twice in the same frame
+	
+	if(nomove_action(action)) return false; //can't jump while ex. drowning
+	if(onWater(true)) return false; //Don't allow jumping off of water frame-perfectly...
 	
 	if(jumpid < 0)
 		jumpid = current_item_id(itype_rocs,true,true);
