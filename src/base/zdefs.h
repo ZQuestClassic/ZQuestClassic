@@ -4719,6 +4719,13 @@ INLINE T sign(T a)
     return T(a < 0 ? -1: 1);
 }
 
+template <class T>
+INLINE T sign2(T a)
+{
+	if (a == 0) return 0;
+    return T(a < 0 ? -1: 1);
+}
+
 //#ifndef NOZSWAP
 template <class T>
 static INLINE void zc_swap(T &a,T &b)

@@ -25118,14 +25118,22 @@ static void for_every_nearby_screen_during_scroll(
 	int new_region = get_region_id(scrolling_destdmap, currscr);
 	bool is_region_scrolling = old_region || new_region;
 
+	int start_dy = -1;
+	int end_dy = 1;
+	if (global_z3_scrolling_extended_height_mode)
+	{
+		if (scrolling_dir == up) start_dy -= 1;
+		if (scrolling_dir == down) end_dy += 1;
+	}
+
 	// Note: (draw_dx = 0, draw_dy = 0) denotes the starting screen (scrolling_scr),
 	// while (   < scrolling_dir >    ) denotes the destination screen (currscr).
 	for (int draw_dx = -1; draw_dx <= 1; draw_dx++)
 	{
-		for (int draw_dy = -1; draw_dy <= 1; draw_dy++)
+		for (int draw_dy = start_dy; draw_dy <= end_dy; draw_dy++)
 		{
 			// Depending on which direction we are scrolling, need to select the correct set of screens.
-			bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, draw_dy) == scrolling_dir;
+			bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
 			int base_map = use_new_screens ? currmap : scrolling_map;
 			int base_dmap = use_new_screens ? scrolling_destdmap : scrolling_dmap;
 			int base_scr = use_new_screens ? currscr : scrolling_scr;
@@ -25134,7 +25142,7 @@ static void for_every_nearby_screen_during_scroll(
 
 			if (use_new_screens)
 			{
-				if (scrolling_dir == up || scrolling_dir == down) base_scr_y -= draw_dy;
+				if (scrolling_dir == up || scrolling_dir == down) base_scr_y -= sign2(draw_dy);
 				else                                              base_scr_x -= draw_dx;
 			}
 
