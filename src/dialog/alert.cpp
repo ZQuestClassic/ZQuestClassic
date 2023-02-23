@@ -36,14 +36,14 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 	if (truebtn.size())
 		trueb = Button(
 			text = truebtn,
-			minwidth = 90_lpx,
+			minwidth = 90_px,
 			onClick = message::OK,
 			focused = true
 		);
 	if (falsebtn.size())
 		falseb = Button(
 			text = falsebtn,
-			minwidth = 90_lpx,
+			minwidth = 90_px,
 			onClick = message::CANCEL
 		);
 	
@@ -56,9 +56,9 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 		Column(
 			hPadding = 0_px, 
 			Label(noHLine = true,
-				hPadding = sized(1_em,2_em),
+				hPadding = 2_em,
 				maxLines = 20,
-				maxwidth = sized(320_px-8_px-2_em, 800_px-12_px-4_em)-1_em,
+				maxwidth = Size::pixels(zq_screen_w)-12_px-5_em,
 				textAlign = 1,
 				text = std::move(dlgText)),
 			Checkbox(visible = dsa,

@@ -6815,8 +6815,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     
     pwd_dlg[6].dp=prompt;
     
-    if(is_large)
-        large_dialog(pwd_dlg);
+    large_dialog(pwd_dlg);
         
     int32_t cancel = zc_popup_dialog(pwd_dlg,6);
     

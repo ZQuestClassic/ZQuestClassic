@@ -38,7 +38,7 @@ void Button::applyDisabled(bool dis)
 
 void Button::calculateSize()
 {
-	setPreferredWidth(sized(10_px,16_px)+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	setPreferredWidth(16_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 	Widget::calculateSize();
 }
 

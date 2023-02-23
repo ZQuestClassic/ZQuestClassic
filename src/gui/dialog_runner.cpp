@@ -81,10 +81,7 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 	});
 
 	root->calculateSize();
-	if(is_large)
-		root->arrange(0, 0, LARGE_W, LARGE_H);
-	else
-		root->arrange(0, 0, 320, 240);
+	root->arrange(0, 0, LARGE_W, LARGE_H);
 	root->realize(*this);
 
 	alDialog.push_back({

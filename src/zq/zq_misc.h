@@ -49,6 +49,7 @@
 #define rALL        0x0FFF
 #define rCLEAR      0x1000
 #define rNOCURSOR   0x2000
+#define rNOUPDATE   0x4000
 
 #define C(x)   ((x)-'a'+1)
 

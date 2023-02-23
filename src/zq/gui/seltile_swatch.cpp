@@ -112,7 +112,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 			//    text_mode(d->bg);
 			if(d->bg & 0b1)
 			{
-				FONT *fonty = (is_large ? font : pfont);
+				FONT *fonty = font;
 				if(d->dp2) fonty = (FONT*)d->dp2;
 				if(dis)
 				{
@@ -145,7 +145,7 @@ SelTileSwatch::SelTileSwatch(): tile(0), cset(0), flip(0),
 	minionly(false), deftile(0)
 {
 	sel_color = jwin_pal[jcTITLER];
-	Size s = sized(16_px,32_px)+4_px;
+	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 }
@@ -213,7 +213,7 @@ void SelTileSwatch::setTileWid(int32_t val)
 	tw = std::max(1,val);
 	if(alDialog)
 	{
-		int32_t wid = (tw*sized(16,32))+4;
+		int32_t wid = (tw*32)+4;
 		alDialog->w = wid;
 		mini_crn %= (4*tw*th);
 	}
@@ -223,7 +223,7 @@ void SelTileSwatch::setTileHei(int32_t val)
 	th = std::max(1,val);
 	if(alDialog)
 	{
-		int32_t hei = (th*sized(16,32))+4;
+		int32_t hei = (th*32)+4;
 		alDialog->h = hei;
 		mini_crn %= (4*tw*th);
 	}
@@ -289,8 +289,8 @@ void SelTileSwatch::applyFont(FONT* newFont)
 void SelTileSwatch::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
-	int32_t wid = (tw*sized(16,32))+4;
-	int32_t hei = (th*sized(16,32))+4;
+	int32_t wid = (tw*32)+4;
+	int32_t hei = (th*32)+4;
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		newGUIProc<newg_seltile_proc>,
 		x, y, wid, hei,
@@ -306,8 +306,8 @@ void SelTileSwatch::calculateSize()
 {
 	if(isMini)
 		tw = th = 1;
-	Size w = (tw*sized(16_px,32_px))+4_px;
-	Size h = (th*sized(16_px,32_px))+4_px;
+	Size w = (tw*32_px)+4_px;
+	Size h = (th*32_px)+4_px;
 	setPreferredWidth(w + (showsVals ? text_length(widgFont, "Tile: 999999") : 0));
 	setPreferredHeight(h);
 	Widget::calculateSize();

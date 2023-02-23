@@ -1744,25 +1744,91 @@ void zinitdata::copy(zinitdata const& other)
 	memcpy(gen_eventstate,other.gen_eventstate,sizeof(gen_eventstate));
 }
 
+int size_and_pos::tw() const
+{
+	return w*xscale;
+}
+int size_and_pos::th() const
+{
+	return h*yscale;
+}
 
 void size_and_pos::clear()
 {
 	*this = size_and_pos();
 }
-bool size_and_pos::rect(int32_t mx, int32_t my)
+bool size_and_pos::rect(int mx, int my) const
 {
 	if(x < 0 || y < 0 || w < 0 || h < 0)
 		return false;
 	auto sw = w * xscale;
 	auto sh = h * yscale;
+	if(fw > -1 && fh > -1)
+		if(mx >= x+fw && my >= y+fh)
+			return false;
 	return isinRect(mx,my,x,y,x+sw-1,y+sh-1);
 }
-void size_and_pos::set(int32_t nx, int32_t ny, int32_t nw, int32_t nh)
+int size_and_pos::rectind(int mx, int my) const
 {
-	x = nx;
-	y = ny;
-	w = nw;
-	h = nh;
+	if(!rect(mx,my)) return -1; //not in rect
+	//Where in rect?
+	mx -= x;
+	my -= y;
+	auto row = (my / yscale);
+	auto col = (mx / xscale);
+	int ind = col + (row * w);
+	return ind;
 }
+void size_and_pos::set(int nx, int ny, int nw, int nh)
+{
+	x = nx; y = ny;
+	w = nw; h = nh;
+}
+void size_and_pos::set(int nx, int ny, int nw, int nh, int xs, int ys)
+{
+	x = nx; y = ny;
+	w = nw; h = nh;
+	xscale = xs; yscale = ys;
+}
+static size_and_pos nilsqr;
+static size_and_pos tempsqr;
+size_and_pos const& size_and_pos::subsquare(int ind) const
+{
+	if(w < 1 || h < 1)
+		return nilsqr;
+	return subsquare(ind%w, ind/w);
+}
+size_and_pos const& size_and_pos::subsquare(int col, int row) const
+{
+	if(w < 1 || h < 1)
+		return nilsqr;
+	int x2 = x+(col*xscale);
+	int y2 = y+(row*yscale);
+	if(fw > -1 && fh > -1 && x2 >= x+fw && y2 >= y+fh)
+		return nilsqr;
+	tempsqr.clear();
+	tempsqr.set(x2,y2,xscale,yscale);
+	return tempsqr;
+}
+size_and_pos::size_and_pos(int nx, int ny, int nw, int nh, int xsc, int ysc, int fw, int fh)
+	: x(nx), y(ny), w(nw), h(nh), xscale(xsc), yscale(ysc), fw(fw), fh(fh)
+{}
 
+int newcombo::each_tile(std::function<bool(int32_t)> proc) const
+{
+	int tile = o_tile;
+	int frame = 0;
+	do
+	{
+		if(proc(tile))
+			return frame;
+		if(++frame >= frames)
+			break;
+		tile += ((1+skipanim)*frame);
+		if(int rowoffset = TILEROW(tile)-TILEROW(o_tile))
+			tile += skipanimy * rowoffset * TILES_PER_ROW;
+	}
+	while(true);
+	return -1;
+}
 

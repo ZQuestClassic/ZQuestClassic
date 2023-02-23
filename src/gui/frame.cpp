@@ -48,10 +48,10 @@ void Frame::calculateSize()
 		content->calculateSize();
 		int32_t extraHeight;
 		if(!title.empty())
-			extraHeight = sized(8, 10);
+			extraHeight = 10;
 		else
-			extraHeight = sized(4, 8);
-		setPreferredWidth(Size::pixels(content->getTotalWidth()+sized(4, 8)));
+			extraHeight = 8;
+		setPreferredWidth(Size::pixels(content->getTotalWidth()+8));
 		setPreferredHeight(Size::pixels(content->getTotalHeight()+extraHeight));
 	}
 	else
@@ -67,20 +67,10 @@ void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
 	{
-		if(is_large)
-		{
-			if(!title.empty())
-				content->arrange(x+4, y+8, getWidth()-8, getHeight()-10);
-			else
-				content->arrange(x+4, y+4, getWidth()-8, getHeight()-8);
-		}
+		if(!title.empty())
+			content->arrange(x+4, y+8, getWidth()-8, getHeight()-10);
 		else
-		{
-			if(!title.empty())
-				content->arrange(x+2, y+6, getWidth()-4, getHeight()-8);
-			else
-				content->arrange(x+2, y+2, getWidth()-4, getHeight()-4);
-		}
+			content->arrange(x+4, y+4, getWidth()-8, getHeight()-8);
 	}
 }
 
@@ -100,7 +90,7 @@ void Frame::realize(DialogRunner& runner)
 	{
 		runner.push(shared_from_this(), DIALOG {
 			jwin_text_proc,
-			x+sized(3, 5), y-sized(2, 3), getWidth(), getHeight(),
+			x+5, y-3, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0,
 			getFlags(),

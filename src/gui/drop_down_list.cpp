@@ -13,10 +13,10 @@ DropDownList::DropDownList():
 	listData(nullptr), selectedIndex(0), selectedValue(0), message(-1)
 {
 	setPreferredWidth(20_em);
-	overrideHeight(sized(16_px, 21_px));
+	overrideHeight(21_px);
 	fgColor = jwin_pal[jcTEXTFG];
 	bgColor = jwin_pal[jcTEXTBG];
-	widgFont = GUI_READABLE_FONT;
+	widgFont = GUI_DEF_FONT;
 }
 
 void DropDownList::setListData(const ::GUI::ListData& newListData)
@@ -93,8 +93,8 @@ void DropDownList::calculateSize()
 		if(w > maxWid)
 			maxWid = w;
 	}
-	setPreferredWidth(sized(5_em,3_em)+maxWid);
-	overrideHeight(sized(16_px, 21_px));
+	setPreferredWidth(3_em+maxWid);
+	overrideHeight(21_px);
 	Widget::calculateSize();
 }
 

@@ -599,7 +599,7 @@ void load_mouse()
 	system_pal();
 	scare_mouse();
 	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(is_large ? zc_get_config("zeldadx","cursor_scale_large",1.5) : zc_get_config("zeldadx","cursor_scale_small",1))),16,80);
+	int32_t sz = vbound(int32_t(16*(zc_get_config("zeldadx","cursor_scale_large",1.5))),16,80);
 	for(int32_t j = 0; j < 4; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
@@ -5669,7 +5669,7 @@ int32_t set_vol(void *dp3, int32_t d2)
 	
 	scare_mouse();
 	// text_mode(vc(11));
-	textprintf_right_ex(screen,is_large ? lfont_l : font, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
 	unscare_mouse();
 	return D_O_K;
 }
@@ -5679,7 +5679,7 @@ int32_t set_pan(void *dp3, int32_t d2)
 	pan_style = vbound(d2,0,3);
 	scare_mouse();
 	// text_mode(vc(11));
-	textout_right_ex(screen,is_large ? lfont_l : font, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_right_ex(screen,lfont_l, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	return D_O_K;
 }
@@ -5689,7 +5689,7 @@ int32_t set_buf(void *dp3, int32_t d2)
 	scare_mouse();
 	// text_mode(vc(11));
 	zcmusic_bufsz = d2 + 1;
-	textprintf_right_ex(screen,is_large ? lfont_l : font, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
+	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
 	unscare_mouse();
 	return D_O_K;
 }
@@ -6040,130 +6040,6 @@ static DIALOG triforce_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-/*static DIALOG equip_dlg[] =
-{
-  // (dialog proc)	 (x)   (y)   (w)   (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-  { jwin_win_proc,	  16,	18,  289,  215,  vc(14),   vc(1),	0,  D_EXIT,		   0,		0,	 (void *) "Equipment", NULL,  NULL },
-  // 1
-  { jwin_button_proc,   90,   206,   61,   21,   vc(0),  vc(11),  'k',  D_EXIT,		   0,		0,	 (void *) "O&K", NULL,  NULL },
-  { jwin_button_proc,  170,   206,   61,   21,   vc(0),  vc(11),   27,  D_EXIT,		   0,		0,	 (void *) "Cancel", NULL,  NULL },
-  // 3
-  { jwin_frame_proc,	25,	45,   77,   50,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,		29,	42,   40,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Sword", NULL,  NULL },
-  { jwin_check_proc,	33,	52,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Wooden", NULL,  NULL },
-  { jwin_check_proc,	33,	62,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "White", NULL,  NULL },
-  { jwin_check_proc,	33,	72,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Magic", NULL,  NULL },
-  { jwin_check_proc,	33,	82,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Master", NULL,  NULL },
-  // 9
-  { jwin_frame_proc,	25,	99,   77,   40,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,		29,	96,   48,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Shield", NULL,  NULL },
-  { jwin_check_proc,	33,   106,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Small", NULL,  NULL },
-  { jwin_check_proc,	33,   116,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Magic", NULL,  NULL },
-  { jwin_check_proc,	33,   126,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Mirror", NULL,  NULL },
-  // 14
-  { jwin_frame_proc,	25,   143,   61,   40,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,		29,   140,   48,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Ring", NULL,  NULL },
-  { jwin_check_proc,	33,   150,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Blue", NULL,  NULL },
-  { jwin_check_proc,	33,   160,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Red", NULL,  NULL },
-  { jwin_check_proc,	33,   170,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Gold", NULL,  NULL },
-  // 19
-  { jwin_frame_proc,   110,	45,   85,   30,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   114,	42,   64,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Bracelet", NULL,  NULL },
-  { jwin_check_proc,   118,	52,   72,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Level 1", NULL,  NULL },
-  { jwin_check_proc,   118,	62,   72,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Level 2", NULL,  NULL },
-  // 23
-  { jwin_frame_proc,   110,	79,   85,   30,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   114,	76,   48,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Amulet", NULL,  NULL },
-  { jwin_check_proc,   118,	86,   72,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Level 1", NULL,  NULL },
-  { jwin_check_proc,   118,	96,   72,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Level 2", NULL,  NULL },
-  // 27
-  { jwin_frame_proc,   110,   113,   69,   30,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   114,   110,   48,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Wallet", NULL,  NULL },
-  { jwin_check_proc,   118,   120,   56,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Small", NULL,  NULL },
-  { jwin_check_proc,   118,   130,   56,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Large", NULL,  NULL },
-  // 31
-  { jwin_frame_proc,   110,   147,   69,   30,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   114,   144,   24,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Bow", NULL,  NULL },
-  { jwin_check_proc,   118,   154,   56,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Small", NULL,  NULL },
-  { jwin_check_proc,   118,   164,   56,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Large", NULL,  NULL },
-  // 35
-  { jwin_frame_proc,   203,	45,   93,   70,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   207,	42,   40,	8,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Other", NULL,  NULL },
-  { jwin_check_proc,   211,	52,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Raft", NULL,  NULL },
-  { jwin_check_proc,   211,	62,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Ladder", NULL,  NULL },
-  { jwin_check_proc,   211,	72,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Book", NULL,  NULL },
-  { jwin_check_proc,   211,	82,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Magic Key", NULL,  NULL },
-  { jwin_check_proc,   211,	92,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Flippers", NULL,  NULL },
-  { jwin_check_proc,   211,   102,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Boots", NULL,  NULL },
-  { d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-  { NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-static DIALOG items_dlg[] =
-{
-  // (dialog proc)	 (x)   (y)   (w)   (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-  { jwin_win_proc,	  16,	18,  289,  215,  vc(14),   vc(1),	0,  D_EXIT,		   0,		0,	 (void *) "Items", NULL,  NULL },
-  //1
-  { jwin_button_proc,   90,   206,   61,   21,   vc(0),  vc(11),  'k',  D_EXIT,		   0,		0,	 (void *) "O&K", NULL,  NULL },
-  { jwin_button_proc,  170,   206,   61,   21,   vc(0),  vc(11),   27,  D_EXIT,		   0,		0,	 (void *) "Cancel", NULL,  NULL },
-  // 3
-  { jwin_frame_proc,	27,	45,   77,   40,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,		31,	42,   64,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Boomerang", NULL,  NULL },
-  { jwin_check_proc,	35,	52,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Wooden", NULL,  NULL },
-  { jwin_check_proc,	35,	62,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Magic", NULL,  NULL },
-  { jwin_check_proc,	35,	72,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Fire", NULL,  NULL },
-  // 8
-  { jwin_frame_proc,	27,	89,   77,   40,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,		31,	86,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Arrow", NULL,  NULL },
-  { jwin_check_proc,	35,	96,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Wooden", NULL,  NULL },
-  { jwin_check_proc,	35,   106,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Silver", NULL,  NULL },
-  { jwin_check_proc,	35,   116,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Golden", NULL,  NULL },
-  // 13
-  { jwin_frame_proc,	27,   133,   63,   40,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,		31,   130,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Potion", NULL,  NULL },
-  { jwin_radio_proc,	35,   140,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "None", NULL,  NULL },
-  { jwin_radio_proc,	35,   150,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Blue", NULL,  NULL },
-  { jwin_radio_proc,	35,   160,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Red", NULL,  NULL },
-  // 18
-  { jwin_frame_proc,   114,	45,   93,   20,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   118,	42,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Whistle", NULL,  NULL },
-  { jwin_check_proc,   122,	52,   80,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Recorder", NULL,  NULL },
-  // 21
-  { jwin_frame_proc,   114,	69,   86,   20,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   118,	66,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Hammer", NULL,  NULL },
-  { jwin_check_proc,   122,	76,   72,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Level 1", NULL,  NULL },
-  // 24
-  { jwin_frame_proc,   114,	93,   69,   30,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   118,	90,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Hookshot", NULL,  NULL },
-  { jwin_check_proc,   122,   100,   56,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Short", NULL,  NULL },
-  { jwin_check_proc,   122,   110,   56,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Long", NULL,  NULL },
-  // 28
-  { jwin_frame_proc,   114,   127,   60,   30,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   118,   124,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Candle", NULL,  NULL },
-  { jwin_check_proc,   122,   134,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Blue", NULL,  NULL },
-  { jwin_check_proc,   122,   144,   48,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Red", NULL,  NULL },
-  // 32
-  { jwin_frame_proc,   217,	45,   77,  138,	   0,	   0,	0,	   0,   FR_ETCHED,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   221,	42,   80,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Other", NULL,  NULL },
-  { jwin_check_proc,   225,	52,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Bait", NULL,  NULL },
-  { jwin_check_proc,   225,	62,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Letter", NULL,  NULL },
-  { jwin_check_proc,   225,	72,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Wand", NULL,  NULL },
-  { jwin_check_proc,   225,	82,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Lens", NULL,  NULL },
-  { jwin_check_proc,   225,	92,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Din's Fire", NULL,  NULL },
-  { jwin_check_proc,   225,   102,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Farore's Wind", NULL,  NULL },
-  { jwin_check_proc,   225,   112,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Nayru's Love", NULL,  NULL },
-  { jwin_text_proc,	   225,   132,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "Bombs:", NULL,  NULL },
-  { jwin_edit_proc,	229,   142,   40,   16,	   0,	   0,	0,	   0,		   6,		0,	 NULL, NULL,  NULL },
-  { jwin_text_proc,	   225,   162,   48,	9,   vc(0),  vc(11),	0,	   0,		   0,		0,	 (void *) "S-Bombs:", NULL,  NULL },
-  { jwin_edit_proc,	229,   162,   40,   16,	   0,	   0,	0,	   0,		   6,		0,	 NULL, NULL,  NULL },
-  { jwin_check_proc,   225,   122,   64,	9,   vc(0),  vc(11),	0,	   0,		   1,		0,	 (void *) "Cane of Byrna", NULL,  NULL },
-  //45
-  { d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-  { NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};*/
-
-
-
 bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename)
 {
 	go();
@@ -6313,8 +6189,7 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 	module_info_dlg[13].dp = (char*)module_vers;
 	module_info_dlg[14].dp = (char*)module_build;
 	
-	if(is_large)
-		large_dialog(module_info_dlg);
+	large_dialog(module_info_dlg);
 	
 	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
@@ -6536,8 +6411,7 @@ int32_t onGoTo()
 	
 	clear_keybuf();
 	
-	if(is_large)
-		large_dialog(goto_dlg);
+	large_dialog(goto_dlg);
 		
 	if(zc_popup_dialog(goto_dlg,4)==1)
 	{
@@ -6877,8 +6751,7 @@ int32_t onMIDICredits()
 	
 	dialog_running=true;
 	
-	if(is_large)
-		large_dialog(midi_dlg);
+	large_dialog(midi_dlg);
 		
 	zc_popup_dialog(midi_dlg,0);
 	dialog_running=false;
@@ -6934,8 +6807,7 @@ int32_t onQuest()
 	quest_dlg[11].d1 = quest_dlg[9].d1 = 0;
 	quest_dlg[11].d2 = quest_dlg[9].d2 = 0;
 	
-	if(is_large)
-		large_dialog(quest_dlg);
+	large_dialog(quest_dlg);
 		
 	zc_popup_dialog(quest_dlg, 0);
 	return D_O_K;
@@ -7012,8 +6884,7 @@ int32_t onKeyboard()
 	
 	keyboard_control_dlg[0].dp2=lfont;
 	
-	if(is_large)
-		large_dialog(keyboard_control_dlg);
+	large_dialog(keyboard_control_dlg);
 		
 	while(!done)
 	{
@@ -7198,8 +7069,7 @@ int32_t onGamepad()
 	else
 		gamepad_dlg[56].flags&=~D_SELECTED;
 	
-	if(is_large)
-		large_dialog(gamepad_dlg);
+	large_dialog(gamepad_dlg);
 		
 	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
 	
@@ -7263,8 +7133,7 @@ int32_t onSound()
 	
 	sound_dlg[0].dp2=lfont;
 	
-	if(is_large)
-		large_dialog(sound_dlg);
+	large_dialog(sound_dlg);
 		
 	midi_dp[1] = sound_dlg[6].x;
 	midi_dp[2] = sound_dlg[6].y;
@@ -7544,8 +7413,7 @@ int32_t getnumber(const char *prompt,int32_t initialval)
 	getnum_dlg[0].dp2=lfont;
 	getnum_dlg[2].dp=buf;
 	
-	if(is_large)
-		large_dialog(getnum_dlg);
+	large_dialog(getnum_dlg);
 		
 	if(zc_popup_dialog(getnum_dlg,2)==3)
 		return atoi(buf);
@@ -7723,8 +7591,7 @@ int32_t onScreenSaver()
 	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
 	scrsaver_dlg[7].d2 = oldcfgs[2] = ss_density;
 	
-	if(is_large)
-		large_dialog(scrsaver_dlg);
+	large_dialog(scrsaver_dlg);
 		
 	int32_t ret = zc_popup_dialog(scrsaver_dlg,-1);
 	

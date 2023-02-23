@@ -76,9 +76,9 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			//    text_mode(d->bg);
 			if(d->bg)
 			{
-				FONT *fonty = (is_large ? font : pfont);
+				FONT *fonty = font;
 				if(d->dp2) fonty = (FONT*)d->dp2;
-				int32_t xo = (3_spx).resolve();
+				int32_t xo = 5;
 				if(dis)
 				{
 					textprintf_ex(screen,fonty,d->x+d->h+xo+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"Combo: %d",d->d1);
@@ -104,7 +104,7 @@ namespace GUI
 SelComboSwatch::SelComboSwatch(): combo(0), cset(0),
 	alDialog(), message(-1), showsVals(true)
 {
-	Size s = sized(16_px,32_px)+4_px;
+	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 }
@@ -187,8 +187,8 @@ void SelComboSwatch::realize(DialogRunner& runner)
 
 void SelComboSwatch::calculateSize()
 {
-	Size s = sized(16_px,32_px)+4_px;
-	setPreferredWidth(s + (showsVals ? 3_spx+text_length(widgFont, "Combo: 99999") : 0_px));
+	Size s = 32_px+4_px;
+	setPreferredWidth(s + (showsVals ? 5_px+text_length(widgFont, "Combo: 99999") : 0_px));
 	setPreferredHeight(s);
 	Widget::calculateSize();
 }

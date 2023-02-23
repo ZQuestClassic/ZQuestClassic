@@ -1,8 +1,8 @@
 
 #include "base/fonts.h"
 #include "fontsdat.h"
+#include "base/zapp.h"
 extern DATAFILE *fontsdata;
-extern bool is_large;
 extern bool is_compact;
 FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
 		*goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont,
@@ -321,10 +321,8 @@ FONT* load_cfont(char const* name)
 	
 	if(is_compact)
 		strcpy(pref, "compact");
-	else if(is_large)
-		strcpy(pref, "large");
 	else
-		strcpy(pref, "small");
+		strcpy(pref, "large");
 	
 	sprintf(path, "customfonts/%s_%s.bmp", pref, name);
 	
@@ -336,14 +334,6 @@ FONT* load_cfont(char const* name)
 	return f;
 }
 
-template<typename T>
-T pickfont(T largefont, T smallfont, T compactfont)
-{
-	if(is_compact) return compactfont;
-	if(is_large) return largefont;
-	return smallfont;
-}
-
 void init_custom_fonts()
 {
 	font = nfont;
@@ -351,24 +341,24 @@ void init_custom_fonts()
 	char pref[16];
 	if(is_compact)
 		strcpy(pref, "compact");
-	else if(is_large)
-		strcpy(pref, "large");
 	else
-		strcpy(pref, "small");
+		strcpy(pref, "large");
 	
 	char buf[512];
 	sprintf(buf, "font_%s_%s", pref, "dialog");
-	deffonts[CFONT_DLG] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont_l,font_nfont,font_lfont_l)));
+	deffonts[CFONT_DLG] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest));
 	sprintf(buf, "font_%s_%s", pref, "title");
-	deffonts[CFONT_TITLE] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont,font_lfont)));
+	deffonts[CFONT_TITLE] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest));
 	sprintf(buf, "font_%s_%s", pref, "favcmd");
-	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_pfont,font_pfont,font_pfont)));
+	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_pfont, App::zquest));
 	sprintf(buf, "font_%s_%s", pref, "gui");
-	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_nfont,font_nfont,font_nfont)));
+	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_nfont, App::zquest));
 	sprintf(buf, "font_%s_%s", pref, "textbox");
-	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_sfont3,font_sfont2,font_sfont3)));
+	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_sfont3, App::zquest));
 	sprintf(buf, "font_%s_%s", pref, "ttip");
-	deffonts[CFONT_TTIP] = get_zc_font(zc_get_config("ZQ_GUI", buf, pickfont(font_lfont,font_lfont,font_lfont)));
+	deffonts[CFONT_TTIP] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest));
+	sprintf(buf, "font_%s_%s", pref, "info");
+	deffonts[CFONT_INFO] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest));
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
@@ -378,7 +368,7 @@ void init_custom_fonts()
 			customfonts[q] = nullptr;
 		}
 	}
-	if(zc_get_config("gui","custom_fonts",1))
+	if(zc_get_config("gui","custom_fonts",1, App::zquest))
 	{
 		customfonts[CFONT_DLG] = load_cfont("dialog");
 		customfonts[CFONT_TITLE] = load_cfont("title");
@@ -386,6 +376,7 @@ void init_custom_fonts()
 		customfonts[CFONT_GUI] = load_cfont("gui");
 		customfonts[CFONT_TEXTBOX] = load_cfont("textbox");
 		customfonts[CFONT_TTIP] = load_cfont("ttip");
+		customfonts[CFONT_INFO] = load_cfont("info");
 	}
 }
 
@@ -393,7 +384,7 @@ FONT* get_custom_font(int cfont)
 {
 	if(unsigned(cfont) >= CFONT_MAX)
 		return lfont_l;
-	if(zc_get_config("gui","custom_fonts",1) && customfonts[cfont])
+	if(zc_get_config("gui","custom_fonts",1,App::zquest) && customfonts[cfont])
 		return customfonts[cfont];
 	return deffonts[cfont];
 }

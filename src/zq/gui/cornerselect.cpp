@@ -82,7 +82,7 @@ namespace GUI
 CornerSwatch::CornerSwatch(): val(0),
 	alDialog(), message(-1)
 {
-	Size s = sized(16_px,32_px)+4_px;
+	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 	bgColor = vc(7);
@@ -146,7 +146,7 @@ void CornerSwatch::realize(DialogRunner& runner)
 
 void CornerSwatch::calculateSize()
 {
-	Size s = sized(16_px,32_px)+4_px;
+	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
 	Widget::calculateSize();

@@ -30,7 +30,7 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	
-	sgrid = GUI::Internal::makeRows(sized(2,4));
+	sgrid = GUI::Internal::makeRows(4);
 	
 	window = Window(
 		title = "Vector Editor",
@@ -45,11 +45,11 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 				Button(
 					focused = true,
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)
@@ -168,7 +168,7 @@ std::shared_ptr<GUI::Widget> VectorPickDialog::view()
 	}
 	wingrid->add(ScrollingPane(
 		ptr = &scroll_pos1,
-		targHeight = sized(150_px,300_px),
+		targHeight = 300_px,
 		sgrid));
 	return window;
 }

@@ -62,9 +62,9 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 				       "based on the mechanics that you wish to use in your game."
 			),
 			Row(
-				hPadding = 5_spx,
+				hPadding = 8_px,
 				this->rulesetChoice = RadioSet(
-					hPadding = 4_spx,
+					hPadding = 6_px,
 					set = 0,
 					onToggle = message::RULESET,
 					checked = rulesetModern,
@@ -75,7 +75,7 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 					framed = true,
 					maxLines = 4,
 					margins = 0_px,
-					padding = 6_spx,
+					padding = 9_px,
 					text = rulesetsList.findInfo(rulesetModern)
 				)
 			),
@@ -92,11 +92,11 @@ std::shared_ptr<GUI::Widget> PickRulesetDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

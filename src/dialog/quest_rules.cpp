@@ -12,7 +12,6 @@
 #include "base/gui.h"
 #include "gui/use_size.h"
 #include "zq_files.h"
-using GUI::sized;
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -1656,12 +1655,12 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 			Column(
 				QRPanel(
 					ptr = (size_t*)&scroll_pos1,
-					padding = 2_spx,
+					padding = 3_px,
 					onToggle = message::TOGGLE_QR,
 					initializer = local_qrs,
 					count = 0, //scrollpane
-					scrollWidth = sized(300_px, 675_px),
-					scrollHeight = sized(160_px, 500_px),
+					scrollWidth = 675_px,
+					scrollHeight = 500_px,
 					data = tosearch.filter(
 						[&](GUI::ListItem& itm)
 						{
@@ -1681,7 +1680,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 				),
 				Row(padding = 0_px,
 					Button(
-						text = "C", height = 24_lpx,
+						text = "C", height = 24_px,
 						rightPadding = 0_px,
 						onClick = message::RERUN,
 						onPressFunc = [&]()
@@ -1724,11 +1723,11 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					),
 					Button(
 						text = "OK",
-						minwidth = sized(30_px,90_px),
+						minwidth = 90_px,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
-						minwidth = sized(30_px,90_px),
+						minwidth = 90_px,
 						onClick = message::CANCEL)
 				)
 			)
@@ -1741,7 +1740,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 			onClose = message::CANCEL,
 			Column(
 				TabPanel(
-					maxwidth = sized(308_px, 800_px),
+					maxwidth = 800_px,
 					TabRef(
 						name = "Options",
 						Column(
@@ -1808,7 +1807,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Anim",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1818,7 +1817,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Combo",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1828,7 +1827,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Compat",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1838,7 +1837,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Enemy",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1848,7 +1847,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Item",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1858,7 +1857,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Misc",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1868,7 +1867,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "NESFix",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1878,7 +1877,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Player",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1888,7 +1887,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					TabRef(
 						name = "Weapon",
 						QRPanel(
-							padding = 2_spx,
+							padding = 3_px,
 							onToggle = message::TOGGLE_QR,
 							initializer = local_qrs,
 							count = qrs_per_tab,
@@ -1902,11 +1901,11 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					spacing = 2_em,
 					Button(
 						text = "OK",
-						minwidth = 90_lpx,
+						minwidth = 90_px,
 						onClick = message::OK),
 					Button(
 						text = "Cancel",
-						minwidth = 90_lpx,
+						minwidth = 90_px,
 						onClick = message::CANCEL)
 				)
 			)

@@ -80,20 +80,10 @@ void Window::calculateSize()
 	{
 		// Sized to content plus a bit of padding and space for the title bar.
 		content->calculateSize();
-		if(is_large)
-		{
-			setPreferredWidth(Size::pixels(max(
-				content->getTotalWidth()+8,
-				text_length(lfont, title.c_str())+40)));
-			setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
-		}
-		else
-		{
-			setPreferredWidth(Size::pixels(max(
-				content->getTotalWidth()+12,
-				text_length(lfont, title.c_str())+50)));
-			setPreferredHeight(Size::pixels(content->getTotalHeight()+26));
-		}
+		setPreferredWidth(Size::pixels(max(
+			content->getTotalWidth()+8,
+			text_length(lfont, title.c_str())+40)));
+		setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
 	}
 	else
 	{
@@ -109,12 +99,7 @@ void Window::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	// For now, at least, we're assuming everything will fit...
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
-	{
-		if(is_large)
-			content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
-		else
-			content->arrange(x+4, y+24, getWidth()-8, getHeight()-26);
-	}
+		content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
 }
 
 void Window::realize(DialogRunner& runner)

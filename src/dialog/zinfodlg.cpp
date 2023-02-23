@@ -121,7 +121,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					helplbl[LBL_IC_HELP] = Label(noHLine = true,
 						colSpan = 3, forceFitW = true,
 						framed = true, height = 6_em,
-						vPadding = 4_spx, textAlign = 1
+						vPadding = 6_px, textAlign = 1
 					),
 					Row(
 						padding = 0_px,
@@ -129,7 +129,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						Label(text = "Reset all itemclass..."),
 						Button(
 							text = "Names",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -147,7 +147,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							}),
 						Button(
 							text = "Help Text",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -228,7 +228,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					helplbl[LBL_CT_HELP] = Label(noHLine = true,
 						colSpan = 3, forceFitW = true,
 						framed = true, height = 6_em,
-						vPadding = 4_spx, textAlign = 1
+						vPadding = 6_px, textAlign = 1
 					),
 					Row(
 						padding = 0_px,
@@ -236,7 +236,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						Label(text = "Reset all combo type..."),
 						Button(
 							text = "Names",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -254,7 +254,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							}),
 						Button(
 							text = "Help Text",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -335,7 +335,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 					helplbl[LBL_MF_HELP] = Label(noHLine = true,
 						colSpan = 3, forceFitW = true,
 						framed = true, height = 6_em,
-						vPadding = 4_spx, textAlign = 1
+						vPadding = 6_px, textAlign = 1
 					),
 					Row(
 						padding = 0_px,
@@ -343,7 +343,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						Label(text = "Reset all mapflag..."),
 						Button(
 							text = "Names",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -361,7 +361,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 							}),
 						Button(
 							text = "Help Text",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -419,7 +419,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						Label(text = "Reset all weapon..."),
 						Button(
 							text = "Names",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -476,7 +476,7 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 						Label(text = "Reset all counter..."),
 						Button(
 							text = "Names",
-							minwidth = 40_lpx,
+							minwidth = 40_px,
 							onPressFunc = [&]()
 							{
 								AlertDialog("Are you sure?",
@@ -505,11 +505,11 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 				),
 				Button(
 					text = "Save ZInfo",
-					minwidth = 40_lpx,
+					minwidth = 40_px,
 					onClick = message::SAVE),
 				Button(
 					text = "Load ZInfo",
-					minwidth = 40_lpx,
+					minwidth = 40_px,
 					onClick = message::LOAD)
 			),
 			Row(
@@ -518,11 +518,11 @@ std::shared_ptr<GUI::Widget> ZInfoDialog::view()
 				spacing = 2_em,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)

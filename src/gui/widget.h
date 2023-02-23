@@ -15,8 +15,8 @@
 FONT* get_gui_def_font();
 #define GUI_DEF_FONT get_gui_def_font()
 
-#define DEFAULT_PADDING       sized(1_px,3_px)
-#define DEFAULT_PADDING_INT   sized(1,3)
+#define DEFAULT_PADDING       3_px
+#define DEFAULT_PADDING_INT   3
 namespace GUI
 {
 
@@ -146,11 +146,7 @@ public:
 	 * This doesn't need to be implemented if they're set already
 	 * before the dialog is realized.
 	 */
-	virtual void calculateSize()
-	{
-		setPreferredWidth(Size::pixels(width));
-		setPreferredHeight(Size::pixels(height));
-	}
+	virtual void calculateSize();
 
 	/* Size and position the widget within the available space.
 	 * This is very quick and dirty; all of the sizing and positioning stuff
@@ -262,6 +258,9 @@ public:
 	/* If this is true, a frame proc will be generated around this widget
 	 */
 	void setFramed(bool framed) noexcept;
+	
+	//If true, the widget will have no padding/margin
+	void setNoPad(bool nopad) noexcept;
 
 	/* Returns true if this widget should be disabled initially. */
 	inline bool getFramed() const noexcept
@@ -378,16 +377,17 @@ protected:
 private:
 	enum
 	{
-		f_WIDTH_OVERRIDDEN =  0b0000000001,
-		f_HEIGHT_OVERRIDDEN = 0b0000000010,
-		f_INVISIBLE =         0b0000000100,
-		f_FOCUSED =           0b0000001000,
-		f_DISABLED =          0b0000010000,
-		f_FRAMED =            0b0000100000,
-		f_FIT_PARENT =        0b0001000000,
-		f_FORCE_FIT_W =       0b0010000000,
-		f_FORCE_FIT_H =       0b0100000000,
-		f_READ_ONLY =         0b1000000000
+		f_WIDTH_OVERRIDDEN =  0b00000000001,
+		f_HEIGHT_OVERRIDDEN = 0b00000000010,
+		f_INVISIBLE =         0b00000000100,
+		f_FOCUSED =           0b00000001000,
+		f_DISABLED =          0b00000010000,
+		f_FRAMED =            0b00000100000,
+		f_FIT_PARENT =        0b00001000000,
+		f_FORCE_FIT_W =       0b00010000000,
+		f_FORCE_FIT_H =       0b00100000000,
+		f_READ_ONLY =         0b01000000000,
+		f_NO_PAD =            0b10000000000
 	};
 
 	int32_t width, height, maxwidth, maxheight, minwidth, minheight;

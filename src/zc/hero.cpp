@@ -73,7 +73,7 @@ extern bool active_subscreen_waitdraw;
 
 int32_t hero_count = -1;
 int32_t hero_animation_speed = 1; //lower is faster animation
-int32_t z3step = 2;
+static int32_t z3step = 2;
 static zfix hero_newstep(1.5);
 static zfix hero_newstep_diag(1.5);
 bool did_scripta=false;
@@ -1567,6 +1567,9 @@ void HeroClass::init()
 						//are properly set by the engine.
 	}
 	FFCore.nostepforward = 0;
+
+	if (!replay_is_active() || replay_get_version() >= 12)
+		z3step = 2;
 }
 
 void HeroClass::draw_under(BITMAP* dest)

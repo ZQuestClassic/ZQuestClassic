@@ -79,47 +79,16 @@ std::shared_ptr<GUI::Widget> VidModeDialog::view()
 			Row(
 				Button(
 					text = "&OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK,
 					focused = true),
 				Button(
 					text = "&Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			)
 		)
 	);
-	if(!is_large)
-	{
-		resbtn_grid->add(Button(text = "3x", onPressFunc = [&]()
-		{
-			resx = int32_t(zq_screen_w*3);
-			resy = int32_t(zq_screen_h*3);
-			rx->setVal(resx);
-			ry->setVal(resy);
-		}));
-		resbtn_grid->add(Button(text = "3.5x", onPressFunc = [&]()
-		{
-			resx = int32_t(zq_screen_w*3.5);
-			resy = int32_t(zq_screen_h*3.5);
-			rx->setVal(resx);
-			ry->setVal(resy);
-		}));
-		resbtn_grid->add(Button(text = "4x", onPressFunc = [&]()
-		{
-			resx = int32_t(zq_screen_w*4);
-			resy = int32_t(zq_screen_h*4);
-			rx->setVal(resx);
-			ry->setVal(resy);
-		}));
-		resbtn_grid->add(Button(text = "4.5x", onPressFunc = [&]()
-		{
-			resx = int32_t(zq_screen_w*4.5);
-			resy = int32_t(zq_screen_h*4.5);
-			rx->setVal(resx);
-			ry->setVal(resy);
-		}));
-	}
 	resx = rx->getVal();
 	resy = ry->getVal();
 	return window;

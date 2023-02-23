@@ -18,7 +18,7 @@ void setPitDamage(int32_t flags, int32_t lowpal, int32_t highpal, int32_t damage
 Checkbox \
 ( \
 	text = str, \
-	leftPadding = 20_spx, \
+	leftPadding = 30_px, \
 	hAlign = 0.0, \
 	checked = Type_Checked & (1<<index), \
 	onToggleFunc = [&](bool state) \
@@ -68,11 +68,11 @@ std::shared_ptr<GUI::Widget> PitConvertDialog::view()
 				colSpan = 2,
 				Button(
 					text = "OK",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::OK),
 				Button(
 					text = "Cancel",
-					minwidth = 90_lpx,
+					minwidth = 90_px,
 					onClick = message::CANCEL)
 			),
 			Rows<2>

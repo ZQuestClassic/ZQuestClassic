@@ -121,8 +121,8 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 #define HSL_FLAGS_CS		(HSL_FLAG_COLOR|HSL_FLAG_SATURATION)
 	ASSERT(d);
 	//d->w and d->h are ignored
-	d->w = (is_large?1.5:1)*174;
-	d->h = (is_large?1.5:1)*88;
+	d->w = 1.5*174;
+	d->h = 1.5*88;
 	int32_t ret = D_O_K;
 	static int32_t hue_x_offs = 24, hue_y_offs = 2, light_x_offs = 2, light_y_offs = 24,
 		sat_x_offs = 158, sat_y_offs = 24, c_x_offs = 24, c_y_offs = 24, c_wid = 128, c_hei = 64, misc_wh = 16;
@@ -131,7 +131,7 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 		ret |= D_REDRAWME;
 		d->flags &= ~D_DIRTY;
 	}
-	if(is_large && c_hei == 64)
+	if(c_hei == 64)
 	{
 		hue_x_offs *= 1.5;
 		hue_y_offs *= 1.5;
@@ -196,35 +196,32 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			//Fallthrough
 		case MSG_DRAW:
-			if(is_large)
-			{
-				clr /= 1.5;
-				gr /= 1.5;
-				rat /= 1.5;
-			}
+			clr /= 1.5;
+			gr /= 1.5;
+			rat /= 1.5;
 			custom_vsync();
 			scare_mouse();
 			//Hue
-			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int32_t(128*(is_large?1.5:1)+4), misc_wh+4, FR_DEEP);
+			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int32_t(128*1.5+4), misc_wh+4, FR_DEEP);
 			for(int32_t i=0; i<128; i++)
 			{
-				rectfill(screen,int32_t(floor(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs,int32_t(ceil(i*(is_large?1.5:1))+d->x+hue_x_offs),d->y+hue_y_offs+misc_wh-1,i);
+				rectfill(screen,int32_t(floor(i*(1.5))+d->x+hue_x_offs),d->y+hue_y_offs,int32_t(ceil(i*(1.5))+d->x+hue_x_offs),d->y+hue_y_offs+misc_wh-1,i);
 			}
 			//Light
-			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, misc_wh+4, int32_t(64*(is_large?1.5:1)+4), FR_DEEP);
+			jwin_draw_frame(screen, d->x+light_x_offs-2, d->y+light_y_offs-2, misc_wh+4, int32_t(64*(1.5)+4), FR_DEEP);
 			for(int32_t i=0; i<32; i++)
 			{
-				rectfill(screen,d->x+light_x_offs,((int32_t)floor(i*(is_large?1.5:1))<<1)+d->y+light_y_offs,
-						 d->x+light_x_offs+misc_wh-1,((int32_t)ceil(i*(is_large?1.5:1))<<1)+d->y+light_y_offs+1,i+128);
+				rectfill(screen,d->x+light_x_offs,((int32_t)floor(i*(1.5))<<1)+d->y+light_y_offs,
+						 d->x+light_x_offs+misc_wh-1,((int32_t)ceil(i*(1.5))<<1)+d->y+light_y_offs+1,i+128);
 			}
 			//Saturation
-			jwin_draw_frame(screen, d->x + (sat_x_offs-2), d->y + (sat_y_offs-2), misc_wh+4, int32_t(64*(is_large?1.5:1)+4), FR_DEEP);
+			jwin_draw_frame(screen, d->x + (sat_x_offs-2), d->y + (sat_y_offs-2), misc_wh+4, int32_t(64*(1.5)+4), FR_DEEP);
 			for(int32_t i=0; i<32; i++)
 			{
 				RAMpal[i+160] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],
 									   gfx_pal[clr*3+2],gr,gr,gr,i<<1); //saturatn
-				rectfill(screen,d->x + sat_x_offs,((int32_t)floor(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs,
-						 d->x+sat_x_offs+misc_wh-1,((int32_t)ceil(i*(is_large?1.5:1))<<1)+d->y+sat_y_offs+1,i+160);
+				rectfill(screen,d->x + sat_x_offs,((int32_t)floor(i*(1.5))<<1)+d->y+sat_y_offs,
+						 d->x+sat_x_offs+misc_wh-1,((int32_t)ceil(i*1.5)<<1)+d->y+sat_y_offs+1,i+160);
 			}
 			RAMpal[edc] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],gfx_pal[clr*3+2],gr,gr,gr,rat);
 			RAMpal[edi] = invRGB(RAMpal[edc]);
@@ -237,8 +234,8 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			_allegro_vline(screen,color+d->x+c_x_offs,d->y+c_y_offs,d->y+c_y_offs+c_hei-1,edi);
 			_allegro_hline(screen,d->x+sat_x_offs,ratio+d->y+sat_y_offs,d->x+sat_x_offs+misc_wh-1,edi);
 			if((edit_cset_dlg[19].flags & D_SELECTED))
-				textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
-			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
+				textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
+			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
 			unscare_mouse();
 			SCRFIX();
 			break;
@@ -275,7 +272,7 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 		jumpText(r,g,b);
 		ret |= D_REDRAW | D_REDRAWME;
 	}
-	if(is_large && cs_hei == 8)
+	if(cs_hei == 8)
 	{
 		cs_hei *= 1.5;
 		d->h = cs_hei * 3;
@@ -292,7 +289,7 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 			break;
 		case MSG_LPRESS:
 		{
-			int32_t new_index=vbound((int32_t)((x-d->x)/(is_large?1.5:1))>>3,0,15);
+			int32_t new_index=vbound((int32_t)((x-d->x)/(1.5))>>3,0,15);
 			if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1))
 				d->d1 = new_index;
 			break;
@@ -307,7 +304,7 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 		case MSG_IDLE:
 			if(gui_mouse_b()==1)
 			{
-				int32_t new_index=vbound((int32_t)((x-d->x)/(is_large?1.5:1))>>3,0,15);
+				int32_t new_index=vbound((int32_t)((x-d->x)/(1.5))>>3,0,15);
                 
                 if(color_index!=new_index && (d->d1 > -1 || isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1)))
                 {
@@ -341,33 +338,33 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, cs_hei+4, FR_DEEP);
 			for(int32_t i=0; i<16; ++i)
 			{
-				rectfill(screen,int32_t((i<<3)*(is_large?1.5:1)+d->x),d->y,int32_t((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1,12*16+i);
+				rectfill(screen,int32_t((i<<3)*(1.5)+d->x),d->y,int32_t((i<<3)*(1.5)+d->x+cs_hei-1),d->y+cs_hei-1,12*16+i);
 			}
 			// New colors
 			jwin_draw_frame(screen, d->x-2, d->y-2+(cs_hei*2), d->w+4, cs_hei+4, FR_DEEP);
 			for(int32_t i=0; i<16; ++i)
 			{
-				rectfill(screen,int32_t((i<<3)*(is_large?1.5:1)+d->x),d->y+(cs_hei*2),int32_t((i<<3)*(is_large?1.5:1)+d->x+cs_hei-1),d->y+cs_hei-1+(cs_hei*2),14*16+i);
+				rectfill(screen,int32_t((i<<3)*(1.5)+d->x),d->y+(cs_hei*2),int32_t((i<<3)*(1.5)+d->x+cs_hei-1),d->y+cs_hei-1+(cs_hei*2),14*16+i);
 			}
 			//Text
-			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int32_t(d->y + d->h + (32*(is_large?1.5:1))),jwin_pal[jcBOX]);
+			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int32_t(d->y + d->h + (32*1.5)),jwin_pal[jcBOX]);
 			
 			if(color_copy>=0)
 			{
-				textout_ex(screen,(is_large?lfont_l:font),"\x81",int32_t((color_copy<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+				textout_ex(screen,(lfont_l),"\x81",int32_t((color_copy<<3)*(1.5)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			}
 			
-			textout_ex(screen,(is_large?lfont_l:font),"\x88",int32_t((color_index<<3)*(is_large?1.5:1)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			textout_ex(screen,(lfont_l),"\x88",int32_t((color_index<<3)*(1.5)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 			{
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(12*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(22*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
 			}
 			else
 			{
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(12*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
-				textprintf_centre_ex(screen,(is_large?lfont_l:font),d->x + d->w/2,d->y + d->h + int32_t(22*(is_large?1.5:1)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(12*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(22*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
 			}
 			break;
 	}
@@ -677,17 +674,14 @@ bool edit_dataset(int32_t dataset)
 	PALETTE holdpal;
 	memcpy(holdpal,RAMpal,sizeof(RAMpal));
 	
-	if(is_large)
-	{
-		rectfill(screen, 0, 0, screen->w, screen->h, 128);
-		large_dialog(edit_cset_dlg);
-	}
+	rectfill(screen, 0, 0, screen->w, screen->h, 128);
+	large_dialog(edit_cset_dlg);
 	
 	load_cset(RAMpal,12,dataset);
 	load_cset(RAMpal,14,dataset);
 	set_palette_range(RAMpal,0,255,false);
 	FONT* old = font;
-	font = is_large?lfont_l:nfont;
+	font = lfont_l;
 	
 	init_gfxpal();
 	char bufr[4] = "0", bufg[4] = "0", bufb[4] = "0";
@@ -736,26 +730,17 @@ int32_t pal_index(RGB *pal,RGB c)
 bool grab_dataset(int32_t dataset)
 {
     int32_t row=0;
-    static int32_t palx=176;
-    static int32_t paly=64;
-    int32_t imagex=0;
-    int32_t imagey=0;
-    int32_t buttonx=184;
-    int32_t buttony=195;
-    int32_t filenamex=0;
-    int32_t filenamey=232;
+    static int32_t palx=665;
+    static int32_t paly=354;
+    int32_t imagex=4;
+    int32_t imagey=4;
+    int32_t buttonx=570;
+    int32_t buttony=521;
+    int32_t filenamex=4;
+    int32_t filenamey=583;
     
-    if(is_large)
-    {
-        palx=665;
-        paly=354;
-        imagex=4;
-        imagey=4;
-        buttonx=570;
-        buttony=521;
-        filenamex=4;
-        filenamey=583;
-    }
+	palx=665;
+	paly=354;
     
     PALETTE tmp;
     
@@ -810,8 +795,7 @@ bool grab_dataset(int32_t dataset)
     int32_t f=0;
     FONT *fnt = font;
     
-    if(is_large)
-        font = lfont_l;
+    font = lfont_l;
         
     do
     {
@@ -839,22 +823,19 @@ bool grab_dataset(int32_t dataset)
         {
             redraw=false;
             scare_mouse();
-            clear_to_color(screen2,is_large?jwin_pal[jcBOX]:pblack);
+            clear_to_color(screen2,jwin_pal[jcBOX]);
             
-            if(is_large)
-            {
-                jwin_draw_frame(screen2,imagex-2,imagey-2,658,551,FR_DEEP);
-                rectfill(screen2, imagex, imagey, imagex+654-1, imagey+547-1, jwin_pal[jcBOXFG]);
-                jwin_draw_frame(screen2,palx-3,paly-3,134,134,FR_DEEP);
-            }
+			jwin_draw_frame(screen2,imagex-2,imagey-2,658,551,FR_DEEP);
+			rectfill(screen2, imagex, imagey, imagex+654-1, imagey+547-1, jwin_pal[jcBOXFG]);
+			jwin_draw_frame(screen2,palx-3,paly-3,134,134,FR_DEEP);
             
             blit(pic,screen2,0,0,imagex,imagey,pic->w,pic->h);
-            textout_ex(screen2,is_large?lfont_l:font,fname,filenamex,filenamey,is_large?jwin_pal[jcBOXFG]:pwhite,is_large?jwin_pal[jcBOX]:pblack);
-            draw_text_button(screen2,buttonx,buttony+(is_large?36:24),(is_large?90:60),(is_large?31:21),"File",pblack,pwhite,0,true);
-            draw_text_button(screen2,buttonx+(is_large?114:76),buttony,
-                             (is_large?90:60),(is_large?31:21),"OK",pblack,pwhite,0,true);
-            draw_text_button(screen2,buttonx+(is_large?114:76),buttony+(is_large?36:24),
-                             (is_large?90:60),(is_large?31:21),"Cancel",pblack,pwhite,0,true);
+            textout_ex(screen2,lfont_l,fname,filenamex,filenamey,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+            draw_text_button(screen2,buttonx,buttony+(36),(90),(31),"File",pblack,pwhite,0,true);
+            draw_text_button(screen2,buttonx+(114),buttony,
+                             (90),(31),"OK",pblack,pwhite,0,true);
+            draw_text_button(screen2,buttonx+(114),buttony+(36),
+                             (90),(31),"Cancel",pblack,pwhite,0,true);
             unscare_mouse();
         }
         
@@ -863,25 +844,25 @@ bool grab_dataset(int32_t dataset)
             row=((y-paly)>>3);
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+(is_large?36:24),buttonx+(is_large?90:60),buttony+(is_large?36+31:24+21)))
+        if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+(36),buttonx+(90),buttony+(36+31)))
         {
-            if(do_text_button(buttonx,buttony+(is_large?36:24),(is_large?90:60),(is_large?31:21),"File",pblack,pwhite,true))
+            if(do_text_button(buttonx,buttony+(36),(90),(31),"File",pblack,pwhite,true))
             {
                 reload=true;
             }
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(is_large?114:76),buttony,buttonx+(is_large?114+90:76+60),buttony+(is_large?31:21)))
+        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(114),buttony,buttonx+(114+90),buttony+(31)))
         {
-            if(do_text_button(buttonx+(is_large?114:76),buttony,(is_large?90:60),(is_large?31:21),"OK",pblack,pwhite,true))
+            if(do_text_button(buttonx+(114),buttony,(90),(31),"OK",pblack,pwhite,true))
             {
                 done=2;
             }
         }
         
-        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(is_large?114:76),buttony+(is_large?36:24),buttonx+(is_large?114+90:76+60),buttony+(is_large?36+31:24+21)))
+        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(114),buttony+(36),buttonx+(114+90),buttony+(36+31)))
         {
-            if(do_text_button(buttonx+(is_large?114:76),buttony+(is_large?36:24),(is_large?90:60),(is_large?31:21),"Cancel",pblack,pwhite,true))
+            if(do_text_button(buttonx+(114),buttony+(36),(90),(31),"Cancel",pblack,pwhite,true))
             {
                 done=1;
             }
@@ -913,12 +894,6 @@ bool grab_dataset(int32_t dataset)
                 
             case KEY_LEFT:
             case KEY_RIGHT:
-                if(!is_large)
-                {
-                    palx = 192-palx;
-                    redraw=true;
-                }
-                
                 break;
                 
             case KEY_TAB:
@@ -952,7 +927,7 @@ bool grab_dataset(int32_t dataset)
         }
         
         ++f;
-        rect(screen2,palx-1,paly-1,palx+128,paly+128,is_large?pblack:pwhite);
+        rect(screen2,palx-1,paly-1,palx+128,paly+128,pblack);
         rect(screen2,palx-1,(row<<3)+paly-1,palx+128,(row<<3)+paly+8,(f&2)?pwhite:pblack);
         blit(screen2, screen, 0, 0, 0, 0, screen->w, screen->h);
         unscare_mouse();
@@ -1092,8 +1067,7 @@ void edit_cycles(int32_t level)
     for(int32_t i=0; i<15; i++)
         cycle_dlg[i+10].dp = buf[i];
         
-    if(is_large)
-        large_dialog(cycle_dlg);
+    large_dialog(cycle_dlg);
         
     if(zc_popup_dialog(cycle_dlg,3)==2)
     {
@@ -1123,7 +1097,7 @@ void draw_cset_proc(DIALOG *d)
     //  text_mode(d->bg);
     
     //  rect(screen,d->x,(d1<<3)+d->y,d->x+d->w-1,(d2<<3)+d->y+7,FLASH);
-    rect(screen,d->x,int32_t((d1<<3)*(is_large?1.5:1)+d->y),d->x+d->w-1,int32_t((d2<<3)*(is_large?1.5:1)+d->y+(is_large?11:7)),dvc(0)); //highlights currently selected cset
+    rect(screen,d->x,int32_t((d1<<3)*(1.5)+d->y),d->x+d->w-1,int32_t((d2<<3)*(1.5)+d->y+(11)),dvc(0)); //highlights currently selected cset
     int32_t drc;
     
     if((d->flags & D_GOTFOCUS))
@@ -1165,8 +1139,8 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 				{
 					dragging=true;
-					src=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
-						vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+					src=vbound((int32_t)((y-d->y) / (1.5))>>3,0,15) * 16 +
+						vbound((int32_t)((x-d->x) / (1.5))>>3,0,15);
 				}
 			}
 			
@@ -1177,7 +1151,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				
 				if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 				{
-					d->d2 = vbound((int32_t)((y-d->y)/(is_large?1.5:1))>>3,0,15);
+					d->d2 = vbound((int32_t)((y-d->y)/(1.5))>>3,0,15);
 					
 					if(!(key_shifts&KB_SHIFT_FLAG))
 						d->d1 = d->d2;
@@ -1197,8 +1171,8 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 			
 			if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 			{
-				int32_t dest=vbound((int32_t)((y-d->y) / (is_large?1.5:1))>>3,0,15) * 16 +
-						 vbound((int32_t)((x-d->x) / (is_large?1.5:1))>>3,0,15);
+				int32_t dest=vbound((int32_t)((y-d->y) / (1.5))>>3,0,15) * 16 +
+						 vbound((int32_t)((x-d->x) / (1.5))>>3,0,15);
 						 
 				if(src!=dest)
 				{
@@ -1243,7 +1217,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 					break;
 					
 				case KEY_DOWN:
-					if(d->d2<((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1)
+					if(d->d2<((int32_t)ceil((d->h)/(1.5))>>3)-1)
 						++d->d2;
 						
 					if(!shift) d->d1 = d->d2;
@@ -1258,7 +1232,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 					break;
 					
 				case KEY_PGDN:
-					d->d2=((int32_t)ceil((d->h)/(is_large?1.5:1))>>3)-1;
+					d->d2=((int32_t)ceil((d->h)/(1.5))>>3)-1;
 					
 					if(!shift) d->d1 = d->d2;
 					
@@ -1412,20 +1386,20 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     
     if(colors_dlg[0].d1)
     {
-        bw = (is_large?192:128);
-        bh = count*(is_large?12:8);
+        bw = (192);
+        bh = count*(12);
     }
     
-    BITMAP *bmp = create_bitmap_ex(8,(is_large?192:128),count*(is_large?12:8));
+    BITMAP *bmp = create_bitmap_ex(8,(192),count*(12));
     
     if(!bmp)
         return 0;
         
     for(int32_t i=0; i<16*count; i++)
     {
-        int32_t x=int32_t(((i&15)<<3)*(is_large?1.5:1));
-        int32_t y=int32_t(((i>>4)<<3)*(is_large?1.5:1));
-        rectfill(bmp,x,y,x+(is_large ? 15:7),y+(is_large ? 15:7),i);
+        int32_t x=int32_t(((i&15)<<3)*(1.5));
+        int32_t y=int32_t(((i>>4)<<3)*(1.5));
+        rectfill(bmp,x,y,x+(15),y+(15),i);
     }
     
     colors_dlg[2].dp = bmp;
@@ -1464,7 +1438,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
         }
         
         colors_dlg[3+i].dp=buf[i];
-        colors_dlg[3+i].y=colors_dlg[0].y+int32_t(((i<<3)+36-(is_large?3:0))*((is_large && colors_dlg[0].d1)?1.5:1));
+        colors_dlg[3+i].y=colors_dlg[0].y+int32_t(((i<<3)+36-(3))*((colors_dlg[0].d1)?1.5:1));
         //sniggles
         //    colors_dlg[3+i].fg=rc[label[i+count]];
     }
@@ -1498,16 +1472,13 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
             colors_dlg[20].flags =
                 colors_dlg[23].flags = D_EXIT;
                 
-        if(is_large)
-        {
-            if(!colors_dlg[0].d1)
-            {
-                colors_dlg[2].x  += 0;
-                colors_dlg[2].y  -= 1;
-            }
-            
-            large_dialog(colors_dlg);
-        }
+		if(!colors_dlg[0].d1)
+		{
+			colors_dlg[2].x  += 0;
+			colors_dlg[2].y  -= 1;
+		}
+		
+		large_dialog(colors_dlg);
         
         DIALOG_PLAYER *p = init_dialog(colors_dlg,2);
         bool enable = true;
