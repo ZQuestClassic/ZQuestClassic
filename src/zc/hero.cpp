@@ -14112,10 +14112,16 @@ void HeroClass::movehero()
 					{
 						do
 						{
-							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
+							zfix ty = y - hero_newstep;
+							info = walkflag(x,(bigHitbox?0:8) + ty,2,up);
 							
-							info = info || walkflag(x+15,(bigHitbox?0:8)+(y-hero_newstep),1,up);
-							info = info || walkflagMBlock(x+15, (bigHitbox?0:8)+(y-hero_newstep));
+							info = info || walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+							if (ty < 0 && !bigHitbox) //sanity check for up scroll
+							{
+								info = info || walkflag(x, zfix(0), 2, up);
+								info = info || walkflag(x+15, zfix(0), 1, up);
+							}
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
 							execute(info);
 							
@@ -23909,12 +23915,16 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
 {
     int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
-    if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
-        y-=16;
         
-    dir=down;
     // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
+    climb_cover_x=x.getInt()&0xF0;
+    climb_cover_y=y.getInt()&0xF0;
+	
+    if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
+        y -= 16;
+	
+    dir=down;
     z=fakez=fall=fakefall=0;
     
     if(opening)
@@ -23926,13 +23936,10 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=x.getInt()&0xF0;
-    climb_cover_y=y.getInt()&0xF0;
     
     guys.clear();
     chainlinks.clear();
@@ -23957,6 +23964,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
             break;
     }
     
+	
     action=none; FFCore.setHeroAction(none);
 }
 
