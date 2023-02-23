@@ -10632,13 +10632,15 @@ void domouse()
 			if(ind > -1)
 			{
 				int32_t c2=ind+First[j];
-				char msg[160];
-				if(combobuf[c2].flag != 0)
-					sprintf(msg, "Combo %d: %s\nInherent flag:%s", c2, combo_class_buf[combobuf[c2].type].name, flag_string[combobuf[c2].flag]);
-				else
-					sprintf(msg, "Combo %d: %s", c2, combo_class_buf[combobuf[c2].type].name);
+				std::ostringstream oss;
+				newcombo const& cmb = combobuf[c2];
+				oss << "Combo " << c2 << ": " << combo_class_buf[cmb.type].name;
+				if(cmb.flag != 0)
+					oss << "\nInherent flag: " << flag_string[cmb.flag];
+				if(cmb.label[0])
+					oss << "\nLabel: " << cmb.label;
 					
-				update_tooltip(x,y,sqr.subsquare(ind), msg);
+				update_tooltip(x,y,sqr.subsquare(ind), oss.str().c_str());
 			}
 		}
 	}
@@ -33776,7 +33778,7 @@ void FFScript::initIncludePaths()
 	for ( size_t q = 0; q < includePaths.size(); ++q )
 	{
 		al_trace("Include path %zu: ",q);
-		safe_al_trace(includePaths.at(q));
+		safe_al_trace(includePaths.at(q).c_str());
 		al_trace("\n");
 	}
 }
