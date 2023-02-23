@@ -9804,6 +9804,7 @@ bool HeroClass::animate(int32_t)
 		}
 		
 		action=none; FFCore.setHeroAction(none);
+		attackclk = 0;
 		stepforward(29, true);
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		pushing=false;
