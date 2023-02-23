@@ -7583,6 +7583,8 @@ int32_t getPushDir(int32_t flag)
 	return -1;
 }
 
+void post_item_collect();
+
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -9270,6 +9272,7 @@ bool HeroClass::animate(int32_t)
 				playLevelMusic();
 				
 			action=none; FFCore.setHeroAction(none);
+			post_item_collect();
 		}
 		else
 			freeze_guys=true;
@@ -9290,6 +9293,7 @@ bool HeroClass::animate(int32_t)
 				playLevelMusic();
 				
 			SetSwim();
+			post_item_collect();
 		}
 		else
 			freeze_guys=true;
@@ -27461,6 +27465,14 @@ void takeitem(int32_t id)
     }
 }
 
+void post_item_collect()
+{
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	
+	throwGenScriptEvent(GENSCR_EVENT_POST_COLLECT_ITEM);
+}
+
 // Attempt to pick up an item. (-1 = check items touching Hero.)
 void HeroClass::checkitems(int32_t index)
 {
@@ -27953,6 +27965,8 @@ void HeroClass::checkitems(int32_t index)
 			getBigTri(id2);
 		}
 	}
+	if(!holdclk)
+		post_item_collect();
 }
 
 void HeroClass::StartRefill(int32_t refillWhat)

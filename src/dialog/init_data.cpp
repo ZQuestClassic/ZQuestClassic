@@ -962,7 +962,16 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						{
 							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_HIT2),state);
 						}),
-					INFOBTN("When an enemy is hit, after applying defenses")
+					INFOBTN("When an enemy is hit, after applying defenses"),
+					//
+					Checkbox(hAlign = 0.0,
+						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_POST_COLLECT_ITEM),
+						text = "Post Collect Item",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_POST_COLLECT_ITEM),state);
+						}),
+					INFOBTN("After an item is collected (After the holdup animation completes, if held)")
 				),
 				Rows<3>(vAlign = 0.0,
 					Label(text = "Data Size:"),
