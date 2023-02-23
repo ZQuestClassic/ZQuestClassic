@@ -16695,7 +16695,8 @@ bool esMoldorm::animate(int32_t index)
 			y.doFloor();
 		}
 		
-		parentclk=(parentclk+1)%((int32_t)(8.0/step));
+		if(step)
+			parentclk=(parentclk+1)%((int32_t)(8.0/step));
 		
 		if(!watch)
 		{
