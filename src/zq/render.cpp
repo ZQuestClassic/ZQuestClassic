@@ -6,6 +6,7 @@ static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
 static RenderTreeItem rti_mmap;
 static RenderTreeItem rti_tooltip;
+static RenderTreeItem rti_dialogs;
 
 static int zc_gui_mouse_x()
 {
@@ -30,16 +31,24 @@ static void init_render_tree()
 		al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
+	
 	rti_mmap.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_mmap.a4_bitmap = nullptr;
+	
 	rti_tooltip.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
 	rti_tooltip.transparency_index = 0;
 	clear_bitmap(rti_tooltip.a4_bitmap);
-
+	
+	rti_dialogs.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_dialogs.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
+	rti_dialogs.transparency_index = 0;
+	clear_bitmap(rti_dialogs.a4_bitmap);
+	
 	rti_root.children.push_back(&rti_screen);
 	rti_root.children.push_back(&rti_mmap);
 	rti_root.children.push_back(&rti_tooltip);
+	rti_root.children.push_back(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -70,17 +79,22 @@ static void configure_render_tree()
 		rti_screen.transform.scale = scale;
 		rti_screen.visible = true;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
-		rti_screen.a4_bitmap = screen;
+		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 		
 		rti_mmap.transform.x = (resx - w*scale) / 2 / scale;
 		rti_mmap.transform.y = (resy - h*scale) / 2 / scale;
 		rti_mmap.transform.scale = scale;
-		rti_mmap.visible = !dialog_open();
+		rti_mmap.visible = true;
 		
 		rti_tooltip.transform.x = (resx - w*scale) / 2 / scale;
 		rti_tooltip.transform.y = (resy - h*scale) / 2 / scale;
 		rti_tooltip.transform.scale = scale;
-		rti_tooltip.visible = !dialog_open();
+		rti_tooltip.visible = zqdialog_tmp_bmps.empty();
+		
+		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
+		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
+		rti_dialogs.transform.scale = scale;
+		rti_dialogs.visible = true;
 	}
 }
 
@@ -96,13 +110,22 @@ BITMAP* get_tooltip_bmp()
 
 void render_zq()
 {
+	BITMAP* tmp = screen;
+	if(zqdialog_bg_bmp)
+		screen = zqdialog_bg_bmp;
+	
 	init_render_tree();
 	configure_render_tree();
-
+	
+	zqdialog_render(rti_dialogs.a4_bitmap);
+	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
+	
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
+	
+	screen = tmp;
 }
 

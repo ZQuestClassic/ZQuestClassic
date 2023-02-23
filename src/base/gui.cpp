@@ -61,7 +61,6 @@ void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c)
 /**********  GUI  ***********/
 /****************************/
 
-static int dlg_open_count = 0;
 // make it global so the joystick button routine can set joy_on=TRUE
 DIALOG_PLAYER *player = NULL;
 
@@ -194,28 +193,13 @@ int32_t update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *the_player)
 	return result;
 }
 
-// Renders the dialog to the screen bitmap.
-// If `zc_set_gui_bmp` has been called, renders to that bitmap instead.
 int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 {
-	BITMAP *mouse_screen = _mouse_screen;
-	BITMAP *prev_screen = screen;
-	int32_t screen_count = _gfx_mode_set_count;
 	DIALOG_PLAYER *player2;
 	ASSERT(dialog);
 	
-	if(!is_same_bitmap(_mouse_screen, screen) && !(gfx_capabilities&GFX_HW_CURSOR))
-	{
-		show_mouse(screen);
-	}
+	popup_zqdialog_start();
 	
-	if (saved_gui_bmp)
-	{
-		if (dialog_count <= 1)
-			clear_bitmap(saved_gui_bmp);
-		screen = saved_gui_bmp;
-	}
-	++dlg_open_count;
 	player2 = init_dialog(dialog, focus_obj);
 	
 	while(update_dialog(player2))
@@ -229,14 +213,8 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 		//rest(1);
 	}
 	
-	if (saved_gui_bmp)
-		screen = prev_screen;
+	popup_zqdialog_end();
 	
-	if(_gfx_mode_set_count == screen_count && !(gfx_capabilities&GFX_HW_CURSOR))
-	{
-		show_mouse(mouse_screen);
-	}
-	--dlg_open_count;
 	return shutdown_dialog(player2);
 }
 
@@ -256,7 +234,7 @@ int32_t popup_zqdialog(DIALOG *dialog, int32_t focus_obj)
 	ASSERT(dialog);
 	
 	bmp = create_bitmap_ex(8, dialog->w, dialog->h);
-	gui_bmp = saved_gui_bmp ? saved_gui_bmp : screen;
+	gui_bmp = screen;
 	
 	if(bmp)
 	{
@@ -289,7 +267,6 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	scare_mouse();
 	acquire_screen();
 	broadcast_dialog_message(dialog, MSG_START, 0);
-	popup_zqdialog_draw();
 	broadcast_dialog_message(dialog, MSG_DRAW, 0);
 	release_screen();
 	unscare_mouse();
@@ -298,18 +275,20 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	running=false;
 }
 
-static std::vector<BITMAP*> zqdialog_tmp_bmps;
+BITMAP* zqdialog_bg_bmp = nullptr;
+std::vector<BITMAP*> zqdialog_tmp_bmps;
 void popup_zqdialog_start()
 {
+	if(!zqdialog_bg_bmp)
+		zqdialog_bg_bmp = screen;
 	BITMAP* tmp_bmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	
 	if(tmp_bmp)
 	{
-		scare_mouse();
-		blit(screen, tmp_bmp, 0, 0, 0, 0, zq_screen_w, zq_screen_h);
-		unscare_mouse();
+		clear_bitmap(tmp_bmp);
+		show_mouse(tmp_bmp);
+		screen = tmp_bmp;
 		zqdialog_tmp_bmps.push_back(tmp_bmp);
-		++dlg_open_count;
 	}
 	else
 	{
@@ -317,36 +296,30 @@ void popup_zqdialog_start()
 	}
 }
 
-void popup_zqdialog_draw()
-{
-	if (zqdialog_tmp_bmps.size())
-	{
-		BITMAP* tmp_bmp = zqdialog_tmp_bmps.back();
-		scare_mouse();
-		blit(tmp_bmp, screen, 0, 0, 0, 0, zq_screen_w, zq_screen_h);
-		unscare_mouse();
-	}
-	position_mouse_z(0);
-}
-
 void popup_zqdialog_end()
 {
 	if (zqdialog_tmp_bmps.size())
 	{
-		BITMAP* tmp_bmp = zqdialog_tmp_bmps.back();
-		scare_mouse();
-		blit(tmp_bmp, screen, 0, 0, 0, 0, zq_screen_w, zq_screen_h);
-		unscare_mouse();
-		destroy_bitmap(tmp_bmp);
+		show_mouse(NULL);
+		destroy_bitmap(zqdialog_tmp_bmps.back());
 		zqdialog_tmp_bmps.pop_back();
-		--dlg_open_count;
+		if(zqdialog_tmp_bmps.size())
+			screen = zqdialog_tmp_bmps.back();
+		else
+		{
+			screen = zqdialog_bg_bmp;
+			zqdialog_bg_bmp = nullptr;
+		}
+		show_mouse(screen);
 	}
 	position_mouse_z(0);
 }
 
-bool dialog_open()
+void zqdialog_render(BITMAP* dest)
 {
-	return dlg_open_count > 0;
+	clear_bitmap(dest);
+	for(BITMAP* bmp : zqdialog_tmp_bmps)
+		masked_blit(bmp, dest, 0, 0, 0, 0, bmp->w, bmp->h);
 }
 
 /*** end of gui.cpp ***/

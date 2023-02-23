@@ -5686,6 +5686,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		case rSCRMAP:
 		{
 			//A5 bitmap stuff
+			ALLEGRO_STATE old_state;
+			al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+			
 			ALLEGRO_BITMAP* minimap_bmp = get_minimap_bmp();
 			al_set_target_bitmap(minimap_bmp);
 			al_clear_to_color(al_map_rgba(0, 0, 0, 0));
@@ -5782,6 +5785,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				masked_stretch_blit(txtbmp, menu1, 0, 0, 256, 64, txt_x, txt_y, 256*txtscale, 64*txtscale);
 				destroy_bitmap(txtbmp);
 			}
+			//A5 bitmap cleanup
+			al_restore_state(&old_state);
 		}
 		break;
 		case rMAP:
@@ -33413,6 +33418,9 @@ void highlight(BITMAP* dest, size_and_pos& hl)
 {
 	if(hl.data[2] == 1) //draw to A5 bitmap instead
 	{
+		ALLEGRO_STATE old_state;
+		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+		
 		ALLEGRO_BITMAP* minimap_bmp = get_minimap_bmp();
 		al_set_target_bitmap(minimap_bmp);
 		all_set_transparent_palette_index(0);
@@ -33426,6 +33434,8 @@ void highlight(BITMAP* dest, size_and_pos& hl)
 		else highlight_sqr(tmp, hl.data[1], hl, hl.data[0]);
 		all_render_a5_bitmap(tmp, minimap_bmp);
 		destroy_bitmap(tmp);
+		
+		al_restore_state(&old_state);
 	}
 	else //basic A4 draw
 	{
