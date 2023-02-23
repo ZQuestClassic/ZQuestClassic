@@ -127,7 +127,10 @@ void set_pal();
 void loadlvlpal(int32_t level);
 void loadfadepal(int32_t dataset);
 
-void setup_lcolors();
+ALLEGRO_COLOR a5color(RGB c);
+ALLEGRO_COLOR a5color(int index);
+ALLEGRO_COLOR real_lc1(int pal);
+ALLEGRO_COLOR real_lc2(int pal);
 void refresh_pal();
 
 void refresh(int32_t flags);

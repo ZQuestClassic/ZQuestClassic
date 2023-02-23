@@ -1,8 +1,11 @@
 #include "render.h"
 #include "zconfig.h"
+#include "base/gui.h"
 
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
+static RenderTreeItem rti_mmap;
+static RenderTreeItem rti_tooltip;
 
 static int zc_gui_mouse_x()
 {
@@ -27,8 +30,16 @@ static void init_render_tree()
 		al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
+	rti_mmap.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_mmap.a4_bitmap = nullptr;
+	rti_tooltip.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
+	rti_tooltip.transparency_index = 0;
+	clear_bitmap(rti_tooltip.a4_bitmap);
 
 	rti_root.children.push_back(&rti_screen);
+	rti_root.children.push_back(&rti_mmap);
+	rti_root.children.push_back(&rti_tooltip);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -60,7 +71,27 @@ static void configure_render_tree()
 		rti_screen.visible = true;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = screen;
+		
+		rti_mmap.transform.x = (resx - w*scale) / 2 / scale;
+		rti_mmap.transform.y = (resy - h*scale) / 2 / scale;
+		rti_mmap.transform.scale = scale;
+		rti_mmap.visible = !dialog_open();
+		
+		rti_tooltip.transform.x = (resx - w*scale) / 2 / scale;
+		rti_tooltip.transform.y = (resy - h*scale) / 2 / scale;
+		rti_tooltip.transform.scale = scale;
+		rti_tooltip.visible = !dialog_open();
 	}
+}
+
+ALLEGRO_BITMAP* get_minimap_bmp()
+{
+	return rti_mmap.bitmap;
+}
+
+BITMAP* get_tooltip_bmp()
+{
+	return rti_tooltip.a4_bitmap;
 }
 
 void render_zq()
@@ -74,3 +105,4 @@ void render_zq()
 
 	al_flip_display();
 }
+

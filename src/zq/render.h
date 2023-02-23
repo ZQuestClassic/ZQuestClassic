@@ -3,6 +3,8 @@
 
 #include "base/render.h"
 
+ALLEGRO_BITMAP* get_minimap_bmp();
+BITMAP* get_tooltip_bmp();
 void render_zq();
 
 #endif

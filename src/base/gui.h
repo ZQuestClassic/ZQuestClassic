@@ -31,5 +31,7 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 void popup_zqdialog_start();
 void popup_zqdialog_draw();
 void popup_zqdialog_end();
+
+bool dialog_open();
 #endif                                                      // _GUI_H_
 

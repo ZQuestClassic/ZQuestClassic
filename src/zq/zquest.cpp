@@ -5685,6 +5685,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 	{
 		case rSCRMAP:
 		{
+			//A5 bitmap stuff
+			ALLEGRO_BITMAP* minimap_bmp = get_minimap_bmp();
+			al_set_target_bitmap(minimap_bmp);
+			al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+			
 			size_and_pos *mini_sqr = &minimap;
 			size_and_pos *real_mini_sqr = &real_minimap;
 			
@@ -5710,17 +5715,15 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
+						al_draw_filled_rectangle(sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1,
+							real_lc1(Map.Scr(i)->color));
 						if(((Map.Scr(i)->color)&15)>0)
 						{
 							int scl = 2;
 							int woffs = (sqr.w-(sqr.w/scl))/2;
 							int hoffs = (sqr.h-(sqr.h/scl))/2;
-							rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, lc1((Map.Scr(i)->color)&15));
-							rectfill(menu1,sqr.x+woffs,sqr.y+hoffs,sqr.x+sqr.w-1-woffs,sqr.y+sqr.h-1-hoffs, lc2((Map.Scr(i)->color)&15));
-						}
-						else
-						{
-							rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, lc1((Map.Scr(i)->color)&15));
+							al_draw_filled_rectangle(sqr.x+woffs, sqr.y+hoffs, sqr.x+sqr.w-1-woffs, sqr.y+sqr.h-1-hoffs,
+								real_lc2(Map.Scr(i)->color));
 						}
 					}
 					else
@@ -5761,7 +5764,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				if(cursor_color)
 				{
 					auto& sqr = real_mini_sqr->subsquare(s);
-					highlight_sqr(menu1,cursor_color,sqr,zoomed_minimap ? 2 : 1);
+					al_draw_rectangle(sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1,
+						a5color(cursor_color), zoomed_minimap ? 2 : 1);
 				}
 				
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
@@ -6721,8 +6725,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 	font = tfont;
 }
 
+bool pause_refresh = true;
 void refresh(int32_t flags)
 {
+	if(pause_refresh) return;
 	static bool refreshing = false;
 	bool earlyret = refreshing;
 	refreshing = true;
@@ -7261,12 +7267,10 @@ void refresh(int32_t flags)
 		if(integrityBoolRoomNoGuyNoString(Map.CurrScr())) show_screen_error("Guy and String are (none)",i++, vc(14));
 	}
 	
-	draw_ttip(menu1);
-	
 	if(zoom_delay)
 		draw_screenunit(rSCRMAP,flags);
 	
-	draw_ttip2(menu1);
+	draw_ttips();
 	
 	scare_mouse();
 	
@@ -7341,6 +7345,7 @@ void select_scr()
 			clear_tooltip();
 			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
 			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+			tooltip_highlight2.data[2] = 1;
 		}
 		
 		if(ind>=MAPSCRS)
@@ -31223,6 +31228,9 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 	//  setup_combo_animations();
+	al_init_primitives_addon();
+	pause_refresh = false;
+	refresh_pal();
 	refresh(rALL);
 	brush_width_menu[0].flags=D_SELECTED;
 	brush_height_menu[0].flags=D_SELECTED;
@@ -33403,11 +33411,30 @@ void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick)
 
 void highlight(BITMAP* dest, size_and_pos& hl)
 {
-	if(hl.fw > -1 && hl.fh > -1)
+	if(hl.data[2] == 1) //draw to A5 bitmap instead
 	{
-		highlight_frag(dest, hl.data[1], hl, hl.data[0]);
+		ALLEGRO_BITMAP* minimap_bmp = get_minimap_bmp();
+		al_set_target_bitmap(minimap_bmp);
+		all_set_transparent_palette_index(0);
+		
+		BITMAP* tmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+		clear_bitmap(tmp);
+		if(hl.fw > -1 && hl.fh > -1)
+		{
+			highlight_frag(tmp, hl.data[1], hl, hl.data[0]);
+		}
+		else highlight_sqr(tmp, hl.data[1], hl, hl.data[0]);
+		all_render_a5_bitmap(tmp, minimap_bmp);
+		destroy_bitmap(tmp);
 	}
-	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
+	else //basic A4 draw
+	{
+		if(hl.fw > -1 && hl.fh > -1)
+		{
+			highlight_frag(dest, hl.data[1], hl, hl.data[0]);
+		}
+		else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
+	}
 }
 void draw_ttip(BITMAP* dest)
 {
@@ -33433,7 +33460,13 @@ void draw_ttip2(BITMAP* dest)
 		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x, tooltip_box2.y, tooltip_box2.w, tooltip_box2.h);
 	}
 }
-
+void draw_ttips()
+{
+	BITMAP* ttbmp = get_tooltip_bmp();
+	clear_bitmap(ttbmp);
+	draw_ttip(ttbmp);
+	draw_ttip2(ttbmp);
+}
 
 void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)
 {

@@ -1628,7 +1628,7 @@ int32_t onColors_Levels()
 		sprintf(buf,"Level %X Palettes",index);
 		bool l9 = call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL, index);
 		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
-		setup_lcolors();
+		set_palette(RAMpal);
 		
 		if(index==0)
 		{

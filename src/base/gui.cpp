@@ -61,7 +61,7 @@ void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c)
 /**********  GUI  ***********/
 /****************************/
 
-
+static int dlg_open_count = 0;
 // make it global so the joystick button routine can set joy_on=TRUE
 DIALOG_PLAYER *player = NULL;
 
@@ -215,7 +215,7 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 			clear_bitmap(saved_gui_bmp);
 		screen = saved_gui_bmp;
 	}
-
+	++dlg_open_count;
 	player2 = init_dialog(dialog, focus_obj);
 	
 	while(update_dialog(player2))
@@ -228,7 +228,7 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 		//if (active_menu_player2)
 		//rest(1);
 	}
-
+	
 	if (saved_gui_bmp)
 		screen = prev_screen;
 	
@@ -236,7 +236,7 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 	{
 		show_mouse(mouse_screen);
 	}
-	
+	--dlg_open_count;
 	return shutdown_dialog(player2);
 }
 
@@ -309,6 +309,7 @@ void popup_zqdialog_start()
 		blit(screen, tmp_bmp, 0, 0, 0, 0, zq_screen_w, zq_screen_h);
 		unscare_mouse();
 		zqdialog_tmp_bmps.push_back(tmp_bmp);
+		++dlg_open_count;
 	}
 	else
 	{
@@ -338,8 +339,14 @@ void popup_zqdialog_end()
 		unscare_mouse();
 		destroy_bitmap(tmp_bmp);
 		zqdialog_tmp_bmps.pop_back();
+		--dlg_open_count;
 	}
 	position_mouse_z(0);
+}
+
+bool dialog_open()
+{
+	return dlg_open_count > 0;
 }
 
 /*** end of gui.cpp ***/
