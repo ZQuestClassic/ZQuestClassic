@@ -7350,7 +7350,6 @@ void select_scr()
 			clear_tooltip();
 			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
 			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
-			tooltip_highlight2.data[2] = 1;
 		}
 		
 		if(ind>=MAPSCRS)
@@ -33416,35 +33415,11 @@ void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick)
 
 void highlight(BITMAP* dest, size_and_pos& hl)
 {
-	if(hl.data[2] == 1) //draw to A5 bitmap instead
+	if(hl.fw > -1 && hl.fh > -1)
 	{
-		ALLEGRO_STATE old_state;
-		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-		
-		ALLEGRO_BITMAP* minimap_bmp = get_minimap_bmp();
-		al_set_target_bitmap(minimap_bmp);
-		all_set_transparent_palette_index(0);
-		
-		BITMAP* tmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-		clear_bitmap(tmp);
-		if(hl.fw > -1 && hl.fh > -1)
-		{
-			highlight_frag(tmp, hl.data[1], hl, hl.data[0]);
-		}
-		else highlight_sqr(tmp, hl.data[1], hl, hl.data[0]);
-		all_render_a5_bitmap(tmp, minimap_bmp);
-		destroy_bitmap(tmp);
-		
-		al_restore_state(&old_state);
+		highlight_frag(dest, hl.data[1], hl, hl.data[0]);
 	}
-	else //basic A4 draw
-	{
-		if(hl.fw > -1 && hl.fh > -1)
-		{
-			highlight_frag(dest, hl.data[1], hl, hl.data[0]);
-		}
-		else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
-	}
+	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
 }
 void draw_ttip(BITMAP* dest)
 {
