@@ -14112,16 +14112,10 @@ void HeroClass::movehero()
 					{
 						do
 						{
-							zfix ty = y - hero_newstep;
-							info = walkflag(x,(bigHitbox?0:8) + ty,2,up);
+							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
 							
-							info = info || walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
-							if (ty < 0 && !bigHitbox) //sanity check for up scroll
-							{
-								info = info || walkflag(x, zfix(0), 2, up);
-								info = info || walkflag(x+15, zfix(0), 1, up);
-							}
-							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
+							info = info || walkflag(x+15,(bigHitbox?0:8)+(y-hero_newstep),1,up);
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8)+(y-hero_newstep));
 								
 							execute(info);
 							
