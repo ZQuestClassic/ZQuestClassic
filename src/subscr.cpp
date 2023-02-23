@@ -4274,16 +4274,13 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 
 void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 {
-    x += viewport.x;
-    y += viewport.y;
-
     switch(button)
     {
     case 0:  //A button
         if(Aitem&&show_subscreen_items)
         {
-            Aitem->x=x;
-            Aitem->y=y;
+            Aitem->x=x + viewport.x;
+            Aitem->y=y + viewport.y;
             
             switch(itemsbuf[Aitem->id].family)
             {
@@ -4309,8 +4306,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
     case 1:  //B button
         if(Bitem&&show_subscreen_items)
         {
-            Bitem->x=x;
-            Bitem->y=y;
+            Bitem->x=x + viewport.x;
+            Bitem->y=y + viewport.y;
             
             switch(itemsbuf[Bitem->id].family)
             {
@@ -4338,8 +4335,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
         {
 		//Y button
 		//zprint2("Drawing X Item\n");
-            Xitem->x=x;
-            Xitem->y=y;
+            Xitem->x=x + viewport.x;
+            Xitem->y=y + viewport.y;
             
             switch(itemsbuf[Xitem->id].family)
             {
@@ -4368,8 +4365,8 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
         {
 		//Y button
 		//zprint2("Drawing Y Item\n");
-            Yitem->x=x;
-            Yitem->y=y;
+            Yitem->x=x + viewport.x;
+            Yitem->y=y + viewport.y;
             
             switch(itemsbuf[Yitem->id].family)
             {
