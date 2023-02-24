@@ -163,7 +163,7 @@ void popup_zqdialog_end()
 	position_mouse_z(0);
 }
 
-ALLEGRO_BITMAP* add_dlg_layer()
+RenderTreeItem* add_dlg_layer()
 {
 	if(!active_dlg_rti) return nullptr;
 	set_bitmap_create_flags(true);
@@ -176,24 +176,23 @@ ALLEGRO_BITMAP* add_dlg_layer()
 	active_dlg_rti->children.push_back(rti);
 
 	al_set_new_bitmap_flags(0);
-	return rti->bitmap;
+	return rti;
 }
-void remove_dlg_layer(ALLEGRO_BITMAP* bmp)
+void remove_dlg_layer(RenderTreeItem* rti)
 {
-	if(!active_dlg_rti)
+	if(active_dlg_rti) //Remove from children vector
 	{
-		return;
-	}
-	auto& vec = active_dlg_rti->children;
-	for(auto it = vec.begin(); it != vec.end();)
-	{
-		RenderTreeItem* child = *it;
-		if(child->bitmap == bmp)
+		auto& vec = active_dlg_rti->children;
+		for(auto it = vec.begin(); it != vec.end();)
 		{
-			delete child;
-			it = vec.erase(it);
+			RenderTreeItem* child = *it;
+			if(child == rti)
+			{
+				it = vec.erase(it);
+			}
+			else ++it;
 		}
-		else ++it;
 	}
+	delete rti;
 }
 

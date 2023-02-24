@@ -15984,12 +15984,12 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 
 int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-	static ALLEGRO_BITMAP* xmap_overlay = nullptr;
+	static RenderTreeItem* xmap_overlay = nullptr;
 	static bool xmap_drawn = false;
 	int32_t d1 = d->d1;
 	int32_t ret = jwin_droplist_proc(msg,d,c);
 	
-	if(msg == MSG_START)
+	if(msg == MSG_START && !xmap_overlay)
 	{
 		xmap_overlay = add_dlg_layer();
 	}
@@ -15998,12 +15998,13 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 		remove_dlg_layer(xmap_overlay);
 		xmap_overlay = nullptr;
 	}
+	if(!xmap_overlay)
+		return ret;
+
+	xmap_overlay->visible = !(d->flags & D_HIDDEN);
 	
 	if(d->flags & D_HIDDEN)
-	{
-		clear_a5_bmp(xmap_overlay);
 		return ret;
-	}
 	
 	if(msg==MSG_DRAW || d->d1!=d1)
 	{
@@ -16034,7 +16035,7 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			
 			jwin_draw_frame(screen, (x-frame_thickness)+1, (y-frame_thickness)+1, 180, 84, FR_DEEP);
-			drawxmap(xmap_overlay,xy[0],xy[1],small_dmap,x,y);
+			drawxmap(xmap_overlay->bitmap,xy[0],xy[1],small_dmap,x,y);
 			xmap_drawn = true;
 		}
 		
