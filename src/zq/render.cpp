@@ -4,7 +4,6 @@
 
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
-static RenderTreeItem rti_mmap;
 static RenderTreeItem rti_tooltip;
 static RenderTreeItem rti_dialogs;
 
@@ -24,16 +23,14 @@ static void init_render_tree()
 
 	if (!rti_root.children.empty())
 		return;
-
+	
+	int lin_flags = 0;
 	if (zc_get_config("zquest", "scaling_mode", 0) == 1)
-		al_set_new_bitmap_flags(base_flags | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
-	else
-		al_set_new_bitmap_flags(base_flags);
+		lin_flags = ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR;
+	
+	al_set_new_bitmap_flags(base_flags | lin_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
-	
-	rti_mmap.bitmap = al_create_bitmap(screen->w, screen->h);
-	rti_mmap.a4_bitmap = nullptr;
 	
 	rti_tooltip.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
@@ -45,8 +42,10 @@ static void init_render_tree()
 	rti_dialogs.transparency_index = 0;
 	clear_bitmap(rti_dialogs.a4_bitmap);
 	
+	al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP | lin_flags);
+	rti_screen.overlays.push_back(al_create_bitmap(screen->w, screen->h));
+	
 	rti_root.children.push_back(&rti_screen);
-	rti_root.children.push_back(&rti_mmap);
 	rti_root.children.push_back(&rti_tooltip);
 	rti_root.children.push_back(&rti_dialogs);
 
@@ -81,11 +80,6 @@ static void configure_render_tree()
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 		
-		rti_mmap.transform.x = (resx - w*scale) / 2 / scale;
-		rti_mmap.transform.y = (resy - h*scale) / 2 / scale;
-		rti_mmap.transform.scale = scale;
-		rti_mmap.visible = true;
-		
 		rti_tooltip.transform.x = (resx - w*scale) / 2 / scale;
 		rti_tooltip.transform.y = (resy - h*scale) / 2 / scale;
 		rti_tooltip.transform.scale = scale;
@@ -98,9 +92,33 @@ static void configure_render_tree()
 	}
 }
 
-ALLEGRO_BITMAP* get_minimap_bmp()
+ALLEGRO_BITMAP* get_overlay_bmp()
 {
-	return rti_mmap.bitmap;
+	return rti_screen.overlays.empty() ? nullptr : rti_screen.overlays[0];
+}
+ALLEGRO_BITMAP* add_dlg_overlay()
+{
+	int lin_flags = 0;
+	if (zc_get_config("zquest", "scaling_mode", 0) == 1)
+		lin_flags = ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR;
+	al_set_new_bitmap_flags(ALLEGRO_CONVERT_BITMAP | lin_flags);
+	
+	ALLEGRO_BITMAP* targ = al_create_bitmap(screen->w, screen->h);
+	rti_dialogs.overlays.push_back(targ);
+	return targ;
+}
+void remove_dlg_overlay(ALLEGRO_BITMAP* bmp)
+{
+	auto& vec = rti_dialogs.overlays;
+	for(auto it = vec.begin(); it != vec.end();)
+	{
+		if(*it == bmp)
+		{
+			it = vec.erase(it);
+		}
+		else ++it;
+	}
+	al_destroy_bitmap(bmp);
 }
 
 BITMAP* get_tooltip_bmp()

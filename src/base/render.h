@@ -21,6 +21,7 @@ public:
 	int transparency_index = -1;
 	ALLEGRO_BITMAP* bitmap;
 	BITMAP* a4_bitmap;
+	std::vector<ALLEGRO_BITMAP*> overlays;
 	bool freeze_a4_bitmap_render;
 	ALLEGRO_COLOR* tint;
 	std::vector<RenderTreeItem*> children;
@@ -43,6 +44,7 @@ public:
 	}
 };
 
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp);
 void render_tree_draw(RenderTreeItem* rti);
 
 #endif

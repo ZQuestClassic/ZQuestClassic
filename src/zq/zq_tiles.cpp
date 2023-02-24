@@ -15060,6 +15060,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 static int32_t _selected_tile=-1, _selected_tcset=-1;
 int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
+	popup_zqdialog_start();
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -16596,6 +16597,7 @@ REDRAW:
 		_selected_tile = tile;
 		_selected_tcset = cs;
 	}
+	popup_zqdialog_end();
 	return ret;
 }
 int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
@@ -16901,6 +16903,7 @@ void draw_combo_list_window()
 static int32_t _selected_combo=-1, _selected_cset=-1;
 bool select_combo_2(int32_t &cmb,int32_t &cs)
 {
+	popup_zqdialog_start();
 	reset_combo_animations();
 	reset_combo_animations2();
 	// static int32_t cmb=0;
@@ -17246,7 +17249,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		_selected_combo = cmb;
 		_selected_cset = cs;
 	}
-	
+	popup_zqdialog_end();
 	return ret;
 }
 
@@ -17433,6 +17436,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 
 int32_t combo_screen(int32_t pg, int32_t tl)
 {
+	popup_zqdialog_start();
 	reset_combo_animations();
 	reset_combo_animations2();
 	static int32_t tile=0;
@@ -18226,6 +18230,7 @@ REDRAW:
 	setup_combo_animations2();
 	_selected_combo = tile;
 	_selected_cset = cs;
+	popup_zqdialog_end();
 	return done-1;
 }
 
