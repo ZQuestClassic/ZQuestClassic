@@ -15,7 +15,11 @@ RenderTreeItem rti_game;
 RenderTreeItem rti_menu;
 RenderTreeItem rti_gui;
 RenderTreeItem rti_screen;
-RenderTreeItem rti_dialogs;
+
+bool use_linear_bitmaps()
+{
+	return zc_get_config("zeldadx", "scaling_mode", 0) == 1;
+}
 
 static int zc_gui_mouse_x()
 {
@@ -87,10 +91,6 @@ static void init_render_tree()
 	rti_gui.bitmap = al_create_bitmap(gui_bmp->w, gui_bmp->h);
 	rti_gui.a4_bitmap = gui_bmp;
 	rti_gui.transparency_index = 0;
-	
-	rti_dialogs.bitmap = al_create_bitmap(screen->w, screen->h);
-	rti_dialogs.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
-	rti_dialogs.transparency_index = 0;
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
@@ -174,7 +174,7 @@ static void configure_render_tree()
 		rti_screen.a4_bitmap = screen;
 	}
 	
-	rti_dialogs.visible = zqdialog_tmp_bmps.size() > 0;
+	rti_dialogs.visible = rti_dialogs.children.size() > 0;
 	if(rti_dialogs.visible)
 	{
 		int w = al_get_bitmap_width(rti_dialogs.bitmap);
@@ -257,8 +257,6 @@ void render_zc()
 	
 	init_render_tree();
 	configure_render_tree();
-	
-	zqdialog_render(rti_dialogs.a4_bitmap);
 	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
