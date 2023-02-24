@@ -259,7 +259,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    set_palette_range(RAMpal,0,192,true);
+    set_palette_range(RAMpal,0,0xE0,true);
 }
 
 void loadlvlpal(int32_t level)
@@ -267,7 +267,7 @@ void loadlvlpal(int32_t level)
 	Color=level;
 
 	// full pal
-	for(int32_t i=0; i<192; i++)
+	for(int32_t i=0; i<0xE0; i++)
 		RAMpal[i] = _RGB(colordata+i*3);
 
 	// level pal

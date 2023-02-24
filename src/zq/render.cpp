@@ -31,6 +31,7 @@ static void init_render_tree()
 	al_set_new_bitmap_flags(base_flags | lin_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
+	rti_screen.visible = true;
 	
 	rti_tooltip.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
@@ -76,7 +77,6 @@ static void configure_render_tree()
 		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
 		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
 		rti_screen.transform.scale = scale;
-		rti_screen.visible = true;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 		
@@ -126,6 +126,16 @@ BITMAP* get_tooltip_bmp()
 	return rti_tooltip.a4_bitmap;
 }
 
+void set_dlg_transp(bool transp)
+{
+	rti_dialogs.transparency_index = transp ? 0 : -1;
+}
+
+void zq_hide_screen(bool hidden)
+{
+	rti_screen.visible = !hidden;
+}
+
 void render_zq()
 {
 	BITMAP* tmp = screen;
@@ -136,6 +146,9 @@ void render_zq()
 	configure_render_tree();
 	
 	zqdialog_render(rti_dialogs.a4_bitmap);
+	rti_dialogs.visible = !zqdialog_tmp_bmps.empty();
+	if(zqdialog_tmp_bmps.empty())
+		rti_dialogs.transparency_index = 0;
 	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));

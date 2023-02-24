@@ -4110,7 +4110,7 @@ int32_t onIncreaseCSet()
     {*/
         if(draw_mode!=dm_alias)
         {
-            CSet=wrap(CSet+1,0,11);
+            CSet=wrap(CSet+1,0,13);
             refresh(rCOMBOS+rMENU+rCOMBO);
         }
         else
@@ -4185,7 +4185,7 @@ int32_t onDecreaseCSet()
     {*/
         if(draw_mode!=dm_alias)
         {
-            CSet=wrap(CSet-1,0,11);
+            CSet=wrap(CSet-1,0,13);
             refresh(rCOMBOS+rMENU+rCOMBO);
         }
         else

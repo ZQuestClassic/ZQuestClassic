@@ -30,7 +30,7 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 
 extern BITMAP* zqdialog_bg_bmp;
 extern std::vector<BITMAP*> zqdialog_tmp_bmps;
-void popup_zqdialog_start();
+void popup_zqdialog_start(bool transp = true);
 void popup_zqdialog_end();
 void zqdialog_render(BITMAP* dest);
 #endif                                                      // _GUI_H_

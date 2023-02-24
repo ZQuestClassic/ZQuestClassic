@@ -435,7 +435,7 @@ extern volatile bool close_button_quit;
 //TODO Turn this into an init data var, and allow editing it per-weapon! -Em
 #define DEFAULT_FIRE_LIGHT_RADIUS 40
 
-#define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
+#define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+14)%14))
 
 #define XOR(a,b) (!(a) != !(b))
 

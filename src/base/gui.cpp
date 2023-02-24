@@ -277,7 +277,8 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 std::vector<BITMAP*> zqdialog_tmp_bmps;
-void popup_zqdialog_start()
+std::vector<bool> zqdialog_bmp_trans;
+void popup_zqdialog_start(bool transp)
 {
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
@@ -289,6 +290,7 @@ void popup_zqdialog_start()
 		show_mouse(tmp_bmp);
 		screen = tmp_bmp;
 		zqdialog_tmp_bmps.push_back(tmp_bmp);
+		zqdialog_bmp_trans.push_back(transp);
 	}
 	else
 	{
@@ -303,6 +305,7 @@ void popup_zqdialog_end()
 		show_mouse(NULL);
 		destroy_bitmap(zqdialog_tmp_bmps.back());
 		zqdialog_tmp_bmps.pop_back();
+		zqdialog_bmp_trans.pop_back();
 		if(zqdialog_tmp_bmps.size())
 			screen = zqdialog_tmp_bmps.back();
 		else
@@ -318,8 +321,13 @@ void popup_zqdialog_end()
 void zqdialog_render(BITMAP* dest)
 {
 	clear_bitmap(dest);
-	for(BITMAP* bmp : zqdialog_tmp_bmps)
-		masked_blit(bmp, dest, 0, 0, 0, 0, bmp->w, bmp->h);
+	for(size_t q = 0; q < zqdialog_tmp_bmps.size(); ++q)
+	{
+		BITMAP* bmp = zqdialog_tmp_bmps[q];
+		if(zqdialog_bmp_trans[q])
+			masked_blit(bmp, dest, 0, 0, 0, 0, bmp->w, bmp->h);
+		else blit(bmp, dest, 0, 0, 0, 0, bmp->w, bmp->h);
+	}
 }
 
 /*** end of gui.cpp ***/

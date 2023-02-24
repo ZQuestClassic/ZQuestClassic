@@ -36,6 +36,7 @@
 #include "dialog/alert.h"
 #include "drawing.h"
 #include "colorname.h"
+#include "zq/render.h"
 
 extern zcmodule moduledata;
 
@@ -1333,7 +1334,7 @@ size_and_pos edit_button(550,562,86,21);
 size_and_pos hlcbox(742,392,16,16);
 size_and_pos hov_prev(742,338,50,50);
 size_and_pos cpalette_4(648,416,4,4,64,64);
-size_and_pos cpalette_8(648,416,16,12,16,21);
+size_and_pos cpalette_8(648,416,16,14,16,18);
 size_and_pos fg_prev(648,316,50,50);
 size_and_pos bg_prev(648+30,316+30,50,50);
 size_and_pos zoomtile(124,32,16,16,32,32);
@@ -1988,6 +1989,7 @@ void show_edit_tile_help()
 
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
+	popup_zqdialog_start(false);
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_DLG);
 	edit_button.h = ok_button.h = cancel_button.h = 12+text_height(font);
@@ -3146,23 +3148,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		
 		if(redraw)
 		{
-			get_palette(tpal);
-			
-			if(newtilebuf[tile].format==tf4Bit)
-			{
-				tpal[208]=tpal[CSET(cs)+c1];
-				tpal[209]=tpal[CSET(cs)+c2];
-				tpal[210]=invRGB(tpal[CSET(cs)]);
-			}
-			else
-			{
-				tpal[208]=tpal[c1];
-				tpal[209]=tpal[c2];
-				tpal[210]=invRGB(tpal[0]);
-			}
-			
 			custom_vsync();
-			set_palette(tpal);
 			draw_edit_scr(tile,flip,cs,oldtile, false);
 			
 			draw_ttip(screen);
@@ -3247,6 +3233,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	destroy_bitmap(selecting_pattern);
 	destroy_bitmap(intersection_pattern);
 	font = oldfont;
+	popup_zqdialog_end();
 }
 
 /*  Grab Tile Code  */
@@ -15061,6 +15048,7 @@ static int32_t _selected_tile=-1, _selected_tcset=-1;
 int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
 	popup_zqdialog_start();
+	set_dlg_transp(false);
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -16597,6 +16585,8 @@ REDRAW:
 		_selected_tile = tile;
 		_selected_tcset = cs;
 	}
+	
+	set_dlg_transp(true);
 	popup_zqdialog_end();
 	return ret;
 }
@@ -16904,6 +16894,7 @@ static int32_t _selected_combo=-1, _selected_cset=-1;
 bool select_combo_2(int32_t &cmb,int32_t &cs)
 {
 	popup_zqdialog_start();
+	set_dlg_transp(false);
 	reset_combo_animations();
 	reset_combo_animations2();
 	// static int32_t cmb=0;
@@ -17249,6 +17240,8 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		_selected_combo = cmb;
 		_selected_cset = cs;
 	}
+	
+	set_dlg_transp(true);
 	popup_zqdialog_end();
 	return ret;
 }
@@ -17437,6 +17430,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 int32_t combo_screen(int32_t pg, int32_t tl)
 {
 	popup_zqdialog_start();
+	set_dlg_transp(false);
 	reset_combo_animations();
 	reset_combo_animations2();
 	static int32_t tile=0;
@@ -18230,6 +18224,7 @@ REDRAW:
 	setup_combo_animations2();
 	_selected_combo = tile;
 	_selected_cset = cs;
+	set_dlg_transp(true);
 	popup_zqdialog_end();
 	return done-1;
 }
@@ -19796,6 +19791,8 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 
 int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
+	popup_zqdialog_start();
+	set_dlg_transp(false);
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -21246,6 +21243,8 @@ REDRAW_DMAP_SELTILE:
 	register_used_tiles();
 	setup_combo_animations();
 	setup_combo_animations2();
+	set_dlg_transp(true);
+	popup_zqdialog_end();
 	return tile+1;
 }
 
