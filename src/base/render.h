@@ -8,7 +8,7 @@ class RenderTreeItemProps
 {
 public:
 	int x, y;
-	float scale;
+	float scale = 1;
 };
 
 class RenderTreeItem
@@ -21,12 +21,11 @@ public:
 	int transparency_index = -1;
 	ALLEGRO_BITMAP* bitmap = nullptr;
 	BITMAP* a4_bitmap = nullptr;
-	bool freeze_a4_bitmap_render;
+	bool freeze_a4_bitmap_render = false;
 	ALLEGRO_COLOR* tint = nullptr;
 	std::vector<RenderTreeItem*> children;
 	bool owned = false;
 	
-	RenderTreeItem();
 	~RenderTreeItem();
 	
 	int global_to_local_x(int x)

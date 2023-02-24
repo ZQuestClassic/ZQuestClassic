@@ -27,10 +27,6 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
 	al_restore_state(&old_state);
 }
 
-RenderTreeItem::RenderTreeItem()
-{
-	transform.scale = 1;
-}
 RenderTreeItem::~RenderTreeItem()
 {
 	if(owned)
