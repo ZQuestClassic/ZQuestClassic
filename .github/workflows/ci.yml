@@ -125,9 +125,9 @@ jobs:
         with:
           node-version: 16.x
 
-      - uses: mymindstorm/setup-emsdk@v11
+      - uses: mymindstorm/setup-emsdk@v12
         with:
-          version: "3.1.24"
+          version: "3.1.32"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison

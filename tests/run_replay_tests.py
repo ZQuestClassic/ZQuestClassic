@@ -378,7 +378,7 @@ def get_replay_data(file):
     if is_web_ci:
         estimated_fps /= 30
     elif is_web:
-        estimated_fps /= 12
+        estimated_fps /= 11
 
     frames_limited = frames
     frame_arg = get_arg_for_replay(file, grouped_frame_arg, is_int=True)

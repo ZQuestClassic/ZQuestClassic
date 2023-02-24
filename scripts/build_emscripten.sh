@@ -15,7 +15,7 @@ fi
 cd "$ROOT"
 mkdir -p build_emscripten
 
-EMCC_VERSION=3.1.24
+EMCC_VERSION=3.1.32
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -80,6 +80,8 @@ EMCC_FLAGS=(
 )
 LINKER_FLAGS=(
   --shared-memory
+  -s STACK_SIZE=5MB
+  -s DEFAULT_PTHREAD_STACK_SIZE=2MB
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1

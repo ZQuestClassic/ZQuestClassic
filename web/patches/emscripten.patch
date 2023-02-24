@@ -1,8 +1,8 @@
 diff --git a/src/settings.js b/src/settings.js
-index 3b65365..3984aa6 100644
+index 81ae21b..bff060f 100644
 --- a/src/settings.js
 +++ b/src/settings.js
-@@ -1486,6 +1486,10 @@ var USE_COCOS2D = 0;
+@@ -1502,6 +1502,10 @@ var USE_COCOS2D = 0;
  // [compile+link]
  var USE_MODPLUG = false;
  
@@ -15,7 +15,7 @@ index 3b65365..3984aa6 100644
  // [link]
 diff --git a/tools/ports/gme.py b/tools/ports/gme.py
 new file mode 100644
-index 0000000..461bdf4
+index 0000000..3ad43fa
 --- /dev/null
 +++ b/tools/ports/gme.py
 @@ -0,0 +1,66 @@
@@ -38,7 +38,7 @@ index 0000000..461bdf4
 +
 +def get(ports, settings, shared):
 +  source_dir = 'mpyne-game-music-emu-e76bdc0cb916'
-+  ports.fetch_project('gme', 'https://bitbucket.org/mpyne/game-music-emu/get/' + TAG + '.zip', source_dir, sha512hash=HASH)
++  ports.fetch_project('gme', 'https://bitbucket.org/mpyne/game-music-emu/get/' + TAG + '.zip', sha512hash=HASH)
 +
 +  def create(final):
 +    logging.info('building port: gme')
@@ -72,11 +72,11 @@ index 0000000..461bdf4
 +
 +    ports.install_headers(source_path, pattern='gme/*.h', target='gme')
 +
-+  return [shared.Cache.get_lib('gme.a', create, what='port')]
++  return [shared.cache.get_lib('gme.a', create, what='port')]
 +
 +
 +def clear(ports, settings, shared):
-+  shared.Cache.erase_lib('gme.a')
++  shared.cache.erase_lib('gme.a')
 +
 +
 +def process_args(ports):
@@ -86,7 +86,7 @@ index 0000000..461bdf4
 +def show():
 +  return 'GME (USE_GME; GPL 2.1 license)'
 diff --git a/tools/ports/sdl2_mixer.py b/tools/ports/sdl2_mixer.py
-index 1d2b223..391c34e 100644
+index 3320631..b4f3096 100644
 --- a/tools/ports/sdl2_mixer.py
 +++ b/tools/ports/sdl2_mixer.py
 @@ -6,13 +6,14 @@
@@ -110,8 +110,8 @@ index 1d2b223..391c34e 100644
  def get(ports, settings, shared):
    sdl_build = os.path.join(ports.get_build_dir(), 'sdl2')
    assert os.path.exists(sdl_build), 'You must use SDL2 to use SDL2_mixer'
--  ports.fetch_project('sdl2_mixer', 'https://github.com/libsdl-org/SDL_mixer/archive/' + TAG + '.zip', 'SDL2_mixer-' + TAG, sha512hash=HASH)
-+  ports.fetch_project('sdl2_mixer', 'https://github.com/connorjclark/SDL_mixer/archive/refs/tags/' + TAG + '.zip', 'SDL2_mixer-' + TAG, sha512hash=HASH)
+-  ports.fetch_project('sdl2_mixer', f'https://github.com/libsdl-org/SDL_mixer/archive/{TAG}.zip', sha512hash=HASH)
++  ports.fetch_project('sdl2_mixer', 'https://github.com/connorjclark/SDL_mixer/archive/refs/tags/' + TAG + '.zip', sha512hash=HASH)
    libname = get_lib_name(settings)
  
    def create(final):
@@ -142,7 +142,7 @@ index 1d2b223..391c34e 100644
        flags=flags,
        exclude_files=[
          'playmus.c',
-@@ -85,12 +100,10 @@ def get(ports, settings, shared):
+@@ -85,11 +100,12 @@ def get(ports, settings, shared):
        exclude_dirs=[
          'native_midi',
          'external',
@@ -150,13 +150,13 @@ index 1d2b223..391c34e 100644
        ]
      )
  
--    # copy header to a location so it can be used as 'SDL2/'
+     # copy header to a location so it can be used as 'SDL2/'
 -    ports.install_headers(source_path, pattern='SDL_*.h', target='SDL2')
--
-   return [shared.Cache.get_lib(libname, create, what='port')]
++    ports.install_headers(source_path + '/include', pattern='SDL_*.h', target='SDL2')
  
+   return [shared.cache.get_lib(libname, create, what='port')]
  
-@@ -109,6 +122,9 @@ def process_dependencies(settings):
+@@ -109,6 +125,9 @@ def process_dependencies(settings):
    if "mod" in settings.SDL2_MIXER_FORMATS:
      deps.append('libmodplug')
      settings.USE_MODPLUG = 1
@@ -167,10 +167,10 @@ index 1d2b223..391c34e 100644
  
  def process_args(ports):
 diff --git a/tools/settings.py b/tools/settings.py
-index 8762bc9..9c74fc1 100644
+index fd41dde..414044b 100644
 --- a/tools/settings.py
 +++ b/tools/settings.py
-@@ -33,6 +33,7 @@ PORTS_SETTINGS = {
+@@ -34,6 +34,7 @@ PORTS_SETTINGS = {
      'USE_COCOS2D',
      'USE_ICU',
      'USE_MODPLUG',
