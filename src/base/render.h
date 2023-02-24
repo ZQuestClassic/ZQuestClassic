@@ -16,16 +16,19 @@ class RenderTreeItem
 public:
 	RenderTreeItemProps transform;
 	RenderTreeItemProps computed;
-	bool visible;
+	bool visible = true;
 	// -1 for no transparency.
 	int transparency_index = -1;
-	ALLEGRO_BITMAP* bitmap;
-	BITMAP* a4_bitmap;
-	std::vector<ALLEGRO_BITMAP*> overlays;
+	ALLEGRO_BITMAP* bitmap = nullptr;
+	BITMAP* a4_bitmap = nullptr;
 	bool freeze_a4_bitmap_render;
-	ALLEGRO_COLOR* tint;
+	ALLEGRO_COLOR* tint = nullptr;
 	std::vector<RenderTreeItem*> children;
-
+	bool owned = false;
+	
+	RenderTreeItem();
+	~RenderTreeItem();
+	
 	int global_to_local_x(int x)
 	{
 		return (x - computed.x) / computed.scale;
@@ -44,7 +47,16 @@ public:
 	}
 };
 
+extern RenderTreeItem rti_dialogs;
+
+void set_bitmap_create_flags(bool preserve_texture);
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp);
 void render_tree_draw(RenderTreeItem* rti);
+
+extern BITMAP* zqdialog_bg_bmp;
+void popup_zqdialog_start(bool transp = true);
+void popup_zqdialog_end();
+ALLEGRO_BITMAP* add_dlg_layer();
+void remove_dlg_layer(ALLEGRO_BITMAP* bmp);
 
 #endif

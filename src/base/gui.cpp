@@ -207,15 +207,16 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 		/* If a menu is active, we yield here, since the dialog
 		* engine is shut down so no user code can be running.
 		*/
-		update_hw_screen();
+		update_hw_screen(true);
 		
 		//if (active_menu_player2)
 		//rest(1);
 	}
 	
+	int ret = shutdown_dialog(player2);
+
 	popup_zqdialog_end();
-	
-	return shutdown_dialog(player2);
+	return ret;
 }
 
 
@@ -228,36 +229,9 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
  */
 int32_t popup_zqdialog(DIALOG *dialog, int32_t focus_obj)
 {
-	BITMAP *bmp;
-	BITMAP *gui_bmp;
-	int32_t ret;
 	ASSERT(dialog);
-	
-	bmp = create_bitmap_ex(8, dialog->w, dialog->h);
-	gui_bmp = screen;
-	
-	if(bmp)
-	{
-		scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-		blit(gui_bmp, bmp, dialog->x, dialog->y, 0, 0, dialog->w, dialog->h);
-		unscare_mouse();
-	}
-	else
-	{
-		*allegro_errno = ENOMEM;
-	}
-	
-	ret = do_zqdialog(dialog, focus_obj);
-	
-	if(bmp)
-	{
-		scare_mouse_area(dialog->x, dialog->y, dialog->w, dialog->h);
-		blit(bmp, gui_bmp, 0, 0, dialog->x, dialog->y, dialog->w, dialog->h);
-		unscare_mouse();
-		destroy_bitmap(bmp);
-	}
-	
-	return ret;
+
+	return do_zqdialog(dialog, focus_obj);
 }
 
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running)
@@ -268,66 +242,14 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	acquire_screen();
 	broadcast_dialog_message(dialog, MSG_START, 0);
 	broadcast_dialog_message(dialog, MSG_DRAW, 0);
+	broadcast_dialog_message(dialog, MSG_END, 0);
 	release_screen();
 	unscare_mouse();
+	
+	update_hw_screen(true);
 	while(!done && ret>=0)
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;
-}
-
-BITMAP* zqdialog_bg_bmp = nullptr;
-std::vector<BITMAP*> zqdialog_tmp_bmps;
-std::vector<bool> zqdialog_bmp_trans;
-void popup_zqdialog_start(bool transp)
-{
-	if(!zqdialog_bg_bmp)
-		zqdialog_bg_bmp = screen;
-	BITMAP* tmp_bmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
-	
-	if(tmp_bmp)
-	{
-		clear_bitmap(tmp_bmp);
-		show_mouse(tmp_bmp);
-		screen = tmp_bmp;
-		zqdialog_tmp_bmps.push_back(tmp_bmp);
-		zqdialog_bmp_trans.push_back(transp);
-	}
-	else
-	{
-		*allegro_errno = ENOMEM;
-	}
-}
-
-void popup_zqdialog_end()
-{
-	if (zqdialog_tmp_bmps.size())
-	{
-		show_mouse(NULL);
-		destroy_bitmap(zqdialog_tmp_bmps.back());
-		zqdialog_tmp_bmps.pop_back();
-		zqdialog_bmp_trans.pop_back();
-		if(zqdialog_tmp_bmps.size())
-			screen = zqdialog_tmp_bmps.back();
-		else
-		{
-			screen = zqdialog_bg_bmp;
-			zqdialog_bg_bmp = nullptr;
-		}
-		show_mouse(screen);
-	}
-	position_mouse_z(0);
-}
-
-void zqdialog_render(BITMAP* dest)
-{
-	clear_bitmap(dest);
-	for(size_t q = 0; q < zqdialog_tmp_bmps.size(); ++q)
-	{
-		BITMAP* bmp = zqdialog_tmp_bmps[q];
-		if(zqdialog_bmp_trans[q])
-			masked_blit(bmp, dest, 0, 0, 0, 0, bmp->w, bmp->h);
-		else blit(bmp, dest, 0, 0, 0, 0, bmp->w, bmp->h);
-	}
 }
 
 /*** end of gui.cpp ***/

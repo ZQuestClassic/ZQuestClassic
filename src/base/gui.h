@@ -13,6 +13,7 @@
 #define _GUI_H_
 
 #include "base/zdefs.h"
+#include "base/render.h"
 
 extern DIALOG_PLAYER *player;
 
@@ -27,11 +28,5 @@ int32_t  popup_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
 int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
-
-extern BITMAP* zqdialog_bg_bmp;
-extern std::vector<BITMAP*> zqdialog_tmp_bmps;
-void popup_zqdialog_start(bool transp = true);
-void popup_zqdialog_end();
-void zqdialog_render(BITMAP* dest);
 #endif                                                      // _GUI_H_
 

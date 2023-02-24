@@ -15826,18 +15826,26 @@ int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
     int32_t d1 = d->d1;
     int32_t ret = jwin_droplist_proc(msg,d,c);
     
-    if(msg==MSG_DRAW || d->d1!=d1)
-    {
-        scare_mouse();
-        small_dmap=(d->d1!=dmOVERW);
-        object_message(d-3, MSG_DRAW, 0);
-        (d-2)->flags&=~D_DISABLED;
-        (d-2)->flags|=small_dmap?0:D_DISABLED;
-        object_message(d-2, MSG_DRAW, 0);
-        (d+35)->d1=small_dmap;
-        object_message(d+35, MSG_DRAW, 0);
-        unscare_mouse();
-    }
+	if (msg == MSG_DRAW)
+	{
+		scare_mouse();
+		small_dmap = (d->d1 != dmOVERW);
+		object_message(d - 3, MSG_DRAW, 0);
+		(d - 2)->flags &= ~D_DISABLED;
+		(d - 2)->flags |= small_dmap ? 0 : D_DISABLED;
+		object_message(d - 2, MSG_DRAW, 0);
+		(d + 35)->d1 = small_dmap;
+		object_message(d + 35, MSG_DRAW, 0);
+		unscare_mouse();
+	}
+	else if (d->d1 != d1)
+	{
+		ret |= D_REDRAW;
+		small_dmap = (d->d1 != dmOVERW);
+		(d - 2)->flags &= ~D_DISABLED;
+		(d - 2)->flags |= small_dmap ? 0 : D_DISABLED;
+		(d + 35)->d1 = small_dmap;
+	}
     
     return ret;
 }
@@ -15983,11 +15991,11 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	
 	if(msg == MSG_START)
 	{
-		xmap_overlay = add_dlg_overlay();
+		xmap_overlay = add_dlg_layer();
 	}
 	else if(msg == MSG_END && xmap_overlay)
 	{
-		remove_dlg_overlay(xmap_overlay);
+		remove_dlg_layer(xmap_overlay);
 		xmap_overlay = nullptr;
 	}
 	

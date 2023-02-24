@@ -489,12 +489,16 @@ static int zc_gui_mouse_y()
 	return rti_screen.global_to_local_y(mouse_y);
 }
 
+bool use_linear_bitmaps()
+{
+	return zc_get_config("ZLAUNCH", "scaling_mode", 0) == 1;
+}
 static void init_render_tree()
 {
 	if (!rti_root.children.empty())
 		return;
-
-	if (zc_get_config("ZLAUNCH", "scaling_mode", 0) == 1)
+	
+	if (use_linear_bitmaps())
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 	else
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
