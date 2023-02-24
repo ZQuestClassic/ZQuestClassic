@@ -31,6 +31,7 @@
 #include "zq_cset.h"
 #include "zq_class.h"
 #include "dialog/paledit.h"
+#include "zq/render.h"
 
 extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
@@ -1370,6 +1371,8 @@ static DIALOG colors_dlg[] =
 
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
+	popup_zqdialog_start(false);
+	zq_hide_screen(true);
     char tempstuff[17];
     cset_first=first;
     cset_count=count;
@@ -1578,12 +1581,14 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     comeback();
     destroy_bitmap(bmp);
     //delete[] buf;
+	zq_hide_screen(false);
+	popup_zqdialog_end();
     return int32_t(ret==23);
 }
 
 int32_t onColors_Main()
 {
-    int32_t l9 = EditColors("Main Palette",0,pdFULL-3,mainpal_csets);
+    int32_t l9 = EditColors("Main Palette",0,pdFULL-1,mainpal_csets);
     
     // copy main to level 0
     int32_t di = CSET(poLEVEL)*3;
@@ -1628,7 +1633,7 @@ int32_t onColors_Levels()
 		sprintf(buf,"Level %X Palettes",index);
 		bool l9 = call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL, index);
 		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
-		setup_lcolors();
+		set_palette(RAMpal);
 		
 		if(index==0)
 		{

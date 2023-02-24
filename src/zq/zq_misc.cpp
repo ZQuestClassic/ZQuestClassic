@@ -259,7 +259,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    set_palette_range(RAMpal,0,192,true);
+    set_palette_range(RAMpal,0,0xE0,true);
 }
 
 void loadlvlpal(int32_t level)
@@ -267,7 +267,7 @@ void loadlvlpal(int32_t level)
 	Color=level;
 
 	// full pal
-	for(int32_t i=0; i<192; i++)
+	for(int32_t i=0; i<0xE0; i++)
 		RAMpal[i] = _RGB(colordata+i*3);
 
 	// level pal
@@ -339,21 +339,27 @@ void loadfadepal(int32_t dataset)
     set_pal();
 }
 
-void setup_lcolors()
+ALLEGRO_COLOR a5color(RGB c)
 {
-    for(int32_t i=0; i<16; i++)
-    {
-        RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
-        RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
-    }
-
-    set_palette(RAMpal);
+	return al_map_rgb(c.r*4,c.g*4,c.b*4);
+}
+ALLEGRO_COLOR a5color(int index)
+{
+	return a5color(RAMpal[index]);
+}
+ALLEGRO_COLOR real_lc1(int pal)
+{
+	return a5color(_RGB(colordata+(CSET(pal*pdLEVEL+poLEVEL)+2)*3));
+}
+ALLEGRO_COLOR real_lc2(int pal)
+{
+	return a5color(_RGB(colordata+(CSET(pal*pdLEVEL+poLEVEL)+16+1)*3));
 }
 
 void refresh_pal()
 {
     loadlvlpal(Color);
-    setup_lcolors();
+    set_palette(RAMpal);
 }
 
 char ns_string[4];

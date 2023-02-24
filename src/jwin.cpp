@@ -8041,6 +8041,7 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 	
 	panel_dialog=(DIALOG *)d->dp3;
 	
+	bool redraw = false;
 	for(i=0; panel[i].text; ++i)
 	{
 		if((panel[i].flags&D_SELECTED) && !(d->flags & D_HIDDEN))
@@ -8049,6 +8050,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				current_object=panel_dialog+(panel[i].dialog[counter]);
 				current_object->flags&=~D_HIDDEN;
+				if(object_message(current_object,MSG_IDLE,0)&D_REDRAW)
+					redraw = true;
 			}
 		}
 		else
@@ -8057,9 +8060,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				current_object=panel_dialog+(panel[i].dialog[counter]);
 				current_object->flags|=D_HIDDEN;
-				
-				if(current_object->proc == &jwin_tab_proc)
-					object_message(current_object,0,c);
+				if(object_message(current_object,MSG_IDLE,0)&D_REDRAW)
+					redraw = true;
 			}
 		}
 		
@@ -8073,6 +8075,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 		}*/
 	}
+	if(redraw)
+		broadcast_dialog_message(MSG_DRAW,0);
 	
 	FONT *oldfont = font;
 	switch(msg)
@@ -8247,6 +8251,7 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			d_tab_proc(msg, d, c);
 		}
 		font = oldfont;
+		jwin_tab_proc(MSG_IDLE,d,0);
 	}
 	break;
 	
@@ -8287,6 +8292,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		// d->x=zq_screen_w*3;
 		//d->y=zq_screen_h*3;
 	}
+	
+	broadcast_dialog_message(MSG_IDLE, 0);
 	
 	return D_O_K;
 }

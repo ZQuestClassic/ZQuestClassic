@@ -15,10 +15,15 @@ RenderTreeItem rti_game;
 RenderTreeItem rti_menu;
 RenderTreeItem rti_gui;
 RenderTreeItem rti_screen;
+RenderTreeItem rti_dialogs;
 
 static int zc_gui_mouse_x()
 {
-	if (rti_gui.visible)
+	if (rti_dialogs.visible)
+	{
+		return rti_dialogs.global_to_local_x(mouse_x);
+	}
+	else if (rti_gui.visible)
 	{
 		return rti_gui.global_to_local_x(mouse_x);
 	}
@@ -34,7 +39,11 @@ static int zc_gui_mouse_x()
 
 static int zc_gui_mouse_y()
 {
-	if (rti_gui.visible)
+	if (rti_dialogs.visible)
+	{
+		return rti_dialogs.global_to_local_y(mouse_y);
+	}
+	else if (rti_gui.visible)
 	{
 		return rti_gui.global_to_local_y(mouse_y);
 	}
@@ -78,15 +87,21 @@ static void init_render_tree()
 	rti_gui.bitmap = al_create_bitmap(gui_bmp->w, gui_bmp->h);
 	rti_gui.a4_bitmap = gui_bmp;
 	rti_gui.transparency_index = 0;
+	
+	rti_dialogs.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_dialogs.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
+	rti_dialogs.transparency_index = 0;
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 	rti_screen.transparency_index = 0;
+	
 
 	rti_root.children.push_back(&rti_game);
 	rti_root.children.push_back(&rti_menu);
 	rti_root.children.push_back(&rti_gui);
+	rti_root.children.push_back(&rti_dialogs);
 	rti_root.children.push_back(&rti_screen);
 
 	gui_mouse_x = zc_gui_mouse_x;
@@ -158,6 +173,19 @@ static void configure_render_tree()
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = screen;
 	}
+	
+	rti_dialogs.visible = zqdialog_tmp_bmps.size() > 0;
+	if(rti_dialogs.visible)
+	{
+		int w = al_get_bitmap_width(rti_dialogs.bitmap);
+		int h = al_get_bitmap_height(rti_dialogs.bitmap);
+		float scale = std::min((float)resx/w, (float)resy/h);
+		if (scaling_force_integer)
+			scale = std::max((int) scale, 1);
+		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
+		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
+		rti_dialogs.transform.scale = scale;
+	}
 
 	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || Saving;
 	if (rti_game.freeze_a4_bitmap_render)
@@ -223,9 +251,15 @@ static void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines
 
 void render_zc()
 {
+	BITMAP* tmp = screen;
+	if(zqdialog_bg_bmp)
+		screen = zqdialog_bg_bmp;
+	
 	init_render_tree();
 	configure_render_tree();
-
+	
+	zqdialog_render(rti_dialogs.a4_bitmap);
+	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
@@ -265,4 +299,6 @@ void render_zc()
 	render_text_lines(font, lines_right, TextJustify::right, font_scale);
 
     al_flip_display();
+	
+	screen = tmp;
 }

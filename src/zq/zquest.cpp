@@ -4110,7 +4110,7 @@ int32_t onIncreaseCSet()
     {*/
         if(draw_mode!=dm_alias)
         {
-            CSet=wrap(CSet+1,0,11);
+            CSet=wrap(CSet+1,0,13);
             refresh(rCOMBOS+rMENU+rCOMBO);
         }
         else
@@ -4185,7 +4185,7 @@ int32_t onDecreaseCSet()
     {*/
         if(draw_mode!=dm_alias)
         {
-            CSet=wrap(CSet-1,0,11);
+            CSet=wrap(CSet-1,0,13);
             refresh(rCOMBOS+rMENU+rCOMBO);
         }
         else
@@ -5710,18 +5710,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
-						if(((Map.Scr(i)->color)&15)>0)
-						{
-							int scl = 2;
-							int woffs = (sqr.w-(sqr.w/scl))/2;
-							int hoffs = (sqr.h-(sqr.h/scl))/2;
-							rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, lc1((Map.Scr(i)->color)&15));
-							rectfill(menu1,sqr.x+woffs,sqr.y+hoffs,sqr.x+sqr.w-1-woffs,sqr.y+sqr.h-1-hoffs, lc2((Map.Scr(i)->color)&15));
-						}
-						else
-						{
-							rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, lc1((Map.Scr(i)->color)&15));
-						}
+						al_draw_filled_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
+							real_lc1(Map.Scr(i)->color));
+						
+						int scl = 2;
+						int woffs = (sqr.w-(sqr.w/scl))/2;
+						int hoffs = (sqr.h-(sqr.h/scl))/2;
+						al_draw_filled_rectangle(sqr.x+woffs, sqr.y+hoffs, sqr.x+sqr.w-woffs, sqr.y+sqr.h-hoffs,
+							real_lc2(Map.Scr(i)->color));
 					}
 					else
 					{
@@ -5761,7 +5757,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				if(cursor_color)
 				{
 					auto& sqr = real_mini_sqr->subsquare(s);
-					highlight_sqr(menu1,cursor_color,sqr,zoomed_minimap ? 2 : 1);
+					al_draw_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
+						a5color(cursor_color), 2);
 				}
 				
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
@@ -6721,22 +6718,38 @@ void draw_screenunit(int32_t unit, int32_t flags)
 	font = tfont;
 }
 
+bool pause_refresh = true;
 void refresh(int32_t flags)
 {
+	if(pause_refresh) return;
 	static bool refreshing = false;
+	
 	bool earlyret = refreshing;
 	refreshing = true;
 	//^ These prevent recursive calls from updating the screen early
+	
 	bool zoom_delay = (zoomed_minimap && flags != rSCRMAP);
 	if(zoom_delay)
 		flags &= ~rSCRMAP;
+	
+	ALLEGRO_STATE old_state;
 	
 	if(flags&rCLEAR)
 	{
 		//magic pink = 0xED
 		//system black = vc(0)
+		//Clear a4 menu
 		clear_to_color(menu1,jwin_pal[jcBOX]);
-		flags |= rALL; //Clears should refresh everything!
+		
+		//Clear A5 overlay
+		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+		
+		ALLEGRO_BITMAP* overlay_bmp = get_overlay_bmp();
+		al_set_target_bitmap(overlay_bmp);
+		al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+		
+		//Clears should refresh everything!
+		flags |= rALL;
 	}
 	
 	if(flags&rSCRMAP)
@@ -7261,17 +7274,17 @@ void refresh(int32_t flags)
 		if(integrityBoolRoomNoGuyNoString(Map.CurrScr())) show_screen_error("Guy and String are (none)",i++, vc(14));
 	}
 	
-	draw_ttip(menu1);
-	
 	if(zoom_delay)
 		draw_screenunit(rSCRMAP,flags);
 	
-	draw_ttip2(menu1);
+	draw_ttips();
 	
 	scare_mouse();
 	
 	if(flags&rCLEAR)
 	{
+		//Restore A5 state
+		al_restore_state(&old_state);
 		//Draw the whole gui
 		blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
 	}
@@ -15929,79 +15942,102 @@ int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
     return D_O_K;
 }
 
-void drawxmap(int32_t themap,int32_t xoff,bool large)
+void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, int dx, int dy)
 {
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	al_set_target_bitmap(dest);
+	al_clear_to_color(al_map_rgba(0,0,0,0));
+	
     int32_t cols=(large?8:16);
 	int32_t col_width=large ? 22 : 11;
-    int32_t dot_width=int32_t((large?4:3)*1.5);
-    int32_t dot_offset=int32_t((large?5:2)*1.5);
+    int32_t dot_width=(large?6:4);
+    int32_t dot_offset=(large?7:3);
     int32_t l = 10;
-    clear_to_color(dmapbmp_large,jwin_pal[jcBOX]);
     
     for(int32_t y=0; y<8; y++)
     {
         for(int32_t x=0; x<cols; x++)
         {
-            if(!large||(x+xoff>=0 && x+xoff<=15))
-            {
-                mapscr *scr = &TheMaps[themap*MAPSCRS + y*16+x+(large?xoff:0)];
-                rectfill(dmapbmp_large,x*col_width,y*l,x*col_width+col_width-1,(y*l)+l-1,scr->valid&mVALID ? lc1((scr->color)&15) : 0);
-                
-                if(scr->valid&mVALID && ((scr->color)&15)>0)
-                {
-                    rectfill(dmapbmp_large,x*col_width+dot_offset,y*l+2+1,x*col_width+dot_offset+dot_width-1,y*l+4+1*2,lc2((scr->color)&15));
-                }
-            }
+            if(x+xoff < 0 || x+xoff > 15)
+				continue;
+			mapscr *scr = &TheMaps[themap*MAPSCRS + y*16+x+(large?xoff:0)];
+			if(!(scr->valid&mVALID))
+				continue;
+			al_draw_filled_rectangle(dx+(x*col_width),dy+(y*l),dx+(x*col_width+col_width),dy+((y*l)+l),real_lc1(scr->color));
+			
+			al_draw_filled_rectangle(dx+(x*col_width+dot_offset),dy+(y*l+3),dx+(x*col_width+dot_offset+dot_width),dy+(y*l+l-3),real_lc2(scr->color));
         }
     }
+	
+	al_restore_state(&old_state);
 }
 
 int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    int32_t d1 = d->d1;
-    int32_t ret = jwin_droplist_proc(msg,d,c);
-    
-    if(msg==MSG_DRAW || d->d1!=d1)
-    {
-        scare_mouse();
-        int32_t *xy = (int32_t*)(d->dp3);
-        xy[0]=d->d1;
-        drawxmap(xy[0],xy[1],small_dmap);
-        
-        if(xy[2]||xy[3])
-        {
-            int32_t frame_thickness=int32_t(2*1.5);
-            int32_t header_width=int32_t(4*1.5);
-            int32_t header_height=int32_t(6*1.5);
-            int32_t cols=small_dmap?8:16;
+	static ALLEGRO_BITMAP* xmap_overlay = nullptr;
+	static bool xmap_drawn = false;
+	int32_t d1 = d->d1;
+	int32_t ret = jwin_droplist_proc(msg,d,c);
+	
+	if(msg == MSG_START)
+	{
+		xmap_overlay = add_dlg_overlay();
+	}
+	else if(msg == MSG_END && xmap_overlay)
+	{
+		remove_dlg_overlay(xmap_overlay);
+		xmap_overlay = nullptr;
+	}
+	
+	if(d->flags & D_HIDDEN)
+	{
+		clear_a5_bmp(xmap_overlay);
+		return ret;
+	}
+	
+	if(msg==MSG_DRAW || d->d1!=d1)
+	{
+		scare_mouse();
+		int32_t *xy = (int32_t*)(d->dp3);
+		xy[0]=d->d1;
+		
+		if(xy[2]||xy[3])
+		{
+			int32_t frame_thickness=int32_t(2*1.5);
+			int32_t header_width=int32_t(4*1.5);
+			int32_t header_height=int32_t(6*1.5);
+			int32_t cols=small_dmap?8:16;
 			int32_t col_width=small_dmap ? 22 : 11;
-            int32_t x=d->x+xy[2];
-            int32_t y=d->y+xy[3];
-            int32_t j=0;
-            rectfill(screen,x,y-header_height-frame_thickness-1,int32_t(x+116*1.5-1),y-1,jwin_pal[jcBOX]);
-            
-            for(j=0; j<8; ++j)
-            {
-                textprintf_ex(screen,nfont,x-header_width-frame_thickness,y+1+(j*10),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
-            }
-            
-            for(j=0; j<cols; ++j)
-            {
-                textprintf_ex(screen,nfont,x+((col_width+1)/2)-(header_width/2)+(j*col_width),y-header_height-frame_thickness,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
-            }
-            
-            jwin_draw_frame(screen, (x-frame_thickness)+1, (y-frame_thickness)+1, 180, 84, FR_DEEP);
-            blit(dmapbmp_large,screen,0,0,x,y,dmapbmp_large->w,dmapbmp_large->h);
-        }
-        
-        //slider is disabled if
-        (d+1)->flags&=~D_DISABLED;
-        (d+1)->flags|=small_dmap?0:D_DISABLED;
-        object_message(d+1, MSG_DRAW, 0);
-        unscare_mouse();
-    }
-    
-    return ret;
+			int32_t x=d->x+xy[2];
+			int32_t y=d->y+xy[3];
+			int32_t j=0;
+			rectfill(screen,x,y-header_height-frame_thickness-1,int32_t(x+116*1.5-1),y-1,jwin_pal[jcBOX]);
+			
+			for(j=0; j<8; ++j)
+			{
+				textprintf_ex(screen,nfont,x-header_width-frame_thickness,y+1+(j*10),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+			}
+			
+			for(j=0; j<cols; ++j)
+			{
+				textprintf_ex(screen,nfont,x+((col_width+1)/2)-(header_width/2)+(j*col_width),y-header_height-frame_thickness,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+			}
+			
+			jwin_draw_frame(screen, (x-frame_thickness)+1, (y-frame_thickness)+1, 180, 84, FR_DEEP);
+			drawxmap(xmap_overlay,xy[0],xy[1],small_dmap,x,y);
+			xmap_drawn = true;
+		}
+		
+		//slider is disabled if
+		(d+1)->flags&=~D_DISABLED;
+		(d+1)->flags|=small_dmap?0:D_DISABLED;
+		object_message(d+1, MSG_DRAW, 0);
+		unscare_mouse();
+	}
+	
+	return ret;
 }
 
 int32_t xmapspecs[4] = {0,0,2,26};
@@ -16012,10 +16048,7 @@ int32_t onXslider(void *dp3,int32_t d2)
     int32_t *y=x+1;
     xmapspecs[1]=d2-7;
     bound(xmapspecs[1],-7,15);
-    drawxmap(xmapspecs[0],xmapspecs[1],small_dmap);
-    scare_mouse();
-    blit(dmapbmp_large,screen,0,0,(*x)+xmapspecs[2],(*y)+xmapspecs[3],dmapbmp_large->w,dmapbmp_large->h);
-    unscare_mouse();
+	broadcast_dialog_message(MSG_DRAW, 0);
     return D_O_K;
 }
 
@@ -16494,7 +16527,6 @@ const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData dmapscript_list(dmapscriptdroplist, &pfont);
-
 
 static DIALOG editdmap_dlg[] =
 {
@@ -31223,6 +31255,9 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 	//  setup_combo_animations();
+	al_init_primitives_addon();
+	pause_refresh = false;
+	refresh_pal();
 	refresh(rALL);
 	brush_width_menu[0].flags=D_SELECTED;
 	brush_height_menu[0].flags=D_SELECTED;
@@ -33433,7 +33468,13 @@ void draw_ttip2(BITMAP* dest)
 		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x, tooltip_box2.y, tooltip_box2.w, tooltip_box2.h);
 	}
 }
-
+void draw_ttips()
+{
+	BITMAP* ttbmp = get_tooltip_bmp();
+	clear_bitmap(ttbmp);
+	draw_ttip(ttbmp);
+	draw_ttip2(ttbmp);
+}
 
 void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)
 {

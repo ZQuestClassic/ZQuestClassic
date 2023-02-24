@@ -1219,6 +1219,7 @@ void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int f
 void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
 void draw_ttip(BITMAP* dest);
 void draw_ttip2(BITMAP* dest);
+void draw_ttips();
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);

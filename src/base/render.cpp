@@ -1,5 +1,17 @@
 #include "render.h"
 
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
+{
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	al_set_target_bitmap(bmp);
+	
+	al_clear_to_color(al_map_rgba(0,0,0,0));
+	
+	al_restore_state(&old_state);
+}
+
 static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
 {
 	if (!rti_parent)
@@ -46,7 +58,22 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.scale, h*rti->computed.scale, 0);
 		}
 	}
-
+	
+	for(ALLEGRO_BITMAP* overlay : rti->overlays)
+	{
+		int w = al_get_bitmap_width(overlay);
+		int h = al_get_bitmap_height(overlay);
+		
+		if (rti->tint)
+		{
+			al_draw_tinted_scaled_bitmap(overlay, *rti->tint, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.scale, h*rti->computed.scale, 0);
+		}
+		else
+		{
+			al_draw_scaled_bitmap(overlay, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.scale, h*rti->computed.scale, 0);
+		}
+	}
+	
 	for (auto rti_child : rti->children)
 	{
 		render_tree_draw_item(rti_child);
