@@ -18589,7 +18589,7 @@ static byte massRecolorType=MR_4BIT;
 #define D_SETTABLE (D_USER<<1)
 int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 {
-	BITMAP* bmp=gui_get_screen();
+	BITMAP* bmp=screen;
 	int32_t colorWidth=(d->w-4)/16;
 	byte* colors=static_cast<byte*>(d->dp);
 	
@@ -18641,7 +18641,7 @@ int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 // Used for the full palette in 8-bit mode.
 static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 {
-	BITMAP* bmp=gui_get_screen();
+	BITMAP* bmp=screen;
 	int32_t colorWidth=(d->w-4)/16;
 	int32_t colorHeight=(d->h-4)/12;
 	

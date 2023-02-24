@@ -6594,7 +6594,7 @@ int32_t d_autotext_proc(int32_t msg, DIALOG *d, int32_t c)
 			int32_t y = d->y;
 			for(int32_t q = 0; q < linecount; ++q)
 			{
-				gui_textout_ex(gui_get_screen(), auto_buf+auto_inds[q], d->x, y, fg, d->bg, true);
+				gui_textout_ex(screen, auto_buf+auto_inds[q], d->x, y, fg, d->bg, true);
 				y += yinc;
 			}
 		}
@@ -6630,7 +6630,6 @@ static DIALOG alert2_dialog[] =
   */
 int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int32_t vspace, const char *b1, const char *b2, const char *b3, int32_t c1, int32_t c2, int32_t c3, FONT *title_font)
 {
-	gui_get_screen();
     int32_t maxlen = 0;
     int32_t len1, len2, len3;
     int32_t avg_w = text_length(font, " ");
@@ -8664,7 +8663,7 @@ void jwin_ulalign_dialog(DIALOG *dialog)
 //Custom slider proc
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-    BITMAP *gui_bmp = gui_get_screen();
+    BITMAP *gui_bmp = screen;
     BITMAP *slhan = NULL;
     int32_t oldpos, newpos;
     int32_t sfg;                /* slider foreground color */
@@ -8948,7 +8947,7 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
     int32_t g;
     ASSERT(d);
     
-    gui_bmp = gui_get_screen();
+    gui_bmp = screen;
     
     switch(msg)
     {

@@ -8,9 +8,9 @@ extern int32_t jwin_pal[jcMAX];
 
 int32_t screen_w, screen_h;
 #define START_CLIP(d) set_clip_rect( \
-	gui_get_screen(), d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
+	screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
 #define END_CLIP() set_clip_rect( \
-	gui_get_screen(), 0, 0, LARGE_W, LARGE_H)
+	screen, 0, 0, LARGE_W, LARGE_H)
 
 namespace GUI
 {
@@ -65,7 +65,7 @@ int32_t ScrollingPane::mouseFixerProc(int32_t msg, DIALOG* d, int32_t c)
 		return D_DONTWANTMOUSE;
 	}
 	case MSG_DRAW:
-		set_clip_rect(gui_get_screen(), 0, 0, LARGE_W, LARGE_H);
+		clear_clip_rect(screen);
 		break;
 	}
 	return D_O_K;
@@ -102,8 +102,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
-			acquire_screen();
-			rectfill(gui_get_screen(), d->x, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame(d, sp->contentHeight, sp->scrollPos, d->h, 0);
 			START_CLIP(d);
@@ -129,7 +128,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				}
 			}
 			END_CLIP();
-			release_screen();
 			break;
 		}
 		case MSG_CLICK:
