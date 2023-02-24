@@ -352,6 +352,9 @@ bool edge_of_region(direction dir)
 // x, y are world coordinates (aka, where hero is in relation to origin screen)
 int get_screen_index_for_world_xy(int x, int y)
 {
+	if (!is_z3_scrolling_mode())
+		return currscr;
+
 	int dx = x / 256;
 	int dy = y / 176;
 	int origin_scr_x = z3_origin_screen_index % 16;
@@ -374,6 +377,8 @@ int get_screen_index_for_rpos(rpos_t rpos)
 pos_handle_t get_pos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
+	if (!is_z3_scrolling_mode())
+		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, rpos};
 	int screen_index = get_screen_index_for_rpos(rpos);
 	mapscr* screen = get_layer_scr(currmap, screen_index, layer - 1);
 	return {screen, screen_index, layer, rpos};
@@ -382,6 +387,8 @@ pos_handle_t get_pos_handle(rpos_t rpos, int layer)
 pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
+	if (!is_z3_scrolling_mode())
+		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, (rpos_t)COMBOPOS(x, y)};
 	return get_pos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
@@ -492,6 +499,8 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr_for_xy(int x, int y, int layer)
 {
+	if (!is_z3_scrolling_mode())
+		return get_layer_scr(currmap, currscr, layer);
 	return get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer);
 }
 
@@ -525,7 +534,7 @@ int32_t COMBOPOS(int32_t x, int32_t y)
 {
 	// TODO z3 !
 	// DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
-	return (((y) & 0xF0) + ((x) >> 4));
+	return (y & 0xF0) + (x >> 4);
 }
 int32_t COMBOPOS_B(int32_t x, int32_t y)
 {
@@ -544,6 +553,9 @@ int32_t COMBOY(int32_t pos)
 
 rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 {
+	if (!is_z3_scrolling_mode())
+		return (rpos_t) COMBOPOS(x, y);
+
 	x = vbound(x, 0, world_w-1);
 	y = vbound(y, 0, world_h-1);
 
