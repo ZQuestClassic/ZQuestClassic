@@ -3544,7 +3544,7 @@ void draw_ladder_platform(BITMAP* dest, int32_t x, int32_t y, int32_t c)
 		}
 	}
 }
-void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR& c)
+void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR c)
 {
 	for(auto cx = 0; cx < 256; cx += 16)
 	{
