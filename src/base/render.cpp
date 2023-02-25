@@ -201,11 +201,11 @@ void popup_zqdialog_end_a5()
 			active_dlg_rti = nullptr;
 			zqdialog_bg_bmp = nullptr;
 		}
-		delete to_del;
-		
 		ALLEGRO_STATE& oldstate = old_a5_states.back();
 		al_restore_state(&oldstate);
 		old_a5_states.pop_back();
+
+		delete to_del;
 	}
 	position_mouse_z(0);
 }

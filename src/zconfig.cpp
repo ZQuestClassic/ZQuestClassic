@@ -66,6 +66,17 @@ int32_t zc_get_config(char const* header, char const* name, int32_t default_val,
 	zc_pop_config();
 	return ret;
 }
+int32_t zc_get_config_hex(char const* header, char const* name, int32_t default_val, App a)
+{
+	zc_push_config();
+	zc_config_file(get_config_base_name(a));
+	auto def = get_config_hex(header,name,default_val);
+	zc_config_file(get_config_file_name(a));
+	auto ret = get_config_hex(header,name,def);
+	zc_cfg_defaulted = get_config_defaulted();
+	zc_pop_config();
+	return ret;
+}
 double zc_get_config(char const* header, char const* name, double default_val, App a)
 {
 	zc_push_config();
@@ -98,6 +109,13 @@ void zc_set_config(char const* header, char const* name, int32_t val, App a)
 	set_config_int(header,name,val);
 	zc_pop_config();
 }
+void zc_set_config_hex(char const* header, char const* name, int32_t val, App a)
+{
+	zc_push_config();
+	zc_config_file(get_config_file_name(a));
+	set_config_hex(header,name,val);
+	zc_pop_config();
+}
 void zc_set_config(char const* header, char const* name, double default_val, App a)
 {
 	zc_push_config();
@@ -117,6 +135,10 @@ int32_t zc_get_config_basic(char const* header, char const* name, int32_t defaul
 {
 	return get_config_int(header,name,default_val);;
 }
+int32_t zc_get_config_basic_hex(char const* header, char const* name, int32_t default_val)
+{
+	return get_config_hex(header,name,default_val);;
+}
 double zc_get_config_basic(char const* header, char const* name, double default_val)
 {
 	return get_config_float(header,name,default_val);
@@ -132,6 +154,10 @@ char const* zc_get_config_basic(char const* header, char const* name, char const
 void zc_set_config_basic(char const* header, char const* name, int32_t val)
 {
 	set_config_int(header,name,val);
+}
+void zc_set_config_basic_hex(char const* header, char const* name, int32_t val)
+{
+	set_config_hex(header,name,val);
 }
 void zc_set_config_basic(char const* header, char const* name, double default_val)
 {

@@ -31101,6 +31101,8 @@ int32_t main(int32_t argc,char **argv)
 	gui_mouse_focus=0;
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	show_mouse(screen);
+	al_init_image_addon();
+	al_init_font_addon();
 	al_init_primitives_addon();
 	//Display annoying beta warning message
 

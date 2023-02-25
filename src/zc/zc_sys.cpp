@@ -48,7 +48,7 @@
 #include "zc_sys.h"
 #include "play_midi.h"
 #include "debug.h"
-#include "jwin.h"
+#include "jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 #include "midi.h"
@@ -7940,7 +7940,7 @@ void system_pal()
 		pal[i].g = i-128;
 		pal[i].b = i-128;
 	}
-	load_colorset(gui_colorset, pal);
+	load_colorset(gui_colorset, pal, jwin_a5_colors);
 	
 	color_layer(pal, pal, 24,16,16, 28, 128,191);
 	

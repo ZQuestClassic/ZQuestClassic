@@ -5560,13 +5560,13 @@ extern char tmp_themefile[2048];
 char const* get_themefile();
 void set_theme(char const* fpath);
 void reset_theme();
-void load_themefile(char const* fpath, PALETTE pal);
+void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_themefile(char const* fpath);
-void save_themefile(char const* fpath, PALETTE pal);
+void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
 void save_themefile(char const* fpath);
-void load_udef_colorset(App a, PALETTE pal);
+void load_udef_colorset(App a, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_udef_colorset(App a);
-void load_colorset(int32_t colorset, PALETTE pal);
+void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_colorset(int32_t colorset);
 
 void update_hw_screen(bool force = false);
