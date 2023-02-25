@@ -82,6 +82,7 @@ static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
     free(timer_data);
 }
 
+int timer_is_installed();
 static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
