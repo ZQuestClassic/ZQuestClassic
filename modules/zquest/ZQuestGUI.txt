@@ -18,6 +18,7 @@ src/zq/zq_strings.cpp
 src/zq/zq_tiles.cpp
 src/play_midi.cpp
 src/jwin.cpp
+src/jwin_a5.cpp
 
 src/zq/gui/seltile_swatch.cpp
 src/zq/gui/selcombo_swatch.cpp

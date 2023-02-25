@@ -56,6 +56,8 @@ void render_tree_draw(RenderTreeItem* rti);
 extern BITMAP* zqdialog_bg_bmp;
 void popup_zqdialog_start(bool transp = true);
 void popup_zqdialog_end();
+void popup_zqdialog_start_a5();
+void popup_zqdialog_end_a5();
 RenderTreeItem* add_dlg_layer();
 void remove_dlg_layer(RenderTreeItem* rti);
 

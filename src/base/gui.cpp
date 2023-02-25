@@ -238,15 +238,7 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 {
 	running=true;
 	int32_t ret=0;
-	scare_mouse();
-	acquire_screen();
-	broadcast_dialog_message(dialog, MSG_START, 0);
-	broadcast_dialog_message(dialog, MSG_DRAW, 0);
-	broadcast_dialog_message(dialog, MSG_END, 0);
-	release_screen();
-	unscare_mouse();
 	
-	update_hw_screen(true);
 	while(!done && ret>=0)
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;

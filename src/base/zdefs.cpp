@@ -1,5 +1,5 @@
 #include "base/zdefs.h"
-#include "jwin.h"
+#include "jwin_a5.h"
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
@@ -123,6 +123,12 @@ void load_themefile(char const* fpath, PALETTE pal)
 	jwin_pal[jcALT_TEXTBG] = dvc(zc_get_config_basic("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcTEXTFG])));
 	jwin_pal[jcDISABLED_FG] = dvc(zc_get_config_basic("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcMEDDARK])));
 	jwin_pal[jcDISABLED_BG] = dvc(zc_get_config_basic("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcBOX])));
+	
+	PALETTE tpal;
+	get_palette(tpal);
+	set_palette(pal);
+	init_a5_jwinpal();
+	set_palette(tpal);
 	
 	zc_pop_config();
 	

@@ -105,6 +105,9 @@ void zq_hide_screen(bool hidden)
 
 void render_zq()
 {
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	BITMAP* tmp = screen;
 	if(zqdialog_bg_bmp)
 		screen = zqdialog_bg_bmp;
@@ -122,5 +125,6 @@ void render_zq()
 	al_flip_display();
 	
 	screen = tmp;
+	al_restore_state(&oldstate);
 }
 

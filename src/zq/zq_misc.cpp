@@ -22,6 +22,7 @@
 #include "zq_class.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
+#include "jwin_a5.h"
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
@@ -339,14 +340,6 @@ void loadfadepal(int32_t dataset)
     set_pal();
 }
 
-ALLEGRO_COLOR a5color(RGB c)
-{
-	return al_map_rgb(c.r*4,c.g*4,c.b*4);
-}
-ALLEGRO_COLOR a5color(int index)
-{
-	return a5color(RAMpal[index]);
-}
 ALLEGRO_COLOR real_lc1(int pal)
 {
 	return a5color(_RGB(colordata+(CSET(pal*pdLEVEL+poLEVEL)+2)*3));

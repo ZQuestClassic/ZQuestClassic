@@ -162,6 +162,7 @@ FONT* deffonts[CFONT_MAX];
 ALLEGRO_FONT* a5fonts[font_max];
 ALLEGRO_FONT* customfonts_a5[CFONT_MAX];
 ALLEGRO_FONT* deffonts_a5[CFONT_MAX];
+ALLEGRO_FONT* a5font = nullptr;
 
 FONT *get_zc_font(int32_t index)
 {
@@ -406,7 +407,6 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 	
 	int ranges[] = {32, 126}; //space to tilde
 	ALLEGRO_FONT* a5font = al_grab_font_from_bitmap(a5bmp, 1, ranges);
-	ASSERT(a5font);
 	
 	al_destroy_bitmap(a5bmp);
 	set_palette(oldpal);
@@ -509,6 +509,7 @@ void initFonts()
 		a5fonts[q] = __load_a5_font(bmp);
 		destroy_bitmap(bmp);
 	}
+	a5font = a5fonts[font_nfont];
 	
 	init_custom_fonts();
 }
