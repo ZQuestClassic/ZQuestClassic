@@ -276,6 +276,8 @@ int32_t bestfit_color_range(AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t 
 int32_t makecol8_map(int32_t r, int32_t g, int32_t b, RGB_MAP *table);
 void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, uint8_t start, uint8_t end, void (*callback)(int32_t pos));
 int32_t short_bmp_avg(BITMAP *bmp, int32_t i);
+void lfsrInit();
+uint16_t lfsrNext();
 void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                  int32_t src_color1, int32_t src_color2, uint8_t dest_color1,
                  uint8_t dest_color2);

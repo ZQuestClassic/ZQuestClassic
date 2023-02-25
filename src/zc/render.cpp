@@ -209,6 +209,9 @@ static void configure_render_tree()
 
 static void render_debug_text(ALLEGRO_FONT* font, std::string text, int x, int y, int scale)
 {
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	int resx = al_get_display_width(all_get_display());
 	int w = al_get_text_width(font, text.c_str());
 	int h = al_get_font_line_height(font);
@@ -235,6 +238,7 @@ static void render_debug_text(ALLEGRO_FONT* font, std::string text, int x, int y
 		al_get_bitmap_width(text_bitmap) * scale, al_get_bitmap_height(text_bitmap) * scale,
 		0
 	);
+	al_restore_state(&oldstate);
 }
 
 enum class TextJustify {
@@ -272,6 +276,9 @@ void end_info_bmp()
 
 void render_zc()
 {
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	BITMAP* tmp = screen;
 	if(zqdialog_bg_bmp)
 		screen = zqdialog_bg_bmp;
@@ -320,4 +327,5 @@ void render_zc()
     al_flip_display();
 	
 	screen = tmp;
+	al_restore_state(&oldstate);
 }

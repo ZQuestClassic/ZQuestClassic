@@ -7740,12 +7740,12 @@ int32_t short_bmp_avg(BITMAP *bmp, int32_t i)
 // A consistent RENG (random enough number generator) for dither_rect()
 static uint16_t lfsr;
 
-static inline void lfsrInit()
+void lfsrInit()
 {
     lfsr=1;
 }
 
-static uint16_t lfsrNext()
+uint16_t lfsrNext()
 {
     auto bits=(lfsr^(lfsr>>2)^(lfsr>>3)^(lfsr>>5))&1;
     lfsr=(lfsr>>1)|(bits<<15);

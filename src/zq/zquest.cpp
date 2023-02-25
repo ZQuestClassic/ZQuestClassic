@@ -54,6 +54,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/ffc_editor.h"
 
 #include "base/gui.h"
+#include "jwin_a5.h"
 #include "zc_list_data.h"
 #include "editbox.h"
 #include "zq_misc.h"
@@ -30318,8 +30319,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("OK\n");
 	
-	initFonts();
-	
 	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
 	{
 		customtunes[i].data=NULL;
@@ -30756,7 +30755,6 @@ int32_t main(int32_t argc,char **argv)
 	set_keyboard_rate(KeyboardRepeatDelay,KeyboardRepeatRate);
 	
 	is_compact = zc_get_config("ZQ_GUI","compact_mode",1);
-	init_custom_fonts();
 	mapscreenbmp = nullptr;
 	brushbmp = nullptr;
 	brushscreen = nullptr;
@@ -30766,7 +30764,6 @@ int32_t main(int32_t argc,char **argv)
 	menu3 = nullptr;
 	tooltipbmp = nullptr;
 	tooltipbmp2 = nullptr;
-	load_size_poses();
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
@@ -30904,6 +30901,8 @@ int32_t main(int32_t argc,char **argv)
 		tempmode=GFX_AUTODETECT_WINDOWED;
 	}
 
+	zq_screen_w = LARGE_W;
+	zq_screen_h = LARGE_H;
 	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
 
 	//extra block here is intentional
@@ -30918,6 +30917,8 @@ int32_t main(int32_t argc,char **argv)
 				  tempmode, get_color_depth(), zq_screen_w, zq_screen_h);
 		//Z_message("OK\n");
 	}
+	initFonts();
+	load_size_poses();
 
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
@@ -31100,6 +31101,7 @@ int32_t main(int32_t argc,char **argv)
 	gui_mouse_focus=0;
 	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
 	show_mouse(screen);
+	al_init_primitives_addon();
 	//Display annoying beta warning message
 
 #ifdef __EMSCRIPTEN__
@@ -31107,12 +31109,14 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 #ifndef __EMSCRIPTEN__
-
+#ifdef _DEBUG
+	zc_set_config("zquest","beta_warning",(char*)nullptr);
+#endif
 #if V_ZC_ALPHA
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
-	if(strcmp(curcontrol, oldcontrol))
+	if(zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
 	{
 		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
 			" There may be major bugs, which could cause quests"
@@ -31128,7 +31132,7 @@ int32_t main(int32_t argc,char **argv)
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
-	if(strcmp(curcontrol, oldcontrol))
+	if(zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
 	{
 		InfoDialog("Beta Warning", "WARNING:\nThis is an BETA version of ZQuest."
 			" There may be bugs, which could cause quests"
@@ -31264,7 +31268,6 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 	//  setup_combo_animations();
-	al_init_primitives_addon();
 	pause_refresh = false;
 	refresh_pal();
 	refresh(rALL);
@@ -31505,8 +31508,6 @@ void load_size_poses()
 		showallpanels=0;
 		
 		blackout_color=8;
-		zq_screen_w=LARGE_W;
-		zq_screen_h=LARGE_H;
 		
 		auto mapscr_wid = (((showedges?2:0)+16)*16*mapscreensize);
 		combolist_window.w=zq_screen_w-mapscr_wid;
@@ -31740,8 +31741,6 @@ void load_size_poses()
 		showallpanels=0;
 		
 		blackout_color=8;
-		zq_screen_w=LARGE_W;
-		zq_screen_h=LARGE_H;
 		
 		favorites_window.h=136;
 		favorites_window.y=zq_screen_h-favorites_window.h;

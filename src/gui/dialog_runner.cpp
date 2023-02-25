@@ -101,7 +101,9 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 {
 	realize(root);
 	realized = true;
+	popup_zqdialog_start_a5();
 	new_gui_popup_dialog(alDialog.data(), focused, done, running);
+	popup_zqdialog_end_a5();
 }
 
 }
