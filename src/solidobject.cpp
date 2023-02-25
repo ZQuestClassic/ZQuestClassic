@@ -127,7 +127,7 @@ void solid_object::draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col)
 	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
 	         ty + hysz-1 + sysz_ofs, col);
 }
-void solid_object::draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR& col)
+void solid_object::draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR col)
 {
 	if(ignore_solid_temp) return;
 	tx += x.getFloor() + hxofs + sxofs;

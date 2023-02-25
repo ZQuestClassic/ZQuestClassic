@@ -54,7 +54,7 @@ void slope_info::draw(BITMAP* dest, int32_t x, int32_t y, int32_t col) const
 		line(dest, x+x1, y+y1+1, x+x2+1, y+y2, col);
 	}
 }
-void slope_info::draw_a5(int32_t x, int32_t y, ALLEGRO_COLOR& col) const
+void slope_info::draw_a5(int32_t x, int32_t y, ALLEGRO_COLOR col) const
 {
 	if(!cmb) return;
 	al_draw_line(x+x1, y+y1, x+x2, y+y2, col, 1);

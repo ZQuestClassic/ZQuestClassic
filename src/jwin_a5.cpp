@@ -160,7 +160,7 @@ void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,i
 
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
 {
-	ALLEGRO_COLOR& c = jwin_a5_pal(jcBOXFG);
+	ALLEGRO_COLOR c = jwin_a5_pal(jcBOXFG);
 	
 	jwin_draw_button_a5(x,y,16,14,state,0);
 	x += 4 + (state?1:0);
@@ -178,7 +178,7 @@ void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
 
 void draw_x_button_a5(int32_t x, int32_t y, int32_t state)
 {
-	ALLEGRO_COLOR& c = jwin_a5_pal(jcBOXFG);
+	ALLEGRO_COLOR c = jwin_a5_pal(jcBOXFG);
 	
 	jwin_draw_button_a5(x,y,16,14,state,0);
 	x += 4 + (state?1:0);

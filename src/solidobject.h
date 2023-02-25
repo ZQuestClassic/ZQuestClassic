@@ -32,7 +32,7 @@ public:
 	virtual bool collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const;
 	
 	void draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col);
-	void draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR& col);
+	void draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR col);
 	virtual void solid_update(bool push = true);
 	virtual void solid_push(solid_object* pusher);
 	//Overload to do damage to Hero on pushing them
