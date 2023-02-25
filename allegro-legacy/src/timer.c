@@ -588,6 +588,10 @@ int install_timer(void)
    return 0;
 }
 
+int timer_is_installed(void)
+{
+	return _timer_installed;
+}
 
 
 /* remove_timer:
