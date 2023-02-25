@@ -43,7 +43,7 @@ void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 		return false;
 	});
 }
-void draw_solid_objects_a5(int32_t x, int32_t y, ALLEGRO_COLOR& col)
+void draw_solid_objects_a5(int32_t x, int32_t y, ALLEGRO_COLOR col)
 {
 	for_every_solid_object([&](solid_object* obj) {
 		obj->draw_a5(x, y, col);

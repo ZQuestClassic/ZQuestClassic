@@ -9,7 +9,7 @@ class solid_object;
 bool collide_object(solid_object const* obj);
 bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign = nullptr);
 void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col);
-void draw_solid_objects_a5(int32_t x, int32_t y, ALLEGRO_COLOR& col);
+void draw_solid_objects_a5(int32_t x, int32_t y, ALLEGRO_COLOR col);
 void setCurObject(solid_object* obj);
 
 class solid_object
