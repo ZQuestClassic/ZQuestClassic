@@ -3,7 +3,7 @@
 
 #include "zc_alleg.h"
 #include <vector>
-extern byte info_opacity;
+extern unsigned char info_opacity;
 
 class RenderTreeItemProps
 {
