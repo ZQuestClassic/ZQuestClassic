@@ -26,7 +26,17 @@ extern int32_t joystick_index;
 
 extern bool is_zquest();
 
-ALLEGRO_COLOR jwin_a5_pal[jcMAX];
+ALLEGRO_COLOR jwin_a5_colors[9];
+ALLEGRO_COLOR jwin_a5_pal(int jc)
+{
+	return jwin_a5_colors[r_dvc(jwin_pal[jc])];
+}
+
+void jwin_set_a5_colors(ALLEGRO_COLOR* colors)
+{
+	for(int q = 1; q <= 8; ++q)
+		jwin_a5_colors[q] = colors[q];
+}
 
 ALLEGRO_COLOR a5color(RGB c)
 {
@@ -39,21 +49,11 @@ ALLEGRO_COLOR a5color(int index)
 	return a5color(tmp);
 }
 
-void init_a5_jwinpal()
-{
-	PALETTE tpal;
-	get_palette(tpal);
-	for(int q = 0; q < jcMAX; ++q)
-	{
-		jwin_a5_pal[q] = a5color(tpal[jwin_pal[q]]);
-	}
-}
-
-void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR& c)
+void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c)
 {
 	al_draw_line(x1,y1,x2,y1,c,1);
 }
-void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR& c)
+void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c)
 {
 	al_draw_line(x1,y1,x1,y2,c,1);
 }
@@ -114,21 +114,21 @@ void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
 		break;
 	}
 	
-	al_draw_hline(x, y+1, x+w-1, jwin_a5_pal[c1]);
-	al_draw_vline(x+1, y+1, y+h-1, jwin_a5_pal[c1]);
+	al_draw_hline(x, y+1, x+w-1, jwin_a5_pal(c1));
+	al_draw_vline(x+1, y+1, y+h-1, jwin_a5_pal(c1));
 	
-	al_draw_hline(x+1, y+2, x+w-2, jwin_a5_pal[c2]);
-	al_draw_vline(x+2, y+2, y+h-2, jwin_a5_pal[c2]);
+	al_draw_hline(x+1, y+2, x+w-2, jwin_a5_pal(c2));
+	al_draw_vline(x+2, y+2, y+h-2, jwin_a5_pal(c2));
 	
-	al_draw_hline(x+1, y+h-1, x+w-1, jwin_a5_pal[c3]);
-	al_draw_vline(x+w-1, y+1, y+h-2, jwin_a5_pal[c3]);
+	al_draw_hline(x+1, y+h-1, x+w-1, jwin_a5_pal(c3));
+	al_draw_vline(x+w-1, y+1, y+h-2, jwin_a5_pal(c3));
 	
-	al_draw_hline(x, y+h, x+w, jwin_a5_pal[c4]);
-	al_draw_vline(x+w, y, y+h-1, jwin_a5_pal[c4]);
+	al_draw_hline(x, y+h, x+w, jwin_a5_pal(c4));
+	al_draw_vline(x+w, y, y+h-1, jwin_a5_pal(c4));
 }
 void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 {
-	al_draw_filled_rectangle(x+2,y+2,x+w-2,y+h-2,jwin_a5_pal[jcBOX]);
+	al_draw_filled_rectangle(x+2,y+2,x+w-2,y+h-2,jwin_a5_pal(jcBOX));
 	jwin_draw_frame_a5(x, y, w, h, frame);
 }
 void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type)
@@ -160,7 +160,7 @@ void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,i
 
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
 {
-	ALLEGRO_COLOR& c = jwin_a5_pal[jcBOXFG];
+	ALLEGRO_COLOR& c = jwin_a5_pal(jcBOXFG);
 	
 	jwin_draw_button_a5(x,y,16,14,state,0);
 	x += 4 + (state?1:0);
@@ -178,7 +178,7 @@ void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
 
 void draw_x_button_a5(int32_t x, int32_t y, int32_t state)
 {
-	ALLEGRO_COLOR& c = jwin_a5_pal[jcBOXFG];
+	ALLEGRO_COLOR& c = jwin_a5_pal(jcBOXFG);
 	
 	jwin_draw_button_a5(x,y,16,14,state,0);
 	x += 4 + (state?1:0);
@@ -222,7 +222,7 @@ static int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
 }
 
 void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-	ALLEGRO_COLOR& c1, ALLEGRO_COLOR& c2)
+	ALLEGRO_COLOR c1, ALLEGRO_COLOR c2)
 {
 	if(x1>x2)
 	{
@@ -296,7 +296,7 @@ void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const cha
 	int32_t tx = x + 2;
 	int32_t ty = y + (h-height)/2;
 	
-	dither_rect_a5(x, y, x+w-1, y+h-1, jwin_a5_pal[jcTITLER], jwin_a5_pal[jcTITLEL]);
+	dither_rect_a5(x, y, x+w-1, y+h-1, jwin_a5_pal(jcTITLER), jwin_a5_pal(jcTITLEL));
 	
 	if(len>509)
 		len=509;
@@ -319,7 +319,7 @@ void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const cha
 		}
 	}
 	
-	al_draw_text(a5font,jwin_a5_pal[jcTITLEFG],tx,ty,0,buf);
+	al_draw_text(a5font,jwin_a5_pal(jcTITLEFG),tx,ty,0,buf);
 	
 	if(draw_button)
 	{

@@ -185,6 +185,8 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
+	al_init_image_addon();
+	al_init_font_addon();
 	al_init_primitives_addon();
 	initFonts();
 	
