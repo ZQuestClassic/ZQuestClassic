@@ -3,7 +3,7 @@
 RenderTreeItem rti_dialogs;
 
 extern int32_t zq_screen_w, zq_screen_h;
-byte info_opacity = 255;
+unsigned char info_opacity = 255;
 bool use_linear_bitmaps();
 
 void set_bitmap_create_flags(bool preserve_texture)
