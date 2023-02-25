@@ -290,7 +290,7 @@ void render_zc()
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
-	ALLEGRO_FONT* a5font = get_zc_font_a5(font_saturnfont);//al_create_builtin_font();
+	ALLEGRO_FONT* a5font = get_zc_font_a5(font_lfont_l);//al_create_builtin_font();
 	static int font_scale = 3;
 
 	std::vector<std::string> lines_left;
@@ -298,7 +298,7 @@ void render_zc()
 
 	// TODO calculate fps without using a timer thread.
 	if (ShowFPS)
-		lines_left.push_back(fmt::format("fps: {}", (int)lastfps));
+		lines_left.push_back(fmt::format("FPS: {}", (int)lastfps));
 	if (replay_is_replaying())
 		lines_left.push_back(replay_get_buttons_string().c_str());
 	if (Paused)
