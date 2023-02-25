@@ -872,3 +872,7 @@ const char *old_weapon_string[wLast] =
 
 char *weapon_string[WPNCNT];
 
+ALLEGRO_COLOR item::hitboxColor(byte opacity) const
+{
+	return al_map_rgba(0,255,255,opacity);
+}

@@ -5,10 +5,13 @@
 
 extern RenderTreeItem rti_root;
 extern RenderTreeItem rti_game;
+extern RenderTreeItem rti_infolayer;
 extern RenderTreeItem rti_menu;
 extern RenderTreeItem rti_gui;
 extern RenderTreeItem rti_screen;
 
+void start_info_bmp();
+void end_info_bmp();
 void render_zc();
 
 #endif

@@ -42,6 +42,7 @@ enum Cheat
 	ShowPushblock,
 	ShowHitbox,
 	ShowFFCScripts,
+	ShowInfoOpacity,
 	Last,
 };
 

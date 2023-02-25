@@ -51,6 +51,7 @@ static const std::vector<std::string> CheatStrings = {
 	"ShowPushblock",
 	"ShowHitbox",
 	"ShowFFCScripts",
+	"ShowInfoOpacity",
 	"Last",
 };
 
@@ -138,6 +139,8 @@ std::string cheat_help(Cheat cheat)
 			return "Toggle showing hitbox debug info";
 		case ShowFFCScripts:
 			return "Toggle listing currently running FFC scripts";
+		case ShowInfoOpacity:
+			return "Select the opacity of debug info, 0-255";
 	}
 	return "";
 }
@@ -401,6 +404,11 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 		onShowFFScripts();
 	}
 	break;
+	case ShowInfoOpacity:
+	{
+		onShowInfoOpacity();
+	}
+	break;
 
     case None:
     case Last:
@@ -427,6 +435,7 @@ static bool instant_exec(Cheat cheat)
 		case ShowPushblock:
 		case ShowHitbox:
 		case ShowFFCScripts:
+		case ShowInfoOpacity:
 			return true;
 	}
 	return false;

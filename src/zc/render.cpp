@@ -12,6 +12,7 @@ extern sprite_list guys;
 
 RenderTreeItem rti_root;
 RenderTreeItem rti_game;
+RenderTreeItem rti_infolayer;
 RenderTreeItem rti_menu;
 RenderTreeItem rti_gui;
 RenderTreeItem rti_screen;
@@ -79,6 +80,7 @@ static void init_render_tree()
 		al_set_new_bitmap_flags(base_flags_preserve_texture);
 	rti_game.bitmap = al_create_bitmap(framebuf->w, framebuf->h);
 	rti_game.a4_bitmap = framebuf;
+	rti_infolayer.bitmap = al_create_bitmap(framebuf->w, framebuf->h);
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_menu.bitmap = al_create_bitmap(menu_bmp->w, menu_bmp->h);
@@ -100,6 +102,7 @@ static void init_render_tree()
 	
 
 	rti_root.children.push_back(&rti_game);
+	rti_root.children.push_back(&rti_infolayer);
 	rti_root.children.push_back(&rti_menu);
 	rti_root.children.push_back(&rti_gui);
 	rti_root.children.push_back(&rti_screen);
@@ -133,6 +136,10 @@ static void configure_render_tree()
 		rti_game.transform.y = (resy - h*scale) / 2 / scale;
 		rti_game.transform.scale = scale;
 		rti_game.visible = true;
+		rti_infolayer.transform.x = (resx - w*scale) / 2 / scale;
+		rti_infolayer.transform.y = (resy - h*scale) / 2 / scale;
+		rti_infolayer.transform.scale = scale;
+		rti_infolayer.visible = true;
 	}
 
 	if (rti_menu.visible = MenuOpen)
@@ -191,10 +198,12 @@ static void configure_render_tree()
 	{
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
 		rti_game.tint = &tint;
+		rti_infolayer.tint = &tint;
 	}
 	else
 	{
 		rti_game.tint = nullptr;
+		rti_infolayer.tint = nullptr;
 	}
 }
 
@@ -246,6 +255,19 @@ static void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines
 		render_debug_text(font, line.c_str(), x, debug_text_y, scale);
 		debug_text_y -= scale*font_height + 3;
 	}
+}
+
+static ALLEGRO_STATE infobmp_old_state;
+void start_info_bmp()
+{
+	al_store_state(&infobmp_old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	al_set_target_bitmap(rti_infolayer.bitmap);
+	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1-playing_field_offset);
+}
+void end_info_bmp()
+{
+	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1);
+	al_restore_state(&infobmp_old_state);
 }
 
 void render_zc()

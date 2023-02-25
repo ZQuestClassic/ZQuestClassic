@@ -128,6 +128,8 @@ std::string cheatName(Cheat c)
 			return "Toggle Hitboxes";
 		case Cheat::ShowFFCScripts:
 			return "Toggle FFC Scripts";
+		case Cheat::ShowInfoOpacity:
+			return "Change Debug Opacity";
 		default:
 			return cheat_to_string(c);
 	}

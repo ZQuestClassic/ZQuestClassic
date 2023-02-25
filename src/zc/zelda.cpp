@@ -61,6 +61,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 #include <regex>
+#include "zc/render.h"
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -5620,6 +5621,7 @@ reload_for_replay_file:
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
 		}
+		clear_a5_bmp(rti_infolayer.bitmap);
 
 		if (load_replay_file_deffered_called)
 		{

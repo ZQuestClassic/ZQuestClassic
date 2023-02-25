@@ -104,7 +104,7 @@ static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
-
+int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -403,7 +403,7 @@ void load_game_configs()
 	DRbtn = zc_get_config(ctrl_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
-
+	
 	digi_volume = zc_get_config(sfx_sect,"digi",248);
 	midi_volume = zc_get_config(sfx_sect,"midi",255);
 	sfx_volume = zc_get_config(sfx_sect,"sfx",248);
@@ -426,22 +426,22 @@ void load_game_configs()
 	title_version = zc_get_config(cfg_sect,"title",2);
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
-   
+	
 	//default - scale x2, 640 x 480
 	window_width = resx = zc_get_config(cfg_sect,"window_width",640);
 	window_height = resy = zc_get_config(cfg_sect,"window_height",480);
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
-   
+	
 	loadlast = zc_get_config(cfg_sect,"load_last",0);
-   
+	
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
-   
+	
 	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
-   
+	
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
-   
+	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
@@ -4418,11 +4418,15 @@ int32_t onShowLayerF()
 int32_t onShowLayerW()
 {
 	show_walkflags=!show_walkflags;
+	if(show_walkflags)
+		show_effectflags = false;
 	return D_O_K;
 }
 int32_t onShowLayerE()
 {
 	show_effectflags=!show_effectflags;
+	if(show_effectflags)
+		show_walkflags = false;
 	return D_O_K;
 }
 int32_t onShowFFScripts()
@@ -4433,6 +4437,12 @@ int32_t onShowFFScripts()
 int32_t onShowHitboxes()
 {
 	show_hitboxes=!show_hitboxes;
+	return D_O_K;
+}
+int32_t onShowInfoOpacity()
+{
+	info_opacity = vbound(getnumber("Debug Info Opacity",info_opacity),0,255);
+	zc_set_config("zc","debug_info_opacity",info_opacity);
 	return D_O_K;
 }
 
@@ -7632,10 +7642,12 @@ static MENU show_menu[] =
 	{ (char *)"Freeform Combos",        onShowLayerF, NULL, 0, NULL },
 	{ (char *)"Sprites",                onShowLayerS, NULL, 0, NULL },
 	{ (char *)"",                               NULL, NULL, 0, NULL },
-	{ (char *)"Walkability",            onShowLayerW, NULL, 0, NULL },
 	{ (char *)"Current FFC Scripts", onShowFFScripts, NULL, 0, NULL },
+	{ (char *)"",                               NULL, NULL, 0, NULL },
+	{ (char *)"Walkability",            onShowLayerW, NULL, 0, NULL },
 	{ (char *)"Hitboxes",             onShowHitboxes, NULL, 0, NULL },
 	{ (char *)"Effects",                onShowLayerE, NULL, 0, NULL },
+	{ (char *)"Info Opacity",      onShowInfoOpacity, NULL, 0, NULL },
 	{ NULL,                                     NULL, NULL, 0, NULL }
 };
 

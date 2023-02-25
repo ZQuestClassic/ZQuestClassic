@@ -3,6 +3,7 @@
 RenderTreeItem rti_dialogs;
 
 extern int32_t zq_screen_w, zq_screen_h;
+byte info_opacity = 255;
 bool use_linear_bitmaps();
 
 void set_bitmap_create_flags(bool preserve_texture)
@@ -83,7 +84,7 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 
 		int w = al_get_bitmap_width(rti->bitmap);
 		int h = al_get_bitmap_height(rti->bitmap);
-
+		
 		if (rti->tint)
 		{
 			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.scale, h*rti->computed.scale, 0);

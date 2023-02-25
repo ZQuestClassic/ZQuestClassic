@@ -43,6 +43,7 @@ extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
 #include <fmt/format.h>
+#include "zc/render.h"
 
 
 #define EPSILON 0.01 // Define your own tolerance
@@ -3382,6 +3383,97 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		}
 	}
 }
+void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
+{
+	ALLEGRO_COLOR col_solid = al_map_rgba(178,36,36,info_opacity);
+	ALLEGRO_COLOR col_water1 = al_map_rgba(85,85,255,info_opacity);
+	ALLEGRO_COLOR col_lhook = al_map_rgba(170,170,170,info_opacity);
+	ALLEGRO_COLOR col_stepable = al_map_rgba(165,105,8,info_opacity);
+	ALLEGRO_COLOR col_dmg = al_map_rgba(255,255,0,info_opacity);
+	newcombo const &c = combobuf[cmbdat];
+	
+	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	
+	int32_t xx = x-xofs;
+	int32_t yy = y+playing_field_offset-yofs;
+	
+	int32_t bridgedetected = 0;
+	
+	// Draw damage combos
+	bool dmg = combo_class_buf[c.type].modify_hp_amount;
+	
+	for(int32_t i=0; i<4; i++)
+	{
+		int32_t tx=((i&2)<<2)+xx;
+		int32_t ty=((i&1)<<3)+yy;
+		int32_t tx2=((i&2)<<2)+x;
+		int32_t ty2=((i&1)<<3)+y;
+		for (int32_t m = lyr-1; m <= 1; m++)
+		{
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && _effectflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
+				{
+					bridgedetected |= (1<<i);
+				}
+			}
+		}
+		if ((bridgedetected & (1<<i)))
+			continue;
+		bool doladdercheck = true;
+		//if ( iswaterex(cmbdat, currmap, currscr, lyr, tx2, ty2, true, false, false)!=0 )
+		
+		if ((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag4)) && c.type == cWATER) || c.type == cSHALLOWWATER)) 
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if(((k+j)/2)%2)
+						al_draw_filled_rectangle(tx+k,ty+j,tx+k+2,ty+j+2,col_water1);
+		}
+		if (iswater_type(c.type) && !DRIEDLAKE && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
+		{
+			if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
+			if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
+				al_draw_filled_rectangle(tx,ty,tx+8,ty+8,col_water1);
+			else al_draw_filled_rectangle(tx,ty,tx+8,ty+8,col_lhook);
+		}
+		
+		if(c.walk&(1<<i) && !(iswater_type(c.type) && DRIEDLAKE) && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER))))  // Check for dried lake (watertype && not water)
+		{
+			if(c.type==cLADDERHOOKSHOT && isstepable(cmbdat) && ishookshottable(xx,yy))
+			{
+				for(int32_t k=0; k<8; k+=2)
+					for(int32_t j=0; j<8; j+=2)
+						al_draw_filled_rectangle(tx+k,ty+j,tx+k+2,ty+j+2,((k+j)/2)%2 ? col_stepable : col_lhook);
+			}
+			else
+			{
+				ALLEGRO_COLOR* color = &col_solid;
+				
+				if(isstepable(cmbdat)&& (!doladdercheck))
+					color=&col_stepable;
+				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(xx,yy))
+					color=&col_lhook;
+					
+				al_draw_filled_rectangle(tx,ty,tx+8,ty+8,*color);
+			}
+		}
+		
+		if(dmg)
+		{
+			for(int32_t k=0; k<8; k+=2)
+				for(int32_t j=0; j<8; j+=2)
+					if((k+j)%4 < 2) al_draw_filled_rectangle(tx+k,ty+j,tx+k+2,ty+j+2,col_dmg);
+		}
+	}
+}
 
 void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
 {
@@ -3406,15 +3498,25 @@ void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs,
 		}
 	}
 }
-
-// Effectflags L4 cheat
-void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
+void put_effectflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
 {
-	if(show_effectflags)
+	ALLEGRO_COLOR col_eff = al_map_rgba(85,255,85,info_opacity);
+	newcombo const &c = combobuf[cmbdat];
+	
+	int32_t xx = x-xofs;
+	int32_t yy = y+playing_field_offset-yofs;
+	
+	for(int32_t i=0; i<4; i++)
 	{
-		for(int32_t i=0; i<176; i++)
+		int32_t tx=((i&2)<<2)+xx;
+		int32_t ty=((i&1)<<3)+yy;
+		int32_t tx2=((i&2)<<2)+x;
+		int32_t ty2=((i&1)<<3)+y;
+	
+	
+		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
 		{
-			put_effectflags(dest,((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
+			al_draw_filled_rectangle(tx,ty,tx+8,ty+8,col_eff);
 		}
 	}
 }
@@ -3442,15 +3544,40 @@ void draw_ladder_platform(BITMAP* dest, int32_t x, int32_t y, int32_t c)
 		}
 	}
 }
+void draw_ladder_platform_a5(int32_t x, int32_t y, ALLEGRO_COLOR& c)
+{
+	for(auto cx = 0; cx < 256; cx += 16)
+	{
+		for(auto cy = 0; cy < 176; cy += 16)
+		{
+			if(isSVLadder(cx,cy))
+			{
+				auto nx = cx+x, ny = cy+y;
+				if(cy && !isSVLadder(cx,cy-16))
+					al_draw_line(nx,ny,nx+15,ny,c,1);
+				al_draw_filled_rectangle(nx,ny,nx+4,ny+16,c);
+				al_draw_filled_rectangle(nx+12,ny,nx+16,ny+16,c);
+				al_draw_filled_rectangle(nx+4,ny+2,nx+12,ny+6,c);
+				al_draw_filled_rectangle(nx+4,ny+10,nx+12,ny+14,c);
+			}
+			else if(isSVPlatform(cx,cy))
+			{
+				al_draw_line(cx+x,cy+y,cx+x+15,cy+y,c,1);
+			}
+		}
+	}
+}
 
 // Walkflags L4 cheat
-void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
+void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 {
 	if(show_walkflags)
 	{
+		start_info_bmp();
+		
 		for(int32_t i=0; i<176; i++)
 		{
-			put_walkflags(dest,((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
+			put_walkflags_a5(((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
 		}
 		
 		for(int32_t k=0; k<2; k++)
@@ -3459,31 +3586,37 @@ void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t temps
 			
 			if(lyr->valid)
 			{
-				if(tempscreen==2)
+				for(int32_t i=0; i<176; i++)
 				{
-					for(int32_t i=0; i<176; i++)
-					{
-						put_walkflags(temp_buf,((i&15)<<4),(i&0xF0),x,y,tmpscr2[k].data[i], k%2+1);
-						put_walkflags(scrollbuf,((i&15)<<4),(i&0xF0),x,y,tmpscr2[k].data[i], k%2+1);
-					}
-				}
-				else
-				{
-					for(int32_t i=0; i<176; i++)
-					{
-						put_walkflags(temp_buf,((i&15)<<4),(i&0xF0),x,y,tmpscr3[k].data[i], k%2+1);
-						put_walkflags(scrollbuf,((i&15)<<4),(i&0xF0),x,y,tmpscr3[k].data[i], k%2+1);
-					}
+					put_walkflags_a5(((i&15)<<4),(i&0xF0),x,y,lyr->data[i], k%2+1);
 				}
 			}
 		}
 		
 		if (tempscreen == 2)
 		{
-			draw_ladder_platform(dest,-x,-y+playing_field_offset,makecol(165,105,8));
-			draw_solid_objects(dest,-x,-y+playing_field_offset,SOLID_COL);
-			draw_slopes(dest,-x,-y+playing_field_offset,makecol(255,85,255));
+			draw_ladder_platform_a5(-x,-y+playing_field_offset,al_map_rgba(165,105,8,info_opacity));
+			draw_solid_objects_a5(-x,-y+playing_field_offset,al_map_rgba(178,36,36,info_opacity));
+			draw_slopes_a5(-x,-y+playing_field_offset,al_map_rgba(255,85,255,info_opacity));
 		}
+		
+		end_info_bmp();
+	}
+}
+
+// Effectflags L4 cheat
+void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
+{
+	if(show_effectflags)
+	{
+		start_info_bmp();
+		
+		for(int32_t i=0; i<176; i++)
+		{
+			put_effectflags_a5(((i&15)<<4),(i&0xF0),x,y,layer->data[i], 0);
+		}
+		
+		end_info_bmp();
 	}
 }
 
@@ -3612,6 +3745,7 @@ void draw_msgstr(byte layer, bool tempb = false)
 
 void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 {
+	clear_a5_bmp(rti_infolayer.bitmap);
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
 		FFCore.doScriptMenuDraws();
@@ -3771,11 +3905,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	//Show walkflags cheat
-	do_walkflags(temp_buf,this_screen,0,0,2);
-	do_walkflags(scrollbuf,this_screen,0,0,2);
-	
-	do_effectflags(temp_buf,this_screen,0,0,2);
-	do_effectflags(scrollbuf,this_screen,0,0,2);
+	do_walkflags(this_screen,0,0,2);
+	do_effectflags(this_screen,0,0,2);
 	
 	putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
 	

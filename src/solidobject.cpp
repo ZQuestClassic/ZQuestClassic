@@ -43,6 +43,13 @@ void draw_solid_objects(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 		return false;
 	});
 }
+void draw_solid_objects_a5(int32_t x, int32_t y, ALLEGRO_COLOR& col)
+{
+	for_every_solid_object([&](solid_object* obj) {
+		obj->draw_a5(x, y, col);
+		return false;
+	});
+}
 
 bool collide_object(solid_object const* collide_with_obj)
 {
@@ -119,6 +126,14 @@ void solid_object::draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col)
 	ty += y.getFloor() + hyofs + syofs;
 	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
 	         ty + hysz-1 + sysz_ofs, col);
+}
+void solid_object::draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR& col)
+{
+	if(ignore_solid_temp) return;
+	tx += x.getFloor() + hxofs + sxofs;
+	ty += y.getFloor() + hyofs + syofs;
+	al_draw_filled_rectangle(tx, ty, tx + hxsz + sxsz_ofs,
+	         ty + hysz + sysz_ofs, col);
 }
 
 void solid_object::solid_update(bool push)

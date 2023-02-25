@@ -46,6 +46,7 @@ extern refInfo playerScriptData;
 #include "zscriptversion.h"
 #include "particles.h"
 #include <fmt/format.h>
+#include "zc/render.h"
 
 extern refInfo itemScriptData[256];
 extern refInfo itemCollectScriptData[256];
@@ -5915,7 +5916,10 @@ int32_t HeroClass::defend(weapon *w)
 		default: return 0;
 	}
 }
-
+ALLEGRO_COLOR HeroClass::hitboxColor(byte opacity) const
+{
+	return al_map_rgba(0,0,255,opacity);
+}
 int32_t HeroClass::compareDir(int32_t other)
 {
 	if(other != NORMAL_DIR(other))
@@ -25683,6 +25687,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
+		clear_a5_bmp(rti_infolayer.bitmap);
 		
 		switch(scrolldir)
 		{
@@ -25783,11 +25788,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
 		}
 		
-		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-		do_walkflags(framebuf, newscr, tx, ty,2);
+		do_walkflags(oldscr, tx2, ty2,3); //show walkflags if the cheat is on
+		do_walkflags(newscr, tx, ty,2);
 		
-		do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
-		do_effectflags(framebuf, newscr, tx, ty,2);
+		do_effectflags(oldscr, tx2, ty2,3); //show effectflags if the cheat is on
+		do_effectflags(newscr, tx, ty,2);
 		
 		
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
@@ -28950,6 +28955,7 @@ void HeroClass::heroDeathAnimation()
 			}
 			else
 			{
+				clear_a5_bmp(rti_infolayer.bitmap);
 				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);

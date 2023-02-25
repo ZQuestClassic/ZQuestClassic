@@ -181,6 +181,8 @@ public:
 	void alloc_scriptmem();
 	
 	virtual int32_t run_script(int32_t mode);
+	
+	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 };
 
 enum //run_script modes

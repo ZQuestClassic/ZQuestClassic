@@ -405,7 +405,7 @@ public:
 	void calc_darkroom_hero(int32_t x1 = 0, int32_t y1 = 0, int32_t x2 = 0, int32_t y2 = 0);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);
-	
+	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl);
 	void handleSpotlights();

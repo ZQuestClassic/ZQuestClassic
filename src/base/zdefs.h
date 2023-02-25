@@ -160,6 +160,7 @@ typedef unsigned const char ucc;
 #include "base/random.h"
 #include "base/util.h"
 #include "base/process_management.h"
+#include "base/render.h"
 #include "zconfig.h"
 #include "user_object.h"
 #include "mapscr.h"

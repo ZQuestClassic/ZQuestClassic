@@ -9917,7 +9917,10 @@ int32_t enemy::run_script(int32_t mode)
 	}
 	return ret;
 }
-
+ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const
+{
+	return al_map_rgba(255,0,0,opacity);
+}
 /********************************/
 /*********  Guy Class  **********/
 /********************************/
