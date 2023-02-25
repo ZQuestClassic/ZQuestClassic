@@ -219,7 +219,7 @@ static void render_debug_text(ALLEGRO_FONT* font, std::string text, int x, int y
 		if (text_bitmap)
 			al_destroy_bitmap(text_bitmap);
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
-		text_bitmap = al_create_bitmap(resx, 8);
+		text_bitmap = al_create_bitmap(resx, h);
 	}
 
 	al_set_target_bitmap(text_bitmap);
@@ -283,7 +283,7 @@ void render_zc()
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
-	static ALLEGRO_FONT* font = al_create_builtin_font();
+	ALLEGRO_FONT* a5font = get_zc_font_a5(font_saturnfont);//al_create_builtin_font();
 	static int font_scale = 3;
 
 	std::vector<std::string> lines_left;
@@ -313,9 +313,9 @@ void render_zc()
 				lines_right.push_back(ffcmap[tmpscr->ffcs[i].script-1].scriptname);
 		}
 	}
-
-	render_text_lines(font, lines_left, TextJustify::left, font_scale);
-	render_text_lines(font, lines_right, TextJustify::right, font_scale);
+	
+	render_text_lines(a5font, lines_left, TextJustify::left, font_scale);
+	render_text_lines(a5font, lines_right, TextJustify::right, font_scale);
 
     al_flip_display();
 	

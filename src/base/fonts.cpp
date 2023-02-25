@@ -2,8 +2,11 @@
 #include "base/fonts.h"
 #include "fontsdat.h"
 #include "base/zapp.h"
+#include <fmt/format.h>
 extern DATAFILE *fontsdata;
 extern bool is_compact;
+using namespace util;
+
 FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont_l, *pfont, *mfont, *ztfont, *sfont, *sfont2, *sfont3, *spfont, *ssfont1, *ssfont2, *ssfont3, *ssfont4, *gblafont,
 		*goronfont, *zoranfont, *hylian1font, *hylian2font, *hylian3font, *hylian4font, *gboraclefont, *gboraclepfont, *dsphantomfont, *dsphantompfont,
 		//New fonts for 2.54+
@@ -65,6 +68,100 @@ const char *msgfont_str[font_max] =
 	"nfont",
 	"Small 3"
 };
+
+const char *msgfont_int_str[font_max] =
+{
+	"zfont",
+	"z3font",
+	"z3smallfont",
+	"deffont",
+	"lfont",
+	"lfont_l",
+	"pfont",
+	"mfont",
+	"ztfont",
+	"sfont",
+	"sfont2",
+	"spfont",
+	"ssfont1",
+	"ssfont2",
+	"ssfont3",
+	"ssfont4",
+	"gblafont",
+	"goronfont",
+	"zoranfont",
+	"hylian1font",
+	"hylian2font",
+	"hylian3font",
+	"hylian4font",
+	"gboraclefont",
+	"gboraclepfont",
+	"dsphantomfont",
+	"dsphantompfont",
+
+	"atari800font",  
+	"acornfont",  
+	"adosfont",  
+	"baseallegrofont",  
+	"apple2font",  
+	"apple280colfont",  
+	"apple2gsfont",
+	"aquariusfont",  
+	"atari400font",  
+	"c64font",  
+	"c64hiresfont",  
+	"cgafont",  
+	"cocofont",
+	"coco2font",
+	"coupefon",
+	"cpcfon",
+	"fantasyfon",
+	"fdskanafon",
+	"fdslikefon",
+	"fdsromanfon",
+	"finalffont",
+	"futharkfont",
+	"gaiafont",
+	"hirafont",
+	"jpfont",
+	"kongfont",
+	"manafont",
+	"mlfont",
+	"motfont",
+	"msxmode0font",
+	"msxmode1font",
+	"petfont",
+	"pstartfont",
+	"saturnfont",
+	"scififont",
+	"sherwoodfont",
+	"sinqlfont",
+	"spectrumfont",
+	"speclgfont",
+	"ti99font",
+	"trsfont",
+	"z2font",
+	"zxfont",
+	"lisafont",
+	"nfont",
+	"sfont3"
+};
+
+const char *font_output_strs[] =
+{
+	" !\"#$%&'()*+,-./",
+	"0123456789:;<=>?",
+	"@ABCDEFGHIJKLMNO",
+	"PQRSTUVWXYZ[\\]^_",
+	"`abcdefghijklmno",
+	"pqrstuvwxyz{|}~"
+};
+
+FONT* customfonts[CFONT_MAX];
+FONT* deffonts[CFONT_MAX];
+ALLEGRO_FONT* a5fonts[font_max];
+ALLEGRO_FONT* customfonts_a5[CFONT_MAX];
+ALLEGRO_FONT* deffonts_a5[CFONT_MAX];
 
 FONT *get_zc_font(int32_t index)
 {
@@ -199,6 +296,13 @@ FONT *get_zc_font(int32_t index)
     }
 }
 
+ALLEGRO_FONT* get_zc_font_a5(int32_t index)
+{
+	if(unsigned(index) >= font_max)
+		index = font_zfont;
+	return a5fonts[index];
+}
+
 char const* get_zc_fontname(int32_t index)
 {
 	if(unsigned(index) >= font_max) return "Unknown Font?";
@@ -230,9 +334,95 @@ bool isBrokenFont(int32_t index)
 	return false;
 }
 
-FONT* customfonts[CFONT_MAX];
-FONT* deffonts[CFONT_MAX];
-
+static PALETTE fontpal;
+static bool did_init_fontpal;
+void init_fontpal()
+{
+	if(did_init_fontpal) return;
+	
+	memset(fontpal, 32, sizeof(PALETTE));
+	fontpal[0].r = 63;
+	fontpal[0].g = 0;
+	fontpal[0].b = 63;
+	fontpal[1].r = 63;
+	fontpal[1].g = 63;
+	fontpal[1].b = 63;
+	fontpal[255].r = 0;
+	fontpal[255].g = 0;
+	fontpal[255].b = 0;
+	
+	did_init_fontpal = true;
+}
+BITMAP* get_font_bitmap(FONT* savefont)
+{
+	init_fontpal();
+	
+	int len = 0;
+	for(auto* c : font_output_strs)
+	{
+		int nl = text_length(savefont, c);
+		if(nl > len)
+			len = nl;
+	}
+	int spacing = 1;
+	len += spacing*17;
+	
+	int fh = text_height(savefont);
+	int hei = (spacing*7)+(fh*6);
+	
+	BITMAP* bmp = create_bitmap_ex(8, len, hei);
+	clear_to_color(bmp, 255);
+	for(int row = 0; row < 6; ++row)
+	{
+		int y = spacing + (row*(fh+spacing));
+		int x = spacing;
+		for(int col = 0; col < 16; ++col)
+		{
+			char bf[] = {font_output_strs[row][col], 0};
+			
+			textout_ex(bmp, savefont, bf, x, y, 1, 0);
+			
+			x += text_length(savefont, bf)+spacing;
+		}
+	}
+	return bmp;
+}
+void save_font(char const* path, int fontid)
+{
+	BITMAP* bmp = get_font_bitmap(get_zc_font(fontid));
+	save_bitmap(path, bmp, fontpal);
+	destroy_bitmap(bmp);
+}
+ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
+{
+	PALETTE oldpal;
+	get_palette(oldpal);
+	
+	init_fontpal();
+	set_palette(fontpal);
+	
+	all_set_transparent_palette_index(0);
+	ALLEGRO_BITMAP* a5bmp = all_get_a5_bitmap(bmp);
+	
+	int ranges[] = {32, 126}; //space to tilde
+	ALLEGRO_FONT* a5font = al_grab_font_from_bitmap(a5bmp, 1, ranges);
+	ASSERT(a5font);
+	
+	al_destroy_bitmap(a5bmp);
+	set_palette(oldpal);
+	return a5font;
+}
+ALLEGRO_FONT* __load_a5_font(char const* path)
+{
+	init_fontpal();
+	
+	BITMAP* bmp = load_bitmap(path,fontpal);
+	
+	ALLEGRO_FONT* a5font = __load_a5_font(bmp);
+	
+	destroy_bitmap(bmp);
+	return a5font;
+}
 void initFonts()
 {
 	deffont=font;
@@ -311,6 +501,15 @@ void initFonts()
 	zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
 	lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
 	memset(customfonts, 0, sizeof(customfonts));
+	memset(customfonts_a5, 0, sizeof(customfonts));
+	
+	for(int q = 0; q < font_max; ++q)
+	{
+		BITMAP* bmp = get_font_bitmap(get_zc_font(q));
+		a5fonts[q] = __load_a5_font(bmp);
+		destroy_bitmap(bmp);
+	}
+	
 	init_custom_fonts();
 }
 
@@ -334,6 +533,26 @@ FONT* load_cfont(char const* name)
 	return f;
 }
 
+ALLEGRO_FONT* load_cfont_a5(char const* name)
+{
+	char path[512];
+	char pref[16];
+	
+	if(is_compact)
+		strcpy(pref, "compact");
+	else
+		strcpy(pref, "large");
+	
+	sprintf(path, "customfonts/%s_%s.bmp", pref, name);
+	
+	if(!exists(path))
+		return nullptr;
+	ALLEGRO_FONT* f = __load_a5_font(path);
+	if(!f)
+		zprint2("Error loading a5 font: '%s'\n", path);
+	return f;
+}
+
 void init_custom_fonts()
 {
 	font = nfont;
@@ -345,27 +564,37 @@ void init_custom_fonts()
 		strcpy(pref, "large");
 	
 	char buf[512];
+	int deffont_ids[CFONT_MAX];
 	sprintf(buf, "font_%s_%s", pref, "dialog");
-	deffonts[CFONT_DLG] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest));
+	deffont_ids[CFONT_DLG] = zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest);
 	sprintf(buf, "font_%s_%s", pref, "title");
-	deffonts[CFONT_TITLE] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest));
+	deffont_ids[CFONT_TITLE] = zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest);
 	sprintf(buf, "font_%s_%s", pref, "favcmd");
-	deffonts[CFONT_FAVCMD] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_pfont, App::zquest));
+	deffont_ids[CFONT_FAVCMD] = zc_get_config("ZQ_GUI", buf, font_pfont, App::zquest);
 	sprintf(buf, "font_%s_%s", pref, "gui");
-	deffonts[CFONT_GUI] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_nfont, App::zquest));
+	deffont_ids[CFONT_GUI] = zc_get_config("ZQ_GUI", buf, font_nfont, App::zquest);
 	sprintf(buf, "font_%s_%s", pref, "textbox");
-	deffonts[CFONT_TEXTBOX] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_sfont3, App::zquest));
+	deffont_ids[CFONT_TEXTBOX] = zc_get_config("ZQ_GUI", buf, font_sfont3, App::zquest);
 	sprintf(buf, "font_%s_%s", pref, "ttip");
-	deffonts[CFONT_TTIP] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest));
+	deffont_ids[CFONT_TTIP] = zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest);
 	sprintf(buf, "font_%s_%s", pref, "info");
-	deffonts[CFONT_INFO] = get_zc_font(zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest));
+	deffont_ids[CFONT_INFO] = zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest);
 	
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
+		if(unsigned(deffont_ids[q]) >= font_max)
+			deffont_ids[q] = font_lfont_l;
+		deffonts[q] = get_zc_font(deffont_ids[q]);
+		deffonts_a5[q] = a5fonts[deffont_ids[q]];
 		if(customfonts[q])
 		{
 			destroy_font(customfonts[q]);
 			customfonts[q] = nullptr;
+		}
+		if(customfonts_a5[q])
+		{
+			al_destroy_font(customfonts_a5[q]);
+			customfonts_a5[q] = nullptr;
 		}
 	}
 	if(zc_get_config("gui","custom_fonts",1, App::zquest))
@@ -377,6 +606,14 @@ void init_custom_fonts()
 		customfonts[CFONT_TEXTBOX] = load_cfont("textbox");
 		customfonts[CFONT_TTIP] = load_cfont("ttip");
 		customfonts[CFONT_INFO] = load_cfont("info");
+		
+		customfonts_a5[CFONT_DLG] = load_cfont_a5("dialog");
+		customfonts_a5[CFONT_TITLE] = load_cfont_a5("title");
+		customfonts_a5[CFONT_FAVCMD] = load_cfont_a5("favcmd");
+		customfonts_a5[CFONT_GUI] = load_cfont_a5("gui");
+		customfonts_a5[CFONT_TEXTBOX] = load_cfont_a5("textbox");
+		customfonts_a5[CFONT_TTIP] = load_cfont_a5("ttip");
+		customfonts_a5[CFONT_INFO] = load_cfont_a5("info");
 	}
 }
 
@@ -388,9 +625,12 @@ FONT* get_custom_font(int cfont)
 		return customfonts[cfont];
 	return deffonts[cfont];
 }
-
-FONT* get_gui_def_font()
+ALLEGRO_FONT* get_custom_font_a5(int cfont)
 {
-	return get_custom_font(CFONT_DLG);
+	if(unsigned(cfont) >= CFONT_MAX)
+		return a5fonts[font_lfont_l];
+	if(zc_get_config("gui","custom_fonts",1,App::zquest) && customfonts_a5[cfont])
+		return customfonts_a5[cfont];
+	return deffonts_a5[cfont];
 }
 

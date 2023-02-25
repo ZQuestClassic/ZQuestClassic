@@ -12,8 +12,8 @@
 #include <vector>
 #include "base/fonts.h"
 
-FONT* get_gui_def_font();
-#define GUI_DEF_FONT get_gui_def_font()
+#define GUI_DEF_FONT get_custom_font(CFONT_DLG)
+#define GUI_DEF_FONT_A5 get_custom_font_a5(CFONT_DLG)
 
 #define DEFAULT_PADDING       3_px
 #define DEFAULT_PADDING_INT   3

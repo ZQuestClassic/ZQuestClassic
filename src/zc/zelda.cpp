@@ -4998,7 +4998,6 @@ int main(int argc, char **argv)
 	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
 	
 	set_uformat(U_ASCII);
-	initFonts();
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -5234,6 +5233,7 @@ int main(int argc, char **argv)
 	{
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 	}
+	initFonts();
 
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
