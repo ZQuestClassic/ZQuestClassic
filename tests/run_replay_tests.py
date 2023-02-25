@@ -32,6 +32,7 @@
 # and use that as the frame argument.
 
 import argparse
+from argparse import ArgumentTypeError
 import subprocess
 import os
 import sys
@@ -44,10 +45,11 @@ import shutil
 from datetime import datetime, timezone
 import time
 import logging
+from dataclasses import dataclass
 from common import ReplayTestResults, RunResult
 from time import sleep
 from timeit import default_timer as timer
-from typing import List, Dict, Any
+from typing import List
 from common import infer_gha_platform
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -55,6 +57,13 @@ from watchdog.events import FileSystemEventHandler
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 replays_dir = script_dir / 'replays'
+
+
+def dir_path(path):
+    if not os.path.isfile(path) and (os.path.isdir(path) or not os.path.exists(path)):
+        return pathlib.Path(path)
+    else:
+        raise ArgumentTypeError(f'{path} is not a valid directory')
 
 
 def parse_result_txt_file(path: pathlib.Path):
@@ -146,13 +155,13 @@ if os.name == 'nt':
     sys.stdout.reconfigure(encoding='utf-8')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--build_folder', default='build/Release',
-    help='The folder containing the exe files',metavar='DIRECTORY')
-parser.add_argument('--test_results_folder',
+parser.add_argument('--build_folder', type=dir_path, default='build/Release',
+    help='The folder containing the exe files', metavar='DIRECTORY')
+parser.add_argument('--test_results_folder', type=dir_path,
     help='Where to save the replay test artifacts. By default, somewhere in .tmp')
 parser.add_argument('--filter', action='append', metavar='FILEPATH',
     help='Specify a file to run, instead of running all. Can be supplied multiple times.')
-parser.add_argument('--max_duration', type=int, metavar='SECONDS',
+parser.add_argument('--max_duration', action='append', metavar='SECONDS',
     help='The maximum time, in seconds, the replay will test for.')
 parser.add_argument('--throttle_fps', action='store_true',
     help='Supply this to cap the replay\'s FPS')
@@ -267,11 +276,14 @@ def clear_progress_str():
 
 
 is_mac_ci = args.ci and 'mac' in args.ci
+is_web = bool(list(args.build_folder.glob('*.wasm')))
+is_web_ci = is_web and args.ci
 if args.test_results_folder:
-    test_results_dir = pathlib.Path(args.test_results_folder).absolute()
+    test_results_dir = args.test_results_folder.absolute()
 else:
     test_results_dir = root_dir / f'.tmp/test_results/{int(time.time())}'
 test_results_path = test_results_dir / 'test_results.json'
+grouped_max_duration_arg = group_arg(args.max_duration)
 grouped_snapshot_arg = group_arg(args.snapshot)
 grouped_frame_arg = group_arg(args.frame)
 
@@ -334,6 +346,11 @@ def read_last_contentful_line(file):
 @functools.cache
 def get_replay_data(file):
     last_step = read_last_contentful_line(file)
+    if not last_step:
+        raise Exception(f'no content found in {file.name}')
+    if not re.match(r'^. \d+ ', last_step):
+        raise Exception(f'unexpected content found in {file.name}:\n  {last_step}\nAre you sure this is a zplay file?')
+
     frames = int(last_step.split(' ')[1])
 
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
@@ -358,20 +375,25 @@ def get_replay_data(file):
         estimated_fps = estimated_fps_overrides[file.name]
     if is_mac_ci:
         estimated_fps /= 2
+    if is_web_ci:
+        estimated_fps /= 30
+    elif is_web:
+        estimated_fps /= 12
 
     frames_limited = frames
-    frame_arg = get_arg_for_replay(file.name, grouped_frame_arg, is_int=True)
+    frame_arg = get_arg_for_replay(file, grouped_frame_arg, is_int=True)
     if frame_arg is not None and frame_arg < frames_limited:
         frames_limited = frame_arg
 
     estimated_duration = frames_limited / estimated_fps
-    if args.max_duration and estimated_duration > args.max_duration:
-        frames_limited = estimated_fps * args.max_duration
-        estimated_duration = args.max_duration
+    max_duration_arg = get_arg_for_replay(file, grouped_max_duration_arg, is_int=True)
+    if max_duration_arg and estimated_duration > max_duration_arg:
+        frames_limited = estimated_fps * max_duration_arg
+        estimated_duration = max_duration_arg
 
     return {
         'frames': frames,
-        'frames_limited': frames_limited,
+        'frames_limited': round(frames_limited),
         'estimated_fps': estimated_fps,
         'estimated_duration': round(estimated_duration),
     }
@@ -455,57 +477,176 @@ if args.print_shards:
     exit(0)
 
 
+@dataclass
+class StartReplayArgs:
+    replay_path: pathlib.Path
+    output_dir: pathlib.Path
+    frame: int
+
+class CLIPlayerInterface:
+    p = None
+
+    def start_replay(self, player_args: StartReplayArgs):
+        self.p = None
+        replay_path = player_args.replay_path
+        output_dir = player_args.output_dir
+        frame = player_args.frame
+
+        # TODO: fix this common-ish error, and whatever else is causing random failures.
+        # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
+        # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
+        exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
+        exe_path = (args.build_folder / exe_name).absolute()
+
+        exe_args = [
+            exe_path,
+            f'-{mode}', replay_path,
+            '-v1' if args.throttle_fps else '-v0',
+            '-replay-exit-when-done',
+            '-replay-output-dir', output_dir,
+        ]
+
+        snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
+        if snapshot_arg is not None:
+            exe_args.extend(['-snapshot', snapshot_arg])
+
+        if frame != None:
+            exe_args.extend(['-frame', str(frame)])
+
+        if args.jit:
+            exe_args.append('-jit')
+
+        allegro_log_path = output_dir / 'allegro.log'
+        self.p = subprocess.Popen(exe_args,
+                                  cwd=args.build_folder,
+                                  env={
+                                      **os.environ,
+                                      'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
+                                  },
+                                  stdout=open(output_dir / 'stdout.txt', 'w'),
+                                  stderr=open(output_dir / 'stderr.txt', 'w'),
+                                  encoding='utf-8',
+                                  text=True)
+
+    def wait_for_finish(self):
+        if not self.p:
+            return
+
+        self.p.wait()
+
+    def get_exit_code(self):
+        if not self.p:
+            return -1
+
+        return self.p.returncode
+
+    def poll(self):
+        if not self.p:
+            return
+
+        return self.p.poll()
+
+    def stop(self):
+        if not self.p:
+            return
+
+        self.p.terminate()
+        self.p.wait()
+
+
+class WebPlayerInterface:
+    p = None
+
+    def start_replay(self, player_args: StartReplayArgs):
+        self.p = None
+        replay_path = player_args.replay_path
+        output_dir = player_args.output_dir
+        frame = player_args.frame
+
+        replay_path = replay_path.relative_to(root_dir / 'tests/replays')
+
+        url = f'zelda.html?{mode}=test_replays/{replay_path}&replayExitWhenDone&showFps'
+
+        snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
+        if snapshot_arg is not None:
+            url += f'&snapshot={snapshot_arg}'
+
+        if frame != None:
+            url += f'&frame={frame}'
+
+        if args.throttle_fps:
+            url += f'&v1'
+        else:
+            url += f'&v0'
+
+        exe_args = [
+            'node', root_dir / 'web/tests/run_replay.js',
+            args.build_folder,
+            output_dir,
+            url,
+        ]
+
+        self.p = subprocess.Popen(exe_args)
+
+    def wait_for_finish(self):
+        if not self.p:
+            return
+
+        self.p.wait()
+
+    def get_exit_code(self):
+        if not self.p:
+            return -1
+
+        return self.p.returncode
+
+    def poll(self):
+        if not self.p:
+            return
+
+        return self.p.poll()
+
+    def stop(self):
+        if not self.p:
+            return
+
+        self.p.terminate()
+        self.p.wait()
+
+
 def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
     result = RunResult(name=replay_file.name, directory=str(output_dir.relative_to(test_results_dir)))
-
-    # TODO: fix this common-ish error, and whatever else is causing random failures.
-    # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
-    # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
-    exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
-    exe_path = pathlib.Path(f'{args.build_folder}/{exe_name}').absolute()
-
-    exe_args = [
-        exe_path,
-        f'-{mode}', replay_file,
-        '-v1' if args.throttle_fps else '-v0',
-        '-replay-exit-when-done',
-        '-replay-output-dir', output_dir,
-    ]
-
-    frame_arg = get_arg_for_replay(replay_file, grouped_frame_arg, is_int=True)
-    if frame_arg is not None:
-        exe_args.extend(['-frame', str(frame_arg)])
-
-    snapshot_arg = get_arg_for_replay(replay_file, grouped_snapshot_arg)
-    if snapshot_arg is not None:
-        exe_args.extend(['-snapshot', snapshot_arg])
+    roundtrip_path = output_dir / f'{replay_file.name}.roundtrip'
+    allegro_log_path = output_dir / 'allegro.log'
+    result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
 
     replay_data = get_replay_data(replay_file)
     frames = replay_data['frames']
     frames_limited = replay_data['frames_limited']
+    frame_arg = get_arg_for_replay(replay_file, grouped_frame_arg, is_int=True)
+    if frame_arg is None and frames_limited < frames:
+        frame_arg = frames_limited
+    if frame_arg is not None and frame_arg != frames:
+        print(f"(-frame {frame_arg}, only doing {100 * frame_arg / frames:.2f}%) ", end='', flush=True)
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
 
-    if frame_arg is not None and frame_arg < frames:
-        frames_limited = frame_arg
-    if frames_limited != frames:
-        print(f"(-frame {frames_limited}, only doing {100 * frames_limited / frames:.2f}%) ", end='', flush=True)
-        exe_args.extend(['-frame', str(frames_limited)])
+    if is_web:
+        player_interface = WebPlayerInterface()
+    else:
+        player_interface = CLIPlayerInterface()
 
-    if args.jit:
-        exe_args.append('-jit')
-
-    allegro_log_path = None
     max_start_attempts = 5
-    for i in range(0, max_start_attempts):
-        allegro_log_path = output_dir / 'allegro.log'
-        p = None
+    for _ in range(0, max_start_attempts):
         watcher = None
         try:
-            result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
             if result_path.exists():
                 result_path.unlink()
+            if roundtrip_path.exists():
+                roundtrip_path.unlink()
+            if allegro_log_path.exists():
+                allegro_log_path.unlink()
 
             def on_result_updated(w: ReplayResultUpdatedHandler):
                 if not sys.stdout.isatty():
@@ -525,16 +666,11 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
 
             start = timer()
-            p = subprocess.Popen(exe_args,
-                                 cwd=args.build_folder,
-                                 env={
-                                     **os.environ,
-                                     'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
-                                 },
-                                 stdout=open(output_dir / 'stdout.txt', 'w'),
-                                 stderr=open(output_dir / 'stderr.txt', 'w'),
-                                 encoding='utf-8',
-                                 text=True)
+            player_interface.start_replay(StartReplayArgs(
+                replay_path=replay_file,
+                output_dir=output_dir,
+                frame=frame_arg,
+            ))
 
             # Wait for .zplay.result.txt creation.
             while True:
@@ -556,49 +692,48 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')
 
-                if p.poll() != None:
+                if player_interface.poll() != None:
                     break
 
                 sleep(0.1)
 
-            p.wait()
+            player_interface.wait_for_finish()
             watcher.update_result()
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
 
             result.success = watcher.result['stopped'] and watcher.result['success']
-            if p.returncode != 0 and p.returncode != ASSERT_FAILED_EXIT_CODE:
-                print(f'replay failed with unexpected code {p.returncode}')
+            exit_code = player_interface.get_exit_code()
+            if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
+                print(f'replay failed with unexpected code {exit_code}')
             break
         except ReplayTimeoutException:
-            print('\nSTDOUT:\n\n', pathlib.Path(output_dir / 'stdout.txt').read_text())
-            print('\n\nSTDERR:\n\n', pathlib.Path(output_dir / 'stderr.txt').read_text())
-            if pathlib.Path(allegro_log_path).exists():
-                print('\n\nALLEGRO LOG:\n\n', pathlib.Path(allegro_log_path).read_text())
+            print('\nSTDOUT:\n\n', (output_dir / 'stdout.txt').read_text())
+            print('\n\nSTDERR:\n\n', (output_dir / 'stderr.txt').read_text())
+            if allegro_log_path.exists():
+                print('\n\nALLEGRO LOG:\n\n', allegro_log_path.read_text())
 
             # Will try again.
             logging.exception('replay timed out')
-            p.terminate()
-            p.wait()
+            player_interface.stop()
         except KeyboardInterrupt:
             exit(1)
         except:
-            print('\nSTDOUT:\n\n', pathlib.Path(output_dir / 'stdout.txt').read_text())
-            print('\n\nSTDERR:\n\n', pathlib.Path(output_dir / 'stderr.txt').read_text())
-            if pathlib.Path(allegro_log_path).exists():
-                print('\n\nALLEGRO LOG:\n\n', pathlib.Path(allegro_log_path).read_text())
+            print('\nSTDOUT:\n\n', (output_dir / 'stdout.txt').read_text())
+            print('\n\nSTDERR:\n\n', (output_dir / 'stderr.txt').read_text())
+            if allegro_log_path.exists():
+                print('\n\nALLEGRO LOG:\n\n', allegro_log_path.read_text())
 
             logging.exception('replay encountered an error')
             return result
         finally:
             if watcher:
                 watcher.observer.stop()
-            if p:
-                p.wait()
+            if player_interface:
+                player_interface.wait_for_finish()
             clear_progress_str()
 
-    if not args.update and p.returncode == ASSERT_FAILED_EXIT_CODE:
-        roundtrip_path = output_dir / f'{replay_file.name}.roundtrip'
+    if not args.update and player_interface.get_exit_code() == ASSERT_FAILED_EXIT_CODE:
         if roundtrip_path.exists():
             with open(replay_file) as f:
                 fromlines = f.readlines()

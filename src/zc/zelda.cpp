@@ -4746,8 +4746,7 @@ int main(int argc, char **argv)
 			append_filename(path, qstdir, moduledata.quests[q], 2048);
 			if(!exists(moduledata.quests[q]) && !exists(path))
 			{
-				Z_error_fatal("%s not found.\n", moduledata.quests[q]);
-				quit_game();
+				Z_error("%s not found.\n", moduledata.quests[q]);
 			}
 		}
 		Z_message("OK\n");
@@ -4863,6 +4862,7 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-v0")) Throttlefps=false;
 	
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
+	if(used_switch(argc,argv,"-show-fps")) ShowFPS=true;
 	
 	resolve_password(zeldapwd);
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
