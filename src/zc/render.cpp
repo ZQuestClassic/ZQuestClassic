@@ -115,22 +115,29 @@ static void configure_render_tree()
 
 	rti_root.transform.x = 0;
 	rti_root.transform.y = 0;
-	rti_root.transform.scale = 1;
+	rti_root.transform.xscale = 1;
+	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 
 	{
 		int w = al_get_bitmap_width(rti_game.bitmap);
 		int h = al_get_bitmap_height(rti_game.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
 		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_game.transform.x = (resx - w*scale) / 2 / scale;
-		rti_game.transform.y = (resy - h*scale) / 2 / scale;
-		rti_game.transform.scale = scale;
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
+		rti_game.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_game.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_game.transform.xscale = xscale;
+		rti_game.transform.yscale = yscale;
 		rti_game.visible = true;
-		rti_infolayer.transform.x = (resx - w*scale) / 2 / scale;
-		rti_infolayer.transform.y = (resy - h*scale) / 2 / scale;
-		rti_infolayer.transform.scale = scale;
+		rti_infolayer.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_infolayer.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_infolayer.transform.xscale = xscale;
+		rti_infolayer.transform.yscale = yscale;
 		rti_infolayer.visible = true;
 	}
 
@@ -138,12 +145,17 @@ static void configure_render_tree()
 	{
 		int w = al_get_bitmap_width(rti_menu.bitmap);
 		int h = al_get_bitmap_height(rti_menu.bitmap);
-		float scale = std::min((float)resx / w, (float)resy / h);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
 		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
 		rti_menu.transform.x = 0;
 		rti_menu.transform.y = 0;
-		rti_menu.transform.scale = scale;
+		rti_menu.transform.xscale = xscale;
+		rti_menu.transform.yscale = yscale;
 	}
 
 	rti_dialogs.visible = rti_dialogs.children.size() > 0;
@@ -153,17 +165,23 @@ static void configure_render_tree()
 	{
 		int w = al_get_bitmap_width(rti_gui.bitmap);
 		int h = al_get_bitmap_height(rti_gui.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
 		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_gui.transform.x = (resx - w*scale) / 2 / scale;
-		rti_gui.transform.y = (resy - h*scale) / 2 / scale;
-		rti_gui.transform.scale = scale;
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
+		rti_gui.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_gui.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_gui.transform.xscale = xscale;
+		rti_gui.transform.yscale = yscale;
 		rti_menu.visible = false;
 		
-		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
-		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
-		rti_dialogs.transform.scale = scale;
+		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_dialogs.transform.xscale = xscale;
+		rti_dialogs.transform.yscale = yscale;
 	}
 	
 	rti_screen.visible = false;
@@ -172,12 +190,17 @@ static void configure_render_tree()
 	{
 		int w = al_get_bitmap_width(rti_screen.bitmap);
 		int h = al_get_bitmap_height(rti_screen.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
 		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
-		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
-		rti_screen.transform.scale = scale;
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
+		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_screen.transform.xscale = xscale;
+		rti_screen.transform.yscale = yscale;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 		

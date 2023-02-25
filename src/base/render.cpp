@@ -52,15 +52,17 @@ static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
 {
 	if (!rti_parent)
 	{
-		rti->computed.scale = rti->transform.scale;
-		rti->computed.x = rti->transform.scale * rti->transform.x;
-		rti->computed.y = rti->transform.scale * rti->transform.y;
+		rti->computed.xscale = rti->transform.xscale;
+		rti->computed.yscale = rti->transform.yscale;
+		rti->computed.x = rti->transform.xscale * rti->transform.x;
+		rti->computed.y = rti->transform.yscale * rti->transform.y;
 	}
 	else
 	{
-		rti->computed.scale = rti->transform.scale * rti_parent->computed.scale;
-		rti->computed.x = rti->computed.scale * rti->transform.x + rti_parent->transform.x;
-		rti->computed.y = rti->computed.scale * rti->transform.y + rti_parent->transform.y;
+		rti->computed.xscale = rti->transform.xscale * rti_parent->computed.xscale;
+		rti->computed.yscale = rti->transform.yscale * rti_parent->computed.yscale;
+		rti->computed.x = rti->computed.xscale * rti->transform.x + rti_parent->transform.x;
+		rti->computed.y = rti->computed.yscale * rti->transform.y + rti_parent->transform.y;
 	}
 	
 	for (auto rti_child : rti->children)
@@ -87,11 +89,11 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 		
 		if (rti->tint)
 		{
-			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.scale, h*rti->computed.scale, 0);
+			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.xscale, h*rti->computed.yscale, 0);
 		}
 		else
 		{
-			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.scale, h*rti->computed.scale, 0);
+			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.xscale, h*rti->computed.yscale, 0);
 		}
 	}
 		
@@ -207,6 +209,8 @@ void popup_zqdialog_end_a5()
 	}
 	position_mouse_z(0);
 }
+
+void update_dialog_transform(){}
 
 RenderTreeItem* add_dlg_layer()
 {

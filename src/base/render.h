@@ -9,7 +9,8 @@ class RenderTreeItemProps
 {
 public:
 	int x, y;
-	float scale = 1;
+	float xscale = 1;
+	float yscale = 1;
 };
 
 class RenderTreeItem
@@ -31,19 +32,19 @@ public:
 	
 	int global_to_local_x(int x)
 	{
-		return (x - computed.x) / computed.scale;
+		return (x - computed.x) / computed.xscale;
 	}
 	int global_to_local_y(int y)
 	{
-		return (y - computed.y) / computed.scale;
+		return (y - computed.y) / computed.yscale;
 	}
 	int local_to_global_x(int x)
 	{
-		return (x + computed.x) * computed.scale;
+		return (x + computed.x) * computed.xscale;
 	}
 	int local_to_global_y(int y)
 	{
-		return (y + computed.y) * computed.scale;
+		return (y + computed.y) * computed.yscale;
 	}
 };
 
@@ -58,6 +59,7 @@ void popup_zqdialog_start(bool transp = true);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
+void update_dialog_transform();
 RenderTreeItem* add_dlg_layer();
 void remove_dlg_layer(RenderTreeItem* rti);
 
