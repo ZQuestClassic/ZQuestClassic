@@ -165,7 +165,6 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal("failed: version error\n");
 		QUIT_LAUNCHER();
 	}
-	initFonts();
 	Z_message("OK\n");
 	//} end Fonts.Dat...OK
 	packfile_password("");
@@ -186,6 +185,8 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
+	al_init_primitives_addon();
+	initFonts();
 	
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
@@ -501,6 +502,7 @@ static void init_render_tree()
 	rti_screen.a4_bitmap = screen;
 
 	rti_root.children.push_back(&rti_screen);
+	rti_root.children.push_back(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -535,6 +537,9 @@ static void configure_render_tree()
 
 static void render_launcher()
 {
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	init_render_tree();
 	configure_render_tree();
 
@@ -543,6 +548,7 @@ static void render_launcher()
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
+	al_restore_state(&oldstate);
 }
 
 bool update_hw_pal = false;
