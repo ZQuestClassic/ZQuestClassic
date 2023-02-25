@@ -85,7 +85,6 @@ static void configure_render_tree()
 		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
 		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
 		rti_dialogs.transform.scale = scale;
-		rti_dialogs.visible = true;
 	}
 }
 

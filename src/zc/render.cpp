@@ -86,6 +86,7 @@ static void init_render_tree()
 	rti_menu.transparency_index = 0;
 
 	gui_bmp = create_bitmap_ex(8, 640, 480);
+	clear_bitmap(gui_bmp);
 	zc_set_gui_bmp(gui_bmp);
 	al_set_new_bitmap_flags(base_flags);
 	rti_gui.bitmap = al_create_bitmap(gui_bmp->w, gui_bmp->h);
@@ -94,15 +95,15 @@ static void init_render_tree()
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
-	rti_screen.a4_bitmap = screen;
+	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	rti_screen.transparency_index = 0;
 	
 
 	rti_root.children.push_back(&rti_game);
 	rti_root.children.push_back(&rti_menu);
 	rti_root.children.push_back(&rti_gui);
-	rti_root.children.push_back(&rti_dialogs);
 	rti_root.children.push_back(&rti_screen);
+	rti_root.children.push_back(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -146,7 +147,10 @@ static void configure_render_tree()
 		rti_menu.transform.scale = scale;
 	}
 
-	if (rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp)
+	rti_dialogs.visible = rti_dialogs.children.size() > 0;
+	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
+	
+	if (rti_dialogs.visible || rti_gui.visible)
 	{
 		int w = al_get_bitmap_width(rti_gui.bitmap);
 		int h = al_get_bitmap_height(rti_gui.bitmap);
@@ -156,10 +160,15 @@ static void configure_render_tree()
 		rti_gui.transform.x = (resx - w*scale) / 2 / scale;
 		rti_gui.transform.y = (resy - h*scale) / 2 / scale;
 		rti_gui.transform.scale = scale;
-		if (rti_gui.visible)
-			rti_menu.visible = false;
+		rti_menu.visible = false;
+		
+		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
+		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
+		rti_dialogs.transform.scale = scale;
 	}
-
+	
+	rti_screen.visible = false;
+	
 	if (rti_screen.visible)
 	{
 		int w = al_get_bitmap_width(rti_screen.bitmap);
@@ -171,23 +180,13 @@ static void configure_render_tree()
 		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
 		rti_screen.transform.scale = scale;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
-		rti_screen.a4_bitmap = screen;
+		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
+		
+		
 	}
 	
-	rti_dialogs.visible = rti_dialogs.children.size() > 0;
-	if(rti_dialogs.visible)
-	{
-		int w = al_get_bitmap_width(rti_dialogs.bitmap);
-		int h = al_get_bitmap_height(rti_dialogs.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
-		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
-		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
-		rti_dialogs.transform.scale = scale;
-	}
 
-	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || Saving;
+	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || Saving;
 	if (rti_game.freeze_a4_bitmap_render)
 	{
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
