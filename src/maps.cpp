@@ -1878,6 +1878,8 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			   single==-6? " by Generic Combo":
 			   single==-7? " by Light Triggers":
 			   single==-8? " by SCC":
+			   single==-9? " by Cheat (Temp)":
+			   single==-10? " by Cheat (Perm)":
 			   "");
 	if(single < 0)
 		triggered_screen_secrets = true;

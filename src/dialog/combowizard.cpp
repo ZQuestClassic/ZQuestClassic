@@ -898,7 +898,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							local_ref.type = val;
 						}),
-					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
+					INFOBTN_REF(getComboTypeHelpText(local_ref.type)),
 					//
 					Label(text = "Warp Sound:", hAlign = 1.0),
 					ddls[1] = DropDownList(data = parent.list_sfx,
@@ -1572,7 +1572,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.type = val;
 								updateTitle();
 							}),
-						INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
+						INFOBTN_REF(getComboTypeHelpText(local_ref.type)),
 						//
 						rset[0][1] = Radio(
 							hAlign = 0.0,
@@ -2014,7 +2014,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								local_ref.type = val;
 								updateTitle();
 							}),
-						INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);}),
+						INFOBTN_REF(getComboTypeHelpText(local_ref.type)),
 						//
 						rset[0][1] = Radio(
 							hAlign = 0.0,
@@ -2619,7 +2619,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							updateTitle();
 							update();
 						}),
-					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);})
+					INFOBTN_REF(getComboTypeHelpText(local_ref.type))
 				),
 				tpan[0] = TabPanel(
 					TabRef(name = "State", Rows<3>(
@@ -3129,7 +3129,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							updateTitle();
 							update();
 						}),
-					INFOBTN_FUNC([&](){return getComboTypeHelpText(local_ref.type);})
+					INFOBTN_REF(getComboTypeHelpText(local_ref.type))
 				),
 				tpan[0] = TabPanel(
 					TabRef(name = "State", Rows<3>(

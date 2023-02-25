@@ -1424,11 +1424,6 @@ int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
     return D_O_K;
 }
 
-int32_t d_kbutton_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}
-
 int32_t d_listen_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;

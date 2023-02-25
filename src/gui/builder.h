@@ -254,6 +254,8 @@ ZCGUI_BUILDER_START(Button)
 	ZCGUI_ACCEPT_PROP(onClick, onClick, Dialog::message)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(onPressFunc, setOnPress, std::function<void()>)
+	ZCGUI_ACCEPT_PROP(type, setType, Button::type)
+	ZCGUI_ACCEPT_PROP(kb_ptr, setBoundKB, int32_t*)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 	ZCGUI_SUGGEST_PROP(onEnter, onClick)
@@ -633,11 +635,11 @@ Button(forceFitH = true, text = "?", __VA_ARGS__, \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
-#define INFOBTN_FUNC(getter) \
+#define INFOBTN_REF(getter) \
 Button(forceFitH = true, text = "?", \
-	onPressFunc = [=]() \
+	onPressFunc = [&]() \
 	{ \
-		InfoDialog("Info",getter()).show(); \
+		InfoDialog("Info",getter).show(); \
 	})
 //}
 

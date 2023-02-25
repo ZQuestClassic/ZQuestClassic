@@ -370,11 +370,6 @@ int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
 	return D_O_K;
 }
 
-int32_t d_kbutton_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
 int32_t d_listen_proc(int32_t, DIALOG*, int32_t)
 {
 	return D_O_K;
@@ -503,10 +498,9 @@ static void init_render_tree()
 	else
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
-	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
+	rti_screen.a4_bitmap = screen;
 
 	rti_root.children.push_back(&rti_screen);
-	rti_root.children.push_back(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -536,10 +530,6 @@ static void configure_render_tree()
 		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
 		rti_screen.transform.scale = scale;
 		rti_screen.visible = true;
-		rti_dialogs.transform.x = (resx - w*scale) / 2 / scale;
-		rti_dialogs.transform.y = (resy - h*scale) / 2 / scale;
-		rti_dialogs.transform.scale = scale;
-		rti_dialogs.visible = true;
 	}
 }
 

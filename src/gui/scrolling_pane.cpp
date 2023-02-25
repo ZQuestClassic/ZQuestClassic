@@ -119,14 +119,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 					object_message(child, MSG_DRAW, 0);
 				}
 			}
-			else //redraw children anyway?
-			{
-				for(size_t i = 1; i < sp->childrenEnd; ++i)
-				{
-					DIALOG* child=&sp->alDialog[i];
-					object_message(child, MSG_DRAW, 0);
-				}
-			}
 			END_CLIP();
 			break;
 		}

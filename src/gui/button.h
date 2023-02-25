@@ -11,7 +11,15 @@ namespace GUI
 class Button: public Widget
 {
 public:
+	enum class type
+	{
+		BASIC, BIND_KB, BIND_KB_CLEAR
+	};
+	
 	Button();
+	
+	void setType(type newType);
+	void setBoundKB(int32_t* kb_ptr);
 
 	/* Sets the text to appear on the button. */
 	void setText(std::string newText);
@@ -39,6 +47,8 @@ private:
 	DialogRef alDialog;
 	int32_t message;
 	std::function<void()> onPress;
+	type btnType;
+	int32_t* bound_kb;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

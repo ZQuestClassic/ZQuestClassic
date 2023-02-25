@@ -32,6 +32,7 @@
 #include "render.h"
 #include "base/zc_math.h"
 #include "base/zapp.h"
+#include "dialog/cheatkeys.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -281,6 +282,48 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 	return D_O_K;
 }
 
+bool checkcheat(Cheat cheat)
+{
+	if(cheatkeys[cheat][0] && zc_readkey(cheatkeys[cheat][0]))
+		return true; //Main key pressed
+	if(cheatkeys[cheat][1] && zc_readkey(cheatkeys[cheat][1]))
+		return true; //Alt key pressed
+	return false;
+}
+void load_default_cheatkeys()
+{
+	memset(cheatkeys, 0, sizeof(cheatkeys));
+	cheatkeys[Cheat::Life][0] = KEY_H;
+	cheatkeys[Cheat::Life][1] = KEY_ASTERISK;
+	cheatkeys[Cheat::Magic][0] = KEY_M;
+	cheatkeys[Cheat::Magic][1] = KEY_SLASH_PAD;
+	cheatkeys[Cheat::Rupies][0] = KEY_R;
+	cheatkeys[Cheat::Bombs][0] = KEY_B;
+	cheatkeys[Cheat::Arrows][0] = KEY_A;
+	cheatkeys[Cheat::Clock][0] = KEY_I;
+	cheatkeys[Cheat::Walls][0] = KEY_F11;
+	cheatkeys[Cheat::Fast][0] = KEY_Q;
+	cheatkeys[Cheat::Light][0] = KEY_L;
+	cheatkeys[Cheat::IgnoreSideView][0] = KEY_V;
+	cheatkeys[Cheat::Kill][0] = KEY_K;
+	cheatkeys[Cheat::GoTo][0] = KEY_G;
+	cheatkeys[Cheat::TrigSecrets][0] = KEY_S;
+	cheatkeys[Cheat::ShowL0][0] = KEY_0;
+	cheatkeys[Cheat::ShowL1][0] = KEY_1;
+	cheatkeys[Cheat::ShowL2][0] = KEY_2;
+	cheatkeys[Cheat::ShowL3][0] = KEY_3;
+	cheatkeys[Cheat::ShowL4][0] = KEY_4;
+	cheatkeys[Cheat::ShowL5][0] = KEY_5;
+	cheatkeys[Cheat::ShowL6][0] = KEY_6;
+	cheatkeys[Cheat::ShowFFC][0] = KEY_7;
+	cheatkeys[Cheat::ShowSprites][0] = KEY_8;
+	cheatkeys[Cheat::ShowWalkability][0] = KEY_W;
+	cheatkeys[Cheat::ShowEffects][0] = KEY_E;
+	cheatkeys[Cheat::ShowOverhead][0] = KEY_O;
+	cheatkeys[Cheat::ShowPushblock][0] = KEY_P;
+	cheatkeys[Cheat::ShowHitbox][0] = KEY_C;
+	cheatkeys[Cheat::ShowFFCScripts][0] = KEY_F;
+}
 void load_game_configs()
 {
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
@@ -304,6 +347,24 @@ void load_game_configs()
 	cheat_modifier_keys[1] = zc_get_config(ctrl_sect,"key_cheatmod_a2",0);
 	cheat_modifier_keys[2] = zc_get_config(ctrl_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
 	cheat_modifier_keys[3] = zc_get_config(ctrl_sect,"key_cheatmod_b2",0);
+	
+	//cheat keys
+	load_default_cheatkeys();
+	char buf[256];
+	al_trace("START CHEATS\n");
+	for(size_t q = 1; q < Cheat::Last; ++q)
+	{
+		if(!bindable_cheat((Cheat)q)) continue;
+		std::string cheatname = cheat_to_string((Cheat)q);
+		util::lowerstr(cheatname);
+		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
+		al_trace("%s = %d\n", buf, cheatkeys[q][0]);
+		cheatkeys[q][0] = zc_get_config(ctrl_sect,buf,cheatkeys[q][0]);
+		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
+		al_trace("%s = %d\n", buf, cheatkeys[q][1]);
+		cheatkeys[q][1] = zc_get_config(ctrl_sect,buf,cheatkeys[q][1]);
+	}
+	al_trace("END CHEATS\n");
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
@@ -488,6 +549,23 @@ void save_control_configs(bool kb)
 		zc_set_config(ctrl_sect,"btn_down",DDbtn);
 		zc_set_config(ctrl_sect,"btn_left",DLbtn);
 		zc_set_config(ctrl_sect,"btn_right",DRbtn);
+	}
+}
+
+void save_cheatkeys()
+{
+	char buf[256];
+	for(size_t q = 1; q < Cheat::Last; ++q)
+	{
+		if(!bindable_cheat((Cheat)q)) continue;
+		std::string cheatname = cheat_to_string((Cheat)q);
+		util::lowerstr(cheatname);
+		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
+		zc_set_config(ctrl_sect,buf,cheatkeys[q][0]);
+		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
+		if(cheatkeys[q][1])
+			zc_set_config(ctrl_sect,buf,cheatkeys[q][1]);
+		else zc_set_config(ctrl_sect,buf,(char*)nullptr);
 	}
 }
 
@@ -4271,6 +4349,17 @@ int32_t onKillCheat()
 	return D_O_K;
 }
 
+int32_t onSecretsCheat()
+{
+	cheats_enqueue(Cheat::TrigSecrets);
+	return D_O_K;
+}
+int32_t onSecretsCheatPerm()
+{
+	cheats_enqueue(Cheat::TrigSecretsPerm);
+	return D_O_K;
+}
+
 int32_t onShowLayer0()
 {
 	show_layer_0 = !show_layer_0;
@@ -4433,92 +4522,19 @@ void syskeys()
 	
 	if(debug_enabled && zc_read_system_key(KEY_TAB))
 		set_debug(!get_debug());
-		
-	if(get_debug() || cheat>=1)
-	{
-	if( CheatModifierKeys() )
-	{
-			if(zc_readkey(KEY_ASTERISK) || zc_readkey(KEY_H))   cheats_enqueue(Cheat::Life, game->get_maxlife());
-			
-			if(zc_readkey(KEY_SLASH_PAD) || zc_readkey(KEY_M))  cheats_enqueue(Cheat::Magic, game->get_maxmagic());
-			
-			if(zc_readkey(KEY_R))		  cheats_enqueue(Cheat::Rupies, game->get_maxcounter(1));
-			
-			if(zc_readkey(KEY_B))
-			{
-				cheats_enqueue(Cheat::Bombs, game->get_maxbombs(), game->get_maxcounter(6));
-			}
-			
-			if(zc_readkey(KEY_A))
-			{
-				cheats_enqueue(Cheat::Arrows, game->get_maxarrows());
-			}
-	}
-	}
 	
-	if(get_debug() || cheat>=2)
+	if(CheatModifierKeys())
 	{
-		if( CheatModifierKeys() )
+		for(Cheat c = (Cheat)1; c < Cheat::Last; c = (Cheat)(c+1))
 		{
-			if(rI())
+			if(!bindable_cheat(c))
+				continue;
+			if(get_debug() || cheat >= cheat_lvl(c))
 			{
-				cheats_enqueue(Cheat::Clock);
+				if(checkcheat(c))
+					cheats_hit_bind(c);
 			}
 		}
-	}
-	
-	if(get_debug() || cheat>=4)
-	{
-	if( CheatModifierKeys() )
-	{
-			if(rF11())
-			{
-				cheats_enqueue(Cheat::Walls);
-			}
-			
-			if(rQ())
-			{
-				cheats_enqueue(Cheat::Fast);
-			}
-			
-			if(zc_readkey(KEY_F))
-			{
-				cheats_enqueue(Cheat::Freeze);
-			}
-			
-			if(zc_readkey(KEY_G))   onGoToComplete();
-			
-			if(zc_readkey(KEY_0))   onShowLayer0();
-			
-			if(zc_readkey(KEY_1))   onShowLayer1();
-			
-			if(zc_readkey(KEY_2))   onShowLayer2();
-			
-			if(zc_readkey(KEY_3))   onShowLayer3();
-			
-			if(zc_readkey(KEY_4))   onShowLayer4();
-			
-			if(zc_readkey(KEY_5))   onShowLayer5();
-			
-			if(zc_readkey(KEY_6))   onShowLayer6();
-			
-			//if(zc_readkey(KEY_7))   onShowLayerO();
-			if(zc_readkey(KEY_7))   onShowLayerF();
-			
-			if(zc_readkey(KEY_8))   onShowLayerS();
-			
-			if(zc_readkey(KEY_W))   onShowLayerW();
-			
-			if(zc_readkey(KEY_L))   cheats_enqueue(Cheat::Light);
-			
-			if(zc_readkey(KEY_V))   cheats_enqueue(Cheat::IgnoreSideView);
-			
-			if(zc_readkey(KEY_K))   cheats_enqueue(Cheat::Kill);
-			if(zc_readkey(KEY_O))   onShowLayerO();
-			if(zc_readkey(KEY_P))   onShowLayerP();
-			if(zc_readkey(KEY_C))   onShowHitboxes();
-			if(zc_readkey(KEY_F))   onShowFFScripts();
-	}
 	}
 	
 	if(volkeys)
@@ -5335,34 +5351,7 @@ bool is_Fkey(int32_t k)
 	return false;
 }
 
-void kb_getkey(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	
-	scare_mouse();
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	textout_centre_ex(gui_bmp, font, "Press a key", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
-	
-	update_hw_screen(true);
-	
-	clear_keybuf();
-	int32_t k = next_press_key();
-	clear_keybuf();
-	
-	//shnarf
-	//47=f1
-	//59=esc
-	if(k>0 && k<123 && !((k>46)&&(k<60)))
-		*((int32_t*)d->dp3) = k;
-		
-		
-	d->flags&=~D_SELECTED;
-}
-
+void kb_getkey(DIALOG *d);
 
 //Used by all keyboard key settings dialogues.
 void kb_clearjoystick(DIALOG *d)
@@ -5396,35 +5385,7 @@ void kb_clearjoystick(DIALOG *d)
 
 //Clears key to 0. 
 //Used by all keyboard key settings dialogues.
-void kb_clearkey(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	
-	scare_mouse();
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
-	
-	update_hw_screen(true);
-	
-	clear_keybuf();
-	int32_t k = next_press_key();
-	clear_keybuf();
-	
-	//shnarf
-	//47=f1
-	//59=esc
-//	if(k>0 && k<123 && !((k>46)&&(k<60)))
-//		*((int32_t*)d->dp3) = k;
-	if ( k != 59 ) *((int32_t*)d->dp3) = 0;
-		
-		
-	d->flags&=~D_SELECTED;
-}
-
+void kb_clearkey(DIALOG *d);
 
 int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -5447,46 +5408,9 @@ int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	return jwin_button_proc(msg,d,c);
 }
 
-int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		kb_getkey(d);
-		
-		while(gui_mouse_b()) {
-			clear_keybuf();
-			rest(1);
-		}
-			
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc(msg,d,c);
-}
-
+int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 //Only used in keyboard settings dialogues to clear keys. 
-int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		kb_clearkey(d);
-		
-		while(gui_mouse_b()) {
-			clear_keybuf();
-			rest(1);
-		}
-			
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc(msg,d,c);
-}
+int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 
 void j_getbtn(DIALOG *d)
 {
@@ -5535,42 +5459,8 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 
 //shnarf
-const char *key_str[] =
-{
-    "(none)       ",              "a            ",              "b            ",              "c            ",
-    "d            ",              "e            ",              "f            ",              "g            ",
-    "h            ",              "i            ",              "j            ",              "k            ",
-    "l            ",              "m            ",              "n            ",              "o            ",
-    "p            ",              "q            ",              "r            ",              "s            ",
-    "t            ",              "u            ",              "v            ",              "w            ",
-    "x            ",              "y            ",              "z            ",              "0            ",
-    "1            ",              "2            ",              "3            ",              "4            ",
-    "5            ",              "6            ",              "7            ",              "8            ",
-    "9            ",              "num 0        ",              "num 1        ",              "num 2        ",
-    "num 3        ",              "num 4        ",              "num 5        ",              "num 6        ",
-    "num 7        ",              "num 8        ",              "num 9        ",              "f1           ",
-    "f2           ",              "f3           ",              "f4           ",              "f5           ",
-    "f6           ",              "f7           ",              "f8           ",              "f9           ",
-    "f10          ",              "f11          ",              "f12          ",              "esc          ",
-    "~            ",              "-            ",              "=            ",              "backspace    ",
-    "tab          ",              "{            ",              "}            ",              "enter        ",
-    ":            ",              "quote        ",              "\\           ",              "\\ (2)       ",
-    ",            ",              ".            ",              "/            ",              "space        ",
-    "insert       ",              "delete       ",              "home         ",              "end          ",
-    "page up      ",              "page down    ",              "left         ",              "right        ",
-    "up           ",              "down         ",              "num /        ",              "num *        ",
-    "num -        ",              "num +        ",              "num delete   ",              "num enter    ",
-    "print screen ",              "pause        ",              "abnt c1      ",              "yen          ",
-    "kana         ",              "convert      ",              "no convert   ",              "at           ",
-    "circumflex   ",              ": (2)        ",              "kanji        ",              "num =        ",
-    "back quote   ",              ";            ",              "command      ",              "unknown (0)  ",
-    "unknown (1)  ",              "unknown (2)  ",              "unknown (3)  ",              "unknown (4)  ",
-    "unknown (5)  ",              "unknown (6)  ",              "unknown (7)  ",              "left shift   ",
-    "right shift  ",              "left control ",              "right control",              "alt          ",
-    "alt gr       ",              "left win     ",              "right win    ",              "menu         ",
-    "scroll lock  ",              "number lock  ",              "caps lock    ",      "MAX"
-};
-
+extern const char *key_str[];
+std::string get_keystr(int key);
 
 const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
 //extern int32_t zcmusic_bufsz;
@@ -6926,96 +6816,6 @@ int32_t onKeyboard()
 				}
 				box_end(true);
 			}
-			/* Old uniqueness check
-			std::map<int32_t,bool> *keyhash = new std::map<int32_t,bool>();
-			bool unique = true;
-			addToHash(A,unique,keyhash);
-			addToHash(B,unique,keyhash);
-			addToHash(S,unique,keyhash);
-			addToHash(L,unique,keyhash);
-			addToHash(R,unique,keyhash);
-			addToHash(P,unique,keyhash);
-			addToHash(DU,unique,keyhash);
-			addToHash(DD,unique,keyhash);
-			addToHash(DL,unique,keyhash);
-			addToHash(DR,unique,keyhash);
-			
-			if(keyhash->find(Exkey1) == keyhash->end())
-			{
-				(*keyhash)[Exkey1]=true;
-			}
-			else
-			{
-				if ( Exkey1 != 0 ) unique = false;
-			}
-			
-			if(keyhash->find(Exkey2) == keyhash->end())
-			{
-				(*keyhash)[Exkey2]=true;
-			}
-			else
-			{
-				if ( Exkey2 != 0 ) unique = false;
-			}
-			
-			if(keyhash->find(Exkey3) == keyhash->end())
-			{
-				(*keyhash)[Exkey3]=true;
-			}
-			else
-			{
-				if ( Exkey3 != 0 ) unique = false;
-			}
-			
-			if(keyhash->find(Exkey4) == keyhash->end())
-			{
-				(*keyhash)[Exkey4]=true;
-			}
-			else
-			{
-				if ( Exkey4 != 0 )unique = false;
-			}
-			//modifier keys
-			if(keyhash->find(cheat_modifier_keys[0]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[0]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[0] != 0 ) unique = false;
-			}
-			if(keyhash->find(cheat_modifier_keys[1]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[1]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[1] != 0 ) unique = false;
-			}
-			if(keyhash->find(cheat_modifier_keys[2]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[2]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[2] != 0 ) unique = false;
-			}
-			if(keyhash->find(cheat_modifier_keys[3]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[3]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[3] != 0 ) unique = false;
-			}
-			
-			delete keyhash;
-			
-			if(unique)
-				done=true;
-			else
-				jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
-			*/
 		}
 		else // Cancel
 		{
@@ -7097,6 +6897,76 @@ int32_t onGamepad()
 		DDbtn = down;
 		DLbtn = left;
 		DRbtn = right;
+	}
+	
+	return D_O_K;
+}
+
+int32_t onCheatKeys()
+{
+	int32_t oldcheats[Cheat::Last][2];
+	memcpy(oldcheats, cheatkeys, sizeof(cheatkeys));
+	
+	bool done=false;
+	
+	while(!done)
+	{
+		bool confirm = false;
+		CheatKeysDialog(&confirm).show();
+		if(confirm) // OK
+		{
+			std::vector<std::string> uniqueError;
+			char buf[512];
+			for(size_t q = 1; q < Cheat::Last; ++q)
+			{
+				if(cheatkeys[q][1] && !cheatkeys[q][0])
+				{
+					cheatkeys[q][0] = cheatkeys[q][1];
+					cheatkeys[q][1] = 0;
+				}
+			}
+			for(size_t q = 1; q < Cheat::Last; ++q)
+			{
+				if(!bindable_cheat((Cheat)q)) continue;
+				for(size_t p = q+1; p < Cheat::Last; ++p)
+				{
+					if(!bindable_cheat((Cheat)p)) continue;
+					for(size_t q2 = 0; q2 <= 1; ++q2)
+						for(size_t p2 = 0; p2 <= 1; ++p2)
+						{
+							if(cheatkeys[q][q2] == cheatkeys[p][p2] && cheatkeys[q][q2] != 0)
+							{
+								uniqueError.push_back(fmt::format("'{}' ({}) conflicts with '{}' ({}) - both '{}'",
+									cheat_to_string((Cheat)q), q2?"Alt":"Main",
+									cheat_to_string((Cheat)p), p2?"Alt":"Main",
+									get_keystr(cheatkeys[q][q2])));
+							}
+						}
+				}
+			}
+			if(uniqueError.size() == 0)
+			{
+				done = true;
+				save_cheatkeys();
+			}
+			else
+			{
+				box_start(1, "Duplicate Keys", lfont, sfont, false, 500,400, 2);
+				box_out("Cannot have duplicate keybinds!"); box_eol();
+				for(std::vector<std::string>::iterator it = uniqueError.begin();
+					it != uniqueError.end(); ++it)
+				{
+					box_out((*it).c_str()); box_eol();
+				}
+				box_end(true);
+			}
+		}
+		else // Cancel
+		{
+			memcpy(cheatkeys, oldcheats, sizeof(cheatkeys));
+			done=true;
+		}
+        rest(1);
 	}
 	
 	return D_O_K;
@@ -7665,9 +7535,10 @@ static MENU snapshot_format_menu[] =
 
 static MENU controls_menu[] =
 {
-	{ (char *)"Key&board...",			   onKeyboard,			  NULL,					  0, NULL },
-	{ (char *)"&Gamepad...",				onGamepad,			   NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"Key&board...",      onKeyboard, NULL, 0, NULL },
+	{ (char *)"&Gamepad...",        onGamepad, NULL, 0, NULL },
+	{ (char *)"&Cheat Keys...",   onCheatKeys, NULL, 0, NULL },
+	{ NULL,                              NULL, NULL, 0, NULL }
 };
 
 static MENU name_entry_mode_menu[] =
@@ -7739,56 +7610,58 @@ static MENU misc_menu[] =
 
 static MENU refill_menu[] =
 {
-	{ (char *)"&Life\t*, H",				onRefillLife,			NULL,					  0, NULL },
-	{ (char *)"&Magic\t/, M",			   onRefillMagic,		   NULL,					  0, NULL },
-	{ (char *)"&Bombs\tB",				  onCheatBombs,			NULL,					  0, NULL },
-	{ (char *)"&Rupees\tR",				 onCheatRupies,		   NULL,					  0, NULL },
-	{ (char *)"&Arrows\tA",				 onCheatArrows,		   NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"&Life",      onRefillLife, NULL, 0, NULL },
+	{ (char *)"&Magic",    onRefillMagic, NULL, 0, NULL },
+	{ (char *)"&Bombs",     onCheatBombs, NULL, 0, NULL },
+	{ (char *)"&Rupees",   onCheatRupies, NULL, 0, NULL },
+	{ (char *)"&Arrows",   onCheatArrows, NULL, 0, NULL },
+	{ NULL,                         NULL, NULL, 0, NULL }
 };
 
 static MENU show_menu[] =
 {
-	{ (char *)"Combos\t0",			 onShowLayer0,				 NULL,					  0, NULL },
-	{ (char *)"Layer 1\t1",			 onShowLayer1,				 NULL,					  0, NULL },
-	{ (char *)"Layer 2\t2",			 onShowLayer2,				 NULL,					  0, NULL },
-	{ (char *)"Layer 3\t3",			 onShowLayer3,				 NULL,					  0, NULL },
-	{ (char *)"Layer 4\t4",			 onShowLayer4,				 NULL,					  0, NULL },
-	{ (char *)"Layer 5\t5",			 onShowLayer5,				 NULL,					  0, NULL },
-	{ (char *)"Layer 6\t6",			 onShowLayer6,				 NULL,					  0, NULL },
-	{ (char *)"Overhead Combos\tO",		onShowLayerO,				 NULL,					  0, NULL },
-	{ (char *)"Push Blocks\tP",			onShowLayerP,				 NULL,					  0, NULL },
-	{ (char *)"Freeform Combos\t7",	  onShowLayerF,				 NULL,					  0, NULL },
-	{ (char *)"Sprites\t8",			  onShowLayerS,				 NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					 NULL,					  0, NULL },
-	{ (char *)"Walkability\tW",		  onShowLayerW,				 NULL,					  0, NULL },
-	{ (char *)"Current FFC Scripts\tF",	  onShowFFScripts,			  NULL,					  0, NULL },
-	{ (char *)"Hitboxes\tC",				  onShowHitboxes,			   NULL,					  0, NULL },
-	{ (char *)"Effects\tE",		  onShowLayerE,				 NULL,					  0, NULL },
-	{ NULL,								 NULL,					 NULL,					  0, NULL }
+	{ (char *)"Combos",                 onShowLayer0, NULL, 0, NULL },
+	{ (char *)"Layer 1",                onShowLayer1, NULL, 0, NULL },
+	{ (char *)"Layer 2",                onShowLayer2, NULL, 0, NULL },
+	{ (char *)"Layer 3",                onShowLayer3, NULL, 0, NULL },
+	{ (char *)"Layer 4",                onShowLayer4, NULL, 0, NULL },
+	{ (char *)"Layer 5",                onShowLayer5, NULL, 0, NULL },
+	{ (char *)"Layer 6",                onShowLayer6, NULL, 0, NULL },
+	{ (char *)"Overhead Combos",        onShowLayerO, NULL, 0, NULL },
+	{ (char *)"Push Blocks",            onShowLayerP, NULL, 0, NULL },
+	{ (char *)"Freeform Combos",        onShowLayerF, NULL, 0, NULL },
+	{ (char *)"Sprites",                onShowLayerS, NULL, 0, NULL },
+	{ (char *)"",                               NULL, NULL, 0, NULL },
+	{ (char *)"Walkability",            onShowLayerW, NULL, 0, NULL },
+	{ (char *)"Current FFC Scripts", onShowFFScripts, NULL, 0, NULL },
+	{ (char *)"Hitboxes",             onShowHitboxes, NULL, 0, NULL },
+	{ (char *)"Effects",                onShowLayerE, NULL, 0, NULL },
+	{ NULL,                                     NULL, NULL, 0, NULL }
 };
 
 static MENU cheat_menu[] =
 {
-	{ (char *)"S&et Cheat",				  onCheat,				 NULL,					  0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"Re&fill",					 NULL,					refill_menu,			   0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"&Clock\tI",				   onClock,				 NULL,					  0, NULL },
-	{ (char *)"Ma&x Bombs...",			   onMaxBombs,			  NULL,					  0, NULL },
-	{ (char *)"&Heart Containers...",		onHeartC,				NULL,					  0, NULL },
-	{ (char *)"&Magic Containers...",		onMagicC,				NULL,					  0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"&Player Data...",			 onCheatConsole,		  NULL,					  0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"Walk Through &Walls\tF11",	onNoWalls,			   NULL,					  0, NULL },
-	{ (char *)"Player Ignores Side&view\tV", onIgnoreSideview,		NULL,					  0, NULL },
-	{ (char *)"&Quick Movement\tQ",		  onGoFast,				NULL,					  0, NULL },
-	{ (char *)"&Kill All Enemies\tK",		onKillCheat,			 NULL,					  0, NULL },
-	{ (char *)"Show/Hide Layer",			 NULL,					show_menu,				 0, NULL },
-	{ (char *)"Toggle Light\tL",			 onLightSwitch,		   NULL,					  0, NULL },
-	{ (char *)"&Goto Location...\tG",		onGoTo,				  NULL,					  0, NULL },
-	{ NULL,								  NULL,					NULL,					  0, NULL }
+	{ (char *)"Set &Cheat",                        onCheat, NULL,        0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"Re&fill",                              NULL, refill_menu, 0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"&Invincible",                       onClock, NULL,        0, NULL },
+	{ (char *)"Ma&x Bombs...",                  onMaxBombs, NULL,        0, NULL },
+	{ (char *)"&Heart Containers...",             onHeartC, NULL,        0, NULL },
+	{ (char *)"&Magic Containers...",             onMagicC, NULL,        0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"&Player Data...",            onCheatConsole, NULL,        0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"Walk Through &Walls",             onNoWalls, NULL,        0, NULL },
+	{ (char *)"Player Ignores Side&view", onIgnoreSideview, NULL,        0, NULL },
+	{ (char *)"&Quick Movement",                  onGoFast, NULL,        0, NULL },
+	{ (char *)"&Kill All Enemies",             onKillCheat, NULL,        0, NULL },
+	{ (char *)"Trigger &Secrets",           onSecretsCheat, NULL,        0, NULL },
+	{ (char *)"Trigger Secrets Perm",   onSecretsCheatPerm, NULL,        0, NULL },
+	{ (char *)"Show/Hide Layer",                      NULL, show_menu,   0, NULL },
+	{ (char *)"Toggle &Light",               onLightSwitch, NULL,        0, NULL },
+	{ (char *)"&Goto Location...",                  onGoTo, NULL,        0, NULL },
+	{ NULL,                                           NULL, NULL,        0, NULL }
 };
 
 static MENU fixes_menu[] =
@@ -9134,10 +9007,7 @@ const char* joybtn_name(int32_t b)
 	return joy[joystick_index].button[b-1].name;
 }
 
-int32_t next_press_key()
-{
-	return readkey()>>8;
-}
+int32_t next_press_key();
 
 int32_t next_press_btn()
 {
