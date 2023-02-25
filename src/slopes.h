@@ -30,7 +30,7 @@ struct slope_info
 	zfix getY(zfix const& x) const;
 	
 	void draw(BITMAP* dest, int32_t x, int32_t y, int32_t col) const;
-	void draw_a5(int32_t x, int32_t y, ALLEGRO_COLOR& col) const;
+	void draw_a5(int32_t x, int32_t y, ALLEGRO_COLOR col) const;
 	
 	slope_info(newcombo const& cmb, zfix const& xoffs = 0, zfix const& yoffs = 0);
 	slope_info();
