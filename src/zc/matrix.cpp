@@ -103,7 +103,8 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
 
         rti_matrix.transform.x = rti_game.transform.x;
         rti_matrix.transform.y = rti_game.transform.y;
-        rti_matrix.transform.scale = rti_game.transform.scale;
+        rti_matrix.transform.xscale = rti_game.transform.xscale;
+        rti_matrix.transform.yscale = rti_game.transform.yscale;
 
         update_hw_screen();
         

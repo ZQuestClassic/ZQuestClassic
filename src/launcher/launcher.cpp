@@ -517,7 +517,8 @@ static void configure_render_tree()
 
 	rti_root.transform.x = 0;
 	rti_root.transform.y = 0;
-	rti_root.transform.scale = 1;
+	rti_root.transform.xscale = 1;
+	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 
 	{
@@ -525,13 +526,24 @@ static void configure_render_tree()
 
 		int w = al_get_bitmap_width(rti_screen.bitmap);
 		int h = al_get_bitmap_height(rti_screen.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
 		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
-		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
-		rti_screen.transform.scale = scale;
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
+		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_screen.transform.xscale = xscale;
+		rti_screen.transform.yscale = yscale;
 		rti_screen.visible = true;
+		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_dialogs.transform.xscale = xscale;
+		rti_dialogs.transform.yscale = yscale;
+		rti_dialogs.visible = true;
+		update_dialog_transform();
 	}
 }
 
