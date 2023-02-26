@@ -212,7 +212,7 @@ void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 		zqdialog_bg_bmp = screen;
 	
 	RenderTreeItem* rti = new RenderTreeItem();
-	set_bitmap_create_flags(false);
+	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
 	rti->visible = true;
 	rti->owned = true;
