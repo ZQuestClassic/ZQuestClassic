@@ -50,7 +50,7 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors)
 ALLEGRO_COLOR db_a5_colors[9];
 static ALLEGRO_COLOR tmpcol[9];
 static int in_dbproc = 0;
-#define ALL_DB_PROC 1
+#define ALL_DB_PROC (zc_get_config("zquest","devmode",0)==42)
 void start_db_proc()
 {
 	if(!in_dbproc)

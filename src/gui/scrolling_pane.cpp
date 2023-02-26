@@ -182,7 +182,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 
 int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 {
-	start_db_proc();
 	ScrollingPane* sp = static_cast<ScrollingPane*>(d->dp);
 	int ret = D_O_K;
 	switch(msg)
@@ -285,7 +284,6 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 				}
 			}
 	}
-	end_db_proc();
 	return ret;
 }
 
