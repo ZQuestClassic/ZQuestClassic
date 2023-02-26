@@ -18,14 +18,41 @@ void set_bitmap_create_flags(bool preserve_texture)
 
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
 {
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	al_set_target_bitmap(bmp);
-	
-	al_clear_to_color(al_map_rgba(0,0,0,0));
-	
-	al_restore_state(&old_state);
+	if(bmp && bmp != al_get_target_bitmap())
+	{
+		ALLEGRO_STATE old_state;
+		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+		
+		al_set_target_bitmap(bmp);
+		
+		al_clear_to_color(al_map_rgba(0,0,0,0));
+		
+		al_restore_state(&old_state);
+	}
+	else
+	{
+		al_clear_to_color(al_map_rgba(0,0,0,0));
+	}
+}
+
+void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp)
+{
+	if(bmp && bmp != al_get_target_bitmap())
+	{
+		ALLEGRO_STATE old_state;
+		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+		
+		al_set_target_bitmap(bmp);
+		
+		al_set_clipping_rectangle(0, 0, al_get_bitmap_width(bmp)-1, al_get_bitmap_height(bmp)-1);
+		
+		al_restore_state(&old_state);
+	}
+	else
+	{
+		bmp = al_get_target_bitmap();
+		al_set_clipping_rectangle(0, 0, al_get_bitmap_width(bmp)-1, al_get_bitmap_height(bmp)-1);
+	}
 }
 
 RenderTreeItem::~RenderTreeItem()

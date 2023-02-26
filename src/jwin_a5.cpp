@@ -28,73 +28,6 @@ extern bool is_zquest();
 //Externed from jwin.cpp
 bool is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2);
 
-//Misc stolen from jwin.cpp
-int32_t discern_tab_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t x)
-{
-    int32_t w=0;
-    
-    for(size_t i=first_tab; i < panel->getSize(); i++)
-    {
-        w+=al_get_text_width(a5font, panel->getName(i))+15;
-        
-        if(w>x)
-        {
-            return i;
-        }
-    }
-    
-    return -1;
-}
-int32_t tabs_width_a5(GUI::TabPanel *panel)
-{
-    int32_t w=0;
-    
-    for(size_t i=0; i < panel->getSize(); ++i)
-    {
-        w+=al_get_text_width(a5font, panel->getName(i))+15;
-    }
-    
-    return w+1;
-}
-bool uses_tab_arrows_a5(GUI::TabPanel *panel, int32_t maxwidth)
-{
-	return (tabs_width_a5(panel)>maxwidth);
-}
-size_t last_visible_tab_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t maxwidth)
-{
-    size_t i;
-    int32_t w=0;
-    
-    if(uses_tab_arrows_a5(panel, maxwidth))
-    {
-        maxwidth-=28;
-    }
-    
-    for(i=first_tab; i < panel->getSize(); ++i)
-    {
-        w+=al_get_text_width(a5font, panel->getName(i))+15;
-        
-        if(w>maxwidth)
-        {
-            return i-1;
-        }
-    }
-    
-    return i-1;
-}
-int32_t displayed_tabs_width_a5_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t maxwidth)
-{
-    size_t i=0;
-    int32_t w=0;
-    
-    for(i=first_tab; i<=last_visible_tab_a5(panel, first_tab, maxwidth); ++i)
-    {
-        w+=al_get_text_width(a5font, panel->getName(i))+15;
-    }
-    
-    return w+1;
-}
-
 //JWin A5 Palette
 
 ALLEGRO_COLOR jwin_a5_colors[9];
@@ -116,15 +49,36 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors)
 
 ALLEGRO_COLOR db_a5_colors[9];
 static ALLEGRO_COLOR tmpcol[9];
-
+static int in_dbproc = 0;
+#define ALL_DB_PROC 1
 void start_db_proc()
 {
-	jwin_get_a5_colors(tmpcol);
-	jwin_set_a5_colors(db_a5_colors);
+	if(!in_dbproc)
+	{
+		jwin_get_a5_colors(tmpcol);
+		jwin_set_a5_colors(db_a5_colors);
+	}
+	++in_dbproc;
 }
 void end_db_proc()
 {
-	jwin_set_a5_colors(tmpcol);
+	if(ALL_DB_PROC) return;
+	if(in_dbproc)
+	{
+		--in_dbproc;
+		if(!in_dbproc)
+		{
+			jwin_set_a5_colors(tmpcol);
+		}
+	}
+}
+void end_all_db_proc()
+{
+	if(in_dbproc)
+	{
+		in_dbproc = 1;
+		end_db_proc();
+	}
 }
 //Generic A5 helpers
 
@@ -227,20 +181,20 @@ void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 
 void dotted_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLOR fg, ALLEGRO_COLOR bg)
 {
-    int32_t x = ((x1+y1) & 1) ? 1 : 0;
-    int32_t c;
-    
-    for(c=x1; c<=x2; c++)
-    {
-        al_put_pixel(c, y1, (((c+y1) & 1) == x) ? fg : bg);
-        al_put_pixel(c, y2, (((c+y2) & 1) == x) ? fg : bg);
-    }
-    
-    for(c=y1+1; c<y2; c++)
-    {
-        al_put_pixel(x1, c, (((c+x1) & 1) == x) ? fg : bg);
-        al_put_pixel(x2, c, (((c+x2) & 1) == x) ? fg : bg);
-    }
+	int32_t x = ((x1+y1) & 1) ? 1 : 0;
+	int32_t c;
+	
+	for(c=x1; c<=x2; c++)
+	{
+		al_put_pixel(c, y1, (((c+y1) & 1) == x) ? fg : bg);
+		al_put_pixel(c, y2, (((c+y2) & 1) == x) ? fg : bg);
+	}
+	
+	for(c=y1+1; c<y2; c++)
+	{
+		al_put_pixel(x1, c, (((c+x1) & 1) == x) ? fg : bg);
+		al_put_pixel(x2, c, (((c+x2) & 1) == x) ? fg : bg);
+	}
 }
 
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str)
@@ -317,77 +271,77 @@ void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,i
 }
 void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect)
 {
-    int32_t g = (flags & D_SELECTED) ? 1 : 0;
-    
-    if(flags & D_SELECTED)
-        jwin_draw_button_a5(x, y, w, h, 2, 0);
-    else if(!(flags & D_GOTFOCUS))
-        jwin_draw_button_a5(x, y, w, h, 0, 0);
-    else
-    {
-        al_draw_rectangle(x, y, x+w-1, y+h-1, jwin_a5_pal(jcDARK), 1);
-        jwin_draw_button_a5(x+1, y+1, w-2, h-2, 0, 0);
-    }
-    
+	int32_t g = (flags & D_SELECTED) ? 1 : 0;
+	
+	if(flags & D_SELECTED)
+		jwin_draw_button_a5(x, y, w, h, 2, 0);
+	else if(!(flags & D_GOTFOCUS))
+		jwin_draw_button_a5(x, y, w, h, 0, 0);
+	else
+	{
+		al_draw_rectangle(x, y, x+w-1, y+h-1, jwin_a5_pal(jcDARK), 1);
+		jwin_draw_button_a5(x+1, y+1, w-2, h-2, 0, 0);
+	}
+	
 	int th = al_get_font_line_height(a5font);
-    if(!(flags & D_DISABLED))
+	if(!(flags & D_DISABLED))
 		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),x+w/2+g, y+(h-th)/2+g,ALLEGRO_ALIGN_CENTRE,str);
-    else
-    {
+	else
+	{
 		jwin_textout_a5(a5font,jwin_a5_pal(jcLIGHT),x+w/2+1,y+(h-th)/2+1,ALLEGRO_ALIGN_CENTRE,str);
 		jwin_textout_a5(a5font,jwin_a5_pal(jcDISABLED_FG),x+w/2,  y+(h-th)/2,ALLEGRO_ALIGN_CENTRE,str);
-    }
-    
-    if(show_dotted_rect&&(flags & D_GOTFOCUS))
-        dotted_rect_a5(x+4, y+4, x+w-5, y+h-5, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
+	}
+	
+	if(show_dotted_rect&&(flags & D_GOTFOCUS))
+		dotted_rect_a5(x+4, y+4, x+w-5, y+h-5, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
 }
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
-    bool over=false;
-    
-    while(gui_mouse_b())
-    {
-        //vsync();
-        if(mouse_in_rect(x,y,w,h))
-        {
-            if(!over)
-            {
-                vsync();
-                scare_mouse();
-                jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
-                unscare_mouse();
-                over=true;
-                
+	bool over=false;
+	
+	while(gui_mouse_b())
+	{
+		//vsync();
+		if(mouse_in_rect(x,y,w,h))
+		{
+			if(!over)
+			{
+				vsync();
+				scare_mouse();
+				jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
+				unscare_mouse();
+				over=true;
+				
 				update_hw_screen();
-            }
-        }
-        else
-        {
-            if(over)
-            {
-                vsync();
-                scare_mouse();
-                jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-                unscare_mouse();
-                over=false;
-                
+			}
+		}
+		else
+		{
+			if(over)
+			{
+				vsync();
+				scare_mouse();
+				jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
+				unscare_mouse();
+				over=false;
+				
 				update_hw_screen();
-            }
-        }
-        
-    }
-    
-    if(over)
-    {
-        vsync();
-        scare_mouse();
-        jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-        unscare_mouse();
-        
+			}
+		}
+		
+	}
+	
+	if(over)
+	{
+		vsync();
+		scare_mouse();
+		jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
+		unscare_mouse();
+		
 		update_hw_screen();
-    }
-    
-    return over;
+	}
+	
+	return over;
 }
 
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
@@ -396,7 +350,7 @@ void draw_question_button_a5(int32_t x, int32_t y, int32_t state)
 	
 	jwin_draw_button_a5(x,y,16,14,state,0);
 	x += 4 + (state?1:0);
-	y += 3 + (state?1:0);
+	y += 4 + (state?1:0);
 	
 	al_draw_hline(x+2, y+0, x+5, c);
 	al_draw_hline(x+1, y+1, x+2, c);
@@ -420,6 +374,22 @@ void draw_x_button_a5(int32_t x, int32_t y, int32_t state)
 	al_draw_line(x+1,y,x+8,y+7,c,1);
 	al_draw_line(x,y+7,x+7,y,c,1);
 	al_draw_line(x+1,y+7,x+8,y,c,1);
+}
+
+void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
+{
+	ALLEGRO_COLOR c = jwin_a5_pal(jcDARK);
+	int32_t ah = zc_min(h/3, 5);
+	int32_t i = 0;
+	
+	jwin_draw_button_a5(x,y,w,h,state,1);
+	x += w/2 - (state?0:1);
+	y += (h-ah)/2 + (state?1:0);
+	
+	for(; i<ah; i++)
+	{
+		al_draw_hline(x-(up?i:ah-i-1), y+i, x+(up?i:ah-i-1)+1, c);
+	}
 }
 
 static int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
@@ -565,10 +535,291 @@ void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const cha
 	
 }
 
+//Misc stolen from jwin.cpp
+
+//Tabs
+
+int32_t discern_tab_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t x)
+{
+	int32_t w=0;
+	
+	for(size_t i=first_tab; i < panel->getSize(); i++)
+	{
+		w+=al_get_text_width(a5font, panel->getName(i))+15;
+		
+		if(w>x)
+		{
+			return i;
+		}
+	}
+	
+	return -1;
+}
+int32_t tabs_width_a5(GUI::TabPanel *panel)
+{
+	int32_t w=0;
+	
+	for(size_t i=0; i < panel->getSize(); ++i)
+	{
+		w+=al_get_text_width(a5font, panel->getName(i))+15;
+	}
+	
+	return w+1;
+}
+bool uses_tab_arrows_a5(GUI::TabPanel *panel, int32_t maxwidth)
+{
+	return (tabs_width_a5(panel)>maxwidth);
+}
+size_t last_visible_tab_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t maxwidth)
+{
+	size_t i;
+	int32_t w=0;
+	
+	if(uses_tab_arrows_a5(panel, maxwidth))
+	{
+		maxwidth-=28;
+	}
+	
+	for(i=first_tab; i < panel->getSize(); ++i)
+	{
+		w+=al_get_text_width(a5font, panel->getName(i))+15;
+		
+		if(w>maxwidth)
+		{
+			return i-1;
+		}
+	}
+	
+	return i-1;
+}
+int32_t displayed_tabs_width_a5_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t maxwidth)
+{
+	size_t i=0;
+	int32_t w=0;
+	
+	for(i=first_tab; i<=last_visible_tab_a5(panel, first_tab, maxwidth); ++i)
+	{
+		w+=al_get_text_width(a5font, panel->getName(i))+15;
+	}
+	
+	return w+1;
+}
+
+//Scrollers
+
+void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_t *offset, ALLEGRO_FONT *fnt)
+{
+	enum { top_btn, bottom_btn, bar, top_bar, bottom_bar };
+	
+	int32_t xx, yy;
+	int32_t height = (d->h-3) / (fnt ? al_get_font_line_height(fnt) : 1);
+	int32_t hh = d->h - 32;
+	int32_t obj = bar;
+	int32_t bh, len, pos;
+	int32_t down = 1, last_draw = 0;
+	int32_t redraw = 0, mouse_delay = 0;
+	
+	_calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
+	
+	xx = d->x + d->w - 18;
+	
+	// find out which object is being clicked
+	
+	yy = gui_mouse_y();
+	
+	if(yy <= d->y+2+bh)
+	{
+		obj = top_btn;
+		yy = d->y+2;
+	}
+	else if(yy >= d->y+d->h-2-bh)
+	{
+		obj = bottom_btn;
+		yy = d->y+d->h-2-bh;
+	}
+	else if(d->h > 32+6)
+	{
+		if(yy < d->y+2+bh+pos)
+			obj = top_bar;
+		else if(yy >= d->y+2+bh+pos+len)
+			obj = bottom_bar;
+	}
+	
+	while(gui_mouse_b())
+	{
+		_calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
+		
+		switch(obj)
+		{
+		case top_btn:
+		case bottom_btn:
+			down = mouse_in_rect(xx, yy, 16, bh);
+			
+			if(!down)
+				mouse_delay = 0;
+			else
+			{
+				if((mouse_delay&1)==0)
+				{
+					if(obj==top_btn && *offset>0)
+					{
+						(*offset)--;
+						redraw = 1;
+					}
+					
+					if(obj==bottom_btn && *offset<listsize-height)
+					{
+						(*offset)++;
+						redraw = 1;
+					}
+				}
+				
+				mouse_delay++;
+			}
+			
+			if(down!=last_draw || redraw)
+			{
+				vsync();
+				scare_mouse();
+				d->proc(MSG_DRAW, d, 0);
+				draw_arrow_button_a5(xx, yy, 16, bh, obj==top_btn, down*3);
+				unscare_mouse();
+				last_draw = down;
+			}
+			
+			break;
+			
+		case top_bar:
+		case bottom_bar:
+			if(mouse_in_rect(xx, d->y+2, 16, d->h-4))
+			{
+				if(obj==top_bar)
+				{
+					if(gui_mouse_y() < d->y+2+bh+pos)
+						yy = *offset - height;
+				}
+				else
+				{
+					if(gui_mouse_y() >= d->y+2+bh+pos+len)
+						yy = *offset + height;
+				}
+				
+				if(yy < 0)
+					yy = 0;
+					
+				if(yy > listsize-height)
+					yy = listsize-height;
+					
+				if(yy != *offset)
+				{
+					*offset = yy;
+					vsync();
+					scare_mouse();
+					d->proc(MSG_DRAW, d, 0);
+					unscare_mouse();
+				}
+			}
+			
+			_calc_scroll_bar(d->h, height, listsize, *offset, &bh, &len, &pos);
+			
+			if(!mouse_in_rect(xx, d->y+2+bh+pos, 16, len))
+				break;
+				
+			// fall through
+			
+		case bar:
+		default:
+			xx = gui_mouse_y() - pos;
+			
+			while(gui_mouse_b())
+			{
+				yy = (listsize * (gui_mouse_y() - xx) + hh/2) / hh;
+				
+				if(yy > listsize-height)
+					yy = listsize-height;
+					
+				if(yy < 0)
+					yy = 0;
+					
+				if(yy != *offset)
+				{
+					*offset = yy;
+					scare_mouse();
+					d->proc(MSG_DRAW, d, 0);
+					unscare_mouse();
+				}
+				
+				// let other objects continue to animate
+				broadcast_dialog_message(MSG_IDLE, 0);
+				
+				update_hw_screen();
+			}
+			
+			break;
+			
+		}                                                       // switch(obj)
+		
+		redraw = 0;
+		
+		update_hw_screen();
+		// let other objects continue to animate
+		broadcast_dialog_message(MSG_IDLE, 0);
+	}
+	
+	if(last_draw==1)
+	{
+		scare_mouse();
+		draw_arrow_button_a5(xx, yy, 16, bh, obj==top_btn, 0);
+		unscare_mouse();
+	}
+}
+void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type)
+{
+	int32_t pos, len;
+	int32_t xx, yy, hh, bh;
+	
+	/* draw frame */
+	if(type) // for droplists
+		jwin_draw_frame_a5(d->x, d->y, d->w, d->h, FR_DARK);
+	else
+		jwin_draw_frame_a5(d->x, d->y, d->w, d->h, FR_DEEP);
+		
+	/* possibly draw scrollbar */
+	if(listsize > height)
+	{
+		_calc_scroll_bar(d->h, height, listsize, offset, &bh, &len, &pos);
+		
+		xx = d->x + d->w - 18;
+		
+		draw_arrow_button_a5(xx, d->y+2, 16, bh, 1, 0);
+		draw_arrow_button_a5(xx, d->y+d->h-2-bh, 16, bh, 0, 0);
+		
+		if(d->h > 32)
+		{
+			yy = d->y + 16;
+			hh = (d->h-32);
+			
+			al_draw_filled_rectangle(xx, yy, xx+16, yy+hh, jwin_a5_pal(jcLIGHT));
+			
+			if(d->h > 32+6)
+			{
+				jwin_draw_button_a5(xx, yy+pos, 16, len, 0, 1);
+			}
+		}
+		
+		if(d->flags & D_GOTFOCUS)
+			dotted_rect_a5(d->x+2, d->y+2, d->x+d->w-19, d->y+d->h-3, jwin_a5_pal(jcTEXTFG), jwin_a5_pal(jcTEXTBG));
+	}
+	else if(d->flags & D_GOTFOCUS)
+		dotted_rect_a5(d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, jwin_a5_pal(jcTEXTFG), jwin_a5_pal(jcTEXTBG));
+}
+
 //JWin A5 procs
 
 int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 {
+	end_all_db_proc();
+	if(ALL_DB_PROC) start_db_proc();
 	rest(1);
 	static bool skipredraw = false;
 	
@@ -635,17 +886,16 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 
 int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 {
+	ASSERT(d);
 	assert(d->flags&D_NEW_GUI);
+	if(d->dp==NULL) return D_O_K;
 	
-    int32_t tx;
+	int32_t tx;
 	int32_t ret = D_O_K;
-    int32_t sd=2; //selected delta
+	int32_t sd=2; //selected delta
 	static bool skipredraw = false;
 	GUI::TabPanel *panel=(GUI::TabPanel*)d->dp;
-    ASSERT(d);
-    
-    if(d->dp==NULL) return D_O_K;
-    
+	
 	ALLEGRO_FONT *oldfont = a5font;
 	if(d->dp2)
 	{
@@ -840,7 +1090,7 @@ int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 		}
 		break;
 	}
-    a5font = oldfont;
+	a5font = oldfont;
 	return ret;
 }
 

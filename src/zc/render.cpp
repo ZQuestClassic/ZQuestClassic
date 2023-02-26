@@ -286,7 +286,7 @@ void start_info_bmp()
 }
 void end_info_bmp()
 {
-	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1);
+	clear_a5_clip_rect(rti_infolayer.bitmap);
 	al_restore_state(&infobmp_old_state);
 }
 

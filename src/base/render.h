@@ -51,7 +51,8 @@ public:
 extern RenderTreeItem rti_dialogs;
 
 void set_bitmap_create_flags(bool preserve_texture);
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp);
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
+void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
