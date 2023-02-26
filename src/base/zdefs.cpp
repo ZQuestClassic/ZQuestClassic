@@ -129,6 +129,17 @@ const int t_cfg_def[jcMAX] =
 {
 	4,5,4,3,2,1,3,5,7,5,1,8,6,1,2,3,5,3,1,3,4
 };
+const int db_hexval[8] =
+{
+	0xECF0F0,
+	0xC46460,
+	0xB04C4C,
+	0xA03838,
+	0x8C0000,
+	0x7C1818,
+	0x3C1010,
+	0x140000
+};
 void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 {
 	zc_push_config();
@@ -146,6 +157,11 @@ void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 		int b = (hexval>>0)&0xFF;
 		pal[dvc(q)] = _RGB(r/4,g/4,b/4);
 		colors[q] = al_map_rgb(r,g,b);
+		//USE DEBUG VALS
+		r = (db_hexval[q-1]>>16)&0xFF;
+		g = (db_hexval[q-1]>>8)&0xFF;
+		b = (db_hexval[q-1]>>0)&0xFF;
+		db_a5_colors[q] = al_map_rgb(r,g,b);
 	}
 	
 	for(int q = 0; q < jcMAX; ++q)

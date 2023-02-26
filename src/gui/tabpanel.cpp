@@ -1,7 +1,7 @@
 #include "tabpanel.h"
 #include "base/zc_alleg.h"
 #include "dialog_runner.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include <utility>
 
 namespace GUI
@@ -95,13 +95,13 @@ void TabPanel::applyDisabled(bool dis)
 		child->setDisabled(dis);
 }
 
-void TabPanel::applyFont(FONT* newFont)
+void TabPanel::applyFont_a5(ALLEGRO_FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont(newFont);
+	Widget::applyFont_a5(newFont);
 }
 
 void TabPanel::calculateSize()
@@ -121,7 +121,7 @@ void TabPanel::calculateSize()
 		for(auto& child: children)
 		{
 			child->calculateSize();
-			tabwid+=text_length(widgFont, child->getName().c_str())+15;
+			tabwid+=al_get_text_width(widgFont_a5, child->getName().c_str())+15;
 			int32_t w = child->getTotalWidth(); // Should this be getTotalWidth()?
 			if(w > maxW)
 				maxW = w;
@@ -132,7 +132,7 @@ void TabPanel::calculateSize()
 		if(tabwid > maxW)
 			maxW = tabwid;
 		setPreferredWidth(Size::pixels(maxW+6));
-		setPreferredHeight(Size::pixels(text_height(widgFont) + 4) + Size::pixels(maxH));
+		setPreferredHeight(Size::pixels(al_get_font_line_height(widgFont_a5) + 4) + Size::pixels(maxH));
 	}
 	Widget::calculateSize();
 }
@@ -148,7 +148,8 @@ void TabPanel::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t cont
 	else for(auto& child: children)
 	{
 		Widget::arrange(contX, contY, contW, contH);
-		child->arrange(x, y+text_height(widgFont)+9, getWidth(), getHeight()-(text_height(widgFont)+9));
+		auto fh = al_get_font_line_height(widgFont_a5);
+		child->arrange(x, y+fh+9, getWidth(), getHeight()-(fh+9));
 	}
 }
 
@@ -162,13 +163,13 @@ void TabPanel::realize(DialogRunner& runner)
 		return;
 	}
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<new_tab_proc>,
+		newGUIProc<jwin_tab_proc_a5>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags,
 		0, 0, // d1, d2
-		this, widgFont, nullptr // dp, dp2, dp3
+		this, widgFont_a5, nullptr // dp, dp2, dp3
 	});
 	
 	for(auto& child: children)
