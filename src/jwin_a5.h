@@ -15,9 +15,6 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors);
 void start_db_proc();
 void end_db_proc();
 
-ALLEGRO_COLOR a5color(RGB c);
-ALLEGRO_COLOR a5color(int index);
-
 void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_t *offset, ALLEGRO_FONT *fnt);
 void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type);
 

@@ -82,17 +82,6 @@ void end_all_db_proc()
 }
 //Generic A5 helpers
 
-ALLEGRO_COLOR a5color(RGB c)
-{
-	return al_map_rgb(c.r*4,c.g*4,c.b*4);
-}
-ALLEGRO_COLOR a5color(int index)
-{
-	RGB tmp;
-	get_color(index,&tmp);
-	return a5color(tmp);
-}
-
 void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c)
 {
 	al_draw_line(x1,y1,x2,y1,c,1);

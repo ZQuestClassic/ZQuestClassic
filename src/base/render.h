@@ -51,13 +51,17 @@ public:
 extern RenderTreeItem rti_dialogs;
 
 void set_bitmap_create_flags(bool preserve_texture);
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
+ALLEGRO_COLOR a5color(RGB c);
+ALLEGRO_COLOR a5color(int index);
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr, ALLEGRO_COLOR* c = nullptr);
 void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
 void popup_zqdialog_start(bool transp = true);
 void popup_zqdialog_end();
+void popup_zqdialog_blackout(int x, int y, int w, int h, int c = 0);
+void popup_zqdialog_blackout_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
 void update_dialog_transform();

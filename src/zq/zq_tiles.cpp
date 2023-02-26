@@ -1989,7 +1989,7 @@ void show_edit_tile_help()
 
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
-	popup_zqdialog_start(false);
+	popup_zqdialog_blackout(0,0,LARGE_W,LARGE_H);
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_DLG);
 	edit_button.h = ok_button.h = cancel_button.h = 12+text_height(font);
@@ -3233,7 +3233,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 	destroy_bitmap(selecting_pattern);
 	destroy_bitmap(intersection_pattern);
 	font = oldfont;
-	popup_zqdialog_end();
+	popup_zqdialog_blackout_end();
 }
 
 /*  Grab Tile Code  */
@@ -15047,7 +15047,7 @@ int32_t writetilefile(PACKFILE *f, int32_t index, int32_t count)
 static int32_t _selected_tile=-1, _selected_tcset=-1;
 int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
-	popup_zqdialog_start();
+	popup_zqdialog_blackout((zq_screen_w-640-12)>>1,(zq_screen_h-480-25-6)>>1,640+6+6,480+25+6);
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -16585,7 +16585,7 @@ REDRAW:
 		_selected_tcset = cs;
 	}
 	
-	popup_zqdialog_end();
+	popup_zqdialog_blackout_end();
 	return ret;
 }
 int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
@@ -16723,10 +16723,10 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		}
 		else
 		{
-			rectfill(screen2, (31*mul), (216*mul)+yofs, (31*mul)+15, (216*mul)+yofs+15, vc(0));
-			rect(screen2, (31*mul), (216*mul)+yofs, (31*mul)+15, (216*mul)+yofs+15, vc(15));
-			line(screen2, (31*mul), (216*mul)+yofs, (31*mul)+15, (216*mul)+yofs+15, vc(15));
-			line(screen2, (31*mul), (216*mul)+yofs+15, (31*mul)+15, (216*mul)+yofs, vc(15));
+			rectfill(screen2, (31*mul), (216*mul)+yofs, (31*mul)+31, (216*mul)+yofs+31, vc(0));
+			rect(screen2, (31*mul), (216*mul)+yofs, (31*mul)+31, (216*mul)+yofs+31, vc(15));
+			line(screen2, (31*mul), (216*mul)+yofs, (31*mul)+31, (216*mul)+yofs+31, vc(15));
+			line(screen2, (31*mul), (216*mul)+yofs+31, (31*mul)+31, (216*mul)+yofs, vc(15));
 		}
 	}
 	
@@ -16775,10 +16775,10 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 			}
 			else
 			{
-				rectfill(screen2, (136*mul), (216*mul)+yofs, (136*mul)+15, (216*mul)+yofs+15, vc(0));
-				rect(screen2, (136*mul), (216*mul)+yofs, (136*mul)+15, (216*mul)+yofs+15, vc(15));
-				line(screen2, (136*mul), (216*mul)+yofs, (136*mul)+15, (216*mul)+yofs+15, vc(15));
-				line(screen2, (136*mul), (216*mul)+yofs+15, (136*mul)+15, (216*mul)+yofs, vc(15));
+				rectfill(screen2, (136*mul), (216*mul)+yofs, (136*mul)+31, (216*mul)+yofs+31, vc(0));
+				rect(screen2, (136*mul), (216*mul)+yofs, (136*mul)+31, (216*mul)+yofs+31, vc(15));
+				line(screen2, (136*mul), (216*mul)+yofs, (136*mul)+31, (216*mul)+yofs+31, vc(15));
+				line(screen2, (136*mul), (216*mul)+yofs+31, (136*mul)+31, (216*mul)+yofs, vc(15));
 			}
 		}
 		
@@ -16891,7 +16891,7 @@ void draw_combo_list_window()
 static int32_t _selected_combo=-1, _selected_cset=-1;
 bool select_combo_2(int32_t &cmb,int32_t &cs)
 {
-	popup_zqdialog_start();
+	popup_zqdialog_blackout((zq_screen_w-640-12)>>1,(zq_screen_h-480-25-6)>>1,640+6+6,480+25+6);
 	reset_combo_animations();
 	reset_combo_animations2();
 	// static int32_t cmb=0;
@@ -17238,7 +17238,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		_selected_cset = cs;
 	}
 	
-	popup_zqdialog_end();
+	popup_zqdialog_blackout_end();
 	return ret;
 }
 
@@ -17425,7 +17425,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 
 int32_t combo_screen(int32_t pg, int32_t tl)
 {
-	popup_zqdialog_start();
+	popup_zqdialog_blackout((zq_screen_w-640-12)>>1,(zq_screen_h-480-25-6)>>1,640+6+6,480+25+6);
 	reset_combo_animations();
 	reset_combo_animations2();
 	static int32_t tile=0;
@@ -18219,7 +18219,7 @@ REDRAW:
 	setup_combo_animations2();
 	_selected_combo = tile;
 	_selected_cset = cs;
-	popup_zqdialog_end();
+	popup_zqdialog_blackout_end();
 	return done-1;
 }
 
@@ -19785,7 +19785,7 @@ int32_t writecomboaliasfile(PACKFILE *f, int32_t index, int32_t count)
 
 int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs,int32_t exnow, bool always_use_flip)
 {
-	popup_zqdialog_start();
+	popup_zqdialog_blackout((zq_screen_w-640-12)>>1,(zq_screen_h-480-25-6)>>1,640+6+6,480+25+6);
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -21236,7 +21236,7 @@ REDRAW_DMAP_SELTILE:
 	register_used_tiles();
 	setup_combo_animations();
 	setup_combo_animations2();
-	popup_zqdialog_end();
+	popup_zqdialog_blackout_end();
 	return tile+1;
 }
 

@@ -16,8 +16,21 @@ void set_bitmap_create_flags(bool preserve_texture)
 	al_set_new_bitmap_flags(flags);
 }
 
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
+ALLEGRO_COLOR a5color(RGB c)
 {
+	return al_map_rgb(c.r*4,c.g*4,c.b*4);
+}
+ALLEGRO_COLOR a5color(int index)
+{
+	RGB tmp;
+	get_color(index,&tmp);
+	return a5color(tmp);
+}
+
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp, ALLEGRO_COLOR* c)
+{
+	static ALLEGRO_COLOR transp = al_map_rgba(0,0,0,0);
+	ALLEGRO_COLOR& col = c ? *c : transp;
 	if(bmp && bmp != al_get_target_bitmap())
 	{
 		ALLEGRO_STATE old_state;
@@ -25,13 +38,13 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
 		
 		al_set_target_bitmap(bmp);
 		
-		al_clear_to_color(al_map_rgba(0,0,0,0));
+		al_clear_to_color(col);
 		
 		al_restore_state(&old_state);
 	}
 	else
 	{
-		al_clear_to_color(al_map_rgba(0,0,0,0));
+		al_clear_to_color(col);
 	}
 }
 
@@ -189,6 +202,55 @@ void popup_zqdialog_end()
 		}
 		show_mouse(screen);
 		delete to_del;
+	}
+	position_mouse_z(0);
+}
+
+void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
+{
+	if(!zqdialog_bg_bmp)
+		zqdialog_bg_bmp = screen;
+	
+	RenderTreeItem* rti = new RenderTreeItem();
+	set_bitmap_create_flags(false);
+	rti->bitmap = al_create_bitmap(w, h);
+	rti->visible = true;
+	rti->owned = true;
+	rti->transform.x = x;
+	rti->transform.y = y;
+	rti_dialogs.children.push_back(rti);
+	rti_dialogs.visible = true;
+	active_dlg_rti = rti;
+	al_set_new_bitmap_flags(0);
+	
+	clear_a5_bmp(rti->bitmap, &a5color(c));
+	
+	popup_zqdialog_start();
+}
+
+void popup_zqdialog_blackout_end()
+{
+	if (rti_dialogs.children.size() >= 2)
+	{
+		show_mouse(NULL);
+		RenderTreeItem* to_del = active_dlg_rti;
+		rti_dialogs.children.pop_back();
+		RenderTreeItem* to_del_2 = rti_dialogs.children.back();
+		rti_dialogs.children.pop_back();
+		if(rti_dialogs.children.size())
+		{
+			active_dlg_rti = rti_dialogs.children.back();
+			screen = active_dlg_rti->a4_bitmap;
+		}
+		else
+		{
+			active_dlg_rti = nullptr;
+			screen = zqdialog_bg_bmp;
+			zqdialog_bg_bmp = nullptr;
+		}
+		show_mouse(screen);
+		delete to_del;
+		delete to_del_2;
 	}
 	position_mouse_z(0);
 }
