@@ -48,6 +48,7 @@ jobs:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
+      config: Release
       extra-args: ${{ matrix.extra-args }}
 
   compare:

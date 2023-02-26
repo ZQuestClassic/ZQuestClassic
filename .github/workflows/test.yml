@@ -13,6 +13,11 @@ on:
       compiler:
         type: string
         description: 'compiler'
+      config:
+        type: choice
+        description: 'config'
+        default: 'Release'
+        options: ['Release', 'Debug', 'RelWithDebInfo', 'Coverage']
       extra-args:
         type: string
         description: 'extra-args'
@@ -20,10 +25,16 @@ on:
     inputs:
       runs-on:
         type: string
+        required: true
       arch:
         type: string
+        required: true
       compiler:
         type: string
+        required: true
+      config:
+        type: string
+        required: true
       extra-args:
         type: string
 
@@ -39,6 +50,7 @@ jobs:
       runs-on: ${{ inputs.runs-on }}
       arch: ${{ inputs.arch }}
       compiler: ${{ inputs.compiler }}
+      config: ${{ inputs.config }}
 
   test:
     needs: ["build"]
@@ -59,12 +71,15 @@ jobs:
         run: pip install requests PyGithub watchdog
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: sudo pip install requests PyGithub watchdog
+      - if: inputs.config == 'Coverage'
+        run: sudo pip install gcovr
 
       - uses: actions/download-artifact@v3
         with:
           name: ${{ needs.build.outputs.artifact-name }}
           path: ${{ needs.build.outputs.artifact-name }}
       - name: Prepare build folder
+        if: inputs.config != 'Coverage'
         uses: knicknic/os-specific-run@v1.0.3
         with:
           windows: |
@@ -82,11 +97,16 @@ jobs:
             echo "BUILD_FOLDER=zc-extracted" >> "$GITHUB_ENV"
             mkdir zc-extracted
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C zc-extracted
+      - name: Prepare build folder
+        if: inputs.config == 'Coverage'
+        run: |
+            echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
+            tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
 
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
-      - if: ${{ matrix.shard_index == 1 }}
+      - if: ${{ matrix.shard_index == 1 && inputs.config != 'Coverage' }}
         name: Test zscript
         uses: knicknic/os-specific-run@v1.0.3
         with:
@@ -101,7 +121,7 @@ jobs:
             ./zscript -input "include/std.zh" -unlinked
 
         # TODO why does this result in "could not open file: test.zplay" on Windows?
-      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' }}
+      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test recording
         run: |
           cd ${{ env.BUILD_FOLDER }}
@@ -137,8 +157,20 @@ jobs:
           --filter keys.zplay
           --no-jit
 
+      - name: Generate coverage json
+        if: inputs.config == 'Coverage'
+        run: bash tests/generate_coverage_report.sh
+        env:
+          GCOV: llvm-cov-14 gcov
+      - uses: actions/upload-artifact@v3
+        if: inputs.config == 'Coverage'
+        with:
+          name: coverage-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          path: ${{ github.workspace }}/tests/.coverage/coverage.json
+
       - uses: actions/upload-artifact@v3
         if: github.event_name == 'workflow_dispatch' || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results
+

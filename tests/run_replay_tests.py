@@ -278,6 +278,7 @@ def clear_progress_str():
 is_mac_ci = args.ci and 'mac' in args.ci
 is_web = bool(list(args.build_folder.glob('*.wasm')))
 is_web_ci = is_web and args.ci
+is_coverage = args.build_folder.name == 'Coverage'
 if args.test_results_folder:
     test_results_dir = args.test_results_folder.absolute()
 else:
@@ -379,6 +380,8 @@ def get_replay_data(file):
         estimated_fps /= 30
     elif is_web:
         estimated_fps /= 11
+    if is_coverage:
+        estimated_fps /= 10
 
     frames_limited = frames
     frame_arg = get_arg_for_replay(file, grouped_frame_arg, is_int=True)
@@ -631,6 +634,9 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
+    timeout = 60
+    if is_coverage:
+        timeout *= 5
 
     if is_web:
         player_interface = WebPlayerInterface()
@@ -674,7 +680,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
             # Wait for .zplay.result.txt creation.
             while True:
-                if do_timeout and timer() - start > 60:
+                if do_timeout and timer() - start > timeout:
                     raise ReplayTimeoutException('timed out waiting for replay to start')
 
                 watcher.update_result()
@@ -687,7 +693,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
             # .zplay.result.txt should be updated every second.
             while watcher.observer.is_alive():
-                if do_timeout and timer() - watcher.modified_time > 60:
+                if do_timeout and timer() - watcher.modified_time > timeout:
                     watcher.update_result()
                     last_frame = watcher.result['frame']
                     raise ReplayTimeoutException(f'timed out, replay got stuck around frame {last_frame}')

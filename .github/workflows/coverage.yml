@@ -10,42 +10,37 @@ env:
   PYTHONUNBUFFERED: "1"
 
 jobs:
-  build:
+  collect-coverage:
+    if: github.repository == 'ArmageddonGames/ZQuestClassic'
     # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/build.yml
-    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    # uses: ./.github/workflows/test.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
     with:
       runs-on: ubuntu-22.04
       arch: x64
       compiler: clang
       config: Coverage
+      extra-args: --replay
 
-  coverage:
-    needs: ["build"]
+  upload-coverage:
+    needs: ["collect-coverage"]
     runs-on: ubuntu-22.04
     if: github.repository == 'ArmageddonGames/ZQuestClassic'
 
     steps:
       - name: git clone
-        uses: nschloe/action-cached-lfs-checkout@v1
+        uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
       - run: sudo pip install requests PyGithub gcovr watchdog
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
-
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ needs.build.outputs.artifact-name }}
-          path: ${{ needs.build.outputs.artifact-name }}
-      - name: Prepare build folder
-        run: tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
+          path: coverage-json
 
-      - name: Run tests and collect coverage data
-        run: sudo xvfb-run --auto-servernum python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
       - name: Generate coverage report
-        run: bash tests/generate_coverage_report.sh
+        run: bash tests/generate_coverage_report.sh --add-tracefile "coverage-json/**/coverage.json"
         env:
           GCOV: llvm-cov-14 gcov
 
