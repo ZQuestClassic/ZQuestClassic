@@ -1659,6 +1659,14 @@ int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	{
 		if(d->flags & D_HIDDEN) return D_O_K;
 		int tx = d->x, ty = d->y, tw = d->w, th = d->h;
+		const ALLEGRO_TRANSFORM* tr = al_get_current_transform();
+		if(tr)
+		{
+			float fx=tx,fy=ty;
+			al_transform_coordinates(tr,&fx,&fy);
+			tx=(int)fx;
+			ty=(int)fy;
+		}
 		collide_clip_rect(tx,ty,tw,th);
 		if(!tw) return D_O_K; //clipped out
 		al_get_clipping_rectangle(&ocx,&ocy,&ocw,&och);

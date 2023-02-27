@@ -180,6 +180,32 @@ void render_tree_draw(RenderTreeItem* rti)
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
+static RenderTreeItem* active_a5_dlg_rti = nullptr;
+static RenderTreeItem* active_a4_dlg_rti = nullptr;
+static void pop_active_rti()
+{
+	if(active_dlg_rti == active_a4_dlg_rti)
+		active_a4_dlg_rti = nullptr;
+	if(active_dlg_rti == active_a5_dlg_rti)
+		active_a5_dlg_rti = nullptr;
+	active_dlg_rti = nullptr;
+	rti_dialogs.children.pop_back();
+	
+	if(rti_dialogs.children.size())
+	{
+		active_dlg_rti = rti_dialogs.children.back();
+		if(active_dlg_rti->a4_bitmap)
+			active_a4_dlg_rti = active_dlg_rti;
+		else active_a5_dlg_rti = active_dlg_rti;
+		
+		if(!active_a5_dlg_rti && rti_dialogs.children.size() > 1)
+		{
+			auto* rti = rti_dialogs.children[rti_dialogs.children.size()-2];
+			if(!rti->a4_bitmap)
+				active_a5_dlg_rti = rti;
+		}
+	}
+}
 int get_zqdialog_a4_clear_color()
 {
 	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
@@ -225,7 +251,7 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		rti->transform.y = y;
 		rti_dialogs.children.push_back(rti);
 		rti_dialogs.visible = true;
-		active_dlg_rti = rti;
+	active_dlg_rti = active_a4_dlg_rti = rti;
 		al_set_new_bitmap_flags(0);
 	}
 	else
@@ -238,20 +264,16 @@ void popup_zqdialog_end()
 {
 	if (active_dlg_rti)
 	{
-		RenderTreeItem* to_del = active_dlg_rti;
 		show_mouse(NULL);
-		rti_dialogs.children.pop_back();
-		if(rti_dialogs.children.size())
-		{
-			active_dlg_rti = rti_dialogs.children.back();
-			screen = active_dlg_rti->a4_bitmap ? active_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
-		}
-		else
-		{
-			active_dlg_rti = nullptr;
-			screen = zqdialog_bg_bmp;
+		
+		RenderTreeItem* to_del = active_dlg_rti;
+		
+		pop_active_rti();
+		
+		screen = active_a4_dlg_rti ? active_a4_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
+		if(rti_dialogs.children.empty())
 			zqdialog_bg_bmp = nullptr;
-		}
+		
 		show_mouse(screen);
 		delete to_del;
 	}
@@ -274,7 +296,7 @@ void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 	rti->transform.y = y;
 	rti_dialogs.children.push_back(rti);
 	rti_dialogs.visible = true;
-	active_dlg_rti = rti;
+	active_dlg_rti = active_a4_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
 	
 	clear_a5_bmp(rti->bitmap, &a5color(c));
@@ -287,21 +309,16 @@ void popup_zqdialog_blackout_end()
 	if (rti_dialogs.children.size() >= 2)
 	{
 		show_mouse(NULL);
+		
 		RenderTreeItem* to_del = active_dlg_rti;
-		rti_dialogs.children.pop_back();
-		RenderTreeItem* to_del_2 = rti_dialogs.children.back();
-		rti_dialogs.children.pop_back();
-		if(rti_dialogs.children.size())
-		{
-			active_dlg_rti = rti_dialogs.children.back();
-			screen = active_dlg_rti->a4_bitmap;
-		}
-		else
-		{
-			active_dlg_rti = nullptr;
-			screen = zqdialog_bg_bmp;
+		pop_active_rti();
+		RenderTreeItem* to_del_2 = active_dlg_rti;
+		pop_active_rti();
+		
+		screen = active_a4_dlg_rti ? active_a4_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
+		if(rti_dialogs.children.empty())
 			zqdialog_bg_bmp = nullptr;
-		}
+		
 		show_mouse(screen);
 		delete to_del;
 		delete to_del_2;
@@ -326,7 +343,7 @@ void popup_zqdialog_start_a5(int x, int y, int w, int h)
 	rti->transform.y = y;
 	rti_dialogs.children.push_back(rti);
 	rti_dialogs.visible = true;
-	active_dlg_rti = rti;
+	active_dlg_rti = active_a5_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
 	
 	old_a5_states.emplace_back();
@@ -340,18 +357,13 @@ void popup_zqdialog_end_a5()
 	if (active_dlg_rti && old_a5_states.size())
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
-		rti_dialogs.children.pop_back();
-		if(rti_dialogs.children.size())
-		{
-			active_dlg_rti = rti_dialogs.children.back();
-			screen = active_dlg_rti->a4_bitmap ? active_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
-		}
-		else
-		{
-			active_dlg_rti = nullptr;
-			screen = zqdialog_bg_bmp;
+		
+		pop_active_rti();
+		
+		screen = active_a4_dlg_rti ? active_a4_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
+		if(rti_dialogs.children.empty())
 			zqdialog_bg_bmp = nullptr;
-		}
+		
 		ALLEGRO_STATE& oldstate = old_a5_states.back();
 		al_restore_state(&oldstate);
 		old_a5_states.pop_back();
@@ -359,6 +371,36 @@ void popup_zqdialog_end_a5()
 		delete to_del;
 	}
 	position_mouse_z(0);
+}
+
+RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h)
+{
+	if(!active_a5_dlg_rti) return nullptr;
+	
+	RenderTreeItem* rti = new RenderTreeItem();
+	set_bitmap_create_flags(true);
+	rti->bitmap = al_create_bitmap(w, h);
+	rti->visible = true;
+	rti->owned = true;
+	rti->transform.x = x;
+	rti->transform.y = y;
+	active_a5_dlg_rti->children.push_back(rti);
+	al_set_new_bitmap_flags(0);
+	
+	//Set the bitmap's transformation
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	al_set_target_bitmap(rti->bitmap);
+	
+	ALLEGRO_TRANSFORM T;
+	al_identity_transform(&T);
+	al_translate_transform(&T, -x, -y);
+	al_use_transform(&T);
+	
+	al_restore_state(&old_state);
+	
+	return rti;
 }
 
 bool a4_bmp_active()

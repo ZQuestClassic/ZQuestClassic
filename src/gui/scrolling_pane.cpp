@@ -10,13 +10,10 @@ int32_t screen_w, screen_h;
 void START_CLIP(DIALOG* d)
 {
 	set_clip_rect(screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4);
-	ALLEGRO_BITMAP* tbmp = al_get_target_bitmap();
-	al_set_clipping_rectangle(d->x+2,d->y+2, d->w-4, d->h-4);
 }
 void END_CLIP()
 {
 	set_clip_rect(screen, 0, 0, LARGE_W, LARGE_H);
-	clear_a5_clip_rect();
 }
 
 namespace GUI
@@ -181,17 +178,29 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 {
 	ScrollingPane* sp = static_cast<ScrollingPane*>(d->dp);
+	if(!d->dp3)
+		d->dp3 = popup_zqdialog_a5_child(d->x+2,d->y+2,d->w-4,d->h-4);
+	RenderTreeItem* rti = (RenderTreeItem*)d->dp3;
+	rti->visible = !(d->flags&D_HIDDEN);
+	
 	int ret = D_O_K;
 	switch(msg)
 	{
 		case MSG_DRAWCLIPPED:
 		{
 			auto* child=&sp->alDialog[c];
+			
+			ALLEGRO_STATE old_state;
+			al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+			al_set_target_bitmap(rti->bitmap);
+			
 			START_CLIP(d);
 			child->flags |= D_ISCLIPPED;
 			child->proc(MSG_DRAW, child, 0);
 			child->flags &= ~D_ISCLIPPED;
 			END_CLIP();
+			
+			al_restore_state(&old_state);
 			break;
 		}
 		case MSG_CHILDFOCUSED:
@@ -209,14 +218,14 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
-			if(a4_bmp_active())
-				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 			al_draw_filled_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame_a5(d, sp->contentHeight, sp->scrollPos, d->h, 0);
-			START_CLIP(d);
 			if(d->d1)
 			{
+				if(a4_bmp_active())
+					rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+				clear_a5_bmp(rti->bitmap);
 				// The scrollbar is being dragged; we need to scroll and redraw
 				// everything in the pane.
 				int32_t scrollAmount=d->d2-sp->scrollPos;
@@ -228,7 +237,6 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 					object_message(child, MSG_DRAW, 0);
 				}
 			}
-			END_CLIP();
 			break;
 		}
 		case MSG_CLICK:

@@ -68,6 +68,7 @@ void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c
 void popup_zqdialog_blackout_end();
 void popup_zqdialog_start_a5(int x = 0, int y = 0, int w = -1, int h = -1);
 void popup_zqdialog_end_a5();
+RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h);
 bool a4_bmp_active();
 RenderTreeItem* add_dlg_layer();
 void remove_dlg_layer(RenderTreeItem* rti);
