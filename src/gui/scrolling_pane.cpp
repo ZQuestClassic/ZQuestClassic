@@ -205,12 +205,18 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 		}
 		case MSG_CHILDFOCUSED:
 			if(sp->scrollToShowChild(c))
+			{
 				ret |= D_REDRAW;
+				d->flags|=D_DIRTY;
+			}
 			break;
 		
 		case MSG_WANTFOCUS:
 			if(gui_mouse_b())
+			{
 				ret |= D_WANTFOCUS|D_REDRAW;
+				d->flags|=D_DIRTY;
+			}
 			break;
 		case MSG_GOTFOCUS:
 		case MSG_LOSTFOCUS:
@@ -221,7 +227,7 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 			al_draw_filled_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame_a5(d, sp->contentHeight, sp->scrollPos, d->h, 0);
-			if(d->d1)
+			if(d->d1 || d->flags&D_DIRTY)
 			{
 				if(a4_bmp_active())
 					rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
@@ -256,6 +262,7 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 		case MSG_WHEEL:
 			sp->scroll(-8*c);
 			ret |= D_REDRAW;
+			d->flags|=D_DIRTY;
 			break;
 			
 		case MSG_XCHAR:
@@ -267,6 +274,7 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 						sp->scroll(d->h/3);
 					else sp->scroll(d->h);
 					ret |= D_USED_CHAR|D_REDRAW;
+					d->flags|=D_DIRTY;
 					break;
 				}
 				case KEY_PGUP:
@@ -275,18 +283,21 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 						sp->scroll(-d->h/3);
 					else sp->scroll(-d->h);
 					ret |= D_USED_CHAR|D_REDRAW;
+					d->flags|=D_DIRTY;
 					break;
 				}
 				case KEY_HOME:
 				{
 					sp->scroll(-sp->maxScrollPos);
 					ret |= D_USED_CHAR|D_REDRAW;
+					d->flags|=D_DIRTY;
 					break;
 				}
 				case KEY_END:
 				{
 					sp->scroll(sp->maxScrollPos);
 					ret |= D_USED_CHAR|D_REDRAW;
+					d->flags|=D_DIRTY;
 					break;
 				}
 			}
