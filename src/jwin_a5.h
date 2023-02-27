@@ -22,6 +22,8 @@ void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c);
 void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c);
 void al_draw_x(float x1, float y1, float x2, float y2, ALLEGRO_COLOR c, float thickness);
 
+void draw_static(int x, int y, int w, int h);
+
 void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style);
 void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame);
 void dotted_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLOR fg, ALLEGRO_COLOR bg);
@@ -34,6 +36,7 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state);
 void draw_x_button_a5(int32_t x, int32_t y, int32_t state);
+void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bool center);
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state);
 int32_t jwin_do_x_button_a5(int32_t x, int32_t y);
 void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLOR c1, ALLEGRO_COLOR c2);

@@ -101,6 +101,54 @@ void al_draw_x(float x1, float y1, float x2, float y2, ALLEGRO_COLOR c, float th
 	al_draw_line(x1,y1,x2,y2,c,thickness);
 	al_draw_line(x1,y2,x2,y1,c,thickness);
 }
+
+//Static handling
+static ALLEGRO_COLOR grayscale[256];
+void init_gscale()
+{
+	static bool initd = false;
+	if(initd) return;
+	for(int q = 0; q < 256; ++q)
+	{
+		grayscale[q] = al_map_rgb(q,q,q);
+	}
+	initd = true;
+}
+static ALLEGRO_BITMAP* static_tex;
+#define STATIC_SZ 1024
+void init_static_texture()
+{
+	static bool initd = false;
+	if(initd) return;
+	init_gscale();
+	
+	set_bitmap_create_flags(true);
+	static_tex = al_create_bitmap(STATIC_SZ,STATIC_SZ);
+	al_set_new_bitmap_flags(0);
+	
+	
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	al_set_target_bitmap(static_tex);
+	al_lock_bitmap(static_tex,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_WRITEONLY);
+	for(int x = 0; x < STATIC_SZ; ++x)
+		for(int y = 0; y < STATIC_SZ; ++y)
+		{
+			al_put_pixel(x,y,grayscale[zc_rand(255)]);
+		}
+	al_unlock_bitmap(static_tex);
+	al_restore_state(&oldstate);
+	initd = true;
+}
+void draw_static(int x, int y, int w, int h)
+{
+	assert(w<=STATIC_SZ && h<=STATIC_SZ);
+	init_static_texture();
+	int sx = zc_rand(STATIC_SZ-w);
+	int sy = zc_rand(STATIC_SZ-h);
+	al_draw_bitmap_region(static_tex,sx,sy,w,h,x,y,0);
+}
 //JWin A5 drawing functions
 
 void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
@@ -419,20 +467,24 @@ void draw_x_button_a5(int32_t x, int32_t y, int32_t state)
 	al_draw_line(x+1,y+7,x+8,y,c,1);
 }
 
+void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bool center)
+{
+	if(!center)
+		x += h-1;
+	for(int i = 0; i<h; i++)
+	{
+		al_draw_hline(x-(up?i:h-i-1), y+i, x+(up?i:h-i-1)+1, c);
+	}
+}
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
 {
 	ALLEGRO_COLOR c = jwin_a5_pal(jcDARK);
 	int32_t ah = zc_min(h/3, 5);
-	int32_t i = 0;
 	
 	jwin_draw_button_a5(x,y,w,h,state,1);
 	x += w/2 - (state?0:1);
 	y += (h-ah)/2 + (state?1:0);
-	
-	for(; i<ah; i++)
-	{
-		al_draw_hline(x-(up?i:ah-i-1), y+i, x+(up?i:ah-i-1)+1, c);
-	}
+	draw_arrow_a5(c,x,y,ah,up,true);
 }
 
 int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
