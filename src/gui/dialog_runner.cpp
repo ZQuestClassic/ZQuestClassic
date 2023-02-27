@@ -1,9 +1,10 @@
 #include "dialog_runner.h"
 #include "common.h"
 #include "base/gui.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 
 using std::shared_ptr;
+extern int32_t zq_screen_w, zq_screen_h;
 
 namespace GUI
 {
@@ -44,9 +45,19 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 }
 
 DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false), realized(false),
-	running(false)
-{}
+	running(false), x(0), y(0)
+{
+	w = zq_screen_w;
+	h = zq_screen_h;
+}
 
+void DialogRunner::set_dlg_sz(int nx, int ny, int nw, int nh)
+{
+	x=nx;
+	y=ny;
+	w=nw;
+	h=nh;
+}
 void DialogRunner::clear()
 {
 	focused = -1;
@@ -54,6 +65,9 @@ void DialogRunner::clear()
 	done = false;
 	realized = false;
 	running = false;
+	x = y = 0;
+	w = zq_screen_w;
+	h = zq_screen_h;
 	widgets.clear();
 	alDialog.clear();
 }
@@ -101,8 +115,13 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 {
 	realize(root);
 	realized = true;
-	popup_zqdialog_start_a5();
+	
+	popup_zqdialog_start_a5(x,y,w,h);
+	popup_zqdialog_start(x,y,w,h,0xFF);
+	
 	new_gui_popup_dialog(alDialog.data(), focused, done, running);
+	
+	popup_zqdialog_end();
 	popup_zqdialog_end_a5();
 }
 

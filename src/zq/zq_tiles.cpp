@@ -5543,7 +5543,8 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 		{
 			if(!true_empty) //Use pure color 0; no effects
 			{
-				rectfill(dest,x,y,x+l+1,y+l+1,get_zqdialog_a4_clear_color());
+				if(a4_bmp_active())
+					rectfill(dest,x,y,x+l+1,y+l+1,get_zqdialog_a4_clear_color());
 				al5_invalid(a5x,a5y,l+2);
 			}
 		}
@@ -5572,7 +5573,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	int32_t mul = 2;
 	ALLEGRO_FONT *tfont = get_zc_font_a5(font_lfont_l);
 	
-	rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
+	if(a4_bmp_active())
+		rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
 	al_draw_filled_rectangle(a5x,a5y+416,a5x+640-1,a5y+480,jwin_a5_pal(jcBOX));
 	al_draw_hline(a5x, a5y+(210*2)-2, a5x+(320*2)-1, jwin_a5_pal(jcMEDLT));
 	al_draw_hline(a5x, a5y+(210*2)-1, a5x+(320*2)-1, jwin_a5_pal(jcLIGHT));
@@ -5668,7 +5670,8 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	int32_t mul = 2;
 	ALLEGRO_FONT *tfont = get_zc_font_a5(font_lfont_l);
 	
-	rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
+	if(a4_bmp_active())
+		rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
 	al_draw_hline(a5x, a5y+(210*2)-2, a5x+(320*2)-1, jwin_a5_pal(jcMEDLT));
 	al_draw_hline(a5x, a5y+(210*2)-1, a5x+(320*2)-1, jwin_a5_pal(jcLIGHT));
 	
@@ -14594,7 +14597,8 @@ void draw_tile_list_window()
 	int32_t w = 640;
 	int32_t h = 480;
 	
-	clear_to_color(screen, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+	if(a4_bmp_active())
+		clear_to_color(screen, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 	jwin_draw_win_a5(0, 0, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame_a5(4, 23, w+2+2, h+4+2-64, FR_DEEP);
 	
@@ -16639,7 +16643,8 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	int32_t mul = 2;
 	ALLEGRO_FONT *tfont = get_zc_font_a5(font_lfont_l);
 	
-	rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
+	if(a4_bmp_active())
+		rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
 	al_draw_filled_rectangle(a5x,a5y+416,a5x+640-1,a5y+480,jwin_a5_pal(jcBOX));
 	al_draw_hline(a5x, a5y+(210*2)-2, a5x+(320*2)-1, jwin_a5_pal(jcMEDLT));
 	al_draw_hline(a5x, a5y+(210*2)-1, a5x+(320*2)-1, jwin_a5_pal(jcLIGHT));
@@ -16790,7 +16795,8 @@ void draw_combo_list_window()
 	int32_t w = 640;
 	int32_t h = 480;
 	
-	clear_to_color(screen, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+	if(a4_bmp_active())
+		clear_to_color(screen, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 	jwin_draw_win_a5(0, 0, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame_a5(4, 23, w+2+2, h+4+2-64, FR_DEEP);
 	

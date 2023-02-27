@@ -55,6 +55,7 @@ void set_bitmap_create_flags(bool preserve_texture);
 ALLEGRO_COLOR a5color(RGB c);
 ALLEGRO_COLOR a5color(int index);
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr, ALLEGRO_COLOR* c = nullptr);
+void collide_clip_rect(int& x, int& y, int& w, int& h);
 void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
@@ -67,7 +68,7 @@ void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c
 void popup_zqdialog_blackout_end();
 void popup_zqdialog_start_a5(int x = 0, int y = 0, int w = -1, int h = -1);
 void popup_zqdialog_end_a5();
-void update_dialog_transform();
+bool a4_bmp_active();
 RenderTreeItem* add_dlg_layer();
 void remove_dlg_layer(RenderTreeItem* rti);
 

@@ -245,16 +245,17 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
+		auto& proc = d[i].proc;
+		bool bigfontproc = (proc != d_midilist_proc && proc != jwin_droplist_proc && proc != jwin_abclist_proc && proc != jwin_list_proc);
+		bool a5proc = (proc == jwin_win_proc_a5 || proc == jwin_tab_proc_a5 || proc == jwin_text_proc_a5 || proc == jwin_ctext_proc_a5 || proc == jwin_rtext_proc_a5 || proc == new_text_proc_a5 || proc == jwin_button_proc_a5
+			|| proc == jwin_selcolor_proc_a5 || proc == jwin_color_swatch_a5);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
-			//d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
-			d[i].dp2 = lfont_l;
+			d[i].dp2 = a5proc ? (void*)get_custom_font_a5(CFONT_DLG) : (void*)get_custom_font(CFONT_DLG);
 		}
 		else if(!bigfontproc)
 		{
-//	  ((ListData *)d[i].dp)->font = &sfont3;
 			((ListData *)d[i].dp)->font = &lfont_l;
 		}
 		

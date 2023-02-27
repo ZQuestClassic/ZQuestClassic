@@ -25,6 +25,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 
 extern bool is_zquest();
+extern byte quest_rules[QUESTRULES_NEW_SIZE];
 //Externed from jwin.cpp
 extern bool no_hline;
 
@@ -1085,6 +1086,231 @@ int32_t gui_text_height_a5(ALLEGRO_FONT* f, const char *s)
 	return al_get_font_line_height(f) * (count_newline((uint8_t*)s) + 1);
 }
 
+//Special full dialogs
+
+const char* rowpref(int32_t row)
+{
+	static const char *lcol = "Level Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
+	switch(row)
+	{
+		case 1:
+			return get_bit(quest_rules,qr_CSET1_LEVEL) ? lcol : nlcol;
+		case 5:
+			return get_bit(quest_rules,qr_CSET5_LEVEL) ? lcol : nlcol;
+		case 7:
+			return get_bit(quest_rules,qr_CSET7_LEVEL) ? lcol : nlcol;
+		case 8:
+			return get_bit(quest_rules,qr_CSET8_LEVEL) ? lcol : nlcol;
+		case 2: case 3: case 4: case 9:
+			return lcol;
+		case 14:
+			return bosscol;
+		case 15:
+			return thmcol;
+		default:
+			return nlcol;
+	}
+}
+ALLEGRO_COLOR zc_pal(int c)
+{
+	switch(c)
+	{
+		case BLACK:
+			return AL5_BLACK;
+		case WHITE:
+			return AL5_WHITE;
+	}
+	return a5color(c);
+}
+int32_t jwin_selcolor_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	int32_t ret = D_O_K;
+	if(!d->d2) d->d2 = 12;
+	int32_t numcsets = d->d2;
+	int32_t numcol = numcsets*0x10;
+	if(msg==MSG_START)
+	{
+		d->w = d->h = (16*8) * 1.5;
+	}
+	int32_t csz = 12;
+	d->w = csz * 16;
+	d->h = csz * numcsets;
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			jwin_draw_frame_a5(d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
+			for(int32_t c = 0; c < numcol; ++c)
+			{
+				int32_t x = (c%16)*csz, y = (c/16)*csz;
+				ALLEGRO_COLOR col = zc_pal(c);
+				al_draw_filled_rectangle(d->x+x, d->y+y, d->x+x+csz, d->y+y+csz, col);
+				if(c == d->d1)
+				{
+					ALLEGRO_COLOR highlightColor = getHighlightColor(col);
+					al_draw_rectangle(d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1, highlightColor, 2);
+				}
+			}
+			
+            ALLEGRO_FONT *oldfont = a5font;
+            
+            if(d->dp2)
+            {
+                a5font = (ALLEGRO_FONT*)d->dp2;
+            }
+			
+			char buf[32]={0};
+			for(int32_t col = 0; col < 16; ++col)
+			{
+				sprintf(buf, "%X", col);
+				gui_textout_ln_a5(a5font, buf, d->x + (csz*col) + (csz/2), d->y-3-al_get_font_line_height(a5font), jwin_a5_pal(jcBOXFG), jwin_a5_pal(jcBOX), 1);
+			}
+			for(int32_t row = 0; row < numcsets; ++row)
+			{
+				sprintf(buf, "%s 0x%02X", rowpref(row), row*16);
+				gui_textout_ln_a5(a5font, buf, d->x-3, d->y + (csz*row) + (csz-al_get_font_line_height(a5font))/2, jwin_a5_pal(jcBOXFG), jwin_a5_pal(jcBOX), 2);
+			}
+			
+            a5font = oldfont;
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			if(mouse_in_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1))
+			{
+				int32_t col = ((gui_mouse_x() - d->x) / csz) + 16*((gui_mouse_y() - d->y) / csz);
+				
+				if(col>-1 && col != d->d1)
+				{
+					d->d1 = col;
+					ret |= D_REDRAWME;
+				}
+				ret |= D_WANTFOCUS;
+			}
+			break;
+		}
+		
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+		case MSG_KEY:
+			ret = D_WANTFOCUS;
+			break;
+		
+		case MSG_CHAR:
+		{
+			ret = D_USED_CHAR | D_REDRAWME;
+			switch(c>>8)
+			{
+				case KEY_LEFT:
+				{
+					if(d->d1 % 0x10)
+						--d->d1;
+					break;
+				}
+				case KEY_RIGHT:
+				{
+					if(d->d1 % 0x10 != 0x0F)
+						++d->d1;
+					break;
+				}
+				case KEY_UP:
+				{
+					if(d->d1 / 0x10)
+						d->d1 -= 0x10;
+					break;
+				}
+				case KEY_DOWN:
+				{
+					if(d->d1 / 0x10 != numcsets)
+						d->d1 += 0x10;
+					break;
+				}
+				case KEY_ENTER:
+				{
+					ret = D_CLOSE;
+					break;
+				}
+				default: ret = D_O_K;
+			}
+			break;
+		}
+	}
+	return ret;
+}
+static DIALOG selcolor_dlg[] =
+{
+	{ jwin_win_proc_a5,       0,    0,  306,  63+16*8,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
+	{ jwin_button_proc_a5,   75,  40+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
+	{ jwin_button_proc_a5,  164,  40+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
+	{ jwin_selcolor_proc_a5, 156-64,   34,   16*8,   16*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
+	
+	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
+};
+int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	int32_t ret = D_O_K;
+	
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			if(d->d2 < 1) d->d2 = 12;
+			else if(d->d2 > 16) d->d2 = 16;
+			break;
+		}
+		
+		case MSG_DRAW:
+		{
+			if(!d->d1 || (d->flags&D_DISABLED))
+			{
+				al_draw_filled_rectangle(d->x, d->y, d->x+d->w, d->y+d->h,
+					(d->flags&D_DISABLED) ? jwin_a5_pal(jcDISABLED_BG) : AL5_BLACK);
+				al_draw_x(d->x, d->y, d->x+d->w, d->y+d->h, AL5_WHITE,1);
+				jwin_draw_frame_a5(d->x-2, d->y-2, d->w+4, d->h+4, FR_DEEP);
+			}
+			else
+			{
+				al_draw_filled_rectangle(d->x, d->y, d->x+d->w, d->y+d->h, zc_pal(d->d1));
+				jwin_draw_frame_a5(d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
+			}
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			if(d->flags&(D_READONLY|D_DISABLED)) break;
+			selcolor_dlg[3].bg = scheme[jcBOXFG];
+			selcolor_dlg[3].fg = scheme[jcBOX];
+			selcolor_dlg[3].d1 = d->d1;
+			selcolor_dlg[3].d2 = d->d2;
+			selcolor_dlg[3].dp2 = get_zc_font_a5(font_lfont_l);
+			large_dialog(selcolor_dlg);
+			jwin_ulalign_dialog(selcolor_dlg);
+			
+			while(gui_mouse_b()); //wait for mouseup
+			
+			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
+			
+			int dx, dy, dw, dh;
+			jwin_get_dlg_center(selcolor_dlg, dx, dy, dw, dh);
+			popup_zqdialog_start_a5(dx,dy,dw,dh);
+			int32_t val = new_popup_dlg(selcolor_dlg, 3);
+			popup_zqdialog_end_a5();
+			ret = D_REDRAW;
+			
+			if(val == 1 || val == 3)
+			{
+				d->d1 = selcolor_dlg[3].d1;
+				GUI_EVENT(d, geCHANGE_VALUE);
+				ret |= D_REDRAWME;
+			}
+			break;
+		}
+	}
+	return ret;
+}
+
 //JWin A5 procs
 
 int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
@@ -1093,6 +1319,8 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	if(ALL_DB_PROC) start_db_proc();
 	rest(1);
 	static bool skipredraw = false;
+	if(!d->dp2)
+		d->dp2 = get_custom_font_a5(CFONT_TITLE);
 	
 	switch(msg)
 	{
@@ -1103,7 +1331,8 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				break;
 			}
 			
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+			if(a4_bmp_active())
+				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 			
 			jwin_draw_win_a5(d->x, d->y, d->w, d->h, FR_WIN);
 			
@@ -1185,7 +1414,8 @@ int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(d->x<zq_screen_w&&d->y<zq_screen_h)
 			{
-				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+				if(a4_bmp_active())
+					rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 				al_draw_filled_rectangle(d->x-2, d->y-2, d->x+d->w, d->y+d->h, jwin_a5_pal(jcBOX));
 				al_draw_vline(d->x, d->y+sd+7+th, d->y+sd+d->h-1, jwin_a5_pal(jcLIGHT));
 				al_draw_vline(d->x+1, d->y+sd+7+th, d->y+sd+d->h-2, jwin_a5_pal(jcMEDLT));
@@ -1424,10 +1654,15 @@ int32_t jwin_rtext_proc_a5(int32_t msg, DIALOG *d, int32_t)
 
 int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t)
 {
+	int ocx,ocy,ocw,och;
 	if(msg==MSG_DRAW)
 	{
 		if(d->flags & D_HIDDEN) return D_O_K;
-		al_set_clipping_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1);
+		int tx = d->x, ty = d->y, tw = d->w, th = d->h;
+		collide_clip_rect(tx,ty,tw,th);
+		if(!tw) return D_O_K; //clipped out
+		al_get_clipping_rectangle(&ocx,&ocy,&ocw,&och);
+		al_set_clipping_rectangle(tx,ty,tw,th);
 	}
 	int32_t ret = D_O_K;
 	int32_t w = d->w, h = d->h, x = d->x, y = d->y;
@@ -1449,7 +1684,7 @@ int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	d->y = y;
 	if(msg==MSG_DRAW)
 	{
-		clear_a5_clip_rect();
+		al_set_clipping_rectangle(ocx,ocy,ocw,och);
 	}
 	if(msg==MSG_WANTFOCUS && gui_mouse_b())
 		ret |= D_WANTFOCUS|D_REDRAW;

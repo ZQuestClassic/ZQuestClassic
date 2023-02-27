@@ -51,6 +51,9 @@ int32_t gui_textout_ln_a5_dis(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t
 int32_t gui_text_width_a5(ALLEGRO_FONT *f, const char *s);
 int32_t gui_text_height_a5(ALLEGRO_FONT* f, const char *s);
 
+int32_t jwin_selcolor_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c);
+
 int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_text_proc_a5(int32_t msg, DIALOG *d, int32_t);

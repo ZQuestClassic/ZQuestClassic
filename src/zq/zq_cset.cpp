@@ -1563,7 +1563,8 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		rest(1);
 	}
 	
-	clear_to_color(screen,get_zqdialog_a4_clear_color());
+	if(a4_bmp_active())
+		clear_to_color(screen,get_zqdialog_a4_clear_color());
 	set_palette(RAMpal);
 	
 	loadlvlpal(Color);

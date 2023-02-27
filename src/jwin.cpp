@@ -6078,24 +6078,6 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
     return ret;
 }
 
-const char* rowpref(int32_t row)
-{
-	static const char *lcol = "Level Colors", *sprcol = "Sprite Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
-	switch(row)
-	{
-		case 2: case 3: case 4: case 9:
-			return lcol;
-		case 12: case 13:
-			return sprcol;
-		case 14:
-			return bosscol;
-		case 15:
-			return thmcol;
-		default:
-			return nlcol;
-	}
-}
-
 byte getHighlightColor(int32_t c)
 {
 	RGB col;
@@ -6124,225 +6106,13 @@ byte getHighlightColor(RGB const& col)
 	// return highlightColor;
 }
 
-int32_t jwin_selcolor_proc(int32_t msg, DIALOG *d, int32_t c)
+ALLEGRO_COLOR getHighlightColor(ALLEGRO_COLOR col)
 {
-	int32_t ret = D_O_K;
-	if(!d->d2) d->d2 = 12;
-	int32_t numcsets = d->d2;
-	int32_t numcol = numcsets*0x10;
-	if(msg==MSG_START)
-	{
-		d->w = d->h = (16*8) * 1.5;
-	}
-	int32_t csz = 12;
-	d->w = csz * 16;
-	d->h = csz * numcsets;
-	switch(msg)
-	{
-		case MSG_DRAW:
-		{
-			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
-			for(int32_t c = 0; c < numcol; ++c)
-			{
-				int32_t x = (c%16)*csz, y = (c/16)*csz;
-				rectfill(screen, d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1, c);
-				if(c == d->d1)
-				{
-					byte highlightColor = getHighlightColor(c);
-					rect(screen, d->x+x+0, d->y+y+0, d->x+x+csz-1, d->y+y+csz-1, highlightColor);
-					rect(screen, d->x+x+1, d->y+y+1, d->x+x+csz-2, d->y+y+csz-2, highlightColor);
-				}
-			}
-			
-            FONT *oldfont = font;
-            
-            if(d->dp2)
-            {
-                font = (FONT*)d->dp2;
-            }
-			
-			char buf[32]={0};
-			for(int32_t col = 0; col < 16; ++col)
-			{
-				sprintf(buf, "%X", col);
-				gui_textout_ln(screen, (uint8_t*)buf, d->x + (csz*col) + (csz/2), d->y-3-text_height(font), palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 1);
-			}
-			for(int32_t row = 0; row < numcsets; ++row)
-			{
-				sprintf(buf, "%s 0x%02X", rowpref(row), row*16);
-				gui_textout_ln(screen, (uint8_t*)buf, d->x-3, d->y + (csz*row) + (csz-text_height(font))/2, palette_color[scheme[jcBOXFG]], palette_color[scheme[jcBOX]], 2);
-			}
-			
-            font = oldfont;
-			break;
-		}
-		
-		case MSG_CLICK:
-		{
-			if(mouse_in_rect(d->x, d->y, d->x+d->w-1, d->y+d->h-1))
-			{
-				int32_t col = ((gui_mouse_x() - d->x) / csz) + 16*((gui_mouse_y() - d->y) / csz);
-
-				// for(int32_t c = 0; c < 0xC0; ++c) //to cset 11
-				// {
-					// int32_t x = (c%16)*csz, y = (c/16)*csz;
-					// if(mouse_in_rect(d->x+x, d->y+y, d->x+x+csz-1, d->y+y+csz-1))
-					// {
-						// col = c;
-						// break;
-					// }
-				// }
-				if(col>-1 && col != d->d1)
-				{
-					d->d1 = col;
-					ret |= D_REDRAWME;
-				}
-				ret |= D_WANTFOCUS;
-			}
-			break;
-		}
-		
-		case MSG_WANTFOCUS:
-		case MSG_LOSTFOCUS:
-		case MSG_KEY:
-			ret = D_WANTFOCUS;
-			break;
-		
-		case MSG_CHAR:
-		{
-			ret = D_USED_CHAR | D_REDRAWME;
-			switch(c>>8)
-			{
-				case KEY_LEFT:
-				{
-					if(d->d1 % 0x10)
-						--d->d1;
-					break;
-				}
-				case KEY_RIGHT:
-				{
-					if(d->d1 % 0x10 != 0x0F)
-						++d->d1;
-					break;
-				}
-				case KEY_UP:
-				{
-					if(d->d1 / 0x10)
-						d->d1 -= 0x10;
-					break;
-				}
-				case KEY_DOWN:
-				{
-					if(d->d1 / 0x10 != numcsets)
-						d->d1 += 0x10;
-					break;
-				}
-				case KEY_ENTER:
-				{
-					ret = D_CLOSE;
-					break;
-				}
-				default: ret = D_O_K;
-			}
-			break;
-		}
-	}
-	return ret;
+	unsigned char r,g,b;
+	al_unmap_rgb(col,&r,&g,&b);
+	return al_map_rgb(255-r,255-g,255-b);
 }
-
-static DIALOG selcolor_dlg[] =
-{
-	{ jwin_win_proc,       0,    0,  306,  63+16*8,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Select Color",  NULL,  NULL },
-	{ jwin_button_proc,   75,  40+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"OK",  NULL,  NULL },
-	{ jwin_button_proc,  164,  40+16*8,   61,   21,       vc(14),      vc(1),    0,    D_EXIT,         0,    0,    (void *)"Cancel",  NULL,  NULL },
-	{ jwin_selcolor_proc, 156-64,   34,   16*8,   16*8,            0,          0,    0,         0,         0,    0,    NULL,  NULL,  NULL },
-	
-	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
-};
-
 extern FONT* lfont;
-int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
-{
-	int32_t ret = D_O_K;
-	
-	switch(msg)
-	{
-		case MSG_START:
-		{
-			if(d->d2 < 1) d->d2 = 12;
-			else if(d->d2 > 16) d->d2 = 16;
-			break;
-		}
-		
-		case MSG_DRAW:
-		{
-			if(!d->d1 || (d->flags&D_DISABLED))
-			{
-				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1,
-					(d->flags&D_DISABLED) ? scheme[jcDISABLED_BG] : vc(0));
-				line(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, vc(15));
-				line(screen, d->x, d->y+d->h-1, d->x+d->w-1, d->y, vc(15));
-				jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_DEEP);
-			}
-			else
-			{
-				int32_t c;
-				switch(d->d1) //special cases
-				{
-					case BLACK:
-						c = vc(0);
-						break;
-					case WHITE:
-						c = vc(15);
-						break;
-					default:
-						c = d->d1;
-						break;
-				}
-				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, c);
-				jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, d->h+4, FR_ETCHED);
-			}
-			break;
-		}
-		
-		case MSG_CLICK:
-		{
-			if(d->flags&(D_READONLY|D_DISABLED)) break;
-			selcolor_dlg[0].dp2 = lfont;
-			selcolor_dlg[3].bg = scheme[jcBOXFG];
-			selcolor_dlg[3].fg = scheme[jcBOX];
-			selcolor_dlg[3].d1 = d->d1;
-			selcolor_dlg[3].d2 = d->d2;
-			large_dialog(selcolor_dlg);
-			
-			while(gui_mouse_b()); //wait for mouseup
-			
-			//!TODO Move this out of jwin, and do better palette management.
-			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
-			PALETTE oldpal;
-			get_palette(oldpal);
-			PALETTE foopal;
-			get_palette(foopal);
-			foopal[BLACK] = _RGB(0,0,0);
-			foopal[WHITE] = _RGB(63,63,63);
-			set_palette(foopal);
-			
-			jwin_center_dialog(selcolor_dlg);
-			int32_t val = popup_zqdialog(selcolor_dlg, 3);
-			ret = D_REDRAW;
-			
-			set_palette(oldpal);
-			if(val == 1 || val == 3)
-			{
-				d->d1 = selcolor_dlg[3].d1;
-				GUI_EVENT(d, geCHANGE_VALUE);
-				ret |= D_REDRAWME;
-			}
-			break;
-		}
-	}
-	return ret;
-}
 
 static DIALOG alert_dialog[] =
 {
@@ -8641,6 +8411,15 @@ void jwin_center_dialog(DIALOG *dialog)
         dialog[c].y += yc;
     }
 }
+
+void jwin_get_dlg_center(DIALOG* dialog, int& x, int& y, int& w, int& h)
+{
+	w = dialog[0].w;
+	h = dialog[0].h;
+	x = (zq_screen_w - w) / 2 - dialog[0].x;
+	y = (zq_screen_h - h) / 2 - dialog[0].y;
+}
+
 //up-left aligns dialog based on first object, which should be the containing window
 void jwin_ulalign_dialog(DIALOG *dialog)
 {

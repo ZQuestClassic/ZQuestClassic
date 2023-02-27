@@ -99,13 +99,17 @@ void Window::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	// For now, at least, we're assuming everything will fit...
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
-		content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
+		content->arrange(6, 28, getWidth()-12, getHeight()-30);
 }
 
 void Window::realize(DialogRunner& runner)
 {
 	setFramed(false); //don't allow frame on window proc
+	runner.set_dlg_sz(x,y,getWidth(),getHeight());
+	x = y = 0;
+	
 	Widget::realize(runner);
+	
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_win_proc_a5,
 		x, y, getWidth(), getHeight(),

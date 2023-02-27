@@ -234,13 +234,30 @@ int32_t popup_zqdialog(DIALOG *dialog, int32_t focus_obj)
 	return do_zqdialog(dialog, focus_obj);
 }
 
+int new_popup_dlg(DIALOG* dialog, int32_t focus_obj)
+{
+	DIALOG_PLAYER *player2 = init_dialog(dialog, focus_obj);
+	
+	while(update_dialog(player2))
+		update_hw_screen(true);
+	
+	return shutdown_dialog(player2);
+}
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running)
 {
 	running=true;
 	int32_t ret=0;
 	
+	ASSERT(dialog);
 	while(!done && ret>=0)
-		ret=do_zqdialog(dialog, focus_obj);
+	{
+		DIALOG_PLAYER *player2 = init_dialog(dialog, focus_obj);
+		
+		while(update_dialog(player2))
+			update_hw_screen(true);
+		
+		ret = shutdown_dialog(player2);
+	}
 	running=false;
 }
 

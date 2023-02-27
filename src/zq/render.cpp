@@ -101,7 +101,6 @@ static void configure_render_tree()
 		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
-		update_dialog_transform();
 	}
 }
 

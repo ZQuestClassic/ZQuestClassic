@@ -11,7 +11,7 @@ void START_CLIP(DIALOG* d)
 {
 	set_clip_rect(screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4);
 	ALLEGRO_BITMAP* tbmp = al_get_target_bitmap();
-	al_set_clipping_rectangle(d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4);
+	al_set_clipping_rectangle(d->x+2,d->y+2, d->w-4, d->h-4);
 }
 void END_CLIP()
 {
@@ -112,7 +112,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_pal[d->bg]);
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame(d, sp->contentHeight, sp->scrollPos, d->h, 0);
-			START_CLIP(d);
 			if(d->d1)
 			{
 				// The scrollbar is being dragged; we need to scroll and redraw
@@ -126,7 +125,6 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 					object_message(child, MSG_DRAW, 0);
 				}
 			}
-			END_CLIP();
 			break;
 		}
 		case MSG_CLICK:
@@ -211,7 +209,8 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+			if(a4_bmp_active())
+				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 			al_draw_filled_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame_a5(d, sp->contentHeight, sp->scrollPos, d->h, 0);

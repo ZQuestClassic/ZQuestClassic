@@ -48,6 +48,34 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp, ALLEGRO_COLOR* c)
 	}
 }
 
+void collide_clip_rect(int& x, int& y, int& w, int& h)
+{
+	int ox,oy,ow,oh;
+	al_get_clipping_rectangle(&ox,&oy,&ow,&oh);
+	if(x >= ox+ow || y >= oy+oh || x+w <= ox || y+h <= oy)
+	{
+		x=y=w=h=0;
+		return;
+	}
+	if(x < ox)
+	{
+		w -= ox-x;
+		x = ox;
+	}
+	if(y < oy)
+	{
+		h -= oy-y;
+		y = oy;
+	}
+	if(y+h > oy+oh)
+		h = (oy+oh)-y;
+	if(x+w > ox+ow)
+		w = (ox+ow)-x;
+	
+	if(w <= 0 || h <= 0)
+		x=y=w=h=0;
+}
+
 void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp)
 {
 	if(bmp && bmp != al_get_target_bitmap())
@@ -333,7 +361,10 @@ void popup_zqdialog_end_a5()
 	position_mouse_z(0);
 }
 
-void update_dialog_transform(){}
+bool a4_bmp_active()
+{
+	return active_dlg_rti && active_dlg_rti->a4_bitmap;
+}
 
 RenderTreeItem* add_dlg_layer()
 {

@@ -545,7 +545,6 @@ static void configure_render_tree()
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
 		rti_dialogs.visible = true;
-		update_dialog_transform();
 	}
 }
 
