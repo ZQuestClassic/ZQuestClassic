@@ -26,7 +26,10 @@ extern int32_t joystick_index;
 
 extern bool is_zquest();
 //Externed from jwin.cpp
+extern bool no_hline;
+
 bool is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2);
+int32_t count_newline(uint8_t *s);
 
 //JWin A5 Palette
 
@@ -36,6 +39,7 @@ ALLEGRO_COLOR jwin_a5_pal(int jc)
 	return jwin_a5_colors[r_dvc(jwin_pal[jc])];
 }
 
+static ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0);
 void jwin_set_a5_colors(ALLEGRO_COLOR* colors)
 {
 	for(int q = 1; q <= 8; ++q)
@@ -192,42 +196,53 @@ void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int fl
 }
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc)
 {
-	float w = al_get_text_width(f, str);
-	float h = al_get_font_line_height(f);
-	float bgx = x;
-	float bgy = y;
-	switch(flag)
+	unsigned char r,g,b,a;
+	al_unmap_rgba(bgc,&r,&g,&b,&a);
+	if(a)
 	{
-		case ALLEGRO_ALIGN_LEFT:
-			break;
-		case ALLEGRO_ALIGN_CENTRE:
-			bgx -= w/2;
-			break;
-		case ALLEGRO_ALIGN_RIGHT:
-			bgx -= w;
-			break;
+		float w = al_get_text_width(f, str);
+		float h = al_get_font_line_height(f);
+		float bgx = x;
+		float bgy = y;
+		switch(flag)
+		{
+			case ALLEGRO_ALIGN_LEFT:
+				break;
+			case ALLEGRO_ALIGN_CENTRE:
+				bgx -= w/2;
+				break;
+			case ALLEGRO_ALIGN_RIGHT:
+				bgx -= w;
+				break;
+		}
+		al_draw_filled_rectangle(bgx,bgy,bgx+w,bgy+h,bgc);
 	}
-	al_draw_filled_rectangle(bgx,bgy,bgx+w,bgy+h,bgc);
 	al_draw_text(f,tc,x,y,flag,str);
 }
 void jwin_textout_a5_dis(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR dis_c)
 {
-	float w = al_get_text_width(f, str)+1;
-	float h = al_get_font_line_height(f)+1;
-	float bgx = x;
-	float bgy = y;
-	switch(flag)
+	unsigned char r,g,b,a;
+	al_unmap_rgba(bgc,&r,&g,&b,&a);
+	al_unmap_rgba(bgc,nullptr,nullptr,nullptr,&a);
+	if(a)
 	{
-		case ALLEGRO_ALIGN_LEFT:
-			break;
-		case ALLEGRO_ALIGN_CENTRE:
-			bgx -= w/2;
-			break;
-		case ALLEGRO_ALIGN_RIGHT:
-			bgx -= w;
-			break;
+		float w = al_get_text_width(f, str)+1;
+		float h = al_get_font_line_height(f)+1;
+		float bgx = x;
+		float bgy = y;
+		switch(flag)
+		{
+			case ALLEGRO_ALIGN_LEFT:
+				break;
+			case ALLEGRO_ALIGN_CENTRE:
+				bgx -= w/2;
+				break;
+			case ALLEGRO_ALIGN_RIGHT:
+				bgx -= w;
+				break;
+		}
+		al_draw_filled_rectangle(bgx,bgy,bgx+w,bgy+h,bgc);
 	}
-	al_draw_filled_rectangle(bgx,bgy,bgx+w,bgy+h,bgc);
 	al_draw_text(f,dis_c,x+1,y+1,flag,str);
 	al_draw_text(f,tc,x,y,flag,str);
 }
@@ -273,13 +288,10 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 	}
 	
 	int th = al_get_font_line_height(a5font);
-	if(!(flags & D_DISABLED))
-		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),x+w/2+g, y+(h-th)/2+g,ALLEGRO_ALIGN_CENTRE,str);
+	if(flags & D_DISABLED)
+		gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
 	else
-	{
-		jwin_textout_a5(a5font,jwin_a5_pal(jcLIGHT),x+w/2+1,y+(h-th)/2+1,ALLEGRO_ALIGN_CENTRE,str);
-		jwin_textout_a5(a5font,jwin_a5_pal(jcDISABLED_FG),x+w/2,  y+(h-th)/2,ALLEGRO_ALIGN_CENTRE,str);
-	}
+		gui_textout_ln_a5(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE);
 	
 	if(show_dotted_rect&&(flags & D_GOTFOCUS))
 		dotted_rect_a5(x+4, y+4, x+w-5, y+h-5, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
@@ -381,7 +393,7 @@ void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up
 	}
 }
 
-static int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
+int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
 {
 	int32_t down=0, last_draw = 0;
 	
@@ -803,6 +815,182 @@ void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset,
 		dotted_rect_a5(d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, jwin_a5_pal(jcTEXTFG), jwin_a5_pal(jcTEXTBG));
 }
 
+//Texts
+
+int32_t gui_textout_ln_a5(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos)
+{
+	char tmp[1024];
+	int32_t c = 0;
+	int32_t len;
+	int32_t pix_len = 0;
+	int32_t max_len = 0;
+	int32_t hline_pos;
+	int32_t xx = x;
+	
+	while(s[c])
+	{
+		len = 0;
+		hline_pos = -1;
+		
+		for(; (s[c]) && (len<(int32_t)(sizeof(tmp)-1)); c++)
+		{
+			if(s[c] == '\n')
+			{
+				c++;
+				break;
+			}
+			else if(!no_hline && s[c] == '&')
+			{
+				if(s[c+1] != '&')
+					hline_pos = len;
+				else
+				{
+					tmp[len++] = '&';
+					c++;
+				}
+			}
+			else
+				tmp[len++] = s[c];
+		}
+		
+		tmp[len] = 0;
+		pix_len = al_get_text_width(f, tmp);
+		if (pix_len > max_len) max_len = pix_len;
+		x = xx;
+		
+		jwin_textout_a5(f, color, x, y, pos, tmp, bg);
+		
+		if(hline_pos >= 0)
+		{
+			if(pos==1) //center
+				x -= pix_len / 2;
+			else if(pos==2) //right
+				x -= pix_len;
+			int32_t i = tmp[hline_pos];
+			tmp[hline_pos] = 0;
+			hline_pos = al_get_text_width(f, tmp);
+			tmp[0] = i;
+			tmp[1] = 0;
+			i = al_get_text_width(f, tmp);
+			al_draw_hline(x+hline_pos, y+al_get_font_line_height(f)-gui_font_baseline, x+hline_pos+i, color);
+		}
+		
+		y += al_get_font_line_height(f);
+	}
+	
+	return max_len;
+}
+
+int32_t gui_textout_ln_a5_dis(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos, ALLEGRO_COLOR dis_c)
+{
+	char tmp[1024];
+	int32_t c = 0;
+	int32_t len;
+	int32_t pix_len = 0;
+	int32_t max_len = 0;
+	int32_t hline_pos;
+	int32_t xx = x;
+	
+	while(s[c])
+	{
+		len = 0;
+		hline_pos = -1;
+		
+		for(; (s[c]) && (len<(int32_t)(sizeof(tmp)-1)); c++)
+		{
+			if(s[c] == '\n')
+			{
+				c++;
+				break;
+			}
+			else if(!no_hline && s[c] == '&')
+			{
+				if(s[c+1] != '&')
+					hline_pos = len;
+				else
+				{
+					tmp[len++] = '&';
+					c++;
+				}
+			}
+			else
+				tmp[len++] = s[c];
+		}
+		
+		tmp[len] = 0;
+		pix_len = al_get_text_width(f, tmp);
+		if (pix_len > max_len) max_len = pix_len;
+		x = xx;
+		
+		jwin_textout_a5_dis(f, color, x, y, pos, tmp, bg, dis_c);
+		
+		if(hline_pos >= 0)
+		{
+			int32_t i;
+			i = tmp[hline_pos];
+			tmp[hline_pos] = 0;
+			hline_pos = al_get_text_width(f, tmp);
+			tmp[0] = i;
+			tmp[1] = 0;
+			i = al_get_text_width(f, tmp);
+			al_draw_hline(x+hline_pos+1, y+al_get_font_line_height(f)-gui_font_baseline+1, x+hline_pos+i+1, dis_c);
+			al_draw_hline(x+hline_pos, y+al_get_font_line_height(f)-gui_font_baseline, x+hline_pos+i, color);
+		}
+		
+		y += al_get_font_line_height(f);
+	}
+	
+	return max_len;
+}
+
+int32_t gui_text_width_a5(ALLEGRO_FONT *f, const char *s)
+{
+	char tmp[1024];
+	int32_t c = 0;
+	int32_t len;
+	int32_t pix_len = 0;
+	int32_t max_len = 0;
+	int32_t hline_pos;
+	
+	while(s[c])
+	{
+		len = 0;
+		hline_pos = -1;
+		
+		for(; (s[c]) && (len<(int32_t)(sizeof(tmp)-1)); c++)
+		{
+			if(s[c] == '\n')
+			{
+				c++;
+				break;
+			}
+			else if(!no_hline && s[c] == '&')
+			{
+				if(s[c+1] != '&')
+					hline_pos = len;
+				else
+				{
+					tmp[len++] = '&';
+					c++;
+				}
+			}
+			else
+				tmp[len++] = s[c];
+		}
+		
+		tmp[len] = 0;
+		pix_len = al_get_text_width(f, tmp);
+		if (pix_len > max_len) max_len = pix_len;
+	}
+	
+	return max_len;
+}
+
+int32_t gui_text_height_a5(ALLEGRO_FONT* f, const char *s)
+{
+	return al_get_font_line_height(f) * (count_newline((uint8_t*)s) + 1);
+}
+
 //JWin A5 procs
 
 int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
@@ -1082,4 +1270,202 @@ int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 	a5font = oldfont;
 	return ret;
 }
+
+int32_t _handle_text_proc_a5(int32_t msg, DIALOG* d, int32_t align)
+{
+	ASSERT(d);
+	switch(msg)
+	{
+		case MSG_START:
+		{
+			ALLEGRO_FONT *oldfont = a5font;
+			
+			if(d->dp2)
+			{
+				a5font = (ALLEGRO_FONT*)d->dp2;
+			}
+			
+			const char* str = (const char*)d->dp;
+			d->w = gui_text_width_a5(a5font,str);
+			d->h = gui_text_height_a5(a5font,str);
+			
+			a5font = oldfont;
+			break;
+		}
+		case MSG_DRAW:
+		{
+			ALLEGRO_FONT *oldfont = a5font;
+			
+			if(d->dp2)
+			{
+				a5font = (ALLEGRO_FONT*)d->dp2;
+			}
+			
+			const char* str = (const char*)d->dp;
+			if(d->flags & D_DISABLED)
+				d->w = gui_textout_ln_a5_dis(a5font, str, d->x, d->y, jwin_a5_pal(jcDISABLED_FG), jwin_a5_pal(jcDISABLED_BG), align, jwin_a5_pal(jcLIGHT));
+			else
+				d->w = gui_textout_ln_a5(a5font, str, d->x, d->y, jwin_a5_pal(jcBOXFG), jwin_a5_pal(jcBOX), align);
+			
+			a5font = oldfont;
+			break;
+		}
+	}
+	
+	return D_O_K;
+}
+int32_t jwin_text_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+	return _handle_text_proc_a5(msg,d,0);
+}
+int32_t jwin_ctext_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+	return _handle_text_proc_a5(msg,d,1);
+}
+int32_t jwin_rtext_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+	return _handle_text_proc_a5(msg,d,2);
+}
+
+int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+	if(msg==MSG_DRAW)
+	{
+		if(d->flags & D_HIDDEN) return D_O_K;
+		al_set_clipping_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1);
+	}
+	int32_t ret = D_O_K;
+	int32_t w = d->w, h = d->h, x = d->x, y = d->y;
+	if(d->d2) no_hline = true;
+	switch(d->d1)
+	{
+		case 1:
+			d->x += d->w/2;
+			break;
+		case 2:
+			d->x += d->w - 1;
+			break;
+	}
+	ret = _handle_text_proc_a5(msg,d,d->d1);
+	no_hline = false;
+	d->w = w;
+	d->h = h;
+	d->x = x;
+	d->y = y;
+	if(msg==MSG_DRAW)
+	{
+		clear_a5_clip_rect();
+	}
+	if(msg==MSG_WANTFOCUS && gui_mouse_b())
+		ret |= D_WANTFOCUS|D_REDRAW;
+	return ret;
+}
+
+int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+    int32_t down=0;
+    int32_t selected=(d->flags&D_SELECTED)?1:0;
+    int32_t last_draw;
+    
+    switch(msg)
+    {
+		case MSG_DRAW:
+		{
+			ALLEGRO_FONT *oldfont = a5font;
+			
+			if(d->dp2)
+			{
+				a5font = (ALLEGRO_FONT*)d->dp2;
+			}
+			
+			jwin_draw_text_button_a5(d->x, d->y, d->w, d->h, (const char*)d->dp, d->flags, true);
+			a5font = oldfont;
+		}
+		break;
+		
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+			/* close dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			if(d->d2 == 1) //Insta-button
+			{
+				GUI_EVENT(d, geCLICK);
+				break;
+			}
+			/* or just toggle */
+			d->flags ^= D_SELECTED;
+			GUI_EVENT(d, geCLICK);
+			scare_mouse();
+			object_message(d, MSG_DRAW, 0);
+			unscare_mouse();
+			break;
+			
+		case MSG_CLICK:
+		{
+			if(d->d2 == 1) //Insta-button
+			{
+				if(mouse_in_rect(d->x, d->y, d->w, d->h))
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags & D_EXIT)
+						return D_CLOSE;
+				}
+			}
+			else
+			{
+				last_draw = 0;
+				
+				/* track the mouse until it is released */
+				while(gui_mouse_b())
+				{
+					down = mouse_in_rect(d->x, d->y, d->w, d->h);
+					
+					/* redraw? */
+					if(last_draw != down)
+					{
+						if(down != selected)
+							d->flags |= D_SELECTED;
+						else
+							d->flags &= ~D_SELECTED;
+							
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+						last_draw = down;
+					}
+					
+					/* let other objects continue to animate */
+					broadcast_dialog_message(MSG_IDLE, 0);
+					
+					update_hw_screen();
+				}
+				
+				/* redraw in normal state */
+				if(down)
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags&D_EXIT)
+					{
+						d->flags &= ~D_SELECTED;
+						scare_mouse();
+						object_message(d, MSG_DRAW, 0);
+						unscare_mouse();
+					}
+				}
+				
+				/* should we close the dialog? */
+				if(down && (d->flags & D_EXIT))
+					return D_CLOSE;
+			}
+		}
+		break;
+	}
+	return D_O_K;
+}
+
 

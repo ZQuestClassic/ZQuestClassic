@@ -605,7 +605,7 @@ static void _dotted_rect(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t
     dotted_rect(screen, x1, y1, x2, y2, palette_color[fg], palette_color[bg]);
 }
 
-static bool no_hline = false;
+bool no_hline = false;
 /* gui_textout_ln:
   *  Wrapper function for drawing text to the screen, which interprets the
   *  & character as an underbar for displaying keyboard shortcuts. Returns
