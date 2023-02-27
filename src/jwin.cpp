@@ -7110,14 +7110,15 @@ int32_t jwin_checkfont_proc(int32_t msg, DIALOG *d, int32_t c)
   *  Who needs C++ after all? This is derived from d_button_proc,
   *  but overrides the drawing routine to provide a check box.
   */
-int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
     int32_t x;
     int32_t bx=0, tl=0;
     int32_t tx=d->x;
     ASSERT(d);
+	uint8_t* str = (uint8_t*)d->dp;
+	if(str && !str[0])
+		str = nullptr;
     
     switch(msg)
     {
@@ -7126,17 +7127,17 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if(!(d->d1))
         {
-            if(d->dp)
+            if(str)
             {
                 if(d->flags & D_DISABLED)
                 {
-                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
-                    tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
+                    gui_textout_ln(screen, str, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                    tl=gui_textout_ln(screen, str, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
                     bx=tl+text_height(font)/2;
                 }
                 else
                 {
-                    tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+                    tl=gui_textout_ln(screen, str, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
                     bx=tl+text_height(font)/2;
                 }
             }
@@ -7175,26 +7176,25 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
         
         d->w=int32_t(text_height(font)*1.5);
         
-        if(d->dp)
+        if(str)
         {
-//      dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+d->h-1, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
             dotted_rect(screen, tx-1, d->y-1, tx+tl, d->y+(text_height(font)), (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
             d->w+=tl+1;
         }
         
         return D_O_K;
-        break;
     }
     
     return d_jwinbutton_proc(msg, d, 0);
 }
 
-int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
 	int32_t bx=0, tl=0;
 	ASSERT(d);
+	uint8_t* str = (uint8_t*)d->dp;
+	if(str && !str[0])
+		str = nullptr;
 	
     FONT *oldfont = font;
     
@@ -7212,17 +7212,17 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 			set_clip_rect(tmp, tx, ty, tmp->w-tx, tmp->h-ty);
 			if(!(d->d1))
 			{
-				if(d->dp)
+				if(str)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
+						gui_textout_ln(tmp, str, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						tl=gui_textout_ln(tmp, str, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
 						bx=tl+text_height(font)/2;
 					}
 					else
 					{
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, str, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
 						bx=tl+text_height(font)/2;
 					}
 				}
@@ -7239,16 +7239,16 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				tx2=tx+bx+d->h-1+(text_height(font)/2);
 				
-				if(d->dp)
+				if(str)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
+						gui_textout_ln(tmp, str, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						tl=gui_textout_ln(tmp, str, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
 					}
 					else
 					{
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, str, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
 					}
 				}
 			}
@@ -7261,7 +7261,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			set_clip_rect(tmp, 0, 0, tmp->w, tmp->h);
 			//d->w=int32_t(text_height(font)*1.5);
-			if(d->dp)
+			if(str)
 			{
 				dotted_rect(tmp, tx2-1, ty-1, tx2+tl, ty+(text_height(font)), (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
 			}
