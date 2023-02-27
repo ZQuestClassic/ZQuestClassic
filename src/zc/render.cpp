@@ -24,7 +24,11 @@ bool use_linear_bitmaps()
 
 static int zc_gui_mouse_x()
 {
-	if (rti_dialogs.visible || rti_gui.visible)
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
+	}
+	else if (rti_gui.visible)
 	{
 		return rti_gui.global_to_local_x(mouse_x);
 	}
@@ -40,7 +44,11 @@ static int zc_gui_mouse_x()
 
 static int zc_gui_mouse_y()
 {
-	if (rti_dialogs.visible || rti_gui.visible)
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
+	}
+	else if (rti_gui.visible)
 	{
 		return rti_gui.global_to_local_y(mouse_y);
 	}
@@ -182,7 +190,6 @@ static void configure_render_tree()
 		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
-		update_dialog_transform();
 	}
 	
 	rti_screen.visible = false;
@@ -286,7 +293,7 @@ void start_info_bmp()
 }
 void end_info_bmp()
 {
-	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1);
+	clear_a5_clip_rect(rti_infolayer.bitmap);
 	al_restore_state(&infobmp_old_state);
 }
 

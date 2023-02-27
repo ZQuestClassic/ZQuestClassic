@@ -9,12 +9,20 @@ static RenderTreeItem rti_tooltip;
 
 static int zc_gui_mouse_x()
 {
-	return rti_screen.global_to_local_x(mouse_x);
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
+	}
+	else return rti_screen.global_to_local_x(mouse_x);
 }
 
 static int zc_gui_mouse_y()
 {
-	return rti_screen.global_to_local_y(mouse_y);
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
+	}
+	else return rti_screen.global_to_local_y(mouse_y);
 }
 
 bool use_linear_bitmaps()
@@ -93,7 +101,6 @@ static void configure_render_tree()
 		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
-		update_dialog_transform();
 	}
 }
 

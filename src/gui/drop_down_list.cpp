@@ -16,7 +16,6 @@ DropDownList::DropDownList():
 	overrideHeight(21_px);
 	fgColor = jwin_pal[jcTEXTFG];
 	bgColor = jwin_pal[jcTEXTBG];
-	widgFont = GUI_DEF_FONT;
 }
 
 void DropDownList::setListData(const ::GUI::ListData& newListData)

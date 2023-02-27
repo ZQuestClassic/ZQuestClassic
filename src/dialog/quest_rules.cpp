@@ -1633,7 +1633,7 @@ QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*
 }
 
 static std::string searchstring;
-static int32_t scroll_pos1;
+static int32_t scroll_pos1 = 0;
 static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
 {

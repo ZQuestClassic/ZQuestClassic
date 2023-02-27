@@ -1,6 +1,7 @@
 #ifndef _BASE_RENDER_TREE_H_
 #define _BASE_RENDER_TREE_H_
 
+#include "zdefs.h"
 #include "zc_alleg.h"
 #include <vector>
 extern unsigned char info_opacity;
@@ -51,16 +52,32 @@ public:
 extern RenderTreeItem rti_dialogs;
 
 void set_bitmap_create_flags(bool preserve_texture);
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp);
+ALLEGRO_COLOR a5color(RGB c);
+ALLEGRO_COLOR a5color(int index);
+void clear_a5_bmp(ALLEGRO_COLOR c, ALLEGRO_BITMAP* bmp = nullptr);
+void collide_clip_rect(int& x, int& y, int& w, int& h);
+void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
-void popup_zqdialog_start(bool transp = true);
+int get_zqdialog_a4_clear_color();
+void clear_zqdialog_a4();
+void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0);
 void popup_zqdialog_end();
-void popup_zqdialog_start_a5();
+void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c = 0);
+void popup_zqdialog_blackout_end();
+void popup_zqdialog_start_a5(int x = 0, int y = 0, int w = -1, int h = -1);
 void popup_zqdialog_end_a5();
-void update_dialog_transform();
+RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h);
+bool a4_bmp_active();
 RenderTreeItem* add_dlg_layer();
 void remove_dlg_layer(RenderTreeItem* rti);
+
+
+//From jwin_a5
+
+extern ALLEGRO_COLOR AL5_INVIS;
+extern ALLEGRO_COLOR AL5_BLACK;
+extern ALLEGRO_COLOR AL5_WHITE;
 
 #endif
