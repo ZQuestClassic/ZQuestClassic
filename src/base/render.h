@@ -54,7 +54,7 @@ extern RenderTreeItem rti_dialogs;
 void set_bitmap_create_flags(bool preserve_texture);
 ALLEGRO_COLOR a5color(RGB c);
 ALLEGRO_COLOR a5color(int index);
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr, ALLEGRO_COLOR* c = nullptr);
+void clear_a5_bmp(ALLEGRO_COLOR c, ALLEGRO_BITMAP* bmp = nullptr);
 void collide_clip_rect(int& x, int& y, int& w, int& h);
 void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
@@ -72,5 +72,12 @@ RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h);
 bool a4_bmp_active();
 RenderTreeItem* add_dlg_layer();
 void remove_dlg_layer(RenderTreeItem* rti);
+
+
+//From jwin_a5
+
+extern ALLEGRO_COLOR AL5_INVIS;
+extern ALLEGRO_COLOR AL5_BLACK;
+extern ALLEGRO_COLOR AL5_WHITE;
 
 #endif

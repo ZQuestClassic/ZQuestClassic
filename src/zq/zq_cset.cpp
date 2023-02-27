@@ -1372,7 +1372,7 @@ static DIALOG colors_dlg[] =
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
 	popup_zqdialog_start_a5();
-	clear_a5_bmp(nullptr, &AL5_BLACK);
+	clear_a5_bmp(AL5_BLACK);
 	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
 	zq_hide_screen(true);
 	char tempstuff[17];

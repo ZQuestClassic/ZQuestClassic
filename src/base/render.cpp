@@ -27,10 +27,8 @@ ALLEGRO_COLOR a5color(int index)
 	return a5color(tmp);
 }
 
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp, ALLEGRO_COLOR* c)
+void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
 {
-	static ALLEGRO_COLOR transp = al_map_rgba(0,0,0,0);
-	ALLEGRO_COLOR& col = c ? *c : transp;
 	if(bmp && bmp != al_get_target_bitmap())
 	{
 		ALLEGRO_STATE old_state;
@@ -299,7 +297,7 @@ void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 	active_dlg_rti = active_a4_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
 	
-	clear_a5_bmp(rti->bitmap, &a5color(c));
+	clear_a5_bmp(a5color(c), rti->bitmap);
 	
 	popup_zqdialog_start(x,y,w,h);
 }

@@ -231,7 +231,7 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 			{
 				if(a4_bmp_active())
 					rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
-				clear_a5_bmp(rti->bitmap);
+				clear_a5_bmp(AL5_INVIS,rti->bitmap);
 				// The scrollbar is being dragged; we need to scroll and redraw
 				// everything in the pane.
 				int32_t scrollAmount=d->d2-sp->scrollPos;
