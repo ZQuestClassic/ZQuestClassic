@@ -7299,6 +7299,7 @@ void refresh(int32_t flags)
 			blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
 		}
 	}
+
 		
 	if(earlyret)
 		return;

@@ -152,25 +152,49 @@ void render_tree_draw(RenderTreeItem* rti)
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
-void popup_zqdialog_start(bool transp)
+int get_zqdialog_a4_clear_color()
 {
+	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
+	{
+		if(active_dlg_rti->transparency_index > 0)
+			return active_dlg_rti->transparency_index;
+	}
+	return 0;
+}
+void clear_zqdialog_a4()
+{
+	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
+	{
+		if(active_dlg_rti->transparency_index > 0)
+			clear_to_color(active_dlg_rti->a4_bitmap, active_dlg_rti->transparency_index);
+		else clear_bitmap(active_dlg_rti->a4_bitmap);
+	}
+}
+void popup_zqdialog_start(int x, int y, int w, int h, int transp)
+{
+	if(w < 0) w = zq_screen_w;
+	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
-	BITMAP* tmp_bmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	BITMAP* tmp_bmp = create_bitmap_ex(8, w, h);
 	
 	if(tmp_bmp)
 	{
-		clear_bitmap(tmp_bmp);
+		if(transp > 0)
+			clear_to_color(tmp_bmp, transp);
+		else clear_bitmap(tmp_bmp);
 		show_mouse(tmp_bmp);
 		screen = tmp_bmp;
 		
 		RenderTreeItem* rti = new RenderTreeItem();
 		set_bitmap_create_flags(false);
-		rti->bitmap = al_create_bitmap(zq_screen_w, zq_screen_h);
+		rti->bitmap = al_create_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
-		rti->transparency_index = transp ? 0 : -1;
 		rti->visible = true;
 		rti->owned = true;
+		rti->transparency_index = transp;
+		rti->transform.x = x;
+		rti->transform.y = y;
 		rti_dialogs.children.push_back(rti);
 		rti_dialogs.visible = true;
 		active_dlg_rti = rti;
@@ -192,7 +216,7 @@ void popup_zqdialog_end()
 		if(rti_dialogs.children.size())
 		{
 			active_dlg_rti = rti_dialogs.children.back();
-			screen = active_dlg_rti->a4_bitmap;
+			screen = active_dlg_rti->a4_bitmap ? active_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
 		}
 		else
 		{
@@ -208,6 +232,8 @@ void popup_zqdialog_end()
 
 void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 {
+	if(w < 0) w = zq_screen_w;
+	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
 	
@@ -225,7 +251,7 @@ void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 	
 	clear_a5_bmp(rti->bitmap, &a5color(c));
 	
-	popup_zqdialog_start();
+	popup_zqdialog_start(x,y,w,h);
 }
 
 void popup_zqdialog_blackout_end()
@@ -256,16 +282,20 @@ void popup_zqdialog_blackout_end()
 }
 
 static std::vector<ALLEGRO_STATE> old_a5_states;
-void popup_zqdialog_start_a5()
+void popup_zqdialog_start_a5(int x, int y, int w, int h)
 {
+	if(w < 0) w = zq_screen_w;
+	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
 	
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
-	rti->bitmap = al_create_bitmap(zq_screen_w, zq_screen_h);
+	rti->bitmap = al_create_bitmap(w, h);
 	rti->visible = true;
 	rti->owned = true;
+	rti->transform.x = x;
+	rti->transform.y = y;
 	rti_dialogs.children.push_back(rti);
 	rti_dialogs.visible = true;
 	active_dlg_rti = rti;
@@ -284,10 +314,14 @@ void popup_zqdialog_end_a5()
 		RenderTreeItem* to_del = active_dlg_rti;
 		rti_dialogs.children.pop_back();
 		if(rti_dialogs.children.size())
+		{
 			active_dlg_rti = rti_dialogs.children.back();
+			screen = active_dlg_rti->a4_bitmap ? active_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
+		}
 		else
 		{
 			active_dlg_rti = nullptr;
+			screen = zqdialog_bg_bmp;
 			zqdialog_bg_bmp = nullptr;
 		}
 		ALLEGRO_STATE& oldstate = old_a5_states.back();

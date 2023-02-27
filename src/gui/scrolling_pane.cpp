@@ -211,7 +211,7 @@ int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, 0); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 			al_draw_filled_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame_a5(d, sp->contentHeight, sp->scrollPos, d->h, 0);

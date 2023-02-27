@@ -1,6 +1,7 @@
 #ifndef _BASE_RENDER_TREE_H_
 #define _BASE_RENDER_TREE_H_
 
+#include "zdefs.h"
 #include "zc_alleg.h"
 #include <vector>
 extern unsigned char info_opacity;
@@ -58,11 +59,13 @@ void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
-void popup_zqdialog_start(bool transp = true);
+int get_zqdialog_a4_clear_color();
+void clear_zqdialog_a4();
+void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0);
 void popup_zqdialog_end();
-void popup_zqdialog_blackout(int x, int y, int w, int h, int c = 0);
+void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c = 0);
 void popup_zqdialog_blackout_end();
-void popup_zqdialog_start_a5();
+void popup_zqdialog_start_a5(int x = 0, int y = 0, int w = -1, int h = -1);
 void popup_zqdialog_end_a5();
 void update_dialog_transform();
 RenderTreeItem* add_dlg_layer();

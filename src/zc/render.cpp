@@ -24,7 +24,11 @@ bool use_linear_bitmaps()
 
 static int zc_gui_mouse_x()
 {
-	if (rti_dialogs.visible || rti_gui.visible)
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
+	}
+	else if (rti_gui.visible)
 	{
 		return rti_gui.global_to_local_x(mouse_x);
 	}
@@ -40,7 +44,11 @@ static int zc_gui_mouse_x()
 
 static int zc_gui_mouse_y()
 {
-	if (rti_dialogs.visible || rti_gui.visible)
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
+	}
+	else if (rti_gui.visible)
 	{
 		return rti_gui.global_to_local_y(mouse_y);
 	}

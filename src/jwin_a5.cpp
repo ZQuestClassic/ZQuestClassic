@@ -39,7 +39,9 @@ ALLEGRO_COLOR jwin_a5_pal(int jc)
 	return jwin_a5_colors[r_dvc(jwin_pal[jc])];
 }
 
-static ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0);
+ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0);
+ALLEGRO_COLOR AL5_BLACK = al_map_rgb(0,0,0);
+ALLEGRO_COLOR AL5_WHITE = al_map_rgb(255,255,255);
 void jwin_set_a5_colors(ALLEGRO_COLOR* colors)
 {
 	for(int q = 1; q <= 8; ++q)
@@ -94,7 +96,11 @@ void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c)
 {
 	al_draw_line(x1,y1,x1,y2,c,1);
 }
-
+void al_draw_x(float x1, float y1, float x2, float y2, ALLEGRO_COLOR c, float thickness)
+{
+	al_draw_line(x1,y1,x2,y2,c,thickness);
+	al_draw_line(x1,y2,x2,y1,c,thickness);
+}
 //JWin A5 drawing functions
 
 void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
@@ -223,7 +229,6 @@ void jwin_textout_a5_dis(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, in
 {
 	unsigned char r,g,b,a;
 	al_unmap_rgba(bgc,&r,&g,&b,&a);
-	al_unmap_rgba(bgc,nullptr,nullptr,nullptr,&a);
 	if(a)
 	{
 		float w = al_get_text_width(f, str)+1;
@@ -295,6 +300,43 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 	
 	if(show_dotted_rect&&(flags & D_GOTFOCUS))
 		dotted_rect_a5(x+4, y+4, x+w-5, y+h-5, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
+}
+bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        //vsync();
+        if(mouse_in_rect(x,y,w,h))
+        {
+            if(!over)
+            {
+                vsync();
+                scare_mouse();
+                jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
+                unscare_mouse();
+                over=true;
+                
+				update_hw_screen();
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                vsync();
+                scare_mouse();
+                jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
+                unscare_mouse();
+                over=false;
+                
+				update_hw_screen();
+            }
+        }
+    }
+    
+    return over;
 }
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
@@ -1009,7 +1051,7 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				break;
 			}
 			
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, 0); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 			
 			jwin_draw_win_a5(d->x, d->y, d->w, d->h, FR_WIN);
 			
@@ -1091,6 +1133,7 @@ int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(d->x<zq_screen_w&&d->y<zq_screen_h)
 			{
+				rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
 				al_draw_filled_rectangle(d->x-2, d->y-2, d->x+d->w, d->y+d->h, jwin_a5_pal(jcBOX));
 				al_draw_vline(d->x, d->y+sd+7+th, d->y+sd+d->h-1, jwin_a5_pal(jcLIGHT));
 				al_draw_vline(d->x+1, d->y+sd+7+th, d->y+sd+d->h-2, jwin_a5_pal(jcMEDLT));
