@@ -34,6 +34,7 @@ bool is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t 
 int32_t count_newline(uint8_t *s);
 void idle_cb();
 void wipe_abc_keypresses();
+int32_t droplist(DIALOG *d);
 
 //JWin A5 Palette
 
@@ -1101,16 +1102,23 @@ void _jwin_draw_listbox_a5(DIALOG *d,bool abc)
     w = (bar ? d->w-21 : d->w-5);
     ALLEGRO_COLOR fg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_FG : jcTEXTFG);
     ALLEGRO_COLOR bg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_BG : jcTEXTBG);
-
-	al_draw_filled_rectangle(d->x, d->y, d->x + d->w, d->y + d->h + 2 + fh, jwin_a5_pal(jcBOX));
-	/* draw frame, maybe with scrollbar */
-	_jwin_draw_scrollable_frame_a5(d, listsize, d->d2, height, (d->flags & D_USER) ? 1 : 0);
-
+    
 	al_draw_filled_rectangle(d->x+2,  d->y+2, d->x+w+3, d->y+4, bg_color);
 	al_draw_vline(d->x+2, d->y+4, d->y+d->h-2, bg_color);
 	al_draw_vline(d->x+3, d->y+4, d->y+d->h-2, bg_color);
 	al_draw_vline(d->x+w+1, d->y+4, d->y+d->h-2, bg_color);
 	al_draw_vline(d->x+w+2, d->y+4, d->y+d->h-2, bg_color);
+    
+	if(abc)
+	{
+		al_draw_filled_rectangle(d->x+1,  d->y+d->h+2, d->x+d->w-1, d->y+d->h+2+fh, bg_color);
+		strncpy(s, abc_keypresses, 1023);
+		char* s2 = s;
+		int32_t tw = (d->w-1);
+		while(al_get_text_width(a5font, s2) >= tw)
+			++s2;
+		jwin_textout_a5(a5font, fg_color, d->x+1, d->y+d->h+2, 0, s2, bg_color);
+	}
 	
     /* draw box contents */
     for(i=0; i<height; i++)
@@ -1161,17 +1169,9 @@ void _jwin_draw_listbox_a5(DIALOG *d,bool abc)
 	if(d->y+4+i*fh <= d->y+d->h-3)
 	    al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
 	             d->x+w+3, d->y+d->h-2, bg_color);
-
-	if (abc)
-	{
-		al_draw_filled_rectangle(d->x + 1, d->y + d->h + 2, d->x + d->w - 1, d->y + d->h + 2 + fh, bg_color);
-		strncpy(s, abc_keypresses, 1023);
-		char* s2 = s;
-		int32_t tw = (d->w - 1);
-		while (al_get_text_width(a5font, s2) >= tw)
-			++s2;
-		jwin_textout_a5(a5font, fg_color, d->x + 1, d->y + d->h + 2, 0, s2, bg_color);
-	}
+                 
+    /* draw frame, maybe with scrollbar */
+    _jwin_draw_scrollable_frame_a5(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
 	
 	a5font = oldfont;
 }
@@ -2794,5 +2794,83 @@ int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c)
 	return ((abc_patternmatch) ? jwin_do_abclist_proc_a5(msg,d,c) : jwin_list_proc_a5(msg,d,c));
 }
 
+int32_t jwin_droplist_proc_a5(int32_t msg,DIALOG *d,int32_t c)
+{
+	int32_t ret;
+	int32_t down=0, last_draw=0;
+	int32_t d1;
+	
+	switch(msg)
+	{
+		case MSG_CLICK:
+			if(mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h))
+				goto dropit_a5;
+				
+			break;
+			
+		case MSG_KEY:
+			goto dropit_a5;
+			break;
+	}
+	
+	d1 = d->d1;
+	ret = jwin_list_proc_a5(msg,d,c);
+	
+	if(d->d1!=d->d2)
+	{
+		d->d1=d->d2;
+		jwin_droplist_proc_a5(MSG_DRAW, d, 0);
+	}
+
+	if(d1 != d->d1)
+	{
+		GUI_EVENT(d, geCHANGE_SELECTION);
+		if(d->flags&D_EXIT)
+			ret |= D_CLOSE;
+	}
+
+	if(msg == MSG_DRAW)
+		draw_arrow_button_a5(d->x+d->w-18, d->y+2, 16, d->h-4, 0, 0);
+	
+	return ret;
+	
+dropit_a5:
+	last_draw = 0;
+	
+	while(gui_mouse_b())
+	{
+		down = mouse_in_rect(d->x+d->w-18,d->y+2,16,d->h);
+		
+		if(down!=last_draw)
+		{
+			draw_arrow_button_a5(d->x+d->w-18, d->y+2, 16, d->h-4, 0, down*3);
+			last_draw = down;
+		}
+		
+		clear_keybuf();
+		
+		update_hw_screen();
+	}
+	
+	if(!down)
+		return D_O_K;
+	
+	draw_arrow_button_a5(d->x+d->w-18, d->y+2, 16, d->h-4, 0, 0);
+	
+	d1 = d->d1;
+	d->d2 = d->d1 = droplist(d);
+	
+	object_message(d, MSG_DRAW, 0);
+	
+	while(gui_mouse_b()) {
+		clear_keybuf();
+		rest(1);
+	}
+
+	if(d1!=d->d1)
+		GUI_EVENT(d, geCHANGE_SELECTION);
+
+	return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
+}
 
 

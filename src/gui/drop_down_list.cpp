@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include <cassert>
 #include <cmath>
 
@@ -125,7 +125,7 @@ void DropDownList::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_droplist_proc>,
+		newGUIProc<jwin_droplist_proc_a5>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

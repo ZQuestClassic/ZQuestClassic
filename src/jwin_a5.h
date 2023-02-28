@@ -78,6 +78,7 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
+int32_t jwin_droplist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 
 #endif                                                      // _JWIN_H_
 

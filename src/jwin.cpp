@@ -6526,7 +6526,7 @@ static DIALOG droplist_dlg[] =
 	{ NULL,                 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
 };
 
-static int32_t droplist(DIALOG *d)
+int32_t droplist(DIALOG *d)
 {
 	ListData *data = (ListData *)d->dp;
 	int32_t d1 = d->d1;
