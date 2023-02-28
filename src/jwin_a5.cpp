@@ -44,7 +44,7 @@ static ALLEGRO_COLOR tmpcol[9];
 const int db_pal[] =
 {
 	4, 2, 3, 4, 8, 1,
-	3, 7, 1, 6, 1, 4, 1,
+	3, 7, 1, 6, 1, 5, 1,
 	1, 1, 3, 4,
 	3, 1, 3, 4
 	// jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
@@ -1098,92 +1098,96 @@ void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset,
 
 void _jwin_draw_listbox_a5(DIALOG *d,bool abc)
 {
-    int32_t height, listsize, i, len, bar, x, y, w;
-    ALLEGRO_COLOR fg, bg;
-    char *sel = (char*)d->dp2;
-    char s[1024] = {0};
-    ListData *data = (ListData *)d->dp;
+	int32_t height, listsize, i, len, bar, x, y, w;
+	ALLEGRO_COLOR fg, bg;
+	char *sel = (char*)d->dp2;
+	char s[1024] = {0};
+	ListData *data = (ListData *)d->dp;
 	
 	ALLEGRO_FONT* oldfont = a5font;
 	a5font = *data->a5font;
 	int fh = al_get_font_line_height(a5font);
 
-    data->listFunc(-1, &listsize);
-    height = (d->h-3) / fh;
-    bar = (listsize > height);
-    w = (bar ? d->w-21 : d->w-5);
-    ALLEGRO_COLOR fg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_FG : jcTEXTFG);
-    ALLEGRO_COLOR bg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_BG : jcTEXTBG);
-    
+	data->listFunc(-1, &listsize);
+	height = (d->h-3) / fh;
+	bar = (listsize > height);
+	w = (bar ? d->w-21 : d->w-5);
+	ALLEGRO_COLOR fg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_FG : jcTEXTFG);
+	ALLEGRO_COLOR bg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_BG : jcTEXTBG);
+	
+	al_draw_filled_rectangle(d->x,  d->y, d->x+d->w, d->y+d->h+(abc?fh:0), bg_color);
+	
+	/* draw frame, maybe with scrollbar */
+	_jwin_draw_scrollable_frame_a5(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
+	
 	al_draw_filled_rectangle(d->x+2,  d->y+2, d->x+w+3, d->y+4, bg_color);
 	al_draw_vline(d->x+2, d->y+4, d->y+d->h-2, bg_color);
 	al_draw_vline(d->x+3, d->y+4, d->y+d->h-2, bg_color);
 	al_draw_vline(d->x+w+1, d->y+4, d->y+d->h-2, bg_color);
 	al_draw_vline(d->x+w+2, d->y+4, d->y+d->h-2, bg_color);
-    
+	
+	/* draw box contents */
+	for(i=0; i<height; i++)
+	{
+		if(d->d2+i < listsize)
+		{
+			if(d->d2+i == d->d1 && !(d->flags & D_DISABLED))
+			{
+				fg = jwin_a5_pal(jcSELFG);
+				bg = jwin_a5_pal(jcSELBG);
+			}
+			else if((sel) && (sel[d->d2+i]))
+			{
+				fg = jwin_a5_pal(jcMEDDARK);
+				bg = jwin_a5_pal(jcSELBG);
+			}
+			else
+			{
+				fg = fg_color;
+				bg = bg_color;
+			}
+
+			strncpy(s, data->listFunc(i+d->d2, NULL), 1023);
+			x = d->x + 4;
+			y = d->y + 4 + i*fh;
+			
+			al_draw_filled_rectangle(x, y, x+8, y+fh, bg);
+			x += 8;
+			len = (int32_t)strlen(s);
+			
+			while(len > 0 && al_get_text_width(a5font, s) >= d->w - (bar ? 26 : 10))
+			{
+				len--;
+				s[len] = 0;
+			}
+			
+			jwin_textout_a5(a5font, fg, x, y, 0, s, bg);
+			x += al_get_text_width(a5font, s);
+			
+			if(x <= d->x+w)
+				al_draw_filled_rectangle(x, y, d->x+w+1, y+fh, bg);
+		}
+		else
+			al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
+					 d->x+w+3, d->y+4+(i+1)*fh, bg_color);
+	}
+	
+	if(d->y+4+i*fh <= d->y+d->h-3)
+		al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
+				 d->x+w+3, d->y+d->h-2, bg_color);
+	
 	if(abc)
 	{
-		al_draw_filled_rectangle(d->x+1,  d->y+d->h+2, d->x+d->w-1, d->y+d->h+2+fh, bg_color);
+		fg = jwin_a5_pal(jcSELFG);
+		bg = jwin_a5_pal(jcSELBG);
+		al_draw_filled_rectangle(d->x+1,  d->y+d->h+2, d->x+d->w-1, d->y+d->h+2+fh, bg);
 		strncpy(s, abc_keypresses, 1023);
 		char* s2 = s;
 		int32_t tw = (d->w-1);
 		while(al_get_text_width(a5font, s2) >= tw)
 			++s2;
-		jwin_textout_a5(a5font, fg_color, d->x+1, d->y+d->h+2, 0, s2, bg_color);
+		jwin_textout_a5(a5font, fg, d->x+1, d->y+d->h+2, 0, s2, bg);
 	}
-	
-    /* draw box contents */
-    for(i=0; i<height; i++)
-    {
-        if(d->d2+i < listsize)
-        {
-            if(d->d2+i == d->d1 && !(d->flags & D_DISABLED))
-            {
-                fg = jwin_a5_pal(jcSELFG);
-                bg = jwin_a5_pal(jcSELBG);
-            }
-            else if((sel) && (sel[d->d2+i]))
-            {
-                fg = jwin_a5_pal(jcMEDDARK);
-                bg = jwin_a5_pal(jcSELBG);
-            }
-            else
-            {
-                fg = fg_color;
-                bg = bg_color;
-            }
-
-            strncpy(s, data->listFunc(i+d->d2, NULL), 1023);
-            x = d->x + 4;
-            y = d->y + 4 + i*fh;
-            
-            al_draw_filled_rectangle(x, y, x+8, y+fh, bg);
-            x += 8;
-            len = (int32_t)strlen(s);
-            
-            while(len > 0 && al_get_text_width(a5font, s) >= d->w - (bar ? 26 : 10))
-            {
-                len--;
-                s[len] = 0;
-            }
-            
-	        jwin_textout_a5(a5font, fg, x, y, 0, s, bg);
-	        x += al_get_text_width(a5font, s);
-            
-	        if(x <= d->x+w)
-	            al_draw_filled_rectangle(x, y, d->x+w+1, y+fh, bg);
-	    }
-	    else
-	        al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
-	                 d->x+w+3, d->y+4+(i+1)*fh, bg_color);
-	}
-	
-	if(d->y+4+i*fh <= d->y+d->h-3)
-	    al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
-	             d->x+w+3, d->y+d->h-2, bg_color);
-                 
-    /* draw frame, maybe with scrollbar */
-    _jwin_draw_scrollable_frame_a5(d, listsize, d->d2, height, (d->flags&D_USER)?1:0);
 	
 	a5font = oldfont;
 }
