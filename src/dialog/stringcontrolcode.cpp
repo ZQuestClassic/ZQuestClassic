@@ -157,7 +157,7 @@ SCCDialog::SCCDialog() :
 	default_args();
 	curscc = MSGC_COLOUR;
 	cur_args = nullptr;
-	::ListData msgs_list(msgslist, &font);
+	::ListData msgs_list(msgslist, &font, &a5font);
 	list_strings = GUI::ListData(msgs_list, 0);
 	if(!refstr)
 	{

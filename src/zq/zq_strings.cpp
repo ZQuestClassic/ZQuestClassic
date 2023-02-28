@@ -29,8 +29,8 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
 std::map<int32_t, int32_t> msglistcache;
 
-static ListData strlist_dlg_list(msgslist3, &font);
-static ListData stringcat_dlg_list(stringcatlist, &font);
+static ListData strlist_dlg_list(msgslist3, &font, &a5font);
+static ListData stringcat_dlg_list(stringcatlist, &font, &a5font);
 MsgStr *curmsgstr = NULL;
 int32_t msg_x = 0;
 int32_t msg_y = 0;

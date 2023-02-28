@@ -55,7 +55,6 @@ static void massRecolorReset4Bit();
 static void massRecolorReset8Bit();
 static bool massRecolorSetup(int32_t cset);
 static void massRecolorApply(int32_t tile);
-extern int32_t last_droplist_sel;
 
 int32_t ex=0;
 int32_t nextcombo_fake_click=0;
@@ -4092,7 +4091,7 @@ const char *bitlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData bit_list(bitlist, &font);
+static ListData bit_list(bitlist, &font, &a5font);
 
 static DIALOG leech_dlg[] =
 {
@@ -18171,7 +18170,7 @@ const char *comboscriptdroplist(int32_t index, int32_t *list_size)
 	
 	return bidcomboscripts[index].first.c_str();
 }
-ListData comboscript_list(comboscriptdroplist, &font);
+ListData comboscript_list(comboscriptdroplist, &font, &a5font);
 
 bool call_combo_editor(int32_t);
 bool edit_combo(int32_t c,bool freshen,int32_t cs)

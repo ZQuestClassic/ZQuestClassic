@@ -257,6 +257,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		else if(!bigfontproc)
 		{
 			((ListData *)d[i].dp)->font = &lfont_l;
+			((ListData *)d[i].dp)->a5font = &a5fonts[font_lfont_l];
 		}
 		
 		// Make checkboxes work
@@ -6286,7 +6287,7 @@ static DIALOG credits_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-static ListData dmap_list(dmaplist, &font);
+static ListData dmap_list(dmaplist, &font, &a5font);
 
 static DIALOG goto_dlg[] =
 {
@@ -6569,7 +6570,7 @@ done:
 	return ret;
 }
 
-static ListData midi_list(midilist, &font);
+static ListData midi_list(midilist, &font, &a5font);
 
 static DIALOG midi_dlg[] =
 {
@@ -7446,7 +7447,7 @@ const char *after_list(int32_t index, int32_t *list_size)
 	return after_str[index];
 }
 
-static ListData after__list(after_list, &font);
+static ListData after__list(after_list, &font, &a5font);
 
 static DIALOG scrsaver_dlg[] =
 {

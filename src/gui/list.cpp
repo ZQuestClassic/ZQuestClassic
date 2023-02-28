@@ -21,7 +21,7 @@ List::List():
 void List::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(&widgFont);
+	jwinListData = newListData.getJWin(&widgFont, &widgFont_a5);
 }
 
 void List::setSelectedValue(int32_t value)

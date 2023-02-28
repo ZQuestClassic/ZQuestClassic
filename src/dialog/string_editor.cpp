@@ -53,7 +53,7 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 	list_shtype(createShadowTypesListData()),
 	addAfter(addAfter)
 {
-	::ListData msgs_list(msgslist, &font);
+	::ListData msgs_list(msgslist, &font, &a5font);
 	list_nextstr = GUI::ListData(msgs_list, 0);
 	
 	if(ind == msg_count) //new str

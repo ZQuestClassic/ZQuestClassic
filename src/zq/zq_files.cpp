@@ -207,7 +207,7 @@ const char *qtlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData qtlist_dlg_list(qtlist, &font);
+static ListData qtlist_dlg_list(qtlist, &font, &a5font);
 
 static DIALOG qtlist_dlg[] =
 {

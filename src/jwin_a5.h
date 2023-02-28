@@ -55,7 +55,10 @@ void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const cha
 
 
 void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_t *offset, ALLEGRO_FONT *fnt);
+void _handle_jwin_scrollable_scroll_a5(DIALOG *d, int32_t listsize, int32_t *index, int32_t *offset, ALLEGRO_FONT *fnt);
+bool _handle_jwin_listbox_click_a5(DIALOG *d);
 void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type);
+void _jwin_draw_listbox_a5(DIALOG *d,bool abc);
 
 int32_t gui_textout_ln_a5(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos);
 int32_t gui_textout_ln_a5_dis(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos, ALLEGRO_COLOR dis_c);
@@ -73,6 +76,8 @@ int32_t jwin_rtext_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t);
+int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 
 #endif                                                      // _JWIN_H_
 

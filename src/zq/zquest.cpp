@@ -3082,11 +3082,11 @@ static TABPANEL options_tabs[] =
     { NULL,                0,            NULL, 0, NULL }
 };
 
-static ListData autobackup_list(autobackuplist, &font);
-static ListData autosave_list(autosavelist, &font);
-static ListData autosave_list2(autosavelist2, &font);
-static ListData color_list(colorlist, &font);
-static ListData snapshotformat_list(snapshotformatlist, &font);
+static ListData autobackup_list(autobackuplist, &font, &a5font);
+static ListData autosave_list(autosavelist, &font, &a5font);
+static ListData autosave_list2(autosavelist2, &font, &a5font);
+static ListData color_list(colorlist, &font, &a5font);
+static ListData snapshotformat_list(snapshotformatlist, &font, &a5font);
 void init_ffpos();
 
 void call_options_dlg();
@@ -4337,7 +4337,7 @@ const char *tracknumlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData tracknum_list(tracknumlist, &font);
+static ListData tracknum_list(tracknumlist, &font, &a5font);
 
 static DIALOG change_track_dlg[] =
 {
@@ -10241,7 +10241,7 @@ int32_t select_command(const char *prompt,int32_t cmd)
     clist_dlg[0].dp=(void *)prompt;
     clist_dlg[0].dp2=lfont;
     clist_dlg[2].d1=index;
-    static ListData command_list(commandlist, &font);
+    static ListData command_list(commandlist, &font, &a5font);
     clist_dlg[2].dp=(void *) &command_list;
     
     large_dialog(clist_dlg);
@@ -12362,7 +12362,7 @@ int32_t select_cflag(const char *prompt,int32_t flag)
     cflag_dlg[0].dp=(void *)prompt;
     cflag_dlg[0].dp2=lfont;
     GUI::ListData ld = GUI::ZCListData::mapflag(numericalFlags, true);
-	ListData select_cflag_list = ld.getJWin(&font);
+	ListData select_cflag_list = ld.getJWin(&font, &a5font);
     int32_t index = ld.findIndex(flag);
 	cflag_dlg[2].d1=index;
 	cflag_dlg[2].dp=(void *) &select_cflag_list;
@@ -13254,7 +13254,7 @@ int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit
     ilist_dlg[0].dp=(void *)prompt;
     ilist_dlg[0].dp2=lfont;
     ilist_dlg[2].d1=index;
-    ListData item_list(itemlist_num, &font);
+    ListData item_list(itemlist_num, &font, &a5font);
     ilist_dlg[2].dp=(void *) &item_list;
     
     large_dialog(ilist_dlg);
@@ -13631,7 +13631,7 @@ int32_t select_weapon(const char *prompt,int32_t weapon)
     wlist_dlg[0].dp=(void *)prompt;
     wlist_dlg[0].dp2=lfont;
     wlist_dlg[2].d1=index;
-    ListData weapon_list(weaponlist_num, &font);
+    ListData weapon_list(weaponlist_num, &font, &a5font);
     wlist_dlg[2].dp=(void *) &weapon_list;
     wlist_dlg[2].dp3 = (void *)&wpnsprite_rclick_func;
     wlist_dlg[2].flags|=(D_USER<<1);
@@ -13689,7 +13689,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
     list_dlg[0].dp=(void *)prompt;
     list_dlg[0].dp2=title_font;
     list_dlg[2].d1=index;
-    ListData select_list(proc, &font);
+    ListData select_list(proc, &font, &a5font);
     list_dlg[2].dp=(void *) &select_list;
     
     large_dialog(list_dlg);
@@ -13726,7 +13726,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
     list_dlg[0].dp=(void *)prompt;
     list_dlg[0].dp2=title_font;
     list_dlg[2].d1=index;
-    ListData select_data_list(proc, &font);
+    ListData select_data_list(proc, &font, &a5font);
     list_dlg[2].dp=(void *) &select_data_list;
     list_dlg[3].dp=(void *)b1;
     list_dlg[4].dp=(void *)b2;
@@ -13857,11 +13857,11 @@ const char *lenseffectlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData nextmap_list(nextmaplist, &font);
-static ListData ns_list(nslist,&font);
-static ListData screenmidi_list(screenmidilist, &font);
-static ListData sfx_list(sfxlist, &font);
-static ListData lenseffect_list(lenseffectlist, &font);
+static ListData nextmap_list(nextmaplist, &font, &a5font);
+static ListData ns_list(nslist,&font, &a5font);
+static ListData screenmidi_list(screenmidilist, &font, &a5font);
+static ListData sfx_list(sfxlist, &font, &a5font);
+static ListData lenseffect_list(lenseffectlist, &font, &a5font);
 
 static DIALOG scrdata_dlg[] =
 {
@@ -14081,7 +14081,7 @@ const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 }
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData screenscript_list(screenscriptdroplist, &pfont);
+static ListData screenscript_list(screenscriptdroplist, &pfont, &a5fonts[font_pfont]);
 
 
 #include "zq_files.h"
@@ -15064,7 +15064,7 @@ int32_t onEndString()
     return D_O_K;
 }
 
-static ListData levelnum_list(levelnumlist, &font);
+static ListData levelnum_list(levelnumlist, &font, &a5font);
 
 static DIALOG screen_pal_dlg[] =
 {
@@ -16485,12 +16485,12 @@ const char *dmaptracknumlist(int32_t index, int32_t *list_size)
 extern const char *subscreenlist_a(int32_t index, int32_t *list_size);
 extern const char *subscreenlist_b(int32_t index, int32_t *list_size);
 
-static ListData subscreen_list_a(subscreenlist_a, &font);
-static ListData subscreen_list_b(subscreenlist_b, &font);
-static ListData midi_list(midilist, &font);
-static ListData dmaptracknum_list(dmaptracknumlist, &font);
-static ListData type_list(typelist, &font);
-static ListData gotomap_list(gotomaplist, &font);
+static ListData subscreen_list_a(subscreenlist_a, &font, &a5font);
+static ListData subscreen_list_b(subscreenlist_b, &font, &a5font);
+static ListData midi_list(midilist, &font, &a5font);
+static ListData dmaptracknum_list(dmaptracknumlist, &font, &a5font);
+static ListData type_list(typelist, &font, &a5font);
+static ListData gotomap_list(gotomaplist, &font, &a5font);
 
 
 const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
@@ -16506,7 +16506,7 @@ const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData dmapscript_list(dmapscriptdroplist, &pfont);
+static ListData dmapscript_list(dmapscriptdroplist, &pfont, &a5fonts[font_pfont]);
 
 static DIALOG editdmap_dlg[] =
 {
@@ -16925,8 +16925,8 @@ void editdmap(int32_t index)
 	
 	build_bii_list(false);
 	initDI(index);
-	ListData DI_list(DIlist, &font);
-	ListData item_list(itemlist_num, &font);
+	ListData DI_list(DIlist, &font, &a5font);
+	ListData item_list(itemlist_num, &font, &a5font);
 	editdmap_dlg[101].dp = (void*)&DI_list;
 	editdmap_dlg[101].d1 = 0;
 	editdmap_dlg[102].dp = (void*)&item_list;
@@ -17139,7 +17139,7 @@ void editdmap(int32_t index)
 //int32_t selectdmapxy[6] = {90,142,164,150,164,160};
 int32_t selectdmapxy[6] = {44,92,128,100,128,110};
 
-static ListData dmap_list(dmaplist, &font);
+static ListData dmap_list(dmaplist, &font, &a5font);
 
 static DIALOG selectdmap_dlg[] =
 {
@@ -18777,7 +18777,7 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_list_proc(msg,d,c);
 }
 
-static ListData custommidi_list(custommidilist, &lfont_l);
+static ListData custommidi_list(custommidilist, &lfont_l, &a5fonts[font_lfont_l]);
 
 static DIALOG selectmidi_dlg[] =
 {
@@ -18889,7 +18889,7 @@ int32_t d_musiclist_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_list_proc(msg,d,c);
 }
 
-static ListData enhancedmusic_list(enhancedmusiclist, &font);
+static ListData enhancedmusic_list(enhancedmusiclist, &font, &a5font);
 
 static DIALOG selectmusic_dlg[] =
 {
@@ -19063,8 +19063,8 @@ const char *warprlist(int32_t index, int32_t *list_size)
 
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
-static ListData warp_dlg_list(warptypelist, &font);
-static ListData warp_ret_list(warprlist, &font);
+static ListData warp_dlg_list(warptypelist, &font, &a5font);
+static ListData warp_ret_list(warprlist, &font, &a5font);
 
 int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
 {
@@ -19860,7 +19860,7 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-static ListData warp_effect_list(warpeffectlist,&font);
+static ListData warp_effect_list(warpeffectlist,&font, &a5font);
 
 #if 0
 static DIALOG warp_dlg2[] =
@@ -20514,7 +20514,7 @@ const char *dirlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData path_dlg_list(dirlist, &font);
+static ListData path_dlg_list(dirlist, &font, &a5font);
 
 static DIALOG path_dlg[] =
 {
@@ -20642,7 +20642,7 @@ void EditInfoType(int32_t index)
     editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
     editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
     editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
-    ListData msgs_list(msgslist2, &lfont_l);
+    ListData msgs_list(msgslist2, &lfont_l, &a5fonts[font_lfont_l]);
     editinfo_dlg[9].dp  =
         editinfo_dlg[11].dp =
             editinfo_dlg[13].dp = (void *) &msgs_list;
@@ -20794,7 +20794,7 @@ void EditShopType(int32_t index)
     editshop_dlg[22].dp = info2;
     editshop_dlg[23].dp = info3;
     
-    ListData item_list(itemlist_num, &lfont_l);
+    ListData item_list(itemlist_num, &lfont_l, &a5fonts[font_lfont_l]);
     
     editshop_dlg[9].dp  = (void *) &item_list;
     editshop_dlg[11].dp  = (void *) &item_list;
@@ -21070,7 +21070,7 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-    ListData item_list(itemlist_num, &lfont_l);
+    ListData item_list(itemlist_num, &lfont_l, &a5fonts[font_lfont_l]);
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
     
@@ -21350,8 +21350,8 @@ const char *wclist(int32_t index, int32_t *list_size)
 //int32_t warpringdmapxy[8] = {160,116,160,90,160,102,160,154};
 int32_t warpringdmapxy[8] = {80,26,80,0,80,12,80,78};
 
-static ListData number_list(numberlist, &font);
-static ListData wc_list(wclist, &font);
+static ListData number_list(numberlist, &font, &a5font);
+static ListData wc_list(wclist, &font, &a5font);
 
 static DIALOG warpring_dlg[] =
 {
@@ -21445,7 +21445,7 @@ const char *pattern_list(int32_t index, int32_t *list_size)
     return pattern_string[index];
 }
 
-static ListData pattern_dlg_list(pattern_list, &font);
+static ListData pattern_dlg_list(pattern_list, &font, &a5font);
 
 static DIALOG pattern_dlg[] =
 {
@@ -21711,7 +21711,7 @@ int32_t efrontfacingtile(int32_t id)
                   : -guysbuf[id].tile, usetile);
 }
 
-static ListData enemy_dlg_list(enemy_viewer, &font);
+static ListData enemy_dlg_list(enemy_viewer, &font, &a5font);
 
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
 {
@@ -21829,7 +21829,7 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
     elist_dlg[0].dp=(void *)prompt;
     elist_dlg[0].dp2=lfont;
     elist_dlg[2].d1=index;
-    ListData enemy_list(enemylist, &font);
+    ListData enemy_list(enemylist, &font, &a5font);
     elist_dlg[2].dp=(void *) &enemy_list;
     
     large_dialog(elist_dlg);
@@ -21886,7 +21886,7 @@ int32_t select_guy(const char *prompt,int32_t guy)
     glist_dlg[0].dp=(void *)prompt;
     glist_dlg[0].dp2=lfont;
     glist_dlg[2].d1=index;
-    ListData guy_list(guylist, &font);
+    ListData guy_list(guylist, &font, &a5font);
     glist_dlg[2].dp=(void *) &guy_list;
     
     large_dialog(glist_dlg);
@@ -22026,8 +22026,8 @@ int32_t onEnemies()
 		large_dialog(enemy_dlg);
 		// Fix d_enelist_proc
 		enemy_dlg[2].dp2 = 0;
-		//((ListData *)enemy_dlg[2].dp)->font = &sfont3;
 		((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
+		((ListData *)enemy_dlg[2].dp)->a5font = &a5fonts[font_lfont_l];
 		
 		ret = zc_do_dialog(enemy_dlg,2);
 		
@@ -22172,7 +22172,7 @@ const char *subscrtypelist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData subscreen_type_dlg_list(subscrtypelist, &font);
+static ListData subscreen_type_dlg_list(subscrtypelist, &font, &a5font);
 
 static DIALOG subscreen_type_dlg[] =
 {
@@ -23301,7 +23301,7 @@ int32_t d_comboacheck_proc(int32_t msg, DIALOG *d, int32_t c)
     return ret;
 }
 
-static ListData comboa_list(comboalist, &font);
+static ListData comboa_list(comboalist, &font, &a5font);
 
 static DIALOG editcomboa_dlg[] =
 {
@@ -23527,7 +23527,7 @@ const char *ffcombolist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData ffcombo_list(ffcombolist, &font);
+static ListData ffcombo_list(ffcombolist, &font, &a5font);
 
 static DIALOG ffcombo_sel_dlg[] =
 {
@@ -23654,13 +23654,13 @@ int32_t onSelectFFCombo()
 }
 
 const char *globalscriptlist(int32_t index, int32_t *list_size);
-static ListData globalscript_list(globalscriptlist, &font);
+static ListData globalscript_list(globalscriptlist, &font, &a5font);
 const char *playerscriptlist(int32_t index, int32_t *list_size);
-static ListData playerscript_list(playerscriptlist, &font);
+static ListData playerscript_list(playerscriptlist, &font, &a5font);
 
 const char *ffscriptlist(int32_t index, int32_t *list_size);
 
-static ListData ffscript_list(ffscriptlist, &font);
+static ListData ffscript_list(ffscriptlist, &font, &a5font);
 
 char *strip_decimals(char *string)
 {
@@ -24744,36 +24744,36 @@ const char *assigngenericscriptlist(int32_t index, int32_t *list_size)
     return asgenericscripts[index].c_str();
 }
 
-static ListData assignffc_list(assignffclist, &font);
-static ListData assignffcscript_list(assignffcscriptlist, &font);
-static ListData assignglobal_list(assigngloballist, &font);
-static ListData assignglobalscript_list(assignglobalscriptlist, &font);
-static ListData assignitem_list(assignitemlist, &font);
-static ListData assignitemscript_list(assignitemscriptlist, &font);
-static ListData assignnpc_list(assignnpclist, &font);
-static ListData assignnpcscript_list(assignnpcscriptlist, &font);
-static ListData assignlweapon_list(assignlweaponlist, &font);
-static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
-static ListData assigneweapon_list(assigneweaponlist, &font);
-static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
+static ListData assignffc_list(assignffclist, &font, &a5font);
+static ListData assignffcscript_list(assignffcscriptlist, &font, &a5font);
+static ListData assignglobal_list(assigngloballist, &font, &a5font);
+static ListData assignglobalscript_list(assignglobalscriptlist, &font, &a5font);
+static ListData assignitem_list(assignitemlist, &font, &a5font);
+static ListData assignitemscript_list(assignitemscriptlist, &font, &a5font);
+static ListData assignnpc_list(assignnpclist, &font, &a5font);
+static ListData assignnpcscript_list(assignnpcscriptlist, &font, &a5font);
+static ListData assignlweapon_list(assignlweaponlist, &font, &a5font);
+static ListData assignlweaponscript_list(assignlweaponscriptlist, &font, &a5font);
+static ListData assigneweapon_list(assigneweaponlist, &font, &a5font);
+static ListData assigneweaponscript_list(assigneweaponscriptlist, &font, &a5font);
 
-static ListData assignplayer_list(assignplayerlist, &font);
-static ListData assignplayerscript_list(assignplayerscriptlist, &font);
+static ListData assignplayer_list(assignplayerlist, &font, &a5font);
+static ListData assignplayerscript_list(assignplayerscriptlist, &font, &a5font);
 
-static ListData assigndmap_list(assigndmaplist, &font);
-static ListData assigndmapscript_list(assigndmapscriptlist, &font);
+static ListData assigndmap_list(assigndmaplist, &font, &a5font);
+static ListData assigndmapscript_list(assigndmapscriptlist, &font, &a5font);
 
-static ListData assignscreen_list(assignscreenlist, &font);
-static ListData assignscreenscript_list(assignscreenscriptlist, &font);
+static ListData assignscreen_list(assignscreenlist, &font, &a5font);
+static ListData assignscreenscript_list(assignscreenscriptlist, &font, &a5font);
 
-static ListData assignitemsprite_list(assignitemspritelist, &font);
-static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
+static ListData assignitemsprite_list(assignitemspritelist, &font, &a5font);
+static ListData assignitemspritescript_list(assignitemspritescriptlist, &font, &a5font);
 
-static ListData assigncombo_list(assigncombolist, &font);
-static ListData assigncomboscript_list(assigncomboscriptlist, &font);
+static ListData assigncombo_list(assigncombolist, &font, &a5font);
+static ListData assigncomboscript_list(assigncomboscriptlist, &font, &a5font);
 
-static ListData assigngeneric_list(assigngenericlist, &font);
-static ListData assigngenericscript_list(assigngenericscriptlist, &font);
+static ListData assigngeneric_list(assigngenericlist, &font, &a5font);
+static ListData assigngenericscript_list(assigngenericscriptlist, &font, &a5font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -25089,7 +25089,7 @@ const char *zcompiler_haltlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
+static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont, &a5fonts[font_pfont]);
 
 const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 {
@@ -25117,7 +25117,7 @@ const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont, &a5fonts[font_pfont]);
 
 const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
 {
@@ -25143,7 +25143,7 @@ const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData zcompiler_depr_list(zcompiler_deprlist, &pfont);
+static ListData zcompiler_depr_list(zcompiler_deprlist, &pfont, &a5fonts[font_pfont]);
 
 char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
@@ -25325,10 +25325,10 @@ void doEditZScript(int32_t bg,int32_t fg)
 }
 
 //{ Start type-specific import dlgs
-static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
-static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
-static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
-static ListData gscript_sel_dlg_list(gscriptlist2, &font);
+static ListData ffscript_sel_dlg_list(ffscriptlist2, &font, &a5font);
+static ListData itemscript_sel_dlg_list(itemscriptlist2, &font, &a5font);
+static ListData comboscript_sel_dlg_list(comboscriptlist2, &font, &a5font);
+static ListData gscript_sel_dlg_list(gscriptlist2, &font, &a5font);
 static char npcscript_str_buf2[32];
 const char *npcscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25352,7 +25352,7 @@ const char *npcscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTGUYS-1);
     return NULL;
 }
-static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font, &a5font);
 static char lweaponscript_str_buf2[32];
 const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25376,7 +25376,7 @@ const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTWEAPONS-1);
     return NULL;
 }
-static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
+static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font, &a5font);
 static char eweaponscript_str_buf2[32];
 const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25400,7 +25400,7 @@ const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTWEAPONS-1);
     return NULL;
 }
-static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
+static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font, &a5font);
 static char playerscript_str_buf2[32];
 const char *playerscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25457,7 +25457,7 @@ const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSITEMSPRITE-1);
     return NULL;
 }
-static ListData playerscript_sel_dlg_list(playerscriptlist2, &font);
+static ListData playerscript_sel_dlg_list(playerscriptlist2, &font, &a5font);
 static char dmapscript_str_buf2[32];
 const char *dmapscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25481,8 +25481,8 @@ const char *dmapscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSDMAP-1);
     return NULL;
 }
-static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
-static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
+static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font, &a5font);
+static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font, &a5font);
 static char screenscript_str_buf2[32];
 const char *screenscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25506,7 +25506,7 @@ const char *screenscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSCREEN-1);
     return NULL;
 }
-static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
+static ListData screenscript_sel_dlg_list(screenscriptlist2, &font, &a5font);
 //} End type-specific import dlgs
 
 void clear_map_states()
@@ -27566,7 +27566,7 @@ const char *slottype_list(int32_t index, int32_t *list_size)
 	*list_size = 11;
 	return NULL;
 }
-static ListData slottype_sel_list(slottype_list, &font);
+static ListData slottype_sel_list(slottype_list, &font, &a5font);
 
 static DIALOG clearslots_dlg[] =
 {

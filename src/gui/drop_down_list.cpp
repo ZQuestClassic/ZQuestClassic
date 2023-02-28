@@ -21,7 +21,7 @@ DropDownList::DropDownList():
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(&widgFont);
+	jwinListData = newListData.getJWin(&widgFont, &widgFont_a5);
 }
 
 void DropDownList::setSelectedValue(int32_t value)

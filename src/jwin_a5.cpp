@@ -28,9 +28,12 @@ extern bool is_zquest();
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 //Externed from jwin.cpp
 extern bool no_hline;
+extern char abc_keypresses[1024];
 
 bool is_in_rect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2);
 int32_t count_newline(uint8_t *s);
+void idle_cb();
+void wipe_abc_keypresses();
 
 //JWin A5 Palette
 
@@ -709,7 +712,7 @@ void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const cha
 
 //Misc stolen from jwin.cpp
 
-//Tabs
+////Tabs
 
 int32_t discern_tab_a5(GUI::TabPanel *panel, int32_t first_tab, int32_t x)
 {
@@ -777,7 +780,7 @@ int32_t displayed_tabs_width_a5_a5(GUI::TabPanel *panel, int32_t first_tab, int3
 	return w+1;
 }
 
-//Scrollers
+////Scrollers
 
 void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_t *offset, ALLEGRO_FONT *fnt)
 {
@@ -945,6 +948,100 @@ void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_
 		unscare_mouse();
 	}
 }
+void _handle_jwin_scrollable_scroll_a5(DIALOG *d, int32_t listsize, int32_t *index, int32_t *offset, ALLEGRO_FONT *fnt)
+{
+    int32_t height = (d->h-3) / al_get_font_line_height(fnt);
+    
+    if(listsize <= 0)
+    {
+        *index = *offset = 0;
+        return;
+    }
+    
+    // check selected item
+    if(*index < 0)
+        *index = 0;
+    else if(*index >= listsize)
+        *index = listsize - 1;
+        
+    // check scroll position
+    while((*offset > 0) && (*offset + height > listsize))
+        (*offset)--;
+        
+    if(*offset >= *index)
+    {
+        if(*index < 0)
+            *offset = 0;
+        else
+            *offset = *index;
+    }
+    else
+    {
+        while((*offset + height - 1) < *index)
+            (*offset)++;
+    }
+}
+bool _handle_jwin_listbox_click_a5(DIALOG *d)
+{
+    ListData *data = (ListData *)d->dp;
+    char *sel = (char *)d->dp2;
+    int32_t listsize, height;
+    int32_t i, j;
+
+    data->listFunc(-1, &listsize);
+
+    if(!listsize)
+        return false;
+        
+    height = (d->h-3) / al_get_font_line_height(*data->a5font);
+    
+    i = MID(0, ((gui_mouse_y() - d->y - 4) / al_get_font_line_height(*data->a5font)),
+            ((d->h-3) / al_get_font_line_height(*data->a5font) - 1));
+    i += d->d2;
+    
+    if(i < d->d2)
+        i = d->d2;
+    else
+    {
+        if(i > d->d2 + height-1)
+            i = d->d2 + height-1;
+            
+        if(i >= listsize)
+            i = listsize-1;
+    }
+    
+    if(gui_mouse_y() <= d->y)
+        i = MAX(i-1, 0);
+    else if(gui_mouse_y() >= d->y+d->h)
+        i = MIN(i+1, listsize-1);
+        
+    if(i != d->d1)
+    {
+        if(sel)
+        {
+            if(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG))
+            {
+                if((key_shifts & KB_SHIFT_FLAG) || (d->flags & D_INTERNAL))
+                {
+                    for(j=MIN(i, d->d1); j<=MAX(i, d->d1); j++)
+                        sel[j] = TRUE;
+                }
+                else
+                    sel[i] = TRUE;
+            }
+        }
+        
+        d->d1 = i;
+        i = d->d2;
+		
+        _handle_jwin_scrollable_scroll_a5(d, listsize, &d->d1, &d->d2, *data->a5font);
+        
+        object_message(d, MSG_DRAW, 0);
+		update_hw_screen(true);
+        return true;
+    }
+	return false;
+}
 void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type)
 {
 	int32_t pos, len;
@@ -986,7 +1083,100 @@ void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset,
 		dotted_rect_a5(d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, jwin_a5_pal(jcTEXTFG), jwin_a5_pal(jcTEXTBG));
 }
 
-//Texts
+void _jwin_draw_listbox_a5(DIALOG *d,bool abc)
+{
+    int32_t height, listsize, i, len, bar, x, y, w;
+    ALLEGRO_COLOR fg, bg;
+    char *sel = (char*)d->dp2;
+    char s[1024] = {0};
+    ListData *data = (ListData *)d->dp;
+	
+	ALLEGRO_FONT* oldfont = a5font;
+	a5font = *data->a5font;
+	int fh = al_get_font_line_height(a5font);
+
+    data->listFunc(-1, &listsize);
+    height = (d->h-3) / fh;
+    bar = (listsize > height);
+    w = (bar ? d->w-21 : d->w-5);
+    ALLEGRO_COLOR fg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_FG : jcTEXTFG);
+    ALLEGRO_COLOR bg_color = jwin_a5_pal((d->flags & D_DISABLED) ? jcDISABLED_BG : jcTEXTBG);
+
+	al_draw_filled_rectangle(d->x, d->y, d->x + d->w, d->y + d->h + 2 + fh, jwin_a5_pal(jcBOX));
+	/* draw frame, maybe with scrollbar */
+	_jwin_draw_scrollable_frame_a5(d, listsize, d->d2, height, (d->flags & D_USER) ? 1 : 0);
+
+	al_draw_filled_rectangle(d->x+2,  d->y+2, d->x+w+3, d->y+4, bg_color);
+	al_draw_vline(d->x+2, d->y+4, d->y+d->h-2, bg_color);
+	al_draw_vline(d->x+3, d->y+4, d->y+d->h-2, bg_color);
+	al_draw_vline(d->x+w+1, d->y+4, d->y+d->h-2, bg_color);
+	al_draw_vline(d->x+w+2, d->y+4, d->y+d->h-2, bg_color);
+	
+    /* draw box contents */
+    for(i=0; i<height; i++)
+    {
+        if(d->d2+i < listsize)
+        {
+            if(d->d2+i == d->d1 && !(d->flags & D_DISABLED))
+            {
+                fg = jwin_a5_pal(jcSELFG);
+                bg = jwin_a5_pal(jcSELBG);
+            }
+            else if((sel) && (sel[d->d2+i]))
+            {
+                fg = jwin_a5_pal(jcMEDDARK);
+                bg = jwin_a5_pal(jcSELBG);
+            }
+            else
+            {
+                fg = fg_color;
+                bg = bg_color;
+            }
+
+            strncpy(s, data->listFunc(i+d->d2, NULL), 1023);
+            x = d->x + 4;
+            y = d->y + 4 + i*fh;
+            
+            al_draw_filled_rectangle(x, y, x+8, y+fh, bg);
+            x += 8;
+            len = (int32_t)strlen(s);
+            
+            while(len > 0 && al_get_text_width(a5font, s) >= d->w - (bar ? 26 : 10))
+            {
+                len--;
+                s[len] = 0;
+            }
+            
+	        jwin_textout_a5(a5font, fg, x, y, 0, s, bg);
+	        x += al_get_text_width(a5font, s);
+            
+	        if(x <= d->x+w)
+	            al_draw_filled_rectangle(x, y, d->x+w+1, y+fh, bg);
+	    }
+	    else
+	        al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
+	                 d->x+w+3, d->y+4+(i+1)*fh, bg_color);
+	}
+	
+	if(d->y+4+i*fh <= d->y+d->h-3)
+	    al_draw_filled_rectangle(d->x+2, d->y+4+i*fh,
+	             d->x+w+3, d->y+d->h-2, bg_color);
+
+	if (abc)
+	{
+		al_draw_filled_rectangle(d->x + 1, d->y + d->h + 2, d->x + d->w - 1, d->y + d->h + 2 + fh, bg_color);
+		strncpy(s, abc_keypresses, 1023);
+		char* s2 = s;
+		int32_t tw = (d->w - 1);
+		while (al_get_text_width(a5font, s2) >= tw)
+			++s2;
+		jwin_textout_a5(a5font, fg_color, d->x + 1, d->y + d->h + 2, 0, s2, bg_color);
+	}
+	
+	a5font = oldfont;
+}
+
+////Texts
 
 int32_t gui_textout_ln_a5(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos)
 {
@@ -1164,6 +1354,7 @@ int32_t gui_text_height_a5(ALLEGRO_FONT* f, const char *s)
 
 //Special full dialogs
 
+////SelColor
 const char* rowpref(int32_t row)
 {
 	static const char *lcol = "Level Colors", *bosscol = "Boss Colors", *thmcol = "Theme Colors", *nlcol="";
@@ -1979,3 +2170,629 @@ int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t)
     a5font = oldfont;
 	return rval;
 }
+
+int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+    ListData *data = (ListData *)d->dp;
+    int32_t listsize, i, bottom, height, bar, orig;
+    char *sel = (char *)d->dp2;
+    int32_t redraw = FALSE;
+    
+    switch(msg)
+    {
+    
+    case MSG_START:
+        data->listFunc(-1, &listsize);
+        _handle_jwin_scrollable_scroll_a5(d, listsize, &d->d1, &d->d2, *data->a5font);
+        break;
+        
+    case MSG_DRAW:
+        _jwin_draw_listbox_a5(d,false);
+        break;
+        
+    case MSG_CLICK:
+        data->listFunc(-1, &listsize);
+        height = (d->h-3) / al_get_font_line_height(*data->a5font);
+        bar = (listsize > height);
+        
+        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        {
+            if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
+            {
+                for(i=0; i<listsize; i++)
+                {
+                    if(sel[i])
+                    {
+                        redraw = TRUE;
+                        sel[i] = FALSE;
+                    }
+                }
+                
+                if(redraw)
+                {
+                    object_message(d, MSG_DRAW, 0);
+                }
+            }
+            
+            if(_handle_jwin_listbox_click_a5(d)) GUI_EVENT(d, geCHANGE_SELECTION);
+            
+            bool rightClicked=(gui_mouse_b()&2)!=0;
+            while(gui_mouse_b())
+            {
+                broadcast_dialog_message(MSG_IDLE, 0);
+                d->flags |= D_INTERNAL;
+				if(_handle_jwin_listbox_click_a5(d))
+				{
+					d->flags &= ~D_INTERNAL;
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				}
+				d->flags &= ~D_INTERNAL;
+                
+				update_hw_screen();
+            }
+            
+            if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
+            {
+                typedef void (*funcType)(int32_t /* index */, int32_t /* x */, int32_t /* y */);
+                funcType func=reinterpret_cast<funcType>(d->dp3);
+                func(d->d1, gui_mouse_x(), gui_mouse_y());
+            }
+            
+            if(d->flags & D_USER)
+            {
+                if(listsize)
+                {
+                    clear_keybuf();
+                    return D_CLOSE;
+                }
+            }
+        }
+        else
+        {
+            _handle_jwin_scrollable_scroll_click_a5(d, listsize, &d->d2, *data->a5font);
+        }
+        
+        break;
+        
+    case MSG_DCLICK:
+        // Ignore double right-click
+        if((gui_mouse_b()&2)!=0)
+            break;
+
+        data->listFunc(-1, &listsize);
+        height = (d->h-3) / al_get_font_line_height(*data->a5font);
+        bar = (listsize > height);
+        
+        if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+        {
+            if(d->flags & D_EXIT)
+            {
+                if(listsize)
+                {
+                    i = d->d1;
+                    object_message(d, MSG_CLICK, 0);
+                    
+                    if(i == d->d1)
+                        return D_CLOSE;
+                }
+            }
+        }
+        
+        break;
+        
+    case MSG_KEY:
+        data->listFunc(-1, &listsize);
+
+        if((listsize) && (d->flags & D_EXIT))
+            return D_CLOSE;
+            
+        break;
+        
+    case MSG_WANTFOCUS:
+        return D_WANTFOCUS;
+        
+    case MSG_WANTWHEEL:
+        return 1;
+
+    case MSG_WHEEL:
+        data->listFunc(-1, &listsize);
+        height = (d->h-4) / al_get_font_line_height(*data->a5font);
+        
+        if(height < listsize)
+        {
+            int32_t delta = (height > 3) ? 3 : 1;
+            
+            if(c > 0)
+            {
+                i = MAX(0, d->d2-delta);
+            }
+            else
+            {
+                i = MIN(listsize-height, d->d2+delta);
+            }
+            
+            if(i != d->d2)
+            {
+                d->d2 = i;
+                object_message(d, MSG_DRAW, 0);
+				GUI_EVENT(d, geCHANGE_SELECTION);
+            }
+        }
+        
+        break;
+        
+    case MSG_CHAR:
+        data->listFunc(-1,&listsize);
+
+        if(listsize)
+        {
+            c >>= 8;
+            
+            bottom = d->d2 + (d->h-3)/al_get_font_line_height(*data->a5font) - 1;
+            
+            if(bottom >= listsize-1)
+                bottom = listsize-1;
+                
+            orig = d->d1;
+            
+            if(c == KEY_UP)
+                d->d1--;
+            else if(c == KEY_DOWN)
+                d->d1++;
+            else if(c == KEY_HOME)
+                d->d1 = 0;
+            else if(c == KEY_END)
+                d->d1 = listsize-1;
+            else if(c == KEY_PGUP)
+            {
+                if(d->d1 > d->d2)
+                    d->d1 = d->d2;
+                else
+                    d->d1 -= (bottom - d->d2);
+            }
+            else if(c == KEY_PGDN)
+            {
+                if(d->d1 < bottom)
+                    d->d1 = bottom;
+                else
+                    d->d1 += (bottom - d->d2);
+            }
+            else
+                return D_O_K;
+                
+            if(sel)
+            {
+                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG)))
+                {
+                    for(i=0; i<listsize; i++)
+                        sel[i] = FALSE;
+                }
+                else if(key_shifts & KB_SHIFT_FLAG)
+                {
+                    for(i=MIN(orig, d->d1); i<=MAX(orig, d->d1); i++)
+                    {
+                        if(key_shifts & KB_CTRL_FLAG)
+                            sel[i] = (i != d->d1);
+                        else
+                            sel[i] = TRUE;
+                    }
+                }
+            }
+            
+            /* if we changed something, better redraw... !Also bounds the index! */
+            _handle_jwin_scrollable_scroll_a5(d, listsize, &d->d1, &d->d2, *data->a5font);
+			
+			GUI_EVENT(d, geCHANGE_SELECTION);
+            
+			scare_mouse();
+            object_message(d, MSG_DRAW, 0);
+            unscare_mouse();
+            return D_USED_CHAR;
+        }
+        
+        break;
+    }
+    
+    return D_O_K;
+}
+int32_t jwin_do_abclist_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+    ListData *data = (ListData *)d->dp;
+    int32_t listsize, i, bottom, height, bar, orig, h;
+	int32_t ret = D_O_K;
+	bool revert_size = false;
+	if((d->flags & D_RESIZED) == 0)
+	{
+		h = d->h;
+		d->h -= al_get_font_line_height(*data->a5font);
+		d->flags |= D_RESIZED;
+		revert_size = true;
+    }
+	char *sel = (char *)d->dp2;
+    int32_t redraw = FALSE;
+    
+    switch(msg)
+    {
+    
+    case MSG_START:
+        data->listFunc(-1, &listsize);
+        _handle_jwin_scrollable_scroll_a5(d, listsize, &d->d1, &d->d2, *data->a5font);
+        break;
+        
+    case MSG_DRAW:
+        _jwin_draw_listbox_a5(d,true);
+        break;
+        
+    case MSG_CLICK:
+		if(gui_mouse_y() > (d->y+d->h-1))
+		{
+			// if(gui_mouse_y() > (d->y+d->h+2))
+				// ;//Clicked on the box displaying the patternmatch
+			// else ;//Clicked between the lister and patternmatch
+		}
+		else //Clicked the lister
+		{
+			data->listFunc(-1, &listsize);
+			height = (d->h-3) / al_get_font_line_height(*data->a5font);
+			bar = (listsize > height);
+			
+			if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+			{
+				if((sel) && (!(key_shifts & KB_CTRL_FLAG)))
+				{
+					for(i=0; i<listsize; i++)
+					{
+						if(sel[i])
+						{
+							redraw = TRUE;
+							sel[i] = FALSE;
+						}
+					}
+					
+					if(redraw)
+					{
+						object_message(d, MSG_DRAW, 0);
+					}
+				}
+				
+				if(_handle_jwin_listbox_click_a5(d)) GUI_EVENT(d, geCHANGE_SELECTION);
+				
+				bool rightClicked=(gui_mouse_b()&2)!=0;
+				while(gui_mouse_b())
+				{
+					broadcast_dialog_message(MSG_IDLE, 0);
+					d->flags |= D_INTERNAL;
+					if(_handle_jwin_listbox_click_a5(d))
+					{
+						d->flags &= ~D_INTERNAL;
+						GUI_EVENT(d, geCHANGE_SELECTION);
+					}
+					d->flags &= ~D_INTERNAL;
+					
+					update_hw_screen();
+				}
+				
+				if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
+				{
+					typedef void (*funcType)(int32_t /* index */, int32_t /* x */, int32_t /* y */);
+					funcType func=reinterpret_cast<funcType>(d->dp3);
+					func(d->d1, gui_mouse_x(), gui_mouse_y());
+				}
+				
+				if(d->flags & D_USER)
+				{
+					if(listsize)
+					{
+						clear_keybuf();
+						ret = D_CLOSE;
+					}
+				}
+			}
+			else
+			{
+				_handle_jwin_scrollable_scroll_click_a5(d, listsize, &d->d2, *data->a5font);
+			}
+		}
+        break;
+        
+    case MSG_DCLICK:
+        // Ignore double right-click
+        if((gui_mouse_b()&2)!=0)
+            break;
+		
+        if(gui_mouse_y() > (d->y+d->h-1))
+		{
+			// if(gui_mouse_y() > (d->y+d->h+2))
+				// ;//Clicked on the box displaying the patternmatch
+			// else ;//Clicked between the lister and patternmatch
+		}
+		else //Clicked the lister
+		{
+			data->listFunc(-1, &listsize);
+			height = (d->h-3) / al_get_font_line_height(*data->a5font);
+			bar = (listsize > height);
+			
+			if((!bar) || (gui_mouse_x() < d->x+d->w-18))
+			{
+				if(d->flags & D_EXIT)
+				{
+					if(listsize)
+					{
+						i = d->d1;
+						object_message(d, MSG_CLICK, 0);
+						
+						if(i == d->d1)
+							ret = D_CLOSE;
+					}
+				}
+			}
+		}
+        break;
+        
+    case MSG_KEY:
+        data->listFunc(-1, &listsize);
+
+        if((listsize) && (d->flags & D_EXIT))
+            ret = D_CLOSE;
+            
+        break;
+        
+    case MSG_WANTFOCUS:
+        ret = D_WANTFOCUS;
+		break;
+        
+    case MSG_WANTWHEEL:
+        return 1;
+
+    case MSG_WHEEL:
+        data->listFunc(-1, &listsize);
+        height = (d->h-4) / al_get_font_line_height(*data->a5font);
+        
+        if(height < listsize)
+        {
+            int32_t delta = (height > 3) ? 3 : 1;
+            
+            if(c > 0)
+            {
+                i = MAX(0, d->d2-delta);
+            }
+            else
+            {
+                i = MIN(listsize-height, d->d2+delta);
+            }
+            
+            if(i != d->d2)
+            {
+                d->d2 = i;
+                object_message(d, MSG_DRAW, 0);
+				GUI_EVENT(d, geCHANGE_SELECTION);
+            }
+        }
+        
+        break;
+        
+    case MSG_CHAR:
+        data->listFunc(-1,&listsize);
+
+        if(listsize)
+        {
+            c >>= 8;
+            
+            bottom = d->d2 + (d->h-3)/al_get_font_line_height(*data->a5font) - 1;
+            
+            if(bottom >= listsize-1)
+                bottom = listsize-1;
+                
+            orig = d->d1;
+            
+            if(c == KEY_UP)
+                d->d1--;
+            else if(c == KEY_DOWN)
+                d->d1++;
+            else if(c == KEY_HOME)
+                d->d1 = 0;
+            else if(c == KEY_END)
+                d->d1 = listsize-1;
+            else if(c == KEY_PGUP)
+            {
+                if(d->d1 > d->d2)
+                    d->d1 = d->d2;
+                else
+                    d->d1 -= (bottom - d->d2);
+            }
+            else if(c == KEY_PGDN)
+            {
+                if(d->d1 < bottom)
+                    d->d1 = bottom;
+                else
+                    d->d1 += (bottom - d->d2);
+            }
+            else
+                break; //return D_O_K;
+                
+            if(sel)
+            {
+                if(!(key_shifts & (KB_SHIFT_FLAG | KB_CTRL_FLAG)))
+                {
+                    for(i=0; i<listsize; i++)
+                        sel[i] = FALSE;
+                }
+                else if(key_shifts & KB_SHIFT_FLAG)
+                {
+                    for(i=MIN(orig, d->d1); i<=MAX(orig, d->d1); i++)
+                    {
+                        if(key_shifts & KB_CTRL_FLAG)
+                            sel[i] = (i != d->d1);
+                        else
+                            sel[i] = TRUE;
+                    }
+                }
+            }
+            
+            /* if we changed something, better redraw... */
+            _handle_jwin_scrollable_scroll_a5(d, listsize, &d->d1, &d->d2, *data->a5font);
+			
+			GUI_EVENT(d, geCHANGE_SELECTION);
+			
+            scare_mouse();
+            object_message(d, MSG_DRAW, 0);
+            unscare_mouse();
+            ret = D_USED_CHAR;
+        }
+        
+        break;
+    }
+    if(revert_size)
+	{
+		d->h = h;
+		d->flags &= ~D_RESIZED;
+    }
+	return ret;
+}
+int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c)
+{
+    ListData *data = (ListData *)d->dp;
+    if(msg == MSG_START) wipe_abc_keypresses();
+    
+	if(msg==MSG_CHAR)
+	{
+		if(abc_patternmatch) // Search style pattern match. 
+		{
+			if(((c&0xFF) > 31) && ((c&0xFF) < 127))
+			{
+				int32_t max,dummy,h;
+				
+				h = ((d->h-3) / al_get_font_line_height(*data->a5font))-1;
+				if ( isalpha(c&0xFF) ) c = toupper(c&0xFF);
+				for ( int32_t q = 0; q < 1023; ++q ) 
+				{ 
+					if ( !(abc_keypresses[q]) )
+					{
+						abc_keypresses[q] = (char)c;
+						break; 
+					}
+				}
+				data->listFunc(-1, &max);
+
+				int32_t cur = d->d1;
+				int32_t charpos = 0; int32_t listpos = 0; int32_t lastmatch = -1;
+				char tmp[1024] = { 0 };
+				char lsttmp[1024] = { 0 };
+				int32_t lastmatches[32768] = {0};
+				for ( int32_t a = 0; a < 32768; ++a ) lastmatches[a] = -1; 
+				int32_t lmindx = 0;
+				
+				bool foundmatch = false;
+				bool numsearch = true;
+				for ( int32_t q = 0; q < 1023; ++q ) 
+				{
+					if(!abc_keypresses[q]) break;
+					if(!isdigit(abc_keypresses[q]))
+					{
+						if(q == 0 && abc_keypresses[q] == '-')
+							continue;
+						numsearch = false;
+						break; 
+					}
+				}
+				if(numsearch) //Indexed search, first
+				{
+					int32_t num = atoi(abc_keypresses);
+					//Find a different indexing type in the strings?
+					if(!foundmatch)
+					{
+						char buf[16];
+						if(num < 0) sprintf(buf, "(%04d)", num);
+						else sprintf(buf, "(%03d)", num);
+						std::string cmp = buf;
+						for(int32_t listpos = 0; listpos < max; ++listpos)
+						{
+							std::string str((data->listFunc(listpos,&dummy)));
+							size_t trimpos = str.find_last_not_of("-(0123456789)");
+							if(trimpos != std::string::npos) ++trimpos;
+							str.erase(0, trimpos);
+							if(cmp == str)
+							{
+								d->d1 = listpos;
+								d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+								foundmatch = true;
+								break;
+							}
+						}
+					}
+				}
+				if(!foundmatch)
+				{
+					strcpy(tmp, abc_keypresses);
+					for ( int32_t listpos = 0; listpos < max; ++listpos )
+					{
+						memset(lsttmp, 0, 1024);
+						strcpy(lsttmp, ((data->listFunc(listpos,&dummy))));
+						
+						if ( !(strnicmp(lsttmp, tmp, strlen(tmp))))
+						{
+							d->d1 = listpos;
+							d->d2 = zc_max(zc_min(listpos-(h>>1), max-h), 0);
+							foundmatch = true;
+							break;
+						}
+					}
+				}
+				if(foundmatch)
+					GUI_EVENT(d, geCHANGE_SELECTION);
+				jwin_do_abclist_proc_a5(MSG_DRAW,d,0);
+				if ( gui_mouse_b() ) wipe_abc_keypresses();
+				return foundmatch ? D_USED_CHAR : D_O_K;
+			}
+			else if((c&0xFF) == 8) //backspace
+			{
+				for ( int32_t q = 1023; q >= 0; --q )
+				{
+					if ( abc_keypresses[q] ) 
+					{
+						abc_keypresses[q] = '\0'; break;
+					}
+				}
+				jwin_do_abclist_proc_a5(MSG_DRAW,d,0);
+				return D_USED_CHAR;
+			}
+		}
+		else // Windows Explorer style jumping
+		{
+			if(isalpha(c&0xFF) || isdigit(c&0xFF))
+			{
+				int32_t max,dummy,h,i;
+				
+				h = (d->h-3) / al_get_font_line_height(*data->a5font);
+				c = toupper(c&0xFF);
+
+				data->listFunc(-1, &max);
+
+				int32_t cur = d->d1;
+				bool foundmatch = false;
+				for(i=cur+1; (cur ? (i != cur) : (cur < max)); ++i) //don't infinite loop this. 
+				{
+					//al_trace("loop running\n");
+					if(i>=max) i=0;
+					if(toupper((data->listFunc(i,&dummy))[0]) == c)
+					{
+						d->d1 = i;
+						d->d2 = zc_max(zc_min(i-(h>>1), max-h), 0);
+						foundmatch = true;
+						break;
+					}
+				}
+				
+				jwin_list_proc_a5(MSG_DRAW,d,0);
+				return foundmatch ? D_USED_CHAR : D_O_K;
+			}
+		}
+	}
+	
+	if(gui_mouse_b())
+		wipe_abc_keypresses();
+	return ((abc_patternmatch) ? jwin_do_abclist_proc_a5(msg,d,c) : jwin_list_proc_a5(msg,d,c));
+}
+
+
+

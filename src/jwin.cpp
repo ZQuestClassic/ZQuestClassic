@@ -3886,7 +3886,7 @@ static void _handle_jwin_scrollable_scroll(DIALOG *d, int32_t listsize, int32_t 
   *  rest_callback() routine to keep dialogs animating nice and smoothly.
   */
 
-static void idle_cb()
+void idle_cb()
 {
     broadcast_dialog_message(MSG_IDLE, 0);
 }
@@ -6507,8 +6507,8 @@ int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32
 /*****************************************/
 /***********  drop list proc  ************/
 /*****************************************/
-int32_t last_droplist_sel = -1;
-static int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t)
+
+int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t)
 {
     if(msg==MSG_CLICK || msg==MSG_DCLICK)
         return D_CLOSE;
@@ -6516,13 +6516,14 @@ static int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t)
     return D_O_K;
 }
 
+int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 static DIALOG droplist_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp)              (dp2)   (dp3)*/
-    { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-    { d_list_proc,       0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL,             NULL,   NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC, (void*)close_dlg, NULL,   NULL },
-    { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
+	/* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp)              (dp2)   (dp3)*/
+	{ d_dropcancel_proc,    0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
+	{ jwin_abclist_proc_a5, 0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL,             NULL,   NULL },
+	{ d_keyboard_proc,      0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC, (void*)close_dlg, NULL,   NULL },
+	{ NULL,                 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
 };
 
 static int32_t droplist(DIALOG *d)
@@ -6536,13 +6537,12 @@ static int32_t droplist(DIALOG *d)
 	
 	data->listFunc(-1, &listsize);
 	y = d->y + d->h + yoff;
-	h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
+	h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * al_get_font_line_height(*data->a5font) + 8;
 	
 	if(y+h >= zq_screen_h)
 	{
 		y = d->y - h;
 	}
-	
 	
 	x = d->x + xoff;
 	w = d->w;
@@ -6550,7 +6550,7 @@ static int32_t droplist(DIALOG *d)
 	
 	for(int32_t i=0; i<listsize; ++i)
 	{
-		w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
+		w=zc_min(max_w,zc_max(w,al_get_text_width(*data->a5font,data->listFunc(i, NULL))+39));
 	}
 	
 	if(x+w >= zq_screen_w)
@@ -6559,7 +6559,7 @@ static int32_t droplist(DIALOG *d)
 	}
 	
 	droplist_dlg[1] = *d;
-	droplist_dlg[1].proc  = &jwin_abclist_proc;
+	droplist_dlg[1].proc = &jwin_abclist_proc_a5;
 	droplist_dlg[1].flags = D_EXIT + D_USER;
 	droplist_dlg[1].x  = 0;
 	droplist_dlg[1].y  = 0;
@@ -6573,6 +6573,7 @@ static int32_t droplist(DIALOG *d)
 	droplist_dlg[0].w = zq_screen_w;
 	droplist_dlg[0].h = zq_screen_h;
 	
+	popup_zqdialog_start_a5(x,y,w,h);
 	popup_zqdialog_start(x,y,w,h);
 	int ret = d1;
 	if(new_popup_dlg(droplist_dlg,1)==1)
@@ -6580,6 +6581,7 @@ static int32_t droplist(DIALOG *d)
 		ret = droplist_dlg[1].d1;
 	}
 	popup_zqdialog_end();
+	popup_zqdialog_end_a5();
 	return ret;
 }
 

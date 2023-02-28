@@ -72,10 +72,10 @@ public:
 	ListData& operator+=(ListData const& other);
 
 	/* Returns a jwin ListData object for use in DIALOGs. */
-	inline ::ListData getJWin(FONT** font) const
+	inline ::ListData getJWin(FONT** font, ALLEGRO_FONT** f5) const
 	{
 		// Not actually const, but it's never modified.
-		return ::ListData(jwinWrapper, font, const_cast<ListData*>(this));
+		return ::ListData(jwinWrapper, font, f5, const_cast<ListData*>(this));
 	}
 
 	inline size_t size() const
