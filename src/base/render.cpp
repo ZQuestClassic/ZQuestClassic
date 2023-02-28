@@ -252,6 +252,28 @@ void clear_zqdialog_a4()
 	if(active_a4_dlg_rti)
 		clear_to_color(active_a4_dlg_rti->a4_bitmap, active_a4_dlg_rti->clear_color());
 }
+
+void get_zqdialog_offset(int&x, int&y, int&w, int&h)
+{
+	if(active_dlg_rti)
+	{
+		x = active_dlg_rti->transform.x;
+		y = active_dlg_rti->transform.y;
+		if(active_dlg_rti->bitmap)
+		{
+			w = al_get_bitmap_width(active_dlg_rti->bitmap);
+			h = al_get_bitmap_height(active_dlg_rti->bitmap);
+		}
+	}
+	else
+	{
+		x=0;
+		y=0;
+		w=zq_screen_w;
+		h=zq_screen_h;
+	}
+}
+
 void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 {
 	if(w < 0) w = zq_screen_w;

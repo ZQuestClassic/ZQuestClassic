@@ -69,6 +69,7 @@ extern BITMAP* zqdialog_bg_bmp;
 void save_debug_bitmaps(char const* pref = nullptr);
 int get_zqdialog_a4_clear_color();
 void clear_zqdialog_a4();
+void get_zqdialog_offset(int&x, int&y, int&w, int&h);
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0);
 void popup_zqdialog_end();
 void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c = 0);

@@ -6508,12 +6508,8 @@ int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32
 /***********  drop list proc  ************/
 /*****************************************/
 int32_t last_droplist_sel = -1;
-static int32_t d_dropcancel_proc(int32_t msg,DIALOG *d,int32_t c)
+static int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    d=d;
-    c=c;
-    
     if(msg==MSG_CLICK || msg==MSG_DCLICK)
         return D_CLOSE;
         
@@ -6531,57 +6527,60 @@ static DIALOG droplist_dlg[] =
 
 static int32_t droplist(DIALOG *d)
 {
-    ListData *data = (ListData *)d->dp;
-    int32_t d1 = d->d1;
-    int32_t listsize, x, y, w, h, max_w;
-	auto oz = gui_mouse_z();
+	ListData *data = (ListData *)d->dp;
+	int32_t d1 = d->d1;
+	int32_t listsize, x, y, w, h, max_w;
 
-    data->listFunc(-1, &listsize);
-    y = d->y + d->h;
-    h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
-    
-    if(y+h >= zq_screen_h)
-    {
-        y = d->y - h;
-    }
-    
-    x = d->x;
-    w = d->w;
-    max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
-    
-    for(int32_t i=0; i<listsize; ++i)
-    {
-        w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
-    }
-    
-    if(x+w >= zq_screen_w)
-    {
+	int xoff,yoff,mw,mh;
+	get_zqdialog_offset(xoff,yoff,mw,mh);
+	
+	data->listFunc(-1, &listsize);
+	y = d->y + d->h + yoff;
+	h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
+	
+	if(y+h >= zq_screen_h)
+	{
+		y = d->y - h;
+	}
+	
+	
+	x = d->x + xoff;
+	w = d->w;
+	max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
+	
+	for(int32_t i=0; i<listsize; ++i)
+	{
+		w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
+	}
+	
+	if(x+w >= zq_screen_w)
+	{
 		x=zq_screen_w-w;
-    }
-    
-    droplist_dlg[1] = *d;
-    droplist_dlg[1].proc  = &jwin_abclist_proc;
-    droplist_dlg[1].flags = D_EXIT + D_USER;
-    droplist_dlg[1].x  = x;
-    droplist_dlg[1].y  = y;
-    droplist_dlg[1].w  = w;
-    droplist_dlg[1].h  = h;
-    droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
-    
-    // cancel
-    droplist_dlg[0].x = 0;
-    droplist_dlg[0].y = 0;
-    droplist_dlg[0].w = zq_screen_w;
-    droplist_dlg[0].h = zq_screen_h;
-    
-    if(popup_zqdialog(droplist_dlg,1)==1)
-    {
-		position_mouse_z(oz);
-        return droplist_dlg[1].d1;
-    }
-    
-	position_mouse_z(oz);
-    return d1;
+	}
+	
+	droplist_dlg[1] = *d;
+	droplist_dlg[1].proc  = &jwin_abclist_proc;
+	droplist_dlg[1].flags = D_EXIT + D_USER;
+	droplist_dlg[1].x  = 0;
+	droplist_dlg[1].y  = 0;
+	droplist_dlg[1].w  = w;
+	droplist_dlg[1].h  = h;
+	droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
+	
+	// cancel
+	droplist_dlg[0].x = -x;
+	droplist_dlg[0].y = -y;
+	droplist_dlg[0].w = zq_screen_w;
+	droplist_dlg[0].h = zq_screen_h;
+	
+	popup_zqdialog_start(x,y,w,h);
+	int ret = d1;
+	if(new_popup_dlg(droplist_dlg,1)==1)
+	{
+		ret = droplist_dlg[1].d1;
+	}
+	popup_zqdialog_end();
+	return ret;
 }
 
 /* jwin_droplist_proc:
