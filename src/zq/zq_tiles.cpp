@@ -50,6 +50,8 @@ extern zcmodule moduledata;
 #define HIDE_BLANK (show_only_unused_tiles&4)
 #define HIDE_8BIT_MARKER (show_only_unused_tiles&8)
 
+#define RECTSEL_TIME (1<<5)
+
 extern void large_dialog(DIALOG *d);
 static void massRecolorReset4Bit();
 static void massRecolorReset8Bit();
@@ -5370,7 +5372,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 			int32_t selyl = sely* 2;
 			int32_t w = 32;
 			
-			if(f&8)
+			if(f&RECTSEL_TIME)
 			{
 				rect(screen3,selxl,selyl,selxl+((selwidth-1)*w)+(w-1),selyl+((selheight-1)*w)+(w-1),white);
 			}
@@ -16203,14 +16205,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		
 REDRAW:
 
-		if((f%16)==0 || InvalidStatic)
-			redraw=true;
+		redraw=true;
 			
 		if(redraw)
 		{
 			draw_tiles(first,cs,f);
 		}
-		if(f&8)
+		if(f&RECTSEL_TIME)
 		{
 			if(rect_sel)
 			{
@@ -17062,7 +17063,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			
 		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 		
-		if(f&8)
+		if(f&RECTSEL_TIME)
 		{
 			int32_t x,y;
 			scare_mouse();
@@ -17891,7 +17892,7 @@ REDRAW:
 		
 		combo_info(tile,tile2,cs,copy,copycnt,page,6);
 		
-		if(f&8)
+		if(f&RECTSEL_TIME)
 		{
 			int32_t x,y;
 			scare_mouse();
@@ -20836,14 +20837,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		
 REDRAW_DMAP_SELTILE:
 
-		if((f%16)==0 || InvalidStatic)
-			redraw=true;
+		redraw=true;
 			
 		if(redraw)
 		{
 			draw_tiles(first,cs,f);
 		}
-		if(f&8)
+		if(f&RECTSEL_TIME)
 		{
 			if(rect_sel)
 			{
