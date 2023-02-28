@@ -220,6 +220,8 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c);
+bool editproc_special_key(int32_t c);
+bool editproc_combined_key(int32_t c);
 int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to hex. numbers */
 int32_t jwin_numedit_zscriptint_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers,  bound to ZScript int32_t (no decimals) */
 int32_t jwin_numedit_byte_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
@@ -228,6 +230,7 @@ int32_t jwin_numedit_short_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricte
 int32_t jwin_numedit_sshort_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to int16_t (16b) */
 int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers */
 //
+void trim_trailing_0s(char* str, bool leaveDec = false);
 int32_t jwin_swapbtn_proc(int32_t msg,DIALOG *d,int32_t c); //Button to swap numedit styles
 int32_t jwin_numedit_swap_byte_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to unsigned byte, dec and hex modes
 int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int16_t, dec and hex modes

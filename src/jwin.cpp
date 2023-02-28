@@ -2593,7 +2593,7 @@ int32_t jwin_numedit_sbyte_proc(int32_t msg,DIALOG *d,int32_t c)
 
 // Special numedit procs
 
-void trim_trailing_0s(char* str, bool leaveDec = false)
+void trim_trailing_0s(char* str, bool leaveDec)
 {
 	bool foundDec = false;
 	for(int32_t q = 0; str[q]; ++q)

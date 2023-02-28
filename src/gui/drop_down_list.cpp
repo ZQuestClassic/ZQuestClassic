@@ -109,11 +109,6 @@ void DropDownList::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
-void DropDownList::applyFont(FONT* newFont)
-{
-	Widget::applyFont(newFont);
-}
-
 void DropDownList::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);

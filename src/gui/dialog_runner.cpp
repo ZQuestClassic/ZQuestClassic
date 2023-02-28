@@ -34,10 +34,7 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 		// and the return value from do_zqdialog() became the message.
 		// Some widgets don't have code to indicate that they need redrawn
 		// since the dialog would be closed and reopened in that case.
-		acquire_screen();
-		broadcast_dialog_message(MSG_DRAW, 0);
-		release_screen();
-		dr->redrawPending = false;
+		dr->forceDraw();
 		return D_O_K;
 	}
 	else

@@ -393,6 +393,10 @@ void Widget::pendDraw()
 {
 	if(owner) owner->pendDraw();
 }
+void Widget::forceDraw()
+{
+	if(owner) owner->forceDraw();
+}
 
 bool Widget::isConstructed()
 {

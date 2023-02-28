@@ -81,5 +81,16 @@ int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 int32_t jwin_droplist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 int32_t jwin_frame_proc_a5(int32_t msg, DIALOG *d, int32_t);
 
+int32_t jwin_swapbtn_proc_a5(int32_t msg, DIALOG* d, int32_t c);
+int32_t jwin_numedit_swap_byte_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_numedit_swap_sshort_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_numedit_swap_zsint_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_numedit_swap_zsint_nodec_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_numedit_swap_zsint2_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_vedit_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_edit_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_hexedit_proc_a5(int32_t msg,DIALOG *d,int32_t c);
+int32_t jwin_numedit_proc_a5(int32_t msg,DIALOG *d,int32_t c);
+
 #endif                                                      // _JWIN_H_
 

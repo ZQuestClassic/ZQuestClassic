@@ -358,9 +358,7 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
             if(!over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
-                unscare_mouse();
                 over=true;
                 
 				update_hw_screen();
@@ -371,9 +369,7 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
             if(over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-                unscare_mouse();
                 over=false;
                 
 				update_hw_screen();
@@ -395,9 +391,7 @@ bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char 
 			if(!over)
 			{
 				vsync();
-				scare_mouse();
 				jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
-				unscare_mouse();
 				over=true;
 				
 				update_hw_screen();
@@ -408,9 +402,7 @@ bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char 
 			if(over)
 			{
 				vsync();
-				scare_mouse();
 				jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-				unscare_mouse();
 				over=false;
 				
 				update_hw_screen();
@@ -422,9 +414,7 @@ bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char 
 	if(over)
 	{
 		vsync();
-		scare_mouse();
 		jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-		unscare_mouse();
 		
 		update_hw_screen();
 	}
@@ -868,10 +858,8 @@ void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_
 			if(down!=last_draw || redraw)
 			{
 				vsync();
-				scare_mouse();
 				d->proc(MSG_DRAW, d, 0);
 				draw_arrow_button_a5(xx, yy, 16, bh, obj==top_btn, down*3);
-				unscare_mouse();
 				last_draw = down;
 			}
 			
@@ -902,9 +890,7 @@ void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_
 				{
 					*offset = yy;
 					vsync();
-					scare_mouse();
 					d->proc(MSG_DRAW, d, 0);
-					unscare_mouse();
 				}
 			}
 			
@@ -932,9 +918,7 @@ void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_
 				if(yy != *offset)
 				{
 					*offset = yy;
-					scare_mouse();
 					d->proc(MSG_DRAW, d, 0);
-					unscare_mouse();
 				}
 				
 				// let other objects continue to animate
@@ -956,14 +940,12 @@ void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_
 	
 	if(last_draw==1)
 	{
-		scare_mouse();
 		draw_arrow_button_a5(xx, yy, 16, bh, obj==top_btn, 0);
-		unscare_mouse();
 	}
 }
 void _handle_jwin_scrollable_scroll_a5(DIALOG *d, int32_t listsize, int32_t *index, int32_t *offset, ALLEGRO_FONT *fnt)
 {
-    int32_t height = (d->h-3) / al_get_font_line_height(fnt);
+    int32_t height = (d->h-3) / (fnt ? al_get_font_line_height(fnt) : 1);
     
     if(listsize <= 0)
     {
@@ -1366,6 +1348,12 @@ int32_t gui_text_width_a5(ALLEGRO_FONT *f, const char *s)
 int32_t gui_text_height_a5(ALLEGRO_FONT* f, const char *s)
 {
 	return al_get_font_line_height(f) * (count_newline((uint8_t*)s) + 1);
+}
+
+int32_t al_char_length(ALLEGRO_FONT* f, char c)
+{
+	char buf[2] = {c,0};
+	return al_get_text_width(f,buf);
 }
 
 //Special full dialogs
@@ -1997,6 +1985,7 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
     int32_t selected=(d->flags&D_SELECTED)?1:0;
     int32_t last_draw;
     
+	int ret = D_O_K;
     switch(msg)
     {
 		case MSG_DRAW:
@@ -2014,13 +2003,15 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 		break;
 		
 		case MSG_WANTFOCUS:
-			return D_WANTFOCUS;
+			ret = D_WANTFOCUS;
+			break;
 			
 		case MSG_KEY:
 			/* close dialog? */
 			if(d->flags & D_EXIT)
 			{
-				return D_CLOSE;
+				ret = D_CLOSE;
+				break;
 			}
 			if(d->d2 == 1) //Insta-button
 			{
@@ -2030,9 +2021,7 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 			/* or just toggle */
 			d->flags ^= D_SELECTED;
 			GUI_EVENT(d, geCLICK);
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			break;
 			
 		case MSG_CLICK:
@@ -2043,12 +2032,15 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				{
 					GUI_EVENT(d, geCLICK);
 					if(d->flags & D_EXIT)
-						return D_CLOSE;
+					{
+						ret = D_CLOSE;
+						break;
+					}
 				}
 			}
 			else
 			{
-				last_draw = 0;
+				last_draw = -1;
 				
 				/* track the mouse until it is released */
 				while(gui_mouse_b())
@@ -2063,9 +2055,8 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 						else
 							d->flags &= ~D_SELECTED;
 							
-						scare_mouse();
 						object_message(d, MSG_DRAW, 0);
-						unscare_mouse();
+						update_hw_screen(true);
 						last_draw = down;
 					}
 					
@@ -2082,22 +2073,150 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 					if(d->flags&D_EXIT)
 					{
 						d->flags &= ~D_SELECTED;
-						scare_mouse();
 						object_message(d, MSG_DRAW, 0);
-						unscare_mouse();
 					}
 				}
 				
 				/* should we close the dialog? */
 				if(down && (d->flags & D_EXIT))
-					return D_CLOSE;
+					ret = D_CLOSE;
+				ret |= D_REDRAW;
 			}
 		}
 		break;
 	}
-	return D_O_K;
+	return ret;
 }
 
+int32_t d_jwinbutton_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+    BITMAP *gui_bmp;
+    int32_t state1, state2;
+    int32_t black;
+    int32_t swap;
+    int32_t g;
+    ASSERT(d);
+    
+    gui_bmp = screen;
+    
+    switch(msg)
+    {
+		case MSG_DRAW:
+		{
+			int discol = -1;
+			if(d->flags & D_DISABLED)
+			{
+				state1 = jcDISABLED_BG;
+				state2 = jcDISABLED_FG;
+				discol = jcLIGHT;
+			}
+			else
+			{
+				state1 = jcTEXTBG;
+				state2 = jcTEXTFG;
+			}
+			g = 0;
+			if(d->flags & D_SELECTED)
+			{
+				g = 1;
+				zc_swap(state1,state2);
+			}
+			ALLEGRO_COLOR s1 = jwin_a5_pal(state1), s2 = jwin_a5_pal(state2);
+			
+			int fh = al_get_font_line_height(a5font);
+			
+			al_draw_filled_rectangle(d->x+1+g, d->y+1+g, d->x+d->w-2+g, d->y+d->h-2+g, s2);
+			al_draw_rectangle(d->x+g, d->y+g, d->x+d->w-1+g, d->y+d->h-1+g, s1, 0);
+			if(discol > -1)
+				gui_textout_ln_a5_dis(a5font, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-fh/2+g, s1, AL5_INVIS, 1, jwin_a5_pal(discol));
+			else gui_textout_ln_a5(a5font, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-fh/2+g, s1, AL5_INVIS, 1);
+			
+			if(d->flags & D_SELECTED)
+			{
+				al_draw_vline(d->x, d->y, d->y+d->h-1, jwin_a5_pal(jcTEXTBG));
+				al_draw_hline(d->x, d->y, d->x+d->w-1, jwin_a5_pal(jcTEXTBG));
+			}
+			else
+			{
+				al_draw_vline(d->x+d->w-1, d->y+1, d->y+d->h-1, AL5_BLACK);
+				al_draw_hline(d->x+1, d->y+d->h-1, d->x+d->w, AL5_BLACK);
+			}
+			
+			if((d->flags & D_GOTFOCUS) &&
+					(!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
+				dotted_rect_a5(d->x+1+g, d->y+1+g, d->x+d->w-2+g, d->y+d->h-2+g, s1, s2);
+				
+			break;
+		}
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+		{
+			/* close dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			
+			/* or just toggle */
+			d->flags ^= D_SELECTED;
+			GUI_EVENT(d, geTOGGLE);
+			object_message(d, MSG_DRAW, 0);
+			break;
+		}
+		
+		case MSG_CLICK:
+		{
+			/* what state was the button originally in? */
+			state1 = d->flags & D_SELECTED;
+			
+			swap = state1;
+				
+			/* track the mouse until it is released */
+			while(gui_mouse_b())
+			{
+				state2 = ((gui_mouse_x() >= d->x) && (gui_mouse_y() >= d->y) &&
+						  (gui_mouse_x() < d->x + d->w) && (gui_mouse_y() < d->y + d->h));
+						  
+				if(swap)
+					state2 = !state2;
+					
+				/* redraw? */
+				if(((state1) && (!state2)) || ((state2) && (!state1)))
+				{
+					d->flags ^= D_SELECTED;
+					GUI_EVENT(d, geTOGGLE);
+					state1 = d->flags & D_SELECTED;
+					object_message(d, MSG_DRAW, 0);
+				}
+				
+				/* let other objects continue to animate */
+				broadcast_dialog_message(MSG_IDLE, 0);
+				
+				update_hw_screen();
+			}
+			
+			if(d->dp3 != NULL)
+			{
+				//object_message(d, MSG_DRAW, 0);
+				typedef int32_t (*funcType)(void);
+				funcType func=reinterpret_cast<funcType>(d->dp3);
+				
+				return func();
+			}
+			
+			/* should we close the dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			break;
+		}
+    }
+    
+    return D_O_K;
+}
 int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t)
 {
 	int ocx,ocy,ocw,och;
@@ -2181,7 +2300,7 @@ int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	if(msg==MSG_DRAW)
 		al_set_clipping_rectangle(ocx,ocy,ocw,och);
 	else
-		rval = d_jwinbutton_proc(msg, d, 0);
+		rval = jwin_button_proc_a5(msg, d, 0);
 	
     a5font = oldfont;
 	return rval;
@@ -2400,9 +2519,7 @@ int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 			
 			GUI_EVENT(d, geCHANGE_SELECTION);
             
-			scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
             return D_USED_CHAR;
         }
         
@@ -2651,9 +2768,7 @@ int32_t jwin_do_abclist_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 			
 			GUI_EVENT(d, geCHANGE_SELECTION);
 			
-            scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
             ret = D_USED_CHAR;
         }
         
@@ -2896,4 +3011,2166 @@ int32_t jwin_frame_proc_a5(int32_t msg, DIALOG *d, int32_t)
         jwin_draw_frame_a5(d->x, d->y, d->w, d->h, d->d1);
     return D_O_K;
 }
+
+#define INC_TF_CURSORS(val,inc,max) \
+do \
+{ \
+	int32_t scursor = (val & 0xFFFF)+inc; \
+	int32_t ecursor = (val & 0xFFFF0000) >> 16; \
+	bool valid_ecursor = ecursor != 0xFFFF; \
+	if(valid_ecursor) ecursor += inc; \
+	if(inc < 0) \
+	{ \
+		if(scursor < 0) scursor = 0; \
+		if(valid_ecursor && ecursor < 0) ecursor = 0; \
+	} \
+	else \
+	{ \
+		if(scursor > max) scursor = max; \
+		if(valid_ecursor && ecursor > max) ecursor = max; \
+	} \
+	val = scursor | (ecursor<<16); \
+} while(false)
+int32_t jwin_swapbtn_proc_a5(int32_t msg, DIALOG* d, int32_t c)
+{
+	static char* swp[nswapMAX] = {"D", "H", "LD", "LH", "B"};
+	d->dp = swp[d->d1&0xF];
+	//d1 is (0xF0 = old val, 0x0F = new val)
+	//d2 is max val
+	if(d->d2 < 2 || d->d2 > nswapMAX) return D_O_K; //Not setup yet, or bad value
+	DIALOG* relproc = (DIALOG*)d->dp3;
+	GUI::TextField *tf_obj = nullptr;
+	if(d->d2 > nswapBOOL) tf_obj = (GUI::TextField*)relproc->dp3;
+	int32_t ret = jwin_button_proc_a5(msg, d, c);
+	if(d->flags & D_SELECTED) //On selection
+	{
+		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
+		d->dp = swp[d->d1&0xF];
+		d->flags &= ~D_SELECTED;
+		if(tf_obj) tf_obj->refresh_cb_swap();
+		if(relproc)
+		{
+			object_message(relproc, MSG_DRAW, 0);
+		}
+		object_message(d, MSG_DRAW, 0);
+	}
+	return ret;
+}
+int32_t jwin_numedit_swap_byte_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+1;
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	int32_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			v = atoi(str);
+			break;
+		case nswapHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	byte b;
+	if ( v > 255 )
+		b=255;
+	else if ( v < 0 )
+		b=0;
+	else b = (byte)v;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		//unsigned//b = -b;
+		c &= ~255;
+	}
+	if(unsigned(v) != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				sprintf(str, "%d", b);
+				break;
+			case nswapHEX:
+				sprintf(str, "%X", b);
+				break;
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 3; //3 digits max
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 2; //2 digits max
+			if(msg == MSG_CHAR && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int32_t jwin_numedit_swap_sshort_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 7;
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+1;
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	int32_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			v = atoi(str);
+			break;
+		case nswapHEX:
+			v = zc_xtoi(str);
+			break;
+	}
+	int16_t b;
+	if ( v > 32767 )
+		b=32767;
+	else if ( v < -32768 )
+		b=-32768;
+	else b = (int16_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue the negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				sprintf(str, "%d", b);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 6; //6 digits max (incl '-')
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 5; //5 digits max (incl '-')
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int32_t jwin_numedit_swap_zsint_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 13;
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+1;
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 4; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case nswapHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case nswapLDEC:
+			v = zc_atoi64(str);
+			break;
+		case nswapLHEX:
+			v = zc_xtoi64(str);
+			break;
+	}
+	int32_t b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				if(b < 0)
+					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+				trim_trailing_0s(str);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+				trim_trailing_0s(str);
+				break;
+			case nswapLDEC:
+				sprintf(str, "%d", b);
+				break;
+			case nswapLHEX:
+				if(b<0)
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(ntype >= nswapLDEC) //No '.' in long modes
+			c&=~255;
+		else
+		{
+			for(int32_t q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
+			{
+				int32_t p = 0;
+				for(int32_t q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if((d->d2&0x0000FFFF) <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int32_t q = 0; q < (d->d2&0x0000FFFF) && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if((c&255) && !areaselect)
+				{
+					int32_t p = 0;
+					for(int32_t q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if((d->d2&0x0000FFFF) <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int32_t jwin_numedit_swap_zsint_nodec_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 7;
+	DIALOG* swapbtn;
+	if(d->flags&D_NEW_GUI)
+	{
+		swapbtn = d+1;
+	}
+	else swapbtn = (DIALOG*)d->dp3;
+	if(!swapbtn) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 2; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			v = atoi(str);
+			v *= 10000;
+			break;
+        case nswapHEX:
+			v = zc_xtoi(str);
+			v *= 10000;
+			break;
+	}
+	int32_t b;
+	if ( v > 2147480000 )
+		b=2147480000;
+	else if ( v < -2147480000 )
+		b=-2147480000;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				if(b < 0)
+					sprintf(str, "-%ld", abs(b/10000L));
+				else sprintf(str, "%ld", b/10000L);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%lX", abs(b/10000L));
+				else sprintf(str, "%lX", b/10000L);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		c&=~255; //no '.' in nodec version
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 7; //7 digits max (incl '-')
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 6; //6 digits max (incl '-')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!isxdigit(c&255))
+					c&=~255;
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	return ret;
+}
+int32_t jwin_numedit_swap_zsint2_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 13;
+	DIALOG* swapbtn;
+	ASSERT(d->flags&D_NEW_GUI);
+	swapbtn = d+1;
+	if(!swapbtn) return D_O_K;
+	GUI::TextField *tf_obj = (GUI::TextField*)d->dp3;
+	if(!tf_obj) return D_O_K;
+	if(msg==MSG_START) //Setup the swapbtn
+	{
+		d->bg = 0;
+		swapbtn->d2 = 5; //Max states
+		auto ty = swapbtn->d1&0xF;
+		if(unsigned(ty) > swapbtn->d2)
+			swapbtn->d1 &= ~0xF;
+		swapbtn->dp3 = (void*)d;
+	}
+	int32_t ret = D_O_K;
+	int32_t ntype = swapbtn->d1&0xF,
+	    otype = swapbtn->d1>>4;
+    if(otype==nswapBOOL || ntype == nswapBOOL)
+	{
+		if(otype != ntype)
+		{
+			tf_obj->refresh_cb_swap();
+		}
+		if(ntype == nswapBOOL)
+		{
+			swapbtn->d1 = (ntype<<4)|ntype;
+			return D_O_K;
+		}
+	}
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(otype)
+	{
+		case nswapDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case nswapHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case nswapLDEC:
+			v = zc_atoi64(str);
+			break;
+		case nswapLHEX:
+			v = zc_xtoi64(str);
+			break;
+		case nswapBOOL:
+			v = d->fg;
+			break;
+	}
+	int32_t b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || otype != ntype || msg == MSG_START)
+	{
+		switch(ntype)
+		{
+			case nswapDEC:
+				if(b < 0)
+					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+				trim_trailing_0s(str);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+				trim_trailing_0s(str);
+				break;
+			case nswapLDEC:
+				sprintf(str, "%d", b);
+				break;
+			case nswapLHEX:
+				if(b<0)
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(ntype >= nswapLDEC) //No '.' in long modes
+			c&=~255;
+		else
+		{
+			for(int32_t q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(ntype)
+	{
+		case nswapDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
+			{
+				int32_t p = 0;
+				for(int32_t q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if((d->d2&0x0000FFFF) <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int32_t q = 0; q < (d->d2&0x0000FFFF) && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if((c&255) && !areaselect)
+				{
+					int32_t p = 0;
+					for(int32_t q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if((d->d2&0x0000FFFF) <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+		case nswapLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_numedit_proc_a5(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	swapbtn->d1 = (ntype<<4)|ntype; //Mark the type change processed
+	
+	if(msg==MSG_START)
+		tf_obj->refresh_cb_swap();
+	
+	return ret;
+}
+
+int32_t jwin_vedit_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	if(d->flags & D_HIDDEN)
+	{
+		switch(msg)
+		{
+			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
+				return D_O_K;
+		}
+	}
+	if(d->h < 2+((al_get_font_line_height(d->dp2 ? (ALLEGRO_FONT*)d->dp2 : a5font))+2)*2)
+		return jwin_edit_proc_a5(msg, d, c);
+	static char nullbuf[2];
+	sprintf(nullbuf, " ");
+	int32_t f, l, p, w, x, y;
+	int32_t lastSpace = -1;
+	char *s;
+	char buf[2] = {0,0};
+	
+	if(d->dp==NULL)
+	{
+		d->dp=(void *)nullbuf;
+	}
+	
+	s = (char*)d->dp;
+	l = (int32_t)strlen(s);
+	
+	int16_t cursor_start = d->d2 & 0x0000FFFF;
+	int16_t cursor_end = int16_t((d->d2 & 0xFFFF0000) >> 16);
+	
+	if(cursor_start > l)
+		cursor_start = l;
+	if(cursor_end > l)
+		cursor_end = l;
+	auto low_cursor = cursor_start<0 ? cursor_end : (cursor_end<0 ? cursor_start : (zc_min(cursor_start, cursor_end)));
+	auto high_cursor = zc_max(cursor_start,cursor_end);
+	bool multiselect = cursor_end > -1;
+	
+	ALLEGRO_FONT *oldfont = a5font;
+	if(d->dp2)
+		a5font = (ALLEGRO_FONT*)d->dp2;
+	int fh = al_get_font_line_height(a5font);
+	
+	std::vector<size_t> lines;
+	x = 0;
+	
+	y = d->y + 2;
+	size_t ind = 0;
+	int32_t yinc = fh+2;
+	int32_t maxy = y;
+	size_t maxlines = 1;
+	while(maxy+yinc < d->y+d->h-3)
+	{
+		maxy += yinc;
+		++maxlines;
+	}
+	size_t half_width = (maxlines-1)/2;
+	size_t line_scroll = 0;
+	size_t focused_line = size_t(-1);
+	size_t focused_line2 = size_t(-1);
+	switch(msg)
+	{
+		//Only these messages need these calculations, so save processing.
+		case MSG_DRAW:
+		case MSG_CLICK:
+		case MSG_CHAR:
+		{
+			for(auto q = 0; q <= l; ++q)
+			{
+				char c = s[q] ? s[q] : ' ';
+				x += al_char_length(a5font, c);
+				if(x > d->w - 6)
+				{
+					// Line's too long, break
+					if(lastSpace >= 0)
+					{
+						q = lastSpace+1;
+						lines.push_back(q);
+						lastSpace = -1;
+					}
+					else
+					{
+						lines.push_back(q);
+					}
+					x = 0;
+					--q; //counteract increment
+				}
+				else if(c == ' ')
+					lastSpace = q;
+			}
+			if(lines.empty() || lines.back() != l+1)
+				lines.push_back(l+1);
+			for(size_t line = 0; line < lines.size(); ++line)
+			{
+				if(size_t(multiselect ? cursor_end : cursor_start) < lines[line]) //should ALWAYS execute once
+				{
+					focused_line = line;
+					break;
+				}
+			}
+			if(!multiselect)
+			{
+				focused_line2 = -1;
+			}
+			else for(size_t line = 0; line < lines.size(); ++line)
+			{
+				if(size_t(cursor_start) < lines[line]) //should ALWAYS execute once
+				{
+					focused_line2 = line;
+					break;
+				}
+			}
+			if (focused_line >= lines.size())
+				focused_line = lines.size() - 1;
+			if (focused_line2 >= lines.size())
+				focused_line2 = lines.size() - 1;
+			if(maxlines >= lines.size() || focused_line <= half_width)
+				line_scroll = 0;
+			else if(lines.size()-maxlines+half_width < focused_line)
+				line_scroll = lines.size()-maxlines+half_width-1;
+			else
+				line_scroll = focused_line - half_width;
+		}
+	}
+	int ret = D_O_K;
+	switch(msg)
+	{
+		case MSG_START:
+			cursor_start = (int32_t)strlen((char*)d->dp);
+			cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			break;
+			
+		case MSG_DRAW:
+		{
+			ALLEGRO_COLOR fg = jwin_a5_pal(jcTEXTFG), bg = jwin_a5_pal(jcTEXTBG);
+			int discol = -1;
+			if(d->flags & D_DISABLED)
+			{
+				discol = jcLIGHT;
+				fg = jwin_a5_pal(jcDISABLED_FG);
+				bg = jwin_a5_pal(jcDISABLED_BG);
+			}
+			else if(d->flags & D_READONLY)
+			{
+				fg = jwin_a5_pal(jcALT_TEXTFG);
+				bg = jwin_a5_pal(jcALT_TEXTBG);
+			}
+			
+			//Fill the BG
+			al_draw_filled_rectangle(d->x+2, d->y+2, d->x+d->w-2, d->y+d->h-2, bg);
+			
+			//Now the text
+			size_t m = zc_min(line_scroll + maxlines, lines.size());
+			jwin_draw_frame_a5(d->x, d->y, d->w, d->h, FR_DEEP);
+			for(size_t line = line_scroll; line < m; ++line, y+=yinc)
+			{
+				x = 3;
+				for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+				{
+					char c = s[ind] ? s[ind] : ' ';
+					w = al_char_length(a5font, c);
+					bool focused = multiselect
+						? (ind >= low_cursor && ind <= high_cursor)
+						: (ind == cursor_start);
+					f = (focused && (d->flags & D_GOTFOCUS));
+					buf[0] = c;
+					if(discol > -1)
+						jwin_textout_a5_dis(a5font, f ? bg : fg, d->x+x, y, 0, buf, f ? fg : bg, jwin_a5_pal(discol));
+					else jwin_textout_a5(a5font, f ? bg : fg, d->x+x, y, 0, buf, f ? fg : bg);
+					x += w;
+				}
+			}
+			break;
+		}
+			
+		case MSG_CLICK:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			
+			bool found = false;
+			for(size_t line = line_scroll; line < lines.size() && line < (line_scroll + maxlines); ++line, y+=yinc)
+			{
+				if(gui_mouse_y() >= y+yinc)
+					continue;
+				x = d->x+3;
+				for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+				{
+					if(x >= gui_mouse_x())
+					{
+						if(key_shifts&KB_SHIFT_FLAG)
+							cursor_end = ind;
+						else
+						{
+							cursor_start = ind;
+							cursor_end = -1;
+						}
+						found = true;
+						break;
+					}
+					x += al_char_length(a5font, s[ind]);
+				}
+				break;
+			}
+			if(!found)
+			{
+				if(key_shifts&KB_SHIFT_FLAG)
+					cursor_end = l;
+				else
+				{
+					cursor_start = l;
+					cursor_end = -1;
+				}
+			}
+			if(cursor_end == cursor_start) cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			
+			object_message(d, MSG_DRAW, 0);
+			break;
+		}
+		
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+		case MSG_KEY:
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			ret = D_WANTFOCUS;
+			break;
+			
+		case MSG_CHAR:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			bool shifted = key_shifts & KB_SHIFT_FLAG;
+			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool change_cursor = true;
+			int16_t scursor = cursor_start, ecursor = cursor_end;
+			char upper_c = c>>8;
+			char lower_c = c&255;
+			if(shifted)
+			{
+				if(ecursor < 0)
+				{
+					ecursor = scursor;
+					focused_line2 = focused_line;
+				}
+			}
+			if(upper_c == KEY_LEFT)
+			{
+				if(shifted)
+				{
+					if(ecursor>0)
+						--ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor > 0)
+						--scursor;
+				}
+			}
+			else if(upper_c == KEY_RIGHT)
+			{
+				if(shifted)
+				{
+					if(ecursor < l)
+						++ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor < l)
+						++scursor;
+				}
+			}
+			else if(upper_c == KEY_UP || upper_c == KEY_DOWN)
+			{
+				if(shifted)
+				{
+					size_t line = focused_line2 + (upper_c == KEY_UP ? -1 : 1);
+					if(!focused_line2 && upper_c == KEY_UP)
+						ecursor = 0;
+					else if(line >= lines.size())
+						ecursor = l;
+					else
+					{
+						x = d->x + 3;
+						for(ind = focused_line2 ? lines[focused_line2-1] : 0; ind < lines[focused_line2]; ++ind)
+						{
+							w = al_char_length(a5font, s[ind]);
+							if(ind < size_t(ecursor))
+								x += w;
+							else
+							{
+								x += w / 2;
+								break;
+							}
+						}
+						
+						int32_t tx = d->x+3;
+						bool done = false;
+						for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+						{
+							tx += al_char_length(a5font, s[ind] ? s[ind] : ' ');
+							if(tx < x)
+								continue;
+							ecursor = ind;
+							done = true;
+							break;
+						}
+						if(!done)
+						{
+							ecursor = (upper_c == KEY_UP) ? 0 : lines[line]-1;
+						}
+					}
+				}
+				else
+				{
+					ecursor = -1;
+					if(multiselect)
+					{
+						focused_line = focused_line2;
+						scursor = ecursor;
+					}
+					size_t line = focused_line + (upper_c == KEY_UP ? -1 : 1);
+					if(!focused_line && upper_c == KEY_UP)
+						scursor = 0;
+					else if(line >= lines.size())
+						scursor = l;
+					else
+					{
+						x = d->x + 3;
+						for(ind = focused_line ? lines[focused_line-1] : 0; ind < lines[focused_line]; ++ind)
+						{
+							w = al_char_length(a5font, s[ind]);
+							if(ind < size_t(scursor))
+								x += w;
+							else
+							{
+								x += w / 2;
+								break;
+							}
+						}
+						
+						int32_t tx = d->x+3;
+						bool done = false;
+						for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
+						{
+							tx += al_char_length(a5font, s[ind] ? s[ind] : ' ');
+							if(tx < x)
+								continue;
+							scursor = ind;
+							done = true;
+							break;
+						}
+						if(!done)
+						{
+							scursor = (upper_c == KEY_UP) ? 0 : lines[line]-1;
+						}
+					}
+				}
+			}
+			else if(upper_c == KEY_HOME)
+			{
+				if(shifted)
+					ecursor = 0;
+				else
+				{
+					ecursor = -1;
+					scursor = 0;
+				}
+			}
+			else if(upper_c == KEY_END)
+			{
+				if(shifted)
+					ecursor = l;
+				else
+				{
+					ecursor = -1;
+					scursor = l;
+				}
+			}
+			else if(upper_c == KEY_DEL)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor < l)
+				{
+					for(p=scursor; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(upper_c == KEY_BACKSPACE)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor > 0)
+				{
+					--scursor;
+					for(p=scursor; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(upper_c == KEY_ENTER)
+			{
+				change_cursor = false;
+				GUI_EVENT(d, geENTER);
+				if(d->flags & D_EXIT)
+				{
+					object_message(d, MSG_DRAW, 0);
+					ret = D_CLOSE;
+				}
+				break;
+			}
+			else if(upper_c == KEY_TAB)
+			{
+				change_cursor = false;
+				break;
+			}
+			else if(ctrl && (lower_c=='c' || lower_c=='C'))
+			{
+				change_cursor = false;
+				std::ostringstream oss;
+				if(multiselect)
+				{
+					for(size_t ind = low_cursor; ind <= high_cursor; ++ind)
+					{
+						if(s[ind])
+							oss << s[ind];
+					}
+				}
+				else
+				{
+					if(s[scursor])
+						oss << s[scursor];
+				}
+				set_al_clipboard(oss.str());
+			}
+			else if(clipboard_has_text() && ctrl && (lower_c=='v' || lower_c=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					int ind = low_cursor, ind2 = high_cursor + 1;
+					if (multiselect)
+					{
+						//Delete selected text
+						ecursor = -1;
+						scursor = low_cursor;
+						while (s[ind2] && ind2 < l)
+							s[ind++] = s[ind2++];
+						while (s[ind])
+							s[ind++] = 0;
+						l = (int32_t)strlen(s);
+					}
+					//Move the text out of the way of the pasting
+					int paste_len = cb.size();
+					int paste_start = scursor;
+					int paste_end = paste_start+paste_len;
+					ind = strlen(s);
+					ind2 = ind+paste_len;
+					while(ind2 > d->d1)
+					{
+						--paste_len;
+						--paste_end;
+						--ind;
+						--ind2;
+					}
+					size_t new_l = ind2+1;
+					while(ind >= paste_start)
+					{
+						if(s[ind] || (ind&&s[ind-1]))
+						{
+							s[ind2] = s[ind];
+						}
+						--ind2; --ind;
+					}
+					for(auto q = 0; q < paste_len; ++q)
+					{
+						s[paste_start+q] = cb.at(q);
+					}
+					s[paste_start+paste_len] = 0;
+					scursor = paste_start + paste_len;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(ctrl && (lower_c=='a' || lower_c=='A'))
+			{
+				scursor = 0;
+				ecursor = d->d1;
+			}
+			else if(lower_c >= 32)
+			{
+				if(multiselect)
+				{
+					//Delete selected text
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2] && ind2 < l)
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					l = (int32_t)strlen(s);
+					//Type the character in its' place
+					//(fallthrough)
+				}
+				if(l < d->d1)
+				{
+					ecursor = -1;
+					s[l+1] = 0;
+					size_t ind = l;
+					while(ind >= scursor)
+					{
+						s[ind+1] = s[ind];
+						if (!ind) break;
+						--ind;
+					}
+					
+					s[scursor++] = lower_c;
+					
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else break;
+			
+			if(change_cursor)
+			{
+				cursor_end = ecursor; cursor_start = scursor;
+				if (cursor_end == cursor_start) cursor_end = -1;
+				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			}
+			
+			/* if we changed something, better redraw... */
+			object_message(d, MSG_DRAW, 0);
+			ret = D_USED_CHAR;
+			break;
+		}
+	}
+	a5font = oldfont;
+	return ret;
+}
+int32_t jwin_edit_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+	if(d->flags & D_HIDDEN)
+	{
+		switch(msg)
+		{
+			case MSG_CHAR: case MSG_UCHAR: case MSG_XCHAR: case MSG_DRAW: case MSG_CLICK: case MSG_DCLICK: case MSG_KEY: case MSG_WANTFOCUS:
+				return D_O_K;
+		}
+	}
+	if(d->h >= 2+((al_get_font_line_height(d->dp2 ? (ALLEGRO_FONT*)d->dp2 : a5font)+2)*2))
+		return jwin_vedit_proc_a5(msg, d, c);
+	int32_t f, l, p, w, x, y;
+	int32_t b;
+	int32_t scroll;
+	char *s;
+	char buf[2];
+	static char nullbuf[2];
+	sprintf(nullbuf, " ");
+	
+	if(d->dp==NULL)
+	{
+		d->dp=(void *)nullbuf;
+	}
+	
+	s = (char*)d->dp;
+	l = (int32_t)strlen(s);
+	
+	int16_t cursor_start = d->d2 & 0x0000FFFF;
+	int16_t cursor_end = int16_t((d->d2 & 0xFFFF0000) >> 16);
+	
+	if(cursor_start > l)
+		cursor_start = l;
+	if(cursor_end > l)
+		cursor_end = l;
+	auto low_cursor = cursor_start<0 ? cursor_end : (cursor_end<0 ? cursor_start : (zc_min(cursor_start, cursor_end)));
+	auto high_cursor = zc_max(cursor_start,cursor_end);
+		
+	/* calculate maximal number of displayable characters */
+	b = x = 0;
+	
+	ALLEGRO_FONT* oldfont = a5font;
+	if(d->dp2)
+		a5font = (ALLEGRO_FONT*)d->dp2;
+	int fh = al_get_font_line_height(a5font);
+	
+	if(cursor_start == l)
+	{
+		buf[0] = ' ';
+		buf[1] = 0;
+		
+		x = al_get_text_width(a5font, buf);
+	}
+	
+	buf[1] = 0;
+	
+	for(p=cursor_start; p>=0; p--)
+	{
+		buf[0] = s[p];
+		b++;
+		
+		x += al_get_text_width(a5font, buf);
+			
+		if(x > d->w-6)
+			break;
+	}
+	
+	if(x <= d->w-6)
+	{
+		b = l;
+		scroll = FALSE;
+	}
+	else
+	{
+		b--;
+		scroll = TRUE;
+	}
+	
+	int ret = D_O_K;
+	switch(msg)
+	{
+		case MSG_START:
+			cursor_start = (int32_t)strlen((char*)d->dp);
+			cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			break;
+			
+		case MSG_DRAW:
+		{
+			ALLEGRO_COLOR fg = jwin_a5_pal(jcTEXTFG), bg = jwin_a5_pal(jcTEXTBG);
+			int discol = -1;
+			if(d->flags & D_DISABLED)
+			{
+				discol = jcLIGHT;
+				fg = jwin_a5_pal(jcDISABLED_FG);
+				bg = jwin_a5_pal(jcDISABLED_BG);
+			}
+			else if(d->flags & D_READONLY)
+			{
+				fg = jwin_a5_pal(jcALT_TEXTFG);
+				bg = jwin_a5_pal(jcALT_TEXTBG);
+			}
+			
+			x = 3;
+			y = (d->h - fh) / 2 + d->y;
+			
+			//Fill the bg
+			al_draw_filled_rectangle(d->x, d->y, d->x+d->w, d->y+d->h, bg);
+			
+			/* now the text */
+			
+			if(scroll)
+			{
+				p = cursor_start-b+1;
+				b = cursor_start;
+			}
+			else
+				p = 0;
+			for(; p<=b; p++)
+			{
+				buf[0] = s[p] ? s[p] : ' ';
+				w = al_get_text_width(a5font, buf);
+				
+				if(x+w > d->w)
+					break;
+				bool focused = (cursor_end>-1)
+					? (p >= low_cursor && p <= high_cursor)
+					: (p == cursor_start);
+				f = discol < 0 && (focused && (d->flags & D_GOTFOCUS));
+				if(discol > -1)
+					jwin_textout_a5_dis(a5font, f ? bg : fg, d->x+x, y, 0, buf, f ? fg : bg, jwin_a5_pal(discol));
+				else jwin_textout_a5(a5font, f ? bg : fg, d->x+x, y, 0, buf, f ? fg : bg);
+				x += w;
+			}
+			
+			if(x < d->w-2)
+				al_draw_filled_rectangle(d->x+x, y, d->x+d->w-2, y+fh, bg);
+				
+			jwin_draw_frame_a5(d->x, d->y, d->w, d->h, FR_DEEP);
+			break;
+		}
+			
+		case MSG_CLICK:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			x = d->x+3;
+			
+			if(scroll)
+			{
+				p = cursor_start-b+1;
+				b = cursor_start;
+			}
+			else
+				p = 0;
+				
+			for(; p<b; p++)
+			{
+				buf[0] = s[p];
+				x += al_get_text_width(a5font, buf);
+				
+				if(x > gui_mouse_x())
+					break;
+			}
+			
+			if(key_shifts&KB_SHIFT_FLAG)
+				cursor_end = MID(0, p, l);
+			else
+			{
+				cursor_end = -1;
+				cursor_start = MID(0, p, l);
+			}
+			if(cursor_end == cursor_start) cursor_end = -1;
+			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			object_message(d, MSG_DRAW, 0);
+			break;
+		}
+			
+		case MSG_WANTFOCUS:
+		case MSG_LOSTFOCUS:
+		case MSG_KEY:
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			ret = D_WANTFOCUS;
+			
+		case MSG_CHAR:
+		{
+			if(d->flags & (D_DISABLED|D_READONLY))
+				break;
+			bool shifted = key_shifts & KB_SHIFT_FLAG;
+			bool ctrl = key_shifts & KB_CTRL_FLAG;
+			bool change_cursor = true;
+			int16_t scursor = cursor_start, ecursor = cursor_end;
+			bool multiselect = cursor_end > -1;
+			auto upper_c = c>>8;
+			auto lower_c = c&0xFF;
+			if(shifted)
+			{
+				if(ecursor < 0)
+					ecursor = scursor;
+			}
+			if(upper_c == KEY_LEFT)
+			{
+				if(shifted)
+				{
+					if(ecursor>0)
+						--ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor > 0)
+						--scursor;
+				}
+			}
+			else if(upper_c == KEY_RIGHT)
+			{
+				if(shifted)
+				{
+					if(ecursor < l)
+						++ecursor;
+				}
+				else
+				{
+					ecursor = -1;
+					if(scursor < l)
+						++scursor;
+				}
+			}
+			else if(upper_c == KEY_HOME)
+			{
+				if(shifted)
+					ecursor = 0;
+				else
+				{
+					ecursor = -1;
+					scursor = 0;
+				}
+			}
+			else if(upper_c == KEY_END)
+			{
+				if(shifted)
+					ecursor = l;
+				else
+				{
+					ecursor = -1;
+					scursor = l;
+				}
+			}
+			else if(upper_c == KEY_DEL)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor < l)
+				{
+					for(p=scursor; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(upper_c == KEY_BACKSPACE)
+			{
+				if(ctrl)
+				{
+					s[0] = 0;
+					scursor = 0;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(multiselect)
+				{
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2])
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+				else if(scursor > 0)
+				{
+					--scursor;
+					for(p=scursor; s[p]; p++)
+						s[p] = s[p+1];
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(upper_c == KEY_ENTER)
+			{
+				change_cursor = false;
+				GUI_EVENT(d, geENTER);
+				if(d->flags & D_EXIT)
+				{
+					object_message(d, MSG_DRAW, 0);
+					ret = D_CLOSE;
+				}
+				break;
+			}
+			else if(upper_c == KEY_TAB)
+			{
+				change_cursor = false;
+				break;
+			}
+			else if(ctrl && (lower_c=='c' || lower_c=='C'))
+			{
+				change_cursor = false;
+				std::ostringstream oss;
+				if(multiselect)
+				{
+					for(size_t ind = low_cursor; ind <= high_cursor; ++ind)
+					{
+						if(s[ind])
+							oss << s[ind];
+					}
+				}
+				else
+				{
+					if(s[scursor])
+						oss << s[scursor];
+				}
+				set_al_clipboard(oss.str());
+			}
+			else if(clipboard_has_text() && ctrl && (lower_c=='v' || lower_c=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					int ind = low_cursor, ind2 = high_cursor + 1;
+					if (multiselect)
+					{
+						//Delete selected text
+						ecursor = -1;
+						scursor = low_cursor;
+						while (s[ind2] && ind2 < l)
+							s[ind++] = s[ind2++];
+						while (s[ind])
+							s[ind++] = 0;
+						l = (int32_t)strlen(s);
+					}
+					//Move the text out of the way of the pasting
+					int paste_len = cb.size();
+					int paste_start = scursor;
+					int paste_end = paste_start+paste_len;
+					ind = strlen(s);
+					ind2 = ind+paste_len;
+					while(ind2 > d->d1)
+					{
+						--paste_len;
+						--paste_end;
+						--ind;
+						--ind2;
+					}
+					size_t new_l = ind2+1;
+					while(ind >= paste_start)
+					{
+						if(s[ind] || (ind&&s[ind-1]))
+						{
+							s[ind2] = s[ind];
+						}
+						--ind2; --ind;
+					}
+					for(auto q = 0; q < paste_len; ++q)
+					{
+						s[paste_start+q] = cb.at(q);
+					}
+					s[paste_start+paste_len] = 0;
+					scursor = paste_start + paste_len;
+					ecursor = -1;
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else if(ctrl && (lower_c=='a' || lower_c=='A'))
+			{
+				scursor = 0;
+				ecursor = d->d1;
+			}
+			else if(lower_c >= 32)
+			{
+				if(multiselect)
+				{
+					//Delete selected text
+					ecursor = -1;
+					scursor = low_cursor;
+					size_t ind = low_cursor, ind2 = high_cursor+1;
+					while(s[ind2] && ind2 < l)
+						s[ind++] = s[ind2++];
+					while(s[ind])
+						s[ind++] = 0;
+					l = (int32_t)strlen(s);
+					//Type the character in its' place
+					//(fallthrough)
+				}
+				if(l < d->d1)
+				{
+					ecursor = -1;
+					s[l+1] = 0;
+					size_t ind = l;
+					while(ind >= scursor)
+					{
+						s[ind+1] = s[ind];
+						if (!ind) break;
+						--ind;
+					}
+					
+					s[scursor++] = lower_c;
+
+					GUI_EVENT(d, geCHANGE_VALUE);
+				}
+			}
+			else break;
+			if(change_cursor)
+			{
+				cursor_end = ecursor; cursor_start = scursor;
+				if (cursor_end == cursor_start) cursor_end = -1;
+				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			}
+			/* if we changed something, better redraw... */
+			object_message(d, MSG_DRAW, 0);
+			ret = D_USED_CHAR;
+			break;
+		}
+	}
+	a5font = oldfont;
+	return ret;
+}
+int32_t jwin_hexedit_proc_a5(int32_t msg,DIALOG *d,int32_t c)
+{
+	bool caps_paste = false;
+	if(msg==MSG_CHAR)
+	{
+		if(key_shifts & KB_CTRL_FLAG)
+		{
+			if(clipboard_has_text() && ((c&255)=='v' || (c&255)=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					if(cb.find_first_not_of("-.0123456789ABCDEFabcdef") != std::string::npos)
+						return D_USED_CHAR;
+					if(cb.find_first_of("abcdef") != std::string::npos)
+						caps_paste = true;
+				}
+				else return D_USED_CHAR;
+			}
+		}
+		switch(c&255)
+		{
+			case '-': case '.':
+			case '0': case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8': case '9':
+			case 'A': case 'B': case 'C':
+			case 'D': case 'E': case 'F':
+				break;
+			case 'a': case 'b': case 'c':
+			case 'd': case 'e': case 'f':
+				c = (c&~255)|toupper(c&255);
+				break;
+			default:
+				if(!editproc_special_key(c))
+					return D_O_K;
+				else if(!editproc_combined_key(c))
+					c&=~255;
+		}
+	}
+	
+	auto ret = jwin_edit_proc_a5(msg,d,c);
+	if(caps_paste)
+	{
+		char* s = (char*)d->dp;
+		caps_paste = false;
+		for(auto q = strlen(s)-1; q >= 0; --q)
+		{
+			switch(s[q])
+			{
+				case 'a': case 'b': case 'c':
+				case 'd': case 'e': case 'f':
+					s[q] = toupper(s[q]);
+					caps_paste = true;
+					break;
+			}
+		}
+		if(caps_paste)
+		{
+			jwin_edit_proc_a5(MSG_DRAW,d,0);
+		}
+	}
+	return ret;
+}
+int32_t jwin_numedit_proc_a5(int32_t msg,DIALOG *d,int32_t c)
+{
+	if(msg==MSG_CHAR)
+	{
+		if(key_shifts & KB_CTRL_FLAG)
+		{
+			if(clipboard_has_text() && ((c&255)=='v' || (c&255)=='V'))
+			{
+				std::string cb;
+				if(get_al_clipboard(cb))
+				{
+					if(cb.find_first_not_of("-.0123456789") != std::string::npos)
+						return D_USED_CHAR;
+				}
+				else return D_USED_CHAR;
+			}
+		}
+		switch(c&255)
+		{
+			case '-': case '.':
+			case '0': case '1': case '2': case '3': case '4':
+			case '5': case '6': case '7': case '8': case '9':
+				break;
+			default:
+				if(!editproc_special_key(c))
+					return D_O_K;
+				else if(!editproc_combined_key(c))
+					c&=~255;
+		}
+	}
+			
+	return jwin_edit_proc_a5(msg,d,c);
+}
+
 
