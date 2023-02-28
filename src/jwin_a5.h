@@ -8,12 +8,17 @@
 extern ALLEGRO_COLOR AL5_INVIS;
 extern ALLEGRO_COLOR AL5_BLACK;
 extern ALLEGRO_COLOR AL5_WHITE;
+extern ALLEGRO_COLOR AL5_YELLOW;
+extern ALLEGRO_COLOR AL5_PINK;
+extern ALLEGRO_COLOR AL5_LGRAY;
+extern ALLEGRO_COLOR AL5_DGRAY;
 extern ALLEGRO_COLOR jwin_a5_colors[9];
 extern ALLEGRO_COLOR db_a5_colors[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc);
 
-void jwin_set_a5_colors(ALLEGRO_COLOR* colors);
-void jwin_get_a5_colors(ALLEGRO_COLOR* colors);
+void jwin_reset_a5_colors();
+void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain = false);
+void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain = false);
 
 void start_db_proc();
 void end_db_proc();
@@ -36,9 +41,15 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state);
 void draw_x_button_a5(int32_t x, int32_t y, int32_t state);
+void draw_checkbox_a5(int32_t x,int32_t y,int32_t sz,bool value);
+void draw_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,bool value);
 void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bool center);
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state);
-int32_t jwin_do_x_button_a5(int32_t x, int32_t y);
+int32_t jwin_do_x_button_dlg_a5(int32_t x, int32_t y);
+bool jwin_do_x_button_a5(int32_t x, int32_t y);
+bool jwin_do_question_button_a5(int32_t x, int32_t y);
+bool do_checkbox_a5(int32_t x,int32_t y,int32_t sz,int32_t &value);
+bool do_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t &value);
 void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLOR c1, ALLEGRO_COLOR c2);
 void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn = false);
 
@@ -61,7 +72,7 @@ int32_t jwin_ctext_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_rtext_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t);
-
+int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t);
 
 #endif                                                      // _JWIN_H_
 

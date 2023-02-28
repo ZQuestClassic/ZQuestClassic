@@ -1,4 +1,6 @@
 #include "render.h"
+#include "util.h"
+#include <fmt/format.h>
 
 RenderTreeItem rti_dialogs;
 
@@ -180,6 +182,41 @@ BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
 static RenderTreeItem* active_a5_dlg_rti = nullptr;
 static RenderTreeItem* active_a4_dlg_rti = nullptr;
+
+void save_debug_bitmaps(char const* pref)
+{
+	std::string path = fmt::format("tmp/{}",pref?pref:"");
+	util::create_path(path.c_str());
+	PALETTE tpal;
+	get_palette(tpal);
+	if(active_a4_dlg_rti)
+	{
+		save_bitmap(fmt::format("{}/a4.bmp",path).c_str(),active_a4_dlg_rti->a4_bitmap,tpal);
+		al_save_bitmap(fmt::format("{}/a4_render.bmp",path).c_str(),active_a4_dlg_rti->bitmap);
+	}
+	if(active_a5_dlg_rti)
+	{
+		al_save_bitmap(fmt::format("{}/a5.bmp",path).c_str(),active_a5_dlg_rti->bitmap);
+	}
+	if(active_dlg_rti->children.size())
+	{
+		int q = 1;
+		for(RenderTreeItem* rti : active_dlg_rti->children)
+		{
+			if(rti->a4_bitmap)
+			{
+				save_bitmap(fmt::format("{}/layer_{}_a4.bmp",path,q).c_str(),rti->a4_bitmap,tpal);
+				al_save_bitmap(fmt::format("{}/layer_{}_a4_render.bmp",path,q).c_str(),rti->bitmap);
+			}
+			else if(rti->bitmap)
+			{
+				al_save_bitmap(fmt::format("{}/layer_{}_a5.bmp",path,q).c_str(),rti->bitmap);
+			}
+			++q;
+		}
+	}
+}
+
 static void pop_active_rti()
 {
 	if(active_dlg_rti == active_a4_dlg_rti)
@@ -206,21 +243,14 @@ static void pop_active_rti()
 }
 int get_zqdialog_a4_clear_color()
 {
-	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
-	{
-		if(active_dlg_rti->transparency_index > 0)
-			return active_dlg_rti->transparency_index;
-	}
+	if(active_a4_dlg_rti)
+		return active_dlg_rti->clear_color();
 	return 0;
 }
 void clear_zqdialog_a4()
 {
-	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
-	{
-		if(active_dlg_rti->transparency_index > 0)
-			clear_to_color(active_dlg_rti->a4_bitmap, active_dlg_rti->transparency_index);
-		else clear_bitmap(active_dlg_rti->a4_bitmap);
-	}
+	if(active_a4_dlg_rti)
+		clear_to_color(active_a4_dlg_rti->a4_bitmap, active_a4_dlg_rti->clear_color());
 }
 void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 {
@@ -242,14 +272,13 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		set_bitmap_create_flags(false);
 		rti->bitmap = al_create_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
-		rti->visible = true;
 		rti->owned = true;
 		rti->transparency_index = transp;
 		rti->transform.x = x;
 		rti->transform.y = y;
 		rti_dialogs.children.push_back(rti);
 		rti_dialogs.visible = true;
-	active_dlg_rti = active_a4_dlg_rti = rti;
+		active_dlg_rti = active_a4_dlg_rti = rti;
 		al_set_new_bitmap_flags(0);
 	}
 	else
@@ -288,13 +317,11 @@ void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
-	rti->visible = true;
 	rti->owned = true;
 	rti->transform.x = x;
 	rti->transform.y = y;
 	rti_dialogs.children.push_back(rti);
 	rti_dialogs.visible = true;
-	active_dlg_rti = active_a4_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
 	
 	clear_a5_bmp(a5color(c), rti->bitmap);
@@ -335,7 +362,6 @@ void popup_zqdialog_start_a5(int x, int y, int w, int h)
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
-	rti->visible = true;
 	rti->owned = true;
 	rti->transform.x = x;
 	rti->transform.y = y;
@@ -378,7 +404,6 @@ RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h)
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
-	rti->visible = true;
 	rti->owned = true;
 	rti->transform.x = x;
 	rti->transform.y = y;
@@ -414,7 +439,24 @@ RenderTreeItem* add_dlg_layer()
 	RenderTreeItem* rti = new RenderTreeItem();
 	rti->bitmap = al_create_bitmap(screen->w, screen->h);
 	rti->a4_bitmap = nullptr;
-	rti->visible = true;
+	rti->owned = true;
+	active_dlg_rti->children.push_back(rti);
+
+	al_set_new_bitmap_flags(0);
+	return rti;
+}
+RenderTreeItem* add_dlg_layer_a4(int transp)
+{
+	if(!active_dlg_rti) return nullptr;
+	set_bitmap_create_flags(true);
+	
+	RenderTreeItem* rti = new RenderTreeItem();
+	rti->bitmap = al_create_bitmap(screen->w, screen->h);
+	rti->a4_bitmap = create_bitmap_ex(8,screen->w,screen->h);
+	rti->transparency_index = transp;
+	if(transp > 0)
+		clear_to_color(rti->a4_bitmap,transp);
+	else clear_bitmap(rti->a4_bitmap);
 	rti->owned = true;
 	active_dlg_rti->children.push_back(rti);
 

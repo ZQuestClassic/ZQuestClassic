@@ -47,6 +47,12 @@ public:
 	{
 		return (y + computed.y) * computed.yscale;
 	}
+	int clear_color()
+	{
+		if(transparency_index > 0)
+			return transparency_index;
+		return 0;
+	}
 };
 
 extern RenderTreeItem rti_dialogs;
@@ -60,6 +66,7 @@ void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
+void save_debug_bitmaps(char const* pref = nullptr);
 int get_zqdialog_a4_clear_color();
 void clear_zqdialog_a4();
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0);
@@ -71,6 +78,7 @@ void popup_zqdialog_end_a5();
 RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h);
 bool a4_bmp_active();
 RenderTreeItem* add_dlg_layer();
+RenderTreeItem* add_dlg_layer_a4(int transp);
 void remove_dlg_layer(RenderTreeItem* rti);
 
 

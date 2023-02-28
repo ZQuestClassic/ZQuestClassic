@@ -388,8 +388,6 @@ BITMAP* get_font_bitmap(FONT* savefont)
 		}
 	}
 	
-	if(savefont == lfont_l)
-		save_bitmap("tmp/lfont_l.bmp", bmp, fontpal);
 	return bmp;
 }
 void save_font(char const* path, int fontid)

@@ -7941,7 +7941,7 @@ void system_pal()
 		pal[i].g = i-128;
 		pal[i].b = i-128;
 	}
-	load_colorset(gui_colorset, pal, jwin_a5_colors);
+	load_colorset(gui_colorset, pal);
 	
 	color_layer(pal, pal, 24,16,16, 28, 128,191);
 	

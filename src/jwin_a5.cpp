@@ -35,6 +35,8 @@ int32_t count_newline(uint8_t *s);
 //JWin A5 Palette
 
 ALLEGRO_COLOR jwin_a5_colors[9];
+ALLEGRO_COLOR db_a5_colors[9];
+static ALLEGRO_COLOR tmpcol[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc)
 {
 	return jwin_a5_colors[r_dvc(jwin_pal[jc])];
@@ -43,50 +45,28 @@ ALLEGRO_COLOR jwin_a5_pal(int jc)
 ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0);
 ALLEGRO_COLOR AL5_BLACK = al_map_rgb(0,0,0);
 ALLEGRO_COLOR AL5_WHITE = al_map_rgb(255,255,255);
-void jwin_set_a5_colors(ALLEGRO_COLOR* colors)
+ALLEGRO_COLOR AL5_YELLOW = al_map_rgb(255,255,0);
+ALLEGRO_COLOR AL5_PINK = al_map_rgb(255,0,255);
+ALLEGRO_COLOR AL5_LGRAY = al_map_rgb(85,85,85);
+ALLEGRO_COLOR AL5_DGRAY = al_map_rgb(170,170,170);
+void jwin_reset_a5_colors()
 {
-	for(int q = 1; q <= 8; ++q)
-		jwin_a5_colors[q] = colors[q];
+	jwin_set_a5_colors(tmpcol);
 }
-void jwin_get_a5_colors(ALLEGRO_COLOR* colors)
+void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain)
 {
 	for(int q = 1; q <= 8; ++q)
-		colors[q] = jwin_a5_colors[q];
+	{
+		jwin_a5_colors[q] = (devcfg_active ? db_a5_colors : colors)[q];
+		if(setmain) tmpcol[q] = colors[q];
+	}
+}
+void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain)
+{
+	for(int q = 1; q <= 8; ++q)
+		colors[q] = (getmain ? tmpcol : jwin_a5_colors)[q];
 }
 
-ALLEGRO_COLOR db_a5_colors[9];
-static ALLEGRO_COLOR tmpcol[9];
-static int in_dbproc = 0;
-#define ALL_DB_PROC (zc_get_config("zquest","devmode",0)==42)
-void start_db_proc()
-{
-	if(!in_dbproc)
-	{
-		jwin_get_a5_colors(tmpcol);
-		jwin_set_a5_colors(db_a5_colors);
-	}
-	++in_dbproc;
-}
-void end_db_proc()
-{
-	if(ALL_DB_PROC) return;
-	if(in_dbproc)
-	{
-		--in_dbproc;
-		if(!in_dbproc)
-		{
-			jwin_set_a5_colors(tmpcol);
-		}
-	}
-}
-void end_all_db_proc()
-{
-	if(in_dbproc)
-	{
-		in_dbproc = 1;
-		end_db_proc();
-	}
-}
 //Generic A5 helpers
 
 void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c)
@@ -223,7 +203,7 @@ void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
 }
 void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 {
-	al_draw_filled_rectangle(x+2,y+2,x+w-2,y+h-2,jwin_a5_pal(jcBOX));
+	al_draw_filled_rectangle(x,y,x+w,y+h,jwin_a5_pal(jcBOX));
 	jwin_draw_frame_a5(x, y, w, h, frame);
 }
 
@@ -467,6 +447,18 @@ void draw_x_button_a5(int32_t x, int32_t y, int32_t state)
 	al_draw_line(x,y+7,x+7,y,c,1);
 	al_draw_line(x+1,y+7,x+8,y,c,1);
 }
+void draw_checkbox_a5(int32_t x,int32_t y,int32_t sz,bool value)
+{
+	draw_checkbox_a5(x,y,sz,sz,value);
+}
+void draw_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,bool value)
+{
+	jwin_draw_frame_a5(x, y, wid, hei, FR_DEEP);
+	al_draw_filled_rectangle(x+2, y+2, x+wid-2, y+hei-2, jwin_a5_pal(jcTEXTBG));
+	
+	if(value)
+		al_draw_x(x+2,y+2,x+wid-2,y+hei-2,jwin_a5_pal(jcTEXTFG),1);
+}
 
 void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bool center)
 {
@@ -488,7 +480,7 @@ void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up
 	draw_arrow_a5(c,x,y,ah,up,true);
 }
 
-int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
+int32_t jwin_do_x_button_dlg_a5(int32_t x, int32_t y)
 {
 	int32_t down=0, last_draw = 0;
 	
@@ -498,9 +490,7 @@ int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
 		
 		if(down!=last_draw)
 		{
-			scare_mouse();
 			draw_x_button_a5(x,y,down);
-			unscare_mouse();
 			last_draw = down;
 		}
 		
@@ -511,12 +501,98 @@ int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
 	
 	if(down)
 	{
-		scare_mouse();
 		draw_x_button_a5(x,y,0);
-		unscare_mouse();
 	}
 	
 	return down;
+}
+bool jwin_do_x_button_a5(int32_t x, int32_t y)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        update_hw_screen();
+        
+        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+15,y+13))
+        {
+            if(!over)
+            {
+                draw_x_button_a5(x, y, D_SELECTED);
+                over=true;
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                draw_x_button_a5(x, y, 0);
+                over=false;
+            }
+        }
+    }
+    return over;
+}
+bool jwin_do_question_button_a5(int32_t x, int32_t y)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        update_hw_screen();
+        
+        if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+15,y+13))
+        {
+            if(!over)
+            {
+                draw_question_button_a5(x, y, D_SELECTED);
+                over=true;
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                draw_question_button_a5(x, y, 0);
+                over=false;
+            }
+        }
+    }
+    return over;
+}
+bool do_checkbox_a5(int32_t x,int32_t y,int32_t sz,int32_t &value)
+{
+	return do_checkbox_a5(x,y,sz,sz,value);
+}
+bool do_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t &value)
+{
+	bool over=false;
+	
+	while(gui_mouse_b())
+	{
+		update_hw_screen();
+		
+		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+wid-1,y+hei-1))               //if on checkbox
+		{
+			if(!over)                                             //if wasn't here before
+			{
+				value=!value;
+				draw_checkbox_a5(x,y,wid,hei,value!=0);
+				over=true;
+			}
+		}
+		else                                                    //if not on checkbox
+		{
+			if(over)                                              //if was here before
+			{
+				value=!value;
+				draw_checkbox_a5(x,y,wid,hei,value!=0);
+				over=false;
+			}
+		}
+	}
+	
+	return over;
 }
 
 void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
@@ -1315,8 +1391,6 @@ int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c)
 
 int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 {
-	end_all_db_proc();
-	if(ALL_DB_PROC) start_db_proc();
 	rest(1);
 	static bool skipredraw = false;
 	if(!d->dp2)
@@ -1363,7 +1437,7 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 		{
 			if((d->flags & D_EXIT) && mouse_in_rect(d->x+d->w-21, d->y+5, 16, 14))
 			{
-				if(jwin_do_x_button_a5(d->x+d->w-21, d->y+5))
+				if(jwin_do_x_button_dlg_a5(d->x+d->w-21, d->y+5))
 				{
 					GUI_EVENT(d, geCLOSE);
 					return D_CLOSE;
@@ -1652,25 +1726,36 @@ int32_t jwin_rtext_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	return _handle_text_proc_a5(msg,d,2);
 }
 
+void apply_current_transform(int& x, int& y)
+{
+	const ALLEGRO_TRANSFORM* tr = al_get_current_transform();
+	if(tr)
+	{
+		float fx=x,fy=y;
+		al_transform_coordinates(tr,&fx,&fy);
+		x=(int)fx;
+		y=(int)fy;
+	}
+}
+
+bool jwin_cliprect(int x, int y, int w, int h)
+{
+	apply_current_transform(x,y);
+	collide_clip_rect(x,y,w,h);
+	if(!w) return false; //clipped out
+	al_set_clipping_rectangle(x,y,w,h);
+	return true;
+}
+
 int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t)
 {
 	int ocx,ocy,ocw,och;
 	if(msg==MSG_DRAW)
 	{
 		if(d->flags & D_HIDDEN) return D_O_K;
-		int tx = d->x, ty = d->y, tw = d->w, th = d->h;
-		const ALLEGRO_TRANSFORM* tr = al_get_current_transform();
-		if(tr)
-		{
-			float fx=tx,fy=ty;
-			al_transform_coordinates(tr,&fx,&fy);
-			tx=(int)fx;
-			ty=(int)fy;
-		}
-		collide_clip_rect(tx,ty,tw,th);
-		if(!tw) return D_O_K; //clipped out
 		al_get_clipping_rectangle(&ocx,&ocy,&ocw,&och);
-		al_set_clipping_rectangle(tx,ty,tw,th);
+		if(!jwin_cliprect(d->x,d->y,d->w,d->h))
+			return D_O_K; //clipped out
 	}
 	int32_t ret = D_O_K;
 	int32_t w = d->w, h = d->h, x = d->x, y = d->y;
@@ -1806,4 +1891,91 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 	return D_O_K;
 }
 
+int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+	int ocx,ocy,ocw,och;
+	int32_t bx=0, tl=0;
+	ASSERT(d);
+	const char* str = (const char*)d->dp;
+	if(str && !str[0])
+		str = nullptr;
+	
+	int32_t tx = d->x-2, ty = d->y-2, tw = d->w+4, th = d->h+4, tx2 = 0;
+	if(msg==MSG_DRAW)
+	{
+		if(d->flags & D_HIDDEN) return D_O_K;
+		al_get_clipping_rectangle(&ocx,&ocy,&ocw,&och);
+		if(!jwin_cliprect(tx,ty,tw,th))
+			return D_O_K; //clipped out
+	}
+	
+    ALLEGRO_FONT *oldfont = a5font;
+    
+    if(d->dp2)
+    {
+        a5font = (ALLEGRO_FONT *)d->dp2;
+    }
+	int fh = al_get_font_line_height(a5font);
+	switch(msg)
+	{
+		case MSG_DRAW:
+		{
+			tx += 2;
+			ty += 2;
+			tw -= 4;
+			th -= 4;
+			if(!(d->d1))
+			{
+				if(str)
+				{
+					if(d->flags & D_DISABLED)
+					{
+						tl=gui_textout_ln_a5_dis(a5font, str, tx, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcDISABLED_FG),jwin_a5_pal(jcDISABLED_BG),0,jwin_a5_pal(jcLIGHT));
+						bx=tl+fh/2;
+					}
+					else
+					{
+						tl=gui_textout_ln_a5(a5font, str, tx, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcBOXFG),jwin_a5_pal(jcBOX),0);
+						bx=tl+fh/2;
+					}
+				}
+			}
+			
+			jwin_draw_frame_a5(tx+bx, ty, d->h, d->h, FR_DEEP);
+			
+			if(!(d->flags & D_DISABLED))
+			{
+				al_draw_filled_rectangle(tx+bx+2, ty+2, tx+bx+d->h-2, ty+d->h-2, jwin_a5_pal(jcTEXTBG));
+			}
+			
+			if(d->d1)
+			{
+				tx2=tx+bx+d->h-1+(fh/2);
+				
+				if(str)
+				{
+					if(d->flags & D_DISABLED)
+						tl=gui_textout_ln_a5_dis(a5font, str, tx2, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcDISABLED_FG),jwin_a5_pal(jcDISABLED_BG),0,jwin_a5_pal(jcLIGHT));
+					else
+						tl=gui_textout_ln_a5(a5font, str, tx2, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcBOXFG),jwin_a5_pal(jcBOX),0);
+				}
+			}
 
+			if(d->flags & D_SELECTED)
+				al_draw_x(tx+bx+2, ty+2, tx+bx+d->h-2, ty+d->h-2, jwin_a5_pal(jcTEXTFG),1);
+			
+			if(str)
+				dotted_rect_a5(tx2-1, ty-1, tx2+tl, ty+fh, (d->flags & D_GOTFOCUS)?jwin_a5_pal(jcDARK):jwin_a5_pal(jcBOX), jwin_a5_pal(jcBOX));
+			break;
+		}
+	}
+	
+	int32_t rval = D_O_K;
+	if(msg==MSG_DRAW)
+		al_set_clipping_rectangle(ocx,ocy,ocw,och);
+	else
+		rval = d_jwinbutton_proc(msg, d, 0);
+	
+    a5font = oldfont;
+	return rval;
+}

@@ -5644,13 +5644,7 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
         m.y = MID(0, m.y, zq_screen_h-m.h-1);
     }
     
-    /* save screen under the menu */
-    m.saved = create_bitmap_ex(bitmap_color_depth(screen),m.w+1, m.h+1);
-    
-    if(m.saved)
-        blit(screen, m.saved, m.x, m.y, 0, 0, m.w+1, m.h+1);
-    else
-        errno = ENOMEM;
+	popup_zqdialog_start();
         
     m.sel = mouse_sel = menu_mouse_object(&m);
     
@@ -5979,15 +5973,7 @@ getout:
         }
     }
     
-    /* restore screen */
-    if(m.saved)
-    {
-        scare_mouse();
-        blit(m.saved, screen, 0, 0, m.x, m.y, m.w+1, m.h+1);
-        unscare_mouse();
-        destroy_bitmap(m.saved);
-    }
-    
+	popup_zqdialog_end();
     return ret;
 }
 
@@ -6091,26 +6077,17 @@ byte getHighlightColor(RGB const& col)
 	             (pow(col.g/64.0, 2.2) * 0.7152) +
 	             (pow(col.b/64.0, 2.2) * 0.0722);
 	return lum < 0.4 ? vc(15) : vc(0);
-	//Old -Em
-	// byte bright = (col.r >= 32) + (col.g >= 32) + (col.b >= 32);
-	// byte sbright = (col.r >= 48) + (col.g >= 48) + (col.b >= 48);
-	// byte highlightColor = vc(7); //sysgray
-	// if(bright >= 2)
-	// {
-		// if(sbright >= 2)
-			// highlightColor = vc(0); //sysblack
-		// else highlightColor = vc(8); //sysdarkgray
-	// }
-	// else if(!bright)
-		// highlightColor = vc(15); //syswhite
-	// return highlightColor;
 }
 
 ALLEGRO_COLOR getHighlightColor(ALLEGRO_COLOR col)
 {
 	unsigned char r,g,b;
 	al_unmap_rgb(col,&r,&g,&b);
-	return al_map_rgb(255-r,255-g,255-b);
+	
+	double lum = (pow(r/256.0, 2.2) * 0.2126) +
+	             (pow(g/256.0, 2.2) * 0.7152) +
+	             (pow(b/256.0, 2.2) * 0.0722);
+	return lum < 0.4 ? AL5_WHITE : AL5_BLACK;
 }
 extern FONT* lfont;
 

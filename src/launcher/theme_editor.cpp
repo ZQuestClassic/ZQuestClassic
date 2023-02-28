@@ -107,7 +107,6 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	for(auto q = 1; q <= 8; ++q)
 	{
 		t_jwin_a5_colors[q] = jwin_a5_colors[q];
-		restore_jwin_a5_colors[q] = jwin_a5_colors[q];
 		
 		temp_pal[q] = temp_pal[dvc(q)];
 		work_pal[q] = work_pal[dvc(q)];
@@ -212,10 +211,10 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 						memcpy(temp_pal, restore_pal, sizeof(PALETTE));
 						memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 						memcpy(t_jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
-						jwin_set_a5_colors(restore_jwin_a5_colors);
+						jwin_reset_a5_colors();
 						for(auto q = 1; q <= 8; ++q)
 						{
-							t_jwin_a5_colors[q] = restore_jwin_a5_colors[q];
+							t_jwin_a5_colors[q] = jwin_a5_colors[q];
 							work_pal[q] = work_pal[dvc(q)];
 							temp_pal[q] = temp_pal[dvc(q)];
 							al_unmap_rgb(jwin_a5_colors[q],&work_colors[q][0],&work_colors[q][1],&work_colors[q][2]);
@@ -292,7 +291,7 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 			//Restore
 			memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 			jwin_set_colors(jwin_pal);
-			jwin_set_a5_colors(restore_jwin_a5_colors);
+			jwin_reset_a5_colors();
 			forceDraw();
 			update_hw_screen();
 			set_palette(restore_pal);
@@ -303,7 +302,7 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 			set_palette(restore_pal);
 			memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 			jwin_set_colors(jwin_pal);
-			jwin_set_a5_colors(restore_jwin_a5_colors);
+			jwin_reset_a5_colors();
 			return true;
 	}
 	return false;
