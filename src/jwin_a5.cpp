@@ -1737,8 +1737,8 @@ int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 						if((i+1>=panel->getSize()) || (i+1!=panel->getCurrentIndex()))
 						{
 							al_put_pixel(tx-1+(2-sd), d->y+sd+1, jwin_a5_pal(jcDARK));
-							al_draw_vline(tx+(2-sd), d->y+sd+2, d->y+8+th, jwin_a5_pal(jcDARK));
-							al_draw_vline(tx+(2-sd)-1, d->y+sd+2, d->y+8+th+(sd?0:1), jwin_a5_pal(jcMEDDARK));
+							al_draw_vline(tx+(2-sd), d->y+sd+2, d->y+sd+5+th, jwin_a5_pal(jcDARK));
+							al_draw_vline(tx+(2-sd)-1, d->y+sd+2, d->y+sd+5+th, jwin_a5_pal(jcMEDDARK));
 						}
 						
 						tx++;
@@ -2873,4 +2873,10 @@ dropit_a5:
 	return ((d1 != d->d1) && (d->flags&D_EXIT)) ? D_CLOSE : D_O_K;
 }
 
+int32_t jwin_frame_proc_a5(int32_t msg, DIALOG *d, int32_t)
+{
+    if(msg == MSG_DRAW)
+        jwin_draw_frame_a5(d->x, d->y, d->w, d->h, d->d1);
+    return D_O_K;
+}
 
