@@ -210,7 +210,7 @@ void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 	{
 		al_unmap_rgb(colors[q],&r,&g,&b);
 		hexval = (r<<16)|(g<<8)|(b);
-		zc_set_config_basic("Theme",fmt::format("color_{}",q).c_str(), hexval);
+		zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(), hexval);
 	}
 	
 	for(int q = 0; q < jcMAX; ++q)

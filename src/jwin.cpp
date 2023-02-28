@@ -126,7 +126,8 @@ int32_t get_selected_tab(TABPANEL* panel)
 void jwin_set_colors(int32_t *colors)
 {
     int32_t i = 0;
-    
+    if(colors != jwin_pal)
+		memcpy(jwin_pal,colors,sizeof(jwin_pal));
     if(bitmap_color_depth(screen) == 8)
     {
         // use color indices
