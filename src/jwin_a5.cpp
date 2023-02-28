@@ -41,8 +41,20 @@ int32_t droplist(DIALOG *d);
 ALLEGRO_COLOR jwin_a5_colors[9];
 ALLEGRO_COLOR db_a5_colors[9];
 static ALLEGRO_COLOR tmpcol[9];
+const int db_pal[] =
+{
+	4, 2, 3, 4, 8, 1,
+	3, 7, 1, 6, 1, 4, 1,
+	1, 1, 3, 4,
+	3, 1, 3, 4
+	// jcBOX, jcLIGHT, jcMEDLT, jcMEDDARK, jcDARK, jcBOXFG,
+	// jcTITLEL, jcTITLER, jcTITLEFG, jcTEXTBG, jcTEXTFG, jcSELBG, jcSELFG,
+	// jcCURSORMISC, jcCURSOROUTLINE, jcCURSORLIGHT, jcCURSORDARK,
+	// jcALT_TEXTBG, jcALT_TEXTFG, jcDISABLED_BG, jcDISABLED_FG,
+};
 ALLEGRO_COLOR jwin_a5_pal(int jc)
 {
+	if(devcfg_active) return jwin_a5_colors[db_pal[jc]];
 	return jwin_a5_colors[r_dvc(jwin_pal[jc])];
 }
 
