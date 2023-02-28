@@ -2193,7 +2193,7 @@ int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c)
     int32_t listsize, i, bottom, height, bar, orig;
     char *sel = (char *)d->dp2;
     int32_t redraw = FALSE;
-    
+    int ret = D_O_K;
     switch(msg)
     {
     
@@ -2267,7 +2267,7 @@ int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c)
         {
             _handle_jwin_scrollable_scroll_click_a5(d, listsize, &d->d2, *data->a5font);
         }
-        
+        ret |= D_REDRAW;
         break;
         
     case MSG_DCLICK:
@@ -2409,7 +2409,7 @@ int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c)
         break;
     }
     
-    return D_O_K;
+    return ret;
 }
 int32_t jwin_do_abclist_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 {
@@ -2508,6 +2508,7 @@ int32_t jwin_do_abclist_proc_a5(int32_t msg, DIALOG *d, int32_t c)
 			{
 				_handle_jwin_scrollable_scroll_click_a5(d, listsize, &d->d2, *data->a5font);
 			}
+			ret |= D_REDRAW;
 		}
         break;
         
