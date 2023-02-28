@@ -1494,31 +1494,6 @@ static MENU module_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-static MENU etc_menu[] =
-{
-	{ (char *)"&Help",                      NULL /*onHelp*/,           zq_help_menu,             0,            NULL   },
-	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
-	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
-	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
-	// 5
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
-	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
-	// 10
-	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
-	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
-	{ (char *)"C&lear Quest Filepath",      onClearQuestFilepath,      NULL,                     0,            NULL   },
-	// 15
-	{ (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
-	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
-	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU media_menu[] =
 {
 	{ (char *)"Ambient Music  ",        NULL,                      tunes_menu,               0,            NULL   },
@@ -1529,7 +1504,28 @@ static MENU media_menu[] =
 
 };
 
-
+static MENU etc_menu[] =
+{
+	{ (char *)"&Help",                      NULL /*onHelp*/,           zq_help_menu,             0,            NULL   },
+	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
+	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
+	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
+	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	// 5
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
+	{ (char *)"Media",                      NULL,                      media_menu,               0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
+	// 10
+	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
+	// 15
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
 
 //New ZScript Menu for 2.55 Alpha 16
 static MENU zscript_menu[] =
