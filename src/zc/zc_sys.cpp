@@ -265,6 +265,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].proc = jwin_checkfont_proc;
 		else if(d[i].proc == jwin_radio_proc)
 			d[i].proc = jwin_radiofont_proc;
+		else if(d[i].proc == jwin_radio_proc_a5)
+			d[i].proc = jwin_radiofont_proc_a5;
 	}
 	
 	jwin_center_dialog(d);

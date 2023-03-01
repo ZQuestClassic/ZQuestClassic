@@ -355,7 +355,7 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 		int doff = 6;
 		while(doff && h < th+(doff*2))
 			--doff;
-		while(doff && w < tlen+10+(doff*2))
+		while(doff && w < tlen+2+(doff*2))
 			--doff;
 		if(doff)
 			dotted_rect_a5(x+doff, y+doff, x+w-doff-1, y+h-doff-1, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
@@ -492,7 +492,7 @@ void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bo
 }
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
 {
-	ALLEGRO_COLOR c = jwin_a5_pal(jcDARK);
+	ALLEGRO_COLOR c = jwin_a5_pal(jcBOXFG);
 	int32_t ah = zc_min(h/3, 5);
 	
 	jwin_draw_button_a5(x,y,w,h,state,1);
@@ -2296,7 +2296,7 @@ int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				if(str)
 				{
 					if(d->flags & D_DISABLED)
-						tl=gui_textout_ln_a5_dis(a5font, str, tx2, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcDISABLED_FG),jwin_a5_pal(jcDISABLED_BG),0,jwin_a5_pal(jcLIGHT));
+						tl=gui_textout_ln_a5_dis(a5font, str, tx2, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcDISABLED_FG),jwin_a5_pal(jcBOX),0,jwin_a5_pal(jcLIGHT));
 					else
 						tl=gui_textout_ln_a5(a5font, str, tx2, ty+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcBOXFG),jwin_a5_pal(jcBOX),0);
 				}
@@ -5188,4 +5188,96 @@ int32_t jwin_numedit_proc_a5(int32_t msg,DIALOG *d,int32_t c)
 	return jwin_edit_proc_a5(msg,d,c);
 }
 
+int32_t jwin_radio_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+    int32_t x, center, r, ret, tl=0, tx;
+    ASSERT(d);
+    
+	int fh = al_get_font_line_height(a5font);
+    switch(msg)
+    {
+		case MSG_DRAW:
+			tx=d->x+int32_t(fh*1.5);
+			
+			if(d->dp)
+			{
+				if(d->flags & D_DISABLED)
+					tl = gui_textout_ln_a5_dis(a5font,(char*)d->dp, tx, d->y+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcDISABLED_FG), jwin_a5_pal(jcBOX), 0, jwin_a5_pal(jcLIGHT));
+				else
+					tl = gui_textout_ln_a5(a5font,(char*)d->dp, tx, d->y+(d->h-(fh-gui_font_baseline))/2, jwin_a5_pal(jcBOXFG), jwin_a5_pal(jcBOX), 0);
+			}
+			
+			x = d->x;
+			r = d->h/2;
+			
+			center = x+r;
+			al_draw_filled_rectangle(x, d->y, x+d->h, d->y+d->h, jwin_a5_pal(jcBOX));
+			
+			if(d->d2 == 1)
+			{
+				jwin_draw_frame_a5(x, d->y, d->h, d->h, FR_DEEP);
+				
+				if(!(d->flags & D_DISABLED))
+					al_draw_filled_rectangle(x+2, d->y+2, x+d->h-2, d->y+d->h-2, jwin_a5_pal(jcLIGHT));
+				
+				if(d->flags & D_SELECTED)
+					al_draw_filled_rectangle(x+r/2, d->y+r/2, x+d->h-r/2, d->y+d->h-r/2, jwin_a5_pal(jcDARK));
+			}
+			else
+			{
+				al_draw_filled_circle(center, d->y+r, r, jwin_a5_pal(jcTEXTBG));
+				al_draw_arc(center, d->y+r, r, 32, 160, jwin_a5_pal(jcDARK), 1);
+				al_draw_filled_circle(center, d->y+r, r-1, jwin_a5_pal(jcTEXTBG));
+				al_draw_filled_circle(center, d->y+r, r-2, jwin_a5_pal((d->flags & D_DISABLED)?jcDISABLED_BG:jcTEXTBG));
+				
+				if(d->flags & D_SELECTED)
+					al_draw_filled_circle(center, d->y+r, r-3, jwin_a5_pal(jcTEXTFG));
+			}
+			
+			if(d->dp)
+			{
+				dotted_rect_a5(tx-1, d->y-1, tx+tl, d->y+fh, jwin_a5_pal((d->flags & D_GOTFOCUS)?jcDARK:jcBOX), jwin_a5_pal(jcBOX));
+				d->w=tl+int32_t(fh*1.5)+1;
+			}
+			return D_O_K;
+			
+		case MSG_KEY:
+		case MSG_CLICK:
+			if(d->flags & D_SELECTED)
+				return D_O_K;
+			break;
+			
+		case MSG_RADIO:
+			if((c == d->d1) && (d->flags & D_SELECTED))
+			{
+				d->flags &= ~D_SELECTED;
+				object_message(d, MSG_DRAW, 0);
+			}
+			break;
+    }
+    
+    ret = d_jwinbutton_proc_a5(msg, d, 0);
+    
+    if(((msg==MSG_KEY) || (msg==MSG_CLICK)) && (d->flags & D_SELECTED) && (!(d->flags & D_EXIT)))
+    {
+        d->flags &= ~D_SELECTED;
+        broadcast_dialog_message(MSG_RADIO, d->d1);
+        d->flags |= D_SELECTED;
+		GUI_EVENT(d, geRADIO);
+    }
+    
+    return ret;
+}
+
+int32_t jwin_radiofont_proc_a5(int32_t msg, DIALOG *d, int32_t c)
+{
+    ALLEGRO_FONT* oldfont = a5font;
+    
+    if(d->dp2)
+        a5font = (ALLEGRO_FONT*)d->dp2;
+    
+    int32_t rval = jwin_radio_proc_a5(msg, d, c);
+    a5font = oldfont;
+    return rval;
+}
 

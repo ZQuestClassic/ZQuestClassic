@@ -92,5 +92,8 @@ int32_t jwin_edit_proc_a5(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_hexedit_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 int32_t jwin_numedit_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 
+int32_t jwin_radio_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_radiofont_proc_a5(int32_t msg, DIALOG *d, int32_t c);
+
 #endif                                                      // _JWIN_H_
 
