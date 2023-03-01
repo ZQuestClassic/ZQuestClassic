@@ -228,6 +228,10 @@ void dotted_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLO
 	int32_t x = ((x1+y1) & 1) ? 1 : 0;
 	int32_t c;
 	
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	if(!al_lock_bitmap_region(dest,x1,y1,x2-x1+1,y2-y1+1,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE))
+		return;
+	
 	for(c=x1; c<=x2; c++)
 	{
 		al_put_pixel(c, y1, (((c+y1) & 1) == x) ? fg : bg);
@@ -239,6 +243,8 @@ void dotted_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLO
 		al_put_pixel(x1, c, (((c+x1) & 1) == x) ? fg : bg);
 		al_put_pixel(x2, c, (((c+x2) & 1) == x) ? fg : bg);
 	}
+	
+	al_unlock_bitmap(dest);
 }
 
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str)
@@ -338,13 +344,22 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 	}
 	
 	int th = al_get_font_line_height(a5font);
+	int tlen;
 	if(flags & D_DISABLED)
-		gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcDISABLED_FG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
+		tlen = gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcDISABLED_FG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
 	else
-		gui_textout_ln_a5(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE);
+		tlen = gui_textout_ln_a5(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE);
 	
 	if(show_dotted_rect&&(flags & D_GOTFOCUS))
-		dotted_rect_a5(x+4, y+4, x+w-5, y+h-5, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
+	{
+		int doff = 6;
+		while(doff && h < th+(doff*2))
+			--doff;
+		while(doff && w < tlen+10+(doff*2))
+			--doff;
+		if(doff)
+			dotted_rect_a5(x+doff, y+doff, x+w-doff-1, y+h-doff-1, jwin_a5_pal(jcDARK), jwin_a5_pal(jcBOX));
+	}
 }
 bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
@@ -2045,7 +2060,7 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				/* track the mouse until it is released */
 				while(gui_mouse_b())
 				{
-					down = mouse_in_rect(d->x, d->y, d->w, d->h);
+					down = mouse_in_rect(d->x, d->y, d->w, d->h)?1:0;
 					
 					/* redraw? */
 					if(last_draw != down)
@@ -2069,12 +2084,12 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				/* redraw in normal state */
 				if(down)
 				{
-					GUI_EVENT(d, geCLICK);
 					if(d->flags&D_EXIT)
 					{
 						d->flags &= ~D_SELECTED;
 						object_message(d, MSG_DRAW, 0);
 					}
+					GUI_EVENT(d, geCLICK);
 				}
 				
 				/* should we close the dialog? */
