@@ -268,9 +268,9 @@ int popup_menu(MENU *menu,int x,int y)
 	while(gui_mouse_b())
 		rest(1);
 	
-	popup_zqdialog_start();
+	popup_zqdialog_start_a5();
 	auto ret = jwin_do_menu(menu,x,y);
-	popup_zqdialog_end();
+	popup_zqdialog_end_a5();
 	return ret;
 }
 int popup_menu_abs(MENU *menu,int x,int y)

@@ -232,7 +232,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 							&& proc != d_idroplist_proc && proc != d_nidroplist_proc && proc != jwin_as_droplist_proc && proc != d_ffcombolist_proc && proc != d_enelist_proc && proc != sstype_drop_proc && proc !=  d_ctl_proc
 							&& proc != jwin_fontdrop_proc && proc != d_csl_proc && proc != d_csl2_proc && proc != d_stilelist_proc && proc != d_comboalist_proc);
 		bool a5proc = (proc == jwin_win_proc_a5 || proc == jwin_tab_proc_a5 || proc == jwin_text_proc_a5 || proc == jwin_ctext_proc_a5 || proc == jwin_rtext_proc_a5 || proc == new_text_proc_a5 || proc == jwin_button_proc_a5
-			|| proc == jwin_selcolor_proc_a5 || proc == jwin_color_swatch_a5);
+			|| proc == jwin_selcolor_proc_a5 || proc == jwin_color_swatch_a5 || proc == jwin_menu_proc);
 		if(bigfontproc && !d[i].dp2)
 		{
 			d[i].dp2 = a5proc ? (void*)get_custom_font_a5(CFONT_DLG) : (void*)get_custom_font(CFONT_DLG);

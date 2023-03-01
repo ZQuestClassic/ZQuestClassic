@@ -3820,7 +3820,11 @@ void edit_subscreen()
 		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
 	
-    int32_t ret = zc_popup_dialog(subscreen_dlg,2);
+	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
+	popup_zqdialog_start_a5();
+    int32_t ret = new_popup_dlg(subscreen_dlg,2);
+	popup_zqdialog_end_a5();
+	popup_zqdialog_end();
     
     if(ret==1)
     {

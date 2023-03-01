@@ -348,13 +348,66 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 		jwin_draw_button_a5(x+1, y+1, w-2, h-2, 0, 0);
 	}
 	
-	int th = al_get_font_line_height(a5font);
-	int tlen;
-	if(flags & D_DISABLED)
-		tlen = gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcDISABLED_FG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
-	else
-		tlen = gui_textout_ln_a5(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE);
-	
+	bool drawstring = true;
+	int th, tlen;
+	if(str[1]==0 && byte(str[0]) >= 0x80)
+	{
+		drawstring = false;
+		ALLEGRO_COLOR col = jwin_a5_pal((flags & D_DISABLED) ? jcLIGHT : jcBOXFG);
+		int aw = w/4, ah = h/4;
+		int woff = (aw/2)+1, hoff = (ah/2)+1;
+		int x1 = x+w/2, x2 = x+(w-aw)/2;
+		int y1 = y+(h-aw)/2, y2 = y+h/2;
+		bool horz = false;
+		switch(byte(str[0]))
+		{
+			case 0x88:
+				draw_arrow_a5(col, x1, y1, ah, true, true);
+				th = ah, tlen = ah*2;
+				break;
+			case 0x89:
+				draw_arrow_a5(col, x1, y1, ah, false, true);
+				th = ah, tlen = ah*2;
+				break;
+			case 0x8A:
+				draw_arrow_horz_a5(col, x2, y2, aw, true, true);
+				th = aw*2, tlen = aw;
+				break;
+			case 0x8B:
+				draw_arrow_horz_a5(col, x2, y2, aw, false, true);
+				th = aw*2, tlen = aw;
+				break;
+			case 0x98:
+				draw_arrow_a5(col, x1, y1-hoff, ah, false, true);
+				draw_arrow_a5(col, x1, y1+hoff, ah, true, true);
+				th = hoff*2+1, tlen = ah*2;
+				break;
+			case 0x99:
+				draw_arrow_a5(col, x1, y1-hoff, ah, true, true);
+				draw_arrow_a5(col, x1, y1+hoff, ah, false, true);
+				th = hoff*2+1, tlen = ah*2;
+				break;
+			case 0x9A:
+				draw_arrow_horz_a5(col, x2-woff, y2, aw, false, true);
+				draw_arrow_horz_a5(col, x2+woff, y2, aw, true, true);
+				th = aw*2, tlen = woff*2+1;
+				break;
+			case 0x9B:
+				draw_arrow_horz_a5(col, x2-woff, y2, aw, true, true);
+				draw_arrow_horz_a5(col, x2+woff, y2, aw, false, true);
+				th = aw*2, tlen = woff*2+1;
+				break;
+			default: drawstring = true;
+		}
+	}
+	if(drawstring)
+	{
+		th = al_get_font_line_height(a5font);
+		if(flags & D_DISABLED)
+			tlen = gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcDISABLED_FG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
+		else
+			tlen = gui_textout_ln_a5(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE);
+	}
 	if(show_dotted_rect&&(flags & D_GOTFOCUS))
 	{
 		int doff = 6;
@@ -491,9 +544,14 @@ void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bo
 	if(!center)
 		x += h-1;
 	for(int i = 0; i<h; i++)
-	{
 		al_draw_hline(x-(up?i:h-i-1), y+i, x+(up?i:h-i-1)+1, c);
-	}
+}
+void draw_arrow_horz_a5(ALLEGRO_COLOR c, int x, int y, int w, bool left, bool center)
+{
+	if(!center)
+		y += w-1;
+	for(int i = 0; i<w; i++)
+		al_draw_vline(x+i, y-(left?i:w-i-1), y+(left?i:w-i-1)+1, c);
 }
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
 {

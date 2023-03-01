@@ -47,6 +47,7 @@ void draw_x_button_a5(int32_t x, int32_t y, int32_t state);
 void draw_checkbox_a5(int32_t x,int32_t y,int32_t sz,bool value);
 void draw_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,bool value);
 void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bool center);
+void draw_arrow_horz_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t w, bool left, bool center);
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state);
 int32_t jwin_do_x_button_dlg_a5(int32_t x, int32_t y);
 bool jwin_do_x_button_a5(int32_t x, int32_t y);
