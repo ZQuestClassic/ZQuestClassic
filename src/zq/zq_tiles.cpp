@@ -2772,7 +2772,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(do_text_button_a5(edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal"))
 				{
-					popup_menu(colors_menu,edit_button.x+2,edit_button.y-40);
+					popup_menu_abs(colors_menu,edit_button.x+2,edit_button.y-40);
 					get_palette(tpal);
 				}
 			}
@@ -16267,7 +16267,7 @@ REDRAW:
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
 			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
-			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
+			int32_t m = popup_menu_abs(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
 			switch(m)
@@ -17927,7 +17927,7 @@ REDRAW:
 		//Seriously? There is duplicate code for the r-click menu? -Gleeok
 		if(r_click)
 		{
-			int32_t m = popup_menu(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
+			int32_t m = popup_menu_abs(select_combo_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
 			switch(m)
@@ -20899,7 +20899,7 @@ REDRAW_DMAP_SELTILE:
 			select_tile_view_menu[2].flags = HIDE_BLANK ? D_SELECTED : 0;
 			select_tile_view_menu[3].flags = HIDE_8BIT_MARKER ? D_SELECTED : 0;
 			select_tile_rc_menu[7].flags = (type!=0) ? D_DISABLED : 0;
-			int32_t m = popup_menu(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
+			int32_t m = popup_menu_abs(select_tile_rc_menu,gui_mouse_x(),gui_mouse_y());
 			redraw=true;
 			
 			switch(m)

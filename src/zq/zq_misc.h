@@ -53,19 +53,6 @@
 
 #define C(x)   ((x)-'a'+1)
 
-INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
-{
-	while(gui_mouse_b())
-	{
-		rest(1);
-	}
-	
-	popup_zqdialog_start();
-	auto ret = jwin_do_menu(menu,x,y);
-	popup_zqdialog_end();
-	return ret;
-}
-
 INLINE int32_t bit(int32_t val,int32_t b)
 {
     return (val>>b)&1;

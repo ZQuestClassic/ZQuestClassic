@@ -28,5 +28,8 @@ int32_t  popup_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
 int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
+
+int popup_menu(MENU *menu,int x,int y);
+int popup_menu_abs(MENU *menu,int x,int y);
 #endif                                                      // _GUI_H_
 
