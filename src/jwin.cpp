@@ -6575,13 +6575,11 @@ int32_t droplist(DIALOG *d)
 	droplist_dlg[0].h = zq_screen_h;
 	
 	popup_zqdialog_start_a5(x,y,w,h);
-	popup_zqdialog_start(x,y,w,h);
 	int ret = d1;
 	if(new_popup_dlg(droplist_dlg,1)==1)
 	{
 		ret = droplist_dlg[1].d1;
 	}
-	popup_zqdialog_end();
 	popup_zqdialog_end_a5();
 	return ret;
 }
