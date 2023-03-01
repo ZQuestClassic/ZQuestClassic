@@ -95,7 +95,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 					{
 						int32_t tmptile = tile+tx+(TILES_PER_ROW*ty);
 						
-						a5_draw_tile(tx*16,ty*16,tmptile,cset,0,0);
+						a5_draw_tile(tx*16,ty*16,tmptile,cset,0,0,false);
 					}
 				}
 				//Unlock and handle minitile

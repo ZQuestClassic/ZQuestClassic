@@ -71,7 +71,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 				al_set_target_bitmap(buf);
 				auto* lock = al_lock_bitmap(buf,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
 				// Draw the tile
-				a5_draw_tile(0,0,tile,cset,0,fl);
+				a5_draw_tile(0,0,tile,cset,0,fl,false);
 				// Un-target the buffer
 				al_unlock_bitmap(buf);
 				al_restore_state(&old_state);

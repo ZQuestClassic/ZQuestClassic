@@ -102,6 +102,10 @@ bool is_valid_format(byte format);
 int32_t tilesize(byte format);
 int32_t comboa_lmasktotal(byte layermask);
 
-void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, unsigned char alpha = 255);
+void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask = true, unsigned char alpha = 255);
+void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask = true, unsigned char alpha = 255);
+void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask = true, unsigned char alpha = 255);
+void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool mask = true, unsigned char alpha = 255);
+
 #endif                                                      // _ZC_TILES_H_
  

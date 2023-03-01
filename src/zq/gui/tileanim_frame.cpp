@@ -85,7 +85,7 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 					if(!(cs2&0xF0) || !(cs2&0xF) || newtilebuf[tmptile].format > tf4Bit)
 						tcs2 = 0;
 					
-					a5_draw_tile(tx*16,ty*16,tmptile,cset,tcs2,fl);
+					a5_draw_tile(tx*16,ty*16,tmptile,cset,tcs2,fl,false);
 				}
 			}
 			// Un-target the buffer

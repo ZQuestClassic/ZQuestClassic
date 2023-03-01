@@ -2801,7 +2801,7 @@ int32_t comboa_lmasktotal(byte layermask)
 }
 
 //A5 draws
-static void _a5_drawtile_16(int x, int y, int tile, int cs, int flip, unsigned char alpha)
+static void _a5_drawtile_16(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
 {
 	cs <<= CSET_SHFT;
 	unpack_tile(newtilebuf, tile, flip&5, false);
@@ -2812,10 +2812,11 @@ static void _a5_drawtile_16(int x, int y, int tile, int cs, int flip, unsigned c
 		for(int dy = 0; dy < 16; ++dy)
 		{
 			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
+			if(!mask || si[ind])
+				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
 		}
 }
-static void _a5_drawtile_8(int x, int y, int tile, int cs, int flip, unsigned char alpha)
+static void _a5_drawtile_8(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
 {
 	cs <<= CSET_SHFT;
 	unpack_tile(newtilebuf, tile>>2, 0, false);
@@ -2829,10 +2830,11 @@ static void _a5_drawtile_8(int x, int y, int tile, int cs, int flip, unsigned ch
 		for(int dy = 0; dy < 8; ++dy)
 		{
 			int ind = (xoff+(hflip ? 7-dx : dx)) + (16 * (yoff+(vflip ? 7-dy : dy)));
-			al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
+			if(!mask || si[ind])
+				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
 		}
 }
-static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, unsigned char alpha)
+static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, bool mask, unsigned char alpha)
 {
 	for(int q = 0; q < 4; ++q)
 		cset[q] <<= CSET_SHFT;
@@ -2845,12 +2847,33 @@ static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, un
 		{
 			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
 			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
+			if(!mask || si[ind])
+				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
 		}
 }
-void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, unsigned char alpha)
+void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask, unsigned char alpha)
 {
-	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!alpha))
+	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!mask) || !alpha || w<1 || h<1)
+		return;
+	if(newtilebuf[tile].format>tf4Bit)
+		cs = 0;
+	else cs &= 15;
+	
+	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
+	auto* lock = al_lock_bitmap_region(targ,x,y,16*w,16*h,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
+	
+	for(int tx = 0; tx < w; ++tx)
+		for(int ty = 0; ty < h; ++ty)
+		{
+			_a5_drawtile_16(x+(16*tx),y+(16*ty),tile+tx+(ty*TILES_PER_ROW),cs,flip,mask,alpha);
+		}
+	
+	if(lock)
+		al_unlock_bitmap(targ);
+}
+void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask, unsigned char alpha)
+{
+	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!mask) || !alpha)
 		return;
 	if(newtilebuf[tile].format>tf4Bit)
 		cs = cs2 = 0;
@@ -2878,13 +2901,33 @@ void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, unsigned ch
 	auto* lock = al_lock_bitmap_region(targ,x,y,16,16,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
 	
 	if(quartered)
-		_a5_drawtile_16_cs2(x,y,tile,csets,flip,alpha);
-	else _a5_drawtile_16(x,y,tile,cs,flip,alpha);
+		_a5_drawtile_16_cs2(x,y,tile,csets,flip,mask,alpha);
+	else _a5_drawtile_16(x,y,tile,cs,flip,mask,alpha);
 	
 	if(lock)
 		al_unlock_bitmap(targ);
 }
-
+void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
+{
+	int rt = tile>>2;
+	if(rt<0 || rt>=NEWMAXTILES || (blank_tile_quarters_table[tile]&&!mask) || !alpha)
+		return;
+	if(newtilebuf[rt].format>tf4Bit)
+		cs = 0;
+	else cs &= 15;
+	
+	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
+	auto* lock = al_lock_bitmap_region(targ,x,y,8,8,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
+	
+	_a5_drawtile_8(x,y,tile,cs,flip,mask,alpha);
+	
+	if(lock)
+		al_unlock_bitmap(targ);
+}
+void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool mask, unsigned char alpha)
+{
+	a5_draw_tile8(x,y,(tile<<2)|(mini&3),cs,flip,mask,alpha);
+}
 
 
 /* end of tiles.cc */

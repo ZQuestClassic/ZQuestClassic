@@ -3,7 +3,7 @@
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include "subscr.h"
 #include "tiles.h"
 #include <utility>
@@ -48,14 +48,16 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int32_t msgtile = str->tile;
 	int32_t msgcset = str->cset;
 	
-	FONT *workfont = getfont(str->font);
+	ALLEGRO_FONT *workfont = get_zc_font_a5(str->font);
 	
 	std::string s2 = parse_msg_str(s);
 	strip_trailing_spaces(s2);
 	
-	BITMAP *buf = create_bitmap_ex(8,256,168);
-	if(!buf) return; //sanity, I guess?
-	clear_bitmap(buf);
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	set_bitmap_create_flags(true);
+	ALLEGRO_BITMAP *buf = al_create_bitmap(256,168);
+	al_set_target_bitmap(buf);
 	
 	bool done = false;
 	
@@ -63,13 +65,13 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	{
 		if(str->stringflags & STRINGFLAG_FULLTILE)
 		{
-			draw_block_flip(buf,0,0,msgtile,msgcset,
-				(int32_t)ceil(w/16.0),(int32_t)ceil(h/16.0),0,false,false);
+			int tw = (int)ceil(w/16.0), th = (int)ceil(h/16.0);
+			a5_draw_tile(0,0,msgtile,msgcset,tw,th,0,false,255);
 		}
 		else
 		{
 			int32_t add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
-			frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
+			frame2x2_a5(&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
 		}
 	}
 		
@@ -137,13 +139,13 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 				i++;
 			}
 			
-			tlength = text_length(workfont, s3.c_str());
+			tlength = al_get_text_width(workfont, s3.c_str());
 			
 			if(cursor_x+tlength+hjump > (w-msg_margins[right]) 
 			   && ((cursor_x > (w-msg_margins[right]) || !(str->stringflags & STRINGFLAG_WRAP))
 					? 1 : (s3 != " ")))
 			{
-				int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
+				int32_t thei = zc_max(ssc_tile_hei, al_get_font_line_height(workfont));
 				ssc_tile_hei = -1;
 				cursor_y += thei + str->vspace;
 				if(BOTTOM_MARGIN_CLIP()) break;
@@ -160,7 +162,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					{
 						if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
 						{
-							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
+							int32_t thei = zc_max(ssc_tile_hei, al_get_font_line_height(workfont));
 							ssc_tile_hei = -1;
 							cursor_y += thei + str->vspace;
 							if(BOTTOM_MARGIN_CLIP()) done = true;
@@ -204,24 +206,22 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 								wrapstr[0] = namestr[q];
 							}
 							
-							tlength = text_length(workfont, wrapstr);
+							tlength = al_get_text_width(workfont, wrapstr);
 							
 							if(int32_t(cursor_x+tlength+(str->hspace*strlen(namestr))) > int32_t(w-msg_margins[right]))
 							{
-								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
+								int32_t thei = zc_max(ssc_tile_hei, al_get_font_line_height(workfont));
 								ssc_tile_hei = -1;
 								cursor_y += thei + str->vspace;
 								if(BOTTOM_MARGIN_CLIP()) break;
 								cursor_x=msg_margins[left];
 							}
 							
-							char cbuf[2] = {0};
+							char cbuf[2] = {namestr[q],0};
 							
-							sprintf(cbuf,"%c",namestr[q]);
+							jwin_textout_a5_shd(workfont,a5color(msgcolour),cursor_x,cursor_y,0,cbuf,AL5_INVIS,a5color(shdcolor),shdtype);
 							
-							textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x,cursor_y,shdtype,sstaLEFT,msgcolour,shdcolor,-1);
-							
-							cursor_x += workfont->vtable->char_length(workfont, namestr[q]);
+							cursor_x += al_get_text_width(workfont, cbuf);
 							cursor_x += str->hspace;
 						}
 						break;
@@ -234,17 +234,19 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						int32_t t_wid = grab_next_argument(s2, &i);
 						int32_t t_hei = grab_next_argument(s2, &i);
 						int32_t fl = grab_next_argument(s2, &i);
+						int tw = (int)ceil(t_wid/16.0), th = (int)ceil(t_hei/16.0);
 						
 						if(cursor_x+str->hspace + t_wid > w-msg_margins[right])
 						{
-							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
+							int32_t thei = zc_max(ssc_tile_hei, al_get_font_line_height(workfont));
 							ssc_tile_hei = -1;
 							cursor_y += thei + str->vspace;
 							if(BOTTOM_MARGIN_CLIP()) break;
 							cursor_x=msg_margins[left];
 						}
 						
-						overtileblock16(buf, tl, cursor_x, cursor_y, (int32_t)ceil(t_wid/16.0), (int32_t)ceil(t_hei/16.0), cs, fl);
+						a5_draw_tile(cursor_x, cursor_y, tl, cs, tw, th, fl);
+						
 						if(t_hei > ssc_tile_hei)
 							ssc_tile_hei = t_hei;
 						cursor_x += str->hspace + t_wid;
@@ -269,14 +271,16 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						(void)grab_next_argument(s2, &i);
 						if(cursor_x+str->hspace + _menu_t_wid > w-msg_margins[right])
 						{
-							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
+							int32_t thei = zc_max(ssc_tile_hei, al_get_font_line_height(workfont));
 							ssc_tile_hei = -1;
 							cursor_y += thei + str->vspace;
 							if(BOTTOM_MARGIN_CLIP()) break;
 							cursor_x=msg_margins[left];
 						}
 						
-						overtileblock16(buf, _menu_tl, cursor_x, cursor_y, (int32_t)ceil(_menu_t_wid/16.0), (int32_t)ceil(_menu_t_hei/16.0), _menu_cs, _menu_fl);
+						int tw = (int)ceil(_menu_t_wid/16.0), th = (int)ceil(_menu_t_hei/16.0);
+						a5_draw_tile(cursor_x, cursor_y, _menu_tl, _menu_cs, tw, th, _menu_fl);
+						
 						if(_menu_t_hei > ssc_tile_hei)
 							ssc_tile_hei = _menu_t_hei;
 						cursor_x += str->hspace + _menu_t_wid;
@@ -286,14 +290,11 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					default:
 						if(s3[k] >= 32 && s3[k] <= 126)
 						{
-							//textprintf_ex(buf,workfont,cursor_x,cursor_y,msgcolour,-1,"%c",s3[k]);
-							char cbuf[2] = {0};
+							char cbuf[2] = {s3[k],0};
 							
-							sprintf(cbuf,"%c",s3[k]);
+							jwin_textout_a5_shd(workfont,a5color(msgcolour),cursor_x,cursor_y,0,cbuf,AL5_INVIS,a5color(shdcolor),shdtype);
 							
-							textout_styled_aligned_ex(buf,workfont,cbuf,cursor_x,cursor_y,shdtype,sstaLEFT,msgcolour,shdcolor,-1);
-							
-							cursor_x += workfont->vtable->char_length(workfont, s3[k]);
+							cursor_x += al_get_text_width(workfont, cbuf);
 							cursor_x += str->hspace;
 						}
 						else
@@ -315,7 +316,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 			&& MsgStrings[nextstring].stringflags & STRINGFLAG_CONT)
 		{
 			str = &MsgStrings[nextstring];
-			workfont = getfont(str->font);
+			workfont = get_zc_font_a5(str->font);
 			
 			s2 = str->s;
 			strip_trailing_spaces(s2);
@@ -329,8 +330,9 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 		}
 	}
 	
-	stretch_blit(buf,screen,0,0,256,168,x,y,256*2,168*2);
-	destroy_bitmap(buf);
+	al_restore_state(&old_state);
+	al_draw_scaled_bitmap(buf, 0, 0, 256, 168, x, y, 256*2,168*2, 0);
+	al_destroy_bitmap(buf);
 }
 
 int32_t d_newmsg_preview_proc(int32_t msg,DIALOG *d,int32_t)
@@ -348,8 +350,8 @@ int32_t d_newmsg_preview_proc(int32_t msg,DIALOG *d,int32_t)
 	MsgStr const* str = prv->getData();
 	if(!str) str = &nulled_str;
 	
-	rectfill(screen, d->x, d->y, d->x+d->w, d->y+d->h, 0);
-	jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
+	al_draw_filled_rectangle(d->x, d->y, d->x+d->w, d->y+d->h, a5color(0));
+	jwin_draw_frame_a5(d->x, d->y, d->w, d->h, FR_DEEP);
 	put_msg_str(s,d->x+2,d->y+2, str, prv->getIndex());
 	
 	return D_O_K;

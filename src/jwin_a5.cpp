@@ -15,6 +15,7 @@
 #include "gui/tabpanel.h"
 #include "gui/text_field.h"
 #include "dialog/info.h"
+#include "subscr.h"
 using namespace util;
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -305,6 +306,112 @@ void jwin_textout_a5_dis(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, in
 		al_draw_filled_rectangle(bgx,bgy,bgx+w,bgy+h,bgc);
 	}
 	al_draw_text(f,dis_c,x+1,y+1,flag,str);
+	al_draw_text(f,tc,x,y,flag,str);
+}
+void jwin_textout_a5_shd(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR shd_c, int shdty)
+{
+	unsigned char r,g,b,a;
+	al_unmap_rgba(bgc,&r,&g,&b,&a);
+	if(a)
+	{
+		float w = al_get_text_width(f, str);
+		float h = al_get_font_line_height(f);
+		float bgx = x;
+		float bgy = y;
+		switch(shdty)
+		{
+			case sstsNORMAL:
+				break;
+			case sstsSHADOW:
+			case sstsSHADOWED:
+				++w, ++h;
+				break;
+			case sstsSHADOWU:
+			case sstsSHADOWEDU:
+				w+=2, ++h, --bgx;
+				break;
+			case sstsOUTLINE8:
+			case sstsOUTLINED8:
+			case sstsOUTLINEPLUS:
+			case sstsOUTLINEDPLUS:
+			case sstsOUTLINEX:
+			case sstsOUTLINEDX:
+				w+=2, h+=2, --bgx, --bgy;
+				break;
+		}
+		
+		switch(flag)
+		{
+			case ALLEGRO_ALIGN_LEFT:
+				break;
+			case ALLEGRO_ALIGN_CENTRE:
+				bgx -= w/2;
+				break;
+			case ALLEGRO_ALIGN_RIGHT:
+				bgx -= w;
+				break;
+		}
+		al_draw_filled_rectangle(bgx,bgy,bgx+w,bgy+h,bgc);
+	}
+	bool shdonly = false;
+	switch(shdty)
+	{
+		case sstsNORMAL:
+			break;
+		case sstsSHADOW:
+			shdonly = true;
+			[[fallthrough]];
+		case sstsSHADOWED:
+			al_draw_text(f,shd_c,x+1,y+0,flag,str);
+			al_draw_text(f,shd_c,x+1,y+1,flag,str);
+			al_draw_text(f,shd_c,x+0,y+1,flag,str);
+			break;
+		
+		case sstsSHADOWU:
+			shdonly = true;
+			[[fallthrough]];
+		case sstsSHADOWEDU:
+			al_draw_text(f,shd_c,x+1,y+0,flag,str);
+			al_draw_text(f,shd_c,x+1,y+1,flag,str);
+			al_draw_text(f,shd_c,x+0,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y+0,flag,str);
+			break;
+		
+		case sstsOUTLINE8:
+			shdonly = true;
+			[[fallthrough]];
+		case sstsOUTLINED8:
+			al_draw_text(f,shd_c,x+1,y+0,flag,str);
+			al_draw_text(f,shd_c,x+1,y+1,flag,str);
+			al_draw_text(f,shd_c,x+0,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y+0,flag,str);
+			al_draw_text(f,shd_c,x-1,y-1,flag,str);
+			al_draw_text(f,shd_c,x+0,y-1,flag,str);
+			al_draw_text(f,shd_c,x+1,y-1,flag,str);
+			break;
+		
+		case sstsOUTLINEPLUS:
+			shdonly = true;
+			[[fallthrough]];
+		case sstsOUTLINEDPLUS:
+			al_draw_text(f,shd_c,x+1,y+0,flag,str);
+			al_draw_text(f,shd_c,x+0,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y+0,flag,str);
+			al_draw_text(f,shd_c,x+0,y-1,flag,str);
+			break;
+		
+		case sstsOUTLINEX:
+			shdonly = true;
+			[[fallthrough]];
+		case sstsOUTLINEDX:
+			al_draw_text(f,shd_c,x+1,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y+1,flag,str);
+			al_draw_text(f,shd_c,x-1,y-1,flag,str);
+			al_draw_text(f,shd_c,x+1,y-1,flag,str);
+			break;
+	}
 	al_draw_text(f,tc,x,y,flag,str);
 }
 
