@@ -299,6 +299,7 @@ void end_info_bmp()
 
 void render_zc()
 {
+	if(render_frozen()) return;
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	

@@ -5,8 +5,23 @@
 RenderTreeItem rti_dialogs;
 
 extern int32_t zq_screen_w, zq_screen_h;
-unsigned char info_opacity = 255;
 bool use_linear_bitmaps();
+unsigned char info_opacity = 255;
+static int freezecount = 0;
+void freeze_render()
+{
+	++freezecount;
+}
+void unfreeze_render()
+{
+	if(freezecount > 0)
+		--freezecount;
+}
+bool render_frozen()
+{
+	return freezecount > 0;
+}
+
 
 void set_bitmap_create_flags(bool preserve_texture)
 {

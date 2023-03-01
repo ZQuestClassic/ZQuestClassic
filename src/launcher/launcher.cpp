@@ -558,6 +558,7 @@ static void configure_render_tree()
 
 static void render_launcher()
 {
+	if(render_frozen()) return;
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	

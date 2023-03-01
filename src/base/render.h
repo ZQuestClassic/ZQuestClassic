@@ -57,6 +57,10 @@ public:
 
 extern RenderTreeItem rti_dialogs;
 
+void freeze_render();
+void unfreeze_render();
+bool render_frozen();
+
 void set_bitmap_create_flags(bool preserve_texture);
 ALLEGRO_COLOR a5color(RGB c);
 ALLEGRO_COLOR a5color(int index);
