@@ -865,6 +865,23 @@ void pack_tiles(byte *buf)
         buf[di]=0;
 }
 
+void load_tile(byte* buf, int tile)
+{
+	unpack_tile(newtilebuf, tile, 0, false);
+	memcpy(buf, unpackbuf, 256);
+}
+void load_minitile(byte* buf, int tile, int mini)
+{
+	unpack_tile(newtilebuf, tile, 0, false);
+	int xo = (mini&1)?8:0;
+	int yo = (mini&2)?8:0;
+	for(int x = 0; x < 8; ++x)
+		for(int y = 0; y < 8; ++y)
+		{
+			buf[x+(y*8)] = unpackbuf[(x+xo)+((y+yo)*16)];
+		}
+}
+
 int32_t rotate_table[8]=
 {
     4, 6, 5, 7, 3, 1, 2, 0
@@ -2833,7 +2850,7 @@ static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, un
 }
 void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, unsigned char alpha)
 {
-	if(tile<0 || tile>=NEWMAXTILES || blank_tile_table[tile])
+	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!alpha))
 		return;
 	if(newtilebuf[tile].format>tf4Bit)
 		cs = cs2 = 0;

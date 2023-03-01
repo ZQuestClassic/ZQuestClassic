@@ -51,7 +51,7 @@ public:
 		message = static_cast<int32_t>(m);
 	}
 	
-	int32_t sel_color;
+	ALLEGRO_COLOR sel_color;
 	void calc_selcolor();
 protected:
 	int32_t message;
@@ -73,7 +73,7 @@ private:
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
-	void applyFont(FONT* newFont) override;
+	void applyFont_a5(ALLEGRO_FONT* newFont) override;
 };
 
 }
