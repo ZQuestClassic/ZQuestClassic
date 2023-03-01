@@ -2134,7 +2134,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[0] = CornerSwatch(colSpan = 2,
 								val = solidity_to_flag(local_comboref.walk&0xF),
-								color = vc(12),
+								color = vc(4),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.walk &= ~0xF;
