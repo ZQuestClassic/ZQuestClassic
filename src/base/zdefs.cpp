@@ -15,6 +15,7 @@ using namespace util;
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
+bool devcfg = false, devcfg_active = false;
 volatile bool close_button_quit = false;
 
 int next_script_data_debug_id = 0;
@@ -88,7 +89,13 @@ void reset_theme()
 }
 void load_themefile(char const* fpath)
 {
-	load_themefile(fpath, RAMpal, jwin_a5_colors);
+	load_themefile(fpath, RAMpal);
+}
+void load_themefile(char const* fpath, PALETTE pal)
+{
+	ALLEGRO_COLOR c[9];
+	load_themefile(fpath, pal, c);
+	jwin_set_a5_colors(c,true);
 }
 #define VER_ZTHEME 1
 static void update_theme(int fromver)
@@ -135,7 +142,7 @@ const int db_hexval[8] =
 	0xC46460,
 	0xB04C4C,
 	0xA03838,
-	0x8C0000,
+	0xBB2020,
 	0x7C1818,
 	0x3C1010,
 	0x140000
@@ -187,6 +194,10 @@ void save_themefile(char const* fpath)
 {
 	save_themefile(fpath, RAMpal, jwin_a5_colors);
 }
+void save_themefile(char const* fpath, PALETTE pal)
+{
+	save_themefile(fpath, pal, jwin_a5_colors);
+}
 void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 {
 	zc_push_config();
@@ -199,7 +210,7 @@ void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
 	{
 		al_unmap_rgb(colors[q],&r,&g,&b);
 		hexval = (r<<16)|(g<<8)|(b);
-		zc_set_config_basic("Theme",fmt::format("color_{}",q).c_str(), hexval);
+		zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(), hexval);
 	}
 	
 	for(int q = 0; q < jcMAX; ++q)
@@ -221,9 +232,9 @@ const char* get_app_theme_filename()
 
 void load_udef_colorset(App a)
 {
-	load_udef_colorset(a, RAMpal, jwin_a5_colors);
+	load_udef_colorset(a, RAMpal);
 }
-void load_udef_colorset(App a, PALETTE pal, ALLEGRO_COLOR* colors)
+void load_udef_colorset(App a, PALETTE pal)
 {
 	char const* darkthemename = "themes/dark.ztheme";
 	char const* tfnm = zc_get_config("Theme", "theme_filename", "-", a);
@@ -232,27 +243,16 @@ void load_udef_colorset(App a, PALETTE pal, ALLEGRO_COLOR* colors)
 	
 	fix_filename_case(tmp_themefile);
 	fix_filename_slashes(tmp_themefile);
-	if(defaulted_theme &&
-		(zc_get_config("Theme", "dvc1_r", 1, a)
-		!= zc_get_config("Theme", "dvc1_r", 2, a)))
-	{
-		//Write these back to the custom theme file
-		strcpy(tmp_themefile, get_app_theme_filename());
-		load_themefile(get_config_file_name(a), pal, colors);
-		save_themefile(tmp_themefile, pal, colors);
-	}
-	else load_themefile(tmp_themefile, pal, colors);
+	load_themefile(tmp_themefile, pal);
 	if (defaulted_theme)
-	{
 		zc_set_config("Theme", "theme_filename", tmp_themefile);
-	}
 }
 
 void load_colorset(int32_t colorset)
 {
-	load_colorset(colorset, RAMpal, jwin_a5_colors);
+	load_colorset(colorset, RAMpal);
 }
-void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
+void load_colorset(int32_t colorset, PALETTE pal)
 {
 	bool udef = false;
 	switch(colorset)
@@ -490,7 +490,7 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		case 99:  //User Defined
 		{
 			udef = true;
-			load_udef_colorset(App::undefined, pal, colors);
+			load_udef_colorset(App::undefined, pal);
 			strcpy(themefile, tmp_themefile);
 		}
 		break;
@@ -591,11 +591,12 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 		jwin_pal[jcALT_TEXTBG] = jwin_pal[jcTEXTFG];
 		jwin_pal[jcDISABLED_FG] = jwin_pal[jcMEDDARK];
 		jwin_pal[jcDISABLED_BG] = jwin_pal[jcBOX];
-		
+		ALLEGRO_COLOR colors[9];
 		for(int q = 1; q <= 8; ++q)
 		{
 			colors[q] = a5color(pal[dvc(q)]);
 		}
+		jwin_set_a5_colors(colors, true);
 	}
 	
     gui_bg_color=jwin_pal[jcBOX];

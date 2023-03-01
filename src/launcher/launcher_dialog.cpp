@@ -438,6 +438,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							zthemepath[q] = 0;
 						}
 					}
+					forceDraw();
 				},
 				TabRef(name = "ZC Player", Row(framed = true,
 					Rows<2>(fitParent = true,

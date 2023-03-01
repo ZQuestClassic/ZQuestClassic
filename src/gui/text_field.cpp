@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include <gui/builder.h>
@@ -42,7 +42,7 @@ void TextField::setText(std::string_view newText)
 	}
 	else buffer[0] = '\0';
 	
-	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(al_get_text_width(widgFont_a5, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
 	
@@ -145,7 +145,7 @@ void TextField::setVal(int32_t val)
 	//
 	strcpy(buffer.get(), v.c_str());
 	
-	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(al_get_text_width(widgFont_a5, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
 	
@@ -378,31 +378,31 @@ void TextField::realize(DialogRunner& runner)
 		switch(tfType)
 		{
 			case type::SWAP_BYTE:
-				proc = newGUIProc<jwin_numedit_swap_byte_proc>;
+				proc = newGUIProc<jwin_numedit_swap_byte_proc_a5>;
 				if(unsigned(swap_type_start) > 1)
 					swap_type_start = 0;
 				break;
 
 			case type::SWAP_SSHORT:
-				proc = newGUIProc<jwin_numedit_swap_sshort_proc>;
+				proc = newGUIProc<jwin_numedit_swap_sshort_proc_a5>;
 				if(unsigned(swap_type_start) > 1)
 					swap_type_start = 0;
 				break;
 
 			case type::SWAP_ZSINT:
-				proc = newGUIProc<jwin_numedit_swap_zsint_proc>;
+				proc = newGUIProc<jwin_numedit_swap_zsint_proc_a5>;
 				if(unsigned(swap_type_start) > 3)
 					swap_type_start = 0;
 				break;
 			
 			case type::SWAP_ZSINT_NO_DEC:
-				proc = newGUIProc<jwin_numedit_swap_zsint_nodec_proc>;
+				proc = newGUIProc<jwin_numedit_swap_zsint_nodec_proc_a5>;
 				if(unsigned(swap_type_start) > 1)
 					swap_type_start = 0;
 				break;
 
 			case type::SWAP_ZSINT2:
-				proc = newGUIProc<jwin_numedit_swap_zsint2_proc>;
+				proc = newGUIProc<jwin_numedit_swap_zsint2_proc_a5>;
 				if(unsigned(swap_type_start) > 4)
 					swap_type_start = 0;
 				hascb = true;
@@ -423,16 +423,16 @@ void TextField::realize(DialogRunner& runner)
 			0, // key
 			getFlags(), // flags
 			static_cast<int32_t>(maxLength), 0, // d1, d2
-			buffer.get(), widgFont, nullptr // dp, dp2, dp3
+			buffer.get(), widgFont_a5, nullptr // dp, dp2, dp3
 		});
 		swapBtnDialog = runner.push(shared_from_this(), DIALOG {
-			newGUIProc<jwin_swapbtn_proc>,
+			newGUIProc<jwin_swapbtn_proc_a5>,
 			x+txtfwid, y, btnwid, getHeight(),
 			0, 0,
 			0, // key
 			getFlags(), // flags
 			swap_type_start, 0, // d1, d2
-			nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
+			nullptr, GUI_DEF_FONT_A5, nullptr // dp, dp2, dp3
 		});
 		if(hascb)
 		{
@@ -458,15 +458,15 @@ void TextField::realize(DialogRunner& runner)
 		{
 			case type::TEXT:
 			case type::FIXED_DECIMAL:
-				proc = newGUIProc<jwin_edit_proc>;
+				proc = newGUIProc<jwin_edit_proc_a5>;
 				break;
 
 			case type::INT_DECIMAL:
-				proc = newGUIProc<jwin_numedit_proc>;
+				proc = newGUIProc<jwin_numedit_proc_a5>;
 				break;
 
 			case type::INT_HEX:
-				proc = newGUIProc<jwin_hexedit_proc>;
+				proc = newGUIProc<jwin_hexedit_proc_a5>;
 				break;
 
 			default:
@@ -480,7 +480,7 @@ void TextField::realize(DialogRunner& runner)
 			0, // key
 			getFlags(), // flags
 			static_cast<int32_t>(maxLength), 0, // d1, d2
-			buffer.get(), widgFont, nullptr // dp, dp2, dp3
+			buffer.get(), widgFont_a5, nullptr // dp, dp2, dp3
 		});
 	}
 }
@@ -514,13 +514,13 @@ void TextField::applyDisabled(bool dis)
 	applyReadableFont();
 }
 
-void TextField::applyFont(FONT* newFont)
+void TextField::applyFont_a5(ALLEGRO_FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont(newFont);
+	Widget::applyFont_a5(newFont);
 }
 
 int32_t TextField::onEvent(int32_t event, MessageDispatcher& sendMessage)

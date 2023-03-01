@@ -814,7 +814,7 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			comeback();
 			return true;
 		case message::RELOAD:
-			rerun_dlg = true;
+			runner.rerun_dlg = true;
 			return true;
 	}
 }

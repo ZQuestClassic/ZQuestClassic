@@ -27,7 +27,7 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	char* saved_path;
 	PALETTE restore_pal, temp_pal, work_pal;
-	int32_t restore_jwin_pal[jcMAX], t_jwin_pal[jcMAX];
+	int32_t restore_jwin_pal[jcMAX], t_jwin_pal[jcMAX], xjwin_pal[jcMAX];
 	ALLEGRO_COLOR restore_jwin_a5_colors[9], t_jwin_a5_colors[9];
 	unsigned char work_colors[9][3];
 	WidgetSet<GUI::TextField> tf_red, tf_green, tf_blue, tf_jc;

@@ -827,6 +827,15 @@ namespace util
 }
 
 using namespace util;
+int32_t wrap(int32_t x,int32_t low,int32_t high)
+{
+	if(x >= low && x <= high) return x;
+	int mod = high+1;
+	x -= low;
+    if(x < 0)
+        return ((mod-(-x%mod))%mod)+low;
+    return (x%mod)+low;
+}
 int32_t vbound(int32_t val, int32_t low, int32_t high)
 {
 	ASSERT(low <= high);

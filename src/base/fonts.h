@@ -12,6 +12,7 @@ extern FONT *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *l
 		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
 		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont;
 extern ALLEGRO_FONT* a5font;
+extern ALLEGRO_FONT* a5fonts[font_max];
 void initFonts();
 FONT* get_zc_font(int32_t index);
 ALLEGRO_FONT* get_zc_font_a5(int32_t index);

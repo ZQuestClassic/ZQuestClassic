@@ -93,10 +93,11 @@ void kb_key_a5(DIALOG *d, bool clear)
 	ALLEGRO_FONT* oldfont = a5font;
 	a5font = GUI_DEF_FONT_A5;
 	
-	popup_zqdialog_start_a5();
 	int fh = al_get_font_line_height(a5font);
 	int dh = 32+(2*fh);
 	jwin_button_proc_a5(MSG_DRAW,d,0);
+	
+	popup_zqdialog_start_a5();
 	jwin_draw_win_a5((screen->w-160)/2, (screen->h-dh)/2, 160, dh, FR_WIN);
 	jwin_textout_a5(a5font, jwin_a5_pal(jcBOXFG), screen->w/2, screen->h/2 - fh, ALLEGRO_ALIGN_CENTRE, clear?"Press any key to clear":"Press a key", jwin_a5_pal(jcBOX));
 	jwin_textout_a5(a5font, jwin_a5_pal(jcBOXFG), screen->w/2, screen->h/2, ALLEGRO_ALIGN_CENTRE, "ESC to cancel", jwin_a5_pal(jcBOX));

@@ -3,8 +3,12 @@
 
 #include "base/render.h"
 
-ALLEGRO_BITMAP* get_overlay_bmp();
-BITMAP* get_tooltip_bmp();
+extern RenderTreeItem rti_overlay;
+extern RenderTreeItem rti_tooltip_hl;
+extern RenderTreeItem rti_scrborder;
+extern RenderTreeItem rti_scrinfo;
+extern RenderTreeItem rti_tooltip;
+
 void zq_hide_screen(bool hidden);
 void render_zq();
 

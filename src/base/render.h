@@ -47,21 +47,35 @@ public:
 	{
 		return (y + computed.y) * computed.yscale;
 	}
+	int clear_color()
+	{
+		if(transparency_index > 0)
+			return transparency_index;
+		return 0;
+	}
 };
 
 extern RenderTreeItem rti_dialogs;
 
+void freeze_render();
+void unfreeze_render();
+bool render_frozen();
+
 void set_bitmap_create_flags(bool preserve_texture);
-ALLEGRO_COLOR a5color(RGB c);
-ALLEGRO_COLOR a5color(int index);
+ALLEGRO_COLOR a5color(RGB c, unsigned char alpha = 255);
+ALLEGRO_COLOR a5color(int index, unsigned char alpha = 255);
+ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha = 255);
+int a5tohex(ALLEGRO_COLOR c);
 void clear_a5_bmp(ALLEGRO_COLOR c, ALLEGRO_BITMAP* bmp = nullptr);
 void collide_clip_rect(int& x, int& y, int& w, int& h);
 void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
+void save_debug_bitmaps(char const* pref = nullptr);
 int get_zqdialog_a4_clear_color();
 void clear_zqdialog_a4();
+void get_zqdialog_offset(int&x, int&y, int&w, int&h);
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0);
 void popup_zqdialog_end();
 void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c = 0);
@@ -71,6 +85,7 @@ void popup_zqdialog_end_a5();
 RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h);
 bool a4_bmp_active();
 RenderTreeItem* add_dlg_layer();
+RenderTreeItem* add_dlg_layer_a4(int transp);
 void remove_dlg_layer(RenderTreeItem* rti);
 
 

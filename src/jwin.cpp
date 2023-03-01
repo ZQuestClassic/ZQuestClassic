@@ -31,6 +31,7 @@
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include "jwin.h"
+#include "jwin_a5.h"
 #include "editbox.h"
 #include <iostream>
 #include <sstream>
@@ -126,7 +127,8 @@ int32_t get_selected_tab(TABPANEL* panel)
 void jwin_set_colors(int32_t *colors)
 {
     int32_t i = 0;
-    
+    if(colors != jwin_pal)
+		memcpy(jwin_pal,colors,sizeof(jwin_pal));
     if(bitmap_color_depth(screen) == 8)
     {
         // use color indices
@@ -502,6 +504,21 @@ void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state)
     line(dest,x+1,y,  x+7,y+6,palette_color[c]);
     line(dest,x,  y+6,x+6,y,  palette_color[c]);
     line(dest,x+1,y+6,x+7,y,  palette_color[c]);
+}
+
+void draw_arrow(BITMAP *dest, int c, int x, int y, int h, bool up, bool center)
+{
+	if(!center)
+		x += h-1;
+	for(int i = 0; i<h; i++)
+		_allegro_hline(dest, x-(up?i:h-i-1), y+i, x+(up?i:h-i-1), c);
+}
+void draw_arrow_horz(BITMAP *dest, int c, int x, int y, int w, bool left, bool center)
+{
+	if(!center)
+		y += w-1;
+	for(int i = 0; i<w; i++)
+		_allegro_vline(dest, x+i, y-(left?i:w-i-1), y+(left?i:w-i-1), c);
 }
 
 void draw_arrow_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
@@ -1037,13 +1054,58 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
         jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
     }
     
-    if(!(flags & D_DISABLED))
-        gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
-    else
-    {
-        gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
-        gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
-    }
+	bool drawstring = true;
+	if(str[1]==0 && byte(str[0]) >= 0x80)
+	{
+		drawstring = false;
+		int col = jwin_pal[(flags & D_DISABLED) ? jcLIGHT : jcBOXFG];
+		int aw = w/4, ah = h/4;
+		int woff = (aw/2)+1, hoff = (ah/2)+1;
+		int x1 = x+w/2, x2 = x+(w-aw)/2;
+		int y1 = y+(h-aw)/2, y2 = y+h/2;
+		switch(byte(str[0]))
+		{
+			case 0x88:
+				draw_arrow(dest, col, x1, y1, ah, true, true);
+				break;
+			case 0x89:
+				draw_arrow(dest, col, x1, y1, ah, false, true);
+				break;
+			case 0x8A:
+				draw_arrow_horz(dest, col, x2, y2, aw, true, true);
+				break;
+			case 0x8B:
+				draw_arrow_horz(dest, col, x2, y2, aw, false, true);
+				break;
+			case 0x98:
+				draw_arrow(dest, col, x1, y1-hoff, ah, false, true);
+				draw_arrow(dest, col, x1, y1+hoff, ah, true, true);
+				break;
+			case 0x99:
+				draw_arrow(dest, col, x1, y1-hoff, ah, true, true);
+				draw_arrow(dest, col, x1, y1+hoff, ah, false, true);
+				break;
+			case 0x9A:
+				draw_arrow_horz(dest, col, x2-woff, y2, aw, false, true);
+				draw_arrow_horz(dest, col, x2+woff, y2, aw, true, true);
+				break;
+			case 0x9B:
+				draw_arrow_horz(dest, col, x2-woff, y2, aw, true, true);
+				draw_arrow_horz(dest, col, x2+woff, y2, aw, false, true);
+				break;
+			default: drawstring = true;
+		}
+	}
+	if(drawstring)
+	{
+		if(!(flags & D_DISABLED))
+			gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
+		else
+		{
+			gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
+			gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
+		}
+	}
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
         dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
@@ -1108,11 +1170,8 @@ void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, in
   *  keyboard shortcut. If the D_EXIT flag is set, selecting it will close
   *  the dialog, otherwise it will toggle on and off.
   */
-int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     int32_t down=0;
     int32_t selected=(d->flags&D_SELECTED)?1:0;
     int32_t last_draw;
@@ -2592,7 +2651,7 @@ int32_t jwin_numedit_sbyte_proc(int32_t msg,DIALOG *d,int32_t c)
 
 // Special numedit procs
 
-void trim_trailing_0s(char* str, bool leaveDec = false)
+void trim_trailing_0s(char* str, bool leaveDec)
 {
 	bool foundDec = false;
 	for(int32_t q = 0; str[q]; ++q)
@@ -3886,7 +3945,7 @@ static void _handle_jwin_scrollable_scroll(DIALOG *d, int32_t listsize, int32_t 
   *  rest_callback() routine to keep dialogs animating nice and smoothly.
   */
 
-static void idle_cb()
+void idle_cb()
 {
     broadcast_dialog_message(MSG_IDLE, 0);
 }
@@ -5257,14 +5316,14 @@ static void get_menu_pos(MENU_INFO *m, int32_t c, int32_t *x, int32_t *y, int32_
     if(m->bar)
     {
         for(c2=0; c2<c; c2++)
-            *x += gui_strlen(m->menu[c2].text) + 16;
+            *x += gui_text_width_a5(a5font,m->menu[c2].text) + 16;
             
         *y = m->y+1;
-        *w = gui_strlen(m->menu[c].text) + 16;
+        *w = gui_text_width_a5(a5font,m->menu[c].text) + 16;
     }
     else
     {
-        *y = m->y + c*(text_height(font)+4) + 3;
+        *y = m->y + c*(al_get_font_line_height(a5font)+4) + 3;
         *w = m->w - 6;
     }
 }
@@ -5274,129 +5333,109 @@ static void get_menu_pos(MENU_INFO *m, int32_t c, int32_t *x, int32_t *y, int32_
   */
 static void draw_menu_item(MENU_INFO *m, int32_t c)
 {
-    int32_t fg, bg;
-    int32_t i, x, y, w, d=0;
-    int32_t yofs = (m->bar) ? 1 : 0;
-    int32_t h = text_height(font) + 4 + yofs;
-    int32_t g = 0;
-    char buf[80], *tok;
-    int32_t my;
-    
-    fg = scheme[jcBOXFG];
-    bg = scheme[jcBOX];
-    
-    if(m->menu[c].flags & D_DISABLED)
-    {
-        fg = scheme[jcMEDDARK];
-        d = 1;
-    }
-    
-    if(c == m->sel)
-    {
-        if(m->bar)
-            g = !m->hover;
-        else
-        {
-            if(d)
-                d = 0;
-            else
-                fg = scheme[jcSELFG];
-                
-            bg = scheme[jcSELBG];
-        }
-    }
-    
-    
-    get_menu_pos(m, c, &x, &y, &w);
-    if ( m->bar ) { /* */ }
-
-	if (gui_menu_draw_menu_item) {
-      gui_menu_draw_menu_item(&m->menu[c], x, y, w, text_height(font)+4,
-			      m->bar, (c == m->sel) ? TRUE : FALSE);
-      return;
-   }
-    
-    rectfill(screen, x, y, x+w-1, y+h-1, bg);
-    //   text_mode(-1);
-    
-    if(m->menu[c].text[0] == 0)
-    {
-        _allegro_hline(screen, x+1, y+text_height(font)/2+2, x+w-2, scheme[jcMEDDARK]);
-        _allegro_hline(screen, x+1, y+text_height(font)/2+3, x+w-2, scheme[jcLIGHT]);
-    }
-    else
-    {
-        for(i=0; (m->menu[c].text[i]) && (m->menu[c].text[i] != '\t'); i++)
-            buf[i] = m->menu[c].text[i];
-            
-        buf[i] = 0;
-        
-	if ( m->bar )
+	int32_t fg, bg;
+	int32_t i, x, y, w, d=0;
+	int32_t yofs = (m->bar) ? 1 : 0;
+	int32_t h = al_get_font_line_height(a5font) + 4 + yofs;
+	int32_t g = 0;
+	char buf[80], *tok;
+	int32_t my;
+	
+	fg = jcBOXFG;
+	bg = jcBOX;
+	
+	if(m->menu[c].flags & D_DISABLED)
 	{
-		if(d)
-		    gui_textout_ex(screen, buf, x+9, y+yofs+2, scheme[jcLIGHT], -1, FALSE);
-		    
-		gui_textout_ex(screen, buf, x+8+g, y+yofs+1+g, fg, -1, FALSE); //main menu
+		fg = jcMEDDARK;
+		d = 1;
+	}
+	
+	if(c == m->sel)
+	{
+		if(m->bar)
+			g = !m->hover;
+		else
+		{
+			if(!d)
+				fg = jcSELFG;
+				
+			bg = jcSELBG;
+		}
+	}
+	ALLEGRO_COLOR fgc = jwin_a5_pal(fg), bgc = jwin_a5_pal(bg);
+	
+	
+	get_menu_pos(m, c, &x, &y, &w);
+	if ( m->bar ) { /* */ }
+	
+	al_draw_filled_rectangle(x, y, x+w, y+h, bgc);
+	
+	if(m->menu[c].text[0] == 0)
+	{
+		al_draw_hline(x+1, y+al_get_font_line_height(a5font)/2+2, x+w-1, jwin_a5_pal(jcMEDDARK));
+		al_draw_hline(x+1, y+al_get_font_line_height(a5font)/2+3, x+w-1, jwin_a5_pal(jcLIGHT));
 	}
 	else
 	{
+		for(i=0; (m->menu[c].text[i]) && (m->menu[c].text[i] != '\t'); i++)
+			buf[i] = m->menu[c].text[i];
+			
+		buf[i] = 0;
+		
 		if(d)
-		    gui_textout_ex(screen, buf, x+9, y+yofs+2, scheme[jcLIGHT], -1, FALSE);
-		    
-		gui_textout_ex(screen, buf, x+8+g, y+yofs+1+g, fg, -1, FALSE);
+			gui_textout_ln_a5_dis(a5font, buf, x+8, y+yofs+1, jwin_a5_pal(jcDISABLED_FG), AL5_INVIS, 0, jwin_a5_pal(jcLIGHT));
+		else
+			gui_textout_ln_a5(a5font, buf, x+8+g, y+yofs+1+g, jwin_a5_pal(jcBOXFG), AL5_INVIS, 0);
+		
+		if(m->menu[c].text[i] == '\t')
+		{
+			tok = m->menu[c].text+i+1;
+			
+			if(d)
+				gui_textout_ln_a5_dis(a5font, tok, x+w-gui_text_width_a5(a5font,tok)-8, y+yofs+1, jwin_a5_pal(jcDISABLED_FG), AL5_INVIS, 0, jwin_a5_pal(jcLIGHT));
+			else
+				gui_textout_ln_a5(a5font, tok, x+w-gui_text_width_a5(a5font,tok)-8+g, y+yofs+1+g, jwin_a5_pal(jcBOXFG), AL5_INVIS, 0);
+		}
+		
+		if(((m->menu[c].child) && (!m->bar)))
+		{
+			my = y + al_get_font_line_height(a5font)/2;
+			
+			ALLEGRO_BITMAP* bmp = al_get_target_bitmap();
+			auto* lock = al_lock_bitmap_region(bmp,x+w-7,my-2,1,6,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
+			al_put_pixel(x+w-7, my-2, fgc);
+			al_put_pixel(x+w-7, my+4, fgc);
+			if(lock) al_unlock_bitmap(bmp);
+			al_draw_hline(x+w-7, my-1, x+w-5, fgc);
+			al_draw_hline(x+w-7, my+0, x+w-4, fgc);
+			al_draw_hline(x+w-7, my+1, x+w-3, fgc);
+			al_draw_hline(x+w-7, my+2, x+w-4, fgc);
+			al_draw_hline(x+w-7, my+3, x+w-5, fgc);
+			
+			if(d)
+			{
+				al_draw_line(x+w-6, my+6, x+w-2, my+2, jwin_a5_pal(jcLIGHT), 0);
+				al_draw_line(x+w-6, my+5, x+w-3, my+2, jwin_a5_pal(jcLIGHT), 0);
+			}
+		}
 	}
-        
-        if(m->menu[c].text[i] == '\t')
-        {
-            tok = m->menu[c].text+i+1;
-            
-            if(d)
-                gui_textout_ex(screen, tok, x+w-gui_strlen(tok)-7, y+yofs+2, scheme[jcLIGHT], -1, FALSE);
-                
-            gui_textout_ex(screen, tok, x+w-gui_strlen(tok)-8+g, y+yofs+1+g, fg, -1, FALSE);
-        }
-        
-        if(((m->menu[c].child) && (!m->bar)))
-        {
-            my = y + text_height(font)/2;
-            putpixel(screen, x+w-7, my-2, fg);
-            _allegro_hline(screen, x+w-7, my-1, x+w-6, fg);
-            _allegro_hline(screen, x+w-7, my+0, x+w-5, fg);
-            _allegro_hline(screen, x+w-7, my+1, x+w-4, fg);
-            _allegro_hline(screen, x+w-7, my+2, x+w-5, fg);
-            _allegro_hline(screen, x+w-7, my+3, x+w-6, fg);
-            putpixel(screen, x+w-7, my+4, fg);
-            
-            if(d)
-            {
-                line(screen, x+w-6, my+5, x+w-3, my+2, scheme[jcLIGHT]);
-                line(screen, x+w-6, my+4, x+w-4, my+2, scheme[jcLIGHT]);
-            }
-        }
-    }
-    
-    if((c == m->sel) && m->bar)
-    {
-        int32_t c1 = scheme[jcLIGHT];
-        int32_t c2 = scheme[jcMEDDARK];
-        
-        if(m->hover == 0)
-        {
-            c1 = scheme[jcMEDDARK];
-            c2 = scheme[jcLIGHT];
-        }
-        
-        _allegro_hline(screen, x,     y,     x+w-2, c1);
-        _allegro_vline(screen, x,     y+1,   y+h-2, c1);
-        _allegro_hline(screen, x,     y+h-1, x+w-1, c2);
-        _allegro_vline(screen, x+w-1, y,     y+h-2, c2);
-    }
-    
-    if(m->menu[c].flags & D_SELECTED)
-    {
-        line(screen, x+1, y+text_height(font)/2+1, x+3, y+text_height(font)+1, fg);
-        line(screen, x+3, y+text_height(font)+1, x+6, y+2, fg);
-    }
+	
+	if((c == m->sel) && m->bar)
+	{
+		ALLEGRO_COLOR c1 = jwin_a5_pal(m->hover ? jcLIGHT : jcMEDDARK);
+		ALLEGRO_COLOR c2 = jwin_a5_pal(m->hover ? jcMEDDARK : jcLIGHT);
+		
+		al_draw_hline(x,     y,     x+w-1, c1);
+		al_draw_vline(x,     y+1,   y+h-1, c1);
+		al_draw_hline(x,     y+h-1, x+w  , c2);
+		al_draw_vline(x+w-1, y,     y+h-1, c2);
+	}
+	
+	if(m->menu[c].flags & D_SELECTED)
+	{
+		al_draw_line(x+1, y+al_get_font_line_height(a5font)/2+1, x+4, y+al_get_font_line_height(a5font)+2, fgc, 0);
+		al_draw_line(x+3, y+al_get_font_line_height(a5font)+2, x+7, y+2, fgc, 0);
+	}
 }
 
 /* draw_menu:
@@ -5404,22 +5443,18 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
   */
 static void draw_menu(MENU_INFO *m)
 {
-    int32_t c;
+	int32_t c;
 
 	int w = m->w;
 	int h = m->h;
 
-	if (gui_menu_draw_menu)
-		gui_menu_draw_menu(m->x, m->y, m->w, m->h);
-	else {
-		if(m->bar)
-			rectfill(screen, zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+w-1, screen->w), zc_min(m->y+h-1, screen->h), scheme[jcBOX]);
-		else
-			jwin_draw_win(screen, m->x, m->y, w, h, FR_WIN);
-	}
-        
-    for(c=0; m->menu[c].text; c++)
-        draw_menu_item(m, c);
+	if(m->bar)
+		al_draw_filled_rectangle(zc_max(0,m->x), zc_max(0,m->y), zc_min(m->x+w, screen->w), zc_min(m->y+h, screen->h), jwin_a5_pal(jcBOX));
+	else
+		jwin_draw_win_a5(m->x, m->y, w, h, FR_WIN);
+		
+	for(c=0; m->menu[c].text; c++)
+		draw_menu_item(m, c);
 }
 
 /* menu_mouse_object:
@@ -5477,7 +5512,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int32_t 
     m->y = y - border*2;
     m->w = 2 + border*4;
     
-    m->h = (m->bar) ? (text_height(font)+7) : 2 + border*4;
+    m->h = (m->bar) ? (al_get_font_line_height(a5font)+7) : 2 + border*4;
     
     m->proc = NULL;
     m->sel = -1;
@@ -5491,7 +5526,7 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int32_t 
             
         buf[i] = 0;
         
-        c = gui_strlen(buf);
+        c = gui_text_width_a5(a5font,buf);
         
         if(m->bar)
         {
@@ -5499,14 +5534,14 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int32_t 
         }
         else
         {
-            m->h += text_height(font)+4;
+            m->h += al_get_font_line_height(a5font)+4;
             m->w = MAX(m->w, c+16);
         }
         
         if(m->menu[m->size].text[i] == '\t')
         {
             tok = m->menu[m->size].text+i+1;
-            c = gui_strlen(tok);
+            c = al_get_text_width(a5font,tok);
             extra = MAX(extra, c);
         }
     }
@@ -5644,13 +5679,7 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
         m.y = MID(0, m.y, zq_screen_h-m.h-1);
     }
     
-    /* save screen under the menu */
-    m.saved = create_bitmap_ex(bitmap_color_depth(screen),m.w+1, m.h+1);
-    
-    if(m.saved)
-        blit(screen, m.saved, m.x, m.y, 0, 0, m.w+1, m.h+1);
-    else
-        errno = ENOMEM;
+	popup_zqdialog_start_a5();
         
     m.sel = mouse_sel = menu_mouse_object(&m);
     
@@ -5880,25 +5909,10 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
             }
         }
         
-        if((redraw) || (m.sel != old_sel))                      /* selection changed? */
+        if(redraw || (m.sel != old_sel))                      /* selection changed? */
         {
-            scare_mouse();
-            
-            if(redraw)
-            {
-                draw_menu(&m);
-                redraw = FALSE;
-            }
-            else
-            {
-                if(old_sel >= 0)
-                    draw_menu_item(&m, old_sel);
-                    
-                if(m.sel >= 0)
-                    draw_menu_item(&m, m.sel);
-            }
-            
-            unscare_mouse();
+			draw_menu(&m);
+			redraw = FALSE;
         }
         
         if((ret >= 0) && (m.menu[ret].flags & D_DISABLED))
@@ -5913,19 +5927,17 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
                     if(m.hover)
                     {
                         m.hover = 0;
-                        scare_mouse();
                         draw_menu(&m);
-                        unscare_mouse();
                     }
                     
                     get_menu_pos(&m, ret, &_x, &_y, &c);
                     _x += 2;
-                    _y += text_height(font)+7;
+                    _y += al_get_font_line_height(a5font)+7;
                 }
                 else
                 {
                     _x = m.x+m.w-3;
-                    _y = m.y + (text_height(font)+4)*ret + text_height(font)/4;
+                    _y = m.y + (al_get_font_line_height(a5font)+4)*ret + al_get_font_line_height(a5font)/4;
                 }
                 
                 c = _jwin_do_menu(m.menu[ret].child, &m, FALSE, _x, _y, TRUE, NULL, 0, 0);
@@ -5979,15 +5991,7 @@ getout:
         }
     }
     
-    /* restore screen */
-    if(m.saved)
-    {
-        scare_mouse();
-        blit(m.saved, screen, 0, 0, m.x, m.y, m.w+1, m.h+1);
-        unscare_mouse();
-        destroy_bitmap(m.saved);
-    }
-    
+	popup_zqdialog_end_a5();
     return ret;
 }
 
@@ -6027,11 +6031,9 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
     
     rest(1);
     
-	FONT* oldfont = font;
+	ALLEGRO_FONT* oldfont = a5font;
 	if(d->dp2)
-	{
-		font = (FONT *)d->dp2;
-	}
+		a5font = (ALLEGRO_FONT *)d->dp2;
     switch(msg)
     {
     
@@ -6046,7 +6048,7 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
         draw_menu(&m);
         
         if(d->flags&D_USER)
-            jwin_draw_frame(screen, d->x-3, d->y-3, d->w+6, d->h+6, FR_WIN);
+            jwin_draw_frame_a5(d->x-3, d->y-3, d->w+6, d->h+6, FR_WIN);
             
         break;
         
@@ -6074,7 +6076,7 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
         break;
     }
     
-	font = oldfont;
+	a5font = oldfont;
     return ret;
 }
 
@@ -6091,26 +6093,17 @@ byte getHighlightColor(RGB const& col)
 	             (pow(col.g/64.0, 2.2) * 0.7152) +
 	             (pow(col.b/64.0, 2.2) * 0.0722);
 	return lum < 0.4 ? vc(15) : vc(0);
-	//Old -Em
-	// byte bright = (col.r >= 32) + (col.g >= 32) + (col.b >= 32);
-	// byte sbright = (col.r >= 48) + (col.g >= 48) + (col.b >= 48);
-	// byte highlightColor = vc(7); //sysgray
-	// if(bright >= 2)
-	// {
-		// if(sbright >= 2)
-			// highlightColor = vc(0); //sysblack
-		// else highlightColor = vc(8); //sysdarkgray
-	// }
-	// else if(!bright)
-		// highlightColor = vc(15); //syswhite
-	// return highlightColor;
 }
 
 ALLEGRO_COLOR getHighlightColor(ALLEGRO_COLOR col)
 {
 	unsigned char r,g,b;
 	al_unmap_rgb(col,&r,&g,&b);
-	return al_map_rgb(255-r,255-g,255-b);
+	
+	double lum = (pow(r/256.0, 2.2) * 0.2126) +
+	             (pow(g/256.0, 2.2) * 0.7152) +
+	             (pow(b/256.0, 2.2) * 0.0722);
+	return lum < 0.4 ? AL5_WHITE : AL5_BLACK;
 }
 extern FONT* lfont;
 
@@ -6530,81 +6523,80 @@ int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32
 /*****************************************/
 /***********  drop list proc  ************/
 /*****************************************/
-int32_t last_droplist_sel = -1;
-static int32_t d_dropcancel_proc(int32_t msg,DIALOG *d,int32_t c)
+
+int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    d=d;
-    c=c;
-    
     if(msg==MSG_CLICK || msg==MSG_DCLICK)
         return D_CLOSE;
         
     return D_O_K;
 }
 
+int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
 static DIALOG droplist_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp)              (dp2)   (dp3)*/
-    { d_dropcancel_proc, 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
-    { d_list_proc,       0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL,             NULL,   NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC, (void*)close_dlg, NULL,   NULL },
-    { NULL,              0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
+	/* (dialog proc)       (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)     (d2)      (dp)              (dp2)   (dp3)*/
+	{ d_dropcancel_proc,    0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL },
+	{ jwin_abclist_proc_a5, 0,    0,    0,    0,    0,       0,      0,       D_EXIT,     0,       0,        NULL,             NULL,   NULL },
+	{ d_keyboard_proc,      0,    0,    0,    0,    0,       0,      0,       0,          0,       KEY_ESC, (void*)close_dlg, NULL,   NULL },
+	{ NULL,                 0,    0,    0,    0,    0,       0,      0,       0,          0,       0,        NULL,             NULL,   NULL }
 };
 
-static int32_t droplist(DIALOG *d)
+int32_t droplist(DIALOG *d)
 {
-    ListData *data = (ListData *)d->dp;
-    int32_t d1 = d->d1;
-    int32_t listsize, x, y, w, h, max_w;
-	auto oz = gui_mouse_z();
+	ListData *data = (ListData *)d->dp;
+	int32_t d1 = d->d1;
+	int32_t listsize, x, y, w, h, max_w;
 
-    data->listFunc(-1, &listsize);
-    y = d->y + d->h;
-    h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * text_height(*data->font) + 8;
-    
-    if(y+h >= zq_screen_h)
-    {
-        y = d->y - h;
-    }
-    
-    x = d->x;
-    w = d->w;
-    max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
-    
-    for(int32_t i=0; i<listsize; ++i)
-    {
-        w=zc_min(max_w,zc_max(w,text_length(*data->font,data->listFunc(i, NULL))+39));
-    }
-    
-    if(x+w >= zq_screen_w)
-    {
+	int xoff,yoff,mw,mh;
+	get_zqdialog_offset(xoff,yoff,mw,mh);
+	
+	data->listFunc(-1, &listsize);
+	y = d->y + d->h + yoff;
+	h = zc_min(abc_patternmatch ? listsize+1 : listsize,8) * al_get_font_line_height(*data->a5font) + 8;
+	
+	if(y+h >= zq_screen_h)
+	{
+		y = d->y - h;
+	}
+	
+	x = d->x + xoff;
+	w = d->w;
+	max_w = zc_max(d->x+d->w, zq_screen_w-d->x);
+	
+	for(int32_t i=0; i<listsize; ++i)
+	{
+		w=zc_min(max_w,zc_max(w,al_get_text_width(*data->a5font,data->listFunc(i, NULL))+39));
+	}
+	
+	if(x+w >= zq_screen_w)
+	{
 		x=zq_screen_w-w;
-    }
-    
-    droplist_dlg[1] = *d;
-    droplist_dlg[1].proc  = &jwin_abclist_proc;
-    droplist_dlg[1].flags = D_EXIT + D_USER;
-    droplist_dlg[1].x  = x;
-    droplist_dlg[1].y  = y;
-    droplist_dlg[1].w  = w;
-    droplist_dlg[1].h  = h;
-    droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
-    
-    // cancel
-    droplist_dlg[0].x = 0;
-    droplist_dlg[0].y = 0;
-    droplist_dlg[0].w = zq_screen_w;
-    droplist_dlg[0].h = zq_screen_h;
-    
-    if(popup_zqdialog(droplist_dlg,1)==1)
-    {
-		position_mouse_z(oz);
-        return droplist_dlg[1].d1;
-    }
-    
-	position_mouse_z(oz);
-    return d1;
+	}
+	
+	droplist_dlg[1] = *d;
+	droplist_dlg[1].proc = &jwin_abclist_proc_a5;
+	droplist_dlg[1].flags = D_EXIT + D_USER;
+	droplist_dlg[1].x  = 0;
+	droplist_dlg[1].y  = 0;
+	droplist_dlg[1].w  = w;
+	droplist_dlg[1].h  = h;
+	droplist_dlg[1].d2 = listsize<=8 ? 0 : zc_max(d1-3,0);
+	
+	// cancel
+	droplist_dlg[0].x = -x;
+	droplist_dlg[0].y = -y;
+	droplist_dlg[0].w = zq_screen_w;
+	droplist_dlg[0].h = zq_screen_h;
+	
+	popup_zqdialog_start_a5(x,y,w,h);
+	int ret = d1;
+	if(new_popup_dlg(droplist_dlg,1)==1)
+	{
+		ret = droplist_dlg[1].d1;
+	}
+	popup_zqdialog_end_a5();
+	return ret;
 }
 
 /* jwin_droplist_proc:

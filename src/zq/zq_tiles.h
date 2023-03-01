@@ -149,7 +149,7 @@ int32_t click_d_ctile_proc();
 int32_t onCmb_dlg_h();
 int32_t onCmb_dlg_v();
 int32_t onCmb_dlg_r();
-bool edit_combo(int32_t c,bool freshen,int32_t cs);
+bool edit_combo(int32_t c,int32_t cs);
 int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onIcons();
 void center_zq_tiles_dialogs();

@@ -1,10 +1,27 @@
 #include "render.h"
+#include "util.h"
+#include <fmt/format.h>
 
 RenderTreeItem rti_dialogs;
 
 extern int32_t zq_screen_w, zq_screen_h;
-unsigned char info_opacity = 255;
 bool use_linear_bitmaps();
+unsigned char info_opacity = 255;
+static int freezecount = 0;
+void freeze_render()
+{
+	++freezecount;
+}
+void unfreeze_render()
+{
+	if(freezecount > 0)
+		--freezecount;
+}
+bool render_frozen()
+{
+	return freezecount > 0;
+}
+
 
 void set_bitmap_create_flags(bool preserve_texture)
 {
@@ -16,15 +33,25 @@ void set_bitmap_create_flags(bool preserve_texture)
 	al_set_new_bitmap_flags(flags);
 }
 
-ALLEGRO_COLOR a5color(RGB c)
+ALLEGRO_COLOR a5color(RGB c, unsigned char alpha)
 {
-	return al_map_rgb(c.r*4,c.g*4,c.b*4);
+	return al_map_rgba(c.r*4,c.g*4,c.b*4,alpha);
 }
-ALLEGRO_COLOR a5color(int index)
+ALLEGRO_COLOR a5color(int index, unsigned char alpha)
 {
 	RGB tmp;
 	get_color(index,&tmp);
-	return a5color(tmp);
+	return a5color(tmp,alpha);
+}
+ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha)
+{
+	return al_map_rgba((hexval>>16)&0xFF,(hexval>>8)&0xFF,(hexval)&0xFF,alpha);
+}
+int a5tohex(ALLEGRO_COLOR c)
+{
+	unsigned char r,g,b;
+	al_unmap_rgb(c,&r,&g,&b);
+	return (r<<16)|(g<<8)|b;
 }
 
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
@@ -180,6 +207,41 @@ BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
 static RenderTreeItem* active_a5_dlg_rti = nullptr;
 static RenderTreeItem* active_a4_dlg_rti = nullptr;
+
+void save_debug_bitmaps(char const* pref)
+{
+	std::string path = fmt::format("tmp/{}",pref?pref:"");
+	util::create_path(path.c_str());
+	PALETTE tpal;
+	get_palette(tpal);
+	if(active_a4_dlg_rti)
+	{
+		save_bitmap(fmt::format("{}/a4.bmp",path).c_str(),active_a4_dlg_rti->a4_bitmap,tpal);
+		al_save_bitmap(fmt::format("{}/a4_render.bmp",path).c_str(),active_a4_dlg_rti->bitmap);
+	}
+	if(active_a5_dlg_rti)
+	{
+		al_save_bitmap(fmt::format("{}/a5.bmp",path).c_str(),active_a5_dlg_rti->bitmap);
+	}
+	if(active_dlg_rti&&active_dlg_rti->children.size())
+	{
+		int q = 1;
+		for(RenderTreeItem* rti : active_dlg_rti->children)
+		{
+			if(rti->a4_bitmap)
+			{
+				save_bitmap(fmt::format("{}/layer_{}_a4.bmp",path,q).c_str(),rti->a4_bitmap,tpal);
+				al_save_bitmap(fmt::format("{}/layer_{}_a4_render.bmp",path,q).c_str(),rti->bitmap);
+			}
+			else if(rti->bitmap)
+			{
+				al_save_bitmap(fmt::format("{}/layer_{}_a5.bmp",path,q).c_str(),rti->bitmap);
+			}
+			++q;
+		}
+	}
+}
+
 static void pop_active_rti()
 {
 	if(active_dlg_rti == active_a4_dlg_rti)
@@ -206,22 +268,37 @@ static void pop_active_rti()
 }
 int get_zqdialog_a4_clear_color()
 {
-	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
-	{
-		if(active_dlg_rti->transparency_index > 0)
-			return active_dlg_rti->transparency_index;
-	}
+	if(active_a4_dlg_rti)
+		return active_dlg_rti->clear_color();
 	return 0;
 }
 void clear_zqdialog_a4()
 {
-	if(active_dlg_rti && active_dlg_rti->a4_bitmap)
+	if(active_a4_dlg_rti)
+		clear_to_color(active_a4_dlg_rti->a4_bitmap, active_a4_dlg_rti->clear_color());
+}
+
+void get_zqdialog_offset(int&x, int&y, int&w, int&h)
+{
+	if(active_dlg_rti)
 	{
-		if(active_dlg_rti->transparency_index > 0)
-			clear_to_color(active_dlg_rti->a4_bitmap, active_dlg_rti->transparency_index);
-		else clear_bitmap(active_dlg_rti->a4_bitmap);
+		x = active_dlg_rti->transform.x;
+		y = active_dlg_rti->transform.y;
+		if(active_dlg_rti->bitmap)
+		{
+			w = al_get_bitmap_width(active_dlg_rti->bitmap);
+			h = al_get_bitmap_height(active_dlg_rti->bitmap);
+		}
+	}
+	else
+	{
+		x=0;
+		y=0;
+		w=zq_screen_w;
+		h=zq_screen_h;
 	}
 }
+
 void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 {
 	if(w < 0) w = zq_screen_w;
@@ -242,14 +319,13 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		set_bitmap_create_flags(false);
 		rti->bitmap = al_create_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
-		rti->visible = true;
 		rti->owned = true;
 		rti->transparency_index = transp;
 		rti->transform.x = x;
 		rti->transform.y = y;
 		rti_dialogs.children.push_back(rti);
 		rti_dialogs.visible = true;
-	active_dlg_rti = active_a4_dlg_rti = rti;
+		active_dlg_rti = active_a4_dlg_rti = rti;
 		al_set_new_bitmap_flags(0);
 	}
 	else
@@ -288,13 +364,11 @@ void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
-	rti->visible = true;
 	rti->owned = true;
 	rti->transform.x = x;
 	rti->transform.y = y;
 	rti_dialogs.children.push_back(rti);
 	rti_dialogs.visible = true;
-	active_dlg_rti = active_a4_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
 	
 	clear_a5_bmp(a5color(c), rti->bitmap);
@@ -335,7 +409,6 @@ void popup_zqdialog_start_a5(int x, int y, int w, int h)
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
-	rti->visible = true;
 	rti->owned = true;
 	rti->transform.x = x;
 	rti->transform.y = y;
@@ -378,7 +451,6 @@ RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h)
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
 	rti->bitmap = al_create_bitmap(w, h);
-	rti->visible = true;
 	rti->owned = true;
 	rti->transform.x = x;
 	rti->transform.y = y;
@@ -414,7 +486,24 @@ RenderTreeItem* add_dlg_layer()
 	RenderTreeItem* rti = new RenderTreeItem();
 	rti->bitmap = al_create_bitmap(screen->w, screen->h);
 	rti->a4_bitmap = nullptr;
-	rti->visible = true;
+	rti->owned = true;
+	active_dlg_rti->children.push_back(rti);
+
+	al_set_new_bitmap_flags(0);
+	return rti;
+}
+RenderTreeItem* add_dlg_layer_a4(int transp)
+{
+	if(!active_dlg_rti) return nullptr;
+	set_bitmap_create_flags(true);
+	
+	RenderTreeItem* rti = new RenderTreeItem();
+	rti->bitmap = al_create_bitmap(screen->w, screen->h);
+	rti->a4_bitmap = create_bitmap_ex(8,screen->w,screen->h);
+	rti->transparency_index = transp;
+	if(transp > 0)
+		clear_to_color(rti->a4_bitmap,transp);
+	else clear_bitmap(rti->a4_bitmap);
 	rti->owned = true;
 	active_dlg_rti->children.push_back(rti);
 

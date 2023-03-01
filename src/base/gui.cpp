@@ -243,6 +243,7 @@ int new_popup_dlg(DIALOG* dialog, int32_t focus_obj)
 	
 	return shutdown_dialog(player2);
 }
+
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running)
 {
 	running=true;
@@ -259,6 +260,24 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 		ret = shutdown_dialog(player2);
 	}
 	running=false;
+}
+
+
+int popup_menu(MENU *menu,int x,int y)
+{
+	while(gui_mouse_b())
+		rest(1);
+	
+	popup_zqdialog_start_a5();
+	auto ret = jwin_do_menu(menu,x,y);
+	popup_zqdialog_end_a5();
+	return ret;
+}
+int popup_menu_abs(MENU *menu,int x,int y)
+{
+	int ox,oy,ow,oh;
+	get_zqdialog_offset(ox,oy,ow,oh);
+	return popup_menu(menu,x+ox,y+oy);
 }
 
 /*** end of gui.cpp ***/

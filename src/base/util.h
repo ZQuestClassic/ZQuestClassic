@@ -57,6 +57,7 @@ namespace util
 }
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 double vbound(double val, double low, double high);
+int32_t wrap(int32_t x,int32_t low,int32_t high);
 
 std::string dayextension(int32_t dy);
 bool fileexists(const char *filename);

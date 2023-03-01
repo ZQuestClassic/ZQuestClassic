@@ -3,7 +3,7 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "size.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include <cassert>
 #include <utility>
 
@@ -18,7 +18,7 @@ Radio::Radio(): checked(false), text(),
 
 void Radio::setText(std::string newText)
 {
-	int32_t textWidth = text_length(widgFont, newText.c_str());
+	int32_t textWidth = al_get_text_width(widgFont_a5, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_px);
 	text = std::move(newText);
 }
@@ -67,32 +67,32 @@ void Radio::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
-void Radio::applyFont(FONT* newFont)
+void Radio::applyFont_a5(ALLEGRO_FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont(newFont);
+	Widget::applyFont_a5(newFont);
 }
 
 void Radio::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_radiofont_proc>,
+		newGUIProc<jwin_radiofont_proc_a5>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
 		procset, 0, // d1, d2,
-		text.data(), widgFont, nullptr // dp, dp2, dp3
+		text.data(), widgFont_a5, nullptr // dp, dp2, dp3
 	});
 }
 
 void Radio::calculateSize()
 {
-	setPreferredWidth(14_px+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	setPreferredWidth(14_px+12_px+Size::pixels(al_get_text_width(widgFont_a5, text.c_str())));
 	Widget::calculateSize();
 }
 

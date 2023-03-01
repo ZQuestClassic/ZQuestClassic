@@ -14,6 +14,7 @@
 
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
+extern bool devcfg, devcfg_active;
 
 //DEVLEVEL 1 = extra debug tools
 //DEVLEVEL 2 = force enable cheats
@@ -5560,12 +5561,14 @@ char const* get_themefile();
 void set_theme(char const* fpath);
 void reset_theme();
 void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
+void load_themefile(char const* fpath, PALETTE pal);
 void load_themefile(char const* fpath);
 void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
+void save_themefile(char const* fpath, PALETTE pal);
 void save_themefile(char const* fpath);
-void load_udef_colorset(App a, PALETTE pal, ALLEGRO_COLOR* colors);
+void load_udef_colorset(App a, PALETTE pal);
 void load_udef_colorset(App a);
-void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors);
+void load_colorset(int32_t colorset, PALETTE pal);
 void load_colorset(int32_t colorset);
 
 void update_hw_screen(bool force = false);
