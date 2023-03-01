@@ -339,7 +339,7 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 	
 	int th = al_get_font_line_height(a5font);
 	if(flags & D_DISABLED)
-		gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
+		gui_textout_ln_a5_dis(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcDISABLED_FG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE,jwin_a5_pal(jcLIGHT));
 	else
 		gui_textout_ln_a5(a5font,str,x+w/2+g, y+(h-th)/2+g,jwin_a5_pal(jcBOXFG),AL5_INVIS,ALLEGRO_ALIGN_CENTRE);
 	
