@@ -1547,7 +1547,7 @@ static MENU zscript_menu[] =
 
 void set_console_state()
 {
-	SETFLAG(etc_menu[13].flags, D_SELECTED, console_is_open);
+	SETFLAG(etc_menu[9].flags, D_SELECTED, console_is_open);
 }
 
 MENU the_menu[] =
@@ -4419,13 +4419,13 @@ int32_t playMusic()
             {
                 if(zc_play_midi(song,true)==0)
                 {
-                    etc_menu[8].flags =
+                    media_menu[0].flags =
                         commands[cmdPlayTune].flags = 0;
                         
-                    etc_menu[9].flags = D_SELECTED;
+                    media_menu[1].flags = D_SELECTED;
                     commands[cmdPlayMusic].flags = 0;
                     
-                    etc_menu[10].flags =
+                    media_menu[2].flags =
                         commands[cmdChangeTrack].flags = D_DISABLED;
                 }
             }
@@ -4437,13 +4437,13 @@ int32_t playMusic()
             
             if(zcmusic!=NULL)
             {
-                etc_menu[8].flags =
+                media_menu[0].flags =
                     commands[cmdPlayTune].flags = 0;
                     
-                etc_menu[9].flags=D_SELECTED;
+                media_menu[1].flags=D_SELECTED;
                 commands[cmdPlayMusic].flags = 0;
                 
-                etc_menu[10].flags =
+                media_menu[2].flags =
                     commands[cmdChangeTrack].flags = (zcmusic_get_tracks(zcmusic)<2)?D_DISABLED:0;
                     
                 zcmusic_play(zcmusic, midi_volume);
@@ -4547,13 +4547,13 @@ int32_t playTune(int32_t pos)
     {
         zc_midi_seek(pos);
         
-        etc_menu[8].flags = D_SELECTED;
+        media_menu[0].flags = D_SELECTED;
         commands[cmdPlayTune].flags = 0;
         
-        etc_menu[9].flags =
+        media_menu[1].flags =
             commands[cmdPlayMusic].flags = 0;
             
-        etc_menu[10].flags =
+        media_menu[2].flags =
             commands[cmdChangeTrack].flags = D_DISABLED;
     }
     
@@ -4571,12 +4571,12 @@ int32_t stopMusic()
         zcmusic = NULL;
     }
     
-    etc_menu[8].flags =
-        etc_menu[9].flags =
+    media_menu[0].flags =
+        media_menu[1].flags =
             commands[cmdPlayTune].flags =
                 commands[cmdPlayMusic].flags = 0;
                 
-    etc_menu[10].flags =
+    media_menu[2].flags =
         commands[cmdChangeTrack].flags = D_DISABLED;
     return D_O_K;
 }
@@ -31255,7 +31255,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	quit=!update_dialog(player2);
 	//clear_keybuf();
-	etc_menu[10].flags=commands[cmdChangeTrack].flags=D_DISABLED;
+	media_menu[2].flags=commands[cmdChangeTrack].flags=D_DISABLED;
 	
 	fix_drawing_mode_menu();
 	
