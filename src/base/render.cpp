@@ -213,7 +213,7 @@ void save_debug_bitmaps(char const* pref)
 	{
 		al_save_bitmap(fmt::format("{}/a5.bmp",path).c_str(),active_a5_dlg_rti->bitmap);
 	}
-	if(active_dlg_rti->children.size())
+	if(active_dlg_rti&&active_dlg_rti->children.size())
 	{
 		int q = 1;
 		for(RenderTreeItem* rti : active_dlg_rti->children)

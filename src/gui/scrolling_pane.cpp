@@ -207,7 +207,8 @@ void ScrollingPane::scroll(int32_t amount) noexcept
 	scrollPos=newPos;
 	if(scrollptr && alDialog) *scrollptr = scrollPos;
 	pendDraw();
-	broadcast_dialog_message(MSG_IDLE, 0);
+	if(isConstructed())
+		broadcast_dialog_message(MSG_IDLE, 0);
 }
 
 bool ScrollingPane::scrollToShowChild(int32_t childPos)

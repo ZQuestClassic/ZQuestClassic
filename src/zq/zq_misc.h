@@ -294,7 +294,7 @@ int32_t onTestOptions();
 
 int32_t onOptions();
 
-bool edit_combo(int32_t c,bool freshen,int32_t cs);
+bool edit_combo(int32_t c,int32_t cs);
 
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,bool value);
 void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t value);

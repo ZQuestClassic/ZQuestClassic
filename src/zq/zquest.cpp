@@ -11196,7 +11196,8 @@ void domouse()
 								}
 							}
 							
-							edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],true,Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
+							edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
+							refresh(rALL);
 						}
 						break;
 						
@@ -11473,7 +11474,8 @@ void domouse()
 							case 0:
 								reset_combo_animations();
 								reset_combo_animations2();
-								edit_combo(Combo,true,CSet);
+								edit_combo(Combo,CSet);
+								refresh(rALL);
 								setup_combo_animations();
 								setup_combo_animations2();
 								break;
@@ -11643,7 +11645,8 @@ void domouse()
 							{
 								reset_combo_animations();
 								reset_combo_animations2();
-								edit_combo(Combo,true,CSet);
+								edit_combo(Combo,CSet);
+								refresh(rALL);
 								setup_combo_animations();
 								setup_combo_animations2();
 							}

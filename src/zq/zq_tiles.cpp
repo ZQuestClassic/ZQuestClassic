@@ -410,7 +410,7 @@ static void make_combos(int32_t startTile, int32_t endTile, int32_t cs)
 	int32_t temp=combobuf[startCombo].o_tile;
 	combobuf[startCombo].set_tile(startTile);
 	
-	if(!edit_combo(startCombo, false, cs))
+	if(!edit_combo(startCombo, cs))
 	{
 		combobuf[startCombo].set_tile(temp);
 		return;
@@ -440,7 +440,7 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 	int32_t temp=combobuf[startCombo].o_tile;
 	combobuf[startCombo].set_tile(startTile);
 	
-	if(!edit_combo(startCombo, false, cs))
+	if(!edit_combo(startCombo, cs))
 	{
 		al_trace("make_combos_rect() early return\n");
 		combobuf[startCombo].set_tile(temp);
@@ -16793,6 +16793,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
 	FONT *tfont = lfont_l;
+	ALLEGRO_FONT *tfont_a5 = get_zc_font_a5(font_lfont_l);
 	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
@@ -16935,7 +16936,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		{
 			if(isinRect(gui_mouse_x(),gui_mouse_y(),w + 12 - 21, 5, w +12 - 21 + 15, 5 + 13))
 			{
-				if(do_x_button(screen, w+12 - 21, 5))
+				if(jwin_do_x_button_a5(w+12 - 21, 5))
 				{
 					done=1;
 				}
@@ -17013,15 +17014,15 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			
 			if(!bdown && isinRect(x,y,(247*mul),(213*mul),((247+44)*mul),((213+21)*mul)))
 			{
-				FONT *tf = font;
-				font = tfont;
+				ALLEGRO_FONT *tf = a5font;
+				a5font = tfont_a5;
 				
-				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button_a5((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done"))
 				{
 					done=2;
 				}
 				
-				font = tf;
+				a5font = tf;
 			}
 			
 			bdown=true;
@@ -17057,7 +17058,8 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		
 		if(gui_mouse_b()==0)
 			bdown=false;
-			
+		
+		if((f%RECTSEL_TIME)==0) redraw = true;
 		if(redraw)
 			draw_combos(page,cs,combo_cols);
 			
@@ -17066,7 +17068,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		if(f&RECTSEL_TIME)
 		{
 			int32_t x,y;
-			scare_mouse();
 			
 			for(int32_t i=zc_min(cmb,tile2); i<=zc_max(cmb,tile2); i++)
 			{
@@ -17085,12 +17086,9 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 						y=((t%52)>>2) << 5;
 					}
 					
-					rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
+					rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 				}
 			}
-			
-			unscare_mouse();
-			SCRFIX();
 		}
 		
 		++f;
@@ -17337,6 +17335,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
 	FONT *tfont = lfont_l;
+	ALLEGRO_FONT *tfont_a5 = get_zc_font_a5(font_lfont_l);
 	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
@@ -17521,7 +17520,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 			case KEY_E:
 				go_combos();
-				edit_combo(tile,false,cs);
+				edit_combo(tile,cs);
 				redraw=true;
 				setup_combo_animations();
 				setup_combo_animations2();
@@ -17722,7 +17721,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 		{
 			if(isinRect(gui_mouse_x(),gui_mouse_y(),w + 12 - 21, 5, w +12 - 21 + 15, 5 + 13))
 			{
-				if(do_x_button(screen, w+12 - 21, 5))
+				if(jwin_do_x_button_a5(w+12 - 21, 5))
 				{
 					done=1;
 				}
@@ -17788,7 +17787,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					else
 					{
 						go_combos();
-						edit_combo(tile,false,cs);
+						edit_combo(tile,cs);
 						redraw=true;
 						setup_combo_animations();
 						setup_combo_animations2();
@@ -17796,6 +17795,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				}
 				
 				tile_clicked=t;
+				redraw = true;
 			}
 			else if(x>(300*mul) && !bdown)
 			{
@@ -17816,29 +17816,29 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			
 			if(!bdown && isinRect(x,y,(202*mul),(213*mul)+panel_yofs,(202+44)*mul,(213+21)*mul))
 			{
-				FONT *tf = font;
-				font = tfont;
+				ALLEGRO_FONT *tf = a5font;
+				a5font = tfont_a5;
 				
-				if(do_text_button((202*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button_a5((202*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Edit"))
 				{
-					font = tf;
-					edit_combo(tile,false,cs);
+					a5font = tf;
+					edit_combo(tile,cs);
 					redraw=true;
 				}
 				
-				font = tf;
+				a5font = tf;
 			}
 			else if(!bdown && isinRect(x,y,(247*mul),(213*mul)+panel_yofs,(247+44)*mul,(213+21)*mul))
 			{
-				FONT *tf = font;
-				font = tfont;
+				ALLEGRO_FONT *tf = a5font;
+				a5font = tfont_a5;
 				
-				if(do_text_button((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				if(do_text_button_a5((247*mul)+screen_xofs,(213*mul)+screen_yofs+panel_yofs,(44*mul),(21*mul),"Done"))
 				{
 					done=1;
 				}
 				
-				font = tf;
+				a5font = tf;
 			}
 			
 			bdown=true;
@@ -17875,7 +17875,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			}
 			
 			bdown = r_click = true;
-			f=8;
+			f=RECTSEL_TIME;
 		}
 		
 REDRAW:
@@ -17885,6 +17885,7 @@ REDRAW:
 			bdown=false;
 		}
 		
+		if((f%RECTSEL_TIME)==0) redraw = true;
 		if(redraw)
 		{
 			draw_combos(page,cs,combo_cols);
@@ -17895,7 +17896,6 @@ REDRAW:
 		if(f&RECTSEL_TIME)
 		{
 			int32_t x,y;
-			scare_mouse();
 			
 			for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 			{
@@ -17914,12 +17914,9 @@ REDRAW:
 						y=((t%52)>>2) << 5;
 					}
 					
-					rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
+					rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 				}
 			}
-			
-			unscare_mouse();
-			SCRFIX();
 		}
 		
 		++f;
@@ -18028,7 +18025,7 @@ REDRAW:
 			
 			case 5:
 				go_combos();
-				edit_combo(tile,false,cs);
+				edit_combo(tile,cs);
 				break;
 				
 			case 6:
@@ -18174,19 +18171,11 @@ const char *comboscriptdroplist(int32_t index, int32_t *list_size)
 ListData comboscript_list(comboscriptdroplist, &font, &a5font);
 
 bool call_combo_editor(int32_t);
-bool edit_combo(int32_t c,bool freshen,int32_t cs)
+bool edit_combo(int32_t c,int32_t cs)
 {
-	FONT* ofont = font;
-	//CSet = cs;
 	reset_combo_animations();
 	reset_combo_animations2();
 	bool edited = call_combo_editor(c);
-	font = ofont;
-	
-	if(freshen)
-	{
-		refresh(rALL);
-	}
 	
 	setup_combo_animations();
 	setup_combo_animations2();
