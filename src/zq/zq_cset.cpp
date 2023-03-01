@@ -1302,6 +1302,22 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 	return D_O_K;
 }
 
+int d_bitmap_proc_a5(DIALOG* d, int msg, int)
+{
+	if (msg==MSG_DRAW)
+	{
+		set_bitmap_create_flags(false);
+		ALLEGRO_BITMAP* b = all_get_a5_bitmap((BITMAP*)d->dp);
+		if(b)
+		{
+			al_draw_bitmap_region(b, 0, 0, d->x, d->y, d->w, d->h, 0);
+			al_destroy_bitmap(b);
+		}
+	}
+	return D_O_K;
+}
+
+
 byte mainpal_csets[30]    = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 11,11,12,12,12,11, 10,10,10,12,10,10,10,10,9 };
 byte levelpal_csets[26]   = { 2,3,4,9,2,3,4,2,3,4, 2, 3, 4,       15,15,15,15, 7,7,7, 8,8,8, 0,0,0 };
 byte levelpal2_csets[26]  = { 2,3,4,9,2,0,1,2,3,4, 5, 6, 7,       15,15,15,15, 8,  9,9,9,9,9,9,9,9 };

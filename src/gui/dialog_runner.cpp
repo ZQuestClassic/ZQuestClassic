@@ -124,7 +124,6 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 	rerun_dlg = false;
 	
 	popup_zqdialog_start_a5(x,y,w,h);
-	popup_zqdialog_start(x,y,w,h,0xFF);
 	
 	new_gui_popup_dialog(alDialog.data(), focused, done, running);
 	
@@ -133,7 +132,7 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 		freeze_render(); //don't allow the closing of the dialog to render
 		render_froze = true;
 	}
-	popup_zqdialog_end();
+	
 	popup_zqdialog_end_a5();
 }
 
