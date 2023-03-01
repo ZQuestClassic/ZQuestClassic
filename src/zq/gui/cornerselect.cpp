@@ -3,7 +3,7 @@
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"
@@ -47,28 +47,22 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 
 		case MSG_DRAW:
 		{
-			BITMAP *buf = create_bitmap_ex(8,20,20);
-			BITMAP *bigbmp = create_bitmap_ex(8,d->h,d->h);
-			
-			if(buf && bigbmp)
+			al_draw_filled_rectangle(d->x+2, d->y+2, d->x+d->w-2, d->y+d->h-2, hexcolor(d->bg));
+			if(d->d1)
 			{
-				clear_bitmap(buf);
-				rectfill(buf, 2, 2, 17, 17, d->bg);
+				int bw = (d->w-4)/2;
+				int bh = (d->h-4)/2;
+				ALLEGRO_COLOR fgc = hexcolor(d->fg);
 				if(d->d1 & 0b0001)
-					rectfill(buf,  2,  2,  9,  9, d->fg);
+					al_draw_filled_rectangle(d->x+2, d->y+2, d->x+2+bw, d->y+2+bh, fgc);
 				if(d->d1 & 0b0010)
-					rectfill(buf, 10,  2, 17,  9, d->fg);
+					al_draw_filled_rectangle(d->x+2+bw, d->y+2, d->x+2+2*bw, d->y+2+bh, fgc);
 				if(d->d1 & 0b0100)
-					rectfill(buf,  2, 10,  9, 17, d->fg);
+					al_draw_filled_rectangle(d->x+2, d->y+2+bh, d->x+2+bw, d->y+2+2*bh, fgc);
 				if(d->d1 & 0b1000)
-					rectfill(buf, 10, 10, 17, 17, d->fg);
-					
-				stretch_blit(buf, bigbmp, 2,2, 17, 17, 2, 2, d->h-4, d->h-4);
-				destroy_bitmap(buf);
-				jwin_draw_frame(bigbmp,0,0,d->h,d->h,FR_DEEP);
-				blit(bigbmp,screen,0,0,d->x,d->y,d->h,d->h);
-				destroy_bitmap(bigbmp);
+					al_draw_filled_rectangle(d->x+2+bw, d->y+2+bh, d->x+2+2*bw, d->y+2+2*bh, fgc);
 			}
+			jwin_draw_frame_a5(d->x,d->y,d->h,d->h,FR_DEEP);
 		}
 		break;
 	}
@@ -85,7 +79,7 @@ CornerSwatch::CornerSwatch(): val(0),
 	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
-	bgColor = vc(7);
+	bgColor = 0xAAAAAA;
 }
 
 void CornerSwatch::setVal(int32_t value)

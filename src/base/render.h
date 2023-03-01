@@ -64,6 +64,8 @@ bool render_frozen();
 void set_bitmap_create_flags(bool preserve_texture);
 ALLEGRO_COLOR a5color(RGB c, unsigned char alpha = 255);
 ALLEGRO_COLOR a5color(int index, unsigned char alpha = 255);
+ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha = 255);
+int a5tohex(ALLEGRO_COLOR c);
 void clear_a5_bmp(ALLEGRO_COLOR c, ALLEGRO_BITMAP* bmp = nullptr);
 void collide_clip_rect(int& x, int& y, int& w, int& h);
 void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);

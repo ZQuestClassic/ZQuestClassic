@@ -66,6 +66,9 @@ ALLEGRO_COLOR AL5_YELLOW = al_map_rgb(255,255,0);
 ALLEGRO_COLOR AL5_PINK = al_map_rgb(255,0,255);
 ALLEGRO_COLOR AL5_LGRAY = al_map_rgb(85,85,85);
 ALLEGRO_COLOR AL5_DGRAY = al_map_rgb(170,170,170);
+ALLEGRO_COLOR AL5_COL_SOLIDITY = al_map_rgb(178,36,36);
+ALLEGRO_COLOR AL5_COL_EFFECT = al_map_rgb(85,255,85);
+ALLEGRO_COLOR AL5_COL_CS2 = al_map_rgb(85,255,255);
 void jwin_reset_a5_colors()
 {
 	jwin_set_a5_colors(tmpcol);

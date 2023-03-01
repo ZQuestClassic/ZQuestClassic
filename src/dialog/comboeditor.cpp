@@ -4,6 +4,7 @@
 #include "alert.h"
 #include "base/zsys.h"
 #include "../tiles.h"
+#include "../jwin_a5.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
 
@@ -2134,7 +2135,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[0] = CornerSwatch(colSpan = 2,
 								val = solidity_to_flag(local_comboref.walk&0xF),
-								color = vc(4),
+								color = a5tohex(AL5_COL_SOLIDITY),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.walk &= ~0xF;
@@ -2143,7 +2144,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[1] = CornerSwatch(colSpan = 2,
 								val = (local_comboref.csets&0xF0)>>4,
-								color = vc(11),
+								color = a5tohex(AL5_COL_CS2),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.csets &= ~0xF0;
@@ -2175,7 +2176,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[2] = CornerSwatch(colSpan = 2,
 								val = solidity_to_flag((local_comboref.walk&0xF0)>>4),
-								color = vc(10),
+								color = a5tohex(AL5_COL_EFFECT),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.walk &= ~0xF0;

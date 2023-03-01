@@ -43,6 +43,16 @@ ALLEGRO_COLOR a5color(int index, unsigned char alpha)
 	get_color(index,&tmp);
 	return a5color(tmp,alpha);
 }
+ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha)
+{
+	return al_map_rgba((hexval>>16)&0xFF,(hexval>>8)&0xFF,(hexval)&0xFF,alpha);
+}
+int a5tohex(ALLEGRO_COLOR c)
+{
+	unsigned char r,g,b;
+	al_unmap_rgb(c,&r,&g,&b);
+	return (r<<16)|(g<<8)|b;
+}
 
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
 {
