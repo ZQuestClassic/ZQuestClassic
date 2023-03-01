@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-02-27 03:49:06</td>
+      <td>2023-03-01 21:18:50</td>
     </tr>
   </table>
 </div>
@@ -708,7 +708,7 @@
         <a href="#l4721">4721</a>
       </td>
       <td>
-        <a href="#l4721"> called 363830 times</a>
+        <a href="#l4721"> called 130834 times</a>
       </td>
     </tr>
     <tr>
@@ -1068,7 +1068,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">devcfg</span><span class="p">,</span><span class="w"> </span><span class="n">devcfg_active</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1076,7 +1076,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//DEVLEVEL 1 = extra debug tools</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1084,7 +1084,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//DEVLEVEL 2 = force enable cheats</span></td>
+      <td class="src "><span class="c1">//DEVLEVEL 1 = extra debug tools</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1092,7 +1092,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//DEVLEVEL 3 ?? (Seems to do nothing special)</span></td>
+      <td class="src "><span class="c1">//DEVLEVEL 2 = force enable cheats</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1100,7 +1100,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//DEVLEVEL 4 = ignore quest passwords</span></td>
+      <td class="src "><span class="c1">//DEVLEVEL 3 ?? (Seems to do nothing special)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1108,7 +1108,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//DEVLEVEL 4 = ignore quest passwords</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1116,7 +1116,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef _DEBUG</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1124,7 +1124,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#if DEVLEVEL &lt; 4</span></td>
+      <td class="src "><span class="cp">#ifdef _DEBUG</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1132,7 +1132,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef DEVLEVEL</span></td>
+      <td class="src "><span class="cp">#if DEVLEVEL &lt; 4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1140,7 +1140,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVLEVEL 4</span></td>
+      <td class="src "><span class="cp">#undef DEVLEVEL</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1148,7 +1148,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="cp">#define DEVLEVEL 4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1164,7 +1164,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1172,7 +1172,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#if DEVLEVEL &gt; 0</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1180,7 +1180,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVLOGGING	dev_logging</span></td>
+      <td class="src "><span class="cp">#if DEVLEVEL &gt; 0</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1188,7 +1188,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVDEBUG	dev_debug</span></td>
+      <td class="src "><span class="cp">#define DEVLOGGING	dev_logging</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1196,7 +1196,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVTIMESTAMP dev_timestmp</span></td>
+      <td class="src "><span class="cp">#define DEVDEBUG	dev_debug</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1204,7 +1204,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "><span class="cp">#define DEVTIMESTAMP dev_timestmp</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1212,7 +1212,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVLOGGING	 false</span></td>
+      <td class="src "><span class="cp">#else</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1220,7 +1220,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVDEBUG	 false</span></td>
+      <td class="src "><span class="cp">#define DEVLOGGING	 false</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1228,7 +1228,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define DEVTIMESTAMP false</span></td>
+      <td class="src "><span class="cp">#define DEVDEBUG	 false</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1236,7 +1236,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="cp">#define DEVTIMESTAMP false</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1244,7 +1244,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1260,7 +1260,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTFFC			512</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1268,7 +1268,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTFFCOLD			256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTFFC			512</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1276,7 +1276,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTITEM			256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTFFCOLD			256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1284,7 +1284,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTGUYS			256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTITEM			256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1292,7 +1292,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTWEAPONS		256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTGUYS			256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1300,7 +1300,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTGLOBAL			8</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTWEAPONS		256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1308,7 +1308,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTGLOBAL255OLD	7</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTGLOBAL			8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1316,7 +1316,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTGLOBAL253		4</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTGLOBAL255OLD	7</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1324,7 +1324,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTGLOBALOLD		3</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTGLOBAL253		4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1332,7 +1332,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTHEROOLD		3</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTGLOBALOLD		3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1340,7 +1340,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTPLAYER			5</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTHEROOLD		3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1348,7 +1348,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTSCREEN			256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTPLAYER			5</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1356,7 +1356,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTSDMAP			256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTSCREEN			256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1364,7 +1364,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTSITEMSPRITE	256</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTSDMAP			256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1372,7 +1372,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTSCOMBODATA		512</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTSITEMSPRITE	256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1380,7 +1380,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define NUMSCRIPTSGENERIC       512</span></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTSCOMBODATA		512</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1388,7 +1388,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define NUMSCRIPTSGENERIC       512</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1396,7 +1396,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Conditional Debugging Compilation</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1404,7 +1404,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Script related</span></td>
+      <td class="src "><span class="c1">//Conditional Debugging Compilation</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1412,7 +1412,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define _FFDEBUG</span></td>
+      <td class="src "><span class="c1">//Script related</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1420,7 +1420,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define _FFDISSASSEMBLY</span></td>
+      <td class="src "><span class="cp">#define _FFDEBUG</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1428,7 +1428,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define _FFONESCRIPTDISSASSEMBLY</span></td>
+      <td class="src "><span class="c1">//#define _FFDISSASSEMBLY</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1436,7 +1436,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//#define _FFONESCRIPTDISSASSEMBLY</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1444,7 +1444,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Other</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1452,7 +1452,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define _SKIPPASSWORDCHECK</span></td>
+      <td class="src "><span class="c1">//Other</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1460,7 +1460,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//#define _SKIPPASSWORDCHECK</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1468,7 +1468,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/*</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1476,7 +1476,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  //DOS Graphics Modes</span></td>
+      <td class="src "><span class="cm">/*</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1484,7 +1484,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_TEXT</span></td>
+      <td class="src "><span class="cm">  //DOS Graphics Modes</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1492,7 +1492,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
+      <td class="src "><span class="cm">  GFX_TEXT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1500,7 +1500,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1508,7 +1508,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1516,7 +1516,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_SAFE</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1524,7 +1524,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VGA</span></td>
+      <td class="src "><span class="cm">  GFX_SAFE</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1532,7 +1532,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_MODEX</span></td>
+      <td class="src "><span class="cm">  GFX_VGA</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1540,7 +1540,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VESA1</span></td>
+      <td class="src "><span class="cm">  GFX_MODEX</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1548,7 +1548,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VESA2B</span></td>
+      <td class="src "><span class="cm">  GFX_VESA1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1556,7 +1556,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VESA2L</span></td>
+      <td class="src "><span class="cm">  GFX_VESA2B</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1564,7 +1564,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VESA3</span></td>
+      <td class="src "><span class="cm">  GFX_VESA2L</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1572,7 +1572,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VBEAF</span></td>
+      <td class="src "><span class="cm">  GFX_VESA3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1580,7 +1580,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cm">  GFX_VBEAF</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1588,7 +1588,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  //Windows Graphics Modes</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1596,7 +1596,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_TEXT</span></td>
+      <td class="src "><span class="cm">  //Windows Graphics Modes</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1604,7 +1604,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
+      <td class="src "><span class="cm">  GFX_TEXT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1612,7 +1612,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1620,7 +1620,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1628,7 +1628,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_SAFE</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1636,7 +1636,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_DIRECTX</span></td>
+      <td class="src "><span class="cm">  GFX_SAFE</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1644,7 +1644,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_DIRECTX_ACCEL</span></td>
+      <td class="src "><span class="cm">  GFX_DIRECTX</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1652,7 +1652,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_DIRECTX_SOFT</span></td>
+      <td class="src "><span class="cm">  GFX_DIRECTX_ACCEL</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1660,7 +1660,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_DIRECTX_SAFE</span></td>
+      <td class="src "><span class="cm">  GFX_DIRECTX_SOFT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1668,7 +1668,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_DIRECTX_WIN</span></td>
+      <td class="src "><span class="cm">  GFX_DIRECTX_SAFE</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1676,7 +1676,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_DIRECTX_OVL</span></td>
+      <td class="src "><span class="cm">  GFX_DIRECTX_WIN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1684,7 +1684,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_GDI</span></td>
+      <td class="src "><span class="cm">  GFX_DIRECTX_OVL</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1692,7 +1692,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cm">  GFX_GDI</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1700,7 +1700,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  //Linux Graphics Modes</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1708,7 +1708,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_TEXT</span></td>
+      <td class="src "><span class="cm">  //Linux Graphics Modes</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1716,7 +1716,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
+      <td class="src "><span class="cm">  GFX_TEXT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1724,7 +1724,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1732,7 +1732,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1740,7 +1740,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_SAFE</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1748,7 +1748,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_FBCON</span></td>
+      <td class="src "><span class="cm">  GFX_SAFE</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1756,7 +1756,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VBEAF</span></td>
+      <td class="src "><span class="cm">  GFX_FBCON</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1764,7 +1764,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_SVGALIB</span></td>
+      <td class="src "><span class="cm">  GFX_VBEAF</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1772,7 +1772,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_VGA</span></td>
+      <td class="src "><span class="cm">  GFX_SVGALIB</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1780,7 +1780,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_MODEX</span></td>
+      <td class="src "><span class="cm">  GFX_VGA</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1788,7 +1788,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cm">  GFX_MODEX</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1796,7 +1796,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  //X-Window Graphics Modes</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1804,7 +1804,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_TEXT</span></td>
+      <td class="src "><span class="cm">  //X-Window Graphics Modes</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1812,7 +1812,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
+      <td class="src "><span class="cm">  GFX_TEXT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1820,7 +1820,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1828,7 +1828,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1836,7 +1836,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_SAFE</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1844,7 +1844,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_XWINDOWS</span></td>
+      <td class="src "><span class="cm">  GFX_SAFE</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1852,7 +1852,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_XWINDOWS_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_XWINDOWS</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1860,7 +1860,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_XDGA2</span></td>
+      <td class="src "><span class="cm">  GFX_XWINDOWS_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1868,7 +1868,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_XDGA2_SOFT</span></td>
+      <td class="src "><span class="cm">  GFX_XDGA2</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1876,7 +1876,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cm">  GFX_XDGA2_SOFT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1884,7 +1884,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  //MacOS X Drivers</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1892,7 +1892,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_TEXT</span></td>
+      <td class="src "><span class="cm">  //MacOS X Drivers</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1900,7 +1900,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
+      <td class="src "><span class="cm">  GFX_TEXT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1908,7 +1908,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1916,7 +1916,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1924,7 +1924,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_SAFE</span></td>
+      <td class="src "><span class="cm">  GFX_AUTODETECT_WINDOWED</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1932,7 +1932,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_QUARTZ_FULLSCREEN</span></td>
+      <td class="src "><span class="cm">  GFX_SAFE</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1940,7 +1940,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  GFX_QUARTZ_WINDOW</span></td>
+      <td class="src "><span class="cm">  GFX_QUARTZ_FULLSCREEN</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1948,7 +1948,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  */</span><span class="w"></span></td>
+      <td class="src "><span class="cm">  GFX_QUARTZ_WINDOW</span></td>
     </tr>
 
     <tr class="source-line">
@@ -1956,7 +1956,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cm">  */</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1964,7 +1964,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span><span class="cp"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -1972,7 +1972,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cstdio&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1980,7 +1980,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;math.h&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1988,7 +1988,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string.h&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -1996,7 +1996,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;set&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;vector&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2004,7 +2004,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;set&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2012,7 +2012,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;assert.h&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2020,7 +2020,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2028,7 +2028,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">byte</span><span class="p">;</span><span class="w">  </span><span class="c1">//0-255  ( 8 bits)</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2036,7 +2036,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">word</span><span class="p">;</span><span class="w">  </span><span class="c1">//0-65,535  (16 bits)</span></td>
+      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">byte</span><span class="p">;</span><span class="w">  </span><span class="c1">//0-255  ( 8 bits)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2044,7 +2044,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">dword</span><span class="p">;</span><span class="w"> </span><span class="c1">//0-4,294,967,295  (32 bits)</span></td>
+      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint16_t</span><span class="w"> </span><span class="n">word</span><span class="p">;</span><span class="w">  </span><span class="c1">//0-65,535  (16 bits)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2052,7 +2052,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">qword</span><span class="p">;</span><span class="w"> </span><span class="c1">//0-18,446,744,073,709,551,616  (64 bits)</span></td>
+      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">dword</span><span class="p">;</span><span class="w"> </span><span class="c1">//0-4,294,967,295  (32 bits)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2060,7 +2060,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">uint64_t</span><span class="w"> </span><span class="n">qword</span><span class="p">;</span><span class="w"> </span><span class="c1">//0-18,446,744,073,709,551,616  (64 bits)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2068,7 +2068,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">ucc</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2076,7 +2076,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">typedef</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">ucc</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2084,7 +2084,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Common struct array element sizes-Z</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2092,7 +2092,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define INITIAL_A 2</span></td>
+      <td class="src "><span class="c1">//Common struct array element sizes-Z</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2100,7 +2100,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define INITIAL_D 8</span></td>
+      <td class="src "><span class="cp">#define INITIAL_A 2</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2108,7 +2108,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define FFSCRIPT_MISC 32</span></td>
+      <td class="src "><span class="cp">#define INITIAL_D 8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2116,7 +2116,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAXFFCS 128</span></td>
+      <td class="src "><span class="cp">#define FFSCRIPT_MISC 32</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2124,7 +2124,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define MAXFFCS 128</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2132,7 +2132,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAX_SIGNED_32 (2147483647)</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2140,7 +2140,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MIN_SIGNED_32 (-2147483647-1)</span></td>
+      <td class="src "><span class="cp">#define MAX_SIGNED_32 (2147483647)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2148,7 +2148,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAX_DWORD dword(-1)</span></td>
+      <td class="src "><span class="cp">#define MIN_SIGNED_32 (-2147483647-1)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2156,7 +2156,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MIN_DWORD 0</span></td>
+      <td class="src "><span class="cp">#define MAX_DWORD dword(-1)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2164,7 +2164,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define MIN_DWORD 0</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2172,7 +2172,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ffc.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#define LARGE_W       912</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2180,7 +2180,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;metadata/metadata.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#define LARGE_H       684</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2188,7 +2188,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zc_alleg.h&quot;</span><span class="cp"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2196,7 +2196,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;gamedata.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ffc.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2204,7 +2204,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zc_array.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;metadata/metadata.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2212,7 +2212,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/random.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zc_alleg.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2220,7 +2220,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/util.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;gamedata.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2228,7 +2228,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/process_management.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/zc_array.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2236,7 +2236,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/render.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/random.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2244,7 +2244,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zconfig.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/util.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2252,7 +2252,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;user_object.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/process_management.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2260,7 +2260,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;mapscr.h&quot;</span><span class="cp"></span></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;base/render.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2268,7 +2268,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;zconfig.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2276,7 +2276,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;user_object.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2284,7 +2284,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;mapscr.h&quot;</span><span class="cp"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2292,7 +2292,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZELDA_VERSION       0x0255                         </span><span class="c1">//version of the program</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2300,7 +2300,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZC_VERSION 25500 </span><span class="c1">//Version ID for ZScript Game-&gt;Version</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2308,7 +2308,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define VERSION_BUILD       61                             </span><span class="c1">//V_BUILD build number of this version</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2316,7 +2316,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. </span></td>
+      <td class="src "><span class="cp">#define ZELDA_VERSION       0x0255                         </span><span class="c1">//version of the program</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2324,7 +2324,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define ZELDA_VERSION_STR   &quot;AEternal (v2.55) Alpha 37&quot;                    //version of the program as presented in text</span></td>
+      <td class="src "><span class="cp">#define ZC_VERSION 25500 </span><span class="c1">//Version ID for ZScript Game-&gt;Version</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2332,7 +2332,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)</span></td>
+      <td class="src "><span class="cp">#define VERSION_BUILD       61                             </span><span class="c1">//V_BUILD build number of this version</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2340,7 +2340,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define VERSION_BETA        39	</span></td>
+      <td class="src "><span class="c1">//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. </span></td>
     </tr>
 
     <tr class="source-line">
@@ -2348,7 +2348,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define DATE_STR            &quot;19th October, 2019, 12:18GMT&quot;</span></td>
+      <td class="src "><span class="c1">//#define ZELDA_VERSION_STR   &quot;AEternal (v2.55) Alpha 37&quot;                    //version of the program as presented in text</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2356,7 +2356,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//__DATE__ and __TIME__ macros can simplify this, in the future. </span></td>
+      <td class="src "><span class="c1">//#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2364,7 +2364,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define ZELDA_ABOUT_STR 	    &quot;ZC Player &#39;AEternal&#39;, Alpha 37&quot;</span></td>
+      <td class="src "><span class="c1">//#define VERSION_BETA        39	</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2372,7 +2372,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define COPYRIGHT_YEAR      &quot;2019&quot;                          </span><span class="c1">//shown on title screen and in ending</span></td>
+      <td class="src "><span class="c1">//#define DATE_STR            &quot;19th October, 2019, 12:18GMT&quot;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2380,7 +2380,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//__DATE__ and __TIME__ macros can simplify this, in the future. </span></td>
     </tr>
 
     <tr class="source-line">
@@ -2388,7 +2388,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MIN_VERSION         0x0184</span></td>
+      <td class="src "><span class="c1">//#define ZELDA_ABOUT_STR 	    &quot;ZC Player &#39;AEternal&#39;, Alpha 37&quot;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2396,7 +2396,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define COPYRIGHT_YEAR      &quot;2019&quot;                          </span><span class="c1">//shown on title screen and in ending</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2404,7 +2404,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZELDADAT_VERSION      0x0211                        </span><span class="c1">//version of zelda.dat</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2412,7 +2412,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZELDADAT_BUILD        17                            </span><span class="c1">//build of zelda.dat</span></td>
+      <td class="src "><span class="cp">#define MIN_VERSION         0x0184</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2420,7 +2420,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define SFXDAT_VERSION        0x0211                        </span><span class="c1">//version of sfx.dat</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2428,7 +2428,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define SFXDAT_BUILD          15                            </span><span class="c1">//build of sfx.dat</span></td>
+      <td class="src "><span class="cp">#define ZELDADAT_VERSION      0x0211                        </span><span class="c1">//version of zelda.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2436,7 +2436,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define FONTSDAT_VERSION      0x0253                        </span><span class="c1">//version of fonts.dat</span></td>
+      <td class="src "><span class="cp">#define ZELDADAT_BUILD        17                            </span><span class="c1">//build of zelda.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2444,7 +2444,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define FONTSDAT_BUILD        30                            </span><span class="c1">//build of fonts.dat</span></td>
+      <td class="src "><span class="cp">#define SFXDAT_VERSION        0x0211                        </span><span class="c1">//version of sfx.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2452,7 +2452,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define QSTDAT_VERSION        0x0253                        </span><span class="c1">//version of qst.dat</span></td>
+      <td class="src "><span class="cp">#define SFXDAT_BUILD          15                            </span><span class="c1">//build of sfx.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2460,7 +2460,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define QSTDAT_BUILD          30                            </span><span class="c1">//build of qst.dat</span></td>
+      <td class="src "><span class="cp">#define FONTSDAT_VERSION      0x0253                        </span><span class="c1">//version of fonts.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2468,7 +2468,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZQUESTDAT_VERSION     0x0211                        </span><span class="c1">//version of zquest.dat</span></td>
+      <td class="src "><span class="cp">#define FONTSDAT_BUILD        30                            </span><span class="c1">//build of fonts.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2476,7 +2476,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZQUESTDAT_BUILD       18                            </span><span class="c1">//build of zquest.dat</span></td>
+      <td class="src "><span class="cp">#define QSTDAT_VERSION        0x0253                        </span><span class="c1">//version of qst.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2484,7 +2484,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define QSTDAT_BUILD          30                            </span><span class="c1">//build of qst.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2492,7 +2492,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAX_INTERNAL_QUESTS 	5</span></td>
+      <td class="src "><span class="cp">#define ZQUESTDAT_VERSION     0x0211                        </span><span class="c1">//version of zquest.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2500,7 +2500,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define ZQUESTDAT_BUILD       18                            </span><span class="c1">//build of zquest.dat</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2508,7 +2508,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define BITS_SP	10</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2516,7 +2516,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAX_SCRIPT_REGISTERS (1&lt;&lt;BITS_SP)</span></td>
+      <td class="src "><span class="cp">#define MAX_INTERNAL_QUESTS 	5</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2524,7 +2524,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MAX_SCRIPT_REGISTERS_250 256</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2532,7 +2532,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define BITS_SP	10</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2540,7 +2540,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="n">ENC_METHOD_192B104</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_192B105</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_192B185</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_211B9</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_211B18</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_MAX</span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#define MAX_SCRIPT_REGISTERS (1&lt;&lt;BITS_SP)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2548,7 +2548,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define MAX_SCRIPT_REGISTERS_250 256</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2556,7 +2556,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Moved these OS-dependent defs from &#39;ffasm.cpp&#39;, to be global.</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2564,7 +2564,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_MACOSX</span></td>
+      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="n">ENC_METHOD_192B104</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_192B105</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_192B185</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_211B9</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_211B18</span><span class="p">,</span><span class="w"> </span><span class="n">ENC_METHOD_MAX</span><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2572,7 +2572,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define strnicmp strncasecmp</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2580,7 +2580,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="c1">//Moved these OS-dependent defs from &#39;ffasm.cpp&#39;, to be global.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2588,7 +2588,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_MACOSX</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2596,7 +2596,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_MACOSX</span></td>
+      <td class="src "><span class="cp">#define strnicmp strncasecmp</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2604,7 +2604,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define strnicmp strncasecmp</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2612,7 +2612,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2620,7 +2620,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_MACOSX</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2628,7 +2628,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_LINUX</span></td>
+      <td class="src "><span class="cp">#define strnicmp strncasecmp</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2636,7 +2636,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define strnicmp strncasecmp</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2644,7 +2644,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2652,7 +2652,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_LINUX</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2660,7 +2660,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef _MSC_VER</span></td>
+      <td class="src "><span class="cp">#define strnicmp strncasecmp</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2668,7 +2668,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define stricmp _stricmp</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2676,7 +2676,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define strnicmp _strnicmp</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2684,7 +2684,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define unlink _unlink</span></td>
+      <td class="src "><span class="cp">#ifdef _MSC_VER</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2692,7 +2692,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="cp">#define stricmp _stricmp</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2700,7 +2700,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define strnicmp _strnicmp</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2708,7 +2708,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef _WIN32</span></td>
+      <td class="src "><span class="cp">#define unlink _unlink</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2716,7 +2716,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define PATH_SLASH &#39;\\&#39;</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2724,7 +2724,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define WRONG_PATH_SLASH &#39;/&#39;</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2732,7 +2732,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "><span class="cp">#ifdef _WIN32</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2740,7 +2740,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define PATH_SLASH &#39;/&#39;</span></td>
+      <td class="src "><span class="cp">#define PATH_SLASH &#39;\\&#39;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2748,7 +2748,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define WRONG_PATH_SLASH &#39;\\&#39;</span></td>
+      <td class="src "><span class="cp">#define WRONG_PATH_SLASH &#39;/&#39;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2756,7 +2756,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="cp">#else</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2764,7 +2764,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define PATH_SLASH &#39;/&#39;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2772,7 +2772,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef ALLEGRO_DOS</span></td>
+      <td class="src "><span class="cp">#define WRONG_PATH_SLASH &#39;\\&#39;</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2780,7 +2780,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//already defined in DOS</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2788,7 +2788,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/*</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2796,7 +2796,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">#elif defined(ALLEGRO_WINDOWS)</span></td>
+      <td class="src "><span class="cp">#ifdef ALLEGRO_DOS</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2804,7 +2804,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">#define PI 3.14159265358979323846</span></td>
+      <td class="src "><span class="c1">//already defined in DOS</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2812,7 +2812,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">#elif defined(ALLEGRO_MACOSX)</span></td>
+      <td class="src "><span class="cm">/*</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2820,7 +2820,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">#define PI 3.14159265358979323846</span></td>
+      <td class="src "><span class="cm">#elif defined(ALLEGRO_WINDOWS)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2828,7 +2828,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">#elif defined(ALLEGRO_LINUX)</span></td>
+      <td class="src "><span class="cm">#define PI 3.14159265358979323846</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2836,7 +2836,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">*/</span><span class="w"></span></td>
+      <td class="src "><span class="cm">#elif defined(ALLEGRO_MACOSX)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2844,7 +2844,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "><span class="cm">#define PI 3.14159265358979323846</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2852,7 +2852,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define PI 3.14159265358979323846</span></td>
+      <td class="src "><span class="cm">#elif defined(ALLEGRO_LINUX)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2860,7 +2860,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="cm">*/</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -2868,7 +2868,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#else</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2876,7 +2876,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define HP_PER_HEART          16 //We should make this a global quest setting.</span></td>
+      <td class="src "><span class="cp">#define PI 3.14159265358979323846</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2884,7 +2884,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define MAGICPERBLOCK         32</span></td>
+      <td class="src "><span class="cp">#endif</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2892,7 +2892,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2900,7 +2900,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//#define HP_PER_HEART          16 //We should make this a global quest setting.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2908,7 +2908,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ZC_ID(a,b,c,d)  (((a)&lt;&lt;24) | ((b)&lt;&lt;16) | ((c)&lt;&lt;8) | (d))</span></td>
+      <td class="src "><span class="c1">//#define MAGICPERBLOCK         32</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2916,7 +2916,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="c1">//#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2924,7 +2924,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//ID values of the different section types</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2932,7 +2932,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_HEADER         ZC_ID(&#39;H&#39;,&#39;D&#39;,&#39;R&#39;,&#39; &#39;)              </span><span class="c1">//quest header</span></td>
+      <td class="src "><span class="cp">#define ZC_ID(a,b,c,d)  (((a)&lt;&lt;24) | ((b)&lt;&lt;16) | ((c)&lt;&lt;8) | (d))</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2940,7 +2940,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_RULES          ZC_ID(&#39;R&#39;,&#39;U&#39;,&#39;L&#39;,&#39;E&#39;)              </span><span class="c1">//quest rules</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -2948,7 +2948,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_STRINGS        ZC_ID(&#39;S&#39;,&#39;T&#39;,&#39;R&#39;,&#39; &#39;)              </span><span class="c1">//message strings</span></td>
+      <td class="src "><span class="c1">//ID values of the different section types</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2956,7 +2956,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_MISC           ZC_ID(&#39;M&#39;,&#39;I&#39;,&#39;S&#39;,&#39;C&#39;)              </span><span class="c1">//misc data</span></td>
+      <td class="src "><span class="cp">#define ID_HEADER         ZC_ID(&#39;H&#39;,&#39;D&#39;,&#39;R&#39;,&#39; &#39;)              </span><span class="c1">//quest header</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2964,7 +2964,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_TILES          ZC_ID(&#39;T&#39;,&#39;I&#39;,&#39;L&#39;,&#39;E&#39;)              </span><span class="c1">//tiles</span></td>
+      <td class="src "><span class="cp">#define ID_RULES          ZC_ID(&#39;R&#39;,&#39;U&#39;,&#39;L&#39;,&#39;E&#39;)              </span><span class="c1">//quest rules</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2972,7 +2972,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_COMBOS         ZC_ID(&#39;C&#39;,&#39;M&#39;,&#39;B&#39;,&#39;O&#39;)              </span><span class="c1">//combos</span></td>
+      <td class="src "><span class="cp">#define ID_STRINGS        ZC_ID(&#39;S&#39;,&#39;T&#39;,&#39;R&#39;,&#39; &#39;)              </span><span class="c1">//message strings</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2980,7 +2980,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_CSETS          ZC_ID(&#39;C&#39;,&#39;S&#39;,&#39;E&#39;,&#39;T&#39;)              </span><span class="c1">//csets (and pal names?)</span></td>
+      <td class="src "><span class="cp">#define ID_MISC           ZC_ID(&#39;M&#39;,&#39;I&#39;,&#39;S&#39;,&#39;C&#39;)              </span><span class="c1">//misc data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2988,7 +2988,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_MAPS           ZC_ID(&#39;M&#39;,&#39;A&#39;,&#39;P&#39;,&#39; &#39;)              </span><span class="c1">//maps</span></td>
+      <td class="src "><span class="cp">#define ID_TILES          ZC_ID(&#39;T&#39;,&#39;I&#39;,&#39;L&#39;,&#39;E&#39;)              </span><span class="c1">//tiles</span></td>
     </tr>
 
     <tr class="source-line">
@@ -2996,7 +2996,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_DMAPS          ZC_ID(&#39;D&#39;,&#39;M&#39;,&#39;A&#39;,&#39;P&#39;)              </span><span class="c1">//dmaps</span></td>
+      <td class="src "><span class="cp">#define ID_COMBOS         ZC_ID(&#39;C&#39;,&#39;M&#39;,&#39;B&#39;,&#39;O&#39;)              </span><span class="c1">//combos</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3004,7 +3004,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_DOORS          ZC_ID(&#39;D&#39;,&#39;O&#39;,&#39;O&#39;,&#39;R&#39;)              </span><span class="c1">//door combo sets</span></td>
+      <td class="src "><span class="cp">#define ID_CSETS          ZC_ID(&#39;C&#39;,&#39;S&#39;,&#39;E&#39;,&#39;T&#39;)              </span><span class="c1">//csets (and pal names?)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3012,7 +3012,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_ITEMS          ZC_ID(&#39;I&#39;,&#39;T&#39;,&#39;E&#39;,&#39;M&#39;)              </span><span class="c1">//items</span></td>
+      <td class="src "><span class="cp">#define ID_MAPS           ZC_ID(&#39;M&#39;,&#39;A&#39;,&#39;P&#39;,&#39; &#39;)              </span><span class="c1">//maps</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3020,7 +3020,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_WEAPONS        ZC_ID(&#39;W&#39;,&#39;P&#39;,&#39;N&#39;,&#39; &#39;)              </span><span class="c1">//weapons</span></td>
+      <td class="src "><span class="cp">#define ID_DMAPS          ZC_ID(&#39;D&#39;,&#39;M&#39;,&#39;A&#39;,&#39;P&#39;)              </span><span class="c1">//dmaps</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3028,7 +3028,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_COLORS         ZC_ID(&#39;M&#39;,&#39;C&#39;,&#39;L&#39;,&#39;R&#39;)              </span><span class="c1">//misc. colors</span></td>
+      <td class="src "><span class="cp">#define ID_DOORS          ZC_ID(&#39;D&#39;,&#39;O&#39;,&#39;O&#39;,&#39;R&#39;)              </span><span class="c1">//door combo sets</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3036,7 +3036,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_ICONS          ZC_ID(&#39;I&#39;,&#39;C&#39;,&#39;O&#39;,&#39;N&#39;)              </span><span class="c1">//save game icons</span></td>
+      <td class="src "><span class="cp">#define ID_ITEMS          ZC_ID(&#39;I&#39;,&#39;T&#39;,&#39;E&#39;,&#39;M&#39;)              </span><span class="c1">//items</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3044,7 +3044,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_GRAPHICSPACK   ZC_ID(&#39;G&#39;,&#39;P&#39;,&#39;A&#39;,&#39;K&#39;)              </span><span class="c1">//graphics pack header</span></td>
+      <td class="src "><span class="cp">#define ID_WEAPONS        ZC_ID(&#39;W&#39;,&#39;P&#39;,&#39;N&#39;,&#39; &#39;)              </span><span class="c1">//weapons</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3052,7 +3052,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_INITDATA       ZC_ID(&#39;I&#39;,&#39;N&#39;,&#39;I&#39;,&#39;T&#39;)              </span><span class="c1">//initialization data</span></td>
+      <td class="src "><span class="cp">#define ID_COLORS         ZC_ID(&#39;M&#39;,&#39;C&#39;,&#39;L&#39;,&#39;R&#39;)              </span><span class="c1">//misc. colors</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3060,7 +3060,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_GUYS           ZC_ID(&#39;G&#39;,&#39;U&#39;,&#39;Y&#39;,&#39; &#39;)              </span><span class="c1">//guys</span></td>
+      <td class="src "><span class="cp">#define ID_ICONS          ZC_ID(&#39;I&#39;,&#39;C&#39;,&#39;O&#39;,&#39;N&#39;)              </span><span class="c1">//save game icons</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3068,7 +3068,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_MIDIS          ZC_ID(&#39;M&#39;,&#39;I&#39;,&#39;D&#39;,&#39;I&#39;)              </span><span class="c1">//midis</span></td>
+      <td class="src "><span class="cp">#define ID_GRAPHICSPACK   ZC_ID(&#39;G&#39;,&#39;P&#39;,&#39;A&#39;,&#39;K&#39;)              </span><span class="c1">//graphics pack header</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3076,7 +3076,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_CHEATS         ZC_ID(&#39;C&#39;,&#39;H&#39;,&#39;T&#39;,&#39; &#39;)              </span><span class="c1">//cheats</span></td>
+      <td class="src "><span class="cp">#define ID_INITDATA       ZC_ID(&#39;I&#39;,&#39;N&#39;,&#39;I&#39;,&#39;T&#39;)              </span><span class="c1">//initialization data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3084,7 +3084,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_SAVEGAME       ZC_ID(&#39;S&#39;,&#39;V&#39;,&#39;G&#39;,&#39;M&#39;)              </span><span class="c1">//save game data (used in the save game file)</span></td>
+      <td class="src "><span class="cp">#define ID_GUYS           ZC_ID(&#39;G&#39;,&#39;U&#39;,&#39;Y&#39;,&#39; &#39;)              </span><span class="c1">//guys</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3092,7 +3092,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_COMBOALIASES   ZC_ID(&#39;C&#39;,&#39;M&#39;,&#39;B&#39;,&#39;A&#39;)              </span><span class="c1">//combo alias</span></td>
+      <td class="src "><span class="cp">#define ID_MIDIS          ZC_ID(&#39;M&#39;,&#39;I&#39;,&#39;D&#39;,&#39;I&#39;)              </span><span class="c1">//midis</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3100,7 +3100,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_HEROSPRITES    ZC_ID(&#39;L&#39;,&#39;I&#39;,&#39;N&#39;,&#39;K&#39;)              </span><span class="c1">//Hero sprites</span></td>
+      <td class="src "><span class="cp">#define ID_CHEATS         ZC_ID(&#39;C&#39;,&#39;H&#39;,&#39;T&#39;,&#39; &#39;)              </span><span class="c1">//cheats</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3108,7 +3108,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_SUBSCREEN      ZC_ID(&#39;S&#39;,&#39;U&#39;,&#39;B&#39;,&#39;S&#39;)              </span><span class="c1">//subscreen data</span></td>
+      <td class="src "><span class="cp">#define ID_SAVEGAME       ZC_ID(&#39;S&#39;,&#39;V&#39;,&#39;G&#39;,&#39;M&#39;)              </span><span class="c1">//save game data (used in the save game file)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3116,7 +3116,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_ITEMDROPSETS   ZC_ID(&#39;D&#39;,&#39;R&#39;,&#39;O&#39;,&#39;P&#39;)              </span><span class="c1">//item drop set tables</span></td>
+      <td class="src "><span class="cp">#define ID_COMBOALIASES   ZC_ID(&#39;C&#39;,&#39;M&#39;,&#39;B&#39;,&#39;A&#39;)              </span><span class="c1">//combo alias</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3124,7 +3124,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_FAVORITES      ZC_ID(&#39;F&#39;,&#39;A&#39;,&#39;V&#39;,&#39;S&#39;)              </span><span class="c1">//favorite combos and combo aliases</span></td>
+      <td class="src "><span class="cp">#define ID_HEROSPRITES    ZC_ID(&#39;L&#39;,&#39;I&#39;,&#39;N&#39;,&#39;K&#39;)              </span><span class="c1">//Hero sprites</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3132,7 +3132,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_FFSCRIPT       ZC_ID(&#39;F&#39;,&#39;F&#39;,&#39;S&#39;,&#39;C&#39;)              </span><span class="c1">//ff scripts data</span></td>
+      <td class="src "><span class="cp">#define ID_SUBSCREEN      ZC_ID(&#39;S&#39;,&#39;U&#39;,&#39;B&#39;,&#39;S&#39;)              </span><span class="c1">//subscreen data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3140,7 +3140,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_SFX            ZC_ID(&#39;S&#39;,&#39;F&#39;,&#39;X&#39;,&#39; &#39;)              </span><span class="c1">//sfx data</span></td>
+      <td class="src "><span class="cp">#define ID_ITEMDROPSETS   ZC_ID(&#39;D&#39;,&#39;R&#39;,&#39;O&#39;,&#39;P&#39;)              </span><span class="c1">//item drop set tables</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3148,7 +3148,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define ID_ZINFO          ZC_ID(&#39;Z&#39;,&#39;I&#39;,&#39;N&#39;,&#39;F&#39;)              </span><span class="c1">//ZInfo data</span></td>
+      <td class="src "><span class="cp">#define ID_FAVORITES      ZC_ID(&#39;F&#39;,&#39;A&#39;,&#39;V&#39;,&#39;S&#39;)              </span><span class="c1">//favorite combos and combo aliases</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3156,7 +3156,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define ID_FFSCRIPT       ZC_ID(&#39;F&#39;,&#39;F&#39;,&#39;S&#39;,&#39;C&#39;)              </span><span class="c1">//ff scripts data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3164,7 +3164,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//Version number of the different section types</span></td>
+      <td class="src "><span class="cp">#define ID_SFX            ZC_ID(&#39;S&#39;,&#39;F&#39;,&#39;X&#39;,&#39; &#39;)              </span><span class="c1">//sfx data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3172,7 +3172,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_HEADER           8</span></td>
+      <td class="src "><span class="cp">#define ID_ZINFO          ZC_ID(&#39;Z&#39;,&#39;I&#39;,&#39;N&#39;,&#39;F&#39;)              </span><span class="c1">//ZInfo data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3180,7 +3180,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_RULES           17</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3188,7 +3188,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_STRINGS         10</span></td>
+      <td class="src "><span class="c1">//Version number of the different section types</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3196,7 +3196,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_MISC            15</span></td>
+      <td class="src "><span class="cp">#define V_HEADER           8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3204,7 +3204,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_TILES            3 </span><span class="c1">//2 is a int32_t, max 214500 tiles (ZScript upper limit)</span></td>
+      <td class="src "><span class="cp">#define V_RULES           17</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3212,7 +3212,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_COMBOS          35</span></td>
+      <td class="src "><span class="cp">#define V_STRINGS         10</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3220,7 +3220,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_CSETS            5 </span><span class="c1">//palette data</span></td>
+      <td class="src "><span class="cp">#define V_MISC            15</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3228,7 +3228,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_MAPS            25</span></td>
+      <td class="src "><span class="cp">#define V_TILES            3 </span><span class="c1">//2 is a int32_t, max 214500 tiles (ZScript upper limit)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3236,7 +3236,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_DMAPS            16</span></td>
+      <td class="src "><span class="cp">#define V_COMBOS          35</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3244,7 +3244,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_DOORS            1</span></td>
+      <td class="src "><span class="cp">#define V_CSETS            5 </span><span class="c1">//palette data</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3252,7 +3252,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ITEMS           53</span></td>
+      <td class="src "><span class="cp">#define V_MAPS            25</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3260,7 +3260,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_WEAPONS          8</span></td>
+      <td class="src "><span class="cp">#define V_DMAPS            16</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3268,7 +3268,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_COLORS           4 </span><span class="c1">//Misc Colours</span></td>
+      <td class="src "><span class="cp">#define V_DOORS            1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3276,7 +3276,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ICONS            10 </span><span class="c1">//Game Icons</span></td>
+      <td class="src "><span class="cp">#define V_ITEMS           53</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3284,7 +3284,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_GRAPHICSPACK     1</span></td>
+      <td class="src "><span class="cp">#define V_WEAPONS          8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3292,7 +3292,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_INITDATA        33</span></td>
+      <td class="src "><span class="cp">#define V_COLORS           4 </span><span class="c1">//Misc Colours</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3300,7 +3300,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_GUYS            47</span></td>
+      <td class="src "><span class="cp">#define V_ICONS            10 </span><span class="c1">//Game Icons</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3308,7 +3308,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_MIDIS            4</span></td>
+      <td class="src "><span class="cp">#define V_GRAPHICSPACK     1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3316,7 +3316,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_CHEATS           1</span></td>
+      <td class="src "><span class="cp">#define V_INITDATA        33</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3324,7 +3324,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_SAVEGAME        31</span></td>
+      <td class="src "><span class="cp">#define V_GUYS            47</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3332,7 +3332,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_COMBOALIASES     4</span></td>
+      <td class="src "><span class="cp">#define V_MIDIS            4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3340,7 +3340,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_HEROSPRITES      16</span></td>
+      <td class="src "><span class="cp">#define V_CHEATS           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3348,7 +3348,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_SUBSCREEN        7</span></td>
+      <td class="src "><span class="cp">#define V_SAVEGAME        31</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3356,7 +3356,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ITEMDROPSETS     2</span></td>
+      <td class="src "><span class="cp">#define V_COMBOALIASES     4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3364,7 +3364,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_FFSCRIPT         21</span></td>
+      <td class="src "><span class="cp">#define V_HEROSPRITES      16</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3372,7 +3372,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_SFX              8</span></td>
+      <td class="src "><span class="cp">#define V_SUBSCREEN        7</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3380,7 +3380,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_FAVORITES        1</span></td>
+      <td class="src "><span class="cp">#define V_ITEMDROPSETS     2</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3388,7 +3388,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define V_FFSCRIPT         21</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3396,7 +3396,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_COMPATRULE       37</span></td>
+      <td class="src "><span class="cp">#define V_SFX              8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3404,7 +3404,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZINFO            3</span></td>
+      <td class="src "><span class="cp">#define V_FAVORITES        1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3420,7 +3420,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//= V_SHOPS is under V_MISC</span></td>
+      <td class="src "><span class="cp">#define V_COMPATRULE       37</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3428,7 +3428,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define V_ZINFO            3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3436,7 +3436,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">/*</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3444,7 +3444,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * Compatible version number of the different section types</span></td>
+      <td class="src "><span class="c1">//= V_SHOPS is under V_MISC</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3452,7 +3452,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * Basically, the last version number that this section type</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3460,7 +3460,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * is just an extension of (ie. new variables are stuck on the end)</span></td>
+      <td class="src "><span class="cm">/*</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3468,7 +3468,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * instead of a complete rewrite (or variables added to the middle).</span></td>
+      <td class="src "><span class="cm">  * Compatible version number of the different section types</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3476,7 +3476,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * If this and the version number are the same, then this is</span></td>
+      <td class="src "><span class="cm">  * Basically, the last version number that this section type</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3484,7 +3484,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * a total reworking of the section and probably won&#39;t be able</span></td>
+      <td class="src "><span class="cm">  * is just an extension of (ie. new variables are stuck on the end)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3492,7 +3492,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  * to be read by anything that was written for a previous version.</span></td>
+      <td class="src "><span class="cm">  * instead of a complete rewrite (or variables added to the middle).</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3500,7 +3500,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cm">  */</span><span class="w"></span></td>
+      <td class="src "><span class="cm">  * If this and the version number are the same, then this is</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3508,7 +3508,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_HEADER          3</span></td>
+      <td class="src "><span class="cm">  * a total reworking of the section and probably won&#39;t be able</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3516,7 +3516,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_RULES           1</span></td>
+      <td class="src "><span class="cm">  * to be read by anything that was written for a previous version.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3524,7 +3524,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_STRINGS         2</span></td>
+      <td class="src "><span class="cm">  */</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3532,7 +3532,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_MISC            7</span></td>
+      <td class="src "><span class="cp">#define CV_HEADER          3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3540,7 +3540,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_TILES           1</span></td>
+      <td class="src "><span class="cp">#define CV_RULES           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3548,7 +3548,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_COMBOS          1</span></td>
+      <td class="src "><span class="cp">#define CV_STRINGS         2</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3556,7 +3556,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_CSETS           1</span></td>
+      <td class="src "><span class="cp">#define CV_MISC            7</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3564,7 +3564,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_MAPS            9</span></td>
+      <td class="src "><span class="cp">#define CV_TILES           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3572,7 +3572,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_DMAPS           1</span></td>
+      <td class="src "><span class="cp">#define CV_COMBOS          1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3580,7 +3580,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_DOORS           1</span></td>
+      <td class="src "><span class="cp">#define CV_CSETS           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3588,7 +3588,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_ITEMS          15</span></td>
+      <td class="src "><span class="cp">#define CV_MAPS            9</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3596,7 +3596,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_WEAPONS         1</span></td>
+      <td class="src "><span class="cp">#define CV_DMAPS           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3604,7 +3604,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_COLORS          1</span></td>
+      <td class="src "><span class="cp">#define CV_DOORS           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3612,7 +3612,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_ICONS           1</span></td>
+      <td class="src "><span class="cp">#define CV_ITEMS          15</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3620,7 +3620,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_GRAPHICSPACK    1</span></td>
+      <td class="src "><span class="cp">#define CV_WEAPONS         1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3628,7 +3628,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_INITDATA       15</span></td>
+      <td class="src "><span class="cp">#define CV_COLORS          1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3636,7 +3636,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_GUYS            4</span></td>
+      <td class="src "><span class="cp">#define CV_ICONS           1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3644,7 +3644,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_MIDIS           3</span></td>
+      <td class="src "><span class="cp">#define CV_GRAPHICSPACK    1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3652,7 +3652,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_CHEATS          1</span></td>
+      <td class="src "><span class="cp">#define CV_INITDATA       15</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3660,7 +3660,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_SAVEGAME        5</span></td>
+      <td class="src "><span class="cp">#define CV_GUYS            4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3668,7 +3668,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_COMBOALIASES    1</span></td>
+      <td class="src "><span class="cp">#define CV_MIDIS           3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3676,7 +3676,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_HEROSPRITES     1</span></td>
+      <td class="src "><span class="cp">#define CV_CHEATS          1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3684,7 +3684,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_SUBSCREEN       3</span></td>
+      <td class="src "><span class="cp">#define CV_SAVEGAME        5</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3692,7 +3692,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_ITEMDROPSETS    1</span></td>
+      <td class="src "><span class="cp">#define CV_COMBOALIASES    1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3700,7 +3700,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_FFSCRIPT        1</span></td>
+      <td class="src "><span class="cp">#define CV_HEROSPRITES     1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3708,7 +3708,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_SFX             5</span></td>
+      <td class="src "><span class="cp">#define CV_SUBSCREEN       3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3716,7 +3716,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_FAVORITES       1</span></td>
+      <td class="src "><span class="cp">#define CV_ITEMDROPSETS    1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3724,7 +3724,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define CV_ZINFO           0</span></td>
+      <td class="src "><span class="cp">#define CV_FFSCRIPT        1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3732,7 +3732,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define CV_SFX             5</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3740,7 +3740,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define CV_FAVORITES       1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3748,7 +3748,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Loose Object Version Metadata</span></td>
+      <td class="src "><span class="cp">#define CV_ZINFO           0</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3756,7 +3756,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// If the version is 0, it is ther original.</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3764,7 +3764,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// &#39;Higher Versions&#39; use negative numbers, so -1 is newer than 0, -2 is newer than -1.</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3772,7 +3772,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Sorry for the ugly hack, but it maintains full compatibility through</span></td>
+      <td class="src "><span class="c1">// Loose Object Version Metadata</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3780,7 +3780,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// Packfile magic. -Z</span></td>
+      <td class="src "><span class="c1">// If the version is 0, it is ther original.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3788,7 +3788,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZCOMBO -1</span></td>
+      <td class="src "><span class="c1">// &#39;Higher Versions&#39; use negative numbers, so -1 is newer than 0, -2 is newer than -1.</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3796,7 +3796,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZMOD -1</span></td>
+      <td class="src "><span class="c1">// Sorry for the ugly hack, but it maintains full compatibility through</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3804,7 +3804,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZTHEME -1</span></td>
+      <td class="src "><span class="c1">// Packfile magic. -Z</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3812,7 +3812,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZASM -1</span></td>
+      <td class="src "><span class="cp">#define V_ZCOMBO -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3820,7 +3820,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZTILE -1</span></td>
+      <td class="src "><span class="cp">#define V_ZMOD -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3828,7 +3828,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZTILESET -1</span></td>
+      <td class="src "><span class="cp">#define V_ZTHEME -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3836,7 +3836,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZDMAP -1</span></td>
+      <td class="src "><span class="cp">#define V_ZASM -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3844,7 +3844,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZALIAS -1</span></td>
+      <td class="src "><span class="cp">#define V_ZTILE -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3852,7 +3852,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZNPC -1</span></td>
+      <td class="src "><span class="cp">#define V_ZTILESET -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3860,7 +3860,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZITEM -1</span></td>
+      <td class="src "><span class="cp">#define V_ZDMAP -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3868,7 +3868,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define V_ZWPNSPR -1</span></td>
+      <td class="src "><span class="cp">#define V_ZALIAS -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3876,7 +3876,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define V_ZNPC -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3884,7 +3884,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define V_ZITEM -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3892,7 +3892,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">zprint</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#define V_ZWPNSPR -1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -3900,7 +3900,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">zprint2</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3916,7 +3916,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">curr_tb_page</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">zprint</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3924,7 +3924,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">original_playing_field_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">zprint2</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">format</span><span class="p">,...);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3932,7 +3932,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">playing_field_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -3940,7 +3940,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">passive_subscreen_height</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">curr_tb_page</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3948,7 +3948,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">passive_subscreen_offset</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">original_playing_field_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3956,7 +3956,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">playing_field_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3964,7 +3964,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CSET_SIZE</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">passive_subscreen_height</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3972,7 +3972,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CSET_SHFT</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">passive_subscreen_offset</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3988,7 +3988,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">readsize</span><span class="p">,</span><span class="w"> </span><span class="n">writesize</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CSET_SIZE</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -3996,7 +3996,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">fake_pack_writing</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">CSET_SHFT</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -4012,7 +4012,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">close_button_quit</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">readsize</span><span class="p">,</span><span class="w"> </span><span class="n">writesize</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -4020,7 +4020,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">fake_pack_writing</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -4028,7 +4028,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">// system colors</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -4036,7 +4036,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define lc1(x) ((x)+192)                                    </span><span class="c1">// offset to &#39;level bg color&#39; x (row 12)</span></td>
+      <td class="src "><span class="k">extern</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">close_button_quit</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -4044,7 +4044,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define lc2(x) ((x)+208)                                    </span><span class="c1">// offset to &#39;level fg color&#39; x (row 13)</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -4052,7 +4052,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define vc(x)  ((x)+224)                                    </span><span class="c1">// offset to &#39;VGA color&#39; x (row 14)</span></td>
+      <td class="src "><span class="c1">// system colors</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4060,7 +4060,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define dvc(x) ((x)+240)                                    </span><span class="c1">// offset to dark &#39;VGA color&#39; x (row 15)</span></td>
+      <td class="src "><span class="cp">#define lc1(x) ((x)+192)                                    </span><span class="c1">// offset to &#39;level bg color&#39; x (row 12)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4068,7 +4068,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define r_lc1(x) ((x)-192)</span></td>
+      <td class="src "><span class="cp">#define lc2(x) ((x)+208)                                    </span><span class="c1">// offset to &#39;level fg color&#39; x (row 13)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4076,7 +4076,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define r_lc2(x) ((x)-208)</span></td>
+      <td class="src "><span class="cp">#define vc(x)  ((x)+224)                                    </span><span class="c1">// offset to &#39;VGA color&#39; x (row 14)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4084,7 +4084,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define r_vc(x)  ((x)-224)</span></td>
+      <td class="src "><span class="cp">#define dvc(x) ((x)+240)                                    </span><span class="c1">// offset to dark &#39;VGA color&#39; x (row 15)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4092,7 +4092,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define r_dvc(x) ((x)-240)</span></td>
+      <td class="src "><span class="cp">#define r_lc1(x) ((x)-192)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4100,7 +4100,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define BLACK         253</span></td>
+      <td class="src "><span class="cp">#define r_lc2(x) ((x)-208)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4108,7 +4108,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define WHITE         254</span></td>
+      <td class="src "><span class="cp">#define r_vc(x)  ((x)-224)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4116,7 +4116,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define r_dvc(x) ((x)-240)</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4124,7 +4124,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define LARGE_W       912</span></td>
+      <td class="src "><span class="cp">#define BLACK         253</span></td>
     </tr>
 
     <tr class="source-line">
@@ -4132,7 +4132,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define LARGE_H       684</span></td>
+      <td class="src "><span class="cp">#define WHITE         254</span></td>
     </tr>
 
     <tr class="source-line">
@@ -38933,7 +38933,7 @@
       <td class="lineno"><a id="l4721" href="#l4721">4721</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1624369</td>
+      <td class="linecount coveredLine">1391373</td>
       <td class="src coveredLine"><span class="k">static</span><span class="w"> </span><span class="n">INLINE</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">zc_swap</span><span class="p">(</span><span class="n">T</span><span class="w"> </span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span><span class="n">T</span><span class="w"> </span><span class="o">&amp;</span><span class="n">b</span><span class="p">)</span><span class="w"></span></td>
     </tr>
 
@@ -38949,7 +38949,7 @@
       <td class="lineno"><a id="l4723" href="#l4723">4723</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1624369</td>
+      <td class="linecount coveredLine">1391373</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">T</span><span class="w"> </span><span class="n">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
@@ -38957,7 +38957,7 @@
       <td class="lineno"><a id="l4724" href="#l4724">4724</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1624369</td>
+      <td class="linecount coveredLine">1391373</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
@@ -38965,7 +38965,7 @@
       <td class="lineno"><a id="l4725" href="#l4725">4725</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1624369</td>
+      <td class="linecount coveredLine">1391373</td>
       <td class="src coveredLine"><span class="w">    </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">c</span><span class="p">;</span><span class="w"></span></td>
     </tr>
 
@@ -38973,7 +38973,7 @@
       <td class="lineno"><a id="l4726" href="#l4726">4726</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">1624369</td>
+      <td class="linecount coveredLine">1391373</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
 
@@ -46018,7 +46018,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46026,7 +46026,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">save_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">colors</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46034,7 +46034,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">save_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">save_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">colors</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46042,7 +46042,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_udef_colorset</span><span class="p">(</span><span class="n">App</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">colors</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">save_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46050,7 +46050,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_udef_colorset</span><span class="p">(</span><span class="n">App</span><span class="w"> </span><span class="n">a</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">save_themefile</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">fpath</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46058,7 +46058,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_colorset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">colorset</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">,</span><span class="w"> </span><span class="n">ALLEGRO_COLOR</span><span class="o">*</span><span class="w"> </span><span class="n">colors</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_udef_colorset</span><span class="p">(</span><span class="n">App</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46066,7 +46066,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_colorset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">colorset</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_udef_colorset</span><span class="p">(</span><span class="n">App</span><span class="w"> </span><span class="n">a</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46074,7 +46074,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_colorset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">colorset</span><span class="p">,</span><span class="w"> </span><span class="n">PALETTE</span><span class="w"> </span><span class="n">pal</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46082,7 +46082,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">update_hw_screen</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">force</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">load_colorset</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">colorset</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46098,7 +46098,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">valid_str</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">cancel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">update_hw_screen</span><span class="p">(</span><span class="kt">bool</span><span class="w"> </span><span class="n">force</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46114,7 +46114,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_dbreport_string</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">valid_str</span><span class="p">(</span><span class="kt">char</span><span class="w"> </span><span class="k">const</span><span class="o">*</span><span class="w"> </span><span class="n">ptr</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="n">cancel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46122,7 +46122,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_qr_hexstr</span><span class="p">(</span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">qrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">disctags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46130,7 +46130,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">clipboard_has_text</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_dbreport_string</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46138,7 +46138,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">get_al_clipboard</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">clipboard</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">get_qr_hexstr</span><span class="p">(</span><span class="n">byte</span><span class="o">*</span><span class="w"> </span><span class="n">qrs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">hash</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">disctags</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46146,7 +46146,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">set_al_clipboard</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">clipboard</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">clipboard_has_text</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46154,7 +46154,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_qr_hexstr</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">hexstr</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">get_al_clipboard</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="w"> </span><span class="n">clipboard</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46162,7 +46162,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_qr_hexstr_clipboard</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">set_al_clipboard</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">clipboard</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46170,7 +46170,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_dev_info</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">devstr</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_qr_hexstr</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">hexstr</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46178,7 +46178,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_dev_info_clipboard</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_qr_hexstr_clipboard</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46186,7 +46186,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">generate_zq_about</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_dev_info</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="k">const</span><span class="o">&amp;</span><span class="w"> </span><span class="n">devstr</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46194,7 +46194,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">load_dev_info_clipboard</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46202,7 +46202,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">enter_sys_pal</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="nf">generate_zq_about</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46210,7 +46210,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">exit_sys_pal</span><span class="p">();</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46218,7 +46218,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">enter_sys_pal</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46226,7 +46226,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="n">nswapDEC</span><span class="p">,</span><span class="w"> </span><span class="n">nswapHEX</span><span class="p">,</span><span class="w"> </span><span class="n">nswapLDEC</span><span class="p">,</span><span class="w"> </span><span class="n">nswapLHEX</span><span class="p">,</span><span class="w"> </span><span class="n">nswapBOOL</span><span class="p">,</span><span class="w"> </span><span class="n">nswapMAX</span><span class="p">};</span><span class="w"></span></td>
+      <td class="src "><span class="kt">void</span><span class="w"> </span><span class="nf">exit_sys_pal</span><span class="p">();</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46242,7 +46242,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="k">enum</span><span class="w"> </span><span class="p">{</span><span class="n">nswapDEC</span><span class="p">,</span><span class="w"> </span><span class="n">nswapHEX</span><span class="p">,</span><span class="w"> </span><span class="n">nswapLDEC</span><span class="p">,</span><span class="w"> </span><span class="n">nswapLHEX</span><span class="p">,</span><span class="w"> </span><span class="n">nswapBOOL</span><span class="p">,</span><span class="w"> </span><span class="n">nswapMAX</span><span class="p">};</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46250,7 +46250,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">WrapAngle</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radians</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46258,7 +46258,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">WrapDegrees</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">degrees</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46266,7 +46266,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">DegreesToRadians</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">deg</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">WrapAngle</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radians</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46274,7 +46274,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">RadiansToDegrees</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">rad</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">WrapDegrees</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">degrees</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46282,7 +46282,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">DirToRadians</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">dir</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">DegreesToRadians</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">deg</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46290,7 +46290,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">DirToDegrees</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">dir</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">RadiansToDegrees</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">rad</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46298,7 +46298,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">AngleToDir</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radians</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">DirToRadians</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">dir</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46306,7 +46306,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">AngleToDir4</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">degrees</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">double</span><span class="w"> </span><span class="nf">DirToDegrees</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">dir</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46314,7 +46314,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">AngleToDir4Rad</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radians</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">AngleToDir</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radians</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46322,7 +46322,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">AngleToDir4</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">degrees</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46330,7 +46330,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isNextType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">AngleToDir4Rad</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">radians</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46338,7 +46338,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isWarpType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46346,7 +46346,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getWarpLetter</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isNextType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46354,7 +46354,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">simplifyWarpType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isWarpType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46362,7 +46362,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isStepType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">getWarpLetter</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46370,7 +46370,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isDamageType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">int32_t</span><span class="w"> </span><span class="nf">simplifyWarpType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46378,7 +46378,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isConveyorType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isStepType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46386,7 +46386,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isChestType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isDamageType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46394,7 +46394,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isConveyorType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46402,7 +46402,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define SMART_WRAP(x, mod) ((x) &lt; 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))</span></td>
+      <td class="src "><span class="kt">bool</span><span class="w"> </span><span class="nf">isChestType</span><span class="p">(</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">type</span><span class="p">);</span><span class="w"></span></td>
     </tr>
 
     <tr class="source-line">
@@ -46410,7 +46410,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46418,7 +46418,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#define SMART_WRAP(x, mod) ((x) &lt; 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46426,7 +46426,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb1</span></td>
+      <td class="src "><span class="cp">#define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46434,7 +46434,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb2</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46442,7 +46442,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb3</span></td>
+      <td class="src "><span class="cp">#undef cmb1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46450,7 +46450,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb4</span></td>
+      <td class="src "><span class="cp">#undef cmb2</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46458,7 +46458,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb5</span></td>
+      <td class="src "><span class="cp">#undef cmb3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46466,7 +46466,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb6</span></td>
+      <td class="src "><span class="cp">#undef cmb4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46474,7 +46474,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb7</span></td>
+      <td class="src "><span class="cp">#undef cmb5</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46482,7 +46482,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb8</span></td>
+      <td class="src "><span class="cp">#undef cmb6</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46490,7 +46490,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb9</span></td>
+      <td class="src "><span class="cp">#undef cmb7</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46498,7 +46498,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb10</span></td>
+      <td class="src "><span class="cp">#undef cmb8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46506,7 +46506,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb11</span></td>
+      <td class="src "><span class="cp">#undef cmb9</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46514,7 +46514,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb12</span></td>
+      <td class="src "><span class="cp">#undef cmb10</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46522,7 +46522,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb13</span></td>
+      <td class="src "><span class="cp">#undef cmb11</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46530,7 +46530,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb14</span></td>
+      <td class="src "><span class="cp">#undef cmb12</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46538,7 +46538,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb15</span></td>
+      <td class="src "><span class="cp">#undef cmb13</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46546,7 +46546,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef cmb16</span></td>
+      <td class="src "><span class="cp">#undef cmb14</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46554,7 +46554,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#undef cmb15</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46562,7 +46562,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad1</span></td>
+      <td class="src "><span class="cp">#undef cmb16</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46570,7 +46570,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad2</span></td>
+      <td class="src "></td>
     </tr>
 
     <tr class="source-line">
@@ -46578,7 +46578,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad3</span></td>
+      <td class="src "><span class="cp">#undef rad1</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46586,7 +46586,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad4</span></td>
+      <td class="src "><span class="cp">#undef rad2</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46594,7 +46594,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad5</span></td>
+      <td class="src "><span class="cp">#undef rad3</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46602,7 +46602,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad6</span></td>
+      <td class="src "><span class="cp">#undef rad4</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46610,7 +46610,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad7</span></td>
+      <td class="src "><span class="cp">#undef rad5</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46618,7 +46618,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad8</span></td>
+      <td class="src "><span class="cp">#undef rad6</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46626,7 +46626,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad9</span></td>
+      <td class="src "><span class="cp">#undef rad7</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46634,7 +46634,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad10</span></td>
+      <td class="src "><span class="cp">#undef rad8</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46642,7 +46642,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad11</span></td>
+      <td class="src "><span class="cp">#undef rad9</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46650,7 +46650,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad12</span></td>
+      <td class="src "><span class="cp">#undef rad10</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46658,7 +46658,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad13</span></td>
+      <td class="src "><span class="cp">#undef rad11</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46666,7 +46666,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad14</span></td>
+      <td class="src "><span class="cp">#undef rad12</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46674,7 +46674,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad15</span></td>
+      <td class="src "><span class="cp">#undef rad13</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46682,7 +46682,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#undef rad16</span></td>
+      <td class="src "><span class="cp">#undef rad14</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46690,7 +46690,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="src "><span class="cp">#undef rad15</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46698,7 +46698,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif                                                      </span><span class="c1">//_ZDEFS_H_</span></td>
+      <td class="src "><span class="cp">#undef rad16</span></td>
     </tr>
 
     <tr class="source-line">
@@ -46711,6 +46711,22 @@
 
     <tr class="source-line">
       <td class="lineno"><a id="l5651" href="#l5651">5651</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif                                                      </span><span class="c1">//_ZDEFS_H_</span></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l5652" href="#l5652">5652</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+
+    <tr class="source-line">
+      <td class="lineno"><a id="l5653" href="#l5653">5653</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
