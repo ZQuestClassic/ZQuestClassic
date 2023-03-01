@@ -3107,7 +3107,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	return window;
 }
 
-static int rot_crn_val(int val, int rot)
+static int rot_crn_val(int val, int rot = 1)
 {
 	rot = wrap(rot,0,3);
 	int32_t newval = 0;
@@ -3162,7 +3162,7 @@ void ComboEditorDialog::flipSwatches(int rot, int hflip, int vflip)
 {
 	if(rot)
 		for(auto crn : cswatchs)
-			crn->setVal(rot_crn_val(crn->getVal()));
+			crn->setVal(rot_crn_val(crn->getVal(),rot));
 	if(hflip&1)
 		for(auto crn : cswatchs)
 		{
