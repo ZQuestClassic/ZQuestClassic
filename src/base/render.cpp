@@ -33,15 +33,15 @@ void set_bitmap_create_flags(bool preserve_texture)
 	al_set_new_bitmap_flags(flags);
 }
 
-ALLEGRO_COLOR a5color(RGB c)
+ALLEGRO_COLOR a5color(RGB c, unsigned char alpha)
 {
-	return al_map_rgb(c.r*4,c.g*4,c.b*4);
+	return al_map_rgba(c.r*4,c.g*4,c.b*4,alpha);
 }
-ALLEGRO_COLOR a5color(int index)
+ALLEGRO_COLOR a5color(int index, unsigned char alpha)
 {
 	RGB tmp;
 	get_color(index,&tmp);
-	return a5color(tmp);
+	return a5color(tmp,alpha);
 }
 
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)

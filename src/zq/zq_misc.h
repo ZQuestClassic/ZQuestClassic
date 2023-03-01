@@ -111,7 +111,6 @@ void load_selections();
 void load_arrows();
 void dump_pal();
 
-int32_t wrap(int32_t x,int32_t low,int32_t high);
 bool readfile(const char *path,void *buf,int32_t count);
 bool writefile(const char *path,void *buf,int32_t count);
 

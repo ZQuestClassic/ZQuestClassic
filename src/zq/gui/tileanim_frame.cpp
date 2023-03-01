@@ -4,7 +4,7 @@
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include "base/zsys.h"
 #include <cassert>
 #include <utility>
@@ -38,6 +38,7 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 		}
 		case MSG_DRAW:
 		{
+			//Calculate what to draw
 			if(clk >= data[TileFrame::tfr_speed])
 			{
 				clk %= data[TileFrame::tfr_speed];
@@ -63,41 +64,38 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t th = data[TileFrame::tfr_dosized] ? data[TileFrame::tfr_skipy]+1 : 1;
 			if(tw < 1) tw = 1;
 			if(th < 1) th = 1;
-			BITMAP *buf = create_bitmap_ex(8,tw*16,th*16);
-			BITMAP *bigbmp = create_bitmap_ex(8,d->w+4,d->h+4);
-			clear_to_color(buf, d->bg);
-			clear_to_color(bigbmp, d->bg);
-			//
+			// Setup a5 buffer
+			set_bitmap_create_flags(false);
+			ALLEGRO_BITMAP *buf = al_create_bitmap(tw*16,th*16);
+			set_bitmap_create_flags(0);
+			ALLEGRO_STATE old_state;
+			al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+			al_set_target_bitmap(buf);
+			auto* lock = al_lock_bitmap(buf,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
+			// Draw the tile(s)
 			int32_t cset = data[TileFrame::tfr_cset];
 			int32_t cs2 = data[TileFrame::tfr_cset2];
+			int fl = data[TileFrame::tfr_flip];
 			for(auto tx = 0; tx < tw; ++tx)
 			{
 				for(auto ty = 0; ty < th; ++ty)
 				{
 					int32_t tmptile = tileToDraw+tx+(TILES_PER_ROW*ty);
-					if(!(cs2&0xF0) || !(cs2&0xF) || newtilebuf[tileToDraw].format > tf4Bit)
-						overtile16(buf, tmptile, tx*16, ty*16, cset, data[TileFrame::tfr_flip]);
-					else
-					{
-						int32_t csets[4];
-						int32_t cofs = cs2&0xF;
-						if(cofs&8)
-							cofs |= ~int32_t(0xF);
-							
-						for(int32_t i=0; i<4; ++i)
-							csets[i] = cs2&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
-							
-						overblock8(buf,tmptile<<2,tx*16, ty*16,csets,data[TileFrame::tfr_flip],15);
-					}
+					int tcs2 = cs2;
+					if(!(cs2&0xF0) || !(cs2&0xF) || newtilebuf[tmptile].format > tf4Bit)
+						tcs2 = 0;
+					
+					a5_draw_tile(tx*16,ty*16,tmptile,cset,tcs2,fl);
 				}
 			}
-			//
-			stretch_blit(buf, bigbmp, 0, 0, tw*16, th*16, 2, 2, d->w, d->h);
-			jwin_draw_frame(bigbmp, 0, 0, d->w+4, d->h+4, FR_DEEP);
-			masked_blit(bigbmp, screen, 0, 0, d->x, d->y, d->w+4, d->h+4);
-			//
-			destroy_bitmap(buf);
-			destroy_bitmap(bigbmp);
+			// Un-target the buffer
+			al_unlock_bitmap(buf);
+			al_restore_state(&old_state);
+			// Draw the preview
+			al_draw_scaled_bitmap(buf, 0, 0, tw*16, th*16, d->x+2, d->y+2, d->w, d->h, 0);
+			jwin_draw_frame_a5(d->x, d->y, d->w+4, d->h+4, FR_DEEP);
+			// Cleanup
+			al_destroy_bitmap(buf);
 			break;
 		}
 	}

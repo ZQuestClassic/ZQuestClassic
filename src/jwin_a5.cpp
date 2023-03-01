@@ -26,6 +26,7 @@ extern int32_t joystick_index;
 
 extern bool is_zquest();
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
+
 //Externed from jwin.cpp
 extern bool no_hline;
 extern char abc_keypresses[1024];
@@ -146,6 +147,7 @@ void draw_static(int x, int y, int w, int h)
 	int sy = zc_rand(STATIC_SZ-h);
 	al_draw_bitmap_region(static_tex,sx,sy,w,h,x,y,0);
 }
+
 //JWin A5 drawing functions
 
 void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)

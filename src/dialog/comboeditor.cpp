@@ -2126,8 +2126,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								{
 									local_comboref.tile = t;
 									local_comboref.o_tile = t;
-									local_comboref.flip = f;
-									CSet = (c&0xF)%12;
+									updateFlip(f);
+									CSet = (c&0xF)%14;
 									l_flip->setText(std::to_string(f));
 									updateAnimation();
 								}
@@ -3107,6 +3107,106 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	return window;
 }
 
+static int rot_crn_val(int val, int rot)
+{
+	rot = wrap(rot,0,3);
+	int32_t newval = 0;
+	switch(rot)
+	{
+		case 0:
+			newval = val;
+			break;
+		case 1:
+			if(val&0b0001)
+				newval |= 0b0010;
+			if(val&0b0010)
+				newval |= 0b1000;
+			if(val&0b0100)
+				newval |= 0b0001;
+			if(val&0b1000)
+				newval |= 0b0100;
+			break;
+		case 2:
+			if(val&0b0001)
+				newval |= 0b1000;
+			if(val&0b0010)
+				newval |= 0b0100;
+			if(val&0b0100)
+				newval |= 0b0010;
+			if(val&0b1000)
+				newval |= 0b0001;
+			break;
+		case 3:
+			if(val&0b0001)
+				newval |= 0b0100;
+			if(val&0b0010)
+				newval |= 0b0001;
+			if(val&0b0100)
+				newval |= 0b1000;
+			if(val&0b1000)
+				newval |= 0b0010;
+			break;
+	}
+	return newval;
+}
+static bool is_rot(int flip)
+{
+	switch(flip)
+	{
+		case 0: case 4: case 7: case 3:
+			return true;
+	}
+	return false;
+}
+void ComboEditorDialog::flipSwatches(int rot, int hflip, int vflip)
+{
+	if(rot)
+		for(auto crn : cswatchs)
+			crn->setVal(rot_crn_val(crn->getVal()));
+	if(hflip&1)
+		for(auto crn : cswatchs)
+		{
+			int32_t val = crn->getVal();
+			crn->setVal((val & 0b0101)<<1 | (val&0b1010)>>1);
+		}
+	if(vflip&1)
+		for(auto crn : cswatchs)
+		{
+			int32_t val = crn->getVal();
+			crn->setVal((val & 0b0011)<<2 | (val&0b1100)>>2);
+		}
+}
+void ComboEditorDialog::updateFlip(int nflip)
+{
+	int oflip = local_comboref.flip;
+	if(oflip == nflip) return;
+	
+	bool vflip = false, hflip = false;
+	int rots = 0;
+	
+	//calculate how to get from oflip to nflip
+	if((oflip&0b1100) == (nflip&0b1100)) //possible without rotation
+	{
+		hflip = (oflip&0b01) != (nflip&0b01);
+		vflip = (oflip&0b10) != (nflip&0b10);
+	}
+	else
+	{
+		//impossible without flipping?
+		if(hflip = (is_rot(oflip) != is_rot(nflip)))
+			oflip ^= 0b01;
+		
+		while(oflip!=nflip) //Rotate until they match
+		{
+			oflip = rotate_value(oflip);
+			++rots;
+		}
+	}
+	//Flip the corner swatches
+	flipSwatches(rots,hflip?1:0,vflip?1:0);
+	
+	local_comboref.flip = nflip;
+}
 bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
@@ -3126,11 +3226,13 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			if(cmb_tab1) break;
 			local_comboref.flip ^= 1;
-			for(auto crn : cswatchs)
-			{
-				int32_t val = crn->getVal();
-				crn->setVal((val & 0b0101)<<1 | (val&0b1010)>>1);
-			}
+			flipSwatches(0,1,0);
+			
+			local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
+				| solidity_to_flag(cswatchs[2]->getVal())<<4;
+			local_comboref.csets &= ~0xF0;
+			local_comboref.csets |= cswatchs[1]->getVal()<<4;
+			
 			l_flip->setText(std::to_string(local_comboref.flip));
 			updateAnimation();
 			return false;
@@ -3139,11 +3241,13 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			if(cmb_tab1) break;
 			local_comboref.flip ^= 2;
-			for(auto crn : cswatchs)
-			{
-				int32_t val = crn->getVal();
-				crn->setVal((val & 0b0011)<<2 | (val&0b1100)>>2);
-			}
+			flipSwatches(0,0,1);
+			
+			local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
+				| solidity_to_flag(cswatchs[2]->getVal())<<4;
+			local_comboref.csets &= ~0xF0;
+			local_comboref.csets |= cswatchs[1]->getVal()<<4;
+			
 			l_flip->setText(std::to_string(local_comboref.flip));
 			updateAnimation();
 			return false;
@@ -3152,20 +3256,13 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			if(cmb_tab1) break;
 			local_comboref.flip = rotate_value(local_comboref.flip);
-			for(auto crn : cswatchs)
-			{
-				int32_t val = crn->getVal();
-				int32_t newval = 0;
-				if(val&0b0001)
-					newval |= 0b0010;
-				if(val&0b0010)
-					newval |= 0b1000;
-				if(val&0b0100)
-					newval |= 0b0001;
-				if(val&0b1000)
-					newval |= 0b0100;
-				crn->setVal(newval);
-			}
+			flipSwatches(1,0,0);
+			
+			local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
+				| solidity_to_flag(cswatchs[2]->getVal())<<4;
+			local_comboref.csets &= ~0xF0;
+			local_comboref.csets |= cswatchs[1]->getVal()<<4;
+			
 			l_flip->setText(std::to_string(local_comboref.flip));
 			updateAnimation();
 			return false;
@@ -3173,14 +3270,14 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::PLUSCS:
 		{
 			if(cmb_tab1) break;
-			CSet = (CSet+1)%12;
+			CSet = (CSet+1)%14;
 			updateCSet();
 			return false;
 		}
 		case message::MINUSCS:
 		{
 			if(cmb_tab1) break;
-			CSet = (CSet+11)%12;
+			CSet = (CSet+13)%14;
 			updateCSet();
 			return false;
 		}
