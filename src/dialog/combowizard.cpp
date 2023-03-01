@@ -3559,8 +3559,8 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::DEFAULT:
 		{
 			if(do_combo_default(local_ref))
-				rerun_dlg = true;
-			return rerun_dlg;
+				runner.rerun_dlg = true;
+			return runner.rerun_dlg;
 		}
 		case message::CANCEL:
 		default:

@@ -3202,7 +3202,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(doclear)
 			{
 				local_comboref.clear();
-				rerun_dlg = true;
+				runner.rerun_dlg = true;
 				return true;
 			}
 			return false;
@@ -3210,15 +3210,15 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::DEFAULT:
 		{
 			if(do_combo_default(local_comboref))
-				rerun_dlg = true;
-			return rerun_dlg;
+				runner.rerun_dlg = true;
+			return runner.rerun_dlg;
 		}
 		
 		case message::WIZARD:
 			if(hasComboWizard(local_comboref.type))
 			{
 				call_combo_wizard(*this);
-				rerun_dlg = true;
+				runner.rerun_dlg = true;
 				return true;
 			}
 			break;

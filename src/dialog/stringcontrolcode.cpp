@@ -1041,7 +1041,7 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::RELOAD:
-			rerun_dlg = true;
+			runner.rerun_dlg = true;
 			return true;
 		case message::COPY:
 			set_al_clipboard(calc_retstr(curscc, args[curscc]));
@@ -1051,7 +1051,7 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			std::string cb;
 			if(get_al_clipboard(cb) && load_scc_str(cb))
 			{
-				rerun_dlg = true;
+				runner.rerun_dlg = true;
 				return true;
 			}
 			return false;

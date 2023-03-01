@@ -11,7 +11,6 @@
 
 namespace GUI
 {
-
 class DialogRunner
 {
 public:
@@ -89,13 +88,15 @@ public:
 	Signal dialogConstructed;
 	
 	void set_dlg_sz(int x, int y, int w, int h);
-
+	
+	bool rerun_dlg;
+	
 private:
 	std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> sendMessage;
 	std::vector<DIALOG> alDialog;
 	std::vector<std::shared_ptr<Widget>> widgets;
 	int32_t focused;
-	bool redrawPending, done, realized, running;
+	bool redrawPending, done, realized, running, render_froze;
 	int x, y, w, h;
 
 	DialogRunner();
@@ -103,9 +104,9 @@ private:
 
 	/* Sets up the DIALOG array for a dialog so that it can be run. */
 	void realize(std::shared_ptr<Widget> root);
-
+	
 	void runInner(std::shared_ptr<Widget> root);
-
+	
 	friend class DialogRef;
 	friend int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c);
 	template<typename T> friend class Dialog;
