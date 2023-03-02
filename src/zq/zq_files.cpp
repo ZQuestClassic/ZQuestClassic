@@ -28,6 +28,8 @@
 #include "tiles.h"
 #include "zq_tiles.h"
 #include "zq_custom.h"
+#include "dialog/info.h"
+#include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -390,7 +392,7 @@ int32_t NewQuestFile(int32_t template_slot)
     memset(filepath,0,255);
     memset(temppath,0,255);
     first_save=false;
-    box_start(1, "Initializing Quest", lfont, pfont, false);
+    box_start(1, "Initializing Quest", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false);
     box_out("Please wait.");
     box_eol();
     box_out("This may take a few moments.");
@@ -820,17 +822,14 @@ int32_t onSave()
     
     if(!ret)
     {
-        sprintf(buf,"Saved %s",name);
-        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
         saved=true;
         first_save=true;
         header.dirty_password=false;
     }
-    else
-    {
-        sprintf(buf,"Error saving %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    }
+    else InfoDialog("Error",fmt::format("Error saving {}",name)).show();
+	
+	box_end(false);
     
 	set_last_timed_save(nullptr);
     return D_O_K;
@@ -877,17 +876,13 @@ int32_t onSaveAs()
 		update_recent_quest(temppath);
         sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
         set_window_title(buf);
-        sprintf(buf,"Saved %s",name);
-        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-        saved=true;
+        InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
+		saved=true;
         first_save=true;
         header.dirty_password=false;
     }
-    else
-    {
-        sprintf(buf,"Error saving %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
-    }
+    else InfoDialog("Error",fmt::format("Error saving {}",name)).show();
+	box_end(false);
     
     refresh(rMENU);
 	set_last_timed_save(nullptr);

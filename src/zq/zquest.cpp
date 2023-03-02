@@ -6175,7 +6175,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				for(int32_t x=1; x<mapscreen_pos.w; ++x)
 				{
-					al_draw_vline(mapscreen_pos.x+(x*mapscreen_pos.xscale), mapscreen_pos.y, mapscreen_pos.y+mapscreen_pos.th(), a5color(vc(GridColor)));
+					al_draw_vline(mapscreen_pos.x+(x*mapscreen_pos.xscale)+0.5, mapscreen_pos.y+0.5, mapscreen_pos.y+mapscreen_pos.th(), a5color(vc(GridColor)));
 				}
 				
 				for(int32_t y=1; y<mapscreen_pos.h; ++y)
@@ -31149,17 +31149,14 @@ int32_t main(int32_t argc,char **argv)
 		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
 		{
 			int32_t ret = load_quest(last_timed_save,true,true);
-			
+			box_end(false);
 			if(ret == qe_OK)
 			{
 				replace_extension(filepath,last_timed_save,"qst",2047);
 				load_last_timed_save=true;
 				saved=false;
 			}
-			else
-			{
-				jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,lfont);
-			}
+			else InfoDialog("Error","Unable to reload the last timed save.").show();
 		}
 	}
 	
@@ -31171,7 +31168,7 @@ int32_t main(int32_t argc,char **argv)
 		{
 			replace_extension(temppath,argv[1],"qst",2047);
 			int32_t ret = load_quest(temppath,true,true);
-			
+			box_end(false);
 			if(ret == qe_OK)
 			{
 				first_save=true;
@@ -31182,7 +31179,7 @@ int32_t main(int32_t argc,char **argv)
 		else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
 		{
 			int32_t ret = load_quest(filepath,true,true);
-			
+			box_end(false);
 			if(ret == qe_OK)
 			{
 				first_save=true;
@@ -33004,9 +33001,10 @@ void check_autosave()
             
             if(ret)
             {
-                jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,lfont);
-                set_last_timed_save(nullptr);
+                InfoDialog("Error","Timed save did not complete successfully.").show();
+				set_last_timed_save(nullptr);
             }
+			box_end(false);
             
             save_config_file();
             time(&auto_save_time_start);

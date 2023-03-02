@@ -7,20 +7,16 @@
 extern int32_t jwin_pal[jcMAX];
 
 int32_t screen_w, screen_h;
-struct cliprect
-{
-	int x, y, w, h;
-};
 void START_CLIP(DIALOG* d, cliprect& rec)
 {
 	set_clip_rect(screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4);
-	al_get_clipping_rectangle(&rec.x,&rec.y,&rec.w,&rec.h);
+	rec.getclip();
 	al_set_clipping_rectangle(d->x+2,d->y+2,d->w-6,d->h-6);
 }
 void END_CLIP(cliprect const& rec)
 {
 	set_clip_rect(screen, 0, 0, LARGE_W, LARGE_H);
-	al_set_clipping_rectangle(rec.x,rec.y,rec.w,rec.h);
+	rec.setclip();
 }
 
 namespace GUI

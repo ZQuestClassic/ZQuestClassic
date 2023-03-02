@@ -6820,7 +6820,7 @@ int32_t onKeyboard()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
+				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -6964,7 +6964,7 @@ int32_t onCheatKeys()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, 500,400, 2);
+				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, 500,400, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -7803,10 +7803,14 @@ int32_t onExtLetterGridEntry()
 	return D_O_K;
 }
 
-static BITMAP* oldscreen;
+static BITMAP* truescreen;
 int32_t onFullscreenMenu()
 {
-	onFullscreen();
+	BITMAP* os = screen==truescreen? nullptr : screen;
+	screen = truescreen;
+	if(onFullscreen()==D_REDRAW)
+		truescreen = screen;
+	if(os) screen = os;
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
 	return D_O_K;
 }
@@ -8324,6 +8328,7 @@ void System()
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
 	clear_keybuf();
 	show_mouse(screen);
+	truescreen = screen;
 	
 	DIALOG_PLAYER *p;
 	
@@ -8453,7 +8458,7 @@ void System()
 	while(update_dialog(p));
 	
 	al_restore_state(&old_state);
-	
+	screen = truescreen;
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);

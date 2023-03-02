@@ -23,6 +23,13 @@ extern ALLEGRO_COLOR jwin_a5_colors[9];
 extern ALLEGRO_COLOR db_a5_colors[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc);
 
+struct cliprect
+{
+	int x=0, y=0, w=0, h=0;
+	void getclip();
+	void setclip() const;
+};
+
 void jwin_reset_a5_colors();
 void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain = false);
 void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain = false);

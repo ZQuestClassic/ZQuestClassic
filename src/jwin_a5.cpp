@@ -96,6 +96,16 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain)
 
 //Generic A5 helpers
 
+void cliprect::getclip()
+{
+	al_get_clipping_rectangle(&x,&y,&w,&h);
+}
+void cliprect::setclip() const
+{
+	if(w < 1 || h < 1)
+		al_set_clipping_rectangle(0,0,zq_screen_w,zq_screen_h);
+	else al_set_clipping_rectangle(x,y,w,h);
+}
 void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c)
 {
 	al_draw_line(x1,y1,x2,y1,c,1);
