@@ -1847,33 +1847,6 @@ enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
-struct size_and_pos
-{
-	int x = -1, y = -1;
-	int w = -1, h = -1;
-	int xscale = 1, yscale = 1;
-	int fw = -1, fh = -1;
-	
-	int data[8] = {0};
-	
-	//Get virtual values
-	int tw() const;
-	int th() const;
-	
-	void clear(); //Clear to default vals
-	
-	bool rect(int mx, int my) const; //Check rect collision
-	int rectind(int mx, int my) const; //Check scaled collision
-	
-	//Set coord values
-	void set(int nx, int ny, int nw, int nh);
-	void set(int nx, int ny, int nw, int nh, int xs, int ys);
-	
-	size_and_pos const& subsquare(int ind) const;
-	size_and_pos const& subsquare(int col, int row) const;
-	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
-};
-
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
 #define ITEMCNT   iMax

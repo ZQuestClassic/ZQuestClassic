@@ -306,8 +306,8 @@ size_and_pos commands_txt;
 size_and_pos tooltip_box;
 size_and_pos tooltip_box2;
 size_and_pos tooltip_trigger;
-size_and_pos tooltip_highlight;
-size_and_pos tooltip_highlight2;
+highlight_pos tooltip_highlight;
+highlight_pos tooltip_highlight2;
 
 size_and_pos itemsqr_pos;
 size_and_pos flagsqr_pos;
@@ -558,7 +558,7 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0,
-	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
 	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
@@ -5683,11 +5683,18 @@ void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
 	ALLEGRO_FONT* tfont_a5 = a5font;
+	
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	switch(unit)
 	{
 		case rSCRMAP:
 		{
+			al_set_target_bitmap(rti_minimap.bitmap);
+			clear_a5_bmp(AL5_INVIS);
+			
 			if(prv_mode) break;
+			
 			size_and_pos *mini_sqr = &minimap;
 			size_and_pos *real_mini_sqr = &real_minimap;
 			
@@ -5700,10 +5707,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			auto txt_x = real_mini_sqr->x+2+8*real_mini_sqr->xscale;
 			auto txt_y = real_mini_sqr->y+2+8*real_mini_sqr->yscale;
 			
-			rectfill(menu1, mini_sqr->x-1, mini_sqr->y-2,mini_sqr->x+mini_sqr->w-1,mini_sqr->y+mini_sqr->h-1,jwin_pal[jcBOX]);
+			al_draw_filled_rectangle(mini_sqr->x-1, mini_sqr->y-2,mini_sqr->x+mini_sqr->w,mini_sqr->y+mini_sqr->h,jwin_a5_pal(jcBOX));
 			if(zoomed_minimap)
-				jwin_draw_frame(menu1, mini_sqr->x-1, mini_sqr->y-2,mini_sqr->w,mini_sqr->h,FR_WIN);
-			jwin_draw_minimap_frame(menu1,real_mini_sqr->x,real_mini_sqr->y,real_mini_sqr->tw(), real_mini_sqr->th(), real_mini_sqr->xscale, FR_DEEP);
+				jwin_draw_frame_a5(mini_sqr->x-1, mini_sqr->y-2,mini_sqr->w,mini_sqr->h,FR_WIN);
+			jwin_draw_minimap_frame_a5(real_mini_sqr->x,real_mini_sqr->y,real_mini_sqr->tw(), real_mini_sqr->th(), real_mini_sqr->xscale, FR_DEEP);
 			
 			if(Map.getCurrMap()<Map.getMapCount())
 			{
@@ -5724,59 +5731,48 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 					else
 					{
-						if(InvalidStatic)
-						{
-							for(int32_t dy=0; dy<sqr.h; dy++)
-							{
-								for(int32_t dx=0; dx<sqr.w; dx++)
-								{
-									menu1->line[dy+sqr.y][dx+sqr.x]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-								}
-							}
-						}
-						else
-						{
-							int32_t offs = 2*(sqr.w/9);
-							draw_x(menu1, sqr.x+offs, sqr.y+offs, sqr.x+sqr.w-1-offs, sqr.y+sqr.h-1-offs, vc(15));
-						}
+						al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h,false);
 					}
 				}
 				
 				int32_t s=Map.getCurrScr();
 				// The white marker rect
-				int32_t cursor_color = 0;
+				ALLEGRO_COLOR cursor_color;;
 				switch(MMapCursorStyle)
 				{
 					case 0:
-						cursor_color = vc(15);
+						cursor_color = AL5_WHITE;
 						break;
 					case 1:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
+						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? AL5_BLACK : AL5_WHITE;
 						break;
 					case 2:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
+						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? AL5_LRED : AL5_BLUE;
 						break;
 				}
-				if(cursor_color)
-				{
-					auto& sqr = real_mini_sqr->subsquare(s);
-					al_draw_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
-						a5color(cursor_color), 2);
-				}
+				auto& sqr = real_mini_sqr->subsquare(s);
+				highlight_sqr(cursor_color,sqr.x,sqr.y,sqr.w,sqr.h,zoomed_minimap?2:1);
 				
-				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
-				clear_bitmap(txtbmp);
+				//Draw text to buffer
+				set_bitmap_create_flags(false);
+				ALLEGRO_BITMAP* txtbmp = al_create_bitmap(256,64);
+				al_set_target_bitmap(txtbmp);
+				clear_a5_bmp(AL5_INVIS);
+				
 				int txtscale = zoomed_minimap ? (is_compact ? 2 : 3) : 1;
-				font = lfont_l;
+				a5font = get_zc_font_a5(font_lfont_l);
 				
-				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
-				textprintf_disabled(txtbmp,font,0,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
-				textprintf_ex(txtbmp,font,spc_m,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
+				int32_t space = al_get_text_width(a5font, "255")+2, spc_s = al_get_text_width(a5font, "S")+2, spc_m = al_get_text_width(a5font, "M")+2;
+				jwin_textout_a5_dis(a5font,jwin_a5_pal(jcMEDDARK),0,0,0,"M",AL5_INVIS,jwin_a5_pal(jcLIGHT));
+				jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),spc_m,0,0,fmt::format("{:3d}",Map.getCurrMap()+1).c_str(),AL5_INVIS);
 				
-				textprintf_disabled(txtbmp,font,spc_m+space,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
-				textprintf_ex(txtbmp,font,spc_m+space+spc_s,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
-				masked_stretch_blit(txtbmp, menu1, 0, 0, 256, 64, txt_x, txt_y, 256*txtscale, 64*txtscale);
-				destroy_bitmap(txtbmp);
+				jwin_textout_a5_dis(a5font,jwin_a5_pal(jcMEDDARK),spc_m+space,0,0,"S",AL5_INVIS,jwin_a5_pal(jcLIGHT));
+				jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),spc_m+space+spc_s,0,0,fmt::format("0x{:02X} ({:d})",s, s).c_str(),AL5_INVIS);
+				
+				al_set_target_bitmap(rti_minimap.bitmap);
+				//Draw text buffer to target
+				al_draw_scaled_bitmap(txtbmp, 0, 0, 256, 64, txt_x, txt_y, 256*txtscale, 64*txtscale, 0);
+				al_destroy_bitmap(txtbmp);
 			}
 		}
 		break;
@@ -6671,6 +6667,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		}
 		break;
 	}
+	
+	al_restore_state(&old_state);
 	a5font = tfont_a5;
 	font = tfont;
 }
@@ -7308,9 +7306,9 @@ void select_scr()
 		{
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
-			clear_tooltip();
 			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+			tooltip_highlight2.thick = zoomed_minimap ? 2 : 1;
+			tooltip_highlight2.tbmp = rti_minimap_tth.bitmap;
 		}
 		
 		if(ind>=MAPSCRS)
@@ -10621,9 +10619,9 @@ void domouse()
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
-		clear_tooltip();
 		update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+		tooltip_highlight2.thick = zoomed_minimap ? 2 : 1;
+		tooltip_highlight2.tbmp = rti_minimap_tth.bitmap;
 	}
 	
 	// Mouse clicking stuff
@@ -11732,7 +11730,13 @@ void domouse()
 		}
 	}
 
+	if(false)
+	{
 domouse_doneclick:
+		clear_tooltip();
+		clear_tooltip2();
+		draw_ttips(&rti_tooltip,&rti_tooltip_hl); //force-clear tooltip buffers
+	}
 	mouse_down |= mb&3;
 	
 	if(mouse_z!=0)
@@ -31437,6 +31441,7 @@ void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 	*bmp = create_bitmap_ex(8,w,h);
 	clear_bitmap(*bmp);
 }
+void clear_highlight(size_and_pos& p);
 void load_size_poses()
 {
 	tooltip_box.set(-1,-1,0,0);
@@ -33380,74 +33385,23 @@ void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char co
 	free(kill);
 }
 
-void highlight_sqr(ALLEGRO_COLOR color, float x, float y, float w, float h, float thick)
-{
-	for(int q = 0; q < thick; ++q)
-		al_draw_rectangle(x+q, y+q, x+w-q, y+h-q, color, 1);
-}
-void highlight_sqr(ALLEGRO_COLOR color, size_and_pos const& rec, float thick)
-{
-	highlight_sqr(color, rec.x, rec.y, rec.tw(), rec.th(), thick);
-}
-void highlight_frag(ALLEGRO_COLOR color, float x1, float y1, float w, float h, float fw, float fh, int thick)
-{
-	if(thick < 1) return;
-	
-	int xc = x1+fw-1;
-	int yc = y1+fh-1;
-	int x2 = x1+w-1;
-	int y2 = y1+h-1;
-	
-	for(;thick > 0;--thick)
-	{
-		al_draw_hline(x1-1, y1-1, x2, color);
-		al_draw_vline(x1, y1-1, y2, color);
-		
-		al_draw_hline(x1-1, y2, xc, color);
-		al_draw_vline(x2+1, y1-1, yc+1, color);
-		al_draw_hline(xc, yc, x2+1, color);
-		al_draw_vline(xc+1, yc, y2+1, color);
-		++x1; ++y1;
-		--x2; --y2;
-		--xc; --yc;
-	}
-}
-void highlight_frag(ALLEGRO_COLOR color, size_and_pos const& rec, int thick)
-{
-	highlight_frag(color, rec.x, rec.y, rec.tw(), rec.th(), rec.fw, rec.fh, thick);
-}
 
-void highlight(size_and_pos& hl)
-{
-	if(hl.fw > -1 && hl.fh > -1)
-	{
-		highlight_frag(a5color(hl.data[1]), hl, hl.data[0]);
-	}
-	else highlight_sqr(a5color(hl.data[1]), hl, hl.data[0]);
-}
 static void draw_ttip(BITMAP* dest)
 {
-	if(tooltip_timer < tooltip_maxtimer)
-		return;
-	if(TooltipsHighlight && tooltip_highlight.x >= 0)
+	if(tooltip_timer >= tooltip_maxtimer)
 	{
-		highlight(tooltip_highlight);
+		tooltip_highlight.highlight();
+		if(dest && tooltip_box.x>=0&&tooltip_box.y>=0)
+			masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
 	}
-	if(dest && tooltip_box.x>=0&&tooltip_box.y>=0)
-	{
-		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
-	}
+	tooltip_highlight.clear_bmps();
 }
 static void draw_ttip2(BITMAP* dest)
 {
-	if(tooltip_highlight2.x >= 0)
-	{
-		highlight(tooltip_highlight2);
-	}
+	tooltip_highlight2.highlight();
 	if(dest && tooltip_box2.x>=0&&tooltip_box2.y>=0)
-	{
 		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x, tooltip_box2.y, tooltip_box2.w, tooltip_box2.h);
-	}
+	tooltip_highlight2.clear_bmps();
 }
 void draw_ttips(RenderTreeItem* ttdest, RenderTreeItem* hldest)
 {
@@ -33566,6 +33520,7 @@ void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* t
 }
 void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
 {
+	tooltip_highlight.clear();
 	if(!EnableTooltips)
 	{
 		return;
@@ -33583,14 +33538,12 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		tooltip_box.w=0;
 		tooltip_box.h=0;
 		tooltip_timer=0;
-		tooltip_highlight.clear();
 		return; //cancel
 	}
+	clear_tooltip2();
 	tooltip_highlight.set(tx, ty, tw, th);
 	tooltip_highlight.fw = fw;
 	tooltip_highlight.fh = fh;
-	tooltip_highlight.data[0] = 2;
-	tooltip_highlight.data[1] = 0xED;
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
 	
@@ -33624,20 +33577,19 @@ void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* 
 }
 void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
 {
+	tooltip_highlight2.clear();
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
 		tooltip_box2.x=x;
 		tooltip_box2.y=y;
 		tooltip_box2.w=0;
 		tooltip_box2.h=0;
-		tooltip_highlight2.clear();
 		return; //cancel
 	}
+	clear_tooltip();
 	tooltip_highlight2.set(tx, ty, tw, th);
 	tooltip_highlight2.fw = fw;
 	tooltip_highlight2.fh = fh;
-	tooltip_highlight2.data[0] = 2;
-	tooltip_highlight2.data[1] = 0xED;
 	
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);

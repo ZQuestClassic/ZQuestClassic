@@ -38,6 +38,9 @@ void idle_cb();
 void wipe_abc_keypresses();
 int32_t droplist(DIALOG *d);
 
+//
+int InvalidStatic = 0;
+
 //JWin A5 Palette
 
 ALLEGRO_COLOR jwin_a5_colors[9];
@@ -67,6 +70,9 @@ ALLEGRO_COLOR AL5_YELLOW = al_map_rgb(255,255,0);
 ALLEGRO_COLOR AL5_PINK = al_map_rgb(255,0,255);
 ALLEGRO_COLOR AL5_LGRAY = al_map_rgb(85,85,85);
 ALLEGRO_COLOR AL5_DGRAY = al_map_rgb(170,170,170);
+ALLEGRO_COLOR AL5_BLUE = al_map_rgb(85,85,255);
+ALLEGRO_COLOR AL5_LRED = al_map_rgb(255,85,85);
+
 ALLEGRO_COLOR AL5_COL_SOLIDITY = al_map_rgb(178,36,36);
 ALLEGRO_COLOR AL5_COL_EFFECT = al_map_rgb(85,255,85);
 ALLEGRO_COLOR AL5_COL_CS2 = al_map_rgb(85,255,255);
@@ -151,6 +157,20 @@ void draw_static(int x, int y, int w, int h)
 	int sy = zc_rand(STATIC_SZ-h);
 	al_draw_bitmap_region(static_tex,sx,sy,w,h,x,y,0);
 }
+void al5_invalid(int x, int y, int w, int h, bool sides)
+{
+	if(h<0)h=w;
+	
+	if(InvalidStatic)
+		draw_static(x,y,w,h);
+	else
+	{
+		al_draw_filled_rectangle(x, y, x+w, y+h, AL5_BLACK);
+		if(sides)
+			al_draw_rectangle(x+2, y+2, x+w-2, y+h-2, AL5_WHITE, 0);
+		al_draw_x(x+2, y+2, x+w-2, y+h-2, AL5_WHITE, 0);
+	}
+}
 
 //JWin A5 drawing functions
 
@@ -222,6 +242,93 @@ void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
 	
 	al_draw_hline(x, y+h, x+w, jwin_a5_pal(c4));
 	al_draw_vline(x+w, y, y+h-1, jwin_a5_pal(c4));
+}
+void jwin_draw_frag_frame_a5(int x1, int y1, int w, int h, int fw, int fh, int style)
+{
+    int c1,c2,c3,c4;
+    
+    switch(style)
+    {
+    case FR_BOX:
+        c1 = jcLIGHT;
+        c2 = jcMEDLT;
+        c3 = jcMEDDARK;
+        c4 = jcDARK;
+        break;
+        
+    case FR_INV:
+        c1 = jcDARK;
+        c2 = jcMEDDARK;
+        c3 = jcMEDLT;
+        c4 = jcLIGHT;
+        break;
+        
+    case FR_DEEP:
+        c1 = jcMEDDARK;
+        c2 = jcDARK;
+        c3 = jcMEDLT;
+        c4 = jcLIGHT;
+        break;
+        
+    case FR_DARK:
+        c1 = jcDARK;
+        c2 = jcMEDDARK;
+        c3 = jcMEDDARK;
+        c4 = jcDARK;
+        break;
+        
+    case FR_ETCHED:
+        c1 = jcMEDDARK;
+        c2 = jcLIGHT;
+        c3 = jcMEDDARK;
+        c4 = jcLIGHT;
+        break;
+        
+    case FR_MEDDARK:
+        c1 = jcMEDDARK;
+        c2 = jcBOX;
+        c3 = jcBOX;
+        c4 = jcMEDDARK;
+        break;
+        
+    case FR_WIN:
+    default:
+        c1 = jcMEDLT;
+        c2 = jcLIGHT;
+        c3 = jcMEDDARK;
+        c4 = jcDARK;
+        break;
+    }
+    
+	int xc = x1+fw-1;
+	int yc = y1+fh-1;
+	int x2 = x1+w-1;
+	int y2 = y1+h-1;
+	
+	al_draw_filled_rectangle(x1, y1, x2+1, yc+1, AL5_BLACK);
+	al_draw_filled_rectangle(x1, yc, xc+1, y2+1, AL5_BLACK);
+	
+    al_draw_hline(x1-2, y1-2, x2+3, jwin_a5_pal(c1));
+    al_draw_hline(x1-1, y1-1, x2+2, jwin_a5_pal(c2));
+    
+    al_draw_vline(x1-2, y1-2, y2+3, jwin_a5_pal(c1));
+    al_draw_vline(x1-1, y1-1, y2+2, jwin_a5_pal(c2));
+    
+    al_draw_hline(x1-2, y2+2, xc+3, jwin_a5_pal(c3));
+    al_draw_hline(x1-1, y2+1, xc+2, jwin_a5_pal(c4));
+	
+    al_draw_vline(x2+2, y1-2, yc+3, jwin_a5_pal(c3));
+    al_draw_vline(x2+1, y1-1, yc+2, jwin_a5_pal(c4));
+	
+    al_draw_hline(xc+2, yc+2, x2+3, jwin_a5_pal(c3));
+    al_draw_hline(xc+1, yc+1, x2+2, jwin_a5_pal(c4));
+	
+    al_draw_vline(xc+2, yc+2, y2+3, jwin_a5_pal(c3));
+    al_draw_vline(xc+1, yc+1, y2+2, jwin_a5_pal(c4));
+}
+void jwin_draw_minimap_frame_a5(int x,int y,int w,int h,int scrsz,int style)
+{
+	jwin_draw_frag_frame_a5(x,y,w,h,scrsz*8,scrsz*8,style);
 }
 void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame)
 {
