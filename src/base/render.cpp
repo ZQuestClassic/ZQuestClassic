@@ -319,7 +319,7 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		screen = tmp_bmp;
 		
 		RenderTreeItem* rti = new RenderTreeItem();
-		set_bitmap_create_flags(false);
+		set_bitmap_create_flags(true);
 		rti->bitmap = al_create_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
 		rti->owned = true;
@@ -423,8 +423,8 @@ void popup_zqdialog_start_a5(int x, int y, int w, int h)
 	al_set_new_bitmap_flags(0);
 	
 	old_a5_states.emplace_back();
-	ALLEGRO_STATE& oldstate = old_a5_states.back();
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_STATE& old_state = old_a5_states.back();
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti->bitmap);
 }
 
@@ -440,8 +440,8 @@ void popup_zqdialog_end_a5()
 		if(rti_dialogs.children.empty())
 			zqdialog_bg_bmp = nullptr;
 		
-		ALLEGRO_STATE& oldstate = old_a5_states.back();
-		al_restore_state(&oldstate);
+		ALLEGRO_STATE& old_state = old_a5_states.back();
+		al_restore_state(&old_state);
 		old_a5_states.pop_back();
 
 		delete to_del;

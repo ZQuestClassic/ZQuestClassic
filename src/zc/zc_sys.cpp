@@ -5374,10 +5374,13 @@ void kb_clearjoystick(DIALOG *d)
 	
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 168, 48, FR_WIN);
+	unscare_mouse();
+	popup_zqdialog_start();
+	scare_mouse();
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 168, 48, FR_WIN);
 	//  text_mode(vc(11));
-	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "Press any key to clear", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
 	update_hw_screen(true);
@@ -5395,6 +5398,7 @@ void kb_clearjoystick(DIALOG *d)
 		
 		
 	d->flags&=~D_SELECTED;
+	popup_zqdialog_end();
 }
 
 //Clears key to 0. 
@@ -5431,12 +5435,15 @@ void j_getbtn(DIALOG *d)
 	d->flags|=D_SELECTED;
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
+	unscare_mouse();
+	popup_zqdialog_start();
+	scare_mouse();
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	int32_t y = gui_bmp->h/2 - 12;
-	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	int32_t y = screen->h/2 - 12;
+	textout_centre_ex(screen, font, "Press a button", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
 	update_hw_screen(true);
@@ -5450,6 +5457,7 @@ void j_getbtn(DIALOG *d)
 	
 	if (player)
 		player->joy_on = TRUE;
+	popup_zqdialog_end();
 }
 
 int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -6366,10 +6374,7 @@ int32_t onCredits()
 	RLE_SPRITE *rle = (RLE_SPRITE*)(datafile[RLE_CREDITS].dat);
 	RGB *pal = (RGB*)(datafile[PAL_CREDITS].dat);
 	PALETTE tmppal;
-
-	rti_gui.transparency_index = 1;
-
-	clear_to_color(win, rti_gui.transparency_index);
+	
 	draw_rle_sprite(win,rle,0,0);
 	credits_dlg[0].dp2=lfont;
 	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
@@ -6378,12 +6383,8 @@ int32_t onCredits()
 	set_palette_range(black_palette,0,127,false);
 	
 	DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
-
-	BITMAP* old_screen = screen;
-	BITMAP* gui_bmp = zc_get_gui_bmp();
-	ASSERT(gui_bmp);
-	clear_to_color(gui_bmp, rti_gui.transparency_index);
-	screen = gui_bmp;
+	
+	popup_zqdialog_start();
 	
 	while(update_dialog(p))
 	{
@@ -6416,15 +6417,13 @@ int32_t onCredits()
 
 		update_hw_screen();
 	}
-
-	screen = old_screen;
+	
+	popup_zqdialog_end();
 	system_pal();
 	
 	shutdown_dialog(p);
 	destroy_bitmap(win);
 	//comeback();
-
-	rti_gui.transparency_index = 0;
 
 	return D_O_K;
 }
@@ -7568,58 +7567,70 @@ static void set_controls_menu_active()
 	
 }
 
+static MENU window_menu[] =
+{
+	{ "Save Size Changes",            onSaveDragResize,        NULL,                      0, NULL },
+	{ "Lock Aspect Ratio",            onDragAspect,            NULL,                      0, NULL },
+	{ "Save Position Changes",        onWinPosSave,            NULL,                      0, NULL },
+	{ NULL,                           NULL,                    NULL,                      0, NULL }
+};
+static MENU options_menu[] =
+{
+	{ "&Title Screen",                NULL,                    title_menu,                0, NULL },
+	{ "Name &Entry Mode",             NULL,                    name_entry_mode_menu,      0, NULL },
+	{ "S&napshot Format",             NULL,                    snapshot_format_menu,      0, NULL },
+	{ "&Window Settings",             NULL,                    window_menu,               0, NULL },
+	{ "Epilepsy Flash Reduction",     onEpilepsy,              NULL,                      0, NULL },
+	{ "Windows MIDI Patch",           onMIDIPatch,             NULL,                      0, NULL },
+	{ NULL,                           NULL,                    NULL,                      0, NULL }
+};
 static MENU settings_menu[] =
 {
-	{ (char *)"&Sound...",				  onSound,				 NULL,					  0, NULL },
-	{ (char *)"C&ontrols",				  NULL,					controls_menu,			 0, NULL },
-	{ (char *)"&Title Screen",			  NULL,					title_menu,				0, NULL },
-	{ (char *)"Name &Entry Mode",		   NULL,					name_entry_mode_menu,	  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ (char *)"&Cap FPS\tF1",			   onVsync,				 NULL,					  0, NULL },
-	{ (char *)"Show &FPS\tF2",			  onShowFPS,			   NULL,					  0, NULL },
-	{ (char *)"Show Trans. &Layers",		onTransLayers,		   NULL,					  0, NULL },
-	{ (char *)"Up+A+B To &Quit",			onNESquit,			   NULL,					  0, NULL },
-	{ (char *)"Click to Freeze",			onClickToFreeze,		 NULL,					  0, NULL },
-	{ (char *)"Autosave Window Size Changes",			onSaveDragResize,		 NULL,					  0, NULL },
-	{ (char *)"Lock Aspect Ratio",			onDragAspect,		 NULL,					  0, NULL },
-	{ (char *)"Window Position Saving",		   onWinPosSave,					NULL,	  0, NULL },
-	{ (char *)"Volume &Keys",			   onVolKeys,			   NULL,					  0, NULL },
-	{ (char *)"Cont. &Heart Beep",		  onHeartBeep,			 NULL,					  0, NULL },
-	{ (char *)"Sa&ve Indicator",			onSaveIndicator,		 NULL,					  0, NULL },
-	{ (char *)"Epilepsy Flash Reduction",					 onEpilepsy,				 NULL,					  0, NULL },
-	{ (char *)"S&napshot Format",		   NULL,					snapshot_format_menu,	  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ (char *)"Debu&g",					 onDebug,				 NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ "&Sound...",                    onSound,                 NULL,                      0, NULL },
+	{ "C&ontrols",                    NULL,                    controls_menu,             0, NULL },
+	{ "",                             NULL,                    NULL,                      0, NULL },
+	{ "Options",                      NULL,                    options_menu,              0, NULL },
+	{ "",                             NULL,                    NULL,                      0, NULL },
+	//
+	{ "&Cap FPS\tF1",                 onVsync,                 NULL,                      0, NULL },
+	{ "Show &FPS\tF2",                onShowFPS,               NULL,                      0, NULL },
+	{ "Click to Freeze",              onClickToFreeze,         NULL,                      0, NULL },
+	{ "Cont. &Heart Beep",            onHeartBeep,             NULL,                      0, NULL },
+	{ "Show Trans. &Layers",          onTransLayers,           NULL,                      0, NULL },
+	//
+	{ "Up+A+B To &Quit",              onNESquit,               NULL,                      0, NULL },
+	{ "Volume &Keys",                 onVolKeys,               NULL,                      0, NULL },
+	{ "Sa&ve Indicator",              onSaveIndicator,         NULL,                      0, NULL },
+	{ "",                             NULL,                    NULL,                      0, NULL },
+	{ "Debu&g",                       onDebug,                 NULL,                      0, NULL },
+	//
+	{ NULL,                           NULL,                    NULL,                      0, NULL }
 };
 
 
 static MENU misc_menu[] =
 {
-	{ (char *)"&About...",				  onAbout,				 NULL,					  0, NULL },
-	{ (char *)"&Credits...",				onCredits,			   NULL,					  0, NULL },
-	{ (char *)"&Fullscreen",				onFullscreenMenu,		NULL,					  0, NULL },
-	{ (char *)"&Video Mode...",			 onVidMode,			   NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
+	{ (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
+	{ (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
+	{ (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
+	{ (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
+	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
 	//5
-	{ (char *)"&Quest Info...",			 onQuest,				 NULL,					  0, NULL },
-	{ (char *)"Quest &MIDI Info...",		onMIDICredits,		   NULL,					  0, NULL },
-	{ (char *)"Quest &Directory...",		onQstPath,			   NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ (char *)"Take &Snapshot\tF12",		onSnapshot,			  NULL,					  0, NULL },
+	{ (char *)"&Quest Info...",             onQuest,                 NULL,                      0, NULL },
+	{ (char *)"Quest &MIDI Info...",        onMIDICredits,           NULL,                      0, NULL },
+	{ (char *)"Quest &Directory...",        onQstPath,               NULL,                      0, NULL },
+	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
+	{ (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
 	//10
-	{ (char *)"Sc&reen Saver...",		   onScreenSaver,		   NULL,					  0, NULL },
-	{ (char *)"Save ZC Configuration",	  OnSaveZCConfig,		  NULL,					  0, NULL },
-	{ (char *)"Show ZASM Debugger",		 onConsoleZASM,		   NULL,					  0, NULL },
-	{ (char *)"Show ZScript Debugger",	  onConsoleZScript,		NULL,					  0, NULL },
-	{ (char *)"Clear Console on Qst Load",	  onClrConsoleOnLoad,		NULL,					  0, NULL },
+	{ (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+	{ (char *)"Save ZC Configuration",      OnSaveZCConfig,          NULL,                      0, NULL },
+	{ (char *)"Show ZASM Debugger",         onConsoleZASM,           NULL,                      0, NULL },
+	{ (char *)"Show ZScript Debugger",      onConsoleZScript,        NULL,                      0, NULL },
+	{ (char *)"Clear Console on Qst Load",  onClrConsoleOnLoad,      NULL,                      0, NULL },
 	//15
-	{ (char *)"Clear Directory Cache",	  OnnClearQuestDir,		NULL,					  0, NULL },
-	{ (char *)"Modules",					NULL,					zcmodule_menu,			 0, NULL },
-	{ (char *)"Replay",					 NULL,					replay_menu,			   0, NULL },
-
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"Clear Directory Cache",      OnnClearQuestDir,        NULL,                      0, NULL },
+	{ (char *)"Modules",                    NULL,                    zcmodule_menu,             0, NULL },
+	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
 static MENU refill_menu[] =
@@ -7680,12 +7691,6 @@ static MENU cheat_menu[] =
 	{ NULL,                                           NULL, NULL,        0, NULL }
 };
 
-static MENU fixes_menu[] =
-{
-	{ (char *)"Windows MIDI Patch",		   onMIDIPatch,					NULL,	  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-};
-
 #if DEVLEVEL > 0
 int32_t devLogging();
 int32_t devDebug();
@@ -7744,27 +7749,15 @@ int32_t setCheat()
 
 MENU the_player_menu[] =
 {
-	{ (char *)"&Game",					  NULL,					game_menu,				 0, NULL },
-	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
-	{ (char *)"&Cheat",					 NULL,					cheat_menu,				0, NULL },
-	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
+	{ (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
+	{ (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+	{ (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
+	{ (char *)"Replay",                     NULL,                    replay_menu,               0, NULL },
+	{ (char *)"&ZC",                        NULL,                    misc_menu,                 0, NULL },
 	#if DEVLEVEL > 0
-	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
+	{ (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
 	#endif
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-};
-
-MENU the_player_menu2[] =
-{
-	{ (char *)"&Game",					  NULL,					game_menu,				 0, NULL },
-	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
-	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
-	#if DEVLEVEL > 0
-	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
-	#endif
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
 int32_t onMIDIPatch()
@@ -7785,7 +7778,7 @@ int32_t onMIDIPatch()
 		midi_patch_fix = midi_patch_fix ? 0 : 1;
 		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);
 	}
-	fixes_menu[0].flags =(midi_patch_fix)?D_SELECTED:0;
+	options_menu[5].flags =(midi_patch_fix)?D_SELECTED:0;
 	return D_O_K;
 }
 
@@ -7813,13 +7806,7 @@ int32_t onExtLetterGridEntry()
 static BITMAP* oldscreen;
 int32_t onFullscreenMenu()
 {
-	// super hacks
-	screen = oldscreen;
-	if (onFullscreen() == D_REDRAW)
-	{
-		oldscreen = screen;
-	}
-	screen = menu_bmp;
+	onFullscreen();
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
 	return D_O_K;
 }
@@ -7827,7 +7814,7 @@ int32_t onFullscreenMenu()
 void fix_menu()
 {
 	if(!debug_enabled)
-		settings_menu[18].text = NULL;
+		settings_menu[13].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -7848,26 +7835,6 @@ static DIALOG system_dlg[] =
 	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
 	{ d_timer_proc,	  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,			 NULL, NULL },
 	{ NULL,			  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,						   NULL,  NULL }
-};
-
-static DIALOG system_dlg2[] =
-{
-	/* (dialog proc)	 (x)   (y)   (w)   (h)   (fg)  (bg)  (key)	(flags)  (d1)	  (d2)	 (dp) */
-	{ jwin_menu_proc,	0,	0,	0,	0,	0,	0,	0,	   D_USER,  0,		0, (void *) the_player_menu2, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F1,   0, (void *) onVsync, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
-#ifndef ALLEGRO_MACOSX
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F9,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F10,  0, (void *) onExit, NULL,  NULL },
-#else
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F7,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F8,   0, (void *) onExit, NULL,  NULL },
-#endif
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
-	{ d_timer_proc,	  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,			 NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
 void reset_snapshot_format_menu()
@@ -8355,25 +8322,17 @@ void System()
 	game_menu[3].flags =
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
-	fixes_menu[0].flags = (midi_patch_fix)?D_SELECTED:0;
 	clear_keybuf();
 	show_mouse(screen);
 	
 	DIALOG_PLAYER *p;
-
-	clear_bitmap(menu_bmp);
-	oldscreen = screen;
-	screen = menu_bmp;
-
-	if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode))
-	{
-		p = init_dialog(system_dlg2,-1);
-	}
-	else
-	{
-		p = init_dialog(system_dlg,-1);
-	}
 	
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	al_set_target_bitmap(rti_menu.bitmap);
+	
+	system_dlg[0].dp2 = get_zc_font_a5(font_dsphantompfont);
+	p = init_dialog(system_dlg,-1);
 	// drop the menu on startup if menu button pressed
 	if(joybtn(Mbtn)||zc_getrawkey(KEY_ESC))
 		simulate_keypress(KEY_G << 8);
@@ -8398,15 +8357,17 @@ void System()
 		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
 		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
 		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
-		settings_menu[7].flags = TransLayers?D_SELECTED:0;
-		settings_menu[8].flags = NESquit?D_SELECTED:0;
-		settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
-		settings_menu[10].flags = SaveDragResize?D_SELECTED:0;
-		settings_menu[11].flags = DragAspect?D_SELECTED:0;
-		settings_menu[12].flags = SaveWinPos?D_SELECTED:0;
-		settings_menu[13].flags = volkeys?D_SELECTED:0;
-		//Epilepsy Prevention
-		settings_menu[16].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		settings_menu[7].flags = ClickToFreeze?D_SELECTED:0;
+		settings_menu[9].flags = TransLayers?D_SELECTED:0;
+		settings_menu[10].flags = NESquit?D_SELECTED:0;
+		settings_menu[11].flags = volkeys?D_SELECTED:0;
+		
+		window_menu[0].flags = SaveDragResize?D_SELECTED:0;
+		window_menu[1].flags = DragAspect?D_SELECTED:0;
+		window_menu[2].flags = SaveWinPos?D_SELECTED:0;
+		
+		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		options_menu[5].flags = (midi_patch_fix)?D_SELECTED:0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8415,8 +8376,9 @@ void System()
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
 		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
-		
-		the_player_menu[2].flags = replay_is_replaying() ? D_DISABLED : 0;
+		bool nocheat = (replay_is_replaying() || !Playing
+			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode));
+		the_player_menu[2].flags = nocheat ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
 		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
 		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
@@ -8444,8 +8406,8 @@ void System()
 		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
 		show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
 		
-		settings_menu[14].flags = heart_beep ? D_SELECTED : 0;
-		settings_menu[15].flags = use_save_indicator ? D_SELECTED : 0;
+		settings_menu[8].flags = heart_beep ? D_SELECTED : 0;
+		settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
 
 		replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
 			(char *)"Disable recording new saves" :
@@ -8464,7 +8426,7 @@ void System()
 		
 		if(debug_enabled)
 		{
-			settings_menu[19].flags = get_debug() ? D_SELECTED : 0;
+			settings_menu[14].flags = get_debug() ? D_SELECTED : 0;
 		}
 		
 		if(gui_mouse_b() && !mouse_down)
@@ -8489,8 +8451,8 @@ void System()
 		update_hw_screen();
 	}
 	while(update_dialog(p));
-
-	screen = oldscreen;
+	
+	al_restore_state(&old_state);
 	
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
