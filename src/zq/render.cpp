@@ -119,18 +119,26 @@ void zq_hide_screen(bool hidden)
 	rti_screen.visible = !hidden;
 }
 
+void popup_zqdialog_menu()
+{
+	popup_zqdialog_start_a5();
+}
+void popup_zqdialog_menu_end()
+{
+	popup_zqdialog_end_a5();
+}
+
 void render_zq()
 {
+	init_render_tree();
+	configure_render_tree();
 	if(render_frozen()) return;
-	ALLEGRO_STATE oldstate;
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	
 	BITMAP* tmp = screen;
 	if(zqdialog_bg_bmp)
 		screen = zqdialog_bg_bmp;
-	
-	init_render_tree();
-	configure_render_tree();
 	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
@@ -140,6 +148,6 @@ void render_zq()
 	al_flip_display();
 	
 	screen = tmp;
-	al_restore_state(&oldstate);
+	al_restore_state(&old_state);
 }
 
