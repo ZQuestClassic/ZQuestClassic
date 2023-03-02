@@ -6728,10 +6728,10 @@ void refresh(int32_t flags)
 		draw_screenunit(rCOMMANDS,flags);
 	
 	//Layer buttons
-	FONT* tfont = font;
-	font = get_custom_font(CFONT_GUI);
-	jwin_draw_frame(menu1,layer_panel.x,layer_panel.y,layer_panel.w,layer_panel.h,FR_DEEP);
-	rectfill(menu1,layer_panel.x,layer_panel.y,layer_panel.x+layer_panel.w-1,layer_panel.y+layer_panel.h-1,jwin_pal[jcBOX]);
+	ALLEGRO_FONT* tfont_a5 = a5font;
+	a5font = get_custom_font_a5(CFONT_GUI);
+	jwin_draw_frame_a5(layer_panel.x,layer_panel.y,layer_panel.w,layer_panel.h,FR_DEEP);
+	al_draw_filled_rectangle(layer_panel.x,layer_panel.y,layer_panel.x+layer_panel.w-1,layer_panel.y+layer_panel.h-1,jwin_a5_pal(jcBOX));
 	
 	for(int32_t i=0; i<=6; ++i)
 	{
@@ -6752,14 +6752,12 @@ void refresh(int32_t flags)
 		int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 		int32_t ry = layer_panel.y;
 		auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
-		draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]!=0);
+		draw_layer_button_a5(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
+		draw_checkbox_a5(rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]!=0);
 	}
 	
-	font=tfont;
+	a5font=tfont_a5;
 	
-	ALLEGRO_STATE preinf_state;
-	al_store_state(&preinf_state, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti_scrinfo.bitmap);
 	al_set_clipping_rectangle(mapscreen_pos.x,mapscreen_pos.y,mapscreen_pos.tw(),mapscreen_pos.th());
 	{ //Show top-left info
@@ -6804,7 +6802,8 @@ void refresh(int32_t flags)
 		}
 	}
 	clear_a5_clip_rect();
-	al_restore_state(&preinf_state);
+	al_set_target_bitmap(rti_overlay.bitmap);
+	
 	// Show Errors & Details
 	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
 	//'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
@@ -10257,10 +10256,10 @@ int32_t select_command(const char *prompt,int32_t cmd)
 
 int32_t onCommand(int32_t cmd)
 {
-    restore_mouse();
+	popup_zqdialog_start();
     build_bic_list();
     int32_t ret=select_command("Select Command",cmd);
-    refresh(rALL);
+	popup_zqdialog_end();
     
     if(ret>=0)
     {
@@ -10313,7 +10312,6 @@ void domouse()
 	mousecomboposition=c;
 	
 	update_combobrush();
-	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
 	if(!tooltip_trigger.rect(x,y))
 	{
@@ -10321,6 +10319,10 @@ void domouse()
 	}
 	
 	++scrolldelay;
+	
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state,ALLEGRO_STATE_TARGET_BITMAP);
+	al_set_target_bitmap(rti_overlay.bitmap);
 	
 	bool x_on_list = false;
 	for(auto q = 0; q < num_combo_cols; ++q)
@@ -11692,17 +11694,17 @@ void domouse()
 			auto& btn = commands_list.subsquare(cmd);
 			if(!dis||rclick||shift||ctrl||alt)
 			{
-				FONT *tfont=font;
-				font=get_custom_font(CFONT_FAVCMD);
+				ALLEGRO_FONT *tfont=a5font;
+				a5font=get_custom_font_a5(CFONT_FAVCMD);
 				
-				if(do_layer_button_reset(btn.x,btn.y,btn.w,btn.h,
+				if(do_layer_button_reset_a5(btn.x,btn.y,btn.w,btn.h,
 					favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
 						? catchall_string[Map.CurrScr()->room]
 						: commands[favorite_commands[cmd]].name,
 					isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
 					true))
 				{
-					font=tfont;
+					a5font=tfont;
 					if(alt)
 					{
 						if(has_command_info(favorite_commands[cmd]))
@@ -11724,7 +11726,7 @@ void domouse()
 					}
 				}
 				
-				font=tfont;
+				a5font=tfont;
 			}
 			goto domouse_doneclick;
 		}
@@ -11822,6 +11824,7 @@ domouse_doneclick:
 		position_mouse_z(0);
 	}
 	font = tfont;
+	al_restore_state(&old_state);
 }
 
 int32_t d_viewpal_proc(int32_t msg, DIALOG *d, int32_t c)

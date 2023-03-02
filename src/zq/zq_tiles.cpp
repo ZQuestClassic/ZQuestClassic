@@ -1030,6 +1030,112 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 	return over;
 }
 
+void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags)
+{
+	if(flags&D_SELECTED)
+	{
+		al_draw_rectangle(x+0.5, y+0.5, x+w+0.5, y+h+0.5, jwin_a5_pal(jcDARK), 0);
+		++x;
+		++y;
+		--w;
+		--h;
+	}
+	al_draw_filled_rectangle(x+1,y+1,x+w-3,y+h-3,jwin_a5_pal(flags&D_SELECTED ? jcMEDDARK : jcBOX));
+	jwin_draw_frame_a5(x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
+	
+	//Forcibly fit the text within the button
+	char buf[512] = {0};
+	strcpy(buf, text);
+	
+	bool dis = (flags&D_DISABLED);
+	auto hei = al_get_font_line_height(a5font);
+	auto len = al_get_text_width(a5font,buf);
+	auto borderwid = 8;
+	if(len > w - borderwid + (dis ? 1 : 0))
+	{
+		auto ind = strlen(buf) - 1;
+		auto dotcount = 0;
+		while(len > w - borderwid + (dis ? 1 : 0))
+		{
+			if(dotcount >= 2)
+				buf[ind+2] = 0;
+			else ++dotcount;
+			buf[ind--] = '.';
+			len = al_get_text_width(a5font,buf);
+		}
+	}
+	if(dis)
+	{
+		++len; ++hei;
+	}
+	
+	auto tx = x+((w-len)/2);
+	auto ty = y+((h-hei)/2);
+	if(len > w-borderwid)
+	{
+		tx = x+borderwid/2;
+		len = w-borderwid;
+	}
+	if(hei > h-borderwid)
+	{
+		ty = y+borderwid/2;
+		hei = h-borderwid;
+	}
+	int rx,ry,rw,rh;
+	al_get_clipping_rectangle(&rx,&ry,&rw,&rh);
+	al_set_clipping_rectangle(tx,ty,len,hei);
+	
+	if(dis)
+		jwin_textout_a5_dis(a5font,jwin_a5_pal(jcDISABLED_FG),tx+1,ty+1,0,buf,AL5_INVIS,jwin_a5_pal(jcLIGHT));
+	else
+		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),tx+1,ty+1,0,buf,AL5_INVIS);
+	
+	al_set_clipping_rectangle(rx,ry,rw,rh);
+}
+
+bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)
+{
+	bool over=false;
+	
+	while(gui_mouse_b())
+	{
+		//vsync();
+		if(mouse_in_rect(x,y,w,h))
+		{
+			if(!over)
+			{
+				vsync();
+				draw_layer_button_a5(x, y, w, h, text, flags^D_SELECTED);
+				over=true;
+				
+				update_hw_screen();
+			}
+		}
+		else
+		{
+			if(over)
+			{
+				vsync();
+				draw_layer_button_a5(x, y, w, h, text, flags);
+				over=false;
+				
+				update_hw_screen();
+			}
+		}
+		rest(1);
+	}
+	
+	if(over)
+	{
+		vsync();
+		draw_layer_button_a5(x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
+		
+		update_hw_screen();
+	}
+	
+	return over;
+}
+
 bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin)
 {
 	bool over=false;
