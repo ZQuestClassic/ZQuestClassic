@@ -5441,18 +5441,6 @@ void grab_tile(int32_t tile,int32_t &cs)
 	popup_zqdialog_end();
 }
 
-void al5_invalid(int x, int y, int sz)
-{
-	if(InvalidStatic)
-		draw_static(x,y,sz,sz);
-	else
-	{
-		al_draw_filled_rectangle(x, y, x+sz, y+sz, AL5_BLACK);
-		al_draw_rectangle(x+2, y+2, x+sz-2, y+sz-2, AL5_WHITE, 0);
-		al_draw_x(x+2, y+2, x+sz-2, y+sz-2, AL5_WHITE, 0);
-	}
-}
-
 int32_t show_only_unused_tiles=4; //1 bit: hide used, 2 bit: hide unused, 4 bit: hide blank
 bool tile_is_used(int32_t tile)
 {
@@ -5503,7 +5491,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			{
 				if(a4_bmp_active())
 					rectfill(dest,x,y,x+l+1,y+l+1,get_zqdialog_a4_clear_color());
-				al5_invalid(a5x,a5y,l+2);
+				al5_invalid(a5x,a5y,l+2,l+2);
 			}
 		}
 		else
@@ -5560,7 +5548,7 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	}
 	else // No tiles copied
 	{
-		al5_invalid(a5x+34*mul, a5y+(216*mul)+yofs, 16*mul);
+		al5_invalid(a5x+34*mul, a5y+(216*mul)+yofs, 16*mul, 16*mul);
 	}
 	
 	
@@ -5642,7 +5630,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	}
 	else
 	{
-		al5_invalid(a5x+124*mul, a5y+(216*mul)+yofs, 16*mul);
+		al5_invalid(a5x+124*mul, a5y+(216*mul)+yofs, 16*mul, 16*mul);
 	}
 	
 	jwin_draw_frame_a5(a5x+(8*mul)-2,a5y+(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
@@ -16628,7 +16616,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	}
 	else
 	{
-		al5_invalid(a5x+31*mul, a5y+(216*mul)+yofs, 16*mul);
+		al5_invalid(a5x+31*mul, a5y+(216*mul)+yofs, 16*mul, 16*mul);
 	}
 	
 	jwin_draw_frame_a5(a5x+(53*mul)-2,a5y+(216*mul)+yofs-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
@@ -16664,7 +16652,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		}
 		else
 		{
-			al5_invalid(a5x+(136*mul), a5y+(216*mul)+yofs, 16*mul);
+			al5_invalid(a5x+(136*mul), a5y+(216*mul)+yofs, 16*mul, 16*mul);
 		}
 		
 		jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+132*mul,a5y+216*mul+yofs,ALLEGRO_ALIGN_RIGHT,"Cycle:",jwin_a5_pal(jcBOX));

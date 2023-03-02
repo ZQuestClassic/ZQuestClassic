@@ -5,9 +5,11 @@
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
 RenderTreeItem rti_overlay;
-RenderTreeItem rti_tooltip_hl;
 RenderTreeItem rti_scrborder;
+RenderTreeItem rti_tooltip_hl;
 RenderTreeItem rti_scrinfo;
+RenderTreeItem rti_minimap;
+RenderTreeItem rti_minimap_tth;
 RenderTreeItem rti_tooltip;
 
 static int zc_gui_mouse_x()
@@ -48,16 +50,21 @@ static void init_render_tree()
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 	
-	rti_tooltip_hl.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_overlay.bitmap = al_create_bitmap(screen->w, screen->h);
-	rti_scrinfo.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_scrborder.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_tooltip_hl.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_scrinfo.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_minimap.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_minimap_tth.bitmap = al_create_bitmap(screen->w, screen->h);
 	
 	rti_screen.children.push_back(&rti_overlay);
-	rti_screen.children.push_back(&rti_tooltip_hl);
 	rti_screen.children.push_back(&rti_scrborder);
+	rti_screen.children.push_back(&rti_tooltip_hl);
 	rti_screen.children.push_back(&rti_scrinfo);
+	rti_screen.children.push_back(&rti_minimap);
 	rti_screen.children.push_back(&rti_tooltip);
+	
+	rti_minimap.children.push_back(&rti_minimap_tth);
 	
 	rti_root.children.push_back(&rti_screen);
 	rti_root.children.push_back(&rti_dialogs);
