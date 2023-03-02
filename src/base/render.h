@@ -72,6 +72,9 @@ void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
+extern RenderTreeItem* active_dlg_rti;
+extern RenderTreeItem* active_a5_dlg_rti;
+extern RenderTreeItem* active_a4_dlg_rti;
 void save_debug_bitmaps(char const* pref = nullptr);
 int get_zqdialog_a4_clear_color();
 void clear_zqdialog_a4();
