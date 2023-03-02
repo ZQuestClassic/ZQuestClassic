@@ -204,9 +204,9 @@ void render_tree_draw(RenderTreeItem* rti)
 
 
 BITMAP* zqdialog_bg_bmp = nullptr;
-static RenderTreeItem* active_dlg_rti = nullptr;
-static RenderTreeItem* active_a5_dlg_rti = nullptr;
-static RenderTreeItem* active_a4_dlg_rti = nullptr;
+RenderTreeItem* active_dlg_rti = nullptr;
+RenderTreeItem* active_a5_dlg_rti = nullptr;
+RenderTreeItem* active_a4_dlg_rti = nullptr;
 
 void save_debug_bitmaps(char const* pref)
 {
@@ -255,7 +255,10 @@ static void pop_active_rti()
 	{
 		active_dlg_rti = rti_dialogs.children.back();
 		if(active_dlg_rti->a4_bitmap)
+		{
 			active_a4_dlg_rti = active_dlg_rti;
+			active_a4_dlg_rti->freeze_a4_bitmap_render = false;
+		}
 		else active_a5_dlg_rti = active_dlg_rti;
 		
 		if(!active_a5_dlg_rti && rti_dialogs.children.size() > 1)
@@ -325,6 +328,8 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		rti->transform.y = y;
 		rti_dialogs.children.push_back(rti);
 		rti_dialogs.visible = true;
+		if(active_a4_dlg_rti)
+			active_a4_dlg_rti->freeze_a4_bitmap_render = true;
 		active_dlg_rti = active_a4_dlg_rti = rti;
 		al_set_new_bitmap_flags(0);
 	}
