@@ -1135,7 +1135,8 @@ void box_out(const char *msg)
         sprintf(box_log_msg+box_msg_pos, "%s", msg);
     }
     
-    box_x += al_get_text_width(box_message_font, msg);
+    if(box_active)
+		box_x += al_get_text_width(box_message_font, msg);
     box_msg_pos+=(int32_t)strlen(msg);
     
     if(remainder != "")
