@@ -6479,15 +6479,15 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		{
 			if(draw_mode!=dm_cpool)
 			{
-				font = lfont_l;
+				a5font = get_zc_font_a5(font_lfont_l);
 				
-				jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
-				rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
-				jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
-				rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
+				jwin_draw_frame_a5(favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
+				al_draw_filled_rectangle(favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-2,favorites_window.y+favorites_window.h-2,jwin_a5_pal(jcBOX));
+				jwin_draw_frame_a5(favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
+				al_draw_filled_rectangle(favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale),favorites_list.y+(favorites_list.h*favorites_list.yscale),jwin_a5_pal(jcBOXFG));
 				
-				textprintf_ex(menu1,lfont_l,favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
-				BITMAP* subb = create_bitmap_ex(8,16,16);
+				jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),favorites_list.x-2,favorites_list.y-15,0,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
+				ALLEGRO_BITMAP* subb = al_create_bitmap(16,16);
 				if(draw_mode==dm_alias)
 				{
 					for(int32_t col=0; col<favorites_list.w; ++col)
@@ -6497,27 +6497,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
 							auto& sqr = favorites_list.subsquare(col,row);
 							if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
-							{
-								if(InvalidStatic)
-								{
-									for(int32_t dy=0; dy<sqr.h; dy++)
-									{
-										for(int32_t dx=0; dx<sqr.w; dx++)
-										{
-											menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-										}
-									}
-								}
-								else
-								{
-									xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
-								}
-							}
+								al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h);
 							else
 							{
-								clear_bitmap(subb);
-								draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_comboaliases[i]],0,0,1);
-								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
+								al_set_target_bitmap(subb);
+								clear_a5_bmp(a5color(0));
+								draw_combo_alias_thumbnail_a5(&combo_aliases[favorite_comboaliases[i]],0,0,sqr.cx(),sqr.cy());
+								al_set_target_bitmap(oldtarg);
+								al_draw_scaled_bitmap(subb, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h, 0);
 							}
 						}
 					}
@@ -6531,37 +6518,24 @@ void draw_screenunit(int32_t unit, int32_t flags)
 							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
 							auto& sqr = favorites_list.subsquare(col,row);
 							if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
-							{
-								if(InvalidStatic)
-								{
-									for(int32_t dy=0; dy<sqr.h; dy++)
-									{
-										for(int32_t dx=0; dx<sqr.w; dx++)
-										{
-											menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-										}
-									}
-								}
-								else
-								{
-									xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
-								}
-							}
+								al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h);
 							else
 							{
-								clear_bitmap(subb);
-								put_combo(subb,0,0,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
-								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
+								al_set_target_bitmap(subb);
+								clear_a5_bmp(a5color(0));
+								a5_draw_combo(0,0,favorite_combos[i],CSet,false,255,sqr.cx(),sqr.cy()); //!TODO Flags&(cFLAGS|cWALK)
+								al_set_target_bitmap(oldtarg);
+								al_draw_scaled_bitmap(subb, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h, 0);
 							}
 						}
 					}
 				}
-				destroy_bitmap(subb);
+				al_destroy_bitmap(subb);
 				
 				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				draw_text_button(menu1,favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
-				draw_text_button(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),0,true);
-				draw_text_button(menu1,favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),0,true);
+				jwin_draw_text_button_a5(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",0);
+				jwin_draw_text_button_a5(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",0);
+				jwin_draw_text_button_a5(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",0);
 			}
 		}
 		break;
@@ -22550,6 +22524,72 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
     }
 }
 
+void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx, int targy)
+{
+	if(!targx) targx = x+8;
+	if(!targy) targy = y+8;
+    if(!combo->combo && (combo->width>0||combo->height>0||combo->combos[0]>0))
+    {
+        int32_t cur_layer, temp_layer;
+        
+        int32_t cw=combo->width+1;
+        int32_t ch=combo->height+1;
+        int32_t dw=cw*16;
+        int32_t dh=ch*16;
+        int32_t sw=16, sh=16, sx=0, sy=0;
+        
+        if(cw<ch)
+        {
+            sw=((cw<<4)/ch);
+            sx=((16-sw)>>1);
+        }
+        else
+        {
+            sh=((ch<<4)/cw);
+            sy=((16-sh)>>1);
+        }
+        
+		for(int32_t z=0; z<=comboa_lmasktotal(combo->layermask); z++)
+		{
+			int32_t k=0;
+			cur_layer=0;
+			temp_layer=combo->layermask;
+			
+			while((temp_layer!=0)&&(k<z))
+			{
+				if(temp_layer&1)
+				{
+					k++;
+				}
+				
+				cur_layer++;
+				temp_layer = temp_layer>>1;
+			}
+			
+			for(int32_t y2=0; (y2<dh)&&((y2>>4)<=combo->height); y2+=16)
+			{
+				for(int32_t x2=0; (x2<dw)&&((x2>>4)<=combo->width); x2+=16)
+				{
+					int32_t cpos = (z*(combo->width+1)*(combo->height+1))+(((y2/16)*(combo->width+1))+(x2/16));
+					
+					if(combo->combos[cpos])
+						a5_draw_combo(x+x2,y+y2,combo->combos[cpos],combo->csets[cpos], z!=0, 255, targx+x2, targy+y2);
+				}
+			}
+		}
+    }
+    else
+    {
+        if(combobuf[combo->combo].tile>0)
+			a5_draw_combo(x,y,combo->combo,combo->cset,false,255,targx,targy);
+        else
+        {
+            al_draw_filled_rectangle(x,y,x+16,y+16,a5color(0));
+            al_draw_filled_rectangle(x+3,y+3,x+12,y+12,AL5_DRED);
+        }
+    }
+}
+
 int32_t d_comboat_proc(int32_t msg,DIALOG *d,int32_t)
 {
     switch(msg)
@@ -31508,7 +31548,7 @@ void load_size_poses()
 		int upscale_mm = 3;
 		int xwid = real_minimap.tw()*(upscale_mm-1);
 		int xhei = real_minimap.th()*(upscale_mm-1);
-		minimap_zoomed.set(minimap.x, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
+		minimap_zoomed.set(0, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
 		real_minimap_zoomed.set(minimap_zoomed.x+3, minimap_zoomed.y+5, real_minimap.w, real_minimap.h, real_minimap.xscale*upscale_mm, real_minimap.yscale*upscale_mm);
 		real_minimap_zoomed.fw = real_minimap_zoomed.xscale*8;
 		real_minimap_zoomed.fh = real_minimap_zoomed.yscale*8;

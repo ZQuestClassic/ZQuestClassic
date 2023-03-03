@@ -2929,6 +2929,17 @@ void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool m
 	a5_draw_tile8(x,y,(tile<<2)|(mini&3),cs,flip,mask,alpha);
 }
 
+void a5_draw_combo(int x, int y, int combo, int cs, bool mask, unsigned char alpha, int targx, int targy)
+{
+	if(combo<0 || combo>=MAXCOMBOS || !alpha)
+		return;
+	if(targx < 0) targx = x+8;
+	if(targy < 0) targy = y+8;
+	int tile = combo_tile(combo,targx,targy);
+	newcombo const& cmb = combobuf[combo];
+	a5_draw_tile(x,y,tile,cs,cmb.csets,cmb.flip,mask,alpha);
+}
+
 
 /* end of tiles.cc */
 

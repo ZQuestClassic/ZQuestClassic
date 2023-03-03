@@ -70,10 +70,11 @@ ALLEGRO_COLOR AL5_BLACK = al_map_rgb(0,0,0);
 ALLEGRO_COLOR AL5_WHITE = al_map_rgb(255,255,255);
 ALLEGRO_COLOR AL5_YELLOW = al_map_rgb(255,255,0);
 ALLEGRO_COLOR AL5_PINK = al_map_rgb(255,0,255);
-ALLEGRO_COLOR AL5_LGRAY = al_map_rgb(85,85,85);
-ALLEGRO_COLOR AL5_DGRAY = al_map_rgb(170,170,170);
+ALLEGRO_COLOR AL5_DGRAY = al_map_rgb(85,85,85);
+ALLEGRO_COLOR AL5_LGRAY = al_map_rgb(170,170,170);
 ALLEGRO_COLOR AL5_BLUE = al_map_rgb(85,85,255);
 ALLEGRO_COLOR AL5_LRED = al_map_rgb(255,85,85);
+ALLEGRO_COLOR AL5_DRED = al_map_rgb(178,36,36);
 
 ALLEGRO_COLOR AL5_COL_SOLIDITY = al_map_rgb(178,36,36);
 ALLEGRO_COLOR AL5_COL_EFFECT = al_map_rgb(85,255,85);
@@ -211,8 +212,8 @@ void al5_invalid(int x, int y, int w, int h, bool sides)
 	{
 		al_draw_filled_rectangle(x, y, x+w, y+h, AL5_BLACK);
 		if(sides)
-			al_draw_rectangle(x+2, y+2, x+w-2, y+h-2, AL5_WHITE, 0);
-		al_draw_x(x+2, y+2, x+w-2, y+h-2, AL5_WHITE, 0);
+			al_draw_rectangle(x+2.5, y+2.5, x+w-2.5, y+h-2.5, AL5_LGRAY, 1);
+		al_draw_x(x+3.5, y+3.5, x+w-3, y+h-3, AL5_WHITE, 0);
 	}
 }
 

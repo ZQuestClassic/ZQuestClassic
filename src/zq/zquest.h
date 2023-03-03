@@ -782,6 +782,7 @@ extern combo_pool combo_pools[MAXCOMBOPOOLS];
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
+void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx = -1, int targy = -1);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
