@@ -105,7 +105,7 @@ void Window::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 void Window::realize(DialogRunner& runner)
 {
 	setFramed(false); //don't allow frame on window proc
-	runner.set_dlg_sz(x,y,getWidth()+1,getHeight()+1);
+	runner.set_dlg_sz(x,y,getWidth(),getHeight());
 	x = y = 0;
 	
 	Widget::realize(runner);

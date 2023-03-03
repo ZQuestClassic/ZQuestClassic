@@ -199,7 +199,6 @@ bool do_slots(map<string, disassembled_script_data> &scripts);
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
-bool cancelgetnum=false;
 
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
 int32_t mousecomboposition;
@@ -1904,42 +1903,6 @@ int32_t onIncColour()
 	}
  }
 
-static DIALOG getnum_dlg[] =
-{
-    // (dialog proc)       (x)   (y)    (w)     (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,        80,   80,     160,    72,   vc(0),              vc(11),           0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
-    { jwin_rtext_proc,      114,  104+4,  48,     8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Value:", NULL, NULL },
-    { jwin_edit_proc,       168,  104,    48,     16,    0,                 0,                0,       0,          6,             0,       NULL, NULL, NULL },
-    { jwin_button_proc,     90,   126,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  126,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t getnumber(const char *prompt,int32_t initialval)
-{
-    cancelgetnum=true;
-    char buf[20];
-    sprintf(buf,"%d",initialval);
-    getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=lfont;
-    getnum_dlg[2].dp=(void *)buf;
-    
-    large_dialog(getnum_dlg);
-        
-    int32_t ret=zc_popup_dialog(getnum_dlg,2);
-    
-    if(ret!=0&&ret!=4)
-    {
-        cancelgetnum=false;
-    }
-    
-    if(ret==3)
-        return atoi(buf);
-        
-    return initialval;
-}
-
 static DIALOG save_tiles_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -2893,44 +2856,10 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 
 int32_t gettilepagenumber(const char *prompt, int32_t initialval)
 {
-    char buf[20];
-    sprintf(buf,"%d",initialval);
-    getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=lfont;
-    getnum_dlg[2].dp=buf;
-    
-    large_dialog(getnum_dlg);
-        
-    int32_t ret = zc_popup_dialog(getnum_dlg,2);
-    
-    if(ret==3)
-        return atoi(buf);
-        
-    return -1;
-}
-
-int32_t gethexnumber(const char *prompt,int32_t initialval)
-{
-    cancelgetnum=true;
-    char buf[20];
-    sprintf(buf,"%X",initialval);
-    getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=lfont;
-    getnum_dlg[2].dp=(void *)buf;
-    
-    large_dialog(getnum_dlg);
-        
-    int32_t ret=zc_popup_dialog(getnum_dlg,2);
-    
-    if(ret!=0&&ret!=4)
-    {
-        cancelgetnum=false;
-    }
-    
-    if(ret==3)
-        return zc_xtoi(buf);
-        
-    return initialval;
+	bool c;
+	int r = getnumber(prompt,initialval,&c);
+    if(c) return -1;
+	return r;
 }
 
 void update_combo_cycling()
@@ -4251,9 +4180,10 @@ int32_t onDecreaseCSet()
 
 int32_t onGotoPage()
 {
-    int32_t choosepage=getnumber("Scroll to Combo Page", 0);
+	bool c;
+    int32_t choosepage=getnumber("Scroll to Combo Page", 0, &c);
     
-    if(!cancelgetnum)
+    if(!c)
     {
 		if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
 		{
@@ -4882,7 +4812,7 @@ void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse)
     }
 }
 
-int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
 {
     PALETTE temppal;
     
@@ -4902,23 +4832,27 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     set_palette(dstpal);
     
-    BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
-    int32_t _w = screen->w-1;
-    int32_t _h = screen->h-1;
-    
-    // gray scale the current frame
-    for(int32_t y=0; y<_h; y++)
-    {
-        for(int32_t x=0; x<_w; x++)
-        {
-            int32_t c = screen->line[y][x];
-            int32_t gray = zc_min((temppal[c].r*42 + temppal[c].g*75 + temppal[c].b*14) >> 7, 63);
-            graypic->line[y][x] = gray;
-        }
-    }
-    
-    blit(graypic,screen,0,0,0,0,screen->w,screen->h);
-    destroy_bitmap(graypic);
+	if(grayout)
+	{
+		BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
+		int32_t _w = screen->w-1;
+		int32_t _h = screen->h-1;
+		
+		// gray scale the current frame
+		for(int32_t y=0; y<_h; y++)
+		{
+			for(int32_t x=0; x<_w; x++)
+			{
+				int32_t c = screen->line[y][x];
+				int32_t gray = zc_min((temppal[c].r*42 + temppal[c].g*75 + temppal[c].b*14) >> 7, 63);
+				graypic->line[y][x] = gray;
+			}
+		}
+		
+		blit(graypic,screen,0,0,0,0,screen->w,screen->h);
+		destroy_bitmap(graypic);
+	}
+
 #ifdef __GNUC__
 	#pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
@@ -32517,7 +32451,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(elist_dlg);
     jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
-    jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
@@ -32949,21 +32882,15 @@ int32_t save_config_file()
     return 0;
 }
 
-int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t d_timer_proc(int32_t msg, DIALOG*, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    d=d;
-    
     switch(msg)
     {
     case MSG_IDLE:
 #ifdef _WIN32
         if(zqUseWin32Proc != FALSE)
             win32data.Update(Frameskip); //experimental win32 fixes
-            
 #endif
-            
         // This has been crashing on Windows, and it saves plenty without it
         //check_autosave();
         break;

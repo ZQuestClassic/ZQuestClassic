@@ -40,7 +40,6 @@
 #ifdef ALLEGRO_MACOSX
 extern int32_t midi_strict; //L
 #endif
-extern bool cancelgetnum;
 
 extern int32_t RulesetDialog;
 
@@ -256,7 +255,6 @@ void rebuild_string_list();
 int32_t onResetTransparency();
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t getnumber(const char *prompt,int32_t initialval);
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
 void about_module(const char *prompt,int32_t initialval);
@@ -282,7 +280,6 @@ void do_importdoorset(const char *prompt,int32_t initialval);
 void do_exportdoorset(const char *prompt,int32_t initialval);
 
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
-int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
@@ -417,7 +414,7 @@ INLINE int32_t pal_sum(RGB p)
 
 void get_bw(RGB *pal,int32_t &black,int32_t &white);
 void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse);
-int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout = true);
 int32_t onViewPic();
 int32_t load_the_map();
 int32_t onViewMap();

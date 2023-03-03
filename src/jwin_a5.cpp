@@ -28,6 +28,8 @@ extern int32_t joystick_index;
 extern bool is_zquest();
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
+//
+int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 //Externed from jwin.cpp
 extern bool no_hline;
 extern char abc_keypresses[1024];
@@ -82,6 +84,13 @@ void jwin_reset_a5_colors()
 }
 void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain)
 {
+	static ALLEGRO_COLOR buf[9];
+	if(!colors)
+	{
+		colors = buf;
+		for(int q = 1; q <= 8; ++q)
+			buf[q] = a5color(jwin_pal[q]);
+	}
 	for(int q = 1; q <= 8; ++q)
 	{
 		jwin_a5_colors[q] = (devcfg_active ? db_a5_colors : colors)[q];
@@ -94,6 +103,12 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain)
 		colors[q] = (getmain ? tmpcol : jwin_a5_colors)[q];
 }
 
+//
+void get_centered_xy(int& x, int& y, int w, int h)
+{
+	x = (zq_screen_w-w)/2;
+	y = (zq_screen_h-h)/2;
+}
 //Generic A5 helpers
 
 void cliprect::getclip()
@@ -241,16 +256,16 @@ void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style)
 		break;
 	}
 	
-	al_draw_hline(x, y+1, x+w-1, jwin_a5_pal(c1));
+	al_draw_hline(x, y, x+w-1, jwin_a5_pal(c1));
 	al_draw_vline(x+1, y+1, y+h-1, jwin_a5_pal(c1));
 	
-	al_draw_hline(x+1, y+2, x+w-2, jwin_a5_pal(c2));
+	al_draw_hline(x+1, y+1, x+w-2, jwin_a5_pal(c2));
 	al_draw_vline(x+2, y+2, y+h-2, jwin_a5_pal(c2));
 	
-	al_draw_hline(x+1, y+h-1, x+w-1, jwin_a5_pal(c3));
+	al_draw_hline(x+1, y+h-2, x+w-1, jwin_a5_pal(c3));
 	al_draw_vline(x+w-1, y+1, y+h-2, jwin_a5_pal(c3));
 	
-	al_draw_hline(x, y+h, x+w, jwin_a5_pal(c4));
+	al_draw_hline(x, y+h-1, x+w, jwin_a5_pal(c4));
 	al_draw_vline(x+w, y, y+h-1, jwin_a5_pal(c4));
 }
 void jwin_draw_frag_frame_a5(int x1, int y1, int w, int h, int fw, int fh, int style)
@@ -530,6 +545,103 @@ void jwin_textout_a5_shd(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, in
 			break;
 	}
 	al_draw_text(f,tc,x,y,flag,str);
+}
+
+void jwin_textout_a5_scl(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc)
+{
+	int w = al_get_text_width(f, str);
+	int h = al_get_font_line_height(f);
+	float dx = x, dy = y;
+	
+	switch(flag)
+	{
+		case ALLEGRO_ALIGN_CENTRE:
+			dx -= w/2;
+			break;
+		case ALLEGRO_ALIGN_RIGHT:
+			dy -= w;
+			break;
+	}
+	
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	set_bitmap_create_flags(false);
+	ALLEGRO_BITMAP* buf = al_create_bitmap(w,h);
+	al_set_target_bitmap(buf);
+	jwin_textout_a5(f,tc,0,0,0,str,bgc);
+	al_set_target_bitmap(dest);
+	al_draw_scaled_bitmap(buf,0,0,w,h,dx,dy,w*scl,h*scl,0);
+	al_destroy_bitmap(buf);
+}
+void jwin_textout_a5_scl_dis(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR dis_c)
+{
+	int w = al_get_text_width(f, str)+1;
+	int h = al_get_font_line_height(f)+1;
+	float dx = x, dy = y;
+	
+	switch(flag)
+	{
+		case ALLEGRO_ALIGN_CENTRE:
+			dx -= w/2;
+			break;
+		case ALLEGRO_ALIGN_RIGHT:
+			dy -= w;
+			break;
+	}
+	
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	set_bitmap_create_flags(false);
+	ALLEGRO_BITMAP* buf = al_create_bitmap(w,h);
+	al_set_target_bitmap(buf);
+	jwin_textout_a5_dis(f,tc,0,0,0,str,bgc,dis_c);
+	al_set_target_bitmap(dest);
+	al_draw_scaled_bitmap(buf,0,0,w,h,dx,dy,w*scl,h*scl,0);
+	al_destroy_bitmap(buf);
+}
+void jwin_textout_a5_scl_shd(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR shd_c, int shdty)
+{
+	int w = al_get_text_width(f, str);
+	int h = al_get_font_line_height(f);
+	float dx = x, dy = y;
+	int xofs=0,yofs=0;
+	switch(shdty)
+	{
+		case sstsNORMAL:
+			break;
+		case sstsSHADOW:
+		case sstsSHADOWED:
+			++w, ++h;
+			break;
+		case sstsSHADOWU:
+		case sstsSHADOWEDU:
+			w+=2, ++h, ++xofs;
+			break;
+		case sstsOUTLINE8:
+		case sstsOUTLINED8:
+		case sstsOUTLINEPLUS:
+		case sstsOUTLINEDPLUS:
+		case sstsOUTLINEX:
+		case sstsOUTLINEDX:
+			w+=2, h+=2, ++xofs, ++yofs;
+			break;
+	}
+	switch(flag)
+	{
+		case ALLEGRO_ALIGN_CENTRE:
+			dx -= w/2;
+			break;
+		case ALLEGRO_ALIGN_RIGHT:
+			dy -= w;
+			break;
+	}
+	
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	set_bitmap_create_flags(false);
+	ALLEGRO_BITMAP* buf = al_create_bitmap(w,h);
+	al_set_target_bitmap(buf);
+	jwin_textout_a5_shd(f,tc,xofs,yofs,0,str,bgc,shd_c,shdty);
+	al_set_target_bitmap(dest);
+	al_draw_scaled_bitmap(buf,0,0,w,h,dx,dy,w*scl,h*scl,0);
+	al_destroy_bitmap(buf);
 }
 
 void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type)
@@ -1882,6 +1994,58 @@ int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c)
 		}
 	}
 	return ret;
+}
+
+////getnumber
+static DIALOG getnum_dlg[] =
+{
+	// (dialog proc)       (x)   (y)    (w)     (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+	{ jwin_win_proc_a5,     0,    0,     240,   108,  0,       0,       0,       D_EXIT,     0,             0,       NULL, NULL,  NULL },
+	{ jwin_text_proc_a5,    48,   40,    72,     12,   0,       0,       0,       0,          0,             0,       "Number:", NULL,  NULL },
+	{ jwin_edit_proc_a5,    134,  36,    72,     24,   0,       0,       0,       0,          6,             0,       NULL, NULL,  NULL },
+	{ jwin_button_proc_a5,  15,   72,    91,     31,   0,       0,       13,      D_EXIT,     0,             0,       "OK", NULL,  NULL },
+	{ jwin_button_proc_a5,  135,  72,    91,     31,   0,       0,       27,      D_EXIT,     0,             0,       "Cancel", NULL,  NULL },
+	{ jwin_rtext_proc_a5,   126,  40,    0,      0,    0,       0,       0,       0,          0,             0,       "0x", NULL,  NULL },
+	{ d_timer_proc,         0,    0,     0,      0,    0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
+	{ NULL,                 0,    0,     0,      0,    0,       0,       0,       0,          0,             0,       NULL, NULL,  NULL }
+};
+
+static int run_getnumber(const char *prompt, int initialval, bool* cancelled, bool hex)
+{
+	char buf[20];
+	if(hex)
+		sprintf(buf,"%X",initialval);
+	else sprintf(buf,"%d",initialval);
+	getnum_dlg[0].dp = (void*)prompt;
+	getnum_dlg[0].dp2 = get_custom_font_a5(CFONT_TITLE);
+	getnum_dlg[2].dp = buf;
+	SETFLAG(getnum_dlg[5].flags,D_HIDDEN,!hex);
+	
+	ALLEGRO_FONT* dfont = get_custom_font_a5(CFONT_DLG);
+	int ty = getnum_dlg[2].y + (getnum_dlg[2].h-al_get_font_line_height(dfont))/2;
+	getnum_dlg[1].y = getnum_dlg[5].y = ty;
+	
+	if(cancelled) *cancelled = false;
+	
+	int ret = initialval;
+	int x, y, w=getnum_dlg[0].w, h=getnum_dlg[0].h;
+	get_centered_xy(x,y,w,h);
+	popup_zqdialog_start_a5(x,y,w,h);
+	if(new_popup_dlg(getnum_dlg,2)==3)
+		ret = (hex?zc_xtoi:atoi)(buf);
+	else if(cancelled)
+		*cancelled = true;
+	popup_zqdialog_end_a5();
+	
+	return ret;
+}
+int getnumber(const char *prompt, int initialval, bool* cancelled)
+{
+	return run_getnumber(prompt,initialval,cancelled,false);
+}
+int getnumber_hex(const char *prompt, int initialval, bool* cancelled)
+{
+	return run_getnumber(prompt,initialval,cancelled,true);
 }
 
 //JWin A5 procs

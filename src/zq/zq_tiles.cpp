@@ -17012,9 +17012,10 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				
 			case KEY_P:
 			{
-				int32_t choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0));
+				bool c;
+				int32_t choosepage=getnumber("Goto Page", (PreFillComboEditorPage?page:0), &c);
 				
-				if(!cancelgetnum)
+				if(!c)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
 					
 				cmb=tile2=(page<<8)+(cmb&0xFF);
@@ -17597,9 +17598,10 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 			
 			case KEY_P:
 			{
-				int32_t choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0));
+				bool c;
+				int32_t choosepage = getnumber("Goto Page", (PreFillComboEditorPage?page:0), &c);
 				
-				if(!cancelgetnum)
+				if(!c)
 					page=(zc_min(choosepage,COMBO_PAGES-1));
 					
 				tile=tile2=(page<<8)+(tile&0xFF);

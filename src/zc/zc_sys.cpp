@@ -104,7 +104,6 @@ static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
-int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -7278,34 +7277,6 @@ int32_t onItems()
 	return onCheatConsole();
 }
 
-static DIALOG getnum_dlg[] =
-{
-	// (dialog proc)	   (x)   (y)	(w)	 (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-	{ jwin_win_proc,		80,   80,	 160,	72,   vc(0),  vc(11),  0,	   D_EXIT,	 0,			 0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		  104,  104+4,  48,	 8,	vc(0),  vc(11),  0,	   0,		  0,			 0, (void *) "Number:", NULL,  NULL },
-	{ jwin_edit_proc,	   168,  104,	48,	 16,	0,	 0,	   0,	   0,		  6,			 0,	   NULL, NULL,  NULL },
-	{ jwin_button_proc,	 90,   126,	61,	 21,   vc(0),  vc(11),  13,	  D_EXIT,	 0,			 0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	 170,  126,	61,	 21,   vc(0),  vc(11),  27,	  D_EXIT,	 0,			 0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-int32_t getnumber(const char *prompt,int32_t initialval)
-{
-	char buf[20];
-	sprintf(buf,"%d",initialval);
-	getnum_dlg[0].dp=(void *)prompt;
-	getnum_dlg[0].dp2=lfont;
-	getnum_dlg[2].dp=buf;
-	
-	large_dialog(getnum_dlg);
-		
-	if(zc_popup_dialog(getnum_dlg,2)==3)
-		return atoi(buf);
-		
-	return initialval;
-}
-
 int32_t onLife()
 {
 	int value = vbound(getnumber("Life",game->get_life()),1,game->get_maxlife());
@@ -8493,7 +8464,6 @@ void fix_dialogs()
 	jwin_center_dialog(gamepad_dlg);
 	jwin_center_dialog(credits_dlg);
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(keyboard_control_dlg);
 	jwin_center_dialog(midi_dlg);

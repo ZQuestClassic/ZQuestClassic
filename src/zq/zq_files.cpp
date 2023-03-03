@@ -29,6 +29,7 @@
 #include "zq_tiles.h"
 #include "zq_custom.h"
 #include "dialog/info.h"
+#include "jwin_a5.h"
 #include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
@@ -1527,12 +1528,10 @@ int32_t onImport_Combos()
 
 int32_t onImport_Combos_old()
 {
-    int32_t ret=getnumber("Import Start Page",0);
+	bool c;
+    int32_t ret=getnumber("Import Start Page",0,&c);
     
-    if(cancelgetnum)
-    {
-        return D_O_K;
-    }
+    if(c) return D_O_K;
     
     bound(ret,0,COMBO_PAGES-1);
     
@@ -1609,12 +1608,10 @@ int32_t onExport_Combos_old()
 
 int32_t onImport_Tiles()
 {
-    int32_t ret=getnumber("Import Start Page",0);
+	bool c;
+    int32_t ret=getnumber("Import Start Page",0,&c);
     
-    if(cancelgetnum)
-    {
-        return D_O_K;
-    }
+    if(c) return D_O_K;
     
     bound(ret,0,TILE_PAGES-1);
     
