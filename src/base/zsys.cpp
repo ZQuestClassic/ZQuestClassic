@@ -2188,7 +2188,6 @@ void copy_dialog(DIALOG **to, DIALOG *from)
             case d_tri_frame_proc:
             case d_vsync_proc:
             case d_warpbutton_proc:
-            case d_warpdestsel_proc:
             case d_warplist_proc:
             case d_wclist_proc:
             case d_wflag_proc:
@@ -2313,7 +2312,6 @@ void free_dialog(DIALOG **dlg)
             case d_tri_frame_proc:
             case d_vsync_proc:
             case d_warpbutton_proc:
-            case d_warpdestsel_proc:
             case d_warplist_proc:
             case d_wclist_proc:
             case d_wflag_proc:

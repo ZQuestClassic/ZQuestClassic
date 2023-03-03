@@ -118,7 +118,8 @@ extern char *datafile_str;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5];
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
@@ -973,7 +974,6 @@ const char *warptypelist(int32_t index, int32_t *list_size);
 
 //int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
-int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
 int32_t onTimedWarp();

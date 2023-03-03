@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
+#include "drawing.h"
 
 #include "metadata/metadata.h"
 
@@ -139,14 +140,28 @@ void load_mice()
 
 void load_icons()
 {
+	BITMAP* buf = create_bitmap_ex(8,16,16);
     for(int32_t i=0; i<ICON_BMP_MAX; i++)
     {
         for(int32_t j=0; j<4; j++)
         {
-            icon_bmp[i][j] = create_bitmap_ex(8,16,16);
-            blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
-        }
+            blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,j*17+1,0,0,16,16);
+			icon_bmp[i][j] = all_get_a5_bitmap(buf);
+		}
+		switch(i)
+		{
+			case ICON_BMP_WARPDEST:
+			{
+				blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,1,0,0,16,16);
+				replColor(buf, 0xE7, 0xEA, 0xEA, false);
+				replColor(buf, 0xE8, 0xE2, 0xE2, false);
+				icon_bmp[i][4] = all_get_a5_bitmap(buf);
+				break;
+			}
+			default: icon_bmp[i][4] = nullptr;
+		}
     }
+	destroy_bitmap(buf);
 }
 
 void load_selections()

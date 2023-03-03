@@ -353,23 +353,23 @@ void jwin_draw_frag_frame_a5(int x1, int y1, int w, int h, int fw, int fh, int s
 	al_draw_filled_rectangle(x1, y1, x2+1, yc+1, AL5_BLACK);
 	al_draw_filled_rectangle(x1, yc, xc+1, y2+1, AL5_BLACK);
 	
-	al_draw_hline(x1-2, y1-2, x2+3, jwin_a5_pal(c1));
-	al_draw_hline(x1-1, y1-1, x2+2, jwin_a5_pal(c2));
+	al_draw_hline(x1-1, y1-2, x2+3, jwin_a5_pal(c1));
+	al_draw_hline(x1, y1-1, x2+2, jwin_a5_pal(c2));
 	
-	al_draw_vline(x1-2, y1-2, y2+3, jwin_a5_pal(c1));
-	al_draw_vline(x1-1, y1-1, y2+2, jwin_a5_pal(c2));
+	al_draw_vline(x1-1, y1-2, y2+3, jwin_a5_pal(c1));
+	al_draw_vline(x1, y1-1, y2+2, jwin_a5_pal(c2));
 	
-	al_draw_hline(x1-2, y2+2, xc+3, jwin_a5_pal(c3));
-	al_draw_hline(x1-1, y2+1, xc+2, jwin_a5_pal(c4));
+	al_draw_hline(x1-1, y2+2, xc+3, jwin_a5_pal(c3));
+	al_draw_hline(x1, y2+1, xc+2, jwin_a5_pal(c4));
 	
-	al_draw_vline(x2+2, y1-2, yc+3, jwin_a5_pal(c3));
-	al_draw_vline(x2+1, y1-1, yc+2, jwin_a5_pal(c4));
+	al_draw_vline(x2+3, y1-2, yc+3, jwin_a5_pal(c3));
+	al_draw_vline(x2+2, y1-1, yc+2, jwin_a5_pal(c4));
 	
 	al_draw_hline(xc+2, yc+2, x2+3, jwin_a5_pal(c3));
 	al_draw_hline(xc+1, yc+1, x2+2, jwin_a5_pal(c4));
 	
-	al_draw_vline(xc+2, yc+2, y2+3, jwin_a5_pal(c3));
-	al_draw_vline(xc+1, yc+1, y2+2, jwin_a5_pal(c4));
+	al_draw_vline(xc+3, yc+2, y2+3, jwin_a5_pal(c3));
+	al_draw_vline(xc+2, yc+1, y2+2, jwin_a5_pal(c4));
 }
 void jwin_draw_minimap_frame_a5(int x,int y,int w,int h,int scrsz,int style)
 {
