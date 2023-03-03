@@ -275,7 +275,7 @@ int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32
 
 /* event handler that closes a dialog */
 int32_t close_dlg();
-int32_t mouse_in_rect(int32_t x,int32_t y,int32_t w,int32_t h);
+bool mouse_in_rect(int x,int y,int w,int h);
 
 void bestfit_init(void);
 int32_t bestfit_color_range(AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t b, uint8_t start, uint8_t end);

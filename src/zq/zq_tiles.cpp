@@ -1034,14 +1034,14 @@ void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 {
 	if(flags&D_SELECTED)
 	{
-		al_draw_rectangle(x+0.5, y+0.5, x+w+0.5, y+h+0.5, jwin_a5_pal(jcDARK), 0);
+		al_draw_rectangle(x+0.5, y+0.5, x+w-0.5, y+h-0.5, jwin_a5_pal(jcDARK), 0);
 		++x;
 		++y;
 		--w;
 		--h;
 	}
-	al_draw_filled_rectangle(x+1,y+1,x+w-3,y+h-3,jwin_a5_pal(flags&D_SELECTED ? jcMEDDARK : jcBOX));
-	jwin_draw_frame_a5(x, y, w, h, (flags&D_SELECTED ? FR_DARK : FR_BOX));
+	al_draw_filled_rectangle(x+1,y+1,x+w-2,y+h-2,jwin_a5_pal(flags&D_SELECTED ? jcMEDDARK : jcBOX));
+	jwin_draw_frame_a5(x, y, w, h, (flags&D_SELECTED ? FR_MEDDARK : FR_BOX));
 	
 	//Forcibly fit the text within the button
 	char buf[512] = {0};
@@ -1081,8 +1081,8 @@ void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 		ty = y+borderwid/2;
 		hei = h-borderwid;
 	}
-	int rx,ry,rw,rh;
-	al_get_clipping_rectangle(&rx,&ry,&rw,&rh);
+	cliprect rc;
+	rc.getclip();
 	al_set_clipping_rectangle(tx,ty,len,hei);
 	
 	if(dis)
@@ -1090,48 +1090,21 @@ void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 	else
 		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),tx+1,ty+1,0,buf,AL5_INVIS);
 	
-	al_set_clipping_rectangle(rx,ry,rw,rh);
+	rc.setclip();
 }
 
 bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag)
 {
-	bool over=false;
+	popup_zqdialog_start_a5(x,y,w+1,h+1);
+	draw_layer_button_a5(0,0,w,h,text,flags&~D_SELECTED);
+	popup_zqdialog_start_a5(x,y,w+1,h+1);
+	draw_layer_button_a5(0,0,w,h,text,flags|D_SELECTED);
+	bool over = do_over_area(0,0,w,h,flags&D_SELECTED);
+	popup_zqdialog_end_a5();
+	popup_zqdialog_end_a5();
 	
-	while(gui_mouse_b())
-	{
-		//vsync();
-		if(mouse_in_rect(x,y,w,h))
-		{
-			if(!over)
-			{
-				vsync();
-				draw_layer_button_a5(x, y, w, h, text, flags^D_SELECTED);
-				over=true;
-				
-				update_hw_screen(true);
-			}
-		}
-		else
-		{
-			if(over)
-			{
-				vsync();
-				draw_layer_button_a5(x, y, w, h, text, flags);
-				over=false;
-				
-				update_hw_screen(true);
-			}
-		}
-		rest(1);
-	}
-	
-	if(over)
-	{
-		vsync();
-		draw_layer_button_a5(x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
-		
-		update_hw_screen(true);
-	}
+	draw_layer_button_a5(x, y, w, h, text, over&&toggleflag ? flags^D_SELECTED : flags);
+	update_hw_screen(true);
 	
 	return over;
 }

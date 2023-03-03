@@ -37,6 +37,8 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain = false);
 void start_db_proc();
 void end_db_proc();
 
+bool do_over_area(int x, int y, int w, int h, bool sel);
+
 void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c);
 void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c);
 void al_draw_x(float x1, float y1, float x2, float y2, ALLEGRO_COLOR c, float thickness);
@@ -57,7 +59,7 @@ void jwin_textout_a5_scl(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, 
 void jwin_textout_a5_scl_dis(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR dis_c);
 void jwin_textout_a5_scl_shd(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR shd_c, int shdty);
 void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type);
-void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
+void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect = false);
 bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state);

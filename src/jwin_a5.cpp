@@ -109,6 +109,25 @@ void get_centered_xy(int& x, int& y, int w, int h)
 	x = (zq_screen_w-w)/2;
 	y = (zq_screen_h-h)/2;
 }
+
+bool do_over_area(int x, int y, int w, int h, bool sel)
+{
+	//Toggles the visibility of the top layer as the mouse moves
+	active_dlg_rti->visible = sel;
+	update_hw_screen(true);
+	bool over = false;
+	while(gui_mouse_b())
+	{
+		if(mouse_in_rect(x,y,w,h) != over)
+		{
+			over = !over;
+			active_dlg_rti->visible = sel != over;
+			update_hw_screen(true);
+		}
+		rest(1);
+	}
+	return over;
+}
 //Generic A5 helpers
 
 void cliprect::getclip()
@@ -757,78 +776,21 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 }
 bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
-	bool over=false;
-	
-	while(gui_mouse_b())
-	{
-		//vsync();
-		if(mouse_in_rect(x,y,w,h))
-		{
-			if(!over)
-			{
-				vsync();
-				jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
-				over=true;
-				
-				update_hw_screen(true);
-			}
-		}
-		else
-		{
-			if(over)
-			{
-				vsync();
-				jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-				over=false;
-				
-				update_hw_screen(true);
-			}
-		}
-	}
+	popup_zqdialog_start_a5(x,y,w+1,h+1);
+	jwin_draw_text_button_a5(0,0,w,h,text,0);
+	popup_zqdialog_start_a5(x,y,w+1,h+1);
+	jwin_draw_text_button_a5(0,0,w,h,text,D_SELECTED);
+	bool over = do_over_area(0,0,w,h,0);
+	popup_zqdialog_end_a5();
+	popup_zqdialog_end_a5();
 	
 	return over;
 }
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
-	bool over=false;
-	
-	while(gui_mouse_b())
-	{
-		//vsync();
-		if(mouse_in_rect(x,y,w,h))
-		{
-			if(!over)
-			{
-				vsync();
-				jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
-				over=true;
-				
-				update_hw_screen(true);
-			}
-		}
-		else
-		{
-			if(over)
-			{
-				vsync();
-				jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-				over=false;
-				
-				update_hw_screen(true);
-			}
-		}
-		
-	}
-	
-	if(over)
-	{
-		vsync();
-		jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
-		
-		update_hw_screen(true);
-	}
-	
-	return over;
+	bool ret = do_text_button_a5(x,y,w,h,text);
+	jwin_draw_text_button_a5(x, y, w, h, text, 0);
+	return ret;
 }
 
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state)

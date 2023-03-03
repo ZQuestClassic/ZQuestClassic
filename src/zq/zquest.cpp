@@ -6567,15 +6567,15 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		break;
 		case rCOMMANDS:
 		{
-			jwin_draw_frame(menu1,commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
-			rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
-			jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*commands_list.xscale)+4,(commands_list.h*commands_list.yscale)+4, FR_DEEP);
-			rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*commands_list.xscale)-1,commands_list.y+(commands_list.h*commands_list.yscale)-1,jwin_pal[jcBOXFG]);
-			font=get_custom_font(CFONT_FAVCMD);
+			jwin_draw_frame_a5(commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
+			al_draw_filled_rectangle(commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-2,commands_window.y+commands_window.h-2,jwin_a5_pal(jcBOX));
+			jwin_draw_frame_a5(commands_list.x-2,commands_list.y-2,(commands_list.w*commands_list.xscale)+4,(commands_list.h*commands_list.yscale)+4, FR_DEEP);
+			al_draw_filled_rectangle(commands_list.x,commands_list.y,commands_list.x+(commands_list.w*commands_list.xscale),commands_list.y+(commands_list.h*commands_list.yscale),jwin_a5_pal(jcBOXFG));
+			a5font=get_custom_font_a5(CFONT_FAVCMD);
 			
 			for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
 			{
-				draw_layer_button(menu1,
+				draw_layer_button_a5(
 					(cmd%commands_list.w)*commands_list.xscale+commands_list.x,
 					(cmd/commands_list.w)*commands_list.yscale+commands_list.y,
 					commands_list.xscale,
@@ -6584,16 +6584,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					(isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
 			}
 			
-			font = lfont_l;
+			a5font = get_zc_font_a5(font_lfont_l);
 			if(commands_txt.x > 0)
-			{
-				gui_textout_ln(menu1, lfont_l, (ucc*)"Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
-			}
+				gui_textout_ln_a5(a5font, "Favorite Commands", commands_txt.x, commands_txt.y, jwin_a5_pal(jcBOXFG), AL5_INVIS, 0);
 			
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-			draw_text_button(menu1,commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
-			draw_text_button(menu1,commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),0,true);
-			draw_text_button(menu1,commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),0,true);
+			jwin_draw_text_button_a5(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",0);
+			jwin_draw_text_button_a5(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",0);
+			jwin_draw_text_button_a5(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",0);
 		}
 		break;
 	}
