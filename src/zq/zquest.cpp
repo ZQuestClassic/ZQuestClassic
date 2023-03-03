@@ -6116,7 +6116,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			}
 			
 			// Map tabs
-			font = get_custom_font(CFONT_GUI);
+			a5font = get_custom_font_a5(CFONT_GUI);
 			
 			map_page[current_mappage].map=Map.getCurrMap();
 			map_page[current_mappage].screen=Map.getCurrScr();
@@ -6125,7 +6125,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				char tbuf[15];
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-				draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
+				draw_layer_button_a5(map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
 			}
 		}
 		break;
@@ -6632,7 +6632,7 @@ void refresh(int32_t flags)
 	//Layer buttons
 	ALLEGRO_FONT* tfont_a5 = a5font;
 	a5font = get_custom_font_a5(CFONT_GUI);
-	jwin_draw_frame_a5(layer_panel.x,layer_panel.y,layer_panel.w,layer_panel.h,FR_DEEP);
+	jwin_draw_frame_a5(layer_panel.x,layer_panel.y,layer_panel.w,layer_panel.h,FR_WIN);
 	al_draw_filled_rectangle(layer_panel.x,layer_panel.y,layer_panel.x+layer_panel.w-1,layer_panel.y+layer_panel.h-1,jwin_a5_pal(jcBOX));
 	
 	for(int32_t i=0; i<=6; ++i)
@@ -10575,7 +10575,7 @@ void domouse()
 			auto& sqr = map_page_bar[btn];
 			if(sqr.rect(x,y))
 			{
-				if(do_layer_button_reset_a5(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
+				if(do_layer_button_reset_a5(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,0,true))
 				{
 					draw_layer_button_a5(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
 					map_page[current_mappage].map=Map.getCurrMap();
@@ -31518,7 +31518,7 @@ void load_size_poses()
 			map_page_bar[i].w = 48;
 			map_page_bar[i].x = mapscreen_x+(i*48);
 			map_page_bar[i].y = mapscreen_y+(11*16*mapscreensize);
-			map_page_bar[i].h = al_get_font_line_height(guifont)+12;
+			map_page_bar[i].h = al_get_font_line_height(guifont)+11;
 		}
 		
 		minimap.w=7+48*3;
@@ -31748,7 +31748,7 @@ void load_size_poses()
 			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
 			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
 			map_page_bar[i].w = 64;
-			map_page_bar[i].h = al_get_font_line_height(guifont)+12;
+			map_page_bar[i].h = al_get_font_line_height(guifont)+11;
 		}
 		
 		minimap.w=7+48*3;
@@ -31757,7 +31757,7 @@ void load_size_poses()
 		layer_panel.x=map_page_bar[0].x;
 		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
 		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
-		layer_panel.h=al_get_font_line_height(guifont)+8;
+		layer_panel.h=map_page_bar[0].h-4;
 		layerpanel_buttonwidth = 58;
 		layerpanel_buttonheight = layer_panel.h;
 		layerpanel_checkbox_hei = layerpanel_buttonheight-4;

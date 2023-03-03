@@ -1050,7 +1050,7 @@ void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 	bool dis = (flags&D_DISABLED);
 	auto hei = al_get_font_line_height(a5font);
 	auto len = al_get_text_width(a5font,buf);
-	auto borderwid = 8;
+	auto borderwid = 6;
 	if(len > w - borderwid + (dis ? 1 : 0))
 	{
 		auto ind = strlen(buf) - 1;
