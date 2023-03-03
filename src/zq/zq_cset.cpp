@@ -226,7 +226,7 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			RAMpal[edc] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],gfx_pal[clr*3+2],gr,gr,gr,rat);
 			RAMpal[edi] = invRGB(RAMpal[edc]);
-			set_palette_range(RAMpal,0,255,false);
+			zc_set_palette_range(RAMpal,0,255);
 			//Color
 			jwin_draw_frame(screen, d->x+c_x_offs-2, d->y+c_y_offs-2, c_wid+4, c_hei+4, FR_DEEP);
 			rectfill(screen,d->x+c_x_offs,d->y+c_y_offs,d->x+c_x_offs+c_wid-1,d->y+c_y_offs+c_hei-1,edc);
@@ -563,7 +563,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 void onInsertColor()
 {
 	RAMpal[14*16+color_index] = RAMpal[edc];
-	set_palette_range(RAMpal,0,255,false);
+	zc_set_palette_range(RAMpal,0,255);
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
@@ -587,7 +587,7 @@ void onInsertColor_Text()
 	RAMpal[14*16+color_index].r = r;
 	RAMpal[14*16+color_index].g = g;
 	RAMpal[14*16+color_index].b = b;
-	set_palette_range(RAMpal,0,255,false);
+	zc_set_palette_range(RAMpal,0,255);
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
@@ -634,7 +634,7 @@ void onInsertColor_Hex()
 	RAMpal[14*16+color_index].r = r;
 	RAMpal[14*16+color_index].g = g;
 	RAMpal[14*16+color_index].b = b;
-	set_palette_range(RAMpal,0,255,false);
+	zc_set_palette_range(RAMpal,0,255);
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
@@ -680,7 +680,7 @@ bool edit_dataset(int32_t dataset)
 	
 	load_cset(RAMpal,12,dataset);
 	load_cset(RAMpal,14,dataset);
-	set_palette_range(RAMpal,0,255,false);
+	zc_set_palette_range(RAMpal,0,255);
 	FONT* old = font;
 	font = lfont_l;
 	
@@ -710,7 +710,7 @@ bool edit_dataset(int32_t dataset)
 	
 	memcpy(RAMpal, holdpal, sizeof(holdpal));
 	
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
 	while(gui_mouse_b()) {
 		rest(1);
@@ -764,7 +764,7 @@ bool grab_dataset(int32_t dataset)
 	char fname[13];
 	extract_name(imagepath,fname,-1);
 	
-	set_palette(picpal);
+	zc_set_palette(picpal);
 	
 	bool redraw=true;
 	bool reload=false;
@@ -793,7 +793,7 @@ bool grab_dataset(int32_t dataset)
 				done=1;
 			else
 			{
-				set_palette(picpal);
+				zc_set_palette(picpal);
 				a5pic = all_get_a5_bitmap(pic);
 				redraw=true;
 			}
@@ -882,9 +882,9 @@ bool grab_dataset(int32_t dataset)
 					custom_vsync();
 					
 					if(i&2)
-						set_palette(picpal);
+						zc_set_palette(picpal);
 					else
-						set_palette(tmp);
+						zc_set_palette(tmp);
 				}
 				
 				break;
@@ -1121,9 +1121,9 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				unscare_mouse();
 				//sniggles
 				//        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
-				//        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
+				//        zc_set_palette_range(((RGB*)d->dp3),FLASH,FLASH);
 				((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
-				set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
+				zc_set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0));
 			}
 			while(gui_mouse_b());
 			
@@ -1152,7 +1152,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 					for(int32_t i=0; i<cset_count; i++)
 						load_cset(pal,i,cset_first+i);
 						
-					set_palette(pal);
+					zc_set_palette(pal);
 					saved=false;
 				}
 			}
@@ -1228,7 +1228,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 						for(int32_t i=0; i<cset_count; i++)
 							load_cset(pal,i,cset_first+i);
 							
-						set_palette(pal);
+						zc_set_palette(pal);
 						saved=false;
 					}
 					
@@ -1240,7 +1240,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 					for(int32_t i=0; i<cset_count; i++)
 						load_cset(pal,i,cset_first+i);
 						
-					set_palette(pal);
+					zc_set_palette(pal);
 					break;
 					
 				default:
@@ -1443,7 +1443,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		}
 		
 		scare_mouse();
-		set_palette(pal);
+		zc_set_palette(pal);
 		unscare_mouse();
 		colors_dlg[19].flags =
 			colors_dlg[20].flags =
@@ -1466,7 +1466,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 			//sniggles
 			//      pal[FLASH]=pal[rc[(fc++)&15]];
 			pal[dvc(0)]=pal[zc_oldrand()%14+dvc(1)];
-			set_palette_range(pal,dvc(0),dvc(0),false);
+			zc_set_palette_range(pal,dvc(0),dvc(0));
 			
 			bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
 			
@@ -1538,7 +1538,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 	
 	if(a4_bmp_active())
 		clear_to_color(screen,get_zqdialog_a4_clear_color());
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	
 	loadlvlpal(Color);
 	
@@ -1608,7 +1608,7 @@ int32_t onColors_Levels()
 		sprintf(buf,"Level %X Palettes",index);
 		bool l9 = call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL, index);
 		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
-		set_palette(RAMpal);
+		zc_set_palette(RAMpal);
 		
 		if(index==0)
 		{

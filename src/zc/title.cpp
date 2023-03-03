@@ -592,7 +592,7 @@ static void NES_titlescreen()
 	tri=0;
 	fcnt=0;
 	trstr=0;
-	set_palette(black_palette);
+	zc_set_palette(black_palette);
 	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_bitmap(screen);
 	clear_bitmap(framebuf);
@@ -820,7 +820,7 @@ static void DX_titlescreen()
 	int32_t f=0;
 	bool done=false;
 	trstr=0;
-	set_palette(black_palette);
+	zc_set_palette(black_palette);
 	
 	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_to_color(screen,BLACK);
@@ -1046,7 +1046,7 @@ static void v25_titlescreen()
 	int32_t f=0;
 	bool done=false;
 	trstr=0;
-	set_palette(black_palette);
+	zc_set_palette(black_palette);
 	
 	clear_to_color(screen,BLACK);
 	clear_bitmap(framebuf);

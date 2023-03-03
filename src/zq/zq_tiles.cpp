@@ -5347,7 +5347,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 		
 			if(getname_nogo("Load File",NULL,list,imagepath,true))
 			{
-				set_palette(RAMpal);
+				zc_set_palette(RAMpal);
 				pal=0;
 				white=vc(15);
 				black=vc(0);
@@ -5430,7 +5430,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				jwin_set_colors(jwin_pal);
 			}
 			
-			set_palette_range(pal?imagepal:RAMpal,0,255,false);
+			zc_set_palette_range(pal?imagepal:RAMpal,0,255);
 			
 			dopal=false;
 			redraw=true;
@@ -5514,7 +5514,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 	destroy_bitmap(screen3);
 	
 	if(pal)
-		set_palette(RAMpal);
+		zc_set_palette(RAMpal);
 	
 	recolor=rcNone;
 	calc_cset_reduce_table(imagepal, cs);
@@ -18336,7 +18336,7 @@ int32_t onIcons()
 		load_cset(pal, i+6, pSprite(i+spICON1));
 	}
 	
-	set_palette(pal);
+	zc_set_palette(pal);
 	
 	large_dialog(icon_dlg);
 		
@@ -18354,7 +18354,7 @@ int32_t onIcons()
 		}
 	}
 	
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	return D_O_K;
 }
 
