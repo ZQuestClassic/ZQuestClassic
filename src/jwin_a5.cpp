@@ -1963,12 +1963,12 @@ int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c)
 static DIALOG getnum_dlg[] =
 {
 	// (dialog proc)       (x)   (y)    (w)     (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-	{ jwin_win_proc_a5,     0,    0,     240,   108,  0,       0,       0,       D_EXIT,     0,             0,       NULL, NULL,  NULL },
-	{ jwin_text_proc_a5,    48,   40,    72,     12,   0,       0,       0,       0,          0,             0,       "Number:", NULL,  NULL },
+	{ jwin_win_proc_a5,     0,    0,     240,   108,   0,       0,       0,       D_EXIT,     0,             0,       NULL, NULL,  NULL },
+	{ jwin_text_proc_a5,    48,   40,    72,     12,   0,       0,       0,       0,          0,             0,       (void*)"Number:", NULL,  NULL },
 	{ jwin_edit_proc_a5,    134,  36,    72,     24,   0,       0,       0,       0,          6,             0,       NULL, NULL,  NULL },
-	{ jwin_button_proc_a5,  15,   72,    91,     31,   0,       0,       13,      D_EXIT,     0,             0,       "OK", NULL,  NULL },
-	{ jwin_button_proc_a5,  135,  72,    91,     31,   0,       0,       27,      D_EXIT,     0,             0,       "Cancel", NULL,  NULL },
-	{ jwin_rtext_proc_a5,   126,  40,    0,      0,    0,       0,       0,       0,          0,             0,       "0x", NULL,  NULL },
+	{ jwin_button_proc_a5,  15,   72,    91,     31,   0,       0,       13,      D_EXIT,     0,             0,       (void*)"OK", NULL,  NULL },
+	{ jwin_button_proc_a5,  135,  72,    91,     31,   0,       0,       27,      D_EXIT,     0,             0,       (void*)"Cancel", NULL,  NULL },
+	{ jwin_rtext_proc_a5,   126,  40,    0,      0,    0,       0,       0,       0,          0,             0,       (void*)"0x", NULL,  NULL },
 	{ d_timer_proc,         0,    0,     0,      0,    0,       0,       0,       0,          0,             0,       NULL, NULL, NULL },
 	{ NULL,                 0,    0,     0,      0,    0,       0,       0,       0,          0,             0,       NULL, NULL,  NULL }
 };
