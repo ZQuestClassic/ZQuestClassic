@@ -697,7 +697,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     
 	if(show_progress)
 	{
-		box_start(1, "Loading Quest", lfont, font, true);
+		box_start(1, "Loading Quest", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), true);
 	}
     
 	box_out("Loading Quest: ");

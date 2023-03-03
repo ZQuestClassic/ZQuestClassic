@@ -104,7 +104,6 @@ static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
-int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -6820,7 +6819,7 @@ int32_t onKeyboard()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
+				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -6964,7 +6963,7 @@ int32_t onCheatKeys()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, 500,400, 2);
+				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, 500,400, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -7276,34 +7275,6 @@ int32_t onItems()
 	
 	init_tabs[1].flags=D_SELECTED;
 	return onCheatConsole();
-}
-
-static DIALOG getnum_dlg[] =
-{
-	// (dialog proc)	   (x)   (y)	(w)	 (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-	{ jwin_win_proc,		80,   80,	 160,	72,   vc(0),  vc(11),  0,	   D_EXIT,	 0,			 0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		  104,  104+4,  48,	 8,	vc(0),  vc(11),  0,	   0,		  0,			 0, (void *) "Number:", NULL,  NULL },
-	{ jwin_edit_proc,	   168,  104,	48,	 16,	0,	 0,	   0,	   0,		  6,			 0,	   NULL, NULL,  NULL },
-	{ jwin_button_proc,	 90,   126,	61,	 21,   vc(0),  vc(11),  13,	  D_EXIT,	 0,			 0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	 170,  126,	61,	 21,   vc(0),  vc(11),  27,	  D_EXIT,	 0,			 0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-int32_t getnumber(const char *prompt,int32_t initialval)
-{
-	char buf[20];
-	sprintf(buf,"%d",initialval);
-	getnum_dlg[0].dp=(void *)prompt;
-	getnum_dlg[0].dp2=lfont;
-	getnum_dlg[2].dp=buf;
-	
-	large_dialog(getnum_dlg);
-		
-	if(zc_popup_dialog(getnum_dlg,2)==3)
-		return atoi(buf);
-		
-	return initialval;
 }
 
 int32_t onLife()
@@ -7803,10 +7774,14 @@ int32_t onExtLetterGridEntry()
 	return D_O_K;
 }
 
-static BITMAP* oldscreen;
+static BITMAP* truescreen;
 int32_t onFullscreenMenu()
 {
-	onFullscreen();
+	BITMAP* os = screen==truescreen? nullptr : screen;
+	screen = truescreen;
+	if(onFullscreen()==D_REDRAW)
+		truescreen = screen;
+	if(os) screen = os;
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
 	return D_O_K;
 }
@@ -8324,6 +8299,7 @@ void System()
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
 	clear_keybuf();
 	show_mouse(screen);
+	truescreen = screen;
 	
 	DIALOG_PLAYER *p;
 	
@@ -8453,7 +8429,7 @@ void System()
 	while(update_dialog(p));
 	
 	al_restore_state(&old_state);
-	
+	screen = truescreen;
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);
@@ -8488,7 +8464,6 @@ void fix_dialogs()
 	jwin_center_dialog(gamepad_dlg);
 	jwin_center_dialog(credits_dlg);
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(keyboard_control_dlg);
 	jwin_center_dialog(midi_dlg);

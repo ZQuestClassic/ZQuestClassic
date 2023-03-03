@@ -13958,7 +13958,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	
 	
 	
-	box_start(1, "Saving Quest", lfont, font, true);
+	box_start(1, "Saving Quest", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), true);
 	box_out("Saving Quest...");
 	box_eol();
 	box_eol();

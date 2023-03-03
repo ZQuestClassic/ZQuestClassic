@@ -14,6 +14,8 @@ struct size_and_pos
 	//Get virtual values
 	int tw() const;
 	int th() const;
+	int cx() const;
+	int cy() const;
 	
 	virtual void clear(); //Clear to default vals
 	
