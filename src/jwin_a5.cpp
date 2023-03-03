@@ -770,7 +770,7 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
                 over=true;
                 
-				update_hw_screen();
+				update_hw_screen(true);
             }
         }
         else
@@ -781,7 +781,7 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
                 jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
                 over=false;
                 
-				update_hw_screen();
+				update_hw_screen(true);
             }
         }
     }
@@ -803,7 +803,7 @@ bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char 
 				jwin_draw_text_button_a5(x, y, w, h, text, D_SELECTED, true);
 				over=true;
 				
-				update_hw_screen();
+				update_hw_screen(true);
 			}
 		}
 		else
@@ -814,7 +814,7 @@ bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char 
 				jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
 				over=false;
 				
-				update_hw_screen();
+				update_hw_screen(true);
 			}
 		}
 		
@@ -825,7 +825,7 @@ bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char 
 		vsync();
 		jwin_draw_text_button_a5(x, y, w, h, text, 0, true);
 		
-		update_hw_screen();
+		update_hw_screen(true);
 	}
 	
 	return over;
@@ -992,7 +992,7 @@ bool do_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t &value)
 	{
 		update_hw_screen();
 		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+wid-1,y+hei-1))               //if on checkbox
+		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+wid-1,y+hei-1)) //if on checkbox
 		{
 			if(!over)                                             //if wasn't here before
 			{
@@ -1001,7 +1001,7 @@ bool do_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t &value)
 				over=true;
 			}
 		}
-		else                                                    //if not on checkbox
+		else //if not on checkbox
 		{
 			if(over)                                              //if was here before
 			{

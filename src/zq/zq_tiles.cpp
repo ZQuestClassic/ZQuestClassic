@@ -1108,7 +1108,7 @@ bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char
 				draw_layer_button_a5(x, y, w, h, text, flags^D_SELECTED);
 				over=true;
 				
-				update_hw_screen();
+				update_hw_screen(true);
 			}
 		}
 		else
@@ -1119,7 +1119,7 @@ bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char
 				draw_layer_button_a5(x, y, w, h, text, flags);
 				over=false;
 				
-				update_hw_screen();
+				update_hw_screen(true);
 			}
 		}
 		rest(1);
@@ -1130,7 +1130,7 @@ bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char
 		vsync();
 		draw_layer_button_a5(x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
 		
-		update_hw_screen();
+		update_hw_screen(true);
 	}
 	
 	return over;

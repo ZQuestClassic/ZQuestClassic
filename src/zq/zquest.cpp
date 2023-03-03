@@ -5618,8 +5618,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 	FONT* tfont = font;
 	ALLEGRO_FONT* tfont_a5 = a5font;
 	
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
 	switch(unit)
 	{
 		case rSCRMAP:
@@ -5715,8 +5714,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(!layers_valid(Map.CurrScr()))
 				fix_layers(Map.CurrScr(), true);
 			
-			ALLEGRO_STATE old_state;
-			al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 			al_set_target_bitmap(rti_scrborder.bitmap);
 			clear_a5_bmp(AL5_INVIS);
 			
@@ -6130,7 +6127,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
 				draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
 			}
-			al_restore_state(&old_state);
 		}
 		break;
 		case rCOMBOS:
@@ -6602,7 +6598,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		break;
 	}
 	
-	al_restore_state(&old_state);
+	al_set_target_bitmap(oldtarg);
 	a5font = tfont_a5;
 	font = tfont;
 }
@@ -6693,6 +6689,8 @@ void refresh(int32_t flags)
 	a5font=tfont_a5;
 	
 	al_set_target_bitmap(rti_scrinfo.bitmap);
+	cliprect cr;
+	cr.getclip();
 	al_set_clipping_rectangle(mapscreen_pos.x,mapscreen_pos.y,mapscreen_pos.tw(),mapscreen_pos.th());
 	{ //Show top-left info
 		size_t maxwid = (mapscreensize*mapscreenbmp->w)-1;
@@ -6735,7 +6733,7 @@ void refresh(int32_t flags)
 			}
 		}
 	}
-	clear_a5_clip_rect();
+	cr.setclip();
 	al_set_target_bitmap(rti_overlay.bitmap);
 	
 	// Show Errors & Details
@@ -7164,8 +7162,6 @@ void refresh(int32_t flags)
 	
 	draw_ttips(&rti_tooltip,&rti_tooltip_hl);
 	
-	scare_mouse();
-	
 	if(flags&rCLEAR)
 	{
 		//Draw the whole gui
@@ -7209,8 +7205,6 @@ void refresh(int32_t flags)
 	
 	ComboBrushPause=0;
 	
-	unscare_mouse();
-	SCRFIX();
 	al_restore_state(&old_state);
 	if(!(flags&rNOUPDATE))
 		update_hw_screen(true);
@@ -10257,6 +10251,7 @@ void domouse()
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state,ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti_overlay.bitmap);
+	ALLEGRO_FONT* tfont_a5 = a5font;
 	
 	bool x_on_list = false;
 	for(auto q = 0; q < num_combo_cols; ++q)
@@ -10567,7 +10562,6 @@ void domouse()
 	bool lclick = mb&1;
 	bool rclick = mb&2;
 	
-	FONT* tfont = font;
 	if(zoomed_minimap)
 	{
 		if((lclick||rclick) && !minimap_zoomed.rect(x,y))
@@ -10601,7 +10595,7 @@ void domouse()
 			goto domouse_doneclick; //Eat clicks
 		
 		//on the map tabs
-		font = get_custom_font(CFONT_GUI);
+		a5font = get_custom_font_a5(CFONT_GUI);
 		for(int32_t btn=0; btn<mappage_count; ++btn)
 		{
 			char tbuf[15];
@@ -10609,9 +10603,9 @@ void domouse()
 			auto& sqr = map_page_bar[btn];
 			if(sqr.rect(x,y))
 			{
-				if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
+				if(do_layer_button_reset_a5(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
 				{
-					draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
+					draw_layer_button_a5(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
 					map_page[current_mappage].map=Map.getCurrMap();
 					map_page[current_mappage].screen=Map.getCurrScr();
 					current_mappage=btn;
@@ -10625,7 +10619,7 @@ void domouse()
 		
 		if(compactbtn.rect(x,y))
 		{
-			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
+			if(do_text_button_a5(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact"));
 				toggle_is_compact();
 			goto domouse_doneclick;
 		}
@@ -10640,14 +10634,12 @@ void domouse()
 			}
 		}
 		
-		font = lfont_l;
+		a5font = get_zc_font_a5(font_lfont_l);
 		if(combo_merge_btn.rect(x,y))
 		{
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
-			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),true))
-			{
+			if(do_text_button_a5(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<"))
 				toggle_merged_mode();
-			}
 			goto domouse_doneclick;
 		}
 		if(draw_mode != dm_cpool)
@@ -10655,15 +10647,13 @@ void domouse()
 			if(favorites_zoombtn.rect(x,y))
 			{
 				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
-				{
+				if(do_text_button_a5(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+"))
 					toggle_favzoom_mode();
-				}
 				goto domouse_doneclick;
 			}
 			else if(favorites_x.rect(x,y))
 			{
-				if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
+				if(do_text_button_a5(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X"))
 				{
 					switch(draw_mode)
 					{
@@ -10706,7 +10696,7 @@ void domouse()
 			}
 			else if(favorites_infobtn.rect(x,y))
 			{
-				if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
+				if(do_text_button_a5(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?"))
 				{
 					switch(draw_mode)
 					{
@@ -10740,15 +10730,13 @@ void domouse()
 		if(commands_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
-			{
+			if(do_text_button_a5(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+"))
 				toggle_cmdzoom_mode();
-			}
 			goto domouse_doneclick;
 		}
 		else if(commands_x.rect(x,y))
 		{
-			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),true))
+			if(do_text_button_a5(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X"))
 			{
 				AlertDialog("Clear Favorite Commands",
 					"Are you sure you want to clear all favorite commands?",
@@ -10769,7 +10757,7 @@ void domouse()
 		}
 		else if(commands_infobtn.rect(x,y))
 		{
-			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),true))
+			if(do_text_button_a5(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?"))
 			{
 				InfoDialog("Favorite Commands",
 					"On LClick (empty): Choose a favorite command"
@@ -10783,10 +10771,9 @@ void domouse()
 			}
 			goto domouse_doneclick;
 		}
-		font=tfont;
 		
 		// On the layer panel
-		font = get_custom_font(CFONT_GUI);
+		a5font = get_custom_font_a5(CFONT_GUI);
 		for(int32_t i=0; i<=6; ++i)
 		{
 			int32_t spacing_offs = is_compact ? 2 : 10;
@@ -10817,7 +10804,7 @@ void domouse()
 					sprintf(tbuf, "%d", i);
 				}
 				
-				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14),true))
+				if(do_layer_button_reset_a5(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,0,true))
 				{
 					CurrentLayer = i;
 					goto domouse_doneclick;
@@ -10827,11 +10814,10 @@ void domouse()
 			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 			if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
 			{
-				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
+				do_checkbox_a5(rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]);
 				goto domouse_doneclick;
 			}
 		}
-		font=tfont;
 		
 		//Uses lclick/rclick separately
 		
@@ -11213,19 +11199,17 @@ void domouse()
 		}
 		
 		//on the drawing mode button
-		font = get_custom_font(CFONT_GUI);
 		if(drawmode_btn.rect(x,y))
 		{
 			if(lclick)
 			{
-				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
+				if(do_text_button_a5(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode]))
 					onDrawingMode();
 			}
 			else if(rclick)
 				popup_menu(drawing_mode_menu,x,y);
 			goto domouse_doneclick;
 		}
-		font=tfont;
 		
 		//Squares
 		{
@@ -11757,7 +11741,7 @@ domouse_doneclick:
 		}
 		position_mouse_z(0);
 	}
-	font = tfont;
+	a5font = tfont_a5;
 	al_restore_state(&old_state);
 }
 
