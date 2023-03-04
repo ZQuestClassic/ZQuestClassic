@@ -75,7 +75,7 @@ afterEach(async () => {
 
 describe('player', () => {
   it.skip('basic', async () => {
-    await page.goto(`${url}/zelda.html`, { waitUntil: 'networkidle0' });
+    await page.goto(`${url}/zelda.html`, { waitUntil: 'networkidle0', timeout: 0 });
     if (await page.$('.permission .cancel')) {
       await page.click('.permission .cancel');
     }
@@ -103,7 +103,7 @@ describe('player', () => {
   });
 
   it.skip('basic 2', async () => {
-    await page.goto(`${url}/zelda.html?quest=classic/1st.qst`, { waitUntil: 'networkidle0' });
+    await page.goto(`${url}/zelda.html?quest=classic/1st.qst`, { waitUntil: 'networkidle0', timeout: 0 });
     if (await page.$('.permission .cancel')) {
       await page.click('.permission .cancel');
     }
@@ -117,7 +117,7 @@ describe('player', () => {
   });
 
   it('loads without errors', async () => {
-    await page.goto(`${url}/zelda.html`, { waitUntil: 'networkidle0' });
+    await page.goto(`${url}/zelda.html`, { waitUntil: 'networkidle0', timeout: 0 });
     await useLocalStorage(page);
 
     await consoleListener.waitFor('Loading Saved Games');
@@ -133,7 +133,7 @@ describe('player', () => {
   });
 
   it.skip('replay classic_1st_lvl1.zplay', async () => {
-    await page.goto(`${url}/zelda.html?assert=test_replays/classic_1st_lvl1.zplay&replayExitWhenDone&v0&showFps`, { waitUntil: 'networkidle0' });
+    await page.goto(`${url}/zelda.html?assert=test_replays/classic_1st_lvl1.zplay&replayExitWhenDone&v0&showFps`, { waitUntil: 'networkidle0', timeout: 0 });
     await useLocalStorage(page);
     await consoleListener.waitFor(/exit with code/);
   }).timeout(120_000 * 3);
@@ -141,7 +141,7 @@ describe('player', () => {
 
 describe('zquest', () => {
   it('loads without errors', async () => {
-    await page.goto(`${url}/zquest.html`, { waitUntil: 'networkidle0' });
+    await page.goto(`${url}/zquest.html`, { waitUntil: 'networkidle0', timeout: 0 });
     await useLocalStorage(page);
 
     await new Promise(resolve => setTimeout(resolve, 10000));

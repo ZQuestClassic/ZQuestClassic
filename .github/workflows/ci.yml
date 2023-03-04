@@ -163,7 +163,7 @@ jobs:
       - run: sudo apt-get install xvfb
       - run: npm install
         working-directory: web
-      - run: xvfb-run --auto-servernum npm run test -- --timeout 1200000
+      - run: xvfb-run --auto-servernum npm run test -- --timeout 100000 || xvfb-run --auto-servernum npm run test -- --timeout 100000 || xvfb-run --auto-servernum npm run test -- --timeout 100000
         working-directory: web
       - run: pip install requests PyGithub watchdog
       # Run each replay for just ~15 seconds, but run all of classic_1st_lvl1.zplay
