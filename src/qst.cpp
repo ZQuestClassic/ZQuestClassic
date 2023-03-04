@@ -9368,6 +9368,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				if( tempitem.family == itype_shield )
 					tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
 			}
+			if( s_version < 54 )
+			{
+				if( tempitem.family == itype_flippers )
+					tempitem.misc3 = INT_BTN_A; //'Block Front' flag
+			}
 			
 			if(tempitem.fam_type==0)  // Always do this
 				tempitem.fam_type=1;

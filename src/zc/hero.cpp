@@ -10341,7 +10341,11 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(itm.usesound)
 		sfx(itm.usesound,pan(x.getInt()));
 	
-	if(passive) did_passive_jump = true;
+	if(passive)
+	{
+		did_passive_jump = true;
+		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
+	}
 	return true;
 }
 void HeroClass::drop_liftwpn()
@@ -10534,9 +10538,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		paymagiccost(liftid);
 	}
 	if(passive)
-	{
 		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
-	}
 	return;
 }
 void HeroClass::handle_lift(bool dec)
@@ -13366,23 +13368,33 @@ void HeroClass::movehero()
 	zfix temp_y(y);
 	
 	int32_t flippers_id = current_item_id(itype_flippers);
+	itemdata const& itm = itemsbuf[flippers_id];
+	byte intbtn = byte(itm.misc3&0xFF);
+	bool dive_pressed = getIntBtnInput(intbtn, true, true, false, false, true);
+	bool eatdive = false;
 	if(diveclk>0)
 	{
 		if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
 		--diveclk;
-		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
+		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && dive_pressed) //Cancellable Diving -V
 		{
 			diveclk = itemsbuf[flippers_id].misc2;
+			eatdive = true;
 		}
 	}
-	else if(action == swimming && DrunkrAbtn())
+	else if(action == swimming && dive_pressed)
 	{
 		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
 		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
 		
 		if(global_diving==screen_diving)
+		{
 			diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
+			eatdive = true;
+		}
 	}
+	if(eatdive)
+		getIntBtnInput(intbtn, true, true, false, false, false);
 	
 	if(action==rafting)
 	{
