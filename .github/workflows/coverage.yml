@@ -45,7 +45,7 @@ jobs:
           GCOV: llvm-cov-14 gcov
 
       - name: Install Node.js 16.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - run: |
