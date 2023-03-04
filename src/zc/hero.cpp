@@ -14121,10 +14121,16 @@ void HeroClass::movehero()
 					{
 						do
 						{
-							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
+							zfix ty = y - hero_newstep;
+							info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+								|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
 							
-							info = info || walkflag(x+15,(bigHitbox?0:8)+(y-hero_newstep),1,up);
-							info = info || walkflagMBlock(x+15, (bigHitbox?0:8)+(y-hero_newstep));
+							if (ty < 0 && !bigHitbox) //sanity check for up scroll
+							{
+								info = info || walkflag(x, zfix(0), 2, up);
+								info = info || walkflag(x+15, zfix(0), 1, up);
+							}
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
 							execute(info);
 							
@@ -14595,7 +14601,16 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+								zfix ty = y - hero_newstep_diag;
+								info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+									|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+								
+								if (ty < 0 && !bigHitbox) //sanity check for up scroll
+								{
+									info = info || walkflag(x, zfix(0), 2, up);
+									info = info || walkflag(x+15, zfix(0), 1, up);
+								}
+								info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 									
 								execute(info);
 								
@@ -14618,7 +14633,16 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag(x-hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+										zfix tx = x-hero_newstep, ty = y-hero_newstep_diag;
+										info = walkflag(tx,(bigHitbox?0:8)+ty,1,up);
+								
+										if (ty < 0 && !bigHitbox) //sanity check for up scroll
+										{
+											info = info || walkflag(tx, zfix(0), 1, up);
+											info = info || walkflag(tx+15, zfix(0), 1, up);
+										}
+										info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
+										
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -14811,7 +14835,16 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+								zfix ty = y - hero_newstep_diag;
+								info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+									|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+								
+								if (ty < 0 && !bigHitbox) //sanity check for up scroll
+								{
+									info = info || walkflag(x, zfix(0), 2, up);
+									info = info || walkflag(x+15, zfix(0), 1, up);
+								}
+								info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
 								execute(info);
 								
@@ -14834,7 +14867,15 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+										zfix tx = x-hero_newstep, ty = y-hero_newstep_diag;
+										info = walkflag(tx,(bigHitbox?0:8)+ty,1,up);
+								
+										if (ty < 0 && !bigHitbox) //sanity check for up scroll
+										{
+											info = info || walkflag(tx, zfix(0), 1, up);
+											info = info || walkflag(tx+15, zfix(0), 1, up);
+										}
+										info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -23921,11 +23962,12 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         
     // Fix Hero's position to the grid
     y=y.getInt()&0xF0;
-    climb_cover_x=x.getInt()&0xF0;
-    climb_cover_y=y.getInt()&0xF0;
 	
     if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
         y -= 16;
+	
+    climb_cover_x=x.getInt()&0xF0;
+    climb_cover_y=y.getInt()&0xF0;
 	
     dir=down;
     z=fakez=fall=fakefall=0;
