@@ -14867,8 +14867,8 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										zfix tx = x-hero_newstep, ty = y-hero_newstep_diag;
-										info = walkflag(tx,(bigHitbox?0:8)+ty,1,up);
+										zfix tx = x+hero_newstep, ty = y-hero_newstep_diag;
+										info = walkflag(tx+15,(bigHitbox?0:8)+ty,1,up);
 								
 										if (ty < 0 && !bigHitbox) //sanity check for up scroll
 										{
