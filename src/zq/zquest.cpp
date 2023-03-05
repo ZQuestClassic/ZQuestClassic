@@ -7511,13 +7511,12 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
-						bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cc + cx), CSet);
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cc + cx), CSet);
 							}
 							
 							cc+=20;
@@ -7555,13 +7554,12 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
-						bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cid + cx), cs);
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid + cx), cs);
 							}
 							
 							cid+=20;
