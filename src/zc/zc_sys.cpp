@@ -6102,7 +6102,7 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 	
 	large_dialog(module_info_dlg);
 	
-	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
+	int32_t ret = do_zqdialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
@@ -6324,7 +6324,7 @@ int32_t onGoTo()
 	
 	large_dialog(goto_dlg);
 		
-	if(zc_popup_dialog(goto_dlg,4)==1)
+	if(do_zqdialog(goto_dlg,4)==1)
 	{
 		// dmap, screen
 		cheats_enqueue(Cheat::GoTo, goto_dlg[4].d2, zc_min(zc_xtoi(cheat_goto_screen_str),0x7F));
@@ -6655,7 +6655,7 @@ int32_t onMIDICredits()
 	
 	large_dialog(midi_dlg);
 		
-	zc_popup_dialog(midi_dlg,0);
+	do_zqdialog(midi_dlg,0);
 	dialog_running=false;
 	
 	if(listening)
@@ -6711,7 +6711,7 @@ int32_t onQuest()
 	
 	large_dialog(quest_dlg);
 		
-	zc_popup_dialog(quest_dlg, 0);
+	do_zqdialog(quest_dlg, 0);
 	return D_O_K;
 }
 
@@ -6790,7 +6790,7 @@ int32_t onKeyboard()
 		
 	while(!done)
 	{
-		ret = zc_popup_dialog(keyboard_control_dlg,3);
+		ret = do_zqdialog(keyboard_control_dlg,3);
 		
 		if(ret==3) // OK
 		{
@@ -6883,7 +6883,7 @@ int32_t onGamepad()
 	
 	large_dialog(gamepad_dlg);
 		
-	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
+	int32_t ret = do_zqdialog(gamepad_dlg,4);
 	
 	if(ret == 4) //OK
 	{
@@ -7036,7 +7036,7 @@ int32_t onSound()
 	sound_dlg[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
 	sound_dlg[20].d2 = pan_style;
 	
-	int32_t ret = zc_popup_dialog(sound_dlg,1);
+	int32_t ret = do_zqdialog(sound_dlg,1);
 	
 	if(ret==2)
 	{
@@ -7240,7 +7240,7 @@ int32_t onTriforce()
 	for(int32_t i=1; i<=8; i++)
 	  triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
 	
-	if(zc_popup_dialog (triforce_dlg,-1)==9)
+	if(do_zqdialog (triforce_dlg,-1)==9)
 	{
 	  for(int32_t i=1; i<=8; i++)
 	  {
@@ -7447,7 +7447,7 @@ int32_t onScreenSaver()
 	
 	large_dialog(scrsaver_dlg);
 		
-	int32_t ret = zc_popup_dialog(scrsaver_dlg,-1);
+	int32_t ret = do_zqdialog(scrsaver_dlg,-1);
 	
 	if(ret == 8 || ret == 9)
 	{

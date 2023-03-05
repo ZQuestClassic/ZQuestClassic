@@ -420,8 +420,8 @@ COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
-ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5];
+BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *dmapbmp_small, *dmapbmp_large;
+ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5], *select_bmp[2];
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
@@ -1948,7 +1948,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_tiles_dlg);
 	
-	int32_t ret = zc_popup_dialog(save_tiles_dlg,-1);
+	int32_t ret = do_zqdialog(save_tiles_dlg,-1);
 	jwin_center_dialog(save_tiles_dlg);
 	
 	if(ret == 8)
@@ -2054,7 +2054,7 @@ void about_module(const char *prompt,int32_t initialval)
 	
 	large_dialog(module_info_dlg);
 	
-	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
+	int32_t ret = do_zqdialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
@@ -2106,7 +2106,7 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 	
 	large_dialog(read_tiles_dlg);
 	
-	int32_t ret = zc_popup_dialog(read_tiles_dlg,-1);
+	int32_t ret = do_zqdialog(read_tiles_dlg,-1);
 	jwin_center_dialog(read_tiles_dlg);
 	
 	if(ret == 8)
@@ -2182,7 +2182,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_combofiles_dlg);
 	
-	int32_t ret = zc_popup_dialog(save_combofiles_dlg,-1);
+	int32_t ret = do_zqdialog(save_combofiles_dlg,-1);
 	jwin_center_dialog(save_combofiles_dlg);
 	
 	if(ret == 8)
@@ -2253,7 +2253,7 @@ void writesomecombos(const char *prompt,int32_t initialval)
 	
 	large_dialog(load_comboset_dlg);
 	
-	int32_t ret = zc_popup_dialog(load_comboset_dlg,-1);
+	int32_t ret = do_zqdialog(load_comboset_dlg,-1);
 	jwin_center_dialog(load_comboset_dlg);
 	
 	if(ret == 8)
@@ -2334,7 +2334,7 @@ void loadcombopack(const char *prompt,int32_t initialval)
 	
 	large_dialog(load_combopack_dlg);
 	
-	int32_t ret = zc_popup_dialog(load_combopack_dlg,-1);
+	int32_t ret = do_zqdialog(load_combopack_dlg,-1);
 	jwin_center_dialog(load_combopack_dlg);
 	
 	if(ret == 8)
@@ -2429,7 +2429,7 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 	
 	large_dialog(read_combopack_dlg);
 	
-	int32_t ret = zc_popup_dialog(read_combopack_dlg,-1);
+	int32_t ret = do_zqdialog(read_combopack_dlg,-1);
 	jwin_center_dialog(read_combopack_dlg);
 	
 	if(ret == 8)
@@ -2512,7 +2512,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_dmaps_dlg);
 	
-	int32_t ret = zc_popup_dialog(save_dmaps_dlg,-1);
+	int32_t ret = do_zqdialog(save_dmaps_dlg,-1);
 	jwin_center_dialog(save_dmaps_dlg);
 	
 	if(ret == 8)
@@ -2598,7 +2598,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_comboaliasfiles_dlg);
 	
-	int32_t ret = zc_popup_dialog(save_comboaliasfiles_dlg,-1);
+	int32_t ret = do_zqdialog(save_comboaliasfiles_dlg,-1);
 	jwin_center_dialog(save_comboaliasfiles_dlg);
 	
 	if(ret == 8)
@@ -2665,7 +2665,7 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 	
 	large_dialog(read_comboaliaspack_dlg);
 	
-	int32_t ret = zc_popup_dialog(read_comboaliaspack_dlg,-1);
+	int32_t ret = do_zqdialog(read_comboaliaspack_dlg,-1);
 	jwin_center_dialog(read_comboaliaspack_dlg);
 	
 	if(ret == 8)
@@ -2739,7 +2739,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_doorset_dlg);
 	
-	int32_t ret = zc_popup_dialog(save_doorset_dlg,-1);
+	int32_t ret = do_zqdialog(save_doorset_dlg,-1);
 	jwin_center_dialog(save_doorset_dlg);
 	
 	if(ret == 8) //OK
@@ -2813,7 +2813,7 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 	
 	large_dialog(load_doorset_dlg);
 	
-	int32_t ret = zc_popup_dialog(load_doorset_dlg,-1);
+	int32_t ret = do_zqdialog(load_doorset_dlg,-1);
 	jwin_center_dialog(load_doorset_dlg);
 	
 	if(ret == 8) //OK
@@ -4286,7 +4286,7 @@ int32_t changeTrack()
     
     large_dialog(change_track_dlg);
     
-    if(zc_popup_dialog(change_track_dlg,2)==3)
+    if(do_zqdialog(change_track_dlg,2)==3)
     {
         gme_track=change_track_dlg[2].d1;
         zcmusic_change_track(zcmusic, gme_track);
@@ -4738,7 +4738,7 @@ void EditGameMiscArray()
         
 	do
 	{
-		ret = zc_popup_dialog(gamemiscarray_dlg,65);
+		ret = do_zqdialog(gamemiscarray_dlg,65);
 		for ( int32_t q = 0; q < 32; q++ )
 		{
 			
@@ -5207,7 +5207,7 @@ int32_t load_the_map()
     
     large_dialog(loadmap_dlg);
         
-    if(zc_popup_dialog(loadmap_dlg,11) != 11)
+    if(do_zqdialog(loadmap_dlg,11) != 11)
     {
         return 1;
     }
@@ -7511,13 +7511,12 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
-						bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cc + cx), CSet);
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cc + cx), CSet);
 							}
 							
 							cc+=20;
@@ -7555,13 +7554,12 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
-						bool change_combo = !(key[KEY_LSHIFT]||key[KEY_RSHIFT]) && !justcset;
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, change_combo ? -1 : (cid + cx), cs);
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid + cx), cs);
 							}
 							
 							cid+=20;
@@ -10084,7 +10082,7 @@ int32_t select_command(const char *prompt,int32_t cmd)
     
     large_dialog(clist_dlg);
         
-    int32_t ret=zc_popup_dialog(clist_dlg,2);
+    int32_t ret=do_zqdialog(clist_dlg,2);
 	font = tfont;
     
     if(ret==0||ret==4)
@@ -11730,7 +11728,7 @@ int32_t onShowPal()
 	showpal_dlg[3].dp2=(void *)deffont;
 	
 	large_dialog(showpal_dlg);
-	zc_popup_dialog(showpal_dlg,2);
+	do_zqdialog(showpal_dlg,2);
 	destroy_bitmap(palbmp);
 	return D_O_K;
 }
@@ -11757,7 +11755,7 @@ int32_t onCSetFix()
     
     large_dialog(csetfix_dlg);
         
-    if(zc_popup_dialog(csetfix_dlg,-1)==6)
+    if(do_zqdialog(csetfix_dlg,-1)==6)
     {
         if(csetfix_dlg[2].flags&D_SELECTED)
         {
@@ -11985,7 +11983,7 @@ int32_t onTemplate()
     
     large_dialog(template_dlg);
         
-    if(zc_popup_dialog(template_dlg,-1)==5)
+    if(do_zqdialog(template_dlg,-1)==5)
     {
         saved=false;
         Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, Map.getCurrScr());
@@ -12079,7 +12077,7 @@ int32_t onComboPage()
     for(int32_t i=0; i<64; i++)
         cpage_dlg[i+6].flags = Map.CurrScr()->old_cpage==i?D_SELECTED:0;
         
-    int32_t ret = zc_popup_dialog(cpage_dlg,3);
+    int32_t ret = do_zqdialog(cpage_dlg,3);
     
     int32_t p = 0;
     
@@ -12167,7 +12165,7 @@ void select_scombo(int32_t &pos)
     //nothing
   }
 
-  if(zc_do_dialog(sel_scombo_dlg,3)==2)
+  if(do_zqdialog(sel_scombo_dlg,3)==2)
     pos = sel_scombo_dlg[1].d1;
 
   comeback();
@@ -12213,7 +12211,7 @@ int32_t select_cflag(const char *prompt,int32_t flag)
     
     do
     {
-        ret=zc_popup_dialog(cflag_dlg,2);
+        ret=do_zqdialog(cflag_dlg,2);
         
         if(ret==5)
         {
@@ -12759,7 +12757,7 @@ int32_t onSecretCombo()
     
     go();
     
-    if(zc_do_dialog(secret_dlg,3) == 2)
+    if(do_zqdialog(secret_dlg,3) == 2)
     {
         saved = false;
         s->secretcombo[sBCANDLE] = secret_dlg[92].d1;
@@ -12896,7 +12894,7 @@ int32_t onUnderCombo()
 	under_dlg[1].x=342;
 	under_dlg[4].x=438;
 	
-	int32_t ret = zc_popup_dialog(under_dlg,-1);
+	int32_t ret = do_zqdialog(under_dlg,-1);
 	
 	if(ret==7)
 	{
@@ -13121,7 +13119,7 @@ int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit
 		ilist_dlg[5].flags &= ~D_HIDDEN;
     }
     
-    exit_status=zc_popup_dialog(ilist_dlg,2);
+    exit_status=do_zqdialog(ilist_dlg,2);
     
     if(exit_status==0||exit_status==4)
     {
@@ -13478,7 +13476,7 @@ int32_t select_weapon(const char *prompt,int32_t weapon)
     
     large_dialog(wlist_dlg);
         
-    int32_t ret=zc_popup_dialog(wlist_dlg,2);
+    int32_t ret=do_zqdialog(wlist_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -13547,7 +13545,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
         list_dlg[2].dp3=0;
     }
     
-    int32_t ret=zc_popup_dialog(list_dlg,2);
+    int32_t ret=do_zqdialog(list_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -13586,7 +13584,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
         list_dlg[2].dp3=0;
     }
     
-    int32_t ret = zc_popup_dialog(list_dlg,2);
+    int32_t ret = do_zqdialog(list_dlg,2);
     list_dlg[3].dp=(void *) "OK";
     list_dlg[4].dp=(void *) "Cancel";
     
@@ -14014,7 +14012,7 @@ void EditScreenScript()
         
 	do
 	{
-		ret = zc_popup_dialog(screenscript_dlg,23);
+		ret = do_zqdialog(screenscript_dlg,23);
 		build_biscreens_list();
 		theMap->script = biscreens[screenscript_dlg[22].d1].second + 1;
 		
@@ -14231,7 +14229,7 @@ int32_t onScrData()
 	
 	large_dialog(scrdata_dlg);
 		
-	if(zc_popup_dialog(scrdata_dlg,-1)==2)
+	if(do_zqdialog(scrdata_dlg,-1)==2)
 	{
 		f=0;
 		
@@ -14825,7 +14823,7 @@ int32_t onUsedCombos()
     
     large_dialog(usedcombo_list_dlg);
         
-    zc_popup_dialog(usedcombo_list_dlg,2);
+    do_zqdialog(usedcombo_list_dlg,2);
     position_mouse_z(0);
     return D_O_K;
 }
@@ -14930,7 +14928,7 @@ int32_t onScreenPalette()
     
     large_dialog(screen_pal_dlg);
         
-    if(zc_popup_dialog(screen_pal_dlg,2)==3)
+    if(do_zqdialog(screen_pal_dlg,2)==3)
     {
         saved=false;
         Map.setcolor(screen_pal_dlg[2].d1);
@@ -15368,7 +15366,7 @@ int32_t onTriPieces()
     
     large_dialog(tp_dlg);
         
-    if(zc_popup_dialog(tp_dlg,-1) == 11)
+    if(do_zqdialog(tp_dlg,-1) == 11)
     {
         saved=false;
         
@@ -17002,7 +17000,7 @@ void editdmap(int32_t index)
 	
 	while(ret!=0&&ret!=1&&ret!=2)
 	{
-		ret=zc_popup_dialog(editdmap_dlg,-1);
+		ret=do_zqdialog(editdmap_dlg,-1);
 		
 		switch(ret)
 		{
@@ -18442,7 +18440,7 @@ int32_t onDmaps()
     
     
     
-    ret=zc_popup_dialog(selectdmap_dlg,2);
+    ret=do_zqdialog(selectdmap_dlg,2);
     dmap* pSelectedDmap = 0;
     
     
@@ -18478,7 +18476,7 @@ int32_t onDmaps()
             editdmap(d);
         }
         
-        ret=zc_popup_dialog(selectdmap_dlg,2);
+        ret=do_zqdialog(selectdmap_dlg,2);
     }
     
     return D_O_K;
@@ -18833,7 +18831,7 @@ int32_t onMidis()
     selectmidi_dlg[2].dp2 = 0;
     
     go();
-    ret=zc_do_dialog(selectmidi_dlg,2);
+    ret=do_zqdialog(selectmidi_dlg,2);
     
     while(ret!=4&&ret!=0)
     {
@@ -18854,7 +18852,7 @@ int32_t onMidis()
             edit_tune(d);
         }
         
-        ret=zc_do_dialog(selectmidi_dlg,2);
+        ret=do_zqdialog(selectmidi_dlg,2);
     }
     
     comeback();
@@ -18936,7 +18934,7 @@ int32_t onEnhancedMusic()
     strcpy(temppath,midipath);
     selectmusic_dlg[0].dp2=lfont;
     go();
-    ret=zc_do_dialog(selectmusic_dlg,2);
+    ret=do_zqdialog(selectmusic_dlg,2);
     while(ret!=4&&ret!=0)
     {
       int32_t d=selectmusic_dlg[2].d1;
@@ -18953,7 +18951,7 @@ int32_t onEnhancedMusic()
       {
         edit_midi(d);
       }
-      ret=zc_do_dialog(selectmusic_dlg,2);
+      ret=do_zqdialog(selectmusic_dlg,2);
     }
     comeback();
     */
@@ -20031,7 +20029,7 @@ int32_t onTileWarp()
 		warp_dlg[i+67].h=32;
 	}
     
-    int32_t ret=zc_popup_dialog(warp_dlg,-1);
+    int32_t ret=do_zqdialog(warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -20276,7 +20274,7 @@ int32_t onSideWarp()
 		warp_dlg[52].y -= 2;
 	}
     
-    int32_t ret=zc_popup_dialog(warp_dlg,-1);
+    int32_t ret=do_zqdialog(warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -20426,7 +20424,7 @@ int32_t onPath()
     
     do
     {
-        ret=zc_popup_dialog(path_dlg,7);
+        ret=do_zqdialog(path_dlg,7);
         
         if(ret==12) for(int32_t i=0; i<4; i++)
             {
@@ -20520,7 +20518,7 @@ void EditInfoType(int32_t index)
             
     large_dialog(editinfo_dlg);
         
-    int32_t ret = zc_popup_dialog(editinfo_dlg,-1);
+    int32_t ret = do_zqdialog(editinfo_dlg,-1);
     
     if(ret==16)
     {
@@ -20691,7 +20689,7 @@ void EditShopType(int32_t index)
     
     large_dialog(editshop_dlg);
         
-    int32_t ret = zc_popup_dialog(editshop_dlg,-1);
+    int32_t ret = do_zqdialog(editshop_dlg,-1);
     
     if(ret==16)
     {
@@ -20971,7 +20969,7 @@ void EditItemDropSet(int32_t index)
     
     large_dialog(edititemdropset_dlg);
         
-    int32_t ret = zc_popup_dialog(edititemdropset_dlg,-1);
+    int32_t ret = do_zqdialog(edititemdropset_dlg,-1);
     
     if(ret==2)
     {
@@ -21109,7 +21107,7 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     
     large_dialog(warpring_warp_dlg);
         
-    int32_t ret=zc_popup_dialog(warpring_warp_dlg,-1);
+    int32_t ret=do_zqdialog(warpring_warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -21252,7 +21250,7 @@ int32_t select_warp()
     {
         number_list_size = misc.warp[curr_ring].size;
         warpring_dlg[3].d1 = misc.warp[curr_ring].size-3;
-        ret = zc_popup_dialog(warpring_dlg,ret);
+        ret = do_zqdialog(warpring_dlg,ret);
     }
     while(ret==3);
     
@@ -21342,7 +21340,7 @@ int32_t onPattern()
     
     large_dialog(pattern_dlg);
         
-    if(zc_popup_dialog(pattern_dlg,2) < 4)
+    if(do_zqdialog(pattern_dlg,2) < 4)
     {
         saved=false;
         Map.CurrScr()->pattern = pattern_dlg[2].d1;
@@ -21726,7 +21724,7 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
         elist_dlg[5].flags &= ~D_HIDDEN;
     }
     
-    exit_status=zc_popup_dialog(elist_dlg,2);
+    exit_status=do_zqdialog(elist_dlg,2);
     
     if(exit_status==0||exit_status==4)
     {
@@ -21766,7 +21764,7 @@ int32_t select_guy(const char *prompt,int32_t guy)
     
     do
     {
-        ret=zc_popup_dialog(glist_dlg,2);
+        ret=do_zqdialog(glist_dlg,2);
         
         if(ret==5)
         {
@@ -21900,7 +21898,7 @@ int32_t onEnemies()
 		((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
 		((ListData *)enemy_dlg[2].dp)->a5font = &a5fonts[font_lfont_l];
 		
-		ret = zc_do_dialog(enemy_dlg,2);
+		ret = do_zqdialog(enemy_dlg,2);
 		
 		switch(ret)
 		{
@@ -22064,7 +22062,7 @@ int32_t onSubscreen()
     
     large_dialog(subscreen_type_dlg);
         
-    int32_t ret = zc_popup_dialog(subscreen_type_dlg,2);
+    int32_t ret = do_zqdialog(subscreen_type_dlg,2);
     
     if(ret==1)
     {
@@ -22763,7 +22761,7 @@ int32_t onOrgComboAliases()
 	{
 		iSrc = atoi((char*)orgcomboa_dlg[6].dp);
 		iDest = atoi((char*)orgcomboa_dlg[7].dp);
-		ret = zc_popup_dialog(orgcomboa_dlg,-1);
+		ret = do_zqdialog(orgcomboa_dlg,-1);
 		
 		if(ret!=1) return ret;
 		
@@ -22859,7 +22857,7 @@ int32_t onNewComboAlias()
     
     large_dialog(newcomboa_dlg);
     
-    int32_t ret = zc_popup_dialog(newcomboa_dlg,-1);
+    int32_t ret = do_zqdialog(newcomboa_dlg,-1);
     
     if(ret==1)
     {
@@ -23403,7 +23401,7 @@ int32_t onEditComboAlias()
 		editcomboa_dlg[21].dp2=lfont_l;
 	}
     
-    int32_t ret=zc_popup_dialog(editcomboa_dlg,-1);
+    int32_t ret=do_zqdialog(editcomboa_dlg,-1);
     
     if(ret==1)
     {
@@ -23577,13 +23575,13 @@ int32_t onSelectFFCombo()
 		ffcombo_sel_dlg[5].y--;
 	}
     
-    int32_t ret=zc_popup_dialog(ffcombo_sel_dlg,0);
+    int32_t ret=do_zqdialog(ffcombo_sel_dlg,0);
     
     while(ret==1)
     {
         ff_combo = ffcombo_sel_dlg[3].d1;
         call_ffc_dialog(ff_combo);
-        ret=zc_popup_dialog(ffcombo_sel_dlg,0);
+        ret=do_zqdialog(ffcombo_sel_dlg,0);
     }
     
     destroy_bitmap(ffcur);
@@ -24979,7 +24977,7 @@ void showScriptInfo(zasm_meta const* meta)
 	large_dialog(scriptinfo_dlg);
 	jwin_zmeta_proc(MSG_START,&scriptinfo_dlg[3],0); //Calculate size before calling dialog
 	jwin_center_dialog(scriptinfo_dlg);
-	zc_popup_dialog(scriptinfo_dlg,2);
+	do_zqdialog(scriptinfo_dlg,2);
 }
 
 static int32_t compiler_tab_list_global[] =
@@ -25201,7 +25199,7 @@ int32_t onZScriptCompilerSettings()
 	
  
 	
-	int32_t ret = zc_popup_dialog(zscript_parser_dlg,4);
+	int32_t ret = do_zqdialog(zscript_parser_dlg,4);
 	
 	if(ret==4)
 	{
@@ -25251,7 +25249,7 @@ void doEditZScript(int32_t bg,int32_t fg)
     edit_zscript_dlg[2].dp = em;
     edit_zscript_dlg[2].bg = bg;
     
-    zc_popup_dialog(edit_zscript_dlg,2);
+    do_zqdialog(edit_zscript_dlg,2);
     
     if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
         zScript = old;
@@ -27546,7 +27544,7 @@ void doClearSlots(byte* flags)
 	
 	large_dialog(clearslots_dlg);
 	
-	if(zc_popup_dialog(clearslots_dlg,2)==1)
+	if(do_zqdialog(clearslots_dlg,2)==1)
 	{
 		int32_t q = 3;
 		while((clearslots_dlg[++q].flags & D_SELECTED) == 0);
@@ -27650,7 +27648,7 @@ int32_t onExportZASM()
 	while(!scriptChoice)
 	{
 		large_dialog(exportzasm_dlg);
-		indx = zc_popup_dialog(exportzasm_dlg, indx);
+		indx = do_zqdialog(exportzasm_dlg, indx);
 		switch(indx)
 		{
 			case 1: //confirm; exit dlg
@@ -27889,7 +27887,7 @@ int32_t onImportZASM()
 	while(!confirmed)
 	{
 		large_dialog(importzasm_dlg);
-		indx = zc_popup_dialog(importzasm_dlg, indx);
+		indx = do_zqdialog(importzasm_dlg, indx);
 		switch(indx)
 		{
 			case 1: //confirm; exit dlg
@@ -28068,7 +28066,7 @@ int32_t select_sfx(const char *prompt,int32_t index)
     
     large_dialog(sfxlist_dlg);
         
-    int32_t ret=zc_popup_dialog(sfxlist_dlg,2);
+    int32_t ret=do_zqdialog(sfxlist_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -28411,7 +28409,7 @@ int32_t onEditSFX(int32_t index)
 		
 	do
 	{
-		ret=zc_popup_dialog(sfx_edit_dlg,1);
+		ret=do_zqdialog(sfx_edit_dlg,1);
 		
 		switch(ret)
 		{
@@ -28630,7 +28628,7 @@ int32_t onMapStyles()
     large_dialog(mapstyles_dlg,2);
         
     go();
-    int32_t ret = zc_do_dialog(mapstyles_dlg,-1);
+    int32_t ret = do_zqdialog(mapstyles_dlg,-1);
     comeback();
     
     if(ret==23)
@@ -28896,7 +28894,7 @@ int32_t onMiscColors()
     
     large_dialog(misccolors_dlg);
         
-    if(zc_popup_dialog(misccolors_dlg,0)==52)
+    if(do_zqdialog(misccolors_dlg,0)==52)
     {
         saved=false;
         si = &(misc.colors.text);
@@ -28990,7 +28988,7 @@ void doHelp(int32_t bg,int32_t fg)
     help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     help_dlg[2].bg = bg;
-    zc_popup_dialog(help_dlg,2);
+    do_zqdialog(help_dlg,2);
     delete(EditboxModel*)(help_dlg[2].dp);
 }
 
@@ -29019,7 +29017,7 @@ void doshieldblockhelp(int32_t bg,int32_t fg)
     shieldblockhelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     shieldblockhelp_dlg[2].bg = bg;
-    zc_popup_dialog(shieldblockhelp_dlg,2);
+    do_zqdialog(shieldblockhelp_dlg,2);
     delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
 }
 
@@ -29048,7 +29046,7 @@ void dozscripthelp(int32_t bg,int32_t fg)
     zscripthelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     zscripthelp_dlg[2].bg = bg;
-    zc_popup_dialog(zscripthelp_dlg,2);
+    do_zqdialog(zscripthelp_dlg,2);
     delete(EditboxModel*)(zscripthelp_dlg[2].dp);
 }
 
@@ -29077,7 +29075,7 @@ void doZstringshelp(int32_t bg,int32_t fg)
     Zstringshelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     Zstringshelp_dlg[2].bg = bg;
-    zc_popup_dialog(Zstringshelp_dlg,2);
+    do_zqdialog(Zstringshelp_dlg,2);
     delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
 }
 
@@ -29169,7 +29167,7 @@ int32_t edit_layers(mapscr* tempscr)
     
     large_dialog(layerdata_dlg);
         
-    int32_t ret=zc_popup_dialog(layerdata_dlg,0);
+    int32_t ret=do_zqdialog(layerdata_dlg,0);
     
     if(ret>=2)
     {
@@ -29228,7 +29226,7 @@ void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
     
     large_dialog(autolayer_dlg);
         
-    int32_t ret=zc_popup_dialog(autolayer_dlg,0);
+    int32_t ret=do_zqdialog(autolayer_dlg,0);
     
     if(ret==4)
     {
@@ -32053,7 +32051,7 @@ void destroy_bitmaps_on_exit()
         al_destroy_bitmap(icon_bmp[i/4][i%4]);
         
     for(int32_t i=0; i<2; i++)
-        destroy_bitmap(select_bmp[i]);
+        al_destroy_bitmap(select_bmp[i]);
         
     for(int32_t i=0; i<MAXARROWS; i++)
         destroy_bitmap(arrow_bmp[i]);
