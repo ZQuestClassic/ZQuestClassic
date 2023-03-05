@@ -9948,7 +9948,10 @@ int32_t enemy::run_script(int32_t mode)
 	}
 	return ret;
 }
-
+ALLEGRO_COLOR enemy::hitboxColor(byte opacity) const
+{
+	return al_map_rgba(255,0,0,opacity);
+}
 /********************************/
 /*********  Guy Class  **********/
 /********************************/
@@ -16736,7 +16739,8 @@ bool esMoldorm::animate(int32_t index)
 			y.doFloor();
 		}
 		
-		parentclk=(parentclk+1)%((int32_t)(8.0/step));
+		if(step)
+			parentclk=(parentclk+1)%((int32_t)(8.0/step));
 		
 		if(!watch)
 		{

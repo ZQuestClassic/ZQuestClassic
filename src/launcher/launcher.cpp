@@ -165,7 +165,6 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal("failed: version error\n");
 		QUIT_LAUNCHER();
 	}
-	initFonts();
 	Z_message("OK\n");
 	//} end Fonts.Dat...OK
 	packfile_password("");
@@ -186,6 +185,10 @@ int32_t main(int32_t argc, char* argv[])
 		Z_error_fatal(allegro_error);
 		QUIT_LAUNCHER();
 	}
+	al_init_image_addon();
+	al_init_font_addon();
+	al_init_primitives_addon();
+	initFonts();
 	
 	Z_message("Loading bitmaps..."); //{
 	tmp_scr = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
@@ -370,11 +373,6 @@ int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
 	return D_O_K;
 }
 
-int32_t d_kbutton_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
 int32_t d_listen_proc(int32_t, DIALOG*, int32_t)
 {
 	return D_O_K;
@@ -459,7 +457,7 @@ void init_launcher_palette()
 	
 	load_colorset(gui_colorset);
 	
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 }
 
@@ -481,20 +479,32 @@ static RenderTreeItem rti_screen;
 
 static int zc_gui_mouse_x()
 {
-	return rti_screen.global_to_local_x(mouse_x);
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
+	}
+	else return rti_screen.global_to_local_x(mouse_x);
 }
 
 static int zc_gui_mouse_y()
 {
-	return rti_screen.global_to_local_y(mouse_y);
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
+	}
+	else return rti_screen.global_to_local_y(mouse_y);
 }
 
+bool use_linear_bitmaps()
+{
+	return zc_get_config("ZLAUNCH", "scaling_mode", 0) == 1;
+}
 static void init_render_tree()
 {
 	if (!rti_root.children.empty())
 		return;
-
-	if (zc_get_config("ZLAUNCH", "scaling_mode", 0) == 1)
+	
+	if (use_linear_bitmaps())
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 	else
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
@@ -502,6 +512,7 @@ static void init_render_tree()
 	rti_screen.a4_bitmap = screen;
 
 	rti_root.children.push_back(&rti_screen);
+	rti_root.children.push_back(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -516,7 +527,8 @@ static void configure_render_tree()
 
 	rti_root.transform.x = 0;
 	rti_root.transform.y = 0;
-	rti_root.transform.scale = 1;
+	rti_root.transform.xscale = 1;
+	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 
 	{
@@ -524,26 +536,49 @@ static void configure_render_tree()
 
 		int w = al_get_bitmap_width(rti_screen.bitmap);
 		int h = al_get_bitmap_height(rti_screen.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
 		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
-		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
-		rti_screen.transform.scale = scale;
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
+		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_screen.transform.xscale = xscale;
+		rti_screen.transform.yscale = yscale;
 		rti_screen.visible = true;
+		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_dialogs.transform.xscale = xscale;
+		rti_dialogs.transform.yscale = yscale;
+		rti_dialogs.visible = true;
 	}
+}
+
+void popup_zqdialog_menu()
+{
+	popup_zqdialog_start_a5();
+}
+void popup_zqdialog_menu_end()
+{
+	popup_zqdialog_end_a5();
 }
 
 static void render_launcher()
 {
 	init_render_tree();
 	configure_render_tree();
+	if(render_frozen()) return;
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
+	al_restore_state(&old_state);
 }
 
 bool update_hw_pal = false;
@@ -554,7 +589,7 @@ void update_hw_screen(bool force)
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
-			set_palette(RAMpal);
+			zc_set_palette(RAMpal);
 			load_mouse();
 		}
 		update_hw_pal=false;

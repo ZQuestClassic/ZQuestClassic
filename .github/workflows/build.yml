@@ -13,6 +13,7 @@ on:
       config:
         type: string
         default: "Release"
+        required: true
       cache:
         type: boolean
         default: true
@@ -77,7 +78,7 @@ jobs:
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         name: Install Dependencies
-        uses: crazy-max/ghaction-chocolatey@v1
+        uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install .github/dependencies.config -y
 
@@ -169,7 +170,7 @@ jobs:
             print('{0}={1}'.format('package-name', package_name), file=f)
       - name: Package
         if: inputs.config != 'Coverage'
-        uses: knicknic/os-specific-run@v1.0.3
+        uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
         with:
           windows: |
             python scripts/package.py --build_folder build/${{ inputs.config }}

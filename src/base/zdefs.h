@@ -14,6 +14,7 @@
 
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
+extern bool devcfg, devcfg_active;
 
 //DEVLEVEL 1 = extra debug tools
 //DEVLEVEL 2 = force enable cheats
@@ -151,6 +152,8 @@ typedef unsigned const char ucc;
 #define MIN_SIGNED_32 (-2147483647-1)
 #define MAX_DWORD dword(-1)
 #define MIN_DWORD 0
+#define LARGE_W       912
+#define LARGE_H       684
 
 #include "ffc.h"
 #include "metadata/metadata.h"
@@ -160,6 +163,7 @@ typedef unsigned const char ucc;
 #include "base/random.h"
 #include "base/util.h"
 #include "base/process_management.h"
+#include "base/render.h"
 #include "zconfig.h"
 #include "user_object.h"
 #include "mapscr.h"
@@ -293,7 +297,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            25
 #define V_DMAPS            17
 #define V_DOORS            1
-#define V_ITEMS           53
+#define V_ITEMS           54
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -401,9 +405,6 @@ extern volatile bool close_button_quit;
 #define BLACK         253
 #define WHITE         254
 
-#define LARGE_W       912
-#define LARGE_H       684
-
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
 #define SIDE_TO_DIAG		1.4142
@@ -441,7 +442,7 @@ extern volatile bool close_button_quit;
 //TODO Turn this into an init data var, and allow editing it per-weapon! -Em
 #define DEFAULT_FIRE_LIGHT_RADIUS 40
 
-#define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+12)%12))
+#define WRAP_CS2(cs,cs2) (get_bit(quest_rules,qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+14)%14))
 
 #define XOR(a,b) (!(a) != !(b))
 #define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
@@ -1853,33 +1854,6 @@ enum
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
-
-struct size_and_pos
-{
-	int x = -1, y = -1;
-	int w = -1, h = -1;
-	int xscale = 1, yscale = 1;
-	int fw = -1, fh = -1;
-	
-	int data[8] = {0};
-	
-	//Get virtual values
-	int tw() const;
-	int th() const;
-	
-	void clear(); //Clear to default vals
-	
-	bool rect(int mx, int my) const; //Check rect collision
-	int rectind(int mx, int my) const; //Check scaled collision
-	
-	//Set coord values
-	void set(int nx, int ny, int nw, int nh);
-	void set(int nx, int ny, int nw, int nh, int xs, int ys);
-	
-	size_and_pos const& subsquare(int ind) const;
-	size_and_pos const& subsquare(int col, int row) const;
-	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
-};
 
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
@@ -5594,8 +5568,10 @@ extern char tmp_themefile[2048];
 char const* get_themefile();
 void set_theme(char const* fpath);
 void reset_theme();
+void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_themefile(char const* fpath, PALETTE pal);
 void load_themefile(char const* fpath);
+void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
 void save_themefile(char const* fpath, PALETTE pal);
 void save_themefile(char const* fpath);
 void load_udef_colorset(App a, PALETTE pal);

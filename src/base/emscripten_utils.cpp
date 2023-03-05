@@ -6,7 +6,10 @@
 
 EM_ASYNC_JS(void, em_init_fs_, (), {
   // Initialize the filesystem with 0-byte files for every quest.
-  const quests = await ZC.fetch("https://hoten.cc/quest-maker/play/quest-manifest.json");
+  const quests = await ZC.fetch("https://hoten.cc/quest-maker/play/quest-manifest.json").catch(error => {
+	console.error(error.toString());
+	return [];
+  });
   FS.mkdir('/_quests');
 
   function writeFakeFile(path, url) {

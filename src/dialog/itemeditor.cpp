@@ -856,13 +856,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_flippers:
 		{
 			_SET(flag[0], "No Diving", "If checked, these flippers cannot dive.");
+			_SET(flag[1], "Cancellable Diving", "Pressing B will immediately cancel a dive");
 			_SET(flag[2], "Can Swim in Lava", "These flippers will be able to swim in liquid marked as 'Lava'.");
-			if(!FLAG(1))
-			{
-				_SET(flag[1], "Cancellable Diving", "Pressing B will immediately cancel a dive");
-				_SET(misc[0], "Dive Length:", "Length, in frames, of the dive.");
-				_SET(misc[1], "Dive Cooldown:", "Cooldown, in frames, between coming up from a dive and being able to dive again.");
-			}
+			
+			_SET(misc[0], "Dive Length:", "Length, in frames, of the dive.");
+			_SET(misc[1], "Dive Cooldown:", "Cooldown, in frames, between coming up from a dive and being able to dive again.");
+			_SET(misc[2], "Dive Button", "If 0, diving will not be possible.\n"
+				"Otherwise, any of the specified buttons will dive.\n"
+				"Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)");
 			break;
 		}
 		case itype_raft:

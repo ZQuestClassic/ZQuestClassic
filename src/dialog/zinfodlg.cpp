@@ -632,7 +632,7 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				if(load_zi(tmp_zinfo))
 				{
 					loaded_zi = true;
-					rerun_dlg = true;
+					runner.rerun_dlg = true;
 					return true;
 				}
 			}

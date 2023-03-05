@@ -111,6 +111,17 @@ async function main() {
       }
     }
 
+    if (TARGET === 'zelda') {
+      if (params.get('replay')) args.push('-replay', params.get('replay'));
+      if (params.has('replayExitWhenDone')) args.push('-replay-exit-when-done');
+      if (params.get('record')) args.push('-record', params.get('record'));
+      if (params.get('assert')) args.push('-assert', params.get('assert'));
+      if (params.get('frame')) args.push('-frame', params.get('frame'));
+      if (params.has('v0')) args.push('-v0');
+      if (params.has('v1')) args.push('-v1');
+      if (params.has('showFps')) args.push('-show-fps');
+    }
+
     // window.Module = await initModule({
     window.Module = {
       arguments: args,
@@ -175,7 +186,15 @@ async function main() {
 
         const progress = (Module.totalDependencies - left) / (Module.totalDependencies);
         Module.setStatus(left ? `Preparing... (${Module.totalDependencies - left}/${Module.totalDependencies})` : '', progress);
-      }
+      },
+      onExit: function (code) {
+        const msg = `exit with code: ${code}`;
+        if (code === 0) {
+          console.log(msg);
+        } else {
+          console.error(msg);
+        }
+      },
     };
 
     window.addEventListener('resize', resize);

@@ -22,9 +22,11 @@
 #include "zq_class.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
+#include "jwin_a5.h"
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
+#include "drawing.h"
 
 #include "metadata/metadata.h"
 
@@ -138,14 +140,28 @@ void load_mice()
 
 void load_icons()
 {
+	BITMAP* buf = create_bitmap_ex(8,16,16);
     for(int32_t i=0; i<ICON_BMP_MAX; i++)
     {
         for(int32_t j=0; j<4; j++)
         {
-            icon_bmp[i][j] = create_bitmap_ex(8,16,16);
-            blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
-        }
+            blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,j*17+1,0,0,16,16);
+			icon_bmp[i][j] = all_get_a5_bitmap(buf);
+		}
+		switch(i)
+		{
+			case ICON_BMP_WARPDEST:
+			{
+				blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,1,0,0,16,16);
+				replColor(buf, 0xE7, 0xEA, 0xEA, false);
+				replColor(buf, 0xE8, 0xE2, 0xE2, false);
+				icon_bmp[i][4] = all_get_a5_bitmap(buf);
+				break;
+			}
+			default: icon_bmp[i][4] = nullptr;
+		}
     }
+	destroy_bitmap(buf);
 }
 
 void load_selections()
@@ -180,17 +196,6 @@ void dump_pal()
 {
     for(int32_t i=0; i<256; i++)
         rectfill(screen,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
-}
-
-int32_t wrap(int32_t x,int32_t low,int32_t high)
-{
-    while(x<low)
-        x+=high-low+1;
-
-    while(x>high)
-        x-=high-low+1;
-
-    return x;
 }
 
 bool readfile(const char *path,void *buf,int32_t count)
@@ -259,7 +264,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    set_palette_range(RAMpal,0,192,true);
+    zc_set_palette_range(RAMpal,0,0xE0);
 }
 
 void loadlvlpal(int32_t level)
@@ -267,7 +272,7 @@ void loadlvlpal(int32_t level)
 	Color=level;
 
 	// full pal
-	for(int32_t i=0; i<192; i++)
+	for(int32_t i=0; i<0xE0; i++)
 		RAMpal[i] = _RGB(colordata+i*3);
 
 	// level pal
@@ -339,21 +344,19 @@ void loadfadepal(int32_t dataset)
     set_pal();
 }
 
-void setup_lcolors()
+ALLEGRO_COLOR real_lc1(int pal)
 {
-    for(int32_t i=0; i<16; i++)
-    {
-        RAMpal[lc1(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+2)*3);
-        RAMpal[lc2(i)] = _RGB(colordata+(CSET(i*pdLEVEL+poLEVEL)+16+1)*3);
-    }
-
-    set_palette(RAMpal);
+	return a5color(_RGB(colordata+(CSET(pal*pdLEVEL+poLEVEL)+2)*3));
+}
+ALLEGRO_COLOR real_lc2(int pal)
+{
+	return a5color(_RGB(colordata+(CSET(pal*pdLEVEL+poLEVEL)+16+1)*3));
 }
 
 void refresh_pal()
 {
     loadlvlpal(Color);
-    setup_lcolors();
+    zc_set_palette(RAMpal);
 }
 
 char ns_string[4];
@@ -1316,7 +1319,7 @@ int32_t onShowDarkness()
 			}
 
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-			set_palette(RAMpal);
+			zc_set_palette(RAMpal);
 
 			readkey();
 
@@ -1353,7 +1356,7 @@ void setFlagColor(int32_t c)
 {
 	theFlagColor = c%16;
     RAMpal[dvc(0)]=RAMpal[vc(c%16)];
-    set_palette_range(RAMpal,dvc(0),dvc(0),false);
+    zc_set_palette_range(RAMpal,dvc(0),dvc(0));
 }
 
 int32_t onIncreaseFlag()
@@ -1414,11 +1417,6 @@ int32_t onDumpScr();
 
 // these are here so that copy_dialog won't choke when compiling zquest
 int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}
-
-int32_t d_kbutton_proc(int32_t, DIALOG*, int32_t)
 {
     return D_O_K;
 }

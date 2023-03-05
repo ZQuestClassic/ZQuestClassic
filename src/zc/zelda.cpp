@@ -61,6 +61,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 #include <regex>
+#include "zc/render.h"
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -329,7 +330,7 @@ int32_t curr_tb_page=0;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
+BITMAP     *framebuf, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
@@ -690,7 +691,7 @@ void update_hw_screen(bool force)
 		resy = al_get_display_height(all_get_display());
 		if(update_hw_pal && hw_palette)
 		{
-			set_palette(*hw_palette);
+			zc_set_palette(*hw_palette);
 			update_hw_pal = false;
 		}
 		framecnt++;
@@ -4375,7 +4376,7 @@ int32_t onFullscreen()
 	    //Everything set?
 	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
 	    
-	    set_palette(oldpal);
+	    zc_set_palette(oldpal);
 	    gui_mouse_focus=0;
 	    show_mouse(screen);
 	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
@@ -4764,8 +4765,7 @@ int main(int argc, char **argv)
 			append_filename(path, qstdir, moduledata.quests[q], 2048);
 			if(!exists(moduledata.quests[q]) && !exists(path))
 			{
-				Z_error_fatal("%s not found.\n", moduledata.quests[q]);
-				quit_game();
+				Z_error("%s not found.\n", moduledata.quests[q]);
 			}
 		}
 		Z_message("OK\n");
@@ -4826,7 +4826,6 @@ int main(int argc, char **argv)
 	//set_color_depth(32);
 	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
-	menu_bmp  = create_bitmap_ex(8,640,480);
 	temp_buf  = create_bitmap_ex(8,256,224);
 	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
 	scrollbuf_old = create_bitmap_ex(8,512,406);
@@ -4883,6 +4882,7 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-v0")) Throttlefps=false;
 	
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
+	if(used_switch(argc,argv,"-show-fps")) ShowFPS=true;
 	
 	resolve_password(zeldapwd);
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
@@ -5018,7 +5018,6 @@ int main(int argc, char **argv)
 	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
 	
 	set_uformat(U_ASCII);
-	initFonts();
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -5254,6 +5253,7 @@ int main(int argc, char **argv)
 	{
 		Z_message("set gfx mode succsessful at -%d %dbpp %d x %d \n", tempmode, get_color_depth(), resx, resy);
 	}
+	initFonts();
 
 #ifndef __EMSCRIPTEN__
 	if (!all_get_fullscreen_flag()) {
@@ -5641,6 +5641,7 @@ reload_for_replay_file:
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
 		}
+		clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
 
 		if (load_replay_file_deffered_called)
 		{

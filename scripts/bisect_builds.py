@@ -142,7 +142,7 @@ def download_release(tag: str):
 def get_release_binaries(tag: str):
     dir = download_release(tag)
 
-    binaries = {}
+    binaries = {'dir': dir}
     if channel == 'mac':
         binaries['zc'] = dir / 'ZeldaClassic.app/Contents/Resources/zelda'
         binaries['zq'] = dir / 'ZeldaClassic.app/Contents/Resources/zquest'
@@ -230,11 +230,12 @@ def run_bisect(releases: List):
 
         if args.command:
             cmd = args.command
-            cmd = cmd.replace('%zc', str(binaries['zc']))
-            cmd = cmd.replace('%zq', str(binaries['zq']))
-            cmd = cmd.replace('%zl', str(binaries['zl']))
+            cmd = cmd.replace('%zc', f'"{binaries["zc"]}"')
+            cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
+            cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
             print(f'running command: {cmd}')
-            subprocess.call(cmd)
+            retcode = subprocess.call(cmd, cwd=binaries['dir'], shell=True)
+            print(f'code: {retcode}')
 
         answer = AskIsGoodBuild()
         if answer == 'g':

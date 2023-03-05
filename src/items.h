@@ -72,7 +72,7 @@ public:
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
 	virtual int32_t run_script(int32_t mode);
-	
+	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	void set_forcegrab(bool val)
 	{
 		if(force_grab && !val)

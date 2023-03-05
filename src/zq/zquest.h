@@ -12,6 +12,7 @@
 #include "parser/parserDefs.h"
 #include "zfix.h"
 #include "base/fonts.h"
+#include "sizepos.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -39,7 +40,6 @@
 #ifdef ALLEGRO_MACOSX
 extern int32_t midi_strict; //L
 #endif
-extern bool cancelgetnum;
 
 extern int32_t RulesetDialog;
 
@@ -102,7 +102,7 @@ extern size_and_pos dummy_panel;
 extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
-extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
+extern int32_t mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
 
@@ -118,7 +118,8 @@ extern char *datafile_str;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5];
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
@@ -130,7 +131,6 @@ extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
 extern PALETTE RAMpal;
 extern midi_info Midi_Info;
-extern bool zq_showpal;
 extern bool combo_cols;
 extern bool zoomed_minimap;
 
@@ -256,7 +256,6 @@ void rebuild_string_list();
 int32_t onResetTransparency();
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t getnumber(const char *prompt,int32_t initialval);
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
 void about_module(const char *prompt,int32_t initialval);
@@ -282,7 +281,6 @@ void do_importdoorset(const char *prompt,int32_t initialval);
 void do_exportdoorset(const char *prompt,int32_t initialval);
 
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
-int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
@@ -417,7 +415,7 @@ INLINE int32_t pal_sum(RGB p)
 
 void get_bw(RGB *pal,int32_t &black,int32_t &white);
 void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse);
-int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout = true);
 int32_t onViewPic();
 int32_t load_the_map();
 int32_t onViewMap();
@@ -785,6 +783,7 @@ extern combo_pool combo_pools[MAXCOMBOPOOLS];
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
+void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx = -1, int targy = -1);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
@@ -975,7 +974,6 @@ const char *warptypelist(int32_t index, int32_t *list_size);
 
 //int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
-int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
 int32_t onTimedWarp();
@@ -1211,14 +1209,8 @@ int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
-void debug_pos(size_and_pos const& pos, int color = 0xED);
 void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
-void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick = 2);
-void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
-void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick = 2);
-void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
-void draw_ttip(BITMAP* dest);
-void draw_ttip2(BITMAP* dest);
+void draw_ttips(RenderTreeItem* ttdest, RenderTreeItem* hldest);
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);

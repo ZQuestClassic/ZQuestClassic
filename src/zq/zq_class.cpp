@@ -859,139 +859,133 @@ const char *loaderror[] =
 
 int32_t zmap::load(const char *path)
 {
-    // int32_t size=file_size(path);
-    
-    PACKFILE *f=pack_fopen_password(path,F_READ, "");
-    
-    if(!f)
-        return 1;
-        
-        
-    int16_t version;
-    byte build;
-    
-    //get the version
-    if(!p_igetw(&version,f,true))
-    {
-        goto file_error;
-    }
-    
-    //get the build
-    if(!p_getc(&build,f,true))
-    {
-        goto file_error;
-    }
-    
-    zcmap temp_map;
-    temp_map.scrResWidth = 256;
-    temp_map.scrResHeight = 224;
-    temp_map.tileWidth = 16;
-    temp_map.tileHeight = 11;
-    temp_map.viewWidth = 256;
-    temp_map.viewHeight = 176;
-    temp_map.viewX = 0;
-    temp_map.viewY = 64;
-    temp_map.subaWidth = 256;
-    temp_map.subaHeight = 168;
-    temp_map.subaTrans = false;
-    temp_map.subpWidth = 256;
-    temp_map.subpHeight = 56;
-    temp_map.subpTrans = false;
-    
-    for(int32_t i=0; i<MAPSCRS; i++)
-    {
-        mapscr tmpimportscr;
-        
-        if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
+	// int32_t size=file_size(path);
+	
+	PACKFILE *f=pack_fopen_password(path,F_READ, "");
+	
+	if(!f)
+		return 1;
+		
+		
+	int16_t version;
+	byte build;
+	
+	//get the version
+	if(!p_igetw(&version,f,true))
 	{
-		al_trace("failed zmap::load\n");
-            goto file_error;
+		goto file_error;
 	}
-        bool copied = false;
-        
-        switch(ImportMapBias)
-        {
-        case 0:
-            *(screens+i) = tmpimportscr;
-            copied = true;
-            break;
-            
-        case 1:
-            if(!(screens[i].valid&mVALID))
-            {
-                *(screens+i) = tmpimportscr;
-                copied = true;
-            }
-            
-            break;
-            
-        case 2:
-            if(tmpimportscr.valid&mVALID)
-            {
-                *(screens+i) = tmpimportscr;
-                copied = true;
-            }
-            
-            break;
-        }
-        
-        if(!copied)
-        {
-        }
-    }
-    
-    
-    pack_fclose(f);
-    
-    if(!(screens[0].valid&mVERSION))
-    {
-        jwin_alert("Confirm Clear All","Clear all?",NULL,NULL,"O&K",NULL,'k',0,lfont);
-        clearmap(false);
-        return 3;
-    }
-    
-    setCurrScr(0);
-    return 0;
-    
+	
+	//get the build
+	if(!p_getc(&build,f,true))
+	{
+		goto file_error;
+	}
+	
+	zcmap temp_map;
+	temp_map.scrResWidth = 256;
+	temp_map.scrResHeight = 224;
+	temp_map.tileWidth = 16;
+	temp_map.tileHeight = 11;
+	temp_map.viewWidth = 256;
+	temp_map.viewHeight = 176;
+	temp_map.viewX = 0;
+	temp_map.viewY = 64;
+	temp_map.subaWidth = 256;
+	temp_map.subaHeight = 168;
+	temp_map.subaTrans = false;
+	temp_map.subpWidth = 256;
+	temp_map.subpHeight = 56;
+	temp_map.subpTrans = false;
+	
+	for(int32_t i=0; i<MAPSCRS; i++)
+	{
+		mapscr tmpimportscr;
+		tmpimportscr.zero_memory();
+		if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
+		{
+			al_trace("failed zmap::load\n");
+				goto file_error;
+		}
+		bool copied = false;
+		
+		switch(ImportMapBias)
+		{
+			case 0:
+				*(screens+i) = tmpimportscr;
+				copied = true;
+				break;
+				
+			case 1:
+				if(!(screens[i].valid&mVALID))
+				{
+					*(screens+i) = tmpimportscr;
+					copied = true;
+				}
+				break;
+				
+			case 2:
+				if(tmpimportscr.valid&mVALID)
+				{
+					*(screens+i) = tmpimportscr;
+					copied = true;
+				}
+				break;
+		}
+	}
+	
+	
+	pack_fclose(f);
+	
+	if(!(screens[0].valid&mVERSION))
+	{
+		jwin_alert("Confirm Clear All","Clear all?",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		clearmap(false);
+		return 3;
+	}
+	
+	setCurrScr(0);
+	return 0;
+	
 file_error:
-    pack_fclose(f);
-    clearmap(false);
-    return 2;
+	pack_fclose(f);
+	clearmap(false);
+	return 2;
 }
 
 int32_t zmap::save(const char *path)
 {
-    PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
-    
-    if(!f)
-        return 1;
-        
-    int16_t version=ZELDA_VERSION;
-    byte  build=VERSION_BUILD;
-    
-    if(!p_iputw(version,f))
-    {
-        pack_fclose(f);
-        return 3;
-    }
-    
-    if(!p_putc(build,f))
-    {
-        pack_fclose(f);
-        return 3;
-    }
-    
-    for(int32_t i=0; i<MAPSCRS; i++)
-    {
-        if(writemapscreen(f,this->getCurrMap(),i) == qe_invalid)
-        {
-            pack_fclose(f);
-            return 2;
-        }
-    }
-    
-    pack_fclose(f);
-    return 0;
+	PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
+	
+	if(!f)
+		return 1;
+		
+	int16_t version=ZELDA_VERSION;
+	byte  build=VERSION_BUILD;
+	
+	if(!p_iputw(version,f))
+	{
+		pack_fclose(f);
+		return 3;
+	}
+	
+	if(!p_putc(build,f))
+	{
+		pack_fclose(f);
+		return 3;
+	}
+	
+	for(int32_t i=0; i<MAPSCRS; i++)
+	{
+		if(writemapscreen(f,this->getCurrMap(),i) == qe_invalid)
+		{
+			pack_fclose(f);
+			return 2;
+		}
+	}
+	
+	pack_fclose(f);
+	return 0;
 }
 
 
@@ -13976,7 +13970,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	
 	
 	
-	box_start(1, "Saving Quest", lfont, font, true);
+	box_start(1, "Saving Quest", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), true);
 	box_out("Saving Quest...");
 	box_eol();
 	box_eol();

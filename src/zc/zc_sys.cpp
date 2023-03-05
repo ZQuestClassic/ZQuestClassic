@@ -32,6 +32,7 @@
 #include "render.h"
 #include "base/zc_math.h"
 #include "base/zapp.h"
+#include "dialog/cheatkeys.h"
 
 #ifdef ALLEGRO_DOS
 #include <unistd.h>
@@ -47,7 +48,7 @@
 #include "zc_sys.h"
 #include "play_midi.h"
 #include "debug.h"
-#include "jwin.h"
+#include "jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 #include "midi.h"
@@ -103,7 +104,6 @@ static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
-
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -244,17 +244,19 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
+		auto& proc = d[i].proc;
+		bool bigfontproc = (proc != d_midilist_proc && proc != jwin_droplist_proc && proc != jwin_abclist_proc && proc != jwin_list_proc);
+		bool a5proc = (proc == jwin_win_proc_a5 || proc == jwin_tab_proc_a5 || proc == jwin_text_proc_a5 || proc == jwin_ctext_proc_a5 || proc == jwin_rtext_proc_a5 || proc == new_text_proc_a5 || proc == jwin_button_proc_a5
+			|| proc == jwin_selcolor_proc_a5 || proc == jwin_color_swatch_a5);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
-			//d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
-			d[i].dp2 = lfont_l;
+			d[i].dp2 = a5proc ? (void*)get_custom_font_a5(CFONT_DLG) : (void*)get_custom_font(CFONT_DLG);
 		}
 		else if(!bigfontproc)
 		{
-//	  ((ListData *)d[i].dp)->font = &sfont3;
 			((ListData *)d[i].dp)->font = &lfont_l;
+			((ListData *)d[i].dp)->a5font = &a5fonts[font_lfont_l];
 		}
 		
 		// Make checkboxes work
@@ -262,6 +264,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].proc = jwin_checkfont_proc;
 		else if(d[i].proc == jwin_radio_proc)
 			d[i].proc = jwin_radiofont_proc;
+		else if(d[i].proc == jwin_radio_proc_a5)
+			d[i].proc = jwin_radiofont_proc_a5;
 	}
 	
 	jwin_center_dialog(d);
@@ -281,6 +285,48 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 	return D_O_K;
 }
 
+bool checkcheat(Cheat cheat)
+{
+	if(cheatkeys[cheat][0] && zc_readkey(cheatkeys[cheat][0]))
+		return true; //Main key pressed
+	if(cheatkeys[cheat][1] && zc_readkey(cheatkeys[cheat][1]))
+		return true; //Alt key pressed
+	return false;
+}
+void load_default_cheatkeys()
+{
+	memset(cheatkeys, 0, sizeof(cheatkeys));
+	cheatkeys[Cheat::Life][0] = KEY_H;
+	cheatkeys[Cheat::Life][1] = KEY_ASTERISK;
+	cheatkeys[Cheat::Magic][0] = KEY_M;
+	cheatkeys[Cheat::Magic][1] = KEY_SLASH_PAD;
+	cheatkeys[Cheat::Rupies][0] = KEY_R;
+	cheatkeys[Cheat::Bombs][0] = KEY_B;
+	cheatkeys[Cheat::Arrows][0] = KEY_A;
+	cheatkeys[Cheat::Clock][0] = KEY_I;
+	cheatkeys[Cheat::Walls][0] = KEY_F11;
+	cheatkeys[Cheat::Fast][0] = KEY_Q;
+	cheatkeys[Cheat::Light][0] = KEY_L;
+	cheatkeys[Cheat::IgnoreSideView][0] = KEY_V;
+	cheatkeys[Cheat::Kill][0] = KEY_K;
+	cheatkeys[Cheat::GoTo][0] = KEY_G;
+	cheatkeys[Cheat::TrigSecrets][0] = KEY_S;
+	cheatkeys[Cheat::ShowL0][0] = KEY_0;
+	cheatkeys[Cheat::ShowL1][0] = KEY_1;
+	cheatkeys[Cheat::ShowL2][0] = KEY_2;
+	cheatkeys[Cheat::ShowL3][0] = KEY_3;
+	cheatkeys[Cheat::ShowL4][0] = KEY_4;
+	cheatkeys[Cheat::ShowL5][0] = KEY_5;
+	cheatkeys[Cheat::ShowL6][0] = KEY_6;
+	cheatkeys[Cheat::ShowFFC][0] = KEY_7;
+	cheatkeys[Cheat::ShowSprites][0] = KEY_8;
+	cheatkeys[Cheat::ShowWalkability][0] = KEY_W;
+	cheatkeys[Cheat::ShowEffects][0] = KEY_E;
+	cheatkeys[Cheat::ShowOverhead][0] = KEY_O;
+	cheatkeys[Cheat::ShowPushblock][0] = KEY_P;
+	cheatkeys[Cheat::ShowHitbox][0] = KEY_C;
+	cheatkeys[Cheat::ShowFFCScripts][0] = KEY_F;
+}
 void load_game_configs()
 {
 	strcpy(moduledata.module_name,zc_get_config("ZCMODULE",qst_module_name,"classic.zmod"));
@@ -304,6 +350,24 @@ void load_game_configs()
 	cheat_modifier_keys[1] = zc_get_config(ctrl_sect,"key_cheatmod_a2",0);
 	cheat_modifier_keys[2] = zc_get_config(ctrl_sect,"key_cheatmod_b1",KEY_ZC_RCONTROL);
 	cheat_modifier_keys[3] = zc_get_config(ctrl_sect,"key_cheatmod_b2",0);
+	
+	//cheat keys
+	load_default_cheatkeys();
+	char buf[256];
+	al_trace("START CHEATS\n");
+	for(size_t q = 1; q < Cheat::Last; ++q)
+	{
+		if(!bindable_cheat((Cheat)q)) continue;
+		std::string cheatname = cheat_to_string((Cheat)q);
+		util::lowerstr(cheatname);
+		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
+		al_trace("%s = %d\n", buf, cheatkeys[q][0]);
+		cheatkeys[q][0] = zc_get_config(ctrl_sect,buf,cheatkeys[q][0]);
+		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
+		al_trace("%s = %d\n", buf, cheatkeys[q][1]);
+		cheatkeys[q][1] = zc_get_config(ctrl_sect,buf,cheatkeys[q][1]);
+	}
+	al_trace("END CHEATS\n");
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
@@ -342,7 +406,7 @@ void load_game_configs()
 	DRbtn = zc_get_config(ctrl_sect,"btn_right",16);
 	
 	epilepsyFlashReduction = zc_get_config(cfg_sect,"epilepsy_flash_reduction",0);
-
+	
 	digi_volume = zc_get_config(sfx_sect,"digi",248);
 	midi_volume = zc_get_config(sfx_sect,"midi",255);
 	sfx_volume = zc_get_config(sfx_sect,"sfx",248);
@@ -365,22 +429,22 @@ void load_game_configs()
 	title_version = zc_get_config(cfg_sect,"title",2);
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
-   
+	
 	//default - scale x2, 640 x 480
 	window_width = resx = zc_get_config(cfg_sect,"window_width",640);
 	window_height = resy = zc_get_config(cfg_sect,"window_height",480);
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
-   
+	
 	loadlast = zc_get_config(cfg_sect,"load_last",0);
-   
+	
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
-   
+	
 	zc_color_depth = (byte) zc_get_config(cfg_sect,"color_depth",8);
-   
+	
 	forceExit = (byte) zc_get_config(cfg_sect,"force_exit",0);
-   
+	info_opacity = zc_get_config("zc","debug_info_opacity",255);
 #ifdef _WIN32
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
 	zscript_debugger = (byte) zc_get_config("CONSOLE","ZScript_Debugger",0);
@@ -488,6 +552,23 @@ void save_control_configs(bool kb)
 		zc_set_config(ctrl_sect,"btn_down",DDbtn);
 		zc_set_config(ctrl_sect,"btn_left",DLbtn);
 		zc_set_config(ctrl_sect,"btn_right",DRbtn);
+	}
+}
+
+void save_cheatkeys()
+{
+	char buf[256];
+	for(size_t q = 1; q < Cheat::Last; ++q)
+	{
+		if(!bindable_cheat((Cheat)q)) continue;
+		std::string cheatname = cheat_to_string((Cheat)q);
+		util::lowerstr(cheatname);
+		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
+		zc_set_config(ctrl_sect,buf,cheatkeys[q][0]);
+		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
+		if(cheatkeys[q][1])
+			zc_set_config(ctrl_sect,buf,cheatkeys[q][1]);
+		else zc_set_config(ctrl_sect,buf,(char*)nullptr);
 	}
 }
 
@@ -644,7 +725,7 @@ void load_mouse()
 	set_mouse_sprite(zcmouse[0]);
 	
 	// Must attempt to show cursor for allegro 5 to render it with the associated palette.
-	set_palette(*hw_palette);
+	zc_set_palette(*hw_palette);
 	show_mouse(screen);
 	show_mouse(NULL);
 
@@ -670,7 +751,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	for(int32_t i=240; i<256; i++)
 		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
 		
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	clear_to_color(screen,BLACK);
 	
 	rest(wait);
@@ -3830,7 +3911,7 @@ int32_t onGUISnapshot()
 		game_pal();
 		RAMpal[253] = _RGB(0,0,0);
 		RAMpal[254] = _RGB(63,63,63);
-		set_palette_range(RAMpal,0,255,false);
+		zc_set_palette_range(RAMpal,0,255);
 		memcpy(RAMpal, snappal, sizeof(snappal));
 		create_rgb_table(&rgb_table, RAMpal, NULL);
 		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
@@ -4269,6 +4350,17 @@ int32_t onKillCheat()
 	return D_O_K;
 }
 
+int32_t onSecretsCheat()
+{
+	cheats_enqueue(Cheat::TrigSecrets);
+	return D_O_K;
+}
+int32_t onSecretsCheatPerm()
+{
+	cheats_enqueue(Cheat::TrigSecretsPerm);
+	return D_O_K;
+}
+
 int32_t onShowLayer0()
 {
 	show_layer_0 = !show_layer_0;
@@ -4327,11 +4419,15 @@ int32_t onShowLayerF()
 int32_t onShowLayerW()
 {
 	show_walkflags=!show_walkflags;
+	if(show_walkflags)
+		show_effectflags = false;
 	return D_O_K;
 }
 int32_t onShowLayerE()
 {
 	show_effectflags=!show_effectflags;
+	if(show_effectflags)
+		show_walkflags = false;
 	return D_O_K;
 }
 int32_t onShowFFScripts()
@@ -4342,6 +4438,12 @@ int32_t onShowFFScripts()
 int32_t onShowHitboxes()
 {
 	show_hitboxes=!show_hitboxes;
+	return D_O_K;
+}
+int32_t onShowInfoOpacity()
+{
+	info_opacity = vbound(getnumber("Debug Info Opacity",info_opacity),0,255);
+	zc_set_config("zc","debug_info_opacity",info_opacity);
 	return D_O_K;
 }
 
@@ -4431,92 +4533,19 @@ void syskeys()
 	
 	if(debug_enabled && zc_read_system_key(KEY_TAB))
 		set_debug(!get_debug());
-		
-	if(get_debug() || cheat>=1)
-	{
-	if( CheatModifierKeys() )
-	{
-			if(zc_readkey(KEY_ASTERISK) || zc_readkey(KEY_H))   cheats_enqueue(Cheat::Life, game->get_maxlife());
-			
-			if(zc_readkey(KEY_SLASH_PAD) || zc_readkey(KEY_M))  cheats_enqueue(Cheat::Magic, game->get_maxmagic());
-			
-			if(zc_readkey(KEY_R))		  cheats_enqueue(Cheat::Rupies, game->get_maxcounter(1));
-			
-			if(zc_readkey(KEY_B))
-			{
-				cheats_enqueue(Cheat::Bombs, game->get_maxbombs(), game->get_maxcounter(6));
-			}
-			
-			if(zc_readkey(KEY_A))
-			{
-				cheats_enqueue(Cheat::Arrows, game->get_maxarrows());
-			}
-	}
-	}
 	
-	if(get_debug() || cheat>=2)
+	if(CheatModifierKeys())
 	{
-		if( CheatModifierKeys() )
+		for(Cheat c = (Cheat)1; c < Cheat::Last; c = (Cheat)(c+1))
 		{
-			if(rI())
+			if(!bindable_cheat(c))
+				continue;
+			if(get_debug() || cheat >= cheat_lvl(c))
 			{
-				cheats_enqueue(Cheat::Clock);
+				if(checkcheat(c))
+					cheats_hit_bind(c);
 			}
 		}
-	}
-	
-	if(get_debug() || cheat>=4)
-	{
-	if( CheatModifierKeys() )
-	{
-			if(rF11())
-			{
-				cheats_enqueue(Cheat::Walls);
-			}
-			
-			if(rQ())
-			{
-				cheats_enqueue(Cheat::Fast);
-			}
-			
-			if(zc_readkey(KEY_F))
-			{
-				cheats_enqueue(Cheat::Freeze);
-			}
-			
-			if(zc_readkey(KEY_G))   onGoToComplete();
-			
-			if(zc_readkey(KEY_0))   onShowLayer0();
-			
-			if(zc_readkey(KEY_1))   onShowLayer1();
-			
-			if(zc_readkey(KEY_2))   onShowLayer2();
-			
-			if(zc_readkey(KEY_3))   onShowLayer3();
-			
-			if(zc_readkey(KEY_4))   onShowLayer4();
-			
-			if(zc_readkey(KEY_5))   onShowLayer5();
-			
-			if(zc_readkey(KEY_6))   onShowLayer6();
-			
-			//if(zc_readkey(KEY_7))   onShowLayerO();
-			if(zc_readkey(KEY_7))   onShowLayerF();
-			
-			if(zc_readkey(KEY_8))   onShowLayerS();
-			
-			if(zc_readkey(KEY_W))   onShowLayerW();
-			
-			if(zc_readkey(KEY_L))   cheats_enqueue(Cheat::Light);
-			
-			if(zc_readkey(KEY_V))   cheats_enqueue(Cheat::IgnoreSideView);
-			
-			if(zc_readkey(KEY_K))   cheats_enqueue(Cheat::Kill);
-			if(zc_readkey(KEY_O))   onShowLayerO();
-			if(zc_readkey(KEY_P))   onShowLayerP();
-			if(zc_readkey(KEY_C))   onShowHitboxes();
-			if(zc_readkey(KEY_F))   onShowFFScripts();
-	}
 	}
 	
 	if(volkeys)
@@ -5333,34 +5362,7 @@ bool is_Fkey(int32_t k)
 	return false;
 }
 
-void kb_getkey(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	
-	scare_mouse();
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	textout_centre_ex(gui_bmp, font, "Press a key", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
-	
-	update_hw_screen(true);
-	
-	clear_keybuf();
-	int32_t k = next_press_key();
-	clear_keybuf();
-	
-	//shnarf
-	//47=f1
-	//59=esc
-	if(k>0 && k<123 && !((k>46)&&(k<60)))
-		*((int32_t*)d->dp3) = k;
-		
-		
-	d->flags&=~D_SELECTED;
-}
-
+void kb_getkey(DIALOG *d);
 
 //Used by all keyboard key settings dialogues.
 void kb_clearjoystick(DIALOG *d)
@@ -5369,10 +5371,13 @@ void kb_clearjoystick(DIALOG *d)
 	
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 168, 48, FR_WIN);
+	unscare_mouse();
+	popup_zqdialog_start();
+	scare_mouse();
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 168, 48, FR_WIN);
 	//  text_mode(vc(11));
-	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "Press any key to clear", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
 	update_hw_screen(true);
@@ -5390,39 +5395,12 @@ void kb_clearjoystick(DIALOG *d)
 		
 		
 	d->flags&=~D_SELECTED;
+	popup_zqdialog_end();
 }
 
 //Clears key to 0. 
 //Used by all keyboard key settings dialogues.
-void kb_clearkey(DIALOG *d)
-{
-	d->flags|=D_SELECTED;
-	
-	scare_mouse();
-	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
-	//  text_mode(vc(11));
-	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
-	
-	update_hw_screen(true);
-	
-	clear_keybuf();
-	int32_t k = next_press_key();
-	clear_keybuf();
-	
-	//shnarf
-	//47=f1
-	//59=esc
-//	if(k>0 && k<123 && !((k>46)&&(k<60)))
-//		*((int32_t*)d->dp3) = k;
-	if ( k != 59 ) *((int32_t*)d->dp3) = 0;
-		
-		
-	d->flags&=~D_SELECTED;
-}
-
+void kb_clearkey(DIALOG *d);
 
 int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -5445,58 +5423,24 @@ int32_t d_j_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	return jwin_button_proc(msg,d,c);
 }
 
-int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		kb_getkey(d);
-		
-		while(gui_mouse_b()) {
-			clear_keybuf();
-			rest(1);
-		}
-			
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc(msg,d,c);
-}
-
+int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 //Only used in keyboard settings dialogues to clear keys. 
-int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		kb_clearkey(d);
-		
-		while(gui_mouse_b()) {
-			clear_keybuf();
-			rest(1);
-		}
-			
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc(msg,d,c);
-}
+int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 
 void j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
+	unscare_mouse();
+	popup_zqdialog_start();
+	scare_mouse();
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	int32_t y = gui_bmp->h/2 - 12;
-	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	int32_t y = screen->h/2 - 12;
+	textout_centre_ex(screen, font, "Press a button", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	unscare_mouse();
 	
 	update_hw_screen(true);
@@ -5510,6 +5454,7 @@ void j_getbtn(DIALOG *d)
 	
 	if (player)
 		player->joy_on = TRUE;
+	popup_zqdialog_end();
 }
 
 int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -5533,42 +5478,8 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 
 //shnarf
-const char *key_str[] =
-{
-    "(none)       ",              "a            ",              "b            ",              "c            ",
-    "d            ",              "e            ",              "f            ",              "g            ",
-    "h            ",              "i            ",              "j            ",              "k            ",
-    "l            ",              "m            ",              "n            ",              "o            ",
-    "p            ",              "q            ",              "r            ",              "s            ",
-    "t            ",              "u            ",              "v            ",              "w            ",
-    "x            ",              "y            ",              "z            ",              "0            ",
-    "1            ",              "2            ",              "3            ",              "4            ",
-    "5            ",              "6            ",              "7            ",              "8            ",
-    "9            ",              "num 0        ",              "num 1        ",              "num 2        ",
-    "num 3        ",              "num 4        ",              "num 5        ",              "num 6        ",
-    "num 7        ",              "num 8        ",              "num 9        ",              "f1           ",
-    "f2           ",              "f3           ",              "f4           ",              "f5           ",
-    "f6           ",              "f7           ",              "f8           ",              "f9           ",
-    "f10          ",              "f11          ",              "f12          ",              "esc          ",
-    "~            ",              "-            ",              "=            ",              "backspace    ",
-    "tab          ",              "{            ",              "}            ",              "enter        ",
-    ":            ",              "quote        ",              "\\           ",              "\\ (2)       ",
-    ",            ",              ".            ",              "/            ",              "space        ",
-    "insert       ",              "delete       ",              "home         ",              "end          ",
-    "page up      ",              "page down    ",              "left         ",              "right        ",
-    "up           ",              "down         ",              "num /        ",              "num *        ",
-    "num -        ",              "num +        ",              "num delete   ",              "num enter    ",
-    "print screen ",              "pause        ",              "abnt c1      ",              "yen          ",
-    "kana         ",              "convert      ",              "no convert   ",              "at           ",
-    "circumflex   ",              ": (2)        ",              "kanji        ",              "num =        ",
-    "back quote   ",              ";            ",              "command      ",              "unknown (0)  ",
-    "unknown (1)  ",              "unknown (2)  ",              "unknown (3)  ",              "unknown (4)  ",
-    "unknown (5)  ",              "unknown (6)  ",              "unknown (7)  ",              "left shift   ",
-    "right shift  ",              "left control ",              "right control",              "alt          ",
-    "alt gr       ",              "left win     ",              "right win    ",              "menu         ",
-    "scroll lock  ",              "number lock  ",              "caps lock    ",      "MAX"
-};
-
+extern const char *key_str[];
+std::string get_keystr(int key);
 
 const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
 //extern int32_t zcmusic_bufsz;
@@ -6383,7 +6294,7 @@ static DIALOG credits_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-static ListData dmap_list(dmaplist, &font);
+static ListData dmap_list(dmaplist, &font, &a5font);
 
 static DIALOG goto_dlg[] =
 {
@@ -6460,24 +6371,17 @@ int32_t onCredits()
 	RLE_SPRITE *rle = (RLE_SPRITE*)(datafile[RLE_CREDITS].dat);
 	RGB *pal = (RGB*)(datafile[PAL_CREDITS].dat);
 	PALETTE tmppal;
-
-	rti_gui.transparency_index = 1;
-
-	clear_to_color(win, rti_gui.transparency_index);
+	
 	draw_rle_sprite(win,rle,0,0);
 	credits_dlg[0].dp2=lfont;
 	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
 	credits_dlg[2].dp = win;
 
-	set_palette_range(black_palette,0,127,false);
+	zc_set_palette_range(black_palette,0,127);
 	
 	DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
-
-	BITMAP* old_screen = screen;
-	BITMAP* gui_bmp = zc_get_gui_bmp();
-	ASSERT(gui_bmp);
-	clear_to_color(gui_bmp, rti_gui.transparency_index);
-	screen = gui_bmp;
+	
+	popup_zqdialog_start();
 	
 	while(update_dialog(p))
 	{
@@ -6497,7 +6401,7 @@ int32_t onCredits()
 		if(c<=64)
 			fade_interpolate(black_palette,pal,tmppal,c,0,127);
 			
-		set_palette_range(tmppal,0,127,false);
+		zc_set_palette_range(tmppal,0,127);
 		
 		if(l!=ol)
 		{
@@ -6510,15 +6414,13 @@ int32_t onCredits()
 
 		update_hw_screen();
 	}
-
-	screen = old_screen;
+	
+	popup_zqdialog_end();
 	system_pal();
 	
 	shutdown_dialog(p);
 	destroy_bitmap(win);
 	//comeback();
-
-	rti_gui.transparency_index = 0;
 
 	return D_O_K;
 }
@@ -6666,7 +6568,7 @@ done:
 	return ret;
 }
 
-static ListData midi_list(midilist, &font);
+static ListData midi_list(midilist, &font, &a5font);
 
 static DIALOG midi_dlg[] =
 {
@@ -6915,7 +6817,7 @@ int32_t onKeyboard()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
+				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -6924,96 +6826,6 @@ int32_t onKeyboard()
 				}
 				box_end(true);
 			}
-			/* Old uniqueness check
-			std::map<int32_t,bool> *keyhash = new std::map<int32_t,bool>();
-			bool unique = true;
-			addToHash(A,unique,keyhash);
-			addToHash(B,unique,keyhash);
-			addToHash(S,unique,keyhash);
-			addToHash(L,unique,keyhash);
-			addToHash(R,unique,keyhash);
-			addToHash(P,unique,keyhash);
-			addToHash(DU,unique,keyhash);
-			addToHash(DD,unique,keyhash);
-			addToHash(DL,unique,keyhash);
-			addToHash(DR,unique,keyhash);
-			
-			if(keyhash->find(Exkey1) == keyhash->end())
-			{
-				(*keyhash)[Exkey1]=true;
-			}
-			else
-			{
-				if ( Exkey1 != 0 ) unique = false;
-			}
-			
-			if(keyhash->find(Exkey2) == keyhash->end())
-			{
-				(*keyhash)[Exkey2]=true;
-			}
-			else
-			{
-				if ( Exkey2 != 0 ) unique = false;
-			}
-			
-			if(keyhash->find(Exkey3) == keyhash->end())
-			{
-				(*keyhash)[Exkey3]=true;
-			}
-			else
-			{
-				if ( Exkey3 != 0 ) unique = false;
-			}
-			
-			if(keyhash->find(Exkey4) == keyhash->end())
-			{
-				(*keyhash)[Exkey4]=true;
-			}
-			else
-			{
-				if ( Exkey4 != 0 )unique = false;
-			}
-			//modifier keys
-			if(keyhash->find(cheat_modifier_keys[0]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[0]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[0] != 0 ) unique = false;
-			}
-			if(keyhash->find(cheat_modifier_keys[1]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[1]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[1] != 0 ) unique = false;
-			}
-			if(keyhash->find(cheat_modifier_keys[2]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[2]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[2] != 0 ) unique = false;
-			}
-			if(keyhash->find(cheat_modifier_keys[3]) == keyhash->end())
-			{
-				(*keyhash)[cheat_modifier_keys[3]]=true;
-			}
-			else
-			{
-				if ( cheat_modifier_keys[3] != 0 ) unique = false;
-			}
-			
-			delete keyhash;
-			
-			if(unique)
-				done=true;
-			else
-				jwin_alert("Error", "Key bindings must be unique!", "", "", "OK",NULL,'o',0,lfont);
-			*/
 		}
 		else // Cancel
 		{
@@ -7095,6 +6907,76 @@ int32_t onGamepad()
 		DDbtn = down;
 		DLbtn = left;
 		DRbtn = right;
+	}
+	
+	return D_O_K;
+}
+
+int32_t onCheatKeys()
+{
+	int32_t oldcheats[Cheat::Last][2];
+	memcpy(oldcheats, cheatkeys, sizeof(cheatkeys));
+	
+	bool done=false;
+	
+	while(!done)
+	{
+		bool confirm = false;
+		CheatKeysDialog(&confirm).show();
+		if(confirm) // OK
+		{
+			std::vector<std::string> uniqueError;
+			char buf[512];
+			for(size_t q = 1; q < Cheat::Last; ++q)
+			{
+				if(cheatkeys[q][1] && !cheatkeys[q][0])
+				{
+					cheatkeys[q][0] = cheatkeys[q][1];
+					cheatkeys[q][1] = 0;
+				}
+			}
+			for(size_t q = 1; q < Cheat::Last; ++q)
+			{
+				if(!bindable_cheat((Cheat)q)) continue;
+				for(size_t p = q+1; p < Cheat::Last; ++p)
+				{
+					if(!bindable_cheat((Cheat)p)) continue;
+					for(size_t q2 = 0; q2 <= 1; ++q2)
+						for(size_t p2 = 0; p2 <= 1; ++p2)
+						{
+							if(cheatkeys[q][q2] == cheatkeys[p][p2] && cheatkeys[q][q2] != 0)
+							{
+								uniqueError.push_back(fmt::format("'{}' ({}) conflicts with '{}' ({}) - both '{}'",
+									cheat_to_string((Cheat)q), q2?"Alt":"Main",
+									cheat_to_string((Cheat)p), p2?"Alt":"Main",
+									get_keystr(cheatkeys[q][q2])));
+							}
+						}
+				}
+			}
+			if(uniqueError.size() == 0)
+			{
+				done = true;
+				save_cheatkeys();
+			}
+			else
+			{
+				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, 500,400, 2);
+				box_out("Cannot have duplicate keybinds!"); box_eol();
+				for(std::vector<std::string>::iterator it = uniqueError.begin();
+					it != uniqueError.end(); ++it)
+				{
+					box_out((*it).c_str()); box_eol();
+				}
+				box_end(true);
+			}
+		}
+		else // Cancel
+		{
+			memcpy(cheatkeys, oldcheats, sizeof(cheatkeys));
+			done=true;
+		}
+        rest(1);
 	}
 	
 	return D_O_K;
@@ -7393,34 +7275,6 @@ int32_t onItems()
 	return onCheatConsole();
 }
 
-static DIALOG getnum_dlg[] =
-{
-	// (dialog proc)	   (x)   (y)	(w)	 (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-	{ jwin_win_proc,		80,   80,	 160,	72,   vc(0),  vc(11),  0,	   D_EXIT,	 0,			 0,	   NULL, NULL,  NULL },
-	{ jwin_text_proc,		  104,  104+4,  48,	 8,	vc(0),  vc(11),  0,	   0,		  0,			 0, (void *) "Number:", NULL,  NULL },
-	{ jwin_edit_proc,	   168,  104,	48,	 16,	0,	 0,	   0,	   0,		  6,			 0,	   NULL, NULL,  NULL },
-	{ jwin_button_proc,	 90,   126,	61,	 21,   vc(0),  vc(11),  13,	  D_EXIT,	 0,			 0, (void *) "OK", NULL,  NULL },
-	{ jwin_button_proc,	 170,  126,	61,	 21,   vc(0),  vc(11),  27,	  D_EXIT,	 0,			 0, (void *) "Cancel", NULL,  NULL },
-	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-int32_t getnumber(const char *prompt,int32_t initialval)
-{
-	char buf[20];
-	sprintf(buf,"%d",initialval);
-	getnum_dlg[0].dp=(void *)prompt;
-	getnum_dlg[0].dp2=lfont;
-	getnum_dlg[2].dp=buf;
-	
-	large_dialog(getnum_dlg);
-		
-	if(zc_popup_dialog(getnum_dlg,2)==3)
-		return atoi(buf);
-		
-	return initialval;
-}
-
 int32_t onLife()
 {
 	int value = vbound(getnumber("Life",game->get_life()),1,game->get_maxlife());
@@ -7563,7 +7417,7 @@ const char *after_list(int32_t index, int32_t *list_size)
 	return after_str[index];
 }
 
-static ListData after__list(after_list, &font);
+static ListData after__list(after_list, &font, &a5font);
 
 static DIALOG scrsaver_dlg[] =
 {
@@ -7663,9 +7517,10 @@ static MENU snapshot_format_menu[] =
 
 static MENU controls_menu[] =
 {
-	{ (char *)"Key&board...",			   onKeyboard,			  NULL,					  0, NULL },
-	{ (char *)"&Gamepad...",				onGamepad,			   NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"Key&board...",      onKeyboard, NULL, 0, NULL },
+	{ (char *)"&Gamepad...",        onGamepad, NULL, 0, NULL },
+	{ (char *)"&Cheat Keys...",   onCheatKeys, NULL, 0, NULL },
+	{ NULL,                              NULL, NULL, 0, NULL }
 };
 
 static MENU name_entry_mode_menu[] =
@@ -7681,118 +7536,128 @@ static void set_controls_menu_active()
 	
 }
 
+static MENU window_menu[] =
+{
+	{ "Save Size Changes",            onSaveDragResize,        NULL,                      0, NULL },
+	{ "Lock Aspect Ratio",            onDragAspect,            NULL,                      0, NULL },
+	{ "Save Position Changes",        onWinPosSave,            NULL,                      0, NULL },
+	{ NULL,                           NULL,                    NULL,                      0, NULL }
+};
+static MENU options_menu[] =
+{
+	{ "&Title Screen",                NULL,                    title_menu,                0, NULL },
+	{ "Name &Entry Mode",             NULL,                    name_entry_mode_menu,      0, NULL },
+	{ "S&napshot Format",             NULL,                    snapshot_format_menu,      0, NULL },
+	{ "&Window Settings",             NULL,                    window_menu,               0, NULL },
+	{ "Epilepsy Flash Reduction",     onEpilepsy,              NULL,                      0, NULL },
+	{ "Windows MIDI Patch",           onMIDIPatch,             NULL,                      0, NULL },
+	{ NULL,                           NULL,                    NULL,                      0, NULL }
+};
 static MENU settings_menu[] =
 {
-	{ (char *)"&Sound...",				  onSound,				 NULL,					  0, NULL },
-	{ (char *)"C&ontrols",				  NULL,					controls_menu,			 0, NULL },
-	{ (char *)"&Title Screen",			  NULL,					title_menu,				0, NULL },
-	{ (char *)"Name &Entry Mode",		   NULL,					name_entry_mode_menu,	  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ (char *)"&Cap FPS\tF1",			   onVsync,				 NULL,					  0, NULL },
-	{ (char *)"Show &FPS\tF2",			  onShowFPS,			   NULL,					  0, NULL },
-	{ (char *)"Show Trans. &Layers",		onTransLayers,		   NULL,					  0, NULL },
-	{ (char *)"Up+A+B To &Quit",			onNESquit,			   NULL,					  0, NULL },
-	{ (char *)"Click to Freeze",			onClickToFreeze,		 NULL,					  0, NULL },
-	{ (char *)"Autosave Window Size Changes",			onSaveDragResize,		 NULL,					  0, NULL },
-	{ (char *)"Lock Aspect Ratio",			onDragAspect,		 NULL,					  0, NULL },
-	{ (char *)"Window Position Saving",		   onWinPosSave,					NULL,	  0, NULL },
-	{ (char *)"Volume &Keys",			   onVolKeys,			   NULL,					  0, NULL },
-	{ (char *)"Cont. &Heart Beep",		  onHeartBeep,			 NULL,					  0, NULL },
-	{ (char *)"Sa&ve Indicator",			onSaveIndicator,		 NULL,					  0, NULL },
-	{ (char *)"Epilepsy Flash Reduction",					 onEpilepsy,				 NULL,					  0, NULL },
-	{ (char *)"S&napshot Format",		   NULL,					snapshot_format_menu,	  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ (char *)"Debu&g",					 onDebug,				 NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ "&Sound...",                    onSound,                 NULL,                      0, NULL },
+	{ "C&ontrols",                    NULL,                    controls_menu,             0, NULL },
+	{ "",                             NULL,                    NULL,                      0, NULL },
+	{ "Options",                      NULL,                    options_menu,              0, NULL },
+	{ "",                             NULL,                    NULL,                      0, NULL },
+	//
+	{ "&Cap FPS\tF1",                 onVsync,                 NULL,                      0, NULL },
+	{ "Show &FPS\tF2",                onShowFPS,               NULL,                      0, NULL },
+	{ "Click to Freeze",              onClickToFreeze,         NULL,                      0, NULL },
+	{ "Cont. &Heart Beep",            onHeartBeep,             NULL,                      0, NULL },
+	{ "Show Trans. &Layers",          onTransLayers,           NULL,                      0, NULL },
+	//
+	{ "Up+A+B To &Quit",              onNESquit,               NULL,                      0, NULL },
+	{ "Volume &Keys",                 onVolKeys,               NULL,                      0, NULL },
+	{ "Sa&ve Indicator",              onSaveIndicator,         NULL,                      0, NULL },
+	{ "",                             NULL,                    NULL,                      0, NULL },
+	{ "Debu&g",                       onDebug,                 NULL,                      0, NULL },
+	//
+	{ NULL,                           NULL,                    NULL,                      0, NULL }
 };
 
 
 static MENU misc_menu[] =
 {
-	{ (char *)"&About...",				  onAbout,				 NULL,					  0, NULL },
-	{ (char *)"&Credits...",				onCredits,			   NULL,					  0, NULL },
-	{ (char *)"&Fullscreen",				onFullscreenMenu,		NULL,					  0, NULL },
-	{ (char *)"&Video Mode...",			 onVidMode,			   NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
+	{ (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
+	{ (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
+	{ (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
+	{ (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
+	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
 	//5
-	{ (char *)"&Quest Info...",			 onQuest,				 NULL,					  0, NULL },
-	{ (char *)"Quest &MIDI Info...",		onMIDICredits,		   NULL,					  0, NULL },
-	{ (char *)"Quest &Directory...",		onQstPath,			   NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					NULL,					  0, NULL },
-	{ (char *)"Take &Snapshot\tF12",		onSnapshot,			  NULL,					  0, NULL },
+	{ (char *)"&Quest Info...",             onQuest,                 NULL,                      0, NULL },
+	{ (char *)"Quest &MIDI Info...",        onMIDICredits,           NULL,                      0, NULL },
+	{ (char *)"Quest &Directory...",        onQstPath,               NULL,                      0, NULL },
+	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
+	{ (char *)"Take &Snapshot\tF12",        onSnapshot,              NULL,                      0, NULL },
 	//10
-	{ (char *)"Sc&reen Saver...",		   onScreenSaver,		   NULL,					  0, NULL },
-	{ (char *)"Save ZC Configuration",	  OnSaveZCConfig,		  NULL,					  0, NULL },
-	{ (char *)"Show ZASM Debugger",		 onConsoleZASM,		   NULL,					  0, NULL },
-	{ (char *)"Show ZScript Debugger",	  onConsoleZScript,		NULL,					  0, NULL },
-	{ (char *)"Clear Console on Qst Load",	  onClrConsoleOnLoad,		NULL,					  0, NULL },
+	{ (char *)"Sc&reen Saver...",           onScreenSaver,           NULL,                      0, NULL },
+	{ (char *)"Save ZC Configuration",      OnSaveZCConfig,          NULL,                      0, NULL },
+	{ (char *)"Show ZASM Debugger",         onConsoleZASM,           NULL,                      0, NULL },
+	{ (char *)"Show ZScript Debugger",      onConsoleZScript,        NULL,                      0, NULL },
+	{ (char *)"Clear Console on Qst Load",  onClrConsoleOnLoad,      NULL,                      0, NULL },
 	//15
-	{ (char *)"Clear Directory Cache",	  OnnClearQuestDir,		NULL,					  0, NULL },
-	{ (char *)"Modules",					NULL,					zcmodule_menu,			 0, NULL },
-	{ (char *)"Replay",					 NULL,					replay_menu,			   0, NULL },
-
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"Clear Directory Cache",      OnnClearQuestDir,        NULL,                      0, NULL },
+	{ (char *)"Modules",                    NULL,                    zcmodule_menu,             0, NULL },
+	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
 static MENU refill_menu[] =
 {
-	{ (char *)"&Life\t*, H",				onRefillLife,			NULL,					  0, NULL },
-	{ (char *)"&Magic\t/, M",			   onRefillMagic,		   NULL,					  0, NULL },
-	{ (char *)"&Bombs\tB",				  onCheatBombs,			NULL,					  0, NULL },
-	{ (char *)"&Rupees\tR",				 onCheatRupies,		   NULL,					  0, NULL },
-	{ (char *)"&Arrows\tA",				 onCheatArrows,		   NULL,					  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"&Life",      onRefillLife, NULL, 0, NULL },
+	{ (char *)"&Magic",    onRefillMagic, NULL, 0, NULL },
+	{ (char *)"&Bombs",     onCheatBombs, NULL, 0, NULL },
+	{ (char *)"&Rupees",   onCheatRupies, NULL, 0, NULL },
+	{ (char *)"&Arrows",   onCheatArrows, NULL, 0, NULL },
+	{ NULL,                         NULL, NULL, 0, NULL }
 };
 
 static MENU show_menu[] =
 {
-	{ (char *)"Combos\t0",			 onShowLayer0,				 NULL,					  0, NULL },
-	{ (char *)"Layer 1\t1",			 onShowLayer1,				 NULL,					  0, NULL },
-	{ (char *)"Layer 2\t2",			 onShowLayer2,				 NULL,					  0, NULL },
-	{ (char *)"Layer 3\t3",			 onShowLayer3,				 NULL,					  0, NULL },
-	{ (char *)"Layer 4\t4",			 onShowLayer4,				 NULL,					  0, NULL },
-	{ (char *)"Layer 5\t5",			 onShowLayer5,				 NULL,					  0, NULL },
-	{ (char *)"Layer 6\t6",			 onShowLayer6,				 NULL,					  0, NULL },
-	{ (char *)"Overhead Combos\tO",		onShowLayerO,				 NULL,					  0, NULL },
-	{ (char *)"Push Blocks\tP",			onShowLayerP,				 NULL,					  0, NULL },
-	{ (char *)"Freeform Combos\t7",	  onShowLayerF,				 NULL,					  0, NULL },
-	{ (char *)"Sprites\t8",			  onShowLayerS,				 NULL,					  0, NULL },
-	{ (char *)"",						   NULL,					 NULL,					  0, NULL },
-	{ (char *)"Walkability\tW",		  onShowLayerW,				 NULL,					  0, NULL },
-	{ (char *)"Current FFC Scripts\tF",	  onShowFFScripts,			  NULL,					  0, NULL },
-	{ (char *)"Hitboxes\tC",				  onShowHitboxes,			   NULL,					  0, NULL },
-	{ (char *)"Effects\tE",		  onShowLayerE,				 NULL,					  0, NULL },
-	{ NULL,								 NULL,					 NULL,					  0, NULL }
+	{ (char *)"Combos",                 onShowLayer0, NULL, 0, NULL },
+	{ (char *)"Layer 1",                onShowLayer1, NULL, 0, NULL },
+	{ (char *)"Layer 2",                onShowLayer2, NULL, 0, NULL },
+	{ (char *)"Layer 3",                onShowLayer3, NULL, 0, NULL },
+	{ (char *)"Layer 4",                onShowLayer4, NULL, 0, NULL },
+	{ (char *)"Layer 5",                onShowLayer5, NULL, 0, NULL },
+	{ (char *)"Layer 6",                onShowLayer6, NULL, 0, NULL },
+	{ (char *)"Overhead Combos",        onShowLayerO, NULL, 0, NULL },
+	{ (char *)"Push Blocks",            onShowLayerP, NULL, 0, NULL },
+	{ (char *)"Freeform Combos",        onShowLayerF, NULL, 0, NULL },
+	{ (char *)"Sprites",                onShowLayerS, NULL, 0, NULL },
+	{ (char *)"",                               NULL, NULL, 0, NULL },
+	{ (char *)"Current FFC Scripts", onShowFFScripts, NULL, 0, NULL },
+	{ (char *)"",                               NULL, NULL, 0, NULL },
+	{ (char *)"Walkability",            onShowLayerW, NULL, 0, NULL },
+	{ (char *)"Hitboxes",             onShowHitboxes, NULL, 0, NULL },
+	{ (char *)"Effects",                onShowLayerE, NULL, 0, NULL },
+	{ (char *)"Info Opacity",      onShowInfoOpacity, NULL, 0, NULL },
+	{ NULL,                                     NULL, NULL, 0, NULL }
 };
 
 static MENU cheat_menu[] =
 {
-	{ (char *)"S&et Cheat",				  onCheat,				 NULL,					  0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"Re&fill",					 NULL,					refill_menu,			   0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"&Clock\tI",				   onClock,				 NULL,					  0, NULL },
-	{ (char *)"Ma&x Bombs...",			   onMaxBombs,			  NULL,					  0, NULL },
-	{ (char *)"&Heart Containers...",		onHeartC,				NULL,					  0, NULL },
-	{ (char *)"&Magic Containers...",		onMagicC,				NULL,					  0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"&Player Data...",			 onCheatConsole,		  NULL,					  0, NULL },
-	{ (char *)"",							NULL,					NULL,					  0, NULL },
-	{ (char *)"Walk Through &Walls\tF11",	onNoWalls,			   NULL,					  0, NULL },
-	{ (char *)"Player Ignores Side&view\tV", onIgnoreSideview,		NULL,					  0, NULL },
-	{ (char *)"&Quick Movement\tQ",		  onGoFast,				NULL,					  0, NULL },
-	{ (char *)"&Kill All Enemies\tK",		onKillCheat,			 NULL,					  0, NULL },
-	{ (char *)"Show/Hide Layer",			 NULL,					show_menu,				 0, NULL },
-	{ (char *)"Toggle Light\tL",			 onLightSwitch,		   NULL,					  0, NULL },
-	{ (char *)"&Goto Location...\tG",		onGoTo,				  NULL,					  0, NULL },
-	{ NULL,								  NULL,					NULL,					  0, NULL }
-};
-
-static MENU fixes_menu[] =
-{
-	{ (char *)"Windows MIDI Patch",		   onMIDIPatch,					NULL,	  0, NULL },
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ (char *)"Set &Cheat",                        onCheat, NULL,        0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"Re&fill",                              NULL, refill_menu, 0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"&Invincible",                       onClock, NULL,        0, NULL },
+	{ (char *)"Ma&x Bombs...",                  onMaxBombs, NULL,        0, NULL },
+	{ (char *)"&Heart Containers...",             onHeartC, NULL,        0, NULL },
+	{ (char *)"&Magic Containers...",             onMagicC, NULL,        0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"&Player Data...",            onCheatConsole, NULL,        0, NULL },
+	{ (char *)"",                                     NULL, NULL,        0, NULL },
+	{ (char *)"Walk Through &Walls",             onNoWalls, NULL,        0, NULL },
+	{ (char *)"Player Ignores Side&view", onIgnoreSideview, NULL,        0, NULL },
+	{ (char *)"&Quick Movement",                  onGoFast, NULL,        0, NULL },
+	{ (char *)"&Kill All Enemies",             onKillCheat, NULL,        0, NULL },
+	{ (char *)"Trigger &Secrets",           onSecretsCheat, NULL,        0, NULL },
+	{ (char *)"Trigger Secrets Perm",   onSecretsCheatPerm, NULL,        0, NULL },
+	{ (char *)"Show/Hide Layer",                      NULL, show_menu,   0, NULL },
+	{ (char *)"Toggle &Light",               onLightSwitch, NULL,        0, NULL },
+	{ (char *)"&Goto Location...",                  onGoTo, NULL,        0, NULL },
+	{ NULL,                                           NULL, NULL,        0, NULL }
 };
 
 #if DEVLEVEL > 0
@@ -7853,27 +7718,15 @@ int32_t setCheat()
 
 MENU the_player_menu[] =
 {
-	{ (char *)"&Game",					  NULL,					game_menu,				 0, NULL },
-	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
-	{ (char *)"&Cheat",					 NULL,					cheat_menu,				0, NULL },
-	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
+	{ (char *)"&Game",                      NULL,                    game_menu,                 0, NULL },
+	{ (char *)"&Settings",                  NULL,                    settings_menu,             0, NULL },
+	{ (char *)"&Cheat",                     NULL,                    cheat_menu,                0, NULL },
+	{ (char *)"Replay",                     NULL,                    replay_menu,               0, NULL },
+	{ (char *)"&ZC",                        NULL,                    misc_menu,                 0, NULL },
 	#if DEVLEVEL > 0
-	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
+	{ (char *)"&Dev",                       NULL,                    dev_menu,                  0, NULL },
 	#endif
-	{ NULL,								 NULL,					NULL,					  0, NULL }
-};
-
-MENU the_player_menu2[] =
-{
-	{ (char *)"&Game",					  NULL,					game_menu,				 0, NULL },
-	{ (char *)"&Settings",				  NULL,					settings_menu,			 0, NULL },
-	{ (char *)"&Fixes",					 NULL,					fixes_menu,				0, NULL },
-	{ (char *)"&ZC",					  NULL,					misc_menu,				 0, NULL },
-	#if DEVLEVEL > 0
-	{ (char *)"&Dev",					   NULL,					dev_menu,				  0, NULL },
-	#endif
-	{ NULL,								 NULL,					NULL,					  0, NULL }
+	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
 int32_t onMIDIPatch()
@@ -7894,7 +7747,7 @@ int32_t onMIDIPatch()
 		midi_patch_fix = midi_patch_fix ? 0 : 1;
 		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);
 	}
-	fixes_menu[0].flags =(midi_patch_fix)?D_SELECTED:0;
+	options_menu[5].flags =(midi_patch_fix)?D_SELECTED:0;
 	return D_O_K;
 }
 
@@ -7919,16 +7772,14 @@ int32_t onExtLetterGridEntry()
 	return D_O_K;
 }
 
-static BITMAP* oldscreen;
+static BITMAP* truescreen;
 int32_t onFullscreenMenu()
 {
-	// super hacks
-	screen = oldscreen;
-	if (onFullscreen() == D_REDRAW)
-	{
-		oldscreen = screen;
-	}
-	screen = menu_bmp;
+	BITMAP* os = screen==truescreen? nullptr : screen;
+	screen = truescreen;
+	if(onFullscreen()==D_REDRAW)
+		truescreen = screen;
+	if(os) screen = os;
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
 	return D_O_K;
 }
@@ -7936,7 +7787,7 @@ int32_t onFullscreenMenu()
 void fix_menu()
 {
 	if(!debug_enabled)
-		settings_menu[18].text = NULL;
+		settings_menu[13].text = NULL;
 }
 
 static DIALOG system_dlg[] =
@@ -7957,26 +7808,6 @@ static DIALOG system_dlg[] =
 	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
 	{ d_timer_proc,	  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,			 NULL, NULL },
 	{ NULL,			  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,						   NULL,  NULL }
-};
-
-static DIALOG system_dlg2[] =
-{
-	/* (dialog proc)	 (x)   (y)   (w)   (h)   (fg)  (bg)  (key)	(flags)  (d1)	  (d2)	 (dp) */
-	{ jwin_menu_proc,	0,	0,	0,	0,	0,	0,	0,	   D_USER,  0,		0, (void *) the_player_menu2, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F1,   0, (void *) onVsync, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F2,   0, (void *) onShowFPS, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F6,   0, (void *) onTryQuitMenu, NULL,  NULL },
-#ifndef ALLEGRO_MACOSX
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F9,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F10,  0, (void *) onExit, NULL,  NULL },
-#else
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F7,   0, (void *) onReset, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F8,   0, (void *) onExit, NULL,  NULL },
-#endif
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_F12,  0, (void *) onSnapshot, NULL,  NULL },
-	{ d_keyboard_proc,   0,	0,	0,	0,	0,	0,	0,	   0,	   KEY_TAB,  0, (void *) onDebug, NULL,  NULL },
-	{ d_timer_proc,	  0,	0,	0,	0,	0,	0,	0,	   0,	   0,		0,	   NULL,			 NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
 void reset_snapshot_format_menu()
@@ -8464,25 +8295,18 @@ void System()
 	game_menu[3].flags =
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
-	fixes_menu[0].flags = (midi_patch_fix)?D_SELECTED:0;
 	clear_keybuf();
 	show_mouse(screen);
+	truescreen = screen;
 	
 	DIALOG_PLAYER *p;
-
-	clear_bitmap(menu_bmp);
-	oldscreen = screen;
-	screen = menu_bmp;
-
-	if(!Playing || (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode))
-	{
-		p = init_dialog(system_dlg2,-1);
-	}
-	else
-	{
-		p = init_dialog(system_dlg,-1);
-	}
 	
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	al_set_target_bitmap(rti_menu.bitmap);
+	
+	system_dlg[0].dp2 = get_zc_font_a5(font_dsphantompfont);
+	p = init_dialog(system_dlg,-1);
 	// drop the menu on startup if menu button pressed
 	if(joybtn(Mbtn)||zc_getrawkey(KEY_ESC))
 		simulate_keypress(KEY_G << 8);
@@ -8507,15 +8331,17 @@ void System()
 		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
 		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
 		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
-		settings_menu[7].flags = TransLayers?D_SELECTED:0;
-		settings_menu[8].flags = NESquit?D_SELECTED:0;
-		settings_menu[9].flags = ClickToFreeze?D_SELECTED:0;
-		settings_menu[10].flags = SaveDragResize?D_SELECTED:0;
-		settings_menu[11].flags = DragAspect?D_SELECTED:0;
-		settings_menu[12].flags = SaveWinPos?D_SELECTED:0;
-		settings_menu[13].flags = volkeys?D_SELECTED:0;
-		//Epilepsy Prevention
-		settings_menu[16].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		settings_menu[7].flags = ClickToFreeze?D_SELECTED:0;
+		settings_menu[9].flags = TransLayers?D_SELECTED:0;
+		settings_menu[10].flags = NESquit?D_SELECTED:0;
+		settings_menu[11].flags = volkeys?D_SELECTED:0;
+		
+		window_menu[0].flags = SaveDragResize?D_SELECTED:0;
+		window_menu[1].flags = DragAspect?D_SELECTED:0;
+		window_menu[2].flags = SaveWinPos?D_SELECTED:0;
+		
+		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		options_menu[5].flags = (midi_patch_fix)?D_SELECTED:0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8524,8 +8350,9 @@ void System()
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
 		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
-		
-		the_player_menu[2].flags = replay_is_replaying() ? D_DISABLED : 0;
+		bool nocheat = (replay_is_replaying() || !Playing
+			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode));
+		the_player_menu[2].flags = nocheat ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
 		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
 		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
@@ -8553,8 +8380,8 @@ void System()
 		show_menu[14].flags = show_hitboxes ? D_SELECTED : 0;
 		show_menu[15].flags = show_effectflags ? D_SELECTED : 0;
 		
-		settings_menu[14].flags = heart_beep ? D_SELECTED : 0;
-		settings_menu[15].flags = use_save_indicator ? D_SELECTED : 0;
+		settings_menu[8].flags = heart_beep ? D_SELECTED : 0;
+		settings_menu[12].flags = use_save_indicator ? D_SELECTED : 0;
 
 		replay_menu[0].text = zc_get_config("zeldadx", "replay_new_saves", false) ?
 			(char *)"Disable recording new saves" :
@@ -8573,7 +8400,7 @@ void System()
 		
 		if(debug_enabled)
 		{
-			settings_menu[19].flags = get_debug() ? D_SELECTED : 0;
+			settings_menu[14].flags = get_debug() ? D_SELECTED : 0;
 		}
 		
 		if(gui_mouse_b() && !mouse_down)
@@ -8598,9 +8425,9 @@ void System()
 		update_hw_screen();
 	}
 	while(update_dialog(p));
-
-	screen = oldscreen;
 	
+	al_restore_state(&old_state);
+	screen = truescreen;
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);
@@ -8635,7 +8462,6 @@ void fix_dialogs()
 	jwin_center_dialog(gamepad_dlg);
 	jwin_center_dialog(credits_dlg);
 	jwin_center_dialog(gamemode_dlg);
-	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(keyboard_control_dlg);
 	jwin_center_dialog(midi_dlg);
@@ -9135,10 +8961,7 @@ const char* joybtn_name(int32_t b)
 	return joy[joystick_index].button[b-1].name;
 }
 
-int32_t next_press_key()
-{
-	return readkey()>>8;
-}
+int32_t next_press_key();
 
 int32_t next_press_btn()
 {

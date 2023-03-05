@@ -1,34 +1,73 @@
 #include "render.h"
 #include "zconfig.h"
+#include "base/gui.h"
 
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
+RenderTreeItem rti_overlay;
+RenderTreeItem rti_scrborder;
+RenderTreeItem rti_tooltip_hl;
+RenderTreeItem rti_scrinfo;
+RenderTreeItem rti_minimap;
+RenderTreeItem rti_minimap_tth;
+RenderTreeItem rti_tooltip;
 
 static int zc_gui_mouse_x()
 {
-	return rti_screen.global_to_local_x(mouse_x);
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
+	}
+	else return rti_screen.global_to_local_x(mouse_x);
 }
 
 static int zc_gui_mouse_y()
 {
-	return rti_screen.global_to_local_y(mouse_y);
+	if(rti_dialogs.children.size())
+	{
+		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
+	}
+	else return rti_screen.global_to_local_y(mouse_y);
+}
+
+bool use_linear_bitmaps()
+{
+	return zc_get_config("zquest", "scaling_mode", 0) == 1;
 }
 
 static void init_render_tree()
 {
-	static const int base_flags = ALLEGRO_NO_PRESERVE_TEXTURE | ALLEGRO_CONVERT_BITMAP;
-
 	if (!rti_root.children.empty())
 		return;
-
-	if (zc_get_config("zquest", "scaling_mode", 0) == 1)
-		al_set_new_bitmap_flags(base_flags | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
-	else
-		al_set_new_bitmap_flags(base_flags);
+	
+	set_bitmap_create_flags(false);
+	rti_tooltip.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
+	rti_tooltip.transparency_index = 0;
+	clear_bitmap(rti_tooltip.a4_bitmap);
+	
+	set_bitmap_create_flags(true);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
-
+	
+	rti_overlay.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_scrborder.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_tooltip_hl.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_scrinfo.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_minimap.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_minimap_tth.bitmap = al_create_bitmap(screen->w, screen->h);
+	
+	rti_screen.children.push_back(&rti_overlay);
+	rti_screen.children.push_back(&rti_scrborder);
+	rti_screen.children.push_back(&rti_tooltip_hl);
+	rti_screen.children.push_back(&rti_scrinfo);
+	rti_screen.children.push_back(&rti_minimap);
+	rti_screen.children.push_back(&rti_tooltip);
+	
+	rti_minimap.children.push_back(&rti_minimap_tth);
+	
 	rti_root.children.push_back(&rti_screen);
+	rti_root.children.push_back(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -45,32 +84,70 @@ static void configure_render_tree()
 
 	rti_root.transform.x = 0;
 	rti_root.transform.y = 0;
-	rti_root.transform.scale = 1;
+	rti_root.transform.xscale = 1;
+	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 
+	int w = al_get_bitmap_width(rti_screen.bitmap);
+	int h = al_get_bitmap_height(rti_screen.bitmap);
+	float xscale = (float)resx/w;
+	float yscale = (float)resy/h;
+	if (scaling_force_integer)
 	{
-		int w = al_get_bitmap_width(rti_screen.bitmap);
-		int h = al_get_bitmap_height(rti_screen.bitmap);
-		float scale = std::min((float)resx/w, (float)resy/h);
-		if (scaling_force_integer)
-			scale = std::max((int) scale, 1);
-		rti_screen.transform.x = (resx - w*scale) / 2 / scale;
-		rti_screen.transform.y = (resy - h*scale) / 2 / scale;
-		rti_screen.transform.scale = scale;
-		rti_screen.visible = true;
-		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
-		rti_screen.a4_bitmap = screen;
+		xscale = std::max((int) xscale, 1);
+		yscale = std::max((int) yscale, 1);
 	}
+	rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
+	rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
+	rti_screen.transform.xscale = xscale;
+	rti_screen.transform.yscale = yscale;
+	// TODO: don't recreate screen bitmap when alternating fullscreen mode.
+	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
+	
+	rti_dialogs.visible = !rti_dialogs.children.empty();
+	rti_tooltip.visible = rti_tooltip_hl.visible = !rti_dialogs.visible;
+	rti_screen.freeze_a4_bitmap_render = rti_dialogs.visible;
+	
+	if(active_a4_dlg_rti)
+		active_a4_dlg_rti->freeze_a4_bitmap_render = false;
+	
+	rti_dialogs.transform = rti_screen.transform;
+}
+
+void zq_hide_screen(bool hidden)
+{
+	rti_screen.visible = !hidden;
+}
+
+void popup_zqdialog_menu()
+{
+	popup_zqdialog_start_a5();
+}
+void popup_zqdialog_menu_end()
+{
+	popup_zqdialog_end_a5();
 }
 
 void render_zq()
 {
 	init_render_tree();
 	configure_render_tree();
-
+	if(render_frozen()) return;
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	BITMAP* tmp = screen;
+	if(zqdialog_bg_bmp)
+		screen = zqdialog_bg_bmp;
+	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
+	
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
+	
+	screen = tmp;
+	al_restore_state(&old_state);
 }
+

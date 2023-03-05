@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include <algorithm>
 #include <cassert>
 #include <utility>
@@ -65,13 +65,13 @@ void Window::applyDisabled(bool dis)
 		content->setDisabled(dis);
 }
 
-void Window::applyFont(FONT* newFont)
+void Window::applyFont_a5(ALLEGRO_FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont(newFont);
+	Widget::applyFont_a5(newFont);
 }
 
 void Window::calculateSize()
@@ -99,21 +99,25 @@ void Window::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	// For now, at least, we're assuming everything will fit...
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
-		content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
+		content->arrange(6, 28, getWidth()-12, getHeight()-30);
 }
 
 void Window::realize(DialogRunner& runner)
 {
 	setFramed(false); //don't allow frame on window proc
+	runner.set_dlg_sz(x,y,getWidth(),getHeight());
+	x = y = 0;
+	
 	Widget::realize(runner);
+	
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_win_proc,
+		jwin_win_proc_a5,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
 		0, 0, // d1, d2
-		title.data(), get_custom_font(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
+		title.data(), get_custom_font_a5(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
 	});
 
 	if(content)

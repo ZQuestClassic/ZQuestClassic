@@ -2285,6 +2285,52 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
         }
     }
 }
+void frame2x2_a5(miscQdata *misc,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
+{
+	/*
+	  /- -- -- -\
+	  |         |
+	  |         |
+	  \_ __ __ _/
+	
+	  0  1  4  5
+	  2  3  6  7
+	  80 81 84 85
+	  82 83 86 87
+	  */
+	if(tile==0&&misc)
+	{
+		tile = misc->colors.blueframe_tile;
+	}
+	
+	int32_t t8 = tile<<2;
+	
+	unsigned char alpha = trans ? 128 : 255;
+	
+	for(int32_t dx=0; dx<w; dx++)
+	{
+		int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
+		int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
+		
+		a5_draw_tile8((dx<<3)+x,y,top,cset,0,overlay,alpha);
+		a5_draw_tile8((dx<<3)+x,((h-1)<<3)+y,bottom,cset,0,overlay,alpha);
+	}
+	
+	for(int32_t dy=1; dy<h-1; dy++)
+	{
+		int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
+		int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
+		
+		a5_draw_tile8(x,(dy<<3)+y,left,cset,0,overlay,alpha);
+		a5_draw_tile8(((w-1)<<3)+x,(dy<<3)+y,right,cset,0,overlay,alpha);
+		
+		for(int32_t dx=1; dx<w-1; dx++)
+		{
+			int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
+			a5_draw_tile8((dx<<3)+x,(dy<<3)+y,fill,cset,0,overlay,alpha);
+		}
+	}
+}
 
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {

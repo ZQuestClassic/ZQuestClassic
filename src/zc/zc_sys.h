@@ -261,6 +261,25 @@ int32_t onKeyboardEntry();
 int32_t onLetterGridEntry();
 int32_t onExtLetterGridEntry();
 
+
+int32_t onShowLayer0();
+int32_t onShowLayer1();
+int32_t onShowLayer2();
+int32_t onShowLayer3();
+int32_t onShowLayer4();
+int32_t onShowLayer5();
+int32_t onShowLayer6();
+int32_t onShowLayerO();
+int32_t onShowLayerP();
+int32_t onShowLayerS();
+int32_t onShowLayerF();
+int32_t onShowLayerW();
+int32_t onShowLayerE();
+int32_t onShowFFScripts();
+int32_t onShowHitboxes();
+int32_t onShowInfoOpacity();
+
+
 #ifdef ALLEGRO_LINUX_GP2X
 extern int32_t midi_strict;
 #endif

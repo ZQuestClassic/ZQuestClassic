@@ -53,16 +53,6 @@
 
 #define C(x)   ((x)-'a'+1)
 
-INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
-{
-    while(gui_mouse_b())
-    {
-        rest(1);
-    }
-    
-    return jwin_do_menu(menu,x,y);
-}
-
 INLINE int32_t bit(int32_t val,int32_t b)
 {
     return (val>>b)&1;
@@ -108,7 +98,6 @@ void load_selections();
 void load_arrows();
 void dump_pal();
 
-int32_t wrap(int32_t x,int32_t low,int32_t high);
 bool readfile(const char *path,void *buf,int32_t count);
 bool writefile(const char *path,void *buf,int32_t count);
 
@@ -127,7 +116,8 @@ void set_pal();
 void loadlvlpal(int32_t level);
 void loadfadepal(int32_t dataset);
 
-void setup_lcolors();
+ALLEGRO_COLOR real_lc1(int pal);
+ALLEGRO_COLOR real_lc2(int pal);
 void refresh_pal();
 
 void refresh(int32_t flags);
@@ -304,7 +294,7 @@ int32_t onTestOptions();
 
 int32_t onOptions();
 
-bool edit_combo(int32_t c,bool freshen,int32_t cs);
+bool edit_combo(int32_t c,int32_t cs);
 
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,bool value);
 void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t value);

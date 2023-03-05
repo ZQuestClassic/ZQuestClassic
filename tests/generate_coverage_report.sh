@@ -31,6 +31,7 @@ gcovr \
   -e src/base/jwinfsel \
   -e src/base/gui \
   -e src/base/process_management \
-  -d
+  -d \
+  "$@"
 
 echo "Open $DIR/.coverage/report/index.html in your browser to view the coverage report."

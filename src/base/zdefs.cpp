@@ -1,9 +1,10 @@
 #include "base/zdefs.h"
-#include "jwin.h"
+#include "jwin_a5.h"
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
 #include "zcmusic.h"
+#include <fmt/format.h>
 
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
@@ -19,6 +20,7 @@ bool global_z3_scrolling_extended_height_mode = true;
 viewport_t viewport = {0};
 int32_t global_z3_cur_scr_drawing = -1;
 
+bool devcfg = false, devcfg_active = false;
 volatile bool close_button_quit = false;
 
 int next_script_data_debug_id = 0;
@@ -96,38 +98,94 @@ void load_themefile(char const* fpath)
 }
 void load_themefile(char const* fpath, PALETTE pal)
 {
+	ALLEGRO_COLOR c[9];
+	load_themefile(fpath, pal, c);
+	jwin_set_a5_colors(c,true);
+}
+#define VER_ZTHEME 1
+static void update_theme(int fromver)
+{
+	if(fromver < 1)
+	{
+		RGB cols[9];
+		cols[1] = _RGB(zc_get_config_basic("Theme","dvc1_r",4),zc_get_config_basic("Theme","dvc1_g",38),zc_get_config_basic("Theme","dvc1_b",46)); //box fg is text
+		cols[2] = _RGB(zc_get_config_basic("Theme","dvc2_r",(16*63/255)), zc_get_config_basic("Theme","dvc2_g",(10*63/255)), zc_get_config_basic("Theme","dvc2_b",0));
+		cols[3] = _RGB(zc_get_config_basic("Theme","dvc3_r",17),zc_get_config_basic("Theme","dvc3_g",20),zc_get_config_basic("Theme","dvc3_b",20)); //slate
+		cols[4] = _RGB(zc_get_config_basic("Theme","dvc4_r",13),zc_get_config_basic("Theme","dvc4_g",14),zc_get_config_basic("Theme","dvc4_b",14)); //menu background
+		cols[5] = _RGB(zc_get_config_basic("Theme","dvc5_r",0),zc_get_config_basic("Theme","dvc5_g",0),zc_get_config_basic("Theme","dvc5_b",0));//menu text bg
+		cols[6] = _RGB(zc_get_config_basic("Theme","dvc6_r",13),zc_get_config_basic("Theme","dvc6_g",14),zc_get_config_basic("Theme","dvc6_b",14));//menu selected text
+		cols[7] = _RGB(zc_get_config_basic("Theme","dvc7_r",42),zc_get_config_basic("Theme","dvc7_g",60),zc_get_config_basic("Theme","dvc7_b",48));
+		cols[8] = _RGB(zc_get_config_basic("Theme","dvc8_r",6),zc_get_config_basic("Theme","dvc8_g",49),zc_get_config_basic("Theme","dvc8_b",35));//highlight on selected menu text
+		
+		for(int q = 1; q <= 8; ++q)
+		{
+			//Clear the old color vars
+			zc_set_config_basic("Theme",fmt::format("dvc{}_r",q).c_str(),(char*)nullptr);
+			zc_set_config_basic("Theme",fmt::format("dvc{}_g",q).c_str(),(char*)nullptr);
+			zc_set_config_basic("Theme",fmt::format("dvc{}_b",q).c_str(),(char*)nullptr);
+			//Add the new hex var
+			int hexval = ((cols[q].r * 4) << 16) | ((cols[q].g * 4) << 8) | (cols[q].b * 4);
+			zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(),hexval);
+		}
+	}
+	zc_set_config_basic("Theme","ztheme_ver",VER_ZTHEME);
+}
+const char* t_cfg_name[jcMAX] =
+{
+	"jcbox","jclight","jcmedlt","jcmeddark","jcdark","jcboxfg","jctitlel",
+	"jctitler", "jctitlefg", "jctextbg", "jctextfg", "jcselbg","jcselfg",
+	"jccursormisc", "jccursoroutline", "jccursorlight", "jccursordark",
+	"jc_alt_textfg", "jc_alt_textbg", "jc_disabled_fg", "jc_disabled_bg"
+};
+const int t_cfg_def[jcMAX] =
+{
+	4,5,4,3,2,1,3,5,7,5,1,8,6,1,2,3,5,3,1,3,4
+};
+const int db_hexval[8] =
+{
+	0xECF0F0,
+	0xC46460,
+	0xB04C4C,
+	0xA03838,
+	0xBB2020,
+	0x7C1818,
+	0x3C1010,
+	0x140000
+};
+void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
+{
 	zc_push_config();
 	zc_config_file(fpath);
-	pal[dvc(1)] = _RGB(zc_get_config_basic("Theme","dvc1_r",4),zc_get_config_basic("Theme","dvc1_g",38),zc_get_config_basic("Theme","dvc1_b",46)); //box fg is text
-	pal[dvc(2)] = _RGB(zc_get_config_basic("Theme","dvc2_r",(16*63/255)), zc_get_config_basic("Theme","dvc2_g",(10*63/255)), zc_get_config_basic("Theme","dvc2_b",0));
-	pal[dvc(3)] = _RGB(zc_get_config_basic("Theme","dvc3_r",17),zc_get_config_basic("Theme","dvc3_g",20),zc_get_config_basic("Theme","dvc3_b",20)); //slate
-	pal[dvc(4)] = _RGB(zc_get_config_basic("Theme","dvc4_r",13),zc_get_config_basic("Theme","dvc4_g",14),zc_get_config_basic("Theme","dvc4_b",14)); //menu background
-	pal[dvc(5)] = _RGB(zc_get_config_basic("Theme","dvc5_r",0),zc_get_config_basic("Theme","dvc5_g",0),zc_get_config_basic("Theme","dvc5_b",0));//menu text bg
-	pal[dvc(6)] = _RGB(zc_get_config_basic("Theme","dvc6_r",13),zc_get_config_basic("Theme","dvc6_g",14),zc_get_config_basic("Theme","dvc6_b",14));//menu selected text
-	pal[dvc(7)] = _RGB(zc_get_config_basic("Theme","dvc7_r",42),zc_get_config_basic("Theme","dvc7_g",60),zc_get_config_basic("Theme","dvc7_b",48));
-	pal[dvc(8)] = _RGB(zc_get_config_basic("Theme","dvc8_r",6),zc_get_config_basic("Theme","dvc8_g",49),zc_get_config_basic("Theme","dvc8_b",35));//highlight on selected menu text
-					   
-	jwin_pal[jcBOX]	=dvc(zc_get_config_basic("Theme","jcbox",4));
-	jwin_pal[jcLIGHT]  =dvc(zc_get_config_basic("Theme","jclight",5));
-	jwin_pal[jcMEDLT]  =dvc(zc_get_config_basic("Theme","jcmedlt",4));
-	jwin_pal[jcMEDDARK]=dvc(zc_get_config_basic("Theme","jcmeddark",3));
-	jwin_pal[jcDARK]   =dvc(zc_get_config_basic("Theme","jcdark",2));
-	jwin_pal[jcBOXFG]  =dvc(zc_get_config_basic("Theme","jcboxfg",1));
-	jwin_pal[jcTITLEL] =dvc(zc_get_config_basic("Theme","jctitlel",3));
-	jwin_pal[jcTITLER] =dvc(zc_get_config_basic("Theme","jctitler",5));
-	jwin_pal[jcTITLEFG]=dvc(zc_get_config_basic("Theme","jctitlefg",7));
-	jwin_pal[jcTEXTBG] =dvc(zc_get_config_basic("Theme","jctextbg",5));
-	jwin_pal[jcTEXTFG] =dvc(zc_get_config_basic("Theme","jctextfg",1));
-	jwin_pal[jcSELBG]  =dvc(zc_get_config_basic("Theme","jcselbg",8));
-	jwin_pal[jcSELFG]  =dvc(zc_get_config_basic("Theme","jcselfg",6));
-	jwin_pal[jcCURSORMISC] = dvc(zc_get_config_basic("Theme","jccursormisc",1));
-	jwin_pal[jcCURSOROUTLINE] = dvc(zc_get_config_basic("Theme","jccursoroutline",2));
-	jwin_pal[jcCURSORLIGHT] = dvc(zc_get_config_basic("Theme","jccursorlight",3));
-	jwin_pal[jcCURSORDARK] = dvc(zc_get_config_basic("Theme","jccursordark",5));
-	jwin_pal[jcALT_TEXTFG] = dvc(zc_get_config_basic("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcMEDDARK])));
-	jwin_pal[jcALT_TEXTBG] = dvc(zc_get_config_basic("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcTEXTFG])));
-	jwin_pal[jcDISABLED_FG] = dvc(zc_get_config_basic("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcMEDDARK])));
-	jwin_pal[jcDISABLED_BG] = dvc(zc_get_config_basic("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcBOX])));
+	
+	int themever = zc_get_config_basic("Theme","ztheme_ver",0);
+	if(themever < VER_ZTHEME)
+		update_theme(themever);
+	
+	for(int q = 1; q <= 8; ++q)
+	{
+		int hexval = zc_get_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(),0xFF00FF);
+		int r = (hexval>>16)&0xFF;
+		int g = (hexval>>8)&0xFF;
+		int b = (hexval>>0)&0xFF;
+		pal[dvc(q)] = _RGB(r/4,g/4,b/4);
+		colors[q] = al_map_rgb(r,g,b);
+		//USE DEBUG VALS
+		r = (db_hexval[q-1]>>16)&0xFF;
+		g = (db_hexval[q-1]>>8)&0xFF;
+		b = (db_hexval[q-1]>>0)&0xFF;
+		db_a5_colors[q] = al_map_rgb(r,g,b);
+	}
+	
+	for(int q = 0; q < jcMAX; ++q)
+	{
+		int v = zc_get_config_basic("Theme",t_cfg_name[q],t_cfg_def[q]);
+		if(v < 1 || v > 8)
+		{
+			v = vbound(v,1,8);
+			zc_set_config_basic("Theme",t_cfg_name[q],v);
+		}
+		jwin_pal[q] = dvc(v);
+	}
 	
 	zc_pop_config();
 	
@@ -139,41 +197,31 @@ void load_themefile(char const* fpath, PALETTE pal)
 
 void save_themefile(char const* fpath)
 {
-	save_themefile(fpath, RAMpal);
+	save_themefile(fpath, RAMpal, jwin_a5_colors);
 }
 void save_themefile(char const* fpath, PALETTE pal)
 {
+	save_themefile(fpath, pal, jwin_a5_colors);
+}
+void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors)
+{
 	zc_push_config();
 	zc_config_file(fpath);
-	zc_set_config_basic("Theme","dvc1_r",pal[dvc(1)].r); zc_set_config_basic("Theme","dvc1_g",pal[dvc(1)].g); zc_set_config_basic("Theme","dvc1_b",pal[dvc(1)].b);
-	zc_set_config_basic("Theme","dvc2_r",pal[dvc(2)].r); zc_set_config_basic("Theme","dvc2_g",pal[dvc(2)].g); zc_set_config_basic("Theme","dvc2_b",pal[dvc(2)].b);
-	zc_set_config_basic("Theme","dvc3_r",pal[dvc(3)].r); zc_set_config_basic("Theme","dvc3_g",pal[dvc(3)].g); zc_set_config_basic("Theme","dvc3_b",pal[dvc(3)].b);
-	zc_set_config_basic("Theme","dvc4_r",pal[dvc(4)].r); zc_set_config_basic("Theme","dvc4_g",pal[dvc(4)].g); zc_set_config_basic("Theme","dvc4_b",pal[dvc(4)].b);
-	zc_set_config_basic("Theme","dvc5_r",pal[dvc(5)].r); zc_set_config_basic("Theme","dvc5_g",pal[dvc(5)].g); zc_set_config_basic("Theme","dvc5_b",pal[dvc(5)].b);
-	zc_set_config_basic("Theme","dvc6_r",pal[dvc(6)].r); zc_set_config_basic("Theme","dvc6_g",pal[dvc(6)].g); zc_set_config_basic("Theme","dvc6_b",pal[dvc(6)].b);
-	zc_set_config_basic("Theme","dvc7_r",pal[dvc(7)].r); zc_set_config_basic("Theme","dvc7_g",pal[dvc(7)].g); zc_set_config_basic("Theme","dvc7_b",pal[dvc(7)].b);
-	zc_set_config_basic("Theme","dvc8_r",pal[dvc(8)].r); zc_set_config_basic("Theme","dvc8_g",pal[dvc(8)].g); zc_set_config_basic("Theme","dvc8_b",pal[dvc(8)].b);
-	zc_set_config_basic("Theme","jcbox",r_dvc(jwin_pal[jcBOX]));
-	zc_set_config_basic("Theme","jclight",r_dvc(jwin_pal[jcLIGHT]));
-	zc_set_config_basic("Theme","jcmedlt",r_dvc(jwin_pal[jcMEDLT]));
-	zc_set_config_basic("Theme","jcmeddark",r_dvc(jwin_pal[jcMEDDARK]));
-	zc_set_config_basic("Theme","jcdark",r_dvc(jwin_pal[jcDARK]));
-	zc_set_config_basic("Theme","jcboxfg",r_dvc(jwin_pal[jcBOXFG]));
-	zc_set_config_basic("Theme","jctitlel",r_dvc(jwin_pal[jcTITLEL]));
-	zc_set_config_basic("Theme","jctitler",r_dvc(jwin_pal[jcTITLER]));
-	zc_set_config_basic("Theme","jctitlefg",r_dvc(jwin_pal[jcTITLEFG]));
-	zc_set_config_basic("Theme","jctextbg",r_dvc(jwin_pal[jcTEXTBG]));
-	zc_set_config_basic("Theme","jctextfg",r_dvc(jwin_pal[jcTEXTFG]));
-	zc_set_config_basic("Theme","jcselbg",r_dvc(jwin_pal[jcSELBG]));
-	zc_set_config_basic("Theme","jcselfg",r_dvc(jwin_pal[jcSELFG]));
-	zc_set_config_basic("Theme","jccursormisc",r_dvc(jwin_pal[jcCURSORMISC]));
-	zc_set_config_basic("Theme","jccursoroutline",r_dvc(jwin_pal[jcCURSOROUTLINE]));
-	zc_set_config_basic("Theme","jccursorlight",r_dvc(jwin_pal[jcCURSORLIGHT]));
-	zc_set_config_basic("Theme","jccursordark",r_dvc(jwin_pal[jcCURSORDARK]));
-	zc_set_config_basic("Theme","jc_alt_textfg",r_dvc(jwin_pal[jcALT_TEXTFG]));
-	zc_set_config_basic("Theme","jc_alt_textbg",r_dvc(jwin_pal[jcALT_TEXTBG]));
-	zc_set_config_basic("Theme","jc_disabled_fg",r_dvc(jwin_pal[jcDISABLED_FG]));
-	zc_set_config_basic("Theme","jc_disabled_bg",r_dvc(jwin_pal[jcDISABLED_BG]));
+	
+	zc_set_config_basic("Theme","ztheme_ver",VER_ZTHEME);
+	unsigned char r,g,b;
+	int hexval;
+	for(int q = 1; q <= 8; ++q)
+	{
+		al_unmap_rgb(colors[q],&r,&g,&b);
+		hexval = (r<<16)|(g<<8)|(b);
+		zc_set_config_basic_hex("Theme",fmt::format("color_{}",q).c_str(), hexval);
+	}
+	
+	for(int q = 0; q < jcMAX; ++q)
+	{
+		zc_set_config_basic("Theme",t_cfg_name[q],r_dvc(jwin_pal[q]));
+	}
 	zc_pop_config();
 }
 
@@ -200,20 +248,9 @@ void load_udef_colorset(App a, PALETTE pal)
 	
 	fix_filename_case(tmp_themefile);
 	fix_filename_slashes(tmp_themefile);
-	if(defaulted_theme &&
-		(zc_get_config("Theme", "dvc1_r", 1, a)
-		!= zc_get_config("Theme", "dvc1_r", 2, a)))
-	{
-		//Write these back to the custom theme file
-		strcpy(tmp_themefile, get_app_theme_filename());
-		load_themefile(get_config_file_name(a), pal);
-		save_themefile(tmp_themefile, pal);
-	}
-	else load_themefile(tmp_themefile, pal);
+	load_themefile(tmp_themefile, pal);
 	if (defaulted_theme)
-	{
 		zc_set_config("Theme", "theme_filename", tmp_themefile);
-	}
 }
 
 void load_colorset(int32_t colorset)
@@ -559,6 +596,12 @@ void load_colorset(int32_t colorset, PALETTE pal)
 		jwin_pal[jcALT_TEXTBG] = jwin_pal[jcTEXTFG];
 		jwin_pal[jcDISABLED_FG] = jwin_pal[jcMEDDARK];
 		jwin_pal[jcDISABLED_BG] = jwin_pal[jcBOX];
+		ALLEGRO_COLOR colors[9];
+		for(int q = 1; q <= 8; ++q)
+		{
+			colors[q] = a5color(pal[dvc(q)]);
+		}
+		jwin_set_a5_colors(colors, true);
 	}
 	
     gui_bg_color=jwin_pal[jcBOX];
@@ -1744,76 +1787,6 @@ void zinitdata::copy(zinitdata const& other)
 	}
 	memcpy(gen_eventstate,other.gen_eventstate,sizeof(gen_eventstate));
 }
-
-int size_and_pos::tw() const
-{
-	return w*xscale;
-}
-int size_and_pos::th() const
-{
-	return h*yscale;
-}
-
-void size_and_pos::clear()
-{
-	*this = size_and_pos();
-}
-bool size_and_pos::rect(int mx, int my) const
-{
-	if(x < 0 || y < 0 || w < 0 || h < 0)
-		return false;
-	auto sw = w * xscale;
-	auto sh = h * yscale;
-	if(fw > -1 && fh > -1)
-		if(mx >= x+fw && my >= y+fh)
-			return false;
-	return isinRect(mx,my,x,y,x+sw-1,y+sh-1);
-}
-int size_and_pos::rectind(int mx, int my) const
-{
-	if(!rect(mx,my)) return -1; //not in rect
-	//Where in rect?
-	mx -= x;
-	my -= y;
-	auto row = (my / yscale);
-	auto col = (mx / xscale);
-	int ind = col + (row * w);
-	return ind;
-}
-void size_and_pos::set(int nx, int ny, int nw, int nh)
-{
-	x = nx; y = ny;
-	w = nw; h = nh;
-}
-void size_and_pos::set(int nx, int ny, int nw, int nh, int xs, int ys)
-{
-	x = nx; y = ny;
-	w = nw; h = nh;
-	xscale = xs; yscale = ys;
-}
-static size_and_pos nilsqr;
-static size_and_pos tempsqr;
-size_and_pos const& size_and_pos::subsquare(int ind) const
-{
-	if(w < 1 || h < 1)
-		return nilsqr;
-	return subsquare(ind%w, ind/w);
-}
-size_and_pos const& size_and_pos::subsquare(int col, int row) const
-{
-	if(w < 1 || h < 1)
-		return nilsqr;
-	int x2 = x+(col*xscale);
-	int y2 = y+(row*yscale);
-	if(fw > -1 && fh > -1 && x2 >= x+fw && y2 >= y+fh)
-		return nilsqr;
-	tempsqr.clear();
-	tempsqr.set(x2,y2,xscale,yscale);
-	return tempsqr;
-}
-size_and_pos::size_and_pos(int nx, int ny, int nw, int nh, int xsc, int ysc, int fw, int fh)
-	: x(nx), y(ny), w(nw), h(nh), xscale(xsc), yscale(ysc), fw(fw), fh(fh)
-{}
 
 int newcombo::each_tile(std::function<bool(int32_t)> proc) const
 {

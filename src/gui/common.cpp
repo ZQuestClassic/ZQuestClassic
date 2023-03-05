@@ -4,7 +4,7 @@
 namespace GUI
 {
 
-int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c);
+int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c);
 
 void findScrollingPane(DIALOG* d, DIALOG** sp, int32_t* index)
 {
@@ -13,7 +13,7 @@ void findScrollingPane(DIALOG* d, DIALOG** sp, int32_t* index)
 	{
 		--d;
 		++i;
-	} while(d->proc!=scrollProc);
+	} while(d->proc != scrollProc_a5);
 	*sp=d;
 	*index=i;
 }

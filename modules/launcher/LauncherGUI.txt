@@ -5,6 +5,7 @@ set(LAUNCHER_GUI_SOURCES
 # Add or remove files here
 ################################
 src/jwin.cpp
+src/jwin_a5.cpp
 src/editbox.cpp
 src/tab_ctl.cpp
 src/EditboxModel.cpp

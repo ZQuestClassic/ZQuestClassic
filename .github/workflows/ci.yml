@@ -8,6 +8,10 @@ on:
 
 env:
   PYTHONUNBUFFERED: '1'
+  CCACHE_BASEDIR: ${{ github.workspace }}
+  CCACHE_DIR: ${{ github.workspace }}/.ccache
+  CCACHE_MAXSIZE: 400M
+  CCACHE_SLOPPINESS: time_macros
 
 jobs:
   # Get the LFS cache ready. This avoids every shard of each environment downloads the LFS objects
@@ -16,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: git clone
-        uses: nschloe/action-cached-lfs-checkout@v1
+        uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
 
   test:
     needs: warm-lfs-cache
@@ -44,6 +48,7 @@ jobs:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
       compiler: ${{ matrix.compiler }}
+      config: Release
       extra-args: ${{ matrix.extra-args }}
 
   compare:
@@ -59,7 +64,7 @@ jobs:
           python-version: '3.10' 
       - run: pip install PyGithub requests discord.py
       - name: Install Node.js 16.x
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - name: git clone
@@ -108,16 +113,22 @@ jobs:
               wait=True,
           )
 
-  compile-web:
+  web:
+    needs: warm-lfs-cache
     runs-on: ubuntu-22.04
 
     steps:
       - name: git clone
-        uses: actions/checkout@v3
+        uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
 
-      - uses: mymindstorm/setup-emsdk@v11
+      - name: Install Node.js 16.x
+        uses: actions/setup-node@v3
         with:
-          version: "3.1.24"
+          node-version: 16.x
+
+      - uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: "3.1.32"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
@@ -145,7 +156,19 @@ jobs:
       - run: bash scripts/build_emscripten.sh
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          ZC_PACKAGE_REPLAYS: 1
       - run: ccache -s
+
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
+      - run: sudo apt-get install xvfb
+      - run: npm install
+        working-directory: web
+      - run: xvfb-run --auto-servernum npm run test -- --timeout 100000 || xvfb-run --auto-servernum npm run test -- --timeout 100000 || xvfb-run --auto-servernum npm run test -- --timeout 100000
+        working-directory: web
+      - run: pip install requests PyGithub watchdog
+      # Run each replay for just ~15 seconds, but run all of classic_1st_lvl1.zplay
+      - run: xvfb-run --auto-servernum python -Xutf8 tests/run_replay_tests.py --build_folder build_emscripten/Release --max_duration 15 --max_duration classic_1st_lvl1.zplay=0 --test_results .tmp/test_results --ci web
+
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
@@ -153,3 +176,4 @@ jobs:
           path: |
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeOutput.log
             ${{ github.workspace }}/build_emscripten/CMakeFiles/CMakeError.log
+            ${{ github.workspace }}/.tmp/test_results

@@ -15,7 +15,7 @@ fi
 cd "$ROOT"
 mkdir -p build_emscripten
 
-EMCC_VERSION=3.1.24
+EMCC_VERSION=3.1.32
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -80,6 +80,8 @@ EMCC_FLAGS=(
 )
 LINKER_FLAGS=(
   --shared-memory
+  -s STACK_SIZE=5MB
+  -s DEFAULT_PTHREAD_STACK_SIZE=2MB
   -s EXPORTED_RUNTIME_METHODS=cwrap
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
@@ -216,6 +218,16 @@ cd $CONFIG
   --use-preload-cache \
   --js-output=zq.data.js
 
+if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
+  find "$ROOT/tests/replays" -name "*.result.txt" -type f -delete
+  find "$ROOT/tests/replays" -name "*.roundtrip" -type f -delete
+  "$(dirname $(which emcc))"/tools/file_packager.py zc_replays.data \
+    --no-node \
+    --preload "$ROOT/tests/replays@/test_replays" \
+    --use-preload-cache \
+    --js-output=zc_replays.data.js
+fi
+
 function set_files {
   R=$(jq --compact-output --null-input '$ARGS.positional' --args "${LAZY_LOAD[@]}")
   sed -i -e "s|files: \[\]|files: $R|" $1
@@ -229,10 +241,15 @@ function insert_css {
 if [[ "${TARGETS[*]}" =~ "zelda" ]]; then
   cp ../../web/index.html zelda.html
   sed -i -e 's/__TARGET__/zelda/' zelda.html
-  sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
+  if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
+    sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zc_replays.data.js"></script>|' zelda.html
+  else
+    sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
+  fi
   sed -i -e 's|__SCRIPT__|<script async src="zelda.js"></script>|' zelda.html
   set_files zelda.html
   insert_css zelda.html
+  sed -i -e 's|if(SDL2.audio.scriptProcessorNode|if(SDL2.audio?.scriptProcessorNode|' zelda.js
 fi
 if [[ "${TARGETS[*]}" =~ "zquest" ]]; then
   cp ../../web/index.html zquest.html

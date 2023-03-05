@@ -254,6 +254,8 @@ ZCGUI_BUILDER_START(Button)
 	ZCGUI_ACCEPT_PROP(onClick, onClick, Dialog::message)
 	ZCGUI_ACCEPT_PROP(text, setText, std::string)
 	ZCGUI_ACCEPT_PROP(onPressFunc, setOnPress, std::function<void()>)
+	ZCGUI_ACCEPT_PROP(type, setType, Button::type)
+	ZCGUI_ACCEPT_PROP(kb_ptr, setBoundKB, int32_t*)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 	ZCGUI_SUGGEST_PROP(onEnter, onClick)
@@ -493,7 +495,7 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 
 ZCGUI_BUILDER_START(PaletteFrame)
-	ZCGUI_ACCEPT_PROP(bitmap, setBitmap, BITMAP*)
+	ZCGUI_ACCEPT_PROP(scale, setScale, int)
 	ZCGUI_ACCEPT_PROP(cdata, setColorData, byte*)
 	ZCGUI_ACCEPT_PROP(palette, setPal, PALETTE*)
 	ZCGUI_ACCEPT_PROP(count, setCount, uint8_t)
@@ -633,11 +635,11 @@ Button(forceFitH = true, text = "?", __VA_ARGS__, \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
-#define INFOBTN_FUNC(getter) \
+#define INFOBTN_REF(getter) \
 Button(forceFitH = true, text = "?", \
-	onPressFunc = [=]() \
+	onPressFunc = [&]() \
 	{ \
-		InfoDialog("Info",getter()).show(); \
+		InfoDialog("Info",getter).show(); \
 	})
 //}
 

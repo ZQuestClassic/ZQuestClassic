@@ -82,6 +82,7 @@ static void a5_destroy_timer_data(_A5_TIMER_DATA * timer_data)
     free(timer_data);
 }
 
+int timer_is_installed();
 static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
 {
     ALLEGRO_EVENT_QUEUE * queue;
@@ -121,7 +122,8 @@ static void * a5_timer_proc(ALLEGRO_THREAD * thread, void * data)
                 timer_data->timer_proc();
             }
             al_unlock_mutex(timers_mutex);
-            _handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0));
+            if (timer_is_installed())
+                _handle_timer_tick(MSEC_TO_TIMER(diff_time * 1000.0));
         }
     }
     al_stop_timer(timer_data->timer);

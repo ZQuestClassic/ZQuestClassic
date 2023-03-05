@@ -3,7 +3,7 @@
 #include "dialog.h"
 #include "dialog_runner.h"
 #include "size.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include <cassert>
 #include <utility>
 
@@ -18,7 +18,7 @@ Checkbox::Checkbox(): checked(false), text(),
 
 void Checkbox::setText(std::string newText)
 {
-	int32_t textWidth = text_length(widgFont, newText.c_str());
+	int32_t textWidth = al_get_text_width(widgFont_a5, newText.c_str());
 	setPreferredWidth(Size::pixels(textWidth)+13_px);
 	text = newText;
 	if(alDialog)
@@ -61,32 +61,32 @@ void Checkbox::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
-void Checkbox::applyFont(FONT* newFont)
+void Checkbox::applyFont_a5(ALLEGRO_FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont(newFont);
+	Widget::applyFont_a5(newFont);
 }
 
 void Checkbox::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<new_check_proc>,
+		newGUIProc<new_check_proc_a5>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		getAccelKey(text),
 		getFlags()|(checked ? D_SELECTED : 0),
 		static_cast<int32_t>(placement), 0, // d1, d2,
-		text.data(), widgFont, nullptr // dp, dp2, dp3
+		text.data(), widgFont_a5, nullptr // dp, dp2, dp3
 	});
 }
 
 void Checkbox::calculateSize()
 {
-	setPreferredWidth(14_px+12_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	setPreferredWidth(14_px+12_px+Size::pixels(gui_text_width_a5(widgFont_a5, text.c_str())));
 	Widget::calculateSize();
 }
 

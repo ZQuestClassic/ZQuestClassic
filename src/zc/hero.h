@@ -380,6 +380,7 @@ public:
 	void checklocked();
 	void deselectbombs(int32_t super); // switch Hero's weapon if his current weapon (bombs) was depleted.
 	bool startwpn(int32_t itemid);
+	bool onWater(bool drownonly);
 	bool mirrorBonk();
 	void doMirror(int32_t mirrorid);
 	void handle_passive_buttons();
@@ -408,7 +409,7 @@ public:
 	void scrollscr_butgood(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);
-	
+	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl, std::map<size_t, byte>& prism_dir_seen_map);
 	void handleSpotlights();

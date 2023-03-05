@@ -46,6 +46,7 @@ extern refInfo playerScriptData;
 #include "zscriptversion.h"
 #include "particles.h"
 #include <fmt/format.h>
+#include "zc/render.h"
 
 extern refInfo itemScriptData[256];
 extern refInfo itemCollectScriptData[256];
@@ -245,10 +246,41 @@ static bool is_immobile()
 	return rate != 0;
 }
 
+bool nomove_action(int action)
+{
+	switch(action)
+	{
+		case gothit:
+		case drowning:
+		case lavadrowning:
+		case sidedrowning:
+		case falling:
+		case freeze:
+		case sideswimfreeze:
+		case scrolling:
+		case casting:
+		case sideswimcasting:
+		case landhold1:
+		case landhold2:
+		case waterhold1:
+		case waterhold2:
+		case sidewaterhold1:
+		case sidewaterhold2:
+		case hopping:
+		case inwind:
+			return true;
+	}
+	return false;
+}
+
 bool HeroClass::isStanding(bool forJump)
 {
-	bool st = (z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y) && !ladderx && !laddery && !getOnSideviewLadder()) && hoverclk==0);
-	if(!st) return false;
+	if(z || fakez) return false;
+	if(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y)
+		&& !ladderx && !laddery && !getOnSideviewLadder())
+		return false;
+	if(hoverclk) return false;
+	if(nomove_action(action)) return false;
 	int32_t val = check_pitslide();
 	if(val == -2) return false;
 	if(val == -1) return true;
@@ -5911,7 +5943,10 @@ int32_t HeroClass::defend(weapon *w)
 		default: return 0;
 	}
 }
-
+ALLEGRO_COLOR HeroClass::hitboxColor(byte opacity) const
+{
+	return al_map_rgba(0,0,255,opacity);
+}
 int32_t HeroClass::compareDir(int32_t other)
 {
 	if(other != NORMAL_DIR(other))
@@ -7574,6 +7609,8 @@ int32_t getPushDir(int32_t flag)
 	}
 	return -1;
 }
+
+void post_item_collect();
 
 // returns true when game over
 bool HeroClass::animate(int32_t)
@@ -9289,6 +9326,7 @@ bool HeroClass::animate(int32_t)
 				playLevelMusic();
 				
 			action=none; FFCore.setHeroAction(none);
+			post_item_collect();
 		}
 		else
 			freeze_guys=true;
@@ -9309,6 +9347,7 @@ bool HeroClass::animate(int32_t)
 				playLevelMusic();
 				
 			SetSwim();
+			post_item_collect();
 		}
 		else
 			freeze_guys=true;
@@ -9826,6 +9865,7 @@ bool HeroClass::animate(int32_t)
 		}
 		
 		action=none; FFCore.setHeroAction(none);
+		attackclk = 0;
 		stepforward(29, true);
 		action=scrolling; FFCore.setHeroAction(scrolling);
 		pushing=false;
@@ -10108,6 +10148,60 @@ void HeroClass::deselectbombs(int32_t super)
 int32_t potion_life=0;
 int32_t potion_magic=0;
 
+bool HeroClass::onWater(bool drownonly)
+{
+	int32_t water = 0;
+	int32_t types[4] = {0};
+	int32_t x1 = x+4, x2 = x+11,
+		y1 = y+9, y2 = y+15;
+	if (get_bit(quest_rules, qr_SMARTER_WATER))
+	{
+		if (iswaterex_z3(0, -1, x1, y1, true, false) &&
+			iswaterex_z3(0, -1, x1, y2, true, false) &&
+			iswaterex_z3(0, -1, x2, y1, true, false) &&
+			iswaterex_z3(0, -1, x2, y2, true, false)) water = iswaterex_z3(0, -1, (x2+x1)/2,(y2+y1)/2, true, false);
+	}
+	else
+	{
+		types[0] = COMBOTYPE(x1,y1);
+		
+		if(MAPFFCOMBO(x1,y1))
+			types[0] = FFCOMBOTYPE(x1,y1);
+			
+		types[1] = COMBOTYPE(x1,y2);
+		
+		if(MAPFFCOMBO(x1,y2))
+			types[1] = FFCOMBOTYPE(x1,y2);
+			
+		types[2] = COMBOTYPE(x2,y1);
+		
+		if(MAPFFCOMBO(x2,y1))
+			types[2] = FFCOMBOTYPE(x2,y1);
+			
+		types[3] = COMBOTYPE(x2,y2);
+		
+		if(MAPFFCOMBO(x2,y2))
+			types[3] = FFCOMBOTYPE(x2,y2);
+			
+		int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
+		if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
+			typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
+			
+		if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
+				combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
+			water = typec;
+	}
+	if(water > 0)
+	{
+		if(!drownonly) return true;
+		if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 bool HeroClass::mirrorBonk()
 {
 	zfix tx = x, ty = y, tz = z;
@@ -10118,56 +10212,8 @@ bool HeroClass::mirrorBonk()
 	
 	if(!fail) //not solid, but check for water/pits...
 	{
-		//{ Check water collision.... GAAAAAAAH THIS IS A MESS
-		int32_t water = 0;
-		int32_t types[4] = {0};
-		int32_t x1 = x+4, x2 = x+11,
-			y1 = y+9, y2 = y+15;
-		if (get_bit(quest_rules, qr_SMARTER_WATER))
-		{
-			if (iswaterex_z3(0, -1, x1, y1, true, false) &&
-			iswaterex_z3(0, -1, x1, y2, true, false) &&
-			iswaterex_z3(0, -1, x2, y1, true, false) &&
-			iswaterex_z3(0, -1, x2, y2, true, false)) water = iswaterex_z3(0, -1, (x2+x1)/2,(y2+y1)/2, true, false);
-		}
-		else
-		{
-			types[0] = COMBOTYPE(x1,y1);
-			
-			if(MAPFFCOMBO(x1,y1))
-				types[0] = FFCOMBOTYPE(x1,y1);
-				
-			types[1] = COMBOTYPE(x1,y2);
-			
-			if(MAPFFCOMBO(x1,y2))
-				types[1] = FFCOMBOTYPE(x1,y2);
-				
-			types[2] = COMBOTYPE(x2,y1);
-			
-			if(MAPFFCOMBO(x2,y1))
-				types[2] = FFCOMBOTYPE(x2,y1);
-				
-			types[3] = COMBOTYPE(x2,y2);
-			
-			if(MAPFFCOMBO(x2,y2))
-				types[3] = FFCOMBOTYPE(x2,y2);
-				
-			int32_t typec = COMBOTYPE((x2+x1)/2,(y2+y1)/2);
-			if(MAPFFCOMBO((x2+x1)/2,(y2+y1)/2))
-				typec = FFCOMBOTYPE((x2+x1)/2,(y2+y1)/2);
-				
-			if(combo_class_buf[types[0]].water && combo_class_buf[types[1]].water &&
-					combo_class_buf[types[2]].water && combo_class_buf[types[3]].water && combo_class_buf[typec].water)
-				water = typec;
-		}
-		if(water > 0)
-		{
-			if(current_item(itype_flippers) <= 0 || current_item(itype_flippers) < combobuf[water].attribytes[0] || ((combobuf[water].usrflags&cflag1) && !(itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) 
-			{
-				fail = true;
-			}
-		}
-		//}
+		if(onWater(true))
+			fail = true;
 		if(pitslide() || fallclk)
 			fail = true;
 		fallclk = 0;
@@ -10296,6 +10342,9 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(passive) did_passive_jump = false;
 	else if(did_passive_jump) return false; //don't jump twice in the same frame
 	
+	if(nomove_action(action)) return false; //can't jump while ex. drowning
+	if(onWater(true)) return false; //Don't allow jumping off of water frame-perfectly...
+	
 	if(jumpid < 0)
 		jumpid = current_item_id(itype_rocs,true,true);
 	
@@ -10344,7 +10393,11 @@ bool HeroClass::do_jump(int32_t jumpid, bool passive)
 	if(itm.usesound)
 		sfx(itm.usesound,pan(x.getInt()));
 	
-	if(passive) did_passive_jump = true;
+	if(passive)
+	{
+		did_passive_jump = true;
+		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
+	}
 	return true;
 }
 void HeroClass::drop_liftwpn()
@@ -10537,9 +10590,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		paymagiccost(liftid);
 	}
 	if(passive)
-	{
 		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
-	}
 	return;
 }
 void HeroClass::handle_lift(bool dec)
@@ -13385,23 +13436,33 @@ void HeroClass::movehero()
 	zfix temp_y(y);
 	
 	int32_t flippers_id = current_item_id(itype_flippers);
+	itemdata const& itm = itemsbuf[flippers_id];
+	byte intbtn = byte(itm.misc3&0xFF);
+	bool dive_pressed = getIntBtnInput(intbtn, true, true, false, false, true);
+	bool eatdive = false;
 	if(diveclk>0)
 	{
 		if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
 		--diveclk;
-		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && DrunkrAbtn()) //Cancellable Diving -V
+		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && dive_pressed) //Cancellable Diving -V
 		{
 			diveclk = itemsbuf[flippers_id].misc2;
+			eatdive = true;
 		}
 	}
-	else if(action == swimming && DrunkrAbtn())
+	else if(action == swimming && dive_pressed)
 	{
 		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
 		bool screen_diving=(tmpscr.flags5&fTOGGLEDIVING) != 0;
 		
 		if(global_diving==screen_diving)
+		{
 			diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
+			eatdive = true;
+		}
 	}
+	if(eatdive)
+		getIntBtnInput(intbtn, true, true, false, false, false);
 	
 	if(action==rafting)
 	{
@@ -14140,10 +14201,16 @@ void HeroClass::movehero()
 					{
 						do
 						{
-							info = walkflag(x,(bigHitbox?0:8)+(y-hero_newstep),2,up);
+							zfix ty = y - hero_newstep;
+							info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+								|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
 							
-							info = info || walkflag(x+15,(bigHitbox?0:8)+(y-hero_newstep),1,up);
-							info = info || walkflagMBlock(x+15, (bigHitbox?0:8)+(y-hero_newstep));
+							if (ty < 0 && !bigHitbox) //sanity check for up scroll
+							{
+								info = info || walkflag(x, zfix(0), 2, up);
+								info = info || walkflag(x+15, zfix(0), 1, up);
+							}
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
 							execute(info);
 							
@@ -14614,7 +14681,16 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+								zfix ty = y - hero_newstep_diag;
+								info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+									|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+								
+								if (ty < 0 && !bigHitbox) //sanity check for up scroll
+								{
+									info = info || walkflag(x, zfix(0), 2, up);
+									info = info || walkflag(x+15, zfix(0), 1, up);
+								}
+								info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 									
 								execute(info);
 								
@@ -14637,7 +14713,16 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag(x-hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+										zfix tx = x-hero_newstep, ty = y-hero_newstep_diag;
+										info = walkflag(tx,(bigHitbox?0:8)+ty,1,up);
+								
+										if (ty < 0 && !bigHitbox) //sanity check for up scroll
+										{
+											info = info || walkflag(tx, zfix(0), 1, up);
+											info = info || walkflag(tx+15, zfix(0), 1, up);
+										}
+										info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
+										
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -14830,7 +14915,16 @@ void HeroClass::movehero()
 						{
 							do
 							{
-								info = walkflag(x,y+(bigHitbox?0:8)-hero_newstep_diag,2,up)||walkflag(x+15,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+								zfix ty = y - hero_newstep_diag;
+								info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+									|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+								
+								if (ty < 0 && !bigHitbox) //sanity check for up scroll
+								{
+									info = info || walkflag(x, zfix(0), 2, up);
+									info = info || walkflag(x+15, zfix(0), 1, up);
+								}
+								info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
 								execute(info);
 								
@@ -14853,7 +14947,15 @@ void HeroClass::movehero()
 								{
 									do
 									{
-										info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8)-hero_newstep_diag,1,up);
+										zfix tx = x+hero_newstep, ty = y-hero_newstep_diag;
+										info = walkflag(tx+15,(bigHitbox?0:8)+ty,1,up);
+								
+										if (ty < 0 && !bigHitbox) //sanity check for up scroll
+										{
+											info = info || walkflag(tx, zfix(0), 1, up);
+											info = info || walkflag(tx+15, zfix(0), 1, up);
+										}
+										info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
 										execute(info);
 										if(info.isUnwalkable())
 										{
@@ -24014,12 +24116,17 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
 {
     int32_t type = combobuf[MAPCOMBO(x,y)].type;
     
-    if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
-        y-=16;
         
-    dir=down;
     // Fix Hero's position to the grid
     y=CLEAR_LOW_BITS(y.getInt(), 4);
+	
+    if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
+        y -= 16;
+	
+    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
+    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4);
+	
+    dir=down;
     z=fakez=fall=fakefall=0;
     
     if(opening)
@@ -24031,13 +24138,10 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     stop_item_sfx(itype_brang);
     sfx(WAV_STAIRS,pan(x.getInt()));
     clk=0;
-    //  int32_t cmby=y.getInt()&0xF0;
     action=climbcovertop; FFCore.setHeroAction(climbcovertop);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
-    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4);
     
     guys.clear();
     chainlinks.clear();
@@ -24067,6 +24171,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     }
 	viewport.yofs = 0;
     
+	
     action=none; FFCore.setHeroAction(none);
 }
 
@@ -25950,8 +26055,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				do_layer(framebuf, -2, map, scr, 2, base_screen, screens[2], -offx, -offy, 3);
 			}
 
-			do_walkflags(framebuf, base_screen, -offx, -offy, 3); // show walkflags if the cheat is on
-			do_effectflags(framebuf, base_screen, -offx, -offy, 3); // show effectflags if the cheat is on
+			do_walkflags(base_screen, -offx, -offy, 3); // show walkflags if the cheat is on
+			do_effectflags(base_screen, -offx, -offy, 3); // show effectflags if the cheat is on
 			
 			if(get_bit(quest_rules, qr_FFCSCROLL))
 			{
@@ -26889,6 +26994,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		clear_bitmap(scrollbuf_old);
 		clear_bitmap(framebuf);
+		clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
 		
 		switch(scrolldir)
 		{
@@ -26989,11 +27095,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
 		}
 		
-		do_walkflags(framebuf, oldscr, tx2, ty2,3); //show walkflags if the cheat is on
-		do_walkflags(framebuf, newscr, tx, ty,2);
+		do_walkflags(oldscr, tx2, ty2,3); //show walkflags if the cheat is on
+		do_walkflags(newscr, tx, ty,2);
 		
-		do_effectflags(framebuf, oldscr, tx2, ty2,3); //show effectflags if the cheat is on
-		do_effectflags(framebuf, newscr, tx, ty,2);
+		do_effectflags(oldscr, tx2, ty2,3); //show effectflags if the cheat is on
+		do_effectflags(newscr, tx, ty,2);
 		
 		
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
@@ -28671,6 +28777,14 @@ void takeitem(int32_t id)
     }
 }
 
+void post_item_collect()
+{
+	std::vector<int32_t> &ev = FFCore.eventData;
+	ev.clear();
+	
+	throwGenScriptEvent(GENSCR_EVENT_POST_COLLECT_ITEM);
+}
+
 // Attempt to pick up an item. (-1 = check items touching Hero.)
 void HeroClass::checkitems(int32_t index)
 {
@@ -29165,6 +29279,8 @@ void HeroClass::checkitems(int32_t index)
 			getBigTri(id2);
 		}
 	}
+	if(!holdclk)
+		post_item_collect();
 }
 
 void HeroClass::StartRefill(int32_t refillWhat)
@@ -30148,6 +30264,7 @@ void HeroClass::heroDeathAnimation()
 			}
 			else
 			{
+				clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
 				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);

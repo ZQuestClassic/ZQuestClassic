@@ -697,7 +697,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     
 	if(show_progress)
 	{
-		box_start(1, "Loading Quest", lfont, font, true);
+		box_start(1, "Loading Quest", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), true);
 	}
     
 	box_out("Loading Quest: ");
@@ -9381,6 +9381,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if( tempitem.family == itype_shield )
 					tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
+			}
+			if( s_version < 54 )
+			{
+				if( tempitem.family == itype_flippers )
+					tempitem.misc3 = INT_BTN_A; //'Block Front' flag
 			}
 			
 			if(tempitem.fam_type==0)  // Always do this

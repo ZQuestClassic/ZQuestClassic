@@ -47,15 +47,15 @@
 struct ListData
 {
     constexpr ListData() noexcept:
-        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), owner(nullptr)
+        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), a5font(nullptr), owner(nullptr)
     {}
 
-    ListData(const char *(*lf)(int32_t, int32_t*), FONT **f) noexcept:
-        unownedFunc(lf), ownedFunc(nullptr), font(f), owner(nullptr)
+    ListData(const char *(*lf)(int32_t, int32_t*), FONT **f, ALLEGRO_FONT **f5) noexcept:
+        unownedFunc(lf), ownedFunc(nullptr), font(f), a5font(f5), owner(nullptr)
     {}
 
-    ListData(const char *(*lf)(int32_t, int32_t*, void*), FONT **f, void* o) noexcept:
-        unownedFunc(nullptr), ownedFunc(lf), font(f), owner(o)
+    ListData(const char *(*lf)(int32_t, int32_t*, void*), FONT **f, ALLEGRO_FONT **f5, void* o) noexcept:
+        unownedFunc(nullptr), ownedFunc(lf), font(f), a5font(f5), owner(o)
     {}
 
     const char* listFunc(int32_t index, int32_t* size) const
@@ -70,11 +70,14 @@ struct ListData
     const char *(*ownedFunc)(int32_t, int32_t *, void *);
 
     FONT **font;
+	ALLEGRO_FONT **a5font;
+	
     void* owner;
 };
 
 byte getHighlightColor(int32_t c);
 byte getHighlightColor(RGB const& col);
+ALLEGRO_COLOR getHighlightColor(ALLEGRO_COLOR col);
 
 #ifdef __cplusplus
 extern "C"
@@ -153,7 +156,6 @@ extern int32_t mix_value(int32_t c1,int32_t c2,int32_t pos,int32_t max);
 
 /* 1.5k lookup table for color matching */
 extern uint32_t col_diff[3*128];
-extern int32_t last_droplist_sel;
 
 /* Used to indicate the new GUI dialog root. */
 extern char newGuiMarker;
@@ -218,6 +220,8 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c);
+bool editproc_special_key(int32_t c);
+bool editproc_combined_key(int32_t c);
 int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to hex. numbers */
 int32_t jwin_numedit_zscriptint_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers,  bound to ZScript int32_t (no decimals) */
 int32_t jwin_numedit_byte_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
@@ -226,6 +230,7 @@ int32_t jwin_numedit_short_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricte
 int32_t jwin_numedit_sshort_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to int16_t (16b) */
 int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers */
 //
+void trim_trailing_0s(char* str, bool leaveDec = false);
 int32_t jwin_swapbtn_proc(int32_t msg,DIALOG *d,int32_t c); //Button to swap numedit styles
 int32_t jwin_numedit_swap_byte_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to unsigned byte, dec and hex modes
 int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int16_t, dec and hex modes
@@ -237,6 +242,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t);
 int32_t jwin_droplist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -260,7 +266,7 @@ int32_t gui_text_width(FONT *f, const char *s);
 
 int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y);
 
-int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c);
 
 int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int32_t c1, int32_t c2, int32_t c3, FONT *title_font);
 int32_t jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int32_t c1, int32_t c2, FONT *title_font);
@@ -269,18 +275,21 @@ int32_t jwin_auto_alert(const char *title, const char *s1, int32_t lenlim, int32
 
 /* event handler that closes a dialog */
 int32_t close_dlg();
-int32_t mouse_in_rect(int32_t x,int32_t y,int32_t w,int32_t h);
+bool mouse_in_rect(int x,int y,int w,int h);
 
 void bestfit_init(void);
 int32_t bestfit_color_range(AL_CONST PALETTE pal, int32_t r, int32_t g, int32_t b, uint8_t start, uint8_t end);
 int32_t makecol8_map(int32_t r, int32_t g, int32_t b, RGB_MAP *table);
 void create_rgb_table_range(RGB_MAP *table, AL_CONST PALETTE pal, uint8_t start, uint8_t end, void (*callback)(int32_t pos));
 int32_t short_bmp_avg(BITMAP *bmp, int32_t i);
+void lfsrInit();
+uint16_t lfsrNext();
 void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                  int32_t src_color1, int32_t src_color2, uint8_t dest_color1,
                  uint8_t dest_color2);
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void jwin_center_dialog(DIALOG *dialog);
+void jwin_get_dlg_center(DIALOG* dialog, int& x, int& y, int& w, int& h);
 void jwin_ulalign_dialog(DIALOG *dialog);
 
 void _calc_scroll_bar(int32_t h, int32_t height, int32_t listsize, int32_t offset,
@@ -295,6 +304,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
 
 extern int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
 extern int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
+int new_popup_dlg(DIALOG* dialog, int32_t focus_obj);
 
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);

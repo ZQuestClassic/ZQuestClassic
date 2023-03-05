@@ -243,8 +243,8 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
 void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, mapscr* layerscr, int32_t x, int32_t y, bool scrolling = false, bool is_from_old_scr=false, bool drawprimitives=false);
 void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling = false, bool drawprimitives=false);
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
-void do_walkflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
-void do_effectflags(BITMAP *dest,mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
+void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
+void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);
 void do_primitives(BITMAP *bmp, int32_t type, mapscr *layer, int32_t x, int32_t y);
 void do_script_draws(BITMAP *bmp, mapscr *layer, int32_t x, int32_t y, bool hideLayer7 = false);
 void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling = false);

@@ -1,7 +1,7 @@
 #include "widget.h"
 #include "common.h"
 #include "dialog_runner.h"
-#include "../jwin.h"
+#include "../jwin_a5.h"
 #include "base/zdefs.h"
 #include <cassert>
 
@@ -20,7 +20,7 @@ Widget::Widget() noexcept:
 	maxwidth(-1), maxheight(-1),
 	minwidth(-1), minheight(-1),
 	flags(0), hideCount(0),
-	frameText(""), widgFont(GUI_DEF_FONT),
+	frameText(""), widgFont(GUI_DEF_FONT), widgFont_a5(GUI_DEF_FONT_A5),
 	owner(NULL), rowSpan(1), colSpan(1)
 {}
 
@@ -257,7 +257,7 @@ void Widget::realize(DialogRunner& runner)
 	if(flags&f_FRAMED)
 	{
 		frameDialog = runner.push(shared_from_this(), DIALOG {
-			newGUIProc<jwin_frame_proc>,
+			newGUIProc<jwin_frame_proc_a5>,
 			x-leftPadding, y-topPadding, getPaddedWidth(), getPaddedHeight(),
 			fgColor, bgColor,
 			0,
@@ -266,13 +266,13 @@ void Widget::realize(DialogRunner& runner)
 			nullptr, nullptr, nullptr // dp, dp2, dp3
 		});
 		frameTextDialog = runner.push(shared_from_this(), DIALOG {
-			newGUIProc<new_text_proc>,
+			newGUIProc<new_text_proc_a5>,
 			x-leftPadding+6_px, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-6_px, text_height(widgFont),
 			fgColor, bgColor,
 			0,
 			getFlags(),
 			0, 0, // d1, d2,
-			frameText.data(), widgFont, nullptr // dp, dp2, dp3
+			frameText.data(), widgFont_a5, nullptr // dp, dp2, dp3
 		});
 	}
 }
@@ -361,9 +361,13 @@ void Widget::setFrameText(std::string const& newstr)
 void Widget::applyFont(FONT* newfont)
 {
 	widgFont = newfont;
+}
+void Widget::applyFont_a5(ALLEGRO_FONT* newfont)
+{
+	widgFont_a5 = newfont;
 	if(frameTextDialog)
 	{
-		frameTextDialog->dp2 = widgFont;
+		frameTextDialog->dp2 = newfont;
 		pendDraw();
 	}
 }
@@ -388,6 +392,10 @@ bool Widget::allowDraw()
 void Widget::pendDraw()
 {
 	if(owner) owner->pendDraw();
+}
+void Widget::forceDraw()
+{
+	if(owner) owner->forceDraw();
 }
 
 bool Widget::isConstructed()

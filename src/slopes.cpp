@@ -54,11 +54,32 @@ void slope_info::draw(BITMAP* dest, int32_t x, int32_t y, int32_t col) const
 		line(dest, x+x1, y+y1+1, x+x2+1, y+y2, col);
 	}
 }
+void slope_info::draw_a5(int32_t x, int32_t y, ALLEGRO_COLOR col) const
+{
+	if(!cmb) return;
+	al_draw_line(x+x1, y+y1, x+x2, y+y2, col, 1);
+	zfix const& sl = slope();
+	if(sl > 0)
+	{
+		al_draw_line(x+x1-1, y+y1, x+x2, y+y2+1, col, 1);
+		al_draw_line(x+x1, y+y1-1, x+x2+1, y+y2, col, 1);
+	}
+	else if(sl < 0)
+	{
+		al_draw_line(x+x1-1, y+y1, x+x2, y+y2-1, col, 1);
+		al_draw_line(x+x1, y+y1+1, x+x2+1, y+y2, col, 1);
+	}
+}
 
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col)
 {
 	for(auto& p : slopes)
 		p.second.get_info().draw(dest,x,y,col);
+}
+void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col)
+{
+	for(auto& p : slopes)
+		p.second.get_info().draw_a5(x,y,col);
 }
 
 slope_info slope_object::get_info() const

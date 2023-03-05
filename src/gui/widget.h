@@ -12,8 +12,8 @@
 #include <vector>
 #include "base/fonts.h"
 
-FONT* get_gui_def_font();
-#define GUI_DEF_FONT get_gui_def_font()
+#define GUI_DEF_FONT get_custom_font(CFONT_DLG)
+#define GUI_DEF_FONT_A5 get_custom_font_a5(CFONT_DLG)
 
 #define DEFAULT_PADDING       3_px
 #define DEFAULT_PADDING_INT   3
@@ -316,9 +316,11 @@ public:
 	
 	//Sets the font to use for the widget (overridable)
 	virtual void applyFont(FONT* newfont);
+	virtual void applyFont_a5(ALLEGRO_FONT* newfont);
 	
 	//For some reason need this to not be virtual???
 	void setFont(FONT* newfont) {applyFont(newfont);}
+	void setFont_a5(ALLEGRO_FONT* newfont) {applyFont_a5(newfont);}
 	
 	template<typename T>
 	inline void setUserData(T&& ud)
@@ -366,11 +368,13 @@ protected:
 	int32_t getFlags() const noexcept;
 	
 	FONT* widgFont;
+	ALLEGRO_FONT* widgFont_a5;
 	
 	/* Returns true if the dialog is running, and thus draws to the screen are permitted */
 	bool allowDraw();
 	/* Note that the widget has done something requiring redraw */
 	void pendDraw();
+	void forceDraw();
 	/* Returns true if the entire dialog has been realized */
 	bool isConstructed();
 	

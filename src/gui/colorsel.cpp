@@ -43,7 +43,7 @@ void ColorSel::realize(DialogRunner& runner)
 	Widget::realize(runner);
 	
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_color_swatch>,
+		newGUIProc<jwin_color_swatch_a5>,
 		x+2, y+2, getWidth()-4, getHeight()-4,
 		fgColor, bgColor,
 		0, // key

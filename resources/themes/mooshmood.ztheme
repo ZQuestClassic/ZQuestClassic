@@ -1,46 +1,14 @@
 [Theme]
-//////////////////////////////////////////////////////// = 
-// = VGA Colours 1 to 8
-//////////////////////////////////////////////////////// = 
-dvc1_r = 52
-dvc1_g = 56
-dvc1_b = 63
-jc_alt_textfg = 6
-jc_alt_textbg = 8
-jc_disabled_fg = 6
-jc_disabled_bg = 5
+color_1 = D0E0FC
+color_2 = 689094
+color_3 = 4C7480
+color_4 = 38546C
+color_5 = 283C54
+color_6 = 1C2038
+color_7 = 100420
+color_8 = 787878
+ztheme_ver = 1
 
-dvc2_r = 26
-dvc2_g = 36
-dvc2_b = 37
-
-dvc3_r = 19
-dvc3_g = 29
-dvc3_b = 32
-
-dvc4_r = 14
-dvc4_g = 21
-dvc4_b = 27
-
-dvc5_r = 10
-dvc5_g = 15
-dvc5_b = 21
-
-dvc6_r = 7
-dvc6_g = 8
-dvc6_b = 14
-
-dvc7_r = 4
-dvc7_g = 1
-dvc7_b = 8
-
-dvc8_r = 30
-dvc8_g = 30
-dvc8_b = 30
-
-//////////////////////////////////////////////////////// = 
-// = System Elements
-//////////////////////////////////////////////////////// = 
 jcbox = 5
 jclight = 3
 jcmedlt = 4
@@ -59,3 +27,8 @@ jccursormisc = 7
 jccursoroutline = 6
 jccursorlight = 2
 jccursordark = 1
+
+jc_alt_textfg = 6
+jc_alt_textbg = 8
+jc_disabled_fg = 6
+jc_disabled_bg = 5

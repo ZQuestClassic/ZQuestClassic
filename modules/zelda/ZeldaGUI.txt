@@ -18,11 +18,13 @@ src/tab_ctl.cpp
 src/zc/title.cpp
 src/zc/zc_custom.cpp
 src/jwin.cpp
+src/jwin_a5.cpp
 
 src/zc_list_data.cpp
 
 src/dialog/init_data.cpp
 src/dialog/cheat_dialog.cpp
+src/dialog/cheatkeys.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
 src/dialog/vidmode.cpp

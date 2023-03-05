@@ -50,6 +50,8 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,int32_t flags,bool jwin);
 void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags);
 bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag=false);
+void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags);
+bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag=false);
 bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin);
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin,bool sel=false);
 void draw_graphics_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,int32_t flags,bool jwin,bool overlay);
@@ -149,7 +151,7 @@ int32_t click_d_ctile_proc();
 int32_t onCmb_dlg_h();
 int32_t onCmb_dlg_v();
 int32_t onCmb_dlg_r();
-bool edit_combo(int32_t c,bool freshen,int32_t cs);
+bool edit_combo(int32_t c,int32_t cs);
 int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onIcons();
 void center_zq_tiles_dialogs();

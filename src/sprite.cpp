@@ -33,6 +33,7 @@
 #include "hero.h"
 #include "decorations.h"
 #include "items.h"
+#include "zc/render.h"
 extern HeroClass Hero;
 extern sprite_list decorations;
 #endif
@@ -1597,11 +1598,20 @@ void sprite::draw(BITMAP* dest)
 			w.draw(dest);
 		}
 	}
-    
-	if(show_hitboxes && !is_zquest())
-		rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
 
-	destroy_bitmap(sprBMP2);
+#ifndef IS_ZQUEST
+	if(show_hitboxes)
+	{
+		start_info_bmp();
+		al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez),hitboxColor(info_opacity),1);
+		end_info_bmp();
+	}
+#endif
+	if ( sprBMP2 ) 
+	{
+		//if there is still somehow data in the scaling bitmap
+		destroy_bitmap(sprBMP2);
+	}
 	
 	yofs = tyoffs;
 }
@@ -1969,8 +1979,14 @@ void sprite::drawzcboss(BITMAP* dest)
         }
     }
     
-    if(show_hitboxes && !is_zquest())
-        rect(dest,x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz-1,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez)-1,vc((id+16)%255));
+#ifndef IS_ZQUEST
+    if(show_hitboxes)
+	{
+		start_info_bmp();
+		al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez),hitboxColor(info_opacity),1);
+		end_info_bmp();
+	}
+#endif
 }
 
 void sprite::draw8(BITMAP* dest)
@@ -2088,6 +2104,12 @@ int32_t sprite::run_script(int32_t mode)
 {
 	return RUNSCRIPT_OK; //Default implementation; override in subclasses
 }
+
+ALLEGRO_COLOR sprite::hitboxColor(byte opacity) const
+{
+	return al_map_rgba(255,0,255,opacity);
+}
+
 /***************************************************************************/
 
 /**********************************/

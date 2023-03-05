@@ -159,6 +159,7 @@ public:
     virtual void draw(BITMAP *dest);
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
+	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 };
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);

@@ -213,7 +213,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::TRICHECK(int ind)
 	);
 }
 
-static size_t genscr_index = 0;
+static size_t genscr_index = 0, maintab = 0, vartab = 0;
 std::shared_ptr<GUI::Widget> InitDataDialog::view()
 {
 	using namespace GUI::Builder;
@@ -334,7 +334,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			padding = 3_px,
-			tabs = TabPanel(
+			tabs = TabPanel(ptr = &maintab,
 				padding = 3_px,
 				TabRef(name = "Equipment", ilist_panel),
 				TabRef(name = "Counters", TabPanel(
@@ -540,48 +540,52 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Vars", TabPanel(TabRef(name = "", Row(
-					Column(vAlign = 0.0,
-						Rows<2>(
-							margins = 0_px,
-							padding = 0_px,
-							DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
-							DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
-							VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
-							VAL_FIELD(word,"Player Step:",0,9999,heroStep,isZC),
-							VAL_FIELD(word,"Subscren Fall Mult:",1,85,subscrSpeed,isZC),
-							VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false),
-							VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false),
-							VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false),
-							VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false)
+				TabRef(name = "Vars", TabPanel(ptr = &vartab,
+					TabRef(name = "1", Row(
+						Column(vAlign = 0.0,
+							Rows<2>(
+								margins = 0_px,
+								padding = 0_px,
+								DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC),
+								DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC),
+								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC),
+								VAL_FIELD(word,"Player Step:",0,9999,heroStep,isZC),
+								VAL_FIELD(word,"Subscren Fall Mult:",1,85,subscrSpeed,isZC),
+								VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false),
+								VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false),
+								VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false),
+								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false)
+							)
+						),
+						Column(vAlign = 0.0,
+							Rows<2>(
+								margins = 0_px,
+								padding = 0_px,
+								VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false),
+								VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false),
+								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false),
+								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false),
+								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false),
+								COLOR_FIELD("Darkness Color:", darkcol,false),
+								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
+								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false)
+							)
 						)
-					),
-					Column(vAlign = 0.0,
-						Rows<2>(
-							margins = 0_px,
-							padding = 0_px,
-							VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false),
-							VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false),
-							VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false),
-							VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false),
-							VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false),
-							COLOR_FIELD("Darkness Color:", darkcol,false),
-							VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false),
-							VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false)
+					)),
+					TabRef(name = "2", Row(
+						Column(vAlign = 0.0,
+							Rows<2>(
+								margins = 0_px,
+								padding = 0_px,
+								DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false),
+								VAL_FIELD(word, "Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
+								VAL_FIELD(word, "Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
+								VAL_FIELD(word, "Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
+								DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
+							)
 						)
-					),
-					Column(vAlign = 0.0,
-						Rows<2>(
-							margins = 0_px,
-							padding = 0_px,
-							DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false),
-							VAL_FIELD(word, "Swideswim Up Step:",0,9999,heroSideswimUpStep,false),
-							VAL_FIELD(word, "Swideswim Side Step:",0,9999,heroSideswimSideStep,false),
-							VAL_FIELD(word, "Swideswim Down Step:",0,9999,heroSideswimDownStep,false),
-							DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false)
-						)
-					)
-				))))
+					))
+				))
 			),
 			Row(
 				vAlign = 1.0,
@@ -958,7 +962,16 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						{
 							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_HIT2),state);
 						}),
-					INFOBTN("When an enemy is hit, after applying defenses")
+					INFOBTN("When an enemy is hit, after applying defenses"),
+					//
+					Checkbox(hAlign = 0.0,
+						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_POST_COLLECT_ITEM),
+						text = "Post Collect Item",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_POST_COLLECT_ITEM),state);
+						}),
+					INFOBTN("After an item is collected (After the holdup animation completes, if held)")
 				),
 				Rows<3>(vAlign = 0.0,
 					Label(text = "Data Size:"),

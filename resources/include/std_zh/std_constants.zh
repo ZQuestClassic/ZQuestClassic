@@ -3622,6 +3622,7 @@ enum
 	GENSCR_EVENT_ENEMY_DEATH, //Enemy dying
 	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses
 	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses
+	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held)
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'

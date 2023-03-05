@@ -13,8 +13,6 @@
 #ifndef _ZC_TILES_H_
 #define _ZC_TILES_H_
 
-#define UNPACKSIZE 256
-
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 
@@ -32,7 +30,7 @@ extern bool used_tile_table[NEWMAXTILES];                   //keeps track of use
 extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tile quarters
 
 // in tiles.cc
-extern byte unpackbuf[UNPACKSIZE];
+extern byte unpackbuf[256];
 extern const char *tileformat_string[tfMax];
 extern comboclass   *combo_class_buf;
 
@@ -62,6 +60,8 @@ void pack_tile(tiledata *buf, byte *src,int32_t tile);
 void pack_tiledata(byte *dest, byte *src, byte format);
 void pack_tiles(byte *buf);
 int32_t rotate_value(int32_t flip);
+void load_tile(byte* buf, int tile);
+void load_minitile(byte* buf, int tile, int mini);
 byte rotate_walk(byte v);
 byte rotate_cset(byte v);
 
@@ -74,14 +74,12 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows=0);
 
 void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask);
-void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask);
 void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask);
 
 int32_t combo_tile(const newcombo &c, int32_t x, int32_t y);
 int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y);
 
 void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
-void oldputcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
 void overcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
 void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t cset, int32_t w, int32_t h);
 void overcombo2(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset);
@@ -103,5 +101,13 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 bool is_valid_format(byte format);
 int32_t tilesize(byte format);
 int32_t comboa_lmasktotal(byte layermask);
+
+void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask = true, unsigned char alpha = 255);
+void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask = true, unsigned char alpha = 255);
+void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask = true, unsigned char alpha = 255);
+void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool mask = true, unsigned char alpha = 255);
+
+void a5_draw_combo(int x, int y, int combo, int cs, bool mask, unsigned char alpha, int targx = -1, int targy = -1);
+
 #endif                                                      // _ZC_TILES_H_
  

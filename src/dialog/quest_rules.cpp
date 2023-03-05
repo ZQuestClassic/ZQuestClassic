@@ -1633,7 +1633,7 @@ QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*
 }
 
 static std::string searchstring;
-static int32_t scroll_pos1;
+static int32_t scroll_pos1 = 0;
 static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
 {
@@ -1927,12 +1927,12 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::RULESET:
 			call_ruleset_dlg();
 			reloadQRs();
-			rerun_dlg = true;
+			runner.rerun_dlg = true;
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
 			reloadQRs();
-			rerun_dlg = true;
+			runner.rerun_dlg = true;
 			return true;
 		case message::CHEATS:
 			call_cheats_dlg();
@@ -1946,14 +1946,14 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				popup_bugfix_dlg("dsa_compatrule2");
 				reloadQRs();
-				rerun_dlg = true;
+				runner.rerun_dlg = true;
 				return true;
 			}
 			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
 			return false;
 		case message::RERUN:
 			while(gui_mouse_b()) rest(1); //wait for mouseup
-			rerun_dlg = true;
+			runner.rerun_dlg = true;
 			return true;
 		case message::SEARCH:
 		{
@@ -1966,7 +1966,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				});
 			dlg.searchmode = true;
 			dlg.show();
-			rerun_dlg = do_rerun;
+			runner.rerun_dlg = do_rerun;
 			return do_rerun;
 		}
 		//Closing buttons
