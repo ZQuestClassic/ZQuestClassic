@@ -75,10 +75,12 @@ ALLEGRO_COLOR AL5_LGRAY = al_map_rgb(170,170,170);
 ALLEGRO_COLOR AL5_BLUE = al_map_rgb(85,85,255);
 ALLEGRO_COLOR AL5_LRED = al_map_rgb(255,85,85);
 ALLEGRO_COLOR AL5_DRED = al_map_rgb(178,36,36);
+ALLEGRO_COLOR AL5_LGREEN = al_map_rgb(85,255,85);
+ALLEGRO_COLOR AL5_LAQUA = al_map_rgb(85,255,255);
 
-ALLEGRO_COLOR AL5_COL_SOLIDITY = al_map_rgb(178,36,36);
-ALLEGRO_COLOR AL5_COL_EFFECT = al_map_rgb(85,255,85);
-ALLEGRO_COLOR AL5_COL_CS2 = al_map_rgb(85,255,255);
+ALLEGRO_COLOR AL5_COL_SOLIDITY = AL5_DRED;
+ALLEGRO_COLOR AL5_COL_EFFECT = AL5_LGREEN;
+ALLEGRO_COLOR AL5_COL_CS2 = AL5_LAQUA;
 void jwin_reset_a5_colors()
 {
 	jwin_set_a5_colors(tmpcol);
@@ -102,6 +104,20 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain)
 {
 	for(int q = 1; q <= 8; ++q)
 		colors[q] = (getmain ? tmpcol : jwin_a5_colors)[q];
+}
+
+ALLEGRO_COLOR& a5_rainbow(int ind)
+{
+	switch(ind%6)
+	{
+		case 0: return AL5_LGREEN;
+		case 1: return AL5_LAQUA;
+		case 2: return AL5_LRED;
+		case 3: return AL5_PINK;
+		case 4: return AL5_YELLOW;
+		case 5: default:
+			return AL5_WHITE;
+	}
 }
 
 //
@@ -893,56 +909,32 @@ int32_t jwin_do_x_button_dlg_a5(int32_t x, int32_t y)
 }
 bool jwin_do_x_button_a5(int32_t x, int32_t y)
 {
-	bool over=false;
+	int w = 16, h = 14;
+	int xofs,yofs,_w,_h;
+	get_zqdialog_offset(xofs,yofs,_w,_h);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	draw_x_button_a5(0,0,0);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	draw_x_button_a5(0,0,D_SELECTED);
+	bool over = do_over_area(0,0,w,h,0);
+	popup_zqdialog_end_a5();
+	popup_zqdialog_end_a5();
 	
-	while(gui_mouse_b())
-	{
-		update_hw_screen();
-		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+15,y+13))
-		{
-			if(!over)
-			{
-				draw_x_button_a5(x, y, D_SELECTED);
-				over=true;
-			}
-		}
-		else
-		{
-			if(over)
-			{
-				draw_x_button_a5(x, y, 0);
-				over=false;
-			}
-		}
-	}
 	return over;
 }
 bool jwin_do_question_button_a5(int32_t x, int32_t y)
 {
-	bool over=false;
+	int w = 16, h = 14;
+	int xofs,yofs,_w,_h;
+	get_zqdialog_offset(xofs,yofs,_w,_h);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	draw_question_button_a5(0,0,0);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	draw_question_button_a5(0,0,D_SELECTED);
+	bool over = do_over_area(0,0,w,h,0);
+	popup_zqdialog_end_a5();
+	popup_zqdialog_end_a5();
 	
-	while(gui_mouse_b())
-	{
-		update_hw_screen();
-		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+15,y+13))
-		{
-			if(!over)
-			{
-				draw_question_button_a5(x, y, D_SELECTED);
-				over=true;
-			}
-		}
-		else
-		{
-			if(over)
-			{
-				draw_question_button_a5(x, y, 0);
-				over=false;
-			}
-		}
-	}
 	return over;
 }
 bool do_checkbox_a5(int32_t x,int32_t y,int32_t sz,int32_t &value)
