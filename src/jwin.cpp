@@ -6248,7 +6248,7 @@ int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const cha
 	large_dialog(alert_dialog);
 	alert_dialog[0].d1 = 0;
     
-    c = popup_zqdialog(alert_dialog, A_B1);
+    c = do_zqdialog(alert_dialog, A_B1);
     
     if(c == A_B1)
         return 1;
@@ -6494,7 +6494,7 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
 	large_dialog(alert2_dialog);
 	alert2_dialog[0].d1 = 0;
     
-    c = popup_zqdialog(alert2_dialog, A2_B1);
+    c = do_zqdialog(alert2_dialog, A2_B1);
     
     if(c == A2_B1)
         return 1;

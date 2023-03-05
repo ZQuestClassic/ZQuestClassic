@@ -696,7 +696,7 @@ bool edit_dataset(int32_t dataset)
 		rest(1);
 	} //Do nothing
 	edit_cset_dlg[0].dp2 = lfont;
-	int32_t ret = zc_popup_dialog(edit_cset_dlg,3);
+	int32_t ret = do_zqdialog(edit_cset_dlg,3);
 	//al_trace("DLG RETURN VAL -------------------------- %d", ret);
 	switch(ret)
 	{
@@ -1027,7 +1027,7 @@ void edit_cycles(int32_t level)
         
     large_dialog(cycle_dlg);
         
-    if(zc_popup_dialog(cycle_dlg,3)==2)
+    if(do_zqdialog(cycle_dlg,3)==2)
     {
         saved=false;
         reset_pal_cycling();

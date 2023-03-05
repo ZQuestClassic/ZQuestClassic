@@ -144,7 +144,7 @@ void edit_qt(int32_t index)
         
         large_dialog(editqt_dlg);
             
-        ret=zc_popup_dialog(editqt_dlg,6);
+        ret=do_zqdialog(editqt_dlg,6);
         
         switch(ret)
         {
@@ -269,7 +269,7 @@ int32_t ListQTs(bool edit)
         qtlist_dlg[7].x=int32_t(qtlist_dlg[0].x+(edit?190:160)*1.5);
         qtlist_dlg[8].proc=edit?d_keyboard_proc:d_dummy_proc;
         
-        int32_t ret=zc_popup_dialog(qtlist_dlg,2);
+        int32_t ret=do_zqdialog(qtlist_dlg,2);
         
         index=qtlist_dlg[2].d1;
         
@@ -1064,7 +1064,7 @@ int32_t get_import_map_bias()
     
     large_dialog(import_map_bias_dlg);
         
-    if(zc_popup_dialog(import_map_bias_dlg,2)==2)
+    if(do_zqdialog(import_map_bias_dlg,2)==2)
     {
         for(int32_t i=0; i<3; i++)
         {

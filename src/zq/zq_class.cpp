@@ -6353,7 +6353,7 @@ bool save_subscreen(const char *path, bool *cancel)
     show_new_ss=false;
     //strcpy((char*)sslist_dlg[3].dp,"Save");
     //strcpy((char*)sslist_dlg[4].dp,"Cancel");
-    ret = zc_popup_dialog(sslist_dlg,2);
+    ret = do_zqdialog(sslist_dlg,2);
     //strcpy((char*)sslist_dlg[3].dp,"Edit");
     //strcpy((char*)sslist_dlg[4].dp,"Done");
     sslist_dlg[0].dp=oldtitlestr;
@@ -6425,7 +6425,7 @@ bool load_subscreen(const char *path)
     sslist_dlg[5].dp=(void *)cancelstr;
     //strcpy((char*)sslist_dlg[3].dp,"Write");
     //strcpy((char*)sslist_dlg[4].dp,"Cancel");
-    ret = zc_popup_dialog(sslist_dlg,2);
+    ret = do_zqdialog(sslist_dlg,2);
     //strcpy((char*)sslist_dlg[3].dp,"Edit");
     //strcpy((char*)sslist_dlg[4].dp,"Done");
     sslist_dlg[0].dp=(void *)oldtitlestr;
@@ -6810,7 +6810,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     
     large_dialog(pwd_dlg);
         
-    int32_t cancel = zc_popup_dialog(pwd_dlg,6);
+    int32_t cancel = do_zqdialog(pwd_dlg,6);
     
     if(cancel == 8)
         return 2;
