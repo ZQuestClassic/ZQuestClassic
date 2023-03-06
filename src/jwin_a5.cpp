@@ -228,8 +228,11 @@ void al5_invalid(int x, int y, int w, int h, bool sides)
 	{
 		al_draw_filled_rectangle(x, y, x+w, y+h, AL5_BLACK);
 		if(sides)
+		{
 			al_draw_rectangle(x+2.5, y+2.5, x+w-2.5, y+h-2.5, AL5_LGRAY, 1);
-		al_draw_x(x+3.5, y+3.5, x+w-3, y+h-3, AL5_WHITE, 0);
+			al_draw_x(x+3.5, y+3.5, x+w-3, y+h-3, AL5_WHITE, 0);
+		}
+		else al_draw_x(x+2.5, y+2.5, x+w-2, y+h-2, AL5_WHITE, 0);
 	}
 }
 
@@ -795,9 +798,9 @@ bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
 	int xofs,yofs,_w,_h;
 	get_zqdialog_offset(xofs,yofs,_w,_h);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
 	jwin_draw_text_button_a5(0,0,w,h,text,0);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
 	jwin_draw_text_button_a5(0,0,w,h,text,D_SELECTED);
 	bool over = do_over_area(0,0,w,h,0);
 	popup_zqdialog_end_a5();
@@ -912,9 +915,9 @@ bool jwin_do_x_button_a5(int32_t x, int32_t y)
 	int w = 16, h = 14;
 	int xofs,yofs,_w,_h;
 	get_zqdialog_offset(xofs,yofs,_w,_h);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
 	draw_x_button_a5(0,0,0);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
 	draw_x_button_a5(0,0,D_SELECTED);
 	bool over = do_over_area(0,0,w,h,0);
 	popup_zqdialog_end_a5();
@@ -927,9 +930,9 @@ bool jwin_do_question_button_a5(int32_t x, int32_t y)
 	int w = 16, h = 14;
 	int xofs,yofs,_w,_h;
 	get_zqdialog_offset(xofs,yofs,_w,_h);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
 	draw_question_button_a5(0,0,0);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
 	draw_question_button_a5(0,0,D_SELECTED);
 	bool over = do_over_area(0,0,w,h,0);
 	popup_zqdialog_end_a5();
