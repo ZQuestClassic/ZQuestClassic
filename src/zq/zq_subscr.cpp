@@ -17,7 +17,7 @@
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq_subscr.h"
-#include "jwin.h"
+#include "jwin_a5.h"
 #include "zquest.h"
 #include "base/zsys.h"
 #include "zq_misc.h"
@@ -1404,8 +1404,10 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
                 }
             }
             
-            stretch_blit(buf,screen,0,0,d->w/2,d->h/2,d->x,d->y,d->w,d->h);
-            
+			all_set_transparent_palette_index(-1);
+			ALLEGRO_BITMAP* a5bmp = all_get_a5_bitmap(buf);
+            al_draw_scaled_bitmap(a5bmp,0,0,d->w/2,d->h/2,d->x,d->y,d->w,d->h,0);
+			al_destroy_bitmap(a5bmp);
             destroy_bitmap(buf);
         }
     }
@@ -1561,14 +1563,14 @@ int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         onSSUp();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1577,14 +1579,14 @@ int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         onSSDown();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1593,14 +1595,14 @@ int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         onSSLeft();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1609,14 +1611,14 @@ int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         onSSRight();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1625,7 +1627,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1641,7 +1643,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1650,7 +1652,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1666,7 +1668,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1675,7 +1677,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1691,7 +1693,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1700,7 +1702,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1716,7 +1718,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t Bweapon(int32_t pos)
@@ -1861,14 +1863,14 @@ int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         selectBwpn(0, -1);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1877,14 +1879,14 @@ int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         selectBwpn(0, 1);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1893,14 +1895,14 @@ int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         selectBwpn(-1, 0);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1909,14 +1911,14 @@ int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         selectBwpn(1, 0);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 const char *sso_type[ssoMAX]=
@@ -2614,40 +2616,50 @@ static MENU subscreen_menu[] =
 };
 
 
+int d_box_proc_a5(int msg, DIALOG *d, int c)
+{
+	if (msg==MSG_DRAW)
+	{
+		al_draw_filled_rectangle(d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
+		al_draw_rectangle(d->x+0.5, d->y+0.5, d->x+d->w-0.5, d->y+d->h-0.5, jwin_a5_pal(d->fg), 1);
+	}
+
+	return D_O_K;
+}
 static DIALOG subscreen_dlg[] =
 {
     // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,        0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0, (void *) "Subscreen Editor", NULL, NULL },
-    { jwin_button_proc,     192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+    { jwin_win_proc_a5,     0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0, (void *) "Subscreen Editor", NULL, NULL },
+    { jwin_button_proc_a5,  192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc_a5,  255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_frame_proc_a5,   4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
     // 5
-    { d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       4,    225,    30,     16,   0,                  0,                0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL, NULL, NULL },
-    
+    { d_box_proc_a5,        11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc_a5,    11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc_a5,    4,    225,    30,     16,   0,                  0,                0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc_a5,    34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL, NULL, NULL },
+    // 9
     { d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
     { d_ssdn_btn_proc,      284,  53,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
     { d_sslt_btn_proc,      269,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
     { d_ssrt_btn_proc,      299,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    
+    // 13
     { d_ssup_btn2_proc,     284,  70,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
     { d_ssdn_btn2_proc,     284,  100,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
     { d_sslt_btn2_proc,     269,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
     { d_ssrt_btn2_proc,     299,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    
+    // 17
     { d_ssup_btn3_proc,     284,  117,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x98", NULL, NULL },
     { d_ssdn_btn3_proc,     284,  147,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x99", NULL, NULL },
     { d_sslt_btn3_proc,     269,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x9A", NULL, NULL },
     { d_ssrt_btn3_proc,     299,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x9B", NULL, NULL },
-    
+    // 21
     { d_ssup_btn4_proc,     284,  164,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
     { d_ssdn_btn4_proc,     284,  194,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
     { d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
     { d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    
+    // 25
     { jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,             0, (void *) subscreen_menu, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,        0, (void *) onSSUp, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,      0, (void *) onSSDown, NULL, NULL },
@@ -3657,13 +3669,13 @@ int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         return onSSCtrlPgUp();
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -3672,13 +3684,13 @@ int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         return onSSCtrlPgDn();
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -3687,14 +3699,14 @@ int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         onSSPgDn();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -3703,14 +3715,14 @@ int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_button_proc_a5(msg, d, c);
         onSSPgUp();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_button_proc_a5(msg, d, c);
 }
 
 
@@ -3732,7 +3744,10 @@ void edit_subscreen()
     if(game->get_arrows() == 0)
         game->set_arrows(1);
         
-    subscreen_dlg[0].dp2=lfont;
+	ALLEGRO_FONT* a5_lfontl = get_custom_font_a5(font_lfont_l);
+    subscreen_dlg[0].dp2=a5_lfontl;
+	for(int q = 9; q <= 24; ++q)
+		subscreen_dlg[q].dp2 = a5_lfontl;
     load_Sitems(&misc);
     curr_subscreen_object=0;
     ss_propCopySrc=-1;
@@ -3778,8 +3793,8 @@ void edit_subscreen()
     }
     
     subscreen_dlg[4].dp=(void *)css;
-    subscreen_dlg[5].fg=jwin_pal[jcBOX];
-    subscreen_dlg[5].bg=jwin_pal[jcBOX];
+    subscreen_dlg[5].fg=jcBOX;
+    subscreen_dlg[5].bg=jcBOX;
     str_oname=(char *)malloc(255);
     subscreen_dlg[6].dp=(void *)str_oname;
     subscreen_dlg[8].dp=(void *)(css->name);
@@ -3820,11 +3835,9 @@ void edit_subscreen()
 		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
 	
-	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
 	popup_zqdialog_start_a5();
     int32_t ret = do_zqdialog(subscreen_dlg,2);
 	popup_zqdialog_end_a5();
-	popup_zqdialog_end();
     
     if(ret==1)
     {
