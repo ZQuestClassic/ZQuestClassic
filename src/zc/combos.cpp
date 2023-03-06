@@ -1771,8 +1771,7 @@ bool trigger_stepfx(int32_t lyr, int32_t pos, bool stepped)
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	int32_t tx = COMBOX(pos), ty = COMBOY(pos);
 	int32_t thesfx = cmb.attribytes[0];
-	if ( thesfx > 0 && !sfx_allocated(thesfx))
-		sfx(thesfx,pan(COMBOX(pos)));
+	sfx_no_repeat(thesfx,pan(COMBOX(pos)));
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];
@@ -1957,8 +1956,7 @@ bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 	newcombo const& cmb = combobuf[ffc.getData()];
 	int32_t tx = ffc.x, ty = ffc.y;
 	int32_t thesfx = cmb.attribytes[0];
-	if ( thesfx > 0 && !sfx_allocated(thesfx))
-		sfx(thesfx,pan(ffc.x));
+	sfx_no_repeat(thesfx, pan(ffc.x));
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];

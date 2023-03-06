@@ -267,6 +267,11 @@ INLINE void sfx(int32_t index,int32_t pan)
 {
 	sfx(index,vbound(pan, 0, 255) ,false);
 }
+INLINE void sfx_no_repeat(int32_t index, int32_t pan)
+{
+	if (!sfx_allocated(index))
+		sfx(index, vbound(pan, 0, 255), false, false);
+}
 
 bool isSideViewGravity(int32_t t = 0);
 bool isSideViewHero(int32_t t = 0);

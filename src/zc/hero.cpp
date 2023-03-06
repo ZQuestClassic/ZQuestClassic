@@ -7692,8 +7692,8 @@ bool HeroClass::animate(int32_t)
 					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
 				}
 				int32_t thesfx = combobuf[MAPCOMBO(x+8,y+12)].attribytes[3];
-				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-					sfx(thesfx,pan((int32_t)x));
+				if (action==walking)
+					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
 		}
 		else
@@ -7711,8 +7711,8 @@ bool HeroClass::animate(int32_t)
 					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
 				}
 				int32_t thesfx = combobuf[MAPCOMBO(x+8,y+15)].attribytes[3];
-				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-					sfx(thesfx,pan((int32_t)x));
+				if (action==walking )
+					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
 		}
 	}
@@ -7764,8 +7764,8 @@ bool HeroClass::animate(int32_t)
 				{
 					thesfx = combobuf[watercheck].attribytes[5];
 				}
-				if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-					sfx(thesfx,pan((int32_t)x));
+				if (action==walking)
+					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
 		}
 	}
@@ -7801,8 +7801,8 @@ bool HeroClass::animate(int32_t)
 			}
 			else damageovertimeclk = 0;
 			int32_t thesfx = combobuf[watercheck].attribytes[0];
-			if ( thesfx > 0 && !sfx_allocated(thesfx) && action==walking )
-				sfx(thesfx,pan((int32_t)x));
+			if (action==walking )
+				sfx_no_repeat(thesfx,pan((int32_t)x));
 		}
 	}
 	

@@ -87,6 +87,7 @@ extern particle_list particles;
 extern int32_t loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
+extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
@@ -8820,6 +8821,9 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart)
 	
 	if(pos<=0)
 		voice_start(sfx_voice[index]);
+
+	if (restart && replay_is_debug())
+		replay_step_comment(fmt::format("sfx {}", sfx_string[index]));
 }
 
 // true if sfx is allocated
