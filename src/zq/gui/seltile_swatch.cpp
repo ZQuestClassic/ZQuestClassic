@@ -147,7 +147,7 @@ SelTileSwatch::SelTileSwatch(): tile(0), cset(0), flip(0),
 	tw(1), th(1), isMini(false), mini_crn(0),
 	showFlip(false), showsVals(true),
 	alDialog(), message(-1), showT0(false),
-	minionly(false), deftile(0)
+	minionly(false), deftile(0), defcs(0)
 {
 	sel_color = jwin_a5_pal(jcTITLER);
 	Size s = 32_px+4_px;
