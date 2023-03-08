@@ -5470,7 +5470,7 @@ static int32_t menu_mouse_object(MENU_INFO *m)
         get_menu_pos(m, c, &x, &y, &w);
         
         if((gui_mouse_x() >= x) && (gui_mouse_x() < x+w) &&
-                (gui_mouse_y() >= y) && (gui_mouse_y() < y+(text_height(font)+4)))
+                (gui_mouse_y() >= y) && (gui_mouse_y() < y+(al_get_font_line_height(a5font)+4)))
             return (m->menu[c].text[0]) ? c : -1;
     }
     
