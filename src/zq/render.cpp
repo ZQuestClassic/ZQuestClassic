@@ -108,10 +108,10 @@ static void configure_render_tree()
 	rti_tooltip.visible = rti_tooltip_hl.visible = !rti_dialogs.visible;
 	rti_screen.freeze_a4_bitmap_render = rti_dialogs.visible;
 	
-	if(active_a4_dlg_rti)
-		active_a4_dlg_rti->freeze_a4_bitmap_render = false;
-	
-	rti_dialogs.transform = rti_screen.transform;
+	rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
+	rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
+	rti_dialogs.transform.xscale = xscale;
+	rti_dialogs.transform.yscale = yscale;
 }
 
 void zq_hide_screen(bool hidden)

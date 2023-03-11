@@ -3132,7 +3132,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		update_tool_cursor();
 		
 		draw_ttips(ttip,ttip_hl);
-		update_hw_screen();
+		update_hw_screen(true);
 	}
 	while(!done);
 	
