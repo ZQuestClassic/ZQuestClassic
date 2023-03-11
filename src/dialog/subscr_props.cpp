@@ -1074,7 +1074,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					fonttf = TextField(
 						maxLength = 1024,
 						colSpan = 2,
-						text = (local_subref.dp1 ? (char*)local_subref.dp1 : ""),
+						text = tbuf,
 						width = 300_px,
 						minheight = 15_px,
 						fitParent = true,
@@ -1082,10 +1082,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 						{
 							std::string txt(str);
-							if(local_subref.dp1)
-								delete[] (char*)local_subref.dp1;
-							local_subref.dp1 = new char[txt.size()+1];
-							strcpy((char*)local_subref.dp1, txt.c_str());
+							strcpy(tbuf, txt.c_str());
 						})
 				);
 				break;

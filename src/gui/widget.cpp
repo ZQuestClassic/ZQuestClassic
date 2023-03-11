@@ -267,7 +267,7 @@ void Widget::realize(DialogRunner& runner)
 		});
 		frameTextDialog = runner.push(shared_from_this(), DIALOG {
 			newGUIProc<new_text_proc_a5>,
-			x-leftPadding+6_px, y-topPadding-(text_height(widgFont)/2), getPaddedWidth()-6_px, text_height(widgFont),
+			x-leftPadding+6_px, y-topPadding-(al_get_font_line_height(widgFont_a5)/2), getPaddedWidth()-6_px, al_get_font_line_height(widgFont_a5),
 			fgColor, bgColor,
 			0,
 			getFlags(),
