@@ -1989,7 +1989,7 @@ void show_edit_tile_help()
 
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
-	popup_zqdialog_start(false);
+	popup_zqdialog_start();
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_DLG);
 	edit_button.h = ok_button.h = cancel_button.h = 12+text_height(font);

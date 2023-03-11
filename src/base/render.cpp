@@ -112,7 +112,7 @@ void render_tree_draw(RenderTreeItem* rti)
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
-void popup_zqdialog_start(bool transp)
+void popup_zqdialog_start()
 {
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
@@ -128,7 +128,8 @@ void popup_zqdialog_start(bool transp)
 		set_bitmap_create_flags(false);
 		rti->bitmap = al_create_bitmap(zq_screen_w, zq_screen_h);
 		rti->a4_bitmap = tmp_bmp;
-		rti->transparency_index = transp ? 0 : -1;
+		rti->transparency_index = 0xFF;
+		clear_to_color(tmp_bmp,0xFF);
 		rti->visible = true;
 		rti->owned = true;
 		rti_dialogs.children.push_back(rti);

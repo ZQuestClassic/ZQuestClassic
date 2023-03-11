@@ -427,7 +427,7 @@ int32_t onViewMap();
 
 char *pathstr(byte path[]);
 void drawpanel(int32_t panel);
-void refresh(int32_t flags);
+void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();

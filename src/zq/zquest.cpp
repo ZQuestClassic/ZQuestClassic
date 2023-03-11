@@ -6720,7 +6720,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 }
 
 bool pause_refresh = true;
-void refresh(int32_t flags)
+void refresh(int32_t flags, bool update)
 {
 	if(pause_refresh) return;
 	static bool refreshing = false;
@@ -7325,8 +7325,8 @@ void refresh(int32_t flags)
 	
 	unscare_mouse();
 	SCRFIX();
-	if(!(flags&rNOUPDATE))
-		update_hw_screen(true);
+	if(update)
+		custom_vsync();
 	refreshing = false;
 }
 
@@ -7365,7 +7365,7 @@ void select_scr()
 			Map.setCurrScr(ind);
 		}
 		
-		do_animations();
+		custom_vsync();
 		refresh(rALL);
 	}
 	
@@ -7430,7 +7430,7 @@ bool select_favorite()
             }
         }
         
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7464,7 +7464,7 @@ void select_combo(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         Combo=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+First[current_combolist];
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7498,7 +7498,7 @@ void select_comboa(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         combo_apos=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+combo_alistpos[current_comboalist];
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7529,7 +7529,7 @@ void select_combop(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         combo_pool_pos=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+combo_pool_listpos[current_cpoollist];
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7698,7 +7698,7 @@ void draw(bool justcset)
             int32_t cstart=(cystart*16)+cxstart;
 			if(cstart == lastpos)
 			{
-				do_animations();
+				custom_vsync();
 				refresh(rALL);
 				continue;
 			}
@@ -8074,7 +8074,7 @@ void draw(bool justcset)
 		// combining all of them.
 		break;
 #else
-		do_animations();
+		custom_vsync();
 		refresh(rALL);
 #endif
     }
@@ -8378,8 +8378,8 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 				showxypos_cursor_color = showxypos_color;
                 showxypos_cursor_x=x&mask;
                 showxypos_cursor_y=y&mask;
-                do_animations();
-                refresh(rALL | rNOCURSOR | rNOUPDATE);
+                custom_vsync();
+                refresh(rALL | rNOCURSOR);
                 int32_t xpos[2], ypos[2];
 				int32_t x1,y1,x2,y2;
                 
@@ -8455,7 +8455,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             }
         }
         
-        do_animations();
+        custom_vsync();
         refresh(rALL | rNOCURSOR);
     }
     
@@ -8671,7 +8671,7 @@ void doflags()
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 		}
 		
-		do_animations();
+		custom_vsync();
 		refresh(rALL | rNOCURSOR);
 	}
 	
@@ -11578,7 +11578,7 @@ void domouse()
 							}
 						}
 						
-						do_animations();
+						custom_vsync();
 						refresh(rALL | rFAVORITES);
 					}
 					
@@ -11611,7 +11611,7 @@ void domouse()
 							}
 						}
 						
-						do_animations();
+						custom_vsync();
 						refresh(rALL | rFAVORITES);
 					}
 					
@@ -29747,33 +29747,44 @@ extern bool dirty_screen;
   192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
   };
   */
+void anim_hw_screen(bool force)
+{
+	if(force || myvsync)
+	{
+		++framecnt;
+		
+		if(prv_mode)
+		{
+			if(Map.get_prvtime())
+			{
+				Map.set_prvtime(Map.get_prvtime()-1);
+				
+				if(!Map.get_prvtime())
+				{
+					prv_warp=1;
+				}
+			}
+		}
+		if(AnimationOn)
+		{
+			animate_combos();
+			update_freeform_combos();
+		}
+		
+		if(CycleOn)
+			cycle_palette();
+	
+		animate_coords();
+		update_hw_screen(true);
+	}
+}
 void custom_vsync()
 {
-    ++framecnt;
-    
-    if(prv_mode)
-    {
-        if(Map.get_prvtime())
-        {
-            Map.set_prvtime(Map.get_prvtime()-1);
-            
-            if(!Map.get_prvtime())
-            {
-                prv_warp=1;
-            }
-        }
-    }
-    
     while(!myvsync) rest(1);
     
-	update_hw_screen();
+	anim_hw_screen(true);
     
     myvsync=0;
-    
-    if(Vsync)
-    {
-        //vsync();
-    }
 }
 
 void switch_out()
@@ -32586,26 +32597,6 @@ static const char *help_list[] =
     "",
 };
 
-void do_animations()
-{
-    if(AnimationOn||CycleOn)
-    {
-        if(AnimationOn)
-        {
-            animate_combos();
-            update_freeform_combos();
-        }
-        
-        if(CycleOn)
-        {
-            cycle_palette();
-        }
-    }
-    
-    animate_coords();
-    custom_vsync();
-}
-
 void do_previewtext()
 {
 	FONT* oldfont = font;
@@ -32645,7 +32636,7 @@ void run_zq_frame()
 	}
 	
 	domouse();
-	do_animations();
+	custom_vsync();
 	refresh(rCLEAR|rALL);
 }
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -32808,13 +32799,13 @@ void dopreview()
 		{
 			if(Map.get_prvadvance())
 			{
-				do_animations();
+				custom_vsync();
 				Map.set_prvadvance(0);
 			}
 		}
 		else
 		{
-			do_animations();
+			custom_vsync();
 			Map.set_prvadvance(0);
 		}
 		

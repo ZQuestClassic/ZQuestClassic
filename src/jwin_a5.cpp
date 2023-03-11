@@ -347,7 +347,7 @@ int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t)
 				break;
 			}
 			
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, 0); //!TODO Remove when a5 dialog done - Clear a4 screen layer
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, 0xFF);
 			
 			jwin_draw_win_a5(d->x, d->y, d->w, d->h, FR_WIN);
 			

@@ -844,7 +844,6 @@ const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1] =
     "Level 9",
 };
 
-void refresh(int32_t flags);
 void domouse();
 void init_doorcombosets();
 

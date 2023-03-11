@@ -49,7 +49,6 @@
 #define rALL        0x0FFF
 #define rCLEAR      0x1000
 #define rNOCURSOR   0x2000
-#define rNOUPDATE   0x4000
 
 #define C(x)   ((x)-'a'+1)
 
@@ -131,7 +130,6 @@ ALLEGRO_COLOR real_lc1(int pal);
 ALLEGRO_COLOR real_lc2(int pal);
 void refresh_pal();
 
-void refresh(int32_t flags);
 void domouse();
 void init_doorcombosets();
 

@@ -55,7 +55,7 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp);
 void render_tree_draw(RenderTreeItem* rti);
 
 extern BITMAP* zqdialog_bg_bmp;
-void popup_zqdialog_start(bool transp = true);
+void popup_zqdialog_start();
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
