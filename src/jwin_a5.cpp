@@ -2323,7 +2323,7 @@ int32_t _handle_text_proc_a5(int32_t msg, DIALOG* d, int32_t align)
 			
 			const char* str = (const char*)d->dp;
 			if(d->flags & D_DISABLED)
-				d->w = gui_textout_ln_a5_dis(a5font, str, d->x, d->y, jwin_a5_pal(jcDISABLED_FG), jwin_a5_pal(jcBOX), align, jwin_a5_pal(jcLIGHT));
+				d->w = gui_textout_ln_a5_dis(a5font, str, d->x, d->y, jwin_a5_pal(jcDISABLED_FG), jwin_a5_pal(jcDISABLED_BG), align, jwin_a5_pal(jcLIGHT));
 			else
 				d->w = gui_textout_ln_a5(a5font, str, d->x, d->y, jwin_a5_pal(jcBOXFG), jwin_a5_pal(jcBOX), align);
 			

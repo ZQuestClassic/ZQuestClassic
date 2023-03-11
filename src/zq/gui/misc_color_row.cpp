@@ -83,6 +83,7 @@ int32_t d_sys_color_proc2(int32_t msg,DIALOG *d,int32_t)
 		{
 			auto oldd1 = d->d1;
 			d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,16)-1;
+			d->flags|=D_DIRTY;
 			if(oldd1 != d->d1)
 			{
 				d->flags|=D_DIRTY;
@@ -123,13 +124,8 @@ int32_t d_cs_color_proc2_a5(int32_t msg,DIALOG *d,int32_t)
         break;
         
     case MSG_CLICK:
-		auto oldd1 = d->d1;
         d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,15);
-		if(oldd1 != d->d1)
-		{
-			d->flags|=D_DIRTY;
-			GUI_EVENT(d, geCHANGE_SELECTION);
-		}
+        d->flags|=D_DIRTY;
         break;
     }
     
@@ -167,13 +163,8 @@ int32_t d_sys_color_proc2_a5(int32_t msg,DIALOG *d,int32_t)
         break;
         
     case MSG_CLICK:
-		auto oldd1 = d->d1;
         d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,16)-1;
-		if(oldd1 != d->d1)
-		{
-			d->flags|=D_DIRTY;
-			GUI_EVENT(d, geCHANGE_SELECTION);
-		}
+        d->flags|=D_DIRTY;
         break;
     }
     
