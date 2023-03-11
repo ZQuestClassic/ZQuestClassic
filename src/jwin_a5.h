@@ -5,8 +5,6 @@
 
 #include "jwin.h"
 
-extern int InvalidStatic;
-
 extern ALLEGRO_COLOR AL5_INVIS;
 extern ALLEGRO_COLOR AL5_BLACK;
 extern ALLEGRO_COLOR AL5_WHITE;
@@ -14,8 +12,6 @@ extern ALLEGRO_COLOR AL5_YELLOW;
 extern ALLEGRO_COLOR AL5_PINK;
 extern ALLEGRO_COLOR AL5_LGRAY;
 extern ALLEGRO_COLOR AL5_DGRAY;
-extern ALLEGRO_COLOR AL5_BLUE;
-extern ALLEGRO_COLOR AL5_LRED;
 extern ALLEGRO_COLOR AL5_COL_SOLIDITY;
 extern ALLEGRO_COLOR AL5_COL_EFFECT;
 extern ALLEGRO_COLOR AL5_COL_CS2;
@@ -35,11 +31,8 @@ void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c);
 void al_draw_x(float x1, float y1, float x2, float y2, ALLEGRO_COLOR c, float thickness);
 
 void draw_static(int x, int y, int w, int h);
-void al5_invalid(int x, int y, int w, int h, bool sides = true);
 
 void jwin_draw_frame_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t style);
-void jwin_draw_frag_frame_a5(int x1, int y1, int w, int h, int fw, int fh, int style);
-void jwin_draw_minimap_frame_a5(int x,int y,int w,int h,int scrsz,int style);
 void jwin_draw_win_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t frame);
 void dotted_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLOR fg, ALLEGRO_COLOR bg);
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str);
