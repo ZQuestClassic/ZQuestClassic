@@ -32,6 +32,7 @@
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
+extern void refresh(int32_t flags);
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();
 extern std::vector<mapscr> TheMaps;

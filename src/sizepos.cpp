@@ -104,7 +104,7 @@ void highlight_pos::clear_bmps()
 void highlight_sqr(ALLEGRO_COLOR color, float x, float y, float w, float h, float thick)
 {
 	for(int q = 0; q < thick; ++q)
-		al_draw_rectangle(x+q+.5, y+q+.5, x+w-q, y+h-q, color, 0);
+		al_draw_rectangle(x+q, y+q, x+w-q, y+h-q, color, 1);
 }
 void highlight_sqr(ALLEGRO_COLOR color, size_and_pos const& rec, float thick)
 {

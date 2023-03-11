@@ -849,6 +849,7 @@ const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1] =
     "Level 9",
 };
 
+void refresh(int32_t flags);
 void domouse();
 void init_doorcombosets();
 
@@ -1301,6 +1302,7 @@ int32_t onShowDarkness()
 	else
 	{
 		refresh(rALL);
+		update_hw_screen(true);
 		if(get_bit(quest_rules,qr_FADE))
 		{
 			int32_t last = CSET(5)-1;

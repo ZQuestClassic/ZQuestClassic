@@ -56,17 +56,14 @@ public:
 };
 
 extern RenderTreeItem rti_dialogs;
-extern uint32_t zc_backend_palette[256];
 
 void freeze_render();
 void unfreeze_render();
 bool render_frozen();
 
 void set_bitmap_create_flags(bool preserve_texture);
-void _init_render(int fmt);
 void zc_set_palette(PALETTE pal);
 void zc_set_palette_range(PALETTE pal, int start, int end);
-uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a);
 ALLEGRO_COLOR a5color(RGB c, unsigned char alpha = 255);
 ALLEGRO_COLOR a5color(int index, unsigned char alpha = 255);
 ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha = 255);
