@@ -518,6 +518,8 @@ static void init_render_tree()
 	gui_mouse_y = zc_gui_mouse_y;
 
 	al_set_new_bitmap_flags(0);
+	
+	_init_render(al_get_bitmap_format(rti_screen.bitmap));
 }
 
 static void configure_render_tree()

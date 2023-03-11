@@ -294,7 +294,6 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 			jwin_set_colors(restore_jwin_pal);
 			jwin_reset_a5_colors();
 			forceDraw();
-			update_hw_screen();
 			zc_set_palette(restore_pal);
 			return true;
 		}

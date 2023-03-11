@@ -145,6 +145,7 @@ extern double aspect_ratio;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
 extern int32_t FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
+extern bool always_show_cursor;
 
 extern int32_t OpenLastQuest;                                   //makes the program reopen the quest that was
 //open at the time you quit
@@ -425,7 +426,7 @@ int32_t onViewMap();
 
 char *pathstr(byte path[]);
 void drawpanel(int32_t panel);
-void refresh(int32_t flags);
+void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();
@@ -784,6 +785,7 @@ int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
 void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx = -1, int targy = -1);
+void draw_combo_alias_thumbnail_a5_scale(combo_alias *combo, int x, int y, int w, int h, int targx = -1, int targy = -1);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
@@ -1171,6 +1173,7 @@ void fps_callback();
 
 extern bool update_hw_pal;
 void update_hw_screen(bool force);
+void animate_hw_screen(bool force = false);
 
 /********************/
 /******  MAIN  ******/

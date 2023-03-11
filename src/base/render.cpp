@@ -34,17 +34,58 @@ void set_bitmap_create_flags(bool preserve_texture)
 }
 
 ALLEGRO_COLOR a5colors[256];
+uint32_t zc_backend_palette[256];
+static int backend_fmt = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+void _init_render(int fmt)
+{
+	backend_fmt = fmt;
+}
+uint32_t get_backend_a5_col(RGB const& c)
+{
+	unsigned char r = c.r*4, g = c.g*4, b = c.b*4, a = 255;
+	switch(backend_fmt)
+	{
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:
+			return r | (g << 8) | (b << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:
+			return r | (g << 8) | (b << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+			return b | (g << 8) | (r << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+			return a | (b << 8) | (g << 16) | (r << 24);
+	}
+}
+uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a)
+{
+	switch(backend_fmt)
+	{
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:
+		case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+			back_col &= ~(0xFF << 24);
+			return back_col | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+			back_col &= ~(0xFF);
+			return a | back_col;
+	}
+}
 void zc_set_palette(PALETTE pal)
 {
 	for(int q = 0; q < 256; ++q)
+	{
 		a5colors[q] = a5color(pal[q]);
+		zc_backend_palette[q] = get_backend_a5_col(pal[q]);
+	}
 	set_palette(pal);
 }
 void zc_set_palette_range(PALETTE pal, int start, int end)
 {
 	if(start>end) zc_swap(start,end);
 	for(int q = start; q <= end; ++q)
+	{
 		a5colors[q] = a5color(pal[q]);
+		zc_backend_palette[q] = get_backend_a5_col(pal[q]);
+	}
 	set_palette_range(pal,start,end,false);
 }
 ALLEGRO_COLOR a5color(RGB c, unsigned char alpha)

@@ -29,6 +29,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_SAVEWINPOS] = SaveWinPos ? 1 : 0;
 	opts[OPT_DRAGASPECT] = DragAspect ? 1 : 0;
 	opts[OPT_COMB_BRUSH] = ComboBrush ? 1 : 0;
+	opts[OPT_ALWAYS_SHOW_CURSOR] = always_show_cursor ? 1 : 0;
 	opts[OPT_FLOAT_BRUSH] = FloatBrush ? 1 : 0;
 	opts[OPT_RELOAD_QUEST] = OpenLastQuest ? 1 : 0;
 	opts[OPT_MISALIGNS] = ShowMisalignments ? 1 : 0;
@@ -84,7 +85,6 @@ void OptionsDialog::loadOptions()
 	//cleanup
     reset_combo_animations();
     reset_combo_animations2();
-    go();
 }
 
 void OptionsDialog::saveOptions()
@@ -270,6 +270,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_COMB_BRUSH:
 			ComboBrush = v;
 			zc_set_config("zquest","combo_brush",v);
+			break;
+		case OPT_ALWAYS_SHOW_CURSOR:
+			always_show_cursor = v;
+			zc_set_config("zquest","always_show_cursor",v);
 			break;
 		case OPT_FLOAT_BRUSH:
 			FloatBrush = v;
@@ -736,7 +740,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 				OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
 				OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
 				OPT_CHECK(OPT_MISALIGNS, "Show Misaligns"),
-				OPT_CHECK(OPT_INFO_BG, "Show BG behind infotext")
+				OPT_CHECK(OPT_INFO_BG, "Show BG behind infotext"),
+				OPT_CHECK(OPT_ALWAYS_SHOW_CURSOR, "Never hide the cursor")
 			))
 		)
 	);
@@ -810,8 +815,6 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			//cleanup
 			setup_combo_animations();
 			setup_combo_animations2();
-			refresh(rALL);
-			comeback();
 			return true;
 		case message::RELOAD:
 			runner.rerun_dlg = true;

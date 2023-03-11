@@ -2806,15 +2806,34 @@ static void _a5_drawtile_16(int x, int y, int tile, int cs, int flip, bool mask,
 	cs <<= CSET_SHFT;
 	unpack_tile(newtilebuf, tile, flip&5, false);
 	byte *si = unpackbuf;
-	
 	bool vflip = (flip&2);
-	for(int dx = 0; dx < 16; ++dx)
-		for(int dy = 0; dy < 16; ++dy)
+	
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	ALLEGRO_LOCKED_REGION* lr = al_lock_bitmap_region(dest, x, y, 16, 16, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);;
+	uint8_t* line_8;
+	uint32_t* line_32;
+	int dy, dx, ind;
+	
+	if(lr)
+	{
+		line_8 = (uint8_t*)(lr->data);
+		line_32 = (uint32_t*)(lr->data);
+		for(dy = 0; dy < 16; ++dy)
 		{
-			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			if(!mask || si[ind])
-				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
+			for(dx = 0; dx < 16; ++dx)
+			{
+				ind = dx + (16 * (vflip ? 15-dy : dy));
+				if (mask && !ind)
+					line_32[dx] = 0;
+				else if(alpha == 255)
+					line_32[dx] = zc_backend_palette[si[ind]+cs];
+				else line_32[dx] = repl_a5_backend_alpha(zc_backend_palette[si[ind]+cs],alpha);
+			}
+			line_8 += lr->pitch;
+			line_32 = (uint32_t *)line_8;
 		}
+		al_unlock_bitmap(dest);
+	}
 }
 static void _a5_drawtile_8(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
 {
@@ -2840,16 +2859,35 @@ static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, bo
 		cset[q] <<= CSET_SHFT;
 	unpack_tile(newtilebuf, tile, flip&5, false);
 	byte *si = unpackbuf;
-	
 	bool vflip = (flip&2);
-	for(int dx = 0; dx < 16; ++dx)
-		for(int dy = 0; dy < 16; ++dy)
+	
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	ALLEGRO_LOCKED_REGION* lr = al_lock_bitmap_region(dest, x, y, 16, 16, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);;
+	uint8_t* line_8;
+	uint32_t* line_32;
+	int dy, dx, ind, cs;
+	
+	if(lr)
+	{
+		line_8 = (uint8_t*)(lr->data);
+		line_32 = (uint32_t*)(lr->data);
+		for(dy = 0; dy < 16; ++dy)
 		{
-			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
-			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			if(!mask || si[ind])
-				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
+			for(dx = 0; dx < 16; ++dx)
+			{
+				cs = cset[(dx<8?0:1)|(dy<8?0:2)];
+				ind = dx + (16 * (vflip ? 15-dy : dy));
+				if (mask && !ind)
+					line_32[dx] = 0;
+				else if(alpha == 255)
+					line_32[dx] = zc_backend_palette[si[ind]+cs];
+				else line_32[dx] = repl_a5_backend_alpha(zc_backend_palette[si[ind]+cs],alpha);
+			}
+			line_8 += lr->pitch;
+			line_32 = (uint32_t *)line_8;
 		}
+		al_unlock_bitmap(dest);
+	}
 }
 
 void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask, unsigned char alpha)
@@ -2860,17 +2898,11 @@ void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool m
 		cs = 0;
 	else cs &= 15;
 	
-	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
-	auto* lock = al_lock_bitmap_region(targ,x,y,16*w,16*h,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
-	
 	for(int tx = 0; tx < w; ++tx)
 		for(int ty = 0; ty < h; ++ty)
 		{
 			_a5_drawtile_16(x+(16*tx),y+(16*ty),tile+tx+(ty*TILES_PER_ROW),cs,flip,mask,alpha);
 		}
-	
-	if(lock)
-		al_unlock_bitmap(targ);
 }
 void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask, unsigned char alpha)
 {
@@ -2898,15 +2930,9 @@ void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask, 
 		}
 	}
 	
-	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
-	auto* lock = al_lock_bitmap_region(targ,x,y,16,16,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
-	
 	if(quartered)
 		_a5_drawtile_16_cs2(x,y,tile,csets,flip,mask,alpha);
 	else _a5_drawtile_16(x,y,tile,cs,flip,mask,alpha);
-	
-	if(lock)
-		al_unlock_bitmap(targ);
 }
 void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
 {
@@ -2940,13 +2966,47 @@ void a5_draw_combo(int x, int y, int combo, int cs, bool mask, unsigned char alp
 	newcombo const& cmb = combobuf[combo];
 	a5_draw_tile(x,y,tile,cs,cmb.csets,cmb.flip,mask,alpha);
 }
+void a5_draw_combo_scale(int x, int y, int w, int h, int combo, int cs, bool mask, unsigned char alpha, int targx, int targy)
+{
+	if(w == 16 && h == 16)
+	{
+		a5_draw_combo(x,y,combo,cs,mask,alpha,targx,targy);
+		return;
+	}
+	static ALLEGRO_BITMAP* buf = nullptr;
+	if(!buf)
+	{
+		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+		buf = al_create_bitmap(16,16);
+		al_set_new_bitmap_flags(0);
+	}
+	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
+	al_set_target_bitmap(buf);
+	if(mask) clear_a5_bmp(AL5_INVIS);
+	if(targx < 0) targx = x+(w/2);
+	if(targy < 0) targy = y+(h/2);
+	a5_draw_combo(0,0,combo,cs,mask,alpha,targx,targy);
+	al_set_target_bitmap(dest);
+	al_draw_scaled_bitmap(buf,0,0,16,16,x,y,w,h,0);
+}
 
 void a5_draw_tile_scale(int x, int y, int w, int h, int tile, int cs, int cs2, int flip, bool mask, unsigned char alpha)
 {
-	static ALLEGRO_BITMAP* buf = al_create_bitmap(16,16);
-	if(mask) clear_a5_bmp(AL5_INVIS,buf);
+	if(w == 16 && h == 16)
+	{
+		a5_draw_tile(x,y,tile,cs,cs2,flip,mask,alpha);
+		return;
+	}
+	static ALLEGRO_BITMAP* buf = nullptr;
+	if(!buf)
+	{
+		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+		buf = al_create_bitmap(16,16);
+		al_set_new_bitmap_flags(0);
+	}
 	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
 	al_set_target_bitmap(buf);
+	if(mask) clear_a5_bmp(AL5_INVIS);
 	a5_draw_tile(0,0,tile,cs,cs2,flip,mask,alpha);
 	al_set_target_bitmap(dest);
 	al_draw_scaled_bitmap(buf,0,0,16,16,x,y,w,h,0);

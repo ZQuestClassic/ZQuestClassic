@@ -58,7 +58,7 @@ int new_popup_dlg(DIALOG* dialog, int32_t focus_obj)
 	DIALOG_PLAYER *player2 = init_dialog(dialog, focus_obj);
 	
 	while(update_dialog(player2))
-		update_hw_screen(true);
+		update_hw_screen();
 	
 	return shutdown_dialog(player2);
 }
@@ -73,7 +73,7 @@ int do_zqdialog(DIALOG *dialog, int focus_obj)
 	player2 = init_dialog(dialog, focus_obj);
 	
 	while(update_dialog(player2))
-		update_hw_screen(true);
+		update_hw_screen();
 	
 	int ret = shutdown_dialog(player2);
 
@@ -92,7 +92,7 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 		DIALOG_PLAYER *player2 = init_dialog(dialog, focus_obj);
 		
 		while(update_dialog(player2))
-			update_hw_screen(true);
+			update_hw_screen();
 		
 		ret = shutdown_dialog(player2);
 	}

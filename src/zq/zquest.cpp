@@ -570,6 +570,7 @@ bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false,
 double aspect_ratio = LARGE_H / double(LARGE_W);
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
+bool always_show_cursor = true;
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
@@ -680,6 +681,7 @@ void set_debug(bool d)
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
+volatile int32_t animframecnt=0;
 volatile int32_t myvsync = 0;
 
 void myvsync_callback()
@@ -5557,6 +5559,23 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 	line(dest, x, y2, x2, y, c);
 }
 
+ALLEGRO_COLOR get_cursor_color(int style, int frames, int spd)
+{
+	switch(style)
+	{
+		case 0:
+			return AL5_WHITE;
+		case 1: default:
+			return (frames%(spd*2))>=spd ? AL5_BLACK : AL5_WHITE;
+		case 2:
+			return (frames%(spd*2))>=spd ? AL5_LRED : AL5_BLUE;
+	}
+}
+ALLEGRO_COLOR get_cursor_color()
+{
+	return get_cursor_color(MMapCursorStyle,animframecnt,BlinkSpeed);
+}
+
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -5614,19 +5633,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				int32_t s=Map.getCurrScr();
 				// The white marker rect
-				ALLEGRO_COLOR cursor_color;;
-				switch(MMapCursorStyle)
-				{
-					case 0:
-						cursor_color = AL5_WHITE;
-						break;
-					case 1:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? AL5_BLACK : AL5_WHITE;
-						break;
-					case 2:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? AL5_LRED : AL5_BLUE;
-						break;
-				}
+				ALLEGRO_COLOR cursor_color = get_cursor_color();
 				auto& sqr = real_mini_sqr->subsquare(s);
 				highlight_sqr(cursor_color,sqr.x,sqr.y,sqr.w,sqr.h,zoomed_minimap?2:1);
 				
@@ -5960,11 +5967,19 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
 			{
-				arrowcursor = false;
-				int32_t mgridscale=16*mapscreensize;
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-				int32_t mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
-				int32_t my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
+				int32_t mgridscale=mapscreen_realpos.xscale;
+				if(!always_show_cursor)
+				{
+					arrowcursor = false;
+					set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+				}
+				else if(!arrowcursor)
+				{
+					set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+					arrowcursor = true;
+				}
+				int32_t mx=(gui_mouse_x()-mapscreen_realpos.x)/mgridscale*mgridscale;
+				int32_t my=(gui_mouse_y()-mapscreen_realpos.y)/mgridscale*mgridscale;
 				clear_bitmap(brushscreen);
 				int32_t tempbw=BrushWidth;
 				int32_t tempbh=BrushHeight;
@@ -6033,7 +6048,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 				}
 				
-				masked_blit(brushscreen, menu1, 0, 0, 0, 16, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
+				masked_blit(brushscreen, menu1, 0, 0, mapscreen_pos.x, mapscreen_pos.y, mapscreen_pos.tw(), mapscreen_pos.th());
 				BrushWidth=tempbw;
 				BrushHeight=tempbh;
 			}
@@ -6093,7 +6108,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					for(int32_t i=0; i<3; i++)
 					{
-						_allegro_hline(menu1, p.x+5-i, p.y+4+i, p.x+5+i, jwin_pal[jcBOXFG]);
+						hline(menu1,p.x+5-i, p.y+4+i, p.x+5+i, jwin_pal[jcBOXFG]);
 					}
 				}
 				
@@ -6103,7 +6118,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					for(int32_t i=0; i<3; i++)
 					{
-						_allegro_hline(menu1,p.x+5-i,p.y+6-i, p.x+5+i, jwin_pal[jcBOXFG]);
+						hline(menu1,p.x+5-i,p.y+6-i, p.x+5+i, jwin_pal[jcBOXFG]);
 					}
 				}
 			}
@@ -6118,49 +6133,29 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				
 				auto& prev = comboalias_preview;
-				jwin_draw_frame(menu1, prev.x-2, prev.y-2, prev.w+4, prev.h+4,FR_DEEP);
-				
-				BITMAP *prv = create_bitmap_ex(8,64,64);
-				clear_bitmap(prv);
-				int32_t scalefactor = 1;
+				jwin_draw_frame_a5(prev.x-2, prev.y-2, prev.w+4, prev.h+4,FR_DEEP);
 				
 				for(int32_t j=0; j<num_combo_cols; ++j)
 				{
 					auto& col = comboaliaslist[j];
-					for(int32_t i=0; i<(comboaliaslist[j].w*comboaliaslist[j].h); i++)
+					for(int32_t i=0; i<(col.w*col.h); i++)
 					{
 						draw_combo_alias_thumbnail(menu1, &combo_aliases[combo_alistpos[j]+i],
 							(i%col.w)*col.xscale+col.x, (i/col.w)*col.yscale+col.y, col.xscale/16);
 					}
 					
-					if((combo_aliases[combo_apos].width>7)||(combo_aliases[combo_apos].height>7))
-					{
-						scalefactor=4;
-					}
-					else if((combo_aliases[combo_apos].width>3)||(combo_aliases[combo_apos].height>3))
-					{
-						scalefactor=2;
-					}
-					
-					
 					if(j==current_comboalist)
 					{
-						stretch_blit(brushbmp, prv, 0,0,scalefactor*64,zc_min(scalefactor*64,176),0,0,64,scalefactor==4?44:64);
-						blit(prv,menu1,0,0,comboalias_preview.x,comboalias_preview.y,comboalias_preview.w,comboalias_preview.h);
+						draw_combo_alias_thumbnail_a5_scale(&combo_aliases[combo_apos],
+							comboalias_preview.x,comboalias_preview.y,comboalias_preview.tw(),comboalias_preview.th());
 						
 						int32_t rect_pos=combo_apos-combo_alistpos[current_comboalist];
 						
-						if((rect_pos>=0)&&(rect_pos<(combo_alistpos[current_comboalist]+(col.w*col.h))))
-							safe_rect(menu1,
-								(rect_pos&(col.w-1))*col.xscale+col.x,
-								(rect_pos/col.w)*col.yscale+col.y,
-								((rect_pos&(col.w-1))*col.xscale+col.x)+col.xscale-1,
-								((rect_pos/col.w)*col.yscale+col.y)+col.yscale-1,
-								255);
+						if(rect_pos>=0 && rect_pos<(col.w*col.h))
+							highlight_sqr(get_cursor_color(),(rect_pos%col.w)*col.xscale+col.x,
+								(rect_pos/col.w)*col.yscale+col.y,col.xscale,col.yscale);
 					}
 				}
-				
-				destroy_bitmap(prv);
 			}
 			else if(draw_mode==dm_cpool)
 			{
@@ -6188,15 +6183,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						put_combo(menu1,cx,cy,cid,cs,Flags&(cFLAGS|cWALK),0,list.xscale/16);
 					}
 				}
+				auto& col = comboaliaslist[current_cpoollist];
 				int32_t rect_pos=combo_pool_pos-combo_pool_listpos[current_cpoollist];
 				
-				if((rect_pos>=0)&&(rect_pos<(combo_pool_listpos[current_cpoollist]+(comboaliaslist[current_cpoollist].w*comboaliaslist[current_cpoollist].h))))
-					safe_rect(menu1,
-					(rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x,
-					(rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y,
-					((rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x)+comboaliaslist[current_cpoollist].xscale-1,
-					((rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y)+comboaliaslist[current_cpoollist].yscale-1,
-					255);
+				if(rect_pos>=0 && rect_pos<(col.w*col.h))
+					highlight_sqr(get_cursor_color(),(rect_pos%col.w)*col.xscale+col.x,
+						(rect_pos/col.w)*col.yscale+col.y,col.xscale,col.yscale);
 				
 				//Handle Preview
 				combo_pool const& cpool = combo_pools[combo_pool_pos];
@@ -6268,15 +6260,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 				}
 				
+				auto& col = combolist[current_combolist];
 				int32_t rect_pos=Combo-First[current_combolist];
 				
-				if((rect_pos>=0)&&(rect_pos<(combo_pool_listpos[current_combolist]+(combolist[current_combolist].w*combolist[current_combolist].h))))
-					safe_rect(menu1,
-					(rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x,
-					(rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y,
-					((rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x)+combolist[current_combolist].xscale-1,
-					((rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y)+combolist[current_combolist].yscale-1,
-					255);
+				if(rect_pos>=0 && rect_pos<(col.w*col.h))
+					highlight_sqr(get_cursor_color(),(rect_pos%col.w)*col.xscale+col.x,
+						(rect_pos/col.w)*col.yscale+col.y,col.xscale,col.yscale);
 			}
 		}
 		break;
@@ -6444,13 +6433,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 							if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
 								al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h);
 							else
-							{
-								al_set_target_bitmap(subb);
-								clear_a5_bmp(a5color(0));
-								draw_combo_alias_thumbnail_a5(&combo_aliases[favorite_comboaliases[i]],0,0,sqr.cx(),sqr.cy());
-								al_set_target_bitmap(oldtarg);
-								al_draw_scaled_bitmap(subb, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h, 0);
-							}
+								draw_combo_alias_thumbnail_a5_scale(&combo_aliases[favorite_comboaliases[i]], sqr.x, sqr.y, sqr.tw(), sqr.th());
 						}
 					}
 				}
@@ -6521,7 +6504,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 }
 
 bool pause_refresh = true;
-void refresh(int32_t flags)
+void refresh(int32_t flags, bool update)
 {
 	if(pause_refresh) return;
 	static bool refreshing = false;
@@ -7123,8 +7106,8 @@ void refresh(int32_t flags)
 	ComboBrushPause=0;
 	
 	al_restore_state(&old_state);
-	if(!(flags&rNOUPDATE))
-		update_hw_screen(true);
+	if(update)
+		custom_vsync();
 	refreshing = false;
 }
 
@@ -7163,8 +7146,7 @@ void select_scr()
 			Map.setCurrScr(ind);
 		}
 		
-		do_animations();
-		refresh(rALL);
+		refresh(rALL,true);
 	}
 	
 	ComboBrush=tempcb;
@@ -7228,8 +7210,7 @@ bool select_favorite()
             }
         }
         
-        do_animations();
-        refresh(rALL);
+        refresh(rALL,true);
     }
     
     ComboBrush=tempcb;
@@ -7262,8 +7243,8 @@ void select_combo(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         Combo=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+First[current_combolist];
-        do_animations();
-        refresh(rALL);
+        
+        refresh(rALL,true);
     }
     
     ComboBrush=tempcb;
@@ -7296,8 +7277,8 @@ void select_comboa(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         combo_apos=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+combo_alistpos[current_comboalist];
-        do_animations();
-        refresh(rALL);
+        
+        refresh(rALL,true);
     }
     
     ComboBrush=tempcb;
@@ -7327,8 +7308,8 @@ void select_combop(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         combo_pool_pos=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+combo_pool_listpos[current_cpoollist];
-        do_animations();
-        refresh(rALL);
+        
+        refresh(rALL,true);
     }
     
     ComboBrush=tempcb;
@@ -7496,8 +7477,7 @@ void draw(bool justcset)
             int32_t cstart=(cystart*16)+cxstart;
 			if(cstart == lastpos)
 			{
-				do_animations();
-				refresh(rALL);
+				refresh(rALL,true);
 				continue;
 			}
 			lastpos = cstart;
@@ -7872,8 +7852,7 @@ void draw(bool justcset)
 		// combining all of them.
 		break;
 #else
-		do_animations();
-		refresh(rALL);
+		refresh(rALL,true);
 #endif
     }
 
@@ -8176,8 +8155,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 				showxypos_cursor_color = showxypos_color;
                 showxypos_cursor_x=x&mask;
                 showxypos_cursor_y=y&mask;
-                do_animations();
-                refresh(rALL | rNOCURSOR | rNOUPDATE);
+                refresh(rALL | rNOCURSOR,true);
                 int32_t xpos[2], ypos[2];
 				int32_t x1,y1,x2,y2;
                 
@@ -8229,7 +8207,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 				rectfill(screen,x1,y1,x2,y2,vc(0));
                 textprintf_ex(screen,font,xpos[0],ypos[0],vc(15),vc(0),"%s",b1);
                 textprintf_ex(screen,font,xpos[1],ypos[1],vc(15),vc(0),"%s",b2);
-				update_hw_screen(true);
+				animate_hw_screen(true);
             }
             
             if(gui_mouse_b()==0)
@@ -8253,8 +8231,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             }
         }
         
-        do_animations();
-        refresh(rALL | rNOCURSOR);
+        refresh(rALL | rNOCURSOR,true);
     }
     
 finished:
@@ -8469,8 +8446,7 @@ void doflags()
 			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 		}
 		
-		do_animations();
-		refresh(rALL | rNOCURSOR);
+		refresh(rALL | rNOCURSOR,true);
 	}
 	
 finished:
@@ -11380,8 +11356,7 @@ void domouse()
 							}
 						}
 						
-						do_animations();
-						refresh(rALL | rFAVORITES);
+						refresh(rALL | rFAVORITES,true);
 					}
 					
 					ComboBrush=tempcb;
@@ -11413,8 +11388,7 @@ void domouse()
 							}
 						}
 						
-						do_animations();
-						refresh(rALL | rFAVORITES);
+						refresh(rALL | rFAVORITES,true);
 					}
 					
 					ComboBrush=tempcb;
@@ -22317,8 +22291,6 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
 
 void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx, int targy)
 {
-	if(!targx) targx = x+8;
-	if(!targy) targy = y+8;
     if(!combo->combo && (combo->width>0||combo->height>0||combo->combos[0]>0))
     {
         int32_t cur_layer, temp_layer;
@@ -22364,7 +22336,7 @@ void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx, 
 					int32_t cpos = (z*(combo->width+1)*(combo->height+1))+(((y2/16)*(combo->width+1))+(x2/16));
 					
 					if(combo->combos[cpos])
-						a5_draw_combo(x+x2,y+y2,combo->combos[cpos],combo->csets[cpos], z!=0, 255, targx+x2, targy+y2);
+						a5_draw_combo(x+x2,y+y2,combo->combos[cpos],combo->csets[cpos], z!=0, 255, (targx < 0 ? -1 : targx+x2), (targy < 0 ? -1 : targy+y2));
 				}
 			}
 		}
@@ -22378,6 +22350,66 @@ void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx, 
             al_draw_filled_rectangle(x,y,x+16,y+16,a5color(0));
             al_draw_filled_rectangle(x+3,y+3,x+12,y+12,AL5_DRED);
         }
+    }
+}
+void draw_combo_alias_thumbnail_a5_scale(combo_alias *combo, int x, int y, int w, int h, int targx, int targy)
+{
+	al_draw_filled_rectangle(x,y,x+w,y+h,a5color(0));
+	bool hascombo = false;
+    if(!combo->combo && (combo->width>0||combo->height>0||combo->combos[0]>0))
+    {
+        int32_t cur_layer, temp_layer;
+        
+        int32_t cw=combo->width+1;
+        int32_t ch=combo->height+1;
+        int32_t dw=cw*16;
+        int32_t dh=ch*16;
+        
+		for(int32_t z=0; z<=comboa_lmasktotal(combo->layermask); z++)
+		{
+			int32_t k=0;
+			cur_layer=0;
+			temp_layer=combo->layermask;
+			
+			while((temp_layer!=0)&&(k<z))
+			{
+				if(temp_layer&1)
+				{
+					k++;
+				}
+				
+				cur_layer++;
+				temp_layer = temp_layer>>1;
+			}
+			
+			int sz = zc_max(cw,ch);
+			int tw = w/sz, th = h/sz;
+			for(int32_t y2=0; y2<ch; ++y2)
+			{
+				for(int32_t x2=0; x2<cw; ++x2)
+				{
+					int32_t cpos = (z*cw*ch)+((y2*cw)+x2);
+					
+					if(combo->combos[cpos])
+					{
+						hascombo = true;
+						if(tw==16&&th==16)
+							a5_draw_combo(x+x2*16,y+y2*16,combo->combos[cpos],combo->csets[cpos], z!=0, 255, (targx < 0 ? -1 : targx+(x2*16)), (targy < 0 ? -1 : targy+(y2*16)));
+						else a5_draw_combo_scale(x+(x2*tw),y+(y2*th),tw,th,combo->combos[cpos],combo->csets[cpos], z!=0, 255, (targx < 0 ? -1 : targx+(x2*tw)), (targy < 0 ? -1 : targy+(y2*th)));
+					}
+				}
+			}
+		}
+    }
+	if(!hascombo)
+    {
+        if(combo->combo && combobuf[combo->combo].tile>0)
+		{
+			if(w==16&&h==16)
+				a5_draw_combo(x,y,combo->combo,combo->cset,false,255,targx,targy);
+			else a5_draw_combo_scale(x,y,w,h,combo->combo,combo->cset,false,255,targx,targy);
+        }
+		else al5_invalid(x,y,w,h);
     }
 }
 
@@ -29189,6 +29221,7 @@ void fps_callback()
 {
     lastfps=framecnt;
     framecnt=0;
+	animframecnt &= 0xFFFFFFFF;
 }
 
 END_OF_FUNCTION(fps_callback)
@@ -29474,31 +29507,11 @@ extern bool dirty_screen;
   */
 void custom_vsync()
 {
-    ++framecnt;
-    
-    if(prv_mode)
-    {
-        if(Map.get_prvtime())
-        {
-            Map.set_prvtime(Map.get_prvtime()-1);
-            
-            if(!Map.get_prvtime())
-            {
-                prv_warp=1;
-            }
-        }
-    }
-    
     while(!myvsync) rest(1);
     
-	update_hw_screen();
+	animate_hw_screen();
     
     myvsync=0;
-    
-    if(Vsync)
-    {
-        //vsync();
-    }
 }
 
 void switch_out()
@@ -30380,6 +30393,7 @@ int32_t main(int32_t argc,char **argv)
 	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
+	always_show_cursor = zc_get_config("zquest","always_show_cursor",1);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
@@ -32326,26 +32340,6 @@ static const char *help_list[] =
     "",
 };
 
-void do_animations()
-{
-    if(AnimationOn||CycleOn)
-    {
-        if(AnimationOn)
-        {
-            animate_combos();
-            update_freeform_combos();
-        }
-        
-        if(CycleOn)
-        {
-            cycle_palette();
-        }
-    }
-    
-    animate_coords();
-    custom_vsync();
-}
-
 void do_previewtext()
 {
 	ALLEGRO_FONT* oldfont = a5font;
@@ -32385,8 +32379,7 @@ void run_zq_frame()
 	}
 	
 	domouse();
-	do_animations();
-	refresh(rCLEAR|rALL);
+	refresh(rCLEAR|rALL,true);
 }
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -32544,21 +32537,20 @@ void dopreview()
 			prv_warp=0;
 		}
 		
+		refresh(rALL);
 		if(Map.get_prvfreeze())
 		{
 			if(Map.get_prvadvance())
 			{
-				do_animations();
+				custom_vsync();
 				Map.set_prvadvance(0);
 			}
 		}
 		else
 		{
-			do_animations();
+			custom_vsync();
 			Map.set_prvadvance(0);
 		}
-		
-		refresh(rALL);
 	}
 	
 finished:
@@ -33731,15 +33723,44 @@ void update_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
+		++framecnt;
+		++animframecnt;
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
 			zc_set_palette(RAMpal);
 			update_hw_pal=false;
 		}
-		if (force || myvsync)
-			render_zq();
+		render_zq();
 		myvsync=0;
+	}
+}
+
+void animate_hw_screen(bool force)
+{
+	if(force || myvsync)
+	{
+		if(AnimationOn)
+		{
+			animate_combos();
+			update_freeform_combos();
+		}
+		
+		if(CycleOn)
+			cycle_palette();
+		
+		animate_coords();
+		
+		if(prv_mode && Map.get_prvtime())
+		{
+			Map.set_prvtime(Map.get_prvtime()-1);
+			
+			if(!Map.get_prvtime())
+			{
+				prv_warp=1;
+			}
+		}
+		update_hw_screen(true);
 	}
 }
 
