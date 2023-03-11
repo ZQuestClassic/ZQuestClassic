@@ -67,7 +67,6 @@ int d_cset_proc_a5(int msg,DIALOG *d,int c)
 			
 		case MSG_CLICK:
 		{
-			GUI::PaletteFrame& fr = *((GUI::PaletteFrame*)d->dp);
 			bool dragging=false;
 			int src=0;
 			int x;
@@ -82,8 +81,8 @@ int d_cset_proc_a5(int msg,DIALOG *d,int c)
 				if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 				{
 					dragging=true;
-					src=vbound((y-d->y) / fr.scale,0,15) * 16 +
-						vbound((x-d->x) / fr.scale,0,15);
+					src=vbound((int)((y-d->y) / (1.5))>>3,0,15) * 16 +
+						vbound((int)((x-d->x) / (1.5))>>3,0,15);
 				}
 			}
 			
@@ -94,7 +93,7 @@ int d_cset_proc_a5(int msg,DIALOG *d,int c)
 				
 				if(!dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 				{
-					d->d2 = vbound((y-d->y)/fr.scale,0,15);
+					d->d2 = vbound((int)((y-d->y)/(1.5))>>3,0,15);
 					
 					if(!(key_shifts&KB_SHIFT_FLAG))
 						d->d1 = d->d2;
@@ -108,8 +107,8 @@ int d_cset_proc_a5(int msg,DIALOG *d,int c)
 			
 			if(dragging && isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y+d->h-1))
 			{
-				int dest=vbound((y-d->y) / fr.scale,0,15) * 16 +
-						 vbound((x-d->x) / fr.scale,0,15);
+				int dest=vbound((int)((y-d->y) / (1.5))>>3,0,15) * 16 +
+						 vbound((int)((x-d->x) / (1.5))>>3,0,15);
 						 
 				if(src!=dest)
 				{
