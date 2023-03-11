@@ -91,8 +91,6 @@ RenderTreeItem* add_dlg_layer();
 RenderTreeItem* add_dlg_layer_a4(int transp);
 void remove_dlg_layer(RenderTreeItem* rti);
 
-void popup_zqdialog_menu();
-void popup_zqdialog_menu_end();
 
 //From jwin_a5
 

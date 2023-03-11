@@ -556,29 +556,21 @@ static void configure_render_tree()
 	}
 }
 
-void popup_zqdialog_menu()
-{
-	popup_zqdialog_start_a5();
-}
-void popup_zqdialog_menu_end()
-{
-	popup_zqdialog_end_a5();
-}
-
 static void render_launcher()
 {
+	if(render_frozen()) return;
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	init_render_tree();
 	configure_render_tree();
-	if(render_frozen()) return;
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
-	al_restore_state(&old_state);
+	al_restore_state(&oldstate);
 }
 
 bool update_hw_pal = false;

@@ -135,8 +135,8 @@ void init_static_texture()
 	al_set_new_bitmap_flags(0);
 	
 	
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	
 	al_set_target_bitmap(static_tex);
 	al_lock_bitmap(static_tex,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_WRITEONLY);
@@ -146,7 +146,7 @@ void init_static_texture()
 			al_put_pixel(x,y,grayscale[zc_rand(255)]);
 		}
 	al_unlock_bitmap(static_tex);
-	al_restore_state(&old_state);
+	al_restore_state(&oldstate);
 	initd = true;
 }
 void draw_static(int x, int y, int w, int h)
@@ -2382,11 +2382,14 @@ int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t)
 
 int32_t d_jwinbutton_proc_a5(int32_t msg, DIALOG *d, int32_t)
 {
+    BITMAP *gui_bmp;
     int32_t state1, state2;
     int32_t black;
     int32_t swap;
     int32_t g;
     ASSERT(d);
+    
+    gui_bmp = screen;
     
     switch(msg)
     {

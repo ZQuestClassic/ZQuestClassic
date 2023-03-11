@@ -5420,7 +5420,7 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
 		}
 	}
 	
-	if((c == m->sel) && m->bar && !d)
+	if((c == m->sel) && m->bar)
 	{
 		ALLEGRO_COLOR c1 = jwin_a5_pal(m->hover ? jcLIGHT : jcMEDDARK);
 		ALLEGRO_COLOR c2 = jwin_a5_pal(m->hover ? jcMEDDARK : jcLIGHT);
@@ -5669,6 +5669,8 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
     int32_t _x, _y;
     int32_t redraw = TRUE;
     
+    scare_mouse();
+    
     fill_menu_info(&m, menu, parent, bar, x, y, minw, minh);
     
     if(repos)
@@ -5677,7 +5679,7 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
         m.y = MID(0, m.y, zq_screen_h-m.h-1);
     }
     
-	popup_zqdialog_menu();
+	popup_zqdialog_start_a5();
         
     m.sel = mouse_sel = menu_mouse_object(&m);
     
@@ -5686,6 +5688,8 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
         
     if((m.sel < 0) && (!mouse_on) && (!bar))
         m.sel = 0;
+        
+    unscare_mouse();
     
     do
     {
@@ -5987,7 +5991,7 @@ getout:
         }
     }
     
-	popup_zqdialog_menu_end();
+	popup_zqdialog_end_a5();
     return ret;
 }
 
@@ -8430,6 +8434,7 @@ void jwin_ulalign_dialog(DIALOG *dialog)
 //Custom slider proc
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
 {
+    BITMAP *gui_bmp = screen;
     BITMAP *slhan = NULL;
     int32_t oldpos, newpos;
     int32_t sfg;                /* slider foreground color */
@@ -8483,15 +8488,15 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if(vert)
         {
-            rectfill(screen, d->x, d->y, d->x+d->w/2-2, d->y+d->h-1, d->bg);
-            rectfill(screen, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h-1, sfg);
-            rectfill(screen, d->x+d->w/2+2, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
+            rectfill(gui_bmp, d->x, d->y, d->x+d->w/2-2, d->y+d->h-1, d->bg);
+            rectfill(gui_bmp, d->x+d->w/2-1, d->y, d->x+d->w/2+1, d->y+d->h-1, sfg);
+            rectfill(gui_bmp, d->x+d->w/2+2, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
         }
         else
         {
-            rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h/2-2, d->bg);
-            rectfill(screen, d->x, d->y+d->h/2-1, d->x+d->w-1, d->y+d->h/2+1, sfg);
-            rectfill(screen, d->x, d->y+d->h/2+2, d->x+d->w-1, d->y+d->h-1, d->bg);
+            rectfill(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h/2-2, d->bg);
+            rectfill(gui_bmp, d->x, d->y+d->h/2-1, d->x+d->w-1, d->y+d->h/2+1, sfg);
+            rectfill(gui_bmp, d->x, d->y+d->h/2+2, d->x+d->w-1, d->y+d->h-1, d->bg);
         }
         
         /* okay, background and slot are drawn, now draw the handle */
@@ -8508,7 +8513,7 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
                 sly = d->y+(d->h/2)-(slhan->h/2);
             }
             
-            draw_sprite(screen, slhan, slx, sly);
+            draw_sprite(gui_bmp, slhan, slx, sly);
         }
         else
         {
@@ -8529,18 +8534,18 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
             }
             
             /* draw body */
-            rectfill(screen, slx+2, sly, slx+(slw-2), sly+slh, sfg);
-            vline(screen, slx+1, sly+1, sly+slh-1, sfg);
-            vline(screen, slx+slw-1, sly+1, sly+slh-1, sfg);
-            vline(screen, slx, sly+2, sly+slh-2, sfg);
-            vline(screen, slx+slw, sly+2, sly+slh-2, sfg);
-            vline(screen, slx+1, sly+2, sly+slh-2, d->bg);
-            hline(screen, slx+2, sly+1, slx+slw-2, d->bg);
-            putpixel(screen, slx+2, sly+2, d->bg);
+            rectfill(gui_bmp, slx+2, sly, slx+(slw-2), sly+slh, sfg);
+            vline(gui_bmp, slx+1, sly+1, sly+slh-1, sfg);
+            vline(gui_bmp, slx+slw-1, sly+1, sly+slh-1, sfg);
+            vline(gui_bmp, slx, sly+2, sly+slh-2, sfg);
+            vline(gui_bmp, slx+slw, sly+2, sly+slh-2, sfg);
+            vline(gui_bmp, slx+1, sly+2, sly+slh-2, d->bg);
+            hline(gui_bmp, slx+2, sly+1, slx+slw-2, d->bg);
+            putpixel(gui_bmp, slx+2, sly+2, d->bg);
         }
         
         if(d->flags & D_GOTFOCUS)
-            dotted_rect(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, sfg, d->bg);
+            dotted_rect(gui_bmp, d->x, d->y, d->x+d->w-1, d->y+d->h-1, sfg, d->bg);
             
         break;
         
@@ -8706,11 +8711,14 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
 // This is only used by jwin_check_proc and jwin_radio_proc.
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
 {
+    BITMAP *gui_bmp;
     int32_t state1, state2;
     int32_t black;
     int32_t swap;
     int32_t g;
     ASSERT(d);
+    
+    gui_bmp = screen;
     
     switch(msg)
     {
@@ -8729,25 +8737,25 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
 				state2 = d->bg;
 			}
 			
-			rectfill(screen, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
-			rect(screen, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
-			gui_textout_ex(screen, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
+			rectfill(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state2);
+			rect(gui_bmp, d->x+g, d->y+g, d->x+d->w-2+g, d->y+d->h-2+g, state1);
+			gui_textout_ex(gui_bmp, (char *)d->dp, d->x+d->w/2+g, d->y+d->h/2-text_height(font)/2+g, state1, -1, TRUE);
 			
 			if(d->flags & D_SELECTED)
 			{
-				vline(screen, d->x, d->y, d->y+d->h-2, d->bg);
-				hline(screen, d->x, d->y, d->x+d->w-2, d->bg);
+				vline(gui_bmp, d->x, d->y, d->y+d->h-2, d->bg);
+				hline(gui_bmp, d->x, d->y, d->x+d->w-2, d->bg);
 			}
 			else
 			{
 				black = makecol(0,0,0);
-				vline(screen, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
-				hline(screen, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
+				vline(gui_bmp, d->x+d->w-1, d->y+1, d->y+d->h-2, black);
+				hline(gui_bmp, d->x+1, d->y+d->h-1, d->x+d->w-1, black);
 			}
 			
 			if((d->flags & D_GOTFOCUS) &&
 					(!(d->flags & D_SELECTED) || !(d->flags & D_EXIT)))
-				dotted_rect(screen, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state1, state2);
+				dotted_rect(gui_bmp, d->x+1+g, d->y+1+g, d->x+d->w-3+g, d->y+d->h-3+g, state1, state2);
 				
 			break;
 		}
