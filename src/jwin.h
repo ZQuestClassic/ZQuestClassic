@@ -47,15 +47,15 @@
 struct ListData
 {
     constexpr ListData() noexcept:
-        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), a5font(nullptr), owner(nullptr)
+        unownedFunc(nullptr), ownedFunc(nullptr), font(nullptr), owner(nullptr)
     {}
 
-    ListData(const char *(*lf)(int32_t, int32_t*), FONT **f, ALLEGRO_FONT **f5) noexcept:
-        unownedFunc(lf), ownedFunc(nullptr), font(f), a5font(f5), owner(nullptr)
+    ListData(const char *(*lf)(int32_t, int32_t*), FONT **f) noexcept:
+        unownedFunc(lf), ownedFunc(nullptr), font(f), owner(nullptr)
     {}
 
-    ListData(const char *(*lf)(int32_t, int32_t*, void*), FONT **f, ALLEGRO_FONT **f5, void* o) noexcept:
-        unownedFunc(nullptr), ownedFunc(lf), font(f), a5font(f5), owner(o)
+    ListData(const char *(*lf)(int32_t, int32_t*, void*), FONT **f, void* o) noexcept:
+        unownedFunc(nullptr), ownedFunc(lf), font(f), owner(o)
     {}
 
     const char* listFunc(int32_t index, int32_t* size) const
@@ -70,8 +70,6 @@ struct ListData
     const char *(*ownedFunc)(int32_t, int32_t *, void *);
 
     FONT **font;
-	ALLEGRO_FONT **a5font;
-	
     void* owner;
 };
 
@@ -156,6 +154,7 @@ extern int32_t mix_value(int32_t c1,int32_t c2,int32_t pos,int32_t max);
 
 /* 1.5k lookup table for color matching */
 extern uint32_t col_diff[3*128];
+extern int32_t last_droplist_sel;
 
 /* Used to indicate the new GUI dialog root. */
 extern char newGuiMarker;
@@ -220,8 +219,6 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t new_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c);
-bool editproc_special_key(int32_t c);
-bool editproc_combined_key(int32_t c);
 int32_t jwin_hexedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to hex. numbers */
 int32_t jwin_numedit_zscriptint_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers,  bound to ZScript int32_t (no decimals) */
 int32_t jwin_numedit_byte_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to unsigned byte (8b) */
@@ -230,7 +227,6 @@ int32_t jwin_numedit_short_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricte
 int32_t jwin_numedit_sshort_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers, bound to int16_t (16b) */
 int32_t jwin_numedit_proc(int32_t msg,DIALOG *d,int32_t c); /**< Restricted only to dec. numbers */
 //
-void trim_trailing_0s(char* str, bool leaveDec = false);
 int32_t jwin_swapbtn_proc(int32_t msg,DIALOG *d,int32_t c); //Button to swap numedit styles
 int32_t jwin_numedit_swap_byte_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to unsigned byte, dec and hex modes
 int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int16_t, dec and hex modes
@@ -242,7 +238,6 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_slider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c);
-int32_t d_dropcancel_proc(int32_t msg,DIALOG*,int32_t);
 int32_t jwin_droplist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_abclist_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c);

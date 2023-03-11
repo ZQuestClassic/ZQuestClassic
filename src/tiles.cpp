@@ -42,7 +42,7 @@ extern zfix  HeroModifiedY();
 
 bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused tiles
 
-byte unpackbuf[256];
+byte unpackbuf[UNPACKSIZE];
 
 bool isblanktile(tiledata *buf, int32_t i)
 {
@@ -863,23 +863,6 @@ void pack_tiles(byte *buf)
         
     for(; di<NEWTILE_SIZE2; ++di)
         buf[di]=0;
-}
-
-void load_tile(byte* buf, int tile)
-{
-	unpack_tile(newtilebuf, tile, 0, false);
-	memcpy(buf, unpackbuf, 256);
-}
-void load_minitile(byte* buf, int tile, int mini)
-{
-	unpack_tile(newtilebuf, tile, 0, false);
-	int xo = (mini&1)?8:0;
-	int yo = (mini&2)?8:0;
-	for(int x = 0; x < 8; ++x)
-		for(int y = 0; y < 8; ++y)
-		{
-			buf[x+(y*8)] = unpackbuf[(x+xo)+((y+yo)*16)];
-		}
 }
 
 int32_t rotate_table[8]=
@@ -2404,7 +2387,6 @@ void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t 
 		break;
 	}
 }
-
 void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
 {
     if(x<-15 || y<-15)
@@ -2519,47 +2501,6 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
         }
     }
 }
-void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[],int32_t flip,bool over)
-{
-    if(x<-15 || y<-15)
-        return;
-        
-    if(y > dest->h)
-        return;
-        
-    if(y == dest->h && x > dest->w)
-        return;
-        
-    if(tile<0 || tile>=NEWMAXTILES)
-    {
-        rectfill(dest,x,y,x+15,y+15,0);
-        return;
-    }
-    
-    if(blank_tile_table[tile])
-        return;
-    
-    
-    if(newtilebuf[tile].format>tf4Bit)
-        cset[0]=cset[1]=cset[2]=cset[3]=0;
-	else for(int q = 0; q < 4; ++q)
-		cset[q] <<= CSET_SHFT;
-	unpack_tile(newtilebuf, tile, flip&5, false);
-	byte *si = unpackbuf;
-	
-	bool vflip = (flip&2);
-	for(int dx = 0; dx < 16; ++dx)
-		for(int dy = 0; dy < 16; ++dy)
-		{
-			int tx = x+dx, ty = y+dy;
-			if(tx < 0 || tx >= dest->w || ty < 0 || ty >= dest->h)
-				continue;
-			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
-			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			if(!over || si[ind])
-				dest->line[ty][tx] = si[ind]+cs;
-		}
-}
 
 void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
@@ -2616,12 +2557,66 @@ void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int
     }
 }
 
-void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
+void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
-	int32_t t[4];
+    int32_t t[4];
     
     for(int32_t i=0; i<4; ++i)
-        t[i]=tile+i;	
+        t[i]=tile+i;
+        
+    switch(mask)
+    {
+    case 1:
+        oldputtile8(dest,tile,x,y,csets[0],flip);
+        break;
+        
+    case 3:
+        if(flip&2)
+        {
+            zc_swap(t[0],t[1]);
+        }
+        
+        oldputtile8(dest,t[0],x,y,  csets[0],flip);
+        oldputtile8(dest,t[1],x,y+8,csets[1],flip);
+        break;
+        
+    case 5:
+        if(flip&1)
+        {
+            zc_swap(t[0],t[1]);
+        }
+        
+        oldputtile8(dest,t[0],x,  y,csets[0],flip);
+        oldputtile8(dest,t[1],x+8,y,csets[1],flip);
+        break;
+        
+    case 15:
+        if(flip&1)
+        {
+            zc_swap(t[0],t[1]);
+            zc_swap(t[2],t[3]);
+        }
+        
+        if(flip&2)
+        {
+            zc_swap(t[0],t[2]);
+            zc_swap(t[1],t[3]);
+        }
+        
+        oldputtile8(dest,t[0],x,  y,  csets[0],flip);
+        oldputtile8(dest,t[1],x+8,y,  csets[1],flip);
+        oldputtile8(dest,t[2],x,  y+8,csets[2],flip);
+        oldputtile8(dest,t[3],x+8,y+8,csets[3],flip);
+        break;
+    }
+}
+
+void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
+{
+    int32_t t[4];
+    
+    for(int32_t i=0; i<4; ++i)
+        t[i]=tile+i;
         
     switch(mask)
     {
@@ -2693,8 +2688,33 @@ void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
             csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
         }
         
-		drawtile16_cs2(dest,drawtile,x,y,csets,c.flip,false);
-        // putblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
+        putblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
+        //    putblock8(dest,c.drawtile<<2,x,y,csets,c.flip,15);
+    }
+}
+
+void oldputcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
+{
+    newcombo c = combobuf[cmbdat];
+    int32_t drawtile=combo_tile(c, x, y);
+    
+    if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
+        oldputtile16(dest,drawtile,x,y,cset,c.flip);
+    //    oldputtile16(dest,c.drawtile,x,y,cset,c.flip);
+    else
+    {
+        int32_t csets[4];
+        int32_t cofs = c.csets&15;
+        if(cofs&8)
+            cofs |= ~int32_t(0xF);
+        
+        for(int32_t i=0; i<4; ++i)
+        {
+            csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
+        }
+        
+        oldputblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
+        //    oldputblock8(dest,c.drawtile<<2,x,y,csets,c.flip,15);
     }
 }
 
@@ -2731,9 +2751,8 @@ void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t 
                     
                 for(int32_t i=0; i<4; ++i)
                     csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
-				
-				drawtile16_cs2(dest,tiletodraw,x+16*woff,y+16*hoff,csets,c.flip,true);
-                //overblock8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15);
+                    
+                overblock8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15);
             }
         }
     }
@@ -2799,136 +2818,6 @@ int32_t comboa_lmasktotal(byte layermask)
     result+=(layermask&32) >> 5;
     return result;
 }
-
-//A5 draws
-static void _a5_drawtile_16(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
-{
-	cs <<= CSET_SHFT;
-	unpack_tile(newtilebuf, tile, flip&5, false);
-	byte *si = unpackbuf;
-	
-	bool vflip = (flip&2);
-	for(int dx = 0; dx < 16; ++dx)
-		for(int dy = 0; dy < 16; ++dy)
-		{
-			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			if(!mask || si[ind])
-				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
-		}
-}
-static void _a5_drawtile_8(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
-{
-	cs <<= CSET_SHFT;
-	unpack_tile(newtilebuf, tile>>2, 0, false);
-	int yoff = (tile&2) ? 8 : 0;
-	int xoff = (tile&1) ? 8 : 0;
-	byte *si = unpackbuf;
-	
-	bool hflip = (flip&1);
-	bool vflip = (flip&2);
-	for(int dx = 0; dx < 8; ++dx)
-		for(int dy = 0; dy < 8; ++dy)
-		{
-			int ind = (xoff+(hflip ? 7-dx : dx)) + (16 * (yoff+(vflip ? 7-dy : dy)));
-			if(!mask || si[ind])
-				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
-		}
-}
-static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, bool mask, unsigned char alpha)
-{
-	for(int q = 0; q < 4; ++q)
-		cset[q] <<= CSET_SHFT;
-	unpack_tile(newtilebuf, tile, flip&5, false);
-	byte *si = unpackbuf;
-	
-	bool vflip = (flip&2);
-	for(int dx = 0; dx < 16; ++dx)
-		for(int dy = 0; dy < 16; ++dy)
-		{
-			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
-			int ind = dx + (16 * (vflip ? 15-dy : dy));
-			if(!mask || si[ind])
-				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
-		}
-}
-void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask, unsigned char alpha)
-{
-	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!mask) || !alpha || w<1 || h<1)
-		return;
-	if(newtilebuf[tile].format>tf4Bit)
-		cs = 0;
-	else cs &= 15;
-	
-	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
-	auto* lock = al_lock_bitmap_region(targ,x,y,16*w,16*h,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
-	
-	for(int tx = 0; tx < w; ++tx)
-		for(int ty = 0; ty < h; ++ty)
-		{
-			_a5_drawtile_16(x+(16*tx),y+(16*ty),tile+tx+(ty*TILES_PER_ROW),cs,flip,mask,alpha);
-		}
-	
-	if(lock)
-		al_unlock_bitmap(targ);
-}
-void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask, unsigned char alpha)
-{
-	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!mask) || !alpha)
-		return;
-	if(newtilebuf[tile].format>tf4Bit)
-		cs = cs2 = 0;
-	else cs &= 15;
-	bool quartered = false;
-	
-	int csets[4];
-	if(cs2)
-	{
-		int cofs = cs2&0xF;
-		if(cofs&8)
-			cofs |= ~int32_t(0xF);
-		
-		if((cs2&0xF0)==0xF0)
-			cs = WRAP_CS2(cs, cofs);
-		else
-		{
-			quartered = true;
-			for(int i=0; i<4; ++i)
-				csets[i] = cs2&(16<<i) ? WRAP_CS2(cs, cofs) : cs;
-		}
-	}
-	
-	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
-	auto* lock = al_lock_bitmap_region(targ,x,y,16,16,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
-	
-	if(quartered)
-		_a5_drawtile_16_cs2(x,y,tile,csets,flip,mask,alpha);
-	else _a5_drawtile_16(x,y,tile,cs,flip,mask,alpha);
-	
-	if(lock)
-		al_unlock_bitmap(targ);
-}
-void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask, unsigned char alpha)
-{
-	int rt = tile>>2;
-	if(rt<0 || rt>=NEWMAXTILES || (blank_tile_quarters_table[tile]&&!mask) || !alpha)
-		return;
-	if(newtilebuf[rt].format>tf4Bit)
-		cs = 0;
-	else cs &= 15;
-	
-	ALLEGRO_BITMAP* targ = al_get_target_bitmap();
-	auto* lock = al_lock_bitmap_region(targ,x,y,8,8,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
-	
-	_a5_drawtile_8(x,y,tile,cs,flip,mask,alpha);
-	
-	if(lock)
-		al_unlock_bitmap(targ);
-}
-void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool mask, unsigned char alpha)
-{
-	a5_draw_tile8(x,y,(tile<<2)|(mini&3),cs,flip,mask,alpha);
-}
-
 
 /* end of tiles.cc */
 

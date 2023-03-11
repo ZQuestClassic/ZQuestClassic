@@ -42,7 +42,7 @@ private:
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
-	void applyFont_a5(ALLEGRO_FONT* newFont) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

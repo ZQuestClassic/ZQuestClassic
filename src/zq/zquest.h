@@ -102,7 +102,7 @@ extern size_and_pos dummy_panel;
 extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
-extern int32_t mapscreensize, showedges, showallpanels;
+extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
 
@@ -130,6 +130,7 @@ extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
 extern PALETTE RAMpal;
 extern midi_info Midi_Info;
+extern bool zq_showpal;
 extern bool combo_cols;
 extern bool zoomed_minimap;
 
@@ -1210,12 +1211,15 @@ int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
+void debug_pos(size_and_pos const& pos, int color = 0xED);
 void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
-void highlight_sqr(ALLEGRO_COLOR color, float x, float y, float w, float h, float thick = 2);
-void highlight_sqr(ALLEGRO_COLOR color, size_and_pos const& rec, float thick = 2);
-void highlight_frag(ALLEGRO_COLOR color, float x1, float y1, float w, float h, float fw, float fh, int thick = 2);
-void highlight_frag(ALLEGRO_COLOR color, size_and_pos const& rec, int thick = 2);
-void draw_ttips(RenderTreeItem* ttdest, RenderTreeItem* hldest);
+void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick = 2);
+void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
+void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick = 2);
+void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
+void draw_ttip(BITMAP* dest);
+void draw_ttip2(BITMAP* dest);
+void draw_ttips();
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);

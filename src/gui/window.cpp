@@ -65,13 +65,13 @@ void Window::applyDisabled(bool dis)
 		content->setDisabled(dis);
 }
 
-void Window::applyFont_a5(ALLEGRO_FONT* newFont)
+void Window::applyFont(FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont_a5(newFont);
+	Widget::applyFont(newFont);
 }
 
 void Window::calculateSize()

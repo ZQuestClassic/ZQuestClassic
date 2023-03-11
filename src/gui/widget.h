@@ -374,7 +374,6 @@ protected:
 	bool allowDraw();
 	/* Note that the widget has done something requiring redraw */
 	void pendDraw();
-	void forceDraw();
 	/* Returns true if the entire dialog has been realized */
 	bool isConstructed();
 	

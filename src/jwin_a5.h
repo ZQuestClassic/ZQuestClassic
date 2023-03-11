@@ -8,20 +8,12 @@
 extern ALLEGRO_COLOR AL5_INVIS;
 extern ALLEGRO_COLOR AL5_BLACK;
 extern ALLEGRO_COLOR AL5_WHITE;
-extern ALLEGRO_COLOR AL5_YELLOW;
-extern ALLEGRO_COLOR AL5_PINK;
-extern ALLEGRO_COLOR AL5_LGRAY;
-extern ALLEGRO_COLOR AL5_DGRAY;
-extern ALLEGRO_COLOR AL5_COL_SOLIDITY;
-extern ALLEGRO_COLOR AL5_COL_EFFECT;
-extern ALLEGRO_COLOR AL5_COL_CS2;
 extern ALLEGRO_COLOR jwin_a5_colors[9];
 extern ALLEGRO_COLOR db_a5_colors[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc);
 
-void jwin_reset_a5_colors();
-void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain = false);
-void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain = false);
+void jwin_set_a5_colors(ALLEGRO_COLOR* colors);
+void jwin_get_a5_colors(ALLEGRO_COLOR* colors);
 
 void start_db_proc();
 void end_db_proc();
@@ -38,32 +30,21 @@ void dotted_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLO
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str);
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc);
 void jwin_textout_a5_dis(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR dis_c);
-void jwin_textout_a5_shd(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR shd_c, int shdty);
 void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type);
 void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
 bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state);
 void draw_x_button_a5(int32_t x, int32_t y, int32_t state);
-void draw_checkbox_a5(int32_t x,int32_t y,int32_t sz,bool value);
-void draw_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,bool value);
 void draw_arrow_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t h, bool up, bool center);
-void draw_arrow_horz_a5(ALLEGRO_COLOR c, int32_t x, int32_t y, int32_t w, bool left, bool center);
 void draw_arrow_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state);
-int32_t jwin_do_x_button_dlg_a5(int32_t x, int32_t y);
-bool jwin_do_x_button_a5(int32_t x, int32_t y);
-bool jwin_do_question_button_a5(int32_t x, int32_t y);
-bool do_checkbox_a5(int32_t x,int32_t y,int32_t sz,int32_t &value);
-bool do_checkbox_a5(int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t &value);
+int32_t jwin_do_x_button_a5(int32_t x, int32_t y);
 void dither_rect_a5(int32_t x1, int32_t y1, int32_t x2, int32_t y2, ALLEGRO_COLOR c1, ALLEGRO_COLOR c2);
 void jwin_draw_titlebar_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn = false);
 
 
 void _handle_jwin_scrollable_scroll_click_a5(DIALOG *d, int32_t listsize, int32_t *offset, ALLEGRO_FONT *fnt);
-void _handle_jwin_scrollable_scroll_a5(DIALOG *d, int32_t listsize, int32_t *index, int32_t *offset, ALLEGRO_FONT *fnt);
-bool _handle_jwin_listbox_click_a5(DIALOG *d);
 void _jwin_draw_scrollable_frame_a5(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type);
-void _jwin_draw_listbox_a5(DIALOG *d,bool abc);
 
 int32_t gui_textout_ln_a5(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos);
 int32_t gui_textout_ln_a5_dis(ALLEGRO_FONT *f, const char *s, int32_t x, int32_t y, ALLEGRO_COLOR color, ALLEGRO_COLOR bg, int32_t pos, ALLEGRO_COLOR dis_c);
@@ -80,25 +61,7 @@ int32_t jwin_ctext_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_rtext_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t new_text_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_button_proc_a5(int32_t msg, DIALOG *d, int32_t);
-int32_t new_check_proc_a5(int32_t msg, DIALOG *d, int32_t);
-int32_t jwin_list_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_abclist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
-int32_t jwin_droplist_proc_a5(int32_t msg,DIALOG *d,int32_t c);
-int32_t jwin_frame_proc_a5(int32_t msg, DIALOG *d, int32_t);
 
-int32_t jwin_swapbtn_proc_a5(int32_t msg, DIALOG* d, int32_t c);
-int32_t jwin_numedit_swap_byte_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_numedit_swap_sshort_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_numedit_swap_zsint_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_numedit_swap_zsint_nodec_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_numedit_swap_zsint2_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_vedit_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_edit_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_hexedit_proc_a5(int32_t msg,DIALOG *d,int32_t c);
-int32_t jwin_numedit_proc_a5(int32_t msg,DIALOG *d,int32_t c);
-
-int32_t jwin_radio_proc_a5(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_radiofont_proc_a5(int32_t msg, DIALOG *d, int32_t c);
 
 #endif                                                      // _JWIN_H_
 

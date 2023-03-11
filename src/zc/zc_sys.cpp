@@ -258,7 +258,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		else if(!bigfontproc)
 		{
 			((ListData *)d[i].dp)->font = &lfont_l;
-			((ListData *)d[i].dp)->a5font = &a5fonts[font_lfont_l];
 		}
 		
 		// Make checkboxes work
@@ -266,8 +265,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].proc = jwin_checkfont_proc;
 		else if(d[i].proc == jwin_radio_proc)
 			d[i].proc = jwin_radiofont_proc;
-		else if(d[i].proc == jwin_radio_proc_a5)
-			d[i].proc = jwin_radiofont_proc_a5;
 	}
 	
 	jwin_center_dialog(d);
@@ -6290,7 +6287,7 @@ static DIALOG credits_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-static ListData dmap_list(dmaplist, &font, &a5font);
+static ListData dmap_list(dmaplist, &font);
 
 static DIALOG goto_dlg[] =
 {
@@ -6573,7 +6570,7 @@ done:
 	return ret;
 }
 
-static ListData midi_list(midilist, &font, &a5font);
+static ListData midi_list(midilist, &font);
 
 static DIALOG midi_dlg[] =
 {
@@ -7450,7 +7447,7 @@ const char *after_list(int32_t index, int32_t *list_size)
 	return after_str[index];
 }
 
-static ListData after__list(after_list, &font, &a5font);
+static ListData after__list(after_list, &font);
 
 static DIALOG scrsaver_dlg[] =
 {
@@ -7945,7 +7942,7 @@ void system_pal()
 		pal[i].g = i-128;
 		pal[i].b = i-128;
 	}
-	load_colorset(gui_colorset, pal);
+	load_colorset(gui_colorset, pal, jwin_a5_colors);
 	
 	color_layer(pal, pal, 24,16,16, 28, 128,191);
 	

@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <cassert>
 #include <cmath>
 
@@ -21,7 +21,7 @@ DropDownList::DropDownList():
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(&widgFont, &widgFont_a5);
+	jwinListData = newListData.getJWin(&widgFont);
 }
 
 void DropDownList::setSelectedValue(int32_t value)
@@ -109,6 +109,11 @@ void DropDownList::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
+void DropDownList::applyFont(FONT* newFont)
+{
+	Widget::applyFont(newFont);
+}
+
 void DropDownList::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
@@ -120,7 +125,7 @@ void DropDownList::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_droplist_proc_a5>,
+		newGUIProc<jwin_droplist_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

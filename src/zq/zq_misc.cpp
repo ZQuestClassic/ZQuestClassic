@@ -183,6 +183,17 @@ void dump_pal()
         rectfill(screen,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
 }
 
+int32_t wrap(int32_t x,int32_t low,int32_t high)
+{
+    while(x<low)
+        x+=high-low+1;
+
+    while(x>high)
+        x-=high-low+1;
+
+    return x;
+}
+
 bool readfile(const char *path,void *buf,int32_t count)
 {
     PACKFILE *f=pack_fopen_password(path,F_READ,"");

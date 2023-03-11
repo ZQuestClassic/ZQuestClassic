@@ -988,6 +988,7 @@ static bool box_log=true;
 static char box_log_msg[480];
 static int32_t box_msg_pos=0;
 static int32_t box_store_pos=0;
+static BITMAP* box_bg=NULL;
 /*
   static int32_t jwin_pal[jcMAX] =
   {
@@ -1048,7 +1049,6 @@ void set_box_size(int32_t w, int32_t h)
 /* starts outputting a progress message */
 void box_start(int32_t style, const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w, int32_t h, uint8_t scale)
 {
-	popup_zqdialog_start();
     box_text_scale=scale;
     box_style=style;
     box_title_font=(title_font!=NULL)?title_font:font;
@@ -1070,6 +1070,12 @@ void box_start(int32_t style, const char *title, FONT *title_font, FONT *message
     box_store_pos=0;
     scare_mouse();
     
+    if(box_bg)
+    {
+        destroy_bitmap(box_bg);
+    }
+    box_bg = create_bitmap_ex(8, box_w, box_h);
+    blit(screen, box_bg, box_l, box_t, 0, 0, box_w, box_h);
     jwin_draw_win(screen, box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
     
     if(title!=NULL)
@@ -1251,7 +1257,12 @@ void box_end(bool pause)
         }
         
         box_active = false;
-		popup_zqdialog_end();
+        if(box_bg)
+        {
+            blit(box_bg, screen, 0, 0, box_l, box_t-box_titlebar_height, box_w, box_h+box_titlebar_height);
+            destroy_bitmap(box_bg);
+            box_bg = NULL;
+        }
     }
 }
 

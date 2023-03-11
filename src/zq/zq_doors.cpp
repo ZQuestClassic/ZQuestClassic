@@ -144,7 +144,7 @@ void edit_door(int32_t side)
 
 const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
-static ListData doorcomboset_list(&doorcombosetlist, &font, &a5font);
+static ListData doorcomboset_list(&doorcombosetlist, &font);
 
 static DIALOG door_select_dlg[] =
 {
@@ -1518,7 +1518,7 @@ int32_t copydcs();
 int32_t pastedcs();
 int32_t replacedcs();
 
-static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font, &a5font);
+static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font);
 
 static DIALOG doorcombosetlist_dlg[] =
 {

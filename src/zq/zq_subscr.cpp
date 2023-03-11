@@ -965,8 +965,8 @@ static DIALOG sso_raw_data_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static ListData rows_list(rowslist, &font, &a5font);
-static ListData itemclass_list(item_class_list, &font, &a5font);
+static ListData rows_list(rowslist, &font);
+static ListData itemclass_list(item_class_list, &font);
 
 int32_t sso_raw_data(subscreen_object *tempsso)
 {
@@ -985,14 +985,14 @@ int32_t sso_raw_data(subscreen_object *tempsso)
     return D_O_K;
 }
 
-static ListData wrapping_list(wrappinglist, &font, &a5font);
-static ListData alignment_list(alignmentlist, &font, &a5font);
-ListData shadowstyle_list(shadowstylelist, &font, &a5font);
-static ListData misccolor_list(misccolorlist, &font, &a5font);
-static ListData spectile_list(spectilelist, &font, &a5font);
-static ListData ssfont_list(ssfontlist, &font, &a5font);
-static ListData colortype_list(colortypelist, &font, &a5font);
-static ListData item_list(itemlist_num, &font, &a5font);
+static ListData wrapping_list(wrappinglist, &font);
+static ListData alignment_list(alignmentlist, &font);
+ListData shadowstyle_list(shadowstylelist, &font);
+static ListData misccolor_list(misccolorlist, &font);
+static ListData spectile_list(spectilelist, &font);
+static ListData ssfont_list(ssfontlist, &font);
+static ListData colortype_list(colortypelist, &font);
+static ListData item_list(itemlist_num, &font);
 
 void replacedp(DIALOG &d, const char *newdp, size_t size)
 {
@@ -2706,7 +2706,7 @@ const char *colorlist(int32_t index, int32_t *list_size)
     return color_str[index];
 }
 
-static ListData color_list(colorlist, &font, &a5font);
+static ListData color_list(colorlist, &font);
 
 static DIALOG grid_dlg[] =
 {
@@ -2819,7 +2819,7 @@ const char *ssolist(int32_t index, int32_t *list_size)
     return bisso[index].s;
 }
 
-static ListData sso_list(ssolist, &font, &a5font);
+static ListData sso_list(ssolist, &font);
 
 static DIALOG ssolist_dlg[] =
 {
@@ -3820,11 +3820,7 @@ void edit_subscreen()
 		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
 	
-	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
-	popup_zqdialog_start_a5();
-    int32_t ret = new_popup_dlg(subscreen_dlg,2);
-	popup_zqdialog_end_a5();
-	popup_zqdialog_end();
+    int32_t ret = zc_popup_dialog(subscreen_dlg,2);
     
     if(ret==1)
     {
@@ -3949,8 +3945,8 @@ const char *activepassivelist(int32_t index, int32_t *list_size)
     return activepassive_str[index];
 }
 
-static ListData passive_list(passivelist, &font, &a5font);
-static ListData active_list(activelist, &font, &a5font);
+static ListData passive_list(passivelist, &font);
+static ListData active_list(activelist, &font);
 
 int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -3967,7 +3963,7 @@ int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-static ListData activepassive_list(activepassivelist, &font, &a5font);
+static ListData activepassive_list(activepassivelist, &font);
 
 static DIALOG sstemplatelist_dlg[] =
 {
@@ -4076,7 +4072,7 @@ const char *subscreenlist_b(int32_t index, int32_t *list_size)
     return custom_subscreen[j-1].name;
 }
 
-static ListData subscreen_list(subscreenlist, &font, &a5font);
+static ListData subscreen_list(subscreenlist, &font);
 
 DIALOG sslist_dlg[] =
 {

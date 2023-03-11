@@ -1927,12 +1927,12 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::RULESET:
 			call_ruleset_dlg();
 			reloadQRs();
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
 			reloadQRs();
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::CHEATS:
 			call_cheats_dlg();
@@ -1946,14 +1946,14 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				popup_bugfix_dlg("dsa_compatrule2");
 				reloadQRs();
-				runner.rerun_dlg = true;
+				rerun_dlg = true;
 				return true;
 			}
 			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
 			return false;
 		case message::RERUN:
 			while(gui_mouse_b()) rest(1); //wait for mouseup
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::SEARCH:
 		{
@@ -1966,7 +1966,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				});
 			dlg.searchmode = true;
 			dlg.show();
-			runner.rerun_dlg = do_rerun;
+			rerun_dlg = do_rerun;
 			return do_rerun;
 		}
 		//Closing buttons
