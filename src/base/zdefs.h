@@ -151,8 +151,6 @@ typedef unsigned const char ucc;
 #define MIN_SIGNED_32 (-2147483647-1)
 #define MAX_DWORD dword(-1)
 #define MIN_DWORD 0
-#define LARGE_W       912
-#define LARGE_H       684
 
 #include "ffc.h"
 #include "metadata/metadata.h"
@@ -397,6 +395,9 @@ extern volatile bool close_button_quit;
 #define r_dvc(x) ((x)-240)
 #define BLACK         253
 #define WHITE         254
+
+#define LARGE_W       912
+#define LARGE_H       684
 
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071

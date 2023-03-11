@@ -56,7 +56,6 @@ private:
 	static int32_t mouseFixerProc(int32_t msg, DIALOG* d, int32_t c);
 
 	friend int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c);
-	friend int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c);
 };
 
 }

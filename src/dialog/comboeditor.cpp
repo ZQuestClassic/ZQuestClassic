@@ -2030,6 +2030,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			Rows<4>(padding = 0_px,
 				Label(text = "Type:", hAlign = 1.0),
 				DropDownList(data = list_ctype, fitParent = true,
+					maxwidth = 220_px,
 					padding = 0_px, selectedValue = local_comboref.type,
 					onSelectionChanged = message::COMBOTYPE
 				),
@@ -2046,6 +2047,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				),
 				Label(text = "Inherent Flag:", hAlign = 1.0),
 				DropDownList(data = list_flag, fitParent = true,
+					maxwidth = 400_px,
 					padding = 0_px, selectedValue = local_comboref.flag,
 					onSelectionChanged = message::COMBOFLAG
 				),

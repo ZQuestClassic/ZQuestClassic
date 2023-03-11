@@ -75,7 +75,6 @@ struct ListData
 
 byte getHighlightColor(int32_t c);
 byte getHighlightColor(RGB const& col);
-ALLEGRO_COLOR getHighlightColor(ALLEGRO_COLOR col);
 
 #ifdef __cplusplus
 extern "C"
@@ -261,7 +260,7 @@ int32_t gui_text_width(FONT *f, const char *s);
 
 int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y);
 
-int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c);
 
 int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, const char *b3, int32_t c1, int32_t c2, int32_t c3, FONT *title_font);
 int32_t jwin_alert(const char *title, const char *s1, const char *s2, const char *s3, const char *b1, const char *b2, int32_t c1, int32_t c2, FONT *title_font);
@@ -284,7 +283,6 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
                  uint8_t dest_color2);
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void jwin_center_dialog(DIALOG *dialog);
-void jwin_get_dlg_center(DIALOG* dialog, int& x, int& y, int& w, int& h);
 void jwin_ulalign_dialog(DIALOG *dialog);
 
 void _calc_scroll_bar(int32_t h, int32_t height, int32_t listsize, int32_t offset,
@@ -299,7 +297,6 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
 
 extern int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
 extern int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
-int new_popup_dlg(DIALOG* dialog, int32_t focus_obj);
 
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);

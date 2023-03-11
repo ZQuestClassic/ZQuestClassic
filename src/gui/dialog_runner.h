@@ -88,8 +88,6 @@ public:
 	 * Shouldn't really be public, but that can be dealt with later.
 	 */
 	Signal dialogConstructed;
-	
-	void set_dlg_sz(int x, int y, int w, int h);
 
 private:
 	std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> sendMessage;
@@ -97,7 +95,6 @@ private:
 	std::vector<std::shared_ptr<Widget>> widgets;
 	int32_t focused;
 	bool redrawPending, done, realized, running;
-	int x, y, w, h;
 
 	DialogRunner();
 	void clear();

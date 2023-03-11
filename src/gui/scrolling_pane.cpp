@@ -1,20 +1,16 @@
 #include "scrolling_pane.h"
 #include "dialog_runner.h"
 #include "base/zc_alleg.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <algorithm>
 
 extern int32_t jwin_pal[jcMAX];
 
 int32_t screen_w, screen_h;
-void START_CLIP(DIALOG* d)
-{
-	set_clip_rect(screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4);
-}
-void END_CLIP()
-{
-	set_clip_rect(screen, 0, 0, LARGE_W, LARGE_H);
-}
+#define START_CLIP(d) set_clip_rect( \
+	screen, d->x+2,d->y+2, d->x+d->w-4, d->y+d->h-4)
+#define END_CLIP() set_clip_rect( \
+	screen, 0, 0, LARGE_W, LARGE_H)
 
 namespace GUI
 {
@@ -106,9 +102,10 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 
 		case MSG_DRAW:
 		{
-			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_pal[d->bg]);
+			rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, d->bg);
 			d->flags &= ~D_GOTFOCUS;
 			_jwin_draw_scrollable_frame(d, sp->contentHeight, sp->scrollPos, d->h, 0);
+			START_CLIP(d);
 			if(d->d1)
 			{
 				// The scrollbar is being dragged; we need to scroll and redraw
@@ -122,6 +119,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 					object_message(child, MSG_DRAW, 0);
 				}
 			}
+			END_CLIP();
 			break;
 		}
 		case MSG_CLICK:
@@ -131,7 +129,7 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 				// This emits MSG_DRAW as it scrolls
 				d->d1=1;
 				d->d2=sp->scrollPos;
-				_handle_jwin_scrollable_scroll_click_a5(d, sp->contentHeight, &sp->scrollPos, nullptr);
+				_handle_jwin_scrollable_scroll_click(d, sp->contentHeight, &sp->scrollPos, nullptr);
 				if(sp->scrollptr) *(sp->scrollptr) = sp->scrollPos;
 				d->d1=0;
 			}
@@ -175,141 +173,11 @@ int32_t scrollProc(int32_t msg, DIALOG* d, int32_t c)
 	return D_O_K;
 }
 
-int32_t scrollProc_a5(int32_t msg, DIALOG* d, int32_t c)
-{
-	ScrollingPane* sp = static_cast<ScrollingPane*>(d->dp);
-	if(!d->dp3)
-		d->dp3 = popup_zqdialog_a5_child(d->x+2,d->y+2,d->w-4,d->h-4);
-	RenderTreeItem* rti = (RenderTreeItem*)d->dp3;
-	rti->visible = !(d->flags&D_HIDDEN);
-	
-	int ret = D_O_K;
-	switch(msg)
-	{
-		case MSG_DRAWCLIPPED:
-		{
-			auto* child=&sp->alDialog[c];
-			
-			ALLEGRO_STATE old_state;
-			al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-			al_set_target_bitmap(rti->bitmap);
-			
-			START_CLIP(d);
-			child->flags |= D_ISCLIPPED;
-			child->proc(MSG_DRAW, child, 0);
-			child->flags &= ~D_ISCLIPPED;
-			END_CLIP();
-			
-			al_restore_state(&old_state);
-			break;
-		}
-		case MSG_CHILDFOCUSED:
-			if(sp->scrollToShowChild(c))
-			{
-				ret |= D_REDRAW;
-				d->flags|=D_DIRTY;
-			}
-			break;
-		
-		case MSG_WANTFOCUS:
-			if(gui_mouse_b())
-			{
-				ret |= D_WANTFOCUS|D_REDRAW;
-				d->flags|=D_DIRTY;
-			}
-			break;
-		case MSG_GOTFOCUS:
-		case MSG_LOSTFOCUS:
-			break;
-
-		case MSG_DRAW:
-		{
-			al_draw_filled_rectangle(d->x, d->y, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
-			d->flags &= ~D_GOTFOCUS;
-			_jwin_draw_scrollable_frame_a5(d, sp->contentHeight, sp->scrollPos, d->h, 0);
-			if(d->d1 || d->flags&D_DIRTY)
-			{
-				if(a4_bmp_active())
-					rectfill(screen, d->x, d->y, d->x+d->w-1, d->y+d->h-1, get_zqdialog_a4_clear_color()); //!TODO Remove when a5 dialog done - Clear a4 screen layer
-				clear_a5_bmp(AL5_INVIS,rti->bitmap);
-				// The scrollbar is being dragged; we need to scroll and redraw
-				// everything in the pane.
-				int32_t scrollAmount=d->d2-sp->scrollPos;
-				d->d2=sp->scrollPos;
-				for(size_t i = 1; i < sp->childrenEnd; ++i)
-				{
-					DIALOG* child=&sp->alDialog[i];
-					child->y += scrollAmount;
-					object_message(child, MSG_DRAW, 0);
-				}
-			}
-			break;
-		}
-		case MSG_CLICK:
-		{
-			if(gui_mouse_x() >= d->x+d->w-18)
-			{
-				// This emits MSG_DRAW as it scrolls
-				d->d1=1;
-				d->d2=sp->scrollPos;
-				_handle_jwin_scrollable_scroll_click_a5(d, sp->contentHeight, &sp->scrollPos, nullptr);
-				if(sp->scrollptr) *(sp->scrollptr) = sp->scrollPos;
-				d->d1=0;
-			}
-			return D_O_K;
-		}
-
-		case MSG_WHEEL:
-			sp->scroll(-8*c);
-			ret |= D_REDRAW;
-			d->flags|=D_DIRTY;
-			break;
-			
-		case MSG_XCHAR:
-			switch(c>>8)
-			{
-				case KEY_PGDN:
-				{
-					if(sp->maxScrollPos < d->h*2)
-						sp->scroll(d->h/3);
-					else sp->scroll(d->h);
-					ret |= D_USED_CHAR|D_REDRAW;
-					d->flags|=D_DIRTY;
-					break;
-				}
-				case KEY_PGUP:
-				{
-					if(sp->maxScrollPos < d->h*2)
-						sp->scroll(-d->h/3);
-					else sp->scroll(-d->h);
-					ret |= D_USED_CHAR|D_REDRAW;
-					d->flags|=D_DIRTY;
-					break;
-				}
-				case KEY_HOME:
-				{
-					sp->scroll(-sp->maxScrollPos);
-					ret |= D_USED_CHAR|D_REDRAW;
-					d->flags|=D_DIRTY;
-					break;
-				}
-				case KEY_END:
-				{
-					sp->scroll(sp->maxScrollPos);
-					ret |= D_USED_CHAR|D_REDRAW;
-					d->flags|=D_DIRTY;
-					break;
-				}
-			}
-	}
-	return ret;
-}
-
 ScrollingPane::ScrollingPane(): childrenEnd(0), scrollPos(0), maxScrollPos(0),
 	contentHeight(0), oldMouseX(nullptr), oldMouseY(nullptr), scrollptr(nullptr),
 	targHei(0_px)
 {
-	bgColor=jcBOX;
+	bgColor=jwin_pal[jcBOX];
 }
 
 void ScrollingPane::scroll(int32_t amount) noexcept
@@ -347,7 +215,7 @@ void ScrollingPane::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 	if(content)
 	{
-		START_CLIP(&alDialog[0]);
+		START_CLIP(alDialog);
 		content->applyVisibility(visible);
 		END_CLIP();
 	}
@@ -359,7 +227,7 @@ void ScrollingPane::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 	if(content)
 	{
-		START_CLIP(&alDialog[0]);
+		START_CLIP(alDialog);
 		content->applyDisabled(dis);
 		END_CLIP();
 	}
@@ -429,6 +297,17 @@ void ScrollingPane::realize(DialogRunner& runner)
 {
 	oldMouseX=gui_mouse_x;
 	oldMouseY=gui_mouse_y;
+	/*
+	runner.push(shared_from_this(), DIALOG {
+		jwin_frame_proc,
+		x, y, getWidth(), getHeight(),
+		fgColor, bgColor,
+		0, // key
+		getFlags(), // flags
+		3, 0, // d1, d2
+		nullptr, nullptr, nullptr // dp, dp2, dp3
+	});
+	*/
 	runner.push(shared_from_this(), DIALOG {
 		mouseBreakerProc,
 		0, 0, 2000, 2000, // As int32_t as it covers the screen
@@ -439,9 +318,9 @@ void ScrollingPane::realize(DialogRunner& runner)
 		this, nullptr, nullptr // dp, dp2, dp3
 	});
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		scrollProc_a5,
+		scrollProc,
 		x, y, getWidth(), getHeight(),
-		0, bgColor,
+		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
 		0, 0, // d1, d2

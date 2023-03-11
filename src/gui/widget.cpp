@@ -20,7 +20,7 @@ Widget::Widget() noexcept:
 	maxwidth(-1), maxheight(-1),
 	minwidth(-1), minheight(-1),
 	flags(0), hideCount(0),
-	frameText(""), widgFont(GUI_DEF_FONT), widgFont_a5(GUI_DEF_FONT_A5),
+	frameText(""), widgFont(GUI_DEF_FONT),
 	owner(NULL), rowSpan(1), colSpan(1)
 {}
 
@@ -366,10 +366,6 @@ void Widget::applyFont(FONT* newfont)
 		frameTextDialog->dp2 = widgFont;
 		pendDraw();
 	}
-}
-void Widget::applyFont_a5(ALLEGRO_FONT* newfont)
-{
-	widgFont_a5 = newfont;
 }
 
 int32_t Widget::getFlags() const noexcept
