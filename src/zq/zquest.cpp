@@ -33398,13 +33398,13 @@ void highlight_frag(ALLEGRO_COLOR color, float x1, float y1, float w, float h, f
 	
 	for(;thick > 0;--thick)
 	{
-		al_draw_hline(x1-1, y1-1, x2, color);
-		al_draw_vline(x1, y1-1, y2, color);
+		al_draw_hline(x1, y1, x2+1, color);
+		al_draw_vline(x1, y1, y2+1, color);
 		
-		al_draw_hline(x1-1, y2, xc, color);
-		al_draw_vline(x2+1, y1-1, yc+1, color);
+		al_draw_hline(x1, y2, xc+1, color);
+		al_draw_vline(x2, y1, yc+1, color);
 		al_draw_hline(xc, yc, x2+1, color);
-		al_draw_vline(xc+1, yc, y2+1, color);
+		al_draw_vline(xc, yc, y2+1, color);
 		++x1; ++y1;
 		--x2; --y2;
 		--xc; --yc;
