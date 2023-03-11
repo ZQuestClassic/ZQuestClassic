@@ -484,7 +484,7 @@ int32_t onStrings()
 		strlist_dlg[10].dp=msgspeed_string;
 		strlist_dlg[22].dp=template_string;
 		
-		int32_t ret=do_zqdialog(strlist_dlg,2);
+		int32_t ret=zc_popup_dialog(strlist_dlg,2);
 		int32_t pos = strlist_dlg[2].d1;
 		auto res = msglistcache.find(pos);
 		if(res == msglistcache.end())

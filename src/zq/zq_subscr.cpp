@@ -981,7 +981,7 @@ int32_t sso_raw_data(subscreen_object *tempsso)
     
     large_dialog(sso_raw_data_dlg);
         
-    do_zqdialog(sso_raw_data_dlg,2);
+    zc_popup_dialog(sso_raw_data_dlg,2);
     return D_O_K;
 }
 
@@ -2940,7 +2940,7 @@ int32_t onNewSubscreenObject()
     
     large_dialog(ssolist_dlg);
         
-    ret=do_zqdialog(ssolist_dlg,2);
+    ret=zc_popup_dialog(ssolist_dlg,2);
     
     if(ret!=0&&ret!=4)
     {
@@ -3477,7 +3477,7 @@ static int32_t onEditGrid()
     
     large_dialog(grid_dlg);
         
-    int32_t ret = do_zqdialog(grid_dlg,2);
+    int32_t ret = zc_popup_dialog(grid_dlg,2);
     
     if(ret==1)
     {
@@ -3508,7 +3508,7 @@ int32_t onSelectionOptions()
     
     large_dialog(sel_options_dlg);
         
-    int32_t ret = do_zqdialog(sel_options_dlg,2);
+    int32_t ret = zc_popup_dialog(sel_options_dlg,2);
     
     if(ret==1)
     {
@@ -3822,7 +3822,7 @@ void edit_subscreen()
 	
 	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
 	popup_zqdialog_start_a5();
-    int32_t ret = do_zqdialog(subscreen_dlg,2);
+    int32_t ret = new_popup_dlg(subscreen_dlg,2);
 	popup_zqdialog_end_a5();
 	popup_zqdialog_end();
     
@@ -4100,7 +4100,7 @@ int32_t onEditSubscreens()
         
     while(ret!=0&&ret!=5)
     {
-        ret=do_zqdialog(sslist_dlg,2);
+        ret=zc_popup_dialog(sslist_dlg,2);
         
         if(ret==4)
         {
@@ -4138,7 +4138,7 @@ int32_t onEditSubscreens()
             {
                 large_dialog(sstemplatelist_dlg);
                     
-                ret=do_zqdialog(sstemplatelist_dlg,4);
+                ret=zc_popup_dialog(sstemplatelist_dlg,4);
                 
                 if(ret==6)
                 {

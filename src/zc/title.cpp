@@ -4021,7 +4021,7 @@ int32_t custom_game(int32_t file)
 	large_dialog(gamemode_dlg);
    
 	bool customized = false;
-	while((ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
+	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
 	{
 		scare_mouse();
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);

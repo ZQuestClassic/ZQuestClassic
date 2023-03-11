@@ -17,8 +17,14 @@
 
 extern DIALOG_PLAYER *player;
 
-int new_popup_dlg(DIALOG* dialog, int32_t focus_obj);
-int do_zqdialog(DIALOG *dialog, int focus_obj);
+int32_t  zc_do_dialog(DIALOG *d, int32_t f);
+int32_t  zc_popup_dialog(DIALOG *d, int32_t f);
+int32_t  PopUp_dialog(DIALOG *d,int32_t f);
+int32_t  update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *player);
+int32_t  do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj);
+int32_t  popup_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
+int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
+int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
 
 int popup_menu(MENU *menu,int x,int y);
