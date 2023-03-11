@@ -44,7 +44,7 @@ PalEditDialog::PalEditDialog(byte* cdata, PALETTE* pal, char* namebuf, int32_t o
 void PalEditDialog::updatePal()
 {
 	(*palt)[dvc(0)]=(*palt)[zc_oldrand()%14+dvc(1)];
-	zc_set_palette_range(*palt,dvc(0),dvc(0));
+	set_palette_range(*palt,dvc(0),dvc(0),false);
 }
 
 static size_t paltab = 0;
@@ -64,7 +64,7 @@ void PalEditDialog::loadPal()
 		(*palt)[i] = RAMpal[i];
 	}
 	scare_mouse();
-	zc_set_palette(*palt);
+	set_palette(*palt);
 	unscare_mouse();
 	pendDraw();
 }

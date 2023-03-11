@@ -685,7 +685,7 @@ void update_hw_screen(bool force)
 		resy = al_get_display_height(all_get_display());
 		if(update_hw_pal && hw_palette)
 		{
-			zc_set_palette(*hw_palette);
+			set_palette(*hw_palette);
 			update_hw_pal = false;
 		}
 		framecnt++;
@@ -4357,7 +4357,7 @@ int32_t onFullscreen()
 	    //Everything set?
 	    Z_message("gfx mode set at -%d %dbpp %d x %d \n", is_windowed_mode(), get_color_depth(), resx, resy);
 	    
-	    zc_set_palette(oldpal);
+	    set_palette(oldpal);
 	    gui_mouse_focus=0;
 	    show_mouse(screen);
 	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;

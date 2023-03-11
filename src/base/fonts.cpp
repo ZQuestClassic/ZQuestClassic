@@ -402,7 +402,7 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 	get_palette(oldpal);
 	
 	init_fontpal();
-	zc_set_palette(fontpal);
+	set_palette(fontpal);
 	
 	all_set_transparent_palette_index(0);
 	ALLEGRO_BITMAP* a5bmp = all_get_a5_bitmap(bmp);
@@ -411,7 +411,7 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 	ALLEGRO_FONT* a5font = al_grab_font_from_bitmap(a5bmp, 1, ranges);
 	
 	al_destroy_bitmap(a5bmp);
-	zc_set_palette(oldpal);
+	set_palette(oldpal);
 	return a5font;
 }
 ALLEGRO_FONT* __load_a5_font(char const* path)

@@ -62,8 +62,6 @@ void unfreeze_render();
 bool render_frozen();
 
 void set_bitmap_create_flags(bool preserve_texture);
-void zc_set_palette(PALETTE pal);
-void zc_set_palette_range(PALETTE pal, int start, int end);
 ALLEGRO_COLOR a5color(RGB c, unsigned char alpha = 255);
 ALLEGRO_COLOR a5color(int index, unsigned char alpha = 255);
 ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha = 255);

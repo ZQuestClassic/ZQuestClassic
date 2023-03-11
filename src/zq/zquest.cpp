@@ -1613,7 +1613,7 @@ int32_t onFullScreen()
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
 	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	    zc_set_palette(RAMpal);
+	    set_palette(RAMpal);
 	    position_mouse(zq_screen_w/2,zq_screen_h/2);
 	    show_mouse(screen);
 	    set_display_switch_mode(SWITCH_BACKGROUND);
@@ -4831,7 +4831,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
         dstpal[i].b = i;
     }
     
-    zc_set_palette(dstpal);
+    set_palette(dstpal);
     
 	if(grayout)
 	{
@@ -4878,7 +4878,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
     
     if(!gotit)
     {
-        zc_set_palette(temppal);
+        set_palette(temppal);
         get_palette(dstpal);
         return 1;
     }
@@ -4958,7 +4958,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     // Always call load_the_map() when viewing the map.
     if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
     {
-        zc_set_palette(RAMpal);
+        set_palette(RAMpal);
         unscare_mouse();
         comeback();
         return D_O_K;
@@ -4980,7 +4980,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     //  go();
     //  scare_mouse();
     //  clear_bitmap(screen);
-    zc_set_palette(pal);
+    set_palette(pal);
     
     do
     {
@@ -5147,7 +5147,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
                     gui_bg_color = pblack;
                     gui_fg_color = pwhite;
                     *scale2=1.0;
-                    zc_set_palette(pal);
+                    set_palette(pal);
                 }
                 
                 get_bw(pal,pblack,pwhite);
@@ -5157,7 +5157,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     while(!done);
     
     destroy_bitmap(buf);
-    zc_set_palette(RAMpal);
+    set_palette(RAMpal);
     unscare_mouse();
     gui_fg_color = oldfgcolor;
     gui_bg_color = oldbgcolor;
@@ -28779,7 +28779,7 @@ void cycle_palette()
     if(refreshpal)
     {
         rebuild_trans_table();
-        zc_set_palette_range(RAMpal,0,192);
+        set_palette_range(RAMpal,0,192,false);
     }
 }
 
@@ -30703,12 +30703,12 @@ int32_t main(int32_t argc,char **argv)
 		return 1;
 	}
 	
-	zc_set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
+	set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
 	get_palette(RAMpal);
 	
 	load_colorset(gui_colorset);
 	
-	zc_set_palette(RAMpal);
+	set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 	
 	//clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
@@ -31885,7 +31885,7 @@ void quit_game()
     
     set_last_timed_save(nullptr);
     save_config_file();
-    zc_set_palette(black_palette);
+    set_palette(black_palette);
     zc_stop_midi();
     
     remove_locked_params_on_exit();
@@ -32068,7 +32068,7 @@ void quit_game2()
     
     set_last_timed_save(nullptr);
     save_config_file();
-    zc_set_palette(black_palette);
+    set_palette(black_palette);
     zc_stop_midi();
     
     remove_locked_params_on_exit();
@@ -33734,7 +33734,7 @@ void update_hw_screen(bool force)
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
-			zc_set_palette(RAMpal);
+			set_palette(RAMpal);
 			update_hw_pal=false;
 		}
 		if (force || myvsync)

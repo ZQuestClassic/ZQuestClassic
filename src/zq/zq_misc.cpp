@@ -264,7 +264,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    zc_set_palette_range(RAMpal,0,0xE0);
+    set_palette_range(RAMpal,0,0xE0,true);
 }
 
 void loadlvlpal(int32_t level)
@@ -356,7 +356,7 @@ ALLEGRO_COLOR real_lc2(int pal)
 void refresh_pal()
 {
     loadlvlpal(Color);
-    zc_set_palette(RAMpal);
+    set_palette(RAMpal);
 }
 
 char ns_string[4];
@@ -1319,7 +1319,7 @@ int32_t onShowDarkness()
 			}
 
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-			zc_set_palette(RAMpal);
+			set_palette(RAMpal);
 
 			readkey();
 
@@ -1356,7 +1356,7 @@ void setFlagColor(int32_t c)
 {
 	theFlagColor = c%16;
     RAMpal[dvc(0)]=RAMpal[vc(c%16)];
-    zc_set_palette_range(RAMpal,dvc(0),dvc(0));
+    set_palette_range(RAMpal,dvc(0),dvc(0),false);
 }
 
 int32_t onIncreaseFlag()

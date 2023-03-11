@@ -33,30 +33,15 @@ void set_bitmap_create_flags(bool preserve_texture)
 	al_set_new_bitmap_flags(flags);
 }
 
-ALLEGRO_COLOR a5colors[256];
-void zc_set_palette(PALETTE pal)
-{
-	for(int q = 0; q < 256; ++q)
-		a5colors[q] = a5color(pal[q]);
-	set_palette(pal);
-}
-void zc_set_palette_range(PALETTE pal, int start, int end)
-{
-	if(start>end) zc_swap(start,end);
-	for(int q = start; q <= end; ++q)
-		a5colors[q] = a5color(pal[q]);
-	set_palette_range(pal,start,end,false);
-}
 ALLEGRO_COLOR a5color(RGB c, unsigned char alpha)
 {
 	return al_map_rgba(c.r*4,c.g*4,c.b*4,alpha);
 }
 ALLEGRO_COLOR a5color(int index, unsigned char alpha)
 {
-	if(alpha==255) return a5colors[index];
-	unsigned char r,g,b;
-	al_unmap_rgb(a5colors[index],&r,&g,&b);
-	return al_map_rgba(r,g,b,alpha);
+	RGB tmp;
+	get_color(index,&tmp);
+	return a5color(tmp,alpha);
 }
 ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha)
 {

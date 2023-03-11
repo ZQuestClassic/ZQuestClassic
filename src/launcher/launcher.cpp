@@ -457,7 +457,7 @@ void init_launcher_palette()
 	
 	load_colorset(gui_colorset);
 	
-	zc_set_palette(RAMpal);
+	set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 }
 
@@ -589,7 +589,7 @@ void update_hw_screen(bool force)
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
-			zc_set_palette(RAMpal);
+			set_palette(RAMpal);
 			load_mouse();
 		}
 		update_hw_pal=false;

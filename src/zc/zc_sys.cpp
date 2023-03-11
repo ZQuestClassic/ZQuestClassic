@@ -726,7 +726,7 @@ void load_mouse()
 	set_mouse_sprite(zcmouse[0]);
 	
 	// Must attempt to show cursor for allegro 5 to render it with the associated palette.
-	zc_set_palette(*hw_palette);
+	set_palette(*hw_palette);
 	show_mouse(screen);
 	show_mouse(NULL);
 
@@ -752,7 +752,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	for(int32_t i=240; i<256; i++)
 		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
 		
-	zc_set_palette(RAMpal);
+	set_palette(RAMpal);
 	clear_to_color(screen,BLACK);
 	
 	rest(wait);
@@ -3910,7 +3910,7 @@ int32_t onGUISnapshot()
 		game_pal();
 		RAMpal[253] = _RGB(0,0,0);
 		RAMpal[254] = _RGB(63,63,63);
-		zc_set_palette_range(RAMpal,0,255);
+		set_palette_range(RAMpal,0,255,false);
 		memcpy(RAMpal, snappal, sizeof(snappal));
 		create_rgb_table(&rgb_table, RAMpal, NULL);
 		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
@@ -6380,7 +6380,7 @@ int32_t onCredits()
 	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
 	credits_dlg[2].dp = win;
 
-	zc_set_palette_range(black_palette,0,127);
+	set_palette_range(black_palette,0,127,false);
 	
 	DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
 	
@@ -6404,7 +6404,7 @@ int32_t onCredits()
 		if(c<=64)
 			fade_interpolate(black_palette,pal,tmppal,c,0,127);
 			
-		zc_set_palette_range(tmppal,0,127);
+		set_palette_range(tmppal,0,127,false);
 		
 		if(l!=ol)
 		{
