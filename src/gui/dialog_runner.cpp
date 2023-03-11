@@ -16,7 +16,7 @@ namespace GUI
 int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	auto* dr = static_cast<DialogRunner*>(d->dp);
-	if(dr->render_froze && (msg != MSG_START && msg != MSG_END))
+	if(dr->render_froze)
 	{
 		dr->render_froze = false;
 		dr->forceDraw();
