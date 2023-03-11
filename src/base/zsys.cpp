@@ -18,7 +18,6 @@
 #include <string>
 #include <sstream>
 #include "base/util.h"
-#include "base/fonts.h"
 
 using namespace util;
 using std::string;
@@ -33,7 +32,7 @@ using std::getline;
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "zc_sys.h"
-#include "jwin_a5.h"
+#include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
 
 #ifdef __EMSCRIPTEN__
@@ -971,10 +970,10 @@ void copy_file(const char *src, const char *dest)
 
 static int32_t box_x = 0;
 static int32_t box_y = 0;
-static int box_active=0;
+static bool box_active=false;
 static int32_t box_store_x = 0;
-static ALLEGRO_FONT *box_title_font=nullptr;
-static ALLEGRO_FONT *box_message_font=nullptr;
+static FONT *box_title_font=font;
+static FONT *box_message_font=font;
 static int32_t box_style=0;
 static int32_t box_titlebar_height=0;
 static int32_t box_message_height=0;
@@ -989,6 +988,7 @@ static bool box_log=true;
 static char box_log_msg[480];
 static int32_t box_msg_pos=0;
 static int32_t box_store_pos=0;
+static BITMAP* box_bg=NULL;
 /*
   static int32_t jwin_pal[jcMAX] =
   {
@@ -1047,16 +1047,14 @@ void set_box_size(int32_t w, int32_t h)
 }
 
 /* starts outputting a progress message */
-void box_start(int32_t style, const char *title, ALLEGRO_FONT *title_font, ALLEGRO_FONT *message_font, bool log, int32_t w, int32_t h, uint8_t scale)
+void box_start(int32_t style, const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w, int32_t h, uint8_t scale)
 {
-	popup_zqdialog_start_a5();
-    ++box_active;
     box_text_scale=scale;
     box_style=style;
-    box_title_font=(title_font!=NULL)?title_font:a5font;
-    box_message_font=(message_font!=NULL)?message_font:a5font;
-    box_message_height=al_get_font_line_height(box_message_font)*scale;
-    box_titlebar_height=title?al_get_font_line_height(box_title_font)+2:0;
+    box_title_font=(title_font!=NULL)?title_font:font;
+    box_message_font=(message_font!=NULL)?message_font:font;
+    box_message_height=text_height(box_message_font)*scale;
+    box_titlebar_height=title?text_height(box_title_font)+2:0;
     set_box_size(w,h);
     /*
     box_w=BOX_W;
@@ -1070,18 +1068,28 @@ void box_start(int32_t style, const char *title, ALLEGRO_FONT *title_font, ALLEG
     memset(box_log_msg, 0, 480);
     box_msg_pos=0;
     box_store_pos=0;
+    scare_mouse();
     
-    jwin_draw_win_a5(box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
+    if(box_bg)
+    {
+        destroy_bitmap(box_bg);
+    }
+    box_bg = create_bitmap_ex(8, box_w, box_h);
+    blit(screen, box_bg, box_l, box_t, 0, 0, box_w, box_h);
+    jwin_draw_win(screen, box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
     
     if(title!=NULL)
     {
-        zc_swap(a5font,box_title_font);
-        jwin_draw_titlebar_a5(box_l+3, box_t+3, box_r-box_l-6, 18, title, false);
-        zc_swap(a5font,box_title_font);
+        zc_swap(font,box_title_font);
+        jwin_draw_titlebar(screen, box_l+3, box_t+3, box_r-box_l-6, 18, title, false);
+        zc_swap(font,box_title_font);
         box_titlebar_height=18;
     }
     
+    unscare_mouse();
+    
     box_store_x = box_x = box_y = 0;
+    box_active = true;
     box_t+=box_titlebar_height;
     box_h-=box_titlebar_height;
     box_log=log;
@@ -1098,11 +1106,12 @@ void box_out(const char *msg)
     
     if(box_active)
     {
+        scare_mouse();
         //do primitive text wrapping
         uint32_t i;
         for(i=0; i<temp.size(); i++)
         {
-            int32_t length = al_get_text_width(box_message_font,temp.substr(0,i).c_str())*box_text_scale;
+            int32_t length = text_length(box_message_font,temp.substr(0,i).c_str())*box_text_scale;
             
             if(length > box_r-box_l-16)
             {
@@ -1111,22 +1120,20 @@ void box_out(const char *msg)
             }
         }
         
-		cliprect cr;
-		cr.getclip();
-        al_set_clipping_rectangle(box_l+8, box_t+1, box_r-box_l-16, box_b-box_t-2);
+        set_clip_rect(screen, box_l+8, box_t+1, box_r-8, box_b-1);
         if(box_text_scale == 1)
-            jwin_textout_a5(box_message_font, jwin_a5_pal(jcBOXFG), box_l+8+box_x, box_t+(box_y+1)*box_message_height, 0, temp.substr(0,i).c_str(),jwin_a5_pal(jcBOX));
+            textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
         else
         {
-            int32_t length = al_get_text_width(box_message_font,temp.substr(0,i).c_str());
-            ALLEGRO_BITMAP* tempbit = al_create_bitmap(length, box_message_height);
-            ALLEGRO_BITMAP* old = al_get_target_bitmap();
-            jwin_textout_a5(box_message_font, jwin_a5_pal(jcBOXFG), 0, 0, 0, temp.substr(0,i).c_str(), jwin_a5_pal(jcBOX));
-            al_set_target_bitmap(old);
-            al_draw_scaled_bitmap(tempbit, 0, 0, length, box_message_height/box_text_scale, box_l+8+box_x, box_t+(box_y+1)*box_message_height, length*box_text_scale, box_message_height, 0);
-			al_destroy_bitmap(tempbit);
-		}
-		cr.setclip();
+            int32_t length = text_length(box_message_font,temp.substr(0,i).c_str());
+            BITMAP* tempbit = create_bitmap_ex(8, length, box_message_height);
+            clear_bitmap(tempbit);
+            textout_ex(tempbit, box_message_font, temp.substr(0,i).c_str(), 0, 0, gui_fg_color, gui_bg_color);
+            stretch_blit(tempbit, screen, 0, 0, length, box_message_height/box_text_scale, box_l+8+box_x, box_t+(box_y+1)*box_message_height, length*box_text_scale, box_message_height);
+            destroy_bitmap(tempbit);
+        }
+        set_clip_rect(screen, 0, 0, screen->w-1, screen->h-1);
+        unscare_mouse();
         remainder = temp.substr(i,temp.size()-i);
     }
     
@@ -1135,8 +1142,7 @@ void box_out(const char *msg)
         sprintf(box_log_msg+box_msg_pos, "%s", msg);
     }
     
-    if(box_active)
-		box_x += al_get_text_width(box_message_font, msg);
+    box_x += text_length(box_message_font, msg);
     box_msg_pos+=(int32_t)strlen(msg);
     
     if(remainder != "")
@@ -1195,9 +1201,10 @@ void box_eol()
         
         if((box_y+2)*box_message_height >= box_h)
         {
-			ALLEGRO_BITMAP* current = al_get_target_bitmap();
-            al_draw_bitmap_region(current, box_l+8, box_t+(box_message_height*2), box_w-16, box_y*box_message_height, box_l+8, box_t+(box_message_height), 0);
-            al_draw_filled_rectangle(box_l+8, box_t+box_y*box_message_height, box_l+box_w-8, box_t+(box_y+1)*box_message_height, jwin_a5_pal(jcBOX));
+            scare_mouse();
+            blit(screen, screen, box_l+8, box_t+(box_message_height*2), box_l+8, box_t+(box_message_height), box_w-16, box_y*box_message_height);
+            rectfill(screen, box_l+8, box_t+box_y*box_message_height, box_l+box_w-8, box_t+(box_y+1)*box_message_height, gui_bg_color);
+            unscare_mouse();
             box_y--;
         }
     }
@@ -1221,6 +1228,10 @@ void box_end(bool pause)
     {
         if(pause)
         {
+	    //zc_set_volume(255,-1);
+	    // kill_sfx();
+	    // sfx(20,128, false,true);
+	
             box_eol();
             box_out("-- press a key --");
             
@@ -1245,8 +1256,13 @@ void box_end(bool pause)
             clear_keybuf();
         }
         
-        --box_active;
-		popup_zqdialog_end_a5();
+        box_active = false;
+        if(box_bg)
+        {
+            blit(box_bg, screen, 0, 0, box_l, box_t-box_titlebar_height, box_w, box_h+box_titlebar_height);
+            destroy_bitmap(box_bg);
+            box_bg = NULL;
+        }
     }
 }
 
@@ -2189,6 +2205,7 @@ void copy_dialog(DIALOG **to, DIALOG *from)
             case d_tri_frame_proc:
             case d_vsync_proc:
             case d_warpbutton_proc:
+            case d_warpdestsel_proc:
             case d_warplist_proc:
             case d_wclist_proc:
             case d_wflag_proc:
@@ -2313,6 +2330,7 @@ void free_dialog(DIALOG **dlg)
             case d_tri_frame_proc:
             case d_vsync_proc:
             case d_warpbutton_proc:
+            case d_warpdestsel_proc:
             case d_warplist_proc:
             case d_wclist_proc:
             case d_wflag_proc:

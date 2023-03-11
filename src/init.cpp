@@ -957,7 +957,7 @@ char *walkstylelist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-ListData dmap_list(dmaplist, &font, &a5font);
+ListData dmap_list(dmaplist, &font);
 
 //InitData
 

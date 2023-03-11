@@ -12,19 +12,18 @@ template<typename T>
 struct WidgetSetItem
 {
 	std::shared_ptr<T> widg;
-	int val;
 	
 	WidgetSetItem<T> *next, *prev;
 	
 	WidgetSetItem(std::shared_ptr<T>& widg, WidgetSetItem<T> *prev) :
-		widg(widg), next(NULL), prev(prev), val(0)
+		widg(widg), next(NULL), prev(prev)
 	{}
 };
 template<typename T>
 struct WidgetSet
 {
 	WidgetSetItem<T> *head, *tail;
-	std::shared_ptr<T> add(std::shared_ptr<T> widg, int val = 0)
+	std::shared_ptr<T> add(std::shared_ptr<T> widg)
 	{
 		if(!head)
 			head = tail = new WidgetSetItem<T>(widg, NULL);
@@ -33,7 +32,6 @@ struct WidgetSet
 			tail->next = new WidgetSetItem<T>(widg, tail);
 			tail = tail->next;
 		}
-		tail->val = val;
 		++_size;
 		return widg;
 	}
@@ -44,11 +42,12 @@ struct WidgetSet
 			func(node->widg);
 		}
 	}
-	void forEach(std::function<void(std::shared_ptr<T>& widg,int val)> func)
+	void forEach(std::function<void(std::shared_ptr<T>& widg,size_t ind)> func)
 	{
+		size_t ind = 0;
 		for(WidgetSetItem<T>* node = head; node; node = node->next)
 		{
-			func(node->widg, node->val);
+			func(node->widg, ind++);
 		}
 	}
 	

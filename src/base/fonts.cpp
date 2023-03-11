@@ -147,6 +147,16 @@ const char *msgfont_int_str[font_max] =
 	"sfont3"
 };
 
+const char *font_output_strs[] =
+{
+	" !\"#$%&'()*+,-./",
+	"0123456789:;<=>?",
+	"@ABCDEFGHIJKLMNO",
+	"PQRSTUVWXYZ[\\]^_",
+	"`abcdefghijklmno",
+	"pqrstuvwxyz{|}~"
+};
+
 FONT* customfonts[CFONT_MAX];
 FONT* deffonts[CFONT_MAX];
 ALLEGRO_FONT* a5fonts[font_max];
@@ -349,16 +359,6 @@ BITMAP* get_font_bitmap(FONT* savefont)
 	init_fontpal();
 	
 	int len = 0;
-	char font_output_strs[14][17];
-	char c = ' ';
-	for(int q = 0; q < 14; ++q)
-	{
-		for(int ind = 0; ind < 16; ++ind)
-		{
-			font_output_strs[q][ind] = c++;
-		}
-		font_output_strs[q][16] = 0;
-	}
 	for(auto* c : font_output_strs)
 	{
 		int nl = text_length(savefont, c);
@@ -368,13 +368,12 @@ BITMAP* get_font_bitmap(FONT* savefont)
 	int spacing = 1;
 	len += spacing*17;
 	
-	int num_rows = 14;
 	int fh = text_height(savefont);
-	int hei = (spacing*(num_rows+1))+(fh*num_rows);
+	int hei = (spacing*7)+(fh*6);
 	
 	BITMAP* bmp = create_bitmap_ex(8, len, hei);
 	clear_to_color(bmp, 255);
-	for(int row = 0; row < num_rows; ++row)
+	for(int row = 0; row < 6; ++row)
 	{
 		int y = spacing + (row*(fh+spacing));
 		int x = spacing;
@@ -387,7 +386,6 @@ BITMAP* get_font_bitmap(FONT* savefont)
 			x += text_length(savefont, bf)+spacing;
 		}
 	}
-	
 	return bmp;
 }
 void save_font(char const* path, int fontid)
@@ -402,16 +400,16 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 	get_palette(oldpal);
 	
 	init_fontpal();
-	zc_set_palette(fontpal);
+	set_palette(fontpal);
 	
 	all_set_transparent_palette_index(0);
 	ALLEGRO_BITMAP* a5bmp = all_get_a5_bitmap(bmp);
 	
-	int ranges[] = {32, 255}; //space to end
+	int ranges[] = {32, 126}; //space to tilde
 	ALLEGRO_FONT* a5font = al_grab_font_from_bitmap(a5bmp, 1, ranges);
 	
 	al_destroy_bitmap(a5bmp);
-	zc_set_palette(oldpal);
+	set_palette(oldpal);
 	return a5font;
 }
 ALLEGRO_FONT* __load_a5_font(char const* path)

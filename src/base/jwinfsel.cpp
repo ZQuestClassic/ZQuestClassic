@@ -56,7 +56,6 @@
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "base/zsys.h"
-#include "base/fonts.h"
 
 extern FONT *lfont_l;
 
@@ -109,10 +108,10 @@ static int32_t fs_dummy_proc(int32_t msg, DIALOG *d, int32_t c)
     return D_O_K;
 }
 
-static ListData fs_flist__getter(fs_flist_getter, &font, &a5font);
-static ListData fs_elist__getter(fs_elist_getter, &font, &a5font);
+static ListData fs_flist__getter(fs_flist_getter, &font);
+static ListData fs_elist__getter(fs_elist_getter, &font);
 #ifdef HAVE_DIR_LIST //Needed to compile. -L
-static ListData fs_dlist__getter(fs_dlist_getter, &font, &a5font);
+static ListData fs_dlist__getter(fs_dlist_getter, &font);
 #endif
 
 static DIALOG file_selector[] =
@@ -904,16 +903,13 @@ void enlarge_file_selector(int32_t width, int32_t height)
 	file_selector[FS_FILES].y = (show_extlist ? file_selector[FS_TYPES].y:bottom)-(file_selector[FS_FILES].h+5);
 	file_selector[FS_EDIT].y = file_selector[FS_FILES].y-26;
 	((ListData *)file_selector[FS_FILES].dp)->font = &lfont_l;
-	((ListData *)file_selector[FS_FILES].dp)->a5font = &a5fonts[font_lfont_l];
 	file_selector[FS_TYPES].dp2=NULL;
 	file_selector[FS_TYPES].h=20;
 	((ListData *)file_selector[FS_TYPES].dp)->font = &lfont_l;
-	((ListData *)file_selector[FS_TYPES].dp)->a5font = &a5fonts[font_lfont_l];
 #ifdef HAVE_DIR_LIST
 	file_selector[FS_DISKS].dp2=NULL;
 	file_selector[FS_DISKS].h=20;
 	((ListData *)file_selector[FS_DISKS].dp)->font = &lfont_l;
-	((ListData *)file_selector[FS_DISKS].dp)->a5font = &a5fonts[font_lfont_l];
 #endif
 	
 	#define DIFF_VAL 30
@@ -1000,7 +996,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     file_selector[FS_TYPES].proc = fs_dummy_proc;
 	// Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
-    ret = do_zqdialog(file_selector, FS_EDIT);
+    ret = popup_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {
@@ -1193,7 +1189,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
     enlarge_file_selector(width, height);
-    ret = do_zqdialog(file_selector, FS_EDIT);
+    ret = popup_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {
@@ -1348,7 +1344,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     
     file_selector[FS_TYPES].proc = fs_elist_proc;
     enlarge_file_selector(width,height);
-    ret = do_zqdialog(file_selector, FS_EDIT);
+    ret = popup_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {

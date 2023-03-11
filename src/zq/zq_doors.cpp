@@ -143,7 +143,7 @@ void edit_door(int32_t side)
 
 const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
-static ListData doorcomboset_list(&doorcombosetlist, &font, &a5font);
+static ListData doorcomboset_list(&doorcombosetlist, &font);
 
 static DIALOG door_select_dlg[] =
 {
@@ -195,7 +195,7 @@ int32_t onDoors()
     Map.StartListCommand();
     do
     {
-        ret = do_zqdialog(door_select_dlg,-1);
+        ret = zc_popup_dialog(door_select_dlg,-1);
         Map.CurrScr()->door_combo_set=door_select_dlg[9].d1;
         
         switch(ret)
@@ -1440,7 +1440,7 @@ int32_t edit_dcs(int32_t index)
     
     do
     {
-        ret = do_zqdialog(doorcomboset_dlg,4);
+        ret = zc_popup_dialog(doorcomboset_dlg,4);
         
         if(ret==1)
         {
@@ -1517,7 +1517,7 @@ int32_t copydcs();
 int32_t pastedcs();
 int32_t replacedcs();
 
-static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font, &a5font);
+static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font);
 
 static DIALOG doorcombosetlist_dlg[] =
 {
@@ -1746,7 +1746,7 @@ int32_t onDoorCombos()
         
         large_dialog(doorcombosetlist_dlg,1.5);
             
-        int32_t ret=do_zqdialog(doorcombosetlist_dlg,2);
+        int32_t ret=zc_popup_dialog(doorcombosetlist_dlg,2);
         index=doorcombosetlist_dlg[2].d1;
         
         int32_t doedit=false;

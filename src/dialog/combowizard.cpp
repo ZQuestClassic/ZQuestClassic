@@ -3,7 +3,6 @@
 #include "alertfunc.h"
 #include "base/zsys.h"
 #include "../tiles.h"
-#include "../jwin_a5.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
 #include "weapons.h"
@@ -1385,7 +1384,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						//
 						cswatchs[0] = CornerSwatch(
 							val = solidity_to_flag(local_ref.walk&0xF),
-							color = a5tohex(AL5_COL_SOLIDITY), hAlign = 1.0,
+							color = vc(12), hAlign = 1.0,
 							onSelectFunc = [&](int32_t val)
 							{
 								local_ref.walk &= ~0xF;
@@ -3560,8 +3559,8 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::DEFAULT:
 		{
 			if(do_combo_default(local_ref))
-				runner.rerun_dlg = true;
-			return runner.rerun_dlg;
+				rerun_dlg = true;
+			return rerun_dlg;
 		}
 		case message::CANCEL:
 		default:

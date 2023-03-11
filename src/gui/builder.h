@@ -495,7 +495,7 @@ ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(TileFrame, TileFrame, makeTileFrame)
 
 ZCGUI_BUILDER_START(PaletteFrame)
-	ZCGUI_ACCEPT_PROP(scale, setScale, int)
+	ZCGUI_ACCEPT_PROP(bitmap, setBitmap, BITMAP*)
 	ZCGUI_ACCEPT_PROP(cdata, setColorData, byte*)
 	ZCGUI_ACCEPT_PROP(palette, setPal, PALETTE*)
 	ZCGUI_ACCEPT_PROP(count, setCount, uint8_t)

@@ -26,7 +26,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
-#include "drawing.h"
 
 #include "metadata/metadata.h"
 
@@ -140,39 +139,24 @@ void load_mice()
 
 void load_icons()
 {
-	BITMAP* buf = create_bitmap_ex(8,16,16);
     for(int32_t i=0; i<ICON_BMP_MAX; i++)
     {
         for(int32_t j=0; j<4; j++)
         {
-            blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,j*17+1,0,0,16,16);
-			icon_bmp[i][j] = all_get_a5_bitmap(buf);
-		}
-		switch(i)
-		{
-			case ICON_BMP_WARPDEST:
-			{
-				blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,1,0,0,16,16);
-				replColor(buf, 0xE7, 0xEA, 0xEA, false);
-				replColor(buf, 0xE8, 0xE2, 0xE2, false);
-				icon_bmp[i][4] = all_get_a5_bitmap(buf);
-				break;
-			}
-			default: icon_bmp[i][4] = nullptr;
-		}
+            icon_bmp[i][j] = create_bitmap_ex(8,16,16);
+            blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
+        }
     }
-	destroy_bitmap(buf);
 }
 
 void load_selections()
 {
-	BITMAP* buf = create_bitmap_ex(8,16,16);
     for(int32_t i=0; i<2; i++)
     {
-        blit((BITMAP*)zcdata[BMP_SELECT].dat,buf,i*17+1,1,0,0,16,16);
-		select_bmp[i] = all_get_a5_bitmap(buf);
+        select_bmp[i] = create_bitmap_ex(8,16,16);
+        //  blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
+        blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
     }
-	destroy_bitmap(buf);
 }
 
 void load_arrows()
@@ -197,6 +181,17 @@ void dump_pal()
 {
     for(int32_t i=0; i<256; i++)
         rectfill(screen,(i&63)<<2,(i&0xFC0)>>4,((i&63)<<2)+3,((i&0xFC0)>>4)+3,i);
+}
+
+int32_t wrap(int32_t x,int32_t low,int32_t high)
+{
+    while(x<low)
+        x+=high-low+1;
+
+    while(x>high)
+        x-=high-low+1;
+
+    return x;
 }
 
 bool readfile(const char *path,void *buf,int32_t count)
@@ -265,7 +260,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    zc_set_palette_range(RAMpal,0,0xE0);
+    set_palette_range(RAMpal,0,0xE0,true);
 }
 
 void loadlvlpal(int32_t level)
@@ -357,7 +352,7 @@ ALLEGRO_COLOR real_lc2(int pal)
 void refresh_pal()
 {
     loadlvlpal(Color);
-    zc_set_palette(RAMpal);
+    set_palette(RAMpal);
 }
 
 char ns_string[4];
@@ -1301,6 +1296,7 @@ int32_t onShowDarkness()
 	else
 	{
 		refresh(rALL);
+		update_hw_screen(true);
 		if(get_bit(quest_rules,qr_FADE))
 		{
 			int32_t last = CSET(5)-1;
@@ -1318,7 +1314,7 @@ int32_t onShowDarkness()
 			}
 
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-			zc_set_palette(RAMpal);
+			set_palette(RAMpal);
 
 			readkey();
 
@@ -1355,7 +1351,7 @@ void setFlagColor(int32_t c)
 {
 	theFlagColor = c%16;
     RAMpal[dvc(0)]=RAMpal[vc(c%16)];
-    zc_set_palette_range(RAMpal,dvc(0),dvc(0));
+    set_palette_range(RAMpal,dvc(0),dvc(0),false);
 }
 
 int32_t onIncreaseFlag()

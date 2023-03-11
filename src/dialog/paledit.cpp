@@ -13,24 +13,22 @@ extern PALETTE pal;
 void undo_pal();
 
 static bool DidCS9 = false;
-static BITMAP* colbmp = nullptr;
+
 bool call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset, int32_t index)
 {
-	if(!colbmp)
+	BITMAP* tmp = create_bitmap_ex(8,192_px,156_px);
+	clear_bitmap(tmp);
+	for(auto pos = 0; pos < 208; ++pos)
 	{
-		colbmp = create_bitmap_ex(8,192,156);
-		clear_bitmap(colbmp);
-		for(auto pos = 0; pos < 208; ++pos)
-		{
-			rectfill(colbmp, (pos%16)*12, (pos/16)*12, ((pos%16)*12)+12-1, ((pos/16)*12)+12-1, pos);
-		}
+		rectfill(tmp, (pos%16)*12_px, (pos/16)*12_px, ((pos%16)*12_px)+12_px-1_px, ((pos/16)*12_px)+(12_px-1), pos);
 	}
 	DidCS9 = false;
-	PalEditDialog(cdata, pal, namebuf, offset, index).show();
+	PalEditDialog(tmp, cdata, pal, namebuf, offset, index).show();
+	destroy_bitmap(tmp);
 	return DidCS9;
 }
 
-PalEditDialog::PalEditDialog(byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index) :
+PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index) : bmp(bmp),
 	namebuf(namebuf), coldata(cdata), palt(pal), offset(offset), index(index)
 {
 	for(auto i = 0; i < pdLEVEL; ++i)
@@ -44,7 +42,7 @@ PalEditDialog::PalEditDialog(byte* cdata, PALETTE* pal, char* namebuf, int32_t o
 void PalEditDialog::updatePal()
 {
 	(*palt)[dvc(0)]=(*palt)[zc_oldrand()%14+dvc(1)];
-	zc_set_palette_range(*palt,dvc(0),dvc(0));
+	set_palette_range(*palt,dvc(0),dvc(0),false);
 }
 
 static size_t paltab = 0;
@@ -64,7 +62,7 @@ void PalEditDialog::loadPal()
 		(*palt)[i] = RAMpal[i];
 	}
 	scare_mouse();
-	zc_set_palette(*palt);
+	set_palette(*palt);
 	unscare_mouse();
 	pendDraw();
 }
@@ -78,11 +76,10 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
-	const Size panel_scale = 16_px;
 	cls();
 	bool interpfad = get_bit(quest_rules, qr_FADE);
 	loadPal();
-	ALLEGRO_FONT* lblf = get_zc_font_a5(font_lfont_l);
+	
 	return Window(
 		title = "Palette Editor",
 		onClose = message::CANCEL,
@@ -103,78 +100,79 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 				TabRef(name = " 1 ", Rows<17>(
 					vAlign = 0.0,
 					DummyWidget(padding = 0_px),
-					Label(text = "0", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "1", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "2", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "3", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "4", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "5", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "6", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "7", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "8", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "9", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "A", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "B", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "C", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "D", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "E", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "F", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "2", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
+					Label(text = "0", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "1", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "2", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "3", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "4", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "5", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "6", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "7", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "8", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "9", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "A", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "B", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "C", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "D", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "E", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "F", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "2", height = 12_px, textAlign = 1, padding = 0_px),
 					frames[0] = PaletteFrame(colSpan = 16, rowSpan = 13,
-						cdata = coldata, palette = palt, scale = panel_scale,
+						bitmap = bmp, cdata = coldata, palette = palt,
 						count = 13, padding = 0_px, onUpdate = [&]()
 						{
 							loadPal();
 						}
 					),
-					Label(text = "3", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "4", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "9", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "2", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "0" : "3", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "1" : "4", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "2" : "2", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "3" : "3", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "4" : "4", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "5" : "2", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "6" : "3", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = interpfad ? "7" : "4", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf)
+					Label(text = "3", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "4", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "9", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "2", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "0" : "3", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "1" : "4", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "2" : "2", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "3" : "3", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "4" : "4", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "5" : "2", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "6" : "3", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = interpfad ? "7" : "4", height = 12_px, textAlign = 1, padding = 0_px)
 				)),
 				TabRef(name = " 2 ", Rows<17>(
 					vAlign = 0.0,
 					DummyWidget(padding = 0_px),
-					Label(text = "0", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "1", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "2", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "3", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "4", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "5", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "6", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "7", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "8", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "9", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "A", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "B", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "C", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "D", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "E", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "F", width = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "1", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
+					Label(text = "0", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "1", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "2", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "3", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "4", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "5", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "6", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "7", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "8", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "9", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "A", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "B", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "C", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "D", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "E", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "F", width = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "1", height = 12_px, textAlign = 1, padding = 0_px),
 					frames[1] = PaletteFrame(colSpan = 16, rowSpan = 4,
-						cdata = coldata+(13*48), palette = palt, scale = panel_scale,
+						bitmap = bmp, cdata = coldata+(13*48), palette = palt,
 						count = 4, padding = 0_px, onUpdate = [&]()
 						{
 							loadPal();
 						}
 					),
-					Label(text = "5", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "7", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf),
-					Label(text = "8", height = panel_scale, textAlign = 1, padding = 0_px, useFont_a5 = lblf)
+					Label(text = "5", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "7", height = 12_px, textAlign = 1, padding = 0_px),
+					Label(text = "8", height = 12_px, textAlign = 1, padding = 0_px)
 				))
 			),
-			Rows<3>(
+			Rows<4>(
 				Button(text = "Save",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
+					colSpan = 2,
 					onPressFunc = [&]()
 					{
 						if(getname("Save Palette (.png)","png",NULL,datapath,false))
@@ -183,7 +181,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 							{
 								char name[13];
 								extract_name(temppath,name,FILENAME8_3);
-								save_bitmap(temppath, colbmp, *palt);
+								save_bitmap(temppath, bmp, *palt);
 							}
 							else
 							{
@@ -202,7 +200,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					}
 				),
 				Button(text = "&Undo",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						undo_pal();
@@ -210,7 +208,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					}
 				),
 				Button(text = "&Reset",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);
@@ -225,24 +223,26 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						loadPal();
 					}
 				),
-				Row(colSpan = 3,
-					Label(text = "Name:"),
-					TextField(
-						type = GUI::TextField::type::TEXT,
-						text = std::string(namebuf), 
-						maxLength = 16, 
-						colSpan = 3, 
-						fitParent = true,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
-						{
-							std::string foo;
-							foo.assign(text);
-							strncpy(palnames[index], foo.c_str(), 16);
-						}
-					)
-				),
+				Label(text = "Name:"),
+				TextField(
+					type = GUI::TextField::type::TEXT,
+					text = std::string(namebuf), 
+					maxLength = 16, 
+					colSpan = 3, 
+					fitParent = true,
+					onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+					{
+						std::string foo;
+						foo.assign(text);
+						strncpy(palnames[index], foo.c_str(), 16);
+					}
+				)
+			),
+			Rows<3>(
+				topPadding = 0.5_em,
+				vAlign = 1.0,
 				Button(text = "&Edit",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						int32_t val = tabpan->getCurrentIndex()?13:0;
@@ -257,7 +257,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					}
 				),
 				Button(text = "&Grab",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						int32_t val = tabpan->getCurrentIndex()?13:0;
@@ -272,7 +272,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					}
 				),
 				cyclebutton = Button(text = (get_bit(quest_rules,qr_FADE))?"Cycle":"Auto Dark",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						if(!get_bit(quest_rules,qr_FADE))
@@ -292,7 +292,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					}
 				),
 				Button(text = "&Preview in CS 9",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
 						int32_t val = tabpan->getCurrentIndex()?13:0;
@@ -308,10 +308,10 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 					onClick = message::OK
 				),
 				Button(text = "Cancel",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onClick = message::CANCEL),
 				Button(text = "Done",
-					minwidth = 90_px, fitParent = true,
+					minwidth = 90_px,
 					onClick = message::OK)
 			)
 		)

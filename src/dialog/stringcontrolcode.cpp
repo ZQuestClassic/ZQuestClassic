@@ -157,7 +157,7 @@ SCCDialog::SCCDialog() :
 	default_args();
 	curscc = MSGC_COLOUR;
 	cur_args = nullptr;
-	::ListData msgs_list(msgslist, &font, &a5font);
+	::ListData msgs_list(msgslist, &font);
 	list_strings = GUI::ListData(msgs_list, 0);
 	if(!refstr)
 	{
@@ -1041,7 +1041,7 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::RELOAD:
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::COPY:
 			set_al_clipboard(calc_retstr(curscc, args[curscc]));
@@ -1051,7 +1051,7 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			std::string cb;
 			if(get_al_clipboard(cb) && load_scc_str(cb))
 			{
-				runner.rerun_dlg = true;
+				rerun_dlg = true;
 				return true;
 			}
 			return false;

@@ -457,7 +457,7 @@ void init_launcher_palette()
 	
 	load_colorset(gui_colorset);
 	
-	zc_set_palette(RAMpal);
+	set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 }
 
@@ -479,20 +479,12 @@ static RenderTreeItem rti_screen;
 
 static int zc_gui_mouse_x()
 {
-	if(rti_dialogs.children.size())
-	{
-		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
-	}
-	else return rti_screen.global_to_local_x(mouse_x);
+	return rti_screen.global_to_local_x(mouse_x);
 }
 
 static int zc_gui_mouse_y()
 {
-	if(rti_dialogs.children.size())
-	{
-		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
-	}
-	else return rti_screen.global_to_local_y(mouse_y);
+	return rti_screen.global_to_local_y(mouse_y);
 }
 
 bool use_linear_bitmaps()
@@ -518,8 +510,6 @@ static void init_render_tree()
 	gui_mouse_y = zc_gui_mouse_y;
 
 	al_set_new_bitmap_flags(0);
-	
-	_init_render(al_get_bitmap_format(rti_screen.bitmap));
 }
 
 static void configure_render_tree()
@@ -555,32 +545,24 @@ static void configure_render_tree()
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
 		rti_dialogs.visible = true;
+		update_dialog_transform();
 	}
-}
-
-void popup_zqdialog_menu()
-{
-	popup_zqdialog_start_a5();
-}
-void popup_zqdialog_menu_end()
-{
-	popup_zqdialog_end_a5();
 }
 
 static void render_launcher()
 {
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	init_render_tree();
 	configure_render_tree();
-	if(render_frozen()) return;
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
-	al_restore_state(&old_state);
+	al_restore_state(&oldstate);
 }
 
 bool update_hw_pal = false;
@@ -591,7 +573,7 @@ void update_hw_screen(bool force)
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
-			zc_set_palette(RAMpal);
+			set_palette(RAMpal);
 			load_mouse();
 		}
 		update_hw_pal=false;

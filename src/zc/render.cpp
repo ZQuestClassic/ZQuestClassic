@@ -14,6 +14,7 @@ RenderTreeItem rti_root;
 RenderTreeItem rti_game;
 RenderTreeItem rti_infolayer;
 RenderTreeItem rti_menu;
+RenderTreeItem rti_gui;
 RenderTreeItem rti_screen;
 
 bool use_linear_bitmaps()
@@ -23,9 +24,9 @@ bool use_linear_bitmaps()
 
 static int zc_gui_mouse_x()
 {
-	if(rti_dialogs.children.size())
+	if (rti_dialogs.visible || rti_gui.visible)
 	{
-		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
+		return rti_gui.global_to_local_x(mouse_x);
 	}
 	else if (rti_menu.visible)
 	{
@@ -39,9 +40,9 @@ static int zc_gui_mouse_x()
 
 static int zc_gui_mouse_y()
 {
-	if(rti_dialogs.children.size())
+	if (rti_dialogs.visible || rti_gui.visible)
 	{
-		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
+		return rti_gui.global_to_local_y(mouse_y);
 	}
 	else if (rti_menu.visible)
 	{
@@ -72,18 +73,30 @@ static void init_render_tree()
 	rti_game.bitmap = al_create_bitmap(framebuf->w, framebuf->h);
 	rti_game.a4_bitmap = framebuf;
 	rti_infolayer.bitmap = al_create_bitmap(framebuf->w, framebuf->h);
-	
-	al_set_new_bitmap_flags(base_flags_preserve_texture);
-	rti_menu.bitmap = al_create_bitmap(640,480);
-	
+
+	al_set_new_bitmap_flags(base_flags);
+	rti_menu.bitmap = al_create_bitmap(menu_bmp->w, menu_bmp->h);
+	rti_menu.a4_bitmap = menu_bmp;
+	rti_menu.transparency_index = 0;
+
+	gui_bmp = create_bitmap_ex(8, 640, 480);
+	clear_bitmap(gui_bmp);
+	zc_set_gui_bmp(gui_bmp);
+	al_set_new_bitmap_flags(base_flags);
+	rti_gui.bitmap = al_create_bitmap(gui_bmp->w, gui_bmp->h);
+	rti_gui.a4_bitmap = gui_bmp;
+	rti_gui.transparency_index = 0;
+
 	al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	rti_screen.transparency_index = 0;
 	
+
 	rti_root.children.push_back(&rti_game);
 	rti_root.children.push_back(&rti_infolayer);
 	rti_root.children.push_back(&rti_menu);
+	rti_root.children.push_back(&rti_gui);
 	rti_root.children.push_back(&rti_screen);
 	rti_root.children.push_back(&rti_dialogs);
 
@@ -91,8 +104,6 @@ static void init_render_tree()
 	gui_mouse_y = zc_gui_mouse_y;
 
 	al_set_new_bitmap_flags(0);
-	
-	_init_render(al_get_bitmap_format(rti_screen.bitmap));
 }
 
 static void configure_render_tree()
@@ -108,7 +119,7 @@ static void configure_render_tree()
 	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 
-	{ //Game/infolayer
+	{
 		int w = al_get_bitmap_width(rti_game.bitmap);
 		int h = al_get_bitmap_height(rti_game.bitmap);
 		float xscale = (float)resx/w;
@@ -129,40 +140,54 @@ static void configure_render_tree()
 		rti_infolayer.transform.yscale = yscale;
 		rti_infolayer.visible = true;
 	}
-	{ //Menu
+
+	if (rti_menu.visible = MenuOpen)
+	{
 		int w = al_get_bitmap_width(rti_menu.bitmap);
 		int h = al_get_bitmap_height(rti_menu.bitmap);
-		float xscale = float(resx)/w;
-		float yscale = float(resy)/h;
-		if(scaling_force_integer)
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
+		if (scaling_force_integer)
 		{
 			xscale = std::max((int) xscale, 1);
 			yscale = std::max((int) yscale, 1);
 		}
-		if(DragAspect)
-			xscale = yscale = std::min(xscale,yscale); //force ratio
-		
 		rti_menu.transform.x = 0;
 		rti_menu.transform.y = 0;
 		rti_menu.transform.xscale = xscale;
 		rti_menu.transform.yscale = yscale;
-		rti_menu.visible = MenuOpen || rti_menu.children.size();
 	}
-	{ //Dialogs
-		int w = 640;
-		int h = 480;
+
+	rti_dialogs.visible = rti_dialogs.children.size() > 0;
+	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
+	
+	if (rti_dialogs.visible || rti_gui.visible)
+	{
+		int w = al_get_bitmap_width(rti_gui.bitmap);
+		int h = al_get_bitmap_height(rti_gui.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
+		if (scaling_force_integer)
+		{
+			xscale = std::max((int) xscale, 1);
+			yscale = std::max((int) yscale, 1);
+		}
+		rti_gui.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_gui.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_gui.transform.xscale = xscale;
+		rti_gui.transform.yscale = yscale;
+		rti_menu.visible = false;
+		
 		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
-		rti_dialogs.visible = rti_dialogs.children.size() > 0;
+		update_dialog_transform();
 	}
-
+	
 	rti_screen.visible = false;
 	
-	/*if (rti_screen.visible)
+	if (rti_screen.visible)
 	{
 		int w = al_get_bitmap_width(rti_screen.bitmap);
 		int h = al_get_bitmap_height(rti_screen.bitmap);
@@ -179,9 +204,12 @@ static void configure_render_tree()
 		rti_screen.transform.yscale = yscale;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
-	}*/
+		
+		
+	}
 	
-	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_dialogs.visible || Saving;
+
+	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || Saving;
 	if (rti_game.freeze_a4_bitmap_render)
 	{
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
@@ -197,8 +225,8 @@ static void configure_render_tree()
 
 static void render_debug_text(ALLEGRO_FONT* font, std::string text, int x, int y, int scale)
 {
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	
 	int resx = al_get_display_width(all_get_display());
 	int w = al_get_text_width(font, text.c_str());
@@ -226,7 +254,7 @@ static void render_debug_text(ALLEGRO_FONT* font, std::string text, int x, int y
 		al_get_bitmap_width(text_bitmap) * scale, al_get_bitmap_height(text_bitmap) * scale,
 		0
 	);
-	al_restore_state(&old_state);
+	al_restore_state(&oldstate);
 }
 
 enum class TextJustify {
@@ -258,49 +286,21 @@ void start_info_bmp()
 }
 void end_info_bmp()
 {
-	clear_a5_clip_rect(rti_infolayer.bitmap);
+	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1);
 	al_restore_state(&infobmp_old_state);
-}
-
-static std::vector<ALLEGRO_STATE> old_menu_states;
-void popup_zqdialog_menu()
-{
-	RenderTreeItem* rti = new RenderTreeItem();
-	set_bitmap_create_flags(true);
-	rti->bitmap = al_create_bitmap(640, 480);
-	rti->owned = true;
-	rti_menu.children.push_back(rti);
-	al_set_new_bitmap_flags(0);
-	
-	old_menu_states.emplace_back();
-	ALLEGRO_STATE& old_state = old_menu_states.back();
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	al_set_target_bitmap(rti->bitmap);
-}
-void popup_zqdialog_menu_end()
-{
-	if(rti_menu.children.empty()) return;
-	RenderTreeItem* to_del = rti_menu.children.back();
-	rti_menu.children.pop_back();
-	
-	ALLEGRO_STATE& old_state = old_menu_states.back();
-	al_restore_state(&old_state);
-	old_menu_states.pop_back();
-	
-	delete to_del;
 }
 
 void render_zc()
 {
-	init_render_tree();
-	configure_render_tree();
-	if(render_frozen()) return;
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	
 	BITMAP* tmp = screen;
 	if(zqdialog_bg_bmp)
 		screen = zqdialog_bg_bmp;
+	
+	init_render_tree();
+	configure_render_tree();
 	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
@@ -343,5 +343,5 @@ void render_zc()
     al_flip_display();
 	
 	screen = tmp;
-	al_restore_state(&old_state);
+	al_restore_state(&oldstate);
 }

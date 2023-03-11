@@ -14,7 +14,6 @@
 
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
-extern bool devcfg, devcfg_active;
 
 //DEVLEVEL 1 = extra debug tools
 //DEVLEVEL 2 = force enable cheats
@@ -152,8 +151,6 @@ typedef unsigned const char ucc;
 #define MIN_SIGNED_32 (-2147483647-1)
 #define MAX_DWORD dword(-1)
 #define MIN_DWORD 0
-#define LARGE_W       912
-#define LARGE_H       684
 
 #include "ffc.h"
 #include "metadata/metadata.h"
@@ -398,6 +395,9 @@ extern volatile bool close_button_quit;
 #define r_dvc(x) ((x)-240)
 #define BLACK         253
 #define WHITE         254
+
+#define LARGE_W       912
+#define LARGE_H       684
 
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
@@ -1846,6 +1846,33 @@ enum
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
+
+struct size_and_pos
+{
+	int x = -1, y = -1;
+	int w = -1, h = -1;
+	int xscale = 1, yscale = 1;
+	int fw = -1, fh = -1;
+	
+	int data[8] = {0};
+	
+	//Get virtual values
+	int tw() const;
+	int th() const;
+	
+	void clear(); //Clear to default vals
+	
+	bool rect(int mx, int my) const; //Check rect collision
+	int rectind(int mx, int my) const; //Check scaled collision
+	
+	//Set coord values
+	void set(int nx, int ny, int nw, int nh);
+	void set(int nx, int ny, int nw, int nh, int xs, int ys);
+	
+	size_and_pos const& subsquare(int ind) const;
+	size_and_pos const& subsquare(int col, int row) const;
+	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
+};
 
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
@@ -5534,14 +5561,12 @@ char const* get_themefile();
 void set_theme(char const* fpath);
 void reset_theme();
 void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
-void load_themefile(char const* fpath, PALETTE pal);
 void load_themefile(char const* fpath);
 void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
-void save_themefile(char const* fpath, PALETTE pal);
 void save_themefile(char const* fpath);
-void load_udef_colorset(App a, PALETTE pal);
+void load_udef_colorset(App a, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_udef_colorset(App a);
-void load_colorset(int32_t colorset, PALETTE pal);
+void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_colorset(int32_t colorset);
 
 void update_hw_screen(bool force = false);

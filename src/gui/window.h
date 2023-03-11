@@ -52,7 +52,7 @@ private:
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
-	void applyFont_a5(ALLEGRO_FONT* newFont) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

@@ -592,7 +592,7 @@ static void NES_titlescreen()
 	tri=0;
 	fcnt=0;
 	trstr=0;
-	zc_set_palette(black_palette);
+	set_palette(black_palette);
 	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_bitmap(screen);
 	clear_bitmap(framebuf);
@@ -820,7 +820,7 @@ static void DX_titlescreen()
 	int32_t f=0;
 	bool done=false;
 	trstr=0;
-	zc_set_palette(black_palette);
+	set_palette(black_palette);
 	
 	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
 	clear_to_color(screen,BLACK);
@@ -1046,7 +1046,7 @@ static void v25_titlescreen()
 	int32_t f=0;
 	bool done=false;
 	trstr=0;
-	zc_set_palette(black_palette);
+	set_palette(black_palette);
 	
 	clear_to_color(screen,BLACK);
 	clear_bitmap(framebuf);
@@ -4021,7 +4021,7 @@ int32_t custom_game(int32_t file)
 	large_dialog(gamemode_dlg);
    
 	bool customized = false;
-	while((ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
+	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
 	{
 		scare_mouse();
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
@@ -4534,7 +4534,7 @@ void game_over(int32_t type)
 	kill_sfx();
 	music_stop();
 	clear_bitmap(screen);
-	clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
+	clear_a5_bmp(rti_infolayer.bitmap);
 	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
@@ -4756,7 +4756,7 @@ bool save_game(bool savepoint, int32_t type)
 	kill_sfx();
 	//music_stop();
 	clear_bitmap(screen);
-	clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
+	clear_a5_bmp(rti_infolayer.bitmap);
 	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	

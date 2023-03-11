@@ -17,7 +17,7 @@
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq_subscr.h"
-#include "jwin_a5.h"
+#include "jwin.h"
 #include "zquest.h"
 #include "base/zsys.h"
 #include "zq_misc.h"
@@ -965,8 +965,8 @@ static DIALOG sso_raw_data_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static ListData rows_list(rowslist, &font, &a5font);
-static ListData itemclass_list(item_class_list, &font, &a5font);
+static ListData rows_list(rowslist, &font);
+static ListData itemclass_list(item_class_list, &font);
 
 int32_t sso_raw_data(subscreen_object *tempsso)
 {
@@ -981,18 +981,18 @@ int32_t sso_raw_data(subscreen_object *tempsso)
     
     large_dialog(sso_raw_data_dlg);
         
-    do_zqdialog(sso_raw_data_dlg,2);
+    zc_popup_dialog(sso_raw_data_dlg,2);
     return D_O_K;
 }
 
-static ListData wrapping_list(wrappinglist, &font, &a5font);
-static ListData alignment_list(alignmentlist, &font, &a5font);
-ListData shadowstyle_list(shadowstylelist, &font, &a5font);
-static ListData misccolor_list(misccolorlist, &font, &a5font);
-static ListData spectile_list(spectilelist, &font, &a5font);
-static ListData ssfont_list(ssfontlist, &font, &a5font);
-static ListData colortype_list(colortypelist, &font, &a5font);
-static ListData item_list(itemlist_num, &font, &a5font);
+static ListData wrapping_list(wrappinglist, &font);
+static ListData alignment_list(alignmentlist, &font);
+ListData shadowstyle_list(shadowstylelist, &font);
+static ListData misccolor_list(misccolorlist, &font);
+static ListData spectile_list(spectilelist, &font);
+static ListData ssfont_list(ssfontlist, &font);
+static ListData colortype_list(colortypelist, &font);
+static ListData item_list(itemlist_num, &font);
 
 void replacedp(DIALOG &d, const char *newdp, size_t size)
 {
@@ -1404,10 +1404,8 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
                 }
             }
             
-			all_set_transparent_palette_index(-1);
-			ALLEGRO_BITMAP* a5bmp = all_get_a5_bitmap(buf);
-            al_draw_scaled_bitmap(a5bmp,0,0,d->w/2,d->h/2,d->x,d->y,d->w,d->h,0);
-			al_destroy_bitmap(a5bmp);
+            stretch_blit(buf,screen,0,0,d->w/2,d->h/2,d->x,d->y,d->w,d->h);
+            
             destroy_bitmap(buf);
         }
     }
@@ -1563,14 +1561,14 @@ int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         onSSUp();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1579,14 +1577,14 @@ int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         onSSDown();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1595,14 +1593,14 @@ int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         onSSLeft();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1611,14 +1609,14 @@ int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         onSSRight();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1627,7 +1625,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1643,7 +1641,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1652,7 +1650,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1668,7 +1666,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1677,7 +1675,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1693,7 +1691,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1702,7 +1700,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         
         for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
         {
@@ -1718,7 +1716,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t Bweapon(int32_t pos)
@@ -1863,14 +1861,14 @@ int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         selectBwpn(0, -1);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1879,14 +1877,14 @@ int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         selectBwpn(0, 1);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1895,14 +1893,14 @@ int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         selectBwpn(-1, 0);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1911,14 +1909,14 @@ int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         selectBwpn(1, 0);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 const char *sso_type[ssoMAX]=
@@ -2616,50 +2614,40 @@ static MENU subscreen_menu[] =
 };
 
 
-int d_box_proc_a5(int msg, DIALOG *d, int c)
-{
-	if (msg==MSG_DRAW)
-	{
-		al_draw_filled_rectangle(d->x+1, d->y+1, d->x+d->w-1, d->y+d->h-1, jwin_a5_pal(d->bg));
-		al_draw_rectangle(d->x+0.5, d->y+0.5, d->x+d->w-0.5, d->y+d->h-0.5, jwin_a5_pal(d->fg), 1);
-	}
-
-	return D_O_K;
-}
 static DIALOG subscreen_dlg[] =
 {
     // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc_a5,     0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0, (void *) "Subscreen Editor", NULL, NULL },
-    { jwin_button_proc_a5,  192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc_a5,  255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_frame_proc_a5,   4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
+    { jwin_win_proc,        0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0, (void *) "Subscreen Editor", NULL, NULL },
+    { jwin_button_proc,     192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
     { d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
     // 5
-    { d_box_proc_a5,        11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc_a5,    11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc_a5,    4,    225,    30,     16,   0,                  0,                0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc_a5,    34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL, NULL, NULL },
-    // 9
+    { d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
+    { jwin_text_proc,       4,    225,    30,     16,   0,                  0,                0,       0,          0,             0, (void *) "Name:", NULL, NULL },
+    { jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL, NULL, NULL },
+    
     { d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
     { d_ssdn_btn_proc,      284,  53,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
     { d_sslt_btn_proc,      269,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
     { d_ssrt_btn_proc,      299,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    // 13
+    
     { d_ssup_btn2_proc,     284,  70,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
     { d_ssdn_btn2_proc,     284,  100,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
     { d_sslt_btn2_proc,     269,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
     { d_ssrt_btn2_proc,     299,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    // 17
+    
     { d_ssup_btn3_proc,     284,  117,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x98", NULL, NULL },
     { d_ssdn_btn3_proc,     284,  147,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x99", NULL, NULL },
     { d_sslt_btn3_proc,     269,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x9A", NULL, NULL },
     { d_ssrt_btn3_proc,     299,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x9B", NULL, NULL },
-    // 21
+    
     { d_ssup_btn4_proc,     284,  164,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
     { d_ssdn_btn4_proc,     284,  194,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
     { d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
     { d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    // 25
+    
     { jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,             0, (void *) subscreen_menu, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,        0, (void *) onSSUp, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,      0, (void *) onSSDown, NULL, NULL },
@@ -2718,7 +2706,7 @@ const char *colorlist(int32_t index, int32_t *list_size)
     return color_str[index];
 }
 
-static ListData color_list(colorlist, &font, &a5font);
+static ListData color_list(colorlist, &font);
 
 static DIALOG grid_dlg[] =
 {
@@ -2831,7 +2819,7 @@ const char *ssolist(int32_t index, int32_t *list_size)
     return bisso[index].s;
 }
 
-static ListData sso_list(ssolist, &font, &a5font);
+static ListData sso_list(ssolist, &font);
 
 static DIALOG ssolist_dlg[] =
 {
@@ -2952,7 +2940,7 @@ int32_t onNewSubscreenObject()
     
     large_dialog(ssolist_dlg);
         
-    ret=do_zqdialog(ssolist_dlg,2);
+    ret=zc_popup_dialog(ssolist_dlg,2);
     
     if(ret!=0&&ret!=4)
     {
@@ -3489,7 +3477,7 @@ static int32_t onEditGrid()
     
     large_dialog(grid_dlg);
         
-    int32_t ret = do_zqdialog(grid_dlg,2);
+    int32_t ret = zc_popup_dialog(grid_dlg,2);
     
     if(ret==1)
     {
@@ -3520,7 +3508,7 @@ int32_t onSelectionOptions()
     
     large_dialog(sel_options_dlg);
         
-    int32_t ret = do_zqdialog(sel_options_dlg,2);
+    int32_t ret = zc_popup_dialog(sel_options_dlg,2);
     
     if(ret==1)
     {
@@ -3669,13 +3657,13 @@ int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         return onSSCtrlPgUp();
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -3684,13 +3672,13 @@ int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         return onSSCtrlPgDn();
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -3699,14 +3687,14 @@ int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         onSSPgDn();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -3715,14 +3703,14 @@ int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc_a5(msg, d, c);
+        jwin_button_proc(msg, d, c);
         onSSPgUp();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc_a5(msg, d, c);
+    return jwin_button_proc(msg, d, c);
 }
 
 
@@ -3744,10 +3732,7 @@ void edit_subscreen()
     if(game->get_arrows() == 0)
         game->set_arrows(1);
         
-	ALLEGRO_FONT* a5_lfontl = get_custom_font_a5(font_lfont_l);
-    subscreen_dlg[0].dp2=a5_lfontl;
-	for(int q = 9; q <= 24; ++q)
-		subscreen_dlg[q].dp2 = a5_lfontl;
+    subscreen_dlg[0].dp2=lfont;
     load_Sitems(&misc);
     curr_subscreen_object=0;
     ss_propCopySrc=-1;
@@ -3793,8 +3778,8 @@ void edit_subscreen()
     }
     
     subscreen_dlg[4].dp=(void *)css;
-    subscreen_dlg[5].fg=jcBOX;
-    subscreen_dlg[5].bg=jcBOX;
+    subscreen_dlg[5].fg=jwin_pal[jcBOX];
+    subscreen_dlg[5].bg=jwin_pal[jcBOX];
     str_oname=(char *)malloc(255);
     subscreen_dlg[6].dp=(void *)str_oname;
     subscreen_dlg[8].dp=(void *)(css->name);
@@ -3835,9 +3820,7 @@ void edit_subscreen()
 		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
 	
-	popup_zqdialog_start_a5();
-    int32_t ret = do_zqdialog(subscreen_dlg,2);
-	popup_zqdialog_end_a5();
+    int32_t ret = zc_popup_dialog(subscreen_dlg,2);
     
     if(ret==1)
     {
@@ -3962,8 +3945,8 @@ const char *activepassivelist(int32_t index, int32_t *list_size)
     return activepassive_str[index];
 }
 
-static ListData passive_list(passivelist, &font, &a5font);
-static ListData active_list(activelist, &font, &a5font);
+static ListData passive_list(passivelist, &font);
+static ListData active_list(activelist, &font);
 
 int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -3980,7 +3963,7 @@ int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-static ListData activepassive_list(activepassivelist, &font, &a5font);
+static ListData activepassive_list(activepassivelist, &font);
 
 static DIALOG sstemplatelist_dlg[] =
 {
@@ -4089,7 +4072,7 @@ const char *subscreenlist_b(int32_t index, int32_t *list_size)
     return custom_subscreen[j-1].name;
 }
 
-static ListData subscreen_list(subscreenlist, &font, &a5font);
+static ListData subscreen_list(subscreenlist, &font);
 
 DIALOG sslist_dlg[] =
 {
@@ -4113,7 +4096,7 @@ int32_t onEditSubscreens()
         
     while(ret!=0&&ret!=5)
     {
-        ret=do_zqdialog(sslist_dlg,2);
+        ret=zc_popup_dialog(sslist_dlg,2);
         
         if(ret==4)
         {
@@ -4151,7 +4134,7 @@ int32_t onEditSubscreens()
             {
                 large_dialog(sstemplatelist_dlg);
                     
-                ret=do_zqdialog(sstemplatelist_dlg,4);
+                ret=zc_popup_dialog(sstemplatelist_dlg,4);
                 
                 if(ret==6)
                 {

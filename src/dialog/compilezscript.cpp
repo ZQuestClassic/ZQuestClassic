@@ -290,7 +290,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			else
 			{
-				box_start(1, "Compile Progress", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG),true, 512, 280);
+				box_start(1, "Compile Progress", lfont, sfont,true, 512, 280);
 			}
 
 			std::vector<std::string> args = {

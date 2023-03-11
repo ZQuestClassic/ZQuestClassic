@@ -17,7 +17,7 @@ class PalEditDialog: public GUI::Dialog<PalEditDialog>
 public:
 	enum class message { OK, CANCEL };
 
-	PalEditDialog(byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index);
+	PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index);
 	void updatePal();
 	void loadPal();
 
@@ -25,6 +25,7 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	BITMAP* bmp;
 	byte* coldata;
 	PALETTE* palt;
 	char* namebuf;

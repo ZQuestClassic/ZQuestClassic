@@ -177,7 +177,6 @@ struct widgetType##Builder                                                      
     ZCGUI_ACCEPT_PROP(forceFitH, setForceFitHei, bool)                                             \
     ZCGUI_ACCEPT_PROP(disabled, setDisabled, bool)                                                 \
     ZCGUI_ACCEPT_PROP(useFont, setFont, FONT*)                                                     \
-    ZCGUI_ACCEPT_PROP(useFont_a5, setFont_a5, ALLEGRO_FONT*)                                                     \
     ZCGUI_ACCEPT_PROP(frameText, setFrameText, std::string const&)                                 \
     ZCGUI_ACCEPT_PROP(rowSpan, setRowSpan, uint8_t)                                                \
     ZCGUI_ACCEPT_PROP(colSpan, setColSpan, uint8_t)                                                \

@@ -24,7 +24,7 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "zquest.h"
-#include "jwin_a5.h"
+#include "jwin.h"
 #include "base/zsys.h"
 #include "zq_tiles.h"
 #include "zq_misc.h"
@@ -226,7 +226,7 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			RAMpal[edc] = mixRGB(gfx_pal[clr*3],gfx_pal[clr*3+1],gfx_pal[clr*3+2],gr,gr,gr,rat);
 			RAMpal[edi] = invRGB(RAMpal[edc]);
-			zc_set_palette_range(RAMpal,0,255);
+			set_palette_range(RAMpal,0,255,false);
 			//Color
 			jwin_draw_frame(screen, d->x+c_x_offs-2, d->y+c_y_offs-2, c_wid+4, c_hei+4, FR_DEEP);
 			rectfill(screen,d->x+c_x_offs,d->y+c_y_offs,d->x+c_x_offs+c_wid-1,d->y+c_y_offs+c_hei-1,edc);
@@ -563,7 +563,7 @@ int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c)
 void onInsertColor()
 {
 	RAMpal[14*16+color_index] = RAMpal[edc];
-	zc_set_palette_range(RAMpal,0,255);
+	set_palette_range(RAMpal,0,255,false);
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
@@ -587,7 +587,7 @@ void onInsertColor_Text()
 	RAMpal[14*16+color_index].r = r;
 	RAMpal[14*16+color_index].g = g;
 	RAMpal[14*16+color_index].b = b;
-	zc_set_palette_range(RAMpal,0,255);
+	set_palette_range(RAMpal,0,255,false);
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
@@ -634,7 +634,7 @@ void onInsertColor_Hex()
 	RAMpal[14*16+color_index].r = r;
 	RAMpal[14*16+color_index].g = g;
 	RAMpal[14*16+color_index].b = b;
-	zc_set_palette_range(RAMpal,0,255);
+	set_palette_range(RAMpal,0,255,false);
 	edit_cset_dlg[9].flags |= D_DIRTY;
 }
 
@@ -680,7 +680,7 @@ bool edit_dataset(int32_t dataset)
 	
 	load_cset(RAMpal,12,dataset);
 	load_cset(RAMpal,14,dataset);
-	zc_set_palette_range(RAMpal,0,255);
+	set_palette_range(RAMpal,0,255,false);
 	FONT* old = font;
 	font = lfont_l;
 	
@@ -696,7 +696,7 @@ bool edit_dataset(int32_t dataset)
 		rest(1);
 	} //Do nothing
 	edit_cset_dlg[0].dp2 = lfont;
-	int32_t ret = do_zqdialog(edit_cset_dlg,3);
+	int32_t ret = zc_popup_dialog(edit_cset_dlg,3);
 	//al_trace("DLG RETURN VAL -------------------------- %d", ret);
 	switch(ret)
 	{
@@ -710,7 +710,7 @@ bool edit_dataset(int32_t dataset)
 	
 	memcpy(RAMpal, holdpal, sizeof(holdpal));
 	
-	zc_set_palette(RAMpal);
+	set_palette(RAMpal);
 	rectfill(screen, 0, 0, screen->w, screen->h, BLACK);
 	while(gui_mouse_b()) {
 		rest(1);
@@ -730,196 +730,239 @@ int32_t pal_index(RGB *pal,RGB c)
 
 bool grab_dataset(int32_t dataset)
 {
-	int32_t row=0;
-	static int32_t palx=665;
-	static int32_t paly=354;
-	int32_t imagex=4;
-	int32_t imagey=4;
-	int32_t buttonx=570;
-	int32_t buttony=521;
-	int32_t filenamex=4;
-	int32_t filenamey=555;
-	int sc = 15;
-	
+    int32_t row=0;
+    static int32_t palx=665;
+    static int32_t paly=354;
+    int32_t imagex=4;
+    int32_t imagey=4;
+    int32_t buttonx=570;
+    int32_t buttony=521;
+    int32_t filenamex=4;
+    int32_t filenamey=583;
+    
 	palx=665;
-	paly=200;
-	
-	PALETTE tmp;
-	get_palette(tmp);
-	
-	if(!pic && load_the_pic(&pic,picpal,false))
-		return false;
-	
-	popup_zqdialog_start_a5();
-	
-	int hexcol = zc_get_config("gfx","pic_transp_col",a5tohex(AL5_PINK));
-	ALLEGRO_COLOR transcol = hexcolor(hexcol);
-	
-	get_palette(imagepal);
-	
-	create_rgb_table(&rgb_table, imagepal, NULL);
-	rgb_map = &rgb_table;
-	create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
-	
-	char fname[13];
-	extract_name(imagepath,fname,-1);
-	
-	zc_set_palette(picpal);
-	
-	bool redraw=true;
-	bool reload=false;
-	int32_t done=0;
-	int32_t f=0;
-	ALLEGRO_FONT *fnt = a5font;
-	
-	all_set_transparent_palette_index(-1);
-	a5font = get_custom_font_a5(CFONT_DLG);
-	ALLEGRO_BITMAP* a5pic = all_get_a5_bitmap(pic);
-	do
-	{
-		rest(1);
-		int32_t x=gui_mouse_x();
-		int32_t y=gui_mouse_y();
-		
-		custom_vsync();
-		
-		if(reload)
-		{
-			reload=false;
-			al_destroy_bitmap(a5pic);
-			a5pic = nullptr;
-			
-			if(load_the_pic(&pic,picpal,false)==2)
-				done=1;
-			else
-			{
-				zc_set_palette(picpal);
-				a5pic = all_get_a5_bitmap(pic);
-				redraw=true;
-			}
-		}
-		
-		if(redraw)
-		{
-			redraw=false;
-			clear_a5_bmp(jwin_a5_pal(jcBOX));
-			jwin_draw_frame_a5(imagex-2,imagey-2,658,551,FR_DEEP);
-			al_draw_filled_rectangle(imagex, imagey, imagex+654, imagey+547, transcol);
-			jwin_draw_frame_a5(palx-3,paly-3,(16*sc)+6,(16*sc)+6,FR_DEEP);
-			
-			al_draw_bitmap(a5pic,imagex,imagey,0);
-			jwin_textout_a5_scl(2,a5font,jwin_a5_pal(jcBOXFG),filenamex,filenamey,0,fname,jwin_a5_pal(jcBOX));
-			jwin_draw_text_button_a5(buttonx,buttony+36,90,31,"File",0,true);
-			jwin_draw_text_button_a5(buttonx+114,buttony-36,90,31,"Trans Color",0,true);
-			jwin_draw_text_button_a5(buttonx+114,buttony,90,31,"OK",0,true);
-			jwin_draw_text_button_a5(buttonx+114,buttony+36,90,31,"Cancel",0,true);
-		}
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,palx,paly,palx+(16*sc)-1,paly+(16*sc)-1))
-			row=((y-paly)/sc);
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+36,buttonx+90,buttony+36+31))
-			if(do_text_button_a5(buttonx,buttony+36,90,31,"File"))
-				reload=true;
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx+114,buttony-36,buttonx+114+90,buttony-36+31))
-			if(do_text_button_a5(buttonx+114,buttony-36,90,31,"Trans Color"))
-			{
-				redraw=true;
-				bool c;
-				int newcol = getnumber_hex("Transparent Hex Color", hexcol, &c);
-				if(!c) //didn't cancel getnumber
-				{
-					transcol = hexcolor((hexcol = newcol));
-					zc_set_config("gfx","pic_transp_col",hexcol);
-				}
-			}
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx+114,buttony,buttonx+114+90,buttony+31))
-			if(do_text_button_a5(buttonx+114,buttony,90,31,"OK"))
-				done=2;
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx+114,buttony+36,buttonx+114+90,buttony+36+31))
-			if(do_text_button_a5(buttonx+114,buttony+36,90,31,"Cancel"))
-				done=1;
-		
-		if(keypressed())
-		{
-			switch(readkey()>>8)
-			{
-			case KEY_ESC:
-				done=1;
-				break;
-				
-			case KEY_ENTER:
-				done=2;
-				break;
-				
-			case KEY_SPACE:
-				reload=true;
-				break;
-				
-			case KEY_UP:
-				row=(row-1)&15;
-				break;
-				
-			case KEY_DOWN:
-				row=(row+1)&15;
-				break;
-				
-			case KEY_LEFT:
-			case KEY_RIGHT:
-				break;
-				
-			case KEY_TAB:
-				memcpy(tmp,picpal,sizeof(picpal));
-				
-				for(int32_t i=0; i<16; i++)
-					tmp[(row<<4)+i] = invRGB(tmp[(row<<4)+i]);
-					
-				for(int32_t i=0; i<12; i++)
-				{
-					custom_vsync();
-					
-					if(i&2)
-						zc_set_palette(picpal);
-					else
-						zc_set_palette(tmp);
-				}
-				
-				break;
-			}
-		}
-		
-		for(int32_t i=0; i<256; i++)
-		{
-			int32_t x2=((i&15)*sc)+palx;
-			int32_t y2=((i>>4)*sc)+paly;
-			al_draw_filled_rectangle(x2,y2,x2+sc,y2+sc,a5color(picpal[i]));
-		}
-		
-		++f;
-		int gr = vbound(abs(((f*3)%510)-255),0x10,0xF0);
-		al_draw_rectangle(palx-0.5,paly-0.5,palx+(16*sc)+0.5,paly+(16*sc)+0.5,AL5_BLACK,1);
-		al_draw_rectangle(palx-0.5,(row*sc)+paly-0.5,palx+(16*sc)+0.5,(row*sc)+paly+sc+0.5,al_map_rgb(gr,gr,gr),1);
-	}
-	while(!done);
-	
-	if(done==2)
-		get_cset(dataset,row,picpal);
-		
-	a5font = fnt;
-	
-	while(gui_mouse_b())
-	{
-		/* do nothing */
+	paly=354;
+    
+    PALETTE tmp;
+    
+    if(!pic && load_the_pic(&pic,picpal))
+        return false;
+        
+    get_palette(imagepal);
+    
+    create_rgb_table(&rgb_table, imagepal, NULL);
+    rgb_map = &rgb_table;
+    create_color_table(&imagepal_table, RAMpal, return_RAMpal_color, NULL);
+    
+    int32_t jwin_pal2[jcMAX];
+    memcpy(jwin_pal2, jwin_pal, sizeof(int32_t)*jcMAX);
+    
+    jwin_pal[jcBOX]    =imagepal_table.data[0][jwin_pal[jcBOX]];
+    jwin_pal[jcLIGHT]  =imagepal_table.data[0][jwin_pal[jcLIGHT]];
+    jwin_pal[jcMEDLT]  =imagepal_table.data[0][jwin_pal[jcMEDLT]];
+    jwin_pal[jcMEDDARK]=imagepal_table.data[0][jwin_pal[jcMEDDARK]];
+    jwin_pal[jcDARK]   =imagepal_table.data[0][jwin_pal[jcDARK]];
+    jwin_pal[jcBOXFG]  =imagepal_table.data[0][jwin_pal[jcBOXFG]];
+    jwin_pal[jcTITLEL] =imagepal_table.data[0][jwin_pal[jcTITLEL]];
+    jwin_pal[jcTITLER] =imagepal_table.data[0][jwin_pal[jcTITLER]];
+    jwin_pal[jcTITLEFG]=imagepal_table.data[0][jwin_pal[jcTITLEFG]];
+    jwin_pal[jcTEXTBG] =imagepal_table.data[0][jwin_pal[jcTEXTBG]];
+    jwin_pal[jcTEXTFG] =imagepal_table.data[0][jwin_pal[jcTEXTFG]];
+    jwin_pal[jcSELBG]  =imagepal_table.data[0][jwin_pal[jcSELBG]];
+    jwin_pal[jcSELFG]  =imagepal_table.data[0][jwin_pal[jcSELFG]];
+    gui_bg_color=jwin_pal[jcBOX];
+    gui_fg_color=jwin_pal[jcBOXFG];
+    jwin_set_colors(jwin_pal);
+    
+    get_bw(picpal,pblack,pwhite);
+    int32_t bg = gui_bg_color;
+    int32_t fg = gui_fg_color;
+    gui_bg_color = pblack;
+    gui_fg_color = pwhite;
+    
+    char fname[13];
+    extract_name(imagepath,fname,FILENAME8_3);
+    
+    draw_bw_mouse(pwhite, MOUSE_BMP_NORMAL, MOUSE_BMP_BLANK);
+    scare_mouse();
+    clear_bitmap(screen2);
+    set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+    unscare_mouse();
+    set_palette(picpal);
+    
+    bool redraw=true;
+    bool reload=false;
+    int32_t done=0;
+    int32_t f=0;
+    FONT *fnt = font;
+    
+    font = lfont_l;
+        
+    do
+    {
+        rest(1);
+        int32_t x=gui_mouse_x();
+        int32_t y=gui_mouse_y();
+        
+        custom_vsync();
+        
+        if(reload)
+        {
+            reload=false;
+            
+            if(load_the_pic(&pic,picpal)==2)
+                done=1;
+            else
+            {
+                clear_bitmap(screen2);
+                set_palette(picpal);
+                redraw=true;
+            }
+        }
+        
+        if(redraw)
+        {
+            redraw=false;
+            scare_mouse();
+            clear_to_color(screen2,jwin_pal[jcBOX]);
+            
+			jwin_draw_frame(screen2,imagex-2,imagey-2,658,551,FR_DEEP);
+			rectfill(screen2, imagex, imagey, imagex+654-1, imagey+547-1, jwin_pal[jcBOXFG]);
+			jwin_draw_frame(screen2,palx-3,paly-3,134,134,FR_DEEP);
+            
+            blit(pic,screen2,0,0,imagex,imagey,pic->w,pic->h);
+            textout_ex(screen2,lfont_l,fname,filenamex,filenamey,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+            draw_text_button(screen2,buttonx,buttony+(36),(90),(31),"File",pblack,pwhite,0,true);
+            draw_text_button(screen2,buttonx+(114),buttony,
+                             (90),(31),"OK",pblack,pwhite,0,true);
+            draw_text_button(screen2,buttonx+(114),buttony+(36),
+                             (90),(31),"Cancel",pblack,pwhite,0,true);
+            unscare_mouse();
+        }
+        
+        if((gui_mouse_b()&1) && isinRect(x,y,palx,paly,palx+127,paly+127))
+        {
+            row=((y-paly)>>3);
+        }
+        
+        if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+(36),buttonx+(90),buttony+(36+31)))
+        {
+            if(do_text_button(buttonx,buttony+(36),(90),(31),"File",pblack,pwhite,true))
+            {
+                reload=true;
+            }
+        }
+        
+        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(114),buttony,buttonx+(114+90),buttony+(31)))
+        {
+            if(do_text_button(buttonx+(114),buttony,(90),(31),"OK",pblack,pwhite,true))
+            {
+                done=2;
+            }
+        }
+        
+        if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(114),buttony+(36),buttonx+(114+90),buttony+(36+31)))
+        {
+            if(do_text_button(buttonx+(114),buttony+(36),(90),(31),"Cancel",pblack,pwhite,true))
+            {
+                done=1;
+            }
+        }
+        
+        if(keypressed())
+        {
+            switch(readkey()>>8)
+            {
+            case KEY_ESC:
+                done=1;
+                break;
+                
+            case KEY_ENTER:
+                done=2;
+                break;
+                
+            case KEY_SPACE:
+                reload=true;
+                break;
+                
+            case KEY_UP:
+                row=(row-1)&15;
+                break;
+                
+            case KEY_DOWN:
+                row=(row+1)&15;
+                break;
+                
+            case KEY_LEFT:
+            case KEY_RIGHT:
+                break;
+                
+            case KEY_TAB:
+                //        tmp = picpal;
+                memcpy(tmp,picpal,sizeof(picpal));
+                
+                for(int32_t i=0; i<16; i++)
+                    tmp[(row<<4)+i] = invRGB(tmp[(row<<4)+i]);
+                    
+                for(int32_t i=0; i<12; i++)
+                {
+                    custom_vsync();
+                    
+                    if(i&2)
+                        set_palette(picpal);
+                    else
+                        set_palette(tmp);
+                }
+                
+                break;
+            }
+        }
+        
+        scare_mouse();
+        
+        for(int32_t i=0; i<256; i++)
+        {
+            int32_t x2=((i&15)<<3)+palx;
+            int32_t y2=((i>>4)<<3)+paly;
+            rectfill(screen2,x2,y2,x2+7,y2+7,i);
+        }
+        
+        ++f;
+        rect(screen2,palx-1,paly-1,palx+128,paly+128,pblack);
+        rect(screen2,palx-1,(row<<3)+paly-1,palx+128,(row<<3)+paly+8,(f&2)?pwhite:pblack);
+        blit(screen2, screen, 0, 0, 0, 0, screen->w, screen->h);
+        unscare_mouse();
+        SCRFIX();
+    }
+    while(!done);
+    
+    if(done==2)
+        get_cset(dataset,row,picpal);
+        
+    font = fnt;
+    
+    gui_bg_color = bg;
+    gui_fg_color = fg;
+    
+    while(gui_mouse_b())
+    {
+        /* do nothing */
 				rest(1);
-	}
-	
-	if(a5pic) al_destroy_bitmap(a5pic);
-	rgb_map = &zq_rgb_table;
-	popup_zqdialog_end_a5();
-	return (done == 2);
+    }
+    
+    scare_mouse();
+    
+    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+    clear_to_color(mouse_bmp[MOUSE_BMP_BLANK][0],0);
+    memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
+    
+    gui_bg_color=jwin_pal[jcBOX];
+    gui_fg_color=jwin_pal[jcBOXFG];
+    jwin_set_colors(jwin_pal);
+    
+    rgb_map = &zq_rgb_table;
+    unscare_mouse();
+    return (done == 2);
 }
 
 byte cset_hold[15][16*3];
@@ -1027,7 +1070,7 @@ void edit_cycles(int32_t level)
         
     large_dialog(cycle_dlg);
         
-    if(do_zqdialog(cycle_dlg,3)==2)
+    if(zc_popup_dialog(cycle_dlg,3)==2)
     {
         saved=false;
         reset_pal_cycling();
@@ -1121,9 +1164,9 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				unscare_mouse();
 				//sniggles
 				//        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
-				//        zc_set_palette_range(((RGB*)d->dp3),FLASH,FLASH);
+				//        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
 				((RGB*)d->dp3)[dvc(0)]=((RGB*)d->dp3)[zc_oldrand()%14+dvc(1)];
-				zc_set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0));
+				set_palette_range(((RGB*)d->dp3),dvc(0),dvc(0),false);
 			}
 			while(gui_mouse_b());
 			
@@ -1152,7 +1195,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 					for(int32_t i=0; i<cset_count; i++)
 						load_cset(pal,i,cset_first+i);
 						
-					zc_set_palette(pal);
+					set_palette(pal);
 					saved=false;
 				}
 			}
@@ -1228,7 +1271,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 						for(int32_t i=0; i<cset_count; i++)
 							load_cset(pal,i,cset_first+i);
 							
-						zc_set_palette(pal);
+						set_palette(pal);
 						saved=false;
 					}
 					
@@ -1240,7 +1283,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 					for(int32_t i=0; i<cset_count; i++)
 						load_cset(pal,i,cset_first+i);
 						
-					zc_set_palette(pal);
+					set_palette(pal);
 					break;
 					
 				default:
@@ -1258,22 +1301,6 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 	
 	return D_O_K;
 }
-
-int d_bitmap_proc_a5(DIALOG* d, int msg, int)
-{
-	if (msg==MSG_DRAW)
-	{
-		set_bitmap_create_flags(false);
-		ALLEGRO_BITMAP* b = all_get_a5_bitmap((BITMAP*)d->dp);
-		if(b)
-		{
-			al_draw_bitmap_region(b, 0, 0, d->x, d->y, d->w, d->h, 0);
-			al_destroy_bitmap(b);
-		}
-	}
-	return D_O_K;
-}
-
 
 byte mainpal_csets[30]    = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14, 11,11,12,12,12,11, 10,10,10,12,10,10,10,10,9 };
 byte levelpal_csets[26]   = { 2,3,4,9,2,3,4,2,3,4, 2, 3, 4,       15,15,15,15, 7,7,7, 8,8,8, 0,0,0 };
@@ -1344,111 +1371,110 @@ static DIALOG colors_dlg[] =
 
 int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 {
-	popup_zqdialog_start_a5();
-	clear_a5_bmp(AL5_BLACK);
-	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
+	popup_zqdialog_start();
 	zq_hide_screen(true);
-	char tempstuff[17];
-	cset_first=first;
-	cset_count=count;
-	
-	for(int32_t i=240; i<256; i++)
-	{
-		pal[i] = RAMpal[i];
-	}
-	
-	go();
-	
-	int32_t bw = 128;
-	int32_t bh = count*8;
-	
-	if(colors_dlg[0].d1)
-	{
-		bw = (192);
-		bh = count*(12);
-	}
-	
-	BITMAP *bmp = create_bitmap_ex(8,(192),count*(12));
-	
-	if(!bmp)
-		return 0;
-		
-	for(int32_t i=0; i<16*count; i++)
-	{
-		int32_t x=int32_t(((i&15)<<3)*(1.5));
-		int32_t y=int32_t(((i>>4)<<3)*(1.5));
-		rectfill(bmp,x,y,x+(15),y+(15),i);
-	}
-	
-	colors_dlg[2].dp = bmp;
-	colors_dlg[2].w  = bw;
-	colors_dlg[2].h  = bh;
-	colors_dlg[2].d1 = colors_dlg[2].d1 = 0;
-	colors_dlg[2].dp2 = colordata+CSET(first)*3;
-	colors_dlg[2].dp3 = pal;
-	colors_dlg[1].w  = bw + 6;
-	colors_dlg[1].h  = bh + 6;
-	colors_dlg[21].proc = (count==pdLEVEL) ? jwin_button_proc : d_dummy_proc;
-	//if the palette is > 255, disable button [21]
-	colors_dlg[21].dp   = get_bit(quest_rules,qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
-	colors_dlg[26].dp   =  tempstuff;
-	colors_dlg[25].x    =(count==pdLEVEL)?colors_dlg[0].x+60:colors_dlg[0].x+12;
-	colors_dlg[25].w    =(count==pdLEVEL)?48:0;
-	colors_dlg[25].dp   =(count==pdLEVEL)?(void *) "Name: ":(void *) " ";
-	colors_dlg[26].proc =(count==pdLEVEL) ? jwin_edit_proc : d_dummy_proc;
-	colors_dlg[26].x    =(count==pdLEVEL)?colors_dlg[0].x+63:colors_dlg[0].x+12;
-	colors_dlg[26].w    =(count==pdLEVEL)?134:0;
-	colors_dlg[26].d1   =(count==pdLEVEL)?16:0;
-	colors_dlg[26].dp   =(count==pdLEVEL)?palnames[(first-poLEVEL)/pdLEVEL]:NULL;
-	
-	//char (*buf)[4]= new char[count][4];
-	char buf[50][4];
-	
-	for(int32_t i=0; i<15; i++)
-	{
-		if(i<count)
-		{
-			sprintf(buf[i],"%2d",label[i]);
-		}
-		else
-		{
-			buf[i][0]=0;
-		}
-		
-		colors_dlg[3+i].dp=buf[i];
-		colors_dlg[3+i].y=colors_dlg[0].y+int32_t(((i<<3)+36-(3))*((colors_dlg[0].d1)?1.5:1));
-		//sniggles
-		//    colors_dlg[3+i].fg=rc[label[i+count]];
-	}
-	
-	colors_dlg[0].dp  = (void *)caption;
-	colors_dlg[0].dp2 = lfont;
-	
-	for(int32_t i=0; i<count; i++)
-	{
-		load_cset(pal,i,i+first);
-	}
-	
-	memcpy(undopal,pal,sizeof(pal));
+    char tempstuff[17];
+    cset_first=first;
+    cset_count=count;
+    
+    for(int32_t i=240; i<256; i++)
+    {
+        pal[i] = RAMpal[i];
+    }
+    
+    go();
+    
+    int32_t bw = 128;
+    int32_t bh = count*8;
+    
+    if(colors_dlg[0].d1)
+    {
+        bw = (192);
+        bh = count*(12);
+    }
+    
+    BITMAP *bmp = create_bitmap_ex(8,(192),count*(12));
+    
+    if(!bmp)
+        return 0;
+        
+    for(int32_t i=0; i<16*count; i++)
+    {
+        int32_t x=int32_t(((i&15)<<3)*(1.5));
+        int32_t y=int32_t(((i>>4)<<3)*(1.5));
+        rectfill(bmp,x,y,x+(15),y+(15),i);
+    }
+    
+    colors_dlg[2].dp = bmp;
+    colors_dlg[2].w  = bw;
+    colors_dlg[2].h  = bh;
+    colors_dlg[2].d1 = colors_dlg[2].d1 = 0;
+    colors_dlg[2].dp2 = colordata+CSET(first)*3;
+    colors_dlg[2].dp3 = pal;
+    colors_dlg[1].w  = bw + 6;
+    colors_dlg[1].h  = bh + 6;
+    colors_dlg[21].proc = (count==pdLEVEL) ? jwin_button_proc : d_dummy_proc;
+    //if the palette is > 255, disable button [21]
+    colors_dlg[21].dp   = get_bit(quest_rules,qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
+    colors_dlg[26].dp   =  tempstuff;
+    colors_dlg[25].x    =(count==pdLEVEL)?colors_dlg[0].x+60:colors_dlg[0].x+12;
+    colors_dlg[25].w    =(count==pdLEVEL)?48:0;
+    colors_dlg[25].dp   =(count==pdLEVEL)?(void *) "Name: ":(void *) " ";
+    colors_dlg[26].proc =(count==pdLEVEL) ? jwin_edit_proc : d_dummy_proc;
+    colors_dlg[26].x    =(count==pdLEVEL)?colors_dlg[0].x+63:colors_dlg[0].x+12;
+    colors_dlg[26].w    =(count==pdLEVEL)?134:0;
+    colors_dlg[26].d1   =(count==pdLEVEL)?16:0;
+    colors_dlg[26].dp   =(count==pdLEVEL)?palnames[(first-poLEVEL)/pdLEVEL]:NULL;
+    
+    //char (*buf)[4]= new char[count][4];
+    char buf[50][4];
+    
+    for(int32_t i=0; i<15; i++)
+    {
+        if(i<count)
+        {
+            sprintf(buf[i],"%2d",label[i]);
+        }
+        else
+        {
+            buf[i][0]=0;
+        }
+        
+        colors_dlg[3+i].dp=buf[i];
+        colors_dlg[3+i].y=colors_dlg[0].y+int32_t(((i<<3)+36-(3))*((colors_dlg[0].d1)?1.5:1));
+        //sniggles
+        //    colors_dlg[3+i].fg=rc[label[i+count]];
+    }
+    
+    colors_dlg[0].dp  = (void *)caption;
+    colors_dlg[0].dp2 = lfont;
+    
+    for(int32_t i=0; i<count; i++)
+    {
+        load_cset(pal,i,i+first);
+    }
+    
+    memcpy(undopal,pal,sizeof(pal));
 	gUndoPal = NULL;
-	int32_t ret=0;
-	
-	do
-	{
-		rest(4);
-		
-		for(int32_t i=0; i<count; i++)
-		{
-			load_cset(pal,i,i+first);
-		}
-		
-		scare_mouse();
-		zc_set_palette(pal);
-		unscare_mouse();
-		colors_dlg[19].flags =
-			colors_dlg[20].flags =
-				colors_dlg[23].flags = D_EXIT;
-				
+    int32_t ret=0;
+    
+    do
+    {
+        rest(4);
+        
+        for(int32_t i=0; i<count; i++)
+        {
+            load_cset(pal,i,i+first);
+        }
+        
+        scare_mouse();
+        clear_to_color(screen,0);
+        set_palette(pal);
+        unscare_mouse();
+        colors_dlg[19].flags =
+            colors_dlg[20].flags =
+                colors_dlg[23].flags = D_EXIT;
+                
 		if(!colors_dlg[0].d1)
 		{
 			colors_dlg[2].x  += 0;
@@ -1456,109 +1482,108 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		}
 		
 		large_dialog(colors_dlg);
+        
+        DIALOG_PLAYER *p = init_dialog(colors_dlg,2);
+        bool enable = true;
+        
+        while(update_dialog(p))
+        {
+            custom_vsync();
+            //sniggles
+            //      pal[FLASH]=pal[rc[(fc++)&15]];
+            pal[dvc(0)]=pal[zc_oldrand()%14+dvc(1)];
+            set_palette_range(pal,dvc(0),dvc(0),false);
+            
+            bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
+            
+            if(en!=enable)
+            {
+                colors_dlg[19].flags =
+                    colors_dlg[20].flags =
+                        colors_dlg[23].flags = en  ? D_EXIT : D_DISABLED;
+                broadcast_dialog_message(MSG_DRAW,0);
+                enable = en;
+            }
+        }
+        
+        ret = shutdown_dialog(p);
+        
+        if(ret==19)
+        {
+            memcpy(undopal,pal,sizeof(pal));
+            edit_dataset(first+colors_dlg[2].d2);
+        }
+        
+        if(ret==20)
+        {
+            memcpy(undopal,pal,sizeof(pal));
+            grab_dataset(first+colors_dlg[2].d2);
+        }
+        
+        if(ret==21)
+        {
+		int32_t curpal = (first/pdLEVEL+poLEVEL)-10; 
 		
-		DIALOG_PLAYER *p = init_dialog(colors_dlg,2);
-		bool enable = true;
 		
-		while(update_dialog(p))
-		{
-			custom_vsync();
-			//sniggles
-			//      pal[FLASH]=pal[rc[(fc++)&15]];
-			pal[dvc(0)]=pal[zc_oldrand()%14+dvc(1)];
-			zc_set_palette_range(pal,dvc(0),dvc(0));
-			
-			bool en = (colors_dlg[2].d1 == colors_dlg[2].d2);
-			
-			if(en!=enable)
-			{
-				colors_dlg[19].flags =
-					colors_dlg[20].flags =
-						colors_dlg[23].flags = en  ? D_EXIT : D_DISABLED;
-				broadcast_dialog_message(MSG_DRAW,0);
-				enable = en;
-			}
-		}
+		    if(!get_bit(quest_rules,qr_FADE))
+		    {
+			calc_dark(first);
+		    }
+		    else
+		    {
+			if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
+				edit_cycles((first-poLEVEL)/pdLEVEL);
+			else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		    }
 		
-		ret = shutdown_dialog(p);
-		
-		if(ret==19)
-		{
-			memcpy(undopal,pal,sizeof(pal));
-			edit_dataset(first+colors_dlg[2].d2);
-		}
-		
-		if(ret==20)
-		{
-			memcpy(undopal,pal,sizeof(pal));
-			grab_dataset(first+colors_dlg[2].d2);
-		}
-		
-		if(ret==21)
-		{
-			int32_t curpal = (first/pdLEVEL+poLEVEL)-10;
-		
-			if(!get_bit(quest_rules,qr_FADE))
-			{
-				calc_dark(first);
-			}
-			else
-			{
-				if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
-					edit_cycles((first-poLEVEL)/pdLEVEL);
-				else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
-			}
-		
-		}
-		
-		if(ret==22)
-		{
-			undo_pal();
-		}
-		if ( ret == 43 )
-		{
-			if(getname("Save Palette (.png)","png",NULL,datapath,false))
-			{
-				//bool cancel;
-				//char buf[80],buf2[80],
-				char name[13];
-				extract_name(temppath,name,FILENAME8_3);
-				save_bitmap(temppath, bmp, pal);
-				//save_bitmap("current_lvl_pal.png", bmp, pal);
-			}
-		}
-	}
-	while(ret<23&&ret!=0);
-	
-	while(gui_mouse_b())
+        }
+        
+        if(ret==22)
+        {
+            undo_pal();
+        }
+	if ( ret == 43 )
 	{
-		/* do nothing */
-		rest(1);
+		if(getname("Save Palette (.png)","png",NULL,datapath,false))
+		{
+			//bool cancel;
+			//char buf[80],buf2[80],
+			char name[13];
+			extract_name(temppath,name,FILENAME8_3);
+			save_bitmap(temppath, bmp, pal);
+			//save_bitmap("current_lvl_pal.png", bmp, pal);
+		}
 	}
-	
-	if(a4_bmp_active())
-		clear_to_color(screen,get_zqdialog_a4_clear_color());
-	zc_set_palette(RAMpal);
-	
-	loadlvlpal(Color);
-	
-	if(ret==23)
-	{
-		load_cset(RAMpal,9,first+colors_dlg[2].d2);
-		set_pal();
-	}
-	
-	saved=false; //It's just easier this way :)
-	//  gui_fg_color = vc(14);
-	//  gui_bg_color = vc(1);
-	
-	comeback();
-	destroy_bitmap(bmp);
-	//delete[] buf;
+    }
+    while(ret<23&&ret!=0);
+    
+    while(gui_mouse_b())
+    {
+        /* do nothing */
+				rest(1);
+    }
+    
+    clear_to_color(screen,vc(0));
+    set_palette(RAMpal);
+    
+    loadlvlpal(Color);
+    
+    if(ret==23)
+    {
+        load_cset(RAMpal,9,first+colors_dlg[2].d2);
+        set_pal();
+    }
+    
+    saved=false; //It's just easier this way :)
+    //  gui_fg_color = vc(14);
+    //  gui_bg_color = vc(1);
+    
+    comeback();
+    destroy_bitmap(bmp);
+    //delete[] buf;
 	zq_hide_screen(false);
 	popup_zqdialog_end();
-	popup_zqdialog_end_a5();
-	return int32_t(ret==23);
+    return int32_t(ret==23);
 }
 
 int32_t onColors_Main()
@@ -1608,7 +1633,7 @@ int32_t onColors_Levels()
 		sprintf(buf,"Level %X Palettes",index);
 		bool l9 = call_paledit_dlg(palnames[index], colordata+CSET(index*pdLEVEL+poLEVEL)*3, &pal, index*pdLEVEL+poLEVEL, index);
 		//int32_t l9 = EditColors(buf,index*pdLEVEL+poLEVEL,pdLEVEL,cycle?levelpal2_csets:levelpal_csets);
-		zc_set_palette(RAMpal);
+		set_palette(RAMpal);
 		
 		if(index==0)
 		{

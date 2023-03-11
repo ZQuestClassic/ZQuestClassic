@@ -6,6 +6,10 @@
 #include <utility>
 #include "subscr.h"
 
+//zq_subscr.cpp
+int32_t d_cs_color_proc(int32_t msg,DIALOG *d,int32_t);
+int32_t d_sys_color_proc(int32_t msg,DIALOG *d,int32_t);
+
 namespace GUI
 {
 static bool isCSet(int32_t val)

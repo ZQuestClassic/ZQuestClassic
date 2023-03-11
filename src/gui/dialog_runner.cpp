@@ -1,10 +1,9 @@
 #include "dialog_runner.h"
 #include "common.h"
 #include "base/gui.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 
 using std::shared_ptr;
-extern int32_t zq_screen_w, zq_screen_h;
 
 namespace GUI
 {
@@ -16,13 +15,6 @@ namespace GUI
 int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	auto* dr = static_cast<DialogRunner*>(d->dp);
-	if(dr->render_froze && (msg != MSG_START && msg != MSG_END))
-	{
-		dr->render_froze = false;
-		dr->forceDraw();
-		unfreeze_render();
-		update_hw_screen(true);
-	}
 	if(msg == MSG_GUI_EVENT)
 	{
 		MessageDispatcher md(dr->widgets[d->d1], dr->sendMessage);
@@ -41,7 +33,10 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 		// and the return value from do_zqdialog() became the message.
 		// Some widgets don't have code to indicate that they need redrawn
 		// since the dialog would be closed and reopened in that case.
-		dr->forceDraw();
+		acquire_screen();
+		broadcast_dialog_message(MSG_DRAW, 0);
+		release_screen();
+		dr->redrawPending = false;
 		return D_O_K;
 	}
 	else
@@ -49,19 +44,9 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 }
 
 DialogRunner::DialogRunner(): focused(-1), redrawPending(false), done(false), realized(false),
-	running(false), x(0), y(0), render_froze(false), rerun_dlg(false)
-{
-	w = zq_screen_w;
-	h = zq_screen_h;
-}
+	running(false)
+{}
 
-void DialogRunner::set_dlg_sz(int nx, int ny, int nw, int nh)
-{
-	x=nx;
-	y=ny;
-	w=nw;
-	h=nh;
-}
 void DialogRunner::clear()
 {
 	focused = -1;
@@ -69,11 +54,6 @@ void DialogRunner::clear()
 	done = false;
 	realized = false;
 	running = false;
-	render_froze = false;
-	rerun_dlg = false;
-	x = y = 0;
-	w = zq_screen_w;
-	h = zq_screen_h;
 	widgets.clear();
 	alDialog.clear();
 }
@@ -121,18 +101,8 @@ void DialogRunner::runInner(std::shared_ptr<Widget> root)
 {
 	realize(root);
 	realized = true;
-	rerun_dlg = false;
-	
-	popup_zqdialog_start_a5(x,y,w,h);
-	
+	popup_zqdialog_start_a5();
 	new_gui_popup_dialog(alDialog.data(), focused, done, running);
-	
-	if(rerun_dlg)
-	{
-		freeze_render(); //don't allow the closing of the dialog to render
-		render_froze = true;
-	}
-	
 	popup_zqdialog_end_a5();
 }
 

@@ -25741,7 +25741,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
-		clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
+		clear_a5_bmp(rti_infolayer.bitmap);
 		
 		switch(scrolldir)
 		{
@@ -29009,7 +29009,7 @@ void HeroClass::heroDeathAnimation()
 			}
 			else
 			{
-				clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
+				clear_a5_bmp(rti_infolayer.bitmap);
 				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
 				textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);

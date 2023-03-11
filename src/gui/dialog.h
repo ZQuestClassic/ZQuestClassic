@@ -21,26 +21,22 @@ public:
 	virtual std::shared_ptr<Widget> view()=0;
 	
 	DialogRunner runner;
+	bool rerun_dlg;
 	
 	inline void show()
 	{
 		auto oz = gui_mouse_z();
 		runner = DialogRunner();
-		
-		freeze_render(); runner.render_froze = true;
+		rerun_dlg = false;
+		popup_zqdialog_start();
 		runner.run(*static_cast<T*>(this));
-		while(runner.rerun_dlg)
+		while(rerun_dlg)
 		{
-			bool froze = runner.render_froze;
+			rerun_dlg = false;
 			runner.clear();
-			if(!froze)
-				freeze_render();
-			runner.render_froze = true;
 			runner.run(*static_cast<T*>(this));
 		}
-		if(runner.render_froze)
-			unfreeze_render();
-		
+		popup_zqdialog_end();
 		position_mouse_z(oz);
 	}
 	
