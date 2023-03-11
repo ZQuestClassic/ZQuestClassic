@@ -777,11 +777,9 @@ void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const 
 }
 bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 {
-	int xofs,yofs,_w,_h;
-	get_zqdialog_offset(xofs,yofs,_w,_h);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x,y,w+1,h+1);
 	jwin_draw_text_button_a5(0,0,w,h,text,0);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
+	popup_zqdialog_start_a5(x,y,w+1,h+1);
 	jwin_draw_text_button_a5(0,0,w,h,text,D_SELECTED);
 	bool over = do_over_area(0,0,w,h,0);
 	popup_zqdialog_end_a5();
