@@ -68,7 +68,7 @@ int do_zqdialog(DIALOG *dialog, int focus_obj)
 	DIALOG_PLAYER *player2;
 	ASSERT(dialog);
 	
-	popup_zqdialog_start(0,0,-1,-1,0xFF);
+	popup_zqdialog_start();
 	
 	player2 = init_dialog(dialog, focus_obj);
 	
