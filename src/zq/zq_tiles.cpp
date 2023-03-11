@@ -2916,11 +2916,19 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			
 			if(x_btn.rect(temp_mouse_x,temp_mouse_y))
+			{
 				if(jwin_do_x_button_a5(x_btn.x, x_btn.y))
+				{
 					done=1;
+				}
+			}
 			if(info_btn.rect(temp_mouse_x,temp_mouse_y))
+			{
 				if(jwin_do_question_button_a5(info_btn.x, info_btn.y))
+				{
 					show_edit_tile_help();
+				}
+			}
 			
 			bdown=true;
 		}
@@ -5519,39 +5527,10 @@ bool tile_is_used(int32_t tile)
 {
 	return used_tile_table[tile];
 }
-void draw_tiles_a5(int32_t first,int32_t cs, int32_t f)
+void draw_tiles(int32_t first,int32_t cs, int32_t f)
 {
-	int32_t screen_xofs=6;
-	int32_t screen_yofs=25;
-	
-	int32_t w = 32;
-	int32_t h = 32;
-	int32_t l = 30;
-	ALLEGRO_FONT* smallfont = get_zc_font_a5(font_z3smallfont);
-	
-	for(int32_t i=0; i<TILES_PER_PAGE; i++)                       // 13 rows, leaving 32 pixels from y=208 to y=239
-	{
-		int32_t x = (i%TILES_PER_ROW)*w;
-		int32_t y = (i/TILES_PER_ROW)*h;
-		int a5x = x + screen_xofs;
-		int a5y = y + screen_yofs;
-		
-		if((HIDE_USED && tile_is_used(first+i) && !blank_tile_table[first+i])   // 1 bit: hide used
-				|| (HIDE_UNUSED && !tile_is_used(first+i) && !blank_tile_table[first+i]) // 2 bit: hide unused
-				|| (HIDE_BLANK && blank_tile_table[first+i]))	// 4 bit: hide blank
-		{
-			al5_invalid(a5x,a5y,w,h);
-		}
-		else
-		{
-			a5_draw_tile_scale(a5x,a5y,w,h,first+i,cs,0,0,false);
-		}
-		
-		if((f%32)<=16 && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
-			jwin_textout_a5(smallfont,a5_rainbow((f%32)/6),a5x+l-3,a5y+l-3,0,"8");
-	}
+	draw_tiles(screen2, first, cs, f, true);
 }
-
 void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bool true_empty)
 {
 	int32_t screen_xofs=6;
@@ -5616,10 +5595,13 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	int32_t a5x=6;
 	int32_t a5y=25;
 	int32_t yofs=3;
+	BITMAP *buf = create_bitmap_ex(8,16,16);
 	char cbuf[32];
 	int32_t mul = 2;
 	ALLEGRO_FONT *tfont = get_zc_font_a5(font_lfont_l);
 	
+	if(a4_bmp_active())
+		rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
 	al_draw_filled_rectangle(a5x,a5y+416,a5x+640-1,a5y+480,jwin_a5_pal(jcBOX));
 	al_draw_hline(a5x, a5y+(210*2)-2, a5x+(320*2)-1, jwin_a5_pal(jcMEDLT));
 	al_draw_hline(a5x, a5y+(210*2)-1, a5x+(320*2)-1, jwin_a5_pal(jcLIGHT));
@@ -5629,7 +5611,8 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	int32_t coldiff=TILECOL(copy)-TILECOL(copy+copycnt-1);
 	if(copy>=0)
 	{
-		a5_draw_tile_scale(a5x+68,a5y+432+yofs,32,32,rect_sel&&coldiff>0?copy-coldiff:copy,cs,0,0,false);
+		puttile16(buf,rect_sel&&coldiff>0?copy-coldiff:copy,0,0,cs,0);
+		stretch_blit(buf,screen2,0,0,16,16,34*mul,216*mul+yofs,16*mul,16*mul);
 		
 		if(copycnt>1)
 		{
@@ -5644,24 +5627,33 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 			jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+24*mul,a5y+(220*mul)+yofs,ALLEGRO_ALIGN_RIGHT,cbuf,jwin_a5_pal(jcBOX));
 		}
 	}
-	else al5_invalid(a5x+34*mul, a5y+(216*mul)+yofs, 16*mul, 16*mul);
+	else // No tiles copied
+	{
+		al5_invalid(a5x+34*mul, a5y+(216*mul)+yofs, 16*mul, 16*mul);
+	}
+	
 	
 	// Current tile
 	jwin_draw_frame_a5(a5x+(104*mul)-2,a5y+(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	a5_draw_tile_scale(a5x+208,a5y+432+yofs,32,32,tile,cs,0,0,false);
+	puttile16(buf,tile,0,0,cs,0);
+	stretch_blit(buf,screen2,0,0,16,16,104*mul,216*mul+yofs,16*mul,16*mul);
 	
 	// Current selection mode
 	jwin_draw_frame_a5(a5x+(127*mul)-2,a5y+(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	al_draw_scaled_bitmap(select_bmp[rect_sel?1:0],0,0,16,16,a5x+254,a5y+432+yofs,32,32,0);
+	stretch_blit(select_bmp[rect_sel?1:0],screen2,0,0,16,16,127*mul,216*mul+yofs,16*mul,16*mul);
 	
 	if(tile>tile2)
+	{
 		zc_swap(tile,tile2);
+	}
 	
 	char tbuf[8];
 	tbuf[0]=0;
 	
 	if(tile2!=tile)
+	{
 		sprintf(tbuf,"-%d",tile2);
+	}
 	
 	// Current tile and CSet text
 	sprintf(cbuf, "CSet: %d", cs);
@@ -5687,7 +5679,12 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	
 	a5font = tf;
 	
+	scare_mouse();
+	blit(screen2,screen,0,0,a5x,a5y,640,480);
+	unscare_mouse();
 	update_hw_screen();
+	SCRFIX();
+	destroy_bitmap(buf);
 }
 
 void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int32_t flip,int32_t cs,int32_t copy,int32_t page, bool always_use_flip)
@@ -5695,21 +5692,31 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	int32_t a5x=6;
 	int32_t a5y=25;
 	int32_t yofs=3;
+	BITMAP *buf = create_bitmap_ex(8,16,16);
 	char cbuf[32];
 	int32_t mul = 2;
 	ALLEGRO_FONT *tfont = get_zc_font_a5(font_lfont_l);
 	
+	if(a4_bmp_active())
+		rectfill(screen2,0,416,640-1,480,get_zqdialog_a4_clear_color());
 	al_draw_hline(a5x, a5y+(210*2)-2, a5x+(320*2)-1, jwin_a5_pal(jcMEDLT));
 	al_draw_hline(a5x, a5y+(210*2)-1, a5x+(320*2)-1, jwin_a5_pal(jcLIGHT));
 	
 	jwin_draw_frame_a5(a5x+(124*mul)-2,a5y+((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	
 	if(copy>=0)
-		a5_draw_tile_scale(a5x+248,a5y+432+yofs,32,32,copy,cs,0,flip,false);
-	else al5_invalid(a5x+248, a5y+432+yofs, 32, 32);
+	{
+		puttile16(buf,copy,0,0,cs,flip);
+		stretch_blit(buf,screen2,0,0,16,16,124*mul,216*mul+yofs,16*mul,16*mul);
+	}
+	else
+	{
+		al5_invalid(a5x+124*mul, a5y+(216*mul)+yofs, 16*mul, 16*mul);
+	}
 	
 	jwin_draw_frame_a5(a5x+(8*mul)-2,a5y+(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	a5_draw_tile_scale(a5x+16,a5y+432+yofs,32,32,oldtile,oldcs,0,oldflip,false);
+	puttile16(buf,oldtile,0,0, oldcs, oldflip);
+	stretch_blit(buf,screen2,0,0,16,16,8*mul,216*mul+yofs,16*mul,16*mul);
 	
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+56*mul,a5y+212*mul+yofs,ALLEGRO_ALIGN_RIGHT,"Old Tile:",jwin_a5_pal(jcBOX));
 	sprintf(cbuf, "%d",oldtile);
@@ -5727,13 +5734,15 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	}
 	
 	jwin_draw_frame_a5(a5x+(148*mul)-2,a5y+(216*mul+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
-	a5_draw_tile_scale(a5x+296,a5y+432+yofs,32,32,tile,cs,0,(oldflip>0 || always_use_flip)?flip:0,false);
+	puttile16(buf,tile,0,0, cs,
+			  (oldflip>0 || always_use_flip)?flip:0); // Suppress Flip for this usage
+	stretch_blit(buf,screen2,0,0,16,16,148*mul,216*mul+yofs,16*mul,16*mul);
 	
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+201*mul,a5y+212*mul+yofs,ALLEGRO_ALIGN_RIGHT,"New Tile:",jwin_a5_pal(jcBOX));
-	sprintf(cbuf, "%-3d",tile);
+	sprintf(cbuf, "%d",tile);
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+205*mul,a5y+212*mul+yofs,ALLEGRO_ALIGN_LEFT,cbuf,jwin_a5_pal(jcBOX));
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+201*mul,a5y+220*mul+yofs,ALLEGRO_ALIGN_RIGHT,"CSet:",jwin_a5_pal(jcBOX));
-	sprintf(cbuf, "%-3d",cs);
+	sprintf(cbuf, "%d",cs);
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+205*mul,a5y+220*mul+yofs,ALLEGRO_ALIGN_LEFT,cbuf,jwin_a5_pal(jcBOX));
 	
 	if(oldflip > 0 || always_use_flip)  // Suppress Flip for this usage
@@ -5745,11 +5754,16 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	
 	draw_arrow_a5(jwin_a5_pal(jcBOXFG),a5x+609,a5y+430+yofs,5,true,false);
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+293*mul,a5y+220*mul+yofs,ALLEGRO_ALIGN_LEFT,"PG:",jwin_a5_pal(jcBOX));
-	sprintf(cbuf, "%-3d",page);
+	sprintf(cbuf, "%d",page);
 	jwin_textout_a5(tfont,jwin_a5_pal(jcBOXFG),a5x+(305*mul+4),a5y+220*mul+yofs,ALLEGRO_ALIGN_CENTRE,cbuf,jwin_a5_pal(jcBOX));
 	draw_arrow_a5(jwin_a5_pal(jcBOXFG),a5x+609,a5y+460+yofs,5,false,false);
 	
+	scare_mouse();
+	blit(screen2,screen,0,0,a5x,a5y,640,480);
+	unscare_mouse();
 	update_hw_screen();
+	SCRFIX();
+	destroy_bitmap(buf);
 }
 /*
 void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
@@ -15033,6 +15047,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-31)>>1;
 	popup_zqdialog_start_a5(window_xofs,window_yofs,w+12,h+31);
+	popup_zqdialog_start(window_xofs,window_yofs,w+12,h+31,0xFF);
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -15056,11 +15071,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	int32_t screen_yofs=25;
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
+	FONT *tfont = lfont_l;
 	ALLEGRO_FONT *tfont_a5 = get_zc_font_a5(font_lfont_l);
 	
 	draw_tile_list_window();
 	int32_t f=0;
-	draw_tiles_a5(first,cs,f);
+	draw_tiles(first,cs,f);
 	
 	if(type==0)
 	{
@@ -16076,8 +16092,12 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		if(gui_mouse_b()&1)
 		{
 			if(isinRect(gui_mouse_x(),gui_mouse_y(),w + 12 - 21, 5, w +12 - 21 + 15, 5 + 13))
-				if(jwin_do_x_button_a5(w+12 - 21, 5))
+			{
+				if(do_x_button(screen,w+12 - 21, 5))
+				{
 					done=1;
+				}
+			}
 			
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
@@ -16146,88 +16166,84 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 				bdown=true;
 			}
 			
-			if(!bdown)
+			ALLEGRO_FONT *tf = a5font;
+			a5font = tfont_a5;
+			if(type==1||type==2)
 			{
-				ALLEGRO_FONT *tf = a5font;
-				a5font = tfont_a5;
-				if(type==1||type==2)
+				if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
+					done=1;
+					
+				if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
+					done=2;
+			}
+			else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
+			{
+				rect_sel=!rect_sel;
+				copy=-1;
+				redraw=true;
+			}
+			else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
+			{
+				if(do_text_button_a5(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab"))
 				{
-					if(isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
-						done=1;
-						
-					if(isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
-						done=2;
-				}
-				else if(isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
-				{
-					rect_sel=!rect_sel;
-					copy=-1;
+					a5font = tf;
+					grab_tile(tile,cs);
+					draw_tile_list_window();
+					position_mouse_z(0);
 					redraw=true;
 				}
-				else if(isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
+			}
+			else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
+			{
+				if(do_text_button_a5((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit"))
 				{
-					if(do_text_button_a5(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab"))
+					a5font = tf;
+					edit_tile(tile,flip,cs);
+					draw_tile_list_window();
+					redraw=true;
+				}
+			}
+			else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
+			{
+				if(do_text_button_a5((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
+				{
+					strcpy(datapath, "tileset.png");
+					if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
 					{
-						a5font = tf;
-						grab_tile(tile,cs);
-						draw_tile_list_window();
-						position_mouse_z(0);
-						redraw=true;
+						PALETTE temppal;
+						get_palette(temppal);
+						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+						save_bitmap(temppath, tempbmp, RAMpal);
+						destroy_bitmap(tempbmp);
 					}
 				}
-				else if(isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
+			}
+			else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
+			{
+				if(do_text_button_a5((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor"))
 				{
-					if(do_text_button_a5((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit"))
+					if(massRecolorSetup(cs))
 					{
-						a5font = tf;
-						edit_tile(tile,flip,cs);
-						draw_tile_list_window();
-						redraw=true;
+						go_tiles();
+						
+						FOREACH_START(t)
+							massRecolorApply(t);
+						FOREACH_END
+						
+						register_blank_tiles();
 					}
 				}
-				else if(isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
+			}
+			else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
+			{
+				if(do_text_button_a5((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done"))
 				{
-					if(do_text_button_a5((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
-					{
-						strcpy(datapath, "tileset.png");
-						if(getname("Export Tile Page (.png)","png",NULL,datapath,true))
-						{
-							PALETTE temppal;
-							get_palette(temppal);
-							BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-							draw_tiles(tempbmp,first,cs,f,false,true);
-							save_bitmap(temppath, tempbmp, RAMpal);
-							destroy_bitmap(tempbmp);
-						}
-					}
+					done=1;
 				}
-				else if(isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
-				{
-					if(do_text_button_a5((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor"))
-					{
-						if(massRecolorSetup(cs))
-						{
-							go_tiles();
-							
-							FOREACH_START(t)
-								massRecolorApply(t);
-							FOREACH_END
-							
-							register_blank_tiles();
-						}
-					}
-				}
-				else if(isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
-				{
-					if(do_text_button_a5((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done"))
-					{
-						done=1;
-					}
-				}
-				
-				a5font = tf;
 			}
 			
+			a5font = tf;
 			bdown=true;
 		}
 		
@@ -16262,9 +16278,9 @@ REDRAW:
 			
 		if(redraw)
 		{
-			draw_tiles_a5(first,cs,f);
+			draw_tiles(first,cs,f);
 		}
-		if((f&RECTSEL_TIME)||bdown)
+		if(f&RECTSEL_TIME)
 		{
 			if(rect_sel)
 			{
@@ -16277,9 +16293,9 @@ REDRAW:
 							TILECOL(i)>=zc_min(TILECOL(tile),TILECOL(tile2)) &&
 							TILECOL(i)<=zc_max(TILECOL(tile),TILECOL(tile2)))
 					{
-						int32_t x=TILECOL(i)*32+screen_xofs;
-						int32_t y=TILEROW(i-first)*32+screen_yofs;
-						al_draw_rectangle(x+0.5,y+0.5,x+31.5,y+31.5,AL5_WHITE,1);
+						int32_t x=TILECOL(i)<<(5);
+						int32_t y=TILEROW(i-first)<<(5);
+						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}
 			}
@@ -16289,9 +16305,9 @@ REDRAW:
 				{
 					if(i>=first && i<first+TILES_PER_PAGE)
 					{
-						int32_t x=TILECOL(i)*32+screen_xofs;
-						int32_t y=TILEROW(i-first)*32+screen_yofs;
-						al_draw_rectangle(x+0.5,y+0.5,x+31.5,y+31.5,AL5_WHITE,1);
+						int32_t x=TILECOL(i)<<(5);
+						int32_t y=TILEROW(i-first)<<(5);
+						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}
 			}
@@ -16306,7 +16322,7 @@ REDRAW:
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln_a5(tfont_a5, cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_a5_pal(jcBOXFG),jwin_a5_pal(jcBOX),0);
+			gui_textout_ln(screen, lfont_l, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
 		
 		++f;
@@ -16543,6 +16559,7 @@ REDRAW:
 		_selected_tcset = cs;
 	}
 	
+	popup_zqdialog_end();
 	popup_zqdialog_end_a5();
 	return ret;
 }
@@ -17118,7 +17135,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 			
 		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
 		
-		if((f&RECTSEL_TIME)||bdown)
+		if(f&RECTSEL_TIME)
 		{
 			int32_t x,y;
 			
@@ -17947,7 +17964,7 @@ REDRAW:
 		
 		combo_info(tile,tile2,cs,copy,copycnt,page,6);
 		
-		if((f&RECTSEL_TIME)||bdown)
+		if(f&RECTSEL_TIME)
 		{
 			int32_t x,y;
 			
@@ -19713,6 +19730,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-31)>>1;
 	popup_zqdialog_start_a5(window_xofs,window_yofs,w+12,h+31);
+	popup_zqdialog_start(window_xofs,window_yofs,w+12,h+31,0xFF);
 	reset_combo_animations();
 	reset_combo_animations2();
 	bound(tile,0,NEWMAXTILES-1);
@@ -19737,11 +19755,11 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	int32_t screen_yofs=25;
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
-	ALLEGRO_FONT *tfont = get_zc_font_a5(font_lfont_l);
+	FONT *tfont = lfont_l;
 	
 	draw_tile_list_window();
 	int32_t f=0;
-	draw_tiles_a5(first,cs,f);
+	draw_tiles(first,cs,f);
 	
 	if(type==0)
 	{
@@ -20677,8 +20695,12 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		if(gui_mouse_b()&1)
 		{
 			if(isinRect(gui_mouse_x(),gui_mouse_y(), w + 12 - 21, 5, w +12 - 21 + 15, 5 + 13))
-				if(jwin_do_x_button_a5(w+12 - 21, 5))
+			{
+				if(do_x_button(screen, w+12 - 21, 5))
+				{
 					done=1;
+				}
+			}
 			
 			int32_t x=gui_mouse_x()-screen_xofs;
 			int32_t y=gui_mouse_y()-screen_yofs;
@@ -20746,79 +20768,103 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				bdown=true;
 			}
 			
-			if(!bdown)
+			if(type==1||type==2)
 			{
-				if(type==1||type==2)
+				if(!bdown && isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
+					done=1;
+					
+				if(!bdown && isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
+					done=2;
+			}
+			else if(!bdown && isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
+			{
+				rect_sel=!rect_sel;
+				copy=-1;
+				redraw=true;
+			}
+			else if(!bdown && isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
-					if(isinRect(x,y,8*mul,216*mul+panel_yofs,23*mul,231*mul+panel_yofs))
-						done=1;
+					font = tf;
+					grab_tile(tile,cs);
+					draw_tile_list_window();
+					position_mouse_z(0);
+					redraw=true;
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					font = tf;
+					edit_tile(tile,flip,cs);
+					draw_tile_list_window();
+					redraw=true;
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
+					{
+						PALETTE temppal;
+						get_palette(temppal);
+						BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
+						draw_tiles(tempbmp,first,cs,f,false,true);
+						save_bitmap(temppath, tempbmp, RAMpal);
+						destroy_bitmap(tempbmp);
+					}
+				}
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
+				{
+					if(massRecolorSetup(cs))
+					{
+						go_tiles();
 						
-					if(isinRect(x,y,148*mul,216*mul+panel_yofs,163*mul,231*mul+panel_yofs))
-						done=2;
+						FOREACH_START_DMAPTILE(t)
+							massRecolorApply(t);
+						FOREACH_DMAPTILE_END
+						
+						register_blank_tiles();
+					}
 				}
-				else
+				
+				font = tf;
+			}
+			else if(!bdown && isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				if(do_text_button((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],true))
 				{
-					ALLEGRO_FONT *tf = a5font;
-					a5font = tfont;
-					if(isinRect(x,y,127*mul,216*mul+panel_yofs,(127+15)*mul,(216+15)*mul+panel_yofs))
-					{
-						rect_sel=!rect_sel;
-						copy=-1;
-						redraw=true;
-					}
-					else if(isinRect(x,y,150*mul,213*mul+panel_yofs,(150+28)*mul,(213+21)*mul+panel_yofs))
-					{
-						if(do_text_button_a5(150*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Grab"))
-						{
-							a5font = tf;
-							grab_tile(tile,cs);
-							draw_tile_list_window();
-							position_mouse_z(0);
-							redraw=true;
-						}
-					}
-					else if(isinRect(x,y,(150+28)*mul,213*mul+panel_yofs,(150+28*2)*mul,(213+21)*mul+panel_yofs+21))
-					{
-						if(do_text_button_a5((150+28)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"&Edit"))
-						{
-							a5font = tf;
-							edit_tile(tile,flip,cs);
-							draw_tile_list_window();
-							redraw=true;
-						}
-					}
-					else if(isinRect(x,y,(150+28*2)*mul,213*mul+panel_yofs,(150+28*3)*mul,(213+21)*mul+panel_yofs))
-					{
-						if(do_text_button_a5((150+28*2)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Export"))
-							if(getname("Export Tile Page (.png)","png",NULL,datapath,false))
-							{
-								PALETTE temppal;
-								get_palette(temppal);
-								BITMAP *tempbmp=create_bitmap_ex(8,16*TILES_PER_ROW, 16*TILE_ROWS_PER_PAGE);
-								draw_tiles(tempbmp,first,cs,f,false,true);
-								save_bitmap(temppath, tempbmp, RAMpal);
-								destroy_bitmap(tempbmp);
-							}
-					}
-					else if(isinRect(x,y,(150+28*3)*mul,213*mul+panel_yofs,(150+28*4)*mul,(213+21)*mul+panel_yofs))
-					{
-						if(do_text_button_a5((150+28*3)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Recolor"))
-							if(massRecolorSetup(cs))
-							{
-								go_tiles();
-								
-								FOREACH_START_DMAPTILE(t)
-									massRecolorApply(t);
-								FOREACH_DMAPTILE_END
-								
-								register_blank_tiles();
-							}
-					}
-					else if(isinRect(x,y,(150+28*4)*mul,213*mul+panel_yofs,(150+28*5)*mul,(213+21)*mul+panel_yofs))
-						if(do_text_button_a5((150+28*4)*mul+screen_xofs,213*mul+screen_yofs+panel_yofs,28*mul,21*mul,"Done"))
-							done=1;
-					a5font = tf;
+					done=1;
 				}
+				
+				font = tf;
 			}
 			
 			bdown=true;
@@ -20841,7 +20887,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 			}
 			
 			bdown = r_click = true;
-			f=RECTSEL_TIME;
+			f=8;
 		}
 		
 		if(gui_mouse_b()==0)
@@ -20855,9 +20901,9 @@ REDRAW_DMAP_SELTILE:
 			
 		if(redraw)
 		{
-			draw_tiles_a5(first,cs,f);
+			draw_tiles(first,cs,f);
 		}
-		if((f&RECTSEL_TIME)||bdown)
+		if(f&RECTSEL_TIME)
 		{
 			if(rect_sel)
 			{
@@ -20872,7 +20918,7 @@ REDRAW_DMAP_SELTILE:
 					{
 						int32_t x=(i%TILES_PER_ROW)<<5;
 						int32_t y=((i-first)/TILES_PER_ROW)<<5;
-						al_draw_rectangle(x+0.5,y+0.5,x+31.5,y+31.5,AL5_WHITE,1);
+						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}
 			}
@@ -20884,7 +20930,7 @@ REDRAW_DMAP_SELTILE:
 					{
 						int32_t x=TILECOL(i)<<5;
 						int32_t y=TILEROW(i-first)<<5;
-						al_draw_rectangle(x+0.5,y+0.5,x+31.5,y+31.5,AL5_WHITE,1);
+						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
 					}
 				}
 			}
@@ -20899,7 +20945,7 @@ REDRAW_DMAP_SELTILE:
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln_a5(tfont, cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_a5_pal(jcBOXFG),AL5_INVIS,0);
+			gui_textout_ln(screen, lfont_l, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
 		
 		++f;
@@ -21130,6 +21176,7 @@ REDRAW_DMAP_SELTILE:
 	register_used_tiles();
 	setup_combo_animations();
 	setup_combo_animations2();
+	popup_zqdialog_end();
 	popup_zqdialog_end_a5();
 	return tile+1;
 }

@@ -166,13 +166,12 @@ void load_icons()
 
 void load_selections()
 {
-	BITMAP* buf = create_bitmap_ex(8,16,16);
     for(int32_t i=0; i<2; i++)
     {
-        blit((BITMAP*)zcdata[BMP_SELECT].dat,buf,i*17+1,1,0,0,16,16);
-		select_bmp[i] = all_get_a5_bitmap(buf);
+        select_bmp[i] = create_bitmap_ex(8,16,16);
+        //  blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
+        blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
     }
-	destroy_bitmap(buf);
 }
 
 void load_arrows()

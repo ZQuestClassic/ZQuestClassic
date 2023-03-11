@@ -25,8 +25,6 @@ void jwin_reset_a5_colors();
 void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain = false);
 void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain = false);
 
-ALLEGRO_COLOR& a5_rainbow(int ind);
-
 void start_db_proc();
 void end_db_proc();
 

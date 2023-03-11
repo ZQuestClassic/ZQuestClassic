@@ -420,8 +420,8 @@ COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *dmapbmp_small, *dmapbmp_large;
-ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5], *select_bmp[2];
+BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
+ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5];
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
@@ -31869,7 +31869,7 @@ void destroy_bitmaps_on_exit()
         al_destroy_bitmap(icon_bmp[i/4][i%4]);
         
     for(int32_t i=0; i<2; i++)
-        al_destroy_bitmap(select_bmp[i]);
+        destroy_bitmap(select_bmp[i]);
         
     for(int32_t i=0; i<MAXARROWS; i++)
         destroy_bitmap(arrow_bmp[i]);

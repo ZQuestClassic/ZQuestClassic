@@ -2851,7 +2851,6 @@ static void _a5_drawtile_16_cs2(int x, int y, int tile, int cset[], int flip, bo
 				al_put_pixel(x+dx,y+dy,a5color(si[ind]+cs,alpha));
 		}
 }
-
 void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask, unsigned char alpha)
 {
 	if(tile<0 || tile>=NEWMAXTILES || (blank_tile_table[tile]&&!mask) || !alpha || w<1 || h<1)
@@ -2941,16 +2940,6 @@ void a5_draw_combo(int x, int y, int combo, int cs, bool mask, unsigned char alp
 	a5_draw_tile(x,y,tile,cs,cmb.csets,cmb.flip,mask,alpha);
 }
 
-void a5_draw_tile_scale(int x, int y, int w, int h, int tile, int cs, int cs2, int flip, bool mask, unsigned char alpha)
-{
-	static ALLEGRO_BITMAP* buf = al_create_bitmap(16,16);
-	if(mask) clear_a5_bmp(AL5_INVIS,buf);
-	ALLEGRO_BITMAP* dest = al_get_target_bitmap();
-	al_set_target_bitmap(buf);
-	a5_draw_tile(0,0,tile,cs,cs2,flip,mask,alpha);
-	al_set_target_bitmap(dest);
-	al_draw_scaled_bitmap(buf,0,0,16,16,x,y,w,h,0);
-}
 
 /* end of tiles.cc */
 

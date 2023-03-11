@@ -106,7 +106,7 @@ void load_imagebuf();
 bool leech_tiles(tiledata *dest,int32_t start,int32_t cs);
 void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat);
 void grab_tile(int32_t tile,int32_t &cs);
-void draw_tiles_a5(int32_t first,int32_t cs, int32_t f);
+void draw_tiles(int32_t first,int32_t cs, int32_t f);
 void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f,bool large,bool true_empty = false);
 int32_t tile_col(int32_t tile);
 int32_t tile_row(int32_t tile);
