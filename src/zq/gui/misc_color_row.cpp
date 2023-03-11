@@ -2,7 +2,7 @@
 #include "base/zc_alleg.h"
 #include "gui/dialog_runner.h"
 #include "gui/list_data.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <utility>
 
 int32_t d_cs_color_proc2(int32_t msg,DIALOG *d,int32_t)
@@ -96,80 +96,6 @@ int32_t d_sys_color_proc2(int32_t msg,DIALOG *d,int32_t)
 	return D_O_K;
 }
 
-int32_t d_cs_color_proc2_a5(int32_t msg,DIALOG *d,int32_t)
-{
-    int32_t w=(d->w-4)/16;
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-        //top blank part
-        al_draw_filled_rectangle(d->x, d->y, d->x+(w*16)+2, d->y+2, jwin_a5_pal(jcBOX));
-        jwin_draw_frame_a5(d->x,d->y+2,w*16+4, d->h-4, FR_DEEP);
-        
-        for(int32_t i=0; i<16; ++i)
-        {
-            al_draw_filled_rectangle(d->x+2+(w*i), d->y+4, d->x+2+(w*(i+1)), d->y+d->h-4, a5color((d->d2)*16+i));
-        }
-        
-        // right end
-        al_draw_filled_rectangle(d->x+(w*16)+4, d->y, d->x+d->w, d->y+d->h, jwin_a5_pal(jcBOX));
-        // bottom part
-        al_draw_filled_rectangle(d->x, d->y+d->h-2, d->x+(w*16)+2, d->y+d->h, jwin_a5_pal(jcBOX));
-        
-        //indicator lines
-        al_draw_hline(d->x+2+(w*d->d1), d->y, d->x+2+(w*(d->d1+1)), jwin_a5_pal(jcBOXFG));
-        al_draw_hline(d->x+2+(w*d->d1), d->y+d->h-1, d->x+2+(w*(d->d1+1)), jwin_a5_pal(jcBOXFG));
-        
-        break;
-        
-    case MSG_CLICK:
-        d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,15);
-        d->flags|=D_DIRTY;
-        break;
-    }
-    
-    return D_O_K;
-}
-
-int32_t d_sys_color_proc2_a5(int32_t msg,DIALOG *d,int32_t)
-{
-    int32_t w=(d->w-4)/17;
-    
-    switch(msg)
-    {
-    case MSG_DRAW:
-        //rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, jwin_pal[jcBOX]);
-        //top blank part
-        al_draw_filled_rectangle(d->x, d->y, d->x+(w*17)+2, d->y+2, jwin_a5_pal(jcBOX));
-        jwin_draw_frame_a5(d->x,d->y+2,w*17+4, d->h-4, FR_DEEP);
-        
-        for(int32_t i=0; i<17; ++i)
-        {
-            al_draw_filled_rectangle(d->x+2+(w*i), d->y+4, d->x+2+(w*(i+1)), d->y+d->h-4, a5color(vc(zc_max(0,i-1))));
-        }
-        
-		al_draw_line(d->x+2.5, d->y+4.5, d->x+w+1.5, d->y+d->h-4.5, AL5_WHITE, 0);
-		al_draw_line(d->x+2.5, d->y+d->h-4.5, d->x+w+1.5, d->y+4.5, AL5_WHITE, 0);
-        // right end
-        al_draw_filled_rectangle(d->x+(w*17)+4, d->y, d->x+d->w, d->y+d->h, jwin_a5_pal(jcBOX));
-        // bottom part
-        al_draw_filled_rectangle(d->x, d->y+d->h-2, d->x+(w*17)+2, d->y+d->h, jwin_a5_pal(jcBOX));
-        
-        //indicator lines
-        al_draw_hline(d->x+2+(w*(d->d1+1)), d->y, d->x+2+(w*(d->d1+2)), jwin_a5_pal(jcBOXFG));
-        al_draw_hline(d->x+2+(w*(d->d1+1)), d->y+d->h-1, d->x+2+(w*(d->d1+2)), jwin_a5_pal(jcBOXFG));
-        
-        break;
-        
-    case MSG_CLICK:
-        d->d1=vbound((gui_mouse_x()-d->x-2)/w,0,16)-1;
-        d->flags|=D_DIRTY;
-        break;
-    }
-    
-    return D_O_K;
-}
 
 namespace GUI
 {
@@ -218,7 +144,7 @@ void MiscColorRow::realize(DialogRunner& runner)
 	if(isSys)
 	{
 		alDialog = runner.push(shared_from_this(), DIALOG {
-			newGUIProc<d_sys_color_proc2_a5>,
+			newGUIProc<d_sys_color_proc2>,
 			x, y, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0, // key
@@ -230,7 +156,7 @@ void MiscColorRow::realize(DialogRunner& runner)
 	else
 	{
 		alDialog = runner.push(shared_from_this(), DIALOG {
-			newGUIProc<d_cs_color_proc2_a5>,
+			newGUIProc<d_cs_color_proc2>,
 			x, y, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0, // key
