@@ -1097,9 +1097,9 @@ bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char
 {
 	int xofs,yofs,_w,_h;
 	get_zqdialog_offset(xofs,yofs,_w,_h);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
 	draw_layer_button_a5(0,0,w,h,text,flags&~D_SELECTED);
-	popup_zqdialog_start_a5(x+xofs,y+yofs,w,h);
+	popup_zqdialog_start_a5(x+xofs,y+yofs,w+1,h+1);
 	draw_layer_button_a5(0,0,w,h,text,flags|D_SELECTED);
 	bool over = do_over_area(0,0,w,h,flags&D_SELECTED);
 	popup_zqdialog_end_a5();
