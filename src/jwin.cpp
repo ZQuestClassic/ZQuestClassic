@@ -553,7 +553,7 @@ void draw_arrow_button_horiz(BITMAP *dest, int32_t x, int32_t y, int32_t w, int3
     }
 }
 
-bool mouse_in_rect(int x,int y,int w,int h)
+int32_t mouse_in_rect(int32_t x,int32_t y,int32_t w,int32_t h)
 {
     return ((gui_mouse_x() >= x) && (gui_mouse_y() >= y) &&
             (gui_mouse_x() < x + w) && (gui_mouse_y() < y + h));

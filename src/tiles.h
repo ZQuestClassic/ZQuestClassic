@@ -107,7 +107,5 @@ void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask =
 void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask = true, unsigned char alpha = 255);
 void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool mask = true, unsigned char alpha = 255);
 
-void a5_draw_combo(int x, int y, int combo, int cs, bool mask, unsigned char alpha, int targx = -1, int targy = -1);
-
 #endif                                                      // _ZC_TILES_H_
  

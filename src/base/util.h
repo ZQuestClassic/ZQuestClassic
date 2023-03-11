@@ -35,9 +35,10 @@ namespace util
 	char* zc_itoa(int32_t value, char* str, int32_t base = 10);
 	int64_t zc_atoi64(const char *str);
 	int64_t zc_xtoi64(const char *hexstr);
-	int zc_xtoi(const char *hexstr);
+	int32_t zc_xtoi(const char *hexstr);
 	int32_t ffparse2(const char *string);
 	int32_t ffparseX(const char *string);
+	int32_t xtoi(char *hexstr);
 	int32_t zc_chmod(const char* path, mode_t mode);
 	bool checkPath(const char* path, const bool is_dir);
 	void safe_al_trace(const char* str);

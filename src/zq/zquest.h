@@ -40,6 +40,7 @@
 #ifdef ALLEGRO_MACOSX
 extern int32_t midi_strict; //L
 #endif
+extern bool cancelgetnum;
 
 extern int32_t RulesetDialog;
 
@@ -118,8 +119,7 @@ extern char *datafile_str;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
-extern ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5];
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
@@ -256,6 +256,7 @@ void rebuild_string_list();
 int32_t onResetTransparency();
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t getnumber(const char *prompt,int32_t initialval);
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
 void about_module(const char *prompt,int32_t initialval);
@@ -281,6 +282,7 @@ void do_importdoorset(const char *prompt,int32_t initialval);
 void do_exportdoorset(const char *prompt,int32_t initialval);
 
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
+int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
@@ -415,7 +417,7 @@ INLINE int32_t pal_sum(RGB p)
 
 void get_bw(RGB *pal,int32_t &black,int32_t &white);
 void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse);
-int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout = true);
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
 int32_t onViewPic();
 int32_t load_the_map();
 int32_t onViewMap();
@@ -783,7 +785,6 @@ extern combo_pool combo_pools[MAXCOMBOPOOLS];
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
-void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx = -1, int targy = -1);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
@@ -974,6 +975,7 @@ const char *warptypelist(int32_t index, int32_t *list_size);
 
 //int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
+int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
 int32_t onTimedWarp();

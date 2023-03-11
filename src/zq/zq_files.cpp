@@ -28,9 +28,6 @@
 #include "tiles.h"
 #include "zq_tiles.h"
 #include "zq_custom.h"
-#include "dialog/info.h"
-#include "jwin_a5.h"
-#include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -393,7 +390,7 @@ int32_t NewQuestFile(int32_t template_slot)
     memset(filepath,0,255);
     memset(temppath,0,255);
     first_save=false;
-    box_start(1, "Initializing Quest", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false);
+    box_start(1, "Initializing Quest", lfont, pfont, false);
     box_out("Please wait.");
     box_eol();
     box_out("This may take a few moments.");
@@ -823,14 +820,17 @@ int32_t onSave()
     
     if(!ret)
     {
-        InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
+        sprintf(buf,"Saved %s",name);
+        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
         saved=true;
         first_save=true;
         header.dirty_password=false;
     }
-    else InfoDialog("Error",fmt::format("Error saving {}",name)).show();
-	
-	box_end(false);
+    else
+    {
+        sprintf(buf,"Error saving %s",name);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    }
     
 	set_last_timed_save(nullptr);
     return D_O_K;
@@ -877,13 +877,17 @@ int32_t onSaveAs()
 		update_recent_quest(temppath);
         sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
         set_window_title(buf);
-        InfoDialog("ZQuest",fmt::format("Saved {}",name)).show();
-		saved=true;
+        sprintf(buf,"Saved %s",name);
+        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        saved=true;
         first_save=true;
         header.dirty_password=false;
     }
-    else InfoDialog("Error",fmt::format("Error saving {}",name)).show();
-	box_end(false);
+    else
+    {
+        sprintf(buf,"Error saving %s",name);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    }
     
     refresh(rMENU);
 	set_last_timed_save(nullptr);
@@ -1528,10 +1532,12 @@ int32_t onImport_Combos()
 
 int32_t onImport_Combos_old()
 {
-	bool c;
-    int32_t ret=getnumber("Import Start Page",0,&c);
+    int32_t ret=getnumber("Import Start Page",0);
     
-    if(c) return D_O_K;
+    if(cancelgetnum)
+    {
+        return D_O_K;
+    }
     
     bound(ret,0,COMBO_PAGES-1);
     
@@ -1608,10 +1614,12 @@ int32_t onExport_Combos_old()
 
 int32_t onImport_Tiles()
 {
-	bool c;
-    int32_t ret=getnumber("Import Start Page",0,&c);
+    int32_t ret=getnumber("Import Start Page",0);
     
-    if(c) return D_O_K;
+    if(cancelgetnum)
+    {
+        return D_O_K;
+    }
     
     bound(ret,0,TILE_PAGES-1);
     

@@ -10,15 +10,6 @@ int size_and_pos::th() const
 	return h*yscale;
 }
 
-int size_and_pos::cx() const
-{
-	return x+tw()/2;
-}
-int size_and_pos::cy() const
-{
-	return y+th()/2;
-}
-
 void size_and_pos::clear()
 {
 	x = -1, y = -1;

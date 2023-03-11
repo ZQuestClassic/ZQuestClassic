@@ -333,7 +333,7 @@ namespace util
 		return neg ? -val : val;
 	}
 	
-	int zc_xtoi(const char *hexstr)
+	int32_t zc_xtoi(const char *hexstr)
 	{
 		int32_t val=0;
 		bool neg = false;

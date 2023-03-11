@@ -7,19 +7,21 @@
 
 extern int InvalidStatic;
 
-extern ALLEGRO_COLOR AL5_INVIS, AL5_BLACK, AL5_WHITE, AL5_YELLOW, AL5_PINK,
-	AL5_VLGRAY, AL5_LGRAY, AL5_DGRAY, AL5_BLUE, AL5_LRED, AL5_DRED;
-extern ALLEGRO_COLOR AL5_COL_SOLIDITY, AL5_COL_EFFECT, AL5_COL_CS2;
+extern ALLEGRO_COLOR AL5_INVIS;
+extern ALLEGRO_COLOR AL5_BLACK;
+extern ALLEGRO_COLOR AL5_WHITE;
+extern ALLEGRO_COLOR AL5_YELLOW;
+extern ALLEGRO_COLOR AL5_PINK;
+extern ALLEGRO_COLOR AL5_LGRAY;
+extern ALLEGRO_COLOR AL5_DGRAY;
+extern ALLEGRO_COLOR AL5_BLUE;
+extern ALLEGRO_COLOR AL5_LRED;
+extern ALLEGRO_COLOR AL5_COL_SOLIDITY;
+extern ALLEGRO_COLOR AL5_COL_EFFECT;
+extern ALLEGRO_COLOR AL5_COL_CS2;
 extern ALLEGRO_COLOR jwin_a5_colors[9];
 extern ALLEGRO_COLOR db_a5_colors[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc);
-
-struct cliprect
-{
-	int x=0, y=0, w=0, h=0;
-	void getclip();
-	void setclip() const;
-};
 
 void jwin_reset_a5_colors();
 void jwin_set_a5_colors(ALLEGRO_COLOR* colors, bool setmain = false);
@@ -27,8 +29,6 @@ void jwin_get_a5_colors(ALLEGRO_COLOR* colors, bool getmain = false);
 
 void start_db_proc();
 void end_db_proc();
-
-bool do_over_area(int x, int y, int w, int h, bool sel);
 
 void al_draw_hline(float x1, float y1, float x2, ALLEGRO_COLOR c);
 void al_draw_vline(float x1, float y1, float y2, ALLEGRO_COLOR c);
@@ -46,11 +46,8 @@ void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int fl
 void jwin_textout_a5(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc);
 void jwin_textout_a5_dis(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR dis_c);
 void jwin_textout_a5_shd(ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR shd_c, int shdty);
-void jwin_textout_a5_scl(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc);
-void jwin_textout_a5_scl_dis(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR dis_c);
-void jwin_textout_a5_scl_shd(float scl, ALLEGRO_FONT* f, ALLEGRO_COLOR tc, float x, float y, int flag, char const* str, ALLEGRO_COLOR bgc, ALLEGRO_COLOR shd_c, int shdty);
 void jwin_draw_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,int32_t state,int32_t type);
-void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect = false);
+void jwin_draw_text_button_a5(int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
 bool do_text_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 bool do_text_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
 void draw_question_button_a5(int32_t x, int32_t y, int32_t state);
@@ -82,9 +79,6 @@ int32_t gui_text_height_a5(ALLEGRO_FONT* f, const char *s);
 
 int32_t jwin_selcolor_proc_a5(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_color_swatch_a5(int32_t msg, DIALOG *d, int32_t c);
-
-int getnumber(const char *prompt, int initialval, bool* cancelled = nullptr);
-int getnumber_hex(const char *prompt, int initialval, bool* cancelled = nullptr);
 
 int32_t jwin_win_proc_a5(int32_t msg, DIALOG *d, int32_t);
 int32_t jwin_tab_proc_a5(int32_t msg, DIALOG *d, int32_t c);
