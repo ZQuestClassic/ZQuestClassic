@@ -2301,7 +2301,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 							shift_tile_colors(tile, 1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					}
 					else
-						cs = (cs<11) ? cs+1:0;
+						cs = (cs<13) ? cs+1:0;
 						
 					redraw=true;
 					break;
@@ -2328,7 +2328,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 							shift_tile_colors(tile, -1, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 					}
 					else
-						cs = (cs>0) ? cs-1:11;
+						cs = (cs>0) ? cs-1:13;
 						
 					redraw=true;
 					break;
@@ -5004,14 +5004,14 @@ void grab_tile(int32_t tile,int32_t &cs)
 				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
-				cs = (cs<11) ? cs+1:0;
+				cs = (cs<13) ? cs+1:0;
 				if(recolor==rc4Bit)
 					calc_cset_reduce_table(imagepal, cs);
 				break;
 				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
-				cs = (cs>0)  ? cs-1:11;
+				cs = (cs>0)  ? cs-1:13;
 				if(recolor==rc4Bit)
 					calc_cset_reduce_table(imagepal, cs);
 				break;
@@ -15180,7 +15180,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						register_blank_tiles();
 					}
 					else if(edit_cs)
-						cs = (cs<11) ? cs+1:0;
+						cs = (cs<13) ? cs+1:0;
 						
 					redraw=true;
 					break;
@@ -15255,7 +15255,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						register_blank_tiles();
 					}
 					else if(edit_cs)
-						cs = (cs>0)  ? cs-1:11;
+						cs = (cs>0)  ? cs-1:13;
 						
 					redraw=true;
 					break;
@@ -16988,13 +16988,13 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				
 			case KEY_EQUALS:
 			case KEY_PLUS_PAD:
-				cs = (cs<11) ? cs+1:0;
+				cs = (cs<13) ? cs+1:0;
 				redraw=true;
 				break;
 				
 			case KEY_MINUS:
 			case KEY_MINUS_PAD:
-				cs = (cs>0)  ? cs-1:11;
+				cs = (cs>0)  ? cs-1:13;
 				redraw=true;
 				break;
 				
@@ -17543,7 +17543,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				}
 				else
 				{
-					cs = (cs<11)  ? cs+1:0;
+					cs = (cs<13)  ? cs+1:0;
 					redraw=true;
 				}
 				
@@ -17568,7 +17568,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				}
 				else
 				{
-					cs = (cs>0)  ? cs-1:11;
+					cs = (cs>0)  ? cs-1:13;
 					redraw=true;
 				}
 				
@@ -19919,7 +19919,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					register_blank_tiles();
 				}
 				else if(edit_cs)
-					cs = (cs<11) ? cs+1:0;
+					cs = (cs<13) ? cs+1:0;
 					
 				redraw=true;
 				break;
@@ -19985,7 +19985,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					register_blank_tiles();
 				}
 				else if(edit_cs)
-					cs = (cs>0)  ? cs-1:11;
+					cs = (cs>0)  ? cs-1:13;
 					
 				redraw=true;
 				break;
