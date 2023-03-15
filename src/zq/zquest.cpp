@@ -8342,8 +8342,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
     unscare_mouse();
     
     int32_t oldpx=px2, oldpy=py2;
-    double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-    double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
     int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
     int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
     showxypos_x=px2;
@@ -8372,8 +8370,8 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             
             while(gui_mouse_b()==1)
             {
-                x=int32_t((gui_mouse_x()-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffx;
-                y=int32_t((gui_mouse_y()-startyint-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffy;
+                x=int32_t((gui_mouse_x()-startxint)/mapscreensize)-cursoroffx;
+                y=int32_t((gui_mouse_y()-startyint)/mapscreensize)-cursoroffy;
                 showxypos_cursor_icon=true;
 				showxypos_cursor_color = showxypos_color;
                 showxypos_cursor_x=x&mask;
