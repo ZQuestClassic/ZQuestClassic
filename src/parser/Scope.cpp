@@ -1145,6 +1145,7 @@ void BasicScope::setOption(CompileOption option, CompileOptionSetting value)
 bool BasicScope::can_add(Datum& datum, CompileErrorHandler* errorHandler)
 {
 	if (std::optional<string> name = datum.getName())
+	{
 		if (find<Datum*>(namedData_, *name))
 		{
 			if (errorHandler)
@@ -1153,6 +1154,7 @@ bool BasicScope::can_add(Datum& datum, CompileErrorHandler* errorHandler)
 						name->c_str()));
 			return false;
 		}
+	}
 	return true;
 }
 
@@ -1336,10 +1338,10 @@ bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 	if (!can_add(datum, errorHandler))
 		return false;
 
-	assert(BasicScope::add(datum, errorHandler));
+	BasicScope::add(datum, errorHandler);
 	// Register in root scope if it's named.
 	if (std::optional<string> name = datum.getName())
-		assert(getRoot(*this)->registerDatum(*name, &datum));
+		getRoot(*this)->registerDatum(*name, &datum);
 
 	return true;
 }
