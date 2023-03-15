@@ -6118,19 +6118,17 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 			
-			double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
-			double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
 			int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
 			int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1));
+			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1));
 			
 			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
 			{
 				arrowcursor = false;
 				int32_t mgridscale=16*mapscreensize;
 				set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-				int32_t mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
-				int32_t my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
+				int32_t mx=(gui_mouse_x()-startxint)/mgridscale*mgridscale;
+				int32_t my=(gui_mouse_y()-startyint)/mgridscale*mgridscale;
 				clear_bitmap(brushscreen);
 				int32_t tempbw=BrushWidth;
 				int32_t tempbh=BrushHeight;
@@ -6181,25 +6179,25 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						switch(alias_origin)
 						{
 							case 0:
-								stretch_blit(brushbmp, brushscreen, 0,                                                                   0,                                                                     BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx, my, BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 1:
-								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0,                                                                     BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0), my, BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 2:
-								stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx, zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 3:
-								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0), zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 						}
 					}
 				}
 				
-				masked_blit(brushscreen, menu1, 0, 0, 0, 16, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
+				masked_blit(brushscreen, menu1, 0, 0, mapscreen_x, mapscreen_y, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
 				BrushWidth=tempbw;
 				BrushHeight=tempbh;
 			}
