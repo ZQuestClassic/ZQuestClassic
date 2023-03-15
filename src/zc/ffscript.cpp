@@ -3554,16 +3554,15 @@ int32_t get_register(const int32_t arg)
 					break;
 				}
 				//uids of objects
+				case 4:
 				case 5:
 				case 6:
 				case 7:
-				case 8:
 				{
 					ret = (int32_t)(Hero.gethitHeroUID(indx)); //do not multiply by 10000! UIDs are not *10000!
 					break;
-					
 				}
-				default: { al_trace("Invalid index passed to Player->HitBy[%d] /n", indx); ret = -1; break; }
+				default: { Z_scripterrlog("Invalid index passed to Player->HitBy[%d]/n", indx); ret = -1; break; }
 			}
 			break;
 		}
