@@ -399,6 +399,7 @@ namespace ZScript
 		BasicScope(TypeStore&);
 		BasicScope(TypeStore&, std::string const& name);
 
+		virtual bool can_add(Datum&, CompileErrorHandler* errorHandler = nullptr);
 		virtual bool add(Datum&, CompileErrorHandler*);
 		
 	private:
@@ -448,6 +449,7 @@ namespace ZScript
 		void removeLocalFunction(Function* function);
 		
 	protected:
+		virtual bool can_add(Datum&, CompileErrorHandler* errorHandler = nullptr);
 		virtual bool add(Datum&, CompileErrorHandler*);
 		
 	private:
