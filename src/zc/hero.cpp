@@ -3319,7 +3319,7 @@ bool HeroClass::checkstab()
 				dmg += itemsbuf[atkringid].misc1; //Additive
 			}
 			
-			int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn);
+			int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn,w);
 			enemy *e = (enemy*)guys.spr(i);
 			if (h == -1) { e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; } //temp_hit = true; }
 			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
