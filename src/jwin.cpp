@@ -837,11 +837,8 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c)
   *
   *  Handles '\n' characters.
   */
-int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
 	ASSERT(d);
 	static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
 	
@@ -873,7 +870,7 @@ int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if(d->flags & D_DISABLED)
 			{
-				gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcDISABLED_BG]], 0);
+				gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 0);
 				d->w=gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 0);
 			}
 			else
@@ -889,11 +886,8 @@ int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c)
 	return D_O_K;
 }
 
-int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     ASSERT(d);
     static BITMAP *dummy=create_bitmap_ex(8, 320, 240);
     
@@ -913,7 +907,7 @@ int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcDISABLED_BG]], 1);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 1);
             gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 1);
         }
         else
@@ -928,11 +922,8 @@ int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c)
     return D_O_K;
 }
 
-int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     ASSERT(d);
     static BITMAP *dummy=create_bitmap_ex(8, 1, 1);
     
@@ -952,7 +943,7 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if(d->flags & D_DISABLED)
         {
-            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcDISABLED_BG]], 2);
+            gui_textout_ln(screen, (uint8_t*)d->dp, d->x+1, d->y+1, palette_color[scheme[jcLIGHT]], palette_color[scheme[jcBOX]], 2);
             gui_textout_ln(screen, (uint8_t*)d->dp, d->x, d->y, palette_color[scheme[jcDISABLED_FG]], -1, 2);
         }
         else
@@ -7189,10 +7180,8 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
     return d_jwinbutton_proc(msg, d, 0);
 }
 
-int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
 	int32_t bx=0, tl=0;
 	ASSERT(d);
 	
@@ -7216,7 +7205,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
 						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
 						bx=tl+text_height(font)/2;
 					}
@@ -7243,7 +7232,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
 						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
 					}
 					else
