@@ -6133,15 +6133,20 @@ bool checkCost(int32_t ctr, int32_t amnt)
 	}
 	return (game->get_counter(ctr)+game->get_dcounter(ctr)>=amnt);
 }
-bool checkmagiccost(int32_t itemid)
+bool checkmagiccost(int32_t itemid, bool checkTime)
 {
 	if(itemid < 0)
 	{
 		return false;
 	}
 	itemdata const& id = itemsbuf[itemid];
-	return checkCost(id.cost_counter[0], id.cost_amount[0])
-		&& checkCost(id.cost_counter[1], id.cost_amount[1]);
+	bool ret = true;
+	if(!checkTime || !id.magiccosttimer[0] || !(frame%id.magiccosttimer[0]))
+		ret = checkCost(id.cost_counter[0], id.cost_amount[0]);
+	if(!ret) return false;
+	if(!checkTime || !id.magiccosttimer[1] || !(frame%id.magiccosttimer[1]))
+		ret = checkCost(id.cost_counter[1], id.cost_amount[1]);
+	return ret;
 }
 
 void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
@@ -6196,16 +6201,16 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 	}
 	game->change_counter(-amnt, ctr);
 }
-void paymagiccost(int32_t itemid, bool ignoreTimer)
+void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	if(itemid < 0)
 	{
 		return;
 	}
 	itemdata const& id = itemsbuf[itemid];
-	if(!(id.flags&ITEM_VALIDATEONLY))
+	if(!(id.flags&ITEM_VALIDATEONLY) && (!onlyTimer || id.magiccosttimer[0]))
 		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);
-	if(!(id.flags&ITEM_VALIDATEONLY2))
+	if(!(id.flags&ITEM_VALIDATEONLY2) && (!onlyTimer || id.magiccosttimer[1]))
 		payCost(id.cost_counter[1], id.cost_amount[1], id.magiccosttimer[1], ignoreTimer);
 }
 

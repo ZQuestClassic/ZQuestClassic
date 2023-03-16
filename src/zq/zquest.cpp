@@ -34093,7 +34093,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 	}
 	return (game->get_counter(ctr)+game->get_dcounter(ctr)>=amnt);
 }
-bool checkmagiccost(int32_t itemid)
+bool checkmagiccost(int32_t itemid, bool checkTime)
 {
 	if(itemid < 0)
 	{
@@ -34108,7 +34108,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 {
 	return;
 }
-void paymagiccost(int32_t itemid, bool ignoreTimer)
+void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	return;
 }

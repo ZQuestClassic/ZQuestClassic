@@ -25222,14 +25222,22 @@ int32_t HeroClass::get_scroll_delay(int32_t scrolldir)
 
 void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-	int32_t itemid = current_item_id(itype_lantern);
-	if(itemid < 0) return; //no lantern light circle
+	int32_t lampid = current_item_id(itype_lantern);
+	if(lampid < 0) return;
+	static bool lamp_paid = false;
+	if(!(checkbunny(lampid) && checkmagiccost(lampid,lamp_paid)))
+	{
+		lamp_paid = false;
+		return;
+	}
+	lamp_paid = true;
+	paymagiccost(lampid,false,true);
 	int32_t hx1 = x.getInt() - x1 + 8;
 	int32_t hy1 = y.getInt() - y1 + 8;
 	int32_t hx2 = x.getInt() - x2 + 8;
 	int32_t hy2 = y.getInt() - y2 + 8;
 	
-	itemdata& lamp = itemsbuf[itemid];
+	itemdata& lamp = itemsbuf[lampid];
 	switch(lamp.misc1) //Shape
 	{
 		case 0: //Circle
