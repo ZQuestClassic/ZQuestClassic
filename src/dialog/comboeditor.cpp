@@ -2030,7 +2030,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			Rows<4>(padding = 0_px,
 				Label(text = "Type:", hAlign = 1.0),
 				DropDownList(data = list_ctype, fitParent = true,
-					maxwidth = 220_px,
+					maxwidth = 400_px,
 					padding = 0_px, selectedValue = local_comboref.type,
 					onSelectionChanged = message::COMBOTYPE
 				),
@@ -2350,6 +2350,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(35,"Refl. Beam"),
 								TRIGFLAG(36,"Stomp"),
 								TRIGFLAG(89, "Thrown"),
+								TRIGFLAG(90, "Quake Hammer"),
+								TRIGFLAG(91, "S. Quake Hammer"),
 								TRIGFLAG(37,"Custom Weapon 1"),
 								TRIGFLAG(38,"Custom Weapon 2"),
 								TRIGFLAG(39,"Custom Weapon 3"),
@@ -2590,15 +2592,13 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								" (by any trigger effect), the new combo is the one that resets."),
 							TRIGFLAG(18,"Reset Anim")
 						),
-						Column(framed = true,
-							Rows<3>(padding = 0_px,
+						Column(padding = 0_px,
+							Rows<3>(framed = true, hAlign = 0.0,
 								Label(text = "SFX:", fitParent = true),
-								TextField(
-									fitParent = true,
+								DropDownList(data = list_sfx,
 									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_comboref.trigsfx,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									fitParent = true, selectedValue = local_comboref.trigsfx,
+									onSelectFunc = [&](int32_t val)
 									{
 										local_comboref.trigsfx = val;
 									}),
@@ -2609,7 +2609,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										InfoDialog("Trigger SFX","If the value is >0, the combo will"
 											" play the specified SFX when triggered.").show();
 									}
-								),
+								)
+							),
+							Rows<3>(framed = true, hAlign = 0.0,
 								Label(text = "Combo Change:", fitParent = true),
 								TextField(
 									fitParent = true,
@@ -2869,7 +2871,28 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftbreaksprite = val;
 									}
-								)
+								),
+								
+							Row(padding = 0_px,
+								Label(text = "Lift SFX:"),
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_comboref.liftsfx,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.liftsfx = val;
+									}),
+								INFOBTN("The sfx to play when lifted")
+							),
+							Row(padding = 0_px,
+								Label(text = "Break SFX:"),
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_comboref.liftbreaksfx,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.liftbreaksfx = val;
+									}),
+								INFOBTN("The sfx to play when the object breaks")
+							)
 						)
 					),
 					Frame(
@@ -2988,26 +3011,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									local_comboref.liftlvl = val;
 								}),
 							INFOBTN("The level of " + string(ZI.getItemClassName(itype_liftglove)) + " needed to lift this object."),
-							//
-							Label(text = "Lift SFX:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftsfx,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.liftsfx = val;
-								}),
-							INFOBTN("The sfx to play when lifted"),
-							//
-							Label(text = "Break SFX:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftbreaksfx,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.liftbreaksfx = val;
-								}),
-							INFOBTN("The sfx to play when the object breaks"),
 							//
 							Label(text = "Item Drop:"),
 							TextField(

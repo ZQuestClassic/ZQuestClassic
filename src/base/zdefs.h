@@ -287,7 +287,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            25
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           54
+#define V_ITEMS           55
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -1381,7 +1381,7 @@ enum
 #define combotriggerSCRIPT09     0x00002000
 #define combotriggerSCRIPT10     0x00004000
 #define combotriggerAUTOMATIC    0x00008000
-#define combotriggerSECRETS	     0x00010000
+#define combotriggerSECRETS      0x00010000
 #define combotriggerINVERTITEM   0x00020000
 #define combotriggerCONSUMEITEM  0x00040000
 #define combotriggerCOUNTERGE    0x00080000
@@ -1425,6 +1425,8 @@ enum
 #define combotriggerKILLENEMIES    0x00800000
 #define combotriggerSECRETSTR      0x01000000
 #define combotriggerTHROWN         0x02000000
+#define combotriggerQUAKESTUN      0x04000000
+#define combotriggerSQUAKESTUN     0x08000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01

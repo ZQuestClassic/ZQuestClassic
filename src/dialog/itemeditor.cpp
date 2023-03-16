@@ -267,20 +267,16 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Super Bombs Also", "Also regenerates S. Bombs");
 			break;
 		}
-		case itype_quakescroll2: //!TODO Help Text
+		case itype_quakescroll:
+		case itype_quakescroll2:
 		{
-			inf->power = "Damage Multiplier:";
-			inf->misc[0] = "Stun Duration:";
-			inf->misc[1] = "Stun Radius:";
-			inf->actionsnd[0] = "Quake Sound:";
-			break;
-		}
-		case itype_quakescroll: //!TODO Help Text
-		{
-			inf->power = "Damage Multiplier:";
-			inf->misc[0] = "Stun Duration:";
-			inf->misc[1] = "Stun Radius:";
-			inf->actionsnd[0] = "Quake Sound:";
+			_SET(power, "Damage Multiplier:", "Multiplier of the hammer's damage to deal");
+			_SET(misc[0], "Stun Duration:", "Duration, in frames, to stun enemies for.");
+			_SET(misc[1], "Stun Radius:", "Radius, in pixels, to stun enemies in.");
+			_SET(actionsnd[0], "Quake Sound:", "Sound played when the hammer is swung");
+			_SET(actionsnd[1], "Charge Sound:", "Sound played when the hammer is charged");
+			_SET(flag[0], "Pay on swing", "The use cost will be consumed when the charge is"
+				" unleashed, instead of when it is charged up.");
 			break;
 		}
 		case itype_perilscroll: //!TODO Help Text
@@ -288,18 +284,15 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[0] = "Maximum Hearts:";
 			break;
 		}
-		case itype_spinscroll2: //!TODO Help Text
+		case itype_spinscroll:
+		case itype_spinscroll2:
 		{
-			inf->power = "Damage Multiplier:";
-			inf->misc[0] = "Number of Spins:";
-			inf->actionsnd[0] = "Spinning Sound:";
-			break;
-		}
-		case itype_spinscroll: //!TODO Help Text
-		{
-			inf->power = "Damage Multiplier:";
-			inf->misc[0] = "Number of Spins:";
-			inf->actionsnd[0] = "Spinning Sound:";
+			_SET(power, "Damage Multiplier:", "Multiplier of the sword's damage to deal");;
+			_SET(misc[0], "Number of Spins:", "Number of times to spin the sword");
+			_SET(actionsnd[0], "Spinning Sound:", "The sound to play while spinning");
+			_SET(actionsnd[1], "Charge Sound:", "The sound to play when charged");
+			_SET(flag[0], "Pay on swing", "The use cost will be consumed when the charge is"
+				" unleashed, instead of when it is charged up.");
 			break;
 		}
 		case itype_clock:
@@ -935,7 +928,8 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t
 	list_weaponscript(GUI::ZCListData::lweapon_script()),
 	list_weaptype(GUI::ZCListData::lweaptypes()),
 	list_deftypes(GUI::ZCListData::deftypes()),
-	list_bottletypes(GUI::ZCListData::bottletype())
+	list_bottletypes(GUI::ZCListData::bottletype()),
+	list_sfx(GUI::ZCListData::sfxnames(true))
 {}
 
 ItemEditorDialog::ItemEditorDialog(int32_t index):
@@ -1400,15 +1394,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										InfoDialog("SFX Info",h_sfx[0]).show();
 									}),
-								TextField(
-									val = local_itemref.usesound,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_itemref.usesound,
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.usesound = val;
-									}
-								),
+									}),
 								l_sfx[1] = Label(textAlign = 2, width = ACTION_LAB_WID),
 								ib_sfx[1] = Button(forceFitH = true, text = "?",
 									disabled = true,
@@ -1416,15 +1407,12 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									{
 										InfoDialog("SFX Info",h_sfx[1]).show();
 									}),
-								TextField(
-									val = local_itemref.usesound2,
-									type = GUI::TextField::type::INT_DECIMAL,
-									width = ACTION_FIELD_WID, high = 255,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_itemref.usesound2,
+									onSelectFunc = [&](int32_t val)
 									{
 										local_itemref.usesound2 = val;
-									}
-								)
+									})
 							),
 							Rows<2>(
 								Checkbox(

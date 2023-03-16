@@ -9373,6 +9373,20 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				if( tempitem.family == itype_flippers )
 					tempitem.misc3 = INT_BTN_A; //'Block Front' flag
 			}
+			if(s_version < 55)
+			{
+				switch(tempitem.family)
+				{
+					case itype_spinscroll:
+					case itype_quakescroll:
+						tempitem.usesound2 = WAV_ZN1CHARGE;
+						break;
+					case itype_spinscroll2:
+					case itype_quakescroll2:
+						tempitem.usesound2 = WAV_ZN1CHARGE2;
+						break;
+				}
+			}
 			
 			if(tempitem.fam_type==0)  // Always do this
 				tempitem.fam_type=1;

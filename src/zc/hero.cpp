@@ -1696,11 +1696,22 @@ int32_t HeroClass::weaponattackpower(int32_t itid)
 			: attack==wHammer ? itype_hammer
 			: itype_sword);
 	}
-    int32_t power = attack==wCByrna ? itemsbuf[itid].misc4 : itemsbuf[itid].power;
-    
-    // Multiply it by the power of the spin attack/quake hammer, if applicable.
-    power *= (spins>0 ? itemsbuf[current_item_id(attack==wHammer ? itype_quakescroll : (spins>5 || current_item_id(itype_spinscroll) < 0) ? itype_spinscroll2 : itype_spinscroll)].power : 1);
-    return power;
+	int32_t power = attack==wCByrna ? itemsbuf[itid].misc4 : itemsbuf[itid].power;
+	
+	// Multiply it by the power of the spin attack/quake hammer, if applicable.
+	if(spins > 0)
+	{
+		int scr = currentscroll;
+		if(scr < 0)
+		{
+			scr = current_item_id(attack==wHammer ? (spins>1?itype_quakescroll2:itype_quakescroll)
+				: (spins>5 || current_item_id(itype_spinscroll) < 0)
+					? itype_spinscroll2 : itype_spinscroll);
+		}
+		power *= itemsbuf[scr].power;
+	}
+	else currentscroll = -1;
+	return power;
 }
 
 #define NET_CLK_TOTAL 24
@@ -3616,17 +3627,14 @@ bool HeroClass::checkstab()
 			check_wand_block(wx+wxsz-8,y+8);
 		}
 	}
-	else if((attack==wHammer) && ((attackclk==15) || ( spins==1 && attackclk >=15 ))) //quake hammer should be spins == 1
-	//else if((attack==wHammer) && (attackclk==15))
-	//reverting this, because it breaks multiple-hit pegs
-	//else if((attack==wHammer) && (attackclk>=15)) //>= instead of == for time it takes to charge up hammer with quake scrolls.
+	else if((attack==wHammer) && ((attackclk==15) || ( spins>0 && attackclk >=15 )))
 	{
 		// poundable blocks
 		for(int32_t q=0; q<176; q++)
 		{
 			set_bit(screengrid,q,0);
-				set_bit(screengrid_layer[0],q,0);
-				set_bit(screengrid_layer[1],q,0);
+			set_bit(screengrid_layer[0],q,0);
+			set_bit(screengrid_layer[1],q,0);
 		}
 		
 		for(dword q = MAXFFCS/8; q > 0; --q)
@@ -12058,7 +12066,8 @@ bool HeroClass::doattack()
 		magiccharge = itemsbuf[itemid].misc2;
 	}
 	
-	itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
+	int scrollid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
+	int scroll2id = current_item_id(attack==wHammer ? itype_quakescroll2 : itype_spinscroll2);
 	
 	bool doCharge=true;
 	if(z!=0 && fakez != 0)
@@ -12069,7 +12078,7 @@ bool HeroClass::doattack()
 			doCharge=false;
 		else if(charging<=normalcharge)
 		{
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
+			if(scrollid<0 || !(checkbunny(scrollid) && checkmagiccost(scrollid)))
 				doCharge=false;
 		}
 	}
@@ -12079,18 +12088,14 @@ bool HeroClass::doattack()
 			doCharge=false;
 		else if(charging<=normalcharge)
 		{
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
+			if(scrollid<0 || !(checkbunny(scrollid) && checkmagiccost(scrollid)))
 				doCharge=false;
 		}
 	}
 	else
 		doCharge=false;
 	
-	// Now work out the magic cost
-	itemid = current_item_id(attack==wHammer ? itype_quakescroll : itype_spinscroll);
-	
 	// charging up weapon...
-	//
 	if(doCharge)
 	{
 		// Increase charging while holding down button.
@@ -12100,18 +12105,18 @@ bool HeroClass::doattack()
 		// Once a charging threshold is reached, play the sound.
 		if(charging==normalcharge)
 		{
-			paymagiccost(itemid); //!DIMITODO: Can this underflow or even just do it even if you don't have magic?
-			sfx(WAV_ZN1CHARGE,pan(x.getInt()));
+			if(!(itemsbuf[scrollid].flags&ITEM_FLAG1))
+				paymagiccost(scrollid);
+			sfx(itemsbuf[scrollid].usesound2,pan(x.getInt()));
 		}
 		else if(charging==magiccharge)
 		{
-			itemid = current_item_id(attack==wHammer ? itype_quakescroll2 : itype_spinscroll2);
-			
-			if(itemid>-1 && checkbunny(itemid) && checkmagiccost(itemid))
+			if(scroll2id>-1 && checkbunny(scroll2id) && checkmagiccost(scroll2id))
 			{
-				paymagiccost(itemid);
+				if(!(itemsbuf[scroll2id].flags&ITEM_FLAG1))
+					paymagiccost(scroll2id);
 				charging++; // charging>magiccharge signifies a successful supercharge.
-				sfx(WAV_ZN1CHARGE2,pan(x.getInt()));
+				sfx(itemsbuf[scroll2id].usesound2,pan(x.getInt()));
 			}
 		}
 	}
@@ -12168,32 +12173,85 @@ bool HeroClass::doattack()
 		{
 			if(attack==wSword)
 			{
-				spins=(charging>magiccharge ? (itemsbuf[current_item_id(itype_spinscroll2)].misc1*4)-3
-					   : (itemsbuf[current_item_id(itype_spinscroll)].misc1*4)+1);
-				attackclk=1;
-				sfx(itemsbuf[current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(x.getInt()));
+				bool super = charging>magiccharge && scroll2id > -1;
+				int id = super ? scroll2id : scrollid;
+				itemdata const& spinscroll = itemsbuf[id];
+				bool paid = !(spinscroll.flags&ITEM_FLAG1);
+				if(!paid && checkbunny(id) && checkmagiccost(id))
+				{
+					paid = true;
+					paymagiccost(id);
+				}
+				if(paid)
+				{
+					currentscroll = id;
+					spins=(spinscroll.misc1*4) + (super ? -3 : 1);
+					attackclk=1;
+					sfx(spinscroll.usesound,pan(x.getInt()));
+					if(spinscroll.flags&ITEM_FLAG1)
+						paymagiccost(id);
+				}
 			}
-			/*
-			else if(attack==wWand)
-			{
-				//Not reachable.. yet
-				spins=1;
-			}
-			*/
 			else if(attack==wHammer && sideviewhammerpound())
 			{
-				spins=1; //signifies the quake hammer
-				bool super = (charging>magiccharge && current_item(itype_quakescroll2));
-				sfx(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].usesound,pan(x.getInt()));
-				quakeclk=(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc1);
-				
-				// general area stun
-				for(int32_t i=0; i<GuyCount(); i++)
+				bool super = charging>magiccharge && scroll2id > -1;
+				int id = super ? scroll2id : scrollid;
+				itemdata const& quakescroll = itemsbuf[id];
+				bool paid = !(quakescroll.flags&ITEM_FLAG1);
+				if(!paid && checkbunny(id) && checkmagiccost(id))
 				{
-					if(!isflier(GuyID(i)))
+					paid = true;
+					paymagiccost(id);
+				}
+				if(paid)
+				{
+					currentscroll = id;
+					spins = super ? 2 : 1;
+					sfx(quakescroll.usesound,pan(x.getInt()));
+					quakeclk=quakescroll.misc1;
+					
+					// general area stun
+					for(int32_t i=0; i<GuyCount(); i++)
 					{
-						StunGuy(i,(itemsbuf[current_item_id(super ? itype_quakescroll2 : itype_quakescroll)].misc2)-
-								distance(x,y,GuyX(i),GuyY(i)));
+						if(!isflier(GuyID(i)))
+						{
+							StunGuy(i,quakescroll.misc2-distance(x,y,GuyX(i),GuyY(i)));
+						}
+					}
+					
+					int hmrid = (directWpn>-1 && itemsbuf[directWpn].family==itype_hammer) ? directWpn : current_item_id(itype_hammer);
+					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].fam_type;
+					if(hmrlvl < 1) hmrlvl = 1;
+					int rad = quakescroll.misc2;
+					for(int pos = 0; pos < 176; ++pos)
+					{
+						if(distance(x,y,COMBOX(pos),COMBOY(pos)) > rad) continue;
+						for(int lyr = 0; lyr < 7; ++lyr)
+						{
+							int cid = FFCore.tempScreens[lyr]->data[pos];
+							newcombo const& cmb = combobuf[cid];
+							if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
+							{
+								if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
+									? hmrlvl <= cmb.triggerlevel
+									: hmrlvl >= cmb.triggerlevel)
+									do_trigger_combo(lyr,pos);
+							}
+						}
+					}
+					word c = tmpscr->numFFC();
+					for(int ff = 0; ff < c; ++ff)
+					{
+						ffcdata& ffc = tmpscr->ffcs[ff];
+						newcombo const& cmb = combobuf[ffc.getData()];
+						if(distance(x,y,ffc.x,ffc.y) > rad) continue;
+						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
+						{
+							if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
+								? hmrlvl <= cmb.triggerlevel
+								: hmrlvl >= cmb.triggerlevel)
+								do_trigger_combo_ffc(ff);
+						}
 					}
 				}
 			}
@@ -12215,7 +12273,7 @@ bool HeroClass::doattack()
 	
 	int32_t crossid = current_item_id(itype_crossscroll);  //has Cross Beams scroll
 	
-	if(attackclk==13 || (attackclk==7 && spins>1 && crossid >=0 && checkbunny(crossid) && checkmagiccost(crossid)))
+	if(attackclk==13 || (attackclk==7 && spins>1 && attack != wHammer && crossid >=0 && checkbunny(crossid) && checkmagiccost(crossid)))
 	{
 	
 		int32_t wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
@@ -13759,16 +13817,18 @@ void HeroClass::movehero()
 		{
 			return;
 		}
-		else if(!(attacked))
+		else if(!attacked)
 		{
 			// Spin attack - change direction
-			if(spins>1)
+			if(spins>1 && attack != wHammer)
 			{
 				spins--;
 				
 				if(spins%5==0)
-					sfx(itemsbuf[current_item_id(spins >5 ? itype_spinscroll2 : itype_spinscroll)].usesound,pan(x.getInt()));
-					
+				{
+					int id = currentscroll > -1 ? currentscroll : (current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll));
+					sfx(itemsbuf[id].usesound,pan(x.getInt()));
+				}
 				attackclk=1;
 				
 				switch(dir)
