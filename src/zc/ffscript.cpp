@@ -6907,6 +6907,12 @@ int32_t get_register(const int32_t arg)
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
+		case LWPNTIMEOUT:
+			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			{
+				ret = ((weapon*)(s))->weap_timeout * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -7464,6 +7470,12 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"SwitchHooked")))
 			{
 				ret = s->switch_hooked ? 10000 : 0;
+			}
+			break;
+		case EWPNTIMEOUT:
+			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			{
+				ret = ((weapon*)(s))->weap_timeout * 10000;
 			}
 			break;
 		
@@ -16035,6 +16047,12 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case LWSWHOOKED:
 			break; //read-only
+		case LWPNTIMEOUT:
+			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			{
+				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -16608,6 +16626,12 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case EWSWHOOKED:
 			break; //read-only
+		case EWPNTIMEOUT:
+			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			{
+				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -40571,8 +40595,8 @@ script_variable ZASMVars[]=
 	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
 	{ "FFCLASTCHANGERX", FFCLASTCHANGERX, 0, 0 },
 	{ "FFCLASTCHANGERY", FFCLASTCHANGERY, 0, 0 },
-	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
-	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
+	{ "LWPNTIMEOUT", LWPNTIMEOUT, 0, 0 },
+	{ "EWPNTIMEOUT", EWPNTIMEOUT, 0, 0 },
 	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
 	{ "RESRVD_VAR_EMILY08", RESRVD_VAR_EMILY08, 0, 0 },
 	{ "RESRVD_VAR_EMILY09", RESRVD_VAR_EMILY09, 0, 0 },

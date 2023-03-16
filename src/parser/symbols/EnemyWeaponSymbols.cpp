@@ -128,6 +128,8 @@ static AccessorTable ewpnTable[] =
 	{ "setShadowSprite",            0,          ZTID_VOID,   EWPNSHADOWSPR,             0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "getSwitchHooked",            0,          ZTID_BOOL,   EWSWHOOKED,                0,  { ZTID_EWPN },{} },
 	{ "setSwitchHooked",            0,          ZTID_VOID,   EWSWHOOKED,                0,  { ZTID_EWPN, ZTID_BOOL },{} },
+	{ "getTimeout",                 0,         ZTID_FLOAT,   EWPNTIMEOUT,               0,  { ZTID_EWPN },{} },
+	{ "setTimeout",                 0,          ZTID_VOID,   EWPNTIMEOUT,               0,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "Switch",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	{ "getDrowning",                0,         ZTID_FLOAT,   EWPNDROWNCLK,              0,  { ZTID_EWPN },{} },
 	{ "setDrowning",                0,          ZTID_VOID,   EWPNDROWNCLK,              0,  { ZTID_EWPN, ZTID_FLOAT },{} },

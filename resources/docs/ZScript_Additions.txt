@@ -4924,6 +4924,9 @@ int ShadowSprite;
 bool SwitchHooked;
  * READ-ONLY
  * Returns true if the object is currently grabbed by a switchhook effect
+
+int Timeout;
+ * If > 0, ticks down each frame. When ticking down to 0, kills the weapon.
  
 bool Switch(int effect);
  * Switch the player with this object

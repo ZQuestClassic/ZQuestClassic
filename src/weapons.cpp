@@ -886,6 +886,7 @@ weapon::weapon(weapon const & other):
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
 	script_wrote_otile(other.script_wrote_otile),
 	weapon_dying_frame(other.weapon_dying_frame),
+	weap_timeout(other.weap_timeout),
 	unblockable(other.unblockable),
 	misc_wflags(other.misc_wflags),
 	death_spawnitem(other.death_spawnitem),
@@ -1151,6 +1152,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	linked_parent = Linked_Parent;
 	quantity_iterator = 0;
 	weapon_dying_frame = false;
+	weap_timeout = 0;
 	parent_script_UID = 0;
 	unblockable = 0;
 	misc_wflags = 0;
@@ -6799,8 +6801,11 @@ bool weapon::animate(int32_t index)
 	//if ( id >= wScript1 && id <= wScript10 ) Z_scripterrlog("Updated Script Weapon Clock\n");
 	
 	if(dead>0)
-	{
 		--dead;
+	if(weap_timeout > 0)
+	{
+		if(!--weap_timeout)
+			dead = 0;
 	}
 	
 	bool ret = dead==0;

@@ -134,6 +134,8 @@ static AccessorTable lwpnTable[] =
 	{ "setShadowSprite",            0,          ZTID_VOID,   LWPNSHADOWSPR,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getSwitchHooked",            0,          ZTID_BOOL,   LWSWHOOKED,                0,  { ZTID_LWPN },{} },
 	{ "setSwitchHooked",            0,          ZTID_VOID,   LWSWHOOKED,                0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getTimeout",                 0,         ZTID_FLOAT,   LWPNTIMEOUT,               0,  { ZTID_LWPN },{} },
+	{ "setTimeout",                 0,          ZTID_VOID,   LWPNTIMEOUT,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "Switch",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getDrowning",                0,         ZTID_FLOAT,   LWPNDROWNCLK,              0,  { ZTID_LWPN },{} },
 	{ "setDrowning",                0,          ZTID_VOID,   LWPNDROWNCLK,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
