@@ -1494,6 +1494,15 @@ static MENU module_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
+static MENU media_menu[] =
+{
+	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
+	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
+	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
+	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
+};
+
 static MENU etc_menu[] =
 {
 	{ (char *)"&Help",                      NULL /*onHelp*/,           zq_help_menu,             0,            NULL   },
@@ -1504,31 +1513,18 @@ static MENU etc_menu[] =
 	// 5
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
-	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
-	// 10
-	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
-	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+	{ (char *)"Media",                      NULL,                      media_menu,               0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
-	{ (char *)"C&lear Quest Filepath",      onClearQuestFilepath,      NULL,                     0,            NULL   },
-	// 15
-	{ (char *)"&Take Snapshot\tZ",          onSnapshot,                NULL,                     0,            NULL   },
+	// 10
+	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
+	// 15
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
-
-static MENU media_menu[] =
-{
-	{ (char *)"Ambient Music  ",        NULL,                      tunes_menu,               0,            NULL   },
-    { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
-    { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
-    { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-
-};
-
 
 
 //New ZScript Menu for 2.55 Alpha 16
@@ -1551,7 +1547,7 @@ static MENU zscript_menu[] =
 
 void set_console_state()
 {
-	SETFLAG(etc_menu[13].flags, D_SELECTED, console_is_open);
+	SETFLAG(etc_menu[9].flags, D_SELECTED, console_is_open);
 }
 
 MENU the_menu[] =
@@ -4371,91 +4367,91 @@ int32_t changeTrack()
 
 int32_t playMusic()
 {
-    char *ext;
-    bool ismidi=false;
-    char allmusic_types[256];
-    sprintf(allmusic_types, "%s;mid", zcmusic_types);
-    
-    if(getname("Load Music",(char*)allmusic_types,NULL,midipath,false))
-    {
-        strcpy(midipath,temppath);
-        
-        ext=get_extension(midipath);
-        
-        if(
-            (stricmp(ext,"ogg")==0)||
-            (stricmp(ext,"mp3")==0)||
-            (stricmp(ext,"it")==0)||
-            (stricmp(ext,"xm")==0)||
-            (stricmp(ext,"s3m")==0)||
-            (stricmp(ext,"mod")==0)||
-            (stricmp(ext,"spc")==0)||
-            (stricmp(ext,"gym")==0)||
-            (stricmp(ext,"nsf")==0)||
-            (stricmp(ext,"gbs")==0)||
-            (stricmp(ext,"vgm")==0)
-        )
-        {
-            ismidi=false;
-        }
-        else if((stricmp(ext,"mid")==0))
-        {
-            ismidi=true;
-        }
-        else
-        {
-            return D_O_K;
-        }
-        
-        zc_stop_midi();
-        
-        if(zcmusic != NULL)
-        {
-            zcmusic_stop(zcmusic);
-            zcmusic_unload_file(zcmusic);
-            zcmusic = NULL;
-        }
-        
-        if(ismidi)
-        {
-            packfile_password("");
-            if((song=load_midi(midipath))!=NULL)
-            {
-                if(zc_play_midi(song,true)==0)
-                {
-                    etc_menu[8].flags =
-                        commands[cmdPlayTune].flags = 0;
-                        
-                    etc_menu[9].flags = D_SELECTED;
-                    commands[cmdPlayMusic].flags = 0;
-                    
-                    etc_menu[10].flags =
-                        commands[cmdChangeTrack].flags = D_DISABLED;
-                }
-            }
-        }
-        else
-        {
-            gme_track=0;
-            zcmusic = (ZCMUSIC*)zcmusic_load_file(midipath);
-            
-            if(zcmusic!=NULL)
-            {
-                etc_menu[8].flags =
-                    commands[cmdPlayTune].flags = 0;
-                    
-                etc_menu[9].flags=D_SELECTED;
-                commands[cmdPlayMusic].flags = 0;
-                
-                etc_menu[10].flags =
-                    commands[cmdChangeTrack].flags = (zcmusic_get_tracks(zcmusic)<2)?D_DISABLED:0;
-                    
-                zcmusic_play(zcmusic, midi_volume);
-            }
-        }
-    }
-    
-    return D_O_K;
+	char *ext;
+	bool ismidi=false;
+	char allmusic_types[256];
+	sprintf(allmusic_types, "%s;mid", zcmusic_types);
+	
+	if(getname("Load Music",(char*)allmusic_types,NULL,midipath,false))
+	{
+		strcpy(midipath,temppath);
+		
+		ext=get_extension(midipath);
+		
+		if(
+			(stricmp(ext,"ogg")==0)||
+			(stricmp(ext,"mp3")==0)||
+			(stricmp(ext,"it")==0)||
+			(stricmp(ext,"xm")==0)||
+			(stricmp(ext,"s3m")==0)||
+			(stricmp(ext,"mod")==0)||
+			(stricmp(ext,"spc")==0)||
+			(stricmp(ext,"gym")==0)||
+			(stricmp(ext,"nsf")==0)||
+			(stricmp(ext,"gbs")==0)||
+			(stricmp(ext,"vgm")==0)
+		)
+		{
+			ismidi=false;
+		}
+		else if((stricmp(ext,"mid")==0))
+		{
+			ismidi=true;
+		}
+		else
+		{
+			return D_O_K;
+		}
+		
+		zc_stop_midi();
+		
+		if(zcmusic != NULL)
+		{
+			zcmusic_stop(zcmusic);
+			zcmusic_unload_file(zcmusic);
+			zcmusic = NULL;
+		}
+		
+		if(ismidi)
+		{
+			packfile_password("");
+			if((song=load_midi(midipath))!=NULL)
+			{
+				if(zc_play_midi(song,true)==0)
+				{
+					media_menu[0].flags =
+						commands[cmdPlayTune].flags = 0;
+						
+					media_menu[1].flags = D_SELECTED;
+					commands[cmdPlayMusic].flags = 0;
+					
+					media_menu[2].flags =
+						commands[cmdChangeTrack].flags = D_DISABLED;
+				}
+			}
+		}
+		else
+		{
+			gme_track=0;
+			zcmusic = (ZCMUSIC*)zcmusic_load_file(midipath);
+			
+			if(zcmusic!=NULL)
+			{
+				media_menu[0].flags =
+					commands[cmdPlayTune].flags = 0;
+					
+				media_menu[1].flags=D_SELECTED;
+				commands[cmdPlayMusic].flags = 0;
+				
+				media_menu[2].flags =
+					commands[cmdChangeTrack].flags = (zcmusic_get_tracks(zcmusic)<2)?D_DISABLED:0;
+					
+				zcmusic_play(zcmusic, midi_volume);
+			}
+		}
+	}
+	
+	return D_O_K;
 }
 
 // It took awhile to get these values right, so no meddlin'!
@@ -4551,13 +4547,13 @@ int32_t playTune(int32_t pos)
     {
         zc_midi_seek(pos);
         
-        etc_menu[8].flags = D_SELECTED;
-        commands[cmdPlayTune].flags = 0;
+        media_menu[0].flags = D_SELECTED;
+		commands[cmdPlayTune].flags = 0;
         
-        etc_menu[9].flags =
+        media_menu[1].flags =
             commands[cmdPlayMusic].flags = 0;
             
-        etc_menu[10].flags =
+        media_menu[2].flags =
             commands[cmdChangeTrack].flags = D_DISABLED;
     }
     
@@ -4575,12 +4571,12 @@ int32_t stopMusic()
         zcmusic = NULL;
     }
     
-    etc_menu[8].flags =
-        etc_menu[9].flags =
+    media_menu[0].flags =
+        media_menu[1].flags =
             commands[cmdPlayTune].flags =
                 commands[cmdPlayMusic].flags = 0;
                 
-    etc_menu[10].flags =
+    media_menu[2].flags =
         commands[cmdChangeTrack].flags = D_DISABLED;
     return D_O_K;
 }
@@ -31303,7 +31299,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	quit=!update_dialog(player2);
 	//clear_keybuf();
-	etc_menu[10].flags=commands[cmdChangeTrack].flags=D_DISABLED;
+	media_menu[2].flags=commands[cmdChangeTrack].flags=D_DISABLED;
 	
 	fix_drawing_mode_menu();
 	
