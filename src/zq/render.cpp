@@ -2,6 +2,8 @@
 #include "zconfig.h"
 #include "base/gui.h"
 
+extern int32_t prv_mode;
+
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
 static RenderTreeItem rti_mmap;
@@ -39,7 +41,6 @@ static void init_render_tree()
 	
 	set_bitmap_create_flags(true);
 	rti_mmap.bitmap = al_create_bitmap(screen->w, screen->h);
-	rti_mmap.visible = true;
 	
 	rti_screen.children.push_back(&rti_mmap);
 	
@@ -65,7 +66,9 @@ static void configure_render_tree()
 	rti_root.transform.xscale = 1;
 	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
-
+	
+	rti_mmap.visible = !prv_mode;
+	
 	{
 		int w = al_get_bitmap_width(rti_screen.bitmap);
 		int h = al_get_bitmap_height(rti_screen.bitmap);

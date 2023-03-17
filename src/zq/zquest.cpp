@@ -6838,9 +6838,6 @@ void refresh(int32_t flags, bool update)
 				textprintf_shadowed_ex(menu1,showfont,0,ypos,vc(15),vc(0),infobg?vc(0):-1,"T Warp=%d tics", Map.get_prvtime());
 				ypos += showfont_h+1;
 			}
-			
-			do_previewtext();
-			
 		}
 		if(ShowFPS)
 		{
@@ -6863,6 +6860,8 @@ void refresh(int32_t flags, bool update)
 			}
 		}
 		clear_clip_rect(menu1);
+		if(prv_mode)
+			do_previewtext();
 	}
 	// Show Errors & Details
 	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
