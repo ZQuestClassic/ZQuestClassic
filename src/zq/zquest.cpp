@@ -566,6 +566,7 @@ int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp re
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
+bool allowHideMouse = false; //!TODO add config for this
 double aspect_ratio = LARGE_H / double(LARGE_W);
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
@@ -6126,9 +6127,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				arrowcursor = false;
 				int32_t mgridscale=16*mapscreensize;
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-				int32_t mx=(gui_mouse_x()-startxint)/mgridscale*mgridscale;
-				int32_t my=(gui_mouse_y()-startyint)/mgridscale*mgridscale;
+				if(allowHideMouse)
+					set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+				int32_t mx=(gui_mouse_x()-mapscreen_x)/mgridscale*mgridscale;
+				int32_t my=(gui_mouse_y()-mapscreen_y)/mgridscale*mgridscale;
 				clear_bitmap(brushscreen);
 				int32_t tempbw=BrushWidth;
 				int32_t tempbh=BrushHeight;
@@ -6141,7 +6143,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 				if((FloatBrush)&&(draw_mode!=dm_alias))
 				{
-					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), my+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
+					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx-(SHADOW_DEPTH*mapscreensize), my-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
 					
 					//shadow
 					for(int32_t i=0; i<SHADOW_DEPTH*mapscreensize; i++)
@@ -6150,7 +6152,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						{
 							if((((i^j)&1)==1) && (my+j)<12*mgridscale)
 							{
-								putpixel(brushscreen,mx+(showedges?mgridscale:0)+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+(showedges?mgridscale:0)+j,vc(0));
+								putpixel(brushscreen,mx+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+j,vc(0));
 							}
 						}
 					}
@@ -6161,7 +6163,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						{
 							if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
 							{
-								putpixel(brushscreen,mx+(showedges?mgridscale:0)+i,my+(showedges?mgridscale:0)+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
+								putpixel(brushscreen,mx+i,my+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
 							}
 						}
 					}
@@ -6170,7 +6172,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				{
 					if(draw_mode!=dm_alias)
 					{
-						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx, my, BrushWidth*mgridscale, BrushHeight*mgridscale);
 					}
 					else
 					{
@@ -8047,7 +8049,7 @@ void draw(bool justcset)
 												
 												if((combo->combos[p])&&(amap>=0))
 												{
-													Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
+													Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
 												}
 											}
 										}
@@ -19702,7 +19704,8 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
             {
                 if(!mousedown||!inrect)
                 {
-                    set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+					if(allowHideMouse)
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
                     set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
                 }
                 
