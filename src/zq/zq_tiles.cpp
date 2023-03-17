@@ -18642,17 +18642,18 @@ int32_t d_mr_cset_proc(int32_t msg, DIALOG* d, int32_t)
 static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 {
 	BITMAP* bmp=screen;
-	int32_t colorWidth=(d->w-4)/16;
-	int32_t colorHeight=(d->h-4)/12;
+	int colorWidth=(d->w-4)/16;
+	d->h = 4+(colorWidth*14);
+	int colorHeight=colorWidth;
 	
 	switch(msg)
 	{
 	case MSG_DRAW:
 		{
 			jwin_draw_frame(bmp, d->x, d->y, d->w, d->h, FR_DEEP);
-			for(int32_t cset=0; cset<=11; cset++)
+			for(int cset=0; cset<=13; cset++)
 			{
-				for(int32_t color=0; color<16; color++)
+				for(int color=0; color<16; color++)
 				{
 					rectfill(bmp,
 					  d->x+2+color*colorWidth,
@@ -18667,8 +18668,8 @@ static int32_t d_mr_palette_proc(int32_t msg, DIALOG* d, int32_t)
 		
 	case MSG_LPRESS:
 		{
-			int32_t cset=(gui_mouse_y()-(d->y+2))/colorHeight;
-			int32_t color=(gui_mouse_x()-(d->x+2))/colorWidth;
+			int cset=(gui_mouse_y()-(d->y+2))/colorHeight;
+			int color=(gui_mouse_x()-(d->x+2))/colorWidth;
 			massRecolorDraggedColor=cset*16+color;
 		}
 		break;
@@ -18696,14 +18697,16 @@ static DIALOG recolor_4bit_dlg[] =
 	{ jwin_check_proc,        84, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "3", NULL, NULL },
 	{ jwin_check_proc,       108, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "4", NULL, NULL },
 	{ jwin_check_proc,       132, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "5", NULL, NULL },
-	{ jwin_check_proc,        12, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "6", NULL, NULL },
-	{ jwin_check_proc,        36, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "7", NULL, NULL },
-	{ jwin_check_proc,        60, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "8", NULL, NULL },
-	{ jwin_check_proc,        84, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "9", NULL, NULL },
-	{ jwin_check_proc,       108, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "10", NULL, NULL },
-	{ jwin_check_proc,       132, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "11", NULL, NULL },
+	{ jwin_check_proc,       156, 112, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "6", NULL, NULL },
+	{ jwin_check_proc,        12, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "7", NULL, NULL },
+	{ jwin_check_proc,        36, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "8", NULL, NULL },
+	{ jwin_check_proc,        60, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "9", NULL, NULL },
+	{ jwin_check_proc,        84, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "10", NULL, NULL },
+	{ jwin_check_proc,       108, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "11", NULL, NULL },
+	{ jwin_check_proc,       132, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "12", NULL, NULL },
+	{ jwin_check_proc,       156, 128, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "13", NULL, NULL },
 	
-	// 18
+	// 20
 	{ jwin_check_proc,        12, 144, 168,   8, vc(15), vc(1),    0,                 0,   1,   0, (void *) "Ignore blank tiles", NULL, NULL },
 	{ jwin_func_button_proc,  14, 160,  60,  20, vc(14), vc(1),    0,                 0,   0,   0, (void *) "Reset", NULL, (void*)massRecolorReset4Bit },
 	{ jwin_button_proc,       82, 160, 120,  20, vc(14), vc(1),    0,            D_EXIT,   0,   0, (void *) "Switch to 8-bit mode", NULL, NULL },
@@ -18716,11 +18719,11 @@ static DIALOG recolor_4bit_dlg[] =
 #define MR4_SRC_COLORS 2
 #define MR4_DEST_COLORS 4
 #define MR4_8BIT_EFFECT_START 6
-#define MR4_IGNORE_BLANK 18
-#define MR4_RESET 19
-#define MR4_SWITCH 20
-#define MR4_OK 21
-#define MR4_CANCEL 22
+#define MR4_IGNORE_BLANK 20
+#define MR4_RESET 21
+#define MR4_SWITCH 22
+#define MR4_OK 23
+#define MR4_CANCEL 24
 
 static DIALOG recolor_8bit_dlg[] =
 {
@@ -18732,7 +18735,7 @@ static DIALOG recolor_8bit_dlg[] =
 	{ d_mr_cset_proc,         10,  42, 132,  12,      0,     0,    0, D_SETTABLE,   0,  0, (void *)massRecolorSrc8Bit, NULL, NULL },
 	{ jwin_text_proc,         12,  60, 176,   8, vc(15), vc(1),    0,          0,   0,  0, (void *) "To", NULL, NULL },
 	{ d_mr_cset_proc,         10,  70, 132,  12,      0,     0,    0, D_SETTABLE,   0,  0, (void *)massRecolorDest8Bit, NULL, NULL },
-	{ d_mr_palette_proc,     144,  32, 132, 100, vc(15), vc(1),    0,          0,   0,  0, (void *) NULL, NULL, NULL },
+	{ d_mr_palette_proc,     144,  32, 132, 150, vc(15), vc(1),    0,          0,   0,  0, (void *) NULL, NULL, NULL },
 	
 	// 6
 	{ jwin_check_proc,        12, 144, 168,   8, vc(15), vc(1),    0,          0,   1,  0, (void *) "Ignore blank tiles", NULL, NULL },
@@ -18761,7 +18764,7 @@ static void massRecolorInit(int32_t cset)
 	recolor_4bit_dlg[0].dp2=lfont;
 	recolor_8bit_dlg[0].dp2=lfont;
 	
-	for(int32_t i=0; i<=11; i++)
+	for(int32_t i=0; i<=13; i++)
 	{
 		if((massRecolor8BitCSets&(1<<i))!=0)
 			recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags|=D_SELECTED;
@@ -18805,7 +18808,7 @@ static void massRecolorInit(int32_t cset)
 static void massRecolorApplyChanges()
 {
 	massRecolor8BitCSets=0;
-	for(int32_t i=0; i<=11; i++)
+	for(int32_t i=0; i<=13; i++)
 	{
 		if((recolor_4bit_dlg[MR4_8BIT_EFFECT_START+i].flags&D_SELECTED)!=0)
 			massRecolor8BitCSets|=1<<i;
