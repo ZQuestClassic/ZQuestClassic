@@ -1296,7 +1296,6 @@ int32_t onShowDarkness()
 	else
 	{
 		refresh(rALL);
-		update_hw_screen(true);
 		if(get_bit(quest_rules,qr_FADE))
 		{
 			int32_t last = CSET(5)-1;
@@ -1316,6 +1315,7 @@ int32_t onShowDarkness()
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
 			set_palette(RAMpal);
 
+			update_hw_screen(true);
 			readkey();
 
 			load_cset(RAMpal,5,5);
@@ -1324,6 +1324,7 @@ int32_t onShowDarkness()
 		else
 		{
 			loadfadepal(Color*pdLEVEL+poFADE3);
+			update_hw_screen(true);
 			readkey();
 			loadlvlpal(Color);
 		}
