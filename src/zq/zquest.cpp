@@ -6125,10 +6125,20 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
 			{
-				arrowcursor = false;
 				int32_t mgridscale=16*mapscreensize;
 				if(allowHideMouse)
-					set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+				{
+					if(arrowcursor)
+					{
+						arrowcursor = false;
+						set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+					}
+				}
+				else if(!arrowcursor)
+				{
+					arrowcursor = true;
+					set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+				}
 				int32_t mx=(gui_mouse_x()-mapscreen_x)/mgridscale*mgridscale;
 				int32_t my=(gui_mouse_y()-mapscreen_y)/mgridscale*mgridscale;
 				clear_bitmap(brushscreen);
@@ -30664,6 +30674,7 @@ int32_t main(int32_t argc,char **argv)
 	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
+	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);

@@ -17,6 +17,7 @@ void call_options_dlg()
 
 extern int32_t EnableTooltips, GridColor, KeyboardRepeatDelay,
 	TooltipsHighlight, KeyboardRepeatRate, pixeldb, infobg, MMapCursorStyle;
+extern bool allowHideMouse;
 
 void OptionsDialog::loadOptions()
 {
@@ -64,6 +65,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_CUSTOMFONT] = zc_get_config("gui","custom_fonts",1);
 	opts[OPT_BOTTOM8] = pixeldb;
 	opts[OPT_INFO_BG] = infobg;
+	opts[OPT_HIDEMOUSE] = allowHideMouse?1:0;
 	
 	opts[OPT_LARGEFONT_DIALOG] = zc_get_config("ZQ_GUI", "font_large_dialog", font_lfont_l);
 	opts[OPT_LARGEFONT_GUI] = zc_get_config("ZQ_GUI", "font_large_gui", font_nfont);
@@ -286,6 +288,10 @@ void OptionsDialog::saveOption(int ind)
 			infobg = v;
 			zc_set_config("ZQ_GUI","info_text_bg",v);
 			break;
+		case OPT_HIDEMOUSE:
+			allowHideMouse = v!=0;
+			zc_set_config("ZQ_GUI","allowHideMouse",v);
+			break;
 		
 		case OPT_LARGEFONT_DIALOG:
 			zc_set_config("ZQ_GUI", "font_large_dialog", opts[OPT_LARGEFONT_DIALOG]);
@@ -365,7 +371,7 @@ Checkbox( \
 		opt_changed[optind] = true; \
 	} \
 ), \
-DummyWidget()
+Button(forceFitH = true, text = "?", padding = 0_px, disabled = true)
 
 #define ROW_CHECK_I(optind, optlabel, info) \
 Checkbox( \
@@ -381,7 +387,7 @@ Checkbox( \
 	} \
 ), \
 Button(forceFitH = true, text = "?", \
-	disabled = !info[0], \
+	disabled = !info[0], padding = 0_px, \
 	onPressFunc = [&]() \
 	{ \
 		InfoDialog("Info",info).show(); \
@@ -701,68 +707,73 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 				" est laborum.",
 				rowSpan = 2,
 				maxLines = 15, minheight = 15_em,
-				maxwidth = 200_px, fitParent = true)
+				maxwidth = 300_px, fitParent = true)
 		)
 	);
 	togglestab = TabRef(name = "Toggles",
 		TabPanel(ptr = &tabpos2,
-			TabRef(name = "1", Column( hAlign = 0.0, vAlign = 0.0,
-				OPT_CHECK(OPT_SAVEPATHS, "Save Paths"),
-				OPT_CHECK(OPT_PALCYCLE, "Palette Cycle"),
-				OPT_CHECK(OPT_VSYNC, "VSync"),
-				OPT_CHECK(OPT_FPS, "Show FPS"),
-				OPT_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
-				OPT_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
-				OPT_CHECK(OPT_OW_PROT, "Overwrite Protection"),
-				OPT_CHECK(OPT_TILE_PROT, "Tile Protection"),
-				OPT_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
-				OPT_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
-				OPT_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
-				OPT_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
-				OPT_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
-				OPT_CHECK(OPT_TOOLTIP_HIGHLIGHT, "Tooltips Highlight Target"),
-				OPT_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
-				OPT_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
-				OPT_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
-				OPT_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window")
-			)),
-			TabRef(name = "2", Column( hAlign = 0.0, vAlign = 0.0,
-				OPT_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
-				OPT_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
-				OPT_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
-				OPT_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
-				OPT_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
-				OPT_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
-				OPT_CHECK(OPT_COMB_BRUSH, "Combo Brush"),
-				OPT_CHECK(OPT_FLOAT_BRUSH, "Floating Brush"),
-				OPT_CHECK(OPT_MISALIGNS, "Show Misaligns"),
-				OPT_CHECK(OPT_INFO_BG, "Show BG behind infotext")
+			TabRef(name = "1", Row(padding = 0_px,
+				Rows<3>(vAlign = 0.0,
+					ROW_CHECK(OPT_SAVEPATHS, "Save Paths"),
+					ROW_CHECK(OPT_PALCYCLE, "Palette Cycle"),
+					ROW_CHECK(OPT_VSYNC, "VSync"),
+					ROW_CHECK(OPT_FPS, "Show FPS"),
+					ROW_CHECK(OPT_RELOAD_QUEST, "Reload Last Quest"),
+					ROW_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
+					ROW_CHECK(OPT_OW_PROT, "Overwrite Protection"),
+					ROW_CHECK(OPT_TILE_PROT, "Tile Protection"),
+					ROW_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
+					ROW_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
+					ROW_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
+					ROW_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
+					ROW_CHECK(OPT_TOOLTIPS, "Enable Tooltips"),
+					ROW_CHECK(OPT_TOOLTIP_HIGHLIGHT, "Tooltips Highlight Target"),
+					ROW_CHECK(OPT_NEXTPREVIEW, "No Next-Screen Preview"),
+					ROW_CHECK(OPT_INITSCR_WARN, "Warn on ~Init Script Update"),
+					ROW_CHECK(OPT_DISABLE_LPAL_SHORTCUT, "Disable Level Palette Shortcuts"),
+					ROW_CHECK(OPT_DISABLE_COMPILE_CONSOLE, "Internal Compile Window")
+				),
+				Rows<3>(vAlign = 0.0,
+					ROW_CHECK(OPT_SKIP_LAYER_WARNING, "Skip Wrong Layer Flag Warning"),
+					ROW_CHECK(OPT_NUMERICAL_FLAG_LIST, "Sort Flag List by Flag Number"),
+					ROW_CHECK(OPT_SAVEDRAGRESIZE, "Autosave Window Size Changes"),
+					ROW_CHECK(OPT_DRAGASPECT, "Lock Aspect Ratio"),
+					ROW_CHECK(OPT_SAVEWINPOS, "Autosave Window Position"),
+					ROW_CHECK(OPT_MOUSESCROLL, "Mouse Scroll"),
+					ROW_CHECK_I(OPT_COMB_BRUSH, "Combo Brush", "Show the combo you would place if you clicked"),
+					ROW_CHECK_I(OPT_FLOAT_BRUSH, "Floating Brush", "Make the Combo Brush float above the screen instead of aligning flatly"),
+					ROW_CHECK_I(OPT_MISALIGNS, "Show Misaligns", "Show arrows at the edge of the screen to indicate solidity misalignments"),
+					ROW_CHECK_I(OPT_INFO_BG, "Show BG behind infotext", "Show black behind the top-left info text"),
+					ROW_CHECK_I(OPT_HIDEMOUSE, "Allow Hiding Mouse", "When displaying the combo or alias brush, allow the normal cursor to be hidden.")
+				)
 			))
 		)
 	);
 	settingstab = TabRef(name = "Settings",
 		TabPanel(ptr = &tabpos3,
-			TabRef(name = "1", Rows<3>(
-				ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
-				ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
-				ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
-				ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
-				ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
-				ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
-					"The color of the current screen outline on the minimap."
-					" Either solid or blinking between two colors."),
-				ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
-				ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
-				ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
-				ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale", 1, 5)
-			)),
-			TabRef(name = "2", Rows<3>(
-				ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
-				ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
-				ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
-				ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500),
-				ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list),
-				ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 15, 60*60)
+			TabRef(name = "1", Row(padding = 0_px,
+				Rows<3>(vAlign = 0.0,
+					ROW_DDOWN(OPT_ABRETENTION, "Auto-backup Retention:", abRetentionList),
+					ROW_DDOWN(OPT_ASINTERVAL, "Auto-save Interval:", asIntervalList),
+					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
+					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
+					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
+					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
+						"The color of the current screen outline on the minimap."
+						" Either solid or blinking between two colors."),
+					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
+					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
+					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
+					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale", 1, 5)
+				),
+				Rows<3>(vAlign = 0.0,
+					ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
+					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),
+					ROW_TF_RANGE(OPT_COMPILE_VOL, "Compile SFX Volume %:", 0, 500),
+					ROW_DDOWN(OPT_BOTTOM8, "Bottom 8 pixels:", bottom8_list),
+					ROW_TF_RANGE(OPT_TOOLTIP_TIMER, "Tooltip Timer:", 15, 60*60)
+				)
 			))
 		)
 	);
