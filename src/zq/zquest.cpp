@@ -10652,7 +10652,7 @@ void domouse()
 				newcombo const& cmb = combobuf[c2];
 				oss << "Combo " << c2 << ": " << combo_class_buf[cmb.type].name;
 				if(cmb.flag != 0)
-					oss << "\nInherent flag: " << flag_string[cmb.flag];
+					oss << "\nInherent flag: " << ZI.getMapFlagName(cmb.flag);
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
 					
@@ -12662,10 +12662,10 @@ static DIALOG secret_dlg[] =
     {  jwin_button_proc,         80,    187,     61,     21,    vc(14),     vc(1),     13,       D_EXIT,     0,           0, (void *) "OK",                   NULL,   NULL                },
     {  jwin_button_proc,        160,    187,     61,     21,    vc(14),     vc(1),     27,       D_EXIT,     0,           0, (void *) "Cancel",               NULL,   NULL                },
     // 4
-    {  jwin_text_proc,           12,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Blue Candle",          NULL,   NULL                },
-    {  jwin_text_proc,           12,     75,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Red Candle",           NULL,   NULL                },
-    {  jwin_text_proc,           12,     97,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Wand Fire",            NULL,   NULL                },
-    {  jwin_text_proc,           12,    119,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Din's Fire",           NULL,   NULL                },
+    {  jwin_text_proc,           12,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Any Fire",             NULL,   NULL                },
+    {  jwin_text_proc,           12,     75,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Strong Fire",          NULL,   NULL                },
+    {  jwin_text_proc,           12,     97,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Magic Fire",           NULL,   NULL                },
+    {  jwin_text_proc,           12,    119,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Divine Fire",          NULL,   NULL                },
     //8
     {  jwin_text_proc,           12,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Wooden Arrow",         NULL,   NULL                },
     {  jwin_text_proc,           12,     75,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Silver Arrow",         NULL,   NULL                },
@@ -12869,9 +12869,9 @@ int32_t onSecretCombo()
     secret_dlg[94].fg = s->secretcset[sWANDFIRE];
     secret_dlg[94].d2 = s->secretflag[sWANDFIRE];
     
-    secret_dlg[95].d1 = s->secretcombo[sDINSFIRE];
-    secret_dlg[95].fg = s->secretcset[sDINSFIRE];
-    secret_dlg[95].d2 = s->secretflag[sDINSFIRE];
+    secret_dlg[95].d1 = s->secretcombo[sDIVINEFIRE];
+    secret_dlg[95].fg = s->secretcset[sDIVINEFIRE];
+    secret_dlg[95].d2 = s->secretflag[sDIVINEFIRE];
     
     secret_dlg[96].d1 = s->secretcombo[sARROW];
     secret_dlg[96].fg = s->secretcset[sARROW];
@@ -12966,9 +12966,9 @@ int32_t onSecretCombo()
         s->secretcset[sWANDFIRE] = secret_dlg[94].fg;
         s->secretflag[sWANDFIRE] = secret_dlg[94].d2;
         
-        s->secretcombo[sDINSFIRE] = secret_dlg[95].d1;
-        s->secretcset[sDINSFIRE] = secret_dlg[95].fg;
-        s->secretflag[sDINSFIRE] = secret_dlg[95].d2;
+        s->secretcombo[sDIVINEFIRE] = secret_dlg[95].d1;
+        s->secretcset[sDIVINEFIRE] = secret_dlg[95].fg;
+        s->secretflag[sDIVINEFIRE] = secret_dlg[95].d2;
         
         s->secretcombo[sARROW] = secret_dlg[96].d1;
         s->secretcset[sARROW] = secret_dlg[96].fg;

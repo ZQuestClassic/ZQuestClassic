@@ -604,15 +604,15 @@ void HeroClass::resetflags(bool all)
         
     if(all)
     {
-        NayrusLoveShieldClk=0;
+        DivineProtectionShieldClk=0;
         
-        if(nayruitem != -1)
+        if(div_prot_item != -1)
         {
-            stop_sfx(itemsbuf[nayruitem].usesound);
-            stop_sfx(itemsbuf[nayruitem].usesound+1);
+            stop_sfx(itemsbuf[div_prot_item].usesound);
+            stop_sfx(itemsbuf[div_prot_item].usesound+1);
         }
         
-        nayruitem = -1;
+        div_prot_item = -1;
         hoverclk=jumping=0;
 		hoverflags = 0;
     }
@@ -1246,9 +1246,9 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	}
 	
 	
-	if(magicitem>-1 && itemsbuf[magicitem].family==itype_faroreswind)
+	if(magicitem>-1 && itemsbuf[magicitem].family==itype_divineescape)
 	{
-		// Using Farore's Wind
+		// Using Divine Escape
 		if(magiccastclk<96)
 		{
 			// Not cast yet; cancel it
@@ -1556,7 +1556,7 @@ void HeroClass::init()
 	respawn_scr=currscr;
     falling_oldy = y;
     magiccastclk=0;
-    magicitem = nayruitem = -1;
+    magicitem = div_prot_item = -1;
 	last_lens_id = 0; //Should be -1 (-Z)
 	last_savepoint_id = 0;
 	misc_internal_hero_flags = 0;
@@ -1651,7 +1651,7 @@ bool HeroClass::agonyflag(int32_t flag)
     switch(flag)
     {
     case mfWHISTLE:
-    case mfBCANDLE:
+    case mfANYFIRE:
     case mfARROW:
     case mfBOMB:
     case mfSBOMB:
@@ -1660,9 +1660,9 @@ bool HeroClass::agonyflag(int32_t flag)
     case mfFBRANG:
     case mfSARROW:
     case mfGARROW:
-    case mfRCANDLE:
-    case mfWANDFIRE:
-    case mfDINSFIRE:
+    case mfSTRONGFIRE:
+    case mfMAGICFIRE:
+    case mfDIVINEFIRE:
     case mfWANDMAGIC:
     case mfREFMAGIC:
     case mfREFFIREBALL:
@@ -2173,7 +2173,7 @@ void HeroClass::draw(BITMAP* dest)
 		{
 			cs += (((~frame)>>1)&3);
 		}
-		else if(hclk&&(NayrusLoveShieldClk<=0) && getCanFlicker())
+		else if(hclk&&(DivineProtectionShieldClk<=0) && getCanFlicker())
 		{
 			cs += ((hclk>>1)&3);
 		}
@@ -4196,13 +4196,13 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 			break;
 			
 		case wFire:
-			findentrance(bx,by,mfBCANDLE,true);
-			findentrance(bx,by,mfRCANDLE,true);
-			findentrance(bx,by,mfWANDFIRE,true);
+			findentrance(bx,by,mfANYFIRE,true);
+			findentrance(bx,by,mfSTRONGFIRE,true);
+			findentrance(bx,by,mfMAGICFIRE,true);
 		/* if we want the weapon to die
-		if (findentrance(bx,by,mfBCANDLE,true) ) dead = 1;
-			if (findentrance(bx,by,mfRCANDLE,true) ) dead = 1;
-			if (findentrance(bx,by,mfWANDFIRE,true)) dead = 1;
+		if (findentrance(bx,by,mfANYFIRE,true) ) dead = 1;
+			if (findentrance(bx,by,mfSTRONGFIRE,true) ) dead = 1;
+			if (findentrance(bx,by,mfMAGICFIRE,true)) dead = 1;
 		*/
 			break;
 		
@@ -6376,20 +6376,20 @@ void HeroClass::checkhit()
 			--hclk;
 		}
 		
-		if(NayrusLoveShieldClk>0)
+		if(DivineProtectionShieldClk>0)
 		{
-			--NayrusLoveShieldClk;
+			--DivineProtectionShieldClk;
 			
-			if(NayrusLoveShieldClk == 0 && nayruitem != -1)
+			if(DivineProtectionShieldClk == 0 && div_prot_item != -1)
 			{
-				stop_sfx(itemsbuf[nayruitem].usesound);
-				stop_sfx(itemsbuf[nayruitem].usesound+1);
-				nayruitem = -1;
+				stop_sfx(itemsbuf[div_prot_item].usesound);
+				stop_sfx(itemsbuf[div_prot_item].usesound+1);
+				div_prot_item = -1;
 			}
-			else if(get_bit(quest_rules,qr_MORESOUNDS) && !(NayrusLoveShieldClk&0xF00) && nayruitem != -1)
+			else if(get_bit(quest_rules,qr_MORESOUNDS) && !(DivineProtectionShieldClk&0xF00) && div_prot_item != -1)
 			{
-				stop_sfx(itemsbuf[nayruitem].usesound);
-				cont_sfx(itemsbuf[nayruitem].usesound+1);
+				stop_sfx(itemsbuf[div_prot_item].usesound);
+				cont_sfx(itemsbuf[div_prot_item].usesound+1);
 			}
 		}
 	}
@@ -6467,14 +6467,14 @@ void HeroClass::checkhit()
 		if((!(itemid==-1&&get_bit(quest_rules,qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_bit(quest_rules,qr_FIREPROOFHERO2)))
 		{
 			if(s->id==wFire && (superman ? (diagonalMovement?s->hit(x+4,y+4-fakez,z,7,7,1):s->hit(x+7,y+7-fakez,z,2,2,1)) : s->hit(this))&&
-						(itemid < 0 || itemsbuf[itemid].family!=itype_dinsfire))
+						(itemid < 0 || itemsbuf[itemid].family!=itype_divinefire))
 			{
 				std::vector<int32_t> &ev = FFCore.eventData;
 				ev.clear();
 				ev.push_back(lwpn_dp(i)*10000);
 				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
 				ev.push_back(0);
-				ev.push_back(NayrusLoveShieldClk>0?10000:0);
+				ev.push_back(DivineProtectionShieldClk>0?10000:0);
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(s->getUID());
@@ -6492,11 +6492,11 @@ void HeroClass::checkhit()
 				dmg = ev[0]/10000;
 				int32_t hdir = ev[1]/10000;
 				nullhit = ev[2] != 0;
-				bool nayrulove = ev[3] != 0;
+				bool divineprot = ev[3] != 0;
 				int32_t iframes = ev[4] / 10000;
 				ev.clear();
 				if(nullhit) return;
-				if(!nayrulove)
+				if(!divineprot)
 				{
 					game->set_life(zc_max(game->get_life()-dmg,0));
 				}
@@ -6648,7 +6648,7 @@ killweapon:
 				ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
 				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
 				ev.push_back(0);
-				ev.push_back(NayrusLoveShieldClk>0?10000:0);
+				ev.push_back(DivineProtectionShieldClk>0?10000:0);
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(s->getUID());
@@ -6666,11 +6666,11 @@ killweapon:
 				dmg = ev[0]/10000;
 				int32_t hdir = ev[1]/10000;
 				nullhit = ev[2] != 0;
-				bool nayrulove = ev[3] != 0;
+				bool divineprot = ev[3] != 0;
 				int32_t iframes = ev[4] / 10000;
 				ev.clear();
 				if(nullhit) return;
-				if(!nayrulove)
+				if(!divineprot)
 				{
 					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
 				}
@@ -6771,7 +6771,7 @@ killweapon:
 		ev.push_back((lwpn_dp(hit2)*10000));
 		ev.push_back(lwpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(NayrusLoveShieldClk>0?10000:0);
+		ev.push_back(DivineProtectionShieldClk>0?10000:0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_LWPN*10000);
 		ev.push_back(lwpnspr->getUID());
@@ -6789,11 +6789,11 @@ killweapon:
 		dmg = ev[0]/10000;
 		int32_t hdir = ev[1]/10000;
 		nullhit = ev[2] != 0;
-		bool nayrulove = ev[3] != 0;
+		bool divineprot = ev[3] != 0;
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
 		if(nullhit) return;
-		if(!nayrulove)
+		if(!divineprot)
 		{
 			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
@@ -6841,7 +6841,7 @@ killweapon:
 		ev.push_back((ewpn_dp(hit2)*10000));
 		ev.push_back(ewpnspr->hitdir(x,y,16,16,dir)*10000);
 		ev.push_back(0);
-		ev.push_back(NayrusLoveShieldClk>0?10000:0);
+		ev.push_back(DivineProtectionShieldClk>0?10000:0);
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
@@ -6859,11 +6859,11 @@ killweapon:
 		dmg = ev[0]/10000;
 		int32_t hdir = ev[1]/10000;
 		nullhit = ev[2] != 0;
-		bool nayrulove = ev[3] != 0;
+		bool divineprot = ev[3] != 0;
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
 		if(nullhit) return;
-		if(!nayrulove)
+		if(!divineprot)
 		{
 			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
@@ -7198,7 +7198,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			ev.push_back(-hp_modmin*10000);
 			ev.push_back((hasKB ? dir^1 : -1)*10000);
 			ev.push_back(0);
-			ev.push_back(NayrusLoveShieldClk>0?10000:0);
+			ev.push_back(DivineProtectionShieldClk>0?10000:0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(bestcid);
@@ -7216,12 +7216,12 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			dmg = ev[0]/10000;
 			int32_t hdir = ev[1]/10000;
 			nullhit = ev[2] != 0;
-			bool nayrulove = ev[3] != 0;
+			bool divineprot = ev[3] != 0;
 			int32_t iframes = ev[4] / 10000;
 			ev.clear();
 			if(nullhit) return false;
 			
-			if(!nayrulove)
+			if(!divineprot)
 			{
 				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
@@ -7292,7 +7292,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	ev.push_back((enemy_dp(hit2) *10000));
 	ev.push_back((force_hdir>-1 ? force_hdir : ((sprite*)enemyptr)->hitdir(x,y,16,16,dir))*10000);
 	ev.push_back(0);
-	ev.push_back(NayrusLoveShieldClk>0?10000:0);
+	ev.push_back(DivineProtectionShieldClk>0?10000:0);
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_NPC*10000);
 	ev.push_back(enemyptr->getUID());
@@ -7310,13 +7310,13 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	dmg = ev[0] / 10000;
 	int32_t hdir = ev[1] / 10000;
 	nullhit = ev[2] != 0;
-	bool nayrulove = ev[3] != 0;
+	bool divineprot = ev[3] != 0;
 	int32_t iframes = ev[4] / 10000;
 	ev.clear();
 	
 	if(nullhit) return -1;
 	
-	if(!nayrulove)
+	if(!divineprot)
 	{
 		game->set_life(zc_max(game->get_life()-dmg,0));
 		sethitHeroUID(HIT_BY_NPC,(hit2+1));
@@ -8886,12 +8886,12 @@ bool HeroClass::animate(int32_t)
 	
 	if(Lwpns.idCount(wPhantom))
 	{
-		addsparkle2(pDINSFIREROCKET,pDINSFIREROCKETTRAIL);
-		addsparkle2(pDINSFIREROCKETRETURN,pDINSFIREROCKETTRAILRETURN);
-		addsparkle2(pNAYRUSLOVEROCKET1,pNAYRUSLOVEROCKETTRAIL1);
-		addsparkle2(pNAYRUSLOVEROCKET2,pNAYRUSLOVEROCKETTRAIL2);
-		addsparkle2(pNAYRUSLOVEROCKETRETURN1,pNAYRUSLOVEROCKETTRAILRETURN1);
-		addsparkle2(pNAYRUSLOVEROCKETRETURN2,pNAYRUSLOVEROCKETTRAILRETURN2);
+		addsparkle2(pDIVINEFIREROCKET,pDIVINEFIREROCKETTRAIL);
+		addsparkle2(pDIVINEFIREROCKETRETURN,pDIVINEFIREROCKETTRAILRETURN);
+		addsparkle2(pDIVINEPROTECTIONROCKET1,pDIVINEPROTECTIONROCKETTRAIL1);
+		addsparkle2(pDIVINEPROTECTIONROCKET2,pDIVINEPROTECTIONROCKETTRAIL2);
+		addsparkle2(pDIVINEPROTECTIONROCKETRETURN1,pDIVINEPROTECTIONROCKETTRAILRETURN1);
+		addsparkle2(pDIVINEPROTECTIONROCKETRETURN2,pDIVINEPROTECTIONROCKETTRAILRETURN2);
 	}
 	
 	// Pay magic cost for Byrna beams
@@ -10214,11 +10214,11 @@ void HeroClass::doMirror(int32_t mirrorid)
 			Quit = qCONT;
 			skipcont = 1;
 		}
-		else //Act as Farore's Wind
+		else //Act as Divine Escape
 		{
-            int32_t nayrutemp=nayruitem;
+            int32_t div_prot_temp=div_prot_item;
             restart_level();
-            nayruitem=nayrutemp;
+            div_prot_item=div_prot_temp;
             magicitem=-1;
             magiccastclk=0;
             if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
@@ -11765,7 +11765,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		}
 		break;
 			
-		case itype_dinsfire:
+		case itype_divinefire:
 			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
@@ -11780,7 +11780,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			magicitem=itemid;
 			break;
 			
-		case itype_faroreswind:
+		case itype_divineescape:
 			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
@@ -11795,7 +11795,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			magicitem=itemid;
 			break;
 			
-		case itype_nayruslove:
+		case itype_divineprotection:
 			if(z!=0 || fakez!=0 || (isSideViewHero() && !(on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder() || IsSideSwim())))
 				return false;
 				
@@ -24542,7 +24542,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 
 void HeroClass::checkscroll()
 {
-    //DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
+    //DO NOT scroll if Hero is vibrating due to Divine Escape effect -DD
     if(action == casting||action==sideswimcasting)
         return;
         
@@ -27271,7 +27271,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 			// Fix boomerang sounds.
 			int32_t itemid = current_item_id(idat.family);
 			
-			if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_nayruslove
+			if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_divineprotection
 							 || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
 					&& sfx_allocated(itemsbuf[itemid].usesound)
 					&& idat.usesound != itemsbuf[itemid].usesound)
@@ -29774,24 +29774,24 @@ void HeroClass::check_conveyor()
 	}
 }
 
-void HeroClass::setNayrusLoveShieldClk(int32_t newclk)
+void HeroClass::setDivineProtectionShieldClk(int32_t newclk)
 {
-    NayrusLoveShieldClk=newclk;
+    DivineProtectionShieldClk=newclk;
     
-    if(decorations.idCount(dNAYRUSLOVESHIELD)==0)
+    if(decorations.idCount(dDIVINEPROTECTIONSHIELD)==0)
     {
         decoration *dec;
-        decorations.add(new dNayrusLoveShield(HeroX(), HeroY(), dNAYRUSLOVESHIELD, 0));
+        decorations.add(new dDivineProtectionShield(HeroX(), HeroY(), dDIVINEPROTECTIONSHIELD, 0));
         decorations.spr(decorations.Count()-1)->misc=0;
-        decorations.add(new dNayrusLoveShield(HeroX(), HeroY(), dNAYRUSLOVESHIELD, 0));
+        decorations.add(new dDivineProtectionShield(HeroX(), HeroY(), dDIVINEPROTECTIONSHIELD, 0));
         dec=(decoration *)decorations.spr(decorations.Count()-1);
         decorations.spr(decorations.Count()-1)->misc=1;
     }
 }
 
-int32_t HeroClass::getNayrusLoveShieldClk()
+int32_t HeroClass::getDivineProtectionShieldClk()
 {
-    return NayrusLoveShieldClk;
+    return DivineProtectionShieldClk;
 }
 
 int32_t HeroClass::getHoverClk()
@@ -29972,7 +29972,7 @@ void HeroClass::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));

@@ -14466,20 +14466,20 @@ void zmap::prv_secrets(bool high16only)
                     
                     switch(checkflag)
                     {
-                    case mfBCANDLE:
+                    case mfANYFIRE:
                         ft=sBCANDLE;
                         break;
                         
-                    case mfRCANDLE:
+                    case mfSTRONGFIRE:
                         ft=sRCANDLE;
                         break;
                         
-                    case mfWANDFIRE:
+                    case mfMAGICFIRE:
                         ft=sWANDFIRE;
                         break;
                         
-                    case mfDINSFIRE:
-                        ft=sDINSFIRE;
+                    case mfDIVINEFIRE:
+                        ft=sDIVINEFIRE;
                         break;
                         
                     case mfARROW:
@@ -14682,20 +14682,20 @@ void zmap::prv_secrets(bool high16only)
                 
                 switch(checkflag)
                 {
-                case mfBCANDLE:
+                case mfANYFIRE:
                     ft=sBCANDLE;
                     break;
                     
-                case mfRCANDLE:
+                case mfSTRONGFIRE:
                     ft=sRCANDLE;
                     break;
                     
-                case mfWANDFIRE:
+                case mfMAGICFIRE:
                     ft=sWANDFIRE;
                     break;
                     
-                case mfDINSFIRE:
-                    ft=sDINSFIRE;
+                case mfDIVINEFIRE:
+                    ft=sDIVINEFIRE;
                     break;
                     
                 case mfARROW:

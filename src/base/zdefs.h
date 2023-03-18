@@ -287,7 +287,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_MAPS            25
 #define V_DMAPS            16
 #define V_DOORS            1
-#define V_ITEMS           55
+#define V_ITEMS           56
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -691,7 +691,7 @@ enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
 enum
 {	//These are the COMBO flags. -Z
 	//0
-	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfBCANDLE, 
+	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfANYFIRE, 
 	//5
 	mfARROW, 	mfBOMB, 	mfFAIRY, 	mfRAFT, 	mfARMOS_SECRET, 
 	//10
@@ -719,9 +719,9 @@ enum
 	//65
 	mfPUSHRINS,	mfBLOCKTRIGGER,	mfNOBLOCKS, 	mfBRANG, 	mfMBRANG,
 	//70
-	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfRCANDLE, 	mfWANDFIRE, 
+	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfSTRONGFIRE, 	mfMAGICFIRE, 
 	//75
-	mfDINSFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD, 
+	mfDIVINEFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD, 
 	//80
 	mfWSWORD,	mfMSWORD, 	mfXSWORD, 	mfSWORDBEAM, 	mfWSWORDBEAM, 
 	//85
@@ -996,8 +996,8 @@ enum
     qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
     qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_HEROFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
     // 10
-    qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP/*DEPRECATED*/,
-    qr_FLICKERINGNAYRUSLOVEROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
+    qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP/*DEPRECATED*/,
+    qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
     // 11
     qr_LTTPCOLLISION, qr_LTTPWALK, qr_SLOWENEMYANIM_DEP/*DEPRECATED*/, qr_TRUEARROWS,
     qr_NOSAVE, qr_NOCONTINUE, qr_QUARTERHEART, qr_NOARRIVALPOINT,
@@ -1201,7 +1201,7 @@ enum { pal_litDEFAULT, pal_litOVERRIDE, pal_litRESET, pal_litSET, pal_litRESETON
 enum
 {
     dBUSHLEAVES, dFLOWERCLIPPINGS, dGRASSCLIPPINGS, dHAMMERSMACK,
-    dTALLGRASS, dRIPPLES, dNAYRUSLOVESHIELD, dHOVER, dMAXDECORATIONS
+    dTALLGRASS, dRIPPLES, dDIVINEPROTECTIONSHIELD, dHOVER, dMAXDECORATIONS
 };
 
 // items
@@ -1225,8 +1225,8 @@ enum                                                        // value matters bec
     iAmulet, iFlippers, iHookshot, iLens, iHammer,
     iBoots, iL2Bracelet, iGArrow, iMagicC, iSMagic,
     // 60
-    iLMagic, iGRing, iKillAll, iL2Amulet, iDinsFire,
-    iFaroresWind, iNayrusLove, iBossKey, iBow2, iFairyStill,
+    iLMagic, iGRing, iKillAll, iL2Amulet, iDivineFire,
+    iDivineEscape, iDivineProtection, iBossKey, iBow2, iFairyStill,
     // 70
     i1ArrowAmmo, i5ArrowAmmo, i10ArrowAmmo, i30ArrowAmmo, iQuiver,
     iQuiverL2, iQuiverL3, i1BombAmmo, i4BombAmmo, i8BombAmmo,
@@ -1285,16 +1285,16 @@ enum
     wHAMMER, wHSHEAD, wHSCHAIN_H, wHSHANDLE, wSSPARKLE,
 // 30
     wGSPARKLE, wMSPARKLE, wFSPARKLE, iwHammerSmack, wGARROW,
-    ewFLAME, ewWIND, iwMMeter, wDINSFIRE1A, wDINSFIRE1B,
+    ewFLAME, ewWIND, iwMMeter, wDIVINEFIRE1A, wDIVINEFIRE1B,
 // 40
-    wDINSFIRES1A, wDINSFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
+    wDIVINEFIRES1A, wDIVINEFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
     iwHeroSlash, wSWORDSLASH, wWSWORDSLASH, wMSWORDSLASH, wXSWORDSLASH,
 // 50
     iwShadow, iwLargeShadow, iwBushLeaves, iwFlowerClippings, iwGrassClippings,
-    iwTallGrass, iwRipples, iwNPCs, wNAYRUSLOVE1A, wNAYRUSLOVE1B,
+    iwTallGrass, iwRipples, iwNPCs, wDIVINEPROTECTION1A, wDIVINEPROTECTION1B,
 // 60
-    wNAYRUSLOVES1A, wNAYRUSLOVES1B, wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A,
-    wNAYRUSLOVES2B, iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA,
+    wDIVINEPROTECTIONS1A, wDIVINEPROTECTIONS1B, wDIVINEPROTECTION2A, wDIVINEPROTECTION2B, wDIVINEPROTECTIONS2A,
+    wDIVINEPROTECTIONS2B, iwDivineProtectionShieldFront, iwDivineProtectionShieldBack, iwSubscreenVine, wCBYRNA,
 // 70
     wCBYRNASLASH, wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V,
     wSBOOM, ewBOMB, ewSBOMB, ewBOOM, ewSBOOM,
@@ -1526,11 +1526,11 @@ enum defWpnSprite
 	wsEFire,
 	wsEWind,
 	wsMagicGauge,
-	wsDinFalling,
-	wsDinRising,
+	wsDFireFalling,
+	wsDFireRising,
 	//40
-	wsDinTrailRising,
-	wsDinTrailFalling,
+	wsDFireTrailRising,
+	wsDFireTrailFalling,
 	wsHookshotChainV,
 	wsMore,
 	wsUnused44,
@@ -1588,9 +1588,9 @@ enum defWpnSprite
 // phantom weapon types
 enum
 {
-    pDINSFIREROCKET, pDINSFIREROCKETRETURN, pDINSFIREROCKETTRAIL, pDINSFIREROCKETTRAILRETURN, pMESSAGEMORE,
-    pNAYRUSLOVEROCKET1, pNAYRUSLOVEROCKETRETURN1, pNAYRUSLOVEROCKETTRAIL1, pNAYRUSLOVEROCKETTRAILRETURN1,
-    pNAYRUSLOVEROCKET2, pNAYRUSLOVEROCKETRETURN2, pNAYRUSLOVEROCKETTRAIL2, pNAYRUSLOVEROCKETTRAILRETURN2
+    pDIVINEFIREROCKET, pDIVINEFIREROCKETRETURN, pDIVINEFIREROCKETTRAIL, pDIVINEFIREROCKETTRAILRETURN, pMESSAGEMORE,
+    pDIVINEPROTECTIONROCKET1, pDIVINEPROTECTIONROCKETRETURN1, pDIVINEPROTECTIONROCKETTRAIL1, pDIVINEPROTECTIONROCKETTRAILRETURN1,
+    pDIVINEPROTECTIONROCKET2, pDIVINEPROTECTIONROCKETRETURN2, pDIVINEPROTECTIONROCKETTRAIL2, pDIVINEPROTECTIONROCKETTRAILRETURN2
 };
 
 enum
@@ -2899,7 +2899,7 @@ enum
     sBCANDLE, sARROW, sBOMB, sSTAIRS, sSECRET01, sSECRET02, sSECRET03,
     sSECRET04, sSECRET05, sSECRET06, sSECRET07, sSECRET08, sSECRET09,
     sSECRET10, sSECRET11, sSECRET12, sSECRET13, sSECRET14, sSECRET15,
-    sSECRET16, sRCANDLE, sWANDFIRE, sDINSFIRE, sSARROW, sGARROW,
+    sSECRET16, sRCANDLE, sWANDFIRE, sDIVINEFIRE, sSARROW, sGARROW,
     sSBOMB, sBRANG, sMBRANG, sFBRANG, sWANDMAGIC, sREFMAGIC, sREFFIREBALL,
     sSWORD, sWSWORD, sMSWORD, sXSWORD, sSWORDBEAM, sWSWORDBEAM,
     sMSWORDBEAM, sXSWORDBEAM, sHOOKSHOT, sWAND, sHAMMER, sSTRIKE, sSECNEXT
@@ -3943,8 +3943,8 @@ enum // used for gamedata ITEMS
 	itype_wallet, itype_amulet, itype_shield, itype_bow, itype_raft,
 	itype_ladder, itype_book, itype_magickey, itype_bracelet, itype_flippers,
 	// 20
-	itype_boots, itype_hookshot, itype_lens, itype_hammer, itype_dinsfire,
-	itype_faroreswind, itype_nayruslove, itype_bomb, itype_sbomb, itype_clock,
+	itype_boots, itype_hookshot, itype_lens, itype_hammer, itype_divinefire,
+	itype_divineescape, itype_divineprotection, itype_bomb, itype_sbomb, itype_clock,
 	itype_key, itype_magiccontainer, itype_triforcepiece, itype_map, itype_compass,
 	itype_bosskey, itype_quiver, itype_lkey, itype_cbyrna, itype_rupee,
 	// 40
@@ -4020,9 +4020,9 @@ enum {i_boots=1, imax_boots};
 enum {i_hookshot=1, i_longshot, imax_hookshot};
 enum {i_lens=1, imax_lens};
 enum {i_hammer=1, imax_hammer};
-enum {i_dinsfire=1, imax_dinsfire};
-enum {i_faroreswind=1, imax_faroreswind};
-enum {i_nayruslove=1, imax_nayruslove};
+enum {i_divinefire=1, imax_divinefire};
+enum {i_divineescape=1, imax_divineescape};
+enum {i_divineprotection=1, imax_divineprotection};
 enum {i_quiver=1, i_quiverl2, i_quiverl3, i_quiverl4, imax_quiver};
 enum {i_cbyrna=1, imax_cbyrna};
 enum {i_rocs=1, imax_rocs};

@@ -34557,20 +34557,20 @@ void FFScript::do_triggersecret(const bool v)
 	//Convert a flag type to a secret type. -Z
 	switch(ID)
 	{
-		case mfBCANDLE:
+		case mfANYFIRE:
 			ft=sBCANDLE;
 			break;
 			
-		case mfRCANDLE:
+		case mfSTRONGFIRE:
 			ft=sRCANDLE;
 			break;
 			
-		case mfWANDFIRE:
+		case mfMAGICFIRE:
 			ft=sWANDFIRE;
 			break;
 			
-		case mfDINSFIRE:
-			ft=sDINSFIRE;
+		case mfDIVINEFIRE:
+			ft=sDIVINEFIRE;
 			break;
 			
 		case mfARROW:

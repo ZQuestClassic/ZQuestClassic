@@ -965,7 +965,7 @@ ListData dmap_list(dmaplist, &font);
 const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
                                        "Bait", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
                                        "Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
-                                       "Din's Fire", "Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
+                                       "Divine Fire", "Divine Escape", "Divine Protection", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
                                        "Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
                                        "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
                                        "Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer",

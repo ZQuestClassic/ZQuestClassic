@@ -81,7 +81,6 @@ extern const char *catchall_string[MAXROOMTYPES];
 extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
 //extern const char *combotype_string[MAXCOMBOTYPES];
-extern const char *flag_string[MAXFLAGS];
 extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern const char *pattern_string[MAXPATTERNS];

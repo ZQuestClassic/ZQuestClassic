@@ -742,19 +742,19 @@ bool dHover::animate(int32_t)
 	return HeroHoverClk()<=0;
 }
 
-dNayrusLoveShield::dNayrusLoveShield(zfix X,zfix Y,int32_t Id,int32_t Clk) : decoration(X,Y,Id,Clk)
+dDivineProtectionShield::dDivineProtectionShield(zfix X,zfix Y,int32_t Id,int32_t Clk) : decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
 }
 
-bool dNayrusLoveShield::animate(int32_t)
+bool dDivineProtectionShield::animate(int32_t)
 {
 	clk++;
-	return HeroNayrusLoveShieldClk()<=0;
+	return HeroDivineProtectionShieldClk()<=0;
 }
 
-void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
+void dDivineProtectionShield::realdraw(BITMAP *dest, int32_t draw_what)
 {
 	if(misc!=draw_what)
 	{
@@ -762,19 +762,19 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	}
 	
 	int32_t fb=(misc==0?
-	        (itemsbuf[current_item_id(itype_nayruslove)].wpn5 ?
-	         itemsbuf[current_item_id(itype_nayruslove)].wpn5 : (byte) iwNayrusLoveShieldFront) :
-	            (itemsbuf[current_item_id(itype_nayruslove)].wpn10 ?
-	             itemsbuf[current_item_id(itype_nayruslove)].wpn10 : (byte) iwNayrusLoveShieldBack));
+	        (itemsbuf[current_item_id(itype_divineprotection)].wpn5 ?
+	         itemsbuf[current_item_id(itype_divineprotection)].wpn5 : (byte) iwDivineProtectionShieldFront) :
+	            (itemsbuf[current_item_id(itype_divineprotection)].wpn10 ?
+	             itemsbuf[current_item_id(itype_divineprotection)].wpn10 : (byte) iwDivineProtectionShieldBack));
 	int32_t t=wpnsbuf[fb].tile;
 	int32_t fr=wpnsbuf[fb].frames;
 	int32_t spd=wpnsbuf[fb].speed;
 	cs=wpnsbuf[fb].csets&15;
 	flip=0;
-	bool flickering = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG4) != 0;
-	bool translucent = (itemsbuf[current_item_id(itype_nayruslove)].flags & ITEM_FLAG3) != 0;
+	bool flickering = (itemsbuf[current_item_id(itype_divineprotection)].flags & ITEM_FLAG4) != 0;
+	bool translucent = (itemsbuf[current_item_id(itype_divineprotection)].flags & ITEM_FLAG3) != 0;
 	
-	if(((HeroNayrusLoveShieldClk()&0x20)||(HeroNayrusLoveShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
+	if(((HeroDivineProtectionShieldClk()&0x20)||(HeroDivineProtectionShieldClk()&0xF00))&&(!flickering ||((misc==1)?(frame&1):(!(frame&1)))))
 	{
 		drawstyle=translucent?1:0;
 		x=HeroX()-8;
@@ -800,12 +800,12 @@ void dNayrusLoveShield::realdraw(BITMAP *dest, int32_t draw_what)
 	}
 }
 
-void dNayrusLoveShield::draw(BITMAP *dest)
+void dDivineProtectionShield::draw(BITMAP *dest)
 {
 	realdraw(dest,0);
 }
 
-void dNayrusLoveShield::draw2(BITMAP *dest)
+void dDivineProtectionShield::draw2(BITMAP *dest)
 {
 	realdraw(dest,1);
 }

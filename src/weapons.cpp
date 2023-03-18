@@ -49,20 +49,20 @@ static void weapon_triggersecret(int32_t pos, int32_t flag)
 	//Convert a flag type to a secret type. -Z
 	switch(flag)
 	{
-		case mfBCANDLE:
+		case mfANYFIRE:
 			ft=sBCANDLE;
 			break;
 			
-		case mfRCANDLE:
+		case mfSTRONGFIRE:
 			ft=sRCANDLE;
 			break;
 			
-		case mfWANDFIRE:
+		case mfMAGICFIRE:
 			ft=sWANDFIRE;
 			break;
 			
-		case mfDINSFIRE:
-			ft=sDINSFIRE;
+		case mfDIVINEFIRE:
+			ft=sDIVINEFIRE;
 			break;
 			
 		case mfARROW:
@@ -1069,7 +1069,7 @@ void weapon::cleanup_sfx()
             
             int32_t wparent = w->parentitem;
             
-            if(wparent>=0 && (itemsbuf[wparent].family == itype_brang || itemsbuf[wparent].family == itype_nayruslove
+            if(wparent>=0 && (itemsbuf[wparent].family == itype_brang || itemsbuf[wparent].family == itype_divineprotection
                               || itemsbuf[wparent].family == itype_hookshot || itemsbuf[wparent].family == itype_cbyrna))
             {
                 if(itemsbuf[wparent].usesound == use_sfx)
@@ -1269,8 +1269,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	{
 		case wFire:
 		
-		// Din's Fire shouldn't fall
-		if(parentitem>=0 && itemsbuf[parentitem].family==itype_dinsfire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
+		// Divine Fire shouldn't fall
+		if(parentitem>=0 && itemsbuf[parentitem].family==itype_divinefire && !(itemsbuf[parentitem].flags & ITEM_FLAG3))
 		{
 			break;
 		}
@@ -1964,9 +1964,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				
 				switch(itemsbuf[parentitem].family)
 				{
-					case itype_dinsfire: // Din's Fire. This uses magicitem rather than itemid
+					case itype_divinefire: // Divine Fire. This uses magicitem rather than itemid
 						if(magicitem >-1 && !isDummy)
-						defaultw = itemsbuf[magicitem].wpn5;
+							defaultw = itemsbuf[magicitem].wpn5;
 						else defaultw = wFIRE;
 						step = 0; 
 						if(itemsbuf[magicitem].flags & ITEM_FLAG2)
@@ -3074,7 +3074,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			switch(type)
 			{
-				case pDINSFIREROCKET:
+				case pDIVINEFIREROCKET:
 					if(get_bit(quest_rules,qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
 						
@@ -3082,7 +3082,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					step = 4;
 					break;
 					
-				case pDINSFIREROCKETRETURN:
+				case pDIVINEFIREROCKETRETURN:
 					if(get_bit(quest_rules,qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
 						
@@ -3090,11 +3090,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					step = 4;
 					break;
 					
-				case pDINSFIREROCKETTRAIL:
+				case pDIVINEFIREROCKETTRAIL:
 					LOADGFX(itemsbuf[parentitem].wpn3);
 					break;
 					
-				case pDINSFIREROCKETTRAILRETURN:
+				case pDIVINEFIREROCKETTRAILRETURN:
 					LOADGFX(itemsbuf[parentitem].wpn4);
 					break;
 					
@@ -3102,7 +3102,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					LOADGFX(iwMore);
 					break;
 					
-				case pNAYRUSLOVEROCKET1:
+				case pDIVINEPROTECTIONROCKET1:
 					LOADGFX(itemsbuf[parentitem].wpn);
 					
 					if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -3112,7 +3112,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKETRETURN1:
+				case pDIVINEPROTECTIONROCKETRETURN1:
 					LOADGFX(itemsbuf[parentitem].wpn2);
 					
 					if(get_bit(quest_rules,qr_MORESOUNDS))
@@ -3122,34 +3122,34 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAIL1:
+				case pDIVINEPROTECTIONROCKETTRAIL1:
 					LOADGFX(itemsbuf[parentitem].wpn3);
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAILRETURN1:
+				case pDIVINEPROTECTIONROCKETTRAILRETURN1:
 					LOADGFX(itemsbuf[parentitem].wpn4);
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKET2:
+				case pDIVINEPROTECTIONROCKET2:
 					LOADGFX(itemsbuf[parentitem].wpn6);
 					step = 4;
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKETRETURN2:
+				case pDIVINEPROTECTIONROCKETRETURN2:
 					LOADGFX(itemsbuf[parentitem].wpn7);
 					step = 4;
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAIL2:
+				case pDIVINEPROTECTIONROCKETTRAIL2:
 					LOADGFX(itemsbuf[parentitem].wpn8);
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAILRETURN2:
+				case pDIVINEPROTECTIONROCKETTRAILRETURN2:
 					LOADGFX(itemsbuf[parentitem].wpn9);
 					drawstyle=itemsbuf[parentitem].flags & ITEM_FLAG2 ? 1 : 0;
 					break;
@@ -4399,17 +4399,16 @@ bool weapon::animate(int32_t index)
 				
 				if(clk==94 || get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
+					findentrance(x,y,mfANYFIRE,true);
+					itemdata const& parent = itemsbuf[parentitem];
 					
-					if(type>1) //red candle 
-					{
-						findentrance(x,y,mfRCANDLE,true);
-					}
+					if((parent.flags & ITEM_FLAG9) || parentitem < 0 && type > 1) //red candle 
+						findentrance(x,y,mfSTRONGFIRE,true);
 					
-					if(linked_parent == itype_dinsfire)
-					{
-						findentrance(x,y,mfDINSFIRE,true);
-					}
+					if(parent.flags & ITEM_FLAG10)
+						findentrance(x,y,mfMAGICFIRE,true);
+					if(parent.flags & ITEM_FLAG11)
+						findentrance(x,y,mfDIVINEFIRE,true);
 				}
 			}                                                     //wand fire
 			else
@@ -4430,9 +4429,14 @@ bool weapon::animate(int32_t index)
 				if(clk==80)
 				{
 					dead=1;
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					findentrance(x,y,mfANYFIRE,true);
+					itemdata const& parent = itemsbuf[parentitem];
+					if(parent.flags & ITEM_FLAG9)
+						findentrance(x,y,mfSTRONGFIRE,true);
+					if(parent.flags & ITEM_FLAG10)
+						findentrance(x,y,mfMAGICFIRE,true);
+					if(parent.flags & ITEM_FLAG11)
+						findentrance(x,y,mfDIVINEFIRE,true);
 					
 					if(((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>-1&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 					{
@@ -4927,8 +4931,15 @@ bool weapon::animate(int32_t index)
 			
 			
 			if(findentrance(x,y,mfSTRIKE,true)) dead=deadval;
-			if((itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].flags & ITEM_FLAG8) && findentrance(x,y,mfBCANDLE,true)) dead=deadval;
-			
+			itemdata const& brangitm = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)];
+			if(brangitm.flags & ITEM_FLAG8)
+				if(findentrance(x,y,mfANYFIRE,true)) dead=deadval;
+			if(brangitm.flags & ITEM_FLAG9)
+				if(findentrance(x,y,mfSTRONGFIRE,true)) dead=deadval;
+			if(brangitm.flags & ITEM_FLAG10)
+				if(findentrance(x,y,mfMAGICFIRE,true)) dead=deadval;
+			if(brangitm.flags & ITEM_FLAG11)
+				if(findentrance(x,y,mfDIVINEFIRE,true)) dead=deadval;
 			if(blocked())
 			{
 				dead=deadval;
@@ -5614,13 +5625,13 @@ bool weapon::animate(int32_t index)
 		{
 			switch(type)
 			{
-				case pDINSFIREROCKET:
+				case pDIVINEFIREROCKET:
 					if(y <= -200)
 						dead = 1;
 						
 					break;
 					
-				case pDINSFIREROCKETRETURN:                                             //Din's Fire Rocket return
+				case pDIVINEFIREROCKETRETURN:                                             //Divine Fire Rocket return
 					if(y>=casty)
 					{
 						dead=1;
@@ -5629,23 +5640,23 @@ bool weapon::animate(int32_t index)
 					
 					break;
 					
-				case pDINSFIREROCKETTRAIL:                                             //Din's Fire Rocket trail
-					if(clk>=(((wpnsbuf[wDINSFIRES1A].frames) * (wpnsbuf[wDINSFIRES1A].speed))-1))
+				case pDIVINEFIREROCKETTRAIL:                                             //Divine Fire Rocket trail
+					if(clk>=(((wpnsbuf[wDIVINEFIRES1A].frames) * (wpnsbuf[wDIVINEFIRES1A].speed))-1))
 					{
 						dead=0;
 					}
 					
 					break;
 					
-				case pDINSFIREROCKETTRAILRETURN:                                             //Din's Fire Rocket return trail
-					if(clk>=(((wpnsbuf[wDINSFIRES1B].frames) * (wpnsbuf[wDINSFIRES1B].speed))-1))
+				case pDIVINEFIREROCKETTRAILRETURN:                                             //Divine Fire Rocket return trail
+					if(clk>=(((wpnsbuf[wDIVINEFIRES1B].frames) * (wpnsbuf[wDIVINEFIRES1B].speed))-1))
 					{
 						dead=0;
 					}
 					
 					break;
 					
-				case pNAYRUSLOVEROCKETRETURN1:                                             //Nayru's Love Rocket return
+				case pDIVINEPROTECTIONROCKETRETURN1:                                             //Divine Protection Rocket return
 					if(x>=castx)
 					{
 						dead=1;
@@ -5654,23 +5665,23 @@ bool weapon::animate(int32_t index)
 					
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAIL1:                                             //Nayru's Love Rocket trail
-					if(clk>=(((wpnsbuf[wNAYRUSLOVES1A].frames) * (wpnsbuf[wNAYRUSLOVES1A].speed))-1))
+				case pDIVINEPROTECTIONROCKETTRAIL1:                                             //Divine Protection Rocket trail
+					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS1A].frames) * (wpnsbuf[wDIVINEPROTECTIONS1A].speed))-1))
 					{
 						dead=0;
 					}
 					
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAILRETURN1:                                             //Nayru's Love Rocket return trail
-					if(clk>=(((wpnsbuf[wNAYRUSLOVES1B].frames) * (wpnsbuf[wNAYRUSLOVES1B].speed))-1))
+				case pDIVINEPROTECTIONROCKETTRAILRETURN1:                                             //Divine Protection Rocket return trail
+					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS1B].frames) * (wpnsbuf[wDIVINEPROTECTIONS1B].speed))-1))
 					{
 						dead=0;
 					}
 					
 					break;
 					
-				case pNAYRUSLOVEROCKETRETURN2:                                             //Nayru's Love Rocket return
+				case pDIVINEPROTECTIONROCKETRETURN2:                                             //Divine Protection Rocket return
 					if(x<=castx)
 					{
 						dead=0;
@@ -5679,16 +5690,16 @@ bool weapon::animate(int32_t index)
 					
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAIL2:                                             //Nayru's Love Rocket trail
-					if(clk>=(((wpnsbuf[wNAYRUSLOVES2A].frames) * (wpnsbuf[wNAYRUSLOVES2A].speed))-1))
+				case pDIVINEPROTECTIONROCKETTRAIL2:                                             //Divine Protection Rocket trail
+					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS2A].frames) * (wpnsbuf[wDIVINEPROTECTIONS2A].speed))-1))
 					{
 						dead=0;
 					}
 					
 					break;
 					
-				case pNAYRUSLOVEROCKETTRAILRETURN2:                                             //Nayru's Love Rocket return trail
-					if(clk>=(((wpnsbuf[wNAYRUSLOVES2B].frames) * (wpnsbuf[wNAYRUSLOVES2B].speed))-1))
+				case pDIVINEPROTECTIONROCKETTRAILRETURN2:                                             //Divine Protection Rocket return trail
+					if(clk>=(((wpnsbuf[wDIVINEPROTECTIONS2B].frames) * (wpnsbuf[wDIVINEPROTECTIONS2B].speed))-1))
 					{
 						dead=0;
 					}
@@ -5731,28 +5742,32 @@ bool weapon::animate(int32_t index)
 			
 			if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
 		   
-			//Create an ER to use this in older quests -V
 			if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 			{
-				
-						//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3407);
+				itemdata const& book = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)];
 				if((id==wMagic && current_item(itype_book) &&
-					itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+					book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					if(book.flags & ITEM_FLAG9)
+						findentrance(x,y,mfSTRONGFIRE,true);
+					if(book.flags & ITEM_FLAG10)
+						findentrance(x,y,mfMAGICFIRE,true);
+					if(book.flags & ITEM_FLAG11)
+						findentrance(x,y,mfDIVINEFIRE,true);
 				}
 			}
 			else
 			{
-						//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
-				 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
-						itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+				itemdata const& book = itemsbuf[linkedItem];
+				if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
+						book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					if(book.flags & ITEM_FLAG9)
+						findentrance(x,y,mfSTRONGFIRE,true);
+					if(book.flags & ITEM_FLAG10)
+						findentrance(x,y,mfMAGICFIRE,true);
+					if(book.flags & ITEM_FLAG11)
+						findentrance(x,y,mfDIVINEFIRE,true);
 				}
 			}
 			
@@ -6095,25 +6110,30 @@ bool weapon::animate(int32_t index)
 			//Create an ER to use this in older quests -V
 			if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
 			{
-				
-						//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3407);
+				itemdata const& book = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)];
 				if((id==wMagic && current_item(itype_book) &&
-					itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+					book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					if(book.flags & ITEM_FLAG9)
+						findentrance(x,y,mfSTRONGFIRE,true);
+					if(book.flags & ITEM_FLAG10)
+						findentrance(x,y,mfMAGICFIRE,true);
+					if(book.flags & ITEM_FLAG11)
+						findentrance(x,y,mfDIVINEFIRE,true);
 				}
 			}
 			else
 			{
-						//al_trace("Reached case wRefMagic in weapons.cpp, line %d\n",3418);
-				 if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
-						itemsbuf[linkedItem].flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+				itemdata const& book = itemsbuf[linkedItem];
+				if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
+						book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfBCANDLE,true);
-					findentrance(x,y,mfRCANDLE,true);
-					findentrance(x,y,mfWANDFIRE,true);
+					if(book.flags & ITEM_FLAG9)
+						findentrance(x,y,mfSTRONGFIRE,true);
+					if(book.flags & ITEM_FLAG10)
+						findentrance(x,y,mfMAGICFIRE,true);
+					if(book.flags & ITEM_FLAG11)
+						findentrance(x,y,mfDIVINEFIRE,true);
 				}
 			}
 			
@@ -7613,14 +7633,14 @@ void weapon::draw(BITMAP *dest)
 		case wPhantom:
 			switch(type)
 			{
-			case pNAYRUSLOVEROCKET1:
-			case pNAYRUSLOVEROCKETRETURN1:
-			case pNAYRUSLOVEROCKETTRAIL1:
-			case pNAYRUSLOVEROCKETTRAILRETURN1:
-			case pNAYRUSLOVEROCKET2:
-			case pNAYRUSLOVEROCKETRETURN2:
-			case pNAYRUSLOVEROCKETTRAIL2:
-			case pNAYRUSLOVEROCKETTRAILRETURN2:
+			case pDIVINEPROTECTIONROCKET1:
+			case pDIVINEPROTECTIONROCKETRETURN1:
+			case pDIVINEPROTECTIONROCKETTRAIL1:
+			case pDIVINEPROTECTIONROCKETTRAILRETURN1:
+			case pDIVINEPROTECTIONROCKET2:
+			case pDIVINEPROTECTIONROCKETRETURN2:
+			case pDIVINEPROTECTIONROCKETTRAIL2:
+			case pDIVINEPROTECTIONROCKETTRAILRETURN2:
 				if(parentitem>=0 && (itemsbuf[parentitem].flags & ITEM_FLAG1 ? 1 : 0)&&!(frame&1))
 				{
 					return;

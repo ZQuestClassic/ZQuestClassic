@@ -214,7 +214,7 @@ public:
 		fairyclk, //fairy circle timeout.
 		refillclk,//life refill timeout.
 		drunkclk, //intoxication timeout.
-		NayrusLoveShieldClk, // Nayru's Love timeout.
+		DivineProtectionShieldClk, // Divine Protection timeout.
 		hoverclk, //hover boots timeout.
 		hclk,     //damage blinking timeout.
 		holdclk,  //"hold up item" timeout.
@@ -554,8 +554,8 @@ public:
 	byte getDontDraw();
 	void setHClk(int32_t newhclk);
 	int32_t getHClk();
-	void setNayrusLoveShieldClk(int32_t newclk);
-	int32_t getNayrusLoveShieldClk();
+	void setDivineProtectionShieldClk(int32_t newclk);
+	int32_t getDivineProtectionShieldClk();
 	int32_t getHoverClk();
 	int32_t getHoldClk();
 	int32_t getSpecialCave(); // used only by maps.cpp

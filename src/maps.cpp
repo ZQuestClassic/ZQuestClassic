@@ -1827,10 +1827,10 @@ int32_t findtrigger(int32_t scombo, bool ff)
 			}
 			switch(checkflag)
 			{
-				case mfBCANDLE:
-				case mfRCANDLE:
-				case mfWANDFIRE:
-				case mfDINSFIRE:
+				case mfANYFIRE:
+				case mfSTRONGFIRE:
+				case mfMAGICFIRE:
+				case mfDIVINEFIRE:
 				case mfARROW:
 				case mfSARROW:
 				case mfGARROW:
@@ -1950,20 +1950,20 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				
 				switch(checkflag)
 				{
-				case mfBCANDLE:
+				case mfANYFIRE:
 					ft=sBCANDLE;
 					break;
 					
-				case mfRCANDLE:
+				case mfSTRONGFIRE:
 					ft=sRCANDLE;
 					break;
 					
-				case mfWANDFIRE:
+				case mfMAGICFIRE:
 					ft=sWANDFIRE;
 					break;
 					
-				case mfDINSFIRE:
-					ft=sDINSFIRE;
+				case mfDIVINEFIRE:
+					ft=sDIVINEFIRE;
 					break;
 					
 				case mfARROW:
@@ -2115,20 +2115,20 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 						
 						switch(checkflag)
 						{
-							case mfBCANDLE:
+							case mfANYFIRE:
 								ft=sBCANDLE;
 								break;
 							
-							case mfRCANDLE:
+							case mfSTRONGFIRE:
 								ft=sRCANDLE;
 								break;
 							
-							case mfWANDFIRE:
+							case mfMAGICFIRE:
 								ft=sWANDFIRE;
 								break;
 							
-							case mfDINSFIRE:
-								ft=sDINSFIRE;
+							case mfDIVINEFIRE:
+								ft=sDIVINEFIRE;
 								break;
 							
 							case mfARROW:
@@ -2279,20 +2279,20 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 				//No placed flags yet
 				switch(checkflag)
 				{
-					case mfBCANDLE:
+					case mfANYFIRE:
 						ft=sBCANDLE;
 						break;
 						
-					case mfRCANDLE:
+					case mfSTRONGFIRE:
 						ft=sRCANDLE;
 						break;
 						
-					case mfWANDFIRE:
+					case mfMAGICFIRE:
 						ft=sWANDFIRE;
 						break;
 						
-					case mfDINSFIRE:
-						ft=sDINSFIRE;
+					case mfDIVINEFIRE:
+						ft=sDIVINEFIRE;
 						break;
 						
 					case mfARROW:

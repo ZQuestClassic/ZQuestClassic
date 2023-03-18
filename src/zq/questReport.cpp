@@ -61,9 +61,9 @@ static int32_t usesSecretTriggerFlag(int32_t type)
 		case mfFBRANG:
 		case mfSARROW:
 		case mfGARROW:
-		case mfRCANDLE:
-		case mfWANDFIRE:
-		case mfDINSFIRE:
+		case mfSTRONGFIRE:
+		case mfMAGICFIRE:
+		case mfDIVINEFIRE:
 		case mfWANDMAGIC:
 		case mfREFMAGIC:
 		case mfREFFIREBALL:

@@ -4,6 +4,7 @@
 #include "base/zsys.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
+#include <fmt/format.h>
 
 void reset_itembuf(itemdata *item, int32_t id);
 char *ordinal(int32_t num);
@@ -424,7 +425,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Explosion Sound:";
 			break;
 		}
-		case itype_nayruslove: //!TODO Help Text
+		case itype_divineprotection: //!TODO Help Text
 		{
 			inf->misc[0] = "Duration:";
 			inf->flag[0] = "Rocket Flickers";
@@ -444,7 +445,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->actionsnd[0] = "Shield Sound:";
 			break;
 		}
-		case itype_faroreswind: //!TODO Help Text
+		case itype_divineescape: //!TODO Help Text
 		{
 			inf->misc[0] = "Warp Animation (0-2):";
 			inf->actionsnd[0] = "Wind Sound:";
@@ -452,20 +453,23 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				"Activates F6->Continue instead of just 'restarting the level'.");
 			break;
 		}
-		case itype_dinsfire: //!TODO Help Text
+		case itype_divinefire:
 		{
-			inf->power = "Damage:";
-			inf->misc[0] = "Number of Flames:";
-			inf->misc[1] = "Circle Width:";
-			inf->flag[1] = "Don't Provide Light";
-			inf->flag[2] = "Falls in Sideview";
-			inf->flag[4] = "Temporary Light";
-			inf->wpn[0] = "Rocket Up Sprite:";
-			inf->wpn[1] = "Rocket Down Sprite:";
-			inf->wpn[2] = "R. Up Sparkle Sprite:";
-			inf->wpn[3] = "R. Down Sparkle Sprite:";
-			inf->wpn[4] = "Flame Sprite:";
-			inf->actionsnd[0] = "Ring Sound:";
+			_SET(power, "Damage:", "The amount of damage dealt by the flames");
+			_SET(misc[0], "Number of Flames:", "The number of flames to shoot in a circle");
+			_SET(misc[1], "Circle Width:", "The diameter of the circle");
+			_SET(flag[1], "Don't Provide Light", "The flames will not emit light");
+			_SET(flag[2], "Falls in Sideview", "The flames will obey gravity");
+			_SET(flag[4], "Temporary Light", "The flames light will only light the room temporarily (Old dark rooms)");
+			_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
+			_SET(flag[9], "Counts as Magic Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfMAGICFIRE)));
+			_SET(flag[10], "Counts as Divine Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfDIVINEFIRE)));
+			_SET(wpn[0], "Rocket Up Sprite:", "The sprite for the up rocket");
+			_SET(wpn[1], "Rocket Down Sprite:", "The sprite for the down rocket");
+			_SET(wpn[2], "R. Up Sparkle Sprite:", "The sparkle sprite for the up rocket");
+			_SET(wpn[3], "R. Down Sparkle Sprite:", "The sparkle sprite for the down rocket");
+			_SET(wpn[4], "Flame Sprite:", "The sprite of the flame weapons");
+			_SET(actionsnd[0], "Ring Sound:", "The sound that plays when the ring of fire appears");
 			break;
 		}
 		case itype_hammer: //!TODO Help Text
@@ -613,6 +617,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[3] = "Override Wand SFX";
 			inf->flag[4] = "Temporary Light";
 			inf->flag[5] = "Replace Wand Weapon";
+			_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
+			_SET(flag[9], "Counts as Magic Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfMAGICFIRE)));
+			_SET(flag[10], "Counts as Divine Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfDIVINEFIRE)));
 			inf->wpn[0] = "Magic Sprite:";
 			inf->wpn[1] = "Projectile Sprite:";
 			inf->actionsnd[0] = "Firing Sound:";
@@ -717,6 +724,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[2] = "Fire Doesn't Hurt Player";
 			_SET(flag[3], "Can Slash", "The candle slashes instead of stabs");
 			inf->flag[7] = "Flip Right-Facing Slash";
+			_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
+			_SET(flag[9], "Counts as Magic Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfMAGICFIRE)));
+			_SET(flag[10], "Counts as Divine Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfDIVINEFIRE)));
 			_SET(wpn[0], "Stab Sprite:", "The sprite for the candle stabbing");
 			_SET(wpn[1], "Slash Sprite:", "The sprite for the candle slashing");
 			_SET(wpn[2], "Fire Sprite:", "The sprite for the candle fire");
@@ -762,7 +772,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[4] = "Drags Items";
 			inf->flag[5] = "Reflects Enemy Projectiles";
 			inf->flag[6] = "Picks Up Keys";
-			inf->flag[7] = "Triggers 'Fire(Any)'";
+			_SET(flag[7], "Counts as Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfANYFIRE)));
+			_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
+			_SET(flag[9], "Counts as Magic Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfMAGICFIRE)));
+			_SET(flag[10], "Counts as Divine Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfDIVINEFIRE)));
+			
 			inf->wpn[0] = "Boomerang Sprite:";
 			inf->wpn[1] = "Sparkle Sprite:";
 			inf->wpn[2] = "Damaging Sparkle Sprite:";
@@ -907,7 +921,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 				" mirroring to a new dmap");
 			_SET(flag[1], "Continue acts as F6->Continue",
 				"When used on a dmap with 'Mirror Continues instead of Warping' checked, "
-				"activates F6->Continue instead of Farore's Wind effect if enabled.");
+				"activates F6->Continue instead of Divine Escape effect if enabled.");
 			_SET(wpn[0], "Portal Sprite", "Sprite of the Return Portal");
 			_SET(actionsnd[0], "Warp Sound", "Sound played for the warp to a new dmap");
 			_SET(actionsnd[1], "Continue Sound", "Sound played for a continue warp");

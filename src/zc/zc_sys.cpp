@@ -2830,7 +2830,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfBCANDLE:
+					case mfANYFIRE:
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sBCANDLE],tmpscr->secretcset[sBCANDLE]);
@@ -2853,7 +2853,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfRCANDLE:
+					case mfSTRONGFIRE:
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sRCANDLE],tmpscr->secretcset[sRCANDLE]);
@@ -2876,7 +2876,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfWANDFIRE:
+					case mfMAGICFIRE:
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sWANDFIRE],tmpscr->secretcset[sWANDFIRE]);
@@ -2907,14 +2907,14 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfDINSFIRE:
+					case mfDIVINEFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sDINSFIRE],tmpscr->secretcset[sDINSFIRE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr->secretcombo[sDIVINEFIRE],tmpscr->secretcset[sDIVINEFIRE]);
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_dinsfire,1);
+							tempitem=getItemID(itemsbuf,itype_divinefire,1);
 							
 							if(tempitem<0) break;
 							

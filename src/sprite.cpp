@@ -2606,7 +2606,7 @@ void sprite::explode(int32_t type)
                         }
                         else //explode
                         {
-                            particles.add(new pFaroresWindDust(x+j, y-z-fakez+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(x+j, y-z-fakez+i, 5, 6, spritetilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
@@ -2673,7 +2673,7 @@ void sprite::explode(int32_t type)
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(x+j, y-z+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(x+j, y-z+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));

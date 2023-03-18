@@ -40,9 +40,9 @@
 #define WAV_ZELDA                        34       /* SAMP */
 #define WAV_ZN1CHARGE                    35       /* SAMP */
 #define WAV_ZN1CHARGE2                   36       /* SAMP */
-#define WAV_ZN1DINSFIRE                  37       /* SAMP */
+#define WAV_ZN1DIVINEFIRE                  37       /* SAMP */
 #define WAV_ZN1FALL                      38       /* SAMP */
-#define WAV_ZN1FARORESWIND               39       /* SAMP */
+#define WAV_ZN1DIVINEESCAPE               39       /* SAMP */
 #define WAV_ZN1FIREBALL                  40       /* SAMP */
 #define WAV_ZN1GRASSCUT                  41       /* SAMP */
 #define WAV_ZN1HAMMERPOST                42       /* SAMP */
@@ -51,8 +51,8 @@
 #define WAV_ZN1JUMP                      45       /* SAMP */
 #define WAV_ZN1LENSOFF                   46       /* SAMP */
 #define WAV_ZN1LENSON                    47       /* SAMP */
-#define WAV_ZN1NAYRUSLOVE1               48       /* SAMP */
-#define WAV_ZN1NAYRUSLOVE2               49       /* SAMP */
+#define WAV_ZN1DIVINEPROTECTION1               48       /* SAMP */
+#define WAV_ZN1DIVINEPROTECTION2               49       /* SAMP */
 #define WAV_ZN1PUSHBLOCK                 50       /* SAMP */
 #define WAV_ZN1ROCK                      51       /* SAMP */
 #define WAV_ZN1ROCKETDOWN                52       /* SAMP */

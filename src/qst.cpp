@@ -141,7 +141,7 @@ const char *qst_error[] =
 //for legacy quests -DD
 enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERPOTION, ssiBOW, ssiARROW, ssiBOWANDARROW, ssiBAIT, ssiRING, ssiBRACELET, ssiMAP,
        ssiCOMPASS, ssiBOSSKEY, ssiMAGICKEY, ssiBRANG, ssiWAND, ssiRAFT, ssiLADDER, ssiWHISTLE, ssiBOOK, ssiWALLET, ssiSBOMB, ssiHCPIECE, ssiAMULET, ssiFLIPPERS,
-       ssiHOOKSHOT, ssiLENS, ssiHAMMER, ssiBOOTS, ssiDINSFIRE, ssiFARORESWIND, ssiNAYRUSLOVE, ssiQUIVER, ssiBOMBBAG, ssiCBYRNA, ssiROCS, ssiHOVERBOOTS,
+       ssiHOOKSHOT, ssiLENS, ssiHAMMER, ssiBOOTS, ssiDIVINEFIRE, ssiDIVINEESCAPE, ssiDIVINEPROTECTION, ssiQUIVER, ssiBOMBBAG, ssiCBYRNA, ssiROCS, ssiHOVERBOOTS,
        ssiSPINSCROLL, ssiCROSSSCROLL, ssiQUAKESCROLL, ssiWHISPRING, ssiCHARGERING, ssiPERILSCROLL, ssiWEALTHMEDAL, ssiHEARTRING, ssiMAGICRING, ssiSPINSCROLL2,
        ssiQUAKESCROLL2, ssiAGONY, ssiSTOMPBOOTS, ssiWHIMSICALRING, ssiPERILRING, ssiMAX
      };
@@ -7199,19 +7199,19 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn2=wXSWORDSLASH;
 						break;
 						
-					case iNayrusLove:
+					case iDivineProtection:
 						tempitem.flags |= get_bit(deprecated_rules,76) ? ITEM_FLAG1 : 0;
 						tempitem.flags |= get_bit(deprecated_rules,75) ? ITEM_FLAG2 : 0;
-						tempitem.wpn=wNAYRUSLOVE1A;
-						tempitem.wpn2=wNAYRUSLOVE1B;
-						tempitem.wpn3=wNAYRUSLOVES1A;
-						tempitem.wpn4=wNAYRUSLOVES1B;
-						tempitem.wpn6=wNAYRUSLOVE2A;
-						tempitem.wpn7=wNAYRUSLOVE2B;
-						tempitem.wpn8=wNAYRUSLOVES2A;
-						tempitem.wpn9=wNAYRUSLOVES2B;
-						tempitem.wpn5 = iwNayrusLoveShieldFront;
-						tempitem.wpn10 = iwNayrusLoveShieldBack;
+						tempitem.wpn=wDIVINEPROTECTION1A;
+						tempitem.wpn2=wDIVINEPROTECTION1B;
+						tempitem.wpn3=wDIVINEPROTECTIONS1A;
+						tempitem.wpn4=wDIVINEPROTECTIONS1B;
+						tempitem.wpn6=wDIVINEPROTECTION2A;
+						tempitem.wpn7=wDIVINEPROTECTION2B;
+						tempitem.wpn8=wDIVINEPROTECTIONS2A;
+						tempitem.wpn9=wDIVINEPROTECTIONS2B;
+						tempitem.wpn5 = iwDivineProtectionShieldFront;
+						tempitem.wpn10 = iwDivineProtectionShieldBack;
 						tempitem.misc1=512;
 						tempitem.cost_amount[0]=64;
 						break;
@@ -7232,18 +7232,18 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn=iwHover;
 						break;
 						
-					case iDinsFire:
+					case iDivineFire:
 						tempitem.power=8;
-						tempitem.wpn=wDINSFIRE1A;
-						tempitem.wpn2=wDINSFIRE1B;
-						tempitem.wpn3=wDINSFIRES1A;
-						tempitem.wpn4=wDINSFIRES1B;
+						tempitem.wpn=wDIVINEFIRE1A;
+						tempitem.wpn2=wDIVINEFIRE1B;
+						tempitem.wpn3=wDIVINEFIRES1A;
+						tempitem.wpn4=wDIVINEFIRES1B;
 						tempitem.misc1 = 32;
 						tempitem.misc2 = 200;
 						tempitem.cost_amount[0]=32;
 						break;
 						
-					case iFaroresWind:
+					case iDivineEscape:
 						tempitem.cost_amount[0]=32;
 						break;
 						
@@ -7511,16 +7511,16 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     tempitem.usesound = WAV_HAMMER;
                     break;
                     
-                case itype_dinsfire:
-                    tempitem.usesound = WAV_ZN1DINSFIRE;
+                case itype_divinefire:
+                    tempitem.usesound = WAV_ZN1DIVINEFIRE;
                     break;
                     
-                case itype_faroreswind:
-                    tempitem.usesound = WAV_ZN1FARORESWIND;
+                case itype_divineescape:
+                    tempitem.usesound = WAV_ZN1DIVINEESCAPE;
                     break;
                     
-                case itype_nayruslove:
-                    tempitem.usesound = WAV_ZN1NAYRUSLOVE1;
+                case itype_divineprotection:
+                    tempitem.usesound = WAV_ZN1DIVINEPROTECTION1;
                     break;
                     
                 case itype_bomb:
@@ -7599,7 +7599,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             if(s_version < 19)  // January 2008
             {
-                if(tempitem.family == itype_nayruslove)
+                if(tempitem.family == itype_divineprotection)
                 {
                     tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)?ITEM_FLAG3:0;
                     tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)?ITEM_FLAG4:0;
@@ -7608,14 +7608,14 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             if(s_version < 20)  // October 2008
             {
-                if(tempitem.family == itype_nayruslove)
+                if(tempitem.family == itype_divineprotection)
                 {
-                    tempitem.wpn6=wNAYRUSLOVE2A;
-                    tempitem.wpn7=wNAYRUSLOVE2B;
-                    tempitem.wpn8=wNAYRUSLOVES2A;
-                    tempitem.wpn9=wNAYRUSLOVES2B;
-                    tempitem.wpn5 = iwNayrusLoveShieldFront;
-                    tempitem.wpn10 = iwNayrusLoveShieldBack;
+                    tempitem.wpn6=wDIVINEPROTECTION2A;
+                    tempitem.wpn7=wDIVINEPROTECTION2B;
+                    tempitem.wpn8=wDIVINEPROTECTIONS2A;
+                    tempitem.wpn9=wDIVINEPROTECTIONS2B;
+                    tempitem.wpn5 = iwDivineProtectionShieldFront;
+                    tempitem.wpn10 = iwDivineProtectionShieldBack;
                 }
             }
             
@@ -7645,7 +7645,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             if(s_version < 23)    // March 2011
             {
-                if(tempitem.family == itype_dinsfire)
+                if(tempitem.family == itype_divinefire)
                     tempitem.wpn5 = wFIRE;
                 else if(tempitem.family == itype_book)
                     tempitem.wpn2 = wFIRE;
@@ -7659,7 +7659,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 if(tempitem.family == itype_bombbag)
                     tempitem.flags |= 16;
                     
-                if(tempitem.family == itype_dinsfire)
+                if(tempitem.family == itype_divinefire)
                     tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
             }
             
@@ -8221,7 +8221,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn10 = 0;
 						break;
 					}
-					case itype_dinsfire:
+					case itype_divinefire:
 					{
 						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
 						tempitem.misc3 = 0;
@@ -8239,7 +8239,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn10 = 0;
 						break;
 					}
-					case itype_faroreswind:
+					case itype_divineescape:
 					{
 						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
 						tempitem.misc2 = 0;
@@ -8263,7 +8263,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn10 = 0;
 						break;
 					}
-					case itype_nayruslove:
+					case itype_divineprotection:
 					{
 						tempitem.flags &= ~ (ITEM_FLAG5);
 						tempitem.misc2 = 0;
@@ -9109,7 +9109,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			
 			if( s_version < 39)
 			{
-				if(tempitem.family == itype_dinsfire || tempitem.family == itype_book || tempitem.family == itype_candle)
+				if(tempitem.family == itype_divinefire || tempitem.family == itype_book || tempitem.family == itype_candle)
 				{
 					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
 					else tempitem.flags &= ~ITEM_FLAG5;
@@ -9332,6 +9332,27 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					case itype_spinscroll2:
 					case itype_quakescroll2:
 						tempitem.usesound2 = WAV_ZN1CHARGE2;
+						break;
+				}
+			}
+			if(s_version < 56)
+			{
+				switch(tempitem.family)
+				{
+					case itype_divinefire:
+						SETFLAG(tempitem.flags, ITEM_FLAG9, version < 0x255); //Strong Fire
+						SETFLAG(tempitem.flags, ITEM_FLAG10, version < 0x250); //Magic Fire
+						tempitem.flags |= ITEM_FLAG11; //Divine Fire
+						break;
+					case itype_candle:
+						SETFLAG(tempitem.flags, ITEM_FLAG9, tempitem.fam_type > 1); //Strong Fire
+						tempitem.flags &= ~ITEM_FLAG10; //Magic Fire
+						tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
+						break;
+					case itype_book:
+						tempitem.flags |= ITEM_FLAG9; //Strong Fire
+						tempitem.flags |= ITEM_FLAG10; //Magic Fire
+						tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
 						break;
 				}
 			}
@@ -11722,16 +11743,16 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
                     temp_sub->d1 = itype_boots;
                     break;
                     
-                case ssiDINSFIRE:
-                    temp_sub->d1 = itype_dinsfire;
+                case ssiDIVINEFIRE:
+                    temp_sub->d1 = itype_divinefire;
                     break;
                     
-                case ssiFARORESWIND:
-                    temp_sub->d1 = itype_faroreswind;
+                case ssiDIVINEESCAPE:
+                    temp_sub->d1 = itype_divineescape;
                     break;
                     
-                case ssiNAYRUSLOVE:
-                    temp_sub->d1 = itype_nayruslove;
+                case ssiDIVINEPROTECTION:
+                    temp_sub->d1 = itype_divineprotection;
                     break;
                     
                 case ssiQUIVER:
@@ -13292,9 +13313,9 @@ const char *old_sfx_string[Z35] =
     "Refill", "Roar (Aquamentus, Gleeok, Ganon)", "Item pickup 2", "Ocean ambience",
     "Secret chime", "Player dies", "Stairs", "Sword", "Roar (Manhandla, Digdogger, Patra)",
     "Wand magic", "Whistle", "Zelda's fanfare", "Charging weapon", "Charging weapon 2",
-    "Din's Fire", "Enemy falls from ceiling", "Farore's Wind", "Fireball", "Tall Grass slashed",
+    "Divine Fire", "Enemy falls from ceiling", "Divine Escape", "Fireball", "Tall Grass slashed",
     "Pound pounded", "Hover Boots", "Ice magic", "Jump", "Lens of Truth off", "Lens of Truth on",
-    "Nayru's Love shield", "Nayru's Love shield 2", "Push block", "Rock", "Spell rocket down",
+    "Divine Protection shield", "Divine Protection 2", "Push block", "Rock", "Spell rocket down",
     "Spell rocket up", "Sword spin attack", "Splash", "Summon magic", "Sword tapping",
     "Sword tapping (secret)", "Whistle whirlwind", "Cane of Byrna orbit"
 };
@@ -16492,7 +16513,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		temp_mapscr->secretcombo[sSBOMB]=temp_mapscr->secretcombo[sBOMB];
 		temp_mapscr->secretcombo[sRCANDLE]=temp_mapscr->secretcombo[sBCANDLE];
 		temp_mapscr->secretcombo[sWANDFIRE]=temp_mapscr->secretcombo[sBCANDLE];
-		temp_mapscr->secretcombo[sDINSFIRE]=temp_mapscr->secretcombo[sBCANDLE];
+		temp_mapscr->secretcombo[sDIVINEFIRE]=temp_mapscr->secretcombo[sBCANDLE];
 		temp_mapscr->secretcombo[sSARROW]=temp_mapscr->secretcombo[sARROW];
 		temp_mapscr->secretcombo[sGARROW]=temp_mapscr->secretcombo[sARROW];
 	}
@@ -19706,21 +19727,21 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_dinsfire, temp);
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divinefire, temp);
 				
 				if(!p_getc(&temp,f,true))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_faroreswind, temp);
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divineescape, temp);
 				
 				if(!p_getc(&temp,f,true))
 				{
 					return qe_invalid;
 				}
 				
-				addOldStyleFamily(&temp_zinit, itemsbuf, itype_nayruslove, temp);
+				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divineprotection, temp);
 				
 				if(!p_getc(&temp,f,true))
 				{
@@ -20397,9 +20418,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 			
-			temp_zinit.items[iDinsFire]=(get_bit(&items2, idI_DFIRE)!=0);
-			temp_zinit.items[iFaroresWind]=(get_bit(&items2, idI_FWIND)!=0);
-			temp_zinit.items[iNayrusLove]=(get_bit(&items2, idI_NLOVE)!=0);
+			temp_zinit.items[iDivineFire]=(get_bit(&items2, idI_DFIRE)!=0);
+			temp_zinit.items[iDivineEscape]=(get_bit(&items2, idI_FWIND)!=0);
+			temp_zinit.items[iDivineProtection]=(get_bit(&items2, idI_NLOVE)!=0);
 		}
 		
 		if(Header->zelda_version < 0x193)

@@ -1101,8 +1101,8 @@ static GUI::ListData miscRulesList
 		" water, bushes/flowers/tall grass make a sound when cut, Hammer posts make"
 		" a sound when pounded, the Lens of Truth play a sound when both used and unused,"
 		" Push Blocks make a sound when pushed, Whistle Whirlwinds make a continuous sound when"
-		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Goddess Spells"
-		" (Nayru's Love, Farore's Wind, and Din's Fire) all use sound effects for everything they do."},
+		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Divine Spells"
+		" (Divine Protection, Divine Escape, and Divine Fire) all use sound effects for everything they do."},
 	{ "Fast Heart Refill", qr_FASTFILL,
 		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
 		" If disabled, they will restore half a heart every 22 frames."},
@@ -1212,7 +1212,7 @@ static GUI::ListData miscRulesList
 		"When in a dark room with 'New Dark Rooms' enabled, lanterns will light across"
 		" the boundary between screens *during scrolling*." },
 	{ "Restarting Level always goes to DMap continue point", qr_LEVEL_RESTART_CONT_POINT,
-		"Effects like Wallmasters and Farore's Wind will go back to the DMap's"
+		"Effects like Wallmasters and Divine Escape will go back to the DMap's"
 		" continue point, rather than the last entrance point." },
 	{ "Flip 'don't restart dmap script' script warp flag", qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
 		"If enabled, the warp flag to disable restarting the dmap script when warping to the same dmap will be flipped"

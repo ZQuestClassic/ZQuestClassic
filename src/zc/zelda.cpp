@@ -428,7 +428,7 @@ int32_t DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn 
 int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
-int32_t nets=1580, magicitem=-1,nayruitem=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
+int32_t nets=1580, magicitem=-1,div_prot_item=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
 float avgfps=0;
@@ -1222,9 +1222,9 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         
     particles.clear();
     
-    if(Hero.getNayrusLoveShieldClk())
+    if(Hero.getDivineProtectionShieldClk())
     {
-        Hero.setNayrusLoveShieldClk(Hero.getNayrusLoveShieldClk());
+        Hero.setDivineProtectionShieldClk(Hero.getDivineProtectionShieldClk());
     }
     
     Hero.resetflags(false);
@@ -1308,9 +1308,9 @@ int32_t  HeroCharged()
 {
     return Hero.isCharged();
 }
-int32_t  HeroNayrusLoveShieldClk()
+int32_t  HeroDivineProtectionShieldClk()
 {
-    return Hero.getNayrusLoveShieldClk();
+    return Hero.getDivineProtectionShieldClk();
 }
 int32_t  HeroHoverClk()
 {
@@ -2732,11 +2732,11 @@ void do_magic_casting()
     
     switch(itemsbuf[magicitem].family)
     {
-    case itype_dinsfire:
+    case itype_divinefire:
     {
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(HeroX(),HeroY(),HeroZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),HeroZ(),wPhantom,pDIVINEFIREROCKET,0,up, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
@@ -2753,7 +2753,7 @@ void do_magic_casting()
         
         if(magiccastclk==64)
         {
-            Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDIVINEFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
@@ -2784,10 +2784,10 @@ void do_magic_casting()
             
             for(int32_t flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
-		    //din't fire level fix to go here
+		    //divine fire level fix to go here
                 //Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
                 Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
-                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
+                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		w->fakez = HeroFakeZ();
                 w->step=(itemsbuf[magicitem].misc2/100.0);
@@ -2807,7 +2807,7 @@ void do_magic_casting()
     }
     break;
     
-    case itype_faroreswind:
+    case itype_divineescape:
     {
         if(magiccastclk==0)
         {
@@ -2883,7 +2883,7 @@ void do_magic_casting()
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
@@ -2907,9 +2907,9 @@ void do_magic_casting()
 			else
 			{
 				//attackclk=0;
-				int32_t nayrutemp=nayruitem;
+				int32_t div_prot_temp=div_prot_item;
 				restart_level();
-				nayruitem=nayrutemp;
+				div_prot_item=div_prot_temp;
 				//xofs=0;
 				//action=none;
 				magicitem=-1;
@@ -2920,15 +2920,15 @@ void do_magic_casting()
     }
     break;
     
-    case itype_nayruslove:
+    case itype_divineprotection:
     {
         // See also hero.cpp, HeroClass::checkhit().
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pDIVINEPROTECTIONROCKET1,0,left, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pDIVINEPROTECTIONROCKET2,0,right, magicitem, Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Hero.tile=(BSZ)?32:29;
@@ -2948,16 +2948,16 @@ void do_magic_casting()
             {
                 weapon* w=static_cast<weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
-                  w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
+                  w->type>=pDIVINEPROTECTIONROCKET1 && w->type<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             
             int32_t d=zc_max(HeroX(),256-HeroX())+32;
-            Lwpns.add(new weapon((zfix)(HeroX()-d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Hero.getUID()));
+            Lwpns.add(new weapon((zfix)(HeroX()-d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pDIVINEPROTECTIONROCKETRETURN1,0,right, magicitem,Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
-            Lwpns.add(new weapon((zfix)(HeroX()+d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Hero.getUID()));
+            Lwpns.add(new weapon((zfix)(HeroX()+d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pDIVINEPROTECTIONROCKETRETURN2,0,left, magicitem,Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
@@ -2982,14 +2982,14 @@ void do_magic_casting()
                 Hero.tile+=Hero.getTileModifier();
             }
             
-            Hero.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
+            Hero.setDivineProtectionShieldClk(itemsbuf[magicitem].misc1);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-                if(nayruitem != -1)
+                if(div_prot_item != -1)
                 {
-                    stop_sfx(itemsbuf[nayruitem].usesound+1);
-                    stop_sfx(itemsbuf[nayruitem].usesound);
+                    stop_sfx(itemsbuf[div_prot_item].usesound+1);
+                    stop_sfx(itemsbuf[div_prot_item].usesound);
                 }
                 
                 cont_sfx(itemsbuf[magicitem].usesound);
@@ -2997,7 +2997,7 @@ void do_magic_casting()
             
             castnext=false;
             magiccastclk=128;
-            nayruitem = magicitem;
+            div_prot_item = magicitem;
         }
         
         // Finish the final spell pose
@@ -3007,7 +3007,7 @@ void do_magic_casting()
             {
                 weapon* w=static_cast<weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
-                  w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
+                  w->type>=pDIVINEPROTECTIONROCKET1 && w->type<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             

@@ -93,13 +93,13 @@ int32_t particle::getNextUID()
     return nextid++;
 }
 
-pFaroresWindDust::pFaroresWindDust(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C, int32_t T) : particle(X,Y,L,CS,C)
+pDivineEscapeDust::pDivineEscapeDust(zfix X,zfix Y,int32_t L,int32_t CS,int32_t C, int32_t T) : particle(X,Y,L,CS,C)
 {
 	initialized=false;
 	timer=T;
 }
 
-bool pFaroresWindDust::animate(int32_t)
+bool pDivineEscapeDust::animate(int32_t)
 {
 	if(!initialized)
 	{
