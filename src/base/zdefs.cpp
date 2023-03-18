@@ -1597,25 +1597,25 @@ void zinitdata::clear()
 	start_dmap = 0;
 	heroAnimationStyle = 0;
 	memset(level_keys,0,sizeof(level_keys));
-	ss_grid_x = 0;
-	ss_grid_y = 0;
+	ss_grid_x = 8;
+	ss_grid_y = 8;
 	ss_grid_xofs = 0;
 	ss_grid_yofs = 0;
-	ss_grid_color = 0;
-	ss_bbox_1_color = 0;
-	ss_bbox_2_color = 0;
+	ss_grid_color = 8;
+	ss_bbox_1_color = 15;
+	ss_bbox_2_color = 7;
 	ss_flags = 0;
 	
 	subscreen_style = 0;
 	usecustomsfx = 0;
 	max_rupees = 255;
 	max_keys = 255;
-	gravity = 0;
-	gravity2 = 0;
-	terminalv = 0;
-	msg_speed = 0;
+	gravity = 16;
+	gravity2 = 1600;
+	terminalv = 320;
+	msg_speed = 5;
 	transition_type = 0;
-	jump_hero_layer_threshold = 0;
+	jump_hero_layer_threshold = 255;
 	hero_swim_speed = 0;
 	
 	bombs = 0;
@@ -1625,7 +1625,7 @@ void zinitdata::clear()
 	arrows = 0;
 	max_arrows = 0;
 	heroStep = 0;
-	subscrSpeed = 0;
+	subscrSpeed = 1;
 	heroSideswimUpStep = 0;
 	heroSideswimSideStep = 0;
 	heroSideswimDownStep = 0;
