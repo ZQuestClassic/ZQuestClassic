@@ -991,25 +991,25 @@ int32_t zmap::save(const char *path)
 
 bool zmap::ishookshottable(int32_t bx, int32_t by, int32_t i)
 {
-    // Hookshots can be blocked by solid combos on all 3 ground layers.
-    newcombo c = combobuf[MAPCOMBO(bx,by)];
-    
-    if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
-    {
-        return false;
-    }
-    
-    for(int32_t k=0; k<2; k++)
-    {
-        c = combobuf[MAPCOMBO2(k+1,bx,by)];
-        
-        if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
-        {
-            return false;
-        }
-    }
-    
-    return true;
+	// Hookshots can be blocked by solid combos on all 3 ground layers.
+	newcombo c = combobuf[MAPCOMBO(bx,by)];
+	
+	if(c.type == cHOOKSHOTONLY || c.type == cLADDERHOOKSHOT)
+		return true;
+	if (c.walk&(1<<i))
+		return false;
+	
+	for(int32_t k=0; k<2; k++)
+	{
+		c = combobuf[MAPCOMBO2(k+1,bx,by)];
+		
+		if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
+		{
+			return false;
+		}
+	}
+	
+	return true;
 }
 
 bool zmap::ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by, int32_t i)
@@ -1017,10 +1017,10 @@ bool zmap::ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by, 
 	// Hookshots can be blocked by solid combos on all 3 ground layers.
 	newcombo c = combobuf[MAPCOMBO3(map, screen, -1, bx,by)];
 	
-	if(c.type != cHOOKSHOTONLY && c.type != cLADDERHOOKSHOT && c.walk&(1<<i))
-	{
+	if(c.type == cHOOKSHOTONLY || c.type == cLADDERHOOKSHOT)
+		return true;
+	if (c.walk&(1<<i))
 		return false;
-	}
 	
 	for(int32_t k=0; k<2; k++)
 	{

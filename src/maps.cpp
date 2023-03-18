@@ -1455,6 +1455,7 @@ bool ishookshottable(int32_t bx, int32_t by)
 	if (collide_object(bx, by, 1, 1))
 		return false;
 	
+	bool ret = true;
 	for(int32_t i=2; i>=0; i--)
 	{
 		int32_t c = MAPCOMBO2(i-1,bx,by);
@@ -1471,10 +1472,10 @@ bool ishookshottable(int32_t bx, int32_t by)
 		if(by&8) b<<=1;
 		
 		if(combobuf[c].walk&b && !dried && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-			return false;
+			ret = false;
 	}
 	
-	return true;
+	return ret;
 }
 
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
@@ -1491,6 +1492,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	if (collide_object(bx, by, 1, 1))
 		return false;
 	
+	bool ret = true;
 	for(int32_t i=2; i>=0; i--)
 	{
 		int32_t c = MAPCOMBO3(map, screen, i-1,bx,by);
@@ -1507,10 +1509,10 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 		if(by&8) b<<=1;
 		
 		if(combobuf[c].walk&b && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-			return false;
+			ret = false;
 	}
 	
-	return true;
+	return ret;
 }
 
 bool hiddenstair(int32_t tmp,bool redraw)                       // tmp = index of tmpscr[]
