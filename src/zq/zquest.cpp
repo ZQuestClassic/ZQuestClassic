@@ -568,6 +568,7 @@ int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
 bool allowHideMouse = false; //!TODO add config for this
 double aspect_ratio = LARGE_H / double(LARGE_W);
+int window_min_width = 0, window_min_height = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
@@ -30131,7 +30132,7 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 #ifndef __EMSCRIPTEN__
-	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
+	if(zc_get_config("zquest","open_debug_console",0))
 		initConsole();
 #endif
 

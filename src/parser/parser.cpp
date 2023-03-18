@@ -431,3 +431,4 @@ END_OF_MAIN()
 // TODO: make this not needed to compile...
 bool DragAspect = false;
 double aspect_ratio = LARGE_H / double(LARGE_W);
+int window_min_width = 0, window_min_height = 0;

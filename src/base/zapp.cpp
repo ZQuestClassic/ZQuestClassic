@@ -160,10 +160,27 @@ static void doAspectResize()
 	prev_height = al_get_display_height(all_get_display());
 }
 
+extern int window_min_width, window_min_height;
+void zc_do_minsize()
+{
+	if(all_get_fullscreen_flag()) return;
+	if(!(window_min_width || window_min_height)) return;
+	
+	int wid = al_get_display_width(all_get_display());
+	int hei = al_get_display_height(all_get_display());
+	if(wid < window_min_width || hei < window_min_height)
+	{
+		if(wid < window_min_width) wid = window_min_width;
+		if(hei < window_min_height) hei = window_min_height;
+		al_resize_display(all_get_display(),wid,hei);
+	}
+}
+
 void zc_process_display_events()
 {
 	all_process_display_events();
 	// TODO: should do this only in response to a resize event
 	doAspectResize();
+	zc_do_minsize();
 }
 

@@ -9,6 +9,7 @@
 #include <fmt/format.h>
 
 extern sprite_list guys;
+extern double aspect_ratio;
 
 RenderTreeItem rti_root;
 RenderTreeItem rti_game;
@@ -106,10 +107,14 @@ static void init_render_tree()
 	al_set_new_bitmap_flags(0);
 }
 
+float intscale(float scale)
+{
+	if(!scaleForceInteger) return scale;
+	return std::max(1,int(scale));
+}
 static void configure_render_tree()
 {
-	static bool scaling_force_integer = zc_get_config("zeldadx", "scaling_force_integer", 1);
-
+	static const double game_aspect = 240.0/256.0;
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 
@@ -122,13 +127,15 @@ static void configure_render_tree()
 	{
 		int w = al_get_bitmap_width(rti_game.bitmap);
 		int h = al_get_bitmap_height(rti_game.bitmap);
-		float xscale = (float)resx/w;
-		float yscale = (float)resy/h;
-		if (scaling_force_integer)
+		float txscale = (float)resx/w;
+		float tyscale = (float)resy/(h+12);
+		float yscale = intscale(tyscale), xscale = intscale(yscale/game_aspect);
+		if(xscale*w > resx && yscale > 1)
 		{
-			xscale = std::max((int) xscale, 1);
-			yscale = std::max((int) yscale, 1);
+			--yscale;
+			xscale = intscale(yscale/game_aspect);
 		}
+		
 		rti_game.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_game.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_game.transform.xscale = xscale;
@@ -147,11 +154,8 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_menu.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		if (scaling_force_integer)
-		{
-			xscale = std::max((int) xscale, 1);
-			yscale = std::max((int) yscale, 1);
-		}
+		xscale = std::max((int) xscale, 1);
+		yscale = std::max((int) yscale, 1);
 		rti_menu.transform.x = 0;
 		rti_menu.transform.y = 0;
 		rti_menu.transform.xscale = xscale;
@@ -167,7 +171,7 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_gui.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		if (scaling_force_integer)
+		if (scaleForceInteger)
 		{
 			xscale = std::max((int) xscale, 1);
 			yscale = std::max((int) yscale, 1);
@@ -193,7 +197,7 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_screen.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		if (scaling_force_integer)
+		if (scaleForceInteger)
 		{
 			xscale = std::max((int) xscale, 1);
 			yscale = std::max((int) yscale, 1);
@@ -204,8 +208,6 @@ static void configure_render_tree()
 		rti_screen.transform.yscale = yscale;
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
-		
-		
 	}
 	
 

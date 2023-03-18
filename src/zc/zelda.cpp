@@ -447,8 +447,9 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false, scaleForceInteger=false;
 double aspect_ratio = 0.75;
+int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
@@ -1169,9 +1170,6 @@ HeroClass   Hero;
 #include "ending.h"
 
 #include "zc_sys.h"
-//extern MENU the_player_menu;
-//extern MENU the_player_menu2;
-//extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid)
@@ -5176,6 +5174,12 @@ int main(int argc, char **argv)
 
 		int window_w = al_get_display_width(all_get_display());
 		int window_h = al_get_display_height(all_get_display());
+		if(window_w < 320 || window_h < 240)
+		{
+			if(window_w < 320) window_w = 320;
+			if(window_h < 240) window_h = 240;
+			al_resize_display(all_get_display(),window_w,window_h);
+		}
 		
 		int new_x = zc_get_config("zeldadx","window_x",0);
 		int new_y = zc_get_config("zeldadx","window_y",0);

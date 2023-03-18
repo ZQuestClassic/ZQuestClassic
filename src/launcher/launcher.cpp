@@ -251,6 +251,7 @@ END_OF_MAIN()
 bool is_compact = false;
 bool DragAspect = true;
 double aspect_ratio = LARGE_H / double(LARGE_W);
+int window_min_width = 0, window_min_height = 0;
 bool is_zquest() //Used for sizing purposes
 {
 	return true;
