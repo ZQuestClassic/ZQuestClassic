@@ -68,7 +68,7 @@ int32_t gray  = 0;
 int32_t ratio = 32;
 
 int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c);
-int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c);
+int jwin_cset_proc(int msg, DIALOG* d, int c);
 int32_t edit_cset_kb_handler(int32_t msg, DIALOG* d, int32_t c);
 void onInsertColor();
 void onInsertColor_Text();
@@ -244,18 +244,11 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 	return ret;
 }
 
-int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
+int jwin_cset_proc(int msg, DIALOG* d, int c)
 {
-	static int32_t cs_hei = 8;
-	static int32_t last_index = 0, last_copy = 0;
-	static int32_t lastshow16 = 0;
+	static int cs_hei = 12, last_copy = 0, lastshow16 = 0;
 	ASSERT(d);
-	int32_t ret = D_O_K;
-	if(d->flags & D_DIRTY)
-	{
-		ret |= D_REDRAWME;
-		d->flags &= ~D_DIRTY;
-	}
+	int ret = D_O_K;
 	if(lastshow16 != (edit_cset_dlg[19].flags & D_SELECTED))
 	{
 		lastshow16 = (edit_cset_dlg[19].flags & D_SELECTED);
@@ -273,62 +266,46 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 		jumpText(r,g,b);
 		ret |= D_REDRAW | D_REDRAWME;
 	}
-	if(cs_hei == 8)
-	{
-		cs_hei *= 1.5;
-		d->h = cs_hei * 3;
-	}
+	d->h = cs_hei * 3;
 	int32_t x = gui_mouse_x();
 	int32_t y = gui_mouse_y();
-	if(gui_mouse_b()!=1) d->d1 = -1;
 	switch(msg)
 	{
 		case MSG_START:
 			color_index = 0;
-			color_copy = -1;
-			d->d1 = -1;
+			color_copy = last_copy = -1;
 			break;
-		case MSG_LPRESS:
+		case MSG_CLICK:
 		{
-			int32_t new_index=vbound((int32_t)((x-d->x)/(1.5))>>3,0,15);
-			if(isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1))
-				d->d1 = new_index;
-			break;
-		}
-		case MSG_LRELEASE:
-			d->d1 = -1;
-			break;
-		case MSG_WANTMOUSE:
-			if(d->d1 > -1)
-				ret |= D_WANTFOCUS;
-			break;
-		case MSG_IDLE:
-			if(gui_mouse_b()==1)
+			if(gui_mouse_b() != 1) break;
+			color_index = vbound((gui_mouse_x()-d->x)/cs_hei,0,15);
+			d->flags |= D_DIRTY;
+			while(gui_mouse_b() == 1)
 			{
-				int32_t new_index=vbound((int32_t)((x-d->x)/(1.5))>>3,0,15);
-                
-                if(color_index!=new_index && (d->d1 > -1 || isinRect(x,y,d->x,d->y,d->x+d->w-1,d->y + d->h - 1)))
-                {
-					if(d->d1 > -1)
+				int new_index = vbound((gui_mouse_x()-d->x)/cs_hei,0,15);
+				if(new_index != color_index)
+				{
+					if(color_index<new_index)
 					{
-						if(color_index<new_index)
-						{
-							for(int32_t i=color_index; i<new_index; ++i)
-								zc_swap(RAMpal[14*16+i], RAMpal[14*16+i+1]);
-						}
-						else
-						{
-							for(int32_t i=color_index; i>new_index; --i)
-								zc_swap(RAMpal[14*16+i], RAMpal[14*16+i-1]);
-						}
+						for(int32_t i=color_index; i<new_index; ++i)
+							zc_swap(RAMpal[14*16+i], RAMpal[14*16+i+1]);
+					}
+					else
+					{
+						for(int32_t i=color_index; i>new_index; --i)
+							zc_swap(RAMpal[14*16+i], RAMpal[14*16+i-1]);
 					}
 					color_index = new_index;
-                }
+					d->flags |= D_DIRTY;
+				}
+				broadcast_dialog_message(MSG_IDLE,0);
+				custom_vsync();
 			}
-			else d->d1 = -1;
-			if(color_index != last_index || color_copy != last_copy)
+			break;
+		}
+		case MSG_IDLE:
+			if(color_copy != last_copy)
 			{
-				last_index = color_index;
 				last_copy = color_copy;
 				ret |= D_REDRAWME;
 			}
@@ -339,33 +316,31 @@ int32_t jwin_cset_proc(int32_t msg, DIALOG* d, int32_t c)
 			jwin_draw_frame(screen, d->x-2, d->y-2, d->w+4, cs_hei+4, FR_DEEP);
 			for(int32_t i=0; i<16; ++i)
 			{
-				rectfill(screen,int32_t((i<<3)*(1.5)+d->x),d->y,int32_t((i<<3)*(1.5)+d->x+cs_hei-1),d->y+cs_hei-1,12*16+i);
+				rectfill(screen,i*cs_hei+d->x,d->y,i*cs_hei+d->x+cs_hei-1,d->y+cs_hei-1,12*16+i);
 			}
 			// New colors
 			jwin_draw_frame(screen, d->x-2, d->y-2+(cs_hei*2), d->w+4, cs_hei+4, FR_DEEP);
 			for(int32_t i=0; i<16; ++i)
 			{
-				rectfill(screen,int32_t((i<<3)*(1.5)+d->x),d->y+(cs_hei*2),int32_t((i<<3)*(1.5)+d->x+cs_hei-1),d->y+cs_hei-1+(cs_hei*2),14*16+i);
+				rectfill(screen,i*cs_hei+d->x,d->y+(cs_hei*2),i*cs_hei+d->x+cs_hei-1,d->y+(cs_hei*3)-1,14*16+i);
 			}
 			//Text
-			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,int32_t(d->y + d->h + (32*1.5)),jwin_pal[jcBOX]);
+			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,d->y + d->h + 48,jwin_pal[jcBOX]);
 			
 			if(color_copy>=0)
-			{
-				textout_ex(screen,(lfont_l),"\x81",int32_t((color_copy<<3)*(1.5)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-			}
+				textout_ex(screen,(lfont_l),"\x81",color_copy*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			
-			textout_ex(screen,(lfont_l),"\x88",int32_t((color_index<<3)*(1.5)+d->x),d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			textout_ex(screen,(lfont_l),"\x88",color_index*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 			{
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(12*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(22*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
 			}
 			else
 			{
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(12*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + int32_t(22*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
+				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
 			}
 			break;
 	}
