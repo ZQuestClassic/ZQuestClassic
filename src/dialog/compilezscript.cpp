@@ -301,10 +301,8 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			};
 			if(zc_get_config("Compiler","noclose_compile_console",0))
 				args.push_back("-noclose");
-			#ifdef _DEBUG
-			if(ctrl)
+			if(ctrl && devpwd())
 				args.push_back("-delay");
-			#endif
 			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
 			if(!pm)
 			{

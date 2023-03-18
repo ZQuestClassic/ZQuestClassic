@@ -368,7 +368,6 @@ int32_t main(int32_t argc, char **argv)
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
-	#ifdef _DEBUG
 	if(used_switch(argc, argv, "-delay"))
 	{
 		for(auto q = 0; q < 2147483647; ++q)
@@ -377,7 +376,6 @@ int32_t main(int32_t argc, char **argv)
 				--q;
 		}
 	}
-	#endif
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
 	if(!result)
 		zconsole_info("%s", "Failure!");

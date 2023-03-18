@@ -1989,6 +1989,9 @@ void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd)
 
 bool devpwd()
 {
+	#ifdef _DEBUG
+	return true;
+	#endif
 	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio);
 }
 bool check_questpwd(zquestheader *Header, char *pwd)
