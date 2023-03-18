@@ -4723,6 +4723,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 	updatescr(allowwavy);
 
+	Advance=false;
 	while(Paused && !Advance && !Quit)
 	{
 		// have to call this, otherwise we'll get an infinite loop
@@ -4753,56 +4754,52 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 	if(Quit)
 		return;
-		
+	
 	if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
-		
-	Advance=false;
-
+	
 	if (!replay_is_active() || replay_get_version() >= 11)
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
-
+	
 	if (replay_is_active())
 	{
 		if (replay_get_version() >= 3)
 			replay_poll();
-
+		
 		if (replay_get_version() >= 11 || (replay_get_version() >= 6 && replay_get_version() < 8))
 			replay_peek_input();
 	}
-
+	
 	load_control_called_this_frame = false;
-
+	
 	poll_keyboard();
 	update_keys();
-
+	
 	++frame;
 	
 	if (replay_is_replaying())
 		replay_do_cheats();
 	syskeys();
-
+	
 	// The mouse variables can change from the mouse thread at anytime during a frame,
 	// so save the result at the start so that replaying is consistent.
 	script_mouse_x = gui_mouse_x();
 	script_mouse_y = gui_mouse_y();
 	script_mouse_z = mouse_z;
 	script_mouse_b = mouse_b;
-
+	
 	// Cheats used via the System menu (called by syskeys) will call cheats_enqueue. syskeys
 	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
 	// approach here means it doesn't matter which call adds the cheat.
 	cheats_execute_queued();
-
+	
 	if (replay_is_replaying())
 		replay_peek_quit();
 	if (GameFlags & GAMEFLAG_TRYQUIT)
 		replay_step_quit(0);
 	if(allowF6Script)
-	{
 		FFCore.runF6Engine();
-	}
 	if (Quit)
 		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
