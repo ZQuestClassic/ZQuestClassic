@@ -1888,18 +1888,22 @@ int32_t init_game()
 	//setPackfilePassword(NULL);
 	
 	char keyfilename[2048]; //master key .key
-	char keyfilename2[2048]; //zquest key .zpwd
 	char keyfilename3[2048]; //zc cheats only key, .zcheat
 	replace_extension(keyfilename, qstpath, "key", 2047);
-	replace_extension(keyfilename2, qstpath, "zpwd", 2047);
 	replace_extension(keyfilename3, qstpath, "zcheat", 2047);
-	bool gotfromkey=false;
-	bool gotfrompwdfile=false;
-	bool gotfromcheatfile=false;
-	
-	if(exists(keyfilename))
+	bool setcheat=false;
+	if(use_testingst_start)
 	{
-		al_trace("Found a Quest Master Key, filename: %s\n", keyfilename);
+		setcheat=true;
+		zprint2("Cheats enabled: Test Mode active\n");
+	}
+	if(!setcheat && devpwd())
+	{
+		setcheat=true;
+		zprint2("Cheats enabled: Dev Override active\n");
+	}
+	if(!setcheat && exists(keyfilename))
+	{
 		char password[32], pwd[32];
 		PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
 		char msg[80];
@@ -1908,65 +1912,22 @@ int32_t init_game()
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
-			al_trace("Found Quest Master Key\n");
 			int16_t ver;
 			byte  bld;
 			p_igetw(&ver,fp,true);
 			p_getc(&bld,fp,true);
 			memset(password,0,32);
 			pfread(password, 30, fp,true);
-			/*
-			get-questpwd(&QHeader, pwd);
-			if (strcmp(pwd,password)==0)
-			{
-				gotfromkey=true;
-			}
-			*/
-			gotfromkey=check_questpwd(&QHeader, password);
+			setcheat=check_questpwd(&QHeader, password);
 			memset(password,0,32);
 			memset(pwd,0,32);
 		}
 		
 		pack_fclose(fp);
-	goto skip_keychecks;
+		zprint2("Found a Quest Master Key: %s\n", setcheat?"Valid":"Invalid");
 	}
-	
-	if(exists(keyfilename2)) //zquest key...superfluous?
+	if(!setcheat && exists(keyfilename3)) //zc cheat key
 	{
-		al_trace("Found a ZQuest Password Key, filename: %s\n", keyfilename2);
-		char password[32], pwd[32];
-		PACKFILE *fp = pack_fopen_password(keyfilename2, F_READ,"");
-		char msg[80];
-		memset(msg,0,80);
-		pfread(msg, 80, fp,true);
-		
-		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-		{
-			int16_t ver;
-			byte  bld;
-			p_igetw(&ver,fp,true);
-			p_getc(&bld,fp,true);
-			memset(password,0,32);
-			pfread(password, 30, fp,true);
-			/*
-			get-questpwd(&QHeader, pwd);
-			if (strcmp(pwd,password)==0)
-			{
-				gotfromkey=true;
-			}
-			*/
-			gotfrompwdfile=check_questpwd(&QHeader, password);
-			memset(password,0,32);
-			memset(pwd,0,32);
-		}
-		
-		pack_fclose(fp);
-	}
-	
-	if(exists(keyfilename3)) //zc cheat key
-	{
-		al_trace("Found a ZC Cheat Key, filename: %s\n", keyfilename3);
-		
 		char password[32], pwd[32];
 		PACKFILE *fp = pack_fopen_password(keyfilename3, F_READ,"");
 		char msg[80];
@@ -1975,68 +1936,45 @@ int32_t init_game()
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
-		//al_trace("checking .zcheat file header %s","\n");
 			int16_t ver;
 			byte  bld;
 			p_igetw(&ver,fp,true);
 			p_getc(&bld,fp,true);
-		//al_trace("about to read password\n");
 			memset(password,0,32);
-		pfread(password, 30, fp,true);
-			//pfread(password, 30, fp,true);
-		
-		//al_trace("making space for hash\n");
-		char unhashed_pw[32];
-		memset(unhashed_pw,0,32);
-		
+			pfread(password, 30, fp,true);
 			
-		
-		char hashmap = 'Z';
-		hashmap += 'Q';
-		hashmap += 'U';
-		hashmap += 'E';
-		hashmap += 'S';
-		hashmap += 'T';
-		
-		//al_trace("applying reverse hash\n");
-		for ( int32_t q = 0; q < 32; q++ ) 
-		{
-			unhashed_pw[q] = password[q] - hashmap;
-		}
-		//al_trace("hashed password is: %s\n", password);
-		//al_trace("un-hashed password is: %s\n", unhashed_pw);
-		
-		
-		
+			char unhashed_pw[32];
+			memset(unhashed_pw,0,32);
 			
-			//get-questpwd(&QHeader, pwd);
-			//if (strcmp(pwd,password)==0)
-			//{
-			//	gotfromkey=true;
-			//}
+			char hashmap = 'Z';
+			hashmap += 'Q';
+			hashmap += 'U';
+			hashmap += 'E';
+			hashmap += 'S';
+			hashmap += 'T';
 			
-		   // gotfromcheatfile=check_questpwd(&QHeader, unhashed_pw);
+			for ( int32_t q = 0; q < 32; q++ ) 
+			{
+				unhashed_pw[q] = password[q] - hashmap;
+			}
+			
+			setcheat=check_questpwd(&QHeader, unhashed_pw);
 			memset(password,0,32);
 			memset(unhashed_pw,0,32);
 			memset(pwd,0,32);
-			cheat = 4;
-			maxcheat = 4;
 		}
 		
 		pack_fclose(fp);
+		zprint2("Found a ZC Cheat Key: %s\n", setcheat?"Valid":"Invalid");
 	}
-	else goto skip_keycheats;
 	
-	skip_keychecks:
-	
-	if(gotfromkey)
+	if(setcheat)
 	{
 		cheat = 4;
 		maxcheat = 4;
 	}
 	
-	skip_keycheats:
-	//Calculate the quest's script-file-storage path -V
+	//Calculate the quest's script-file-storage path -Em
 	{
 		memset(qst_files_path, 0, sizeof(qst_files_path));
 		string str(qstpath);
@@ -2046,14 +1984,6 @@ int32_t init_game()
 		size_t dotpos = str.find_last_of(".");
 		sprintf(qst_files_path,"./Files/%s",str.substr(pos, dotpos-pos).c_str());
 		regulate_path(qst_files_path);
-		// zprint2("Calculated path: '%s'\n",qst_files_path);
-		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
-	}
-	
-	if(use_testingst_start)
-	{
-		cheat = 4;
-		maxcheat = 4;
 	}
 	
 	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;

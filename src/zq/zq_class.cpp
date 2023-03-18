@@ -6661,7 +6661,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     return 1;
 #endif
 #endif
-    
+    if(devpwd()) return 1;
     
     char hash_string[33];
     

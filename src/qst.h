@@ -217,6 +217,7 @@ bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc);
 bool init_combos(bool validate, zquestheader *Header);
 
 void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd);
+bool devpwd();
 bool check_questpwd(zquestheader *Header, char *pwd);
 
 void update_guy_1(guydata *tempguy);

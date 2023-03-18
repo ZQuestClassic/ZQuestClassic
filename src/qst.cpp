@@ -1986,23 +1986,26 @@ void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd)
 }
 
 
-
+bool devpwd()
+{
+	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio);
+}
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
-    #if DEVLEVEL > 3 
+	#if DEVLEVEL > 3 
 	return true;
-    #endif
+	#endif
 	
+	if (devpwd()) return true;
 	if ( (!strcmp(pwd, (char*)clavio)) ) return true;
-    cvs_MD5Context ctx;
-    uint8_t md5sum[16];
-    
-    cvs_MD5Init(&ctx);
-    cvs_MD5Update(&ctx, (const uint8_t*)pwd, (unsigned)strlen(pwd));
-    cvs_MD5Final(md5sum, &ctx);
-    
-    return (memcmp(Header->pwd_hash,md5sum,16)==0);
-    
+	cvs_MD5Context ctx;
+	uint8_t md5sum[16];
+	
+	cvs_MD5Init(&ctx);
+	cvs_MD5Update(&ctx, (const uint8_t*)pwd, (unsigned)strlen(pwd));
+	cvs_MD5Final(md5sum, &ctx);
+	
+	return (memcmp(Header->pwd_hash,md5sum,16)==0);
 }
 
 void print_quest_metadata(zquestheader const& tempheader, char const* path, byte qst_num)
