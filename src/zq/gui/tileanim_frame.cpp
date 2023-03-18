@@ -83,11 +83,11 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 						int32_t cofs = cs2&0xF;
 						if(cofs&8)
 							cofs |= ~int32_t(0xF);
-							
+						
 						for(int32_t i=0; i<4; ++i)
 							csets[i] = cs2&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
-							
-						overblock8(buf,tmptile<<2,tx*16, ty*16,csets,data[TileFrame::tfr_flip],15);
+						
+						drawtile16_cs2(buf,tmptile,tx*16,ty*16,csets,data[TileFrame::tfr_flip],true);
 					}
 				}
 			}
