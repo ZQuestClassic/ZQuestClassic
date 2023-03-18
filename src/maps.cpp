@@ -563,6 +563,8 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
+    if(!get_bit(quest_rules,qr_BUGGED_LAYERED_FLAGS) && (x<0 || x>255 || y<0 || y>175))
+        return 0;
     if(layer==-1) return MAPFLAG(x,y);
     
     if(tmpscr2[layer].valid==0) return 0;

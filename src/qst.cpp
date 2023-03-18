@@ -3451,53 +3451,29 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	//}
 	
-	if(compatrule_version < 1)
-	{
-		//Enemies->Secret only affects flag 16-31
+	if(compatrule_version < 1) //Enemies->Secret only affects flag 16-31
 		set_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31,1);
-	}
 	
-	if(compatrule_version < 2)
-	{
-		//Old CSet2 Handling
+	if(compatrule_version < 2) //Old CSet2 Handling
 		set_bit(quest_rules,qr_OLDCS2,1);
-	}
 	
-	if(compatrule_version < 3)
-	{
-		//Hardcoded Shadow/Spawn/Death anim frames
+	if(compatrule_version < 3) //Hardcoded Shadow/Spawn/Death anim frames
 		set_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS,1);
-	}
 	
-	if(compatrule_version < 4)
-	{
-		//Hardcoded Shadow/Spawn/Death anim frames
+	if(compatrule_version < 4) //Hardcoded Shadow/Spawn/Death anim frames
 		set_bit(quest_rules,qr_OLD_ITEMDATA_SCRIPT_TIMING,1);
-	}
 	
-	if(compatrule_version < 5 && tempheader.zelda_version >= 0x250)
-	{
-		//Hardcoded Shadow/Spawn/Death anim frames
+	if(compatrule_version < 5 && tempheader.zelda_version >= 0x250) //Hardcoded Shadow/Spawn/Death anim frames
 		set_bit(quest_rules,qr_NO_LANMOLA_RINGLEADER,1);
-	}
 	
-	if(compatrule_version < 6)
-	{
-		//Step->Secret (Temp) only affects flag 16-31
+	if(compatrule_version < 6) //Step->Secret (Temp) only affects flag 16-31
 		set_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31,1);
-	}
 	
-	if(compatrule_version < 7)
-	{
-		//'Hit All Triggers->Perm Secret' doesn't trigger temp secrets
+	if(compatrule_version < 7) //'Hit All Triggers->Perm Secret' doesn't trigger temp secrets
 		set_bit(quest_rules,qr_ALLTRIG_PERMSEC_NO_TEMP,1);
-	}
 	
-	if(compatrule_version < 8)
-	{
-		//Hardcoded LItem/Bomb/Clock/Magic Tile Mods
+	if(compatrule_version < 8) //Hardcoded LItem/Bomb/Clock/Magic Tile Mods
 		set_bit(quest_rules,qr_HARDCODED_LITEM_LTMS,1);
-	}
 	
 	if(compatrule_version < 9)
 	{
@@ -3511,17 +3487,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_BROKEN_ATTRIBUTE_31_32,1);
 	}
 	
-	if(compatrule_version < 10)
-	{
-		//Shared candle use limits
+	if(compatrule_version < 10) //Shared candle use limits
 		set_bit(quest_rules,qr_CANDLES_SHARED_LIMIT,1);
-	}
 	
-	if(compatrule_version < 11)
-	{
-		//No cross-screen return points
+	if(compatrule_version < 11) //No cross-screen return points
 		set_bit(quest_rules,qr_OLD_RESPAWN_POINTS,1);
-	}
 
 	if(compatrule_version < 12)
 	{
@@ -3532,29 +3502,17 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		else set_bit(quest_rules,qr_GANONINTRO,1);
 	}
 	
-	if(compatrule_version < 13 && tempheader.zelda_version >= 0x255)
-	{
-		//ANone doesn't reset to originaltile
+	if(compatrule_version < 13 && tempheader.zelda_version >= 0x255) //ANone doesn't reset to originaltile
 		set_bit(quest_rules,qr_ANONE_NOANIM,1);
-	}
 	
-	if(compatrule_version < 14)
-	{
-		//Old Bridge Combo Behavior
+	if(compatrule_version < 14) //Old Bridge Combo Behavior
 		set_bit(quest_rules,qr_OLD_BRIDGE_COMBOS,1);
-	}
 	
-	if(compatrule_version < 15)
-	{
-		//Broken Z3 Animation
+	if(compatrule_version < 15) //Broken Z3 Animation
 		set_bit(quest_rules,qr_BROKEN_Z3_ANIMATION,1);
-	}
 	
-	if(compatrule_version < 16)
-	{
-		//Old Enemy Tile Behavior with Animation (None) Enemies
+	if(compatrule_version < 16) //Old Enemy Tile Behavior with Animation (None) Enemies
 		set_bit(quest_rules,qr_OLD_TILE_INITIALIZATION,1);
-	}
 	
 	if(compatrule_version < 17)
 	{
@@ -3572,16 +3530,11 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_SCROLLING_KILLS_CHARGE,1);
 	}
 	
-	if(compatrule_version < 19)
-	{
-		//Broken Enemy Item Carrying with Large Enemies
+	if(compatrule_version < 19) //Broken Enemy Item Carrying with Large Enemies
 		set_bit(quest_rules,qr_BROKEN_ITEM_CARRYING,1);
-	}
 	
 	if(compatrule_version < 20)
-	{
 		set_bit(quest_rules,qr_CUSTOMWEAPON_IGNORE_COST,1);
-	}
 	
 	if(compatrule_version < 21)
 	{
@@ -3593,14 +3546,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	
 	if(compatrule_version < 22)
-	{
 		set_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG,1);
-	}
 	
 	if(compatrule_version < 23)
-	{
 		set_bit(quest_rules,qr_OLD_HALF_MAGIC,1);
-	}
 	
 	if(compatrule_version < 24)
 	{
@@ -3629,13 +3578,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//This should nuke any remaining junk data... not sure if it affected anything previous. -Em
 	}
 	if(compatrule_version < 28)
-	{
 		set_bit(quest_rules,qr_SUBSCR_BACKWARDS_ID_ORDER,1);
-	}
 	if(compatrule_version < 29)
-	{
 		set_bit(quest_rules,qr_OLD_LOCKBLOCK_COLLISION,1);
-	}
 	if(compatrule_version < 30)
 	{
 		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
@@ -3647,13 +3592,9 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD,1);
 	}
 	if(compatrule_version < 32)
-	{
 		set_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE,1);
-	}
 	if(compatrule_version < 33)
-	{
 		set_bit(quest_rules,qr_NO_LIFT_SPRITE,1);
-	}
 	if(compatrule_version < 34)
 	{
 		set_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE,1);
@@ -3667,21 +3608,19 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		// set_bit(quest_rules,qr_ZS_NO_NEG_ARRAY,1);
 	}
 	if(compatrule_version < 36)
-	{
 		set_bit(quest_rules,qr_OLD_SHALLOW_SFX,1);
-	}
 	if(compatrule_version < 37)
-	{
 		set_bit(quest_rules,qr_SPARKLES_INHERIT_PROPERTIES,1);
-	}
+	if(compatrule_version < 38)
+		set_bit(quest_rules,qr_BUGGED_LAYERED_FLAGS,1);
 	
-	//always set
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
-	if (s_version < 16) set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
+	if (s_version < 16)
+		set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
+	
 	if(keepdata==true)
-	{
 		memcpy(Header, &tempheader, sizeof(tempheader));
-	}
+	
 	return 0;
 }
 

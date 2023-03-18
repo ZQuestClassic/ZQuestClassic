@@ -867,7 +867,9 @@ static GUI::ListData compatRulesList
 		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for it's splash sound." },
 	{ "Weapon Sparkles Inherit Properties", qr_SPARKLES_INHERIT_PROPERTIES,
 		"If enabled, sparkle weapons inherit properties such as script, type, and default defense"
-		" from the parent item." }
+		" from the parent item." },
+	{ "Bugged Layered Flags", qr_BUGGED_LAYERED_FLAGS,
+		"If enabled, flags placed on layers will 'wrap' at the edge of screens, causing odd behaviors." }
 };
 
 static GUI::ListData enemiesRulesList
