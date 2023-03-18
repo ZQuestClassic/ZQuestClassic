@@ -20575,6 +20575,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
+		else if(replay_is_replaying() && replay_get_version() < 13)
+			temp_zinit.msg_speed = 0;
 		
 		if(s_version>17)
 		{
