@@ -307,6 +307,8 @@ void RegistrationVisitor::caseNamespace(ASTNamespace& host, void* param)
 	block_regvisit(host, host.namespaces, param);
 	if (breakRecursion(host, param)) {scope = temp; return;}
 	block_regvisit(host, host.scripts, param);
+	if (breakRecursion(host, param)) {scope = temp; return;}
+	block_regvisit(host, host.classes, param);
 	scope = temp;
 	if(registered(host, host.options) && registered(host, host.use) && registered(host, host.dataTypes)
 		&& registered(host, host.scriptTypes) && registered(host, host.variables) && registered(host, host.functions)
