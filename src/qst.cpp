@@ -7026,28 +7026,6 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             tempitem.playsound=WAV_SCALE;
             reset_itembuf(&tempitem,i);
         }
-		if(s_version < 53)
-		{
-			switch(tempitem.family)
-			{
-				case itype_arrow:
-					tempitem.cost_counter[1] = crARROWS;
-					tempitem.cost_amount[1] = 1;
-					break;
-				case itype_bomb:
-					tempitem.cost_counter[1] = crBOMBS;
-					tempitem.cost_amount[1] = 1;
-					break;
-				case itype_sbomb:
-					tempitem.cost_counter[1] = crSBOMBS;
-					tempitem.cost_amount[1] = 1;
-					break;
-				default:
-					tempitem.cost_counter[1] = crNONE;
-					tempitem.cost_amount[1] = 0;
-			}
-			tempitem.magiccosttimer[1] = 0;
-		}
         
         if(keepdata==true)
         {
@@ -9368,6 +9346,28 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				if( tempitem.family == itype_shield )
 					tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
 			}
+			if(s_version < 53)
+			{
+				switch(tempitem.family)
+				{
+					case itype_arrow:
+						tempitem.cost_counter[1] = crARROWS;
+						tempitem.cost_amount[1] = 1;
+						break;
+					case itype_bomb:
+						tempitem.cost_counter[1] = crBOMBS;
+						tempitem.cost_amount[1] = 1;
+						break;
+					case itype_sbomb:
+						tempitem.cost_counter[1] = crSBOMBS;
+						tempitem.cost_amount[1] = 1;
+						break;
+					default:
+						tempitem.cost_counter[1] = crNONE;
+						tempitem.cost_amount[1] = 0;
+				}
+				tempitem.magiccosttimer[1] = 0;
+			}
 			if( s_version < 54 )
 			{
 				if( tempitem.family == itype_flippers )
@@ -9406,7 +9406,7 @@ void init_def_items()
 	default_items[3].cost_counter[1] = crBOMBS;
 	default_items[13].cost_counter[1] = crARROWS;
 	default_items[14].cost_counter[1] = crARROWS;
-	default_items[48].cost_counter[1] = crBOMBS;
+	default_items[48].cost_counter[1] = crSBOMBS;
 	default_items[57].cost_counter[1] = crARROWS;
 }
 void reset_itembuf(itemdata *item, int32_t id)
