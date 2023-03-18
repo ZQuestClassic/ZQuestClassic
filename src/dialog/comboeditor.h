@@ -41,6 +41,8 @@ private:
 	void loadComboFlag();
 	void updateCSet();
 	void updateAnimation();
+	void flipSwatches(int rot, int hflip, int vflip);
+	void updateFlip(int nflip);
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tf_initd[2];
 	std::shared_ptr<GUI::Label> l_initds[2];

@@ -847,6 +847,17 @@ double vbound(double val, double low, double high)
 	return val;
 }
 
+int wrap(int x,int low,int high)
+{
+    while(x<low)
+        x+=high-low+1;
+
+    while(x>high)
+        x-=high-low+1;
+
+    return x;
+}
+
 std::string dayextension(int32_t dy)
 {
 	char temp[6]; 

@@ -42,7 +42,7 @@ extern zfix  HeroModifiedY();
 
 bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused tiles
 
-byte unpackbuf[UNPACKSIZE];
+byte unpackbuf[256];
 
 bool isblanktile(tiledata *buf, int32_t i)
 {
@@ -863,6 +863,23 @@ void pack_tiles(byte *buf)
         
     for(; di<NEWTILE_SIZE2; ++di)
         buf[di]=0;
+}
+
+void load_tile(byte* buf, int tile)
+{
+	unpack_tile(newtilebuf, tile, 0, false);
+	memcpy(buf, unpackbuf, 256);
+}
+void load_minitile(byte* buf, int tile, int mini)
+{
+	unpack_tile(newtilebuf, tile, 0, false);
+	int xo = (mini&1)?8:0;
+	int yo = (mini&2)?8:0;
+	for(int x = 0; x < 8; ++x)
+		for(int y = 0; y < 8; ++y)
+		{
+			buf[x+(y*8)] = unpackbuf[(x+xo)+((y+yo)*16)];
+		}
 }
 
 int32_t rotate_table[8]=
@@ -2501,7 +2518,47 @@ void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
         }
     }
 }
+void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[],int32_t flip,bool over)
+{
+    if(x<-15 || y<-15)
+        return;
 
+    if(y > dest->h)
+        return;
+
+    if(y == dest->h && x > dest->w)
+        return;
+
+    if(tile<0 || tile>=NEWMAXTILES)
+    {
+        rectfill(dest,x,y,x+15,y+15,0);
+        return;
+    }
+
+    if(blank_tile_table[tile])
+        return;
+
+
+    if(newtilebuf[tile].format>tf4Bit)
+        cset[0]=cset[1]=cset[2]=cset[3]=0;
+	else for(int q = 0; q < 4; ++q)
+		cset[q] <<= CSET_SHFT;
+	unpack_tile(newtilebuf, tile, flip&5, false);
+	byte *si = unpackbuf;
+
+	bool vflip = (flip&2);
+	for(int dx = 0; dx < 16; ++dx)
+		for(int dy = 0; dy < 16; ++dy)
+		{
+			int tx = x+dx, ty = y+dy;
+			if(tx < 0 || tx >= dest->w || ty < 0 || ty >= dest->h)
+				continue;
+			int cs = cset[(dx<8?0:1)|(dy<8?0:2)];
+			int ind = dx + (16 * (vflip ? 15-dy : dy));
+			if(!over || si[ind])
+				dest->line[ty][tx] = si[ind]+cs;
+		}
+}
 void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
 {
     int32_t t[4];
@@ -2553,60 +2610,6 @@ void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int
         puttile8(dest,t[1],x+8,y,  csets[1],flip);
         puttile8(dest,t[2],x,  y+8,csets[2],flip);
         puttile8(dest,t[3],x+8,y+8,csets[3],flip);
-        break;
-    }
-}
-
-void oldputblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask)
-{
-    int32_t t[4];
-    
-    for(int32_t i=0; i<4; ++i)
-        t[i]=tile+i;
-        
-    switch(mask)
-    {
-    case 1:
-        oldputtile8(dest,tile,x,y,csets[0],flip);
-        break;
-        
-    case 3:
-        if(flip&2)
-        {
-            zc_swap(t[0],t[1]);
-        }
-        
-        oldputtile8(dest,t[0],x,y,  csets[0],flip);
-        oldputtile8(dest,t[1],x,y+8,csets[1],flip);
-        break;
-        
-    case 5:
-        if(flip&1)
-        {
-            zc_swap(t[0],t[1]);
-        }
-        
-        oldputtile8(dest,t[0],x,  y,csets[0],flip);
-        oldputtile8(dest,t[1],x+8,y,csets[1],flip);
-        break;
-        
-    case 15:
-        if(flip&1)
-        {
-            zc_swap(t[0],t[1]);
-            zc_swap(t[2],t[3]);
-        }
-        
-        if(flip&2)
-        {
-            zc_swap(t[0],t[2]);
-            zc_swap(t[1],t[3]);
-        }
-        
-        oldputtile8(dest,t[0],x,  y,  csets[0],flip);
-        oldputtile8(dest,t[1],x+8,y,  csets[1],flip);
-        oldputtile8(dest,t[2],x,  y+8,csets[2],flip);
-        oldputtile8(dest,t[3],x+8,y+8,csets[3],flip);
         break;
     }
 }
@@ -2688,33 +2691,7 @@ void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
             csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
         }
         
-        putblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
-        //    putblock8(dest,c.drawtile<<2,x,y,csets,c.flip,15);
-    }
-}
-
-void oldputcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
-{
-    newcombo c = combobuf[cmbdat];
-    int32_t drawtile=combo_tile(c, x, y);
-    
-    if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))
-        oldputtile16(dest,drawtile,x,y,cset,c.flip);
-    //    oldputtile16(dest,c.drawtile,x,y,cset,c.flip);
-    else
-    {
-        int32_t csets[4];
-        int32_t cofs = c.csets&15;
-        if(cofs&8)
-            cofs |= ~int32_t(0xF);
-        
-        for(int32_t i=0; i<4; ++i)
-        {
-            csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
-        }
-        
-        oldputblock8(dest,drawtile<<2,x,y,csets,c.flip,15);
-        //    oldputblock8(dest,c.drawtile<<2,x,y,csets,c.flip,15);
+        drawtile16_cs2(dest,drawtile,x,y,csets,c.flip,false);
     }
 }
 
@@ -2752,7 +2729,7 @@ void overcomboblock(BITMAP *dest, int32_t x, int32_t y, int32_t cmbdat, int32_t 
                 for(int32_t i=0; i<4; ++i)
                     csets[i] = c.csets&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
                     
-                overblock8(dest,tiletodraw<<2,x+16*woff,y+16*hoff,csets,c.flip,15);
+                drawtile16_cs2(dest,tiletodraw,x+16*woff,y+16*hoff,csets,c.flip,true);
             }
         }
     }
