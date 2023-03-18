@@ -1895,7 +1895,7 @@ void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
 		{
 			if(ignore_transparent && floatsel[q]==0)
 				continue;
-			floatsel[q]=wrap(floatsel[q]+amount, 0, newtilebuf[tile].format==tf8Bit ? 191 : 15);
+			floatsel[q]=wrap(floatsel[q]+amount, 0, newtilebuf[tile].format==tf8Bit ? 0xDF : 0xF);
 		}
 		return;
 	}
@@ -1915,10 +1915,10 @@ void shift_tile_colors(int32_t tile, int32_t amount, bool ignore_transparent)
 			if(buf[i]==0)
 				continue;
 				
-			buf[i]=wrap(buf[i]+amount, 1, newtilebuf[tile].format==tf8Bit ? 191 : 15);
+			buf[i]=wrap(buf[i]+amount, 1, newtilebuf[tile].format==tf8Bit ? 0xDF : 0xF);
 		}
 		else // Don't ignore transparent
-			buf[i]=wrap(buf[i]+amount, 0, newtilebuf[tile].format==tf8Bit ? 191 : 15);
+			buf[i]=wrap(buf[i]+amount, 0, newtilebuf[tile].format==tf8Bit ? 0xDF : 0xF);
 	}
 	
 	pack_tile(newtilebuf,buf,tile);

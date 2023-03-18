@@ -4113,7 +4113,7 @@ int32_t onIncreaseCSet()
         }
         else
         {
-            alias_cset_mod=wrap(alias_cset_mod+1,0,11);
+            alias_cset_mod=wrap(alias_cset_mod+1,0,13);
         }
     /*}
     else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -4188,7 +4188,7 @@ int32_t onDecreaseCSet()
         }
         else
         {
-            alias_cset_mod=wrap(alias_cset_mod-1,0,11);
+            alias_cset_mod=wrap(alias_cset_mod-1,0,13);
         }
     /*}
     else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -6471,7 +6471,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(draw_mode == dm_alias)
 			{
 				cid = combo_aliases[combo_apos].combos[0];
-				cs = wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 11);
+				cs = wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 13);
 			}
 			else if(draw_mode == dm_cpool)
 			{
@@ -7560,11 +7560,11 @@ void update_combobrush()
                     {
                         if(z==0)
                         {
-                            putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 11));
+                            putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 13));
                         }
                         else
                         {
-                            overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 11));
+                            overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 13));
                         }
                     }
                 }
@@ -7984,7 +7984,7 @@ void draw(bool justcset)
 									
 									if(combo->combos[p])
 									{
-										Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
+										Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
 									}
 								}
 							}
