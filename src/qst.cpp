@@ -20,6 +20,7 @@
 #include <map>
 #include <vector>
 #include <assert.h>
+#include <fmt/format.h>
 
 
 #include "metadata/sigs/devsig.h.sig"
@@ -2891,9 +2892,11 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		{
 			enter_sys_pal();
 			AlertDialog("Quest saved in newer build",
-				"This quest was last saved in a newer build of ZQuest, and may have"
-				" issues loading in this build."
-				"\n\nWould you like to continue loading anyway?",
+				fmt::format("This quest was last saved in a newer build of ZQuest, and may have"
+					" issues loading in this build."
+					"\n{}"
+					"\n\nWould you like to continue loading anyway?",
+					tempheader.getVerCmpStr()),
 				[&](bool ret,bool)
 				{
 					r = ret;

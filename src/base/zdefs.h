@@ -3255,6 +3255,7 @@ struct zquestheader
 	int32_t getAlphaVer() const;
 	char const* getAlphaVerStr() const;
 	char const* getVerStr() const;
+	char const* getVerCmpStr() const;
 	int32_t compareDate() const;
 	int32_t compareVer() const;
 };

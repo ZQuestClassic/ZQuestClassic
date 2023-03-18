@@ -1167,12 +1167,20 @@ char const* zquestheader::getVerStr() const
 	return buf;
 }
 
-int32_t zquestheader::compareDate() const
+char const* zquestheader::getVerCmpStr() const
 {
-	zprint2("Comparing dates: '%04d-%02d-%02d %02d:%02d', '%04d-%02d-%02d %02d:%02d'\n",
+	static char buf[256];
+	int cmp = compareDate();
+	sprintf(buf, "'%04d-%02d-%02d %02d:%02d' %s '%04d-%02d-%02d %02d:%02d'\n",
 		new_version_id_date_year, new_version_id_date_month, new_version_id_date_day,
 		new_version_id_date_hour, new_version_id_date_minute,
+		cmp < 0 ? "<" : (cmp ? ">" : "=="),
 		BUILDTM_YEAR, BUILDTM_MONTH, BUILDTM_DAY, BUILDTM_HOUR, BUILDTM_MINUTE);
+	return buf;
+}
+
+int32_t zquestheader::compareDate() const
+{
 	//!TODO handle timezones (build_timezone, __TIMEZONE__)
 	if(new_version_id_date_year > BUILDTM_YEAR)
 		return 1;

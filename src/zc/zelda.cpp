@@ -449,7 +449,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
 double aspect_ratio = 0.75;
-bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true;
+bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
@@ -1717,6 +1717,8 @@ void init_dmap()
 
 int32_t init_game()
 {
+	if(clearConsoleOnLoad)
+		clearConsole();
 	jit_reset_all();
 	current_subscreen_active = nullptr;
 
@@ -5525,7 +5527,7 @@ reload_for_replay_file:
 			game_pal();
 		}
 		else titlescreen(load_save);
-		if(clearConsoleOnLoad)
+		if(clearConsoleOnReload)
 			clearConsole();
 		callback_switchin = 0;
 		load_save=0;
