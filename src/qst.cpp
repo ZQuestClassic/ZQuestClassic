@@ -16197,10 +16197,8 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			temp_mapscr->oceansfx=WAV_SEA;
 		}
 		
-		if(!(temp_mapscr->flags3&64)) //fNOSECRETSOUND
-		{
-			temp_mapscr->secretsfx=WAV_SECRET;
-		}
+		temp_mapscr->secretsfx = (temp_mapscr->flags3&64) //fNOSECRETSOUND
+			? 0 : WAV_SECRET;
 		
 		temp_mapscr->flags3 &= ~66; //64|2
 		temp_mapscr->flags2 &= ~32;
