@@ -2303,9 +2303,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				TabRef(name = "Triggers", TabPanel(
 					ptr = &cmb_tab3,
 					TabRef(name = "Weapons", Row(
-						Column(framed = true,
+						Column(framed = true, frameText = "LW Types",
 							Row(
-								padding = 0_px,
 								l_minmax_trig = Label(text = "Min Level (Applies to all):"),
 								TextField(
 									fitParent = true,
@@ -2363,6 +2362,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(45,"Custom Weapon 9"),
 								TRIGFLAG(46,"Custom Weapon 10")
 							)
+						),
+						Column(framed = true, frameText = "Fire Levels",
+							TRIGFLAG(92, "Any Fire"),
+							TRIGFLAG(93, "Strong Fire"),
+							TRIGFLAG(94, "Magic Fire"),
+							TRIGFLAG(95, "Divine Fire")
 						)
 					)),
 					TabRef(name = "EWeapons", Row(

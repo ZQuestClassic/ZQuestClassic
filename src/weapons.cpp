@@ -1946,7 +1946,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
-				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
+				if ( itemsbuf[parentitem].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
@@ -1957,9 +1957,6 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
-					/* yofs+playing_field_offset == yofs+56.
-					It is needed for the passive subscreen offset.
-					*/
 				}
 				
 				switch(itemsbuf[parentitem].family)
@@ -1973,10 +1970,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							glowRad = 0;
 						break;
 						
-					case itype_wand: // Wand
+					case itype_book: // Wand
+						defaultw = isDummy ? wFIRE : itemsbuf[parentitem].wpn2;
+						step = 0;
+						break;
+					case itype_wand: // ?? unused? just leaving this as is... -em
 						if(itemid>-1 && !isDummy)
-						defaultw = itemsbuf[itemid].wpn2;
-						else defaultw = wFIRE; //this is why setting ->type as weapon Level, for fire weapons has issues. 
+							defaultw = itemsbuf[itemid].wpn2;
+						else defaultw = wFIRE;
 						step = 0;
 						break;
 						
@@ -4364,16 +4365,18 @@ bool weapon::animate(int32_t index)
 				dead=1;
 			}
 			
-			if(parentitem<0 || (parentitem>-1 && itemsbuf[parentitem].family!=itype_book))
+			itemdata const& parent = itemsbuf[parentitem];
+			if(parentitem<0 || (parentitem>-1 && parent.family!=itype_book))
 			{
 				if(clk==32)
 				{
 					step=0;
 					
-					if(parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG2))
+					if(parentitem<0 || !(parent.flags & ITEM_FLAG2))
 					{
 						isLit = true;
-						if((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||itemsbuf[parentitem].flags & ITEM_FLAG5)
+						if(parentitem==-1 ? get_bit(quest_rules,qr_TEMPCANDLELIGHT)
+							: (parent.flags & ITEM_FLAG5))
 						{
 							checkLightSources();
 						}
@@ -4388,8 +4391,9 @@ bool weapon::animate(int32_t index)
 				{
 					dead=1;
 					
-					if(((parentitem==-1 && get_bit(quest_rules,qr_TEMPCANDLELIGHT)) ||
-					    (parentitem>-1&&!(itemsbuf[parentitem].flags & ITEM_FLAG2)&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) &&
+					if((parentitem==-1 ? (get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+					    : (!(parent.flags & ITEM_FLAG2)
+							&&(parent.flags & ITEM_FLAG5))) &&
 					    (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 					{
 						isLit = false;
@@ -4399,24 +4403,17 @@ bool weapon::animate(int32_t index)
 				
 				if(clk==94 || get_bit(quest_rules,qr_INSTABURNFLAGS))
 				{
-					findentrance(x,y,mfANYFIRE,true);
-					itemdata const& parent = itemsbuf[parentitem];
-					
-					if((parent.flags & ITEM_FLAG9) || parentitem < 0 && type > 1) //red candle 
-						findentrance(x,y,mfSTRONGFIRE,true);
-					
-					if(parent.flags & ITEM_FLAG10)
-						findentrance(x,y,mfMAGICFIRE,true);
-					if(parent.flags & ITEM_FLAG11)
-						findentrance(x,y,mfDIVINEFIRE,true);
+					triggerfire(x,y,true,
+						true,parentitem < 0 ? type > 1 : (parent.flags & ITEM_FLAG9),
+						parent.flags & ITEM_FLAG10,parent.flags & ITEM_FLAG11);
 				}
-			}                                                     //wand fire
-			else
+			}
+			else //book+wand fire
 			{
 				if(clk==1)
 				{
 					isLit = true;
-					if(itemsbuf[parentitem].flags & ITEM_FLAG5)
+					if(parent.flags & ITEM_FLAG5)
 					{
 						checkLightSources();
 					} 
@@ -4429,16 +4426,13 @@ bool weapon::animate(int32_t index)
 				if(clk==80)
 				{
 					dead=1;
-					findentrance(x,y,mfANYFIRE,true);
-					itemdata const& parent = itemsbuf[parentitem];
-					if(parent.flags & ITEM_FLAG9)
-						findentrance(x,y,mfSTRONGFIRE,true);
-					if(parent.flags & ITEM_FLAG10)
-						findentrance(x,y,mfMAGICFIRE,true);
-					if(parent.flags & ITEM_FLAG11)
-						findentrance(x,y,mfDIVINEFIRE,true);
+					triggerfire(x,y,true,
+						true,parent.flags & ITEM_FLAG9,
+						parent.flags & ITEM_FLAG10,parent.flags & ITEM_FLAG11);
 					
-					if(((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>-1&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+					if((parentitem==-1 ? (get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+						: ((parent.flags & ITEM_FLAG5)))
+						&& (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 					{
 						isLit=false;
 						checkLightSources();
@@ -4447,7 +4441,9 @@ bool weapon::animate(int32_t index)
 			}
 			
 			// Killed by script?
-			if(dead==0 && ((parentitem==-1&&get_bit(quest_rules,qr_TEMPCANDLELIGHT))||(parentitem>0&&(itemsbuf[parentitem].flags & ITEM_FLAG5))) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+			if(dead==0 && (parentitem==-1 ? get_bit(quest_rules,qr_TEMPCANDLELIGHT)
+				: (parent.flags & ITEM_FLAG5))
+				&& (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 			{
 				isLit=false;
 				checkLightSources();
@@ -4932,14 +4928,11 @@ bool weapon::animate(int32_t index)
 			
 			if(findentrance(x,y,mfSTRIKE,true)) dead=deadval;
 			itemdata const& brangitm = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)];
-			if(brangitm.flags & ITEM_FLAG8)
-				if(findentrance(x,y,mfANYFIRE,true)) dead=deadval;
-			if(brangitm.flags & ITEM_FLAG9)
-				if(findentrance(x,y,mfSTRONGFIRE,true)) dead=deadval;
-			if(brangitm.flags & ITEM_FLAG10)
-				if(findentrance(x,y,mfMAGICFIRE,true)) dead=deadval;
-			if(brangitm.flags & ITEM_FLAG11)
-				if(findentrance(x,y,mfDIVINEFIRE,true)) dead=deadval;
+			if(triggerfire(x,y,true,
+				brangitm.flags & ITEM_FLAG8,brangitm.flags & ITEM_FLAG9,
+				brangitm.flags & ITEM_FLAG10,brangitm.flags & ITEM_FLAG11))
+				dead=deadval;
+			
 			if(blocked())
 			{
 				dead=deadval;
@@ -5718,57 +5711,27 @@ bool weapon::animate(int32_t index)
 		case wRefMagic:
 		case wMagic:
 		{
-			if (this->isLWeapon && (unsigned)linkedItem > 0 )
-			{
-				//using a book with magic
-				if ( ((unsigned)itemsbuf[linkedItem].flags&ITEM_FLAG6) > 0 && ((unsigned)itemsbuf[linkedItem].useweapon) < 128 )
-				{
-					//change id
-					this->id = itemsbuf[linkedItem].useweapon;
-					//Step Speed
-					int32_t tmpstep = (itemsbuf[linkedItem].misc3);
-					//zprint2("initial step: %d\n", tmpstep);
-					this->step =  zslongToFix(tmpstep*100);
-					//zprint2("true step: %d\n", this->step);
-					this->LOADGFX(itemsbuf[linkedItem].wpn3);
-					if ( itemsbuf[linkedItem].wpn > 0 )
-						this->power = itemsbuf[linkedItem].wpn;
-				}
-			}
-			
-			if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
-			
-			if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
-			
-			if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
-		   
-			if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
-			{
-				itemdata const& book = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)];
-				if((id==wMagic && current_item(itype_book) &&
-					book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-				{
-					if(book.flags & ITEM_FLAG9)
-						findentrance(x,y,mfSTRONGFIRE,true);
-					if(book.flags & ITEM_FLAG10)
-						findentrance(x,y,mfMAGICFIRE,true);
-					if(book.flags & ITEM_FLAG11)
-						findentrance(x,y,mfDIVINEFIRE,true);
-				}
-			}
-			else
+			if (isLWeapon && linkedItem)
 			{
 				itemdata const& book = itemsbuf[linkedItem];
-				if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
-						book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-				{
-					if(book.flags & ITEM_FLAG9)
-						findentrance(x,y,mfSTRONGFIRE,true);
-					if(book.flags & ITEM_FLAG10)
-						findentrance(x,y,mfMAGICFIRE,true);
-					if(book.flags & ITEM_FLAG11)
-						findentrance(x,y,mfDIVINEFIRE,true);
-				}
+				if(book.flags&ITEM_FLAG6)
+					step = zslongToFix(book.misc3*100);
+			}
+			
+			if(findentrance(x,y,id==wMagic ? mfWANDMAGIC : mfREFMAGIC,true))
+				dead=0;
+			
+			if(findentrance(x,y,mfSTRIKE,true))
+				dead=0;
+		   
+			bool brokebook = get_bit(quest_rules,qr_BROKENBOOKCOST);
+			itemdata const& book = itemsbuf[brokebook ? (parentitem>-1 ? parentitem : current_item_id(itype_book)) : linkedItem];
+			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.family == itype_book)) &&
+				book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+			{
+				triggerfire(x,y,true,
+					true,book.flags & ITEM_FLAG9,
+					book.flags & ITEM_FLAG10,book.flags & ITEM_FLAG11);
 			}
 			
 			
@@ -6101,44 +6064,7 @@ bool weapon::animate(int32_t index)
 		break;
 		case ewMagic:
 		{
-			if((id==wMagic)&&(findentrance(x,y,mfWANDMAGIC,true))) dead=0;
-			
-			if((id==wRefMagic)&&(findentrance(x,y,mfREFMAGIC,true))) dead=0;
-			
-			if((id!=ewMagic)&&(findentrance(x,y,mfSTRIKE,true))) dead=0;
-			
-			//Create an ER to use this in older quests -V
-			if ( get_bit(quest_rules,qr_BROKENBOOKCOST) )
-			{
-				itemdata const& book = itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_book)];
-				if((id==wMagic && current_item(itype_book) &&
-					book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-				{
-					if(book.flags & ITEM_FLAG9)
-						findentrance(x,y,mfSTRONGFIRE,true);
-					if(book.flags & ITEM_FLAG10)
-						findentrance(x,y,mfMAGICFIRE,true);
-					if(book.flags & ITEM_FLAG11)
-						findentrance(x,y,mfDIVINEFIRE,true);
-				}
-			}
-			else
-			{
-				itemdata const& book = itemsbuf[linkedItem];
-				if((id==wMagic && linkedItem && itemsbuf[linkedItem].family == itype_book &&
-						book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
-				{
-					if(book.flags & ITEM_FLAG9)
-						findentrance(x,y,mfSTRONGFIRE,true);
-					if(book.flags & ITEM_FLAG10)
-						findentrance(x,y,mfMAGICFIRE,true);
-					if(book.flags & ITEM_FLAG11)
-						findentrance(x,y,mfDIVINEFIRE,true);
-				}
-			}
-			
-			
-		mirrors:
+		mirrors: //jumped to by wWind
 			zfix checkx=0, checky=0;
 			int32_t check_x_ofs=0, check_y_ofs=0;
 			

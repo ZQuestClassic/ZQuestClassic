@@ -1329,7 +1329,7 @@ enum
 #define NUM_HIT_TYPES_USED 16
 #define NUM_HIT_TYPES_USED_PLAYER 8
 
-//Page 1, triggerflags[0]
+//triggerflags[0]
 
 #define combotriggerSWORD        0x00000001
 #define combotriggerSWORDBEAM    0x00000002
@@ -1364,7 +1364,7 @@ enum
 #define combotriggerKILLWPN      0x40000000
 #define combotriggerEWFIREBALL   0x80000000
 
-//Page 2, triggerflags[1]
+//triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
 #define combotriggerSPARKLE      0x00000002
 #define combotriggerBYRNA        0x00000004
@@ -1427,6 +1427,10 @@ enum
 #define combotriggerTHROWN         0x02000000
 #define combotriggerQUAKESTUN      0x04000000
 #define combotriggerSQUAKESTUN     0x08000000
+#define combotriggerANYFIRE        0x10000000
+#define combotriggerSTRONGFIRE     0x20000000
+#define combotriggerMAGICFIRE      0x40000000
+#define combotriggerDIVINEFIRE     0x80000000
 
 #define ctrigNONE        0x00
 #define ctrigIGNORE_SIGN 0x01

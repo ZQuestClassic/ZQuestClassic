@@ -2520,7 +2520,7 @@ endhe:
 }
 
 
-bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
+bool findentrance(int x, int y, int flag, bool setflag)
 {
     bool foundflag=false;
     bool foundcflag=false;
@@ -2713,6 +2713,48 @@ bool findentrance(int32_t x, int32_t y, int32_t flag, bool setflag)
             setmapflag(mSECRET);
             
     return true;
+}
+
+bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine)
+{
+	int trigflags = (any?combotriggerANYFIRE:0)
+		| (strong?combotriggerSTRONGFIRE:0)
+		| (magic?combotriggerMAGICFIRE:0)
+		| (divine?combotriggerDIVINEFIRE:0);
+	if(!trigflags) return false;
+	bool ret = false;
+	if(any)
+		ret = ret||findentrance(x,y,mfANYFIRE,setflag);
+	if(strong)
+		ret = ret||findentrance(x,y,mfSTRONGFIRE,setflag);
+	if(magic)
+		ret = ret||findentrance(x,y,mfMAGICFIRE,setflag);
+	if(divine)
+		ret = ret||findentrance(x,y,mfDIVINEFIRE,setflag);
+	
+	std::set<int> poses({COMBOPOS(x,y),COMBOPOS(x,y+15),COMBOPOS(x+15,y),COMBOPOS(x+15,y+15)});
+	for(int q = 0; q < 7; ++q)
+	{
+		mapscr* m = FFCore.tempScreens[q];
+		for(int pos : poses)
+			if(combobuf[m->data[pos]].triggerflags[2] & trigflags)
+			{
+				do_trigger_combo(q,pos);
+				ret = true;
+			}
+	}
+	word c = tmpscr->numFFC();
+	for(word i=0; i<c; i++)
+	{
+		ffcdata& ffc = tmpscr->ffcs[i];
+		if((combobuf[ffc.getData()].triggerflags[2] & trigflags)
+			&& ffc.collide(x,y,16,16))
+		{
+			do_trigger_combo_ffc(i);
+			ret = true;
+		}
+	}
+	return ret;
 }
 
 void update_freeform_combos()

@@ -607,22 +607,32 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_book: //!TODO Help Text
 		{
 			inf->power = "M. Damage:";
-			inf->misc[0] = "W. Damage:";
-			inf->misc[1] = "Wand Sound";
-			inf->misc[2] = "Special Step";
-			inf->misc[3] = "Fire Damage";
-			inf->flag[0] = "Fire Magic";
-			inf->flag[1] = "Override Wand Damage";
-			inf->flag[2] = "Fire Doesn't Hurt Player";
-			inf->flag[3] = "Override Wand SFX";
-			inf->flag[4] = "Temporary Light";
-			inf->flag[5] = "Replace Wand Weapon";
-			_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
-			_SET(flag[9], "Counts as Magic Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfMAGICFIRE)));
-			_SET(flag[10], "Counts as Divine Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfDIVINEFIRE)));
 			inf->wpn[0] = "Magic Sprite:";
 			inf->wpn[1] = "Projectile Sprite:";
-			inf->actionsnd[0] = "Firing Sound:";
+			
+			inf->flag[0] = "Fire Magic";
+			if(FLAG(1))
+			{
+				inf->misc[3] = "Fire Damage";
+				inf->flag[2] = "Fire Doesn't Hurt Player";
+				inf->flag[4] = "Temporary Light";
+				inf->actionsnd[0] = "Fire Sound:";
+				_SET(flag[8], "Counts as Strong Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfSTRONGFIRE)));
+				_SET(flag[9], "Counts as Magic Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfMAGICFIRE)));
+				_SET(flag[10], "Counts as Divine Fire", fmt::format("The flames will trigger '{}' flags",ZI.getMapFlagName(mfDIVINEFIRE)));
+			}
+			
+			inf->flag[1] = "Override Wand Damage";
+			if(FLAG(2))
+				inf->misc[0] = "W. Damage:";
+			
+			inf->flag[3] = "Override Wand SFX";
+			if(FLAG(4))
+				inf->misc[1] = "Wand Sound";
+			
+			inf->flag[5] = "Replace Magic Step";
+			if(FLAG(6))
+				inf->misc[2] = "M. Step";
 			break;
 		}
 		case itype_ring:
