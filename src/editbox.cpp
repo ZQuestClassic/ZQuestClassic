@@ -322,9 +322,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		
 			if(model->getView()->mouseDrag(gui_mouse_x(), gui_mouse_y()))
 			{
-				scare_mouse();
 				object_message(d, MSG_DRAW, 0);
-				unscare_mouse();
 			}
 			rest(1);
 		}

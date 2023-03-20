@@ -139,9 +139,7 @@ int32_t popup_dialog_through_bitmap(BITMAP *, DIALOG *dialog, int32_t focus_obj)
 	
 	if(bmp)
 	{
-		scare_mouse();
 		blit(screen, bmp, dialog->x, dialog->y, 0, 0, dialog->w+1, dialog->h+1);
-		unscare_mouse();
 	}
 	else
 		*allegro_errno = ENOMEM;
@@ -150,9 +148,7 @@ int32_t popup_dialog_through_bitmap(BITMAP *, DIALOG *dialog, int32_t focus_obj)
 	
 	if(bmp)
 	{
-		scare_mouse();
 		blit(bmp, screen, 0, 0, dialog->x, dialog->y, dialog->w+1, dialog->h+1);
-		unscare_mouse();
 		destroy_bitmap(bmp);
 	}
 	

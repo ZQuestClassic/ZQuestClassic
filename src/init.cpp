@@ -905,7 +905,6 @@ int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int32_t div = atoi((char*)((d+1589)->dp));
         
         if(div == 0)
@@ -913,7 +912,6 @@ int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c)
             
         sprintf((char*)((d+6)->dp), "%d", atoi((char*)(d->dp))/div);
         (d+6)->proc(MSG_DRAW,d+6,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -934,10 +932,8 @@ int32_t d_bombratioedit_proc(int32_t msg,DIALOG *d,int32_t c)
         if(atoi((char*)(d->dp)))
             sbombmax = atoi((char*)((d-1589)->dp))/div;
             
-        scare_mouse();
         sprintf((char*)((d-1583)->dp), "%d", sbombmax);
         (d-1583)->proc(MSG_DRAW,d-1583,0);
-        unscare_mouse();
     }
     
     return ret;

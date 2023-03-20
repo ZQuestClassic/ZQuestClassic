@@ -1107,12 +1107,10 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
                 replace_filename(s, flist->dir, "", 256);
         }
         
-        scare_mouse();
         SEND_MESSAGE(file_selector+FS_FILES, MSG_START, 0);
         SEND_MESSAGE(file_selector+FS_FILES, MSG_DRAW, 0);
         SEND_MESSAGE(file_selector+FS_EDIT, MSG_START, 0);
         SEND_MESSAGE(file_selector+FS_EDIT, MSG_DRAW, 0);
-        unscare_mouse();
         
         if(ret & D_CLOSE)
             return (ret | SEND_MESSAGE(file_selector+FS_EDIT, MSG_KEY, 0)) & ~D_CLOSE;

@@ -654,16 +654,12 @@ void Z_remove_timers()
 
 void go()
 {
-	scare_mouse();
 	blit(screen,tmp_scr,scrx,scry,0,0,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void comeback()
 {
-	scare_mouse();
 	blit(tmp_scr,screen,0,0,scrx,scry,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void dump_pal(BITMAP *dest)
@@ -678,8 +674,7 @@ void dump_pal(BITMAP *dest)
 void load_mouse()
 {
 	system_pal();
-	scare_mouse();
-	set_mouse_sprite(NULL);
+	MouseSprite::set(-1);
 	int32_t sz = vbound(int32_t(16*(zc_get_config("zeldadx","cursor_scale_large",1.5))),16,80);
 	for(int32_t j = 0; j < 4; ++j)
 	{
@@ -722,14 +717,12 @@ void load_mouse()
 		destroy_bitmap(tmpbmp);
 		destroy_bitmap(subbmp);
 	}
-	set_mouse_sprite(zcmouse[0]);
+	MouseSprite::assign(0, zcmouse[0]);
+	MouseSprite::set(0);
 	
 	// Must attempt to show cursor for allegro 5 to render it with the associated palette.
 	set_palette(*hw_palette);
-	show_mouse(screen);
-	show_mouse(NULL);
 
-	unscare_mouse();
 	game_pal();
 }
 
@@ -746,7 +739,6 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	for(int32_t q = 0; q < 4; ++q)
 		zcmouse[q] = NULL;
 	load_mouse();
-	set_mouse_sprite(zcmouse[0]);
 	
 	for(int32_t i=240; i<256; i++)
 		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
@@ -4290,7 +4282,6 @@ void f_Quit(int32_t type)
 	}
 	
 	if(!from_menu)
-		show_mouse(NULL);
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
@@ -5380,13 +5371,11 @@ void kb_clearjoystick(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
 	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 168, 48, FR_WIN);
 	//  text_mode(vc(11));
 	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
 	
 	update_hw_screen(true);
 	
@@ -5437,7 +5426,6 @@ int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 void j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
 	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
@@ -5445,7 +5433,6 @@ void j_getbtn(DIALOG *d)
 	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
 	
 	update_hw_screen(true);
 	
@@ -5581,30 +5568,24 @@ int32_t set_vol(void *dp3, int32_t d2)
 		break;
 	}
 	
-	scare_mouse();
 	// text_mode(vc(11));
 	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
-	unscare_mouse();
 	return D_O_K;
 }
 
 int32_t set_pan(void *dp3, int32_t d2)
 {
 	pan_style = vbound(d2,0,3);
-	scare_mouse();
 	// text_mode(vc(11));
 	textout_right_ex(screen,lfont_l, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
 	return D_O_K;
 }
 
 int32_t set_buf(void *dp3, int32_t d2)
 {
-	scare_mouse();
 	// text_mode(vc(11));
 	zcmusic_bufsz = d2 + 1;
 	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
-	unscare_mouse();
 	return D_O_K;
 }
 
@@ -6346,13 +6327,11 @@ int32_t onGoToComplete()
 	system_pal();
 	music_pause();
 	pause_all_sfx();
-	show_mouse(screen);
 	onGoTo();
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
 		
-	show_mouse(NULL);
 	game_pal();
 	music_resume();
 	resume_all_sfx();
@@ -6415,9 +6394,7 @@ int32_t onCredits()
 		
 		if(l!=ol)
 		{
-			scare_mouse();
 			d_bitmap_proc(MSG_DRAW,credits_dlg+2,0);
-			unscare_mouse();
 			SCRFIX();
 			ol=l;
 		}
@@ -6625,10 +6602,8 @@ void get_info(int32_t index)
 	
 	if(dialog_running)
 	{
-		scare_mouse();
 		jwin_textbox_proc(MSG_DRAW,midi_dlg+3,0);
 		d_savemidi_proc(MSG_DRAW,midi_dlg+5,0);
-		unscare_mouse();
 	}
 }
 
@@ -7506,10 +7481,8 @@ int32_t onScreenSaver()
 		// preview Screen Saver
 	{
 		clear_keybuf();
-		scare_mouse();
 		Matrix(ss_speed, ss_density, 30);
 		system_pal();
-		unscare_mouse();
 	}
 	
 	return D_O_K;
@@ -8338,7 +8311,6 @@ void System()
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
 	clear_keybuf();
-	show_mouse(screen);
 	
 	DIALOG_PLAYER *p;
 
@@ -8459,10 +8431,8 @@ void System()
 		{
 			// Screen saver enabled for now.
 			clear_keybuf();
-			scare_mouse();
 			Matrix(ss_speed, ss_density, 0);
 			system_pal();
-			unscare_mouse();
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}
 		
@@ -8475,7 +8445,6 @@ void System()
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);
-	show_mouse(NULL);
 	MenuOpen = false;
 	if(Quit)
 	{

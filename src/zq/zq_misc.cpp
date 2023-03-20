@@ -22,6 +22,7 @@
 #include "zq_class.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
+#include "drawing.h"
 #include "jwin_a5.h"
 #include <string.h>
 #include <stdio.h>
@@ -101,8 +102,7 @@ int32_t cursorColor(int32_t col)
 
 void load_mice()
 {
-	scare_mouse();
-	set_mouse_sprite(NULL);
+	MouseSprite::set(-1);
 	int32_t sz = vbound(int32_t(16*(zc_get_config("zquest","cursor_scale_large",1.5))),16,80);
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
@@ -133,20 +133,56 @@ void load_mice()
 			destroy_bitmap(subbmp);
 		}
 	}
+	
+	BITMAP* tmpbmp = create_bitmap_ex(8,sz,sz);
+	
+	MouseSprite::assign(ZQM_NORMAL, mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	MouseSprite::assign(ZQM_POINT_BOX, mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
+	MouseSprite::assign(ZQM_BOX, mouse_bmp[MOUSE_BMP_BOX][0]);
+	MouseSprite::assign(ZQM_SWORD, mouse_bmp[MOUSE_BMP_SWORD][0]);
+	MouseSprite::assign(ZQM_POTION, mouse_bmp[MOUSE_BMP_POTION][0], 1, 14);
+	MouseSprite::assign(ZQM_WAND, mouse_bmp[MOUSE_BMP_WAND][0]);
+	MouseSprite::assign(ZQM_LENS, mouse_bmp[MOUSE_BMP_LENS][0]);
+	for(int q = 0; q < 2; ++q)
+	{
+		MouseSprite::assign(ZQM_GLOVE_OPEN+q, mouse_bmp[MOUSE_BMP_GLOVE][q], 8, 8);
+	}
+	for(int q = 0; q < 4; ++q)
+	{
+		MouseSprite::assign(ZQM_HOOK_PLAIN+q, mouse_bmp[MOUSE_BMP_HOOKSHOT][q]);
+		MouseSprite::assign(ZQM_SEL_WAND_PLAIN+q, mouse_bmp[MOUSE_BMP_WAND2][q]);
+	}
+	for(int q = 0; q < 16; ++q)
+	{
+		blit(mouse_bmp[MOUSE_BMP_FLAG][0], tmpbmp, 0, 0, 0, 0, sz, sz);
+		replColor(tmpbmp, vc(q), dvc(0), dvc(0), false);
+		MouseSprite::assign(ZQM_FLAG_0+q, tmpbmp);
+	}
+	MouseSprite::assign(ZQM_BLANK, mouse_bmp[MOUSE_BMP_BLANK][0]);
+	
+	destroy_bitmap(tmpbmp);
 	restore_mouse();
-	unscare_mouse();
 }
 
 void load_icons()
 {
-    for(int32_t i=0; i<ICON_BMP_MAX; i++)
-    {
-        for(int32_t j=0; j<4; j++)
-        {
-            icon_bmp[i][j] = create_bitmap_ex(8,16,16);
-            blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
-        }
-    }
+	for(int32_t i=0; i<ICON_BMP_MAX; i++)
+	{
+		for(int32_t j=0; j<4; j++)
+		{
+			icon_bmp[i][j] = create_bitmap_ex(8,16,16);
+			blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
+			if(i==3)
+			{
+				for(int col = 0; col < 16; ++col)
+				{
+					flag_bmp[col][j] = create_bitmap_ex(8,16,16);
+					blit(icon_bmp[i][j], flag_bmp[col][j], 0, 0, 0, 0, 16, 16);
+					replColor(flag_bmp[col][j], vc(col), dvc(0), dvc(0), false);
+				}
+			}
+		}
+	}
 }
 
 void load_selections()
@@ -895,15 +931,11 @@ void go()
     switch(gocnt)
     {
     case 0:
-        scare_mouse();
         blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     case 1:
-        scare_mouse();
         blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     default:
@@ -918,15 +950,11 @@ void comeback()
     switch(gocnt)
     {
     case 1:
-        scare_mouse();
         blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     case 2:
-        scare_mouse();
         blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     default:
@@ -1155,18 +1183,7 @@ int32_t onJ()
     return D_O_K;
 }
 
-int32_t theFlagColor = 0;
-void setFlagColor()
-{
-	setFlagColor(Flag);
-}
-void setFlagColor(int32_t c)
-{
-	theFlagColor = c%16;
-    RAMpal[dvc(0)]=RAMpal[vc(c%16)];
-    set_palette_range(RAMpal,dvc(0),dvc(0),false);
-}
-
+extern bool placing_flags;
 int32_t onIncreaseFlag()
 {
 	do
@@ -1178,10 +1195,9 @@ int32_t onIncreaseFlag()
 			Flag=0;
 		}
 	} while(!ZI.isUsableMapFlag(Flag));
-
-    setFlagColor();
-    refresh(rMENU);
-    return D_O_K;
+	
+	if(!placing_flags) refresh(rMENU);
+	return D_O_K;
 }
 
 int32_t onDecreaseFlag()
@@ -1196,9 +1212,8 @@ int32_t onDecreaseFlag()
 		Flag=(Flag-1);
 	} while(!ZI.isUsableMapFlag(Flag));
 	
-    setFlagColor();
-    refresh(rMENU);
-    return D_O_K;
+	if(!placing_flags) refresh(rMENU);
+	return D_O_K;
 }
 
 int32_t on0();

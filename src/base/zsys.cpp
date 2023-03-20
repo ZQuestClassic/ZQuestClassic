@@ -1068,7 +1068,6 @@ void box_start(int32_t style, const char *title, FONT *title_font, FONT *message
     memset(box_log_msg, 0, 480);
     box_msg_pos=0;
     box_store_pos=0;
-    scare_mouse();
     
     if(box_bg)
     {
@@ -1086,7 +1085,6 @@ void box_start(int32_t style, const char *title, FONT *title_font, FONT *message
         box_titlebar_height=18;
     }
     
-    unscare_mouse();
     
     box_store_x = box_x = box_y = 0;
     box_active = true;
@@ -1106,7 +1104,6 @@ void box_out(const char *msg)
     
     if(box_active)
     {
-        scare_mouse();
         //do primitive text wrapping
         uint32_t i;
         for(i=0; i<temp.size(); i++)
@@ -1133,7 +1130,6 @@ void box_out(const char *msg)
             destroy_bitmap(tempbit);
         }
         set_clip_rect(screen, 0, 0, screen->w-1, screen->h-1);
-        unscare_mouse();
         remainder = temp.substr(i,temp.size()-i);
     }
     
@@ -1201,10 +1197,8 @@ void box_eol()
         
         if((box_y+2)*box_message_height >= box_h)
         {
-            scare_mouse();
             blit(screen, screen, box_l+8, box_t+(box_message_height*2), box_l+8, box_t+(box_message_height), box_w-16, box_y*box_message_height);
             rectfill(screen, box_l+8, box_t+box_y*box_message_height, box_l+box_w-8, box_t+(box_y+1)*box_message_height, gui_bg_color);
-            unscare_mouse();
             box_y--;
         }
     }

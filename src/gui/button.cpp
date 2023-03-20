@@ -14,12 +14,10 @@ void kb_getkey(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
 	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
 	textout_centre_ex(screen, font, "Press a key", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
 	
 	update_hw_screen(true);
 	
@@ -43,12 +41,10 @@ void kb_clearkey(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
 	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
 	textout_centre_ex(screen, font, "Press any key to clear", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
 	
 	update_hw_screen(true);
 	

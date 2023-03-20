@@ -62,16 +62,15 @@ int32_t cursorColor(int32_t col)
 void load_mouse()
 {
 	gui_mouse_focus=0;
-	scare_mouse();
-	set_mouse_sprite(NULL);
+	MouseSprite::set(-1);
 	byte mousepx[16][16] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 0, }, { 0, 241, 242, 243, 245, 245, 245, 245, 245, 245, 245, 245, 243, 241, 0, 0, }, { 0, 0, 241, 242, 243, 243, 245, 245, 245, 245, 245, 245, 243, 241, 0, 0, }, { 0, 0, 0, 241, 242, 243, 243, 243, 245, 245, 245, 243, 241, 0, 0, 0, }, { 0, 0, 0, 0, 241, 242, 243, 243, 243, 243, 245, 243, 241, 0, 0, 0, }, { 0, 0, 0, 0, 0, 241, 242, 243, 243, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 241, 242, 243, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 241, 242, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 241, 242, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 241, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, } };
 	for(auto x = 0; x < 16; ++x)
 		for(auto y = 0; y < 16; ++y)
 		{
 			putpixel(mouse_bmp, x, y, cursorColor(mousepx[x][y]));
 		}
-	set_mouse_sprite(mouse_bmp);
-	unscare_mouse();
+	MouseSprite::assign(0, mouse_bmp);
+	MouseSprite::set(0);
 }
 
 void hit_close_button()
@@ -219,7 +218,6 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Initializing mouse...");
 	//{ Mouse setup
 	load_mouse();
-	show_mouse(screen);
 	//}
 	Z_message("OK\n");
 	
@@ -396,16 +394,12 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 
 void go()
 {
-	scare_mouse();
 	blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void comeback()
 {
-	scare_mouse();
 	blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void large_dialog(DIALOG *)

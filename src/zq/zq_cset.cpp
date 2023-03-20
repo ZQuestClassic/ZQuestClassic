@@ -201,7 +201,6 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			gr /= 1.5;
 			rat /= 1.5;
 			custom_vsync();
-			scare_mouse();
 			//Hue
 			jwin_draw_frame(screen, d->x+hue_x_offs-2, d->y+hue_y_offs-2, int32_t(128*1.5+4), misc_wh+4, FR_DEEP);
 			for(int32_t i=0; i<128; i++)
@@ -237,7 +236,6 @@ int32_t jwin_hsl_proc(int32_t msg, DIALOG *d, int32_t c)
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 				textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %3d %3d %3d  ",RAMpal[edc].r*4,RAMpal[edc].g*4,RAMpal[edc].b*4);
 			else textprintf_centre_ex(screen,font,d->x+(d->w/2),int32_t(d->y+c_y_offs+c_hei+10*(1.5)),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"  RGB - %2d %2d %2d  ",RAMpal[edc].r,RAMpal[edc].g,RAMpal[edc].b);
-			unscare_mouse();
 			SCRFIX();
 			break;
 	}
@@ -758,11 +756,7 @@ bool grab_dataset(int32_t dataset)
     char fname[13];
     extract_name(imagepath,fname,FILENAME8_3);
     
-    draw_bw_mouse(pwhite, MOUSE_BMP_NORMAL, MOUSE_BMP_BLANK);
-    scare_mouse();
     clear_bitmap(screen2);
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-    unscare_mouse();
     set_palette(picpal);
     
     bool redraw=true;
@@ -798,7 +792,6 @@ bool grab_dataset(int32_t dataset)
         if(redraw)
         {
             redraw=false;
-            scare_mouse();
             clear_to_color(screen2,jwin_pal[jcBOX]);
             
 			jwin_draw_frame(screen2,imagex-2,imagey-2,658,551,FR_DEEP);
@@ -812,7 +805,6 @@ bool grab_dataset(int32_t dataset)
                              (90),(31),"OK",pblack,pwhite,0,true);
             draw_text_button(screen2,buttonx+(114),buttony+(36),
                              (90),(31),"Cancel",pblack,pwhite,0,true);
-            unscare_mouse();
         }
         
         if((gui_mouse_b()&1) && isinRect(x,y,palx,paly,palx+127,paly+127))
@@ -893,7 +885,6 @@ bool grab_dataset(int32_t dataset)
             }
         }
         
-        scare_mouse();
         
         for(int32_t i=0; i<256; i++)
         {
@@ -906,7 +897,6 @@ bool grab_dataset(int32_t dataset)
         rect(screen2,palx-1,paly-1,palx+128,paly+128,pblack);
         rect(screen2,palx-1,(row<<3)+paly-1,palx+128,(row<<3)+paly+8,(f&2)?pwhite:pblack);
         blit(screen2, screen, 0, 0, 0, 0, screen->w, screen->h);
-        unscare_mouse();
         SCRFIX();
     }
     while(!done);
@@ -925,9 +915,8 @@ bool grab_dataset(int32_t dataset)
 				rest(1);
     }
     
-    scare_mouse();
     
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+    MouseSprite::set(ZQM_NORMAL);
     clear_to_color(mouse_bmp[MOUSE_BMP_BLANK][0],0);
     memcpy(jwin_pal, jwin_pal2, sizeof(int32_t)*jcMAX);
     
@@ -936,7 +925,6 @@ bool grab_dataset(int32_t dataset)
     jwin_set_colors(jwin_pal);
     
     rgb_map = &zq_rgb_table;
-    unscare_mouse();
     return (done == 2);
 }
 
@@ -1134,9 +1122,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 				}
 				
 				custom_vsync();
-				scare_mouse();
 				draw_cset_proc(d);
-				unscare_mouse();
 				//sniggles
 				//        ((RGB*)d->dp3)[243]=((RGB*)d->dp3)[rc[(fc++)&15]];
 				//        set_palette_range(((RGB*)d->dp3),FLASH,FLASH,false);
@@ -1266,9 +1252,7 @@ int32_t d_cset_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			
 			custom_vsync();
-			scare_mouse();
 			draw_cset_proc(d);
-			unscare_mouse();
 			GUI_EVENT(d, geCHANGE_SELECTION);
 			return D_USED_CHAR;
 		}
@@ -1442,10 +1426,8 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
             load_cset(pal,i,i+first);
         }
         
-        scare_mouse();
         clear_to_color(screen,0);
         set_palette(pal);
-        unscare_mouse();
         colors_dlg[19].flags =
             colors_dlg[20].flags =
                 colors_dlg[23].flags = D_EXIT;

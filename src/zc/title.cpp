@@ -4014,7 +4014,6 @@ int32_t custom_game(int32_t file)
 	gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
 	gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
 	system_pal();
-	show_mouse(screen);
 	
 	clear_keybuf();
 	
@@ -4023,9 +4022,7 @@ int32_t custom_game(int32_t file)
 	bool customized = false;
 	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
 	{
-		scare_mouse();
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
-		unscare_mouse();
 		
 		int32_t  sel=0;
 		static EXT_LIST list[] =
@@ -4060,13 +4057,10 @@ int32_t custom_game(int32_t file)
 			gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
 		}
 		
-		scare_mouse();
 		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-		unscare_mouse();
 	}
 	if(!customized) strcpy(qstpath, relpath);
 	
-	show_mouse(NULL);
 	game_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5) && customized;

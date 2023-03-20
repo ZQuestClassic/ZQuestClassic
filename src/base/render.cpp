@@ -109,6 +109,90 @@ void render_tree_draw(RenderTreeItem* rti)
 	render_tree_draw_item(rti);
 }
 
+namespace MouseSprite
+{
+	static int active_mouse_sprite = -1;
+	ALLEGRO_MOUSE_CURSOR* zc_mouse_sprites[MAX_MOUSESPRITE] = {nullptr};
+	ALLEGRO_MOUSE_CURSOR* nullmouse = nullptr;
+	static void set_nullmouse()
+	{
+		if(!nullmouse)
+		{
+			static char mouse_arrow_data[16*16] =
+			{
+				2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 2, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 2, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0
+			};
+			ALLEGRO_COLOR white = al_map_rgb(255,255,255);
+			ALLEGRO_COLOR black = al_map_rgb(0,0,0);
+			ALLEGRO_BITMAP* bmp = al_create_bitmap(16,16);
+			auto* lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+			for(int y = 0; y < 16; ++y)
+			{
+				for(int x = 0; x < 16; ++x)
+				{
+					ALLEGRO_COLOR* col = nullptr;
+					switch(mouse_arrow_data[x+y*16])
+					{
+						case 1: col = &white; break;
+						case 2: col = &black; break;
+					}
+					if(col)
+						al_put_pixel(x, y, *col);
+				}
+			}
+			al_unlock_bitmap(bmp);
+			nullmouse = al_create_mouse_cursor(bmp, 1, 1);
+			al_destroy_bitmap(bmp);
+		}
+		active_mouse_sprite = -1;
+		al_show_mouse_cursor(all_get_display());
+		al_set_mouse_cursor(all_get_display(), nullmouse);
+	}
+	void assign(int index, BITMAP* spr, int xf, int yf)
+	{
+		ALLEGRO_MOUSE_CURSOR* old_cursor = zc_mouse_sprites[index];
+		all_set_transparent_palette_index(0);
+		ALLEGRO_BITMAP* a5_mouse_sprite = all_get_a5_bitmap(spr);
+		zc_mouse_sprites[index] = al_create_mouse_cursor(a5_mouse_sprite, xf, yf);
+		al_destroy_bitmap(a5_mouse_sprite);
+		
+		if(index == active_mouse_sprite)
+			set(index);
+		
+		if(old_cursor)
+			al_destroy_mouse_cursor(old_cursor);
+	}
+	void set(int index)
+	{
+		if(index < 0 || index >= MAX_MOUSESPRITE)
+		{
+			active_mouse_sprite = -1;
+			set_nullmouse();
+		}
+		if(index == active_mouse_sprite) return;
+		if(zc_mouse_sprites[index])
+		{
+			active_mouse_sprite = index;
+			al_show_mouse_cursor(all_get_display());
+			al_set_mouse_cursor(all_get_display(), zc_mouse_sprites[index]);
+		}
+	}
+}
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
@@ -121,7 +205,6 @@ void popup_zqdialog_start()
 	if(tmp_bmp)
 	{
 		clear_bitmap(tmp_bmp);
-		show_mouse(tmp_bmp);
 		screen = tmp_bmp;
 		
 		RenderTreeItem* rti = new RenderTreeItem();
@@ -148,7 +231,6 @@ void popup_zqdialog_end()
 	if (active_dlg_rti)
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
-		show_mouse(NULL);
 		rti_dialogs.children.pop_back();
 		if(rti_dialogs.children.size())
 		{
@@ -161,7 +243,6 @@ void popup_zqdialog_end()
 			screen = zqdialog_bg_bmp;
 			zqdialog_bg_bmp = nullptr;
 		}
-		show_mouse(screen);
 		delete to_del;
 	}
 	position_mouse_z(0);

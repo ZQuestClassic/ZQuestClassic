@@ -552,9 +552,7 @@ static int32_t jwin_do_x_button(BITMAP *dest, int32_t x, int32_t y)
         
         if(down!=last_draw)
         {
-            scare_mouse();
             draw_x_button(dest,x,y,down);
-            unscare_mouse();
             last_draw = down;
         }
         
@@ -565,9 +563,7 @@ static int32_t jwin_do_x_button(BITMAP *dest, int32_t x, int32_t y)
     
     if(down)
     {
-        scare_mouse();
         draw_x_button(dest,x,y,0);
-        unscare_mouse();
     }
     
     return down;
@@ -624,8 +620,7 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
     int32_t xx = x;
 	bool is_scr = bmp == screen;
     
-	if(is_scr) scare_mouse();
-    while(s[c])
+	while(s[c])
     {
         len = 0;
         hline_pos = -1;
@@ -684,8 +679,6 @@ int32_t gui_textout_ln(BITMAP *bmp, FONT *f, unsigned const char *s, int32_t x, 
         
         y += text_height(f);
     }
-	if(is_scr) unscare_mouse();
-    
     return max_len;
 }
 
@@ -960,11 +953,7 @@ int32_t jwin_rtext_proc(int32_t msg, DIALOG *d, int32_t)
 
 int32_t d_ctext2_proc(int32_t msg, DIALOG *d, int32_t c)
 {
-	if(msg == MSG_DRAW)
-		scare_mouse();
 	auto ret = d_ctext_proc(msg, d, c);
-	if(msg == MSG_DRAW)
-		unscare_mouse();
 	return ret;
 }
 
@@ -1141,9 +1130,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 			/* or just toggle */
 			d->flags ^= D_SELECTED;
 			GUI_EVENT(d, geCLICK);
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			break;
 			
 		case MSG_CLICK:
@@ -1174,9 +1161,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 						else
 							d->flags &= ~D_SELECTED;
 							
-						scare_mouse();
 						object_message(d, MSG_DRAW, 0);
-						unscare_mouse();
 						last_draw = down;
 					}
 					
@@ -1193,9 +1178,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 					if(d->flags&D_EXIT)
 					{
 						d->flags &= ~D_SELECTED;
-						scare_mouse();
 						object_message(d, MSG_DRAW, 0);
-						unscare_mouse();
 					}
 				}
 				
@@ -1237,9 +1220,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -1255,9 +1236,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -1507,9 +1486,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			if(cursor_end == cursor_start) cursor_end = -1;
 			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			font = oldfont;
 			break;
 		}
@@ -1741,9 +1718,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				GUI_EVENT(d, geENTER);
 				if(d->flags & D_EXIT)
 				{
-					scare_mouse();
 					object_message(d, MSG_DRAW, 0);
-					unscare_mouse();
 					return D_CLOSE;
 				}
 				else
@@ -1871,9 +1846,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			
 			/* if we changed something, better redraw... */
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			return D_USED_CHAR;
 		}
 	}
@@ -2088,9 +2061,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(cursor_end == cursor_start) cursor_end = -1;
 			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			break;
 		}
 			
@@ -2226,9 +2197,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				GUI_EVENT(d, geENTER);
 				if(d->flags & D_EXIT)
 				{
-					scare_mouse();
 					object_message(d, MSG_DRAW, 0);
-					unscare_mouse();
 					return D_CLOSE;
 				}
 				else
@@ -2354,9 +2323,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			}
 			/* if we changed something, better redraw... */
-			scare_mouse();
 			object_message(d, MSG_DRAW, 0);
-			unscare_mouse();
 			return D_USED_CHAR;
 		}
 	}
@@ -3741,10 +3708,8 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
             if(down!=last_draw || redraw)
             {
                 vsync();
-                scare_mouse();
                 d->proc(MSG_DRAW, d, 0);
                 draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, down*3);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -3775,9 +3740,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
                 {
                     *offset = yy;
                     vsync();
-                    scare_mouse();
                     d->proc(MSG_DRAW, d, 0);
-                    unscare_mouse();
                 }
             }
             
@@ -3805,9 +3768,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
                 if(yy != *offset)
                 {
                     *offset = yy;
-                    scare_mouse();
                     d->proc(MSG_DRAW, d, 0);
-                    unscare_mouse();
                 }
                 
                 // let other objects continue to animate
@@ -3829,9 +3790,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
     
     if(last_draw==1)
     {
-        scare_mouse();
         draw_arrow_button(screen, xx, yy, 16, bh, obj==top_btn, 0);
-        unscare_mouse();
     }
 }
 
@@ -3942,9 +3901,7 @@ static bool _handle_jwin_listbox_click(DIALOG *d)
 		
         _handle_jwin_scrollable_scroll(d, listsize, &d->d1, &d->d2, *data->font);
         
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         
         if(i != d->d2)
             rest_callback(MID(10, text_height(font)*16-d->h, 100), idle_cb);
@@ -4241,9 +4198,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                 
                 if(redraw)
                 {
-                    scare_mouse();
                     object_message(d, MSG_DRAW, 0);
-                    unscare_mouse();
                 }
             }
             
@@ -4417,9 +4372,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			GUI_EVENT(d, geCHANGE_SELECTION);
             
-			scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
             return D_USED_CHAR;
         }
         
@@ -4492,9 +4445,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 					
 					if(redraw)
 					{
-						scare_mouse();
 						object_message(d, MSG_DRAW, 0);
-						unscare_mouse();
 					}
 				}
 				
@@ -4679,9 +4630,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			GUI_EVENT(d, geCHANGE_SELECTION);
 			
-            scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
             ret = D_USED_CHAR;
         }
         
@@ -5067,9 +5016,7 @@ int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c)
         /* if we changed something, better redraw... */
         if(d->d2 != start)
         {
-            scare_mouse();
             d->proc(MSG_DRAW, d, 0);
-            unscare_mouse();
         }
         
         ret = used;
@@ -5625,7 +5572,6 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
     int32_t _x, _y;
     int32_t redraw = TRUE;
     
-    scare_mouse();
     
     fill_menu_info(&m, menu, parent, bar, x, y, minw, minh);
     
@@ -5651,7 +5597,6 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
     if((m.sel < 0) && (!mouse_on) && (!bar))
         m.sel = 0;
         
-    unscare_mouse();
     
     do
     {
@@ -5873,7 +5818,6 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
         
         if((redraw) || (m.sel != old_sel))                      /* selection changed? */
         {
-            scare_mouse();
             
             if(redraw)
             {
@@ -5889,7 +5833,6 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
                     draw_menu_item(&m, m.sel);
             }
             
-            unscare_mouse();
         }
         
         if((ret >= 0) && (m.menu[ret].flags & D_DISABLED))
@@ -5904,9 +5847,7 @@ int32_t _jwin_do_menu(MENU *menu, MENU_INFO *parent, int32_t bar, int32_t x, int
                     if(m.hover)
                     {
                         m.hover = 0;
-                        scare_mouse();
                         draw_menu(&m);
-                        unscare_mouse();
                     }
                     
                     get_menu_pos(&m, ret, &_x, &_y, &c);
@@ -5973,9 +5914,7 @@ getout:
     /* restore screen */
     if(m.saved)
     {
-        scare_mouse();
         blit(m.saved, screen, 0, 0, m.x, m.y, m.w+1, m.h+1);
-        unscare_mouse();
         destroy_bitmap(m.saved);
     }
     
@@ -6858,9 +6797,7 @@ int32_t jwin_droplist_proc(int32_t msg,DIALOG *d,int32_t c)
     if(d->d1!=d->d2)
     {
         d->d1=d->d2;
-        scare_mouse();
         jwin_droplist_proc(MSG_DRAW, d, 0);
-        unscare_mouse();
     }
 
     if(d1 != d->d1)
@@ -6886,9 +6823,7 @@ dropit:
         
         if(down!=last_draw)
         {
-            scare_mouse();
             draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
-            unscare_mouse();
             last_draw = down;
         }
         
@@ -6902,16 +6837,12 @@ dropit:
         return D_O_K;
     }
     
-    scare_mouse();
     draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, 0);
-    unscare_mouse();
     
     d1 = d->d1;
     d->d2 = d->d1 = droplist(d);
     
-    scare_mouse();
     object_message(d, MSG_DRAW, 0);
-    unscare_mouse();
     
     while(gui_mouse_b()) {
         clear_keybuf();
@@ -7027,9 +6958,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			if(foundmatch)
 				GUI_EVENT(d, geCHANGE_SELECTION);
-			scare_mouse();
 			jwin_do_abclist_proc(MSG_DRAW,d,0);
-			unscare_mouse();
 			if ( gui_mouse_b() ) wipe_abc_keypresses();
 			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
@@ -7074,9 +7003,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				}
 			}
 			
-			scare_mouse();
 			jwin_list_proc(MSG_DRAW,d,0);
-			unscare_mouse();
 			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
 	}
@@ -7940,9 +7867,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
             if(!over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
-                unscare_mouse();
                 over=true;
                 
 				update_hw_screen();
@@ -7953,9 +7878,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
             if(over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
-                unscare_mouse();
                 over=false;
                 
 				update_hw_screen();
@@ -7978,9 +7901,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             if(!over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, D_SELECTED, true);
-                unscare_mouse();
                 over=true;
                 
 				update_hw_screen();
@@ -7991,9 +7912,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
             if(over)
             {
                 vsync();
-                scare_mouse();
                 jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
-                unscare_mouse();
                 over=false;
                 
 				update_hw_screen();
@@ -8005,9 +7924,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
     if(over)
     {
         vsync();
-        scare_mouse();
         jwin_draw_text_button(screen, x, y, w, h, text, 0, true);
-        unscare_mouse();
         
 		update_hw_screen();
     }

@@ -419,7 +419,7 @@ COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
+BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
@@ -677,6 +677,19 @@ void set_debug(bool d)
     return;
 }
 
+bool zq_check_close_button()
+{
+	if(close_button_quit)
+	{
+		close_button_quit=false;
+		
+		if(onExit()==D_CLOSE)
+		{
+			quit=true;
+		}
+	}
+	return quit;
+}
 // **** Timers ****
 
 volatile int32_t lastfps=0;
@@ -1598,7 +1611,6 @@ int32_t onFullScreen()
 	    return D_O_K;
 	#endif
 	    get_palette(RAMpal);
-	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
 	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
@@ -1613,10 +1625,9 @@ int32_t onFullScreen()
 	    gui_mouse_focus=0;
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
-	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	    MouseSprite::set(ZQM_NORMAL);
 	    set_palette(RAMpal);
 	    position_mouse(zq_screen_w/2,zq_screen_h/2);
-	    show_mouse(screen);
 	    set_display_switch_mode(SWITCH_BACKGROUND);
 	    set_display_switch_callback(SWITCH_OUT, switch_out);
 	    set_display_switch_callback(SWITCH_IN, switch_in);
@@ -5018,14 +5029,12 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     bool done=false, redraw=true;
     
     go();
-    scare_mouse();
     clear_bitmap(screen);
     
     // Always call load_the_map() when viewing the map.
     if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
     {
         set_palette(RAMpal);
-        unscare_mouse();
         comeback();
         return D_O_K;
     }
@@ -5044,8 +5053,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     }
     
     //  go();
-    //  scare_mouse();
-    //  clear_bitmap(screen);
+    //    //  clear_bitmap(screen);
     set_palette(pal);
     
     do
@@ -5224,7 +5232,6 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     
     destroy_bitmap(buf);
     set_palette(RAMpal);
-    unscare_mouse();
     gui_fg_color = oldfgcolor;
     gui_bg_color = oldbgcolor;
     
@@ -5450,7 +5457,7 @@ void drawpanel()
 		auto flagx = flagsqr_pos.x;
 		auto flagy = flagsqr_pos.y;
 		jwin_draw_frame(menu1,flagx,flagy,20,20,FR_DEEP);
-		blit(icon_bmp[3][coord_frame], menu1, 0, 0, flagx+2,flagy+2, 16, 16);
+		blit(flag_bmp[Flag%16][coord_frame], menu1, 0, 0, flagx+2,flagy+2, 16, 16);
 		
 		if(panel_align == 1)
 		{
@@ -6128,13 +6135,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					if(arrowcursor)
 					{
 						arrowcursor = false;
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+						MouseSprite::set(ZQM_BLANK);
 					}
 				}
 				else if(!arrowcursor)
 				{
 					arrowcursor = true;
-					set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+					MouseSprite::set(ZQM_NORMAL);
 				}
 				int32_t mx=(gui_mouse_x()-mapscreen_x)/mgridscale*mgridscale;
 				int32_t my=(gui_mouse_y()-mapscreen_y)/mgridscale*mgridscale;
@@ -6214,7 +6221,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				if(!arrowcursor)
 				{
-					set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+					MouseSprite::set(ZQM_NORMAL);
 					arrowcursor = true;
 				}
 			}
@@ -7286,7 +7293,6 @@ void refresh(int32_t flags, bool update)
 	
 	draw_ttips();
 	
-	scare_mouse();
 	
 	if(flags&rCLEAR)
 	{
@@ -7329,7 +7335,6 @@ void refresh(int32_t flags, bool update)
 	
 	ComboBrushPause=0;
 	
-	unscare_mouse();
 	SCRFIX();
 	if(update)
 		custom_vsync();
@@ -8343,9 +8348,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 {
     int32_t tempcb=ComboBrush;
     ComboBrush=0;
-    scare_mouse();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
-    unscare_mouse();
+    MouseSprite::set(ZQM_POINT_BOX);
     
     int32_t oldpx=px2, oldpy=py2;
     int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
@@ -8371,7 +8374,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
         
         if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1)))
         {
-            scare_mouse();
             set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
             
             while(gui_mouse_b()==1)
@@ -8445,7 +8447,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             }
             
             set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-            unscare_mouse();
             done=true;
         }
         
@@ -8464,7 +8465,7 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
     }
     
 finished:
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+    MouseSprite::set(ZQM_NORMAL);
     refresh(rMAP+rMENU);
     
     while(gui_mouse_b())
@@ -8492,61 +8493,44 @@ finished:
     ComboBrush=tempcb;
 }
 
+bool placing_flags = false;
 void doflags()
 {
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-	int32_t of=Flags;
+	placing_flags = true;
+	int of=Flags;
 	Flags=cFLAGS;
 	refresh(rMAP | rNOCURSOR);
 	
 	bool canedit=false;
 	bool didShift = false;
-	int32_t tFlag = Flag;
-	while(!(gui_mouse_b()&2))
+	int tFlag = Flag;
+	while(!(gui_mouse_b()&2) && !zq_check_close_button())
 	{
-		int32_t x=gui_mouse_x();
-		int32_t y=gui_mouse_y();
+		int x=gui_mouse_x();
+		int y=gui_mouse_y();
 		double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
 		double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
-		int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
-		int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
-		int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
-		int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
-		int32_t c=(cy*16)+cx;
+		int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
+		int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
+		int cx=(x-startxint)/int(16*mapscreensize);
+		int cy=(y-startyint)/int(16*mapscreensize);
+		int c=(cy*16)+cx;
 		
 		if(!gui_mouse_b())
 			canedit=true;
         bool shift = key[KEY_LSHIFT] || key[KEY_RSHIFT];
-		if(didShift != shift)
-		{
-			didShift = shift;
-			if(shift)
-			{
-				setFlagColor(0);
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-			}
-			else
-			{
-				setFlagColor();
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-			}
-		}
-		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
 		{
 			mapscr* cur_scr = (CurrentLayer
 				? &(TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS
 					+(Map.CurrScr()->layerscreen[CurrentLayer-1])])
 				: Map.CurrScr());
 			if(key[KEY_ALT]||key[KEY_ALTGR])
-			{
 				Flag = cur_scr->sflag[c];
-				setFlagColor();
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-			}
 			else
 			{
 				saved=false;
-				int32_t tflag = Flag;
+				int tflag = Flag;
 				if(shift)
 					Flag = mfNONE;
 				if(CurrentLayer!=0)
@@ -8592,13 +8576,11 @@ void doflags()
 				else cur_scr->sflag[c] = Flag;
 				Flag = tflag;
 			}
-			
-			refresh(rMAP | rNOCURSOR);
 		}
 		
 		if(mouse_z)
 		{
-			for(int32_t i=0; i<abs(mouse_z); ++i)
+			for(int i=0; i<abs(mouse_z); ++i)
 			{
 				if(mouse_z>0)
 				{
@@ -8611,7 +8593,6 @@ void doflags()
 			}
 			
 			position_mouse_z(0);
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 		}
 		
 		if(keypressed())
@@ -8664,16 +8645,9 @@ void doflags()
 				onIncMap();
 				break;
 			}
-			
-			// The cursor could've been overwritten by the Combo Brush?
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 		}
 		
-		if(shift && theFlagColor)
-		{
-			setFlagColor(0);
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-		}
+		MouseSprite::set(ZQM_FLAG_0+(shift?0:Flag%16));
 		
 		custom_vsync();
 		refresh(rALL | rNOCURSOR);
@@ -8681,7 +8655,8 @@ void doflags()
 	
 finished:
 	Flags=of;
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	placing_flags = false;
+	MouseSprite::set(ZQM_NORMAL);
 	refresh(rMAP+rMENU);
 	
 	while(gui_mouse_b())
@@ -9551,9 +9526,7 @@ void set_brush_height(int32_t height)
 void restore_mouse()
 {
     ComboBrushPause=1;
-    scare_mouse();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    unscare_mouse();
+    MouseSprite::set(ZQM_NORMAL);
 }
 
 static int32_t comboa_cnt=0;
@@ -12315,9 +12288,7 @@ int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 d->d1 = x+y;
                 custom_vsync();
-                scare_mouse();
                 d_sel_scombo_proc(MSG_DRAW,d,0);
-                unscare_mouse();
             }
         }
         
@@ -12576,9 +12547,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
     {
       select_scombo(d->d1);
     }
-    scare_mouse();
     d_scombo_proc(MSG_DRAW,d,0);
-    unscare_mouse();
     break;
 
 
@@ -14880,7 +14849,6 @@ int32_t onFlags()
     if(ret>=0)
     {
         Flag=ret;
-        setFlagColor();
         refresh(rMENU);
         doflags();
     }
@@ -15211,9 +15179,7 @@ int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",msgID);
-        unscare_mouse();
     }
     
     return ret;
@@ -15228,7 +15194,6 @@ int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         int32_t tile = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].tile : 0;
         int32_t cset = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].csets&15 : 0;
         int32_t x = d->x + d->w + 4;
@@ -15253,7 +15218,6 @@ int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
             destroy_bitmap(bigbmp);
         }
         
-        unscare_mouse();
     }
     
     return ret;
@@ -15268,9 +15232,7 @@ int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii[d->d1].i);
-        unscare_mouse();
     }
     
     return ret;
@@ -15309,7 +15271,6 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_DRAW:
 		case MSG_CHAR:
 		case MSG_CLICK:
-			scare_mouse();
 			
 			int32_t tile = 0;
 			int32_t cset = 0;
@@ -15359,7 +15320,6 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 				textprintf_ex(screen,tfont,x,y+40+(9*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Weapon: %d", itemsbuf[bii[d->d1].i].weaponscript);
 			}
 			
-			unscare_mouse();
 			break;
 	}
 	
@@ -15399,7 +15359,6 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 	case MSG_DRAW:
 	case MSG_CHAR:
 	case MSG_CLICK:
-		scare_mouse();
 		
 		int32_t tile = 0;
 		int32_t cset = 0;
@@ -15434,7 +15393,6 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 		textprintf_ex(screen, font, x, y + (20 * temp_scale), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
 	}
 		
-		unscare_mouse();
 	}
 	
 	return ret;
@@ -15488,7 +15446,6 @@ int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     if(msg==MSG_CLICK)
     {
         int32_t v = getnumber("Piece Number",d->d1);
-        scare_mouse();
         
         if(v>=0)
         {
@@ -15517,7 +15474,6 @@ int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         
         d->flags = 0;
         jwin_button_proc(MSG_DRAW,d,0);
-        unscare_mouse();
     }
     
     return D_O_K;
@@ -15831,7 +15787,6 @@ int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
     
 	if (msg == MSG_DRAW)
 	{
-		scare_mouse();
 		small_dmap = (d->d1 != dmOVERW);
 		object_message(d - 3, MSG_DRAW, 0);
 		(d - 2)->flags &= ~D_DISABLED;
@@ -15839,7 +15794,6 @@ int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
 		object_message(d - 2, MSG_DRAW, 0);
 		(d + 35)->d1 = small_dmap;
 		object_message(d + 35, MSG_DRAW, 0);
-		unscare_mouse();
 	}
 	else if (d->d1 != d1)
 	{
@@ -15941,9 +15895,7 @@ int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
                 }
             }
             
-            scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
             custom_vsync();
         }
     }
@@ -16011,7 +15963,6 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	
 	if(msg==MSG_DRAW || d->d1!=d1)
 	{
-		scare_mouse();
 		int32_t *xy = (int32_t*)(d->dp3);
 		xy[0]=d->d1;
 		
@@ -16046,7 +15997,6 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 		(d+1)->flags&=~D_DISABLED;
 		(d+1)->flags|=small_dmap?0:D_DISABLED;
 		object_message(d+1, MSG_DRAW, 0);
-		unscare_mouse();
 	}
 	
 	return ret;
@@ -16121,9 +16071,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
         d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*10;
         bound(d->d2,0,19);
-        scare_mouse();
         put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
-        unscare_mouse();
         
         while(gui_mouse_b())
         {
@@ -16217,9 +16165,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             }
         }
         
-        scare_mouse();
         put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
-        unscare_mouse();
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -16266,9 +16212,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
         d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*24;
         bound(d->d2,0,71);
-        scare_mouse();
         put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
-        unscare_mouse();
         
         while(gui_mouse_b())
         {
@@ -16364,9 +16308,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             }
         }
         
-        scare_mouse();
         put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
-        unscare_mouse();
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -18609,10 +18551,8 @@ void edit_tune(int32_t i)
         while(update_dialog(p))
         {
             custom_vsync();
-            scare_mouse();
             //      text_mode(vc(1));
             textprintf_ex(screen,lfont_l,editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
-            unscare_mouse();
         }
         
         ret = shutdown_dialog(p);
@@ -19115,10 +19055,8 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
 //      if(x+y != d->d1)
             {
                 custom_vsync();
-                scare_mouse();
                 sprintf((char *)td[d->d1+1].dp, "%02X", y+x);
                 object_message(&td[d->d1+1], MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
     }
@@ -19485,7 +19423,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
         }
         
         int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
-        scare_mouse();
         
         if(d->d1==1)
         {
@@ -19507,7 +19444,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
             rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
         }
         
-        unscare_mouse();
         
         while(gui_mouse_b())
         {
@@ -19682,7 +19618,6 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
         
     case MSG_DRAW:
     {
-        scare_mouse();
         jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
         
         if(AnimationOn||CycleOn)
@@ -19711,7 +19646,7 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
                 if(!mousedown||!inrect)
                 {
 					if(allowHideMouse)
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
+						MouseSprite::set(ZQM_BLANK);
                     set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
                 }
                 
@@ -19725,7 +19660,7 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
                 if(mousedown||!inrect)
                 {
                     set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-                    set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
+                    MouseSprite::set(ZQM_POINT_BOX);
                 }
                 
                 mousedown=false;
@@ -19735,12 +19670,11 @@ int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
         }
         else
         {
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+            MouseSprite::set(ZQM_NORMAL);
             inrect=false;
         }
         
         blit(bmp, screen, 0, 0, d->x+2, d->y+2, 256, 176);
-        unscare_mouse();
     }
     break;
     
@@ -19883,11 +19817,9 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int32_t tics=vbound(atoi((char*)d->dp),0,65535);
         sprintf((char*)(d+1)->dp,"%s %s",ticksstr(tics),tics==0?"(No Timed Warp)":"               ");
         object_message(d+1,MSG_DRAW,c);
-        unscare_mouse();
     }
     
     return ret;
@@ -21065,7 +20997,6 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
             t += atoi((char*)edititemdropset_dlg[14+(i*3)].dp);
         }
         
-        scare_mouse();
         {
             int32_t t2 = (int32_t)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
             sprintf((char*)edititemdropset_dlg[9].dp,"%d%%%s",t2, t2 <= 11 ? " ":"");
@@ -21079,7 +21010,6 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
             object_message(&edititemdropset_dlg[16+(i*3)],MSG_DRAW,c);
         }
         
-        unscare_mouse();
     }
     
     return ret;
@@ -22170,9 +22100,7 @@ int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         (d+1)->proc(MSG_DRAW,d+1,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -22268,9 +22196,7 @@ bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(!over)
             {
-                scare_mouse();
                 draw_x_button(dest, x, y, D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -22278,9 +22204,7 @@ bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(over)
             {
-                scare_mouse();
                 draw_x_button(dest, x, y, 0);
-                unscare_mouse();
                 over=false;
             }
         }
@@ -22301,9 +22225,7 @@ bool do_question_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(!over)
             {
-                scare_mouse();
                 draw_question_button(dest, x, y, D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -22311,9 +22233,7 @@ bool do_question_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(over)
             {
-                scare_mouse();
                 draw_question_button(dest, x, y, 0);
-                unscare_mouse();
                 over=false;
             }
         }
@@ -23178,9 +23098,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
         
         /* or just toggle */
         /*d->flags ^= D_SELECTED;
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         break;*/
         
     case MSG_CLICK:
@@ -23199,9 +23117,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -23215,9 +23131,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -23265,9 +23179,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
         
         /* or just toggle */
         /*d->flags ^= D_SELECTED;
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         break;*/
         
     case MSG_CLICK:
@@ -23286,9 +23198,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -23302,9 +23212,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -31114,8 +31022,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	load_mice();
 	gui_mouse_focus=0;
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	show_mouse(screen);
+	MouseSprite::set(ZQM_NORMAL);
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
@@ -31452,15 +31359,7 @@ int32_t main(int32_t argc,char **argv)
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
-		if(close_button_quit)
-		{
-			close_button_quit=false;
-			
-			if(onExit()==D_CLOSE)
-			{
-				quit=true;
-			}
-		}
+		zq_check_close_button();
 	}
 	parser_console.kill();
 	killConsole();
@@ -32133,7 +32032,6 @@ void destroy_bitmaps_on_exit()
     destroy_bitmap(tooltipbmp);
     destroy_bitmap(tooltipbmp2);
     al_trace("...");
-    show_mouse(NULL);
     
     for(int32_t i=0; i<MOUSE_BMP_MAX*4; i++)
 	{
@@ -32144,6 +32042,8 @@ void destroy_bitmaps_on_exit()
     for(int32_t i=0; i<ICON_BMP_MAX*4; i++)
         destroy_bitmap(icon_bmp[i/4][i%4]);
         
+    for(int32_t i=0; i<16*4; i++)
+		destroy_bitmap(flag_bmp[i/4][i%4]);
     for(int32_t i=0; i<2; i++)
         destroy_bitmap(select_bmp[i]);
         
@@ -32672,7 +32572,6 @@ bool prv_press=false;
 
 void dopreview()
 {
-	//set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	refresh(rMAP);
 	
 	while(!(gui_mouse_b()))
@@ -32822,7 +32721,7 @@ finished:
 	//Flags=of;
 	reset_combo_animations();
 	reset_combo_animations2();
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	MouseSprite::set(ZQM_NORMAL);
 	prv_mode=0;
 	Map.set_prvcmb(0);
 	Map.set_prvadvance(0);
@@ -32984,7 +32883,7 @@ void check_autosave()
         
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+            MouseSprite::set(ZQM_NORMAL);
             if(first_save)
                 replace_extension(last_timed_save, filepath, "qt0", 2047);
             else

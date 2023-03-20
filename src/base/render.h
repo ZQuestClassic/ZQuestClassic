@@ -48,6 +48,13 @@ public:
 	}
 };
 
+namespace MouseSprite
+{
+	#define MAX_MOUSESPRITE 35
+	void assign(int index, BITMAP* spr, int xf = 1, int yf = 1);
+	void set(int index);
+};
+
 extern RenderTreeItem rti_dialogs;
 
 void set_bitmap_create_flags(bool preserve_texture);

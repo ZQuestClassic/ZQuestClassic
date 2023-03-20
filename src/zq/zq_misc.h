@@ -328,10 +328,6 @@ int32_t onShowDarkness();
 int32_t onJ();
 int32_t onM();
 
-extern int32_t theFlagColor;
-void setFlagColor();
-void setFlagColor(int32_t c);
-
 int32_t onIncreaseFlag();
 int32_t onDecreaseFlag();
 int32_t on0();

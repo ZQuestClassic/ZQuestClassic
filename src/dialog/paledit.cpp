@@ -61,9 +61,7 @@ void PalEditDialog::loadPal()
 	{
 		(*palt)[i] = RAMpal[i];
 	}
-	scare_mouse();
 	set_palette(*palt);
-	unscare_mouse();
 	pendDraw();
 }
 void cls()

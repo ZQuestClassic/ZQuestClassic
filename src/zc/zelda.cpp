@@ -4263,7 +4263,6 @@ int32_t onFullscreen()
 	    PALETTE oldpal;
 	    get_palette(oldpal);
 	    
-	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
 	    bool success=setGraphicsMode(!windowed);
@@ -4289,7 +4288,6 @@ int32_t onFullscreen()
 	    
 	    set_palette(oldpal);
 	    gui_mouse_focus=0;
-	    show_mouse(screen);
 	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);

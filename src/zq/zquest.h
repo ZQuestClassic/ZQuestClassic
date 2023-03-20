@@ -56,6 +56,21 @@ enum
 };
 
 enum {MOUSE_BMP_NORMAL=0, MOUSE_BMP_POINT_BOX, MOUSE_BMP_FLAG, MOUSE_BMP_BOX, MOUSE_BMP_SWORD, MOUSE_BMP_POTION, MOUSE_BMP_WAND, MOUSE_BMP_LENS, MOUSE_BMP_GLOVE, MOUSE_BMP_HOOKSHOT, MOUSE_BMP_WAND2, MOUSE_BMP_BLANK, MOUSE_BMP_MAX};
+enum
+{
+	ZQM_NORMAL,
+	ZQM_POINT_BOX,
+	ZQM_BOX,
+	ZQM_SWORD,
+	ZQM_POTION,
+	ZQM_WAND,
+	ZQM_LENS,
+	ZQM_GLOVE_OPEN, ZQM_GLOVE_CLOSED,
+	ZQM_HOOK_PLAIN, ZQM_HOOK_PLUS, ZQM_HOOK_MINUS, ZQM_HOOK_X,
+	ZQM_SEL_WAND_PLAIN, ZQM_SEL_WAND_PLUS, ZQM_SEL_WAND_MINUS, ZQM_SEL_WAND_X,
+	ZQM_FLAG_0, ZQM_FLAG_1, ZQM_FLAG_2, ZQM_FLAG_3, ZQM_FLAG_4, ZQM_FLAG_5, ZQM_FLAG_6, ZQM_FLAG_7, ZQM_FLAG_8, ZQM_FLAG_9, ZQM_FLAG_10, ZQM_FLAG_11, ZQM_FLAG_12, ZQM_FLAG_13, ZQM_FLAG_14, ZQM_FLAG_15,
+	ZQM_BLANK
+};
 enum {ICON_BMP_ITEM=0, ICON_BMP_WARP, ICON_BMP_WARPDEST, ICON_BMP_FLAG, ICON_BMP_RETURN_A, ICON_BMP_RETURN_B, ICON_BMP_RETURN_C, ICON_BMP_RETURN_D, ICON_BMP_MAX};
 
 
@@ -118,7 +133,7 @@ extern char *datafile_str;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;

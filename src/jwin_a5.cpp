@@ -200,9 +200,7 @@ static int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
 		
 		if(down!=last_draw)
 		{
-			scare_mouse();
 			draw_x_button_a5(x,y,down);
-			unscare_mouse();
 			last_draw = down;
 		}
 		
@@ -213,9 +211,7 @@ static int32_t jwin_do_x_button_a5(int32_t x, int32_t y)
 	
 	if(down)
 	{
-		scare_mouse();
 		draw_x_button_a5(x,y,0);
-		unscare_mouse();
 	}
 	
 	return down;

@@ -934,9 +934,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 			if(!over)
 			{
 				vsync();
-				scare_mouse();
 				draw_layer_button(screen, x, y, w, h, text, flags^D_SELECTED);
-				unscare_mouse();
 				over=true;
 				
 				update_hw_screen();
@@ -947,9 +945,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 			if(over)
 			{
 				vsync();
-				scare_mouse();
 				draw_layer_button(screen, x, y, w, h, text, flags);
-				unscare_mouse();
 				over=false;
 				
 				update_hw_screen();
@@ -961,9 +957,7 @@ bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *t
 	if(over)
 	{
 		vsync();
-		scare_mouse();
 		draw_layer_button(screen, x, y, w, h, text, toggleflag ? flags^D_SELECTED : flags);
-		unscare_mouse();
 		
 		update_hw_screen();
 	}
@@ -983,9 +977,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
 		{
 			if(!over)
 			{
-				scare_mouse();
 				draw_text_button(screen,x,y,w,h,text,fg,bg,D_SELECTED,jwin);
-				unscare_mouse();
 				over=true;
 			}
 		}
@@ -993,9 +985,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int
 		{
 			if(over)
 			{
-				scare_mouse();
 				draw_text_button(screen,x,y,w,h,text,fg,bg,0,jwin);
-				unscare_mouse();
 				over=false;
 			}
 		}
@@ -1016,9 +1006,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 		{
 			if(!over)
 			{
-				scare_mouse();
 				draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
-				unscare_mouse();
 				over=true;
 			}
 		}
@@ -1026,9 +1014,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 		{
 			if(over)
 			{
-				scare_mouse();
 				draw_text_button(screen,x,y,w,h,text,fg,bg,sel?D_SELECTED:0,jwin);
-				unscare_mouse();
 				over=false;
 			}
 		}
@@ -1037,9 +1023,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 	if(over)
 	{
 		custom_vsync();
-		scare_mouse();
 		draw_text_button(screen,x,y,w,h,text,fg,bg,sel?0:D_SELECTED,jwin);
-		unscare_mouse();
 	}
 	
 	return over;
@@ -1086,9 +1070,7 @@ bool do_graphics_button(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITM
 		{
 			if(!over)
 			{
-				scare_mouse();
 				draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,D_SELECTED,jwin,overlay);
-				unscare_mouse();
 				over=true;
 			}
 		}
@@ -1096,9 +1078,7 @@ bool do_graphics_button(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITM
 		{
 			if(over)
 			{
-				scare_mouse();
 				draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,0,jwin,overlay);
-				unscare_mouse();
 				over=false;
 			}
 		}
@@ -1119,9 +1099,7 @@ bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bm
 		{
 			if(!over)
 			{
-				scare_mouse();
 				draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,D_SELECTED,jwin,overlay);
-				unscare_mouse();
 				over=true;
 			}
 		}
@@ -1129,9 +1107,7 @@ bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bm
 		{
 			if(over)
 			{
-				scare_mouse();
 				draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,0,jwin,overlay);
-				unscare_mouse();
 				over=false;
 			}
 		}
@@ -1140,9 +1116,7 @@ bool do_graphics_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bm
 	if(over)
 	{
 		custom_vsync();
-		scare_mouse();
 		draw_graphics_button(screen,x,y,w,h,bmp,bmp2,fg,bg,0,jwin,overlay);
-		unscare_mouse();
 	}
 	
 	return over;
@@ -1200,10 +1174,8 @@ void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_
 				if(isinRect(gui_mouse_x(),gui_mouse_y(),x+(k*25),y,x+(k*25)+8,y+8))
 				{
 					value=k;
-					scare_mouse();
 					draw_layerradio(dest,x,y,bg,fg,value);
 					refresh(rMENU);
-					unscare_mouse();
 				}
 			}
 		}
@@ -1252,10 +1224,8 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_
 		{
 			if(!over)                                             //if wasn't here before
 			{
-				scare_mouse();
 				value=!value;
 				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
-				unscare_mouse();
 				over=true;
 			}
 		}
@@ -1263,10 +1233,8 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_
 		{
 			if(over)                                              //if was here before
 			{
-				scare_mouse();
 				value=!value;
 				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
-				unscare_mouse();
 				over=false;
 			}
 		}
@@ -1362,7 +1330,21 @@ int32_t tool_cur = -1;
 int32_t select_mode = 0;
 int32_t drawing=0;
 
-
+void set_tool_sprite(int tool, int type)
+{
+	int spr = ZQM_NORMAL;
+	switch(tool)
+	{
+		case t_pen: spr = ZQM_SWORD; break;
+		case t_fill: spr = ZQM_POTION; break;
+		case t_recolor: spr = ZQM_WAND; break;
+		case t_eyedropper: spr = ZQM_LENS; break;
+		case t_move: spr = ZQM_GLOVE_OPEN+type; break;
+		case t_select: spr = ZQM_HOOK_PLAIN+type; break;
+		case t_wand: spr = ZQM_SEL_WAND_PLAIN+type; break;
+	}
+	MouseSprite::set(spr);
+}
 void update_tool_cursor()
 {
 //  int32_t screen_xofs=(zq_screen_w-320)>>1;
@@ -1389,30 +1371,13 @@ void update_tool_cursor()
 	if(isinRect(temp_mouse_x,temp_mouse_y,zoomtile.x,zoomtile.y-(tool==t_fill ? (14) : 0),zoomtile.x+(zoomtile.w*zoomtile.xscale)-2,zoomtile.y+(zoomtile.h*zoomtile.yscale)-2-(tool==t_fill ? (14) : 0))) //inside the zoomed tile window
 	{
 		if(tool_cur==-1)
-		{
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
-			
-			switch(tool)
-			{
-			case t_fill:
-				set_mouse_sprite_focus(1, 14);
-				break;
-				
-			case t_move:
-				set_mouse_sprite_focus(8, 8);
-				break;
-				
-			default:
-				set_mouse_sprite_focus(1, 1);
-				break;
-			}
-		}
+			set_tool_sprite(tool,type);
 		
 		tool_cur=tool;
 	}
 	else if(tool_cur != -1)
 	{
-		set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+		MouseSprite::set(ZQM_NORMAL);
 		tool_cur = -1;
 	}
 }
@@ -1691,10 +1656,8 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	}
 	
 	custom_vsync();
-	scare_mouse();
 	blit(screen2,screen,0,0,0,0,zq_screen_w,zq_screen_w);
 	update_tool_cursor();
-	unscare_mouse();
 	SCRFIX();
 }
 
@@ -2665,9 +2628,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					select_mode=type;
 					
 					if(isinRect(temp_mouse_x,temp_mouse_y-(tool==t_fill ? (14) : 0),zoomtile.x,zoomtile.y,zoomtile.x+(zoomtile.w*zoomtile.xscale)-2,zoomtile.y+(zoomtile.h*zoomtile.yscale)-2-(tool==t_fill ? (14) : 0))) //inside the zoomed tile window
-					{
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][type]);
-					}
+						set_tool_sprite(tool,type);
 				}
 			}
 		}
@@ -2695,9 +2656,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		{
 			redraw = true;
 			tool_cur = -1;
-			scare_mouse();
 			update_tool_cursor();
-			unscare_mouse();
 			last_tool_val = tool;
 		}
 		
@@ -2713,20 +2672,9 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(tool==t_move || tool==t_fill)
 				{
-					scare_mouse();
 					
-					if(tool==t_fill)
-					{
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-						set_mouse_sprite_focus(1, 14);
-					}
-					else
-					{
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
-						set_mouse_sprite_focus(8, 8);
-					}
+					set_tool_sprite(tool,1);
 					
-					unscare_mouse();
 					move_origin_x=prev_x=(temp_mouse_x-zoomtile.x)/zoomtile.xscale;
 					move_origin_y=prev_y=(temp_mouse_y-zoomtile.y)/zoomtile.yscale;
 				}
@@ -2867,20 +2815,9 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(tool==t_move || tool==t_fill)
 				{
-					scare_mouse();
 					
-					if(tool==t_fill)
-					{
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-						set_mouse_sprite_focus(1, 14);
-					}
-					else
-					{
-						set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][1]);
-						set_mouse_sprite_focus(8, 8);
-					}
+					set_tool_sprite(tool,1);
 					
-					unscare_mouse();
 					move_origin_x=prev_x=(temp_mouse_x-zoomtile.x)/zoomtile.xscale;
 					move_origin_y=prev_y=(temp_mouse_y-zoomtile.y)/zoomtile.yscale;
 				}
@@ -2932,19 +2869,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(tool==t_move || tool==t_fill)
 				{
-					scare_mouse();
-					set_mouse_sprite(mouse_bmp[MOUSE_BMP_SWORD+tool][0]);
-					
-					if(tool==t_fill)
-					{
-						set_mouse_sprite_focus(1, 14);
-					}
-					else
-					{
-						set_mouse_sprite_focus(8, 8);
-					}
-					
-					unscare_mouse();
+					set_tool_sprite(tool,0);
 				}
 			}
 		}
@@ -3163,7 +3088,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			
 			custom_vsync();
-			scare_mouse();
 			
 			if(hs)
 			{
@@ -3172,7 +3096,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			}
 			
 			update_tool_cursor();
-			unscare_mouse();
 			SCRFIX();
 		}
 		
@@ -3224,7 +3147,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		}
 	}
 	
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	MouseSprite::set(ZQM_NORMAL);
 	register_blank_tiles();
 	register_used_tiles();
 	clear_tooltip();
@@ -3499,7 +3422,6 @@ void draw_grab_window()
 	int32_t h = 480;
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
-	scare_mouse();
 	jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*2),  FR_DEEP);
 	
@@ -3507,7 +3429,6 @@ void draw_grab_window()
 	font = lfont;
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Grab Tile(s)", true);
 	font=oldfont;
-	unscare_mouse();
 	return;
 }
 
@@ -3814,7 +3735,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	yofs=16;
 	
 	custom_vsync();
-	scare_mouse();
 	
 	stretch_blit(screen2,screen,0,0,320,240,screen_xofs,screen_yofs,640,480);
 	
@@ -3872,7 +3792,6 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	
 	//int32_t rectw = 16*mul;
 	//rect(screen,selx+screen_xofs,sely+screen_yofs,selx+screen_xofs+((width-1)*rectw)+rectw-1,sely+screen_yofs+((height-1)*rectw)+rectw-1,white);
-	unscare_mouse();
 	SCRFIX();
 	font = oldfont;
 }
@@ -4355,9 +4274,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				textprintf_centre_ex(status,font,120,96,jwin_pal[jcTEXTFG],-1,"%d flipped (v) %s",duplicates_found[2],((DuplicateAction[2]<2)?"found":"discarded"));
 				textprintf_centre_ex(status,font,120,106,jwin_pal[jcTEXTFG],-1,"%d flipped (hv) %s",duplicates_found[3],((DuplicateAction[3]<2)?"found":"discarded"));
 				textprintf_centre_ex(status,font,120,128,jwin_pal[jcTEXTFG],-1,"Press any key to stop.");
-				scare_mouse();
 				blit(status,screen,0, 0, 40, 20, 240, 140);
-				unscare_mouse();
 				SCRFIX();
 			}
 			
@@ -5418,9 +5335,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				rect(screen3,selxl,selyl,selxl+((selwidth-1)*w)+(w-1),selyl+((selheight-1)*w)+(w-1),white);
 			}
 			
-			scare_mouse();
 			blit(screen3,screen,selxl,selyl,selxl+screen_xofs,selyl+screen_yofs,selwidth*w,selheight*w);
-			unscare_mouse();
 		}
 		
 		//    SCRFIX();
@@ -5668,9 +5583,7 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	int32_t screen_yofs=window_yofs+25;
 	
 	custom_vsync();
-	scare_mouse();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
-	unscare_mouse();
 	SCRFIX();
 	destroy_bitmap(buf);
 }
@@ -5761,9 +5674,7 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	int32_t screen_yofs=window_yofs+25;
 	
 	custom_vsync();
-	scare_mouse();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
-	unscare_mouse();
 	SCRFIX();
 	destroy_bitmap(buf);
 }
@@ -14628,7 +14539,6 @@ void draw_tile_list_window()
 	
 	int32_t window_xofs=(zq_screen_w-w-12)>>1;
 	int32_t window_yofs=(zq_screen_h-h-25-6)>>1;
-	scare_mouse();
 	jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
 	
@@ -14636,7 +14546,6 @@ void draw_tile_list_window()
 	font = lfont;
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Select Tile", true);
 	font=oldfont;
-	unscare_mouse();
 	return;
 }
 
@@ -16815,9 +16724,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	int32_t screen_yofs=window_yofs+25;
 	
 	custom_vsync();
-	scare_mouse();
 	blit(screen2,screen,0,0,screen_xofs,screen_yofs,w,h);
-	unscare_mouse();
 	SCRFIX();
 	//destroy_bitmap(buf);
 }
@@ -16877,14 +16784,12 @@ void draw_combo_list_window()
 	
 	window_xofs=(zq_screen_w-w-12)>>1;
 	window_yofs=(zq_screen_h-h-25-6)>>1;
-	scare_mouse();
 	jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
 	FONT *oldfont = font;
 	font = lfont;
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Select Combo", true);
 	font=oldfont;
-	unscare_mouse();
 }
 
 
@@ -16920,7 +16825,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
 	combo_info(cmb,tile2,cs,copy,copycnt,page,4);
-	unscare_mouse();
 	
 	while(gui_mouse_b())
 	{
@@ -17189,7 +17093,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		if(f&8)
 		{
 			int32_t x,y;
-			scare_mouse();
 			
 			for(int32_t i=zc_min(cmb,tile2); i<=zc_max(cmb,tile2); i++)
 			{
@@ -17212,7 +17115,6 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				}
 			}
 			
-			unscare_mouse();
 			SCRFIX();
 		}
 		
@@ -17462,7 +17364,6 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
 	combo_info(tile,tile2,cs,copy,copycnt,page,6);
-	unscare_mouse();
 	go_combos();
 	position_mouse_z(0);
 	
@@ -18016,7 +17917,6 @@ REDRAW:
 		if(f&8)
 		{
 			int32_t x,y;
-			scare_mouse();
 			
 			for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); i++)
 			{
@@ -18039,7 +17939,6 @@ REDRAW:
 				}
 			}
 			
-			unscare_mouse();
 			SCRFIX();
 		}
 		
