@@ -1,11 +1,24 @@
 #include "render.h"
+#include "zdefs.h"
+#include "jwin_a5.h"
 
 RenderTreeItem rti_dialogs;
 
 extern int32_t zq_screen_w, zq_screen_h;
 unsigned char info_opacity = 255;
 bool use_linear_bitmaps();
-
+ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0),
+	AL5_BLACK = al_map_rgb(0,0,0),
+	AL5_WHITE = al_map_rgb(255,255,255),
+	AL5_YELLOW = al_map_rgb(255,255,0),
+	AL5_PINK = al_map_rgb(255,0,255),
+	AL5_DGRAY = al_map_rgb(85,85,85),
+	AL5_LGRAY = al_map_rgb(170,170,170),
+	AL5_BLUE = al_map_rgb(85,85,255),
+	AL5_LRED = al_map_rgb(255,85,85),
+	AL5_DRED = al_map_rgb(178,36,36),
+	AL5_LGREEN = al_map_rgb(85,255,85),
+	AL5_LAQUA = al_map_rgb(85,255,255);
 void set_bitmap_create_flags(bool preserve_texture)
 {
 	int flags = ALLEGRO_CONVERT_BITMAP;
@@ -16,16 +29,24 @@ void set_bitmap_create_flags(bool preserve_texture)
 	al_set_new_bitmap_flags(flags);
 }
 
+void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
+{
+	if(bmp)
+	{
+		ALLEGRO_STATE old_state;
+		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+		
+		al_set_target_bitmap(bmp);
+		
+		al_clear_to_color(col);
+		
+		al_restore_state(&old_state);
+	}
+	else al_clear_to_color(col);
+}
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
 {
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	al_set_target_bitmap(bmp);
-	
-	al_clear_to_color(al_map_rgba(0,0,0,0));
-	
-	al_restore_state(&old_state);
+	clear_a5_bmp(AL5_INVIS,bmp);
 }
 
 RenderTreeItem::~RenderTreeItem()
@@ -46,6 +67,103 @@ RenderTreeItem::~RenderTreeItem()
 			delete child;
 		}
 	}
+}
+
+ALLEGRO_COLOR a5colors[256];
+uint32_t zc_backend_palette[256];
+static int backend_fmt = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+void _init_render(int fmt)
+{
+	backend_fmt = fmt;
+}
+uint32_t get_backend_a5_col(RGB const& c)
+{
+	unsigned char r = c.r*4, g = c.g*4, b = c.b*4, a = 255;
+	switch(backend_fmt)
+	{
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:
+			return r | (g << 8) | (b << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:
+			return r | (g << 8) | (b << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+			return b | (g << 8) | (r << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+			return a | (b << 8) | (g << 16) | (r << 24);
+	}
+}
+uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a)
+{
+	switch(backend_fmt)
+	{
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:
+		case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+			back_col &= ~(0xFF << 24);
+			return back_col | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+			back_col &= ~(0xFF);
+			return a | back_col;
+	}
+}
+void load_palette(uint32_t* backpal, ALLEGRO_COLOR* backcols, PALETTE pal, int start, int end)
+{
+	if(start>end) zc_swap(start,end);
+	for(int q = start; q <= end; ++q)
+	{
+		if(backcols) backcols[q] = a5color(pal[q]);
+		if(backpal) backpal[q] = get_backend_a5_col(pal[q]);
+	}
+}
+
+void zc_set_palette(PALETTE pal)
+{
+	load_palette(zc_backend_palette, a5colors, pal);
+	set_palette(pal);
+}
+void zc_set_palette_range(PALETTE pal, int start, int end, bool)
+{
+	load_palette(zc_backend_palette, a5colors, pal, start, end);
+	set_palette_range(pal,start,end,false);
+}
+
+void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind,uint32_t* backpal)
+{
+	if(!backpal) backpal = zc_backend_palette;
+	ALLEGRO_BITMAP* buf = al_create_bitmap(w,h);
+	ALLEGRO_LOCKED_REGION * lr;
+	uint8_t * line_8;
+	uint32_t * line_32;
+	int x, y;
+
+	lr = al_lock_bitmap(buf, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+	if(lr)
+	{
+		line_8 = (uint8_t*)lr->data;
+		line_32 = (uint32_t*)lr->data;
+		for(y = 0; y < h; y++)
+		{
+			if(y+sy >= src->h) break;
+			for(x = 0; x < w; x++)
+			{
+				if(x+sx >= src->w) break;
+				int index = src->line[y+sy][x+sx];
+				if (index == maskind)
+					line_32[x] = 0;
+				else
+					line_32[x] = backpal[index];
+			}
+			line_8 += lr->pitch;
+			line_32 = (uint32_t *)line_8;
+		}
+		al_unlock_bitmap(buf);
+	}
+	else
+	{
+		al_destroy_bitmap(buf);
+		return;
+	}
+	
+	al_draw_bitmap(buf, dx, dy, 0);
 }
 
 static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
@@ -294,13 +412,17 @@ void popup_zqdialog_end_a5()
 
 void update_dialog_transform(){}
 
-RenderTreeItem* add_dlg_layer()
+RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 {
 	if(!active_dlg_rti) return nullptr;
+	if(w<0) w = screen->w-x;
+	if(h<0) h = screen->h-y;
 	set_bitmap_create_flags(true);
 	
 	RenderTreeItem* rti = new RenderTreeItem();
-	rti->bitmap = al_create_bitmap(screen->w, screen->h);
+	rti->bitmap = al_create_bitmap(w,h);
+	rti->transform.x = x;
+	rti->transform.y = y;
 	rti->a4_bitmap = nullptr;
 	rti->visible = true;
 	rti->owned = true;

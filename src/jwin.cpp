@@ -6257,13 +6257,13 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			get_palette(foopal);
 			foopal[BLACK] = _RGB(0,0,0);
 			foopal[WHITE] = _RGB(63,63,63);
-			set_palette(foopal);
+			zc_set_palette(foopal);
 			
 			jwin_center_dialog(selcolor_dlg);
 			int32_t val = popup_zqdialog(selcolor_dlg, 3);
 			ret = D_REDRAW;
 			
-			set_palette(oldpal);
+			zc_set_palette(oldpal);
 			if(val == 1 || val == 3)
 			{
 				d->d1 = selcolor_dlg[3].d1;

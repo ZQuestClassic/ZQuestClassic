@@ -452,7 +452,7 @@ void init_launcher_palette()
 	
 	load_colorset(gui_colorset);
 	
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 }
 
@@ -505,6 +505,8 @@ static void init_render_tree()
 	gui_mouse_y = zc_gui_mouse_y;
 
 	al_set_new_bitmap_flags(0);
+	
+	_init_render(al_get_bitmap_format(rti_screen.bitmap));
 }
 
 static void configure_render_tree()
@@ -568,7 +570,7 @@ void update_hw_screen(bool force)
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
-			set_palette(RAMpal);
+			zc_set_palette(RAMpal);
 			load_mouse();
 		}
 		update_hw_pal=false;

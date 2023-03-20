@@ -42,7 +42,7 @@ PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* nameb
 void PalEditDialog::updatePal()
 {
 	(*palt)[dvc(0)]=(*palt)[zc_oldrand()%14+dvc(1)];
-	set_palette_range(*palt,dvc(0),dvc(0),false);
+	zc_set_palette_range(*palt,dvc(0),dvc(0),false);
 }
 
 static size_t paltab = 0;
@@ -61,7 +61,7 @@ void PalEditDialog::loadPal()
 	{
 		(*palt)[i] = RAMpal[i];
 	}
-	set_palette(*palt);
+	zc_set_palette(*palt);
 	pendDraw();
 }
 void cls()

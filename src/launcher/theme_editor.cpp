@@ -31,7 +31,7 @@ int32_t ThemeEditor::theme_edit_on_tick()
 				{
 					if(ret)
 					{
-						set_palette(temp_pal);
+						zc_set_palette(temp_pal);
 						jwin_set_colors(t_jwin_pal);
 						jwin_set_a5_colors(t_jwin_a5_colors);
 					}
@@ -113,7 +113,7 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 		work_pal[q] = work_pal[dvc(q)];
 		al_unmap_rgb(jwin_a5_colors[q],&work_colors[q][0],&work_colors[q][1],&work_colors[q][2]);
 	}
-	set_palette(temp_pal);
+	zc_set_palette(temp_pal);
 	jwin_set_colors(jwin_pal);
 	
 	window = Window(
@@ -174,7 +174,7 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 							work_pal[q].b = work_colors[q][2]/4;
 							jwin_a5_colors[q] = al_map_rgb(work_colors[q][0],work_colors[q][1],work_colors[q][2]);
 						}
-						set_palette(work_pal);
+						zc_set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
 						queue_revert = 2;
 					}),
@@ -203,7 +203,7 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 							{
 								tfield->setVal(r_dvc(jwin_pal[ind]));
 							});
-						set_palette(work_pal);
+						zc_set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
 					}),
 				Button(text = "Hard Revert", onPressFunc = [&]()
@@ -236,7 +236,7 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 							{
 								tfield->setVal(r_dvc(jwin_pal[ind]));
 							});
-						set_palette(work_pal);
+						zc_set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
 					})
 			),
@@ -295,12 +295,12 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 			jwin_set_a5_colors(restore_jwin_a5_colors);
 			forceDraw();
 			update_hw_screen();
-			set_palette(restore_pal);
+			zc_set_palette(restore_pal);
 			return true;
 		}
 		case message::CANCEL:
 			if(saved_path) saved_path[0] = 0;
-			set_palette(restore_pal);
+			zc_set_palette(restore_pal);
 			memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 			jwin_set_colors(jwin_pal);
 			jwin_set_a5_colors(restore_jwin_a5_colors);

@@ -1877,6 +1877,8 @@ struct size_and_pos
 	
 	size_and_pos const& subsquare(int ind) const;
 	size_and_pos const& subsquare(int col, int row) const;
+	size_and_pos const& rel_subsquare(int x, int y, int ind) const;
+	size_and_pos const& rel_subsquare(int x, int y, int col, int row) const;
 	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
 };
 

@@ -56,10 +56,21 @@ namespace MouseSprite
 };
 
 extern RenderTreeItem rti_dialogs;
-
+extern ALLEGRO_COLOR AL5_INVIS,AL5_BLACK,AL5_WHITE,AL5_YELLOW,
+	AL5_PINK,AL5_DGRAY,AL5_LGRAY,AL5_BLUE,AL5_LRED,AL5_DRED,
+	AL5_LGREEN,AL5_LAQUA;
 void set_bitmap_create_flags(bool preserve_texture);
-void clear_a5_bmp(ALLEGRO_BITMAP* bmp);
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
+void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);
 void render_tree_draw(RenderTreeItem* rti);
+
+void _init_render(int fmt);
+uint32_t get_backend_a5_col(RGB const& c);
+uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a);
+void load_palette(uint32_t* backpal, ALLEGRO_COLOR* backcols, PALETTE pal, int start = 0, int end = 255);
+void zc_set_palette(PALETTE pal);
+void zc_set_palette_range(PALETTE pal, int start, int end, bool=false);
+void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind = 0,uint32_t* backpal = nullptr);
 
 extern BITMAP* zqdialog_bg_bmp;
 void popup_zqdialog_start();
@@ -67,7 +78,7 @@ void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
 void update_dialog_transform();
-RenderTreeItem* add_dlg_layer();
+RenderTreeItem* add_dlg_layer(int x = 0, int y = 0, int w = -1, int h = -1);
 void remove_dlg_layer(RenderTreeItem* rti);
 
 #endif

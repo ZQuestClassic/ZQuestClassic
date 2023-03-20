@@ -125,7 +125,7 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
     PALETTE pal;
     SetCols(pal);
     PALETTE workpal;
-    set_palette(black_palette);
+    zc_set_palette(black_palette);
     clear_bitmap(frame);
     clear_bitmap(firebuf);
     clear_bitmap(screen);
@@ -174,7 +174,7 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
                 if(!(++fadecnt < 0))
                     fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
                     
-                set_palette_range(workpal,0,255,false);
+                zc_set_palette_range(workpal,0,255,false);
             }
         }
         else
@@ -182,7 +182,7 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
             if(!(--fadecnt < 0))
                 fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
                 
-            set_palette_range(workpal,0,255,false);
+            zc_set_palette_range(workpal,0,255,false);
         }
     }
     while(fadecnt>0);
@@ -202,7 +202,7 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
     PALETTE pal;
     SetCols(pal);
     PALETTE workpal;
-    set_palette(black_palette);
+    zc_set_palette(black_palette);
     clear_bitmap(frame);
     clear_bitmap(firebuf);
     clear_bitmap(screen);
@@ -262,7 +262,7 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
                 if(!(++fadecnt < 0))
                     fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
                     
-                set_palette_range(workpal,0,255,false);
+                zc_set_palette_range(workpal,0,255,false);
             }
         }
         else
@@ -270,7 +270,7 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
             if(!(--fadecnt < 0))
                 fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
                 
-            set_palette_range(workpal,0,255,false);
+            zc_set_palette_range(workpal,0,255,false);
         }
 
         update_hw_screen();
@@ -291,7 +291,7 @@ int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 	PALETTE pal;
 	SetCols(pal);
 	PALETTE workpal;
-	set_palette(black_palette);
+	zc_set_palette(black_palette);
 	clear_bitmap(frame);
 	clear_bitmap(firebuf);
 	clear_bitmap(screen);
@@ -331,7 +331,7 @@ int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 				if(!(++fadecnt < 0))
 					fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
 				
-				set_palette_range(workpal,0,255,false);
+				zc_set_palette_range(workpal,0,255,false);
 			}
 		}
 		else
@@ -339,7 +339,7 @@ int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 			if(!(--fadecnt < 0))
 				fade_interpolate(black_palette,pal,workpal,fadecnt,0,255);
 			
-			set_palette_range(workpal,0,255,false);
+			zc_set_palette_range(workpal,0,255,false);
 		}
 	}
 	while(fadecnt>0);

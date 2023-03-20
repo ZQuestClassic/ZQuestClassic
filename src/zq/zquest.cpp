@@ -1626,7 +1626,7 @@ int32_t onFullScreen()
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
 	    MouseSprite::set(ZQM_NORMAL);
-	    set_palette(RAMpal);
+	    zc_set_palette(RAMpal);
 	    position_mouse(zq_screen_w/2,zq_screen_h/2);
 	    set_display_switch_mode(SWITCH_BACKGROUND);
 	    set_display_switch_callback(SWITCH_OUT, switch_out);
@@ -4912,7 +4912,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
         dstpal[i].b = i;
     }
     
-    set_palette(dstpal);
+    zc_set_palette(dstpal);
     
     BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
     int32_t _w = screen->w-1;
@@ -4955,7 +4955,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     if(!gotit)
     {
-        set_palette(temppal);
+        zc_set_palette(temppal);
         get_palette(dstpal);
         return 1;
     }
@@ -4986,6 +4986,65 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     //  draw_bw_mouse(pwhite);
     //  gui_bg_color = pblack;
     //  gui_fg_color = pwhite;
+    
+    if(vp_center)
+    {
+        picx=picy=0;
+    }
+    else
+    {
+        picx=(*dst)->w-zq_screen_w;
+        picy=(*dst)->h-zq_screen_h;
+    }
+    
+    return 0;
+}
+int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
+{
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
+    char extbuf[2][80];
+    memset(extbuf[0],0,80);
+    memset(extbuf[1],0,80);
+    sprintf(extbuf[0], "View Image (%s", snapshotformat_str[0][1]);
+    strcpy(extbuf[1], snapshotformat_str[0][1]);
+    
+    for(int32_t i=1; i<ssfmtMAX; ++i)
+    {
+        sprintf(extbuf[0], "%s, %s", extbuf[0], snapshotformat_str[i][1]);
+        sprintf(extbuf[1], "%s;%s", extbuf[1], snapshotformat_str[i][1]);
+    }
+    
+    sprintf(extbuf[0], "%s)", extbuf[0]);
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
+    
+    int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
+    
+    if(!gotit)
+        return 1;
+    
+    strcpy(imagepath,temppath);
+    
+    if(*dst)
+        destroy_bitmap(*dst);
+    
+    for(int32_t i=0; i<256; i++)
+    {
+        dstpal[i].r = 0;
+        dstpal[i].g = 0;
+        dstpal[i].b = 0;
+    }
+    
+    *dst = load_bitmap(imagepath,dstpal);
+    
+    if(!*dst)
+    {
+        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,lfont);
+        return 2;
+    }
     
     if(vp_center)
     {
@@ -5034,7 +5093,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     // Always call load_the_map() when viewing the map.
     if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
     {
-        set_palette(RAMpal);
+        zc_set_palette(RAMpal);
         comeback();
         return D_O_K;
     }
@@ -5054,7 +5113,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     
     //  go();
     //    //  clear_bitmap(screen);
-    set_palette(pal);
+    zc_set_palette(pal);
     
     do
     {
@@ -5221,7 +5280,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
                     gui_bg_color = pblack;
                     gui_fg_color = pwhite;
                     *scale2=1.0;
-                    set_palette(pal);
+                    zc_set_palette(pal);
                 }
                 
                 get_bw(pal,pblack,pwhite);
@@ -5231,7 +5290,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     while(!done);
     
     destroy_bitmap(buf);
-    set_palette(RAMpal);
+    zc_set_palette(RAMpal);
     gui_fg_color = oldfgcolor;
     gui_bg_color = oldbgcolor;
     
@@ -28967,7 +29026,7 @@ void cycle_palette()
     if(refreshpal)
     {
         rebuild_trans_table();
-        set_palette_range(RAMpal,0,192,false);
+        zc_set_palette_range(RAMpal,0,192,false);
     }
 }
 
@@ -30902,12 +30961,12 @@ int32_t main(int32_t argc,char **argv)
 		return 1;
 	}
 	
-	set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
+	zc_set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
 	get_palette(RAMpal);
 	
 	load_colorset(gui_colorset);
 	
-	set_palette(RAMpal);
+	zc_set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
 	
 	//clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
@@ -32061,7 +32120,7 @@ void quit_game()
     
     set_last_timed_save(nullptr);
     save_config_file();
-    set_palette(black_palette);
+    zc_set_palette(black_palette);
     zc_stop_midi();
     
     remove_locked_params_on_exit();
@@ -32244,7 +32303,7 @@ void quit_game2()
     
     set_last_timed_save(nullptr);
     save_config_file();
-    set_palette(black_palette);
+    zc_set_palette(black_palette);
     zc_stop_midi();
     
     remove_locked_params_on_exit();
@@ -33948,7 +34007,7 @@ void update_hw_screen(bool force)
 		zc_process_display_events();
 		if(update_hw_pal)
 		{
-			set_palette(RAMpal);
+			zc_set_palette(RAMpal);
 			update_hw_pal=false;
 		}
 		if (force || myvsync)

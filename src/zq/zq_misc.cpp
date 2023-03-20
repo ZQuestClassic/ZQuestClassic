@@ -285,7 +285,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    set_palette_range(RAMpal,0,0xE0,true);
+    zc_set_palette_range(RAMpal,0,0xE0,true);
 }
 
 void loadlvlpal(int32_t level)
@@ -377,7 +377,7 @@ ALLEGRO_COLOR real_lc2(int pal)
 void refresh_pal()
 {
     loadlvlpal(Color);
-    set_palette(RAMpal);
+    zc_set_palette(RAMpal);
 }
 
 char ns_string[4];
@@ -1153,7 +1153,7 @@ int32_t onShowDarkness()
 			}
 
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
-			set_palette(RAMpal);
+			zc_set_palette(RAMpal);
 
 			update_hw_screen(true);
 			readkey();

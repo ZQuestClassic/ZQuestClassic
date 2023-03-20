@@ -1830,6 +1830,24 @@ size_and_pos const& size_and_pos::subsquare(int col, int row) const
 	tempsqr.set(x2,y2,xscale,yscale);
 	return tempsqr;
 }
+size_and_pos const& size_and_pos::rel_subsquare(int nx, int ny, int ind) const
+{
+	if(w < 1 || h < 1)
+		return nilsqr;
+	return rel_subsquare(nx, ny, ind%w, ind/w);
+}
+size_and_pos const& size_and_pos::rel_subsquare(int nx, int ny, int col, int row) const
+{
+	if(w < 1 || h < 1)
+		return nilsqr;
+	int x2 = (col*xscale);
+	int y2 = (row*yscale);
+	if(fw > -1 && fh > -1 && x2 >= fw && y2 >= fh)
+		return nilsqr;
+	tempsqr.clear();
+	tempsqr.set(nx+x2,ny+y2,xscale,yscale);
+	return tempsqr;
+}
 size_and_pos::size_and_pos(int nx, int ny, int nw, int nh, int xsc, int ysc, int fw, int fh)
 	: x(nx), y(ny), w(nw), h(nh), xscale(xsc), yscale(ysc), fw(fw), fh(fh)
 {}
