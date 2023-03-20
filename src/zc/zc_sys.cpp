@@ -717,12 +717,11 @@ void load_mouse()
 		destroy_bitmap(tmpbmp);
 		destroy_bitmap(subbmp);
 	}
+	zc_set_palette(*hw_palette);
+	
 	MouseSprite::assign(0, zcmouse[0]);
 	MouseSprite::set(0);
 	
-	// Must attempt to show cursor for allegro 5 to render it with the associated palette.
-	zc_set_palette(*hw_palette);
-
 	game_pal();
 }
 
