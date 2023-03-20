@@ -705,7 +705,7 @@ bool grab_dataset(int32_t dataset)
 {
 	int row=0;
 	size_and_pos imagepos(4,4,654,548);
-	size_and_pos palpos(665,354,16,16,8,8);
+	size_and_pos palpos(665,200,16,16,15,15);
 	int buttonx=570;
 	int buttony=521;
 	int filenamex=4;
@@ -722,7 +722,7 @@ bool grab_dataset(int32_t dataset)
 	
 	load_palette(picbackpal,a5picpal,picpal);
 	
-	char fname[13];
+	char fname[65];
 	extract_name(imagepath,fname,-1);
 	
 	ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
@@ -757,6 +757,8 @@ bool grab_dataset(int32_t dataset)
 			{
 				load_palette(picbackpal,a5picpal,picpal);
 				redraw=true;
+				memset(fname,0,sizeof(fname));
+				extract_name(imagepath,fname,-1);
 			}
 		}
 		
@@ -780,20 +782,46 @@ bool grab_dataset(int32_t dataset)
 			render_a4_a5(pic,0,0,0,0,std::min(pic->w,imagepos.tw()),std::min(pic->h,imagepos.th()),0,picbackpal);
 		}
 		
-		if((gui_mouse_b()&1) && isinRect(x,y,palpos.x,palpos.y,palpos.x+127,palpos.y+127))
-			row=((y-palpos.y)/palpos.yscale);
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx,buttony+(36),buttonx+(90),buttony+(36+31)))
-			if(do_text_button(buttonx,buttony+(36),(90),(31),"File",vc(0),vc(15),true))
-				reload=true;
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(114),buttony,buttonx+(114+90),buttony+(31)))
-			if(do_text_button(buttonx+(114),buttony,(90),(31),"OK",vc(0),vc(15),true))
-				done=2;
-		
-		if((gui_mouse_b()&1) && isinRect(x,y,buttonx+(114),buttony+(36),buttonx+(114+90),buttony+(36+31)))
-			if(do_text_button(buttonx+(114),buttony+(36),(90),(31),"Cancel",vc(0),vc(15),true))
-				done=1;
+		if(gui_mouse_b()&1)
+		{
+			if(palpos.rect(x,y))
+			{
+				int oldrow = row;
+				while(gui_mouse_b()&1)
+				{
+					row = vbound((gui_mouse_y()-palpos.y)/palpos.yscale,0,palpos.h-1);
+					
+					++f;
+					al_set_target_bitmap(rti_pal->bitmap);
+					if(oldrow != row)
+					{
+						oldrow = row;
+						clear_a5_bmp();
+						for(int i=0; i<256; i++)
+						{
+							auto& sqr = palpos.rel_subsquare(1,1,i);
+							al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h,a5picpal[i]);
+						}
+					}
+					int gr = vbound(abs(((f*3)%510)-255),0x10,0xF0);
+					al_draw_rectangle(0.5,(row*palpos.yscale)+0.5,palpos.tw()+0.5,((row+1)*palpos.yscale)+0.5,al_map_rgb(gr,gr,gr),0);
+					rest(1);
+					custom_vsync();
+				}
+			}
+			
+			if(isinRect(x,y,buttonx,buttony+(36),buttonx+(90),buttony+(36+31)))
+				if(do_text_button(buttonx,buttony+(36),(90),(31),"File",vc(0),vc(15),true))
+					reload=true;
+			
+			if(isinRect(x,y,buttonx+(114),buttony,buttonx+(114+90),buttony+(31)))
+				if(do_text_button(buttonx+(114),buttony,(90),(31),"OK",vc(0),vc(15),true))
+					done=2;
+			
+			if(isinRect(x,y,buttonx+(114),buttony+(36),buttonx+(114+90),buttony+(36+31)))
+				if(do_text_button(buttonx+(114),buttony+(36),(90),(31),"Cancel",vc(0),vc(15),true))
+					done=1;
+		}
 		
 		if(keypressed())
 		{
@@ -850,6 +878,7 @@ bool grab_dataset(int32_t dataset)
 			}
 		}
 		
+		++f;
 		
 		al_set_target_bitmap(rti_pal->bitmap);
 		clear_a5_bmp();
@@ -858,12 +887,8 @@ bool grab_dataset(int32_t dataset)
 			auto& sqr = palpos.rel_subsquare(1,1,i);
 			al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h,a5picpal[i]);
 		}
-		
-		++f;
-		rect(screen,palpos.x-1,palpos.y-1,palpos.x+128,palpos.y+128,vc(0));
-		
 		int gr = vbound(abs(((f*3)%510)-255),0x10,0xF0);
-		al_draw_rectangle(0.5,(row*palpos.yscale)+0.5,128.5,(row*palpos.yscale)+8.5,al_map_rgb(gr,gr,gr),0);
+		al_draw_rectangle(0.5,(row*palpos.yscale)+0.5,palpos.tw()+0.5,((row+1)*palpos.yscale)+0.5,al_map_rgb(gr,gr,gr),0);
 	}
 	while(!done);
 	
