@@ -1945,6 +1945,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			glowRad = game->get_light_rad(); //Default light radius for fires
 			if ( parentitem > -1 )
 			{
+				itemid = parentitem;
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[parentitem].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
@@ -1970,18 +1971,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							glowRad = 0;
 						break;
 						
-					case itype_book: // Wand
+					case itype_book:
 						defaultw = isDummy ? wFIRE : itemsbuf[parentitem].wpn2;
 						step = 0;
 						break;
-					case itype_wand: // ?? unused? just leaving this as is... -em
-						if(itemid>-1 && !isDummy)
-							defaultw = itemsbuf[itemid].wpn2;
-						else defaultw = wFIRE;
-						step = 0;
-						break;
 						
-					case itype_candle: // Candles
+					case itype_candle:
 						if(itemsbuf[parentitem].flags & ITEM_FLAG2)
 							glowRad = 0;
 						hxofs = hyofs=1;
