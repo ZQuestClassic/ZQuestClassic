@@ -4116,14 +4116,14 @@ void zmap::draw_secret2(BITMAP *dest, int32_t scombo)
     put_combo(dest,0,0,cmbdat,cmbcset,0,cmbflag);
 }
 
-void zmap::scroll(int32_t dir)
+void zmap::scroll(int32_t dir, bool warp)
 {
     if(currmap<map_count)
     {
         switch(dir)
         {
         case up:
-            if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfUP)
+            if(warp && Map.CurrScr()->flags2&wfUP)
             {
                 dowarp(1,Map.CurrScr()->sidewarpindex&3);
             }
@@ -4135,7 +4135,7 @@ void zmap::scroll(int32_t dir)
             break;
             
         case down:
-            if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfDOWN)
+            if(warp && Map.CurrScr()->flags2&wfDOWN)
             {
                 dowarp(1,(Map.CurrScr()->sidewarpindex>>2)&3);
             }
@@ -4147,7 +4147,7 @@ void zmap::scroll(int32_t dir)
             break;
             
         case left:
-            if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfLEFT)
+            if(warp && Map.CurrScr()->flags2&wfLEFT)
             {
                 dowarp(1,(Map.CurrScr()->sidewarpindex>>4)&3);
             }
@@ -4159,7 +4159,7 @@ void zmap::scroll(int32_t dir)
             break;
             
         case right:
-            if((key[KEY_LCONTROL] || key[KEY_RCONTROL]) && Map.CurrScr()->flags2&wfRIGHT)
+            if(warp && Map.CurrScr()->flags2&wfRIGHT)
             {
                 dowarp(1,(Map.CurrScr()->sidewarpindex>>6)&3);
             }

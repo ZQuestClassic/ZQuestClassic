@@ -352,20 +352,16 @@ void load_game_configs()
 	//cheat keys
 	load_default_cheatkeys();
 	char buf[256];
-	al_trace("START CHEATS\n");
 	for(size_t q = 1; q < Cheat::Last; ++q)
 	{
 		if(!bindable_cheat((Cheat)q)) continue;
 		std::string cheatname = cheat_to_string((Cheat)q);
 		util::lowerstr(cheatname);
 		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
-		al_trace("%s = %d\n", buf, cheatkeys[q][0]);
 		cheatkeys[q][0] = zc_get_config(ctrl_sect,buf,cheatkeys[q][0]);
 		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
-		al_trace("%s = %d\n", buf, cheatkeys[q][1]);
 		cheatkeys[q][1] = zc_get_config(ctrl_sect,buf,cheatkeys[q][1]);
 	}
-	al_trace("END CHEATS\n");
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;

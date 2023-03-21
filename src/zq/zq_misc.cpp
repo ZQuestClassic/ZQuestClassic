@@ -726,10 +726,6 @@ int32_t playMIDI();
 int32_t stopMIDI();
 int32_t onKeyFile();
 
-int32_t onUp();
-int32_t onDown();
-int32_t onLeft();
-int32_t onRight();
 int32_t onPgUp();
 int32_t onPgDn();
 int32_t onIncreaseCSet();
@@ -1173,16 +1169,6 @@ int32_t onShowDarkness()
 	return D_O_K;
 }
 
-int32_t onM()
-{
-    return D_O_K;
-}
-
-int32_t onJ()
-{
-    return D_O_K;
-}
-
 extern bool placing_flags;
 int32_t onIncreaseFlag()
 {
@@ -1196,7 +1182,7 @@ int32_t onIncreaseFlag()
 		}
 	} while(!ZI.isUsableMapFlag(Flag));
 	
-	if(!placing_flags) refresh(rMENU);
+	refresh(rMENU);
 	return D_O_K;
 }
 
@@ -1212,7 +1198,7 @@ int32_t onDecreaseFlag()
 		Flag=(Flag-1);
 	} while(!ZI.isUsableMapFlag(Flag));
 	
-	if(!placing_flags) refresh(rMENU);
+	refresh(rMENU);
 	return D_O_K;
 }
 

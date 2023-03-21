@@ -150,8 +150,9 @@ extern bool combo_cols;
 extern bool zoomed_minimap;
 
 
+#define MAX_COMBO_COLS 4
 extern int32_t alignment_arrow_timer;
-extern int32_t  Flip,Combo,CSet,First[3];
+extern int32_t  Flip,Combo,CSet,First[MAX_COMBO_COLS];
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
@@ -322,7 +323,6 @@ int32_t onFlipMapHorizontal();
 int32_t onFlipMapVertical();
 int32_t onFlipScreenHorizontal();
 int32_t onFlipScreenVertical();
-int32_t onH();
 int32_t onPaste();
 int32_t onPasteAll();
 int32_t onPasteToAll();
@@ -370,10 +370,6 @@ int32_t on12();
 int32_t on13();
 int32_t on14();
 int32_t on15();
-int32_t onLeft();
-int32_t onRight();
-int32_t onUp();
-int32_t onDown();
 int32_t onPgUp();
 int32_t onPgDn();
 int32_t onIncreaseCSet();
@@ -862,6 +858,7 @@ int32_t onDecScrPal16();
 int32_t onIncScrPal16();
 int32_t onFullScreen();
 int32_t isFullScreen();
+int32_t onToggleGrid(bool color);
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleShowSquares();

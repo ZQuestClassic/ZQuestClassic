@@ -14,6 +14,7 @@ src/tiles.cpp
 src/zq/ffasmexport.cpp
 src/drawing.cpp
 src/colorname.cpp
+src/zq/zq_hotkey.cpp
 
 
 ## End of ZQuest Misc module

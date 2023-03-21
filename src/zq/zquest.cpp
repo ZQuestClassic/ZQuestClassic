@@ -96,6 +96,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "drawing.h"
 #include "ConsoleLogger.h"
 #include "colorname.h"
+#include "zq_hotkey.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -262,16 +263,16 @@ size_and_pos real_minimap_zoomed;
 size_and_pos map_page_bar[9];
 int32_t mappage_count = 9;
 
-size_and_pos combolist[4];
-size_and_pos combolistscrollers[4];
-int32_t num_combo_cols = 4;
+size_and_pos combolist[MAX_COMBO_COLS];
+size_and_pos combolistscrollers[MAX_COMBO_COLS];
+int32_t num_combo_cols = MAX_COMBO_COLS;
 
 size_and_pos compactbtn;
 size_and_pos mainbar;
 
 size_and_pos screrrorpos;
 
-size_and_pos comboaliaslist[4];
+size_and_pos comboaliaslist[MAX_COMBO_COLS];
 size_and_pos comboalias_preview;
 size_and_pos combopool_preview;
 size_and_pos combopool_prevbtn;
@@ -529,7 +530,7 @@ extern command_pair commands[cmdMAX];
 
 map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
-static int32_t do_OpenQuest()
+int32_t do_OpenQuest()
 {
 	//clear the panel recent screen buttons to prevent crashes from invalid maps
 	for ( int32_t q = 0; q < 9; q++ )
@@ -554,7 +555,7 @@ static int32_t do_NewQuest()
 }
 
 int32_t alignment_arrow_timer=0;
-int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
+int32_t  Flip=0,Combo=0,CSet=2,First[MAX_COMBO_COLS]= {0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0,
 	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
@@ -1664,9 +1665,9 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
   return D_O_K;
 }*/
 
-int32_t onToggleGrid()
+int32_t onToggleGrid(bool color)
 {
-    if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+    if(color)
     {
         GridColor=(GridColor+8)%16;
 		zc_set_config("zquest", "grid_color", GridColor);
@@ -1678,6 +1679,10 @@ int32_t onToggleGrid()
     }
     
     return D_O_K;
+}
+int32_t onToggleGrid()
+{
+	return onToggleGrid(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 }
 
 int32_t onToggleShowScripts()
@@ -1724,15 +1729,22 @@ int onAKey()
 	return D_O_K;
 }
 
-int onRKey()
+int onReloadPreview()
 {
 	if(prv_mode)
 	{
 		Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
 		Map.set_prvcmb(0);
 	}
-	else
-		onRoom();
+	return D_O_K;
+}
+int onSecretsPreview()
+{
+	if(prv_mode)
+	{
+		Map.prv_secrets(false);
+		refresh(rALL);
+	}
 	return D_O_K;
 }
 
@@ -1758,124 +1770,31 @@ int onSKey()
 	else onStrings();
 	return D_O_K;
 }
-
-/* Notice: If you insert or remove entries from dialogs[], you will need
-	to adjust hardcoded values to indices of dialogs[] in main(). 
-*/
+int onSetNewLayer(int newlayer)
+{
+	CurrentLayer = newlayer;
+	refresh(rALL);
+	return D_O_K;
+}
+int onScreenLPal(int lpal)
+{
+	if(DisableLPalShortcuts) return D_O_K;
+	saved=false;
+	Map.setcolor(lpal);
+	refresh(rSCRMAP);
+	return D_O_K;
+}
 
 static DIALOG dialogs[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-    { d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
-    
-    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
-
-    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG|KB_SHIFT_FLAG, (void *) onRedo, NULL, NULL },
-    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG,               (void *) onUndo, NULL, NULL },
-    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Y, KB_COMMAND_FLAG,               (void *) onRedo, NULL, NULL },
-
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_OPENBRACE,  0, (void *) onDecreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_UP,         0, (void *) onUp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_DOWN,       0, (void *) onDown, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_LEFT,       0, (void *) onLeft, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_RIGHT,      0, (void *) onRight, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PGUP,       0, (void *) onPgUp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PGDN,       0, (void *) onPgDn, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PLUS_PAD,   0, (void *) onIncreaseCSet, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS_PAD,  0, (void *) onDecreaseCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ASTERISK,   0, (void *) onIncreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH_PAD,  0, (void *) onDecreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,         0, (void *) onHelp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,         0, (void *) onSave, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0, (void *) do_OpenQuest, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F4,         0, (void *) onScreenPalette, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F5,         0, (void *) onSecretCombo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,         0, (void *) onDoors, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,         0, (void *) onSelectFFCombo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,         0, (void *) onFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,         0, (void *) onScrData, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,        0, (void *) onTileWarp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F11,        0, (void *) onSideWarp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,        0, (void *) onLayers, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ESC,        0, (void *) onExit, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_B,          0, (void *) onResetTransparency, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_C,          0, (void *) onCopy, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_D,          0, (void *) onToggleDarkness, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_E,          0, (void *) onEnemies, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F,          0, (void *) onShowFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_H,          0, (void *) onH, NULL, NULL },      //Flip
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_I,          0, (void *) onItem, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_J,          0, (void *) onJ, NULL, NULL },      //This does nothing
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_K,          0, (void *) onCombos, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_L,          0, (void *) onShowDarkness, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_M,          0, (void *) onM, NULL, NULL },      // This does nothing
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_N,          0, (void *) onToggleShowInfo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_O,          0, (void *) onDrawingMode, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRKey, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_V,          0, (void *) onPaste, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_W,          0, (void *) onShowWalkability, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_X,          0, (void *) onPreviewMode, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Y,          0, (void *) onCompileScript, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Z,          0, (void *) onSnapshot, NULL, NULL },
-    //slash is also question mark
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH,          0, (void *) onKeySlash, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       0,          0, (void *) onPasteAllToAll, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_0,          0, (void *) on0, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_1,          0, (void *) on1, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_2,          0, (void *) on2, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_3,          0, (void *) on3, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_4,          0, (void *) on4, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_5,          0, (void *) on5, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_6,          0, (void *) on6, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_7,          0, (void *) on7, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_8,          0, (void *) on8, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_9,          0, (void *) on9, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on10, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on11, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on12, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on13, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on14, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on15, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ',',     0,       0,              0, (void *) onDecMap, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '.',     0,       0,              0, (void *) onIncMap, NULL, NULL },
-
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS,          0, (void *) onDecColour, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_EQUALS,          0, (void *) onIncColour, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS_PAD,          0, (void *) onDecColour, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PLUS_PAD,          0, (void *) onIncColour, NULL, NULL },
-    
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
-    
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '<',     0,       0,              0, (void *) onDecScrPal, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '>',     0,       0,              0, (void *) onIncScrPal, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '_',     0,       0,              0, (void *) onDecScrPal16, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '+',     0,       0,              0, (void *) onIncScrPal16, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TILDE,      0, (void *) onToggleGrid, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    39,      0,       0,              0, (void *) onUsedCombos, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SPACE,      0, (void *) onSpacebar, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_DEL,        0, (void *) onDelete, NULL, NULL },      //
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ENTER,      0, (void *) onEnter, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_0_PAD,      0, (void *) on0, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_1_PAD,      0, (void *) on1, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_2_PAD,      0, (void *) on2, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_3_PAD,      0, (void *) on3, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_4_PAD,      0, (void *) on4, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_5_PAD,      0, (void *) on5, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_6_PAD,      0, (void *) on6, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_7_PAD,      0, (void *) on7, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_8_PAD,      0, (void *) on8, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_9_PAD,      0, (void *) on9, NULL, NULL },
-    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,              0,       NULL, NULL, NULL }
+	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
+	{ d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,            0, (void *) the_menu, NULL, NULL },
+	{ d_zq_hotkey_proc,  0,    0,    0,    0,     0,    0,    0,       0,       0,            0, NULL, NULL, NULL },
+	
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_F1,       0, (void *) onHelp, NULL, NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_ESC,      0, (void *) onExit, NULL, NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    39,      0,       0,            0, (void *) onUsedCombos, NULL, NULL },
+	{ NULL,              0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL }
 };
 
 
@@ -3241,11 +3160,6 @@ int32_t onCopy()
     return D_O_K;
 }
 
-int32_t onH()
-{
-    return D_O_K;
-}
-
 int32_t onPaste()
 {
 	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
@@ -3806,143 +3720,99 @@ int32_t on15()
 	return D_O_K;
 }
 
-int32_t onLeft()
+int onScrollScreen(int dir, bool warp)
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(2);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
-		;
-    else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]-=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]-=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	Map.scroll(dir,warp);
+	return D_O_K;
 }
 
-int32_t onRight()
+int32_t onComboColLeft()
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(3);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
+	if(draw_mode==dm_cpool)
 		;
-    else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]+=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]+=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]-=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]-=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
 }
 
-int32_t onUp()
+int32_t onComboColRight()
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-    
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(0);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
+	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+	if(draw_mode==dm_cpool)
 		;
-    else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]-=zc_min(First[current_combolist],sqr.w);
-        clear_tooltip();
-        
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],sqr.w);
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]+=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]+=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
 }
 
-int32_t onDown()
+int32_t onComboColUp()
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-    
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(1);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
+	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+	if(draw_mode==dm_cpool)
 		;
-    else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]+=zc_min((MAXCOMBOS-sqr.w)-First[current_combolist],sqr.w);
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h)))&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]+=zc_min((MAXCOMBOALIASES-sqr.w)-combo_alistpos[current_comboalist],sqr.w);
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]-=zc_min(First[current_combolist],sqr.w);
+		clear_tooltip();
+		
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],sqr.w);
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
+}
+
+int32_t onComboColDown()
+{
+	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+	
+	if(draw_mode==dm_cpool)
+		;
+	else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]+=zc_min((MAXCOMBOS-sqr.w)-First[current_combolist],sqr.w);
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h)))&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]+=zc_min((MAXCOMBOALIASES-sqr.w)-combo_alistpos[current_comboalist],sqr.w);
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
 }
 
 void scrollup(int j)
@@ -8642,13 +8512,9 @@ void doflags()
 			for(int i=0; i<abs(mouse_z); ++i)
 			{
 				if(mouse_z>0)
-				{
 					onIncreaseFlag();
-				}
 				else
-				{
 					onDecreaseFlag();
-				}
 			}
 			
 			position_mouse_z(0);
@@ -8656,60 +8522,21 @@ void doflags()
 		
 		if(keypressed())
 		{
-			switch(readkey()>>8)
+			int k = readkey();
+			switch(k>>8)
 			{
-			case KEY_ESC:
-			case KEY_ENTER:
-				goto finished;
-				
-			case KEY_ASTERISK:
-			case KEY_CLOSEBRACE:
-				onIncreaseFlag();
-				break;
-				
-			case KEY_SLASH_PAD:
-			case KEY_OPENBRACE:
-				onDecreaseFlag();
-				break;
-				
-			case KEY_UP:
-				onUp();
-				break;
-				
-			case KEY_DOWN:
-				onDown();
-				break;
-				
-			case KEY_LEFT:
-				onLeft();
-				break;
-				
-			case KEY_RIGHT:
-				onRight();
-				break;
-				
-			case KEY_PGUP:
-				onPgUp();
-				break;
-				
-			case KEY_PGDN:
-				onPgDn();
-				break;
-				
-			case KEY_COMMA:
-				onDecMap();
-				break;
-				
-			case KEY_STOP:
-				onIncMap();
-				break;
+				case KEY_ESC:
+				case KEY_ENTER:
+					goto finished;
 			}
+			object_message(dialogs+1, MSG_XCHAR, k);
+			Flags=cFLAGS;
 		}
 		
 		MouseSprite::set(ZQM_FLAG_0+(shift?0:Flag%16));
 		
-		custom_vsync();
 		refresh(rALL | rNOCURSOR);
+		custom_vsync();
 	}
 	
 finished:
@@ -30682,6 +30509,8 @@ int32_t main(int32_t argc,char **argv)
 	large_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_large",1);
 	compact_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_compact",1);
 	
+	load_hotkeys();
+	
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
 	
@@ -31319,8 +31148,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 		/* Notice: Adjust and Update these values if you hae modified any of the following, where
-			your modifications hae inserted or removed ANY entries. 
-			dialogs[]
+			your modifications hae inserted or removed ANY entries.
 			paste_item_menu[]
 			commands[]
 			file_menu[]
@@ -31332,7 +31160,6 @@ int32_t main(int32_t argc,char **argv)
 		
 		file_menu[fileSave].flags =
 			file_menu[fileRevert].flags =
-				dialogs[19].flags =
 					commands[cmdSave].flags =
 						commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
 						
@@ -32656,11 +32483,11 @@ void dopreview()
 						break;
 						
 					case KEY_R:
-						onRKey();
+						onReloadPreview();
 						break;
 						
 					case KEY_S:
-						onSKey();
+						onSecretsPreview();
 						break;
 						
 					case KEY_C:

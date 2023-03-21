@@ -172,10 +172,6 @@ int32_t playMIDI();
 int32_t stopMIDI();
 int32_t onKeyFile();
 
-int32_t onUp();
-int32_t onDown();
-int32_t onLeft();
-int32_t onRight();
 int32_t onPgUp();
 int32_t onPgDn();
 int32_t onIncreaseCSet();
@@ -325,8 +321,6 @@ int32_t onShowFlags();
 int32_t onP();
 int32_t onShowComboInfoCSet();
 int32_t onShowDarkness();
-int32_t onJ();
-int32_t onM();
 
 int32_t onIncreaseFlag();
 int32_t onDecreaseFlag();

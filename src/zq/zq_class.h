@@ -235,7 +235,7 @@ public:
     void draw_template2(BITMAP *dest,int32_t x,int32_t y);
     void draw_secret(BITMAP *dest, int32_t pos);
     void draw_secret2(BITMAP *dest, int32_t pos);
-    void scroll(int32_t dir);
+    void scroll(int32_t dir, bool warp);
     mapscr *CurrScr();
     mapscr *Scr(int32_t scr);
     mapscr *AbsoluteScr(int32_t scr);
