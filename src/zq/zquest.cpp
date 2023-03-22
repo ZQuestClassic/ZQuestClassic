@@ -6677,6 +6677,10 @@ void refresh(int32_t flags, bool update)
 		flags &= ~rSCRMAP;
 	
 	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	
+	ALLEGRO_BITMAP* overlay_bmp = get_overlay_bmp();
+	al_set_target_bitmap(overlay_bmp);
 	
 	if(flags&rCLEAR)
 	{
@@ -6686,10 +6690,6 @@ void refresh(int32_t flags, bool update)
 		clear_to_color(menu1,jwin_pal[jcBOX]);
 		
 		//Clear A5 overlay
-		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-		
-		ALLEGRO_BITMAP* overlay_bmp = get_overlay_bmp();
-		al_set_target_bitmap(overlay_bmp);
 		al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 		
 		//Clears should refresh everything!
@@ -7223,10 +7223,10 @@ void refresh(int32_t flags, bool update)
 	draw_ttips();
 	
 	
+	//Restore A5 state
+	al_restore_state(&old_state);
 	if(flags&rCLEAR)
 	{
-		//Restore A5 state
-		al_restore_state(&old_state);
 		//Draw the whole gui
 		blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
 	}
@@ -8535,7 +8535,7 @@ void doflags()
 		
 		MouseSprite::set(ZQM_FLAG_0+(shift?0:Flag%16));
 		
-		refresh(rALL | rNOCURSOR);
+		refresh(rALL | rCLEAR | rNOCURSOR);
 		custom_vsync();
 	}
 	
