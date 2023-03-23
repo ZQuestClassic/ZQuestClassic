@@ -1660,6 +1660,10 @@ typedef struct item_location_node
 
 void itemLocationReport()
 {
+	quest_report_str += "WARNING: This report does not account"
+		" for items obtained in indirect methods, such as SCCs,"
+		" Scripts, Progressive Items and Item Bundles.\n\n";
+	
     mapscr *ts=NULL;
     int32_t sc=0;
     int32_t location_types=6;
