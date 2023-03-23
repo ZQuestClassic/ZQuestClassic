@@ -335,11 +335,13 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 	//Standard lookup loop
 	for (; current; current = current->getParent())
 	{
-		if(current->isFile() || (current->isRoot() && !foundFile))
+		if((current->isFile() || current->isRoot()) && !foundFile)
 		{
-			if(!functions.empty()) noUsing = true;
+			if(!functions.empty())
+				noUsing = true;
 		}
-		if(current->isFile()) foundFile = true;
+		if(current->isFile())
+			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
 		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
