@@ -3884,3 +3884,93 @@ untyped wrap(untyped x, int mod)
         return (mod-(-x%mod))%mod;
     return x%mod;
 }
+
+eweapon FireEWeaponAngle(int type, int x, int y, int radians, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	eweapon weap = scriptid ? RunEWeaponScriptAt(type, scriptid, x, y, args) : CreateEWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->Angle = radians;
+	weap->Angular = true;
+	return weap;
+}
+eweapon FireEWeaponDegAngle(int type, int x, int y, int degrees, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	eweapon weap = scriptid ? RunEWeaponScriptAt(type, scriptid, x, y, args) : CreateEWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->DegAngle = degrees;
+	weap->Angular = true;
+	return weap;
+}
+eweapon FireEWeaponDir(int type, int x, int y, int dir, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	eweapon weap = scriptid ? RunEWeaponScriptAt(type, scriptid, x, y, args) : CreateEWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->Dir = dir;
+	return weap;
+}
+eweapon FireEWeaponAtHero(int type, int x, int y, bool angular, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	eweapon weap = scriptid ? RunEWeaponScriptAt(type, scriptid, x, y, args) : CreateEWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->Angular = angular;
+	int angle = Angle(x,y,Hero->X,Hero->Y);
+	if(angular)
+		weap->Angle = angle;
+	else
+		weap->Dir = AngleDir8(angle);
+	return weap;
+}
+
+lweapon FireLWeaponAngle(int type, int x, int y, int radians, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	lweapon weap = scriptid ? RunLWeaponScriptAt(type, scriptid, x, y, args) : CreateLWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->Angle = radians;
+	weap->Angular = true;
+	return weap;
+}
+lweapon FireLWeaponDegAngle(int type, int x, int y, int degrees, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	lweapon weap = scriptid ? RunLWeaponScriptAt(type, scriptid, x, y, args) : CreateLWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->DegAngle = degrees;
+	weap->Angular = true;
+	return weap;
+}
+lweapon FireLWeaponDir(int type, int x, int y, int dir, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
+{
+	lweapon weap = scriptid ? RunLWeaponScriptAt(type, scriptid, x, y, args) : CreateLWeaponAt(type,x,y);
+	weap->Damage = dmg;
+	weap->Step = step;
+	if(sprite > -1) weap->UseSprite(sprite);
+	if(sfx) Audio->PlaySound(sfx);
+	
+	weap->Dir = dir;
+	return weap;
+}
+
+
