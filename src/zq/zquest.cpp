@@ -634,8 +634,8 @@ int32_t fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf, *zstringshelpbuf;
-string helpstr, shieldblockhelpstr, zscripthelpstr, zstringshelpstr;
+char *helpbuf, *zstringshelpbuf;
+string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int32_t midi_volume = 255;
@@ -840,7 +840,6 @@ static MENU export_250_menu[] =
 static MENU zq_help_menu[] =
 {
 	{ (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
-	{ (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
 	{ (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
 	
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -28891,64 +28890,6 @@ int32_t onHelp()
     return D_O_K;
 }
 
-static DIALOG shieldblockhelp_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Shield Block Flags Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doshieldblockhelp(int32_t bg,int32_t fg)
-{
-    shieldblockhelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    shieldblockhelp_dlg[2].bg = bg;
-    zc_popup_dialog(shieldblockhelp_dlg,2);
-    delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
-}
-
-int32_t onshieldblockhelp()
-{
-    restore_mouse();
-    doshieldblockhelp(vc(15),vc(0));
-    return D_O_K;
-}
-
-static DIALOG zscripthelp_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "ZScript Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void dozscripthelp(int32_t bg,int32_t fg)
-{
-    zscripthelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    zscripthelp_dlg[2].bg = bg;
-    zc_popup_dialog(zscripthelp_dlg,2);
-    delete(EditboxModel*)(zscripthelp_dlg[2].dp);
-}
-
-int32_t onZScripthelp()
-{
-    restore_mouse();
-    dozscripthelp(vc(15),vc(0));
-    return D_O_K;
-}
-
 static DIALOG Zstringshelp_dlg[] =
 {
     /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
@@ -30210,150 +30151,6 @@ int32_t main(int32_t argc,char **argv)
 	helpbuf[helpsize]=0;
 	helpstr = helpbuf;
 	Z_message("Found zquest.txt\n");									  // loading data files...
-	
-	int32_t shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
-	
-	if(shieldblockhelpsize==0)
-	{
-	shieldblockhelpsize = file_size_ex_password("shield_block_flags.txt","");
-	if(shieldblockhelpsize==0)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"shield_block_flags.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error: shield_block_flags.txt not found.");
-		quit_game();
-	}
-	}
-	
-	shieldblockhelpbuf = (char*)malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
-	
-	if(!shieldblockhelpbuf)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed allocating shieldblockhelp buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("Error allocating shieldblockhelp buffer.");
-		quit_game();
-	}
-	
-	FILE *shieldhb = fopen("docs/shield_block_flags.txt", "r");
-	
-	if(!shieldhb)
-	{
-	shieldhb = fopen("shield_block_flags.txt", "r");
-	if(!shieldhb)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed loading shield_block_flags.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error loading shield_block_flags.txt.");
-		quit_game();
-	}
-	}
-	
-	char shieldc = fgetc(shieldhb);
-	int32_t shieldhelpindex=0;
-	
-	while(!feof(shieldhb))
-	{
-		shieldblockhelpbuf[shieldhelpindex] = shieldc;
-		shieldhelpindex++;
-		shieldc = fgetc(shieldhb);
-	}
-	
-	fclose(shieldhb);
-	
-	shieldblockhelpbuf[shieldblockhelpsize]=0;
-	shieldblockhelpstr = shieldblockhelpbuf;
-	Z_message("Found shield_block_flags.txt\n");	
-	
-	int32_t zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
-	
-	if(zscripthelpsz==0)
-	{
-	zscripthelpsz = file_size_ex_password("zscript.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
-	if(zscripthelpsz==0)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"zscript.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error: zscript.txt not found.");
-		quit_game();
-	}
-	}
-	
-	zscripthelpbuf = (char*)malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
-	
-	if(!zscripthelpbuf)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed allocating ZScript Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("Error allocating ZScript Help buffer.");
-		quit_game();
-	}
-	
-	FILE *zscripthelphb = fopen("docs/zscript.txt", "r");
-	
-	if(!zscripthelphb)
-	{
-	zscripthelphb = fopen("zscript.txt", "r");
-	if(!zscripthelphb)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error loading zscript.txt.");
-		quit_game();
-	}
-	}
-	
-	char zscripthelpc = fgetc(zscripthelphb);
-	int32_t zscripthelpindex=0;
-	
-	while(!feof(zscripthelphb))
-	{
-		zscripthelpbuf[zscripthelpindex] = zscripthelpc;
-		zscripthelpindex++;
-		zscripthelpc = fgetc(zscripthelphb);
-	}
-	
-	fclose(zscripthelphb);
-	
-	zscripthelpbuf[zscripthelpsz]=0;
-	zscripthelpstr = zscripthelpbuf;
-	Z_message("Found zscript.txt\n");	
 	
 	int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
 	
@@ -31817,26 +31614,12 @@ void load_size_poses()
 		help_dlg[2].w=zq_screen_w-8-4;
 		help_dlg[2].h=zq_screen_h-27-4;
 		
-		zscripthelp_dlg[0].w=zq_screen_w;
-		zscripthelp_dlg[0].h=zq_screen_h;
-		zscripthelp_dlg[1].w=zq_screen_w-8;
-		zscripthelp_dlg[1].h=zq_screen_h-27;
-		zscripthelp_dlg[2].w=zq_screen_w-8-4;
-		zscripthelp_dlg[2].h=zq_screen_h-27-4;
-	
 		Zstringshelp_dlg[0].w=zq_screen_w;
 		Zstringshelp_dlg[0].h=zq_screen_h;
 		Zstringshelp_dlg[1].w=zq_screen_w-8;
 		Zstringshelp_dlg[1].h=zq_screen_h-27;
 		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
 		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
-	
-		shieldblockhelp_dlg[0].w=zq_screen_w;
-		shieldblockhelp_dlg[0].h=zq_screen_h;
-		shieldblockhelp_dlg[1].w=zq_screen_w-8;
-		shieldblockhelp_dlg[1].h=zq_screen_h-27;
-		shieldblockhelp_dlg[2].w=zq_screen_w-8-4;
-		shieldblockhelp_dlg[2].h=zq_screen_h-27-4;
 		
 		edit_zscript_dlg[0].w=zq_screen_w;
 		edit_zscript_dlg[0].h=zq_screen_h;

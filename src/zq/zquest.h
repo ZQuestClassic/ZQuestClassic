@@ -1167,7 +1167,6 @@ void cycle_palette();
 /********************/
 
 void doHelp(int32_t bg,int32_t fg);
-int32_t onshieldblockhelp();
 int32_t onZstringshelp();
 int32_t onHelp();
 int32_t onZScripthelp();
