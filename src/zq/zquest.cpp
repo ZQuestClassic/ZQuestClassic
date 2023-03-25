@@ -286,6 +286,7 @@ size_and_pos combo_preview_text2;
 size_and_pos combolist_window;
 size_and_pos drawmode_btn;
 size_and_pos main_panel;
+size_and_pos squares_panel;
 size_and_pos preview_panel;
 size_and_pos layer_panel;
 size_and_pos preview_text;
@@ -309,6 +310,9 @@ size_and_pos tooltip_trigger;
 size_and_pos tooltip_highlight;
 size_and_pos tooltip_highlight2;
 
+size_and_pos squarepanel_swap_btn;
+size_and_pos squarepanel_up_btn;
+size_and_pos squarepanel_down_btn;
 size_and_pos itemsqr_pos;
 size_and_pos flagsqr_pos;
 size_and_pos stairsqr_pos;
@@ -444,6 +448,10 @@ bool compact_zoomed_fav = true;
 bool large_zoomed_cmd = false;
 bool compact_zoomed_cmd = true;
 bool zoomed_minimap = false;
+
+bool compact_square_panels = false;
+int compact_active_panel = 0;
+
 int combo_col_scale = 1;
 
 script_data *ffscripts[NUMSCRIPTFFC];
@@ -1046,6 +1054,21 @@ void toggle_merged_mode()
 		large_merged_combopane = !large_merged_combopane;
 		zc_set_config("ZQ_GUI","merge_cpane_large",large_merged_combopane?1:0);
 	}
+	reload_zq_gui();
+}
+void toggle_compact_sqr_mode()
+{
+	compact_square_panels = !compact_square_panels;
+	zc_set_config("ZQ_GUI","square_panels_compact",compact_square_panels?1:0);
+	reload_zq_gui();
+}
+void cycle_compact_sqr(bool down)
+{
+	static const int num_panels = 3;
+	if(down)
+		compact_active_panel = (compact_active_panel+1)%num_panels;
+	else
+		compact_active_panel = (compact_active_panel-1+num_panels)%num_panels;
 	reload_zq_gui();
 }
 void toggle_favzoom_mode()
@@ -5341,12 +5364,51 @@ void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_
     textout_centre_ex(bmp, f, buf, x, y, color_sh, -1);
 }
 
+void draw_sqr_frame(size_and_pos const& sqr)
+{
+	jwin_draw_frame(menu1,sqr.x,sqr.y,sqr.tw(),sqr.th(),FR_DEEP);
+}
+void draw_sqr_icon(size_and_pos const& sqr, BITMAP* icon)
+{
+	stretch_blit(icon, menu1, 0, 0, 16, 16, sqr.x+2, sqr.y+2, sqr.tw()-4, sqr.th()-4);
+}
+void draw_sqr_nums(size_and_pos const& sqr, FONT* f, bool center, int num)
+{
+	if(center)
+		textprintf_centre_ex(menu1,f,sqr.x+txtoffs_single.x,sqr.y+txtoffs_single.y,jwin_pal[jcBOXFG],-1,"%d",num);
+	else
+		textprintf_ex(menu1,f,sqr.x+txtoffs_single.x,sqr.y+txtoffs_single.y,jwin_pal[jcBOXFG],-1,"%d",num);
+}
+void draw_sqr_nums(size_and_pos const& sqr, FONT* f, bool center, int num1, int num2)
+{
+	if(center)
+	{
+		textprintf_centre_ex(menu1,f,sqr.x+txtoffs_double_1.x,sqr.y+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",num1);
+		textprintf_centre_ex(menu1,f,sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",num2);
+	}
+	else
+	{
+		textprintf_ex(menu1,f,sqr.x+txtoffs_double_1.x,sqr.y+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",num1);
+		textprintf_ex(menu1,f,sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",num2);
+	}
+}
+void draw_sqr_btn(size_and_pos const& sqr, char* txt, int flags, FONT* f = nullptr)
+{
+	if(sqr.x < 0) return;
+	FONT* tfont = font;
+	if(f)
+		font = f;
+	draw_text_button(menu1, sqr.x, sqr.y, sqr.tw(), sqr.th(), txt, 0, 0, flags, true);
+	font = tfont;
+}
+
 void drawpanel()
 {
 	mapscr *scr=Map.CurrScr();
 	int32_t NextCombo=combobuf[Combo].nextcombo;
 	int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
 	
+	FONT* tfont = font;
 	if(prv_mode)
 	{
 		jwin_draw_frame(menu1,0,preview_panel.y,preview_panel.x+preview_panel.w, preview_panel.h, FR_WIN);
@@ -5359,142 +5421,102 @@ void drawpanel()
 		refresh(rSCRMAP);
 		jwin_draw_frame(menu1,sqr.x,sqr.y,sqr.w,sqr.h, FR_WIN);
 		
+		font = get_custom_font(CFONT_GUI);
+		draw_sqr_btn(squarepanel_swap_btn, "SWP", 0);
+		if(compact_square_panels)
+		{
+			textprintf_centre_ex(menu1,font,squarepanel_up_btn.cx(),squarepanel_up_btn.y-text_height(font)-2,jwin_pal[jcBOXFG],-1,"%d",compact_active_panel);
+			draw_sqr_btn(squarepanel_up_btn, "\x88", 0);
+			draw_sqr_btn(squarepanel_down_btn, "\x89", 0);
+		}
+		font = tfont;
+		
+		FONT* sqr_text_font = (is_compact && compact_square_panels) ? get_custom_font(CFONT_GUI) : font;
 		//Item:
-		auto itemx = itemsqr_pos.x;
-		auto itemy = itemsqr_pos.y;
-		jwin_draw_frame(menu1,itemx,itemy,20,20,FR_DEEP);
-		if(scr->hasitem && scr->item > 0)
+		if(itemsqr_pos.x > -1)
 		{
-			rectfill(menu1,itemx+2,itemy+2,itemx+17,itemy+17,0);
-			overtile16(menu1, itemsbuf[scr->item].tile,itemx+2,itemy+2,itemsbuf[scr->item].csets&15,0);
+			draw_sqr_frame(itemsqr_pos);
+			if(scr->hasitem && scr->item > 0)
+			{
+				rectfill(menu1,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
+				overtile16(menu1, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0);
+			}
+			else draw_sqr_icon(itemsqr_pos, icon_bmp[0][coord_frame]);
+			draw_sqr_nums(itemsqr_pos, sqr_text_font, panel_align == 1, scr->itemx, scr->itemy);
 		}
-		else blit(icon_bmp[0][coord_frame], menu1, 0, 0, itemx+2,itemy+2, 16, 16);
-		
-		if(panel_align == 1)
-		{
-			textprintf_centre_ex(menu1,font,itemx+txtoffs_double_1.x,itemy+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->itemx);
-			textprintf_centre_ex(menu1,font,itemx+txtoffs_double_2.x,itemy+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->itemy);
-		}
-		else
-		{
-			textprintf_ex(menu1,font,itemx+txtoffs_double_1.x,itemy+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->itemx);
-			textprintf_ex(menu1,font,itemx+txtoffs_double_2.x,itemy+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->itemy);
-		}
-		
 		//Flag:
-		auto flagx = flagsqr_pos.x;
-		auto flagy = flagsqr_pos.y;
-		jwin_draw_frame(menu1,flagx,flagy,20,20,FR_DEEP);
-		blit(flag_bmp[Flag%16][coord_frame], menu1, 0, 0, flagx+2,flagy+2, 16, 16);
-		
-		if(panel_align == 1)
+		if(flagsqr_pos.x > -1)
 		{
-			textprintf_centre_ex(menu1,font,flagx+txtoffs_single.x,flagy+txtoffs_single.y,jwin_pal[jcBOXFG],-1,"%d",Flag);
+			draw_sqr_frame(flagsqr_pos);
+			draw_sqr_icon(flagsqr_pos,flag_bmp[Flag%16][coord_frame]);
+			draw_sqr_nums(flagsqr_pos, sqr_text_font, panel_align == 1, Flag);
 		}
-		else
-		{
-			textprintf_ex(menu1,font,flagx+txtoffs_single.x,flagy+txtoffs_single.y,jwin_pal[jcBOXFG],-1,"%d",Flag);
-		}
-		
 		
 		//Stairs:
-		auto stairx = stairsqr_pos.x;
-		auto stairy = stairsqr_pos.y;
-		jwin_draw_frame(menu1,stairx,stairy,20,20,FR_DEEP);
-		blit(icon_bmp[1][coord_frame], menu1, 0, 0, stairx+2,stairy+2, 16, 16);
-		
-		if(panel_align == 1)
+		if(stairsqr_pos.x > -1)
 		{
-			textprintf_centre_ex(menu1,font,stairx+txtoffs_double_1.x,stairy+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->stairx);
-			textprintf_centre_ex(menu1,font,stairx+txtoffs_double_2.x,stairy+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->stairy);
-		}
-		else
-		{
-			textprintf_ex(menu1,font,stairx+txtoffs_double_1.x,stairy+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->stairx);
-			textprintf_ex(menu1,font,stairx+txtoffs_double_2.x,stairy+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->stairy);
+			draw_sqr_frame(stairsqr_pos);
+			draw_sqr_icon(stairsqr_pos,icon_bmp[1][coord_frame]);
+			draw_sqr_nums(stairsqr_pos, sqr_text_font, panel_align == 1, scr->stairx, scr->stairy);
 		}
 		
 		//Green arrival square:
 		bool disabled_arrival = get_bit(quest_rules,qr_NOARRIVALPOINT);
-		auto arrivalx = warparrival_pos.x;
-		auto arrivaly = warparrival_pos.y;
+		if(warparrival_pos.x > -1)
+		{
+			draw_sqr_frame(warparrival_pos);
+			BITMAP* icon = icon_bmp[2][coord_frame];
+			if(disabled_arrival)
+			{
+				icon = create_bitmap_ex(8,16,16);
+				blit(icon_bmp[2][0], icon, 0, 0, 0, 0, 16, 16);
+				replColor(icon, 0xE7, 0xEA, 0xEA, false);
+				replColor(icon, 0xE8, 0xE2, 0xE2, false);
+			}
+			
+			draw_sqr_icon(warparrival_pos, icon);
+			draw_sqr_nums(warparrival_pos, sqr_text_font, panel_align == 1, scr->warparrivalx, scr->warparrivaly);
+			
+			if(disabled_arrival)
+				destroy_bitmap(icon);
+		}
 		
-		if(disabled_arrival)
-		{
-			jwin_draw_frame(menu1,arrivalx,arrivaly,20,20,FR_DEEP);
-			BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
-			blit(icon_bmp[2][0], tmpbmp, 0, 0, 0, 0, 16, 16);
-			replColor(tmpbmp, 0xE7, 0xEA, 0xEA, false);
-			replColor(tmpbmp, 0xE8, 0xE2, 0xE2, false);
-			blit(tmpbmp, menu1, 0, 0, arrivalx+2,arrivaly+2, 16, 16);
-			
-			if(panel_align == 1)
-			{
-				textprintf_centre_ex(menu1,font,1+arrivalx+txtoffs_double_1.x,1+arrivaly+txtoffs_double_1.y,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"%d",scr->warparrivalx);
-				textprintf_centre_ex(menu1,font,arrivalx+txtoffs_double_1.x,arrivaly+txtoffs_double_1.y,jwin_pal[jcDISABLED_FG],-1,"%d",scr->warparrivalx);
-				
-				textprintf_centre_ex(menu1,font,1+arrivalx+txtoffs_double_2.x,1+arrivaly+txtoffs_double_2.y,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"%d",scr->warparrivaly);
-				textprintf_centre_ex(menu1,font,arrivalx+txtoffs_double_2.x,arrivaly+txtoffs_double_2.y,jwin_pal[jcDISABLED_FG],-1,"%d",scr->warparrivaly);
-			}
-			else
-			{
-				textprintf_ex(menu1,font,1+arrivalx+txtoffs_double_1.x,1+arrivaly+txtoffs_double_1.y,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"%d",scr->warparrivalx);
-				textprintf_ex(menu1,font,arrivalx+txtoffs_double_1.x,arrivaly+txtoffs_double_1.y,jwin_pal[jcDISABLED_FG],-1,"%d",scr->warparrivalx);
-				
-				textprintf_ex(menu1,font,1+arrivalx+txtoffs_double_2.x,1+arrivaly+txtoffs_double_2.y,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"%d",scr->warparrivaly);
-				textprintf_ex(menu1,font,arrivalx+txtoffs_double_2.x,arrivaly+txtoffs_double_2.y,jwin_pal[jcDISABLED_FG],-1,"%d",scr->warparrivaly);
-			}
-		}
-		else
-		{
-			jwin_draw_frame(menu1,arrivalx,arrivaly,20,20,FR_DEEP);
-			blit(icon_bmp[2][coord_frame], menu1, 0, 0, arrivalx+2,arrivaly+2, 16, 16);
-			
-			if(panel_align == 1)
-			{
-				textprintf_centre_ex(menu1,font,arrivalx+txtoffs_double_1.x,arrivaly+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivalx);
-				textprintf_centre_ex(menu1,font,arrivalx+txtoffs_double_2.x,arrivaly+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivaly);
-			}
-			else
-			{
-				textprintf_ex(menu1,font,arrivalx+txtoffs_double_1.x,arrivaly+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivalx);
-				textprintf_ex(menu1,font,arrivalx+txtoffs_double_2.x,arrivaly+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->warparrivaly);
-			}
-		}
 		//Blue return squares:
 		for(int32_t i=0; i<4; i++)
 		{
-			jwin_draw_frame(menu1,warpret_pos[i].x,warpret_pos[i].y,20,20,FR_DEEP);
-			blit(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], menu1, 0, 0, warpret_pos[i].x+2, warpret_pos[i].y+2, 16, 16);
-			
-			if(panel_align == 1)
-			{
-				textprintf_centre_ex(menu1,font,warpret_pos[i].x+txtoffs_double_1.x,warpret_pos[i].y+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[i]);
-				textprintf_centre_ex(menu1,font,warpret_pos[i].x+txtoffs_double_2.x,warpret_pos[i].y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[i]);
-			}
-			else
-			{
-				textprintf_ex(menu1,font,warpret_pos[i].x+txtoffs_double_1.x,warpret_pos[i].y+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturnx[i]);
-				textprintf_ex(menu1,font,warpret_pos[i].x+txtoffs_double_2.x,warpret_pos[i].y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",scr->warpreturny[i]);
-			}
+			if(warpret_pos[i].x < 0) continue;
+			draw_sqr_frame(warpret_pos[i]);
+			draw_sqr_icon(warpret_pos[i], icon_bmp[ICON_BMP_RETURN_A+i][coord_frame]);
+			draw_sqr_nums(warpret_pos[i], sqr_text_font, panel_align == 1, scr->warpreturnx[i], scr->warpreturny[i]);
 		}
 		
 		// Enemies
 		auto& ep = enemy_prev_pos;
-		rectfill(menu1, ep.x, ep.y, ep.x+ep.tw()-1,ep.y+ep.th()-1,vc(0));
-		rectfill(menu1, ep.x+ep.fw, ep.y+ep.fh, ep.x+ep.tw()-1, ep.y+ep.th()-1, jwin_pal[jcBOX]);
-		jwin_draw_frag_frame(menu1, ep.x, ep.y, ep.tw(), ep.th(), ep.fw, ep.fh, FR_DEEP);
-		
-		for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+		if(ep.x > -1)
 		{
-			int32_t id = Map.CurrScr()->enemy[i];
-			int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
-			int32_t cset = guysbuf[id].cset;
-			auto& sqr = ep.subsquare(i);
-			if(tile)
-				overtile16(menu1, tile+efrontfacingtile(id),sqr.x,sqr.y,cset,0);
+			if(ep.fw > -1)
+			{
+				rectfill(menu1, ep.x, ep.y, ep.x+ep.tw()-1,ep.y+ep.th()-1,vc(0));
+				rectfill(menu1, ep.x+ep.fw, ep.y+ep.fh, ep.x+ep.tw()-1, ep.y+ep.th()-1, jwin_pal[jcBOX]);
+				jwin_draw_frag_frame(menu1, ep.x, ep.y, ep.tw(), ep.th(), ep.fw, ep.fh, FR_DEEP);
+			}
+			else
+			{
+				rectfill(menu1, ep.x, ep.y, ep.x+ep.tw()-1,ep.y+ep.th()-1,vc(0));
+				draw_sqr_frame(ep);
+			}
+			for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+			{
+				int32_t id = Map.CurrScr()->enemy[i];
+				int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+				int32_t cset = guysbuf[id].cset;
+				auto& sqr = ep.subsquare(i);
+				if(tile)
+					overtile16_scale(menu1, tile+efrontfacingtile(id),sqr.x,sqr.y,cset,0,sqr.tw(),sqr.th());
+			}
 		}
 	}
+	font = tfont;
 }
 
 void show_screen_error(const char *str, int32_t i, int32_t c)
@@ -11188,6 +11210,22 @@ void domouse()
 		
 		//Squares
 		{
+			if(squarepanel_swap_btn.rect(x,y))
+			{
+				toggle_compact_sqr_mode();
+				goto domouse_doneclick;
+			}
+			if(squarepanel_up_btn.rect(x,y))
+			{
+				cycle_compact_sqr(false);
+				goto domouse_doneclick;
+			}
+			if(squarepanel_down_btn.rect(x,y))
+			{
+				cycle_compact_sqr(true);
+				goto domouse_doneclick;
+			}
+			
 			bool do_dummyxy = false;
 			bool dummymode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
 			
@@ -11656,6 +11694,7 @@ domouse_doneclick:
 							combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],comboaliaslist[j].w*z);
 						}
 					}
+					goto domouse_donez;
 				}
 			}
 			else if(draw_mode == dm_cpool)
@@ -11674,6 +11713,7 @@ domouse_doneclick:
 							combo_pool_listpos[current_cpoollist]-=zc_min(combo_pool_listpos[current_cpoollist],comboaliaslist[j].w*z);
 						}
 					}
+					goto domouse_donez;
 				}
 			}
 			else
@@ -11692,6 +11732,7 @@ domouse_doneclick:
 							First[current_combolist]-=zc_min(First[current_combolist],combolist[j].w*z);
 						}
 					}
+					goto domouse_donez;
 				}
 			}
 		}
@@ -11705,7 +11746,16 @@ domouse_doneclick:
 				if(mouse_z>0) onIncMap();
 				else onDecMap();
 			}
+			goto domouse_donez;
 		}
+		
+		if(is_compact && compact_square_panels
+			&& squares_panel.rect(x,y))
+		{
+			cycle_compact_sqr(mouse_z < 0);
+			goto domouse_donez;
+		}
+domouse_donez:
 		position_mouse_z(0);
 	}
 	font = tfont;
@@ -30301,6 +30351,8 @@ int32_t main(int32_t argc,char **argv)
 	large_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_large",0);
 	compact_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_compact",1);
 	
+	compact_square_panels = zc_get_config("ZQ_GUI","square_panels_compact",0);
+	
 	large_zoomed_fav = zc_get_config("ZQ_GUI","zoom_fav_large",0);
 	compact_zoomed_fav = zc_get_config("ZQ_GUI","zoom_fav_compact",1);
 	large_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_large",1);
@@ -31275,29 +31327,93 @@ void load_size_poses()
 		preview_text.xscale = 10;
 		preview_text.yscale = text_height(lfont_l);
 		
-		txtoffs_single.x = 10;
-		txtoffs_single.y = 22;
-		txtoffs_double_1.x = 10;
-		txtoffs_double_1.y = 22;
-		txtoffs_double_2.x = 10;
-		txtoffs_double_2.y = 30;
 		panel_align = 1;
+		int swapbtnw = 32, swapbtnh = 20;
+		int swapbtnx = main_panel.x+main_panel.tw()-swapbtnw;
+		squarepanel_swap_btn.set(swapbtnx, zq_screen_h-swapbtnh, swapbtnw, swapbtnh);
 		
-		int sqr_x1 = main_panel.x+minimap.w+24;
-		int sqr_y1 = main_panel.y+12;
-		int sqr_y2 = sqr_y1+42;
-		int sqr_xdist = 32;
-		itemsqr_pos.set(sqr_x1+(sqr_xdist*0),sqr_y1,20,20);
-		stairsqr_pos.set(sqr_x1+(sqr_xdist*1),sqr_y1,20,20);
-		warparrival_pos.set(sqr_x1+(sqr_xdist*2),sqr_y1,20,20);
-		flagsqr_pos.set(sqr_x1+(sqr_xdist*3),sqr_y1,20,20);
-		for(auto q = 0; q < 4; ++q)
+		int sqx = minimap.x+minimap.tw();
+		squares_panel.set(sqx,main_panel.y,main_panel.tw()-sqx,main_panel.th());
+		if(compact_square_panels)
 		{
-			warpret_pos[q].set(sqr_x1+(sqr_xdist*q),sqr_y2,20,20);
+			int cmpy = main_panel.y+(main_panel.th()/2);
+			squarepanel_up_btn.set(swapbtnx, cmpy-swapbtnh, swapbtnw, swapbtnh);
+			squarepanel_down_btn.set(swapbtnx, cmpy, swapbtnw, swapbtnh);
+			
+			txtoffs_single.x = 18;
+			txtoffs_single.y = 36;
+			txtoffs_double_1.x = 18;
+			txtoffs_double_1.y = 36;
+			txtoffs_double_2.x = 18;
+			txtoffs_double_2.y = 36 + text_height(get_custom_font(CFONT_GUI));
+			
+			//Clear them all- if they stay cleared, they are invisible.
+			itemsqr_pos.clear();
+			stairsqr_pos.clear();
+			warparrival_pos.clear();
+			flagsqr_pos.clear();
+			enemy_prev_pos.clear();
+			for(int q = 0; q < 4; ++q)
+				warpret_pos[q].clear();
+			
+			int sqr_x1 = sqx+12;
+			int sqr_y1 = main_panel.y+12;
+			int sqr_xoffs = (16*2)+4 + 12;
+			switch(compact_active_panel)
+			{
+				case 0: //Warp Squares
+				{
+					int x = sqr_x1;
+					for(int q = 0; q < 4; ++q)
+					{
+						warpret_pos[q].set(x,sqr_y1,(16*2)+4,(16*2)+4);
+						x += sqr_xoffs; 
+					}
+					break;
+				}
+				case 1: //Other Squares
+				{
+					itemsqr_pos.set(sqr_x1+(sqr_xoffs*0), sqr_y1, (16*2)+4,(16*2)+4);
+					stairsqr_pos.set(sqr_x1+(sqr_xoffs*1), sqr_y1, (16*2)+4,(16*2)+4);
+					warparrival_pos.set(sqr_x1+(sqr_xoffs*2), sqr_y1, (16*2)+4,(16*2)+4);
+					flagsqr_pos.set(sqr_x1+(sqr_xoffs*3), sqr_y1, (16*2)+4,(16*2)+4);
+					break;
+				}
+				case 2: //Enemy Preview
+				{
+					enemy_prev_pos.set(sqr_x1, sqr_y1, 5, 2, 32, 32);
+					break;
+				}
+			}
 		}
-		enemy_prev_pos.set(sqr_x1+(sqr_xdist*4), sqr_y1, 4, 3, 16, 16);
-		enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
-		enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
+		else
+		{
+			squarepanel_up_btn.clear();
+			squarepanel_down_btn.clear();
+			txtoffs_single.x = 10;
+			txtoffs_single.y = 22;
+			txtoffs_double_1.x = 10;
+			txtoffs_double_1.y = 22;
+			txtoffs_double_2.x = 10;
+			txtoffs_double_2.y = 30;
+			
+			
+			int sqr_x1 = sqx+24;
+			int sqr_y1 = main_panel.y+12;
+			int sqr_y2 = sqr_y1+42;
+			int sqr_xdist = 32;
+			itemsqr_pos.set(sqr_x1+(sqr_xdist*0),sqr_y1,20,20);
+			stairsqr_pos.set(sqr_x1+(sqr_xdist*1),sqr_y1,20,20);
+			warparrival_pos.set(sqr_x1+(sqr_xdist*2),sqr_y1,20,20);
+			flagsqr_pos.set(sqr_x1+(sqr_xdist*3),sqr_y1,20,20);
+			for(auto q = 0; q < 4; ++q)
+			{
+				warpret_pos[q].set(sqr_x1+(sqr_xdist*q),sqr_y2,20,20);
+			}
+			enemy_prev_pos.set(sqr_x1+(sqr_xdist*4), sqr_y1, 4, 3, 16, 16);
+			enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
+			enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
+		}
 		
 		auto& last_alias_list = comboaliaslist[num_combo_cols-1];
 		combopool_preview.x=comboaliaslist[0].x;
@@ -31396,6 +31512,9 @@ void load_size_poses()
 		combo_merge_btn.h = 20;
 		combo_merge_btn.x = zq_screen_w-(combolist_window.w+combo_merge_btn.w)/2;
 		combo_merge_btn.y = combolist[0].y-combo_merge_btn.h;
+		squarepanel_swap_btn.clear();
+		squarepanel_up_btn.clear();
+		squarepanel_down_btn.clear();
 		
 		drawmode_btn.x = combolist_window.x-drawmode_wid;
 		drawmode_btn.y = 0;
@@ -31521,7 +31640,9 @@ void load_size_poses()
 		txtoffs_double_2.y = 10;
 		panel_align = 0;
 		
-		int x2 = minimap.x+minimap.w+4;
+		int sqx = minimap.x+minimap.tw();
+		squares_panel.set(sqx,main_panel.y,main_panel.tw()-sqx,main_panel.th());
+		int x2 = sqx+4;
 		int x1 = x2 - (20+(8*3)+2);
 		int y1 = main_panel.y+10;
 		int sw = 20, sh = 20;

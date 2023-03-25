@@ -504,6 +504,20 @@ void draw_x_button(BITMAP *dest, int32_t x, int32_t y, int32_t state)
     line(dest,x+1,y+6,x+7,y,  palette_color[c]);
 }
 
+void draw_arrow(BITMAP *dest, int c, int x, int y, int h, bool up, bool center)
+{
+	if(!center)
+		x += h-1;
+	for(int i = 0; i<h; i++)
+		_allegro_hline(dest, x-(up?i:h-i-1), y+i, x+(up?i:h-i-1), c);
+}
+void draw_arrow_horz(BITMAP *dest, int c, int x, int y, int w, bool left, bool center)
+{
+	if(!center)
+		y += w-1;
+	for(int i = 0; i<w; i++)
+		_allegro_vline(dest, x+i, y-(left?i:w-i-1), y+(left?i:w-i-1), c);
+}
 void draw_arrow_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t up, int32_t state)
 {
     int32_t c = scheme[jcDARK];
@@ -1017,13 +1031,58 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
         jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
     }
     
-    if(!(flags & D_DISABLED))
-        gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
-    else
-    {
-        gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
-        gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
-    }
+	bool drawstring = true;
+	if(str[1]==0 && byte(str[0]) >= 0x80)
+	{
+		drawstring = false;
+		int col = jwin_pal[(flags & D_DISABLED) ? jcLIGHT : jcBOXFG];
+		int aw = w/4, ah = h/4;
+		int woff = (aw/2)+1, hoff = (ah/2)+1;
+		int x1 = x+w/2, x2 = x+(w-aw)/2;
+		int y1 = y+(h-aw)/2, y2 = y+h/2;
+		switch(byte(str[0]))
+		{
+			case 0x88:
+				draw_arrow(dest, col, x1, y1, ah, true, true);
+				break;
+			case 0x89:
+				draw_arrow(dest, col, x1, y1, ah, false, true);
+				break;
+			case 0x8A:
+				draw_arrow_horz(dest, col, x2, y2, aw, true, true);
+				break;
+			case 0x8B:
+				draw_arrow_horz(dest, col, x2, y2, aw, false, true);
+				break;
+			case 0x98:
+				draw_arrow(dest, col, x1, y1-hoff, ah, false, true);
+				draw_arrow(dest, col, x1, y1+hoff, ah, true, true);
+				break;
+			case 0x99:
+				draw_arrow(dest, col, x1, y1-hoff, ah, true, true);
+				draw_arrow(dest, col, x1, y1+hoff, ah, false, true);
+				break;
+			case 0x9A:
+				draw_arrow_horz(dest, col, x2-woff, y2, aw, false, true);
+				draw_arrow_horz(dest, col, x2+woff, y2, aw, true, true);
+				break;
+			case 0x9B:
+				draw_arrow_horz(dest, col, x2-woff, y2, aw, true, true);
+				draw_arrow_horz(dest, col, x2+woff, y2, aw, false, true);
+				break;
+			default: drawstring = true;
+		}
+	}
+	if(drawstring)
+	{
+		if(!(flags & D_DISABLED))
+			gui_textout_ex(dest, str, x+w/2+g, y+(h-text_height(font))/2+g, palette_color[scheme[jcBOXFG]], -1, TRUE);
+		else
+		{
+			gui_textout_ex(dest, str, x+w/2+1,y+(h-text_height(font))/2+1, palette_color[scheme[jcLIGHT]], -1, TRUE);
+			gui_textout_ex(dest, str, x+w/2,  y+(h-text_height(font))/2, palette_color[scheme[jcDISABLED_FG]], -1, TRUE);
+		}
+	}
     
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
         dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);

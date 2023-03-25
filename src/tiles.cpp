@@ -2404,120 +2404,145 @@ void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t 
 		break;
 	}
 }
-void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip) //fixed
+void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip)
 {
-    if(x<-15 || y<-15)
-        return;
-        
-    if(y > dest->h)
-        return;
-        
-    if(y == dest->h && x > dest->w)
-        return;
-        
-    if(tile<0 || tile>=NEWMAXTILES)
-    {
-        rectfill(dest,x,y,x+15,y+15,0);
-        return;
-    }
-    
-    if(blank_tile_table[tile])
-    {
-        return;
-    }
-    
-    if(newtilebuf[tile].format>tf4Bit)
-    {
-        cset=0;
-    }
-    
-    cset &= 15;
-    cset <<= CSET_SHFT;
-    unpack_tile(newtilebuf, tile, flip&5, false);
-    byte *si = unpackbuf;
-    byte *di;
-    
-    if((flip&2)==0)
-    {
-        if(y<0)
-            si+=(0-y)<<4;
-            
-        for(int32_t dy=(y<0 ? 0-y : 0); (dy<16)&&(dy+y<dest->h); ++dy)
-        {
-            di = &(dest->line[y+dy][x<0 ? 0 : x]);
-            
-            if(x+15<dest->w)
-            {
-                if(x<0)
-                    si+=0-x;
-                    
-                for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
-                {
-                    if(*si)
-                        *di=*si+cset;
-                        
-                    ++di;
-                    ++si;
-                }
-            }
-            else
-            {
-                for(int32_t i=0; i<16; ++i)
-                {
-                    if(x+i<dest->w)
-                    {
-                        if(*si)
-                            *di=*si+cset;
-                            
-                        ++di;
-                    }
-                    
-                    ++si;
-                }
-            }
-        }
-    }
-    else
-    {
-        if(y+15>=dest->h)
-            si+=(16+y-dest->h)<<4;
-            
-        for(int32_t dy=(y+15>=dest->h ? dest->h-y-1 : 15); (dy>=0)&&(dy+y>=0); --dy)
-        {
-            di = &(dest->line[y+dy][x<0 ? 0 : x]);
-            
-            if(x+15<dest->w)
-            {
-                if(x<0)
-                    si+=0-x;
-                    
-                for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
-                {
-                    if(*si)
-                        *di=*si+cset;
-                        
-                    ++di;
-                    ++si;
-                }
-            }
-            else
-            {
-                for(int32_t i=0; i<16; ++i)
-                {
-                    if(x+i<dest->w)
-                    {
-                        if(*si)
-                            *di=*si+cset;
-                            
-                        ++di;
-                    }
-                    
-                    ++si;
-                }
-            }
-        }
-    }
+	if(x<-15 || y<-15)
+		return;
+		
+	if(y > dest->h)
+		return;
+		
+	if(y == dest->h && x > dest->w)
+		return;
+		
+	if(tile<0 || tile>=NEWMAXTILES)
+	{
+		rectfill(dest,x,y,x+15,y+15,0);
+		return;
+	}
+	
+	if(blank_tile_table[tile])
+		return;
+	
+	if(newtilebuf[tile].format>tf4Bit)
+	{
+		cset=0;
+	}
+	
+	cset &= 15;
+	cset <<= CSET_SHFT;
+	unpack_tile(newtilebuf, tile, flip&5, false);
+	byte *si = unpackbuf;
+	byte *di;
+	
+	if((flip&2)==0)
+	{
+		if(y<0)
+			si+=(0-y)<<4;
+			
+		for(int32_t dy=(y<0 ? 0-y : 0); (dy<16)&&(dy+y<dest->h); ++dy)
+		{
+			di = &(dest->line[y+dy][x<0 ? 0 : x]);
+			
+			if(x+15<dest->w)
+			{
+				if(x<0)
+					si+=0-x;
+					
+				for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
+				{
+					if(*si)
+						*di=*si+cset;
+						
+					++di;
+					++si;
+				}
+			}
+			else
+			{
+				for(int32_t i=0; i<16; ++i)
+				{
+					if(x+i<dest->w)
+					{
+						if(*si)
+							*di=*si+cset;
+							
+						++di;
+					}
+					
+					++si;
+				}
+			}
+		}
+	}
+	else
+	{
+		if(y+15>=dest->h)
+			si+=(16+y-dest->h)<<4;
+			
+		for(int32_t dy=(y+15>=dest->h ? dest->h-y-1 : 15); (dy>=0)&&(dy+y>=0); --dy)
+		{
+			di = &(dest->line[y+dy][x<0 ? 0 : x]);
+			
+			if(x+15<dest->w)
+			{
+				if(x<0)
+					si+=0-x;
+					
+				for(int32_t dx=(x<0 ? 0-x : 0); dx<16; ++dx)
+				{
+					if(*si)
+						*di=*si+cset;
+						
+					++di;
+					++si;
+				}
+			}
+			else
+			{
+				for(int32_t i=0; i<16; ++i)
+				{
+					if(x+i<dest->w)
+					{
+						if(*si)
+							*di=*si+cset;
+							
+						++di;
+					}
+					
+					++si;
+				}
+			}
+		}
+	}
 }
+void overtile16_scale(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int dw, int dh)
+{
+	if(x<-dw || y<-dh)
+		return;
+		
+	if(y > dest->h)
+		return;
+		
+	if(y == dest->h && x > dest->w)
+		return;
+		
+	if(tile<0 || tile>=NEWMAXTILES)
+	{
+		rectfill(dest,x,y,x+dw-1,y+dh-1,0);
+		return;
+	}
+	
+	if(blank_tile_table[tile])
+		return;
+	
+	BITMAP* tmp = create_bitmap_ex(8,16,16);
+	clear_bitmap(tmp);
+	overtile16(tmp,tile,0,0,cset,flip);
+	masked_stretch_blit(tmp,dest,0,0,16,16,x,y,dw,dh);
+	destroy_bitmap(tmp);
+}
+
 void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[],int32_t flip,bool over)
 {
     if(x<-15 || y<-15)

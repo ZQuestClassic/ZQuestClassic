@@ -1772,6 +1772,14 @@ int size_and_pos::th() const
 {
 	return h*yscale;
 }
+int size_and_pos::cx() const
+{
+	return x < 0 ? x : (x+tw()/2);
+}
+int size_and_pos::cy() const
+{
+	return y < 0 ? y : (y+th()/2);
+}
 
 void size_and_pos::clear()
 {
