@@ -5439,7 +5439,7 @@ void drawpanel()
 			if(scr->hasitem && scr->item > 0)
 			{
 				rectfill(menu1,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
-				overtile16(menu1, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0);
+				overtile16_scale(menu1, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
 			}
 			else draw_sqr_icon(itemsqr_pos, icon_bmp[0][coord_frame]);
 			draw_sqr_nums(itemsqr_pos, sqr_text_font, panel_align == 1, scr->itemx, scr->itemy);
