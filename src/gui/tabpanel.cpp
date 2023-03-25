@@ -24,11 +24,11 @@ void TabPanel::switchTo(size_t index)
 
 	assert(index<children.size());
 	
+	if(indexptr) *indexptr = index;
 	if(onSwitch)
 		onSwitch(visibleChild, index);
 	children[visibleChild]->setExposed(false); //Hide the old child
 	visibleChild = index;
-	if(indexptr) *indexptr = index;
 	pendDraw(); //Draw the tabpanel again, with the correct tab selected
 	children[index]->setExposed(true); //Show the new child
 }
