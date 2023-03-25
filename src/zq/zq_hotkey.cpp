@@ -16,8 +16,109 @@ int32_t onComboColLeft();
 int32_t onComboColRight();
 int32_t onComboColUp();
 int32_t onComboColDown();
+void cycle_compact_sqr(bool down);
 
 char const* get_hotkey_name(int hkey)
+{
+	switch(hkey)
+	{
+		case ZQKEY_UNDO: return "Undo";
+		case ZQKEY_REDO: return "Redo";
+		case ZQKEY_PLUS_FLAG: return "Increment Flag";
+		case ZQKEY_MINUS_FLAG: return "Decrement Flag";
+		case ZQKEY_SAVE: return "Save";
+		case ZQKEY_SAVEAS: return "Save As";
+		case ZQKEY_OPEN: return "Open Quest";
+		case ZQKEY_SCREEN_PAL: return "Screen Palette";
+		case ZQKEY_SECRET_COMBO: return "Secret Combos";
+		case ZQKEY_DOORS: return "Doors";
+		case ZQKEY_FFCS: return "Freeform Combos";
+		case ZQKEY_FLAGS: return "Combo Flags";
+		case ZQKEY_SCRDATA: return "Screen Data";
+		case ZQKEY_TILEWARP: return "Tile Warps";
+		case ZQKEY_SIDEWARP: return "Side Warps";
+		case ZQKEY_LAYERS: return "Layers";
+		case ZQKEY_RESET_TRANSP: return "Reset Transparency";
+		case ZQKEY_COPY: return "Copy Screen";
+		case ZQKEY_TOGGLE_DARK: return "Toggle Screen Darkness";
+		case ZQKEY_ENEMIES: return "Screen Enemies";
+		case ZQKEY_SHOW_FLAGS: return "Show Flags";
+		case ZQKEY_ITEMS: return "Screen Item";
+		case ZQKEY_COMBOS: return "Combo Pages";
+		case ZQKEY_DARK_PREVIEW: return "Preview Darkness";
+		case ZQKEY_SHOW_INFO: return "Show Screen Info";
+		case ZQKEY_DRAWING_MODE: return "Cycle Drawing Mode";
+		case ZQKEY_GOTO_PAGE: return "Goto Combo Page";
+		case ZQKEY_SHOW_CMB_CS_INFO: return "Cycle Combo Info";
+		case ZQKEY_STRINGS: return "String Editor";
+		case ZQKEY_ROOM: return "Room Data";
+		case ZQKEY_TILES: return "Tile Pages";
+		case ZQKEY_PASTE: return "Paste Screen";
+		case ZQKEY_PASTEALL: return "Paste All";
+		case ZQKEY_PASTETOALL: return "Paste To All";
+		case ZQKEY_PASTEALLTOALL: return "Paste All To All";
+		case ZQKEY_SHOW_SOLID: return "Show Walkability";
+		case ZQKEY_PREV_MODE: return "Preview Mode";
+		case ZQKEY_COMPILE_ZSCRIPT: return "Compile ZScript";
+		case ZQKEY_SCREENSHOT: return "Snapshot";
+		case ZQKEY_ABOUT: return "About ZQ";
+		case ZQKEY_MINUS_MAP: return "Decrement Map";
+		case ZQKEY_PLUS_MAP: return "Increment Map";
+		case ZQKEY_MINUS_COLOR: return "Decrement CSet";
+		case ZQKEY_PLUS_COLOR: return "Increment CSet";
+		case ZQKEY_MINUS_SCR_PAL: return "Decrement Screen Palette";
+		case ZQKEY_PLUS_SCR_PAL: return "Increment Screen Palette";
+		case ZQKEY_MINUS_16_SCR_PAL: return "Decrement Screen Palette x16";
+		case ZQKEY_PLUS_16_SCR_PAL: return "Increment Screen Palette x16";
+		case ZQKEY_GRID: return "Show Grid";
+		case ZQKEY_GRID_COLOR: return "Cycle Grid Color";
+		case ZQKEY_COMBO_COL_MODE: return "Toggle Combo Column Mode";
+		case ZQKEY_DELETE: return "Delete Screen";
+		case ZQKEY_FULLSCREEN: return "Toggle Fullscreen";
+		case ZQKEY_LYR_0: return "Edit Layer 0";
+		case ZQKEY_LYR_1: return "Edit Layer 1";
+		case ZQKEY_LYR_2: return "Edit Layer 2";
+		case ZQKEY_LYR_3: return "Edit Layer 3";
+		case ZQKEY_LYR_4: return "Edit Layer 4";
+		case ZQKEY_LYR_5: return "Edit Layer 5";
+		case ZQKEY_LYR_6: return "Edit Layer 6";
+		case ZQKEY_SCR_LPAL_0: return "Set Screen Palette: 0";
+		case ZQKEY_SCR_LPAL_1: return "Set Screen Palette: 1";
+		case ZQKEY_SCR_LPAL_2: return "Set Screen Palette: 2";
+		case ZQKEY_SCR_LPAL_3: return "Set Screen Palette: 3";
+		case ZQKEY_SCR_LPAL_4: return "Set Screen Palette: 4";
+		case ZQKEY_SCR_LPAL_5: return "Set Screen Palette: 5";
+		case ZQKEY_SCR_LPAL_6: return "Set Screen Palette: 6";
+		case ZQKEY_SCR_LPAL_7: return "Set Screen Palette: 7";
+		case ZQKEY_SCR_LPAL_8: return "Set Screen Palette: 8";
+		case ZQKEY_SCR_LPAL_9: return "Set Screen Palette: 9";
+		case ZQKEY_SCR_LPAL_10: return "Set Screen Palette: A";
+		case ZQKEY_SCR_LPAL_11: return "Set Screen Palette: B";
+		case ZQKEY_SCR_LPAL_12: return "Set Screen Palette: C";
+		case ZQKEY_SCR_LPAL_13: return "Set Screen Palette: D";
+		case ZQKEY_SCR_LPAL_14: return "Set Screen Palette: E";
+		case ZQKEY_SCR_LPAL_15: return "Set Screen Palette: F";
+		case ZQKEY_SCROLL_SCREEN_UP: return "Screen Up";
+		case ZQKEY_SCROLL_SCREEN_DOWN: return "Screen Down";
+		case ZQKEY_SCROLL_SCREEN_LEFT: return "Screen Left";
+		case ZQKEY_SCROLL_SCREEN_RIGHT: return "Screen Right";
+		case ZQKEY_WARP_SCREEN_UP: return "Screen Sidewarp Up";
+		case ZQKEY_WARP_SCREEN_DOWN: return "Screen Sidewarp Down";
+		case ZQKEY_WARP_SCREEN_LEFT: return "Screen Sidewarp Left";
+		case ZQKEY_WARP_SCREEN_RIGHT: return "Screen Sidewarp Right";
+		case ZQKEY_SCROLL_COMBO_UP: return "Scroll Combopane Up";
+		case ZQKEY_SCROLL_COMBO_DOWN: return "Scroll Combopane Down";
+		case ZQKEY_SCROLL_COMBO_LEFT: return "Scroll Combopane Left";
+		case ZQKEY_SCROLL_COMBO_RIGHT: return "Scroll Combopane Right";
+		case ZQKEY_COMBO_PAGEUP: return "Combopane Page Up";
+		case ZQKEY_COMBO_PAGEDN: return "Combopane Page Down";
+		case ZQKEY_SQUAREPANEL_UP: return "Compact Squarepanel Up";
+		case ZQKEY_SQUAREPANEL_DOWN: return "Compact Squarepanel Down";
+	}
+	return "ZQ_NIL_KEY";
+}
+
+char const* get_hotkey_cfg_name(int hkey)
 {
 	switch(hkey)
 	{
@@ -111,6 +212,8 @@ char const* get_hotkey_name(int hkey)
 		case ZQKEY_SCROLL_COMBO_RIGHT: return "ZQKEY_SCROLL_COMBO_RIGHT";
 		case ZQKEY_COMBO_PAGEUP: return "ZQKEY_COMBO_PAGEUP";
 		case ZQKEY_COMBO_PAGEDN: return "ZQKEY_COMBO_PAGEDN";
+		case ZQKEY_SQUAREPANEL_UP: return "ZQKEY_SQUAREPANEL_UP";
+		case ZQKEY_SQUAREPANEL_DOWN: return "ZQKEY_SQUAREPANEL_DOWN";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -199,6 +302,12 @@ bool is_reserved_key(int c)
 	}
 	return false;
 }
+bool is_reserved_keycombo(int c, int modflag)
+{
+	if(c==KEY_F4 && (modflag&KB_ALT_FLAG))
+		return true;
+	return false;
+}
 
 void default_hotkeys()
 {
@@ -278,6 +387,8 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_SCROLL_COMBO_RIGHT].setval(KEY_RIGHT,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_COMBO_PAGEUP].setval(KEY_PGUP,0,0,0);
 	zq_hotkeys[ZQKEY_COMBO_PAGEDN].setval(KEY_PGDN,0,0,0);
+	zq_hotkeys[ZQKEY_SQUAREPANEL_UP].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
+	zq_hotkeys[ZQKEY_SQUAREPANEL_DOWN].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
 }
 
 void load_hotkeys()
@@ -286,7 +397,7 @@ void load_hotkeys()
 	for(int q = 0; q < ZQKEY_MAX; ++q)
 	{
 		int v = zq_hotkeys[q].getval();
-		int nv = zc_get_config("ZQ_HOTKEY",get_hotkey_name(q),v);
+		int nv = zc_get_config("ZQ_HOTKEY",get_hotkey_cfg_name(q),v);
 		if(v!=nv)
 			zq_hotkeys[q].setval(nv);
 	}
@@ -431,6 +542,10 @@ int run_hotkey(int hkey)
 			return onPgUp();
 		case ZQKEY_COMBO_PAGEDN:
 			return onPgDn();
+		case ZQKEY_SQUAREPANEL_UP:
+			return cycle_compact_sqr(false);
+		case ZQKEY_SQUAREPANEL_DOWN:
+			return cycle_compact_sqr(true);
 	}
 	return D_O_K;
 }

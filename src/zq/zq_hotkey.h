@@ -78,10 +78,12 @@ enum
 	ZQKEY_WARP_SCREEN_UP,ZQKEY_WARP_SCREEN_DOWN,ZQKEY_WARP_SCREEN_LEFT,ZQKEY_WARP_SCREEN_RIGHT,
 	ZQKEY_SCROLL_COMBO_UP,ZQKEY_SCROLL_COMBO_DOWN,ZQKEY_SCROLL_COMBO_LEFT,ZQKEY_SCROLL_COMBO_RIGHT,
 	ZQKEY_COMBO_PAGEUP,ZQKEY_COMBO_PAGEDN,
+	ZQKEY_SQUAREPANEL_UP,ZQKEY_SQUAREPANEL_DOWN,
 	ZQKEY_MAX
 };
 bool is_modkey(int c);
 bool is_reserved_key(int c);
+bool is_reserved_keycombo(int c, int modflag);
 void default_hotkeys();
 void load_hotkeys();
 int d_zq_hotkey_proc(int msg, DIALOG* d, int c);

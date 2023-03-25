@@ -1064,6 +1064,8 @@ void toggle_compact_sqr_mode()
 }
 void cycle_compact_sqr(bool down)
 {
+	if(!(is_compact && compact_square_panels))
+		return;
 	static const int num_panels = 3;
 	if(down)
 		compact_active_panel = (compact_active_panel+1)%num_panels;
