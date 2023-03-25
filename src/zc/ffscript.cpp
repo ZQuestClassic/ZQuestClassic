@@ -29366,6 +29366,7 @@ j_command:
 		if(numInstructions==hangcount) // No need to check frequently
 		{
 			numInstructions=0;
+			poll_keyboard();
 			checkQuitKeys();
 			if(Quit)
 				scommand=0xFFFF;
