@@ -387,7 +387,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_SCROLL_COMBO_RIGHT].setval(KEY_RIGHT,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_COMBO_PAGEUP].setval(KEY_PGUP,0,0,0);
 	zq_hotkeys[ZQKEY_COMBO_PAGEDN].setval(KEY_PGDN,0,0,0);
-	zq_hotkeys[ZQKEY_SQUAREPANEL_UP].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
+	zq_hotkeys[ZQKEY_SQUAREPANEL_UP].setval(KEY_PGUP,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SQUAREPANEL_DOWN].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
 }
 
@@ -543,9 +543,11 @@ int run_hotkey(int hkey)
 		case ZQKEY_COMBO_PAGEDN:
 			return onPgDn();
 		case ZQKEY_SQUAREPANEL_UP:
-			return cycle_compact_sqr(false);
+			cycle_compact_sqr(false);
+			break;
 		case ZQKEY_SQUAREPANEL_DOWN:
-			return cycle_compact_sqr(true);
+			cycle_compact_sqr(true);
+			break;
 	}
 	return D_O_K;
 }
