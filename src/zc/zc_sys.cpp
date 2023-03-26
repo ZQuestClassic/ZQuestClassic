@@ -283,6 +283,21 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 	return D_O_K;
 }
 
+bool is_reserved_key(int c)
+{
+	switch(c)
+	{
+		case KEY_ESC:
+			return true;
+	}
+	return false;
+}
+bool is_reserved_keycombo(int c, int modflag)
+{
+	if(c==KEY_F4 && (modflag&KB_ALT_FLAG))
+		return true;
+	return false;
+}
 bool checkcheat(Cheat cheat)
 {
 	if(cheatkeys[cheat][0] && zc_readkey(cheatkeys[cheat][0]))

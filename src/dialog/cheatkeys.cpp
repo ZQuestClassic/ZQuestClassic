@@ -7,49 +7,6 @@
 #include "zc/cheats.h"
 #include <fmt/format.h>
 
-const char *key_str[] =
-{
-    "(none)       ",              "a            ",              "b            ",              "c            ",
-    "d            ",              "e            ",              "f            ",              "g            ",
-    "h            ",              "i            ",              "j            ",              "k            ",
-    "l            ",              "m            ",              "n            ",              "o            ",
-    "p            ",              "q            ",              "r            ",              "s            ",
-    "t            ",              "u            ",              "v            ",              "w            ",
-    "x            ",              "y            ",              "z            ",              "0            ",
-    "1            ",              "2            ",              "3            ",              "4            ",
-    "5            ",              "6            ",              "7            ",              "8            ",
-    "9            ",              "num 0        ",              "num 1        ",              "num 2        ",
-    "num 3        ",              "num 4        ",              "num 5        ",              "num 6        ",
-    "num 7        ",              "num 8        ",              "num 9        ",              "f1           ",
-    "f2           ",              "f3           ",              "f4           ",              "f5           ",
-    "f6           ",              "f7           ",              "f8           ",              "f9           ",
-    "f10          ",              "f11          ",              "f12          ",              "esc          ",
-    "~            ",              "-            ",              "=            ",              "backspace    ",
-    "tab          ",              "{            ",              "}            ",              "enter        ",
-    ":            ",              "quote        ",              "\\           ",              "\\ (2)       ",
-    ",            ",              ".            ",              "/            ",              "space        ",
-    "insert       ",              "delete       ",              "home         ",              "end          ",
-    "page up      ",              "page down    ",              "left         ",              "right        ",
-    "up           ",              "down         ",              "num /        ",              "num *        ",
-    "num -        ",              "num +        ",              "num delete   ",              "num enter    ",
-    "print screen ",              "pause        ",              "abnt c1      ",              "yen          ",
-    "kana         ",              "convert      ",              "no convert   ",              "at           ",
-    "circumflex   ",              ": (2)        ",              "kanji        ",              "num =        ",
-    "back quote   ",              ";            ",              "command      ",              "unknown (0)  ",
-    "unknown (1)  ",              "unknown (2)  ",              "unknown (3)  ",              "unknown (4)  ",
-    "unknown (5)  ",              "unknown (6)  ",              "unknown (7)  ",              "left shift   ",
-    "right shift  ",              "left control ",              "right control",              "alt          ",
-    "alt gr       ",              "left win     ",              "right win    ",              "menu         ",
-    "scroll lock  ",              "number lock  ",              "caps lock    ",      "MAX"
-};
-
-std::string get_keystr(int key)
-{
-	std::string str(key_str[key]);
-	util::trimstr(str);
-	return str;
-}
-
 CheatKeysDialog::CheatKeysDialog(bool* confirm):
 	confirm_ptr(confirm)
 {}

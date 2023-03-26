@@ -1,18 +1,6 @@
 #ifndef ZQ_HOTKEY_H
 #define ZQ_HOTKEY_H
 
-#define HOTKEY_FLAG_FILTER (KB_SHIFT_FLAG|KB_CTRL_FLAG|KB_ALT_FLAG)
-struct Hotkey
-{
-	int modflag[2];
-	int key[2];
-	bool check(int k,int shifts,bool exact=false);
-	int getval() const;
-	void setval(int val);
-	void setval(int ind,int k,int shifts);
-	void setval(int k,int shifts,int k2,int shifts2);
-};
-
 enum
 {
 	ZQKEY_UNDO,
@@ -81,12 +69,14 @@ enum
 	ZQKEY_SQUAREPANEL_UP,ZQKEY_SQUAREPANEL_DOWN,
 	ZQKEY_MAX
 };
-bool is_modkey(int c);
+extern Hotkey zq_hotkeys[ZQKEY_MAX];
+char const* get_hotkey_name(int hkey);
 bool is_reserved_key(int c);
 bool is_reserved_keycombo(int c, int modflag);
 void default_hotkeys();
 void load_hotkeys();
 int d_zq_hotkey_proc(int msg, DIALOG* d, int c);
+int do_zq_hotkey_dialog();
 
 #endif
 

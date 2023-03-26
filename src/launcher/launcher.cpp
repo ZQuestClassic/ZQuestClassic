@@ -255,6 +255,21 @@ bool is_zquest() //Used for sizing purposes
 	return true;
 }
 
+bool is_reserved_key(int c)
+{
+	switch(c)
+	{
+		case KEY_ESC:
+			return true;
+	}
+	return false;
+}
+bool is_reserved_keycombo(int c, int modflag)
+{
+	if(c==KEY_F4 && (modflag&KB_ALT_FLAG))
+		return true;
+	return false;
+}
 //{ Nil funcs
 
 int32_t d_alltriggerbutton_proc(int32_t, DIALOG*, int32_t)

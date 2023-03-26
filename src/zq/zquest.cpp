@@ -1548,20 +1548,21 @@ static MENU etc_menu[] =
 	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
 	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
 	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	{ (char *)"&Hotkeys...",                do_zq_hotkey_dialog,       NULL,                     0,            NULL   },
 	// 5
+	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
 	{ (char *)"Media",                      NULL,                      media_menu,               0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	// 10
+	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
 	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	// 15
+	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1586,7 +1587,7 @@ static MENU zscript_menu[] =
 
 void set_console_state()
 {
-	SETFLAG(etc_menu[9].flags, D_SELECTED, console_is_open);
+	SETFLAG(etc_menu[10].flags, D_SELECTED, console_is_open);
 }
 
 MENU the_menu[] =
@@ -31092,7 +31093,7 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
 		etc_menu[2].flags=(isFullScreen()==1)?D_DISABLED:0;
-		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
+		etc_menu[5].flags=(isFullScreen()==1)?D_SELECTED:0;
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();

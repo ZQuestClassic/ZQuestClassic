@@ -1884,6 +1884,25 @@ struct size_and_pos
 	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
 };
 
+#define HOTKEY_FLAG_FILTER (KB_SHIFT_FLAG|KB_CTRL_FLAG|KB_ALT_FLAG)
+struct Hotkey
+{
+	int modflag[2];
+	int hotkey[2];
+	#undef check
+	bool check(int k,int shifts,bool exact=false);
+	int getval() const;
+	void setval(int val);
+	void setval(int ind,int k,int shifts);
+	void setval(int k,int shifts,int k2,int shifts2);
+	std::string get_name(int ind);
+	bool operator==(Hotkey const& other);
+	bool operator!=(Hotkey const& other);
+};
+std::string get_keystr(int key);
+bool is_modkey(int c);
+int get_mods(int mask = HOTKEY_FLAG_FILTER);
+
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
 #define ITEMCNT   iMax

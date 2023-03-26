@@ -2,6 +2,7 @@
 #include "zquest.h"
 #include "zq_misc.h"
 #include "zq_hotkey.h"
+#include "dialog/zqhotkeys.h"
 
 extern int32_t prv_mode;
 extern bool placing_flags;
@@ -218,81 +219,8 @@ char const* get_hotkey_cfg_name(int hkey)
 	return "ZQ_NIL_KEY";
 }
 
-bool Hotkey::check(int k,int shifts,bool exact)
-{
-	for(int q = 0; q <= 1; ++q)
-	{
-		int s = shifts & (exact ? HOTKEY_FLAG_FILTER : modflag[q]);
-		if(key[q] == k && modflag[q] == s)
-			return true;
-	}
-	return false;
-}
-int Hotkey::getval() const
-{
-	return (key[0]&0xFF)<<0 |
-		(modflag[0]&HOTKEY_FLAG_FILTER)<<8 |
-		(key[1]&0xFF)<<16 |
-		(modflag[1]&HOTKEY_FLAG_FILTER)<<24;
-}
-void Hotkey::setval(int val)
-{
-	key[0] = (val>>0)&0xFF;
-	modflag[0] = (val>>8)&HOTKEY_FLAG_FILTER;
-	key[1] = (val>>16)&0xFF;
-	modflag[1] = (val>>24)&HOTKEY_FLAG_FILTER;
-	for(int q = 0; q < 2; ++q)
-		if(modflag[q] & KB_COMMAND_FLAG)
-		{
-			modflag[q] &= ~KB_COMMAND_FLAG;
-			modflag[q] |= KB_CTRL_FLAG;
-		}
-}
-void Hotkey::setval(int ind,int k,int shifts)
-{
-	if(shifts & KB_COMMAND_FLAG)
-	{
-		shifts &= ~KB_COMMAND_FLAG;
-		shifts |= KB_CTRL_FLAG;
-	}
-	key[ind] = k&0xFF;
-	modflag[ind] = shifts&HOTKEY_FLAG_FILTER;
-}
-void Hotkey::setval(int k,int shifts,int k2,int shifts2)
-{
-	if(shifts & KB_COMMAND_FLAG)
-	{
-		shifts &= ~KB_COMMAND_FLAG;
-		shifts |= KB_CTRL_FLAG;
-	}
-	if(shifts2 & KB_COMMAND_FLAG)
-	{
-		shifts2 &= ~KB_COMMAND_FLAG;
-		shifts2 |= KB_CTRL_FLAG;
-	}
-	key[0] = k&0xFF;
-	modflag[0] = shifts&HOTKEY_FLAG_FILTER;
-	key[1] = k2&0xFF;
-	modflag[1] = shifts2&HOTKEY_FLAG_FILTER;
-}
-
 Hotkey zq_hotkeys[ZQKEY_MAX];
 
-bool is_modkey(int c)
-{
-	switch(c)
-	{
-		case KEY_LSHIFT:
-		case KEY_RSHIFT:
-		case KEY_LCONTROL:
-		case KEY_RCONTROL:
-		case KEY_COMMAND:
-		case KEY_ALT:
-		case KEY_ALTGR:
-			return true;
-	}
-	return false;
-}
 bool is_reserved_key(int c)
 {
 	switch(c)
@@ -564,12 +492,7 @@ int d_zq_hotkey_proc(int msg, DIALOG* d, int c)
 			int key = c>>8;
 			if(is_modkey(key) || !(key))
 				break;
-			int shifts = key_shifts;
-			if(shifts&KB_COMMAND_FLAG)
-			{
-				shifts &= ~KB_COMMAND_FLAG;
-				shifts |= KB_CTRL_FLAG;
-			}
+			int shifts = get_mods();
 			if(key==KEY_F4 && (shifts&KB_ALT_FLAG))
 			{
 				close_button_quit = true;
@@ -586,3 +509,22 @@ int d_zq_hotkey_proc(int msg, DIALOG* d, int c)
 	return ret;
 }
 
+int do_zq_hotkey_dialog()
+{
+	Hotkey tmp_hotkeys[ZQKEY_MAX];
+	memcpy(tmp_hotkeys, zq_hotkeys, sizeof(tmp_hotkeys));
+	
+	bool confirm = false;
+	ZQHotkeyDialog(&confirm).show();
+	if(confirm)
+	{
+		for(int q = 0; q < ZQKEY_MAX; ++q)
+		{
+			if(tmp_hotkeys[q] != zq_hotkeys[q])
+				zc_set_config("ZQ_HOTKEY",get_hotkey_cfg_name(q),zq_hotkeys[q].getval());
+		}
+	}
+	else
+		memcpy(zq_hotkeys, tmp_hotkeys, sizeof(tmp_hotkeys));
+	return D_O_K;
+}
