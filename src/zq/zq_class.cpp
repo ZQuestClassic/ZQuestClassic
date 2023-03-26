@@ -9682,7 +9682,10 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		}
 	}
 	if(tmp_cmb.triggerflags[0] || tmp_cmb.triggerflags[1]
-		|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerlevel
+		|| tmp_cmb.triggerflags[2] || tmp_cmb.triggerflags[3]
+		|| tmp_cmb.triggerflags[4] || tmp_cmb.triggerflags[5]
+		|| tmp_cmb.triggerlevel || tmp_cmb.trig_lstate
+		|| tmp_cmb.trig_gstate || tmp_cmb.trig_statetime
 		|| tmp_cmb.triggerbtn || tmp_cmb.triggeritem
 		|| tmp_cmb.trigtimer || tmp_cmb.trigsfx
 		|| tmp_cmb.trigchange || tmp_cmb.trigprox
@@ -9847,7 +9850,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(combo_has_flags&CHAS_TRIG)
 	{
-		for ( int32_t q = 0; q < 3; q++ ) 
+		for ( int32_t q = 0; q < 6; q++ ) 
 		{
 			if(!p_iputl(tmp_cmb.triggerflags[q],f))
 			{
@@ -9939,68 +9942,80 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 53;
 		}
+		if(!p_putc(tmp_cmb.trig_lstate,f))
+		{
+			return 69;
+		}
+		if(!p_putc(tmp_cmb.trig_gstate,f))
+		{
+			return 70;
+		}
+		if(!p_iputl(tmp_cmb.trig_statetime,f))
+		{
+			return 71;
+		}
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{
 		if(!p_iputw(tmp_cmb.liftcmb,f))
 		{
-			return 51;
+			return 54;
 		}
 		if(!p_putc(tmp_cmb.liftcs,f))
 		{
-			return 52;
+			return 55;
 		}
 		if(!p_iputw(tmp_cmb.liftundercmb,f))
 		{
-			return 53;
+			return 56;
 		}
 		if(!p_putc(tmp_cmb.liftundercs,f))
 		{
-			return 54;
+			return 57;
 		}
 		if(!p_putc(tmp_cmb.liftdmg,f))
 		{
-			return 55;
+			return 58;
 		}
 		if(!p_putc(tmp_cmb.liftlvl,f))
 		{
-			return 56;
+			return 59;
 		}
 		if(!p_putc(tmp_cmb.liftitm,f))
 		{
-			return 57;
+			return 60;
 		}
 		if(!p_putc(tmp_cmb.liftflags,f))
 		{
-			return 58;
+			return 61;
 		}
 		if(!p_putc(tmp_cmb.liftgfx,f))
 		{
-			return 59;
+			return 62;
 		}
 		if(!p_putc(tmp_cmb.liftsprite,f))
 		{
-			return 60;
+			return 63;
 		}
 		if(!p_putc(tmp_cmb.liftsfx,f))
 		{
-			return 61;
+			return 64;
 		}
 		if(!p_iputw(tmp_cmb.liftbreaksprite,f))
 		{
-			return 62;
+			return 65;
 		}
 		if(!p_putc(tmp_cmb.liftbreaksfx,f))
 		{
-			return 63;
+			return 66;
 		}
 		if(!p_putc(tmp_cmb.lifthei,f))
 		{
-			return 64;
+			return 67;
 		}
 		if(!p_putc(tmp_cmb.lifttime,f))
 		{
-			return 65;
+			return 68;
 		}
 	}
 	return 0;

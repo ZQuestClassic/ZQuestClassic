@@ -17269,7 +17269,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		
 		if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
 		{
-			for(int32_t q = 0; q < 3; ++q)
+			for(int32_t q = 0; q < 6; ++q)
 				combobuf[i].triggerflags[q] = combo.triggerflags[q];
 			combobuf[i].triggerlevel = combo.triggerlevel;
 			combobuf[i].triggerbtn = combo.triggerbtn;

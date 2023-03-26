@@ -2706,8 +2706,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(54,"Consume w/o trig")
 						)
 					)),
-					TabRef(name = "States/Spawning", Row(
-						Rows<3>(framed = true,
+					TabRef(name = "States/Spawning", Rows<3>(
+						Rows<3>(framed = true, fitParent = true,
 							Label(text = "Req Item:", fitParent = true),
 							TextField(
 								fitParent = true,
@@ -2809,9 +2809,66 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										"\nIf this combo is triggered, all other linked combos will also trigger,"
 										"\nand if any other linked combo triggers, this combo will trigger.").show();
 								}
+							),
+							//
+							Label(text = "LevelState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 31, val = local_comboref.trig_lstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_lstate = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("LevelState","The LevelState used by the flags"
+										" '->LevelState' and 'LevelState->'. 0-31.").show();
+								}
+							),
+							Label(text = "GlobalState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.trig_gstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_gstate = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("GlobalState","The GlobalState used by the flags"
+										" '->GlobalState' and 'GlobalState->'. 0-255.").show();
+								}
+							),
+							Label(text = "GlobalState Timer:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 214748, val = local_comboref.trig_statetime,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_statetime = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("GlobalState Timer","If this value is >0,"
+										" then the 'GlobalState->' flag will trigger a timed global"
+										" state with this duration, in frames, instead of toggling"
+										" the global state.").show();
+								}
 							)
 						),
-						Rows<2>(framed = true,
+						Rows<2>(framed = true, fitParent = true,
 							INFOBTN("'Req Item:' must NOT be owned to trigger"),
 							TRIGFLAG(49,"Invert Item Req"),
 							INFOBTN("'Req Item:' will be taken when triggering"),
@@ -2823,9 +2880,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							INFOBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
 							TRIGFLAG(85, "Trigger ExState after enemy kill"),
 							INFOBTN("The item spawned by the combo will automatically be collected by the player."),
-							TRIGFLAG(86, "Spawned Item auto-collects")
+							TRIGFLAG(86, "Spawned Item auto-collects"),
+							INFOBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
+							TRIGFLAG(96, "LevelState->"),
+							INFOBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
+							TRIGFLAG(97, "->LevelState"),
+							INFOBTN("This combo is triggered when the globalswitch state specified as 'GlobalState' is toggled."),
+							TRIGFLAG(98, "GlobalState->"),
+							INFOBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
+								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
+							TRIGFLAG(99, "->GlobalState")
 						),
-						Column(framed = true, frameText = "Spawned Item Pickup",
+						Column(framed = true, fitParent = true, frameText = "Spawned Item Pickup",
 							MISCFLAG(spawnip, ipHOLDUP, "Hold Up Item"),
 							MISCFLAG(spawnip, ipTIMER, "Time Out Item"),
 							MISCFLAG(spawnip, ipSECRETS, "Item Triggers Secrets"),

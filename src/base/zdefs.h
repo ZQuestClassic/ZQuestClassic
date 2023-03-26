@@ -282,7 +282,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          35
+#define V_COMBOS          36
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            16
@@ -1432,9 +1432,16 @@ enum
 #define combotriggerMAGICFIRE      0x40000000
 #define combotriggerDIVINEFIRE     0x80000000
 
-#define ctrigNONE        0x00
-#define ctrigIGNORE_SIGN 0x01
-#define ctrigSECRETS     0x02
+//triggerflags[2]
+#define combotriggerTRIGLEVELSTATE      0x00000001
+#define combotriggerLEVELSTATE          0x00000002
+#define combotriggerTRIGGLOBALSTATE     0x00000004
+#define combotriggerGLOBALSTATE         0x00000008
+
+#define ctrigNONE          0x00
+#define ctrigIGNORE_SIGN   0x01
+#define ctrigSECRETS       0x02
+#define ctrigSWITCHSTATE   0x04
 
 // weapon types in game engine
 enum
@@ -3042,7 +3049,7 @@ struct newcombo
 	int32_t attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; // combodata->Flags and Screen->ComboFlags[pos]
 	int16_t genflags; // general flags
-	int32_t triggerflags[3];
+	int32_t triggerflags[6];
 	int32_t triggerlevel;
 	byte triggerbtn;
 	byte triggeritem;
@@ -3060,6 +3067,8 @@ struct newcombo
 	int32_t spawnip;
 	byte trigcopycat;
 	byte trigcooldown;
+	byte trig_lstate, trig_gstate;
+	int32_t trig_statetime;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -3120,7 +3129,7 @@ struct newcombo
 			if(attributes[q]) return false;
 		if(usrflags) return false;
 		if(genflags) return false;
-		for(auto q = 0; q < 3; ++q)
+		for(auto q = 0; q < 6; ++q)
 			if(triggerflags[q]) return false;
 		if(triggerlevel) return false;
 		if(triggerbtn) return false;

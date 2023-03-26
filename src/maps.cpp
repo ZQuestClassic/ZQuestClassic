@@ -6161,6 +6161,7 @@ void toggle_switches(dword flags, bool entry)
 void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 {
 	if(!flags) return; //No flags to toggle
+	bool iscurscr = (m==tmpscr && t==tmpscr2);
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
@@ -6168,9 +6169,12 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(cmb.usrflags & cflag11) //global state
-				continue;
-			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
+			if(iscurscr)
+				if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
+					if(flags&(1<<cmb.trig_lstate))
+						do_trigger_combo(lyr,pos,ctrigSWITCHSTATE);
+			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
+				&& !(cmb.usrflags & cflag11)) //global state
 			{
 				if(flags&(1<<cmb.attribytes[0]))
 				{
@@ -6266,6 +6270,18 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 			}
 		}
 	}
+	
+	if(iscurscr)
+	{
+		word c = m->numFFC();
+		for(word q=0; q<c; ++q)
+		{
+			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
+			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
+				if(flags&(1<<cmb.trig_lstate))
+					do_trigger_combo_ffc(q,ctrigSWITCHSTATE);
+		}
+	}
 }
 
 void toggle_gswitches(int32_t state, bool entry)
@@ -6281,6 +6297,7 @@ void toggle_gswitches(int32_t state, bool entry, mapscr* m, mapscr* t)
 void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 {
 	if(!states) return;
+	bool iscurscr = (m==tmpscr && t==tmpscr2);
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
@@ -6288,6 +6305,10 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(iscurscr)
+				if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
+					if(states[cmb.trig_gstate])
+						do_trigger_combo(lyr,pos,ctrigSWITCHSTATE);
 			if(!(cmb.usrflags & cflag11)) //not global state
 				continue;
 			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
@@ -6385,6 +6406,18 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 					combobuf[cmbid].aclk = 0;
 				}
 			}
+		}
+	}
+	
+	if(iscurscr)
+	{
+		word c = m->numFFC();
+		for(word q=0; q<c; ++q)
+		{
+			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
+			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
+				if(states[cmb.trig_gstate])
+					do_trigger_combo_ffc(q,ctrigSWITCHSTATE);
 		}
 	}
 }

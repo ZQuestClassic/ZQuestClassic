@@ -2509,6 +2509,7 @@ bool force_ex_trigger_ffc(int32_t pos, char xstate)
 }
 
 static bool triggering_generic_secrets = false;
+static bool triggering_generic_switchstate = false;
 
 //Triggers a combo at a given position
 bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
@@ -2707,6 +2708,42 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
 					setmapflag(mSECRET);
 				sfx(tmpscr->secretsfx);
+			}
+			
+			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
+			{
+				used_bit = true;
+				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+				{
+					triggering_generic_switchstate = true;
+					toggle_switches(1<<cmb.trig_lstate, false);
+					triggering_generic_switchstate = false;
+				}
+			}
+			if (cmb.triggerflags[3] & combotriggerGLOBALSTATE)
+			{
+				used_bit = true;
+				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+				{
+					int tmr = cmb.trig_statetime, pair = cmb.trig_gstate;
+					bool oldstate = game->gswitch_timers[pair]!=0;
+					if(tmr > 0)
+					{
+						game->gswitch_timers[pair] = tmr;
+					}
+					else
+					{
+						if(game->gswitch_timers[pair])
+							game->gswitch_timers[pair] = 0;
+						else game->gswitch_timers[pair] = -1;
+					}
+					if(oldstate != (game->gswitch_timers[pair] != 0))
+					{
+						triggering_generic_switchstate = true;
+						toggle_gswitches(pair, false);
+						triggering_generic_switchstate = false;
+					}
+				}
 			}
 			
 			if(cmb.trigchange)

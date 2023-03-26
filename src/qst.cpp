@@ -18176,7 +18176,8 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_TRIG)
 		{
-			for ( int32_t q = 0; q < 3; q++ )
+			int numtrigs = s_version < 36 ? 3 : 6;
+			for ( int32_t q = 0; q < numtrigs; q++ )
 			{
 				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
 				{
@@ -18266,6 +18267,21 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				}
 				if(!p_igetw(&temp_combo.prompt_y,f,true))
+				{
+					return qe_invalid;
+				}
+			}
+			if(s_version >= 36)
+			{
+				if(!p_getc(&temp_combo.trig_lstate,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_getc(&temp_combo.trig_gstate,f,true))
+				{
+					return qe_invalid;
+				}
+				if(!p_igetl(&temp_combo.trig_statetime,f,true))
 				{
 					return qe_invalid;
 				}

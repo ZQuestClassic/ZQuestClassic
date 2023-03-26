@@ -11376,7 +11376,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
-		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -11385,7 +11385,7 @@ int32_t get_register(const int32_t arg)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
 			}
-			else if ( unsigned(indx) >= 96 )
+			else if ( unsigned(indx) >= 32*6 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
 			}
@@ -11718,6 +11718,36 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
 			}
 			else ret = (combobuf[ri->combosref].lifttime) * 10000;
+			break;
+		}
+		case COMBODTRIGGERLSTATE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLevelState: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_lstate) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGSTATE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_gstate) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGTIMER:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_statetime) * 10000;
 			break;
 		}
 		
@@ -21290,7 +21320,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
-		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -21298,7 +21328,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
 			}
-			else if ( unsigned(indx) >= 96 )
+			else if ( unsigned(indx) >= 32*6 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
 			}
@@ -21395,6 +21425,240 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
 			}
 			else combobuf[ri->combosref].trigctramnt = vbound(value/10000, -65535, 65535);
+			break;
+		}
+		
+		case COMBODTRIGGERCOOLDOWN:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCooldown: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigcooldown = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERCOPYCAT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCopycat: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigcopycat = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGITEMPICKUP:
+		{
+			const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerSpawnItemPickup: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].spawnip = (value/10000)&allowed_pflags;
+			break;
+		}
+		case COMBODTRIGEXSTATE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].exstate = vbound(value/10000, -1, 31);
+			break;
+		}
+		case COMBODTRIGSPAWNENEMY:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnEnemy: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].spawnenemy = vbound(value/10000, 0, 511);
+			break;
+		}
+		case COMBODTRIGSPAWNITEM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnItem: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].spawnitem = vbound(value/10000, -255, 255);
+			break;
+		}
+		case COMBODTRIGCSETCHANGE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigCSetChange: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigcschange = vbound(value/10000, -15, 15);
+			break;
+		}
+		case COMBODLIFTGFXCOMBO:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCombo: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftcmb = vbound(value/10000, 0, MAXCOMBOS);
+			break;
+		}
+		case COMBODLIFTGFXCCSET:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCSet: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftcs = vbound(value/10000, 0, 13);
+			break;
+		}
+		case COMBODLIFTUNDERCMB:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCombo: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftundercmb = vbound(value/10000, 0, MAXCOMBOS);
+			break;
+		}
+		case COMBODLIFTUNDERCS:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCSet: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftundercs = vbound(value/10000, 0, 13);
+			break;
+		}
+		case COMBODLIFTDAMAGE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftDamage: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftdmg = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTLEVEL:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftLevel: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftlvl = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTITEM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftItem: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftitm = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftFlags[]: %d\n", (ri->combosref*10000));
+				break;
+			}
+			if ( unsigned(indx) > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to combodata->LiftFlags[]: %d\n", indx);
+				break;
+			}
+			SETFLAG(combobuf[ri->combosref].liftflags, (1<<indx), value);
+			break;
+		}
+		case COMBODLIFTGFXTYPE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXType: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftgfx = vbound(value/10000, 0, 2);
+			break;
+		}
+		case COMBODLIFTGFXSPRITE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXSprite: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftsprite = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTSFX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftSFX: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftsfx = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTBREAKSPRITE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSprite: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftbreaksprite = vbound(value/10000, -4, 255);
+			break;
+		}
+		case COMBODLIFTBREAKSFX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSFX: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftbreaksfx = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTHEIGHT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftHeight: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].lifthei = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTTIME:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].lifttime = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERLSTATE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLevelState: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_lstate = vbound(value/10000, 0, 31);
+			break;
+		}
+		case COMBODTRIGGERGSTATE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_gstate = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERGTIMER:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_statetime = vbound(value/10000, 0, 214748);
 			break;
 		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -40598,9 +40862,9 @@ script_variable ZASMVars[]=
 	{ "FFCLASTCHANGERY", FFCLASTCHANGERY, 0, 0 },
 	{ "LWPNTIMEOUT", LWPNTIMEOUT, 0, 0 },
 	{ "EWPNTIMEOUT", EWPNTIMEOUT, 0, 0 },
-	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
-	{ "RESRVD_VAR_EMILY08", RESRVD_VAR_EMILY08, 0, 0 },
-	{ "RESRVD_VAR_EMILY09", RESRVD_VAR_EMILY09, 0, 0 },
+	{ "COMBODTRIGGERLSTATE", COMBODTRIGGERLSTATE, 0, 0 },
+	{ "COMBODTRIGGERGSTATE", COMBODTRIGGERGSTATE, 0, 0 },
+	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
 	{ "RESRVD_VAR_EMILY10", RESRVD_VAR_EMILY10, 0, 0 },
 	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
 	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
@@ -42115,7 +42379,7 @@ void FFScript::read_combos(PACKFILE *f, int32_t version_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
 		}	 
-		for ( int32_t q = 0; q < 3; q++ ) 
+		for ( int32_t q = 0; q < 6; q++ ) 
 		{
 			if(!p_igetl(&combobuf[i].triggerflags[q],f,true))
 			{
@@ -42256,7 +42520,7 @@ void FFScript::write_combos(PACKFILE *f, int32_t version_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
 		}	 
-		for ( int32_t q = 0; q < 3; q++ ) 
+		for ( int32_t q = 0; q < 6; q++ ) 
 		{
 			if(!p_iputl(combobuf[i].triggerflags[q],f))
 			{
