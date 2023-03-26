@@ -159,6 +159,7 @@ const char *font_output_strs[] =
 
 FONT* customfonts[CFONT_MAX];
 FONT* deffonts[CFONT_MAX];
+int fontscales[CFONT_MAX];
 ALLEGRO_FONT* a5fonts[font_max];
 ALLEGRO_FONT* customfonts_a5[CFONT_MAX];
 ALLEGRO_FONT* deffonts_a5[CFONT_MAX];
@@ -394,6 +395,19 @@ void save_font(char const* path, int fontid)
 	save_bitmap(path, bmp, fontpal);
 	destroy_bitmap(bmp);
 }
+FONT* __load_a4_font(BITMAP* bmp)
+{
+	PALETTE oldpal;
+	get_palette(oldpal);
+	
+	init_fontpal();
+	zc_set_palette(fontpal);
+	
+	FONT* newfont = grab_font_from_bitmap(bmp);
+	
+	zc_set_palette(oldpal);
+	return newfont;
+}
 ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 {
 	PALETTE oldpal;
@@ -554,6 +568,29 @@ ALLEGRO_FONT* load_cfont_a5(char const* name)
 	return f;
 }
 
+FONT* scale_font(FONT* f, int scale)
+{
+	BITMAP* bmp = get_font_bitmap(f);
+	BITMAP* scaledbmp = create_bitmap_ex(8,bmp->w*scale,bmp->h*scale);
+	stretch_blit(bmp, scaledbmp, 0, 0, bmp->w, bmp->h, 0, 0, scaledbmp->w, scaledbmp->h);
+	FONT* newfont = __load_a4_font(scaledbmp);
+	destroy_bitmap(bmp);
+	destroy_bitmap(scaledbmp);
+	return newfont;
+}
+
+ALLEGRO_FONT* scale_font_a5(FONT* f, int scale)
+{
+	BITMAP* bmp = get_font_bitmap(f);
+	BITMAP* scaledbmp = create_bitmap_ex(8,bmp->w*scale,bmp->h*scale);
+	stretch_blit(bmp, scaledbmp, 0, 0, bmp->w, bmp->h, 0, 0, scaledbmp->w, scaledbmp->h);
+	ALLEGRO_FONT* newfont = __load_a5_font(scaledbmp);
+	destroy_bitmap(bmp);
+	destroy_bitmap(scaledbmp);
+	return newfont;
+}
+
+int dlgfontheight;
 void init_custom_fonts()
 {
 	font = nfont;
@@ -565,24 +602,15 @@ void init_custom_fonts()
 		strcpy(pref, "large");
 	
 	char buf[512];
-	int deffont_ids[CFONT_MAX];
-	sprintf(buf, "font_%s_%s", pref, "dialog");
-	deffont_ids[CFONT_DLG] = zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest);
-	sprintf(buf, "font_%s_%s", pref, "title");
-	deffont_ids[CFONT_TITLE] = zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest);
-	sprintf(buf, "font_%s_%s", pref, "favcmd");
-	deffont_ids[CFONT_FAVCMD] = zc_get_config("ZQ_GUI", buf, font_pfont, App::zquest);
-	sprintf(buf, "font_%s_%s", pref, "gui");
-	deffont_ids[CFONT_GUI] = zc_get_config("ZQ_GUI", buf, font_nfont, App::zquest);
-	sprintf(buf, "font_%s_%s", pref, "textbox");
-	deffont_ids[CFONT_TEXTBOX] = zc_get_config("ZQ_GUI", buf, font_sfont3, App::zquest);
-	sprintf(buf, "font_%s_%s", pref, "ttip");
-	deffont_ids[CFONT_TTIP] = zc_get_config("ZQ_GUI", buf, font_lfont, App::zquest);
-	sprintf(buf, "font_%s_%s", pref, "info");
-	deffont_ids[CFONT_INFO] = zc_get_config("ZQ_GUI", buf, font_lfont_l, App::zquest);
-	
+	int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_pfont,font_nfont,font_sfont3,font_lfont,font_lfont_l};
+	char const* _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
+	bool use_custom_fonts = zc_get_config("gui","custom_fonts",1, App::zquest);
 	for(int q = 0; q < CFONT_MAX; ++q)
 	{
+		sprintf(buf, "font_%s_%s", pref, _font_titles[q]);
+		deffont_ids[q] = zc_get_config("ZQ_GUI", buf, deffont_ids[q], App::zquest);
+		sprintf(buf, "fontscale_%s_%s", pref, _font_titles[q]);
+		fontscales[q] = zc_get_config("ZQ_GUI", buf, 1, App::zquest);
 		if(unsigned(deffont_ids[q]) >= font_max)
 			deffont_ids[q] = font_lfont_l;
 		deffonts[q] = get_zc_font(deffont_ids[q]);
@@ -597,32 +625,26 @@ void init_custom_fonts()
 			al_destroy_font(customfonts_a5[q]);
 			customfonts_a5[q] = nullptr;
 		}
-	}
-	if(zc_get_config("gui","custom_fonts",1, App::zquest))
-	{
-		customfonts[CFONT_DLG] = load_cfont("dialog");
-		customfonts[CFONT_TITLE] = load_cfont("title");
-		customfonts[CFONT_FAVCMD] = load_cfont("favcmd");
-		customfonts[CFONT_GUI] = load_cfont("gui");
-		customfonts[CFONT_TEXTBOX] = load_cfont("textbox");
-		customfonts[CFONT_TTIP] = load_cfont("ttip");
-		customfonts[CFONT_INFO] = load_cfont("info");
+		if(use_custom_fonts)
+		{
+			customfonts[q] = load_cfont(_font_titles[q]);
+			customfonts_a5[q] = load_cfont_a5(_font_titles[q]);
+		}
 		
-		customfonts_a5[CFONT_DLG] = load_cfont_a5("dialog");
-		customfonts_a5[CFONT_TITLE] = load_cfont_a5("title");
-		customfonts_a5[CFONT_FAVCMD] = load_cfont_a5("favcmd");
-		customfonts_a5[CFONT_GUI] = load_cfont_a5("gui");
-		customfonts_a5[CFONT_TEXTBOX] = load_cfont_a5("textbox");
-		customfonts_a5[CFONT_TTIP] = load_cfont_a5("ttip");
-		customfonts_a5[CFONT_INFO] = load_cfont_a5("info");
+		//If a customfonts slot is empty, use it to scale a normal font, if needed.
+		if(customfonts[q] || customfonts_a5[q]) continue;
+		if(fontscales[q] <= 1) continue;
+		customfonts[q] = scale_font(deffonts[q], fontscales[q]);
+		customfonts_a5[q] = scale_font_a5(deffonts[q], fontscales[q]);
 	}
+	dlgfontheight = text_height(get_custom_font(CFONT_DLG));
 }
 
 FONT* get_custom_font(int cfont)
 {
 	if(unsigned(cfont) >= CFONT_MAX)
 		return lfont_l;
-	if(zc_get_config("gui","custom_fonts",1,App::zquest) && customfonts[cfont])
+	if(customfonts[cfont])
 		return customfonts[cfont];
 	return deffonts[cfont];
 }

@@ -9,6 +9,7 @@
 #include "EditboxNew.h"
 #include "base/zc_alleg.h"
 #include "jwin.h"
+#include "base/fonts.h"
 #include <map>
 #include <stdio.h>
 
@@ -952,10 +953,11 @@ void EditboxScriptView::drawExtraComponents()
 	char temp[60];
 	sprintf(temp, "Line %d", cp.lineno+1);
 	//center text
-	int32_t textheight = text_height(textfont);
+	FONT* linefont = get_custom_font(CFONT_GUI);
+	int32_t textheight = text_height(linefont);
 	int32_t padding = 16-textheight;
 	int32_t offset = padding/2;
-	textout_ex(linetext, textfont, temp, 2,offset,fgcolor, -1);
+	textout_ex(linetext, linefont, temp, 2,offset,fgcolor, -1);
 	blit(linetext, dbuf, 0,0, 0, leftarrow_y-host->y+16,linetext->w,linetext->h);
 }
 

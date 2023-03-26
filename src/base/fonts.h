@@ -22,9 +22,9 @@ void init_custom_fonts();
 enum
 {
 	CFONT_DLG,
+	CFONT_GUI,
 	CFONT_TITLE,
 	CFONT_FAVCMD,
-	CFONT_GUI,
 	CFONT_TEXTBOX,
 	CFONT_TTIP,
 	CFONT_INFO,
