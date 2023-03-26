@@ -241,8 +241,8 @@ void default_hotkeys()
 {
 	zq_hotkeys[ZQKEY_UNDO].setval(KEY_Z,KB_CTRL_FLAG, KEY_U,0);
 	zq_hotkeys[ZQKEY_REDO].setval(KEY_Z,KB_CTRL_FLAG|KB_SHIFT_FLAG, KEY_Y,KB_CTRL_FLAG);
-	zq_hotkeys[ZQKEY_PLUS_FLAG].setval(KEY_SLASH_PAD,0,KEY_OPENBRACE,0);
-	zq_hotkeys[ZQKEY_MINUS_FLAG].setval(KEY_ASTERISK,0,KEY_CLOSEBRACE,0);
+	zq_hotkeys[ZQKEY_PLUS_FLAG].setval(KEY_SLASH_PAD,0,KEY_CLOSEBRACE,0);
+	zq_hotkeys[ZQKEY_MINUS_FLAG].setval(KEY_ASTERISK,0,KEY_OPENBRACE,0);
 	zq_hotkeys[ZQKEY_SAVE].setval(KEY_F2,0,KEY_S,KB_CTRL_FLAG);
 	zq_hotkeys[ZQKEY_SAVEAS].setval(0,0,0,0);
 	zq_hotkeys[ZQKEY_OPEN].setval(KEY_F3,0,KEY_O,KB_CTRL_FLAG);
