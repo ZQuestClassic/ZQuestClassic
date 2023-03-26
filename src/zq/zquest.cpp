@@ -1112,10 +1112,10 @@ enum
 static MENU file_menu[] =
 {
 	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
-	{ (char *)"&Open\tF3",                  do_OpenQuest,              NULL,                     0,            NULL   },
+	{ (char *)"&Open",                      do_OpenQuest,              NULL,                     0,            NULL   },
 	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
+	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
 	{ (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
 	{ (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
 	{ (char *)"Quest &Templates...",        onQuestTemplates,          NULL,                     0,            NULL   },
@@ -1132,8 +1132,8 @@ static MENU file_menu[] =
 static MENU maps_menu[] =
 {
     { (char *)"&Goto Map...",               onGotoMap,                 NULL,                     0,            NULL   },
-    { (char *)"Next Map\t.",                onIncMap,                  NULL,                     0,            NULL   },
-    { (char *)"Previous Map\t,",            onDecMap,                  NULL,                     0,            NULL   },
+    { (char *)"Next Map",                   onIncMap,                  NULL,                     0,            NULL   },
+    { (char *)"Previous Map",               onDecMap,                  NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"D&elete Map",                onDeleteMap,               NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1302,14 +1302,14 @@ static MENU paste_item_menu[] =
 
 static MENU edit_menu[] =
 {
-    { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
-    { (char *)"&Redo\tCtrl+Y",              onRedo,                    NULL,                     0,            NULL   },
-    { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
-    { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
+    { (char *)"&Undo",                      onUndo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo",                      onRedo,                    NULL,                     0,            NULL   },
+    { (char *)"&Copy",                      onCopy,                    NULL,                     0,            NULL   },
+    { (char *)"&Paste",                     onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
     { (char *)"&Adv. Paste\t ",             NULL,                      paste_menu,               0,            NULL   },
     { (char *)"Paste &Spec.\t ",            NULL,                      paste_item_menu,          0,            NULL   },
-    { (char *)"&Delete\tDel",               onDelete,                  NULL,                     0,            NULL   },
+    { (char *)"&Delete",                    onDelete,                  NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Maps\t ",                   NULL,                      maps_menu,                0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1405,15 +1405,15 @@ static MENU fixtools_menu[] =
 
 static MENU tool_menu[] =
 {
-	{ (char *)"Combo &Flags\tF8",           onFlags,                   NULL,                     0,            NULL   },
+	{ (char *)"Combo &Flags",               onFlags,                   NULL,                     0,            NULL   },
 	{ (char *)"Fix &Tools\t ",              NULL,                      fixtools_menu,            0,            NULL   },
 	{ (char *)"&NES Dungeon Template",      onTemplate,                NULL,                     0,            NULL   },
 	{ (char *)"&Apply Template to All",     onReTemplate,              NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Preview Mode\tX",           onPreviewMode,             NULL,                     0,            NULL   },
+	{ (char *)"&Preview Mode",              onPreviewMode,             NULL,                     0,            NULL   },
 	{ (char *)"Drawing &Mode\t ",           NULL,                      drawing_mode_menu,        0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&List Combos Used\t'",       onUsedCombos,              NULL,                     0,            NULL   },
+	{ (char *)"&List Combos Used",          onUsedCombos,              NULL,                     0,            NULL   },
 	{ (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1435,17 +1435,17 @@ MENU view_menu[] =
     { (char *)"View &Map...",               onViewMap,                 NULL,                     0,            NULL   },
     { (char *)"View &Palette",              onShowPal,                 NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Show &Walkability\tW",       onShowWalkability,         NULL,                     0,            NULL   },
-    { (char *)"Show &Flags\tF",             onShowFlags,               NULL,                     0,            NULL   },
+    { (char *)"Show &Walkability",          onShowWalkability,         NULL,                     0,            NULL   },
+    { (char *)"Show &Flags",                onShowFlags,               NULL,                     0,            NULL   },
     { (char *)"Show &CSets",                onShowCSet,                NULL,                     0,            NULL   },
     { (char *)"Show &Types",                onShowCType,               NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Show Screen &Info\tN",       onToggleShowInfo,          NULL,                     0,            NULL   },
+    { (char *)"Show Screen &Info",          onToggleShowInfo,          NULL,                     0,            NULL   },
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show FFCs",                  onToggleShowFFCs,          NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
-    { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
-    { (char *)"Show &Darkness\tL",          onShowDarkness,            NULL,                     0,            NULL   },
+    { (char *)"Show &Grid",                 onToggleGrid,              NULL,                     0,            NULL   },
+    { (char *)"Show &Darkness",             onShowDarkness,            NULL,                     0,            NULL   },
     { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
     { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1475,26 +1475,26 @@ int32_t onSelectFFCombo();
 
 static MENU data_menu[] =
 {
-    { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
-    { (char *)"&Freeform Combos\tF7",       onSelectFFCombo,           NULL,                     0,            NULL   },
-    { (char *)"La&yers\tF12",               onLayers,                  NULL,                     0,            NULL   },
-    { (char *)"&Tile Warp\tF10",            onTileWarp,                NULL,                     0,            NULL   },
-    { (char *)"Side &Warp\tF11",            onSideWarp,                NULL,                     0,            NULL   },
-    { (char *)"Secret &Combos\tF5",         onSecretCombo,             NULL,                     0,            NULL   },
-    { (char *)"&Under Combo",               onUnderCombo,              NULL,                     0,            NULL   },
-    { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
-    { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Room Data\tR",              onRoom,                    NULL,                     0,            NULL   },
+	{ (char *)"&Screen Data",               onScrData,                 NULL,                     0,            NULL   },
+	{ (char *)"&Freeform Combos",           onSelectFFCombo,           NULL,                     0,            NULL   },
+	{ (char *)"La&yers",                    onLayers,                  NULL,                     0,            NULL   },
+	{ (char *)"&Tile Warp",                 onTileWarp,                NULL,                     0,            NULL   },
+	{ (char *)"Side &Warp",                 onSideWarp,                NULL,                     0,            NULL   },
+	{ (char *)"Secret &Combos",             onSecretCombo,             NULL,                     0,            NULL   },
+	{ (char *)"&Under Combo",               onUnderCombo,              NULL,                     0,            NULL   },
+	{ (char *)"&Doors",                     onDoors,                   NULL,                     0,            NULL   },
+	{ (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Room Data",                 onRoom,                    NULL,                     0,            NULL   },
 
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
-    { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
-    { (char *)"&Palette\tF4",               onScreenPalette,           NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Script",                   onScreenScript,                    NULL,                     0,            NULL   },
-    
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Item",                      onItem,                    NULL,                     0,            NULL   },
+	{ (char *)"&Enemies",                   onEnemies,                 NULL,                     0,            NULL   },
+	{ (char *)"&Palette",                   onScreenPalette,           NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Script",                     onScreenScript,                    NULL,                     0,            NULL   },
+	
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU tunes_menu[] =
@@ -1558,7 +1558,7 @@ static MENU etc_menu[] =
 	// 10
 	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	// 15
