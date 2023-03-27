@@ -1566,8 +1566,16 @@ void put_flags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 
 void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t flags,int32_t sflag,int32_t scale)
 {
+	bool repos = combotile_override_x < 0 && combotile_override_y < 0;
+	
 	BITMAP* b = create_bitmap_ex(8,scale*16,scale*16);
+	if(repos)
+	{
+		combotile_override_x = x+(8*(scale-1));
+		combotile_override_y = y+(8*(scale-1));
+	}
 	put_combo(b,0,0,cmbdat,cset,flags,sflag);
+	if(repos) combotile_override_x = combotile_override_y = -1;
 	masked_stretch_blit(b,dest,0,0,16,16,x,y,16*scale,16*scale);
 	destroy_bitmap(b);
 }

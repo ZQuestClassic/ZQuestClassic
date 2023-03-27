@@ -6636,7 +6636,15 @@ void draw_screenunit(int32_t unit, int32_t flags)
 							else
 							{
 								clear_bitmap(subb);
+								bool repos = combotile_override_x < 0 && combotile_override_y < 0;
+								
+								if(repos)
+								{
+									combotile_override_x = sqr.x+(sqr.w-16)/2;
+									combotile_override_y = sqr.y+(sqr.h-16)/2;
+								}
 								put_combo(subb,0,0,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
+								if(repos) combotile_override_x = combotile_override_y = -1;
 								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
 							}
 						}
