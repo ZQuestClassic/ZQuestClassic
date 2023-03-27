@@ -1670,8 +1670,13 @@ void overblocktranslucent8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t
 //  cmbdat: fffffsss cccccccc
 //          (f:flags, s:cset, c:combo)
 
+int combotile_override_x = -1, combotile_override_y = -1;
 int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
 {
+	if(combotile_override_x > -1)
+		x = combotile_override_x;
+	if(combotile_override_y > -1)
+		y = combotile_override_y;
     int32_t drawtile=c.tile;
     int32_t tframes=zc_max(1, c.frames);
     

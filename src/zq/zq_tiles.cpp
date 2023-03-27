@@ -1208,11 +1208,11 @@ void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int3
 
 
 
-bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value)
+bool do_scheckbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value, int xoffs, int yoffs)
 {
-	return do_checkbox(dest,x,y,sz,sz,bg,fg,value);
+	return do_checkbox(dest,x,y,sz,sz,bg,fg,value,xoffs,yoffs);
 }
-bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value)
+bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value, int xoffs, int yoffs)
 {
 	bool over=false;
 	
@@ -1220,11 +1220,11 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_
 	{
 		custom_vsync();
 		
-		if(isinRect(gui_mouse_x(),gui_mouse_y(),x,y,x+wid-1,y+hei-1))               //if on checkbox
+		if(isinRect(gui_mouse_x()-xoffs,gui_mouse_y()-yoffs,x,y,x+wid-1,y+hei-1))               //if on checkbox
 		{
 			if(!over)                                             //if wasn't here before
 			{
-				value=!value;
+				value=value?0:1;
 				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
 				over=true;
 			}
@@ -1233,7 +1233,7 @@ bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_
 		{
 			if(over)                                              //if was here before
 			{
-				value=!value;
+				value=value?0:1;
 				draw_checkbox(dest,x,y,wid,hei,bg,fg,value!=0);
 				over=false;
 			}
@@ -16526,15 +16526,17 @@ int32_t onTiles()
 	return D_O_K;
 }
 
-void draw_combo(BITMAP *dest, int32_t x,int32_t y,int32_t c,int32_t cs)
+int32_t combopage_animate = 1;
+void draw_combo(BITMAP *dest, int x,int y,int c,int cs,bool animate)
 {
-	if(c<MAXCOMBOS)
+	if(unsigned(c)<MAXCOMBOS)
 	{
-		/*BITMAP *buf = create_bitmap_ex(8,16,16);
-		put_combo(buf,0,0,c,cs,0,0);
-		stretch_blit(buf,dest,0,0,16,16,x,y,32,32);
-		destroy_bitmap(buf);*/
+		newcombo& cmb = combobuf[c];
+		int t = cmb.tile;
+		if(!animate)
+			cmb.tile = cmb.o_tile;
 		put_combo(dest,x,y,c,cs,0,0);
+		cmb.tile = t;
 	}
 	else
 	{
@@ -16551,14 +16553,21 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 	int32_t h = 32;
 	int32_t mul = 2;
 	
+	int32_t window_xofs=(zq_screen_w-640-12)>>1;
+	int32_t window_yofs=(zq_screen_h-480-25-6)>>1;
+	int32_t screen_xofs=window_xofs+6;
+	int32_t screen_yofs=window_yofs+25;
+	
 	if(cols==false)
 	{
 		for(int32_t i=0; i<256; i++)                                // 13 rows, leaving 32 pixels from y=208 to y=239
 		{
-			int32_t x = (i%COMBOS_PER_ROW)<<5;
-			int32_t y = (i/COMBOS_PER_ROW)<<5;
+			int32_t x = (i%COMBOS_PER_ROW)*w;
+			int32_t y = (i/COMBOS_PER_ROW)*h;
 			
-			draw_combo(buf,0,0,i+(page<<8),cs);
+			combotile_override_x = x+screen_xofs+(w-16)/2;
+			combotile_override_y = y+screen_yofs+(h-16)/2;
+			draw_combo(buf,0,0,i+(page<<8),cs,combopage_animate);
 			stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
 		}
 	}
@@ -16568,9 +16577,12 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 		
 		for(int32_t i=0; i<256; i++)
 		{
-			int32_t x = (i%COMBOS_PER_ROW)<<5;
-			int32_t y = (i/COMBOS_PER_ROW)<<5;
-			draw_combo(buf,0,0,c+(page<<8),cs);
+			int32_t x = (i%COMBOS_PER_ROW)*w;
+			int32_t y = (i/COMBOS_PER_ROW)*h;
+			
+			combotile_override_x = x+screen_xofs+(w-16)/2;
+			combotile_override_y = y+screen_yofs+(h-16)/2;
+			draw_combo(buf,0,0,c+(page<<8),cs,combopage_animate);
 			stretch_blit(buf,screen2,0,0,16,16,x,y,w,h);
 			++c;
 			
@@ -16581,6 +16593,7 @@ void draw_combos(int32_t page,int32_t cs,bool cols)
 				c-=256;
 		}
 	}
+	combotile_override_x = combotile_override_y = -1;
 	
 	for(int32_t x=(64*mul); x<(320*mul); x+=(64*mul))
 	{
@@ -16632,10 +16645,10 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		}
 		else
 		{
-			rectfill(screen2, (31*mul), (216*mul)+yofs, (31*mul)+15, (216*mul)+yofs+15, vc(0));
-			rect(screen2, (31*mul), (216*mul)+yofs, (31*mul)+15, (216*mul)+yofs+15, vc(15));
-			line(screen2, (31*mul), (216*mul)+yofs, (31*mul)+15, (216*mul)+yofs+15, vc(15));
-			line(screen2, (31*mul), (216*mul)+yofs+15, (31*mul)+15, (216*mul)+yofs, vc(15));
+			rectfill(screen2, (31*mul), (216*mul)+yofs, (31*mul)+31, (216*mul)+yofs+31, vc(0));
+			rect(screen2, (31*mul), (216*mul)+yofs, (31*mul)+31, (216*mul)+yofs+31, vc(15));
+			line(screen2, (31*mul), (216*mul)+yofs, (31*mul)+31, (216*mul)+yofs+31, vc(15));
+			line(screen2, (31*mul), (216*mul)+yofs+31, (31*mul)+31, (216*mul)+yofs, vc(15));
 		}
 	}
 	
@@ -16684,10 +16697,10 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 			}
 			else
 			{
-				rectfill(screen2, (136*mul), (216*mul)+yofs, (136*mul)+15, (216*mul)+yofs+15, vc(0));
-				rect(screen2, (136*mul), (216*mul)+yofs, (136*mul)+15, (216*mul)+yofs+15, vc(15));
-				line(screen2, (136*mul), (216*mul)+yofs, (136*mul)+15, (216*mul)+yofs+15, vc(15));
-				line(screen2, (136*mul), (216*mul)+yofs+15, (136*mul)+15, (216*mul)+yofs, vc(15));
+				rectfill(screen2, (136*mul), (216*mul)+yofs, (136*mul)+31, (216*mul)+yofs+31, vc(0));
+				rect(screen2, (136*mul), (216*mul)+yofs, (136*mul)+31, (216*mul)+yofs+31, vc(15));
+				line(screen2, (136*mul), (216*mul)+yofs, (136*mul)+31, (216*mul)+yofs+31, vc(15));
+				line(screen2, (136*mul), (216*mul)+yofs+31, (136*mul)+31, (216*mul)+yofs, vc(15));
 			}
 		}
 		
@@ -16699,14 +16712,17 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	FONT *tf = font;
 	font = tfont;
 	
+	draw_checkbox(screen2,320,440+yofs,16,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],combopage_animate);
+	textprintf_ex(screen2,tfont,320+18,440+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Animate");
+	
 	if(buttons&2)
 	{
-		draw_text_button(screen2,((202)*mul),(213*mul)+yofs,(44*mul),(21*mul),"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+		draw_text_button(screen2,404,426+yofs,88,42,"Edit",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	}
 	
 	if(buttons&4)
 	{
-		draw_text_button(screen2,((247)*mul),(213*mul)+yofs,(44*mul),(21*mul),"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
+		draw_text_button(screen2,494,426+yofs,88,42,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	}
 	
 	font = tf;
@@ -16799,6 +16815,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	popup_zqdialog_start();
 	reset_combo_animations();
 	reset_combo_animations2();
+	combopage_animate = zc_get_config("ZQ_GUI","combopage_animate",1);
 	// static int32_t cmb=0;
 	int32_t page=cmb>>8;
 	int32_t tile2=cmb;
@@ -17050,6 +17067,18 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 				
 				font = tf;
 			}
+			else if(!bdown && isinRect(x,y,320,440+panel_yofs,320+16,440+panel_yofs+16))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				//do_scheckbox(screen2,320,440+panel_yofs,16,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],combopage_animate,screen_xofs,screen_yofs);
+				combopage_animate = combopage_animate ? 0 : 1;
+				zc_set_config("ZQ_GUI","combopage_animate",combopage_animate);
+				redraw = true;
+				
+				font = tf;
+			}
 			
 			bdown=true;
 		}
@@ -17085,7 +17114,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		if(gui_mouse_b()==0)
 			bdown=false;
 			
-		if(redraw)
+		if(redraw || combopage_animate)
 			draw_combos(page,cs,combo_cols);
 			
 		combo_info(cmb,tile2,cs,copy,copycnt,page,4);
@@ -17330,6 +17359,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	popup_zqdialog_start();
 	reset_combo_animations();
 	reset_combo_animations2();
+	combopage_animate = zc_get_config("ZQ_GUI","combopage_animate",1);
 	static int32_t tile=0;
 	static int32_t page=0;
 	
@@ -17435,7 +17465,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 					{
-						combobuf[i].set_tile(wrap(combobuf[i].tile + amnt,
+						combobuf[i].set_tile(wrap(combobuf[i].o_tile + amnt,
 												0, NEWMAXTILES-1));
 					}
 					
@@ -17460,7 +17490,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					
 					for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 					{
-						combobuf[i].set_tile(wrap(combobuf[i].tile - amnt,
+						combobuf[i].set_tile(wrap(combobuf[i].o_tile - amnt,
 												0, NEWMAXTILES-1));
 					}
 					
@@ -17862,6 +17892,18 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 				
 				font = tf;
 			}
+			else if(!bdown && isinRect(x,y,320,440+panel_yofs,320+16,440+panel_yofs+16))
+			{
+				FONT *tf = font;
+				font = tfont;
+				
+				//do_scheckbox(screen2,320,440+panel_yofs,16,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],combopage_animate,screen_xofs,screen_yofs);
+				combopage_animate = combopage_animate ? 0 : 1;
+				zc_set_config("ZQ_GUI","combopage_animate",combopage_animate);
+				redraw = true;
+				
+				font = tf;
+			}
 			
 			bdown=true;
 		}
@@ -17907,10 +17949,8 @@ REDRAW:
 			bdown=false;
 		}
 		
-		if(redraw)
-		{
+		if(redraw || combopage_animate)
 			draw_combos(page,cs,combo_cols);
-		}
 		
 		combo_info(tile,tile2,cs,copy,copycnt,page,6);
 		
