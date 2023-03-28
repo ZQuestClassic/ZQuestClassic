@@ -2381,9 +2381,17 @@ char * getCurPackfilePassword()
 }*/
 
 // A lot of crashes in ZQuest can be traced to rect(). Hopefully, this will help.
-void safe_rect(BITMAP *bmp, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color)
+void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
 {
-    rect(bmp, vbound(x1, 0, bmp->w-1), vbound(y1, 0, bmp->h-1), vbound(x2, 0, bmp->w-1), vbound(y2, 0, bmp->h-1), color);
+	rect(bmp, vbound(x1, 0, bmp->w-1), vbound(y1, 0, bmp->h-1), vbound(x2, 0, bmp->w-1), vbound(y2, 0, bmp->h-1), color);
+}
+void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color, int thick)
+{
+	if(thick < 1) return;
+	if(x1 > x2) zc_swap(x1,x2);
+	if(y1 > y2) zc_swap(y1,y2);
+	for(int q = 0; q < thick; ++q)
+		safe_rect(bmp,x1+q,y1+q,x2-q,y2-q,color);
 }
 
 //computes the positive gcd of two integers (using Euclid's algorithm)

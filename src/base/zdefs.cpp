@@ -986,6 +986,20 @@ cpool_entry const* combo_pool::get_w(size_t weight_index) const
 	}
 	return nullptr; //Error?
 }
+cpool_entry const* combo_pool::get_w_wrap(size_t weight_index) const
+{
+	if(!combos.size() || totalweight < 1)
+		return nullptr;
+	weight_index %= size_t(totalweight);
+	size_t curweight = 0;
+	for(cpool_entry const& cp : combos)
+	{
+		curweight += cp.quant;
+		if(weight_index < curweight)
+			return &cp;
+	}
+	return nullptr; //Error?
+}
 cpool_entry const* combo_pool::pick() const
 {
 	if(totalweight < 1)
@@ -1012,6 +1026,10 @@ bool combo_pool::get_ind(int32_t& cid, int8_t& cs, size_t index) const
 bool combo_pool::get_w(int32_t& cid, int8_t& cs, size_t weight_index) const
 {
 	return load_entry(get_w(weight_index), cid, cs);
+}
+bool combo_pool::get_w_wrap(int32_t& cid, int8_t& cs, size_t weight_index) const
+{
+	return load_entry(get_w_wrap(weight_index), cid, cs);
 }
 bool combo_pool::pick(int32_t& cid, int8_t& cs) const
 {

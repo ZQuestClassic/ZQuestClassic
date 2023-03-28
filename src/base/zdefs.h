@@ -3653,9 +3653,11 @@ struct combo_pool
 	void trim(); //Trim any invalid entries
 	cpool_entry const* get_ind(size_t index) const;
 	cpool_entry const* get_w(size_t weight_index) const;
+	cpool_entry const* get_w_wrap(size_t weight_index) const;
 	cpool_entry const* pick() const;
 	bool get_ind(int32_t& cid, int8_t& cs, size_t index) const;
 	bool get_w(int32_t& cid, int8_t& cs, size_t weight_index) const;
+	bool get_w_wrap(int32_t& cid, int8_t& cs, size_t weight_index) const;
 	bool pick(int32_t& cid, int8_t& cs) const;
 	void clear()
 	{

@@ -565,7 +565,7 @@ static int32_t do_NewQuest()
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,First[MAX_COMBO_COLS]= {0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0,
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, CmbCursorCol = 0,
 	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
@@ -581,6 +581,7 @@ int window_min_width = 0, window_min_height = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
+int AutoBrush = 0; //Drag to size the brush on the combo panes
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
 //open at the time you quit
@@ -704,6 +705,7 @@ bool zq_check_close_button()
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync = 0;
+size_t cpoolbrush_index = 0;
 
 void myvsync_callback()
 {
@@ -6080,7 +6082,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
 			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1));
 			
-			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
+			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect)
 			{
 				int32_t mgridscale=16*mapscreensize;
 				if(allowHideMouse)
@@ -6106,6 +6108,19 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				{
 					BrushWidth = combo_aliases[combo_apos].width+1;
 					BrushHeight = combo_aliases[combo_apos].height+1;
+				}
+				else if(draw_mode == dm_cpool)
+				{
+					BrushWidth = BrushHeight = 1;
+					combo_pool const& pool = combo_pools[combo_pool_pos];
+					if(pool.valid())
+					{
+						int32_t cid = Combo;
+						int8_t cset = CSet;
+						pool.get_w_wrap(cid,cset,cpoolbrush_index/16); //divide to reduce speed
+						put_combo(brushbmp,0,0,cid,cset,Flags&(cFLAGS|cWALK),0);
+					}
+					else clear_bitmap(brushbmp);
 				}
 				
 				if((FloatBrush)&&(draw_mode!=dm_alias))
@@ -6292,12 +6307,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						int32_t rect_pos=combo_apos-combo_alistpos[current_comboalist];
 						
 						if((rect_pos>=0)&&(rect_pos<(combo_alistpos[current_comboalist]+(col.w*col.h))))
-							safe_rect(menu1,
-								(rect_pos&(col.w-1))*col.xscale+col.x,
-								(rect_pos/col.w)*col.yscale+col.y,
-								((rect_pos&(col.w-1))*col.xscale+col.x)+col.xscale-1,
-								((rect_pos/col.w)*col.yscale+col.y)+col.yscale-1,
-								255);
+						{
+							int selw = col.xscale;
+							int selh = col.yscale;
+							int x1 = (rect_pos&(col.w-1))*col.xscale+col.x;
+							int y1 = (rect_pos/col.w)*col.yscale+col.y;
+							safe_rect(menu1,x1,y1,x1+selw-1,y1+selh-1,vc(CmbCursorCol),2);
+						}
 					}
 				}
 				
@@ -6332,12 +6348,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int32_t rect_pos=combo_pool_pos-combo_pool_listpos[current_cpoollist];
 				
 				if((rect_pos>=0)&&(rect_pos<(combo_pool_listpos[current_cpoollist]+(comboaliaslist[current_cpoollist].w*comboaliaslist[current_cpoollist].h))))
-					safe_rect(menu1,
-					(rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x,
-					(rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y,
-					((rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x)+comboaliaslist[current_cpoollist].xscale-1,
-					((rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y)+comboaliaslist[current_cpoollist].yscale-1,
-					255);
+				{
+					int selw = comboaliaslist[current_cpoollist].xscale;
+					int selh = comboaliaslist[current_cpoollist].yscale;
+					int x1 = (rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x;
+					int y1 = (rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y;
+					safe_rect(menu1,x1,y1,x1+selw-1,y1+selh-1,vc(CmbCursorCol),2);
+				}
 				
 				//Handle Preview
 				combo_pool const& cpool = combo_pools[combo_pool_pos];
@@ -6412,12 +6429,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int32_t rect_pos=Combo-First[current_combolist];
 				
 				if((rect_pos>=0)&&(rect_pos<(combo_pool_listpos[current_combolist]+(combolist[current_combolist].w*combolist[current_combolist].h))))
-					safe_rect(menu1,
-					(rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x,
-					(rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y,
-					((rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x)+combolist[current_combolist].xscale-1,
-					((rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y)+combolist[current_combolist].yscale-1,
-					255);
+				{
+					int selw = (AutoBrush?BrushWidth:1)*combolist[current_combolist].xscale;
+					int selh = (AutoBrush?BrushHeight:1)*combolist[current_combolist].yscale;
+					int x1 = (rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x;
+					int y1 = (rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y;
+					safe_rect(menu1,x1,y1,x1+selw-1,y1+selh-1,vc(CmbCursorCol),2);
+				}
 			}
 		}
 		break;
@@ -7416,6 +7434,8 @@ void select_combo(int32_t clist)
     int32_t tempcb=ComboBrush;
     ComboBrush=0;
     
+	int autobrush_cx = -1, autobrush_cy = -1;
+	int autobrush_first = First[current_combolist];
 	auto& curlist = combolist[current_combolist];
     while(gui_mouse_b())
     {
@@ -7435,11 +7455,27 @@ void select_combo(int32_t clist)
         if(y>curlist.y+(curlist.h*curlist.yscale)-1)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
-        Combo=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+First[current_combolist];
-        custom_vsync();
+		int cx = ((x-curlist.x)/curlist.xscale), cy = ((y-curlist.y)/curlist.yscale);
+        if(AutoBrush)
+		{
+			if(autobrush_cx < 0)
+			{
+				autobrush_cx = cx;
+				autobrush_cy = cy;
+			}
+			BrushWidth = abs(autobrush_cx-cx)+1;
+			BrushHeight = abs(autobrush_cy-cy)+1;
+			cx = std::min(autobrush_cx,cx);
+			cy = std::min(autobrush_cy,cy);
+		}
+		Combo=(cy*curlist.w)+cx+First[current_combolist];
+		custom_vsync();
         refresh(rALL);
+		if(AutoBrush) //Prevent any scrolling
+			First[current_combolist] = autobrush_first;
     }
     
+	position_mouse_z(0);
     ComboBrush=tempcb;
 }
 
@@ -8780,6 +8816,43 @@ static MENU brush_height_menu[] =
     { NULL,                 NULL,                 NULL, 0, NULL }
 };
 
+int toggle_autobrush();
+int toggle_combobrush();
+int toggle_floatbrush();
+static MENU brush_menu[] =
+{
+    { (char *)"AutoBrush",           toggle_autobrush,  NULL,              0, NULL },
+    { (char *)"Brush Width\t ",      NULL,              brush_width_menu,  0, NULL },
+    { (char *)"Brush Height\t ",     NULL,              brush_height_menu, 0, NULL },
+    { (char *)"ComboBrush",          toggle_combobrush, NULL,              0, NULL },
+    { (char *)"FloatBrush",          toggle_floatbrush, NULL,              0, NULL },
+	{ NULL,                          NULL,              NULL,              0, NULL }
+};
+int toggle_autobrush()
+{
+	AutoBrush = AutoBrush ? 0 : 1;
+	BrushWidth = BrushHeight = 1;
+	SETFLAG(brush_menu[0].flags, D_SELECTED, AutoBrush);
+	SETFLAG(brush_menu[1].flags, D_DISABLED, AutoBrush);
+	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
+	zc_set_config("zquest","autobrush",AutoBrush);
+	return D_O_K;
+}
+int toggle_combobrush()
+{
+	ComboBrush = ComboBrush ? 0 : 1;
+	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
+	zc_set_config("zquest","combo_brush",ComboBrush);
+	return D_O_K;
+}
+int toggle_floatbrush()
+{
+	FloatBrush = FloatBrush ? 0 : 1;
+	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
+	zc_set_config("zquest","float_brush",FloatBrush);
+	return D_O_K;
+}
+
 int32_t set_flood();
 int32_t set_fill_4();
 int32_t set_fill_8();
@@ -9330,19 +9403,6 @@ void onRCScrollToombo(int32_t c)
 	First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
 }
 
-static MENU rc_menu_combo[] =
-{
-       { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
-    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
-    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
-    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
-    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
-    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
-    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
-    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
-    { NULL,                              NULL,            NULL,    0, NULL }
-};
-
 static MENU rc_menu_screen[] =
 {
 { (char *)"Copy Screen",                        onCopy,  NULL,              0, NULL },
@@ -9356,25 +9416,28 @@ static MENU rc_menu_screen[] =
 
 static MENU draw_rc_menu[] =
 {
-    { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
-    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
-    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
-    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
-    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
-    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
-    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
-    { (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
-    { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
-    
-    { NULL,                              NULL,  NULL,              0, NULL }
+	//0
+	{ (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+	{ (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+	{ (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	{ (char *)"Replace All",             NULL,  NULL,              0, NULL },
+	//5
+	{ (char *)"Draw Block",              NULL,  draw_block_menu,   0, NULL },
+	{ (char *)"Brush Settings\t ",       NULL,  brush_menu,        0, NULL },
+	{ (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	{ (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
+	//10
+	{ (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	{ (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
+	{ (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	//15
+	{ (char *)"Screen",                  NULL,  rc_menu_screen,    0, NULL },
+	
+	{ NULL,                              NULL,  NULL,              0, NULL }
 };
 
 static MENU draw_ffc_rc_menu[] =
@@ -11031,21 +11094,21 @@ void domouse()
 					{
 						sprintf(paste_ffc_menu_text, "Place + Edit FFC %d",earliestfreeffc+1);
 						sprintf(paste_ffc_menu_text2,"Paste FFC as FFC %d",earliestfreeffc+1);
-						draw_rc_menu[13].text = paste_ffc_menu_text;
-						draw_rc_menu[13].flags = 0;
+						draw_rc_menu[12].text = paste_ffc_menu_text;
+						draw_rc_menu[12].flags = 0;
 						
 						if(Map.getCopyFFC()>-1)
 						{
-							draw_rc_menu[14].text = paste_ffc_menu_text2;
-							draw_rc_menu[14].flags = 0;
+							draw_rc_menu[13].text = paste_ffc_menu_text2;
+							draw_rc_menu[13].flags = 0;
 						}
-						else draw_rc_menu[14].flags = D_DISABLED;
+						else draw_rc_menu[13].flags = D_DISABLED;
 					}
 					else
 					{
-						draw_rc_menu[13].text = (char*)"Place + Edit FFC";
-						draw_rc_menu[14].text = (char*)"Paste FFC";
-						draw_rc_menu[14].flags = draw_rc_menu[13].flags = D_DISABLED;
+						draw_rc_menu[12].text = (char*)"Place + Edit FFC";
+						draw_rc_menu[13].text = (char*)"Paste FFC";
+						draw_rc_menu[13].flags = draw_rc_menu[12].flags = D_DISABLED;
 					}
 					
 					int32_t warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
@@ -11054,15 +11117,15 @@ void domouse()
 					{
 						sprintf(follow_warp_menu_text, "Follow Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
 						sprintf(follow_warp_menu_text2,"Edit Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
-						draw_rc_menu[10].text = follow_warp_menu_text;
-						draw_rc_menu[11].text = follow_warp_menu_text2;
-						draw_rc_menu[10].flags = draw_rc_menu[11].flags = 0;
+						draw_rc_menu[9].text = follow_warp_menu_text;
+						draw_rc_menu[10].text = follow_warp_menu_text2;
+						draw_rc_menu[9].flags = draw_rc_menu[10].flags = 0;
 					}
 					else
 					{
-						draw_rc_menu[10].text = (char*)"Follow Tile Warp";
-						draw_rc_menu[11].text = (char*)"Edit Tile Warp";
-						draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
+						draw_rc_menu[9].text = (char*)"Follow Tile Warp";
+						draw_rc_menu[10].text = (char*)"Edit Tile Warp";
+						draw_rc_menu[10].flags = draw_rc_menu[9].flags = D_DISABLED;
 					}
 					
 					int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
@@ -29548,11 +29611,13 @@ extern bool dirty_screen;
   192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
   };
   */
+
 void anim_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
 		++framecnt;
+		++cpoolbrush_index;
 		
 		if(prv_mode)
 		{
@@ -30312,6 +30377,7 @@ int32_t main(int32_t argc,char **argv)
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
+	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
@@ -30322,6 +30388,7 @@ int32_t main(int32_t argc,char **argv)
 	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
+	AutoBrush = zc_get_config("zquest","autobrush",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
@@ -30977,6 +31044,11 @@ int32_t main(int32_t argc,char **argv)
 	ZQincludePaths = FFCore.includePaths;
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
+	SETFLAG(brush_menu[0].flags, D_SELECTED, AutoBrush);
+	SETFLAG(brush_menu[1].flags, D_DISABLED, AutoBrush);
+	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
+	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
+	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
 	
 	init_ffpos();
 	
@@ -31102,6 +31174,7 @@ int32_t main(int32_t argc,char **argv)
 		
 		etc_menu[2].flags=(isFullScreen()==1)?D_DISABLED:0;
 		etc_menu[5].flags=(isFullScreen()==1)?D_SELECTED:0;
+		
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
