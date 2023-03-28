@@ -4518,96 +4518,10 @@ int main(int argc, char **argv)
 		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 	}
 	
-#if defined(_WIN32) || defined(ALLEGRO_MACOSX)
-	
 	if ( zscript_debugger )
 	{
 		FFCore.ZScriptConsole(true);
 	}
-
-#else //Unix
-
-	if(zscript_debugger)
-	{ // Let's try making a console for Linux -Z
-		int32_t termflags = 0;
-		termflags |= O_RDWR; //Open the device for both reading and writing.
-		//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
-		pt = posix_openpt(termflags);
-		if (pt == -1)
-		{
-			Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
-			goto no_lx_console;
-		}
-		ptname = ptsname(pt);
-		if (!ptname)
-		{
-			Z_error_fatal("Could not get pseudo terminal device name.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-
-		if (unlockpt(pt) == -1)
-		{
-			Z_error_fatal("Could not get pseudo terminal device name.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-
-		lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-		system(lxconsole_oss.str().c_str());
-
-		int32_t xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
-		{
-			char c = 0; int32_t tries = 10000; 
-			do 
-			{
-				read(xterm_fd, &c, 1); 
-				--tries;
-			} while (c!='\n' && tries > 0);
-		}
-
-		if (dup2(pt, 1) <0)
-		{
-			Z_error_fatal("Could not redirect standard output.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-		if (dup2(pt, 2) <0)
-		{
-			Z_error_fatal("Could not redirect standard error output.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-	} //this is in a block because I want it in a block. -Z
-	else
-	{
-		al_trace("Linux console disabled by user.\n");
-	}
-	
-	no_lx_console:
-	{
-		//Z_error_fatal("Could not open Linux console.\n");
-	}
-	
-	
-	std::cout << "\n       _____   ____                  __ \n";
-	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
-	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
-	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
-	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
-	
-	std::cout << "Quest Data Logging & ZScript Debug Console\n";
-	std::cout << "ZConsole for Linux\n\n";
-	
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
-	{
-		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
-	{
-		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
-	}
-#endif
 	
 	if(install_timer() < 0)
 	{
