@@ -2,6 +2,7 @@
 #include "base/fonts.h"
 #include "fontsdat.h"
 #include "base/zapp.h"
+#include "drawing.h"
 #include <fmt/format.h>
 extern DATAFILE *fontsdata;
 extern bool is_compact;
@@ -395,6 +396,34 @@ void save_font(char const* path, int fontid)
 	save_bitmap(path, bmp, fontpal);
 	destroy_bitmap(bmp);
 }
+
+int fcolor_rgb(RGB col)
+{
+	int diff_0 = (63-col.r)+col.g+(63-col.b);
+	int diff_1 = (63-col.r)+(63-col.g)+(63-col.b);
+	int diff_255 = col.r+col.g+col.b;
+	if(diff_0 < diff_1)
+	{
+		if(diff_0 < diff_255)
+			return 0;
+		return 255;
+	}
+	if(diff_1 < diff_255)
+		return 1;
+	return 255;
+}
+BITMAP* __load_fontpal_bmp(char const* path)
+{
+	PALETTE pal;
+	BITMAP* bmp = load_bitmap(path,pal);
+	std::vector<byte> scolors = getColors(bmp,3);
+	std::vector<byte> dcolors;
+	for(byte c : scolors)
+		dcolors.push_back(fcolor_rgb(pal[c]));
+	replColors(bmp,scolors,dcolors);
+	return bmp;
+}
+
 FONT* __load_a4_font(BITMAP* bmp)
 {
 	PALETTE oldpal;
@@ -406,6 +435,15 @@ FONT* __load_a4_font(BITMAP* bmp)
 	FONT* newfont = grab_font_from_bitmap(bmp);
 	
 	zc_set_palette(oldpal);
+	return newfont;
+}
+FONT* __load_a4_font(char const* path)
+{
+	BITMAP* bmp = __load_fontpal_bmp(path);
+	
+	FONT* newfont = __load_a4_font(bmp);
+	
+	destroy_bitmap(bmp);
 	return newfont;
 }
 ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
@@ -428,9 +466,7 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 }
 ALLEGRO_FONT* __load_a5_font(char const* path)
 {
-	init_fontpal();
-	
-	BITMAP* bmp = load_bitmap(path,fontpal);
+	BITMAP* bmp = __load_fontpal_bmp(path);
 	
 	ALLEGRO_FONT* a5font = __load_a5_font(bmp);
 	
@@ -542,7 +578,11 @@ FONT* load_cfont(char const* name)
 	
 	if(!exists(path))
 		return nullptr;
-	FONT* f = load_font(path,nullptr,nullptr);
+	FONT* f = nullptr;
+	try
+	{
+		f = __load_a4_font(path);
+	} catch(std::exception){}
 	if(!f)
 		zprint2("Error loading font: '%s'\n", path);
 	return f;
@@ -562,7 +602,11 @@ ALLEGRO_FONT* load_cfont_a5(char const* name)
 	
 	if(!exists(path))
 		return nullptr;
-	ALLEGRO_FONT* f = __load_a5_font(path);
+	ALLEGRO_FONT* f = nullptr;
+	try
+	{
+		f = __load_a5_font(path);
+	} catch(std::exception){}
 	if(!f)
 		zprint2("Error loading a5 font: '%s'\n", path);
 	return f;
