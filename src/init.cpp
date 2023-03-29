@@ -47,9 +47,6 @@ extern zcmodule moduledata;
 
 
 extern int32_t jwin_pal[jcMAX];
-extern FONT *sfont2;
-extern FONT *lfont;
-extern FONT *pfont;
 extern dmap *DMaps;
 extern itemdata *itemsbuf;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];

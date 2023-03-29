@@ -29080,7 +29080,7 @@ void HeroClass::heroDeathAnimation()
 				clear_a5_bmp(rti_infolayer.bitmap);
 				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
-				textout_ex(framebuf,zfont,"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);
+				textout_ex(framebuf,get_zc_font(font_zfont),"GAME OVER",96,playing_field_offset+80,SaveScreenSettings[SAVESC_TEXT],-1);
 			}
 		}
 		else

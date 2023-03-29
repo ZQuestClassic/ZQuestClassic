@@ -2672,7 +2672,7 @@ int32_t parse_script(script_data **script)
 			
 	if(zscript == NULL)
 	{
-		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return -1;
 	}
 	else return parse_script_file(script,temppath, true);
@@ -2832,7 +2832,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				sprintf(buf2,"The error was: Duplicate Label");
 				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
-				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				stop=true;
 				success=false;
 				(*script)->disable();
@@ -3156,7 +3156,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
-				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
+				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				InfoDialog("Error",buf).show();
 				stop=true;
 				success=false;
@@ -3172,7 +3172,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		char buf[80],name[13];
 		extract_name(temppath,name,FILENAME8_3);
 		sprintf(buf,"Script %s has been parsed",name);
-		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 zasmfile_fail:
 	return success?D_O_K:D_CLOSE;

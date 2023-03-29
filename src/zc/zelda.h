@@ -314,7 +314,6 @@ extern BITMAP *lightbeam_bmp;
 extern BITMAP *zcmouse[4];
 extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
-//extern FONT custom_fonts[MAXFONTS];
 extern PALETTE  RAMpal;
 extern byte     *colordata;
 //extern byte     *tilebuf;

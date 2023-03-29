@@ -15,8 +15,6 @@
 #include "base/gui.h"
 #include <stdio.h>
 
-extern FONT *lfont, *sfont3;
-extern FONT *pfont;
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 

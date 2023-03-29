@@ -15,6 +15,7 @@
 
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/fonts.h"
 #include "zeldadat.h"
 #include "render.h"
 
@@ -22,8 +23,6 @@ extern DATAFILE* datafile;
 
 extern int32_t joystick_index;
 int32_t logovolume = 0;
-
-extern FONT* dsphantompfont;
 
 static void SetCols(RGB* pal)
 {
@@ -141,8 +140,8 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
     logovolume = zc_get_config("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
     blit((BITMAP*)datafile[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
-    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
-    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
+    textout_ex(frame, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
+    textout_ex(frame, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79-32, 170, 200, -1);
 
     rti_screen.visible = true;
     
@@ -156,7 +155,7 @@ int32_t aglogo_new_nofire(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t 
 	//stretch_blit((BITMAP*)data[RLE_AGTEXT].dat,screen,0,0,255,223,0,0,SCREEN_W, SCREEN_H);//255, 223);
 	
 	//blit((BITMAP*)data[RLE_AGTEXT].dat,frame, 0,0,0,0,256,224);
-	//    textout_ex(screen, dsphantompfont, "Celebrating Twenty Years", 79, 170, 2, -1);
+	//    textout_ex(screen, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79, 170, 2, -1);
 	    
         vsync();
         
@@ -218,8 +217,8 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
     logovolume = zc_get_config("zeldadx","logo_volume",255);
     play_sample((SAMPLE*)datafile[WAV_00_AGFIRE].dat,logovolume,128,1000,true);
     blit((BITMAP*)datafile[RLE_AGTEXT].dat,frame,0,0,0,0,256,224);
-    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
-    textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
+    textout_ex(frame, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
+    textout_ex(frame, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79-32, 170, 200, -1);
     
     BITMAP* interm = create_bitmap_ex(8, 256, 224);
     BITMAP* overla = create_bitmap_ex(8, 256, 224);
@@ -238,8 +237,8 @@ int32_t aglogo(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 	; 
         color_map = &aglogo_trans_table;
 	draw_trans_sprite(interm, overla, 0, 0);
-	textout_ex(interm, dsphantompfont, "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
-	textout_ex(interm, dsphantompfont, "Celebrating Twenty Years", 79-32, 170, 200, -1);
+	textout_ex(interm, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79-32-1, 170-1, 3, -1);
+	textout_ex(interm, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79-32, 170, 200, -1);
 	
 	stretch_blit(interm,screen, 0,0,255,223, 0,0,screen->w, screen->h);
         vsync();
@@ -313,7 +312,7 @@ int32_t aglogo_old(BITMAP *frame, BITMAP *firebuf, int32_t resx, int32_t resy)
 		CopyAvg(firebuf);
 		blit(firebuf,frame,8,0,0,0,320,198);
 		draw_rle_sprite(frame,(RLE_SPRITE*)datafile[RLE_AGTEXT].dat,24,90);
-		textout_ex(frame, dsphantompfont, "Celebrating Twenty Years", 79, 170, 2, -1);
+		textout_ex(frame, get_zc_font(font_dsphantompfont), "Celebrating Twenty Years", 79, 170, 2, -1);
 		
 		vsync();
 		

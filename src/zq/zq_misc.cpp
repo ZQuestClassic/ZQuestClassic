@@ -860,7 +860,7 @@ int32_t onClearQuestFilepath()
 		'y',
 		'n',
 		0,
-		lfont) == 1)
+		get_zc_font(font_lfont)) == 1)
 	{
 		ZQ_ClearQuestPath();
 		save_config_file();
@@ -973,7 +973,7 @@ int32_t checksave()
     else
         sprintf(buf,"Save changes to %s?",name);
 
-    switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,lfont))
+    switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,get_zc_font(font_lfont)))
     {
     case 1:
         onSave();
@@ -997,7 +997,7 @@ int32_t onExit()
     if(checksave()==0)
         return D_O_K;
 
-    if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', lfont) == 2)
+    if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', get_zc_font(font_lfont)) == 2)
         return D_O_K;
 
     return D_CLOSE;

@@ -36,7 +36,6 @@
 extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t onHelp();
-extern FONT *lfont;
 extern int32_t jwin_pal[jcMAX];
 extern const char *dmaplist(int32_t index, int32_t *list_size);
 extern bool saved;
@@ -326,19 +325,19 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,d->y + d->h + 48,jwin_pal[jcBOX]);
 			
 			if(color_copy>=0)
-				textout_ex(screen,(lfont_l),"\x81",color_copy*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+				textout_ex(screen,(get_zc_font(font_lfont_l)),"\x81",color_copy*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			
-			textout_ex(screen,(lfont_l),"\x88",color_index*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			textout_ex(screen,(get_zc_font(font_lfont_l)),"\x88",color_index*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 			{
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
+				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %3d %3d %3d",color_index, RAMpal[12*16+color_index].r*4,RAMpal[12*16+color_index].g*4,RAMpal[12*16+color_index].b*4);
+				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %3d %3d %3d",color_index, RAMpal[14*16+color_index].r*4,RAMpal[14*16+color_index].g*4,RAMpal[14*16+color_index].b*4);
 			}
 			else
 			{
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
-				textprintf_centre_ex(screen,(lfont_l),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
+				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 18,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Old: %2d - %2d %2d %2d",color_index, RAMpal[12*16+color_index].r,RAMpal[12*16+color_index].g,RAMpal[12*16+color_index].b);
+				textprintf_centre_ex(screen,(get_zc_font(font_lfont_l)),d->x + d->w/2,d->y + d->h + 33,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"New: %2d - %2d %2d %2d",color_index, RAMpal[14*16+color_index].r,RAMpal[14*16+color_index].g,RAMpal[14*16+color_index].b);
 			}
 			break;
 	}
@@ -655,7 +654,7 @@ bool edit_dataset(int32_t dataset)
 	load_cset(RAMpal,14,dataset);
 	zc_set_palette_range(RAMpal,0,255,false);
 	FONT* old = font;
-	font = lfont_l;
+	font = get_zc_font(font_lfont_l);
 	
 	init_gfxpal();
 	char bufr[4] = "0", bufg[4] = "0", bufb[4] = "0";
@@ -668,7 +667,7 @@ bool edit_dataset(int32_t dataset)
 	while(gui_mouse_b()) {
 		rest(1);
 	} //Do nothing
-	edit_cset_dlg[0].dp2 = lfont;
+	edit_cset_dlg[0].dp2 = get_zc_font(font_lfont);
 	int32_t ret = zc_popup_dialog(edit_cset_dlg,3);
 	//al_trace("DLG RETURN VAL -------------------------- %d", ret);
 	switch(ret)
@@ -737,7 +736,7 @@ bool grab_dataset(int32_t dataset)
 	int f=0;
 	FONT *fnt = font;
 	
-	font = lfont_l;
+	font = get_zc_font(font_lfont_l);
 	
 	do
 	{
@@ -770,7 +769,7 @@ bool grab_dataset(int32_t dataset)
 			jwin_draw_frame(screen,imagepos.x-2,imagepos.y-2,imagepos.tw()+4,imagepos.th()+4,FR_DEEP);
 			jwin_draw_frame(screen,palpos.x-3,palpos.y-3,palpos.tw()+6,palpos.th()+6,FR_DEEP);
 			
-			textout_ex(screen,lfont_l,fname,filenamex,filenamey,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			textout_ex(screen,get_zc_font(font_lfont_l),fname,filenamex,filenamey,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 			draw_text_button(screen,buttonx,buttony+(36),(90),(31),"File",vc(0),vc(15),0,true);
 			draw_text_button(screen,buttonx+(114),buttony,
 							 (90),(31),"OK",vc(0),vc(15),0,true);
@@ -1383,7 +1382,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     }
     
     colors_dlg[0].dp  = (void *)caption;
-    colors_dlg[0].dp2 = lfont;
+    colors_dlg[0].dp2 = get_zc_font(font_lfont);
     
     for(int32_t i=0; i<count; i++)
     {
@@ -1467,7 +1466,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		    {
 			if ( curpal < 256 ) //don't display cycle data for palettes 256 through 511. They don't have valid cycle data. 
 				edit_cycles((first-poLEVEL)/pdLEVEL);
-			else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			else jwin_alert("Notice","Palettes above 0xFF do not have Palette Cycles",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		    }
 		
         }
@@ -1561,7 +1560,7 @@ int32_t onColors_Levels()
 	int32_t cycle = get_bit(quest_rules,qr_FADE);
 	int32_t index=Map.getcolor();
 	
-	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",lfont, copyPal))!=-1)
+	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",get_zc_font(font_lfont), copyPal))!=-1)
 	{
 		char buf[40];
 		sprintf(buf,"Level %X Palettes",index);
@@ -1602,7 +1601,7 @@ int32_t onColors_Sprites()
     
     do
     {
-        index = jwin_alert3("Edit Palette", "Select an extra sprite","palette set to edit",NULL,"&1","&2","&Done",'1','2','d', lfont);
+        index = jwin_alert3("Edit Palette", "Select an extra sprite","palette set to edit",NULL,"&1","&2","&Done",'1','2','d', get_zc_font(font_lfont));
         
         if(index==1)
             EditColors("Extra Sprite Palettes 1",poSPRITE255,15,spritepal_csets);

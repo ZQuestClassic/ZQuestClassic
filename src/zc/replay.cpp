@@ -946,7 +946,7 @@ static void check_assert()
             if (!exit_when_done)
             {
                 enter_sys_pal();
-                jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK (keep replaying)", NULL, 13, 27, lfont);
+                jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK (keep replaying)", NULL, 13, 27, get_zc_font(font_lfont));
                 exit_sys_pal();
             }
 
@@ -1036,7 +1036,7 @@ static void fail_replay(std::string error)
 	if (!exit_when_done)
 	{
 		enter_sys_pal();
-		jwin_alert(replay_mode_to_string(mode).c_str(), error1.c_str(), error2.c_str(), NULL, "OK", NULL, 13, 27, lfont);
+		jwin_alert(replay_mode_to_string(mode).c_str(), error1.c_str(), error2.c_str(), NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 		exit_sys_pal();
 	}
 
@@ -1165,7 +1165,7 @@ void replay_poll()
 					   "Would you like to halt the replay and",
 					   "take back control?",
 					   "",
-					   "Yes", "No", 'y', 'n', lfont) == 1)
+					   "Yes", "No", 'y', 'n', get_zc_font(font_lfont)) == 1)
 		{
 			replay_quit();
 			exit_sys_pal();
@@ -1187,7 +1187,7 @@ void replay_poll()
         {
             start_manual_takeover();
             enter_sys_pal();
-            jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert("Recording", "Re-recording until new screen is loaded", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
             exit_sys_pal();
         }
         else if (mode != ReplayMode::Assert)
@@ -1197,7 +1197,7 @@ void replay_poll()
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            jwin_alert("Recording", "Replaying stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert("Recording", "Replaying stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
             exit_sys_pal();
         }
     }
@@ -1253,7 +1253,7 @@ void replay_poll()
             replay_forget_input();
             replay_stop();
             enter_sys_pal();
-            jwin_alert(replay_mode_to_string(mode).c_str(), "Stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert(replay_mode_to_string(mode).c_str(), "Stopped at requested frame", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
             exit_sys_pal();
             return;
         }
@@ -1450,7 +1450,7 @@ void replay_stop()
         else if (has_assert_failed)
         {
             enter_sys_pal();
-            jwin_alert("Assert", "Replay has stopped, and the assert failed.", NULL, NULL, "OK", NULL, 13, 27, lfont);
+            jwin_alert("Assert", "Replay has stopped, and the assert failed.", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
             exit_sys_pal();
 			Paused = true;
         }
@@ -1567,7 +1567,7 @@ void replay_stop_manual_takeover()
     install_keyboard_handlers();
     frame_arg = -1;
     enter_sys_pal();
-    jwin_alert("Recording", "Done re-recording, resuming replay from here", NULL, NULL, "OK", NULL, 13, 27, lfont);
+    jwin_alert("Recording", "Done re-recording, resuming replay from here", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
     exit_sys_pal();
 
     // TODO currently just for manually debugging this system. Instead, should somehow enable assert mode when going back to ::Update.

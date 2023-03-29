@@ -613,11 +613,11 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
     
     if(list==NULL)
     {
-        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,lfont);
+        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,get_zc_font(font_lfont));
     }
     else
     {
-        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, lfont);
+        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
     }
     
     return ret!=0;

@@ -244,37 +244,37 @@ bool ZModule::init(bool d) //bool default
 		if( moduledata.copyright_strings[2][0] == '-' ) strcpy(moduledata.copyright_strings[1],"");
 		
 		
-		moduledata.copyright_string_vars[titleScreen250+0] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+0] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_font",0);
 		moduledata.copyright_string_vars[titleScreen250+1] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_x",80);
 		moduledata.copyright_string_vars[titleScreen250+2] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_y",134);
 		moduledata.copyright_string_vars[titleScreen250+3] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_col",255);
 		moduledata.copyright_string_vars[titleScreen250+4] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[titleScreen250+5] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen250+5] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_font2",0);
 		moduledata.copyright_string_vars[titleScreen250+6] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_x2",80);
 		moduledata.copyright_string_vars[titleScreen250+7] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_y2",142);
 		moduledata.copyright_string_vars[titleScreen250+8] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_col2",255);
 		moduledata.copyright_string_vars[titleScreen250+9] = zc_get_config_basic("DATAFILES","cpystr_5frame_var_sz2",-1);
 		
-		moduledata.copyright_string_vars[titleScreen210+0] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+0] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_font",0);
 		moduledata.copyright_string_vars[titleScreen210+1] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_x",46);
 		moduledata.copyright_string_vars[titleScreen210+2] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_y",138);
 		moduledata.copyright_string_vars[titleScreen210+3] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_col",255);
 		moduledata.copyright_string_vars[titleScreen210+4] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[titleScreen210+5] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreen210+5] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_font2",0);
 		moduledata.copyright_string_vars[titleScreen210+6] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_x2",46);
 		moduledata.copyright_string_vars[titleScreen210+7] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_y2",146);
 		moduledata.copyright_string_vars[titleScreen210+8] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_col2",255);
 		moduledata.copyright_string_vars[titleScreen210+9] = zc_get_config_basic("DATAFILES","cpystr_4frame_var_sz2",-1);
 		
-		moduledata.copyright_string_vars[titleScreenMAIN+0] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_font",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+0] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_font",0);
 		moduledata.copyright_string_vars[titleScreenMAIN+1] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_x",86);
 		moduledata.copyright_string_vars[titleScreenMAIN+2] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_y",128);
 		moduledata.copyright_string_vars[titleScreenMAIN+3] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_col",13);
 		moduledata.copyright_string_vars[titleScreenMAIN+4] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_sz",-1);
 		
-		moduledata.copyright_string_vars[titleScreenMAIN+5] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_font2",0);//zfont);
+		moduledata.copyright_string_vars[titleScreenMAIN+5] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_font2",0);
 		moduledata.copyright_string_vars[titleScreenMAIN+6] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_x2",86);
 		moduledata.copyright_string_vars[titleScreenMAIN+7] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_y2",136);
 		moduledata.copyright_string_vars[titleScreenMAIN+8] = zc_get_config_basic("DATAFILES","cpystr_1frame_var_col2",13);

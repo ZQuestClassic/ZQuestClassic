@@ -1749,7 +1749,7 @@ int32_t init_game()
 				"You are about to create a new recording at:",
 				relativize_path(replay_path).c_str(),
 				"Do you wish to record this save file?",
-				"Yes","No",13,27,lfont)==1)
+				"Yes","No",13,27,get_zc_font(font_lfont))==1)
 			{
 				saves[currgame].replay_file = replay_path;
 				replay_start(ReplayMode::Record, replay_path, -1);
@@ -1768,7 +1768,7 @@ int32_t init_game()
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
 					saves[currgame].replay_file);
 				enter_sys_pal();
-				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,lfont);
+				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 				exit_sys_pal();
 			}
 			else
@@ -2661,7 +2661,7 @@ void putintro()
         //finish writing out the string
         for(; intropos<72; ++intropos)
         {
-            textprintf_ex(msg_txt_display_buf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
+            textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                           "%c",DMaps[currdmap].intro[intropos]);
         }
     }
@@ -2691,7 +2691,7 @@ void putintro()
     //using the clip value to indicate the bitmap is "dirty"
     //rather than add yet another global variable
     set_clip_state(msg_txt_display_buf, 0);
-    textprintf_ex(msg_txt_display_buf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
+    textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                   "%c",DMaps[currdmap].intro[intropos]);
                   
     ++intropos;
@@ -4258,7 +4258,7 @@ int32_t onFullscreen()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
     {
 	    PALETTE oldpal;
 	    get_palette(oldpal);
@@ -5134,7 +5134,7 @@ int main(int argc, char **argv)
 							"Another instance of ZC is already running.",
 							"Running multiple instances may cause your",
 							"save file to be deleted. Continue anyway?",
-							"&No","&Yes", 0, 'n', 'y', 0, lfont);
+							"&No","&Yes", 0, 'n', 'y', 0, get_zc_font(font_lfont));
 		if(ret!=2)
 		{
 			if(forceExit)
@@ -5262,7 +5262,7 @@ int main(int argc, char **argv)
 				"Do you desire epilepsy protection?",
 				"This will reduce the intensity of flashing effects",
 				"and reduce the amplitude of wavy screen effects.",
-				"No","Yes",13,27,lfont)!=1)
+				"No","Yes",13,27,get_zc_font(font_lfont))!=1)
 			{
 				epilepsyFlashReduction = 1;
 			}

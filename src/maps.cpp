@@ -88,7 +88,7 @@ int32_t mapind(int32_t map, int32_t scr)
 	return (map<<7)+scr;
 }
 
-FONT *get_zc_font(int32_t index);
+FONT *get_zc_font(int index);
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
@@ -6511,7 +6511,7 @@ void ViewMap()
 	if(!mappic)
 	{
 		system_pal();
-		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		game_pal();
 		return;
 	}

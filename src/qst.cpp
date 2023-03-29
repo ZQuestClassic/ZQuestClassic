@@ -698,7 +698,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     
 	if(show_progress)
 	{
-		box_start(1, "Loading Quest", lfont, font, true);
+		box_start(1, "Loading Quest", get_zc_font(font_lfont), font, true);
 	}
     
 	box_out("Loading Quest: ");
@@ -874,7 +874,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     {
         if(!valid_zqt(f))
         {
-            jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             pack_fclose(f);
             
             //setPackfilePassword(NULL);
@@ -21145,7 +21145,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     if(get_debug()&&(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
     {
         keepall=false;
-        jwin_alert("Load Quest","Data retention disabled.",NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Load Quest","Data retention disabled.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
     }
     
     //  show_progress=true;

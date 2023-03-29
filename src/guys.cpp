@@ -22160,9 +22160,9 @@ void loadenemies()
 void moneysign()
 {
 	additem(48,108,iRupy,ipDUMMY);
-	//  textout(scrollbuf,zfont,"X",64,112,CSET(0)+1);
+	//  textout(scrollbuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1);
 	set_clip_state(pricesdisplaybuf, 0);
-	textout_ex(pricesdisplaybuf,zfont,"X",64,112,CSET(0)+1,-1);
+	textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1,-1);
 }
 
 void putprices(bool sign)
@@ -22198,7 +22198,7 @@ void putprices(bool sign)
 			
 			int32_t l=(int32_t)strlen(buf);
 			set_clip_state(pricesdisplaybuf, 0);
-			textout_ex(pricesdisplaybuf,zfont,buf,x-(l>3?(l-3)<<3:0),112,CSET(0)+1,-1);
+			textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),buf,x-(l>3?(l-3)<<3:0),112,CSET(0)+1,-1);
 		}
 		
 		x+=step;
@@ -23175,7 +23175,7 @@ void putmsg()
 					}
 					if(!msgstr)
 					{
-						msgfont=zfont;
+						msgfont=get_zc_font(font_zfont);
 						
 						if(tmpscr->room!=rGRUMBLE)
 							blockpath=false;

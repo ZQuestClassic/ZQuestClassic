@@ -176,7 +176,6 @@ void onload_gswitch_timers();
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
-//extern FONT *lfont;
 /****  View Map  ****/
 extern int32_t mapres;
 bool displayOnMap(int32_t x, int32_t y);

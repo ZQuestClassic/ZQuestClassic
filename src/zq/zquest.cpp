@@ -1613,7 +1613,7 @@ int32_t onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
-    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,lfont);
+    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
     
     refresh(rALL);
     return D_O_K;
@@ -1633,7 +1633,7 @@ int32_t onFullScreen()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
     {
 	#ifdef ALLEGRO_DOS
 	    return D_O_K;
@@ -1880,7 +1880,7 @@ int32_t getnumber(const char *prompt,int32_t initialval)
     char buf[20];
     sprintf(buf,"%d",initialval);
     getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=lfont;
+    getnum_dlg[0].dp2=get_zc_font(font_lfont);
     getnum_dlg[2].dp=(void *)buf;
     
     large_dialog(getnum_dlg);
@@ -1932,7 +1932,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_tiles_dlg[0].dp2 = lfont;
+	save_tiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
@@ -1960,7 +1960,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2003,7 +2003,7 @@ static DIALOG module_info_dlg[] =
 void about_module(const char *prompt,int32_t initialval)
 {	
 	
-	module_info_dlg[0].dp2 = lfont;
+	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
 	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
@@ -2091,7 +2091,7 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 	
 	
 	
-	read_tiles_dlg[0].dp2 = lfont;
+	read_tiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2119,11 +2119,11 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 				if (!readtilefile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", name);
-					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				pack_fclose(f);
 			}
@@ -2166,7 +2166,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_combofiles_dlg[0].dp2 = lfont;
+	save_combofiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
@@ -2194,7 +2194,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2235,7 +2235,7 @@ void writesomecombos(const char *prompt,int32_t initialval)
 	
 	
 	
-	load_comboset_dlg[0].dp2 = lfont;
+	load_comboset_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2268,11 +2268,11 @@ void writesomecombos(const char *prompt,int32_t initialval)
 				if (!readcombofile(f,first_tile_id,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2316,7 +2316,7 @@ void loadcombopack(const char *prompt,int32_t initialval)
 	
 	
 	
-	load_combopack_dlg[0].dp2 = lfont;
+	load_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2349,11 +2349,11 @@ void loadcombopack(const char *prompt,int32_t initialval)
 				if (!readcombofile(f,0,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 			}
@@ -2406,7 +2406,7 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 	
 	
 	
-	read_combopack_dlg[0].dp2 = lfont;
+	read_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(skiptile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2446,11 +2446,11 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 				if (!readcombofile_to_location(f,first_tile_id,nooverwrite, skipover))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2496,7 +2496,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_dmaps_dlg[0].dp2 = lfont;
+	save_dmaps_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firstdmap,"%d",0);
 	sprintf(lastdmap,"%d",0);
@@ -2533,7 +2533,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 				char buf[PATH_MAX+20],name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
 				sprintf(buf,"Unable to load %s",name);
-				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 			else
 			{
@@ -2541,7 +2541,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 				extract_name(temppath,name,FILENAMEALL);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 		pack_fclose(f);
@@ -2582,7 +2582,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_comboaliasfiles_dlg[0].dp2 = lfont;
+	save_comboaliasfiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
@@ -2610,7 +2610,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2650,7 +2650,7 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 	
 	
 	
-	read_comboaliaspack_dlg[0].dp2 = lfont;
+	read_comboaliaspack_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2677,11 +2677,11 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 				if (!readcomboaliasfile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2723,7 +2723,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
 	//int32_t ret;
-	save_doorset_dlg[0].dp2 = lfont;
+	save_doorset_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
@@ -2753,7 +2753,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[512]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2797,7 +2797,7 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 	sprintf(destid,"%d",0);
 		//int32_t ret;
 	
-	save_doorset_dlg[0].dp2 = lfont;
+	save_doorset_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	load_doorset_dlg[5].dp = firstdoor;
 	load_doorset_dlg[7].dp = doorct;
@@ -2831,16 +2831,16 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", name);
-					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else if ( ret == 1 )
 				{
-					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				else if ( ret == 2 )
 				{
-					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2854,7 +2854,7 @@ int32_t gettilepagenumber(const char *prompt, int32_t initialval)
     char buf[20];
     sprintf(buf,"%d",initialval);
     getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=lfont;
+    getnum_dlg[0].dp2=get_zc_font(font_lfont);
     getnum_dlg[2].dp=buf;
     
     large_dialog(getnum_dlg);
@@ -2873,7 +2873,7 @@ int32_t gethexnumber(const char *prompt,int32_t initialval)
     char buf[20];
     sprintf(buf,"%X",initialval);
     getnum_dlg[0].dp=(void *)prompt;
-    getnum_dlg[0].dp2=lfont;
+    getnum_dlg[0].dp2=get_zc_font(font_lfont);
     getnum_dlg[2].dp=(void *)buf;
     
     large_dialog(getnum_dlg);
@@ -2933,7 +2933,7 @@ void fix_layers(mapscr *tempscr, bool showwarning)
         jwin_alert("Invalid layers detected",
                    "One or more layers on this screen used",
                    "maps that do not exist. The settings of these",
-                   buf, "O&K", NULL, 'o', 0, lfont);
+                   buf, "O&K", NULL, 'o', 0, get_zc_font(font_lfont));
     }
 }
 
@@ -3149,7 +3149,7 @@ int32_t onDrawingModePool()
 
 int32_t onReTemplate()
 {
-    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
     {
         Map.TemplateAll();
         refresh(rALL);
@@ -3306,7 +3306,7 @@ int32_t onDelete()
     
     if(Map.CurrScr()->valid&mVALID)
     {
-        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
         {
             Map.DoClearScreenCommand();
         }
@@ -3319,7 +3319,7 @@ int32_t onDelete()
 
 int32_t onDeleteMap()
 {
-    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         Map.clearmap(false);
         refresh(rALL);
@@ -3387,13 +3387,13 @@ int32_t onDecMap()
 
 int32_t onDefault_Pals()
 {
-    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         
         if(!init_colordata(true, &header, &misc))
         {
-            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
         
         refresh_pal();
@@ -3404,13 +3404,13 @@ int32_t onDefault_Pals()
 
 int32_t onDefault_Combos()
 {
-    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         
         if(!init_combos(true, &header))
         {
-            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
         
         refresh(rALL);
@@ -3421,7 +3421,7 @@ int32_t onDefault_Combos()
 
 int32_t onDefault_Items()
 {
-    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_items(true, &header);
@@ -3432,7 +3432,7 @@ int32_t onDefault_Items()
 
 int32_t onDefault_Weapons()
 {
-    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_wpns(true, &header);
@@ -3443,7 +3443,7 @@ int32_t onDefault_Weapons()
 
 int32_t onDefault_Guys()
 {
-    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_guys();
@@ -3455,13 +3455,13 @@ int32_t onDefault_Guys()
 
 int32_t onDefault_Tiles()
 {
-    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         
         if(!init_tiles(true, &header))
         {
-            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
         
         refresh(rALL);
@@ -3474,7 +3474,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int32_t onDefault_SFX()
 {
-	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
 	{
 		saved=false;
 		SAMPLE *temp_sample;
@@ -3497,7 +3497,7 @@ int32_t onDefault_SFX()
 
 int32_t onDefault_MapStyles()
 {
-    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_mapstyles(true, &misc);
@@ -4215,11 +4215,11 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
     
     if(list==NULL)
     {
-        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,lfont);
+        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,get_zc_font(font_lfont));
     }
     else
     {
-        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, lfont);
+        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
     }
     
     return ret!=0;
@@ -4259,7 +4259,7 @@ static DIALOG change_track_dlg[] =
 int32_t changeTrack()
 {
     restore_mouse();
-    change_track_dlg[0].dp2=lfont;
+    change_track_dlg[0].dp2=get_zc_font(font_lfont);
     change_track_dlg[2].d1=gme_track;
     
     large_dialog(change_track_dlg);
@@ -4694,7 +4694,7 @@ static DIALOG gamemiscarray_dlg[] =
 
 void EditGameMiscArray()
 {
-	gamemiscarray_dlg[0].dp2=lfont;
+	gamemiscarray_dlg[0].dp2=get_zc_font(font_lfont);
 	char miscvalue[32][14];
 	char miscvalue_labels[32][65];
 	memset(miscvalue, 0, sizeof(miscvalue));
@@ -4875,7 +4875,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
     
     if(!*dst)
     {
-        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return 2;
     }
     
@@ -4939,7 +4939,7 @@ int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
     
     if(!*dst)
     {
-        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return 2;
     }
     
@@ -5004,7 +5004,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     
     if(!buf)
     {
-        jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return D_O_K;
     }
     
@@ -5224,7 +5224,7 @@ int32_t load_the_map()
     static int32_t res = 1;
     static int32_t flags = cDEBUG;
     
-    loadmap_dlg[0].dp2    = lfont;
+    loadmap_dlg[0].dp2    = get_zc_font(font_lfont);
     loadmap_dlg[3].flags  = (res==2) ? D_SELECTED : 0;
     loadmap_dlg[4].flags  = (res==1) ? D_SELECTED : 0;
     loadmap_dlg[5].flags  = (res==0) ? D_SELECTED : 0;
@@ -5267,7 +5267,7 @@ int32_t load_the_map()
     
     if(!bmap)
     {
-        jwin_alert("Error","Error creating bitmap.",NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error creating bitmap.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return 2;
     }
     
@@ -5526,8 +5526,8 @@ void drawpanel()
 
 void show_screen_error(const char *str, int32_t i, int32_t c)
 {
-    rectfill(menu1, screrrorpos.x-text_length(lfont_l,str),screrrorpos.y-(i*16),screrrorpos.x,screrrorpos.y-((i-1)*16)-4,vc(0));
-    textout_shadowed_ex(menu1,lfont_l, str,screrrorpos.x-text_length(lfont_l,str),screrrorpos.y-(i*16),c,vc(0),-1);
+    rectfill(menu1, screrrorpos.x-text_length(get_zc_font(font_lfont_l),str),screrrorpos.y-(i*16),screrrorpos.x,screrrorpos.y-((i-1)*16)-4,vc(0));
+    textout_shadowed_ex(menu1,get_zc_font(font_lfont_l), str,screrrorpos.x-text_length(get_zc_font(font_lfont_l),str),screrrorpos.y-(i*16),c,vc(0),-1);
 }
 
 void tile_warp_notification(int32_t which, char *buf)
@@ -5725,7 +5725,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
 				clear_bitmap(txtbmp);
 				int txtscale = zoomed_minimap ? (is_compact ? 2 : 3) : 1;
-				font = lfont_l;
+				font = get_zc_font(font_lfont_l);
 				
 				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
 				textprintf_disabled(txtbmp,font,0,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
@@ -6574,7 +6574,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 			
-			font = lfont_l;
+			font = get_zc_font(font_lfont_l);
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
 			draw_text_button(menu1,combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),0,true);
 		}
@@ -6583,14 +6583,14 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		{
 			if(draw_mode!=dm_cpool)
 			{
-				font = lfont_l;
+				font = get_zc_font(font_lfont_l);
 				
 				jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
 				rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
 				jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
 				rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
 				
-				textprintf_ex(menu1,lfont_l,favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
+				textprintf_ex(menu1,get_zc_font(font_lfont_l),favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
 				BITMAP* subb = create_bitmap_ex(8,16,16);
 				if(draw_mode==dm_alias)
 				{
@@ -6696,10 +6696,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					(isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
 			}
 			
-			font = lfont_l;
+			font = get_zc_font(font_lfont_l);
 			if(commands_txt.x > 0)
 			{
-				gui_textout_ln(menu1, lfont_l, (ucc*)"Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
+				gui_textout_ln(menu1, get_zc_font(font_lfont_l), (ucc*)"Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
 			}
 			
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
@@ -6946,7 +6946,7 @@ void refresh(int32_t flags, bool update)
 			buf[72] = '\0';
 			char shortbuf[72];
 			strip_extra_spaces(buf);
-			shorten_string(shortbuf, buf, lfont_l, 72, 280);
+			shorten_string(shortbuf, buf, get_zc_font(font_lfont_l), 72, 280);
 			sprintf(buf,"String %s",shortbuf);
 			show_screen_error(buf,i++,vc(15));
 		}
@@ -7578,22 +7578,22 @@ void update_combobrush()
         {
         case 0:
             //if(!(combo_aliases[combo_apos].combos[0]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6, 6, vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6, vc(15), vc(0), -1, "x");
             break;
             
         case 1:
             //if(!(combo_aliases[combo_apos].combos[combo_aliases[combo_apos].width]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6+(combo_aliases[combo_apos].width*16), 6, vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6, vc(15), vc(0), -1, "x");
             break;
             
         case 2:
             //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*combo_aliases[combo_apos].height]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6, 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
             break;
             
         case 3:
             //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height)-1]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6+(combo_aliases[combo_apos].width*16), 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
             break;
         }
     }
@@ -10235,7 +10235,7 @@ int32_t select_command(const char *prompt,int32_t cmd)
     }
     
     clist_dlg[0].dp=(void *)prompt;
-    clist_dlg[0].dp2=lfont;
+    clist_dlg[0].dp2=get_zc_font(font_lfont);
     clist_dlg[2].d1=index;
     static ListData command_list(commandlist, &font);
     clist_dlg[2].dp=(void *) &command_list;
@@ -10696,7 +10696,7 @@ void domouse()
 			goto domouse_doneclick;
 		}
 		
-		font = lfont_l;
+		font = get_zc_font(font_lfont_l);
 		if(combo_merge_btn.rect(x,y))
 		{
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
@@ -11022,7 +11022,7 @@ void domouse()
 								
 								case 1: // Paste Copied FFC
 								{
-									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
+									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 									{
 										Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
 										saved=false;
@@ -11035,7 +11035,7 @@ void domouse()
 									break;
 								
 								case 3:
-									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 									{
 										Map.CurrScr()->ffcs[i].setData(0);
 										Map.CurrScr()->ffcCountMarkDirty();
@@ -11198,7 +11198,7 @@ void domouse()
 						{
 							if(warpindex>=4)
 							{
-								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 								warpindex=zc_oldrand()&3;
 							}
 							
@@ -11210,7 +11210,7 @@ void domouse()
 							{
 								char buf[56];
 								sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
-								jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,lfont);
+								jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 								break;
 								break;
 							}
@@ -11230,7 +11230,7 @@ void domouse()
 						{
 							if(warpindex>=4)
 							{
-								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 								warpindex=0;
 							}
 							
@@ -11892,7 +11892,7 @@ int32_t onShowPal()
 	if(!palbmp)
 		return D_O_K;
 	clear_to_color(palbmp,jwin_pal[jcBOX]); //If not cleared, random static appears between swatches! -E
-	showpal_dlg[0].dp2=lfont;
+	showpal_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	for(int32_t i=0; i<256; i++)
 		rectfill(palbmp,(int32_t)(((i&31)<<3)*palscale),(int32_t)(((i&0xE0)>>2)*palscale), (int32_t)((((i&31)<<3)+7)*palscale),(int32_t)((((i&0xE0)>>2)+7)*palscale),i);
@@ -11901,7 +11901,7 @@ int32_t onShowPal()
 	showpal_dlg[2].dp2=(void *)buf;
 	showpal_dlg[2].dp3=(void *)&(showpal_dlg[3]);
 	showpal_dlg[3].dp=(void *)buf;
-	showpal_dlg[3].dp2=(void *)deffont;
+	showpal_dlg[3].dp2=(void *)get_zc_font(font_deffont);
 	
 	large_dialog(showpal_dlg);
 	zc_popup_dialog(showpal_dlg,2);
@@ -11926,7 +11926,7 @@ static DIALOG csetfix_dlg[] =
 int32_t onCSetFix()
 {
     restore_mouse();
-    csetfix_dlg[0].dp2=lfont;
+    csetfix_dlg[0].dp2=get_zc_font(font_lfont);
     int32_t s=2,x2=14,y2=9;
     
     large_dialog(csetfix_dlg);
@@ -12153,7 +12153,7 @@ int32_t onTemplate()
         
     //  BITMAP *floor_bmp = create_bitmap_ex(8,16,16);
     //  if(!floor_bmp) return D_O_K;
-    template_dlg[0].dp2=lfont;
+    template_dlg[0].dp2=get_zc_font(font_lfont);
     //  put_combo(floor_bmp,0,0,Combo,CSet,0,0);
     //  template_dlg[2].dp=floor_bmp;
     
@@ -12268,7 +12268,7 @@ int32_t onComboPage()
         Map.CurrScr()->old_cpage = p;
     }
     
-    if(ret==4 && jwin_alert("Confirm Overwrite","Set all combo pages","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+    if(ret==4 && jwin_alert("Confirm Overwrite","Set all combo pages","on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
     {
         saved=false;
         
@@ -12361,18 +12361,18 @@ static DIALOG cflag_dlg[] =
 
 void questrev_help()
 {
-	jwin_alert("Help","The revision number of your quest.",NULL,NULL,"O&K",NULL,'k',16,lfont);
+	jwin_alert("Help","The revision number of your quest.",NULL,NULL,"O&K",NULL,'k',16,get_zc_font(font_lfont));
 }
 
 void questminrev_help()
 {
-	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,lfont);
+	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,get_zc_font(font_lfont));
 }
 
 int32_t select_cflag(const char *prompt,int32_t flag)
 {
     cflag_dlg[0].dp=(void *)prompt;
-    cflag_dlg[0].dp2=lfont;
+    cflag_dlg[0].dp2=get_zc_font(font_lfont);
     GUI::ListData ld = GUI::ZCListData::mapflag(numericalFlags, true);
 	ListData select_cflag_list = ld.getJWin(&font);
     int32_t index = ld.findIndex(flag);
@@ -12816,7 +12816,7 @@ int32_t onSecretF()
 
 int32_t onSecretCombo()
 {
-    secret_dlg[0].dp2=lfont;
+    secret_dlg[0].dp2=get_zc_font(font_lfont);
     
     
     mapscr *s;
@@ -13041,7 +13041,7 @@ int32_t onUnderCombo()
 	char titlebuf[64];
 	sprintf(titlebuf, "Under Combo (Layer %d)", CurrentLayer);
 	under_dlg[0].dp = titlebuf;
-	under_dlg[0].dp2 = lfont;
+	under_dlg[0].dp2 = get_zc_font(font_lfont);
 	mapscr* scr;
 	if(CurrentLayer==0)
 	{
@@ -13075,7 +13075,7 @@ int32_t onUnderCombo()
 		scr->undercset = under_dlg[6].fg;
 	}
 	
-	if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+	if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		saved=false;
 		
@@ -13262,7 +13262,7 @@ int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit
     }
     
     ilist_dlg[0].dp=(void *)prompt;
-    ilist_dlg[0].dp2=lfont;
+    ilist_dlg[0].dp2=get_zc_font(font_lfont);
     ilist_dlg[2].d1=index;
     ListData item_list(itemlist_num, &font);
     ilist_dlg[2].dp=(void *) &item_list;
@@ -13639,7 +13639,7 @@ int32_t select_weapon(const char *prompt,int32_t weapon)
     }
     
     wlist_dlg[0].dp=(void *)prompt;
-    wlist_dlg[0].dp2=lfont;
+    wlist_dlg[0].dp2=get_zc_font(font_lfont);
     wlist_dlg[2].d1=index;
     ListData weapon_list(weaponlist_num, &font);
     wlist_dlg[2].dp=(void *) &weapon_list;
@@ -14091,7 +14091,7 @@ const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 }
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData screenscript_list(screenscriptdroplist, &pfont);
+static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
 
 
 #include "zq_files.h"
@@ -14153,7 +14153,7 @@ static DIALOG screenscript_dlg[] =
 
 void EditScreenScript()
 {
-	screenscript_dlg[0].dp2=lfont;
+	screenscript_dlg[0].dp2=get_zc_font(font_lfont);
 	char initd[8][16];
 	int32_t script = 0;
 
@@ -14274,7 +14274,7 @@ int32_t onScrData()
 	scrdata_dlg[110].dp= fallrocks_str;
 	scrdata_dlg[111].dp= statues_str;
 	
-	scrdata_dlg[0].dp2=lfont;
+	scrdata_dlg[0].dp2=get_zc_font(font_lfont);
 	sprintf(timedstring,"%d",Map.CurrScr()->timedwarptics);
 	//  sprintf(nmapstring,"%d",(int32_t)Map.CurrScr()->nextmap);
 	// sprintf(nscrstring,"%x",(int32_t)Map.CurrScr()->nextscr);
@@ -14832,7 +14832,7 @@ void update_map_count(word newmapcount)
 
 int32_t onGotoMap()
 {
-    int32_t ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
+    int32_t ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,get_zc_font(font_lfont));
     
     if(ret >= 0)
     {
@@ -14880,7 +14880,7 @@ static DIALOG usedcombo_list_dlg[] =
 int32_t onUsedCombos()
 {
     restore_mouse();
-    usedcombo_list_dlg[0].dp2=lfont;
+    usedcombo_list_dlg[0].dp2=get_zc_font(font_lfont);
     
     int32_t usedcombos[7][300][2];
     char combolist_text[65536];
@@ -15061,7 +15061,7 @@ int32_t onRoom()
 
 int32_t onEndString()
 {
-    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,lfont);
+    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,get_zc_font(font_lfont));
     
     if(ret>=0)
     {
@@ -15094,7 +15094,7 @@ int32_t onScreenPalette()
 	if(key[KEY_ALT]||key[KEY_ALTGR])
 		return D_O_K; //'Alt+F4' should not pop this up...
     restore_mouse();
-    screen_pal_dlg[0].dp2=lfont;
+    screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
     screen_pal_dlg[2].d1=Map.getcolor();
     
     large_dialog(screen_pal_dlg);
@@ -15314,7 +15314,7 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 			//Item editor power display in Select Item dialogue. 
 			if(bii[d->d1].i>=0)
 			{
-				FONT* tfont = lfont_l;
+				FONT* tfont = get_zc_font(font_lfont_l);
 				int fh = text_height(tfont);
 				rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
 				textprintf_ex(screen,tfont,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",bii[d->d1].i);
@@ -15512,7 +15512,7 @@ static DIALOG tp_dlg[] =
 
 int32_t onTriPieces()
 {
-    tp_dlg[0].dp2=lfont;
+    tp_dlg[0].dp2=get_zc_font(font_lfont);
     char temptext[8][2];
     
     for(int32_t i=0; i<8; i++)
@@ -15743,12 +15743,12 @@ int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(xy[2]>-1000&&xy[3]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
         }
         
         if(xy[4]>-1000&&xy[5]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
         }
     }
     
@@ -15777,12 +15777,12 @@ int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(xy[2]>-1000&&xy[3]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
         }
         
         if(xy[4]>-1000&&xy[5]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
         }
     }
     
@@ -15837,14 +15837,15 @@ int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
         int32_t j=0, k=0;
         rectfill(tempbmp,x,y,x+d->w-1,y+header_height-1,jwin_pal[jcBOX]);
         
+		FONT* nf = get_zc_font(font_nfont);
         for(j=0; j<8; ++j)
         {
-            textprintf_ex(tempbmp,nfont,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+            textprintf_ex(tempbmp,nf,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
         }
         
         for(j=0; j<cols; ++j)
         {
-            textprintf_ex(tempbmp,nfont,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+            textprintf_ex(tempbmp,nf,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
         }
         
         jwin_draw_frame(tempbmp, x+header_width+1, y+header_height+1, 180, 84, FR_DEEP);
@@ -15987,14 +15988,15 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t j=0;
 			rectfill(screen,x,y-header_height-frame_thickness-1,int32_t(x+116*1.5-1),y-1,jwin_pal[jcBOX]);
 			
+			FONT* nf = get_zc_font(font_nfont);
 			for(j=0; j<8; ++j)
 			{
-				textprintf_ex(screen,nfont,x-header_width-frame_thickness,y+1+(j*10),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+				textprintf_ex(screen,nf,x-header_width-frame_thickness,y+1+(j*10),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
 			}
 			
 			for(j=0; j<cols; ++j)
 			{
-				textprintf_ex(screen,nfont,x+((col_width+1)/2)-(header_width/2)+(j*col_width),y-header_height-frame_thickness,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+				textprintf_ex(screen,nf,x+((col_width+1)/2)-(header_width/2)+(j*col_width),y-header_height-frame_thickness,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
 			}
 			
 			jwin_draw_frame(screen, (x-frame_thickness)+1, (y-frame_thickness)+1, 180, 84, FR_DEEP);
@@ -16049,13 +16051,13 @@ void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
         {
             if(edit_ins_mode)
             {
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
             }
             else
             {
                 //     text_mode(i==pos?vc(15):bg);
                 
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
             }
             
             ++i;
@@ -16064,7 +16066,7 @@ void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
     if(edit_ins_mode&&pos>-1)
     {
         //   text_mode(-1);
-        textprintf_ex(screen,zfont,x+((pos%cpl)<<3),y+((pos/cpl)<<3),vc(15),-1,"_");
+        textprintf_ex(screen,get_zc_font(font_zfont),x+((pos%cpl)<<3),y+((pos/cpl)<<3),vc(15),-1,"_");
     }
 }
 
@@ -16191,12 +16193,12 @@ void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
         {
             if(edit_ins_mode)
             {
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
             }
             else
             {
                 //     text_mode(i==pos?vc(15):bg);
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
             }
             
             ++i;
@@ -16205,7 +16207,7 @@ void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
     if(edit_ins_mode&&pos>-1)
     {
         //   text_mode(-1);
-        textprintf_ex(screen,zfont,x+((pos%24)<<3),y+((pos/24)<<3),vc(15),-1,"_");
+        textprintf_ex(screen,get_zc_font(font_zfont),x+((pos%24)<<3),y+((pos/24)<<3),vc(15),-1,"_");
     }
 }
 
@@ -16489,7 +16491,7 @@ const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData dmapscript_list(dmapscriptdroplist, &pfont);
+static ListData dmapscript_list(dmapscriptdroplist, &a4fonts[font_pfont]);
 
 static DIALOG editdmap_dlg[] =
 {
@@ -16845,7 +16847,7 @@ void editdmap(int32_t index)
 	}
 	
 	editdmap_dlg[0].dp=dmapnumstr;
-	editdmap_dlg[0].dp2=lfont;
+	editdmap_dlg[0].dp2=get_zc_font(font_lfont);
 	editdmap_dlg[4].dp=dmap_name;
 	editdmap_dlg[9].d1 = DMaps[index].minimap_1_tile;
 	editdmap_dlg[9].fg = DMaps[index].minimap_1_cset;
@@ -16864,8 +16866,8 @@ void editdmap(int32_t index)
 	editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
 	editdmap_dlg[25].dp=levelstr;
 	
-	editdmap_dlg[26].dp2=nfont;
-	editdmap_dlg[27].dp2=nfont;
+	editdmap_dlg[26].dp2=get_zc_font(font_nfont);
+	editdmap_dlg[27].dp2=get_zc_font(font_nfont);
 	
 	for(int32_t i=0; i<8; i++)
 	{
@@ -16984,7 +16986,7 @@ void editdmap(int32_t index)
 				
 				if(strlen(tmfname)>55)
 				{
-					jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					temppath[0]=0;
 				}
 				else
@@ -18377,7 +18379,7 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 		if (!readonedmap(f,index))
 		{
 			al_trace("Could not read from .zdmap packfile %s\n", temppath);
-			jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		}
 		
 		pack_fclose(f);
@@ -18395,7 +18397,7 @@ int32_t onDmaps()
     dmapcopied = 0;
     dmap_list_size=MAXDMAPS;
     number_list_zero=true;
-    selectdmap_dlg[0].dp2=lfont;
+    selectdmap_dlg[0].dp2=get_zc_font(font_lfont);
     selectdmap_dlg[2].dp3 = (void *)&dmap_rclick_func;
     selectdmap_dlg[2].flags|=(D_USER<<1);
     
@@ -18428,7 +18430,7 @@ int32_t onDmaps()
         {
             sprintf(buf,"Delete DMap %d?",d);
             
-            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
             {
                 reset_dmap(d);
                 saved=false;
@@ -18522,7 +18524,7 @@ void edit_tune(int32_t i)
     
     strcpy(title,customtunes[i].title);
     
-    editmidi_dlg[0].dp2=lfont;
+    editmidi_dlg[0].dp2=get_zc_font(font_lfont);
     
 	large_dialog(editmidi_dlg);
 	editmidi_dlg[13].dp2 = font;
@@ -18561,7 +18563,7 @@ void edit_tune(int32_t i)
         {
             custom_vsync();
             //      text_mode(vc(1));
-            textprintf_ex(screen,lfont_l,editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
         }
         
         ret = shutdown_dialog(p);
@@ -18597,7 +18599,7 @@ void edit_tune(int32_t i)
 
                 if((data=load_midi(temppath))==NULL)
                 {
-                    jwin_alert("Error","Error loading tune:",temppath,NULL,"Dang",NULL,13,27,lfont);
+                    jwin_alert("Error","Error loading tune:",temppath,NULL,"Dang",NULL,13,27,get_zc_font(font_lfont));
                 }
                 else
                 {
@@ -18758,7 +18760,7 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_list_proc(msg,d,c);
 }
 
-static ListData custommidi_list(custommidilist, &lfont_l);
+static ListData custommidi_list(custommidilist, &a4fonts[font_lfont_l]);
 
 static DIALOG selectmidi_dlg[] =
 {
@@ -18784,7 +18786,7 @@ int32_t onMidis()
     number_list_size=MAXCUSTOMTUNES;
     number_list_zero=false;
     strcpy(temppath,midipath);
-    selectmidi_dlg[0].dp2=lfont;
+    selectmidi_dlg[0].dp2=get_zc_font(font_lfont);
     
     
     large_dialog(selectmidi_dlg);
@@ -18802,7 +18804,7 @@ int32_t onMidis()
         {
             sprintf(buf,"Delete music %d?",d+1);
             
-            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
             {
                 customtunes[d].reset(); // reset_midi(customMIDIs+d);
                 saved=false;
@@ -18893,7 +18895,7 @@ int32_t onEnhancedMusic()
     number_list_size=MAXCUSTOMMIDIS;
     number_list_zero=false;
     strcpy(temppath,midipath);
-    selectmusic_dlg[0].dp2=lfont;
+    selectmusic_dlg[0].dp2=get_zc_font(font_lfont);
     go();
     ret=zc_do_dialog(selectmusic_dlg,2);
     while(ret!=4&&ret!=0)
@@ -18902,7 +18904,7 @@ int32_t onEnhancedMusic()
       if(ret==5)
       {
         sprintf(buf,"Delete MIDI %d?",d+1);
-        if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+        if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
         {
           reset_midi(customMIDIs+d);
           saved=false;
@@ -19341,9 +19343,9 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
                 int32_t e=d->d2&3;
                 
                 if(d->w>d->h)
-                    textprintf_centre_ex(screen,lfont_l, d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
                 else
-                    textprintf_centre_ex(screen,lfont_l, d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
             }
             
         }
@@ -19443,9 +19445,9 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
                 int32_t e=d->d2&3;
                 
                 if(d->w>d->h)
-                    textprintf_centre_ex(screen,lfont_l,d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
                 else
-                    textprintf_centre_ex(screen,lfont_l,d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
             }
         }
         else
@@ -19722,7 +19724,7 @@ int32_t d_warpbutton_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(ret==D_EXIT)
     {
-        warpdestsel_dlg[0].dp2=lfont;
+        warpdestsel_dlg[0].dp2=get_zc_font(font_lfont);
         warpdestmap=DMaps[(d-4)->d1].map;
         warpdestscr=DMaps[(d-4)->d1].xoff+xtoi((char*)((d-1)->dp));
         ret=zc_popup_dialog(warpdestsel_dlg,-1);
@@ -19994,7 +19996,7 @@ int32_t onTileWarp()
     int32_t tempx52=warp_dlg[52].x;
     restore_mouse();
     warp_dlg[0].dp=(void *) "Tile Warp";
-    warp_dlg[0].dp2=lfont;
+    warp_dlg[0].dp2=get_zc_font(font_lfont);
     warp_dlg[5].x = screen->w + 10;
     warp_dlg[6].x = screen->w + 10;
     warp_dlg[10].x = screen->w + 10;
@@ -20243,7 +20245,7 @@ int32_t onSideWarp()
 {
     restore_mouse();
     warp_dlg[0].dp=(void *) "Side Warp";
-    warp_dlg[0].dp2=lfont;
+    warp_dlg[0].dp2=get_zc_font(font_lfont);
     warp_dlg[7].flags = 0;
     warp_dlg[22].flags = 0;
     warp_dlg[34].flags = 0;
@@ -20516,7 +20518,7 @@ static DIALOG path_dlg[] =
 int32_t onPath()
 {
     restore_mouse();
-    path_dlg[0].dp2=lfont;
+    path_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<4; i++)
         path_dlg[i+7].d1 = Map.CurrScr()->path[i];
@@ -20535,7 +20537,7 @@ int32_t onPath()
             {
                 if(path_dlg[i+7].d1 == path_dlg[11].d1)
                 {
-                    if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
+                    if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
                         ret = -1;
                         
                     break;
@@ -20554,7 +20556,7 @@ int32_t onPath()
         Map.CurrScr()->exitdir = path_dlg[11].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
-            if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',lfont)==1)
+            if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==1)
                 Map.CurrScr()->flags |= fMAZE;
     }
     
@@ -20600,7 +20602,7 @@ void EditInfoType(int32_t index)
     
     sprintf(caption,"Info Data %d",index);
     editinfo_dlg[0].dp = caption;
-    editinfo_dlg[0].dp2 = lfont;
+    editinfo_dlg[0].dp2 = get_zc_font(font_lfont);
     
     sprintf(ps1,"%d",misc.info[index].price[0]);
     sprintf(ps2,"%d",misc.info[index].price[1]);
@@ -20616,7 +20618,7 @@ void EditInfoType(int32_t index)
     editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
     editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
     editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
-    ListData msgs_list(msgslist2, &lfont_l);
+    ListData msgs_list(msgslist2, &a4fonts[font_lfont_l]);
     editinfo_dlg[9].dp  =
         editinfo_dlg[11].dp =
             editinfo_dlg[13].dp = (void *) &msgs_list;
@@ -20686,13 +20688,13 @@ int32_t onInfoTypes()
 {
     info_list_size = 256;
     
-    int32_t index = select_data("Info Types",0,infolist,"Edit","Done",lfont);
+    int32_t index = select_data("Info Types",0,infolist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditInfoType(index);
         
-        index = select_data("Info Types",index,infolist,"Edit","Done",lfont);
+        index = select_data("Info Types",index,infolist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -20748,7 +20750,7 @@ void EditShopType(int32_t index)
     
     sprintf(caption,"Shop Data %d",index);
     editshop_dlg[0].dp = caption;
-    editshop_dlg[0].dp2=lfont;
+    editshop_dlg[0].dp2=get_zc_font(font_lfont);
     
     sprintf(ps1,"%d",misc.shop[index].price[0]);
     sprintf(ps2,"%d",misc.shop[index].price[1]);
@@ -20768,7 +20770,7 @@ void EditShopType(int32_t index)
     editshop_dlg[22].dp = info2;
     editshop_dlg[23].dp = info3;
     
-    ListData item_list(itemlist_num, &lfont_l);
+    ListData item_list(itemlist_num, &a4fonts[font_lfont_l]);
     
     editshop_dlg[9].dp  = (void *) &item_list;
     editshop_dlg[11].dp  = (void *) &item_list;
@@ -20852,12 +20854,12 @@ int32_t onShopTypes()
 {
     shop_list_size = 256;
     
-    int32_t index = select_data("Shop Types",0,shoplist,"Edit","Done",lfont);
+    int32_t index = select_data("Shop Types",0,shoplist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditShopType(index);
-        index = select_data("Shop Types",index,shoplist,"Edit","Done",lfont);
+        index = select_data("Shop Types",index,shoplist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -20871,7 +20873,7 @@ int32_t onBottleTypes()
 	
 	while(index > -1)
 	{
-		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", lfont);
+		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", get_zc_font(font_lfont));
 		if(index > -1)
 			call_bottle_dlg(index);
 	}
@@ -20887,7 +20889,7 @@ int32_t onBottleShopTypes()
 	
 	while(index > -1)
 	{
-		index = select_data("Bottle Shop Types", index, bottleshoplist, "Edit", "Done", lfont);
+		index = select_data("Bottle Shop Types", index, bottleshoplist, "Edit", "Done", get_zc_font(font_lfont));
 		if(index > -1)
 			call_bottleshop_dlg(index);
 	}
@@ -21034,7 +21036,7 @@ void EditItemDropSet(int32_t index)
     
     sprintf(caption,"Item Drop Set Data %d",index);
     edititemdropset_dlg[0].dp = caption;
-    edititemdropset_dlg[0].dp2=lfont;
+    edititemdropset_dlg[0].dp2=get_zc_font(font_lfont);
     
     sprintf(itemdropsetname,"%s",item_drop_sets[index].name);
     edititemdropset_dlg[5].dp = itemdropsetname;
@@ -21042,7 +21044,7 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-    ListData item_list(itemlist_num, &lfont_l);
+    ListData item_list(itemlist_num, &a4fonts[font_lfont_l]);
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
     
@@ -21132,12 +21134,12 @@ int32_t onItemDropSets()
 {
     item_drop_set_list_size = MAXITEMDROPSETS;
     
-    int32_t index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont);
+    int32_t index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditItemDropSet(index);
-        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",lfont);
+        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -21189,7 +21191,7 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     
     sprintf(caption,"Ring %d  Warp %d",ring,index+1);
     warpring_warp_dlg[0].dp = (void *)caption;
-    warpring_warp_dlg[0].dp2=lfont;
+    warpring_warp_dlg[0].dp2=get_zc_font(font_lfont);
     
     warpring_warp_dlg[1].dp = NULL;
     warpring_warp_dlg[1].dp3 = NULL;
@@ -21370,7 +21372,7 @@ void EditWarpRing(int32_t ring)
     char buf[40];
     sprintf(buf,"Ring %d Warps",ring);
     warpring_dlg[0].dp = buf;
-    warpring_dlg[0].dp2 = lfont;
+    warpring_dlg[0].dp2 = get_zc_font(font_lfont);
     curr_ring = ring;
     
     int32_t index = select_warp();
@@ -21387,14 +21389,14 @@ int32_t onWarpRings()
     number_list_size = 9;
     number_list_zero = true;
     
-    int32_t index = select_data("Warp Rings",0,numberlist,"Edit","Done",lfont);
+    int32_t index = select_data("Warp Rings",0,numberlist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditWarpRing(index);
         number_list_size = 9;
         number_list_zero = true;
-        index = select_data("Warp Rings",index,numberlist,"Edit","Done",lfont);
+        index = select_data("Warp Rings",index,numberlist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -21438,7 +21440,7 @@ static DIALOG pattern_dlg[] =
 int32_t onPattern()
 {
     byte p=Map.CurrScr()->pattern;
-    pattern_dlg[0].dp2 = lfont;
+    pattern_dlg[0].dp2 = get_zc_font(font_lfont);
     pattern_dlg[2].d1  = p;
     
     large_dialog(pattern_dlg);
@@ -21760,7 +21762,7 @@ int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
             destroy_bitmap(bigbmp);
         }
         
-		font = lfont_l;
+		font = get_zc_font(font_lfont_l);
 		int fh = text_height(font);
 		rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
         textprintf_ex(screen,font,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",id);
@@ -21799,7 +21801,7 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
     }
     
     elist_dlg[0].dp=(void *)prompt;
-    elist_dlg[0].dp2=lfont;
+    elist_dlg[0].dp2=get_zc_font(font_lfont);
     elist_dlg[2].d1=index;
     ListData enemy_list(enemylist, &font);
     elist_dlg[2].dp=(void *) &enemy_list;
@@ -21856,7 +21858,7 @@ int32_t select_guy(const char *prompt,int32_t guy)
     }
     
     glist_dlg[0].dp=(void *)prompt;
-    glist_dlg[0].dp2=lfont;
+    glist_dlg[0].dp2=get_zc_font(font_lfont);
     glist_dlg[2].d1=index;
     ListData guy_list(guylist, &font);
     glist_dlg[2].dp=(void *) &guy_list;
@@ -21876,47 +21878,47 @@ int32_t select_guy(const char *prompt,int32_t guy)
             switch(id)
             {
             case gABEI:
-                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gAMA:
-                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gDUDE:
-                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gMOBLIN:
-                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gGORIYA:
-                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gFIRE:
-                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gFAIRY:
-                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gZELDA:
-                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gABEI2:
-                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gEMPTY:
-                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             default:
-                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
             }
         }
@@ -21968,7 +21970,7 @@ int32_t onEnemies()
 	
 	build_bie_list(true);
 	
-	enemy_dlg[0].dp2=lfont;
+	enemy_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	if(Map.CanPaste())
 	{
@@ -21998,8 +22000,7 @@ int32_t onEnemies()
 		large_dialog(enemy_dlg);
 		// Fix d_enelist_proc
 		enemy_dlg[2].dp2 = 0;
-		//((ListData *)enemy_dlg[2].dp)->font = &sfont3;
-		((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
+		((ListData *)enemy_dlg[2].dp)->font = &a4fonts[font_lfont_l];
 		
 		ret = zc_do_dialog(enemy_dlg,2);
 		
@@ -22080,7 +22081,7 @@ int32_t onEnemies()
 					end = true;
 				else if(end)
 				{
-					if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
+					if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
 						ret=-1;
 						
 					break;
@@ -22158,7 +22159,7 @@ static DIALOG subscreen_type_dlg[] =
 int32_t onSubscreen()
 {
     int32_t tempsubscreen=zinit.subscreen;
-    subscreen_type_dlg[0].dp2=lfont;
+    subscreen_type_dlg[0].dp2=get_zc_font(font_lfont);
     subscreen_type_dlg[3].d1=zinit.subscreen;
     
     large_dialog(subscreen_type_dlg);
@@ -22175,7 +22176,7 @@ int32_t onSubscreen()
             {
                 if(tempsubscreen==ssdtMAX)
                 {
-                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,lfont)==2)
+                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,get_zc_font(font_lfont))==2)
                     {
                         zinit.subscreen=ssdtMAX;
                         return D_O_K;
@@ -22779,7 +22780,7 @@ int32_t onOrgComboAliases()
 	
 	//sprintf(cSrc,"0");
 	//sprintf(cDest,"0");
-	orgcomboa_dlg[0].dp2=lfont;
+	orgcomboa_dlg[0].dp2=get_zc_font(font_lfont);
 	orgcomboa_dlg[6].dp= cSrc;
 	orgcomboa_dlg[7].dp= cDest;
 	int32_t ret = 1;
@@ -22797,7 +22798,7 @@ int32_t onOrgComboAliases()
 			char buf[100];
 			snprintf(buf, 100, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
 			buf[99]='\0';
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			ret = 1;
 		}
 		
@@ -22818,7 +22819,7 @@ int32_t onOrgComboAliases()
 		
 		if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
 		{
-			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			ret = 1;
 		}
 		
@@ -22828,7 +22829,7 @@ int32_t onOrgComboAliases()
 			snprintf(buf, 100, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
 			buf[99]='\0';
 			
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			ret = 1;
 		}
 		
@@ -22872,7 +22873,7 @@ int32_t onNewComboAlias()
         temp_combos[i] = combo->combos[i];
     }
     
-    newcomboa_dlg[0].dp2 = lfont;
+    newcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
     newcomboa_dlg[6].dp = cwidth;
     newcomboa_dlg[7].dp = cheight;
     newcomboa_dlg[8].flags = (combo->layermask&1)? D_SELECTED : 0;
@@ -23091,7 +23092,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_DRAW:
     {
         FONT *tfont=font;
-        font=lfont_l;
+        font=get_zc_font(font_lfont_l);
         jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
         font=tfont;
     }
@@ -23172,7 +23173,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_DRAW:
     {
         FONT *tfont=font;
-        font=lfont_l;
+        font=get_zc_font(font_lfont_l);
         jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
         font=tfont;
     }
@@ -23391,7 +23392,7 @@ int32_t onEditComboAlias()
         //memcpy(temp_aliases[i].csets,combo_aliases[i].csets,sizeof(byte)*tcount);
     }
     
-    editcomboa_dlg[0].dp2 = lfont;
+    editcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
     set_comboaradio(temp_aliases[comboa_cnt].layermask);
     editcomboa_dlg[5].d1 = comboa_cnt;
     
@@ -23410,10 +23411,10 @@ int32_t onEditComboAlias()
 		editcomboa_dlg[13].h=9*1.5;
 		editcomboa_dlg[4].w=81*1.5;
 		editcomboa_dlg[4].h=21*1.5;
-		editcomboa_dlg[4].dp2=lfont_l;
+		editcomboa_dlg[4].dp2=get_zc_font(font_lfont_l);
 		editcomboa_dlg[21].w=21*1.5;
 		editcomboa_dlg[21].h=21*1.5;
-		editcomboa_dlg[21].dp2=lfont_l;
+		editcomboa_dlg[21].dp2=get_zc_font(font_lfont_l);
 	}
     
     int32_t ret=zc_popup_dialog(editcomboa_dlg,-1);
@@ -23572,7 +23573,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 int32_t onSelectFFCombo()
 {
-    ffcombo_sel_dlg[0].dp2 = lfont;
+    ffcombo_sel_dlg[0].dp2 = get_zc_font(font_lfont);
     ffcombo_sel_dlg[3].d1 = ff_combo;
     ffcur = create_bitmap_ex(8,32,32);
     
@@ -24988,7 +24989,7 @@ void resize_scriptinfo_dlg()
 void showScriptInfo(zasm_meta const* meta)
 {
 	scriptinfo_dlg[3].dp = (void*)meta;
-	scriptinfo_dlg[0].dp2 = lfont;
+	scriptinfo_dlg[0].dp2 = get_zc_font(font_lfont);
 	large_dialog(scriptinfo_dlg);
 	jwin_zmeta_proc(MSG_START,&scriptinfo_dlg[3],0); //Calculate size before calling dialog
 	jwin_center_dialog(scriptinfo_dlg);
@@ -25039,7 +25040,7 @@ const char *zcompiler_haltlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont);
+static ListData zcompiler_halt_list(zcompiler_haltlist, &a4fonts[font_pfont]);
 
 const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 {
@@ -25067,7 +25068,7 @@ const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont);
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &a4fonts[font_pfont]);
 
 const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
 {
@@ -25093,7 +25094,7 @@ const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData zcompiler_depr_list(zcompiler_deprlist, &pfont);
+static ListData zcompiler_depr_list(zcompiler_deprlist, &a4fonts[font_pfont]);
 
 char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
@@ -25184,7 +25185,7 @@ int32_t onZScriptCompilerSettings()
 {
 	large_dialog(zscript_parser_dlg);
 		
-	zscript_parser_dlg[0].dp2=lfont;
+	zscript_parser_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	int32_t old_cfgs[3];
 	zscript_parser_dlg[13].d1 = old_cfgs[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
@@ -25266,7 +25267,7 @@ void doEditZScript(int32_t bg,int32_t fg)
     
     zc_popup_dialog(edit_zscript_dlg,2);
     
-    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
+    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
         zScript = old;
     else
         saved=false;
@@ -25520,7 +25521,7 @@ void clear_map_states()
 
 void clearAssignSlotDlg()
 {
-	assignscript_dlg[0].dp2 = lfont;
+	assignscript_dlg[0].dp2 = get_zc_font(font_lfont);
 	assignscript_dlg[4].d1 = -1;
 	assignscript_dlg[5].d1 = -1;
 	assignscript_dlg[7].d1 = -1;
@@ -26607,7 +26608,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26635,7 +26636,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26663,7 +26664,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26690,7 +26691,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26717,7 +26718,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26744,7 +26745,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26771,7 +26772,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26798,7 +26799,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26825,7 +26826,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26852,7 +26853,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26880,7 +26881,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26907,7 +26908,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26993,7 +26994,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					
 				if(lind == 0)
 				{
-					jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					break;
 				}
 				
@@ -27536,7 +27537,7 @@ static DIALOG clearslots_dlg[] =
 void doClearSlots(byte* flags)
 {
 	//{ Setup
-	clearslots_dlg[0].dp2=lfont;
+	clearslots_dlg[0].dp2=get_zc_font(font_lfont);
 	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
 	clearslots_dlg[4].flags |= D_SELECTED;
 	clearslots_dlg[5].flags &= ~D_SELECTED;
@@ -27640,7 +27641,7 @@ static EXT_LIST zasm_extlist[] =
 
 int32_t onExportZASM()
 {
-	exportzasm_dlg[0].dp2 = lfont;
+	exportzasm_dlg[0].dp2 = get_zc_font(font_lfont);
 	exportzasm_dlg[3].d1 = type_ffc;
 	exportzasm_dlg[4].dp = (void*)&ffscript_list;
 	exportzasm_dlg[4].d1 = 0;
@@ -27754,7 +27755,7 @@ int32_t onExportZASM()
 				
 				if(exists(temppath))
 				{
-					if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
+					if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
 					{
 						scriptChoice = NULL;
 						break;
@@ -27764,7 +27765,7 @@ int32_t onExportZASM()
 				FILE* zasm_output = fopen(temppath, "w");
 				if(zasm_output == NULL)
 				{
-					jwin_alert("Error","Cannot create specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("Error","Cannot create specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					scriptChoice = NULL;
 					break;
 				}
@@ -27824,7 +27825,7 @@ int32_t onExportZASM()
 
 int32_t onImportZASM()
 {
-	importzasm_dlg[0].dp2 = lfont;
+	importzasm_dlg[0].dp2 = get_zc_font(font_lfont);
 	importzasm_dlg[4].dp = (void*)&ffscript_list;
 	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
 	{
@@ -27833,14 +27834,14 @@ int32_t onImportZASM()
 	FILE* zasm_import_file = fopen(temppath, "r");
 	if(zasm_import_file == NULL)
 	{
-		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return D_O_K;
 	}
 	script_data *temp_slot = new script_data();
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
 		fclose(zasm_import_file);
-		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		delete temp_slot;
 		return D_O_K;
 	}
@@ -28043,7 +28044,7 @@ int32_t load_zmod_module_file()
             
             if(tempmodule == NULL)
             {
-                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 return -1;
             }
 	    
@@ -28075,7 +28076,7 @@ static DIALOG sfxlist_dlg[] =
 int32_t select_sfx(const char *prompt,int32_t index)
 {
     sfxlist_dlg[0].dp=(void *)prompt;
-    sfxlist_dlg[0].dp2=lfont;
+    sfxlist_dlg[0].dp2=get_zc_font(font_lfont);
     sfxlist_dlg[2].d1=index;
     sfxlist_dlg[2].dp=(void *) & sfx_list;
     
@@ -28326,7 +28327,7 @@ bool confirmBox(const char *m1, const char *m2, const char *m3)
 		if(!m2) m2 = "Are you sure?";
 		else m3 = "Are you sure?";
 	}
-	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', lfont) == 1;
+	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', get_zc_font(font_lfont)) == 1;
 }
 
 int32_t onSelectSFX()
@@ -28407,7 +28408,7 @@ int32_t onEditSFX(int32_t index)
 	zc_stop_midi();
 	zc_set_volume(255,-1);
 	int32_t ret;
-	sfx_edit_dlg[0].dp2=lfont;
+	sfx_edit_dlg[0].dp2=get_zc_font(font_lfont);
 	uint8_t tempflag;
 	tempflag = get_bit(customsfxflag,index-1);
 	change_sfx(&templist[index], &customsfxdata[index]);
@@ -28458,7 +28459,7 @@ int32_t onEditSFX(int32_t index)
 					
 					if((temp_sample = load_wav(temppath))==NULL)
 					{
-						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 					}
 					else
 					{
@@ -28541,17 +28542,17 @@ int32_t onEditSFX(int32_t index)
 					{
 						if(!saveWAV(index, temppath))
 						{
-							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 						}
 						else 
 						{
-							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 						}
 					}
 				}
 				else 
 				{
-					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 				}		
 				break;
 			}
@@ -28620,7 +28621,7 @@ int32_t onMapStyles()
         mapstyles_dlg[19].h=mapstyles_dlg[13].h-4;
     }
     
-    mapstyles_dlg[0].dp2 = lfont;
+    mapstyles_dlg[0].dp2 = get_zc_font(font_lfont);
     //al_trace("onMapStyles() read blueframe_tile as: %d\n", misc.colors.blueframe_tile);
     mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
     mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
@@ -28897,7 +28898,7 @@ int32_t onMiscColors()
 {
     char buf[17][3];
     byte *si = &(misc.colors.text);
-    misccolors_dlg[0].dp2=lfont;
+    misccolors_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<16; i++)
     {
@@ -29101,7 +29102,7 @@ static DIALOG layerdata_dlg[] =
 int32_t edit_layers(mapscr* tempscr)
 {
     char buf[6][2][8];
-    layerdata_dlg[0].dp2 = lfont;
+    layerdata_dlg[0].dp2 = get_zc_font(font_lfont);
     
     for(int32_t x=0; x<6; x++)
     {
@@ -29175,7 +29176,7 @@ static DIALOG autolayer_dlg[] =
 void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
 {
     char tbuf[80],mlayer[80];
-    autolayer_dlg[0].dp2=lfont;
+    autolayer_dlg[0].dp2=get_zc_font(font_lfont);
     sprintf(tbuf, "Map for layer %d: ", layer+1);
     autolayer_dlg[1].dp=tbuf;
     sprintf(mlayer, "%d", tempscr->layermap[layer]);
@@ -30893,7 +30894,7 @@ int32_t main(int32_t argc,char **argv)
 		
 		if(strncmp(ctime(&rawtime)+4,"Jan  1",6)==0)
 		{
-			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, lfont);
+			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, get_zc_font(font_lfont));
 		}
 	}
 	
@@ -30906,7 +30907,7 @@ int32_t main(int32_t argc,char **argv)
 	//clearConsole();
 	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
 	{
-		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
+		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 		{
 			int32_t ret = load_quest(last_timed_save,true,true);
 			
@@ -30918,7 +30919,7 @@ int32_t main(int32_t argc,char **argv)
 			}
 			else
 			{
-				jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,lfont);
+				jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -31409,7 +31410,7 @@ void load_size_poses()
 		preview_text.w = 2;
 		preview_text.h = 6;
 		preview_text.xscale = 10;
-		preview_text.yscale = text_height(lfont_l);
+		preview_text.yscale = text_height(get_zc_font(font_lfont_l));
 		
 		panel_align = 1;
 		int swapbtnw = 32, swapbtnh = 20;
@@ -31507,7 +31508,7 @@ void load_size_poses()
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
 		
-		FONT* tfont = lfont_l;
+		FONT* tfont = get_zc_font(font_lfont_l);
 		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
 		combopool_prevbtn.h = 11;
 		combopool_prevbtn.x = combopool_preview.x;
@@ -31515,7 +31516,7 @@ void load_size_poses()
 		
 		mappage_count = 6;
 		
-		txfont = lfont_l;
+		txfont = get_zc_font(font_lfont_l);
 		combo_preview_text1.set(combo_preview.x-5,combo_preview.y,1,3,1,text_height(txfont));
 		combo_preview_text2.clear();
 		
@@ -31648,7 +31649,7 @@ void load_size_poses()
 		preview_text.w = 1;
 		preview_text.h = 12;
 		preview_text.xscale = 10;
-		preview_text.yscale = text_height(lfont_l);
+		preview_text.yscale = text_height(get_zc_font(font_lfont_l));
 		
 		minimap.x=3;
 		minimap.y=main_panel.y+4;
@@ -31705,7 +31706,7 @@ void load_size_poses()
 		commands_zoombtn.y = by;
 		
 		commands_txt.x = commands_list.x;
-		commands_txt.y = by+(bh-text_height(lfont_l))/2;
+		commands_txt.y = by+(bh-text_height(get_zc_font(font_lfont_l)))/2;
 		
 		favorites_x.x = favorites_window.x + favorites_window.w - favorites_x.w - 2;
 		favorites_x.y = favorites_list.y-15;
@@ -31759,7 +31760,7 @@ void load_size_poses()
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
 		
-		FONT* tfont = lfont_l;
+		FONT* tfont = get_zc_font(font_lfont_l);
 		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
 		combopool_prevbtn.h = 11;
 		combopool_prevbtn.x = combopool_preview.x;
@@ -31767,7 +31768,7 @@ void load_size_poses()
 		
 		mappage_count = 9;
 		
-		txfont = lfont_l;
+		txfont = get_zc_font(font_lfont_l);
 		combo_preview_text1.set(combo_preview.x-9,combo_preview.y,1,3,1,text_height(txfont));
 		combo_preview_text2.set(combo_preview2.x+combo_preview2.w+8,combo_preview2.y,1,3,1,text_height(txfont));
 		
@@ -32380,7 +32381,7 @@ static const char *help_list[] =
 void do_previewtext()
 {
 	FONT* oldfont = font;
-	font = lfont_l;
+	font = get_zc_font(font_lfont_l);
 	
 	//Put in help areas
 	auto& sqr = preview_text;
@@ -32767,7 +32768,7 @@ void check_autosave()
             
             if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
             {
-                jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,lfont);
+                jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
                 time(&auto_save_time_start);
                 comeback();
                 return;
@@ -32777,7 +32778,7 @@ void check_autosave()
             
             if(ret)
             {
-                jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 set_last_timed_save(nullptr);
             }
             

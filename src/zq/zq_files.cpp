@@ -117,7 +117,7 @@ void edit_qt()                                              //this is used to se
         
         if(!valid_zqt(temppath))
         {
-            jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             memset(header.templatepath, 0, 2048);
         }
     }
@@ -130,7 +130,7 @@ void edit_qt(int32_t index)
     char tpath[2048];
     char tpath2[2048];
     tqt=QuestTemplates[index];
-    editqt_dlg[0].dp2=lfont;
+    editqt_dlg[0].dp2=get_zc_font(font_lfont);
     
     do
     {
@@ -174,7 +174,7 @@ void edit_qt(int32_t index)
             if(!valid_zqt(temppath))
             {
                 ret=2;
-                jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
             }
             
@@ -234,7 +234,7 @@ int32_t qtlist_del()
 
 int32_t ListQTs(bool edit)
 {
-    qtlist_dlg[0].dp2=lfont;
+    qtlist_dlg[0].dp2=get_zc_font(font_lfont);
     int32_t index=0;
     quest_template *BackupQTs = (quest_template*)malloc(sizeof(quest_template)*MAXQTS);
     
@@ -283,7 +283,7 @@ int32_t ListQTs(bool edit)
             {
                 if(index>0&&!valid_zqt(QuestTemplates[index].path))
                 {
-                    jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                    jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 }
                 else
                 {
@@ -321,7 +321,7 @@ int32_t ListQTs(bool edit)
         case 6:
             if(index>0&&!valid_zqt(QuestTemplates[index].path))
             {
-                jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("ZQuest","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             }
             else
             {
@@ -350,7 +350,7 @@ int32_t ListQTs(bool edit)
             char buf[30];
             strncpy(buf,QuestTemplates[index].name,30);
             
-            if(jwin_alert("Confirm Deletion", "Delete this quest template?",buf,"(The file will still exist.)","Yes","No",'y',27,lfont)==1)
+            if(jwin_alert("Confirm Deletion", "Delete this quest template?",buf,"(The file will still exist.)","Yes","No",'y',27,get_zc_font(font_lfont))==1)
             {
                 for(int32_t i=index; i<MAXQTS-1; i++)
                     QuestTemplates[i]=QuestTemplates[i+1];
@@ -390,7 +390,7 @@ int32_t NewQuestFile(int32_t template_slot)
     memset(filepath,0,255);
     memset(temppath,0,255);
     first_save=false;
-    box_start(1, "Initializing Quest", lfont, pfont, false);
+    box_start(1, "Initializing Quest", get_zc_font(font_lfont), get_zc_font(font_pfont), false);
     box_out("Please wait.");
     box_eol();
     box_out("This may take a few moments.");
@@ -802,7 +802,7 @@ int32_t onSave()
     
     if(disable_saving)
     {
-        jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         return D_O_K;
     }
     
@@ -810,7 +810,7 @@ int32_t onSave()
         return onSaveAs();
     else if(OverwriteProtection)
     {
-        jwin_alert("ZQuest","Overwriting quests is disabled.","Change this in the options dialog.",NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("ZQuest","Overwriting quests is disabled.","Change this in the options dialog.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         return D_O_K;
     }
     
@@ -821,7 +821,7 @@ int32_t onSave()
     if(!ret)
     {
         sprintf(buf,"Saved %s",name);
-        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         saved=true;
         first_save=true;
         header.dirty_password=false;
@@ -829,7 +829,7 @@ int32_t onSave()
     else
     {
         sprintf(buf,"Error saving %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
 	set_last_timed_save(nullptr);
@@ -842,7 +842,7 @@ int32_t onSaveAs()
 {
     if(disable_saving)
     {
-        jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         return D_O_K;
     }
 #ifdef __EMSCRIPTEN__
@@ -857,11 +857,11 @@ int32_t onSaveAs()
     {
         if(OverwriteProtection)
         {
-            jwin_alert("ZQuest","Overwriting quests is disabled.","Change this in the options dialog.",NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("ZQuest","Overwriting quests is disabled.","Change this in the options dialog.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             return D_O_K;
         }
         
-        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
+        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
         {
             return D_O_K;
         }
@@ -878,7 +878,7 @@ int32_t onSaveAs()
         sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
         set_window_title(buf);
         sprintf(buf,"Saved %s",name);
-        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         saved=true;
         first_save=true;
         header.dirty_password=false;
@@ -886,7 +886,7 @@ int32_t onSaveAs()
     else
     {
         sprintf(buf,"Error saving %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     refresh(rMENU);
@@ -940,7 +940,7 @@ int32_t open_quest(char const* path)
 		char buf[256+20],name[256];
 		extract_name(path,name,FILENAMEALL);
 		sprintf(buf,"Unable to load %s",name);
-		jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		filepath[0]=0;
 	}
 	
@@ -1000,7 +1000,7 @@ int32_t onOpen()
 
 int32_t onRevert()
 {
-    if(jwin_alert("Confirm Revert","Are you sure you want to lose","all changes since last save?",NULL,"Yes","No",'y','n',lfont)==2)
+    if(jwin_alert("Confirm Revert","Are you sure you want to lose","all changes since last save?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
     {
         return D_O_K;
     }
@@ -1018,7 +1018,7 @@ int32_t onRevert()
             char buf[256+20],name[256];
             extract_name(filepath,name,FILENAMEALL);
             sprintf(buf,"Unable to load %s",name);
-            jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error",buf,qst_error[ret],NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             filepath[0]=0;
         }
         
@@ -1057,7 +1057,7 @@ static DIALOG import_map_bias_dlg[] =
 
 int32_t get_import_map_bias()
 {
-    import_map_bias_dlg[0].dp2=lfont;
+    import_map_bias_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<3; i++)
     {
@@ -1107,7 +1107,7 @@ int32_t onImport_Map()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,loaderror[ret],NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,loaderror[ret],NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         
         if(ret>1)
             Map.clearmap(false);
@@ -1136,7 +1136,7 @@ int32_t onImport_Map()
                        "One or more screens in the imported map had",
                        "layers on maps that do not exist. The map numbers",
                        "of the affected layers will be reset to 0.",
-                       "&OK", NULL, 'o', 0, lfont);
+                       "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
         }
     }
     
@@ -1167,7 +1167,7 @@ int32_t onExport_Map()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1183,7 +1183,7 @@ int32_t onImport_DMaps_old()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     else
     {
@@ -1200,7 +1200,7 @@ int32_t onImport_DMaps_old()
                                "The imported DMaps use more maps than are",
                                " currently available. Do you want to add",
                                "more maps or change the DMaps' settings?",
-                               "&Add maps","&Modify DMaps",'a','m',lfont);
+                               "&Add maps","&Modify DMaps",'a','m',get_zc_font(font_lfont));
             if(ret==1)
                 setMapCount2(maxMap+1);
             else
@@ -1259,7 +1259,7 @@ int32_t onImport_DMaps()
 			char buf[256+20],name[256];
 			extract_name(temppath,name,FILENAMEALL);
 			sprintf(buf,"Unable to load %s",name);
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		}
 		else
 		{
@@ -1284,7 +1284,7 @@ int32_t onImport_DMaps()
 					       "The imported DMaps use more maps than are",
 					       " currently available. Do you want to add",
 					       "more maps or change the DMaps' settings?",
-					       "&Add maps","&Modify DMaps",'a','m',lfont);
+					       "&Add maps","&Modify DMaps",'a','m',get_zc_font(font_lfont));
 			    if(ret==1)
 				setMapCount2(maxMap+1);
 			    else
@@ -1297,7 +1297,7 @@ int32_t onImport_DMaps()
 			    }
 			}
 			
-			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		}
 	}
 	pack_fclose(f);
@@ -1320,11 +1320,11 @@ int32_t onImport_Tilepack()
 				if (!readtilefile(f))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", name);
-					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 			}
 	
@@ -1380,11 +1380,11 @@ int32_t onImport_Comboaliaspack()
 				if (!readcomboaliasfile(f))
 				{
 					al_trace("Could not read from .zalias packfile %s\n", name);
-					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZALIAS File: Success!","Loaded the source combo aliases to your combo alias tables!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 			}
@@ -1413,7 +1413,7 @@ int32_t onExport_DMaps_old()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1429,7 +1429,7 @@ int32_t onImport_Pals()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -1454,7 +1454,7 @@ int32_t onExport_Pals()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1470,7 +1470,7 @@ int32_t onImport_Msgs()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -1495,7 +1495,7 @@ int32_t onExport_Msgs()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1519,7 +1519,7 @@ int32_t onExport_MsgsText()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1550,7 +1550,7 @@ int32_t onImport_Combos_old()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     else
         saved=false;
@@ -1578,7 +1578,7 @@ int32_t onExport_Combos()
 		
 		char tmpbuf[256+20]={0};
 		sprintf(tmpbuf,"Saved %s",name);
-		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	else
 	{
@@ -1608,7 +1608,7 @@ int32_t onExport_Combos_old()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1636,14 +1636,14 @@ int32_t onImport_Tiles()
 		{
 			char buf[256+20];
 			sprintf(buf,"Unable to load %s",name);
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		}
 		else
 		{
 			char tmpbuf[256+20]={0};
 			
 			sprintf(tmpbuf,"Saved %s",name);
-			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		}
 	}
 	pack_fclose(f);
@@ -1672,7 +1672,7 @@ int32_t onExport_Tiles()
 		char tmpbuf[256+20]={0};
 		
 		sprintf(tmpbuf,"Saved %s",name);
-		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	else
 	{
@@ -1694,7 +1694,7 @@ int32_t onImport_Guys()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     refresh(rALL);
@@ -1720,7 +1720,7 @@ int32_t onExport_Guys()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1740,7 +1740,7 @@ int32_t onImport_ComboAlias()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     refresh(rALL);
@@ -1766,7 +1766,7 @@ int32_t onExport_ComboAlias()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1783,7 +1783,7 @@ int32_t onImport_ZGP()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     refresh(rALL);
@@ -1809,7 +1809,7 @@ int32_t onExport_ZGP()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1826,7 +1826,7 @@ int32_t onImport_Subscreen()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     refresh(rALL);
@@ -1861,7 +1861,7 @@ int32_t onExport_Subscreen()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1879,7 +1879,7 @@ int32_t onImport_ZQT()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     register_blank_tiles();
@@ -1911,7 +1911,7 @@ int32_t onExport_ZQT()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -1929,7 +1929,7 @@ int32_t onImport_UnencodedQuest()
         char buf[256+20],name[256];
         extract_name(temppath,name,FILENAMEALL);
         sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     }
     
     register_blank_tiles();
@@ -1961,7 +1961,7 @@ int32_t onExport_UnencodedQuest()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 

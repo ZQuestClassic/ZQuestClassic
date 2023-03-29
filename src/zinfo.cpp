@@ -712,7 +712,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	{
 		char ebuf[80];
 		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writezinfo()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error:  writezinfo()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	
 	new_return(0);

@@ -3391,12 +3391,12 @@ enum
 	font_cgafont,   
 	font_cocofont,
 	font_coco2font, 
-	font_coupefon, 
-	font_cpcfon, 
-	font_fantasyfon, 
-	font_fdskanafon, 
-	font_fdslikefon, 
-	font_fdsromanfon, 
+	font_coupefont, 
+	font_cpcfont, 
+	font_fantasyfont, 
+	font_fdskanafont, 
+	font_fdslikefont, 
+	font_fdsromanfont, 
 	font_finalffont, 
 	font_futharkfont, 
 	font_gaiafont, 
@@ -3425,6 +3425,7 @@ enum
 	font_sfont3,
 	font_cv3,
 	font_ctrig,
+	font_nfont2,
 
 	font_max
 };

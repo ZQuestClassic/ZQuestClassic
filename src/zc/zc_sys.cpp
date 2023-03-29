@@ -77,7 +77,6 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
-extern FONT *lfont;
 extern HeroClass Hero;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -250,13 +249,11 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
-			//d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
-			d[i].dp2 = lfont_l;
+			d[i].dp2 = get_zc_font(font_lfont_l);
 		}
 		else if(!bigfontproc)
 		{
-//	  ((ListData *)d[i].dp)->font = &sfont3;
-			((ListData *)d[i].dp)->font = &lfont_l;
+			((ListData *)d[i].dp)->font = &a4fonts[font_lfont_l];
 		}
 		
 		// Make checkboxes work
@@ -2124,7 +2121,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			/*if (item_type>=itype_max)
 			{
 			  system_pal();
-			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			  game_pal();
 			
 			  return false;
@@ -4021,7 +4018,7 @@ int32_t onSaveMapPic()
 	if(!mappic)
 	{
 		system_pal();
-		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		game_pal();
 		return D_O_K;;
 	}
@@ -4134,7 +4131,7 @@ int32_t onSaveMapPic()
 	if(!mappic)
 	{
 		system_pal();
-		jwin_alert("Save Map Picture","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert("Save Map Picture","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		game_pal();
 		return D_O_K;
 	}
@@ -5199,7 +5196,7 @@ int32_t OnSaveZCConfig()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
 	{
 		save_game_configs();
 		return D_O_K;
@@ -5220,7 +5217,7 @@ int32_t OnnClearQuestDir()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
 	{
 		zc_set_config("zeldadx","win_qst_dir","");
 		flush_config_file();
@@ -5579,7 +5576,7 @@ int32_t set_vol(void *dp3, int32_t d2)
 	}
 	
 	// text_mode(vc(11));
-	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
+	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
 	return D_O_K;
 }
 
@@ -5587,7 +5584,7 @@ int32_t set_pan(void *dp3, int32_t d2)
 {
 	pan_style = vbound(d2,0,3);
 	// text_mode(vc(11));
-	textout_right_ex(screen,lfont_l, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_right_ex(screen,get_zc_font(font_lfont_l), pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	return D_O_K;
 }
 
@@ -5595,7 +5592,7 @@ int32_t set_buf(void *dp3, int32_t d2)
 {
 	// text_mode(vc(11));
 	zcmusic_bufsz = d2 + 1;
-	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
+	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
 	return D_O_K;
 }
 
@@ -5974,11 +5971,11 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
 	
 	if(list==NULL)
 	{
-		ret = jwin_file_select_ex(prompt,modulepath,ext,2048,-1,-1,lfont);
+		ret = jwin_file_select_ex(prompt,modulepath,ext,2048,-1,-1,get_zc_font(font_lfont));
 	}
 	else
 	{
-		ret = jwin_file_browse_ex(prompt, modulepath, list, &sel, 2048, -1, -1, lfont);
+		ret = jwin_file_browse_ex(prompt, modulepath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
 	}
 	
 	return ret!=0;
@@ -5989,7 +5986,7 @@ int32_t zc_load_zmod_module_file()
 {
 	if ( Playing )
 	{
-	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,lfont);	
+	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));	
 	return -1;
 	}
 	if(!zc_getname("Load Module (.zmod)","zmod",NULL,modulepath,false))
@@ -5999,7 +5996,7 @@ int32_t zc_load_zmod_module_file()
 			
 			if(tempmodule == NULL)
 			{
-				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				return -1;
 			}
 		
@@ -6051,7 +6048,7 @@ static DIALOG module_info_dlg[] =
 void about_zcplayer_module(const char *prompt,int32_t initialval)
 {	
 	
-	module_info_dlg[0].dp2 = lfont;
+	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
 	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
@@ -6127,7 +6124,7 @@ int32_t onToggleRecordingNewSaves()
 	{
 		zc_set_config("zeldadx", "replay_new_saves", true);
 		jwin_alert("Recording", "Newly created saves will be recorded and written to a replay file.",
-			NULL,NULL,"OK",NULL,13,27,lfont);
+			NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 	}
 	return D_O_K;
 }
@@ -6149,7 +6146,7 @@ int32_t onStopReplayOrRecord()
 		if (!replay_get_meta_bool("test_mode"))
 		{
 			jwin_alert("Recording", "You cannot stop recording a save file.",
-				NULL,NULL,"OK",NULL,13,27,lfont);
+				NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 			return D_CLOSE;
 		}
 
@@ -6157,7 +6154,7 @@ int32_t onStopReplayOrRecord()
 			"Save replay to disk and stop recording?",
 			"This will stop the recording.",
 			NULL,
-			"Yes","No",13,27,lfont) != 1)
+			"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
 		return D_CLOSE;
 
 		replay_save();
@@ -6174,7 +6171,7 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 			"Loading a replay will exit the current game.",
 			"All unsaved progress will be lost.",
 			"Do you wish to continue?",
-			"Yes","No",13,27,lfont) != 1)
+			"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
 		return D_CLOSE;
 	}
 
@@ -6195,13 +6192,13 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 		line_1.c_str(),
 		line_2.c_str(),
 		line_3.c_str(),
-		"OK","Nevermind",13,27,lfont) == 1)
+		"OK","Nevermind",13,27,get_zc_font(font_lfont)) == 1)
 	{
 		char replay_path[2048];
 		strcpy(replay_path, "replays/");
 		if (jwin_file_select_ex(
 				fmt::format("Load Replay (.{})", REPLAY_EXTENSION).c_str(),
-				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
+				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 			return D_CLOSE;
 
 		replay_quit();
@@ -6237,20 +6234,20 @@ int32_t onSaveReplay()
 				"This will save a copy of the replay up to this point.",
 				"The official replay file will be untouched.",
 				"Do you wish to continue?",
-				"Yes","No",13,27,lfont) != 1)
+				"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
 			return D_CLOSE;
 
 			char replay_path[2048];
 			strcpy(replay_path, replay_get_replay_path().string().c_str());
 			if (jwin_file_select_ex(
 					fmt::format("Save Replay (.{})", REPLAY_EXTENSION).c_str(),
-					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
+					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 				return D_CLOSE;
 
 			if (fileexists(replay_path))
 			{
 				jwin_alert("Save Replay", "You cannot overwrite an existing file.",
-					NULL,NULL,"OK",NULL,13,27,lfont);
+					NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 				return D_CLOSE;
 			}
 
@@ -6310,7 +6307,7 @@ int32_t onGoTo()
 	music = music;
 	sprintf(cheat_goto_screen_str,"%X",cheat_goto_screen);
 	
-	goto_dlg[0].dp2=lfont;
+	goto_dlg[0].dp2=get_zc_font(font_lfont);
 	goto_dlg[4].d2=cheat_goto_dmap;
 	goto_dlg[6].dp=cheat_goto_screen_str;
 	
@@ -6368,7 +6365,7 @@ int32_t onCredits()
 
 	clear_to_color(win, rti_gui.transparency_index);
 	draw_rle_sprite(win,rle,0,0);
-	credits_dlg[0].dp2=lfont;
+	credits_dlg[0].dp2=get_zc_font(font_lfont);
 	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
 	credits_dlg[2].dp = win;
 
@@ -6545,19 +6542,19 @@ int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c)
 		strcpy(title+11, tunes[i].title);
 	title[39] = '\0';
 		
-		if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, lfont)==0)
+		if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, get_zc_font(font_lfont))==0)
 			goto done;
 			
 		if(exists(fname))
 		{
-			if(jwin_alert(title, fname, "already exists.", "Overwrite it?", "&Yes","&No",'y','n',lfont)==2)
+			if(jwin_alert(title, fname, "already exists.", "Overwrite it?", "&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
 				goto done;
 		}
 		
 		// save midi i
 		
 		if(save_midi(fname, (MIDI*)tunes[i].data) != 0)
-			jwin_alert(title, "Error saving MIDI to", fname, NULL, "Darn", NULL,13,27,lfont);
+			jwin_alert(title, "Error saving MIDI to", fname, NULL, "Darn", NULL,13,27,get_zc_font(font_lfont));
 			
 done:
 		chop_path(fname);
@@ -6605,7 +6602,7 @@ void get_info(int32_t index)
 		get_midi_text((MIDI*)tunes[i].data,zmi,text);
 	}
 	
-	midi_dlg[0].dp2=lfont;
+	midi_dlg[0].dp2=get_zc_font(font_lfont);
 	midi_dlg[3].dp = text;
 	midi_dlg[3].d1 = midi_dlg[3].d2 = 0;
 	midi_dlg[5].flags = (tunes[i].flags&tfDISABLESAVE) ? D_DISABLED : D_EXIT;
@@ -6624,7 +6621,7 @@ int32_t onMIDICredits()
 	
 	if(!text || !zmi)
 	{
-		jwin_alert(NULL,"Not enough memory",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert(NULL,"Not enough memory",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		return D_O_K;
 	}
 	
@@ -6638,7 +6635,7 @@ int32_t onMIDICredits()
 		midi_suspended = midissuspHALTED;
 	}
 	
-	midi_dlg[0].dp2=lfont;
+	midi_dlg[0].dp2=get_zc_font(font_lfont);
 	midi_dlg[2].d1 = 0;
 	midi_dlg[2].d2 = 0;
 	midi_dlg[4].flags = D_EXIT;
@@ -6693,7 +6690,7 @@ int32_t onQuest()
 {
 	char fname[100];
 	strcpy(fname, get_filename(qstpath));
-	quest_dlg[0].dp2=lfont;
+	quest_dlg[0].dp2=get_zc_font(font_lfont);
 	quest_dlg[1].dp = fname;
 	
 	if(QHeader.quest_number==0)
@@ -6781,7 +6778,7 @@ int32_t onKeyboard()
 	bool done=false;
 	int32_t ret;
 	
-	keyboard_control_dlg[0].dp2=lfont;
+	keyboard_control_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	large_dialog(keyboard_control_dlg);
 		
@@ -6814,7 +6811,7 @@ int32_t onKeyboard()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
+				box_start(1, "Duplicate Keys", get_zc_font(font_lfont), get_zc_font(font_sfont), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -6872,7 +6869,7 @@ int32_t onGamepad()
 	int32_t left = DLbtn;
 	int32_t right = DRbtn;
 	
-	gamepad_dlg[0].dp2=lfont;
+	gamepad_dlg[0].dp2=get_zc_font(font_lfont);
 	if(analog_movement)
 		gamepad_dlg[56].flags|=D_SELECTED;
 	else
@@ -6958,7 +6955,7 @@ int32_t onCheatKeys()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", lfont, sfont, false, 500,400, 2);
+				box_start(1, "Duplicate Keys", get_zc_font(font_lfont), get_zc_font(font_sfont), false, 500,400, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -7010,7 +7007,7 @@ int32_t onSound()
 	int32_t p = pan_style;
 	pan_style = vbound(pan_style,0,3);
 	
-	sound_dlg[0].dp2=lfont;
+	sound_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	large_dialog(sound_dlg);
 		
@@ -7067,7 +7064,7 @@ int32_t onSound()
 
 int32_t queding(char const* s1, char const* s2, char const* s3)
 {
-	return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',lfont);
+	return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',get_zc_font(font_lfont));
 }
 
 int32_t onQuit()
@@ -7215,7 +7212,7 @@ int32_t onEpilepsy()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)
+		get_zc_font(font_lfont)) == 1)
 	{
 		epilepsyFlashReduction = epilepsyFlashReduction ? 0 : 1;
 		zc_set_config("zeldadx","checked_epilepsy",1);
@@ -7233,7 +7230,7 @@ int32_t onTriforce()
 	
 	init_tabs[3].flags=D_SELECTED;
 	return onCheatConsole();
-	/*triforce_dlg[0].dp2=lfont;
+	/*triforce_dlg[0].dp2=get_zc_font(font_lfont);
 	for(int32_t i=1; i<=8; i++)
 	  triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
 	
@@ -7289,7 +7286,7 @@ int32_t getnumber(const char *prompt,int32_t initialval)
 	char buf[20];
 	sprintf(buf,"%d",initialval);
 	getnum_dlg[0].dp=(void *)prompt;
-	getnum_dlg[0].dp2=lfont;
+	getnum_dlg[0].dp2=get_zc_font(font_lfont);
 	getnum_dlg[2].dp=buf;
 	
 	large_dialog(getnum_dlg);
@@ -7365,7 +7362,7 @@ int32_t onQstPath()
 	
 	go();
 	
-	if(jwin_dfile_select_ex("Quest File Directory", path, "qst", 2048, -1, -1, lfont))
+	if(jwin_dfile_select_ex("Quest File Directory", path, "qst", 2048, -1, -1, get_zc_font(font_lfont)))
 	{
 		chop_path(path);
 		fix_filename_case(path);
@@ -7464,7 +7461,7 @@ static DIALOG scrsaver_dlg[] =
 
 int32_t onScreenSaver()
 {
-	scrsaver_dlg[0].dp2=lfont;
+	scrsaver_dlg[0].dp2=get_zc_font(font_lfont);
 	int32_t oldcfgs[3];
 	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = oldcfgs[0] = ss_after;
 	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
@@ -7765,7 +7762,7 @@ int32_t onMIDIPatch()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)
+		get_zc_font(font_lfont)) == 1)
 	{
 		midi_patch_fix = midi_patch_fix ? 0 : 1;
 		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);

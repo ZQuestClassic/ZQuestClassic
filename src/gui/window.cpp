@@ -82,7 +82,7 @@ void Window::calculateSize()
 		content->calculateSize();
 		setPreferredWidth(Size::pixels(max(
 			content->getTotalWidth()+8,
-			text_length(lfont, title.c_str())+40)));
+			text_length(get_zc_font(font_lfont), title.c_str())+40)));
 		setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
 	}
 	else

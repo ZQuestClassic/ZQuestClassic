@@ -87,7 +87,7 @@ user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
 user_paldata script_paldatas[MAX_USER_PALDATAS];
 
-FONT *get_zc_font(int32_t index);
+FONT *get_zc_font(int index);
 
 int32_t combopos_modified = -1;
 static word combo_id_cache[7*176] = {0};
@@ -26769,7 +26769,7 @@ void do_message(const bool v)
 	if(ID == 0)
 	{
 		dismissmsg();
-		msgfont = zfont;
+		msgfont = get_zc_font(font_zfont);
 		blockpath = false;
 		Hero.finishedmsg();
 	}

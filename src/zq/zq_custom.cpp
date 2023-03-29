@@ -232,13 +232,11 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 							
 		if(bigfontproc && !d[i].dp2)
 		{
-			//d[i].dp2 = (d[i].proc == jwin_edit_proc) ? sfont3 : lfont_l;
-			d[i].dp2 = lfont_l;
+			d[i].dp2 = get_zc_font(font_lfont_l);
 		}
 		else if(!bigfontproc)
 		{
-//      ((ListData *)d[i].dp)->font = &sfont3;
-			((ListData *) d[i].dp)->font = &lfont_l;
+			((ListData *) d[i].dp)->font = &a4fonts[font_lfont_l];
 		}
 		
 		// Make checkboxes work
@@ -255,7 +253,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 /******  onCustomItems  ******/
 /*****************************/
 
-static ListData weapon_list(weaponlist_num, &pfont);
+static ListData weapon_list(weaponlist_num, &a4fonts[font_pfont]);
 
 const char *defenselist(int32_t index, int32_t *list_size)
 {
@@ -376,7 +374,7 @@ const char *itemscriptdroplist(int32_t index, int32_t *list_size)
 	return biitems[index].first.c_str();
 }
 
-ListData itemscript_list(itemscriptdroplist, &pfont);
+ListData itemscript_list(itemscriptdroplist, &a4fonts[font_pfont]);
 
 const char *itemspritescriptdroplist(int32_t index, int32_t *list_size)
 {
@@ -389,7 +387,7 @@ const char *itemspritescriptdroplist(int32_t index, int32_t *list_size)
 	return biditemsprites[index].first.c_str();
 }
 
-ListData itemspritescript_list(itemspritescriptdroplist, &pfont);
+ListData itemspritescript_list(itemspritescriptdroplist, &a4fonts[font_pfont]);
 
 const char *lweaponscriptdroplist(int32_t index, int32_t *list_size)
 {
@@ -402,7 +400,7 @@ const char *lweaponscriptdroplist(int32_t index, int32_t *list_size)
 	return bilweapons[index].first.c_str();
 }
 
-ListData lweaponscript_list(lweaponscriptdroplist, &pfont);
+ListData lweaponscript_list(lweaponscriptdroplist, &a4fonts[font_pfont]);
 
 void edit_itemdata(int32_t index)
 {
@@ -1586,7 +1584,7 @@ void edit_weapondata(int32_t index)
 	
 	sprintf(wpnnumstr, "Sprite %d: %s", index, weapon_string[index]);
 	wpndata_dlg[0].dp  = wpnnumstr;
-	wpndata_dlg[0].dp2 = lfont;
+	wpndata_dlg[0].dp2 = get_zc_font(font_lfont);
 	wpndata_dlg[2].d1  = wpnsbuf[index].tile;
 	wpndata_dlg[2].d2  = wpnsbuf[index].csets&15;
 	
@@ -2598,43 +2596,43 @@ const char *noyesmisclist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData walkmisc1_list(walkmisc1list, &lfont_l);
-static ListData walkmisc2_list(walkmisc2list, &lfont_l);
-static ListData walkmisc7_list(walkmisc7list, &lfont_l);
-static ListData walkmisc9_list(walkmisc9list, &lfont_l);
+static ListData walkmisc1_list(walkmisc1list, &a4fonts[font_lfont_l]);
+static ListData walkmisc2_list(walkmisc2list, &a4fonts[font_lfont_l]);
+static ListData walkmisc7_list(walkmisc7list, &a4fonts[font_lfont_l]);
+static ListData walkmisc9_list(walkmisc9list, &a4fonts[font_lfont_l]);
 
-static ListData gleeokmisc3_list(gleeokmisc3list, &lfont_l);
-static ListData gohmamisc1_list(gohmamisc1list, &lfont_l);
-static ListData manhandlamisc2_list(manhandlamisc2list, &lfont_l);
-static ListData aquamisc1_list(aquamisc1list, &lfont_l);
+static ListData gleeokmisc3_list(gleeokmisc3list, &a4fonts[font_lfont_l]);
+static ListData gohmamisc1_list(gohmamisc1list, &a4fonts[font_lfont_l]);
+static ListData manhandlamisc2_list(manhandlamisc2list, &a4fonts[font_lfont_l]);
+static ListData aquamisc1_list(aquamisc1list, &a4fonts[font_lfont_l]);
 
-static ListData patramisc4_list(patramisc4list, &lfont_l);
-static ListData patramisc5_list(patramisc5list, &lfont_l);
-static ListData patramisc10_list(patramisc10list, &lfont_l);
-static ListData patramisc20_list(patramisc20list, &lfont_l);
-static ListData patramisc22_list(patramisc22list, &lfont_l);
-static ListData patramisc25_list(patramisc25list, &lfont_l);
-static ListData patramisc26_list(patramisc26list, &lfont_l);
-static ListData patramisc28_list(patramisc28list, &lfont_l);
+static ListData patramisc4_list(patramisc4list, &a4fonts[font_lfont_l]);
+static ListData patramisc5_list(patramisc5list, &a4fonts[font_lfont_l]);
+static ListData patramisc10_list(patramisc10list, &a4fonts[font_lfont_l]);
+static ListData patramisc20_list(patramisc20list, &a4fonts[font_lfont_l]);
+static ListData patramisc22_list(patramisc22list, &a4fonts[font_lfont_l]);
+static ListData patramisc25_list(patramisc25list, &a4fonts[font_lfont_l]);
+static ListData patramisc26_list(patramisc26list, &a4fonts[font_lfont_l]);
+static ListData patramisc28_list(patramisc28list, &a4fonts[font_lfont_l]);
 
-static ListData dodongomisc10_list(dodongomisc10list, &lfont_l);
+static ListData dodongomisc10_list(dodongomisc10list, &a4fonts[font_lfont_l]);
 
-static ListData keesemisc1_list(keesemisc1list, &lfont_l);
-static ListData keesemisc2_list(keesemisc2list, &lfont_l);
+static ListData keesemisc1_list(keesemisc1list, &a4fonts[font_lfont_l]);
+static ListData keesemisc2_list(keesemisc2list, &a4fonts[font_lfont_l]);
 
-static ListData digdoggermisc10_list(digdoggermisc10list, &lfont_l);
+static ListData digdoggermisc10_list(digdoggermisc10list, &a4fonts[font_lfont_l]);
 
-static ListData wizzrobemisc1_list(wizzrobemisc1list, &lfont_l);
-static ListData wizzrobemisc2_list(wizzrobemisc2list, &lfont_l);
+static ListData wizzrobemisc1_list(wizzrobemisc1list, &a4fonts[font_lfont_l]);
+static ListData wizzrobemisc2_list(wizzrobemisc2list, &a4fonts[font_lfont_l]);
 
-static ListData trapmisc1_list(trapmisc1list, &lfont_l);
-static ListData trapmisc2_list(trapmisc2list, &lfont_l);
+static ListData trapmisc1_list(trapmisc1list, &a4fonts[font_lfont_l]);
+static ListData trapmisc2_list(trapmisc2list, &a4fonts[font_lfont_l]);
 
-static ListData leevermisc1_list(leevermisc1list, &lfont_l);
-static ListData rockmisc1_list(rockmisc1list, &lfont_l);
+static ListData leevermisc1_list(leevermisc1list, &a4fonts[font_lfont_l]);
+static ListData rockmisc1_list(rockmisc1list, &a4fonts[font_lfont_l]);
 
-static ListData yesnomisc_list(yesnomisclist, &lfont_l);
-static ListData noyesmisc_list(noyesmisclist, &lfont_l);
+static ListData yesnomisc_list(yesnomisclist, &a4fonts[font_lfont_l]);
+static ListData noyesmisc_list(noyesmisclist, &a4fonts[font_lfont_l]);
 
 static EnemyNameInfo enameinf[]=
 {
@@ -3624,7 +3622,7 @@ const char *eweaponscriptdroplist(int32_t index, int32_t *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-ListData eweaponscript_list(eweaponscriptdroplist, &pfont);
+ListData eweaponscript_list(eweaponscriptdroplist, &a4fonts[font_pfont]);
 
 
 static ListData walkerspawn_list(walkerspawnlist, &font);
@@ -4498,7 +4496,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[296+(q-10)].proc = jwin_droplist_proc;
 			enedata_dlg[296+(q-10)].fg = jwin_pal[jcTEXTFG];
 			enedata_dlg[296+(q-10)].bg = jwin_pal[jcTEXTBG];
-			((ListData*)inf->list[q])->font = (&lfont_l);
+			((ListData*)inf->list[q])->font = (&a4fonts[font_lfont_l]);
 			enedata_dlg[296+(q-10)].dp = inf->list[q];
 			enedata_dlg[296+(q-10)].dp2 = NULL;
 			enedata_dlg[296+(q-10)].h = 22;
@@ -4511,7 +4509,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[296+(q-10)].dp = NULL;
 			enedata_dlg[296+(q-10)].d1 = 6;
 			enedata_dlg[296+(q-10)].h = 24;
-			enedata_dlg[296+(q-10)].dp2 = lfont_l;
+			enedata_dlg[296+(q-10)].dp2 = get_zc_font(font_lfont_l);
 		}
 	}
 	for ( int32_t q = 16; q < 24; q++ ) //check these numbers! -Z
@@ -4525,7 +4523,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[310+(q-16)].proc = jwin_droplist_proc;
 			enedata_dlg[310+(q-16)].fg = jwin_pal[jcTEXTFG];
 			enedata_dlg[310+(q-16)].bg = jwin_pal[jcTEXTBG];
-			((ListData*)inf->list[q])->font = (&lfont_l);
+			((ListData*)inf->list[q])->font = (&a4fonts[font_lfont_l]);
 			enedata_dlg[310+(q-16)].dp = inf->list[q];
 			enedata_dlg[310+(q-16)].dp2 = NULL;
 			enedata_dlg[310+(q-16)].h = 22;
@@ -4538,7 +4536,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[310+(q-16)].dp = NULL;
 			enedata_dlg[310+(q-16)].d1 = 6;
 			enedata_dlg[310+(q-16)].h = 24;
-			enedata_dlg[310+(q-16)].dp2 = lfont_l;
+			enedata_dlg[310+(q-16)].dp2 = get_zc_font(font_lfont_l);
 		}
 	}
 	for ( int32_t q = 24; q < 32; q++ ) //check these numbers! -Z
@@ -4552,7 +4550,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[326+(q-24)].proc = jwin_droplist_proc;
 			enedata_dlg[326+(q-24)].fg = jwin_pal[jcTEXTFG];
 			enedata_dlg[326+(q-24)].bg = jwin_pal[jcTEXTBG];
-			((ListData*)inf->list[q])->font = (&lfont_l);
+			((ListData*)inf->list[q])->font = (&a4fonts[font_lfont_l]);
 			enedata_dlg[326+(q-24)].dp = inf->list[q];
 			enedata_dlg[326+(q-24)].dp2 = NULL;
 			enedata_dlg[326+(q-24)].h = 22;
@@ -4565,7 +4563,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[326+(q-24)].dp = NULL;
 			enedata_dlg[326+(q-24)].d1 = 6;
 			enedata_dlg[326+(q-24)].h = 24;
-			enedata_dlg[326+(q-24)].dp2 = lfont_l;
+			enedata_dlg[326+(q-24)].dp2 = get_zc_font(font_lfont_l);
 		}
 	}
 	
@@ -4589,7 +4587,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[64+i].proc = jwin_droplist_proc;
 			enedata_dlg[64+i].fg = jwin_pal[jcTEXTFG];
 			enedata_dlg[64+i].bg = jwin_pal[jcTEXTBG];
-			((ListData*)inf->list[i])->font = (&lfont_l);
+			((ListData*)inf->list[i])->font = (&a4fonts[font_lfont_l]);
 			enedata_dlg[64+i].dp = inf->list[i];
 			enedata_dlg[64+i].dp2 = NULL;
 			enedata_dlg[64+i].h = 22;
@@ -4602,7 +4600,7 @@ void setEnemyLabels(int32_t family)
 			enedata_dlg[64+i].dp = NULL;
 			enedata_dlg[64+i].d1 = 6;
 			enedata_dlg[64+i].h = 24;
-			enedata_dlg[64+i].dp2 = lfont_l;
+			enedata_dlg[64+i].dp2 = get_zc_font(font_lfont_l);
 		}
 	}
 	
@@ -4797,7 +4795,7 @@ void edit_enemydata(int32_t index)
 	
 	sprintf(enemynumstr,"Enemy %d: %s", index, guy_string[index]);
 	enedata_dlg[0].dp = enemynumstr;
-	enedata_dlg[0].dp2 = lfont;
+	enedata_dlg[0].dp2 = get_zc_font(font_lfont);
 	enedata_dlg[247].d1 = guysbuf[index].tile;
 	enedata_dlg[247].d2 = guysbuf[index].cset;
 	enedata_dlg[248].d1 = guysbuf[index].s_tile;
@@ -8883,7 +8881,7 @@ int32_t onCustomHero()
 		hero_animation_speed=1;
 	}
 	
-	herotile_dlg[0].dp2=lfont;
+	herotile_dlg[0].dp2=get_zc_font(font_lfont);
 	herotile_dlg[189].flags = get_bit(quest_rules, qr_LTTPCOLLISION)? D_SELECTED : 0;
 	herotile_dlg[192].flags = get_bit(quest_rules, qr_LTTPWALK)? D_SELECTED : 0;
 	herotile_dlg[194].d1=(zinit.hero_swim_speed<60)?0:1;

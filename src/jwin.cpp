@@ -6251,7 +6251,6 @@ static DIALOG selcolor_dlg[] =
 	{ NULL,              0,    0,    0,    0,    0,    0,    0,    0,       0,    0,    NULL,  NULL,  NULL }
 };
 
-extern FONT* lfont;
 int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 {
 	int32_t ret = D_O_K;
@@ -6299,7 +6298,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 		case MSG_CLICK:
 		{
 			if(d->flags&(D_READONLY|D_DISABLED)) break;
-			selcolor_dlg[0].dp2 = lfont;
+			selcolor_dlg[0].dp2 = get_zc_font(font_lfont);
 			selcolor_dlg[3].bg = scheme[jcBOXFG];
 			selcolor_dlg[3].fg = scheme[jcBOX];
 			selcolor_dlg[3].d1 = d->d1;

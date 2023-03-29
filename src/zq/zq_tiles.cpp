@@ -454,7 +454,7 @@ static void make_combos_rect(int32_t top, int32_t left, int32_t numRows, int32_t
 			sprintf(buf, "Limit to %d column%s?", numCols, numCols==1 ? "" : "s");
 		else
 			sprintf(buf, "Fit to 4 columns?"); // Meh, whatever.
-		int32_t ret=jwin_alert("Wrapping", buf, NULL, NULL, "&Yes", "&No", 'y', 'n', lfont);
+		int32_t ret=jwin_alert("Wrapping", buf, NULL, NULL, "&Yes", "&No", 'y', 'n', get_zc_font(font_lfont));
 		if(ret==1)
 			smartWrap=true;
 	}
@@ -1399,7 +1399,7 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 		blit(tbar, screen2, 0, 0, 3, 3, zq_screen_w-6, 18);
 	}
 	
-	textprintf_ex(screen2,lfont,5,5,jwin_pal[jcTITLEFG],-1,"Tile Editor (%d)",tile);
+	textprintf_ex(screen2,get_zc_font(font_lfont),5,5,jwin_pal[jcTITLEFG],-1,"Tile Editor (%d)",tile);
 	
 	clear_to_color(preview_bmp, 0);
 	
@@ -3426,7 +3426,7 @@ void draw_grab_window()
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+2+2-(82*2),  FR_DEEP);
 	
 	FONT *oldfont = font;
-	font = lfont;
+	font = get_zc_font(font_lfont);
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Grab Tile(s)", true);
 	font=oldfont;
 	return;
@@ -3741,7 +3741,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	// Suspend the current font while draw_text_button does its work
 	FONT* oldfont = font;
 	
-	font = lfont_l;
+	font = get_zc_font(font_lfont_l);
 		
 	// Interface
 	switch(imagetype)
@@ -3763,7 +3763,7 @@ void draw_grab_scr(int32_t tile,int32_t cs,byte *newtile,int32_t black,int32_t w
 	case ftQSU:
 	case ftTIL:
 	case ftBIN:
-		textprintf_ex(screen,lfont_l,window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %d KB",imgstr[imagetype],imagesize>>10);
+		textprintf_ex(screen,get_zc_font(font_lfont_l),window_xofs+8*mul,window_yofs+(216+yofs)*mul,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%s  %d KB",imgstr[imagetype],imagesize>>10);
 		break;
 	}
 	
@@ -4125,7 +4125,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	status = create_bitmap_ex(8,240,140);
 	clear_bitmap(status);
 	sprintf(updatestring, "%d", LeechUpdate);
-	leech_dlg[0].dp2=lfont;
+	leech_dlg[0].dp2=get_zc_font(font_lfont);
 	leech_dlg[6].dp=updatestring;
 	
 	leech_dlg[10].flags=(OnlyCheckNewTilesForDuplicates!=0) ? D_SELECTED : 0;
@@ -4229,7 +4229,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	
 	if(currtile+(width*height)>NEWMAXTILES)
 	{
-		if(jwin_alert("Confirm Truncation","Too many tiles.","Truncation may occur.",NULL,"&OK","&Cancel",'o','c',lfont)==2)
+		if(jwin_alert("Confirm Truncation","Too many tiles.","Truncation may occur.",NULL,"&OK","&Cancel",'o','c',get_zc_font(font_lfont))==2)
 		{
 			delete[] testtile;
 			return false;
@@ -4257,7 +4257,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 				}
 				else
 				{
-					font = lfont;
+					font = get_zc_font(font_lfont);
 					jwin_draw_titlebar(tbar, 0, 0, 240-6, 18, "Leech Status", false);
 					font = oldfont;
 					created_tbar=true;
@@ -5074,7 +5074,7 @@ void grab_tile(int32_t tile,int32_t &cs)
 				// Large Mode: change font temporarily
 				FONT* oldfont = font;
 				
-				font = lfont_l;
+				font = get_zc_font(font_lfont_l);
 				
 				if(y>=screen_y1 && y<=screen_y2)
 				{
@@ -5473,7 +5473,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 		
 		if((f%32)<=16 && large && !HIDE_8BIT_MARKER && newtilebuf[first+i].format==tf8Bit)
 		{
-			textprintf_ex(dest,z3smallfont,(x)+l-3,(y)+l-3,vc(int32_t((f%32)/6)+10),-1,"8");
+			textprintf_ex(dest,get_zc_font(font_z3smallfont),(x)+l-3,(y)+l-3,vc(int32_t((f%32)/6)+10),-1,"8");
 		}
 	}
 	
@@ -5485,12 +5485,12 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	int32_t yofs=3;
 	BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = 2;
-	FONT *tfont = pfont;
+	FONT *tfont = get_zc_font(font_pfont);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
 	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
 	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
-	tfont = lfont_l;
+	tfont = get_zc_font(font_lfont_l);
 	
 	// Copied tile and numbers
 	jwin_draw_frame(screen2,(34*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
@@ -5593,12 +5593,12 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	int32_t yofs=3;
 	BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = 2;
-	FONT *tfont = pfont;
+	FONT *tfont = get_zc_font(font_pfont);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2),jwin_pal[jcBOX]);
 	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
 	_allegro_hline(screen2, 0, (210*2)-1, (320*2)-1, jwin_pal[jcLIGHT]);
-	tfont = lfont_l;
+	tfont = get_zc_font(font_lfont_l);
 	
 	jwin_draw_frame(screen2,(124*mul)-2,((216*mul)+yofs)-2,(16*mul)+4,(16*mul)+4,FR_DEEP);
 	
@@ -7131,10 +7131,10 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	if(dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
+		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
 		return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
+		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
 		// {
 		//  return false;
 		// }
@@ -7145,7 +7145,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=lfont;
+	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
@@ -8678,10 +8678,10 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	if(dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
+		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
 		return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
+		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
 		// {
 		//  return false;
 		// }
@@ -8692,7 +8692,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=lfont;
+	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
@@ -10047,10 +10047,10 @@ bool do_movetile_united(tile_move_data const& tmd)
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", tmd.move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
+		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
 		return false;
 //fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
+		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
 		// {
 		//  return false;
 		// }
@@ -10061,7 +10061,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=lfont;
+	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
@@ -11732,10 +11732,10 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	if(tmd.dest_last>=NEWMAXTILES)
 	{
 		sprintf(buf4, "%s operation cancelled.", move?"Move":"Copy");
-		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, lfont);
+		jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", NULL, 'o', 0, get_zc_font(font_lfont));
 		return false;
 		//fix this below to allow the operation to complete with a modified start or end instead of just cancelling
-		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', lfont)==2)
+		//if (jwin_alert("Destination Error", "The destination extends beyond", "the last available tile row.", buf4, "&OK", "&Cancel", 'o', 'c', get_zc_font(font_lfont))==2)
 		// {
 		//  return false;
 		// }
@@ -11746,7 +11746,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=lfont;
+	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
@@ -13082,7 +13082,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 	
 	sprintf(buf, "Destination Warning");
 	tile_move_list_dlg[0].dp=buf;
-	tile_move_list_dlg[0].dp2=lfont;
+	tile_move_list_dlg[0].dp2=get_zc_font(font_lfont);
 	bool found;
 	bool flood;
 	
@@ -14276,7 +14276,7 @@ void delete_tiles(int32_t &tile,int32_t &tile2,bool rect_sel)
 		sprintf(buf,"Delete tiles %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 	}
 	
-	if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+	if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		int32_t firsttile=zc_min(tile,tile2), lasttile=zc_max(tile,tile2), coldiff=0;
 		
@@ -14543,7 +14543,7 @@ void draw_tile_list_window()
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
 	
 	FONT *oldfont = font;
-	font = lfont;
+	font = get_zc_font(font_lfont);
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Select Tile", true);
 	font=oldfont;
 	return;
@@ -14555,7 +14555,7 @@ void show_blank_tile(int32_t t)
 	sprintf(tbuf, "Tile is%s blank.", blank_tile_table[t]?"":" not");
 	sprintf(tbuf2, "%c %c", blank_tile_quarters_table[t*4]?'X':'-', blank_tile_quarters_table[(t*4)+1]?'X':'-');
 	sprintf(tbuf3, "%c %c", blank_tile_quarters_table[(t*4)+2]?'X':'-', blank_tile_quarters_table[(t*4)+3]?'X':'-');
-	jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,lfont);
+	jwin_alert("Blank Tile Information",tbuf,tbuf2,tbuf3,"&OK",NULL,13,27,get_zc_font(font_lfont));
 }
 
 void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, bool fourbit, bool shift, bool alt)
@@ -14563,7 +14563,7 @@ void do_convert_tile(int32_t tile, int32_t tile2, int32_t cs, bool rect_sel, boo
 	char buf[80];
 	sprintf(buf, "Do you want to convert the selected %s to %d-bit color?", tile==tile2?"tile":"tiles",fourbit?4:8);
 	
-	if(jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+	if(jwin_alert("Convert Tile?",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		go_tiles();
 		saved=false;
@@ -14984,7 +14984,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	int32_t screen_yofs=window_yofs+25;
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
-	FONT *tfont = lfont_l;
+	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_tile_list_window();
 	int32_t f=0;
@@ -15135,11 +15135,11 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					if (!readtilefile(f))
 					{
 						al_trace("Could not read from .ztile packfile %s\n", temppath);
-						jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+						jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					}
 					else
 					{
-						jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+						jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					}
 				
 					pack_fclose(f);
@@ -15920,7 +15920,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					int32_t frames=1;
 					char buf[80];
 					sprintf(buf, "%d", frames);
-					create_relational_tiles_dlg[0].dp2=lfont;
+					create_relational_tiles_dlg[0].dp2=get_zc_font(font_lfont);
 					create_relational_tiles_dlg[2].dp=buf;
 					
 					large_dialog(create_relational_tiles_dlg);
@@ -15940,13 +15940,13 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 						
 						if(!same)
 						{
-							jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
+							jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
 							break;
 						}
 						
 						if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
 						{
-							jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
+							jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
 							break;
 						}
 						
@@ -16257,7 +16257,7 @@ REDRAW:
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln(screen, lfont_l, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			gui_textout_ln(screen, get_zc_font(font_lfont_l), (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
 		
 		++f;
@@ -16608,7 +16608,7 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	int32_t yofs=3;
 	static BITMAP *buf = create_bitmap_ex(8,16,16);
 	int32_t mul = 2;
-	FONT *tfont = lfont_l;
+	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	rectfill(screen2,0,210*2,(320*2)-1,(240*2)-1,jwin_pal[jcBOX]);
 	_allegro_hline(screen2, 0, (210*2)-2, (320*2)-1, jwin_pal[jcMEDLT]);
@@ -16803,7 +16803,7 @@ void draw_combo_list_window()
 	jwin_draw_win(screen, window_xofs, window_yofs, w+6+6, h+25+6, FR_WIN);
 	jwin_draw_frame(screen, window_xofs+4, window_yofs+23, w+2+2, h+4+2-64,  FR_DEEP);
 	FONT *oldfont = font;
-	font = lfont;
+	font = get_zc_font(font_lfont);
 	jwin_draw_titlebar(screen, window_xofs+3, window_yofs+3, w+6, 18, "Select Combo", true);
 	font=oldfont;
 }
@@ -16837,7 +16837,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	int32_t screen_yofs=window_yofs+25;
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
-	FONT *tfont = lfont_l;
+	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
@@ -17213,7 +17213,7 @@ static DIALOG advpaste_dlg[] =
 
 int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 {
-	advpaste_dlg[0].dp2=lfont;
+	advpaste_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	large_dialog(advpaste_dlg);
 	
@@ -17389,7 +17389,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	int32_t screen_yofs=window_yofs+25;
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
-	FONT *tfont = lfont_l;
+	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_combo_list_window();
 	draw_combos(page,cs,combo_cols);
@@ -17703,7 +17703,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					else
 						sprintf(buf,"Remove combo %d?",tile);
 						
-					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
+					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 					{
 						move_combos(tile,tile2,copy, copycnt);
 						//don't allow the user to undo; quest combo references are incorrect -DD
@@ -17721,7 +17721,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					else
 						sprintf(buf,"Insert a blank combo?");
 						
-					if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
+					if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 					{
 						move_combos(copy,tile2,tile, copycnt);
 						go_combos();
@@ -17748,7 +17748,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 				}
 				
-				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 				{
 					go_combos();
 					
@@ -18072,7 +18072,7 @@ REDRAW:
 				else
 					sprintf(buf,"Delete combos %d-%d?",zc_min(tile,tile2),zc_max(tile,tile2));
 					
-				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+				if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 				{
 					go_combos();
 					
@@ -18105,7 +18105,7 @@ REDRAW:
 					char buf[40];
 					sprintf(buf,"Remove combo %d?",tile);
 					
-					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',lfont)==1)
+					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 					{
 						move_combos(tile,tile2,copy, copycnt);
 					}
@@ -18201,7 +18201,7 @@ int32_t d_combo_loader(int32_t msg,DIALOG *d,int32_t c)
 	
 	if(msg==MSG_DRAW)
 	{
-		FONT *f = lfont_l;
+		FONT *f = get_zc_font(font_lfont_l);
 		textprintf_ex(screen,f,d->x,d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile:");
 		textprintf_ex(screen,f,d->x+((1.5)*36),d->y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",curr_combo.o_tile);
 		textprintf_ex(screen,f,d->x,d->y+(14),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Flip:");
@@ -18271,7 +18271,7 @@ int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t)
 						   "You have selected an 8-bit tile.",
 						   "It will not be drawn correctly",
 						   "on the file select screen.",
-						   "&OK",NULL,'o',0,lfont);
+						   "&OK",NULL,'o',0,get_zc_font(font_lfont));
 						   
 			return D_REDRAW;
 		}
@@ -18326,7 +18326,7 @@ int32_t onIcons()
 	PALETTE pal;
 	//  pal = RAMpal;
 	memcpy(pal,RAMpal,sizeof(RAMpal));
-	icon_dlg[0].dp2=lfont;
+	icon_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -18700,8 +18700,8 @@ static void massRecolorInit(int32_t cset)
 	massRecolorDraggedColor=-1;
 	massRecolorCSet=cset;
 	
-	recolor_4bit_dlg[0].dp2=lfont;
-	recolor_8bit_dlg[0].dp2=lfont;
+	recolor_4bit_dlg[0].dp2=get_zc_font(font_lfont);
+	recolor_8bit_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	for(int32_t i=0; i<=13; i++)
 	{
@@ -19756,7 +19756,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	int32_t screen_yofs=window_yofs+25;
 	int32_t panel_yofs=3;
 	int32_t mul = 2;
-	FONT *tfont = lfont_l;
+	FONT *tfont = get_zc_font(font_lfont_l);
 	
 	draw_tile_list_window();
 	int32_t f=0;
@@ -19898,11 +19898,11 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				if (!readtilefile(f))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", temppath);
-					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 			
 				pack_fclose(f);
@@ -20612,7 +20612,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				int32_t frames=1;
 				char buf[80];
 				sprintf(buf, "%d", frames);
-				create_relational_tiles_dlg[0].dp2=lfont;
+				create_relational_tiles_dlg[0].dp2=get_zc_font(font_lfont);
 				create_relational_tiles_dlg[2].dp=buf;
 				
 				large_dialog(create_relational_tiles_dlg);
@@ -20632,13 +20632,13 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 					
 					if(!same)
 					{
-						jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,lfont);
+						jwin_alert("Error","The source tiles are not","in the same format.",NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
 						break;
 					}
 					
 					if(tile+(frames*(create_relational_tiles_dlg[3].flags&D_SELECTED?48:96))>NEWMAXTILES)
 					{
-						jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,lfont);
+						jwin_alert("Error","Too many tiles will be created",NULL,NULL,"&OK",NULL,13,27,get_zc_font(font_lfont));
 						break;
 					}
 					
@@ -20947,7 +20947,7 @@ REDRAW_DMAP_SELTILE:
 		{
 			char cbuf[16];
 			sprintf(cbuf, "E&xtend: %s",ex==2 ? "32x32" : ex==1 ? "32x16" : "16x16");
-			gui_textout_ln(screen, lfont_l, (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+			gui_textout_ln(screen, get_zc_font(font_lfont_l), (uint8_t *)cbuf, (235*mul)+screen_xofs, (212*mul)+screen_yofs+panel_yofs, jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 		}
 		
 		++f;

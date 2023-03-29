@@ -612,7 +612,7 @@ int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c)
             destroy_bitmap(buf);
         }
         
-        //textprintf_ex(screen, pfont, d->x,d->y, vc(15), -1, "%d", d->bg);
+        //textprintf_ex(screen, get_zc_font(font_pfont), d->x,d->y, vc(15), -1, "%d", d->bg);
         return D_O_K;
     }
     break;
@@ -975,7 +975,7 @@ int32_t sso_raw_data(subscreen_object *tempsso)
     sprintf(title, "Raw Data for Object #%d", curr_subscreen_object);
     sprintf(raw_text, "Type:  %d\nPosition:  %d\nX:  %d\nY:  %d\nW:  %d\nH:  %d\nColor Type 1:  %d\nColor 1:  %d\nColor Type 2:  %d\nColor 2:  %d\nColor Type 3:  %d\nColor 3:  %d\nD1:  %d\nD2:  %d\nD3:  %d\nD4:  %d\nD5:  %d\nD6:  %d\nD7:  %d\nD8:  %d\nD9:  %d\nD10:  %d\nFrames:  %d\nSpeed:  %d\nDelay:  %d\nFrame:  %d\nDp1:  %s",
             tempsso->type, tempsso->pos, tempsso->x, tempsso->y, tempsso->w, tempsso->h, tempsso->colortype1, tempsso->color1, tempsso->colortype2, tempsso->color2, tempsso->colortype3, tempsso->color3, tempsso->d1, tempsso->d2, tempsso->d3, tempsso->d4, tempsso->d5, tempsso->d6, tempsso->d7, tempsso->d8, tempsso->d9, tempsso->d10, tempsso->frames, tempsso->speed, tempsso->delay, tempsso->frame, tempsso->dp1!=NULL?(char *)tempsso->dp1:"NULL");
-    sso_raw_data_dlg[0].dp2=lfont;
+    sso_raw_data_dlg[0].dp2=get_zc_font(font_lfont);
     sso_raw_data_dlg[2].dp=raw_text;
     sso_raw_data_dlg[2].d2=0;
     
@@ -2511,7 +2511,7 @@ int32_t onExport_Subscreen_Code()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -2935,7 +2935,7 @@ std::string getssname(int32_t type)
 int32_t onNewSubscreenObject()
 {
     int32_t ret=-1;
-    ssolist_dlg[0].dp2=lfont;
+    ssolist_dlg[0].dp2=get_zc_font(font_lfont);
     build_bisso_list();
     
     large_dialog(ssolist_dlg);
@@ -3460,7 +3460,7 @@ static int32_t onToggleInvis()
 
 static int32_t onEditGrid()
 {
-    grid_dlg[0].dp2=lfont;
+    grid_dlg[0].dp2=get_zc_font(font_lfont);
     char xsize[11];
     char ysize[11];
     char xoffset[4];
@@ -3502,7 +3502,7 @@ static int32_t onShowHideGrid()
 
 int32_t onSelectionOptions()
 {
-    sel_options_dlg[0].dp2=lfont;
+    sel_options_dlg[0].dp2=get_zc_font(font_lfont);
     sel_options_dlg[6].d1=zinit.ss_bbox_1_color;
     sel_options_dlg[8].d1=zinit.ss_bbox_2_color;
     
@@ -3732,7 +3732,7 @@ void edit_subscreen()
     if(game->get_arrows() == 0)
         game->set_arrows(1);
         
-    subscreen_dlg[0].dp2=lfont;
+    subscreen_dlg[0].dp2=get_zc_font(font_lfont);
     load_Sitems(&misc);
     curr_subscreen_object=0;
     ss_propCopySrc=-1;
@@ -4089,8 +4089,8 @@ DIALOG sslist_dlg[] =
 int32_t onEditSubscreens()
 {
     int32_t ret=-1;
-    sslist_dlg[0].dp2=lfont;
-    sstemplatelist_dlg[0].dp2=lfont;
+    sslist_dlg[0].dp2=get_zc_font(font_lfont);
+    sstemplatelist_dlg[0].dp2=get_zc_font(font_lfont);
     
     large_dialog(sslist_dlg);
         
@@ -4100,7 +4100,7 @@ int32_t onEditSubscreens()
         
         if(ret==4)
         {
-            int32_t confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, lfont);
+            int32_t confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, get_zc_font(font_lfont));
             
             if(confirm==1)
             {

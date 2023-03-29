@@ -206,14 +206,14 @@ static void mainscreen(int32_t f)
 	   // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+		//textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
 		//al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+0]) : get_zc_font(font_zfont)),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
 	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
 	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
 		//tbuf[0]=(char)0xBC;
-	   // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
+	   // textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+5]) : get_zc_font(font_zfont)),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
 	}
 	if ( !moduledata.animate_NES_title ) //if we aren't disabling this
 	{
@@ -274,7 +274,7 @@ static void mainscreen(int32_t f)
 
 void putstring(int32_t x,int32_t y,const char* str,int32_t cset)
 {
-	textout_ex(scrollbuf,zfont,str,x,y,(cset<<CSET_SHFT)+1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),str,x,y,(cset<<CSET_SHFT)+1,0);
 }
 
 //#define ii    11
@@ -755,14 +755,14 @@ static void DX_mainscreen(int32_t f)
 	   // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+		//textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
 		al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+0]) : get_zc_font(font_zfont)),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
 	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
 	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
 		//tbuf[0]=(char)0xBC;
-	   // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
+	   // textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+5]) : get_zc_font(font_zfont)),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
    
 		//    text_mode(0);
 	}
@@ -979,14 +979,14 @@ static void v25_mainscreen(int32_t f)
 	   // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
 		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
+		//textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
 		//al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+0]) : zfont),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
+	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+0]) : get_zc_font(font_zfont)),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
 	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
 	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
 		//tbuf[0]=(char)0xBC;
-	   // textout_ex(framebuf,zfont,tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+5]) : zfont),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
+	   // textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
+		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+5]) : get_zc_font(font_zfont)),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
    
 		//    text_mode(0);
 	}
@@ -1194,7 +1194,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 				   "This save file cannot be",
 				   "used in standalone mode.",
 				   "",
-				   "OK",NULL,'o',0,lfont);
+				   "OK",NULL,'o',0,get_zc_font(font_lfont));
 		exit(0);
 	}
 	else if(!standalone_mode && save_count==1)
@@ -1205,7 +1205,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					   "This save file was created in standalone mode.",
 					   "If you continue, you will no longer be able",
 					   "to use it in standalone mode. Continue anyway?",
-					   "No","Yes",NULL, 'n','y', 0, lfont)!=2)
+					   "No","Yes",NULL, 'n','y', 0, get_zc_font(font_lfont))!=2)
 		{
 			exit(0);
 		}
@@ -1572,7 +1572,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					   "This save file is for",
 					   "a different quest.",
 					   "",
-					   "OK",NULL,'o',0,lfont);
+					   "OK",NULL,'o',0,get_zc_font(font_lfont));
 			exit(0);
 		}
 		
@@ -2294,7 +2294,7 @@ newdata:
 				  "The save file could not be found.",
 				  "Create a new file from scratch?",
 				  "Warning: Doing so will erase any previous saved games!",
-				  "OK","Cancel",13,27,lfont)!=1)
+				  "OK","Cancel",13,27,get_zc_font(font_lfont))!=1)
 	{
 		exit(1);
 	}
@@ -2312,7 +2312,7 @@ cantopen:
 				   "The save file was found, but could not be opened. Wait a moment",
 				   "and try again. If this problem persists, reboot. If the file",
 				   buf,
-				   "OK",NULL,'o',0,lfont);
+				   "OK",NULL,'o',0,get_zc_font(font_lfont));
 	}
 	exit(1);
 	
@@ -2323,7 +2323,7 @@ reset:
 				   "Unable to read the save file.",
 				   "Create a new file from scratch?",
 				   "Warning: Doing so will erase any previous saved games!",
-				   "No","Yes",NULL,'n','y',0,lfont)!=2)
+				   "No","Yes",NULL,'n','y',0,get_zc_font(font_lfont))!=2)
 	{
 		exit(1);
 	}
@@ -2952,24 +2952,24 @@ void load_game_icon_to_buffer_manual(bool forceDefault, int32_t index, int32_t r
 
 static void select_mode()
 {
-	textout_ex(scrollbuf,zfont,"REGISTER YOUR NAME",48,152,1,0);
-	textout_ex(scrollbuf,zfont,"COPY FILE",48,168,1,0);
-	textout_ex(scrollbuf,zfont,"DELETE FILE",48,184,1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"REGISTER YOUR NAME",48,152,1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"COPY FILE",48,168,1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"DELETE FILE",48,184,1,0);
 }
 
 static void register_mode()
 {
-	textout_ex(scrollbuf,zfont,"REGISTER YOUR NAME",48,152,CSET(2)+3,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"REGISTER YOUR NAME",48,152,CSET(2)+3,0);
 }
 
 static void copy_mode()
 {
-	textout_ex(scrollbuf,zfont,"COPY FILE",48,168,CSET(2)+3,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"COPY FILE",48,168,CSET(2)+3,0);
 }
 
 static void delete_mode()
 {
-	textout_ex(scrollbuf,zfont,"DELETE FILE",48,184,CSET(2)+3,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"DELETE FILE",48,184,CSET(2)+3,0);
 }
 
 static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, int32_t c)
@@ -3023,9 +3023,9 @@ static void selectscreen()
 	
 	framerect(scrollbuf, 27, 51, 26*8-6, 20*8-6,0x03);
 	
-	textout_ex(scrollbuf,zfont,"- S E L E C T -",64,24,1,0); //could be in module at some point
-	textout_ex(scrollbuf,zfont," NAME ",80,48,1,0);
-	textout_ex(scrollbuf,zfont," LIFE ",152,48,1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont),"- S E L E C T -",64,24,1,0); //could be in module at some point
+	textout_ex(scrollbuf,get_zc_font(font_zfont)," NAME ",80,48,1,0);
+	textout_ex(scrollbuf,get_zc_font(font_zfont)," LIFE ",152,48,1,0);
 	select_mode();
 	RAMpal[CSET(9)+1]=NESpal(0x15);
 	RAMpal[CSET(9)+2]=NESpal(0x27);
@@ -3055,10 +3055,10 @@ static void list_save(int32_t save_num, int32_t ypos)
 		
 		//boogie!
 		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(saves[save_num].get_hp_per_heart()))?8:0),8,0);
-		textout_ex(framebuf,zfont,saves[save_num].get_name(),72,ypos+16,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),saves[save_num].get_name(),72,ypos+16,1,0);
 		
 		if(saves[save_num].get_quest())
-			textprintf_ex(framebuf,zfont,72,ypos+24,1,0,"%5d",saves[save_num].get_deaths());
+			textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+24,1,0,"%5d",saves[save_num].get_deaths());
 			
 		if ( moduledata.select_screen_tiles[draw_hero_first]) 
 			overtile16(framebuf,moduledata.select_screen_tiles[sels_herotile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_hero_cset] : (save_num%3)+10,0); 
@@ -3162,7 +3162,7 @@ static void list_save(int32_t save_num, int32_t ypos)
 			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
 		}
 
-		textprintf_ex(framebuf,zfont,72,ypos+16,1,0,"%s",saves[save_num].get_name());
+		textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+16,1,0,"%s",saves[save_num].get_name());
 	}
 	
 	byte *hold = newtilebuf[0].data;
@@ -3181,7 +3181,7 @@ static void list_save(int32_t save_num, int32_t ypos)
 	loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module?
 	colordata = hold;
 	
-	textout_ex(framebuf,zfont,"-",136,ypos+16,1,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"-",136,ypos+16,1,0);
 	
 	refreshpal = r;
 }
@@ -3206,12 +3206,12 @@ static void list_saves()
 	if(savecnt>3)
 	{
 		if(listpos>=3)
-			textout_ex(framebuf,zfont,(char *)left_arrow_str,96,60,3,0);
+			textout_ex(framebuf,get_zc_font(font_zfont),(char *)left_arrow_str,96,60,3,0);
 			
 		if(listpos+3<savecnt)
-			textout_ex(framebuf,zfont,(char *)right_arrow_str,176,60,3,0);
+			textout_ex(framebuf,get_zc_font(font_zfont),(char *)right_arrow_str,176,60,3,0);
 			
-		textprintf_ex(framebuf,zfont,112,60,3,0,"%2d - %-2d",listpos+1,listpos+3);
+		textprintf_ex(framebuf,get_zc_font(font_zfont),112,60,3,0,"%2d - %-2d",listpos+1,listpos+3);
 	}
 	
 	
@@ -3314,8 +3314,8 @@ static bool register_name()
 		
 		clear_bitmap(framebuf);
 		framerect(framebuf, 27, 51, 26*8-6, 8*8-6,0x03);
-		textout_ex(framebuf,zfont," NAME ",80,48,1,0);
-		textout_ex(framebuf,zfont," LIFE ",152,48,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont)," NAME ",80,48,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont)," LIFE ",152,48,1,0);
 		
 		blit(info,framebuf,0,0,40,70,168,32);
 		destroy_bitmap(info);
@@ -3325,25 +3325,25 @@ static bool register_name()
 		
 		if(NameEntryMode2==1)
 		{
-			textout_ex(framebuf,zfont,"A B C D E F G H I J K",letter_grid_x,letter_grid_y,1,-1);
-			textout_ex(framebuf,zfont,"L M N O P Q R S T U V",letter_grid_x,letter_grid_y+16,1,-1);
-			textout_ex(framebuf,zfont,"W X Y Z - . , ! ' & .",letter_grid_x,letter_grid_y+32,1,-1);
-			textout_ex(framebuf,zfont,"0 1 2 3 4 5 6 7 8 9  ",letter_grid_x,letter_grid_y+48,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"A B C D E F G H I J K",letter_grid_x,letter_grid_y,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"L M N O P Q R S T U V",letter_grid_x,letter_grid_y+16,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"W X Y Z - . , ! ' & .",letter_grid_x,letter_grid_y+32,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"0 1 2 3 4 5 6 7 8 9  ",letter_grid_x,letter_grid_y+48,1,-1);
 		}
 		else
 		{
-			textout_ex(framebuf,zfont,"   \"  $  &  (  *  ,  .",letter_grid_x,   letter_grid_y,   1,-1);
-			textout_ex(framebuf,zfont, "!  #  %  '  )  +  -  /",letter_grid_x+12,letter_grid_y,   1,-1);
-			textout_ex(framebuf,zfont,"0  2  4  6  8  :  <  >", letter_grid_x,   letter_grid_y+12,1,-1);
-			textout_ex(framebuf,zfont, "1  3  5  7  9  ;  =  ?",letter_grid_x+12,letter_grid_y+12,1,-1);
-			textout_ex(framebuf,zfont,"@  B  D  F  H  J  L  N", letter_grid_x,   letter_grid_y+24,1,-1);
-			textout_ex(framebuf,zfont, "A  C  E  G  I  K  M  O",letter_grid_x+12,letter_grid_y+24,1,-1);
-			textout_ex(framebuf,zfont,"P  R  T  V  X  Z  \\  ^",letter_grid_x,   letter_grid_y+36,1,-1);
-			textout_ex(framebuf,zfont, "Q  S  U  W  Y  [  ]  _",letter_grid_x+12,letter_grid_y+36,1,-1);
-			textout_ex(framebuf,zfont,"`  b  d  f  h  j  l  n", letter_grid_x,   letter_grid_y+48,1,-1);
-			textout_ex(framebuf,zfont, "a  c  e  g  i  k  m  o",letter_grid_x+12,letter_grid_y+48,1,-1);
-			textout_ex(framebuf,zfont,"p  r  t  v  x  z  |  ~", letter_grid_x,   letter_grid_y+60,1,-1);
-			textout_ex(framebuf,zfont, "q  s  u  w  y  {  }",   letter_grid_x+12,letter_grid_y+60,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"   \"  $  &  (  *  ,  .",letter_grid_x,   letter_grid_y,   1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont), "!  #  %  '  )  +  -  /",letter_grid_x+12,letter_grid_y,   1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"0  2  4  6  8  :  <  >", letter_grid_x,   letter_grid_y+12,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont), "1  3  5  7  9  ;  =  ?",letter_grid_x+12,letter_grid_y+12,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"@  B  D  F  H  J  L  N", letter_grid_x,   letter_grid_y+24,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont), "A  C  E  G  I  K  M  O",letter_grid_x+12,letter_grid_y+24,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"P  R  T  V  X  Z  \\  ^",letter_grid_x,   letter_grid_y+36,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont), "Q  S  U  W  Y  [  ]  _",letter_grid_x+12,letter_grid_y+36,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"`  b  d  f  h  j  l  n", letter_grid_x,   letter_grid_y+48,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont), "a  c  e  g  i  k  m  o",letter_grid_x+12,letter_grid_y+48,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),"p  r  t  v  x  z  |  ~", letter_grid_x,   letter_grid_y+60,1,-1);
+			textout_ex(framebuf,get_zc_font(font_zfont), "q  s  u  w  y  {  }",   letter_grid_x+12,letter_grid_y+60,1,-1);
 		}
 		
 		advanceframe(true);
@@ -3994,7 +3994,7 @@ int32_t custom_game(int32_t file)
 	char relpath[2048];
 	relativize_path(relpath, qstpath);
 	
-	gamemode_dlg[0].dp2 = lfont;
+	gamemode_dlg[0].dp2 = get_zc_font(font_lfont);
 	gamemode_dlg[2].dp = relpath;//get_filename(qstpath);
 	
 	if(get_quest_info(&h,infostr)==0)
@@ -4033,7 +4033,7 @@ int32_t custom_game(int32_t file)
 		
 		strcpy(path, qstpath);
 		
-		if(jwin_file_browse_ex("Load Quest", path, list, &sel, 2048, -1, -1, lfont))
+		if(jwin_file_browse_ex("Load Quest", path, list, &sel, 2048, -1, -1, get_zc_font(font_lfont)))
 		{
 			customized = true;
 			//      strcpy(qstpath, path);
@@ -4097,38 +4097,38 @@ static int32_t game_details(int32_t file)
 	
 	destroy_bitmap(info);
 	
-	textout_ex(framebuf,zfont,"GAME TYPE",40,104,3,0);
-	textout_ex(framebuf,zfont,"QUEST",40,112,3,0);
-	textout_ex(framebuf,zfont,"STATUS",40,120,3,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"GAME TYPE",40,104,3,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"QUEST",40,112,3,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"STATUS",40,120,3,0);
 	
 	if(saves[file].get_quest()<0xFF)
 	{
-		textout_ex(framebuf,zfont,"Normal Game",120,104,1,0);
-		textprintf_ex(framebuf,zfont,120,112,1,0,"%s Quest",
+		textout_ex(framebuf,get_zc_font(font_zfont),"Normal Game",120,104,1,0);
+		textprintf_ex(framebuf,get_zc_font(font_zfont),120,112,1,0,"%s Quest",
 					  ordinal(saves[file].get_quest()));
 	}
 	else
 	{
-		textout_ex(framebuf,zfont,"Custom Quest",120,104,1,0);
-		textprintf_ex(framebuf,zfont,120,112,1,0,"%s",
+		textout_ex(framebuf,get_zc_font(font_zfont),"Custom Quest",120,104,1,0);
+		textprintf_ex(framebuf,get_zc_font(font_zfont),120,112,1,0,"%s",
 					  get_filename(saves[file].qstpath));
 	}
 	
 	if(!saves[file].get_hasplayed())
-		textout_ex(framebuf,zfont,"Empty Game",120,120,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),"Empty Game",120,120,1,0);
 	else if(!saves[file].get_timevalid())
-		textout_ex(framebuf,zfont,"Time Unknown",120,120,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),"Time Unknown",120,120,1,0);
 	else
-		textout_ex(framebuf,zfont,time_str_med(saves[file].get_time()),120,120,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),time_str_med(saves[file].get_time()),120,120,1,0);
 		
 	if(saves[file].did_cheat())
-		textout_ex(framebuf,zfont,"Used Cheats",120,128,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),"Used Cheats",120,128,1,0);
 		
-	textout_ex(framebuf,zfont,"START: PLAY GAME",56,152,1,0);
-	textout_ex(framebuf,zfont,"    B: CANCEL",56,168,1,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"START: PLAY GAME",56,152,1,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"    B: CANCEL",56,168,1,0);
 	
 	if(!saves[file].get_hasplayed())
-		textout_ex(framebuf,zfont,"    A: CUSTOM QUEST",56,184,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),"    A: CUSTOM QUEST",56,184,1,0);
 		
 	while(!Quit)
 	{
@@ -4547,15 +4547,15 @@ void game_over(int32_t type)
 	//  text_mode(-1);
 	
 	//Setting the colour via the array isn't working. Perhaps misc colours need to be assigned to the array in init.
-	textout_ex(framebuf,zfont,SaveScreenText[SAVESC_CONTINUE],88,72,( SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext) ,-1);
+	textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_CONTINUE],88,72,( SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext) ,-1);
 	//WTF! Setting this in zq Init() didn't work?! -Z
 	if(!type)
 	{
-		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] : QMisc.colors.msgtext),-1);
-		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,120,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_SAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_RETRY],88,120,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
 	}
 	else
-		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,96,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_RETRY],88,96,( SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext),-1);
 		
 	int32_t pos = 0;
 	int32_t f=-1;
@@ -4619,23 +4619,23 @@ void game_over(int32_t type)
 				switch(pos)
 				{
 				case 0:
-					textout_ex(framebuf,zfont,SaveScreenText[SAVESC_CONTINUE],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH]
+					textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_CONTINUE],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_CONTINUE_FLASH]
 						: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] > 0 ? 
 							SaveScreenSettings[SAVESC_TEXT_CONTINUE_COLOUR] : QMisc.colors.msgtext)),-1);
 					break;
 					
 				case 1:
-					textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH]
+					textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_SAVE],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE_FLASH]
 						: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] > 0 ? 
 							SaveScreenSettings[SAVESC_TEXT_SAVE_COLOUR] : QMisc.colors.msgtext)),-1);
 					break;
 					
 				case 2:
 					if(!type)
-						textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH]
+						textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_RETRY],88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH]
 							: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? 
 								SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext)),-1);
-					else textout_ex(framebuf,zfont,SaveScreenText[SAVESC_RETRY],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH]
+					else textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_RETRY],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_RETRY_FLASH]
 						: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] > 0 ? 
 							SaveScreenSettings[SAVESC_TEXT_RETRY_COLOUR] : QMisc.colors.msgtext)),-1);
 					
@@ -4774,15 +4774,15 @@ bool save_game(bool savepoint, int32_t type)
 		//Migrate this to use SaveScreenColours[SAVESC_TEXT] and set that to a default
 		//of QMisc.colors.msgtext when loading the quest in the loadquest function
 		//for quests with a version < 0x254! -Z
-			textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVEQUIT],88,72,( SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] : QMisc.colors.msgtext),-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_SAVEQUIT],88,72,( SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		}
 		else
 		{
-			textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE2],88,72,( SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] : QMisc.colors.msgtext),-1);
+			textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_SAVE2],88,72,( SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] : QMisc.colors.msgtext),-1);
 		}
 		
-		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_DONTSAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext),-1);
-		textout_ex(framebuf,zfont,SaveScreenText[SAVESC_QUIT],88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_DONTSAVE],88,96,( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext),-1);
+		textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_QUIT],88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 		
 		rUp(); rDown(); rSbtn(); //eat inputs
 		do
@@ -4819,23 +4819,23 @@ bool save_game(bool savepoint, int32_t type)
 					{
 					case 0:
 						if(type)
-							textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVEQUIT],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH]
+							textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_SAVEQUIT],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_FLASH]
 								: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] > 0 ? 
 									SaveScreenSettings[SAVESC_TEXT_SAVEQUIT_COLOUR] : QMisc.colors.msgtext)),-1);
-						else textout_ex(framebuf,zfont,SaveScreenText[SAVESC_SAVE2],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH]
+						else textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_SAVE2],88,72,(flash ? ( SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_SAVE2_FLASH]
 								: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] > 0 ? 
 									SaveScreenSettings[SAVESC_TEXT_SAVE2_COLOUR] : QMisc.colors.msgtext)),-1);
 						
 						break;
 						
 					case 1:
-						textout_ex(framebuf,zfont,SaveScreenText[SAVESC_DONTSAVE],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH]
+						textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_DONTSAVE],88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_DONTSAVE_FLASH]
 							: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] > 0 ? 
 								SaveScreenSettings[SAVESC_TEXT_DONTSAVE_COLOUR] : QMisc.colors.msgtext)),-1);
 						break;
 						
 					case 2:
-						textout_ex(framebuf,zfont,SaveScreenText[SAVESC_QUIT],88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
+						textout_ex(framebuf,get_zc_font(font_zfont),SaveScreenText[SAVESC_QUIT],88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
 							: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? 
 								SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext)),-1);
 						break;
@@ -4901,9 +4901,9 @@ bool save_game(bool savepoint, int32_t type)
 			{
 				clear_to_color(framebuf,SaveScreenSettings[SAVESC_BACKGROUND]);
 				//  text_mode(-1);
-				textout_ex(framebuf,zfont,"ARE YOU SURE?",88,72,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
-				textout_ex(framebuf,zfont,"YES",88,96,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
-				textout_ex(framebuf,zfont,"NO",88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
+				textout_ex(framebuf,get_zc_font(font_zfont),"ARE YOU SURE?",88,72,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
+				textout_ex(framebuf,get_zc_font(font_zfont),"YES",88,96,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
+				textout_ex(framebuf,get_zc_font(font_zfont),"NO",88,120,( SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext),-1);
 				int32_t pos2=0;
 				int32_t g=-1;
 				bool done3=false;
@@ -4942,17 +4942,17 @@ bool save_game(bool savepoint, int32_t type)
 							switch(pos2)
 							{
 							case 0:
-								textout_ex(framebuf,zfont,"YES",88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
+								textout_ex(framebuf,get_zc_font(font_zfont),"YES",88,96,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
 									: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? 
 										SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext)),-1);
 								break;
 								
 							case 1:
-								textout_ex(framebuf,zfont,"NO",88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
+								textout_ex(framebuf,get_zc_font(font_zfont),"NO",88,120,(flash ? ( SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH] > 0 ? SaveScreenSettings[SAVESC_TEXT_QUIT_FLASH]
 									: QMisc.colors.caption) : (SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] > 0 ? 
 										SaveScreenSettings[SAVESC_TEXT_QUIT_COLOUR] : QMisc.colors.msgtext)),-1);
 								break;
-								//case 2: textout_ex(framebuf,zfont,"QUIT",88,120,c,-1);   break;
+								//case 2: textout_ex(framebuf,get_zc_font(font_zfont),"QUIT",88,120,c,-1);   break;
 							}
 						}
 					}
@@ -5002,10 +5002,10 @@ static void list_saves2()
   if(savecnt>3)
   {
 	if(listpos>=3)
-	  textout_ex(framebuf,zfont,(char *)left_arrow_str,96,60,3,0);
+	  textout_ex(framebuf,get_zc_font(font_zfont),(char *)left_arrow_str,96,60,3,0);
 	if(listpos+3<savecnt)
-	  textout_ex(framebuf,zfont,(char *)right_arrow_str,176,60,3,0);
-	textprintf_ex(framebuf,zfont,112,60,3,0,"%2d - %-2d",listpos+1,listpos+3);
+	  textout_ex(framebuf,get_zc_font(font_zfont),(char *)right_arrow_str,176,60,3,0);
+	textprintf_ex(framebuf,get_zc_font(font_zfont),112,60,3,0,"%2d - %-2d",listpos+1,listpos+3);
   }
 
   bool r = refreshpal;
@@ -5018,10 +5018,10 @@ static void list_saves2()
 	  game->set_life( saves[listpos+i].get_maxlife());
 	  //boogie!
 	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(zinit.hp_per_heart))?8:0),1,0);
-	  textout_ex(framebuf,zfont,saves[listpos+i].get_name(),72,i*24+72,1,0);
+	  textout_ex(framebuf,get_zc_font(font_zfont),saves[listpos+i].get_name(),72,i*24+72,1,0);
 
 	  if(saves[listpos+i].get_quest())
-		textprintf_ex(framebuf,zfont,72,i*24+80,1,0,"%3d",saves[listpos+i].get_deaths());
+		textprintf_ex(framebuf,get_zc_font(font_zfont),72,i*24+80,1,0,"%3d",saves[listpos+i].get_deaths());
 
 	  if(saves[listpos+i].get_quest()==2)
 		overtile16(framebuf,41,56,i*24+70,9,0);             //put sword on second quests
@@ -5032,7 +5032,7 @@ static void list_saves2()
 		overtile16(framebuf,41,41,i*24+70,9,0);             //put sword on third quests
 	  }
 	  // maybe the triforce for the 4th quest?
-	  textprintf_ex(framebuf,zfont,72,i*24+72,1,0,"%s",saves[listpos+i].get_name());
+	  textprintf_ex(framebuf,get_zc_font(font_zfont),72,i*24+72,1,0,"%s",saves[listpos+i].get_name());
 	}
 
 	byte *hold = newtilebuf[0].data;
@@ -5048,7 +5048,7 @@ static void list_saves2()
 	loadpalset(i+10,0);
 	colordata = hold;
 
-	textout_ex(framebuf,zfont,"-",136,i*24+72,1,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),"-",136,i*24+72,1,0);
   }
 
   refreshpal = r;
