@@ -57,10 +57,11 @@ const char *msgfont_str[font_max] =
 	"Zelda 2",
 	"ZX",
 	"Lisa",
-	"nfont",
+	"NFont",
 	"Small 3",
 	"CV 3",
-	"Chrono"
+	"Chrono",
+	"NFont2"
 };
 
 const char *font_output_strs[] =
