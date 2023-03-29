@@ -7219,7 +7219,9 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 				if(d->dp)
 				{
 					int txty = ty+(d->h-(fh-gui_font_baseline))/2;
-					txty = vbound(txty, 2, (d->h-2-fh)-((d->flags & D_DISABLED)?1:0));
+                    int __min = 2, __max = (d->h - 2 - fh) - ((d->flags & D_DISABLED) ? 1 : 0);
+                    if (__max < __min) __max = __min;
+					txty = vbound(txty, __min, __max);
 					if(d->flags & D_DISABLED)
 					{
 						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, txty+1, scheme[jcLIGHT], scheme[jcBOX], 0);
