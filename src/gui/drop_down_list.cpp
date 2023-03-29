@@ -21,8 +21,14 @@ DropDownList::DropDownList():
 
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
+	int selval = getSelectedValue();
 	listData = &newListData;
 	jwinListData = newListData.getJWin(&widgFont);
+	if(alDialog)
+	{
+		alDialog->dp = &jwinListData;
+		setSelectedValue(selval);
+	}
 }
 
 void DropDownList::setSelectedValue(int32_t value)

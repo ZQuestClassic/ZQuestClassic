@@ -7183,6 +7183,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 		case MSG_DRAW:
 		{
 			int32_t tx = 2, ty = 2, tx2 = 0;
+			int fh = text_height(font);
 			BITMAP* tmp = create_bitmap_ex(8, d->w+4, d->h+4);
 			clear_bitmap(tmp);
 			set_clip_rect(tmp, tx, ty, tmp->w-tx, tmp->h-ty);
@@ -7192,14 +7193,14 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
-						bx=tl+text_height(font)/2;
+						gui_textout_ln(tmp, (uint8_t *)d->dp, tx+1, ty+1+(d->h-(fh-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(fh-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
+						bx=tl+fh/2;
 					}
 					else
 					{
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
-						bx=tl+text_height(font)/2;
+						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx, ty+(d->h-(fh-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+						bx=tl+fh/2;
 					}
 				}
 			}
@@ -7213,18 +7214,20 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 			
 			if(d->d1)
 			{
-				tx2=tx+bx+d->h-1+(text_height(font)/2);
+				tx2=tx+bx+d->h-1+(fh/2);
 				
 				if(d->dp)
 				{
+					int txty = ty+(d->h-(fh-gui_font_baseline))/2;
+					txty = vbound(txty, 2, (d->h-2-fh)-((d->flags & D_DISABLED)?1:0));
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, ty+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
+						gui_textout_ln(tmp, (uint8_t *)d->dp, tx2+1, txty+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, txty, scheme[jcDISABLED_FG], -1, 0);
 					}
 					else
 					{
-						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, ty+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, (uint8_t *)d->dp, tx2, txty, scheme[jcBOXFG], scheme[jcBOX], 0);
 					}
 				}
 			}
@@ -7236,10 +7239,9 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 			}
 			
 			set_clip_rect(tmp, 0, 0, tmp->w, tmp->h);
-			//d->w=int32_t(text_height(font)*1.5);
 			if(d->dp)
 			{
-				dotted_rect(tmp, tx2-1, ty-1, tx2+tl, ty+(text_height(font)), (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+				dotted_rect(tmp, tx2-1, ty-1, tx2+tl, ty+fh, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
 			}
 			
 			masked_blit(tmp, screen, 0, 0, d->x-tx, d->y-ty, d->w+tx+tx, d->h+ty+ty);

@@ -28,10 +28,10 @@ private:
 	int32_t addAfter;
 	MsgStr tmpMsgStr;
 	
-	GUI::ListData list_nextstr, list_font, list_shtype;
+	GUI::ListData list_nextstr, list_font, list_font_order, list_shtype;
 	
 	std::shared_ptr<GUI::MsgPreview> preview;
-	std::shared_ptr<GUI::DropDownList> nextstr_dd;
+	std::shared_ptr<GUI::DropDownList> font_dd, nextstr_dd;
 	std::shared_ptr<GUI::TextField> str_field;
 	std::shared_ptr<GUI::Window> window;
 };

@@ -820,7 +820,7 @@ int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 	return pos;
 }
 
-extern const char *msgfont_str[font_max];
+extern std::string msgfont_str[font_max];
 
 const char *msgfontlist(int32_t index, int32_t *list_size)
 {
@@ -830,7 +830,7 @@ const char *msgfontlist(int32_t index, int32_t *list_size)
 		return NULL;
 	}
 	
-	return msgfont_str[index];
+	return msgfont_str[index].c_str();
 }
 
 void strip_trailing_spaces(char *str)

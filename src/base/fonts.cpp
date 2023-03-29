@@ -2,67 +2,14 @@
 #include "base/fonts.h"
 #include "fontsdat.h"
 #include "base/zapp.h"
+#include "base/zsys.h"
 #include "drawing.h"
 #include <fmt/format.h>
 extern DATAFILE *fontsdata;
 extern bool is_compact;
 using namespace util;
 
-const char *msgfont_str[font_max] =
-{
-	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
-	"S. Proportional", "SS 1 (Numerals)", "SS 2 (Incomplete)", "SS 3", "SS 4 (Numerals)", "Link's Awakening", "Goron", "Zoran", "Hylian 1", "Hylian 2",
-	"Hylian 3", "Hylian 4", "Oracle", "Oracle Proportional", "Phantom", "Phantom Proportional",
-	"Atari 800", 
-	"Acorn",
-	"ADOS",
-	"Allegro",
-	"Apple II",
-	"Apple II 80 Column",
-	"Apple IIgs",
-	"Aquarius",
-	"Atari 400",
-	"C64",
-	"C64 HiRes",
-	"IBM CGA",
-	"COCO Mode I",
-	"COCO Mode II",
-	"Coupe",
-	"Amstrad CPC",
-	"Fantasy Letters",
-	"FDS Katakana",
-	"FDSesque",
-	"FDS Roman",
-	"FF",
-	"Elder Futhark",
-	"Gaia",
-	"Hira",
-	"JP Unsorted",
-	"Kong",
-	"Mana",
-	"Mario",
-	"Mot CPU",
-	"MSX Mode 0",
-	"MSX Mode 1",
-	"PET",
-	"Homebrew",
-	"Mr. Saturn",
-	"Sci-Fi",
-	"Sherwood",
-	"Sinclair QL",
-	"Spectrum",
-	"Spectrum Large",
-	"TI99",
-	"TRS",
-	"Zelda 2",
-	"ZX",
-	"Lisa",
-	"NFont",
-	"Small 3",
-	"CV 3",
-	"Chrono",
-	"NFont2"
-};
+std::string msgfont_str[font_max];
 
 const char *font_output_strs[] =
 {
@@ -74,13 +21,13 @@ const char *font_output_strs[] =
 	"pqrstuvwxyz{|}~"
 };
 
-FONT* a4fonts[font_max];
-FONT* customfonts[CFONT_MAX];
-FONT* deffonts[CFONT_MAX];
-int fontscales[CFONT_MAX];
-ALLEGRO_FONT* a5fonts[font_max];
-ALLEGRO_FONT* customfonts_a5[CFONT_MAX];
-ALLEGRO_FONT* deffonts_a5[CFONT_MAX];
+FONT* a4fonts[font_max] = {nullptr};
+FONT* customfonts[CFONT_MAX] = {nullptr};
+FONT* deffonts[CFONT_MAX] = {nullptr};
+int fontscales[CFONT_MAX] = {0};
+ALLEGRO_FONT* a5fonts[font_max] = {nullptr};
+ALLEGRO_FONT* customfonts_a5[CFONT_MAX] = {nullptr};
+ALLEGRO_FONT* deffonts_a5[CFONT_MAX] = {nullptr};
 ALLEGRO_FONT* a5font = nullptr;
 
 FONT *get_zc_font(int index)
@@ -100,7 +47,7 @@ ALLEGRO_FONT* get_zc_font_a5(int32_t index)
 char const* get_zc_fontname(int32_t index)
 {
 	if(unsigned(index) >= font_max) return "Unknown Font?";
-	return msgfont_str[index];
+	return msgfont_str[index].c_str();
 }
 
 //Illegible / incomplete / non-english fonts
@@ -264,97 +211,145 @@ ALLEGRO_FONT* __load_a5_font(char const* path)
 	destroy_bitmap(bmp);
 	return a5font;
 }
+static int fontsdat_end = 0;
+static void initfont(int fontind, int font_dat_ind, char const* str)
+{
+	msgfont_str[fontind] = str;
+	if(font_dat_ind >= fontsdat_end) return; //invalid access
+	a4fonts[fontind] = (FONT*)fontsdata[font_dat_ind].dat;
+}
+static void initfont(int fontind, FONT* f, char const* str)
+{
+	a4fonts[fontind] = f;
+	msgfont_str[fontind] = str;
+}
 void initFonts()
 {
-	a4fonts[font_deffont] = font;
-	a4fonts[font_nfont] = (FONT*)fontsdata[FONT_GUI_PROP].dat;
-	a4fonts[font_nfont2] = (FONT*)fontsdata[FONT_GUI_MONO].dat;
-	a4fonts[font_pfont] = (FONT*)fontsdata[FONT_8xPROP_THIN].dat;
-	a4fonts[font_lfont] = (FONT*)fontsdata[FONT_LARGEPROP].dat;
-	a4fonts[font_lfont_l] = (FONT*)fontsdata[FONT_LARGEPROP_L].dat;
-	a4fonts[font_zfont] = (FONT*)fontsdata[FONT_NES].dat;
-	a4fonts[font_z3font] = (FONT*)fontsdata[FONT_Z3].dat;
-	a4fonts[font_z3smallfont] = (FONT*)fontsdata[FONT_Z3SMALL].dat;
-	a4fonts[font_mfont] = (FONT*)fontsdata[FONT_MATRIX].dat;
-	a4fonts[font_ztfont] = (FONT*)fontsdata[FONT_ZTIME].dat;
-	a4fonts[font_sfont] = (FONT*)fontsdata[FONT_6x6].dat;
-	a4fonts[font_sfont2] = (FONT*)fontsdata[FONT_6x4].dat;
-	a4fonts[font_sfont3] = (FONT*)fontsdata[FONT_12x8].dat;
-	a4fonts[font_spfont] = (FONT*)fontsdata[FONT_6xPROP].dat;
-	a4fonts[font_ssfont1] = (FONT*)fontsdata[FONT_SUBSCREEN1].dat;
-	a4fonts[font_ssfont2] = (FONT*)fontsdata[FONT_SUBSCREEN2].dat;
-	a4fonts[font_ssfont3] = (FONT*)fontsdata[FONT_SUBSCREEN3].dat;
-	a4fonts[font_ssfont4] = (FONT*)fontsdata[FONT_SUBSCREEN4].dat;
-	a4fonts[font_gblafont] = (FONT*)fontsdata[FONT_GB_LA].dat;
-	a4fonts[font_goronfont] = (FONT*)fontsdata[FONT_GORON].dat;
-	a4fonts[font_zoranfont] = (FONT*)fontsdata[FONT_ZORAN].dat;
-	a4fonts[font_hylian1font] = (FONT*)fontsdata[FONT_HYLIAN1].dat;
-	a4fonts[font_hylian2font] = (FONT*)fontsdata[FONT_HYLIAN2].dat;
-	a4fonts[font_hylian3font] = (FONT*)fontsdata[FONT_HYLIAN3].dat;
-	a4fonts[font_hylian4font] = (FONT*)fontsdata[FONT_HYLIAN4].dat;
-	a4fonts[font_gboraclefont] = (FONT*)fontsdata[FONT_GB_ORACLE].dat;
-	a4fonts[font_gboraclepfont] = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
-	a4fonts[font_dsphantomfont] = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
-	a4fonts[font_dsphantompfont] = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
-	a4fonts[font_atari800font] = (FONT*)fontsdata[FONT_A80080C].dat;
-	a4fonts[font_acornfont] = (FONT*)fontsdata[FONT_ACORN].dat;
-	a4fonts[font_adosfont] = (FONT*)fontsdata[FONT_ADOS].dat;
-	a4fonts[font_baseallegrofont] = (FONT*)fontsdata[FONT_ALLEGRO].dat;
-	a4fonts[font_apple2font] = (FONT*)fontsdata[FONT_APPLE2].dat;
-	a4fonts[font_apple280colfont] = (FONT*)fontsdata[FONT_APPLE280].dat;
-	a4fonts[font_apple2gsfont] = (FONT*)fontsdata[FONT_APPLE2GS].dat;
-	a4fonts[font_aquariusfont] = (FONT*)fontsdata[FONT_AQUA].dat;
-	a4fonts[font_atari400font] = (FONT*)fontsdata[FONT_ATARI400].dat;
-	a4fonts[font_c64font] = (FONT*)fontsdata[FONT_C64].dat;
-	a4fonts[font_c64hiresfont] = (FONT*)fontsdata[FONT_C64HR].dat;
-	a4fonts[font_cgafont] = (FONT*)fontsdata[FONT_CGA].dat;
-	a4fonts[font_cocofont] = (FONT*)fontsdata[FONT_COCO].dat;
-	a4fonts[font_coco2font] = (FONT*)fontsdata[FONT_COCO2].dat;
-	a4fonts[font_coupefont] = (FONT*)fontsdata[FONT_COUPE].dat;
-	a4fonts[font_cpcfont] = (FONT*)fontsdata[FONT_CPC].dat;
-	a4fonts[font_fantasyfont] = (FONT*)fontsdata[FONT_FANTASY].dat;
-	a4fonts[font_fdskanafont] = (FONT*)fontsdata[FONT_FDS_KANA].dat;
-	a4fonts[font_fdslikefont] = (FONT*)fontsdata[FONT_FDSLIKE].dat;
-	a4fonts[font_fdsromanfont] = (FONT*)fontsdata[FONT_FDSROMAN].dat;
-	a4fonts[font_finalffont] = (FONT*)fontsdata[FONT_FF].dat;
-	a4fonts[font_futharkfont] = (FONT*)fontsdata[FONT_FUTHARK].dat;
-	a4fonts[font_gaiafont] = (FONT*)fontsdata[FONT_GAIA].dat;
-	a4fonts[font_hirafont] = (FONT*)fontsdata[FONT_HIRA].dat;
-	a4fonts[font_jpfont] = (FONT*)fontsdata[FONT_JP].dat;
-	a4fonts[font_kongfont] = (FONT*)fontsdata[FONT_KONG].dat;
-	a4fonts[font_manafont] = (FONT*)fontsdata[FONT_MANA].dat;
-	a4fonts[font_mlfont] = (FONT*)fontsdata[FONT_MARIOLAND].dat;
-	a4fonts[font_motfont] = (FONT*)fontsdata[FONT_MOT].dat;
-	a4fonts[font_msxmode0font] = (FONT*)fontsdata[FONT_MSX0].dat;
-	a4fonts[font_msxmode1font] = (FONT*)fontsdata[FONT_MSX1].dat;
-	a4fonts[font_petfont] = (FONT*)fontsdata[FONT_PET].dat;
-	a4fonts[font_pstartfont] = (FONT*)fontsdata[FONT_PRESTRT].dat;
-	a4fonts[font_saturnfont] = (FONT*)fontsdata[FONT_SATURN].dat;
-	a4fonts[font_scififont] = (FONT*)fontsdata[FONT_SCIFI].dat;
-	a4fonts[font_sherwoodfont] = (FONT*)fontsdata[FONT_SHERWOOD].dat;
-	a4fonts[font_sinqlfont] = (FONT*)fontsdata[FONT_SINQL].dat;
-	a4fonts[font_spectrumfont] = (FONT*)fontsdata[FONT_SPEC].dat;
-	a4fonts[font_speclgfont] = (FONT*)fontsdata[FONT_SPECLG].dat;
-	a4fonts[font_ti99font] = (FONT*)fontsdata[FONT_TI99].dat;
-	a4fonts[font_trsfont] = (FONT*)fontsdata[FONT_TRS].dat;
-	a4fonts[font_z2font] = (FONT*)fontsdata[FONT_Z2].dat;
-	a4fonts[font_zxfont] = (FONT*)fontsdata[FONT_ZX].dat;
-	a4fonts[font_lisafont] = (FONT*)fontsdata[FONT_LISA].dat;
-	a4fonts[font_cv3] = (FONT*)fontsdata[FONT_CV3].dat;
-	a4fonts[font_ctrig] = (FONT*)fontsdata[FONT_CTRIG].dat;
+	for(int q = 0; q < font_max; ++q)
+	{
+		msgfont_str[q].clear();
+		a4fonts[q] = nullptr;
+		if(a5fonts[q])
+			al_destroy_font(a5fonts[q]);
+		a5fonts[q] = nullptr;
+	}
+	for(int q = 0;;++q)
+	{
+		if(fontsdata[q].type == DAT_END)
+		{
+			fontsdat_end = q;
+			break;
+		}
+	}
+	initfont(font_deffont, font, "Allegro Default");
+	initfont(font_nfont, FONT_GUI_PROP, "NFont");
+	initfont(font_nfont2, FONT_GUI_MONO, "NFont2");
+	initfont(font_pfont, FONT_8xPROP_THIN, "GUI Font Narrow");
+	initfont(font_lfont, FONT_LARGEPROP, "GUI Font Bold");
+	initfont(font_lfont_l, FONT_LARGEPROP_L, "GUI Font");
+	initfont(font_zfont, FONT_NES, "Zelda NES");
+	initfont(font_z3font, FONT_Z3, "Link to the Past");
+	initfont(font_z3smallfont, FONT_Z3SMALL, "LttP Small");
+	initfont(font_mfont, FONT_MATRIX, "Zelda NES (Matrix)");
+	initfont(font_ztfont, FONT_ZTIME, "BS Time (Incomplete)");
+	initfont(font_sfont, FONT_6x6, "Small");
+	initfont(font_sfont2, FONT_6x4, "Small 2");
+	initfont(font_sfont3, FONT_12x8, "Small 3");
+	initfont(font_spfont, FONT_6xPROP, "S. Proportional");
+	initfont(font_ssfont1, FONT_SUBSCREEN1, "SS 1 (Numerals)");
+	initfont(font_ssfont2, FONT_SUBSCREEN2, "SS 2 (Incomplete)");
+	initfont(font_ssfont3, FONT_SUBSCREEN3, "SS 3");
+	initfont(font_ssfont4, FONT_SUBSCREEN4, "SS 4 (Numerals)");
+	initfont(font_gblafont, FONT_GB_LA, "Link's Awakening");
+	initfont(font_goronfont, FONT_GORON, "Goron");
+	initfont(font_zoranfont, FONT_ZORAN, "Zoran");
+	initfont(font_hylian1font, FONT_HYLIAN1, "Hylian 1");
+	initfont(font_hylian2font, FONT_HYLIAN2, "Hylian 2");
+	initfont(font_hylian3font, FONT_HYLIAN3, "Hylian 3");
+	initfont(font_hylian4font, FONT_HYLIAN4, "Hylian 4");
+	initfont(font_gboraclefont, FONT_GB_ORACLE, "Oracle");
+	initfont(font_gboraclepfont, FONT_GB_ORACLE_P, "Oracle Proportional");
+	initfont(font_dsphantomfont, FONT_DS_PHANTOM, "Phantom");
+	initfont(font_dsphantompfont, FONT_DS_PHANTOM_P, "Phantom Proportional");
+	initfont(font_atari800font, FONT_A80080C, "Atari 800");
+	initfont(font_acornfont, FONT_ACORN, "Acorn");
+	initfont(font_adosfont, FONT_ADOS, "ADOS");
+	initfont(font_baseallegrofont, FONT_ALLEGRO, "Allegro");
+	initfont(font_apple2font, FONT_APPLE2, "Apple II");
+	initfont(font_apple280colfont, FONT_APPLE280, "Apple II 80 Column");
+	initfont(font_apple2gsfont, FONT_APPLE2GS, "Apple IIgs");
+	initfont(font_aquariusfont, FONT_AQUA, "Aquarius");
+	initfont(font_atari400font, FONT_ATARI400, "Atari 400");
+	initfont(font_c64font, FONT_C64, "C64");
+	initfont(font_c64hiresfont, FONT_C64HR, "C64 HiRes");
+	initfont(font_cgafont, FONT_CGA, "IBM CGA");
+	initfont(font_cocofont, FONT_COCO, "COCO Mode I");
+	initfont(font_coco2font, FONT_COCO2, "COCO Mode II");
+	initfont(font_coupefont, FONT_COUPE, "Coupe");
+	initfont(font_cpcfont, FONT_CPC, "Amstrad CPC");
+	initfont(font_fantasyfont, FONT_FANTASY, "Fantasy Letters");
+	initfont(font_fdskanafont, FONT_FDS_KANA, "FDS Katakana");
+	initfont(font_fdslikefont, FONT_FDSLIKE, "FDSesque");
+	initfont(font_fdsromanfont, FONT_FDSROMAN, "FDS Roman");
+	initfont(font_finalffont, FONT_FF, "FF");
+	initfont(font_futharkfont, FONT_FUTHARK, "Elder Futhark");
+	initfont(font_gaiafont, FONT_GAIA, "Gaia");
+	initfont(font_hirafont, FONT_HIRA, "Hira");
+	initfont(font_jpfont, FONT_JP, "JP Unsorted");
+	initfont(font_kongfont, FONT_KONG, "Kong");
+	initfont(font_manafont, FONT_MANA, "Mana");
+	initfont(font_mlfont, FONT_MARIOLAND, "Mario");
+	initfont(font_motfont, FONT_MOT, "Mot CPU");
+	initfont(font_msxmode0font, FONT_MSX0, "MSX Mode 0");
+	initfont(font_msxmode1font, FONT_MSX1, "MSX Mode 1");
+	initfont(font_petfont, FONT_PET, "PET");
+	initfont(font_pstartfont, FONT_PRESTRT, "Homebrew");
+	initfont(font_saturnfont, FONT_SATURN, "Mr. Saturn");
+	initfont(font_scififont, FONT_SCIFI, "Sci-Fi");
+	initfont(font_sherwoodfont, FONT_SHERWOOD, "Sherwood");
+	initfont(font_sinqlfont, FONT_SINQL, "Sinclair QL");
+	initfont(font_spectrumfont, FONT_SPEC, "Spectrum");
+	initfont(font_speclgfont, FONT_SPECLG, "Spectrum Large");
+	initfont(font_ti99font, FONT_TI99, "TI99");
+	initfont(font_trsfont, FONT_TRS, "TRS");
+	initfont(font_z2font, FONT_Z2, "Zelda 2");
+	initfont(font_zxfont, FONT_ZX, "ZX");
+	initfont(font_lisafont, FONT_LISA, "Lisa");
+	initfont(font_cv3, FONT_CV3, "CV 3");
+	initfont(font_ctrig, FONT_CTRIG, "Chrono");
+	initfont(font_bak, FONT_BAK, "Betrayal at Krondor");
+	initfont(font_gunstar, FONT_GUNSTAR, "Gunstar Heroes");
+	initfont(font_smw_credits, FONT_SMW_CREDITS, "SMW Credits");
+	initfont(font_wl4, FONT_WL4, "WLand 4");
+	initfont(font_bsz, FONT_BSZ, "BSZ");
+	initfont(font_bsz_prop, FONT_BSZ_PROP, "BSZ Proportional");
+	initfont(font_ff6, FONT_FF6, "FF6");
+	initfont(font_evo_eden, FONT_EVO_EDEN, "EVO Search for Eden");
+	initfont(font_smt, FONT_SMT, "SMT Font");
 	
 	font = a4fonts[font_nfont];
 	
 	memset(customfonts, 0, sizeof(customfonts));
 	memset(customfonts_a5, 0, sizeof(customfonts));
-	
+	bool fontfail = false;
 	for(int q = 0; q < font_max; ++q)
 	{
+		if(!a4fonts[q])
+		{
+			Z_error("Failed to load font '%s'!\n", msgfont_str[q].c_str());
+			fontfail = true;
+			continue;
+		}
 		BITMAP* bmp = get_font_bitmap(get_zc_font(q));
 		a5fonts[q] = __load_a5_font(bmp);
 		destroy_bitmap(bmp);
 	}
 	a5font = a5fonts[font_nfont];
+	
+	if(fontfail)
+	{
+		Z_error_fatal("Failed to load fonts.dat!\n");
+	}
 	
 	init_custom_fonts();
 }

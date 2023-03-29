@@ -31,7 +31,7 @@ void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter)
 	StringEditorDialog(ind, templateID, addAfter).show();
 }
 
-extern const char *msgfont_str[font_max];
+extern std::string msgfont_str[font_max];
 extern const char *shadowstyle_str[sstsMAX];
 
 GUI::ListData createShadowTypesListData()
@@ -48,7 +48,8 @@ GUI::ListData createShadowTypesListData()
 
 StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t addAfter)
 	: strIndex(ind), tmpMsgStr(MsgStrings[ind]),
-	list_font(GUI::ZCListData::fonts()),
+	list_font(GUI::ZCListData::fonts(false,true,true)),
+	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_nextstr(GUI::ListData::nullData()),
 	list_shtype(createShadowTypesListData()),
 	addAfter(addAfter)
@@ -82,7 +83,7 @@ Checkbox( \
 	{ \
 		SETFLAG(tmpMsgStr.member,bit,state); \
 	} \
-) \
+)
 
 #define DDL(member, lister) \
 DropDownList(data = lister, \
@@ -124,11 +125,13 @@ Button(forceFitH = true, text = "?", \
 
 static size_t stred_tab_1 = 0;
 static int32_t scroll_pos1 = 0;
+static bool sorted_fontdd = true;
 std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	using GUI::Props::indx;
+	sorted_fontdd = zc_get_config("zquest","stringed_sorted_font",1);
 	
 	char* start_text = encode_msg_str(tmpMsgStr.s);
 	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &stred_tab_1,
@@ -194,8 +197,17 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					})
 			),
 			Rows<2>(
-				DDL(font, list_font),
-				DummyWidget(),
+				font_dd = DDL(font, sorted_fontdd ? list_font : list_font_order),
+				Checkbox(
+					fitParent = true, text = "Font Sort",
+					checked = sorted_fontdd,
+					onToggleFunc = [&](bool state)
+					{
+						sorted_fontdd = !sorted_fontdd;
+						font_dd->setListData(sorted_fontdd ? list_font : list_font_order);
+						zc_set_config("zquest","stringed_sorted_font",sorted_fontdd?1:0);
+					}
+				),
 				nextstr_dd = DropDownList(data = list_nextstr,
 					fitParent = true,
 					selectedValue = MsgStrings[tmpMsgStr.nextstring].listpos,

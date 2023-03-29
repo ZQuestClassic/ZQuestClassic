@@ -1724,14 +1724,24 @@ DEFINE FONT_TI99         = 66;
 DEFINE FONT_TRS          = 67;
 DEFINE FONT_Z2           = 68;    //Zelda 2 plus custom lowercase.
 DEFINE FONT_LISA         = 69;    //Lisa OS System Font
+
 DEFINE FONT_NFONT        = 70;
 DEFINE FONT_S3           = 71;
 DEFINE FONT_CV3          = 72;
 DEFINE FONT_CHRONO       = 73;
 DEFINE FONT_NFONT2       = 74;
+DEFINE FONT_BAK          = 75;
+DEFINE FONT_GUNSTAR      = 76;
+DEFINE FONT_SMW_CREDITS  = 77;
+DEFINE FONT_WL4          = 78;
+DEFINE FONT_BSZ          = 79;
+DEFINE FONT_BSZ_PROP     = 80;
+DEFINE FONT_FF6          = 81;
+DEFINE FONT_EVO_EDEN     = 82;
+DEFINE FONT_SMT          = 83;
 
+DEFINE MAX_FONT = 83;
 DEFINE MIN_FONT = 0;
-DEFINE MAX_FONT = 74;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
 //Font heights, in pixels, for the above fonts:

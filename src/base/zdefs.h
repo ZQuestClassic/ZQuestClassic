@@ -3426,6 +3426,15 @@ enum
 	font_cv3,
 	font_ctrig,
 	font_nfont2,
+	font_bak,
+	font_gunstar,
+	font_smw_credits,
+	font_wl4,
+	font_bsz,
+	font_bsz_prop,
+	font_ff6,
+	font_evo_eden,
+	font_smt,
 
 	font_max
 };

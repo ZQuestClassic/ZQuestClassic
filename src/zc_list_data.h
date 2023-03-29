@@ -5,7 +5,7 @@
 
 namespace GUI::ZCListData
 {
-    GUI::ListData fonts(bool ss_fonts = false);
+    GUI::ListData fonts(bool ss_fonts, bool numbered = true, bool sorted = true);
     GUI::ListData shadow_types();
     GUI::ListData ss_counters();
     GUI::ListData const& alignments();

@@ -689,7 +689,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 		font_tab_ptr = is_compact ? 1 : 0;
 	
 	static GUI::ListData fontlist;
-	fontlist = GUI::ZCListData::fonts().filter(
+	fontlist = GUI::ZCListData::fonts(false,true,true).filter(
 		[](GUI::ListItem& itm)
 		{
 			return !isBrokenFont(itm.value);
