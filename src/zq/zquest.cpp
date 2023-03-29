@@ -11271,7 +11271,7 @@ void domouse()
 							replace(c);
 							break;
 							
-						case 10: // Follow Tile Warp
+						case 9: // Follow Tile Warp
 						{
 							if(warpindex>=4)
 							{
@@ -11303,7 +11303,7 @@ void domouse()
 							break;
 						}
 						
-						case 11: // Edit Tile Warp
+						case 10: // Edit Tile Warp
 						{
 							if(warpindex>=4)
 							{
@@ -11317,7 +11317,7 @@ void domouse()
 							break;
 						}
 						
-						case 13:
+						case 12:
 						{
 							ffdata tempdat;
 							tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
@@ -11328,7 +11328,7 @@ void domouse()
 						}
 						break;
 						
-						case 14:
+						case 13:
 						{
 							Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
 							Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
