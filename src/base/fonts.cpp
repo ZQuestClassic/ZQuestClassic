@@ -16,7 +16,7 @@ FONT    *nfont, *nfont2, *zfont, *z3font, *z3smallfont, *deffont, *lfont, *lfont
 		*coupefont, *cpcfont, *fantasyfont, *fdskanafont, *fdslikefont, *fdsromanfont, *finalffont,
 		*futharkfont, *gaiafont, *hirafont, *jpfont, *kongfont, *manafont, *mlfont, *motfont,
 		*msxmode0font, *msxmode1font, *petfont, *pstartfont, *saturnfont, *scififont, *sherwoodfont,
-		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont;
+		*sinqlfont, *spectrumfont, *speclgfont, *ti99font, *trsfont, *z2font, *zxfont, *lisafont, *cv3font, *ctrigfont;
 const char *msgfont_str[font_max] =
 {
 	"Zelda NES", "Link to the Past", "LttP Small", "Allegro Default", "GUI Font Bold", "GUI Font", "GUI Font Narrow", "Zelda NES (Matrix)", "BS Time (Incomplete)", "Small", "Small 2",
@@ -67,7 +67,9 @@ const char *msgfont_str[font_max] =
 	"ZX",
 	"Lisa",
 	"nfont",
-	"Small 3"
+	"Small 3",
+	"CV 3",
+	"Chrono"
 };
 
 const char *msgfont_int_str[font_max] =
@@ -145,7 +147,9 @@ const char *msgfont_int_str[font_max] =
 	"zxfont",
 	"lisafont",
 	"nfont",
-	"sfont3"
+	"sfont3",
+	"cv3font",
+	"ctrigfont"
 };
 
 const char *font_output_strs[] =
@@ -296,6 +300,8 @@ FONT *get_zc_font(int32_t index)
 		case font_lisafont: return lisafont;
 		case font_nfont: return nfont;
 		case font_sfont3: return sfont3;
+		case font_cv3: return cv3font;
+		case font_ctrig: return ctrigfont;
     }
 }
 
@@ -506,50 +512,52 @@ void initFonts()
 	gboraclepfont = (FONT*)fontsdata[FONT_GB_ORACLE_P].dat;
 	dsphantomfont = (FONT*)fontsdata[FONT_DS_PHANTOM].dat;
 	dsphantompfont = (FONT*)fontsdata[FONT_DS_PHANTOM_P].dat;
-	atari800font=(FONT*)fontsdata[FONT_ZZ_ATARU800].dat;  
-	acornfont=(FONT*)fontsdata[FONT_ZZ_ACORN].dat;  
-	adosfont=(FONT*)fontsdata[FONT_ZZ_ADOS].dat;  
-	baseallegrofont=(FONT*)fontsdata[FONT_ZZ_ALLEGRO].dat;  
-	apple2font=(FONT*)fontsdata[FONT_ZZ_APPLE2].dat;  
-	apple280colfont=(FONT*)fontsdata[FONT_ZZ_APPLE280].dat;  
-	apple2gsfont=(FONT*)fontsdata[FONT_ZZ_APPLE2GS].dat;
-	aquariusfont=(FONT*)fontsdata[FONT_ZZ_AQUA].dat;  
-	atari400font=(FONT*)fontsdata[FONT_ZZ_ATARI400].dat;  
-	c64font=(FONT*)fontsdata[FONT_ZZ_C64].dat;  
-	c64hiresfont=(FONT*)fontsdata[FONT_ZZ_C64HI].dat;  
-	cgafont=(FONT*)fontsdata[FONT_ZZ_CGA].dat;  
-	cocofont=(FONT*)fontsdata[FONT_ZZ_COCO].dat; 
-	coco2font=(FONT*)fontsdata[FONT_ZZ_COCO2].dat;
-	coupefont=(FONT*)fontsdata[FONT_ZZ_COUPE].dat;  
-	cpcfont=(FONT*)fontsdata[FONT_ZZ_CPC].dat;  
-	fantasyfont=(FONT*)fontsdata[FONT_ZZ_FANTASY].dat;  
-	fdskanafont=(FONT*)fontsdata[FONT_ZZ_FDS_KANA].dat;  
-	fdslikefont=(FONT*)fontsdata[FONT_ZZ_FDSLIKE].dat;  
-	fdsromanfont=(FONT*)fontsdata[FONT_ZZ_FDSROMAN].dat;  
-	finalffont=(FONT*)fontsdata[FONT_ZZ_FF].dat;
-	futharkfont=(FONT*)fontsdata[FONT_ZZ_FUTHARK].dat;  
-	gaiafont=(FONT*)fontsdata[FONT_ZZ_GAIA].dat;  
-	hirafont=(FONT*)fontsdata[FONT_ZZ_HIRA].dat;  
-	jpfont=(FONT*)fontsdata[FONT_ZZ_JP].dat;  
-	kongfont=(FONT*)fontsdata[FONT_ZZ_KONG].dat;  
-	manafont=(FONT*)fontsdata[FONT_ZZ_MANA].dat;  
-	mlfont=(FONT*)fontsdata[FONT_ZZ_MARIOLAND].dat;  
-	motfont=(FONT*)fontsdata[FONT_ZZ_MOT].dat;
-	msxmode0font=(FONT*)fontsdata[FONT_ZZ_MSX0].dat;  
-	msxmode1font=(FONT*)fontsdata[FONT_ZZ_MSX1].dat;  
-	petfont=(FONT*)fontsdata[FONT_ZZ_PET].dat;  
-	pstartfont=(FONT*)fontsdata[FONT_ZZ_PRESTRT].dat;  
-	saturnfont=(FONT*)fontsdata[FONT_ZZ_SATURN].dat;  
-	scififont=(FONT*)fontsdata[FONT_ZZ_SCIFI].dat;  
-	sherwoodfont=(FONT*)fontsdata[FONT_ZZ_SHERWOOD].dat;
-	sinqlfont=(FONT*)fontsdata[FONT_ZZ_SINQL].dat;  
-	spectrumfont=(FONT*)fontsdata[FONT_ZZ_SPEC].dat;  
-	speclgfont=(FONT*)fontsdata[FONT_ZZ_SPECLG].dat;  
-	ti99font=(FONT*)fontsdata[FONT_ZZ_TI99].dat;  
-	trsfont=(FONT*)fontsdata[FONT_ZZ_TRS].dat;  
-	z2font=(FONT*)fontsdata[FONT_ZZ_ZELDA2].dat;  
-	zxfont=(FONT*)fontsdata[FONT_ZZ_ZX].dat; 
-	lisafont=(FONT*)fontsdata[FONT_ZZZ_LISA].dat;
+	atari800font=(FONT*)fontsdata[FONT_A80080C].dat;
+	acornfont=(FONT*)fontsdata[FONT_ACORN].dat;
+	adosfont=(FONT*)fontsdata[FONT_ADOS].dat;
+	baseallegrofont=(FONT*)fontsdata[FONT_ALLEGRO].dat;
+	apple2font=(FONT*)fontsdata[FONT_APPLE2].dat;
+	apple280colfont=(FONT*)fontsdata[FONT_APPLE280].dat;
+	apple2gsfont=(FONT*)fontsdata[FONT_APPLE2GS].dat;
+	aquariusfont=(FONT*)fontsdata[FONT_AQUA].dat;
+	atari400font=(FONT*)fontsdata[FONT_ATARI400].dat;
+	c64font=(FONT*)fontsdata[FONT_C64].dat;
+	c64hiresfont=(FONT*)fontsdata[FONT_C64HR].dat;
+	cgafont=(FONT*)fontsdata[FONT_CGA].dat;
+	cocofont=(FONT*)fontsdata[FONT_COCO].dat;
+	coco2font=(FONT*)fontsdata[FONT_COCO2].dat;
+	coupefont=(FONT*)fontsdata[FONT_COUPE].dat;
+	cpcfont=(FONT*)fontsdata[FONT_CPC].dat;
+	fantasyfont=(FONT*)fontsdata[FONT_FANTASY].dat;
+	fdskanafont=(FONT*)fontsdata[FONT_FDS_KANA].dat;
+	fdslikefont=(FONT*)fontsdata[FONT_FDSLIKE].dat;
+	fdsromanfont=(FONT*)fontsdata[FONT_FDSROMAN].dat;
+	finalffont=(FONT*)fontsdata[FONT_FF].dat;
+	futharkfont=(FONT*)fontsdata[FONT_FUTHARK].dat;
+	gaiafont=(FONT*)fontsdata[FONT_GAIA].dat;
+	hirafont=(FONT*)fontsdata[FONT_HIRA].dat;
+	jpfont=(FONT*)fontsdata[FONT_JP].dat;
+	kongfont=(FONT*)fontsdata[FONT_KONG].dat;
+	manafont=(FONT*)fontsdata[FONT_MANA].dat;
+	mlfont=(FONT*)fontsdata[FONT_MARIOLAND].dat;
+	motfont=(FONT*)fontsdata[FONT_MOT].dat;
+	msxmode0font=(FONT*)fontsdata[FONT_MSX0].dat;
+	msxmode1font=(FONT*)fontsdata[FONT_MSX1].dat;
+	petfont=(FONT*)fontsdata[FONT_PET].dat;
+	pstartfont=(FONT*)fontsdata[FONT_PRESTRT].dat;
+	saturnfont=(FONT*)fontsdata[FONT_SATURN].dat;
+	scififont=(FONT*)fontsdata[FONT_SCIFI].dat;
+	sherwoodfont=(FONT*)fontsdata[FONT_SHERWOOD].dat;
+	sinqlfont=(FONT*)fontsdata[FONT_SINQL].dat;
+	spectrumfont=(FONT*)fontsdata[FONT_SPEC].dat;
+	speclgfont=(FONT*)fontsdata[FONT_SPECLG].dat;
+	ti99font=(FONT*)fontsdata[FONT_TI99].dat;
+	trsfont=(FONT*)fontsdata[FONT_TRS].dat;
+	z2font=(FONT*)fontsdata[FONT_Z2].dat;
+	zxfont=(FONT*)fontsdata[FONT_ZX].dat;
+	lisafont=(FONT*)fontsdata[FONT_LISA].dat;
+	cv3font=(FONT*)fontsdata[FONT_CV3].dat;
+	ctrigfont=(FONT*)fontsdata[FONT_CTRIG].dat;
 	memset(customfonts, 0, sizeof(customfonts));
 	memset(customfonts_a5, 0, sizeof(customfonts));
 	

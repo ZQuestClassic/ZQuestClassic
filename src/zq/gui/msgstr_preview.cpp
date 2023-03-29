@@ -12,7 +12,6 @@ extern char namebuf[9];
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 void init_msgstr(MsgStr *str);
-FONT* getfont(int32_t fonta);
 std::string parse_msg_str(std::string const& s);
 void strip_trailing_spaces(std::string& str);
 word grab_next_argument(std::string const& s2, uint32_t* i);
@@ -48,7 +47,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int32_t msgtile = str->tile;
 	int32_t msgcset = str->cset;
 	
-	FONT *workfont = getfont(str->font);
+	FONT *workfont = get_zc_font(str->font);
 	
 	std::string s2 = parse_msg_str(s);
 	strip_trailing_spaces(s2);
@@ -315,7 +314,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 			&& MsgStrings[nextstring].stringflags & STRINGFLAG_CONT)
 		{
 			str = &MsgStrings[nextstring];
-			workfont = getfont(str->font);
+			workfont = get_zc_font(str->font);
 			
 			s2 = str->s;
 			strip_trailing_spaces(s2);

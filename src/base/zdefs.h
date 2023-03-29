@@ -3423,6 +3423,8 @@ enum
 	font_lisafont,
 	font_nfont,
 	font_sfont3,
+	font_cv3,
+	font_ctrig,
 
 	font_max
 };

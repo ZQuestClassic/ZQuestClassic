@@ -10,9 +10,6 @@
 extern miscQdata misc;
 #define QMisc misc
 
-//zq_strings.cpp
-FONT* getfont(int32_t fonta);
-
 void printobj(subscreen_object const& obj)
 {
 	zprint2("PRINTOUT--:\n");
