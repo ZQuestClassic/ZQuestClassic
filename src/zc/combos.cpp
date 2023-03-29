@@ -2704,10 +2704,11 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					triggering_generic_secrets = true;
 					hidden_entrance(0, true, false, -6);
 					triggering_generic_secrets = false;
+					if(tmpscr->secretsfx)
+						sfx(tmpscr->secretsfx);
 				}
 				if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
 					setmapflag(mSECRET);
-				sfx(tmpscr->secretsfx);
 			}
 			
 			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
