@@ -30451,7 +30451,7 @@ int32_t main(int32_t argc,char **argv)
 	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
-	AutoBrush = zc_get_config("zquest","autobrush",0);
+	AutoBrush = zc_get_config("zquest","autobrush",1);
 	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
