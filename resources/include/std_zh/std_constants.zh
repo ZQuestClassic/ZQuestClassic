@@ -1726,12 +1726,16 @@ DEFINE FONT_Z2           = 68;    //Zelda 2 plus custom lowercase.
 DEFINE FONT_LISA         = 69;    //Lisa OS System Font
 DEFINE FONT_NFONT        = 70;
 DEFINE FONT_S3           = 71;
+DEFINE FONT_CV3          = 72;
+DEFINE FONT_CHRONO       = 73;
+DEFINE FONT_NFONT2       = 74;
 
 DEFINE MIN_FONT = 0;
-DEFINE MAX_FONT = FONT_S3;
+DEFINE MAX_FONT = 74;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
 //Font heights, in pixels, for the above fonts:
+//You should use 'Text->FontHeight(font)' to calculate this, not use constants...
 define FONT_Z1_HEIGHT = 8;
 define FONT_Z3_HEIGHT = 16;
 define FONT_Z3SMALL_HEIGHT = 6;
