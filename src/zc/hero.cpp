@@ -20926,7 +20926,7 @@ void HeroClass::checkspecial()
 			for(auto pos = 0; pos < 176; ++pos)
 			{
 				newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
-				if(cmb.triggerflags[2] & combotriggerKILLENEMIES)
+				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
 					do_trigger_combo(lyr,pos);
 				}
@@ -20937,7 +20937,7 @@ void HeroClass::checkspecial()
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
 			newcombo const& cmb = combobuf[ffc.getData()];
-			if(cmb.triggerflags[2] & combotriggerKILLENEMIES)
+			if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 			{
 				do_trigger_combo_ffc(i);
 			}

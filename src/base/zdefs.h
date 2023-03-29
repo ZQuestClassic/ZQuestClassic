@@ -1422,7 +1422,7 @@ enum
 #define combotriggerEXSTITEM       0x00100000
 #define combotriggerEXSTENEMY      0x00200000
 #define combotriggerAUTOGRABITEM   0x00400000
-#define combotriggerKILLENEMIES    0x00800000
+#define combotriggerENEMIESKILLED  0x00800000
 #define combotriggerSECRETSTR      0x01000000
 #define combotriggerTHROWN         0x02000000
 #define combotriggerQUAKESTUN      0x04000000
@@ -1432,11 +1432,15 @@ enum
 #define combotriggerMAGICFIRE      0x40000000
 #define combotriggerDIVINEFIRE     0x80000000
 
-//triggerflags[2]
+//triggerflags[3]
 #define combotriggerTRIGLEVELSTATE      0x00000001
 #define combotriggerLEVELSTATE          0x00000002
 #define combotriggerTRIGGLOBALSTATE     0x00000004
 #define combotriggerGLOBALSTATE         0x00000008
+#define combotriggerKILLENEMIES         0x00000010
+#define combotriggerCLEARENEMIES        0x00000020
+#define combotriggerCLEARLWEAPONS       0x00000040
+#define combotriggerCLEAREWEAPONS       0x00000080
 
 #define ctrigNONE          0x00
 #define ctrigIGNORE_SIGN   0x01

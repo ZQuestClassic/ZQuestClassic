@@ -2595,7 +2595,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(30, "Kill Triggering Weapon"),
 							INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
 								" (by any trigger effect), the new combo is the one that resets."),
-							TRIGFLAG(18,"Reset Anim")
+							TRIGFLAG(18,"Reset Anim"),
+							INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+							TRIGFLAG(100, "Kill Enemies"),
+							INFOBTN("Delete all enemies on screen."),
+							TRIGFLAG(101, "Clear Enemies"),
+							INFOBTN("Delete all LWeapons on screen."),
+							TRIGFLAG(102, "Clear LWeapons"),
+							INFOBTN("Delete all EWeapons on screen."),
+							TRIGFLAG(103, "Clear EWeapons")
 						),
 						Column(padding = 0_px,
 							Rows<3>(framed = true, hAlign = 0.0,

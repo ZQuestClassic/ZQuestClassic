@@ -2769,6 +2769,15 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 			if(cmb.trigsfx)
 				sfx(cmb.trigsfx, pan(COMBOX(pos)));
 			
+			if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
+				kill_em_all();
+			if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
+				guys.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
+				Lwpns.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
+				Ewpns.clear(true);
+			
 			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
 			{
 				takeitem(cmb.triggeritem);
