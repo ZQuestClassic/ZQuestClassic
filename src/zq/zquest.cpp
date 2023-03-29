@@ -582,6 +582,7 @@ int32_t ComboBrush = 0;                                             //show the b
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 int AutoBrush = 0; //Drag to size the brush on the combo panes
+int LinkedScroll = 0;
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
 //open at the time you quit
@@ -6266,6 +6267,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(draw_mode==dm_alias)
 			{
+				if(LinkedScroll)
+				{
+					int tmp = current_comboalist;
+					for(int q = tmp-1; q >= 0; --q)
+					{
+						combo_alistpos[q] = combo_alistpos[q+1]-(comboaliaslist[q].w*comboaliaslist[q].h);
+						if(combo_alistpos[q] < 0)
+						{
+							tmp = 0;
+							combo_alistpos[0] = 0;
+							break;
+						}
+					}
+					for(int q = tmp+1; q < num_combo_cols; ++q)
+						combo_alistpos[q] = combo_alistpos[q-1]+(comboaliaslist[q-1].w*comboaliaslist[q-1].h);
+					for(int q = 0; q < num_combo_cols; ++q)
+						if(combo_apos >= combo_alistpos[q] && combo_apos < combo_alistpos[q] + (comboaliaslist[q].w*comboaliaslist[q].h))
+						{
+							current_comboalist = q;
+							break;
+						}
+				}
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = comboaliaslist[c];
@@ -6321,6 +6344,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			}
 			else if(draw_mode==dm_cpool)
 			{
+				if(LinkedScroll)
+				{
+					int tmp = current_cpoollist;
+					for(int q = tmp-1; q >= 0; --q)
+					{
+						combo_pool_listpos[q] = combo_pool_listpos[q+1]-(comboaliaslist[q].w*comboaliaslist[q].h);
+						if(combo_pool_listpos[q] < 0)
+						{
+							tmp = 0;
+							combo_pool_listpos[0] = 0;
+							break;
+						}
+					}
+					for(int q = tmp+1; q < num_combo_cols; ++q)
+						combo_pool_listpos[q] = combo_pool_listpos[q-1]+(comboaliaslist[q-1].w*comboaliaslist[q-1].h);
+					for(int q = 0; q < num_combo_cols; ++q)
+						if(combo_pool_pos >= combo_pool_listpos[q] && combo_pool_pos < combo_pool_listpos[q] + (comboaliaslist[q].w*comboaliaslist[q].h))
+						{
+							current_cpoollist = q;
+							break;
+						}
+				}
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = comboaliaslist[c];
@@ -6405,6 +6450,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			}
 			else
 			{
+				if(LinkedScroll)
+				{
+					int tmp = current_combolist;
+					for(int q = tmp-1; q >= 0; --q)
+					{
+						First[q] = First[q+1]-(combolist[q].w*combolist[q].h);
+						if(First[q] < 0)
+						{
+							tmp = 0;
+							First[0] = 0;
+							break;
+						}
+					}
+					for(int q = tmp+1; q < num_combo_cols; ++q)
+						First[q] = First[q-1]+(combolist[q-1].w*combolist[q-1].h);
+					for(int q = 0; q < num_combo_cols; ++q)
+						if(Combo >= First[q] && Combo < First[q] + (combolist[q].w*combolist[q].h))
+						{
+							current_combolist = q;
+							break;
+						}
+				}
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = combolist[c];
@@ -9450,16 +9517,26 @@ static MENU draw_ffc_rc_menu[] =
     { NULL,                          NULL,  NULL,              0, NULL }
 };
 
+int toggle_linked_scrolling();
 static MENU combosel_rc_menu[] =
 {
-    { (char *)"Edit Combo",         NULL,  NULL, 0, NULL },
-    { (char *)"Open Combo Page",    NULL,  NULL, 0, NULL },
-    { (char *)"Open Tile Page",     NULL,  NULL, 0, NULL },
-    { (char *)"Combo Locations",    NULL,  NULL, 0, NULL },
-    { (char *)"",                   NULL,  NULL, 0, NULL },
-    { (char *)"Scroll to Page...",      NULL,  NULL, 0, NULL },
-    { NULL,                         NULL,  NULL, 0, NULL }
+    { (char *)"Edit Combo",         NULL,                     NULL, 0, NULL },
+    { (char *)"Open Combo Page",    NULL,                     NULL, 0, NULL },
+    { (char *)"Open Tile Page",     NULL,                     NULL, 0, NULL },
+    { (char *)"Combo Locations",    NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+    //5
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
 };
+int toggle_linked_scrolling()
+{
+	LinkedScroll = LinkedScroll ? 0 : 1;
+	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
+	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
+	return D_O_K;
+}
 
 static MENU fav_cmb_rc_menu[] =
 {
@@ -30390,6 +30467,7 @@ int32_t main(int32_t argc,char **argv)
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
 	AutoBrush = zc_get_config("zquest","autobrush",0);
+	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
@@ -31050,6 +31128,7 @@ int32_t main(int32_t argc,char **argv)
 	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
 	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
 	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
+	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
 	
 	init_ffpos();
 	
