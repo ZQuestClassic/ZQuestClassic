@@ -520,12 +520,6 @@ int32_t toggleConsole()
 	return D_O_K;
 }
 
-typedef struct map_and_screen
-{
-    int32_t map;
-    int32_t screen;
-} map_and_screen;
-
 typedef int32_t (*intF)();
 typedef struct command_pair
 {
@@ -535,17 +529,10 @@ typedef struct command_pair
 } command_pair;
 
 extern command_pair commands[cmdMAX];
-
-map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+extern map_and_screen map_page[MAX_MAPPAGE_BTNS];
 
 int32_t do_OpenQuest()
 {
-	//clear the panel recent screen buttons to prevent crashes from invalid maps
-	for ( int32_t q = 0; q < 9; q++ )
-	{
-		map_page[q].map = 0;
-		map_page[q].screen = 0;
-	}
 	return onOpen();
 }
 
@@ -563,7 +550,7 @@ static int32_t do_NewQuest()
 }
 
 int32_t alignment_arrow_timer=0;
-int32_t  Flip=0,Combo=0,CSet=2,First[MAX_COMBO_COLS]= {0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
+int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, CmbCursorCol = 0,
 	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
@@ -628,13 +615,11 @@ int32_t gui_colorset=99;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 static int32_t combo_apos=0; //currently selected combo alias
-static int32_t combo_alistpos[4]= {0,0,0,0}; //first displayed combo alias
 int32_t alias_origin=0;
 int32_t alias_cset_mod=0;
 
 combo_pool combo_pools[MAXCOMBOPOOLS];
 static int32_t combo_pool_pos=0; //currently selected combo pool
-static int32_t combo_pool_listpos[4]= {0,0,0,0}; //first displayed combo pool
 bool weighted_cpool = true;
 bool cpool_prev_visible = false;
 

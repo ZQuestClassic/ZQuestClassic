@@ -58,6 +58,9 @@ static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
 
+int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0};
+map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
+
 #ifdef _MSC_VER
 	#define strncasecmp _strnicmp
 #endif
@@ -21047,6 +21050,9 @@ int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
             favorite_combos[i]=temp_num;
         }
     }
+	if(keepdata)
+		for(int q = num_favorite_combos; q < MAXFAVORITECOMBOS; ++q)
+			favorite_combos[q] = -1;
     
     if(!p_igetw(&num_favorite_combo_aliases,f,true))
     {
@@ -21065,7 +21071,60 @@ int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
             favorite_comboaliases[i]=temp_num;
         }
     }
+	if(keepdata)
+		for(int q = num_favorite_combo_aliases; q < MAXFAVORITECOMBOALIASES; ++q)
+			favorite_comboaliases[q] = -1;
     
+	word max_combo_cols = 0;
+	word max_mappages = 0;
+	if(s_version > 1)
+	{
+		if(!p_igetw(&max_combo_cols,f,true))
+			return qe_invalid;
+		int32_t tmp = 0, tmp2 = 0, tmp3 = 0;
+		for(int q = 0; q < max_combo_cols; ++q)
+		{
+			if(!p_igetl(&tmp,f,true))
+				return qe_invalid;
+			if(!p_igetl(&tmp2,f,true))
+				return qe_invalid;
+			if(!p_igetl(&tmp3,f,true))
+				return qe_invalid;
+			if(keepdata && q < MAX_COMBO_COLS)
+			{
+				First[q] = tmp;
+				combo_alistpos[q] = tmp2;
+				combo_pool_listpos[q] = tmp3;
+			}
+		}
+		
+		if(!p_igetw(&max_mappages,f,true))
+			return qe_invalid;
+		for(int q = 0; q < max_mappages; ++q)
+		{
+			if(!p_igetl(&tmp,f,true))
+				return qe_invalid;
+			if(!p_igetl(&tmp2,f,true))
+				return qe_invalid;
+			if(keepdata && q < MAX_MAPPAGE_BTNS)
+			{
+				map_page[q].map = tmp;
+				map_page[q].screen = tmp2;
+			}
+		}
+	}
+	for(int q = max_combo_cols; q < MAX_COMBO_COLS; ++q)
+	{
+		First[q] = 0;
+		combo_alistpos[q] = 0;
+		combo_pool_listpos[q] = 0;
+	}
+	for(int q = max_mappages; q < MAX_MAPPAGE_BTNS; ++q)
+	{
+		map_page[q].map = 0;
+		map_page[q].screen = 0;
+	}
+	
     return 0;
 }
 

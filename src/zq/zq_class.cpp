@@ -13904,38 +13904,61 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
         
         //section size
         if(!p_iputl(section_size,f))
-        {
             new_return(4);
-        }
         
         writesize=0;
         
+		word favcmb_cnt = 0;
+		for(int q = MAXFAVORITECOMBOS; q >= 0; --q)
+			if(favorite_combos[q] != -1)
+			{
+				favcmb_cnt = q;
+				break;
+			}
         //finally...  section data
-        if(!p_iputw(MAXFAVORITECOMBOS,f)) // This'll probably never change, huh?
-        {
+        if(!p_iputw(favcmb_cnt,f)) // This'll probably never change, huh?
             new_return(5);
-        }
         
-        for(int32_t i=0; i<MAXFAVORITECOMBOS; i++)
-        {
+        for(int i=0; i<favcmb_cnt; ++i)
             if(!p_iputl(favorite_combos[i],f))
-            {
                 new_return(6);
-            }
-        }
         
-        if(!p_iputw(MAXFAVORITECOMBOALIASES,f))
-        {
+		word favcmb_al_cnt = 0;
+		for(int q = MAXFAVORITECOMBOALIASES; q >= 0; --q)
+			if(favorite_comboaliases[q]!=-1)
+			{
+				favcmb_al_cnt = q;
+				break;
+			}
+        if(!p_iputw(favcmb_al_cnt,f))
             new_return(7);
-        }
         
-        for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; i++)
-        {
+        for(int32_t i=0; i<favcmb_al_cnt; ++i)
             if(!p_iputl(favorite_comboaliases[i],f))
-            {
                 new_return(8);
-            }
-        }
+		
+		word max_combo_cols = MAX_COMBO_COLS;
+		if(!p_iputw(max_combo_cols,f))
+			new_return(9);
+		for(int q = 0; q < max_combo_cols; ++q)
+		{
+			if(!p_iputl(First[q],f))
+				new_return(10);
+			if(!p_iputl(combo_alistpos[q],f))
+				new_return(11);
+			if(!p_iputl(combo_pool_listpos[q],f))
+				new_return(12);
+		}
+		word max_mappages = MAX_MAPPAGE_BTNS;
+		if(!p_iputw(max_mappages,f))
+			new_return(13);
+		for(int q = 0; q < max_mappages; ++q)
+		{
+			if(!p_iputl(map_page[q].map,f))
+				new_return(14);
+			if(!p_iputl(map_page[q].screen,f))
+				new_return(15);
+		}
         
         if(writecycle==0)
         {

@@ -150,9 +150,8 @@ extern bool combo_cols;
 extern bool zoomed_minimap;
 
 
-#define MAX_COMBO_COLS 4
 extern int32_t alignment_arrow_timer;
-extern int32_t  Flip,Combo,CSet,First[MAX_COMBO_COLS];
+extern int32_t  Flip,Combo,CSet;
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;

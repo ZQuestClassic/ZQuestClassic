@@ -303,7 +303,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
-#define V_FAVORITES        1
+#define V_FAVORITES        2
 
 #define V_COMPATRULE       38
 #define V_ZINFO            3
@@ -496,10 +496,10 @@ extern volatile bool close_button_quit;
 #define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 64
-#define MAXFAVORITECOMBOS 200
+#define MAXFAVORITECOMBOS 300
 #define MAXFAVORITECOMBOALIASES MAXFAVORITECOMBOS
 
-#define FAVORITECOMBO_PER_ROW 17
+#define FAVORITECOMBO_PER_ROW 30
 
 #define PALNAMESIZE     17
 // mapscr "valid" byte

@@ -119,6 +119,15 @@ extern std::map<int32_t, script_slot_data > screenmap;
 extern std::map<int32_t, script_slot_data > itemspritemap;
 extern std::map<int32_t, script_slot_data > comboscriptmap;
 
+#define MAX_COMBO_COLS 4
+extern int32_t First[MAX_COMBO_COLS],combo_alistpos[MAX_COMBO_COLS],combo_pool_listpos[MAX_COMBO_COLS];
+typedef struct map_and_screen
+{
+    int32_t map;
+    int32_t screen;
+} map_and_screen;
+#define MAX_MAPPAGE_BTNS 9
+extern map_and_screen map_page[MAX_MAPPAGE_BTNS];
 // define these in main code
 //extern bool init_tiles(bool validate);
 //extern bool init_combos(bool validate);
