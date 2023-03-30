@@ -49,7 +49,7 @@ bool hasCTypeEffects(int32_t type)
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
-		case cSHOOTER:
+		case cSHOOTER: case cCUTSCENETRIG:
 		case cSAVE: case cSAVE2:
 			return true;
 	}
@@ -475,6 +475,10 @@ std::string getComboTypeHelpText(int32_t id)
 		case cBSGRAVE:
 			typehelp = "When touched, this combo produces a Ghini and changes to the next combo in the list."
 				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+			break;
+		case cCUTSCENETRIG:
+			typehelp = "When triggered with ComboType Effects, either stops an active cutscene, or"
+				" sets the active cutscene rules.";
 			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
@@ -1327,6 +1331,25 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[3] = "How many shots (min 1) to fire";
 				l_attribute[3] = "Shot Spread";
 				h_attribute[3] = "Angle (in degrees) between each weapon (0 to 360)";
+			}
+			break;
+		}
+		case cCUTSCENETRIG:
+		{
+			l_flag[0] = "End Cutscene";
+			h_flag[0] = "If checked, triggering this combo with ComboType Effects will end any active cutscene.";
+			if(!FL(cflag1))
+			{
+				l_flag[1] = "Disable F6";
+				h_flag[1] = "The cutscene activated by this combo will not allow F6";
+				l_attribute[0] = "Allowed Buttons";
+				h_attribute[0] = "A bitwise flagset of the buttons that are allowed. Accessed *in LONG ENTRY MODE*:"
+					"\nUp=1,Down=2,Left=4,Right=8,A=16,B=32,Start=64,L=128,"
+					"\nR=256,Map=512,Ex1=1024,Ex2=2048,Ex3=4096,Ex4=8192,"
+					"\nStickUp=16384,StickDown=32768,StickLeft=65536,StickRight=131072"
+					"\nAdd the values of whichever buttons you would like to ALLOW during the cutscene.";
+				l_attribyte[0] = "Error SFX";
+				h_attribyte[0] = "If >0, SFX played when trying to press a disabled button";
 			}
 			break;
 		}

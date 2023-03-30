@@ -34,6 +34,7 @@ bool hasComboWizard(int32_t type)
 		// case cTRIGGERGENERIC: case cCSWITCH: case cSIGNPOST:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
+		case cCUTSCENETRIG:
 		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
@@ -340,6 +341,14 @@ void ComboWizardDialog::update(bool first)
 				rset[3][2]->setDisabled(rad2 != 1);
 				btns[2]->setDisabled(rad2 != 1);
 			}
+			break;
+		}
+		case cCUTSCENETRIG:
+		{
+			bool ending = (local_ref.usrflags & cflag1);
+			cboxes[1]->setDisabled(ending);
+			grids[0]->setDisabled(ending);
+			ddls[0]->setDisabled(ending);
 			break;
 		}
 	}
@@ -708,6 +717,17 @@ void ComboWizardDialog::endUpdate()
 			}
 			break;
 		}
+		case cCUTSCENETRIG:
+		{
+			bool ending = (local_ref.usrflags & cflag1);
+			if(ending)
+			{
+				local_ref.attributes[0] = 0;
+				local_ref.attribytes[0] = 0;
+				SETFLAG(local_ref.usrflags,cflag2,false);
+			}
+			break;
+		}
 	}
 }
 #define IH_BTN(hei, inf) \
@@ -841,6 +861,8 @@ void combo_default(newcombo& ref, bool typeonly)
 			[[fallthrough]];
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
 			break;
+		case cCUTSCENETRIG:
+			break;
 		//
 	}
 }
@@ -908,6 +930,64 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							warp_sfx = val;
 						}),
 					INFOBTN("SFX to play during the warp")
+				)
+			);
+			break;
+		}
+		case cCUTSCENETRIG:
+		{
+			byte& errsfx = local_ref.attribytes[0];
+			grids[0] = Columns<7>();
+			static char* btn_names[] = {"Up","Down","Left","Right","A","B","Start","L","R","Map","Ex1","Ex2","Ex3","Ex4","StickUp","StickDown","StickLeft","StickRight"};
+			for(int q = 0; q < 18; ++q)
+			{
+				grids[0]->add(Checkbox(
+					text = btn_names[q], hAlign = 0.0,
+					checked = (local_ref.attributes[0]&(1<<q)),
+					onToggleFunc = [&,q](bool state)
+					{
+						SETFLAG(local_ref.attributes[0],(1<<q),state);
+					}
+				));
+			}
+			windowRow->add(
+				Column(
+					Rows<3>(
+						cboxes[0] = Checkbox(
+								text = "End Cutscene", hAlign = 0.0,
+								checked = (local_ref.usrflags&cflag1),
+								colSpan = 2,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag1,state);
+								}
+							),
+						INFOBTN("If checked, triggering this combo with ComboType Effects will end any active cutscene."),
+						//
+						cboxes[1] = Checkbox(
+								text = "Disable F6", hAlign = 0.0,
+								checked = (local_ref.usrflags&cflag2),
+								colSpan = 2,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_ref.usrflags,cflag2,state);
+								}
+							),
+						INFOBTN("The cutscene activated by this combo will not allow F6"),
+						//
+						Label(text = "Error SFX:"),
+						ddls[0] = DropDownList(data = parent.list_sfx,
+							selectedValue = errsfx,
+							onSelectFunc = [&](int32_t val)
+							{
+								errsfx = val;
+							}),
+						INFOBTN("The SFX to play when pressing a disabled button"),
+						//
+						Label(text = "Allowed Buttons", colSpan = 2),
+						INFOBTN("The following buttons will be ALLOWED during the cutscene.")
+					),
+					grids[0]
 				)
 			);
 			break;

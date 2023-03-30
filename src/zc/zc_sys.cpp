@@ -63,6 +63,7 @@
 #include "ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
+#include "combos.h"
 #include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
@@ -7119,17 +7120,21 @@ int32_t onTryQuit(bool inMenu)
 {
 	if(Playing && !(GameFlags & GAMEFLAG_NO_F6))
 	{
-		if(get_bit(quest_rules,qr_OLD_F6))
+		if(active_cutscene.can_f6())
 		{
-			if(inMenu) onQuit();
-			else /*if(!get_bit(quest_rules, qr_NOCONTINUE))*/ f_Quit(qQUIT);
+			if(get_bit(quest_rules,qr_OLD_F6))
+			{
+				if(inMenu) onQuit();
+				else /*if(!get_bit(quest_rules, qr_NOCONTINUE))*/ f_Quit(qQUIT);
+			}
+			else
+			{
+				disableClickToFreeze=false;
+				GameFlags |= GAMEFLAG_TRYQUIT;
+			}
+			return D_CLOSE;
 		}
-		else
-		{
-			disableClickToFreeze=false;
-			GameFlags |= GAMEFLAG_TRYQUIT;
-		}
-		return D_CLOSE;
+		else active_cutscene.error();
 	}
 	
 	return D_O_K;
@@ -9139,6 +9144,15 @@ void load_control_state()
 			raw_control_state[17] = false;
 			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
+		bool did_bad_cutscene_btn = false;
+		for(int q = 0; q < 18; ++q)
+			if(raw_control_state[q] && !active_cutscene.can_button(q))
+			{
+				raw_control_state[q] = false;
+				did_bad_cutscene_btn = true;
+			}
+		if(did_bad_cutscene_btn)
+			active_cutscene.error();
 	}
 	if (replay_is_active())
 	{

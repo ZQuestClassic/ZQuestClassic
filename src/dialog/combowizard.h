@@ -40,6 +40,7 @@ private:
 	std::shared_ptr<GUI::SelComboSwatch> cmbswatches[3];
 	std::shared_ptr<GUI::Frame> frames[10];
 	std::shared_ptr<GUI::Radio> rset[10][10];
+	std::shared_ptr<GUI::Grid> grids[10];
 	size_t rs_sz[10];
 	
 	GUI::ListData lists[10];

@@ -844,7 +844,7 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK, cSHOOTER, cSLOPE,
+	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 

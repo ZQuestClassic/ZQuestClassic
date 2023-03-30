@@ -215,9 +215,13 @@ void ScrollingPane::applyVisibility(bool visible)
 	if(alDialog) alDialog.applyVisibility(visible);
 	if(content)
 	{
-		START_CLIP(alDialog);
-		content->applyVisibility(visible);
-		END_CLIP();
+		if (screen)
+		{
+			START_CLIP(alDialog);
+			content->applyVisibility(visible);
+			END_CLIP();
+		}
+		else content->applyVisibility(visible);
 	}
 }
 

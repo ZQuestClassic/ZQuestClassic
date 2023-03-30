@@ -18,6 +18,26 @@ extern word item_doscript[256];
 extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern byte itemscriptInitialised[256];
 
+void CutsceneState::clear()
+{
+	*this = CutsceneState();
+}
+bool CutsceneState::can_button(int q)
+{
+	if(!active) return true;
+	return allowed_btns & (1<<q);
+}
+bool CutsceneState::can_f6()
+{
+	return !(active && nof6);
+}
+void CutsceneState::error()
+{
+	if(errsfx && !sfx_allocated(errsfx))
+		sfx(errsfx);
+}
+CutsceneState active_cutscene;
+
 struct cmbtimer
 {
 	int32_t data;
@@ -307,6 +327,20 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 		}
 		
 	}
+}
+
+void do_cutscene_flags(newcombo const& cmb)
+{
+	if(cmb.type != cCUTSCENETRIG) return;
+	if(cmb.usrflags & cflag1) //Disable cutscene
+	{
+		active_cutscene.clear();
+		return;
+	}
+	active_cutscene.active = true;
+	active_cutscene.allowed_btns = cmb.attributes[0];
+	active_cutscene.nof6 = (cmb.usrflags & cflag2)!=0;
+	active_cutscene.errsfx = cmb.attribytes[0];
 }
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w)
@@ -2614,6 +2648,9 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				used_bit = true;
 				switch(cmb.type)
 				{
+					case cCUTSCENETRIG:
+						do_cutscene_flags(cmb);
+						break;
 					case cCSWITCH:
 						do_cswitch_combo(cmb, w);
 						break;
@@ -2995,6 +3032,9 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				used_bit = true;
 				switch(cmb.type)
 				{
+					case cCUTSCENETRIG:
+						do_cutscene_flags(cmb);
+						break;
 					case cCSWITCH:
 						do_cswitch_combo(cmb, w);
 						break;
@@ -3112,6 +3152,15 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			
 			if(cmb.trigsfx)
 				sfx(cmb.trigsfx, pan(cx));
+			
+			if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
+				kill_em_all();
+			if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
+				guys.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
+				Lwpns.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
+				Ewpns.clear(true);
 			
 			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
 			{
