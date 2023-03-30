@@ -5748,6 +5748,7 @@ static MENU select_tile_rc_menu[] =
 	{ (char *)"V-Flip",  NULL,  NULL, 0, NULL },
 	{ (char *)"Create Combos",  NULL,  NULL, 0, NULL },
 	{ (char *)"Insert",  NULL,  NULL, 0, NULL },
+	{ (char *)"Remove",  NULL,  NULL, 0, NULL },
 	{ NULL,              NULL,  NULL, 0, NULL }
 };
 
@@ -5759,7 +5760,7 @@ static MENU select_combo_rc_menu[] =
 	{ (char *)"Delete",  NULL,  NULL, 0, NULL },
 	{ (char *)"",        NULL,  NULL, 0, NULL },
 	{ (char *)"Edit",    NULL,  NULL, 0, NULL },
-	{ (char *)"Insert New",  NULL,  NULL, 0, NULL },
+	{ (char *)"Insert",  NULL,  NULL, 0, NULL },
 	{ (char *)"Remove",  NULL,  NULL, 0, NULL },
 	{ (char *)"",        NULL,  NULL, 0, NULL },
 	{ (char *)"Locations",  NULL,  NULL, 0, NULL },
@@ -15795,6 +15796,40 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					break;
 			
 				case KEY_DEL:
+					if(type==0 && (key[KEY_LSHIFT]||key[KEY_RSHIFT]))
+					{
+						bool warn = (rect_sel
+							&& ((tile/20)!=(tile2/20))
+							&& !(tile%20==0&&tile2%20==19));
+						int32_t z=zc_min(tile,tile2);
+						int32_t count = abs(tile-tile2) + 1;
+						tile=z;
+						tile2=NEWMAXTILES;
+						copy = tile + count;
+						copycnt = NEWMAXTILES-copy;
+						char buf[64];
+						
+						if(count>1)
+							sprintf(buf,"Remove tiles %d - %d?",tile, copy-1);
+						else
+							sprintf(buf,"Remove tile %d?",tile);
+							
+						AlertDialog("Remove Tiles", std::string(buf)
+							+"\nThis will offset the tiles that follow!"
+							+(warn?"\nRemoving tiles ignores rectangular selections!":""),
+							[&](bool ret,bool)
+							{
+								if(ret)
+								{
+									go_tiles();
+									if(copy_tiles(tile,tile2,copy,copycnt,false,true))
+									{
+										redraw=true;
+										saved=false;
+									}
+								}
+							}).show();
+					}
 					delete_tiles(tile,tile2,rect_sel);
 					redraw=true;
 					break;
@@ -16395,7 +16430,7 @@ REDRAW:
 				}
 				break;
 				
-				case 17:
+				case 17: case 18:
 					if(type==0)
 					{
 						bool warn = (rect_sel
@@ -16408,7 +16443,7 @@ REDRAW:
 						copy = tile + count;
 						copycnt = NEWMAXTILES-copy;
 						
-						if(key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
+						if(m==18||key[KEY_LSHIFT]||key[KEY_RSHIFT]) //Remove
 						{
 							char buf[64];
 							
@@ -18095,15 +18130,20 @@ REDRAW:
 			case 7:
 			{
 				int32_t z=tile;
+				int count = abs(tile-tile2)+1;
 				tile=zc_min(tile,tile2);
 				tile2=MAXCOMBOS;
-				copy=tile+1;
-				copycnt=MAXCOMBOS-tile;
+				copy=tile+count;
+				copycnt=MAXCOMBOS-tile-count;
 				
 				if(m==7)
 				{
-					char buf[40];
-					sprintf(buf,"Remove combo %d?",tile);
+					char buf[64];
+					
+					if(count>1)
+						sprintf(buf,"Remove combos %d - %d?",tile, copy-1);
+					else
+						sprintf(buf,"Remove combo %d?",tile);
 					
 					if(jwin_alert("Confirm Remove",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 					{
@@ -18113,7 +18153,18 @@ REDRAW:
 				}
 				else
 				{
-					move_combos(copy,tile2,tile, copycnt);
+					char buf[64];
+					
+					if(count>1)
+						sprintf(buf,"Insert combos %d - %d?",tile, copy-1);
+					else
+						sprintf(buf,"Insert combo %d?",tile);
+					
+					if(jwin_alert("Confirm Insert",buf,"This will offset all of the combos that follow!",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
+					{
+						move_combos(copy,tile2,tile, copycnt);
+					}
+					else break;
 				}
 				
 				copy=-1;
