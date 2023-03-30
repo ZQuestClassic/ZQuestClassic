@@ -3349,6 +3349,7 @@ enum { msLINKED };
 #define MSGC_TRIGSECRETS      132    // 1 arg (perm)
 #define MSGC_SETSCREENSTATE   133    // 2 args (ind, state)
 #define MSGC_SETSCREENSTATER  134    // 4 args (map, screen, ind, state)
+#define MSGC_FONT             135    // 1 args (font)
 //132+
 
 enum

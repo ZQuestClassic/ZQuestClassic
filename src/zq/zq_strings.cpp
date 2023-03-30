@@ -1134,7 +1134,6 @@ int32_t msg_at_pos(int32_t pos)
 	return 0;
 }
 
-// Returns number of arguments to each control code
 bool is_msgc(byte cc)
 {
 	switch(cc)
@@ -1154,6 +1153,7 @@ bool is_msgc(byte cc)
 		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
 		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
 		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
+		case MSGC_FONT:
 			return true;
 	}
 	return false;

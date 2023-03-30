@@ -22837,7 +22837,18 @@ bool parsemsgcode()
 			nameptr = namebuf;
 			return true;
 		}
-			
+		
+		case MSGC_FONT:
+		{
+			int fontid = grab_next_argument();
+			int oh = text_height(msgfont);
+			msgfont = get_zc_font(fontid);
+			int nh = text_height(msgfont);
+			int mh = std::max(oh,nh);
+			if(mh > ssc_tile_hei_buf)
+				ssc_tile_hei_buf = mh;
+			return true;
+		}
 		case MSGC_DRAWTILE:
 		{
 			int32_t tl = grab_next_argument();

@@ -125,7 +125,7 @@ Button(forceFitH = true, text = "?", \
 
 static size_t stred_tab_1 = 0;
 static int32_t scroll_pos1 = 0;
-static bool sorted_fontdd = true;
+bool sorted_fontdd = true;
 std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 {
 	using namespace GUI::Builder;
@@ -165,7 +165,13 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 					text = "Insert SCC", forceFitH = true,
 					onPressFunc = [&]()
 					{
+						bool old_fontsort = sorted_fontdd;
 						std::string scc = run_scc_dlg(&tmpMsgStr);
+						if(old_fontsort != sorted_fontdd)
+						{
+							font_dd->setListData(sorted_fontdd ? list_font : list_font_order);
+							fontsort_cb->setChecked(sorted_fontdd);
+						}
 						if(scc.empty())
 							return;
 						std::string fullstr;
@@ -198,8 +204,8 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 			),
 			Rows<2>(
 				font_dd = DDL(font, sorted_fontdd ? list_font : list_font_order),
-				Checkbox(
-					fitParent = true, text = "Font Sort",
+				fontsort_cb = Checkbox(
+					text = "Font Sort",
 					checked = sorted_fontdd,
 					onToggleFunc = [&](bool state)
 					{

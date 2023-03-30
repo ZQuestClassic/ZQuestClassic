@@ -26,7 +26,6 @@ bool bottom_margin_clip(int32_t cursor_y, int32_t msg_h, int32_t bottom_margin)
 
 void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t index = -1)
 {
-	int32_t ssc_tile_hei = -1;
 	int32_t w = str->w; //8-256
 	int32_t h = str->h; //8-168
 	int32_t nextstring = str->nextstring;
@@ -47,7 +46,9 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int32_t msgtile = str->tile;
 	int32_t msgcset = str->cset;
 	
-	FONT *workfont = get_zc_font(str->font);
+	int workfont_id = str->font;
+	FONT *workfont = get_zc_font(workfont_id);
+	int32_t ssc_tile_hei = text_height(workfont);
 	
 	std::string s2 = parse_msg_str(s);
 	strip_trailing_spaces(s2);
@@ -142,8 +143,8 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 			   && ((cursor_x > (w-msg_margins[right]) || !(str->stringflags & STRINGFLAG_WRAP))
 					? 1 : (s3 != " ")))
 			{
-				int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-				ssc_tile_hei = -1;
+				int32_t thei = ssc_tile_hei;
+				ssc_tile_hei = text_height(workfont);
 				cursor_y += thei + str->vspace;
 				if(BOTTOM_MARGIN_CLIP()) break;
 				cursor_x=msg_margins[left];
@@ -159,8 +160,8 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					{
 						if(cursor_x>msg_margins[left] || (cursor_y<=msg_margins[up] && cursor_x<=msg_margins[left])) // If the newline's already at the end of a line, ignore it
 						{
-							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-							ssc_tile_hei = -1;
+							int32_t thei = ssc_tile_hei;
+							ssc_tile_hei = text_height(workfont);
 							cursor_y += thei + str->vspace;
 							if(BOTTOM_MARGIN_CLIP()) done = true;
 							cursor_x=msg_margins[left];
@@ -174,6 +175,15 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 					{
 						int32_t cset = grab_next_argument(s2, &i);
 						msgcolour = CSET(cset)+grab_next_argument(s2, &i);
+						break;
+					}
+					case MSGC_FONT:
+					{
+						workfont_id = grab_next_argument(s2, &i);
+						workfont = get_zc_font(workfont_id);
+						int wf_hei = text_height(workfont);
+						if(wf_hei > ssc_tile_hei)
+							ssc_tile_hei = wf_hei;
 						break;
 					}
 					case MSGC_SHDCOLOR:
@@ -207,8 +217,8 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 							
 							if(int32_t(cursor_x+tlength+(str->hspace*strlen(namestr))) > int32_t(w-msg_margins[right]))
 							{
-								int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-								ssc_tile_hei = -1;
+								int32_t thei = ssc_tile_hei;
+								ssc_tile_hei = text_height(workfont);
 								cursor_y += thei + str->vspace;
 								if(BOTTOM_MARGIN_CLIP()) break;
 								cursor_x=msg_margins[left];
@@ -236,8 +246,8 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						
 						if(cursor_x+str->hspace + t_wid > w-msg_margins[right])
 						{
-							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-							ssc_tile_hei = -1;
+							int32_t thei = ssc_tile_hei;
+							ssc_tile_hei = text_height(workfont);
 							cursor_y += thei + str->vspace;
 							if(BOTTOM_MARGIN_CLIP()) break;
 							cursor_x=msg_margins[left];
@@ -268,8 +278,8 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 						(void)grab_next_argument(s2, &i);
 						if(cursor_x+str->hspace + _menu_t_wid > w-msg_margins[right])
 						{
-							int32_t thei = zc_max(ssc_tile_hei, text_height(workfont));
-							ssc_tile_hei = -1;
+							int32_t thei = ssc_tile_hei;
+							ssc_tile_hei = text_height(workfont);
 							cursor_y += thei + str->vspace;
 							if(BOTTOM_MARGIN_CLIP()) break;
 							cursor_x=msg_margins[left];

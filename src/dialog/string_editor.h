@@ -32,6 +32,7 @@ private:
 	
 	std::shared_ptr<GUI::MsgPreview> preview;
 	std::shared_ptr<GUI::DropDownList> font_dd, nextstr_dd;
+	std::shared_ptr<GUI::Checkbox> fontsort_cb;
 	std::shared_ptr<GUI::TextField> str_field;
 	std::shared_ptr<GUI::Window> window;
 };

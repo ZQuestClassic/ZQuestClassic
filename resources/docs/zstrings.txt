@@ -24,6 +24,8 @@ The text in the Preview Pane changes to reflect the addition and modification of
 \2\newspeed - Text Speed. Changes the length of the delay between text characters appearing. 
 If 0, text appears instantaneously. Argument 1 is the speed. 
 
+\135\newfont - Text Font. Changes the font used for the text.
+
 \25 - New Line. Equivalent to pressing Enter in a document. Best used when text wrapping is enabled.
 
 \22 - Player Name. Inserts the player's name into the string, replacing this SCC.
