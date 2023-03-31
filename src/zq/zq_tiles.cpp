@@ -2106,7 +2106,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		if(keypressed())
 		{
 			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
-			switch(readkey()>>8)
+			int k = readkey()>>8;
+			switch(k)
 			{
 				case KEY_F1:
 					show_edit_tile_help();
@@ -2538,6 +2539,22 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 						redraw=true;
 					}
 					break;
+				case KEY_0: case KEY_1: case KEY_2: case KEY_3:
+				case KEY_4: case KEY_5: case KEY_6: case KEY_7:
+				case KEY_8: case KEY_9:
+				case KEY_0_PAD: case KEY_1_PAD: case KEY_2_PAD: case KEY_3_PAD:
+				case KEY_4_PAD: case KEY_5_PAD: case KEY_6_PAD: case KEY_7_PAD:
+				case KEY_8_PAD: case KEY_9_PAD:
+				{
+					int t = k - ((k>KEY_9) ? KEY_1_PAD : KEY_1);
+					if(unsigned(t) < t_max)
+					{
+						if(old_tool != -1)
+							old_tool = t;
+						else tool = t;
+					}
+					break;
+				}
 			}
 			clear_keybuf();
 		}
