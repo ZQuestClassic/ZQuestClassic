@@ -61,15 +61,17 @@ bool isBrokenFont(int32_t index)
 		case font_ssfont4:
 		case font_goronfont:
 		case font_zoranfont:
-    	case font_hylian1font:
-    	case font_hylian2font:
-    	case font_hylian3font:
-    	case font_hylian4font:
-    	case font_cocofont:
-    	case font_fdskanafont:
-    	case font_futharkfont:
-    	case font_hirafont:
-    	case font_jpfont:
+		case font_hylian1font:
+		case font_hylian2font:
+		case font_hylian3font:
+		case font_hylian4font:
+		case font_cocofont:
+		case font_fdskanafont:
+		case font_futharkfont:
+		case font_hirafont:
+		case font_jpfont:
+		case font_bak_runes:
+		case font_wingdings:
 			return true;
 	}
 	return false;
@@ -326,6 +328,22 @@ void initFonts()
 	initfont(font_ff6, FONT_FF6, "FF6");
 	initfont(font_evo_eden, FONT_EVO_EDEN, "EVO Search for Eden");
 	initfont(font_smt, FONT_SMT, "SMT Font");
+	initfont(font_actraiser, FONT_ACTRAISER, "Actraiser");
+	initfont(font_bak_runes, FONT_BAK_RUNES, "Betrayal at Krondor: Runes");
+	initfont(font_bak_small, FONT_BAK_SMALL, "Betrayal at Krondor: Small");
+	initfont(font_disorient, FONT_DISORIENT, "Disoriented");
+	initfont(font_doom, FONT_DOOM, "DOOM");
+	initfont(font_dracula, FONT_DRACULA, "Dracula");
+	initfont(font_ejim, FONT_EJIM, "Earthworm Jim");
+	initfont(font_fallout, FONT_FALLOUT, "Fallout");
+	initfont(font_gradius, FONT_GRADIUS, "Gradius");
+	initfont(font_lamu_msx, FONT_LAMU_MSX, "LaMulana");
+	initfont(font_megaman, FONT_MEGAMAN, "Megaman");
+	initfont(font_wingdings, FONT_WINGDINGS, "WingDings");
+	initfont(font_pkmn2, FONT_PKMN2, "Pokemon G2");
+	initfont(font_smrpg, FONT_SMRPG, "SMRPG");
+	initfont(font_undertale, FONT_UNDERTALE, "Undertale");
+	initfont(font_smw, FONT_SMW, "SMW Text");
 	
 	font = a4fonts[font_nfont];
 	

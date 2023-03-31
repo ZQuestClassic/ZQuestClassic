@@ -3440,6 +3440,22 @@ enum
 	font_ff6,
 	font_evo_eden,
 	font_smt,
+	font_actraiser,
+	font_bak_runes,
+	font_bak_small,
+	font_disorient,
+	font_doom,
+	font_dracula,
+	font_ejim,
+	font_fallout,
+	font_gradius,
+	font_lamu_msx,
+	font_megaman,
+	font_wingdings,
+	font_pkmn2,
+	font_smrpg,
+	font_undertale,
+	font_smw,
 
 	font_max
 };
