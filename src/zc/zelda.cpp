@@ -5450,6 +5450,7 @@ reload_for_replay_file:
 		load_qstpath="";
 		setup_combo_animations();
 		setup_combo_animations2();
+		active_cutscene.clear();
 		
 		while(Quit<=0)
 		{
