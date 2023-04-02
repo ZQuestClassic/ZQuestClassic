@@ -1807,7 +1807,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					Rows<2>(
 						Label(text = "Unblockable"),
 						INFOBTN_EX("The following checkboxes can make the weapon bypass"
-							"types of blocking.", hAlign = 0.0),
+							" types of blocking.", hAlign = 0.0),
 						cboxes[0] = Checkbox(
 							text = "Bypass 'Block' Defense",
 							hAlign = 0.0, colSpan = 2,
