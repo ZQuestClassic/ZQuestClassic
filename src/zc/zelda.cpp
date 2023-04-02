@@ -447,7 +447,9 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false, scaleForceInteger=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
+	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
+	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;

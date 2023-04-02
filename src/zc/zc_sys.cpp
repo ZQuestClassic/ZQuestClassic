@@ -444,6 +444,7 @@ void load_game_configs()
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
 	scaleForceInteger = zc_get_config("zeldadx","scaling_force_integer",1)!=0;
+	stretchGame = zc_get_config("zeldadx","stretch_game_area",0)!=0;
 	
 	loadlast = zc_get_config(cfg_sect,"load_last",0);
 	
@@ -5176,6 +5177,12 @@ int32_t onIntegerScaling()
 	zc_set_config("zeldadx","scaling_force_integer",(int)scaleForceInteger);
 	return D_O_K;
 }
+int32_t onStretchGame()
+{
+	stretchGame = !stretchGame;
+	zc_set_config("zeldadx","stretch_game_area",stretchGame?1:0);
+	return D_O_K;
+}
 
 int32_t onClickToFreeze()
 {
@@ -7567,6 +7574,7 @@ static MENU window_menu[] =
 	{ "Lock Integer Scale",           onIntegerScaling,        NULL,                      0, NULL },
 	{ "Save Size Changes",            onSaveDragResize,        NULL,                      0, NULL },
 	{ "Save Position Changes",        onWinPosSave,            NULL,                      0, NULL },
+	{ "Stretch Game Area",            onStretchGame,           NULL,                      0, NULL },
 	{ NULL,                           NULL,                    NULL,                      0, NULL }
 };
 static MENU options_menu[] =
@@ -8365,6 +8373,7 @@ void System()
 		window_menu[1].flags = scaleForceInteger?D_SELECTED:0;
 		window_menu[2].flags = SaveDragResize?D_SELECTED:0;
 		window_menu[3].flags = SaveWinPos?D_SELECTED:0;
+		window_menu[4].flags = stretchGame?D_SELECTED:0;
 
 		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
 		options_menu[5].flags = (midi_patch_fix)?D_SELECTED:0;

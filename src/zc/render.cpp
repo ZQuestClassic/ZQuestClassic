@@ -111,7 +111,6 @@ static void init_render_tree()
 
 float intscale(float scale)
 {
-	if(!scaleForceInteger) return scale;
 	return std::max(1,int(scale));
 }
 static void configure_render_tree()
@@ -125,7 +124,30 @@ static void configure_render_tree()
 	rti_root.transform.xscale = 1;
 	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
-
+	
+	if(stretchGame)
+	{
+		int w = al_get_bitmap_width(rti_game.bitmap);
+		int h = al_get_bitmap_height(rti_game.bitmap);
+		float xscale = (float)resx/w;
+		float yscale = (float)resy/h;
+		if (scaleForceInteger)
+		{
+			xscale = intscale(xscale);
+			yscale = intscale(yscale);
+		}
+		rti_game.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_game.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_game.transform.xscale = xscale;
+		rti_game.transform.yscale = yscale;
+		rti_game.visible = true;
+		rti_infolayer.transform.x = (resx - w*xscale) / 2 / xscale;
+		rti_infolayer.transform.y = (resy - h*yscale) / 2 / yscale;
+		rti_infolayer.transform.xscale = xscale;
+		rti_infolayer.transform.yscale = yscale;
+		rti_infolayer.visible = true;
+	}
+	else
 	{
 		int w = al_get_bitmap_width(rti_game.bitmap);
 		int h = al_get_bitmap_height(rti_game.bitmap);
@@ -156,8 +178,8 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_menu.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		xscale = std::max((int) xscale, 1);
-		yscale = std::max((int) yscale, 1);
+		xscale = intscale(xscale);
+		yscale = intscale(yscale);
 		rti_menu.transform.x = 0;
 		rti_menu.transform.y = 0;
 		rti_menu.transform.xscale = xscale;
@@ -175,8 +197,8 @@ static void configure_render_tree()
 		float yscale = (float)resy/h;
 		if (scaleForceInteger)
 		{
-			xscale = std::max((int) xscale, 1);
-			yscale = std::max((int) yscale, 1);
+			xscale = intscale(xscale);
+			yscale = intscale(yscale);
 		}
 		rti_gui.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_gui.transform.y = (resy - h*yscale) / 2 / yscale;
@@ -201,8 +223,8 @@ static void configure_render_tree()
 		float yscale = (float)resy/h;
 		if (scaleForceInteger)
 		{
-			xscale = std::max((int) xscale, 1);
-			yscale = std::max((int) yscale, 1);
+			xscale = intscale(xscale);
+			yscale = intscale(yscale);
 		}
 		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
