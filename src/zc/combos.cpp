@@ -2269,8 +2269,10 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	if(wx > 255 || wx < -15 || wy > 175 || wy < -15) return false;
 	
 	bool proxstop = cmb.usrflags&cflag4;
+	bool invprox = cmb.usrflags&cflag9;
 	zfix proxlim = zslongToFix(cmb.attributes[1]);
-	if(proxstop && dist(wx,wy,Hero.getX(),Hero.getY()) <= proxlim)
+	auto dst = dist(wx,wy,Hero.getX(),Hero.getY());
+	if(proxstop && (invprox ? (dst > proxlim) : (dst <= proxlim)))
 		return false;
 	
 	bool angular = cmb.usrflags&cflag1;

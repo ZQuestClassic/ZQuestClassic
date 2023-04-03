@@ -1890,179 +1890,201 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					)
 				)),
 				TabRef(name = "2", Row(
-					Rows<3>(
-						Label(text = "Damage", hAlign = 1.0),
-						tfs[0] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_SSHORT,
-							low = -32768, high = 32767, val = damage,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								damage = val;
-							}),
-						INFOBTN("The damage of the spawned weapon"),
-						//
-						Label(text = "Step Speed:", hAlign = 1.0),
-						tfs[1] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_ZSINT,
-							val = step,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								step = val;
-							}),
-						INFOBTN("The speed of the weapon, in 100ths px/frame"),
-						//
-						Label(text = "Min Rate:", hAlign = 1.0),
-						tfs[3] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_SSHORT,
-							low = 0, high = 32767, val = rate,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								rate = val;
-							}),
-						Button(text = "?", rowSpan = 2, fitParent = true,
-							onPressFunc = [=]()
-							{
-								InfoDialog("Info","The fire rates of the shooter."
-									" If 2 different rates are given, the rate will vary randomly"
-									" between the 2 rates."
-									"\nIf both rates are '0', the shooter will not fire"
-									" (unless triggered via the Triggers tab's 'ComboType Effects')").show();
-							}),
-						//
-						Label(text = "Max Rate:", hAlign = 1.0),
-						tfs[4] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_SSHORT,
-							low = 0, high = 32767, val = high_rate,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								high_rate = val;
-							}),
-						//button above rowspans here
-						//
-						cboxes[4] = Checkbox(
-							text = "Stop Proximity:", hAlign = 1.0,
-							checked = local_ref.usrflags&cflag4,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_ref.usrflags,cflag4,state);
-								tfs[5]->setDisabled(!state);
-							}
+					Column(padding = 0_px,
+						Frame(padding = 0_px, fitParent = true,
+							Rows<3>(hAlign = 1.0,
+								Label(text = "Damage", hAlign = 1.0),
+								tfs[0] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_SSHORT,
+									low = -32768, high = 32767, val = damage,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										damage = val;
+									}),
+								INFOBTN("The damage of the spawned weapon"),
+								//
+								Label(text = "Step Speed:", hAlign = 1.0),
+								tfs[1] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_ZSINT,
+									val = step,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										step = val;
+									}),
+								INFOBTN("The speed of the weapon, in 100ths px/frame"),
+								//
+								Label(text = "Min Rate:", hAlign = 1.0),
+								tfs[3] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_SSHORT,
+									low = 0, high = 32767, val = rate,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										rate = val;
+									}),
+								Button(text = "?", rowSpan = 2, fitParent = true,
+									onPressFunc = [=]()
+									{
+										InfoDialog("Info","The fire rates of the shooter."
+											" If 2 different rates are given, the rate will vary randomly"
+											" between the 2 rates."
+											"\nIf both rates are '0', the shooter will not fire"
+											" (unless triggered via the Triggers tab's 'ComboType Effects')").show();
+									}),
+								//
+								Label(text = "Max Rate:", hAlign = 1.0),
+								tfs[4] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_SSHORT,
+									low = 0, high = 32767, val = high_rate,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										high_rate = val;
+									}),
+								//button above rowspans here
+								//
+								cboxes[4] = Checkbox(
+									text = "Stop Proximity:", hAlign = 1.0,
+									checked = local_ref.usrflags&cflag4,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag4,state);
+										tfs[5]->setDisabled(!state);
+									}
+								),
+								tfs[5] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_ZSINT,
+									low = 0, val = prox, disabled = !(local_ref.usrflags&cflag4),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										prox = val;
+									}),
+								INFOBTN("If enabled, the shooter will stop shooting when the player"
+									" is within this distance (in pixels) of the combo."),
+								//
+								cboxes[10] = Checkbox(
+									hAlign = 1.0, boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									text = "Invert Prox", colSpan = 2,
+									checked = local_ref.usrflags&cflag9,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag9,state);
+									}
+								),
+								INFOBTN("If checked, the shooter will only shoot when the player is closer, rather than farther.")
+							)
 						),
-						tfs[5] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_ZSINT,
-							low = 0, val = prox, disabled = !(local_ref.usrflags&cflag4),
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								prox = val;
-							}),
-						INFOBTN("If enabled, the shooter will stop shooting when the player"
-							" is within this distance (in pixels) of the combo."),
-						//
-						cboxes[5] = Checkbox(
-							text = "Multishot", colSpan = 3,
-							checked = local_ref.usrflags&cflag7,
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_ref.usrflags,cflag7,state);
-								tfs[6]->setDisabled(!state);
-								tfs[7]->setDisabled(!state);
-							}
-						),
-						//
-						Label(text = "Shot Count:", hAlign = 1.0),
-						tfs[6] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_BYTE,
-							low = 2, high = 255, val = shot_count,
-							disabled = !(local_ref.usrflags&cflag7),
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								shot_count = val;
-							}),
-						INFOBTN("How many shots to shoot, if Multishot is enabled"),
-						//
-						Label(text = "Shot Spread:", hAlign = 1.0),
-						tfs[7] = TextField(
-							fitParent = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_ZSINT,
-							val = spread,
-							disabled = !(local_ref.usrflags&cflag7),
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								spread = val;
-							}),
-						INFOBTN("Angle in degrees between shots, if Multishot is enabled")
+						Frame(padding = 0_px, fitParent = true,
+							Rows<3>(hAlign = 1.0,
+								cboxes[5] = Checkbox(
+									hAlign = 1.0, boxPlacement = GUI::Checkbox::boxPlacement::RIGHT,
+									text = "Multishot", colSpan = 2,
+									checked = local_ref.usrflags&cflag7,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag7,state);
+										tfs[6]->setDisabled(!state);
+										tfs[7]->setDisabled(!state);
+									}
+								),
+								INFOBTN("Shoot more than one projectile"),
+								//
+								Label(text = "Shot Count:", hAlign = 1.0),
+								tfs[6] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_BYTE,
+									low = 2, high = 255, val = shot_count,
+									disabled = !(local_ref.usrflags&cflag7),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										shot_count = val;
+									}),
+								INFOBTN("How many shots to shoot, if Multishot is enabled"),
+								//
+								Label(text = "Shot Spread:", hAlign = 1.0),
+								tfs[7] = TextField(
+									fitParent = true, minwidth = 8_em,
+									type = GUI::TextField::type::SWAP_ZSINT,
+									val = spread,
+									disabled = !(local_ref.usrflags&cflag7),
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										spread = val;
+									}),
+								INFOBTN("Angle in degrees between shots, if Multishot is enabled")
+							)
+						)
 					),
-					Rows<3>(
-						rset[0][0] = Radio(
-							hAlign = 0.0,
-							checked = seladir==0,
-							text = "Direction",
-							indx = 0,
-							onToggle = message::RSET0
-						),
-						IH_BTN(DDH,"The direction to shoot in"),
-						ddls[5] = DropDownList(data = list_dirs,
-							fitParent = true, selectedValue = dir,
-							disabled = seladir != 0,
-							onSelectFunc = [&](int32_t val)
-							{
-								angle_dir = val*10000;
-							}),
-						//
-						rset[0][1] = Radio(
-							hAlign = 0.0,
-							checked = seladir==1,
-							text = "Angle",
-							indx = 1,
-							onToggle = message::RSET0
-						),
-						IH_BTN(DDH,"The angle to shoot in"),
-						tfs[2] = TextField(
-							forceFitH = true, minwidth = 8_em,
-							type = GUI::TextField::type::SWAP_ZSINT,
-							disabled = seladir != 1,
-							val = angle,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								angle_dir = val;
-							}),
-						//
-						rset[0][2] = Radio(
-							hAlign = 0.0,
-							checked = seladir==2,
-							text = "Aimed 4-Dir",
-							indx = 2,
-							onToggle = message::RSET0
-						),
-						IH_BTN(DDH,"Aim 4-directionally at the player"),
-						DummyWidget(),
-						//
-						rset[0][3] = Radio(
-							hAlign = 0.0,
-							checked = seladir==3,
-							text = "Aimed 8-Dir",
-							indx = 3,
-							onToggle = message::RSET0
-						),
-						IH_BTN(DDH,"Aim 8-directionally at the player"),
-						DummyWidget(),
-						//
-						rset[0][4] = Radio(
-							hAlign = 0.0,
-							checked = seladir==4,
-							text = "Aimed 360",
-							indx = 4,
-							onToggle = message::RSET0
-						),
-						IH_BTN(DDH,"Aim angularly at the player"),
-						DummyWidget()
-						//
+					Frame(padding = 0_px,
+						Rows<3>(
+							rset[0][0] = Radio(
+								hAlign = 0.0,
+								checked = seladir==0,
+								text = "Direction",
+								indx = 0,
+								onToggle = message::RSET0
+							),
+							IH_BTN(DDH,"The direction to shoot in"),
+							ddls[5] = DropDownList(data = list_dirs,
+								fitParent = true, selectedValue = dir,
+								disabled = seladir != 0,
+								onSelectFunc = [&](int32_t val)
+								{
+									angle_dir = val*10000;
+								}),
+							//
+							rset[0][1] = Radio(
+								hAlign = 0.0,
+								checked = seladir==1,
+								text = "Angle",
+								indx = 1,
+								onToggle = message::RSET0
+							),
+							IH_BTN(DDH,"The angle to shoot in"),
+							tfs[2] = TextField(
+								forceFitH = true, minwidth = 8_em,
+								type = GUI::TextField::type::SWAP_ZSINT,
+								disabled = seladir != 1,
+								val = angle,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									angle_dir = val;
+								}),
+							//
+							rset[0][2] = Radio(
+								hAlign = 0.0,
+								checked = seladir==2,
+								text = "Aimed 4-Dir",
+								indx = 2,
+								onToggle = message::RSET0
+							),
+							IH_BTN(DDH,"Aim 4-directionally at the player"),
+							DummyWidget(),
+							//
+							rset[0][3] = Radio(
+								hAlign = 0.0,
+								checked = seladir==3,
+								text = "Aimed 8-Dir",
+								indx = 3,
+								onToggle = message::RSET0
+							),
+							IH_BTN(DDH,"Aim 8-directionally at the player"),
+							DummyWidget(),
+							//
+							rset[0][4] = Radio(
+								hAlign = 0.0,
+								checked = seladir==4,
+								text = "Aimed 360",
+								indx = 4,
+								onToggle = message::RSET0
+							),
+							IH_BTN(DDH,"Aim angularly at the player"),
+							DummyWidget()
+							//
+						)
 					)
 				))
 			));

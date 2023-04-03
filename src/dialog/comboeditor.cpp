@@ -1322,8 +1322,11 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag4)) //Stops by Player Proximity
 			{
 				l_attribute[1] = "Proximity Limit";
-				h_attribute[1] = "If the player is at least this close (in pixels) to the combo,"
-					"\nthe combo will fail to shoot.";
+				h_attribute[1] = "If the player is at least this close (in pixels)"
+					" to the combo, the combo will fail to shoot.";
+				l_flag[8] = "Invert Proximity";
+				h_flag[8] = "If checked, the combo will fail to shoot if the"
+					" player is FARTHER than specified.";
 			}
 			if(FL(cflag7)) //Multi Shot
 			{
