@@ -1238,6 +1238,18 @@ bool GetDMapFlag(int dmap, int flag)
 	return (Game->DMapFlags[dmap]&flag);
 }
 
+int GetFirstItemOf(int itemclass)
+{
+	itemdata id;
+	for(int q = 0; q <= MAX_ITEMDATA; ++q)
+	{
+		id = Game->LoadItemData(q);
+		if(id->Type == itemclass)
+			return q;
+	}
+	return -1;
+}
+
 int GetHighestLevelItem(int itemclass)
 {
 	itemdata id;
