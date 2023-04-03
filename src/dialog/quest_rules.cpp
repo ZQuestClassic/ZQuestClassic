@@ -869,7 +869,9 @@ static GUI::ListData compatRulesList
 		"If enabled, sparkle weapons inherit properties such as script, type, and default defense"
 		" from the parent item." },
 	{ "Bugged Layered Flags", qr_BUGGED_LAYERED_FLAGS,
-		"If enabled, flags placed on layers will 'wrap' at the edge of screens, causing odd behaviors." }
+		"If enabled, flags placed on layers will 'wrap' at the edge of screens, causing odd behaviors." },
+	{ "Old FFC Bush Drops", qr_HARDCODED_FFC_BUSH_DROPS,
+		"If enabled, FFC bushes will drop a random '15% heart, 20% rupee' instead of using dropset 12." }
 };
 
 static GUI::ListData enemiesRulesList
