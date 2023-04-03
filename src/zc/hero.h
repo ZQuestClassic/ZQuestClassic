@@ -407,6 +407,7 @@ public:
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
+	int getHammerState() const;
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl);
 	void handleSpotlights();

@@ -476,6 +476,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->power = "Damage:";
 			inf->flag[2] = "No Melee Attack";
+			_SET(flag[0], "No Air Triggers", "Don't trigger combos/secret flags while the hammer is 'in the air'.");
 			inf->wpn[0] = "Hammer Sprite:";
 			inf->wpn[1] = "Smack Sprite:";
 			inf->actionsnd[0] = "Pound Sound:";

@@ -149,6 +149,7 @@ public:
     bool isScriptGenerated();
     bool clip();
     bool blocked();
+	bool no_triggers() const;
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     virtual bool animate(int32_t index);
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);

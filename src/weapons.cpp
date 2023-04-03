@@ -227,12 +227,29 @@ static bool CanComboTrigger(weapon *w)
 	return false;
 }
 
+bool weapon::no_triggers() const
+{
+	switch(id)
+	{
+		case wHammer: //Hammers don't trigger anything while in the air if ITEM_FLAG1 is set!
+		{
+			if(parentitem < 0) break;
+			itemdata const& itm = itemsbuf[parentitem];
+			if(itm.family == itype_hammer && (itm.flags & ITEM_FLAG1) && Hero.getHammerState() < 2)
+				return true;
+			break;
+		}
+	}
+	return false;
+}
+
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 {
 	if(screenIsScrolling()) return 0;
 	int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	newcombo const& cmb = c[comboid];
 	bool trig = false;
+	if(w->no_triggers()) return 0;
 	switch(wid)
 	{
 		case wSword: trig = (cmb.triggerflags[0]&combotriggerSWORD); break;

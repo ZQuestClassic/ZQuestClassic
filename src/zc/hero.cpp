@@ -2107,6 +2107,18 @@ void HeroClass::positionSword(weapon *w, int32_t itemid)
     w->doAutoRotate(true);
 }
 
+int HeroClass::getHammerState() const
+{
+	if(attack == wHammer)
+	{
+		if(attackclk >= 15)
+			return 2;
+		if(attackclk >= 13)
+			return 1;
+	}
+	return 0;
+}
+
 void HeroClass::draw(BITMAP* dest)
 {
 	/*{
@@ -3160,7 +3172,7 @@ bool HeroClass::checkstab()
         
     if(!found)
         return false;
-		
+	
 	if(attack == wFire)
 		return false;
 	
@@ -3466,6 +3478,9 @@ bool HeroClass::checkstab()
 	if(attack==wCByrna || attack==wBugNet)
 		return false;
 	
+	if(meleeweap->no_triggers())
+		return false;
+	
 	if(attack==wSword)
 	{
 		if(attackclk == 6)
@@ -3678,10 +3693,7 @@ bool HeroClass::checkstab()
 			check_pound_block(wx+wxsz-8,y+8);
 		}
 	}
-	else
-	{
-		return false;
-	}
+	else return false;
 	
 	return true;
 }
@@ -4829,20 +4841,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
 
 void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
 {
-	/*
-	int32_t par_item = w->parentitem;
-	al_trace("check_pound_block(weapon *w): par_item is: %d\n", par_item);
-	int32_t usewpn = -1;
-	if ( par_item > -1 )
-	{
-		usewpn = itemsbuf[par_item].useweapon;
-	}
-	else if ( par_item == -1 && w->ScriptGenerated ) 
-	{
-		usewpn = w->useweapon;
-	}
-	al_trace("check_pound_block(weapon *w): usewpn is: %d\n", usewpn);
-	*/
+	if(w->no_triggers()) return;
 	//keep things inside the screen boundaries
 	bx=vbound(bx, 0, 255);
 	by=vbound(by, 0, 176);
@@ -5564,9 +5563,9 @@ void HeroClass::check_wand_block(weapon *w)
 
 void HeroClass::check_pound_block(weapon *w)
 {
+	if(w->no_triggers()) return;
 	
 	int32_t par_item = w->parentitem;
-	al_trace("check_pound_block(weapon *w): par_item is: %d\n", par_item);
 	int32_t usewpn = -1;
 	if ( par_item > -1 )
 	{
@@ -5576,7 +5575,6 @@ void HeroClass::check_pound_block(weapon *w)
 	{
 		usewpn = w->useweapon;
 	}
-	al_trace("check_pound_block(weapon *w): usewpn is: %d\n", usewpn);
     if(usewpn != wHammer) return;
 	
 	
