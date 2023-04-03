@@ -3831,13 +3831,17 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	bx &= 0xF0;
 	by &= 0xF0;
 	
-	int32_t type = COMBOTYPE(bx,by);
-	int32_t type2 = FFCOMBOTYPE(fx,fy);
-	int32_t flag = MAPFLAG(bx,by);
-	int32_t flag2 = MAPCOMBOFLAG(bx,by);
-	int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-	int32_t cid = MAPCOMBO(bx,by);
-	int32_t i = (bx>>4) + by;
+	int cid = MAPCOMBO(bx,by);
+	int cid_ff = MAPFFCOMBO(x,y);
+	int current_ffcombo = getFFCAt(fx,fy);
+	newcombo const& cmb = combobuf[cid];
+	newcombo const& cmb_ff = combobuf[cid_ff];
+	int type = cmb.type;
+	int type2 = cmb_ff.type;
+	int flag = MAPFLAG(bx,by);
+	int flag2 = cmb.flag;
+	int flag3 = cmb_ff.flag;
+	int i = (bx>>4) + by;
 	
 	if(i > 175)
 		return;
@@ -3849,17 +3853,16 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		ignorescreen = true;
 	}
-	else if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
+	else if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 		ignorescreen = true;
 	
-	int32_t current_ffcombo = getFFCAt(fx,fy);
 	
 	
 	if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
 	{
 		ignoreffc = true;
 	}
-	else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+	else if(cmb_ff.triggerflags[0] & combotriggerONLYGENTRIG)
 		ignoreffc = true;
 	
 	if(!isCuttableType(type) &&
@@ -3999,16 +4002,16 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			int32_t it = -1;
 			int32_t thedropset = -1;
-			if ( (combobuf[cid].usrflags&cflag2) ) //specific dropset or item
+			if ( (cmb.usrflags&cflag2) ) //specific dropset or item
 			{
-				if ( combobuf[cid].usrflags&cflag11 ) 
+				if ( cmb.usrflags&cflag11 ) 
 				{
-					it = combobuf[cid].attribytes[1];
+					it = cmb.attribytes[1];
 				}
 				else
 				{
-					it = select_dropitem(combobuf[cid].attribytes[1]);
-					thedropset = combobuf[cid].attribytes[1];
+					it = select_dropitem(cmb.attribytes[1]);
+					thedropset = cmb.attribytes[1];
 				}
 			}
 			else
@@ -4031,29 +4034,29 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			if (!isBushType(type) && !isFlowersType(type) && !isGrassType(type))
 			{
-				if (combobuf[cid].usrflags&cflag3)
+				if (cmb.usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(cmb.attribytes[2],int32_t(bx));
 				}
 			}
 			else
 			{
-				if (combobuf[cid].usrflags&cflag3)
+				if (cmb.usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(cmb.attribytes[2],int32_t(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
-		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, cmb.attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -4069,14 +4072,14 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			int32_t it=-1;
 			int32_t thedropset=-1;
-			if ( (combobuf[cid].usrflags&cflag2) )
+			if ( (cmb_ff.usrflags&cflag2) )
 			{
-				if(combobuf[cid].usrflags&cflag11)
-					it = combobuf[cid].attribytes[1];
+				if(cmb_ff.usrflags&cflag11)
+					it = cmb_ff.attribytes[1];
 				else
 				{
-					it = select_dropitem(combobuf[cid].attribytes[1]); 
-					thedropset = combobuf[cid].attribytes[1]; 
+					it = select_dropitem(cmb_ff.attribytes[1]); 
+					thedropset = cmb_ff.attribytes[1]; 
 				}
 			}
 			else
@@ -4105,29 +4108,29 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		{
 			if (!isBushType(type2) && !isFlowersType(type2) && !isGrassType(type2))
 			{
-				if (combobuf[cid].usrflags&cflag3)
+				if (cmb_ff.usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(cmb_ff.attribytes[2],int32_t(bx));
 				}
 			}
 			else
 			{
-				if (combobuf[cid].usrflags&cflag3)
+				if (cmb_ff.usrflags&cflag3)
 				{
-					sfx(combobuf[cid].attribytes[2],int32_t(bx));
+					sfx(cmb_ff.attribytes[2],int32_t(bx));
 				}
 				else sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(bx));
 			}
 		}
 		
-		int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
+		int16_t decotype = (cmb_ff.usrflags & cflag1) ? ((cmb_ff.usrflags & cflag10) ? (cmb_ff.attribytes[0]) : (-1)) : (0);
 		if(decotype > 3) decotype = 0;
-		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
+		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((cmb_ff.usrflags & cflag1) ? -1 : -2))));
 		switch(decotype)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, cmb_ff.attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
