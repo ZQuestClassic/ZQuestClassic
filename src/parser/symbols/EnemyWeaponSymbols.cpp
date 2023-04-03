@@ -161,6 +161,15 @@ static AccessorTable ewpnTable[] =
 	{ "getParentUID",               0,         ZTID_FLOAT,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN },{} },
 	{ "setParentUID",               0,          ZTID_VOID,   EWPNPARENTUID,       FL_DEPR,  { ZTID_EWPN, ZTID_FLOAT },{} },
 	
+	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_BITMAP },{} },
+	{ "Own",                        1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_PALDATA },{} },
+	{ "Own",                        2,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_FILE },{} },
+	{ "Own",                        3,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_DIRECTORY },{} },
+	{ "Own",                        4,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_STACK },{} },
+	{ "Own",                        5,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_RNG },{} },
+	{ "OwnArray",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_UNTYPED },{} },
+	{ "OwnObject",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_EWPN, ZTID_UNTYPED },{} },
+	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
@@ -264,6 +273,126 @@ void EnemyWeaponSymbols::generateCode()
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new OMakeDirectionalEwpn(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,bitmap)
+	{
+		Function* function = getFunction("Own",0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnBitmap(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,paldata)
+	{
+		Function* function = getFunction("Own",1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnPaldata(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,file)
+	{
+		Function* function = getFunction("Own",2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnFile(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,directory)
+	{
+		Function* function = getFunction("Own",3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnDir(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,stack)
+	{
+		Function* function = getFunction("Own",4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnStack(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,rng)
+	{
+		Function* function = getFunction("Own",5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnRNG(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,untyped)
+	{
+		Function* function = getFunction("OwnArray");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnArray(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(eweapon,untyped)
+	{
+		Function* function = getFunction("OwnObject");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnClass(new VarArgument(EXP1), new LiteralArgument(SCRIPT_EWPN)));
 		RETURN();
 		function->giveCode(code);
 	}

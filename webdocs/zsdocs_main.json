@@ -377,6 +377,10 @@
                             "val": "<h3>int Max();</h3>\nReturns the max number of npcs currently allowed.\n\n<h3>void Max(int newmax);</h3>\nSets the max number of npcs allowed to a new value. Range `1-1024`.\n"
                         },
                         {
+                            "name": "Owning ;; npc::Own / npc::OwnArray / npc::OwnObject",
+                            "val": "<h3>void Own(bitmap b);\nvoid Own(paldata pd);\nvoid Own(stack st);\nvoid Own(file f);\nvoid Own(directory dir);\nvoid Own(randgen rnd);\nvoid OwnArray(untyped[] array);\nvoid OwnObject([Object] object);</h3>\n\nGrants 'Ownership' of the parameter object to the npc."
+                        },
+                        {
                             "name": "Movement ;; npcMovement",
                             "val": "$-1$2"
                         },
@@ -518,6 +522,10 @@
                         {
                             "name": "Misc Info ;; lweapon::Explode / eweapon::Explode / lweapon::Remove / eweapon::Remove / lweapon::DeadState / eweapon::DeadState / lweapon::Step / eweapon::Step / lweapon::Power / eweapon::Power / lweapon::Damage / eweapon::Damage / lweapon::Behind / eweapon::Behind / lweapon::Unblockable / eweapon::Unblockable / lweapon::CollDetection / eweapon::CollDetection / lweapon::Flags / eweapon::Flags",
                             "val": "<h3>void Explode(int mode);</h3>\nCreates an explosion particle effect in mode 0, 1, or 2 of the sprite.\n\n<h3>void Remove();</h3>\nInstantly deletes the weapon.\n\n<h3>int DeadState;</h3>\nThe deadstate of the weapon, denoted by the `WDS_` constants.\n\n<h3>int Step;</h3>\nThe movement speed of the weapon, in 100th's/pixel per frame.\n\n<h3>int Power;\nint Damage;</h3>\nThe amount of damage the weapon deals.\n\n<h3>bool Behind;</h3>\nIf true, the weapon's sprite will draw behind the player and enemies.\n\n<h3>int Unblockable;</h3>\nA bitwise flagset of unblockable flags, using the `UNBLOCK_` constants.\n#{UNBLOCK_ constants|$[UNBLOCK_]}\n<h3>bool CollDetection;</h3>\nIf the weapon's collision is enabled. Set to false to disable collision entirely.\n\n<h3>bool Flags[1];</h3>\nA set of weapon flags. Use the `WFLAG_` constants as indexes.\n#{WFLAG_ constants|$[WFLAG_]}\n\n\n"
+                        },
+                        {
+                            "name": "Owning ;; lweapon::Own / lweapon::OwnArray / lweapon::OwnObject / eweapon::Own / eweapon::OwnArray / eweapon::OwnObject",
+                            "val": "<h3>void Own(bitmap b);\nvoid Own(paldata pd);\nvoid Own(stack st);\nvoid Own(file f);\nvoid Own(directory dir);\nvoid Own(randgen rnd);\nvoid OwnArray(untyped[] array);\nvoid OwnObject([Object] object);</h3>\n\nGrants 'Ownership' of the parameter object to the weapon."
                         },
                         {
                             "name": "&lt;-- Prev ;; weaponptr",
@@ -799,6 +807,10 @@
                             "val": "<h3>void Explode(int mode);</h3>\nCreates an explosion particle effect in mode 0, 1, or 2 of the sprite.\n\n<h3>void Remove();</h3>\nInstantly deletes the itemsprite.\n\n<h3>int DroppedBy;</h3>\nThe dropset that this item was dropped by. Will be set for engine-dropped items, can be written by scripts as well.\n\n<h3>bool ForceGrab;</h3>\nIf set to true, the item will automatically be collected by the player as soon as possible.\n"
                         },
                         {
+                            "name": "Owning ;; itemsprite::Own / itemsprite::OwnArray / itemsprite::OwnObject",
+                            "val": "<h3>void Own(bitmap b);\nvoid Own(paldata pd);\nvoid Own(stack st);\nvoid Own(file f);\nvoid Own(directory dir);\nvoid Own(randgen rnd);\nvoid OwnArray(untyped[] array);\nvoid OwnObject([Object] object);</h3>\n\nGrants 'Ownership' of the parameter object to the itemsprite."
+                        },
+                        {
                             "name": "&lt;-- Prev ;; itemspriteptr",
                             "val": "$-1"
                         }
@@ -1062,8 +1074,8 @@
                             "val": "Functions that don't fit a particular category."
                         },
                         {
-                            "name": "Quit",
-                            "val": "<h3>void Quit();</h3>\n\nExits the current script entirely. Has the same effect as reaching the end of 'void run()', or 'return'ing from the 'void run()'."
+                            "name": "Quit / QuitNoKill",
+                            "val": "<h3>void Quit();</h3>\n\nExits the current script entirely. Has the same effect as reaching the end of 'void run()', or 'return'ing from the 'void run()'.\n\n<h3>void QuitNoKill();</h3>\n\nExits the current script entirely, and forcibly skips the de-allocating of objects 'Owned' by the script. Only use this if you know what you are doing!"
                         },
                         {
                             "name": "Waiting ;; Waitframe / Waitdraw / WaitTo / WaitEvent",
@@ -1326,6 +1338,10 @@
                         {
                             "name": "ID ;; ffc::ID",
                             "val": "<h3>int ID;</h3>\nRead-only: the screen index of the FFC."
+                        },
+                        {
+                            "name": "Owning ;; ffc::Own / ffc::OwnArray / ffc::OwnObject",
+                            "val": "<h3>void Own(bitmap b);\nvoid Own(paldata pd);\nvoid Own(stack st);\nvoid Own(file f);\nvoid Own(directory dir);\nvoid Own(randgen rnd);\nvoid OwnArray(untyped[] array);\nvoid OwnObject([Object] object);</h3>\n\nGrants 'Ownership' of the parameter object to the ffc."
                         }
                     ]
                 }

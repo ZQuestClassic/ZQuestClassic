@@ -2974,7 +2974,10 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3016,7 +3019,10 @@ user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3032,7 +3038,10 @@ user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Stack!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3052,7 +3061,10 @@ user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent RNG!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3068,7 +3080,10 @@ user_paldata* checkPalData(int32_t ref, const char* what, bool skipError = false
 	}
 	if (skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent paldata!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -22780,10 +22795,8 @@ void do_resize_array()
 	am.resize(size);
 }
 
-void do_own_array(const byte scriptType, const int32_t UID)
+void do_own_array(dword arrindx, const byte scriptType, const int32_t UID)
 {
-	dword arrindx = get_register(sarg1) / 10000;
-	
 	ArrayManager am(arrindx);
 	
 	if(am.internal())
@@ -28986,6 +28999,24 @@ bool zasm_advance()
 	return false;
 }
 
+int32_t get_own_i(int32_t type)
+{
+	switch(type)
+	{
+		case SCRIPT_LWPN:
+			return ri->lwpn;
+		case SCRIPT_EWPN:
+			return ri->ewpn;
+		case SCRIPT_ITEMSPRITE:
+			return ri->itemref;
+		case SCRIPT_NPC:
+			return ri->guyref;
+		case SCRIPT_FFC:
+			return ri->ffcref;
+	}
+	return 0;
+}
+
 ///----------------------------------------------------------------------------------------------------//
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
@@ -29029,24 +29060,19 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			int32_t npc_index = GuyH::getNPCIndex(i);
 			enemy *w = (enemy*)guys.spr(npc_index);
+			ri = &(w->scrmem->scriptData);
+			curscript = guyscripts[w->script];
+			stack = &(w->scrmem->stack);
+			ri->guyref = i;
 			
-			ri = &(guys.spr(GuyH::getNPCIndex(i))->scrmem->scriptData);
-			
-			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
-			
-			stack = &(guys.spr(GuyH::getNPCIndex(i))->scrmem->stack);
-			
-			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
-			ri->guyref = wa->getUID();
-			
-			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					ri->d[q] = wa->initD[q];
+					ri->d[q] = w->initD[q];
 				}
-				guys.spr(GuyH::getNPCIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
 		}
 		break;
@@ -29055,81 +29081,62 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			int32_t lwpn_index = LwpnH::getLWeaponIndex(i);
 			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
-			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scrmem->scriptData);
+			ri = &(w->scrmem->scriptData);
+			curscript = lwpnscripts[w->weaponscript];
+			stack = &(w->scrmem->stack);
+			ri->lwpn = i;
 			
-			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
-		
-			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scrmem->stack);
-			
-			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
-			ri->lwpn = wa->getUID();
-			
-			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-	
-					ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+					ri->d[q] = w->weap_initd[q]; //w->initiald[q];
 				}
-				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
-			
 		}
 		break;
 		
 		case SCRIPT_EWPN:
 		{
 			int32_t ewpn_index = EwpnH::getEWeaponIndex(i);
-
 			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
-			ri = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scrmem->scriptData);
+			ri = &(w->scrmem->scriptData);
+			curscript = ewpnscripts[w->weaponscript];
+			stack = &(w->scrmem->stack);
+			ri->ewpn = i;
 			
-			curscript = ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
-			
-			
-			stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scrmem->stack);
-			
-			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
-			ri->ewpn = wa->getUID();
-			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					
-					ri->d[q] = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+					ri->d[q] = w->weap_initd[q];
 				}
-				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
-			
 		}
 		break;
 		
 		case SCRIPT_ITEMSPRITE:
 		{
 			int32_t the_index = ItemH::getItemIndex(i);
-			
 			item *w = (item*)items.spr(the_index);
-			ri = &(items.spr(ItemH::getItemIndex(i))->scrmem->scriptData);
-		
-			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
-				
-			stack = &(items.spr(ItemH::getItemIndex(i))->scrmem->stack);
+			ri = &(w->scrmem->scriptData);
+			curscript = itemspritescripts[w->script];
+			stack = &(w->scrmem->stack);
+			ri->itemref = i;
 			
-			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
-			ri->itemref = wa->getUID();
-			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					
-					ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+					ri->d[q] = w->initD[q];
 				}
-				items.spr(ItemH::getItemIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
-			
 		}
 		break;
 		
@@ -29489,6 +29496,7 @@ j_command:
 	bool increment = true;
 	word scommand = curscript->zasm[ri->pc].command;
 	bool hit_invalid_zasm = false;
+	bool no_dealloc = false;
 	while(scommand != 0xFFFF)
 	{
 #ifdef _SCRIPT_COUNTER
@@ -29691,6 +29699,10 @@ j_command:
 			}
 			case QUIT:
 				scommand = 0xFFFF;
+				break;
+			case QUIT_NO_DEALLOC:
+				scommand = 0xFFFF;
+				no_dealloc = true;
 				break;
 				
 			case NOP: //No Operation. Do nothing. -Em
@@ -30202,7 +30214,7 @@ j_command:
 				do_resize_array();
 				break;
 			case OWNARRAYR:
-				do_own_array(type, i);
+				do_own_array(get_register(sarg1)/10000, type, i);
 				break;
 			case DESTROYARRAYR:
 				do_destroy_array();
@@ -31647,14 +31659,93 @@ j_command:
 			case BITMAPOWN:
 			{
 				if(FFCore.isSystemBitref(ri->bitmapref))
-				{
 					break; //Don't attempt to own system bitmaps!
-				}
 				user_bitmap* b = checkBitmap(ri->bitmapref, "Own()", false);
 				if(b)
 				{
 					b->own(type, i);
 				}
+				break;
+			}
+			
+			case OBJ_OWN_BITMAP:
+			{
+				int bmpid = get_register(sarg1);
+				if(FFCore.isSystemBitref(bmpid))
+					break; //Don't attempt to own system bitmaps!
+				user_bitmap* b = checkBitmap(bmpid, nullptr, false);
+				if(!b) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				b->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_PALDATA:
+			{
+				int palid = get_register(sarg1);
+				user_paldata* pd = checkPalData(palid, nullptr, false);
+				if(!pd) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				pd->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_FILE:
+			{
+				int fileid = get_register(sarg1);
+				user_file* f = checkFile(fileid, nullptr, false);
+				if(!f) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				f->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_DIR:
+			{
+				int dirid = get_register(sarg1);
+				user_dir* dr = checkDir(dirid, nullptr, false);
+				if(!dr) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				dr->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_STACK:
+			{
+				int stackid = get_register(sarg1);
+				user_stack* st = checkStack(stackid, nullptr, false);
+				if(!st) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				st->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_RNG:
+			{
+				int rngid = get_register(sarg1);
+				user_rng* r = checkRNG(rngid, nullptr, false);
+				if(!r) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				r->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_CLASS:
+			{
+				int classid = get_register(sarg1);
+				user_object* obj = checkObject(classid, false);
+				if(!obj) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				obj->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_ARRAY:
+			{
+				int arrid = get_register(sarg1)/10000;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				do_own_array(arrid, own_type, own_i);
 				break;
 			}
 				
@@ -33326,60 +33417,48 @@ j_command:
 		{
 			case SCRIPT_FFC:
 				tmpscr->ffcs[i].script = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 				
 			case SCRIPT_GLOBAL:
 				g_doscript &= ~(1<<i);
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_GENERIC:
 				user_scripts[script].quit();
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_GENERIC_FROZEN:
 				gen_active_doscript = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_PLAYER:
 				player_doscript = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_DMAP:
 				dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 				dmapscriptInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_ONMAP:
 				onmap_doscript = 0;
 				onmapInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_ACTIVESUBSCREEN:
 				active_subscreen_doscript = 0;
 				activeSubscreenInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_PASSIVESUBSCREEN:
 				passive_subscreen_doscript = 0;
 				passiveSubscreenInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 				
 			case SCRIPT_ITEM:
 			{
-				// zprint("Item script reached quit/end of scope\n");
-				int32_t new_i = 0;
 				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-				new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-				
+				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
 				if ( !collect )
 				{
 					if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
@@ -33393,19 +33472,14 @@ j_command:
 					for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
 					itemCollectScriptData[new_i].Clear();
 				}
-				FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
-				// zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
 				itemscriptInitialised[new_i] = 0;
-				
-				break; //item scripts aren't gonna go again anyway
+				break;
 			}
 			case SCRIPT_NPC:
 			{
 				guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
 				guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
 				guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-
 				break;
 			}
 			case SCRIPT_LWPN:
@@ -33413,8 +33487,6 @@ j_command:
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-				
 				break;
 			}
 			case SCRIPT_EWPN:
@@ -33423,18 +33495,13 @@ j_command:
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-				
 				break;
 			}
 			case SCRIPT_ITEMSPRITE:
 			{
-			
 				items.spr(ItemH::getItemIndex(i))->doscript = 0;
 				items.spr(ItemH::getItemIndex(i))->script = 0;
 				items.spr(ItemH::getItemIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-				
 				break;
 			}
 			case SCRIPT_SCREEN:
@@ -33442,7 +33509,6 @@ j_command:
 				tmpscr->script = 0;
 				tmpscr->screendatascriptInitialised = 0;
 				tmpscr->doscript = 0;
-				FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
 				break;
 			} 
 			
@@ -33452,11 +33518,30 @@ j_command:
 				int32_t lyr = i/176;
 				combo_doscript[pos+(176*lyr)] = 0;
 				combo_initialised[pos] &= ~(1<<lyr);
-				
-				FFScript::deallocateAllArrays(type, i); //need to add combo arrays
 				break;
 			}
 		}
+		if(!no_dealloc)
+			switch(type)
+			{
+				case SCRIPT_ITEM:
+				{
+					bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+					int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
+					break;
+				}
+				
+				case SCRIPT_SCREEN:
+				{
+					FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+					break;
+				} 
+				
+				default:
+					FFScript::deallocateAllArrays(type, i);
+					break;
+			}
 
 		return RUNSCRIPT_STOPPED;
 	}
@@ -39435,15 +39520,15 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
 	{ "LOADD",   2,   0,   1,   0},
 	{ "STORED",   2,   0,   1,   0},
-	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY12",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY13",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY14",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY15",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY16",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY17",   0,   0,   0,   0},
+	{ "OBJ_OWN_BITMAP",   2,   0,   1,   0},
+	{ "OBJ_OWN_PALDATA",   2,   0,   1,   0},
+	{ "OBJ_OWN_FILE",   2,   0,   1,   0},
+	{ "OBJ_OWN_DIR",   2,   0,   1,   0},
+	{ "OBJ_OWN_STACK",   2,   0,   1,   0},
+	{ "OBJ_OWN_RNG",   2,   0,   1,   0},
+	{ "OBJ_OWN_CLASS",   2,   0,   1,   0},
+	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
+	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY18",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},

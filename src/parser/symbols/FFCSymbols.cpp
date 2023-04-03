@@ -43,10 +43,20 @@ static AccessorTable FFCTable[] =
 	{ "setInitD[]",                 0,          ZTID_VOID,   FFINITDD,                  0,  { ZTID_FFC, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "getID",                      0,         ZTID_FLOAT,   FFCID,                     0,  { ZTID_FFC },{} },
 	{ "setID",                      0,          ZTID_VOID,   FFCID,                     0,  { ZTID_FFC, ZTID_FLOAT },{} },
-	{ "getLastChangerX",                      0,         ZTID_FLOAT,   FFCLASTCHANGERX,                     0,  { ZTID_FFC },{} },
-	{ "setLastChangerX",                      0,          ZTID_VOID,   FFCLASTCHANGERX,                     0,  { ZTID_FFC, ZTID_FLOAT },{} },
-	{ "getLastChangerY",                      0,         ZTID_FLOAT,   FFCLASTCHANGERY,                     0,  { ZTID_FFC },{} },
-	{ "setLastChangerY",                      0,          ZTID_VOID,   FFCLASTCHANGERY,                     0,  { ZTID_FFC, ZTID_FLOAT },{} },
+	{ "getLastChangerX",            0,         ZTID_FLOAT,   FFCLASTCHANGERX,           0,  { ZTID_FFC },{} },
+	{ "setLastChangerX",            0,          ZTID_VOID,   FFCLASTCHANGERX,           0,  { ZTID_FFC, ZTID_FLOAT },{} },
+	{ "getLastChangerY",            0,         ZTID_FLOAT,   FFCLASTCHANGERY,           0,  { ZTID_FFC },{} },
+	{ "setLastChangerY",            0,          ZTID_VOID,   FFCLASTCHANGERY,           0,  { ZTID_FFC, ZTID_FLOAT },{} },
+	
+	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_BITMAP },{} },
+	{ "Own",                        1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_PALDATA },{} },
+	{ "Own",                        2,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_FILE },{} },
+	{ "Own",                        3,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_DIRECTORY },{} },
+	{ "Own",                        4,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_STACK },{} },
+	{ "Own",                        5,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_RNG },{} },
+	{ "OwnArray",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_UNTYPED },{} },
+	{ "OwnObject",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_FFC, ZTID_UNTYPED },{} },
+	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
@@ -57,5 +67,126 @@ FFCSymbols::FFCSymbols()
 }
 
 void FFCSymbols::generateCode()
-{}
+{
+	//void Own(ffc,bitmap)
+	{
+		Function* function = getFunction("Own",0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnBitmap(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,paldata)
+	{
+		Function* function = getFunction("Own",1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnPaldata(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,file)
+	{
+		Function* function = getFunction("Own",2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnFile(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,directory)
+	{
+		Function* function = getFunction("Own",3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnDir(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,stack)
+	{
+		Function* function = getFunction("Own",4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnStack(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,rng)
+	{
+		Function* function = getFunction("Own",5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnRNG(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,untyped)
+	{
+		Function* function = getFunction("OwnArray");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnArray(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(ffc,untyped)
+	{
+		Function* function = getFunction("OwnObject");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnClass(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		RETURN();
+		function->giveCode(code);
+	}
+}
 
