@@ -4084,15 +4084,19 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			}
 			else
 			{
-				int32_t r=zc_oldrand()%100;
-				
-				if(r<15)
+				if(get_bit(quest_rules,qr_HARDCODED_FFC_BUSH_DROPS))
 				{
-					it=iHeart;                                // 15%
+					int32_t r=zc_oldrand()%100;
+					
+					if(r<15)
+						it=iHeart; // 15%
+					else if(r<35)
+						it=iRupy; // 20%
 				}
-				else if(r<35)
+				else
 				{
-					it=iRupy;                                 // 20%
+					it = select_dropitem(12);
+					thedropset = 12;
 				}
 			}
 			
