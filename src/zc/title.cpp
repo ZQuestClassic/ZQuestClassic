@@ -1642,7 +1642,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			}
 			else
 			{
-				for(int32_t j=0; j<MAXDMAPS*MAPSCRSNORMAL; j++)
+				for(int32_t j=0; j<MAX_MI; j++)
 				{
 					for(int32_t k=0; k<8; k++)
 					{
@@ -2508,7 +2508,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 			return 42;
 		}
 		
-		for(int32_t j=0; j<MAXDMAPS*MAPSCRSNORMAL; j++)
+		for(int32_t j=0; j<MAX_MI; j++)
 		{
 			for(int32_t k=0; k<8; k++)
 			{

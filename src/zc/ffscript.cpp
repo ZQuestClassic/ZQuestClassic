@@ -10070,8 +10070,12 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAMISCD:
 		{
 			int32_t indx = (ri->d[rINDEX])/10000;
-			int32_t mi = get_mi(MAPSCR_TEMP0);
-			if(mi<0) {ret = 0;break;}
+			int32_t mi = get_mi(ri->mapsref);
+			if(unsigned(mi) >= MAX_MI)
+			{
+				ret = 0;
+				break;
+			}
 			if( ((unsigned)indx) > 7 )
 			{
 				Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);

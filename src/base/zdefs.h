@@ -4146,6 +4146,7 @@ enum
 
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
+#define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
 struct gamedata
 {
 	//private:
@@ -4202,7 +4203,7 @@ struct gamedata
 	byte  icon[128];
 	byte  pal[48];
 	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
-	int32_t  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
+	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
 	std::vector< ZCArray <int32_t> > globalRAM;
 	
