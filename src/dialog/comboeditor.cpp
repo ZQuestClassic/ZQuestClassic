@@ -2819,7 +2819,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								width = 1.5_em, padding = 0_px, forceFitH = true,
 								text = "?", hAlign = 1.0, onPressFunc = [&]()
 								{
-									InfoDialog("ExState","If the value is >=0, the exstate "
+									InfoDialog("ExState","If the value is >=0, the exstate"
 										" id set here will be set when the combo is triggered,"
 										"\nand if the exstate set here is already set, the combo will automatically trigger"
 										"\nwithout any effects other than combo/cset change.").show();
