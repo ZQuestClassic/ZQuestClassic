@@ -992,7 +992,7 @@
                         },
                         {
                             "name": "DisableItem[] ;; Game::DisableItem",
-                            "val": "<h3>bool DisabledItem[NUM_ITEMDATA];</h3>\n\nWhether each item is disabled or not on the current dmap."
+                            "val": "<h3>bool DisableItem[NUM_ITEMDATA];</h3>\n\nWhether each item is disabled or not on the current dmap."
                         },
                         {
                             "name": "Misc ;; Game::MapCount / Game::NumMessages",
