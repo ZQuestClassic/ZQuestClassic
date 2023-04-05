@@ -447,9 +447,13 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Skip Logo",App::zelda,"zeldadx","skip_logo",1),
 						CONFIG_CHECKBOX("Skip Title",App::zelda,"zeldadx","skip_title",0),
 						CONFIG_CHECKBOX("Skip Quest Icons",App::zelda,"zeldadx","skip_icons",0),
-						CONFIG_CHECKBOX("Force-reload Quest Icons",App::zelda,"zeldadx","reload_game_icons",0),
 						CONFIG_CHECKBOX("Cont. Heart Beep",App::zelda,"zeldadx","heart_beep",1),
 						CONFIG_CHECKBOX("Disable Sound",App::zelda,"zeldadx","nosound",0),
+						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
+						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file")
+					),
+					Rows<2>(fitParent = true,
+						CONFIG_CHECKBOX("Force-reload Quest Icons",App::zelda,"zeldadx","reload_game_icons",0),
 						CONFIG_CHECKBOX_I("Allow Multiple Instances",App::zelda,"zeldadx","multiple_instances",0,"This can cause issues including but not limited to save file deletion."),
 						CONFIG_CHECKBOX("Click to Freeze",App::zelda,"zeldadx","clicktofreeze",1),
 						CONFIG_CHECKBOX_I("Quickload Last Quest",App::zelda,"zeldadx","quickload_last",0,"Unless 'Quickload Slot' is set, this will load the last quest played immediately upon launching."),
@@ -460,8 +464,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX_I("Linear Scaling",App::zelda,"zeldadx","scaling_mode",0,"Use linear scaling when upscaling the window. If off, the default is nearest-neighbor scaling. If on, things will look a little blurry at most resolutions"),
 						CONFIG_CHECKBOX_I("Ignore Monitor Scale",App::zelda,"gui","ignore_monitor_scale",1,"Ignore monitor DPI scale (i.e. Windows' \"Scale and Layout\" scale)"),
 						CONFIG_CHECKBOX_I("Monochrome Debuggers",App::zelda,"CONSOLE","monochrome_debuggers",0,"Use non-colored debugger text."),
-						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
-						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file"),
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT script compilation",App::zelda,"ZSCRIPT","jit",0,"Compile scripts to machine code. Depending on the script, can be up to 10x faster. 64-bit only"),
 						CONFIG_CHECKBOX_I("(EXPERIMENTAL) JIT precompile",App::zelda,"ZSCRIPT","jit_precompile",0,"Do all JIT compilation upfront on quest load. Can take a couple minutes, but will avoid random pauses during play.")
 					),
