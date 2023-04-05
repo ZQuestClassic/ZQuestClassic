@@ -2799,7 +2799,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
 
 	if (dx < 0 || dx > 255 || dy < 0 || dy > 175)
-		return false;
+		return true;
 	//_walkflag code
 	mapscr *s1, *s2;
 	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
@@ -2894,24 +2894,26 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		if(dx < 0)
 		{
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-			int32_t tx = (bx+dx).getFloor();
+			int mx = (bx+dx).getFloor();
+			int my = (by+dy).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, left, bx, by, kb))
+				if(scr_walkflag(mx, by+ty, special, left, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, left, bx, by, kb))
+			if(scr_walkflag(mx, ry, special, left, mx, my, kb))
 				return false;
 		}
 		else
 		{
-			int32_t tx = (rx+dx).getCeil();
+			int mx = (rx+dx).getCeil();
+			int my = (by+dy).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, right, bx, by, kb))
+				if(scr_walkflag(mx, by+ty, special, right, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, right, bx, by, kb))
+			if(scr_walkflag(mx, ry, special, right, mx, my, kb))
 				return false;
 		}
 	}
@@ -2920,24 +2922,26 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		if(dy < 0)
 		{
 			special = (special==spw_clipbottomright)?spw_none:special;
-			int32_t ty = (by+dy).getFloor();
+			int mx = (bx+dx).getFloor();
+			int my = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, up, bx, by, kb))
+				if(scr_walkflag(bx+tx, my, special, up, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, up, bx, by, kb))
+			if(scr_walkflag(rx, my, special, up, mx, my, kb))
 				return false;
 		}
 		else
 		{
-			int32_t ty = (ry+dy).getCeil();
+			int mx = (bx+dx).getFloor();
+			int my = (ry+dy).getCeil();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, down, bx, by, kb))
+				if(scr_walkflag(bx+tx, my, special, down, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, down, bx, by, kb))
+			if(scr_walkflag(rx, my, special, down, mx, my, kb))
 				return false;
 		}
 	}
