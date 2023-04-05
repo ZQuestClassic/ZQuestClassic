@@ -10519,10 +10519,10 @@ void domouse()
 			{
 				tooltip_current_combo = c;
 				char msg[512] = {0};
-				mapscr* drawscr = Map.AbsoluteScr(drawmap, drawscr);
-				int cid = drawscr->data[c];
+				mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+				int cid = draw_mapscr->data[c];
 				sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
-					c, cid, drawscr->cset[c], drawscr->sflag[c], combobuf[cid].flag,
+					c, cid, draw_mapscr->cset[c], draw_mapscr->sflag[c], combobuf[cid].flag,
 					combo_class_buf[combobuf[cid].type].name);
 				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, msg);
 			}
