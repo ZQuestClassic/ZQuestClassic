@@ -12705,7 +12705,7 @@ int32_t onSecretCombo()
         //   s=TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS+(Map.CurrScr()->layerscreen[CurrentLayer-1])];
         s=Map.AbsoluteScr((Map.CurrScr()->layermap[CurrentLayer-1]-1), (Map.CurrScr()->layerscreen[CurrentLayer-1]));
     }
-	if(!s) return;
+	if(!s) return D_O_K;
     
     char secretcombonumstr[27];
     sprintf(secretcombonumstr,"Secret Combos for Layer %d", CurrentLayer);
