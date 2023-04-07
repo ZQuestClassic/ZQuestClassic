@@ -5153,11 +5153,7 @@ void zmap::update_combo_cycling()
     int32_t x;
     int32_t newdata[176];
     int32_t newcset[176];
-    static bool restartanim[MAXCOMBOS];
-    static bool restartanim2[MAXCOMBOS];
-    
-    memset(restartanim, 0, MAXCOMBOS);
-    memset(restartanim2, 0, MAXCOMBOS);
+    bool restartanim[MAXCOMBOS];
     
     for(int32_t i=0; i<176; i++)
     {
@@ -5165,7 +5161,6 @@ void zmap::update_combo_cycling()
         newcset[i]=-1;
         
         x=prvscr.data[i];
-        //y=animated_combo_table[x][0];
         
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
@@ -5187,7 +5182,6 @@ void zmap::update_combo_cycling()
     for(int32_t i=0; i<176; i++)
     {
         x=prvscr.data[i];
-        //y=animated_combo_table2[x][0];
         
         //time to restart
         if((combobuf[x].aclk>=combobuf[x].speed) &&
@@ -5201,7 +5195,7 @@ void zmap::update_combo_cycling()
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
-                restartanim2[c]=true;
+                restartanim[c]=true;
             }
         }
     }
@@ -5220,7 +5214,6 @@ void zmap::update_combo_cycling()
     {
 		ffcdata& ffc = prvscr.ffcs[i];
         newcombo const& cmb = combobuf[ffc.getData()];
-        //y=animated_combo_table[x][0];
         
         //time to restart
         if((cmb.aclk>=cmb.speed) &&
@@ -5234,7 +5227,6 @@ void zmap::update_combo_cycling()
             if(combobuf[ffc.getData()].animflags & AF_CYCLE)
             {
                 restartanim[ffc.getData()]=true;
-                restartanim2[ffc.getData()]=true;
             }
 			prvscr.ffcs[i].setData(ffc.getData());
 			prvscr.ffcs[i].cset=ffc.cset;
@@ -5255,7 +5247,6 @@ void zmap::update_combo_cycling()
                 newcset[i]=-1;
                 
                 x=(prvlayers[j]).data[i];
-                //y=animated_combo_table[x][0];
                 
                 //time to restart
                 if((combobuf[x].aclk>=combobuf[x].speed) &&
@@ -5277,7 +5268,6 @@ void zmap::update_combo_cycling()
             for(int32_t i=0; i<176; i++)
             {
                 x=(prvlayers[j]).data[i];
-                //y=animated_combo_table2[x][0];
                 
                 //time to restart
                 if((combobuf[x].aclk>=combobuf[x].speed) &&
@@ -5291,7 +5281,7 @@ void zmap::update_combo_cycling()
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
-                        restartanim2[c]=true;
+                        restartanim[c]=true;
                     }
                 }
             }
@@ -5315,16 +5305,7 @@ void zmap::update_combo_cycling()
 			combobuf[i].cur_frame=0;
             combobuf[i].aclk = 0;
         }
-        
-        if(restartanim2[i])
-        {
-            combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-            combobuf[i].aclk = 0;
-        }
     }
-    
-    return;
 }
 
 void zmap::update_freeform_combos()

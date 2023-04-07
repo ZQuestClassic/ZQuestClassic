@@ -900,8 +900,8 @@ void update_combo_cycling()
     static int32_t newcset[176];
     static int32_t newdata2[176];
     static int32_t newcset2[176];
-    static bool restartanim[MAXCOMBOS];
-    static bool restartanim2[MAXCOMBOS];
+    std::set<uint16_t> restartanim;
+    std::set<uint16_t> restartanim2;
     static bool initialized=false;
     
     // Just a simple bit of optimization
@@ -915,15 +915,12 @@ void update_combo_cycling()
             newcset2[i]=-1;
         }
         
-        memset(restartanim, 0, MAXCOMBOS);
-        memset(restartanim2, 0, MAXCOMBOS);
         initialized=true;
     }
     
     for(int32_t i=0; i<176; i++)
     {
         x=tmpscr->data[i];
-        //y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
         
@@ -939,7 +936,7 @@ void update_combo_cycling()
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
-                restartanim[c]=true;
+                restartanim.insert(c);
             }
         }
     }
@@ -947,7 +944,6 @@ void update_combo_cycling()
     for(int32_t i=0; i<176; i++)
     {
         x=tmpscr->data[i];
-        //y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
         
@@ -963,7 +959,7 @@ void update_combo_cycling()
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
-                restartanim2[c]=true;
+                restartanim2.insert(c);
             }
         }
     }
@@ -1002,7 +998,8 @@ void update_combo_cycling()
             
             if(combobuf[ffc.getData()].animflags & AF_CYCLE)
             {
-                (fresh?restartanim2:restartanim)[ffc.getData()]=true;
+                auto& animset = fresh ? restartanim2 : restartanim;
+                animset.insert(ffc.getData());
             }
         }
     }
@@ -1014,7 +1011,6 @@ void update_combo_cycling()
             for(int32_t i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
-               // y=animated_combo_table[x][0];
                 
                 if(combobuf[x].animflags & AF_FRESH) continue;
                 
@@ -1030,7 +1026,7 @@ void update_combo_cycling()
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
-                        restartanim[c]=true;
+                        restartanim.insert(c);
                     }
                 }
             }
@@ -1038,7 +1034,6 @@ void update_combo_cycling()
             for(int32_t i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
-                //y=animated_combo_table2[x][0];
                 
                 if(!(combobuf[x].animflags & AF_FRESH)) continue;
                 
@@ -1056,7 +1051,7 @@ void update_combo_cycling()
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
-                        restartanim2[c]=true;
+                        restartanim2.insert(c);
                     }
                     
                     if(combobuf[c].type==cSPINTILE1)
@@ -1092,24 +1087,19 @@ void update_combo_cycling()
             }
         }
     }
-    
-    for(int32_t i=0; i<MAXCOMBOS; i++)
+
+    for (auto i : restartanim)
     {
-        if(restartanim[i])
-        {
-            combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-			combobuf[i].aclk = 0;
-            restartanim[i]=false;
-        }
-        
-        if(restartanim2[i])
-        {
-            combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-			combobuf[i].aclk = 0;
-            restartanim2[i]=false;
-        }
+        combobuf[i].tile = combobuf[i].o_tile;
+        combobuf[i].cur_frame=0;
+        combobuf[i].aclk = 0;
+    }
+
+    for (auto i : restartanim2)
+    {
+        combobuf[i].tile = combobuf[i].o_tile;
+        combobuf[i].cur_frame=0;
+        combobuf[i].aclk = 0;
     }
 }
 
