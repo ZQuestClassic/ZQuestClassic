@@ -3997,150 +3997,29 @@ int32_t onPgDn()
 
 int32_t onIncreaseCSet()
 {
-    /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
-            !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
-            !key[KEY_ALT] && !key[KEY_ALTGR])
-    {*/
-        if(draw_mode!=dm_alias)
-        {
-            CSet=wrap(CSet+1,0,13);
-            refresh(rCOMBOS+rMENU+rCOMBO);
-        }
-        else
-        {
-            alias_cset_mod=wrap(alias_cset_mod+1,0,13);
-        }
-    /*}
-    else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-    {
-        int32_t drawmap, drawscr;
-        
-        if(CurrentLayer==0)
-        {
-            drawmap=Map.getCurrMap();
-            drawscr=Map.getCurrScr();
-        }
-        else
-        {
-            drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-            drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-            
-            if(drawmap<0)
-            {
-                return D_O_K;
-            }
-        }
-        
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
-        {
-            return D_O_K;
-        }
-        
-        saved=false;
-        Map.Ugo();
-        int32_t changeby=1;
-        
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-            changeby*=16;
-        }
-        
-        if(key[KEY_ALT] || key[KEY_ALTGR])
-        {
-            changeby*=256;
-        }
-        
-        for(int32_t i=0; i<176; i++)
-        {
-            int32_t temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
-            
-            temp+=changeby;
-            
-            if(temp>=MAXCOMBOS)
-            {
-                temp=temp-MAXCOMBOS;
-            }
-            
-            Map.AbsoluteScr(drawmap, drawscr)->data[i]=temp;
-        }
-        
-        refresh(rMAP+rSCRMAP);
-    }
-    */
+	if(draw_mode!=dm_alias)
+	{
+		CSet=wrap(CSet+1,0,13);
+		refresh(rCOMBOS+rMENU+rCOMBO);
+	}
+	else
+	{
+		alias_cset_mod=wrap(alias_cset_mod+1,0,13);
+	}
     return D_O_K;
 }
 
 int32_t onDecreaseCSet()
 {
-    /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
-            !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
-            !key[KEY_ALT] && !key[KEY_ALTGR])
-    {*/
-        if(draw_mode!=dm_alias)
-        {
-            CSet=wrap(CSet-1,0,13);
-            refresh(rCOMBOS+rMENU+rCOMBO);
-        }
-        else
-        {
-            alias_cset_mod=wrap(alias_cset_mod-1,0,13);
-        }
-    /*}
-    else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-    {
-        int32_t drawmap, drawscr;
-        
-        if(CurrentLayer==0)
-        {
-            drawmap=Map.getCurrMap();
-            drawscr=Map.getCurrScr();
-        }
-        else
-        {
-            drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-            drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-            
-            if(drawmap<0)
-            {
-                return D_O_K;
-            }
-        }
-        
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
-        {
-            return D_O_K;
-        }
-        
-        saved=false;
-        Map.Ugo();
-        int32_t changeby=1;
-        
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-            changeby*=16;
-        }
-        
-        if(key[KEY_ALT] || key[KEY_ALTGR])
-        {
-            changeby*=256;
-        }
-        
-        for(int32_t i=0; i<176; i++)
-        {
-            int32_t temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
-            temp-=changeby;
-            
-            if(temp<0)
-            {
-                temp=MAXCOMBOS+temp;
-            }
-            
-            Map.AbsoluteScr(drawmap, drawscr)->data[i]=temp;
-        }
-        
-        refresh(rMAP+rSCRMAP);
-    }
-    */
+	if(draw_mode!=dm_alias)
+	{
+		CSet=wrap(CSet-1,0,13);
+		refresh(rCOMBOS+rMENU+rCOMBO);
+	}
+	else
+	{
+		alias_cset_mod=wrap(alias_cset_mod-1,0,13);
+	}
     return D_O_K;
 }
 
@@ -7724,17 +7603,14 @@ void draw(bool justcset)
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -8162,22 +8038,19 @@ void replace(int32_t c)
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t targetcombo = Map.AbsoluteScr(drawmap, drawscr)->data[c];
-    int32_t targetcset  = Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+    int32_t targetcombo = draw_mapscr->data[c];
+    int32_t targetcset  = draw_mapscr->cset[c];
     
     Map.StartListCommand();
     if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
         for(int32_t i=0; i<176; i++)
         {
-            if((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset)
+            if((draw_mapscr->cset[i])==targetcset)
             {
 				if(draw_mode == dm_cpool)
 					pool.pick(cid,cs);
@@ -8189,8 +8062,8 @@ void replace(int32_t c)
     {
         for(int32_t i=0; i<176; i++)
         {
-            if(((Map.AbsoluteScr(drawmap, drawscr)->data[i])==targetcombo) &&
-                    ((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset))
+            if(((draw_mapscr->data[i])==targetcombo) &&
+                    ((draw_mapscr->cset[i])==targetcset))
             {
 				if(draw_mode == dm_cpool)
 					pool.pick(cid,cs);
@@ -8224,17 +8097,14 @@ void draw_block(int32_t start,int32_t w,int32_t h)
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -8924,19 +8794,16 @@ void flood()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -8964,19 +8831,16 @@ void flood_flag()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -9003,12 +8867,9 @@ void fill_4()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
     int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
@@ -9016,23 +8877,23 @@ void fill_4()
     int32_t bx= (x>>4)/(mapscreensize);
     
     if(draw_mode == dm_cpool
-		|| (Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
-            (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
+		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
+            (draw_mapscr->data[(by<<4)+bx]!=Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-        fill(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
-             (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        fill(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->data[(by<<4)+bx]),
+             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
@@ -9050,32 +8911,29 @@ void fill_4_flag()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
     int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx] != Flag)
+    if(draw_mapscr->sflag[(by<<4)+bx] != Flag)
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-		fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
+		fill_flag(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
@@ -9094,12 +8952,9 @@ void fill_8()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
     int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
@@ -9107,23 +8962,23 @@ void fill_8()
     int32_t bx= (x>>4)/(mapscreensize);
     
     if(draw_mode == dm_cpool
-		|| (Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
-            (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
+		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
+            (draw_mapscr->data[(by<<4)+bx]!=Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-        fill(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
-             (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        fill(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->data[(by<<4)+bx]),
+             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
@@ -9141,32 +8996,29 @@ void fill_8_flag()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
     int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx]!=Flag)
+    if(draw_mapscr->sflag[(by<<4)+bx]!=Flag)
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-        fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
+        fill_flag(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
@@ -9182,17 +9034,13 @@ void fill2_4()
         drawmap=Map.getCurrMap();
         drawscr=Map.getCurrScr();
     }
-    
     else
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
     int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
@@ -9201,15 +9049,15 @@ void fill2_4()
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
     Map.StartListCommand();
-    fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    fill2(draw_mapscr, Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
     Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
@@ -9227,12 +9075,9 @@ void fill2_8()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
     int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
@@ -9241,15 +9086,15 @@ void fill2_8()
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
     Map.StartListCommand();
-    fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    fill2(draw_mapscr, Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
     Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
@@ -9421,14 +9266,11 @@ void onRCSelectCombo(int32_t c)
 	{
 		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		
-		if(drawmap<0)
-		{
-			return;
-		}
 	}
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
 
-	Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+	Combo=draw_mapscr->data[c];
 }
 
 void onRCScrollToombo(int32_t c)
@@ -9444,15 +9286,12 @@ void onRCScrollToombo(int32_t c)
 	{
 		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		
-		if(drawmap<0)
-		{
-			return;
-		}
 	}
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
 	
 	auto& sqr = combolist[current_combolist];
-	First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
+	First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 }
 
 static MENU rc_menu_screen[] =
@@ -10504,10 +10343,6 @@ void domouse()
 			{
 				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-				
-				if(drawmap<0)
-				{
-				}
 			}
 			
 			if(tooltip_current_combo != c)
@@ -10515,11 +10350,11 @@ void domouse()
 				clear_tooltip();
 			}
 			
-			if(unsigned(c) < 176)
+			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+			if(unsigned(c) < 176 && draw_mapscr)
 			{
 				tooltip_current_combo = c;
 				char msg[512] = {0};
-				mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 				int cid = draw_mapscr->data[c];
 				sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
 					c, cid, draw_mapscr->cset[c], draw_mapscr->sflag[c], combobuf[cid].flag,
@@ -11002,13 +10837,13 @@ void domouse()
 						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
 					}
-					if(drawmap<0)
-						return;
-					Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+					if(!draw_mapscr) return;
+					Combo=draw_mapscr->data[c];
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-						CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+						CSet=draw_mapscr->cset[c];
 					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-						First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
+						First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 				}
 				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
@@ -11177,7 +11012,7 @@ void domouse()
 						draw_rc_menu[13].flags = draw_rc_menu[12].flags = D_DISABLED;
 					}
 					
-					int32_t warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
+					int32_t warpindex = Map.warpindex(Map.CurrScr()->data[c]);
 					
 					if(warpindex > -1)
 					{
@@ -11196,63 +11031,40 @@ void domouse()
 					
 					int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
 					
+					int32_t drawmap, drawscr;
+					if(CurrentLayer==0)
+					{
+						drawmap=Map.getCurrMap();
+						drawscr=Map.getCurrScr();
+					}
+					else
+					{
+						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+					}
+					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 					switch(m)
 					{
 						case 0:
 						case 1:
 						{
-							int32_t drawmap, drawscr;
-							
-							if(CurrentLayer==0)
-							{
-								drawmap=Map.getCurrMap();
-								drawscr=Map.getCurrScr();
-							}
-							else
-							{
-								drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-								drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-								
-								if(drawmap<0)
-								{
-									return;
-								}
-							}
-							
+							if(!draw_mapscr) return;
 							if(m==0)
 							{
-								Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+								Combo=draw_mapscr->data[c];
 							}
 							
 							if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
 							{
-								First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
+								First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 							}
 						}
 						break;
 						
 						case 2:
 						{
-							int32_t drawmap, drawscr;
-							
-							if(CurrentLayer==0)
-							{
-							
-								drawmap=Map.getCurrMap();
-								drawscr=Map.getCurrScr();
-							}
-							else
-							{
-								drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-								drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-								
-								if(drawmap<0)
-								{
-									return;
-								}
-							}
-							
-							edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],true,Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
+							if(!draw_mapscr) return;
+							edit_combo(draw_mapscr->data[c],true,draw_mapscr->cset[c]);
 						}
 						break;
 						
@@ -12009,38 +11821,35 @@ int32_t onCSetFix()
         if(csetfix_dlg[5].flags&D_SELECTED)
         {
             /*
-              int32_t drawmap, drawscr;
-              if (CurrentLayer==0)
-              {
-              drawmap=Map.getCurrMap();
-              drawscr=Map.getCurrScr();
-              }
-              else
-              {
-              drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-              drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-              if (drawmap<0)
-              {
-              return;
-              }
-              }
-            
-              saved=false;
-              Map.Ugo();
-            
-              if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
-              {
-              Map.CurrScr()->valid|=mVALID;
-              Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
-              Map.setcolor(Color);
-              }
-              for(int32_t i=0; i<176; i++)
-              {
-              Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
-              Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
-              }
-              refresh(rMAP+rSCRMAP);
-              */
+			int32_t drawmap, drawscr;
+			if (CurrentLayer==0)
+			{
+				drawmap=Map.getCurrMap();
+				drawscr=Map.getCurrScr();
+			}
+			else
+			{
+				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+			}
+			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+			if(!draw_mapscr) return;
+			saved=false;
+			Map.Ugo();
+
+			if(!(draw_mapscr->valid&mVALID))
+			{
+				Map.CurrScr()->valid|=mVALID;
+				draw_mapscr->valid|=mVALID;
+				Map.setcolor(Color);
+			}
+			for(int32_t i=0; i<176; i++)
+			{
+				draw_mapscr->data[i]=Combo;
+				draw_mapscr->cset[i]=CSet;
+			}
+			refresh(rMAP+rSCRMAP);
+            */
         }
         
         Map.StartListCommand();
@@ -12896,6 +12705,7 @@ int32_t onSecretCombo()
         //   s=TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS+(Map.CurrScr()->layerscreen[CurrentLayer-1])];
         s=Map.AbsoluteScr((Map.CurrScr()->layermap[CurrentLayer-1]-1), (Map.CurrScr()->layerscreen[CurrentLayer-1]));
     }
+	if(!s) return;
     
     char secretcombonumstr[27];
     sprintf(secretcombonumstr,"Secret Combos for Layer %d", CurrentLayer);
@@ -13117,9 +12927,9 @@ int32_t onUnderCombo()
 	{
 		auto map=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		auto screen=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		if(map < 0) return D_O_K;
 		scr = Map.AbsoluteScr(map,screen);
 	}
+	if(!scr) return D_O_K;
 	
 	under_dlg[3].d1=scr->undercombo;
 	under_dlg[3].fg=scr->undercset;
@@ -14967,18 +14777,13 @@ int32_t onUsedCombos()
         }
         else
         {
-            if(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->layermap[layer-1]>0)
-            {
-                drawmap=Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->layermap[layer-1]-1;
-                drawscr=Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->layerscreen[layer-1];
-            }
-            else
-            {
-                continue;
-            }
+			drawmap=Map.CurrScr()->layermap[layer-1]-1;
+			drawscr=Map.CurrScr()->layerscreen[layer-1];
         }
+		mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+		if(!draw_mapscr) continue;
         
-        usedcombos[layer][0][0]=Map.AbsoluteScr(drawmap, drawscr)->data[0];
+        usedcombos[layer][0][0]=draw_mapscr->data[0];
         usedcombos[layer][0][1]=1;
         counter[layer]=1;
         
@@ -14988,7 +14793,7 @@ int32_t onUsedCombos()
             
             for(int32_t j=0; j<counter[layer]; ++j)
             {
-                if(usedcombos[layer][j][0]==Map.AbsoluteScr(drawmap, drawscr)->data[i])
+                if(usedcombos[layer][j][0]==draw_mapscr->data[i])
                 {
                     ++usedcombos[layer][j][1];
                     used=true;
@@ -14998,7 +14803,7 @@ int32_t onUsedCombos()
             
             if(!used)
             {
-                usedcombos[layer][counter[layer]][0]=Map.AbsoluteScr(drawmap, drawscr)->data[i];
+                usedcombos[layer][counter[layer]][0]=draw_mapscr->data[i];
                 usedcombos[layer][counter[layer]][1]=1;
                 ++counter[layer];
             }
@@ -19678,94 +19483,98 @@ int32_t warpdestscr=-1;
 
 int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
-    int32_t ret=D_O_K;
-    static BITMAP *bmp=create_bitmap_ex(8,256,176);
-    static bool inrect=false;
-    static bool mousedown=false;
-    
-    switch(msg)
-    {
-    case MSG_START:
-        loadlvlpal(Map.AbsoluteScr(warpdestmap,warpdestscr)->color);
-        rebuild_trans_table();
-        break;
-        
-    case MSG_DRAW:
-    {
-        jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
-        
-        if(AnimationOn||CycleOn)
-        {
-            if(AnimationOn)
-            {
-                animate_combos();
-            }
-            
-            if(CycleOn)
-            {
-                cycle_palette();
-            }
-        }
-        
-        animate_coords();
-        Map.draw(bmp, 0, 0, 0, warpdestmap, warpdestscr);
-        blit(icon_bmp[ICON_BMP_WARPDEST][coord_frame], bmp, 0, 0, Map.AbsoluteScr(warpdestmap,warpdestscr)->warparrivalx, Map.AbsoluteScr(warpdestmap,warpdestscr)->warparrivaly, 16, 16);
-        int32_t px2=((gui_mouse_x()-d->x-2)&0xF8);
-        int32_t py2=((gui_mouse_y()-d->y-2)&0xF8);
-        
-        if(isinRect(gui_mouse_x(), gui_mouse_y(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
-        {
-            if(gui_mouse_b())
-            {
-                if(!mousedown||!inrect)
-                {
+	//these are here to bypass compiler warnings about unused arguments
+	c=c;
+	
+	int32_t ret=D_O_K;
+	static BITMAP *bmp=create_bitmap_ex(8,256,176);
+	static bool inrect=false;
+	static bool mousedown=false;
+	mapscr* warpdest_mapscr = Map.AbsoluteScr(warpdestmap,warpdestscr);
+	
+	switch(msg)
+	{
+	case MSG_START:
+	{
+		if(!warpdest_mapscr) break;
+		loadlvlpal(warpdest_mapscr->color);
+		rebuild_trans_table();
+		break;
+	}   
+	case MSG_DRAW:
+	{
+		jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
+		
+		if(AnimationOn||CycleOn)
+		{
+			if(AnimationOn)
+			{
+				animate_combos();
+			}
+			
+			if(CycleOn)
+			{
+				cycle_palette();
+			}
+		}
+		
+		animate_coords();
+		Map.draw(bmp, 0, 0, 0, warpdestmap, warpdestscr);
+		if(warpdest_mapscr)
+			blit(icon_bmp[ICON_BMP_WARPDEST][coord_frame], bmp, 0, 0, warpdest_mapscr->warparrivalx, warpdest_mapscr->warparrivaly, 16, 16);
+		int32_t px2=((gui_mouse_x()-d->x-2)&0xF8);
+		int32_t py2=((gui_mouse_y()-d->y-2)&0xF8);
+		
+		if(isinRect(gui_mouse_x(), gui_mouse_y(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
+		{
+			if(gui_mouse_b())
+			{
+				if(!mousedown||!inrect)
+				{
 					if(allowHideMouse)
 						MouseSprite::set(ZQM_BLANK);
-                    set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
-                }
-                
-                rect(bmp, px2, py2, px2+15, py2+15, vc(15));
-                warpdestsel_x=px2;
-                warpdestsel_y=py2;
-                mousedown=true;
-            }
-            else
-            {
-                if(mousedown||!inrect)
-                {
-                    set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-                    MouseSprite::set(ZQM_POINT_BOX);
-                }
-                
-                mousedown=false;
-            }
-            
-            inrect=true;
-        }
-        else
-        {
-            MouseSprite::set(ZQM_NORMAL);
-            inrect=false;
-        }
-        
-        blit(bmp, screen, 0, 0, d->x+2, d->y+2, 256, 176);
-    }
-    break;
-    
-    case MSG_VSYNC:
-        d->flags|=D_DIRTY;
-        break;
-        
-    case MSG_END:
-        loadlvlpal(Map.CurrScr()->color);
-        rebuild_trans_table();
-        break;
-    }
-    
-    return ret;
+					set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
+				}
+				
+				rect(bmp, px2, py2, px2+15, py2+15, vc(15));
+				warpdestsel_x=px2;
+				warpdestsel_y=py2;
+				mousedown=true;
+			}
+			else
+			{
+				if(mousedown||!inrect)
+				{
+					set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+					MouseSprite::set(ZQM_POINT_BOX);
+				}
+				
+				mousedown=false;
+			}
+			
+			inrect=true;
+		}
+		else
+		{
+			MouseSprite::set(ZQM_NORMAL);
+			inrect=false;
+		}
+		
+		blit(bmp, screen, 0, 0, d->x+2, d->y+2, 256, 176);
+	}
+	break;
+	
+	case MSG_VSYNC:
+		d->flags|=D_DIRTY;
+		break;
+		
+	case MSG_END:
+		loadlvlpal(Map.CurrScr()->color);
+		rebuild_trans_table();
+		break;
+	}
+	
+	return ret;
 }
 
 #if 0

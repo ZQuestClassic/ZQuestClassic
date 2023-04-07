@@ -554,11 +554,15 @@ mapscr* zmap::Scr(int32_t scr)
 }
 mapscr* zmap::AbsoluteScr(int32_t scr)
 {
+	if(unsigned(scr) >= MAPSCRS*getMapCount())
+		return nullptr;
     return &TheMaps[scr];
 }
 mapscr* zmap::AbsoluteScr(int32_t map, int32_t scr)
 {
-    return &TheMaps[(map*MAPSCRS)+scr];
+	if(map < 0 || map >= getMapCount() || scr < 0 || scr >= MAPSCRS)
+		return nullptr;
+    return AbsoluteScr((map*MAPSCRS)+scr);
 }
 void zmap::set_prvscr(int32_t map, int32_t scr)
 {
@@ -1646,6 +1650,7 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 
 void copy_mapscr(mapscr *dest, const mapscr *src)
 {
+	if(!dest || !src) return;
 	*dest = *src;
 }
 
@@ -4363,24 +4368,32 @@ int list_command::size()
 
 void set_combo_command::execute()
 {
-    if (combo != -1) Map.AbsoluteScr(map, scr)->data[pos] = combo;
-    Map.AbsoluteScr(map, scr)->cset[pos] = cset;
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+    if (combo != -1) mapscr_ptr->data[pos] = combo;
+    mapscr_ptr->cset[pos] = cset;
 }
 
 void set_combo_command::undo()
 {
-    if (combo != -1) Map.AbsoluteScr(map, scr)->data[pos] = prev_combo;
-    Map.AbsoluteScr(map, scr)->cset[pos] = prev_cset;
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+    if (combo != -1) mapscr_ptr->data[pos] = prev_combo;
+    mapscr_ptr->cset[pos] = prev_cset;
 }
 
 void set_flag_command::execute()
 {
-    Map.AbsoluteScr(map, scr)->sflag[pos] = flag;
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+    mapscr_ptr->sflag[pos] = flag;
 }
 
 void set_flag_command::undo()
 {
-    Map.AbsoluteScr(map, scr)->sflag[pos] = prev_flag;
+	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+    mapscr_ptr->sflag[pos] = prev_flag;
 }
 
 void set_door_command::execute()
@@ -4601,6 +4614,8 @@ void zmap::CapCommandHistory()
 
 void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
 {
+	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
     std::shared_ptr<set_combo_command> command(new set_combo_command);
     command->view_map = currmap;
     command->view_scr = currscr;
@@ -4609,8 +4624,8 @@ void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
     command->pos = pos;
     command->combo = combo;
     command->cset = cset;
-    command->prev_combo = Map.AbsoluteScr(map, scr)->data[pos];
-    command->prev_cset = Map.AbsoluteScr(map, scr)->cset[pos];
+    command->prev_combo = mapscr_ptr->data[pos];
+    command->prev_cset = mapscr_ptr->cset[pos];
     if ((command->combo != -1 && command->prev_combo == command->combo) && command->cset == command->prev_cset)
     {
         // nothing to do...
@@ -4622,6 +4637,8 @@ void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
 
 void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
 {
+	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
     std::shared_ptr<set_flag_command> command(new set_flag_command);
     command->view_map = currmap;
     command->view_scr = currscr;
@@ -4629,7 +4646,7 @@ void zmap::DoSetFlagCommand(int map, int scr, int pos, int flag)
     command->scr = scr;
     command->pos = pos;
     command->flag = flag;
-    command->prev_flag = Map.AbsoluteScr(map, scr)->sflag[pos];
+    command->prev_flag = mapscr_ptr->sflag[pos];
     if (command->flag == command->prev_flag)
     {
         // nothing to do...
