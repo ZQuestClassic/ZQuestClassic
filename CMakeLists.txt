@@ -125,7 +125,7 @@ if(NOT EMSCRIPTEN)
 		GIT_REPOSITORY
 			https://github.com/glennrp/libpng.git
 		GIT_TAG
-			v1.6.37
+			v1.6.38
 		FIND_PACKAGE_ARGS NAMES PNG
 	)
 	FetchContent_MakeAvailable(png)
