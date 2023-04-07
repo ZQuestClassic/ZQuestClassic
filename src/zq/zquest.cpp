@@ -10840,6 +10840,8 @@ void domouse()
 					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 					if(!draw_mapscr) return;
 					Combo=draw_mapscr->data[c];
+					if(AutoBrush)
+						BrushWidth = BrushHeight = 1;
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
 						CSet=draw_mapscr->cset[c];
 					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
