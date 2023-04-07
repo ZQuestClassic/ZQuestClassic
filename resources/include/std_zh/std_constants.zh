@@ -3840,3 +3840,15 @@ enum
 	SHLD_FRONT, SHLD_BACK, SHLD_LEFT, SHLD_RIGHT,
 	SHLD_CAN_BREAK
 };
+
+//Override Flag constants, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags and npcdata->OverrideFlags. These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors. Add or OR (|) these together 
+const int SZOF_TILEWIDTH      = 1;     //0000000001b, 0x001
+const int SZOF_TILEHEIGHT     = 2;     //0000000010b, 0x002
+const int SZOF_HITWIDTH       = 4;     //0000000100b, 0x004
+const int SZOF_HITHEIGHT      = 8;     //0000001000b, 0x008
+const int SZOF_HITZHEIGHT     = 16;     //0000010000b, 0x010
+const int SZOF_HITXOFFSET     = 32;     //0000100000b, 0x020
+const int SZOF_HITYOFFSET     = 64;     //0001000000b, 0x040
+const int SZOF_DRAWXOFFSET    = 128;     //0010000000b, 0x080
+const int SZOF_DRAWYOFFSET    = 256;     //0100000000b, 0x100
+const int SZOF_DRAWZOFFSET    = 512;     //1000000000b, 0x200, Enemies only.
