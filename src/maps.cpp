@@ -285,6 +285,9 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
 bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 {
+	if(tmpscr->ffcs[index].getData()<=0)
+        return false;
+
     int32_t fx=tmpscr->ffcs[index].x.getInt();
     if(x<fx || x>fx+(tmpscr->ffEffectWidth(index)-1)) // FFC sizes are weird.
         return false;
@@ -294,9 +297,6 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y)
         return false;
     
     if((tmpscr->ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
-        return false;
-	
-    if(tmpscr->ffcs[index].getData()<=0)
         return false;
     
     return true;
