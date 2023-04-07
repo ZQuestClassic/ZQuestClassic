@@ -20361,6 +20361,8 @@ void HeroClass::handleSpotlights()
 			}
 		}
 	}
+
+	lightbeam_present = !maps.empty();
 	
 	//Draw visuals
 	for(auto it = maps.begin(); it != maps.end();)

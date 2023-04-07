@@ -3961,7 +3961,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	masked_blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
+	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
 	
 	
 	//3. Draw some sprites onto framebuf
@@ -4216,12 +4216,15 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
-	color_map = &trans_table2;
-	if(get_bit(quest_rules,qr_LIGHTBEAM_TRANSPARENT))
-		draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
-	else 
-		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
-	color_map = &trans_table;
+	if (lightbeam_present)
+	{
+		color_map = &trans_table2;
+		if(get_bit(quest_rules,qr_LIGHTBEAM_TRANSPARENT))
+			draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
+		else 
+			masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
+		color_map = &trans_table;
+	}
 	
 	do_layer(temp_buf, 0, 5, this_screen, 0, 0, 2, false, true);
 	do_layer(scrollbuf, 0, 5, this_screen, 0, 0, 2);

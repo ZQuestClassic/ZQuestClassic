@@ -384,6 +384,7 @@ BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf 
 BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL,
          *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
+bool lightbeam_present;
 FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;

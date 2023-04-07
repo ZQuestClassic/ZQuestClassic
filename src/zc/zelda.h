@@ -311,6 +311,7 @@ extern BITMAP   *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, 
 extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *lightbeam_bmp;
+extern bool lightbeam_present;
 extern BITMAP *zcmouse[4];
 extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
