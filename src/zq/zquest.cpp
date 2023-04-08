@@ -7999,20 +7999,8 @@ void draw(bool justcset)
             }
         }
         
-#ifdef __EMSCRIPTEN__
-		// TODO: fix this!
-		// For some reason this loop (even if a rest(1) is added) prevents the
-		// mouse thread from consuming events (or maybe it prevents SDL on the main
-		// thread from creating mouse events?). Breaking after a single iteration prevents
-		// this from locking up.
-		// This drawing code functions similarly like this, except click-and-drag
-		// will create multiple separate single edits in the undo history, rather than
-		// combining all of them.
-		break;
-#else
 		custom_vsync();
 		refresh(rALL);
-#endif
     }
 
     Map.FinishListCommand();
