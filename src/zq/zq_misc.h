@@ -46,7 +46,7 @@
 #define rFAVORITES  0x0020
 #define rCOMMANDS   0x0040
 #define rOTHER      0x0080
-#define rALL        0x0FFF
+#define rALL        0x1FFF
 #define rCLEAR      0x1000
 #define rNOCURSOR   0x2000
 
