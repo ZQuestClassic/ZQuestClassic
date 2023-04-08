@@ -2763,6 +2763,12 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					}
 					break;
 				}
+				case KEY_TAB:
+				{
+					show_quartgrid = !show_quartgrid;
+					redraw = true;
+					break;
+				}
 			}
 			clear_keybuf();
 		}
