@@ -61,6 +61,7 @@ int32_t nextcombo_fake_click=0;
 int32_t invcol=0;
 int32_t tthighlight = 1;
 int32_t showcolortip = 1;
+int32_t show_quartgrid = 0;
 
 tiledata     *newundotilebuf;
 newcombo     *undocombobuf;
@@ -794,7 +795,8 @@ bool is_in_selection(int32_t x, int32_t y)
 void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int32_t m)
 {
 	//  rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?jwin_pal[jcMEDLT]:jwin_pal[jcDARK]);
-	rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?vc(7):vc(8));
+	int gridcol = gridmode==gm_light?vc(7):vc(8);
+	rectfill(dest,x,y,x+(16*m),y+(16*m),gridcol);
 	cset <<= 4;
 	
 	if(newtilebuf[tile].format>tf4Bit)
@@ -821,6 +823,14 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 			
 			++si;
 		}
+	}
+	
+	if(show_quartgrid)
+	{
+		int offs = (8*m);
+		const int RAD = 3;
+		rectfill(dest,x+offs-RAD,y,x+offs+RAD,y+(16*m),gridcol);
+		rectfill(dest,x,y+offs-RAD,x+(16*m),y+offs+RAD,gridcol);
 	}
 	
 	if(has_selection()||is_selecting())
@@ -1317,6 +1327,22 @@ size_and_pos color_info_btn(24,189,96,21);
 size_and_pos tool_btns(22,29,2,4,39,39);
 size_and_pos x_btn(890,5,15,13);
 size_and_pos info_btn(872,5,15,13);
+size_and_pos quartgrid_cbox(124,562,16,16);
+size_and_pos reflbtn_grid(124,610,2,3,71,21);
+int refl_flags = 0;
+enum
+{
+	REFL_90CW, REFL_HFLIP,
+	REFL_90CCW, REFL_VFLIP,
+	REFL_180, REFL_DBLFLIP,
+	REFL_MAX
+};
+const char *reflbtn_names[] =
+{
+	"90 CW", "HFlip",
+	"90 CCW", "VFlip",
+	"180 Rot", "Diag Flip"
+};
 
 int32_t c1=1;
 int32_t c2=0;
@@ -1329,6 +1355,19 @@ int32_t old_tool = -1;
 int32_t tool_cur = -1;
 int32_t select_mode = 0;
 int32_t drawing=0;
+
+bool qgrid_tool(int tool)
+{
+	switch(tool)
+	{
+		case t_pen:
+		case t_fill:
+		case t_recolor:
+		case t_wand:
+			return true;
+	}
+	return false;
+}
 
 void set_tool_sprite(int tool, int type)
 {
@@ -1568,6 +1607,17 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	draw_text_button(screen2,edit_button.x,edit_button.y,edit_button.w,edit_button.h,"Edit Pal",vc(1),vc(14),0,true);
 	draw_checkbox(screen2,hlcbox.x, hlcbox.y, hlcbox.w, hlcbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], tthighlight);
 	gui_textout_ln(screen2,font,(unsigned char*)"Highlight Hover",hlcbox.x+hlcbox.w+2,hlcbox.y+hlcbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	
+	draw_checkbox(screen2,quartgrid_cbox.x, quartgrid_cbox.y, quartgrid_cbox.w, quartgrid_cbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], show_quartgrid);
+	gui_textout_ln(screen2,font,(unsigned char*)"Quarter Grid",quartgrid_cbox.x+quartgrid_cbox.w+2,quartgrid_cbox.y+quartgrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	
+	gui_textout_ln(screen2,font,(unsigned char*)"Quarter-Grid Draw Modes", reflbtn_grid.x, reflbtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],show_quartgrid?0:D_DISABLED);
+	bool qgrd = show_quartgrid && qgrid_tool(tool);
+	for(int q = 0; q < REFL_MAX; ++q)
+	{
+		auto& sqr = reflbtn_grid.subsquare(q);
+		draw_text_button(screen2,sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[q],vc(1),vc(14),qgrd ? ((refl_flags&(1<<q)) ? D_SELECTED : 0) : D_DISABLED,true);
+	}
 	
 	//tool buttons
 	for(int32_t toolbtn = 0; toolbtn < t_max; ++toolbtn)
@@ -1950,6 +2000,162 @@ void show_edit_tile_help()
 		"\nCtrl - Fill | Alt - Grab | Ctrl+Alt - Recolor").show();
 }
 
+static int move_origin_x=-1, move_origin_y=-1;
+static int prev_x=-1, prev_y=-1;
+bool __pixel_draw(int x, int y, int tile, int flip)
+{
+	bool ret = false;
+	switch(tool)
+	{
+		case t_pen:
+			if(flip&1) x=15-x;
+			
+			if(flip&2) y=15-y;
+			
+			if(is_in_selection(x,y))
+			{
+				if(floating_sel)
+				{
+					floatsel[(y<<4)+x]=(drawing==1)?c1:c2;
+				}
+				else
+				{
+					unpack_tile(newtilebuf, tile, 0, false);
+					unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
+					pack_tile(newtilebuf, unpackbuf,tile);
+				}
+			}
+			break;
+			
+		case t_fill:
+			if(is_in_selection(x,y))
+			{
+				tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
+				ret = true;
+			}
+			break;
+			
+		case t_recolor:
+			if(is_in_selection(x,y))
+			{
+				if(floating_sel)
+				{
+					tf_u = floatsel[(y<<4)+x];
+					for(int32_t i=0; i<256; i++)
+					{
+						if(is_in_selection(i&15,i>>4))
+						{
+							if(floatsel[i]==tf_u)
+							{
+								floatsel[i]=(drawing==1)?c1:c2;
+							}
+						}
+					}
+				}
+				else
+				{
+					unpack_tile(newtilebuf, tile, 0, false);
+					tf_u = unpackbuf[(y<<4)+x];
+					if(tf_u != ((drawing==1)?c1:c2))
+					{
+						for(int32_t i=0; i<256; i++)
+						{
+							if(is_in_selection(i&15,i>>4))
+							{
+								if(unpackbuf[i]==tf_u)
+								{
+									unpackbuf[i]=(drawing==1)?c1:c2;
+								}
+							}
+						}
+						
+						pack_tile(newtilebuf, unpackbuf,tile);
+					}
+				}
+				ret = true;
+			}
+			break;
+			
+		case t_eyedropper:
+			if(floating_sel)
+				memcpy(unpackbuf, floatsel, 256);
+			else unpack_tile(newtilebuf, tile, 0, false);
+			
+			if(gui_mouse_b()&1)
+			{
+				c1=unpackbuf[((y<<4)+x)];
+			}
+			
+			if(gui_mouse_b()&2)
+			{
+				c2=unpackbuf[((y<<4)+x)];
+			}
+			break;
+			
+		case t_move:
+			if((prev_x!=x)||(prev_y!=y))
+			{
+				if(has_selection())
+				{
+					float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
+					wrap_sel_tile(y-prev_y, x-prev_x);
+					shift_selection_grid(x-prev_x, y-prev_y);
+				}
+				else wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
+				prev_x=x;
+				prev_y=y;
+			}
+			break;
+			
+		case t_select:
+			unfloat_selection();
+			if(flip&1) x=15-x;
+			
+			if(flip&2) y=15-y;
+			
+			if(selecting_x1==-1||selecting_y1==-1)
+			{
+				selecting_x1=x;
+				selecting_y1=y;
+			}
+			else
+			{
+				selecting_x2=x;
+				selecting_y2=y;
+			}
+			break;
+			
+		case t_wand:
+			unfloat_selection();
+			if(flip&1) x=15-x;
+			
+			if(flip&2) y=15-y;
+			
+			switch(select_mode)
+			{
+				case 0:
+					clear_selection_grid();
+					add_color_to_selection(unpackbuf[((y<<4)+x)]);
+					break;
+					
+				case 1:
+					add_color_to_selection(unpackbuf[((y<<4)+x)]);
+					break;
+					
+				case 2:
+					remove_color_from_selection(unpackbuf[((y<<4)+x)]);
+					break;
+					
+				case 3:
+					intersect_color_with_selection(unpackbuf[((y<<4)+x)]);
+					break;
+			}
+			
+			ret = true;
+			break;
+	}
+	return ret;
+}
 void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 {
 	popup_zqdialog_start();
@@ -2018,8 +2224,10 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		rest(1);
 	}
 	
-	int32_t move_origin_x=-1, move_origin_y=-1;
-	int32_t prev_x=-1, prev_y=-1;
+	move_origin_x=-1;
+	move_origin_y=-1;
+	prev_x=-1;
+	prev_y=-1;
 	
 	
 	
@@ -2689,7 +2897,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(tool==t_move || tool==t_fill)
 				{
-					
 					set_tool_sprite(tool,1);
 					
 					move_origin_x=prev_x=(temp_mouse_x-zoomtile.x)/zoomtile.xscale;
@@ -2746,6 +2953,14 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 			}
 			
+			int sqr_clicked = reflbtn_grid.rectind(temp_mouse_x,temp_mouse_y);
+			if(sqr_clicked > -1)
+			{
+				auto& sqr = reflbtn_grid.subsquare(sqr_clicked);
+				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[sqr_clicked],vc(1),vc(14),true))
+					refl_flags ^= (1<<sqr_clicked);
+			}
+			
 			if(showcolortip)
 			{
 				if(color_info.rect(temp_mouse_x,temp_mouse_y))
@@ -2774,6 +2989,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 					zc_set_config("ZQ_GUI","tile_edit_fancyhighlight",tthighlight);
 					redraw=true;
 				}
+			}
+			if(quartgrid_cbox.rect(temp_mouse_x,temp_mouse_y))
+			{
+				if(do_checkbox(screen2,quartgrid_cbox.x,quartgrid_cbox.y,quartgrid_cbox.w,quartgrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],show_quartgrid))
+					redraw=true;
 			}
 			
 			switch(newtilebuf[tile].format)
@@ -2832,7 +3052,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			{
 				if(tool==t_move || tool==t_fill)
 				{
-					
 					set_tool_sprite(tool,1);
 					
 					move_origin_x=prev_x=(temp_mouse_x-zoomtile.x)/zoomtile.xscale;
@@ -2897,154 +3116,39 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			int32_t x=ind%zoomtile.w;
 			int32_t y=ind/zoomtile.w;
 			
-			switch(tool)
+			bool reset_draw = false;
+			
+			if(__pixel_draw(x,y,tile,flip))
+				reset_draw = true;
+			if(show_quartgrid)
 			{
-				case t_pen:
-					if(flip&1) x=15-x;
-					
-					if(flip&2) y=15-y;
-					
-					if(is_in_selection(x,y))
-					{
-						if(floating_sel)
-						{
-							floatsel[(y<<4)+x]=(drawing==1)?c1:c2;
-						}
-						else
-						{
-							unpack_tile(newtilebuf, tile, 0, false);
-							unpackbuf[((y<<4)+x)]=(drawing==1)?c1:c2;
-							pack_tile(newtilebuf, unpackbuf,tile);
-						}
-					}
-					break;
-					
-				case t_fill:
-					if(is_in_selection(x,y))
-					{
-						tile_floodfill(tile,x,y,(drawing==1)?c1:c2);
-						drawing=0;
-					}
-					break;
-					
-				case t_recolor:
-					if(is_in_selection(x,y))
-					{
-						if(floating_sel)
-						{
-							tf_u = floatsel[(y<<4)+x];
-							for(int32_t i=0; i<256; i++)
-							{
-								if(is_in_selection(i&15,i>>4))
-								{
-									if(floatsel[i]==tf_u)
-									{
-										floatsel[i]=(drawing==1)?c1:c2;
-									}
-								}
-							}
-						}
-						else
-						{
-							unpack_tile(newtilebuf, tile, 0, false);
-							tf_u = unpackbuf[(y<<4)+x];
-							
-							for(int32_t i=0; i<256; i++)
-							{
-								if(is_in_selection(i&15,i>>4))
-								{
-									if(unpackbuf[i]==tf_u)
-									{
-										unpackbuf[i]=(drawing==1)?c1:c2;
-									}
-								}
-							}
-							
-							pack_tile(newtilebuf, unpackbuf,tile);
-						}
-						drawing=0;
-					}
-					break;
-					
-				case t_eyedropper:
-					if(floating_sel)
-						memcpy(unpackbuf, floatsel, 256);
-					else unpack_tile(newtilebuf, tile, 0, false);
-					
-					if(gui_mouse_b()&1)
-					{
-						c1=unpackbuf[((y<<4)+x)];
-					}
-					
-					if(gui_mouse_b()&2)
-					{
-						c2=unpackbuf[((y<<4)+x)];
-					}
-					break;
-					
-				case t_move:
-					if((prev_x!=x)||(prev_y!=y))
-					{
-						if(has_selection())
-						{
-							float_selection(tile,key[KEY_LSHIFT]||key[KEY_RSHIFT]);
-							wrap_sel_tile(y-prev_y, x-prev_x);
-							shift_selection_grid(x-prev_x, y-prev_y);
-						}
-						else wrap_tile(tile, y-move_origin_y, x-move_origin_x, drawing==2);
-						prev_x=x;
-						prev_y=y;
-					}
-					break;
-					
-				case t_select:
-					unfloat_selection();
-					if(flip&1) x=15-x;
-					
-					if(flip&2) y=15-y;
-					
-					if(selecting_x1==-1||selecting_y1==-1)
-					{
-						selecting_x1=x;
-						selecting_y1=y;
-					}
-					else
-					{
-						selecting_x2=x;
-						selecting_y2=y;
-					}
-					break;
-					
-				case t_wand:
-					unfloat_selection();
-					if(flip&1) x=15-x;
-					
-					if(flip&2) y=15-y;
-					
-					switch(select_mode)
-					{
-						case 0:
-							clear_selection_grid();
-							add_color_to_selection(unpackbuf[((y<<4)+x)]);
-							break;
-							
-						case 1:
-							add_color_to_selection(unpackbuf[((y<<4)+x)]);
-							break;
-							
-						case 2:
-							remove_color_from_selection(unpackbuf[((y<<4)+x)]);
-							break;
-							
-						case 3:
-							intersect_color_with_selection(unpackbuf[((y<<4)+x)]);
-							break;
-					}
-					
-					drawing=0;
-					break;
+				auto tmp_sel_mode = select_mode;
+				if(tool == t_wand && select_mode == 0)
+					select_mode = 1;
+				if(qgrid_tool(tool))
+				{
+					if(refl_flags & (1<<REFL_HFLIP))
+						if(__pixel_draw(15-x,y,tile,flip))
+							reset_draw = true;
+					if(refl_flags & (1<<REFL_VFLIP))
+						if(__pixel_draw(x,15-y,tile,flip))
+							reset_draw = true;
+					//Diagonal flip and 180° rotation are the same!
+					if(refl_flags & ((1<<REFL_DBLFLIP)|(1<<REFL_180)))
+						if(__pixel_draw(15-x,15-y,tile,flip))
+							reset_draw = true;
+					if(refl_flags & (1<<REFL_90CW))
+						if(__pixel_draw(15-y,x,tile,flip))
+							reset_draw = true;
+					if(refl_flags & (1<<REFL_90CCW))
+						if(__pixel_draw(y,15-x,tile,flip))
+							reset_draw = true;
+				}
+				select_mode = tmp_sel_mode;
 			}
 			
+			if(reset_draw)
+				drawing = 0;
 			redraw=true;
 		}
 		
