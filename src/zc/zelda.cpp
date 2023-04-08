@@ -284,7 +284,6 @@ void throttleFPS()
         {
             vsync();
         }
-	
     }
 
     logic_counter = 0;
@@ -682,6 +681,10 @@ bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
+#ifdef __EMSCRIPTEN__
+	force = true;
+#endif
+
 	if(force || (!is_sys_pal && !doThrottle()) || myvsync)
 	{
 		zc_process_display_events();
