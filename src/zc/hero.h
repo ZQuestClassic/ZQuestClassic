@@ -474,10 +474,10 @@ public:
 	void check_wpn_triggers(int32_t bx, int32_t by, weapon *w);
 	void check_slash_block2(int32_t bx, int32_t by, weapon *w);
 	void check_wand_block2(int32_t bx, int32_t by, weapon *w);
-	void check_pound_block2(int32_t bx, int32_t by, weapon *w);
 	
 	void check_wand_block(int32_t bx, int32_t by);
-	void check_pound_block(int32_t bx, int32_t by);
+	void check_pound_block(int bx, int by, weapon* w = nullptr);
+	void check_pound_block_layer(int bx, int by, int lyr, weapon* w = nullptr);
 	
 	// called by ALLOFF()
 	void resetflags(bool all);

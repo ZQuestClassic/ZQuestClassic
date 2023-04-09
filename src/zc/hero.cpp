@@ -3490,7 +3490,6 @@ bool HeroClass::checkstab()
 				set_bit(screengrid,q,0);
 				set_bit(screengrid_layer[0],q,0);
 				set_bit(screengrid_layer[1],q,0);
-			
 			}
 			
 			for(dword q = MAXFFCS/8; q > 0; --q)
@@ -3501,20 +3500,17 @@ bool HeroClass::checkstab()
 		{
 			check_slash_block(wx,wy);
 			check_slash_block(wx,wy+8);
-		
-		//layers
-		check_slash_block_layer(wx,wy,1);
-		check_slash_block_layer(wx,wy+8,1);
-		check_slash_block_layer(wx,wy,1);
-		check_slash_block_layer(wx,wy+8,1);
-		//2
-		check_slash_block_layer(wx,wy,2);
-		check_slash_block_layer(wx,wy+8,2);
-		check_slash_block_layer(wx,wy,2);
-		check_slash_block_layer(wx,wy+8,2);
-		
-		
-		
+			
+			//layers
+			check_slash_block_layer(wx,wy,1);
+			check_slash_block_layer(wx,wy+8,1);
+			check_slash_block_layer(wx,wy,1);
+			check_slash_block_layer(wx,wy+8,1);
+			//2
+			check_slash_block_layer(wx,wy,2);
+			check_slash_block_layer(wx,wy+8,2);
+			check_slash_block_layer(wx,wy,2);
+			check_slash_block_layer(wx,wy+8,2);
 		}
 		else if(dir==up && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
 		{
@@ -3522,28 +3518,27 @@ bool HeroClass::checkstab()
 			check_slash_block(wx,wy+8);
 			check_slash_block(wx+8,wy);
 			check_slash_block(wx+8,wy+8);
-		///layer 1
-		check_slash_block_layer(wx,wy,1);
+			///layer 1
+			check_slash_block_layer(wx,wy,1);
 			check_slash_block_layer(wx,wy+8,1);
 			check_slash_block_layer(wx+8,wy,1);
 			check_slash_block_layer(wx+8,wy+8,1);
-		///layer 2
-		check_slash_block_layer(wx,wy,2);
+			///layer 2
+			check_slash_block_layer(wx,wy,2);
 			check_slash_block_layer(wx,wy+8,2);
 			check_slash_block_layer(wx+8,wy,2);
 			check_slash_block_layer(wx+8,wy+8,2);
 		}
-		
 		if(dir==down && ((x.getInt()&15)==0))
 		{
 			check_slash_block(wx,wy+wysz-8);
 			check_slash_block(wx,wy+wysz);
-		
-		//layer 1
-		check_slash_block_layer(wx,wy+wysz-8,1);
+			
+			//layer 1
+			check_slash_block_layer(wx,wy+wysz-8,1);
 			check_slash_block_layer(wx,wy+wysz,1);
-		//layer 2
-		check_slash_block_layer(wx,wy+wysz-8,2);
+			//layer 2
+			check_slash_block_layer(wx,wy+wysz-8,2);
 			check_slash_block_layer(wx,wy+wysz,2);
 		}
 		else if(dir==down && ((x.getInt()&15)==8||diagonalMovement||NO_GRIDLOCK))
@@ -3552,13 +3547,13 @@ bool HeroClass::checkstab()
 			check_slash_block(wx,wy+wysz);
 			check_slash_block(wx+8,wy+wysz-8);
 			check_slash_block(wx+8,wy+wysz);
-		//layer 1
-		check_slash_block_layer(wx,wy+wysz-8,1);
+			//layer 1
+			check_slash_block_layer(wx,wy+wysz-8,1);
 			check_slash_block_layer(wx,wy+wysz,1);
 			check_slash_block_layer(wx+8,wy+wysz-8,1);
 			check_slash_block_layer(wx+8,wy+wysz,1);
-		//layer 2
-		check_slash_block_layer(wx,wy+wysz-8,2);
+			//layer 2
+			check_slash_block_layer(wx,wy+wysz-8,2);
 			check_slash_block_layer(wx,wy+wysz,2);
 			check_slash_block_layer(wx+8,wy+wysz-8,2);
 			check_slash_block_layer(wx+8,wy+wysz,2);
@@ -3568,11 +3563,11 @@ bool HeroClass::checkstab()
 		{
 			check_slash_block(wx,wy+8);
 			check_slash_block(wx+8,wy+8);
-		//layer 1
-		check_slash_block_layer(wx,wy+8,1);
+			//layer 1
+			check_slash_block_layer(wx,wy+8,1);
 			check_slash_block_layer(wx+8,wy+8,1);
-		//layer 2
-		check_slash_block_layer(wx,wy+8,2);
+			//layer 2
+			check_slash_block_layer(wx,wy+8,2);
 			check_slash_block_layer(wx+8,wy+8,2);
 		}
 		
@@ -3580,11 +3575,11 @@ bool HeroClass::checkstab()
 		{
 			check_slash_block(wx+wxsz,wy+8);
 			check_slash_block(wx+wxsz-8,wy+8);
-		//layer 1
-		check_slash_block_layer(wx+wxsz,wy+8,1);
+			//layer 1
+			check_slash_block_layer(wx+wxsz,wy+8,1);
 			check_slash_block_layer(wx+wxsz-8,wy+8,1);
-		//layer 2
-		check_slash_block_layer(wx+wxsz,wy+8,2);
+			//layer 2
+			check_slash_block_layer(wx+wxsz,wy+8,2);
 			check_slash_block_layer(wx+wxsz-8,wy+8,2);
 		}
 	}
@@ -4839,151 +4834,6 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void HeroClass::check_pound_block2(int32_t bx, int32_t by, weapon *w)
-{
-	if(w->no_triggers()) return;
-	//keep things inside the screen boundaries
-	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
-	int32_t fx=vbound(bx, 0, 255);
-	int32_t fy=vbound(by, 0, 176);
-	int32_t cid = MAPCOMBO(bx,by);
-	byte dontignore = MatchComboTrigger (w, combobuf, cid);
-	if(w->useweapon != wHammer && !dontignore ) return;
-	
-
-	
-    
-    //first things first
-    if(z>8||fakez>8) return;
-    
-    //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
-    
-    int32_t type = COMBOTYPE(bx,by);
-    int32_t type2 = FFCOMBOTYPE(fx,fy);
-    int32_t flag = MAPFLAG(bx,by);
-    int32_t flag2 = MAPCOMBOFLAG(bx,by);
-    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int32_t i = (bx>>4) + by;
-    if (get_bit(w->wscreengrid,(((bx>>4) + by))) ) return;
-    
-    if(i > 175)
-        return;
-        
-    bool ignorescreen=false;
-    bool ignoreffc=false;
-    bool pound=false;
-    
-	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
-		type = cNONE;
-    if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
-        ignorescreen = true; // Affect only FFCs
-        
-    if(get_bit(w->wscreengrid, i) != 0)
-    {
-        ignorescreen = true; dontignore = 0;
-    }
-        
-    int32_t current_ffcombo = getFFCAt(fx,fy);
-    
-    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
-        ignoreffc = true;
-    else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
-		type2 = cNONE;
-    if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
-        ignoreffc = true;
-        
-    if(ignorescreen && ignoreffc)  // Nothing to do.
-        return;
-        
-    mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
-    
-    if(!ignorescreen || dontignore)
-    {
-        if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
-        {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
-        }
-        else if(flag2==mfHAMMER||flag2==mfSTRIKE)
-        {
-            findentrance(bx,by,mfHAMMER,true);
-            findentrance(bx,by,mfSTRIKE,true);
-        }
-        else if((flag >= 16)&&(flag <= 31))
-        {
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
-        }
-        else if(flag == mfARMOS_SECRET)
-        {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
-        }
-        else if((flag2 >= 16)&&(flag2 <= 31))
-        {
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
-        }
-        else if(flag2 == mfARMOS_SECRET)
-        {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr->secretsfx);
-        }
-        else pound = true;
-    }
-    
-    if(!ignoreffc)
-    {
-        if(flag3==mfHAMMER||flag3==mfSTRIKE)
-        {
-            findentrance(fx,fy,mfHAMMER,true);
-            findentrance(fx,fy,mfSTRIKE,true);
-        }
-        else
-        {
-            s->ffcs[current_ffcombo].incData(1);
-        }
-    }
-    
-    if(!ignorescreen || dontignore)
-    {
-        if(pound)
-            s->data[i]+=1;
-            
-        set_bit(w->wscreengrid,i,1);
-        
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
-        {
-            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr->secretsfx);
-        }
-        
-        if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
-            
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-    }
-    
-    if(!ignoreffc)
-    {
-        set_bit(ffcgrid,current_ffcombo,1);
-        
-        if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
-    }
-    
-    return;
-}
-
 void HeroClass::check_slash_block(weapon *w)
 {
 	//first things 
@@ -5354,8 +5204,15 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
-void HeroClass::check_pound_block(int32_t bx, int32_t by)
+void HeroClass::check_pound_block(int bx, int by, weapon* w)
 {
+	if(w && w->no_triggers()) return;
+	if(get_bit(quest_rules,qr_POUNDLAYERS1AND2))
+	{
+		check_pound_block_layer(bx,by,1,w);
+		check_pound_block_layer(bx,by,2,w);
+	}
+	auto* grid = w ? w->wscreengrid : screengrid;
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
     by=vbound(by, 0, 176);
@@ -5387,7 +5244,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
         ignorescreen = true; // Affect only FFCs
         
-    if(get_bit(screengrid, i) != 0)
+    if(get_bit(grid, i) != 0)
         ignorescreen = true;
         
     int32_t current_ffcombo = getFFCAt(fx,fy);
@@ -5462,7 +5319,7 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
         if(pound)
             s->data[i]+=1;
             
-        set_bit(screengrid,i,1);
+        set_bit(grid,i,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
         {
@@ -5487,6 +5344,95 @@ void HeroClass::check_pound_block(int32_t bx, int32_t by)
     return;
 }
 
+void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
+{
+	if(lyr < 1 || lyr > 2) return; //sanity
+	//keep things inside the screen boundaries
+	bx=vbound(bx, 0, 255);
+	by=vbound(by, 0, 176);
+	int32_t cid = MAPCOMBOL(lyr,bx,by);
+	newcombo const& scr_cmb = combobuf[cid];
+	auto* grid = w ? w->wscreengrid_layer[lyr-1] : screengrid_layer[lyr-1];
+	
+	//first things first
+	if(z>8||fakez>8) return;
+	
+	//find out which combo row/column the coordinates are in
+	bx &= 0xF0;
+	by &= 0xF0;
+	
+	int32_t type = scr_cmb.type;
+	int32_t flag = MAPFLAGL(lyr,bx,by);
+	int32_t flag2 = scr_cmb.flag;
+	int32_t i = (bx>>4) + by;
+	
+	if(i > 175)
+		return;
+	
+	bool pound=false;
+	
+	if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
+		return;
+		
+	if(get_bit(grid, i) != 0)
+		return;
+		
+	mapscr *s = FFCore.tempScreens[lyr];
+	
+	if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
+	{
+		findentrance(bx,by,mfHAMMER,true);
+		findentrance(bx,by,mfSTRIKE,true);
+	}
+	else if(flag2==mfHAMMER||flag2==mfSTRIKE)
+	{
+		findentrance(bx,by,mfHAMMER,true);
+		findentrance(bx,by,mfSTRIKE,true);
+	}
+	else if((flag >= 16)&&(flag <= 31))
+	{
+		s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+		s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+		s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+	}
+	else if(flag == mfARMOS_SECRET)
+	{
+		s->data[i] = s->secretcombo[sSTAIRS];
+		s->cset[i] = s->secretcset[sSTAIRS];
+		s->sflag[i] = s->secretflag[sSTAIRS];
+		sfx(tmpscr->secretsfx);
+	}
+	else if((flag2 >= 16)&&(flag2 <= 31))
+	{
+		s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
+		s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
+		s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
+	}
+	else if(flag2 == mfARMOS_SECRET)
+	{
+		s->data[i] = s->secretcombo[sSTAIRS];
+		s->cset[i] = s->secretcset[sSTAIRS];
+		s->sflag[i] = s->secretflag[sSTAIRS];
+		sfx(tmpscr->secretsfx);
+	}
+	else pound = true;
+	
+	if(pound)
+		s->data[i]+=1;
+		
+	set_bit(grid,i,1);
+	
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	{
+		items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(tmpscr->secretsfx);
+	}
+	
+	if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
+		sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
+		
+	putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+}
 
 void HeroClass::check_wand_block(weapon *w)
 {

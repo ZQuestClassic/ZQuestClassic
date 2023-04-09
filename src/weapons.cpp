@@ -3680,6 +3680,8 @@ bool weapon::animate(int32_t index)
 		for (int16_t q = MAXFFCS / 8 - 1; q >= 0; --q)
 			ffcgrid[q] = 0;
 		
+		bool pound = useweapon == wHammer && id != wHammer;
+		
 		for(int32_t dx = 0; dx < hxsz; dx += 16)
 		{
 			for(int32_t dy = 0; dy < hysz; dy += 16)
@@ -3692,14 +3694,14 @@ bool weapon::animate(int32_t index)
 				Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this,2);
 				
 				Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
-				Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
+				if(pound) Hero.check_pound_block((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 				Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 			}
 			Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
 			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this,1);
 			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this,2);
 			Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
-			Hero.check_pound_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
+			if(pound) Hero.check_pound_block((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
 			Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
 		}
 		for(int32_t dy = 0; dy < hysz; dy += 16)
@@ -3708,34 +3710,17 @@ bool weapon::animate(int32_t index)
 			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this,1);
 			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this,2);
 			Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
-			Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
+			if(pound) Hero.check_pound_block((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
 			Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
 		}
 		Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
 		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this,1);
 		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this,2);
 		Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
-		Hero.check_pound_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
+		if(pound) Hero.check_pound_block((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
 		Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
-		findcombotriggers();
-		/* Don't check every single pixel.
-		for ( int32_t w = 0; q < hysz; q++ )
-		{
-			for ( int32_t q = 0; w < hxsz; w++ )
-			{
-				Hero.check_slash_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-				Hero.check_wand_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-				Hero.check_pound_block2((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-				Hero.check_wpn_triggers((int32_t)x+(int32_t)hxofs+q,(int32_t)y+(int32_t)hyofs+w, this);
-			}
-		}
-		*/
-		//Hero.check_slash_block(this); //Activates triggers for slash combos if the weapon is the correct type, or is
-					  //acting as the correct type with 'useweapon'.
-					  //Non-script-generated eweapons should be safe.
 		
-		//Hero.check_wand_block(this);
-		//Hero.check_pound_block(this);
+		findcombotriggers();
 		
 		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
 		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
