@@ -343,6 +343,48 @@ bool is_push(mapscr* m, int32_t pos)
 	return false;
 }
 
+bool movingblock::check_hole() const
+{
+	mapscr* m = FFCore.tempScreens[blockLayer];
+	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+	if((m->sflag[combopos]==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
+		return true;
+	else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+	{
+		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
+		{
+			if(lyr==blockLayer) continue;
+			if((FFCore.tempScreens[lyr]->sflag[combopos]==mfBLOCKHOLE)
+				|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
+				return true;
+		}
+	}
+	return false;
+}
+
+bool movingblock::check_trig() const
+{
+	mapscr* m = FFCore.tempScreens[blockLayer];
+	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+	if(fallclk || drownclk)
+		return false;
+	if((m->sflag[combopos]==mfBLOCKTRIGGER)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKTRIGGER)
+		return true;
+	else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+	{
+		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
+		{
+			if(lyr==blockLayer) continue;
+			if(FFCore.tempScreens[lyr]->sflag[combopos] == mfBLOCKTRIGGER
+				|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
+				return true;
+		}
+	}
+	return false;
+}
+
 bool movingblock::animate(int32_t)
 {
 	mapscr* m = FFCore.tempScreens[blockLayer];
@@ -380,13 +422,16 @@ bool movingblock::animate(int32_t)
 		return false;
 	}
 	
+	bool done = false;
+	newcombo const& block_cmb = combobuf[bcombo];
+	
+	//Move
+	move(step);
+	zfix ox = x, oy = y; //grab the x/y after moving, before any snapping
+	
+	//Check if the block has reached the next grid-alignment
 	if(new_block)
 	{
-		newcombo const& block_cmb = combobuf[bcombo];
-		
-		move(step);
-		
-		bool done = false;
 		switch(dir)
 		{
 			case up:
@@ -406,9 +451,103 @@ bool movingblock::animate(int32_t)
 					done = true;
 				break;
 		}
-		
-		if(done && ((block_cmb.usrflags&cflag7) || (!(block_cmb.usrflags&cflag10)
-			&& get_icy(endx+8,endy+8,0))) && !no_icy) //icy blocks keep sliding?
+		if(done)
+		{
+			x = endx;
+			y = endy;
+		}
+	}
+	else done = (--clk==0);
+	
+	//Check if the block is falling into a pitfall (if aligned)
+	if(done)
+	{
+		if((fallCombo = getpitfall(x+8,y+8)))
+		{
+			fallclk = PITFALL_FALL_FRAMES;
+		}
+		/*
+		//!TODO: Moving Block Drowning
+		if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
+		{
+			drownclk = WATER_DROWN_FRAMES;
+		}
+		*/
+	}
+	
+	//Check for icy blocks/floors that might continue the slide
+	if(done && !no_icy && !fallclk && !drownclk)
+	{
+		if(new_block)
+		{
+			if(((block_cmb.usrflags&cflag7) || //icy blocks keep sliding?
+				(!(block_cmb.usrflags&cflag10) && get_icy(endx+8,endy+8,0))))
+			{
+				bool canslide = true;
+				auto new_endx = endx, new_endy = endy;
+				switch(dir)
+				{
+					case up:
+						new_endy -= 16;
+						break;
+					case down:
+						new_endy += 16;
+						break;
+					case left:
+						new_endx -= 16;
+						break;
+					case right:
+						new_endx += 16;
+						break;
+				}
+				if(new_endx < 0 || new_endx > 240 || new_endy < 0 || new_endy > 168)
+					canslide = false;
+				else if(check_hole()) //Falls into block holes on the way
+					canslide = false;
+				else
+				{
+					bool solid = false;
+					int iflag = 0, pflag = 0;
+					switch(dir)
+					{
+						case up:
+							solid = _walkflag(endx,endy-8,2);
+							pflag = MAPFLAG2(blockLayer-1,endx,endy-8);
+							iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy-8);
+							break;
+						case down:
+							solid = _walkflag(endx,endy+24,2);
+							pflag = MAPFLAG2(blockLayer-1,endx,endy+24);
+							iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy+24);
+							break;
+						case left:
+							solid = _walkflag(endx-16,endy+8,2);
+							pflag = MAPFLAG2(blockLayer-1,endx-16,endy+8);
+							iflag = MAPCOMBOFLAG2(blockLayer-1,endx-16,endy+8);
+							break;
+						case right:
+							solid = _walkflag(endx+16,endy+8,2);
+							pflag = MAPFLAG2(blockLayer-1,endx+16,endy+8);
+							iflag = MAPCOMBOFLAG2(blockLayer-1,endx+16,endy+8);
+							break;
+					}
+					if(get_bit(quest_rules,qr_SOLIDBLK))
+					{
+						if(solid && iflag != mfBLOCKHOLE && pflag != mfBLOCKHOLE)
+							canslide = false;
+					}
+					if(iflag == mfNOBLOCKS || pflag == mfNOBLOCKS)
+						canslide = false;
+				}
+				if(canslide)
+				{
+					done = false;
+					endx = new_endx;
+					endy = new_endy;
+				}
+			}
+		}
+		else if(int c = get_icy(x+8,y+8,0))
 		{
 			bool canslide = true;
 			auto new_endx = endx, new_endy = endy;
@@ -469,32 +608,31 @@ bool movingblock::animate(int32_t)
 				done = false;
 				endx = new_endx;
 				endy = new_endy;
+				clk = 32;
 			}
 		}
-		
-		if(done)
+	}
+	
+	if(!done)
+	{
+		x = ox;
+		y = oy;
+	}
+	solid_update(); //Handle solid object movement
+	//Click the block into place, the push ended.
+	if(done)
+	{
+		if(new_block)
 		{
 			clk = 0;
 			x = endx;
 			y = endy;
-			solid_update();
 			trigger = false; bhole = false;
 			blockmoving=false;
 			
-			if((fallCombo = getpitfall(x+8,y+8)))
-			{
-				fallclk = PITFALL_FALL_FRAMES;
-			}
-			/*
-			//!TODO: Moving Block Drowning
-			if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
-			{
-				drownclk = WATER_DROWN_FRAMES;
-			}
-			*/
 			size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
-			int32_t f1 = m->sflag[combopos];
-			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
+			int f1 = m->sflag[combopos];
+			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
 			bool trig_hole_same_only = get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY);
@@ -685,100 +823,11 @@ bool movingblock::animate(int32_t)
 				combo_posinfos[blockLayer][combopos] = blockinfo;
 			}
 		}
-		else solid_update();
-	}
-	else
-	{
-		move(step);
-		
-		bool done = (--clk==0);
-		
-		if(done && !no_icy) //icy floor might slide the combo
-		{
-			if(int c = get_icy(x+8,y+8,0))
-			{
-				bool canslide = true;
-				auto new_endx = endx, new_endy = endy;
-				switch(dir)
-				{
-					case up:
-						new_endy -= 16;
-						break;
-					case down:
-						new_endy += 16;
-						break;
-					case left:
-						new_endx -= 16;
-						break;
-					case right:
-						new_endx += 16;
-						break;
-				}
-				if(new_endx < 0 || new_endx > 240 || new_endy < 0 || new_endy > 168)
-					canslide = false;
-				else
-				{
-					bool solid = false;
-					int iflag = 0, pflag = 0;
-					switch(dir)
-					{
-						case up:
-							solid = _walkflag(endx,endy-8,2);
-							pflag = MAPFLAG2(blockLayer-1,endx,endy-8);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy-8);
-							break;
-						case down:
-							solid = _walkflag(endx,endy+24,2);
-							pflag = MAPFLAG2(blockLayer-1,endx,endy+24);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx,endy+24);
-							break;
-						case left:
-							solid = _walkflag(endx-16,endy+8,2);
-							pflag = MAPFLAG2(blockLayer-1,endx-16,endy+8);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx-16,endy+8);
-							break;
-						case right:
-							solid = _walkflag(endx+16,endy+8,2);
-							pflag = MAPFLAG2(blockLayer-1,endx+16,endy+8);
-							iflag = MAPCOMBOFLAG2(blockLayer-1,endx+16,endy+8);
-							break;
-					}
-					if(get_bit(quest_rules,qr_SOLIDBLK))
-					{
-						if(solid || iflag == mfBLOCKHOLE || pflag == mfBLOCKHOLE)
-							canslide = false;
-					}
-					if(iflag == mfNOBLOCKS || pflag == mfNOBLOCKS)
-						canslide = false;
-				}
-				if(canslide)
-				{
-					done = false;
-					endx = new_endx;
-					endy = new_endy;
-					done = false;
-					clk = 32;
-				}
-			}
-		}
-		
-		if(done)
+		else
 		{
 			trigger = false; bhole = false;
 			blockmoving=false;
-			solid_update();
 			
-			if((fallCombo = getpitfall(x+8,y+8)))
-			{
-				fallclk = PITFALL_FALL_FRAMES;
-			}
-			/*
-			//!TODO: Moving Block Drowning
-			if(drownCombo = iswaterex(MAPCOMBO(x+8,y+8), currmap, currscr, -1, x+8,y+8, false, false, true))
-			{
-				drownclk = WATER_DROWN_FRAMES;
-			}
-			*/
 			size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
 			int32_t f1 = m->sflag[combopos];
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
@@ -999,7 +1048,6 @@ bool movingblock::animate(int32_t)
 			
 			putcombo(scrollbuf,x,y,bcombo,cs);
 		}
-		else solid_update();
 	}
 	return false;
 }

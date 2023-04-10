@@ -289,6 +289,8 @@ public:
 	void set(int32_t X, int32_t Y, int32_t combo, int32_t cset, int32_t layer, int32_t placedfl);
     void push(zfix bx,zfix by,int32_t d,int32_t f);
     void push_new(zfix bx,zfix by,int32_t d,int32_t f,zfix spd);
+	bool check_hole() const;
+	bool check_trig() const;
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
 };
