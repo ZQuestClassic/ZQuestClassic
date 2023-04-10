@@ -480,6 +480,12 @@ std::string getComboTypeHelpText(int32_t id)
 			typehelp = "When triggered with ComboType Effects, either stops an active cutscene, or"
 				" sets the active cutscene rules.";
 			break;
+		case cPUSHBLOCK:
+			typehelp = "A pushable block, that works separately from push flags. Highly configurable.";
+			break;
+		case cICY:
+			typehelp = "A block that may act slippery in different ways depending on its' flags.";
+			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
 				typehelp = combotype_help_string[id];
@@ -1727,6 +1733,71 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[1] = "Magic Percentage";
 				h_attribyte[1] = "Restore magic up to this percentage, if it is lower.";
 			}
+			break;
+		}
+		case cPUSHBLOCK:
+		{
+			l_flag[0] = "Pushable Up";
+			h_flag[0] = "Can be pushed in the 'Up' direction";
+			l_flag[1] = "Pushable Down";
+			h_flag[1] = "Can be pushed in the 'Down' direction";
+			l_flag[2] = "Pushable Left";
+			h_flag[2] = "Can be pushed in the 'Left' direction";
+			l_flag[3] = "Pushable Right";
+			h_flag[3] = "Can be pushed in the 'Right' direction";
+			l_flag[4] = "Separate Directions";
+			h_flag[4] = "Different push counts for different directions";
+			l_flag[5] = "Enemies First (Wait)";
+			h_flag[5] = "Cannot be pushed until the enemies have been cleared from the screen";
+			l_flag[6] = "Icy Block";
+			h_flag[6] = "When pushed, keeps sliding until it hits a barrier.";
+			l_flag[7] = "Opposites Cancel";
+			h_flag[7] = "Pushing the block in a direction opposite to one it has already been pushed in"
+				" 'cancels' the previous push, instead of being a new push,"
+				" for purposes of the max number of pushes.";
+			l_flag[8] = "0 limit is none";
+			h_flag[8] = "Any direction with a push limit of '0' will be unable to be pushed"
+				" (as opposed to being pushable an infinite number of times).";
+			l_flag[9] = "Ignores Icy Floor";
+			h_flag[9] = "Does not slide on icy floors";
+			
+			l_attrishort[0] = "Push Speed";
+			h_attrishort[0] = "If 0 or less, uses the default push speed of 0.5 pixels per frame."
+				" Otherwise, uses this speed as a step value (1/100ths pixel per frame).";
+			l_attribyte[0] = "Heavy Level";
+			h_attribyte[0] = "If >0, a bracelet of at least this level is required to push this block.";
+			l_attribyte[1] = "Push SFX";
+			h_attribyte[1] = "The SFX to play when the block is pushed.";
+			l_attribyte[2] = "Stop SFX";
+			h_attribyte[2] = "The SFX to play when the block stops moving.";
+			if(FL(cflag5))
+			{
+				l_attribyte[4] = "Times Pushable (Up):";
+				h_attribyte[4] = "How many times the block can be pushed Up before it can no"
+					" longer be pushed up. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+				l_attribyte[5] = "Times Pushable (Down):";
+				h_attribyte[5] = "How many times the block can be pushed Down before it can no"
+					" longer be pushed down. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+				l_attribyte[6] = "Times Pushable (Left):";
+				h_attribyte[6] = "How many times the block can be pushed Left before it can no"
+					" longer be pushed left. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+				l_attribyte[7] = "Times Pushable (Right):";
+				h_attribyte[7] = "How many times the block can be pushed Right before it can no"
+					" longer be pushed right. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+			}
+			else
+			{
+				l_attribyte[4] = "Times Pushable:";
+				h_attribyte[4] = "How many times the block can be pushed before it clicks into place."
+					" '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+			}
+			break;
+		}
+		case cICY:
+		{
+			l_flag[0] = "Slides Blocks";
+			h_flag[0] = "Pushable blocks pushed onto this combo will"
+				" slide past it, if nothing blocks their way.";
 			break;
 		}
 	}

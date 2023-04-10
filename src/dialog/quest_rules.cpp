@@ -873,7 +873,9 @@ static GUI::ListData compatRulesList
 	{ "Bugged Layered Flags", qr_BUGGED_LAYERED_FLAGS,
 		"If enabled, flags placed on layers will 'wrap' at the edge of screens, causing odd behaviors." },
 	{ "Old FFC Bush Drops", qr_HARDCODED_FFC_BUSH_DROPS,
-		"If enabled, FFC bushes will drop a random '15% heart, 20% rupee' instead of using dropset 12." }
+		"If enabled, FFC bushes will drop a random '15% heart, 20% rupee' instead of using dropset 12." },
+	{ "Fake-solid Pushblocks", qr_MOVINGBLOCK_FAKE_SOLID,
+		"If enabled, pushblocks will not use 'real' solidity." }
 };
 
 static GUI::ListData enemiesRulesList

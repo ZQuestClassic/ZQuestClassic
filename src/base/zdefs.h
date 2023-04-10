@@ -305,7 +305,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        2
 
-#define V_COMPATRULE       39
+#define V_COMPATRULE       40
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -844,7 +844,9 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG,
+	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG, cPUSHBLOCK,
+	//180
+	cICY,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1120,7 +1122,7 @@ enum
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
-	qr_POUNDLAYERS1AND2,
+	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID,
 	//60
 	//70
 	
@@ -3897,6 +3899,46 @@ struct miscQdata
 	byte miscsfx[sfxMAX];
 };
 
+struct cpos_info
+{
+	int32_t data;
+	byte clk;
+	word shootrclk;
+	byte trig_cd;
+	byte pushes[4];
+	
+	void push(int dir, bool cancel = false)
+	{
+		if(unsigned(dir) < 4)
+		{
+			if(cancel && pushes[oppositeDir[dir]])
+				pushes[oppositeDir[dir]] -= 1;
+			else pushes[dir] += 1;
+		}
+	}
+	word sumpush() const
+	{
+		return pushes[0]+pushes[1]+pushes[2]+pushes[3];
+	}
+	void clear()
+	{
+		data = 0;
+		clk = 0;
+		shootrclk = 0;
+		trig_cd = 0;
+		for(int q = 0; q < 4; ++q)
+			pushes[q] = 0;
+	}
+	void updateData(int32_t newdata)
+	{
+		if(data != newdata)
+		{
+			clear();
+			data = newdata;
+		}
+	}
+	cpos_info() {clear();}
+};
 #define MFORMAT_MIDI 0
 #define MFORMAT_NSF  1
 

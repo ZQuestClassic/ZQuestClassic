@@ -1340,6 +1340,49 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	if(ispitfall(c)) return c;
 	return 0;
 }
+bool check_icy(newcombo const& cmb, int type)
+{
+	if(cmb.type != cICY)
+		return false;
+	switch(type)
+	{
+		case 0:
+			return cmb.usrflags&cflag1;
+	}
+	return false;
+}
+int get_icy(int x, int y, int type)
+{
+	int32_t c = MAPCOMBOL(2,x,y);
+	if(check_icy(combobuf[c], type)) return c;
+	if(tmpscr2[1].valid!=0)
+	{
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		}
+	}
+	c = MAPCOMBOL(1,x,y);
+	if(check_icy(combobuf[c], type)) return c;
+	if(tmpscr2[0].valid!=0)
+	{
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		}
+	}
+	c = MAPCOMBO(x,y);
+	if(check_icy(combobuf[c], type)) return c;
+	return 0;
+}
 
 bool isSVLadder(int32_t x, int32_t y)
 {

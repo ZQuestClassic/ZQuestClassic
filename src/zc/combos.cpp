@@ -38,31 +38,8 @@ void CutsceneState::error()
 }
 CutsceneState active_cutscene;
 
-struct cmbtimer
-{
-	int32_t data;
-	byte clk;
-	word shootrclk;
-	byte trig_cd;
-	void clear()
-	{
-		data = 0;
-		clk = 0;
-		shootrclk = 0;
-		trig_cd = 0;
-	}
-	void updateData(int32_t newdata)
-	{
-		if(data != newdata)
-		{
-			clear();
-			data = newdata;
-		}
-	}
-	cmbtimer() {clear();}
-};
-cmbtimer combo_trig_timers[7][176];
-std::vector<cmbtimer> ffc_trig_timers;
+cpos_info combo_posinfos[7][176];
+std::vector<cpos_info> ffc_posinfos;
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2552,7 +2529,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
-	cmbtimer& timer = combo_trig_timers[lyr][pos];
+	cpos_info& timer = combo_posinfos[lyr][pos];
 	int32_t cid = tmp->data[pos];
 	int32_t ocs = tmp->cset[pos];
 	int32_t cx = COMBOX(pos);
@@ -2937,7 +2914,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	cmbtimer& timer = ffc_trig_timers[pos];
+	cpos_info& timer = ffc_posinfos[pos];
 	int32_t cid = ffc.getData();
 	int32_t ocs = ffc.cset;
 	int32_t cx = ffc.x;
@@ -3373,21 +3350,21 @@ void init_combo_timers()
 	{
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			combo_trig_timers[lyr][pos].clear();
+			combo_posinfos[lyr][pos].clear();
 		}
 	}
-	ffc_trig_timers.clear();
+	ffc_posinfos.clear();
 }
 
 bool on_cooldown(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
 		return false;
-	return combo_trig_timers[lyr][pos].trig_cd != 0;
+	return combo_posinfos[lyr][pos].trig_cd != 0;
 }
 
 
-static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix wy)
+static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix wy)
 {
 	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
 	int32_t highrate = zc_max(0,cmb.attrishorts[1]);
@@ -3418,7 +3395,7 @@ static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix w
 	}
 }
 
-static void handle_shooter(newcombo const& cmb, cmbtimer& timer, int32_t pos)
+static void handle_shooter(newcombo const& cmb, cpos_info& timer, int32_t pos)
 {
 	handle_shooter(cmb, timer, COMBOX(pos), COMBOY(pos));
 }
@@ -3429,7 +3406,7 @@ void update_combo_timers()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cmbtimer& timer = combo_trig_timers[lyr][pos];
+			cpos_info& timer = combo_posinfos[lyr][pos];
 			timer.updateData(scr->data[pos]);
 			newcombo const& cmb = combobuf[timer.data];
 			if(cmb.trigtimer)
@@ -3450,18 +3427,18 @@ void update_combo_timers()
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	if(ffc_trig_timers.size() != c)
+	if(ffc_posinfos.size() != c)
 	{
-		dword osz = ffc_trig_timers.size();
-		ffc_trig_timers.resize(c);
+		dword osz = ffc_posinfos.size();
+		ffc_posinfos.resize(c);
 		for(dword q = osz; q < c; ++q) //Is this needed? -Em
 		{
-			ffc_trig_timers[q].clear();
+			ffc_posinfos[q].clear();
 		}
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cmbtimer& timer = ffc_trig_timers[ffc];
+		cpos_info& timer = ffc_posinfos[ffc];
 		timer.updateData(ffscr->ffcs[ffc].getData());
 		newcombo const& cmb = combobuf[timer.data];
 		if(cmb.trigtimer)

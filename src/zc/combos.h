@@ -24,6 +24,9 @@ public:
 };
 extern CutsceneState active_cutscene;
 
+extern cpos_info combo_posinfos[7][176];
+extern std::vector<cpos_info> ffc_posinfos;
+
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
 void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft);

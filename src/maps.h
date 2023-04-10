@@ -89,6 +89,7 @@ bool ispitfall_type(int32_t type);
 bool isdamage_type(int32_t type);
 bool ispitfall(int32_t x, int32_t y);
 int32_t getpitfall(int32_t x, int32_t y);
+int get_icy(int x, int y, int type);
 bool isGrassType(int32_t type);
 bool isFlowersType(int32_t type);
 bool isBushType(int32_t type);

@@ -8442,8 +8442,8 @@ bool HeroClass::animate(int32_t)
 													if(mtemp.dir < 0)
 														mtemp.dir = getPushDir(cmb.flag);
 													mtemp.clk = 1;
-													if(isFakePush)
-														mtemp.force_many = true;
+													mtemp.force_many = isFakePush;
+													mtemp.no_icy = true;
 													mtemp.animate(0);
 													if((mtemp.bhole || mtemp.trigger)
 														&& (fl == mfBLOCKTRIGGER || fl == mfBLOCKHOLE
@@ -18119,7 +18119,7 @@ void HeroClass::checkpushblock()
 	if(earlyReturn)
 		return;
 	
-	int32_t itemid=current_item_id(itype_bracelet);
+	int itemid=current_item_id(itype_bracelet);
 	size_t combopos = (by&0xF0)+(bx>>4);
 	bool limitedpush = (itemid>=0 && itemsbuf[itemid].flags & ITEM_FLAG1);
 	itemdata const* glove = itemid < 0 ? NULL : &itemsbuf[itemid];
@@ -18128,50 +18128,103 @@ void HeroClass::checkpushblock()
 		if(get_bit(quest_rules,qr_HESITANTPUSHBLOCKS)&&(pushing<4)) break;
 		if(lyr && !get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			continue;
+		cpos_info& cpinfo = combo_posinfos[lyr][combopos];
 		mapscr* m = FFCore.tempScreens[lyr];
-		int32_t f = MAPFLAG2(lyr-1,bx,by);
-		int32_t f2 = MAPCOMBOFLAG2(lyr-1,bx,by);
-		int32_t t = lyr == 0 ?
-			combobuf[MAPCOMBO(bx,by)].type :
-			combobuf[MAPCOMBOL(lyr,bx,by)].type;
+		int cid = lyr == 0 ? MAPCOMBO(bx,by) : MAPCOMBOL(lyr,bx,by);
+		newcombo const& cmb = combobuf[cid];
+		int f = MAPFLAG2(lyr-1,bx,by);
+		int f2 = cmb.flag;
+		int t = cmb.type;
 		
-		if((t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) && (pushing<16 || hasMainGuy())) continue;
+		bool waitblock = (t==cPUSH_WAIT || t==cPUSH_HW || t==cPUSH_HW2) ||
+			(t == cPUSHBLOCK && (cmb.usrflags&cflag6));
+		int heavy = 0;
+		if(t==cPUSH_HW || t==cPUSH_HEAVY)
+			heavy = 1;
+		else if(t==cPUSH_HEAVY2 || t==cPUSH_HW2)
+			heavy = 2;
+		else if(t == cPUSHBLOCK)
+			heavy = cmb.attribytes[0];
 		
-		if((t==cPUSH_HW || t==cPUSH_HEAVY || t==cPUSH_HEAVY2 || t==cPUSH_HW2)
-				&& (itemid<0 || glove->power<((t==cPUSH_HEAVY2 || t==cPUSH_HW2)?2:1) ||
-					(limitedpush && usecounts[itemid] > zc_max(1, glove->misc3)))) continue;
+		if(waitblock && (pushing<16 || hasMainGuy())) continue;
+		
+		if(heavy && (itemid<0 || glove->power < heavy ||
+			(limitedpush && usecounts[itemid] > zc_max(1, glove->misc3)))) continue;
 		
 		bool doit=false;
 		bool changeflag=false;
 		bool changecombo=false;
 		
-		if(((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
-				((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
-				((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
-				((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
-				((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
-				((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
-				f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+		int blockdir = dir;
+		if(blockdir > 3) blockdir = Y_DIR(dir);
+		if(t == cPUSHBLOCK)
 		{
-			changeflag=true;
-			doit=true;
+			switch(blockdir)
+			{
+				case up:
+					doit = cmb.usrflags & cflag1;
+					break;
+				case down:
+					doit = cmb.usrflags & cflag2;
+					break;
+				case left:
+					doit = cmb.usrflags & cflag3;
+					break;
+				case right:
+					doit = cmb.usrflags & cflag4;
+					break;
+			}
+			if(cmb.usrflags & cflag5) //Separate directions
+			{
+				if(int limit = cmb.attribytes[4+blockdir])
+				{
+					if(cpinfo.pushes[blockdir] >= limit)
+						doit = false;
+				}
+				else if(cmb.usrflags & cflag9)
+					doit = false;
+			}
+			else
+			{
+				if(int limit = cmb.attribytes[4])
+				{
+					if(cpinfo.sumpush() >= limit)
+						doit = false;
+				}
+				else if(cmb.usrflags & cflag9)
+					doit = false;
+			}
 		}
-		
-		if((((f2==mfPUSHUD || f2==mfPUSHUDNS|| f2==mfPUSHUDINS) && dir<=down) ||
-				((f2==mfPUSHLR || f2==mfPUSHLRNS|| f2==mfPUSHLRINS) && dir>=left) ||
-				((f2==mfPUSHU || f2==mfPUSHUNS || f2==mfPUSHUINS) && dir==up) ||
-				((f2==mfPUSHD || f2==mfPUSHDNS || f2==mfPUSHDINS) && dir==down) ||
-				((f2==mfPUSHL || f2==mfPUSHLNS || f2==mfPUSHLINS) && dir==left) ||
-				((f2==mfPUSHR || f2==mfPUSHRNS || f2==mfPUSHRINS) && dir==right) ||
-				f2==mfPUSH4 || f2==mfPUSH4NS || f2==mfPUSH4INS)&&(f!=mfPUSHED))
+		else
 		{
-			changecombo=true;
-			doit=true;
+			if(((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
+					((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
+					((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
+					((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
+					((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
+					((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
+					f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+			{
+				changeflag=true;
+				doit=true;
+			}
+			
+			if((((f2==mfPUSHUD || f2==mfPUSHUDNS|| f2==mfPUSHUDINS) && dir<=down) ||
+					((f2==mfPUSHLR || f2==mfPUSHLRNS|| f2==mfPUSHLRINS) && dir>=left) ||
+					((f2==mfPUSHU || f2==mfPUSHUNS || f2==mfPUSHUINS) && dir==up) ||
+					((f2==mfPUSHD || f2==mfPUSHDNS || f2==mfPUSHDINS) && dir==down) ||
+					((f2==mfPUSHL || f2==mfPUSHLNS || f2==mfPUSHLINS) && dir==left) ||
+					((f2==mfPUSHR || f2==mfPUSHRNS || f2==mfPUSHRINS) && dir==right) ||
+					f2==mfPUSH4 || f2==mfPUSH4NS || f2==mfPUSH4INS)&&(f!=mfPUSHED))
+			{
+				changecombo=true;
+				doit=true;
+			}
 		}
 		
 		if(get_bit(quest_rules,qr_SOLIDBLK))
 		{
-			switch(dir)
+			switch(blockdir)
 			{
 			case up:
 				if(_walkflag(bx,by-8,2,SWITCHBLOCK_STATE)&&!(MAPFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfBLOCKHOLE))    doit=false;
@@ -18195,7 +18248,7 @@ void HeroClass::checkpushblock()
 			}
 		}
 		
-		switch(dir)
+		switch(blockdir)
 		{
 		case up:
 			if((MAPFLAG2(lyr-1,bx,by-8)==mfNOBLOCKS||MAPCOMBOFLAG2(lyr-1,bx,by-8)==mfNOBLOCKS))       doit=false;
@@ -18234,10 +18287,26 @@ void HeroClass::checkpushblock()
 				if(mblock2.clk<=0)
 				{
 					mblock2.blockLayer = lyr;
-					mblock2.push((zfix)bx,(zfix)by,dir,f);
 					
-					if(get_bit(quest_rules,qr_MORESOUNDS))
-						sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
+					if(t == cPUSHBLOCK)
+					{
+						zfix blockstep = 0.5;
+						if(cmb.attrishorts[0] > 0)
+							blockstep = zslongToFix(cmb.attrishorts[0]*100);
+						mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
+						mblock2.blockinfo = cpinfo;
+						mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
+						cpinfo.clear();
+						if(cmb.attribytes[1])
+							sfx(cmb.attribytes[1],(int32_t)x);
+					}
+					else
+					{
+						mblock2.push((zfix)bx,(zfix)by,blockdir,f);
+						
+						if(get_bit(quest_rules,qr_MORESOUNDS))
+							sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
+					}
 				}
 			}
 			break;
