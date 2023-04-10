@@ -1,5 +1,120 @@
 // 2.55 Change Log
-// Updated 21st Feb, 2023
+// Updated 9th Apr, 2023
+
+//Alpha 113
+
+Pound combos can work on layers 1&2 (qr)
+Add 'Push (Generic)' combos and 'Icy Floor' combos
+	Now you can have slidy block puzzles in-engine!
+	( EmilyV, Apr 9th, 2023 )
+
+Fix screen not clearing properly in ZQ
+	( EmilyV, Apr 8th, 2023 )
+
+Quarter-tile view + rotated/reflected draw modes (tile editor)
+	( EmilyV, Apr 7th, 2023 )
+
+Web: implement sdl cursor
+	( connorjclark, Apr 6th, 2023 )
+
+Fix scrollpane crash
+Try to fix a couple other crashes?
+Fix small windows on mac
+Fix squished ZCL buttons
+	( EmilyV, Apr 5th, 2023 )
+
+Add 'type->Own()' functions for npc, eweapon, lweapon, itemsprite, ffc
+	( EmilyV, Apr 3rd, 2023 )
+
+Fix ZC render, add 'stretch' option
+Fix DrawTile/DrawCombo optional params
+Add 'Invert Proximity' to shooters
+Fix FFC bush/slash combos
+Add 'No air triggers' hammer flag
+	( EmilyV, Apr 2nd, 2023 )
+
+Add 1-7 as hotkeys in tile editor to select the 7 tools
+Add a bunch of new fonts!
+	( EmilyV, Mar 31st, 2023 )
+
+Add font change SCC
+Add 'Custcene Trigger' combo
+Tile and combo pages can both multi-insert / multi-remove
+	( EmilyV, Mar 30th, 2023 )
+
+Store combo column positions and mappage bookmarks per-quest
+Fix trigger secret sfx timing
+	( EmilyV, Mar 29th, 2023 )
+
+Improve combo brush/cursor
+Fix linux script debugger
+Allow linking combo panel scrolling
+	( EmilyV, Mar 28th, 2023 )
+
+Improve combo pages animations
+Fix ZQ eyeball combos
+	( EmilyV, Mar 27th, 2023 )
+
+Add switch states to combo triggers tab
+Add font scaling in ZQ
+	( EmilyV, Mar 26th, 2023 )
+
+Add accessibility larger main panel (SWP btn in compact ZQ)
+Fix not being able to F9 out of locked up scripts
+Add ZQ hotkey customization (Etc->Hotkeys)
+	( EmilyV, Mar 25th, 2023 )
+
+Fix namespace resolution issues
+	( EmilyV, Mar 23rd, 2023 )
+
+Redesign mouse cursor system to fix caching bugs
+	( EmilyV, Mar 20th, 2023 )
+
+Rename the goddess spells (Divine Fire, Divine Protection, and Divine Escape)
+Rework fire flags (any fire can now trigger any type of fire flag, depending on item flags)
+Fix SBomb costs (compat)
+Fix 'No Secret Sound' old flag (compat)
+Fix opening wipe + F4
+Fix combo rotation/flip + cset2
+	( EmilyV, Mar 18th, 2023 )
+
+Upgrade quake hammer / spin attack scrolls
+	can set charge sound
+	can pay magic cost on release instead of charge
+	Quake Hammer / S. Quake Hammer combo triggers
+Add 'weapon->Timeout' for auto-dying weapons
+Allow 'Lantern' items to use counter cost passively
+	( EmilyV, Mar 16th, 2023 )
+
+Fix alias cursor alignment
+Fix Hero->HitBy[] off-by-one error
+Fix parser crash
+	( EmilyV, Mar 15th, 2023 )
+
+Add configurable dive button for flippers
+	( EmilyV, Mar 4th, 2023 )
+
+Render ZC visual cheats on A5 layer
+Some fixes to the mouse
+Fix map import/export
+	( EmilyV, Feb 25th, 2023 )
+
+A5 render tree upgrades
+CSets 12 + 13 now available
+Cheat hotkeys are now configurable
+Add cheat 'trigger secrets' (perm and temp versions)
+	( EmilyV, Feb 24th, 2023 )
+
+Add 'Post-item-collect' generic script event
+Fix stab animation carrying into new screen
+Warp/scrolling collision fixes
+Clean up Init Data dialog
+Fix roc's feather on water
+Fix moldorm 0 step crash
+	( EmilyV, Feb 23rd, 2023 )
+
+Remove Small Mode
+	( EmilyV, Feb 22nd, 2023 )
 
 // Alpha 112
 
