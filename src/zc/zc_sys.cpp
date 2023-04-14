@@ -6425,6 +6425,7 @@ int32_t onCredits()
 	//comeback();
 
 	rti_gui.transparency_index = 0;
+	clear_to_color(gui_bmp, rti_gui.transparency_index);
 
 	return D_O_K;
 }
