@@ -1978,7 +1978,7 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODTRIGGERLSTATE: return "COMBODTRIGGERLSTATE";
 	case COMBODTRIGGERGSTATE: return "COMBODTRIGGERGSTATE";
 	case COMBODTRIGGERGTIMER: return "COMBODTRIGGERGTIMER";
-	case RESRVD_VAR_EMILY10: return "RESRVD_VAR_EMILY10";
+	case GAMEMOUSECURSOR: return "GAMEMOUSECURSOR";
 	case RESRVD_VAR_EMILY11: return "RESRVD_VAR_EMILY11";
 	case RESRVD_VAR_EMILY12: return "RESRVD_VAR_EMILY12";
 	case RESRVD_VAR_EMILY13: return "RESRVD_VAR_EMILY13";
@@ -2453,9 +2453,9 @@ string OQuitNoDealloc::toString() const
 {
 	return "QUIT_NO_DEALLOC";
 }
-string OReservedEmily18::toString() const
+string OSetCustomCursor::toString() const
 {
-	return "RESRVD_OP_EMILY18 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "GAMESETCUSTOMCURSOR";
 }
 string OReservedEmily19::toString() const
 {

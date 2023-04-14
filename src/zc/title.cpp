@@ -4422,9 +4422,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		return;
 	}
 	
-	game_mouse_index = ZCM_BLANK; //Force game mouse to blank
-	MouseSprite::clear(ZCM_CUSTOM); //Delete any custom cursor between quests
-	
 	if (replay_get_mode() == ReplayMode::Record)
 	{
 		replay_save();

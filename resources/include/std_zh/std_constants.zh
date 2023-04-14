@@ -2832,6 +2832,13 @@ DEFINE MOUSE_LEFT = 3;
 DEFINE MOUSE_RIGHT = 4;
 DEFINE MOUSE_MIDDLE = 5;
 
+//Game->MouseCursor values
+enum
+{
+	ZCM_CUSTOM, ZCM_BLANK, ZCM_NORMAL,
+	ZCM_MAX
+};
+
 //MapData
 
 //GetSecretCombo()

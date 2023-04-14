@@ -546,9 +546,10 @@ extern zctune tunes[MAXMIDIS];
 //Mouse stuff
 enum
 {
-	ZCM_NORMAL,
+	ZCM_CUSTOM,
 	ZCM_BLANK,
-	ZCM_CUSTOM
+	ZCM_NORMAL,
+	ZCM_MAX
 };
 
 #endif

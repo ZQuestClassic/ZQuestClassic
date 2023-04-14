@@ -3276,6 +3276,24 @@ untyped EventData[?];
  * Contains event data for use with 'WaitEvent()' in generic scripts.
  * Use the appropriate set of 'GENEV_' constants based on the event.
 
+int MouseCursor;
+ * Which mouse cursor (ZCM_ constants) should be displayed during gameplay.
+ * Default ZCM_BLANK (Resets on visiting title screen)
+
+void SetCustomCursor(bitmap b, int fx, int fy, bool sys_recolor = false, bool user_scale = false);
+ * Sets the custom cursor based on the given bitmap. This cursor will be displayed if
+ *     `Game->MouseCursor == ZCM_CUSTOM`.
+ * fx,fy denotes the "focus point" of the cursor. For a normal cursor, this is usually
+ *     the top-left (the engine cursor uses '1,1', which is the transparent pixel directly
+ *     pointed to by the arrow). For a crosshair type cursor, this would be the center.
+ * If `user_scale` is true, the user's mouse scale config will apply to the custom cursor.
+ * If `sys_recolor` is true, some special colors will be replaced based on the current theme.
+ * -0xF1 = Cursor Misc
+ * -0xF2 = Cursor Outline
+ * -0xF3 = Cursor Light
+ * -0xF5 = Cursor Dark
+ * WARNING: The palette will NOT update on custom cursors automatically. You must call this function again if the cursor should be affected by palette changes.
+
 int SubscreenSpeed;
  * The speed multiplier for the active subscreen falling or raising.
  * The base speed (1) is 3 pixels per frame. The maximum value is 85.

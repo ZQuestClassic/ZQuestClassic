@@ -1448,7 +1448,7 @@
 #define COMBODTRIGGERLSTATE      1364
 #define COMBODTRIGGERGSTATE      1365
 #define COMBODTRIGGERGTIMER      1366
-#define RESRVD_VAR_EMILY10      1367
+#define GAMEMOUSECURSOR      1367
 #define RESRVD_VAR_EMILY11      1368
 #define RESRVD_VAR_EMILY12      1369
 #define RESRVD_VAR_EMILY13      1370
@@ -2111,14 +2111,13 @@ namespace ZScript
 			return new OQuitNoDealloc();
 		}
 	};
-	class OReservedEmily18 : public BinaryOpcode
+	class OSetCustomCursor : public Opcode
 	{
 	public:
-		OReservedEmily18(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily18(a->clone(),b->clone());
+			return new OSetCustomCursor();
 		}
 	};
 	class OReservedEmily19 : public BinaryOpcode

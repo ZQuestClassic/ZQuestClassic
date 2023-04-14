@@ -999,8 +999,8 @@
                             "val": "<h3>int MapCount();</h3>\nThe number of maps in the quest.\n\n<h3>int NumMessages;</h3>\nThe number of message strings in the quest.\n\n<h3>int GetMidi();</h3>\nReturns the current MIDI playing."
                         },
                         {
-                            "name": "--",
-                            "val": ""
+                            "name": "Mouse Cursors ;; Game::MouseCursor / Game::SetCustomCursor / Cursors",
+                            "val": "<h3>int MouseCursor;</h3>\nWhich mouse cursor (using the [[$ZCM_]] constants) should be displayed during gameplay. ZCM_BLANK is the default, and it resets on visiting the title screen.\n\n<h3>void SetCustomCursor(bitmap b, int fx, int fy, [[bool sys_recolor = false|If true, some system colors in cset 15 will be replaced based on the current program Theme.\n<ul><li>0xF1 = Cursor Misc</li>\n<li>0xF2 = Cursor Outline</li>\n<li>0xF3 = Cursor Light</li>\n<li>0xF5 = Cursor Dark</li></ul>]], [[bool user_scale|If true, the user's cursor scale config will be applied. = false]]);</h3>\nSets the custom cursor used by ZCM_CUSTOM from the bitmap b.\nfx,fy indicates the [[focal point|Normal cursors usually place this at the upper-left, on the transparent pixel the arrow points to.\nFor a crosshair cursor, this would be the center point.]] of the cursor.\n\nWARNINGS:\n\nThe palette will NOT update on custom cursors automatically. You must call this function again if the cursor should be affected by palette changes.\n\nThe cursor will use the image on the bitmap at the START of the frame, before any of this frame's draws. This means you should have a `Waitframe()` after the draws to the bitmap, before calling this function."
                         },
                         {
                             "name": "--",
@@ -2579,6 +2579,10 @@
                     {
                         "name": "FLIP_",
                         "val": "<mono>FLIP_NONE        = 0\nFLIP_HORIZONTAL  = 1\nFLIP_VERTICAL    = 2\nFLIP_HV          = 3\nFLIP_VH          = 3\nFLIP_BOTH        = 3\n//rotation and flip\nROT_CW           = 4\nROT_CW_FLIP      = 5\nROT_CCW_FLIP     = 6\nROT_CCW          = 7</mono>\n"
+                    },
+                    {
+                        "name": "ZCM_",
+                        "val": "Values for `Game->MouseCursor`\n<ol start=\"0\"><li>ZCM_CUSTOM: Use a custom cursor</li>\n<li>ZCM_BLANK: Don't display a cursor</li>\n<li>ZCM_NORMAL: Display the engine cursor</li></ol>"
                     }
                 ]
             },

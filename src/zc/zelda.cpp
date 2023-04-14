@@ -5430,6 +5430,12 @@ reload_for_replay_file:
 		toogam = false;
 		ignoreSideview=false;
 		clear_bitmap(lightbeam_bmp);
+		if(Quit!=qCONT)
+		{
+			game_mouse_index = ZCM_BLANK; //Force game mouse to blank
+			game_mouse();
+			MouseSprite::clear(ZCM_CUSTOM); //Delete any custom cursor between quests
+		}
 		if (zqtesting_mode || replay_is_replaying())
 		{
 			int32_t q = Quit;
@@ -5457,6 +5463,7 @@ reload_for_replay_file:
 		setup_combo_animations();
 		setup_combo_animations2();
 		active_cutscene.clear();
+		game_mouse();
 		
 		while(Quit<=0)
 		{

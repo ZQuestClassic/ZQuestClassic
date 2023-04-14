@@ -7769,6 +7769,11 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case GAMEMOUSECURSOR:
+		{
+			ret = game_mouse_index*10000;
+			break;
+		}
 		
 		case GAMEGRAVITY:
 		{
@@ -17775,6 +17780,15 @@ void set_register(int32_t arg, int32_t value)
 			{
 				FFCore.eventData[inx] = value;
 			}
+			break;
+		}
+		case GAMEMOUSECURSOR:
+		{
+			int v = value/10000;
+			if(v < 0 || v >= ZCM_MAX)
+				break;
+			game_mouse_index = v;
+			game_mouse();
 			break;
 		}
 		
@@ -31881,6 +31895,19 @@ j_command:
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
+			case GAMESETCUSTOMCURSOR:
+			{
+				int32_t bmpptr = SH::read_stack(ri->sp + 4);
+				int fx = SH::read_stack(ri->sp + 3) / 10000;
+				int fy = SH::read_stack(ri->sp + 2) / 10000;
+				bool recolor = SH::read_stack(ri->sp + 1)!=0;
+				bool scale = SH::read_stack(ri->sp + 0)!=0;
+				if(user_bitmap* b = checkBitmap(bmpptr,nullptr,true))
+				{
+					custom_mouse(b->u_bmp,fx,fy,recolor,scale);
+				}
+				break;
+			}
 			
 			case GAMECONTINUE:
 				if ( using_SRAM )
@@ -39533,7 +39560,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "OBJ_OWN_CLASS",   2,   0,   1,   0},
 	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
 	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY18",   0,   0,   0,   0},
+	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
@@ -40954,7 +40981,7 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERLSTATE", COMBODTRIGGERLSTATE, 0, 0 },
 	{ "COMBODTRIGGERGSTATE", COMBODTRIGGERGSTATE, 0, 0 },
 	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
-	{ "RESRVD_VAR_EMILY10", RESRVD_VAR_EMILY10, 0, 0 },
+	{ "GAMEMOUSECURSOR", GAMEMOUSECURSOR, 0, 0 },
 	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
 	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
 	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
@@ -41768,7 +41795,7 @@ void FFScript::do_breakpoint()
 
 void FFScript::do_tracenl()
 {
-	al_trace("\n");
+	safe_al_trace("\n");
 	
 	if ( zscript_debugger ) 
 	{
