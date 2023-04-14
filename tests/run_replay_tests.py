@@ -363,6 +363,7 @@ def get_replay_data(file):
         'dreamy_cambria.zplay': 1100,
         'first_quest_layered.zplay': 2500,
         'freedom_in_chains.zplay': 1300,
+        'hero_of_dreams.zplay': 2400,
         'hollow_forest.zplay': 500,
         'lands_of_serenity.zplay': 1700,
         'link_to_the_zelda.zplay': 2100,
