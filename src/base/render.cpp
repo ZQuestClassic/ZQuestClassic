@@ -290,6 +290,8 @@ namespace MouseSprite
 	}
 	void assign(int index, BITMAP* spr, int xf, int yf)
 	{
+		if(index < 0 || index >= MAX_MOUSESPRITE)
+			return;
 		ALLEGRO_MOUSE_CURSOR* old_cursor = zc_mouse_sprites[index];
 		all_set_transparent_palette_index(0);
 		ALLEGRO_BITMAP* a5_mouse_sprite = all_get_a5_bitmap(spr);
@@ -302,20 +304,31 @@ namespace MouseSprite
 		if(old_cursor)
 			al_destroy_mouse_cursor(old_cursor);
 	}
-	void set(int index)
+	bool set(int index)
 	{
 		if(index < 0 || index >= MAX_MOUSESPRITE)
 		{
 			active_mouse_sprite = -1;
 			set_nullmouse();
+			return true;
 		}
-		if(index == active_mouse_sprite) return;
+		if(index == active_mouse_sprite) return true;
 		if(zc_mouse_sprites[index])
 		{
 			active_mouse_sprite = index;
 			al_show_mouse_cursor(all_get_display());
 			al_set_mouse_cursor(all_get_display(), zc_mouse_sprites[index]);
+			return true;
 		}
+		return false;
+	}
+	void clear(int index)
+	{
+		if(index < 0 || index >= MAX_MOUSESPRITE)
+			return;
+		if(zc_mouse_sprites[index])
+			al_destroy_mouse_cursor(zc_mouse_sprites[index]);
+		zc_mouse_sprites[index] = nullptr;
 	}
 }
 

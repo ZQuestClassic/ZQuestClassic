@@ -680,58 +680,113 @@ void dump_pal(BITMAP *dest)
 
 //----------------------------------------------------------------
 
+int game_mouse_index = ZCM_BLANK;
+static bool system_mouse = false;
+bool sys_mouse()
+{
+	system_mouse = true;
+	return MouseSprite::set(ZCM_NORMAL);
+}
+bool game_mouse()
+{
+	system_mouse = false;
+	return MouseSprite::set(game_mouse_index);
+}
+void custom_mouse(BITMAP* bmp, int fx, int fy, bool sys_recolor, bool user_scale)
+{
+	if(!bmp)
+		return;
+	float scale = vbound(zc_get_config("zeldadx","cursor_scale_large",1.5),1.0,5.0);
+	int scaledw = bmp->w*scale, scaledh = bmp->h*scale;
+	if(bmp->w == scaledw && bmp->h == scaledh)
+		user_scale = false;
+	if(user_scale || sys_recolor)
+	{
+		if(!user_scale) scale = 1;
+		BITMAP* tmpbmp = create_bitmap_ex(8,bmp->w*scale,bmp->h*scale);
+		if(user_scale)
+			stretch_blit(bmp, tmpbmp, 0, 0, bmp->w, bmp->h, 0, 0, tmpbmp->w, tmpbmp->h);
+		else
+			blit(bmp, tmpbmp, 0, 0, 0, 0, bmp->w, bmp->h);
+		if(sys_recolor)
+			recolor_mouse(tmpbmp);
+		MouseSprite::assign(ZCM_CUSTOM, tmpbmp, fx*scale, fy*scale);
+		destroy_bitmap(tmpbmp);
+	}
+	else
+	{
+		MouseSprite::assign(ZCM_CUSTOM, bmp, fx, fy);
+	}
+	if(!system_mouse && game_mouse_index == ZCM_CUSTOM)
+		MouseSprite::set(ZCM_CUSTOM); //Reload the new sprite
+}
+
 //Handles converting the mouse sprite from the .dat file
+void recolor_mouse(BITMAP* bmp)
+{
+	for(int32_t x = 0; x < bmp->w; ++x)
+	{
+		for(int32_t y = 0; y < bmp->h; ++y)
+		{
+			int32_t color = getpixel(bmp, x, y);
+			switch(color)
+			{
+				case dvc(1):
+					color = jwin_pal[jcCURSORMISC];
+					break;
+				case dvc(2):
+					color = jwin_pal[jcCURSOROUTLINE];
+					break;
+				case dvc(3):
+					color = jwin_pal[jcCURSORLIGHT];
+					break;
+				case dvc(5):
+					color = jwin_pal[jcCURSORDARK];
+					break;
+				default:
+					continue;
+			}
+			putpixel(bmp, x, y, color);
+		}
+	}
+}
 void load_mouse()
 {
 	system_pal();
 	MouseSprite::set(-1);
-	int32_t sz = vbound(int32_t(16*(zc_get_config("zeldadx","cursor_scale_large",1.5))),16,80);
-	for(int32_t j = 0; j < 4; ++j)
+	float scale = vbound(zc_get_config("zeldadx","cursor_scale_large",1.5),1.0,5.0);
+	int32_t sz = 16*scale;
+	for(int32_t j = 0; j < 1; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
-		BITMAP* subbmp = create_bitmap_ex(8,16,16);
 		if(zcmouse[j])
 			destroy_bitmap(zcmouse[j]);
 		zcmouse[j] = create_bitmap_ex(8,sz,sz);
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
-		clear_bitmap(subbmp);
 		blit((BITMAP*)datafile[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
-		for(int32_t x = 0; x < 16; ++x)
-		{
-			for(int32_t y = 0; y < 16; ++y)
-			{
-				int32_t color = getpixel(tmpbmp, x, y);
-				switch(color)
-				{
-					case dvc(1):
-						color = jwin_pal[jcCURSORMISC];
-						break;
-					case dvc(2):
-						color = jwin_pal[jcCURSOROUTLINE];
-						break;
-					case dvc(3):
-						color = jwin_pal[jcCURSORLIGHT];
-						break;
-					case dvc(5):
-						color = jwin_pal[jcCURSORDARK];
-						break;
-				}
-				putpixel(subbmp, x, y, color);
-			}
-		}
+		recolor_mouse(tmpbmp);
 		if(sz!=16)
-			stretch_blit(subbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
+			stretch_blit(tmpbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
 		else
-			blit(subbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
+			blit(tmpbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
 		destroy_bitmap(tmpbmp);
-		destroy_bitmap(subbmp);
 	}
 	zc_set_palette(*hw_palette);
 	
-	MouseSprite::assign(0, zcmouse[0]);
-	MouseSprite::set(0);
+	BITMAP* blankmouse = create_bitmap_ex(8,16,16);
+	clear_bitmap(blankmouse);
 	
+	MouseSprite::assign(ZCM_NORMAL, zcmouse[0], 1*scale, 1*scale);
+	MouseSprite::assign(ZCM_BLANK, blankmouse);
+	//Don't assign ZCM_CUSTOM. That'll be handled by scripts.
+	
+	//Reload the mouse
+	if(system_mouse)
+		sys_mouse();
+	else game_mouse();
+	
+	destroy_bitmap(blankmouse);
 	game_pal();
 }
 
@@ -745,7 +800,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	
 	scrx = (resx-320)>>1;
 	scry = (resy-240)>>1;
-	for(int32_t q = 0; q < 4; ++q)
+	for(int32_t q = 0; q < NUM_ZCMOUSE; ++q)
 		zcmouse[q] = NULL;
 	load_mouse();
 	
@@ -4248,6 +4303,7 @@ void f_Quit(int32_t type)
 	{
 		music_pause();
 		pause_all_sfx();
+		sys_mouse();
 	}
 	enter_sys_pal();
 	clear_keybuf();
@@ -4291,6 +4347,7 @@ void f_Quit(int32_t type)
 	}
 	
 	if(!from_menu)
+		game_mouse();
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
@@ -6342,11 +6399,13 @@ int32_t onGoToComplete()
 	system_pal();
 	music_pause();
 	pause_all_sfx();
+	sys_mouse();
 	onGoTo();
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
-		
+	
+	game_mouse();
 	game_pal();
 	music_resume();
 	resume_all_sfx();
@@ -8332,6 +8391,7 @@ void System()
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
 	clear_keybuf();
+	sys_mouse();
 	
 	DIALOG_PLAYER *p;
 
@@ -8467,6 +8527,7 @@ void System()
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);
+	game_mouse();
 	MenuOpen = false;
 	if(Quit)
 	{

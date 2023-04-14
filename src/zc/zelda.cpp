@@ -333,7 +333,7 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *scre
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
-BITMAP     *zcmouse[4];
+BITMAP     *zcmouse[NUM_ZCMOUSE];
 DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
@@ -5763,9 +5763,6 @@ void quit_game()
 	set_clip_state(pricesdisplaybuf, 1);
 	destroy_bitmap(pricesdisplaybuf);
 	destroy_bitmap(zcmouse[0]);
-	destroy_bitmap(zcmouse[1]);
-	destroy_bitmap(zcmouse[2]);
-	destroy_bitmap(zcmouse[3]);
 	destroy_bitmap(script_menu_buf);
 	destroy_bitmap(f6_menu_buf);
 	destroy_bitmap(darkscr_bmp_curscr);

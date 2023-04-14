@@ -4014,6 +4014,7 @@ int32_t custom_game(int32_t file)
 	gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
 	gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
 	system_pal();
+	sys_mouse();
 	
 	clear_keybuf();
 	
@@ -4061,6 +4062,7 @@ int32_t custom_game(int32_t file)
 	}
 	if(!customized) strcpy(qstpath, relpath);
 	
+	game_mouse();
 	game_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5) && customized;
@@ -4419,7 +4421,10 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		cont_game();
 		return;
 	}
-
+	
+	game_mouse_index = ZCM_BLANK; //Force game mouse to blank
+	MouseSprite::clear(ZCM_CUSTOM); //Delete any custom cursor between quests
+	
 	if (replay_get_mode() == ReplayMode::Record)
 	{
 		replay_save();

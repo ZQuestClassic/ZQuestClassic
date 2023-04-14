@@ -312,7 +312,8 @@ extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans;
 extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
-extern BITMAP *zcmouse[4];
+#define NUM_ZCMOUSE 1
+extern BITMAP *zcmouse[NUM_ZCMOUSE];
 extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
 extern SAMPLE   wav_refill;
 extern PALETTE  RAMpal;
@@ -541,6 +542,14 @@ extern const byte ten_rupies_y[10];
 extern zctune tunes[MAXMIDIS];
 //extern zcmidi_ tunes[MAXMIDIS];
 //extern emusic enhancedMusic[MAXMUSIC];
+
+//Mouse stuff
+enum
+{
+	ZCM_NORMAL,
+	ZCM_BLANK,
+	ZCM_CUSTOM
+};
 
 #endif
 
