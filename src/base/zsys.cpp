@@ -2427,51 +2427,6 @@ size_t count_digits(int32_t n)
     return std::to_string(n).size();
 }
 
-//Fun fact: Allegro used to be in control of allegro.log. This caused
-//problems, because it would hold on to a file handle. Even if we blank
-//the contents of the log, it will still write to the end, causing
-//lots of nulls.
-
-//No more!
-
-
-FILE * trace_file;
-
-int32_t zc_trace_handler(const char * msg)
-{
-    // printf("%s", msg);
-    if(trace_file == 0)
-    {
-        if (getenv("ALLEGRO_LEGACY_TRACE"))
-            trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "a+");
-        else
-            trace_file = fopen("allegro.log", "a+");
-        
-        if(0==trace_file)
-        {
-            return 0; // blargh.
-        }
-    }
-    
-    fprintf(trace_file, "%s", msg);
-    fflush(trace_file);
-    return 1;
-}
-
-void zc_trace_clear()
-{
-    if(trace_file)
-    {
-        fclose(trace_file);
-    }
-    
-    if (getenv("ALLEGRO_LEGACY_TRACE"))
-        trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "w");
-    else
-        trace_file = fopen("allegro.log", "w");
-    ASSERT(trace_file);
-}
-
 void sane_destroy_bitmap(BITMAP **bmp)
 {
 	if(*bmp)

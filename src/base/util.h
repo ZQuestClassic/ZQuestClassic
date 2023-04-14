@@ -69,6 +69,9 @@ char const* get_snap_str();
 
 void clear_clip_rect(BITMAP* bitmap);
 
+int32_t zc_trace_handler(const char *);
+void zc_trace_clear();
+
 //#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif

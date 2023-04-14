@@ -181,9 +181,6 @@ size_t count_digits(int32_t n);
 
 void quit_game();
 
-int32_t zc_trace_handler(const char *);
-void zc_trace_clear();
-
 void sane_destroy_bitmap(BITMAP **bmp);
 
 #endif                                                      // _ZSYS_H_
