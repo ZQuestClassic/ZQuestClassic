@@ -195,11 +195,6 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_gui.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		if (scaleForceInteger)
-		{
-			xscale = intscale(xscale);
-			yscale = intscale(yscale);
-		}
 		rti_gui.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_gui.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_gui.transform.xscale = xscale;
