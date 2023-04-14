@@ -71,12 +71,12 @@ static void init_render_tree()
 		al_set_new_bitmap_flags(base_flags_preserve_texture | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
 	else
 		al_set_new_bitmap_flags(base_flags_preserve_texture);
-	rti_game.bitmap = al_create_bitmap(framebuf->w, framebuf->h);
+	rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 	rti_game.a4_bitmap = framebuf;
-	rti_infolayer.bitmap = al_create_bitmap(framebuf->w, framebuf->h);
+	rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 
 	al_set_new_bitmap_flags(base_flags);
-	rti_menu.bitmap = al_create_bitmap(menu_bmp->w, menu_bmp->h);
+	rti_menu.bitmap = create_a5_bitmap(menu_bmp->w, menu_bmp->h);
 	rti_menu.a4_bitmap = menu_bmp;
 	rti_menu.transparency_index = 0;
 
@@ -84,12 +84,12 @@ static void init_render_tree()
 	clear_bitmap(gui_bmp);
 	zc_set_gui_bmp(gui_bmp);
 	al_set_new_bitmap_flags(base_flags);
-	rti_gui.bitmap = al_create_bitmap(gui_bmp->w, gui_bmp->h);
+	rti_gui.bitmap = create_a5_bitmap(gui_bmp->w, gui_bmp->h);
 	rti_gui.a4_bitmap = gui_bmp;
 	rti_gui.transparency_index = 0;
 
 	al_set_new_bitmap_flags(base_flags);
-	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	rti_screen.transparency_index = 0;
 	

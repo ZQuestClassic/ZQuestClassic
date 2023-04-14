@@ -62,6 +62,7 @@ extern ALLEGRO_COLOR AL5_INVIS,AL5_BLACK,AL5_WHITE,AL5_YELLOW,
 void set_bitmap_create_flags(bool preserve_texture);
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);
+ALLEGRO_BITMAP* create_a5_bitmap(int w, int h);
 void render_tree_draw(RenderTreeItem* rti);
 
 void _init_render(int fmt);

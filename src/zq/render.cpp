@@ -30,17 +30,17 @@ static void init_render_tree()
 		return;
 	
 	set_bitmap_create_flags(false);
-	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 	rti_screen.visible = true;
 	
-	rti_tooltip.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_tooltip.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
 	rti_tooltip.transparency_index = 0;
 	clear_bitmap(rti_tooltip.a4_bitmap);
 	
 	set_bitmap_create_flags(true);
-	rti_mmap.bitmap = al_create_bitmap(screen->w, screen->h);
+	rti_mmap.bitmap = create_a5_bitmap(screen->w, screen->h);
 	
 	rti_screen.children.push_back(&rti_mmap);
 	

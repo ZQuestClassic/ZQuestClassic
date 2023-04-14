@@ -49,6 +49,13 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
 	clear_a5_bmp(AL5_INVIS,bmp);
 }
 
+ALLEGRO_BITMAP* create_a5_bitmap(int w, int h)
+{
+	ALLEGRO_BITMAP* bitmap = al_create_bitmap(w, h);
+	clear_a5_bmp(bitmap);
+	return bitmap;
+}
+
 RenderTreeItem::~RenderTreeItem()
 {
 	if(owned)
@@ -327,7 +334,7 @@ void popup_zqdialog_start()
 		
 		RenderTreeItem* rti = new RenderTreeItem();
 		set_bitmap_create_flags(false);
-		rti->bitmap = al_create_bitmap(zq_screen_w, zq_screen_h);
+		rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
 		rti->a4_bitmap = tmp_bmp;
 		rti->transparency_index = 0xFF;
 		clear_to_color(tmp_bmp,0xFF);
@@ -374,7 +381,7 @@ void popup_zqdialog_start_a5()
 	
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
-	rti->bitmap = al_create_bitmap(zq_screen_w, zq_screen_h);
+	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
 	rti->visible = true;
 	rti->owned = true;
 	rti_dialogs.children.push_back(rti);
