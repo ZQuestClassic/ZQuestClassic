@@ -4,7 +4,6 @@
 #include "alert.h"
 #include "base/zsys.h"
 #include "../tiles.h"
-#include "../jwin_a5.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
 
@@ -50,7 +49,7 @@ bool hasCTypeEffects(int32_t type)
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 		case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
-		case cSHOOTER:
+		case cSHOOTER: case cCUTSCENETRIG:
 		case cSAVE: case cSAVE2:
 			return true;
 	}
@@ -275,7 +274,7 @@ static const char *flag_help_string[mfMAX] =
 	"Allows the Player to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
 	"Allows the Player to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
 	"Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.",
-	"Triggers Screen Secrets when the Player touches it with fire from any source (Candle, Wand, Din's Fire, etc.) Is replaced with the 'Blue Candle' Secret Combo.",
+	"Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
 	"Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
 	"Makes a heart circle appear on screen when the Player steps on it, and refills his life. See also the Heart Circle-related Quest Rules.",
@@ -350,9 +349,9 @@ static const char *flag_help_string[mfMAX] =
 	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a level 2 Candle, a Wand, or Din's Fire. Is replaced with the 'Red Candle' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a Wand, or Din's Fire. Is replaced with the 'Wand Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with Din's Fire. Is replaced with the 'Din's Fire' Secret Combo.",
+	"Triggers Screen Secrets when the Player touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.",
+	"Triggers Screen Secrets when the Player touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.",
+	"Triggers Screen Secrets when the Player touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.",
@@ -476,6 +475,16 @@ std::string getComboTypeHelpText(int32_t id)
 		case cBSGRAVE:
 			typehelp = "When touched, this combo produces a Ghini and changes to the next combo in the list."
 				" Only functions on layer 0, even with ComboType Effects triggerflag.";
+			break;
+		case cCUTSCENETRIG:
+			typehelp = "When triggered with ComboType Effects, either stops an active cutscene, or"
+				" sets the active cutscene rules.";
+			break;
+		case cPUSHBLOCK:
+			typehelp = "A pushable block, that works separately from push flags. Highly configurable.";
+			break;
+		case cICY:
+			typehelp = "A block that may act slippery in different ways depending on its' flags.";
 			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
@@ -1319,8 +1328,11 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag4)) //Stops by Player Proximity
 			{
 				l_attribute[1] = "Proximity Limit";
-				h_attribute[1] = "If the player is at least this close (in pixels) to the combo,"
-					"\nthe combo will fail to shoot.";
+				h_attribute[1] = "If the player is at least this close (in pixels)"
+					" to the combo, the combo will fail to shoot.";
+				l_flag[8] = "Invert Proximity";
+				h_flag[8] = "If checked, the combo will fail to shoot if the"
+					" player is FARTHER than specified.";
 			}
 			if(FL(cflag7)) //Multi Shot
 			{
@@ -1328,6 +1340,25 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[3] = "How many shots (min 1) to fire";
 				l_attribute[3] = "Shot Spread";
 				h_attribute[3] = "Angle (in degrees) between each weapon (0 to 360)";
+			}
+			break;
+		}
+		case cCUTSCENETRIG:
+		{
+			l_flag[0] = "End Cutscene";
+			h_flag[0] = "If checked, triggering this combo with ComboType Effects will end any active cutscene.";
+			if(!FL(cflag1))
+			{
+				l_flag[1] = "Disable F6";
+				h_flag[1] = "The cutscene activated by this combo will not allow F6";
+				l_attribute[0] = "Allowed Buttons";
+				h_attribute[0] = "A bitwise flagset of the buttons that are allowed. Accessed *in LONG ENTRY MODE*:"
+					"\nUp=1,Down=2,Left=4,Right=8,A=16,B=32,Start=64,L=128,"
+					"\nR=256,Map=512,Ex1=1024,Ex2=2048,Ex3=4096,Ex4=8192,"
+					"\nStickUp=16384,StickDown=32768,StickLeft=65536,StickRight=131072"
+					"\nAdd the values of whichever buttons you would like to ALLOW during the cutscene.";
+				l_attribyte[0] = "Error SFX";
+				h_attribyte[0] = "If >0, SFX played when trying to press a disabled button";
 			}
 			break;
 		}
@@ -1704,6 +1735,71 @@ void ComboEditorDialog::loadComboType()
 			}
 			break;
 		}
+		case cPUSHBLOCK:
+		{
+			l_flag[0] = "Pushable Up";
+			h_flag[0] = "Can be pushed in the 'Up' direction";
+			l_flag[1] = "Pushable Down";
+			h_flag[1] = "Can be pushed in the 'Down' direction";
+			l_flag[2] = "Pushable Left";
+			h_flag[2] = "Can be pushed in the 'Left' direction";
+			l_flag[3] = "Pushable Right";
+			h_flag[3] = "Can be pushed in the 'Right' direction";
+			l_flag[4] = "Separate Directions";
+			h_flag[4] = "Different push counts for different directions";
+			l_flag[5] = "Enemies First (Wait)";
+			h_flag[5] = "Cannot be pushed until the enemies have been cleared from the screen";
+			l_flag[6] = "Icy Block";
+			h_flag[6] = "When pushed, keeps sliding until it hits a barrier.";
+			l_flag[7] = "Opposites Cancel";
+			h_flag[7] = "Pushing the block in a direction opposite to one it has already been pushed in"
+				" 'cancels' the previous push, instead of being a new push,"
+				" for purposes of the max number of pushes.";
+			l_flag[8] = "0 limit is none";
+			h_flag[8] = "Any direction with a push limit of '0' will be unable to be pushed"
+				" (as opposed to being pushable an infinite number of times).";
+			l_flag[9] = "Ignores Icy Floor";
+			h_flag[9] = "Does not slide on icy floors";
+			
+			l_attrishort[0] = "Push Speed";
+			h_attrishort[0] = "If 0 or less, uses the default push speed of 0.5 pixels per frame."
+				" Otherwise, uses this speed as a step value (1/100ths pixel per frame).";
+			l_attribyte[0] = "Heavy Level";
+			h_attribyte[0] = "If >0, a bracelet of at least this level is required to push this block.";
+			l_attribyte[1] = "Push SFX";
+			h_attribyte[1] = "The SFX to play when the block is pushed.";
+			l_attribyte[2] = "Stop SFX";
+			h_attribyte[2] = "The SFX to play when the block stops moving.";
+			if(FL(cflag5))
+			{
+				l_attribyte[4] = "Times Pushable (Up):";
+				h_attribyte[4] = "How many times the block can be pushed Up before it can no"
+					" longer be pushed up. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+				l_attribyte[5] = "Times Pushable (Down):";
+				h_attribyte[5] = "How many times the block can be pushed Down before it can no"
+					" longer be pushed down. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+				l_attribyte[6] = "Times Pushable (Left):";
+				h_attribyte[6] = "How many times the block can be pushed Left before it can no"
+					" longer be pushed left. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+				l_attribyte[7] = "Times Pushable (Right):";
+				h_attribyte[7] = "How many times the block can be pushed Right before it can no"
+					" longer be pushed right. '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+			}
+			else
+			{
+				l_attribyte[4] = "Times Pushable:";
+				h_attribyte[4] = "How many times the block can be pushed before it clicks into place."
+					" '0' either means no pushing or infinite pushing, depending on the '0 limit is none' flag.";
+			}
+			break;
+		}
+		case cICY:
+		{
+			l_flag[0] = "Slides Blocks";
+			h_flag[0] = "Pushable blocks pushed onto this combo will"
+				" slide past it, if nothing blocks their way.";
+			break;
+		}
 	}
 	if(local_comboref.script && combo_use_script_data)
 	{
@@ -2031,6 +2127,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			Rows<4>(padding = 0_px,
 				Label(text = "Type:", hAlign = 1.0),
 				DropDownList(data = list_ctype, fitParent = true,
+					maxwidth = 400_px,
 					padding = 0_px, selectedValue = local_comboref.type,
 					onSelectionChanged = message::COMBOTYPE
 				),
@@ -2047,6 +2144,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				),
 				Label(text = "Inherent Flag:", hAlign = 1.0),
 				DropDownList(data = list_flag, fitParent = true,
+					maxwidth = 400_px,
 					padding = 0_px, selectedValue = local_comboref.flag,
 					onSelectionChanged = message::COMBOFLAG
 				),
@@ -2135,7 +2233,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[0] = CornerSwatch(colSpan = 2,
 								val = solidity_to_flag(local_comboref.walk&0xF),
-								color = a5tohex(AL5_COL_SOLIDITY),
+								color = vc(12),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.walk &= ~0xF;
@@ -2144,7 +2242,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[1] = CornerSwatch(colSpan = 2,
 								val = (local_comboref.csets&0xF0)>>4,
-								color = a5tohex(AL5_COL_CS2),
+								color = vc(11),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.csets &= ~0xF0;
@@ -2176,7 +2274,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							),
 							cswatchs[2] = CornerSwatch(colSpan = 2,
 								val = solidity_to_flag((local_comboref.walk&0xF0)>>4),
-								color = a5tohex(AL5_COL_EFFECT),
+								color = vc(10),
 								onSelectFunc = [&](int32_t val)
 								{
 									local_comboref.walk &= ~0xF0;
@@ -2302,9 +2400,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				TabRef(name = "Triggers", TabPanel(
 					ptr = &cmb_tab3,
 					TabRef(name = "Weapons", Row(
-						Column(framed = true,
+						Column(framed = true, frameText = "LW Types",
 							Row(
-								padding = 0_px,
 								l_minmax_trig = Label(text = "Min Level (Applies to all):"),
 								TextField(
 									fitParent = true,
@@ -2328,10 +2425,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(0,"Sword"),
 								TRIGFLAG(1,"Sword Beam"),
 								TRIGFLAG(2,"Boomerang"),
-								TRIGFLAG(3,"Bomb"),
-								TRIGFLAG(4,"Super Bomb"),
-								TRIGFLAG(5,"Lit Bomb"),
-								TRIGFLAG(6,"Lit Super Bomb"),
+								TRIGFLAG(3,"Bomb Boom"),
+								TRIGFLAG(4,"Super Bomb Boom"),
+								TRIGFLAG(5,"Placed Bomb"),
+								TRIGFLAG(6,"Placed Super Bomb"),
 								TRIGFLAG(7,"Arrow"),
 								TRIGFLAG(8,"Fire"),
 								TRIGFLAG(9,"Whistle"),
@@ -2349,6 +2446,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(35,"Refl. Beam"),
 								TRIGFLAG(36,"Stomp"),
 								TRIGFLAG(89, "Thrown"),
+								TRIGFLAG(90, "Quake Hammer"),
+								TRIGFLAG(91, "S. Quake Hammer"),
 								TRIGFLAG(37,"Custom Weapon 1"),
 								TRIGFLAG(38,"Custom Weapon 2"),
 								TRIGFLAG(39,"Custom Weapon 3"),
@@ -2360,6 +2459,12 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(45,"Custom Weapon 9"),
 								TRIGFLAG(46,"Custom Weapon 10")
 							)
+						),
+						Column(framed = true, frameText = "Fire Levels",
+							TRIGFLAG(92, "Any Fire"),
+							TRIGFLAG(93, "Strong Fire"),
+							TRIGFLAG(94, "Magic Fire"),
+							TRIGFLAG(95, "Divine Fire")
 						)
 					)),
 					TabRef(name = "EWeapons", Row(
@@ -2587,17 +2692,23 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(30, "Kill Triggering Weapon"),
 							INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
 								" (by any trigger effect), the new combo is the one that resets."),
-							TRIGFLAG(18,"Reset Anim")
+							TRIGFLAG(18,"Reset Anim"),
+							INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+							TRIGFLAG(100, "Kill Enemies"),
+							INFOBTN("Delete all enemies on screen."),
+							TRIGFLAG(101, "Clear Enemies"),
+							INFOBTN("Delete all LWeapons on screen."),
+							TRIGFLAG(102, "Clear LWeapons"),
+							INFOBTN("Delete all EWeapons on screen."),
+							TRIGFLAG(103, "Clear EWeapons")
 						),
-						Column(framed = true,
-							Rows<3>(padding = 0_px,
+						Column(padding = 0_px,
+							Rows<3>(framed = true, hAlign = 0.0,
 								Label(text = "SFX:", fitParent = true),
-								TextField(
-									fitParent = true,
+								DropDownList(data = list_sfx,
 									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = 0, high = 255, val = local_comboref.trigsfx,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									fitParent = true, selectedValue = local_comboref.trigsfx,
+									onSelectFunc = [&](int32_t val)
 									{
 										local_comboref.trigsfx = val;
 									}),
@@ -2608,7 +2719,9 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										InfoDialog("Trigger SFX","If the value is >0, the combo will"
 											" play the specified SFX when triggered.").show();
 									}
-								),
+								)
+							),
+							Rows<3>(framed = true, hAlign = 0.0,
 								Label(text = "Combo Change:", fitParent = true),
 								TextField(
 									fitParent = true,
@@ -2698,8 +2811,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(54,"Consume w/o trig")
 						)
 					)),
-					TabRef(name = "States/Spawning", Row(
-						Rows<3>(framed = true,
+					TabRef(name = "States/Spawning", Rows<3>(
+						Rows<3>(framed = true, fitParent = true,
 							Label(text = "Req Item:", fitParent = true),
 							TextField(
 								fitParent = true,
@@ -2777,7 +2890,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								width = 1.5_em, padding = 0_px, forceFitH = true,
 								text = "?", hAlign = 1.0, onPressFunc = [&]()
 								{
-									InfoDialog("ExState","If the value is >=0, the exstate "
+									InfoDialog("ExState","If the value is >=0, the exstate"
 										" id set here will be set when the combo is triggered,"
 										"\nand if the exstate set here is already set, the combo will automatically trigger"
 										"\nwithout any effects other than combo/cset change.").show();
@@ -2801,9 +2914,66 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										"\nIf this combo is triggered, all other linked combos will also trigger,"
 										"\nand if any other linked combo triggers, this combo will trigger.").show();
 								}
+							),
+							//
+							Label(text = "LevelState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 31, val = local_comboref.trig_lstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_lstate = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("LevelState","The LevelState used by the flags"
+										" '->LevelState' and 'LevelState->'. 0-31.").show();
+								}
+							),
+							Label(text = "GlobalState:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.trig_gstate,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_gstate = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("GlobalState","The GlobalState used by the flags"
+										" '->GlobalState' and 'GlobalState->'. 0-255.").show();
+								}
+							),
+							Label(text = "GlobalState Timer:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 214748, val = local_comboref.trig_statetime,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_statetime = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("GlobalState Timer","If this value is >0,"
+										" then the 'GlobalState->' flag will trigger a timed global"
+										" state with this duration, in frames, instead of toggling"
+										" the global state.").show();
+								}
 							)
 						),
-						Rows<2>(framed = true,
+						Rows<2>(framed = true, fitParent = true,
 							INFOBTN("'Req Item:' must NOT be owned to trigger"),
 							TRIGFLAG(49,"Invert Item Req"),
 							INFOBTN("'Req Item:' will be taken when triggering"),
@@ -2815,9 +2985,18 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							INFOBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
 							TRIGFLAG(85, "Trigger ExState after enemy kill"),
 							INFOBTN("The item spawned by the combo will automatically be collected by the player."),
-							TRIGFLAG(86, "Spawned Item auto-collects")
+							TRIGFLAG(86, "Spawned Item auto-collects"),
+							INFOBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
+							TRIGFLAG(96, "LevelState->"),
+							INFOBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
+							TRIGFLAG(97, "->LevelState"),
+							INFOBTN("This combo is triggered when the globalswitch state specified as 'GlobalState' is toggled."),
+							TRIGFLAG(98, "GlobalState->"),
+							INFOBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
+								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
+							TRIGFLAG(99, "->GlobalState")
 						),
-						Column(framed = true, frameText = "Spawned Item Pickup",
+						Column(framed = true, fitParent = true, frameText = "Spawned Item Pickup",
 							MISCFLAG(spawnip, ipHOLDUP, "Hold Up Item"),
 							MISCFLAG(spawnip, ipTIMER, "Time Out Item"),
 							MISCFLAG(spawnip, ipSECRETS, "Item Triggers Secrets"),
@@ -2868,7 +3047,28 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftbreaksprite = val;
 									}
-								)
+								),
+								
+							Row(padding = 0_px,
+								Label(text = "Lift SFX:"),
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_comboref.liftsfx,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.liftsfx = val;
+									}),
+								INFOBTN("The sfx to play when lifted")
+							),
+							Row(padding = 0_px,
+								Label(text = "Break SFX:"),
+								DropDownList(data = list_sfx,
+									fitParent = true, selectedValue = local_comboref.liftbreaksfx,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.liftbreaksfx = val;
+									}),
+								INFOBTN("The sfx to play when the object breaks")
+							)
 						)
 					),
 					Frame(
@@ -2987,26 +3187,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									local_comboref.liftlvl = val;
 								}),
 							INFOBTN("The level of " + string(ZI.getItemClassName(itype_liftglove)) + " needed to lift this object."),
-							//
-							Label(text = "Lift SFX:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftsfx,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.liftsfx = val;
-								}),
-							INFOBTN("The sfx to play when lifted"),
-							//
-							Label(text = "Break SFX:", hAlign = 1.0),
-							TextField(
-								type = GUI::TextField::type::INT_DECIMAL,
-								low = 0, high = 255, val = local_comboref.liftbreaksfx,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_comboref.liftbreaksfx = val;
-								}),
-							INFOBTN("The sfx to play when the object breaks"),
 							//
 							Label(text = "Item Drop:"),
 							TextField(
@@ -3176,15 +3356,19 @@ void ComboEditorDialog::flipSwatches(int rot, int hflip, int vflip)
 			int32_t val = crn->getVal();
 			crn->setVal((val & 0b0011)<<2 | (val&0b1100)>>2);
 		}
+	local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
+		| solidity_to_flag(cswatchs[2]->getVal())<<4;
+	local_comboref.csets &= ~0xF0;
+	local_comboref.csets |= cswatchs[1]->getVal()<<4;
 }
 void ComboEditorDialog::updateFlip(int nflip)
 {
 	int oflip = local_comboref.flip;
 	if(oflip == nflip) return;
-	
+
 	bool vflip = false, hflip = false;
 	int rots = 0;
-	
+
 	//calculate how to get from oflip to nflip
 	if((oflip&0b1100) == (nflip&0b1100)) //possible without rotation
 	{
@@ -3196,7 +3380,7 @@ void ComboEditorDialog::updateFlip(int nflip)
 		//impossible without flipping?
 		if(hflip = (is_rot(oflip) != is_rot(nflip)))
 			oflip ^= 0b01;
-		
+
 		while(oflip!=nflip) //Rotate until they match
 		{
 			oflip = rotate_value(oflip);
@@ -3205,7 +3389,7 @@ void ComboEditorDialog::updateFlip(int nflip)
 	}
 	//Flip the corner swatches
 	flipSwatches(rots,hflip?1:0,vflip?1:0);
-	
+
 	local_comboref.flip = nflip;
 }
 bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
@@ -3228,12 +3412,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(cmb_tab1) break;
 			local_comboref.flip ^= 1;
 			flipSwatches(0,1,0);
-			
-			local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
-				| solidity_to_flag(cswatchs[2]->getVal())<<4;
-			local_comboref.csets &= ~0xF0;
-			local_comboref.csets |= cswatchs[1]->getVal()<<4;
-			
 			l_flip->setText(std::to_string(local_comboref.flip));
 			updateAnimation();
 			return false;
@@ -3243,12 +3421,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(cmb_tab1) break;
 			local_comboref.flip ^= 2;
 			flipSwatches(0,0,1);
-			
-			local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
-				| solidity_to_flag(cswatchs[2]->getVal())<<4;
-			local_comboref.csets &= ~0xF0;
-			local_comboref.csets |= cswatchs[1]->getVal()<<4;
-			
 			l_flip->setText(std::to_string(local_comboref.flip));
 			updateAnimation();
 			return false;
@@ -3258,12 +3430,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(cmb_tab1) break;
 			local_comboref.flip = rotate_value(local_comboref.flip);
 			flipSwatches(1,0,0);
-			
-			local_comboref.walk = solidity_to_flag(cswatchs[0]->getVal())
-				| solidity_to_flag(cswatchs[2]->getVal())<<4;
-			local_comboref.csets &= ~0xF0;
-			local_comboref.csets |= cswatchs[1]->getVal()<<4;
-			
 			l_flip->setText(std::to_string(local_comboref.flip));
 			updateAnimation();
 			return false;
@@ -3278,7 +3444,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::MINUSCS:
 		{
 			if(cmb_tab1) break;
-			CSet = (CSet+13)%14;
+			CSet = (CSet+11)%14;
 			updateCSet();
 			return false;
 		}
@@ -3300,7 +3466,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(doclear)
 			{
 				local_comboref.clear();
-				runner.rerun_dlg = true;
+				rerun_dlg = true;
 				return true;
 			}
 			return false;
@@ -3308,15 +3474,15 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::DEFAULT:
 		{
 			if(do_combo_default(local_comboref))
-				runner.rerun_dlg = true;
-			return runner.rerun_dlg;
+				rerun_dlg = true;
+			return rerun_dlg;
 		}
 		
 		case message::WIZARD:
 			if(hasComboWizard(local_comboref.type))
 			{
 				call_combo_wizard(*this);
-				runner.rerun_dlg = true;
+				rerun_dlg = true;
 				return true;
 			}
 			break;

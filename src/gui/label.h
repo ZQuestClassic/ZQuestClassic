@@ -39,7 +39,7 @@ private:
 	void applyDisabled(bool dis) override;
 	void arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH) override;
 	void realize(DialogRunner& runner) override;
-	void applyFont_a5(ALLEGRO_FONT* newFont) override;
+	void applyFont(FONT* newFont) override;
 
 	/* Inserts line breaks into the text if it's longer than
 	 * the alloted width.

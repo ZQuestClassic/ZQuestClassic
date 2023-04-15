@@ -63,7 +63,11 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 		case dithStatic:
 		{
 		dthr_static:
+#ifdef IS_PLAYER
 			double diff = abs(zc::math::Sin((double)((x*double(x))+(y*double(y)))) - (zc::math::Cos((double(x)*y))));
+#else
+			double diff = abs(sin((double)((x*double(x))+(y*double(y)))) - (cos((double(x)*y))));
+#endif
 			double filt = ((arg/255.0)*(2000))/1000.0;
 			ret = diff < filt;
 			break;
@@ -580,6 +584,37 @@ void replColor(BITMAP* dest, byte col, byte startCol, byte endCol, bool shift)
 	bmp_unwrite_line(dest);
 }
 
+void replColors(BITMAP* dest, std::vector<byte> srcCol, std::vector<byte> dstCol)
+{
+	size_t sz = std::min(srcCol.size(), dstCol.size());
+	if(!sz) return;
+	int32_t wid = dest->w;
+	int32_t hei = dest->h;
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(dest, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			byte c = bmp_read8(read_addr+tx);
+			int dc = -1;
+			for(size_t q = 0; q < sz; ++q)
+			{
+				if(c == srcCol[q])
+				{
+					dc = dstCol[q];
+					break;
+				}
+			}
+			if(dc > -1)
+			{
+				bmp_write8(write_addr+tx, byte(dc));
+			}
+		}
+	}
+	bmp_unwrite_line(dest);
+}
+
 //Counts the number of pixels in 'src' matching 'checkCol' in the masked area that matches 'maskCol'
 //Any color < 0 will match with any non-zero color.
 int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t checkCol, int32_t maskCol)
@@ -605,5 +640,41 @@ int32_t countColor(BITMAP* src, BITMAP* mask, int32_t x, int32_t y, int32_t chec
 	bmp_unwrite_line(mask);
 	bmp_unwrite_line(src);
 	return count;
+}
+
+std::vector<byte> getColors(BITMAP* bmp, int maxCount)
+{
+	std::vector<byte> ret;
+	
+	int32_t wid = bmp->w;
+	int32_t hei = bmp->h;
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(bmp, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			byte c = bmp_read8(read_addr+tx);
+			bool dupe = false;
+			for(byte col : ret)
+			{
+				if(c == col)
+				{
+					dupe = true;
+					break;
+				}
+			}
+			if(!dupe)
+			{
+				ret.push_back(c);
+				if(ret.size() >= maxCount)
+				{
+					ty = hei;
+					break;
+				}
+			}
+		}
+	}
+	bmp_unwrite_line(bmp);
+	return ret;
 }
 

@@ -186,7 +186,7 @@ public:
 	bool m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t x=-1000,int32_t y=-1000, bool kb = false);
 	bool m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x=-1000, int32_t y=-1000);
 	// Take damage or ignore it
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	// override hit detection to check for invicibility, stunned, etc
 	virtual bool hit(sprite *s);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
@@ -304,7 +304,7 @@ protected:
 	//virtual int32_t defend_wdmg(int32_t wpnId, int32_t dmg, int32_t edef);
 	bool candamage(int32_t power, int32_t edef, byte unblockable);
 	int32_t defenditemclass(int32_t wpnId, int32_t *power);
-	int32_t defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w);
+	int32_t defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w, weapon* realweap = nullptr);
 	
 	bool dont_draw();
 	// base drawing function to be used by all derived classes instead of
@@ -358,7 +358,7 @@ public:
 	eFire(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
 	eFire(eFire const & other, bool new_script_uid, bool clear_parent_script_UID);
 };
@@ -372,7 +372,7 @@ public:
 	eOther(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
 };
 
@@ -385,7 +385,7 @@ public:
 	eScript(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
 };
 
@@ -398,7 +398,7 @@ public:
 	eFriendly(zfix X,zfix Y,int32_t Id,int32_t Clk);                      // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void break_shield();
 };
 
@@ -449,7 +449,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void kickbucket();
 };
 
@@ -487,7 +487,7 @@ public:
 	bool trapmove(int32_t ndir);
 	bool clip();
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon* w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eTrap2 : public enemy                                 //trap that goes back and forth constantly
@@ -499,7 +499,7 @@ public:
 	bool trapmove(int32_t ndir);
 	bool clip();
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eRock : public enemy
@@ -510,7 +510,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eBoulder : public enemy
@@ -521,7 +521,7 @@ public:
 	virtual bool animate(int32_t index);
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 // Helper for launching fireballs from statues, etc.
@@ -554,7 +554,7 @@ public:
 	eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk);                       // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eSpinTile : public enemy
@@ -597,7 +597,7 @@ public:
 	void eathero();
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	void vire_hop();
 	virtual void drawshadow(BITMAP *dest, bool translucent);
 	virtual void break_shield();
@@ -642,7 +642,7 @@ public:
 	eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk);                   // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eDodongo2 : public enemy
@@ -653,7 +653,7 @@ public:
 	eDodongo2(zfix X,zfix Y,int32_t Id,int32_t Clk);                  // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eAquamentus : public enemy
@@ -675,7 +675,7 @@ public:
 	eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy((zfix)128,(zfix)48,Id,0)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eLilDig : public enemy
@@ -694,7 +694,7 @@ public:
 	eBigDig(zfix X,zfix Y,int32_t Id,int32_t Clk);                    // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
 	virtual void draw(BITMAP *dest);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 };
 
 class eGanon : public enemy
@@ -709,7 +709,7 @@ public:
 	eGanon(eGanon const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk);                     // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void draw(BITMAP *dest);
 	void draw_guts(BITMAP *dest);
 	void draw_flash(BITMAP *dest);
@@ -740,7 +740,7 @@ public:
 	esMoldorm(esMoldorm const & other, bool new_script_uid, bool clear_parent_script_UID);
 	esMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk);                  // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void draw(BITMAP *dest);
 	int32_t parentclk; //because of custom step speed, clk is not sufficient to keep track
 	//of when to check the parent Moldorm's direction, since the frequency
@@ -771,7 +771,7 @@ class esLanmola : public eBaseLanmola
 public:
 	esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk);                  // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void draw(BITMAP *dest);
 };
 
@@ -784,7 +784,7 @@ public:
 	//eManhandla(eManhandla const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk);                 // : enemy(X,Y,Id,0)
 	virtual bool animate(int32_t index);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void draw(BITMAP *dest);
 };
 
@@ -806,7 +806,7 @@ public:
 	//eGleeok(eGleeok const & other, bool new_script_uid, bool clear_parent_script_UID);
 	eGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk);                    // : enemy((zfix)120,(zfix)48,Id,Clk)
 	virtual bool animate(int32_t index);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void draw(BITMAP *dest);
 	virtual void draw2(BITMAP *dest);
 };
@@ -825,7 +825,7 @@ public:
 	//esGleeok(esGleeok const & other, bool new_script_uid, bool clear_parent_script_UID);
 	esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt);                   // : enemy(X,Y,Id,Clk)
 	virtual bool animate(int32_t index);
-	virtual int32_t takehit(weapon *w);
+	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	virtual void draw(BITMAP *dest);
 	virtual void draw2(BITMAP *dest);
 };
@@ -897,7 +897,7 @@ public:
 /**********************************/
 void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid, byte script_gen = 0, int32_t fakez = 0);
 // Used by Hero's swords & stomp boots
-int32_t hit_enemy(int32_t index,int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon);
+int32_t hit_enemy(int32_t index,int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon, weapon* realweap = nullptr);
 void enemy_scored(int32_t index);
 void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup);

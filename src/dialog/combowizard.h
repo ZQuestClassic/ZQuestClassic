@@ -33,13 +33,14 @@ private:
 	std::shared_ptr<GUI::Button> btns[10];
 	std::shared_ptr<GUI::TextField> tfs[10];
 	std::shared_ptr<GUI::DropDownList> ddls[10];
-	std::shared_ptr<GUI::Checkbox> cboxes[10];
+	std::shared_ptr<GUI::Checkbox> cboxes[20];
 	std::shared_ptr<GUI::Switcher> switcher[10];
 	std::shared_ptr<GUI::Label> lbls[10];
 	std::shared_ptr<GUI::CornerSwatch> cswatchs[3];
 	std::shared_ptr<GUI::SelComboSwatch> cmbswatches[3];
 	std::shared_ptr<GUI::Frame> frames[10];
 	std::shared_ptr<GUI::Radio> rset[10][10];
+	std::shared_ptr<GUI::Grid> grids[10];
 	size_t rs_sz[10];
 	
 	GUI::ListData lists[10];

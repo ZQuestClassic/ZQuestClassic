@@ -87,7 +87,7 @@ user_rng script_rngs[MAX_USER_RNGS];
 zc_randgen script_rnggens[MAX_USER_RNGS];
 user_paldata script_paldatas[MAX_USER_PALDATAS];
 
-FONT *get_zc_font(int32_t index);
+FONT *get_zc_font(int index);
 
 int32_t combopos_modified = -1;
 static word combo_id_cache[7*176] = {0};
@@ -2990,7 +2990,10 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent File!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a File with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3032,7 +3035,10 @@ user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Directory!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a Directory with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3048,7 +3054,10 @@ user_stack *checkStack(int32_t ref, const char *what, bool skipError = false)
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent Stack!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a Stack with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3068,7 +3077,10 @@ user_rng *checkRNG(int32_t ref, const char *what, bool skipError = false)
 	}
 	if(skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent RNG!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a RNG with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3084,7 +3096,10 @@ user_paldata* checkPalData(int32_t ref, const char* what, bool skipError = false
 	}
 	if (skipError) return NULL;
 	Z_scripterrlog("Script attempted to reference a nonexistent paldata!\n");
-	Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
+	if(what)
+		Z_scripterrlog("You were trying to reference the '%s' of a paldata with UID = %ld\n", what, ref);
+	else
+		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
 }
 
@@ -3570,16 +3585,15 @@ int32_t get_register(const int32_t arg)
 					break;
 				}
 				//uids of objects
+				case 4:
 				case 5:
 				case 6:
 				case 7:
-				case 8:
 				{
 					ret = (int32_t)(Hero.gethitHeroUID(indx)); //do not multiply by 10000! UIDs are not *10000!
 					break;
-					
 				}
-				default: { al_trace("Invalid index passed to Player->HitBy[%d] /n", indx); ret = -1; break; }
+				default: { Z_scripterrlog("Invalid index passed to Player->HitBy[%d]/n", indx); ret = -1; break; }
 			}
 			break;
 		}
@@ -6924,6 +6938,12 @@ int32_t get_register(const int32_t arg)
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
+		case LWPNTIMEOUT:
+			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			{
+				ret = ((weapon*)(s))->weap_timeout * 10000;
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -7483,6 +7503,12 @@ int32_t get_register(const int32_t arg)
 				ret = s->switch_hooked ? 10000 : 0;
 			}
 			break;
+		case EWPNTIMEOUT:
+			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			{
+				ret = ((weapon*)(s))->weap_timeout * 10000;
+			}
+			break;
 		
 		/*
 		case LWEAPONSCRIPTUID:
@@ -7757,6 +7783,11 @@ int32_t get_register(const int32_t arg)
 			{
 				ret = FFCore.eventData[inx];
 			}
+			break;
+		}
+		case GAMEMOUSECURSOR:
+		{
+			ret = game_mouse_index*10000;
 			break;
 		}
 		
@@ -10149,8 +10180,12 @@ int32_t get_register(const int32_t arg)
 		case MAPDATAMISCD:
 		{
 			int32_t indx = (ri->d[rINDEX])/10000;
-			int32_t mi = get_mi(MAPSCR_TEMP0);
-			if(mi<0) {ret = 0;break;}
+			int32_t mi = get_mi(ri->mapsref);
+			if(unsigned(mi) >= MAX_MI)
+			{
+				ret = 0;
+				break;
+			}
 			if( ((unsigned)indx) > 7 )
 			{
 				Z_scripterrlog("You were trying to reference an out-of-bounds array index for a screen's D[] array (%ld); valid indices are from 0 to 7.\n", indx);
@@ -11470,7 +11505,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		case COMBODUSRFLAGS:		GET_COMBO_VAR_INT(usrflags, "UserFlags"); break;				//LONG
-		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS:	GET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -11479,7 +11514,7 @@ int32_t get_register(const int32_t arg)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
 			}
-			else if ( unsigned(indx) >= 96 )
+			else if ( unsigned(indx) >= 32*6 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
 			}
@@ -11812,6 +11847,36 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
 			}
 			else ret = (combobuf[ri->combosref].lifttime) * 10000;
+			break;
+		}
+		case COMBODTRIGGERLSTATE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLevelState: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_lstate) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGSTATE:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_gstate) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGTIMER:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_statetime) * 10000;
 			break;
 		}
 		
@@ -16141,6 +16206,12 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case LWSWHOOKED:
 			break; //read-only
+		case LWPNTIMEOUT:
+			if(0!=(s=checkLWpn(ri->lwpn,"Timeout")))
+			{
+				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -16714,6 +16785,12 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case EWSWHOOKED:
 			break; //read-only
+		case EWPNTIMEOUT:
+			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
+			{
+				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//NPC Variables
@@ -17808,6 +17885,15 @@ void set_register(int32_t arg, int32_t value)
 			{
 				FFCore.eventData[inx] = value;
 			}
+			break;
+		}
+		case GAMEMOUSECURSOR:
+		{
+			int v = value/10000;
+			if(v < 0 || v >= ZCM_MAX)
+				break;
+			game_mouse_index = v;
+			game_mouse();
 			break;
 		}
 		
@@ -21549,7 +21635,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		case COMBODUSRFLAGS:	SET_COMBO_VAR_INT(usrflags, "UserFlags"); break;					//LONG
-		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 3);	break;			//LONG 3 INDICES AS FLAGSETS
+		case COMBODTRIGGERFLAGS:	SET_COMBO_VAR_INDEX(triggerflags, "TriggerFlags[]", 6);	break;			//LONG 3 INDICES AS FLAGSETS
 		case COMBODTRIGGERFLAGS2:
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -21557,7 +21643,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TrigFlags[]");
 			}
-			else if ( unsigned(indx) >= 96 )
+			else if ( unsigned(indx) >= 32*6 )
 			{
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "TrigFlags[]");
 			}
@@ -21654,6 +21740,240 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "TriggerCtrAmount");
 			}
 			else combobuf[ri->combosref].trigctramnt = vbound(value/10000, -65535, 65535);
+			break;
+		}
+		
+		case COMBODTRIGGERCOOLDOWN:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCooldown: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigcooldown = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERCOPYCAT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerCopycat: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigcopycat = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGITEMPICKUP:
+		{
+			const int32_t allowed_pflags = ipHOLDUP | ipTIMER | ipSECRETS | ipCANGRAB;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TriggerSpawnItemPickup: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].spawnip = (value/10000)&allowed_pflags;
+			break;
+		}
+		case COMBODTRIGEXSTATE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigExState: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].exstate = vbound(value/10000, -1, 31);
+			break;
+		}
+		case COMBODTRIGSPAWNENEMY:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnEnemy: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].spawnenemy = vbound(value/10000, 0, 511);
+			break;
+		}
+		case COMBODTRIGSPAWNITEM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigSpawnItem: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].spawnitem = vbound(value/10000, -255, 255);
+			break;
+		}
+		case COMBODTRIGCSETCHANGE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigCSetChange: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trigcschange = vbound(value/10000, -15, 15);
+			break;
+		}
+		case COMBODLIFTGFXCOMBO:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCombo: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftcmb = vbound(value/10000, 0, MAXCOMBOS);
+			break;
+		}
+		case COMBODLIFTGFXCCSET:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXCSet: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftcs = vbound(value/10000, 0, 13);
+			break;
+		}
+		case COMBODLIFTUNDERCMB:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCombo: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftundercmb = vbound(value/10000, 0, MAXCOMBOS);
+			break;
+		}
+		case COMBODLIFTUNDERCS:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftUnderCSet: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftundercs = vbound(value/10000, 0, 13);
+			break;
+		}
+		case COMBODLIFTDAMAGE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftDamage: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftdmg = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTLEVEL:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftLevel: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftlvl = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTITEM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftItem: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftitm = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftFlags[]: %d\n", (ri->combosref*10000));
+				break;
+			}
+			if ( unsigned(indx) > 7 ) 
+			{
+				Z_scripterrlog("Invalid index supplied to combodata->LiftFlags[]: %d\n", indx);
+				break;
+			}
+			SETFLAG(combobuf[ri->combosref].liftflags, (1<<indx), value);
+			break;
+		}
+		case COMBODLIFTGFXTYPE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXType: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftgfx = vbound(value/10000, 0, 2);
+			break;
+		}
+		case COMBODLIFTGFXSPRITE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftGFXSprite: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftsprite = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTSFX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftSFX: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftsfx = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTBREAKSPRITE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSprite: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftbreaksprite = vbound(value/10000, -4, 255);
+			break;
+		}
+		case COMBODLIFTBREAKSFX:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftBreakSFX: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].liftbreaksfx = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTHEIGHT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftHeight: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].lifthei = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTTIME:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].lifttime = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERLSTATE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigLevelState: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_lstate = vbound(value/10000, 0, 31);
+			break;
+		}
+		case COMBODTRIGGERGSTATE:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_gstate = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERGTIMER:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_statetime = vbound(value/10000, 0, 214748);
 			break;
 		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -22775,10 +23095,8 @@ void do_resize_array()
 	am.resize(size);
 }
 
-void do_own_array(const byte scriptType, const int32_t UID)
+void do_own_array(dword arrindx, const byte scriptType, const int32_t UID)
 {
-	dword arrindx = get_register(sarg1) / 10000;
-	
 	ArrayManager am(arrindx);
 	
 	if(am.internal())
@@ -26778,7 +27096,7 @@ void do_message(const bool v)
 	if(ID == 0)
 	{
 		dismissmsg();
-		msgfont = zfont;
+		msgfont = get_zc_font(font_zfont);
 		blockpath = false;
 		Hero.finishedmsg();
 	}
@@ -28994,6 +29312,24 @@ bool zasm_advance()
 	return false;
 }
 
+int32_t get_own_i(int32_t type)
+{
+	switch(type)
+	{
+		case SCRIPT_LWPN:
+			return ri->lwpn;
+		case SCRIPT_EWPN:
+			return ri->ewpn;
+		case SCRIPT_ITEMSPRITE:
+			return ri->itemref;
+		case SCRIPT_NPC:
+			return ri->guyref;
+		case SCRIPT_FFC:
+			return ri->ffcref;
+	}
+	return 0;
+}
+
 ///----------------------------------------------------------------------------------------------------//
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
@@ -29037,24 +29373,19 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			int32_t npc_index = GuyH::getNPCIndex(i);
 			enemy *w = (enemy*)guys.spr(npc_index);
+			ri = &(w->scrmem->scriptData);
+			curscript = guyscripts[w->script];
+			stack = &(w->scrmem->stack);
+			ri->guyref = i;
 			
-			ri = &(guys.spr(GuyH::getNPCIndex(i))->scrmem->scriptData);
-			
-			curscript = guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
-			
-			stack = &(guys.spr(GuyH::getNPCIndex(i))->scrmem->stack);
-			
-			enemy *wa = (enemy*)guys.spr(GuyH::getNPCIndex(i));
-			ri->guyref = wa->getUID();
-			
-			if (!(guys.spr(GuyH::getNPCIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					ri->d[q] = wa->initD[q];
+					ri->d[q] = w->initD[q];
 				}
-				guys.spr(GuyH::getNPCIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
 		}
 		break;
@@ -29063,81 +29394,62 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		{
 			int32_t lwpn_index = LwpnH::getLWeaponIndex(i);
 			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
-			ri = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scrmem->scriptData);
+			ri = &(w->scrmem->scriptData);
+			curscript = lwpnscripts[w->weaponscript];
+			stack = &(w->scrmem->stack);
+			ri->lwpn = i;
 			
-			curscript = lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
-		
-			stack = &(Lwpns.spr(LwpnH::getLWeaponIndex(i))->scrmem->stack);
-			
-			weapon *wa = (weapon*)Lwpns.spr(LwpnH::getLWeaponIndex(i));
-			ri->lwpn = wa->getUID();
-			
-			if (!(Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-	
-					ri->d[q] = Lwpns.spr(LwpnH::getLWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+					ri->d[q] = w->weap_initd[q]; //w->initiald[q];
 				}
-				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
-			
 		}
 		break;
 		
 		case SCRIPT_EWPN:
 		{
 			int32_t ewpn_index = EwpnH::getEWeaponIndex(i);
-
 			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
-			ri = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scrmem->scriptData);
+			ri = &(w->scrmem->scriptData);
+			curscript = ewpnscripts[w->weaponscript];
+			stack = &(w->scrmem->stack);
+			ri->ewpn = i;
 			
-			curscript = ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
-			
-			
-			stack = &(Ewpns.spr(EwpnH::getEWeaponIndex(i))->scrmem->stack);
-			
-			weapon *wa = (weapon*)Ewpns.spr(EwpnH::getEWeaponIndex(i));
-			ri->ewpn = wa->getUID();
-			if (!(Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					
-					ri->d[q] = Ewpns.spr(EwpnH::getEWeaponIndex(i))->weap_initd[q]; //w->initiald[q];
+					ri->d[q] = w->weap_initd[q];
 				}
-				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
-			
 		}
 		break;
 		
 		case SCRIPT_ITEMSPRITE:
 		{
 			int32_t the_index = ItemH::getItemIndex(i);
-			
 			item *w = (item*)items.spr(the_index);
-			ri = &(items.spr(ItemH::getItemIndex(i))->scrmem->scriptData);
-		
-			curscript = itemspritescripts[items.spr(ItemH::getItemIndex(i))->script]; //Set the editor sprite script field to 'script'
-				
-			stack = &(items.spr(ItemH::getItemIndex(i))->scrmem->stack);
+			ri = &(w->scrmem->scriptData);
+			curscript = itemspritescripts[w->script];
+			stack = &(w->scrmem->stack);
+			ri->itemref = i;
 			
-			item *wa = (item*)items.spr(ItemH::getItemIndex(i));
-			ri->itemref = wa->getUID();
-			if (!(items.spr(ItemH::getItemIndex(i))->initialised))
+			if (!w->initialised)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					
-					ri->d[q] = items.spr(ItemH::getItemIndex(i))->initD[q]; //w->initiald[q];
+					ri->d[q] = w->initD[q];
 				}
-				items.spr(ItemH::getItemIndex(i))->initialised = 1;
+				w->initialised = 1;
 			}
-			
 		}
 		break;
 		
@@ -29497,6 +29809,7 @@ j_command:
 	bool increment = true;
 	word scommand = curscript->zasm[ri->pc].command;
 	bool hit_invalid_zasm = false;
+	bool no_dealloc = false;
 	while(scommand != 0xFFFF)
 	{
 #ifdef _SCRIPT_COUNTER
@@ -29638,6 +29951,7 @@ j_command:
 		if(numInstructions==hangcount) // No need to check frequently
 		{
 			numInstructions=0;
+			poll_keyboard();
 			checkQuitKeys();
 			if(Quit)
 				scommand=0xFFFF;
@@ -29698,6 +30012,10 @@ j_command:
 			}
 			case QUIT:
 				scommand = 0xFFFF;
+				break;
+			case QUIT_NO_DEALLOC:
+				scommand = 0xFFFF;
+				no_dealloc = true;
 				break;
 				
 			case NOP: //No Operation. Do nothing. -Em
@@ -30209,7 +30527,7 @@ j_command:
 				do_resize_array();
 				break;
 			case OWNARRAYR:
-				do_own_array(type, i);
+				do_own_array(get_register(sarg1)/10000, type, i);
 				break;
 			case DESTROYARRAYR:
 				do_destroy_array();
@@ -31654,14 +31972,93 @@ j_command:
 			case BITMAPOWN:
 			{
 				if(FFCore.isSystemBitref(ri->bitmapref))
-				{
 					break; //Don't attempt to own system bitmaps!
-				}
 				user_bitmap* b = checkBitmap(ri->bitmapref, "Own()", false);
 				if(b)
 				{
 					b->own(type, i);
 				}
+				break;
+			}
+			
+			case OBJ_OWN_BITMAP:
+			{
+				int bmpid = get_register(sarg1);
+				if(FFCore.isSystemBitref(bmpid))
+					break; //Don't attempt to own system bitmaps!
+				user_bitmap* b = checkBitmap(bmpid, nullptr, false);
+				if(!b) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				b->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_PALDATA:
+			{
+				int palid = get_register(sarg1);
+				user_paldata* pd = checkPalData(palid, nullptr, false);
+				if(!pd) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				pd->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_FILE:
+			{
+				int fileid = get_register(sarg1);
+				user_file* f = checkFile(fileid, nullptr, false);
+				if(!f) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				f->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_DIR:
+			{
+				int dirid = get_register(sarg1);
+				user_dir* dr = checkDir(dirid, nullptr, false);
+				if(!dr) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				dr->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_STACK:
+			{
+				int stackid = get_register(sarg1);
+				user_stack* st = checkStack(stackid, nullptr, false);
+				if(!st) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				st->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_RNG:
+			{
+				int rngid = get_register(sarg1);
+				user_rng* r = checkRNG(rngid, nullptr, false);
+				if(!r) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				r->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_CLASS:
+			{
+				int classid = get_register(sarg1);
+				user_object* obj = checkObject(classid, false);
+				if(!obj) break;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				obj->own(own_type,own_i);
+				break;
+			}
+			case OBJ_OWN_ARRAY:
+			{
+				int arrid = get_register(sarg1)/10000;
+				int32_t own_type = sarg2;
+				int32_t own_i = get_own_i(own_type);
+				do_own_array(arrid, own_type, own_i);
 				break;
 			}
 				
@@ -31793,6 +32190,19 @@ j_command:
 				skipcont = 1;
 				scommand = 0xFFFF;
 				break;
+			case GAMESETCUSTOMCURSOR:
+			{
+				int32_t bmpptr = SH::read_stack(ri->sp + 4);
+				int fx = SH::read_stack(ri->sp + 3) / 10000;
+				int fy = SH::read_stack(ri->sp + 2) / 10000;
+				bool recolor = SH::read_stack(ri->sp + 1)!=0;
+				bool scale = SH::read_stack(ri->sp + 0)!=0;
+				if(user_bitmap* b = checkBitmap(bmpptr,nullptr,true))
+				{
+					custom_mouse(b->u_bmp,fx,fy,recolor,scale);
+				}
+				break;
+			}
 			
 			case GAMECONTINUE:
 				if ( using_SRAM )
@@ -33338,60 +33748,48 @@ j_command:
 		{
 			case SCRIPT_FFC:
 				tmpscr.ffcs[i].script = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 				
 			case SCRIPT_GLOBAL:
 				g_doscript &= ~(1<<i);
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_GENERIC:
 				user_scripts[script].quit();
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_GENERIC_FROZEN:
 				gen_active_doscript = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_PLAYER:
 				player_doscript = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_DMAP:
 				dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
 				dmapscriptInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_ONMAP:
 				onmap_doscript = 0;
 				onmapInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_ACTIVESUBSCREEN:
 				active_subscreen_doscript = 0;
 				activeSubscreenInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 			
 			case SCRIPT_PASSIVESUBSCREEN:
 				passive_subscreen_doscript = 0;
 				passiveSubscreenInitialised = 0;
-				FFScript::deallocateAllArrays(type, i);
 				break;
 				
 			case SCRIPT_ITEM:
 			{
-				// zprint("Item script reached quit/end of scope\n");
-				int32_t new_i = 0;
 				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-				new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-				
+				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
 				if ( !collect )
 				{
 					if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
@@ -33405,19 +33803,14 @@ j_command:
 					for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
 					itemCollectScriptData[new_i].Clear();
 				}
-				FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
-				// zprint("Item script reached quit/end of scope for new_i: %d\n",new_i);
 				itemscriptInitialised[new_i] = 0;
-				
-				break; //item scripts aren't gonna go again anyway
+				break;
 			}
 			case SCRIPT_NPC:
 			{
 				guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
 				guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
 				guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-
 				break;
 			}
 			case SCRIPT_LWPN:
@@ -33425,8 +33818,6 @@ j_command:
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-				
 				break;
 			}
 			case SCRIPT_EWPN:
@@ -33435,18 +33826,13 @@ j_command:
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript = 0;
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-				
 				break;
 			}
 			case SCRIPT_ITEMSPRITE:
 			{
-			
 				items.spr(ItemH::getItemIndex(i))->doscript = 0;
 				items.spr(ItemH::getItemIndex(i))->script = 0;
 				items.spr(ItemH::getItemIndex(i))->initialised = 0;
-				FFScript::deallocateAllArrays(type, i);
-				
 				break;
 			}
 			case SCRIPT_SCREEN:
@@ -33454,7 +33840,6 @@ j_command:
 				tmpscr.script = 0;
 				tmpscr.screendatascriptInitialised = 0;
 				tmpscr.doscript = 0;
-				FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
 				break;
 			} 
 			
@@ -33464,11 +33849,30 @@ j_command:
 				int32_t lyr = i/176;
 				combo_doscript[pos+(176*lyr)] = 0;
 				combo_initialised[pos] &= ~(1<<lyr);
-				
-				FFScript::deallocateAllArrays(type, i); //need to add combo arrays
 				break;
 			}
 		}
+		if(!no_dealloc)
+			switch(type)
+			{
+				case SCRIPT_ITEM:
+				{
+					bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+					int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+					FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
+					break;
+				}
+				
+				case SCRIPT_SCREEN:
+				{
+					FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+					break;
+				} 
+				
+				default:
+					FFScript::deallocateAllArrays(type, i);
+					break;
+			}
 
 		return RUNSCRIPT_STOPPED;
 	}
@@ -34834,20 +35238,20 @@ void FFScript::do_triggersecret(const bool v)
 	//Convert a flag type to a secret type. -Z
 	switch(ID)
 	{
-		case mfBCANDLE:
+		case mfANYFIRE:
 			ft=sBCANDLE;
 			break;
 			
-		case mfRCANDLE:
+		case mfSTRONGFIRE:
 			ft=sRCANDLE;
 			break;
 			
-		case mfWANDFIRE:
+		case mfMAGICFIRE:
 			ft=sWANDFIRE;
 			break;
 			
-		case mfDINSFIRE:
-			ft=sDINSFIRE;
+		case mfDIVINEFIRE:
+			ft=sDIVINEFIRE;
 			break;
 			
 		case mfARROW:
@@ -39447,16 +39851,16 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
 	{ "LOADD",   2,   0,   1,   0},
 	{ "STORED",   2,   0,   1,   0},
-	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY12",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY13",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY14",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY15",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY16",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY17",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY18",   0,   0,   0,   0},
+	{ "OBJ_OWN_BITMAP",   2,   0,   1,   0},
+	{ "OBJ_OWN_PALDATA",   2,   0,   1,   0},
+	{ "OBJ_OWN_FILE",   2,   0,   1,   0},
+	{ "OBJ_OWN_DIR",   2,   0,   1,   0},
+	{ "OBJ_OWN_STACK",   2,   0,   1,   0},
+	{ "OBJ_OWN_RNG",   2,   0,   1,   0},
+	{ "OBJ_OWN_CLASS",   2,   0,   1,   0},
+	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
+	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
+	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
@@ -40876,12 +41280,12 @@ script_variable ZASMVars[]=
 	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
 	{ "FFCLASTCHANGERX", FFCLASTCHANGERX, 0, 0 },
 	{ "FFCLASTCHANGERY", FFCLASTCHANGERY, 0, 0 },
-	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
-	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
-	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
-	{ "RESRVD_VAR_EMILY08", RESRVD_VAR_EMILY08, 0, 0 },
-	{ "RESRVD_VAR_EMILY09", RESRVD_VAR_EMILY09, 0, 0 },
-	{ "RESRVD_VAR_EMILY10", RESRVD_VAR_EMILY10, 0, 0 },
+	{ "LWPNTIMEOUT", LWPNTIMEOUT, 0, 0 },
+	{ "EWPNTIMEOUT", EWPNTIMEOUT, 0, 0 },
+	{ "COMBODTRIGGERLSTATE", COMBODTRIGGERLSTATE, 0, 0 },
+	{ "COMBODTRIGGERGSTATE", COMBODTRIGGERGSTATE, 0, 0 },
+	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
+	{ "GAMEMOUSECURSOR", GAMEMOUSECURSOR, 0, 0 },
 	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
 	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
 	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
@@ -41695,7 +42099,7 @@ void FFScript::do_breakpoint()
 
 void FFScript::do_tracenl()
 {
-	al_trace("\n");
+	safe_al_trace("\n");
 	
 	if ( zscript_debugger ) 
 	{
@@ -42395,7 +42799,7 @@ void FFScript::read_combos(PACKFILE *f, int32_t version_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
 		}	 
-		for ( int32_t q = 0; q < 3; q++ ) 
+		for ( int32_t q = 0; q < 6; q++ ) 
 		{
 			if(!p_igetl(&combobuf[i].triggerflags[q],f,true))
 			{
@@ -42536,7 +42940,7 @@ void FFScript::write_combos(PACKFILE *f, int32_t version_id)
 		{
 			Z_scripterrlog("do_savegamestructs FAILED to read COMBO NODE: %d",21);
 		}	 
-		for ( int32_t q = 0; q < 3; q++ ) 
+		for ( int32_t q = 0; q < 6; q++ ) 
 		{
 			if(!p_iputl(combobuf[i].triggerflags[q],f))
 			{

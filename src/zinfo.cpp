@@ -180,7 +180,8 @@ const char default_ctype_strings[cMAX][255] =
 	"Script 19", "Script 20", "Generic", "Pitfall", "Step->Effects",
 	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
 	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block", "ButtonPrompt",
-	"Block Weapon (Custom)", "Shooter", "Slope"
+	"Block Weapon (Custom)", "Shooter", "Slope", "Cutscene Trigger", "Push (Generic)",
+	"Icy Floor"
 };
 const char old_mapflag_strings[mfMAX][255] =
 {
@@ -212,7 +213,7 @@ const char map_flag_default_string[mfMAX][255] =
 	"Push Block (Up, Once, Trigger)", "Push Block (Down, Once, Trigger)", "Push Block (Left, Once, Trigger)", "Push Block (Right, Once, Trigger)", "Push Block (Vert, Once)", "Push Block (Horizontal, Once)", "Push Block (4-Way, Once)", "Push Block (Up, Once)",
 	"Push Block (Down, Once)", "Push Block (Left, Once)", "Push Block (Right, Once)", "Push Block (Vertical, Many)", "Push Block (Horizontal, Many)", "Push Block (4-Way, Many)", "Push Block (Up, Many)", "Push Block (Down, Many)",
 	"Push Block (Left, Many)", "Push Block (Right, Many)", "Block Trigger", "No Push Blocks", "Boomerang Trigger (Any)", "Boomerang Trigger (Magic +)", "Boomerang Trigger (Fire)", "Arrow Trigger (Silver +)",
-	"Arrow Trigger (Golden)", "Burn Trigger (Red Candle +)", "Burn Trigger (Wand Fire)", "Burn Trigger (Din's Fire)", "Magic Trigger (Wand)", "Magic Trigger (Reflected)", "Fireball Trigger (Reflected)", "Sword Trigger (Any)",
+	"Arrow Trigger (Golden)", "Burn Trigger (Strong)", "Burn Trigger (Magic)", "Burn Trigger (Divine)", "Magic Trigger (Wand)", "Magic Trigger (Reflected)", "Fireball Trigger (Reflected)", "Sword Trigger (Any)",
 	"Sword Trigger (White +)", "Sword Trigger (Magic +)", "Sword Trigger (Master)", "Sword Beam Trigger (Any)", "Sword Beam Trigger (White +)", "Sword Beam Trigger (Magic +)", "Sword Beam Trigger (Master)", "Hookshot Trigger",
 	"Wand Trigger", "Hammer Trigger", "Strike Trigger", "Block Hole (Block -> Next)", "Fairy Ring (Magic)", "Fairy Ring (All)", "Trigger -> Self Only", "Trigger -> Self, Secret Tiles",
 	"No Enemies", "No Ground Enemies", "Script 01", "Script 02", "Script 03", "Script 04", "Script 05", "Raft Bounce",
@@ -279,8 +280,8 @@ const char default_itype_strings[itype_max][255] =
 	"Bait", "Letters", "Potions", "Wands", "Rings", 
 	"Wallets", "Amulets", "Shields", "Bows", "Rafts",
 	"Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", 
-	"Boots", "Hookshots", "Lenses", "Hammers", "Din's Fire", 
-	"Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", 
+	"Boots", "Hookshots", "Lenses", "Hammers", "Divine Fire", 
+	"Divine Escape", "Divine Protection", "Bombs", "Super Bombs", "Clocks", 
 	"Keys", "Magic Containers", "Triforce Pieces", "Maps", "Compasses", 
 	"Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", 
 	"Arrow Ammo", "Fairies", "Magic", "Hearts", "Heart Containers", 
@@ -712,7 +713,7 @@ int32_t writezinfo(PACKFILE *f, zinfo const& z)
 	{
 		char ebuf[80];
 		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writezinfo()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error:  writezinfo()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	
 	new_return(0);

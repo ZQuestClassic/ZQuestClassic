@@ -145,3 +145,4 @@ compare-report/
 .gha-cache-dir/
 __pycache__
 ./packages/
+resources/modules/classic/fontsdat

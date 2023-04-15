@@ -167,6 +167,10 @@ static AccessorTable gameTable[] =
 	{ "getMisc3[]",                 0,       ZTID_UNTYPED,   TANGOARR,                  0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setMisc3[]",                 0,          ZTID_VOID,   TANGOARR,                  0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	
+	{ "getMouseCursor",             0,         ZTID_FLOAT,   GAMEMOUSECURSOR,           0,  { ZTID_GAME },{} },
+	{ "setMouseCursor",             0,          ZTID_VOID,   GAMEMOUSECURSOR,           0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "SetCustomCursor",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 0, 0 } },
+	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setSTD[]",                   0,          ZTID_VOID,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
@@ -2447,6 +2451,19 @@ void GameSymbols::generateCode()
 		ASSERT_NUL();
 		addOpcode2 (code, new OGameReload());
 		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void SetCustomCursor(game, bitmap, int, int, bool, bool)
+	{
+		Function* function = getFunction("SetCustomCursor");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OSetCustomCursor());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
 		RETURN();
 		function->giveCode(code);
 	}

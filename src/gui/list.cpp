@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <cassert>
 #include <cmath>
 
@@ -21,7 +21,7 @@ List::List():
 void List::setListData(const ::GUI::ListData& newListData)
 {
 	listData = &newListData;
-	jwinListData = newListData.getJWin(&widgFont, &widgFont_a5);
+	jwinListData = newListData.getJWin(&widgFont);
 }
 
 void List::setSelectedValue(int32_t value)
@@ -88,7 +88,7 @@ void List::setIsABC(bool abc)
 	isABC = abc;
 	if(alDialog)
 	{
-		alDialog->proc = (isABC ? newGUIProc<jwin_abclist_proc_a5> : newGUIProc<jwin_list_proc_a5>);
+		alDialog->proc = (isABC ? newGUIProc<jwin_abclist_proc> : newGUIProc<jwin_list_proc>);
 	}
 }
 
@@ -114,7 +114,7 @@ void List::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		isABC ? newGUIProc<jwin_abclist_proc_a5> : newGUIProc<jwin_list_proc_a5>,
+		isABC ? newGUIProc<jwin_abclist_proc> : newGUIProc<jwin_list_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

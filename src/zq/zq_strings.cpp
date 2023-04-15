@@ -29,8 +29,8 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y);
 
 std::map<int32_t, int32_t> msglistcache;
 
-static ListData strlist_dlg_list(msgslist3, &font, &a5font);
-static ListData stringcat_dlg_list(stringcatlist, &font, &a5font);
+static ListData strlist_dlg_list(msgslist3, &font);
+static ListData stringcat_dlg_list(stringcatlist, &font);
 MsgStr *curmsgstr = NULL;
 int32_t msg_x = 0;
 int32_t msg_y = 0;
@@ -172,7 +172,7 @@ void strlist_rclick_func(int32_t index, int32_t x, int32_t y)
 		break;
 	
 	case 5: //Paste Style to All
-		if(jwin_alert("Paste Style to All", "Overwrite style of all strings?", NULL, NULL, "&Yes","&No",'y','n',lfont)==1)
+		if(jwin_alert("Paste Style to All", "Overwrite style of all strings?", NULL, NULL, "&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 		{
 			for(int32_t q = 0; q < msg_count-1; ++q)
 			{
@@ -425,7 +425,7 @@ int32_t onStrings()
 		large_dialog(strlist_dlg,2);
 	}
 	
-	strlist_dlg[0].dp2=lfont;
+	strlist_dlg[0].dp2=get_zc_font(font_lfont);
 	int32_t index=0;
 	char msgmore_xstring[5], msgmore_ystring[5], msgspeed_string[5], template_string[6];
 	int32_t morex=zinit.msg_more_x;
@@ -484,7 +484,7 @@ int32_t onStrings()
 		strlist_dlg[10].dp=msgspeed_string;
 		strlist_dlg[22].dp=template_string;
 		
-		int32_t ret=do_zqdialog(strlist_dlg,2);
+		int32_t ret=zc_popup_dialog(strlist_dlg,2);
 		int32_t pos = strlist_dlg[2].d1;
 		auto res = msglistcache.find(pos);
 		if(res == msglistcache.end())
@@ -499,7 +499,7 @@ int32_t onStrings()
 			case 18:
 				jwin_alert("String Index","Create a string beginning with two hyphens '--'",
 						   "and it will be listed in this index, serving as a",
-						   "shortcut to a location in your string list.","O&K",NULL,'k',0,lfont);
+						   "shortcut to a location in your string list.","O&K",NULL,'k',0,get_zc_font(font_lfont));
 				break;
 				
 			case 17: // Go to category
@@ -660,7 +660,7 @@ int32_t onStrings()
 				strip_extra_spaces(buf);
 				shorten_string(shortbuf, buf.c_str(), font, 72, 288);
 
-				if (jwin_alert("Confirm Clear", "Clear this message string?", " ", shortbuf, "Yes", "No", 'y', 27, lfont) == 1)
+				if (jwin_alert("Confirm Clear", "Clear this message string?", " ", shortbuf, "Yes", "No", 'y', 27, get_zc_font(font_lfont)) == 1)
 				{
 					saved = false;
 					word pos = MsgStrings[index].listpos;
@@ -820,7 +820,7 @@ int32_t addtomsglist(int32_t index, bool allow_numerical_sort)
 	return pos;
 }
 
-extern const char *msgfont_str[font_max];
+extern std::string msgfont_str[font_max];
 
 const char *msgfontlist(int32_t index, int32_t *list_size)
 {
@@ -830,7 +830,7 @@ const char *msgfontlist(int32_t index, int32_t *list_size)
 		return NULL;
 	}
 	
-	return msgfont_str[index];
+	return msgfont_str[index].c_str();
 }
 
 void strip_trailing_spaces(char *str)
@@ -1100,7 +1100,7 @@ void fix_string_list()
 			MsgStrings[i].listpos = i;
 		}
 		
-		jwin_alert("Notice","Your quest's string ordering was corrupted.","It has been reverted to the default order.",NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Notice","Your quest's string ordering was corrupted.","It has been reverted to the default order.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 }
 
@@ -1134,7 +1134,6 @@ int32_t msg_at_pos(int32_t pos)
 	return 0;
 }
 
-// Returns number of arguments to each control code
 bool is_msgc(byte cc)
 {
 	switch(cc)
@@ -1154,6 +1153,7 @@ bool is_msgc(byte cc)
 		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
 		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
 		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
+		case MSGC_FONT:
 			return true;
 	}
 	return false;

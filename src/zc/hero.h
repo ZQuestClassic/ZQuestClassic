@@ -214,7 +214,7 @@ public:
 		fairyclk, //fairy circle timeout.
 		refillclk,//life refill timeout.
 		drunkclk, //intoxication timeout.
-		NayrusLoveShieldClk, // Nayru's Love timeout.
+		DivineProtectionShieldClk, // Divine Protection timeout.
 		hoverclk, //hover boots timeout.
 		hclk,     //damage blinking timeout.
 		holdclk,  //"hold up item" timeout.
@@ -317,6 +317,7 @@ public:
 	int32_t lastHitBy[NUM_HIT_TYPES_USED][2]; //[enemy, eweapon, combo, flag
 	
 	int32_t last_lens_id;// The item ID of the last Lens of Truth type item used
+	int currentscroll; //currently active spin/quake scroll
 	word last_savepoint_id; //combo id of save point
 	
 	int32_t misc_internal_hero_flags;// Flags to hold data temporarily for misc handling
@@ -410,6 +411,7 @@ public:
 	void scrollscr(int32_t dir,int32_t destscr = -1, int32_t destdmap = -1);
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
+	int getHammerState() const;
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl, std::map<size_t, byte>& prism_dir_seen_map);
 	void handleSpotlights();
@@ -476,10 +478,10 @@ public:
 	void check_wpn_triggers(int32_t bx, int32_t by, weapon *w);
 	void check_slash_block2(int32_t bx, int32_t by, weapon *w);
 	void check_wand_block2(int32_t bx, int32_t by, weapon *w);
-	void check_pound_block2(int32_t bx, int32_t by, weapon *w);
 	
 	void check_wand_block(int32_t bx, int32_t by);
-	void check_pound_block(int32_t bx, int32_t by);
+	void check_pound_block(int bx, int by, weapon* w = nullptr);
+	void check_pound_block_layer(int bx, int by, int lyr, weapon* w = nullptr);
 	
 	// called by ALLOFF()
 	void resetflags(bool all);
@@ -557,8 +559,8 @@ public:
 	byte getDontDraw();
 	void setHClk(int32_t newhclk);
 	int32_t getHClk();
-	void setNayrusLoveShieldClk(int32_t newclk);
-	int32_t getNayrusLoveShieldClk();
+	void setDivineProtectionShieldClk(int32_t newclk);
+	int32_t getDivineProtectionShieldClk();
 	int32_t getHoverClk();
 	int32_t getHoldClk();
 	int32_t getSpecialCave(); // used only by maps.cpp
@@ -634,8 +636,8 @@ int32_t lwpn_dp(int32_t index);
 bool checkbunny(int32_t itemid);
 bool usesSwordJinx(int32_t itemid);
 bool checkitem_jinx(int32_t itemid);
-bool checkmagiccost(int32_t itemid);
-void paymagiccost(int32_t itemid, bool ignoreTimer = false);
+bool checkmagiccost(int32_t itemid, bool checkTime = false);
+void paymagiccost(int32_t itemid, bool ignoreTimer = false, bool onlyTimer = false);
 int32_t Bweapon(int32_t pos);
 int32_t BWeapon_to_Pos(int32_t bweapon);
 void stopCaneOfByrna();

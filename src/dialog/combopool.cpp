@@ -261,7 +261,7 @@ bool ComboPoolDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::RELOAD:
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::OK:
 			if(retptr)

@@ -10,9 +10,6 @@
 extern miscQdata misc;
 #define QMisc misc
 
-//zq_strings.cpp
-FONT* getfont(int32_t fonta);
-
 void printobj(subscreen_object const& obj)
 {
 	zprint2("PRINTOUT--:\n");
@@ -37,7 +34,7 @@ bool call_subscrprop_dialog(subscreen_object *ref, int32_t obj_ind)
 
 SubscrPropDialog::SubscrPropDialog(subscreen_object *ref, int32_t obj_ind) :
 	local_subref(*ref), subref(ref), index(obj_ind),
-	list_font(GUI::ZCListData::fonts(true)),
+	list_font(GUI::ZCListData::fonts(true,true,true)),
 	list_shadtype(GUI::ZCListData::shadow_types()),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),

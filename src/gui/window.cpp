@@ -65,13 +65,13 @@ void Window::applyDisabled(bool dis)
 		content->setDisabled(dis);
 }
 
-void Window::applyFont_a5(ALLEGRO_FONT* newFont)
+void Window::applyFont(FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont_a5(newFont);
+	Widget::applyFont(newFont);
 }
 
 void Window::calculateSize()
@@ -82,7 +82,7 @@ void Window::calculateSize()
 		content->calculateSize();
 		setPreferredWidth(Size::pixels(max(
 			content->getTotalWidth()+8,
-			text_length(lfont, title.c_str())+40)));
+			text_length(get_zc_font(font_lfont), title.c_str())+40)));
 		setPreferredHeight(Size::pixels(content->getTotalHeight()+30));
 	}
 	else
@@ -99,17 +99,13 @@ void Window::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	// For now, at least, we're assuming everything will fit...
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
-		content->arrange(6, 28, getWidth()-12, getHeight()-30);
+		content->arrange(x+6, y+28, getWidth()-12, getHeight()-30);
 }
 
 void Window::realize(DialogRunner& runner)
 {
 	setFramed(false); //don't allow frame on window proc
-	runner.set_dlg_sz(x,y,getWidth(),getHeight());
-	x = y = 0;
-	
 	Widget::realize(runner);
-	
 	alDialog = runner.push(shared_from_this(), DIALOG {
 		jwin_win_proc_a5,
 		x, y, getWidth(), getHeight(),

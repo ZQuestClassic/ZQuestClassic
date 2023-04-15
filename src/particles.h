@@ -31,14 +31,14 @@ public:
 	virtual void move(zfix s);
 };
 
-class pFaroresWindDust : public particle
+class pDivineEscapeDust : public particle
 {
 public:
 	zfix os;
 	int32_t ot;
 	int32_t timer;
 	bool initialized;
-	pFaroresWindDust(zfix X,zfix Y,int32_t layer,int32_t cset,int32_t color,int32_t timer);
+	pDivineEscapeDust(zfix X,zfix Y,int32_t layer,int32_t cset,int32_t color,int32_t timer);
 	virtual bool animate(int32_t index);
 };
 

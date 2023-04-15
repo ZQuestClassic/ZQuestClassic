@@ -1076,16 +1076,16 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "ZCLASS_GLOBALIZE",   1,   0,   0,   0},
 	{ "LOADD",   2,   0,   1,   0},
 	{ "STORED",   2,   0,   1,   0},
-	{ "RESRVD_OP_EMILY09",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY10",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY11",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY12",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY13",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY14",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY15",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY16",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY17",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY18",   0,   0,   0,   0},
+	{ "OBJ_OWN_BITMAP",   2,   0,   1,   0},
+	{ "OBJ_OWN_PALDATA",   2,   0,   1,   0},
+	{ "OBJ_OWN_FILE",   2,   0,   1,   0},
+	{ "OBJ_OWN_DIR",   2,   0,   1,   0},
+	{ "OBJ_OWN_STACK",   2,   0,   1,   0},
+	{ "OBJ_OWN_RNG",   2,   0,   1,   0},
+	{ "OBJ_OWN_CLASS",   2,   0,   1,   0},
+	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
+	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
+	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
@@ -2525,12 +2525,12 @@ script_variable variable_list[]=
 	{ "HEROCOYOTETIME", HEROCOYOTETIME, 0, 0 },
 	{ "FFCLASTCHANGERX", FFCLASTCHANGERX, 0, 0 },
 	{ "FFCLASTCHANGERY", FFCLASTCHANGERY, 0, 0 },
-	{ "RESRVD_VAR_EMILY05", RESRVD_VAR_EMILY05, 0, 0 },
-	{ "RESRVD_VAR_EMILY06", RESRVD_VAR_EMILY06, 0, 0 },
-	{ "RESRVD_VAR_EMILY07", RESRVD_VAR_EMILY07, 0, 0 },
-	{ "RESRVD_VAR_EMILY08", RESRVD_VAR_EMILY08, 0, 0 },
-	{ "RESRVD_VAR_EMILY09", RESRVD_VAR_EMILY09, 0, 0 },
-	{ "RESRVD_VAR_EMILY10", RESRVD_VAR_EMILY10, 0, 0 },
+	{ "LWPNTIMEOUT", LWPNTIMEOUT, 0, 0 },
+	{ "EWPNTIMEOUT", EWPNTIMEOUT, 0, 0 },
+	{ "COMBODTRIGGERLSTATE", COMBODTRIGGERLSTATE, 0, 0 },
+	{ "COMBODTRIGGERGSTATE", COMBODTRIGGERGSTATE, 0, 0 },
+	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
+	{ "GAMEMOUSECURSOR", GAMEMOUSECURSOR, 0, 0 },
 	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
 	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
 	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
@@ -2684,7 +2684,7 @@ int32_t parse_script(script_data **script)
 			
 	if(zscript == NULL)
 	{
-		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return -1;
 	}
 	else return parse_script_file(script,temppath, true);
@@ -2844,7 +2844,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				sprintf(buf2,"The error was: Duplicate Label");
 				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
-				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				stop=true;
 				success=false;
 				(*script)->disable();
@@ -3168,7 +3168,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
-				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,lfont);
+				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				InfoDialog("Error",buf).show();
 				stop=true;
 				success=false;
@@ -3184,7 +3184,7 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		char buf[80],name[13];
 		extract_name(temppath,name,FILENAME8_3);
 		sprintf(buf,"Script %s has been parsed",name);
-		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 zasmfile_fail:
 	return success?D_O_K:D_CLOSE;

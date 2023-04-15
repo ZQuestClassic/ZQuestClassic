@@ -615,7 +615,7 @@ int32_t mapind(int32_t map, int32_t scr)
 	return (map<<7)+scr;
 }
 
-FONT *get_zc_font(int32_t index);
+FONT *get_zc_font(int index);
 
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
@@ -819,6 +819,9 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
 bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 {
+	if(tmpscr.ffcs[index].getData()<=0)
+        return false;
+
     int32_t fx=tmpscr.ffcs[index].x.getInt();
     if(x<fx || x>fx+(tmpscr.ffEffectWidth(index)-1)) // FFC sizes are weird.
         return false;
@@ -828,9 +831,6 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y)
         return false;
     
     if((tmpscr.ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
-        return false;
-	
-    if(tmpscr.ffcs[index].getData()<=0)
         return false;
     
     return true;
@@ -1112,7 +1112,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
-	if (x < 0 || x >= world_w || y < 0 || y >= world_h)
+	if (!get_bit(quest_rules,qr_BUGGED_LAYERED_FLAGS) && (x < 0 || x >= world_w || y < 0 || y >= world_h))
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
 
@@ -1467,8 +1467,8 @@ static void update_combo_cycling(mapscr* scr)
     static int32_t newcset[176];
     static int32_t newdata2[176];
     static int32_t newcset2[176];
-    static bool restartanim[MAXCOMBOS];
-    static bool restartanim2[MAXCOMBOS];
+    std::set<uint16_t> restartanim;
+    std::set<uint16_t> restartanim2;
     static bool initialized=false;
     
     // Just a simple bit of optimization
@@ -1482,9 +1482,6 @@ static void update_combo_cycling(mapscr* scr)
             newcset2[i]=-1;
         }
         
-		// TODO z3 ! can rm these two lines
-        memset(restartanim, 0, MAXCOMBOS);
-        memset(restartanim2, 0, MAXCOMBOS);
         initialized=true;
     }
     
@@ -1492,7 +1489,6 @@ static void update_combo_cycling(mapscr* scr)
     for(int32_t i=0; i<176; i++)
     {
         x=scr->data[i];
-        //y=animated_combo_table[x][0];
         
         if(combobuf[x].animflags & AF_FRESH) continue;
         
@@ -1508,7 +1504,7 @@ static void update_combo_cycling(mapscr* scr)
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
-                restartanim[c]=true;
+                restartanim.insert(c);
             }
         }
     }
@@ -1516,7 +1512,6 @@ static void update_combo_cycling(mapscr* scr)
     for(int32_t i=0; i<176; i++)
     {
         x=scr->data[i];
-        //y=animated_combo_table2[x][0];
         
         if(!(combobuf[x].animflags & AF_FRESH)) continue;
         
@@ -1532,7 +1527,7 @@ static void update_combo_cycling(mapscr* scr)
             
             if(combobuf[c].animflags & AF_CYCLE)
             {
-                restartanim2[c]=true;
+                restartanim2.insert(c);
             }
         }
     }
@@ -1571,7 +1566,8 @@ static void update_combo_cycling(mapscr* scr)
             
             if(combobuf[ffc.getData()].animflags & AF_CYCLE)
             {
-                (fresh?restartanim2:restartanim)[ffc.getData()]=true;
+                auto& animset = fresh ? restartanim2 : restartanim;
+                animset.insert(ffc.getData());
             }
         }
     }
@@ -1584,7 +1580,6 @@ static void update_combo_cycling(mapscr* scr)
             {
 				// TODO z3 !
                 x=(tmpscr2+j)->data[i];
-               // y=animated_combo_table[x][0];
                 
                 if(combobuf[x].animflags & AF_FRESH) continue;
                 
@@ -1600,7 +1595,7 @@ static void update_combo_cycling(mapscr* scr)
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
-                        restartanim[c]=true;
+                        restartanim.insert(c);
                     }
                 }
             }
@@ -1608,7 +1603,6 @@ static void update_combo_cycling(mapscr* scr)
             for(int32_t i=0; i<176; i++)
             {
                 x=(tmpscr2+j)->data[i];
-                //y=animated_combo_table2[x][0];
                 
                 if(!(combobuf[x].animflags & AF_FRESH)) continue;
                 
@@ -1626,7 +1620,7 @@ static void update_combo_cycling(mapscr* scr)
                     
                     if(combobuf[c].animflags & AF_CYCLE)
                     {
-                        restartanim2[c]=true;
+                        restartanim2.insert(c);
                     }
                     
                     if(combobuf[c].type==cSPINTILE1)
@@ -1662,24 +1656,19 @@ static void update_combo_cycling(mapscr* scr)
             }
         }
     }
-    
-    for(int32_t i=0; i<MAXCOMBOS; i++)
+
+    for (auto i : restartanim)
     {
-        if(restartanim[i])
-        {
-            combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-			combobuf[i].aclk = 0;
-            restartanim[i]=false;
-        }
-        
-        if(restartanim2[i])
-        {
-            combobuf[i].tile = combobuf[i].o_tile;
-			combobuf[i].cur_frame=0;
-			combobuf[i].aclk = 0;
-            restartanim2[i]=false;
-        }
+        combobuf[i].tile = combobuf[i].o_tile;
+        combobuf[i].cur_frame=0;
+        combobuf[i].aclk = 0;
+    }
+
+    for (auto i : restartanim2)
+    {
+        combobuf[i].tile = combobuf[i].o_tile;
+        combobuf[i].cur_frame=0;
+        combobuf[i].aclk = 0;
     }
 }
 
@@ -1929,6 +1918,49 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	if(ispitfall(c)) return c;
 	return 0;
 }
+bool check_icy(newcombo const& cmb, int type)
+{
+	if(cmb.type != cICY)
+		return false;
+	switch(type)
+	{
+		case 0:
+			return cmb.usrflags&cflag1;
+	}
+	return false;
+}
+int get_icy(int x, int y, int type)
+{
+	int32_t c = MAPCOMBOL(2,x,y);
+	if(check_icy(combobuf[c], type)) return c;
+	if(tmpscr2[1].valid!=0)
+	{
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
+		}
+	}
+	c = MAPCOMBOL(1,x,y);
+	if(check_icy(combobuf[c], type)) return c;
+	if(tmpscr2[0].valid!=0)
+	{
+		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		}
+		else
+		{
+			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && _effectflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
+		}
+	}
+	c = MAPCOMBO(x,y);
+	if(check_icy(combobuf[c], type)) return c;
+	return 0;
+}
 
 static bool checkSV(int32_t x, int32_t y, int32_t flag)
 {
@@ -2039,6 +2071,7 @@ bool ishookshottable(int32_t bx, int32_t by)
 	if (collide_object(bx, by, 1, 1))
 		return false;
 	
+	bool ret = true;
 	for(int32_t i=2; i>=0; i--)
 	{
 		int32_t c = MAPCOMBO2(i-1,bx,by);
@@ -2055,10 +2088,10 @@ bool ishookshottable(int32_t bx, int32_t by)
 		if(by&8) b<<=1;
 		
 		if(combobuf[c].walk&b && !dried && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-			return false;
+			ret = false;
 	}
 	
-	return true;
+	return ret;
 }
 
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
@@ -2075,6 +2108,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	if (collide_object(bx, by, 1, 1))
 		return false;
 	
+	bool ret = true;
 	for(int32_t i=2; i>=0; i--)
 	{
 		int32_t c = MAPCOMBO3(map, screen, i-1,bx,by);
@@ -2091,10 +2125,10 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 		if(by&8) b<<=1;
 		
 		if(combobuf[c].walk&b && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-			return false;
+			ret = false;
 	}
 	
-	return true;
+	return ret;
 }
 
 bool hiddenstair2(mapscr *s,bool redraw)
@@ -2443,10 +2477,10 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 			}
 			switch(checkflag)
 			{
-				case mfBCANDLE:
-				case mfRCANDLE:
-				case mfWANDFIRE:
-				case mfDINSFIRE:
+				case mfANYFIRE:
+				case mfSTRONGFIRE:
+				case mfMAGICFIRE:
+				case mfDIVINEFIRE:
 				case mfARROW:
 				case mfSARROW:
 				case mfGARROW:
@@ -2601,20 +2635,20 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 				
 				switch(checkflag)
 				{
-				case mfBCANDLE:
+				case mfANYFIRE:
 					ft=sBCANDLE;
 					break;
 					
-				case mfRCANDLE:
+				case mfSTRONGFIRE:
 					ft=sRCANDLE;
 					break;
 					
-				case mfWANDFIRE:
+				case mfMAGICFIRE:
 					ft=sWANDFIRE;
 					break;
 					
-				case mfDINSFIRE:
-					ft=sDINSFIRE;
+				case mfDIVINEFIRE:
+					ft=sDIVINEFIRE;
 					break;
 					
 				case mfARROW:
@@ -2770,20 +2804,20 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 						
 						switch(checkflag)
 						{
-							case mfBCANDLE:
+							case mfANYFIRE:
 								ft=sBCANDLE;
 								break;
 							
-							case mfRCANDLE:
+							case mfSTRONGFIRE:
 								ft=sRCANDLE;
 								break;
 							
-							case mfWANDFIRE:
+							case mfMAGICFIRE:
 								ft=sWANDFIRE;
 								break;
 							
-							case mfDINSFIRE:
-								ft=sDINSFIRE;
+							case mfDIVINEFIRE:
+								ft=sDIVINEFIRE;
 								break;
 							
 							case mfARROW:
@@ -2934,20 +2968,20 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 				//No placed flags yet
 				switch(checkflag)
 				{
-					case mfBCANDLE:
+					case mfANYFIRE:
 						ft=sBCANDLE;
 						break;
 						
-					case mfRCANDLE:
+					case mfSTRONGFIRE:
 						ft=sRCANDLE;
 						break;
 						
-					case mfWANDFIRE:
+					case mfMAGICFIRE:
 						ft=sWANDFIRE;
 						break;
 						
-					case mfDINSFIRE:
-						ft=sDINSFIRE;
+					case mfDIVINEFIRE:
+						ft=sDIVINEFIRE;
 						break;
 						
 					case mfARROW:
@@ -3299,6 +3333,54 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 			setmapflag2(scr, screen_index, mSECRET);
 
 	return true;
+}
+
+bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine)
+{
+	int trigflags = (any?combotriggerANYFIRE:0)
+		| (strong?combotriggerSTRONGFIRE:0)
+		| (magic?combotriggerMAGICFIRE:0)
+		| (divine?combotriggerDIVINEFIRE:0);
+	if(!trigflags) return false;
+	bool ret = false;
+	if(any)
+		ret = ret||trigger_secrets_if_flag(x,y,mfANYFIRE,setflag);
+	if(strong)
+		ret = ret||trigger_secrets_if_flag(x,y,mfSTRONGFIRE,setflag);
+	if(magic)
+		ret = ret||trigger_secrets_if_flag(x,y,mfMAGICFIRE,setflag);
+	if(divine)
+		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
+	
+	std::set<rpos_t> rposes({COMBOPOS_REGION(x,y),COMBOPOS_REGION(x,y+15),COMBOPOS_REGION(x+15,y),COMBOPOS_REGION(x+15,y+15)});
+	for(int q = 0; q < 7; ++q)
+	{
+		mapscr* m = FFCore.tempScreens[q];
+		for(rpos_t rpos : rposes)
+		{
+			auto pos_handle = get_pos_handle(rpos, q);
+			int cid = pos_handle.screen->data[RPOS_TO_POS(rpos)];
+			if(combobuf[cid].triggerflags[2] & trigflags)
+			{
+				do_trigger_combo(pos_handle);
+				ret = true;
+			}
+		}
+	}
+
+	// TODO z3 !
+	word c = tmpscr.numFFC();
+	for(word i=0; i<c; i++)
+	{
+		ffcdata& ffc = tmpscr.ffcs[i];
+		if((combobuf[ffc.getData()].triggerflags[2] & trigflags)
+			&& ffc.collide(x,y,16,16))
+		{
+			do_trigger_combo_ffc(i);
+			ret = true;
+		}
+	}
+	return ret;
 }
 
 void update_freeform_combos()
@@ -4745,8 +4827,9 @@ void draw_screen(bool showhero, bool runGeneric)
 	//2. Blit those layers onto framebuf
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-	masked_blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
 
+	blit(scrollbuf, framebuf, 0, 0, 0, 0, 256, 224);
+	
 	// After this point, we no longer draw to the scrollbuf - so things like dosubscr have access to a "partially rendered" frame.
 	// I think only used for COOLSCROLL==0? Seems like a silly feature...
 	
@@ -5003,12 +5086,15 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
-	color_map = &trans_table2;
-	if(get_bit(quest_rules,qr_LIGHTBEAM_TRANSPARENT))
-		draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
-	else 
-		masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
-	color_map = &trans_table;
+	if (lightbeam_present)
+	{
+		color_map = &trans_table2;
+		if(get_bit(quest_rules,qr_LIGHTBEAM_TRANSPARENT))
+			draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
+		else 
+			masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
+		color_map = &trans_table;
+	}
 
 	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
 		do_layer(temp_buf, 0, currmap, screen_index, 5, myscr, -offx, -offy, 2, false, true);
@@ -7225,6 +7311,7 @@ void toggle_switches(dword flags, bool entry)
 void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 {
 	if(!flags) return; //No flags to toggle
+	bool iscurscr = m==&tmpscr;
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
@@ -7232,9 +7319,12 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(cmb.usrflags & cflag11) //global state
-				continue;
-			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
+			if(iscurscr)
+				if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
+					if(flags&(1<<cmb.trig_lstate))
+						do_trigger_combo(lyr,pos,ctrigSWITCHSTATE);
+			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
+				&& !(cmb.usrflags & cflag11)) //global state
 			{
 				if(flags&(1<<cmb.attribytes[0]))
 				{
@@ -7330,6 +7420,18 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 			}
 		}
 	}
+	
+	if(iscurscr)
+	{
+		word c = m->numFFC();
+		for(word q=0; q<c; ++q)
+		{
+			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
+			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
+				if(flags&(1<<cmb.trig_lstate))
+					do_trigger_combo_ffc(q,ctrigSWITCHSTATE);
+		}
+	}
 }
 
 void toggle_gswitches(int32_t state, bool entry)
@@ -7347,6 +7449,7 @@ void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen
 void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_index)
 {
 	if(!states) return;
+	bool iscurscr = base_screen==&tmpscr;
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
@@ -7354,6 +7457,10 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 		for(int32_t pos = 0; pos < 176; ++pos)
 		{
 			newcombo const& cmb = combobuf[scr->data[pos]];
+			if(iscurscr)
+				if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
+					if(states[cmb.trig_gstate])
+						do_trigger_combo(lyr,pos,ctrigSWITCHSTATE);
 			if(!(cmb.usrflags & cflag11)) //not global state
 				continue;
 			if(cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK)
@@ -7453,6 +7560,18 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 			}
 		}
 	}
+	
+	if(iscurscr)
+	{
+		word c = base_screen->numFFC();
+		for(word q=0; q<c; ++q)
+		{
+			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
+			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
+				if(states[cmb.trig_gstate])
+					do_trigger_combo_ffc(q,ctrigSWITCHSTATE);
+		}
+	}
 }
 void toggle_gswitches_load(mapscr* base_screen, int screen_index)
 {
@@ -7544,7 +7663,7 @@ void ViewMap()
 	if(!mappic)
 	{
 		system_pal();
-		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		game_pal();
 		return;
 	}

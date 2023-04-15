@@ -177,7 +177,7 @@ void read_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, d
 			
 	if(!tempfile)
 	{
-		//jwin_alert("Error","Unable to open the temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		//jwin_alert("Error","Unable to open the temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return;
 	}
 	
@@ -250,7 +250,7 @@ void write_compile_data(map<string, ZScript::ScriptTypeID>& stypes, map<string, 
 			
 	if(!tempfile)
 	{
-		//jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		//jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return;
 	}
 	

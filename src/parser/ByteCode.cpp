@@ -2015,12 +2015,12 @@ string ZScript::VarToString(int32_t ID)
 	case HEROCOYOTETIME: return "HEROCOYOTETIME";
 	case FFCLASTCHANGERX: return "FFCLASTCHANGERX";
 	case FFCLASTCHANGERY: return "FFCLASTCHANGERY";
-	case RESRVD_VAR_EMILY05: return "RESRVD_VAR_EMILY05";
-	case RESRVD_VAR_EMILY06: return "RESRVD_VAR_EMILY06";
-	case RESRVD_VAR_EMILY07: return "RESRVD_VAR_EMILY07";
-	case RESRVD_VAR_EMILY08: return "RESRVD_VAR_EMILY08";
-	case RESRVD_VAR_EMILY09: return "RESRVD_VAR_EMILY09";
-	case RESRVD_VAR_EMILY10: return "RESRVD_VAR_EMILY10";
+	case LWPNTIMEOUT: return "LWPNTIMEOUT";
+	case EWPNTIMEOUT: return "EWPNTIMEOUT";
+	case COMBODTRIGGERLSTATE: return "COMBODTRIGGERLSTATE";
+	case COMBODTRIGGERGSTATE: return "COMBODTRIGGERGSTATE";
+	case COMBODTRIGGERGTIMER: return "COMBODTRIGGERGTIMER";
+	case GAMEMOUSECURSOR: return "GAMEMOUSECURSOR";
 	case RESRVD_VAR_EMILY11: return "RESRVD_VAR_EMILY11";
 	case RESRVD_VAR_EMILY12: return "RESRVD_VAR_EMILY12";
 	case RESRVD_VAR_EMILY13: return "RESRVD_VAR_EMILY13";
@@ -2460,45 +2460,45 @@ string OGlobalObject::toString() const
 {
 	return "ZCLASS_GLOBALIZE " + getArgument()->toString();
 }
-string OReservedEmily09::toString() const
+string OObjOwnBitmap::toString() const
 {
-	return "RESRVD_OP_EMILY09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_BITMAP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily10::toString() const
+string OObjOwnPaldata::toString() const
 {
-	return "RESRVD_OP_EMILY10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_PALDATA " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily11::toString() const
+string OObjOwnFile::toString() const
 {
-	return "RESRVD_OP_EMILY11 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_FILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily12::toString() const
+string OObjOwnDir::toString() const
 {
-	return "RESRVD_OP_EMILY12 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_DIR " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily13::toString() const
+string OObjOwnStack::toString() const
 {
-	return "RESRVD_OP_EMILY13 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_STACK " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily14::toString() const
+string OObjOwnRNG::toString() const
 {
-	return "RESRVD_OP_EMILY14 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_RNG " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily15::toString() const
+string OObjOwnClass::toString() const
 {
-	return "RESRVD_OP_EMILY15 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_CLASS " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily16::toString() const
+string OObjOwnArray::toString() const
 {
-	return "RESRVD_OP_EMILY16 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "OBJ_OWN_ARRAY " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OReservedEmily17::toString() const
+string OQuitNoDealloc::toString() const
 {
-	return "RESRVD_OP_EMILY17 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "QUIT_NO_DEALLOC";
 }
-string OReservedEmily18::toString() const
+string OSetCustomCursor::toString() const
 {
-	return "RESRVD_OP_EMILY18 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "GAMESETCUSTOMCURSOR";
 }
 string OReservedEmily19::toString() const
 {

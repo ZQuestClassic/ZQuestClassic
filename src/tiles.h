@@ -59,9 +59,9 @@ void unpack_tile(tiledata *buf, int32_t tile, int32_t flip, bool force);
 void pack_tile(tiledata *buf, byte *src,int32_t tile);
 void pack_tiledata(byte *dest, byte *src, byte format);
 void pack_tiles(byte *buf);
-int32_t rotate_value(int32_t flip);
 void load_tile(byte* buf, int tile);
 void load_minitile(byte* buf, int tile, int mini);
+int32_t rotate_value(int32_t flip);
 byte rotate_walk(byte v);
 byte rotate_cset(byte v);
 
@@ -71,11 +71,11 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
 void puttile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip);
 void oldputtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip);
 void overtile16(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip);
+void overtile16_scale(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t flip,int dw, int dh);
+void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[],int32_t flip,bool over);
 void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows=0);
 
-void putblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask);
-void overblock8(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t csets[],int32_t flip,int32_t mask);
-
+extern int combotile_override_x, combotile_override_y;
 int32_t combo_tile(const newcombo &c, int32_t x, int32_t y);
 int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y);
 
@@ -101,15 +101,5 @@ void overcomboblocktranslucent(BITMAP *dest, int32_t x, int32_t y, int32_t cmbda
 bool is_valid_format(byte format);
 int32_t tilesize(byte format);
 int32_t comboa_lmasktotal(byte layermask);
-
-void a5_draw_tile(int x, int y, int tile, int cs, int w, int h, int flip, bool mask = true, unsigned char alpha = 255);
-void a5_draw_tile(int x, int y, int tile, int cs, int cs2, int flip, bool mask = true, unsigned char alpha = 255);
-void a5_draw_tile8(int x, int y, int tile, int cs, int flip, bool mask = true, unsigned char alpha = 255);
-void a5_draw_minitile(int x, int y, int tile, int mini, int cs, int flip, bool mask = true, unsigned char alpha = 255);
-
-void a5_draw_combo(int x, int y, int combo, int cs, bool mask, unsigned char alpha, int targx = -1, int targy = -1);
-
-void a5_draw_tile_scale(int x, int y, int w, int h, int tile, int cs, int cs2, int flip, bool mask = true, unsigned char alpha = 255);
-
 #endif                                                      // _ZC_TILES_H_
  

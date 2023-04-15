@@ -171,7 +171,8 @@ void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32
 void copy_dialog(DIALOG **to, DIALOG *from);
 void free_dialog(DIALOG **dlg);
 
-void safe_rect(BITMAP *bmp, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
+void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color, int thick);
 
 int32_t gcd(int32_t a, int32_t b);
 int32_t lcm(int32_t a, int32_t b);
@@ -179,9 +180,6 @@ int32_t lcm(int32_t a, int32_t b);
 size_t count_digits(int32_t n);
 
 void quit_game();
-
-int32_t zc_trace_handler(const char *);
-void zc_trace_clear();
 
 void sane_destroy_bitmap(BITMAP **bmp);
 

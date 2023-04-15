@@ -59,6 +59,7 @@ private:
 	void realize(DialogRunner& runner) override;
 	void calculateSize() override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

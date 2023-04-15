@@ -18,31 +18,28 @@ extern word item_doscript[256];
 extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern byte itemscriptInitialised[256];
 
-struct cmbtimer
+void CutsceneState::clear()
 {
-	int32_t data;
-	byte clk;
-	word shootrclk;
-	byte trig_cd;
-	void clear()
-	{
-		data = 0;
-		clk = 0;
-		shootrclk = 0;
-		trig_cd = 0;
-	}
-	void updateData(int32_t newdata)
-	{
-		if(data != newdata)
-		{
-			clear();
-			data = newdata;
-		}
-	}
-	cmbtimer() {clear();}
-};
-cmbtimer combo_trig_timers[7][176];
-std::vector<cmbtimer> ffc_trig_timers;
+	*this = CutsceneState();
+}
+bool CutsceneState::can_button(int q)
+{
+	if(!active) return true;
+	return allowed_btns & (1<<q);
+}
+bool CutsceneState::can_f6()
+{
+	return !(active && nof6);
+}
+void CutsceneState::error()
+{
+	if(errsfx && !sfx_allocated(errsfx))
+		sfx(errsfx);
+}
+CutsceneState active_cutscene;
+
+cpos_info combo_posinfos[7][176];
+std::vector<cpos_info> ffc_posinfos;
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -307,6 +304,20 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 		}
 		
 	}
+}
+
+void do_cutscene_flags(newcombo const& cmb)
+{
+	if(cmb.type != cCUTSCENETRIG) return;
+	if(cmb.usrflags & cflag1) //Disable cutscene
+	{
+		active_cutscene.clear();
+		return;
+	}
+	active_cutscene.active = true;
+	active_cutscene.allowed_btns = cmb.attributes[0];
+	active_cutscene.nof6 = (cmb.usrflags & cflag2)!=0;
+	active_cutscene.errsfx = cmb.attribytes[0];
 }
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w)
@@ -1763,7 +1774,7 @@ bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 			ev.push_back(-dmg*10000);
 			ev.push_back(hdir*10000);
 			ev.push_back(0);
-			ev.push_back(Hero.NayrusLoveShieldClk>0?10000:0);
+			ev.push_back(Hero.DivineProtectionShieldClk>0?10000:0);
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(cid);
@@ -1781,12 +1792,12 @@ bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 			dmg = ev[0]/10000;
 			hdir = ev[1]/10000;
 			nullhit = ev[2] != 0;
-			bool nayrulove = ev[3] != 0;
+			bool divineprot = ev[3] != 0;
 			int32_t iframes = ev[4] / 10000;
 			ev.clear();
 			if(nullhit) return false;
 			
-			if(!nayrulove)
+			if(!divineprot)
 			{
 				game->set_life(zc_max(game->get_life()-dmg,0));
 			}
@@ -1820,8 +1831,7 @@ bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped)
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
 
 	int32_t thesfx = cmb.attribytes[0];
-	if ( thesfx > 0 && !sfx_allocated(thesfx))
-		sfx(thesfx,pan(COMBOX(pos)));
+	sfx_no_repeat(thesfx,pan(COMBOX(pos)));
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];
@@ -2006,8 +2016,7 @@ bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 	newcombo const& cmb = combobuf[ffc.getData()];
 	int32_t tx = ffc.x, ty = ffc.y;
 	int32_t thesfx = cmb.attribytes[0];
-	if ( thesfx > 0 && !sfx_allocated(thesfx))
-		sfx(thesfx,pan(ffc.x));
+	sfx_no_repeat(thesfx, pan(ffc.x));
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];
@@ -2289,8 +2298,10 @@ bool trigger_shooter(newcombo const& cmb, zfix wx, zfix wy)
 	if(wx >= world_w || wx < -15 || wy >= world_h || wy < -15) return false;
 	
 	bool proxstop = cmb.usrflags&cflag4;
+	bool invprox = cmb.usrflags&cflag9;
 	zfix proxlim = zslongToFix(cmb.attributes[1]);
-	if(proxstop && dist(wx,wy,Hero.getX(),Hero.getY()) <= proxlim)
+	auto dst = dist(wx,wy,Hero.getX(),Hero.getY());
+	if(proxstop && (invprox ? (dst > proxlim) : (dst <= proxlim)))
 		return false;
 	
 	bool angular = cmb.usrflags&cflag1;
@@ -2563,6 +2574,7 @@ bool force_ex_trigger_ffc(int32_t pos, char xstate)
 }
 
 static bool triggering_generic_secrets = false;
+static bool triggering_generic_switchstate = false;
 
 // TODO z3 remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
@@ -2578,11 +2590,12 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 
 	int lyr = pos_handle.layer;
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
+	// TODO z3 !!
+	cpos_info& timer = combo_posinfos[lyr][pos];
 	int32_t cid = pos_handle.screen->data[pos];
 	int32_t cx, cy;
 	COMBOXY_REGION(pos_handle.rpos, cx, cy);
 
-	cmbtimer& timer = combo_trig_timers[lyr][pos];
 	int32_t ocs = pos_handle.screen->cset[pos];
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
@@ -2678,6 +2691,9 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				used_bit = true;
 				switch(cmb.type)
 				{
+					case cCUTSCENETRIG:
+						do_cutscene_flags(cmb);
+						break;
 					case cCSWITCH:
 						do_cswitch_combo(cmb, w);
 						break;
@@ -2768,10 +2784,49 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 					triggering_generic_secrets = true;
 					trigger_secrets_for_screen(false, -6);
 					triggering_generic_secrets = false;
+					if(pos_handle.screen->secretsfx)
+						sfx(pos_handle.screen->secretsfx);
 				}
 				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
 					setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
-				sfx(pos_handle.screen->secretsfx);
+			}
+			
+			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
+			{
+				used_bit = true;
+				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+				{
+					triggering_generic_switchstate = true;
+					// TODO z3 !
+					toggle_switches(1<<cmb.trig_lstate, false);
+					triggering_generic_switchstate = false;
+				}
+			}
+			if (cmb.triggerflags[3] & combotriggerGLOBALSTATE)
+			{
+				used_bit = true;
+				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+				{
+					int tmr = cmb.trig_statetime, pair = cmb.trig_gstate;
+					bool oldstate = game->gswitch_timers[pair]!=0;
+					if(tmr > 0)
+					{
+						game->gswitch_timers[pair] = tmr;
+					}
+					else
+					{
+						if(game->gswitch_timers[pair])
+							game->gswitch_timers[pair] = 0;
+						else game->gswitch_timers[pair] = -1;
+					}
+					if(oldstate != (game->gswitch_timers[pair] != 0))
+					{
+						triggering_generic_switchstate = true;
+						// TODO z3 !
+						toggle_gswitches(pair, false);
+						triggering_generic_switchstate = false;
+					}
+				}
 			}
 			
 			if(cmb.trigchange)
@@ -2795,6 +2850,15 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 			
 			if(cmb.trigsfx)
 				sfx(cmb.trigsfx, pan(COMBOX(pos)));
+			
+			if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
+				kill_em_all();
+			if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
+				guys.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
+				Lwpns.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
+				Ewpns.clear(true);
 			
 			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
 			{
@@ -2911,7 +2975,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr.ffcs[pos];
-	cmbtimer& timer = ffc_trig_timers[pos];
+	cpos_info& timer = ffc_posinfos[pos];
 	int32_t cid = ffc.getData();
 	int32_t ocs = ffc.cset;
 	int32_t cx = ffc.x;
@@ -3008,6 +3072,9 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				used_bit = true;
 				switch(cmb.type)
 				{
+					case cCUTSCENETRIG:
+						do_cutscene_flags(cmb);
+						break;
 					case cCSWITCH:
 						do_cswitch_combo(cmb, w);
 						break;
@@ -3126,6 +3193,15 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			
 			if(cmb.trigsfx)
 				sfx(cmb.trigsfx, pan(cx));
+			
+			if(cmb.triggerflags[3] & combotriggerKILLENEMIES)
+				kill_em_all();
+			if(cmb.triggerflags[3] & combotriggerCLEARENEMIES)
+				guys.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEARLWEAPONS)
+				Lwpns.clear(true);
+			if(cmb.triggerflags[3] & combotriggerCLEAREWEAPONS)
+				Ewpns.clear(true);
 			
 			if(cmb.triggeritem && hasitem && (cmb.triggerflags[1] & combotriggerCONSUMEITEM))
 			{
@@ -3336,21 +3412,21 @@ void init_combo_timers()
 	{
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			combo_trig_timers[lyr][pos].clear();
+			combo_posinfos[lyr][pos].clear();
 		}
 	}
-	ffc_trig_timers.clear();
+	ffc_posinfos.clear();
 }
 
 bool on_cooldown(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
 		return false;
-	return combo_trig_timers[lyr][pos].trig_cd != 0;
+	return combo_posinfos[lyr][pos].trig_cd != 0;
 }
 
 
-static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix wy)
+static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix wy)
 {
 	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
 	int32_t highrate = zc_max(0,cmb.attrishorts[1]);
@@ -3381,12 +3457,14 @@ static void handle_shooter(newcombo const& cmb, cmbtimer& timer, zfix wx, zfix w
 	}
 }
 
-static void handle_shooter(newcombo const& cmb, cmbtimer& timer, rpos_t rpos)
+// TODO z3
+static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 {
 	int x, y;
 	COMBOXY_REGION(rpos, x, y);
 	handle_shooter(cmb, timer, x, y);
 }
+
 void update_combo_timers()
 {
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
@@ -3398,20 +3476,18 @@ void update_combo_timers()
 			pos_handle.screen_index = screen_index;
 			pos_handle.layer = lyr;
 
-			for (auto pos = 0; pos < 176; ++pos)
+			for(auto pos = 0; pos < 176; ++pos)
 			{
-				pos_handle.rpos = POS_TO_RPOS(pos, z3_scr_dx, z3_scr_dy);
-
-				cmbtimer& timer = combo_trig_timers[lyr][pos];
+				// TODO z3 !
+				cpos_info& timer = combo_posinfos[lyr][pos];
 				timer.updateData(scr->data[pos]);
 				newcombo const& cmb = combobuf[timer.data];
-				if (cmb.trigtimer)
+				if(cmb.trigtimer)
 				{
-					if (++timer.clk >= cmb.trigtimer)
+					if(++timer.clk >= cmb.trigtimer)
 					{
 						timer.clk = 0;
-						
-						do_trigger_combo(pos_handle);
+						do_trigger_combo(lyr, pos);
 						timer.updateData(scr->data[pos]);
 					}
 				}
@@ -3422,41 +3498,43 @@ void update_combo_timers()
 				}
 			}
 		}
-
-		// TODO z3 ffc
-		dword c = z3_scr->numFFC();
-		if(ffc_trig_timers.size() != c)
-		{
-			dword osz = ffc_trig_timers.size();
-			ffc_trig_timers.resize(c);
-			for(dword q = osz; q < c; ++q) //Is this needed? -Em
-			{
-				ffc_trig_timers[q].clear();
-			}
-		}
-		for(word ffc = 0; ffc < c; ++ffc)
-		{
-			cmbtimer& timer = ffc_trig_timers[ffc];
-			timer.updateData(z3_scr->ffcs[ffc].getData());
-			newcombo const& cmb = combobuf[timer.data];
-			if(cmb.trigtimer)
-			{
-				if(++timer.clk >= cmb.trigtimer)
-				{
-					timer.clk = 0;
-					do_trigger_combo_ffc(ffc);
-					timer.updateData(z3_scr->ffcs[ffc].getData());
-				}
-			}
-			if(timer.trig_cd) --timer.trig_cd;
-			if(cmb.type == cSHOOTER)
-			{
-				zfix wx = z3_scr->ffcs[ffc].x;
-				zfix wy = z3_scr->ffcs[ffc].y;
-				wx += (z3_scr->ffTileWidth(ffc)-1)*8;
-				wy += (z3_scr->ffTileHeight(ffc)-1)*8;
-				handle_shooter(cmb, timer, wx, wy);
-			}
-		}
 	});
+
+	// TODO z3 ffc stuff
+
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	if(ffc_posinfos.size() != c)
+	{
+		dword osz = ffc_posinfos.size();
+		ffc_posinfos.resize(c);
+		for(dword q = osz; q < c; ++q) //Is this needed? -Em
+		{
+			ffc_posinfos[q].clear();
+		}
+	}
+	for(word ffc = 0; ffc < c; ++ffc)
+	{
+		cpos_info& timer = ffc_posinfos[ffc];
+		timer.updateData(ffscr->ffcs[ffc].getData());
+		newcombo const& cmb = combobuf[timer.data];
+		if(cmb.trigtimer)
+		{
+			if(++timer.clk >= cmb.trigtimer)
+			{
+				timer.clk = 0;
+				do_trigger_combo_ffc(ffc);
+				timer.updateData(ffscr->ffcs[ffc].getData());
+			}
+		}
+		if(timer.trig_cd) --timer.trig_cd;
+		if(cmb.type == cSHOOTER)
+		{
+			zfix wx = ffscr->ffcs[ffc].x;
+			zfix wy = ffscr->ffcs[ffc].y;
+			wx += (ffscr->ffTileWidth(ffc)-1)*8;
+			wy += (ffscr->ffTileHeight(ffc)-1)*8;
+			handle_shooter(cmb, timer, wx, wy);
+		}
+	}
 }

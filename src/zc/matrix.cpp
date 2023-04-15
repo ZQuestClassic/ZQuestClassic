@@ -12,10 +12,7 @@
 
 #include "matrix.h"
 #include "render.h"
-
-// external FONTs
-extern FONT *deffont, *mfont;
-
+FONT* get_zc_font(int index);
 
 #define MAX_COLS      256
 #define MAX_TRACERS   MAX_COLS * 2
@@ -265,7 +262,7 @@ static void DrawLetter(int32_t x, int32_t y, int32_t color)
     if(letter < 32)
         letter += (r>>10) % 224;
         
-    FONT *fnt = (r&512) || ((letter&0xE0)==0x80) ? mfont : deffont;
+    FONT *fnt = get_zc_font((r&512) || ((letter&0xE0)==0x80) ? font_mfont : font_deffont);
     
     textprintf_ex(target_bitmap, fnt, x<<3, y<<3, color, BLACK, "%c", letter);
 }

@@ -70,6 +70,7 @@ src/dialog/vidmode.cpp
 src/dialog/combopool.cpp
 src/dialog/compilezscript.cpp
 src/dialog/vectorpick.cpp
+src/dialog/zqhotkeys.cpp
 
 
 ## End of ZQuest GUI module

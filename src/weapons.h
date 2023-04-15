@@ -132,7 +132,8 @@ public:
     //Used only by ffscript! No not make readable by scripts!
     byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
-	bool weapon_dying_frame; //a last_hurrah for weapons -V
+	bool weapon_dying_frame; //a last_hurrah for weapons -Em
+	int weap_timeout;
     byte specialinfo;
     void convertType(bool toLW);
     weapon(weapon const &other);
@@ -148,6 +149,7 @@ public:
     bool isScriptGenerated();
     bool clip();
     bool blocked();
+	bool no_triggers() const;
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     virtual bool animate(int32_t index);
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);

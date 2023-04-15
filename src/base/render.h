@@ -1,7 +1,6 @@
 #ifndef _BASE_RENDER_TREE_H_
 #define _BASE_RENDER_TREE_H_
 
-#include "zdefs.h"
 #include "zc_alleg.h"
 #include <vector>
 extern unsigned char info_opacity;
@@ -47,59 +46,41 @@ public:
 	{
 		return (y + computed.y) * computed.yscale;
 	}
-	int clear_color()
-	{
-		if(transparency_index > 0)
-			return transparency_index;
-		return 0;
-	}
+};
+
+namespace MouseSprite
+{
+	#define MAX_MOUSESPRITE 35
+	void assign(int index, BITMAP* spr, int xf = 1, int yf = 1);
+	bool set(int index);
+	void clear(int index);
 };
 
 extern RenderTreeItem rti_dialogs;
-
-void freeze_render();
-void unfreeze_render();
-bool render_frozen();
-
+extern ALLEGRO_COLOR AL5_INVIS,AL5_BLACK,AL5_WHITE,AL5_YELLOW,
+	AL5_PINK,AL5_DGRAY,AL5_LGRAY,AL5_BLUE,AL5_LRED,AL5_DRED,
+	AL5_LGREEN,AL5_LAQUA;
 void set_bitmap_create_flags(bool preserve_texture);
-void zc_set_palette(PALETTE pal);
-void zc_set_palette_range(PALETTE pal, int start, int end);
-ALLEGRO_COLOR a5color(RGB c, unsigned char alpha = 255);
-ALLEGRO_COLOR a5color(int index, unsigned char alpha = 255);
-ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha = 255);
-int a5tohex(ALLEGRO_COLOR c);
-void clear_a5_bmp(ALLEGRO_COLOR c, ALLEGRO_BITMAP* bmp = nullptr);
-void collide_clip_rect(int& x, int& y, int& w, int& h);
-void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp = nullptr);
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
+void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);
+ALLEGRO_BITMAP* create_a5_bitmap(int w, int h);
 void render_tree_draw(RenderTreeItem* rti);
 
+void _init_render(int fmt);
+uint32_t get_backend_a5_col(RGB const& c);
+uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a);
+void load_palette(uint32_t* backpal, ALLEGRO_COLOR* backcols, PALETTE pal, int start = 0, int end = 255);
+void zc_set_palette(PALETTE pal);
+void zc_set_palette_range(PALETTE pal, int start, int end, bool=false);
+void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind = 0,uint32_t* backpal = nullptr);
+
 extern BITMAP* zqdialog_bg_bmp;
-extern RenderTreeItem* active_dlg_rti;
-extern RenderTreeItem* active_a5_dlg_rti;
-extern RenderTreeItem* active_a4_dlg_rti;
-void save_debug_bitmaps(char const* pref = nullptr);
-int get_zqdialog_a4_clear_color();
-void clear_zqdialog_a4();
-void get_zqdialog_offset(int&x, int&y, int&w, int&h);
-void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0);
+void popup_zqdialog_start();
 void popup_zqdialog_end();
-void popup_zqdialog_blackout(int x = 0, int y = 0, int w = -1, int h = -1, int c = 0);
-void popup_zqdialog_blackout_end();
-void popup_zqdialog_start_a5(int x = 0, int y = 0, int w = -1, int h = -1);
+void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
-RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h);
-bool a4_bmp_active();
-RenderTreeItem* add_dlg_layer();
-RenderTreeItem* add_dlg_layer_a4(int transp);
+void update_dialog_transform();
+RenderTreeItem* add_dlg_layer(int x = 0, int y = 0, int w = -1, int h = -1);
 void remove_dlg_layer(RenderTreeItem* rti);
-
-void popup_zqdialog_menu();
-void popup_zqdialog_menu_end();
-
-//From jwin_a5
-
-extern ALLEGRO_COLOR AL5_INVIS;
-extern ALLEGRO_COLOR AL5_BLACK;
-extern ALLEGRO_COLOR AL5_WHITE;
 
 #endif

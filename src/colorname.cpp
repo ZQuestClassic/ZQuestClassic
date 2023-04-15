@@ -163,7 +163,6 @@ void init_color_names()
 		addname(0xFFFFE0, "Light Yellow");
 		addname(0x8B4513, "Saddle Brown");
 		addname(0xA0522D, "Sienna");
-		addname(0xD2691E, "Chocolate");
 		addname(0xCD853F, "Peru");
 		addname(0xF4A460, "Sandy Brown");
 		addname(0xDEB887, "Burly Wood");
@@ -191,7 +190,6 @@ void init_color_names()
 		addname(0xF0FFFF, "Azure");
 		addname(0xFFFAFA, "Snow");
 		addname(0x696969, "Dim Gray");
-		addname(0xA9A9A9, "Dark Gray");
 		addname(0xD3D3D3, "Light Gray");
 		addname(0xDCDCDC, "Gainsboro");
 		addname(0xF5F5F5, "White Smoke");
@@ -437,9 +435,6 @@ void init_color_names()
 		addname(0xCDC5BF, "Seashell");
 		addname(0x8B8682, "Seashell");
 		addname(0xC76114, "Raw Sienna");
-		addname(0xFF7F24, "Chocolate");
-		addname(0xEE7621, "Chocolate");
-		addname(0xCD661D, "Chocolate");
 		addname(0x292421, "Ivory Black");
 		addname(0xFF7D40, "Flesh");
 		addname(0xFF6103, "Cadmium Orange");
@@ -458,7 +453,6 @@ void init_color_names()
 		addname(0xFF8C69, "Salmon");
 		addname(0xEE8262, "Salmon");
 		addname(0xCD7054, "Salmon");
-		addname(0x8B4C39, "Salmon");
 		addname(0xFF7256, "Coral");
 		addname(0xEE6A50, "Coral");
 		addname(0xCD5B45, "Coral");
@@ -562,6 +556,15 @@ void init_color_names()
 		addname(0x8C30DC, "Purple");
 		addname(0x9C4C00, "Brown");
 		addname(0xAC3C00, "Red Brown");
+		addname(0xA9A9A9, "Medium Gray");
+		addname(0x44104C, "Dark Purple");
+		addname(0xB0A8A0, "Light Gray");
+		addname(0x8B4C39, "Paarl");
+		addname(0xFF7F24, "Pumpkin");
+		addname(0xEE7621, "Pumpkin");
+		addname(0xCD661D, "Orange");
+		addname(0xD2691E, "Orange");
+		addname(0x6B360F, "Chocolate");
 	}
 	//Cache colors
 	for(auto& pair : colornames)

@@ -335,11 +335,13 @@ vector<Function*> ZScript::lookupFunctions(Scope& scope, string const& name, vec
 	//Standard lookup loop
 	for (; current; current = current->getParent())
 	{
-		if(current->isFile() || (current->isRoot() && !foundFile))
+		if((current->isFile() || current->isRoot()) && !foundFile)
 		{
-			if(!functions.empty()) noUsing = true;
+			if(!functions.empty())
+				noUsing = true;
 		}
-		if(current->isFile()) foundFile = true;
+		if(current->isFile())
+			foundFile = true;
 		vector<Function*> currentFunctions = current->getLocalFunctions(name);
 		trimBadFunctions(currentFunctions, parameterTypes, !isClass);
 		functions.insert(currentFunctions.begin(), currentFunctions.end());
@@ -1142,6 +1144,22 @@ void BasicScope::setOption(CompileOption option, CompileOptionSetting value)
 	options_[option] = value;
 }
 
+bool BasicScope::can_add(Datum& datum, CompileErrorHandler* errorHandler)
+{
+	if (std::optional<string> name = datum.getName())
+	{
+		if (find<Datum*>(namedData_, *name))
+		{
+			if (errorHandler)
+				errorHandler->handleError(
+					CompileError::VarRedef(datum.getNode(),
+						name->c_str()));
+			return false;
+		}
+	}
+	return true;
+}
+
 bool BasicScope::add(Datum& datum, CompileErrorHandler* errorHandler)
 {
 	if (std::optional<string> name = datum.getName())
@@ -1301,23 +1319,31 @@ void FileScope::removeLocalFunction(Function* function)
 	BasicScope::removeFunction(function);
 }
 
-bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
+bool FileScope::can_add(Datum& datum, CompileErrorHandler* errorHandler)
 {
-	if (!BasicScope::add(datum, errorHandler))
+	if (!BasicScope::can_add(datum, errorHandler))
 		return false;
-
-	// Register in root scope if it's named.
+	// Check in root scope if it's named.
 	if (std::optional<string> name = datum.getName())
-	{
-		if (!getRoot(*this)->registerDatum(*name, &datum))
+		if (getRoot(*this)->getLocalDatum(*name))
 		{
 			if (errorHandler)
 				errorHandler->handleError(
-						CompileError::VarRedef(datum.getNode(),
-						                       name->c_str()));
+					CompileError::VarRedef(datum.getNode(),
+						name->c_str()));
 			return false;
 		}
-	}
+	return true;
+}
+bool FileScope::add(Datum& datum, CompileErrorHandler* errorHandler)
+{
+	if (!can_add(datum, errorHandler))
+		return false;
+
+	BasicScope::add(datum, errorHandler);
+	// Register in root scope if it's named.
+	if (std::optional<string> name = datum.getName())
+		getRoot(*this)->registerDatum(*name, &datum);
 
 	return true;
 }

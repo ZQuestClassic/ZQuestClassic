@@ -583,7 +583,7 @@ bool save_zi(zinfo const& tzi)
         
     if(exists(temppath))
     {
-        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
+        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
         {
             return false;
         }
@@ -632,7 +632,7 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				if(load_zi(tmp_zinfo))
 				{
 					loaded_zi = true;
-					runner.rerun_dlg = true;
+					rerun_dlg = true;
 					return true;
 				}
 			}

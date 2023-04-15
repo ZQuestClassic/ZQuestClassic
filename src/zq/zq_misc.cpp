@@ -22,11 +22,11 @@
 #include "zq_class.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
+#include "drawing.h"
 #include "jwin_a5.h"
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
-#include "drawing.h"
 
 #include "metadata/metadata.h"
 
@@ -102,8 +102,7 @@ int32_t cursorColor(int32_t col)
 
 void load_mice()
 {
-	scare_mouse();
-	set_mouse_sprite(NULL);
+	MouseSprite::set(-1);
 	int32_t sz = vbound(int32_t(16*(zc_get_config("zquest","cursor_scale_large",1.5))),16,80);
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
 	{
@@ -134,45 +133,66 @@ void load_mice()
 			destroy_bitmap(subbmp);
 		}
 	}
+	
+	BITMAP* tmpbmp = create_bitmap_ex(8,sz,sz);
+	
+	MouseSprite::assign(ZQM_NORMAL, mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	MouseSprite::assign(ZQM_POINT_BOX, mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
+	MouseSprite::assign(ZQM_BOX, mouse_bmp[MOUSE_BMP_BOX][0]);
+	MouseSprite::assign(ZQM_SWORD, mouse_bmp[MOUSE_BMP_SWORD][0]);
+	MouseSprite::assign(ZQM_POTION, mouse_bmp[MOUSE_BMP_POTION][0], 1, 14);
+	MouseSprite::assign(ZQM_WAND, mouse_bmp[MOUSE_BMP_WAND][0]);
+	MouseSprite::assign(ZQM_LENS, mouse_bmp[MOUSE_BMP_LENS][0]);
+	for(int q = 0; q < 2; ++q)
+	{
+		MouseSprite::assign(ZQM_GLOVE_OPEN+q, mouse_bmp[MOUSE_BMP_GLOVE][q], 8, 8);
+	}
+	for(int q = 0; q < 4; ++q)
+	{
+		MouseSprite::assign(ZQM_HOOK_PLAIN+q, mouse_bmp[MOUSE_BMP_HOOKSHOT][q]);
+		MouseSprite::assign(ZQM_SEL_WAND_PLAIN+q, mouse_bmp[MOUSE_BMP_WAND2][q]);
+	}
+	for(int q = 0; q < 16; ++q)
+	{
+		blit(mouse_bmp[MOUSE_BMP_FLAG][0], tmpbmp, 0, 0, 0, 0, sz, sz);
+		replColor(tmpbmp, vc(q), dvc(0), dvc(0), false);
+		MouseSprite::assign(ZQM_FLAG_0+q, tmpbmp);
+	}
+	MouseSprite::assign(ZQM_BLANK, mouse_bmp[MOUSE_BMP_BLANK][0]);
+	
+	destroy_bitmap(tmpbmp);
 	restore_mouse();
-	unscare_mouse();
 }
 
 void load_icons()
 {
-	BITMAP* buf = create_bitmap_ex(8,16,16);
-    for(int32_t i=0; i<ICON_BMP_MAX; i++)
-    {
-        for(int32_t j=0; j<4; j++)
-        {
-            blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,j*17+1,0,0,16,16);
-			icon_bmp[i][j] = all_get_a5_bitmap(buf);
-		}
-		switch(i)
+	for(int32_t i=0; i<ICON_BMP_MAX; i++)
+	{
+		for(int32_t j=0; j<4; j++)
 		{
-			case ICON_BMP_WARPDEST:
+			icon_bmp[i][j] = create_bitmap_ex(8,16,16);
+			blit((BITMAP*)zcdata[BMP_ICONS].dat,icon_bmp[i][j],i*17+1,j*17+1,0,0,16,16);
+			if(i==3)
 			{
-				blit((BITMAP*)zcdata[BMP_ICONS].dat,buf,i*17+1,1,0,0,16,16);
-				replColor(buf, 0xE7, 0xEA, 0xEA, false);
-				replColor(buf, 0xE8, 0xE2, 0xE2, false);
-				icon_bmp[i][4] = all_get_a5_bitmap(buf);
-				break;
+				for(int col = 0; col < 16; ++col)
+				{
+					flag_bmp[col][j] = create_bitmap_ex(8,16,16);
+					blit(icon_bmp[i][j], flag_bmp[col][j], 0, 0, 0, 0, 16, 16);
+					replColor(flag_bmp[col][j], vc(col), dvc(0), dvc(0), false);
+				}
 			}
-			default: icon_bmp[i][4] = nullptr;
 		}
-    }
-	destroy_bitmap(buf);
+	}
 }
 
 void load_selections()
 {
-	BITMAP* buf = create_bitmap_ex(8,16,16);
     for(int32_t i=0; i<2; i++)
     {
-        blit((BITMAP*)zcdata[BMP_SELECT].dat,buf,i*17+1,1,0,0,16,16);
-		select_bmp[i] = all_get_a5_bitmap(buf);
+        select_bmp[i] = create_bitmap_ex(8,16,16);
+        //  blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
+        blit((BITMAP*)zcdata[BMP_SELECT].dat,select_bmp[i],i*17+1,1,0,0,16,16);
     }
-	destroy_bitmap(buf);
 }
 
 void load_arrows()
@@ -265,7 +285,7 @@ void load_cset(RGB *pal,int32_t cset_index,int32_t dataset)
 
 void set_pal()
 {
-    zc_set_palette_range(RAMpal,0,0xE0);
+    zc_set_palette_range(RAMpal,0,0xE0,true);
 }
 
 void loadlvlpal(int32_t level)
@@ -388,183 +408,6 @@ const char *warpeffect_string[MAXWARPEFFECTS] =
 {
     "Instant", "Circle", "Oval", "Triangle", "Super Mario All-Stars", "Curtains (Smooth)", "Curtains (Stepped)", "Mosaic",
     "Wave White", "Wave Black", "Fade White", "Fade Black", "Global Opening/Closing", "Destination Default"
-};
-
-const char *flag_string[MAXFLAGS] =
-{
-    "  0 (None)",
-    "  1 Push Block (Vertical, Trigger)",
-    "  2 Push Block (4-Way, Trigger)",
-    "  3 Whistle Trigger",
-    "  4 Burn Trigger (Any)",
-    "  5 Arrow Trigger (Any)",
-    "  6 Bomb Trigger (Any)",
-    "  7 Fairy Ring (Life)",
-    "  8 Raft Path",
-    "  9 Armos -> Secret",
-    " 10 Armos/Chest -> Item",
-    " 11 Bomb (Super)",
-    " 12 Raft Branch",
-    " 13 Dive -> Item",
-    " 14 Lens Marker",
-    " 15 Zelda (Win Game)",
-    " 16 Secret Tile 0",
-    " 17 Secret Tile 1",
-    " 18 Secret Tile 2",
-    " 19 Secret Tile 3",
-    " 20 Secret Tile 4",
-    " 21 Secret Tile 5",
-    " 22 Secret Tile 6",
-    " 23 Secret Tile 7",
-    " 24 Secret Tile 8",
-    " 25 Secret Tile 9",
-    " 26 Secret Tile 10",
-    " 27 Secret Tile 11",
-    " 28 Secret Tile 12",
-    " 29 Secret Tile 13",
-    " 30 Secret Tile 14",
-    " 31 Secret Tile 15",
-    " 32 Trap (Horizontal, Line of Sight)",
-    " 33 Trap (Vertical, Line of Sight)",
-    " 34 Trap (4-Way, Line of Sight)",
-    " 35 Trap (Horizontal, Constant)",
-    " 36 Trap (Vertical, Constant)",
-    " 37 Enemy 0",
-    " 38 Enemy 1",
-    " 39 Enemy 2",
-    " 40 Enemy 3",
-    " 41 Enemy 4",
-    " 42 Enemy 5",
-    " 43 Enemy 6",
-    " 44 Enemy 7",
-    " 45 Enemy 8",
-    " 46 Enemy 9",
-    " 47 Push Block (Horiz, Once, Trigger)",
-    " 48 Push Block (Up, Once, Trigger)",
-    " 49 Push Block (Down, Once, Trigger)",
-    " 50 Push Block (Left, Once, Trigger)",
-    " 51 Push Block (Right, Once, Trigger)",
-    " 52 Push Block (Vert, Once)",
-    " 53 Push Block (Horizontal, Once)",
-    " 54 Push Block (4-Way, Once)",
-    " 55 Push Block (Up, Once)",
-    " 56 Push Block (Down, Once)",
-    " 57 Push Block (Left, Once)",
-    " 58 Push Block (Right, Once)",
-    " 59 Push Block (Vertical, Many)",
-    " 60 Push Block (Horizontal, Many)",
-    " 61 Push Block (4-Way, Many)",
-    " 62 Push Block (Up, Many)",
-    " 63 Push Block (Down, Many)",
-    " 64 Push Block (Left, Many)",
-    " 65 Push Block (Right, Many)",
-    " 66 Block Trigger",
-    " 67 No Push Blocks",
-    " 68 Boomerang Trigger (Any)",
-    " 69 Boomerang Trigger (Magic +)",
-    " 70 Boomerang Trigger (Fire)",
-    " 71 Arrow Trigger (Silver +)",
-    " 72 Arrow Trigger (Golden)",
-    " 73 Burn Trigger (Red Candle +)",
-    " 74 Burn Trigger (Wand Fire)",
-    " 75 Burn Trigger (Din's Fire)",
-    " 76 Magic Trigger (Wand)",
-    " 77 Magic Trigger (Reflected)",
-    " 78 Fireball Trigger (Reflected)",
-    " 79 Sword Trigger (Any)",
-    " 80 Sword Trigger (White +)",
-    " 81 Sword Trigger (Magic +)",
-    " 82 Sword Trigger (Master)",
-    " 83 Sword Beam Trigger (Any)",
-    " 84 Sword Beam Trigger (White +)",
-    " 85 Sword Beam Trigger (Magic +)",
-    " 86 Sword Beam Trigger (Master)",
-    " 87 Hookshot Trigger",
-    " 88 Wand Trigger",
-    " 89 Hammer Trigger",
-    " 90 Strike Trigger",
-    " 91 Block Hole (Block -> Next)",
-    " 92 Fairy Ring (Magic)",
-    " 93 Fairy Ring (All)",
-    " 94 Trigger -> Self Only",
-    " 95 Trigger -> Self, Secret Tiles",
-    " 96 No Enemies",
-    " 97 No Ground Enemies",
-    " 98 General Purpose 1 (Scripts)",
-    " 99 General Purpose 2 (Scripts)",
-    "100 General Purpose 3 (Scripts)",
-    "101 General Purpose 4 (Scripts)",
-    "102 General Purpose 5 (Scripts)",
-    "103 Raft Bounce",
-     "104 Pushed",
-    "105 General Purpose 6 (Scripts)",
-    "106 General Purpose 7 (Scripts)",
-    "107 General Purpose 8 (Scripts)",
-    "108 General Purpose 9 (Scripts)",
-    "109 General Purpose 10 (Scripts)",
-    "110 General Purpose 11 (Scripts)",
-    "111 General Purpose 12 (Scripts)",
-    "112 General Purpose 13 (Scripts)",
-    "113 General Purpose 14 (Scripts)",
-    "114 General Purpose 15 (Scripts)",
-    "115 General Purpose 16 (Scripts)",
-    "116 General Purpose 17 (Scripts)",
-    "117 General Purpose 18 (Scripts)",
-    "118 General Purpose 19 (Scripts)",
-    "119 General Purpose 20 (Scripts)",
-    "120 Pit or Hole (Scripted)",
-    "121 Pit or Hole, Fall Down Floor (Scripted)",
-    "122 Fire or Lava (Scripted)",
-    "123 Ice (Scripted)",
-    "124 Ice, Damaging (Scripted)",
-    "125 Damage-1 (Scripted)",
-    "126 Damage-2 (Scripted)",
-    "127 Damage-4 (Scripted)",
-    "128 Damage-8 (Scripted)",
-    "119 Damage-16 (Scripted)",
-    "130 Damage-32 (Scripted)",
-    "131 Freeze Screen (Unimplemented)",
-    "132 Freeze Screen, Except FFCs (Unimplemented)",
-    "133 Freeze FFCs Only (Unimplemented)",
-    "134 Trigger LW_SCRIPT1 (Unimplemented)",
-    "135 Trigger LW_SCRIPT2 (Unimplemented)",
-    "136 Trigger LW_SCRIPT3 (Unimplemented)",
-    "137 Trigger LW_SCRIPT4 (Unimplemented)",
-    "138 Trigger LW_SCRIPT5 (Unimplemented)",
-    "139 Trigger LW_SCRIPT6 (Unimplemented)",
-    "140 Trigger LW_SCRIPT7 (Unimplemented)",
-    "141 Trigger LW_SCRIPT8 (Unimplemented)",
-    "142 Trigger LW_SCRIPT9 (Unimplemented)",
-    "143 Trigger LW_SCRIPT10 (Unimplemented)",
-    "144 Dig Spot (Scripted)",
-    "145 Dig Spot, Next (Scripted)",
-    "146 Dig Spot, Special Item (Scripted)",
-    "147 Pot, Slashable (Scripted)",
-    "148 Pot, Liftable (Scripted)",
-    "149 Pot, Slash or Lift (Scripted)",
-    "150 Rock, Lift Normal (Scripted)",
-    "151 Rock, Lift Heavy (Scripted)",
-    "152 Dropset Item (Scripted)",
-    "153 Special Item (Scripted)",
-    "154 Drop Key (Scripted)",
-    "155 Drop level-Specific Key (Scripted)",
-    "156 Drop Compass (Scripted)",
-    "157 Drop Map (Scripted)",
-    "158 Drop Bosskey (Scripted)",
-    "159 Spawn NPC (Scripted)",
-    "160 SwitchHook Spot (Scripted)",
-    "161 Sideview Ladder",
-    "162 Sideview Platform","163 Spawn No Enemies","164 Spawn All Enemies","165 Secrets->Next","166 No Mirroring","167 Unsafe Ground","168 mf168","169 mf169",
-    "170 mf170","171 mf171","172 mf172","173 mf173","174 mf174","175 mf175","176 mf176","177 mf177","178 mf178","179 mf179",
-    "180 mf180","181 mf181","182 mf182","183 mf183","184 mf184","185 mf185","186 mf186","187 mf187","188 mf188","189 mf189",
-    "190 mf190","191 mf191","192 mf192","193 mf193","194 mf194","195 mf195","196 mf196","197 mf197","198 mf198","199 mf199",
-    "200 mf200","201 mf201","202 mf202","203 mf203","204 mf204","205 mf205","206 mf206","207 mf207","208 mf208","209 mf209",
-    "210 mf210","211 mf211","212 mf212","213 mf213","214 mf214","215 mf215","216 mf216","217 mf217","218 mf218","219 mf219",
-    "220 mf220","221 mf221","222 mf222","223 mf223","224 mf224","225 mf225","226 mf226","227 mf227","228 mf228","229 mf229",
-    "230 mf230","231 mf231","232 mf232","233 mf233","234 mf234","235 mf235","236 mf236","237 mf237","238 mf238","239 mf239",
-    "240 mf240","241 mf241","242 mf242","243 mf243","244 mf244","245 mf245","246 mf246","247 mf247","248 mf248","249 mf249",
-    "250 mf250","251 mf251","252 mf252","253 mf253","254 mf254",
-    "255 Extended (Extended Flag Editor)"
 };
 
 // eMAXGUYS is defined in zdefs.h
@@ -849,7 +692,6 @@ const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1] =
     "Level 9",
 };
 
-void refresh(int32_t flags);
 void domouse();
 void init_doorcombosets();
 
@@ -884,10 +726,6 @@ int32_t playMIDI();
 int32_t stopMIDI();
 int32_t onKeyFile();
 
-int32_t onUp();
-int32_t onDown();
-int32_t onLeft();
-int32_t onRight();
 int32_t onPgUp();
 int32_t onPgDn();
 int32_t onIncreaseCSet();
@@ -1022,7 +860,7 @@ int32_t onClearQuestFilepath()
 		'y',
 		'n',
 		0,
-		lfont) == 1)
+		get_zc_font(font_lfont)) == 1)
 	{
 		ZQ_ClearQuestPath();
 		save_config_file();
@@ -1089,15 +927,11 @@ void go()
     switch(gocnt)
     {
     case 0:
-        scare_mouse();
         blit(screen,menu1,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     case 1:
-        scare_mouse();
         blit(screen,menu3,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     default:
@@ -1112,15 +946,11 @@ void comeback()
     switch(gocnt)
     {
     case 1:
-        scare_mouse();
         blit(menu1,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     case 2:
-        scare_mouse();
         blit(menu3,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-        unscare_mouse();
         break;
 
     default:
@@ -1143,7 +973,7 @@ int32_t checksave()
     else
         sprintf(buf,"Save changes to %s?",name);
 
-    switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,lfont))
+    switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,get_zc_font(font_lfont)))
     {
     case 1:
         onSave();
@@ -1167,7 +997,7 @@ int32_t onExit()
     if(checksave()==0)
         return D_O_K;
 
-    if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', lfont) == 2)
+    if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', get_zc_font(font_lfont)) == 2)
         return D_O_K;
 
     return D_CLOSE;
@@ -1302,7 +1132,6 @@ int32_t onShowDarkness()
 	else
 	{
 		refresh(rALL);
-		update_hw_screen(true);
 		if(get_bit(quest_rules,qr_FADE))
 		{
 			int32_t last = CSET(5)-1;
@@ -1322,6 +1151,7 @@ int32_t onShowDarkness()
 			fade_interpolate(RAMpal,black_palette,RAMpal,64,CSET(3),last);
 			zc_set_palette(RAMpal);
 
+			update_hw_screen(true);
 			readkey();
 
 			load_cset(RAMpal,5,5);
@@ -1330,6 +1160,7 @@ int32_t onShowDarkness()
 		else
 		{
 			loadfadepal(Color*pdLEVEL+poFADE3);
+			update_hw_screen(true);
 			readkey();
 			loadlvlpal(Color);
 		}
@@ -1338,28 +1169,7 @@ int32_t onShowDarkness()
 	return D_O_K;
 }
 
-int32_t onM()
-{
-    return D_O_K;
-}
-
-int32_t onJ()
-{
-    return D_O_K;
-}
-
-int32_t theFlagColor = 0;
-void setFlagColor()
-{
-	setFlagColor(Flag);
-}
-void setFlagColor(int32_t c)
-{
-	theFlagColor = c%16;
-    RAMpal[dvc(0)]=RAMpal[vc(c%16)];
-    zc_set_palette_range(RAMpal,dvc(0),dvc(0));
-}
-
+extern bool placing_flags;
 int32_t onIncreaseFlag()
 {
 	do
@@ -1371,10 +1181,9 @@ int32_t onIncreaseFlag()
 			Flag=0;
 		}
 	} while(!ZI.isUsableMapFlag(Flag));
-
-    setFlagColor();
-    refresh(rMENU);
-    return D_O_K;
+	
+	refresh(rMENU);
+	return D_O_K;
 }
 
 int32_t onDecreaseFlag()
@@ -1389,9 +1198,8 @@ int32_t onDecreaseFlag()
 		Flag=(Flag-1);
 	} while(!ZI.isUsableMapFlag(Flag));
 	
-    setFlagColor();
-    refresh(rMENU);
-    return D_O_K;
+	refresh(rMENU);
+	return D_O_K;
 }
 
 int32_t on0();

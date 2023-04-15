@@ -325,9 +325,11 @@ static GUI::ListData comboRulesList
 	{ "Custom Combos Work On All Layers", qr_CUSTOMCOMBOS_EVERY_LAYER, 
 		"If enabled, all layers will also be checked for custom"
 		" triggers ('Triggers' tab in the Combo Editor). Only affects weapon trigger types."},
-	{ "Slash Combos Work On Layers 1 And 2", qr_BUSHESONLAYERS1AND2, 
+	{ "Slash Combos Work On Layers 1 And 2", qr_BUSHESONLAYERS1AND2,
 		"If enabled, Bushes, Flowers, Tall Grass, Generic Combos, and"
 		" etc will work on Layers 1 and 2."},
+	{ "Pound Combos Work On Layers 1 And 2", qr_POUNDLAYERS1AND2,
+		"If enabled, Pound combos will work on Layers 1 and 2."},
 	{ "Auto Combos Work On Layer 1", qr_AUTOCOMBO_LAYER_1, 
 		"If enabled, Autowarps and Automatic Triggers will work on Layer 1." },
 	{ "Auto Combos Work On Layer 2", qr_AUTOCOMBO_LAYER_2, 
@@ -867,7 +869,13 @@ static GUI::ListData compatRulesList
 		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for it's splash sound." },
 	{ "Weapon Sparkles Inherit Properties", qr_SPARKLES_INHERIT_PROPERTIES,
 		"If enabled, sparkle weapons inherit properties such as script, type, and default defense"
-		" from the parent item." }
+		" from the parent item." },
+	{ "Bugged Layered Flags", qr_BUGGED_LAYERED_FLAGS,
+		"If enabled, flags placed on layers will 'wrap' at the edge of screens, causing odd behaviors." },
+	{ "Old FFC Bush Drops", qr_HARDCODED_FFC_BUSH_DROPS,
+		"If enabled, FFC bushes will drop a random '15% heart, 20% rupee' instead of using dropset 12." },
+	{ "Fake-solid Pushblocks", qr_MOVINGBLOCK_FAKE_SOLID,
+		"If enabled, pushblocks will not use 'real' solidity." }
 };
 
 static GUI::ListData enemiesRulesList
@@ -1099,8 +1107,8 @@ static GUI::ListData miscRulesList
 		" water, bushes/flowers/tall grass make a sound when cut, Hammer posts make"
 		" a sound when pounded, the Lens of Truth play a sound when both used and unused,"
 		" Push Blocks make a sound when pushed, Whistle Whirlwinds make a continuous sound when"
-		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Goddess Spells"
-		" (Nayru's Love, Farore's Wind, and Din's Fire) all use sound effects for everything they do."},
+		" onscreen, Boomerangs make a continuous sound when onscreen, and all 3 Divine Spells"
+		" (Divine Protection, Divine Escape, and Divine Fire) all use sound effects for everything they do."},
 	{ "Fast Heart Refill", qr_FASTFILL,
 		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
 		" If disabled, they will restore half a heart every 22 frames."},
@@ -1210,7 +1218,7 @@ static GUI::ListData miscRulesList
 		"When in a dark room with 'New Dark Rooms' enabled, lanterns will light across"
 		" the boundary between screens *during scrolling*." },
 	{ "Restarting Level always goes to DMap continue point", qr_LEVEL_RESTART_CONT_POINT,
-		"Effects like Wallmasters and Farore's Wind will go back to the DMap's"
+		"Effects like Wallmasters and Divine Escape will go back to the DMap's"
 		" continue point, rather than the last entrance point." },
 	{ "Flip 'don't restart dmap script' script warp flag", qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
 		"If enabled, the warp flag to disable restarting the dmap script when warping to the same dmap will be flipped"
@@ -1633,7 +1641,7 @@ QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*
 }
 
 static std::string searchstring;
-static int32_t scroll_pos1 = 0;
+static int32_t scroll_pos1;
 static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
 {
@@ -1927,12 +1935,12 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::RULESET:
 			call_ruleset_dlg();
 			reloadQRs();
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::RULETMP:
 			call_ruletemplate_dlg();
 			reloadQRs();
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::CHEATS:
 			call_cheats_dlg();
@@ -1946,14 +1954,14 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				popup_bugfix_dlg("dsa_compatrule2");
 				reloadQRs();
-				runner.rerun_dlg = true;
+				rerun_dlg = true;
 				return true;
 			}
 			InfoDialog("Error", "No QR String could be loaded from the clipboard").show();
 			return false;
 		case message::RERUN:
 			while(gui_mouse_b()) rest(1); //wait for mouseup
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::SEARCH:
 		{
@@ -1966,7 +1974,7 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				});
 			dlg.searchmode = true;
 			dlg.show();
-			runner.rerun_dlg = do_rerun;
+			rerun_dlg = do_rerun;
 			return do_rerun;
 		}
 		//Closing buttons

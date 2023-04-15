@@ -112,10 +112,10 @@ public:
 	virtual void draw(BITMAP *dest);
 };
 
-class dNayrusLoveShield : public decoration
+class dDivineProtectionShield : public decoration
 {
 public:
-	dNayrusLoveShield(zfix X,zfix Y,int32_t Id,int32_t Clk);
+	dDivineProtectionShield(zfix X,zfix Y,int32_t Id,int32_t Clk);
 	virtual bool animate(int32_t index);
 	virtual void realdraw(BITMAP *dest, int32_t draw_what);
 	virtual void draw(BITMAP *dest);

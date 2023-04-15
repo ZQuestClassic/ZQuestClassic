@@ -26,7 +26,6 @@ bool flash_reduction_enabled(bool check_qr = true);
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
 
-bool game_vid_mode(int32_t mode,int32_t wait);
 int32_t Z_init_timers();
 void Z_remove_timers();
 void Z_init_sound();
@@ -194,6 +193,11 @@ enum {bosCIRCLE=0, bosOVAL, bosTRIANGLE, bosSMAS, bosFADEBLACK, bosMAX};
 void go();
 void comeback();
 void dump_pal(BITMAP *dest);
+extern int game_mouse_index;
+bool sys_mouse();
+bool game_mouse();
+void custom_mouse(BITMAP* bmp, int fx, int fy, bool sys_recolor, bool user_scale);
+void recolor_mouse(BITMAP* bmp);
 bool game_vid_mode(int32_t mode,int32_t wait);
 void init_NES_mode();
 

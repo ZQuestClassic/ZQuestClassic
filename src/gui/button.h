@@ -13,13 +13,15 @@ class Button: public Widget
 public:
 	enum class type
 	{
-		BASIC, BIND_KB, BIND_KB_CLEAR
+		BASIC, BIND_KB, BIND_HOTKEY, BIND_KB_CLEAR
 	};
 	
 	Button();
 	
 	void setType(type newType);
-	void setBoundKB(int32_t* kb_ptr);
+	void setBoundKB(int* kb_ptr);
+	void setBoundHotkey(Hotkey* hotkey_ptr);
+	void setHotkeyIndx(size_t indx);
 
 	/* Sets the text to appear on the button. */
 	void setText(std::string newText);
@@ -48,13 +50,15 @@ private:
 	int32_t message;
 	std::function<void()> onPress;
 	type btnType;
-	int32_t* bound_kb;
+	int* bound_kb;
+	Hotkey* bound_hotkey;
+	size_t hotkeyindx;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
 	int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
-	void applyFont_a5(ALLEGRO_FONT* newFont) override;
+	void applyFont(FONT* newFont) override;
 };
 
 }

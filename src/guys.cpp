@@ -2819,7 +2819,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
 
 	if (dx < 0 || dx >= world_w || dy < 0 || dy >= world_h)
-		return false;
+		return true;
 	
 	// TODO: could this reuse _walkflag?
 	//_walkflag code
@@ -2918,24 +2918,26 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		if(dx < 0)
 		{
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
-			int32_t tx = (bx+dx).getFloor();
+			int mx = (bx+dx).getFloor();
+			int my = (by+dy).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, left, bx, by, kb))
+				if(scr_walkflag(mx, by+ty, special, left, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, left, bx, by, kb))
+			if(scr_walkflag(mx, ry, special, left, mx, my, kb))
 				return false;
 		}
 		else
 		{
-			int32_t tx = (rx+dx).getCeil();
+			int mx = (rx+dx).getCeil();
+			int my = (by+dy).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(tx, by+ty, special, right, bx, by, kb))
+				if(scr_walkflag(mx, by+ty, special, right, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(tx, ry, special, right, bx, by, kb))
+			if(scr_walkflag(mx, ry, special, right, mx, my, kb))
 				return false;
 		}
 	}
@@ -2944,24 +2946,26 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		if(dy < 0)
 		{
 			special = (special==spw_clipbottomright)?spw_none:special;
-			int32_t ty = (by+dy).getFloor();
+			int mx = (bx+dx).getFloor();
+			int my = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, up, bx, by, kb))
+				if(scr_walkflag(bx+tx, my, special, up, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, up, bx, by, kb))
+			if(scr_walkflag(rx, my, special, up, mx, my, kb))
 				return false;
 		}
 		else
 		{
-			int32_t ty = (ry+dy).getCeil();
+			int mx = (bx+dx).getFloor();
+			int my = (ry+dy).getCeil();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, ty, special, down, bx, by, kb))
+				if(scr_walkflag(bx+tx, my, special, down, mx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, ty, special, down, bx, by, kb))
+			if(scr_walkflag(rx, my, special, down, mx, my, kb))
 				return false;
 		}
 	}
@@ -5326,6 +5330,11 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 
 int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte unblockable, weapon* w)
 {
+	int wuid = w?w->getUID():0;
+	bool fakeweap = (w && !Lwpns.getByUID(wuid));
+	
+	if(fakeweap)
+		Lwpns.add(w);
 	std::vector<int32_t> &ev = FFCore.eventData;
 	ev.clear();
 	ev.push_back(*power*10000);
@@ -5334,7 +5343,7 @@ int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte un
 	ev.push_back(wpnId*10000);
 	ev.push_back(0);
 	ev.push_back(getUID());
-	ev.push_back(w?w->getUID():0);
+	ev.push_back(wuid);
 	
 	throwGenScriptEvent(GENSCR_EVENT_ENEMY_HIT1);
 	*power = ev[0]/10000;
@@ -5343,33 +5352,40 @@ int32_t enemy::defendNewInt(int32_t wpnId, int32_t *power, int32_t edef, byte un
 	wpnId = ev[3] / 10000;
 	bool nullify = ev[4]!=0;
 	ev.clear();
-	if(nullify) return 0;
+	int ret = 0;
+	if(!nullify)
+	{
+		ret = defendNew(wpnId, power, edef, unblockable);
+		if(ret == -1)
+		{
+			ev.push_back(*power*10000);
+			ev.push_back(edef*10000);
+			ev.push_back(unblockable*10000);
+			ev.push_back(wpnId*10000);
+			ev.push_back(0);
+			ev.push_back(getUID());
+			ev.push_back(w?w->getUID():0);
+			
+			throwGenScriptEvent(GENSCR_EVENT_ENEMY_HIT2);
+			*power = ev[0]/10000;
+			nullify = ev[4]!=0;
+			ev.clear();
+		}
+	}
+	if(fakeweap)
+		Lwpns.remove(w);
 	
-	int32_t ret = defendNew(wpnId, power, edef, unblockable);
-	if(ret != -1) return ret;
-	ev.push_back(*power*10000);
-	ev.push_back(edef*10000);
-	ev.push_back(unblockable*10000);
-	ev.push_back(wpnId*10000);
-	ev.push_back(0);
-	ev.push_back(getUID());
-	ev.push_back(w?w->getUID():0);
-	
-	throwGenScriptEvent(GENSCR_EVENT_ENEMY_HIT2);
-	*power = ev[0]/10000;
-	nullify = ev[4]!=0;
-	ev.clear();
-	if(nullify) return 0;
-	return -1;
+	return nullify ? 0 : ret;
 }
 
-int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w)
+int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w, weapon* realweap)
 {
+	if(!realweap) realweap = w;
 	int32_t wid = getWeaponID(w);
 
 	int32_t edef = resolveEnemyDefence(w);
 	if(QHeader.zelda_version > 0x250)
-		return defendNewInt(wid, power,  edef, w->unblockable, w);
+		return defendNewInt(wid, power,  edef, w->unblockable, realweap);
 	switch(wid)
 	{
 		case wScript1: case wScript2: case wScript3: case wScript4: case wScript5:
@@ -5380,7 +5396,7 @@ int32_t enemy::defenditemclassNew(int32_t wpnId, int32_t *power, weapon *w)
 			return -1;
 
 		default:
-			return defendNewInt(wid, power,  edef, w->unblockable, w);
+			return defendNewInt(wid, power,  edef, w->unblockable, realweap);
 	}
 }
 
@@ -5723,12 +5739,11 @@ int32_t enemy::defenditemclass(int32_t wpnId, int32_t *power)
 // -1: damage (if any) dealt
 // 1: blocked
 // 0: weapon passes through unhindered
-int32_t enemy::takehit(weapon *w)
+int32_t enemy::takehit(weapon *w, weapon* realweap)
 {
 	if(fallclk||drownclk) return 0;
+	if(!realweap) realweap = w;
 	int32_t wpnId = w->id;
-	//al_trace("takehit() wpnId is %d\n",wpnId);
-	//if ( wpnId == wWhistle ) al_trace("Whistle weapon in %s\n", "takehit");
 	int32_t power = w->power;
 	int32_t wpnx = w->x;
 	int32_t wpny = w->y;
@@ -5736,34 +5751,10 @@ int32_t enemy::takehit(weapon *w)
 	int32_t wpnDir;
 	int32_t parent_item = w->parentitem;
 	
-	//if ( parent_item > -1 )
-	//{
-	//	if ( itemsbuf[parent_item].useweapon > 0 /*&& wpnId != wWhistle*/ )
-	//	{
-	//		wpnId = itemsbuf[parent_item].useweapon;
-	//	}
-		
-	//}
-	//if ( parent_item == -1 && w->ScriptGenerated )
-	//{
-	//	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
-	//	{
-	//		wpnId = w->useweapon;
-	//	}
-		
-	//}
-	//al_trace("takehit wpnId is: %d\n",wpnId);
-   
-	//Shoud be set from idata from the weapon::weaon constructor. -Z
 	if ( w->useweapon > 0 /*&& wpnId != wWhistle*/ )
 	{
 		wpnId = w->useweapon;
 	}
-	
-	//al_trace("takehit() useweapon is %d\n",itemsbuf[parent_item].useweapon);
-	
-	//Weapon Editor -Z
-	
 	
 	// If it's a boomerang that just bounced, use the opposite direction;
 	// otherwise, it might bypass a shield. This probably won't handle
@@ -5775,9 +5766,7 @@ int32_t enemy::takehit(weapon *w)
 		wpnDir = w->dir;
 		
 	if(dying || clk<0 || hclk>0 || superman)
-	{
 		return 0;
-	}
 	
 	//Prevent boomerang from writing to hitby[] for more than one frame.
 	//This also prevents stunlock.
@@ -5926,7 +5915,7 @@ int32_t enemy::takehit(weapon *w)
 		{
 			w->power = power = itemsbuf[parent_item].misc5;
 				
-			int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, w);
+			int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 			
 			if(def <= 0) 
 			{
@@ -5988,7 +5977,7 @@ int32_t enemy::takehit(weapon *w)
 	case wBrang:
 	{
 		//int32_t def = defendNew(wpnId, &power, edefBRANG, w);
-		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, w);
+		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		//preventing stunlock might be best, here. -Z
 		if(def >= 0) return def;
 		
@@ -6017,7 +6006,7 @@ int32_t enemy::takehit(weapon *w)
 	case wHookshot:
 	{
 		//int32_t def = defendNew(wpnId, &power, edefHOOKSHOT,w);
-		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, w);
+		int32_t def = defendNewInt(wpnId, &power,  resolveEnemyDefence(w), w->unblockable, realweap);
 		
 		if(def >= 0) return def;
 		
@@ -6066,7 +6055,7 @@ fsparkle:
 	default:
 		// Work out the defenses!
 	{
-		int32_t def = defenditemclassNew(wpnId, &power, w); 
+		int32_t def = defenditemclassNew(wpnId, &power, w, realweap); 
 		
 		if(def >= 0)
 			return def;
@@ -6109,23 +6098,7 @@ hitclock:
 		fading=fade_blue_poof;
 	}
 	
-   
-	/*
-	if( hitsfx > 0 ) //user set hit sound. 
-	{
-	if ( !dying ) //Don't play the hit sound when dying. 
-		sfx(hitsfx, pan(int32_t(x)));
-	}
-	else sfx(WAV_EHIT, pan(int32_t(x))); //Don't play this one if the user sets a custom sound!
-*/
-/*
-	if( hitsfx > 0 ) //A sound is set. 
-	{
-	if ( !dying ) //Don't play the hit sound when dying. 
-		sfx(hitsfx, pan(int32_t(x)));
-	}
-*/
-	 if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 )) //2.53 Gamma 2 and later
+	if ( FFCore.getQuestHeaderInfo(vZelda) > 0x250 || ( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) > 31 )) //2.53 Gamma 2 and later
 	{
 		if( hitsfx > 0 ) //user-set hit sound. 
 		{
@@ -6136,8 +6109,8 @@ hitclock:
 	}
 	else //2.50.2 or earlier
 	{
-	sfx(WAV_EHIT, pan(int32_t(x)));
-	sfx(hitsfx, pan(int32_t(x)));
+		sfx(WAV_EHIT, pan(int32_t(x)));
+		sfx(hitsfx, pan(int32_t(x)));
 	}
 	if(family==eeGUY)
 		sfx(WAV_EDEAD, pan(int32_t(x)));
@@ -10097,7 +10070,7 @@ void eFire::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eFire::takehit(weapon *w)
+int32_t eFire::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t wpnDir = w->dir;
@@ -10113,7 +10086,7 @@ int32_t eFire::takehit(weapon *w)
 			o_tile=s_tile;
 	}
 	
-	int32_t ret = enemy::takehit(w);
+	int32_t ret = enemy::takehit(w,realweap);
 	return ret;
 }
 
@@ -10211,7 +10184,7 @@ void eOther::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eOther::takehit(weapon *w)
+int32_t eOther::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t wpnDir = w->dir;
@@ -10227,7 +10200,7 @@ int32_t eOther::takehit(weapon *w)
 			o_tile=s_tile;
 	}
 	
-	int32_t ret = enemy::takehit(w);
+	int32_t ret = enemy::takehit(w,realweap);
 	return ret;
 }
 
@@ -10324,7 +10297,7 @@ void eScript::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eScript::takehit(weapon *w)
+int32_t eScript::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t wpnDir = w->dir;
@@ -10340,7 +10313,7 @@ int32_t eScript::takehit(weapon *w)
 			o_tile=s_tile;
 	}
 	
-	int32_t ret = enemy::takehit(w);
+	int32_t ret = enemy::takehit(w,realweap);
 	return ret;
 }
 
@@ -10438,7 +10411,7 @@ void eFriendly::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eFriendly::takehit(weapon *w)
+int32_t eFriendly::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t wpnDir = w->dir;
@@ -10454,7 +10427,7 @@ int32_t eFriendly::takehit(weapon *w)
 			o_tile=s_tile;
 	}
 	
-	int32_t ret = enemy::takehit(w);
+	int32_t ret = enemy::takehit(w,realweap);
 	return ret;
 }
 
@@ -11101,7 +11074,7 @@ void ePeahat::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t ePeahat::takehit(weapon *w)
+int32_t ePeahat::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t enemyHitWeapon = w->parentitem;
@@ -11117,7 +11090,7 @@ int32_t ePeahat::takehit(weapon *w)
 	// Time for a kludge...
 	int32_t s = superman;
 	superman = 0;
-	int32_t ret = enemy::takehit(w);
+	int32_t ret = enemy::takehit(w,realweap);
 	superman = s;
 	
 	// Anyway...
@@ -11993,7 +11966,7 @@ void eTrap::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eTrap::takehit(weapon*)
+int32_t eTrap::takehit(weapon*,weapon*)
 {
 	return 0;
 }
@@ -12157,7 +12130,7 @@ void eTrap2::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eTrap2::takehit(weapon*)
+int32_t eTrap2::takehit(weapon*,weapon*)
 {
 	return 0;
 }
@@ -12296,7 +12269,7 @@ void eRock::draw(BITMAP *dest)
 	}
 }
 
-int32_t eRock::takehit(weapon*)
+int32_t eRock::takehit(weapon*,weapon*)
 {
 	return 0;
 }
@@ -12454,7 +12427,7 @@ void eBoulder::draw(BITMAP *dest)
 	}
 }
 
-int32_t eBoulder::takehit(weapon*)
+int32_t eBoulder::takehit(weapon*,weapon*)
 {
 	return 0;
 }
@@ -12691,7 +12664,7 @@ void eNPC::draw(BITMAP *dest)
 	enemy::draw(dest);
 }
 
-int32_t eNPC::takehit(weapon*)
+int32_t eNPC::takehit(weapon*,weapon*)
 {
 	return 0;
 }
@@ -13805,7 +13778,7 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 	yofs=tempy;
 }
 
-int32_t eStalfos::takehit(weapon *w)
+int32_t eStalfos::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t wpnDir = w->dir;
@@ -13821,7 +13794,7 @@ int32_t eStalfos::takehit(weapon *w)
 			o_tile=s_tile;
 	}
 	
-	int32_t ret = enemy::takehit(w);
+	int32_t ret = enemy::takehit(w,realweap);
 	
 	if(sclk && dmisc2==e2tSPLITHIT)
 		sclk+=128; //Fuck these arbitrary values with no explanation. Fuck vires, too. -Z
@@ -14886,7 +14859,7 @@ void eDodongo::draw(BITMAP *dest)
 	
 }
 
-int32_t eDodongo::takehit(weapon *w)
+int32_t eDodongo::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t power = w->power;
@@ -15033,7 +15006,7 @@ void eDodongo2::draw(BITMAP *dest)
 	yofs=tempy;
 }
 
-int32_t eDodongo2::takehit(weapon *w)
+int32_t eDodongo2::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t power = w->power;
@@ -15573,13 +15546,13 @@ void eGohma::draw(BITMAP *dest)
 	}
 }
 
-int32_t eGohma::takehit(weapon *w)
+int32_t eGohma::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	int32_t power = w->power;
 	int32_t wpnx = w->x;
 	int32_t wpnDir = w->dir;
-	int32_t def = defenditemclassNew(wpnId, &power, w);
+	int32_t def = defenditemclassNew(wpnId, &power, w, realweap);
 	
 	if(def < 0)
 	{
@@ -15590,7 +15563,7 @@ int32_t eGohma::takehit(weapon *w)
 		}
 	}
 	
-	return enemy::takehit(w);
+	return enemy::takehit(w, realweap);
 }
 
 eLilDig::eLilDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
@@ -15879,7 +15852,7 @@ void eBigDig::draw(BITMAP *dest)
 	yofs+=8;
 }
 
-int32_t eBigDig::takehit(weapon *w)
+int32_t eBigDig::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	
@@ -16017,7 +15990,7 @@ bool eGanon::animate(int32_t index)
 }
 
 
-int32_t eGanon::takehit(weapon *w)
+int32_t eGanon::takehit(weapon *w, weapon* realweap)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	int32_t wpnId = w->id;
@@ -16058,7 +16031,7 @@ int32_t eGanon::takehit(weapon *w)
 		//otherwise, resolve his defence. 
 		else 
 		{
-				int32_t def = enemy::takehit(w); //This works, but it instantly kills him if it does enough damage.
+				int32_t def = enemy::takehit(w,realweap); //This works, but it instantly kills him if it does enough damage.
 			if(hp>0)
 			{
 				misc=1;
@@ -16321,7 +16294,7 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 }
 
 
-int32_t eGanon::takehit(weapon *w)
+int32_t eGanon::takehit(weapon *w, weapon* realweap)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	int32_t wpnId = w->id;
@@ -16751,9 +16724,9 @@ bool esMoldorm::animate(int32_t index)
 	return enemy::animate(index);
 }
 
-int32_t esMoldorm::takehit(weapon *w)
+int32_t esMoldorm::takehit(weapon *w, weapon* realweap)
 {
-	if(enemy::takehit(w))
+	if(enemy::takehit(w,realweap))
 		return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
 		
 	return 0;
@@ -17114,9 +17087,9 @@ bool esLanmola::animate(int32_t index)
 	return enemy::animate(index);
 }
 
-int32_t esLanmola::takehit(weapon *w)
+int32_t esLanmola::takehit(weapon *w, weapon* realweap)
 {
-	if(enemy::takehit(w))
+	if(enemy::takehit(w,realweap))
 		return (w->id==wSBomb) ? 1 : 2;                         // force it to wait a frame before checking sword attacks again
 		
 	return 0;
@@ -17403,7 +17376,7 @@ bool eManhandla::animate(int32_t index)
 }
 
 
-int32_t eManhandla::takehit(weapon *w)
+int32_t eManhandla::takehit(weapon *w, weapon* realweap)
 {
 	int32_t wpnId = w->id;
 	
@@ -17865,7 +17838,7 @@ bool eGleeok::animate(int32_t index)
 	return enemy::animate(index);
 }
 
-int32_t eGleeok::takehit(weapon*)
+int32_t eGleeok::takehit(weapon*,weapon*)
 {
 	return 0;
 }
@@ -18175,7 +18148,7 @@ bool esGleeok::animate(int32_t index)
 	return enemy::animate(index);
 }
 
-int32_t esGleeok::takehit(weapon *w)
+int32_t esGleeok::takehit(weapon *w, weapon* realweap)
 {
 	if ((editorflags & ENEMY_FLAG7) && misc == 1)
 	{
@@ -18214,7 +18187,7 @@ int32_t esGleeok::takehit(weapon *w)
 	}
 	else
 	{
-		int32_t ret = enemy::takehit(w);
+		int32_t ret = enemy::takehit(w,realweap);
 		
 		if(ret==-1)
 			return 2; // force it to wait a frame before checking sword attacks again
@@ -19652,11 +19625,11 @@ void addEwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power
 	if (fakez > 0) ((weapon*)(Ewpns.spr(Ewpns.Count()-1)))->fakez = fakez;
 }
 
-int32_t hit_enemy(int32_t index, int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon)
+int32_t hit_enemy(int32_t index, int32_t wpnId,int32_t power,int32_t wpnx,int32_t wpny,int32_t dir, int32_t enemyHitWeapon, weapon* realweap)
 {
 	// Kludge
 	weapon *w = new weapon((zfix)wpnx,(zfix)wpny,(zfix)0,wpnId,0,power,dir,enemyHitWeapon,-1,false);
-	int32_t ret= ((enemy*)guys.spr(index))->takehit(w);
+	int32_t ret = ((enemy*)guys.spr(index))->takehit(w,realweap);
 	delete w;
 	return ret;
 }
@@ -22281,11 +22254,9 @@ void moneysign()
 {
 	int dx = z3_get_region_relative_dx(currscr)*256;
 	int dy = z3_get_region_relative_dy(currscr)*176;
-
 	additem(dx+48,dy+108,iRupy,ipDUMMY);
-	//  textout(scrollbuf,zfont,"X",64,112,CSET(0)+1);
 	set_clip_state(pricesdisplaybuf, 0);
-	textout_ex(pricesdisplaybuf,zfont,"X",64,112,CSET(0)+1,-1);
+	textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1,-1);
 }
 
 void putprices(bool sign)
@@ -22321,7 +22292,7 @@ void putprices(bool sign)
 			
 			int32_t l=(int32_t)strlen(buf);
 			set_clip_state(pricesdisplaybuf, 0);
-			textout_ex(pricesdisplaybuf,zfont,buf,x-(l>3?(l-3)<<3:0),112,CSET(0)+1,-1);
+			textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),buf,x-(l>3?(l-3)<<3:0),112,CSET(0)+1,-1);
 		}
 		
 		x+=step;
@@ -22968,7 +22939,18 @@ bool parsemsgcode()
 			nameptr = namebuf;
 			return true;
 		}
-			
+		
+		case MSGC_FONT:
+		{
+			int fontid = grab_next_argument();
+			int oh = text_height(msgfont);
+			msgfont = get_zc_font(fontid);
+			int nh = text_height(msgfont);
+			int mh = std::max(oh,nh);
+			if(mh > ssc_tile_hei_buf)
+				ssc_tile_hei_buf = mh;
+			return true;
+		}
 		case MSGC_DRAWTILE:
 		{
 			int32_t tl = grab_next_argument();
@@ -23307,7 +23289,7 @@ void putmsg()
 					}
 					if(!msgstr)
 					{
-						msgfont=zfont;
+						msgfont=get_zc_font(font_zfont);
 						
 						if(tmpscr.room!=rGRUMBLE)
 							blockpath=false;

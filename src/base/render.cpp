@@ -1,28 +1,24 @@
 #include "render.h"
-#include "util.h"
-#include <fmt/format.h>
+#include "zdefs.h"
+#include "jwin_a5.h"
 
 RenderTreeItem rti_dialogs;
 
 extern int32_t zq_screen_w, zq_screen_h;
-bool use_linear_bitmaps();
 unsigned char info_opacity = 255;
-static int freezecount = 0;
-void freeze_render()
-{
-	++freezecount;
-}
-void unfreeze_render()
-{
-	if(freezecount > 0)
-		--freezecount;
-}
-bool render_frozen()
-{
-	return freezecount > 0;
-}
-
-
+bool use_linear_bitmaps();
+ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0),
+	AL5_BLACK = al_map_rgb(0,0,0),
+	AL5_WHITE = al_map_rgb(255,255,255),
+	AL5_YELLOW = al_map_rgb(255,255,0),
+	AL5_PINK = al_map_rgb(255,0,255),
+	AL5_DGRAY = al_map_rgb(85,85,85),
+	AL5_LGRAY = al_map_rgb(170,170,170),
+	AL5_BLUE = al_map_rgb(85,85,255),
+	AL5_LRED = al_map_rgb(255,85,85),
+	AL5_DRED = al_map_rgb(178,36,36),
+	AL5_LGREEN = al_map_rgb(85,255,85),
+	AL5_LAQUA = al_map_rgb(85,255,255);
 void set_bitmap_create_flags(bool preserve_texture)
 {
 	int flags = ALLEGRO_CONVERT_BITMAP;
@@ -33,45 +29,9 @@ void set_bitmap_create_flags(bool preserve_texture)
 	al_set_new_bitmap_flags(flags);
 }
 
-ALLEGRO_COLOR a5colors[256];
-void zc_set_palette(PALETTE pal)
-{
-	for(int q = 0; q < 256; ++q)
-		a5colors[q] = a5color(pal[q]);
-	set_palette(pal);
-}
-void zc_set_palette_range(PALETTE pal, int start, int end)
-{
-	if(start>end) zc_swap(start,end);
-	for(int q = start; q <= end; ++q)
-		a5colors[q] = a5color(pal[q]);
-	set_palette_range(pal,start,end,false);
-}
-ALLEGRO_COLOR a5color(RGB c, unsigned char alpha)
-{
-	return al_map_rgba(c.r*4,c.g*4,c.b*4,alpha);
-}
-ALLEGRO_COLOR a5color(int index, unsigned char alpha)
-{
-	if(alpha==255) return a5colors[index];
-	unsigned char r,g,b;
-	al_unmap_rgb(a5colors[index],&r,&g,&b);
-	return al_map_rgba(r,g,b,alpha);
-}
-ALLEGRO_COLOR hexcolor(int hexval, unsigned char alpha)
-{
-	return al_map_rgba((hexval>>16)&0xFF,(hexval>>8)&0xFF,(hexval)&0xFF,alpha);
-}
-int a5tohex(ALLEGRO_COLOR c)
-{
-	unsigned char r,g,b;
-	al_unmap_rgb(c,&r,&g,&b);
-	return (r<<16)|(g<<8)|b;
-}
-
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
 {
-	if(bmp && bmp != al_get_target_bitmap())
+	if(bmp)
 	{
 		ALLEGRO_STATE old_state;
 		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
@@ -82,58 +42,18 @@ void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
 		
 		al_restore_state(&old_state);
 	}
-	else
-	{
-		al_clear_to_color(col);
-	}
+	else al_clear_to_color(col);
+}
+void clear_a5_bmp(ALLEGRO_BITMAP* bmp)
+{
+	clear_a5_bmp(AL5_INVIS,bmp);
 }
 
-void collide_clip_rect(int& x, int& y, int& w, int& h)
+ALLEGRO_BITMAP* create_a5_bitmap(int w, int h)
 {
-	int ox,oy,ow,oh;
-	al_get_clipping_rectangle(&ox,&oy,&ow,&oh);
-	if(x >= ox+ow || y >= oy+oh || x+w <= ox || y+h <= oy)
-	{
-		x=y=w=h=0;
-		return;
-	}
-	if(x < ox)
-	{
-		w -= ox-x;
-		x = ox;
-	}
-	if(y < oy)
-	{
-		h -= oy-y;
-		y = oy;
-	}
-	if(y+h > oy+oh)
-		h = (oy+oh)-y;
-	if(x+w > ox+ow)
-		w = (ox+ow)-x;
-	
-	if(w <= 0 || h <= 0)
-		x=y=w=h=0;
-}
-
-void clear_a5_clip_rect(ALLEGRO_BITMAP* bmp)
-{
-	if(bmp && bmp != al_get_target_bitmap())
-	{
-		ALLEGRO_STATE old_state;
-		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-		
-		al_set_target_bitmap(bmp);
-		
-		al_set_clipping_rectangle(0, 0, al_get_bitmap_width(bmp)-1, al_get_bitmap_height(bmp)-1);
-		
-		al_restore_state(&old_state);
-	}
-	else
-	{
-		bmp = al_get_target_bitmap();
-		al_set_clipping_rectangle(0, 0, al_get_bitmap_width(bmp)-1, al_get_bitmap_height(bmp)-1);
-	}
+	ALLEGRO_BITMAP* bitmap = al_create_bitmap(w, h);
+	clear_a5_bmp(bitmap);
+	return bitmap;
 }
 
 RenderTreeItem::~RenderTreeItem()
@@ -154,6 +74,103 @@ RenderTreeItem::~RenderTreeItem()
 			delete child;
 		}
 	}
+}
+
+ALLEGRO_COLOR a5colors[256];
+uint32_t zc_backend_palette[256];
+static int backend_fmt = ALLEGRO_PIXEL_FORMAT_ABGR_8888;
+void _init_render(int fmt)
+{
+	backend_fmt = fmt;
+}
+uint32_t get_backend_a5_col(RGB const& c)
+{
+	unsigned char r = c.r*4, g = c.g*4, b = c.b*4, a = 255;
+	switch(backend_fmt)
+	{
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:
+			return r | (g << 8) | (b << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:
+			return r | (g << 8) | (b << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+			return b | (g << 8) | (r << 16) | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+			return a | (b << 8) | (g << 16) | (r << 24);
+	}
+}
+uint32_t repl_a5_backend_alpha(uint32_t back_col, unsigned char a)
+{
+	switch(backend_fmt)
+	{
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888: default:
+		case ALLEGRO_PIXEL_FORMAT_ABGR_8888_LE:
+		case ALLEGRO_PIXEL_FORMAT_ARGB_8888:
+			back_col &= ~(0xFF << 24);
+			return back_col | (a << 24);
+		case ALLEGRO_PIXEL_FORMAT_RGBA_8888:
+			back_col &= ~(0xFF);
+			return a | back_col;
+	}
+}
+void load_palette(uint32_t* backpal, ALLEGRO_COLOR* backcols, PALETTE pal, int start, int end)
+{
+	if(start>end) zc_swap(start,end);
+	for(int q = start; q <= end; ++q)
+	{
+		if(backcols) backcols[q] = a5color(pal[q]);
+		if(backpal) backpal[q] = get_backend_a5_col(pal[q]);
+	}
+}
+
+void zc_set_palette(PALETTE pal)
+{
+	load_palette(zc_backend_palette, a5colors, pal);
+	set_palette(pal);
+}
+void zc_set_palette_range(PALETTE pal, int start, int end, bool)
+{
+	load_palette(zc_backend_palette, a5colors, pal, start, end);
+	set_palette_range(pal,start,end,false);
+}
+
+void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind,uint32_t* backpal)
+{
+	if(!backpal) backpal = zc_backend_palette;
+	ALLEGRO_BITMAP* buf = al_create_bitmap(w,h);
+	ALLEGRO_LOCKED_REGION * lr;
+	uint8_t * line_8;
+	uint32_t * line_32;
+	int x, y;
+
+	lr = al_lock_bitmap(buf, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+	if(lr)
+	{
+		line_8 = (uint8_t*)lr->data;
+		line_32 = (uint32_t*)lr->data;
+		for(y = 0; y < h; y++)
+		{
+			if(y+sy >= src->h) break;
+			for(x = 0; x < w; x++)
+			{
+				if(x+sx >= src->w) break;
+				int index = src->line[y+sy][x+sx];
+				if (index == maskind)
+					line_32[x] = 0;
+				else
+					line_32[x] = backpal[index];
+			}
+			line_8 += lr->pitch;
+			line_32 = (uint32_t *)line_8;
+		}
+		al_unlock_bitmap(buf);
+	}
+	else
+	{
+		al_destroy_bitmap(buf);
+		return;
+	}
+	
+	al_draw_bitmap(buf, dx, dy, 0);
 }
 
 static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
@@ -217,135 +234,128 @@ void render_tree_draw(RenderTreeItem* rti)
 	render_tree_draw_item(rti);
 }
 
+namespace MouseSprite
+{
+	static int active_mouse_sprite = -1;
+	ALLEGRO_MOUSE_CURSOR* zc_mouse_sprites[MAX_MOUSESPRITE] = {nullptr};
+	ALLEGRO_MOUSE_CURSOR* nullmouse = nullptr;
+	static void set_nullmouse()
+	{
+		if(!nullmouse)
+		{
+			static char mouse_arrow_data[16*16] =
+			{
+				2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 1, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				2, 1, 2, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 2, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0,
+				0, 0, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0
+			};
+			ALLEGRO_COLOR white = al_map_rgb(255,255,255);
+			ALLEGRO_COLOR black = al_map_rgb(0,0,0);
+			ALLEGRO_BITMAP* bmp = al_create_bitmap(16,16);
+			auto* lock = al_lock_bitmap(bmp, ALLEGRO_PIXEL_FORMAT_ANY, ALLEGRO_LOCK_WRITEONLY);
+			for(int y = 0; y < 16; ++y)
+			{
+				for(int x = 0; x < 16; ++x)
+				{
+					ALLEGRO_COLOR* col = nullptr;
+					switch(mouse_arrow_data[x+y*16])
+					{
+						case 1: col = &white; break;
+						case 2: col = &black; break;
+					}
+					if(col)
+						al_put_pixel(x, y, *col);
+				}
+			}
+			al_unlock_bitmap(bmp);
+			nullmouse = al_create_mouse_cursor(bmp, 1, 1);
+			al_destroy_bitmap(bmp);
+		}
+		active_mouse_sprite = -1;
+		al_show_mouse_cursor(all_get_display());
+		al_set_mouse_cursor(all_get_display(), nullmouse);
+	}
+	void assign(int index, BITMAP* spr, int xf, int yf)
+	{
+		if(index < 0 || index >= MAX_MOUSESPRITE)
+			return;
+		ALLEGRO_MOUSE_CURSOR* old_cursor = zc_mouse_sprites[index];
+		all_set_transparent_palette_index(0);
+		ALLEGRO_BITMAP* a5_mouse_sprite = all_get_a5_bitmap(spr);
+		zc_mouse_sprites[index] = al_create_mouse_cursor(a5_mouse_sprite, xf, yf);
+		al_destroy_bitmap(a5_mouse_sprite);
+		
+		if(index == active_mouse_sprite)
+			set(index);
+		
+		if(old_cursor)
+			al_destroy_mouse_cursor(old_cursor);
+	}
+	bool set(int index)
+	{
+		if(index < 0 || index >= MAX_MOUSESPRITE)
+		{
+			active_mouse_sprite = -1;
+			set_nullmouse();
+			return true;
+		}
+		if(index == active_mouse_sprite) return true;
+		if(zc_mouse_sprites[index])
+		{
+			active_mouse_sprite = index;
+			al_show_mouse_cursor(all_get_display());
+			al_set_mouse_cursor(all_get_display(), zc_mouse_sprites[index]);
+			return true;
+		}
+		return false;
+	}
+	void clear(int index)
+	{
+		if(index < 0 || index >= MAX_MOUSESPRITE)
+			return;
+		if(zc_mouse_sprites[index])
+			al_destroy_mouse_cursor(zc_mouse_sprites[index]);
+		zc_mouse_sprites[index] = nullptr;
+	}
+}
 
 BITMAP* zqdialog_bg_bmp = nullptr;
-RenderTreeItem* active_dlg_rti = nullptr;
-RenderTreeItem* active_a5_dlg_rti = nullptr;
-RenderTreeItem* active_a4_dlg_rti = nullptr;
-
-void save_debug_bitmaps(char const* pref)
+static RenderTreeItem* active_dlg_rti = nullptr;
+void popup_zqdialog_start()
 {
-	std::string path = fmt::format("tmp/{}",pref?pref:"");
-	util::create_path(path.c_str());
-	PALETTE tpal;
-	get_palette(tpal);
-	if(active_a4_dlg_rti)
-	{
-		save_bitmap(fmt::format("{}/a4.bmp",path).c_str(),active_a4_dlg_rti->a4_bitmap,tpal);
-		al_save_bitmap(fmt::format("{}/a4_render.bmp",path).c_str(),active_a4_dlg_rti->bitmap);
-	}
-	if(active_a5_dlg_rti)
-	{
-		al_save_bitmap(fmt::format("{}/a5.bmp",path).c_str(),active_a5_dlg_rti->bitmap);
-	}
-	if(active_dlg_rti&&active_dlg_rti->children.size())
-	{
-		int q = 1;
-		for(RenderTreeItem* rti : active_dlg_rti->children)
-		{
-			if(rti->a4_bitmap)
-			{
-				save_bitmap(fmt::format("{}/layer_{}_a4.bmp",path,q).c_str(),rti->a4_bitmap,tpal);
-				al_save_bitmap(fmt::format("{}/layer_{}_a4_render.bmp",path,q).c_str(),rti->bitmap);
-			}
-			else if(rti->bitmap)
-			{
-				al_save_bitmap(fmt::format("{}/layer_{}_a5.bmp",path,q).c_str(),rti->bitmap);
-			}
-			++q;
-		}
-	}
-}
-
-static void pop_active_rti()
-{
-	if(active_dlg_rti == active_a4_dlg_rti)
-		active_a4_dlg_rti = nullptr;
-	if(active_dlg_rti == active_a5_dlg_rti)
-		active_a5_dlg_rti = nullptr;
-	active_dlg_rti = nullptr;
-	rti_dialogs.children.pop_back();
-	
-	if(rti_dialogs.children.size())
-	{
-		active_dlg_rti = rti_dialogs.children.back();
-		if(active_dlg_rti->a4_bitmap)
-		{
-			active_a4_dlg_rti = active_dlg_rti;
-			active_a4_dlg_rti->freeze_a4_bitmap_render = false;
-		}
-		else active_a5_dlg_rti = active_dlg_rti;
-		
-		if(!active_a5_dlg_rti && rti_dialogs.children.size() > 1)
-		{
-			auto* rti = rti_dialogs.children[rti_dialogs.children.size()-2];
-			if(!rti->a4_bitmap)
-				active_a5_dlg_rti = rti;
-		}
-	}
-}
-int get_zqdialog_a4_clear_color()
-{
-	if(active_a4_dlg_rti)
-		return active_dlg_rti->clear_color();
-	return 0;
-}
-void clear_zqdialog_a4()
-{
-	if(active_a4_dlg_rti)
-		clear_to_color(active_a4_dlg_rti->a4_bitmap, active_a4_dlg_rti->clear_color());
-}
-
-void get_zqdialog_offset(int&x, int&y, int&w, int&h)
-{
-	if(active_dlg_rti)
-	{
-		x = active_dlg_rti->transform.x;
-		y = active_dlg_rti->transform.y;
-		if(active_dlg_rti->bitmap)
-		{
-			w = al_get_bitmap_width(active_dlg_rti->bitmap);
-			h = al_get_bitmap_height(active_dlg_rti->bitmap);
-		}
-	}
-	else
-	{
-		x=0;
-		y=0;
-		w=zq_screen_w;
-		h=zq_screen_h;
-	}
-}
-
-void popup_zqdialog_start(int x, int y, int w, int h, int transp)
-{
-	if(w < 0) w = zq_screen_w;
-	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
-	BITMAP* tmp_bmp = create_bitmap_ex(8, w, h);
+	BITMAP* tmp_bmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
 	
 	if(tmp_bmp)
 	{
-		if(transp > 0)
-			clear_to_color(tmp_bmp, transp);
-		else clear_bitmap(tmp_bmp);
-		show_mouse(tmp_bmp);
+		clear_bitmap(tmp_bmp);
 		screen = tmp_bmp;
 		
 		RenderTreeItem* rti = new RenderTreeItem();
-		set_bitmap_create_flags(true);
-		rti->bitmap = al_create_bitmap(w, h);
+		set_bitmap_create_flags(false);
+		rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
 		rti->a4_bitmap = tmp_bmp;
+		rti->transparency_index = 0xFF;
+		clear_to_color(tmp_bmp,0xFF);
+		rti->visible = true;
 		rti->owned = true;
-		rti->transparency_index = transp;
-		rti->transform.x = x;
-		rti->transform.y = y;
 		rti_dialogs.children.push_back(rti);
 		rti_dialogs.visible = true;
-		if(active_a4_dlg_rti)
-			active_a4_dlg_rti->freeze_a4_bitmap_render = true;
-		active_dlg_rti = active_a4_dlg_rti = rti;
+		active_dlg_rti = rti;
 		al_set_new_bitmap_flags(0);
 	}
 	else
@@ -358,84 +368,43 @@ void popup_zqdialog_end()
 {
 	if (active_dlg_rti)
 	{
-		show_mouse(NULL);
-		
 		RenderTreeItem* to_del = active_dlg_rti;
-		
-		pop_active_rti();
-		
-		screen = active_a4_dlg_rti ? active_a4_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
-		if(rti_dialogs.children.empty())
+		rti_dialogs.children.pop_back();
+		if(rti_dialogs.children.size())
+		{
+			active_dlg_rti = rti_dialogs.children.back();
+			screen = active_dlg_rti->a4_bitmap;
+		}
+		else
+		{
+			active_dlg_rti = nullptr;
+			screen = zqdialog_bg_bmp;
 			zqdialog_bg_bmp = nullptr;
-		
-		show_mouse(screen);
-		delete to_del;
-	}
-	position_mouse_z(0);
-}
-
-void popup_zqdialog_blackout(int x, int y, int w, int h, int c)
-{
-	if(w < 0) w = zq_screen_w;
-	if(h < 0) h = zq_screen_h;
-	if(!zqdialog_bg_bmp)
-		zqdialog_bg_bmp = screen;
-	
-	RenderTreeItem* rti = new RenderTreeItem();
-	set_bitmap_create_flags(true);
-	rti->bitmap = al_create_bitmap(w, h);
-	rti->owned = true;
-	rti->transform.x = x;
-	rti->transform.y = y;
-	rti_dialogs.children.push_back(rti);
-	rti_dialogs.visible = true;
-	active_dlg_rti = active_a5_dlg_rti = rti;
-	al_set_new_bitmap_flags(0);
-	
-	clear_a5_bmp(a5color(c), rti->bitmap);
-}
-
-void popup_zqdialog_blackout_end()
-{
-	if (rti_dialogs.children.size())
-	{
-		show_mouse(NULL);
-		
-		RenderTreeItem* to_del = active_dlg_rti;
-		pop_active_rti();
-		
-		screen = active_a4_dlg_rti ? active_a4_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
-		if(rti_dialogs.children.empty())
-			zqdialog_bg_bmp = nullptr;
-		
-		show_mouse(screen);
+		}
 		delete to_del;
 	}
 	position_mouse_z(0);
 }
 
 static std::vector<ALLEGRO_STATE> old_a5_states;
-void popup_zqdialog_start_a5(int x, int y, int w, int h)
+void popup_zqdialog_start_a5()
 {
-	if(w < 0) w = zq_screen_w;
-	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
 	
 	RenderTreeItem* rti = new RenderTreeItem();
 	set_bitmap_create_flags(true);
-	rti->bitmap = al_create_bitmap(w, h);
+	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
+	rti->visible = true;
 	rti->owned = true;
-	rti->transform.x = x;
-	rti->transform.y = y;
 	rti_dialogs.children.push_back(rti);
 	rti_dialogs.visible = true;
-	active_dlg_rti = active_a5_dlg_rti = rti;
+	active_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
 	
 	old_a5_states.emplace_back();
-	ALLEGRO_STATE& old_state = old_a5_states.back();
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+	ALLEGRO_STATE& oldstate = old_a5_states.back();
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti->bitmap);
 }
 
@@ -444,15 +413,16 @@ void popup_zqdialog_end_a5()
 	if (active_dlg_rti && old_a5_states.size())
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
-		
-		pop_active_rti();
-		
-		screen = active_a4_dlg_rti ? active_a4_dlg_rti->a4_bitmap : zqdialog_bg_bmp;
-		if(rti_dialogs.children.empty())
+		rti_dialogs.children.pop_back();
+		if(rti_dialogs.children.size())
+			active_dlg_rti = rti_dialogs.children.back();
+		else
+		{
+			active_dlg_rti = nullptr;
 			zqdialog_bg_bmp = nullptr;
-		
-		ALLEGRO_STATE& old_state = old_a5_states.back();
-		al_restore_state(&old_state);
+		}
+		ALLEGRO_STATE& oldstate = old_a5_states.back();
+		al_restore_state(&oldstate);
 		old_a5_states.pop_back();
 
 		delete to_del;
@@ -460,66 +430,21 @@ void popup_zqdialog_end_a5()
 	position_mouse_z(0);
 }
 
-RenderTreeItem* popup_zqdialog_a5_child(int x, int y, int w, int h)
+void update_dialog_transform(){}
+
+RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 {
-	if(!active_a5_dlg_rti) return nullptr;
+	if(!active_dlg_rti) return nullptr;
+	if(w<0) w = screen->w-x;
+	if(h<0) h = screen->h-y;
+	set_bitmap_create_flags(true);
 	
 	RenderTreeItem* rti = new RenderTreeItem();
-	set_bitmap_create_flags(true);
-	rti->bitmap = al_create_bitmap(w, h);
-	rti->owned = true;
+	rti->bitmap = al_create_bitmap(w,h);
 	rti->transform.x = x;
 	rti->transform.y = y;
-	active_a5_dlg_rti->children.push_back(rti);
-	al_set_new_bitmap_flags(0);
-	
-	//Set the bitmap's transformation
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	al_set_target_bitmap(rti->bitmap);
-	
-	ALLEGRO_TRANSFORM T;
-	al_identity_transform(&T);
-	al_translate_transform(&T, -x, -y);
-	al_use_transform(&T);
-	
-	al_restore_state(&old_state);
-	
-	return rti;
-}
-
-bool a4_bmp_active()
-{
-	return active_dlg_rti && active_dlg_rti->a4_bitmap;
-}
-
-RenderTreeItem* add_dlg_layer()
-{
-	if(!active_dlg_rti) return nullptr;
-	set_bitmap_create_flags(true);
-	
-	RenderTreeItem* rti = new RenderTreeItem();
-	rti->bitmap = al_create_bitmap(screen->w, screen->h);
 	rti->a4_bitmap = nullptr;
-	rti->owned = true;
-	active_dlg_rti->children.push_back(rti);
-
-	al_set_new_bitmap_flags(0);
-	return rti;
-}
-RenderTreeItem* add_dlg_layer_a4(int transp)
-{
-	if(!active_dlg_rti) return nullptr;
-	set_bitmap_create_flags(true);
-	
-	RenderTreeItem* rti = new RenderTreeItem();
-	rti->bitmap = al_create_bitmap(screen->w, screen->h);
-	rti->a4_bitmap = create_bitmap_ex(8,screen->w,screen->h);
-	rti->transparency_index = transp;
-	if(transp > 0)
-		clear_to_color(rti->a4_bitmap,transp);
-	else clear_bitmap(rti->a4_bitmap);
+	rti->visible = true;
 	rti->owned = true;
 	active_dlg_rti->children.push_back(rti);
 

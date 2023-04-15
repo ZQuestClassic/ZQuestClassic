@@ -8,6 +8,24 @@ extern newcombo *combobuf;
 #define minSECRET_TYPE 0
 #define maxSECRET_TYPE 43
 
+void do_cutscene_flags(newcombo const& cmb);
+class CutsceneState
+{
+	bool active = false;
+	int32_t allowed_btns = 0;
+	bool nof6 = false;
+	byte errsfx = 0;
+public:
+	void clear();
+	bool can_button(int q);
+	bool can_f6();
+	void error();
+	friend void do_cutscene_flags(newcombo const& cmb);
+};
+extern CutsceneState active_cutscene;
+
+extern cpos_info combo_posinfos[7][176];
+extern std::vector<cpos_info> ffc_posinfos;
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);

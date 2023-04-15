@@ -46,12 +46,21 @@
 #define rFAVORITES  0x0020
 #define rCOMMANDS   0x0040
 #define rOTHER      0x0080
-#define rALL        0x0FFF
+#define rALL        0x1FFF
 #define rCLEAR      0x1000
 #define rNOCURSOR   0x2000
-#define rNOUPDATE   0x4000
 
 #define C(x)   ((x)-'a'+1)
+
+INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
+{
+    while(gui_mouse_b())
+    {
+        rest(1);
+    }
+    
+    return jwin_do_menu(menu,x,y);
+}
 
 INLINE int32_t bit(int32_t val,int32_t b)
 {
@@ -72,7 +81,6 @@ extern const char *catchall_string[MAXROOMTYPES];
 extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
 //extern const char *combotype_string[MAXCOMBOTYPES];
-extern const char *flag_string[MAXFLAGS];
 extern const char	*old_guy_string[OLDMAXGUYS];
 extern char *guy_string[eMAXGUYS];
 extern const char *pattern_string[MAXPATTERNS];
@@ -120,7 +128,6 @@ ALLEGRO_COLOR real_lc1(int pal);
 ALLEGRO_COLOR real_lc2(int pal);
 void refresh_pal();
 
-void refresh(int32_t flags);
 void domouse();
 void init_doorcombosets();
 
@@ -165,10 +172,6 @@ int32_t playMIDI();
 int32_t stopMIDI();
 int32_t onKeyFile();
 
-int32_t onUp();
-int32_t onDown();
-int32_t onLeft();
-int32_t onRight();
 int32_t onPgUp();
 int32_t onPgDn();
 int32_t onIncreaseCSet();
@@ -294,7 +297,7 @@ int32_t onTestOptions();
 
 int32_t onOptions();
 
-bool edit_combo(int32_t c,int32_t cs);
+bool edit_combo(int32_t c,bool freshen,int32_t cs);
 
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,bool value);
 void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t value);
@@ -318,12 +321,6 @@ int32_t onShowFlags();
 int32_t onP();
 int32_t onShowComboInfoCSet();
 int32_t onShowDarkness();
-int32_t onJ();
-int32_t onM();
-
-extern int32_t theFlagColor;
-void setFlagColor();
-void setFlagColor(int32_t c);
 
 int32_t onIncreaseFlag();
 int32_t onDecreaseFlag();

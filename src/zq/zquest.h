@@ -12,7 +12,6 @@
 #include "parser/parserDefs.h"
 #include "zfix.h"
 #include "base/fonts.h"
-#include "sizepos.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -40,6 +39,7 @@
 #ifdef ALLEGRO_MACOSX
 extern int32_t midi_strict; //L
 #endif
+extern bool cancelgetnum;
 
 extern int32_t RulesetDialog;
 
@@ -56,6 +56,21 @@ enum
 };
 
 enum {MOUSE_BMP_NORMAL=0, MOUSE_BMP_POINT_BOX, MOUSE_BMP_FLAG, MOUSE_BMP_BOX, MOUSE_BMP_SWORD, MOUSE_BMP_POTION, MOUSE_BMP_WAND, MOUSE_BMP_LENS, MOUSE_BMP_GLOVE, MOUSE_BMP_HOOKSHOT, MOUSE_BMP_WAND2, MOUSE_BMP_BLANK, MOUSE_BMP_MAX};
+enum
+{
+	ZQM_NORMAL,
+	ZQM_POINT_BOX,
+	ZQM_BOX,
+	ZQM_SWORD,
+	ZQM_POTION,
+	ZQM_WAND,
+	ZQM_LENS,
+	ZQM_GLOVE_OPEN, ZQM_GLOVE_CLOSED,
+	ZQM_HOOK_PLAIN, ZQM_HOOK_PLUS, ZQM_HOOK_MINUS, ZQM_HOOK_X,
+	ZQM_SEL_WAND_PLAIN, ZQM_SEL_WAND_PLUS, ZQM_SEL_WAND_MINUS, ZQM_SEL_WAND_X,
+	ZQM_FLAG_0, ZQM_FLAG_1, ZQM_FLAG_2, ZQM_FLAG_3, ZQM_FLAG_4, ZQM_FLAG_5, ZQM_FLAG_6, ZQM_FLAG_7, ZQM_FLAG_8, ZQM_FLAG_9, ZQM_FLAG_10, ZQM_FLAG_11, ZQM_FLAG_12, ZQM_FLAG_13, ZQM_FLAG_14, ZQM_FLAG_15,
+	ZQM_BLANK
+};
 enum {ICON_BMP_ITEM=0, ICON_BMP_WARP, ICON_BMP_WARPDEST, ICON_BMP_FLAG, ICON_BMP_RETURN_A, ICON_BMP_RETURN_B, ICON_BMP_RETURN_C, ICON_BMP_RETURN_D, ICON_BMP_MAX};
 
 
@@ -102,7 +117,7 @@ extern size_and_pos dummy_panel;
 extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
-extern int32_t mapscreensize, showedges, showallpanels;
+extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 extern int32_t mouse_scroll_h;
 extern int32_t tooltip_timer, tooltip_maxtimer;
 
@@ -118,8 +133,7 @@ extern char *datafile_str;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
 extern MIDI *song;
-extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *panel_button_icon_bmp[m_menucount][4],*dmapbmp_small, *dmapbmp_large;
-extern ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5], *select_bmp[2];
+extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
@@ -131,17 +145,19 @@ extern item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 extern newcombo curr_combo;
 extern PALETTE RAMpal;
 extern midi_info Midi_Info;
+extern bool zq_showpal;
 extern bool combo_cols;
 extern bool zoomed_minimap;
 
 
 extern int32_t alignment_arrow_timer;
-extern int32_t  Flip,Combo,CSet,First[3];
+extern int32_t  Flip,Combo,CSet;
 extern int32_t  Flags,Flag,menutype;
 extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern double aspect_ratio;
+extern int window_min_width, window_min_height;
 extern int32_t ComboBrush;                                      //show the brush instead of the normal mouse
 extern int32_t ComboBrushPause;                                 //temporarily disable the combo brush
 extern int32_t FloatBrush;                                      //makes the combo brush float a few pixels up and left complete with shadow
@@ -256,6 +272,7 @@ void rebuild_string_list();
 int32_t onResetTransparency();
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
+int32_t getnumber(const char *prompt,int32_t initialval);
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
 void about_module(const char *prompt,int32_t initialval);
@@ -281,6 +298,7 @@ void do_importdoorset(const char *prompt,int32_t initialval);
 void do_exportdoorset(const char *prompt,int32_t initialval);
 
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
+int32_t gethexnumber(const char *prompt,int32_t initialval);
 
 void update_combo_cycling();
 
@@ -304,7 +322,6 @@ int32_t onFlipMapHorizontal();
 int32_t onFlipMapVertical();
 int32_t onFlipScreenHorizontal();
 int32_t onFlipScreenVertical();
-int32_t onH();
 int32_t onPaste();
 int32_t onPasteAll();
 int32_t onPasteToAll();
@@ -352,10 +369,6 @@ int32_t on12();
 int32_t on13();
 int32_t on14();
 int32_t on15();
-int32_t onLeft();
-int32_t onRight();
-int32_t onUp();
-int32_t onDown();
 int32_t onPgUp();
 int32_t onPgDn();
 int32_t onIncreaseCSet();
@@ -415,7 +428,8 @@ INLINE int32_t pal_sum(RGB p)
 
 void get_bw(RGB *pal,int32_t &black,int32_t &white);
 void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse);
-int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout = true);
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
+int load_the_pic_new(BITMAP **dst, PALETTE dstpal);
 int32_t onViewPic();
 int32_t load_the_map();
 int32_t onViewMap();
@@ -425,7 +439,7 @@ int32_t onViewMap();
 
 char *pathstr(byte path[]);
 void drawpanel(int32_t panel);
-void refresh(int32_t flags);
+void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();
@@ -783,7 +797,6 @@ extern combo_pool combo_pools[MAXCOMBOPOOLS];
 int32_t set_comboaradio(byte layermask);
 extern int32_t alias_origin;
 void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int32_t y, int32_t size);
-void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx = -1, int targy = -1);
 
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
@@ -844,6 +857,7 @@ int32_t onDecScrPal16();
 int32_t onIncScrPal16();
 int32_t onFullScreen();
 int32_t isFullScreen();
+int32_t onToggleGrid(bool color);
 int32_t onToggleGrid();
 int32_t onToggleShowScripts();
 int32_t onToggleShowSquares();
@@ -974,6 +988,7 @@ const char *warptypelist(int32_t index, int32_t *list_size);
 
 //int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
+int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
 int32_t onTimedWarp();
@@ -1151,7 +1166,6 @@ void cycle_palette();
 /********************/
 
 void doHelp(int32_t bg,int32_t fg);
-int32_t onshieldblockhelp();
 int32_t onZstringshelp();
 int32_t onHelp();
 int32_t onZScripthelp();
@@ -1209,8 +1223,15 @@ int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();
 
+void debug_pos(size_and_pos const& pos, int color = 0xED);
 void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims = nullptr);
-void draw_ttips(RenderTreeItem* ttdest, RenderTreeItem* hldest);
+void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick = 2);
+void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
+void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick = 2);
+void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
+void draw_ttip(BITMAP* dest);
+void draw_ttip2(BITMAP* dest);
+void draw_ttips();
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);

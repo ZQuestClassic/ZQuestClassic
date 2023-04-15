@@ -11,7 +11,7 @@ void call_foo_dlg()
 		return;
 		char buf[32]={0};
 		sprintf(buf, "Value: %d, %d", v, v2);
-		jwin_alert("Foo", buf, NULL, NULL, "OK", NULL, 0, 0, lfont);
+		jwin_alert("Foo", buf, NULL, NULL, "OK", NULL, 0, 0, get_zc_font(font_lfont));
 	}).show();
 }
 

@@ -50,8 +50,6 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,int32_t flags,bool jwin);
 void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags);
 bool do_layer_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag=false);
-void draw_layer_button_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags);
-bool do_layer_button_reset_a5(int32_t x,int32_t y,int32_t w,int32_t h,const char *text, int32_t flags, bool toggleflag=false);
 bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin);
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t bg,int32_t fg,bool jwin,bool sel=false);
 void draw_graphics_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,BITMAP *bmp,BITMAP *bmp2,int32_t bg,int32_t fg,int32_t flags,bool jwin,bool overlay);
@@ -61,8 +59,8 @@ void draw_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg, int
 void do_layerradio(BITMAP *dest,int32_t x,int32_t y,int32_t bg,int32_t fg,int32_t &value);
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg, bool value);
 void draw_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg, bool value);
-bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value);
-bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value);
+bool do_checkbox(BITMAP *dest,int32_t x,int32_t y,int32_t wid,int32_t hei,int32_t bg,int32_t fg,int32_t &value, int xoffs = 0, int yoffs = 0);
+bool do_scheckbox(BITMAP *dest,int32_t x,int32_t y,int32_t sz,int32_t bg,int32_t fg,int32_t &value, int xoffs = 0, int yoffs = 0);
 
 //*************** tile flood fill stuff **************
 
@@ -106,7 +104,7 @@ void load_imagebuf();
 bool leech_tiles(tiledata *dest,int32_t start,int32_t cs);
 void grab(byte(*dest)[256],byte *def, int32_t width, int32_t height, int32_t oformat, byte *newformat);
 void grab_tile(int32_t tile,int32_t &cs);
-void draw_tiles_a5(int32_t first,int32_t cs, int32_t f);
+void draw_tiles(int32_t first,int32_t cs, int32_t f);
 void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f,bool large,bool true_empty = false);
 int32_t tile_col(int32_t tile);
 int32_t tile_row(int32_t tile);
@@ -132,7 +130,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
 int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
 int32_t onTiles();
-void draw_combo(BITMAP *dest, int32_t x,int32_t y,int32_t c,int32_t cs);
+void draw_combo(BITMAP *dest, int x,int y,int c,int cs,bool animate = true);
 void draw_combos(int32_t page,int32_t cs,bool cols);
 void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,int32_t buttons);
 void sel_combo(int32_t &tile, int32_t &tile2, int32_t s, bool cols);
@@ -151,7 +149,7 @@ int32_t click_d_ctile_proc();
 int32_t onCmb_dlg_h();
 int32_t onCmb_dlg_v();
 int32_t onCmb_dlg_r();
-bool edit_combo(int32_t c,int32_t cs);
+bool edit_combo(int32_t c,bool freshen,int32_t cs);
 int32_t d_itile_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onIcons();
 void center_zq_tiles_dialogs();

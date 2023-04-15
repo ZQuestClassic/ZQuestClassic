@@ -284,7 +284,6 @@ void throttleFPS()
         {
             vsync();
         }
-	
     }
 
     logic_counter = 0;
@@ -330,11 +329,11 @@ int32_t curr_tb_page=0;
 RGB_MAP rgb_table;
 COLOR_MAP trans_table, trans_table2;
 
-BITMAP     *framebuf, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
+BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp, *tmp_scr, *screen2,
            *msg_portrait_display_buf, *msg_txt_display_buf, *msg_bg_display_buf,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
-BITMAP     *zcmouse[4];
+BITMAP     *zcmouse[NUM_ZCMOUSE];
 DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
@@ -384,6 +383,7 @@ BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf 
 BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL,
          *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
+bool lightbeam_present;
 FONT	 *msgfont;
 word     door_combo_set_count;
 word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
@@ -430,7 +430,7 @@ int32_t DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn 
 int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
-int32_t nets=1580, magicitem=-1,nayruitem=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
+int32_t nets=1580, magicitem=-1,div_prot_item=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
 float avgfps=0;
@@ -449,9 +449,12 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
      show_layer_over=true, show_layer_push=true, show_sprites=true, show_ffcs=true, show_hitboxes=false, show_walkflags=false, show_ff_scripts=false, show_effectflags = false;
 
 
-bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false, Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false, DragAspect=false, SaveWinPos=false;
+bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
+	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
+	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
 double aspect_ratio = 0.75;
-bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true;
+int window_min_width = 320, window_min_height = 240;
+bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
@@ -684,6 +687,10 @@ bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
+#ifdef __EMSCRIPTEN__
+	force = true;
+#endif
+
 	if(force || (!is_sys_pal && !doThrottle()) || myvsync)
 	{
 		zc_process_display_events();
@@ -1175,9 +1182,6 @@ HeroClass   Hero;
 #include "ending.h"
 
 #include "zc_sys.h"
-//extern MENU the_player_menu;
-//extern MENU the_player_menu2;
-//extern byte refresh_select_screen;
 
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid)
@@ -1230,9 +1234,9 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         
     particles.clear();
     
-    if(Hero.getNayrusLoveShieldClk())
+    if(Hero.getDivineProtectionShieldClk())
     {
-        Hero.setNayrusLoveShieldClk(Hero.getNayrusLoveShieldClk());
+        Hero.setDivineProtectionShieldClk(Hero.getDivineProtectionShieldClk());
     }
     
     Hero.resetflags(false);
@@ -1316,9 +1320,9 @@ int32_t  HeroCharged()
 {
     return Hero.isCharged();
 }
-int32_t  HeroNayrusLoveShieldClk()
+int32_t  HeroDivineProtectionShieldClk()
 {
-    return Hero.getNayrusLoveShieldClk();
+    return Hero.getDivineProtectionShieldClk();
 }
 int32_t  HeroHoverClk()
 {
@@ -1723,6 +1727,8 @@ void init_dmap()
 
 int32_t init_game()
 {
+	if(clearConsoleOnLoad)
+		clearConsole();
 	jit_reset_all();
 	current_subscreen_active = nullptr;
 
@@ -1755,7 +1761,7 @@ int32_t init_game()
 				"You are about to create a new recording at:",
 				relativize_path(replay_path).c_str(),
 				"Do you wish to record this save file?",
-				"Yes","No",13,27,lfont)==1)
+				"Yes","No",13,27,get_zc_font(font_lfont))==1)
 			{
 				saves[currgame].replay_file = replay_path;
 				replay_start(ReplayMode::Record, replay_path, -1);
@@ -1774,7 +1780,7 @@ int32_t init_game()
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
 					saves[currgame].replay_file);
 				enter_sys_pal();
-				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,lfont);
+				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 				exit_sys_pal();
 			}
 			else
@@ -1894,18 +1900,22 @@ int32_t init_game()
 	//setPackfilePassword(NULL);
 	
 	char keyfilename[2048]; //master key .key
-	char keyfilename2[2048]; //zquest key .zpwd
 	char keyfilename3[2048]; //zc cheats only key, .zcheat
 	replace_extension(keyfilename, qstpath, "key", 2047);
-	replace_extension(keyfilename2, qstpath, "zpwd", 2047);
 	replace_extension(keyfilename3, qstpath, "zcheat", 2047);
-	bool gotfromkey=false;
-	bool gotfrompwdfile=false;
-	bool gotfromcheatfile=false;
-	
-	if(exists(keyfilename))
+	bool setcheat=false;
+	if(use_testingst_start)
 	{
-		al_trace("Found a Quest Master Key, filename: %s\n", keyfilename);
+		setcheat=true;
+		zprint2("Cheats enabled: Test Mode active\n");
+	}
+	if(!setcheat && devpwd())
+	{
+		setcheat=true;
+		zprint2("Cheats enabled: Dev Override active\n");
+	}
+	if(!setcheat && exists(keyfilename))
+	{
 		char password[32], pwd[32];
 		PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
 		char msg[80];
@@ -1914,65 +1924,22 @@ int32_t init_game()
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
-			al_trace("Found Quest Master Key\n");
 			int16_t ver;
 			byte  bld;
 			p_igetw(&ver,fp,true);
 			p_getc(&bld,fp,true);
 			memset(password,0,32);
 			pfread(password, 30, fp,true);
-			/*
-			get-questpwd(&QHeader, pwd);
-			if (strcmp(pwd,password)==0)
-			{
-				gotfromkey=true;
-			}
-			*/
-			gotfromkey=check_questpwd(&QHeader, password);
+			setcheat=check_questpwd(&QHeader, password);
 			memset(password,0,32);
 			memset(pwd,0,32);
 		}
 		
 		pack_fclose(fp);
-	goto skip_keychecks;
+		zprint2("Found a Quest Master Key: %s\n", setcheat?"Valid":"Invalid");
 	}
-	
-	if(exists(keyfilename2)) //zquest key...superfluous?
+	if(!setcheat && exists(keyfilename3)) //zc cheat key
 	{
-		al_trace("Found a ZQuest Password Key, filename: %s\n", keyfilename2);
-		char password[32], pwd[32];
-		PACKFILE *fp = pack_fopen_password(keyfilename2, F_READ,"");
-		char msg[80];
-		memset(msg,0,80);
-		pfread(msg, 80, fp,true);
-		
-		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
-		{
-			int16_t ver;
-			byte  bld;
-			p_igetw(&ver,fp,true);
-			p_getc(&bld,fp,true);
-			memset(password,0,32);
-			pfread(password, 30, fp,true);
-			/*
-			get-questpwd(&QHeader, pwd);
-			if (strcmp(pwd,password)==0)
-			{
-				gotfromkey=true;
-			}
-			*/
-			gotfrompwdfile=check_questpwd(&QHeader, password);
-			memset(password,0,32);
-			memset(pwd,0,32);
-		}
-		
-		pack_fclose(fp);
-	}
-	
-	if(exists(keyfilename3)) //zc cheat key
-	{
-		al_trace("Found a ZC Cheat Key, filename: %s\n", keyfilename3);
-		
 		char password[32], pwd[32];
 		PACKFILE *fp = pack_fopen_password(keyfilename3, F_READ,"");
 		char msg[80];
@@ -1981,68 +1948,45 @@ int32_t init_game()
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
-		//al_trace("checking .zcheat file header %s","\n");
 			int16_t ver;
 			byte  bld;
 			p_igetw(&ver,fp,true);
 			p_getc(&bld,fp,true);
-		//al_trace("about to read password\n");
 			memset(password,0,32);
-		pfread(password, 30, fp,true);
-			//pfread(password, 30, fp,true);
-		
-		//al_trace("making space for hash\n");
-		char unhashed_pw[32];
-		memset(unhashed_pw,0,32);
-		
+			pfread(password, 30, fp,true);
 			
-		
-		char hashmap = 'Z';
-		hashmap += 'Q';
-		hashmap += 'U';
-		hashmap += 'E';
-		hashmap += 'S';
-		hashmap += 'T';
-		
-		//al_trace("applying reverse hash\n");
-		for ( int32_t q = 0; q < 32; q++ ) 
-		{
-			unhashed_pw[q] = password[q] - hashmap;
-		}
-		//al_trace("hashed password is: %s\n", password);
-		//al_trace("un-hashed password is: %s\n", unhashed_pw);
-		
-		
-		
+			char unhashed_pw[32];
+			memset(unhashed_pw,0,32);
 			
-			//get-questpwd(&QHeader, pwd);
-			//if (strcmp(pwd,password)==0)
-			//{
-			//	gotfromkey=true;
-			//}
+			char hashmap = 'Z';
+			hashmap += 'Q';
+			hashmap += 'U';
+			hashmap += 'E';
+			hashmap += 'S';
+			hashmap += 'T';
 			
-		   // gotfromcheatfile=check_questpwd(&QHeader, unhashed_pw);
+			for ( int32_t q = 0; q < 32; q++ ) 
+			{
+				unhashed_pw[q] = password[q] - hashmap;
+			}
+			
+			setcheat=check_questpwd(&QHeader, unhashed_pw);
 			memset(password,0,32);
 			memset(unhashed_pw,0,32);
 			memset(pwd,0,32);
-			cheat = 4;
-			maxcheat = 4;
 		}
 		
 		pack_fclose(fp);
+		zprint2("Found a ZC Cheat Key: %s\n", setcheat?"Valid":"Invalid");
 	}
-	else goto skip_keycheats;
 	
-	skip_keychecks:
-	
-	if(gotfromkey)
+	if(setcheat)
 	{
 		cheat = 4;
 		maxcheat = 4;
 	}
 	
-	skip_keycheats:
-	//Calculate the quest's script-file-storage path -V
+	//Calculate the quest's script-file-storage path -Em
 	{
 		memset(qst_files_path, 0, sizeof(qst_files_path));
 		string str(qstpath);
@@ -2052,14 +1996,6 @@ int32_t init_game()
 		size_t dotpos = str.find_last_of(".");
 		sprintf(qst_files_path,"./Files/%s",str.substr(pos, dotpos-pos).c_str());
 		regulate_path(qst_files_path);
-		// zprint2("Calculated path: '%s'\n",qst_files_path);
-		// zprint2("Path creating... %s\n",create_path(qst_files_path)?"Success!":"Failure!");
-	}
-	
-	if(use_testingst_start)
-	{
-		cheat = 4;
-		maxcheat = 4;
 	}
 	
 	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
@@ -2739,7 +2675,7 @@ void putintro()
         //finish writing out the string
         for(; intropos<72; ++intropos)
         {
-            textprintf_ex(msg_txt_display_buf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
+            textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                           "%c",DMaps[currdmap].intro[intropos]);
         }
     }
@@ -2769,7 +2705,7 @@ void putintro()
     //using the clip value to indicate the bitmap is "dirty"
     //rather than add yet another global variable
     set_clip_state(msg_txt_display_buf, 0);
-    textprintf_ex(msg_txt_display_buf,zfont,((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
+    textprintf_ex(msg_txt_display_buf,get_zc_font(font_zfont),((intropos%24)<<3)+32,((intropos/24)<<3)+40,QMisc.colors.msgtext,-1,
                   "%c",DMaps[currdmap].intro[intropos]);
                   
     ++intropos;
@@ -2811,11 +2747,11 @@ void do_magic_casting()
     
     switch(itemsbuf[magicitem].family)
     {
-    case itype_dinsfire:
+    case itype_divinefire:
     {
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(HeroX(),HeroY(),HeroZ(),wPhantom,pDINSFIREROCKET,0,up, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),HeroZ(),wPhantom,pDIVINEFIREROCKET,0,up, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
@@ -2832,7 +2768,7 @@ void do_magic_casting()
         
         if(magiccastclk==64)
         {
-            Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDINSFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon((zfix)HeroX(),(zfix)(-32),(zfix)HeroZ(),wPhantom,pDIVINEFIREROCKETRETURN,0,down, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
@@ -2863,10 +2799,10 @@ void do_magic_casting()
             
             for(int32_t flamecounter=((-1)*(flamemax/2))+1; flamecounter<=((flamemax/2)+1); flamecounter++)
             {
-		    //din't fire level fix to go here
+		    //divine fire level fix to go here
                 //Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,3,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
                 Lwpns.add(new weapon((zfix)HeroX(),(zfix)HeroY(),(zfix)HeroZ(),wFire,itemsbuf[magicitem].fam_type,itemsbuf[magicitem].power*game->get_hero_dmgmult(),
-                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0, itemsbuf[magicitem].family));
+                                     isSideViewGravity() ? (flamecounter<flamemax ? left : right) : 0, magicitem, Hero.getUID(), false, 0, 0, 0));
                 weapon *w = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 		w->fakez = HeroFakeZ();
                 w->step=(itemsbuf[magicitem].misc2/100.0);
@@ -2886,7 +2822,7 @@ void do_magic_casting()
     }
     break;
     
-    case itype_faroreswind:
+    case itype_divineescape:
     {
         if(magiccastclk==0)
         {
@@ -2962,7 +2898,7 @@ void do_magic_casting()
                         }
                         else
                         {
-                            particles.add(new pFaroresWindDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
+                            particles.add(new pDivineEscapeDust(Hero.getX()+j, Hero.getY()-Hero.getZ()+i, 5, 6, herotilebuf[i*16+j], zc_oldrand()%96));
                             
                             int32_t k=particles.Count()-1;
                             particle *p = (particles.at(k));
@@ -2986,9 +2922,9 @@ void do_magic_casting()
 			else
 			{
 				//attackclk=0;
-				int32_t nayrutemp=nayruitem;
+				int32_t div_prot_temp=div_prot_item;
 				restart_level();
-				nayruitem=nayrutemp;
+				div_prot_item=div_prot_temp;
 				//xofs=0;
 				//action=none;
 				magicitem=-1;
@@ -2999,15 +2935,15 @@ void do_magic_casting()
     }
     break;
     
-    case itype_nayruslove:
+    case itype_divineprotection:
     {
         // See also hero.cpp, HeroClass::checkhit().
         if(magiccastclk==0)
         {
-            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET1,0,left, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pDIVINEPROTECTIONROCKET1,0,left, magicitem, Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
-            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pNAYRUSLOVEROCKET2,0,right, magicitem, Hero.getUID()));
+            Lwpns.add(new weapon(HeroX(),HeroY(),(zfix)0,wPhantom,pDIVINEPROTECTIONROCKET2,0,right, magicitem, Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
             w1->step=4;
             //          Hero.tile=(BSZ)?32:29;
@@ -3027,16 +2963,16 @@ void do_magic_casting()
             {
                 weapon* w=static_cast<weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
-                  w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
+                  w->type>=pDIVINEPROTECTIONROCKET1 && w->type<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             
             int32_t d=zc_max(HeroX(),256-HeroX())+32;
-            Lwpns.add(new weapon((zfix)(HeroX()-d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN1,0,right, magicitem,Hero.getUID()));
+            Lwpns.add(new weapon((zfix)(HeroX()-d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pDIVINEPROTECTIONROCKETRETURN1,0,right, magicitem,Hero.getUID()));
             weapon *w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
-            Lwpns.add(new weapon((zfix)(HeroX()+d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pNAYRUSLOVEROCKETRETURN2,0,left, magicitem,Hero.getUID()));
+            Lwpns.add(new weapon((zfix)(HeroX()+d),(zfix)HeroY(),(zfix)HeroZ(),wPhantom,pDIVINEPROTECTIONROCKETRETURN2,0,left, magicitem,Hero.getUID()));
             w1 = (weapon*)(Lwpns.spr(Lwpns.Count()-1));
 	    w1->fakez = HeroFakeZ();
             w1->step=4;
@@ -3061,14 +2997,14 @@ void do_magic_casting()
                 Hero.tile+=Hero.getTileModifier();
             }
             
-            Hero.setNayrusLoveShieldClk(itemsbuf[magicitem].misc1);
+            Hero.setDivineProtectionShieldClk(itemsbuf[magicitem].misc1);
             
             if(get_bit(quest_rules,qr_MORESOUNDS))
             {
-                if(nayruitem != -1)
+                if(div_prot_item != -1)
                 {
-                    stop_sfx(itemsbuf[nayruitem].usesound+1);
-                    stop_sfx(itemsbuf[nayruitem].usesound);
+                    stop_sfx(itemsbuf[div_prot_item].usesound+1);
+                    stop_sfx(itemsbuf[div_prot_item].usesound);
                 }
                 
                 cont_sfx(itemsbuf[magicitem].usesound);
@@ -3076,7 +3012,7 @@ void do_magic_casting()
             
             castnext=false;
             magiccastclk=128;
-            nayruitem = magicitem;
+            div_prot_item = magicitem;
         }
         
         // Finish the final spell pose
@@ -3086,7 +3022,7 @@ void do_magic_casting()
             {
                 weapon* w=static_cast<weapon*>(Lwpns.spr(i));
                 if(w->id==wPhantom &&
-                  w->type>=pNAYRUSLOVEROCKET1 && w->type<=pNAYRUSLOVEROCKETTRAILRETURN2)
+                  w->type>=pDIVINEPROTECTIONROCKET1 && w->type<=pDIVINEPROTECTIONROCKETTRAILRETURN2)
                     Lwpns.del(i);
             }
             
@@ -4347,12 +4283,11 @@ int32_t onFullscreen()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
     {
 	    PALETTE oldpal;
 	    get_palette(oldpal);
 	    
-	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
 	    bool success=setGraphicsMode(!windowed);
@@ -4378,7 +4313,6 @@ int32_t onFullscreen()
 	    
 	    zc_set_palette(oldpal);
 	    gui_mouse_focus=0;
-	    show_mouse(screen);
 	    switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	    set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
@@ -4609,96 +4543,10 @@ int main(int argc, char **argv)
 		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
 	}
 	
-#if defined(_WIN32) || defined(ALLEGRO_MACOSX)
-	
 	if ( zscript_debugger )
 	{
 		FFCore.ZScriptConsole(true);
 	}
-
-#else //Unix
-
-	if(zscript_debugger)
-	{ // Let's try making a console for Linux -Z
-		int32_t termflags = 0;
-		termflags |= O_RDWR; //Open the device for both reading and writing.
-		//termflags |= O_NOCTTY; //Do not make this device the controlling terminal for the process.
-		pt = posix_openpt(termflags);
-		if (pt == -1)
-		{
-			Z_error_fatal("Could not open pseudo terminal; error number: %d.\n", errno);
-			goto no_lx_console;
-		}
-		ptname = ptsname(pt);
-		if (!ptname)
-		{
-			Z_error_fatal("Could not get pseudo terminal device name.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-
-		if (unlockpt(pt) == -1)
-		{
-			Z_error_fatal("Could not get pseudo terminal device name.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-
-		lxconsole_oss << "xterm -S" << (strrchr(ptname, '/')+1) << "/" << pt << " &";
-		system(lxconsole_oss.str().c_str());
-
-		int32_t xterm_fd = open(ptname,termflags); //This also needs the O_NOCTTY flag. See: https://man7.org/linux/man-pages/man3/open.3p.html
-		{
-			char c = 0; int32_t tries = 10000; 
-			do 
-			{
-				read(xterm_fd, &c, 1); 
-				--tries;
-			} while (c!='\n' && tries > 0);
-		}
-
-		if (dup2(pt, 1) <0)
-		{
-			Z_error_fatal("Could not redirect standard output.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-		if (dup2(pt, 2) <0)
-		{
-			Z_error_fatal("Could not redirect standard error output.\n");
-			close(pt);
-			goto no_lx_console;
-		}
-	} //this is in a block because I want it in a block. -Z
-	else
-	{
-		al_trace("Linux console disabled by user.\n");
-	}
-	
-	no_lx_console:
-	{
-		//Z_error_fatal("Could not open Linux console.\n");
-	}
-	
-	
-	std::cout << "\n       _____   ____                  __ \n";
-	std::cout << "      /__  /  / __ \\__  _____  _____/ /_\n";
-	std::cout << "        / /  / / / / / / / _ \\/ ___/ __/\n";
-	std::cout << "       / /__/ /_/ / /_/ /  __(__  ) /_ \n";
-	std::cout << "      /____/\\___\\_\\__,_/\\___/____/\\__/\n\n";
-	
-	std::cout << "Quest Data Logging & ZScript Debug Console\n";
-	std::cout << "ZConsole for Linux\n\n";
-	
-	if ( FFCore.getQuestHeaderInfo(vZelda) > 0 )
-	{
-		printf("Quest Made in ZC Version %x, Build %d\n", FFCore.getQuestHeaderInfo(vZelda), FFCore.getQuestHeaderInfo(vBuild));
-	}
-	else
-	{
-		printf("%s, Version %s\n", ZC_PLAYER_NAME, ZC_PLAYER_V);
-	}
-#endif
 	
 	if(install_timer() < 0)
 	{
@@ -4826,6 +4674,7 @@ int main(int argc, char **argv)
 	//set_color_depth(32);
 	//set_color_conversion(COLORCONV_24_TO_8);
 	framebuf  = create_bitmap_ex(8,256,224);
+	menu_bmp  = create_bitmap_ex(8,640,480);
 	temp_buf  = create_bitmap_ex(8,256,224);
 	// TODO: old scrolling code is silly and needs a big scrollbuf bitmap.
 	scrollbuf_old = create_bitmap_ex(8,512,406);
@@ -5264,6 +5113,12 @@ int main(int argc, char **argv)
 
 		int window_w = al_get_display_width(all_get_display());
 		int window_h = al_get_display_height(all_get_display());
+		if(window_w < 320 || window_h < 240)
+		{
+			if(window_w < 320) window_w = 320;
+			if(window_h < 240) window_h = 240;
+			al_resize_display(all_get_display(),window_w,window_h);
+		}
 		
 		int new_x = zc_get_config("zeldadx","window_x",0);
 		int new_y = zc_get_config("zeldadx","window_y",0);
@@ -5306,7 +5161,7 @@ int main(int argc, char **argv)
 							"Another instance of ZC is already running.",
 							"Running multiple instances may cause your",
 							"save file to be deleted. Continue anyway?",
-							"&No","&Yes", 0, 'n', 'y', 0, lfont);
+							"&No","&Yes", 0, 'n', 'y', 0, get_zc_font(font_lfont));
 		if(ret!=2)
 		{
 			if(forceExit)
@@ -5434,7 +5289,7 @@ int main(int argc, char **argv)
 				"Do you desire epilepsy protection?",
 				"This will reduce the intensity of flashing effects",
 				"and reduce the amplitude of wavy screen effects.",
-				"No","Yes",13,27,lfont)!=1)
+				"No","Yes",13,27,get_zc_font(font_lfont))!=1)
 			{
 				epilepsyFlashReduction = 1;
 			}
@@ -5596,6 +5451,12 @@ reload_for_replay_file:
 		toogam = false;
 		ignoreSideview=false;
 		clear_bitmap(lightbeam_bmp);
+		if(Quit!=qCONT)
+		{
+			game_mouse_index = ZCM_BLANK; //Force game mouse to blank
+			game_mouse();
+			MouseSprite::clear(ZCM_CUSTOM); //Delete any custom cursor between quests
+		}
 		if (zqtesting_mode || replay_is_replaying())
 		{
 			int32_t q = Quit;
@@ -5615,13 +5476,15 @@ reload_for_replay_file:
 			game_pal();
 		}
 		else titlescreen(load_save);
-		if(clearConsoleOnLoad)
+		if(clearConsoleOnReload)
 			clearConsole();
 		callback_switchin = 0;
 		load_save=0;
 		load_qstpath="";
 		setup_combo_animations();
 		setup_combo_animations2();
+		active_cutscene.clear();
+		game_mouse();
 		
 		while(Quit<=0)
 		{
@@ -5641,7 +5504,7 @@ reload_for_replay_file:
 			//clearing this here makes it impossible 
 			//to read before or after waitdraw in scripts. 
 		}
-		clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
+		clear_a5_bmp(rti_infolayer.bitmap);
 
 		if (load_replay_file_deffered_called)
 		{
@@ -5928,9 +5791,6 @@ void quit_game()
 	set_clip_state(pricesdisplaybuf, 1);
 	destroy_bitmap(pricesdisplaybuf);
 	destroy_bitmap(zcmouse[0]);
-	destroy_bitmap(zcmouse[1]);
-	destroy_bitmap(zcmouse[2]);
-	destroy_bitmap(zcmouse[3]);
 	destroy_bitmap(script_menu_buf);
 	destroy_bitmap(f6_menu_buf);
 	destroy_bitmap(darkscr_bmp_curscr);
@@ -6155,15 +6015,20 @@ bool checkCost(int32_t ctr, int32_t amnt)
 	}
 	return (game->get_counter(ctr)+game->get_dcounter(ctr)>=amnt);
 }
-bool checkmagiccost(int32_t itemid)
+bool checkmagiccost(int32_t itemid, bool checkTime)
 {
 	if(itemid < 0)
 	{
 		return false;
 	}
 	itemdata const& id = itemsbuf[itemid];
-	return checkCost(id.cost_counter[0], id.cost_amount[0])
-		&& checkCost(id.cost_counter[1], id.cost_amount[1]);
+	bool ret = true;
+	if(!checkTime || !id.magiccosttimer[0] || !(frame%id.magiccosttimer[0]))
+		ret = checkCost(id.cost_counter[0], id.cost_amount[0]);
+	if(!ret) return false;
+	if(!checkTime || !id.magiccosttimer[1] || !(frame%id.magiccosttimer[1]))
+		ret = checkCost(id.cost_counter[1], id.cost_amount[1]);
+	return ret;
 }
 
 void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
@@ -6218,16 +6083,16 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 	}
 	game->change_counter(-amnt, ctr);
 }
-void paymagiccost(int32_t itemid, bool ignoreTimer)
+void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	if(itemid < 0)
 	{
 		return;
 	}
 	itemdata const& id = itemsbuf[itemid];
-	if(!(id.flags&ITEM_VALIDATEONLY))
+	if(!(id.flags&ITEM_VALIDATEONLY) && (!onlyTimer || id.magiccosttimer[0]))
 		payCost(id.cost_counter[0], id.cost_amount[0], id.magiccosttimer[0], ignoreTimer);
-	if(!(id.flags&ITEM_VALIDATEONLY2))
+	if(!(id.flags&ITEM_VALIDATEONLY2) && (!onlyTimer || id.magiccosttimer[1]))
 		payCost(id.cost_counter[1], id.cost_amount[1], id.magiccosttimer[1], ignoreTimer);
 }
 

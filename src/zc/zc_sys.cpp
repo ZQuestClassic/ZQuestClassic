@@ -63,6 +63,7 @@
 #include "ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
+#include "combos.h"
 #include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
@@ -77,7 +78,6 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
-extern FONT *lfont;
 extern HeroClass Hero;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -87,6 +87,7 @@ extern particle_list particles;
 extern int32_t loadlast;
 extern word passive_subscreen_doscript;
 extern bool passive_subscreen_waitdraw;
+extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
 byte use_save_indicator;
 byte midi_patch_fix;
@@ -104,6 +105,7 @@ static bool load_control_called_this_frame;
 extern PALETTE* hw_palette;
 extern bool update_hw_pal;
 extern const char* dmaplist(int32_t index, int32_t* list_size);
+int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
@@ -244,19 +246,15 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		auto& proc = d[i].proc;
-		bool bigfontproc = (proc != d_midilist_proc && proc != jwin_droplist_proc && proc != jwin_abclist_proc && proc != jwin_list_proc);
-		bool a5proc = (proc == jwin_win_proc_a5 || proc == jwin_tab_proc_a5 || proc == jwin_text_proc_a5 || proc == jwin_ctext_proc_a5 || proc == jwin_rtext_proc_a5 || proc == new_text_proc_a5 || proc == jwin_button_proc_a5
-			|| proc == jwin_selcolor_proc_a5 || proc == jwin_color_swatch_a5);
+		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
-			d[i].dp2 = a5proc ? (void*)get_custom_font_a5(CFONT_DLG) : (void*)get_custom_font(CFONT_DLG);
+			d[i].dp2 = get_zc_font(font_lfont_l);
 		}
 		else if(!bigfontproc)
 		{
-			((ListData *)d[i].dp)->font = &lfont_l;
-			((ListData *)d[i].dp)->a5font = &a5fonts[font_lfont_l];
+			((ListData *)d[i].dp)->font = &a4fonts[font_lfont_l];
 		}
 		
 		// Make checkboxes work
@@ -264,8 +262,6 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].proc = jwin_checkfont_proc;
 		else if(d[i].proc == jwin_radio_proc)
 			d[i].proc = jwin_radiofont_proc;
-		else if(d[i].proc == jwin_radio_proc_a5)
-			d[i].proc = jwin_radiofont_proc_a5;
 	}
 	
 	jwin_center_dialog(d);
@@ -285,6 +281,21 @@ int32_t d_dummy_proc(int32_t,DIALOG *,int32_t)
 	return D_O_K;
 }
 
+bool is_reserved_key(int c)
+{
+	switch(c)
+	{
+		case KEY_ESC:
+			return true;
+	}
+	return false;
+}
+bool is_reserved_keycombo(int c, int modflag)
+{
+	if(c==KEY_F4 && (modflag&KB_ALT_FLAG))
+		return true;
+	return false;
+}
 bool checkcheat(Cheat cheat)
 {
 	if(cheatkeys[cheat][0] && zc_readkey(cheatkeys[cheat][0]))
@@ -354,20 +365,16 @@ void load_game_configs()
 	//cheat keys
 	load_default_cheatkeys();
 	char buf[256];
-	al_trace("START CHEATS\n");
 	for(size_t q = 1; q < Cheat::Last; ++q)
 	{
 		if(!bindable_cheat((Cheat)q)) continue;
 		std::string cheatname = cheat_to_string((Cheat)q);
 		util::lowerstr(cheatname);
 		sprintf(buf, "key_cheat_%s_main", cheatname.c_str());
-		al_trace("%s = %d\n", buf, cheatkeys[q][0]);
 		cheatkeys[q][0] = zc_get_config(ctrl_sect,buf,cheatkeys[q][0]);
 		sprintf(buf, "key_cheat_%s_alt", cheatname.c_str());
-		al_trace("%s = %d\n", buf, cheatkeys[q][1]);
 		cheatkeys[q][1] = zc_get_config(ctrl_sect,buf,cheatkeys[q][1]);
 	}
-	al_trace("END CHEATS\n");
    
 	if((uint32_t)joystick_index >= MAX_JOYSTICKS)
 		joystick_index = 0;
@@ -436,6 +443,8 @@ void load_game_configs()
 	SaveDragResize = zc_get_config(cfg_sect,"save_drag_resize",0)!=0;
 	DragAspect = zc_get_config(cfg_sect,"drag_aspect",0)!=0;
 	SaveWinPos = zc_get_config(cfg_sect,"save_window_position",0)!=0;
+	scaleForceInteger = zc_get_config("zeldadx","scaling_force_integer",1)!=0;
+	stretchGame = zc_get_config("zeldadx","stretch_game_area",0)!=0;
 	
 	loadlast = zc_get_config(cfg_sect,"load_last",0);
 	
@@ -463,6 +472,7 @@ void load_game_configs()
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #endif
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
+	clearConsoleOnReload = zc_get_config("CONSOLE","clear_console_on_reload",0)!=0;
 
 	char const* default_path = "";
 	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,default_path));
@@ -654,16 +664,12 @@ void Z_remove_timers()
 
 void go()
 {
-	scare_mouse();
 	blit(screen,tmp_scr,scrx,scry,0,0,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void comeback()
 {
-	scare_mouse();
 	blit(tmp_scr,screen,0,0,scrx,scry,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void dump_pal(BITMAP *dest)
@@ -674,62 +680,113 @@ void dump_pal(BITMAP *dest)
 
 //----------------------------------------------------------------
 
+int game_mouse_index = ZCM_BLANK;
+static bool system_mouse = false;
+bool sys_mouse()
+{
+	system_mouse = true;
+	return MouseSprite::set(ZCM_NORMAL);
+}
+bool game_mouse()
+{
+	system_mouse = false;
+	return MouseSprite::set(game_mouse_index);
+}
+void custom_mouse(BITMAP* bmp, int fx, int fy, bool sys_recolor, bool user_scale)
+{
+	if(!bmp)
+		return;
+	float scale = vbound(zc_get_config("zeldadx","cursor_scale_large",1.5),1.0,5.0);
+	int scaledw = bmp->w*scale, scaledh = bmp->h*scale;
+	if(bmp->w == scaledw && bmp->h == scaledh)
+		user_scale = false;
+	if(user_scale || sys_recolor)
+	{
+		if(!user_scale) scale = 1;
+		BITMAP* tmpbmp = create_bitmap_ex(8,bmp->w*scale,bmp->h*scale);
+		if(user_scale)
+			stretch_blit(bmp, tmpbmp, 0, 0, bmp->w, bmp->h, 0, 0, tmpbmp->w, tmpbmp->h);
+		else
+			blit(bmp, tmpbmp, 0, 0, 0, 0, bmp->w, bmp->h);
+		if(sys_recolor)
+			recolor_mouse(tmpbmp);
+		MouseSprite::assign(ZCM_CUSTOM, tmpbmp, fx*scale, fy*scale);
+		destroy_bitmap(tmpbmp);
+	}
+	else
+	{
+		MouseSprite::assign(ZCM_CUSTOM, bmp, fx, fy);
+	}
+	if(!system_mouse && game_mouse_index == ZCM_CUSTOM)
+		MouseSprite::set(ZCM_CUSTOM); //Reload the new sprite
+}
+
 //Handles converting the mouse sprite from the .dat file
+void recolor_mouse(BITMAP* bmp)
+{
+	for(int32_t x = 0; x < bmp->w; ++x)
+	{
+		for(int32_t y = 0; y < bmp->h; ++y)
+		{
+			int32_t color = getpixel(bmp, x, y);
+			switch(color)
+			{
+				case dvc(1):
+					color = jwin_pal[jcCURSORMISC];
+					break;
+				case dvc(2):
+					color = jwin_pal[jcCURSOROUTLINE];
+					break;
+				case dvc(3):
+					color = jwin_pal[jcCURSORLIGHT];
+					break;
+				case dvc(5):
+					color = jwin_pal[jcCURSORDARK];
+					break;
+				default:
+					continue;
+			}
+			putpixel(bmp, x, y, color);
+		}
+	}
+}
 void load_mouse()
 {
 	system_pal();
-	scare_mouse();
-	set_mouse_sprite(NULL);
-	int32_t sz = vbound(int32_t(16*(zc_get_config("zeldadx","cursor_scale_large",1.5))),16,80);
-	for(int32_t j = 0; j < 4; ++j)
+	MouseSprite::set(-1);
+	float scale = vbound(zc_get_config("zeldadx","cursor_scale_large",1.5),1.0,5.0);
+	int32_t sz = 16*scale;
+	for(int32_t j = 0; j < 1; ++j)
 	{
 		BITMAP* tmpbmp = create_bitmap_ex(8,16,16);
-		BITMAP* subbmp = create_bitmap_ex(8,16,16);
 		if(zcmouse[j])
 			destroy_bitmap(zcmouse[j]);
 		zcmouse[j] = create_bitmap_ex(8,sz,sz);
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
-		clear_bitmap(subbmp);
 		blit((BITMAP*)datafile[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
-		for(int32_t x = 0; x < 16; ++x)
-		{
-			for(int32_t y = 0; y < 16; ++y)
-			{
-				int32_t color = getpixel(tmpbmp, x, y);
-				switch(color)
-				{
-					case dvc(1):
-						color = jwin_pal[jcCURSORMISC];
-						break;
-					case dvc(2):
-						color = jwin_pal[jcCURSOROUTLINE];
-						break;
-					case dvc(3):
-						color = jwin_pal[jcCURSORLIGHT];
-						break;
-					case dvc(5):
-						color = jwin_pal[jcCURSORDARK];
-						break;
-				}
-				putpixel(subbmp, x, y, color);
-			}
-		}
+		recolor_mouse(tmpbmp);
 		if(sz!=16)
-			stretch_blit(subbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
+			stretch_blit(tmpbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
 		else
-			blit(subbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
+			blit(tmpbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
 		destroy_bitmap(tmpbmp);
-		destroy_bitmap(subbmp);
 	}
-	set_mouse_sprite(zcmouse[0]);
-	
-	// Must attempt to show cursor for allegro 5 to render it with the associated palette.
 	zc_set_palette(*hw_palette);
-	show_mouse(screen);
-	show_mouse(NULL);
-
-	unscare_mouse();
+	
+	BITMAP* blankmouse = create_bitmap_ex(8,16,16);
+	clear_bitmap(blankmouse);
+	
+	MouseSprite::assign(ZCM_NORMAL, zcmouse[0], 1*scale, 1*scale);
+	MouseSprite::assign(ZCM_BLANK, blankmouse);
+	//Don't assign ZCM_CUSTOM. That'll be handled by scripts.
+	
+	//Reload the mouse
+	if(system_mouse)
+		sys_mouse();
+	else game_mouse();
+	
+	destroy_bitmap(blankmouse);
 	game_pal();
 }
 
@@ -743,10 +800,9 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	
 	scrx = (resx-320)>>1;
 	scry = (resy-240)>>1;
-	for(int32_t q = 0; q < 4; ++q)
+	for(int32_t q = 0; q < NUM_ZCMOUSE; ++q)
 		zcmouse[q] = NULL;
 	load_mouse();
-	set_mouse_sprite(zcmouse[0]);
 	
 	for(int32_t i=240; i<256; i++)
 		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
@@ -2122,7 +2178,7 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			/*if (item_type>=itype_max)
 			{
 			  system_pal();
-			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			  game_pal();
 			
 			  return false;
@@ -2830,7 +2886,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfBCANDLE:
+					case mfANYFIRE:
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr.secretcombo[sBCANDLE],tmpscr.secretcset[sBCANDLE]);
@@ -2853,7 +2909,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfRCANDLE:
+					case mfSTRONGFIRE:
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr.secretcombo[sRCANDLE],tmpscr.secretcset[sRCANDLE]);
@@ -2876,7 +2932,7 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfWANDFIRE:
+					case mfMAGICFIRE:
 						if(!hints)
 						{
 							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr.secretcombo[sWANDFIRE],tmpscr.secretcset[sWANDFIRE]);
@@ -2907,14 +2963,14 @@ void draw_lens_under(BITMAP *dest, bool layer)
 						
 						break;
 						
-					case mfDINSFIRE:
+					case mfDIVINEFIRE:
 						if(!hints)
 						{
-							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr.secretcombo[sDINSFIRE],tmpscr.secretcset[sDINSFIRE]);
+							if(!(itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG2))putcombo(dest,x,y,tmpscr.secretcombo[sDIVINEFIRE],tmpscr.secretcset[sDIVINEFIRE]);
 						}
 						else
 						{
-							tempitem=getItemID(itemsbuf,itype_dinsfire,1);
+							tempitem=getItemID(itemsbuf,itype_divinefire,1);
 							
 							if(tempitem<0) break;
 							
@@ -3911,7 +3967,7 @@ int32_t onGUISnapshot()
 		game_pal();
 		RAMpal[253] = _RGB(0,0,0);
 		RAMpal[254] = _RGB(63,63,63);
-		zc_set_palette_range(RAMpal,0,255);
+		zc_set_palette_range(RAMpal,0,255,false);
 		memcpy(RAMpal, snappal, sizeof(snappal));
 		create_rgb_table(&rgb_table, RAMpal, NULL);
 		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
@@ -4018,7 +4074,7 @@ int32_t onSaveMapPic()
 	if(!mappic)
 	{
 		system_pal();
-		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		game_pal();
 		return D_O_K;;
 	}
@@ -4130,7 +4186,7 @@ int32_t onSaveMapPic()
 	if(!mappic)
 	{
 		system_pal();
-		jwin_alert("Save Map Picture","Not enough memory.",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert("Save Map Picture","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		game_pal();
 		return D_O_K;
 	}
@@ -4245,6 +4301,7 @@ void f_Quit(int32_t type)
 	{
 		music_pause();
 		pause_all_sfx();
+		sys_mouse();
 	}
 	enter_sys_pal();
 	clear_keybuf();
@@ -4288,7 +4345,7 @@ void f_Quit(int32_t type)
 	}
 	
 	if(!from_menu)
-		show_mouse(NULL);
+		game_mouse();
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
@@ -4722,6 +4779,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 	updatescr(allowwavy);
 
+	Advance=false;
 	while(Paused && !Advance && !Quit)
 	{
 		// have to call this, otherwise we'll get an infinite loop
@@ -4752,56 +4810,52 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 	if(Quit)
 		return;
-		
+	
 	if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
-		
-	Advance=false;
-
+	
 	if (!replay_is_active() || replay_get_version() >= 11)
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
-
+	
 	if (replay_is_active())
 	{
 		if (replay_get_version() >= 3)
 			replay_poll();
-
+		
 		if (replay_get_version() >= 11 || (replay_get_version() >= 6 && replay_get_version() < 8))
 			replay_peek_input();
 	}
-
+	
 	load_control_called_this_frame = false;
-
+	
 	poll_keyboard();
 	update_keys();
-
+	
 	++frame;
 	
 	if (replay_is_replaying())
 		replay_do_cheats();
 	syskeys();
-
+	
 	// The mouse variables can change from the mouse thread at anytime during a frame,
 	// so save the result at the start so that replaying is consistent.
 	script_mouse_x = gui_mouse_x();
 	script_mouse_y = gui_mouse_y();
 	script_mouse_z = mouse_z;
 	script_mouse_b = mouse_b;
-
+	
 	// Cheats used via the System menu (called by syskeys) will call cheats_enqueue. syskeys
 	// is called just above, and in the paused loop above, so the queue-and-defer-slightly
 	// approach here means it doesn't matter which call adds the cheat.
 	cheats_execute_queued();
-
+	
 	if (replay_is_replaying())
 		replay_peek_quit();
 	if (GameFlags & GAMEFLAG_TRYQUIT)
 		replay_step_quit(0);
 	if(allowF6Script)
-	{
 		FFCore.runF6Engine();
-	}
 	if (Quit)
 		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
@@ -5172,6 +5226,18 @@ int32_t onWinPosSave()
 	zc_set_config(cfg_sect,"save_window_position",(int32_t)SaveWinPos);
 	return D_O_K;
 }
+int32_t onIntegerScaling()
+{
+	scaleForceInteger = !scaleForceInteger;
+	zc_set_config("zeldadx","scaling_force_integer",(int)scaleForceInteger);
+	return D_O_K;
+}
+int32_t onStretchGame()
+{
+	stretchGame = !stretchGame;
+	zc_set_config("zeldadx","stretch_game_area",stretchGame?1:0);
+	return D_O_K;
+}
 
 int32_t onClickToFreeze()
 {
@@ -5193,7 +5259,7 @@ int32_t OnSaveZCConfig()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
 	{
 		save_game_configs();
 		return D_O_K;
@@ -5214,7 +5280,7 @@ int32_t OnnClearQuestDir()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
 	{
 		zc_set_config("zeldadx","win_qst_dir","");
 		flush_config_file();
@@ -5284,6 +5350,12 @@ int32_t onConsoleZScript()
 	}
 }
 
+int32_t onClrConsoleOnReload()
+{
+	clearConsoleOnReload = !clearConsoleOnReload;
+	zc_set_config("CONSOLE","clear_console_on_reload",clearConsoleOnReload?1:0);
+	return D_O_K;
+}
 int32_t onClrConsoleOnLoad()
 {
 	clearConsoleOnLoad = !clearConsoleOnLoad;
@@ -5369,16 +5441,11 @@ void kb_clearjoystick(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	unscare_mouse();
-	popup_zqdialog_start();
-	scare_mouse();
-	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 168, 48, FR_WIN);
+	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 168, 48, FR_WIN);
 	//  text_mode(vc(11));
-	textout_centre_ex(screen, font, "Press any key to clear", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
+	textout_centre_ex(gui_bmp, font, "Press any key to clear", gui_bmp->w/2, gui_bmp->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, gui_bmp->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
 	update_hw_screen(true);
 	
@@ -5395,7 +5462,6 @@ void kb_clearjoystick(DIALOG *d)
 		
 		
 	d->flags&=~D_SELECTED;
-	popup_zqdialog_end();
 }
 
 //Clears key to 0. 
@@ -5430,18 +5496,13 @@ int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 void j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
-	unscare_mouse();
-	popup_zqdialog_start();
-	scare_mouse();
-	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
+	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	int32_t y = screen->h/2 - 12;
-	textout_centre_ex(screen, font, "Press a button", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
+	int32_t y = gui_bmp->h/2 - 12;
+	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
 	update_hw_screen(true);
 	
@@ -5454,7 +5515,6 @@ void j_getbtn(DIALOG *d)
 	
 	if (player)
 		player->joy_on = TRUE;
-	popup_zqdialog_end();
 }
 
 int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -5578,30 +5638,24 @@ int32_t set_vol(void *dp3, int32_t d2)
 		break;
 	}
 	
-	scare_mouse();
 	// text_mode(vc(11));
-	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
-	unscare_mouse();
+	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3d",zc_min(d2<<3,255));
 	return D_O_K;
 }
 
 int32_t set_pan(void *dp3, int32_t d2)
 {
 	pan_style = vbound(d2,0,3);
-	scare_mouse();
 	// text_mode(vc(11));
-	textout_right_ex(screen,lfont_l, pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
+	textout_right_ex(screen,get_zc_font(font_lfont_l), pan_str[pan_style],((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	return D_O_K;
 }
 
 int32_t set_buf(void *dp3, int32_t d2)
 {
-	scare_mouse();
 	// text_mode(vc(11));
 	zcmusic_bufsz = d2 + 1;
-	textprintf_right_ex(screen,lfont_l, ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
-	unscare_mouse();
+	textprintf_right_ex(screen,get_zc_font(font_lfont_l), ((int32_t*)dp3)[1],((int32_t*)dp3)[2],jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%3dKB",zcmusic_bufsz);
 	return D_O_K;
 }
 
@@ -5980,11 +6034,11 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
 	
 	if(list==NULL)
 	{
-		ret = jwin_file_select_ex(prompt,modulepath,ext,2048,-1,-1,lfont);
+		ret = jwin_file_select_ex(prompt,modulepath,ext,2048,-1,-1,get_zc_font(font_lfont));
 	}
 	else
 	{
-		ret = jwin_file_browse_ex(prompt, modulepath, list, &sel, 2048, -1, -1, lfont);
+		ret = jwin_file_browse_ex(prompt, modulepath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
 	}
 	
 	return ret!=0;
@@ -5995,7 +6049,7 @@ int32_t zc_load_zmod_module_file()
 {
 	if ( Playing )
 	{
-	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,lfont);	
+	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));	
 	return -1;
 	}
 	if(!zc_getname("Load Module (.zmod)","zmod",NULL,modulepath,false))
@@ -6005,7 +6059,7 @@ int32_t zc_load_zmod_module_file()
 			
 			if(tempmodule == NULL)
 			{
-				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				return -1;
 			}
 		
@@ -6057,7 +6111,7 @@ static DIALOG module_info_dlg[] =
 void about_zcplayer_module(const char *prompt,int32_t initialval)
 {	
 	
-	module_info_dlg[0].dp2 = lfont;
+	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
 	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
@@ -6102,7 +6156,7 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 	
 	large_dialog(module_info_dlg);
 	
-	int32_t ret = do_zqdialog(module_info_dlg,-1);
+	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
@@ -6133,7 +6187,7 @@ int32_t onToggleRecordingNewSaves()
 	{
 		zc_set_config("zeldadx", "replay_new_saves", true);
 		jwin_alert("Recording", "Newly created saves will be recorded and written to a replay file.",
-			NULL,NULL,"OK",NULL,13,27,lfont);
+			NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 	}
 	return D_O_K;
 }
@@ -6155,7 +6209,7 @@ int32_t onStopReplayOrRecord()
 		if (!replay_get_meta_bool("test_mode"))
 		{
 			jwin_alert("Recording", "You cannot stop recording a save file.",
-				NULL,NULL,"OK",NULL,13,27,lfont);
+				NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 			return D_CLOSE;
 		}
 
@@ -6163,7 +6217,7 @@ int32_t onStopReplayOrRecord()
 			"Save replay to disk and stop recording?",
 			"This will stop the recording.",
 			NULL,
-			"Yes","No",13,27,lfont) != 1)
+			"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
 		return D_CLOSE;
 
 		replay_save();
@@ -6180,7 +6234,7 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 			"Loading a replay will exit the current game.",
 			"All unsaved progress will be lost.",
 			"Do you wish to continue?",
-			"Yes","No",13,27,lfont) != 1)
+			"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
 		return D_CLOSE;
 	}
 
@@ -6201,13 +6255,13 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 		line_1.c_str(),
 		line_2.c_str(),
 		line_3.c_str(),
-		"OK","Nevermind",13,27,lfont) == 1)
+		"OK","Nevermind",13,27,get_zc_font(font_lfont)) == 1)
 	{
 		char replay_path[2048];
 		strcpy(replay_path, "replays/");
 		if (jwin_file_select_ex(
 				fmt::format("Load Replay (.{})", REPLAY_EXTENSION).c_str(),
-				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
+				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 			return D_CLOSE;
 
 		replay_quit();
@@ -6243,20 +6297,20 @@ int32_t onSaveReplay()
 				"This will save a copy of the replay up to this point.",
 				"The official replay file will be untouched.",
 				"Do you wish to continue?",
-				"Yes","No",13,27,lfont) != 1)
+				"Yes","No",13,27,get_zc_font(font_lfont)) != 1)
 			return D_CLOSE;
 
 			char replay_path[2048];
 			strcpy(replay_path, replay_get_replay_path().string().c_str());
 			if (jwin_file_select_ex(
 					fmt::format("Save Replay (.{})", REPLAY_EXTENSION).c_str(),
-					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, lfont) == 0)
+					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 				return D_CLOSE;
 
 			if (fileexists(replay_path))
 			{
 				jwin_alert("Save Replay", "You cannot overwrite an existing file.",
-					NULL,NULL,"OK",NULL,13,27,lfont);
+					NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 				return D_CLOSE;
 			}
 
@@ -6294,7 +6348,7 @@ static DIALOG credits_dlg[] =
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
-static ListData dmap_list(dmaplist, &font, &a5font);
+static ListData dmap_list(dmaplist, &font);
 
 static DIALOG goto_dlg[] =
 {
@@ -6316,7 +6370,7 @@ int32_t onGoTo()
 	music = music;
 	sprintf(cheat_goto_screen_str,"%X",cheat_goto_screen);
 	
-	goto_dlg[0].dp2=lfont;
+	goto_dlg[0].dp2=get_zc_font(font_lfont);
 	goto_dlg[4].d2=cheat_goto_dmap;
 	goto_dlg[6].dp=cheat_goto_screen_str;
 	
@@ -6324,7 +6378,7 @@ int32_t onGoTo()
 	
 	large_dialog(goto_dlg);
 		
-	if(do_zqdialog(goto_dlg,4)==1)
+	if(zc_popup_dialog(goto_dlg,4)==1)
 	{
 		// dmap, screen
 		cheats_enqueue(Cheat::GoTo, goto_dlg[4].d2, zc_min(zc_xtoi(cheat_goto_screen_str),0x7F));
@@ -6343,13 +6397,13 @@ int32_t onGoToComplete()
 	system_pal();
 	music_pause();
 	pause_all_sfx();
-	show_mouse(screen);
+	sys_mouse();
 	onGoTo();
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
-		
-	show_mouse(NULL);
+	
+	game_mouse();
 	game_pal();
 	music_resume();
 	resume_all_sfx();
@@ -6371,17 +6425,24 @@ int32_t onCredits()
 	RLE_SPRITE *rle = (RLE_SPRITE*)(datafile[RLE_CREDITS].dat);
 	RGB *pal = (RGB*)(datafile[PAL_CREDITS].dat);
 	PALETTE tmppal;
-	
+
+	rti_gui.transparency_index = 1;
+
+	clear_to_color(win, rti_gui.transparency_index);
 	draw_rle_sprite(win,rle,0,0);
-	credits_dlg[0].dp2=lfont;
+	credits_dlg[0].dp2=get_zc_font(font_lfont);
 	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
 	credits_dlg[2].dp = win;
 
-	zc_set_palette_range(black_palette,0,127);
+	zc_set_palette_range(black_palette,0,127,false);
 	
 	DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
-	
-	popup_zqdialog_start();
+
+	BITMAP* old_screen = screen;
+	BITMAP* gui_bmp = zc_get_gui_bmp();
+	ASSERT(gui_bmp);
+	clear_to_color(gui_bmp, rti_gui.transparency_index);
+	screen = gui_bmp;
 	
 	while(update_dialog(p))
 	{
@@ -6401,26 +6462,27 @@ int32_t onCredits()
 		if(c<=64)
 			fade_interpolate(black_palette,pal,tmppal,c,0,127);
 			
-		zc_set_palette_range(tmppal,0,127);
+		zc_set_palette_range(tmppal,0,127,false);
 		
 		if(l!=ol)
 		{
-			scare_mouse();
 			d_bitmap_proc(MSG_DRAW,credits_dlg+2,0);
-			unscare_mouse();
 			SCRFIX();
 			ol=l;
 		}
 
 		update_hw_screen();
 	}
-	
-	popup_zqdialog_end();
+
+	screen = old_screen;
 	system_pal();
 	
 	shutdown_dialog(p);
 	destroy_bitmap(win);
 	//comeback();
+
+	rti_gui.transparency_index = 0;
+	clear_to_color(gui_bmp, rti_gui.transparency_index);
 
 	return D_O_K;
 }
@@ -6546,19 +6608,19 @@ int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c)
 		strcpy(title+11, tunes[i].title);
 	title[39] = '\0';
 		
-		if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, lfont)==0)
+		if(jwin_file_browse_ex(title, fname, list, &sel, 2048, -1, -1, get_zc_font(font_lfont))==0)
 			goto done;
 			
 		if(exists(fname))
 		{
-			if(jwin_alert(title, fname, "already exists.", "Overwrite it?", "&Yes","&No",'y','n',lfont)==2)
+			if(jwin_alert(title, fname, "already exists.", "Overwrite it?", "&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
 				goto done;
 		}
 		
 		// save midi i
 		
 		if(save_midi(fname, (MIDI*)tunes[i].data) != 0)
-			jwin_alert(title, "Error saving MIDI to", fname, NULL, "Darn", NULL,13,27,lfont);
+			jwin_alert(title, "Error saving MIDI to", fname, NULL, "Darn", NULL,13,27,get_zc_font(font_lfont));
 			
 done:
 		chop_path(fname);
@@ -6568,7 +6630,7 @@ done:
 	return ret;
 }
 
-static ListData midi_list(midilist, &font, &a5font);
+static ListData midi_list(midilist, &font);
 
 static DIALOG midi_dlg[] =
 {
@@ -6606,17 +6668,15 @@ void get_info(int32_t index)
 		get_midi_text((MIDI*)tunes[i].data,zmi,text);
 	}
 	
-	midi_dlg[0].dp2=lfont;
+	midi_dlg[0].dp2=get_zc_font(font_lfont);
 	midi_dlg[3].dp = text;
 	midi_dlg[3].d1 = midi_dlg[3].d2 = 0;
 	midi_dlg[5].flags = (tunes[i].flags&tfDISABLESAVE) ? D_DISABLED : D_EXIT;
 	
 	if(dialog_running)
 	{
-		scare_mouse();
 		jwin_textbox_proc(MSG_DRAW,midi_dlg+3,0);
 		d_savemidi_proc(MSG_DRAW,midi_dlg+5,0);
-		unscare_mouse();
 	}
 }
 
@@ -6627,7 +6687,7 @@ int32_t onMIDICredits()
 	
 	if(!text || !zmi)
 	{
-		jwin_alert(NULL,"Not enough memory",NULL,NULL,"OK",NULL,13,27,lfont);
+		jwin_alert(NULL,"Not enough memory",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 		return D_O_K;
 	}
 	
@@ -6641,7 +6701,7 @@ int32_t onMIDICredits()
 		midi_suspended = midissuspHALTED;
 	}
 	
-	midi_dlg[0].dp2=lfont;
+	midi_dlg[0].dp2=get_zc_font(font_lfont);
 	midi_dlg[2].d1 = 0;
 	midi_dlg[2].d2 = 0;
 	midi_dlg[4].flags = D_EXIT;
@@ -6655,7 +6715,7 @@ int32_t onMIDICredits()
 	
 	large_dialog(midi_dlg);
 		
-	do_zqdialog(midi_dlg,0);
+	zc_popup_dialog(midi_dlg,0);
 	dialog_running=false;
 	
 	if(listening)
@@ -6696,7 +6756,7 @@ int32_t onQuest()
 {
 	char fname[100];
 	strcpy(fname, get_filename(qstpath));
-	quest_dlg[0].dp2=lfont;
+	quest_dlg[0].dp2=get_zc_font(font_lfont);
 	quest_dlg[1].dp = fname;
 	
 	if(QHeader.quest_number==0)
@@ -6711,7 +6771,7 @@ int32_t onQuest()
 	
 	large_dialog(quest_dlg);
 		
-	do_zqdialog(quest_dlg, 0);
+	zc_popup_dialog(quest_dlg, 0);
 	return D_O_K;
 }
 
@@ -6784,13 +6844,13 @@ int32_t onKeyboard()
 	bool done=false;
 	int32_t ret;
 	
-	keyboard_control_dlg[0].dp2=lfont;
+	keyboard_control_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	large_dialog(keyboard_control_dlg);
 		
 	while(!done)
 	{
-		ret = do_zqdialog(keyboard_control_dlg,3);
+		ret = zc_popup_dialog(keyboard_control_dlg,3);
 		
 		if(ret==3) // OK
 		{
@@ -6817,7 +6877,7 @@ int32_t onKeyboard()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
+				box_start(1, "Duplicate Keys", get_zc_font(font_lfont), get_zc_font(font_sfont), false, keyboard_control_dlg[0].w,keyboard_control_dlg[0].h, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -6875,7 +6935,7 @@ int32_t onGamepad()
 	int32_t left = DLbtn;
 	int32_t right = DRbtn;
 	
-	gamepad_dlg[0].dp2=lfont;
+	gamepad_dlg[0].dp2=get_zc_font(font_lfont);
 	if(analog_movement)
 		gamepad_dlg[56].flags|=D_SELECTED;
 	else
@@ -6883,7 +6943,7 @@ int32_t onGamepad()
 	
 	large_dialog(gamepad_dlg);
 		
-	int32_t ret = do_zqdialog(gamepad_dlg,4);
+	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
 	
 	if(ret == 4) //OK
 	{
@@ -6961,7 +7021,7 @@ int32_t onCheatKeys()
 			}
 			else
 			{
-				box_start(1, "Duplicate Keys", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG), false, 500,400, 2);
+				box_start(1, "Duplicate Keys", get_zc_font(font_lfont), get_zc_font(font_sfont), false, 500,400, 2);
 				box_out("Cannot have duplicate keybinds!"); box_eol();
 				for(std::vector<std::string>::iterator it = uniqueError.begin();
 					it != uniqueError.end(); ++it)
@@ -7013,7 +7073,7 @@ int32_t onSound()
 	int32_t p = pan_style;
 	pan_style = vbound(pan_style,0,3);
 	
-	sound_dlg[0].dp2=lfont;
+	sound_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	large_dialog(sound_dlg);
 		
@@ -7036,7 +7096,7 @@ int32_t onSound()
 	sound_dlg[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
 	sound_dlg[20].d2 = pan_style;
 	
-	int32_t ret = do_zqdialog(sound_dlg,1);
+	int32_t ret = zc_popup_dialog(sound_dlg,1);
 	
 	if(ret==2)
 	{
@@ -7070,7 +7130,7 @@ int32_t onSound()
 
 int32_t queding(char const* s1, char const* s2, char const* s3)
 {
-	return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',lfont);
+	return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',get_zc_font(font_lfont));
 }
 
 int32_t onQuit()
@@ -7125,17 +7185,21 @@ int32_t onTryQuit(bool inMenu)
 {
 	if(Playing && !(GameFlags & GAMEFLAG_NO_F6))
 	{
-		if(get_bit(quest_rules,qr_OLD_F6))
+		if(active_cutscene.can_f6())
 		{
-			if(inMenu) onQuit();
-			else /*if(!get_bit(quest_rules, qr_NOCONTINUE))*/ f_Quit(qQUIT);
+			if(get_bit(quest_rules,qr_OLD_F6))
+			{
+				if(inMenu) onQuit();
+				else /*if(!get_bit(quest_rules, qr_NOCONTINUE))*/ f_Quit(qQUIT);
+			}
+			else
+			{
+				disableClickToFreeze=false;
+				GameFlags |= GAMEFLAG_TRYQUIT;
+			}
+			return D_CLOSE;
 		}
-		else
-		{
-			disableClickToFreeze=false;
-			GameFlags |= GAMEFLAG_TRYQUIT;
-		}
-		return D_CLOSE;
+		else active_cutscene.error();
 	}
 	
 	return D_O_K;
@@ -7218,7 +7282,7 @@ int32_t onEpilepsy()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)
+		get_zc_font(font_lfont)) == 1)
 	{
 		epilepsyFlashReduction = epilepsyFlashReduction ? 0 : 1;
 		zc_set_config("zeldadx","checked_epilepsy",1);
@@ -7236,11 +7300,11 @@ int32_t onTriforce()
 	
 	init_tabs[3].flags=D_SELECTED;
 	return onCheatConsole();
-	/*triforce_dlg[0].dp2=lfont;
+	/*triforce_dlg[0].dp2=get_zc_font(font_lfont);
 	for(int32_t i=1; i<=8; i++)
 	  triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
 	
-	if(do_zqdialog (triforce_dlg,-1)==9)
+	if(zc_popup_dialog (triforce_dlg,-1)==9)
 	{
 	  for(int32_t i=1; i<=8; i++)
 	  {
@@ -7273,6 +7337,34 @@ int32_t onItems()
 	
 	init_tabs[1].flags=D_SELECTED;
 	return onCheatConsole();
+}
+
+static DIALOG getnum_dlg[] =
+{
+	// (dialog proc)	   (x)   (y)	(w)	 (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
+	{ jwin_win_proc,		80,   80,	 160,	72,   vc(0),  vc(11),  0,	   D_EXIT,	 0,			 0,	   NULL, NULL,  NULL },
+	{ jwin_text_proc,		  104,  104+4,  48,	 8,	vc(0),  vc(11),  0,	   0,		  0,			 0, (void *) "Number:", NULL,  NULL },
+	{ jwin_edit_proc,	   168,  104,	48,	 16,	0,	 0,	   0,	   0,		  6,			 0,	   NULL, NULL,  NULL },
+	{ jwin_button_proc,	 90,   126,	61,	 21,   vc(0),  vc(11),  13,	  D_EXIT,	 0,			 0, (void *) "OK", NULL,  NULL },
+	{ jwin_button_proc,	 170,  126,	61,	 21,   vc(0),  vc(11),  27,	  D_EXIT,	 0,			 0, (void *) "Cancel", NULL,  NULL },
+	{ d_timer_proc,		 0,	0,	 0,	0,	0,	   0,	   0,	   0,		  0,		  0,		 NULL, NULL, NULL },
+	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
+};
+
+int32_t getnumber(const char *prompt,int32_t initialval)
+{
+	char buf[20];
+	sprintf(buf,"%d",initialval);
+	getnum_dlg[0].dp=(void *)prompt;
+	getnum_dlg[0].dp2=get_zc_font(font_lfont);
+	getnum_dlg[2].dp=buf;
+	
+	large_dialog(getnum_dlg);
+		
+	if(zc_popup_dialog(getnum_dlg,2)==3)
+		return atoi(buf);
+		
+	return initialval;
 }
 
 int32_t onLife()
@@ -7340,7 +7432,7 @@ int32_t onQstPath()
 	
 	go();
 	
-	if(jwin_dfile_select_ex("Quest File Directory", path, "qst", 2048, -1, -1, lfont))
+	if(jwin_dfile_select_ex("Quest File Directory", path, "qst", 2048, -1, -1, get_zc_font(font_lfont)))
 	{
 		chop_path(path);
 		fix_filename_case(path);
@@ -7417,7 +7509,7 @@ const char *after_list(int32_t index, int32_t *list_size)
 	return after_str[index];
 }
 
-static ListData after__list(after_list, &font, &a5font);
+static ListData after__list(after_list, &font);
 
 static DIALOG scrsaver_dlg[] =
 {
@@ -7439,7 +7531,7 @@ static DIALOG scrsaver_dlg[] =
 
 int32_t onScreenSaver()
 {
-	scrsaver_dlg[0].dp2=lfont;
+	scrsaver_dlg[0].dp2=get_zc_font(font_lfont);
 	int32_t oldcfgs[3];
 	scrsaver_dlg[5].d1 = scrsaver_dlg[5].d2 = oldcfgs[0] = ss_after;
 	scrsaver_dlg[6].d2 = oldcfgs[1] = ss_speed;
@@ -7447,7 +7539,7 @@ int32_t onScreenSaver()
 	
 	large_dialog(scrsaver_dlg);
 		
-	int32_t ret = do_zqdialog(scrsaver_dlg,-1);
+	int32_t ret = zc_popup_dialog(scrsaver_dlg,-1);
 	
 	if(ret == 8 || ret == 9)
 	{
@@ -7466,10 +7558,8 @@ int32_t onScreenSaver()
 		// preview Screen Saver
 	{
 		clear_keybuf();
-		scare_mouse();
 		Matrix(ss_speed, ss_density, 30);
 		system_pal();
-		unscare_mouse();
 	}
 	
 	return D_O_K;
@@ -7538,9 +7628,11 @@ static void set_controls_menu_active()
 
 static MENU window_menu[] =
 {
-	{ "Save Size Changes",            onSaveDragResize,        NULL,                      0, NULL },
 	{ "Lock Aspect Ratio",            onDragAspect,            NULL,                      0, NULL },
+	{ "Lock Integer Scale",           onIntegerScaling,        NULL,                      0, NULL },
+	{ "Save Size Changes",            onSaveDragResize,        NULL,                      0, NULL },
 	{ "Save Position Changes",        onWinPosSave,            NULL,                      0, NULL },
+	{ "Stretch Game Area",            onStretchGame,           NULL,                      0, NULL },
 	{ NULL,                           NULL,                    NULL,                      0, NULL }
 };
 static MENU options_menu[] =
@@ -7728,7 +7820,6 @@ MENU the_player_menu[] =
 	#endif
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
-
 int32_t onMIDIPatch()
 {
 	if(jwin_alert3(
@@ -7742,7 +7833,7 @@ int32_t onMIDIPatch()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)
+		get_zc_font(font_lfont)) == 1)
 	{
 		midi_patch_fix = midi_patch_fix ? 0 : 1;
 		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);
@@ -7772,14 +7863,16 @@ int32_t onExtLetterGridEntry()
 	return D_O_K;
 }
 
-static BITMAP* truescreen;
+static BITMAP* oldscreen;
 int32_t onFullscreenMenu()
 {
-	BITMAP* os = screen==truescreen? nullptr : screen;
-	screen = truescreen;
-	if(onFullscreen()==D_REDRAW)
-		truescreen = screen;
-	if(os) screen = os;
+	// super hacks
+	screen = oldscreen;
+	if (onFullscreen() == D_REDRAW)
+	{
+		oldscreen = screen;
+	}
+	screen = menu_bmp;
 	misc_menu[2].flags =(isFullScreen()==1)?D_SELECTED:0;
 	return D_O_K;
 }
@@ -7884,7 +7977,7 @@ void system_pal()
 		pal[i].g = i-128;
 		pal[i].b = i-128;
 	}
-	load_colorset(gui_colorset, pal);
+	load_colorset(gui_colorset, pal, jwin_a5_colors);
 	
 	color_layer(pal, pal, 24,16,16, 28, 128,191);
 	
@@ -8296,17 +8389,16 @@ void System()
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
 	clear_keybuf();
-	show_mouse(screen);
-	truescreen = screen;
+	sys_mouse();
 	
 	DIALOG_PLAYER *p;
-	
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	al_set_target_bitmap(rti_menu.bitmap);
-	
-	system_dlg[0].dp2 = get_zc_font_a5(font_dsphantompfont);
+
+	clear_bitmap(menu_bmp);
+	oldscreen = screen;
+	screen = menu_bmp;
+
 	p = init_dialog(system_dlg,-1);
+	
 	// drop the menu on startup if menu button pressed
 	if(joybtn(Mbtn)||zc_getrawkey(KEY_ESC))
 		simulate_keypress(KEY_G << 8);
@@ -8335,11 +8427,13 @@ void System()
 		settings_menu[9].flags = TransLayers?D_SELECTED:0;
 		settings_menu[10].flags = NESquit?D_SELECTED:0;
 		settings_menu[11].flags = volkeys?D_SELECTED:0;
-		
-		window_menu[0].flags = SaveDragResize?D_SELECTED:0;
-		window_menu[1].flags = DragAspect?D_SELECTED:0;
-		window_menu[2].flags = SaveWinPos?D_SELECTED:0;
-		
+
+		window_menu[0].flags = DragAspect?D_SELECTED:0;
+		window_menu[1].flags = scaleForceInteger?D_SELECTED:0;
+		window_menu[2].flags = SaveDragResize?D_SELECTED:0;
+		window_menu[3].flags = SaveWinPos?D_SELECTED:0;
+		window_menu[4].flags = stretchGame?D_SELECTED:0;
+
 		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
 		options_menu[5].flags = (midi_patch_fix)?D_SELECTED:0;
 		
@@ -8349,9 +8443,11 @@ void System()
 	
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
-		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
+		misc_menu[14].flags =(clearConsoleOnReload)?D_SELECTED:0;
+		misc_menu[15].flags =(clearConsoleOnLoad)?D_SELECTED:0;
+		
 		bool nocheat = (replay_is_replaying() || !Playing
-			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode));
+			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
 		the_player_menu[2].flags = nocheat ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
 		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
@@ -8415,23 +8511,21 @@ void System()
 		{
 			// Screen saver enabled for now.
 			clear_keybuf();
-			scare_mouse();
 			Matrix(ss_speed, ss_density, 0);
 			system_pal();
-			unscare_mouse();
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}
 		
 		update_hw_screen();
 	}
 	while(update_dialog(p));
+
+	screen = oldscreen;
 	
-	al_restore_state(&old_state);
-	screen = truescreen;
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);
-	show_mouse(NULL);
+	game_mouse();
 	MenuOpen = false;
 	if(Quit)
 	{
@@ -8462,6 +8556,7 @@ void fix_dialogs()
 	jwin_center_dialog(gamepad_dlg);
 	jwin_center_dialog(credits_dlg);
 	jwin_center_dialog(gamemode_dlg);
+	jwin_center_dialog(getnum_dlg);
 	jwin_center_dialog(goto_dlg);
 	jwin_center_dialog(keyboard_control_dlg);
 	jwin_center_dialog(midi_dlg);
@@ -8818,6 +8913,9 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart)
 	
 	if(pos<=0)
 		voice_start(sfx_voice[index]);
+
+	if (restart && replay_is_debug())
+		replay_step_comment(fmt::format("sfx {}", sfx_string[index]));
 }
 
 // true if sfx is allocated
@@ -9118,6 +9216,15 @@ void load_control_state()
 			raw_control_state[17] = false;
 			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
+		bool did_bad_cutscene_btn = false;
+		for(int q = 0; q < 18; ++q)
+			if(raw_control_state[q] && !active_cutscene.can_button(q))
+			{
+				raw_control_state[q] = false;
+				did_bad_cutscene_btn = true;
+			}
+		if(did_bad_cutscene_btn)
+			active_cutscene.error();
 	}
 	if (replay_is_active())
 	{

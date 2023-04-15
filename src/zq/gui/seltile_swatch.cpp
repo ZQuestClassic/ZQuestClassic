@@ -3,13 +3,13 @@
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include "zquest.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"
 #include "zq_tiles.h"
-#include <fmt/format.h>
+#include <allegro/internal/aintern.h>
 
 int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 {
@@ -71,66 +71,61 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 		{
 			int32_t tw = (ptr ? ptr->getTileWid() : 1);
 			int32_t th = (ptr ? ptr->getTileHei() : 1);
-			int32_t tile = (d->d1 ? d->d1 : ptr->getDefTile());
-			int32_t cset = (d->d1 ? d->d2 : ptr->getDefCS());
-			if(dis || !(tile || ptr->getShowT0()))
+			BITMAP *buf = create_bitmap_ex(8,16*tw+4,16*th+4);
+			BITMAP *bigbmp = create_bitmap_ex(8,d->w,d->h);
+			
+			if(buf && bigbmp)
 			{
-				ALLEGRO_COLOR fill = dis ? jwin_a5_pal(jcBOX) : a5color(CSET(cset));
-				al_draw_filled_rectangle(d->x,d->y,d->x+d->w,d->y+d->h,fill);
-			}
-			else
-			{
-				// Setup a5 buffer
-				set_bitmap_create_flags(false);
-				ALLEGRO_BITMAP *buf = al_create_bitmap(tw*16,th*16);
-				set_bitmap_create_flags(0);
-				ALLEGRO_STATE old_state;
-				al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-				al_set_target_bitmap(buf);
-				auto* lock = al_lock_bitmap(buf,ALLEGRO_PIXEL_FORMAT_ANY,ALLEGRO_LOCK_READWRITE);
-				// Draw the tile(s)
-				for(auto tx = 0; tx < tw; ++tx)
+				clear_bitmap(buf);
+				if(dis)
+					rectfill(bigbmp,0,0,d->h-1,d->h-1,jwin_pal[jcBOX]);
+				else
 				{
-					for(auto ty = 0; ty < th; ++ty)
+					int32_t tile = (d->d1 ? d->d1 : ptr->getDefTile());
+					int32_t cset = (d->d1 ? d->d2 : ptr->getDefCS());
+					if(tile || ptr->getShowT0())
 					{
-						int32_t tmptile = tile+tx+(TILES_PER_ROW*ty);
-						
-						a5_draw_tile(tx*16,ty*16,tmptile,cset,0,0,false);
+						if(tw > 1 || th > 1)
+							overtileblock16(buf,tile,2,2,tw,th,cset,d->fg);
+						else overtile16(buf,tile,2,2,cset,d->fg);
+					}
+					
+					if(ptr->getIsMini()) //Minitile corner
+					{
+						int32_t crn = ptr->getMiniCrn()% 4;
+						int32_t cx = (2+((crn&1)?8:0));
+						int32_t cy = (2+((crn&2)?8:0));
+						int32_t toffs = (ptr->getMiniCrn() / 4);
+						cx += (toffs%tw) * 16;
+						cy += (toffs/tw) * 16;
+						rect(buf,cx,cy,cx+7,cy+7,ptr->sel_color);
 					}
 				}
-				//Unlock and handle minitile
-				al_unlock_bitmap(buf);
-				if(ptr->getIsMini()) //Minitile corner
-				{
-					int32_t crn = ptr->getMiniCrn()% 4;
-					int32_t cx = (2+((crn&1)?8:0));
-					int32_t cy = (2+((crn&2)?8:0));
-					int32_t toffs = (ptr->getMiniCrn() / 4);
-					cx += (toffs%tw) * 16;
-					cy += (toffs/tw) * 16;
-					al_draw_rectangle(cx,cy,cx+7,cy+7,ptr->sel_color,1);
-				}
-				// Un-target the buffer
-				al_restore_state(&old_state);
-				al_draw_scaled_bitmap(buf, 0, 0, tw*16, th*16, d->x+2, d->y+2, d->w-4, d->h-4, 0);
-				al_destroy_bitmap(buf);
+				
+				stretch_blit(buf, bigbmp, 2,2, (16*tw), (16*th), 2, 2, d->w-4, d->h-4);
+				destroy_bitmap(buf);
+				jwin_draw_frame(bigbmp,0,0,d->w,d->h,dis ? FR_ETCHED : FR_DEEP);
+				blit(bigbmp,screen,0,0,d->x,d->y,d->w,d->h);
+				destroy_bitmap(bigbmp);
 			}
-			jwin_draw_frame_a5(d->x,d->y,d->w,d->h,dis ? FR_ETCHED : FR_DEEP);
 			
+			//    text_mode(d->bg);
 			if(d->bg & 0b1)
 			{
-				ALLEGRO_FONT *fonty = a5font;
-				if(d->dp2) fonty = (ALLEGRO_FONT*)d->dp2;
-				int fh = al_get_font_line_height(fonty);
+				FONT *fonty = font;
+				if(d->dp2) fonty = (FONT*)d->dp2;
 				if(dis)
 				{
-					jwin_textout_a5_dis(fonty,jwin_a5_pal(jcDISABLED_FG),d->x+d->w,d->y+2,0,fmt::format("Tile: {}",d->d1).c_str(),jwin_a5_pal(jcDISABLED_BG),jwin_a5_pal(jcLIGHT));
-					jwin_textout_a5_dis(fonty,jwin_a5_pal(jcDISABLED_FG),d->x+d->w,d->y+fh+3,0,fmt::format("CSet: {}",d->d2).c_str(),jwin_a5_pal(jcDISABLED_BG),jwin_a5_pal(jcLIGHT));
+					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+3,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"Tile: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcDISABLED_FG],-1,"Tile: %d",d->d1);
+					
+					textprintf_ex(screen,fonty,d->x+d->w+1,d->y+text_height(fonty)+4,jwin_pal[jcLIGHT],jwin_pal[jcDISABLED_BG],"CSet: %d",d->d2);
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcDISABLED_FG],-1,"CSet: %d",d->d2);
 				}
 				else
 				{
-					jwin_textout_a5(fonty,jwin_a5_pal(jcBOXFG),d->x+d->w,d->y+2,0,fmt::format("Tile: {}",d->d1).c_str(),jwin_a5_pal(jcBOX));
-					jwin_textout_a5(fonty,jwin_a5_pal(jcBOXFG),d->x+d->w,d->y+fh+3,0,fmt::format("CSet: {}",d->d2).c_str(),jwin_a5_pal(jcBOX));
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Tile: %d",d->d1);
+					textprintf_ex(screen,fonty,d->x+d->w,d->y+text_height(fonty)+3,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"CSet: %d",d->d2);
 				}
 			}
 		}
@@ -147,9 +142,9 @@ SelTileSwatch::SelTileSwatch(): tile(0), cset(0), flip(0),
 	tw(1), th(1), isMini(false), mini_crn(0),
 	showFlip(false), showsVals(true),
 	alDialog(), message(-1), showT0(false),
-	minionly(false), deftile(0)
+	minionly(false), deftile(0), defcs(0)
 {
-	sel_color = jwin_a5_pal(jcTITLER);
+	sel_color = jwin_pal[jcTITLER];
 	Size s = 32_px+4_px;
 	setPreferredWidth(s);
 	setPreferredHeight(s);
@@ -281,14 +276,14 @@ void SelTileSwatch::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
-void SelTileSwatch::applyFont_a5(ALLEGRO_FONT* newFont)
+void SelTileSwatch::applyFont(FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 		pendDraw();
 	}
-	Widget::applyFont_a5(newFont);
+	Widget::applyFont(newFont);
 }
 
 void SelTileSwatch::realize(DialogRunner& runner)
@@ -303,7 +298,7 @@ void SelTileSwatch::realize(DialogRunner& runner)
 		0,
 		getFlags(),
 		tile, cset, // d1, d2,
-		nullptr, widgFont_a5, this // dp, dp2, dp3
+		nullptr, widgFont, this // dp, dp2, dp3
 	});
 }
 
@@ -313,7 +308,7 @@ void SelTileSwatch::calculateSize()
 		tw = th = 1;
 	Size w = (tw*32_px)+4_px;
 	Size h = (th*32_px)+4_px;
-	setPreferredWidth(w + (showsVals ? al_get_text_width(widgFont_a5, "Tile: 999999") : 0));
+	setPreferredWidth(w + (showsVals ? text_length(widgFont, "Tile: 999999") : 0));
 	setPreferredHeight(h);
 	Widget::calculateSize();
 }
@@ -322,36 +317,45 @@ void SelTileSwatch::calc_selcolor()
 {
 	if(!alDialog) return;
 	if(!isMini) return;
+	BITMAP* buf = create_bitmap_ex(8,8,8);
 	
+	RGB col;
 	int32_t tile = (alDialog->d1 ? alDialog->d1 : deftile);
 	int32_t cset = (alDialog->d1 ? alDialog->d2 : defcs);
 	if(tile || showT0)
 	{
-		PALETTE tpal;
-		get_palette(tpal);
 		
-		byte buf[8*8];
-		load_minitile(buf, tile, mini_crn);
-		
+		int32_t crn = mini_crn % 4;
+		int32_t cx = (2+((crn&1)?8:0));
+		int32_t cy = (2+((crn&2)?8:0));
+		int32_t toffs = (mini_crn / 4);
+		cx += (toffs%tw) * 16;
+		cy += (toffs/tw) * 16;
+		if(tw > 1 || th > 1)
+			overtileblock16(buf,tile,-cx,-cy,tw,th,cset,alDialog->fg);
+		else overtile16(buf,tile,-cx,-cy,cset,alDialog->fg);
 		int32_t r = 0, g = 0, b = 0, count = 0;
 		for(int32_t ty = 1; ty < 7; ++ty)
 		{
+			uintptr_t read_addr = bmp_read_line(buf, ty);
 			for(int32_t tx = 1; tx < 7; ++tx)
 			{
-				RGB& c = tpal[tx+(ty*8)];
-				r += c.r;
-				b += c.b;
-				g += c.g;
+				RGB foo;
+				get_color(bmp_read8(read_addr+tx), &foo);
+				r += foo.r;
+				b += foo.b;
+				g += foo.g;
 				++count;
 			}
 		}
-		unsigned char nr = r*4/count, ng = g*4/count, nb = b*4/count;
-		
-		sel_color = getHighlightColor(al_map_rgb(nr,ng,nb));
+		bmp_unwrite_line(buf);
+		col.r = r/count;
+		col.g = g/count;
+		col.b = b/count;
 	}
-	else
-		sel_color = getHighlightColor(a5color(0));
+	else get_color(0, &col);
 	
+	sel_color = getHighlightColor(col);
 }
 
 int32_t SelTileSwatch::onEvent(int32_t event, MessageDispatcher& sendMessage)

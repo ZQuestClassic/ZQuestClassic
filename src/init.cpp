@@ -47,9 +47,6 @@ extern zcmodule moduledata;
 
 
 extern int32_t jwin_pal[jcMAX];
-extern FONT *sfont2;
-extern FONT *lfont;
-extern FONT *pfont;
 extern dmap *DMaps;
 extern itemdata *itemsbuf;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
@@ -905,7 +902,6 @@ int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int32_t div = atoi((char*)((d+1589)->dp));
         
         if(div == 0)
@@ -913,7 +909,6 @@ int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c)
             
         sprintf((char*)((d+6)->dp), "%d", atoi((char*)(d->dp))/div);
         (d+6)->proc(MSG_DRAW,d+6,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -934,10 +929,8 @@ int32_t d_bombratioedit_proc(int32_t msg,DIALOG *d,int32_t c)
         if(atoi((char*)(d->dp)))
             sbombmax = atoi((char*)((d-1589)->dp))/div;
             
-        scare_mouse();
         sprintf((char*)((d-1583)->dp), "%d", sbombmax);
         (d-1583)->proc(MSG_DRAW,d-1583,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -957,7 +950,7 @@ char *walkstylelist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-ListData dmap_list(dmaplist, &font, &a5font);
+ListData dmap_list(dmaplist, &font);
 
 //InitData
 
@@ -965,7 +958,7 @@ ListData dmap_list(dmaplist, &font, &a5font);
 const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candles", "Whistles",
                                        "Bait", "Letters", "Potions", "Wands", "Rings", "Wallets", "Amulets", "Shields", "Bows", "Rafts",
                                        "Ladders", "Books", "Magic Keys", "Bracelets", "Flippers", "Boots", "Hookshots", "Lenses", "Hammers",
-                                       "Din's Fire", "Farore's Wind", "Nayru's Love", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
+                                       "Divine Fire", "Divine Escape", "Divine Protection", "Bombs", "Super Bombs", "Clocks", "Keys", "Magic Containers",
                                        "Triforce Pieces", "Maps", "Compasses", "Boss Keys", "Quivers", "Level Keys", "Canes of Byrna", "Rupees", "Arrow Ammo",
                                        "Fairies", "Magic", "Hearts", "Heart Containers", "Heart Pieces", "Kill All Enemies",
                                        "Bomb Ammo", "Bomb Bags", "Roc Items", "Hover Boots", "Scroll: Spin Attack", "Scroll: Cross Beams", "Scroll: Quake Hammer",

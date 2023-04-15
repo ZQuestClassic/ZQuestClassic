@@ -26,7 +26,6 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
-#include <fmt/format.h>
 #ifdef __APPLE__
 // malloc.h is deprecated, but malloc also lives in stdlib
 #include <stdlib.h>
@@ -97,6 +96,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "drawing.h"
 #include "ConsoleLogger.h"
 #include "colorname.h"
+#include "zq_hotkey.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -199,6 +199,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts);
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
+bool cancelgetnum=false;
 
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
 int32_t mousecomboposition;
@@ -262,16 +263,16 @@ size_and_pos real_minimap_zoomed;
 size_and_pos map_page_bar[9];
 int32_t mappage_count = 9;
 
-size_and_pos combolist[4];
-size_and_pos combolistscrollers[4];
-int32_t num_combo_cols = 4;
+size_and_pos combolist[MAX_COMBO_COLS];
+size_and_pos combolistscrollers[MAX_COMBO_COLS];
+int32_t num_combo_cols = MAX_COMBO_COLS;
 
 size_and_pos compactbtn;
 size_and_pos mainbar;
 
 size_and_pos screrrorpos;
 
-size_and_pos comboaliaslist[4];
+size_and_pos comboaliaslist[MAX_COMBO_COLS];
 size_and_pos comboalias_preview;
 size_and_pos combopool_preview;
 size_and_pos combopool_prevbtn;
@@ -285,6 +286,7 @@ size_and_pos combo_preview_text2;
 size_and_pos combolist_window;
 size_and_pos drawmode_btn;
 size_and_pos main_panel;
+size_and_pos squares_panel;
 size_and_pos preview_panel;
 size_and_pos layer_panel;
 size_and_pos preview_text;
@@ -305,9 +307,12 @@ size_and_pos commands_txt;
 size_and_pos tooltip_box;
 size_and_pos tooltip_box2;
 size_and_pos tooltip_trigger;
-highlight_pos tooltip_highlight;
-highlight_pos tooltip_highlight2;
+size_and_pos tooltip_highlight;
+size_and_pos tooltip_highlight2;
 
+size_and_pos squarepanel_swap_btn;
+size_and_pos squarepanel_up_btn;
+size_and_pos squarepanel_down_btn;
 size_and_pos itemsqr_pos;
 size_and_pos flagsqr_pos;
 size_and_pos stairsqr_pos;
@@ -387,8 +392,7 @@ cmbdat_pair const& get_pool_combo()
 	return pool_combos[pool.at(ind)];
 }
 
-int32_t mapscreensize, showedges, showallpanels;
-size_and_pos mapscreen_pos, mapscreen_realpos;
+int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
 int32_t mouse_scroll_h;
 
 
@@ -420,8 +424,7 @@ COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 MIDI *song=NULL;
-BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *dmapbmp_small, *dmapbmp_large;
-ALLEGRO_BITMAP *icon_bmp[ICON_BMP_MAX][5], *select_bmp[2];
+BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
@@ -432,6 +435,7 @@ item_drop_object    item_drop_sets[MAXITEMDROPSETS];
 newcombo curr_combo;
 PALETTE RAMpal;
 midi_info Midi_Info;
+bool zq_showpal=false;
 bool combo_cols=true;
 bool is_compact = false;
 
@@ -444,6 +448,10 @@ bool compact_zoomed_fav = true;
 bool large_zoomed_cmd = false;
 bool compact_zoomed_cmd = true;
 bool zoomed_minimap = false;
+
+bool compact_square_panels = false;
+int compact_active_panel = 0;
+
 int combo_col_scale = 1;
 
 script_data *ffscripts[NUMSCRIPTFFC];
@@ -512,12 +520,6 @@ int32_t toggleConsole()
 	return D_O_K;
 }
 
-typedef struct map_and_screen
-{
-    int32_t map;
-    int32_t screen;
-} map_and_screen;
-
 typedef int32_t (*intF)();
 typedef struct command_pair
 {
@@ -527,17 +529,10 @@ typedef struct command_pair
 } command_pair;
 
 extern command_pair commands[cmdMAX];
+extern map_and_screen map_page[MAX_MAPPAGE_BTNS];
 
-map_and_screen map_page[9]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
-
-static int32_t do_OpenQuest()
+int32_t do_OpenQuest()
 {
-	//clear the panel recent screen buttons to prevent crashes from invalid maps
-	for ( int32_t q = 0; q < 9; q++ )
-	{
-		map_page[q].map = 0;
-		map_page[q].screen = 0;
-	}
 	return onOpen();
 }
 
@@ -555,10 +550,10 @@ static int32_t do_NewQuest()
 }
 
 int32_t alignment_arrow_timer=0;
-int32_t  Flip=0,Combo=0,CSet=2,First[3]= {0,0,0},current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
+int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0,
-	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, CmbCursorCol = 0,
+	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
 	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
@@ -567,10 +562,14 @@ int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp re
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
+bool allowHideMouse = false; //!TODO add config for this
 double aspect_ratio = LARGE_H / double(LARGE_W);
+int window_min_width = 0, window_min_height = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
+int AutoBrush = 0; //Drag to size the brush on the combo panes
+int LinkedScroll = 0;
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
 //open at the time you quit
@@ -616,13 +615,11 @@ int32_t gui_colorset=99;
 
 combo_alias combo_aliases[MAXCOMBOALIASES];
 static int32_t combo_apos=0; //currently selected combo alias
-static int32_t combo_alistpos[4]= {0,0,0,0}; //first displayed combo alias
 int32_t alias_origin=0;
 int32_t alias_cset_mod=0;
 
 combo_pool combo_pools[MAXCOMBOPOOLS];
 static int32_t combo_pool_pos=0; //currently selected combo pool
-static int32_t combo_pool_listpos[4]= {0,0,0,0}; //first displayed combo pool
 bool weighted_cpool = true;
 bool cpool_prev_visible = false;
 
@@ -632,8 +629,8 @@ int32_t fill_type=1;
 
 bool first_save=false;
 char *filepath,*temppath,*midipath,*datapath,*imagepath,*tmusicpath,*last_timed_save;
-char *helpbuf, *shieldblockhelpbuf, *zscripthelpbuf, *zstringshelpbuf;
-string helpstr, shieldblockhelpstr, zscripthelpstr, zstringshelpstr;
+char *helpbuf, *zstringshelpbuf;
+string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
 int32_t midi_volume = 255;
@@ -676,11 +673,25 @@ void set_debug(bool d)
     return;
 }
 
+bool zq_check_close_button()
+{
+	if(close_button_quit)
+	{
+		close_button_quit=false;
+		
+		if(onExit()==D_CLOSE)
+		{
+			quit=true;
+		}
+	}
+	return quit;
+}
 // **** Timers ****
 
 volatile int32_t lastfps=0;
 volatile int32_t framecnt=0;
 volatile int32_t myvsync = 0;
+size_t cpoolbrush_index = 0;
 
 void myvsync_callback()
 {
@@ -825,7 +836,6 @@ static MENU export_250_menu[] =
 static MENU zq_help_menu[] =
 {
 	{ (char *)"&Editor Help",                     onHelp,            NULL,                     0,            NULL   },
-	{ (char *)"&ZScript Help",                     onZScripthelp,            NULL,                     0,            NULL   },
 	{ (char *)"&Strings Help",                     onZstringshelp,            NULL,                     0,            NULL   },
 	
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1034,6 +1044,23 @@ void toggle_merged_mode()
 	}
 	reload_zq_gui();
 }
+void toggle_compact_sqr_mode()
+{
+	compact_square_panels = !compact_square_panels;
+	zc_set_config("ZQ_GUI","square_panels_compact",compact_square_panels?1:0);
+	reload_zq_gui();
+}
+void cycle_compact_sqr(bool down)
+{
+	if(!(is_compact && compact_square_panels))
+		return;
+	static const int num_panels = 3;
+	if(down)
+		compact_active_panel = (compact_active_panel+1)%num_panels;
+	else
+		compact_active_panel = (compact_active_panel-1+num_panels)%num_panels;
+	reload_zq_gui();
+}
 void toggle_favzoom_mode()
 {
 	if(is_compact)
@@ -1073,10 +1100,10 @@ enum
 static MENU file_menu[] =
 {
 	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
-	{ (char *)"&Open\tF3",                  do_OpenQuest,              NULL,                     0,            NULL   },
+	{ (char *)"&Open",                      do_OpenQuest,              NULL,                     0,            NULL   },
 	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Save\tF2",                  onSave,                    NULL,                     0,            NULL   },
+	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
 	{ (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
 	{ (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
 	{ (char *)"Quest &Templates...",        onQuestTemplates,          NULL,                     0,            NULL   },
@@ -1093,8 +1120,8 @@ static MENU file_menu[] =
 static MENU maps_menu[] =
 {
     { (char *)"&Goto Map...",               onGotoMap,                 NULL,                     0,            NULL   },
-    { (char *)"Next Map\t.",                onIncMap,                  NULL,                     0,            NULL   },
-    { (char *)"Previous Map\t,",            onDecMap,                  NULL,                     0,            NULL   },
+    { (char *)"Next Map",                   onIncMap,                  NULL,                     0,            NULL   },
+    { (char *)"Previous Map",               onDecMap,                  NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"D&elete Map",                onDeleteMap,               NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1263,14 +1290,14 @@ static MENU paste_item_menu[] =
 
 static MENU edit_menu[] =
 {
-    { (char *)"&Undo\tU",                   onUndo,                    NULL,                     0,            NULL   },
-    { (char *)"&Redo\tCtrl+Y",              onRedo,                    NULL,                     0,            NULL   },
-    { (char *)"&Copy\tC",                   onCopy,                    NULL,                     0,            NULL   },
-    { (char *)"&Paste\tV",                  onPaste,                   NULL,                     0,            NULL   },
+    { (char *)"&Undo",                      onUndo,                    NULL,                     0,            NULL   },
+    { (char *)"&Redo",                      onRedo,                    NULL,                     0,            NULL   },
+    { (char *)"&Copy",                      onCopy,                    NULL,                     0,            NULL   },
+    { (char *)"&Paste",                     onPaste,                   NULL,                     0,            NULL   },
     { (char *)"Paste A&ll",                 onPasteAll,                NULL,                     0,            NULL   },
     { (char *)"&Adv. Paste\t ",             NULL,                      paste_menu,               0,            NULL   },
     { (char *)"Paste &Spec.\t ",            NULL,                      paste_item_menu,          0,            NULL   },
-    { (char *)"&Delete\tDel",               onDelete,                  NULL,                     0,            NULL   },
+    { (char *)"&Delete",                    onDelete,                  NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     { (char *)"&Maps\t ",                   NULL,                      maps_menu,                0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1366,15 +1393,15 @@ static MENU fixtools_menu[] =
 
 static MENU tool_menu[] =
 {
-	{ (char *)"Combo &Flags\tF8",           onFlags,                   NULL,                     0,            NULL   },
+	{ (char *)"Combo &Flags",               onFlags,                   NULL,                     0,            NULL   },
 	{ (char *)"Fix &Tools\t ",              NULL,                      fixtools_menu,            0,            NULL   },
 	{ (char *)"&NES Dungeon Template",      onTemplate,                NULL,                     0,            NULL   },
 	{ (char *)"&Apply Template to All",     onReTemplate,              NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Preview Mode\tX",           onPreviewMode,             NULL,                     0,            NULL   },
+	{ (char *)"&Preview Mode",              onPreviewMode,             NULL,                     0,            NULL   },
 	{ (char *)"Drawing &Mode\t ",           NULL,                      drawing_mode_menu,        0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&List Combos Used\t'",       onUsedCombos,              NULL,                     0,            NULL   },
+	{ (char *)"&List Combos Used",          onUsedCombos,              NULL,                     0,            NULL   },
 	{ (char *)"&Quest Reports\t ",          NULL,                      quest_reports_menu,       0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -1396,17 +1423,17 @@ MENU view_menu[] =
     { (char *)"View &Map...",               onViewMap,                 NULL,                     0,            NULL   },
     { (char *)"View &Palette",              onShowPal,                 NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Show &Walkability\tW",       onShowWalkability,         NULL,                     0,            NULL   },
-    { (char *)"Show &Flags\tF",             onShowFlags,               NULL,                     0,            NULL   },
+    { (char *)"Show &Walkability",          onShowWalkability,         NULL,                     0,            NULL   },
+    { (char *)"Show &Flags",                onShowFlags,               NULL,                     0,            NULL   },
     { (char *)"Show &CSets",                onShowCSet,                NULL,                     0,            NULL   },
     { (char *)"Show &Types",                onShowCType,               NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Show Screen &Info\tN",       onToggleShowInfo,          NULL,                     0,            NULL   },
+    { (char *)"Show Screen &Info",          onToggleShowInfo,          NULL,                     0,            NULL   },
     { (char *)"Show &Squares",              onToggleShowSquares,       NULL,                     0,            NULL   },
     { (char *)"Show FFCs",                  onToggleShowFFCs,          NULL,                     0,            NULL   },
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
-    { (char *)"Show &Grid\t~",              onToggleGrid,              NULL,                     0,            NULL   },
-    { (char *)"Show &Darkness\tL",          onShowDarkness,            NULL,                     0,            NULL   },
+    { (char *)"Show &Grid",                 onToggleGrid,              NULL,                     0,            NULL   },
+    { (char *)"Show &Darkness",             onShowDarkness,            NULL,                     0,            NULL   },
     { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
     { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
@@ -1436,26 +1463,26 @@ int32_t onSelectFFCombo();
 
 static MENU data_menu[] =
 {
-    { (char *)"&Screen Data\tF9",           onScrData,                 NULL,                     0,            NULL   },
-    { (char *)"&Freeform Combos\tF7",       onSelectFFCombo,           NULL,                     0,            NULL   },
-    { (char *)"La&yers\tF12",               onLayers,                  NULL,                     0,            NULL   },
-    { (char *)"&Tile Warp\tF10",            onTileWarp,                NULL,                     0,            NULL   },
-    { (char *)"Side &Warp\tF11",            onSideWarp,                NULL,                     0,            NULL   },
-    { (char *)"Secret &Combos\tF5",         onSecretCombo,             NULL,                     0,            NULL   },
-    { (char *)"&Under Combo",               onUnderCombo,              NULL,                     0,            NULL   },
-    { (char *)"&Doors\tF6",                 onDoors,                   NULL,                     0,            NULL   },
-    { (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Room Data\tR",              onRoom,                    NULL,                     0,            NULL   },
+	{ (char *)"&Screen Data",               onScrData,                 NULL,                     0,            NULL   },
+	{ (char *)"&Freeform Combos",           onSelectFFCombo,           NULL,                     0,            NULL   },
+	{ (char *)"La&yers",                    onLayers,                  NULL,                     0,            NULL   },
+	{ (char *)"&Tile Warp",                 onTileWarp,                NULL,                     0,            NULL   },
+	{ (char *)"Side &Warp",                 onSideWarp,                NULL,                     0,            NULL   },
+	{ (char *)"Secret &Combos",             onSecretCombo,             NULL,                     0,            NULL   },
+	{ (char *)"&Under Combo",               onUnderCombo,              NULL,                     0,            NULL   },
+	{ (char *)"&Doors",                     onDoors,                   NULL,                     0,            NULL   },
+	{ (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Room Data",                 onRoom,                    NULL,                     0,            NULL   },
 
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Item\tI",                   onItem,                    NULL,                     0,            NULL   },
-    { (char *)"&Enemies\tE",                onEnemies,                 NULL,                     0,            NULL   },
-    { (char *)"&Palette\tF4",               onScreenPalette,           NULL,                     0,            NULL   },
-    { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-    { (char *)"Script",                   onScreenScript,                    NULL,                     0,            NULL   },
-    
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"&Item",                      onItem,                    NULL,                     0,            NULL   },
+	{ (char *)"&Enemies",                   onEnemies,                 NULL,                     0,            NULL   },
+	{ (char *)"&Palette",                   onScreenPalette,           NULL,                     0,            NULL   },
+	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
+	{ (char *)"Script",                     onScreenScript,                    NULL,                     0,            NULL   },
+	
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU tunes_menu[] =
@@ -1496,12 +1523,11 @@ static MENU module_menu[] =
 
 static MENU media_menu[] =
 {
-	{ (char *)"Ambient Music  ",        NULL,                      tunes_menu,               0,            NULL   },
-    { (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
-    { (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
-    { (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-
+	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
+	{ (char *)"&Play music",                playMusic,                 NULL,                     0,            NULL   },
+	{ (char *)"&Change track",              changeTrack,               NULL,                     0,            NULL   },
+	{ (char *)"&Stop tunes",                stopMusic,                 NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU etc_menu[] =
@@ -1510,28 +1536,30 @@ static MENU etc_menu[] =
 	{ (char *)"&About",                     onAbout,                   NULL,                     0,            NULL   },
 	{ (char *)"&Video Mode",                onZQVidMode,               NULL,                     0,            NULL   },
 	{ (char *)"&Options...",                onOptions,                 NULL,                     0,            NULL   },
-	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
+	{ (char *)"&Hotkeys...",                do_zq_hotkey_dialog,       NULL,                     0,            NULL   },
 	// 5
+	{ (char *)"&Fullscreen",                onFullScreen,              NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&View Pic...",               onViewPic,                 NULL,                     0,            NULL   },
 	{ (char *)"Media",                      NULL,                      media_menu,               0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	// 10
+	{ (char *)"&Debug Console",             toggleConsole,             NULL,                     0,            NULL   },
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
-	{ (char *)"&Take ZQ Snapshot\tZ",       onSnapshot,                NULL,                     0,            NULL   },
+	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	// 15
+	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
+
 
 //New ZScript Menu for 2.55 Alpha 16
 static MENU zscript_menu[] =
 {
 	{ (char *)"Compile &ZScript...",            onCompileScript,           NULL,                     0,            NULL   },
-	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,                     0,            NULL   },
+	{ (char *)"&Assign Slots...",               onSlotAssign,              NULL,            D_DISABLED,            NULL   },
 	//divider	
 	{ (char *)"",                               NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Compiler Settings",             onZScriptCompilerSettings, NULL,                     0,            NULL   },
@@ -1547,7 +1575,7 @@ static MENU zscript_menu[] =
 
 void set_console_state()
 {
-	SETFLAG(etc_menu[9].flags, D_SELECTED, console_is_open);
+	SETFLAG(etc_menu[10].flags, D_SELECTED, console_is_open);
 }
 
 MENU the_menu[] =
@@ -1571,7 +1599,7 @@ int32_t onResetTransparency()
 {
     restore_mouse();
     rebuild_trans_table();
-    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,lfont);
+    jwin_alert("Notice","Translucency Table Rebuilt",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
     
     refresh(rALL);
     return D_O_K;
@@ -1591,13 +1619,12 @@ int32_t onFullScreen()
 		'y', 
 		'n', 
 		0, 
-		lfont) == 1)	
+		get_zc_font(font_lfont)) == 1)	
     {
 	#ifdef ALLEGRO_DOS
 	    return D_O_K;
 	#endif
 	    get_palette(RAMpal);
-	    show_mouse(NULL);
 	    bool windowed=is_windowed_mode()!=0;
 	    
 	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
@@ -1612,10 +1639,9 @@ int32_t onFullScreen()
 	    gui_mouse_focus=0;
 	    gui_bg_color=jwin_pal[jcBOX];
 	    gui_fg_color=jwin_pal[jcBOXFG];
-	    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	    MouseSprite::set(ZQM_NORMAL);
 	    zc_set_palette(RAMpal);
 	    position_mouse(zq_screen_w/2,zq_screen_h/2);
-	    show_mouse(screen);
 	    set_display_switch_mode(SWITCH_BACKGROUND);
 	    set_display_switch_callback(SWITCH_OUT, switch_out);
 	    set_display_switch_callback(SWITCH_IN, switch_in);
@@ -1652,9 +1678,9 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
   return D_O_K;
 }*/
 
-int32_t onToggleGrid()
+int32_t onToggleGrid(bool color)
 {
-    if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+    if(color)
     {
         GridColor=(GridColor+8)%16;
 		zc_set_config("zquest", "grid_color", GridColor);
@@ -1666,6 +1692,10 @@ int32_t onToggleGrid()
     }
     
     return D_O_K;
+}
+int32_t onToggleGrid()
+{
+	return onToggleGrid(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]);
 }
 
 int32_t onToggleShowScripts()
@@ -1712,15 +1742,22 @@ int onAKey()
 	return D_O_K;
 }
 
-int onRKey()
+int onReloadPreview()
 {
 	if(prv_mode)
 	{
 		Map.set_prvscr(Map.get_prv_map(), Map.get_prv_scr());
 		Map.set_prvcmb(0);
 	}
-	else
-		onRoom();
+	return D_O_K;
+}
+int onSecretsPreview()
+{
+	if(prv_mode)
+	{
+		Map.prv_secrets(false);
+		refresh(rALL);
+	}
 	return D_O_K;
 }
 
@@ -1746,124 +1783,31 @@ int onSKey()
 	else onStrings();
 	return D_O_K;
 }
-
-/* Notice: If you insert or remove entries from dialogs[], you will need
-	to adjust hardcoded values to indices of dialogs[] in main(). 
-*/
+int onSetNewLayer(int newlayer)
+{
+	CurrentLayer = newlayer;
+	refresh(rALL);
+	return D_O_K;
+}
+int onScreenLPal(int lpal)
+{
+	if(DisableLPalShortcuts) return D_O_K;
+	saved=false;
+	Map.setcolor(lpal);
+	refresh(rSCRMAP);
+	return D_O_K;
+}
 
 static DIALOG dialogs[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
-    { d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,             0, (void *) the_menu, NULL, NULL },
-    
-    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    { d_dummy_proc,   0,    0,    0,    0,    0,    0,    0,     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
-
-    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG|KB_SHIFT_FLAG, (void *) onRedo, NULL, NULL },
-    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Z, KB_COMMAND_FLAG,               (void *) onUndo, NULL, NULL },
-    { d_keyboard_proc_m, 0,    0,    0,    0,    0,    0,    0,       0, KEY_Y, KB_COMMAND_FLAG,               (void *) onRedo, NULL, NULL },
-
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '*',     0,       0,              0, (void *) onIncreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_CLOSEBRACE, 0, (void *) onIncreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '/',     0,       0,              0, (void *) onDecreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_OPENBRACE,  0, (void *) onDecreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_UP,         0, (void *) onUp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_DOWN,       0, (void *) onDown, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_LEFT,       0, (void *) onLeft, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_RIGHT,      0, (void *) onRight, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PGUP,       0, (void *) onPgUp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PGDN,       0, (void *) onPgDn, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PLUS_PAD,   0, (void *) onIncreaseCSet, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS_PAD,  0, (void *) onDecreaseCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ASTERISK,   0, (void *) onIncreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH_PAD,  0, (void *) onDecreaseFlag, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,         0, (void *) onHelp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F2,         0, (void *) onSave, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F3,         0, (void *) do_OpenQuest, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F4,         0, (void *) onScreenPalette, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F5,         0, (void *) onSecretCombo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F6,         0, (void *) onDoors, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F7,         0, (void *) onSelectFFCombo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F8,         0, (void *) onFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F9,         0, (void *) onScrData, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F10,        0, (void *) onTileWarp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F11,        0, (void *) onSideWarp, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F12,        0, (void *) onLayers, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ESC,        0, (void *) onExit, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_B,          0, (void *) onResetTransparency, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_C,          0, (void *) onCopy, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_D,          0, (void *) onToggleDarkness, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_E,          0, (void *) onEnemies, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F,          0, (void *) onShowFlags, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_H,          0, (void *) onH, NULL, NULL },      //Flip
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_I,          0, (void *) onItem, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_J,          0, (void *) onJ, NULL, NULL },      //This does nothing
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_K,          0, (void *) onCombos, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_L,          0, (void *) onShowDarkness, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_M,          0, (void *) onM, NULL, NULL },      // This does nothing
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_N,          0, (void *) onToggleShowInfo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_O,          0, (void *) onDrawingMode, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_P,          0, (void *) onGotoPage, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Q,          0, (void *) onShowComboInfoCSet, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_R,          0, (void *) onRKey, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_S,          0, (void *) onSKey, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_T,          0, (void *) onTiles, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_U,          0, (void *) onUndo, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_V,          0, (void *) onPaste, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_W,          0, (void *) onShowWalkability, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_X,          0, (void *) onPreviewMode, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Y,          0, (void *) onCompileScript, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_Z,          0, (void *) onSnapshot, NULL, NULL },
-    //slash is also question mark
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SLASH,          0, (void *) onKeySlash, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       0,          0, (void *) onPasteAllToAll, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_0,          0, (void *) on0, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_1,          0, (void *) on1, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_2,          0, (void *) on2, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_3,          0, (void *) on3, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_4,          0, (void *) on4, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_5,          0, (void *) on5, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_6,          0, (void *) on6, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_7,          0, (void *) on7, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_8,          0, (void *) on8, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_9,          0, (void *) on9, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on10, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on11, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on12, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on13, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on14, NULL, NULL },
-    { d_dummy_proc,      0,    0,    0,    0,    0,    0,    0,       0,       0,              0, (void *) on15, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    ',',     0,       0,              0, (void *) onDecMap, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '.',     0,       0,              0, (void *) onIncMap, NULL, NULL },
-
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS,          0, (void *) onDecColour, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_EQUALS,          0, (void *) onIncColour, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_MINUS_PAD,          0, (void *) onDecColour, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_PLUS_PAD,          0, (void *) onIncColour, NULL, NULL },
-    
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '=',     0,       0,              0, (void *) onIncreaseCSet, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '-',     0,       0,              0, (void *) onDecreaseCSet, NULL, NULL },
-    
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '<',     0,       0,              0, (void *) onDecScrPal, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '>',     0,       0,              0, (void *) onIncScrPal, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '_',     0,       0,              0, (void *) onDecScrPal16, NULL, NULL },
-    // { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    '+',     0,       0,              0, (void *) onIncScrPal16, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_TILDE,      0, (void *) onToggleGrid, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    39,      0,       0,              0, (void *) onUsedCombos, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_SPACE,      0, (void *) onSpacebar, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_DEL,        0, (void *) onDelete, NULL, NULL },      //
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_ENTER,      0, (void *) onEnter, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_0_PAD,      0, (void *) on0, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_1_PAD,      0, (void *) on1, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_2_PAD,      0, (void *) on2, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_3_PAD,      0, (void *) on3, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_4_PAD,      0, (void *) on4, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_5_PAD,      0, (void *) on5, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_6_PAD,      0, (void *) on6, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_7_PAD,      0, (void *) on7, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_8_PAD,      0, (void *) on8, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_9_PAD,      0, (void *) on9, NULL, NULL },
-    { NULL,              0,    0,    0,    0,    0,    0,    0,       0,       0,              0,       NULL, NULL, NULL }
+	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
+	{ d_nbmenu_proc,     3,    3,    0,    13,    0,    0,    0,       D_USER,  0,            0, (void *) the_menu, NULL, NULL },
+	{ d_zq_hotkey_proc,  0,    0,    0,    0,     0,    0,    0,       0,       0,            0, NULL, NULL, NULL },
+	
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_F1,       0, (void *) onHelp, NULL, NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_ESC,      0, (void *) onExit, NULL, NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    39,      0,       0,            0, (void *) onUsedCombos, NULL, NULL },
+	{ NULL,              0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL }
 };
 
 
@@ -1904,6 +1848,42 @@ int32_t onIncColour()
 	}
  }
 
+static DIALOG getnum_dlg[] =
+{
+    // (dialog proc)       (x)   (y)    (w)     (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
+    { jwin_win_proc,        80,   80,     160,    72,   vc(0),              vc(11),           0,       D_EXIT,     0,             0,       NULL, NULL, NULL },
+    { jwin_rtext_proc,      114,  104+4,  48,     8,    jwin_pal[jcBOXFG],  jwin_pal[jcBOX],  0,       0,          0,             0, (void *) "Value:", NULL, NULL },
+    { jwin_edit_proc,       168,  104,    48,     16,    0,                 0,                0,       0,          6,             0,       NULL, NULL, NULL },
+    { jwin_button_proc,     90,   126,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+    { jwin_button_proc,     170,  126,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+};
+
+int32_t getnumber(const char *prompt,int32_t initialval)
+{
+    cancelgetnum=true;
+    char buf[20];
+    sprintf(buf,"%d",initialval);
+    getnum_dlg[0].dp=(void *)prompt;
+    getnum_dlg[0].dp2=get_zc_font(font_lfont);
+    getnum_dlg[2].dp=(void *)buf;
+    
+    large_dialog(getnum_dlg);
+        
+    int32_t ret=zc_popup_dialog(getnum_dlg,2);
+    
+    if(ret!=0&&ret!=4)
+    {
+        cancelgetnum=false;
+    }
+    
+    if(ret==3)
+        return atoi(buf);
+        
+    return initialval;
+}
+
 static DIALOG save_tiles_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -1938,7 +1918,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_tiles_dlg[0].dp2 = lfont;
+	save_tiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
@@ -1948,7 +1928,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_tiles_dlg);
 	
-	int32_t ret = do_zqdialog(save_tiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_tiles_dlg,-1);
 	jwin_center_dialog(save_tiles_dlg);
 	
 	if(ret == 8)
@@ -1966,7 +1946,7 @@ void savesometiles(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2009,7 +1989,7 @@ static DIALOG module_info_dlg[] =
 void about_module(const char *prompt,int32_t initialval)
 {	
 	
-	module_info_dlg[0].dp2 = lfont;
+	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
 	if ( moduledata.moduletitle[0] != 0 )
 		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
 	
@@ -2054,7 +2034,7 @@ void about_module(const char *prompt,int32_t initialval)
 	
 	large_dialog(module_info_dlg);
 	
-	int32_t ret = do_zqdialog(module_info_dlg,-1);
+	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
@@ -2097,7 +2077,7 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 	
 	
 	
-	read_tiles_dlg[0].dp2 = lfont;
+	read_tiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2106,7 +2086,7 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 	
 	large_dialog(read_tiles_dlg);
 	
-	int32_t ret = do_zqdialog(read_tiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(read_tiles_dlg,-1);
 	jwin_center_dialog(read_tiles_dlg);
 	
 	if(ret == 8)
@@ -2125,11 +2105,11 @@ void writesometiles_to(const char *prompt,int32_t initialval)
 				if (!readtilefile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .ztile packfile %s\n", name);
-					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZTILE File: Success!","Loaded the source tiles to your tile sheets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				pack_fclose(f);
 			}
@@ -2172,7 +2152,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_combofiles_dlg[0].dp2 = lfont;
+	save_combofiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
@@ -2182,7 +2162,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_combofiles_dlg);
 	
-	int32_t ret = do_zqdialog(save_combofiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_combofiles_dlg,-1);
 	jwin_center_dialog(save_combofiles_dlg);
 	
 	if(ret == 8)
@@ -2200,7 +2180,7 @@ void savesomecombos(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2241,7 +2221,7 @@ void writesomecombos(const char *prompt,int32_t initialval)
 	
 	
 	
-	load_comboset_dlg[0].dp2 = lfont;
+	load_comboset_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2253,7 +2233,7 @@ void writesomecombos(const char *prompt,int32_t initialval)
 	
 	large_dialog(load_comboset_dlg);
 	
-	int32_t ret = do_zqdialog(load_comboset_dlg,-1);
+	int32_t ret = zc_popup_dialog(load_comboset_dlg,-1);
 	jwin_center_dialog(load_comboset_dlg);
 	
 	if(ret == 8)
@@ -2274,11 +2254,11 @@ void writesomecombos(const char *prompt,int32_t initialval)
 				if (!readcombofile(f,first_tile_id,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2322,7 +2302,7 @@ void loadcombopack(const char *prompt,int32_t initialval)
 	
 	
 	
-	load_combopack_dlg[0].dp2 = lfont;
+	load_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2334,7 +2314,7 @@ void loadcombopack(const char *prompt,int32_t initialval)
 	
 	large_dialog(load_combopack_dlg);
 	
-	int32_t ret = do_zqdialog(load_combopack_dlg,-1);
+	int32_t ret = zc_popup_dialog(load_combopack_dlg,-1);
 	jwin_center_dialog(load_combopack_dlg);
 	
 	if(ret == 8)
@@ -2355,11 +2335,11 @@ void loadcombopack(const char *prompt,int32_t initialval)
 				if (!readcombofile(f,0,nooverwrite))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified Tile.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 			}
@@ -2412,7 +2392,7 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 	
 	
 	
-	read_combopack_dlg[0].dp2 = lfont;
+	read_combopack_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(skiptile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2429,7 +2409,7 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 	
 	large_dialog(read_combopack_dlg);
 	
-	int32_t ret = do_zqdialog(read_combopack_dlg,-1);
+	int32_t ret = zc_popup_dialog(read_combopack_dlg,-1);
 	jwin_center_dialog(read_combopack_dlg);
 	
 	if(ret == 8)
@@ -2452,11 +2432,11 @@ void writesomecombos_to(const char *prompt,int32_t initialval)
 				if (!readcombofile_to_location(f,first_tile_id,nooverwrite, skipover))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Error","Could not load the specified combos.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZCOMBO File: Success!","Loaded the source combos to your combo pages!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2502,7 +2482,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_dmaps_dlg[0].dp2 = lfont;
+	save_dmaps_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firstdmap,"%d",0);
 	sprintf(lastdmap,"%d",0);
@@ -2512,7 +2492,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_dmaps_dlg);
 	
-	int32_t ret = do_zqdialog(save_dmaps_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_dmaps_dlg,-1);
 	jwin_center_dialog(save_dmaps_dlg);
 	
 	if(ret == 8)
@@ -2539,7 +2519,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 				char buf[PATH_MAX+20],name[PATH_MAX];
 				extract_name(temppath,name,FILENAMEALL);
 				sprintf(buf,"Unable to load %s",name);
-				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 			else
 			{
@@ -2547,7 +2527,7 @@ void savesomedmaps(const char *prompt,int32_t initialval)
 				extract_name(temppath,name,FILENAMEALL);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 		pack_fclose(f);
@@ -2588,7 +2568,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 	
 	
 	
-	save_comboaliasfiles_dlg[0].dp2 = lfont;
+	save_comboaliasfiles_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	sprintf(tilecount,"%d",1);
@@ -2598,7 +2578,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_comboaliasfiles_dlg);
 	
-	int32_t ret = do_zqdialog(save_comboaliasfiles_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_comboaliasfiles_dlg,-1);
 	jwin_center_dialog(save_comboaliasfiles_dlg);
 	
 	if(ret == 8)
@@ -2616,7 +2596,7 @@ void savesomecomboaliases(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[PATH_MAX+20]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2656,7 +2636,7 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 	
 	
 	
-	read_comboaliaspack_dlg[0].dp2 = lfont;
+	read_comboaliaspack_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firsttile,"%d",0);
 	//sprintf(tilecount,"%d",1);
@@ -2665,7 +2645,7 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 	
 	large_dialog(read_comboaliaspack_dlg);
 	
-	int32_t ret = do_zqdialog(read_comboaliaspack_dlg,-1);
+	int32_t ret = zc_popup_dialog(read_comboaliaspack_dlg,-1);
 	jwin_center_dialog(read_comboaliaspack_dlg);
 	
 	if(ret == 8)
@@ -2683,11 +2663,11 @@ void writesomecomboaliases_to(const char *prompt,int32_t initialval)
 				if (!readcomboaliasfile_to_location(f,first_tile_id))
 				{
 					al_trace("Could not read from .zcombo packfile %s\n", name);
-					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZALIAS File: Error","Could not load the specified combo aliases.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else
 				{
-					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZALIAS File: Success!","Loaded the source combos to your combo alias table!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2729,7 +2709,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
 	//int32_t ret;
-	save_doorset_dlg[0].dp2 = lfont;
+	save_doorset_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	sprintf(firstdoor,"%d",0);
 	sprintf(doorct,"%d",1);
@@ -2739,7 +2719,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 	
 	large_dialog(save_doorset_dlg);
 	
-	int32_t ret = do_zqdialog(save_doorset_dlg,-1);
+	int32_t ret = zc_popup_dialog(save_doorset_dlg,-1);
 	jwin_center_dialog(save_doorset_dlg);
 	
 	if(ret == 8) //OK
@@ -2759,7 +2739,7 @@ void do_exportdoorset(const char *prompt,int32_t initialval)
 				pack_fclose(f);
 				char tmpbuf[512]={0};
 				sprintf(tmpbuf,"Saved %s",name);
-				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			}
 		}
 	}
@@ -2803,7 +2783,7 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 	sprintf(destid,"%d",0);
 		//int32_t ret;
 	
-	save_doorset_dlg[0].dp2 = lfont;
+	save_doorset_dlg[0].dp2 = get_zc_font(font_lfont);
 	
 	load_doorset_dlg[5].dp = firstdoor;
 	load_doorset_dlg[7].dp = doorct;
@@ -2813,7 +2793,7 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 	
 	large_dialog(load_doorset_dlg);
 	
-	int32_t ret = do_zqdialog(load_doorset_dlg,-1);
+	int32_t ret = zc_popup_dialog(load_doorset_dlg,-1);
 	jwin_center_dialog(load_doorset_dlg);
 	
 	if(ret == 8) //OK
@@ -2837,16 +2817,16 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 				if (!ret)
 				{
 					al_trace("Could not read from .zdoors packfile %s\n", name);
-					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZDOORS File: Error","Could not load the specified doorsets.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				}
 				else if ( ret == 1 )
 				{
-					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				else if ( ret == 2 )
 				{
-					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					saved=false;
 				}
 				pack_fclose(f);
@@ -2857,10 +2837,44 @@ void do_importdoorset(const char *prompt,int32_t initialval)
 
 int32_t gettilepagenumber(const char *prompt, int32_t initialval)
 {
-	bool c;
-	int r = getnumber(prompt,initialval,&c);
-    if(c) return -1;
-	return r;
+    char buf[20];
+    sprintf(buf,"%d",initialval);
+    getnum_dlg[0].dp=(void *)prompt;
+    getnum_dlg[0].dp2=get_zc_font(font_lfont);
+    getnum_dlg[2].dp=buf;
+    
+    large_dialog(getnum_dlg);
+        
+    int32_t ret = zc_popup_dialog(getnum_dlg,2);
+    
+    if(ret==3)
+        return atoi(buf);
+        
+    return -1;
+}
+
+int32_t gethexnumber(const char *prompt,int32_t initialval)
+{
+    cancelgetnum=true;
+    char buf[20];
+    sprintf(buf,"%X",initialval);
+    getnum_dlg[0].dp=(void *)prompt;
+    getnum_dlg[0].dp2=get_zc_font(font_lfont);
+    getnum_dlg[2].dp=(void *)buf;
+    
+    large_dialog(getnum_dlg);
+        
+    int32_t ret=zc_popup_dialog(getnum_dlg,2);
+    
+    if(ret!=0&&ret!=4)
+    {
+        cancelgetnum=false;
+    }
+    
+    if(ret==3)
+        return zc_xtoi(buf);
+        
+    return initialval;
 }
 
 void update_combo_cycling()
@@ -2905,7 +2919,7 @@ void fix_layers(mapscr *tempscr, bool showwarning)
         jwin_alert("Invalid layers detected",
                    "One or more layers on this screen used",
                    "maps that do not exist. The settings of these",
-                   buf, "O&K", NULL, 'o', 0, lfont);
+                   buf, "O&K", NULL, 'o', 0, get_zc_font(font_lfont));
     }
 }
 
@@ -3008,11 +3022,11 @@ static TABPANEL options_tabs[] =
     { NULL,                0,            NULL, 0, NULL }
 };
 
-static ListData autobackup_list(autobackuplist, &font, &a5font);
-static ListData autosave_list(autosavelist, &font, &a5font);
-static ListData autosave_list2(autosavelist2, &font, &a5font);
-static ListData color_list(colorlist, &font, &a5font);
-static ListData snapshotformat_list(snapshotformatlist, &font, &a5font);
+static ListData autobackup_list(autobackuplist, &font);
+static ListData autosave_list(autosavelist, &font);
+static ListData autosave_list2(autosavelist2, &font);
+static ListData color_list(colorlist, &font);
+static ListData snapshotformat_list(snapshotformatlist, &font);
 void init_ffpos();
 
 void call_options_dlg();
@@ -3121,7 +3135,7 @@ int32_t onDrawingModePool()
 
 int32_t onReTemplate()
 {
-    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+    if(jwin_alert("Confirm Overwrite","Apply NES Dungeon template to","all screens on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
     {
         Map.TemplateAll();
         refresh(rALL);
@@ -3156,11 +3170,6 @@ int32_t onCopy()
     }
     
     Map.Copy();
-    return D_O_K;
-}
-
-int32_t onH()
-{
     return D_O_K;
 }
 
@@ -3283,7 +3292,7 @@ int32_t onDelete()
     
     if(Map.CurrScr()->valid&mVALID)
     {
-        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
         {
             Map.DoClearScreenCommand();
         }
@@ -3296,7 +3305,7 @@ int32_t onDelete()
 
 int32_t onDeleteMap()
 {
-    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Delete","Clear this entire map?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         Map.clearmap(false);
         refresh(rALL);
@@ -3364,13 +3373,13 @@ int32_t onDecMap()
 
 int32_t onDefault_Pals()
 {
-    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all palette data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         
         if(!init_colordata(true, &header, &misc))
         {
-            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
         
         refresh_pal();
@@ -3381,13 +3390,13 @@ int32_t onDefault_Pals()
 
 int32_t onDefault_Combos()
 {
-    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset combo data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         
         if(!init_combos(true, &header))
         {
-            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Combo reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
         
         refresh(rALL);
@@ -3398,7 +3407,7 @@ int32_t onDefault_Combos()
 
 int32_t onDefault_Items()
 {
-    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all items?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_items(true, &header);
@@ -3409,7 +3418,7 @@ int32_t onDefault_Items()
 
 int32_t onDefault_Weapons()
 {
-    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset weapon/misc. sprite data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_wpns(true, &header);
@@ -3420,7 +3429,7 @@ int32_t onDefault_Weapons()
 
 int32_t onDefault_Guys()
 {
-    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all enemy/NPC data?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_guys();
@@ -3432,13 +3441,13 @@ int32_t onDefault_Guys()
 
 int32_t onDefault_Tiles()
 {
-    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all tiles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         
         if(!init_tiles(true, &header))
         {
-            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Tile reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
         
         refresh(rALL);
@@ -3451,7 +3460,7 @@ void change_sfx(SAMPLE *sfx1, SAMPLE *sfx2);
 
 int32_t onDefault_SFX()
 {
-	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+	if(jwin_alert("Confirm Reset","Reset all sound effects?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
 	{
 		saved=false;
 		SAMPLE *temp_sample;
@@ -3474,7 +3483,7 @@ int32_t onDefault_SFX()
 
 int32_t onDefault_MapStyles()
 {
-    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,lfont) == 1)
+    if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
         reset_mapstyles(true, &misc);
@@ -3724,143 +3733,99 @@ int32_t on15()
 	return D_O_K;
 }
 
-int32_t onLeft()
+int onScrollScreen(int dir, bool warp)
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(2);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
-		;
-    else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]-=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]-=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	Map.scroll(dir,warp);
+	return D_O_K;
 }
 
-int32_t onRight()
+int32_t onComboColLeft()
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(3);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
+	if(draw_mode==dm_cpool)
 		;
-    else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]+=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]+=1;
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]-=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]-=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
 }
 
-int32_t onUp()
+int32_t onComboColRight()
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-    
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(0);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
+	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+	if(draw_mode==dm_cpool)
 		;
-    else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]-=zc_min(First[current_combolist],sqr.w);
-        clear_tooltip();
-        
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],sqr.w);
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]+=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(sqr.w*sqr.h)))&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]+=1;
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
 }
 
-int32_t onDown()
+int32_t onComboColUp()
 {
-    int32_t tempcurrscr=Map.getCurrScr();
-    auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-    
-    if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT])
-    {
-        Map.scroll(1);
-        
-        if(tempcurrscr!=Map.getCurrScr())
-        {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
-        }
-        
-        refresh(rALL);
-    }
-    else if(draw_mode==dm_cpool)
+	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+	if(draw_mode==dm_cpool)
 		;
-    else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
-    {
-        First[current_combolist]+=zc_min((MAXCOMBOS-sqr.w)-First[current_combolist],sqr.w);
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h)))&&(draw_mode==dm_alias))
-    {
-        combo_alistpos[current_comboalist]+=zc_min((MAXCOMBOALIASES-sqr.w)-combo_alistpos[current_comboalist],sqr.w);
-        clear_tooltip();
-        refresh(rCOMBOS);
-    }
-    
-    clear_keybuf();
-    return D_O_K;
+	else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]-=zc_min(First[current_combolist],sqr.w);
+		clear_tooltip();
+		
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]>0)&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],sqr.w);
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
+}
+
+int32_t onComboColDown()
+{
+	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
+	
+	if(draw_mode==dm_cpool)
+		;
+	else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
+	{
+		First[current_combolist]+=zc_min((MAXCOMBOS-sqr.w)-First[current_combolist],sqr.w);
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	else if((combo_alistpos[current_comboalist]<(MAXCOMBOALIASES-(comboaliaslist[0].w*comboaliaslist[0].h)))&&(draw_mode==dm_alias))
+	{
+		combo_alistpos[current_comboalist]+=zc_min((MAXCOMBOALIASES-sqr.w)-combo_alistpos[current_comboalist],sqr.w);
+		clear_tooltip();
+		refresh(rCOMBOS);
+	}
+	
+	clear_keybuf();
+	return D_O_K;
 }
 
 void scrollup(int j)
@@ -4032,159 +3997,37 @@ int32_t onPgDn()
 
 int32_t onIncreaseCSet()
 {
-    /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
-            !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
-            !key[KEY_ALT] && !key[KEY_ALTGR])
-    {*/
-        if(draw_mode!=dm_alias)
-        {
-            CSet=wrap(CSet+1,0,13);
-            refresh(rCOMBOS+rMENU+rCOMBO);
-        }
-        else
-        {
-            alias_cset_mod=wrap(alias_cset_mod+1,0,11);
-        }
-    /*}
-    else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-    {
-        int32_t drawmap, drawscr;
-        
-        if(CurrentLayer==0)
-        {
-            drawmap=Map.getCurrMap();
-            drawscr=Map.getCurrScr();
-        }
-        else
-        {
-            drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-            drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-            
-            if(drawmap<0)
-            {
-                return D_O_K;
-            }
-        }
-        
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
-        {
-            return D_O_K;
-        }
-        
-        saved=false;
-        Map.Ugo();
-        int32_t changeby=1;
-        
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-            changeby*=16;
-        }
-        
-        if(key[KEY_ALT] || key[KEY_ALTGR])
-        {
-            changeby*=256;
-        }
-        
-        for(int32_t i=0; i<176; i++)
-        {
-            int32_t temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
-            
-            temp+=changeby;
-            
-            if(temp>=MAXCOMBOS)
-            {
-                temp=temp-MAXCOMBOS;
-            }
-            
-            Map.AbsoluteScr(drawmap, drawscr)->data[i]=temp;
-        }
-        
-        refresh(rMAP+rSCRMAP);
-    }
-    */
+	if(draw_mode!=dm_alias)
+	{
+		CSet=wrap(CSet+1,0,13);
+		refresh(rCOMBOS+rMENU+rCOMBO);
+	}
+	else
+	{
+		alias_cset_mod=wrap(alias_cset_mod+1,0,13);
+	}
     return D_O_K;
 }
 
 int32_t onDecreaseCSet()
 {
-    /*if(!key[KEY_LSHIFT] && !key[KEY_RSHIFT] &&
-            !key[KEY_ZC_LCONTROL] && !key[KEY_ZC_RCONTROL] &&
-            !key[KEY_ALT] && !key[KEY_ALTGR])
-    {*/
-        if(draw_mode!=dm_alias)
-        {
-            CSet=wrap(CSet-1,0,13);
-            refresh(rCOMBOS+rMENU+rCOMBO);
-        }
-        else
-        {
-            alias_cset_mod=wrap(alias_cset_mod-1,0,11);
-        }
-    /*}
-    else if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-    {
-        int32_t drawmap, drawscr;
-        
-        if(CurrentLayer==0)
-        {
-            drawmap=Map.getCurrMap();
-            drawscr=Map.getCurrScr();
-        }
-        else
-        {
-            drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-            drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-            
-            if(drawmap<0)
-            {
-                return D_O_K;
-            }
-        }
-        
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
-        {
-            return D_O_K;
-        }
-        
-        saved=false;
-        Map.Ugo();
-        int32_t changeby=1;
-        
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-        {
-            changeby*=16;
-        }
-        
-        if(key[KEY_ALT] || key[KEY_ALTGR])
-        {
-            changeby*=256;
-        }
-        
-        for(int32_t i=0; i<176; i++)
-        {
-            int32_t temp=Map.AbsoluteScr(drawmap, drawscr)->data[i];
-            temp-=changeby;
-            
-            if(temp<0)
-            {
-                temp=MAXCOMBOS+temp;
-            }
-            
-            Map.AbsoluteScr(drawmap, drawscr)->data[i]=temp;
-        }
-        
-        refresh(rMAP+rSCRMAP);
-    }
-    */
+	if(draw_mode!=dm_alias)
+	{
+		CSet=wrap(CSet-1,0,13);
+		refresh(rCOMBOS+rMENU+rCOMBO);
+	}
+	else
+	{
+		alias_cset_mod=wrap(alias_cset_mod-1,0,13);
+	}
     return D_O_K;
 }
 
 int32_t onGotoPage()
 {
-	bool c;
-    int32_t choosepage=getnumber("Scroll to Combo Page", 0, &c);
+    int32_t choosepage=getnumber("Scroll to Combo Page", 0);
     
-    if(!c)
+    if(!cancelgetnum)
     {
 		if (draw_mode==dm_alias) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
 		{
@@ -4237,11 +4080,11 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
     
     if(list==NULL)
     {
-        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,lfont);
+        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,get_zc_font(font_lfont));
     }
     else
     {
-        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, lfont);
+        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
     }
     
     return ret!=0;
@@ -4264,7 +4107,7 @@ const char *tracknumlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData tracknum_list(tracknumlist, &font, &a5font);
+static ListData tracknum_list(tracknumlist, &font);
 
 static DIALOG change_track_dlg[] =
 {
@@ -4281,12 +4124,12 @@ static DIALOG change_track_dlg[] =
 int32_t changeTrack()
 {
     restore_mouse();
-    change_track_dlg[0].dp2=lfont;
+    change_track_dlg[0].dp2=get_zc_font(font_lfont);
     change_track_dlg[2].d1=gme_track;
     
     large_dialog(change_track_dlg);
     
-    if(do_zqdialog(change_track_dlg,2)==3)
+    if(zc_popup_dialog(change_track_dlg,2)==3)
     {
         gme_track=change_track_dlg[2].d1;
         zcmusic_change_track(zcmusic, gme_track);
@@ -4298,91 +4141,91 @@ int32_t changeTrack()
 
 int32_t playMusic()
 {
-    char *ext;
-    bool ismidi=false;
-    char allmusic_types[256];
-    sprintf(allmusic_types, "%s;mid", zcmusic_types);
-    
-    if(getname("Load Music",(char*)allmusic_types,NULL,midipath,false))
-    {
-        strcpy(midipath,temppath);
-        
-        ext=get_extension(midipath);
-        
-        if(
-            (stricmp(ext,"ogg")==0)||
-            (stricmp(ext,"mp3")==0)||
-            (stricmp(ext,"it")==0)||
-            (stricmp(ext,"xm")==0)||
-            (stricmp(ext,"s3m")==0)||
-            (stricmp(ext,"mod")==0)||
-            (stricmp(ext,"spc")==0)||
-            (stricmp(ext,"gym")==0)||
-            (stricmp(ext,"nsf")==0)||
-            (stricmp(ext,"gbs")==0)||
-            (stricmp(ext,"vgm")==0)
-        )
-        {
-            ismidi=false;
-        }
-        else if((stricmp(ext,"mid")==0))
-        {
-            ismidi=true;
-        }
-        else
-        {
-            return D_O_K;
-        }
-        
-        zc_stop_midi();
-        
-        if(zcmusic != NULL)
-        {
-            zcmusic_stop(zcmusic);
-            zcmusic_unload_file(zcmusic);
-            zcmusic = NULL;
-        }
-        
-        if(ismidi)
-        {
-            packfile_password("");
-            if((song=load_midi(midipath))!=NULL)
-            {
-                if(zc_play_midi(song,true)==0)
-                {
-                    media_menu[0].flags =
-                        commands[cmdPlayTune].flags = 0;
-                        
-                    media_menu[1].flags = D_SELECTED;
-                    commands[cmdPlayMusic].flags = 0;
-                    
-                    media_menu[2].flags =
-                        commands[cmdChangeTrack].flags = D_DISABLED;
-                }
-            }
-        }
-        else
-        {
-            gme_track=0;
-            zcmusic = (ZCMUSIC*)zcmusic_load_file(midipath);
-            
-            if(zcmusic!=NULL)
-            {
-                media_menu[0].flags =
-                    commands[cmdPlayTune].flags = 0;
-                    
-                media_menu[1].flags=D_SELECTED;
-                commands[cmdPlayMusic].flags = 0;
-                
-                media_menu[2].flags =
-                    commands[cmdChangeTrack].flags = (zcmusic_get_tracks(zcmusic)<2)?D_DISABLED:0;
-                    
-                zcmusic_play(zcmusic, midi_volume);
-            }
-        }
-    }
-    
-    return D_O_K;
+	char *ext;
+	bool ismidi=false;
+	char allmusic_types[256];
+	sprintf(allmusic_types, "%s;mid", zcmusic_types);
+	
+	if(getname("Load Music",(char*)allmusic_types,NULL,midipath,false))
+	{
+		strcpy(midipath,temppath);
+		
+		ext=get_extension(midipath);
+		
+		if(
+			(stricmp(ext,"ogg")==0)||
+			(stricmp(ext,"mp3")==0)||
+			(stricmp(ext,"it")==0)||
+			(stricmp(ext,"xm")==0)||
+			(stricmp(ext,"s3m")==0)||
+			(stricmp(ext,"mod")==0)||
+			(stricmp(ext,"spc")==0)||
+			(stricmp(ext,"gym")==0)||
+			(stricmp(ext,"nsf")==0)||
+			(stricmp(ext,"gbs")==0)||
+			(stricmp(ext,"vgm")==0)
+		)
+		{
+			ismidi=false;
+		}
+		else if((stricmp(ext,"mid")==0))
+		{
+			ismidi=true;
+		}
+		else
+		{
+			return D_O_K;
+		}
+		
+		zc_stop_midi();
+		
+		if(zcmusic != NULL)
+		{
+			zcmusic_stop(zcmusic);
+			zcmusic_unload_file(zcmusic);
+			zcmusic = NULL;
+		}
+		
+		if(ismidi)
+		{
+			packfile_password("");
+			if((song=load_midi(midipath))!=NULL)
+			{
+				if(zc_play_midi(song,true)==0)
+				{
+					media_menu[0].flags =
+						commands[cmdPlayTune].flags = 0;
+						
+					media_menu[1].flags = D_SELECTED;
+					commands[cmdPlayMusic].flags = 0;
+					
+					media_menu[2].flags =
+						commands[cmdChangeTrack].flags = D_DISABLED;
+				}
+			}
+		}
+		else
+		{
+			gme_track=0;
+			zcmusic = (ZCMUSIC*)zcmusic_load_file(midipath);
+			
+			if(zcmusic!=NULL)
+			{
+				media_menu[0].flags =
+					commands[cmdPlayTune].flags = 0;
+					
+				media_menu[1].flags=D_SELECTED;
+				commands[cmdPlayMusic].flags = 0;
+				
+				media_menu[2].flags =
+					commands[cmdChangeTrack].flags = (zcmusic_get_tracks(zcmusic)<2)?D_DISABLED:0;
+					
+				zcmusic_play(zcmusic, midi_volume);
+			}
+		}
+	}
+	
+	return D_O_K;
 }
 
 // It took awhile to get these values right, so no meddlin'!
@@ -4479,7 +4322,7 @@ int32_t playTune(int32_t pos)
         zc_midi_seek(pos);
         
         media_menu[0].flags = D_SELECTED;
-        commands[cmdPlayTune].flags = 0;
+		commands[cmdPlayTune].flags = 0;
         
         media_menu[1].flags =
             commands[cmdPlayMusic].flags = 0;
@@ -4716,7 +4559,7 @@ static DIALOG gamemiscarray_dlg[] =
 
 void EditGameMiscArray()
 {
-	gamemiscarray_dlg[0].dp2=lfont;
+	gamemiscarray_dlg[0].dp2=get_zc_font(font_lfont);
 	char miscvalue[32][14];
 	char miscvalue_labels[32][65];
 	memset(miscvalue, 0, sizeof(miscvalue));
@@ -4738,7 +4581,7 @@ void EditGameMiscArray()
         
 	do
 	{
-		ret = do_zqdialog(gamemiscarray_dlg,65);
+		ret = zc_popup_dialog(gamemiscarray_dlg,65);
 		for ( int32_t q = 0; q < 32; q++ )
 		{
 			
@@ -4813,7 +4656,7 @@ void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse)
     }
 }
 
-int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
+int32_t load_the_pic(BITMAP **dst, PALETTE dstpal)
 {
     PALETTE temppal;
     
@@ -4833,27 +4676,23 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
     
     zc_set_palette(dstpal);
     
-	if(grayout)
-	{
-		BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
-		int32_t _w = screen->w-1;
-		int32_t _h = screen->h-1;
-		
-		// gray scale the current frame
-		for(int32_t y=0; y<_h; y++)
-		{
-			for(int32_t x=0; x<_w; x++)
-			{
-				int32_t c = screen->line[y][x];
-				int32_t gray = zc_min((temppal[c].r*42 + temppal[c].g*75 + temppal[c].b*14) >> 7, 63);
-				graypic->line[y][x] = gray;
-			}
-		}
-		
-		blit(graypic,screen,0,0,0,0,screen->w,screen->h);
-		destroy_bitmap(graypic);
-	}
-
+    BITMAP *graypic = create_bitmap_ex(8,screen->w,screen->h);
+    int32_t _w = screen->w-1;
+    int32_t _h = screen->h-1;
+    
+    // gray scale the current frame
+    for(int32_t y=0; y<_h; y++)
+    {
+        for(int32_t x=0; x<_w; x++)
+        {
+            int32_t c = screen->line[y][x];
+            int32_t gray = zc_min((temppal[c].r*42 + temppal[c].g*75 + temppal[c].b*14) >> 7, 63);
+            graypic->line[y][x] = gray;
+        }
+    }
+    
+    blit(graypic,screen,0,0,0,0,screen->w,screen->h);
+    destroy_bitmap(graypic);
 #ifdef __GNUC__
 	#pragma GCC diagnostic ignored "-Wformat-overflow"
 #endif
@@ -4901,7 +4740,7 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
     
     if(!*dst)
     {
-        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return 2;
     }
     
@@ -4909,6 +4748,65 @@ int32_t load_the_pic(BITMAP **dst, PALETTE dstpal, bool grayout)
     //  draw_bw_mouse(pwhite);
     //  gui_bg_color = pblack;
     //  gui_fg_color = pwhite;
+    
+    if(vp_center)
+    {
+        picx=picy=0;
+    }
+    else
+    {
+        picx=(*dst)->w-zq_screen_w;
+        picy=(*dst)->h-zq_screen_h;
+    }
+    
+    return 0;
+}
+int load_the_pic_new(BITMAP **dst, PALETTE dstpal)
+{
+#ifdef __GNUC__
+	#pragma GCC diagnostic ignored "-Wformat-overflow"
+#endif
+    char extbuf[2][80];
+    memset(extbuf[0],0,80);
+    memset(extbuf[1],0,80);
+    sprintf(extbuf[0], "View Image (%s", snapshotformat_str[0][1]);
+    strcpy(extbuf[1], snapshotformat_str[0][1]);
+    
+    for(int32_t i=1; i<ssfmtMAX; ++i)
+    {
+        sprintf(extbuf[0], "%s, %s", extbuf[0], snapshotformat_str[i][1]);
+        sprintf(extbuf[1], "%s;%s", extbuf[1], snapshotformat_str[i][1]);
+    }
+    
+    sprintf(extbuf[0], "%s)", extbuf[0]);
+#ifdef __GNUC__
+	#pragma GCC diagnostic pop
+#endif
+    
+    int32_t gotit = getname(extbuf[0],extbuf[1],NULL,imagepath,true);
+    
+    if(!gotit)
+        return 1;
+    
+    strcpy(imagepath,temppath);
+    
+    if(*dst)
+        destroy_bitmap(*dst);
+    
+    for(int32_t i=0; i<256; i++)
+    {
+        dstpal[i].r = 0;
+        dstpal[i].g = 0;
+        dstpal[i].b = 0;
+    }
+    
+    *dst = load_bitmap(imagepath,dstpal);
+    
+    if(!*dst)
+    {
+        jwin_alert("Error","Error loading image:",imagepath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+        return 2;
+    }
     
     if(vp_center)
     {
@@ -4952,14 +4850,12 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     bool done=false, redraw=true;
     
     go();
-    scare_mouse();
     clear_bitmap(screen);
     
     // Always call load_the_map() when viewing the map.
     if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
     {
         zc_set_palette(RAMpal);
-        unscare_mouse();
         comeback();
         return D_O_K;
     }
@@ -4973,13 +4869,12 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     
     if(!buf)
     {
-        jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return D_O_K;
     }
     
     //  go();
-    //  scare_mouse();
-    //  clear_bitmap(screen);
+    //    //  clear_bitmap(screen);
     zc_set_palette(pal);
     
     do
@@ -5158,7 +5053,6 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
     
     destroy_bitmap(buf);
     zc_set_palette(RAMpal);
-    unscare_mouse();
     gui_fg_color = oldfgcolor;
     gui_bg_color = oldbgcolor;
     
@@ -5195,7 +5089,7 @@ int32_t load_the_map()
     static int32_t res = 1;
     static int32_t flags = cDEBUG;
     
-    loadmap_dlg[0].dp2    = lfont;
+    loadmap_dlg[0].dp2    = get_zc_font(font_lfont);
     loadmap_dlg[3].flags  = (res==2) ? D_SELECTED : 0;
     loadmap_dlg[4].flags  = (res==1) ? D_SELECTED : 0;
     loadmap_dlg[5].flags  = (res==0) ? D_SELECTED : 0;
@@ -5207,7 +5101,7 @@ int32_t load_the_map()
     
     large_dialog(loadmap_dlg);
         
-    if(do_zqdialog(loadmap_dlg,11) != 11)
+    if(zc_popup_dialog(loadmap_dlg,11) != 11)
     {
         return 1;
     }
@@ -5238,7 +5132,7 @@ int32_t load_the_map()
     
     if(!bmap)
     {
-        jwin_alert("Error","Error creating bitmap.",NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Error","Error creating bitmap.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         return 2;
     }
     
@@ -5340,112 +5234,165 @@ void textprintf_centre_disabled(BITMAP *bmp, AL_CONST FONT *f, int32_t x, int32_
     textout_centre_ex(bmp, f, buf, x, y, color_sh, -1);
 }
 
+void draw_sqr_frame(size_and_pos const& sqr)
+{
+	jwin_draw_frame(menu1,sqr.x,sqr.y,sqr.tw(),sqr.th(),FR_DEEP);
+}
+void draw_sqr_icon(size_and_pos const& sqr, BITMAP* icon)
+{
+	stretch_blit(icon, menu1, 0, 0, 16, 16, sqr.x+2, sqr.y+2, sqr.tw()-4, sqr.th()-4);
+}
+void draw_sqr_nums(size_and_pos const& sqr, FONT* f, bool center, int num)
+{
+	if(center)
+		textprintf_centre_ex(menu1,f,sqr.x+txtoffs_single.x,sqr.y+txtoffs_single.y,jwin_pal[jcBOXFG],-1,"%d",num);
+	else
+		textprintf_ex(menu1,f,sqr.x+txtoffs_single.x,sqr.y+txtoffs_single.y,jwin_pal[jcBOXFG],-1,"%d",num);
+}
+void draw_sqr_nums(size_and_pos const& sqr, FONT* f, bool center, int num1, int num2)
+{
+	if(center)
+	{
+		textprintf_centre_ex(menu1,f,sqr.x+txtoffs_double_1.x,sqr.y+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",num1);
+		textprintf_centre_ex(menu1,f,sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",num2);
+	}
+	else
+	{
+		textprintf_ex(menu1,f,sqr.x+txtoffs_double_1.x,sqr.y+txtoffs_double_1.y,jwin_pal[jcBOXFG],-1,"%d",num1);
+		textprintf_ex(menu1,f,sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",num2);
+	}
+}
+void draw_sqr_btn(size_and_pos const& sqr, char* txt, int flags, FONT* f = nullptr)
+{
+	if(sqr.x < 0) return;
+	FONT* tfont = font;
+	if(f)
+		font = f;
+	draw_text_button(menu1, sqr.x, sqr.y, sqr.tw(), sqr.th(), txt, 0, 0, flags, true);
+	font = tfont;
+}
+
 void drawpanel()
 {
 	mapscr *scr=Map.CurrScr();
 	int32_t NextCombo=combobuf[Combo].nextcombo;
 	int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
 	
-	ALLEGRO_FONT* oldfont = a5font;
-	a5font = get_zc_font_a5(font_nfont);
+	FONT* tfont = font;
 	if(prv_mode)
 	{
-		jwin_draw_frame_a5(0,preview_panel.y,preview_panel.x+preview_panel.w, preview_panel.h, FR_WIN);
-		al_draw_filled_rectangle(preview_panel.x,preview_panel.y+2,preview_panel.x+preview_panel.w-2,preview_panel.y+preview_panel.h-2,jwin_a5_pal(jcBOX));
+		jwin_draw_frame(menu1,0,preview_panel.y,preview_panel.x+preview_panel.w, preview_panel.h, FR_WIN);
+		rectfill(menu1,preview_panel.x,preview_panel.y+2,preview_panel.x+preview_panel.w-3,preview_panel.y+preview_panel.h-3,jwin_pal[jcBOX]);
 	}
 	else
 	{
 		auto& sqr = main_panel;
-		al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h, jwin_a5_pal(jcBOX));
-		jwin_draw_frame_a5(sqr.x,sqr.y,sqr.w,sqr.h,FR_WIN);
+		rectfill(menu1,sqr.x,sqr.y,sqr.x+sqr.w-1,sqr.y+sqr.h-1, jwin_pal[jcBOX]);
+		refresh(rSCRMAP);
+		jwin_draw_frame(menu1,sqr.x,sqr.y,sqr.w,sqr.h, FR_WIN);
 		
-		//Item:
-		auto itemx = itemsqr_pos.x;
-		auto itemy = itemsqr_pos.y;
-		jwin_draw_frame_a5(itemx,itemy,20,20,FR_DEEP);
-		if(scr->hasitem && scr->item > 0)
+		font = get_custom_font(CFONT_GUI);
+		draw_sqr_btn(squarepanel_swap_btn, "SWP", 0);
+		if(compact_square_panels)
 		{
-			itemdata const& itm = itemsbuf[scr->item];
-			a5_draw_tile(itemx+2,itemy+2,itm.tile,itm.csets&15,0,0,false,255);
-			overtile16(menu1, itemsbuf[scr->item].tile,itemx+2,itemy+2,itemsbuf[scr->item].csets&15,0);
+			textprintf_centre_ex(menu1,font,squarepanel_up_btn.cx(),squarepanel_up_btn.y-text_height(font)-2,jwin_pal[jcBOXFG],-1,"%d",compact_active_panel);
+			draw_sqr_btn(squarepanel_up_btn, "\x88", 0);
+			draw_sqr_btn(squarepanel_down_btn, "\x89", 0);
 		}
-		else al_draw_bitmap(icon_bmp[0][coord_frame], itemx+2,itemy+2, 0);
+		font = tfont;
 		
-		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),itemx+txtoffs_double_1.x,itemy+txtoffs_double_1.y,panel_align,fmt::format("{}",scr->itemx).c_str());
-		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),itemx+txtoffs_double_2.x,itemy+txtoffs_double_2.y,panel_align,fmt::format("{}",scr->itemy).c_str());
-		
+		FONT* sqr_text_font = (is_compact && compact_square_panels) ? get_custom_font(CFONT_GUI) : font;
+		//Item:
+		if(itemsqr_pos.x > -1)
+		{
+			draw_sqr_frame(itemsqr_pos);
+			if(scr->hasitem && scr->item > 0)
+			{
+				rectfill(menu1,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsqr_pos.x+itemsqr_pos.tw()-3,itemsqr_pos.y+itemsqr_pos.th()-3,0);
+				overtile16_scale(menu1, itemsbuf[scr->item].tile,itemsqr_pos.x+2,itemsqr_pos.y+2,itemsbuf[scr->item].csets&15,0,itemsqr_pos.tw()-4,itemsqr_pos.th()-4);
+			}
+			else draw_sqr_icon(itemsqr_pos, icon_bmp[0][coord_frame]);
+			draw_sqr_nums(itemsqr_pos, sqr_text_font, panel_align == 1, scr->itemx, scr->itemy);
+		}
 		//Flag:
-		auto flagx = flagsqr_pos.x;
-		auto flagy = flagsqr_pos.y;
-		jwin_draw_frame_a5(flagx,flagy,20,20,FR_DEEP);
-		al_draw_bitmap(icon_bmp[3][coord_frame], flagx+2,flagy+2, 0);
-		
-		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),flagx+txtoffs_single.x,flagy+txtoffs_single.y,panel_align,fmt::format("{}",Flag).c_str());
+		if(flagsqr_pos.x > -1)
+		{
+			draw_sqr_frame(flagsqr_pos);
+			draw_sqr_icon(flagsqr_pos,flag_bmp[Flag%16][coord_frame]);
+			draw_sqr_nums(flagsqr_pos, sqr_text_font, panel_align == 1, Flag);
+		}
 		
 		//Stairs:
-		auto stairx = stairsqr_pos.x;
-		auto stairy = stairsqr_pos.y;
-		jwin_draw_frame_a5(stairx,stairy,20,20,FR_DEEP);
-		al_draw_bitmap(icon_bmp[1][coord_frame], stairx+2,stairy+2, 0);
-		
-		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),stairx+txtoffs_double_1.x,stairy+txtoffs_double_1.y,panel_align,fmt::format("{}",scr->stairx).c_str());
-		jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),stairx+txtoffs_double_2.x,stairy+txtoffs_double_2.y,panel_align,fmt::format("{}",scr->stairy).c_str());
+		if(stairsqr_pos.x > -1)
+		{
+			draw_sqr_frame(stairsqr_pos);
+			draw_sqr_icon(stairsqr_pos,icon_bmp[1][coord_frame]);
+			draw_sqr_nums(stairsqr_pos, sqr_text_font, panel_align == 1, scr->stairx, scr->stairy);
+		}
 		
 		//Green arrival square:
 		bool disabled_arrival = get_bit(quest_rules,qr_NOARRIVALPOINT);
-		auto arrivalx = warparrival_pos.x;
-		auto arrivaly = warparrival_pos.y;
+		if(warparrival_pos.x > -1)
+		{
+			draw_sqr_frame(warparrival_pos);
+			BITMAP* icon = icon_bmp[2][coord_frame];
+			if(disabled_arrival)
+			{
+				icon = create_bitmap_ex(8,16,16);
+				blit(icon_bmp[2][0], icon, 0, 0, 0, 0, 16, 16);
+				replColor(icon, 0xE7, 0xEA, 0xEA, false);
+				replColor(icon, 0xE8, 0xE2, 0xE2, false);
+			}
+			
+			draw_sqr_icon(warparrival_pos, icon);
+			draw_sqr_nums(warparrival_pos, sqr_text_font, panel_align == 1, scr->warparrivalx, scr->warparrivaly);
+			
+			if(disabled_arrival)
+				destroy_bitmap(icon);
+		}
 		
-		if(disabled_arrival)
-		{
-			jwin_draw_frame_a5(arrivalx,arrivaly,20,20,FR_DEEP);
-			al_draw_bitmap(icon_bmp[2][4], arrivalx+2,arrivaly+2, 0);
-			
-			jwin_textout_a5_dis(a5font,jwin_a5_pal(jcDISABLED_FG),arrivalx+txtoffs_double_1.x,arrivaly+txtoffs_double_1.y,panel_align,fmt::format("{}",scr->warparrivalx).c_str(),AL5_INVIS,jwin_a5_pal(jcLIGHT));
-			jwin_textout_a5_dis(a5font,jwin_a5_pal(jcDISABLED_FG),arrivalx+txtoffs_double_2.x,arrivaly+txtoffs_double_2.y,panel_align,fmt::format("{}",scr->warparrivaly).c_str(),AL5_INVIS,jwin_a5_pal(jcLIGHT));
-		}
-		else
-		{
-			jwin_draw_frame_a5(arrivalx,arrivaly,20,20,FR_DEEP);
-			al_draw_bitmap(icon_bmp[2][coord_frame], arrivalx+2,arrivaly+2, 0);
-			
-			jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),arrivalx+txtoffs_double_1.x,arrivaly+txtoffs_double_1.y,panel_align,fmt::format("{}",scr->warparrivalx).c_str());
-			jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),arrivalx+txtoffs_double_2.x,arrivaly+txtoffs_double_2.y,panel_align,fmt::format("{}",scr->warparrivaly).c_str());
-		}
 		//Blue return squares:
 		for(int32_t i=0; i<4; i++)
 		{
-			auto& sqr = warpret_pos[i];
-			jwin_draw_frame_a5(sqr.x,sqr.y,20,20,FR_DEEP);
-			al_draw_bitmap(icon_bmp[ICON_BMP_RETURN_A+i][coord_frame], sqr.x+2,sqr.y+2, 0);
-			
-			jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),sqr.x+txtoffs_double_1.x,sqr.y+txtoffs_double_1.y,panel_align,fmt::format("{}",scr->warpreturnx[i]).c_str());
-			jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,panel_align,fmt::format("{}",scr->warpreturny[i]).c_str());
+			if(warpret_pos[i].x < 0) continue;
+			draw_sqr_frame(warpret_pos[i]);
+			draw_sqr_icon(warpret_pos[i], icon_bmp[ICON_BMP_RETURN_A+i][coord_frame]);
+			draw_sqr_nums(warpret_pos[i], sqr_text_font, panel_align == 1, scr->warpreturnx[i], scr->warpreturny[i]);
 		}
 		
 		// Enemies
 		auto& ep = enemy_prev_pos;
-		al_draw_filled_rectangle(ep.x, ep.y, ep.x+ep.tw(),ep.y+ep.th(),AL5_BLACK);
-		al_draw_filled_rectangle(ep.x+ep.fw, ep.y+ep.fh, ep.x+ep.tw(), ep.y+ep.th(), jwin_a5_pal(jcBOX));
-		jwin_draw_frag_frame_a5(ep.x, ep.y, ep.tw(), ep.th(), ep.fw, ep.fh, FR_DEEP);
-		
-		for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+		if(ep.x > -1)
 		{
-			int32_t id = Map.CurrScr()->enemy[i];
-			int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
-			int32_t cset = guysbuf[id].cset;
-			auto& sqr = ep.subsquare(i);
-			if(tile)
-				a5_draw_tile(sqr.x,sqr.y,tile+efrontfacingtile(id),cset,0,0,true,255);
+			if(ep.fw > -1)
+			{
+				rectfill(menu1, ep.x, ep.y, ep.x+ep.tw()-1,ep.y+ep.th()-1,vc(0));
+				rectfill(menu1, ep.x+ep.fw, ep.y+ep.fh, ep.x+ep.tw()-1, ep.y+ep.th()-1, jwin_pal[jcBOX]);
+				jwin_draw_frag_frame(menu1, ep.x, ep.y, ep.tw(), ep.th(), ep.fw, ep.fh, FR_DEEP);
+			}
+			else
+			{
+				rectfill(menu1, ep.x, ep.y, ep.x+ep.tw()-1,ep.y+ep.th()-1,vc(0));
+				draw_sqr_frame(ep);
+			}
+			for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
+			{
+				int32_t id = Map.CurrScr()->enemy[i];
+				int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+				int32_t cset = guysbuf[id].cset;
+				auto& sqr = ep.subsquare(i);
+				if(tile)
+					overtile16_scale(menu1, tile+efrontfacingtile(id),sqr.x,sqr.y,cset,0,sqr.tw(),sqr.th());
+			}
 		}
 	}
-	a5font = oldfont;
+	font = tfont;
 }
 
 void show_screen_error(const char *str, int32_t i, int32_t c)
 {
-    rectfill(menu1, screrrorpos.x-text_length(lfont_l,str),screrrorpos.y-(i*16),screrrorpos.x,screrrorpos.y-((i-1)*16)-4,vc(0));
-    textout_shadowed_ex(menu1,lfont_l, str,screrrorpos.x-text_length(lfont_l,str),screrrorpos.y-(i*16),c,vc(0),-1);
+    rectfill(menu1, screrrorpos.x-text_length(get_zc_font(font_lfont_l),str),screrrorpos.y-(i*16),screrrorpos.x,screrrorpos.y-((i-1)*16)-4,vc(0));
+    textout_shadowed_ex(menu1,get_zc_font(font_lfont_l), str,screrrorpos.x-text_length(get_zc_font(font_lfont_l),str),screrrorpos.y-(i*16),c,vc(0),-1);
 }
 
 void tile_warp_notification(int32_t which, char *buf)
@@ -5560,18 +5507,10 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
-	ALLEGRO_FONT* tfont_a5 = a5font;
-	
-	ALLEGRO_BITMAP* oldtarg = al_get_target_bitmap();
 	switch(unit)
 	{
 		case rSCRMAP:
 		{
-			al_set_target_bitmap(rti_minimap.bitmap);
-			clear_a5_bmp(AL5_INVIS);
-			
-			if(prv_mode) break;
-			
 			size_and_pos *mini_sqr = &minimap;
 			size_and_pos *real_mini_sqr = &real_minimap;
 			
@@ -5584,10 +5523,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			auto txt_x = real_mini_sqr->x+2+8*real_mini_sqr->xscale;
 			auto txt_y = real_mini_sqr->y+2+8*real_mini_sqr->yscale;
 			
-			al_draw_filled_rectangle(mini_sqr->x-1, mini_sqr->y-2,mini_sqr->x+mini_sqr->w,mini_sqr->y+mini_sqr->h,jwin_a5_pal(jcBOX));
+			rectfill(menu1, mini_sqr->x-1, mini_sqr->y-2,mini_sqr->x+mini_sqr->w-1,mini_sqr->y+mini_sqr->h-1,jwin_pal[jcBOX]);
 			if(zoomed_minimap)
-				jwin_draw_frame_a5(mini_sqr->x-1, mini_sqr->y-2,mini_sqr->w,mini_sqr->h,FR_WIN);
-			jwin_draw_minimap_frame_a5(real_mini_sqr->x,real_mini_sqr->y,real_mini_sqr->tw(), real_mini_sqr->th(), real_mini_sqr->xscale, FR_DEEP);
+				jwin_draw_frame(menu1, mini_sqr->x-1, mini_sqr->y-2,mini_sqr->w,mini_sqr->h,FR_WIN);
+			jwin_draw_minimap_frame(menu1,real_mini_sqr->x,real_mini_sqr->y,real_mini_sqr->tw(), real_mini_sqr->th(), real_mini_sqr->xscale, FR_DEEP);
 			
 			if(Map.getCurrMap()<Map.getMapCount())
 			{
@@ -5608,48 +5547,59 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 					else
 					{
-						al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h,false);
+						if(InvalidStatic)
+						{
+							for(int32_t dy=0; dy<sqr.h; dy++)
+							{
+								for(int32_t dx=0; dx<sqr.w; dx++)
+								{
+									menu1->line[dy+sqr.y][dx+sqr.x]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+								}
+							}
+						}
+						else
+						{
+							int32_t offs = 2*(sqr.w/9);
+							draw_x(menu1, sqr.x+offs, sqr.y+offs, sqr.x+sqr.w-1-offs, sqr.y+sqr.h-1-offs, vc(15));
+						}
 					}
 				}
 				
 				int32_t s=Map.getCurrScr();
 				// The white marker rect
-				ALLEGRO_COLOR cursor_color;;
+				int32_t cursor_color = 0;
 				switch(MMapCursorStyle)
 				{
 					case 0:
-						cursor_color = AL5_WHITE;
+						cursor_color = vc(15);
 						break;
 					case 1:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? AL5_BLACK : AL5_WHITE;
+						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
 						break;
 					case 2:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? AL5_LRED : AL5_BLUE;
+						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
 						break;
 				}
-				auto& sqr = real_mini_sqr->subsquare(s);
-				highlight_sqr(cursor_color,sqr.x,sqr.y,sqr.w,sqr.h,zoomed_minimap?2:1);
+				if(cursor_color)
+				{
+					auto& sqr = real_mini_sqr->subsquare(s);
+					al_draw_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
+						a5color(cursor_color), 2);
+				}
 				
-				//Draw text to buffer
-				set_bitmap_create_flags(false);
-				ALLEGRO_BITMAP* txtbmp = al_create_bitmap(256,64);
-				al_set_target_bitmap(txtbmp);
-				clear_a5_bmp(AL5_INVIS);
-				
+				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
+				clear_bitmap(txtbmp);
 				int txtscale = zoomed_minimap ? (is_compact ? 2 : 3) : 1;
-				a5font = get_zc_font_a5(font_lfont_l);
+				font = get_zc_font(font_lfont_l);
 				
-				int32_t space = al_get_text_width(a5font, "255")+2, spc_s = al_get_text_width(a5font, "S")+2, spc_m = al_get_text_width(a5font, "M")+2;
-				jwin_textout_a5_dis(a5font,jwin_a5_pal(jcMEDDARK),0,0,0,"M",AL5_INVIS,jwin_a5_pal(jcLIGHT));
-				jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),spc_m,0,0,fmt::format("{:3d}",Map.getCurrMap()+1).c_str(),AL5_INVIS);
+				int32_t space = text_length(font, "255")+2, spc_s = text_length(font, "S")+2, spc_m = text_length(font, "M")+2;
+				textprintf_disabled(txtbmp,font,0,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"M");
+				textprintf_ex(txtbmp,font,spc_m,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",Map.getCurrMap()+1);
 				
-				jwin_textout_a5_dis(a5font,jwin_a5_pal(jcMEDDARK),spc_m+space,0,0,"S",AL5_INVIS,jwin_a5_pal(jcLIGHT));
-				jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),spc_m+space+spc_s,0,0,fmt::format("0x{:02X} ({:d})",s, s).c_str(),AL5_INVIS);
-				
-				al_set_target_bitmap(rti_minimap.bitmap);
-				//Draw text buffer to target
-				al_draw_scaled_bitmap(txtbmp, 0, 0, 256, 64, txt_x, txt_y, 256*txtscale, 64*txtscale, 0);
-				al_destroy_bitmap(txtbmp);
+				textprintf_disabled(txtbmp,font,spc_m+space,0,jwin_pal[jcLIGHT],jwin_pal[jcMEDDARK],"S");
+				textprintf_ex(txtbmp,font,spc_m+space+spc_s,0,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"0x%02X (%d)",s, s);
+				masked_stretch_blit(txtbmp, menu1, 0, 0, 256, 64, txt_x, txt_y, 256*txtscale, 64*txtscale);
+				destroy_bitmap(txtbmp);
 			}
 		}
 		break;
@@ -5657,106 +5607,92 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		{
 			if(!layers_valid(Map.CurrScr()))
 				fix_layers(Map.CurrScr(), true);
-			
-			al_set_target_bitmap(rti_scrborder.bitmap);
-			clear_a5_bmp(AL5_INVIS);
-			
+				
 			clear_to_color(mapscreenbmp,vc(0));
 			Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
 			if(showedges)
 			{
-				bool skip = Map.getCurrScr() >= 128 || NoScreenPreview;
-				ALLEGRO_COLOR transp_black = al_map_rgba(0,0,0,64);
-				//not the first row of screens
-				if(Map.getCurrScr()>15 && !skip)
+				if(Map.getCurrScr()<128)
 				{
-					Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
-					al_draw_filled_rectangle(mapscreen_realpos.x,mapscreen_pos.y,mapscreen_realpos.x+mapscreen_realpos.tw(),mapscreen_pos.y+mapscreen_pos.yscale,transp_black);
-				}
-				else
-				{
-					Map.drawstaticrow(mapscreenbmp, 16, 0);
-				}
-				
-				//not the last row of screens
-				if(Map.getCurrScr()<112 && !skip)
-				{
-					Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
-					al_draw_filled_rectangle(mapscreen_realpos.x,mapscreen_realpos.y+mapscreen_realpos.th(),mapscreen_realpos.x+mapscreen_realpos.tw(),mapscreen_realpos.y+mapscreen_realpos.th()+mapscreen_pos.yscale,transp_black);
-				}
-				else
-				{
-					Map.drawstaticrow(mapscreenbmp, 16, 192);
-				}
-				
-				//not the first column of screens
-				if(Map.getCurrScr()&0x0F && !skip)
-				{
-					Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
-					al_draw_filled_rectangle(mapscreen_pos.x,mapscreen_realpos.y,mapscreen_pos.x+mapscreen_pos.xscale,mapscreen_realpos.y+mapscreen_realpos.th(),transp_black);
-				}
-				else
-				{
-					Map.drawstaticcolumn(mapscreenbmp, 0, 16);
-				}
-				
-				//not the last column of screens
-				if((Map.getCurrScr()&0x0F)<15 && !skip)
-				{
-					Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
-					al_draw_filled_rectangle(mapscreen_realpos.x+mapscreen_realpos.tw(),mapscreen_realpos.y,mapscreen_realpos.x+mapscreen_realpos.tw()+mapscreen_pos.xscale,mapscreen_realpos.y+mapscreen_realpos.th(),transp_black);
-				}
-				else
-				{
-					Map.drawstaticcolumn(mapscreenbmp, 272, 16);
-				}
-				
-				//not the first row or first column of screens
-				if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !skip)
-				{
-					Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
-					auto& sqr = mapscreen_pos.subsquare(0,0);
-					al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h,transp_black);
-				}
-				else
-				{
-					Map.drawstaticblock(mapscreenbmp, 0, 0);
-				}
-				
-				//not the first row or last column of screens
-				if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !skip)
-				{
-					Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
-					auto& sqr = mapscreen_pos.subsquare(17,0);
-					al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h,transp_black);
-				}
-				else
-				{
-					Map.drawstaticblock(mapscreenbmp, 272, 0);
-				}
-				
-				//not the last row or first column of screens
-				if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !skip)
-				{
-					Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
-					auto& sqr = mapscreen_pos.subsquare(0,12);
-					al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h,transp_black);
-				}
-				else
-				{
-					Map.drawstaticblock(mapscreenbmp, 0, 192);
-				}
-				
-				//not the last row or last column of screens
-				if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !skip)
-				{
-					Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
-					auto& sqr = mapscreen_pos.subsquare(17,12);
-					al_draw_filled_rectangle(sqr.x,sqr.y,sqr.x+sqr.w,sqr.y+sqr.h,transp_black);
-				}
-				else
-				{
-					Map.drawstaticblock(mapscreenbmp, 272, 192);
+					//not the first row of screens
+					if(Map.getCurrScr()>15 && !NoScreenPreview)
+					{
+						Map.drawrow(mapscreenbmp, 16, 0, Flags, 160, -1, Map.getCurrScr()-16);
+					}
+					else
+					{
+						Map.drawstaticrow(mapscreenbmp, 16, 0);
+					}
+					
+					//not the last row of screens
+					if(Map.getCurrScr()<112 && !NoScreenPreview)
+					{
+						Map.drawrow(mapscreenbmp, 16, 192, Flags, 0, -1, Map.getCurrScr()+16);
+					}
+					else
+					{
+						Map.drawstaticrow(mapscreenbmp, 16, 192);
+					}
+					
+					//not the first column of screens
+					if(Map.getCurrScr()&0x0F && !NoScreenPreview)
+					{
+						Map.drawcolumn(mapscreenbmp, 0, 16, Flags, 15, -1, Map.getCurrScr()-1);
+					}
+					else
+					{
+						Map.drawstaticcolumn(mapscreenbmp, 0, 16);
+					}
+					
+					//not the last column of screens
+					if((Map.getCurrScr()&0x0F)<15 && !NoScreenPreview)
+					{
+						Map.drawcolumn(mapscreenbmp, 272, 16, Flags, 0, -1, Map.getCurrScr()+1);
+					}
+					else
+					{
+						Map.drawstaticcolumn(mapscreenbmp, 272, 16);
+					}
+					
+					//not the first row or first column of screens
+					if((Map.getCurrScr()>15)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
+					{
+						Map.drawblock(mapscreenbmp, 0, 0, Flags, 175, -1, Map.getCurrScr()-17);
+					}
+					else
+					{
+						Map.drawstaticblock(mapscreenbmp, 0, 0);
+					}
+					
+					//not the first row or last column of screens
+					if((Map.getCurrScr()>15)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
+					{
+						Map.drawblock(mapscreenbmp, 272, 0, Flags, 160, -1, Map.getCurrScr()-15);
+					}
+					else
+					{
+						Map.drawstaticblock(mapscreenbmp, 272, 0);
+					}
+					
+					//not the last row or first column of screens
+					if((Map.getCurrScr()<112)&&(Map.getCurrScr()&0x0F) && !NoScreenPreview)
+					{
+						Map.drawblock(mapscreenbmp, 0, 192, Flags, 15, -1, Map.getCurrScr()+15);
+					}
+					else
+					{
+						Map.drawstaticblock(mapscreenbmp, 0, 192);
+					}
+					
+					//not the last row or last column of screens
+					if((Map.getCurrScr()<112)&&((Map.getCurrScr()&0x0F)<15) && !NoScreenPreview)
+					{
+						Map.drawblock(mapscreenbmp, 272, 192, Flags, 0, -1, Map.getCurrScr()+17);
+					}
+					else
+					{
+						Map.drawstaticblock(mapscreenbmp, 272, 192);
+					}
 				}
 			}
 			
@@ -5848,22 +5784,76 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(mapscreensize==1)
 			{
-				blit(mapscreenbmp,menu1,0,0,mapscreen_pos.x,mapscreen_pos.y,mapscreenbmp->w,mapscreenbmp->h);
+				blit(mapscreenbmp,menu1,0,0,mapscreen_x,mapscreen_y,mapscreenbmp->w,mapscreenbmp->h);
 			}
 			else
 			{
-				stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_pos.x,mapscreen_pos.y,mapscreenbmp->w*mapscreensize,mapscreenbmp->h*mapscreensize);
+				stretch_blit(mapscreenbmp,menu1,0,0,mapscreenbmp->w,mapscreenbmp->h,mapscreen_x,mapscreen_y,int32_t(mapscreensize*mapscreenbmp->w),int32_t(mapscreensize*mapscreenbmp->h));
+			}
+			
+			if(showedges)
+			{
+				//top preview
+				for(int32_t j=0; j<int32_t(16*mapscreensize); j++)
+				{
+					for(int32_t i=0; i<288*mapscreensize; i++)
+					{
+						if(((i^j)&1)==0)
+						{
+							putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+						}
+					}
+				}
+				
+				//bottom preview
+				for(int32_t j=int32_t(192*mapscreensize); j<int32_t(208*mapscreensize); j++)
+				{
+					for(int32_t i=0; i<288*mapscreensize; i++)
+					{
+						if(((i^j)&1)==0)
+						{
+							putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+						}
+					}
+				}
+				
+				//left preview
+				for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
+				{
+					for(int32_t i=0; i<16*mapscreensize; i++)
+					{
+						if(((i^j)&1)==0)
+						{
+							putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+						}
+					}
+					
+				}
+				
+				//right preview
+				for(int32_t j=int32_t(16*mapscreensize); j<int32_t(192*mapscreensize); j++)
+				{
+					for(int32_t i=int32_t(272*mapscreensize); i<int32_t(288*mapscreensize); i++)
+					{
+						if(((i^j)&1)==0)
+						{
+							putpixel(menu1,mapscreen_x+i,mapscreen_y+j,vc(0));
+						}
+					}
+				}
 			}
 			
 			if(!(Flags&cDEBUG) && pixeldb==2)
 			{
-				for(int32_t j=mapscreen_realpos.th()-(mapscreen_realpos.yscale/2); j<mapscreen_realpos.th(); j++)
+				for(int32_t j=int32_t(168*mapscreensize); j<int32_t(176*mapscreensize); j++)
 				{
-					for(int32_t i=0; i<mapscreen_realpos.tw(); i++)
+					for(int32_t i=0; i<int32_t(256*mapscreensize); i++)
 					{
+					
 						if(((i^j)&1)==0)
 						{
-							putpixel(menu1,mapscreen_realpos.x+i,mapscreen_realpos.y+j,vc(blackout_color));
+							putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0)+i),
+									 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
 						}
 					}
 				}
@@ -5923,13 +5913,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(tmp->flags9 & fDARK_TRANS)
 					{
-						draw_trans_sprite(menu1, tmpbuf, mapscreen_pos.x, mapscreen_pos.y);
+						draw_trans_sprite(menu1, tmpbuf, mapscreen_x, mapscreen_y);
 					}
 					else
 					{
-						masked_blit(tmpbuf,menu1,0,0,mapscreen_pos.x,mapscreen_pos.y,tmpbuf->w,tmpbuf->h);
+						masked_blit(tmpbuf,menu1,0,0,mapscreen_x,mapscreen_y,tmpbuf->w,tmpbuf->h);
 					}
-					draw_trans_sprite(menu1, tmpbuf2, mapscreen_pos.x, mapscreen_pos.y);
+					draw_trans_sprite(menu1, tmpbuf2, mapscreen_x, mapscreen_y);
 					color_map = &trans_table;
 					//
 					destroy_bitmap(tmpDark);
@@ -5939,32 +5929,42 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				else if(!(Flags&cNODARK))
 				{
-					for(int32_t j=0; j<5*mapscreen_pos.yscale; j++)
+					for(int32_t j=0; j<80*mapscreensize; j++)
 					{
-						for(int32_t i=0; i<(5*mapscreen_pos.xscale)-j; i++)
+						for(int32_t i=0; i<(80*mapscreensize)-j; i++)
 						{
 							if(((i^j)&1)==0)
 							{
-								putpixel(menu1,mapscreen_realpos.x+i,mapscreen_realpos.y+j,vc(blackout_color));
+								putpixel(menu1,int32_t(mapscreen_x+(showedges?(16*mapscreensize):0))+i,
+										 int32_t(mapscreen_y+(showedges?(16*mapscreensize):0)+j),vc(blackout_color));
 							}
 						}
 					}
 				}
 			}
 			
-			int32_t startxint=mapscreen_realpos.x;
-			int32_t startyint=mapscreen_realpos.y;
-			double startx=startxint;
-			double starty=startyint;
-			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1));
+			int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+			int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
+			bool inrect = isinRect(gui_mouse_x(),gui_mouse_y(),startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1));
 			
-			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect && draw_mode != dm_cpool)
+			if(!(flags&rNOCURSOR) && ((ComboBrush && !ComboBrushPause)||draw_mode==dm_alias) && inrect)
 			{
-				arrowcursor = false;
 				int32_t mgridscale=16*mapscreensize;
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_BLANK][0]);
-				int32_t mx=(gui_mouse_x()-(showedges?mgridscale:0))/mgridscale*mgridscale;
-				int32_t my=(gui_mouse_y()-16-(showedges?mgridscale:0))/mgridscale*mgridscale;
+				if(allowHideMouse)
+				{
+					if(arrowcursor)
+					{
+						arrowcursor = false;
+						MouseSprite::set(ZQM_BLANK);
+					}
+				}
+				else if(!arrowcursor)
+				{
+					arrowcursor = true;
+					MouseSprite::set(ZQM_NORMAL);
+				}
+				int32_t mx=(gui_mouse_x()-mapscreen_x)/mgridscale*mgridscale;
+				int32_t my=(gui_mouse_y()-mapscreen_y)/mgridscale*mgridscale;
 				clear_bitmap(brushscreen);
 				int32_t tempbw=BrushWidth;
 				int32_t tempbh=BrushHeight;
@@ -5974,10 +5974,23 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					BrushWidth = combo_aliases[combo_apos].width+1;
 					BrushHeight = combo_aliases[combo_apos].height+1;
 				}
+				else if(draw_mode == dm_cpool)
+				{
+					BrushWidth = BrushHeight = 1;
+					combo_pool const& pool = combo_pools[combo_pool_pos];
+					if(pool.valid())
+					{
+						int32_t cid = Combo;
+						int8_t cset = CSet;
+						pool.get_w_wrap(cid,cset,cpoolbrush_index/16); //divide to reduce speed
+						put_combo(brushbmp,0,0,cid,cset,Flags&(cFLAGS|cWALK),0);
+					}
+					else clear_bitmap(brushbmp);
+				}
 				
 				if((FloatBrush)&&(draw_mode!=dm_alias))
 				{
-					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), my+(showedges?mgridscale:0)-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
+					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx-(SHADOW_DEPTH*mapscreensize), my-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
 					
 					//shadow
 					for(int32_t i=0; i<SHADOW_DEPTH*mapscreensize; i++)
@@ -5986,7 +5999,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						{
 							if((((i^j)&1)==1) && (my+j)<12*mgridscale)
 							{
-								putpixel(brushscreen,mx+(showedges?mgridscale:0)+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+(showedges?mgridscale:0)+j,vc(0));
+								putpixel(brushscreen,mx+i+(BrushWidth*mgridscale)-(SHADOW_DEPTH*mapscreensize),my+j,vc(0));
 							}
 						}
 					}
@@ -5997,7 +6010,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						{
 							if((((i^j)&1)==1) && (mx+i)<16*mgridscale)
 							{
-								putpixel(brushscreen,mx+(showedges?mgridscale:0)+i,my+(showedges?mgridscale:0)+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
+								putpixel(brushscreen,mx+i,my+j+(BrushHeight*mgridscale)-(SHADOW_DEPTH*mapscreensize),vc(0));
 							}
 						}
 					}
@@ -6006,7 +6019,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				{
 					if(draw_mode!=dm_alias)
 					{
-						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0), my+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+						stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx, my, BrushWidth*mgridscale, BrushHeight*mgridscale);
 					}
 					else
 					{
@@ -6015,25 +6028,25 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						switch(alias_origin)
 						{
 							case 0:
-								stretch_blit(brushbmp, brushscreen, 0,                                                                   0,                                                                     BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx, my, BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 1:
-								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0,                                                                     BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), my+(showedges?mgridscale:0),                                        BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, 0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0), my, BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 2:
-								stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx+(showedges?mgridscale:0),                                       zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, 0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, mx, zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 								
 							case 3:
-								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0)+(showedges?mgridscale:0), zc_max((my-(combo->height)*mgridscale),0)+(showedges?mgridscale:0), BrushWidth*mgridscale, BrushHeight*mgridscale);
+								stretch_blit(brushbmp, brushscreen, (mx<combo->width*mgridscale)?((combo->width)*16)-mx/mapscreensize:0, (my<combo->height*mgridscale)?((combo->height)*16)-my/mapscreensize:0, BrushWidth*16, BrushHeight*16, zc_max((mx-(combo->width)*mgridscale),0), zc_max((my-(combo->height)*mgridscale),0), BrushWidth*mgridscale, BrushHeight*mgridscale);
 								break;
 						}
 					}
 				}
 				
-				masked_blit(brushscreen, menu1, 0, 0, 0, 16, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
+				masked_blit(brushscreen, menu1, 0, 0, mapscreen_x, mapscreen_y, (16+(showedges?2:0))*mgridscale, (11+(showedges?2:0))*mgridscale);
 				BrushWidth=tempbw;
 				BrushHeight=tempbh;
 			}
@@ -6041,27 +6054,35 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				if(!arrowcursor)
 				{
-					set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+					MouseSprite::set(ZQM_NORMAL);
 					arrowcursor = true;
 				}
 			}
 			
 			if(ShowGrid)
 			{
-				for(int32_t x=1; x<mapscreen_pos.w; ++x)
+				int32_t w=16;
+				int32_t h=11;
+				
+				if(showedges)
 				{
-					al_draw_vline(mapscreen_pos.x+(x*mapscreen_pos.xscale)+0.5, mapscreen_pos.y+0.5, mapscreen_pos.y+mapscreen_pos.th(), a5color(vc(GridColor)));
+					w=18;
+					h=13;
 				}
 				
-				for(int32_t y=1; y<mapscreen_pos.h; ++y)
+				for(int32_t x=16; x<w*16; x+=16)
 				{
-					al_draw_hline(mapscreen_pos.x, mapscreen_pos.y+(y*mapscreen_pos.yscale), mapscreen_pos.x+mapscreen_pos.tw(), a5color(vc(GridColor)));
+					_allegro_vline(menu1, (x*mapscreensize)+mapscreen_x, mapscreen_y, mapscreen_y+(h*16*mapscreensize)-1, vc(GridColor));
+				}
+				
+				for(int32_t y=16; y<h*16; y+=16)
+				{
+					_allegro_hline(menu1, mapscreen_x, (y*mapscreensize)+mapscreen_y, mapscreen_x+(w*16*mapscreensize)-1, vc(GridColor));
 				}
 			}
 			
 			// Map tabs
-			al_set_target_bitmap(oldtarg);
-			a5font = get_custom_font_a5(CFONT_GUI);
+			font = get_custom_font(CFONT_GUI);
 			
 			map_page[current_mappage].map=Map.getCurrMap();
 			map_page[current_mappage].screen=Map.getCurrScr();
@@ -6070,7 +6091,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				char tbuf[15];
 				sprintf(tbuf, "%d:%02X", map_page[btn].map+1, map_page[btn].screen);
-				draw_layer_button_a5(map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
+				draw_layer_button(menu1,map_page_bar[btn].x, map_page_bar[btn].y, map_page_bar[btn].w, map_page_bar[btn].h,tbuf,(btn==current_mappage?D_SELECTED:0));
 			}
 		}
 		break;
@@ -6110,6 +6131,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(draw_mode==dm_alias)
 			{
+				if(LinkedScroll)
+				{
+					int tmp = current_comboalist;
+					for(int q = tmp-1; q >= 0; --q)
+					{
+						combo_alistpos[q] = combo_alistpos[q+1]-(comboaliaslist[q].w*comboaliaslist[q].h);
+						if(combo_alistpos[q] < 0)
+						{
+							tmp = 0;
+							combo_alistpos[0] = 0;
+							break;
+						}
+					}
+					for(int q = tmp+1; q < num_combo_cols; ++q)
+						combo_alistpos[q] = combo_alistpos[q-1]+(comboaliaslist[q-1].w*comboaliaslist[q-1].h);
+					for(int q = 0; q < num_combo_cols; ++q)
+						if(combo_apos >= combo_alistpos[q] && combo_apos < combo_alistpos[q] + (comboaliaslist[q].w*comboaliaslist[q].h))
+						{
+							current_comboalist = q;
+							break;
+						}
+				}
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = comboaliaslist[c];
@@ -6151,12 +6194,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						int32_t rect_pos=combo_apos-combo_alistpos[current_comboalist];
 						
 						if((rect_pos>=0)&&(rect_pos<(combo_alistpos[current_comboalist]+(col.w*col.h))))
-							safe_rect(menu1,
-								(rect_pos&(col.w-1))*col.xscale+col.x,
-								(rect_pos/col.w)*col.yscale+col.y,
-								((rect_pos&(col.w-1))*col.xscale+col.x)+col.xscale-1,
-								((rect_pos/col.w)*col.yscale+col.y)+col.yscale-1,
-								255);
+						{
+							int selw = col.xscale;
+							int selh = col.yscale;
+							int x1 = (rect_pos&(col.w-1))*col.xscale+col.x;
+							int y1 = (rect_pos/col.w)*col.yscale+col.y;
+							safe_rect(menu1,x1,y1,x1+selw-1,y1+selh-1,vc(CmbCursorCol),2);
+						}
 					}
 				}
 				
@@ -6164,6 +6208,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			}
 			else if(draw_mode==dm_cpool)
 			{
+				if(LinkedScroll)
+				{
+					int tmp = current_cpoollist;
+					for(int q = tmp-1; q >= 0; --q)
+					{
+						combo_pool_listpos[q] = combo_pool_listpos[q+1]-(comboaliaslist[q].w*comboaliaslist[q].h);
+						if(combo_pool_listpos[q] < 0)
+						{
+							tmp = 0;
+							combo_pool_listpos[0] = 0;
+							break;
+						}
+					}
+					for(int q = tmp+1; q < num_combo_cols; ++q)
+						combo_pool_listpos[q] = combo_pool_listpos[q-1]+(comboaliaslist[q-1].w*comboaliaslist[q-1].h);
+					for(int q = 0; q < num_combo_cols; ++q)
+						if(combo_pool_pos >= combo_pool_listpos[q] && combo_pool_pos < combo_pool_listpos[q] + (comboaliaslist[q].w*comboaliaslist[q].h))
+						{
+							current_cpoollist = q;
+							break;
+						}
+				}
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = comboaliaslist[c];
@@ -6191,12 +6257,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int32_t rect_pos=combo_pool_pos-combo_pool_listpos[current_cpoollist];
 				
 				if((rect_pos>=0)&&(rect_pos<(combo_pool_listpos[current_cpoollist]+(comboaliaslist[current_cpoollist].w*comboaliaslist[current_cpoollist].h))))
-					safe_rect(menu1,
-					(rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x,
-					(rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y,
-					((rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x)+comboaliaslist[current_cpoollist].xscale-1,
-					((rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y)+comboaliaslist[current_cpoollist].yscale-1,
-					255);
+				{
+					int selw = comboaliaslist[current_cpoollist].xscale;
+					int selh = comboaliaslist[current_cpoollist].yscale;
+					int x1 = (rect_pos&(comboaliaslist[current_cpoollist].w-1))*comboaliaslist[current_cpoollist].xscale+comboaliaslist[current_cpoollist].x;
+					int y1 = (rect_pos/comboaliaslist[current_cpoollist].w)*comboaliaslist[current_cpoollist].yscale+comboaliaslist[current_cpoollist].y;
+					safe_rect(menu1,x1,y1,x1+selw-1,y1+selh-1,vc(CmbCursorCol),2);
+				}
 				
 				//Handle Preview
 				combo_pool const& cpool = combo_pools[combo_pool_pos];
@@ -6247,6 +6314,28 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			}
 			else
 			{
+				if(LinkedScroll)
+				{
+					int tmp = current_combolist;
+					for(int q = tmp-1; q >= 0; --q)
+					{
+						First[q] = First[q+1]-(combolist[q].w*combolist[q].h);
+						if(First[q] < 0)
+						{
+							tmp = 0;
+							First[0] = 0;
+							break;
+						}
+					}
+					for(int q = tmp+1; q < num_combo_cols; ++q)
+						First[q] = First[q-1]+(combolist[q-1].w*combolist[q-1].h);
+					for(int q = 0; q < num_combo_cols; ++q)
+						if(Combo >= First[q] && Combo < First[q] + (combolist[q].w*combolist[q].h))
+						{
+							current_combolist = q;
+							break;
+						}
+				}
 				for(int32_t c = 0; c < num_combo_cols; ++c)
 				{
 					auto& pos = combolist[c];
@@ -6271,12 +6360,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				int32_t rect_pos=Combo-First[current_combolist];
 				
 				if((rect_pos>=0)&&(rect_pos<(combo_pool_listpos[current_combolist]+(combolist[current_combolist].w*combolist[current_combolist].h))))
-					safe_rect(menu1,
-					(rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x,
-					(rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y,
-					((rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x)+combolist[current_combolist].xscale-1,
-					((rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y)+combolist[current_combolist].yscale-1,
-					255);
+				{
+					int selw = (AutoBrush?BrushWidth:1)*combolist[current_combolist].xscale;
+					int selh = (AutoBrush?BrushHeight:1)*combolist[current_combolist].yscale;
+					int x1 = (rect_pos&(combolist[current_combolist].w-1))*combolist[current_combolist].xscale+combolist[current_combolist].x;
+					int y1 = (rect_pos/combolist[current_combolist].w)*combolist[current_combolist].yscale+combolist[current_combolist].y;
+					safe_rect(menu1,x1,y1,x1+selw-1,y1+selh-1,vc(CmbCursorCol),2);
+				}
 			}
 		}
 		break;
@@ -6291,7 +6381,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(draw_mode == dm_alias)
 			{
 				cid = combo_aliases[combo_apos].combos[0];
-				cs = wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 11);
+				cs = wrap(combo_aliases[combo_apos].csets[0]+alias_cset_mod, 0, 13);
 			}
 			else if(draw_mode == dm_cpool)
 			{
@@ -6415,7 +6505,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 			}
 			
-			font = lfont_l;
+			font = get_zc_font(font_lfont_l);
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
 			draw_text_button(menu1,combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),0,true);
 		}
@@ -6424,15 +6514,15 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		{
 			if(draw_mode!=dm_cpool)
 			{
-				a5font = get_zc_font_a5(font_lfont_l);
+				font = get_zc_font(font_lfont_l);
 				
-				jwin_draw_frame_a5(favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
-				al_draw_filled_rectangle(favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-2,favorites_window.y+favorites_window.h-2,jwin_a5_pal(jcBOX));
-				jwin_draw_frame_a5(favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
-				al_draw_filled_rectangle(favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale),favorites_list.y+(favorites_list.h*favorites_list.yscale),jwin_a5_pal(jcBOXFG));
+				jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
+				rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
+				jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
+				rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
 				
-				jwin_textout_a5(a5font,jwin_a5_pal(jcBOXFG),favorites_list.x-2,favorites_list.y-15,0,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
-				ALLEGRO_BITMAP* subb = al_create_bitmap(16,16);
+				textprintf_ex(menu1,get_zc_font(font_lfont_l),favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
+				BITMAP* subb = create_bitmap_ex(8,16,16);
 				if(draw_mode==dm_alias)
 				{
 					for(int32_t col=0; col<favorites_list.w; ++col)
@@ -6442,14 +6532,27 @@ void draw_screenunit(int32_t unit, int32_t flags)
 							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
 							auto& sqr = favorites_list.subsquare(col,row);
 							if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
-								al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h);
+							{
+								if(InvalidStatic)
+								{
+									for(int32_t dy=0; dy<sqr.h; dy++)
+									{
+										for(int32_t dx=0; dx<sqr.w; dx++)
+										{
+											menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+										}
+									}
+								}
+								else
+								{
+									xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
+								}
+							}
 							else
 							{
-								al_set_target_bitmap(subb);
-								clear_a5_bmp(a5color(0));
-								draw_combo_alias_thumbnail_a5(&combo_aliases[favorite_comboaliases[i]],0,0,sqr.cx(),sqr.cy());
-								al_set_target_bitmap(oldtarg);
-								al_draw_scaled_bitmap(subb, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h, 0);
+								clear_bitmap(subb);
+								draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_comboaliases[i]],0,0,1);
+								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
 							}
 						}
 					}
@@ -6463,38 +6566,59 @@ void draw_screenunit(int32_t unit, int32_t flags)
 							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
 							auto& sqr = favorites_list.subsquare(col,row);
 							if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
-								al5_invalid(sqr.x,sqr.y,sqr.w,sqr.h);
+							{
+								if(InvalidStatic)
+								{
+									for(int32_t dy=0; dy<sqr.h; dy++)
+									{
+										for(int32_t dx=0; dx<sqr.w; dx++)
+										{
+											menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+										}
+									}
+								}
+								else
+								{
+									xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
+								}
+							}
 							else
 							{
-								al_set_target_bitmap(subb);
-								clear_a5_bmp(a5color(0));
-								a5_draw_combo(0,0,favorite_combos[i],CSet,false,255,sqr.cx(),sqr.cy()); //!TODO Flags&(cFLAGS|cWALK)
-								al_set_target_bitmap(oldtarg);
-								al_draw_scaled_bitmap(subb, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h, 0);
+								clear_bitmap(subb);
+								bool repos = combotile_override_x < 0 && combotile_override_y < 0;
+								
+								if(repos)
+								{
+									combotile_override_x = sqr.x+(sqr.w-16)/2;
+									combotile_override_y = sqr.y+(sqr.h-16)/2;
+								}
+								put_combo(subb,0,0,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
+								if(repos) combotile_override_x = combotile_override_y = -1;
+								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
 							}
 						}
 					}
 				}
-				al_destroy_bitmap(subb);
+				destroy_bitmap(subb);
 				
 				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				jwin_draw_text_button_a5(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",0);
-				jwin_draw_text_button_a5(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",0);
-				jwin_draw_text_button_a5(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",0);
+				draw_text_button(menu1,favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
+				draw_text_button(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),0,true);
+				draw_text_button(menu1,favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),0,true);
 			}
 		}
 		break;
 		case rCOMMANDS:
 		{
-			jwin_draw_frame_a5(commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
-			al_draw_filled_rectangle(commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-2,commands_window.y+commands_window.h-2,jwin_a5_pal(jcBOX));
-			jwin_draw_frame_a5(commands_list.x-2,commands_list.y-2,(commands_list.w*commands_list.xscale)+4,(commands_list.h*commands_list.yscale)+4, FR_DEEP);
-			al_draw_filled_rectangle(commands_list.x,commands_list.y,commands_list.x+(commands_list.w*commands_list.xscale),commands_list.y+(commands_list.h*commands_list.yscale),jwin_a5_pal(jcBOXFG));
-			a5font=get_custom_font_a5(CFONT_FAVCMD);
+			jwin_draw_frame(menu1,commands_window.x,commands_window.y,commands_window.w,commands_window.h, FR_WIN);
+			rectfill(menu1,commands_window.x+2,commands_window.y+2,commands_window.x+commands_window.w-3,commands_window.y+commands_window.h-3,jwin_pal[jcBOX]);
+			jwin_draw_frame(menu1,commands_list.x-2,commands_list.y-2,(commands_list.w*commands_list.xscale)+4,(commands_list.h*commands_list.yscale)+4, FR_DEEP);
+			rectfill(menu1,commands_list.x,commands_list.y,commands_list.x+(commands_list.w*commands_list.xscale)-1,commands_list.y+(commands_list.h*commands_list.yscale)-1,jwin_pal[jcBOXFG]);
+			font=get_custom_font(CFONT_FAVCMD);
 			
 			for(int32_t cmd=0; cmd<(commands_list.w*commands_list.h); ++cmd)
 			{
-				draw_layer_button_a5(
+				draw_layer_button(menu1,
 					(cmd%commands_list.w)*commands_list.xscale+commands_list.x,
 					(cmd/commands_list.w)*commands_list.yscale+commands_list.y,
 					commands_list.xscale,
@@ -6503,25 +6627,24 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					(isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0) | commands[favorite_commands[cmd]].flags);
 			}
 			
-			a5font = get_zc_font_a5(font_lfont_l);
+			font = get_zc_font(font_lfont_l);
 			if(commands_txt.x > 0)
-				gui_textout_ln_a5(a5font, "Favorite Commands", commands_txt.x, commands_txt.y, jwin_a5_pal(jcBOXFG), AL5_INVIS, 0);
+			{
+				gui_textout_ln(menu1, get_zc_font(font_lfont_l), (ucc*)"Favorite Commands", commands_txt.x, commands_txt.y, jwin_pal[jcBOXFG], -1, 0);
+			}
 			
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-			jwin_draw_text_button_a5(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",0);
-			jwin_draw_text_button_a5(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",0);
-			jwin_draw_text_button_a5(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",0);
+			draw_text_button(menu1,commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
+			draw_text_button(menu1,commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),0,true);
+			draw_text_button(menu1,commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),0,true);
 		}
 		break;
 	}
-	
-	al_set_target_bitmap(oldtarg);
-	a5font = tfont_a5;
 	font = tfont;
 }
 
 bool pause_refresh = true;
-void refresh(int32_t flags)
+void refresh(int32_t flags, bool update)
 {
 	if(pause_refresh) return;
 	static bool refreshing = false;
@@ -6537,7 +6660,8 @@ void refresh(int32_t flags)
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	
-	al_set_target_bitmap(rti_overlay.bitmap);
+	ALLEGRO_BITMAP* overlay_bmp = get_overlay_bmp();
+	al_set_target_bitmap(overlay_bmp);
 	
 	if(flags&rCLEAR)
 	{
@@ -6574,11 +6698,10 @@ void refresh(int32_t flags)
 	if(flags&rCOMMANDS)
 		draw_screenunit(rCOMMANDS,flags);
 	
-	//Layer buttons
-	ALLEGRO_FONT* tfont_a5 = a5font;
-	a5font = get_custom_font_a5(CFONT_GUI);
-	jwin_draw_frame_a5(layer_panel.x,layer_panel.y,layer_panel.w,layer_panel.h,FR_WIN);
-	al_draw_filled_rectangle(layer_panel.x,layer_panel.y,layer_panel.x+layer_panel.w-1,layer_panel.y+layer_panel.h-1,jwin_a5_pal(jcBOX));
+	FONT* tfont = font;
+	font = get_custom_font(CFONT_GUI);
+	jwin_draw_frame(menu1,layer_panel.x,layer_panel.y,layer_panel.w,layer_panel.h,FR_DEEP);
+	rectfill(menu1,layer_panel.x,layer_panel.y,layer_panel.x+layer_panel.w-1,layer_panel.y+layer_panel.h-1,jwin_pal[jcBOX]);
 	
 	for(int32_t i=0; i<=6; ++i)
 	{
@@ -6599,39 +6722,40 @@ void refresh(int32_t flags)
 		int32_t rx = (i * (layerpanel_buttonwidth+spacing_offs+layerpanel_checkbox_wid)) + layer_panel.x+(is_compact?2:6);
 		int32_t ry = layer_panel.y;
 		auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
-		draw_layer_button_a5(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
-		draw_checkbox_a5(rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]!=0);
+		draw_layer_button(menu1, rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf, CurrentLayer==i? D_SELECTED : (!Map.CurrScr()->layermap[i-1] && i>0) ? D_DISABLED : 0);
+		draw_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]!=0);
 	}
 	
-	a5font=tfont_a5;
+	font=tfont;
 	
-	al_set_target_bitmap(rti_scrinfo.bitmap);
-	cliprect cr;
-	cr.getclip();
-	al_set_clipping_rectangle(mapscreen_pos.x,mapscreen_pos.y,mapscreen_pos.tw(),mapscreen_pos.th());
+	// } //if(true)
+	if(zq_showpal)
+	{
+		for(int32_t i=0; i<256; i++)
+		{
+			rectfill(menu1,((i&15)<<2)+256,((i>>4)<<2)+176,((i&15)<<2)+259,((i>>4)<<2)+179,i);
+		}
+	}
 	{ //Show top-left info
 		size_t maxwid = (mapscreensize*mapscreenbmp->w)-1;
 		size_t maxhei = (mapscreensize*mapscreenbmp->w);
-		clear_a5_bmp(AL5_INVIS);
-		ALLEGRO_FONT* showfont = get_custom_font_a5(CFONT_INFO);
-		ALLEGRO_COLOR infobg_color = infobg ? al_map_rgba(0,0,0,128) : AL5_INVIS;
-		int showfont_h = al_get_font_line_height(showfont);
-		int32_t ypos = mapscreen_pos.y;
+		set_clip_rect(menu1,mapscreen_x,mapscreen_y,mapscreen_x+maxwid-1,mapscreen_y+maxhei-1);
+		FONT* showfont = get_custom_font(CFONT_INFO);
+		int showfont_h = text_height(showfont);
+		int32_t ypos = mapscreen_y;
 		if(prv_mode)
 		{
-			jwin_textout_a5_dis(showfont,AL5_WHITE,0,ypos,0,"Preview Mode",infobg_color,AL5_BLACK);
+			textout_shadowed_ex(menu1,showfont,"Preview Mode",0,ypos,vc(15),vc(0),infobg?vc(0):-1);
 			ypos += showfont_h+1;
 			if(prv_twon)
 			{
-				jwin_textout_a5_dis(showfont,AL5_WHITE,0,ypos,0,fmt::format("T Warp={} tics",Map.get_prvtime()).c_str(),infobg_color,AL5_BLACK);
+				textprintf_shadowed_ex(menu1,showfont,0,ypos,vc(15),vc(0),infobg?vc(0):-1,"T Warp=%d tics", Map.get_prvtime());
 				ypos += showfont_h+1;
 			}
-			
-			do_previewtext();
 		}
 		if(ShowFPS)
 		{
-			jwin_textout_a5_dis(showfont,AL5_WHITE,0,ypos,0,fmt::format("FPS: {:3d}",lastfps).c_str(),infobg_color,AL5_BLACK);
+			textprintf_shadowed_ex(menu1,showfont,0,ypos,vc(15),vc(0),infobg?vc(0):-1,"FPS: %3d",lastfps);
 			ypos += showfont_h+1;
 		}
 		
@@ -6644,15 +6768,15 @@ void refresh(int32_t flags)
 					break;
 				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
 				{
-					jwin_textout_a5_dis(showfont,(showxypos_ffc==i ? AL5_YELLOW : AL5_WHITE),0,ypos,0,ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),infobg_color,AL5_BLACK);
+					textout_shadowed_ex(menu1, showfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
 					ypos+=showfont_h+1;
 				}
 			}
 		}
+		clear_clip_rect(menu1);
+		if(prv_mode)
+			do_previewtext();
 	}
-	cr.setclip();
-	al_set_target_bitmap(rti_overlay.bitmap);
-	
 	// Show Errors & Details
 	//This includes the presence of: Screen State Carryover, Timed Warp, Maze Path, the 'Sideview Gravity', 'Invisible Player',
 	//'Save Screen', 'Continue Here' and 'Treat As..' Screen Flags,
@@ -6753,7 +6877,7 @@ void refresh(int32_t flags)
 			buf[72] = '\0';
 			char shortbuf[72];
 			strip_extra_spaces(buf);
-			shorten_string(shortbuf, buf, lfont_l, 72, 280);
+			shorten_string(shortbuf, buf, get_zc_font(font_lfont_l), 72, 280);
 			sprintf(buf,"String %s",shortbuf);
 			show_screen_error(buf,i++,vc(15));
 		}
@@ -7077,8 +7201,11 @@ void refresh(int32_t flags)
 	if(zoom_delay)
 		draw_screenunit(rSCRMAP,flags);
 	
-	draw_ttips(&rti_tooltip,&rti_tooltip_hl);
+	draw_ttips();
 	
+	
+	//Restore A5 state
+	al_restore_state(&old_state);
 	if(flags&rCLEAR)
 	{
 		//Draw the whole gui
@@ -7094,37 +7221,33 @@ void refresh(int32_t flags)
 			blit(menu1,screen,combo_preview.x,combo_preview.y,combo_preview.x,combo_preview.y,combo_preview.w,combo_preview.h);
 		}
 	}
-	
+		
 	if(earlyret)
-	{
-		//Restore A5 state
-		al_restore_state(&old_state);
 		return;
-	}
 	
 	//Draw the Main Menu
 	jwin_menu_proc(MSG_START, &dialogs[0], 0);
 	
-	al_draw_filled_rectangle(mainbar.x,mainbar.y,mainbar.x+mainbar.w,mainbar.y+mainbar.h,jwin_a5_pal(jcBOX));
-	jwin_draw_frame_a5(mainbar.x,mainbar.y,mainbar.w,mainbar.h,FR_WIN);
+	rectfill(screen,mainbar.x,mainbar.y,mainbar.x+mainbar.w-1,mainbar.y+mainbar.h-1,jwin_pal[jcBOX]);
+	jwin_draw_frame(screen,mainbar.x,mainbar.y,mainbar.w,mainbar.h,FR_WIN);
 	
-	ALLEGRO_FONT* oldfont_a5 = a5font;
-	a5font = get_custom_font_a5(CFONT_GUI);
+	FONT* oldfont = font;
+	font = get_custom_font(CFONT_GUI);
 	
 	//Drawmode button
-	jwin_draw_text_button_a5(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],0,false);
+	draw_text_button(screen,drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),0,true);
 	//Compact button
-	jwin_draw_text_button_a5(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", 0,false);
+	draw_text_button(screen,compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),0,true);
 	
-	a5font = oldfont_a5;
+	font = oldfont;
 	
 	jwin_menu_proc(MSG_DRAW, &dialogs[0], 0);
 	
 	ComboBrushPause=0;
 	
-	al_restore_state(&old_state);
-	if(!(flags&rNOUPDATE))
-		update_hw_screen(true);
+	SCRFIX();
+	if(update)
+		custom_vsync();
 	refreshing = false;
 }
 
@@ -7150,9 +7273,9 @@ void select_scr()
 		{
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
+			clear_tooltip();
 			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-			tooltip_highlight2.thick = zoomed_minimap ? 2 : 1;
-			tooltip_highlight2.tbmp = rti_minimap_tth.bitmap;
+			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
 		}
 		
 		if(ind>=MAPSCRS)
@@ -7163,7 +7286,7 @@ void select_scr()
 			Map.setCurrScr(ind);
 		}
 		
-		do_animations();
+		custom_vsync();
 		refresh(rALL);
 	}
 	
@@ -7228,7 +7351,7 @@ bool select_favorite()
             }
         }
         
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7242,6 +7365,8 @@ void select_combo(int32_t clist)
     int32_t tempcb=ComboBrush;
     ComboBrush=0;
     
+	int autobrush_cx = -1, autobrush_cy = -1;
+	int autobrush_first = First[current_combolist];
 	auto& curlist = combolist[current_combolist];
     while(gui_mouse_b())
     {
@@ -7261,11 +7386,27 @@ void select_combo(int32_t clist)
         if(y>curlist.y+(curlist.h*curlist.yscale)-1)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
-        Combo=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+First[current_combolist];
-        do_animations();
+		int cx = ((x-curlist.x)/curlist.xscale), cy = ((y-curlist.y)/curlist.yscale);
+        if(AutoBrush)
+		{
+			if(autobrush_cx < 0)
+			{
+				autobrush_cx = cx;
+				autobrush_cy = cy;
+			}
+			BrushWidth = abs(autobrush_cx-cx)+1;
+			BrushHeight = abs(autobrush_cy-cy)+1;
+			cx = std::min(autobrush_cx,cx);
+			cy = std::min(autobrush_cy,cy);
+		}
+		Combo=(cy*curlist.w)+cx+First[current_combolist];
+		custom_vsync();
         refresh(rALL);
+		if(AutoBrush) //Prevent any scrolling
+			First[current_combolist] = autobrush_first;
     }
     
+	position_mouse_z(0);
     ComboBrush=tempcb;
 }
 
@@ -7296,7 +7437,7 @@ void select_comboa(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         combo_apos=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+combo_alistpos[current_comboalist];
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7327,7 +7468,7 @@ void select_combop(int32_t clist)
 			y=curlist.y+(curlist.h*curlist.yscale)-1;
         
         combo_pool_pos=(((y-curlist.y)/curlist.yscale)*curlist.w)+((x-curlist.x)/curlist.xscale)+combo_pool_listpos[current_cpoollist];
-        do_animations();
+        custom_vsync();
         refresh(rALL);
     }
     
@@ -7353,11 +7494,11 @@ void update_combobrush()
                     {
                         if(z==0)
                         {
-                            putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 11));
+                            putcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 13));
                         }
                         else
                         {
-                            overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 11));
+                            overcombo(brushbmp,x<<4,y<<4,combo_aliases[combo_apos].combos[position],wrap(combo_aliases[combo_apos].csets[position]+alias_cset_mod, 0, 13));
                         }
                     }
                 }
@@ -7368,22 +7509,22 @@ void update_combobrush()
         {
         case 0:
             //if(!(combo_aliases[combo_apos].combos[0]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6, 6, vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6, vc(15), vc(0), -1, "x");
             break;
             
         case 1:
             //if(!(combo_aliases[combo_apos].combos[combo_aliases[combo_apos].width]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6+(combo_aliases[combo_apos].width*16), 6, vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6, vc(15), vc(0), -1, "x");
             break;
             
         case 2:
             //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*combo_aliases[combo_apos].height]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6, 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6, 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
             break;
             
         case 3:
             //if(!(combo_aliases[combo_apos].combos[(combo_aliases[combo_apos].width+1)*(combo_aliases[combo_apos].height)-1]))
-            textprintf_shadowed_ex(brushbmp, sfont, 6+(combo_aliases[combo_apos].width*16), 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
+            textprintf_shadowed_ex(brushbmp, get_zc_font(font_sfont), 6+(combo_aliases[combo_apos].width*16), 6+(combo_aliases[combo_apos].height*16), vc(15), vc(0), -1, "x");
             break;
         }
     }
@@ -7462,17 +7603,14 @@ void draw(bool justcset)
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -7484,10 +7622,10 @@ void draw(bool justcset)
     {
         int32_t x=gui_mouse_x();
         int32_t y=gui_mouse_y();
-		int32_t startxint=mapscreen_realpos.x;
-		int32_t startyint=mapscreen_realpos.y;
-		double startx=startxint;
-		double starty=startyint;
+        double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
+        double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
+        int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+        int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
         
         if(isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
         {
@@ -7496,7 +7634,7 @@ void draw(bool justcset)
             int32_t cstart=(cystart*16)+cxstart;
 			if(cstart == lastpos)
 			{
-				do_animations();
+				custom_vsync();
 				refresh(rALL);
 				continue;
 			}
@@ -7777,7 +7915,7 @@ void draw(bool justcset)
 									
 									if(combo->combos[p])
 									{
-										Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
+										Map.DoSetComboCommand(drawmap, drawscr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
 									}
 								}
 							}
@@ -7847,7 +7985,7 @@ void draw(bool justcset)
 												
 												if((combo->combos[p])&&(amap>=0))
 												{
-													Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 11));
+													Map.DoSetComboCommand(amap, ascr, c, combo->combos[p], wrap(combo->csets[p]+alias_cset_mod, 0, 13));
 												}
 											}
 										}
@@ -7861,20 +7999,8 @@ void draw(bool justcset)
             }
         }
         
-#ifdef __EMSCRIPTEN__
-		// TODO: fix this!
-		// For some reason this loop (even if a rest(1) is added) prevents the
-		// mouse thread from consuming events (or maybe it prevents SDL on the main
-		// thread from creating mouse events?). Breaking after a single iteration prevents
-		// this from locking up.
-		// This drawing code functions similarly like this, except click-and-drag
-		// will create multiple separate single edits in the undo history, rather than
-		// combining all of them.
-		break;
-#else
-		do_animations();
+		custom_vsync();
 		refresh(rALL);
-#endif
     }
 
     Map.FinishListCommand();
@@ -7900,22 +8026,19 @@ void replace(int32_t c)
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t targetcombo = Map.AbsoluteScr(drawmap, drawscr)->data[c];
-    int32_t targetcset  = Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+    int32_t targetcombo = draw_mapscr->data[c];
+    int32_t targetcset  = draw_mapscr->cset[c];
     
     Map.StartListCommand();
     if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
     {
         for(int32_t i=0; i<176; i++)
         {
-            if((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset)
+            if((draw_mapscr->cset[i])==targetcset)
             {
 				if(draw_mode == dm_cpool)
 					pool.pick(cid,cs);
@@ -7927,8 +8050,8 @@ void replace(int32_t c)
     {
         for(int32_t i=0; i<176; i++)
         {
-            if(((Map.AbsoluteScr(drawmap, drawscr)->data[i])==targetcombo) &&
-                    ((Map.AbsoluteScr(drawmap, drawscr)->cset[i])==targetcset))
+            if(((draw_mapscr->data[i])==targetcombo) &&
+                    ((draw_mapscr->cset[i])==targetcset))
             {
 				if(draw_mode == dm_cpool)
 					pool.pick(cid,cs);
@@ -7962,17 +8085,14 @@ void draw_block(int32_t start,int32_t w,int32_t h)
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -8135,15 +8255,11 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
 {
     int32_t tempcb=ComboBrush;
     ComboBrush=0;
-    scare_mouse();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_POINT_BOX][0]);
-    unscare_mouse();
+    MouseSprite::set(ZQM_POINT_BOX);
     
     int32_t oldpx=px2, oldpy=py2;
-	int32_t startxint=mapscreen_realpos.x;
-	int32_t startyint=mapscreen_realpos.y;
-	double startx=startxint;
-	double starty=startyint;
+    int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+    int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
     showxypos_x=px2;
     showxypos_y=py2;
     showxypos_w=iconw;
@@ -8165,19 +8281,18 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
         
         if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,(startxint+(256*mapscreensize)-1),(startyint+(176*mapscreensize)-1)))
         {
-            scare_mouse();
             set_mouse_range(startxint,startyint,int32_t(startxint+(256*mapscreensize)-1),int32_t(startyint+(176*mapscreensize)-1));
             
             while(gui_mouse_b()==1)
             {
-                x=int32_t((gui_mouse_x()-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffx;
-                y=int32_t((gui_mouse_y()-startyint-(showedges?int32_t(16*mapscreensize):0))/mapscreensize)-cursoroffy;
+                x=int32_t((gui_mouse_x()-startxint)/mapscreensize)-cursoroffx;
+                y=int32_t((gui_mouse_y()-startyint)/mapscreensize)-cursoroffy;
                 showxypos_cursor_icon=true;
 				showxypos_cursor_color = showxypos_color;
                 showxypos_cursor_x=x&mask;
                 showxypos_cursor_y=y&mask;
-                do_animations();
-                refresh(rALL | rNOCURSOR | rNOUPDATE);
+                custom_vsync();
+                refresh(rALL | rNOCURSOR);
                 int32_t xpos[2], ypos[2];
 				int32_t x1,y1,x2,y2;
                 
@@ -8239,7 +8354,6 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             }
             
             set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-            unscare_mouse();
             done=true;
         }
         
@@ -8253,12 +8367,12 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             }
         }
         
-        do_animations();
+        custom_vsync();
         refresh(rALL | rNOCURSOR);
     }
     
 finished:
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+    MouseSprite::set(ZQM_NORMAL);
     refresh(rMAP+rMENU);
     
     while(gui_mouse_b())
@@ -8286,61 +8400,44 @@ finished:
     ComboBrush=tempcb;
 }
 
+bool placing_flags = false;
 void doflags()
 {
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-	int32_t of=Flags;
+	placing_flags = true;
+	int of=Flags;
 	Flags=cFLAGS;
 	refresh(rMAP | rNOCURSOR);
 	
 	bool canedit=false;
 	bool didShift = false;
-	int32_t tFlag = Flag;
-	while(!(gui_mouse_b()&2))
+	int tFlag = Flag;
+	while(!(gui_mouse_b()&2) && !zq_check_close_button())
 	{
-		int32_t x=gui_mouse_x();
-		int32_t y=gui_mouse_y();
-		int32_t startxint=mapscreen_realpos.x;
-		int32_t startyint=mapscreen_realpos.y;
-		double startx=startxint;
-		double starty=startyint;
-		int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
-		int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
-		int32_t c=(cy*16)+cx;
+		int x=gui_mouse_x();
+		int y=gui_mouse_y();
+		double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
+		double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
+		int startxint=mapscreen_x+(showedges?int(16*mapscreensize):0);
+		int startyint=mapscreen_y+(showedges?int(16*mapscreensize):0);
+		int cx=(x-startxint)/int(16*mapscreensize);
+		int cy=(y-startyint)/int(16*mapscreensize);
+		int c=(cy*16)+cx;
 		
 		if(!gui_mouse_b())
 			canedit=true;
         bool shift = key[KEY_LSHIFT] || key[KEY_RSHIFT];
-		if(didShift != shift)
-		{
-			didShift = shift;
-			if(shift)
-			{
-				setFlagColor(0);
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-			}
-			else
-			{
-				setFlagColor();
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-			}
-		}
-		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int32_t(startx+(256*mapscreensize)-1),int32_t(starty+(176*mapscreensize)-1)))
+		if(canedit && gui_mouse_b()==1 && isinRect(x,y,startxint,startyint,int(startx+(256*mapscreensize)-1),int(starty+(176*mapscreensize)-1)))
 		{
 			mapscr* cur_scr = (CurrentLayer
 				? &(TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS
 					+(Map.CurrScr()->layerscreen[CurrentLayer-1])])
 				: Map.CurrScr());
 			if(key[KEY_ALT]||key[KEY_ALTGR])
-			{
 				Flag = cur_scr->sflag[c];
-				setFlagColor();
-				set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-			}
 			else
 			{
 				saved=false;
-				int32_t tflag = Flag;
+				int tflag = Flag;
 				if(shift)
 					Flag = mfNONE;
 				if(CurrentLayer!=0)
@@ -8386,96 +8483,44 @@ void doflags()
 				else cur_scr->sflag[c] = Flag;
 				Flag = tflag;
 			}
-			
-			refresh(rMAP | rNOCURSOR);
 		}
 		
 		if(mouse_z)
 		{
-			for(int32_t i=0; i<abs(mouse_z); ++i)
+			for(int i=0; i<abs(mouse_z); ++i)
 			{
 				if(mouse_z>0)
-				{
 					onIncreaseFlag();
-				}
 				else
-				{
 					onDecreaseFlag();
-				}
 			}
 			
 			position_mouse_z(0);
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 		}
 		
 		if(keypressed())
 		{
-			switch(readkey()>>8)
+			int k = readkey();
+			switch(k>>8)
 			{
-			case KEY_ESC:
-			case KEY_ENTER:
-				goto finished;
-				
-			case KEY_ASTERISK:
-			case KEY_CLOSEBRACE:
-				onIncreaseFlag();
-				break;
-				
-			case KEY_SLASH_PAD:
-			case KEY_OPENBRACE:
-				onDecreaseFlag();
-				break;
-				
-			case KEY_UP:
-				onUp();
-				break;
-				
-			case KEY_DOWN:
-				onDown();
-				break;
-				
-			case KEY_LEFT:
-				onLeft();
-				break;
-				
-			case KEY_RIGHT:
-				onRight();
-				break;
-				
-			case KEY_PGUP:
-				onPgUp();
-				break;
-				
-			case KEY_PGDN:
-				onPgDn();
-				break;
-				
-			case KEY_COMMA:
-				onDecMap();
-				break;
-				
-			case KEY_STOP:
-				onIncMap();
-				break;
+				case KEY_ESC:
+				case KEY_ENTER:
+					goto finished;
 			}
-			
-			// The cursor could've been overwritten by the Combo Brush?
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
+			object_message(dialogs+1, MSG_XCHAR, k);
+			Flags=cFLAGS;
 		}
 		
-		if(shift && theFlagColor)
-		{
-			setFlagColor(0);
-			set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
-		}
+		MouseSprite::set(ZQM_FLAG_0+(shift?0:Flag%16));
 		
-		do_animations();
-		refresh(rALL | rNOCURSOR);
+		refresh(rALL | rCLEAR | rNOCURSOR);
+		custom_vsync();
 	}
 	
 finished:
 	Flags=of;
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	placing_flags = false;
+	MouseSprite::set(ZQM_NORMAL);
 	refresh(rMAP+rMENU);
 	
 	while(gui_mouse_b())
@@ -8681,6 +8726,43 @@ static MENU brush_height_menu[] =
     { NULL,                 NULL,                 NULL, 0, NULL }
 };
 
+int toggle_autobrush();
+int toggle_combobrush();
+int toggle_floatbrush();
+static MENU brush_menu[] =
+{
+    { (char *)"AutoBrush",           toggle_autobrush,  NULL,              0, NULL },
+    { (char *)"Brush Width\t ",      NULL,              brush_width_menu,  0, NULL },
+    { (char *)"Brush Height\t ",     NULL,              brush_height_menu, 0, NULL },
+    { (char *)"ComboBrush",          toggle_combobrush, NULL,              0, NULL },
+    { (char *)"FloatBrush",          toggle_floatbrush, NULL,              0, NULL },
+	{ NULL,                          NULL,              NULL,              0, NULL }
+};
+int toggle_autobrush()
+{
+	AutoBrush = AutoBrush ? 0 : 1;
+	BrushWidth = BrushHeight = 1;
+	SETFLAG(brush_menu[0].flags, D_SELECTED, AutoBrush);
+	SETFLAG(brush_menu[1].flags, D_DISABLED, AutoBrush);
+	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
+	zc_set_config("zquest","autobrush",AutoBrush);
+	return D_O_K;
+}
+int toggle_combobrush()
+{
+	ComboBrush = ComboBrush ? 0 : 1;
+	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
+	zc_set_config("zquest","combo_brush",ComboBrush);
+	return D_O_K;
+}
+int toggle_floatbrush()
+{
+	FloatBrush = FloatBrush ? 0 : 1;
+	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
+	zc_set_config("zquest","float_brush",FloatBrush);
+	return D_O_K;
+}
+
 int32_t set_flood();
 int32_t set_fill_4();
 int32_t set_fill_8();
@@ -8700,19 +8782,16 @@ void flood()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -8740,19 +8819,16 @@ void flood_flag()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
@@ -8779,36 +8855,33 @@ void fill_4()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t x=gui_mouse_x()-mapscreen_realpos.x;
-    int32_t y=gui_mouse_y()-mapscreen_realpos.y;
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
     if(draw_mode == dm_cpool
-		|| (Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
-            (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
+		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
+            (draw_mapscr->data[(by<<4)+bx]!=Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-        fill(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
-             (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        fill(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->data[(by<<4)+bx]),
+             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
@@ -8826,32 +8899,29 @@ void fill_4_flag()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t x=gui_mouse_x()-mapscreen_realpos.x;
-    int32_t y=gui_mouse_y()-mapscreen_realpos.y;
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx] != Flag)
+    if(draw_mapscr->sflag[(by<<4)+bx] != Flag)
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-		fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
+		fill_flag(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->sflag[(by<<4)+bx]),
              bx, by, 255, 0);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
@@ -8870,36 +8940,33 @@ void fill_8()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t x=gui_mouse_x()-mapscreen_realpos.x;
-    int32_t y=gui_mouse_y()-mapscreen_realpos.y;
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
     if(draw_mode == dm_cpool
-		|| (Map.AbsoluteScr(drawmap,drawscr)->cset[(by<<4)+bx]!=CSet ||
-            (Map.AbsoluteScr(drawmap,drawscr)->data[(by<<4)+bx]!=Combo &&
+		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
+            (draw_mapscr->data[(by<<4)+bx]!=Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-        fill(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->data[(by<<4)+bx]),
-             (Map.AbsoluteScr(drawmap, drawscr)->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+        fill(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->data[(by<<4)+bx]),
+             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }
@@ -8917,32 +8984,29 @@ void fill_8_flag()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t x=gui_mouse_x()-mapscreen_realpos.x;
-    int32_t y=gui_mouse_y()-mapscreen_realpos.y;
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(Map.AbsoluteScr(drawmap,drawscr)->sflag[(by<<4)+bx]!=Flag)
+    if(draw_mapscr->sflag[(by<<4)+bx]!=Flag)
     {
         saved=false;
         
-        if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+        if(!(draw_mapscr->valid&mVALID))
         {
             Map.CurrScr()->valid|=mVALID;
-            Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+            draw_mapscr->valid|=mVALID;
             Map.setcolor(Color);
         }
         
         Map.StartListCommand();
-        fill_flag(drawmap, drawscr, Map.AbsoluteScr(drawmap, drawscr),
-             (Map.AbsoluteScr(drawmap, drawscr)->sflag[(by<<4)+bx]),
+        fill_flag(drawmap, drawscr, draw_mapscr,
+             (draw_mapscr->sflag[(by<<4)+bx]),
              bx, by, 255, 1);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
@@ -8958,34 +9022,30 @@ void fill2_4()
         drawmap=Map.getCurrMap();
         drawscr=Map.getCurrScr();
     }
-    
     else
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t x=gui_mouse_x()-mapscreen_realpos.x;
-    int32_t y=gui_mouse_y()-mapscreen_realpos.y;
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
     int32_t by= (((y&0xF0))>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
     Map.StartListCommand();
-    fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    fill2(draw_mapscr, Combo, CSet, bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
     Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
@@ -9003,29 +9063,26 @@ void fill2_8()
     {
         drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
         drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-        
-        if(drawmap<0)
-        {
-            return;
-        }
     }
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
     
-    int32_t x=gui_mouse_x()-mapscreen_realpos.x;
-    int32_t y=gui_mouse_y()-mapscreen_realpos.y;
+    int32_t x=gui_mouse_x()-mapscreen_x-(showedges?(16*mapscreensize):0);
+    int32_t y=gui_mouse_y()-mapscreen_y-(showedges?(16*mapscreensize):0);;
     int32_t by= (((y&0xF0))>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
     saved=false;
     
-    if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
+    if(!(draw_mapscr->valid&mVALID))
     {
         Map.CurrScr()->valid|=mVALID;
-        Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
+        draw_mapscr->valid|=mVALID;
         Map.setcolor(Color);
     }
     
     Map.StartListCommand();
-    fill2(Map.AbsoluteScr(drawmap, drawscr), Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+    fill2(draw_mapscr, Combo, CSet, bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
     Map.FinishListCommand();
     refresh(rMAP+rSCRMAP);
 }
@@ -9197,14 +9254,11 @@ void onRCSelectCombo(int32_t c)
 	{
 		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		
-		if(drawmap<0)
-		{
-			return;
-		}
 	}
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
 
-	Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+	Combo=draw_mapscr->data[c];
 }
 
 void onRCScrollToombo(int32_t c)
@@ -9220,29 +9274,13 @@ void onRCScrollToombo(int32_t c)
 	{
 		drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		
-		if(drawmap<0)
-		{
-			return;
-		}
 	}
+	mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+	if(!draw_mapscr) return;
 	
 	auto& sqr = combolist[current_combolist];
-	First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
+	First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 }
-
-static MENU rc_menu_combo[] =
-{
-       { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
-    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
-    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
-    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
-    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
-    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
-    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
-    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
-    { NULL,                              NULL,            NULL,    0, NULL }
-};
 
 static MENU rc_menu_screen[] =
 {
@@ -9257,25 +9295,28 @@ static MENU rc_menu_screen[] =
 
 static MENU draw_rc_menu[] =
 {
-    { (char *)"Select Combo",            NULL,  NULL,              0, NULL },
-    { (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
-    { (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Replace All",             NULL,  NULL,              0, NULL },
-    { (char *)"Draw Block",		       NULL,  draw_block_menu,	0, NULL },
-    { (char *)"Set Brush Width\t ",      NULL,  brush_width_menu,  0, NULL },
-    { (char *)"Set Brush Height\t ",     NULL,  brush_height_menu, 0, NULL },
-    { (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
-    { (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
-    { (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
-    { (char *)"",                        NULL,  NULL,              0, NULL },
-    { (char *)"Screen",                        NULL,  rc_menu_screen,              0, NULL },
-    
-    { NULL,                              NULL,  NULL,              0, NULL }
+	//0
+	{ (char *)"Select Combo",            NULL,  NULL,              0, NULL },
+	{ (char *)"Scroll to Combo",         NULL,  NULL,              0, NULL },
+	{ (char *)"Edit Combo",              NULL,  NULL,              0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	{ (char *)"Replace All",             NULL,  NULL,              0, NULL },
+	//5
+	{ (char *)"Draw Block",              NULL,  draw_block_menu,   0, NULL },
+	{ (char *)"Brush Settings\t ",       NULL,  brush_menu,        0, NULL },
+	{ (char *)"Set Fill Type\t ",        NULL,  fill_menu,         0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	{ (char *)"Follow Tile Warp",        NULL,  NULL,              0, NULL },
+	//10
+	{ (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	{ (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
+	{ (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
+	{ (char *)"",                        NULL,  NULL,              0, NULL },
+	//15
+	{ (char *)"Screen",                  NULL,  rc_menu_screen,    0, NULL },
+	
+	{ NULL,                              NULL,  NULL,              0, NULL }
 };
 
 static MENU draw_ffc_rc_menu[] =
@@ -9288,16 +9329,26 @@ static MENU draw_ffc_rc_menu[] =
     { NULL,                          NULL,  NULL,              0, NULL }
 };
 
+int toggle_linked_scrolling();
 static MENU combosel_rc_menu[] =
 {
-    { (char *)"Edit Combo",         NULL,  NULL, 0, NULL },
-    { (char *)"Open Combo Page",    NULL,  NULL, 0, NULL },
-    { (char *)"Open Tile Page",     NULL,  NULL, 0, NULL },
-    { (char *)"Combo Locations",    NULL,  NULL, 0, NULL },
-    { (char *)"",                   NULL,  NULL, 0, NULL },
-    { (char *)"Scroll to Page...",      NULL,  NULL, 0, NULL },
-    { NULL,                         NULL,  NULL, 0, NULL }
+    { (char *)"Edit Combo",         NULL,                     NULL, 0, NULL },
+    { (char *)"Open Combo Page",    NULL,                     NULL, 0, NULL },
+    { (char *)"Open Tile Page",     NULL,                     NULL, 0, NULL },
+    { (char *)"Combo Locations",    NULL,                     NULL, 0, NULL },
+    { (char *)"",                   NULL,                     NULL, 0, NULL },
+    //5
+	{ (char *)"Scroll to Page...",  NULL,                     NULL, 0, NULL },
+    { (char *)"Linked Scrolling",   toggle_linked_scrolling,  NULL, 0, NULL },
+    { NULL,                         NULL,                     NULL, 0, NULL }
 };
+int toggle_linked_scrolling()
+{
+	LinkedScroll = LinkedScroll ? 0 : 1;
+	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
+	zc_set_config("zquest","linked_comboscroll",LinkedScroll);
+	return D_O_K;
+}
 
 static MENU fav_cmb_rc_menu[] =
 {
@@ -9345,9 +9396,7 @@ void set_brush_height(int32_t height)
 void restore_mouse()
 {
     ComboBrushPause=1;
-    scare_mouse();
-    set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-    unscare_mouse();
+    MouseSprite::set(ZQM_NORMAL);
 }
 
 static int32_t comboa_cnt=0;
@@ -10075,14 +10124,14 @@ int32_t select_command(const char *prompt,int32_t cmd)
     }
     
     clist_dlg[0].dp=(void *)prompt;
-    clist_dlg[0].dp2=lfont;
+    clist_dlg[0].dp2=get_zc_font(font_lfont);
     clist_dlg[2].d1=index;
-    static ListData command_list(commandlist, &font, &a5font);
+    static ListData command_list(commandlist, &font);
     clist_dlg[2].dp=(void *) &command_list;
     
     large_dialog(clist_dlg);
         
-    int32_t ret=do_zqdialog(clist_dlg,2);
+    int32_t ret=zc_popup_dialog(clist_dlg,2);
 	font = tfont;
     
     if(ret==0||ret==4)
@@ -10099,10 +10148,10 @@ int32_t select_command(const char *prompt,int32_t cmd)
 
 int32_t onCommand(int32_t cmd)
 {
-	popup_zqdialog_start();
+    restore_mouse();
     build_bic_list();
     int32_t ret=select_command("Select Command",cmd);
-	popup_zqdialog_end();
+    refresh(rALL);
     
     if(ret>=0)
     {
@@ -10145,16 +10194,17 @@ void domouse()
 	static int32_t scrolldelay = 0;
 	int32_t x=gui_mouse_x();
 	int32_t y=gui_mouse_y();
-	int32_t startxint=mapscreen_realpos.x;
-	int32_t startyint=mapscreen_realpos.y;
-	double startx=startxint;
-	double starty=startyint;
+	double startx=mapscreen_x+(showedges?(16*mapscreensize):0);
+	double starty=mapscreen_y+(showedges?(16*mapscreensize):0);
+	int32_t startxint=mapscreen_x+(showedges?int32_t(16*mapscreensize):0);
+	int32_t startyint=mapscreen_y+(showedges?int32_t(16*mapscreensize):0);
 	int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
 	int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
 	int32_t c=(cy*16)+cx;
 	mousecomboposition=c;
 	
 	update_combobrush();
+	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
 	if(!tooltip_trigger.rect(x,y))
 	{
@@ -10162,11 +10212,6 @@ void domouse()
 	}
 	
 	++scrolldelay;
-	
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state,ALLEGRO_STATE_TARGET_BITMAP);
-	al_set_target_bitmap(rti_overlay.bitmap);
-	ALLEGRO_FONT* tfont_a5 = a5font;
 	
 	bool x_on_list = false;
 	for(auto q = 0; q < num_combo_cols; ++q)
@@ -10286,10 +10331,6 @@ void domouse()
 			{
 				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-				
-				if(drawmap<0)
-				{
-				}
 			}
 			
 			if(tooltip_current_combo != c)
@@ -10297,13 +10338,17 @@ void domouse()
 				clear_tooltip();
 			}
 			
-			tooltip_current_combo = c;
-			char msg[512] = {0};
-			sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
-					c, Map.AbsoluteScr(drawmap, drawscr)->data[c],
-					Map.AbsoluteScr(drawmap, drawscr)->cset[c], Map.CurrScr()->sflag[c],combobuf[Map.CurrScr()->data[c]].flag,
-					combo_class_buf[combobuf[(Map.AbsoluteScr(drawmap, drawscr)->data[c])].type].name);
-			update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, msg);
+			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+			if(unsigned(c) < 176 && draw_mapscr)
+			{
+				tooltip_current_combo = c;
+				char msg[512] = {0};
+				int cid = draw_mapscr->data[c];
+				sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
+					c, cid, draw_mapscr->cset[c], draw_mapscr->sflag[c], combobuf[cid].flag,
+					combo_class_buf[combobuf[cid].type].name);
+				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, msg);
+			}
 		}
 	}
 	
@@ -10450,7 +10495,7 @@ void domouse()
 				newcombo const& cmb = combobuf[c2];
 				oss << "Combo " << c2 << ": " << combo_class_buf[cmb.type].name;
 				if(cmb.flag != 0)
-					oss << "\nInherent flag: " << flag_string[cmb.flag];
+					oss << "\nInherent flag: " << ZI.getMapFlagName(cmb.flag);
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
 					
@@ -10465,9 +10510,9 @@ void domouse()
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
+		clear_tooltip();
 		update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		tooltip_highlight2.thick = zoomed_minimap ? 2 : 1;
-		tooltip_highlight2.tbmp = rti_minimap_tth.bitmap;
+		tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
 	}
 	
 	// Mouse clicking stuff
@@ -10477,6 +10522,7 @@ void domouse()
 	bool lclick = mb&1;
 	bool rclick = mb&2;
 	
+	FONT* tfont = font;
 	if(zoomed_minimap)
 	{
 		if((lclick||rclick) && !minimap_zoomed.rect(x,y))
@@ -10510,7 +10556,7 @@ void domouse()
 			goto domouse_doneclick; //Eat clicks
 		
 		//on the map tabs
-		a5font = get_custom_font_a5(CFONT_GUI);
+		font = get_custom_font(CFONT_GUI);
 		for(int32_t btn=0; btn<mappage_count; ++btn)
 		{
 			char tbuf[15];
@@ -10518,8 +10564,9 @@ void domouse()
 			auto& sqr = map_page_bar[btn];
 			if(sqr.rect(x,y))
 			{
-				if(do_layer_button_reset_a5(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,0,true))
+				if(do_layer_button_reset(sqr.x,sqr.y,sqr.w,sqr.h,tbuf,(btn==current_mappage?D_SELECTED:0)))
 				{
+					draw_layer_button(screen, sqr.x,sqr.y,sqr.w,sqr.h,tbuf,D_SELECTED);
 					map_page[current_mappage].map=Map.getCurrMap();
 					map_page[current_mappage].screen=Map.getCurrScr();
 					current_mappage=btn;
@@ -10533,27 +10580,19 @@ void domouse()
 		
 		if(compactbtn.rect(x,y))
 		{
-			if(do_text_button_a5(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact"));
+			if(do_text_button(compactbtn.x, compactbtn.y, compactbtn.w, compactbtn.h, is_compact ? "< Expand" : "> Compact", vc(1),vc(14),true));
 				toggle_is_compact();
 			goto domouse_doneclick;
 		}
-		if(devcfg && mainbar.rect(x,y))
-		{
-			if(key_shifts&KB_CTRL_FLAG)
-			{
-				devcfg_active = !devcfg_active;
-				jwin_reset_a5_colors();
-				refresh(rCLEAR|rALL);
-				goto domouse_doneclick;
-			}
-		}
 		
-		a5font = get_zc_font_a5(font_lfont_l);
+		font = get_zc_font(font_lfont_l);
 		if(combo_merge_btn.rect(x,y))
 		{
 			bool merged = is_compact ? compact_merged_combopane : large_merged_combopane;
-			if(do_text_button_a5(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<"))
+			if(do_text_button(combo_merge_btn.x,combo_merge_btn.y,combo_merge_btn.w,combo_merge_btn.h,merged ? "<|>" : ">|<",vc(1),vc(14),true))
+			{
 				toggle_merged_mode();
+			}
 			goto domouse_doneclick;
 		}
 		if(draw_mode != dm_cpool)
@@ -10561,13 +10600,15 @@ void domouse()
 			if(favorites_zoombtn.rect(x,y))
 			{
 				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				if(do_text_button_a5(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+"))
+				if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+				{
 					toggle_favzoom_mode();
+				}
 				goto domouse_doneclick;
 			}
 			else if(favorites_x.rect(x,y))
 			{
-				if(do_text_button_a5(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X"))
+				if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
 				{
 					switch(draw_mode)
 					{
@@ -10610,7 +10651,7 @@ void domouse()
 			}
 			else if(favorites_infobtn.rect(x,y))
 			{
-				if(do_text_button_a5(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?"))
+				if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
 				{
 					switch(draw_mode)
 					{
@@ -10644,13 +10685,15 @@ void domouse()
 		if(commands_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
-			if(do_text_button_a5(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+"))
+			if(do_text_button(commands_zoombtn.x,commands_zoombtn.y,commands_zoombtn.w,commands_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
+			{
 				toggle_cmdzoom_mode();
+			}
 			goto domouse_doneclick;
 		}
 		else if(commands_x.rect(x,y))
 		{
-			if(do_text_button_a5(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X"))
+			if(do_text_button(commands_x.x,commands_x.y,commands_x.w,commands_x.h,"X",vc(1),vc(14),true))
 			{
 				AlertDialog("Clear Favorite Commands",
 					"Are you sure you want to clear all favorite commands?",
@@ -10671,7 +10714,7 @@ void domouse()
 		}
 		else if(commands_infobtn.rect(x,y))
 		{
-			if(do_text_button_a5(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?"))
+			if(do_text_button(commands_infobtn.x,commands_infobtn.y,commands_infobtn.w,commands_infobtn.h,"?",vc(1),vc(14),true))
 			{
 				InfoDialog("Favorite Commands",
 					"On LClick (empty): Choose a favorite command"
@@ -10685,9 +10728,10 @@ void domouse()
 			}
 			goto domouse_doneclick;
 		}
+		font=tfont;
 		
 		// On the layer panel
-		a5font = get_custom_font_a5(CFONT_GUI);
+		font = get_custom_font(CFONT_GUI);
 		for(int32_t i=0; i<=6; ++i)
 		{
 			int32_t spacing_offs = is_compact ? 2 : 10;
@@ -10718,7 +10762,7 @@ void domouse()
 					sprintf(tbuf, "%d", i);
 				}
 				
-				if(do_layer_button_reset_a5(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,0,true))
+				if(do_text_button(rx, ry, layerpanel_buttonwidth, layerpanel_buttonheight, tbuf,vc(1),vc(14),true))
 				{
 					CurrentLayer = i;
 					goto domouse_doneclick;
@@ -10728,10 +10772,11 @@ void domouse()
 			auto cbyofs = (layerpanel_buttonheight-layerpanel_checkbox_hei)/2;
 			if(isinRect(x,y,rx+layerpanel_buttonwidth+1,ry+cbyofs,rx+layerpanel_buttonwidth+1+layerpanel_checkbox_wid-1,ry+2+layerpanel_checkbox_hei-1))
 			{
-				do_checkbox_a5(rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,LayerMaskInt[i]);
+				do_checkbox(menu1,rx+layerpanel_buttonwidth+1,ry+cbyofs,layerpanel_checkbox_wid,layerpanel_checkbox_hei,vc(1),vc(14), LayerMaskInt[i]);
 				goto domouse_doneclick;
 			}
 		}
+		font=tfont;
 		
 		//Uses lclick/rclick separately
 		
@@ -10780,13 +10825,15 @@ void domouse()
 						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
 					}
-					if(drawmap<0)
-						return;
-					Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+					if(!draw_mapscr) return;
+					Combo=draw_mapscr->data[c];
+					if(AutoBrush)
+						BrushWidth = BrushHeight = 1;
 					if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
-						CSet=Map.AbsoluteScr(drawmap, drawscr)->cset[c];
+						CSet=draw_mapscr->cset[c];
 					if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-						First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
+						First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 				}
 				else if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 				{
@@ -10866,7 +10913,7 @@ void domouse()
 								
 								case 1: // Paste Copied FFC
 								{
-									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',lfont)==1)
+									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 									{
 										Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
 										saved=false;
@@ -10879,7 +10926,7 @@ void domouse()
 									break;
 								
 								case 3:
-									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 									{
 										Map.CurrScr()->ffcs[i].setData(0);
 										Map.CurrScr()->ffcCountMarkDirty();
@@ -10938,100 +10985,76 @@ void domouse()
 					{
 						sprintf(paste_ffc_menu_text, "Place + Edit FFC %d",earliestfreeffc+1);
 						sprintf(paste_ffc_menu_text2,"Paste FFC as FFC %d",earliestfreeffc+1);
-						draw_rc_menu[13].text = paste_ffc_menu_text;
-						draw_rc_menu[13].flags = 0;
+						draw_rc_menu[12].text = paste_ffc_menu_text;
+						draw_rc_menu[12].flags = 0;
 						
 						if(Map.getCopyFFC()>-1)
 						{
-							draw_rc_menu[14].text = paste_ffc_menu_text2;
-							draw_rc_menu[14].flags = 0;
+							draw_rc_menu[13].text = paste_ffc_menu_text2;
+							draw_rc_menu[13].flags = 0;
 						}
-						else draw_rc_menu[14].flags = D_DISABLED;
+						else draw_rc_menu[13].flags = D_DISABLED;
 					}
 					else
 					{
-						draw_rc_menu[13].text = (char*)"Place + Edit FFC";
-						draw_rc_menu[14].text = (char*)"Paste FFC";
-						draw_rc_menu[14].flags = draw_rc_menu[13].flags = D_DISABLED;
+						draw_rc_menu[12].text = (char*)"Place + Edit FFC";
+						draw_rc_menu[13].text = (char*)"Paste FFC";
+						draw_rc_menu[13].flags = draw_rc_menu[12].flags = D_DISABLED;
 					}
 					
-					int32_t warpindex = Map.warpindex(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->data[c]);
+					int32_t warpindex = Map.warpindex(Map.CurrScr()->data[c]);
 					
 					if(warpindex > -1)
 					{
 						sprintf(follow_warp_menu_text, "Follow Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
 						sprintf(follow_warp_menu_text2,"Edit Tile Warp %c",warpindex==4 ? 'R' : 'A'+warpindex);
-						draw_rc_menu[10].text = follow_warp_menu_text;
-						draw_rc_menu[11].text = follow_warp_menu_text2;
-						draw_rc_menu[10].flags = draw_rc_menu[11].flags = 0;
+						draw_rc_menu[9].text = follow_warp_menu_text;
+						draw_rc_menu[10].text = follow_warp_menu_text2;
+						draw_rc_menu[9].flags = draw_rc_menu[10].flags = 0;
 					}
 					else
 					{
-						draw_rc_menu[10].text = (char*)"Follow Tile Warp";
-						draw_rc_menu[11].text = (char*)"Edit Tile Warp";
-						draw_rc_menu[11].flags = draw_rc_menu[10].flags = D_DISABLED;
+						draw_rc_menu[9].text = (char*)"Follow Tile Warp";
+						draw_rc_menu[10].text = (char*)"Edit Tile Warp";
+						draw_rc_menu[10].flags = draw_rc_menu[9].flags = D_DISABLED;
 					}
 					
 					int32_t m = popup_menu(draw_rc_menu,x,y); //Contextual Menu: Can get config here to decide which dialogue to use. -Z
 					
+					int32_t drawmap, drawscr;
+					if(CurrentLayer==0)
+					{
+						drawmap=Map.getCurrMap();
+						drawscr=Map.getCurrScr();
+					}
+					else
+					{
+						drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+						drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+					}
+					mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
 					switch(m)
 					{
 						case 0:
 						case 1:
 						{
-							int32_t drawmap, drawscr;
-							
-							if(CurrentLayer==0)
-							{
-								drawmap=Map.getCurrMap();
-								drawscr=Map.getCurrScr();
-							}
-							else
-							{
-								drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-								drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-								
-								if(drawmap<0)
-								{
-									return;
-								}
-							}
-							
+							if(!draw_mapscr) return;
 							if(m==0)
 							{
-								Combo=Map.AbsoluteScr(drawmap, drawscr)->data[c];
+								Combo=draw_mapscr->data[c];
 							}
 							
 							if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
 							{
-								First[current_combolist]=scrollto_cmb(Map.AbsoluteScr(drawmap, drawscr)->data[c]);
+								First[current_combolist]=scrollto_cmb(draw_mapscr->data[c]);
 							}
 						}
 						break;
 						
 						case 2:
 						{
-							int32_t drawmap, drawscr;
-							
-							if(CurrentLayer==0)
-							{
-							
-								drawmap=Map.getCurrMap();
-								drawscr=Map.getCurrScr();
-							}
-							else
-							{
-								drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-								drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-								
-								if(drawmap<0)
-								{
-									return;
-								}
-							}
-							
-							edit_combo(Map.AbsoluteScr(drawmap, drawscr)->data[c],Map.AbsoluteScr(drawmap, drawscr)->cset[c]);
-							refresh(rALL);
+							if(!draw_mapscr) return;
+							edit_combo(draw_mapscr->data[c],true,draw_mapscr->cset[c]);
 						}
 						break;
 						
@@ -11039,11 +11062,11 @@ void domouse()
 							replace(c);
 							break;
 							
-						case 10: // Follow Tile Warp
+						case 9: // Follow Tile Warp
 						{
 							if(warpindex>=4)
 							{
-								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 								warpindex=zc_oldrand()&3;
 							}
 							
@@ -11055,7 +11078,7 @@ void domouse()
 							{
 								char buf[56];
 								sprintf(buf,"This screen's Tile Warp %c is set to %s,",'A'+warpindex,warptype_string[wt]);
-								jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,lfont);
+								jwin_alert(warptype_string[wt],buf,"so it doesn't lead to another screen.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 								break;
 								break;
 							}
@@ -11071,11 +11094,11 @@ void domouse()
 							break;
 						}
 						
-						case 11: // Edit Tile Warp
+						case 10: // Edit Tile Warp
 						{
 							if(warpindex>=4)
 							{
-								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,lfont);
+								jwin_alert("Random Tile Warp","This is a random tile warp combo, so it chooses","randomly between the screen's four Tile Warps.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 								warpindex=0;
 							}
 							
@@ -11085,7 +11108,7 @@ void domouse()
 							break;
 						}
 						
-						case 13:
+						case 12:
 						{
 							ffdata tempdat;
 							tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
@@ -11096,7 +11119,7 @@ void domouse()
 						}
 						break;
 						
-						case 14:
+						case 13:
 						{
 							Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
 							Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
@@ -11113,20 +11136,38 @@ void domouse()
 		}
 		
 		//on the drawing mode button
+		font = get_custom_font(CFONT_GUI);
 		if(drawmode_btn.rect(x,y))
 		{
 			if(lclick)
 			{
-				if(do_text_button_a5(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode]))
+				if(do_text_button(drawmode_btn.x,drawmode_btn.y,drawmode_btn.w,drawmode_btn.h,dm_names[draw_mode],vc(1),vc(14),true))
 					onDrawingMode();
 			}
 			else if(rclick)
 				popup_menu(drawing_mode_menu,x,y);
 			goto domouse_doneclick;
 		}
+		font=tfont;
 		
 		//Squares
 		{
+			if(squarepanel_swap_btn.rect(x,y))
+			{
+				toggle_compact_sqr_mode();
+				goto domouse_doneclick;
+			}
+			if(squarepanel_up_btn.rect(x,y))
+			{
+				cycle_compact_sqr(false);
+				goto domouse_doneclick;
+			}
+			if(squarepanel_down_btn.rect(x,y))
+			{
+				cycle_compact_sqr(true);
+				goto domouse_doneclick;
+			}
+			
 			bool do_dummyxy = false;
 			bool dummymode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
 			
@@ -11306,8 +11347,7 @@ void domouse()
 							case 0:
 								reset_combo_animations();
 								reset_combo_animations2();
-								edit_combo(Combo,CSet);
-								refresh(rALL);
+								edit_combo(Combo,true,CSet);
 								setup_combo_animations();
 								setup_combo_animations2();
 								break;
@@ -11380,7 +11420,7 @@ void domouse()
 							}
 						}
 						
-						do_animations();
+						custom_vsync();
 						refresh(rALL | rFAVORITES);
 					}
 					
@@ -11413,7 +11453,7 @@ void domouse()
 							}
 						}
 						
-						do_animations();
+						custom_vsync();
 						refresh(rALL | rFAVORITES);
 					}
 					
@@ -11477,8 +11517,7 @@ void domouse()
 							{
 								reset_combo_animations();
 								reset_combo_animations2();
-								edit_combo(Combo,CSet);
-								refresh(rALL);
+								edit_combo(Combo,true,CSet);
 								setup_combo_animations();
 								setup_combo_animations2();
 							}
@@ -11526,17 +11565,17 @@ void domouse()
 			auto& btn = commands_list.subsquare(cmd);
 			if(!dis||rclick||shift||ctrl||alt)
 			{
-				ALLEGRO_FONT *tfont=a5font;
-				a5font=get_custom_font_a5(CFONT_FAVCMD);
+				FONT *tfont=font;
+				font=get_custom_font(CFONT_FAVCMD);
 				
-				if(do_layer_button_reset_a5(btn.x,btn.y,btn.w,btn.h,
+				if(do_layer_button_reset(btn.x,btn.y,btn.w,btn.h,
 					favorite_commands[cmd]==cmdCatchall&&strcmp(catchall_string[Map.CurrScr()->room]," ")
 						? catchall_string[Map.CurrScr()->room]
 						: commands[favorite_commands[cmd]].name,
 					isFavCmdSelected(favorite_commands[cmd])?D_SELECTED:0,
 					true))
 				{
-					a5font=tfont;
+					font=tfont;
 					if(alt)
 					{
 						if(has_command_info(favorite_commands[cmd]))
@@ -11558,19 +11597,13 @@ void domouse()
 					}
 				}
 				
-				a5font=tfont;
+				font=tfont;
 			}
 			goto domouse_doneclick;
 		}
 	}
 
-	if(false)
-	{
 domouse_doneclick:
-		clear_tooltip();
-		clear_tooltip2();
-		draw_ttips(&rti_tooltip,&rti_tooltip_hl); //force-clear tooltip buffers
-	}
 	mouse_down |= mb&3;
 	
 	if(mouse_z!=0)
@@ -11603,6 +11636,7 @@ domouse_doneclick:
 							combo_alistpos[current_comboalist]-=zc_min(combo_alistpos[current_comboalist],comboaliaslist[j].w*z);
 						}
 					}
+					goto domouse_donez;
 				}
 			}
 			else if(draw_mode == dm_cpool)
@@ -11621,6 +11655,7 @@ domouse_doneclick:
 							combo_pool_listpos[current_cpoollist]-=zc_min(combo_pool_listpos[current_cpoollist],comboaliaslist[j].w*z);
 						}
 					}
+					goto domouse_donez;
 				}
 			}
 			else
@@ -11639,6 +11674,7 @@ domouse_doneclick:
 							First[current_combolist]-=zc_min(First[current_combolist],combolist[j].w*z);
 						}
 					}
+					goto domouse_donez;
 				}
 			}
 		}
@@ -11652,11 +11688,19 @@ domouse_doneclick:
 				if(mouse_z>0) onIncMap();
 				else onDecMap();
 			}
+			goto domouse_donez;
 		}
+		
+		if(is_compact && compact_square_panels
+			&& squares_panel.rect(x,y))
+		{
+			cycle_compact_sqr(mouse_z < 0);
+			goto domouse_donez;
+		}
+domouse_donez:
 		position_mouse_z(0);
 	}
-	a5font = tfont_a5;
-	al_restore_state(&old_state);
+	font = tfont;
 }
 
 int32_t d_viewpal_proc(int32_t msg, DIALOG *d, int32_t c)
@@ -11716,7 +11760,7 @@ int32_t onShowPal()
 	if(!palbmp)
 		return D_O_K;
 	clear_to_color(palbmp,jwin_pal[jcBOX]); //If not cleared, random static appears between swatches! -E
-	showpal_dlg[0].dp2=lfont;
+	showpal_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	for(int32_t i=0; i<256; i++)
 		rectfill(palbmp,(int32_t)(((i&31)<<3)*palscale),(int32_t)(((i&0xE0)>>2)*palscale), (int32_t)((((i&31)<<3)+7)*palscale),(int32_t)((((i&0xE0)>>2)+7)*palscale),i);
@@ -11725,10 +11769,10 @@ int32_t onShowPal()
 	showpal_dlg[2].dp2=(void *)buf;
 	showpal_dlg[2].dp3=(void *)&(showpal_dlg[3]);
 	showpal_dlg[3].dp=(void *)buf;
-	showpal_dlg[3].dp2=(void *)deffont;
+	showpal_dlg[3].dp2=(void *)get_zc_font(font_deffont);
 	
 	large_dialog(showpal_dlg);
-	do_zqdialog(showpal_dlg,2);
+	zc_popup_dialog(showpal_dlg,2);
 	destroy_bitmap(palbmp);
 	return D_O_K;
 }
@@ -11750,12 +11794,12 @@ static DIALOG csetfix_dlg[] =
 int32_t onCSetFix()
 {
     restore_mouse();
-    csetfix_dlg[0].dp2=lfont;
+    csetfix_dlg[0].dp2=get_zc_font(font_lfont);
     int32_t s=2,x2=14,y2=9;
     
     large_dialog(csetfix_dlg);
         
-    if(do_zqdialog(csetfix_dlg,-1)==6)
+    if(zc_popup_dialog(csetfix_dlg,-1)==6)
     {
         if(csetfix_dlg[2].flags&D_SELECTED)
         {
@@ -11767,38 +11811,35 @@ int32_t onCSetFix()
         if(csetfix_dlg[5].flags&D_SELECTED)
         {
             /*
-              int32_t drawmap, drawscr;
-              if (CurrentLayer==0)
-              {
-              drawmap=Map.getCurrMap();
-              drawscr=Map.getCurrScr();
-              }
-              else
-              {
-              drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
-              drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
-              if (drawmap<0)
-              {
-              return;
-              }
-              }
-            
-              saved=false;
-              Map.Ugo();
-            
-              if(!(Map.AbsoluteScr(drawmap, drawscr)->valid&mVALID))
-              {
-              Map.CurrScr()->valid|=mVALID;
-              Map.AbsoluteScr(drawmap, drawscr)->valid|=mVALID;
-              Map.setcolor(Color);
-              }
-              for(int32_t i=0; i<176; i++)
-              {
-              Map.AbsoluteScr(drawmap, drawscr)->data[i]=Combo;
-              Map.AbsoluteScr(drawmap, drawscr)->cset[i]=CSet;
-              }
-              refresh(rMAP+rSCRMAP);
-              */
+			int32_t drawmap, drawscr;
+			if (CurrentLayer==0)
+			{
+				drawmap=Map.getCurrMap();
+				drawscr=Map.getCurrScr();
+			}
+			else
+			{
+				drawmap=Map.CurrScr()->layermap[CurrentLayer-1]-1;
+				drawscr=Map.CurrScr()->layerscreen[CurrentLayer-1];
+			}
+			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+			if(!draw_mapscr) return;
+			saved=false;
+			Map.Ugo();
+
+			if(!(draw_mapscr->valid&mVALID))
+			{
+				Map.CurrScr()->valid|=mVALID;
+				draw_mapscr->valid|=mVALID;
+				Map.setcolor(Color);
+			}
+			for(int32_t i=0; i<176; i++)
+			{
+				draw_mapscr->data[i]=Combo;
+				draw_mapscr->cset[i]=CSet;
+			}
+			refresh(rMAP+rSCRMAP);
+            */
         }
         
         Map.StartListCommand();
@@ -11977,13 +12018,13 @@ int32_t onTemplate()
         
     //  BITMAP *floor_bmp = create_bitmap_ex(8,16,16);
     //  if(!floor_bmp) return D_O_K;
-    template_dlg[0].dp2=lfont;
+    template_dlg[0].dp2=get_zc_font(font_lfont);
     //  put_combo(floor_bmp,0,0,Combo,CSet,0,0);
     //  template_dlg[2].dp=floor_bmp;
     
     large_dialog(template_dlg);
         
-    if(do_zqdialog(template_dlg,-1)==5)
+    if(zc_popup_dialog(template_dlg,-1)==5)
     {
         saved=false;
         Map.DoTemplateCommand((template_dlg[3].flags==D_SELECTED) ? template_dlg[2].d1 : -1, template_dlg[2].fg, Map.getCurrScr());
@@ -12077,7 +12118,7 @@ int32_t onComboPage()
     for(int32_t i=0; i<64; i++)
         cpage_dlg[i+6].flags = Map.CurrScr()->old_cpage==i?D_SELECTED:0;
         
-    int32_t ret = do_zqdialog(cpage_dlg,3);
+    int32_t ret = zc_popup_dialog(cpage_dlg,3);
     
     int32_t p = 0;
     
@@ -12092,7 +12133,7 @@ int32_t onComboPage()
         Map.CurrScr()->old_cpage = p;
     }
     
-    if(ret==4 && jwin_alert("Confirm Overwrite","Set all combo pages","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+    if(ret==4 && jwin_alert("Confirm Overwrite","Set all combo pages","on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
     {
         saved=false;
         
@@ -12121,9 +12162,7 @@ int32_t d_sel_scombo_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 d->d1 = x+y;
                 custom_vsync();
-                scare_mouse();
                 d_sel_scombo_proc(MSG_DRAW,d,0);
-                unscare_mouse();
             }
         }
         
@@ -12165,7 +12204,7 @@ void select_scombo(int32_t &pos)
     //nothing
   }
 
-  if(do_zqdialog(sel_scombo_dlg,3)==2)
+  if(zc_do_dialog(sel_scombo_dlg,3)==2)
     pos = sel_scombo_dlg[1].d1;
 
   comeback();
@@ -12187,20 +12226,20 @@ static DIALOG cflag_dlg[] =
 
 void questrev_help()
 {
-	jwin_alert("Help","The revision number of your quest.",NULL,NULL,"O&K",NULL,'k',16,lfont);
+	jwin_alert("Help","The revision number of your quest.",NULL,NULL,"O&K",NULL,'k',16,get_zc_font(font_lfont));
 }
 
 void questminrev_help()
 {
-	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,lfont);
+	jwin_alert("Help","If a player's saved game was from a revision less than the minimum", "revision, they have to restart from the beginning.", "This is useful if you make major changes to your quest.","O&K",NULL,'k',16,get_zc_font(font_lfont));
 }
 
 int32_t select_cflag(const char *prompt,int32_t flag)
 {
     cflag_dlg[0].dp=(void *)prompt;
-    cflag_dlg[0].dp2=lfont;
+    cflag_dlg[0].dp2=get_zc_font(font_lfont);
     GUI::ListData ld = GUI::ZCListData::mapflag(numericalFlags, true);
-	ListData select_cflag_list = ld.getJWin(&font, &a5font);
+	ListData select_cflag_list = ld.getJWin(&font);
     int32_t index = ld.findIndex(flag);
 	cflag_dlg[2].d1=index;
 	cflag_dlg[2].dp=(void *) &select_cflag_list;
@@ -12211,7 +12250,7 @@ int32_t select_cflag(const char *prompt,int32_t flag)
     
     do
     {
-        ret=do_zqdialog(cflag_dlg,2);
+        ret=zc_popup_dialog(cflag_dlg,2);
         
         if(ret==5)
         {
@@ -12382,9 +12421,7 @@ int32_t d_scombo_proc(int32_t msg,DIALOG *d,int32_t c)
     {
       select_scombo(d->d1);
     }
-    scare_mouse();
     d_scombo_proc(MSG_DRAW,d,0);
-    unscare_mouse();
     break;
 
 
@@ -12468,10 +12505,10 @@ static DIALOG secret_dlg[] =
     {  jwin_button_proc,         80,    187,     61,     21,    vc(14),     vc(1),     13,       D_EXIT,     0,           0, (void *) "OK",                   NULL,   NULL                },
     {  jwin_button_proc,        160,    187,     61,     21,    vc(14),     vc(1),     27,       D_EXIT,     0,           0, (void *) "Cancel",               NULL,   NULL                },
     // 4
-    {  jwin_text_proc,           12,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Blue Candle",          NULL,   NULL                },
-    {  jwin_text_proc,           12,     75,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Red Candle",           NULL,   NULL                },
-    {  jwin_text_proc,           12,     97,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Wand Fire",            NULL,   NULL                },
-    {  jwin_text_proc,           12,    119,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Din's Fire",           NULL,   NULL                },
+    {  jwin_text_proc,           12,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Any Fire",             NULL,   NULL                },
+    {  jwin_text_proc,           12,     75,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Strong Fire",          NULL,   NULL                },
+    {  jwin_text_proc,           12,     97,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Magic Fire",           NULL,   NULL                },
+    {  jwin_text_proc,           12,    119,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Divine Fire",          NULL,   NULL                },
     //8
     {  jwin_text_proc,           12,     53,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Wooden Arrow",         NULL,   NULL                },
     {  jwin_text_proc,           12,     75,     16,     16,    vc(11),     vc(1),      0,       0,          0,           0, (void *) "Silver Arrow",         NULL,   NULL                },
@@ -12644,7 +12681,7 @@ int32_t onSecretF()
 
 int32_t onSecretCombo()
 {
-    secret_dlg[0].dp2=lfont;
+    secret_dlg[0].dp2=get_zc_font(font_lfont);
     
     
     mapscr *s;
@@ -12658,6 +12695,7 @@ int32_t onSecretCombo()
         //   s=TheMaps[(Map.CurrScr()->layermap[CurrentLayer-1]-1)*MAPSCRS+(Map.CurrScr()->layerscreen[CurrentLayer-1])];
         s=Map.AbsoluteScr((Map.CurrScr()->layermap[CurrentLayer-1]-1), (Map.CurrScr()->layerscreen[CurrentLayer-1]));
     }
+	if(!s) return D_O_K;
     
     char secretcombonumstr[27];
     sprintf(secretcombonumstr,"Secret Combos for Layer %d", CurrentLayer);
@@ -12675,9 +12713,9 @@ int32_t onSecretCombo()
     secret_dlg[94].fg = s->secretcset[sWANDFIRE];
     secret_dlg[94].d2 = s->secretflag[sWANDFIRE];
     
-    secret_dlg[95].d1 = s->secretcombo[sDINSFIRE];
-    secret_dlg[95].fg = s->secretcset[sDINSFIRE];
-    secret_dlg[95].d2 = s->secretflag[sDINSFIRE];
+    secret_dlg[95].d1 = s->secretcombo[sDIVINEFIRE];
+    secret_dlg[95].fg = s->secretcset[sDIVINEFIRE];
+    secret_dlg[95].d2 = s->secretflag[sDIVINEFIRE];
     
     secret_dlg[96].d1 = s->secretcombo[sARROW];
     secret_dlg[96].fg = s->secretcset[sARROW];
@@ -12757,7 +12795,7 @@ int32_t onSecretCombo()
     
     go();
     
-    if(do_zqdialog(secret_dlg,3) == 2)
+    if(zc_do_dialog(secret_dlg,3) == 2)
     {
         saved = false;
         s->secretcombo[sBCANDLE] = secret_dlg[92].d1;
@@ -12772,9 +12810,9 @@ int32_t onSecretCombo()
         s->secretcset[sWANDFIRE] = secret_dlg[94].fg;
         s->secretflag[sWANDFIRE] = secret_dlg[94].d2;
         
-        s->secretcombo[sDINSFIRE] = secret_dlg[95].d1;
-        s->secretcset[sDINSFIRE] = secret_dlg[95].fg;
-        s->secretflag[sDINSFIRE] = secret_dlg[95].d2;
+        s->secretcombo[sDIVINEFIRE] = secret_dlg[95].d1;
+        s->secretcset[sDIVINEFIRE] = secret_dlg[95].fg;
+        s->secretflag[sDIVINEFIRE] = secret_dlg[95].d2;
         
         s->secretcombo[sARROW] = secret_dlg[96].d1;
         s->secretcset[sARROW] = secret_dlg[96].fg;
@@ -12869,7 +12907,7 @@ int32_t onUnderCombo()
 	char titlebuf[64];
 	sprintf(titlebuf, "Under Combo (Layer %d)", CurrentLayer);
 	under_dlg[0].dp = titlebuf;
-	under_dlg[0].dp2 = lfont;
+	under_dlg[0].dp2 = get_zc_font(font_lfont);
 	mapscr* scr;
 	if(CurrentLayer==0)
 	{
@@ -12879,9 +12917,9 @@ int32_t onUnderCombo()
 	{
 		auto map=Map.CurrScr()->layermap[CurrentLayer-1]-1;
 		auto screen=Map.CurrScr()->layerscreen[CurrentLayer-1];
-		if(map < 0) return D_O_K;
 		scr = Map.AbsoluteScr(map,screen);
 	}
+	if(!scr) return D_O_K;
 	
 	under_dlg[3].d1=scr->undercombo;
 	under_dlg[3].fg=scr->undercset;
@@ -12894,7 +12932,7 @@ int32_t onUnderCombo()
 	under_dlg[1].x=342;
 	under_dlg[4].x=438;
 	
-	int32_t ret = do_zqdialog(under_dlg,-1);
+	int32_t ret = zc_popup_dialog(under_dlg,-1);
 	
 	if(ret==7)
 	{
@@ -12903,7 +12941,7 @@ int32_t onUnderCombo()
 		scr->undercset = under_dlg[6].fg;
 	}
 	
-	if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',lfont)==1)
+	if(ret==9 && jwin_alert("Confirm Overwrite","Set all Under Combos","on this map?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 	{
 		saved=false;
 		
@@ -13090,9 +13128,9 @@ int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit
     }
     
     ilist_dlg[0].dp=(void *)prompt;
-    ilist_dlg[0].dp2=lfont;
+    ilist_dlg[0].dp2=get_zc_font(font_lfont);
     ilist_dlg[2].d1=index;
-    ListData item_list(itemlist_num, &font, &a5font);
+    ListData item_list(itemlist_num, &font);
     ilist_dlg[2].dp=(void *) &item_list;
     
     large_dialog(ilist_dlg);
@@ -13119,7 +13157,7 @@ int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit
 		ilist_dlg[5].flags &= ~D_HIDDEN;
     }
     
-    exit_status=do_zqdialog(ilist_dlg,2);
+    exit_status=zc_popup_dialog(ilist_dlg,2);
     
     if(exit_status==0||exit_status==4)
     {
@@ -13467,16 +13505,16 @@ int32_t select_weapon(const char *prompt,int32_t weapon)
     }
     
     wlist_dlg[0].dp=(void *)prompt;
-    wlist_dlg[0].dp2=lfont;
+    wlist_dlg[0].dp2=get_zc_font(font_lfont);
     wlist_dlg[2].d1=index;
-    ListData weapon_list(weaponlist_num, &font, &a5font);
+    ListData weapon_list(weaponlist_num, &font);
     wlist_dlg[2].dp=(void *) &weapon_list;
     wlist_dlg[2].dp3 = (void *)&wpnsprite_rclick_func;
     wlist_dlg[2].flags|=(D_USER<<1);
     
     large_dialog(wlist_dlg);
         
-    int32_t ret=do_zqdialog(wlist_dlg,2);
+    int32_t ret=zc_popup_dialog(wlist_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -13527,7 +13565,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
     list_dlg[0].dp=(void *)prompt;
     list_dlg[0].dp2=title_font;
     list_dlg[2].d1=index;
-    ListData select_list(proc, &font, &a5font);
+    ListData select_list(proc, &font);
     list_dlg[2].dp=(void *) &select_list;
     
     large_dialog(list_dlg);
@@ -13545,7 +13583,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
         list_dlg[2].dp3=0;
     }
     
-    int32_t ret=do_zqdialog(list_dlg,2);
+    int32_t ret=zc_popup_dialog(list_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -13564,7 +13602,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
     list_dlg[0].dp=(void *)prompt;
     list_dlg[0].dp2=title_font;
     list_dlg[2].d1=index;
-    ListData select_data_list(proc, &font, &a5font);
+    ListData select_data_list(proc, &font);
     list_dlg[2].dp=(void *) &select_data_list;
     list_dlg[3].dp=(void *)b1;
     list_dlg[4].dp=(void *)b2;
@@ -13584,7 +13622,7 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
         list_dlg[2].dp3=0;
     }
     
-    int32_t ret = do_zqdialog(list_dlg,2);
+    int32_t ret = zc_popup_dialog(list_dlg,2);
     list_dlg[3].dp=(void *) "OK";
     list_dlg[4].dp=(void *) "Cancel";
     
@@ -13695,11 +13733,11 @@ const char *lenseffectlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData nextmap_list(nextmaplist, &font, &a5font);
-static ListData ns_list(nslist,&font, &a5font);
-static ListData screenmidi_list(screenmidilist, &font, &a5font);
-static ListData sfx_list(sfxlist, &font, &a5font);
-static ListData lenseffect_list(lenseffectlist, &font, &a5font);
+static ListData nextmap_list(nextmaplist, &font);
+static ListData ns_list(nslist,&font);
+static ListData screenmidi_list(screenmidilist, &font);
+static ListData sfx_list(sfxlist, &font);
+static ListData lenseffect_list(lenseffectlist, &font);
 
 static DIALOG scrdata_dlg[] =
 {
@@ -13919,7 +13957,7 @@ const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 }
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData screenscript_list(screenscriptdroplist, &pfont, &a5fonts[font_pfont]);
+static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
 
 
 #include "zq_files.h"
@@ -13981,7 +14019,7 @@ static DIALOG screenscript_dlg[] =
 
 void EditScreenScript()
 {
-	screenscript_dlg[0].dp2=lfont;
+	screenscript_dlg[0].dp2=get_zc_font(font_lfont);
 	char initd[8][16];
 	int32_t script = 0;
 
@@ -14012,7 +14050,7 @@ void EditScreenScript()
         
 	do
 	{
-		ret = do_zqdialog(screenscript_dlg,23);
+		ret = zc_popup_dialog(screenscript_dlg,23);
 		build_biscreens_list();
 		theMap->script = biscreens[screenscript_dlg[22].d1].second + 1;
 		
@@ -14102,7 +14140,7 @@ int32_t onScrData()
 	scrdata_dlg[110].dp= fallrocks_str;
 	scrdata_dlg[111].dp= statues_str;
 	
-	scrdata_dlg[0].dp2=lfont;
+	scrdata_dlg[0].dp2=get_zc_font(font_lfont);
 	sprintf(timedstring,"%d",Map.CurrScr()->timedwarptics);
 	//  sprintf(nmapstring,"%d",(int32_t)Map.CurrScr()->nextmap);
 	// sprintf(nscrstring,"%x",(int32_t)Map.CurrScr()->nextscr);
@@ -14229,7 +14267,7 @@ int32_t onScrData()
 	
 	large_dialog(scrdata_dlg);
 		
-	if(do_zqdialog(scrdata_dlg,-1)==2)
+	if(zc_popup_dialog(scrdata_dlg,-1)==2)
 	{
 		f=0;
 		
@@ -14660,7 +14698,7 @@ void update_map_count(word newmapcount)
 
 int32_t onGotoMap()
 {
-    int32_t ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,lfont);
+    int32_t ret = select_data("Goto Map",Map.getCurrMap(),gotomaplist,get_zc_font(font_lfont));
     
     if(ret >= 0)
     {
@@ -14686,7 +14724,6 @@ int32_t onFlags()
     if(ret>=0)
     {
         Flag=ret;
-        setFlagColor();
         refresh(rMENU);
         doflags();
     }
@@ -14709,7 +14746,7 @@ static DIALOG usedcombo_list_dlg[] =
 int32_t onUsedCombos()
 {
     restore_mouse();
-    usedcombo_list_dlg[0].dp2=lfont;
+    usedcombo_list_dlg[0].dp2=get_zc_font(font_lfont);
     
     int32_t usedcombos[7][300][2];
     char combolist_text[65536];
@@ -14730,18 +14767,13 @@ int32_t onUsedCombos()
         }
         else
         {
-            if(Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->layermap[layer-1]>0)
-            {
-                drawmap=Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->layermap[layer-1]-1;
-                drawscr=Map.AbsoluteScr(Map.getCurrMap(), Map.getCurrScr())->layerscreen[layer-1];
-            }
-            else
-            {
-                continue;
-            }
+			drawmap=Map.CurrScr()->layermap[layer-1]-1;
+			drawscr=Map.CurrScr()->layerscreen[layer-1];
         }
+		mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
+		if(!draw_mapscr) continue;
         
-        usedcombos[layer][0][0]=Map.AbsoluteScr(drawmap, drawscr)->data[0];
+        usedcombos[layer][0][0]=draw_mapscr->data[0];
         usedcombos[layer][0][1]=1;
         counter[layer]=1;
         
@@ -14751,7 +14783,7 @@ int32_t onUsedCombos()
             
             for(int32_t j=0; j<counter[layer]; ++j)
             {
-                if(usedcombos[layer][j][0]==Map.AbsoluteScr(drawmap, drawscr)->data[i])
+                if(usedcombos[layer][j][0]==draw_mapscr->data[i])
                 {
                     ++usedcombos[layer][j][1];
                     used=true;
@@ -14761,7 +14793,7 @@ int32_t onUsedCombos()
             
             if(!used)
             {
-                usedcombos[layer][counter[layer]][0]=Map.AbsoluteScr(drawmap, drawscr)->data[i];
+                usedcombos[layer][counter[layer]][0]=draw_mapscr->data[i];
                 usedcombos[layer][counter[layer]][1]=1;
                 ++counter[layer];
             }
@@ -14823,7 +14855,7 @@ int32_t onUsedCombos()
     
     large_dialog(usedcombo_list_dlg);
         
-    do_zqdialog(usedcombo_list_dlg,2);
+    zc_popup_dialog(usedcombo_list_dlg,2);
     position_mouse_z(0);
     return D_O_K;
 }
@@ -14890,7 +14922,7 @@ int32_t onRoom()
 
 int32_t onEndString()
 {
-    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,lfont);
+    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,get_zc_font(font_lfont));
     
     if(ret>=0)
     {
@@ -14902,7 +14934,7 @@ int32_t onEndString()
     return D_O_K;
 }
 
-static ListData levelnum_list(levelnumlist, &font, &a5font);
+static ListData levelnum_list(levelnumlist, &font);
 
 static DIALOG screen_pal_dlg[] =
 {
@@ -14923,12 +14955,12 @@ int32_t onScreenPalette()
 	if(key[KEY_ALT]||key[KEY_ALTGR])
 		return D_O_K; //'Alt+F4' should not pop this up...
     restore_mouse();
-    screen_pal_dlg[0].dp2=lfont;
+    screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
     screen_pal_dlg[2].d1=Map.getcolor();
     
     large_dialog(screen_pal_dlg);
         
-    if(do_zqdialog(screen_pal_dlg,2)==3)
+    if(zc_popup_dialog(screen_pal_dlg,2)==3)
     {
         saved=false;
         Map.setcolor(screen_pal_dlg[2].d1);
@@ -15017,9 +15049,7 @@ int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",msgID);
-        unscare_mouse();
     }
     
     return ret;
@@ -15034,7 +15064,6 @@ int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         int32_t tile = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].tile : 0;
         int32_t cset = bii[d->d1].i >=0 ? itemsbuf[bii[d->d1].i].csets&15 : 0;
         int32_t x = d->x + d->w + 4;
@@ -15059,7 +15088,6 @@ int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c)
             destroy_bitmap(bigbmp);
         }
         
-        unscare_mouse();
     }
     
     return ret;
@@ -15074,9 +15102,7 @@ int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_DRAW:
     case MSG_CHAR:
     case MSG_CLICK:
-        scare_mouse();
         textprintf_ex(screen,font,d->x - 48,d->y + 4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%5d",bii[d->d1].i);
-        unscare_mouse();
     }
     
     return ret;
@@ -15115,7 +15141,6 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_DRAW:
 		case MSG_CHAR:
 		case MSG_CLICK:
-			scare_mouse();
 			
 			int32_t tile = 0;
 			int32_t cset = 0;
@@ -15150,7 +15175,7 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 			//Item editor power display in Select Item dialogue. 
 			if(bii[d->d1].i>=0)
 			{
-				FONT* tfont = lfont_l;
+				FONT* tfont = get_zc_font(font_lfont_l);
 				int fh = text_height(tfont);
 				rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
 				textprintf_ex(screen,tfont,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",bii[d->d1].i);
@@ -15165,7 +15190,6 @@ int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
 				textprintf_ex(screen,tfont,x,y+40+(9*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Weapon: %d", itemsbuf[bii[d->d1].i].weaponscript);
 			}
 			
-			unscare_mouse();
 			break;
 	}
 	
@@ -15205,7 +15229,6 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 	case MSG_DRAW:
 	case MSG_CHAR:
 	case MSG_CLICK:
-		scare_mouse();
 		
 		int32_t tile = 0;
 		int32_t cset = 0;
@@ -15240,7 +15263,6 @@ int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
 		textprintf_ex(screen, font, x, y + (20 * temp_scale), jwin_pal[jcTEXTFG], jwin_pal[jcBOX], "#%d   ", biw[d->d1].i);
 	}
 		
-		unscare_mouse();
 	}
 	
 	return ret;
@@ -15294,7 +15316,6 @@ int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     if(msg==MSG_CLICK)
     {
         int32_t v = getnumber("Piece Number",d->d1);
-        scare_mouse();
         
         if(v>=0)
         {
@@ -15323,7 +15344,6 @@ int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c)
         
         d->flags = 0;
         jwin_button_proc(MSG_DRAW,d,0);
-        unscare_mouse();
     }
     
     return D_O_K;
@@ -15353,7 +15373,7 @@ static DIALOG tp_dlg[] =
 
 int32_t onTriPieces()
 {
-    tp_dlg[0].dp2=lfont;
+    tp_dlg[0].dp2=get_zc_font(font_lfont);
     char temptext[8][2];
     
     for(int32_t i=0; i<8; i++)
@@ -15366,7 +15386,7 @@ int32_t onTriPieces()
     
     large_dialog(tp_dlg);
         
-    if(do_zqdialog(tp_dlg,-1) == 11)
+    if(zc_popup_dialog(tp_dlg,-1) == 11)
     {
         saved=false;
         
@@ -15584,12 +15604,12 @@ int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(xy[2]>-1000&&xy[3]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
         }
         
         if(xy[4]>-1000&&xy[5]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
         }
     }
     
@@ -15618,12 +15638,12 @@ int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(xy[2]>-1000&&xy[3]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[2])*temp_scale),d->y+int32_t((xy[3])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Map: %-3d",DMaps[d->d1].map+1);
         }
         
         if(xy[4]>-1000&&xy[5]>-1000)
         {
-            textprintf_ex(screen,lfont_l,d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
+            textprintf_ex(screen,get_zc_font(font_lfont_l),d->x+int32_t((xy[4])*temp_scale),d->y+int32_t((xy[5])*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Level: %-3d",DMaps[d->d1].level);
         }
     }
     
@@ -15637,7 +15657,6 @@ int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
     
 	if (msg == MSG_DRAW)
 	{
-		scare_mouse();
 		small_dmap = (d->d1 != dmOVERW);
 		object_message(d - 3, MSG_DRAW, 0);
 		(d - 2)->flags &= ~D_DISABLED;
@@ -15645,7 +15664,6 @@ int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
 		object_message(d - 2, MSG_DRAW, 0);
 		(d + 35)->d1 = small_dmap;
 		object_message(d + 35, MSG_DRAW, 0);
-		unscare_mouse();
 	}
 	else if (d->d1 != d1)
 	{
@@ -15680,14 +15698,15 @@ int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
         int32_t j=0, k=0;
         rectfill(tempbmp,x,y,x+d->w-1,y+header_height-1,jwin_pal[jcBOX]);
         
+		FONT* nf = get_zc_font(font_nfont);
         for(j=0; j<8; ++j)
         {
-            textprintf_ex(tempbmp,nfont,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+            textprintf_ex(tempbmp,nf,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
         }
         
         for(j=0; j<cols; ++j)
         {
-            textprintf_ex(tempbmp,nfont,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+            textprintf_ex(tempbmp,nf,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
         }
         
         jwin_draw_frame(tempbmp, x+header_width+1, y+header_height+1, 180, 84, FR_DEEP);
@@ -15747,10 +15766,8 @@ int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
                 }
             }
             
-            scare_mouse();
             object_message(d, MSG_DRAW, 0);
-            unscare_mouse();
-            rest(16);
+            rest(16); // TODO z3 ! rm?
             custom_vsync();
         }
     }
@@ -15788,6 +15805,7 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
     int32_t cols = 16;
     int32_t col_width = 27;
     int32_t l = 25;
+	FONT* nf = get_zc_font(font_nfont);
 
     byte* region_index_data = (byte *)d->dp;
     
@@ -15804,18 +15822,18 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
         
         for(j=0; j<8; ++j)
         {
-            textprintf_ex(tempbmp,nfont,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+            textprintf_ex(tempbmp,nf,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
         }
         
         for(j=0; j<cols; ++j)
         {
-            textprintf_ex(tempbmp,nfont,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+            textprintf_ex(tempbmp,nf,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
         }
         
         // why this not look good
         // jwin_draw_frame(tempbmp, x+header_width+is_large, y+header_height+is_large, (is_large?180:116)*2, (is_large?84:60)*2, FR_DEEP);
         
-        int txtheight = text_height(nfont);
+        int txtheight = text_height(nf);
         for(j=0; j<8; ++j)
         {
             for(k=0; k<cols; ++k)
@@ -15845,7 +15863,7 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
                         default:
                             text_color = getHighlightColor(color);
                     }
-                    textprintf_centre_ex(tempbmp, nfont, x0+col_width/2-button_thickness, y0+l/2-txtheight/2, text_color, -1, "%d", region_index);
+                    textprintf_centre_ex(tempbmp, nf, x0+col_width/2-button_thickness, y0+l/2-txtheight/2, text_color, -1, "%d", region_index);
                 }
             }
         }
@@ -15972,7 +15990,6 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 	
 	if(msg==MSG_DRAW || d->d1!=d1)
 	{
-		scare_mouse();
 		int32_t *xy = (int32_t*)(d->dp3);
 		xy[0]=d->d1;
 		
@@ -15988,14 +16005,15 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t j=0;
 			rectfill(screen,x,y-header_height-frame_thickness-1,int32_t(x+116*1.5-1),y-1,jwin_pal[jcBOX]);
 			
+			FONT* nf = get_zc_font(font_nfont);
 			for(j=0; j<8; ++j)
 			{
-				textprintf_ex(screen,nfont,x-header_width-frame_thickness,y+1+(j*10),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+				textprintf_ex(screen,nf,x-header_width-frame_thickness,y+1+(j*10),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
 			}
 			
 			for(j=0; j<cols; ++j)
 			{
-				textprintf_ex(screen,nfont,x+((col_width+1)/2)-(header_width/2)+(j*col_width),y-header_height-frame_thickness,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+				textprintf_ex(screen,nf,x+((col_width+1)/2)-(header_width/2)+(j*col_width),y-header_height-frame_thickness,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
 			}
 			
 			jwin_draw_frame(screen, (x-frame_thickness)+1, (y-frame_thickness)+1, 180, 84, FR_DEEP);
@@ -16007,7 +16025,6 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 		(d+1)->flags&=~D_DISABLED;
 		(d+1)->flags|=small_dmap?0:D_DISABLED;
 		object_message(d+1, MSG_DRAW, 0);
-		unscare_mouse();
 	}
 	
 	return ret;
@@ -16051,13 +16068,13 @@ void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
         {
             if(edit_ins_mode)
             {
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
             }
             else
             {
                 //     text_mode(i==pos?vc(15):bg);
                 
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
             }
             
             ++i;
@@ -16066,7 +16083,7 @@ void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
     if(edit_ins_mode&&pos>-1)
     {
         //   text_mode(-1);
-        textprintf_ex(screen,zfont,x+((pos%cpl)<<3),y+((pos/cpl)<<3),vc(15),-1,"_");
+        textprintf_ex(screen,get_zc_font(font_zfont),x+((pos%cpl)<<3),y+((pos/cpl)<<3),vc(15),-1,"_");
     }
 }
 
@@ -16082,9 +16099,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
         d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*10;
         bound(d->d2,0,19);
-        scare_mouse();
         put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
-        unscare_mouse();
         
         while(gui_mouse_b())
         {
@@ -16178,9 +16193,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             }
         }
         
-        scare_mouse();
         put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
-        unscare_mouse();
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -16197,12 +16210,12 @@ void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
         {
             if(edit_ins_mode)
             {
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),fg,bg,"%c",*(s+i));
             }
             else
             {
                 //     text_mode(i==pos?vc(15):bg);
-                textprintf_ex(screen,zfont,x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
+                textprintf_ex(screen,get_zc_font(font_zfont),x+(dx<<3),y+(dy<<3),i==pos?bg:fg,i==pos?vc(15):bg,"%c",*(s+i));
             }
             
             ++i;
@@ -16211,7 +16224,7 @@ void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
     if(edit_ins_mode&&pos>-1)
     {
         //   text_mode(-1);
-        textprintf_ex(screen,zfont,x+((pos%24)<<3),y+((pos/24)<<3),vc(15),-1,"_");
+        textprintf_ex(screen,get_zc_font(font_zfont),x+((pos%24)<<3),y+((pos/24)<<3),vc(15),-1,"_");
     }
 }
 
@@ -16227,9 +16240,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
         d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*24;
         bound(d->d2,0,71);
-        scare_mouse();
         put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
-        unscare_mouse();
         
         while(gui_mouse_b())
         {
@@ -16325,9 +16336,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             }
         }
         
-        scare_mouse();
         put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
-        unscare_mouse();
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -16485,12 +16494,12 @@ const char *dmaptracknumlist(int32_t index, int32_t *list_size)
 extern const char *subscreenlist_a(int32_t index, int32_t *list_size);
 extern const char *subscreenlist_b(int32_t index, int32_t *list_size);
 
-static ListData subscreen_list_a(subscreenlist_a, &font, &a5font);
-static ListData subscreen_list_b(subscreenlist_b, &font, &a5font);
-static ListData midi_list(midilist, &font, &a5font);
-static ListData dmaptracknum_list(dmaptracknumlist, &font, &a5font);
-static ListData type_list(typelist, &font, &a5font);
-static ListData gotomap_list(gotomaplist, &font, &a5font);
+static ListData subscreen_list_a(subscreenlist_a, &font);
+static ListData subscreen_list_b(subscreenlist_b, &font);
+static ListData midi_list(midilist, &font);
+static ListData dmaptracknum_list(dmaptracknumlist, &font);
+static ListData type_list(typelist, &font);
+static ListData gotomap_list(gotomaplist, &font);
 
 
 const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
@@ -16506,7 +16515,7 @@ const char *dmapscriptdroplist(int32_t index, int32_t *list_size)
 
 
 //droplist like the dialog proc, naming scheme for this stuff is awful...
-static ListData dmapscript_list(dmapscriptdroplist, &pfont, &a5fonts[font_pfont]);
+static ListData dmapscript_list(dmapscriptdroplist, &a4fonts[font_pfont]);
 
 static DIALOG editdmap_dlg[] =
 {
@@ -16865,7 +16874,7 @@ void editdmap(int32_t index)
 	}
 	
 	editdmap_dlg[0].dp=dmapnumstr;
-	editdmap_dlg[0].dp2=lfont;
+	editdmap_dlg[0].dp2=get_zc_font(font_lfont);
 	editdmap_dlg[4].dp=dmap_name;
 	editdmap_dlg[9].d1 = DMaps[index].minimap_1_tile;
 	editdmap_dlg[9].fg = DMaps[index].minimap_1_cset;
@@ -16884,8 +16893,8 @@ void editdmap(int32_t index)
 	editdmap_dlg[23].d1=(DMaps[index].type&dmfTYPE);
 	editdmap_dlg[25].dp=levelstr;
 	
-	editdmap_dlg[26].dp2=nfont;
-	editdmap_dlg[27].dp2=nfont;
+	editdmap_dlg[26].dp2=get_zc_font(font_nfont);
+	editdmap_dlg[27].dp2=get_zc_font(font_nfont);
 
 	for(int32_t i=0; i<8; i++)
 	{
@@ -16937,8 +16946,8 @@ void editdmap(int32_t index)
 	
 	build_bii_list(false);
 	initDI(index);
-	ListData DI_list(DIlist, &font, &a5font);
-	ListData item_list(itemlist_num, &font, &a5font);
+	ListData DI_list(DIlist, &font);
+	ListData item_list(itemlist_num, &font);
 	editdmap_dlg[101].dp = (void*)&DI_list;
 	editdmap_dlg[101].d1 = 0;
 	editdmap_dlg[102].dp = (void*)&item_list;
@@ -17000,7 +17009,7 @@ void editdmap(int32_t index)
 	
 	while(ret!=0&&ret!=1&&ret!=2)
 	{
-		ret=do_zqdialog(editdmap_dlg,-1);
+		ret=zc_popup_dialog(editdmap_dlg,-1);
 		
 		switch(ret)
 		{
@@ -17013,7 +17022,7 @@ void editdmap(int32_t index)
 				
 				if(strlen(tmfname)>55)
 				{
-					jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("Error","Filename too long","(>55 characters",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					temppath[0]=0;
 				}
 				else
@@ -17159,7 +17168,7 @@ void editdmap(int32_t index)
 //int32_t selectdmapxy[6] = {90,142,164,150,164,160};
 int32_t selectdmapxy[6] = {44,92,128,100,128,110};
 
-static ListData dmap_list(dmaplist, &font, &a5font);
+static ListData dmap_list(dmaplist, &font);
 
 static DIALOG selectdmap_dlg[] =
 {
@@ -18414,7 +18423,7 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
 		if (!readonedmap(f,index))
 		{
 			al_trace("Could not read from .zdmap packfile %s\n", temppath);
-			jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("ZDMAP File: Error","Could not load the specified DMap.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		}
 		
 		pack_fclose(f);
@@ -18432,7 +18441,7 @@ int32_t onDmaps()
     dmapcopied = 0;
     dmap_list_size=MAXDMAPS;
     number_list_zero=true;
-    selectdmap_dlg[0].dp2=lfont;
+    selectdmap_dlg[0].dp2=get_zc_font(font_lfont);
     selectdmap_dlg[2].dp3 = (void *)&dmap_rclick_func;
     selectdmap_dlg[2].flags|=(D_USER<<1);
     
@@ -18440,7 +18449,7 @@ int32_t onDmaps()
     
     
     
-    ret=do_zqdialog(selectdmap_dlg,2);
+    ret=zc_popup_dialog(selectdmap_dlg,2);
     dmap* pSelectedDmap = 0;
     
     
@@ -18465,7 +18474,7 @@ int32_t onDmaps()
         {
             sprintf(buf,"Delete DMap %d?",d);
             
-            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
             {
                 reset_dmap(d);
                 saved=false;
@@ -18476,7 +18485,7 @@ int32_t onDmaps()
             editdmap(d);
         }
         
-        ret=do_zqdialog(selectdmap_dlg,2);
+        ret=zc_popup_dialog(selectdmap_dlg,2);
     }
     
     return D_O_K;
@@ -18559,7 +18568,7 @@ void edit_tune(int32_t i)
     
     strcpy(title,customtunes[i].title);
     
-    editmidi_dlg[0].dp2=lfont;
+    editmidi_dlg[0].dp2=get_zc_font(font_lfont);
     
 	large_dialog(editmidi_dlg);
 	editmidi_dlg[13].dp2 = font;
@@ -18597,10 +18606,8 @@ void edit_tune(int32_t i)
         while(update_dialog(p))
         {
             custom_vsync();
-            scare_mouse();
             //      text_mode(vc(1));
-            textprintf_ex(screen,lfont_l,editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
-            unscare_mouse();
+            textprintf_ex(screen,get_zc_font(font_lfont_l),editmidi_dlg[0].x+int32_t(193*1.5),editmidi_dlg[0].y+int32_t(58*1.5),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5ld",midi_pos);
         }
         
         ret = shutdown_dialog(p);
@@ -18636,7 +18643,7 @@ void edit_tune(int32_t i)
 
                 if((data=load_midi(temppath))==NULL)
                 {
-                    jwin_alert("Error","Error loading tune:",temppath,NULL,"Dang",NULL,13,27,lfont);
+                    jwin_alert("Error","Error loading tune:",temppath,NULL,"Dang",NULL,13,27,get_zc_font(font_lfont));
                 }
                 else
                 {
@@ -18797,7 +18804,7 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_list_proc(msg,d,c);
 }
 
-static ListData custommidi_list(custommidilist, &lfont_l, &a5fonts[font_lfont_l]);
+static ListData custommidi_list(custommidilist, &a4fonts[font_lfont_l]);
 
 static DIALOG selectmidi_dlg[] =
 {
@@ -18823,7 +18830,7 @@ int32_t onMidis()
     number_list_size=MAXCUSTOMTUNES;
     number_list_zero=false;
     strcpy(temppath,midipath);
-    selectmidi_dlg[0].dp2=lfont;
+    selectmidi_dlg[0].dp2=get_zc_font(font_lfont);
     
     
     large_dialog(selectmidi_dlg);
@@ -18831,7 +18838,7 @@ int32_t onMidis()
     selectmidi_dlg[2].dp2 = 0;
     
     go();
-    ret=do_zqdialog(selectmidi_dlg,2);
+    ret=zc_do_dialog(selectmidi_dlg,2);
     
     while(ret!=4&&ret!=0)
     {
@@ -18841,7 +18848,7 @@ int32_t onMidis()
         {
             sprintf(buf,"Delete music %d?",d+1);
             
-            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+            if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
             {
                 customtunes[d].reset(); // reset_midi(customMIDIs+d);
                 saved=false;
@@ -18852,7 +18859,7 @@ int32_t onMidis()
             edit_tune(d);
         }
         
-        ret=do_zqdialog(selectmidi_dlg,2);
+        ret=zc_do_dialog(selectmidi_dlg,2);
     }
     
     comeback();
@@ -18909,7 +18916,7 @@ int32_t d_musiclist_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_list_proc(msg,d,c);
 }
 
-static ListData enhancedmusic_list(enhancedmusiclist, &font, &a5font);
+static ListData enhancedmusic_list(enhancedmusiclist, &font);
 
 static DIALOG selectmusic_dlg[] =
 {
@@ -18932,16 +18939,16 @@ int32_t onEnhancedMusic()
     number_list_size=MAXCUSTOMMIDIS;
     number_list_zero=false;
     strcpy(temppath,midipath);
-    selectmusic_dlg[0].dp2=lfont;
+    selectmusic_dlg[0].dp2=get_zc_font(font_lfont);
     go();
-    ret=do_zqdialog(selectmusic_dlg,2);
+    ret=zc_do_dialog(selectmusic_dlg,2);
     while(ret!=4&&ret!=0)
     {
       int32_t d=selectmusic_dlg[2].d1;
       if(ret==5)
       {
         sprintf(buf,"Delete MIDI %d?",d+1);
-        if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',lfont)==1)
+        if(jwin_alert("Confirm Delete",buf,NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
         {
           reset_midi(customMIDIs+d);
           saved=false;
@@ -18951,7 +18958,7 @@ int32_t onEnhancedMusic()
       {
         edit_midi(d);
       }
-      ret=do_zqdialog(selectmusic_dlg,2);
+      ret=zc_do_dialog(selectmusic_dlg,2);
     }
     comeback();
     */
@@ -19083,8 +19090,8 @@ const char *warprlist(int32_t index, int32_t *list_size)
 
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
-static ListData warp_dlg_list(warptypelist, &font, &a5font);
-static ListData warp_ret_list(warprlist, &font, &a5font);
+static ListData warp_dlg_list(warptypelist, &font);
+static ListData warp_ret_list(warprlist, &font);
 
 int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
 {
@@ -19103,10 +19110,8 @@ int32_t d_warpdestscrsel_proc(int32_t msg,DIALOG *d,int32_t)
 //      if(x+y != d->d1)
             {
                 custom_vsync();
-                scare_mouse();
                 sprintf((char *)td[d->d1+1].dp, "%02X", y+x);
                 object_message(&td[d->d1+1], MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
     }
@@ -19382,9 +19387,9 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
                 int32_t e=d->d2&3;
                 
                 if(d->w>d->h)
-                    textprintf_centre_ex(screen,lfont_l, d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
                 else
-                    textprintf_centre_ex(screen,lfont_l, d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l), d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
             }
             
         }
@@ -19473,7 +19478,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
         }
         
         int32_t c2=(d->flags&D_SELECTED)?d->fg:d->bg;
-        scare_mouse();
         
         if(d->d1==1)
         {
@@ -19485,9 +19489,9 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
                 int32_t e=d->d2&3;
                 
                 if(d->w>d->h)
-                    textprintf_centre_ex(screen,lfont_l,d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
                 else
-                    textprintf_centre_ex(screen,lfont_l,d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
+                    textprintf_centre_ex(screen,get_zc_font(font_lfont_l),d->x+(d->w/2),d->y+(d->h/2)-4,jwin_pal[jcBOXFG],-1,"%c",e+0x41);
             }
         }
         else
@@ -19495,7 +19499,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
             rectfill(screen,d->x, d->y, d->x+d->w-1, d->y+d->h-1,c2);
         }
         
-        unscare_mouse();
         
         while(gui_mouse_b())
         {
@@ -19651,6 +19654,160 @@ int32_t warpdestsel_y=-1;
 int32_t warpdestmap=-1;
 int32_t warpdestscr=-1;
 
+int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+	//these are here to bypass compiler warnings about unused arguments
+	c=c;
+	
+	int32_t ret=D_O_K;
+	static BITMAP *bmp=create_bitmap_ex(8,256,176);
+	static bool inrect=false;
+	static bool mousedown=false;
+	mapscr* warpdest_mapscr = Map.AbsoluteScr(warpdestmap,warpdestscr);
+	
+	switch(msg)
+	{
+	case MSG_START:
+	{
+		if(!warpdest_mapscr) break;
+		loadlvlpal(warpdest_mapscr->color);
+		rebuild_trans_table();
+		break;
+	}   
+	case MSG_DRAW:
+	{
+		jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
+		
+		if(AnimationOn||CycleOn)
+		{
+			if(AnimationOn)
+			{
+				animate_combos();
+			}
+			
+			if(CycleOn)
+			{
+				cycle_palette();
+			}
+		}
+		
+		animate_coords();
+		Map.draw(bmp, 0, 0, 0, warpdestmap, warpdestscr);
+		if(warpdest_mapscr)
+			blit(icon_bmp[ICON_BMP_WARPDEST][coord_frame], bmp, 0, 0, warpdest_mapscr->warparrivalx, warpdest_mapscr->warparrivaly, 16, 16);
+		int32_t px2=((gui_mouse_x()-d->x-2)&0xF8);
+		int32_t py2=((gui_mouse_y()-d->y-2)&0xF8);
+		
+		if(isinRect(gui_mouse_x(), gui_mouse_y(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
+		{
+			if(gui_mouse_b())
+			{
+				if(!mousedown||!inrect)
+				{
+					if(allowHideMouse)
+						MouseSprite::set(ZQM_BLANK);
+					set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
+				}
+				
+				rect(bmp, px2, py2, px2+15, py2+15, vc(15));
+				warpdestsel_x=px2;
+				warpdestsel_y=py2;
+				mousedown=true;
+			}
+			else
+			{
+				if(mousedown||!inrect)
+				{
+					set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
+					MouseSprite::set(ZQM_POINT_BOX);
+				}
+				
+				mousedown=false;
+			}
+			
+			inrect=true;
+		}
+		else
+		{
+			MouseSprite::set(ZQM_NORMAL);
+			inrect=false;
+		}
+		
+		blit(bmp, screen, 0, 0, d->x+2, d->y+2, 256, 176);
+	}
+	break;
+	
+	case MSG_VSYNC:
+		d->flags|=D_DIRTY;
+		break;
+		
+	case MSG_END:
+		loadlvlpal(Map.CurrScr()->color);
+		rebuild_trans_table();
+		break;
+	}
+	
+	return ret;
+}
+
+#if 0
+static DIALOG warpdestsel_dlg[] =
+{
+    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+    { jwin_win_proc,                 0,      0,    297,    234,    vc(14),                 vc(1),                   0,       D_EXIT,      0,             0, (void *) "Select Warp Destination",    NULL,    NULL       },
+    { jwin_button_proc,              6,    207,     61,     21,    vc(0),                  vc(11),                 13,       D_EXIT,      0,             0, (void *) "OK",                         NULL,    NULL       },
+    { jwin_button_proc,             70,    207,     93,     21,    vc(0),                  vc(11),                  0,       D_EXIT,      0,             0, (void *) "Use Warp Square",            NULL,    NULL       },
+    { jwin_button_proc,            166,    207,     61,     21,    vc(0),                  vc(11),                  0,       D_EXIT,      0,             0, (void *) "Use Origin",                 NULL,    NULL       },
+    { jwin_button_proc,            230,    207,     61,     21,    vc(0),                  vc(11),                 27,       D_EXIT,      0,             0, (void *) "Cancel",                     NULL,    NULL       },
+    { d_keyboard_proc,               0,      0,      0,      0,    0,                      0,                       0,       0,           KEY_F1,        0, (void *) onHelp,                       NULL,    NULL       },
+    { d_warpdestsel_proc,           19,     23,    260,    180,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       },
+    { d_vsync_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       },
+    { d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       },
+    { NULL,                          0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       }
+};
+
+int32_t d_warpbutton_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+    int32_t ret=jwin_button_proc(msg,d,c);
+    
+    if(ret==D_EXIT)
+    {
+        warpdestsel_dlg[0].dp2=get_zc_font(font_lfont);
+        warpdestmap=DMaps[(d-4)->d1].map;
+        warpdestscr=DMaps[(d-4)->d1].xoff+xtoi((char*)((d-1)->dp));
+        ret=zc_popup_dialog(warpdestsel_dlg,-1);
+        
+        switch(ret)
+        {
+        case 1:
+            d->d1=warpdestsel_x;
+            d->d2=warpdestsel_y;
+            sprintf((char *)d->dp, "at: %dx%d", warpdestsel_x, warpdestsel_y);
+            break;
+            
+        case 2:
+            d->d1=-1;
+            d->d2=-1;
+            sprintf((char *)d->dp, "at: warp square");
+            break;
+            
+        case 3:
+            d->d1=-2;
+            d->d2=-2;
+            sprintf((char *)d->dp, "at: origin");
+            break;
+            
+        default:
+            break;
+        }
+        
+        d->flags|=D_DIRTY;
+    }
+    
+    return ret?D_O_K:D_O_K;
+}
+#endif
+
 int32_t jwin_minibutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
@@ -19719,17 +19876,15 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         int32_t tics=vbound(atoi((char*)d->dp),0,65535);
         sprintf((char*)(d+1)->dp,"%s %s",ticksstr(tics),tics==0?"(No Timed Warp)":"               ");
         object_message(d+1,MSG_DRAW,c);
-        unscare_mouse();
     }
     
     return ret;
 }
 
-static ListData warp_effect_list(warpeffectlist,&font, &a5font);
+static ListData warp_effect_list(warpeffectlist,&font);
 
 #if 0
 static DIALOG warp_dlg2[] =
@@ -19889,7 +20044,7 @@ int32_t onTileWarp()
     int32_t tempx52=warp_dlg[52].x;
     restore_mouse();
     warp_dlg[0].dp=(void *) "Tile Warp";
-    warp_dlg[0].dp2=lfont;
+    warp_dlg[0].dp2=get_zc_font(font_lfont);
     warp_dlg[5].x = screen->w + 10;
     warp_dlg[6].x = screen->w + 10;
     warp_dlg[10].x = screen->w + 10;
@@ -20029,7 +20184,7 @@ int32_t onTileWarp()
 		warp_dlg[i+67].h=32;
 	}
     
-    int32_t ret=do_zqdialog(warp_dlg,-1);
+    int32_t ret=zc_popup_dialog(warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -20138,7 +20293,7 @@ int32_t onSideWarp()
 {
     restore_mouse();
     warp_dlg[0].dp=(void *) "Side Warp";
-    warp_dlg[0].dp2=lfont;
+    warp_dlg[0].dp2=get_zc_font(font_lfont);
     warp_dlg[7].flags = 0;
     warp_dlg[22].flags = 0;
     warp_dlg[34].flags = 0;
@@ -20274,7 +20429,7 @@ int32_t onSideWarp()
 		warp_dlg[52].y -= 2;
 	}
     
-    int32_t ret=do_zqdialog(warp_dlg,-1);
+    int32_t ret=zc_popup_dialog(warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -20383,7 +20538,7 @@ const char *dirlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData path_dlg_list(dirlist, &font, &a5font);
+static ListData path_dlg_list(dirlist, &font);
 
 static DIALOG path_dlg[] =
 {
@@ -20411,7 +20566,7 @@ static DIALOG path_dlg[] =
 int32_t onPath()
 {
     restore_mouse();
-    path_dlg[0].dp2=lfont;
+    path_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<4; i++)
         path_dlg[i+7].d1 = Map.CurrScr()->path[i];
@@ -20424,13 +20579,13 @@ int32_t onPath()
     
     do
     {
-        ret=do_zqdialog(path_dlg,7);
+        ret=zc_popup_dialog(path_dlg,7);
         
         if(ret==12) for(int32_t i=0; i<4; i++)
             {
                 if(path_dlg[i+7].d1 == path_dlg[11].d1)
                 {
-                    if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
+                    if(jwin_alert("Exit Problem","One of the path's directions is","also the normal Exit direction! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
                         ret = -1;
                         
                     break;
@@ -20449,7 +20604,7 @@ int32_t onPath()
         Map.CurrScr()->exitdir = path_dlg[11].d1;
         
         if(!(Map.CurrScr()->flags&fMAZE))
-            if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',lfont)==1)
+            if(jwin_alert("Screen Flag","Turn on the 'Use Maze Path' Screen Flag?","(Go to 'Screen Data' to turn it off.)",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==1)
                 Map.CurrScr()->flags |= fMAZE;
     }
     
@@ -20495,7 +20650,7 @@ void EditInfoType(int32_t index)
     
     sprintf(caption,"Info Data %d",index);
     editinfo_dlg[0].dp = caption;
-    editinfo_dlg[0].dp2 = lfont;
+    editinfo_dlg[0].dp2 = get_zc_font(font_lfont);
     
     sprintf(ps1,"%d",misc.info[index].price[0]);
     sprintf(ps2,"%d",misc.info[index].price[1]);
@@ -20511,14 +20666,14 @@ void EditInfoType(int32_t index)
     editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
     editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
     editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
-    ListData msgs_list(msgslist2, &lfont_l, &a5fonts[font_lfont_l]);
+    ListData msgs_list(msgslist2, &a4fonts[font_lfont_l]);
     editinfo_dlg[9].dp  =
         editinfo_dlg[11].dp =
             editinfo_dlg[13].dp = (void *) &msgs_list;
             
     large_dialog(editinfo_dlg);
         
-    int32_t ret = do_zqdialog(editinfo_dlg,-1);
+    int32_t ret = zc_popup_dialog(editinfo_dlg,-1);
     
     if(ret==16)
     {
@@ -20581,13 +20736,13 @@ int32_t onInfoTypes()
 {
     info_list_size = 256;
     
-    int32_t index = select_data("Info Types",0,infolist,"Edit","Done",lfont);
+    int32_t index = select_data("Info Types",0,infolist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditInfoType(index);
         
-        index = select_data("Info Types",index,infolist,"Edit","Done",lfont);
+        index = select_data("Info Types",index,infolist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -20643,7 +20798,7 @@ void EditShopType(int32_t index)
     
     sprintf(caption,"Shop Data %d",index);
     editshop_dlg[0].dp = caption;
-    editshop_dlg[0].dp2=lfont;
+    editshop_dlg[0].dp2=get_zc_font(font_lfont);
     
     sprintf(ps1,"%d",misc.shop[index].price[0]);
     sprintf(ps2,"%d",misc.shop[index].price[1]);
@@ -20663,7 +20818,7 @@ void EditShopType(int32_t index)
     editshop_dlg[22].dp = info2;
     editshop_dlg[23].dp = info3;
     
-    ListData item_list(itemlist_num, &lfont_l, &a5fonts[font_lfont_l]);
+    ListData item_list(itemlist_num, &a4fonts[font_lfont_l]);
     
     editshop_dlg[9].dp  = (void *) &item_list;
     editshop_dlg[11].dp  = (void *) &item_list;
@@ -20689,7 +20844,7 @@ void EditShopType(int32_t index)
     
     large_dialog(editshop_dlg);
         
-    int32_t ret = do_zqdialog(editshop_dlg,-1);
+    int32_t ret = zc_popup_dialog(editshop_dlg,-1);
     
     if(ret==16)
     {
@@ -20747,12 +20902,12 @@ int32_t onShopTypes()
 {
     shop_list_size = 256;
     
-    int32_t index = select_data("Shop Types",0,shoplist,"Edit","Done",lfont);
+    int32_t index = select_data("Shop Types",0,shoplist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditShopType(index);
-        index = select_data("Shop Types",index,shoplist,"Edit","Done",lfont);
+        index = select_data("Shop Types",index,shoplist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -20766,7 +20921,7 @@ int32_t onBottleTypes()
 	
 	while(index > -1)
 	{
-		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", lfont);
+		index = select_data("Bottle Types", index, bottlelist, "Edit", "Done", get_zc_font(font_lfont));
 		if(index > -1)
 			call_bottle_dlg(index);
 	}
@@ -20782,7 +20937,7 @@ int32_t onBottleShopTypes()
 	
 	while(index > -1)
 	{
-		index = select_data("Bottle Shop Types", index, bottleshoplist, "Edit", "Done", lfont);
+		index = select_data("Bottle Shop Types", index, bottleshoplist, "Edit", "Done", get_zc_font(font_lfont));
 		if(index > -1)
 			call_bottleshop_dlg(index);
 	}
@@ -20901,7 +21056,6 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
             t += atoi((char*)edititemdropset_dlg[14+(i*3)].dp);
         }
         
-        scare_mouse();
         {
             int32_t t2 = (int32_t)(100*atoi((char*)edititemdropset_dlg[7].dp) / zc_max(t,1));
             sprintf((char*)edititemdropset_dlg[9].dp,"%d%%%s",t2, t2 <= 11 ? " ":"");
@@ -20915,7 +21069,6 @@ int32_t d_itemdropedit_proc(int32_t msg,DIALOG *d,int32_t c)
             object_message(&edititemdropset_dlg[16+(i*3)],MSG_DRAW,c);
         }
         
-        unscare_mouse();
     }
     
     return ret;
@@ -20931,7 +21084,7 @@ void EditItemDropSet(int32_t index)
     
     sprintf(caption,"Item Drop Set Data %d",index);
     edititemdropset_dlg[0].dp = caption;
-    edititemdropset_dlg[0].dp2=lfont;
+    edititemdropset_dlg[0].dp2=get_zc_font(font_lfont);
     
     sprintf(itemdropsetname,"%s",item_drop_sets[index].name);
     edititemdropset_dlg[5].dp = itemdropsetname;
@@ -20939,7 +21092,7 @@ void EditItemDropSet(int32_t index)
     sprintf(chance[0],"%d",item_drop_sets[index].chance[0]);
     edititemdropset_dlg[7].dp = chance[0];
     
-    ListData item_list(itemlist_num, &lfont_l, &a5fonts[font_lfont_l]);
+    ListData item_list(itemlist_num, &a4fonts[font_lfont_l]);
     sprintf(percent_str[0],"    ");
     edititemdropset_dlg[9].dp  = percent_str[0];
     
@@ -20969,7 +21122,7 @@ void EditItemDropSet(int32_t index)
     
     large_dialog(edititemdropset_dlg);
         
-    int32_t ret = do_zqdialog(edititemdropset_dlg,-1);
+    int32_t ret = zc_popup_dialog(edititemdropset_dlg,-1);
     
     if(ret==2)
     {
@@ -21029,12 +21182,12 @@ int32_t onItemDropSets()
 {
     item_drop_set_list_size = MAXITEMDROPSETS;
     
-    int32_t index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",lfont);
+    int32_t index = select_data("Item Drop Sets",0,itemdropsetlist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditItemDropSet(index);
-        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",lfont);
+        index = select_data("Item Drop Sets",index,itemdropsetlist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -21086,7 +21239,7 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     
     sprintf(caption,"Ring %d  Warp %d",ring,index+1);
     warpring_warp_dlg[0].dp = (void *)caption;
-    warpring_warp_dlg[0].dp2=lfont;
+    warpring_warp_dlg[0].dp2=get_zc_font(font_lfont);
     
     warpring_warp_dlg[1].dp = NULL;
     warpring_warp_dlg[1].dp3 = NULL;
@@ -21107,7 +21260,7 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     
     large_dialog(warpring_warp_dlg);
         
-    int32_t ret=do_zqdialog(warpring_warp_dlg,-1);
+    int32_t ret=zc_popup_dialog(warpring_warp_dlg,-1);
     
     if(ret==14 || ret==15)
     {
@@ -21219,8 +21372,8 @@ const char *wclist(int32_t index, int32_t *list_size)
 //int32_t warpringdmapxy[8] = {160,116,160,90,160,102,160,154};
 int32_t warpringdmapxy[8] = {80,26,80,0,80,12,80,78};
 
-static ListData number_list(numberlist, &font, &a5font);
-static ListData wc_list(wclist, &font, &a5font);
+static ListData number_list(numberlist, &font);
+static ListData wc_list(wclist, &font);
 
 static DIALOG warpring_dlg[] =
 {
@@ -21250,7 +21403,7 @@ int32_t select_warp()
     {
         number_list_size = misc.warp[curr_ring].size;
         warpring_dlg[3].d1 = misc.warp[curr_ring].size-3;
-        ret = do_zqdialog(warpring_dlg,ret);
+        ret = zc_popup_dialog(warpring_dlg,ret);
     }
     while(ret==3);
     
@@ -21267,7 +21420,7 @@ void EditWarpRing(int32_t ring)
     char buf[40];
     sprintf(buf,"Ring %d Warps",ring);
     warpring_dlg[0].dp = buf;
-    warpring_dlg[0].dp2 = lfont;
+    warpring_dlg[0].dp2 = get_zc_font(font_lfont);
     curr_ring = ring;
     
     int32_t index = select_warp();
@@ -21284,14 +21437,14 @@ int32_t onWarpRings()
     number_list_size = 9;
     number_list_zero = true;
     
-    int32_t index = select_data("Warp Rings",0,numberlist,"Edit","Done",lfont);
+    int32_t index = select_data("Warp Rings",0,numberlist,"Edit","Done",get_zc_font(font_lfont));
     
     while(index!=-1)
     {
         EditWarpRing(index);
         number_list_size = 9;
         number_list_zero = true;
-        index = select_data("Warp Rings",index,numberlist,"Edit","Done",lfont);
+        index = select_data("Warp Rings",index,numberlist,"Edit","Done",get_zc_font(font_lfont));
     }
     
     return D_O_K;
@@ -21314,7 +21467,7 @@ const char *pattern_list(int32_t index, int32_t *list_size)
     return pattern_string[index];
 }
 
-static ListData pattern_dlg_list(pattern_list, &font, &a5font);
+static ListData pattern_dlg_list(pattern_list, &font);
 
 static DIALOG pattern_dlg[] =
 {
@@ -21335,12 +21488,12 @@ static DIALOG pattern_dlg[] =
 int32_t onPattern()
 {
     byte p=Map.CurrScr()->pattern;
-    pattern_dlg[0].dp2 = lfont;
+    pattern_dlg[0].dp2 = get_zc_font(font_lfont);
     pattern_dlg[2].d1  = p;
     
     large_dialog(pattern_dlg);
         
-    if(do_zqdialog(pattern_dlg,2) < 4)
+    if(zc_popup_dialog(pattern_dlg,2) < 4)
     {
         saved=false;
         Map.CurrScr()->pattern = pattern_dlg[2].d1;
@@ -21580,7 +21733,7 @@ int32_t efrontfacingtile(int32_t id)
                   : -guysbuf[id].tile, usetile);
 }
 
-static ListData enemy_dlg_list(enemy_viewer, &font, &a5font);
+static ListData enemy_dlg_list(enemy_viewer, &font);
 
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
 {
@@ -21657,7 +21810,7 @@ int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
             destroy_bitmap(bigbmp);
         }
         
-		font = lfont_l;
+		font = get_zc_font(font_lfont_l);
 		int fh = text_height(font);
 		rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
         textprintf_ex(screen,font,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",id);
@@ -21696,9 +21849,9 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
     }
     
     elist_dlg[0].dp=(void *)prompt;
-    elist_dlg[0].dp2=lfont;
+    elist_dlg[0].dp2=get_zc_font(font_lfont);
     elist_dlg[2].d1=index;
-    ListData enemy_list(enemylist, &font, &a5font);
+    ListData enemy_list(enemylist, &font);
     elist_dlg[2].dp=(void *) &enemy_list;
     
     large_dialog(elist_dlg);
@@ -21724,7 +21877,7 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
         elist_dlg[5].flags &= ~D_HIDDEN;
     }
     
-    exit_status=do_zqdialog(elist_dlg,2);
+    exit_status=zc_popup_dialog(elist_dlg,2);
     
     if(exit_status==0||exit_status==4)
     {
@@ -21753,9 +21906,9 @@ int32_t select_guy(const char *prompt,int32_t guy)
     }
     
     glist_dlg[0].dp=(void *)prompt;
-    glist_dlg[0].dp2=lfont;
+    glist_dlg[0].dp2=get_zc_font(font_lfont);
     glist_dlg[2].d1=index;
-    ListData guy_list(guylist, &font, &a5font);
+    ListData guy_list(guylist, &font);
     glist_dlg[2].dp=(void *) &guy_list;
     
     large_dialog(glist_dlg);
@@ -21764,7 +21917,7 @@ int32_t select_guy(const char *prompt,int32_t guy)
     
     do
     {
-        ret=do_zqdialog(glist_dlg,2);
+        ret=zc_popup_dialog(glist_dlg,2);
         
         if(ret==5)
         {
@@ -21773,47 +21926,47 @@ int32_t select_guy(const char *prompt,int32_t guy)
             switch(id)
             {
             case gABEI:
-                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gAMA:
-                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gDUDE:
-                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gMOBLIN:
-                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gGORIYA:
-                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gFIRE:
-                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gFAIRY:
-                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gZELDA:
-                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gABEI2:
-                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             case gEMPTY:
-                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,lfont);
+                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
                 
             default:
-                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 break;
             }
         }
@@ -21865,7 +22018,7 @@ int32_t onEnemies()
 	
 	build_bie_list(true);
 	
-	enemy_dlg[0].dp2=lfont;
+	enemy_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	if(Map.CanPaste())
 	{
@@ -21895,10 +22048,9 @@ int32_t onEnemies()
 		large_dialog(enemy_dlg);
 		// Fix d_enelist_proc
 		enemy_dlg[2].dp2 = 0;
-		((ListData *)enemy_dlg[2].dp)->font = &lfont_l;
-		((ListData *)enemy_dlg[2].dp)->a5font = &a5fonts[font_lfont_l];
+		((ListData *)enemy_dlg[2].dp)->font = &a4fonts[font_lfont_l];
 		
-		ret = do_zqdialog(enemy_dlg,2);
+		ret = zc_do_dialog(enemy_dlg,2);
 		
 		switch(ret)
 		{
@@ -21977,7 +22129,7 @@ int32_t onEnemies()
 					end = true;
 				else if(end)
 				{
-					if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',lfont)==2)
+					if(jwin_alert("Inactive Enemies","Enemies won't appear if they're preceded"," by '(None)' in the list! Continue?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
 						ret=-1;
 						
 					break;
@@ -22006,9 +22158,7 @@ int32_t d_showedit_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(msg==MSG_DRAW)
     {
-        scare_mouse();
         (d+1)->proc(MSG_DRAW,d+1,0);
-        unscare_mouse();
     }
     
     return ret;
@@ -22041,7 +22191,7 @@ const char *subscrtypelist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData subscreen_type_dlg_list(subscrtypelist, &font, &a5font);
+static ListData subscreen_type_dlg_list(subscrtypelist, &font);
 
 static DIALOG subscreen_type_dlg[] =
 {
@@ -22057,12 +22207,12 @@ static DIALOG subscreen_type_dlg[] =
 int32_t onSubscreen()
 {
     int32_t tempsubscreen=zinit.subscreen;
-    subscreen_type_dlg[0].dp2=lfont;
+    subscreen_type_dlg[0].dp2=get_zc_font(font_lfont);
     subscreen_type_dlg[3].d1=zinit.subscreen;
     
     large_dialog(subscreen_type_dlg);
         
-    int32_t ret = do_zqdialog(subscreen_type_dlg,2);
+    int32_t ret = zc_popup_dialog(subscreen_type_dlg,2);
     
     if(ret==1)
     {
@@ -22074,7 +22224,7 @@ int32_t onSubscreen()
             {
                 if(tempsubscreen==ssdtMAX)
                 {
-                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,lfont)==2)
+                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,get_zc_font(font_lfont))==2)
                     {
                         zinit.subscreen=ssdtMAX;
                         return D_O_K;
@@ -22104,9 +22254,7 @@ bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(!over)
             {
-                scare_mouse();
                 draw_x_button(dest, x, y, D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -22114,9 +22262,7 @@ bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(over)
             {
-                scare_mouse();
                 draw_x_button(dest, x, y, 0);
-                unscare_mouse();
                 over=false;
             }
         }
@@ -22137,9 +22283,7 @@ bool do_question_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(!over)
             {
-                scare_mouse();
                 draw_question_button(dest, x, y, D_SELECTED);
-                unscare_mouse();
                 over=true;
             }
         }
@@ -22147,9 +22291,7 @@ bool do_question_button(BITMAP *dest, int32_t x, int32_t y)
         {
             if(over)
             {
-                scare_mouse();
                 draw_question_button(dest, x, y, 0);
-                unscare_mouse();
                 over=false;
             }
         }
@@ -22497,72 +22639,6 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
     }
 }
 
-void draw_combo_alias_thumbnail_a5(combo_alias *combo, int x, int y, int targx, int targy)
-{
-	if(!targx) targx = x+8;
-	if(!targy) targy = y+8;
-    if(!combo->combo && (combo->width>0||combo->height>0||combo->combos[0]>0))
-    {
-        int32_t cur_layer, temp_layer;
-        
-        int32_t cw=combo->width+1;
-        int32_t ch=combo->height+1;
-        int32_t dw=cw*16;
-        int32_t dh=ch*16;
-        int32_t sw=16, sh=16, sx=0, sy=0;
-        
-        if(cw<ch)
-        {
-            sw=((cw<<4)/ch);
-            sx=((16-sw)>>1);
-        }
-        else
-        {
-            sh=((ch<<4)/cw);
-            sy=((16-sh)>>1);
-        }
-        
-		for(int32_t z=0; z<=comboa_lmasktotal(combo->layermask); z++)
-		{
-			int32_t k=0;
-			cur_layer=0;
-			temp_layer=combo->layermask;
-			
-			while((temp_layer!=0)&&(k<z))
-			{
-				if(temp_layer&1)
-				{
-					k++;
-				}
-				
-				cur_layer++;
-				temp_layer = temp_layer>>1;
-			}
-			
-			for(int32_t y2=0; (y2<dh)&&((y2>>4)<=combo->height); y2+=16)
-			{
-				for(int32_t x2=0; (x2<dw)&&((x2>>4)<=combo->width); x2+=16)
-				{
-					int32_t cpos = (z*(combo->width+1)*(combo->height+1))+(((y2/16)*(combo->width+1))+(x2/16));
-					
-					if(combo->combos[cpos])
-						a5_draw_combo(x+x2,y+y2,combo->combos[cpos],combo->csets[cpos], z!=0, 255, targx+x2, targy+y2);
-				}
-			}
-		}
-    }
-    else
-    {
-        if(combobuf[combo->combo].tile>0)
-			a5_draw_combo(x,y,combo->combo,combo->cset,false,255,targx,targy);
-        else
-        {
-            al_draw_filled_rectangle(x,y,x+16,y+16,a5color(0));
-            al_draw_filled_rectangle(x+3,y+3,x+12,y+12,AL5_DRED);
-        }
-    }
-}
-
 int32_t d_comboat_proc(int32_t msg,DIALOG *d,int32_t)
 {
     switch(msg)
@@ -22752,7 +22828,7 @@ int32_t onOrgComboAliases()
 	
 	//sprintf(cSrc,"0");
 	//sprintf(cDest,"0");
-	orgcomboa_dlg[0].dp2=lfont;
+	orgcomboa_dlg[0].dp2=get_zc_font(font_lfont);
 	orgcomboa_dlg[6].dp= cSrc;
 	orgcomboa_dlg[7].dp= cDest;
 	int32_t ret = 1;
@@ -22761,7 +22837,7 @@ int32_t onOrgComboAliases()
 	{
 		iSrc = atoi((char*)orgcomboa_dlg[6].dp);
 		iDest = atoi((char*)orgcomboa_dlg[7].dp);
-		ret = do_zqdialog(orgcomboa_dlg,-1);
+		ret = zc_popup_dialog(orgcomboa_dlg,-1);
 		
 		if(ret!=1) return ret;
 		
@@ -22770,7 +22846,7 @@ int32_t onOrgComboAliases()
 			char buf[100];
 			snprintf(buf, 100, "Invalid source (range 0-%d)", MAXCOMBOALIASES-1);
 			buf[99]='\0';
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			ret = 1;
 		}
 		
@@ -22791,7 +22867,7 @@ int32_t onOrgComboAliases()
 		
 		if((atoi((char*) orgcomboa_dlg[6].dp)) == (atoi((char*) orgcomboa_dlg[7].dp)))
 		{
-			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error","Source and dest can't be the same.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			ret = 1;
 		}
 		
@@ -22801,7 +22877,7 @@ int32_t onOrgComboAliases()
 			snprintf(buf, 100, "Invalid dest (range 0-%d)", MAXCOMBOALIASES-1);
 			buf[99]='\0';
 			
-			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+			jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 			ret = 1;
 		}
 		
@@ -22845,7 +22921,7 @@ int32_t onNewComboAlias()
         temp_combos[i] = combo->combos[i];
     }
     
-    newcomboa_dlg[0].dp2 = lfont;
+    newcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
     newcomboa_dlg[6].dp = cwidth;
     newcomboa_dlg[7].dp = cheight;
     newcomboa_dlg[8].flags = (combo->layermask&1)? D_SELECTED : 0;
@@ -22857,7 +22933,7 @@ int32_t onNewComboAlias()
     
     large_dialog(newcomboa_dlg);
     
-    int32_t ret = do_zqdialog(newcomboa_dlg,-1);
+    int32_t ret = zc_popup_dialog(newcomboa_dlg,-1);
     
     if(ret==1)
     {
@@ -23064,7 +23140,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_DRAW:
     {
         FONT *tfont=font;
-        font=lfont_l;
+        font=get_zc_font(font_lfont_l);
         jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
         font=tfont;
     }
@@ -23080,9 +23156,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
         
         /* or just toggle */
         /*d->flags ^= D_SELECTED;
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         break;*/
         
     case MSG_CLICK:
@@ -23101,9 +23175,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -23117,9 +23189,7 @@ int32_t d_orgcomboa_proc(int32_t msg, DIALOG *d, int32_t c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -23151,7 +23221,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
     case MSG_DRAW:
     {
         FONT *tfont=font;
-        font=lfont_l;
+        font=get_zc_font(font_lfont_l);
         jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
         font=tfont;
     }
@@ -23167,9 +23237,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
         
         /* or just toggle */
         /*d->flags ^= D_SELECTED;
-        scare_mouse();
         object_message(d, MSG_DRAW, 0);
-        unscare_mouse();
         break;*/
         
     case MSG_CLICK:
@@ -23188,9 +23256,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
                 else
                     d->flags &= ~D_SELECTED;
                     
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
                 last_draw = down;
             }
             
@@ -23204,9 +23270,7 @@ int32_t d_comboabutton_proc(int32_t msg, DIALOG *d, int32_t c)
             if(d->flags&D_EXIT)
             {
                 d->flags &= ~D_SELECTED;
-                scare_mouse();
                 object_message(d, MSG_DRAW, 0);
-                unscare_mouse();
             }
         }
         
@@ -23236,7 +23300,7 @@ int32_t d_comboacheck_proc(int32_t msg, DIALOG *d, int32_t c)
     return ret;
 }
 
-static ListData comboa_list(comboalist, &font, &a5font);
+static ListData comboa_list(comboalist, &font);
 
 static DIALOG editcomboa_dlg[] =
 {
@@ -23376,7 +23440,7 @@ int32_t onEditComboAlias()
         //memcpy(temp_aliases[i].csets,combo_aliases[i].csets,sizeof(byte)*tcount);
     }
     
-    editcomboa_dlg[0].dp2 = lfont;
+    editcomboa_dlg[0].dp2 = get_zc_font(font_lfont);
     set_comboaradio(temp_aliases[comboa_cnt].layermask);
     editcomboa_dlg[5].d1 = comboa_cnt;
     
@@ -23395,13 +23459,13 @@ int32_t onEditComboAlias()
 		editcomboa_dlg[13].h=9*1.5;
 		editcomboa_dlg[4].w=81*1.5;
 		editcomboa_dlg[4].h=21*1.5;
-		editcomboa_dlg[4].dp2=lfont_l;
+		editcomboa_dlg[4].dp2=get_zc_font(font_lfont_l);
 		editcomboa_dlg[21].w=21*1.5;
 		editcomboa_dlg[21].h=21*1.5;
-		editcomboa_dlg[21].dp2=lfont_l;
+		editcomboa_dlg[21].dp2=get_zc_font(font_lfont_l);
 	}
     
-    int32_t ret=do_zqdialog(editcomboa_dlg,-1);
+    int32_t ret=zc_popup_dialog(editcomboa_dlg,-1);
     
     if(ret==1)
     {
@@ -23462,7 +23526,7 @@ const char *ffcombolist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData ffcombo_list(ffcombolist, &font, &a5font);
+static ListData ffcombo_list(ffcombolist, &font);
 
 static DIALOG ffcombo_sel_dlg[] =
 {
@@ -23557,7 +23621,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 int32_t onSelectFFCombo()
 {
-    ffcombo_sel_dlg[0].dp2 = lfont;
+    ffcombo_sel_dlg[0].dp2 = get_zc_font(font_lfont);
     ffcombo_sel_dlg[3].d1 = ff_combo;
     ffcur = create_bitmap_ex(8,32,32);
     
@@ -23575,13 +23639,13 @@ int32_t onSelectFFCombo()
 		ffcombo_sel_dlg[5].y--;
 	}
     
-    int32_t ret=do_zqdialog(ffcombo_sel_dlg,0);
+    int32_t ret=zc_popup_dialog(ffcombo_sel_dlg,0);
     
     while(ret==1)
     {
         ff_combo = ffcombo_sel_dlg[3].d1;
         call_ffc_dialog(ff_combo);
-        ret=do_zqdialog(ffcombo_sel_dlg,0);
+        ret=zc_popup_dialog(ffcombo_sel_dlg,0);
     }
     
     destroy_bitmap(ffcur);
@@ -23589,13 +23653,13 @@ int32_t onSelectFFCombo()
 }
 
 const char *globalscriptlist(int32_t index, int32_t *list_size);
-static ListData globalscript_list(globalscriptlist, &font, &a5font);
+static ListData globalscript_list(globalscriptlist, &font);
 const char *playerscriptlist(int32_t index, int32_t *list_size);
-static ListData playerscript_list(playerscriptlist, &font, &a5font);
+static ListData playerscript_list(playerscriptlist, &font);
 
 const char *ffscriptlist(int32_t index, int32_t *list_size);
 
-static ListData ffscript_list(ffscriptlist, &font, &a5font);
+static ListData ffscript_list(ffscriptlist, &font);
 
 char *strip_decimals(char *string)
 {
@@ -24679,36 +24743,36 @@ const char *assigngenericscriptlist(int32_t index, int32_t *list_size)
     return asgenericscripts[index].c_str();
 }
 
-static ListData assignffc_list(assignffclist, &font, &a5font);
-static ListData assignffcscript_list(assignffcscriptlist, &font, &a5font);
-static ListData assignglobal_list(assigngloballist, &font, &a5font);
-static ListData assignglobalscript_list(assignglobalscriptlist, &font, &a5font);
-static ListData assignitem_list(assignitemlist, &font, &a5font);
-static ListData assignitemscript_list(assignitemscriptlist, &font, &a5font);
-static ListData assignnpc_list(assignnpclist, &font, &a5font);
-static ListData assignnpcscript_list(assignnpcscriptlist, &font, &a5font);
-static ListData assignlweapon_list(assignlweaponlist, &font, &a5font);
-static ListData assignlweaponscript_list(assignlweaponscriptlist, &font, &a5font);
-static ListData assigneweapon_list(assigneweaponlist, &font, &a5font);
-static ListData assigneweaponscript_list(assigneweaponscriptlist, &font, &a5font);
+static ListData assignffc_list(assignffclist, &font);
+static ListData assignffcscript_list(assignffcscriptlist, &font);
+static ListData assignglobal_list(assigngloballist, &font);
+static ListData assignglobalscript_list(assignglobalscriptlist, &font);
+static ListData assignitem_list(assignitemlist, &font);
+static ListData assignitemscript_list(assignitemscriptlist, &font);
+static ListData assignnpc_list(assignnpclist, &font);
+static ListData assignnpcscript_list(assignnpcscriptlist, &font);
+static ListData assignlweapon_list(assignlweaponlist, &font);
+static ListData assignlweaponscript_list(assignlweaponscriptlist, &font);
+static ListData assigneweapon_list(assigneweaponlist, &font);
+static ListData assigneweaponscript_list(assigneweaponscriptlist, &font);
 
-static ListData assignplayer_list(assignplayerlist, &font, &a5font);
-static ListData assignplayerscript_list(assignplayerscriptlist, &font, &a5font);
+static ListData assignplayer_list(assignplayerlist, &font);
+static ListData assignplayerscript_list(assignplayerscriptlist, &font);
 
-static ListData assigndmap_list(assigndmaplist, &font, &a5font);
-static ListData assigndmapscript_list(assigndmapscriptlist, &font, &a5font);
+static ListData assigndmap_list(assigndmaplist, &font);
+static ListData assigndmapscript_list(assigndmapscriptlist, &font);
 
-static ListData assignscreen_list(assignscreenlist, &font, &a5font);
-static ListData assignscreenscript_list(assignscreenscriptlist, &font, &a5font);
+static ListData assignscreen_list(assignscreenlist, &font);
+static ListData assignscreenscript_list(assignscreenscriptlist, &font);
 
-static ListData assignitemsprite_list(assignitemspritelist, &font, &a5font);
-static ListData assignitemspritescript_list(assignitemspritescriptlist, &font, &a5font);
+static ListData assignitemsprite_list(assignitemspritelist, &font);
+static ListData assignitemspritescript_list(assignitemspritescriptlist, &font);
 
-static ListData assigncombo_list(assigncombolist, &font, &a5font);
-static ListData assigncomboscript_list(assigncomboscriptlist, &font, &a5font);
+static ListData assigncombo_list(assigncombolist, &font);
+static ListData assigncomboscript_list(assigncomboscriptlist, &font);
 
-static ListData assigngeneric_list(assigngenericlist, &font, &a5font);
-static ListData assigngenericscript_list(assigngenericscriptlist, &font, &a5font);
+static ListData assigngeneric_list(assigngenericlist, &font);
+static ListData assigngenericscript_list(assigngenericscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -24973,11 +25037,11 @@ void resize_scriptinfo_dlg()
 void showScriptInfo(zasm_meta const* meta)
 {
 	scriptinfo_dlg[3].dp = (void*)meta;
-	scriptinfo_dlg[0].dp2 = lfont;
+	scriptinfo_dlg[0].dp2 = get_zc_font(font_lfont);
 	large_dialog(scriptinfo_dlg);
 	jwin_zmeta_proc(MSG_START,&scriptinfo_dlg[3],0); //Calculate size before calling dialog
 	jwin_center_dialog(scriptinfo_dlg);
-	do_zqdialog(scriptinfo_dlg,2);
+	zc_popup_dialog(scriptinfo_dlg,2);
 }
 
 static int32_t compiler_tab_list_global[] =
@@ -25024,7 +25088,7 @@ const char *zcompiler_haltlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static ListData zcompiler_halt_list(zcompiler_haltlist, &pfont, &a5fonts[font_pfont]);
+static ListData zcompiler_halt_list(zcompiler_haltlist, &a4fonts[font_pfont]);
 
 const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 {
@@ -25052,7 +25116,7 @@ const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData zcompiler_header_guard_list(zcompiler_guardlist, &pfont, &a5fonts[font_pfont]);
+static ListData zcompiler_header_guard_list(zcompiler_guardlist, &a4fonts[font_pfont]);
 
 const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
 {
@@ -25078,7 +25142,7 @@ const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-static ListData zcompiler_depr_list(zcompiler_deprlist, &pfont, &a5fonts[font_pfont]);
+static ListData zcompiler_depr_list(zcompiler_deprlist, &a4fonts[font_pfont]);
 
 char tempincludepath[MAX_INCLUDE_PATH_CHARS];
 char temprunstring[21];
@@ -25169,7 +25233,7 @@ int32_t onZScriptCompilerSettings()
 {
 	large_dialog(zscript_parser_dlg);
 		
-	zscript_parser_dlg[0].dp2=lfont;
+	zscript_parser_dlg[0].dp2=get_zc_font(font_lfont);
 	
 	int32_t old_cfgs[3];
 	zscript_parser_dlg[13].d1 = old_cfgs[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
@@ -25199,7 +25263,7 @@ int32_t onZScriptCompilerSettings()
 	
  
 	
-	int32_t ret = do_zqdialog(zscript_parser_dlg,4);
+	int32_t ret = zc_popup_dialog(zscript_parser_dlg,4);
 	
 	if(ret==4)
 	{
@@ -25249,9 +25313,9 @@ void doEditZScript(int32_t bg,int32_t fg)
     edit_zscript_dlg[2].dp = em;
     edit_zscript_dlg[2].bg = bg;
     
-    do_zqdialog(edit_zscript_dlg,2);
+    zc_popup_dialog(edit_zscript_dlg,2);
     
-    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',lfont)==2)
+    if(jwin_alert("ZScript Buffer","Save changes to buffer?",NULL,NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
         zScript = old;
     else
         saved=false;
@@ -25260,10 +25324,10 @@ void doEditZScript(int32_t bg,int32_t fg)
 }
 
 //{ Start type-specific import dlgs
-static ListData ffscript_sel_dlg_list(ffscriptlist2, &font, &a5font);
-static ListData itemscript_sel_dlg_list(itemscriptlist2, &font, &a5font);
-static ListData comboscript_sel_dlg_list(comboscriptlist2, &font, &a5font);
-static ListData gscript_sel_dlg_list(gscriptlist2, &font, &a5font);
+static ListData ffscript_sel_dlg_list(ffscriptlist2, &font);
+static ListData itemscript_sel_dlg_list(itemscriptlist2, &font);
+static ListData comboscript_sel_dlg_list(comboscriptlist2, &font);
+static ListData gscript_sel_dlg_list(gscriptlist2, &font);
 static char npcscript_str_buf2[32];
 const char *npcscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25287,7 +25351,7 @@ const char *npcscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTGUYS-1);
     return NULL;
 }
-static ListData npcscript_sel_dlg_list(npcscriptlist2, &font, &a5font);
+static ListData npcscript_sel_dlg_list(npcscriptlist2, &font);
 static char lweaponscript_str_buf2[32];
 const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25311,7 +25375,7 @@ const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTWEAPONS-1);
     return NULL;
 }
-static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font, &a5font);
+static ListData lweaponscript_sel_dlg_list(lweaponscriptlist2, &font);
 static char eweaponscript_str_buf2[32];
 const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25335,7 +25399,7 @@ const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTWEAPONS-1);
     return NULL;
 }
-static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font, &a5font);
+static ListData eweaponscript_sel_dlg_list(eweaponscriptlist2, &font);
 static char playerscript_str_buf2[32];
 const char *playerscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25392,7 +25456,7 @@ const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSITEMSPRITE-1);
     return NULL;
 }
-static ListData playerscript_sel_dlg_list(playerscriptlist2, &font, &a5font);
+static ListData playerscript_sel_dlg_list(playerscriptlist2, &font);
 static char dmapscript_str_buf2[32];
 const char *dmapscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25416,8 +25480,8 @@ const char *dmapscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSDMAP-1);
     return NULL;
 }
-static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font, &a5font);
-static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font, &a5font);
+static ListData dmapscript_sel_dlg_list(dmapscriptlist2, &font);
+static ListData itemspritescript_sel_dlg_list(itemspritescriptlist2, &font);
 static char screenscript_str_buf2[32];
 const char *screenscriptlist2(int32_t index, int32_t *list_size)
 {
@@ -25441,7 +25505,7 @@ const char *screenscriptlist2(int32_t index, int32_t *list_size)
     *list_size=(NUMSCRIPTSCREEN-1);
     return NULL;
 }
-static ListData screenscript_sel_dlg_list(screenscriptlist2, &font, &a5font);
+static ListData screenscript_sel_dlg_list(screenscriptlist2, &font);
 //} End type-specific import dlgs
 
 void clear_map_states()
@@ -25505,7 +25569,7 @@ void clear_map_states()
 
 void clearAssignSlotDlg()
 {
-	assignscript_dlg[0].dp2 = lfont;
+	assignscript_dlg[0].dp2 = get_zc_font(font_lfont);
 	assignscript_dlg[4].d1 = -1;
 	assignscript_dlg[5].d1 = -1;
 	assignscript_dlg[7].d1 = -1;
@@ -26592,7 +26656,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26620,7 +26684,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26648,7 +26712,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26675,7 +26739,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26702,7 +26766,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26729,7 +26793,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26756,7 +26820,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26783,7 +26847,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26810,7 +26874,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26837,7 +26901,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26865,7 +26929,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26892,7 +26956,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 						
 						if(!tempfile)
 						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 							//return false;
 							goto exit_do_slots;
 						}
@@ -26978,7 +27042,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 					
 				if(lind == 0)
 				{
-					jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("Error","ZScript reserves this slot.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					break;
 				}
 				
@@ -27501,7 +27565,7 @@ const char *slottype_list(int32_t index, int32_t *list_size)
 	*list_size = 11;
 	return NULL;
 }
-static ListData slottype_sel_list(slottype_list, &font, &a5font);
+static ListData slottype_sel_list(slottype_list, &font);
 
 static DIALOG clearslots_dlg[] =
 {
@@ -27521,7 +27585,7 @@ static DIALOG clearslots_dlg[] =
 void doClearSlots(byte* flags)
 {
 	//{ Setup
-	clearslots_dlg[0].dp2=lfont;
+	clearslots_dlg[0].dp2=get_zc_font(font_lfont);
 	clearslots_dlg[3].d1 = get_selected_tab((TABPANEL*)assignscript_dlg[1].dp); //Default to current tab's type
 	clearslots_dlg[4].flags |= D_SELECTED;
 	clearslots_dlg[5].flags &= ~D_SELECTED;
@@ -27544,7 +27608,7 @@ void doClearSlots(byte* flags)
 	
 	large_dialog(clearslots_dlg);
 	
-	if(do_zqdialog(clearslots_dlg,2)==1)
+	if(zc_popup_dialog(clearslots_dlg,2)==1)
 	{
 		int32_t q = 3;
 		while((clearslots_dlg[++q].flags & D_SELECTED) == 0);
@@ -27625,7 +27689,7 @@ static EXT_LIST zasm_extlist[] =
 
 int32_t onExportZASM()
 {
-	exportzasm_dlg[0].dp2 = lfont;
+	exportzasm_dlg[0].dp2 = get_zc_font(font_lfont);
 	exportzasm_dlg[3].d1 = type_ffc;
 	exportzasm_dlg[4].dp = (void*)&ffscript_list;
 	exportzasm_dlg[4].d1 = 0;
@@ -27648,7 +27712,7 @@ int32_t onExportZASM()
 	while(!scriptChoice)
 	{
 		large_dialog(exportzasm_dlg);
-		indx = do_zqdialog(exportzasm_dlg, indx);
+		indx = zc_popup_dialog(exportzasm_dlg, indx);
 		switch(indx)
 		{
 			case 1: //confirm; exit dlg
@@ -27739,7 +27803,7 @@ int32_t onExportZASM()
 				
 				if(exists(temppath))
 				{
-					if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',lfont)==2)
+					if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
 					{
 						scriptChoice = NULL;
 						break;
@@ -27749,7 +27813,7 @@ int32_t onExportZASM()
 				FILE* zasm_output = fopen(temppath, "w");
 				if(zasm_output == NULL)
 				{
-					jwin_alert("Error","Cannot create specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+					jwin_alert("Error","Cannot create specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 					scriptChoice = NULL;
 					break;
 				}
@@ -27809,7 +27873,7 @@ int32_t onExportZASM()
 
 int32_t onImportZASM()
 {
-	importzasm_dlg[0].dp2 = lfont;
+	importzasm_dlg[0].dp2 = get_zc_font(font_lfont);
 	importzasm_dlg[4].dp = (void*)&ffscript_list;
 	if(!getname("Import Script (.zasm)","zasm",zasm_extlist,datapath,false))
 	{
@@ -27818,14 +27882,14 @@ int32_t onImportZASM()
 	FILE* zasm_import_file = fopen(temppath, "r");
 	if(zasm_import_file == NULL)
 	{
-		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		return D_O_K;
 	}
 	script_data *temp_slot = new script_data();
 	if(parse_script_file(&temp_slot, zasm_import_file, false) == D_CLOSE)
 	{
 		fclose(zasm_import_file);
-		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error","Failed to parse specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		delete temp_slot;
 		return D_O_K;
 	}
@@ -27887,7 +27951,7 @@ int32_t onImportZASM()
 	while(!confirmed)
 	{
 		large_dialog(importzasm_dlg);
-		indx = do_zqdialog(importzasm_dlg, indx);
+		indx = zc_popup_dialog(importzasm_dlg, indx);
 		switch(indx)
 		{
 			case 1: //confirm; exit dlg
@@ -28028,7 +28092,7 @@ int32_t load_zmod_module_file()
             
             if(tempmodule == NULL)
             {
-                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
                 return -1;
             }
 	    
@@ -28060,13 +28124,13 @@ static DIALOG sfxlist_dlg[] =
 int32_t select_sfx(const char *prompt,int32_t index)
 {
     sfxlist_dlg[0].dp=(void *)prompt;
-    sfxlist_dlg[0].dp2=lfont;
+    sfxlist_dlg[0].dp2=get_zc_font(font_lfont);
     sfxlist_dlg[2].d1=index;
     sfxlist_dlg[2].dp=(void *) & sfx_list;
     
     large_dialog(sfxlist_dlg);
         
-    int32_t ret=do_zqdialog(sfxlist_dlg,2);
+    int32_t ret=zc_popup_dialog(sfxlist_dlg,2);
     
     if(ret==0||ret==4)
     {
@@ -28311,7 +28375,7 @@ bool confirmBox(const char *m1, const char *m2, const char *m3)
 		if(!m2) m2 = "Are you sure?";
 		else m3 = "Are you sure?";
 	}
-	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', lfont) == 1;
+	return jwin_alert("Confirmation", m1, m2, m3, "Yes", "No", 'y', 'n', get_zc_font(font_lfont)) == 1;
 }
 
 int32_t onSelectSFX()
@@ -28392,7 +28456,7 @@ int32_t onEditSFX(int32_t index)
 	zc_stop_midi();
 	zc_set_volume(255,-1);
 	int32_t ret;
-	sfx_edit_dlg[0].dp2=lfont;
+	sfx_edit_dlg[0].dp2=get_zc_font(font_lfont);
 	uint8_t tempflag;
 	tempflag = get_bit(customsfxflag,index-1);
 	change_sfx(&templist[index], &customsfxdata[index]);
@@ -28409,7 +28473,7 @@ int32_t onEditSFX(int32_t index)
 		
 	do
 	{
-		ret=do_zqdialog(sfx_edit_dlg,1);
+		ret=zc_popup_dialog(sfx_edit_dlg,1);
 		
 		switch(ret)
 		{
@@ -28443,7 +28507,7 @@ int32_t onEditSFX(int32_t index)
 					
 					if((temp_sample = load_wav(temppath))==NULL)
 					{
-						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,lfont);
+						jwin_alert("Error","Could not open file",temppath,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 					}
 					else
 					{
@@ -28526,17 +28590,17 @@ int32_t onEditSFX(int32_t index)
 					{
 						if(!saveWAV(index, temppath))
 						{
-							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+							jwin_alert("Error!", "Could not write file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 						}
 						else 
 						{
-							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, lfont);
+							jwin_alert("Success!", "Saved WAV file", temppath, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 						}
 					}
 				}
 				else 
 				{
-					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, lfont);
+					jwin_alert("Error!", "Cannot save an enpty slot!", NULL, NULL, "OK", NULL, 13, 27, get_zc_font(font_lfont));
 				}		
 				break;
 			}
@@ -28605,7 +28669,7 @@ int32_t onMapStyles()
         mapstyles_dlg[19].h=mapstyles_dlg[13].h-4;
     }
     
-    mapstyles_dlg[0].dp2 = lfont;
+    mapstyles_dlg[0].dp2 = get_zc_font(font_lfont);
     //al_trace("onMapStyles() read blueframe_tile as: %d\n", misc.colors.blueframe_tile);
     mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
     mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
@@ -28628,7 +28692,7 @@ int32_t onMapStyles()
     large_dialog(mapstyles_dlg,2);
         
     go();
-    int32_t ret = do_zqdialog(mapstyles_dlg,-1);
+    int32_t ret = zc_do_dialog(mapstyles_dlg,-1);
     comeback();
     
     if(ret==23)
@@ -28882,7 +28946,7 @@ int32_t onMiscColors()
 {
     char buf[17][3];
     byte *si = &(misc.colors.text);
-    misccolors_dlg[0].dp2=lfont;
+    misccolors_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<16; i++)
     {
@@ -28894,7 +28958,7 @@ int32_t onMiscColors()
     
     large_dialog(misccolors_dlg);
         
-    if(do_zqdialog(misccolors_dlg,0)==52)
+    if(zc_popup_dialog(misccolors_dlg,0)==52)
     {
         saved=false;
         si = &(misc.colors.text);
@@ -28961,7 +29025,7 @@ void cycle_palette()
     if(refreshpal)
     {
         rebuild_trans_table();
-        zc_set_palette_range(RAMpal,0,192);
+        zc_set_palette_range(RAMpal,0,192,false);
     }
 }
 
@@ -28988,7 +29052,7 @@ void doHelp(int32_t bg,int32_t fg)
     help_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     help_dlg[2].bg = bg;
-    do_zqdialog(help_dlg,2);
+    zc_popup_dialog(help_dlg,2);
     delete(EditboxModel*)(help_dlg[2].dp);
 }
 
@@ -28996,64 +29060,6 @@ int32_t onHelp()
 {
     restore_mouse();
     doHelp(vc(15),vc(0));
-    return D_O_K;
-}
-
-static DIALOG shieldblockhelp_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "Shield Block Flags Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doshieldblockhelp(int32_t bg,int32_t fg)
-{
-    shieldblockhelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    shieldblockhelp_dlg[2].dp = new EditboxModel(shieldblockhelpstr, new EditboxWordWrapView(&shieldblockhelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    shieldblockhelp_dlg[2].bg = bg;
-    do_zqdialog(shieldblockhelp_dlg,2);
-    delete(EditboxModel*)(shieldblockhelp_dlg[2].dp);
-}
-
-int32_t onshieldblockhelp()
-{
-    restore_mouse();
-    doshieldblockhelp(vc(15),vc(0));
-    return D_O_K;
-}
-
-static DIALOG zscripthelp_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */
-//  { jwin_textbox_proc,    4,   2+21,   320-8,  240-6-21,  0,       0,      0,       0,          0,        0,        NULL, NULL, NULL },
-    { jwin_win_proc,        0,   0,   320,  240,  0,       vc(15), 0,      D_EXIT,       0,          0, (void *) "ZScript Help", NULL, NULL },
-    { jwin_frame_proc,   4,   23,   320-8,  240-27,   0,       0,      0,       0,             FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_editbox_proc,    6,   25,   320-8-4,  240-27-4,  0,       0,      0,       0/*D_SELECTED*/,          0,        0,       NULL, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_ESC, (void *) close_dlg, NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,       0,      0,       0,          0,        KEY_F12, (void *) onSnapshot, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void dozscripthelp(int32_t bg,int32_t fg)
-{
-    zscripthelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
-    zscripthelp_dlg[2].dp = new EditboxModel(zscripthelpstr, new EditboxWordWrapView(&zscripthelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
-    zscripthelp_dlg[2].bg = bg;
-    do_zqdialog(zscripthelp_dlg,2);
-    delete(EditboxModel*)(zscripthelp_dlg[2].dp);
-}
-
-int32_t onZScripthelp()
-{
-    restore_mouse();
-    dozscripthelp(vc(15),vc(0));
     return D_O_K;
 }
 
@@ -29075,7 +29081,7 @@ void doZstringshelp(int32_t bg,int32_t fg)
     Zstringshelp_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     Zstringshelp_dlg[2].dp = new EditboxModel(zstringshelpstr, new EditboxWordWrapView(&Zstringshelp_dlg[2],get_custom_font(CFONT_TEXTBOX),fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     Zstringshelp_dlg[2].bg = bg;
-    do_zqdialog(Zstringshelp_dlg,2);
+    zc_popup_dialog(Zstringshelp_dlg,2);
     delete(EditboxModel*)(Zstringshelp_dlg[2].dp);
 }
 
@@ -29144,7 +29150,7 @@ static DIALOG layerdata_dlg[] =
 int32_t edit_layers(mapscr* tempscr)
 {
     char buf[6][2][8];
-    layerdata_dlg[0].dp2 = lfont;
+    layerdata_dlg[0].dp2 = get_zc_font(font_lfont);
     
     for(int32_t x=0; x<6; x++)
     {
@@ -29167,7 +29173,7 @@ int32_t edit_layers(mapscr* tempscr)
     
     large_dialog(layerdata_dlg);
         
-    int32_t ret=do_zqdialog(layerdata_dlg,0);
+    int32_t ret=zc_popup_dialog(layerdata_dlg,0);
     
     if(ret>=2)
     {
@@ -29218,7 +29224,7 @@ static DIALOG autolayer_dlg[] =
 void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
 {
     char tbuf[80],mlayer[80];
-    autolayer_dlg[0].dp2=lfont;
+    autolayer_dlg[0].dp2=get_zc_font(font_lfont);
     sprintf(tbuf, "Map for layer %d: ", layer+1);
     autolayer_dlg[1].dp=tbuf;
     sprintf(mlayer, "%d", tempscr->layermap[layer]);
@@ -29226,7 +29232,7 @@ void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
     
     large_dialog(autolayer_dlg);
         
-    int32_t ret=do_zqdialog(autolayer_dlg,0);
+    int32_t ret=zc_popup_dialog(autolayer_dlg,0);
     
     if(ret==4)
     {
@@ -29654,33 +29660,46 @@ extern bool dirty_screen;
   192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
   };
   */
+
+void anim_hw_screen(bool force)
+{
+	if(force || myvsync)
+	{
+		++framecnt;
+		++cpoolbrush_index;
+		
+		if(prv_mode)
+		{
+			if(Map.get_prvtime())
+			{
+				Map.set_prvtime(Map.get_prvtime()-1);
+				
+				if(!Map.get_prvtime())
+				{
+					prv_warp=1;
+				}
+			}
+		}
+		if(AnimationOn)
+		{
+			animate_combos();
+			update_freeform_combos();
+		}
+		
+		if(CycleOn)
+			cycle_palette();
+	
+		animate_coords();
+		update_hw_screen(true);
+	}
+}
 void custom_vsync()
 {
-    ++framecnt;
-    
-    if(prv_mode)
-    {
-        if(Map.get_prvtime())
-        {
-            Map.set_prvtime(Map.get_prvtime()-1);
-            
-            if(!Map.get_prvtime())
-            {
-                prv_warp=1;
-            }
-        }
-    }
-    
     while(!myvsync) rest(1);
     
-	update_hw_screen();
+	anim_hw_screen(true);
     
     myvsync=0;
-    
-    if(Vsync)
-    {
-        //vsync();
-    }
 }
 
 void switch_out()
@@ -30023,7 +30042,7 @@ int32_t main(int32_t argc,char **argv)
 #endif
 
 #ifndef __EMSCRIPTEN__
-	if(zc_get_config("zquest","open_debug_console",0) || DEVLEVEL)
+	if(zc_get_config("zquest","open_debug_console",0))
 		initConsole();
 #endif
 
@@ -30308,150 +30327,6 @@ int32_t main(int32_t argc,char **argv)
 	helpstr = helpbuf;
 	Z_message("Found zquest.txt\n");									  // loading data files...
 	
-	int32_t shieldblockhelpsize = file_size_ex_password("docs/shield_block_flags.txt","");
-	
-	if(shieldblockhelpsize==0)
-	{
-	shieldblockhelpsize = file_size_ex_password("shield_block_flags.txt","");
-	if(shieldblockhelpsize==0)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"shield_block_flags.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error: shield_block_flags.txt not found.");
-		quit_game();
-	}
-	}
-	
-	shieldblockhelpbuf = (char*)malloc(shieldblockhelpsize<65536?65536:shieldblockhelpsize*2+1);
-	
-	if(!shieldblockhelpbuf)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed allocating shieldblockhelp buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("Error allocating shieldblockhelp buffer.");
-		quit_game();
-	}
-	
-	FILE *shieldhb = fopen("docs/shield_block_flags.txt", "r");
-	
-	if(!shieldhb)
-	{
-	shieldhb = fopen("shield_block_flags.txt", "r");
-	if(!shieldhb)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed loading shield_block_flags.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error loading shield_block_flags.txt.");
-		quit_game();
-	}
-	}
-	
-	char shieldc = fgetc(shieldhb);
-	int32_t shieldhelpindex=0;
-	
-	while(!feof(shieldhb))
-	{
-		shieldblockhelpbuf[shieldhelpindex] = shieldc;
-		shieldhelpindex++;
-		shieldc = fgetc(shieldhb);
-	}
-	
-	fclose(shieldhb);
-	
-	shieldblockhelpbuf[shieldblockhelpsize]=0;
-	shieldblockhelpstr = shieldblockhelpbuf;
-	Z_message("Found shield_block_flags.txt\n");	
-	
-	int32_t zscripthelpsz = file_size_ex_password("docs/zscript.txt","");
-	
-	if(zscripthelpsz==0)
-	{
-	zscripthelpsz = file_size_ex_password("zscript.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
-	if(zscripthelpsz==0)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"zscript.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error: zscript.txt not found.");
-		quit_game();
-	}
-	}
-	
-	zscripthelpbuf = (char*)malloc(zscripthelpsz<65536?65536:zscripthelpsz*2+1);
-	
-	if(!zscripthelpbuf)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed allocating ZScript Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("Error allocating ZScript Help buffer.");
-		quit_game();
-	}
-	
-	FILE *zscripthelphb = fopen("docs/zscript.txt", "r");
-	
-	if(!zscripthelphb)
-	{
-	zscripthelphb = fopen("zscript.txt", "r");
-	if(!zscripthelphb)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed loading zscript.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error loading zscript.txt.");
-		quit_game();
-	}
-	}
-	
-	char zscripthelpc = fgetc(zscripthelphb);
-	int32_t zscripthelpindex=0;
-	
-	while(!feof(zscripthelphb))
-	{
-		zscripthelpbuf[zscripthelpindex] = zscripthelpc;
-		zscripthelpindex++;
-		zscripthelpc = fgetc(zscripthelphb);
-	}
-	
-	fclose(zscripthelphb);
-	
-	zscripthelpbuf[zscripthelpsz]=0;
-	zscripthelpstr = zscripthelpbuf;
-	Z_message("Found zscript.txt\n");	
-	
 	int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
 	
 	if(zstringshelpsz==0)
@@ -30542,7 +30417,6 @@ int32_t main(int32_t argc,char **argv)
 	chop_path(imagepath);
 	chop_path(tmusicpath);
 	
-	devcfg = devcfg_active = zc_get_config("zquest","devmode",0)==42;
 	DisableLPalShortcuts        = zc_get_config("zquest","dis_lpal_shortcut",1);
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
@@ -30552,6 +30426,7 @@ int32_t main(int32_t argc,char **argv)
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
+	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
@@ -30562,6 +30437,9 @@ int32_t main(int32_t argc,char **argv)
 	SaveWinPos						= zc_get_config("zquest","save_window_position",0)!=0;
 	ComboBrush					 = zc_get_config("zquest","combo_brush",0);
 	FloatBrush					 = zc_get_config("zquest","float_brush",0);
+	AutoBrush = zc_get_config("zquest","autobrush",1);
+	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
+	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
@@ -30601,10 +30479,14 @@ int32_t main(int32_t argc,char **argv)
 	large_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_large",0);
 	compact_merged_combopane = zc_get_config("ZQ_GUI","merge_cpane_compact",1);
 	
+	compact_square_panels = zc_get_config("ZQ_GUI","square_panels_compact",0);
+	
 	large_zoomed_fav = zc_get_config("ZQ_GUI","zoom_fav_large",0);
 	compact_zoomed_fav = zc_get_config("ZQ_GUI","zoom_fav_compact",1);
 	large_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_large",1);
 	compact_zoomed_cmd = zc_get_config("ZQ_GUI","zoom_cmd_compact",1);
+	
+	load_hotkeys();
 	
 #ifdef _WIN32
 	zqUseWin32Proc				 = zc_get_config("zquest","zq_win_proc_fix",0);
@@ -31005,8 +30887,7 @@ int32_t main(int32_t argc,char **argv)
 	}
 	load_mice();
 	gui_mouse_focus=0;
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
-	show_mouse(screen);
+	MouseSprite::set(ZQM_NORMAL);
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
@@ -31062,7 +30943,7 @@ int32_t main(int32_t argc,char **argv)
 		
 		if(strncmp(ctime(&rawtime)+4,"Jan  1",6)==0)
 		{
-			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, lfont);
+			jwin_alert("Hooray!", "Happy New Year!", NULL, NULL, "OK", NULL, 0, 0, get_zc_font(font_lfont));
 		}
 	}
 	
@@ -31075,17 +30956,20 @@ int32_t main(int32_t argc,char **argv)
 	//clearConsole();
 	if((last_timed_save[0]!=0)&&(exists(last_timed_save)))
 	{
-		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',lfont)==1)
+		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 		{
 			int32_t ret = load_quest(last_timed_save,true,true);
-			box_end(false);
+			
 			if(ret == qe_OK)
 			{
 				replace_extension(filepath,last_timed_save,"qst",2047);
 				load_last_timed_save=true;
 				saved=false;
 			}
-			else InfoDialog("Error","Unable to reload the last timed save.").show();
+			else
+			{
+				jwin_alert("Error","Unable to reload the last timed save.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+			}
 		}
 	}
 	
@@ -31097,7 +30981,7 @@ int32_t main(int32_t argc,char **argv)
 		{
 			replace_extension(temppath,argv[1],"qst",2047);
 			int32_t ret = load_quest(temppath,true,true);
-			box_end(false);
+			
 			if(ret == qe_OK)
 			{
 				first_save=true;
@@ -31108,7 +30992,7 @@ int32_t main(int32_t argc,char **argv)
 		else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
 		{
 			int32_t ret = load_quest(filepath,true,true);
-			box_end(false);
+			
 			if(ret == qe_OK)
 			{
 				first_save=true;
@@ -31210,6 +31094,12 @@ int32_t main(int32_t argc,char **argv)
 	ZQincludePaths = FFCore.includePaths;
 	
 	Map.setCopyFFC(-1); //Do not have an initial ffc on the clipboard. 
+	SETFLAG(brush_menu[0].flags, D_SELECTED, AutoBrush);
+	SETFLAG(brush_menu[1].flags, D_DISABLED, AutoBrush);
+	SETFLAG(brush_menu[2].flags, D_DISABLED, AutoBrush);
+	SETFLAG(brush_menu[3].flags, D_SELECTED, ComboBrush);
+	SETFLAG(brush_menu[4].flags, D_SELECTED, FloatBrush);
+	SETFLAG(combosel_rc_menu[6].flags, D_SELECTED, LinkedScroll);
 	
 	init_ffpos();
 	
@@ -31241,8 +31131,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		
 		/* Notice: Adjust and Update these values if you hae modified any of the following, where
-			your modifications hae inserted or removed ANY entries. 
-			dialogs[]
+			your modifications hae inserted or removed ANY entries.
 			paste_item_menu[]
 			commands[]
 			file_menu[]
@@ -31254,7 +31143,6 @@ int32_t main(int32_t argc,char **argv)
 		
 		file_menu[fileSave].flags =
 			file_menu[fileRevert].flags =
-				dialogs[19].flags =
 					commands[cmdSave].flags =
 						commands[cmdRevert].flags = (saved | disable_saving|OverwriteProtection) ? D_DISABLED : 0;
 						
@@ -31336,19 +31224,12 @@ int32_t main(int32_t argc,char **argv)
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;
 		
 		etc_menu[2].flags=(isFullScreen()==1)?D_DISABLED:0;
-		etc_menu[4].flags=(isFullScreen()==1)?D_SELECTED:0;
+		etc_menu[5].flags=(isFullScreen()==1)?D_SELECTED:0;
+		
 		quit = !update_dialog(player2);
 		
 		//clear_keybuf();
-		if(close_button_quit)
-		{
-			close_button_quit=false;
-			
-			if(onExit()==D_CLOSE)
-			{
-				quit=true;
-			}
-		}
+		zq_check_close_button();
 	}
 	parser_console.kill();
 	killConsole();
@@ -31370,7 +31251,6 @@ void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 	*bmp = create_bitmap_ex(8,w,h);
 	clear_bitmap(*bmp);
 }
-void clear_highlight(size_and_pos& p);
 void load_size_poses()
 {
 	tooltip_box.set(-1,-1,0,0);
@@ -31380,7 +31260,7 @@ void load_size_poses()
 	tooltip_highlight2.clear();
 	
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
-	ALLEGRO_FONT* guifont = get_custom_font_a5(CFONT_GUI);
+	FONT* guifont = get_custom_font(CFONT_GUI);
 	
 	dialogs[0].dp2 = guifont;
 	jwin_menu_proc(MSG_START, &dialogs[0], 0);
@@ -31391,13 +31271,11 @@ void load_size_poses()
 	auto drawmode_wid = 64;
 	for(auto q = 0; q < dm_max; ++q)
 	{
-		auto wid = al_get_text_width(guifont, dm_names[q]);
+		auto wid = text_length(guifont, dm_names[q]);
 		if(wid > drawmode_wid)
 			drawmode_wid = wid;
 	}
 	
-	//Local temps
-	int mapscreen_x = 0, mapscreen_y = 0;
 	//Main GUI objects
 	if(is_compact)
 	{
@@ -31410,7 +31288,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=al_get_font_line_height(guifont)+11;
+		mapscreen_y=text_height(guifont)+11;
 		mapscreensize=3;
 		showedges=0;
 		showallpanels=0;
@@ -31481,7 +31359,7 @@ void load_size_poses()
 		drawmode_btn.w = drawmode_wid;
 		drawmode_btn.h = mapscreen_y;
 		
-		compactbtn.w = al_get_text_width(guifont,"> Compact")+10;
+		compactbtn.w = text_length(guifont,"> Compact")+10;
 		compactbtn.x = drawmode_btn.x-compactbtn.w;
 		compactbtn.y = drawmode_btn.y;
 		compactbtn.h = drawmode_btn.h;
@@ -31491,7 +31369,7 @@ void load_size_poses()
 			map_page_bar[i].w = 48;
 			map_page_bar[i].x = mapscreen_x+(i*48);
 			map_page_bar[i].y = mapscreen_y+(11*16*mapscreensize);
-			map_page_bar[i].h = al_get_font_line_height(guifont)+11;
+			map_page_bar[i].h = text_height(guifont)+12;
 		}
 		
 		minimap.w=7+48*3;
@@ -31521,7 +31399,7 @@ void load_size_poses()
 		int upscale_mm = 3;
 		int xwid = real_minimap.tw()*(upscale_mm-1);
 		int xhei = real_minimap.th()*(upscale_mm-1);
-		minimap_zoomed.set(0, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
+		minimap_zoomed.set(minimap.x, minimap.y-xhei, minimap.w+xwid, minimap.h+xhei+4);
 		real_minimap_zoomed.set(minimap_zoomed.x+3, minimap_zoomed.y+5, real_minimap.w, real_minimap.h, real_minimap.xscale*upscale_mm, real_minimap.yscale*upscale_mm);
 		real_minimap_zoomed.fw = real_minimap_zoomed.xscale*8;
 		real_minimap_zoomed.fh = real_minimap_zoomed.yscale*8;
@@ -31582,31 +31460,95 @@ void load_size_poses()
 		preview_text.w = 2;
 		preview_text.h = 6;
 		preview_text.xscale = 10;
-		preview_text.yscale = text_height(lfont_l);
+		preview_text.yscale = text_height(get_zc_font(font_lfont_l));
 		
-		txtoffs_single.x = 10;
-		txtoffs_single.y = 22;
-		txtoffs_double_1.x = 10;
-		txtoffs_double_1.y = 22;
-		txtoffs_double_2.x = 10;
-		txtoffs_double_2.y = 30;
 		panel_align = 1;
+		int swapbtnw = 32, swapbtnh = 20;
+		int swapbtnx = main_panel.x+main_panel.tw()-swapbtnw;
+		squarepanel_swap_btn.set(swapbtnx, zq_screen_h-swapbtnh, swapbtnw, swapbtnh);
 		
-		int sqr_x1 = main_panel.x+minimap.w+24;
-		int sqr_y1 = main_panel.y+12;
-		int sqr_y2 = sqr_y1+42;
-		int sqr_xdist = 32;
-		itemsqr_pos.set(sqr_x1+(sqr_xdist*0),sqr_y1,20,20);
-		stairsqr_pos.set(sqr_x1+(sqr_xdist*1),sqr_y1,20,20);
-		warparrival_pos.set(sqr_x1+(sqr_xdist*2),sqr_y1,20,20);
-		flagsqr_pos.set(sqr_x1+(sqr_xdist*3),sqr_y1,20,20);
-		for(auto q = 0; q < 4; ++q)
+		int sqx = minimap.x+minimap.tw();
+		squares_panel.set(sqx,main_panel.y,main_panel.tw()-sqx,main_panel.th());
+		if(compact_square_panels)
 		{
-			warpret_pos[q].set(sqr_x1+(sqr_xdist*q),sqr_y2,20,20);
+			int cmpy = main_panel.y+(main_panel.th()/2);
+			squarepanel_up_btn.set(swapbtnx, cmpy-swapbtnh, swapbtnw, swapbtnh);
+			squarepanel_down_btn.set(swapbtnx, cmpy, swapbtnw, swapbtnh);
+			
+			txtoffs_single.x = 18;
+			txtoffs_single.y = 36;
+			txtoffs_double_1.x = 18;
+			txtoffs_double_1.y = 36;
+			txtoffs_double_2.x = 18;
+			txtoffs_double_2.y = 36 + text_height(get_custom_font(CFONT_GUI));
+			
+			//Clear them all- if they stay cleared, they are invisible.
+			itemsqr_pos.clear();
+			stairsqr_pos.clear();
+			warparrival_pos.clear();
+			flagsqr_pos.clear();
+			enemy_prev_pos.clear();
+			for(int q = 0; q < 4; ++q)
+				warpret_pos[q].clear();
+			
+			int sqr_x1 = sqx+12;
+			int sqr_y1 = main_panel.y+12;
+			int sqr_xoffs = (16*2)+4 + 12;
+			switch(compact_active_panel)
+			{
+				case 0: //Warp Squares
+				{
+					int x = sqr_x1;
+					for(int q = 0; q < 4; ++q)
+					{
+						warpret_pos[q].set(x,sqr_y1,(16*2)+4,(16*2)+4);
+						x += sqr_xoffs; 
+					}
+					break;
+				}
+				case 1: //Other Squares
+				{
+					itemsqr_pos.set(sqr_x1+(sqr_xoffs*0), sqr_y1, (16*2)+4,(16*2)+4);
+					stairsqr_pos.set(sqr_x1+(sqr_xoffs*1), sqr_y1, (16*2)+4,(16*2)+4);
+					warparrival_pos.set(sqr_x1+(sqr_xoffs*2), sqr_y1, (16*2)+4,(16*2)+4);
+					flagsqr_pos.set(sqr_x1+(sqr_xoffs*3), sqr_y1, (16*2)+4,(16*2)+4);
+					break;
+				}
+				case 2: //Enemy Preview
+				{
+					enemy_prev_pos.set(sqr_x1, sqr_y1, 5, 2, 32, 32);
+					break;
+				}
+			}
 		}
-		enemy_prev_pos.set(sqr_x1+(sqr_xdist*4), sqr_y1, 4, 3, 16, 16);
-		enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
-		enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
+		else
+		{
+			squarepanel_up_btn.clear();
+			squarepanel_down_btn.clear();
+			txtoffs_single.x = 10;
+			txtoffs_single.y = 22;
+			txtoffs_double_1.x = 10;
+			txtoffs_double_1.y = 22;
+			txtoffs_double_2.x = 10;
+			txtoffs_double_2.y = 30;
+			
+			
+			int sqr_x1 = sqx+24;
+			int sqr_y1 = main_panel.y+12;
+			int sqr_y2 = sqr_y1+42;
+			int sqr_xdist = 32;
+			itemsqr_pos.set(sqr_x1+(sqr_xdist*0),sqr_y1,20,20);
+			stairsqr_pos.set(sqr_x1+(sqr_xdist*1),sqr_y1,20,20);
+			warparrival_pos.set(sqr_x1+(sqr_xdist*2),sqr_y1,20,20);
+			flagsqr_pos.set(sqr_x1+(sqr_xdist*3),sqr_y1,20,20);
+			for(auto q = 0; q < 4; ++q)
+			{
+				warpret_pos[q].set(sqr_x1+(sqr_xdist*q),sqr_y2,20,20);
+			}
+			enemy_prev_pos.set(sqr_x1+(sqr_xdist*4), sqr_y1, 4, 3, 16, 16);
+			enemy_prev_pos.fw = enemy_prev_pos.xscale*2;
+			enemy_prev_pos.fh = enemy_prev_pos.yscale*2;
+		}
 		
 		auto& last_alias_list = comboaliaslist[num_combo_cols-1];
 		combopool_preview.x=comboaliaslist[0].x;
@@ -31616,7 +31558,7 @@ void load_size_poses()
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
 		
-		FONT* tfont = lfont_l;
+		FONT* tfont = get_zc_font(font_lfont_l);
 		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
 		combopool_prevbtn.h = 11;
 		combopool_prevbtn.x = combopool_preview.x;
@@ -31624,7 +31566,7 @@ void load_size_poses()
 		
 		mappage_count = 6;
 		
-		txfont = lfont_l;
+		txfont = get_zc_font(font_lfont_l);
 		combo_preview_text1.set(combo_preview.x-5,combo_preview.y,1,3,1,text_height(txfont));
 		combo_preview_text2.clear();
 		
@@ -31643,7 +31585,7 @@ void load_size_poses()
 		}
 		
 		mapscreen_x=0;
-		mapscreen_y=al_get_font_line_height(guifont)+11;
+		mapscreen_y=text_height(guifont)+11;
 		mapscreensize=2;
 		showedges=1;
 		showallpanels=0;
@@ -31705,13 +31647,16 @@ void load_size_poses()
 		combo_merge_btn.h = 20;
 		combo_merge_btn.x = zq_screen_w-(combolist_window.w+combo_merge_btn.w)/2;
 		combo_merge_btn.y = combolist[0].y-combo_merge_btn.h;
+		squarepanel_swap_btn.clear();
+		squarepanel_up_btn.clear();
+		squarepanel_down_btn.clear();
 		
 		drawmode_btn.x = combolist_window.x-drawmode_wid;
 		drawmode_btn.y = 0;
 		drawmode_btn.w = drawmode_wid;
 		drawmode_btn.h = mapscreen_y;
 		
-		compactbtn.w = al_get_text_width(guifont,"> Compact")+10;
+		compactbtn.w = text_length(guifont,"> Compact")+10;
 		compactbtn.x = drawmode_btn.x-compactbtn.w;
 		compactbtn.y = drawmode_btn.y;
 		compactbtn.h = drawmode_btn.h;
@@ -31721,7 +31666,7 @@ void load_size_poses()
 			map_page_bar[i].x = mapscreen_x+(i*16*2*mapscreensize);
 			map_page_bar[i].y = mapscreen_y+((showedges?13:11)*16*mapscreensize);
 			map_page_bar[i].w = 64;
-			map_page_bar[i].h = al_get_font_line_height(guifont)+11;
+			map_page_bar[i].h = text_height(guifont)+12;
 		}
 		
 		minimap.w=7+48*3;
@@ -31730,7 +31675,7 @@ void load_size_poses()
 		layer_panel.x=map_page_bar[0].x;
 		layer_panel.y=map_page_bar[0].y+map_page_bar[0].h;
 		layer_panel.w=map_page_bar[8].x+map_page_bar[8].w;
-		layer_panel.h=map_page_bar[0].h-4;
+		layer_panel.h=text_height(guifont)+8;
 		layerpanel_buttonwidth = 58;
 		layerpanel_buttonheight = layer_panel.h;
 		layerpanel_checkbox_hei = layerpanel_buttonheight-4;
@@ -31754,7 +31699,7 @@ void load_size_poses()
 		preview_text.w = 1;
 		preview_text.h = 12;
 		preview_text.xscale = 10;
-		preview_text.yscale = text_height(lfont_l);
+		preview_text.yscale = text_height(get_zc_font(font_lfont_l));
 		
 		minimap.x=3;
 		minimap.y=main_panel.y+4;
@@ -31811,7 +31756,7 @@ void load_size_poses()
 		commands_zoombtn.y = by;
 		
 		commands_txt.x = commands_list.x;
-		commands_txt.y = by+(bh-text_height(lfont_l))/2;
+		commands_txt.y = by+(bh-text_height(get_zc_font(font_lfont_l)))/2;
 		
 		favorites_x.x = favorites_window.x + favorites_window.w - favorites_x.w - 2;
 		favorites_x.y = favorites_list.y-15;
@@ -31830,7 +31775,9 @@ void load_size_poses()
 		txtoffs_double_2.y = 10;
 		panel_align = 0;
 		
-		int x2 = minimap.x+minimap.w+4;
+		int sqx = minimap.x+minimap.tw();
+		squares_panel.set(sqx,main_panel.y,main_panel.tw()-sqx,main_panel.th());
+		int x2 = sqx+4;
 		int x1 = x2 - (20+(8*3)+2);
 		int y1 = main_panel.y+10;
 		int sw = 20, sh = 20;
@@ -31863,7 +31810,7 @@ void load_size_poses()
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
 		
-		FONT* tfont = lfont_l;
+		FONT* tfont = get_zc_font(font_lfont_l);
 		combopool_prevbtn.w = text_length(tfont, "Unweighted")+10;
 		combopool_prevbtn.h = 11;
 		combopool_prevbtn.x = combopool_preview.x;
@@ -31871,7 +31818,7 @@ void load_size_poses()
 		
 		mappage_count = 9;
 		
-		txfont = lfont_l;
+		txfont = get_zc_font(font_lfont_l);
 		combo_preview_text1.set(combo_preview.x-9,combo_preview.y,1,3,1,text_height(txfont));
 		combo_preview_text2.set(combo_preview2.x+combo_preview2.w+8,combo_preview2.y,1,3,1,text_height(txfont));
 		
@@ -31912,21 +31859,6 @@ void load_size_poses()
 		mainbar.y = 0;
 		mainbar.w = compactbtn.x-mainbar.x;
 		mainbar.h = drawmode_btn.h;
-		
-		mapscreen_pos.x = mapscreen_x;
-		mapscreen_pos.y = mapscreen_y;
-		mapscreen_pos.w = showedges ? 18 : 16;
-		mapscreen_pos.h = showedges ? 13 : 11;
-		mapscreen_pos.xscale = 16*mapscreensize;
-		mapscreen_pos.yscale = 16*mapscreensize;
-		mapscreen_realpos = mapscreen_pos;
-		if(showedges)
-		{
-			mapscreen_realpos.x += mapscreen_pos.xscale;
-			mapscreen_realpos.y += mapscreen_pos.yscale;
-			mapscreen_realpos.w = 16;
-			mapscreen_realpos.h = 11;
-		}
 	}
 	//Dialog popups
 	{
@@ -31938,26 +31870,12 @@ void load_size_poses()
 		help_dlg[2].w=zq_screen_w-8-4;
 		help_dlg[2].h=zq_screen_h-27-4;
 		
-		zscripthelp_dlg[0].w=zq_screen_w;
-		zscripthelp_dlg[0].h=zq_screen_h;
-		zscripthelp_dlg[1].w=zq_screen_w-8;
-		zscripthelp_dlg[1].h=zq_screen_h-27;
-		zscripthelp_dlg[2].w=zq_screen_w-8-4;
-		zscripthelp_dlg[2].h=zq_screen_h-27-4;
-	
 		Zstringshelp_dlg[0].w=zq_screen_w;
 		Zstringshelp_dlg[0].h=zq_screen_h;
 		Zstringshelp_dlg[1].w=zq_screen_w-8;
 		Zstringshelp_dlg[1].h=zq_screen_h-27;
 		Zstringshelp_dlg[2].w=zq_screen_w-8-4;
 		Zstringshelp_dlg[2].h=zq_screen_h-27-4;
-	
-		shieldblockhelp_dlg[0].w=zq_screen_w;
-		shieldblockhelp_dlg[0].h=zq_screen_h;
-		shieldblockhelp_dlg[1].w=zq_screen_w-8;
-		shieldblockhelp_dlg[1].h=zq_screen_h-27;
-		shieldblockhelp_dlg[2].w=zq_screen_w-8-4;
-		shieldblockhelp_dlg[2].h=zq_screen_h-27-4;
 		
 		edit_zscript_dlg[0].w=zq_screen_w;
 		edit_zscript_dlg[0].h=zq_screen_h;
@@ -32039,7 +31957,6 @@ void destroy_bitmaps_on_exit()
     destroy_bitmap(tooltipbmp);
     destroy_bitmap(tooltipbmp2);
     al_trace("...");
-    show_mouse(NULL);
     
     for(int32_t i=0; i<MOUSE_BMP_MAX*4; i++)
 	{
@@ -32048,10 +31965,12 @@ void destroy_bitmaps_on_exit()
 	}
         
     for(int32_t i=0; i<ICON_BMP_MAX*4; i++)
-        al_destroy_bitmap(icon_bmp[i/4][i%4]);
+        destroy_bitmap(icon_bmp[i/4][i%4]);
         
+    for(int32_t i=0; i<16*4; i++)
+		destroy_bitmap(flag_bmp[i/4][i%4]);
     for(int32_t i=0; i<2; i++)
-        al_destroy_bitmap(select_bmp[i]);
+        destroy_bitmap(select_bmp[i]);
         
     for(int32_t i=0; i<MAXARROWS; i++)
         destroy_bitmap(arrow_bmp[i]);
@@ -32446,6 +32365,7 @@ void center_zquest_dialogs()
     jwin_center_dialog(elist_dlg);
     jwin_center_dialog(enemy_dlg);
     jwin_center_dialog(ffcombo_sel_dlg);
+    jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
     jwin_center_dialog(help_dlg);
     jwin_center_dialog(ilist_dlg);
@@ -32508,51 +32428,31 @@ static const char *help_list[] =
     "",
 };
 
-void do_animations()
-{
-    if(AnimationOn||CycleOn)
-    {
-        if(AnimationOn)
-        {
-            animate_combos();
-            update_freeform_combos();
-        }
-        
-        if(CycleOn)
-        {
-            cycle_palette();
-        }
-    }
-    
-    animate_coords();
-    custom_vsync();
-}
-
 void do_previewtext()
 {
-	ALLEGRO_FONT* oldfont = a5font;
-	a5font = get_zc_font_a5(font_lfont_l);
+	FONT* oldfont = font;
+	font = get_zc_font(font_lfont_l);
 	
 	//Put in help areas
 	auto& sqr = preview_text;
 	int ind = 0, len = 0;
 	for(int q = 0; q < 12; ++q)
 	{
-		int l = al_get_text_width(a5font, help_list[q]);
+		int l = text_length(font, help_list[q]);
 		if(len < l) len = l;
 	}
 	sqr.xscale = len+2;
-	sqr.yscale = al_get_font_line_height(a5font);
+	sqr.yscale = text_height(font);
 	for(int col = 0; col < sqr.w; ++col)
 	{
 		for(int row = 0; row < sqr.h; ++row)
 		{
 			auto& line = sqr.subsquare(col,row);
-			jwin_textout_a5(a5font,jwin_a5_pal(jcTEXTFG),line.x,line.y,0,help_list[ind++]);
+			textprintf_ex(menu1,font,line.x,line.y,jwin_pal[jcTEXTFG],-1,"%s",help_list[ind++]);
 		}
 	}
 	
-	a5font = oldfont;
+	font = oldfont;
 }
 
 
@@ -32567,7 +32467,7 @@ void run_zq_frame()
 	}
 	
 	domouse();
-	do_animations();
+	custom_vsync();
 	refresh(rCLEAR|rALL);
 }
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -32597,7 +32497,6 @@ bool prv_press=false;
 
 void dopreview()
 {
-	//set_mouse_sprite(mouse_bmp[MOUSE_BMP_FLAG][0]);
 	refresh(rMAP);
 	
 	while(!(gui_mouse_b()))
@@ -32623,11 +32522,11 @@ void dopreview()
 						break;
 						
 					case KEY_R:
-						onRKey();
+						onReloadPreview();
 						break;
 						
 					case KEY_S:
-						onSKey();
+						onSecretsPreview();
 						break;
 						
 					case KEY_C:
@@ -32730,13 +32629,13 @@ void dopreview()
 		{
 			if(Map.get_prvadvance())
 			{
-				do_animations();
+				custom_vsync();
 				Map.set_prvadvance(0);
 			}
 		}
 		else
 		{
-			do_animations();
+			custom_vsync();
 			Map.set_prvadvance(0);
 		}
 		
@@ -32747,7 +32646,7 @@ finished:
 	//Flags=of;
 	reset_combo_animations();
 	reset_combo_animations2();
-	set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+	MouseSprite::set(ZQM_NORMAL);
 	prv_mode=0;
 	Map.set_prvcmb(0);
 	Map.set_prvadvance(0);
@@ -32877,15 +32776,21 @@ int32_t save_config_file()
     return 0;
 }
 
-int32_t d_timer_proc(int32_t msg, DIALOG*, int32_t)
+int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c)
 {
+    //these are here to bypass compiler warnings about unused arguments
+    c=c;
+    d=d;
+    
     switch(msg)
     {
     case MSG_IDLE:
 #ifdef _WIN32
         if(zqUseWin32Proc != FALSE)
             win32data.Update(Frameskip); //experimental win32 fixes
+            
 #endif
+            
         // This has been crashing on Windows, and it saves plenty without it
         //check_autosave();
         break;
@@ -32903,7 +32808,7 @@ void check_autosave()
         
         if(auto_save_time_diff>AutoSaveInterval*60)
         {
-            set_mouse_sprite(mouse_bmp[MOUSE_BMP_NORMAL][0]);
+            MouseSprite::set(ZQM_NORMAL);
             if(first_save)
                 replace_extension(last_timed_save, filepath, "qt0", 2047);
             else
@@ -32913,7 +32818,7 @@ void check_autosave()
             
             if((header.zelda_version != ZELDA_VERSION || header.build != VERSION_BUILD) && first_save)
             {
-                jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,lfont);
+                jwin_alert("Auto Save","This quest was saved in an older version of ZQuest.","If you wish to use the autosave feature, you must manually","save the files in this version first.","OK",NULL,13,27,get_zc_font(font_lfont));
                 time(&auto_save_time_start);
                 comeback();
                 return;
@@ -32923,10 +32828,9 @@ void check_autosave()
             
             if(ret)
             {
-                InfoDialog("Error","Timed save did not complete successfully.").show();
-				set_last_timed_save(nullptr);
+                jwin_alert("Error","Timed save did not complete successfully.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+                set_last_timed_save(nullptr);
             }
-			box_end(false);
             
             save_config_file();
             time(&auto_save_time_start);
@@ -33230,6 +33134,28 @@ int32_t count_lines(char const* str)
 	return count;
 }
 
+void debug_pos(size_and_pos const& pos, int color)
+{
+	if(pos.w < 1 || pos.h < 1)
+		return;
+	if(pos.xscale > 1 || pos.yscale > 1)
+	{
+		auto maxind = pos.w*pos.h;
+		for(auto q = 0; q < maxind; ++q)
+		{
+			auto& sub = pos.subsquare(q);
+			if(sub.x < 0) break;
+			highlight_sqr(screen, color, sub, 1);
+		}
+	}
+	else
+	{
+		if(pos.fw > -1 && pos.fh > -1)
+			highlight_frag(screen, color, pos, 1);
+		else highlight_sqr(screen, color, pos, 1);
+	}
+}
+
 void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char const* str, int align, size_and_pos* dims)
 {
 	static size_and_pos nilsz;
@@ -33308,46 +33234,75 @@ void textbox_out(BITMAP* dest, FONT* font, int x, int y, int fg, int bg, char co
 	free(kill);
 }
 
+void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thick)
+{
+	for(int q = 0; q < thick; ++q)
+	{
+		safe_rect(dest, x+q, y+q, x+w-1-q, y+h-1-q, color);
+	}
+}
+void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick)
+{
+	highlight_sqr(dest, color, rec.x, rec.y, rec.tw(), rec.th(), thick);
+}
+void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick)
+{
+	int xc = x1+fw-1;
+	int yc = y1+fh-1;
+	int x2 = x1+w-1;
+	int y2 = y1+h-1;
+	
+    _allegro_hline(dest, x1, y1, x2, color);
+    _allegro_vline(dest, x1, y1, y2, color);
+    
+    _allegro_hline(dest, x1, y2, xc, color);
+    _allegro_vline(dest, x2, y1, yc, color);
+    _allegro_hline(dest, xc, yc, x2, color);
+    _allegro_vline(dest, xc, yc, y2, color);
+}
+void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick)
+{
+	highlight_frag(dest, color, rec.x, rec.y, rec.tw(), rec.th(), rec.fw, rec.fh, thick);
+}
 
-static void draw_ttip(BITMAP* dest)
+void highlight(BITMAP* dest, size_and_pos& hl)
 {
-	if(tooltip_timer >= tooltip_maxtimer)
+	if(hl.fw > -1 && hl.fh > -1)
 	{
-		tooltip_highlight.highlight();
-		if(dest && tooltip_box.x>=0&&tooltip_box.y>=0)
-			masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
+		highlight_frag(dest, hl.data[1], hl, hl.data[0]);
 	}
-	tooltip_highlight.clear_bmps();
+	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
 }
-static void draw_ttip2(BITMAP* dest)
+void draw_ttip(BITMAP* dest)
 {
-	tooltip_highlight2.highlight();
-	if(dest && tooltip_box2.x>=0&&tooltip_box2.y>=0)
+	if(tooltip_timer < tooltip_maxtimer)
+		return;
+	if(TooltipsHighlight && tooltip_highlight.x >= 0)
+	{
+		highlight(dest,tooltip_highlight);
+	}
+	if(tooltip_box.x>=0&&tooltip_box.y>=0)
+	{
+		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
+	}
+}
+void draw_ttip2(BITMAP* dest)
+{
+	if(tooltip_highlight2.x >= 0)
+	{
+		highlight(dest,tooltip_highlight2);
+	}
+	if(tooltip_box2.x>=0&&tooltip_box2.y>=0)
+	{
 		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x, tooltip_box2.y, tooltip_box2.w, tooltip_box2.h);
-	tooltip_highlight2.clear_bmps();
+	}
 }
-void draw_ttips(RenderTreeItem* ttdest, RenderTreeItem* hldest)
+void draw_ttips()
 {
-	ALLEGRO_STATE old_state;
-	if(hldest && hldest->bitmap)
-	{
-		al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-		al_set_target_bitmap(hldest->bitmap);
-	}
-	else hldest = nullptr;
-	
-	clear_a5_bmp(AL5_INVIS);
-	BITMAP* td = nullptr;
-	if(ttdest && ttdest->a4_bitmap)
-	{
-		clear_to_color(ttdest->a4_bitmap, ttdest->clear_color());
-		td = ttdest->a4_bitmap;
-	}
-	draw_ttip(td);
-	draw_ttip2(td);
-	
-	if(hldest)
-		al_restore_state(&old_state);
+	BITMAP* ttbmp = get_tooltip_bmp();
+	clear_bitmap(ttbmp);
+	draw_ttip(ttbmp);
+	draw_ttip2(ttbmp);
 }
 
 void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)
@@ -33443,7 +33398,6 @@ void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* t
 }
 void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
 {
-	tooltip_highlight.clear();
 	if(!EnableTooltips)
 	{
 		return;
@@ -33461,12 +33415,14 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		tooltip_box.w=0;
 		tooltip_box.h=0;
 		tooltip_timer=0;
+		tooltip_highlight.clear();
 		return; //cancel
 	}
-	clear_tooltip2();
 	tooltip_highlight.set(tx, ty, tw, th);
 	tooltip_highlight.fw = fw;
 	tooltip_highlight.fh = fh;
+	tooltip_highlight.data[0] = 2;
+	tooltip_highlight.data[1] = 0xED;
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
 	
@@ -33500,19 +33456,20 @@ void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* 
 }
 void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
 {
-	tooltip_highlight2.clear();
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
 		tooltip_box2.x=x;
 		tooltip_box2.y=y;
 		tooltip_box2.w=0;
 		tooltip_box2.h=0;
+		tooltip_highlight2.clear();
 		return; //cancel
 	}
-	clear_tooltip();
 	tooltip_highlight2.set(tx, ty, tw, th);
 	tooltip_highlight2.fw = fw;
 	tooltip_highlight2.fh = fh;
+	tooltip_highlight2.data[0] = 2;
+	tooltip_highlight2.data[1] = 0xED;
 	
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
@@ -33970,7 +33927,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 	}
 	return (game->get_counter(ctr)+game->get_dcounter(ctr)>=amnt);
 }
-bool checkmagiccost(int32_t itemid)
+bool checkmagiccost(int32_t itemid, bool checkTime)
 {
 	if(itemid < 0)
 	{
@@ -33985,7 +33942,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 {
 	return;
 }
-void paymagiccost(int32_t itemid, bool ignoreTimer)
+void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 {
 	return;
 }

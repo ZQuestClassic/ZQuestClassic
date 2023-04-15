@@ -11,6 +11,7 @@ extern bool saved;
 extern miscQdata misc;
 extern zinitdata zinit;
 extern ListData dmap_list;
+extern bool sorted_fontdd;
 
 static std::string retstr;
 static MsgStr const* refstr = nullptr;
@@ -55,6 +56,7 @@ const GUI::ListData SCCListData()
 	GUI::ListData ld;
 	ld.add("Text Color", 1);
 	ld.add("Text Speed", 2);
+	ld.add("Text Font", 135);
 	ld.add("Goto If Screen->D[]", 23);
 	ld.add("Goto If Current Screen->D[]", 3);
 	ld.add("Goto If Random", 4);
@@ -102,6 +104,7 @@ void SCCDialog::default_args()
 	
 	args[MSGC_SHDCOLOR][0] = refstr->shadow_color;
 	args[MSGC_SHDTYPE][0] = refstr->shadow_type;
+	args[MSGC_FONT][0] = refstr->font;
 	
 	warp_xy_toggle = true;
 }
@@ -145,6 +148,8 @@ GUI::ListData createShadowTypesListData();
 SCCDialog::SCCDialog() :
 	list_sccs(SCCListData()),
 	list_shtype(createShadowTypesListData()),
+	list_font(GUI::ZCListData::fonts(false,true,true)),
+	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_items(GUI::ZCListData::items(true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_dmaps(dmap_list),
@@ -157,7 +162,7 @@ SCCDialog::SCCDialog() :
 	default_args();
 	curscc = MSGC_COLOUR;
 	cur_args = nullptr;
-	::ListData msgs_list(msgslist, &font, &a5font);
+	::ListData msgs_list(msgslist, &font);
 	list_strings = GUI::ListData(msgs_list, 0);
 	if(!refstr)
 	{
@@ -225,6 +230,7 @@ std::string scc_help(byte scc)
 		case MSGC_TRIGSECRETS: return "Trigger screen secrets, either temp or perm";
 		case MSGC_SETSCREENSTATE: return "Set a state of the current screen";
 		case MSGC_SETSCREENSTATER: return "Set a state of any screen";
+		case MSGC_FONT: return "Change the text font of text after the SCC";
 	}
 	return "";
 }
@@ -959,6 +965,37 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 			);
 			break;
 		}
+		case MSGC_FONT:
+		{
+			sgrid = Row(padding = 0_px, vAlign = 0.0,
+				TXT("New Font:"),
+				fontlist = DropDownList(data = sorted_fontdd ? list_font : list_font_order,
+						fitParent = true,
+						selectedValue = cur_args[0],
+						onSelectFunc = [&](int32_t val)
+						{
+							cur_args[0] = val;
+						}
+					),
+				Checkbox(
+					text = "Font Sort",
+					checked = sorted_fontdd,
+					onToggleFunc = [&](bool state)
+					{
+						sorted_fontdd = !sorted_fontdd;
+						fontlist->setListData(sorted_fontdd ? list_font : list_font_order);
+						zc_set_config("zquest","stringed_sorted_font",sorted_fontdd?1:0);
+					}
+				),
+				Button(text = "Default",
+					onClick = message::RELOAD,
+					onPressFunc = [&]()
+					{
+						cur_args[0] = refstr->font;
+					})
+			);
+			break;
+		}
 		default:
 			sgrid = Row(padding = 0_px, vAlign = 0.0,TXT("WIP!"));
 			break;
@@ -1041,7 +1078,7 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::RELOAD:
-			runner.rerun_dlg = true;
+			rerun_dlg = true;
 			return true;
 		case message::COPY:
 			set_al_clipboard(calc_retstr(curscc, args[curscc]));
@@ -1051,7 +1088,7 @@ bool SCCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			std::string cb;
 			if(get_al_clipboard(cb) && load_scc_str(cb))
 			{
-				runner.rerun_dlg = true;
+				rerun_dlg = true;
 				return true;
 			}
 			return false;

@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <utility>
 
 extern int32_t zq_screen_w, zq_screen_h;
@@ -13,7 +13,7 @@ namespace GUI
 Label::Label(): text(), text_fit(), maxLines(0), nohline(false),
 	contX(0), contY(0), contW(0), contH(0), textAlign(0)
 {
-	setPreferredHeight(Size::pixels(al_get_font_line_height(widgFont_a5)));
+	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }
 
 void Label::setText(std::string newText)
@@ -49,13 +49,13 @@ void Label::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
-void Label::applyFont_a5(ALLEGRO_FONT* newFont)
+void Label::applyFont(FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont_a5(newFont);
+	Widget::applyFont(newFont);
 	fitText();
 }
 
@@ -64,7 +64,8 @@ void Label::fitText()
 	// text_length doesn't understand line breaks, so we'll do it ourselves.
 	text_fit = text;
 	char* data = text_fit.data();
-	auto* f = widgFont_a5;
+	auto* f = widgFont;
+	auto* char_length = f->vtable->char_length;
 	int32_t actualWidth = getWidthOverridden() ? getWidth() : getMaxWidth();
 	if(actualWidth < 0) actualWidth = zq_screen_w;
 	int32_t lastSpace = -1;
@@ -88,8 +89,7 @@ void Label::fitText()
 		}
 		else if(c == ' ')
 			lastSpace = i;
-		char bf[2] = {c,0};
-		widthSoFar += al_get_text_width(f, bf);
+		widthSoFar += char_length(f, c);
 		if(widthSoFar > actualWidth)
 		{
 			// Line's too long; try to put replace the last space with
@@ -111,7 +111,7 @@ void Label::fitText()
 				max_width = widthSoFar;
 		}
 	}
-	widthSoFar = al_get_text_width(f, data);
+	widthSoFar = text_length(f, data);
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
 	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
@@ -145,13 +145,13 @@ void Label::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<new_text_proc_a5>,
+		newGUIProc<new_text_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags(), // flags
 		textAlign, nohline ? 1 : 0, // d1, d2
-		text_fit.data(), widgFont_a5, nullptr // dp, dp2, dp3
+		text_fit.data(), widgFont, nullptr // dp, dp2, dp3
 	});
 }
 

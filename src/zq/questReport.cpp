@@ -61,9 +61,9 @@ static int32_t usesSecretTriggerFlag(int32_t type)
 		case mfFBRANG:
 		case mfSARROW:
 		case mfGARROW:
-		case mfRCANDLE:
-		case mfWANDFIRE:
-		case mfDINSFIRE:
+		case mfSTRONGFIRE:
+		case mfMAGICFIRE:
+		case mfDIVINEFIRE:
 		case mfWANDMAGIC:
 		case mfREFMAGIC:
 		case mfREFFIREBALL:
@@ -116,12 +116,12 @@ void enlargeIntegrityReportDialog()
     integrity_report_dlg[5].y=zq_screen_h-38;
     integrity_report_dlg[5].w=61*1.5;
     integrity_report_dlg[5].h=21*1.5;
-    integrity_report_dlg[5].dp2 = lfont_l;
+    integrity_report_dlg[5].dp2 = get_zc_font(font_lfont_l);
     integrity_report_dlg[6].x=zq_screen_h-48;
     integrity_report_dlg[6].y=zq_screen_h-38;
     integrity_report_dlg[6].w=61*1.5;
     integrity_report_dlg[6].h=21*1.5;
-    integrity_report_dlg[6].dp2 = lfont_l;
+    integrity_report_dlg[6].dp2 = get_zc_font(font_lfont_l);
 }
 
 void showQuestReport(int32_t bg,int32_t fg)
@@ -129,7 +129,7 @@ void showQuestReport(int32_t bg,int32_t fg)
     integrity_report_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], get_custom_font(CFONT_TEXTBOX), fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     integrity_report_dlg[2].bg = bg;
-    int32_t ret=do_zqdialog(integrity_report_dlg,2);
+    int32_t ret=zc_popup_dialog(integrity_report_dlg,2);
     delete(EditboxModel*)(integrity_report_dlg[2].dp);
     
     if(ret==6)
@@ -139,7 +139,7 @@ void showQuestReport(int32_t bg,int32_t fg)
             
         if(exists(temppath))
         {
-            if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+            if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
                 return;
         }
         
@@ -147,14 +147,14 @@ void showQuestReport(int32_t bg,int32_t fg)
         
         if(!report)
         {
-            jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             return;
         }
         
         int32_t written = (int32_t)fwrite(quest_report_str.c_str(), sizeof(char), quest_report_str.size(), report);
         
         if(written != (int32_t)quest_report_str.size())
-            jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+            jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             
         fclose(report);
     }
@@ -1660,6 +1660,10 @@ typedef struct item_location_node
 
 void itemLocationReport()
 {
+	quest_report_str += "WARNING: This report does not account"
+		" for items obtained in indirect methods, such as SCCs,"
+		" Scripts, Progressive Items and Item Bundles.\n\n";
+	
     mapscr *ts=NULL;
     int32_t sc=0;
     int32_t location_types=6;
@@ -2396,7 +2400,7 @@ int32_t onComboLocationReport()
     if(quest_report_str!="")
         showQuestReport(vc(15),vc(0));
     else
-        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         
     return D_O_K;
 }
@@ -2411,7 +2415,7 @@ int32_t onBuggedNextComboLocationReport()
     if(quest_report_str!="")
         showQuestReport(vc(15),vc(0));
     else
-        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("Combo Locations", "No other screens use this combo.", NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         
     return D_O_K;
 }
@@ -2616,7 +2620,7 @@ int32_t onWhatWarpsReport()
     if(quest_report_str!="")
         showQuestReport(vc(15),vc(0));
     else
-        jwin_alert("What Links Here", "No other screens warp to this screen", "or use this screen as a layer.",NULL,"OK",NULL,13,27,lfont);
+        jwin_alert("What Links Here", "No other screens warp to this screen", "or use this screen as a layer.",NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
         
     return D_O_K;
 }

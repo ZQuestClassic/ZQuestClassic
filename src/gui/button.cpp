@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <algorithm>
 #include <utility>
 
@@ -10,16 +10,14 @@ int32_t next_press_key()
 {
 	return readkey()>>8;
 }
-void kb_key(DIALOG *d, bool clear)
+void kb_getkey(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	
-	scare_mouse();
 	jwin_button_proc(MSG_DRAW,d,0);
 	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
-	textout_centre_ex(screen, font, clear?"Press any key to clear":"Press a key", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "Press a key", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	unscare_mouse();
 	
 	update_hw_screen(true);
 	
@@ -29,22 +27,87 @@ void kb_key(DIALOG *d, bool clear)
 	
 	if(d->dp3)
 	{
-		if(clear)
-		{
-			if(k != KEY_ESC)
-				*((int32_t*)d->dp3) = 0;
-		}
-		else
-		{
-			bool valid_key = k>0 && k<123;
-			if(k > 46 && k < 60 && k != KEY_F11) //f keys, esc? Allow F11!
-				valid_key = false;
-			if(valid_key)
-				*((int32_t*)d->dp3) = k;
-		}
+		bool valid_key = k>0 && k<123;
+		if(k > 46 && k < 60 && k != KEY_F11) //f keys, esc? Allow F11!
+			valid_key = false;
+		if(valid_key)
+			*((int32_t*)d->dp3) = k;
 	}
 	
 	d->flags&=~D_SELECTED;
+}
+
+void kb_clearkey(DIALOG *d)
+{
+	d->flags|=D_SELECTED;
+	
+	jwin_button_proc(MSG_DRAW,d,0);
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
+	textout_centre_ex(screen, font, "Press any key to clear", screen->w/2, screen->h/2 - 8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	
+	update_hw_screen(true);
+	
+	clear_keybuf();
+	int32_t k = next_press_key();
+	clear_keybuf();
+	
+	if (d->dp3)
+	{
+		if(k != KEY_ESC)
+			*((int32_t*)d->dp3) = 0;
+	}
+	
+	d->flags&=~D_SELECTED;
+}
+
+
+bool is_reserved_key(int c);
+bool is_reserved_keycombo(int c, int modflag);
+
+void kb_get_hotkey(DIALOG *d)
+{
+	auto mz = mouse_z;
+	size_t hotkeyindx = d->d1;
+	if(!d->dp3 || hotkeyindx > 1)
+		return;
+	Hotkey* ptr = (Hotkey*)d->dp3;
+	d->flags|=D_SELECTED;
+	
+	popup_zqdialog_start();
+	auto fh = text_height(font);
+	int winh = (32+fh+fh);
+	jwin_button_proc(MSG_DRAW,d,0);
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-winh)/2, 160, winh, FR_WIN);
+	textout_centre_ex(screen, font, "Press a key (+mods)", screen->w/2, screen->h/2 - fh, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, screen->h/2, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	
+	update_hw_screen(true);
+	
+	clear_keybuf();
+	int k;
+	while(true)
+	{
+		k = next_press_key();
+		
+		if(k == KEY_ESC) break;
+		if(is_modkey(k)) continue;
+		
+		int mods = get_mods();
+		
+		if(k>0 && k<123 && !is_reserved_key(k) && !is_reserved_keycombo(k,mods))
+		{
+			ptr->hotkey[hotkeyindx] = k;
+			ptr->modflag[hotkeyindx] = mods;
+			break;
+		}
+	}
+	popup_zqdialog_end();
+	
+	clear_keybuf();
+	
+	d->flags&=~D_SELECTED;
+	position_mouse_z(mz);
 }
 
 int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -54,12 +117,11 @@ int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	case MSG_KEY:
 	case MSG_CLICK:
 
-		kb_key(d,false);
+		kb_getkey(d);
 		
-		while(gui_mouse_b()) {
-			clear_keybuf();
+		while(gui_mouse_b())
 			rest(1);
-		}
+		clear_keybuf();
 		GUI_EVENT(d, geCLICK);
 		return D_REDRAW;
 	}
@@ -73,12 +135,11 @@ int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	case MSG_KEY:
 	case MSG_CLICK:
 
-		kb_key(d,true);
+		kb_clearkey(d);
 		
-		while(gui_mouse_b()) {
-			clear_keybuf();
+		while(gui_mouse_b())
 			rest(1);
-		}
+		clear_keybuf();
 		GUI_EVENT(d, geCLICK);
 		return D_REDRAW;
 	}
@@ -86,94 +147,34 @@ int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	return jwin_button_proc(msg,d,c);
 }
 
-void kb_key_a5(DIALOG *d, bool clear)
-{
-	d->flags|=D_SELECTED;
-	
-	ALLEGRO_FONT* oldfont = a5font;
-	a5font = GUI_DEF_FONT_A5;
-	
-	int fh = al_get_font_line_height(a5font);
-	int dh = 32+(2*fh);
-	jwin_button_proc_a5(MSG_DRAW,d,0);
-	
-	popup_zqdialog_start_a5();
-	jwin_draw_win_a5((screen->w-160)/2, (screen->h-dh)/2, 160, dh, FR_WIN);
-	jwin_textout_a5(a5font, jwin_a5_pal(jcBOXFG), screen->w/2, screen->h/2 - fh, ALLEGRO_ALIGN_CENTRE, clear?"Press any key to clear":"Press a key", jwin_a5_pal(jcBOX));
-	jwin_textout_a5(a5font, jwin_a5_pal(jcBOXFG), screen->w/2, screen->h/2, ALLEGRO_ALIGN_CENTRE, "ESC to cancel", jwin_a5_pal(jcBOX));
-	
-	update_hw_screen(true);
-	
-	clear_keybuf();
-	int32_t k = next_press_key();
-	clear_keybuf();
-	
-	if(d->dp3)
-	{
-		if(clear)
-		{
-			if(k != KEY_ESC)
-				*((int32_t*)d->dp3) = 0;
-		}
-		else
-		{
-			bool valid_key = k>0 && k<123;
-			if(k > 46 && k < 60 && k != KEY_F11) //f keys, esc? Allow F11!
-				valid_key = false;
-			if(valid_key)
-				*((int32_t*)d->dp3) = k;
-		}
-	}
-	popup_zqdialog_end_a5();
-	
-	a5font = oldfont;
-	
-	d->flags&=~D_SELECTED;
-}
-
-int32_t d_kbutton_proc_a5(int32_t msg,DIALOG *d,int32_t c)
+int32_t d_bind_hotkey_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	switch(msg)
 	{
 	case MSG_KEY:
 	case MSG_CLICK:
-
-		kb_key_a5(d,false);
+		kb_get_hotkey(d);
 		
-		while(gui_mouse_b()) {
-			clear_keybuf();
+		while(gui_mouse_b())
 			rest(1);
-		}
+		clear_keybuf();
 		GUI_EVENT(d, geCLICK);
 		return D_REDRAW;
 	}
-
-	return jwin_button_proc_a5(msg,d,c);
-}
-int32_t d_k_clearbutton_proc_a5(int32_t msg,DIALOG *d,int32_t c)
-{
-	switch(msg)
-	{
-	case MSG_KEY:
-	case MSG_CLICK:
-
-		kb_key_a5(d,true);
-		
-		while(gui_mouse_b()) {
-			clear_keybuf();
-			rest(1);
-		}
-		GUI_EVENT(d, geCLICK);
-		return D_REDRAW;
-	}
-
-	return jwin_button_proc_a5(msg,d,c);
+	
+	int f = d->flags;
+	if(!d->dp3 || d->d1 > 1)
+		d->flags |= D_DISABLED;
+	int ret = jwin_button_proc(msg,d,c);
+	d->flags = f;
+	return ret;
 }
 
 namespace GUI
 {
 
-Button::Button(): text(), message(-1), btnType(type::BASIC), bound_kb(nullptr)
+Button::Button(): text(), message(-1), btnType(type::BASIC), bound_kb(nullptr),
+	bound_hotkey(nullptr), hotkeyindx(0)
 {
 	setPreferredHeight(3_em);
 }
@@ -182,9 +183,23 @@ void Button::setType(type newType)
 {
 	btnType = newType;
 }
-void Button::setBoundKB(int32_t* kb_ptr)
+void Button::setBoundKB(int* kb_ptr)
 {
 	bound_kb = kb_ptr;
+	if(alDialog && (btnType == type::BIND_KB || btnType == type::BIND_KB_CLEAR))
+		alDialog->dp3 = bound_hotkey;
+}
+void Button::setBoundHotkey(Hotkey* hotkey_ptr)
+{
+	bound_hotkey = hotkey_ptr;
+	if(alDialog && btnType == type::BIND_HOTKEY)
+		alDialog->dp3 = bound_hotkey;
+}
+void Button::setHotkeyIndx(size_t indx)
+{
+	hotkeyindx = indx;
+	if(alDialog && btnType == type::BIND_HOTKEY)
+		alDialog->d1 = hotkeyindx;
 }
 void Button::setText(std::string newText)
 {
@@ -210,17 +225,17 @@ void Button::applyDisabled(bool dis)
 
 void Button::calculateSize()
 {
-	setPreferredWidth(16_px+Size::pixels(gui_text_width_a5(widgFont_a5, text.c_str())));
+	setPreferredWidth(16_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 	Widget::calculateSize();
 }
 
-void Button::applyFont_a5(ALLEGRO_FONT* newFont)
+void Button::applyFont(FONT* newFont)
 {
 	if(alDialog)
 	{
 		alDialog->dp2 = newFont;
 	}
-	Widget::applyFont_a5(newFont);
+	Widget::applyFont(newFont);
 }
 
 void Button::realize(DialogRunner& runner)
@@ -230,35 +245,46 @@ void Button::realize(DialogRunner& runner)
 	{
 		case type::BASIC:
 			alDialog = runner.push(shared_from_this(), DIALOG {
-				newGUIProc<jwin_button_proc_a5>,
+				newGUIProc<jwin_button_proc>,
 				x, y, getWidth(), getHeight(),
-				0, 0,
+				fgColor, bgColor,
 				getAccelKey(text),
 				getFlags(),
 				0, 0, // d1, d2
-				text.data(), widgFont_a5, nullptr // dp, dp2, dp3
+				text.data(), widgFont, nullptr // dp, dp2, dp3
 			});
 			break;
 		case type::BIND_KB:
 			alDialog = runner.push(shared_from_this(), DIALOG {
-				newGUIProc<d_kbutton_proc_a5>,
+				newGUIProc<d_kbutton_proc>,
 				x, y, getWidth(), getHeight(),
-				0, 0,
+				fgColor, bgColor,
 				getAccelKey(text),
 				getFlags(),
 				0, 0, // d1, d2
-				text.data(), widgFont_a5, bound_kb // dp, dp2, dp3
+				text.data(), widgFont, bound_kb // dp, dp2, dp3
+			});
+			break;
+		case type::BIND_HOTKEY:
+			alDialog = runner.push(shared_from_this(), DIALOG {
+				newGUIProc<d_bind_hotkey_proc>,
+				x, y, getWidth(), getHeight(),
+				fgColor, bgColor,
+				getAccelKey(text),
+				getFlags(),
+				(int)hotkeyindx, 0, // d1, d2
+				text.data(), widgFont, bound_hotkey // dp, dp2, dp3
 			});
 			break;
 		case type::BIND_KB_CLEAR:
 			alDialog = runner.push(shared_from_this(), DIALOG {
-				newGUIProc<d_k_clearbutton_proc_a5>,
+				newGUIProc<d_k_clearbutton_proc>,
 				x, y, getWidth(), getHeight(),
-				0, 0,
+				fgColor, bgColor,
 				getAccelKey(text),
 				getFlags(),
 				0, 0, // d1, d2
-				text.data(), widgFont_a5, bound_kb // dp, dp2, dp3
+				text.data(), widgFont, bound_kb // dp, dp2, dp3
 			});
 			break;
 	}

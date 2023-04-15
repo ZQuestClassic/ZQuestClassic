@@ -3,13 +3,13 @@
 #include "base/zc_alleg.h"
 #include "base/fonts.h"
 
+extern int dlgfontheight;
 namespace GUI
 {
 
 int32_t Size::emSize()
 {
-	static const int32_t em = text_height(get_custom_font(CFONT_DLG));
-	return em;
+	return dlgfontheight;
 }
 
 }

@@ -190,6 +190,7 @@ bool ispitfall_type(int32_t type);
 bool isdamage_type(int32_t type);
 bool ispitfall(int32_t x, int32_t y);
 int32_t getpitfall(int32_t x, int32_t y);
+int get_icy(int x, int y, int type);
 bool isGrassType(int32_t type);
 bool isFlowersType(int32_t type);
 bool isBushType(int32_t type);
@@ -234,6 +235,7 @@ void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t s
 void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers, bool high16only=false, int32_t single=-1);
 void update_freeform_combos();
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
+bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype);
 int32_t nextscr(int32_t dir);
@@ -287,7 +289,6 @@ void onload_gswitch_timers();
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
-//extern FONT *lfont;
 /****  View Map  ****/
 extern int32_t mapres;
 bool displayOnMap(int32_t x, int32_t y);

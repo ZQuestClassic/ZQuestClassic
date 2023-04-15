@@ -143,7 +143,7 @@ void putendmsg(const char *s,int32_t x,int32_t y,int32_t speed,void(proc)())
 			if(s[i]!=' ')
 				sfx(WAV_MSG);
 			
-			textprintf_ex(framebuf,zfont,x+(i<<3),y,WHITE,0,"%c",s[i]);
+			textprintf_ex(framebuf,get_zc_font(font_zfont),x+(i<<3),y,WHITE,0,"%c",s[i]);
 			++i;
 		}
 		
@@ -497,8 +497,8 @@ void ending()
 			{
 				if(y==credits[creditsLine].yPos)
 				{
-					textout_ex(scrollbuf_old,
-					           zfont,
+					textout_ex(scrollbuf,
+					           get_zc_font(font_zfont),
 					           credits[creditsLine].text,
 					           credits[creditsLine].xPos,
 					           224,
@@ -513,7 +513,7 @@ void ending()
 				   y==endText[endTextLine].yPos)
 				{
 					textout_ex(scrollbuf_old,
-					           zfont,
+					           get_zc_font(font_zfont),
 					           endText[endTextLine].text,
 					           endText[endTextLine].xPos,
 					           224,
@@ -522,12 +522,12 @@ void ending()
 					endTextLine++;
 				}
 				else if(y==deathsYPos)
-					textprintf_ex(scrollbuf_old, zfont, 72, 224, red, 0,
+					textprintf_ex(scrollbuf_old, get_zc_font(font_zfont), 72, 224, red, 0,
 								  "%-8s -%3d", game->get_name(), game->get_deaths());
 				else if(y==timeYPos)
 				{
 					if(game->get_timevalid() && !game->did_cheat())
-						textout_centre_ex(scrollbuf_old, zfont, time_str_med(game->get_time()), 128, 224, blue, 0);
+						textout_centre_ex(scrollbuf_old, get_zc_font(font_zfont), time_str_med(game->get_time()), 128, 224, blue, 0);
 				}
 			}
 		}

@@ -7,6 +7,7 @@ static AccessorTable GlobalTable[] =
 {
 //	  name,                    tag,            rettype,  var,  funcFlags,  params,optparams
 	{ "Quit",                    0,          ZTID_VOID,   -1,          0,  {},{} },
+	{ "QuitNoKill",              0,          ZTID_VOID,   -1,          0,  {},{} },
 	{ "Waitframe",               0,          ZTID_VOID,   -1,          0,  {},{} },
 	{ "Waitframes",              0,          ZTID_VOID,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "Waitdraw",                0,          ZTID_VOID,   -1,          0,  {},{} },
@@ -322,6 +323,15 @@ void GlobalSymbols::generateCode()
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2 (code, new OQuit());
+		LABELBACK(label);
+		function->giveCode(code);
+	}
+	//void QuitNoKill()
+	{
+		Function* function = getFunction("QuitNoKill");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OQuitNoDealloc());
 		LABELBACK(label);
 		function->giveCode(code);
 	}

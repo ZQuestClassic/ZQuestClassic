@@ -1442,12 +1442,12 @@
 #define HEROCOYOTETIME          1359
 #define FFCLASTCHANGERX      1360
 #define FFCLASTCHANGERY      1361
-#define RESRVD_VAR_EMILY05      1362
-#define RESRVD_VAR_EMILY06      1363
-#define RESRVD_VAR_EMILY07      1364
-#define RESRVD_VAR_EMILY08      1365
-#define RESRVD_VAR_EMILY09      1366
-#define RESRVD_VAR_EMILY10      1367
+#define LWPNTIMEOUT      1362
+#define EWPNTIMEOUT      1363
+#define COMBODTRIGGERLSTATE      1364
+#define COMBODTRIGGERGSTATE      1365
+#define COMBODTRIGGERGTIMER      1366
+#define GAMEMOUSECURSOR      1367
 #define RESRVD_VAR_EMILY11      1368
 #define RESRVD_VAR_EMILY12      1369
 #define RESRVD_VAR_EMILY13      1370
@@ -2032,104 +2032,103 @@ namespace ZScript
 			return new OGlobalObject(a->clone());
 		}
 	};
-	class OReservedEmily09 : public BinaryOpcode
+	class OObjOwnBitmap : public BinaryOpcode
 	{
 	public:
-		OReservedEmily09(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnBitmap(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily09(a->clone(),b->clone());
+			return new OObjOwnBitmap(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily10 : public BinaryOpcode
+	class OObjOwnPaldata : public BinaryOpcode
 	{
 	public:
-		OReservedEmily10(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnPaldata(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily10(a->clone(),b->clone());
+			return new OObjOwnPaldata(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily11 : public BinaryOpcode
+	class OObjOwnFile : public BinaryOpcode
 	{
 	public:
-		OReservedEmily11(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnFile(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily11(a->clone(),b->clone());
+			return new OObjOwnFile(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily12 : public BinaryOpcode
+	class OObjOwnDir : public BinaryOpcode
 	{
 	public:
-		OReservedEmily12(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnDir(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily12(a->clone(),b->clone());
+			return new OObjOwnDir(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily13 : public BinaryOpcode
+	class OObjOwnStack : public BinaryOpcode
 	{
 	public:
-		OReservedEmily13(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnStack(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily13(a->clone(),b->clone());
+			return new OObjOwnStack(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily14 : public BinaryOpcode
+	class OObjOwnRNG : public BinaryOpcode
 	{
 	public:
-		OReservedEmily14(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnRNG(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily14(a->clone(),b->clone());
+			return new OObjOwnRNG(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily15 : public BinaryOpcode
+	class OObjOwnClass : public BinaryOpcode
 	{
 	public:
-		OReservedEmily15(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnClass(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily15(a->clone(),b->clone());
+			return new OObjOwnClass(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily16 : public BinaryOpcode
+	class OObjOwnArray : public BinaryOpcode
 	{
 	public:
-		OReservedEmily16(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OObjOwnArray(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily16(a->clone(),b->clone());
+			return new OObjOwnArray(a->clone(),b->clone());
 		}
 	};
-	class OReservedEmily17 : public BinaryOpcode
+	class OQuitNoDealloc : public Opcode
 	{
 	public:
-		OReservedEmily17(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OQuitNoDealloc() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily17(a->clone(),b->clone());
+			return new OQuitNoDealloc();
 		}
 	};
-	class OReservedEmily18 : public BinaryOpcode
+	class OSetCustomCursor : public Opcode
 	{
 	public:
-		OReservedEmily18(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily18(a->clone(),b->clone());
+			return new OSetCustomCursor();
 		}
 	};
 	class OReservedEmily19 : public BinaryOpcode

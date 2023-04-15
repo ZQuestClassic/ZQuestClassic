@@ -38,6 +38,43 @@ int32_t used_switch(int32_t argc, char* argv[], const char* s)
 	return 0;
 }
 
+const int BUILDTM_YEAR = (
+    __DATE__[7] == '?' ? 1900
+    : (((__DATE__[7] - '0') * 1000 )
+    + (__DATE__[8] - '0') * 100
+    + (__DATE__[9] - '0') * 10
+    + __DATE__[10] - '0'));
+
+const int BUILDTM_MONTH = (
+    __DATE__ [2] == '?' ? 1
+    : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6)
+    : __DATE__ [2] == 'b' ? 2
+    : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4)
+    : __DATE__ [2] == 'y' ? 5
+    : __DATE__ [2] == 'l' ? 7
+    : __DATE__ [2] == 'g' ? 8
+    : __DATE__ [2] == 'p' ? 9
+    : __DATE__ [2] == 't' ? 10
+    : __DATE__ [2] == 'v' ? 11
+    : 12);
+
+const int BUILDTM_DAY = (
+    __DATE__[4] == '?' ? 1
+    : ((__DATE__[4] == ' ' ? 0 :
+    ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'));
+
+const int BUILDTM_HOUR = (
+	(__TIME__[0]-'0')*10 +
+	(__TIME__[1]-'0'));
+
+const int BUILDTM_MINUTE = (
+	(__TIME__[3]-'0')*10 +
+	(__TIME__[4]-'0'));
+
+const int BUILDTM_SECOND = (
+	(__TIME__[6]-'0')*10 +
+	(__TIME__[7]-'0'));
+
 bool zparser_errored_out()
 {
 	return zscript_error_out;
@@ -331,7 +368,6 @@ int32_t main(int32_t argc, char **argv)
 	strcpy(FFCore.scriptRunString, runstr);
 	updateIncludePaths();
 	// Any errors will be printed to stdout.
-	#ifdef _DEBUG
 	if(used_switch(argc, argv, "-delay"))
 	{
 		for(auto q = 0; q < 2147483647; ++q)
@@ -340,7 +376,6 @@ int32_t main(int32_t argc, char **argv)
 				--q;
 		}
 	}
-	#endif
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));
 	if(!result)
 		zconsole_info("%s", "Failure!");
@@ -396,3 +431,4 @@ END_OF_MAIN()
 // TODO: make this not needed to compile...
 bool DragAspect = false;
 double aspect_ratio = LARGE_H / double(LARGE_W);
+int window_min_width = 0, window_min_height = 0;

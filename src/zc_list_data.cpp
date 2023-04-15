@@ -20,7 +20,7 @@ extern zctune *customtunes;
 #endif
 #endif
 
-extern const char *msgfont_str[font_max];
+extern std::string msgfont_str[font_max];
 const char *ssfont2_str[] =
 {
 	"Zelda NES", "SS 1", "SS 2", "SS 3", "SS 4", "BS Time", "Small", "Small Prop.", "LttP Small", "Link's Awakening", "Link to the Past",
@@ -52,23 +52,63 @@ static bool skipchar(char c)
 	return c == 0 || c == '-';
 }
 
-GUI::ListData GUI::ZCListData::fonts(bool ss_fonts)
+GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 {
+	map<std::string, int32_t> ids;
+	std::set<std::string> names;
 	std::vector<std::string> strings;
-
 	if(ss_fonts)
 	{
 		for(auto q = 0; ssfont2_str[q][0]; ++q)
 		{
-			strings.push_back(ssfont2_str[q]);
+			char const* fontname = ssfont2_str[q];
+			if(numbered)
+			{
+				char* name = new char[strlen(fontname) + 7];
+				sprintf(name, "%s (%03d)", fontname, q);
+				fontname = name;
+			}
+			std::string sname(fontname);
+			
+			if(sorted)
+			{
+				ids[sname] = q;
+				names.insert(sname);
+			}
+			else strings.push_back(sname);
+			if(numbered)
+				delete[] fontname;
 		}
 	}
 	else for(auto q = 0; q < font_max; ++q)
 	{
-		strings.push_back(msgfont_str[q]);
+		char const* fontname = msgfont_str[q].c_str();
+		if(numbered)
+		{
+			char* name = new char[strlen(fontname) + 7];
+			sprintf(name, "%s (%03d)", fontname, q);
+			fontname = name;
+		}
+		std::string sname(fontname);
+		
+		if(sorted)
+		{
+			ids[sname] = q;
+			names.insert(sname);
+		}
+		else strings.push_back(sname);
+		if(numbered)
+			delete[] fontname;
 	}
-
-	return GUI::ListData(strings);
+	if(!sorted)
+		return GUI::ListData(strings);
+	
+	GUI::ListData ls;
+	for(auto it = names.begin(); it != names.end(); ++it)
+	{
+		ls.add(*it, ids[*it]);
+	}
+	return ls;
 }
 
 GUI::ListData GUI::ZCListData::ss_counters()

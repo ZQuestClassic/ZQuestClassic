@@ -2,7 +2,7 @@
 #include "common.h"
 #include "dialog.h"
 #include "dialog_runner.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
 #include <cassert>
 #include <cmath>
 
@@ -16,12 +16,19 @@ DropDownList::DropDownList():
 	overrideHeight(21_px);
 	fgColor = jwin_pal[jcTEXTFG];
 	bgColor = jwin_pal[jcTEXTBG];
+	widgFont = GUI_DEF_FONT;
 }
 
 void DropDownList::setListData(const ::GUI::ListData& newListData)
 {
+	int selval = getSelectedValue();
 	listData = &newListData;
-	jwinListData = newListData.getJWin(&widgFont, &widgFont_a5);
+	jwinListData = newListData.getJWin(&widgFont);
+	if(alDialog)
+	{
+		alDialog->dp = &jwinListData;
+		setSelectedValue(selval);
+	}
 }
 
 void DropDownList::setSelectedValue(int32_t value)
@@ -109,6 +116,11 @@ void DropDownList::applyDisabled(bool dis)
 	if(alDialog) alDialog.applyDisabled(dis);
 }
 
+void DropDownList::applyFont(FONT* newFont)
+{
+	Widget::applyFont(newFont);
+}
+
 void DropDownList::realize(DialogRunner& runner)
 {
 	Widget::realize(runner);
@@ -120,7 +132,7 @@ void DropDownList::realize(DialogRunner& runner)
 		setIndex();
 
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_droplist_proc_a5>,
+		newGUIProc<jwin_droplist_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key

@@ -38,7 +38,7 @@ int32_t ThemeEditor::theme_edit_on_tick()
 					else
 					{
 						get_palette(temp_pal);
-						memcpy(t_jwin_pal, xjwin_pal, sizeof(jwin_pal));
+						memcpy(t_jwin_pal, jwin_pal, sizeof(jwin_pal));
 						for(int q = 1; q <= 8; ++q)
 							t_jwin_a5_colors[q] = jwin_a5_colors[q];
 					}
@@ -58,32 +58,32 @@ tf_red.add(TextField(fitParent = true, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][0] = val; \
-	}),ind), \
+	})), \
 tf_green.add(TextField(fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
 	low = 0, high = 255, val = work_colors[ind][1], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][1] = val; \
-	}),ind), \
+	})), \
 tf_blue.add(TextField(fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
 	low = 0, high = 255, val = work_colors[ind][2], \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		work_colors[ind][2] = val; \
-	}),ind), \
+	})), \
 ColorSel(read_only = true, val = ind, width = 4.5_em)
 
 #define JC_ROW(jc_const, info) \
 Label(text = #jc_const), \
 tf_jc.add(TextField(fitParent = true, minwidth = 2_em, \
 	type = GUI::TextField::type::INT_DECIMAL, fitParent = true, \
-	low = 1, high = 8, val = r_dvc(xjwin_pal[jc_const]), \
+	low = 1, high = 8, val = r_dvc(jwin_pal[jc_const]), \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
-		xjwin_pal[jc_const] = dvc(val); \
-	}),jc_const), \
+		jwin_pal[jc_const] = dvc(val); \
+	})), \
 Button(forceFitH = true, text = "?", \
 	disabled = !info[0], \
 	onPressFunc = [&]() \
@@ -99,7 +99,6 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	using namespace GUI::Props;
 	queue_revert = 0;
 	
-	memcpy(xjwin_pal, jwin_pal, sizeof(jwin_pal));
 	memcpy(t_jwin_pal, jwin_pal, sizeof(jwin_pal));
 	memcpy(restore_jwin_pal, jwin_pal, sizeof(jwin_pal));
 	get_palette(restore_pal);
@@ -108,6 +107,7 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 	for(auto q = 1; q <= 8; ++q)
 	{
 		t_jwin_a5_colors[q] = jwin_a5_colors[q];
+		restore_jwin_a5_colors[q] = jwin_a5_colors[q];
 		
 		temp_pal[q] = temp_pal[dvc(q)];
 		work_pal[q] = work_pal[dvc(q)];
@@ -175,33 +175,33 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 							jwin_a5_colors[q] = al_map_rgb(work_colors[q][0],work_colors[q][1],work_colors[q][2]);
 						}
 						zc_set_palette(work_pal);
-						jwin_set_colors(xjwin_pal);
+						jwin_set_colors(jwin_pal);
 						queue_revert = 2;
 					}),
 				Button(text = "Revert", onPressFunc = [&]()
 					{
 						memcpy(work_pal, temp_pal, sizeof(PALETTE));
-						memcpy(xjwin_pal, t_jwin_pal, sizeof(jwin_pal));
+						memcpy(jwin_pal, t_jwin_pal, sizeof(jwin_pal));
 						jwin_set_a5_colors(t_jwin_a5_colors);
 						for(int q = 1; q <= 8; ++q)
 						{
 							al_unmap_rgb(jwin_a5_colors[q],&work_colors[q][0],&work_colors[q][1],&work_colors[q][2]);
 						}
-						tf_red.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_red.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(work_colors[ind][0]);
+								tfield->setVal(work_colors[8-ind][0]);
 							});
-						tf_green.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_green.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(work_colors[ind][1]);
+								tfield->setVal(work_colors[8-ind][1]);
 							});
-						tf_blue.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_blue.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(work_colors[ind][2]);
+								tfield->setVal(work_colors[8-ind][2]);
 							});
-						tf_jc.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_jc.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(r_dvc(xjwin_pal[ind]));
+								tfield->setVal(r_dvc(jwin_pal[ind]));
 							});
 						zc_set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
@@ -212,30 +212,29 @@ std::shared_ptr<GUI::Widget> ThemeEditor::view()
 						memcpy(temp_pal, restore_pal, sizeof(PALETTE));
 						memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
 						memcpy(t_jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
-						memcpy(xjwin_pal, restore_jwin_pal, sizeof(jwin_pal));
-						jwin_reset_a5_colors();
+						jwin_set_a5_colors(restore_jwin_a5_colors);
 						for(auto q = 1; q <= 8; ++q)
 						{
-							t_jwin_a5_colors[q] = jwin_a5_colors[q];
+							t_jwin_a5_colors[q] = restore_jwin_a5_colors[q];
 							work_pal[q] = work_pal[dvc(q)];
 							temp_pal[q] = temp_pal[dvc(q)];
 							al_unmap_rgb(jwin_a5_colors[q],&work_colors[q][0],&work_colors[q][1],&work_colors[q][2]);
 						}
-						tf_red.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_red.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(work_colors[ind][0]);
+								tfield->setVal(work_colors[8-ind][0]);
 							});
-						tf_green.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_green.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(work_colors[ind][1]);
+								tfield->setVal(work_colors[8-ind][1]);
 							});
-						tf_blue.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_blue.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(work_colors[ind][2]);
+								tfield->setVal(work_colors[8-ind][2]);
 							});
-						tf_jc.forEach([&](std::shared_ptr<GUI::TextField> tfield, int ind)
+						tf_jc.forEach([&](std::shared_ptr<GUI::TextField> tfield, size_t ind)
 							{
-								tfield->setVal(r_dvc(xjwin_pal[ind]));
+								tfield->setVal(r_dvc(jwin_pal[ind]));
 							});
 						zc_set_palette(work_pal);
 						jwin_set_colors(jwin_pal);
@@ -291,8 +290,9 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			save_themefile(path, work_pal, jwin_a5_colors);
 			//Restore
-			jwin_set_colors(restore_jwin_pal);
-			jwin_reset_a5_colors();
+			memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
+			jwin_set_colors(jwin_pal);
+			jwin_set_a5_colors(restore_jwin_a5_colors);
 			forceDraw();
 			update_hw_screen();
 			zc_set_palette(restore_pal);
@@ -301,8 +301,9 @@ bool ThemeEditor::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CANCEL:
 			if(saved_path) saved_path[0] = 0;
 			zc_set_palette(restore_pal);
-			jwin_set_colors(restore_jwin_pal);
-			jwin_reset_a5_colors();
+			memcpy(jwin_pal, restore_jwin_pal, sizeof(jwin_pal));
+			jwin_set_colors(jwin_pal);
+			jwin_set_a5_colors(restore_jwin_a5_colors);
 			return true;
 	}
 	return false;

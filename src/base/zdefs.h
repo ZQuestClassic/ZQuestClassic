@@ -14,7 +14,6 @@
 
 #define DEVLEVEL 0
 #define COLLECT_SCRIPT_ITEM_ZERO -32767
-extern bool devcfg, devcfg_active;
 
 //DEVLEVEL 1 = extra debug tools
 //DEVLEVEL 2 = force enable cheats
@@ -152,8 +151,6 @@ typedef unsigned const char ucc;
 #define MIN_SIGNED_32 (-2147483647-1)
 #define MAX_DWORD dword(-1)
 #define MIN_DWORD 0
-#define LARGE_W       912
-#define LARGE_H       684
 
 #include "ffc.h"
 #include "metadata/metadata.h"
@@ -292,12 +289,12 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          35
+#define V_COMBOS          36
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            17
 #define V_DOORS            1
-#define V_ITEMS           54
+#define V_ITEMS           56
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
@@ -313,9 +310,9 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
-#define V_FAVORITES        1
+#define V_FAVORITES        2
 
-#define V_COMPATRULE       37
+#define V_COMPATRULE       40
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -404,6 +401,9 @@ extern volatile bool close_button_quit;
 #define r_dvc(x) ((x)-240)
 #define BLACK         253
 #define WHITE         254
+
+#define LARGE_W       912
+#define LARGE_H       684
 
 #define BYTE_FILTER 0xFF
 #define DIAG_TO_SIDE		0.7071
@@ -503,10 +503,10 @@ extern volatile bool close_button_quit;
 #define MAXNPCS	512
 
 #define MAXFAVORITECOMMANDS 64
-#define MAXFAVORITECOMBOS 200
+#define MAXFAVORITECOMBOS 300
 #define MAXFAVORITECOMBOALIASES MAXFAVORITECOMBOS
 
-#define FAVORITECOMBO_PER_ROW 17
+#define FAVORITECOMBO_PER_ROW 30
 
 #define PALNAMESIZE     17
 // mapscr "valid" byte
@@ -698,7 +698,7 @@ enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
 enum
 {	//These are the COMBO flags. -Z
 	//0
-	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfBCANDLE, 
+	mfNONE, 	mfPUSHUD, 	mfPUSH4, 	mfWHISTLE, 	mfANYFIRE, 
 	//5
 	mfARROW, 	mfBOMB, 	mfFAIRY, 	mfRAFT, 	mfARMOS_SECRET, 
 	//10
@@ -726,9 +726,9 @@ enum
 	//65
 	mfPUSHRINS,	mfBLOCKTRIGGER,	mfNOBLOCKS, 	mfBRANG, 	mfMBRANG,
 	//70
-	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfRCANDLE, 	mfWANDFIRE, 
+	mfFBRANG, 	mfSARROW, 	mfGARROW, 	mfSTRONGFIRE, 	mfMAGICFIRE, 
 	//75
-	mfDINSFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD, 
+	mfDIVINEFIRE,	mfWANDMAGIC, 	mfREFMAGIC, 	mfREFFIREBALL, 	mfSWORD, 
 	//80
 	mfWSWORD,	mfMSWORD, 	mfXSWORD, 	mfSWORDBEAM, 	mfWSWORDBEAM, 
 	//85
@@ -851,7 +851,9 @@ enum
 	//170
 	cSPOTLIGHT, cGLASS, cLIGHTTARGET, cSWITCHHOOK, cBUTTONPROMPT,
 	//175
-	cCUSTOMBLOCK, cSHOOTER, cSLOPE,
+	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG, cPUSHBLOCK,
+	//180
+	cICY,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1003,8 +1005,8 @@ enum
     qr_TRANSSHADOWS, qr_QUICKSWORD, qr_BOMBHOLDFIX, qr_EXPANDEDLTM,
     qr_NOPOTIONCOMBINE_DEP/*DEPRECATED*/, qr_HEROFLICKER, qr_SHADOWSFLICKER, qr_WALLFLIERS,
     // 10
-    qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTNAYRUSLOVEROCKET_DEP/*DEPRECATED*/,
-    qr_FLICKERINGNAYRUSLOVEROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
+    qr_NOBOMBPALFLASH, qr_HEARTSREQUIREDFIX, qr_PUSHBLOCKCSETFIX, qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP/*DEPRECATED*/,
+    qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP/*DEPRECATED*/, qr_CMBCYCLELAYERS, qr_DMGCOMBOPRI, qr_WARPSIGNOREARRIVALPOINT,
     // 11
     qr_LTTPCOLLISION, qr_LTTPWALK, qr_SLOWENEMYANIM_DEP/*DEPRECATED*/, qr_TRUEARROWS,
     qr_NOSAVE, qr_NOCONTINUE, qr_QUARTERHEART, qr_NOARRIVALPOINT,
@@ -1126,7 +1128,8 @@ enum
 	qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING, qr_SPARKLES_INHERIT_PROPERTIES,
 	
 	//50
-	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX,
+	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
+	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID,
 	//60
 	//70
 	
@@ -1209,7 +1212,7 @@ enum { pal_litDEFAULT, pal_litOVERRIDE, pal_litRESET, pal_litSET, pal_litRESETON
 enum
 {
     dBUSHLEAVES, dFLOWERCLIPPINGS, dGRASSCLIPPINGS, dHAMMERSMACK,
-    dTALLGRASS, dRIPPLES, dNAYRUSLOVESHIELD, dHOVER, dMAXDECORATIONS
+    dTALLGRASS, dRIPPLES, dDIVINEPROTECTIONSHIELD, dHOVER, dMAXDECORATIONS
 };
 
 // items
@@ -1233,8 +1236,8 @@ enum                                                        // value matters bec
     iAmulet, iFlippers, iHookshot, iLens, iHammer,
     iBoots, iL2Bracelet, iGArrow, iMagicC, iSMagic,
     // 60
-    iLMagic, iGRing, iKillAll, iL2Amulet, iDinsFire,
-    iFaroresWind, iNayrusLove, iBossKey, iBow2, iFairyStill,
+    iLMagic, iGRing, iKillAll, iL2Amulet, iDivineFire,
+    iDivineEscape, iDivineProtection, iBossKey, iBow2, iFairyStill,
     // 70
     i1ArrowAmmo, i5ArrowAmmo, i10ArrowAmmo, i30ArrowAmmo, iQuiver,
     iQuiverL2, iQuiverL3, i1BombAmmo, i4BombAmmo, i8BombAmmo,
@@ -1293,16 +1296,16 @@ enum
     wHAMMER, wHSHEAD, wHSCHAIN_H, wHSHANDLE, wSSPARKLE,
 // 30
     wGSPARKLE, wMSPARKLE, wFSPARKLE, iwHammerSmack, wGARROW,
-    ewFLAME, ewWIND, iwMMeter, wDINSFIRE1A, wDINSFIRE1B,
+    ewFLAME, ewWIND, iwMMeter, wDIVINEFIRE1A, wDIVINEFIRE1B,
 // 40
-    wDINSFIRES1A, wDINSFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
+    wDIVINEFIRES1A, wDIVINEFIRES1B, wHSCHAIN_V, iwMore, iwBossMarker,
     iwHeroSlash, wSWORDSLASH, wWSWORDSLASH, wMSWORDSLASH, wXSWORDSLASH,
 // 50
     iwShadow, iwLargeShadow, iwBushLeaves, iwFlowerClippings, iwGrassClippings,
-    iwTallGrass, iwRipples, iwNPCs, wNAYRUSLOVE1A, wNAYRUSLOVE1B,
+    iwTallGrass, iwRipples, iwNPCs, wDIVINEPROTECTION1A, wDIVINEPROTECTION1B,
 // 60
-    wNAYRUSLOVES1A, wNAYRUSLOVES1B, wNAYRUSLOVE2A, wNAYRUSLOVE2B, wNAYRUSLOVES2A,
-    wNAYRUSLOVES2B, iwNayrusLoveShieldFront, iwNayrusLoveShieldBack, iwSubscreenVine, wCBYRNA,
+    wDIVINEPROTECTIONS1A, wDIVINEPROTECTIONS1B, wDIVINEPROTECTION2A, wDIVINEPROTECTION2B, wDIVINEPROTECTIONS2A,
+    wDIVINEPROTECTIONS2B, iwDivineProtectionShieldFront, iwDivineProtectionShieldBack, iwSubscreenVine, wCBYRNA,
 // 70
     wCBYRNASLASH, wLSHEAD, wLSCHAIN_H, wLSHANDLE, wLSCHAIN_V,
     wSBOOM, ewBOMB, ewSBOMB, ewBOOM, ewSBOOM,
@@ -1337,7 +1340,7 @@ enum
 #define NUM_HIT_TYPES_USED 16
 #define NUM_HIT_TYPES_USED_PLAYER 8
 
-//Page 1, triggerflags[0]
+//triggerflags[0]
 
 #define combotriggerSWORD        0x00000001
 #define combotriggerSWORDBEAM    0x00000002
@@ -1372,7 +1375,7 @@ enum
 #define combotriggerKILLWPN      0x40000000
 #define combotriggerEWFIREBALL   0x80000000
 
-//Page 2, triggerflags[1]
+//triggerflags[1]
 #define combotriggerHOOKSHOT     0x00000001
 #define combotriggerSPARKLE      0x00000002
 #define combotriggerBYRNA        0x00000004
@@ -1389,7 +1392,7 @@ enum
 #define combotriggerSCRIPT09     0x00002000
 #define combotriggerSCRIPT10     0x00004000
 #define combotriggerAUTOMATIC    0x00008000
-#define combotriggerSECRETS	     0x00010000
+#define combotriggerSECRETS      0x00010000
 #define combotriggerINVERTITEM   0x00020000
 #define combotriggerCONSUMEITEM  0x00040000
 #define combotriggerCOUNTERGE    0x00080000
@@ -1430,13 +1433,30 @@ enum
 #define combotriggerEXSTITEM       0x00100000
 #define combotriggerEXSTENEMY      0x00200000
 #define combotriggerAUTOGRABITEM   0x00400000
-#define combotriggerKILLENEMIES    0x00800000
+#define combotriggerENEMIESKILLED  0x00800000
 #define combotriggerSECRETSTR      0x01000000
 #define combotriggerTHROWN         0x02000000
+#define combotriggerQUAKESTUN      0x04000000
+#define combotriggerSQUAKESTUN     0x08000000
+#define combotriggerANYFIRE        0x10000000
+#define combotriggerSTRONGFIRE     0x20000000
+#define combotriggerMAGICFIRE      0x40000000
+#define combotriggerDIVINEFIRE     0x80000000
 
-#define ctrigNONE        0x00
-#define ctrigIGNORE_SIGN 0x01
-#define ctrigSECRETS     0x02
+//triggerflags[3]
+#define combotriggerTRIGLEVELSTATE      0x00000001
+#define combotriggerLEVELSTATE          0x00000002
+#define combotriggerTRIGGLOBALSTATE     0x00000004
+#define combotriggerGLOBALSTATE         0x00000008
+#define combotriggerKILLENEMIES         0x00000010
+#define combotriggerCLEARENEMIES        0x00000020
+#define combotriggerCLEARLWEAPONS       0x00000040
+#define combotriggerCLEAREWEAPONS       0x00000080
+
+#define ctrigNONE          0x00
+#define ctrigIGNORE_SIGN   0x01
+#define ctrigSECRETS       0x02
+#define ctrigSWITCHSTATE   0x04
 
 // weapon types in game engine
 enum
@@ -1532,11 +1552,11 @@ enum defWpnSprite
 	wsEFire,
 	wsEWind,
 	wsMagicGauge,
-	wsDinFalling,
-	wsDinRising,
+	wsDFireFalling,
+	wsDFireRising,
 	//40
-	wsDinTrailRising,
-	wsDinTrailFalling,
+	wsDFireTrailRising,
+	wsDFireTrailFalling,
 	wsHookshotChainV,
 	wsMore,
 	wsUnused44,
@@ -1594,9 +1614,9 @@ enum defWpnSprite
 // phantom weapon types
 enum
 {
-    pDINSFIREROCKET, pDINSFIREROCKETRETURN, pDINSFIREROCKETTRAIL, pDINSFIREROCKETTRAILRETURN, pMESSAGEMORE,
-    pNAYRUSLOVEROCKET1, pNAYRUSLOVEROCKETRETURN1, pNAYRUSLOVEROCKETTRAIL1, pNAYRUSLOVEROCKETTRAILRETURN1,
-    pNAYRUSLOVEROCKET2, pNAYRUSLOVEROCKETRETURN2, pNAYRUSLOVEROCKETTRAIL2, pNAYRUSLOVEROCKETTRAILRETURN2
+    pDIVINEFIREROCKET, pDIVINEFIREROCKETRETURN, pDIVINEFIREROCKETTRAIL, pDIVINEFIREROCKETTRAILRETURN, pMESSAGEMORE,
+    pDIVINEPROTECTIONROCKET1, pDIVINEPROTECTIONROCKETRETURN1, pDIVINEPROTECTIONROCKETTRAIL1, pDIVINEPROTECTIONROCKETTRAILRETURN1,
+    pDIVINEPROTECTIONROCKET2, pDIVINEPROTECTIONROCKETRETURN2, pDIVINEPROTECTIONROCKETTRAIL2, pDIVINEPROTECTIONROCKETTRAILRETURN2
 };
 
 enum
@@ -1854,6 +1874,56 @@ enum
 enum { pRANDOM, pSIDES, pSIDESR, pCEILING, pCEILINGR, pRANDOMR, pNOSPAWN };
 
 enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
+
+struct size_and_pos
+{
+	int x = -1, y = -1;
+	int w = -1, h = -1;
+	int xscale = 1, yscale = 1;
+	int fw = -1, fh = -1;
+	
+	int data[8] = {0};
+	
+	//Get virtual values
+	int tw() const;
+	int th() const;
+	int cx() const;
+	int cy() const;
+	
+	void clear(); //Clear to default vals
+	
+	bool rect(int mx, int my) const; //Check rect collision
+	int rectind(int mx, int my) const; //Check scaled collision
+	
+	//Set coord values
+	void set(int nx, int ny, int nw, int nh);
+	void set(int nx, int ny, int nw, int nh, int xs, int ys);
+	
+	size_and_pos const& subsquare(int ind) const;
+	size_and_pos const& subsquare(int col, int row) const;
+	size_and_pos const& rel_subsquare(int x, int y, int ind) const;
+	size_and_pos const& rel_subsquare(int x, int y, int col, int row) const;
+	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
+};
+
+#define HOTKEY_FLAG_FILTER (KB_SHIFT_FLAG|KB_CTRL_FLAG|KB_ALT_FLAG)
+struct Hotkey
+{
+	int modflag[2];
+	int hotkey[2];
+	#undef check
+	bool check(int k,int shifts,bool exact=false);
+	int getval() const;
+	void setval(int val);
+	void setval(int ind,int k,int shifts);
+	void setval(int k,int shifts,int k2,int shifts2);
+	std::string get_name(int ind);
+	bool operator==(Hotkey const& other);
+	bool operator!=(Hotkey const& other);
+};
+std::string get_keystr(int key);
+bool is_modkey(int c);
+int get_mods(int mask = HOTKEY_FLAG_FILTER);
 
 //#define OLDITEMCNT i90
 //#define OLDWPNCNT  w84
@@ -2374,43 +2444,12 @@ public:
 
 
 //Build date info
-
-#define BUILDTM_YEAR (\
-    __DATE__[7] == '?' ? 1900 \
-    : (((__DATE__[7] - '0') * 1000 ) \
-    + (__DATE__[8] - '0') * 100 \
-    + (__DATE__[9] - '0') * 10 \
-    + __DATE__[10] - '0'))
-
-#define BUILDTM_MONTH (\
-    __DATE__ [2] == '?' ? 1 \
-    : __DATE__ [2] == 'n' ? (__DATE__ [1] == 'a' ? 1 : 6) \
-    : __DATE__ [2] == 'b' ? 2 \
-    : __DATE__ [2] == 'r' ? (__DATE__ [0] == 'M' ? 3 : 4) \
-    : __DATE__ [2] == 'y' ? 5 \
-    : __DATE__ [2] == 'l' ? 7 \
-    : __DATE__ [2] == 'g' ? 8 \
-    : __DATE__ [2] == 'p' ? 9 \
-    : __DATE__ [2] == 't' ? 10 \
-    : __DATE__ [2] == 'v' ? 11 \
-    : 12)
-
-#define BUILDTM_DAY (\
-    __DATE__[4] == '?' ? 1 \
-    : ((__DATE__[4] == ' ' ? 0 : \
-    ((__DATE__[4] - '0') * 10)) + __DATE__[5] - '0'))
-
-#define BUILDTM_HOUR (\
-	(__TIME__[0]-'0')*10 + \
-	(__TIME__[1]-'0'))
-	
-#define BUILDTM_MINUTE (\
-	(__TIME__[3]-'0')*10 + \
-	(__TIME__[4]-'0'))
-	
-#define BUILDTM_SECOND (\
-	(__TIME__[6]-'0')*10 + \
-	(__TIME__[7]-'0'))
+extern const int BUILDTM_YEAR;
+extern const int BUILDTM_MONTH;
+extern const int BUILDTM_DAY;
+extern const int BUILDTM_HOUR;
+extern const int BUILDTM_MINUTE;
+extern const int BUILDTM_SECOND;
 
 // The version of the ZASM engine a script was compiled for
 // NOT the same as V_FFSCRIPT, which is the version of the packfile format
@@ -2909,7 +2948,7 @@ enum
     sBCANDLE, sARROW, sBOMB, sSTAIRS, sSECRET01, sSECRET02, sSECRET03,
     sSECRET04, sSECRET05, sSECRET06, sSECRET07, sSECRET08, sSECRET09,
     sSECRET10, sSECRET11, sSECRET12, sSECRET13, sSECRET14, sSECRET15,
-    sSECRET16, sRCANDLE, sWANDFIRE, sDINSFIRE, sSARROW, sGARROW,
+    sSECRET16, sRCANDLE, sWANDFIRE, sDIVINEFIRE, sSARROW, sGARROW,
     sSBOMB, sBRANG, sMBRANG, sFBRANG, sWANDMAGIC, sREFMAGIC, sREFFIREBALL,
     sSWORD, sWSWORD, sMSWORD, sXSWORD, sSWORDBEAM, sWSWORDBEAM,
     sMSWORDBEAM, sXSWORDBEAM, sHOOKSHOT, sWAND, sHAMMER, sSTRIKE, sSECNEXT
@@ -3025,7 +3064,7 @@ struct newcombo
 	int32_t attributes[NUM_COMBO_ATTRIBUTES]; // combodata->Attributes[] and Screen->GetComboAttribute(pos, indx) / SetComboAttribute(pos, indx)
 	int32_t usrflags; // combodata->Flags and Screen->ComboFlags[pos]
 	int16_t genflags; // general flags
-	int32_t triggerflags[3];
+	int32_t triggerflags[6];
 	int32_t triggerlevel;
 	byte triggerbtn;
 	byte triggeritem;
@@ -3043,6 +3082,8 @@ struct newcombo
 	int32_t spawnip;
 	byte trigcopycat;
 	byte trigcooldown;
+	byte trig_lstate, trig_gstate;
+	int32_t trig_statetime;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -3103,7 +3144,7 @@ struct newcombo
 			if(attributes[q]) return false;
 		if(usrflags) return false;
 		if(genflags) return false;
-		for(auto q = 0; q < 3; ++q)
+		for(auto q = 0; q < 6; ++q)
 			if(triggerflags[q]) return false;
 		if(triggerlevel) return false;
 		if(triggerbtn) return false;
@@ -3265,6 +3306,7 @@ struct zquestheader
 	int32_t getAlphaVer() const;
 	char const* getAlphaVerStr() const;
 	char const* getVerStr() const;
+	char const* getVerCmpStr() const;
 	int32_t compareDate() const;
 	int32_t compareVer() const;
 };
@@ -3318,6 +3360,7 @@ enum { msLINKED };
 #define MSGC_TRIGSECRETS      132    // 1 arg (perm)
 #define MSGC_SETSCREENSTATE   133    // 2 args (ind, state)
 #define MSGC_SETSCREENSTATER  134    // 4 args (map, screen, ind, state)
+#define MSGC_FONT             135    // 1 args (font)
 //132+
 
 enum
@@ -3364,12 +3407,12 @@ enum
 	font_cgafont,   
 	font_cocofont,
 	font_coco2font, 
-	font_coupefon, 
-	font_cpcfon, 
-	font_fantasyfon, 
-	font_fdskanafon, 
-	font_fdslikefon, 
-	font_fdsromanfon, 
+	font_coupefont, 
+	font_cpcfont, 
+	font_fantasyfont, 
+	font_fdskanafont, 
+	font_fdslikefont, 
+	font_fdsromanfont, 
 	font_finalffont, 
 	font_futharkfont, 
 	font_gaiafont, 
@@ -3396,6 +3439,34 @@ enum
 	font_lisafont,
 	font_nfont,
 	font_sfont3,
+	font_cv3,
+	font_ctrig,
+	font_nfont2,
+	font_bak,
+	font_gunstar,
+	font_smw_credits,
+	font_wl4,
+	font_bsz,
+	font_bsz_prop,
+	font_ff6,
+	font_evo_eden,
+	font_smt,
+	font_actraiser,
+	font_bak_runes,
+	font_bak_small,
+	font_disorient,
+	font_doom,
+	font_dracula,
+	font_ejim,
+	font_fallout,
+	font_gradius,
+	font_lamu_msx,
+	font_megaman,
+	font_wingdings,
+	font_pkmn2,
+	font_smrpg,
+	font_undertale,
+	font_smw,
 
 	font_max
 };
@@ -3622,9 +3693,11 @@ struct combo_pool
 	void trim(); //Trim any invalid entries
 	cpool_entry const* get_ind(size_t index) const;
 	cpool_entry const* get_w(size_t weight_index) const;
+	cpool_entry const* get_w_wrap(size_t weight_index) const;
 	cpool_entry const* pick() const;
 	bool get_ind(int32_t& cid, int8_t& cs, size_t index) const;
 	bool get_w(int32_t& cid, int8_t& cs, size_t weight_index) const;
+	bool get_w_wrap(int32_t& cid, int8_t& cs, size_t weight_index) const;
 	bool pick(int32_t& cid, int8_t& cs) const;
 	void clear()
 	{
@@ -3830,6 +3903,46 @@ struct miscQdata
 	byte miscsfx[sfxMAX];
 };
 
+struct cpos_info
+{
+	int32_t data;
+	byte clk;
+	word shootrclk;
+	byte trig_cd;
+	byte pushes[4];
+	
+	void push(int dir, bool cancel = false)
+	{
+		if(unsigned(dir) < 4)
+		{
+			if(cancel && pushes[oppositeDir[dir]])
+				pushes[oppositeDir[dir]] -= 1;
+			else pushes[dir] += 1;
+		}
+	}
+	word sumpush() const
+	{
+		return pushes[0]+pushes[1]+pushes[2]+pushes[3];
+	}
+	void clear()
+	{
+		data = 0;
+		clk = 0;
+		shootrclk = 0;
+		trig_cd = 0;
+		for(int q = 0; q < 4; ++q)
+			pushes[q] = 0;
+	}
+	void updateData(int32_t newdata)
+	{
+		if(data != newdata)
+		{
+			clear();
+			data = newdata;
+		}
+	}
+	cpos_info() {clear();}
+};
 #define MFORMAT_MIDI 0
 #define MFORMAT_NSF  1
 
@@ -3948,8 +4061,8 @@ enum // used for gamedata ITEMS
 	itype_wallet, itype_amulet, itype_shield, itype_bow, itype_raft,
 	itype_ladder, itype_book, itype_magickey, itype_bracelet, itype_flippers,
 	// 20
-	itype_boots, itype_hookshot, itype_lens, itype_hammer, itype_dinsfire,
-	itype_faroreswind, itype_nayruslove, itype_bomb, itype_sbomb, itype_clock,
+	itype_boots, itype_hookshot, itype_lens, itype_hammer, itype_divinefire,
+	itype_divineescape, itype_divineprotection, itype_bomb, itype_sbomb, itype_clock,
 	itype_key, itype_magiccontainer, itype_triforcepiece, itype_map, itype_compass,
 	itype_bosskey, itype_quiver, itype_lkey, itype_cbyrna, itype_rupee,
 	// 40
@@ -4025,9 +4138,9 @@ enum {i_boots=1, imax_boots};
 enum {i_hookshot=1, i_longshot, imax_hookshot};
 enum {i_lens=1, imax_lens};
 enum {i_hammer=1, imax_hammer};
-enum {i_dinsfire=1, imax_dinsfire};
-enum {i_faroreswind=1, imax_faroreswind};
-enum {i_nayruslove=1, imax_nayruslove};
+enum {i_divinefire=1, imax_divinefire};
+enum {i_divineescape=1, imax_divineescape};
+enum {i_divineprotection=1, imax_divineprotection};
 enum {i_quiver=1, i_quiverl2, i_quiverl3, i_quiverl4, imax_quiver};
 enum {i_cbyrna=1, imax_cbyrna};
 enum {i_rocs=1, imax_rocs};
@@ -4080,6 +4193,7 @@ enum
 
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
+#define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
 struct gamedata
 {
 	//private:
@@ -4136,7 +4250,7 @@ struct gamedata
 	byte  icon[128];
 	byte  pal[48];
 	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
-	int32_t  screen_d[MAXDMAPS*MAPSCRSNORMAL][8];                // script-controlled screen variables
+	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
 	std::vector< ZCArray <int32_t> > globalRAM;
 	
@@ -5569,14 +5683,12 @@ char const* get_themefile();
 void set_theme(char const* fpath);
 void reset_theme();
 void load_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
-void load_themefile(char const* fpath, PALETTE pal);
 void load_themefile(char const* fpath);
 void save_themefile(char const* fpath, PALETTE pal, ALLEGRO_COLOR* colors);
-void save_themefile(char const* fpath, PALETTE pal);
 void save_themefile(char const* fpath);
-void load_udef_colorset(App a, PALETTE pal);
+void load_udef_colorset(App a, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_udef_colorset(App a);
-void load_colorset(int32_t colorset, PALETTE pal);
+void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors);
 void load_colorset(int32_t colorset);
 
 void update_hw_screen(bool force = false);

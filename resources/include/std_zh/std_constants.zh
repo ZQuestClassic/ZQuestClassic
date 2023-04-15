@@ -1723,15 +1723,46 @@ DEFINE FONT_SPECTRUM_LG  = 65;
 DEFINE FONT_TI99         = 66;
 DEFINE FONT_TRS          = 67;
 DEFINE FONT_Z2           = 68;    //Zelda 2 plus custom lowercase.
-DEFINE FONT_LISA         = 69;    //Lisa OS System Font
-DEFINE FONT_NFONT        = 70;
-DEFINE FONT_S3           = 71;
+DEFINE FONT_ZX           = 69;
+DEFINE FONT_LISA         = 70;    //Lisa OS System Font
 
+DEFINE FONT_NFONT        = 71;
+DEFINE FONT_S3           = 72;
+DEFINE FONT_CV3          = 73;
+DEFINE FONT_CHRONO       = 74;
+DEFINE FONT_NFONT2       = 75;
+DEFINE FONT_BAK          = 76;
+DEFINE FONT_GUNSTAR      = 77;
+DEFINE FONT_SMW_CREDITS  = 78;
+DEFINE FONT_WL4          = 79;
+DEFINE FONT_BSZ          = 80;
+DEFINE FONT_BSZ_PROP     = 81;
+DEFINE FONT_FF6          = 82;
+DEFINE FONT_EVO_EDEN     = 83;
+DEFINE FONT_SMT          = 84;
+DEFINE FONT_ACTRAISER    = 85;
+DEFINE FONT_BAK_RUNES    = 86;
+DEFINE FONT_BAK_SMALL    = 87;
+DEFINE FONT_DISORIENT    = 88;
+DEFINE FONT_DOOM         = 89;
+DEFINE FONT_DRACULA      = 90;
+DEFINE FONT_EJIM         = 91;
+DEFINE FONT_FALLOUT      = 92;
+DEFINE FONT_GRADIUS      = 93;
+DEFINE FONT_LAMU_MSX     = 94;
+DEFINE FONT_MEGAMAN      = 95;
+DEFINE FONT_WINGDINGS    = 96;
+DEFINE FONT_PKMN2        = 97;
+DEFINE FONT_SMRPG        = 98;
+DEFINE FONT_UNDERTALE    = 99;
+DEFINE FONT_SMW          = 100;
+
+DEFINE MAX_FONT = 100;
 DEFINE MIN_FONT = 0;
-DEFINE MAX_FONT = FONT_S3;
 DEFINE NUM_FONTS = MAX_FONT+1;
 
 //Font heights, in pixels, for the above fonts:
+//You should use 'Text->FontHeight(font)' to calculate this, not use constants...
 define FONT_Z1_HEIGHT = 8;
 define FONT_Z3_HEIGHT = 16;
 define FONT_Z3SMALL_HEIGHT = 6;
@@ -2801,6 +2832,13 @@ DEFINE MOUSE_LEFT = 3;
 DEFINE MOUSE_RIGHT = 4;
 DEFINE MOUSE_MIDDLE = 5;
 
+//Game->MouseCursor values
+enum
+{
+	ZCM_CUSTOM, ZCM_BLANK, ZCM_NORMAL,
+	ZCM_MAX
+};
+
 //MapData
 
 //GetSecretCombo()
@@ -3514,10 +3552,30 @@ enum ComboTrigFlag
 	TRIGFLAG_EW_FLAME,
 	TRIGFLAG_EW_WIND,
 	TRIGFLAG_EW_FLAME2,
-	//83-95 free
+	TRIGFLAG_EXST_ITEM,
+	TRIGFLAG_EXST_ENEMY,
+	TRIGFLAG_AUTOGRAB_ITEM,
+	TRIGFLAG_KILL_ENEMIES,
+	TRIGFLAG_SECRETSTR,
+	TRIGFLAG_THROWN,
+	TRIGFLAG_QUAKESTUN,
+	TRIGFLAG_SQUAKESTUN,
+	TRIGFLAG_ANYFIRE,
+	TRIGFLAG_STRONGFIRE,
+	TRIGFLAG_MAGICFIRE,
+	TRIGFLAG_DIVINEFIRE,
+	//96
+	TRIGFLAG_TRIGLEVELSTATE,
+	TRIGFLAG_LEVELSTATE,
+	TRIGFLAG_TRIGGLOBALSTATE,
+	TRIGFLAG_GLOBALSTATE,
+	TRIGFLAG_DO_KILL_ENEMIES,
+	TRIGFLAG_DO_CLEAR_ENEMIES,
+	TRIGFLAG_DO_CLEAR_LWEAPONS,
+	TRIGFLAG_DO_CLEAR_EWEAPONS,
 	
 	TRIGFLAG_MAX_IN_USE,
-	TRIGFLAG_MAX = 96
+	TRIGFLAG_MAX = 32*6
 };
 
 DEFINE BLOCKFLAG_ROCK = 0x001;
@@ -3789,3 +3847,15 @@ enum
 	SHLD_FRONT, SHLD_BACK, SHLD_LEFT, SHLD_RIGHT,
 	SHLD_CAN_BREAK
 };
+
+//Override Flag constants, compare with itemdata->OverrideFlags, itemdata->WeaponOverrideFlags and npcdata->OverrideFlags. These correspond to the "Enabled" checkboxes in the Graphics->Size tab in the Item and Enemy Editors. Add or OR (|) these together 
+const int SZOF_TILEWIDTH      = 1;     //0000000001b, 0x001
+const int SZOF_TILEHEIGHT     = 2;     //0000000010b, 0x002
+const int SZOF_HITWIDTH       = 4;     //0000000100b, 0x004
+const int SZOF_HITHEIGHT      = 8;     //0000001000b, 0x008
+const int SZOF_HITZHEIGHT     = 16;     //0000010000b, 0x010
+const int SZOF_HITXOFFSET     = 32;     //0000100000b, 0x020
+const int SZOF_HITYOFFSET     = 64;     //0001000000b, 0x040
+const int SZOF_DRAWXOFFSET    = 128;     //0010000000b, 0x080
+const int SZOF_DRAWYOFFSET    = 256;     //0100000000b, 0x100
+const int SZOF_DRAWZOFFSET    = 512;     //1000000000b, 0x200, Enemies only.

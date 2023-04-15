@@ -15,8 +15,6 @@
 #include "base/gui.h"
 #include <stdio.h>
 
-extern FONT *lfont, *sfont3;
-extern FONT *pfont;
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
@@ -663,7 +661,7 @@ void EditboxModel::doHelp()
 	
 	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
 	help_dlg[2].bg = view->getDialog()->bg;
-	do_zqdialog(help_dlg,2);
+	zc_popup_dialog(help_dlg,2);
 	delete(EditboxModel*)(help_dlg[2].dp);
 }
 

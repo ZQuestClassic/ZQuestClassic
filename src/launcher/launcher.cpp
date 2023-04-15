@@ -62,16 +62,15 @@ int32_t cursorColor(int32_t col)
 void load_mouse()
 {
 	gui_mouse_focus=0;
-	scare_mouse();
-	set_mouse_sprite(NULL);
+	MouseSprite::set(-1);
 	byte mousepx[16][16] = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 242, 0, }, { 0, 241, 242, 243, 245, 245, 245, 245, 245, 245, 245, 245, 243, 241, 0, 0, }, { 0, 0, 241, 242, 243, 243, 245, 245, 245, 245, 245, 245, 243, 241, 0, 0, }, { 0, 0, 0, 241, 242, 243, 243, 243, 245, 245, 245, 243, 241, 0, 0, 0, }, { 0, 0, 0, 0, 241, 242, 243, 243, 243, 243, 245, 243, 241, 0, 0, 0, }, { 0, 0, 0, 0, 0, 241, 242, 243, 243, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 241, 242, 243, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 241, 242, 243, 243, 241, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 241, 242, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 241, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 241, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, } };
 	for(auto x = 0; x < 16; ++x)
 		for(auto y = 0; y < 16; ++y)
 		{
 			putpixel(mouse_bmp, x, y, cursorColor(mousepx[x][y]));
 		}
-	set_mouse_sprite(mouse_bmp);
-	unscare_mouse();
+	MouseSprite::assign(0, mouse_bmp);
+	MouseSprite::set(0);
 }
 
 void hit_close_button()
@@ -219,7 +218,6 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Initializing mouse...");
 	//{ Mouse setup
 	load_mouse();
-	show_mouse(screen);
 	//}
 	Z_message("OK\n");
 	
@@ -251,11 +249,27 @@ END_OF_MAIN()
 bool is_compact = false;
 bool DragAspect = true;
 double aspect_ratio = LARGE_H / double(LARGE_W);
+int window_min_width = 0, window_min_height = 0;
 bool is_zquest() //Used for sizing purposes
 {
 	return true;
 }
 
+bool is_reserved_key(int c)
+{
+	switch(c)
+	{
+		case KEY_ESC:
+			return true;
+	}
+	return false;
+}
+bool is_reserved_keycombo(int c, int modflag)
+{
+	if(c==KEY_F4 && (modflag&KB_ALT_FLAG))
+		return true;
+	return false;
+}
 //{ Nil funcs
 
 int32_t d_alltriggerbutton_proc(int32_t, DIALOG*, int32_t)
@@ -395,16 +409,12 @@ int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 
 void go()
 {
-	scare_mouse();
 	blit(screen,tmp_scr,0,0,0,0,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void comeback()
 {
-	scare_mouse();
 	blit(tmp_scr,screen,0,0,0,0,screen->w,screen->h);
-	unscare_mouse();
 }
 
 void large_dialog(DIALOG *)
@@ -479,20 +489,12 @@ static RenderTreeItem rti_screen;
 
 static int zc_gui_mouse_x()
 {
-	if(rti_dialogs.children.size())
-	{
-		return rti_dialogs.children.back()->global_to_local_x(mouse_x);
-	}
-	else return rti_screen.global_to_local_x(mouse_x);
+	return rti_screen.global_to_local_x(mouse_x);
 }
 
 static int zc_gui_mouse_y()
 {
-	if(rti_dialogs.children.size())
-	{
-		return rti_dialogs.children.back()->global_to_local_y(mouse_y);
-	}
-	else return rti_screen.global_to_local_y(mouse_y);
+	return rti_screen.global_to_local_y(mouse_y);
 }
 
 bool use_linear_bitmaps()
@@ -518,6 +520,8 @@ static void init_render_tree()
 	gui_mouse_y = zc_gui_mouse_y;
 
 	al_set_new_bitmap_flags(0);
+	
+	_init_render(al_get_bitmap_format(rti_screen.bitmap));
 }
 
 static void configure_render_tree()
@@ -553,32 +557,24 @@ static void configure_render_tree()
 		rti_dialogs.transform.xscale = xscale;
 		rti_dialogs.transform.yscale = yscale;
 		rti_dialogs.visible = true;
+		update_dialog_transform();
 	}
-}
-
-void popup_zqdialog_menu()
-{
-	popup_zqdialog_start_a5();
-}
-void popup_zqdialog_menu_end()
-{
-	popup_zqdialog_end_a5();
 }
 
 static void render_launcher()
 {
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+	
 	init_render_tree();
 	configure_render_tree();
-	if(render_frozen()) return;
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
 
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	render_tree_draw(&rti_root);
 
 	al_flip_display();
-	al_restore_state(&old_state);
+	al_restore_state(&oldstate);
 }
 
 bool update_hw_pal = false;
@@ -617,11 +613,11 @@ bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *
     
     if(list==NULL)
     {
-        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,lfont);
+        ret = jwin_file_select_ex(prompt,temppath,ext,2048,-1,-1,get_zc_font(font_lfont));
     }
     else
     {
-        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, lfont);
+        ret = jwin_file_browse_ex(prompt, temppath, list, &sel, 2048, -1, -1, get_zc_font(font_lfont));
     }
     
     return ret!=0;

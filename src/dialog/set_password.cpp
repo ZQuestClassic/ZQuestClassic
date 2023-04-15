@@ -29,7 +29,13 @@ std::shared_ptr<GUI::Widget> SetPasswordDialog::view()
 					focused = true),
 				this->saveKeyFileCB = Checkbox(
 					text = "&Save key file",
-					checked = this->useKeyFile)
+					checked = this->useKeyFile),
+				Label(maxwidth = 300_px,
+					text = "WARNING: ZQ passwords are not particularly secure"
+					" and are easy to bypass for anyone who knows how."
+					" Do not re-use passwords from anywhere else, or include"
+					" any sensitive information in your quest file expecting"
+					" it to be safe.")
 			),
 			Row(
 				topPadding = 0.5_em,

@@ -80,9 +80,9 @@ subscreen_object z3_active_a[80]=
     { ssoCURRENTITEM,                      pos,                     32,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      5,                           0,                     10,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      6,                           1,                     11,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCOUNTER,                          pos,                     68,          50,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_dinsfire,               1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_nayruslove,             1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_faroreswind,            1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                     10,                           5,                      0,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           6,                      1,                     10,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     80,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                     12,                           7,                      2,                     11,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -164,9 +164,9 @@ subscreen_object z3_active_ab[82]=
     { ssoCURRENTITEM,                      pos,                     32,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      5,                           0,                     10,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      6,                           1,                     11,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCOUNTER,                          pos,                     68,          50,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_dinsfire,               1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_nayruslove,             1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_faroreswind,            1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                     10,                           5,                      0,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           6,                      1,                     10,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     80,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                     12,                           7,                      2,                     11,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -702,17 +702,17 @@ subscreen_object default_subscreen_active[ssdtMAX][2][66]=//[zinit.subscreen][du
             { ssoCURRENTITEM,                      pos,                    150,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bomb,                   1,                      1,                           9,                      5,                      0,                      2,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    174,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_arrow,                  0,                      2,                          10,                      6,                      1,                      3,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    198,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                      3,                          11,                      7,                      2,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    222,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_dinsfire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    222,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    126,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                      4,                           0,                      8,                     12,                      5,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    150,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bait,                   1,                      5,                           1,                      9,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    174,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_letterpotion,           1,                      6,                           2,                     10,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    198,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      7,                           3,                     11,                      6,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    222,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_faroreswind,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    222,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    126,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hookshot,               1,                      8,                           4,                      0,                     13,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    150,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      9,                           5,                      1,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    174,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_lens,                   1,                     10,                           6,                      2,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    198,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           7,                      3,                     10,                     14,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    222,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_nayruslove,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    222,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoNONE,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoNONE,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoNONE,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -772,17 +772,17 @@ subscreen_object default_subscreen_active[ssdtMAX][2][66]=//[zinit.subscreen][du
             { ssoCURRENTITEM,                      pos,                    150,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bomb,                   1,                      1,                           9,                      5,                      0,                      2,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    174,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_arrow,                  0,                      2,                          10,                      6,                      1,                      3,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    198,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                      3,                          11,                      7,                      2,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    222,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_dinsfire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    222,          26,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    126,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                      4,                           0,                      8,                     12,                      5,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    150,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bait,                   1,                      5,                           1,                      9,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    174,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_letterpotion,           1,                      6,                           2,                     10,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    198,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      7,                           3,                     11,                      6,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    222,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_faroreswind,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    222,          42,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    126,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hookshot,               1,                      8,                           4,                      0,                     13,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    150,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      9,                           5,                      1,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    174,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_lens,                   1,                     10,                           6,                      2,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                    198,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           7,                      3,                     10,                     14,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    222,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_nayruslove,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    222,          58,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoNONE,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoNONE,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoNONE,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -1274,17 +1274,17 @@ subscreen_object default_subscreen_active[ssdtMAX][2][66]=//[zinit.subscreen][du
             { ssoCURRENTITEM,                      pos,                     38,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bomb,                   1,                      1,                           9,                      5,                      0,                      2,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     62,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_arrow,                  0,                      2,                          10,                      6,                      1,                      3,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     86,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                      3,                          11,                      7,                      2,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    110,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_dinsfire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    110,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     14,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                      4,                           0,                      8,                     12,                      5,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     38,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bait,                   1,                      5,                           1,                      9,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     62,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_letterpotion,           1,                      6,                           2,                     10,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     86,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      7,                           3,                     11,                      6,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    110,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_faroreswind,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    110,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     14,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hookshot,               1,                      8,                           4,                      0,                     13,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     38,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      9,                           5,                      1,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     62,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_lens,                   1,                     10,                           6,                      2,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     86,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           7,                      3,                     10,                     14,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    110,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_nayruslove,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    110,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoBSTIME,                           sspDOWN,                208,           9,            0,           0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,                -1,                                ssfSS1,                       sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoRECT,                             sspDOWN,                160,           9,           44,           7,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctTEXT,                          0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoLINE,                             sspDOWN,                204,           9,            1,           8,            ssctMISC,                  ssctSUBSCRSHADOW,                  0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -1344,17 +1344,17 @@ subscreen_object default_subscreen_active[ssdtMAX][2][66]=//[zinit.subscreen][du
             { ssoCURRENTITEM,                      pos,                     38,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bomb,                   1,                      1,                           9,                      5,                      0,                      2,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     62,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_arrow,                  0,                      2,                          10,                      6,                      1,                      3,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     86,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                      3,                          11,                      7,                      2,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    110,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_dinsfire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    110,         112,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                     12,                          14,                     13,                      3,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     14,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                      4,                           0,                      8,                     12,                      5,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     38,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bait,                   1,                      5,                           1,                      9,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     62,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_letterpotion,           1,                      6,                           2,                     10,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     86,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      7,                           3,                     11,                      6,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    110,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_faroreswind,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    110,         128,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                     13,                          12,                     14,                      7,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     14,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hookshot,               1,                      8,                           4,                      0,                     13,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     38,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      9,                           5,                      1,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     62,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_lens,                   1,                     10,                           6,                      2,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoCURRENTITEM,                      pos,                     86,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           7,                      3,                     10,                     14,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-            { ssoCURRENTITEM,                      pos,                    110,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_nayruslove,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+            { ssoCURRENTITEM,                      pos,                    110,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                     14,                          13,                     12,                     11,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoBSTIME,                           sspDOWN,                208,           9,            0,           0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,                -1,                                ssfSS1,                       sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoRECT,                             sspDOWN,                160,           9,           44,           7,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctTEXT,                          0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
             { ssoLINE,                             sspDOWN,                204,           9,            1,           8,            ssctMISC,                  ssctSUBSCRSHADOW,                  0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -2284,52 +2284,6 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
             }
         }
     }
-}
-void frame2x2_a5(miscQdata *misc,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
-{
-	/*
-	  /- -- -- -\
-	  |         |
-	  |         |
-	  \_ __ __ _/
-	
-	  0  1  4  5
-	  2  3  6  7
-	  80 81 84 85
-	  82 83 86 87
-	  */
-	if(tile==0&&misc)
-	{
-		tile = misc->colors.blueframe_tile;
-	}
-	
-	int32_t t8 = tile<<2;
-	
-	unsigned char alpha = trans ? 128 : 255;
-	
-	for(int32_t dx=0; dx<w; dx++)
-	{
-		int32_t top    = (dx >= (w>>1)) ? ((dx==w-1) ? t8+5  : t8+4) : ((dx==0) ? t8    : t8+1);
-		int32_t bottom = (dx >= (w>>1)) ? ((dx==w-1) ? t8+87 : t8+86) : ((dx==0) ? t8+82 : t8+83);
-		
-		a5_draw_tile8((dx<<3)+x,y,top,cset,0,overlay,alpha);
-		a5_draw_tile8((dx<<3)+x,((h-1)<<3)+y,bottom,cset,0,overlay,alpha);
-	}
-	
-	for(int32_t dy=1; dy<h-1; dy++)
-	{
-		int32_t left  = (dy >= (h>>1)) ? t8+80 : t8+2;
-		int32_t right = (dy >= (h>>1)) ? t8+85 : t8+7;
-		
-		a5_draw_tile8(x,(dy<<3)+y,left,cset,0,overlay,alpha);
-		a5_draw_tile8(((w-1)<<3)+x,(dy<<3)+y,right,cset,0,overlay,alpha);
-		
-		for(int32_t dx=1; dx<w-1; dx++)
-		{
-			int32_t fill = (dy >= (h>>1)) ? ((dx >= (w>>1)) ? t8+84 : t8+81) : ((dx >= (w>>1)) ? t8+6 : t8+3);
-			a5_draw_tile8((dx<<3)+x,(dy<<3)+y,fill,cset,0,overlay,alpha);
-		}
-	}
 }
 
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
@@ -3563,154 +3517,6 @@ int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2)
     return ret;
 }
 
-FONT *ss_font(int32_t fontnum)
-{
-    FONT *tempfont;
-    
-    switch(fontnum)
-    {
-    case ssfSMALL:
-        tempfont=sfont;
-        break;
-        
-    case ssfSMALLPROP:
-        tempfont=spfont;
-        break;
-        
-    case ssfSS1:
-        tempfont=ssfont1;
-        break;
-        
-    case ssfSS2:
-        tempfont=ssfont2;
-        break;
-        
-    case ssfSS3:
-        tempfont=ssfont3;
-        break;
-        
-    case ssfSS4:
-        tempfont=ssfont4;
-        break;
-        
-    case ssfZTIME:
-        tempfont=ztfont;
-        break;
-        
-    case ssfZELDA:
-        tempfont=zfont;
-        break;
-        
-    case ssfZ3:
-        tempfont=z3font;
-        break;
-        
-    case ssfZ3SMALL:
-        tempfont=z3smallfont;
-        break;
-        
-    case ssfGBLA:
-        tempfont=gblafont;
-        break;
-        
-    case ssfGORON:
-        tempfont=goronfont;
-        break;
-        
-    case ssfZORAN:
-        tempfont=zoranfont;
-        break;
-        
-    case ssfHYLIAN1:
-        tempfont=hylian1font;
-        break;
-        
-    case ssfHYLIAN2:
-        tempfont=hylian2font;
-        break;
-        
-    case ssfHYLIAN3:
-        tempfont=hylian3font;
-        break;
-        
-    case ssfHYLIAN4:
-        tempfont=hylian4font;
-        break;
-        
-    case ssfPROP:
-        tempfont=font;
-        break;
-        
-    case ssfGBORACLE:
-        tempfont=gboraclefont;
-        break;
-        
-    case ssfGBORACLEP:
-        tempfont=gboraclepfont;
-        break;
-        
-    case ssfDSPHANTOM:
-        tempfont=dsphantomfont;
-        break;
-        
-    case ssfDSPHANTOMP:
-        tempfont=dsphantompfont;
-        break;
-
-    case ssfAT800: tempfont=atari800font; break;
-	case ssfACORN: tempfont=acornfont;break;
-	case ssADOS: tempfont= adosfont; break;
-	case ssfALLEG: tempfont=  baseallegrofont; break;
-	case ssfAPL2: tempfont=  apple2font; break;
-	case ssfAPL280: tempfont=  apple280colfont; break;
-	case ssfAPL2GS: tempfont=  apple2gsfont; break;
-	case ssfAQUA: tempfont=  aquariusfont; break;
-	case ssfAT400: tempfont=  atari400font; break;
-	case ssfC64: tempfont=  c64font; break;
-	case ssfC64HR: tempfont= c64hiresfont; break;
-	case ssfCGA: tempfont=  cgafont; break;
-	case ssfCOCO: tempfont=  cocofont; break;
-	case ssfCOCO2: tempfont=  coco2font; break;
-	case ssfCOUPE: tempfont=  coupefont; break;
-	case ssfCPC: tempfont=  cpcfont; break;
-	case ssfFANTASY: tempfont=  fantasyfont; break;
-	case ssfFDSKANA: tempfont=  fdskanafont; break;
-	case ssfFDSLIKE: tempfont=  fdslikefont; break;
-	case ssfFDSROM: tempfont=  fdsromanfont; break;
-	case ssfFF: tempfont= finalffont; break;
-	case ssfFUTHARK: tempfont=  futharkfont; break;
-	case ssfGAIA: tempfont=  gaiafont; break;
-	case ssfHIRA: tempfont=  hirafont; break;
-	case ssfJP: tempfont=  jpfont; break;
-	case ssfKONG: tempfont=  kongfont; break;
-	case ssfMANA: tempfont=  manafont; break;
-	case ssfML: tempfont=  mlfont; break;
-	case ssfMOT: tempfont=  motfont; break;
-	case ssfMSX0: tempfont=  msxmode0font; break;
-	case ssfMSX1: tempfont=  msxmode1font; break;
-	case ssfPET: tempfont= petfont; break;
-	case ssfPSTART: tempfont=  pstartfont; break;
-	case ssfSATURN: tempfont=  saturnfont; break;
-	case ssfSCIFI: tempfont=  scififont; break;
-	case ssfSHERW: tempfont=  sherwoodfont; break;
-	case ssfSINQL: tempfont=  sinqlfont; break;
-	case ssfSPEC: tempfont=  spectrumfont; break;
-	case ssfSPECLG: tempfont=  speclgfont; break;
-	case ssfTI99: tempfont=  ti99font; break;
-	case ssfTRS: tempfont=  trsfont; break;
-	case ssfZ2: tempfont=  z2font; break;
-	case ssfZX: tempfont= zxfont; break;
-	case ssfLISA: tempfont= lisafont; break;
-    default:
-        fontnum=zc_oldrand()%ssfMAX;
-        tempfont=ss_font(fontnum);
-        break;
-    }
-    
-    return tempfont;
-}
-
-
 int32_t to_real_font(int32_t ss_font)
 {
 	switch(ss_font)
@@ -3750,12 +3556,12 @@ int32_t to_real_font(int32_t ss_font)
 		case ssfCGA: return font_cgafont;
 		case ssfCOCO: return font_cocofont;
 		case ssfCOCO2: return font_coco2font;
-		case ssfCOUPE: return font_coupefon;
-		case ssfCPC: return font_cpcfon;
-		case ssfFANTASY: return font_fantasyfon;
-		case ssfFDSKANA: return font_fdskanafon;
-		case ssfFDSLIKE: return font_fdslikefon;
-		case ssfFDSROM: return font_fdsromanfon;
+		case ssfCOUPE: return font_coupefont;
+		case ssfCPC: return font_cpcfont;
+		case ssfFANTASY: return font_fantasyfont;
+		case ssfFDSKANA: return font_fdskanafont;
+		case ssfFDSLIKE: return font_fdslikefont;
+		case ssfFDSROM: return font_fdsromanfont;
 		case ssfFF: return font_finalffont;
 		case ssfFUTHARK: return font_futharkfont;
 		case ssfGAIA: return font_gaiafont;
@@ -3822,12 +3628,12 @@ int32_t to_ss_font(int32_t real_font)
 		case font_cgafont: return ssfCGA;
 		case font_cocofont: return ssfCOCO;
 		case font_coco2font: return ssfCOCO2;
-		case font_coupefon: return ssfCOUPE;
-		case font_cpcfon: return ssfCPC;
-		case font_fantasyfon: return ssfFANTASY;
-		case font_fdskanafon: return ssfFDSKANA;
-		case font_fdslikefon: return ssfFDSLIKE;
-		case font_fdsromanfon: return ssfFDSROM;
+		case font_coupefont: return ssfCOUPE;
+		case font_cpcfont: return ssfCPC;
+		case font_fantasyfont: return ssfFANTASY;
+		case font_fdskanafont: return ssfFDSKANA;
+		case font_fdslikefont: return ssfFDSLIKE;
+		case font_fdsromanfont: return ssfFDSROM;
 		case font_finalffont: return ssfFF;
 		case font_futharkfont: return ssfFUTHARK;
 		case font_gaiafont: return ssfGAIA;
@@ -3856,6 +3662,13 @@ int32_t to_ss_font(int32_t real_font)
 	return ssfZELDA;
 } 
 
+FONT *ss_font(int32_t fontnum)
+{
+    if(unsigned(fontnum) >= ssfMAX)
+        fontnum=zc_oldrand()%ssfMAX;
+	
+    return get_zc_font(to_real_font(fontnum));
+}
 item *sel_a=NULL, *sel_b=NULL;
 
 
@@ -3926,7 +3739,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 	{
 		if((css->objects[i].pos & pos2) != 0)
 		{
-			FONT *tempfont=zfont;
+			FONT *tempfont=get_zc_font(font_zfont);
 			int32_t fontnum=css->objects[i].d1;
 			tempfont=ss_font(fontnum);
 			int32_t x=css->objects[i].x+xofs;
@@ -4104,7 +3917,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 				{
 					//draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,                     wword,                 tabsize,            alignment,          textstyle,          color,                                                                     shadowcolor,                                                               backcolor)
 					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, (char *)css->objects[i].dp1, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
-					//draw_textbox(dest, 0, 0, 200, 50, sfont, "This is a test", 1, 4, 0, 0, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+					//draw_textbox(dest, 0, 0, 200, 50, get_zc_font(font_sfont), "This is a test", 1, 4, 0, 0, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
 				
@@ -5086,7 +4899,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                     
                     if(!has_item(itype_triforcepiece, lvl))
                     {
-                        textprintf_ex(dest, pfont, x+tripiece[1][tp][0]+((tripiece[1][tp][2]&1)?8:14),y+tripiece[1][tp][1]+((tripiece[1][tp][2]&2)?9:32), numbercolor, -1, "%d", lvl);
+                        textprintf_ex(dest, get_zc_font(font_pfont), x+tripiece[1][tp][0]+((tripiece[1][tp][2]&1)?8:14),y+tripiece[1][tp][1]+((tripiece[1][tp][2]&2)?9:32), numbercolor, -1, "%d", lvl);
                     }
                 }
             }

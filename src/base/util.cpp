@@ -333,7 +333,7 @@ namespace util
 		return neg ? -val : val;
 	}
 	
-	int zc_xtoi(const char *hexstr)
+	int32_t zc_xtoi(const char *hexstr)
 	{
 		int32_t val=0;
 		bool neg = false;
@@ -468,13 +468,11 @@ namespace util
 
 	void safe_al_trace(const char* str)
 	{
-		FILE* al_log = (FILE*)al_trace_file();
-		fwrite(str, sizeof(char), strlen(str), al_log);
-		fflush(al_log);
+		zc_trace_handler(str);
 	}
 	void safe_al_trace(std::string const& str)
 	{
-		safe_al_trace(str.c_str());
+		zc_trace_handler(str.c_str());
 	}
 	bool zc_isalpha(int c)
 	{
@@ -827,15 +825,6 @@ namespace util
 }
 
 using namespace util;
-int32_t wrap(int32_t x,int32_t low,int32_t high)
-{
-	if(x >= low && x <= high) return x;
-	int mod = high+1;
-	x -= low;
-    if(x < 0)
-        return ((mod-(-x%mod))%mod)+low;
-    return (x%mod)+low;
-}
 int32_t vbound(int32_t val, int32_t low, int32_t high)
 {
 	ASSERT(low <= high);
@@ -854,6 +843,17 @@ double vbound(double val, double low, double high)
 	if(val >= high)
 		return high;
 	return val;
+}
+
+int wrap(int x,int low,int high)
+{
+    while(x<low)
+        x+=high-low+1;
+
+    while(x>high)
+        x-=high-low+1;
+
+    return x;
 }
 
 std::string dayextension(int32_t dy)
@@ -916,5 +916,48 @@ char const* get_snap_str()
 void clear_clip_rect(BITMAP* bitmap)
 {
 	set_clip_rect(bitmap, 0, 0, bitmap->w-1, bitmap->h-1);
+}
+
+//Fun fact: Allegro used to be in control of allegro.log. This caused
+//problems, because it would hold on to a file handle. Even if we blank
+//the contents of the log, it will still write to the end, causing
+//lots of nulls.
+//No more!
+
+FILE * trace_file;
+
+int32_t zc_trace_handler(const char * msg)
+{
+    // printf("%s", msg);
+    if(trace_file == 0)
+    {
+        if (getenv("ALLEGRO_LEGACY_TRACE"))
+            trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "a+");
+        else
+            trace_file = fopen("allegro.log", "a+");
+        
+        if(0==trace_file)
+        {
+            return 0; // blargh.
+        }
+    }
+    
+    fprintf(trace_file, "%s", msg);
+    fflush(trace_file);
+    return 1;
+}
+
+void zc_trace_clear()
+{
+    if(trace_file)
+    {
+        fclose(trace_file);
+    }
+    
+    if (getenv("ALLEGRO_LEGACY_TRACE"))
+        trace_file = fopen(getenv("ALLEGRO_LEGACY_TRACE"), "w");
+    else
+        trace_file = fopen("allegro.log", "w");
+    ASSERT(trace_file);
 }
 

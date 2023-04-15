@@ -134,6 +134,8 @@ static AccessorTable lwpnTable[] =
 	{ "setShadowSprite",            0,          ZTID_VOID,   LWPNSHADOWSPR,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getSwitchHooked",            0,          ZTID_BOOL,   LWSWHOOKED,                0,  { ZTID_LWPN },{} },
 	{ "setSwitchHooked",            0,          ZTID_VOID,   LWSWHOOKED,                0,  { ZTID_LWPN, ZTID_BOOL },{} },
+	{ "getTimeout",                 0,         ZTID_FLOAT,   LWPNTIMEOUT,               0,  { ZTID_LWPN },{} },
+	{ "setTimeout",                 0,          ZTID_VOID,   LWPNTIMEOUT,               0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "Switch",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "getDrowning",                0,         ZTID_FLOAT,   LWPNDROWNCLK,              0,  { ZTID_LWPN },{} },
 	{ "setDrowning",                0,          ZTID_VOID,   LWPNDROWNCLK,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
@@ -164,6 +166,15 @@ static AccessorTable lwpnTable[] =
 	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_LWPN },{} },
 	{ "getDefence",                 0,         ZTID_FLOAT,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN },{} },
 	{ "setDefence",                 0,          ZTID_VOID,   LWPNUSEDEFENCE,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	
+	{ "Own",                        0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_BITMAP },{} },
+	{ "Own",                        1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_PALDATA },{} },
+	{ "Own",                        2,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_FILE },{} },
+	{ "Own",                        3,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_DIRECTORY },{} },
+	{ "Own",                        4,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_STACK },{} },
+	{ "Own",                        5,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_RNG },{} },
+	{ "OwnArray",                   0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_UNTYPED },{} },
+	{ "OwnObject",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_LWPN, ZTID_UNTYPED },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
@@ -268,6 +279,126 @@ void HeroWeaponSymbols::generateCode()
 		LABELBACK(label);
 		//Check validity
 		addOpcode2 (code, new OMakeDirectionalLwpn(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,bitmap)
+	{
+		Function* function = getFunction("Own",0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnBitmap(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,paldata)
+	{
+		Function* function = getFunction("Own",1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnPaldata(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,file)
+	{
+		Function* function = getFunction("Own",2);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnFile(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,directory)
+	{
+		Function* function = getFunction("Own",3);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnDir(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,stack)
+	{
+		Function* function = getFunction("Own",4);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnStack(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,rng)
+	{
+		Function* function = getFunction("Own",5);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnRNG(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,untyped)
+	{
+		Function* function = getFunction("OwnArray");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnArray(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Own(lweapon,untyped)
+	{
+		Function* function = getFunction("OwnObject");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//Target object
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//Owner object
+		POPREF();
+		
+		addOpcode2(code, new OObjOwnClass(new VarArgument(EXP1), new LiteralArgument(SCRIPT_LWPN)));
 		RETURN();
 		function->giveCode(code);
 	}

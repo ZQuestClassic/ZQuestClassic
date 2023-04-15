@@ -165,7 +165,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			//Load from File
 			if(zScript.size() > 0)
 			{
-				if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',lfont)==2)
+				if(jwin_alert("Confirm Overwrite","Loading will erase the current buffer.","Proceed anyway?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
 					return false;
 					
 				zScript.clear();
@@ -180,7 +180,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			if(zscript == NULL)
 			{
-				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				return false;
 			}
 			
@@ -205,7 +205,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				
 			if(exists(temppath))
 			{
-				if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',lfont)==2)
+				if(jwin_alert("Confirm Overwrite","File already exists.","Overwrite?",NULL,"Yes","No",'y','n',get_zc_font(font_lfont))==2)
 					break;
 			}
 			
@@ -213,14 +213,14 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			
 			if(!zscript)
 			{
-				jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error","Unable to open file for writing!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				break;
 			}
 			
 			int32_t written = (int32_t)fwrite(zScript.c_str(), sizeof(char), zScript.size(), zscript);
 			
 			if(written != (int32_t)zScript.size())
-				jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error","IO error while writing script to file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				
 			fclose(zscript);
 			return false;
@@ -256,7 +256,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 			if(!tempfile)
 			{
-				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 				return true;
 			}
 			
@@ -290,7 +290,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			else
 			{
-				box_start(1, "Compile Progress", get_custom_font_a5(CFONT_TITLE), get_custom_font_a5(CFONT_DLG),true, 512, 280);
+				box_start(1, "Compile Progress", get_zc_font(font_lfont), get_zc_font(font_sfont),true, 512, 280);
 			}
 
 			std::vector<std::string> args = {
@@ -301,10 +301,8 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			};
 			if(zc_get_config("Compiler","noclose_compile_console",0))
 				args.push_back("-noclose");
-			#ifdef _DEBUG
-			if(ctrl)
+			if(ctrl && devpwd())
 				args.push_back("-delay");
-			#endif
 			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
 			if(!pm)
 			{

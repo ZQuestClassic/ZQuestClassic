@@ -32,16 +32,12 @@
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
-extern void refresh(int32_t flags);
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();
 extern std::vector<mapscr> TheMaps;
 extern zquestheader header;
 extern word map_count;
 extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
-
-
-extern FONT *lfont;
 
 extern int32_t onHelp();
 extern int32_t jwin_pal[jcMAX];
@@ -101,7 +97,7 @@ void edit_door(int32_t side)
     int32_t index=door_to_index(Map.CurrScr()->door[side]);
     char sidename[80];
     sprintf(sidename, "Select %s Door Type", sidestr[side]);
-    int32_t ret=select_data(sidename,index,doorslist,lfont);
+    int32_t ret=select_data(sidename,index,doorslist,get_zc_font(font_lfont));
     
     if(ret!=-1)
     {
@@ -144,7 +140,7 @@ void edit_door(int32_t side)
 
 const char *doorcombosetlist(int32_t index, int32_t *list_size);
 
-static ListData doorcomboset_list(&doorcombosetlist, &font, &a5font);
+static ListData doorcomboset_list(&doorcombosetlist, &font);
 
 static DIALOG door_select_dlg[] =
 {
@@ -167,7 +163,7 @@ static DIALOG door_select_dlg[] =
 int32_t onDoors()
 {
     restore_mouse();
-    door_select_dlg[0].dp2 = lfont;
+    door_select_dlg[0].dp2 = get_zc_font(font_lfont);
     
     if(Map.getCurrScr()==TEMPLATE)
         return D_O_K;
@@ -196,7 +192,7 @@ int32_t onDoors()
     Map.StartListCommand();
     do
     {
-        ret = do_zqdialog(door_select_dlg,-1);
+        ret = zc_popup_dialog(door_select_dlg,-1);
         Map.CurrScr()->door_combo_set=door_select_dlg[9].d1;
         
         switch(ret)
@@ -1428,7 +1424,7 @@ int32_t edit_dcs(int32_t index)
     char door_combo_set_name[sizeof(DoorComboSets[0].name)];
     working_dcs=DoorComboSets[index];
     sprintf(door_combo_set_name,"%s",working_dcs.name);
-    doorcomboset_dlg[0].dp2 = lfont;
+    doorcomboset_dlg[0].dp2 = get_zc_font(font_lfont);
     doorcomboset_dlg[6].dp = door_combo_set_name;
     
     fill_dcs_dlg();
@@ -1441,7 +1437,7 @@ int32_t edit_dcs(int32_t index)
     
     do
     {
-        ret = do_zqdialog(doorcomboset_dlg,4);
+        ret = zc_popup_dialog(doorcomboset_dlg,4);
         
         if(ret==1)
         {
@@ -1518,7 +1514,7 @@ int32_t copydcs();
 int32_t pastedcs();
 int32_t replacedcs();
 
-static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font, &a5font);
+static ListData doorcombosetlist_dlg_list(doorcombosetlist, &font);
 
 static DIALOG doorcombosetlist_dlg[] =
 {
@@ -1585,13 +1581,13 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 	{
 		extract_name(temppath,name,FILENAMEALL);
 		sprintf(tmpbuf,"Saved %s",name);
-		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Success!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	else
 	{
 		extract_name(temppath,name,FILENAMEALL);
 		sprintf(tmpbuf,"Failed to save %s",name);
-		jwin_alert("Error!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("Error!",tmpbuf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
         
     }
@@ -1607,16 +1603,16 @@ void doorlist_rclick_func(int32_t index, int32_t x, int32_t y)
 	if (!ret)
 	{
 		al_trace("Could not read from .zdoors packfile %s\n", temppath);
-		jwin_alert("ZDOOR File: Error","Could not load the specified doorset.",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("ZDOOR File: Error","Could not load the specified doorset.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	else if ( ret == 1 )
 	{
-		jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("ZDOORS File: Success!","Loaded the source doorsets!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		saved=false;
 	}
 	else if ( ret == 2 )
 	{
-		jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,lfont);
+		jwin_alert("ZDOORS File: Issue:","Targets exceed doorset count!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 		saved=false;
 	}
 	pack_fclose(f);
@@ -1638,7 +1634,7 @@ int32_t doorcombosetlist_del()
     {
         strncpy(buf,DoorComboSets[d].name,sizeof(DoorComboSets[d].name));
         
-        if(jwin_alert("Confirm Delete","Delete this door combo set?",buf,NULL,"Yes","No",'y',27,lfont)==1)
+        if(jwin_alert("Confirm Delete","Delete this door combo set?",buf,NULL,"Yes","No",'y',27,get_zc_font(font_lfont))==1)
         {
             saved=false;
             
@@ -1731,7 +1727,7 @@ int32_t onDoorCombos()
 {
     go();
     int32_t index=0;
-    doorcombosetlist_dlg[0].dp2=lfont;
+    doorcombosetlist_dlg[0].dp2=get_zc_font(font_lfont);
     doorcombosetlist_dlg[2].dp3 = (void *)&doorlist_rclick_func;
     doorcombosetlist_dlg[2].flags|=(D_USER<<1);
     
@@ -1747,7 +1743,7 @@ int32_t onDoorCombos()
         
         large_dialog(doorcombosetlist_dlg,1.5);
             
-        int32_t ret=do_zqdialog(doorcombosetlist_dlg,2);
+        int32_t ret=zc_popup_dialog(doorcombosetlist_dlg,2);
         index=doorcombosetlist_dlg[2].d1;
         
         int32_t doedit=false;

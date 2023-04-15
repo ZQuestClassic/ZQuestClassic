@@ -612,7 +612,7 @@ int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c)
             destroy_bitmap(buf);
         }
         
-        //textprintf_ex(screen, pfont, d->x,d->y, vc(15), -1, "%d", d->bg);
+        //textprintf_ex(screen, get_zc_font(font_pfont), d->x,d->y, vc(15), -1, "%d", d->bg);
         return D_O_K;
     }
     break;
@@ -965,8 +965,8 @@ static DIALOG sso_raw_data_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-static ListData rows_list(rowslist, &font, &a5font);
-static ListData itemclass_list(item_class_list, &font, &a5font);
+static ListData rows_list(rowslist, &font);
+static ListData itemclass_list(item_class_list, &font);
 
 int32_t sso_raw_data(subscreen_object *tempsso)
 {
@@ -975,24 +975,24 @@ int32_t sso_raw_data(subscreen_object *tempsso)
     sprintf(title, "Raw Data for Object #%d", curr_subscreen_object);
     sprintf(raw_text, "Type:  %d\nPosition:  %d\nX:  %d\nY:  %d\nW:  %d\nH:  %d\nColor Type 1:  %d\nColor 1:  %d\nColor Type 2:  %d\nColor 2:  %d\nColor Type 3:  %d\nColor 3:  %d\nD1:  %d\nD2:  %d\nD3:  %d\nD4:  %d\nD5:  %d\nD6:  %d\nD7:  %d\nD8:  %d\nD9:  %d\nD10:  %d\nFrames:  %d\nSpeed:  %d\nDelay:  %d\nFrame:  %d\nDp1:  %s",
             tempsso->type, tempsso->pos, tempsso->x, tempsso->y, tempsso->w, tempsso->h, tempsso->colortype1, tempsso->color1, tempsso->colortype2, tempsso->color2, tempsso->colortype3, tempsso->color3, tempsso->d1, tempsso->d2, tempsso->d3, tempsso->d4, tempsso->d5, tempsso->d6, tempsso->d7, tempsso->d8, tempsso->d9, tempsso->d10, tempsso->frames, tempsso->speed, tempsso->delay, tempsso->frame, tempsso->dp1!=NULL?(char *)tempsso->dp1:"NULL");
-    sso_raw_data_dlg[0].dp2=lfont;
+    sso_raw_data_dlg[0].dp2=get_zc_font(font_lfont);
     sso_raw_data_dlg[2].dp=raw_text;
     sso_raw_data_dlg[2].d2=0;
     
     large_dialog(sso_raw_data_dlg);
         
-    do_zqdialog(sso_raw_data_dlg,2);
+    zc_popup_dialog(sso_raw_data_dlg,2);
     return D_O_K;
 }
 
-static ListData wrapping_list(wrappinglist, &font, &a5font);
-static ListData alignment_list(alignmentlist, &font, &a5font);
-ListData shadowstyle_list(shadowstylelist, &font, &a5font);
-static ListData misccolor_list(misccolorlist, &font, &a5font);
-static ListData spectile_list(spectilelist, &font, &a5font);
-static ListData ssfont_list(ssfontlist, &font, &a5font);
-static ListData colortype_list(colortypelist, &font, &a5font);
-static ListData item_list(itemlist_num, &font, &a5font);
+static ListData wrapping_list(wrappinglist, &font);
+static ListData alignment_list(alignmentlist, &font);
+ListData shadowstyle_list(shadowstylelist, &font);
+static ListData misccolor_list(misccolorlist, &font);
+static ListData spectile_list(spectilelist, &font);
+static ListData ssfont_list(ssfontlist, &font);
+static ListData colortype_list(colortypelist, &font);
+static ListData item_list(itemlist_num, &font);
 
 void replacedp(DIALOG &d, const char *newdp, size_t size)
 {
@@ -2511,7 +2511,7 @@ int32_t onExport_Subscreen_Code()
         sprintf(buf2,"Error saving %s",name);
     }
     
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,lfont);
+    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
     return D_O_K;
 }
 
@@ -2706,7 +2706,7 @@ const char *colorlist(int32_t index, int32_t *list_size)
     return color_str[index];
 }
 
-static ListData color_list(colorlist, &font, &a5font);
+static ListData color_list(colorlist, &font);
 
 static DIALOG grid_dlg[] =
 {
@@ -2819,7 +2819,7 @@ const char *ssolist(int32_t index, int32_t *list_size)
     return bisso[index].s;
 }
 
-static ListData sso_list(ssolist, &font, &a5font);
+static ListData sso_list(ssolist, &font);
 
 static DIALOG ssolist_dlg[] =
 {
@@ -2935,12 +2935,12 @@ std::string getssname(int32_t type)
 int32_t onNewSubscreenObject()
 {
     int32_t ret=-1;
-    ssolist_dlg[0].dp2=lfont;
+    ssolist_dlg[0].dp2=get_zc_font(font_lfont);
     build_bisso_list();
     
     large_dialog(ssolist_dlg);
         
-    ret=do_zqdialog(ssolist_dlg,2);
+    ret=zc_popup_dialog(ssolist_dlg,2);
     
     if(ret!=0&&ret!=4)
     {
@@ -3460,7 +3460,7 @@ static int32_t onToggleInvis()
 
 static int32_t onEditGrid()
 {
-    grid_dlg[0].dp2=lfont;
+    grid_dlg[0].dp2=get_zc_font(font_lfont);
     char xsize[11];
     char ysize[11];
     char xoffset[4];
@@ -3477,7 +3477,7 @@ static int32_t onEditGrid()
     
     large_dialog(grid_dlg);
         
-    int32_t ret = do_zqdialog(grid_dlg,2);
+    int32_t ret = zc_popup_dialog(grid_dlg,2);
     
     if(ret==1)
     {
@@ -3502,13 +3502,13 @@ static int32_t onShowHideGrid()
 
 int32_t onSelectionOptions()
 {
-    sel_options_dlg[0].dp2=lfont;
+    sel_options_dlg[0].dp2=get_zc_font(font_lfont);
     sel_options_dlg[6].d1=zinit.ss_bbox_1_color;
     sel_options_dlg[8].d1=zinit.ss_bbox_2_color;
     
     large_dialog(sel_options_dlg);
         
-    int32_t ret = do_zqdialog(sel_options_dlg,2);
+    int32_t ret = zc_popup_dialog(sel_options_dlg,2);
     
     if(ret==1)
     {
@@ -3732,7 +3732,7 @@ void edit_subscreen()
     if(game->get_arrows() == 0)
         game->set_arrows(1);
         
-    subscreen_dlg[0].dp2=lfont;
+    subscreen_dlg[0].dp2=get_zc_font(font_lfont);
     load_Sitems(&misc);
     curr_subscreen_object=0;
     ss_propCopySrc=-1;
@@ -3820,11 +3820,7 @@ void edit_subscreen()
 		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
 	
-	popup_zqdialog_start(0,0,LARGE_W,LARGE_H,0xFF);
-	popup_zqdialog_start_a5();
-    int32_t ret = do_zqdialog(subscreen_dlg,2);
-	popup_zqdialog_end_a5();
-	popup_zqdialog_end();
+    int32_t ret = zc_popup_dialog(subscreen_dlg,2);
     
     if(ret==1)
     {
@@ -3949,8 +3945,8 @@ const char *activepassivelist(int32_t index, int32_t *list_size)
     return activepassive_str[index];
 }
 
-static ListData passive_list(passivelist, &font, &a5font);
-static ListData active_list(activelist, &font, &a5font);
+static ListData passive_list(passivelist, &font);
+static ListData active_list(activelist, &font);
 
 int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -3967,7 +3963,7 @@ int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-static ListData activepassive_list(activepassivelist, &font, &a5font);
+static ListData activepassive_list(activepassivelist, &font);
 
 static DIALOG sstemplatelist_dlg[] =
 {
@@ -4076,7 +4072,7 @@ const char *subscreenlist_b(int32_t index, int32_t *list_size)
     return custom_subscreen[j-1].name;
 }
 
-static ListData subscreen_list(subscreenlist, &font, &a5font);
+static ListData subscreen_list(subscreenlist, &font);
 
 DIALOG sslist_dlg[] =
 {
@@ -4093,18 +4089,18 @@ DIALOG sslist_dlg[] =
 int32_t onEditSubscreens()
 {
     int32_t ret=-1;
-    sslist_dlg[0].dp2=lfont;
-    sstemplatelist_dlg[0].dp2=lfont;
+    sslist_dlg[0].dp2=get_zc_font(font_lfont);
+    sstemplatelist_dlg[0].dp2=get_zc_font(font_lfont);
     
     large_dialog(sslist_dlg);
         
     while(ret!=0&&ret!=5)
     {
-        ret=do_zqdialog(sslist_dlg,2);
+        ret=zc_popup_dialog(sslist_dlg,2);
         
         if(ret==4)
         {
-            int32_t confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, lfont);
+            int32_t confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, get_zc_font(font_lfont));
             
             if(confirm==1)
             {
@@ -4138,7 +4134,7 @@ int32_t onEditSubscreens()
             {
                 large_dialog(sstemplatelist_dlg);
                     
-                ret=do_zqdialog(sstemplatelist_dlg,4);
+                ret=zc_popup_dialog(sstemplatelist_dlg,4);
                 
                 if(ret==6)
                 {

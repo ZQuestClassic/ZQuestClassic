@@ -1,6 +1,11 @@
 #include "frame.h"
 #include "dialog_runner.h"
-#include "../jwin_a5.h"
+#include "../jwin.h"
+
+// int32_t d_dummy_proc(int32_t, DIALOG*, int32_t)
+// {
+	// return D_O_K;
+// }
 
 namespace GUI
 {
@@ -72,7 +77,7 @@ void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 void Frame::realize(DialogRunner& runner)
 {
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		newGUIProc<jwin_frame_proc_a5>,
+		newGUIProc<jwin_frame_proc>,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
@@ -84,14 +89,26 @@ void Frame::realize(DialogRunner& runner)
 	if(!title.empty())
 	{
 		runner.push(shared_from_this(), DIALOG {
-			newGUIProc<jwin_text_proc_a5>,
+			jwin_text_proc,
 			x+5, y-3, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0,
 			getFlags(),
 			0, 0,
-			title.data(), widgFont_a5, nullptr // dp, dp2, dp3
+			title.data(), widgFont, nullptr // dp, dp2, dp3
 		});
+	}
+	else // No title
+	{
+		// runner.push(shared_from_this(), DIALOG {
+			// d_dummy_proc,
+			// 0, 0, 0, 0,
+			// 0, 0,
+			// 0,
+			// getFlags(),
+			// 0, 0,
+			// nullptr, nullptr, nullptr
+		// });
 	}
 
 	if(content)
