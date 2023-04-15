@@ -4170,21 +4170,6 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 
 void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 {
-	/*
-	int32_t par_item = w->parentitem;
-	al_trace("check_wpn_triggers(weapon *w): par_item is: %d\n", par_item);
-	int32_t usewpn = -1;
-	if ( par_item > -1 )
-	{
-		usewpn = itemsbuf[par_item].useweapon;
-	}
-	else if ( par_item == -1 && w->ScriptGenerated ) 
-	{
-		usewpn = w->useweapon;
-	}
-	al_trace("check_wpn_triggers(weapon *w): usewpn is: %d\n", usewpn);
-	
-	*/
 	bx=vbound(bx, 0, 255);
 	by=vbound(by, 0, 176);
 	int32_t cid = MAPCOMBO(bx,by);
@@ -4228,6 +4213,9 @@ void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 			break;
 			
 		case wFire:
+			trigger_secrets_if_flag(bx,by,mfANYFIRE,true);
+			trigger_secrets_if_flag(bx,by,mfSTRONGFIRE,true);
+			trigger_secrets_if_flag(bx,by,mfMAGICFIRE,true);
 			break;
 		
 		case wScript1:
