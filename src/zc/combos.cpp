@@ -2970,12 +2970,12 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 	return true;
 }
 
-bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
+bool do_trigger_combo_ffc(int32_t i, int32_t special, weapon* w)
 {
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
-	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr.ffcs[pos];
-	cpos_info& timer = ffc_posinfos[pos];
+	if(unsigned(i) >= MAXFFCS) return false;
+	ffcdata& ffc = tmpscr.ffcs[i];
+	cpos_info& timer = ffc_posinfos[i];
 	int32_t cid = ffc.getData();
 	int32_t ocs = ffc.cset;
 	int32_t cx = ffc.x;
@@ -2996,7 +2996,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if(cmb.exstate > -1)
 	{
 		exflag = 1<<cmb.exstate;
-		if(force_ex_trigger_ffc(pos))
+		if(force_ex_trigger_ffc(i))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement
@@ -3045,7 +3045,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if(w)
 	{
 		grid = w->wscreengrid_ffc;
-		check_bit = get_bit(grid,pos);
+		check_bit = get_bit(grid,i);
 	}
 	if(!timer.trig_cd)
 	{
@@ -3057,8 +3057,8 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 				case cTRIGGERGENERIC:
 					if(w)
-						do_generic_combo_ffc(w, pos, cid, flag2);
-					else do_generic_combo_ffc2(pos, cid, flag2);
+						do_generic_combo_ffc(w, i, cid, flag2);
+					else do_generic_combo_ffc2(i, cid, flag2);
 					break;
 				case cCUSTOMBLOCK:
 					if(!w) break;
@@ -3080,7 +3080,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 						break;
 					
 					case cCSWITCHBLOCK:
-						trigger_cswitch_block_ffc(pos);
+						trigger_cswitch_block_ffc(i);
 						break;
 					
 					case cSIGNPOST:
@@ -3097,11 +3097,11 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 					case cSLASHTOUCHY: case cSLASHITEMTOUCHY: case cBUSHTOUCHY: case cFLOWERSTOUCHY:
 					case cTALLGRASSTOUCHY: case cSLASHNEXTTOUCHY: case cSLASHNEXTITEMTOUCHY:
 					case cBUSHNEXTTOUCHY:
-						trigger_cuttable_ffc(pos);
+						trigger_cuttable_ffc(i);
 						break;
 						
 					case cSTEP: case cSTEPSAME: case cSTEPALL:
-						if(!trigger_step_ffc(pos))
+						if(!trigger_step_ffc(i))
 							return false;
 						break;
 					
@@ -3115,16 +3115,16 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 						break;
 					
 					case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-						if(!trigger_chest_ffc(pos))
+						if(!trigger_chest_ffc(i))
 							return false;
 						break;
 					case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-						if(!trigger_lockblock_ffc(pos))
+						if(!trigger_lockblock_ffc(i))
 							return false;
 						break;
 					
 					case cARMOS: case cBSGRAVE: case cGRAVE:
-						if(!trigger_armos_grave_ffc(pos))
+						if(!trigger_armos_grave_ffc(i))
 							return false;
 						break;
 					
@@ -3134,11 +3134,11 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 						break;
 					
 					case cSTEPSFX:
-						trigger_stepfx_ffc(pos);
+						trigger_stepfx_ffc(i);
 						break;
 					
 					case cSWITCHHOOK:
-						if(!trigger_switchhookblock_ffc(pos))
+						if(!trigger_switchhookblock_ffc(i))
 							return false;
 						break;
 					
@@ -3292,11 +3292,11 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 					{
 						word c = tmpscr.numFFC();
-						for(word i=0; i<c; i++)
+						for(word j=0; j<c; j++)
 						{
-							if (i == pos && skipself)
+							if (j == i && skipself)
 								continue;
-							do_copycat_trigger_ffc(i);
+							do_copycat_trigger_ffc(j);
 						}
 					}
 					copycat_id = 0;
@@ -3308,7 +3308,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		}
 		if(used_bit && grid)
 		{
-			set_bit(grid,pos,1);
+			set_bit(grid,i,1);
 		}
 	}
 	
