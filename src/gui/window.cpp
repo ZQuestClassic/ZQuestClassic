@@ -107,13 +107,13 @@ void Window::realize(DialogRunner& runner)
 	setFramed(false); //don't allow frame on window proc
 	Widget::realize(runner);
 	alDialog = runner.push(shared_from_this(), DIALOG {
-		jwin_win_proc_a5,
+		jwin_win_proc,
 		x, y, getWidth(), getHeight(),
 		fgColor, bgColor,
 		0, // key
 		getFlags()|(closeMessage >= 0 ? D_EXIT : 0), // flags,
 		0, 0, // d1, d2
-		title.data(), get_custom_font_a5(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
+		title.data(), get_custom_font(CFONT_TITLE), (helptext[0] ? helptext.data() : nullptr) // dp, dp2, dp3
 	});
 
 	if(content)
