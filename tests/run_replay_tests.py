@@ -620,7 +620,7 @@ class WebPlayerInterface:
 
 
 def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
-    result = RunResult(name=replay_file.name, directory=str(output_dir.relative_to(test_results_dir)))
+    result = RunResult(name=replay_file.name, directory=output_dir.relative_to(test_results_dir).as_posix())
     roundtrip_path = output_dir / f'{replay_file.name}.roundtrip'
     allegro_log_path = output_dir / 'allegro.log'
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
