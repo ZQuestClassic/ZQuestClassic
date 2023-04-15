@@ -14,9 +14,9 @@ import json
 import shutil
 import json
 from pathlib import Path
-from itertools import groupby
 from github import Github
-from common import get_gha_artifacts, ReplayTestResults
+from common import get_gha_artifacts, ReplayTestResults, RunResult
+from typing import List
 
 
 def dir_path(path):
@@ -41,10 +41,6 @@ if not args.workflow_run and not args.local:
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 out_dir = Path(f'{script_dir}/compare-report')
-
-
-def get_replay_from_snapshot_path(path):
-    return path.name[:path.name.index('.zplay') + len('.zplay')]
 
 
 # A `test_run` represents an invocation of run_replay_tests.py, including:
@@ -77,31 +73,31 @@ def collect_test_run_from_dir(directory: Path):
         ])
     test_run['label'] = ' '.join(label_parts)
 
-    snapshot_paths = sorted(directory.rglob('*.zplay*.png'))
-    if len(snapshot_paths) == 0:
+    snapshot_paths = list(directory.rglob('*.zplay*.png'))
+    if not snapshot_paths:
         print(f'{directory} has no snapshots')
 
-    test_run['replays'] = []
-    for replay, snapshots in groupby(snapshot_paths, get_replay_from_snapshot_path):
-        # For now, only collect the last run for a replay.
-        last_run_dir_for_replay = None
-        for runs in reversed(test_results.runs):
-            run = next((r for r in runs if r.name == replay), None)
-            if run:
-                last_run_dir_for_replay = run
-                break
-        if last_run_dir_for_replay:
-            snapshots = [
-                s for s in snapshots if last_run_dir_for_replay.directory.replace('\\', '/') in str(s)]
+    # Only process the last run of each replay.
+    replay_runs: List[RunResult] = []
+    for runs in reversed(test_results.runs):
+        for run in runs:
+            if any(r for r in replay_runs if r.name == run.name):
+                continue
+            replay_runs.append(run)
 
+    test_run['replays'] = []
+    for run in replay_runs:
         snapshots = [{
             'path': s,
             'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),
             'unexpected': 'unexpected' in s.name,
-        } for s in snapshots]
+        } for s in (directory/run.directory).rglob('*.zplay*.png')]
+        if not snapshots:
+            continue
+
         snapshots.sort(key=lambda s: s['frame'])
         test_run['replays'].append({
-            'name': replay,
+            'name': run.name,
             'snapshots': snapshots,
         })
 
