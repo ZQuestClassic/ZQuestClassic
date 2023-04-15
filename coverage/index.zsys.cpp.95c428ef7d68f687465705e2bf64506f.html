@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-04-14 05:35:34</td>
+      <td>2023-04-15 23:55:20</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>321</td>
-      <td>1171</td>
-      <td class="coverage-low">27.4%</td>
+      <td>303</td>
+      <td>1150</td>
+      <td class="coverage-low">26.3%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>36</td>
-      <td>115</td>
-      <td class="coverage-low">31.3%</td>
+      <td>34</td>
+      <td>113</td>
+      <td class="coverage-low">30.1%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>101</td>
-      <td>684</td>
-      <td class="coverage-low">14.8%</td>
+      <td>94</td>
+      <td>672</td>
+      <td class="coverage-low">14.0%</td>
     </tr>
   </table>
 </div>
@@ -471,13 +471,13 @@
     </tr>
     <tr>
       <td>
-        <a href="#l2475">sane_destroy_bitmap(BITMAP**)</a>
+        <a href="#l2430">sane_destroy_bitmap(BITMAP**)</a>
       </td>
       <td>
-        <a href="#l2475">2475</a>
+        <a href="#l2430">2430</a>
       </td>
       <td>
-        <a href="#l2475"> not called</a>
+        <a href="#l2430"> not called</a>
       </td>
     </tr>
     <tr>
@@ -1292,28 +1292,6 @@
       </td>
       <td>
         <a href="#l168"> not called</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l2461">zc_trace_clear()</a>
-      </td>
-      <td>
-        <a href="#l2461">2461</a>
-      </td>
-      <td>
-        <a href="#l2461"> called 2 times</a>
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="#l2440">zc_trace_handler(char const*)</a>
-      </td>
-      <td>
-        <a href="#l2440">2440</a>
-      </td>
-      <td>
-        <a href="#l2440"> called 593083 times</a>
       </td>
     </tr>
     <tr>
@@ -18855,417 +18833,60 @@
       <td class="lineno"><a id="l2430" href="#l2430">2430</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">//Fun fact: Allegro used to be in control of allegro.log. This caused</span></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">sane_destroy_bitmap</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">**</span><span class="n">bmp</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2431" href="#l2431">2431</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="c1">//problems, because it would hold on to a file handle. Even if we blank</span></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2432" href="#l2432">2432</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">//the contents of the log, it will still write to the end, causing</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2433" href="#l2433">2433</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">//lots of nulls.</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2434" href="#l2434">2434</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2435" href="#l2435">2435</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="c1">//No more!</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2436" href="#l2436">2436</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2437" href="#l2437">2437</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2438" href="#l2438">2438</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="kt">FILE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">trace_file</span><span class="p">;</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2439" href="#l2439">2439</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2440" href="#l2440">2440</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">593083</td>
-      <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">zc_trace_handler</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">msg</span><span class="p">)</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2441" href="#l2441">2441</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2442" href="#l2442">2442</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="c1">// printf(&quot;%s&quot;, msg);</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2443" href="#l2443">2443</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">2/2</summary>
-        <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 593052 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 31 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount coveredLine">593083</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">trace_file</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2444" href="#l2444">2444</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2445" href="#l2445">2445</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 31 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount coveredLine">31</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ALLEGRO_LEGACY_TRACE&quot;</span><span class="p">))</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2446" href="#l2446">2446</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">31</td>
-      <td class="src coveredLine"><span class="w">            </span><span class="n">trace_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ALLEGRO_LEGACY_TRACE&quot;</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;a+&quot;</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2447" href="#l2447">2447</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="k">else</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2448" href="#l2448">2448</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="n">trace_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;allegro.log&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;a+&quot;</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2449" href="#l2449">2449</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">        </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2450" href="#l2450">2450</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 31 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount coveredLine">31</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="mi">0</span><span class="o">==</span><span class="n">trace_file</span><span class="p">)</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2451" href="#l2451">2451</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2452" href="#l2452">2452</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="c1">// blargh.</span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2453" href="#l2453">2453</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">        </span><span class="p">}</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2454" href="#l2454">2454</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">31</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2455" href="#l2455">2455</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2456" href="#l2456">2456</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">593083</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">fprintf</span><span class="p">(</span><span class="n">trace_file</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;%s&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">msg</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2457" href="#l2457">2457</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">593083</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">fflush</span><span class="p">(</span><span class="n">trace_file</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2458" href="#l2458">2458</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">593083</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2459" href="#l2459">2459</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">593083</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2460" href="#l2460">2460</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2461" href="#l2461">2461</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zc_trace_clear</span><span class="p">()</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2462" href="#l2462">2462</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2463" href="#l2463">2463</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">trace_file</span><span class="p">)</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2464" href="#l2464">2464</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2465" href="#l2465">2465</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">fclose</span><span class="p">(</span><span class="n">trace_file</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2466" href="#l2466">2466</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="p">}</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2467" href="#l2467">2467</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2468" href="#l2468">2468</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ALLEGRO_LEGACY_TRACE&quot;</span><span class="p">))</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2469" href="#l2469">2469</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">        </span><span class="n">trace_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;ALLEGRO_LEGACY_TRACE&quot;</span><span class="p">),</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2470" href="#l2470">2470</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span><span class="k">else</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2471" href="#l2471">2471</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">trace_file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fopen</span><span class="p">(</span><span class="s">&quot;allegro.log&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;w&quot;</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2472" href="#l2472">2472</a></td>
-      <td class="linebranch">
-        <details class="linebranchDetails">
-        <summary class="linebranchSummary">1/2</summary>
-        <div class="linebranchContents">
-          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2 times.</div>
-        </div>
-        </details>
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">trace_file</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2473" href="#l2473">2473</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount coveredLine">2</td>
-      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2474" href="#l2474">2474</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2475" href="#l2475">2475</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">sane_destroy_bitmap</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">**</span><span class="n">bmp</span><span class="p">)</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2476" href="#l2476">2476</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l2477" href="#l2477">2477</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">bmp</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2478" href="#l2478">2478</a></td>
+      <td class="lineno"><a id="l2433" href="#l2433">2433</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2479" href="#l2479">2479</a></td>
+      <td class="lineno"><a id="l2434" href="#l2434">2434</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="n">destroy_bitmap</span><span class="p">(</span><span class="o">*</span><span class="n">bmp</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2480" href="#l2480">2480</a></td>
+      <td class="lineno"><a id="l2435" href="#l2435">2435</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">		</span><span class="o">*</span><span class="n">bmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2481" href="#l2481">2481</a></td>
+      <td class="lineno"><a id="l2436" href="#l2436">2436</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2482" href="#l2482">2482</a></td>
+      <td class="lineno"><a id="l2437" href="#l2437">2437</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l2483" href="#l2483">2483</a></td>
+      <td class="lineno"><a id="l2438" href="#l2438">2438</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
