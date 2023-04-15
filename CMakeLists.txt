@@ -745,6 +745,7 @@ endif()
 
 set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger)
 set(zc_clang_errors
+	-Werror=array-bounds
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
@@ -752,6 +753,9 @@ set(zc_clang_errors
 	-Wno-switch
 )
 set(zc_gcc_errors
+	-Werror=array-bounds
+	-Werror=constant-conversion
+	-Werror=extra-tokens
 	-Werror=format
 	-Werror=format-overflow
 	-Werror=return-type
