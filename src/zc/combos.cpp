@@ -3467,17 +3467,17 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 
 void update_combo_timers()
 {
+	// TODO z3 for_every_rpos_in_region
 	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		pos_handle_t pos_handle;
 		for (auto lyr = 0; lyr < 7; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-			pos_handle.screen = scr;
-			pos_handle.screen_index = screen_index;
-			pos_handle.layer = lyr;
+			pos_handle_t pos_handle = {scr, screen_index, lyr};
 
 			for(auto pos = 0; pos < 176; ++pos)
 			{
+				pos_handle.rpos = POS_TO_RPOS(pos, screen_index);
+
 				// TODO z3 !
 				cpos_info& timer = combo_posinfos[lyr][pos];
 				timer.updateData(scr->data[pos]);

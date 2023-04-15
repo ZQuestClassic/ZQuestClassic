@@ -497,7 +497,7 @@ void ending()
 			{
 				if(y==credits[creditsLine].yPos)
 				{
-					textout_ex(scrollbuf,
+					textout_ex(scrollbuf_old,
 					           get_zc_font(font_zfont),
 					           credits[creditsLine].text,
 					           credits[creditsLine].xPos,

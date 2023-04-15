@@ -159,6 +159,7 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 
 bool is_in_current_region(int scr)
 {
+	// TODO z3 cache
 	return is_in_region(z3_origin_screen_index, currdmap, scr);
 }
 
@@ -4539,15 +4540,17 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 	global_z3_cur_scr_drawing = -1;
 }
 
+// TODO z3 rename for_every_rpos_in_region
 void for_every_pos_in_region(const std::function <void (const pos_handle_t&)>& fn)
 {
 	pos_handle_t pos_handle;
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
+		// TODO z3 should cache this
 		if (!is_in_current_region(screen_index)) continue;
 
 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-		for (auto lyr = 0; lyr < 7; ++lyr)
+		for (auto lyr = 0; lyr <= 6; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
 			pos_handle.screen = scr;
@@ -5674,6 +5677,7 @@ void openshutters()
 		pos_handle_t pos_handle;
 		for (auto lyr = 0; lyr < 7; ++lyr)
 		{
+			// TODO z3 for_every_rpos_in_region
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
 			pos_handle.screen = scr;
 			pos_handle.screen_index = screen_index;
