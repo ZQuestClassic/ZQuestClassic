@@ -5262,7 +5262,7 @@ void draw_sqr_nums(size_and_pos const& sqr, FONT* f, bool center, int num1, int 
 		textprintf_ex(menu1,f,sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",num2);
 	}
 }
-void draw_sqr_btn(size_and_pos const& sqr, char* txt, int flags, FONT* f = nullptr)
+void draw_sqr_btn(size_and_pos const& sqr, const char* txt, int flags, FONT* f = nullptr)
 {
 	if(sqr.x < 0) return;
 	FONT* tfont = font;
@@ -24671,7 +24671,7 @@ static DIALOG assignscript_dlg[] =
     
 };
 
-int32_t txtout(BITMAP* dest, char* txt, int32_t x, int32_t y, bool disabled)
+int32_t txtout(BITMAP* dest, const char* txt, int32_t x, int32_t y, bool disabled)
 {
 	if(disabled)
 	{

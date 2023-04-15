@@ -938,7 +938,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		{
 			byte& errsfx = local_ref.attribytes[0];
 			grids[0] = Columns<7>();
-			static char* btn_names[] = {"Up","Down","Left","Right","A","B","Start","L","R","Map","Ex1","Ex2","Ex3","Ex4","StickUp","StickDown","StickLeft","StickRight"};
+			static const char* btn_names[] = {"Up","Down","Left","Right","A","B","Start","L","R","Map","Ex1","Ex2","Ex3","Ex4","StickUp","StickDown","StickLeft","StickRight"};
 			for(int q = 0; q < 18; ++q)
 			{
 				grids[0]->add(Checkbox(

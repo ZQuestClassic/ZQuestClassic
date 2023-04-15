@@ -79,8 +79,8 @@ void derelativize_path(char* dest, char const* path);
 
 typedef struct EXT_LIST
 {
-    char *text;                                             // appears in drop list
-    char *ext;                                              // same as *ext in file_select()
+    const char *text;                                             // appears in drop list
+    const char *ext;                                              // same as *ext in file_select()
 } EXT_LIST;
 
 /* jwin_file_browse:

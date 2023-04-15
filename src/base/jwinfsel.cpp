@@ -1080,7 +1080,8 @@ static int32_t fs_elist_proc(int32_t msg, DIALOG *d, int32_t c)
     if((sel != d->d1) || (ret & D_CLOSE))
     {
         // change the extension(s)
-        fext = fext_list[d->d1].ext;
+        fext = (char*) malloc(strlen(fext_list[d->d1].ext) + 1);
+        strcpy(fext, fext_list[d->d1].ext);
 //    if (fext)// && ugetc(fext))
         {
             parse_extension_string(fext);
@@ -1314,7 +1315,8 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     file_selector[FS_CANCEL].dp = (void*)get_config_text("Cancel");
     
     fext_list = list;
-    fext = list[*list_sel].ext;
+    fext = (char*) malloc(strlen(list[*list_sel].ext) + 1);
+    strcpy(fext, list[*list_sel].ext);
     file_selector[FS_TYPES].d1 = *list_sel;
     
     /* Set default attributes. */

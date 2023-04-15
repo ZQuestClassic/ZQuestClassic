@@ -474,8 +474,7 @@ void load_game_configs()
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
 	clearConsoleOnReload = zc_get_config("CONSOLE","clear_console_on_reload",0)!=0;
 
-	char const* default_path = "";
-	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,default_path));
+	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,""));
    
 	if(strlen(qstdir)==0)
 	{

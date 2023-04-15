@@ -6833,7 +6833,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
 }
 
 void set_rules(byte* newrules);
-void popup_bugfix_dlg(char* cfg)
+void popup_bugfix_dlg(const char* cfg)
 {
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
 	if(!dont_show_again && hasCompatRulesEnabled())

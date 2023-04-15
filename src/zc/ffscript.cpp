@@ -25462,7 +25462,7 @@ void FFScript::do_paldata_clearcset()
 
 int32_t FFScript::do_paldata_getrgb(int32_t v)
 {
-	char* fname = "";
+	const char* fname = "";
 	switch (v)
 	{
 		case 0: fname = "paldata->R[]"; break;
@@ -25497,7 +25497,7 @@ int32_t FFScript::do_paldata_getrgb(int32_t v)
 
 void FFScript::do_paldata_setrgb(int32_t v, int32_t val)
 {
-	char* fname = "";
+	const char* fname = "";
 	switch (v)
 	{
 		case 0: fname = "paldata->R[]"; break;
