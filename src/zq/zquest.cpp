@@ -7394,8 +7394,8 @@ void select_combo(int32_t clist)
 				autobrush_cx = cx;
 				autobrush_cy = cy;
 			}
-			BrushWidth = abs(autobrush_cx-cx)+1;
-			BrushHeight = abs(autobrush_cy-cy)+1;
+			BrushWidth = vbound(abs(autobrush_cx-cx)+1,1,16);
+			BrushHeight = vbound(abs(autobrush_cy-cy)+1,1,11);
 			cx = std::min(autobrush_cx,cx);
 			cy = std::min(autobrush_cy,cy);
 		}
