@@ -552,7 +552,7 @@ static int32_t do_NewQuest()
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, CmbCursorCol = 0,
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
 	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
@@ -30244,6 +30244,8 @@ int32_t main(int32_t argc,char **argv)
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
+	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
+	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);

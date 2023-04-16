@@ -55,6 +55,7 @@ static void massRecolorReset8Bit();
 static bool massRecolorSetup(int32_t cset);
 static void massRecolorApply(int32_t tile);
 extern int32_t last_droplist_sel;
+extern int32_t TilePgCursorCol, CmbPgCursorCol;
 
 int32_t ex=0;
 int32_t nextcombo_fake_click=0;
@@ -15167,6 +15168,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	}
 	
 	bool did_snap = false;
+	int otl = tile, otl2 = tile2;
 	do
 	{
 		rest(4);
@@ -16370,8 +16372,14 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		
 REDRAW:
 
-		if((f%16)==0 || InvalidStatic)
+		if((f%8)==0 || InvalidStatic)
 			redraw=true;
+		if(otl != tile || otl2 != tile2)
+		{
+			otl = tile;
+			otl2 = tile2;
+			redraw = true;
+		}
 			
 		if(redraw)
 		{
@@ -16392,7 +16400,7 @@ REDRAW:
 					{
 						int32_t x=TILECOL(i)<<(5);
 						int32_t y=TILEROW(i-first)<<(5);
-						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
 					}
 				}
 			}
@@ -16404,7 +16412,7 @@ REDRAW:
 					{
 						int32_t x=TILECOL(i)<<(5);
 						int32_t y=TILEROW(i-first)<<(5);
-						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
 					}
 				}
 			}
@@ -17013,6 +17021,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	
 	bool bdown=false;
 	int32_t f=0;
+	int otl = cmb, otl2 = tile2;
 	
 	do
 	{
@@ -17275,7 +17284,16 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		
 		if(gui_mouse_b()==0)
 			bdown=false;
-			
+		
+		if((f%8) || InvalidStatic)
+			redraw = true;
+		if(otl != cmb || otl2 != tile2)
+		{
+			otl = cmb;
+			otl2 = tile2;
+			redraw = true;
+		}
+		
 		if(redraw || combopage_animate)
 			draw_combos(page,cs,combo_cols);
 			
@@ -17302,7 +17320,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 						y=((t%52)>>2) << 5;
 					}
 					
-					rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
+					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
 				}
 			}
 			
@@ -17566,6 +17584,7 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	
 	bool bdown=false;
 	int32_t f=0;
+	int otl = tile, otl2 = tile2;
 	
 	do
 	{
@@ -18107,8 +18126,15 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 REDRAW:
 
 		if(gui_mouse_b()==0)
-		{
 			bdown=false;
+		
+		if((f%8) || InvalidStatic)
+			redraw = true;
+		if(otl != tile || otl2 != tile2)
+		{
+			otl = tile;
+			otl2 = tile2;
+			redraw = true;
 		}
 		
 		if(redraw || combopage_animate)
@@ -18137,7 +18163,7 @@ REDRAW:
 						y=((t%52)>>2) << 5;
 					}
 					
-					rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(15));
+					safe_rect(screen,x+screen_xofs,y+screen_yofs,x+screen_xofs+(16*mul)-1,y+screen_yofs+(16*mul)-1,vc(CmbPgCursorCol),2);
 				}
 			}
 			
@@ -19989,6 +20015,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	}
 	
 	bool did_snap = false;
+	int otl = tile, otl2 = tile2;
 	do
 	{
 		rest(4);
@@ -21076,9 +21103,15 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		
 REDRAW_DMAP_SELTILE:
 
-		if((f%16)==0 || InvalidStatic)
+		if((f%8)==0 || InvalidStatic)
 			redraw=true;
-			
+		if(otl != tile || otl2 != tile2)
+		{
+			otl = tile;
+			otl2 = tile2;
+			redraw = true;
+		}
+		
 		if(redraw)
 		{
 			draw_tiles(first,cs,f);
@@ -21098,7 +21131,7 @@ REDRAW_DMAP_SELTILE:
 					{
 						int32_t x=(i%TILES_PER_ROW)<<5;
 						int32_t y=((i-first)/TILES_PER_ROW)<<5;
-						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
 					}
 				}
 			}
@@ -21110,7 +21143,7 @@ REDRAW_DMAP_SELTILE:
 					{
 						int32_t x=TILECOL(i)<<5;
 						int32_t y=TILEROW(i-first)<<5;
-						rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(15));
+						safe_rect(screen2,x,y,x+(16*mul)-1,y+(16*mul)-1,vc(TilePgCursorCol),2);
 					}
 				}
 			}

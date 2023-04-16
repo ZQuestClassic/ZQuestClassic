@@ -15,8 +15,9 @@ void call_options_dlg()
 	OptionsDialog().show();
 }
 
-extern int32_t EnableTooltips, GridColor, CmbCursorCol, KeyboardRepeatDelay,
-	TooltipsHighlight, KeyboardRepeatRate, pixeldb, infobg, MMapCursorStyle;
+extern int32_t EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol,
+	CmbPgCursorCol, KeyboardRepeatDelay, TooltipsHighlight, KeyboardRepeatRate,
+	pixeldb, infobg, MMapCursorStyle;
 extern bool allowHideMouse;
 
 void OptionsDialog::loadOptions()
@@ -51,6 +52,8 @@ void OptionsDialog::loadOptions()
 	opts[OPT_UNCOMP_AUTOSAVE] = UncompressedAutoSaves ? 1 : 0;
 	opts[OPT_GRIDCOL] = GridColor;
 	opts[OPT_CMB_CURS_COL] = CmbCursorCol;
+	opts[OPT_TPG_CURS_COL] = TilePgCursorCol;
+	opts[OPT_CPG_CURS_COL] = CmbPgCursorCol;
 	opts[OPT_SNAPFORMAT] = SnapshotFormat;
 	opts[OPT_KBREPDEL] = KeyboardRepeatDelay;
 	opts[OPT_KBREPRATE] = KeyboardRepeatRate;
@@ -158,6 +161,14 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_CMB_CURS_COL:
 			CmbCursorCol = v;
 			zc_set_config("zquest", "combo_cursor_color", v);
+			break;
+		case OPT_TPG_CURS_COL:
+			TilePgCursorCol = v;
+			zc_set_config("zquest", "tpage_cursor_color", v);
+			break;
+		case OPT_CPG_CURS_COL:
+			CmbPgCursorCol = v;
+			zc_set_config("zquest", "cpage_cursor_color", v);
 			break;
 		case OPT_SNAPFORMAT:
 			SnapshotFormat = v;
@@ -866,7 +877,9 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_ASRETENTION, "Auto-save Retention:", asRetentionList),
 					ROW_CHECK(OPT_UNCOMP_AUTOSAVE, "Uncompressed Auto Saves"),
 					ROW_DDOWN(OPT_GRIDCOL, "Grid Color:", colorList),
-					ROW_DDOWN(OPT_CMB_CURS_COL, "Combo Cursor Color:", colorList),
+					ROW_DDOWN(OPT_CMB_CURS_COL, "Combo Column SelColor:", colorList),
+					ROW_DDOWN(OPT_TPG_CURS_COL, "Tile Page SelColor:", colorList),
+					ROW_DDOWN(OPT_CPG_CURS_COL, "Combo Page SelColor:", colorList),
 					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
 						"The color of the current screen outline on the minimap."
 						" Either solid or blinking between two colors."),
