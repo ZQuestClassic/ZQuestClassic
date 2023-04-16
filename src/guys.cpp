@@ -2830,38 +2830,41 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	bool needshwtr = (moveflags & FLAG_ONLY_SHALLOW_WATERWALK);
 	bool needpit = (moveflags & FLAG_ONLY_PITWALK);
 
-	int32_t cwalkflag = c.walk & 0xF;
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) cwalkflag = 0;
-	if (s1)
+	if(!cansolid)
 	{
-		if (c1.type == cBRIDGE) 
+		int32_t cwalkflag = c.walk & 0xF;
+		if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) cwalkflag = 0;
+		if (s1)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (c1.type == cBRIDGE) 
 			{
-				int efflag = (c1.walk & 0xF0)>>4;
-				int newsolid = (c1.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					int efflag = (c1.walk & 0xF0)>>4;
+					int newsolid = (c1.walk & 0xF);
+					cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				}
+				else cwalkflag &= c1.walk;
 			}
-			else cwalkflag &= c1.walk;
+			else cwalkflag |= c1.walk & 0xF;
 		}
-		else cwalkflag |= c1.walk & 0xF;
-	}
-	if (s2)
-	{
-		if (c2.type == cBRIDGE) 
+		if (s2)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (c2.type == cBRIDGE) 
 			{
-				int efflag = (c2.walk & 0xF0)>>4;
-				int newsolid = (c2.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					int efflag = (c2.walk & 0xF0)>>4;
+					int newsolid = (c2.walk & 0xF);
+					cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				}
+				else cwalkflag &= c2.walk;
 			}
-			else cwalkflag &= c2.walk;
+			else cwalkflag |= c2.walk & 0xF;
 		}
-		else cwalkflag |= c2.walk & 0xF;
+		if(cwalkflag & b)
+			return true;
 	}
-	bool solid = cwalkflag & b;
-	if (solid && !cansolid) return true;
 	if(needwtr || needshwtr || needpit)
 	{
 		bool ret = true;
@@ -2889,6 +2892,8 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			return false;
 	}
 	
+	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
+	
 	if(dx && !dy)
 	{
 		if(dx < 0)
@@ -2903,6 +2908,8 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(mx, ry, special, left, mx, my, kb))
 				return false;
+			if(nosolid && collide_object(mx,my,bx-mx,hysz,this))
+				return false;
 		}
 		else
 		{
@@ -2914,6 +2921,8 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 					return false;
 			}
 			if(scr_walkflag(mx, ry, special, right, mx, my, kb))
+				return false;
+			if(nosolid && collide_object(rx,my,mx-rx,hysz,this))
 				return false;
 		}
 	}
@@ -2931,6 +2940,8 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(rx, my, special, up, mx, my, kb))
 				return false;
+			if(nosolid && collide_object(mx,my,hxsz,by-my,this))
+				return false;
 		}
 		else
 		{
@@ -2943,9 +2954,11 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(rx, my, special, down, mx, my, kb))
 				return false;
+			if(nosolid && collide_object(mx,ry,hxsz,my-ry,this))
+				return false;
 		}
 	}
-	else
+	else //! Untested, and currently unused.
 	{
 		return scr_canmove(dx, 0, special, kb, ign_sv) && scr_canmove(dy, 0, special, kb, ign_sv);
 	}
@@ -2957,6 +2970,10 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	zfix bx = dx+hxofs, by = dy+hyofs; //left/top
 	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
 	
+	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
+	
+	if(nosolid && collide_object(bx,by,hxsz,hysz,this))
+		return false;
 	for(zfix ty = 0; by+ty < ry; ty += 8)
 	{
 		for(zfix tx = 0; bx+tx < rx; tx += 8)
@@ -2975,6 +2992,16 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	if(scr_walkflag(rx, ry, special, -1, -1000, -1000, kb))
 		return false;
 	return true;
+}
+
+bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwid, int32_t nhei)
+{
+	auto oxsz = hxsz, oysz = hysz;
+	if(nwid > -1) hxsz = nwid;
+	if(nhei > -1) hysz = nhei;
+	bool ret = scr_canplace(dx,dy,special,kb);
+	hxsz = oxsz; hysz = oysz;
+	return ret;
 }
 
 bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
