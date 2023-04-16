@@ -3,6 +3,7 @@
 #include "base/gui.h"
 
 extern int32_t prv_mode;
+extern bool DragAspect;
 
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
@@ -81,6 +82,8 @@ static void configure_render_tree()
 			xscale = std::max((int) xscale, 1);
 			yscale = std::max((int) yscale, 1);
 		}
+		if(DragAspect)
+			xscale = yscale = std::min(xscale,yscale);
 		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_screen.transform.xscale = xscale;
