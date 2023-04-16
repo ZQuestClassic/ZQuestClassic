@@ -11111,8 +11111,8 @@ void domouse()
 						case 12:
 						{
 							ffdata tempdat;
-							tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-							tempdat.y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+							tempdat.x = (((x-startxint)/mapscreensize)&(~0x0007))*10000;
+							tempdat.y = (((y-startyint)/mapscreensize)&(~0x0007))*10000;
 							tempdat.data = Combo;
 							tempdat.cset = CSet;
 							call_ffc_dialog(earliestfreeffc, tempdat);
