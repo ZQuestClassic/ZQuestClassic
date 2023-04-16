@@ -110,7 +110,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 			items.add(new item((zfix)COMBOX(scombo),
 				(zfix)COMBOY(scombo),
 				(zfix)0,
-				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->catchall].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
@@ -256,7 +256,7 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
 			items.add(new item(ffc.x, ffc.y,(zfix)0,
-				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->item].family==itype_triforcepiece ||
+				tmpscr->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr->catchall].family==itype_triforcepiece ||
 				(tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
