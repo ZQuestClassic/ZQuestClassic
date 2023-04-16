@@ -303,7 +303,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
-#define V_FAVORITES        2
+#define V_FAVORITES        3
 
 #define V_COMPATRULE       40
 #define V_ZINFO            3

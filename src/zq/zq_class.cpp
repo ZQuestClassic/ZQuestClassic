@@ -13874,66 +13874,69 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
 
 int32_t writefavorites(PACKFILE *f, zquestheader*)
 {
-    dword section_id=ID_FAVORITES;
-    dword section_version=V_FAVORITES;
-    dword section_cversion=CV_FAVORITES;
-    dword section_size = 0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-            new_return(4);
-        
-        writesize=0;
-        
+	dword section_id=ID_FAVORITES;
+	dword section_version=V_FAVORITES;
+	dword section_cversion=CV_FAVORITES;
+	dword section_size = 0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+			new_return(4);
+		
+		writesize=0;
+		
+		if(!p_iputw(FAVORITECOMBO_PER_ROW,f))
+			new_return(16);
+		
 		word favcmb_cnt = 0;
-		for(int q = MAXFAVORITECOMBOS; q >= 0; --q)
+		for(int q = MAXFAVORITECOMBOS-1; q >= 0; --q)
 			if(favorite_combos[q] != -1)
 			{
 				favcmb_cnt = q;
 				break;
 			}
-        //finally...  section data
-        if(!p_iputw(favcmb_cnt,f)) // This'll probably never change, huh?
-            new_return(5);
-        
-        for(int i=0; i<favcmb_cnt; ++i)
-            if(!p_iputl(favorite_combos[i],f))
-                new_return(6);
-        
+		
+		if(!p_iputw(favcmb_cnt,f)) // This'll probably never change, huh?
+			new_return(5);
+		
+		for(int i=0; i<favcmb_cnt; ++i)
+			if(!p_iputl(favorite_combos[i],f))
+				new_return(6);
+		
 		word favcmb_al_cnt = 0;
-		for(int q = MAXFAVORITECOMBOALIASES; q >= 0; --q)
+		for(int q = MAXFAVORITECOMBOALIASES-1; q >= 0; --q)
 			if(favorite_comboaliases[q]!=-1)
 			{
 				favcmb_al_cnt = q;
 				break;
 			}
-        if(!p_iputw(favcmb_al_cnt,f))
-            new_return(7);
-        
-        for(int32_t i=0; i<favcmb_al_cnt; ++i)
-            if(!p_iputl(favorite_comboaliases[i],f))
-                new_return(8);
+		if(!p_iputw(favcmb_al_cnt,f))
+			new_return(7);
+		
+		for(int32_t i=0; i<favcmb_al_cnt; ++i)
+			if(!p_iputl(favorite_comboaliases[i],f))
+				new_return(8);
 		
 		word max_combo_cols = MAX_COMBO_COLS;
 		if(!p_iputw(max_combo_cols,f))
@@ -13957,21 +13960,21 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 			if(!p_iputl(map_page[q].screen,f))
 				new_return(15);
 		}
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    new_return(0);
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+	}
+	
+	new_return(0);
 }
 
 int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
