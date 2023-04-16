@@ -5262,6 +5262,19 @@ bool MovePaused();
  *   i.e. spawning, dying, stunned, clock active, etc
  * Should be checked before calling movement functions below
 
+bool CanPlace(float nx, float ny, int special = SPW_NONE,
+	bool knockback = false, int nw = -1, int nh = -1);
+ * Checks if the enemy could be arbitrarily placed (teleported) at 'nx,ny'.
+ * If 'nw' or 'nh' are > -1, they will be used as the width/height of the enemy for the check.
+ *     Otherwise, the enemy's hitwidth/hitheight are used.
+ * Some enemies treat pits/liquid as solid, EXCEPT if they are being knocked back.
+ *     'bool knockback' here affects this for the placement checks.
+ * Use the 'SPW_' constants to provide a special value;
+ *     i.e. 'SPW_FLOATER' for flying enemies.
+ * Use 'SPW_NONE' if you don't know what to use.
+ * Returns true if the enemy could be placed successfully, false otherwise.
+ 
+
 bool MoveXY(float dx, float dy, int special = SPW_NONE)
  * Attempts to move the enemy by 'dx, dy'; obeying solidity.
  * Use the 'SPW_' constants to provide a special value;

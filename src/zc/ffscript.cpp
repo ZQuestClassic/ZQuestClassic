@@ -32884,7 +32884,23 @@ j_command:
 				ri->d[rEXP1] = 0;
 				if(GuyH::loadNPC(ri->guyref, "npc->CanMoveXY()") == SH::_NoError)
 				{
-					ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 00;
+					ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCCANPLACE:
+			{
+				ri->guyref = SH::read_stack(ri->sp + 6);
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->CanPlace()") == SH::_NoError)
+				{
+					zfix nx = zslongToFix(SH::read_stack(ri->sp + 5));
+					zfix ny = zslongToFix(SH::read_stack(ri->sp + 4));
+					int special = SH::read_stack(ri->sp + 3) / 10000;
+					bool kb = SH::read_stack(ri->sp + 2)!=0;
+					int nw = SH::read_stack(ri->sp + 1) / 10000;
+					int nh = SH::read_stack(ri->sp + 0) / 10000;
+					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(dx, dy, special, kb, nw, nh) ? 10000 : 0;
 				}
 				break;
 			}
@@ -39561,7 +39577,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
 	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
 	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
+	{ "NPCCANPLACE",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},

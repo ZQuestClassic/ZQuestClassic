@@ -435,6 +435,10 @@
                             "val": "<h3>bool MoveAtAngle(float degrees, float pxamnt, int special);\nbool CanMoveAtAngle(float degrees, float pxamnt, int special);</h3>\n\nAttempts to move the enemy by 'pxamnt' pixels in the 'degrees' angle, failing if it is blocked by something it cannot walk through.\n\nUse the 'SPW_' constants for 'int special'; i.e. 'SPW_FLOATER' to indicate a flying enemy.\n\nReturns true if the enemy moves the full distance, false if the enemy was blocked at all.\n\nThe 'CanMoveAtAngle' variant will not actually move the enemy at all, but will run the collision checks and return true if it <em>CAN</em> move the full distance, or false if it <em>WOULD</em> be blocked.\n"
                         },
                         {
+                            "name": "CanPlace ;; npc::CanPlace",
+                            "val": "<h3>bool CanPlace(float dx, float dy, [[int special = SPW_NONE|Use the 'SPW_' constants to provide a special value; i.e. 'SPW_FLOATER' for flying enemies. Use 'SPW_NONE' if you don't know what to use.]],\n\t[[bool knockback = false|Some enemies treat pits/liquid as solid, EXCEPT if they are being knocked back. 'bool knockback' here affects this for the placement checks.]], [[int nw = -1, int nh = -1|If 'nw' or 'nh' are > -1, they will be used as the width/height of the enemy for the check. Otherwise, the enemy's hitwidth/hitheight are used.\n]]);</h3>\n\nReturns true if the enemy could be arbitrarily placed at (ex. teleported to) the position 'nx,ny'."
+                        },
+                        {
                             "name": "MovePaused ;; npc::MovePaused",
                             "val": "<h3>bool MovePaused();</h3>\n\nReturns true if the enemy is in a state in which it should not be allowed to move (ex. spawning, dying, stunned, time frozen by clock)\nReturns false otherwise.\n"
                         },

@@ -213,6 +213,7 @@ static AccessorTable npcTable[] =
 	{ "CanMove",                    1,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "CanMoveAtAngle",             0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "CanMoveXY",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "CanPlace",                   0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_NPC, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_FLOAT, ZTID_FLOAT },{ 0, 0, -10000, -10000 } },
 	{ "getInvFlicker",              0,          ZTID_BOOL,   NPCCANFLICKER,             0,  { ZTID_NPC },{} },
 	{ "setInvFlicker",              0,          ZTID_VOID,   NPCCANFLICKER,             0,  { ZTID_NPC, ZTID_BOOL },{} },
 	{ "getDrowning",                0,         ZTID_FLOAT,   NPCDROWNCLK,               0,  { ZTID_NPC },{} },
@@ -749,6 +750,17 @@ void NPCSymbols::generateCode()
 		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
 		POPREF();
 		addOpcode2 (code, new ONPCCanMoveXY());
+		RETURN();
+		function->giveCode(code);
+	}
+	//bool CanPlace(npc, int x, int y, int special = 0, bool kb = 0, int w = -1, int h = -1)
+	{
+		Function* function = getFunction("CanPlace");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new ONPCCanPlace());
+		LABELBACK(label);
+		POP_ARGS(7, NUL);
 		RETURN();
 		function->giveCode(code);
 	}
