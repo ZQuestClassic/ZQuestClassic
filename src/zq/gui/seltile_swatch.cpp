@@ -24,7 +24,8 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 		}
 		case MSG_CLICK:
 		{
-			if(gui_mouse_b()&1) //leftmouse
+			int mb = gui_mouse_b();
+			if(!mb || (mb&1)) //leftmouse
 			{
 				if(ptr->getIsMini() && ptr->getMiniOnly()) break;
 				int32_t f = d->fg;
@@ -42,7 +43,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 					return D_REDRAW;
 				}
 			}
-			else if(gui_mouse_b()&2) //right mouse
+			else if(mb&2) //right mouse
 			{
 				if(!ptr->getIsMini()) break;
 				int32_t tw = (ptr ? ptr->getTileWid() : 1);
