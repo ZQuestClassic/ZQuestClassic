@@ -20772,28 +20772,6 @@ void HeroClass::checkspecial()
     {
         // after beating enemies
         
-        // item
-        if(hasitem&(4|2|1))
-        {
-            int32_t Item=tmpscr->item;
-            
-            //if(getmapflag())
-            //  Item=0;
-            if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
-            {
-                if(hasitem==1)
-                    sfx(WAV_CLEARED);
-                    
-                items.add(new item((zfix)tmpscr->itemx,
-                                   (tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
-                                   (tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
-                                   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-                                           (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
-            }
-            
-            hasitem &= ~ (4|2|1);
-        }
-        
 		// generic 'Enemies->' trigger
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
@@ -20822,6 +20800,27 @@ void HeroClass::checkspecial()
 		}
         if(!hasmainguy)
 		{
+			// item
+			if(hasitem&(4|2|1))
+			{
+				int32_t Item=tmpscr->item;
+				
+				//if(getmapflag())
+				//  Item=0;
+				if((!getmapflag(mITEM) || (tmpscr->flags9&fITEMRETURN)) && (tmpscr->hasitem != 0))
+				{
+					if(hasitem==1)
+						sfx(WAV_CLEARED);
+						
+					items.add(new item((zfix)tmpscr->itemx,
+									   (tmpscr->flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr->itemy+1,
+									   (tmpscr->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+									   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+											   (tmpscr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				}
+				
+				hasitem &= ~ (4|2|1);
+			}
 			// if room has traps, guys don't come back
 			for(int32_t i=0; i<eMAXGUYS; i++)
 			{
