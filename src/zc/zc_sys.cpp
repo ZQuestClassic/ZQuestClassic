@@ -716,8 +716,6 @@ void custom_mouse(BITMAP* bmp, int fx, int fy, bool sys_recolor, bool user_scale
 	{
 		MouseSprite::assign(ZCM_CUSTOM, bmp, fx, fy);
 	}
-	if(!system_mouse && game_mouse_index == ZCM_CUSTOM)
-		MouseSprite::set(ZCM_CUSTOM); //Reload the new sprite
 }
 
 //Handles converting the mouse sprite from the .dat file
