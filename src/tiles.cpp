@@ -2565,9 +2565,12 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
         return;
     }
 
-    if(blank_tile_table[tile])
+    if (blank_tile_table[tile])
+    {
+        if(!over)
+            rectfill(dest, x, y, x + 15, y + 15, 0);
         return;
-
+    }
 
     if(newtilebuf[tile].format>tf4Bit)
         cset[0]=cset[1]=cset[2]=cset[3]=0;
@@ -2595,7 +2598,7 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
 
 void putcombo(BITMAP* dest,int32_t x,int32_t y,int32_t cmbdat,int32_t cset)
 {
-    newcombo c = combobuf[cmbdat];
+    newcombo const& c = combobuf[cmbdat];
     int32_t drawtile=combo_tile(c, x, y);
     
     if(!(c.csets&0xF0) || !(c.csets&0x0F) || (newtilebuf[drawtile].format>tf4Bit))

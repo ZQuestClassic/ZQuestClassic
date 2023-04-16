@@ -1588,7 +1588,7 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 	static newcombo nilcombo;
 	nilcombo.tile = 0;
 	
-	newcombo& c = cmbdat < MAXCOMBOS ? combobuf[cmbdat] : nilcombo;
+	newcombo const& c = cmbdat < MAXCOMBOS ? combobuf[cmbdat] : nilcombo;
 	
 	if(c.tile==0)
 	{
