@@ -32900,7 +32900,7 @@ j_command:
 					bool kb = SH::read_stack(ri->sp + 2)!=0;
 					int nw = SH::read_stack(ri->sp + 1) / 10000;
 					int nh = SH::read_stack(ri->sp + 0) / 10000;
-					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(dx, dy, special, kb, nw, nh) ? 10000 : 0;
+					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(nx, ny, special, kb, nw, nh) ? 10000 : 0;
 				}
 				break;
 			}
