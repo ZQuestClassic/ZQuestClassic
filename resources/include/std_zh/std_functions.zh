@@ -2747,6 +2747,15 @@ mapdata LoadMD(int map, int scr)
 	return Game->LoadMapData(map,scr);
 }
 
+mapdata LoadMapDataDM(int dmap, int scr)
+{
+	dmapdata dm = Game->LoadDMapData(dmap);
+	int v = (scr&0xF)+dm->Offset;
+	if(v < 0 || v > 15)
+		return NULL;
+	return Game->LoadMapData(dm->Map, scr+dm->Offset);
+}
+
 //Copies the combos and csets from one screen to another.
 //Only copies layer 0!
 void ScreenCopy(int destmap, int destscr, int srcmap, int srcscr)
