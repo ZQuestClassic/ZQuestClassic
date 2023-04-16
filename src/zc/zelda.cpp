@@ -335,6 +335,7 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *scre
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
 DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
+size_t fontsdat_cnt = 0;
 PALETTE    RAMpal;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
@@ -4810,9 +4811,14 @@ int main(int argc, char **argv)
 	
 	Z_message("Fonts.Dat...");
 	
-	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
+	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
 	{
 		Z_error_fatal("failed");
+		quit_game();
+	}
+	if(fontsdat_cnt != FONTSDAT_CNT)
+	{
+		Z_error_fatal("failed: count error (found %d != exp %d)\n", fontsdat_cnt, FONTSDAT_CNT);
 		quit_game();
 	}
 	

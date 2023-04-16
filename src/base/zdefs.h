@@ -5696,6 +5696,10 @@ bool isDamageType(int32_t type);
 bool isConveyorType(int32_t type);
 bool isChestType(int32_t type);
 
+DATAFILE* load_datafile_count(const char* path, size_t& sz);
+
+#define FONTSDAT_CNT (FONT_ZX+1)
+
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 #define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))
 
