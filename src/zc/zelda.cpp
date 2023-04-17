@@ -3835,7 +3835,7 @@ void game_loop()
 		#endif
 
 			playing_field_offset = 56;
-			if (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode) playing_field_offset = 0;
+			if (is_extended_height_mode()) playing_field_offset = 0;
 
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )

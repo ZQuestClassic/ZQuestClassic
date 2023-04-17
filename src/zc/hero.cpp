@@ -25286,6 +25286,9 @@ void HeroClass::calc_darkroom_hero2(int32_t x1, int32_t y1)
 	}
 }
 
+// TODO z3 scrolling between extended height ON and OFF is not working right now
+static bool scrolling_extended_height;
+
 static void for_every_nearby_screen_during_scroll(
 	const std::vector<mapscr*>& old_temporary_screens,
 	const std::function <void (mapscr*[], int, int, int, int)>& fn)
@@ -25296,7 +25299,7 @@ static void for_every_nearby_screen_during_scroll(
 
 	int start_dy = -1;
 	int end_dy = 1;
-	if (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode)
+	if (scrolling_extended_height)
 	{
 		if (scrolling_dir == up) start_dy -= 1;
 		if (scrolling_dir == down) end_dy += 1;
@@ -25609,20 +25612,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		fixed_door = false;
 	}
 
-	int step, delay, scroll_counter, dx, dy;
-	{
-		step = get_scroll_step(scrolldir);
-		delay = get_scroll_delay(scrolldir);
-		int scroll_height = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
-		scroll_counter = (scrolldir == up || scrolldir == down ? scroll_height : 256) / step;
-
-		dx = 0;
-		dy = 0;
-		if (scrolldir == up)    dy = -1;
-		if (scrolldir == down)  dy = 1;
-		if (scrolldir == left)  dx = -1;
-		if (scrolldir == right) dx = 1;
-	}
+	int step = get_scroll_step(scrolldir);
+	int delay = get_scroll_delay(scrolldir);
 
 	if (destscr == -1 && checkmaze(oldscr, true) && !edge_of_dmap(scrolldir))
 	{
@@ -25647,10 +25638,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int old_world_h = world_h;
 	int old_x = x.getInt();
 	int old_y = y.getInt();
+	bool old_extended_height_mode = is_extended_height_mode();
 	viewport_t old_viewport = viewport;
 
 	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
+	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
@@ -25702,6 +25695,19 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		z3_calculate_viewport(newscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
+	}
+
+	int scroll_counter, dx, dy;
+	{
+		int scroll_height = std::min(old_viewport.h, new_viewport.h);
+		scroll_counter = (scrolldir == up || scrolldir == down ? scroll_height : 256) / step;
+
+		dx = 0;
+		dy = 0;
+		if (scrolldir == up)    dy = -1;
+		if (scrolldir == down)  dy = 1;
+		if (scrolldir == left)  dx = -1;
+		if (scrolldir == right) dx = 1;
 	}
 
 	// Determine by how much we need to align to the new region's viewport.
@@ -26097,8 +26103,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
 
-		int mapscr_view_height = 168 + (is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode ? 56 : 0);
-		blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, mapscr_view_height);
+		int mapscr_view_height = 168 + (scrolling_extended_height ? 56 : 0);
+		blit(scrollbuf, framebuf, 0, 0, 0, scrolling_extended_height ? 0 : 56, 256, mapscr_view_height);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {

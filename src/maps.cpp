@@ -169,6 +169,11 @@ bool is_z3_scrolling_mode()
 	return is_a_region(currdmap, currscr) || (screenscrolling && is_a_region(scrolling_dmap, scrolling_scr));
 }
 
+bool is_extended_height_mode()
+{
+	return global_z3_scrolling_extended_height_mode && region_scr_height > 1;
+}
+
 int get_region_id(int dmap, int scr)
 {
 	if (!global_z3_scrolling) return 0;
@@ -312,7 +317,7 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 	}
 
 	viewport.w = 256;
-	viewport.h = 176 + (global_z3_scrolling_extended_height_mode ? 56 : 0);
+	viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
 
 	// Clamp the viewport to the edges of the region.
 	viewport.x = CLAMP(0, world_w - viewport.w, hero_x - viewport.w/2);
@@ -3873,9 +3878,9 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 			return;
 	}
 
-	// ?
+	// TODO z3 ?
 	x = -x;
-	y = -y+playing_field_offset;
+	y = -y;
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(bmp, x, y, start_x, end_x, start_y, end_y);
@@ -4608,7 +4613,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			if (offx - viewport.x <= -256) continue;
 			if (offy - viewport.y <= -176) continue;
 			if (offx - viewport.x >= 256) continue;
-			if (offy - viewport.y >= (global_z3_scrolling_extended_height_mode ? 240 : 176)) continue;
+			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
 
 			fn(myscr, scr, offx, offy);
 		}
@@ -5017,7 +5022,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	});
 
-	if (!global_z3_scrolling_extended_height_mode && is_z3_scrolling_mode() && !get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	if (!is_extended_height_mode() && is_z3_scrolling_mode() && !get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 	{
 		rectfill(temp_buf, 0, 0, 256, playing_field_offset - 1, 0);
 	}
@@ -5952,7 +5957,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// - lots
 	//
 	// TODO z3 maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
-	if (is_a_region(currdmap, currscr) && global_z3_scrolling_extended_height_mode)
+	if (is_a_region(currdmap, currscr) && is_extended_height_mode())
 	{
 		playing_field_offset = 0;
 		original_playing_field_offset = 0;

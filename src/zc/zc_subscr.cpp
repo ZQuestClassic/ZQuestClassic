@@ -80,7 +80,7 @@ void dosubscr(miscQdata *misc)
 	// copy to the bottom-left side the fully rendered frame. COOLSCROLL will decide
 	// which one of these will be used as the subscreen pushed the viewable screen out of
 	// and then back into view.
-	int h = is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode ? 240 : 176;
+	int h = is_extended_height_mode() ? 240 : 176;
 	BITMAP* subscr_scrolling_bitmap = create_bitmap(256*2, h*2);
 
     //make a copy of the blank playing field on the right side of scrollbuf
@@ -106,7 +106,7 @@ void dosubscr(miscQdata *misc)
 		else Bpos = 0;
 	}
 
-	int offy = is_z3_scrolling_mode() && global_z3_scrolling_extended_height_mode ? 0 : passive_subscreen_height;
+	int offy = is_extended_height_mode() ? 0 : passive_subscreen_height;
         
     for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
     {
