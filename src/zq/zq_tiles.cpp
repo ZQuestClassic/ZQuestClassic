@@ -62,7 +62,7 @@ int32_t nextcombo_fake_click=0;
 int32_t invcol=0;
 int32_t tthighlight = 1;
 int32_t showcolortip = 1;
-int32_t show_quartgrid = 0;
+int32_t show_quartgrid = 0, hide_grid = 0;
 
 tiledata     *newundotilebuf;
 newcombo     *undocombobuf;
@@ -344,6 +344,40 @@ struct combo_move_data
 };
 void do_movecombo(combo_move_data const& cmd);
 static combo_move_data* last_combo_move = NULL;
+
+int refl_flags = 0;
+enum
+{
+	REFL_90CW, REFL_HFLIP,
+	REFL_90CCW, REFL_VFLIP,
+	REFL_180, REFL_DBLFLIP,
+	REFL_MAX
+};
+const char *reflbtn_names[] =
+{
+	"90 CW", "HFlip",
+	"90 CCW", "VFlip",
+	"180 Rot", "Diag Flip"
+};
+int bgmode = 0, xmode = 0;
+const char *bgmodebtn_names[] =
+{
+	"BG Color 0", "BG Trans."
+};
+const char *xmodebtn_names[] =
+{
+	"X", "No X"
+};
+enum
+{
+	XMODE_X, XMODE_NOX,
+	XMODE_MAX
+};
+enum
+{
+	BGMODE_0, BGMODE_TRANSP,
+	BGMODE_MAX
+};
 
 /*********************************/
 /*****    Tiles & Combos    ******/
@@ -797,33 +831,40 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 {
 	//  rectfill(dest,x,y,x+(16*m),y+(16*m),gridmode==gm_light?jwin_pal[jcMEDLT]:jwin_pal[jcDARK]);
 	int gridcol = gridmode==gm_light?vc(7):vc(8);
-	rectfill(dest,x,y,x+(16*m),y+(16*m),gridcol);
-	cset <<= 4;
 	
+	cset <<= 4;
 	if(newtilebuf[tile].format>tf4Bit)
-	{
 		cset=0;
-	}
+	
+	int g = hide_grid ? 1 : 0;
+	byte transp_col = (bgmode == BGMODE_TRANSP ? jwin_pal[jcBOX] : 0+cset);
+	rectfill(dest,x,y,x+(16*m)+g,y+(16*m)+g,transp_col);
 	
 	unpack_tile(newtilebuf, tile, 0, false);
 	byte *si = unpackbuf;
-	
 	for(int32_t cy=0; cy<16; cy++)
 	{
 		for(int32_t cx=0; cx<16; cx++)
 		{
+			byte col = (floating_sel && floatsel[cx+(cy<<4)]) ? floatsel[cx+(cy<<4)] : *si;
 			int32_t dx = ((flip&1)?15-cx:cx)*m;
 			int32_t dy = ((flip&2)?15-cy:cy)*m;
-			byte col = (floating_sel && floatsel[cx+(cy<<4)]) ? floatsel[cx+(cy<<4)] : *si;
-			rectfill(dest,x+dx+1,y+dy+1,x+dx+m-1,y+dy+m-1,col+cset);
+			if(col)
+				rectfill(dest,x+dx,y+dy,x+dx+m-1,y+dy+m-1,col+cset);
 			
-			if(col==0)
-			{
+			if(!col && xmode == XMODE_X)
 				little_x(dest,x+dx+m/4,y+dy+m/4,invcol,m/2);
-			}
 			
 			++si;
 		}
+	}
+	
+	if(!hide_grid)
+	{
+		for(int cx = 0; cx <= 16; ++cx)
+			_allegro_vline(dest,x+(cx*m),y,y+(16*m)-1,gridcol);
+		for(int cy = 0; cy <= 16; ++cy)
+			_allegro_hline(dest,x,y+(cy*m),x+(16*m)-1,gridcol);
 	}
 	
 	if(show_quartgrid)
@@ -839,14 +880,10 @@ void zoomtile16(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32
 		selection_anchor=(selection_anchor+1)%64;
 		
 		if(has_selection()||is_selecting())
-		{
 			draw_selection_outline(dest, x, y, m);
-		}
 		
 		if(is_selecting())
-		{
 			draw_selecting_outline(dest, x, y, m);
-		}
 	}
 }
 
@@ -1328,22 +1365,11 @@ size_and_pos color_info_btn(24,189,96,21);
 size_and_pos tool_btns(22,29,2,4,39,39);
 size_and_pos x_btn(890,5,15,13);
 size_and_pos info_btn(872,5,15,13);
-size_and_pos quartgrid_cbox(124,562,16,16);
+size_and_pos hidegrid_cbox(124,552,16,16);
+size_and_pos quartgrid_cbox(124,572,16,16);
 size_and_pos reflbtn_grid(124,610,2,3,71,21);
-int refl_flags = 0;
-enum
-{
-	REFL_90CW, REFL_HFLIP,
-	REFL_90CCW, REFL_VFLIP,
-	REFL_180, REFL_DBLFLIP,
-	REFL_MAX
-};
-const char *reflbtn_names[] =
-{
-	"90 CW", "HFlip",
-	"90 CCW", "VFlip",
-	"180 Rot", "Diag Flip"
-};
+size_and_pos xmodebtn_grid(300,610,1,2,90,21);
+size_and_pos bgmodebtn_grid(390,610,1,2,90,21);
 
 int32_t c1=1;
 int32_t c2=0;
@@ -1612,12 +1638,26 @@ void draw_edit_scr(int32_t tile,int32_t flip,int32_t cs,byte *oldtile, bool crea
 	draw_checkbox(screen2,quartgrid_cbox.x, quartgrid_cbox.y, quartgrid_cbox.w, quartgrid_cbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], show_quartgrid);
 	gui_textout_ln(screen2,font,(unsigned char*)"Quarter Grid",quartgrid_cbox.x+quartgrid_cbox.w+2,quartgrid_cbox.y+quartgrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
 	
-	gui_textout_ln(screen2,font,(unsigned char*)"Quarter-Grid Draw Modes", reflbtn_grid.x, reflbtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],show_quartgrid?0:D_DISABLED);
+	draw_checkbox(screen2,hidegrid_cbox.x, hidegrid_cbox.y, hidegrid_cbox.w, hidegrid_cbox.h, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], hide_grid);
+	gui_textout_ln(screen2,font,(unsigned char*)"Hide Grid",hidegrid_cbox.x+hidegrid_cbox.w+2,hidegrid_cbox.y+hidegrid_cbox.h/2-text_height(font)/2,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	
 	bool qgrd = show_quartgrid && qgrid_tool(tool);
+	gui_textout_ln(screen2,font,(unsigned char*)"Quarter-Grid Draw Modes", reflbtn_grid.x, reflbtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],qgrd?0:D_DISABLED);
 	for(int q = 0; q < REFL_MAX; ++q)
 	{
 		auto& sqr = reflbtn_grid.subsquare(q);
 		draw_text_button(screen2,sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[q],vc(1),vc(14),qgrd ? ((refl_flags&(1<<q)) ? D_SELECTED : 0) : D_DISABLED,true);
+	}
+	gui_textout_ln(screen2,font,(unsigned char*)"Transparent Mode", xmodebtn_grid.x, xmodebtn_grid.y-text_height(font)-4,jwin_pal[jcBOXFG],jwin_pal[jcBOX],0);
+	for(int q = 0; q < XMODE_MAX; ++q)
+	{
+		auto& sqr = xmodebtn_grid.subsquare(q);
+		draw_text_button(screen2,sqr.x,sqr.y,sqr.w,sqr.h,xmodebtn_names[q],vc(1),vc(14),(xmode == q) ? D_SELECTED : 0,true);
+	}
+	for(int q = 0; q < BGMODE_MAX; ++q)
+	{
+		auto& sqr = bgmodebtn_grid.subsquare(q);
+		draw_text_button(screen2,sqr.x,sqr.y,sqr.w,sqr.h,bgmodebtn_names[q],vc(1),vc(14),(bgmode == q) ? D_SELECTED : 0,true);
 	}
 	
 	//tool buttons
@@ -2766,7 +2806,15 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				}
 				case KEY_TAB:
 				{
-					show_quartgrid = !show_quartgrid;
+					if(key_shifts & KB_CTRL_FLAG)
+					{
+						xmode = (xmode+1)%XMODE_MAX;
+						if(!xmode)
+							bgmode = (bgmode+1)%BGMODE_MAX;
+					}
+					else if(key_shifts & KB_SHIFT_FLAG)
+						hide_grid = !hide_grid;
+					else show_quartgrid = !show_quartgrid;
 					redraw = true;
 					break;
 				}
@@ -2967,6 +3015,20 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,reflbtn_names[sqr_clicked],vc(1),vc(14),true))
 					refl_flags ^= (1<<sqr_clicked);
 			}
+			sqr_clicked = xmodebtn_grid.rectind(temp_mouse_x,temp_mouse_y);
+			if(sqr_clicked > -1)
+			{
+				auto& sqr = xmodebtn_grid.subsquare(sqr_clicked);
+				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,xmodebtn_names[sqr_clicked],vc(1),vc(14),true))
+					xmode = sqr_clicked;
+			}
+			sqr_clicked = bgmodebtn_grid.rectind(temp_mouse_x,temp_mouse_y);
+			if(sqr_clicked > -1)
+			{
+				auto& sqr = bgmodebtn_grid.subsquare(sqr_clicked);
+				if(do_text_button(sqr.x,sqr.y,sqr.w,sqr.h,bgmodebtn_names[sqr_clicked],vc(1),vc(14),true))
+					bgmode = sqr_clicked;
+			}
 			
 			if(showcolortip)
 			{
@@ -3000,6 +3062,11 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			if(quartgrid_cbox.rect(temp_mouse_x,temp_mouse_y))
 			{
 				if(do_checkbox(screen2,quartgrid_cbox.x,quartgrid_cbox.y,quartgrid_cbox.w,quartgrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],show_quartgrid))
+					redraw=true;
+			}
+			if(hidegrid_cbox.rect(temp_mouse_x,temp_mouse_y))
+			{
+				if(do_checkbox(screen2,hidegrid_cbox.x,hidegrid_cbox.y,hidegrid_cbox.w,hidegrid_cbox.h,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],hide_grid))
 					redraw=true;
 			}
 			
