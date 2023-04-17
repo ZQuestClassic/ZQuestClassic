@@ -3143,6 +3143,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	if(UserClassVar* ucv = host.u_datum)
 	{
 		BuildOpcodes oc(scope);
+		oc.parsing_user_class = parsing_user_class;
 		if(ucv->is_arr)
 		{
 			oc.visit(host.left.get(), param); //incase side effects
@@ -3169,6 +3170,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			//Get lval
 			BuildOpcodes oc(scope);
+			oc.parsing_user_class = parsing_user_class;
 			oc.visit(host.left.get(), param);
 			addOpcodes(oc.getResult());
 			//Pop rval
@@ -3187,6 +3189,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		if(isIndexed)
 		{
 			BuildOpcodes oc2(scope);
+			oc2.parsing_user_class = parsing_user_class;
 			oc2.visit(host.index.get(), param);
 			addOpcodes(oc2.getResult());
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -3216,6 +3219,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			//Get lval
 			BuildOpcodes oc(scope);
+			oc.parsing_user_class = parsing_user_class;
 			oc.visit(host.left.get(), param);
 			addOpcodes(oc.getResult());
 			//Pop rval
@@ -3235,6 +3239,7 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 		if(isIndexed)
 		{
 			BuildOpcodes oc2(scope);
+			oc2.parsing_user_class = parsing_user_class;
 			oc2.visit(host.index.get(), param);
 			addOpcodes(oc2.getResult());
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
@@ -3266,6 +3271,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 
 	vector<shared_ptr<Opcode>> opcodes;
 	BuildOpcodes bo(scope);
+	bo.parsing_user_class = parsing_user_class;
 	std::optional<int32_t> arrVal = host.array->getCompileTimeValue(&bo, scope);
 	std::optional<int32_t> indxVal = host.index->getCompileTimeValue(&bo, scope);
 	if(!arrVal || !indxVal)
@@ -3278,6 +3284,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	{
 		// Get and push the array pointer.
 		BuildOpcodes buildOpcodes1(scope);
+		buildOpcodes1.parsing_user_class = parsing_user_class;
 		buildOpcodes1.visit(host.array.get(), param);
 		opcodes = buildOpcodes1.getResult();
 		for (auto it = opcodes.begin(); it != opcodes.end(); ++it)
@@ -3292,6 +3299,7 @@ void LValBOHelper::caseExprIndex(ASTExprIndex& host, void* param)
 	{
 		// Get the index.
 		BuildOpcodes buildOpcodes2(scope);
+		buildOpcodes2.parsing_user_class = parsing_user_class;
 		buildOpcodes2.visit(host.index.get(), param);
 		opcodes = buildOpcodes2.getResult();
 		for (auto it = opcodes.begin(); it != opcodes.end(); ++it)
