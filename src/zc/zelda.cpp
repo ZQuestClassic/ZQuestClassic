@@ -3242,6 +3242,28 @@ void do_dcounters()
             sfx(sfx_to_use);
     }
 }
+
+void update_msgstr()
+{
+	if(!msgstr) return;
+	
+	set_clip_state(msg_bg_display_buf, 0);
+	blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+	set_clip_state(msg_txt_display_buf, 0);
+	if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+	{
+		blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
+	}
+	else
+	{
+		blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
+	}
+	set_clip_state(msg_portrait_display_buf, 0);
+	blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
+}
+
 extern bool do_end_str;
 #define F7 46+7
 //bool zasmstacktrace = false;
@@ -3709,24 +3731,7 @@ void game_loop()
 			{
 				putmsg();
 				
-				if(msgstr)
-				{
-					set_clip_state(msg_bg_display_buf, 0);
-					blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-					set_clip_state(msg_txt_display_buf, 0);
-					if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
-					{
-						blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-						masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
-					}
-					else
-					{
-						blit(msg_txt_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-						masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, msg_margins[left], msg_margins[up], msg_xpos+msg_margins[left], msg_ypos+msg_margins[up], msg_w-msg_margins[left]-msg_margins[right], msg_h-msg_margins[up]-msg_margins[down]);
-					}
-					set_clip_state(msg_portrait_display_buf, 0);
-					blit(msg_portrait_bmp_buf, msg_portrait_display_buf, 0, 0, prt_x, prt_y, prt_tw*16, prt_th*16);
-				}
+				update_msgstr();
 			}
 			#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "do_dcounters()\n");

@@ -144,6 +144,11 @@ If x is negative, y is used for the warp return point (0 to 3; 5 for pit warp).
 				  'state' is 1 to turn on, 0 to turn off
 \134\map\screen\flag\state - Same as \133 above, for a remote map/screen
 
+\136\generic_script_id\force_redraw
+    - Runs a generic script in the Frozen mode (see 'genericdata->RunFrozen()')
+      If 'force_redraw' is not '0', it will force the whole screen to be redrawn
+	      before running the frozen script.
+
 +-----------------------------+
 | AUDIO EFFECT CODES          |
 +-----------------------------+

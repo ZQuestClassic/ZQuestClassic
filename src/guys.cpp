@@ -22692,6 +22692,7 @@ bool bottom_margin_clip()
 		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - msg_margins[down]);
 }
 
+void update_msgstr();
 bool parsemsgcode()
 {
 	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
@@ -22878,6 +22879,18 @@ bool parsemsgcode()
 			int mh = std::max(oh,nh);
 			if(mh > ssc_tile_hei_buf)
 				ssc_tile_hei_buf = mh;
+			return true;
+		}
+		case MSGC_RUN_FRZ_GENSCR:
+		{
+			word scr_id = grab_next_argument();
+			bool force_redraw = grab_next_argument()!=0;
+			if(force_redraw)
+			{
+				update_msgstr();
+				draw_screen(tmpscr);
+			}
+			FFCore.runGenericFrozenEngine(scr_id);
 			return true;
 		}
 		case MSGC_DRAWTILE:

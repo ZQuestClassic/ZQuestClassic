@@ -13,6 +13,8 @@ extern zinitdata zinit;
 extern ListData dmap_list;
 extern bool sorted_fontdd;
 
+void call_geninit_wzrd(zinitdata& start, size_t index);
+
 static std::string retstr;
 static MsgStr const* refstr = nullptr;
 static MsgStr def_refstr;
@@ -92,6 +94,7 @@ const GUI::ListData SCCListData()
 	ld.add("Trigger Screen Secrets", 132);
 	ld.add("Set Current Screen State", 133);
 	ld.add("Set Screen State", 134);
+	ld.add("Run Frozen Generic Script", 136);
 	return ld;
 }
 
@@ -156,7 +159,8 @@ SCCDialog::SCCDialog() :
 	list_weffect(GUI::ZCListData::warpeffects()),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_midi(GUI::ZCListData::midinames(true)),
-	list_screenstate(GUI::ZCListData::screenstate())
+	list_screenstate(GUI::ZCListData::screenstate()),
+	list_genscr(GUI::ZCListData::generic_script())
 {
 	memset(args, 0, sizeof(args));
 	default_args();
@@ -231,6 +235,7 @@ std::string scc_help(byte scc)
 		case MSGC_SETSCREENSTATE: return "Set a state of the current screen";
 		case MSGC_SETSCREENSTATER: return "Set a state of any screen";
 		case MSGC_FONT: return "Change the text font of text after the SCC";
+		case MSGC_RUN_FRZ_GENSCR: return "Run a generic script in the frozen mode.";
 	}
 	return "";
 }
@@ -992,6 +997,37 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					onPressFunc = [&]()
 					{
 						cur_args[0] = refstr->font;
+					})
+			);
+			break;
+		}
+		case MSGC_RUN_FRZ_GENSCR:
+		{
+			sgrid = Column(padding = 0_px, vAlign = 0.0,
+				Row(
+					TXT("Script to Run:"),
+					DropDownList(data = list_genscr,
+							fitParent = true,
+							selectedValue = cur_args[0],
+							onSelectFunc = [&](int32_t val)
+							{
+								cur_args[0] = val;
+								miscbtn->setDisabled(!val);
+							}
+						)
+				),
+				miscbtn = Button(text = "Edit Script InitData",
+					disabled = !cur_args[0],
+					onPressFunc = [&]()
+					{
+						if(int indx = cur_args[0])
+							call_geninit_wzrd(zinit,indx);
+					}),
+				Checkbox(text = "Force Redraw",
+					checked = cur_args[1]!=0,
+					onToggleFunc = [&](bool state)
+					{
+						cur_args[1] = state?1:0;
 					})
 			);
 			break;

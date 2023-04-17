@@ -186,6 +186,12 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 							ssc_tile_hei = wf_hei;
 						break;
 					}
+					case MSGC_RUN_FRZ_GENSCR:
+					{
+						int scr_id = grab_next_argument(s2, &i);
+						bool force_redraw = grab_next_argument(s2, &i)!=0;
+						break;
+					}
 					case MSGC_SHDCOLOR:
 					{
 						int32_t cset = grab_next_argument(s2, &i);
