@@ -299,7 +299,7 @@ namespace ZScript
 		std::optional<std::string> getName() const {return node.name;}
 		ASTDataDecl* getNode() const {return &node;}
 		std::optional<int32_t> getGlobalId() const {return globalId;}
-		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
+		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const;
 	private:
 		Variable(Scope& scope, ASTDataDecl& node, DataType const& type);
 
@@ -362,7 +362,7 @@ namespace ZScript
 
 		std::optional<std::string> getName() const;
 
-		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		ASTDataDecl* getNode() const {return &node;}
 	
@@ -382,7 +382,7 @@ namespace ZScript
 				CompileErrorHandler* = NULL);
 
 		std::optional<std::string> getName() const {return name;}
-		std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
+		virtual std::optional<int32_t> getCompileTimeValue(bool getinitvalue = false) const {return value;}
 
 		virtual bool isBuiltIn() const {return true;}
 		
