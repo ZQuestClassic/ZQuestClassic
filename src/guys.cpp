@@ -2756,8 +2756,8 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		input_y = dy;
 	
 	if(!(moveflags & FLAG_IGNORE_SCREENEDGE)
-		&& (input_x<16-nb || input_y<zc_max(16-yg-nb,0)
-			|| input_x>=240+nb-hxsz || input_y>=160+nb-hysz))
+		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
+			|| ((input_x+hxsz-1) >= (240+nb)) || ((input_y+hysz-1) >= (160+nb))))
 		return true;
 	
 	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
@@ -2799,7 +2799,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
 
 	if (dx < 0 || dx > 255 || dy < 0 || dy > 175)
-		return true;
+		return !(moveflags & FLAG_IGNORE_SCREENEDGE);
 	//_walkflag code
 	mapscr *s1, *s2;
 	s1=(((*tmpscr).layermap[0]-1)>=0)?tmpscr2:NULL;
@@ -2915,12 +2915,13 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		{
 			int mx = (rx+dx).getCeil();
 			int my = (by+dy).getFloor();
+			int lx = mx-hxsz+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, special, right, mx, my, kb))
+				if(scr_walkflag(mx, by+ty, special, right, lx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, special, right, mx, my, kb))
+			if(scr_walkflag(mx, ry, special, right, lx, my, kb))
 				return false;
 			if(nosolid && collide_object(rx,my,mx-rx,hysz,this))
 				return false;
@@ -2947,12 +2948,13 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		{
 			int mx = (bx+dx).getFloor();
 			int my = (ry+dy).getCeil();
+			int ly = my-hysz+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, special, down, mx, my, kb))
+				if(scr_walkflag(bx+tx, my, special, down, mx, ly, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, special, down, mx, my, kb))
+			if(scr_walkflag(rx, my, special, down, mx, ly, kb))
 				return false;
 			if(nosolid && collide_object(mx,ry,hxsz,my-ry,this))
 				return false;
