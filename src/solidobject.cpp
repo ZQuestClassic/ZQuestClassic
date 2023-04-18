@@ -59,7 +59,7 @@ bool collide_object(solid_object const* collide_with_obj)
 	});
 }
 
-bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign)
+bool collide_object(zfix tx, zfix ty, zfix tw, zfix th, solid_object const* ign)
 {
 	return for_every_solid_object([&](solid_object* obj) {
 		if (obj == ign || obj == curobject) return false;
@@ -110,11 +110,11 @@ bool solid_object::collide(solid_object const* o) const
 	               o->hxsz + o->sxsz_ofs,
 	               o->hysz + o->sysz_ofs);
 }
-bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
+bool solid_object::collide(zfix tx, zfix ty, zfix tw, zfix th) const
 {
 	if(ignore_solid_temp) return false;
-	int32_t rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
-	int32_t rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
+	zfix rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
 	return tx+tw>rx && ty+th>ry &&
 	       tx<rx+rw && ty<ry+rh;
 }

@@ -2900,30 +2900,28 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		{
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
 			int mx = (bx+dx).getFloor();
-			int my = (by+dy).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, special, left, mx, my, kb))
+				if(scr_walkflag(mx, by+ty, special, left, mx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, special, left, mx, my, kb))
+			if(scr_walkflag(mx, ry, special, left, mx, by, kb))
 				return false;
-			if(nosolid && collide_object(mx,my,bx-mx,hysz,this))
+			if(nosolid && collide_object(bx+dx,by,-dx,hysz,this))
 				return false;
 		}
 		else
 		{
 			int mx = (rx+dx).getCeil();
-			int my = (by+dy).getFloor();
 			int lx = mx-hxsz+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, special, right, lx, my, kb))
+				if(scr_walkflag(mx, by+ty, special, right, lx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, special, right, lx, my, kb))
+			if(scr_walkflag(mx, ry, special, right, lx, by, kb))
 				return false;
-			if(nosolid && collide_object(rx,my,mx-rx,hysz,this))
+			if(nosolid && collide_object(bx+hxsz,by,dx,hysz,this))
 				return false;
 		}
 	}
@@ -2932,31 +2930,29 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		if(dy < 0)
 		{
 			special = (special==spw_clipbottomright)?spw_none:special;
-			int mx = (bx+dx).getFloor();
 			int my = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, special, up, mx, my, kb))
+				if(scr_walkflag(bx+tx, my, special, up, bx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, special, up, mx, my, kb))
+			if(scr_walkflag(rx, my, special, up, bx, my, kb))
 				return false;
-			if(nosolid && collide_object(mx,my,hxsz,by-my,this))
+			if(nosolid && collide_object(bx,by+dy,hxsz,-dy,this))
 				return false;
 		}
 		else
 		{
-			int mx = (bx+dx).getFloor();
 			int my = (ry+dy).getCeil();
 			int ly = my-hysz+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, special, down, mx, ly, kb))
+				if(scr_walkflag(bx+tx, my, special, down, bx, ly, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, special, down, mx, ly, kb))
+			if(scr_walkflag(rx, my, special, down, bx, ly, kb))
 				return false;
-			if(nosolid && collide_object(mx,ry,hxsz,my-ry,this))
+			if(nosolid && collide_object(bx,by+hysz,hxsz,dy,this))
 				return false;
 		}
 	}
@@ -3011,11 +3007,12 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 	bool ret = true;
 	if(!ign_sv && dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
 		dy = 0;
-	while(abs(dx) > 8 || abs(dy) > 8)
+	const int scl = 2;
+	while(abs(dx) > scl || abs(dy) > scl)
 	{
 		if(abs(dx) > abs(dy))
 		{
-			int32_t tdx = dx.sign() * 8;
+			int32_t tdx = dx.sign() * scl;
 			if(movexy(tdx, 0, special, kb, ign_sv))
 				dx -= tdx;
 			else
@@ -3026,7 +3023,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		}
 		else
 		{
-			int32_t tdy = dy.sign() * 8;
+			int32_t tdy = dy.sign() * scl;
 			if(movexy(0, tdy, special, kb, ign_sv))
 				dy -= tdy;
 			else
@@ -3036,6 +3033,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 		}
 	}
+	
 	if(dx)
 	{
 		if(scr_canmove(dx, 0, special, kb, ign_sv))
@@ -3043,17 +3041,17 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		else
 		{
 			ret = false;
-			int32_t xsign = dx.sign();
+			int xsign = dx.sign();
 			while(scr_canmove(xsign, 0, special, kb, ign_sv))
 			{
 				x += xsign;
 				dx -= xsign;
 			}
-			if(scr_canmove(dx.decsign(), 0, special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
+			zfix dxsign = dx.decsign();
+			while(scr_canmove(dxsign, 0, special, kb, ign_sv))
 			{
-				if(dx > 0)
-					x.doCeil();
-				else x.doFloor();
+				x += dxsign;
+				dx -= dxsign;
 			}
 		}
 	}
@@ -3064,17 +3062,17 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		else
 		{
 			ret = false;
-			int32_t ysign = dy.sign();
+			int ysign = dy.sign();
 			while(scr_canmove(0, ysign, special, kb, ign_sv))
 			{
 				y += ysign;
 				dy -= ysign;
 			}
-			if(scr_canmove(0, dy.decsign(), special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
+			zfix dysign = dy.decsign();
+			while(scr_canmove(0, dysign, special, kb, ign_sv))
 			{
-				if(dy > 0)
-					y.doCeil();
-				else y.doFloor();
+				y += dysign;
+				dy -= dysign;
 			}
 		}
 	}
