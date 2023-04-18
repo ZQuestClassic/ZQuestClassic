@@ -2894,6 +2894,7 @@ void update_freeform_combos()
 				if(tmpscr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.x = 288+(thisffc.x+32);
+					thisffc.solid_update(false);
 					ffprvy[i] = thisffc.y.getZLong();
 					ffposx[i]=-1000; // Re-enable previous changer
 					ffposy[i]=-1000;
@@ -2910,6 +2911,7 @@ void update_freeform_combos()
 				if(tmpscr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.x = thisffc.x-288-32;
+					thisffc.solid_update(false);
 					ffprvy[i] = thisffc.y.getZLong();
 					ffposx[i]=-1000;
 					ffposy[i]=-1000;
@@ -2927,6 +2929,7 @@ void update_freeform_combos()
 				if(tmpscr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.y = 208+(thisffc.y+32);
+					thisffc.solid_update(false);
 					ffprvx[i] = thisffc.x.getZLong();
 					ffposx[i]=-1000;
 					ffposy[i]=-1000;
@@ -2943,6 +2946,7 @@ void update_freeform_combos()
 				if(tmpscr->flags6&fWRAPAROUNDFF)
 				{
 					thisffc.y = thisffc.y-208-32;
+					thisffc.solid_update(false);
 					ffprvy[i] = thisffc.x.getZLong();
 					ffposx[i]=-1000;
 					ffposy[i]=-1000;
