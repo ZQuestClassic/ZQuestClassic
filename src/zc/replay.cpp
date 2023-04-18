@@ -1227,7 +1227,7 @@ void replay_poll()
         check_assert();
         if (mode != ReplayMode::Off)
         {
-            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*20 || frame_count > replay_log.back()->frame))
                 replay_stop();
         }
         break;

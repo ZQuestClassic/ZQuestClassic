@@ -13,10 +13,13 @@ import re
 import json
 import shutil
 import json
+import hashlib
 from pathlib import Path
 from github import Github
 from common import get_gha_artifacts_with_retry, ReplayTestResults, RunResult
 from typing import List
+from PIL import Image
+import hashlib
 
 
 def dir_path(path):
@@ -41,6 +44,10 @@ if not args.workflow_run and not args.local:
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 out_dir = Path(f'{script_dir}/compare-report')
+
+
+def hash_image(filename):
+    return hashlib.sha256(Image.open(filename).tobytes()).hexdigest()
 
 
 # A `test_run` represents an invocation of run_replay_tests.py, including:
@@ -91,6 +98,7 @@ def collect_test_run_from_dir(directory: Path):
             'path': s,
             'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),
             'unexpected': 'unexpected' in s.name,
+            'hash': hash_image(s.absolute()),
         } for s in (directory/run.directory).rglob('*.zplay*.png')]
         if not snapshots:
             continue
@@ -162,15 +170,50 @@ if args.local:
             print(f' - {test_run["label"]}')
         all_test_runs.extend(test_runs)
 
+def count_images():
+    hashes = set()
+    for test_run in all_test_runs:
+        for replay_data in test_run['replays']:
+            for snapshot in replay_data['snapshots']:
+                hashes.add(snapshot['hash'])
+    return len(hashes)
 
-for i, test_run in enumerate(all_test_runs):
-    test_run_out_dir = out_dir / str(i)
-    test_run_out_dir.mkdir()
+if 'CI' in os.environ:
+    image_count = count_images()
+    if image_count > 4450:
+        print(f'found {image_count} images, which is too many to upload to surge')
+        baseline_test_run = all_test_runs[0]
+        for test_run in all_test_runs[1:]:
+            for replay_data in test_run['replays']:
+                filtered_snapshots = []
+                for snapshot in replay_data['snapshots']:
+                    frame = snapshot['frame']
+                    baseline_replay_data = next((d for d in baseline_test_run['replays'] if d['name'] == replay_data['name']), None)
+                    if not baseline_replay_data:
+                        continue
 
+                    baseline_snapshot = next((s for s in baseline_replay_data['snapshots'] if s['frame'] == frame), None)
+                    if not baseline_snapshot:
+                        continue
+
+                    filtered_snapshots.append(snapshot)
+
+                replay_data['snapshots'] = filtered_snapshots
+
+        image_count = count_images()
+        print(f'reduced to {image_count} images')
+
+snapshots_dir = out_dir / 'snapshots'
+snapshots_dir.mkdir()
+for test_run in all_test_runs:
     for replay_data in test_run['replays']:
         for snapshot in replay_data['snapshots']:
-            dest = test_run_out_dir / snapshot['path'].name
-            shutil.copy2(snapshot['path'].absolute(), dest)
+            hashsum = snapshot['hash']
+            ext = snapshot['path'].suffix
+            filename = f'{hashsum}{ext}'
+            dest = snapshots_dir / filename
+            if not dest.exists():
+                shutil.copy2(snapshot['path'].absolute(), dest)
             snapshot['path'] = str(dest.relative_to(out_dir))
 
 html = Path(f'{script_dir}/compare-resources/compare.html').read_text('utf-8')
