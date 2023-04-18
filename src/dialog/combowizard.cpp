@@ -399,7 +399,7 @@ void ComboWizardDialog::endUpdate()
 			}
 			break;
 		}
-		case cARMOS:
+		case cARMOS: case cGRAVE: case cBSGRAVE:
 		{
 			byte& e1 = local_ref.attribytes[0];
 			byte& e2 = local_ref.attribytes[1];
