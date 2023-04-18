@@ -273,8 +273,16 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 			if (odx >= 0 && ody >= 0) pdir = r_down; //bottomright
 			zfix orx = rx;
 			zfix ory = ry;
+
+			int SCL = 1;
+			// zfix maxd = zc_max(abs(odx), abs(ody));
+			// if (maxd > 1000)
+				// SCL = maxd / 20;
+
+			int maxreps = 1000;
 			while (true)
 			{
+				if (--maxreps < 0) break;
 				bool check = true;
 				side = 0;
 				if (lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh)) 
@@ -363,46 +371,46 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 				{
 					case up:
 					{
-						--ry;
+						ry -= SCL;
 						break;
 					}
 					case down:
 					{
-						++ry;
+						ry += SCL;
 						break;
 					}
 					case left:
 					{
-						--rx;
+						rx -= SCL;
 						break;
 					}
 					case right:
 					{
-						++rx;
+						rx += SCL;
 						break;
 					}
 					case l_up:
 					{
-						--rx;
-						--ry;
+						rx -= SCL;
+						ry -= SCL;
 						break;
 					}
 					case r_up:
 					{
-						++rx;
-						--ry;
+						rx += SCL;
+						ry -= SCL;
 						break;
 					}
 					case l_down:
 					{
-						--rx;
-						++ry;
+						rx -= SCL;
+						ry += SCL;
 						break;
 					}
 					case r_down:
 					{
-						++rx;
-						++ry;
+						rx += SCL;
+						ry += SCL;
 						break;
 					}
 					default:
