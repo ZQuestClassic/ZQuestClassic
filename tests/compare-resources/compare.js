@@ -58,8 +58,8 @@ function findNextFrame(delta) {
 
 const observer = new IntersectionObserver((entries) => {
     const options = getOptions();
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
+    for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
 
         // Without this, lazy images won't load on the left when scrolling until the leftmost
         // pixel is visible. Seems like a browser bug.
@@ -82,14 +82,14 @@ const observer = new IntersectionObserver((entries) => {
                         return;
                     }
 
-                    const diffImg = getDiffImage(img1, img2);
+                    const diffImg = await getDiffImage(img1, img2);
                     diffImg.classList.add('track-frame__image');
                     trackFrameEls[i].innerHTML = '';
                     trackFrameEls[i].append(diffImg);
                 })();
             }
         }
-    });
+    }
 }, {
     root: null,
     rootMargin: '0px',
@@ -352,8 +352,8 @@ async function loadImageFromTrack(frameIndex, trackIndex) {
     });
 }
 
-const diffImageCache = new Map();
-function getDiffImage(img1, img2) {
+const blobUrlPromiseCache = new Map();
+async function getDiffImage(img1, img2) {
     function getImgData(img) {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
@@ -363,33 +363,30 @@ function getDiffImage(img1, img2) {
         return context.getImageData(0, 0, img.width, img.height);
     }
 
-    function getImageFromData(imgData) {
+    async function getBlobUrlFromImageData(imgData) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = imgData.width;
         canvas.height = imgData.height;
         ctx.putImageData(imgData, 0, 0);
-
-        const image = new Image();
-        image.src = canvas.toDataURL();
-        return image;
+        const blob = await new Promise(resolve => canvas.toBlob(resolve));
+        return URL.createObjectURL(blob);
     }
 
     const key = [new URL(img1.src).pathname, new URL(img2.src).pathname].join(';');
-    const cached = diffImageCache.get(key);
-    if (cached) {
-        cached.classList = 'diff-image';
-        return cached;
+    let blobUrlPromise = blobUrlPromiseCache.get(key);
+    if (!blobUrlPromise) {
+        const imgData1 = getImgData(img1);
+        const imgData2 = getImgData(img2);
+        const diffImgData = getImgData(new Image(imgData1.width, imgData2.height));
+        pixelmatch(imgData1.data, imgData2.data, diffImgData.data, imgData1.width, imgData1.height, { threshold: 0 });
+        blobUrlPromise = getBlobUrlFromImageData(diffImgData);
+        blobUrlPromiseCache.set(key, blobUrlPromise);
     }
 
-    const imgData1 = getImgData(img1);
-    const imgData2 = getImgData(img2);
-    const diffImgData = getImgData(new Image(imgData1.width, imgData2.height));
-    pixelmatch(imgData1.data, imgData2.data, diffImgData.data, imgData1.width, imgData1.height, { threshold: 0 });
-
-    const diffImg = getImageFromData(diffImgData);
+    const diffImg = document.createElement('img');
+    diffImg.src = await blobUrlPromise;
     diffImg.classList = 'diff-image';
-    diffImageCache.set(key, diffImg);
     return diffImg;
 }
 
@@ -447,7 +444,7 @@ async function showFrameView(frameIndex, trackIndex, options) {
             return;
         }
 
-        const diffImg = getDiffImage(img1, img2);
+        const diffImg = await getDiffImage(img1, img2);
         frameViewEl.append(diffImg);
     } else {
         if (selectedImg) {
