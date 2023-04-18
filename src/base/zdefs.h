@@ -3353,7 +3353,7 @@ enum { msLINKED };
 #define MSGC_SETSCREENSTATE   133    // 2 args (ind, state)
 #define MSGC_SETSCREENSTATER  134    // 4 args (map, screen, ind, state)
 #define MSGC_FONT             135    // 1 args (font)
-#define MSGC_RUN_FRZ_GENSCR   136    // 1 args (script num)
+#define MSGC_RUN_FRZ_GENSCR   136    // 2 args (script num, force_redraw)
 //137+
 
 enum
