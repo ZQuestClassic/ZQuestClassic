@@ -26249,7 +26249,7 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
 		return;
@@ -26262,7 +26262,7 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 
 	string filename_str;
 	
@@ -26279,7 +26279,7 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
 		return;
@@ -26292,7 +26292,7 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
 	if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
@@ -26308,7 +26308,7 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
 		return;
@@ -26321,7 +26321,7 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
 	if(BC::checkDMapID(ID, "dmapdata->SetIntro()") != SH::_NoError)
@@ -26337,7 +26337,7 @@ void FFScript::do_getDMapData_music(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
 		return;
@@ -26350,7 +26350,7 @@ void FFScript::do_setDMapData_music(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
 	if(BC::checkDMapID(ID, "dmapdata->SetMusic()") != SH::_NoError)
