@@ -25644,6 +25644,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
 	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
+	// TODO z3 ! rm
+	playing_field_offset = scrolling_extended_height ? 0 : 56;
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
@@ -26080,7 +26082,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		bool any_screen_layer3bg = false;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176;
+			int offy = draw_dy * 176 + playing_field_offset;
 
 			mapscr* base_screen = screens[0];
 			any_screen_layer2bg = any_screen_layer2bg || base_screen->flags7&fLAYER2BG;
@@ -26304,6 +26306,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 	x = new_hero_x;
 	y = new_hero_y;
+	// TODO z3 ! rm
+	playing_field_offset = is_extended_height_mode() ? 0 : 56;
 
 	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_bit(quest_rules, qr_NOSCROLL))

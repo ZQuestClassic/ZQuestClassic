@@ -3880,7 +3880,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 
 	// TODO z3 ?
 	x = -x;
-	y = -y;
+	y = -y+playing_field_offset;
 
 	int start_x, end_x, start_y, end_y;
 	get_bounds_for_draw_cmb_calls(bmp, x, y, start_x, end_x, start_y, end_y);
