@@ -2,6 +2,7 @@ import platform
 import os
 import io
 import json
+from time import sleep
 from dataclasses import dataclass
 import dataclasses
 from typing import List, Literal, Dict, Optional, Any
@@ -111,3 +112,19 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
 
     (workflow_run_dir / '.complete').write_text('')
     return workflow_run_dir
+
+
+# It's possible that the artifacts are not available very shortly after a workflow finishes.
+# Pretty rare, though.
+def get_gha_artifacts_with_retry(gh: Github, repo_str: str, run_id: int) -> Path:
+    NUM_TRIES = 5
+    WAIT_TIME = 20
+    for i in range(0, NUM_TRIES):
+        try:
+            if i != 0:
+                print(f'failed to download artifacts, trying again in {WAIT_TIME}s')
+                sleep(WAIT_TIME)
+            return get_gha_artifacts(gh, repo_str, run_id)
+        except Exception as e:
+            if i == NUM_TRIES - 1:
+                raise e
