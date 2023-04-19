@@ -95,7 +95,6 @@ static void configure_render_tree()
 		rti_tooltip.visible = rti_dialogs.children.empty();
 		
 		rti_dialogs.transform = rti_screen.transform;
-		rti_mmap.transform = rti_screen.transform;
 		update_dialog_transform();
 	}
 }
