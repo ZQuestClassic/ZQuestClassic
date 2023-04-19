@@ -27068,12 +27068,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			ty2 -= 176;
 			break;
 		}
-
-		// TODO z3 !
-		tx2 = -tx2;
-		ty2 = -ty2;
-		tx = -tx;
-		ty = -ty;
 		
 		//FFScript.OnWaitdraw()
 		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, true); //Waitdraw
@@ -27159,27 +27153,27 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		blit(scrollbuf_old, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 		
-		do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
-		do_layer(framebuf, 0, 1, newscr, tx, ty, 2, false, true);
+		do_layer(framebuf, 0, 1, oldscr, -tx2, -ty2, 3);
+		do_layer(framebuf, 0, 1, newscr, -tx, -ty, 2, false, true);
 		
 		if(get_bit(quest_rules, qr_FFCSCROLL))
 		{
-			do_layer(framebuf, -3, 0, oldscr, tx2, ty2, 3, true); //ffcs
-			do_layer(framebuf, -3, 0, newscr, tx, ty, 2, true);
+			do_layer(framebuf, -3, 0, oldscr, -tx2, -ty2, 3, true); //ffcs
+			do_layer(framebuf, -3, 0, newscr, -tx, -ty, 2, true);
 		}
 		
-		if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, tx2, ty2, 3);
-		if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
+		if(!(XOR(oldscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) ) do_layer(framebuf, 0, 2, oldscr, -tx2, -ty2, 3);
+		if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, -tx, -ty, 2, false, !(oldscr->flags7&fLAYER2BG));
 		
 		//push blocks
-		do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
-		do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
+		do_layer(framebuf, -2, 0, oldscr, -tx2, -ty2, 3);
+		do_layer(framebuf, -2, 0, newscr, -tx, -ty, 2);
 		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 		{
-			do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
-			do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
-			do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
-			do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+			do_layer(framebuf, -2, 1, oldscr, -tx2, -ty2, 3);
+			do_layer(framebuf, -2, 1, newscr, -tx, -ty, 2);
+			do_layer(framebuf, -2, 2, oldscr, -tx2, -ty2, 3);
+			do_layer(framebuf, -2, 2, newscr, -tx, -ty, 2);
 		}
 		
 		do_walkflags(oldscr, tx2, ty2,3); //show walkflags if the cheat is on
@@ -27188,9 +27182,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		do_effectflags(oldscr, tx2, ty2,3); //show effectflags if the cheat is on
 		do_effectflags(newscr, tx, ty,2);
 		
-		
-		putscrdoors(framebuf, 0-tx2, ty2-playing_field_offset, oldscr);
-		putscrdoors(framebuf, 0-tx,  ty-playing_field_offset, newscr);
+		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
+		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
 		herostep();
 		
 		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
@@ -27206,31 +27199,31 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			decorations.draw(framebuf,  true);
 		}
 		
-		if(!(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, oldscr, tx2, ty2, 3);
+		if(!(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, oldscr, -tx2, -ty2, 3);
 		
-		do_layer(framebuf, 0, 4, oldscr, tx2, ty2, 3); //layer 4
-		do_layer(framebuf, -1, 0, oldscr, tx2, ty2, 3); //overhead combos
+		do_layer(framebuf, 0, 4, oldscr, -tx2, -ty2, 3); //layer 4
+		do_layer(framebuf, -1, 0, oldscr, -tx2, -ty2, 3); //overhead combos
 		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 		{
-			do_layer(framebuf, -1, 1, oldscr, tx2, ty2, 3); //overhead combos
-			do_layer(framebuf, -1, 2, oldscr, tx2, ty2, 3); //overhead combos
+			do_layer(framebuf, -1, 1, oldscr, -tx2, -ty2, 3); //overhead combos
+			do_layer(framebuf, -1, 2, oldscr, -tx2, -ty2, 3); //overhead combos
 		}
-		do_layer(framebuf, 0, 5, oldscr, tx2, ty2, 3); //layer 5
-		do_layer(framebuf, -4, 0, oldscr, tx2, ty2, 3, true); //overhead FFCs
-		do_layer(framebuf, 0, 6, oldscr, tx2, ty2, 3); //layer 6
+		do_layer(framebuf, 0, 5, oldscr, -tx2, -ty2, 3); //layer 5
+		do_layer(framebuf, -4, 0, oldscr, -tx2, -ty2, 3, true); //overhead FFCs
+		do_layer(framebuf, 0, 6, oldscr, -tx2, -ty2, 3); //layer 6
 		
-		if(!(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, newscr, tx, ty, 2, false, !(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)));
+		if(!(XOR(newscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))) do_layer(framebuf, 0, 3, newscr, -tx, -ty, 2, false, !(XOR(oldscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)));
 		
-		do_layer(framebuf, 0, 4, newscr, tx, ty, 2, false, true); //layer 4
-		do_layer(framebuf, -1, 0, newscr, tx, ty, 2); //overhead combos
+		do_layer(framebuf, 0, 4, newscr, -tx, -ty, 2, false, true); //layer 4
+		do_layer(framebuf, -1, 0, newscr, -tx, -ty, 2); //overhead combos
 		if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 		{
-			do_layer(framebuf, -1, 1, newscr, tx, ty, 2); //overhead combos
-			do_layer(framebuf, -1, 2, newscr, tx, ty, 2); //overhead combos
+			do_layer(framebuf, -1, 1, newscr, -tx, -ty, 2); //overhead combos
+			do_layer(framebuf, -1, 2, newscr, -tx, -ty, 2); //overhead combos
 		}
-		do_layer(framebuf, 0, 5, newscr, tx, ty, 2, false, true); //layer 5
-		do_layer(framebuf, -4, 0, newscr, tx, ty, 2, true); //overhead FFCs
-		do_layer(framebuf, 0, 6, newscr, tx, ty, 2, false, true); //layer 6
+		do_layer(framebuf, 0, 5, newscr, -tx, -ty, 2, false, true); //layer 5
+		do_layer(framebuf, -4, 0, newscr, -tx, -ty, 2, true); //overhead FFCs
+		do_layer(framebuf, 0, 6, newscr, -tx, -ty, 2, false, true); //layer 6
 		
 		
 		if(msg_bg_display_buf->clip == 0)
