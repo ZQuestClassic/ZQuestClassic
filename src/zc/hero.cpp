@@ -29844,9 +29844,9 @@ void setup_red_screen_old()
     clear_bitmap(framebuf);
     rectfill(scrollbuf, 0, 0, 255, 167, 0);
     
-    if(XOR(tmpscr.flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, &tmpscr, 0, playing_field_offset, 2);
+    if(XOR(tmpscr.flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, &tmpscr, 0, -playing_field_offset, 2);
     
-    if(XOR(tmpscr.flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, &tmpscr, 0, playing_field_offset, 2);
+    if(XOR(tmpscr.flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, &tmpscr, 0, -playing_field_offset, 2);
     
     putscr(scrollbuf, 0, 0, &tmpscr);
     putscrdoors(scrollbuf,0,0,&tmpscr);
