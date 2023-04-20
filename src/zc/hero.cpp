@@ -1135,27 +1135,16 @@ void HeroClass::setItemClk(int32_t newclk)
 {
     itemclk=newclk;
 }
+// TODO remove, no longer needed.
 zfix  HeroClass::getModifiedX()
 {
     zfix tempx=x;
-    
-    if(screenscrolling&&(dir==left))
-    {
-        tempx=tempx+256;
-    }
-    
     return tempx;
 }
 
 zfix  HeroClass::getModifiedY()
 {
     zfix tempy=y;
-    
-    if(screenscrolling&&(dir==up))
-    {
-        tempy=tempy+176;
-    }
-    
     return tempy;
 }
 
@@ -25701,6 +25690,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 0, 176, oldscr);
 			break;
@@ -25718,6 +25709,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 0, 176, newscr);
 			break;
@@ -25735,6 +25728,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 256, 0, oldscr);
 			break;
@@ -25752,10 +25747,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 256, 0, newscr);
 			break;
 		}
+
+		combotile_add_x = 0;
+		combotile_add_y = 0;
 		
 		blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
@@ -25993,6 +25993,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z = 0;
 		fakez = 0;
 	}
+
+	combotile_add_x = 0;
+	combotile_add_y = 0;
 	
 	set_respawn_point(false);
 	trySideviewLadder();
