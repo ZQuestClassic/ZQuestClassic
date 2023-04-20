@@ -5710,6 +5710,7 @@ void enter_sys_pal();
 void exit_sys_pal();
 
 extern bool global_z3_scrolling_extended_height_mode;
+extern bool global_z3_always_use_new_scrollscr;
 extern viewport_t viewport;
 extern int32_t global_z3_cur_scr_drawing;
 

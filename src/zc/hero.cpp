@@ -1140,10 +1140,12 @@ void HeroClass::setItemClk(int32_t newclk)
 zfix  HeroClass::getModifiedX()
 {
     zfix tempx=x;
-    
+
+    // Without this, eyeball combos would look the wrong way during scrolling.
+    // TODO use scrolling_dir
     if(screenscrolling&&(dir==left))
     {
-        tempx=tempx+256;
+        tempx=tempx+viewport.w;
     }
     
     return tempx;
@@ -1152,10 +1154,11 @@ zfix  HeroClass::getModifiedX()
 zfix  HeroClass::getModifiedY()
 {
     zfix tempy=y;
-    
+
+    // Without this, eyeball combos would look the wrong way during scrolling.
     if(screenscrolling&&(dir==up))
     {
-        tempy=tempy+176;
+        tempy=tempy+viewport.h;
     }
     
     return tempy;
@@ -25901,6 +25904,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
+		// if (replay_get_frame() == 1408) {
+		// 	printf("asd\n");
+		// }
 		if (replay_is_active() && replay_get_version() < 3)
 		{
 			replay_poll();
@@ -25912,42 +25918,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			return;
 		}
 
-		int sx = step * move_counter * -dx;
-		int sy = step * move_counter * -dy;
-		if (is_smooth_vertical_scrolling) sy += 3;
-
-		viewport = initial_viewport;
-		viewport.x -= sx;
-		viewport.y -= sy;
-
-		// bound Hero to screen edge, needed for the last couple of frames of scrolling.
-		// Note: this is the only thing that actual moves the hero. Everything else is just moving the viewport.
-		x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
-		y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
-
-		int script_sx = -sx;
-		int script_sy = -sy;
-		switch(scrolldir)
-		{
-		case up:
-			script_sy += 176;
-			break;
-			
-		case down:
-			script_sy -= 176;
-			break;
-			
-		case left:
-			script_sx += 256;
-			break;
-			
-		case right:
-			script_sx -= 256;
-			break;
-		}
-
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, script_sx, script_sy, end_frames, false);
-		
 		if(no_move > 0)
 			no_move--;
 			
@@ -25978,6 +25948,38 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			if (scrolldir == up || scrolldir == down) viewport.x = new_viewport.x + delta;
 			else                                      viewport.y = new_viewport.y + delta;
 		}
+
+		if(!no_move)
+		{
+			move_counter++;
+		}
+
+		int sx = step * move_counter * -dx;
+		int sy = step * move_counter * -dy;
+		if (is_smooth_vertical_scrolling) sy += 3;
+
+		int script_sx = -sx;
+		int script_sy = -sy;
+		switch(scrolldir)
+		{
+		case up:
+			script_sy += 176;
+			break;
+			
+		case down:
+			script_sy -= 176;
+			break;
+			
+		case left:
+			script_sx += 256;
+			break;
+			
+		case right:
+			script_sx -= 256;
+			break;
+		}
+
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, script_sx, script_sy, end_frames, false);
 			
 		if(scrolldir == up || scrolldir == down)
 		{
@@ -26001,12 +26003,19 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				}
 			}
 		}
+
+		viewport = initial_viewport;
+		viewport.x -= sx;
+		viewport.y -= sy;
+
+		// bound Hero to screen edge, needed for the last couple of frames of scrolling.
+		// Note: this is the only thing that actual moves the hero. Everything else is just moving the viewport.
+		x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
+		y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
 		
 		//Move Hero and the scroll position
 		if(!no_move)
 		{
-			move_counter++;
-
 			switch(scrolldir)
 			{
 			case up:
@@ -26250,8 +26259,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
 
-		bool showtime = game->get_timevalid() && !game->did_cheat() && get_bit(quest_rules,qr_TIME);
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, showtime, sspUP);
+		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
@@ -26489,7 +26497,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 {
 	// TODO z3 !!
-	static bool use_new_code = false;
+	static bool use_new_code = global_z3_always_use_new_scrollscr;
 
 	if (action==freeze||action==sideswimfreeze)
 	{
@@ -26939,6 +26947,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
+		if (replay_get_frame() == 1408) {
+			printf("asd\n");
+		}
 		if (replay_is_active() && replay_get_version() < 3)
 		{
 			replay_poll();
@@ -27076,7 +27087,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(scrollbuf_old);
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
-		
+
+		// TODO z3 remove
+		combotile_add_x = -sx;
+		combotile_add_y = -sy;
+
 		switch(scrolldir)
 		{
 		case up:
@@ -27385,6 +27400,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		z = 0;
 		fakez = 0;
 	}
+
+	combotile_add_x = 0;
+	combotile_add_y = 0;
 	
 	set_respawn_point(false);
 	trySideviewLadder();

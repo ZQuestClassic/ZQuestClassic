@@ -76,6 +76,7 @@ void drawtile16_cs2(BITMAP *dest,int32_t tile,int32_t x,int32_t y,int32_t cset[]
 void overtileblock16(BITMAP* _Dest, int32_t tile, int32_t x, int32_t y, int32_t w, int32_t h, int32_t color, int32_t flip, byte skiprows=0);
 
 extern int combotile_override_x, combotile_override_y;
+extern int combotile_add_x, combotile_add_y;
 int32_t combo_tile(const newcombo &c, int32_t x, int32_t y);
 int32_t combo_tile(int32_t cmbdat, int32_t x, int32_t y);
 
