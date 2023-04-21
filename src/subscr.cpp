@@ -4741,6 +4741,8 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
 	int32_t prev_homescr;
 	int32_t prev_currscr;
 	int32_t prev_dmap;
+
+	// TODO z3 would be simpler to just set a `subscr_compass_x` ?
 	if (currscr_for_passive_subscr != -1)
 	{
 		prev_homescr = homescr;

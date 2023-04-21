@@ -33800,3 +33800,6 @@ extern "C" void get_shareable_url()
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif
+
+// TODO z3
+int32_t scrolling_destdmap = -1, currdmap = 0;
