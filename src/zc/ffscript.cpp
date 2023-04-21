@@ -25758,7 +25758,7 @@ void FFScript::do_paldata_clearcset()
 
 int32_t FFScript::do_paldata_getrgb(int32_t v)
 {
-	char* fname = "";
+	const char* fname = "";
 	switch (v)
 	{
 		case 0: fname = "paldata->R[]"; break;
@@ -25793,7 +25793,7 @@ int32_t FFScript::do_paldata_getrgb(int32_t v)
 
 void FFScript::do_paldata_setrgb(int32_t v, int32_t val)
 {
-	char* fname = "";
+	const char* fname = "";
 	switch (v)
 	{
 		case 0: fname = "paldata->R[]"; break;
@@ -26545,7 +26545,7 @@ void FFScript::do_getDMapData_dmapname(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetName()") != SH::_NoError)
 		return;
@@ -26558,7 +26558,7 @@ void FFScript::do_setDMapData_dmapname(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 
 	string filename_str;
 	
@@ -26575,7 +26575,7 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
 		return;
@@ -26588,7 +26588,7 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
 	if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
@@ -26604,7 +26604,7 @@ void FFScript::do_getDMapData_dmapintro(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
 		return;
@@ -26617,7 +26617,7 @@ void FFScript::do_setDMapData_dmapintro(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
 	if(BC::checkDMapID(ID, "dmapdata->SetIntro()") != SH::_NoError)
@@ -26633,7 +26633,7 @@ void FFScript::do_getDMapData_music(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	
 	if(BC::checkDMapID(ID, "dmapdata->GetMusic()") != SH::_NoError)
 		return;
@@ -26646,7 +26646,7 @@ void FFScript::do_setDMapData_music(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
 	int32_t ID = ri->dmapsref;
-	int32_t arrayptr = get_register(sarg2) / 10000;
+	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
 	
 	if(BC::checkDMapID(ID, "dmapdata->SetMusic()") != SH::_NoError)
@@ -33180,7 +33180,23 @@ j_command:
 				ri->d[rEXP1] = 0;
 				if(GuyH::loadNPC(ri->guyref, "npc->CanMoveXY()") == SH::_NoError)
 				{
-					ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 00;
+					ri->d[rEXP1] = GuyH::getNPC()->can_movexy(dx, dy, special) ? 10000 : 0;
+				}
+				break;
+			}
+			case NPCCANPLACE:
+			{
+				ri->guyref = SH::read_stack(ri->sp + 6);
+				ri->d[rEXP1] = 0;
+				if(GuyH::loadNPC(ri->guyref, "npc->CanPlace()") == SH::_NoError)
+				{
+					zfix nx = zslongToFix(SH::read_stack(ri->sp + 5));
+					zfix ny = zslongToFix(SH::read_stack(ri->sp + 4));
+					int special = SH::read_stack(ri->sp + 3) / 10000;
+					bool kb = SH::read_stack(ri->sp + 2)!=0;
+					int nw = SH::read_stack(ri->sp + 1) / 10000;
+					int nh = SH::read_stack(ri->sp + 0) / 10000;
+					ri->d[rEXP1] = GuyH::getNPC()->scr_canplace(nx, ny, special, kb, nw, nh) ? 10000 : 0;
 				}
 				break;
 			}
@@ -39861,7 +39877,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
 	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
 	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
+	{ "NPCCANPLACE",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},

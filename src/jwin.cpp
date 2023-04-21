@@ -2637,8 +2637,8 @@ void trim_trailing_0s(char* str, bool leaveDec = false)
 }
 int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 {
-	static char* swp[nswapMAX] = {"D", "H", "LD", "LH", "B"};
-	d->dp = swp[d->d1&0xF];
+	static const char* swp[nswapMAX] = {"D", "H", "LD", "LH", "B"};
+	d->dp = (void*)swp[d->d1&0xF];
 	//d1 is (0xF0 = old val, 0x0F = new val)
 	//d2 is max val
 	if(d->d2 < 2 || d->d2 > nswapMAX) return D_O_K; //Not setup yet, or bad value
@@ -2649,7 +2649,7 @@ int32_t jwin_swapbtn_proc(int32_t msg, DIALOG* d, int32_t c)
 	if(d->flags & D_SELECTED) //On selection
 	{
 		d->d1 = ((d->d1&0x0F)<<4) | (((d->d1&0x0F)+1)%d->d2);
-		d->dp = swp[d->d1&0xF];
+		d->dp = (void*)swp[d->d1&0xF];
 		d->flags &= ~D_SELECTED;
 		if(tf_obj) tf_obj->refresh_cb_swap();
 		if(relproc)
@@ -5276,7 +5276,8 @@ static void draw_menu_item(MENU_INFO *m, int32_t c)
     int32_t yofs = (m->bar) ? 1 : 0;
     int32_t h = text_height(font) + 4 + yofs;
     int32_t g = 0;
-    char buf[80], *tok;
+    char buf[80];
+    const char* tok;
     int32_t my;
     
     fg = scheme[jcBOXFG];
@@ -5464,7 +5465,8 @@ static void fill_menu_info(MENU_INFO *m, MENU *menu, MENU_INFO *parent, int32_t 
 {
     int32_t c, i;
     int32_t extra = 0;
-    char buf[80], *tok;
+    char buf[80];
+    const char* tok;
     int32_t border = (bar)?0:1;
     
     m->menu = menu;

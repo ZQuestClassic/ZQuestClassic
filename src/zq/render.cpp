@@ -3,6 +3,7 @@
 #include "base/gui.h"
 
 extern int32_t prv_mode;
+extern bool DragAspect;
 
 static RenderTreeItem rti_root;
 static RenderTreeItem rti_screen;
@@ -81,6 +82,8 @@ static void configure_render_tree()
 			xscale = std::max((int) xscale, 1);
 			yscale = std::max((int) yscale, 1);
 		}
+		if(DragAspect)
+			xscale = yscale = std::min(xscale,yscale);
 		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
 		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
 		rti_screen.transform.xscale = xscale;
@@ -88,16 +91,10 @@ static void configure_render_tree()
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 		
-		rti_tooltip.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_tooltip.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_tooltip.transform.xscale = xscale;
-		rti_tooltip.transform.yscale = yscale;
+		rti_tooltip.transform = rti_screen.transform;
 		rti_tooltip.visible = rti_dialogs.children.empty();
 		
-		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_dialogs.transform.xscale = xscale;
-		rti_dialogs.transform.yscale = yscale;
+		rti_dialogs.transform = rti_screen.transform;
 		update_dialog_transform();
 	}
 }

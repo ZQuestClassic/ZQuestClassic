@@ -2131,14 +2131,13 @@ namespace ZScript
 			return new OSetCustomCursor();
 		}
 	};
-	class OReservedEmily19 : public BinaryOpcode
+	class ONPCCanPlace : public Opcode
 	{
 	public:
-		OReservedEmily19(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily19(a->clone(),b->clone());
+			return new ONPCCanPlace();
 		}
 	};
 	class OReservedEmily20 : public BinaryOpcode

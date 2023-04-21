@@ -149,6 +149,12 @@ public:
 		val = abs(val);
 		return *this;
 	}
+	zfix getAbs() const
+	{
+		zfix ret = copy();
+		ret.doAbs();
+		return ret;
+	}
 	
 	
 	int32_t getTrunc() const

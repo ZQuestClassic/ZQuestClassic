@@ -59,7 +59,7 @@ bool collide_object(solid_object const* collide_with_obj)
 	});
 }
 
-bool collide_object(int32_t tx, int32_t ty, int32_t tw, int32_t th, solid_object const* ign)
+bool collide_object(zfix tx, zfix ty, zfix tw, zfix th, solid_object const* ign)
 {
 	return for_every_solid_object([&](solid_object* obj) {
 		if (obj == ign || obj == curobject) return false;
@@ -110,11 +110,11 @@ bool solid_object::collide(solid_object const* o) const
 	               o->hxsz + o->sxsz_ofs,
 	               o->hysz + o->sysz_ofs);
 }
-bool solid_object::collide(int32_t tx, int32_t ty, int32_t tw, int32_t th) const
+bool solid_object::collide(zfix tx, zfix ty, zfix tw, zfix th) const
 {
 	if(ignore_solid_temp) return false;
-	int32_t rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
-	int32_t rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
+	zfix rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
 	return tx+tw>rx && ty+th>ry &&
 	       tx<rx+rw && ty<ry+rh;
 }
@@ -273,8 +273,16 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 			if (odx >= 0 && ody >= 0) pdir = r_down; //bottomright
 			zfix orx = rx;
 			zfix ory = ry;
+
+			int SCL = 1;
+			// zfix maxd = zc_max(abs(odx), abs(ody));
+			// if (maxd > 1000)
+				// SCL = maxd / 20;
+
+			int maxreps = 1000;
 			while (true)
 			{
+				if (--maxreps < 0) break;
 				bool check = true;
 				side = 0;
 				if (lineBoxCollision(leftx, lefty, leftx+todx, lefty+abs(ody), rx, ry, rw, rh)) 
@@ -363,46 +371,46 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 				{
 					case up:
 					{
-						--ry;
+						ry -= SCL;
 						break;
 					}
 					case down:
 					{
-						++ry;
+						ry += SCL;
 						break;
 					}
 					case left:
 					{
-						--rx;
+						rx -= SCL;
 						break;
 					}
 					case right:
 					{
-						++rx;
+						rx += SCL;
 						break;
 					}
 					case l_up:
 					{
-						--rx;
-						--ry;
+						rx -= SCL;
+						ry -= SCL;
 						break;
 					}
 					case r_up:
 					{
-						++rx;
-						--ry;
+						rx += SCL;
+						ry -= SCL;
 						break;
 					}
 					case l_down:
 					{
-						--rx;
-						++ry;
+						rx -= SCL;
+						ry += SCL;
 						break;
 					}
 					case r_down:
 					{
-						++rx;
-						++ry;
+						rx += SCL;
+						ry += SCL;
 						break;
 					}
 					default:

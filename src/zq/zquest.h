@@ -132,6 +132,7 @@ extern COLOR_MAP trans_table, trans_table2;
 extern char *datafile_str;
 extern RGB_MAP zq_rgb_table;
 extern DATAFILE *zcdata, *fontsdata;
+extern size_t fontsdat_cnt;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
 extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;

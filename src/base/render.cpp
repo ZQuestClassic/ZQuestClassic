@@ -299,8 +299,10 @@ namespace MouseSprite
 		al_destroy_bitmap(a5_mouse_sprite);
 		
 		if(index == active_mouse_sprite)
+		{
+			active_mouse_sprite = -2;
 			set(index);
-		
+		}
 		if(old_cursor)
 			al_destroy_mouse_cursor(old_cursor);
 	}

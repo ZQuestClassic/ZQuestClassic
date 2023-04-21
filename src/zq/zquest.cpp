@@ -423,6 +423,7 @@ RGB_MAP zq_rgb_table;
 COLOR_MAP trans_table, trans_table2;
 char *datafile_str;
 DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
+size_t fontsdat_cnt = 0;
 MIDI *song=NULL;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
 BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
@@ -552,7 +553,7 @@ static int32_t do_NewQuest()
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 0, CmbCursorCol = 0,
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
 	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
@@ -5262,7 +5263,7 @@ void draw_sqr_nums(size_and_pos const& sqr, FONT* f, bool center, int num1, int 
 		textprintf_ex(menu1,f,sqr.x+txtoffs_double_2.x,sqr.y+txtoffs_double_2.y,jwin_pal[jcBOXFG],-1,"%d",num2);
 	}
 }
-void draw_sqr_btn(size_and_pos const& sqr, char* txt, int flags, FONT* f = nullptr)
+void draw_sqr_btn(size_and_pos const& sqr, const char* txt, int flags, FONT* f = nullptr)
 {
 	if(sqr.x < 0) return;
 	FONT* tfont = font;
@@ -7394,8 +7395,8 @@ void select_combo(int32_t clist)
 				autobrush_cx = cx;
 				autobrush_cy = cy;
 			}
-			BrushWidth = abs(autobrush_cx-cx)+1;
-			BrushHeight = abs(autobrush_cy-cy)+1;
+			BrushWidth = vbound(abs(autobrush_cx-cx)+1,1,16);
+			BrushHeight = vbound(abs(autobrush_cy-cy)+1,1,11);
 			cx = std::min(autobrush_cx,cx);
 			cy = std::min(autobrush_cy,cy);
 		}
@@ -11111,8 +11112,8 @@ void domouse()
 						case 12:
 						{
 							ffdata tempdat;
-							tempdat.x = (((x-startxint)&(~0x000F))/mapscreensize)*10000;
-							tempdat.y = (((y-startyint)&(~0x000F))/mapscreensize)*10000;
+							tempdat.x = (((x-startxint)/mapscreensize)&(~0x0007))*10000;
+							tempdat.y = (((y-startyint)/mapscreensize)&(~0x0007))*10000;
 							tempdat.data = Combo;
 							tempdat.cset = CSet;
 							call_ffc_dialog(earliestfreeffc, tempdat);
@@ -24854,7 +24855,7 @@ static DIALOG assignscript_dlg[] =
     
 };
 
-int32_t txtout(BITMAP* dest, char* txt, int32_t x, int32_t y, bool disabled)
+int32_t txtout(BITMAP* dest, const char* txt, int32_t x, int32_t y, bool disabled)
 {
 	if(disabled)
 	{
@@ -29825,6 +29826,13 @@ int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 int32_t exittimer = 10000, exittimer2 = 100;
 
+template <typename ...Params>
+[[noreturn]] void FatalConsole(const char *format, Params&&... params)
+{
+	FFCore.ZScriptConsole(CConsoleLoggerEx::COLOR_RED|CConsoleLoggerEx::COLOR_INTENSITY|CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"");
+	Z_error_fatal(format, std::forward<Params>(params)...);
+}
+
 int32_t main(int32_t argc,char **argv)
 {
 #if (defined(_DEBUG) && defined(_MSC_VER))
@@ -29873,25 +29881,8 @@ int32_t main(int32_t argc,char **argv)
 	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
 	
-	/*
-	FFCore.ZScriptConsole
-				(
-				
-				CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"%s, v.%s Alpha %d",ZQ_EDITOR_NAME, ZQ_EDITOR_V, V_ZC_ALPHA
-				);*/
-	
 	if(!customtunes)
 	{
-
-	/*FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-			"Failed to load custom music files."
-	);
-		*/
-
 		Z_error_fatal("Error");
 		quit_game();
 	}
@@ -29909,15 +29900,6 @@ int32_t main(int32_t argc,char **argv)
 	*/
 	if(!get_qst_buffers())
 	{
-
-	/*FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		"Failed to load quest buffers."
-	);*/
-		
-
 		Z_error_fatal("Error");
 		quit_game();
 	}
@@ -29928,14 +29910,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!undocombobuf)
 	{
-
-	/*FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		"No memory for combo undo buffer!"
-	);*/
-
 		Z_error_fatal("Error: no memory for combo undo buffer!");
 		quit_game();
 	}
@@ -29974,15 +29948,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
-
-	/*FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: %s\n", 
-		"No memory for file paths!"
-	);
-		*/
-
 		Z_error_fatal("Error: no memory for file paths!");
 		quit_game();
 	}
@@ -30099,50 +30064,21 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("Fonts.Dat...");
 	
-	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed to load fonts datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("failed");
-		quit_game();
-	}
+	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
+		FatalConsole("Failed to load fonts datafile '%s'!\n", moduledata.datafiles[fonts_dat]);
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD
-	);
-
-		quit_game();
-	}
+		FatalConsole("ZQuest Creator I/O Error:\nIncompatible version of fonts.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
+	
+	if(fontsdat_cnt != FONTSDAT_CNT)
+		FatalConsole("Incompatible fonts.dat: Found size '%d', expecting size '%d'\n", fontsdat_cnt, FONTSDAT_CNT);
 	
 	Z_message("OK\n");
 	
 	Z_message("ZQuest.Dat...");
 	
 	if((zcdata=load_datafile(moduledata.datafiles[zquest_dat]))==NULL)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed to load ZQ Creator datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("failed");
-		quit_game();
-	}
+		FatalConsole("failed to load zquest.dat");
 	
 	datafile_str=moduledata.datafiles[zquest_dat];
 	Z_message("OK\n");
@@ -30160,18 +30096,7 @@ int32_t main(int32_t argc,char **argv)
 	PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
 	
 	if(!f)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed to load quest datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("failed");
-		quit_game();
-	}
+		FatalConsole("failed to load qst.dat");
 	
 	char qstdat_read_sig[52];
 	memset(qstdat_read_sig, 0, 52);
@@ -30190,18 +30115,7 @@ int32_t main(int32_t argc,char **argv)
 	pack_fclose(f);
 	
 	if(strncmp(qstdat_read_sig,qstdat_sig,22))
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of qst.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);	
-	
-		Z_error_fatal("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD
-	);
-
-		quit_game();
-	}
+		FatalConsole("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
 	
 	Z_message("OK\n");
 	
@@ -30214,32 +30128,10 @@ int32_t main(int32_t argc,char **argv)
 	Z_message("SFX.Dat...");
 	
 	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-		"Failed to load SFX datafile!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("failed %s", allegro_error);
-		quit_game();
-	}
+		FatalConsole("Failed to load sfx.dat!\n");
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error:\nIncompatible version of sfx.dat.\nZQuest Creator cannot run without this file,\nand is now exiting.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
-		quit_game();
-		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD
-	);
-
-		quit_game();
-	}
+		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
 	
@@ -30265,50 +30157,26 @@ int32_t main(int32_t argc,char **argv)
 	
 	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
 	
-	if(helpsize==0)
+	if(!helpsize)
 	{
-	helpsize = file_size_ex_password("zquest.txt","");
-	if(helpsize==0)
-	{
-		Z_error_fatal("Error: zquest.txt not found.");
-		quit_game();
-	}
+		helpsize = file_size_ex_password("zquest.txt","");
+		if(!helpsize)
+			FatalConsole("Error: zquest.txt not found.");
 	}
 	
 	helpbuf = (char*)malloc(helpsize<65536?65536:helpsize*2+1);
 	
 	if(!helpbuf)
-	{
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-			"Failed to allocate EWditor Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error allocating help buffer.");
-		quit_game();
-	}
+		FatalConsole("Error allocating help buffer.");
 	
 	//if(!readfile("zquest.txt",helpbuf,helpsize))
 	FILE *hb = fopen("docs/zquest.txt", "r");
 	
 	if(!hb)
 	{
-	hb = fopen("zquest.txt", "r");
-	if(!hb)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed to read zquest.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error loading zquest.txt.");
-		quit_game();
-	}
+		hb = fopen("zquest.txt", "r");
+		if(!hb)
+			FatalConsole("Error loading zquest.txt.");
 	}
 	
 	char c = fgetc(hb);
@@ -30329,58 +30197,25 @@ int32_t main(int32_t argc,char **argv)
 	
 	int32_t zstringshelpsz = file_size_ex_password("docs/zstrings.txt","");
 	
-	if(zstringshelpsz==0)
+	if(!zstringshelpsz)
 	{
-	zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
-	if(zstringshelpsz==0)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"zstrings.txt not found!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error: zstrings.txt not found.");
-		quit_game();
-	}
+		zstringshelpsz = file_size_ex_password("zstrings.txt",""); //LOOK IN 'DOCS/', THEN TRY ROOT
+		if(!zstringshelpsz)
+			FatalConsole("Error: zstrings.txt not found.");
 	}
 	
 	zstringshelpbuf = (char*)malloc(zstringshelpsz<65536?65536:zstringshelpsz*2+1);
 	
 	if(!zstringshelpbuf)
-	{
-
-	FFCore.ZScriptConsole
-	(
-		CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Memory Error: \n%s\n", 
-		"Failed allocating zstrings Help buffer!\nZQuest Creator cannot run without this allocation,\nand is now exiting.\n"
-	);
-
-		Z_error_fatal("Error allocating zstrings Help buffer.");
-		quit_game();
-	}
+		FatalConsole("Error allocating zstrings Help buffer.");
 	
 	FILE *zstringshelphb = fopen("docs/zstrings.txt", "r");
 	
 	if(!zstringshelphb)
 	{
-	zstringshelphb = fopen("zstrings.txt", "r");
-	if(!zstringshelphb)
-	{
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator I/O Error: \n%s\n", 
-			"Failed loading zstrings.txt!\nZQuest Creator cannot run without this file,\nand is now exiting.\n"
-		);
-
-		Z_error_fatal("Error loading zstrings.txt.");
-		quit_game();
-	}
+		zstringshelphb = fopen("zstrings.txt", "r");
+		if(!zstringshelphb)
+			FatalConsole("Failed loading zstrings.txt!");
 	}
 	
 	char zstringshelpc = fgetc(zstringshelphb);
@@ -30427,6 +30262,8 @@ int32_t main(int32_t argc,char **argv)
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
+	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
+	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
@@ -30614,36 +30451,13 @@ int32_t main(int32_t argc,char **argv)
 	else
 	{
 		if(install_sound(DIGI_AUTODETECT,DIGI_AUTODETECT,NULL))
-		{
-		
-
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"ZQuest Creator Init Error: %s\n", 
-			"Sound driver not available.  Sound disabled.!\n"
-		);
-
-			Z_message("Sound driver not available.  Sound disabled.\n");
-		}
-		else
-		{
-			Z_message("OK\n");
-		}
+			FatalConsole("ZQuest Creator Init Error: %s\n", 
+				"Sound driver not available.  Sound disabled.!\n");
+		else Z_message("OK\n");
 	}
 	
 	if(used_switch(argc,argv,"-q"))
-	{
-		FFCore.ZScriptConsole
-		(
-			CConsoleLoggerEx::COLOR_RED |CConsoleLoggerEx::COLOR_INTENSITY | 
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,"-q switch used, quitting program.\n"
-		);
-
-		Z_message("-q switch used, quitting program.\n");
-		quit_game();
-		exit(0);
-	}
+		FatalConsole("-q switch used, quitting program.\n");
 	zcmusic_init();
 	
 	switch(zqColorDepth) //defaults to 8bit
@@ -30912,9 +30726,6 @@ int32_t main(int32_t argc,char **argv)
 			"\nto crash or become corrupted. Keep backups of your quest file!!"
 			"\nAdditionally, new features may change over time.").show();
 	}
-
-//	FFCore.ZScriptConsole(true);
-
 	
 	delete[] curcontrol;
 #elif V_ZC_BETA
@@ -30927,9 +30738,6 @@ int32_t main(int32_t argc,char **argv)
 			" There may be bugs, which could cause quests"
 			"\nto crash or become corrupted. Keep backups of your quest file!!").show();
 	}
-
-//	FFCore.ZScriptConsole(true);
-
 	
 	delete[] curcontrol;
 #endif

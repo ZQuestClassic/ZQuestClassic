@@ -1086,7 +1086,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "OBJ_OWN_ARRAY",   2,   0,   1,   0},
 	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
 	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY19",   0,   0,   0,   0},
+	{ "NPCCANPLACE",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},

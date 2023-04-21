@@ -31,8 +31,10 @@ private:
 	byte curscc;
 	int32_t args[256][6];
 	GUI::ListData list_sccs, list_shtype, list_strings, list_items, list_counters, list_dmaps,
-		list_weffect, list_sfx, list_midi, list_screenstate, list_font, list_font_order;
+		list_weffect, list_sfx, list_midi, list_screenstate, list_font, list_font_order,
+		list_genscr;
 	std::shared_ptr<GUI::DropDownList> fontlist;
+	std::shared_ptr<GUI::Button> miscbtn;
 	int32_t* cur_args;
 	bool warp_xy_toggle;
 	

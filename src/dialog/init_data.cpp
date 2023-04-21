@@ -16,6 +16,10 @@ extern zcmodule moduledata;
 extern char *item_string[];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
+void call_geninit_wzrd(zinitdata& start, size_t index)
+{
+	InitGenscriptWizard(start,index).show();
+}
 void call_init_dlg(zinitdata& sourcezinit, bool zc)
 {
     InitDataDialog(sourcezinit, zc,

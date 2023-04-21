@@ -3444,7 +3444,7 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::MINUSCS:
 		{
 			if(cmb_tab1) break;
-			CSet = (CSet+11)%14;
+			CSet = (CSet+13)%14;
 			updateCSet();
 			return false;
 		}

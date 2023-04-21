@@ -1562,7 +1562,7 @@ GUI::ListData const& combinedZSRList()
 
 //}
 int32_t onStrFix(); //zquest.cpp
-void popup_bugfix_dlg(char* cfg); //zq_class.cpp
+void popup_bugfix_dlg(const char* cfg); //zq_class.cpp
 bool hasCompatRulesEnabled()
 {
 	for(size_t q = 0; q < compatRulesList.size(); ++q)

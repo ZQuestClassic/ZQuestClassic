@@ -2500,10 +2500,6 @@ string OSetCustomCursor::toString() const
 {
 	return "GAMESETCUSTOMCURSOR";
 }
-string OReservedEmily19::toString() const
-{
-	return "RESRVD_OP_EMILY19 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
 string OReservedEmily20::toString() const
 {
 	return "RESRVD_OP_EMILY20 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
@@ -5674,6 +5670,10 @@ string ONPCCanMoveAngle::toString() const
 string ONPCCanMoveXY::toString() const
 {
 	return "NPCCANMOVEXY";
+}
+string ONPCCanPlace::toString() const
+{
+	return "NPCCANPLACE";
 }
 
 

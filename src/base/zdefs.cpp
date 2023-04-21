@@ -2109,3 +2109,17 @@ const int BUILDTM_SECOND = (
 	(__TIME__[7]-'0'));
 
 
+size_t datcnt = 0;
+void dat_callback(DATAFILE*)
+{
+	++datcnt;
+}
+DATAFILE* load_datafile_count(const char* path, size_t& sz)
+{
+	datcnt = 0;
+	DATAFILE* ret = load_datafile_callback(path,dat_callback);
+	if(ret)
+		sz = datcnt-1;
+	else sz = 0;
+	return ret;
+}

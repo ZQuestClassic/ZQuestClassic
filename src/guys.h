@@ -150,6 +150,7 @@ public:
 	bool scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32_t input_x, int32_t input_y, bool kb);
 	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool scr_canplace(zfix dx, zfix dy, int32_t special, bool kb = false);
+	bool scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwid, int32_t nhei);
 	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool moveDir(int32_t dir, zfix px, int32_t special, bool kb = false);
 	bool moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false);

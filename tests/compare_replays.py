@@ -16,7 +16,7 @@ import json
 import hashlib
 from pathlib import Path
 from github import Github
-from common import get_gha_artifacts, ReplayTestResults, RunResult
+from common import get_gha_artifacts_with_retry, ReplayTestResults, RunResult
 from typing import List
 from PIL import Image
 import hashlib
@@ -153,7 +153,7 @@ if args.workflow_run:
     gh = Github(args.token)
     for run_id in args.workflow_run:
         print(f'=== collecting test runs from workflow run {run_id}')
-        workflow_dir = get_gha_artifacts(gh, args.repo, run_id)
+        workflow_dir = get_gha_artifacts_with_retry(gh, args.repo, run_id)
         test_runs = collect_test_runs_from_dir(workflow_dir)
 
         print('found:')

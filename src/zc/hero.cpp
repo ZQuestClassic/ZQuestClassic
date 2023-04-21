@@ -1137,30 +1137,16 @@ void HeroClass::setItemClk(int32_t newclk)
 {
     itemclk=newclk;
 }
+// TODO remove, no longer needed.
 zfix  HeroClass::getModifiedX()
 {
     zfix tempx=x;
-
-    // Without this, eyeball combos would look the wrong way during scrolling.
-    // TODO use scrolling_dir
-    if(screenscrolling&&(dir==left))
-    {
-        tempx=tempx+viewport.w;
-    }
-    
     return tempx;
 }
 
 zfix  HeroClass::getModifiedY()
 {
     zfix tempy=y;
-
-    // Without this, eyeball combos would look the wrong way during scrolling.
-    if(screenscrolling&&(dir==up))
-    {
-        tempy=tempy+viewport.h;
-    }
-    
     return tempy;
 }
 
@@ -5209,6 +5195,8 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
 void HeroClass::check_pound_block(int bx, int by, weapon* w)
 {
 	if(w && w->no_triggers()) return;
+	if(w && w->id == wHammer && getHammerState() < 2)
+		return;
 	if(get_bit(quest_rules,qr_POUNDLAYERS1AND2))
 	{
 		check_pound_block_layer(bx,by,1,w);
@@ -5517,156 +5505,6 @@ void HeroClass::check_wand_block(weapon *w)
     }
     
     //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-}
-
-void HeroClass::check_pound_block(weapon *w)
-{
-	if(w->no_triggers()) return;
-	
-	int32_t par_item = w->parentitem;
-	int32_t usewpn = -1;
-	if ( par_item > -1 )
-	{
-		usewpn = itemsbuf[par_item].useweapon;
-	}
-	else if ( par_item == -1 && w->ScriptGenerated ) 
-	{
-		usewpn = w->useweapon;
-	}
-    if(usewpn != wHammer) return;
-	
-	
-    int32_t bx = 0, by = 0;
-	bx = ((int32_t)w->x) + (((int32_t)w->hxsz)/2);
-	by = ((int32_t)w->y) + (((int32_t)w->hysz)/2);
-    //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
-    int32_t cid = MAPCOMBO(bx,by);
-    //first things first
-    if(z>8||fakez>8) return;
-    
-    //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
-    
-    int32_t type = COMBOTYPE(bx,by);
-    int32_t type2 = FFCOMBOTYPE(fx,fy);
-    int32_t flag = MAPFLAG(bx,by);
-    int32_t flag2 = MAPCOMBOFLAG(bx,by);
-    int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int32_t i = (bx>>4) + by;
-    
-    if(i > 175)
-        return;
-        
-    bool ignorescreen=false;
-    bool ignoreffc=false;
-    bool pound=false;
-    
-    if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
-        ignorescreen = true; // Affect only FFCs
-        
-    if(get_bit(screengrid, i) != 0)
-        ignorescreen = true;
-        
-    int32_t current_ffcombo = getFFCAt(fx,fy);
-    
-    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
-        ignoreffc = true;
-        
-    if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
-        ignoreffc = true;
-        
-    if(ignorescreen && ignoreffc)  // Nothing to do.
-        return;
-        
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
-    
-    if(!ignorescreen)
-    {
-        if(flag==mfHAMMER||flag==mfSTRIKE)  // Takes precedence over Secret Tile and Armos->Secret
-        {
-            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
-            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
-        }
-        else if(flag2==mfHAMMER||flag2==mfSTRIKE)
-        {
-            trigger_secrets_if_flag(bx,by,mfHAMMER,true);
-            trigger_secrets_if_flag(bx,by,mfSTRIKE,true);
-        }
-        else if((flag >= 16)&&(flag <= 31))
-        {
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
-        }
-        else if(flag == mfARMOS_SECRET)
-        {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr.secretsfx);
-        }
-        else if((flag2 >= 16)&&(flag2 <= 31))
-        {
-            s->data[i] = s->secretcombo[(s->sflag[i])-16+4];
-            s->cset[i] = s->secretcset[(s->sflag[i])-16+4];
-            s->sflag[i] = s->secretflag[(s->sflag[i])-16+4];
-        }
-        else if(flag2 == mfARMOS_SECRET)
-        {
-            s->data[i] = s->secretcombo[sSTAIRS];
-            s->cset[i] = s->secretcset[sSTAIRS];
-            s->sflag[i] = s->secretflag[sSTAIRS];
-            sfx(tmpscr.secretsfx);
-        }
-        else pound = true;
-    }
-    
-    if(!ignoreffc)
-    {
-        if(flag3==mfHAMMER||flag3==mfSTRIKE)
-        {
-            trigger_secrets_if_flag(fx,fy,mfHAMMER,true);
-            trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
-        }
-        else
-        {
-            s->ffcs[current_ffcombo].incData(1);
-        }
-    }
-    
-    if(!ignorescreen)
-    {
-        if(pound)
-            s->data[i]+=1;
-            
-        set_bit(screengrid,i,1);
-        
-        if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
-        {
-            items.add(new item((zfix)bx, (zfix)by, (zfix)0, tmpscr.catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-            sfx(tmpscr.secretsfx);
-        }
-        
-        if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
-            
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-    }
-    
-    if(!ignoreffc)
-    {
-        set_bit(ffcgrid,current_ffcombo,1);
-        
-        if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
-            sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
-    }
-    
-    return;
 }
 
 //defend results should match defence types. 
@@ -21014,28 +20852,6 @@ void HeroClass::checkspecial()
     {
         // after beating enemies
         
-        // item
-        if(hasitem&(4|2|1))
-        {
-            int32_t Item=tmpscr.item;
-            
-            //if(getmapflag())
-            //  Item=0;
-            if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
-            {
-                if(hasitem==1)
-                    sfx(WAV_CLEARED);
-                    
-                items.add(new item((zfix)tmpscr.itemx,
-                                   (tmpscr.flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr.itemy+1,
-                                   (tmpscr.flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
-                                   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-                                           (tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
-            }
-            
-            hasitem &= ~ (4|2|1);
-        }
-        
 		// generic 'Enemies->' trigger
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
@@ -21065,6 +20881,27 @@ void HeroClass::checkspecial()
 		}
         if(!hasmainguy)
 		{
+			// item
+			if(hasitem&(4|2|1))
+			{
+				int32_t Item=tmpscr.item;
+				
+				//if(getmapflag())
+				//  Item=0;
+				if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
+				{
+					if(hasitem==1)
+						sfx(WAV_CLEARED);
+						
+					items.add(new item((zfix)tmpscr.itemx,
+									   (tmpscr.flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr.itemy+1,
+									   (tmpscr.flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+									   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+											   (tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				}
+				
+				hasitem &= ~ (4|2|1);
+			}
 			// if room has traps, guys don't come back
 			for(int32_t i=0; i<eMAXGUYS; i++)
 			{
@@ -27109,6 +26946,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 0, 176, oldscr);
 			break;
@@ -27126,6 +26965,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 0, 176, newscr);
 			break;
@@ -27143,6 +26984,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 256, 0, oldscr);
 			break;
@@ -27160,10 +27003,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 256, 0, newscr);
 			break;
 		}
+
+		combotile_add_x = 0;
+		combotile_add_y = 0;
 		
 		blit(scrollbuf_old, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);

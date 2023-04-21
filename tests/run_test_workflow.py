@@ -112,26 +112,31 @@ def start_test_workflow_run(branch: str, runs_on: str, arch: str, compiler: str,
         sleep(5)
 
 
-def poll_workflow_runs(run_ids: List[int]):
+def poll_workflow_run(run_id: int):
     repo = gh.get_repo(args.repo)
-    runs = {}
+
+    retries_left = 2
     while True:
-        for id in run_ids:
-            if id in runs and runs[id].conclusion:
-                continue
+        w = repo.get_workflow_run(run_id)
+        if w.conclusion == None:
+            print('waiting for run to finish')
+            sleep(20)
+            continue
 
-            w = runs[id] = repo.get_workflow_run(id)
+        print(f'[{run_id}] run finished: {w.conclusion}')
 
-            if w.conclusion != None:
-                print(f'[{id}] run finished: {w.conclusion}')
-                break
+        if w.conclusion != 'success':
+            if retries_left == 0:
+                raise Exception('failed to run workflow too many times')
 
-        if all(w.conclusion for w in runs.values()):
-            print('all runs have finished')
-            return
+            print('re-running workflow')
+            retries_left -= 1
+            if not w.rerun():
+                raise Exception('failed to re-run workflow')
 
-        print('waiting for run to finish')
-        sleep(20)
+            continue
+
+        break
 
 
 # Collect all the test failures described by the provided test_results.json
@@ -169,7 +174,7 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
     # For baseline purposes, only need to run on a single platform.
     run_id = start_test_workflow_run(
         find_baseline_commit(), 'ubuntu-22.04', 'x64', 'clang', extra_args)
-    poll_workflow_runs([run_id])
+    poll_workflow_run(run_id)
     print('run finished')
     set_action_output('baseline_run_id', run_id)
 
@@ -203,4 +208,4 @@ else:
 
     run_id = start_test_workflow_run(
         args.commit, runs_on, arch, args.compiler, extra_args)
-    poll_workflow_runs([run_id])
+    poll_workflow_run(run_id)

@@ -310,7 +310,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
-#define V_FAVORITES        2
+#define V_FAVORITES        3
 
 #define V_COMPATRULE       40
 #define V_ZINFO            3
@@ -3361,7 +3361,8 @@ enum { msLINKED };
 #define MSGC_SETSCREENSTATE   133    // 2 args (ind, state)
 #define MSGC_SETSCREENSTATER  134    // 4 args (map, screen, ind, state)
 #define MSGC_FONT             135    // 1 args (font)
-//132+
+#define MSGC_RUN_FRZ_GENSCR   136    // 2 args (script num, force_redraw)
+//137+
 
 enum
 {
@@ -5735,6 +5736,10 @@ bool isStepType(int32_t type);
 bool isDamageType(int32_t type);
 bool isConveyorType(int32_t type);
 bool isChestType(int32_t type);
+
+DATAFILE* load_datafile_count(const char* path, size_t& sz);
+
+#define FONTSDAT_CNT (FONT_ZX+1)
 
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))
 #define MEMCPY_ARR(dest,src) memcpy(dest,src,sizeof(dest))

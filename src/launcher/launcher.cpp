@@ -7,6 +7,7 @@
 #include "dialog/alert.h"
 #include "launcher_dialog.h"
 #include "base/zapp.h"
+#include "fontsdat.h"
 
 #define QUICK_EXIT 0
 
@@ -18,6 +19,7 @@ do{ \
 while(false)
 
 DATAFILE *fontsdata;
+size_t fontsdat_cnt = 0;
 PALETTE RAMpal;
 
 ZModule zcm;
@@ -152,7 +154,7 @@ int32_t main(int32_t argc, char* argv[])
 	packfile_password(datapwd);
 	
 	Z_message("....Fonts.Dat..."); //{
-	if((fontsdata=load_datafile(moduledata.datafiles[fonts_dat]))==NULL)
+	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
 	{
 		Z_error_fatal("failed: load error\n");
 		QUIT_LAUNCHER();
@@ -162,6 +164,11 @@ int32_t main(int32_t argc, char* argv[])
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
 		Z_error_fatal("failed: version error\n");
+		QUIT_LAUNCHER();
+	}
+	if(fontsdat_cnt != FONTSDAT_CNT)
+	{
+		Z_error_fatal("failed: count error (found %d != exp %d)\n", fontsdat_cnt, FONTSDAT_CNT);
 		QUIT_LAUNCHER();
 	}
 	Z_message("OK\n");

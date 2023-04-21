@@ -45,7 +45,7 @@ typedef struct DIALOG
 /* a popup menu */
 typedef struct MENU
 {
-   char *text;                   /* menu item text */
+   const char *text;                   /* menu item text */
    AL_LEGACY_METHOD(int, proc, (void)); /* callback function */
    struct MENU *child;           /* to allow nested menus */
    int flags;                    /* flags about the menu state */

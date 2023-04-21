@@ -2776,8 +2776,8 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 		input_y = dy;
 	
 	if(!(moveflags & FLAG_IGNORE_SCREENEDGE)
-		&& (input_x<16-nb || input_y<zc_max(16-yg-nb,0)
-			|| input_x>=240+nb-hxsz || input_y>=160+nb-hysz))
+		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
+			|| ((input_x+hxsz-1) >= (240+nb)) || ((input_y+hysz-1) >= (160+nb))))
 		return true;
 	
 	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
@@ -2819,9 +2819,10 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
 
 	if (dx < 0 || dx >= world_w || dy < 0 || dy >= world_h)
-		return true;
+		return !(moveflags & FLAG_IGNORE_SCREENEDGE);
 	
 	// TODO: could this reuse _walkflag?
+
 	//_walkflag code
 	mapscr* s0 = get_layer_scr_for_xy(dx, dy, -1);
 	mapscr* s1 = s0->layermap[0]-1 >= 0 ? get_layer_scr_for_xy(dx, dy, 0) : nullptr;
@@ -2854,38 +2855,41 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	bool needshwtr = (moveflags & FLAG_ONLY_SHALLOW_WATERWALK);
 	bool needpit = (moveflags & FLAG_ONLY_PITWALK);
 
-	int32_t cwalkflag = c.walk & 0xF;
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) cwalkflag = 0;
-	if (s1)
+	if(!cansolid)
 	{
-		if (c1.type == cBRIDGE) 
+		int32_t cwalkflag = c.walk & 0xF;
+		if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) cwalkflag = 0;
+		if (s1)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (c1.type == cBRIDGE) 
 			{
-				int efflag = (c1.walk & 0xF0)>>4;
-				int newsolid = (c1.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					int efflag = (c1.walk & 0xF0)>>4;
+					int newsolid = (c1.walk & 0xF);
+					cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				}
+				else cwalkflag &= c1.walk;
 			}
-			else cwalkflag &= c1.walk;
+			else cwalkflag |= c1.walk & 0xF;
 		}
-		else cwalkflag |= c1.walk & 0xF;
-	}
-	if (s2)
-	{
-		if (c2.type == cBRIDGE) 
+		if (s2)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (c2.type == cBRIDGE) 
 			{
-				int efflag = (c2.walk & 0xF0)>>4;
-				int newsolid = (c2.walk & 0xF);
-				cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				{
+					int efflag = (c2.walk & 0xF0)>>4;
+					int newsolid = (c2.walk & 0xF);
+					cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
+				}
+				else cwalkflag &= c2.walk;
 			}
-			else cwalkflag &= c2.walk;
+			else cwalkflag |= c2.walk & 0xF;
 		}
-		else cwalkflag |= c2.walk & 0xF;
+		if(cwalkflag & b)
+			return true;
 	}
-	bool solid = cwalkflag & b;
-	if (solid && !cansolid) return true;
 	if(needwtr || needshwtr || needpit)
 	{
 		bool ret = true;
@@ -2913,31 +2917,36 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			return false;
 	}
 	
+	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
+	
 	if(dx && !dy)
 	{
 		if(dx < 0)
 		{
 			special = (special==spw_clipbottomright||special==spw_clipright)?spw_none:special;
 			int mx = (bx+dx).getFloor();
-			int my = (by+dy).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, special, left, mx, my, kb))
+				if(scr_walkflag(mx, by+ty, special, left, mx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, special, left, mx, my, kb))
+			if(scr_walkflag(mx, ry, special, left, mx, by, kb))
+				return false;
+			if(nosolid && collide_object(bx+dx,by,-dx,hysz,this))
 				return false;
 		}
 		else
 		{
 			int mx = (rx+dx).getCeil();
-			int my = (by+dy).getFloor();
+			int lx = mx-hxsz+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, special, right, mx, my, kb))
+				if(scr_walkflag(mx, by+ty, special, right, lx, by, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, special, right, mx, my, kb))
+			if(scr_walkflag(mx, ry, special, right, lx, by, kb))
+				return false;
+			if(nosolid && collide_object(bx+hxsz,by,dx,hysz,this))
 				return false;
 		}
 	}
@@ -2946,30 +2955,33 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		if(dy < 0)
 		{
 			special = (special==spw_clipbottomright)?spw_none:special;
-			int mx = (bx+dx).getFloor();
 			int my = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, special, up, mx, my, kb))
+				if(scr_walkflag(bx+tx, my, special, up, bx, my, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, special, up, mx, my, kb))
+			if(scr_walkflag(rx, my, special, up, bx, my, kb))
+				return false;
+			if(nosolid && collide_object(bx,by+dy,hxsz,-dy,this))
 				return false;
 		}
 		else
 		{
-			int mx = (bx+dx).getFloor();
 			int my = (ry+dy).getCeil();
+			int ly = my-hysz+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, special, down, mx, my, kb))
+				if(scr_walkflag(bx+tx, my, special, down, bx, ly, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, special, down, mx, my, kb))
+			if(scr_walkflag(rx, my, special, down, bx, ly, kb))
+				return false;
+			if(nosolid && collide_object(bx,by+hysz,hxsz,dy,this))
 				return false;
 		}
 	}
-	else
+	else //! Untested, and currently unused.
 	{
 		return scr_canmove(dx, 0, special, kb, ign_sv) && scr_canmove(dy, 0, special, kb, ign_sv);
 	}
@@ -2981,6 +2993,10 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	zfix bx = dx+hxofs, by = dy+hyofs; //left/top
 	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
 	
+	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
+	
+	if(nosolid && collide_object(bx,by,hxsz,hysz,this))
+		return false;
 	for(zfix ty = 0; by+ty < ry; ty += 8)
 	{
 		for(zfix tx = 0; bx+tx < rx; tx += 8)
@@ -3001,16 +3017,27 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 	return true;
 }
 
+bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwid, int32_t nhei)
+{
+	auto oxsz = hxsz, oysz = hysz;
+	if(nwid > -1) hxsz = nwid;
+	if(nhei > -1) hysz = nhei;
+	bool ret = scr_canplace(dx,dy,special,kb);
+	hxsz = oxsz; hysz = oysz;
+	return ret;
+}
+
 bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 {
 	bool ret = true;
 	if(!ign_sv && dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
 		dy = 0;
-	while(abs(dx) > 8 || abs(dy) > 8)
+	const int scl = 2;
+	while(abs(dx) > scl || abs(dy) > scl)
 	{
 		if(abs(dx) > abs(dy))
 		{
-			int32_t tdx = dx.sign() * 8;
+			int32_t tdx = dx.sign() * scl;
 			if(movexy(tdx, 0, special, kb, ign_sv))
 				dx -= tdx;
 			else
@@ -3021,7 +3048,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		}
 		else
 		{
-			int32_t tdy = dy.sign() * 8;
+			int32_t tdy = dy.sign() * scl;
 			if(movexy(0, tdy, special, kb, ign_sv))
 				dy -= tdy;
 			else
@@ -3031,6 +3058,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 		}
 	}
+	
 	if(dx)
 	{
 		if(scr_canmove(dx, 0, special, kb, ign_sv))
@@ -3038,17 +3066,17 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		else
 		{
 			ret = false;
-			int32_t xsign = dx.sign();
+			int xsign = dx.sign();
 			while(scr_canmove(xsign, 0, special, kb, ign_sv))
 			{
 				x += xsign;
 				dx -= xsign;
 			}
-			if(scr_canmove(dx.decsign(), 0, special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
+			zfix dxsign = dx.decsign();
+			while(scr_canmove(dxsign, 0, special, kb, ign_sv))
 			{
-				if(dx > 0)
-					x.doCeil();
-				else x.doFloor();
+				x += dxsign;
+				dx -= dxsign;
 			}
 		}
 	}
@@ -3059,17 +3087,17 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 		else
 		{
 			ret = false;
-			int32_t ysign = dy.sign();
+			int ysign = dy.sign();
 			while(scr_canmove(0, ysign, special, kb, ign_sv))
 			{
 				y += ysign;
 				dy -= ysign;
 			}
-			if(scr_canmove(0, dy.decsign(), special, kb, ign_sv)) //can move 0.0001 to 0.9999 px in this direction
+			zfix dysign = dy.decsign();
+			while(scr_canmove(0, dysign, special, kb, ign_sv))
 			{
-				if(dy > 0)
-					y.doCeil();
-				else y.doFloor();
+				y += dysign;
+				dy -= dysign;
 			}
 		}
 	}
@@ -22763,6 +22791,7 @@ bool bottom_margin_clip()
 		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - msg_margins[down]);
 }
 
+void update_msgstr();
 bool parsemsgcode()
 {
 	if(msgptr>=MsgStrings[msgstr].s.size()) return false;
@@ -22949,6 +22978,18 @@ bool parsemsgcode()
 			int mh = std::max(oh,nh);
 			if(mh > ssc_tile_hei_buf)
 				ssc_tile_hei_buf = mh;
+			return true;
+		}
+		case MSGC_RUN_FRZ_GENSCR:
+		{
+			word scr_id = grab_next_argument();
+			bool force_redraw = grab_next_argument()!=0;
+			if(force_redraw)
+			{
+				update_msgstr();
+				draw_screen();
+			}
+			FFCore.runGenericFrozenEngine(scr_id);
 			return true;
 		}
 		case MSGC_DRAWTILE:

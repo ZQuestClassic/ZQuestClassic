@@ -315,6 +315,7 @@ extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
 extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
+extern size_t fontsdat_cnt;
 extern SAMPLE   wav_refill;
 extern PALETTE  RAMpal;
 extern byte     *colordata;

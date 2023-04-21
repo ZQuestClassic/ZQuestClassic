@@ -1153,7 +1153,7 @@ bool is_msgc(byte cc)
 		case MSGC_MENUCHOICE: case MSGC_RUNMENU:
 		case MSGC_GOTOMENUCHOICE: case MSGC_TRIGSECRETS:
 		case MSGC_SETSCREENSTATE: case MSGC_SETSCREENSTATER:
-		case MSGC_FONT:
+		case MSGC_FONT: case MSGC_RUN_FRZ_GENSCR:
 			return true;
 	}
 	return false;
@@ -1196,6 +1196,7 @@ int32_t msg_code_operands(byte cc)
 		case MSGC_GOTOIFRAND:
 		case MSGC_GOTOMENUCHOICE:
 		case MSGC_SETSCREENSTATE:
+		case MSGC_RUN_FRZ_GENSCR:
 			return 2;
 			
 		case MSGC_NEWLINE:

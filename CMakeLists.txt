@@ -14,7 +14,7 @@ set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Uncomment for ASAN on MSVC.
@@ -746,6 +746,7 @@ endif()
 
 set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger)
 set(zc_clang_errors
+	-Werror=array-bounds
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
@@ -753,6 +754,9 @@ set(zc_clang_errors
 	-Wno-switch
 )
 set(zc_gcc_errors
+	-Werror=array-bounds
+	-Werror=constant-conversion
+	-Werror=extra-tokens
 	-Werror=format
 	-Werror=format-overflow
 	-Werror=return-type
