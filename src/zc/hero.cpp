@@ -22971,6 +22971,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			sdir = dir;
 		}
 		
+		currscr_for_passive_subscr = wscr;
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
 		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
@@ -25299,6 +25300,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_scr = currscr;
+	currscr_for_passive_subscr = currscr - DMaps[currdmap].xoff;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -25419,6 +25421,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 	}
 
+	// Can't change currdmap before scrolling is done, because some places requires currdmap to remain the same:
+	//   - fade
+	//   - lighting
+	//   - more?
+	scrolling_destdmap = destdmap == -1 ? currdmap : destdmap;
+
 	// For the duration of the scrolling (except for the above waiting chunk), the new screen/region
 	// viewport is used for all drawing operations. This means that the old screens are drawn with offsets
 	// relative to the new coordinate system - this is handled in for_every_nearby_screen_during_scroll.
@@ -25455,17 +25463,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int step = get_scroll_step(scrolldir);
 	int delay = get_scroll_delay(scrolldir);
 
-	if (destscr == -1 && checkmaze(oldscr, true) && !edge_of_dmap(scrolldir))
+	if (destscr == -1)
 	{
-		destscr = currscr + dir_to_scr_offset((direction)scrolldir);
+		destscr = currscr;
+		if (checkmaze(oldscr, true) && !edge_of_dmap(scrolldir)) {
+			destscr += dir_to_scr_offset((direction)scrolldir);
+		}
 	}
 	currmap = destmap;
-
-	// Can't change currdmap before scrolling is done, because some places requires currdmap to remain the same:
-	//   - fade
-	//   - lighting
-	//   - more?
-	scrolling_destdmap = destdmap == -1 ? currdmap : destdmap;
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
@@ -25741,7 +25746,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
-		// if (replay_get_frame() == 1408) {
+		// if (replay_get_frame() == 322) {
 		// 	printf("asd\n");
 		// }
 		if (replay_is_active() && replay_get_version() < 3)
@@ -25849,6 +25854,16 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		// Note: this is the only thing that actual moves the hero. Everything else is just moving the viewport.
 		x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 		y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
+
+		if (ladderx > 0 || laddery > 0)
+		{
+			// If the ladder moves on both axes, the player can
+			// gradually shift it by going back and forth
+			if(scrolldir==up || scrolldir==down)
+				laddery = y.getInt();
+			else
+				ladderx = x.getInt();
+		}
 		
 		//Move Hero and the scroll position
 		if(!no_move)
@@ -25870,16 +25885,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			case right:
 				script_sx += step;
 				break;
-			}
-			
-			if (ladderx > 0 || laddery > 0)
-			{
-				// If the ladder moves on both axes, the player can
-				// gradually shift it by going back and forth
-				if(scrolldir==up || scrolldir==down)
-					laddery = y.getInt();
-				else
-					ladderx = x.getInt();
 			}
 		}
 
@@ -25991,7 +25996,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 + sy + playing_field_offset;
+			int offy = draw_dy * 176 + playing_field_offset;
 			putscrdoors(framebuf, offx, offy, screens[0]);
 		});
 
@@ -26096,7 +26101,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
 
+		currscr_for_passive_subscr = scrolling_scr - DMaps[currdmap].xoff;
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
@@ -26191,6 +26198,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	warpy   = -1;
 	
 	screenscrolling = false;
+	currscr_for_passive_subscr = -1;
+	scrolling_destdmap = -1;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
 	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
@@ -26223,8 +26232,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	
 	homescr=currscr;
 	init_dmap();
-	putscr(scrollbuf,0,0,newscr);
-	putscrdoors(scrollbuf,0,0,newscr);
+	putscr(scrollbuf,0,0,newscr); // TODO z3 rm?
+	putscrdoors(scrollbuf,0,0,newscr); // TODO z3 rm?
 	
 	// Check for raft flags
 	if(action!=rafting && hopclk==0 && !toogam)
@@ -26387,6 +26396,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
 	scrolling_scr = currscr;
+	// scrolling_destdmap = destdmap == -1 ? currdmap : destdmap;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = scrolldir;
 	switch(scrolldir)
 	{
@@ -26784,9 +26794,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = newdmap;
 	for(word i = 0; cx >= 0 && delay != 0; i++, cx--) //Go!
 	{
-		if (replay_get_frame() == 1408) {
-			printf("asd\n");
-		}
 		if (replay_is_active() && replay_get_version() < 3)
 		{
 			replay_poll();
@@ -27258,6 +27265,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	warpy   = -1;
 	
 	screenscrolling = false;
+	scrolling_destdmap = -1;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
 	FFCore.ScrollingData[SCROLLDATA_NX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_NY] = 0;

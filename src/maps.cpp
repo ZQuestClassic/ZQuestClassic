@@ -6588,6 +6588,9 @@ void putscrdoors(BITMAP *dest,int32_t x,int32_t y, mapscr* scrn)
 		return;
 	}
 	
+	x -= viewport.x;
+	y -= viewport.y;
+	
 	if(scrn->door[0]==dBOMBED)
 	{
 		over_door(dest,0,39,up,x,y);

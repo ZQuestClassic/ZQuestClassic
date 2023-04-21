@@ -4740,12 +4740,15 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
 
 	int32_t prev_homescr;
 	int32_t prev_currscr;
+	int32_t prev_dmap;
 	if (currscr_for_passive_subscr != -1)
 	{
 		prev_homescr = homescr;
 		prev_currscr = currscr;
+		prev_dmap = currdmap;
 		currscr = currscr_for_passive_subscr;
 		homescr = prev_currscr;
+		if (scrolling_destdmap != -1) currdmap = scrolling_destdmap;
 	}
     
     show_custom_subscreen(subscr, misc, current_subscreen_passive, 0, 0, showtime, pos2);
@@ -4755,6 +4758,7 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
 	{
 		currscr = prev_currscr;
 		homescr = prev_homescr;
+		if (scrolling_destdmap != -1) currdmap = prev_dmap;
 	}
 }
 
