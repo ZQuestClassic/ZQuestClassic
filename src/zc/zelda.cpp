@@ -3878,7 +3878,8 @@ void runDrunkRNG(){
 
 int32_t get_currdmap()
 {
-    return currdmap;
+    if (screenscrolling && scrolling_destdmap != -1) return scrolling_destdmap;
+	return currdmap;
 }
 
 int32_t get_dlevel()

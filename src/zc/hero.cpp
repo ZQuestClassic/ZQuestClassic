@@ -22971,7 +22971,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			sdir = dir;
 		}
 		
-		currscr_for_passive_subscr = wscr;
+		// currscr_for_passive_subscr = wscr;
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
 		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
@@ -25152,6 +25152,11 @@ static void for_every_nearby_screen_during_scroll(
 	{
 		for (int draw_dy = start_dy; draw_dy <= end_dy; draw_dy++)
 		{
+			if (!is_region_scrolling)
+			{
+				if (draw_dx && draw_dy) continue;
+			}
+
 			// Depending on which direction we are scrolling, need to select the correct set of screens.
 			bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
 			int base_map = use_new_screens ? currmap : scrolling_map;
@@ -25300,7 +25305,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_scr = currscr;
-	currscr_for_passive_subscr = currscr - DMaps[currdmap].xoff;
+	// currscr_for_passive_subscr = currscr - DMaps[currdmap].xoff;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -25736,7 +25741,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 	scroll_counter *= delay;
 
-	bool is_smooth_vertical_scrolling =
+	bool is_unsmooth_vertical_scrolling =
 		(scrolldir == up || scrolldir == down) && get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0;
 	
 	// TODO z3
@@ -25791,38 +25796,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			else                                      viewport.y = new_viewport.y + delta;
 		}
 
-		if(!no_move)
-		{
-			move_counter++;
-		}
-
-		int sx = step * move_counter * -dx;
-		int sy = step * move_counter * -dy;
-		if (is_smooth_vertical_scrolling) sy += 3;
-
-		int script_sx = -sx;
-		int script_sy = -sy;
-		switch(scrolldir)
-		{
-		case up:
-			script_sy += 176;
-			break;
-			
-		case down:
-			script_sy -= 176;
-			break;
-			
-		case left:
-			script_sx += 256;
-			break;
-			
-		case right:
-			script_sx -= 256;
-			break;
-		}
-
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, script_sx, script_sy, end_frames, false);
-			
 		if(scrolldir == up || scrolldir == down)
 		{
 			if(!get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING))
@@ -25846,6 +25819,37 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
+		if(!no_move)
+		{
+			move_counter++;
+		}
+
+		int sx = step * move_counter * -dx;
+		int sy = step * move_counter * -dy;
+
+		int script_sx = -sx;
+		int script_sy = -sy;
+		if (is_unsmooth_vertical_scrolling) script_sy += 3;
+		switch(scrolldir)
+		{
+		case up:
+			script_sy += viewport.h;
+			break;
+			
+		case down:
+			// script_sy -= 176;
+			break;
+			
+		case left:
+			script_sx += viewport.w;
+			break;
+			
+		case right:
+			// script_sx -= 256;
+			break;
+		}
+		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, script_sx, script_sy, end_frames, false);
+
 		viewport = initial_viewport;
 		viewport.x -= sx;
 		viewport.y -= sy;
@@ -25855,36 +25859,19 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 		y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
 
-		if (ladderx > 0 || laddery > 0)
+		if (is_unsmooth_vertical_scrolling) viewport.y += 3;
+		if (is_unsmooth_vertical_scrolling) sy -= 3;
+
+		if (!no_move)
 		{
-			// If the ladder moves on both axes, the player can
-			// gradually shift it by going back and forth
-			if(scrolldir==up || scrolldir==down)
-				laddery = y.getInt();
-			else
-				ladderx = x.getInt();
-		}
-		
-		//Move Hero and the scroll position
-		if(!no_move)
-		{
-			switch(scrolldir)
+			if (ladderx > 0 || laddery > 0)
 			{
-			case up:
-				script_sy -= step;
-				break;
-				
-			case down:
-				script_sy += step;
-				break;
-				
-			case left:
-				script_sx -= step;
-				break;
-				
-			case right:
-				script_sx += step;
-				break;
+				// If the ladder moves on both axes, the player can
+				// gradually shift it by going back and forth
+				if(scrolldir==up || scrolldir==down)
+					laddery = y.getInt();
+				else
+					ladderx = x.getInt();
 			}
 		}
 
@@ -26009,10 +25996,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
 		{
+			if (is_unsmooth_vertical_scrolling) y += 3;
+
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
 			draw(framebuf); //Hero
 			decorations.draw(framebuf,  true);
+
+			if (is_unsmooth_vertical_scrolling) y -= 3;
 		}
 		
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
@@ -26141,7 +26132,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		//end drawing
 		FFCore.runGenericPassiveEngine(SCR_TIMING_END_FRAME);
 		advanceframe(true/*,true,false*/);
-		script_drawing_commands.Clear();
+		if (scroll_counter > 0 || get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
+			script_drawing_commands.Clear();
 		FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 		actiontype lastaction = action;
 		action=scrolling; FFCore.setHeroAction(scrolling);
@@ -26323,10 +26315,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	{
 		int sx = step * move_counter * -dx;
 		int sy = step * move_counter * -dy;
-		if (is_smooth_vertical_scrolling) sy += 3;
-		//script_drawing_commands.Clear();
+		if (is_unsmooth_vertical_scrolling) sy += 3 * dy;
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
-		//ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 	}
 
 	// Bye!

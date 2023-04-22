@@ -2286,6 +2286,12 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
     }
 }
 
+static int get_currdmap_subscr()
+{
+	if (scrolling_destdmap != -1) return scrolling_destdmap;
+	return get_currdmap();
+}
+
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
 {
     int32_t si=0;
@@ -4750,7 +4756,7 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
 		prev_dmap = currdmap;
 		currscr = currscr_for_passive_subscr;
 		homescr = prev_currscr;
-		if (scrolling_destdmap != -1) currdmap = scrolling_destdmap;
+		// if (scrolling_destdmap != -1) currdmap = scrolling_destdmap;
 	}
     
     show_custom_subscreen(subscr, misc, current_subscreen_passive, 0, 0, showtime, pos2);
@@ -4760,7 +4766,7 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
 	{
 		currscr = prev_currscr;
 		homescr = prev_homescr;
-		if (scrolling_destdmap != -1) currdmap = prev_dmap;
+		// if (scrolling_destdmap != -1) currdmap = prev_dmap;
 	}
 }
 
