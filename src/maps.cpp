@@ -3391,6 +3391,9 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 
 void update_freeform_combos()
 {
+	if (replay_get_frame() == 14152) {
+		printf("asd\n");
+	}
 	ffscript_engine(false);
 	if ( !FFCore.system_suspend[susptUPDATEFFC] )
 	{
