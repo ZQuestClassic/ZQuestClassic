@@ -1415,7 +1415,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			int32_t& drown_damage = local_ref.attributes[0];
 			
 			//Shallow only
-			byte& splash_sfx = local_ref.attribytes[0];
+			int shallow_indx = get_bit(quest_rules,qr_OLD_SHALLOW_SFX) ? 0 : 5;
+			byte& splash_sfx = local_ref.attribytes[shallow_indx];
 			
 			//Both
 			lists[1] = GUI::ZCListData::itemclass(true,true);
