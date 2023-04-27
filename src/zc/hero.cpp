@@ -25915,18 +25915,28 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 			// replay_step_comment(fmt::format("BOUND hero scroll x y {} {}", x.getInt(), y.getInt()));
 			
-			if(ladderx > 0 || laddery > 0)
-			{
-				// If the ladder moves on both axes, the player can
-				// gradually shift it by going back and forth
-				if(scrolldir==up || scrolldir==down)
-					laddery = y.getInt();
-				else
-					ladderx = x.getInt();
-			}
+			// if(ladderx > 0 || laddery > 0)
+			// {
+			// 	// If the ladder moves on both axes, the player can
+			// 	// gradually shift it by going back and forth
+			// 	if(scrolldir==up || scrolldir==down)
+			// 		laddery = y.getInt();
+			// 	else
+			// 		ladderx = x.getInt();
+			// }
 		} else {
 			// replay_step_comment(fmt::format("no change hero scroll x y {} {}", x.getInt(), y.getInt()));
 		}
+
+		// if(ladderx > 0 || laddery > 0)
+		// {
+		// 	// If the ladder moves on both axes, the player can
+		// 	// gradually shift it by going back and forth
+		// 	if(scrolldir==up || scrolldir==down)
+		// 		laddery = y.getInt();
+		// 	else
+		// 		ladderx = x.getInt();
+		// }
 
 		// if(!no_move)
 		// {
@@ -26069,13 +26079,17 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, viewport.x, viewport.y);
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, viewport.x, viewport.y);
 
+		combotile_add_x = -viewport.x;
+		combotile_add_y = -viewport.y;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
 			// TODO z3 !
 			int offy = draw_dy * 176 + (region_scrolling ? playing_field_offset : 0);
-			
+
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
+		combotile_add_x = 0;
+		combotile_add_y = 0;
 
 		int mapscr_view_height = 168 + (scrolling_extended_height ? 56 : 0);
 		blit(scrollbuf, framebuf, 0, 0, 0, scrolling_extended_height ? 0 : 56, 256, mapscr_view_height);
@@ -26145,6 +26159,16 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			if (is_unsmooth_vertical_scrolling) y += 3;
 			if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 			if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
+
+			if (!no_move && (ladderx > 0 || laddery > 0))
+			{
+				// If the ladder moves on both axes, the player can
+				// gradually shift it by going back and forth
+				if(scrolldir==up || scrolldir==down)
+					laddery = y.getInt();
+				else
+					ladderx = x.getInt();
+			}
 
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
@@ -27270,48 +27294,48 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
 		}
 		
-		// if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
-		// {
-		// 	set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
-		// 	int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
-		// 	int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
-		// 	if(newscr->flags & fDARK)
-		// 	{
-		// 		if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
-		// 		{
-		// 			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
-		// 			ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
-		// 		}
+		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
+		{
+			set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+			int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
+			int32_t dx2 = FFCore.ScrollingData[SCROLLDATA_OX], dy2 = FFCore.ScrollingData[SCROLLDATA_OY]+playing_field_offset;
+			if(newscr->flags & fDARK)
+			{
+				if(newscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
 				
-		// 		color_map = &trans_table2;
-		// 		if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
-		// 			draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
-		// 		else 
-		// 			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
-		// 		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
-		// 		color_map = &trans_table;
-		// 	}
-		// 	if(oldscr->flags & fDARK)
-		// 	{
-		// 		if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
-		// 		{
-		// 			ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
-		// 			ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
-		// 		}
+				color_map = &trans_table2;
+				if(newscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_curscr, dx1, dy1);
+				else 
+					masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, dx1, dy1, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, dx1, dy1);
+				color_map = &trans_table;
+			}
+			if(oldscr->flags & fDARK)
+			{
+				if(oldscr->flags9 & fDARK_DITHER) //dither the entire bitmap
+				{
+					ditherblit(darkscr_bmp_scrollscr,darkscr_bmp_scrollscr,0,game->get_dither_type(),game->get_dither_arg());
+					ditherblit(darkscr_bmp_scrollscr_trans,darkscr_bmp_scrollscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+				}
 				
-		// 		color_map = &trans_table2;
-		// 		if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
-		// 			draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
-		// 		else 
-		// 			masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
-		// 		draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
-		// 		color_map = &trans_table;
-		// 	}
-		// 	set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-		// }
+				color_map = &trans_table2;
+				if(oldscr->flags9 & fDARK_TRANS) //draw the dark as transparent
+					draw_trans_sprite(framebuf, darkscr_bmp_scrollscr, dx2, dy2);
+				else 
+					masked_blit(darkscr_bmp_scrollscr, framebuf, 0, 0, dx2, dy2, 256, 176);
+				draw_trans_sprite(framebuf, darkscr_bmp_scrollscr_trans, dx2, dy2);
+				color_map = &trans_table;
+			}
+			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
+		}
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
-		// if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
-		// 	do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
+		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
 		{
