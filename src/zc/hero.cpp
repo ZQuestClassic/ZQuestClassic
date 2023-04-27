@@ -25633,65 +25633,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		else         secondary_axis_alignment_amount = 0;
 	}
 
-	int sx = 0;
-	int sy = 0;
-
-	// Set the initial scrolling viewport to be what the new viewport will be... minus some adjustments
-	// that will be undone during the scrolling loop. Read on.
-	viewport_t initial_viewport = {0};
-	{
-		initial_viewport = new_viewport;
-
-		// We're scrolling from the new region coordinate system to the old one, but we want
-		// to maintain the hero at the same position on the display relative to the edges at the start
-		// and only align during the scrolling loop. So translate initial_viewport a bit to account
-		// for this later alignment.
-		if (dx)      initial_viewport.y += secondary_axis_alignment_amount;
-		else if (dy) initial_viewport.x += secondary_axis_alignment_amount;
-
-		// Move hero to their current position, but within the new screen's coordinate system.
-		// ...also, minus one viewport in the scrolling direction.
-		switch(scrolldir)
-		{
-			case down:
-			{
-				// x = region_scr_dx*256 + old_x%256;
-				// y = world_h - 16;
-				// TODO z3 prob right, but need to improve extended height mode (not be a global)
-				initial_viewport.y += viewport.h;
-				sy = 0;
-			}
-			break;
-			
-			case up:
-			{
-				// x = region_scr_dx*256 + old_x%256;
-				// y = 0;
-				initial_viewport.y -= viewport.h;
-				sy = viewport.h;
-			}
-			break;
-
-			case left:
-			{
-				// x = 0;
-				// y = region_scr_dy*176 + old_y%176;
-				initial_viewport.x -= viewport.w;
-				sx = viewport.w;
-			}
-			break;
-			
-			case right:
-			{
-				// x = world_w - 16;
-				// y = region_scr_dy*176 + old_y%176;
-				initial_viewport.x += viewport.w;
-				sx = 0;
-			}
-			break;
-		}
-	}
-
+	int sx = scrolldir == left ? viewport.w : 0;
+	int sy = scrolldir == up ? viewport.h : 0;
 	if (is_unsmooth_vertical_scrolling) sy += 3;
 
 	// change Hero's state if entering water
@@ -25771,14 +25714,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			int32_t dmap = currdmap; // Kludge
 			if (destdmap != -1) currdmap = destdmap;
-			// x += 256*dx;
-			// y += 176*dy;
-
 			ffscript_engine(true);
-
 			currdmap = dmap;
-			// x -= 256*dx;
-			// y -= 176*dy;
 		}
 			
 		// There are two occasions when scrolling must be darkened:
@@ -25817,9 +25754,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	auto hero_draw_x = x;
 	auto hero_draw_y = y + new_viewport.h - old_viewport.h;
 
-	viewport_t start_viewport = old_viewport;
-	start_viewport.h = std::max(old_viewport.h, new_viewport.h);
-	viewport = start_viewport;
+	viewport_t initial_viewport = old_viewport;
+	initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
+	viewport = initial_viewport;
 	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 	if (destdmap > -1) currdmap = destdmap;
@@ -25952,8 +25889,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 
 			move_counter++;
-			viewport.x = start_viewport.x + step * move_counter * dx;
-			viewport.y = start_viewport.y + step * move_counter * dy;
+			viewport.x = initial_viewport.x + step * move_counter * dx;
+			viewport.y = initial_viewport.y + step * move_counter * dy;
 
 			// if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 			// if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
@@ -26074,8 +26011,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (secondary_axis_alignment_amount)
 		{
 			int delta = (align_counter - abs(secondary_axis_alignment_amount)) * sign(secondary_axis_alignment_amount);
-			if (scrolldir == up || scrolldir == down) viewport.x = start_viewport.x + delta;
-			else                                      viewport.y = start_viewport.y + delta;
+			if (scrolldir == up || scrolldir == down) viewport.x = initial_viewport.x + delta;
+			else                                      viewport.y = initial_viewport.y + delta;
 		}
 
 		// printf("%s\n", fmt::format("{} {} {} {} {}", i, viewport.x, viewport.y, viewport.w, viewport.h).c_str());
