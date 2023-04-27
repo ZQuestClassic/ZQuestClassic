@@ -25530,6 +25530,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	}
 	currmap = destmap;
 
+	bool region_scrolling = get_region_id(currdmap, currscr) || get_region_id(currdmap, destscr);
+
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
 	int old_origin_scr = z3_get_origin_scr();
@@ -25891,6 +25893,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			move_counter++;
 			viewport.x = initial_viewport.x + step * move_counter * dx;
 			viewport.y = initial_viewport.y + step * move_counter * dy;
+			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 			// if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 			// if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
@@ -25902,22 +25905,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			// y -= viewport.y;
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			// if (dy)
-			// if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
-			
-			// // if (dy)
-			// if(y < 0)   y = 0;
-			
-			// // if (dx)
-			// if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
-			
-			// // if (dx)
-			// if(x < 0)   x = 0;
+			if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
+			if(y < 0)   y = 0;
+			if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
+			if(x < 0)   x = 0;
 
 			// x += viewport.x;
 			// y += viewport.y;
-
-			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 			// replay_step_comment(fmt::format("BOUND hero scroll x y {} {}", x.getInt(), y.getInt()));
 			
@@ -26054,10 +26048,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		//FFScript.OnWaitdraw()
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		
-		// TODO
-		// make globals scrolling_dx, scrolling_dy, scrolling_new_code
-		// modify hero x, y based on that
-		// much later: rethink if viewport should be in new coordinates...
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
@@ -26081,7 +26071,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 + playing_field_offset;
+			// TODO z3 !
+			int offy = draw_dy * 176 + (region_scrolling ? playing_field_offset : 0);
 			
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
