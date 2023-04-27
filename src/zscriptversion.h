@@ -37,8 +37,9 @@ public:
     static inline int32_t RunScript(const byte type, const word script, const int32_t i = -1)
     {
 		// TODO z3
-		replay_step_comment(fmt::format("RunScript {} {} {}", type, script, i));
-		replay_step_comment(fmt::format("data {} {} {} {} {} {}", currscr, homescr, currmap, currdmap, HeroX().getInt(), HeroY().getInt()));
+		// replay_step_comment(fmt::format("RunScript {} {} {}", type, script, i));
+		// replay_step_comment(fmt::format("data {} {} {} {} {} {}", currscr, homescr, currmap, currdmap, HeroX().getInt(), HeroY().getInt()));
+		// replay_step_comment(fmt::format("data {} {} {} {}", currscr, homescr, currmap, currdmap));
 	/*
 	switch(type)
 	{
@@ -65,14 +66,12 @@ public:
 			return (*Interpreter)(type, script, i);
 	}
 	*/
-	auto r = (*Interpreter)(type, script, i);
-	replay_step_comment(fmt::format("(after) data {} {}", HeroX().getInt(), HeroY().getInt()));
-	return r;
+	return (*Interpreter)(type, script, i);
     }
     
     static inline void RunScrollingScript(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
     {
-		replay_step_comment(fmt::format("RunScrollingScript {} {} {}", cx, sx, sy));
+		// replay_step_comment(fmt::format("RunScrollingScript {} {} {}", cx, sx, sy));
         (*onScrolling)(scrolldir, cx, sx, sy, end_frames,waitdraw);
     }
     

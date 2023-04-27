@@ -415,6 +415,7 @@ byte forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,initial_region_scr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
