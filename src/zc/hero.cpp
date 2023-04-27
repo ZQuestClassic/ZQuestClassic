@@ -25547,8 +25547,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
 	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
-	// TODO z3 !!! try not doing this, may make code simpler when changing height mode...
-	playing_field_offset = scrolling_extended_height ? 0 : 56;
+	// TODO z3
+	playing_field_offset = old_extended_height_mode ? 0 : 56;
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
@@ -25814,18 +25814,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// 1 for scroll, then align.
 	int align_mode = 1;
 
-	// if (!old_extended_height_mode && is_extended_height_mode())
-	// 	old_viewport.y -= (old_extended_height_mode ? 0 : 56) - (is_extended_height_mode() ? 0 : 56);
-
-	viewport = old_viewport;
-	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
-
 	auto hero_draw_x = x;
-	auto hero_draw_y = y;
+	auto hero_draw_y = y + new_viewport.h - old_viewport.h;
 
-	// if (dy) hero_draw_y += (new_viewport.h - old_viewport.h) * sign(dy);
-	// if (!old_extended_height_mode && is_extended_height_mode())
-	// 	hero_draw_y += 56;
+	viewport_t start_viewport = old_viewport;
+	start_viewport.h = std::max(old_viewport.h, new_viewport.h);
+	viewport = start_viewport;
+	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 	if (destdmap > -1) currdmap = destdmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
@@ -25834,11 +25829,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			replay_poll();
 		}
-		if (replay_get_frame() == 692) {
-			printf("asd\n");
-		}
-
-		
 
 		if(Quit)
 		{
@@ -25962,8 +25952,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 
 			move_counter++;
-			viewport.x = old_viewport.x + step * move_counter * dx;
-			viewport.y = old_viewport.y + step * move_counter * dy;
+			viewport.x = start_viewport.x + step * move_counter * dx;
+			viewport.y = start_viewport.y + step * move_counter * dy;
+
+			// if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
+			// if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
 			// if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 			// replay_step_comment(fmt::format("hero scroll x y {} {}", x.getInt(), y.getInt()));
@@ -25973,16 +25966,16 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
 			// if (dy)
-			if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
+			// if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
 			
-			// if (dy)
-			if(y < 0)   y = 0;
+			// // if (dy)
+			// if(y < 0)   y = 0;
 			
-			// if (dx)
-			if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
+			// // if (dx)
+			// if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
 			
-			// if (dx)
-			if(x < 0)   x = 0;
+			// // if (dx)
+			// if(x < 0)   x = 0;
 
 			// x += viewport.x;
 			// y += viewport.y;
@@ -26081,11 +26074,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (secondary_axis_alignment_amount)
 		{
 			int delta = (align_counter - abs(secondary_axis_alignment_amount)) * sign(secondary_axis_alignment_amount);
-			if (scrolldir == up || scrolldir == down) viewport.x = old_viewport.x + delta;
-			else                                      viewport.y = old_viewport.y + delta;
+			if (scrolldir == up || scrolldir == down) viewport.x = start_viewport.x + delta;
+			else                                      viewport.y = start_viewport.y + delta;
 		}
 
-		printf("%s\n", fmt::format("{} {} {} {} {}", i, viewport.x, viewport.y, viewport.w, viewport.h).c_str());
+		// printf("%s\n", fmt::format("{} {} {} {} {}", i, viewport.x, viewport.y, viewport.w, viewport.h).c_str());
 
 		// Script stuff
 		// TODO z3: this is trying really hard to mimic the values from the old scrolling code...
@@ -26151,7 +26144,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176;
+			int offy = draw_dy * 176 + playing_field_offset;
 			
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
@@ -26222,8 +26215,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			x = hero_draw_x;
 			y = hero_draw_y;
 			if (is_unsmooth_vertical_scrolling) y += 3;
-			// x += step * move_counter * dx;
-			// y += step * move_counter * dy;
 			if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 			if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
 
@@ -26232,9 +26223,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			draw(framebuf); //Hero
 			decorations.draw(framebuf,  true);
 
-			// x -= step * move_counter * dx;
-			// y -= step * move_counter * dy;
-			// if (is_unsmooth_vertical_scrolling) y -= 3;
 			x = prev_x;
 			y = prev_y;
 		}
@@ -26387,7 +26375,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 	x = new_hero_x;
 	y = new_hero_y;
-	printf("%s\n", fmt::format("done {} {} {} {}", viewport.x, viewport.y, viewport.w, viewport.h).c_str());
+	// printf("%s\n", fmt::format("done {} {} {} {}", viewport.x, viewport.y, viewport.w, viewport.h).c_str());
 	// TODO z3 ! rm
 	playing_field_offset = is_extended_height_mode() ? 0 : 56;
 
