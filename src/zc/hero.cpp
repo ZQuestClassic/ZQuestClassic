@@ -26079,17 +26079,25 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, viewport.x, viewport.y);
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, viewport.x, viewport.y);
 
-		combotile_add_x = -viewport.x;
-		combotile_add_y = -viewport.y;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
 			// TODO z3 !
 			int offy = draw_dy * 176 + (region_scrolling ? playing_field_offset : 0);
 
+			// TODO z3 is it really necessary to have hero x/y be old scrolling values?
+			auto prev_x = x;
+			auto prev_y = y;
+			x = hero_draw_x;
+			y = hero_draw_y;
+			if (is_unsmooth_vertical_scrolling) y += 3;
+			if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
+			if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
+
 			putscr(scrollbuf, offx, offy, screens[0]);
+
+			x = prev_x;
+			y = prev_y;
 		});
-		combotile_add_x = 0;
-		combotile_add_y = 0;
 
 		int mapscr_view_height = 168 + (scrolling_extended_height ? 56 : 0);
 		blit(scrollbuf, framebuf, 0, 0, 0, scrolling_extended_height ? 0 : 56, 256, mapscr_view_height);
