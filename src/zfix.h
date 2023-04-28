@@ -72,6 +72,13 @@ public:
 	{
 		return zslongToFix(sign());
 	}
+	zfix& doClamp(int low, int high)
+	{
+		int int_val = getInt();
+		if (int_val > high) val = high * 10000L;
+		else if (int_val < low) val = low * 10000L;
+		return *this;
+	}
 	
 	int32_t getInt() const
 	{

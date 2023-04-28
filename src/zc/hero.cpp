@@ -25269,19 +25269,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	{
 		overlay = get_bit(&(currscr >= 128 ? special_warp_return_screen : tmpscr).sidewarpoverlayflags, scrolldir) ? true : false;
 	}
+
+	int old_dmap = currdmap;
+	int new_dmap = destdmap >= 0 ? destdmap : currdmap;
 	
-	if(destdmap == -1)
-	{
-		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[currdmap].map].tileWidth
-				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[currdmap].map].tileHeight)
-			return;
-	}
-	else
-	{
-		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[destdmap].map].tileWidth
-				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[destdmap].map].tileHeight)
-			return;
-	}
+	if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[new_dmap].map].tileWidth
+			|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[new_dmap].map].tileHeight)
+		return;
 	
 	if (!is_z3_scrolling_mode() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
@@ -25487,7 +25481,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	//   - fade
 	//   - lighting
 	//   - more?
-	scrolling_destdmap = destdmap == -1 ? currdmap : destdmap;
+	scrolling_destdmap = new_dmap;
 
 	// For the duration of the scrolling, the old screen/region viewport is used for all drawing operations.
 	// This means that the new screens are drawn with offsets relative to the old coordinate system.
@@ -25542,8 +25536,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
 	int old_world_h = world_h;
-	int old_x = x.getInt();
-	int old_y = y.getInt();
 	bool old_extended_height_mode = is_extended_height_mode();
 	viewport_t old_viewport = viewport;
 
@@ -25555,7 +25547,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
-	double new_hero_x, new_hero_y;
+	zfix new_hero_x, new_hero_y;
 	viewport_t new_viewport = {0};
 	{
 		// The above `loadscr` has loaded the destination screen's region information into these global variables.
@@ -25567,14 +25559,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			case up:
 			{
-				new_hero_x = region_scr_dx*256 + old_x%256;
+				new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
 				new_hero_y = world_h - 16;
 			}
 			break;
 			
 			case down:
 			{
-				new_hero_x = region_scr_dx*256 + old_x%256;
+				new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
 				new_hero_y = 0;
 			}
 			break;
@@ -25582,14 +25574,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			case left:
 			{
 				new_hero_x = world_w - 16;
-				new_hero_y = region_scr_dy*176 + old_y%176;
+				new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
 			}
 			break;
 			
 			case right:
 			{
 				new_hero_x = 0;
-				new_hero_y = region_scr_dy*176 + old_y%176;
+				new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
 			}
 			break;
 
@@ -25715,10 +25707,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		//Preloaded ffc scripts
 		{
-			int32_t dmap = currdmap; // Kludge
-			if (destdmap != -1) currdmap = destdmap;
+			// Kludge
+			currdmap = new_dmap;
 			ffscript_engine(true);
-			currdmap = dmap;
+			currdmap = old_dmap;
 		}
 			
 		// There are two occasions when scrolling must be darkened:
@@ -25759,7 +25751,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	viewport = initial_viewport;
 	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
-	if (destdmap > -1) currdmap = destdmap;
+	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
 		if (replay_is_active() && replay_get_version() < 3)
@@ -25864,10 +25856,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			// if(x < 0)   x = 0;
 
 			// This is the only thing that moves the hero.
-			x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
+			x.doClamp(viewport.x, viewport.x + viewport.w - 16);
 			int bounds_y = viewport.y + old_viewport.h - new_viewport.h;
-			// if (is_unsmooth_vertical_scrolling) bounds_y += 3;
-			y = vbound(y, bounds_y, bounds_y + viewport.h - 16);
+			y.doClamp(bounds_y, bounds_y + viewport.h - 16);
 
 			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
@@ -26264,6 +26255,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		FFCore.runF6Engine();
 		action=lastaction; FFCore.setHeroAction(lastaction);
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
+	currdmap = old_dmap;
 
 	clear_bitmap(msg_txt_display_buf);
 	set_clip_state(msg_txt_display_buf, 1);
@@ -26368,8 +26360,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
 			sfx(tmpscr.secretsfx);
-			action=rafting;
-			FFCore.setHeroAction(rafting);
+			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
 		
@@ -26377,8 +26368,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
 		{
 			sfx(tmpscr.secretsfx);
-			action=rafting;
-			FFCore.setHeroAction(rafting);
+			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
 	}
@@ -26926,7 +26916,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			return;
 		}
 
-		if (replay_get_frame() == 692) {
+		if (replay_get_frame() == 431) {
 			printf("asd\n");
 		}
 		
@@ -27085,8 +27075,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 0, 176, oldscr);
 			break;
@@ -27104,8 +27092,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 0, 176, newscr);
 			break;
@@ -27123,8 +27109,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 256, 0, oldscr);
 			break;
@@ -27142,8 +27126,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 256, 0, newscr);
 			break;
@@ -27225,7 +27207,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 		do_layer(framebuf, 0, 5, newscr, -tx, -ty, 2, false, true); //layer 5
 		do_layer(framebuf, -4, 0, newscr, -tx, -ty, 2, true); //overhead FFCs
-		do_layer(framebuf, 0, 6, newscr, -tx, -ty, 2, false, true); //layer 6 // <<<<< THIS ONE!
+		do_layer(framebuf, 0, 6, newscr, -tx, -ty, 2, false, true); //layer 6
 		
 		
 		if(msg_bg_display_buf->clip == 0)
