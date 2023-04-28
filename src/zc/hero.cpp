@@ -24858,6 +24858,7 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
 	}
 	zfix storex = x, storey = y;
+	if (!global_z3_always_use_new_scrollscr)
 	switch(scrolldir)
 	{
 	case up:
@@ -25753,9 +25754,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// 1 for scroll, then align.
 	int align_mode = 1;
 
-	auto hero_draw_x = x;
-	auto hero_draw_y = y + new_viewport.h - old_viewport.h;
-
 	viewport_t initial_viewport = old_viewport;
 	initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
 	viewport = initial_viewport;
@@ -25824,76 +25822,31 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
-		// script_sx = step * move_counter * -dx;
-		// script_sy = step * move_counter * -dy;
-		// if (is_unsmooth_vertical_scrolling) script_sy += 3;
-
-		// switch(scrolldir)
-		// {
-		// case up:
-		// 	script_sy += viewport.h;
-		// 	break;
-		// case left:
-		// 	script_sx += viewport.w;
-		// 	break;
-		// }
-		// if (i == 0)
-		// {
-		// 	x += dx * 256;
-		// 	y += dy * 176;
-		// }
-		// ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
-		// if (i == 0)
-		// {
-		// 	x -= dx * 256;
-		// 	y -= dy * 176;
-		// }
-		// if (i == 0)
-		// 	switch(scrolldir)
-		// 	{
-		// 	case up:
-		// 		script_sy += viewport.h;
-		// 		break;
-		// 	case left:
-		// 		script_sx += viewport.w;
-		// 		break;
-		// 	}
-
-		
-
 		if(!no_move)
 		{
 			switch(scrolldir)
 			{
 			case up:
 				sy -= step;
-				// viewport.y -= step;
-				y += step;
 				break;
 				
 			case down:
 				sy += step;
-				// viewport.y += step;
-				y -= step;
 				break;
 				
 			case left:
 				sx -= step;
-				// viewport.x -= step;
-				x += step;
 				break;
 				
 			case right:
 				sx += step;
-				// viewport.x += step;
-				x -= step;
 				break;
 			}
 
 			move_counter++;
 			viewport.x = initial_viewport.x + step * move_counter * dx;
 			viewport.y = initial_viewport.y + step * move_counter * dy;
-			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
+			// if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 			// if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
 			// if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
@@ -25905,10 +25858,18 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			// y -= viewport.y;
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
-			if(y < 0)   y = 0;
-			if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
-			if(x < 0)   x = 0;
+			// if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
+			// if(y < 0)   y = 0;
+			// if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
+			// if(x < 0)   x = 0;
+
+			// This is the only thing that moves the hero.
+			x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
+			int bounds_y = viewport.y + old_viewport.h - new_viewport.h;
+			// if (is_unsmooth_vertical_scrolling) bounds_y += 3;
+			y = vbound(y, bounds_y, bounds_y + viewport.h - 16);
+
+			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
 			// x += viewport.x;
 			// y += viewport.y;
@@ -25927,6 +25888,16 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		} else {
 			// replay_step_comment(fmt::format("no change hero scroll x y {} {}", x.getInt(), y.getInt()));
 		}
+
+		// if(ladderx > 0 || laddery > 0)
+		// {
+		// 	// If the ladder moves on both axes, the player can
+		// 	// gradually shift it by going back and forth
+		// 	if(scrolldir==up || scrolldir==down)
+		// 		laddery = y.getInt();
+		// 	else
+		// 		ladderx = x.getInt();
+		// }
 
 		// if(ladderx > 0 || laddery > 0)
 		// {
@@ -25976,6 +25947,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		// viewport.y = old_viewport.y + step * move_counter * dy;
 		// if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 		// if(!no_move) move_counter++;
+
+		
 
 		// int sx = step * move_counter * dx;
 		// int sy = step * move_counter * dy;
@@ -26063,15 +26036,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
 
-		// TODO z3 is it really necessary to have hero x/y be old scrolling values?
-		auto prev_x = x;
-		auto prev_y = y;
-		x = hero_draw_x;
-		y = hero_draw_y;
-		if (is_unsmooth_vertical_scrolling) y += 3;
-		if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
-		if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
-
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 + playing_field_offset;
@@ -26156,24 +26120,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
 		{
-			// TODO z3 ...
-			int prev_ladder_x = ladderx;
-			int prev_ladder_y = laddery;
-			if (ladderx>0 || laddery>0)
-			{
-				if(scrolldir==up || scrolldir==down)
-					laddery = y.getInt();
-				else
-					ladderx = x.getInt();
-			}
-
+			auto prev_y = y;
+			y += new_viewport.h - old_viewport.h;
+			if (is_unsmooth_vertical_scrolling) y += 3;
 			draw_under(framebuf); //draw the ladder or raft
 			decorations.draw2(framebuf, true);
 			draw(framebuf); //Hero
 			decorations.draw(framebuf,  true);
-
-			ladderx = prev_ladder_x;
-			laddery = prev_ladder_y;
+			y = prev_y;
 		}
 		
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
@@ -26297,9 +26251,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
 
-		x = prev_x;
-		y = prev_y;
-
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
 		
 		//end drawing
@@ -26321,13 +26272,19 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
 
-	if (replay_get_frame() == 14133) {
-		printf("asd\n");
-	}
-
+	viewport = new_viewport;
 	x = new_hero_x;
 	y = new_hero_y;
-	// printf("%s\n", fmt::format("done {} {} {} {}", viewport.x, viewport.y, viewport.w, viewport.h).c_str());
+	if(ladderx > 0 || laddery > 0)
+	{
+		// If the ladder moves on both axes, the player can
+		// gradually shift it by going back and forth
+		if(scrolldir==up || scrolldir==down)
+			laddery = y.getInt();
+		else
+			ladderx = x.getInt();
+	}
+
 	// TODO z3 ! rm
 	playing_field_offset = is_extended_height_mode() ? 0 : 56;
 
