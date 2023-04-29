@@ -12,12 +12,16 @@ static RenderTreeItem rti_tooltip;
 
 static int zc_gui_mouse_x()
 {
-	return rti_screen.global_to_local_x(mouse_x);
+	if(rti_dialogs.children.size())
+		return rti_dialogs.children.back()->rel_mouse_x();
+	return rti_screen.rel_mouse_x();;
 }
 
 static int zc_gui_mouse_y()
 {
-	return rti_screen.global_to_local_y(mouse_y);
+	if(rti_dialogs.children.size())
+		return rti_dialogs.children.back()->rel_mouse_y();
+	return rti_screen.rel_mouse_y();
 }
 
 bool use_linear_bitmaps()

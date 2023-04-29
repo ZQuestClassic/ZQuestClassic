@@ -93,9 +93,9 @@ double zc_get_monitor_scale()
 #ifdef __EMSCRIPTEN__
 	return 1.0;
 #endif
-#ifdef _WIN32
 	if(zc_get_config("gui","ignore_monitor_scale",1))
 		return 1.0;
+#ifdef _WIN32
 	if (all_get_display())
 	{
 		// GetDpiForWindow only works for Windows 10 and greater.

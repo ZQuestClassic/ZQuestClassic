@@ -7348,6 +7348,8 @@ bool select_favorite()
 			if(favorite_combos[tempc]!=-1)
             {
                 Combo=favorite_combos[tempc];
+				if(AutoBrush)
+					BrushWidth = BrushHeight = 1;
                 valid=true;
             }
         }
@@ -9260,6 +9262,8 @@ void onRCSelectCombo(int32_t c)
 	if(!draw_mapscr) return;
 
 	Combo=draw_mapscr->data[c];
+	if(AutoBrush)
+		BrushWidth = BrushHeight = 1;
 }
 
 void onRCScrollToombo(int32_t c)
@@ -11043,6 +11047,8 @@ void domouse()
 							if(m==0)
 							{
 								Combo=draw_mapscr->data[c];
+								if(AutoBrush)
+									BrushWidth = BrushHeight = 1;
 							}
 							
 							if(m==1||(key[KEY_LSHIFT]||key[KEY_RSHIFT]))

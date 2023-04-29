@@ -101,7 +101,8 @@ private:
 	itemdata local_itemref;
 	GUI::ListData list_items, list_counters, list_sprites,
 		list_itemdatscript, list_itemsprscript, list_weaponscript,
-		list_weaptype, list_deftypes, list_bottletypes, list_sfx;
+		list_weaptype, list_deftypes, list_bottletypes, list_sfx,
+		list_strings;
 	std::shared_ptr<GUI::Widget> ATTRIB_FIELD_IMPL(int32_t* mem, int index);
 	std::shared_ptr<GUI::Widget> FLAG_CHECK(int index, int bit);
 	template <typename T>

@@ -17,6 +17,7 @@ extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern miscQdata misc;
 extern itemdata *itemsbuf;
+extern byte quest_rules[QUESTRULES_SIZE];
 
 char *ordinal(int32_t num);
 using std::string;
@@ -31,10 +32,11 @@ bool hasComboWizard(int32_t type)
 		// case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 		// case cSLASH: case cSLASHTOUCHY:
 		//!Todo combo wizards -Em
-		// case cTRIGGERGENERIC: case cCSWITCH: case cSIGNPOST:
+		// case cTRIGGERGENERIC: case cCSWITCH:
 		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
 		case cCUTSCENETRIG:
+		case cSIGNPOST:
 		case cLOCKBLOCK: case cBOSSLOCKBLOCK:
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
@@ -248,7 +250,8 @@ void ComboWizardDialog::update(bool first)
 			tpan[0]->setDisabled(1, lvl < 1); //Opening
 			tpan[0]->setDisabled(2, lvl < 1); //Content
 			tpan[0]->setDisabled(3, lvl < 1); //Prompts
-			tpan[0]->setDisabled(4, lvl < 3); //Locking
+			tpan[0]->setDisabled(4, lvl < 2); //Locking
+			grids[0]->setDisabled(lvl < 3); //Locking
 			
 			cboxes[0]->setDisabled(lvl < 1); //'Use Special Item State'
 			//
@@ -305,7 +308,8 @@ void ComboWizardDialog::update(bool first)
 			
 			tpan[0]->setDisabled(1, lvl < 1); //Opening
 			tpan[0]->setDisabled(2, lvl < 1); //Prompts
-			tpan[0]->setDisabled(3, lvl < 3); //Locking
+			tpan[0]->setDisabled(3, lvl < 2); //Locking
+			grids[0]->setDisabled(lvl < 3); //Locking
 			//
 			
 			byte& exstate = local_ref.attribytes[5];
@@ -790,31 +794,12 @@ void combo_default(newcombo& ref, bool typeonly)
 	}
 	switch(ref.type)
 	{
-		case cSTAIR: case cSTAIRB: case cSTAIRC: case cSTAIRD: case cSTAIRR:
-		case cSWIMWARP: case cSWIMWARPB: case cSWIMWARPC: case cSWIMWARPD:
-		case cDIVEWARP: case cDIVEWARPB: case cDIVEWARPC: case cDIVEWARPD:
-		case cPIT: case cPITB: case cPITC: case cPITD: case cPITR:
-		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
-		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
-			break;
 		case cSLOPE:
 			ref.attrishorts[0] = 15;
 			ref.attrishorts[3] = 15;
 			break;
-		case cTRIGNOFLAG: case cSTRIGNOFLAG:
-		case cTRIGFLAG: case cSTRIGFLAG:
-			break;
-		case cSTEP: case cSTEPSAME: case cSTEPALL: case cSTEPCOPY:
-			break;
-		case cARMOS: case cGRAVE: case cBSGRAVE:
-			break;
 		case cWATER:
 			ref.attributes[0] = 40000;
-			break;
-		case cSHALLOWWATER:
-			break;
-		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
-		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
 			break;
 		case cSHOOTER:
 			ref.attribytes[1] = ewARROW;
@@ -825,17 +810,6 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attributes[1] = 4*10000;
 			ref.attributes[2] = 200*10000;
 			ref.usrflags = cflag1 | cflag4;
-			break;
-		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
-			break;
-		case cTALLGRASS: case cTALLGRASSTOUCHY: case cTALLGRASSNEXT:
-			break;
-		case cSLASHNEXT:
-			break;
-		case cBUSH: case cBUSHTOUCHY: case cFLOWERS: case cSLASHNEXTTOUCHY:
-		case cSLASHITEM: case cSLASHNEXTITEMTOUCHY:
-		case cSLASHNEXTITEM: case cBUSHNEXT: case cSLASHITEMTOUCHY:
-		case cFLOWERSTOUCHY: case cBUSHNEXTTOUCHY:
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
@@ -860,8 +834,6 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attribytes[3] = WAV_DOOR;
 			[[fallthrough]];
 		case cLOCKBLOCK2: case cBOSSLOCKBLOCK2:
-			break;
-		case cCUTSCENETRIG:
 			break;
 		//
 	}
@@ -1415,7 +1387,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			int32_t& drown_damage = local_ref.attributes[0];
 			
 			//Shallow only
-			byte& splash_sfx = local_ref.attribytes[0];
+			int shallow_indx = get_bit(quest_rules,qr_OLD_SHALLOW_SFX) ? 0 : 5;
+			byte& splash_sfx = local_ref.attribytes[shallow_indx];
 			
 			//Both
 			lists[1] = GUI::ZCListData::itemclass(true,true);
@@ -2691,6 +2664,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& usecounter = local_ref.attribytes[1];
 			int32_t& amount = local_ref.attributes[0];
 			
+			auto& messagestr = local_ref.attributes[3];
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm)
 				{
@@ -2711,6 +2685,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					if(unsigned(itm.value) >= MAXITEMS) return false;
 					return (itemsbuf[itm.value].flags & ITEM_GAMEDATA) != 0;
 				});
+			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
 				Row(
 					ddls[0] = DropDownList(data = lists[0],
@@ -3011,8 +2986,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Locking", Row(
-						Columns<2>(padding = 0_px,
+					TabRef(name = "Locking", Column(
+						grids[0] = Rows<2>(padding = 0_px,
 							Row(padding = 0_px,
 								cboxes[3] = Checkbox(
 									text = "Use Item", hAlign = 0.0,
@@ -3025,6 +3000,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								),
 								INFOBTN("Allow an item in your inventory to unlock the chest")
 							),
+							Label(text = "Counter"),
 							frames[2] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
 								Rows<3>(
 									cboxes[4] = Checkbox(
@@ -3061,7 +3037,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									INFOBTN("The item that can open the chest.")
 								)
 							),
-							Label(text = "Counter"),
 							frames[3] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
 								Rows<4>(
 									rset[2][0] = Radio(
@@ -3136,6 +3111,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										"\nIf you don't have enough, steal what you do have!")
 								)
 							)
+						),
+						Row(
+							Label(text = "Locked String:", hAlign = 1.0),
+							ddls[1] = DropDownList(data = lists[2],
+								fitParent = true, selectedValue = messagestr/10000,
+								onSelectFunc = [&](int32_t val)
+								{
+									messagestr = val*10000;
+								}),
+							INFOBTN("The string to play when failing to open. Negative values are special, reading the string number from somewhere else.")
 						)
 					))
 				)
@@ -3200,6 +3185,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte& usecounter = local_ref.attribytes[1];
 			int32_t& amount = local_ref.attributes[0];
+			auto& messagestr = local_ref.attributes[3];
 			
 			lists[0] = GUI::ZCListData::combotype(true).filter(
 				[](GUI::ListItem& itm)
@@ -3221,6 +3207,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					if(unsigned(itm.value) >= MAXITEMS) return false;
 					return (itemsbuf[itm.value].flags & ITEM_GAMEDATA) != 0;
 				});
+			lists[2] = GUI::ZCListData::strings(true);
 			windowRow->add(Column(
 				Row(
 					ddls[0] = DropDownList(data = lists[0],
@@ -3473,8 +3460,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Locking", Row(
-						Columns<2>(padding = 0_px,
+					TabRef(name = "Locking", Column(
+						grids[0] = Rows<2>(padding = 0_px,
 							Row(padding = 0_px,
 								cboxes[3] = Checkbox(
 									text = "Use Item", hAlign = 0.0,
@@ -3487,6 +3474,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								),
 								INFOBTN("Allow an item in your inventory to unlock the block")
 							),
+							Label(text = "Counter"),
 							frames[2] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
 								Rows<3>(
 									cboxes[4] = Checkbox(
@@ -3523,7 +3511,6 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 									INFOBTN("The item that can open the block.")
 								)
 							),
-							Label(text = "Counter"),
 							frames[3] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
 								Rows<4>(
 									rset[2][0] = Radio(
@@ -3598,6 +3585,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										"\nIf you don't have enough, steal what you do have!")
 								)
 							)
+						),
+						Row(
+							Label(text = "Locked String:", hAlign = 1.0),
+							ddls[1] = DropDownList(data = lists[2],
+								fitParent = true, selectedValue = messagestr/10000,
+								onSelectFunc = [&](int32_t val)
+								{
+									messagestr = val*10000;
+								}),
+							INFOBTN("The string to play when failing to open. Negative values are special, reading the string number from somewhere else.")
 						)
 					))
 				)
@@ -3605,6 +3602,24 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			rs_sz[0] = 2;
 			rs_sz[2] = 2;
 			rs_sz[3] = 3;
+			break;
+		}
+		case cSIGNPOST:
+		{
+			auto& messagestr = local_ref.attributes[0];
+			lists[0] = GUI::ZCListData::strings(true);
+			windowRow->add(
+				Rows<3>(
+					Label(text = "String:", hAlign = 1.0),
+					ddls[1] = DropDownList(data = lists[0],
+						fitParent = true, selectedValue = messagestr/10000,
+						onSelectFunc = [&](int32_t val)
+						{
+							messagestr = val*10000;
+						}),
+					INFOBTN("The string to play. Negative values are special, reading the string number from somewhere else.")
+				)
+			);
 			break;
 		}
 		default: //Should be unreachable

@@ -2044,12 +2044,8 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			/* first fill in the edges */
 			
-			if(y > d->y+2)
-				rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, y-1, bg3);
-				
-			if(y+text_height(font)-1 < d->y+d->h-2)
-				rectfill(screen, d->x+2, y+text_height(font)-1, d->x+d->w-3, d->y+d->h-3, bg3);
-				
+			rectfill(screen, d->x+2, d->y+2, d->x+d->w-3, d->y+d->h-3, bg3);
+			
 			_allegro_vline(screen, d->x+2, d->y+2, d->y+d->h-3, bg3);
 			
 			/* now the text */
@@ -7110,7 +7106,7 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 if(d->flags & D_DISABLED)
                 {
-                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
                     tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
                     bx=tl+text_height(font)/2;
                 }
@@ -7137,7 +7133,7 @@ int32_t jwin_check_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 if(d->flags & D_DISABLED)
                 {
-                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                    gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
                     tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
                 }
                 else
@@ -7294,7 +7290,7 @@ int32_t jwin_radio_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             if(d->flags & D_DISABLED)
             {
-                gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+                gui_textout_ln(screen, (uint8_t *)d->dp, tx+1, d->y+1+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
                 tl=gui_textout_ln(screen, (uint8_t *)d->dp, tx, d->y+(d->h-(text_height(font)-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
             }
             else
@@ -8422,7 +8418,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 						uint8_t* pname = (uint8_t*)(panel->getName(i));
 						bool dis = panel->getDisabled(i);
 						if(dis)
-							gui_textout_ln(screen, pname, tx+5, d->y+sd+5, scheme[jcLIGHT], scheme[jcDISABLED_BG], 0);
+							gui_textout_ln(screen, pname, tx+5, d->y+sd+5, scheme[jcLIGHT], scheme[jcBOX], 0);
 						gui_textout_ln(screen, pname, tx+4, d->y+sd+4, scheme[dis ? jcDISABLED_FG : jcBOXFG], dis ? -1 : scheme[jcBOX], 0);
 						tx+=text_length(font, (const char*)pname)+10;
 						

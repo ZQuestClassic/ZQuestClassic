@@ -954,6 +954,7 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t
 	list_weaptype(GUI::ZCListData::lweaptypes()),
 	list_deftypes(GUI::ZCListData::deftypes()),
 	list_bottletypes(GUI::ZCListData::bottletype()),
+	list_strings(GUI::ZCListData::strings()),
 	list_sfx(GUI::ZCListData::sfxnames(true))
 {}
 
@@ -1453,140 +1454,147 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Pickup", Column(
-						Rows<4>(
-							//
-							Label(text = "Counter:", hAlign = 1.0),
-							DropDownList(
-								fitParent = true,
-								data = list_counters,
-								selectedValue = local_itemref.count,
-								onSelectFunc = [&](int32_t val)
-								{
-									local_itemref.count = val;
-								}
-							),_d,_d,
-							//
-							Label(text = "Increase By:", hAlign = 1.0),
-							TextField(
-								val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
-								type = GUI::TextField::type::INT_DECIMAL,
-								fitParent = true, low = -9999, high = 16383,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_itemref.amount &= 0x8000;
-									local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
-								}
+						Row(
+							Rows<4>(framed = true,
+								//
+								Label(text = "Counter:", hAlign = 1.0),
+								DropDownList(
+									fitParent = true,
+									data = list_counters,
+									selectedValue = local_itemref.count,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.count = val;
+									}
+								),_d,_d,
+								//
+								Label(text = "Increase By:", hAlign = 1.0),
+								TextField(
+									val = ((local_itemref.amount & 0x4000) ? -1 : 1)*signed(local_itemref.amount & 0x3FFF),
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = -9999, high = 16383,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.amount &= 0x8000;
+										local_itemref.amount |= (abs(val)&0x3FFF)|(val<0?0x4000:0);
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.amount & 0x8000),
+									text = "Gradual",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.amount,0x8000,state);
+									}
+								),_d,
+								//
+								Label(text = "Increase Max:", hAlign = 1.0),
+								TextField(
+									val = local_itemref.setmax,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, low = -32768, high = 32767,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.setmax = val;
+									}
+								),
+								Label(text = "But Not Above:", hAlign = 1.0),
+								TextField(
+									val = local_itemref.max,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 65535,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.max = val;
+									}
+								),
+								//
+								Label(text = "Sound:", hAlign = 1.0),
+								TextField(
+									val = local_itemref.playsound,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.playsound = val;
+									}
+								),_d,_d,
+								//
+								Label(text = "Hearts Required:", hAlign = 1.0),
+								TextField(
+									val = local_itemref.pickup_hearts,
+									type = GUI::TextField::type::INT_DECIMAL,
+									fitParent = true, high = 255,
+									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										local_itemref.pickup_hearts = val;
+									}
+								),_d,_d
 							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.amount & 0x8000),
-								text = "Gradual",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.amount,0x8000,state);
-								}
-							),_d,
-							//
-							Label(text = "Increase Max:", hAlign = 1.0),
-							TextField(
-								val = local_itemref.setmax,
-								type = GUI::TextField::type::INT_DECIMAL,
-								fitParent = true, low = -32768, high = 32767,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_itemref.setmax = val;
-								}
-							),
-							Label(text = "But Not Above:", hAlign = 1.0),
-							TextField(
-								val = local_itemref.max,
-								type = GUI::TextField::type::INT_DECIMAL,
-								fitParent = true, high = 65535,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_itemref.max = val;
-								}
-							),
-							//
-							Label(text = "Sound:", hAlign = 1.0),
-							TextField(
-								val = local_itemref.playsound,
-								type = GUI::TextField::type::INT_DECIMAL,
-								fitParent = true, high = 255,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_itemref.playsound = val;
-								}
-							),_d,_d,
-							//
-							Label(text = "Hearts Required:", hAlign = 1.0),
-							TextField(
-								val = local_itemref.pickup_hearts,
-								type = GUI::TextField::type::INT_DECIMAL,
-								fitParent = true, high = 255,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_itemref.pickup_hearts = val;
-								}
-							),_d,_d
-						),
-						Column(
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_KEEPOLD),
-								text = "Keep Lower Level Items",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_KEEPOLD,state);
-								}
-							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_GAINOLD),
-								text = "Gain All Lower Level Items",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_GAINOLD,state);
-								}
-							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.flags & ITEM_COMBINE),
-								text = "Upgrade When Collected Twice",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.flags,ITEM_COMBINE,state);
-								}
+							Column(framed = true, fitParent = true,
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_KEEPOLD),
+									text = "Keep Lower Level Items",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_KEEPOLD,state);
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_GAINOLD),
+									text = "Gain All Lower Level Items",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_GAINOLD,state);
+									}
+								),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.flags & ITEM_COMBINE),
+									text = "Upgrade When Collected Twice",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.flags,ITEM_COMBINE,state);
+									}
+								)
 							)
 						),
-						Row(
-							Label(text = "String:"),
-							TextField(
-								val = local_itemref.pstring,
-								type = GUI::TextField::type::INT_DECIMAL,
-								fitParent = true, high = 65535,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_itemref.pstring = val;
-								}
+						Column(framed = true,
+							Row(
+								Label(text = "String:"),
+								DropDownList(data = list_strings,
+									selectedValue = local_itemref.pstring,
+									fitParent = true,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_itemref.pstring = val;
+									}
+								)
 							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
-								text = "Always",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
-								}
-							),
-							Checkbox(
-								hAlign = 0.0,
-								checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
-								text = "Only Held",
-								onToggleFunc = [&](bool state)
-								{
-									SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
-								}
+							Rows<2>(
+								INFOBTN("The pickup string shows every time the item is collected, instead of just once."),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_ALWAYS),
+									text = "Always",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_ALWAYS,state);
+									}
+								),
+								INFOBTN("The pickup string shows only if the item is held up, such as when received from a chest."),
+								Checkbox(
+									hAlign = 0.0,
+									checked = (local_itemref.pickup_string_flags & itemdataPSTRING_IP_HOLDUP),
+									text = "Only Held",
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_itemref.pickup_string_flags,itemdataPSTRING_IP_HOLDUP,state);
+									}
+								)
 							)
 						)
 					)),

@@ -336,23 +336,28 @@ namespace MouseSprite
 
 BITMAP* zqdialog_bg_bmp = nullptr;
 static RenderTreeItem* active_dlg_rti = nullptr;
-void popup_zqdialog_start()
+void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 {
+	if(w < 0) w = zq_screen_w;
+	if(h < 0) h = zq_screen_h;
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
-	BITMAP* tmp_bmp = create_bitmap_ex(8, zq_screen_w, zq_screen_h);
+	BITMAP* tmp_bmp = create_bitmap_ex(8, w, h);
 	
 	if(tmp_bmp)
 	{
-		clear_bitmap(tmp_bmp);
+		if(transp > 0)
+			clear_to_color(tmp_bmp, transp);
+		else clear_bitmap(tmp_bmp);
 		screen = tmp_bmp;
 		
 		RenderTreeItem* rti = new RenderTreeItem();
 		set_bitmap_create_flags(false);
-		rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
+		rti->bitmap = create_a5_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
-		rti->transparency_index = 0xFF;
-		clear_to_color(tmp_bmp,0xFF);
+		rti->transparency_index = transp;
+		rti->transform.x = x;
+		rti->transform.y = y;
 		rti->visible = true;
 		rti->owned = true;
 		rti_dialogs.children.push_back(rti);
@@ -443,6 +448,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	
 	RenderTreeItem* rti = new RenderTreeItem();
 	rti->bitmap = al_create_bitmap(w,h);
+	clear_a5_bmp(rti->bitmap);
 	rti->transform.x = x;
 	rti->transform.y = y;
 	rti->a4_bitmap = nullptr;

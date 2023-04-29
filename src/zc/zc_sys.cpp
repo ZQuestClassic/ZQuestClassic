@@ -8295,7 +8295,7 @@ void switch_out_callback()
 	}
 
 #ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==-1)
+	if(midi_patch_fix==0 || currmidi==-1 || zcmusic)
 		return;
 
 	
@@ -8314,7 +8314,7 @@ void switch_in_callback()
 	}
 
 #ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==-1)
+	if(midi_patch_fix==0 || currmidi==-1 || zcmusic)
 		return;
 	
 	else

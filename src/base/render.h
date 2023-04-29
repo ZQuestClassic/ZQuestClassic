@@ -46,6 +46,14 @@ public:
 	{
 		return (y + computed.y) * computed.yscale;
 	}
+	int rel_mouse_x()
+	{
+		return global_to_local_x(mouse_x);
+	}
+	int rel_mouse_y()
+	{
+		return global_to_local_y(mouse_y);
+	}
 };
 
 namespace MouseSprite
@@ -75,7 +83,7 @@ void zc_set_palette_range(PALETTE pal, int start, int end, bool=false);
 void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind = 0,uint32_t* backpal = nullptr);
 
 extern BITMAP* zqdialog_bg_bmp;
-void popup_zqdialog_start();
+void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
