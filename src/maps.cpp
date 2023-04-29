@@ -4016,7 +4016,7 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer
         
         if(!type && drawprimitives && layer > 0 && layer <= 6)
         {
-            do_primitives(bmp, layer, basescr, viewport.x, viewport.y + playing_field_offset);
+            do_primitives(bmp, layer, basescr, 0, playing_field_offset);
         }
     }
 }

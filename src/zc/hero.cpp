@@ -24858,7 +24858,6 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
 	}
 	zfix storex = x, storey = y;
-	if (!global_z3_always_use_new_scrollscr)
 	switch(scrolldir)
 	{
 	case up:
@@ -25256,14 +25255,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		return;
 	}
 
-	if (replay_get_frame() == 14152) {
+	if (replay_get_frame() == 4074) {
 		printf("asd\n");
 	}
 
-	if (replay_get_frame() >= 14123) {
-		printf("asd\n");
-	}
-	
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{
@@ -25628,8 +25623,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		else         secondary_axis_alignment_amount = 0;
 	}
 
-	int sx = scrolldir == left ? viewport.w : 0;
-	int sy = scrolldir == up ? viewport.h : 0;
+	int sx = scrolldir == viewport.x + (left ? viewport.w : 0);
+	int sy = scrolldir == viewport.y + (up ? viewport.h : 0);
 	if (is_unsmooth_vertical_scrolling) sy += 3;
 
 	// change Hero's state if entering water
@@ -25757,6 +25752,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (replay_is_active() && replay_get_version() < 3)
 		{
 			replay_poll();
+		}
+
+		if (replay_get_frame() == 4074) {
+			printf("asd\n");
 		}
 
 		if(Quit)
@@ -26040,8 +26039,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		// Not ideal, but probably good enough for all realistic purposes.
 		// Note: Not drawing for every screen because the old scrolling code only did this for the new screen...
 		// TODO z3
-		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, viewport.x, viewport.y);
-		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, viewport.x, viewport.y);
+		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
+		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
@@ -26052,7 +26051,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		int mapscr_view_height = 168 + (scrolling_extended_height ? 56 : 0);
 		blit(scrollbuf, framebuf, 0, 0, 0, scrolling_extended_height ? 0 : 56, 256, mapscr_view_height);
-		do_primitives(framebuf, 0, newscr, viewport.x, viewport.y + playing_field_offset);
+		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
@@ -26211,7 +26210,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
-			do_primitives(framebuf, 7, newscr, viewport.x, playing_field_offset + viewport.y);
+			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
 		{
@@ -26916,7 +26915,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			return;
 		}
 
-		if (replay_get_frame() == 431) {
+		if (replay_get_frame() == 4074) {
 			printf("asd\n");
 		}
 		
