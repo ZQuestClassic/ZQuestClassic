@@ -13913,7 +13913,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 		for(int q = MAXFAVORITECOMBOS-1; q >= 0; --q)
 			if(favorite_combos[q] != -1)
 			{
-				favcmb_cnt = q;
+				favcmb_cnt = q+1;
 				break;
 			}
 		
