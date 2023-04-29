@@ -26281,8 +26281,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			ladderx = x.getInt();
 	}
 
-	// TODO z3 ! rm
-	playing_field_offset = is_extended_height_mode() ? 0 : 56;
+	// TODO z3 ! rm. really should separate quake draw offset from playing field offset.
+	if (scrolling_extended_height)
+		playing_field_offset = is_extended_height_mode() ? 0 : 56;
+	else
+		playing_field_offset = old_playing_field_offset;
 
 	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_bit(quest_rules, qr_NOSCROLL))
