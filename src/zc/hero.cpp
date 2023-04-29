@@ -26044,12 +26044,14 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
 
+		combotile_add_y = playing_field_offset;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
 			// TODO z3 !
 			int offy = draw_dy * 176 + (region_scrolling ? playing_field_offset : 0);
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
+		combotile_add_y = 0;
 
 		// Minus 8 because half of the bottom row is not visible.
 		// TODO z3 ?
@@ -27060,10 +27062,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(scrollbuf_old);
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
-
-		// TODO z3 remove
-		combotile_add_x = -sx;
-		combotile_add_y = -sy;
 
 		switch(scrolldir)
 		{
