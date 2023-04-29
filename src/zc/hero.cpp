@@ -25531,6 +25531,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int old_region_scr_dy = region_scr_dy;
 	int old_world_w = world_w;
 	int old_world_h = world_h;
+	int old_playing_field_offset = playing_field_offset;
 	bool old_extended_height_mode = is_extended_height_mode();
 	viewport_t old_viewport = viewport;
 
@@ -25538,7 +25539,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	mapscr* newscr = get_scr(destmap, destscr);
 	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	// TODO z3
-	playing_field_offset = old_extended_height_mode ? 0 : 56;
+	playing_field_offset = old_playing_field_offset;
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
@@ -26022,6 +26023,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
+		// TODO z3 draw straight to framebuf?
 		clear_bitmap(scrollbuf);
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
@@ -26049,8 +26051,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
 
-		int mapscr_view_height = 168 + (scrolling_extended_height ? 56 : 0);
-		blit(scrollbuf, framebuf, 0, 0, 0, scrolling_extended_height ? 0 : 56, 256, mapscr_view_height);
+		// Minus 8 because half of the bottom row is not visible.
+		// TODO z3 ?
+		int mapscr_view_y = region_scrolling ? (scrolling_extended_height ? 0 : 56) : playing_field_offset;
+		int mapscr_view_height = viewport.h - 8;
+		blit(scrollbuf, framebuf, 0, 0, 0, mapscr_view_y, viewport.w, mapscr_view_height);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
