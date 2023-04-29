@@ -963,9 +963,8 @@ bool try_locked_combo(newcombo const& cmb) //cLOCKBLOCK or cLOCKEDCHEST specific
 	return false;
 }
 
-void trigger_sign(newcombo const& cmb)
+void play_combo_string(int str)
 {
-	int32_t str = cmb.attributes[0]/10000L;
 	switch(str)
 	{
 		case -1: //Special case: Use Screen String
@@ -983,6 +982,11 @@ void trigger_sign(newcombo const& cmb)
 		str = 0;
 	if(str)
 		donewmsg(str);
+}
+
+void trigger_sign(newcombo const& cmb)
+{
+	play_combo_string(cmb.attributes[0]/10000L);
 }
 
 bool trigger_warp(newcombo const& cmb)
@@ -1044,8 +1048,11 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	{
 		case cLOCKEDCHEST: //Special flags!
 			//if(!usekey()) return; //Old check
-			if(!try_locked_combo(cmb)) return false;
-			
+			if(!try_locked_combo(cmb))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
@@ -1066,7 +1073,11 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return false;
+			if(!(game->lvlitems[dlevel]&liBOSSKEY))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			// Run Boss Key Script
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 			for ( int32_t q = 0; q < MAXITEMS; ++q )
@@ -1153,7 +1164,11 @@ bool trigger_chest_ffc(int32_t pos)
 	{
 		case cLOCKEDCHEST: //Special flags!
 			//if(!usekey()) return; //Old check
-			if(!try_locked_combo(cmb)) return false;
+			if(!try_locked_combo(cmb))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			
 			if(cmb.usrflags&cflag16)
 			{
@@ -1175,7 +1190,11 @@ bool trigger_chest_ffc(int32_t pos)
 			break;
 			
 		case cBOSSCHEST:
-			if(!(game->lvlitems[dlevel]&liBOSSKEY)) return false;
+			if(!(game->lvlitems[dlevel]&liBOSSKEY))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			// Run Boss Key Script
 			int32_t key_item = 0; //current_item_id(itype_bosskey); //not possible
 			for ( int32_t q = 0; q < MAXITEMS; ++q )
@@ -1253,7 +1272,11 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
-			if(!try_locked_combo(cmb)) return false;
+			if(!try_locked_combo(cmb))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
@@ -1266,7 +1289,11 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 			
 		case cBOSSLOCKBLOCK:
 		{
-			if (!(game->lvlitems[dlevel] & liBOSSKEY)) return false;
+			if (!(game->lvlitems[dlevel] & liBOSSKEY))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			// Run Boss Key Script
 			int32_t key_item = 0;
 			for (int32_t q = 0; q < MAXITEMS; ++q)
@@ -1313,7 +1340,11 @@ bool trigger_lockblock_ffc(int32_t pos)
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
-			if(!try_locked_combo(cmb)) return false;
+			if(!try_locked_combo(cmb))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(1<<cmb.attribytes[5]);
@@ -1326,7 +1357,11 @@ bool trigger_lockblock_ffc(int32_t pos)
 			
 		case cBOSSLOCKBLOCK:
 		{
-			if (!(game->lvlitems[dlevel] & liBOSSKEY)) return false;
+			if (!(game->lvlitems[dlevel] & liBOSSKEY))
+			{
+				play_combo_string(cmb.attributes[3]/10000L);
+				return false;
+			}
 			// Run Boss Key Script
 			int32_t key_item = 0;
 			for (int32_t q = 0; q < MAXITEMS; ++q)

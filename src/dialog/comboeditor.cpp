@@ -1047,18 +1047,15 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[2] = "Button:";
 			h_attribyte[2] = "Sum all the buttons you want to be usable:\n(A=1, B=2, L=4, R=8, Ex1=16, Ex2=32, Ex3=64, Ex4=128)\n"
 				"If no buttons are selected, walking into the block will trigger it.";
-			if(FL(cflag13)) //Prompt flag
-			{
-				l_attribute[2] = "Locked Prompt Combo";
-				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
-					" open it. If 0, the normal prompt will be used instead.";
-			}
 			l_attribyte[3] = "Unlock Sound:";
 			h_attribyte[3] = "The sound to play when unlocking the block";
 			if(FL(cflag13))
 			{
 				l_attribute[1] = "Prompt Combo";
 				h_attribute[1] = "Combo to display as a 'prompt'";
+				l_attribute[2] = "Locked Prompt Combo";
+				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
+					" open it. If 0, the normal prompt will be used instead.";
 				l_attrishort[0] = "Prompt Xoffset";
 				h_attrishort[0] = "X offset from player's position for the prompt to display at";
 				l_attrishort[1] = "Prompt Yoffset";
@@ -1066,6 +1063,13 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[4] = "Prompt CSet";
 				h_attribyte[4] = "CSet to draw the prompt in";
 			}
+			
+			l_attribute[3] = "Locked String:";
+			h_attribute[3] = "If non-0, plays the specified string on attempting to open and failing.\n"
+				"1+: Use specified string\n"
+				"-1: Use screen string\n"
+				"-2: Use screen catchall as string\n"
+				"-10 to -17: Use Screen->D[0] to [7] as string";
 		}
 		[[fallthrough]];
 		case cLOCKBLOCK2:
@@ -1141,6 +1145,13 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[2] = "Combo to display as a 'prompt', if you are not currently able to"
 					" open it. If 0, the normal prompt will be used instead.";
 			}
+			
+			l_attribute[3] = "Locked String:";
+			h_attribute[3] = "If non-0, plays the specified string on attempting to open and failing.\n"
+				"1+: Use specified string\n"
+				"-1: Use screen string\n"
+				"-2: Use screen catchall as string\n"
+				"-10 to -17: Use Screen->D[0] to [7] as string";
 		}
 		[[fallthrough]];
 		case cCHEST:

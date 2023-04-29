@@ -11,13 +11,13 @@ extern const char *old_guy_string[OLDMAXGUYS];
 extern miscQdata QMisc;
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
-#ifndef IS_PARSER
-#ifndef IS_ZQUEST
+#ifdef IS_PARSER
+#elif defined(IS_PLAYER)
 #define customtunes tunes
 extern zctune tunes[MAXMIDIS];
-#else
+#elif defined(IS_ZQUEST)
 extern zctune *customtunes;
-#endif
+const char *msgslist(int32_t index, int32_t *list_size);
 #endif
 
 extern std::string msgfont_str[font_max];
@@ -108,6 +108,32 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 	{
 		ls.add(*it, ids[*it]);
 	}
+	return ls;
+}
+
+static const GUI::ListData combostrs
+{
+	{ "-17: Screen->D[7]", -17 },
+	{ "-16: Screen->D[6]", -16 },
+	{ "-15: Screen->D[5]", -15 },
+	{ "-14: Screen->D[4]", -14 },
+	{ "-13: Screen->D[3]", -13 },
+	{ "-12: Screen->D[2]", -12 },
+	{ "-11: Screen->D[1]", -11 },
+	{ "-10: Screen->D[0]", -10 },
+	{ " -2: Screen Catchall", -2 },
+	{ " -1: Screen Message String", -1 }
+};
+GUI::ListData GUI::ZCListData::strings(bool combostr)
+{
+	GUI::ListData ls;
+	#ifdef IS_ZQUEST
+	if(combostr)
+		ls = combostrs;
+	
+	::ListData msgs_list(msgslist, &font);
+	ls += GUI::ListData(msgs_list, 0);
+	#endif
 	return ls;
 }
 

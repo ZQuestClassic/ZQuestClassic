@@ -50,13 +50,10 @@ StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t a
 	: strIndex(ind), tmpMsgStr(MsgStrings[ind]),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
-	list_nextstr(GUI::ListData::nullData()),
 	list_shtype(createShadowTypesListData()),
+	list_nextstr(GUI::ZCListData::strings(false)),
 	addAfter(addAfter)
 {
-	::ListData msgs_list(msgslist, &font);
-	list_nextstr = GUI::ListData(msgs_list, 0);
-	
 	if(ind == msg_count) //new str
 	{
 		if(templateID > 0 && templateID < msg_count)
