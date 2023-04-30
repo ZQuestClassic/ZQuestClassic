@@ -27121,7 +27121,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
+			combotile_add_x -= sx;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 256, 0, oldscr);
 			break;
@@ -27139,7 +27139,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
+			combotile_add_x -= sx;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 256, 0, newscr);
 			break;
