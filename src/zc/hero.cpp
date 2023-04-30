@@ -25673,6 +25673,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
 		
+		combotile_add_x = 0;
+		combotile_add_y = playing_field_offset;
 		switch(scrolldir)
 		{
 		case up:
@@ -25690,8 +25692,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
+			combotile_add_y -= sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 0, 176, oldscr);
 			break;
@@ -25709,8 +25710,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
+			combotile_add_y -= sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 0, 176, newscr);
 			break;
@@ -25728,8 +25728,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
+			combotile_add_x -= sx;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 256, 0, oldscr);
 			break;
@@ -25747,8 +25746,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
+			combotile_add_x -= sx;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 256, 0, newscr);
 			break;
