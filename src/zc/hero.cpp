@@ -26044,13 +26044,16 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if(XOR((newscr->flags7&fLAYER2BG) || (oldscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_primitives(scrollbuf, 2, newscr, 0, 0);
 		if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, 0, 0);
 
+		combotile_add_x = 0;
 		combotile_add_y = playing_field_offset;
+		if (is_unsmooth_vertical_scrolling) combotile_add_y -= 3;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy) {
 			int offx = draw_dx * 256;
 			// TODO z3 !
 			int offy = draw_dy * 176 + (region_scrolling ? playing_field_offset : 0);
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
+		combotile_add_x = 0;
 		combotile_add_y = 0;
 
 		// Minus 8 because half of the bottom row is not visible.
@@ -27063,6 +27066,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
 
+		combotile_add_x = 0;
+		combotile_add_y = playing_field_offset;
 		switch(scrolldir)
 		{
 		case up:
@@ -27080,8 +27085,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
+			combotile_add_y -= sy;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 0, 176, oldscr);
 			break;
@@ -27099,8 +27103,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
+			combotile_add_y -= sy;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 0, 176, newscr);
 			break;
@@ -27119,7 +27122,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
 			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
 			putscr(scrollbuf_old, 0, 0, newscr);
 			putscr(scrollbuf_old, 256, 0, oldscr);
 			break;
@@ -27138,7 +27140,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf_old, 3, newscr, sx, sy);
 			
 			combotile_add_x = -sx;
-			combotile_add_y = -sy + playing_field_offset;
 			putscr(scrollbuf_old, 0, 0, oldscr);
 			putscr(scrollbuf_old, 256, 0, newscr);
 			break;
