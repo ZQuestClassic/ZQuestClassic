@@ -10,8 +10,9 @@ from time import sleep
 from typing import List
 from pathlib import Path
 # pip install PyGithub
-from github import Github, GithubException
+from github import Github, GithubException, WorkflowRun, PaginatedList
 from common import infer_gha_platform, get_gha_artifacts, ReplayTestResults
+from workflow_job import WorkflowJob
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
@@ -53,11 +54,30 @@ def set_action_output(output_name, value):
 
 
 def find_baseline_commit():
+    def is_passing_workflow_run(r: WorkflowRun.WorkflowRun):
+        if r.conclusion == 'success':
+            return True
+
+        # TODO: remove when https://github.com/PyGithub/PyGithub/pull/1951 is released.
+        jobs = PaginatedList.PaginatedList(
+            WorkflowJob,
+            r._requester,
+            r.jobs_url,
+            dict(),
+            list_item='jobs',
+        )
+
+        ignore_jobs = ['web', 'compare']
+        if all(job.conclusion == 'success' for job in jobs if job.name not in ignore_jobs):
+            return True
+
+        return False
+
     repo = gh.get_repo(args.repo)
     ci_workflow = repo.get_workflow('ci.yml')
     main_runs = ci_workflow.get_runs(branch='main')
     most_recent_ok = next(
-        (r for r in main_runs if r.conclusion == 'success'), None)
+        (r for r in main_runs if is_passing_workflow_run(r)), None)
     if not most_recent_ok:
         raise Exception(
             'could not find recent successful workflow run to use as baseline')
