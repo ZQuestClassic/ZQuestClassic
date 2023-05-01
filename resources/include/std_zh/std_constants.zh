@@ -3860,9 +3860,29 @@ const int SZOF_DRAWXOFFSET    = 128;     //0010000000b, 0x080
 const int SZOF_DRAWYOFFSET    = 256;     //0100000000b, 0x100
 const int SZOF_DRAWZOFFSET    = 512;     //1000000000b, 0x200, Enemies only.
 
-enum //Special hardcoded draw layers
+//Special hardcoded draw layers
+//Note: These may draw multiple times, or no times at all, during a frame.
+//      Timing may vary from frame to frame, and based on QRs or other settings.
+enum
 {
-	SPLAYER_PLAYER_DRAW = -200000 //Draw to the player's sprite layer
+	SPLAYER_PLAYER_DRAW = -200000,  //The player, when this occurs changes based on various conditions.
+	SPLAYER_EWEAP_BEHIND_DRAW, //Eweapons with 'Behind = true'
+	SPLAYER_EWEAP_FRONT_DRAW, //Eweapons with 'Behind = false'
+	SPLAYER_LWEAP_BEHIND_DRAW, //Lweapons with 'Behind = true'
+	SPLAYER_LWEAP_FRONT_DRAW, //Lweapons with 'Behind = false'
+	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the player is also above this height.
+	SPLAYER_CHAINLINK_DRAW, //Hookshot chain links. This may draw multiple times per frame.
+	SPLAYER_NPC_DRAW, //Enemies
+	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the player, or with a higher Z than the player
+	SPLAYER_NPC_AIRBORNE_DRAW, //Flying enemies, or enemies in the Z axis (amount required QR dependant)
+	SPLAYER_ITEMSPRITE_DRAW, //Itemsprites
+	SPLAYER_FAIRYITEM_DRAW, //Moving fairies
+	SPLAYER_PUSHBLOCK, //Pushable Blocks
+	SPLAYER_MOVINGBLOCK, //Moving Pushable Blocks
+	SPLAYER_OVERHEAD_CMB, //Overhead combos
+	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
+	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
+	SPLAYER_DARKROOM_OVER //Over dark room darkness
 };
 
 

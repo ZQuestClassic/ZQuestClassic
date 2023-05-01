@@ -5641,7 +5641,24 @@ enum swStyle //Switchhook animation styles
 
 enum //Special hardcoded draw layers
 {
-	SPLAYER_PLAYER_DRAW = -200000
+	SPLAYER_PLAYER_DRAW = -200000, //The player, when this occurs changes based on various conditions.
+	SPLAYER_EWEAP_BEHIND_DRAW, //Eweapons with 'Behind = true'
+	SPLAYER_EWEAP_FRONT_DRAW, //Eweapons with 'Behind = false'
+	SPLAYER_LWEAP_BEHIND_DRAW, //Lweapons with 'Behind = true'
+	SPLAYER_LWEAP_FRONT_DRAW, //Lweapons with 'Behind = false'
+	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the player is also above this height.
+	SPLAYER_CHAINLINK_DRAW, //Hookshot chain links
+	SPLAYER_NPC_DRAW, //Enemies
+	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the player, or with a higher Z than the player
+	SPLAYER_NPC_AIRBORNE_DRAW, //Flying enemies, or enemies in the Z axis (amount required QR dependant)
+	SPLAYER_ITEMSPRITE_DRAW, //Itemsprites
+	SPLAYER_FAIRYITEM_DRAW, //Moving fairies
+	SPLAYER_PUSHBLOCK, //Pushable Blocks
+	SPLAYER_MOVINGBLOCK, //Moving Pushable Blocks
+	SPLAYER_OVERHEAD_CMB, //Overhead combos
+	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
+	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
+	SPLAYER_DARKROOM_OVER, //Over dark room darkness
 };
 
 //
