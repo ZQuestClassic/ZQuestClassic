@@ -18293,6 +18293,13 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 					return qe_invalid;
 				}
 			}
+			if(s_version >= 37)
+			{
+				if(!p_igetw(&temp_combo.trig_genscr,f,true))
+				{
+					return qe_invalid;
+				}
+			}
 		}
 		if(combo_has_flags&CHAS_LIFT)
 		{

@@ -80,6 +80,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_ctype(GUI::ZCListData::combotype(true)),
 	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
 	list_combscript(GUI::ZCListData::combodata_script()),
+	list_genscr(GUI::ZCListData::generic_script()),
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
@@ -2715,7 +2716,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						),
 						Column(padding = 0_px,
 							Rows<3>(framed = true, hAlign = 0.0,
-								Label(text = "SFX:", fitParent = true),
+								Label(text = "SFX:", hAlign = 1.0),
 								DropDownList(data = list_sfx,
 									vPadding = 0_px,
 									fitParent = true, selectedValue = local_comboref.trigsfx,
@@ -2729,6 +2730,21 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										InfoDialog("Trigger SFX","If the value is >0, the combo will"
 											" play the specified SFX when triggered.").show();
+									}
+								),
+								Label(text = "RunFrozen:", hAlign = 1.0),
+								DropDownList(data = list_genscr,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.trig_genscr,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.trig_genscr = val;
+									}),
+								Button(
+									width = 1.5_em, padding = 0_px, forceFitH = true,
+									text = "?", hAlign = 1.0, onPressFunc = [&]()
+									{
+										InfoDialog("Run Frozen Generic Script","The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)").show();
 									}
 								)
 							),

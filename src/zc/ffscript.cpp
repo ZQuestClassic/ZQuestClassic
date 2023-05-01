@@ -11774,6 +11774,16 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].trig_statetime) * 10000;
 			break;
 		}
+		case COMBODTRIGGERGENSCRIPT:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGenScript: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_genscr) * 10000;
+			break;
+		}
 		
 		case COMBODTRIGGERLEVEL:	GET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
 		case COMBODATAID: 		ret = (ri->combosref*10000); break;
@@ -21692,6 +21702,15 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trig_statetime = vbound(value/10000, 0, 214748);
+			break;
+		}
+		case COMBODTRIGGERGENSCRIPT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGenScript: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_genscr = vbound(value/10000, 0, 65535);
 			break;
 		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -40998,7 +41017,7 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERGSTATE", COMBODTRIGGERGSTATE, 0, 0 },
 	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
 	{ "GAMEMOUSECURSOR", GAMEMOUSECURSOR, 0, 0 },
-	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
+	{ "COMBODTRIGGERGENSCRIPT", COMBODTRIGGERGENSCRIPT, 0, 0 },
 	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
 	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
 	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },

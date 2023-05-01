@@ -282,7 +282,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          36
+#define V_COMBOS          37
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            16
@@ -3076,6 +3076,7 @@ struct newcombo
 	byte trigcooldown;
 	byte trig_lstate, trig_gstate;
 	int32_t trig_statetime;
+	word trig_genscr;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -3155,6 +3156,10 @@ struct newcombo
 		if(spawnip) return false;
 		if(trigcopycat) return false;
 		if(trigcooldown) return false;
+		if(trig_lstate) return false;
+		if(trig_gstate) return false;
+		if(trig_statetime) return false;
+		if(trig_genscr) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

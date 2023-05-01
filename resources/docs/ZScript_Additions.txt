@@ -7140,10 +7140,10 @@ int TriggerCtrAmount;
  * TriggerFlags[TRIGFLAG_COUNTER_EAT]
  * TriggerFlags[TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT]
 
-int TriggerSFX;
+int TrigSFX;
  * The SFX to play when the combo is triggered. If 0, no SFX will be played.
 
-int TriggerChange;
+int TrigChange;
  * The amount the combo will change by when triggered.
  * Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
  * If '0', no change occurs.
@@ -7166,6 +7166,20 @@ int TrigSpawnItem;
 int TrigSpawnItemPickup;
  * The item pickup flags for the spawned item
  * Only the flags IP_HOLDUP, IP_TIMEOUT, IP_TRIGGERSECRETS, IP_ALWAYSGRAB are used.
+
+int TrigLevelState;
+ * The LevelState used for the `TRIGFLAG_TRIGLEVELSTATE` and `TRIGFLAG_LEVELSTATE`
+ *     flags. 0-31, inclusive.
+int TrigGlobalState;
+ * The GlobalState used for the `TRIGFLAG_TRIGGLOBALSTATE` and `TRIGFLAG_GLOBALSTATE`
+ *     flags. 0-255, inclusive.
+int TrigGStateTimer;
+ * If `> 0`,  the global trigger caused by `TRIGFLAG_GLOBALSTATE` will set to
+ *     the 'on' state with this value as a timer in frames.
+ * If this value is 0, it instead toggles the state as normal.
+
+int TrigGenScript;
+ * When triggered, this generic script will be run in the 'RunFrozen' mode.
 
 int LiftGFXCombo;
  * The 'Other Combo GFX' field

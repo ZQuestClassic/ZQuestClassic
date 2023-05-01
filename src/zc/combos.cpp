@@ -2637,7 +2637,8 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
 		check_bit = get_bit(grid,(((cx>>4) + cy)));
 	}
-	if(!timer.trig_cd)
+	bool dorun = !timer.trig_cd;
+	if(dorun)
 	{
 		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 		{
@@ -2941,6 +2942,9 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	
 	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
 		killgenwpn(w);
+	
+	if(dorun && cmb.trig_genscr)
+		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
 }
 

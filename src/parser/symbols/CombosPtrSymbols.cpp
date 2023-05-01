@@ -106,6 +106,8 @@ static AccessorTable CombosTable[] =
 	{ "setTrigGlobalState",         0,          ZTID_VOID,   COMBODTRIGGERGSTATE,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getTrigGStateTimer",         0,         ZTID_FLOAT,   COMBODTRIGGERGTIMER,       0,  { ZTID_COMBOS },{} },
 	{ "setTrigGStateTimer",         0,          ZTID_VOID,   COMBODTRIGGERGTIMER,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigGenScript",           0,         ZTID_FLOAT,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS },{} },
+	{ "setTrigGenScript",           0,          ZTID_VOID,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getLiftGFXCombo",            0,         ZTID_FLOAT,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS },{} },
 	{ "setLiftGFXCombo",            0,          ZTID_VOID,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getLiftGFXCSet",             0,         ZTID_FLOAT,   COMBODLIFTGFXCCSET,        0,  { ZTID_COMBOS },{} },
@@ -177,6 +179,8 @@ static AccessorTable CombosTable[] =
 	{ "setTriggerGlobalState",      0,          ZTID_VOID,   COMBODTRIGGERGSTATE,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getTriggerGStateTimer",      0,         ZTID_FLOAT,   COMBODTRIGGERGTIMER,       0,  { ZTID_COMBOS },{} },
 	{ "setTriggerGStateTimer",      0,          ZTID_VOID,   COMBODTRIGGERGTIMER,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerGenScript",        0,         ZTID_FLOAT,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS },{} },
+	{ "setTriggerGenScript",        0,          ZTID_VOID,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
 	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },

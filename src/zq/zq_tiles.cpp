@@ -17621,6 +17621,10 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].spawnip = combo.spawnip;
 			combobuf[i].trigcopycat = combo.trigcopycat;
 			combobuf[i].trigcooldown = combo.trigcooldown;
+			combobuf[i].trig_lstate = combo.trig_lstate;
+			combobuf[i].trig_gstate = combo.trig_gstate;
+			combobuf[i].trig_statetime = combo.trig_statetime;
+			combobuf[i].trig_genscr = combo.trig_genscr;
 		}
 		
 		if(advpaste_dlg[15].flags & D_SELECTED)   // script
