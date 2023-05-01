@@ -9021,7 +9021,10 @@ bool HeroClass::animate(int32_t)
 			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
 			drownCombo = 0;
 			if (combobuf[water].type != cWATER) damage = 4;
-			game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
+			if(cheat_superman && damage > 0)
+				damage = 0;
+			if(damage)
+				game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
 			go_respawn_point();
 			hclk=48;
 		}
@@ -13140,6 +13143,8 @@ void HeroClass::pitfall()
 				dmg_perc = cmb->usrflags&cflag3;
 				warp = cmb->usrflags&cflag1;
 			}
+			if(cheat_superman && dmg > 0)
+				dmg = 0;
 			if(dmg) //Damage
 			{
 				if(dmg > 0) hclk=48; //IFrames only if damaged, not if healed
