@@ -636,6 +636,7 @@ void ComboWizardDialog::endUpdate()
 			
 			usecounter = 0;
 			amount = 0;
+			SETFLAG(local_ref.usrflags,cflag4,counterkey && rad2==1);
 			if(counterkey)
 			{
 				if(rad2 == 1)
@@ -707,6 +708,7 @@ void ComboWizardDialog::endUpdate()
 			
 			usecounter = 0;
 			amount = 0;
+			SETFLAG(local_ref.usrflags,cflag4,counterkey && rad2==1);
 			if(counterkey)
 			{
 				if(rad2 == 1)
@@ -2627,16 +2629,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			}
 			
 			auto radmode2 = 0;
+			if(local_ref.usrflags & cflag4)
+				radmode2 = 1;
 			auto radmode3 = 0;
-			if((local_ref.usrflags & cflag1) && (local_ref.usrflags & cflag2))
-			{
-				if(local_ref.usrflags & cflag4)
-					radmode2 = 1;
-				if(local_ref.usrflags & cflag8)
-					radmode3 = 1;
-				else if(local_ref.usrflags & cflag6)
-					radmode3 = 2;
-			}
+			if(local_ref.usrflags & cflag8)
+				radmode3 = 1;
+			else if(local_ref.usrflags & cflag6)
+				radmode3 = 2;
 			
 			int32_t& prompt_combo = local_ref.attributes[1];
 			int32_t& prompt_combo2 = local_ref.attributes[2];
@@ -3149,16 +3148,13 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 				radmode0 = 1;
 			
 			auto radmode2 = 0;
+			if(local_ref.usrflags & cflag4)
+				radmode2 = 1;
 			auto radmode3 = 0;
-			if((local_ref.usrflags & cflag1) && (local_ref.usrflags & cflag2))
-			{
-				if(local_ref.usrflags & cflag4)
-					radmode2 = 1;
-				if(local_ref.usrflags & cflag8)
-					radmode3 = 1;
-				else if(local_ref.usrflags & cflag6)
-					radmode3 = 2;
-			}
+			if(local_ref.usrflags & cflag8)
+				radmode3 = 1;
+			else if(local_ref.usrflags & cflag6)
+				radmode3 = 2;
 			
 			int32_t& prompt_combo = local_ref.attributes[1];
 			int32_t& prompt_combo2 = local_ref.attributes[2];
