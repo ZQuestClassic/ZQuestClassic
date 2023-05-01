@@ -4445,7 +4445,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 		newcombo const& cmb = combobuf[special_warp_return_screen.data[q]];
 		if(cmb.type == cTORCH)
 		{
-			doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
+			doTorchCircle(darkscr_bmp_scrollscr, q, cmb, offx, offy);
 			if(scrolldir > -1)
 				doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 		}
@@ -4458,7 +4458,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
 			if(cmb.type == cTORCH)
 			{
-				doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
+				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, offx, offy);
 				if(scrolldir > -1)
 					doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
 			}
@@ -4480,16 +4480,17 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 
 // Only used for z3 scrolling mode, during screen scrolling.
 // TODO z3 delete the old version
-void calc_darkroom_combos2(int screen, int offx, int offy)
+void calc_darkroom_combos2(int screen, int offx, int offy, BITMAP* bmp)
 {
 	mapscr* scr = get_scr(currmap, screen);
+	if (!bmp) bmp = darkscr_bmp_curscr;
 
 	for(int32_t q = 0; q < 176; ++q)
 	{
 		newcombo const& cmb = combobuf[scr->data[q]];
 		if(cmb.type == cTORCH)
 		{
-			doTorchCircle(darkscr_bmp_curscr, q, cmb, offx, offy);
+			doTorchCircle(bmp, q, cmb, offx, offy);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -4501,7 +4502,7 @@ void calc_darkroom_combos2(int screen, int offx, int offy)
 			newcombo const& cmb = combobuf[layer_scr->data[q]];
 			if(cmb.type == cTORCH)
 			{
-				doTorchCircle(darkscr_bmp_curscr, q, cmb, offx, offy);
+				doTorchCircle(bmp, q, cmb, offx, offy);
 			}
 		}
 	}
@@ -4512,7 +4513,7 @@ void calc_darkroom_combos2(int screen, int offx, int offy)
 		newcombo const& cmb = combobuf[scr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle(offx+(scr->ffcs[q].x.getInt()/10000)+(scr->ffEffectWidth(q)/2), offy+(scr->ffcs[q].y.getInt()/10000)+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+			doDarkroomCircle(offx+(scr->ffcs[q].x.getInt()/10000)+(scr->ffEffectWidth(q)/2), offy+(scr->ffcs[q].y.getInt()/10000)+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], bmp);
 		}
 	}
 }
