@@ -16592,17 +16592,25 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
     bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS)) ||
                      (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
 		     //!DIMITODO: add QR for slow combos under hero
-	for (int32_t i = 0; i <= 1; ++i)
+	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
 			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				{
+					slowcombo = false;
+					break;
+				}
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i]))) slowcombo = false;
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				{
+					slowcombo = false;
+					break;
+				}
 			}
 		}
 	}
@@ -25656,6 +25664,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
 		
+		combotile_add_x = 0;
+		combotile_add_y = playing_field_offset;
 		switch(scrolldir)
 		{
 		case up:
@@ -25673,7 +25683,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
 			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 0, 176, oldscr);
@@ -25692,7 +25701,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
 			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 0, 176, newscr);
@@ -25711,7 +25719,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
 			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 256, 0, oldscr);
@@ -25730,7 +25737,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x = -sx;
 			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 256, 0, newscr);
