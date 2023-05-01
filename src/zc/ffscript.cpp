@@ -28040,11 +28040,11 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 			update_subscreens(dmapID);
 				
-			if ( has_item(itype_map, dlevel) ) 
-			{
-				//Blank the map during an intra-dmap scrolling warp. 
-				dlevel = -1; //a hack for the minimap. This works!! -Z
-			}
+			// if ( has_item(itype_map, dlevel) ) 
+			// {
+				// //Blank the map during an intra-dmap scrolling warp. 
+				// dlevel = -1; //a hack for the minimap. This works!! -Z
+			// }
 				
 			// fix the scrolling direction, if it was a tile or instant warp
 			Hero.sdir = vbound(Hero.dir,0,3);
