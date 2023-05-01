@@ -5639,6 +5639,11 @@ enum swStyle //Switchhook animation styles
 	swPOOF, swFLICKER, swRISE
 };
 
+enum //Special hardcoded draw layers
+{
+	SPLAYER_PLAYER_DRAW = -200000
+};
+
 //
 
 extern const char months[13][13];

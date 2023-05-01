@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <set>
 
 #define MAX_SCRIPT_DRAWING_COMMANDS 10000
 #define SCRIPT_DRAWING_COMMAND_VARIABLES 20
@@ -349,6 +350,16 @@ public:
         
         return next_index;
     }
+	
+	bool is_dirty(int lyr)
+	{
+		return dirty_layers.contains(lyr);
+	}
+	
+	void mark_dirty(int lyr)
+	{
+		dirty_layers.insert(lyr);
+	}
     
     reference operator [](const int32_t i)
     {
@@ -382,7 +393,7 @@ public:
 	int32_t count;
 protected:
     vec_type commands;
-    
+    std::set<int> dirty_layers;
     
     DrawingContainer draw_container;
     ScriptDrawingBitmapPool bitmap_pool;

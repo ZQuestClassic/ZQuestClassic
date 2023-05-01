@@ -3859,3 +3859,10 @@ const int SZOF_HITYOFFSET     = 64;     //0001000000b, 0x040
 const int SZOF_DRAWXOFFSET    = 128;     //0010000000b, 0x080
 const int SZOF_DRAWYOFFSET    = 256;     //0100000000b, 0x100
 const int SZOF_DRAWZOFFSET    = 512;     //1000000000b, 0x200, Enemies only.
+
+enum //Special hardcoded draw layers
+{
+	SPLAYER_PLAYER_DRAW = -200000 //Draw to the player's sprite layer
+};
+
+

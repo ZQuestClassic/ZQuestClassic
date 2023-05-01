@@ -27480,6 +27480,7 @@ void do_drawing_command(const int32_t script_command)
 			break;			
 		}
 	}
+	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000);
 }
 
 void do_set_rendertarget(bool)

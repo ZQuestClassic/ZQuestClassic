@@ -2115,595 +2115,568 @@ void HeroClass::draw(BITMAP* dest)
 		//sprintf(buf,"%d %d %d %d %d %d %d",dir, action, attack, attackclk, charging, spins, tapping);
 		textout_shadowed_ex(framebuf,font, buf, 2,72,WHITE,BLACK,-1);
 	}*/
-	int32_t oxofs, oyofs;
+	int32_t oxofs = xofs, oyofs = yofs;
 	bool shieldModify = false;
 	bool invisible=(dontdraw>0) || (tmpscr->flags3&fINVISHERO);
 	
-	if(action==dying)
 	{
-		if(!invisible)
+		if(action==dying)
 		{
-			if ( script_hero_cset > -1 ) cs = script_hero_cset;
-				sprite::draw(dest);
-		}
-		return;
-	}
-	
-	bool useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-	
-	oxofs=xofs;
-	oyofs=yofs;
-	
-	if(!invisible)
-		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
-		
-	// Stone of Agony
-	bool agony=false;
-	int32_t agonyid = current_item_id(itype_agony);
-	
-	if(invisible)
-		goto attack;
-		
-	if(agonyid>-1)
-	{
-		int32_t power=itemsbuf[agonyid].power;
-		int32_t left=static_cast<int32_t>(x+8-power)&0xF0; // Check top-left pixel of each tile
-		int32_t right=(static_cast<int32_t>(x+8+power)&0xF0)+16;
-		int32_t top=static_cast<int32_t>(y+(bigHitbox ? 8 : 12)-power)&0xF0;
-		int32_t bottom=(static_cast<int32_t>(y+(bigHitbox ? 8 : 12)+power)&0xF0)+16;
-		
-		for(int32_t x=left; x<right; x+=16)
-		{
-			for(int32_t y=top; y<bottom; y+=16)
+			if(!invisible)
 			{
-				if(agonyflag(MAPFLAG(x, y)) || agonyflag(MAPCOMBOFLAG(x, y)))
-				{
-					agony=true;
-					x=right; // Break out of outer loop
-					break;
-				}
+				if ( script_hero_cset > -1 ) cs = script_hero_cset;
+					sprite::draw(dest);
 			}
+			goto herodraw_end;
 		}
-	}
-	
-	cs = 6;
-	if ( script_hero_cset > -1 ) cs = script_hero_cset;
-	if(!get_bit(quest_rules,qr_HEROFLICKER))
-	{
-		if(superman && getCanFlicker())
-		{
-			cs += (((~frame)>>1)&3);
-		}
-		else if(hclk&&(DivineProtectionShieldClk<=0) && getCanFlicker())
-		{
-			cs += ((hclk>>1)&3);
-		}
-	}
-	
-attack:
-
-	if(attackclk || (action==attacking||action==sideswimattacking))
-	{
-		/* Spaghetti code constants!
-		* - Hero.attack contains a weapon type...
-		* - which must be converted to an itype...
-		* - which must be converted to an item ID...
-		* - which is used to acquire a wpn ID! Aack!
-		*/
-		int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : attack==wBugNet ? itype_bugnet : itype_sword);
-		int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
-		itemid=vbound(itemid, 0, MAXITEMS-1);
-		// if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
-		if(attackclk>4||attack==wBugNet||(attack==wSword&&game->get_canslash()))
-		{
-			if(attack == wBugNet)
+		
+		bool useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
+		
+		
+		if(!invisible)
+			yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+			
+		// Stone of Agony
+		bool agony=false;
+		int32_t agonyid = current_item_id(itype_agony);
+		
+		if(!invisible)
+		{	
+			if(agonyid>-1)
 			{
-				weapon *w=NULL;
-				bool found = false;
-				for(int32_t q = 0; q < Lwpns.Count(); ++q)
+				int32_t power=itemsbuf[agonyid].power;
+				int32_t left=static_cast<int32_t>(x+8-power)&0xF0; // Check top-left pixel of each tile
+				int32_t right=(static_cast<int32_t>(x+8+power)&0xF0)+16;
+				int32_t top=static_cast<int32_t>(y+(bigHitbox ? 8 : 12)-power)&0xF0;
+				int32_t bottom=(static_cast<int32_t>(y+(bigHitbox ? 8 : 12)+power)&0xF0)+16;
+				
+				for(int32_t x=left; x<right; x+=16)
 				{
-					w = (weapon*)Lwpns.spr(q);
-					if(w->id == wBugNet)
+					for(int32_t y=top; y<bottom; y+=16)
 					{
-						found = true;
-						break;
+						if(agonyflag(MAPFLAG(x, y)) || agonyflag(MAPCOMBOFLAG(x, y)))
+						{
+							agony=true;
+							x=right; // Break out of outer loop
+							break;
+						}
 					}
 				}
-				if(!found)
-				{
-					Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wBugNet,0,0,dir,itemid,getUID(),false,false,true));
-					
-					w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
-				}
-				positionNet(w, itemid);
 			}
-			else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
+			
+			cs = 6;
+			if ( script_hero_cset > -1 ) cs = script_hero_cset;
+			if(!get_bit(quest_rules,qr_HEROFLICKER))
 			{
-				// Create a sword weapon at the right spot.
+				if(superman && getCanFlicker())
+				{
+					cs += (((~frame)>>1)&3);
+				}
+				else if(hclk&&(DivineProtectionShieldClk<=0) && getCanFlicker())
+				{
+					cs += ((hclk>>1)&3);
+				}
+			}
+		}
+		
+		if(attackclk || (action==attacking||action==sideswimattacking))
+		{
+			/* Spaghetti code constants!
+			* - Hero.attack contains a weapon type...
+			* - which must be converted to an itype...
+			* - which must be converted to an item ID...
+			* - which is used to acquire a wpn ID! Aack!
+			*/
+			int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : attack==wBugNet ? itype_bugnet : itype_sword);
+			int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
+			itemid=vbound(itemid, 0, MAXITEMS-1);
+			// if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
+			if(attackclk>4||attack==wBugNet||(attack==wSword&&game->get_canslash()))
+			{
+				if(attack == wBugNet)
+				{
+					weapon *w=NULL;
+					bool found = false;
+					for(int32_t q = 0; q < Lwpns.Count(); ++q)
+					{
+						w = (weapon*)Lwpns.spr(q);
+						if(w->id == wBugNet)
+						{
+							found = true;
+							break;
+						}
+					}
+					if(!found)
+					{
+						Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wBugNet,0,0,dir,itemid,getUID(),false,false,true));
+						
+						w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
+					}
+					positionNet(w, itemid);
+				}
+				else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
+				{
+					// Create a sword weapon at the right spot.
+					weapon *w=NULL;
+					bool found = false;
+					
+					// Look for pre-existing sword
+					for(int32_t i=0; i<Lwpns.Count(); i++)
+					{
+						w = (weapon*)Lwpns.spr(i);
+						
+						if(w->id == (attack==wSword ? wSword : wWand))
+						{
+							found = true;
+							break;
+						}
+					}
+					
+					if(!found)  // Create one if sword nonexistant
+					{
+						Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
+						w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
+						
+						positionSword(w,itemid);
+						
+						// Stone of Agony
+						if(agony)
+						{
+							w->y-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,2))?1:0;
+						}
+					}
+					
+					// These are set by positionSword(), above or in checkstab()
+					yofs += slashyofs;
+					xofs += slashxofs;
+					slashyofs = slashxofs = 0;
+				}
+			}
+			
+			if(attackclk<7
+			|| (attack==wSword && ((attackclk<(game->get_canslash()?15:13) 
+			|| FIXED_Z3_ANIMATION && attackclk<(game->get_canslash()?16:12))
+			|| (charging>0 && attackclk!=SWORDCHARGEFRAME)))
+			|| ((attack==wWand || attack==wFire || attack==wCByrna) && attackclk<13)
+			|| (attack==wHammer && attackclk<=30)
+			|| (attack==wBugNet && attackclk<NET_CLK_TOTAL))
+			{
+				if(!invisible)
+				{
+					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimstab:ls_stab, dir, zinit.heroAnimationStyle);
+					if (FIXED_Z3_ANIMATION)
+					{
+						if (attackclk >= 2) tile += (extend==2?2:1);
+						if (attackclk >= 13) tile += (extend==2?2:1);
+					}
+					
+					if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
+					{
+						herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
+						if (FIXED_Z3_ANIMATION)
+						{
+							if (attackclk >= 7) tile += (extend==2?2:1);
+							if (attackclk >= 11) tile += (extend==2?2:1);
+							if (attackclk >= 14) tile += (extend==2?2:1);
+						}
+					}
+					if (attack==wBugNet && !get_bit(quest_rules, qr_OLD_BUG_NET))
+					{
+						if ((dir == right && (itemsbuf[itemid].flags&ITEM_FLAG2)) || (dir != right && !(itemsbuf[itemid].flags&ITEM_FLAG2)))
+						{
+							if (attackclk < 9) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
+							if (attackclk > 15) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
+						}
+						else
+						{
+							if (attackclk < 9) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
+							if (attackclk > 15) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
+						}
+					}
+					
+					if((attack==wHammer) && (attackclk<13))
+					{
+						herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimpound:ls_pound, dir, zinit.heroAnimationStyle);
+						if (FIXED_Z3_ANIMATION)
+						{
+							if (attackclk >= 14) tile += (extend==2?2:1);
+							if (attackclk >= 16) tile += (extend==2?2:1);
+						}
+					}
+					
+					if(useltm)
+					{
+						if ( script_hero_sprite <= 0 ) tile+=getTileModifier();
+					}
+				
+					// Stone of Agony
+					if(agony)
+					{
+						yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
+					}
+
+					//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
+					
+					//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
+					if (!(get_bit(quest_rules, qr_HEROFLICKER) && ((superman || hclk) && (frame & 1))))
+					{
+						masked_draw(dest);
+					}
+
+					//Prevent flickering -Z
+					if (!getCanFlicker()) masked_draw(dest);
+				}
+				
+				if(attack!=wHammer)
+					goto herodraw_end;
+			}
+			
+			if(attack==wHammer) // To do: possibly abstract this out to a positionHammer routine?
+			{
+				int32_t wy=1;
+				int32_t wx=1;
+				int32_t f=0,t,cs2;
 				weapon *w=NULL;
 				bool found = false;
 				
-				// Look for pre-existing sword
 				for(int32_t i=0; i<Lwpns.Count(); i++)
 				{
 					w = (weapon*)Lwpns.spr(i);
 					
-					if(w->id == (attack==wSword ? wSword : wWand))
+					if(w->id == wHammer)
 					{
 						found = true;
 						break;
 					}
 				}
 				
-				if(!found)  // Create one if sword nonexistant
+				if(!found)
 				{
-					Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
+					Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
 					w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
+					found = true;
+				}
+				
+				t = w->o_tile;
+				cs2 = w->o_cset;
+				
+				switch(dir)
+				{
+				case up:
+					wx=-1;
+					wy=-15;
+					if (IsSideSwim())wy+=hammer_swim_up_offset;
 					
-					positionSword(w,itemid);
+					if(attackclk>=13)
+					{
+						wx-=1;
+						wy+=1;
+						++t;
+					}
 					
-					// Stone of Agony
-					if(agony)
+					if(attackclk>=15)
 					{
-						w->y-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,2))?1:0;
+						if (IsSideSwim())wy-=hammer_swim_up_offset;
+						++t;
 					}
+					
+					break;
+					
+				case down:
+					wx=3;
+					wy=-14;
+					if (IsSideSwim())wy+=hammer_swim_down_offset;
+					t+=3;
+					
+					if(attackclk>=13)
+					{
+						wy+=16;
+						++t;
+					}
+					
+					if(attackclk>=15)
+					{
+						wx-=1;
+						wy+=12;
+						if (IsSideSwim())wy-=hammer_swim_down_offset;
+						++t;
+					}
+					
+					break;
+					
+				case left:
+					wx=0;
+					wy=-14;
+					if (IsSideSwim())wy+=hammer_swim_left_offset;
+					t+=6;
+					f=1;
+					
+					if(attackclk>=13)
+					{
+						wx-=7;
+						wy+=8;
+						++t;
+					}
+					
+					if(attackclk>=15)
+					{
+						wx-=8;
+						wy+=8;
+						if (IsSideSwim())wy-=hammer_swim_left_offset;
+						++t;
+					}
+					
+					break;
+					
+				case right:
+					wx=0;
+					wy=-14;
+					if (IsSideSwim())wy+=hammer_swim_right_offset;
+					t+=6;
+					
+					if(attackclk>=13)
+					{
+						wx+=7;
+						wy+=8;
+						++t;
+					}
+					
+					if(attackclk>=15)
+					{
+						wx+=8;
+						wy+=8;
+						if (IsSideSwim())wy-=hammer_swim_right_offset;
+						++t;
+					}
+					
+					break;
 				}
 				
-				// These are set by positionSword(), above or in checkstab()
-				yofs += slashyofs;
-				xofs += slashxofs;
-				slashyofs = slashxofs = 0;
-			}
-		}
-		
-		if(attackclk<7
-		|| (attack==wSword && ((attackclk<(game->get_canslash()?15:13) 
-		|| FIXED_Z3_ANIMATION && attackclk<(game->get_canslash()?16:12))
-		|| (charging>0 && attackclk!=SWORDCHARGEFRAME)))
-		|| ((attack==wWand || attack==wFire || attack==wCByrna) && attackclk<13)
-		|| (attack==wHammer && attackclk<=30)
-		|| (attack==wBugNet && attackclk<NET_CLK_TOTAL))
-		{
-			if(!invisible)
-			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimstab:ls_stab, dir, zinit.heroAnimationStyle);
-				if (FIXED_Z3_ANIMATION)
+				if(BSZ || ((isdungeon() && currscr<128) && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)))
 				{
-					if (attackclk >= 2) tile += (extend==2?2:1);
-					if (attackclk >= 13) tile += (extend==2?2:1);
+					wy+=2;
 				}
 				
-				if(((game->get_canslash() && (attack==wSword || attack==wWand || attack==wFire || attack==wCByrna)) && itemsbuf[itemid].flags&ITEM_FLAG4 && (attackclk<7||FIXED_Z3_ANIMATION&&(attackclk < 16))))
-				{
-					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
-					if (FIXED_Z3_ANIMATION)
-					{
-						if (attackclk >= 7) tile += (extend==2?2:1);
-						if (attackclk >= 11) tile += (extend==2?2:1);
-						if (attackclk >= 14) tile += (extend==2?2:1);
-					}
-				}
-				if (attack==wBugNet && !get_bit(quest_rules, qr_OLD_BUG_NET))
-				{
-					if ((dir == right && (itemsbuf[itemid].flags&ITEM_FLAG2)) || (dir != right && !(itemsbuf[itemid].flags&ITEM_FLAG2)))
-					{
-						if (attackclk < 9) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
-						if (attackclk > 15) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
-					}
-					else
-					{
-						if (attackclk < 9) herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimslash:ls_slash, dir, zinit.heroAnimationStyle);
-						if (attackclk > 15) herotile(&tile, &flip, &extend, ls_revslash, dir, zinit.heroAnimationStyle);
-					}
-				}
-				
-				if((attack==wHammer) && (attackclk<13))
-				{
-					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimpound:ls_pound, dir, zinit.heroAnimationStyle);
-					if (FIXED_Z3_ANIMATION)
-					{
-						if (attackclk >= 14) tile += (extend==2?2:1);
-						if (attackclk >= 16) tile += (extend==2?2:1);
-					}
-				}
-				
-				if(useltm)
-				{
-					if ( script_hero_sprite <= 0 ) tile+=getTileModifier();
-				}
-			
 				// Stone of Agony
 				if(agony)
 				{
-					yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
+					wy-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
 				}
-
-				//Probably what makes Hero flicker, except for the QR check. What makes him flicker when that rule is off?! -Z
 				
-				//I'm pretty sure he doesn't flicker when the rule is off. Also, take note of the parenthesis after the ! in this if statement; I was blind and didn't see it, and thought this code did something completely different. -Deedee
-				if (!(get_bit(quest_rules, qr_HEROFLICKER) && ((superman || hclk) && (frame & 1))))
+				w->x = x+wx;
+				w->y = y+wy-(54-yofs)-fakez;
+				w->z = (z+zofs);
+				w->tile = t;
+				w->flip = f;
+				w->hxsz=20;
+				w->hysz=20;
+				
+				if(dir>down)
 				{
-					masked_draw(dest);
+					w->hysz-=6;
 				}
-
-				//Prevent flickering -Z
-				if (!getCanFlicker()) masked_draw(dest);
-			}
-			
-			if(attack!=wHammer)
-			{
-				xofs=oxofs;
-				yofs=oyofs;
-				return;
+				else
+				{
+					w->hxsz-=6;
+					w->hyofs=4;
+				}
+				
+				w->power = weaponattackpower(itemid);
+				
+				if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
+				{
+					sfx(((iswaterex(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
+				}
+				
+				goto herodraw_end;
 			}
 		}
-		
-		if(attack==wHammer) // To do: possibly abstract this out to a positionHammer routine?
+		else if(!charging && !spins)  // remove the sword
 		{
-			int32_t wy=1;
-			int32_t wx=1;
-			int32_t f=0,t,cs2;
-			weapon *w=NULL;
-			bool found = false;
-			
 			for(int32_t i=0; i<Lwpns.Count(); i++)
 			{
-				w = (weapon*)Lwpns.spr(i);
+				weapon *w = (weapon*)Lwpns.spr(i);
 				
-				if(w->id == wHammer)
-				{
-					found = true;
-					break;
-				}
+				if(w->id == wSword || w->id == wHammer || w->id==wWand)
+					w->dead=1;
 			}
-			
-			if(!found)
-			{
-				Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,wHammer,0,0,dir,itemid,getUID(),false,false,true));
-				w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
-				found = true;
-			}
-			
-			t = w->o_tile;
-			cs2 = w->o_cset;
-			
-			switch(dir)
-			{
-			case up:
-				wx=-1;
-				wy=-15;
-				if (IsSideSwim())wy+=hammer_swim_up_offset;
-				
-				if(attackclk>=13)
-				{
-					wx-=1;
-					wy+=1;
-					++t;
-				}
-				
-				if(attackclk>=15)
-				{
-					if (IsSideSwim())wy-=hammer_swim_up_offset;
-					++t;
-				}
-				
-				break;
-				
-			case down:
-				wx=3;
-				wy=-14;
-				if (IsSideSwim())wy+=hammer_swim_down_offset;
-				t+=3;
-				
-				if(attackclk>=13)
-				{
-					wy+=16;
-					++t;
-				}
-				
-				if(attackclk>=15)
-				{
-					wx-=1;
-					wy+=12;
-					if (IsSideSwim())wy-=hammer_swim_down_offset;
-					++t;
-				}
-				
-				break;
-				
-			case left:
-				wx=0;
-				wy=-14;
-				if (IsSideSwim())wy+=hammer_swim_left_offset;
-				t+=6;
-				f=1;
-				
-				if(attackclk>=13)
-				{
-					wx-=7;
-					wy+=8;
-					++t;
-				}
-				
-				if(attackclk>=15)
-				{
-					wx-=8;
-					wy+=8;
-					if (IsSideSwim())wy-=hammer_swim_left_offset;
-					++t;
-				}
-				
-				break;
-				
-			case right:
-				wx=0;
-				wy=-14;
-				if (IsSideSwim())wy+=hammer_swim_right_offset;
-				t+=6;
-				
-				if(attackclk>=13)
-				{
-					wx+=7;
-					wy+=8;
-					++t;
-				}
-				
-				if(attackclk>=15)
-				{
-					wx+=8;
-					wy+=8;
-					if (IsSideSwim())wy-=hammer_swim_right_offset;
-					++t;
-				}
-				
-				break;
-			}
-			
-			if(BSZ || ((isdungeon() && currscr<128) && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)))
-			{
-				wy+=2;
-			}
-			
-			// Stone of Agony
-			if(agony)
-			{
-				wy-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
-			}
-			
-			w->x = x+wx;
-			w->y = y+wy-(54-yofs)-fakez;
-			w->z = (z+zofs);
-			w->tile = t;
-			w->flip = f;
-			w->hxsz=20;
-			w->hysz=20;
-			
-			if(dir>down)
-			{
-				w->hysz-=6;
-			}
-			else
-			{
-				w->hxsz-=6;
-				w->hyofs=4;
-			}
-			
-			w->power = weaponattackpower(itemid);
-			
-			if(attackclk==15 && z==0 && fakez==0 && (sideviewhammerpound() || !isSideViewHero()))
-			{
-				sfx(((iswaterex(MAPCOMBO(x+wx+8,y+wy), currmap, currscr, -1, x+wx+8, y+wy, true) || COMBOTYPE(x+wx+8,y+wy)==cSHALLOWWATER) && get_bit(quest_rules,qr_MORESOUNDS)) ? WAV_ZN1SPLASH : itemsbuf[itemid].usesound,pan(x.getInt()));
-			}
-			
-			xofs=oxofs;
-			yofs=oyofs;
-			return;
 		}
-	}
-	else if(!charging && !spins)  // remove the sword
-	{
-		for(int32_t i=0; i<Lwpns.Count(); i++)
-		{
-			weapon *w = (weapon*)Lwpns.spr(i);
-			
-			if(w->id == wSword || w->id == wHammer || w->id==wWand)
-				w->dead=1;
-		}
-	}
-	
-	if(invisible)
-	{
-		xofs=oxofs;
-		yofs=oyofs;
-		return;
-	}
-	
-	if(action != casting && action != sideswimcasting)
-	{
-		// Keep this consistent with checkspecial2, line 7800-ish...
-		bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 		
-		int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
-		bool noliftspr = get_bit(quest_rules,qr_NO_LIFT_SPRITE);
-		//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
-		switch(zinit.heroAnimationStyle)
+		if(invisible)
 		{
-		case las_original:                                               //normal
-			if(action==drowning)
+			goto herodraw_end;
+		}
+		
+		if(action != casting && action != sideswimcasting)
+		{
+			// Keep this consistent with checkspecial2, line 7800-ish...
+			bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
+			
+			int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
+			bool noliftspr = get_bit(quest_rules,qr_NO_LIFT_SPRITE);
+			//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
+			switch(zinit.heroAnimationStyle)
 			{
-				if(inwater)
+			case las_original:                                               //normal
+				if(action==drowning)
 				{
-					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+					if(inwater)
+					{
+						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+						if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					}
+					else
+					{
+						goto herodraw_end;
+					}
+				}
+				else if(action==lavadrowning)
+				{
+					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
 					if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
-				else
+				else if(action==sidedrowning)
 				{
-					xofs=oxofs;
-					yofs=oyofs;
-					return;
-				}
-			}
-			else if(action==lavadrowning)
-			{
-				herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
-			}
-			else if(action==sidedrowning)
-			{
-				herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
-			}
-			else if (action == sideswimming || action == sideswimhit)
-			{
-				herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-				
-				if(lstep>=6)
-				{
-					if(dir==up)
-					{
-						if ( script_hero_sprite <= 0 ) ++flip;
-					}
-					else
-					{
-						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
-					}
-				}
-			}
-			else if(action==swimming || action==swimhit || hopclk==0xFF)
-			{
-				herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
-				
-				if(lstep>=6)
-				{
-					if(dir==up)
-					{
-						if ( script_hero_sprite <= 0 ) ++flip;
-					}
-					else
-					{
-						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
-					}
-				}
-				
-				if(isDiving())
-				{
-					herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
 					if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
 				}
-			}
-			else if(charging > 0 && attack != wHammer)
-			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
-				
-				if(lstep>=6)
+				else if (action == sideswimming || action == sideswimhit)
 				{
-					if(dir==up)
-					{
-						if ( script_hero_sprite <= 0 ) ++flip;
-					}
-					else
-					{
-						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
-					}
-				}
-			}
-			else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
-			{
-				herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
-			}
-			else if(fallclk>0)
-			{
-				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
-			}
-			else if(!noliftspr&&action==lifting&&isLifting())
-			{
-				herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
-				if(script_hero_sprite <= 0)
-				{
-					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
-					auto speed = tliftclk/frames;
-					if (speed < 1) speed = 1;
-					auto curframe = (tliftclk - liftclk) / speed;
-					if (!tliftclk) curframe = frames - 1;
-					if(unsigned(curframe) < frames)
-						tile += curframe * (extend == 2 ? 2 : 1);
-				}
-			}
-			else
-			{
-				if(IsSideSwim())
 					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-				else if(!noliftspr&&isLifting())
-					herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
-				else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
-				
-				if(dir>up)
-				{
-					useltm=true;
-					shieldModify=true;
-				}
-				
-				if(lstep>=6)
-				{
-					if(dir==up)
+					
+					if(lstep>=6)
 					{
-						if ( script_hero_sprite <= 0 ) ++flip;
-					}
-					else
-					{
-						if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+						if(dir==up)
+						{
+							if ( script_hero_sprite <= 0 ) ++flip;
+						}
+						else
+						{
+							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+						}
 					}
 				}
-			}
-			
-			break;
-			
-		case las_bszelda:                                               //BS
-			if(action==drowning)
-			{
-				if(inwater)
-				{
-					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
-					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-				}
-				else
-				{
-					xofs=oxofs;
-					yofs=oyofs;
-					return;
-				}
-			}
-			else if (action == sidedrowning)
-			{
-				herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			else if(action==lavadrowning)
-			{
-				herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			else if (action == sideswimming || action == sideswimhit)
-			{
-				herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-				
-				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			else if(action==swimming || action==swimhit || hopclk==0xFF)
-			{
-				if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
-				{
-					herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
-				}
-				else
+				else if(action==swimming || action==swimhit || hopclk==0xFF)
 				{
 					herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
+					
+					if(lstep>=6)
+					{
+						if(dir==up)
+						{
+							if ( script_hero_sprite <= 0 ) ++flip;
+						}
+						else
+						{
+							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+						}
+					}
+					
+					if(isDiving())
+					{
+						herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+						if ( script_hero_sprite <= 0 ) tile+=((frame>>3) & 1)*(extend==2?2:1);
+					}
 				}
-				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				else if(charging > 0 && attack != wHammer)
+				{
+					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
+					
+					if(lstep>=6)
+					{
+						if(dir==up)
+						{
+							if ( script_hero_sprite <= 0 ) ++flip;
+						}
+						else
+						{
+							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+						}
+					}
+				}
+				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0 && action!=rafting)
+				{
+					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+				}
+				else if(fallclk>0)
+				{
+					herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile+=((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+				}
+				else if(!noliftspr&&action==lifting&&isLifting())
+				{
+					herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
+					if(script_hero_sprite <= 0)
+					{
+						auto frames = vbound(liftingspr[dir][spr_frames],1,255);
+						auto speed = tliftclk/frames;
+						if (speed < 1) speed = 1;
+						auto curframe = (tliftclk - liftclk) / speed;
+						if (!tliftclk) curframe = frames - 1;
+						if(unsigned(curframe) < frames)
+							tile += curframe * (extend == 2 ? 2 : 1);
+					}
+				}
+				else
+				{
+					if(IsSideSwim())
+						herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+					else if(!noliftspr&&isLifting())
+						herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+					else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					
+					if(dir>up)
+					{
+						useltm=true;
+						shieldModify=true;
+					}
+					
+					if(lstep>=6)
+					{
+						if(dir==up)
+						{
+							if ( script_hero_sprite <= 0 ) ++flip;
+						}
+						else
+						{
+							if ( script_hero_sprite <= 0 ) extend==2?tile+=2:++tile;
+						}
+					}
+				}
 				
-				if(isDiving())
+				break;
+				
+			case las_bszelda:                                               //BS
+				if(action==drowning)
+				{
+					if(inwater)
+					{
+						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+						if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					}
+					else
+					{
+						goto herodraw_end;
+					}
+				}
+				else if (action == sidedrowning)
+				{
+					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				}
+				else if(action==lavadrowning)
+				{
+					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				}
+				else if (action == sideswimming || action == sideswimhit)
+				{
+					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+					
+					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				}
+				else if(action==swimming || action==swimhit || hopclk==0xFF)
 				{
 					if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
 					{
@@ -2711,303 +2684,313 @@ attack:
 					}
 					else
 					{
-						herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+						herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
 					}
 					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					
+					if(isDiving())
+					{
+						if (get_bit(quest_rules, qr_COPIED_SWIM_SPRITES)) 
+						{
+							herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+						}
+						else
+						{
+							herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+						}
+						if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					}
 				}
-			}
-			else if(charging > 0 && attack != wHammer)
-			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
-			{
-				herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
-			}
-			else if(fallclk>0)
-			{
-				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
-				if ( script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
-			}
-			else if(!noliftspr&&action==lifting&&isLifting())
-			{
-				herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
-				if(script_hero_sprite <= 0)
+				else if(charging > 0 && attack != wHammer)
 				{
-					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
-					auto speed = tliftclk/frames;
-					if (speed < 1) speed = 1;
-					auto curframe = (tliftclk - liftclk) / speed;
-					if (!tliftclk) curframe = frames - 1;
-					if(unsigned(curframe) < frames)
-						tile += curframe * (extend == 2 ? 2 : 1);
+					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
-			}
-			else
-			{
-				if(IsSideSwim())
-					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-				else if(!noliftspr&&isLifting())
-					herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
-				else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
-				
-				if(dir>up)
+				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
 				{
-					useltm=true;
-					shieldModify=true;
+					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
 				}
-				
-				/*
-				else if (dir==up)
+				else if(fallclk>0)
 				{
-				useltm=true;
+					herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
+					if ( script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
 				}
-				*/
-				if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			
-			break;
-			
-		case las_zelda3slow:                                           //8-frame Zelda 3 (slow)
-		case las_zelda3:                                               //8-frame Zelda 3
-			if(action == drowning)
-			{
-				if(inwater)
+				else if(!noliftspr&&action==lifting&&isLifting())
 				{
-					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
-					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
+					if(script_hero_sprite <= 0)
+					{
+						auto frames = vbound(liftingspr[dir][spr_frames],1,255);
+						auto speed = tliftclk/frames;
+						if (speed < 1) speed = 1;
+						auto curframe = (tliftclk - liftclk) / speed;
+						if (!tliftclk) curframe = frames - 1;
+						if(unsigned(curframe) < frames)
+							tile += curframe * (extend == 2 ? 2 : 1);
+					}
 				}
 				else
 				{
-					xofs=oxofs;
-					yofs=oyofs;
-					return;
-				}
-			}
-			else if(action == lavadrowning)
-			{
-					herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
-					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			
-			}
-			else if(action == sidedrowning)
-			{
-					herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
-					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			else if (action == sideswimming || action == sideswimhit)
-			{
-				herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-				
-				if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-			}
-			else if(action == swimming || action==swimhit || hopclk==0xFF)
-			{
-				herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
-				if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-				
-				if(isDiving())
-				{
-					herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
-					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
-				}
-			}
-			else if(charging > 0 && attack != wHammer)
-			{
-				herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
-				if (script_hero_sprite <= 0 ) tile+=(extend==2?2:1);
-				//int32_t l=hero_count/hero_animation_speed;
-				int32_t l=(hero_count/hero_animation_speed)&15;
-				//int32_t l=((p[lt_clock]/hero_animation_speed)&15);
-				l-=((l>3)?1:0)+((l>12)?1:0);
-				if (script_hero_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
-			}
-			else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
-			{
-				herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
-				if (script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
-			}
-			else if(fallclk>0)
-			{
-				herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
-				if (script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
-			}
-			else if(!noliftspr&&action==lifting&&isLifting())
-			{
-				herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
-				if(script_hero_sprite <= 0)
-				{
-					auto frames = vbound(liftingspr[dir][spr_frames],1,255);
-					auto speed = tliftclk/frames;
-					if (speed < 1) speed = 1;
-					auto curframe = (tliftclk-liftclk)/speed;
-					if (!tliftclk) curframe = frames - 1;
-					if(unsigned(curframe) < frames)
-						tile += curframe * (extend == 2 ? 2 : 1);
-				}
-			}
-			else
-			{
-				if(IsSideSwim())
-					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
-				else if(!noliftspr&&isLifting())
-					herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
-				else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
-				
-				if(action == walking || action == climbcoverbottom || action == climbcovertop)
-				{
-					if (script_hero_sprite <= 0 ) tile += (extend == 2 ? 2 : 1);
-				}
-				
-				if(dir>up)
-				{
+					if(IsSideSwim())
+						herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+					else if(!noliftspr&&isLifting())
+						herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+					else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					
+					if(dir>up)
+					{
+						useltm=true;
+						shieldModify=true;
+					}
+					
+					/*
+					else if (dir==up)
+					{
 					useltm=true;
-					shieldModify=true;
+					}
+					*/
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
 				}
 				
-				if(action == walking || action == hopping || action == climbcoverbottom || action == climbcovertop)
+				break;
+				
+			case las_zelda3slow:                                           //8-frame Zelda 3 (slow)
+			case las_zelda3:                                               //8-frame Zelda 3
+				if(action == drowning)
 				{
-					//tile+=(extend==2?2:1);
-					//tile+=(((active_count>>2)%8)*(extend==2?2:1));
-					int32_t l = hero_count / hero_animation_speed;
-					l -= ((l > 3) ? 1 : 0) + ((l > 12) ? 1 : 0);
-					if (script_hero_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
+					if(inwater)
+					{
+						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_drown, dir, zinit.heroAnimationStyle);
+						if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					}
+					else
+					{
+						goto herodraw_end;
+					}
+				}
+				else if(action == lavadrowning)
+				{
+						herotile(&tile, &flip, &extend, (drownclk > 60) ? ls_float : ls_lavadrown, dir, zinit.heroAnimationStyle);
+						if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				
+				}
+				else if(action == sidedrowning)
+				{
+						herotile(&tile, &flip, &extend, ls_sidedrown, down, zinit.heroAnimationStyle);
+						if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				}
+				else if (action == sideswimming || action == sideswimhit)
+				{
+					herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+					
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+				}
+				else if(action == swimming || action==swimhit || hopclk==0xFF)
+				{
+					herotile(&tile, &flip, &extend, is_moving()?ls_swim:ls_float, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					
+					if(isDiving())
+					{
+						herotile(&tile, &flip, &extend, ls_dive, dir, zinit.heroAnimationStyle);
+						if (script_hero_sprite <= 0 ) tile += anim_3_4(lstep,7)*(extend==2?2:1);
+					}
+				}
+				else if(charging > 0 && attack != wHammer)
+				{
+					herotile(&tile, &flip, &extend, (IsSideSwim())?ls_sideswimcharge:ls_charge, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile+=(extend==2?2:1);
+					//int32_t l=hero_count/hero_animation_speed;
+					int32_t l=(hero_count/hero_animation_speed)&15;
+					//int32_t l=((p[lt_clock]/hero_animation_speed)&15);
+					l-=((l>3)?1:0)+((l>12)?1:0);
+					if (script_hero_sprite <= 0 ) tile+=(l/2)*(extend==2?2:1);
+				}
+				else if((z>0 || fakez>0 || isSideViewHero()) && jumping2>0 && jumping2<24 && game->get_life()>0)
+				{
+					herotile(&tile, &flip, &extend, ls_jump, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile+=((int32_t)jumping2/8)*(extend==2?2:1);
+				}
+				else if(fallclk>0)
+				{
+					herotile(&tile, &flip, &extend, ls_falling, dir, zinit.heroAnimationStyle);
+					if (script_hero_sprite <= 0 ) tile += ((PITFALL_FALL_FRAMES-fallclk)/10)*(extend==2?2:1);
+				}
+				else if(!noliftspr&&action==lifting&&isLifting())
+				{
+					herotile(&tile, &flip, &extend, ls_lifting, dir, zinit.heroAnimationStyle);
+					if(script_hero_sprite <= 0)
+					{
+						auto frames = vbound(liftingspr[dir][spr_frames],1,255);
+						auto speed = tliftclk/frames;
+						if (speed < 1) speed = 1;
+						auto curframe = (tliftclk-liftclk)/speed;
+						if (!tliftclk) curframe = frames - 1;
+						if(unsigned(curframe) < frames)
+							tile += curframe * (extend == 2 ? 2 : 1);
+					}
+				}
+				else
+				{
+					if(IsSideSwim())
+						herotile(&tile, &flip, &extend, ls_sideswim, dir, zinit.heroAnimationStyle);
+					else if(!noliftspr&&isLifting())
+						herotile(&tile, &flip, &extend, ls_liftwalk, dir, zinit.heroAnimationStyle);
+					else herotile(&tile, &flip, &extend, ls_walk, dir, zinit.heroAnimationStyle);
+					
+					if(action == walking || action == climbcoverbottom || action == climbcovertop)
+					{
+						if (script_hero_sprite <= 0 ) tile += (extend == 2 ? 2 : 1);
+					}
+					
+					if(dir>up)
+					{
+						useltm=true;
+						shieldModify=true;
+					}
+					
+					if(action == walking || action == hopping || action == climbcoverbottom || action == climbcovertop)
+					{
+						//tile+=(extend==2?2:1);
+						//tile+=(((active_count>>2)%8)*(extend==2?2:1));
+						int32_t l = hero_count / hero_animation_speed;
+						l -= ((l > 3) ? 1 : 0) + ((l > 12) ? 1 : 0);
+						if (script_hero_sprite <= 0 ) tile += (l / 2) * (extend == 2 ? 2 : 1);
+					}
+				}
+				
+				break;
+				
+			default:
+				break;
+			}
+		}
+		
+		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+		
+		if(action==won)
+		{
+			yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
+		}
+		
+		if(action==landhold1 || action==landhold2)
+		{
+			useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
+			yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
+			herotile(&tile, &flip, &extend, (action==landhold1)?ls_landhold1:ls_landhold2, dir, zinit.heroAnimationStyle);
+		}
+		else if(action==waterhold1 || action==waterhold2)
+		{
+			useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
+			herotile(&tile, &flip, &extend, (action==waterhold1)?ls_waterhold1:ls_waterhold2, dir, zinit.heroAnimationStyle);
+		}
+		else if(action==sidewaterhold1 || action==sidewaterhold2)
+		{
+			useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
+			herotile(&tile, &flip, &extend, (action==sidewaterhold1)?ls_sidewaterhold1:ls_sidewaterhold2, dir, zinit.heroAnimationStyle);
+		}
+		
+		if(action!=casting && action!=sideswimcasting)
+		{
+			if(useltm)
+			{
+				if (script_hero_sprite <= 0 ) tile+=getTileModifier();
+			}
+		}
+		
+		// Stone of Agony
+		if(agony)
+		{
+			yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
+		}
+		
+		if(!(get_bit(quest_rules,qr_HEROFLICKER)&&((superman||hclk)&&(frame&1))))
+		{
+			masked_draw(dest);
+		}
+		
+		//draw held items after Hero so they don't go behind his head
+		if(action==landhold1 || action==landhold2)
+		{
+			if(holditem > -1)
+			{
+				if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
+				{
+					putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				}
+				else
+				{
+					putitem(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
 				}
 			}
+		}
+		else if(action==waterhold1 || action==waterhold2)
+		{
+			if(holditem > -1)
+			{
+				if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
+				{
+					putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				}
+				else
+				{
+					putitem(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
+				}
+			}
+		}
+		else if(action==sidewaterhold1 || action==sidewaterhold2) //!DIMITODO: Check to see if this looks right or if it needs waterhold's offset.
+		{
+			if(holditem > -1)
+			{
+				if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
+				{
+					putitem2(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				}
+				else
+				{
+					putitem(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
+				}
+			}
+		}
+		if(fairyclk==0||(get_bit(quest_rules,qr_NOHEARTRING)))
+		{
+			goto herodraw_end;
+		}
+		
+		double a2 = fairyclk*int64_t(2)*PI/80 + (PI/2);
+		int32_t hearts=0;
+		//  int32_t htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
+		int32_t htile = 2;
+		
+		do
+		{
+			int32_t nx=125;
 			
-			break;
+			if(get_bit(quest_rules,qr_HEARTRINGFIX))
+			{
+				nx=x;
+			}
 			
-		default:
-			break;
-		}
-	}
-	
-	yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
-	
-	if(action==won)
-	{
-		yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
-	}
-	
-	if(action==landhold1 || action==landhold2)
-	{
-		useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-		yofs = oyofs-((!BSZ && isdungeon() && currscr<128 && !get_bit(quest_rules,qr_HERODUNGEONPOSFIX)) ? 2 : 0);
-		herotile(&tile, &flip, &extend, (action==landhold1)?ls_landhold1:ls_landhold2, dir, zinit.heroAnimationStyle);
-	}
-	else if(action==waterhold1 || action==waterhold2)
-	{
-		useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-		herotile(&tile, &flip, &extend, (action==waterhold1)?ls_waterhold1:ls_waterhold2, dir, zinit.heroAnimationStyle);
-	}
-	else if(action==sidewaterhold1 || action==sidewaterhold2)
-	{
-		useltm=(get_bit(quest_rules,qr_EXPANDEDLTM) != 0);
-		herotile(&tile, &flip, &extend, (action==sidewaterhold1)?ls_sidewaterhold1:ls_sidewaterhold2, dir, zinit.heroAnimationStyle);
-	}
-	
-	if(action!=casting && action!=sideswimcasting)
-	{
-		if(useltm)
-		{
-			if (script_hero_sprite <= 0 ) tile+=getTileModifier();
-		}
-	}
-	
-	// Stone of Agony
-	if(agony)
-	{
-		yofs-=!(frame%zc_max(60-itemsbuf[agonyid].misc1,3))?1:0;
-	}
-	
-	if(!(get_bit(quest_rules,qr_HEROFLICKER)&&((superman||hclk)&&(frame&1))))
-	{
-		masked_draw(dest);
-	}
-	
-	//draw held items after Hero so they don't go behind his head
-	if(action==landhold1 || action==landhold2)
-	{
-		if(holditem > -1)
-		{
-			if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
+			int32_t ny=88;
+			
+			if(get_bit(quest_rules,qr_HEARTRINGFIX))
 			{
-				putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+				ny=y;
 			}
-			else
-			{
-				putitem(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
-			}
+			
+			double tx = zc::math::Cos(a2)*53  +nx;
+			double ty = -zc::math::Sin(a2)*53 +ny+playing_field_offset;
+			overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
+			a2-=PI/4;
+			++hearts;
 		}
+		while(a2>PI/2 && hearts<8);
 	}
-	else if(action==waterhold1 || action==waterhold2)
-	{
-		if(holditem > -1)
-		{
-			if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
-			{
-				putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
-			}
-			else
-			{
-				putitem(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
-			}
-		}
-	}
-	else if(action==sidewaterhold1 || action==sidewaterhold2) //!DIMITODO: Check to see if this looks right or if it needs waterhold's offset.
-	{
-		if(holditem > -1)
-		{
-			if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
-			{
-				putitem2(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
-			}
-			else
-			{
-				putitem(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
-			}
-		}
-	}
-	if(fairyclk==0||(get_bit(quest_rules,qr_NOHEARTRING)))
-	{
-		xofs=oxofs;
-		yofs=oyofs;
-		return;
-	}
-	
-	double a2 = fairyclk*int64_t(2)*PI/80 + (PI/2);
-	int32_t hearts=0;
-	//  int32_t htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
-	int32_t htile = 2;
-	
-	do
-	{
-		int32_t nx=125;
-		
-		if(get_bit(quest_rules,qr_HEARTRINGFIX))
-		{
-			nx=x;
-		}
-		
-		int32_t ny=88;
-		
-		if(get_bit(quest_rules,qr_HEARTRINGFIX))
-		{
-			ny=y;
-		}
-		
-		double tx = zc::math::Cos(a2)*53  +nx;
-		double ty = -zc::math::Sin(a2)*53 +ny+playing_field_offset;
-		overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
-		a2-=PI/4;
-		++hearts;
-	}
-	while(a2>PI/2 && hearts<8);
-	
+herodraw_end:
 	xofs=oxofs;
 	yofs=oyofs;
+	do_primitives(dest, SPLAYER_PLAYER_DRAW, tmpscr, 0, playing_field_offset);
 }
 
 void HeroClass::masked_draw(BITMAP* dest)
@@ -25673,8 +25656,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		clear_bitmap(framebuf);
 		clear_a5_bmp(rti_infolayer.bitmap);
 		
-		combotile_add_x = 0;
-		combotile_add_y = playing_field_offset;
 		switch(scrolldir)
 		{
 		case up:
@@ -25692,7 +25673,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_y -= sy;
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 0, 176, oldscr);
 			break;
@@ -25710,7 +25692,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_y -= sy;
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 0, 176, newscr);
 			break;
@@ -25728,7 +25711,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x -= sx;
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, newscr);
 			putscr(scrollbuf, 256, 0, oldscr);
 			break;
@@ -25746,7 +25730,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
-			combotile_add_x -= sx;
+			combotile_add_x = -sx;
+			combotile_add_y = -sy;
 			putscr(scrollbuf, 0, 0, oldscr);
 			putscr(scrollbuf, 256, 0, newscr);
 			break;
