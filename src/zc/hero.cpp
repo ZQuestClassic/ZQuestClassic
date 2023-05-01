@@ -165,6 +165,7 @@ bool usingActiveShield(int32_t itmid)
 		itmid = (Hero.active_shield_id < 0
 			? current_item_id(itype_shield,true,true) : Hero.active_shield_id);
 	if(itmid < 0) return false;
+	if(item_disabled(itmid)) return false;
 	if(!checkitem_jinx(itmid)) return false;
 	if(!(itemsbuf[itmid].flags & ITEM_FLAG9)) return false;
 	if(!isItmPressed(itmid)) return false;

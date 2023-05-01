@@ -2002,7 +2002,7 @@ void black_fade(int32_t fadeamnt)
 
 bool item_disabled(int32_t item)				 //is this item disabled?
 {
-	return (item>=0 && game->items_off[item] != 0);
+	return (unsigned(item) < MAXITEMS && game->items_off[item] != 0);
 }
 
 bool can_use_item(int32_t item_type, int32_t item)				  //can Hero use this item?
@@ -2279,9 +2279,9 @@ int32_t current_item(int32_t item_type)		   //item currently being used
 std::map<int32_t, int32_t> itemcache;
 
 // Not actually used by anything at the moment...
-void removeFromItemCache(int32_t itemid)
+void removeFromItemCache(int32_t itemclass)
 {
-	itemcache.erase(itemid);
+	itemcache.erase(itemclass);
 }
 
 void flushItemCache()

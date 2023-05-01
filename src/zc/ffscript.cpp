@@ -17677,8 +17677,14 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case DISABLEDITEM:
-			game->items_off[(ri->d[rINDEX])/10000]=value/10000;
+		{
+			int id = (ri->d[rINDEX])/10000;
+			if(unsigned(id) >= MAXITEMS)
+				break;
+			game->items_off[id]=value/10000;
+			removeFromItemCache(itemsbuf[id].family);
 			break;
+		}
 		
 		case GAMESUSPEND:
 		{

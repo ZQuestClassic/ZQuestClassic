@@ -5558,7 +5558,7 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char le
 int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family);
 
 extern void flushItemCache();
-extern void removeFromItemCache(int32_t itemid);
+extern void removeFromItemCache(int32_t itemclass);
 
 #define GLOBAL_SCRIPT_INIT 			0
 #define GLOBAL_SCRIPT_GAME			1
