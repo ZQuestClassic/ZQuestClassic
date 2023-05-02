@@ -24,6 +24,7 @@ void Frame::applyVisibility(bool visible)
 	if(alDialog)
 	{
 		alDialog.applyVisibility(visible);
+		titleDlg.applyVisibility(visible);
 	}
 	if(content)
 		content->setExposed(visible);
@@ -35,7 +36,7 @@ void Frame::applyDisabled(bool dis)
 	if(alDialog)
 	{
 		alDialog.applyDisabled(dis);
-		alDialog.applyDisabled(dis,1);
+		titleDlg.applyDisabled(dis);
 	}
 	if(content)
 		content->applyDisabled(dis);
@@ -88,7 +89,7 @@ void Frame::realize(DialogRunner& runner)
 
 	if(!title.empty())
 	{
-		runner.push(shared_from_this(), DIALOG {
+		titleDlg = runner.push(shared_from_this(), DIALOG {
 			jwin_text_proc,
 			x+5, y-3, getWidth(), getHeight(),
 			fgColor, bgColor,

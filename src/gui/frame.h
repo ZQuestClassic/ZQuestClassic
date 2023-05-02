@@ -42,7 +42,7 @@ private:
 	std::shared_ptr<Widget> content;
 	style frameStyle;
 	std::string title;
-	DialogRef alDialog;
+	DialogRef alDialog, titleDlg;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
