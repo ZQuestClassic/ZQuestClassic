@@ -9224,12 +9224,12 @@ bool HeroClass::animate(int32_t)
 	[[fallthrough]];
 	default:
 		// call the main movement routine
-		if(premove())
+		if(get_bit(quest_rules,qr_NEW_HERO_MOVEMENT2))
 		{
-			if(get_bit(quest_rules,qr_NEW_HERO_MOVEMENT2))
+			if(premove())
 				movehero();
-			else moveheroOld();
 		}
+		else moveheroOld();
 	}
 	
 	if(shield_forcedir > -1 && action != rafting)
@@ -13748,7 +13748,7 @@ bool HeroClass::premove()
 }
 void HeroClass::moveheroOld()
 {
-	WalkflagInfo info;
+	if(lstunclock || is_conveyor_stunned) return;
 	int32_t xoff=x.getInt()&7;
 	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
@@ -13762,6 +13762,445 @@ void HeroClass::moveheroOld()
 	zfix temp_step(hero_newstep);
 	zfix temp_x(x);
 	zfix temp_y(y);
+	
+	int32_t flippers_id = current_item_id(itype_flippers);
+	itemdata const& itm = itemsbuf[flippers_id];
+	byte intbtn = byte(itm.misc3&0xFF);
+	bool dive_pressed = getIntBtnInput(intbtn, true, true, false, false, true);
+	bool eatdive = false;
+	if(diveclk>0)
+	{
+		if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) diveclk = 0;
+		--diveclk;
+		if(isDiving() && flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG2 && dive_pressed) //Cancellable Diving -V
+		{
+			diveclk = itemsbuf[flippers_id].misc2;
+			eatdive = true;
+		}
+	}
+	else if(action == swimming && dive_pressed)
+	{
+		bool global_diving=(flippers_id > -1 && itemsbuf[flippers_id].flags & ITEM_FLAG1);
+		bool screen_diving=(tmpscr->flags5&fTOGGLEDIVING) != 0;
+		
+		if(global_diving==screen_diving)
+		{
+			diveclk = (flippers_id < 0 ? 80 : (itemsbuf[flippers_id].misc1 + itemsbuf[flippers_id].misc2));
+			eatdive = true;
+		}
+	}
+	if(eatdive)
+		getIntBtnInput(intbtn, true, true, false, false, false);
+	
+	if(action==rafting)
+	{
+		do_rafting();
+		
+		if(action==rafting)
+		{
+			return;
+		}
+		
+		
+		set_respawn_point();
+		trySideviewLadder();
+	}
+	
+	int32_t olddirectwpn = directWpn; // To be reinstated if startwpn() fails
+	int32_t btnwpn = -1;
+	
+	//&0xFFF removes the "bow & arrows" bitmask
+	//The Quick Sword is allowed to interrupt attacks.
+	int32_t currentSwordOrWand = (itemsbuf[dowpn].family == itype_wand || itemsbuf[dowpn].family == itype_sword)?dowpn:-1;
+	if((!attackclk && action!=attacking && action != sideswimattacking) || ((attack==wSword || attack==wWand) && (itemsbuf[currentSwordOrWand].flags & ITEM_FLAG5)))
+	{
+		if(DrunkrBbtn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+			dowpn = Bwpn&0xFFF;
+			directWpn = directItemB;
+		}
+		else if(DrunkrAbtn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+			dowpn = Awpn&0xFFF;
+			directWpn = directItemA;
+		}
+		else if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			dowpn = Xwpn&0xFFF;
+			directWpn = directItemX;
+		}
+		else if(get_bit(quest_rules,qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
+		{
+			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			dowpn = Ywpn&0xFFF;
+			directWpn = directItemY;
+		}
+		
+		if(directWpn > 255) directWpn = 0;
+		
+		// The Quick Sword only allows repeated sword or wand swings.
+		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
+			btnwpn=-1;
+	}
+	
+	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
+	if(can_attack() && (swordid > -1 && itemsbuf[swordid].family==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
+	{
+		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
+		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
+		{
+			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
+			{
+				paymagiccost(attackid,true);
+				misc_internal_hero_flags |= LF_PAID_SWORD_COST;
+			}
+			SetAttack();
+			attack=wSword;
+			
+			attackclk=0;
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
+			
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			{
+				if(!checkmagiccost(dowpn))
+				{
+					item_error();
+				}
+				else
+				{
+					//clear the item script stack for a new script
+				
+					ri = &(itemScriptData[dowpn]);
+					for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+					ri->Clear();
+					//itemScriptData[(dowpn & 0xFFF)].Clear();
+					//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+					//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+					item_doscript[dowpn] = 1;
+					itemscriptInitialised[dowpn] = 0;
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+					did_scripta=true;
+				}
+			}
+		}
+		else
+		{
+			item_error();
+		}
+	}
+	else
+	{
+		did_scripta=false;
+	}
+	
+	if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && !getOnSideviewLadder())
+	{
+		if(DrunkUp() && canSideviewLadder())
+		{
+			setOnSideviewLadder(true);
+		}
+		else if(DrunkDown() && canSideviewLadder(true))
+		{
+			y+=1;
+			setOnSideviewLadder(true);
+		}
+	}
+	
+	int32_t wx=x;
+	int32_t wy=y;
+	if((action==none || action==walking) && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+	{
+		if((xoff==0)||diagonalMovement)
+		{
+			if(DrunkUp()) dir=up;
+			if(DrunkDown()) dir=down;
+		}
+		
+		if((yoff==0)||diagonalMovement)
+		{
+			if(DrunkLeft()) dir=left;
+			if(DrunkRight()) dir=right;
+		}
+	}
+	
+	switch(dir)
+	{
+	case up:
+		wy-=16;
+		break;
+		
+	case down:
+		wy+=16;
+		break;
+		
+	case left:
+		wx-=16;
+		break;
+		
+	case right:
+		wx+=16;
+		break;
+	}
+	
+	do_lens();
+	
+	WalkflagInfo info;
+	
+	bool no_jinx = true;
+	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
+	{
+		bool paidmagic = false;
+		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		{
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			{
+				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_WAND_COST)){
+					paymagiccost(attackid,true);
+					misc_internal_hero_flags |= LF_PAID_WAND_COST;
+				}
+				SetAttack();
+				attack=wWand;
+				attackclk=0;
+			}
+			else
+			{
+				item_error();
+			}
+		}
+		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
+		{
+			no_jinx = checkitem_jinx(dowpn);
+			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
+			{
+				item_error();
+			}
+			else
+			{
+				paymagiccost(dowpn);
+				paidmagic = true;
+				SetAttack();
+				attack=wHammer;
+				attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
+				attackclk=0;
+			}
+		}
+		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
+		{
+			//checkbunny handled where magic cost is paid
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx)
+			{
+				SetAttack();
+				attack=wFire;
+				attackclk=0;
+			}
+		}
+		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
+		{
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
+			{
+				if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_CBYRNA_COST)){
+					paymagiccost(attackid,true);
+					misc_internal_hero_flags |= LF_PAID_CBYRNA_COST;
+				}
+				SetAttack();
+				attack=wCByrna;
+				attackclk=0;
+			}
+			else
+			{
+				item_error();
+			}
+		}
+		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
+		{
+			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
+			no_jinx = checkitem_jinx(attackid);
+			if(no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
+			{
+				paymagiccost(attackid);
+				SetAttack();
+				attack = wBugNet;
+				attackclk = 0;
+				sfx(itemsbuf[attackid].usesound);
+			}
+			else
+			{
+				item_error();
+			}
+		}
+		else
+		{
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
+			no_jinx = checkitem_jinx(itmid);
+			if(no_jinx)
+			{
+				paidmagic = startwpn(itmid);
+				
+				if(paidmagic)
+				{
+					if(action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning)
+					{
+						;
+					}
+					else
+					{
+						SetAttack();
+						attackclk=0;
+						attack=none;
+						
+						if(btnwpn==itype_brang)
+						{
+							attack=wBrang;
+						}
+					}
+				}
+				else
+				{
+					// Weapon not started: directWpn should be reset to prev. value.
+					directWpn = olddirectwpn;
+				}
+			}
+		}
+		
+		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		{
+			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
+			{
+				item_error();
+			}
+			else
+			{
+				// Only charge for magic if item's magic cost wasn't already charged
+				// for the item's main use.
+				if(!paidmagic && attack!=wWand)
+					paymagiccost(dowpn);
+				//clear the item script stack for a new script
+				//itemScriptData[(dowpn & 0xFFF)].Clear();
+				ri = &(itemScriptData[dowpn]);
+				for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
+				ri->Clear();
+				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
+				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
+				item_doscript[dowpn] = 1;
+				itemscriptInitialised[dowpn] = 0;
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+				did_scriptb=true;
+			}
+		}
+		
+		if(no_jinx && (action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning))
+		{
+			return;
+		}
+		if(!no_jinx)
+			did_scriptb = false;
+	}
+	else
+	{
+		did_scriptb=false;
+	}
+	
+	if(attackclk || action==attacking || action==sideswimattacking)
+	{
+		
+		if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+		{
+			if((xoff==0)||diagonalMovement)
+			{
+				if(DrunkUp()) dir=up;
+				if(DrunkDown()) dir=down;
+			}
+			
+			if((yoff==0)||diagonalMovement)
+			{
+				if(DrunkLeft()) dir=left;
+				if(DrunkRight()) dir=right;
+			}
+		}
+		
+		bool attacked = doattack();
+		
+		// This section below interferes with script-setting Hero->Dir, so it comes after doattack
+		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
+		{
+			if((xoff==0)||diagonalMovement)
+			{
+				if(DrunkUp()) dir=up;
+				
+				if(DrunkDown()) dir=down;
+			}
+			
+			if((yoff==0)||diagonalMovement)
+			{
+				if(DrunkLeft()) dir=left;
+				
+				if(DrunkRight()) dir=right;
+			}
+		}
+		
+		if(attacked && (charging==0 && spins<=5) && jumping<1 && action!=sideswimattacking)
+		{
+			return;
+		}
+		else if(!attacked)
+		{
+			// Spin attack - change direction
+			if(spins>1 && attack != wHammer)
+			{
+				spins--;
+				
+				if(spins%5==0)
+				{
+					int id = currentscroll > -1 ? currentscroll : (current_item_id(spins>5 ? itype_spinscroll2 : itype_spinscroll));
+					sfx(itemsbuf[id].usesound,pan(x.getInt()));
+				}
+				attackclk=1;
+				
+				switch(dir)
+				{
+				case up:
+					dir=left;
+					break;
+					
+				case right:
+					dir=up;
+					break;
+					
+				case down:
+					dir=right;
+					break;
+					
+				case left:
+					dir=down;
+					break;
+				}
+				
+				return;
+			}
+			else
+			{
+				spins=0;
+			}
+			
+			if (IsSideSwim()) {action=sideswimming; FFCore.setHeroAction(sideswimming);}
+			else {action=none; FFCore.setHeroAction(none);}
+			attackclk=0;
+			charging=0;
+		}
+	}
 	
 	if(pitslide()) //Check pit's 'pull'. If true, then Hero cannot fight the pull.
 		return;
