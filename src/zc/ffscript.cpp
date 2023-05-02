@@ -47974,6 +47974,7 @@ bool command_could_return_not_ok(int command)
 {
 	switch (command)
 	{
+	case 0xFFFF:
 	case EWPNDEL:
 	case GAMECONTINUE:
 	case GAMEEND:
