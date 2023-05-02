@@ -16622,7 +16622,6 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
 	}
     bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
     bool is_swimming = (action == swimming);
-	bool fastSwim = (zinit.hero_swim_speed>60);
 	zfix rate(steprate);
 	int32_t shieldid = getCurrentActiveShield();
 	if(shieldid > -1)
@@ -16638,43 +16637,71 @@ void HeroClass::move(int32_t d2, int32_t forceRate)
 		}
 	}
 	
+	static const int NUM_STEPS = 5;
+	zfix steps[NUM_STEPS] =
+	{
+		rate/100,
+		game->get_sideswim_up() / 100.0,game->get_sideswim_side() / 100.0,
+		game->get_sideswim_side() / 100.0,game->get_sideswim_down() / 100.0
+	};
+	auto slow_cpos = COMBOPOS(x+7,y+8);
+	for(int q = 6; q >= 0; --q)
+	{
+		mapscr* m = FFCore.tempScreens[q];
+		if(!m->valid) continue;
+		newcombo const& cmb = combobuf[m->data[slow_cpos]];
+		
+		for(int q = 0; q < NUM_STEPS; ++q)
+		{
+			steps[q] *= cmb.speed_mult;
+			if(cmb.speed_div)
+				steps[q] /= cmb.speed_div;
+			steps[q] += cmb.speed_add;
+		}
+		if(q > 0 && cmb.type == cBRIDGE)
+		{
+			if(get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)
+				? !_walkflag_layer(x+7,y+8,1,&(tmpscr2[q-1]))
+				: _effectflag_layer(x+7,y+8,1,&(tmpscr2[q-1])))
+			{
+				break; //Bridge blocks speed change from below it
+			}
+		}
+	}
+	byte mult = 1, div = 1;
+	if(is_swimming)
+	{
+		mult = game->swim_mult;
+		div = game->swim_div;
+	}
+	else if(slowcharging ^ slowcombo) //2/3 speed
+	{
+		mult = 2;
+		div = 3;
+	}
+	else if(slowcharging && slowcombo) //1/2 speed
+	{
+		div = 2;
+	}
+	if(!div) div = 1;
+	if(mult != 1 || div != 1)
+	{
+		for(int q = 0; q < NUM_STEPS; ++q)
+			steps[q] = ((steps[q] / div) * mult);
+	}
+	
 	zfix dx, dy;
-	zfix movepix(rate / 100);
+	zfix movepix(steps[0]);
 	zfix step(movepix);
 	zfix step_diag(movepix);
-	zfix up_step(game->get_sideswim_up() / -100.0);
-	zfix left_step(game->get_sideswim_side() / -100.0);
-	zfix right_step(game->get_sideswim_side() / 100.0);
-	zfix down_step(game->get_sideswim_down() / 100.0);
+	zfix up_step(-steps[1]);
+	zfix left_step(-steps[2]);
+	zfix right_step(steps[3]);
+	zfix down_step(steps[4]);
 	bool checkladder  = false;
 	
 	if(hero_newstep > movepix) hero_newstep = movepix;
 	if(hero_newstep_diag > movepix) hero_newstep_diag = movepix;
-	//2/3 speed
-	if((is_swimming && fastSwim) || (!is_swimming && (slowcharging ^ slowcombo)))
-	{
-		step = ((step / 3.0) * 2);
-		step_diag = ((step_diag / 3.0) * 2);
-		up_step = ((up_step / 3.0) * 2);
-		left_step = ((left_step / 3.0) * 2);
-		right_step = ((right_step / 3.0) * 2);
-		down_step = ((down_step / 3.0) * 2);
-	}
-	//1/2 speed
-	else if((is_swimming && !fastSwim) || (slowcharging && slowcombo))
-	{
-		step /= 2;
-		step_diag /= 2;
-		up_step /= 2;
-		left_step /= 2;
-		right_step /= 2;
-		down_step /= 2;
-	}
-	//normal speed
-	else
-	{
-		//no modification
-	}
 	
 	if(diagonalMovement)
 	{
