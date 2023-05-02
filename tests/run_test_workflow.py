@@ -182,11 +182,12 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
 
     extra_args = []
     for replay_name, failing_frames in failing_frames_by_replay.items():
+        extra_args.append(f'--filter {replay_name}')
         for failing_frame in set(failing_frames):
-            extra_args.append(f'--filter {replay_name}')
             extra_args.append(
                 f'--snapshot {replay_name}={max(0, failing_frame-60)}-{failing_frame+60}')
-            extra_args.append(f'--frame {replay_name}={failing_frame+60}')
+        max_frame = max(failing_frames)
+        extra_args.append(f'--frame {replay_name}={max_frame+60}')
 
     if not extra_args:
         raise Exception('all failing replays were invalid')

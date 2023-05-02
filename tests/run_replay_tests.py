@@ -219,7 +219,7 @@ class ReplayTimeoutException(Exception):
     pass
 
 
-def group_arg(raw_values: List[str]):
+def group_arg(raw_values: List[str], allow_concat=False):
     default_arg = None
     arg_by_replay = {}
     if raw_values:
@@ -229,7 +229,12 @@ def group_arg(raw_values: List[str]):
                     replay_full_path = replays_dir / replay
                     if replay_full_path not in tests:
                         raise Exception(f'unknown test {replay}')
-                    arg_by_replay[replay_full_path] = value
+                    if replay_full_path in arg_by_replay:
+                        if not allow_concat:
+                            raise Exception('cannot include of the same key')
+                        arg_by_replay[replay_full_path] += f' {value}'
+                    else:
+                        arg_by_replay[replay_full_path] = value
             else:
                 if default_arg != None:
                     raise Exception('can only define one default value')
@@ -285,7 +290,7 @@ else:
     test_results_dir = root_dir / f'.tmp/test_results/{int(time.time())}'
 test_results_path = test_results_dir / 'test_results.json'
 grouped_max_duration_arg = group_arg(args.max_duration)
-grouped_snapshot_arg = group_arg(args.snapshot)
+grouped_snapshot_arg = group_arg(args.snapshot, allow_concat=True)
 grouped_frame_arg = group_arg(args.frame)
 
 if args.filter:
