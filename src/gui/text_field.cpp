@@ -42,7 +42,7 @@ void TextField::setText(std::string_view newText)
 	}
 	else buffer[0] = '\0';
 	
-	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	Size nsz = Size::pixels(isSwapType(true) ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
 	
@@ -84,6 +84,16 @@ void TextField::setVal(int32_t val)
 					buf[q] = 0;
 			}
 			break;
+		case type::NOSWAP_ZSINT:
+		{
+			startVal = val;
+			if(alDialog)
+			{
+				alDialog->fg = val;
+				alDialog.message(MSG_START,0);
+			}
+			break;
+		}
 		case type::SWAP_ZSINT_NO_DEC:
 		{
 			auto v = val / 10000;
@@ -135,6 +145,7 @@ void TextField::setVal(int32_t val)
 			break;
 		case type::SWAP_ZSINT:
 		case type::SWAP_ZSINT2:
+		case type::NOSWAP_ZSINT:
 			s = 12;
 			break;
 		case type::SWAP_ZSINT_NO_DEC:
@@ -145,14 +156,15 @@ void TextField::setVal(int32_t val)
 	//
 	strcpy(buffer.get(), v.c_str());
 	
-	Size nsz = Size::pixels(isSwapType() ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
+	Size nsz = Size::pixels(isSwapType(true) ? 16 : 0) + Size::pixels(gui_text_width(widgFont, &buffer[0]));
 	if(getWidth() < nsz)
 		setPreferredWidth(nsz);
 	
 	if(isSwapType() && alDialog)
 	{
 		alDialog->fg = startVal;
-		swapBtnDialog->d1 &= 0xF;
+		if(swapBtnDialog)
+			swapBtnDialog->d1 &= 0xF;
 	}
 	
 	valSet = true;
@@ -206,6 +218,7 @@ int32_t TextField::getVal()
 		case type::SWAP_ZSINT:
 		case type::SWAP_ZSINT_NO_DEC:
 		case type::SWAP_ZSINT2:
+		case type::NOSWAP_ZSINT:
 			if(alDialog)
 				value = alDialog->fg;
 			else value = startVal;
@@ -265,6 +278,7 @@ void TextField::setSwapType(int32_t newtype)
 			if(unsigned(newtype) > 3) newtype = 0;
 			break;
 		case type::SWAP_ZSINT2:
+		case type::NOSWAP_ZSINT:
 			if(unsigned(newtype) > 4) newtype = 0;
 			break;
 	}
@@ -282,6 +296,10 @@ void TextField::setSwapType(int32_t newtype)
 		}
 		refresh_cb_swap();
 		pendDraw();
+	}
+	else if(alDialog && tfType == type::NOSWAP_ZSINT)
+	{
+		alDialog.message(MSG_START,0);
 	}
 }
 
@@ -331,7 +349,7 @@ void TextField::_updateBuf(size_t sz)
 	if(z) buffer[0] = 0;
 	maxLength = sz;
 	
-	setPreferredWidth(Size::pixels(isSwapType() ? 16 : 0)+Size::em(std::min((sz+1)*0.75, 20.0)));
+	setPreferredWidth(Size::pixels(isSwapType(true) ? 16 : 0)+Size::em(std::min((sz+1)*0.75, 20.0)));
 	if(alDialog)
 	{
 		alDialog->dp = buffer.get();
@@ -375,6 +393,7 @@ void TextField::realize(DialogRunner& runner)
 	if(isSwapType())
 	{
 		bool hascb = false;
+		bool hasbutton = true;
 		switch(tfType)
 		{
 			case type::SWAP_BYTE:
@@ -408,13 +427,21 @@ void TextField::realize(DialogRunner& runner)
 				hascb = true;
 				break;
 
+			case type::NOSWAP_ZSINT:
+				proc = newGUIProc<jwin_numedit_noswap_zsint_proc>;
+				if(unsigned(swap_type_start) > 4)
+					swap_type_start = 0;
+				hascb = true;
+				hasbutton = false;
+				break;
+
 			default:
 				break;
 		}
 		
 		int32_t totalwid = getWidth();
 		int32_t btnwid = (24_px).resolve();
-		int32_t txtfwid = totalwid-btnwid;
+		int32_t txtfwid = totalwid-(isSwapType(true)?btnwid:0);
 		
 		alDialog = runner.push(shared_from_this(), DIALOG {
 			proc,
@@ -425,15 +452,16 @@ void TextField::realize(DialogRunner& runner)
 			static_cast<int32_t>(maxLength), 0, // d1, d2
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 		});
-		swapBtnDialog = runner.push(shared_from_this(), DIALOG {
-			newGUIProc<jwin_swapbtn_proc>,
-			x+txtfwid, y, btnwid, getHeight(),
-			0, 0,
-			0, // key
-			getFlags(), // flags
-			swap_type_start, 0, // d1, d2
-			nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
-		});
+		if(hasbutton)
+			swapBtnDialog = runner.push(shared_from_this(), DIALOG {
+				newGUIProc<jwin_swapbtn_proc>,
+				x+txtfwid, y, btnwid, getHeight(),
+				0, 0,
+				0, // key
+				getFlags(), // flags
+				swap_type_start, 0, // d1, d2
+				nullptr, GUI_DEF_FONT, nullptr // dp, dp2, dp3
+			});
 		if(hascb)
 		{
 			swap_cb = std::make_shared<GUI::Checkbox>();
@@ -449,8 +477,8 @@ void TextField::realize(DialogRunner& runner)
 			swap_cb->calculateSize();
 			swap_cb->arrange(x,y,txtfwid,getHeight());
 			swap_cb->realize(runner);
-			alDialog->dp3 = (void*)this;
 		}
+		alDialog->dp3 = (void*)this;
 	}
 	else
 	{
