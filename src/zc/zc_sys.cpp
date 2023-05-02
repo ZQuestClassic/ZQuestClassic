@@ -8274,6 +8274,7 @@ void enter_sys_pal()
 			++entered_sys_pal;
 		return;
 	}
+	sys_mouse();
 	system_pal();
 	++entered_sys_pal;
 }
@@ -8284,6 +8285,7 @@ void exit_sys_pal()
 		if(!--entered_sys_pal)
 		{
 			game_pal();
+			game_mouse();
 		}
 	}
 }
