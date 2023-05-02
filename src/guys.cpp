@@ -23685,7 +23685,6 @@ void clear_script_one_frame_conditions()
 		
 void check_collisions()
 {
-	bool temp_hit = false;
 	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
 		weapon *w = (weapon*)Lwpns.spr(i);
@@ -23695,7 +23694,6 @@ void check_collisions()
 			for(int32_t j=0; j<guys.Count(); j++)
 			{
 				enemy *e = (enemy*)guys.spr(j);
-				if ( !temp_hit ) e->hitby[HIT_BY_LWEAPON] = 0;
 				
 				if(e->hit(w)) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
 				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
@@ -23704,7 +23702,7 @@ void check_collisions()
 					int32_t h = e->takehit(w);
 					if (h == -1) 
 					{ 
-						e->hitby[HIT_BY_LWEAPON] = i+1; temp_hit = true; 
+						e->hitby[HIT_BY_LWEAPON] = i+1;
 						e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
 						//e->hitby[HIT_BY_LWEAPON_FAMILY] = itemsbuf[w->parentid].family; //that would be the itemclass, not the weapon type!
 						e->hitby[HIT_BY_LWEAPON_FAMILY] = w->id;

@@ -9672,6 +9672,13 @@ bool HeroClass::animate(int32_t)
 		}
 	}
 	
+	//Okay we wipe all guy hitby's here and nowhere else. -Deedee
+	for(int32_t j=0; j<guys.Count(); j++)
+	{
+		enemy *e = (enemy*)guys.spr(j);
+		e->hitby[HIT_BY_LWEAPON] = 0;
+	}
+	
 	if (!checkstab() )
 	{
 		/*
