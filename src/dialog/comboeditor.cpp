@@ -21,8 +21,6 @@ using std::to_string;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
-static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
-	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
 static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
@@ -2380,33 +2378,34 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_FLAG(15)
 					)
 				)),
-				TabRef(name = "Attribs", ScrollingPane(
-					ptr = &scroll_pos1,
-					fitParent = true,
-					Rows<6>(
-						Label(text = "Attribytes", colSpan = 3),
-						Label(text = "Attrishorts", colSpan = 3),
+				TabRef(name = "Attribs 1", Row(
+					Rows<3>(framed = true, frameText = "Attribytes",
 						CMB_ATTRIBYTE(0),
-						CMB_ATTRISHORT(0),
 						CMB_ATTRIBYTE(1),
-						CMB_ATTRISHORT(1),
 						CMB_ATTRIBYTE(2),
-						CMB_ATTRISHORT(2),
 						CMB_ATTRIBYTE(3),
-						CMB_ATTRISHORT(3),
 						CMB_ATTRIBYTE(4),
-						CMB_ATTRISHORT(4),
 						CMB_ATTRIBYTE(5),
-						CMB_ATTRISHORT(5),
 						CMB_ATTRIBYTE(6),
+						CMB_ATTRIBYTE(7)
+					),
+					Rows<3>(framed = true, frameText = "Attrishorts",
+						CMB_ATTRISHORT(0),
+						CMB_ATTRISHORT(1),
+						CMB_ATTRISHORT(2),
+						CMB_ATTRISHORT(3),
+						CMB_ATTRISHORT(4),
+						CMB_ATTRISHORT(5),
 						CMB_ATTRISHORT(6),
-						CMB_ATTRIBYTE(7),
-						CMB_ATTRISHORT(7),
-						Label(text = "Attributes", colSpan = 3), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(0), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(1), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(2), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(3), DummyWidget(colSpan = 3)
+						CMB_ATTRISHORT(7)
+					)
+				)),
+				TabRef(name = "Attribs 2", Row(
+					Rows<3>(framed = true, frameText = "Attributes",
+						CMB_ATTRIBUTE(0),
+						CMB_ATTRIBUTE(1),
+						CMB_ATTRIBUTE(2),
+						CMB_ATTRIBUTE(3)
 					)
 				)),
 				TabRef(name = "Triggers", TabPanel(
@@ -3247,6 +3246,39 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							INFOBTN("The time, in frames, it takes to lift the combo")
 							
 						)
+					)
+				)),
+				TabRef(name = "General", Row(
+					Rows<3>(framed = true, frameText = "Player Speed Mod",
+						Label(text = "Multiplier:"),
+						TextField(type = GUI::TextField::type::INT_DECIMAL,
+							hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
+							fitParent = true,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.speed_mult = val;
+							}),
+						INFOBTN("Multiplies the player's speed by this value when walking over this combo."),
+						Label(text = "Divisor:"),
+						TextField(type = GUI::TextField::type::INT_DECIMAL,
+							hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
+							fitParent = true,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.speed_div = val;
+							}),
+						INFOBTN("Divides the player's speed by this value when walking over this combo. Applies after mult."
+							"\nIf 0, no division is performed."),
+						Label(text = "Additive:"),
+						TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
+							hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
+							swap_type = nswapDEC,
+							fitParent = true,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_comboref.speed_add = zslongToFix(val);
+							}),
+						INFOBTN("Adds this value, in px/frame, to the player's speed walking over this combo. Applies after mult and div. Can be negative.")
 					)
 				)),
 				TabRef(name = "Script", Column(

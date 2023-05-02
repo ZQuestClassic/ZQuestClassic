@@ -3674,6 +3674,281 @@ int32_t jwin_numedit_swap_zsint2_proc(int32_t msg, DIALOG *d, int32_t c)
 	
 	return ret;
 }
+int32_t jwin_numedit_noswap_zsint_proc(int32_t msg, DIALOG *d, int32_t c)
+{
+	const size_t maxlen = 13;
+	ASSERT(d->flags&D_NEW_GUI);
+	GUI::TextField *tf_obj = (GUI::TextField*)d->dp3;
+	if(!tf_obj) return D_O_K;
+	int32_t ret = D_O_K;
+	int32_t type = tf_obj->getSwapType();
+	
+	char* str = (char*)d->dp;
+	int64_t v = 0;
+	if(msg == MSG_START)
+		v = d->fg;
+	else switch(type)
+	{
+		case nswapDEC:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = atoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = atoi(str);
+				v *= 10000;
+			}
+			break;
+		case nswapHEX:
+			if(char *ptr = strchr(str, '.'))
+			{
+				char tempstr[32] = {0};
+				strcpy(tempstr, str);
+				for(int32_t q = 0; q < 4; ++q)
+					tempstr[strlen(str)+q]='0';
+				ptr = strchr(tempstr, '.');
+				*ptr=0;++ptr;*(ptr+4)=0; //Nullchar at 2 positions to limit strings
+				v = zc_xtoi(tempstr);
+				v *= 10000;
+				if(tempstr[0] == '-')
+					v -= atoi(ptr);
+				else v += atoi(ptr);
+			}
+			else
+			{
+				v = zc_xtoi(str);
+				v *= 10000;
+			}
+			break;
+		case nswapLDEC:
+			v = zc_atoi64(str);
+			break;
+		case nswapLHEX:
+			v = zc_xtoi64(str);
+			break;
+		case nswapBOOL:
+			v = d->fg;
+			break;
+	}
+	int32_t b;
+	if ( v > 2147483647 )
+		b=2147483647;
+	else if ( v < INT_MIN )
+		b=INT_MIN;
+	else b = (int32_t)v;
+	bool queued_neg = d->bg;
+	if(msg==MSG_CHAR && ((c&255)=='-'))
+	{
+		if(b)
+		{
+			if(b==INT_MIN)
+				++b;
+			b = -b;
+			v = b;
+			if(b<0)
+			{
+				if(str[0] != '-')
+				{
+					char buf[16] = {0};
+					strcpy(buf, str);
+					sprintf(str, "-%s", buf);
+					INC_TF_CURSORS(d->d2,1,strlen(str));
+				}
+			}
+			else if(str[0] == '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "%s", buf+1);
+				INC_TF_CURSORS(d->d2,-1,strlen(str));
+			}
+			if(msg != MSG_DRAW) ret |= D_REDRAWME;
+		}
+		else queued_neg = !queued_neg; //queue negative
+		c &= ~255;
+		ret |= D_USED_CHAR;
+	}
+	if(b && queued_neg)
+	{
+		//b = -b; //actually, 'atoi' handles it for us.....
+		queued_neg = false;
+	}
+	if(bool(d->bg) != queued_neg)
+	{
+		d->bg = queued_neg;
+		if(queued_neg)
+		{
+			if(str[0] != '-')
+			{
+				char buf[16] = {0};
+				strcpy(buf, str);
+				sprintf(str, "-%s", buf);
+				INC_TF_CURSORS(d->d2,1,strlen(str));
+			}
+		}
+		else if(!b && str[0] == '-')
+		{
+			char buf[16] = {0};
+			strcpy(buf, str);
+			sprintf(str, "%s", buf+1);
+			INC_TF_CURSORS(d->d2,-1,strlen(str));
+		}
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(v != b || msg == MSG_START)
+	{
+		switch(type)
+		{
+			case nswapDEC:
+				if(b < 0)
+					sprintf(str, "-%ld.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%ld.%04ld", b/10000L, b%10000L);
+				trim_trailing_0s(str);
+				break;
+			case nswapHEX:
+				if(b<0)
+					sprintf(str, "-%lX.%04ld", abs(b/10000L), abs(b%10000L));
+				else sprintf(str, "%lX.%04ld", b/10000L, abs(b%10000L));
+				trim_trailing_0s(str);
+				break;
+			case nswapLDEC:
+				sprintf(str, "%d", b);
+				break;
+			case nswapLHEX:
+				if(b<0)
+					sprintf(str, "-%X", -b);
+				else sprintf(str, "%X", b);
+				break;
+		}
+		d->d2 = 0xFFFF0000|strlen(str);
+		if(msg != MSG_DRAW) ret |= D_REDRAWME;
+	}
+	if(d->fg != b)
+	{
+		d->fg = b; //Store numeric data
+		GUI_EVENT(d, geUPDATE_SWAP);
+	}
+	if(msg==MSG_CHAR && ((c&255)=='.'))
+	{
+		if(type >= nswapLDEC) //No '.' in long modes
+			c&=~255;
+		else
+		{
+			for(int32_t q = 0; str[q]; ++q)
+			{
+				if(str[q] == '.') //Only one '.'
+				{
+					c&=~255;
+					break;
+				}
+			}
+		}
+	}
+	bool rev_d2 = false;
+	int32_t old_d2 = d->d2;
+	int32_t ref_d2;
+	if(msg == MSG_CHAR && queued_neg)
+	{
+		auto scursor = d->d2 & 0xFFFF;
+		auto ecursor = (d->d2 & 0xFFFF0000) >> 16;
+		if(!scursor)
+		{
+			rev_d2 = true;
+			INC_TF_CURSORS(d->d2,1,strlen(str));
+			ref_d2 = d->d2;
+		}
+	}
+	bool areaselect = (d->d2 & 0xFFFF0000) != 0xFFFF0000;
+	switch(type)
+	{
+		case nswapDEC:
+			d->d1 = 12; //12 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c) && !areaselect)
+			{
+				int32_t p = 0;
+				for(int32_t q = 0; str[q]; ++q)
+				{
+					if(str[q]=='.')
+					{
+						if((d->d2&0x0000FFFF) <= q)
+							break; //typing before the '.'
+						++p;
+					}
+					else if(p) ++p;
+				}
+				if(p>=5) //too many chars after '.'
+					c&=~255;
+			}
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case nswapHEX:
+			d->d1 = 11; //11 digits max (incl '-', '.')
+			if(msg==MSG_CHAR && !editproc_special_key(c))
+			{
+				if(!((c&255)=='.'||isxdigit(c&255)))
+					c&=~255;
+				else if(isxdigit(c&255) && !isdigit(c&255))
+					for(int32_t q = 0; q < (d->d2&0x0000FFFF) && str[q]; ++q)
+					{
+						if(str[q] == '.') //No hex digits to the right of the '.'
+						{
+							c&=~255;
+							break;
+						}
+					}
+				if((c&255) && !areaselect)
+				{
+					int32_t p = 0;
+					for(int32_t q = 0; str[q]; ++q)
+					{
+						if(str[q]=='.')
+						{
+							if((d->d2&0x0000FFFF) <= q)
+								break; //typing before the '.'
+							++p;
+						}
+						else if(p) ++p;
+					}
+					if(p>=5) //too many chars after '.'
+						c&=~255;
+				}
+				if(isalpha(c&255)) //always capitalize
+					c = (c&~255) | (toupper(c&255));
+			}
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+		case nswapLDEC:
+			d->d1 = 11; //11 digits max (incl '-')
+			ret |= jwin_numedit_proc(msg, d, c);
+			break;
+		case nswapLHEX:
+			d->d1 = 9; //9 digits max (incl '-')
+			if(msg == MSG_CHAR && !editproc_special_key(c) && isalpha(c&255)) //always capitalize
+				c = (c&~255) | (toupper(c&255));
+			ret |= jwin_hexedit_proc(msg, d, c);
+			break;
+	}
+	if(rev_d2 && ref_d2 == d->d2)
+	{
+		d->d2 = old_d2;
+	}
+	
+	if(msg==MSG_START)
+		tf_obj->refresh_cb_swap();
+	
+	return ret;
+}
 
 /*  _calc_scroll_bar:
   *   Helps find positions of buttons on the scroll bar.

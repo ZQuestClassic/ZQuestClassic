@@ -232,6 +232,7 @@ int32_t jwin_numedit_swap_sshort_proc(int32_t msg,DIALOG *d,int32_t c); //Bound 
 int32_t jwin_numedit_swap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes
 int32_t jwin_numedit_swap_zsint_nodec_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, no dec places
 int32_t jwin_numedit_swap_zsint2_proc(int32_t msg,DIALOG *d,int32_t c); //Bound to int32_t, dec and hex modes, 4 dec places, int32_t modes, bool mode
+int32_t jwin_numedit_noswap_zsint_proc(int32_t msg,DIALOG *d,int32_t c); //Same as 'jwin_numedit_swap_zsint2_proc', but starts and stays in one mode.
 //
 int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_textbox_proc(int32_t msg, DIALOG *d, int32_t c);

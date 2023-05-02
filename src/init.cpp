@@ -1178,6 +1178,9 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 		memcpy(game2->gen_eventstate, zinit2->gen_eventstate, sizeof(game2->gen_eventstate));
 	}
 	
+	game->swim_mult = zinit2->hero_swim_mult;
+	game->swim_div = zinit2->hero_swim_div;
+	
     //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
     flushItemCache();
 }

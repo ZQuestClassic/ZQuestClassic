@@ -33,6 +33,7 @@
 #include "zc_custom.h"
 #include "subscr.h"
 #include "zfix.h"
+#include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -346,9 +347,14 @@ public:
 	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
 	void pitfall();
+	void mod_steps(std::vector<zfix*>& v);
+	void get_move(int movedir, zfix& dx, zfix& dy, bool& checkladder);
+	bool premove();
+	void moveheroOld();
 	void movehero();
-	void move(int32_t d, int32_t forceRate = -1);
+	void move(zfix dx, zfix dy, bool checkladder);
 	void moveOld(int32_t d2);
+	void moveOld2(int32_t d2, int32_t forceRate = -1);
 	int32_t hithero(int32_t hit, int32_t force_hdir = -1);
 	int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);

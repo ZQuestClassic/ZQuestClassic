@@ -9715,7 +9715,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		combo_has_flags |= CHAS_SCRIPT;
 	if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
 		|| tmp_cmb.type || tmp_cmb.csets)
-		combo_has_flags |= CHAS_GENERAL;
+		combo_has_flags |= CHAS_BASIC;
 	if(tmp_cmb.liftcmb || tmp_cmb.liftcs || tmp_cmb.liftdmg
 		|| tmp_cmb.liftlvl || tmp_cmb.liftitm || tmp_cmb.liftflags
 		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
@@ -9723,6 +9723,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16)
 		combo_has_flags |= CHAS_LIFT;
+	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add)
+		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
 	{
@@ -9730,7 +9732,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(!combo_has_flags) return 0; //Valid, done reading
 	//Write the combo
-	if(combo_has_flags&CHAS_GENERAL)
+	if(combo_has_flags&CHAS_BASIC)
 	{
 		if(!p_iputl(tmp_cmb.o_tile,f))
 		{
@@ -10028,6 +10030,15 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 68;
 		}
+	}
+	if(combo_has_flags&CHAS_GENERAL)
+	{
+		if(!p_putc(tmp_cmb.speed_mult,f))
+			return 73;
+		if(!p_putc(tmp_cmb.speed_div,f))
+			return 74;
+		if(!p_iputzf(tmp_cmb.speed_add,f))
+			return 75;
 	}
 	return 0;
 }
@@ -13773,6 +13784,14 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(zinit.gen_eventstate[q],f))
 				new_return(101);
 		}
+        if(!p_putc(zinit.hero_swim_mult,f))
+        {
+            new_return(102);
+        }
+        if(!p_putc(zinit.hero_swim_div,f))
+        {
+            new_return(103);
+        }
 		
 		if(writecycle==0)
 		{

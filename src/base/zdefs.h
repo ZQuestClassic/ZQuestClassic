@@ -292,7 +292,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        33
+#define V_INITDATA        34
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -1122,7 +1122,7 @@ enum
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
-	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID,
+	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID, qr_NEW_HERO_MOVEMENT2,
 	//60
 	//70
 	
@@ -3102,6 +3102,9 @@ struct newcombo
 	int32_t o_tile;
 	byte cur_frame;
 	byte aclk;
+	byte speed_mult = 1;
+	byte speed_div = 1;
+	zfix speed_add;
 	
 	void set_tile(int32_t newtile)
 	{
@@ -3192,6 +3195,9 @@ struct newcombo
 		if(prompt_x != 12) return false;
 		if(prompt_y != -8) return false;
 		
+		if(speed_mult != 1) return false;
+		if(speed_div != 1) return false;
+		if(speed_add) return false;
 		return true;
 	}
 	
@@ -4271,6 +4277,8 @@ struct gamedata
 	int32_t portalwarpfx;
 	int16_t portalspr;
 	
+	byte swim_mult = 1, swim_div = 1;
+	
 	bool gen_doscript[NUMSCRIPTSGENERIC];
 	word gen_exitState[NUMSCRIPTSGENERIC];
 	word gen_reloadState[NUMSCRIPTSGENERIC];
@@ -4607,6 +4615,8 @@ struct zinitdata
 	byte switchhookstyle;
 	
 	byte magicdrainrate;
+	
+	byte hero_swim_mult = 2, hero_swim_div = 3;
 	
 	bool gen_doscript[NUMSCRIPTSGENERIC];
 	word gen_exitState[NUMSCRIPTSGENERIC];
@@ -5589,8 +5599,9 @@ extern void removeFromItemCache(int32_t itemclass);
 #define CHAS_TRIG     0x04
 #define CHAS_ANIM     0x08
 #define CHAS_SCRIPT   0x10
-#define CHAS_GENERAL  0x20
+#define CHAS_BASIC    0x20
 #define CHAS_LIFT     0x40
+#define CHAS_GENERAL  0x80
 
 #define SCRHAS_ROOMDATA  0x00000001
 #define SCRHAS_ITEM      0x00000002
