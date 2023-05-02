@@ -517,6 +517,7 @@ static void do_recording_poll()
 				prev_debug_y = y;
 			}
 		}
+		HeroSuperDebug();
 
 		int depth = bitmap_color_depth(framebuf);
 		size_t len = framebuf->w * framebuf->h * BYTES_PER_PIXEL(depth);

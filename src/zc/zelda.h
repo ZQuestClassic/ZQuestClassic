@@ -145,6 +145,7 @@ int32_t  HeroItemClk();
 int32_t  HeroAction();
 int32_t  HeroCharged();
 byte HeroGetDontDraw();
+void  HeroSuperDebug();
 void setSwordClk(int32_t newclk);
 void setItemClk(int32_t newclk);
 int32_t  HeroLStep();

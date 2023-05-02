@@ -1350,6 +1350,229 @@ int32_t  HeroLStep()
 {
     return Hero.getLStep();
 }
+
+template <typename T>
+static void SUPER_DEBUG(std::string name, T val, T& prev_val)
+{
+	if (val == prev_val)
+		return;
+
+	replay_step_comment(fmt::format("{} {}", name, val));
+	prev_val = val;
+}
+static void SUPER_DEBUG(std::string name, zfix val, zfix& prev_val)
+{
+	if (val == prev_val)
+		return;
+
+	replay_step_comment(fmt::format("{} {:x}", name, val.val));
+	prev_val = val;
+}
+static void SUPER_DEBUG(std::string name, rpos_t val, rpos_t& prev_val)
+{
+	if (val == prev_val)
+		return;
+
+	replay_step_comment(fmt::format("{} {:x}", name, (int)val));
+	prev_val = val;
+}
+
+void HeroSuperDebug()
+{
+    #define STR_VALUE(arg)      #arg
+	#define SUPER_DEBUG_(f) { \
+		static auto prev_##f = Hero.f; \
+		SUPER_DEBUG(STR_VALUE(f), Hero.f, prev_##f); \
+	}
+
+	return;
+
+	SUPER_DEBUG_(action);
+	SUPER_DEBUG_(active_shield_id);
+	SUPER_DEBUG_(angle);
+	SUPER_DEBUG_(angular);
+	SUPER_DEBUG_(attack);
+	SUPER_DEBUG_(attackclk);
+	SUPER_DEBUG_(attackid);
+	SUPER_DEBUG_(autostep);
+	SUPER_DEBUG_(bigHitbox);
+	SUPER_DEBUG_(blowcnt);
+	SUPER_DEBUG_(c_clk);
+	SUPER_DEBUG_(can_flicker);
+	SUPER_DEBUG_(can_mirror_portal);
+	SUPER_DEBUG_(canfreeze);
+	SUPER_DEBUG_(charging);
+	SUPER_DEBUG_(climb_cover_x);
+	SUPER_DEBUG_(climb_cover_y);
+	SUPER_DEBUG_(clk);
+	SUPER_DEBUG_(conveyor_flags);
+	SUPER_DEBUG_(coyotetime);
+	SUPER_DEBUG_(cs);
+	SUPER_DEBUG_(currentscroll);
+	SUPER_DEBUG_(damageovertimeclk);
+	SUPER_DEBUG_(diagonalMovement);
+	SUPER_DEBUG_(didstuff);
+	SUPER_DEBUG_(diveclk);
+	SUPER_DEBUG_(DivineProtectionShieldClk);
+	SUPER_DEBUG_(do_animation);
+	SUPER_DEBUG_(dontdraw);
+	SUPER_DEBUG_(doscript);
+	SUPER_DEBUG_(drawflags);
+	SUPER_DEBUG_(drawstyle);
+	SUPER_DEBUG_(drownclk);
+	SUPER_DEBUG_(drownclk);
+	SUPER_DEBUG_(drownCombo);
+	SUPER_DEBUG_(drownCombo);
+	SUPER_DEBUG_(drunkclk);
+	SUPER_DEBUG_(dying_flags);
+	SUPER_DEBUG_(extend);
+	SUPER_DEBUG_(extra_jump_count);
+	SUPER_DEBUG_(fairyclk);
+	SUPER_DEBUG_(fakefall);
+	SUPER_DEBUG_(fakez);
+	SUPER_DEBUG_(fall);
+	SUPER_DEBUG_(fallclk);
+	SUPER_DEBUG_(fallCombo);
+	SUPER_DEBUG_(falling_oldy);
+	SUPER_DEBUG_(flickerorflash);
+	SUPER_DEBUG_(flip);
+	SUPER_DEBUG_(hammer_swim_down_offset);
+	SUPER_DEBUG_(hammer_swim_left_offset);
+	SUPER_DEBUG_(hammer_swim_right_offset);
+	SUPER_DEBUG_(hammer_swim_up_offset);
+	SUPER_DEBUG_(hclk);
+	SUPER_DEBUG_(hitdir);
+	SUPER_DEBUG_(holdclk);
+	SUPER_DEBUG_(holddir);
+	SUPER_DEBUG_(holditem);
+	SUPER_DEBUG_(hopclk);
+	SUPER_DEBUG_(hopdir);
+	SUPER_DEBUG_(hoverclk);
+	SUPER_DEBUG_(hoverflags);
+	SUPER_DEBUG_(hshandle_id);
+	SUPER_DEBUG_(hshead_id);
+	SUPER_DEBUG_(hzsz);
+	SUPER_DEBUG_(id);
+	SUPER_DEBUG_(ilswim);
+	SUPER_DEBUG_(immortal);
+	SUPER_DEBUG_(inair);
+	SUPER_DEBUG_(initialised);
+	SUPER_DEBUG_(inlikelike);
+	SUPER_DEBUG_(inwallm);
+	SUPER_DEBUG_(is_warping);
+	SUPER_DEBUG_(isspawning);
+	SUPER_DEBUG_(itemclk);
+	SUPER_DEBUG_(jumping);
+	SUPER_DEBUG_(justmoved);
+	SUPER_DEBUG_(knockbackflags);
+	SUPER_DEBUG_(knockbackSpeed);
+	SUPER_DEBUG_(ladderdir);
+	SUPER_DEBUG_(ladderstart);
+	SUPER_DEBUG_(ladderx);
+	SUPER_DEBUG_(laddery);
+	SUPER_DEBUG_(landswim);
+	SUPER_DEBUG_(last_cane_of_byrna_item_id);
+	SUPER_DEBUG_(last_hurrah);
+	SUPER_DEBUG_(last_lens_id);
+	SUPER_DEBUG_(last_savepoint_id);
+	SUPER_DEBUG_(lasthit);
+	SUPER_DEBUG_(lasthitclk);
+	SUPER_DEBUG_(lbunnyclock);
+	SUPER_DEBUG_(liftclk);
+	SUPER_DEBUG_(liftheight);
+	SUPER_DEBUG_(lstep);
+	SUPER_DEBUG_(lstunclock);
+	SUPER_DEBUG_(misc);
+	SUPER_DEBUG_(misc_internal_hero_flags);
+	SUPER_DEBUG_(moveflags);
+	SUPER_DEBUG_(old_cset);
+	SUPER_DEBUG_(on_sideview_ladder);
+	SUPER_DEBUG_(onpassivedmg);
+	SUPER_DEBUG_(onplatid);
+	SUPER_DEBUG_(pit_pullclk);
+	SUPER_DEBUG_(pit_pulldir);
+	SUPER_DEBUG_(preventsubscreenfalling);
+	SUPER_DEBUG_(prompt_combo);
+	SUPER_DEBUG_(prompt_cset);
+	SUPER_DEBUG_(prompt_x);
+	SUPER_DEBUG_(prompt_y);
+	SUPER_DEBUG_(pushing);
+	SUPER_DEBUG_(raftclk);
+	SUPER_DEBUG_(raftwarpx);
+	SUPER_DEBUG_(raftwarpy);
+	SUPER_DEBUG_(refillclk);
+	SUPER_DEBUG_(refilling);
+	SUPER_DEBUG_(respawn_dmap);
+	SUPER_DEBUG_(respawn_scr);
+	SUPER_DEBUG_(respawn_x);
+	SUPER_DEBUG_(respawn_y);
+	SUPER_DEBUG_(rotation);
+	SUPER_DEBUG_(scale);
+	SUPER_DEBUG_(screenedge);
+	SUPER_DEBUG_(script);
+	SUPER_DEBUG_(script_knockback_clk);
+	SUPER_DEBUG_(script_knockback_speed);
+	SUPER_DEBUG_(scriptcoldet);
+	SUPER_DEBUG_(scriptflag);
+	SUPER_DEBUG_(scriptflip);
+	SUPER_DEBUG_(scriptshadowtile);
+	SUPER_DEBUG_(scripttile);
+	SUPER_DEBUG_(sdir);
+	SUPER_DEBUG_(shadowtile);
+	SUPER_DEBUG_(shadowxofs);
+	SUPER_DEBUG_(shadowyofs);
+	SUPER_DEBUG_(shield_active);
+	SUPER_DEBUG_(shield_forcedir);
+	SUPER_DEBUG_(shiftdir);
+	SUPER_DEBUG_(sideswimdir);
+	SUPER_DEBUG_(skipstep);
+	SUPER_DEBUG_(slashxofs);
+	SUPER_DEBUG_(slashyofs);
+	SUPER_DEBUG_(slopeid);
+	SUPER_DEBUG_(specialcave);
+	SUPER_DEBUG_(spins);
+	SUPER_DEBUG_(stepnext);
+	SUPER_DEBUG_(stepoutdmap);
+	SUPER_DEBUG_(stepoutindex);
+	SUPER_DEBUG_(stepoutscr);
+	SUPER_DEBUG_(stepoutwr);
+	SUPER_DEBUG_(steprate);
+	SUPER_DEBUG_(stepsecret);
+	SUPER_DEBUG_(stomping);
+	SUPER_DEBUG_(subscr_speed);
+	SUPER_DEBUG_(superman);
+	SUPER_DEBUG_(swimdownrate);
+	SUPER_DEBUG_(swimjump);
+	SUPER_DEBUG_(swimsiderate);
+	SUPER_DEBUG_(swimuprate);
+	SUPER_DEBUG_(switchblock_offset);
+	SUPER_DEBUG_(switchblock_z);
+	SUPER_DEBUG_(switchhookarg);
+	SUPER_DEBUG_(switchhookclk);
+	SUPER_DEBUG_(switchhookmaxtime);
+	SUPER_DEBUG_(switchhookstyle);
+	SUPER_DEBUG_(swordclk);
+	SUPER_DEBUG_(tapping);
+	SUPER_DEBUG_(tempaction);
+	SUPER_DEBUG_(tile);
+	SUPER_DEBUG_(tliftclk);
+	SUPER_DEBUG_(txsz);
+	SUPER_DEBUG_(tysz);
+	SUPER_DEBUG_(waitdraw);
+	SUPER_DEBUG_(walkable);
+	SUPER_DEBUG_(walkspeed);
+	SUPER_DEBUG_(warp_sound);
+	SUPER_DEBUG_(warpx);
+	SUPER_DEBUG_(warpy);
+	SUPER_DEBUG_(weaponscript);
+	SUPER_DEBUG_(whirlwind);
+	SUPER_DEBUG_(wpnsprite);
+	SUPER_DEBUG_(xofs);
+	SUPER_DEBUG_(yofs);
+	SUPER_DEBUG_(z);
+	SUPER_DEBUG_(zofs);
+}
+
 void HeroCheckItems(int32_t index)
 {
     Hero.checkitems(index);

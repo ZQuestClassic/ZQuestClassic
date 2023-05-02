@@ -24888,6 +24888,8 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		
 		break;
 	}
+	// TODO z3 rm
+	// replay_step_comment(fmt::format("scroll hero {} {}", x.getInt(), y.getInt()));
 	if(waitdraw)
 	{
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
@@ -25472,7 +25474,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 	}
 
-	// Can't change currdmap before scrolling is done, because some places requires currdmap to remain the same:
+	// Can't change currdmap before scrolling is done, because some places require currdmap to remain the same:
 	//   - fade
 	//   - lighting
 	//   - more?
@@ -25701,6 +25703,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
 
+		// TODO z3 needed?
+		homescr=currscr;
+
 		//Preloaded ffc scripts
 		{
 			// Kludge
@@ -25747,6 +25752,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	viewport = initial_viewport;
 	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
+	auto script_hero_x = x;
+	auto script_hero_y = y;
+
 	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
@@ -25755,7 +25763,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			replay_poll();
 		}
 
-		if (replay_get_frame() == 340010) {
+		if (replay_get_frame() == 676) {
 			printf("asd\n");
 		}
 
@@ -25765,7 +25773,15 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			return;
 		}
 
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
+		{
+			auto prev_x = x;
+			auto prev_y = y;
+			x = script_hero_x;
+			y = script_hero_y;
+			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false);
+			x = prev_x;
+			y = prev_y;
+		}
 
 		if(no_move > 0)
 			no_move--;
@@ -25820,18 +25836,22 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			{
 			case up:
 				sy -= step;
+				script_hero_y += step;
 				break;
 				
 			case down:
 				sy += step;
+				script_hero_y -= step;
 				break;
 				
 			case left:
 				sx -= step;
+				script_hero_x += step;
 				break;
 				
 			case right:
 				sx += step;
+				script_hero_x -= step;
 				break;
 			}
 
@@ -25850,10 +25870,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			// y -= viewport.y;
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			// if(y > old_viewport.y + old_viewport.h - 16) y = old_viewport.y + old_viewport.h - 16;
-			// if(y < 0)   y = 0;
-			// if(x > old_viewport.x + old_viewport.w - 16) x = old_viewport.x + old_viewport.w - 16;
-			// if(x < 0)   x = 0;
+			if(script_hero_y > old_viewport.y + old_viewport.h - 16) script_hero_y = old_viewport.y + old_viewport.h - 16;
+			if(script_hero_y < 0)   script_hero_y = 0;
+			if(script_hero_x > old_viewport.x + old_viewport.w - 16) script_hero_x = old_viewport.x + old_viewport.w - 16;
+			if(script_hero_x < 0)   script_hero_x = 0;
 
 			// This is the only thing that moves the hero.
 			x.doClamp(viewport.x, viewport.x + viewport.w - 16);
@@ -26020,7 +26040,15 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		//FFScript.OnWaitdraw()
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
+		{
+			auto prev_x = x;
+			auto prev_y = y;
+			x = script_hero_x;
+			y = script_hero_y;
+			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, true); //Waitdraw
+			x = prev_x;
+			y = prev_y;
+		}
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_PRE_DRAW);
 		// TODO z3 draw straight to framebuf?
@@ -26502,7 +26530,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// NES behaviour: Fade to light after scrolling
 	lighting(false, false); // No, we don't need to set naturaldark...
 	
-	homescr=currscr;
+	// homescr=currscr;
 	init_dmap();
 	putscr(scrollbuf,0,0,newscr); // TODO z3 rm?
 	putscrdoors(scrollbuf,0,0,newscr); // TODO z3 rm?
