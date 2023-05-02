@@ -25255,7 +25255,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		return;
 	}
 
-	if (replay_get_frame() == 4074) {
+	if (replay_get_frame() == 340010) {
 		printf("asd\n");
 	}
 
@@ -25755,7 +25755,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			replay_poll();
 		}
 
-		if (replay_get_frame() == 4074) {
+		if (replay_get_frame() == 340010) {
 			printf("asd\n");
 		}
 
@@ -26113,20 +26113,24 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		if (!align_counter || scroll_counter) herostep();
 		
-		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
-		{
-			drawshadow(framebuf, get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
-		}
-		
-		if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
 		{
 			auto prev_y = y;
 			y += new_viewport.h - old_viewport.h;
 			if (is_unsmooth_vertical_scrolling) y += 3;
-			draw_under(framebuf); //draw the ladder or raft
-			decorations.draw2(framebuf, true);
-			draw(framebuf); //Hero
-			decorations.draw(framebuf,  true);
+
+			if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
+			{
+				drawshadow(framebuf, get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+			}
+
+			if(!isdungeon() || get_bit(quest_rules,qr_FREEFORM))
+			{
+				draw_under(framebuf); //draw the ladder or raft
+				decorations.draw2(framebuf, true);
+				draw(framebuf); //Hero
+				decorations.draw(framebuf,  true);
+			}
+
 			y = prev_y;
 		}
 		
