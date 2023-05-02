@@ -25438,22 +25438,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		{
 			if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 			{
-				// int dx = 0;
-				// int dy = 0;
-				// if (scrolldir == up)    dy = -1;
-				// if (scrolldir == down)  dy = 1;
-				// if (scrolldir == left)  dx = -1;
-				// if (scrolldir == right) dx = 1;
-				// x += 256*dx;
-				// y += 176*dy;
-				
 				script_drawing_commands.Clear();
 				FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, false); // Prewaitdraw
 				ZScriptVersion::RunScrollingScript(scrolldir, wait_counter, 0, 0, false, true); // Waitdraw
-
-				// x -= 256*dx;
-				// y -= 176*dy;
 			}
 			else FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
 			draw_screen(true,true);
@@ -25763,7 +25751,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			replay_poll();
 		}
 
-		if (replay_get_frame() == 676) {
+		if (replay_get_frame() == 711) {
 			printf("asd\n");
 		}
 
@@ -25773,6 +25761,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			return;
 		}
 
+		if (region_scrolling)
+		{
+			ZScriptVersion::RunScrollingScript(-1, -1, -1, -1, false, false);
+		}
+		else
 		{
 			auto prev_x = x;
 			auto prev_y = y;
@@ -26040,6 +26033,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 
 		//FFScript.OnWaitdraw()
+		if (region_scrolling)
+		{
+			ZScriptVersion::RunScrollingScript(-1, -1, -1, -1, false, true); //Waitdraw
+		}
+		else
 		{
 			auto prev_x = x;
 			auto prev_y = y;
