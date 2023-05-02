@@ -9223,7 +9223,13 @@ bool HeroClass::animate(int32_t)
 	}
 	[[fallthrough]];
 	default:
-		movehero();										   // call the main movement routine
+		// call the main movement routine
+		if(premove())
+		{
+			if(get_bit(quest_rules,qr_NEW_HERO_MOVEMENT2))
+				movehero();
+			else moveheroOld();
+		}
 	}
 	
 	if(shield_forcedir > -1 && action != rafting)
@@ -13189,9 +13195,110 @@ void HeroClass::pitfall()
 	}
 }
 
-void HeroClass::movehero()
+void HeroClass::mod_steps(std::vector<zfix*>& v)
 {
-	if(lstunclock || is_conveyor_stunned) return;
+	bool can_combo = ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS);
+	bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1) && can_combo) ||
+					 (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1,-1));
+			 //!DIMITODO: add QR for slow combos under hero
+	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				{
+					slowcombo = false;
+					break;
+				}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				{
+					slowcombo = false;
+					break;
+				}
+			}
+		}
+	}
+	bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
+	bool is_swimming = (action == swimming);
+	int32_t shieldid = getCurrentActiveShield();
+	if(shieldid > -1)
+	{
+		itemdata const& shield = itemsbuf[shieldid];
+		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		{
+			zfix perc = shield.misc7;
+			perc /= 100;
+			if(perc < 0)
+				perc = (perc*-1)+1;
+			zfix add(shield.misc8);
+			add /= 100;
+			for(zfix* stp : v)
+			{
+				zfix& pix = *stp;
+				pix = (pix * perc) + add;
+			}
+		}
+	}
+	
+	auto slow_cpos = COMBOPOS(x+7,y+8);
+	if(can_combo) for(int q = 6; q >= 0; --q)
+	{
+		mapscr* m = FFCore.tempScreens[q];
+		if(!m->valid) continue;
+		newcombo const& cmb = combobuf[m->data[slow_cpos]];
+		
+		for(zfix* stp : v)
+		{
+			zfix& pix = *stp;
+			pix *= cmb.speed_mult;
+			if(cmb.speed_div)
+				pix /= cmb.speed_div;
+			pix += cmb.speed_add;
+		}
+		if(q > 0 && cmb.type == cBRIDGE)
+		{
+			if(get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)
+				? !_walkflag_layer(x+7,y+8,1,&(tmpscr2[q-1]))
+				: _effectflag_layer(x+7,y+8,1,&(tmpscr2[q-1])))
+			{
+				break; //Bridge blocks speed change from below it
+			}
+		}
+	}
+	zfix mult = 1, div = 1;
+	if(is_swimming)
+	{
+		mult = game->swim_mult;
+		div = game->swim_div;
+	}
+	else if(slowcharging && slowcombo) //1/2 speed
+	{
+		div = 2;
+	}
+	else if(slowcharging || slowcombo) //2/3 speed
+	{
+		mult = 2;
+		div = 3;
+	}
+	if(!div) div = 1;
+	if(mult != 1 || div != 1)
+	{
+		for(zfix* stp : v)
+		{
+			zfix& pix = *stp;
+			pix = ((pix / div) * mult);
+		}
+	}
+}
+
+bool HeroClass::premove()
+{
+	if(lstunclock || is_conveyor_stunned) return false;
 	int32_t xoff=x.getInt()&7;
 	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
@@ -13201,11 +13308,6 @@ void HeroClass::movehero()
 	}
 	int32_t push=pushing;
 	int32_t oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
-	pushing=0;
-	zfix temp_step(hero_newstep);
-	zfix temp_x(x);
-	zfix temp_y(y);
-	
 	int32_t flippers_id = current_item_id(itype_flippers);
 	itemdata const& itm = itemsbuf[flippers_id];
 	byte intbtn = byte(itm.misc3&0xFF);
@@ -13241,7 +13343,7 @@ void HeroClass::movehero()
 		
 		if(action==rafting)
 		{
-			return;
+			return false;
 		}
 		
 		
@@ -13389,8 +13491,6 @@ void HeroClass::movehero()
 	}
 	
 	do_lens();
-	
-	WalkflagInfo info;
 	
 	bool no_jinx = true;
 	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
@@ -13546,7 +13646,7 @@ void HeroClass::movehero()
 		
 		if(no_jinx && (action==casting || action==drowning || action==lavadrowning || action == sideswimcasting || action==sidedrowning))
 		{
-			return;
+			return false;
 		}
 		if(!no_jinx)
 			did_scriptb = false;
@@ -13596,7 +13696,7 @@ void HeroClass::movehero()
 		
 		if(attacked && (charging==0 && spins<=5) && jumping<1 && action!=sideswimattacking)
 		{
-			return;
+			return false;
 		}
 		else if(!attacked)
 		{
@@ -13631,7 +13731,7 @@ void HeroClass::movehero()
 					break;
 				}
 				
-				return;
+				return false;
 			}
 			else
 			{
@@ -13644,6 +13744,24 @@ void HeroClass::movehero()
 			charging=0;
 		}
 	}
+	return true;
+}
+void HeroClass::moveheroOld()
+{
+	WalkflagInfo info;
+	int32_t xoff=x.getInt()&7;
+	int32_t yoff=y.getInt()&7;
+	if(NO_GRIDLOCK)
+	{
+		xoff = 0;
+		yoff = 0;
+	}
+	int32_t push=pushing;
+	int32_t oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
+	pushing=0;
+	zfix temp_step(hero_newstep);
+	zfix temp_x(x);
+	zfix temp_y(y);
 	
 	if(pitslide()) //Check pit's 'pull'. If true, then Hero cannot fight the pull.
 		return;
@@ -13672,7 +13790,7 @@ void HeroClass::movehero()
 					
 					if(!info.isUnwalkable())
 					{
-						move(up);
+						moveOld2(up);
 					}
 					else
 					{
@@ -13690,7 +13808,7 @@ void HeroClass::movehero()
 					
 					if(!info.isUnwalkable())
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else
 					{
@@ -13707,7 +13825,7 @@ void HeroClass::movehero()
 					
 					if(!info.isUnwalkable())
 					{
-						move(left);
+						moveOld2(left);
 					}
 					else
 					{
@@ -13724,7 +13842,7 @@ void HeroClass::movehero()
 					
 					if(!info.isUnwalkable())
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else
 					{
@@ -13749,7 +13867,7 @@ void HeroClass::movehero()
 							hero_newstep = temp_step;
 							x = temp_x;
 							y = temp_y;
-							move(up);
+							moveOld2(up);
 							return;
 						}
 						//Could not move, try moving less
@@ -13786,7 +13904,7 @@ void HeroClass::movehero()
 							hero_newstep = temp_step;
 							x = temp_x;
 							y = temp_y;
-							move(down);
+							moveOld2(down);
 							return;
 						}
 						//Could not move, try moving less
@@ -13822,7 +13940,7 @@ void HeroClass::movehero()
 							hero_newstep = temp_step;
 							x = temp_x;
 							y = temp_y;
-							move(left);
+							moveOld2(left);
 							return;
 						}
 						//Could not move, try moving less
@@ -13858,7 +13976,7 @@ void HeroClass::movehero()
 							hero_newstep = temp_step;
 							x = temp_x;
 							y = temp_y;
-							move(right);
+							moveOld2(right);
 							return;
 						}
 						//Could not move, try moving less
@@ -14123,7 +14241,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(up);
+					moveOld2(up);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -14349,7 +14467,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(down);
+					moveOld2(down);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -14576,7 +14694,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(left);
+					moveOld2(left);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -14809,7 +14927,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(right);
+					moveOld2(right);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -14983,7 +15101,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(up);
+					moveOld2(up);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -15152,7 +15270,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(down);
+					moveOld2(down);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -15316,7 +15434,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(left);
+					moveOld2(left);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -15483,7 +15601,7 @@ void HeroClass::movehero()
 						}
 					}
 					
-					move(right);
+					moveOld2(right);
 					shiftdir=s;
 					
 					if(!walkable)
@@ -15616,7 +15734,7 @@ void HeroClass::movehero()
 				//ONLY process the side-effects of the above walkflag if Hero will actually move
 				//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
 				execute(info);
-				move(left);
+				moveOld2(left);
 				return;
 			}
 			temp_x = x;
@@ -15655,7 +15773,7 @@ void HeroClass::movehero()
 				y = temp_y;
 				hero_newstep = temp_step;
 				execute(info);
-				move(right);
+				moveOld2(right);
 				return;
 			}
 			temp_x = x;
@@ -15674,26 +15792,26 @@ void HeroClass::movehero()
 				{
 					if(xoff>2&&xoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(xoff>=6)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff>=1)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 				else
 				{
 					if(xoff>=4)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff<4)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 			}
@@ -15744,7 +15862,7 @@ void HeroClass::movehero()
 					x = temp_x;
 					y = temp_y;
 					hero_newstep = temp_step;
-					move(up);
+					moveOld2(up);
 					return;
 				}
 				
@@ -15804,26 +15922,26 @@ void HeroClass::movehero()
 				{
 					if(xoff>2&&xoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(xoff>=6)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff>=1)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 				else
 				{
 					if(xoff>=4)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff<4)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 			}
@@ -15874,7 +15992,7 @@ void HeroClass::movehero()
 					x = temp_x;
 					y = temp_y;
 					hero_newstep = temp_step;
-					move(down);
+					moveOld2(down);
 					return;
 				}
 				
@@ -15940,26 +16058,26 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(yoff>2&&yoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(yoff>=6)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff>=1)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 				else
 				{
 					if(yoff>=4)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff<4)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 			}
@@ -15998,7 +16116,7 @@ LEFTRIGHT_NEWMOVE:
 					x = temp_x;
 					y = temp_y;
 					hero_newstep = temp_step;
-					move(left);
+					moveOld2(left);
 					return;
 				}
 				
@@ -16057,26 +16175,26 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(yoff>2&&yoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(yoff>=6)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff>=1)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 				else
 				{
 					if(yoff>=4)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff<4)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 			}
@@ -16115,7 +16233,7 @@ LEFTRIGHT_NEWMOVE:
 					x = temp_x;
 					y = temp_y;
 					hero_newstep = temp_step;
-					move(right);
+					moveOld2(right);
 					return;
 				}
 				
@@ -16174,7 +16292,7 @@ LEFTRIGHT_NEWMOVE:
 			//ONLY process the side-effects of the above walkflag if Hero will actually move
 			//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
 			execute(info);
-			move(left);
+			moveOld2(left);
 			return;
 		}
 		
@@ -16184,7 +16302,7 @@ LEFTRIGHT_NEWMOVE:
 		if(isdungeon() && DrunkRight() && !info.isUnwalkable() && x==208 && y==80)
 		{
 			execute(info);
-			move(right);
+			moveOld2(right);
 			return;
 		}
 		
@@ -16199,26 +16317,26 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(xoff>2&&xoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(xoff>=6)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff>=1)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 				else
 				{
 					if(xoff>=4)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff<4)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 			}
@@ -16246,7 +16364,7 @@ LEFTRIGHT_NEWMOVE:
 				
 				if(!info.isUnwalkable())
 				{
-					move(up);
+					moveOld2(up);
 					return;
 				}
 				
@@ -16304,26 +16422,26 @@ LEFTRIGHT_NEWMOVE:
 				{
 					if(xoff>2&&xoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(xoff>=6)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff>=1)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 				else
 				{
 					if(xoff>=4)
 					{
-						move(right);
+						moveOld2(right);
 					}
 					else if(xoff<4)
 					{
-						move(left);
+						moveOld2(left);
 					}
 				}
 			}
@@ -16351,7 +16469,7 @@ LEFTRIGHT_NEWMOVE:
 				
 				if(!info.isUnwalkable())
 				{
-					move(down);
+					moveOld2(down);
 					return;
 				}
 				
@@ -16413,26 +16531,26 @@ LEFTRIGHT_OLDMOVE:
 				{
 					if(yoff>2&&yoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(yoff>=6)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff>=1)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 				else
 				{
 					if(yoff>=4)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff<4)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 			}
@@ -16445,7 +16563,7 @@ LEFTRIGHT_OLDMOVE:
 				
 				if(!info.isUnwalkable())
 				{
-					move(left);
+					moveOld2(left);
 					return;
 				}
 				
@@ -16502,26 +16620,26 @@ LEFTRIGHT_OLDMOVE:
 				{
 					if(yoff>2&&yoff<6)
 					{
-						move(dir);
+						moveOld2(dir);
 					}
 					else if(yoff>=6)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff>=1)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 				else
 				{
 					if(yoff>=4)
 					{
-						move(down);
+						moveOld2(down);
 					}
 					else if(yoff<4)
 					{
-						move(up);
+						moveOld2(up);
 					}
 				}
 			}
@@ -16534,7 +16652,7 @@ LEFTRIGHT_OLDMOVE:
 				
 				if(!info.isUnwalkable())
 				{
-					move(right);
+					moveOld2(right);
 					return;
 				}
 				
@@ -16582,302 +16700,1852 @@ LEFTRIGHT_OLDMOVE:
 		}
 	}
 }
-
-//solid ffc checking should probably be moved to here.
-void HeroClass::move(int32_t d2, int32_t forceRate)
+void HeroClass::movehero() //!TODO UNFINISHED
 {
-    if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
-        return;
-	
-	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) && !IsSideSwim())
+	WalkflagInfo info;
+	int32_t xoff=x.getInt()&7;
+	int32_t yoff=y.getInt()&7;
+	if(NO_GRIDLOCK)
 	{
-		moveOld(d2);
+		xoff = 0;
+		yoff = 0;
+	}
+	int32_t push=pushing;
+	int32_t oldladderx=-1000, oldladdery=-1000; // moved here because linux complains "init crosses goto ~Koopa
+	pushing=0;
+	
+	if(pitslide()) //Check pit's 'pull'. If true, then Hero cannot fight the pull.
 		return;
+	
+	zfix temp_step(hero_newstep);
+	//!TODO REMOVE 'temp_step' and everything that uses it needs rewriting to use 'dx,dy' instead -Em
+	//!GOAL: This should handle collision checks for a 'dx,dy' movement, similar to enemy 'movexy'.
+	//!The 'get_move' function should handle everything speed related, giving dx,dy out.
+	
+	zfix temp_x(x);
+	zfix temp_y(y);
+	
+	zfix dx, dy;
+	bool checkladder = false;
+	get_move(dir,dx,dy,checkladder); //!TODO This needs to occur AFTER any changes to 'dir'! -Em
+	//!Move all the direction changes to the top, then handle the dx,dy collision check after?
+	
+	if(action==walking) //still walking
+	{
+		if(!DrunkUp() && !DrunkDown() && !DrunkLeft() && !DrunkRight() && !autostep)
+		{
+			if(attackclk>0) SetAttack();
+			else {action = none; FFCore.setHeroAction(none);}
+			hero_count=-1;
+			return;
+		}
+		
+		autostep=false;
+		
+		if(!(diagonalMovement || NO_GRIDLOCK))
+		{
+			if(dir==up&&yoff)
+			{
+				info = walkflag(x,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]),2,up);
+				info = info || walkflagMBlock(x+8,y+(bigHitbox?0:8)-int32_t(lsteps[y.getInt()&7]));
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					moveOld2(up);
+				}
+				else
+				{
+					action=none; FFCore.setHeroAction(none);
+				}
+				
+				return;
+			}
+			
+			if(dir==down&&yoff)
+			{
+				info = walkflag(x,y+15+int32_t(lsteps[y.getInt()&7]),2,down);
+				info = info || walkflagMBlock(x+8,y+15+int32_t(lsteps[y.getInt()&7]));
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					moveOld2(down);
+				}
+				else
+				{
+					action=none; FFCore.setHeroAction(none);
+				}
+				
+				return;
+			}
+			
+			if(dir==left&&xoff)
+			{
+				info = walkflag(x-int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,left) || walkflag(x-int32_t(lsteps[x.getInt()&7]),y+8,1,left);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					moveOld2(left);
+				}
+				else
+				{
+					action=none; FFCore.setHeroAction(none);
+				}
+				
+				return;
+			}
+			
+			if(dir==right&&xoff)
+			{
+				info = walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+(bigHitbox?0:8),1,right) || walkflag(x+15+int32_t(lsteps[x.getInt()&7]),y+8,1,right);
+				execute(info);
+				
+				if(!info.isUnwalkable())
+				{
+					moveOld2(right);
+				}
+				else
+				{
+					action=none; FFCore.setHeroAction(none);
+				}
+				
+				return;
+			}
+		}
+	
+	} // endif (action==walking)
+	
+	if((action!=swimming)&&(action!=sideswimming)&&(action !=sideswimhit)&&(action !=sideswimattacking)&&(action!=casting)&&(action!=sideswimcasting)&&(action!=drowning)&&(action!=sidedrowning)&&(action!=lavadrowning) && charging==0 && spins==0 && jumping<1)
+	{
+		action=none; FFCore.setHeroAction(none);
 	}
 	
-    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS)) ||
-                     (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
-		     //!DIMITODO: add QR for slow combos under hero
-	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
+	if(diagonalMovement)
 	{
-		if(tmpscr2[i].valid!=0)
+		switch(holddir)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		case up:
+			if(!Up())
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				holddir=-1;
+			}
+			
+			break;
+			
+		case down:
+			if(!Down())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		case left:
+			if(!Left())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		case right:
+			if(!Right())
+			{
+				holddir=-1;
+			}
+			
+			break;
+			
+		default:
+			break;
+		} //end switch
+		
+		walkable = false;
+		if(DrunkUp()&&(holddir==-1||holddir==up))
+		{
+			if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+			{
+			}
+			else
+			{
+				if(charging==0 && spins==0 && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)))
 				{
-					slowcombo = false;
+					dir=up;
+				}
+				
+				holddir=up;
+				
+				if(DrunkRight()&&shiftdir!=left)
+				{
+					shiftdir=right;
+					if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = right;
+					if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = right;
+				}
+				else if(DrunkLeft()&&shiftdir!=right)
+				{
+					shiftdir=left;
+					if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = left;
+					if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = left;
+				}
+				else
+				{
+					shiftdir=-1;
+				}
+				
+				//walkable if Ladder can be placed or is already placed vertically
+				if(isSideViewHero() && !toogam && (!get_bit(quest_rules, qr_OLD_LADDER_ITEM_SIDEVIEW) || !(can_deploy_ladder() || (ladderx && laddery && ladderdir==up))) && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+				{
+					walkable=false;
+				}
+				else
+				{
+					do
+					{
+						zfix ty = y - hero_newstep;
+						info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+							|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+						
+						if (ty < 0 && !bigHitbox) //sanity check for up scroll
+						{
+							info = info || walkflag(x, zfix(0), 2, up);
+							info = info || walkflag(x+15, zfix(0), 1, up);
+						}
+						info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
+						{
+							if(y != y.getInt())
+							{
+								y.doRound();
+							}
+							else if(hero_newstep > 1)
+							{
+								if(hero_newstep != int32_t(hero_newstep)) //floor
+									hero_newstep = floor((double)hero_newstep);
+								else --hero_newstep;
+							}
+							else
+								break;
+						}
+						else walkable = true;
+					}
+					while(!walkable);
+				}
+				
+				int32_t s=shiftdir;
+				
+				if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+				{
+					shiftdir=-1;
+				}
+				else
+				{
+					if(s==left)
+					{
+						do
+						{
+							info = (walkflag(x-hero_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep_diag,y+15,1,left));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(x != x.getInt())
+								{
+									x.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									info = walkflag(x-hero_newstep_diag,(bigHitbox?0:8)+(y-hero_newstep),1,left);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(x != x.getInt())
+										{
+											x.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+					else if(s==right)
+					{
+						do
+						{
+							info = (walkflag(x+15+hero_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep_diag,y+15,1,right));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(x != x.getInt())
+								{
+									x.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									info = walkflag(x+15+hero_newstep_diag,(bigHitbox?0:8)+(y-hero_newstep),1,right);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(x != x.getInt())
+										{
+											x.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+				}
+				
+				moveOld2(up);
+				shiftdir=s;
+				
+				if(!walkable)
+				{
+					if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+					{
+						x = x.getInt();
+						y = y.getInt();
+						if(!_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+								_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
+								sprite::move((zfix)-1,(zfix)0);
+						}
+						else
+						{
+							if(_walkflag(x,   y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+									!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+									!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
+							{
+								if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
+									sprite::move((zfix)1,(zfix)0);
+							}
+							else
+							{
+								pushing=push+1;
+							}
+						}
+					}
+					else
+					{
+						pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+					}
+				}
+				
+				return;
+			}
+		}
+		
+		if(DrunkDown()&&(holddir==-1||holddir==down))
+		{
+			if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+			{
+			}
+			else
+			{
+				if(charging==0 && spins==0 && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR)))
+				{
+					dir=down;
+				}
+				
+				holddir=down;
+				
+				if(DrunkRight()&&shiftdir!=left)
+				{
+					shiftdir=right;
+					if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = right;
+					if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = right;
+				}
+				else if(DrunkLeft()&&shiftdir!=right)
+				{
+					shiftdir=left;
+					if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (charging==0 && spins==0)) dir = left;
+					if (!IsSideSwim() || (charging==0 && spins==0)) sideswimdir = left;
+				}
+				else
+				{
+					shiftdir=-1;
+				}
+				
+				//bool walkable;
+				if(isSideViewHero() && !toogam && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+				{
+					walkable=false;
+				}
+				else
+				{
+					do
+					{
+						info = walkflag(x,15+(y+hero_newstep),2,down);
+						
+						if(x.getFloor() & 7)
+							info = info || walkflag(x+15,15+(y+hero_newstep),1,down);
+						else
+							info = info || walkflagMBlock(x+15, 15+(y+hero_newstep));
+							
+						execute(info);
+						
+						if(info.isUnwalkable())
+						{
+							if(y != y.getInt())
+							{
+								y.doRound();
+							}
+							else if(hero_newstep > 1)
+							{
+								if(hero_newstep != int32_t(hero_newstep)) //floor
+									hero_newstep = floor((double)hero_newstep);
+								else --hero_newstep;
+							}
+							else
+								break;
+						}
+						else walkable = true;
+					}
+					while(!walkable);
+				}
+				
+				int32_t s=shiftdir;
+				
+				if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM))
+				{
+					shiftdir=-1;
+				}
+				else
+				{
+					if(s==left)
+					{
+						do
+						{
+							info = (walkflag(x-hero_newstep_diag,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep_diag,y+15,1,left));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(x != x.getInt())
+								{
+									x.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									info = walkflag(x-hero_newstep_diag,15+(y+hero_newstep),1,left);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(x != x.getInt())
+										{
+											x.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+					else if(s==right)
+					{
+						do
+						{
+							info = (walkflag(x+15+hero_newstep_diag,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep_diag,y+15,1,right));
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(x != x.getInt())
+								{
+									x.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									info = walkflag(x+15+hero_newstep_diag,15+(y+hero_newstep),1,right);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(x != x.getInt())
+										{
+											x.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+				}
+				
+				moveOld2(down);
+				shiftdir=s;
+				
+				if(!walkable)
+				{
+					if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+					{
+						x = x.getInt();
+						y = y.getInt();
+						if(!_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
+								_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
+								sprite::move((zfix)-1,(zfix)0);
+						}
+						else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
+								sprite::move((zfix)1,(zfix)0);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else
+					{
+						pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+					}
+				}
+				
+				return;
+			}
+		}
+		
+		if(DrunkLeft()&&(holddir==-1||holddir==left))
+		{
+			if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+			{
+			}
+			else
+			{
+				if(charging==0 && spins==0 && action != sideswimattacking)
+				{
+					dir=left;
+				}
+				sideswimdir = left;
+				
+				holddir=left;
+				
+				if(DrunkUp()&&shiftdir!=down)
+				{
+					shiftdir=up;
+				}
+				else if(DrunkDown()&&shiftdir!=up)
+				{
+					shiftdir=down;
+				}
+				else
+				{
+					shiftdir=-1;
+				}
+				
+				do
+				{
+					info = walkflag(x-hero_newstep,y+(bigHitbox?0:8),1,left)||walkflag(x-hero_newstep,y+8,1,left);
+				
+					info = info || walkflag(x-hero_newstep,y+15,1,left);
+						
+					execute(info);
+					
+					if(info.isUnwalkable())
+					{
+						if(x != x.getInt())
+						{
+							x.doRound();
+						}
+						else if(hero_newstep > 1)
+						{
+							if(hero_newstep != int32_t(hero_newstep)) //floor
+								hero_newstep = floor((double)hero_newstep);
+							else --hero_newstep;
+						}
+						else
+							break;
+					}
+					else walkable = true;
+				}
+				while(!walkable);
+				
+				int32_t s=shiftdir;
+				
+				if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+				{
+					shiftdir=-1;
+				}
+				else
+				{
+					if(s==up)
+					{
+						do
+						{
+							zfix ty = y - hero_newstep_diag;
+							info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+								|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+							
+							if (ty < 0 && !bigHitbox) //sanity check for up scroll
+							{
+								info = info || walkflag(x, zfix(0), 2, up);
+								info = info || walkflag(x+15, zfix(0), 1, up);
+							}
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(y != y.getInt())
+								{
+									y.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									zfix tx = x-hero_newstep, ty = y-hero_newstep_diag;
+									info = walkflag(tx,(bigHitbox?0:8)+ty,1,up);
+							
+									if (ty < 0 && !bigHitbox) //sanity check for up scroll
+									{
+										info = info || walkflag(tx, zfix(0), 1, up);
+										info = info || walkflag(tx+15, zfix(0), 1, up);
+									}
+									info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
+									
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(y != y.getInt())
+										{
+											y.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+					else if(s==down)
+					{
+						do
+						{
+							info = walkflag(x,y+15+hero_newstep_diag,2,down)||walkflag(x+15,y+15+hero_newstep_diag,1,down);
+							
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(y != y.getInt())
+								{
+									y.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									info = walkflag(x-hero_newstep,y+15+hero_newstep_diag,1,down);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(y != y.getInt())
+										{
+											y.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+				}
+				
+				moveOld2(left);
+				shiftdir=s;
+				
+				if(!walkable)
+				{
+					if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+					{
+						x = x.getInt();
+						y = y.getInt();
+						int32_t v1=bigHitbox?0:8;
+						int32_t v2=bigHitbox?8:12;
+						
+						if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
+								_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
+								sprite::move((zfix)0,(zfix)-1);
+						}
+						else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
+								!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
+								sprite::move((zfix)0,(zfix)1);
+						}
+						else
+						{
+							pushing=push+1;
+						}
+					}
+					else
+					{
+						pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+						
+						if(action!=swimming)
+						{
+						}
+					}
+				}
+				
+				return;
+			}
+		}
+		
+		if(DrunkRight()&&(holddir==-1||holddir==right))
+		{
+			if(isdungeon() && (y<=26 || y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+			{
+			}
+			else
+			{
+				if(charging==0 && spins==0 && action != sideswimattacking)
+				{
+					dir=right;
+				}
+				sideswimdir = right;
+				
+				holddir=right;
+				
+				if(DrunkUp()&&shiftdir!=down)
+				{
+					shiftdir=up;
+				}
+				else if(DrunkDown()&&shiftdir!=up)
+				{
+					shiftdir=down;
+				}
+				else
+				{
+					shiftdir=-1;
+				}
+				
+				do
+				{
+					info = walkflag(x+15+hero_newstep,y+(bigHitbox?0:8),1,right)||walkflag(x+15+hero_newstep,y+8,1,right);;
+					
+					info = info || walkflag(x+15+hero_newstep,y+15,1,right);
+						
+					execute(info);
+					
+					if(info.isUnwalkable())
+					{
+						if(x != x.getInt())
+						{
+							x.doRound();
+						}
+						else if(hero_newstep > 1)
+						{
+							if(hero_newstep != int32_t(hero_newstep)) //floor
+								hero_newstep = floor((double)hero_newstep);
+							else --hero_newstep;
+						}
+						else
+							break;
+					}
+					else walkable = true;
+				}
+				while(!walkable);
+				
+				int32_t s=shiftdir;
+				
+				if((isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM)) || (isSideViewHero() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking))
+				{
+					shiftdir=-1;
+				}
+				else
+				{
+					if(s==up)
+					{
+						do
+						{
+							zfix ty = y - hero_newstep_diag;
+							info = walkflag(x,(bigHitbox?0:8) + ty,2,up)
+								|| walkflag(x+15,(bigHitbox?0:8) + ty,1,up);
+							
+							if (ty < 0 && !bigHitbox) //sanity check for up scroll
+							{
+								info = info || walkflag(x, zfix(0), 2, up);
+								info = info || walkflag(x+15, zfix(0), 1, up);
+							}
+							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
+							
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(y != y.getInt())
+								{
+									y.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									zfix tx = x+hero_newstep, ty = y-hero_newstep_diag;
+									info = walkflag(tx+15,(bigHitbox?0:8)+ty,1,up);
+							
+									if (ty < 0 && !bigHitbox) //sanity check for up scroll
+									{
+										info = info || walkflag(tx, zfix(0), 1, up);
+										info = info || walkflag(tx+15, zfix(0), 1, up);
+									}
+									info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(y != y.getInt())
+										{
+											y.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+					else if(s==down)
+					{
+						do
+						{
+							info = walkflag(x,y+15+hero_newstep_diag,2,down)||walkflag(x+15,y+15+hero_newstep_diag,1,down);
+								
+							execute(info);
+							
+							if(info.isUnwalkable())
+							{
+								if(y != y.getInt())
+								{
+									y.doRound();
+								}
+								else if(hero_newstep_diag > 1)
+								{
+									if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+										hero_newstep_diag.doFloor();
+									else --hero_newstep_diag;
+								}
+								else
+									shiftdir = -1;
+							}
+							else if(walkable)
+							{
+								do
+								{
+									info = walkflag(x+15+hero_newstep,y+15+hero_newstep_diag,1,down);
+									execute(info);
+									if(info.isUnwalkable())
+									{
+										if(y != y.getInt())
+										{
+											y.doRound();
+										}
+										else if(hero_newstep_diag > 1)
+										{
+											if(hero_newstep_diag != hero_newstep_diag.getInt()) //floor
+												hero_newstep_diag.doFloor();
+											else --hero_newstep_diag;
+										}
+										else
+											shiftdir = -1;
+									}
+									else break;
+								}
+								while(shiftdir != -1);
+								break;
+							}
+							else break;
+						}
+						while(shiftdir != -1);
+					}
+				}
+				
+				moveOld2(right);
+				shiftdir=s;
+				
+				if(!walkable)
+				{
+					if(shiftdir==-1) //Corner-shove; prevent being stuck on corners -V
+					{
+						x = x.getInt();
+						y = y.getInt();
+						int32_t v1=bigHitbox?0:8;
+						int32_t v2=bigHitbox?8:12;
+							   
+						if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
+							   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
+								sprite::move((zfix)0,(zfix)-1);
+						}
+						else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
+								   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
+						{
+							if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
+								sprite::move((zfix)0,(zfix)1);
+						}
+						else
+						{
+							pushing=push+1;
+							z3step=2;
+						}
+					}
+					else
+					{
+						pushing=push+1; // L: This makes solid damage combos and diagonal-triggered Armoses work.
+						
+						if(action!=swimming)
+						{
+						}
+					}
+				}
+				
+				return;
+			}
+		}
+		
+		if(shield_forcedir > -1 && action != rafting)
+			dir = shield_forcedir;
+		int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
+		int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
+		int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
+		int32_t wtrx8 = iswaterex(MAPCOMBO(x+15,y+(bigHitbox?0:8)), currmap, currscr, -1, x+15,y+(bigHitbox?0:8), true, false);
+		int32_t wtrc = iswaterex(MAPCOMBO(x+8,y+(bigHitbox?8:12)), currmap, currscr, -1, x+8,y+(bigHitbox?8:12), true, false);
+		
+		if(can_use_item(itype_flippers,i_flippers)&&current_item(itype_flippers) >= combobuf[wtrc].attribytes[0]&&(!(combobuf[wtrc].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))&&!(ladderx+laddery)&&z==0&&fakez==0)
+		{
+			if(wtrx&&wtrx8&&wtry&&wtry8 && !DRIEDLAKE)
+			{
+				//action=swimming;
+				if(action !=none && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && !isSideViewHero())
+				{
+					hopclk = 0xFF;
+				}
+			}
+		}
+		
+		return;
+	} //endif (LTTPWALK)
+	temp_step = hero_newstep;
+	temp_x = x;
+	temp_y = y;
+	
+	if(isdungeon() && (x<=26 || x>=214) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+	{
+		goto LEFTRIGHT_NEWMOVE2;
+	}
+	
+	// make it easier to get in left & right doors
+	
+	//ignore ladder for this part. sigh sigh sigh -DD
+	oldladderx = ladderx;
+	oldladdery = laddery;
+	if(isdungeon() && DrunkLeft() && (temp_x==32 && temp_y==80))
+	{
+		do
+		{
+			info = walkflag(temp_x,temp_y+(bigHitbox?0:8),1,left) ||
+				   walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left);
+			
+			if(info.isUnwalkable())
+			{
+				if(temp_x != int32_t(temp_x))
+				{
+					temp_x = floor((double)temp_x);
+				}
+				else if(temp_step > 1)
+				{
+					if(temp_step != int32_t(temp_step)) //floor
+						temp_step = floor((double)temp_step);
+					else --temp_step;
+				}
+				else
 					break;
+			}
+		}
+		while(info.isUnwalkable());
+		
+		if(!info.isUnwalkable())
+		{
+			x = temp_x;
+			y = temp_y;
+			hero_newstep = temp_step;
+			//ONLY process the side-effects of the above walkflag if Hero will actually move
+			//sigh sigh sigh... walkflag is a horrible mess :-/ -DD
+			execute(info);
+			moveOld2(left);
+			return;
+		}
+		temp_x = x;
+		temp_y = y;
+		temp_step = hero_newstep;
+	}
+	
+	if(isdungeon() && DrunkRight() && temp_x==208 && temp_y==80)
+	{
+		do
+		{
+			info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) ||
+			   walkflag(temp_x+15+temp_step,temp_y+8,1,right);
+			
+			if(info.isUnwalkable())
+			{
+				if(temp_x != int32_t(temp_x))
+				{
+					temp_x = floor((double)temp_x);
+				}
+				else if(temp_step > 1)
+				{
+					if(temp_step != int32_t(temp_step)) //floor
+						temp_step = floor((double)temp_step);
+					else --temp_step;
+				}
+				else
+					break;
+			}
+		}
+		while(info.isUnwalkable());
+		
+		if(!info.isUnwalkable())
+		{
+			x = temp_x;
+			y = temp_y;
+			hero_newstep = temp_step;
+			execute(info);
+			moveOld2(right);
+			return;
+		}
+		temp_x = x;
+		temp_y = y;
+		temp_step = hero_newstep;
+	}
+	
+	ladderx = oldladderx;
+	laddery = oldladdery;
+	
+	if(DrunkUp())
+	{
+		if(xoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
+		{
+			if(dir!=up && dir!=down)
+			{
+				if(xoff>2&&xoff<6)
+				{
+					moveOld2(dir);
+				}
+				else if(xoff>=6)
+				{
+					moveOld2(right);
+				}
+				else if(xoff>=1)
+				{
+					moveOld2(left);
 				}
 			}
 			else
 			{
-				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				if(xoff>=4)
 				{
-					slowcombo = false;
-					break;
+					moveOld2(right);
+				}
+				else if(xoff<4)
+				{
+					moveOld2(left);
 				}
 			}
 		}
-	}
-    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
-    bool is_swimming = (action == swimming);
-	zfix rate(steprate);
-	int32_t shieldid = getCurrentActiveShield();
-	if(shieldid > -1)
-	{
-		itemdata const& shield = itemsbuf[shieldid];
-		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		else
 		{
-			zfix perc = shield.misc7;
-			perc /= 100;
-			if(perc < 0)
-				perc = (perc*-1)+1;
-			rate = (rate * perc) + shield.misc8;
-		}
-	}
-	
-	static const int NUM_STEPS = 5;
-	zfix steps[NUM_STEPS] =
-	{
-		rate/100,
-		game->get_sideswim_up() / 100.0,game->get_sideswim_side() / 100.0,
-		game->get_sideswim_side() / 100.0,game->get_sideswim_down() / 100.0
-	};
-	auto slow_cpos = COMBOPOS(x+7,y+8);
-	for(int q = 6; q >= 0; --q)
-	{
-		mapscr* m = FFCore.tempScreens[q];
-		if(!m->valid) continue;
-		newcombo const& cmb = combobuf[m->data[slow_cpos]];
-		
-		for(int q = 0; q < NUM_STEPS; ++q)
-		{
-			steps[q] *= cmb.speed_mult;
-			if(cmb.speed_div)
-				steps[q] /= cmb.speed_div;
-			steps[q] += cmb.speed_add;
-		}
-		if(q > 0 && cmb.type == cBRIDGE)
-		{
-			if(get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)
-				? !_walkflag_layer(x+7,y+8,1,&(tmpscr2[q-1]))
-				: _effectflag_layer(x+7,y+8,1,&(tmpscr2[q-1])))
+			do
 			{
-				break; //Bridge blocks speed change from below it
-			}
-		}
-	}
-	byte mult = 1, div = 1;
-	if(is_swimming)
-	{
-		mult = game->swim_mult;
-		div = game->swim_div;
-	}
-	else if(slowcharging ^ slowcombo) //2/3 speed
-	{
-		mult = 2;
-		div = 3;
-	}
-	else if(slowcharging && slowcombo) //1/2 speed
-	{
-		div = 2;
-	}
-	if(!div) div = 1;
-	if(mult != 1 || div != 1)
-	{
-		for(int q = 0; q < NUM_STEPS; ++q)
-			steps[q] = ((steps[q] / div) * mult);
-	}
-	
-	zfix dx, dy;
-	zfix movepix(steps[0]);
-	zfix step(movepix);
-	zfix step_diag(movepix);
-	zfix up_step(-steps[1]);
-	zfix left_step(-steps[2]);
-	zfix right_step(steps[3]);
-	zfix down_step(steps[4]);
-	bool checkladder  = false;
-	
-	if(hero_newstep > movepix) hero_newstep = movepix;
-	if(hero_newstep_diag > movepix) hero_newstep_diag = movepix;
-	
-	if(diagonalMovement)
-	{
-		//zprint2("Player's X is %d, Y is %d\n", x, y);
-		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
-			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
-		{
-			if(hero_newstep > 0 && hero_newstep_diag > 0)
-			{
-				step = STEP_DIAGONAL(step);
-				step_diag = STEP_DIAGONAL(step_diag);
-				up_step = STEP_DIAGONAL(up_step);
-				left_step = STEP_DIAGONAL(left_step);
-				right_step = STEP_DIAGONAL(right_step);
-				down_step = STEP_DIAGONAL(down_step);
-			}
-		}
-		if(hero_newstep < step) step = hero_newstep; //handle collision
-		if(hero_newstep_diag < step_diag) step_diag = hero_newstep_diag; //handle collision
-		switch(d2)
-		{
-			case up:
-				switch(shiftdir)
+				if(action==swimming || IsSideSwim() || action == swimhit)
 				{
-					case left:
-						dx = -step_diag;
-						if (IsSideSwim()) dx = left_step;
-						break;
-					case right:
-						dx = step_diag;
-						if (IsSideSwim()) dx = right_step;
-						break;
+					info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
+					
+					if(_walkflag(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, 1,SWITCHBLOCK_STATE) &&
+							!(iswaterex(MAPCOMBO(temp_x, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x, temp_y+(bigHitbox?0:8)-temp_step, true, false) &&
+							  iswaterex(MAPCOMBO(temp_x+15, temp_y+(bigHitbox?0:8)-temp_step), currmap, currscr, -1, temp_x+15, temp_y+(bigHitbox?0:8)-temp_step, true, false)))
+						info.setUnwalkable(true);
 				}
-				if(walkable)
+				else
 				{
-					if (!IsSideSwim()) dy = -step;
-					if (IsSideSwim()) 
+					info = walkflag(temp_x,temp_y+(bigHitbox?0:8)-temp_step,2,up);
+					if(x.getInt() & 7)
+						info = info || walkflag(temp_x+16,temp_y+(bigHitbox?0:8)-temp_step,1,up);
+					else
+						info = info || walkflagMBlock(temp_x+8,temp_y+(bigHitbox?0:8)-temp_step);
+				}
+				
+				if(info.isUnwalkable())
+				{
+					if(temp_y != int32_t(temp_y))
 					{
-						dy = up_step;
-						if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						temp_y = floor((double)temp_y);
+					}
+					else if(temp_step > 1)
+					{
+						if(temp_step != int32_t(temp_step)) //floor
+							temp_step = floor((double)temp_step);
+						else --temp_step;
+					}
+					else
+						break;
+				}
+			}
+			while(info.isUnwalkable());
+			
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				x = temp_x;
+				y = temp_y;
+				hero_newstep = temp_step;
+				moveOld2(up);
+				return;
+			}
+			
+			if(!DrunkLeft() && !DrunkRight())
+			{
+				if(NO_GRIDLOCK)
+				{
+					x = x.getInt();
+					y = y.getInt();
+					if(!_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+							!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+							_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+(bigHitbox?0:8)-1))
+							sprite::move((zfix)-1,(zfix)0);
+					}
+					else if(_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+							!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
+							!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+(bigHitbox?0:8)-1))
+							sprite::move((zfix)1,(zfix)0);
+					}
+					else
+					{
+						pushing=push+1;
 					}
 				}
-				break;
-			case down:
-				switch(shiftdir)
+				else pushing=push+1;
+				
+				if(charging==0 && spins==0)
 				{
-					case left:
-						dx = -step_diag;
-						if (IsSideSwim()) dx = left_step;
-						break;
-					case right:
-						dx = step_diag;
-						if (IsSideSwim()) dx = right_step;
+					dir=up;
+				}
+				
+				if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+				{
+					herostep();
+				}
+				
+				return;
+			}
+			else
+			{
+				goto LEFTRIGHT_NEWMOVE2;
+			}
+		}
+		
+		return;
+	}
+	
+	if(DrunkDown())
+	{
+		if(xoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
+		{
+			if(dir!=up && dir!=down)
+			{
+				if(xoff>2&&xoff<6)
+				{
+					moveOld2(dir);
+				}
+				else if(xoff>=6)
+				{
+					moveOld2(right);
+				}
+				else if(xoff>=1)
+				{
+					moveOld2(left);
+				}
+			}
+			else
+			{
+				if(xoff>=4)
+				{
+					moveOld2(right);
+				}
+				else if(xoff<4)
+				{
+					moveOld2(left);
+				}
+			}
+		}
+		else
+		{
+			do
+			{
+				if(action==swimming || IsSideSwim() || action == swimhit)
+				{
+					info=walkflag(temp_x,temp_y+15+temp_step,2,down);
+					
+					if(_walkflag(temp_x+15, temp_y+15+temp_step, 1,SWITCHBLOCK_STATE) &&
+							!(iswaterex(MAPCOMBO(temp_x, temp_y+15+temp_step), currmap, currscr, -1, temp_x, temp_y+15+temp_step, true, false) &&
+							  iswaterex(MAPCOMBO(temp_x+15, temp_y+15+temp_step), currmap, currscr, -1, temp_x+15, temp_y+15+temp_step, true, false)))
+						info.setUnwalkable(true);
+				}
+				else
+				{
+					info=walkflag(temp_x,temp_y+15+temp_step,2,down);
+					if(x.getInt() & 7)
+						info = info || walkflag(temp_x+16,temp_y+15+temp_step,1,down);
+					else
+						 info = info || walkflagMBlock(temp_x+8,temp_y+15+temp_step);
+				}
+				
+				if(info.isUnwalkable())
+				{
+					if(temp_y != int32_t(temp_y))
+					{
+						temp_y = floor((double)temp_y);
+					}
+					else if(temp_step > 1)
+					{
+						if(temp_step != int32_t(temp_step)) //floor
+							temp_step = floor((double)temp_step);
+						else --temp_step;
+					}
+					else
 						break;
 				}
-				if(walkable)
+			}
+			while(info.isUnwalkable());
+			
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				x = temp_x;
+				y = temp_y;
+				hero_newstep = temp_step;
+				moveOld2(down);
+				return;
+			}
+			
+			if(!DrunkLeft() && !DrunkRight())
+			{
+				if(NO_GRIDLOCK)
 				{
-					dy = step;
-					if (IsSideSwim()) dy = down_step;
+					x = x.getInt();
+					y = y.getInt();
+					if(!_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+							!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
+							_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+15,y+15+1))
+							sprite::move((zfix)-1,(zfix)0);
+					}
+					else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
+							!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
+							!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x,y+15+1))
+							sprite::move((zfix)1,(zfix)0);
+					}
+					else
+					{
+						pushing=push+1;
+					}
 				}
-				break;
-			case left:
-				switch(shiftdir)
+				else pushing=push+1;
+				
+				if(charging==0 && spins==0)
 				{
-					case up:
-						if (!IsSideSwim()) dy = -step_diag;
-						if (IsSideSwim()) 
-						{
-							dy = up_step;
-							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
-						}
-						break;
-					case down:
-						dy = step_diag;
-						if (IsSideSwim()) dy = down_step;
+					dir=down;
+				}
+				
+				if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+				{
+					herostep();
+				}
+				
+				return;
+			}
+			else goto LEFTRIGHT_NEWMOVE2;
+		}
+		
+		return;
+	}
+	
+LEFTRIGHT_NEWMOVE2:
+	temp_x = x;
+	temp_y = y;
+	temp_step = hero_newstep;
+	if(isdungeon() && (temp_y<=26 || temp_y>=134) && !get_bit(quest_rules,qr_FREEFORM) && !toogam)
+	{
+		return;
+	}
+	
+	if(DrunkLeft())
+	{
+		if(yoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
+		{
+			if(dir!=left && dir!=right)
+			{
+				if(yoff>2&&yoff<6)
+				{
+					moveOld2(dir);
+				}
+				else if(yoff>=6)
+				{
+					moveOld2(down);
+				}
+				else if(yoff>=1)
+				{
+					moveOld2(up);
+				}
+			}
+			else
+			{
+				if(yoff>=4)
+				{
+					moveOld2(down);
+				}
+				else if(yoff<4)
+				{
+					moveOld2(up);
+				}
+			}
+		}
+		else
+		{
+			do
+			{
+				info = walkflag(temp_x-temp_step,temp_y+(bigHitbox?0:8),1,left) ||
+					   walkflag(temp_x-temp_step,temp_y+(isSideViewHero() ?0:8), 1,left);
+				   
+				if(y.getInt() & 7)
+					info = info || walkflag(temp_x-temp_step,temp_y+16,1,left);
+				
+				if(info.isUnwalkable())
+				{
+					if(temp_x != int32_t(temp_x))
+					{
+						temp_x = floor((double)temp_x);
+					}
+					else if(temp_step > 1)
+					{
+						if(temp_step != int32_t(temp_step)) //floor
+							temp_step = floor((double)temp_step);
+						else --temp_step;
+					}
+					else
 						break;
 				}
-				if(walkable)
+			}
+			while(info.isUnwalkable());
+			
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				x = temp_x;
+				y = temp_y;
+				hero_newstep = temp_step;
+				moveOld2(left);
+				return;
+			}
+			
+			if(!DrunkUp() && !DrunkDown())
+			{
+				if(NO_GRIDLOCK)
 				{
+					x = x.getInt();
+					y = y.getInt();
+					int32_t v1=bigHitbox?0:8;
+					int32_t v2=bigHitbox?8:12;
+					
+					if(!_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+							!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
+							_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+15))
+							sprite::move((zfix)0,(zfix)-1);
+					}
+					else if(_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
+							!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
+							!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1))
+							sprite::move((zfix)0,(zfix)1);
+					}
+					else
+					{
+						pushing=push+1;
+					}
+				}
+				else pushing=push+1;
+				
+				if(charging==0 && spins==0)
+				{
+					dir=left;
+				}
+				
+				if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+				{
+					herostep();
+				}
+				
+				return;
+			}
+		}
+		
+		return;
+	}
+	
+	if(DrunkRight())
+	{
+		if(yoff && !is_on_conveyor && action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking && jumping<1)
+		{
+			if(dir!=left && dir!=right)
+			{
+				if(yoff>2&&yoff<6)
+				{
+					moveOld2(dir);
+				}
+				else if(yoff>=6)
+				{
+					moveOld2(down);
+				}
+				else if(yoff>=1)
+				{
+					moveOld2(up);
+				}
+			}
+			else
+			{
+				if(yoff>=4)
+				{
+					moveOld2(down);
+				}
+				else if(yoff<4)
+				{
+					moveOld2(up);
+				}
+			}
+		}
+		else
+		{
+			do
+			{
+				info = walkflag(temp_x+15+temp_step,temp_y+(bigHitbox?0:8),1,right) || 
+						walkflag(temp_x+15+temp_step,temp_y+(isSideViewHero() ?0:8),1,right);
+				
+				if(y.getInt() & 7)
+					info = info || walkflag(temp_x+15+temp_step,y+16,1,right);
+				
+				if(info.isUnwalkable())
+				{
+					if(temp_x != int32_t(temp_x))
+					{
+						temp_x = floor((double)temp_x);
+					}
+					else if(temp_step > 1)
+					{
+						if(temp_step != int32_t(temp_step)) //floor
+							temp_step = floor((double)temp_step);
+						else --temp_step;
+					}
+					else
+						break;
+				}
+			}
+			while(info.isUnwalkable());
+			
+			execute(info);
+			
+			if(!info.isUnwalkable())
+			{
+				x = temp_x;
+				y = temp_y;
+				hero_newstep = temp_step;
+				moveOld2(right);
+				return;
+			}
+			
+			if(!DrunkUp() && !DrunkDown())
+			{
+				if(NO_GRIDLOCK)
+				{
+					x = x.getInt();
+					y = y.getInt();
+					int32_t v1=bigHitbox?0:8;
+					int32_t v2=bigHitbox?8:12;
+						   
+					if(!_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+						   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
+						   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+15))
+							sprite::move((zfix)0,(zfix)-1);
+					}
+					else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
+							   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
+							   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
+					{
+						if(hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1))
+							sprite::move((zfix)0,(zfix)1);
+					}
+					else
+					{
+						pushing=push+1;
+					}
+				}
+				else pushing=push+1;
+				
+				if(charging==0 && spins==0)
+				{
+					dir=right;
+				}
+				
+				if(action!=swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+				{
+					herostep();
+				}
+				
+				return;
+			}
+		}
+	}
+}
+
+void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, bool& checkladder)
+{
+	dx = 0; dy = 0; checkladder = false;
+    if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
+        return;
+	
+	zfix base_movepix(zfix(steprate) / 100);
+	zfix movepix(base_movepix);
+	zfix up_step(zfix(game->get_sideswim_up()) / 100);
+	zfix left_step(zfix(game->get_sideswim_side()) / 100);
+	zfix right_step(zfix(game->get_sideswim_side()) / 100);
+	zfix down_step(zfix(game->get_sideswim_down()) / 100);
+	std::vector<zfix*> steps;
+	steps.push_back(&movepix);
+	steps.push_back(&up_step);
+	steps.push_back(&left_step);
+	steps.push_back(&right_step);
+	steps.push_back(&down_step);
+	
+	mod_steps(steps);
+	
+	up_step = -up_step;
+	left_step = -left_step;
+	
+	
+	zfix step(movepix);
+	zfix step_diag(movepix);
+
+
+	if (diagonalMovement)
+	{
+		//zprint2("Player's X is %d, Y is %d\n", x, y);
+		if (((movedir == up || movedir == down) && (shiftdir == left || shiftdir == right)) ||
+			(movedir == left || movedir == right) && (shiftdir == up || shiftdir == down))
+		{
+			step = STEP_DIAGONAL(step);
+			up_step = STEP_DIAGONAL(up_step);
+			left_step = STEP_DIAGONAL(left_step);
+			right_step = STEP_DIAGONAL(right_step);
+			down_step = STEP_DIAGONAL(down_step);
+		}
+		switch (movedir)
+		{
+		case up:
+			switch (shiftdir)
+			{
+				case left:
+					dx = IsSideSwim() ? left_step : -step;
+					break;
+				case right:
+					dx = IsSideSwim() ? right_step : step;
+					break;
+			}
+			if (IsSideSwim())
+			{
+				dy = up_step;
+				if (!iswaterex(MAPCOMBO(x, y + 8 - (bigHitbox * 8) + floor(up_step)), currmap, currscr, -1, x, y + 8 - (bigHitbox * 8) - 2, true, false)) checkladder = true;
+			}
+			else dy = -step;
+			break;
+		case down:
+			switch (shiftdir)
+			{
+				case left:
 					dx = -step;
 					if (IsSideSwim()) dx = left_step;
-				}
-				break;
-			case right:
-				switch(shiftdir)
-				{
-					case up:
-						if (!IsSideSwim()) dy = -step_diag;
-						if (IsSideSwim()) 
-						{
-							dy = up_step;
-							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
-						}
-						break;
-					case down:
-						dy = step_diag;
-						if (IsSideSwim()) dy = down_step;
-						break;
-				}
-				if(walkable)
-				{
+					break;
+				case right:
 					dx = step;
 					if (IsSideSwim()) dx = right_step;
-				}
-				break;
+					break;
+			}
+			dy = IsSideSwim() ? down_step : step;
+			break;
+		case left:
+			switch (shiftdir)
+			{
+				case up:
+					if (IsSideSwim())
+					{
+						dy = up_step;
+						if (!iswaterex(MAPCOMBO(x, y + 8 - (bigHitbox * 8) + floor(up_step)), currmap, currscr, -1, x, y + 8 - (bigHitbox * 8) - 2, true, false)) checkladder = true;
+					}
+					else dy = -step;
+					break;
+				case down:
+					dy = step;
+					if (IsSideSwim()) dy = down_step;
+					break;
+			}
+			dx = IsSideSwim() ? left_step : -step;
+			break;
+		case right:
+			switch (shiftdir)
+			{
+				case up:
+					if (!IsSideSwim()) dy = -step;
+					if (IsSideSwim())
+					{
+						dy = up_step;
+						if (!iswaterex(MAPCOMBO(x, y + 8 - (bigHitbox * 8) + floor(up_step)), currmap, currscr, -1, x, y + 8 - (bigHitbox * 8) - 2, true, false)) checkladder = true;
+					}
+					break;
+				case down:
+					dy = step;
+					if (IsSideSwim()) dy = down_step;
+					break;
+			}
+			dx = IsSideSwim() ? right_step : step;
+			break;
 		};
 	}
 	else
 	{
-		if(hero_newstep < step) step = hero_newstep; //handle collision
-		switch(d2)
+		switch (movedir)
 		{
 			case up:
-				dy -= step;
-				if (IsSideSwim()) dy = up_step;
+				dy = IsSideSwim() ? up_step : -step;
 				break;
 			case down:
-				dy += step;
-				if (IsSideSwim()) dy = down_step;
+				dy = IsSideSwim() ? down_step : step;
 				break;
 			case left:
-				dx -= step;
-				if (IsSideSwim()) dx = left_step;
+				dx = IsSideSwim() ? left_step : -step;
 				break;
 			case right:
-				dx += step;
-				if (IsSideSwim()) dx = right_step;
+				dx = IsSideSwim() ? right_step : step;
 				break;
 		};
 	}
-	hero_newstep = movepix;
-	hero_newstep_diag = movepix;
-
-	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
+	
+	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (movedir == up || movedir == down))) //!DIRECTION SET
 	{
-		dir=d2;
+		dir=movedir;
 	}
-	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right) && (charging==0 && spins==0))
+	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (movedir == up || movedir == down) && (shiftdir == left || shiftdir == right) && (charging==0 && spins==0))
 	{
 		dir = shiftdir; 
 	}
-	if(forceRate > -1)
-	{
-		checkladder = false;
-		switch(dir)
-		{
-			case right:
-			case r_up:
-			case r_down:
-				dx = zfix(forceRate) / 100;
-				break;
-			case left:
-			case l_up:
-			case l_down:
-				dx = zfix(-forceRate) / 100;
-				break;
-			default:
-				dx = 0;
-		}
-		switch(dir)
-		{
-			case down:
-			case r_down:
-			case l_down:
-				dy = zfix(forceRate) / 100;
-				break;
-			case up:
-			case r_up:
-			case l_up:
-				dy = zfix(-forceRate) / 100;
-				break;
-			default:
-				dy = 0;
-		}
-	}
-	if(dx == 0 && dy == 0) return;
+}
+
+void HeroClass::move(zfix dx, zfix dy, bool checkladder) //no collision check
+{
+	if(!dx && !dy) return;
 	if(action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 	{
 		herostep();
@@ -17224,7 +18892,315 @@ void HeroClass::moveOld(int32_t d2)
         sprite::move((zfix)dx,(zfix)dy);
     }
 }
+void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
+{
+    if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
+        return;
+	
+	if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT) && !IsSideSwim())
+	{
+		moveOld(d2);
+		return;
+	}
+	
+    bool slowcombo = (combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1) && ((z==0 && fakez==0) || tmpscr->flags2&fAIRCOMBOS)) ||
+                     (isSideViewHero() && (on_sideview_solid_oldpos(x,y,old_x,old_y)||getOnSideviewLadder()) && combo_class_buf[combobuf[MAPCOMBO(x+7,y+8)].type].slow_movement && _effectflag(x+7,y+8,1, -1));
+		     //!DIMITODO: add QR for slow combos under hero
+	if(slowcombo) for (int32_t i = 0; i <= 1; ++i)
+	{
+		if(tmpscr2[i].valid!=0)
+		{
+			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && !_walkflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				{
+					slowcombo = false;
+					break;
+				}
+			}
+			else
+			{
+				if (combobuf[MAPCOMBO2(i,x+7,y+8)].type == cBRIDGE && _effectflag_layer(x+7,y+8,1, &(tmpscr2[i])))
+				{
+					slowcombo = false;
+					break;
+				}
+			}
+		}
+	}
+    bool slowcharging = charging>0 && (itemsbuf[getWpnPressed(itype_sword)].flags & ITEM_FLAG10);
+    bool is_swimming = (action == swimming);
+	bool fastSwim = (zinit.hero_swim_speed>60);
+	zfix rate(steprate);
+	int32_t shieldid = getCurrentActiveShield();
+	if(shieldid > -1)
+	{
+		itemdata const& shield = itemsbuf[shieldid];
+		if(shield.flags & ITEM_FLAG10) //Change Speed flag
+		{
+			zfix perc = shield.misc7;
+			perc /= 100;
+			if(perc < 0)
+				perc = (perc*-1)+1;
+			rate = (rate * perc) + shield.misc8;
+		}
+	}
+	
+	zfix dx, dy;
+	zfix movepix(rate / 100);
+	zfix step(movepix);
+	zfix step_diag(movepix);
+	zfix up_step(game->get_sideswim_up() / -100.0);
+	zfix left_step(game->get_sideswim_side() / -100.0);
+	zfix right_step(game->get_sideswim_side() / 100.0);
+	zfix down_step(game->get_sideswim_down() / 100.0);
+	bool checkladder  = false;
+	
+	if(hero_newstep > movepix) hero_newstep = movepix;
+	if(hero_newstep_diag > movepix) hero_newstep_diag = movepix;
+	//2/3 speed
+	if((is_swimming && fastSwim) || (!is_swimming && (slowcharging ^ slowcombo)))
+	{
+		step = ((step / 3.0) * 2);
+		step_diag = ((step_diag / 3.0) * 2);
+		up_step = ((up_step / 3.0) * 2);
+		left_step = ((left_step / 3.0) * 2);
+		right_step = ((right_step / 3.0) * 2);
+		down_step = ((down_step / 3.0) * 2);
+	}
+	//1/2 speed
+	else if((is_swimming && !fastSwim) || (slowcharging && slowcombo))
+	{
+		step /= 2;
+		step_diag /= 2;
+		up_step /= 2;
+		left_step /= 2;
+		right_step /= 2;
+		down_step /= 2;
+	}
+	//normal speed
+	else
+	{
+		//no modification
+	}
+	
+	if(diagonalMovement)
+	{
+		//zprint2("Player's X is %d, Y is %d\n", x, y);
+		if(((d2 == up || d2 == down) && (shiftdir == left || shiftdir == right)) ||
+			(d2 == left || d2 == right) && (shiftdir == up || shiftdir == down))
+		{
+			if(hero_newstep > 0 && hero_newstep_diag > 0)
+			{
+				step = STEP_DIAGONAL(step);
+				step_diag = STEP_DIAGONAL(step_diag);
+				up_step = STEP_DIAGONAL(up_step);
+				left_step = STEP_DIAGONAL(left_step);
+				right_step = STEP_DIAGONAL(right_step);
+				down_step = STEP_DIAGONAL(down_step);
+			}
+		}
+		if(hero_newstep < step) step = hero_newstep; //handle collision
+		if(hero_newstep_diag < step_diag) step_diag = hero_newstep_diag; //handle collision
+		switch(d2)
+		{
+			case up:
+				switch(shiftdir)
+				{
+					case left:
+						dx = -step_diag;
+						if (IsSideSwim()) dx = left_step;
+						break;
+					case right:
+						dx = step_diag;
+						if (IsSideSwim()) dx = right_step;
+						break;
+				}
+				if(walkable)
+				{
+					if (!IsSideSwim()) dy = -step;
+					if (IsSideSwim()) 
+					{
+						dy = up_step;
+						if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+					}
+				}
+				break;
+			case down:
+				switch(shiftdir)
+				{
+					case left:
+						dx = -step_diag;
+						if (IsSideSwim()) dx = left_step;
+						break;
+					case right:
+						dx = step_diag;
+						if (IsSideSwim()) dx = right_step;
+						break;
+				}
+				if(walkable)
+				{
+					dy = step;
+					if (IsSideSwim()) dy = down_step;
+				}
+				break;
+			case left:
+				switch(shiftdir)
+				{
+					case up:
+						if (!IsSideSwim()) dy = -step_diag;
+						if (IsSideSwim()) 
+						{
+							dy = up_step;
+							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						}
+						break;
+					case down:
+						dy = step_diag;
+						if (IsSideSwim()) dy = down_step;
+						break;
+				}
+				if(walkable)
+				{
+					dx = -step;
+					if (IsSideSwim()) dx = left_step;
+				}
+				break;
+			case right:
+				switch(shiftdir)
+				{
+					case up:
+						if (!IsSideSwim()) dy = -step_diag;
+						if (IsSideSwim()) 
+						{
+							dy = up_step;
+							if (!iswaterex(MAPCOMBO(x,y+8-(bigHitbox*8)+floor(up_step)), currmap, currscr, -1, x, y+8-(bigHitbox*8)-2, true, false)) checkladder = true;
+						}
+						break;
+					case down:
+						dy = step_diag;
+						if (IsSideSwim()) dy = down_step;
+						break;
+				}
+				if(walkable)
+				{
+					dx = step;
+					if (IsSideSwim()) dx = right_step;
+				}
+				break;
+		};
+	}
+	else
+	{
+		if(hero_newstep < step) step = hero_newstep; //handle collision
+		switch(d2)
+		{
+			case up:
+				dy -= step;
+				if (IsSideSwim()) dy = up_step;
+				break;
+			case down:
+				dy += step;
+				if (IsSideSwim()) dy = down_step;
+				break;
+			case left:
+				dx -= step;
+				if (IsSideSwim()) dx = left_step;
+				break;
+			case right:
+				dx += step;
+				if (IsSideSwim()) dx = right_step;
+				break;
+		};
+	}
+	hero_newstep = movepix;
+	hero_newstep_diag = movepix;
 
+	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down))) //!DIRECTION SET
+	{
+		dir=d2;
+	}
+	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (d2 == up || d2 == down) && (shiftdir == left || shiftdir == right) && (charging==0 && spins==0))
+	{
+		dir = shiftdir; 
+	}
+	if(forceRate > -1)
+	{
+		checkladder = false;
+		switch(dir)
+		{
+			case right:
+			case r_up:
+			case r_down:
+				dx = zfix(forceRate) / 100;
+				break;
+			case left:
+			case l_up:
+			case l_down:
+				dx = zfix(-forceRate) / 100;
+				break;
+			default:
+				dx = 0;
+		}
+		switch(dir)
+		{
+			case down:
+			case r_down:
+			case l_down:
+				dy = zfix(forceRate) / 100;
+				break;
+			case up:
+			case r_up:
+			case l_up:
+				dy = zfix(-forceRate) / 100;
+				break;
+			default:
+				dy = 0;
+		}
+	}
+	if(dx == 0 && dy == 0) return;
+	if(action != swimming && action != sideswimming && action != sideswimhit && action != sideswimattacking)
+	{
+		herostep();
+		
+		//ack... don't walk if in midair! -DD
+		if(charging==0 && spins==0 && z==0 && fakez==0 && !(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y) && !getOnSideviewLadder()))
+		{
+			action=walking; FFCore.setHeroAction(walking);
+		}
+			
+		if(++hero_count > (16*hero_animation_speed))
+			hero_count=0;
+	}
+	else if(!(frame & 1))
+	{
+		herostep();
+	}
+	
+	if(charging==0 || attack!=wHammer)
+	{
+		sprite::move(dx, dy);
+		WalkflagInfo info;
+		info = walkflag(x,y+8-(bigHitbox*8)-4,2,up);
+		execute(info);
+		if (checkladder && !canSideviewLadderRemote(x, y-4) && !info.isUnwalkable() && (y + 8 - (bigHitbox * 8) - 4) > 0)
+		{
+			if (game->get_sideswim_jump() != 0)
+			{
+				setFall(zfix(0-(FEATHERJUMP*(game->get_sideswim_jump()/10000.0))));
+				sfx(WAV_ZN1SPLASH,(int32_t)x);
+				hopclk = 0;
+				if (charging || spins) action = attacking;
+				else action = none;
+			}
+			else
+			{
+				sprite::move(zfix(0), zfix(-1*dy));
+			}
+		}
+	}
+}
+	
 HeroClass::WalkflagInfo HeroClass::walkflag(zfix fx,zfix fy,int32_t cnt,byte d2)
 {
 	return walkflag(fx.getInt(), fy.getInt(), cnt, d2);
@@ -23741,7 +25717,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 				{
 					walkable=false;
 					shiftdir=dir<left?(x.getInt()&8?left:right):(y.getInt()&8?down:up);
-					move(dir, 150);
+					moveOld2(dir, 150);
 				}
             }
             else
@@ -23755,7 +25731,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 					s-=z3step;
 				}
                 walkable=true;
-				move(dir, 150);
+				moveOld2(dir, 150);
             }
             
             shiftdir=-1;
@@ -23797,7 +25773,7 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
 					s-=lsteps[x.getInt()&7];
 				}
 				
-				move(dir, 150);
+				moveOld2(dir, 150);
 			}
         }
         

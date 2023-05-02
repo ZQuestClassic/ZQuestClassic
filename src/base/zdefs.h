@@ -1122,7 +1122,7 @@ enum
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
-	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID,
+	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID, qr_NEW_HERO_MOVEMENT2,
 	//60
 	//70
 	
@@ -4616,7 +4616,7 @@ struct zinitdata
 	
 	byte magicdrainrate;
 	
-	byte hero_swim_mult = 1, hero_swim_div = 1;
+	byte hero_swim_mult = 2, hero_swim_div = 3;
 	
 	bool gen_doscript[NUMSCRIPTSGENERIC];
 	word gen_exitState[NUMSCRIPTSGENERIC];
