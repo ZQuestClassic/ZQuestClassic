@@ -15,17 +15,34 @@ Frame::Frame(): frameStyle(style::ETCHED)
 
 void Frame::setTitle(const std::string& newTitle)
 {
-	title = " "+newTitle+" ";
+	if(newTitle.empty())
+		title = "";
+	else title = " "+newTitle+" ";
+	if(titleDlg)
+	{
+		titleDlg->dp = title.data();
+		titleDlg.message(MSG_START,0);
+		if(infoDlg)
+		{
+			infoDlg->x = titleDlg->x+titleDlg->w+2;
+			infoDlg->y = titleDlg->y;
+		}
+	}
+}
+void Frame::setInfo(const std::string& newInfo)
+{
+	info = newInfo;
 }
 
 void Frame::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(alDialog)
-	{
 		alDialog.applyVisibility(visible);
+	if(titleDlg)
 		titleDlg.applyVisibility(visible);
-	}
+	if(infoDlg)
+		infoDlg.applyVisibility(visible);
 	if(content)
 		content->setExposed(visible);
 }
@@ -34,10 +51,11 @@ void Frame::applyDisabled(bool dis)
 {
 	Widget::applyDisabled(dis);
 	if(alDialog)
-	{
 		alDialog.applyDisabled(dis);
+	if(titleDlg)
 		titleDlg.applyDisabled(dis);
-	}
+	if(infoDlg)
+		infoDlg.applyDisabled(dis);
 	if(content)
 		content->applyDisabled(dis);
 }
@@ -90,7 +108,7 @@ void Frame::realize(DialogRunner& runner)
 	if(!title.empty())
 	{
 		titleDlg = runner.push(shared_from_this(), DIALOG {
-			jwin_text_proc,
+			newGUIProc<jwin_text_proc>,
 			x+5, y-3, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0,
@@ -98,20 +116,33 @@ void Frame::realize(DialogRunner& runner)
 			0, 0,
 			title.data(), widgFont, nullptr // dp, dp2, dp3
 		});
+		titleDlg.message(MSG_START,0);
 	}
 	else // No title
 	{
-		// runner.push(shared_from_this(), DIALOG {
-			// d_dummy_proc,
-			// 0, 0, 0, 0,
-			// 0, 0,
-			// 0,
-			// getFlags(),
-			// 0, 0,
-			// nullptr, nullptr, nullptr
-		// });
+		titleDlg = runner.push(shared_from_this(), DIALOG {
+			newGUIProc<jwin_text_proc>,
+			x+5, y-3, getWidth(), getHeight(),
+			fgColor, bgColor,
+			0,
+			getFlags(),
+			0, 0,
+			(void*)"", widgFont, nullptr // dp, dp2, dp3
+		});
+		titleDlg.message(MSG_START,0);
 	}
-
+	if(!info.empty())
+	{
+		infoDlg = runner.push(shared_from_this(), DIALOG {
+			newGUIProc<jwin_infobtn_proc>,
+			titleDlg->x+titleDlg->w+2, titleDlg->y, text_length(widgFont,"?")*3, titleDlg->h,
+			0, 0,
+			0,
+			getFlags(),
+			0, 0,
+			&info, widgFont, nullptr //dp, dp2, dp3
+		});
+	}
 	if(content)
 		content->realize(runner);
 }

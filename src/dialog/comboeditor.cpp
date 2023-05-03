@@ -3249,36 +3249,39 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				)),
 				TabRef(name = "General", Row(
-					Rows<3>(framed = true, frameText = "Player Speed Mod",
-						Label(text = "Multiplier:"),
-						TextField(type = GUI::TextField::type::INT_DECIMAL,
-							hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
-							fitParent = true,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.speed_mult = val;
-							}),
-						INFOBTN("Multiplies the player's speed by this value when walking over this combo."),
-						Label(text = "Divisor:"),
-						TextField(type = GUI::TextField::type::INT_DECIMAL,
-							hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
-							fitParent = true,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.speed_div = val;
-							}),
-						INFOBTN("Divides the player's speed by this value when walking over this combo. Applies after mult."
-							"\nIf 0, no division is performed."),
-						Label(text = "Additive:"),
-						TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
-							hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
-							swap_type = nswapDEC,
-							fitParent = true,
-							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-							{
-								local_comboref.speed_add = zslongToFix(val);
-							}),
-						INFOBTN("Adds this value, in px/frame, to the player's speed walking over this combo. Applies after mult and div. Can be negative.")
+					Frame(title = "Player Speed Mod",
+						info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled.",
+						Rows<3>(
+							Label(text = "Multiplier:"),
+							TextField(type = GUI::TextField::type::INT_DECIMAL,
+								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
+								fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.speed_mult = val;
+								}),
+							INFOBTN("Multiplies the player's speed by this value when walking over this combo."),
+							Label(text = "Divisor:"),
+							TextField(type = GUI::TextField::type::INT_DECIMAL,
+								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
+								fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.speed_div = val;
+								}),
+							INFOBTN("Divides the player's speed by this value when walking over this combo. Applies after mult."
+								"\nIf 0, no division is performed."),
+							Label(text = "Additive:"),
+							TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
+								hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
+								swap_type = nswapDEC,
+								fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.speed_add = zslongToFix(val);
+								}),
+							INFOBTN("Adds this value, in px/frame, to the player's speed walking over this combo. Applies after mult and div. Can be negative.")
+						)
 					)
 				)),
 				TabRef(name = "Script", Column(

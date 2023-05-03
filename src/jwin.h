@@ -211,6 +211,7 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_frame_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_guitest_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_ctext_proc(int32_t msg, DIALOG *d, int32_t c);

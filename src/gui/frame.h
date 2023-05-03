@@ -21,7 +21,8 @@ public:
 	Frame();
 
 	/* Sets the frame's title. */
-	void setTitle(const std::string& newTitle);
+	void setTitle(const std::string& str);
+	void setInfo(const std::string& str);
 
 	/* Sets the frame's style. */
 	inline void setStyle(style newStyle)
@@ -41,8 +42,8 @@ public:
 private:
 	std::shared_ptr<Widget> content;
 	style frameStyle;
-	std::string title;
-	DialogRef alDialog, titleDlg;
+	std::string title, info;
+	DialogRef alDialog, titleDlg, infoDlg;
 
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;

@@ -1250,6 +1250,91 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	return D_O_K;
 }
+int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t)
+{
+    int32_t down=0;
+    int32_t selected=(d->flags&D_SELECTED)?1:0;
+    int32_t last_draw;
+	std::string* str = (std::string*)d->dp;
+	bool dis = (d->flags & D_DISABLED) || !str || !((*str)[0]) || str->find_first_not_of(" \t")==std::string::npos;
+    int flags = d->flags | (dis?D_DISABLED:0);
+	bool show = false;
+    switch(msg)
+    {
+		case MSG_DRAW:
+		{
+			FONT *oldfont = font;
+			
+			if(d->dp2)
+				font = (FONT*)d->dp2;
+			
+			jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, "?", flags, true);
+			font = oldfont;
+		}
+		break;
+		
+		case MSG_WANTFOCUS:
+			if(dis) break;
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+			if(dis) break;
+			show = true;
+			break;
+			
+		case MSG_CLICK:
+		{
+			if(dis) break;
+			if(d->d2 == 1) //Insta-button
+			{
+				if(mouse_in_rect(d->x, d->y, d->w, d->h))
+				{
+					show = true;
+					break;
+				}
+			}
+			else
+			{
+				last_draw = 0;
+				
+				/* track the mouse until it is released */
+				while(gui_mouse_b())
+				{
+					down = mouse_in_rect(d->x, d->y, d->w, d->h);
+					
+					/* redraw? */
+					if(last_draw != down)
+					{
+						if(down != selected)
+							d->flags |= D_SELECTED;
+						else
+							d->flags &= ~D_SELECTED;
+							
+						object_message(d, MSG_DRAW, 0);
+						last_draw = down;
+					}
+					
+					/* let other objects continue to animate */
+					broadcast_dialog_message(MSG_IDLE, 0);
+					
+					update_hw_screen();
+				}
+				
+				/* redraw in normal state */
+				if(down)
+					show = true;
+			}
+		}
+		break;
+	}
+	if(show)
+	{
+		d->flags &= ~D_SELECTED;
+		object_message(d, MSG_DRAW, 0);
+		InfoDialog("Info",*str).show();
+	}
+	return D_O_K;
+}
 
 /* jwin_func_button_proc:
   *  A button that runs a void() function when clicked.
