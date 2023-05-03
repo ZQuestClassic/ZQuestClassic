@@ -21496,6 +21496,7 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 {
 	pos_handle_t pos_handle;
 	pos_handle.screen = s;
+	pos_handle.screen_index = currscr; // TODO z3 !
 	pos_handle.rpos = (rpos_t)pos;
 	screen_combo_modify_postroutine(pos_handle);
 }
@@ -21539,36 +21540,33 @@ void screen_ffc_modify_postroutine(word index)
 
 void screen_combo_modify_pre(int32_t cid)
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* t = FFCore.tempScreens[lyr];
-		for(int32_t i = 0; i < 176; i++)
+	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+		int pos = RPOS_TO_POS(pos_handle.rpos);
+		if (pos_handle.screen->data[pos] == cid)
 		{
-			if(t->data[i] == cid)
-			{
-				screen_combo_modify_preroutine(get_pos_handle((rpos_t)i, i));
-			}
+			screen_combo_modify_preroutine(pos_handle);
 		}
-	}
+	});
 }
 void screen_combo_modify_post(int32_t cid)
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* t = FFCore.tempScreens[lyr];
-		for(int32_t i = 0; i < 176; i++)
+	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+		int pos = RPOS_TO_POS(pos_handle.rpos);
+		if (pos_handle.screen->data[pos] == cid)
 		{
-			if(t->data[i] == cid)
+			screen_combo_modify_postroutine(pos_handle);
+		}
+	});
+
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+		for (word ind = 0; ind < MAXFFCS; ++ind)
+		{
+			if (screen->ffcs[ind].getData() == cid)
 			{
-				screen_combo_modify_postroutine(t,i);
+				screen_ffc_modify_postroutine(ind);
 			}
 		}
-	}
-	for(word ind = 0; ind < MAXFFCS; ++ind)
-	{
-		if(tmpscr.ffcs[ind].getData() == cid)
-			screen_ffc_modify_postroutine(ind);
-	}
+	});
 }
 
 void awaken_spinning_tile(const pos_handle_t& pos_handle)
@@ -21580,7 +21578,7 @@ void awaken_spinning_tile(const pos_handle_t& pos_handle)
 	addenemy(x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
 }
 
-
+// TODO z3 !
 // It stands for next_side_pos
 void nsp(bool random)
 // moves sle_x and sle_y to the next position
