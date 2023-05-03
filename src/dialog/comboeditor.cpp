@@ -539,13 +539,15 @@ std::string getMapFlagHelpText(int32_t id)
 		}
 		case mfSIDEVIEWLADDER:
 		{
-			flaghelp = "On a sideview screen, allows climbing. The topmost ladder in a column doubles as a Sideview Platform.";
+			flaghelp = "On a sideview screen, allows climbing. The topmost ladder in a column doubles as a Sideview Platform."
+				+ QRHINT({qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK,qr_SIDEVIEWLADDER_FACEUP,qr_DOWN_DOESNT_GRAB_LADDERS});
 			break;
 		}
 		case mfSIDEVIEWPLATFORM:
 		{
 			flaghelp = "On a sideview screen, can be stood on top of, even when nonsolid. Can be jumped through"
-				" from below, and depending on QRs, can also be dropped through.";
+				" from below, and depending on QRs, can also be dropped through."
+				+ QRHINT({qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK});
 			break;
 		}
 		case mfNOENEMYSPAWN:

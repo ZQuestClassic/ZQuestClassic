@@ -16697,6 +16697,8 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 	if(blockpath && dy<80) //Blocked top parts of rooms
 		return true;
 	
+	if(blockmoving && mblock2.hit(dx,dy,0,1,1,1))
+		return true;
 	//collide_object handled in scr_canmove
 	
 	if(isdungeon() && currscr<128 && dy<32
@@ -17193,7 +17195,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 	WalkflagInfo info;
 	info = walkflag(x,y+8-(bigHitbox*8)-4,2,up);
 	execute(info);
-	if(!ign_sv && checkladder)
+	if(!ign_sv && sideview_mode() && IsSideSwim() && checkladder)
 	{
 		if(!iswaterex(MAPCOMBO(x, y+(bigHitbox?0:8)), currmap, currscr, -1, x, y+(bigHitbox?0:8) - 2, true, false)
 			&& !canSideviewLadderRemote(x, y-4) && !info.isUnwalkable() && (y+(bigHitbox?0:8) - 4) > 0)
