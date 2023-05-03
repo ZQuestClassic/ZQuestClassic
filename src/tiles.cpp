@@ -18,7 +18,6 @@
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "tiles.h"
-#include "maps.h" // TODO z3 ! rm?
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
@@ -44,6 +43,8 @@ extern zfix  HeroModifiedY();
 bool unused_tile_table[NEWMAXTILES];                  //keeps track of unused tiles
 
 byte unpackbuf[256];
+
+extern bool is_z3_scrolling_mode();
 
 bool isblanktile(tiledata *buf, int32_t i)
 {
@@ -1913,6 +1914,7 @@ void puttile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_t
     // 1: slow, bounds checking
     int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 || x%8 || y%8 ? 1 : 0;
 
+	// TODO can remove this, just need to update replays.
     if (is_z3_scrolling_mode() && draw_mode == 1)
     {
         byte *si = unpackbuf + ((tile&2)<<6) + ((tile&1)<<3);
@@ -2111,7 +2113,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     // 1: slow, bounds checking
     int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 ? 1 : 0;
 
-	// TODO z3 !
+	// TODO can remove this, just need to update replays.
     if (is_z3_scrolling_mode() && draw_mode == 1)
     {
         draw_tile8_unified(dest, si, x, y, cset, flip, true);
