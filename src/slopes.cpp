@@ -6,7 +6,7 @@
 
 extern newcombo* combobuf;
 
-std::map<int32_t, slope_object> slopes;
+std::map<rpos_t, slope_object> slopes;
 
 slope_info::slope_info(newcombo const& cmb, zfix const& xoffs, zfix const& yoffs)
 	: cmb(&cmb)
@@ -103,7 +103,7 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
+slope_object::slope_object(word* cid, ffcdata* ff, rpos_t id, word cpos)
 	: cmbid(cid), ffc(ff), id(id)
 {
 	if(ffc)

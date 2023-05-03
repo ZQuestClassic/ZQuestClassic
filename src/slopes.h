@@ -7,7 +7,8 @@
 
 struct slope_object;
 
-extern std::map<int32_t, slope_object> slopes;
+#define SLOPE_ID(rpos, layer) ((rpos_t)(((int)region_max_rpos + 1) * layer + (int)(rpos)))
+extern std::map<rpos_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col);
 
@@ -45,13 +46,13 @@ struct slope_object
 	ffcdata const* ffc;
 	word const* cmbid;
 	zfix ox1,oy1,ox2,oy2;
-	int32_t id;
+	rpos_t id;
 	zfix xoffs,yoffs;
 	
 	slope_info get_info() const;
 	
 	void updateslope();
-	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, int32_t id = -1, word cpos = 0);
+	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, rpos_t id = rpos_t::NONE, word cpos = 0);
 	slope_object(slope_object const& other) = delete;
 	slope_object& operator=(slope_object const& other) = delete;
 };

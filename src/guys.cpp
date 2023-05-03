@@ -21276,6 +21276,7 @@ bool ok2add(int32_t id)
 	return true;
 }
 
+// TODO z3 pos_handle
 static void activate_fireball_statue(mapscr* screen, int screen_index, int32_t pos)
 {
 	if(!(tmpscr.enemyflags&efFIREBALLS) || statueID<0)
@@ -21411,7 +21412,8 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
-				awaken_spinning_tile(screen, COMBOPOS_REGION(dx + x, dy + y));
+				pos_handle_t pos_handle = {screen, screen_index, 0, COMBOPOS_REGION(dx + x, dy + y)};
+				awaken_spinning_tile(pos_handle);
 			}
 		}
 	}
@@ -21439,13 +21441,13 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	}
 }
 
-void update_slope_combopos(int32_t lyr, int32_t pos)
+void update_slope_combopos(const pos_handle_t& pos_handle)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return;
-	mapscr* s = FFCore.tempScreens[lyr];
+	mapscr* s = pos_handle.screen;
+	int pos = RPOS_TO_POS(pos_handle.rpos);
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
-	auto id = (176*lyr)+pos;
+	rpos_t id = SLOPE_ID(pos_handle.rpos, pos_handle.layer);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -21462,22 +21464,20 @@ void update_slope_combopos(int32_t lyr, int32_t pos)
 }
 void update_slope_comboposes()
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		for(auto pos = 0; pos < 176; ++pos)
-			update_slope_combopos(lyr,pos);
-	}
+	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+		update_slope_combopos(pos_handle);
+	});
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
+// TODO z3 ! remove
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
 {
-	// TODO z3 ! remove
 	pos_handle_t pos_handle;
 	pos_handle.screen = s;
 	pos_handle.rpos = (rpos_t)pos;
-	delete_fireball_shooter(pos_handle);
+	screen_combo_modify_preroutine(pos_handle);
 }
 void screen_combo_modify_preroutine(const pos_handle_t& pos_handle)
 {
@@ -21490,39 +21490,37 @@ void screen_ffc_modify_preroutine(word index)
 	return;
 }
 
-// TODO z3 !
 // Everything that must be done after we change a screen's combo to another combo. -L
+// TODO z3 ! remove
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 {
-	s->valid |= mVALID;
-	activate_fireball_statue(s, currscr, pos); // TODO z3
-	
-	if(combobuf[s->data[pos]].type==cSPINTILE1)
-	{
-		// Awaken spinning tile
-		// TODO z3 !
-		awaken_spinning_tile(s, (rpos_t)pos);
-	}
-	int32_t lyr = -1;
-	if(s == &tmpscr) lyr = 0;
-	else for(size_t q = 0; q < 6; ++q)
-	{
-		if(s == tmpscr2+q)
-		{
-			lyr = q+1;
-			break;
-		}
-	}
-	if(lyr > -1)
-		update_slope_combopos(lyr,pos);
+	pos_handle_t pos_handle;
+	pos_handle.screen = s;
+	pos_handle.rpos = (rpos_t)pos;
+	screen_combo_modify_postroutine(pos_handle);
 }
 
+void screen_combo_modify_postroutine(const pos_handle_t& pos_handle)
+{
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	pos_handle.screen->valid |= mVALID;
+	activate_fireball_statue(pos_handle.screen, pos_handle.screen_index, pos);
+
+	if(combobuf[pos_handle.screen->data[pos]].type==cSPINTILE1)
+	{
+		awaken_spinning_tile(pos_handle);
+	}
+
+	update_slope_combopos(pos_handle);
+}
+
+// TODO z3 !
 void screen_ffc_modify_postroutine(word index)
 {
 	ffcdata& ff = tmpscr.ffcs[index];
 	newcombo const& cmb = combobuf[ff.getData()];
 	
-	auto id = (176*7)+int32_t(index);
+	rpos_t id = SLOPE_ID(index, 7);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -21573,11 +21571,12 @@ void screen_combo_modify_post(int32_t cid)
 	}
 }
 
-void awaken_spinning_tile(mapscr *s, rpos_t rpos)
+void awaken_spinning_tile(const pos_handle_t& pos_handle)
 {
-	int pos = RPOS_TO_POS(rpos);
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	mapscr* s = pos_handle.screen;
 	int x, y;
-	COMBOXY_REGION(rpos, x, y);
+	COMBOXY_REGION(pos_handle.rpos, x, y);
 	addenemy(x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
 }
 

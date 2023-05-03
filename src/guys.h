@@ -41,15 +41,16 @@ int32_t weaponToDefence(int32_t wid);
 int32_t getWeaponID(weapon *w);
 
 // Start spinning tiles - called by load_default_enemies
-void awaken_spinning_tile(mapscr *s, rpos_t rpos);
+void awaken_spinning_tile(const pos_handle_t& pos_handle);
 
 // Used to remove/add fireball shooter enemies
 void update_slope_comboposes();
-void update_slope_combopos(int32_t lyr, int32_t pos);
+void update_slope_combopos(const pos_handle_t& pos_handle);
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
 void screen_combo_modify_preroutine(const pos_handle_t& pos_handle);
 void screen_ffc_modify_preroutine(word index);
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos);
+void screen_combo_modify_postroutine(const pos_handle_t& pos_handle);
 void screen_ffc_modify_postroutine(word index);
 void screen_combo_modify_pre(int32_t cid);
 void screen_combo_modify_post(int32_t cid);

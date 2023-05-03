@@ -5924,6 +5924,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
+	update_slope_comboposes();
+
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
 	// allowing for regions to display 4 more rows of combos (as many as ALTTP does). This part of
 	// screen is normally reserved for the passive subscreen, but in this mode mapscr combos are drawn below it.
@@ -6306,7 +6308,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 	
-	if(tmp == 0) //Reload slopes
+	if (do_setups && tmp == 0) //Reload slopes
 		update_slope_comboposes();
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{

@@ -41,6 +41,7 @@ extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
 
+// TODO z3 !
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
 	mapscr *s = &tmpscr;
@@ -439,8 +440,6 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 				
 				if (layer) 
 				{
-					
-					//screen_combo_modify_preroutine(tmpscr,scombo);
 					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
 					
 					//undercombo or next?
@@ -454,8 +453,6 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 						++FFCore.tempScreens[layer]->data[scombo];
 					
 					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
-					//screen_combo_modify_postroutine(FFCore.tempScreens[layer],cid);
-					//screen_combo_modify_postroutine(tmpscr,scombo);
 				}
 				else
 				{

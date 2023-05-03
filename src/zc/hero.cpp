@@ -21811,6 +21811,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(type==cTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
 			{ 
+				// TODO z3 !
 				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
 				
 				trigger_secrets_for_screen(pos_handle.screen_index, false);

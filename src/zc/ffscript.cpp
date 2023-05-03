@@ -18374,7 +18374,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			auto pos_handle = get_pos_handle((rpos_t)pos, 0);
+			auto pos_handle = get_pos_handle(rpos, 0);
 			screen_combo_modify_preroutine(pos_handle);
 			pos_handle.screen->cset[pos]=(val)&15;
 			screen_combo_modify_postroutine(pos_handle.screen, pos);
