@@ -1463,223 +1463,224 @@ int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
 }
 
 // TODO z3 !!
-static void update_combo_cycling(mapscr* scr)
-{
-    int32_t x,y;
-    y = 0;
-    static int32_t newdata[176];
-    static int32_t newcset[176];
-    static int32_t newdata2[176];
-    static int32_t newcset2[176];
-    std::set<uint16_t> restartanim;
-    std::set<uint16_t> restartanim2;
-    static bool initialized=false;
-    
-    // Just a simple bit of optimization
-    if(!initialized)
-    {
-        for(int32_t i=0; i<176; i++)
-        {
-            newdata[i]=-1;
-            newcset[i]=-1;
-            newdata2[i]=-1;
-            newcset2[i]=-1;
-        }
-        
-        initialized=true;
-    }
-    
-	// TODO z3 these next two loops could be combined.
-    for(int32_t i=0; i<176; i++)
-    {
-        x=scr->data[i];
-        
-        if(combobuf[x].animflags & AF_FRESH) continue;
-        
-        //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
-        {
-            newdata[i]=combobuf[x].nextcombo;
-			if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-				newcset[i]=combobuf[x].nextcset;
-            int32_t c=newdata[i];
-            
-            if(combobuf[c].animflags & AF_CYCLE)
-            {
-                restartanim.insert(c);
-            }
-        }
-    }
-    
-    for(int32_t i=0; i<176; i++)
-    {
-        x=scr->data[i];
-        
-        if(!(combobuf[x].animflags & AF_FRESH)) continue;
-        
-        //time to restart
-        if((combobuf[x].aclk>=combobuf[x].speed) &&
-                (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                (combobuf[x].nextcombo!=0))
-        {
-            newdata[i]=combobuf[x].nextcombo;
-            if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-				newcset[i]=combobuf[x].nextcset;
-            int32_t c=newdata[i];
-            
-            if(combobuf[c].animflags & AF_CYCLE)
-            {
-                restartanim2.insert(c);
-            }
-        }
-    }
-    
-    for(int32_t i=0; i<176; i++)
-    {
-        if(newdata[i]==-1)
-            continue;
-            
-        screen_combo_modify_preroutine(scr,i);
-        scr->data[i]=newdata[i];
-		if(newcset[i]>-1)
-			scr->cset[i]=newcset[i];
-        screen_combo_modify_postroutine(scr,i);
-        
-        newdata[i]=-1;
-        newcset[i]=-1;
-    }
-    
-	word c = scr->numFFC();
-    for(word i=0; i<c; i++)
-    {
-		ffcdata& ffc = scr->ffcs[i];
-		newcombo const& cmb = combobuf[ffc.getData()];
-        
-		bool fresh = cmb.animflags & AF_FRESH;
-        
-        //time to restart
-        if((cmb.aclk>=cmb.speed) &&
-                (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
-                (cmb.nextcombo!=0))
-        {
-            ffc.setData(cmb.nextcombo);
-            if(!(cmb.animflags & AF_CYCLENOCSET))
-				ffc.cset=cmb.nextcset;
-            
-            if(combobuf[ffc.getData()].animflags & AF_CYCLE)
-            {
-                auto& animset = fresh ? restartanim2 : restartanim;
-                animset.insert(ffc.getData());
-            }
-        }
-    }
-    
-    if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
-    {
-        for(int32_t j=0; j<6; j++)
-        {
-            for(int32_t i=0; i<176; i++)
-            {
-				// TODO z3 !
-                x=(tmpscr2+j)->data[i];
-                
-                if(combobuf[x].animflags & AF_FRESH) continue;
-                
-                //time to restart
-                if((combobuf[x].aclk>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                        (combobuf[x].nextcombo!=0))
-                {
-                    newdata[i]=combobuf[x].nextcombo;
-                    if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-						newcset[i]=combobuf[x].nextcset;
-                    int32_t c=newdata[i];
-                    
-                    if(combobuf[c].animflags & AF_CYCLE)
-                    {
-                        restartanim.insert(c);
-                    }
-                }
-            }
-            
-            for(int32_t i=0; i<176; i++)
-            {
-                x=(tmpscr2+j)->data[i];
-                
-                if(!(combobuf[x].animflags & AF_FRESH)) continue;
-                
-                //time to restart
-                if((combobuf[x].aclk>=combobuf[x].speed) &&
-                        (combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
-                        (combobuf[x].nextcombo!=0))
-                {
-                    newdata2[i]=combobuf[x].nextcombo;
-					if(!(combobuf[x].animflags & AF_CYCLENOCSET))
-						newcset2[i]=combobuf[x].nextcset;
-					else newcset2[i]=(tmpscr2+j)->cset[i];
-                    int32_t c=newdata2[i];
-                    int32_t cs=newcset2[i];
-                    
-                    if(combobuf[c].animflags & AF_CYCLE)
-                    {
-                        restartanim2.insert(c);
-                    }
-                    
-                    if(combobuf[c].type==cSPINTILE1)
-                    {
-                        // Uses animated_combo_table2
-                        addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
-                    }
-                }
-            }
-            
-            for(int32_t i=0; i<176; i++)
-            {
-                if(newdata[i]!=-1)
-                {
-                    screen_combo_modify_preroutine(tmpscr2+j,i);
-                    (tmpscr2+j)->data[i]=newdata[i];
-                    if(newcset[i]>-1)
-						(tmpscr2+j)->cset[i]=newcset[i];
-                    screen_combo_modify_postroutine(tmpscr2+j,i);
-                    
-                    newdata[i]=-1;
-                    newcset[i]=-1;
-                }
-                
-                if(newdata2[i]!=-1)
-                {
-                    (tmpscr2+j)->data[i]=newdata2[i];
-                    if(newcset2[i]>-1)
-						(tmpscr2+j)->cset[i]=newcset2[i];
-                    newdata2[i]=-1;
-                    newcset2[i]=-1;
-                }
-            }
-        }
-    }
-
-    for (auto i : restartanim)
-    {
-        combobuf[i].tile = combobuf[i].o_tile;
-        combobuf[i].cur_frame=0;
-        combobuf[i].aclk = 0;
-    }
-
-    for (auto i : restartanim2)
-    {
-        combobuf[i].tile = combobuf[i].o_tile;
-        combobuf[i].cur_frame=0;
-        combobuf[i].aclk = 0;
-    }
-}
-
 void update_combo_cycling()
 {
+	static int32_t newdata[176];
+	static int32_t newcset[176];
+	static int32_t newdata2[176];
+	static int32_t newcset2[176];
+	static bool initialized=false;
+
+	// Just a simple bit of optimization
+	if(!initialized)
+	{
+		for(int32_t i=0; i<176; i++)
+		{
+			newdata[i]=-1;
+			newcset[i]=-1;
+			newdata2[i]=-1;
+			newcset2[i]=-1;
+		}
+		
+		initialized=true;
+	}
+
 	for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int scr_x, unsigned int scr_y) {
-		update_combo_cycling(scr);
+		int32_t x,y;
+		y = 0;
+		std::set<uint16_t> restartanim;
+		std::set<uint16_t> restartanim2;
+		
+		for(int32_t i=0; i<176; i++)
+		{
+			x=scr->data[i];
+			
+			if(combobuf[x].animflags & AF_FRESH) continue;
+			
+			//time to restart
+			if((combobuf[x].aclk>=combobuf[x].speed) &&
+					(combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
+					(combobuf[x].nextcombo!=0))
+			{
+				newdata[i]=combobuf[x].nextcombo;
+				if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+					newcset[i]=combobuf[x].nextcset;
+				int32_t c=newdata[i];
+				
+				if(combobuf[c].animflags & AF_CYCLE)
+				{
+					restartanim.insert(c);
+				}
+			}
+		}
+		
+		for(int32_t i=0; i<176; i++)
+		{
+			x=scr->data[i];
+			
+			if(!(combobuf[x].animflags & AF_FRESH)) continue;
+			
+			//time to restart
+			if((combobuf[x].aclk>=combobuf[x].speed) &&
+					(combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
+					(combobuf[x].nextcombo!=0))
+			{
+				newdata[i]=combobuf[x].nextcombo;
+				if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+					newcset[i]=combobuf[x].nextcset;
+				int32_t c=newdata[i];
+				
+				if(combobuf[c].animflags & AF_CYCLE)
+				{
+					restartanim2.insert(c);
+				}
+			}
+		}
+		
+		// TODO z3 maybe make a for_every_rpos_in_screen(scr, screen_index, [](){}) ?
+		int rpos_base = (int)POS_TO_RPOS(0, scr_x, scr_y);
+		for(int32_t i=0; i<176; i++)
+		{
+			if(newdata[i]==-1)
+				continue;
+
+			rpos_t rpos = (rpos_t)(rpos_base + i);
+			pos_handle_t pos_handle = {scr, screen_index, 0, rpos};
+			screen_combo_modify_preroutine(pos_handle);
+			scr->data[i]=newdata[i];
+			if(newcset[i]>-1)
+				scr->cset[i]=newcset[i];
+			screen_combo_modify_postroutine(pos_handle);
+			
+			newdata[i]=-1;
+			newcset[i]=-1;
+		}
+		
+		word c = scr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = scr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			
+			bool fresh = cmb.animflags & AF_FRESH;
+			
+			//time to restart
+			if((cmb.aclk>=cmb.speed) &&
+					(cmb.tile-cmb.frames>=cmb.o_tile-1) &&
+					(cmb.nextcombo!=0))
+			{
+				ffc.setData(cmb.nextcombo);
+				if(!(cmb.animflags & AF_CYCLENOCSET))
+					ffc.cset=cmb.nextcset;
+				
+				if(combobuf[ffc.getData()].animflags & AF_CYCLE)
+				{
+					auto& animset = fresh ? restartanim2 : restartanim;
+					animset.insert(ffc.getData());
+				}
+			}
+		}
+		
+		if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
+		{
+			for(int32_t j=0; j<6; j++)
+			{
+				for(int32_t i=0; i<176; i++)
+				{
+					// TODO z3 !
+					x=(tmpscr2+j)->data[i];
+					
+					if(combobuf[x].animflags & AF_FRESH) continue;
+					
+					//time to restart
+					if((combobuf[x].aclk>=combobuf[x].speed) &&
+							(combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
+							(combobuf[x].nextcombo!=0))
+					{
+						newdata[i]=combobuf[x].nextcombo;
+						if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+							newcset[i]=combobuf[x].nextcset;
+						int32_t c=newdata[i];
+						
+						if(combobuf[c].animflags & AF_CYCLE)
+						{
+							restartanim.insert(c);
+						}
+					}
+				}
+				
+				for(int32_t i=0; i<176; i++)
+				{
+					x=(tmpscr2+j)->data[i];
+					
+					if(!(combobuf[x].animflags & AF_FRESH)) continue;
+					
+					//time to restart
+					if((combobuf[x].aclk>=combobuf[x].speed) &&
+							(combobuf[x].tile-combobuf[x].frames>=combobuf[x].o_tile-1) &&
+							(combobuf[x].nextcombo!=0))
+					{
+						newdata2[i]=combobuf[x].nextcombo;
+						if(!(combobuf[x].animflags & AF_CYCLENOCSET))
+							newcset2[i]=combobuf[x].nextcset;
+						else newcset2[i]=(tmpscr2+j)->cset[i];
+						int32_t c=newdata2[i];
+						int32_t cs=newcset2[i];
+						
+						if(combobuf[c].animflags & AF_CYCLE)
+						{
+							restartanim2.insert(c);
+						}
+						
+						if(combobuf[c].type==cSPINTILE1)
+						{
+							// Uses animated_combo_table2
+							addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+						}
+					}
+				}
+				
+				for(int32_t i=0; i<176; i++)
+				{
+					if(newdata[i]!=-1)
+					{
+						rpos_t rpos = (rpos_t)(rpos_base + i);
+						pos_handle_t pos_handle = {tmpscr2+j, screen_index, j, rpos};
+						screen_combo_modify_preroutine(pos_handle);
+						(tmpscr2+j)->data[i]=newdata[i];
+						if(newcset[i]>-1)
+							(tmpscr2+j)->cset[i]=newcset[i];
+						screen_combo_modify_postroutine(pos_handle);
+						
+						newdata[i]=-1;
+						newcset[i]=-1;
+					}
+					
+					if(newdata2[i]!=-1)
+					{
+						(tmpscr2+j)->data[i]=newdata2[i];
+						if(newcset2[i]>-1)
+							(tmpscr2+j)->cset[i]=newcset2[i];
+						newdata2[i]=-1;
+						newcset2[i]=-1;
+					}
+				}
+			}
+		}
+
+		for (auto i : restartanim)
+		{
+			combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
+			combobuf[i].aclk = 0;
+		}
+
+		for (auto i : restartanim2)
+		{
+			combobuf[i].tile = combobuf[i].o_tile;
+			combobuf[i].cur_frame=0;
+			combobuf[i].aclk = 0;
+		}
 	});
 }
 
