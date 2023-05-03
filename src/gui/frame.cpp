@@ -65,11 +65,9 @@ void Frame::calculateSize()
 	if(content)
 	{
 		content->calculateSize();
-		int32_t extraHeight;
+		int extraHeight = 8;
 		if(!title.empty())
-			extraHeight = 10;
-		else
-			extraHeight = 8;
+			extraHeight += text_height(widgFont);
 		setPreferredWidth(Size::pixels(content->getTotalWidth()+8));
 		setPreferredHeight(Size::pixels(content->getTotalHeight()+extraHeight));
 	}
@@ -86,10 +84,11 @@ void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
 	{
+		int cnt_y = title.empty() ? y+4 : (y-3+text_height(widgFont)+2);
+		int extraHeight = 8;
 		if(!title.empty())
-			content->arrange(x+4, y+8, getWidth()-8, getHeight()-10);
-		else
-			content->arrange(x+4, y+4, getWidth()-8, getHeight()-8);
+			extraHeight += text_height(widgFont);
+		content->arrange(x+4, cnt_y, getWidth()-8, getHeight()-extraHeight);
 	}
 }
 

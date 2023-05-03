@@ -6,6 +6,7 @@
 #include "../tiles.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include <fmt/format.h>
 
 extern bool saved;
 extern zcmodule moduledata;
@@ -94,10 +95,10 @@ ComboEditorDialog::ComboEditorDialog(int32_t index):
 //{ Help Strings
 static const char *combotype_help_string[cMAX] =
 {
-	"Select a Type, then click this button to find out what it does.",
+	"",
 	"The player is warped via Tile Warp A if they step on the bottom half of this combo.",
 	"The player marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it.",
+	"",
 	"",
 	"",
 	"Raft paths must begin on a Dock-type combo. (Use the Raft combo flag to create raft paths.)",
@@ -155,9 +156,9 @@ static const char *combotype_help_string[cMAX] =
 	"Identical to Slash->Item, but when it is slashed, Flower Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
 	"Identical to Slash->Item, but when it is slashed, Grass Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
 	"Ripples sprites are drawn on the player when they walk on this combo. Also, Quake Hammer pounds are nullified by this combo.",
-	"If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up.",
+	"",
 	"Identical to Lock Block, but if any other Lock Blocks are opened on the same screen, this changes to the next combo.",
-	"If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set.",
+	"",
 	"Identical to Lock Block (Boss), but if any other Boss Lock Blocks are opened on the same screen, this changes to the next combo.",
 	"If this combo is solid, the Ladder can be used to cross over it. Only works on layer 0.",
 	"",
@@ -264,123 +265,7 @@ static const char *combotype_help_string[cMAX] =
 	"",
 	"Switchblock combos change based on switch states toggled by Switch combos. They can also change"
 		" the combo at the same position on any layer.",
-	"Emits light in a radius in dark rooms (when \"Quest->Options->Misc->New Dark Rooms\" is enabled)"
-};
-
-static const char *flag_help_string[mfMAX] =
-{
-	"",
-	"Allows the Player to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.",
-	"Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
-	"",
-	"Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.",
-	"When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.",
-	"When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.",
-	"Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.",
-	"Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.",
-	"When the Player dives on a flagged water-type combo they will recieve the screen's Special Item. Requires the 'Special Item' Room Type.",
-	"Combos with this flag will flash white when viewed with the Lens of Truth item.",
-	"When the Player steps on this flag, the quest will end, and the credits will roll.",
-	// 16-31
-	"",
-	"",
-	"",//18
-	"",
-	"",
-	"",//21
-	"",
-	"",
-	"",//24
-	"",
-	"",
-	"",//27
-	"",
-	"",
-	"",//30
-	"",
-	// Anyway...
-	"Creates the lowest-numbered enemy with the 'Spawned by 'Horz Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by 'Vert Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by '4-Way Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by 'LR Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by 'UD Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	// Enemy 0-9
-	"",
-	"",
-	"",//2
-	"",
-	"",
-	"",//5
-	"",
-	"",
-	"",//8
-	"",
-	//Anyway...
-	"Allows the Player to push the combo left or right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo up once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo left once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	// Push Silent
-	"",//52
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",//59
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	//Anyway...
-	"Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters.",
-	"Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.",
-	"Triggers Screen Secrets when the Player touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.",
-	"Triggers Screen Secrets when the Player pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.",
-	"A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it.",
-	"",
-	"",
-	"When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.",
-	"Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)",
-	"Enemies cannot enter or appear on the flagged combo.",
-	"Enemies that don't fly or jump cannot enter or appear on the flagged combo.",
-	//Script Flags follow.
-	"",
-	"",
-	"",
-	"",
-	"",
-	//Raft bounce flag! ^_^
-	"When the Player is rafting, and hits this flag, they will be turned around."
+	""
 };
 //}
 
@@ -392,6 +277,10 @@ std::string getComboTypeHelpText(int32_t id)
 	{
 		case cNONE:
 			typehelp = "Select a Type, then click this button to find out what it does.";
+			break;
+		case cWATER:
+			typehelp = "Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it."
+				+ QRHINT({qr_DROWN,qr_SMARTER_WATER,qr_NO_HOPPING,qr_NO_SOLID_SWIM,qr_WATER_ON_LAYER_1,qr_WATER_ON_LAYER_2,qr_SIDESWIM,qr_SIDESWIMDIR,qr_SHALLOW_SENSITIVE,qr_NO_SCROLL_WHILE_IN_AIR});
 			break;
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
@@ -417,6 +306,19 @@ std::string getComboTypeHelpText(int32_t id)
 				typehelp += "\nRequires a key to open.";
 			else if(id==cBOSSCHEST)
 				typehelp += "\nRequires the Boss Key to open.";
+			typehelp += QRHINT({qr_OLD_CHEST_COLLISION});
+			break;
+		case cLOCKBLOCK:
+			typehelp = "If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up."
+				+ QRHINT({qr_OLD_LOCKBLOCK_COLLISION});
+			break;
+		case cBOSSLOCKBLOCK:
+			typehelp = "If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set."
+				+ QRHINT({qr_OLD_LOCKBLOCK_COLLISION});
+			break;
+		case cTORCH:
+			typehelp = "Emits light in a radius in dark rooms (when QR 'New Dark Rooms' is enabled)"
+				+ QRHINT({qr_NEW_DARKROOM});
 			break;
 		case cSIGNPOST:
 			typehelp = "Signpost combos can be set to display a string. This can be hard-coded,"
@@ -496,22 +398,179 @@ std::string getComboTypeHelpText(int32_t id)
 std::string getMapFlagHelpText(int32_t id)
 {
 	std::string flaghelp = "?? Missing documentation! ??";
-	if(flag_help_string[id] && flag_help_string[id][0])
-		flaghelp = flag_help_string[id];
 	switch(id)
 	{
 		case 0:
 			flaghelp = "Select a Flag, then click this button to find out what it does.";
 			break;
+		case mfPUSHUD:
+			flaghelp = "Allows the Player to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			break;
+		case mfPUSH4:
+			flaghelp = "Allows the Player to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			break;
+		case mfWHISTLE:
+			flaghelp = "Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.";
+			break;
+		case mfANYFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.";
+			break;
+		case mfARROW:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.";
+			break;
+		case mfBOMB:
+			flaghelp = "Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.";
+			break;
+		case mfRAFT:
+			flaghelp = "Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.";
+			break;
+		case mfARMOS_SECRET:
+			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.";
+			break;
+		case mfARMOS_ITEM:
+			flaghelp = "When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.";
+			break;
+		case mfSBOMB:
+			flaghelp = "Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.";
+			break;
+		case mfRAFT_BRANCH:
+			flaghelp = "Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.";
+			break;
+		case mfDIVE_ITEM:
+			flaghelp = "When the Player dives on a flagged water-type combo they will recieve the screen's Special Item. Requires the 'Special Item' Room Type.";
+			break;
+		case mfLENSMARKER:
+			flaghelp = "Combos with this flag will flash white when viewed with the Lens of Truth item.";
+			break;
+		case mfZELDA:
+			flaghelp = "When the Player steps on this flag, the quest will end, and the credits will roll.";
+			break;
+		case mfTRAP_H:
+		case mfTRAP_V:
+		case mfTRAP_4:
+		case mfTRAP_LR:
+		case mfTRAP_UD:
+		{
+			static const char* name[]{"Horz","Vert","4-Way","LR","UD"};
+			flaghelp = fmt::format("Creates the lowest-numbered enemy with the 'Spawned by '{} Trap' Combo Type/Flag' enemy data flag on the flagged combo.",name[id-mfTRAP_H]);
+			break;
+		}
+		case mfPUSHLR:
+		case mfPUSHU:
+		case mfPUSHD:
+		case mfPUSHL:
+		case mfPUSHR:
+		{
+			static const char* name[]{"left or right","up","down","left","right"};
+			flaghelp = fmt::format("Allows the Player to push the combo {} once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",name[id-mfPUSHLR]);
+			break;
+		}
+		case mfBLOCKTRIGGER:
+			flaghelp = "Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters."
+				+ QRHINT({qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_BLOCKHOLE_SAME_ONLY,qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,qr_PUSHBLOCK_LAYER_1_2});
+			break;
+		case mfNOBLOCKS:
+			flaghelp = "Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.";
+			break;
+		case mfBRANG:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.";
+			break;
+		case mfMBRANG:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.";
+			break;
+		case mfFBRANG:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.";
+			break;
+		case mfSARROW:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.";
+			break;
+		case mfGARROW:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.";
+			break;
+		case mfSTRONGFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.";
+			break;
+		case mfMAGICFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.";
+			break;
+		case mfDIVINEFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.";
+			break;
+		case mfWANDMAGIC:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.";
+			break;
+		case mfREFMAGIC:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.";
+			break;
+		case mfREFFIREBALL:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.";
+			break;
+		case mfSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.";
+			break;
+		case mfWSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.";
+			break;
+		case mfMSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.";
+			break;
+		case mfXSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.";
+			break;
+		case mfSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.";
+			break;
+		case mfWSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.";
+			break;
+		case mfMSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.";
+			break;
+		case mfXSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.";
+			break;
+		case mfHOOKSHOT:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.";
+			break;
+		case mfWAND:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.";
+			break;
+		case mfHAMMER:
+			flaghelp = "Triggers Screen Secrets when the Player pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.";
+			break;
+		case mfSTRIKE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.";
+			break;
+		case mfBLOCKHOLE:
+			flaghelp = "A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it."
+				+ QRHINT({qr_BLOCKHOLE_SAME_ONLY,qr_PUSHBLOCK_LAYER_1_2});
+			break;
+		case mfSINGLE:
+			flaghelp = "When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.";
+			break;
+		case mfSINGLE16:
+			flaghelp = "Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)";
+			break;
+		case mfNOENEMY:
+			flaghelp = "Enemies cannot enter or appear on the flagged combo.";
+			break;
+		case mfNOGROUNDENEMY:
+			flaghelp = "Enemies that don't fly or jump cannot enter or appear on the flagged combo.";
+			break;
+		
+		case mfRAFT_BOUNCE:
+			flaghelp = "When the Player is rafting, and hits this flag, they will be turned around.";
+			break;
+		
 		case mfFAIRY:
-			flaghelp = "Makes a heart circle appear on screen when the Player steps on it, and refills his life." + QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
-			break;
 		case mfMAGICFAIRY:
-			flaghelp = "Makes a heart circle appear on screen when the Player steps on it, and refills his magic." + QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
-			break;
 		case mfALLFAIRY:
-			flaghelp = "Makes a heart circle appear on screen when the Player steps on it, and refills his life and magic." + QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
+		{
+			static const char* name[]{"life","magic","life and magic"};
+			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[id-mfFAIRY])
+				+ QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
 			break;
+		}
 		case mfSECRETS01: case mfSECRETS02: case mfSECRETS03: case mfSECRETS04:
 		case mfSECRETS05: case mfSECRETS06: case mfSECRETS07: case mfSECRETS08:
 		case mfSECRETS09: case mfSECRETS10: case mfSECRETS11: case mfSECRETS12:
