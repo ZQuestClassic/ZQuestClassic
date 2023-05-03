@@ -553,7 +553,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC), INFOBTN("The rate of gravity, in px/frame^2"),
 								DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC), INFOBTN("The terminal velocity, in px/frame"),
 								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
-								VAL_FIELD(word,"Player Step:",0,65535,heroStep,isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Hero Movement' quest rule is enabled."),
+								VAL_FIELD(word,"Player Step:",0,65535,heroStep,isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2})),
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false), INFOBTN("How many HP points each 'heart' has"),
 								VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false), INFOBTN("How many MP points each 'block' has"),
@@ -565,12 +565,12 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false), INFOBTN("Determines the design of dither used by dark rooms."),
-								VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false), INFOBTN("Affects the design of dither used by dark rooms."),
-								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'"),
-								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons"),
-								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'"),
-								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness"),
+								VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false), INFOBTN("Determines the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false), INFOBTN("Affects the design of dither used by dark rooms. + QRHINT({qr_NEW_DARKROOM})"),
+								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
+								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM})),
 								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when they are a bunny."),
 								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style")
 							)
@@ -586,8 +586,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(word, "Sideswim Side Step:",0,9999,heroSideswimSideStep,false), INFOBTN("The player's movement speed in sideview water, sideways"),
 								VAL_FIELD(word, "Sideswim Down Step:",0,9999,heroSideswimDownStep,false), INFOBTN("The player's movement speed in sideview water, downwards"),
 								DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false), INFOBTN("Jump value used when moving out the top of sideview water"),
-								VAL_FIELD(byte, "Hero Swim Step Multiplier:",0,255,hero_swim_mult,false), INFOBTN("Multiplier applied to movement speed in water, if 'New Hero Movement' is active"),
-								VAL_FIELD(byte, "Hero Swim Step Divisor:",0,255,hero_swim_div,false), INFOBTN("Divisor applied to movement speed in water, if 'New Hero Movement' is active")
+								VAL_FIELD(byte, "Hero Swim Step Multiplier:",0,255,hero_swim_mult,false), INFOBTN("Multiplier applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2})),
+								VAL_FIELD(byte, "Hero Swim Step Divisor:",0,255,hero_swim_div,false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2}))
 							)
 						)
 					))

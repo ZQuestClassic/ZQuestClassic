@@ -13028,7 +13028,7 @@ void set_register(int32_t arg, int32_t value)
 		case HEROSTEPRATE:
 			if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 			{
-				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Player Movement");
 			}
 			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_bit(quest_rules, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))

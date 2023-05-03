@@ -276,7 +276,7 @@ static const char *flag_help_string[mfMAX] =
 	"Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
 	"Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
-	"Makes a heart circle appear on screen when the Player steps on it, and refills his life. See also the Heart Circle-related Quest Rules.",
+	"",
 	"Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.",
 	"When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.",
 	"When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.",
@@ -367,8 +367,8 @@ static const char *flag_help_string[mfMAX] =
 	"Triggers Screen Secrets when the Player pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.",
 	"Triggers Screen Secrets when the Player touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.",
 	"A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it.",
-	"Makes a heart circle appear on screen when the Player steps on it, and refills his magic. See also the Heart Circle-related Quest Rules.",
-	"Makes a heart circle appear on screen when the Player steps on it, and refills his life and magic. See also the Heart Circle-related Quest Rules.",
+	"",
+	"",
 	"When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.",
 	"Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)",
 	"Enemies cannot enter or appear on the flagged combo.",
@@ -502,6 +502,15 @@ std::string getMapFlagHelpText(int32_t id)
 	{
 		case 0:
 			flaghelp = "Select a Flag, then click this button to find out what it does.";
+			break;
+		case mfFAIRY:
+			flaghelp = "Makes a heart circle appear on screen when the Player steps on it, and refills his life." + QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
+			break;
+		case mfMAGICFAIRY:
+			flaghelp = "Makes a heart circle appear on screen when the Player steps on it, and refills his magic." + QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
+			break;
+		case mfALLFAIRY:
+			flaghelp = "Makes a heart circle appear on screen when the Player steps on it, and refills his life and magic." + QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
 			break;
 		case mfSECRETS01: case mfSECRETS02: case mfSECRETS03: case mfSECRETS04:
 		case mfSECRETS05: case mfSECRETS06: case mfSECRETS07: case mfSECRETS08:
@@ -3252,7 +3261,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				)),
 				TabRef(name = "General", Row(
 					Frame(title = "Player Speed Mod",
-						info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
+						info = "Speed Modification only applies if the Quest Rule 'Newer Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
 						Rows<3>(
 							Label(text = "Multiplier:"),
 							TextField(type = GUI::TextField::type::INT_DECIMAL,
