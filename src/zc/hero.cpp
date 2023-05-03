@@ -22971,7 +22971,6 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			sdir = dir;
 		}
 		
-		// currscr_for_passive_subscr = wscr;
 		scrollscr(sdir, wscr+DMaps[wdmap].xoff, wdmap);
 		//dlevel = DMaps[wdmap].level; //Fix dlevel and draw the map (end hack). -Z
 	
@@ -25328,7 +25327,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	scrolling_dir = (direction) scrolldir;
 	scrolling_scr = currscr;
 	scrolling_origin_scr = z3_get_origin_scr();
-	// currscr_for_passive_subscr = currscr - DMaps[currdmap].xoff;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -26297,7 +26295,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 		}
 
-		currscr_for_passive_subscr = scrolling_scr - DMaps[currdmap].xoff;
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 
 		if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
@@ -26496,7 +26493,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	warpy   = -1;
 	
 	screenscrolling = false;
-	currscr_for_passive_subscr = -1;
 	scrolling_destdmap = -1;
 	FFCore.ScrollingData[SCROLLDATA_DIR] = -1;
 	FFCore.ScrollingData[SCROLLDATA_NX] = 0;

@@ -19,8 +19,6 @@
 #include "base/zsys.h"
 #include "tiles.h"
 #include "maps.h" // TODO z3 ! rm?
-#include "replay.h" // TODO z3
-#include <fmt/format.h> // TODO z3
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
@@ -1732,7 +1730,6 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
         {
             drawtile+=tframes*6;                                //l
         }
-		// replay_step_comment(fmt::format("x y {} {} eye {} {} tile {}", x, y, HeroModifiedX().getInt(), HeroModifiedY().getInt(), drawtile));
         
         break;
     }
@@ -1758,7 +1755,6 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
             drawtile+=tframes*2;                                //l
         }
         
-		// replay_step_comment(fmt::format("x y {} {} eye {} {} tile {}", x, y, HeroModifiedX().getInt(), HeroModifiedY().getInt(), drawtile));
         break;
     }
     
@@ -1798,7 +1794,6 @@ int32_t combo_tile(const newcombo &c, int32_t x, int32_t y)
         {
             drawtile+=tframes*6;                                //l
         }
-		// replay_step_comment(fmt::format("x y {} {} eye {} {} tile {}", x, y, HeroModifiedX().getInt(), HeroModifiedY().getInt(), drawtile));
         
         break;
     }

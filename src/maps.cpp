@@ -749,10 +749,7 @@ int32_t MAPCOMBOzq(int32_t x,int32_t y)
 //specific layers 1 to 6
 int32_t MAPCOMBOL(int32_t layer,int32_t x,int32_t y)
 {
-	// TODO z3 !
-	// DCHECK(layer >= 1 && layer <= 6);
-
-	int r = 0;
+	DCHECK(layer >= 1 && layer <= 6);
 	if (x < 0 || x >= world_w || y < 0 || y >= world_h || layer <= 0)
 	{
 		return 0;
@@ -1465,6 +1462,7 @@ int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
     return (QMisc.warp[ring].dmap[index] << 8) + QMisc.warp[ring].scr[index];
 }
 
+// TODO z3 !!
 static void update_combo_cycling(mapscr* scr)
 {
     int32_t x,y;
@@ -1857,11 +1855,6 @@ bool ispitfall(int32_t combo)
 
 bool ispitfall(int32_t x, int32_t y)
 {
-	/*
-	if(int32_t c = MAPFFCOMBO(x,y))
-		return ispitfall(c);
-	return ispitfall(MAPCOMBO(x,y)) || ispitfall(MAPCOMBOL(1,x,y)) || ispitfall(MAPCOMBOL(2,x,y));
-	*/
 	if(int32_t c = MAPFFCOMBO(x,y))
 	{
 		return ispitfall(c) ? true : false;
@@ -5792,7 +5785,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 
 	// Old code would call these state functions even for 0x80+ screens, which doesn't
 	// make any damn sense. Technically some quest could rely on this weird behavior
-	// to have state on a 0x80+ screen that stored it's data in some random screen of the next map,
+	// to have state on a 0x80+ screen that stored its data in some random screen of the next map,
 	// so we have a compat rule for this now.
 	// TODO z3 ! make this a compat QR. for now am lazy and using "region mode" as stand-in.
 	int mi = currmap*MAPSCRSNORMAL + screen_index;
