@@ -1387,7 +1387,7 @@ static GUI::ListData playerRulesList
 		"Alters the player's movement; with this enabled, movement includes decimal precision,"
 		" diagonal movement is 'smoother', and the player's speed can be adjusted using"
 		" 'Player->Step' via ZScript, as well as the 'Player Step' option in 'Init Data'." },
-	{ "Newer Player Movement [EXPERIMENTAL: WIP]", qr_NEW_HERO_MOVEMENT2,
+	{ "Newer Player Movement", qr_NEW_HERO_MOVEMENT2,
 		"Alters the player's movement; with this enabled, most of the effects of 'New Player Movement'"
 		" apply, and the player's collision code is newly cleaned up." },
 	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK,
