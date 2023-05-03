@@ -16,7 +16,7 @@ std::string const& getLongestTagName();
 namespace GUI
 {
 
-QRPanel::QRPanel(): TabPanel(), message(-1),
+QRPanel::QRPanel(): TabPanel(), message(-1), info_message(-1),
 	init_qrs(NULL), qrCount(16), scrolling(false),
 	scrollWidth(0_px), scrollHeight(0_px), showTags(false)
 {}
@@ -110,6 +110,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			}
 			cbox->setHAlign(0.0);
 			ibtn->setHAlign(1.0);
+			ibtn->onClick(info_message);
 			cbox->setRightPadding(0_px);
 			cbox->setVPadding(2_px);
 			ibtn->setPadding(0_px);

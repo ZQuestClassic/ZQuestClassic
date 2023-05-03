@@ -380,6 +380,7 @@ ZCGUI_BUILDER_FUNCTION(TabPanel, TabPanel, makeTabPanel)
 
 ZCGUI_BUILDER_START(QRPanel)
 	ZCGUI_ACCEPT_PROP(onToggle, onToggle, Dialog::message)
+	ZCGUI_ACCEPT_PROP(onCloseInfo, onCloseInfo, Dialog::message)
 	ZCGUI_ACCEPT_PROP(initializer, loadQRs, byte const*)
 	ZCGUI_ACCEPT_PROP(ptr, setPtr, size_t*)
 	ZCGUI_ACCEPT_PROP(count, setCount, size_t)

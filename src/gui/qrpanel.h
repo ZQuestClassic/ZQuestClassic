@@ -30,6 +30,11 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
+	template<typename T>
+	RequireMessage<T> onCloseInfo(T m)
+	{
+		info_message = static_cast<int32_t>(m);
+	}
 	
 	ScrollingPane* getScrollPane();
 	
@@ -38,7 +43,7 @@ private:
 	bool scrolling, showTags;
 	Size scrollWidth, scrollHeight;
 	
-	int32_t message;
+	int32_t message, info_message;
 	byte const* init_qrs;
 	size_t qrCount;
 };

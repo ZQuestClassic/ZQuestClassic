@@ -15,14 +15,16 @@ void displayinfo(std::string title, std::string text)
 
 InfoDialog::InfoDialog(std::string title, std::string text):
 	dlgTitle(title),
-	dlgText(text)
+	dlgText(text),
+	dest_qrs(nullptr)
 {
 	postinit();
 }
 
 InfoDialog::InfoDialog(std::string title, std::vector<std::string_view> lines):
 	dlgTitle(title),
-	dlgText()
+	dlgText(),
+	dest_qrs(nullptr)
 {
 	size_t size = 0;
 
@@ -42,8 +44,11 @@ InfoDialog::InfoDialog(std::string title, std::vector<std::string_view> lines):
 	postinit();
 }
 
+static byte* next_dest_qr = nullptr;
 void InfoDialog::postinit()
 {
+	if(!next_dest_qr)
+		next_dest_qr = quest_rules;
 	while(true)
 	{
 		size_t pos = dlgText.find_first_of("$");
@@ -80,7 +85,9 @@ void InfoDialog::postinit()
 	
 	if(qrs.size())
 	{
-		memcpy(local_qrs, quest_rules, sizeof(local_qrs));
+		dest_qrs = next_dest_qr;
+		next_dest_qr = local_qrs;
+		memcpy(local_qrs, dest_qrs, sizeof(local_qrs));
 	}
 }
 
@@ -99,6 +106,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			QRPanel(
 				padding = 3_px,
 				onToggle = message::TOGGLE_QR,
+				onCloseInfo = message::REFRESH,
 				initializer = local_qrs,
 				count = 0,
 				data = tosearch.filter(
@@ -130,7 +138,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 			Button(
 				text = "&Close",
 				topPadding = 0.5_em,
-				onClick = message::OK,
+				onClick = message::CANCEL,
 				focused = true)
 		);
 	}
@@ -161,10 +169,19 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			toggle_bit(local_qrs, msg.argument);
 			return false;
 		case message::OK:
-			if(qrs.size())
-				memcpy(quest_rules, local_qrs, sizeof(local_qrs));
+			if(dest_qrs)
+			{
+				memcpy(dest_qrs, local_qrs, sizeof(local_qrs));
+			}
 		[[fallthrough]];
 		case message::CANCEL:
+			if(dest_qrs)
+			{
+				next_dest_qr = dest_qrs;
+			}
+			return true;
+		case message::REFRESH:
+			rerun_dlg = true;
 			return true;
 	}
 	return false;
