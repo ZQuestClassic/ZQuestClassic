@@ -104,7 +104,7 @@ pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer);
 mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
 void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigned int, unsigned int)>& fn);
-void for_every_pos_in_region(const std::function <void (const pos_handle_t&)>& fn);
+void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& fn);
 int z3_get_origin_scr();
 int z3_get_region_relative_dx(int screen_index);
 int z3_get_region_relative_dx(int screen_index, int origin_screen_index);

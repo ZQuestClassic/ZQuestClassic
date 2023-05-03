@@ -1678,8 +1678,9 @@ static void update_combo_cycling(mapscr* scr)
 
 void update_combo_cycling()
 {
-	// TODO z3 !
-	update_combo_cycling(&tmpscr);
+	for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int scr_x, unsigned int scr_y) {
+		update_combo_cycling(scr);
+	});
 }
 
 bool iswater_type(int32_t type)
@@ -4541,8 +4542,7 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 	global_z3_cur_scr_drawing = -1;
 }
 
-// TODO z3 rename for_every_rpos_in_region
-void for_every_pos_in_region(const std::function <void (const pos_handle_t&)>& fn)
+void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& fn)
 {
 	pos_handle_t pos_handle;
 	for (int screen_index = 0; screen_index < 128; screen_index++)
@@ -5674,24 +5674,12 @@ void openshutters()
 			tmpscr.door[i]=dOPENSHUTTER;
 		}
 	
-	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		pos_handle_t pos_handle;
-		for (auto lyr = 0; lyr < 7; ++lyr)
+	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+		int pos = RPOS_TO_POS(pos_handle.rpos);
+		newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
+		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
-			// TODO z3 for_every_rpos_in_region
-			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-			pos_handle.screen = scr;
-			pos_handle.screen_index = screen_index;
-			pos_handle.layer = lyr;
-			for (auto pos = 0; pos < 176; ++pos)
-			{
-				newcombo const& cmb = combobuf[scr->data[pos]];
-				if(cmb.triggerflags[0] & combotriggerSHUTTER)
-				{
-					pos_handle.rpos = POS_TO_RPOS(pos, z3_scr_dx, z3_scr_dy);
-					do_trigger_combo(pos_handle);
-				}
-			}
+			do_trigger_combo(pos_handle);
 		}
 	});
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))

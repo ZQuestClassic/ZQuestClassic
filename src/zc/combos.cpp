@@ -2511,7 +2511,7 @@ void do_ex_trigger(const pos_handle_t& pos_handle)
 		{
 			bool skipself = pos_handle.screen->data[pos] == cid;
 			copycat_id = cmb.trigcopycat;
-			for_every_pos_in_region([&](const pos_handle_t& cc_pos_handle) {
+			for_every_rpos_in_region([&](const pos_handle_t& cc_pos_handle) {
 				if (skipself && cc_pos_handle.layer == pos_handle.layer && cc_pos_handle.rpos == pos_handle.rpos) return;
 				do_copycat_trigger(cc_pos_handle);
 			});
@@ -2979,7 +2979,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				{
 					bool skipself = pos_handle.screen->data[pos] == cid;
 					copycat_id = cmb.trigcopycat;
-					for_every_pos_in_region([&](const pos_handle_t& cc_pos_handle) {
+					for_every_rpos_in_region([&](const pos_handle_t& cc_pos_handle) {
 						if (skipself && cc_pos_handle.layer == pos_handle.layer && cc_pos_handle.rpos == pos_handle.rpos) return;
 						do_copycat_trigger(cc_pos_handle);
 					});
@@ -3507,36 +3507,25 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 
 void update_combo_timers()
 {
-	// TODO z3 for_every_rpos_in_region
-	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		for (auto lyr = 0; lyr < 7; ++lyr)
+	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+		int pos = RPOS_TO_POS(pos_handle.rpos);
+		// TODO z3 !
+		cpos_info& timer = combo_posinfos[pos_handle.layer][pos];
+		timer.updateData(pos_handle.screen->data[pos]);
+		newcombo const& cmb = combobuf[timer.data];
+		if(cmb.trigtimer)
 		{
-			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-			pos_handle_t pos_handle = {scr, screen_index, lyr};
-
-			for(auto pos = 0; pos < 176; ++pos)
+			if(++timer.clk >= cmb.trigtimer)
 			{
-				pos_handle.rpos = POS_TO_RPOS(pos, screen_index);
-
-				// TODO z3 !
-				cpos_info& timer = combo_posinfos[lyr][pos];
-				timer.updateData(scr->data[pos]);
-				newcombo const& cmb = combobuf[timer.data];
-				if(cmb.trigtimer)
-				{
-					if(++timer.clk >= cmb.trigtimer)
-					{
-						timer.clk = 0;
-						do_trigger_combo(lyr, pos);
-						timer.updateData(scr->data[pos]);
-					}
-				}
-				if(timer.trig_cd) --timer.trig_cd;
-				if(cmb.type == cSHOOTER)
-				{
-					handle_shooter(cmb, timer, pos_handle.rpos);
-				}
+				timer.clk = 0;
+				do_trigger_combo(pos_handle.layer, pos);
+				timer.updateData(pos_handle.screen->data[pos]);
 			}
+		}
+		if(timer.trig_cd) --timer.trig_cd;
+		if(cmb.type == cSHOOTER)
+		{
+			handle_shooter(cmb, timer, pos_handle.rpos);
 		}
 	});
 

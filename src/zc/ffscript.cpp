@@ -18422,7 +18422,7 @@ void set_register(int32_t arg, int32_t value)
 			mapscr* screen = get_screen_for_rpos(rpos);
             
 			// Preprocess each instance of the combo in the region.
-			for_every_pos_in_region([&](const pos_handle_t& pos_handle) {
+			for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
 				int pos = RPOS_TO_POS(pos_handle.rpos);
 				if (pos_handle.screen->data[pos] == screen->data[pos])
                 {
