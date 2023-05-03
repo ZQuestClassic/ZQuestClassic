@@ -144,7 +144,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	}
 
 	return Window(
-		title = std::move(dlgTitle),
+		title = dlgTitle,
 		onClose = 0,
 		hPadding = 0_px, 
 		Column(
@@ -154,7 +154,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 				maxLines = 20,
 				maxwidth = Size::pixels(zq_screen_w)-12_px-5_em,
 				textAlign = 1,
-				text = std::move(dlgText)),
+				text = dlgText),
 			widg,
 			closeRow
 		)
