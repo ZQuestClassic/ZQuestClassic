@@ -26076,7 +26076,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
 			// TODO z3 !
-			int offy = draw_dy * 176 + (region_scrolling ? playing_field_offset : 0);
+			int offy = draw_dy * 176 + (scrolling_extended_height ? playing_field_offset : 0);
 			putscr(scrollbuf, offx, offy, screens[0]);
 		});
 		combotile_add_x = 0;
