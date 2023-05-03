@@ -20,6 +20,7 @@ public:
 	
 	void loadQRs(byte const* qrs);
 	void setCount(size_t count);
+	void setShowTags(bool v);
 	void setScrollWidth(Size sz);
 	void setScrollHeight(Size sz);
 	void loadList(GUI::ListData qrlist);
@@ -34,7 +35,7 @@ public:
 	
 private:
 	std::shared_ptr<ScrollingPane> scrollpane;
-	bool scrolling;
+	bool scrolling, showTags;
 	Size scrollWidth, scrollHeight;
 	
 	int32_t message;

@@ -72,6 +72,8 @@ void clear_clip_rect(BITMAP* bitmap);
 int32_t zc_trace_handler(const char *);
 void zc_trace_clear();
 
+std::string QRHINT(std::vector<int> qrs);
+
 //#define vbound(x,low,high) (x<low?low:(x>high?high:x))
 
 #endif

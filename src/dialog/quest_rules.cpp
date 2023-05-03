@@ -1670,6 +1670,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					onToggle = message::TOGGLE_QR,
 					initializer = local_qrs,
 					count = 0, //scrollpane
+					showtags = true,
 					scrollWidth = 675_px,
 					scrollHeight = 500_px,
 					data = tosearch.filter(

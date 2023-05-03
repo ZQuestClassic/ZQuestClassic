@@ -963,6 +963,7 @@ enum
 
 #define QUESTRULES_SIZE 20
 #define QUESTRULES_NEW_SIZE 100
+#define QR_SZ QUESTRULES_NEW_SIZE
 #define EXTRARULES_SIZE 1
 
 // "quest rules" flags (bit numbers in bit string)

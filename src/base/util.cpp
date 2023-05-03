@@ -961,3 +961,23 @@ void zc_trace_clear()
     ASSERT(trace_file);
 }
 
+std::string QRHINT(std::vector<int> qrs)
+{
+	if(qrs.empty()) return "";
+	std::ostringstream oss;
+	bool comma = false;
+	oss << "$";
+	for(int qr : qrs)
+	{
+		if(comma)
+			oss << "," << qr;
+		else
+		{
+			comma = true;
+			oss << qr;
+		}
+	}
+	oss << "$";
+	return oss.str();
+}
+

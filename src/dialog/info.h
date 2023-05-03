@@ -6,6 +6,7 @@
 #include <gui/text_field.h>
 #include <initializer_list>
 #include <string>
+#include <set>
 #include <string_view>
 
 //A basic handler function
@@ -15,17 +16,21 @@ void displayinfo(std::string title, std::string text);
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	using message = int32_t;
+	enum class message { OK, CANCEL, TOGGLE_QR, BTN };
 
 	InfoDialog(std::string title, std::string text);
 	InfoDialog(std::string title, std::vector<std::string_view> lines);
-
+	
 	std::shared_ptr<GUI::Widget> view() override;
-	virtual bool handleMessage(const GUI::DialogMessage<int32_t>& msg);
+	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 protected:
 	std::string dlgTitle;
 	std::string dlgText;
+	std::set<int> qrs;
+	byte local_qrs[QR_SZ];
+	
+	void postinit();
 };
 
 #endif

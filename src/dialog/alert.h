@@ -7,13 +7,11 @@
 class AlertDialog: public InfoDialog
 {
 public:
-	enum class message { OK, CANCEL };
-
 	AlertDialog(std::string title, std::string text, std::function<void(bool,bool)> onEnd, std::string truebtn = "OK", std::string falsebtn = "Cancel", uint32_t timeout = 0, bool default_ret = false, bool dontshow = false);
 	AlertDialog(std::string title, std::vector<std::string_view> lines, std::function<void(bool,bool)> onEnd, std::string truebtn = "OK", std::string falsebtn = "Cancel", uint32_t timeout = 0, bool default_ret = false, bool dontshow = false);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(const GUI::DialogMessage<int32_t>& msg) override;
+	bool handleMessage(const GUI::DialogMessage<message>& msg) override;
 
 private:
 	std::string truebtn, falsebtn;

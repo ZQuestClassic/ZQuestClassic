@@ -3250,7 +3250,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				)),
 				TabRef(name = "General", Row(
 					Frame(title = "Player Speed Mod",
-						info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled.",
+						info = "Speed Modification only applies if the Quest Rule 'Newer Hero Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
 						Rows<3>(
 							Label(text = "Multiplier:"),
 							TextField(type = GUI::TextField::type::INT_DECIMAL,
