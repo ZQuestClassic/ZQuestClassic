@@ -3411,15 +3411,15 @@ bool HeroClass::checkstab()
 						}
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag2(screen, screen_index, mITEM);
+							setmapflag(screen, screen_index, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag2(screen, screen_index, (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(screen, screen_index, (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
 							setxmapflag(screen_index, 1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if (screen->flags9&fITEMSECRETPERM) setmapflag2(screen, screen_index, mSECRET);
+							if (screen->flags9&fITEMSECRETPERM) setmapflag(screen, screen_index, mSECRET);
 							trigger_secrets_for_screen(screen_index, false, -5);
 						}
 						//!DIMI
@@ -18447,7 +18447,7 @@ void HeroClass::oldchecklockblock()
 	}
 	else
 	{
-		setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
+		setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
 		remove_lockblocks(pos_handle.screen, pos_handle.screen_index);
 	}
 	if ( cmb3.usrflags&cflag3 )
@@ -18721,11 +18721,11 @@ void HeroClass::oldcheckchest(int32_t type)
 		case cLOCKEDCHEST:
 			if(!usekey()) return;
 			
-			setmapflag2(screen, found_screen_index, mLOCKEDCHEST);
+			setmapflag(screen, found_screen_index, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
-			setmapflag2(screen, found_screen_index, mCHEST);
+			setmapflag(screen, found_screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -18749,7 +18749,7 @@ void HeroClass::oldcheckchest(int32_t type)
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 			}
-			setmapflag2(screen, found_screen_index, mBOSSCHEST);
+			setmapflag(screen, found_screen_index, mBOSSCHEST);
 			break;
 	}
 	
@@ -21128,7 +21128,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						
 						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
 						{
-							setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
+							setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 						}
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 						//zprint("Step Secrets SFX: %d\n", thesfx);
@@ -21813,8 +21813,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			
 			if(type==cTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
 			{ 
-				// TODO z3 !
-				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 				
 				trigger_secrets_for_screen(pos_handle.screen_index, false);
 			}

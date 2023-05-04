@@ -1188,11 +1188,6 @@ bool HASFLAG_ANY(int32_t flag, int32_t pos)
 	return false;
 }
 
-void setmapflag(int32_t flag)
-{
-    setmapflag((currmap*MAPSCRSNORMAL)+homescr,flag);
-}
-
 const char *screenstate_string[16] =
 {
     "Door Up", "Door Down", "Door Left", "Door Right", "Item", "Special Item", "No Return",
@@ -1249,16 +1244,26 @@ void eventlog_mapflags()
 }
 
 // set specific flag
-void setmapflag2(mapscr* scr, int32_t screen, int32_t flag)
+void setmapflag(mapscr* scr, int32_t screen, int32_t flag)
 {
 	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
-	setmapflag(scr, mi, flag);
+	setmapflag_mi(scr, mi, flag);
 }
-void setmapflag(int32_t mi2, int32_t flag)
+void setmapflag(int32_t screen, int32_t flag)
 {
-	setmapflag(&tmpscr, mi2, flag);
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	mapscr* scr = get_layer_scr(currmap, screen >= 0x80 ? homescr : screen, 0);
+	setmapflag_mi(scr, mi, flag);
 }
-void setmapflag(mapscr* scr, int32_t mi2, int32_t flag)
+void setmapflag(int32_t flag)
+{
+    setmapflag_mi(&tmpscr, (currmap*MAPSCRSNORMAL)+homescr, flag);
+}
+void setmapflag_mi(int32_t mi2, int32_t flag)
+{
+	setmapflag_mi(&tmpscr, mi2, flag);
+}
+void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 {
     byte cscr = mi2&((1<<7)-1);
     byte cmap = (mi2>>7);
@@ -1396,7 +1401,12 @@ void setxmapflag_mi(int32_t mi2, uint32_t flag)
 	
 	game->xstates[mi2] |= flag;
 }
-void unsetxmapflag(int32_t mi2, uint32_t flag)
+void unsetxmapflag(int32_t screen, uint32_t flag)
+{
+	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
+	unsetxmapflag_mi(mi, flag);
+}
+void unsetxmapflag_mi(int32_t mi2, uint32_t flag)
 {
 	if(!(game->xstates[mi2] & flag)) return;
     byte cscr = mi2&((1<<7)-1);
@@ -1410,23 +1420,14 @@ void unsetxmapflag(int32_t mi2, uint32_t flag)
 	
 	game->xstates[mi2] &= ~flag;
 }
-void unsetxmapflag(uint32_t flag)
-{
-	unsetxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
-}
-// TODO z3
-bool getxmapflag2(int32_t screen_index, uint32_t flag)
+bool getxmapflag(int32_t screen_index, uint32_t flag)
 {
 	int mi = (currmap * MAPSCRSNORMAL) + (screen_index >= 0x80 ? homescr : screen_index);
-	return getxmapflag(mi, flag);
+	return getxmapflag_mi(mi, flag);
 }
-bool getxmapflag(int32_t mi2, uint32_t flag)
+bool getxmapflag_mi(int32_t mi2, uint32_t flag)
 {
 	return (game->xstates[mi2] & flag) != 0;
-}
-bool getxmapflag(uint32_t flag)
-{
-	return getxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
 }
 
 int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
@@ -2231,7 +2232,7 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag, bool triggers)
 bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
-	if(!getxmapflag(mi, 1<<xflag)) return false;
+	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
 
 	pos_handle_t pos_handle;
 	pos_handle.screen = s;
@@ -2304,7 +2305,8 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool t
 		{
 			ffcdata& ffc2 = tmpscr.ffcs[i];
 			newcombo const& cmb = combobuf[ffc2.getData()];
-			if(triggers && force_ex_trigger_ffc(i,xflag))
+			pos_handle.rpos = (rpos_t)i;
+			if(triggers && force_ex_trigger_ffc(pos_handle, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -3327,7 +3329,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	
 	if (setflag && canPermSecret(currdmap, screen_index))
 		if(!(scr->flags5&fTEMPSECRETS))
-			setmapflag2(scr, screen_index, mSECRET);
+			setmapflag(scr, screen_index, mSECRET);
 
 	return true;
 }

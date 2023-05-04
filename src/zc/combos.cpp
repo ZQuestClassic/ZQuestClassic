@@ -1085,7 +1085,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 				// remove_xstatecombos_old((currscr>=128)?1:0, cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mLOCKEDCHEST);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
@@ -1095,7 +1095,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 				// remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
 				break;
 			}
-			setmapflag2(pos_handle.screen, pos_handle.screen_index, mCHEST);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -1130,7 +1130,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 				// remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mBOSSCHEST);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mBOSSCHEST);
 			break;
 	}
 	
@@ -1183,10 +1183,10 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 
 bool trigger_chest_ffc(const pos_handle_t& pos_handle)
 {
-	DCHECK(pos_handle.rpos <= region_max_rpos);
-	if (pos_handle.rpos > region_max_rpos) return false;
+	int pos = (int)pos_handle.rpos;
+	DCHECK(pos >= MAXFFCS);
+	if (pos >= MAXFFCS) return false;
 
-	int pos = RPOS_TO_POS(pos_handle.rpos);
 	ffcdata& ffc = pos_handle.screen->ffcs[pos];
 	newcombo const& cmb = combobuf[ffc.getData()];
 	int32_t cid = ffc.getData();
@@ -1206,7 +1206,7 @@ bool trigger_chest_ffc(const pos_handle_t& pos_handle)
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mLOCKEDCHEST);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKEDCHEST);
 			break;
 			
 		case cCHEST:
@@ -1216,7 +1216,7 @@ bool trigger_chest_ffc(const pos_handle_t& pos_handle)
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mCHEST);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mCHEST);
 			break;
 			
 		case cBOSSCHEST:
@@ -1251,7 +1251,7 @@ bool trigger_chest_ffc(const pos_handle_t& pos_handle)
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mBOSSCHEST);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mBOSSCHEST);
 			break;
 	}
 	
@@ -1316,7 +1316,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
-			setmapflag2(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
 			remove_lockblocks(pos_handle.screen, pos_handle.screen_index);
 			break;
 			
@@ -1353,7 +1353,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
-			setmapflag2(pos_handle.screen, pos_handle.screen_index, mBOSSLOCKBLOCK);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mBOSSLOCKBLOCK);
 			remove_bosslockblocks(pos_handle.screen, pos_handle.screen_index);
 			break;
 		}
@@ -1367,10 +1367,10 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 
 bool trigger_lockblock_ffc(const pos_handle_t& pos_handle)
 {
-	DCHECK(pos_handle.rpos <= region_max_rpos);
-	if (pos_handle.rpos > region_max_rpos) return false;
+	int pos = (int)pos_handle.rpos;
+	DCHECK(pos >= MAXFFCS);
+	if (pos >= MAXFFCS) return false;
 
-	int pos = RPOS_TO_POS(pos_handle.rpos);
 	ffcdata& ffc = pos_handle.screen->ffcs[pos];
 	newcombo const& cmb = combobuf[ffc.getData()];
 	switch(cmb.type)
@@ -1387,7 +1387,7 @@ bool trigger_lockblock_ffc(const pos_handle_t& pos_handle)
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mLOCKBLOCK);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
 			remove_lockblocks_old((currscr>=128)?1:0);
 			break;
 			
@@ -1424,7 +1424,7 @@ bool trigger_lockblock_ffc(const pos_handle_t& pos_handle)
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
-			setmapflag(mBOSSLOCKBLOCK);
+			setmapflag(pos_handle.screen, pos_handle.screen_index, mBOSSLOCKBLOCK);
 			remove_bosslockblocks_old((currscr >= 128) ? 1 : 0);
 			break;
 		}
@@ -2591,7 +2591,7 @@ bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
-		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		if(xstate >= 0 || getxmapflag(pos_handle.screen_index, 1<<cmb.exstate))
 		{
 			do_ex_trigger(pos_handle);
 			return true;
@@ -2600,15 +2600,18 @@ bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 	return false;
 }
 
-bool force_ex_trigger_ffc(int32_t pos, char xstate)
+bool force_ex_trigger_ffc(const pos_handle_t& pos_handle, char xstate)
 {
-	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr.ffcs[pos];
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	if (unsigned(pos) >= MAXFFCS) return false;
+
+	ffcdata& ffc = pos_handle.screen->ffcs[pos];
 	newcombo const& cmb = combobuf[ffc.getData()];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
-		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
+		if(xstate >= 0 || getxmapflag(pos_handle.screen_index, 1<<cmb.exstate))
 		{
+			// TODO z3 !!!
 			do_ex_trigger_ffc(pos);
 			return true;
 		}
@@ -2831,7 +2834,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 						sfx(pos_handle.screen->secretsfx);
 				}
 				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
-					setmapflag2(pos_handle.screen, pos_handle.screen_index, mSECRET);
+					setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 			}
 			
 			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
@@ -3019,6 +3022,7 @@ bool do_trigger_combo_ffc(int32_t i, int32_t special, weapon* w)
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(i) >= MAXFFCS) return false;
 
+	// TODO z3 this is an abuse of pos_handle_t
 	pos_handle_t pos_handle = {&tmpscr, currscr, 0, (rpos_t)i};
 	ffcdata& ffc = tmpscr.ffcs[i];
 	cpos_info& timer = ffc_posinfos[i];
@@ -3042,7 +3046,7 @@ bool do_trigger_combo_ffc(int32_t i, int32_t special, weapon* w)
 	if(cmb.exstate > -1)
 	{
 		exflag = 1<<cmb.exstate;
-		if(force_ex_trigger_ffc(i))
+		if(force_ex_trigger_ffc(pos_handle))
 			return true;
 	}
 	if(cmb.triggeritem) //Item requirement

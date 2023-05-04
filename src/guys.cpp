@@ -15891,306 +15891,6 @@ int32_t eBigDig::takehit(weapon *w, weapon* realweap)
 	return 0;
 }
 
-/*
-eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
-{
-	hxofs=hyofs=8;
-	hzsz=16; //can't be jumped.
-	clk2=70;
-	misc=-1;
-	mainguy=!getmapflag();
-}
-
-bool eGanon::animate(int32_t index)
-{
-	if(switch_hooked) return enemy::animate(index);
-	if(dying)
-	
-		return Dead(index);
-		
-	if(clk==0)
-	{
-		removearmos(x,y,ffcactivated);
-	}
-	
-	switch(misc)
-	{
-	case -1:
-		misc=0;
-		
-	case 0:
-		if(++clk2>72 && !(zc_oldrand()&3))
-		{
-			addEwpn(x,y,z,wpn,3,wdp,dir,getUID());
-			sfx(wpnsfx(wpn),pan(int32_t(x)));
-			clk2=0;
-		}
-		
-		Stunclk=0;
-		constant_walk(rate,homing,spw_none);
-		break;
-		
-	case 1:
-	case 2:
-		if(--Stunclk<=0)
-		{
-			int32_t r=zc_oldrand();
-			
-			if(r&1)
-			{
-				y=96;
-				
-				if(r&2)
-					x=160;
-				else
-					x=48;
-					
-				if(tooclose(x,y,48))
-					x=208-x;
-			}
-			
-		//if ( editorflags & ENEMY_FLAG15 && current_item_id(itype_amulet,false) >= 2 ) //visible to Amulet 2
-		//{
-	//	loadpalset(9,pSprite(spBROWN)); //make Ganon visible?
-	//    }
-		//    else
-	//    {
-		loadpalset(csBOSS,pSprite(d->bosspal));
-	//    }
-			misc=0;
-		}
-		
-		break;
-		
-	case 3:
-	{
-		if(hclk>0)
-			break;
-			
-		misc=4;
-		clk=0;
-		hxofs=1000;
-		loadpalset(9,pSprite(spPILE));
-		music_stop();
-		stop_sfx(WAV_ROAR);
-		
-		if(deadsfx>0) sfx(deadsfx,pan(int32_t(x)));
-		
-		sfx(WAV_GANON);
-		//Ganon's dustpile; fall in sideview. -Z
-			item *dustpile = new item(x+8,y+8,(zfix)0,iPile,ipDUMMY,0);
-		dustpile->linked_parent = eeGANON;
-			setmapflag();
-		//items.add(new item(x+8,y+8,(zfix)0,iPile,ipDUMMY,0));
-		break;
-	}
-		
-	case 4:
-		if(clk>=80)
-		{
-			misc=5;
-			
-			if(getmapflag())
-			{
-				game->lvlitems[dlevel]|=liBOSS;
-				//play_DmapMusic();
-				playLevelMusic();
-				return true;
-			}
-			
-			sfx(WAV_CLEARED);
-			items.add(new item(x+8,y+8,(zfix)0,iBigTri,ipBIGTRI,0));
-			setmapflag();
-		}
-		
-		break;
-	}
-	
-	//if ( editorflags & ENEMY_FLAG15 ) //visible to Amulet 2
-	//{
-	//if ( current_item_id(itype_amulet,false) >= 2 )
-	//{
-	///	loadpalset(9,pSprite(spBROWN)); //make Ganon visible?
-	//}
-	//}
-	
-	
-	return enemy::animate(index);
-}
-
-
-int32_t eGanon::takehit(weapon *w, weapon* realweap)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	int32_t wpnId = w->id;
-	int32_t power = w->power;
-	int32_t enemyHitWeapon = w->parentitem;
-	
-	switch(misc)
-	{
-		case 0:
-		{
-			//if we're not using the editor defences, and Ganon isn't hit by a sword, return.
-		if(wpnId!=wSword && !(editorflags & ENEMY_FLAG14))
-			return 0;
-		
-		//if we are not using the new defences, just reduce his HP
-		if (!(editorflags & ENEMY_FLAG14)) 
-		{
-			hp-=power;
-			if(hp>0)
-			{
-				misc=1;
-				Stunclk=64;
-			}
-			else
-			{
-				loadpalset(csBOSS,pSprite(spBROWN));
-				misc=2;
-				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
-			}
-			
-			sfx(WAV_EHIT,pan(int32_t(x)));
-			
-			if(hitsfx>0) sfx(hitsfx,pan(int32_t(x)));
-			
-			return 1;
-		}
-		//otherwise, resolve his defence. 
-		else 
-		{
-				int32_t def = enemy::takehit(w,realweap); //This works, but it instantly kills him if it does enough damage.
-			if(hp>0)
-			{
-				misc=1;
-				Stunclk=64;
-			}
-			else
-			{
-				loadpalset(csBOSS,pSprite(spBROWN));
-				misc=2;
-				Stunclk=284;
-				hp=guysbuf[id&0xFFF].hp;                              //16*game->get_hero_dmgmult();
-			}
-			
-			sfx(WAV_EHIT,pan(int32_t(x)));
-			
-			if(hitsfx>0) sfx(hitsfx,pan(int32_t(x)));
-			
-			
-			return 1;
-		}
-		} 
-		case 2:
-		{
-		if 
-		(
-			( dmisc14 > 0 && !enemyHitWeapon == dmisc14 ) //special weapon needed to kill ganon specified in editor
-			|| //or nothing specified, use silver arrows+
-			( dmisc14 <= 0 && (wpnId!=wArrow || (enemyHitWeapon>-1 ? itemsbuf[enemyHitWeapon].power : current_item_power(itype_arrow))<4))
-		)
-		return 0;
-		{
-			misc=3;
-			hclk=81;
-			loadpalset(9,pSprite(spBROWN));
-			return 1;
-		}
-		
-	   }
-	}
-	
-	return 0;
-}
-
-void eGanon::draw(BITMAP *dest)
-{
-	switch(misc)
-	{
-	case 0:
-		if((clk&3)==3)
-			tile=(zc_oldrand()%5)*2+o_tile;
-			
-		if(db!=999)
-			break;
-			
-	case 2:
-		if(Stunclk<64 && (Stunclk&1) )
-	{
-		if 
-		(
-		( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 && (editorflags & ENEMY_FLAG15) )
-		||
-		( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) && (editorflags & ENEMY_FLAG15) )
-		)
-		{
-			goto ganon_draw; //draw his weapons if we can see him
-		}
-			break;
-		}
-			
-	case -1:
-		tile=o_tile;
-		
-		//fall through
-	case 1:
-	case 3:
-	ganon_draw:
-		drawblock(dest,15);
-		break;
-		
-	case 4:
-		draw_guts(dest);
-		draw_flash(dest);
-		break;
-	}
-	
-	if ( editorflags & ENEMY_FLAG1 ) //visible to Amulet 2
-	{
-	if 
-	(
-		( (editorflags & ENEMY_FLAG1) && current_item_power(itype_amulet) >= 2 && (editorflags & ENEMY_FLAG15) )
-		||
-		( (editorflags & ENEMY_FLAG2) && (game->item[dmisc13]) && (editorflags & ENEMY_FLAG15) )
-	)
-	{
-		draw_guts(dest); //makes his shots visible, but not him
-		draw_flash(dest);
-	}
-	}
-}
-
-void eGanon::draw_guts(BITMAP *dest)
-{
-	int32_t c = zc_min(clk>>3,8);
-	tile = clk<24 ? 74 : 75;
-	overtile16(dest,tile,x+8,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+8,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+8+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+c,y+16-c+playing_field_offset,9,0);
-	overtile16(dest,tile,x+16-c,y+16-c+playing_field_offset,9,0);
-}
-
-void eGanon::draw_flash(BITMAP *dest)
-{
-
-	int32_t c = clk-(clk>>2);
-	cs = (frame&3)+6;
-	overtile16(dest,194,x+8,y+8-clk+playing_field_offset,cs,0);
-	overtile16(dest,194,x+8,y+8+clk+playing_field_offset,cs,2);
-	overtile16(dest,195,x+8-clk,y+8+playing_field_offset,cs,0);
-	overtile16(dest,195,x+8+clk,y+8+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8-c+playing_field_offset,cs,0);
-	overtile16(dest,196,x+8+c,y+8-c+playing_field_offset,cs,1);
-	overtile16(dest,196,x+8-c,y+8+c+playing_field_offset,cs,2);
-	overtile16(dest,196,x+8+c,y+8+c+playing_field_offset,cs,3);
-}
-*/
-
 eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	hxofs=hyofs=8;
@@ -16285,8 +15985,6 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 		//dustpile = (item *)items.spr(items.Count() - 1)->getUID();
 		dustpile = (item *)items.spr(items.Count() - 1);
 		dustpile->linked_parent = eeGANON; //was miscellaneous[31]
-			//setmapflag(); //Could be why the Triforce doesn't drop. Disabling this now. -Z ( 6th March, 2019 )
-		//items.add(new item(x+8,y+8,(zfix)0,iPile,ipDUMMY,0));
 		break;
 	}
 		
@@ -16311,8 +16009,6 @@ bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to thi
 					bigtriforce->linked_parent = eeGANON;
 				}
 			}
-			//setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-			//game->lvlitems[dlevel]|=liBOSS; // if we had more rule bits, we could mark him dead so that he does not respawn. -Z
 		}
 		
 		break;
@@ -21130,7 +20826,6 @@ void loadguys()
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
 	if(tmpscr.room==r10RUPIES && !getmapflag(mf))
 	{
-		//setmapflag();
 		for(int32_t i=0; i<10; i++)
 			additem(dx+ten_rupies_x[i],dy+ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
 	}
@@ -23223,7 +22918,7 @@ bool parsemsgcode()
 			}
 			bool state = bool(grab_next_argument());
 			if(state)
-				setmapflag(mapind(map,scrid),1<<flag);
+				setmapflag_mi(mapind(map,scrid),1<<flag);
 			else
 				unsetmapflag(mapind(map,scrid),1<<flag,true);
 			return true;

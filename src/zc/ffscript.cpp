@@ -17929,13 +17929,13 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENSTATED:
 		{
 			int32_t mi2 = (currmap*MAPSCRSNORMAL)+currscr;
-			(value)?setmapflag(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+			(value)?setmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		case SCREENEXSTATED:
 		{
 			int32_t mi2 = (currmap*MAPSCRSNORMAL)+currscr;
-			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		
@@ -17945,7 +17945,7 @@ void set_register(int32_t arg, int32_t value)
 			mi2 -= 8*(mi2/MAPSCRS);
 			
 			if(BC::checkMapID(mi2>>7, "Game->SetScreenState") == SH::_NoError)
-				(value)?setmapflag(mi2, 1<<(ri->d[rINDEX2]/10000)) : unsetmapflag(mi2, 1 << (ri->d[rINDEX2] / 10000), true);
+				(value)?setmapflag_mi(mi2, 1<<(ri->d[rINDEX2]/10000)) : unsetmapflag(mi2, 1 << (ri->d[rINDEX2] / 10000), true);
 		}
 		break;
 		
@@ -20589,7 +20589,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) break;
-				(value)?setmapflag(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+				(value)?setmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
 			}
 			else
 			{
@@ -20603,7 +20603,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) break;
-				(value)?setxmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+				(value)?setxmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi, 1 << ((ri->d[rINDEX]) / 10000));
 			}
 			else
 			{

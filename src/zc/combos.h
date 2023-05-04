@@ -59,7 +59,7 @@ void trigger_save(newcombo const& cmb);
 void do_ex_trigger(const pos_handle_t& pos_handle);
 void do_ex_trigger_ffc(int32_t pos);
 bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate = -1);
-bool force_ex_trigger_ffc(int32_t pos, char xstate = -1);
+bool force_ex_trigger_ffc(const pos_handle_t& pos_handle, char xstate = -1);
 bool do_trigger_combo(int layer, int pos, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo_ffc(int32_t pos, int32_t special = 0, weapon* w = NULL);

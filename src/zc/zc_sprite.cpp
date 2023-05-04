@@ -800,9 +800,9 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if(hiddenstair2(base_pos_handle.screen,true))
+				if(hiddenstair2(pos_handle.screen,true))
 				{
-					sfx(base_pos_handle.screen->secretsfx);
+					sfx(pos_handle.screen->secretsfx);
 				}
 				else
 				{
@@ -812,22 +812,23 @@ bool movingblock::animate(int32_t)
 							(combobuf[bcombo].type == cPUSH_HW) ||
 							(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 					{
-						sfx(base_pos_handle.screen->secretsfx);
+						sfx(pos_handle.screen->secretsfx);
 					}
 				}
 				
-				if(isdungeon() && base_pos_handle.screen->flags&fSHUTTERS)
+				if(isdungeon() && pos_handle.screen->flags&fSHUTTERS)
 				{
 					opendoors=8;
 				}
 				
-				if(canPermSecret(currdmap, base_pos_handle.screen_index))
+				if(canPermSecret(currdmap, pos_handle.screen_index))
 				{
 					if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
-						if(!(base_pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
+							setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 					}
 				}
 			}
@@ -845,6 +846,7 @@ bool movingblock::animate(int32_t)
 			blockmoving=false;
 			
 			size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+			auto pos_handle = get_pos_handle_for_world_xy(x, y, 0);
 			int32_t f1 = m->sflag[combopos];
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
@@ -1030,34 +1032,35 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if(hiddenstair2(base_pos_handle.screen,true))
+				if(hiddenstair2(pos_handle.screen,true))
 				{
-					sfx(base_pos_handle.screen->secretsfx);
+					sfx(pos_handle.screen->secretsfx);
 				}
 				else
 				{
-					trigger_secrets_for_screen(base_pos_handle.screen_index,true,true);
+					trigger_secrets_for_screen(pos_handle.screen_index,true,true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
 							(combobuf[bcombo].type == cPUSH_HW2) || didtrigger)
 					{
-						sfx(base_pos_handle.screen->secretsfx);
+						sfx(pos_handle.screen->secretsfx);
 					}
 				}
 				
-				if(isdungeon() && base_pos_handle.screen->flags&fSHUTTERS)
+				if(isdungeon() && pos_handle.screen->flags&fSHUTTERS)
 				{
 					opendoors=8;
 				}
 				
-				if(canPermSecret(currdmap, base_pos_handle.screen_index))
+				if(canPermSecret(currdmap, pos_handle.screen_index))
 				{
 					if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
-						if(!(base_pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag2(base_pos_handle.screen, base_pos_handle.screen_index, mSECRET);
+						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
+							setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 					}
 				}
 			}

@@ -3571,13 +3571,13 @@ bool weapon::animate(int32_t index)
 						pstr_flags = ev[3] / 10000;
 						
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
-							setmapflag2(screen, screen_index, mITEM);
+							setmapflag(screen, screen_index, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag2(screen, screen_index, (screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(screen, screen_index, (screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
-							if(screen->flags9&fITEMSECRETPERM) setmapflag2(screen, screen_index, mSECRET);
+							if(screen->flags9&fITEMSECRETPERM) setmapflag(screen, screen_index, mSECRET);
 							trigger_secrets_for_screen(screen_index, false, -5);
 						}
 						//!DIMI
