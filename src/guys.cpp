@@ -3266,7 +3266,8 @@ bool enemy::Dead(int32_t index)
 	{
 		if(deathexstate > -1 && deathexstate < 32)
 		{
-			setxmapflag(1<<deathexstate);
+			// TODO z3 enemy needs a screen index, where it was spawned.
+			setxmapflag(currscr, 1<<deathexstate);
 			deathexstate = -1;
 		}
 		--clk2;

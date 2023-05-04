@@ -3586,7 +3586,7 @@ bool weapon::animate(int32_t index)
 						
 						getitem(id2, false, true);
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
-							setxmapflag(1<<ptr->pickupexstate);
+							setxmapflag(screen_index, 1<<ptr->pickupexstate);
 						items.del(j);
 						
 						for(int32_t i=0; i<Lwpns.Count(); i++)

@@ -1377,12 +1377,12 @@ bool getmapflag(int32_t screen, int32_t flag)
     return (game->maps[mi] & flag) != 0;
 }
 
-void setxmapflag2(int32_t screen, int32_t flag)
+void setxmapflag(int32_t screen, uint32_t flag)
 {
 	int mi = (currmap * MAPSCRSNORMAL) + (screen >= 0x80 ? homescr : screen);
-	setxmapflag(mi, flag);
+	setxmapflag_mi(mi, flag);
 }
-void setxmapflag(int32_t mi2, uint32_t flag)
+void setxmapflag_mi(int32_t mi2, uint32_t flag)
 {
 	if(game->xstates[mi2] & flag) return;
     byte cscr = mi2&((1<<7)-1);
@@ -1395,10 +1395,6 @@ void setxmapflag(int32_t mi2, uint32_t flag)
 		mi2 != (currmap*MAPSCRSNORMAL)+homescr ? buf : "Current screen", temp);
 	
 	game->xstates[mi2] |= flag;
-}
-void setxmapflag(uint32_t flag)
-{
-	setxmapflag((currmap*MAPSCRSNORMAL)+homescr, flag);
 }
 void unsetxmapflag(int32_t mi2, uint32_t flag)
 {

@@ -1081,7 +1081,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			}
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				// remove_xstatecombos_old((currscr>=128)?1:0, cmb.attribytes[5]);
 				break;
 			}
@@ -1091,7 +1091,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 		case cCHEST:
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				// remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
 				break;
 			}
@@ -1126,7 +1126,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				// remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
@@ -1181,10 +1181,13 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 	return true;
 }
 
-bool trigger_chest_ffc(int32_t pos)
+bool trigger_chest_ffc(const pos_handle_t& pos_handle)
 {
-	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr.ffcs[pos];
+	DCHECK(pos_handle.rpos <= region_max_rpos);
+	if (pos_handle.rpos > region_max_rpos) return false;
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	ffcdata& ffc = pos_handle.screen->ffcs[pos];
 	newcombo const& cmb = combobuf[ffc.getData()];
 	int32_t cid = ffc.getData();
 	switch(cmb.type)
@@ -1199,7 +1202,7 @@ bool trigger_chest_ffc(int32_t pos)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
@@ -1209,7 +1212,7 @@ bool trigger_chest_ffc(int32_t pos)
 		case cCHEST:
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
@@ -1244,7 +1247,7 @@ bool trigger_chest_ffc(int32_t pos)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
@@ -1275,7 +1278,7 @@ bool trigger_chest_ffc(int32_t pos)
 			case -10: case -11: case -12: case -13:
 			case -14: case -15: case -16: case -17:
 			{
-				int32_t di = ((get_currdmap())<<7) + get_currscr()-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
+				int32_t di = ((get_currdmap())<<7) + pos_handle.screen_index-(DMaps[get_currdmap()].type==dmOVERW ? 0 : DMaps[get_currdmap()].xoff);
 				itid = game->screen_d[di][abs(itid)-10] / 10000L;
 				break;
 			}
@@ -1309,7 +1312,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 			}
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
@@ -1346,7 +1349,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
@@ -1362,10 +1365,13 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 	return true;
 }
 
-bool trigger_lockblock_ffc(int32_t pos)
+bool trigger_lockblock_ffc(const pos_handle_t& pos_handle)
 {
-	if(unsigned(pos) >= MAXFFCS) return false;
-	ffcdata& ffc = tmpscr.ffcs[pos];
+	DCHECK(pos_handle.rpos <= region_max_rpos);
+	if (pos_handle.rpos > region_max_rpos) return false;
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	ffcdata& ffc = pos_handle.screen->ffcs[pos];
 	newcombo const& cmb = combobuf[ffc.getData()];
 	switch(cmb.type)
 	{
@@ -1377,7 +1383,7 @@ bool trigger_lockblock_ffc(int32_t pos)
 			}
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
@@ -1414,7 +1420,7 @@ bool trigger_lockblock_ffc(int32_t pos)
 			
 			if(cmb.usrflags&cflag16)
 			{
-				setxmapflag(1<<cmb.attribytes[5]);
+				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 				break;
 			}
@@ -2967,7 +2973,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 			
 			if(cmb.exstate > -1 && trigexstate)
 			{
-				setxmapflag(exflag);
+				setxmapflag(pos_handle.screen_index, exflag);
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set
@@ -3007,10 +3013,13 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 	return true;
 }
 
+// TODO z3 !!!
 bool do_trigger_combo_ffc(int32_t i, int32_t special, weapon* w)
 {
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(i) >= MAXFFCS) return false;
+
+	pos_handle_t pos_handle = {&tmpscr, currscr, 0, (rpos_t)i};
 	ffcdata& ffc = tmpscr.ffcs[i];
 	cpos_info& timer = ffc_posinfos[i];
 	int32_t cid = ffc.getData();
@@ -3152,11 +3161,11 @@ bool do_trigger_combo_ffc(int32_t i, int32_t special, weapon* w)
 						break;
 					
 					case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
-						if(!trigger_chest_ffc(i))
+						if(!trigger_chest_ffc(pos_handle))
 							return false;
 						break;
 					case cLOCKBLOCK: case cBOSSLOCKBLOCK:
-						if(!trigger_lockblock_ffc(i))
+						if(!trigger_lockblock_ffc(pos_handle))
 							return false;
 						break;
 					
@@ -3310,7 +3319,7 @@ bool do_trigger_combo_ffc(int32_t i, int32_t special, weapon* w)
 			
 			if(cmb.exstate > -1 && trigexstate)
 			{
-				setxmapflag(exflag);
+				setxmapflag(pos_handle.screen_index, exflag);
 			}
 			
 			if(cmb.trigcopycat) //has a copycat set

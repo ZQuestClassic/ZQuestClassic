@@ -167,9 +167,8 @@ void unsetmapflag(int32_t flag = 32,bool anyflag = false);
 bool getmapflag(int32_t flag = 32); // 32 = mSPECIALITEM
 bool getmapflag(int32_t screen, int32_t flag);
 
-void setxmapflag2(int32_t screen, int32_t flag);
-void setxmapflag(int32_t mi2, uint32_t flag);
-void setxmapflag(uint32_t flag);
+void setxmapflag(int32_t screen, uint32_t flag);
+void setxmapflag_mi(int32_t mi2, uint32_t flag);
 void unsetxmapflag(int32_t mi2, uint32_t flag);
 void unsetxmapflag(uint32_t flag);
 bool getxmapflag2(int32_t screen_index, uint32_t flag);

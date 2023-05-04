@@ -3416,7 +3416,7 @@ bool HeroClass::checkstab()
 							setmapflag2(screen, screen_index, (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(ptr->pickupexstate > -1 && ptr->pickupexstate < 32)
-							setxmapflag(1<<ptr->pickupexstate);
+							setxmapflag(screen_index, 1<<ptr->pickupexstate);
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
 							if (screen->flags9&fITEMSECRETPERM) setmapflag2(screen, screen_index, mSECRET);
@@ -18442,7 +18442,7 @@ void HeroClass::oldchecklockblock()
 	auto pos_handle = found1 ? get_pos_handle_for_world_xy(bx, by, 0) : get_pos_handle_for_world_xy(bx2, by, 0);
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag2(pos_handle.screen_index, 1<<cmb.attribytes[5]);
+		setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
 		remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 	}
 	else
@@ -18508,6 +18508,8 @@ void HeroClass::oldcheckbosslockblock()
 	int32_t cid1 = MAPCOMBO(bx, by), cid2 = MAPCOMBO(bx2, by);
 	newcombo const& cmb = combobuf[cid1];
 	newcombo const& cmb2 = combobuf[cid2];
+	int cmb_screen_index = get_screen_index_for_world_xy(bx, by);
+	int cmb2_screen_index = get_screen_index_for_world_xy(bx2, by);
 	// Layer 0 is overridden by Locked Doors
 	if ((cmb.type == cBOSSLOCKBLOCK && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && _effectflag(bx, by, 1, -1) && !islockeddoor(bx, by, dLOCKED)))
 	{
@@ -18607,7 +18609,7 @@ void HeroClass::oldcheckbosslockblock()
 	
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag(1<<cmb.attribytes[5]);
+		setxmapflag(cmb_screen_index, 1<<cmb.attribytes[5]);
 		remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
 	}
 	else
@@ -29067,6 +29069,9 @@ void HeroClass::checkitems(int32_t index)
 	int32_t holdid = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
+	// TODO z3 an item can move, so should really have a item->screen_index property.
+	int32_t item_screen_index = get_screen_index_for_world_xy(ptr->x.getInt(), ptr->y.getInt());
+	
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
@@ -29288,7 +29293,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(exstate > -1 && exstate < 32)
 		{
-			setxmapflag(1<<exstate);
+			setxmapflag(item_screen_index, 1<<exstate);
 		}
 		
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup

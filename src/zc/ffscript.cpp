@@ -17935,7 +17935,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENEXSTATED:
 		{
 			int32_t mi2 = (currmap*MAPSCRSNORMAL)+currscr;
-			(value)?setxmapflag(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
+			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
 		
@@ -20603,7 +20603,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				int32_t mi = get_mi(ri->mapsref);
 				if(mi<0) break;
-				(value)?setxmapflag(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
+				(value)?setxmapflag_mi(mi, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag(mi, 1 << ((ri->d[rINDEX]) / 10000));
 			}
 			else
 			{
