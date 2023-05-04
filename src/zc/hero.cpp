@@ -19366,10 +19366,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,up,dUNLOCKED);
 					tmpscr.door[0]=dUNLOCKED;
-					setmapflag(si, mDOOR_UP);
+					setmapflag_mi(si, mDOOR_UP);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_DOWN);
+						setmapflag_mi(di, mDOOR_DOWN);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					}
@@ -19381,10 +19381,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,up,dOPENBOSS);
 					tmpscr.door[0]=dOPENBOSS;
-					setmapflag(si, mDOOR_UP);
+					setmapflag_mi(si, mDOOR_UP);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_DOWN);
+						setmapflag_mi(di, mDOOR_DOWN);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -19425,10 +19425,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,down,dUNLOCKED);
 					tmpscr.door[1]=dUNLOCKED;
-					setmapflag(si, mDOOR_DOWN);
+					setmapflag_mi(si, mDOOR_DOWN);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_UP);
+						setmapflag_mi(di, mDOOR_UP);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					}
@@ -19440,10 +19440,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,down,dOPENBOSS);
 					tmpscr.door[1]=dOPENBOSS;
-					setmapflag(si, mDOOR_DOWN);
+					setmapflag_mi(si, mDOOR_DOWN);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_UP);
+						setmapflag_mi(di, mDOOR_UP);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -19482,10 +19482,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,left,dUNLOCKED);
 					tmpscr.door[2]=dUNLOCKED;
-					setmapflag(si, mDOOR_LEFT);
+					setmapflag_mi(si, mDOOR_LEFT);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_RIGHT);
+						setmapflag_mi(di, mDOOR_RIGHT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					}
@@ -19497,10 +19497,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,left,dOPENBOSS);
 					tmpscr.door[2]=dOPENBOSS;
-					setmapflag(si, mDOOR_LEFT);
+					setmapflag_mi(si, mDOOR_LEFT);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_RIGHT);
+						setmapflag_mi(di, mDOOR_RIGHT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -19543,10 +19543,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,right,dUNLOCKED);
 					tmpscr.door[3]=dUNLOCKED;
-					setmapflag(si, mDOOR_RIGHT);
+					setmapflag_mi(si, mDOOR_RIGHT);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_LEFT);
+						setmapflag_mi(di, mDOOR_LEFT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					}
@@ -19558,10 +19558,10 @@ void HeroClass::checklocked()
 					{
 					putdoor(scrollbuf,0,right,dOPENBOSS);
 					tmpscr.door[3]=dOPENBOSS;
-					setmapflag(si, mDOOR_RIGHT);
+					setmapflag_mi(si, mDOOR_RIGHT);
 					
 					if(di != 0xFFFF)
-						setmapflag(di, mDOOR_LEFT);
+						setmapflag_mi(di, mDOOR_LEFT);
 					sfx(WAV_DOOR);
 					markBmap(-1);
 					// Run Boss Key Script
@@ -19610,10 +19610,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,up,dUNLOCKED);
 						tmpscr.door[0]=dUNLOCKED;
-						setmapflag(si, mDOOR_UP);
+						setmapflag_mi(si, mDOOR_UP);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_DOWN);
+							setmapflag_mi(di, mDOOR_DOWN);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						}
@@ -19625,10 +19625,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,up,dOPENBOSS);
 						tmpscr.door[0]=dOPENBOSS;
-						setmapflag(si, mDOOR_UP);
+						setmapflag_mi(si, mDOOR_UP);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_DOWN);
+							setmapflag_mi(di, mDOOR_DOWN);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -19677,10 +19677,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,down,dUNLOCKED);
 						tmpscr.door[1]=dUNLOCKED;
-						setmapflag(si, mDOOR_DOWN);
+						setmapflag_mi(si, mDOOR_DOWN);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_UP);
+							setmapflag_mi(di, mDOOR_UP);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						}
@@ -19692,10 +19692,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,down,dOPENBOSS);
 						tmpscr.door[1]=dOPENBOSS;
-						setmapflag(si, mDOOR_DOWN);
+						setmapflag_mi(si, mDOOR_DOWN);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_UP);
+							setmapflag_mi(di, mDOOR_UP);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -19742,10 +19742,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,left,dUNLOCKED);
 						tmpscr.door[2]=dUNLOCKED;
-						setmapflag(si, mDOOR_LEFT);
+						setmapflag_mi(si, mDOOR_LEFT);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_RIGHT);
+							setmapflag_mi(di, mDOOR_RIGHT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						}
@@ -19757,10 +19757,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,left,dOPENBOSS);
 						tmpscr.door[2]=dOPENBOSS;
-						setmapflag(si, mDOOR_LEFT);
+						setmapflag_mi(si, mDOOR_LEFT);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_RIGHT);
+							setmapflag_mi(di, mDOOR_RIGHT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script
@@ -19809,10 +19809,10 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,right,dUNLOCKED);
 						tmpscr.door[3]=dUNLOCKED;
-						setmapflag(si, mDOOR_RIGHT);
+						setmapflag_mi(si, mDOOR_RIGHT);
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_LEFT);
+							setmapflag_mi(di, mDOOR_LEFT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						}
@@ -19824,11 +19824,11 @@ void HeroClass::checklocked()
 						{
 						putdoor(scrollbuf,0,right,dOPENBOSS);
 						tmpscr.door[3]=dOPENBOSS;
-						setmapflag(si, mDOOR_RIGHT);
+						setmapflag_mi(si, mDOOR_RIGHT);
 						
 						
 						if(di != 0xFFFF)
-							setmapflag(di, mDOOR_LEFT);
+							setmapflag_mi(di, mDOOR_LEFT);
 						sfx(WAV_DOOR);
 						markBmap(-1);
 						// Run Boss Key Script

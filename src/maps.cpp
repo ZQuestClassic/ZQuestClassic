@@ -3644,7 +3644,7 @@ void bombdoor(int32_t x,int32_t y)
         
         if(nextscr(up)!=0xFFFF)
         {
-            setmapflag(nextscr(up), mDOOR_DOWN);
+            setmapflag_mi(nextscr(up), mDOOR_DOWN);
             markBmap(-1,nextscr(up)-(get_currdmap()<<7));
         }
     }
@@ -3658,7 +3658,7 @@ void bombdoor(int32_t x,int32_t y)
         
         if(nextscr(down)!=0xFFFF)
         {
-            setmapflag(nextscr(down), mDOOR_UP);
+            setmapflag_mi(nextscr(down), mDOOR_UP);
             markBmap(-1,nextscr(down)-(get_currdmap()<<7));
         }
     }
@@ -3672,7 +3672,7 @@ void bombdoor(int32_t x,int32_t y)
         
         if(nextscr(left)!=0xFFFF)
         {
-            setmapflag(nextscr(left), mDOOR_RIGHT);
+            setmapflag_mi(nextscr(left), mDOOR_RIGHT);
             markBmap(-1,nextscr(left)-(get_currdmap()<<7));
         }
     }
@@ -3686,7 +3686,7 @@ void bombdoor(int32_t x,int32_t y)
         
         if(nextscr(right)!=0xFFFF)
         {
-            setmapflag(nextscr(right), mDOOR_LEFT);
+            setmapflag_mi(nextscr(right), mDOOR_LEFT);
             markBmap(-1,nextscr(right)-(get_currdmap()<<7));
         }
     }
