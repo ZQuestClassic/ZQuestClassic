@@ -500,7 +500,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 	if ( combobuf[cid].usrflags&cflag8 ) killgenwpn(w);
 }
 
-void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
+void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft)
 {
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
 	{ 
@@ -508,8 +508,9 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 	} 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	byte* grid = w->wscreengrid_ffc;
-	ffcdata& ffc = tmpscr.ffcs[pos];
-	if ( !(get_bit(grid,pos)) || (combobuf[cid].usrflags&cflag5) ) 
+	ffcdata& ffc = ffc_handle.ffc;
+	// TODO z3 !
+	if ( !(get_bit(grid,ffc_handle.i)) || (combobuf[cid].usrflags&cflag5) ) 
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
@@ -564,11 +565,10 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_ffc_modify_preroutine(pos);
+			screen_ffc_modify_preroutine(ffc_handle);
 			ffc.setData(tmpscr.secretcombo[ft]);
 			ffc.cset = tmpscr.secretcset[ft];
-			// newflag = s->secretflag[ft];
-			screen_ffc_modify_postroutine(pos);
+			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
 		}
@@ -578,7 +578,7 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 		{
 			do
 			{
-				screen_ffc_modify_preroutine(pos);
+				screen_ffc_modify_preroutine(ffc_handle);
 				
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
@@ -589,7 +589,7 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 				else
 					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
 				
-				screen_ffc_modify_postroutine(pos);
+				screen_ffc_modify_postroutine(ffc_handle);
 				
 				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
 				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo
@@ -608,7 +608,7 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 		//zprint("continuous\n");
 		
 	}
-	set_bit(grid,pos,1);
+	set_bit(grid,ffc_handle.i,1);
 	
 	if (combobuf[cid].usrflags&cflag8) killgenwpn(w);
 }
@@ -629,7 +629,8 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 				{
 					ffcdata& ffc = tmpscr.ffcs[i];
 					if(!MatchComboTrigger(w, cbuf, ffc.getData())) continue;
-					do_trigger_combo_ffc(i, 0, w);
+					// TODO z3 !
+					do_trigger_combo_ffc({&tmpscr, currscr, i, ffc}, 0, w);
 				}
 			}
 		}

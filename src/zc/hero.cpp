@@ -9471,16 +9471,14 @@ bool HeroClass::animate(int32_t)
 	awarp=false;
 	
 	// TODO z3 ffc
-	word c = tmpscr.numFFC();
-	for(word i=0; i<c; i++)
-	{
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
-		newcombo const& cmb = combobuf[tmpscr.ffcs[i].getData()];
+		newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
 		
 		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 		{
-			do_trigger_combo_ffc(i);
+			do_trigger_combo_ffc(ffc_handle);
 		}
 		
 		if(!(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
@@ -9523,9 +9521,12 @@ bool HeroClass::animate(int32_t)
 			
 			sdir = dir;
 			dowarp(1,ind);
-			break;
+			return false;
 		}
-	}
+
+		return true;
+	});
+
 	zfix dx, dy;
 	if (sideview_mode() && !on_sideview_solid_oldpos(x, y,old_x,old_y, false, 1) && on_sideview_solid_oldpos(x, y,old_x,old_y, false, 2) && !toogam)
 	{
@@ -12065,6 +12066,7 @@ bool HeroClass::doattack()
 					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].fam_type;
 					if(hmrlvl < 1) hmrlvl = 1;
 					int rad = quakescroll.misc2;
+					// TODO z3
 					for(int pos = 0; pos < 176; ++pos)
 					{
 						if(distance(x,y,COMBOX(pos),COMBOY(pos)) > rad) continue;
@@ -12081,20 +12083,21 @@ bool HeroClass::doattack()
 							}
 						}
 					}
-					word c = tmpscr.numFFC();
-					for(int ff = 0; ff < c; ++ff)
-					{
-						ffcdata& ffc = tmpscr.ffcs[ff];
+					for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+						ffcdata& ffc = ffc_handle.ffc;
 						newcombo const& cmb = combobuf[ffc.getData()];
-						if(distance(x,y,ffc.x,ffc.y) > rad) continue;
+						if(distance(x,y,ffc.x,ffc.y) > rad) return true;
+
 						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
 						{
 							if((cmb.triggerflags[0]&combotriggerINVERTMINMAX)
 								? hmrlvl <= cmb.triggerlevel
 								: hmrlvl >= cmb.triggerlevel)
-								do_trigger_combo_ffc(ff);
+								do_trigger_combo_ffc(ffc_handle);
 						}
-					}
+
+						return true;
+					});
 				}
 			}
 		}
@@ -12209,6 +12212,7 @@ bool isRaftFlag(int32_t flag)
 
 void handle_lens_triggers(int32_t l_id)
 {
+	// TODO z3
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & ITEM_FLAG6);
 	for(auto layer = 0; layer < 7; ++layer)
 	{
@@ -12233,7 +12237,7 @@ void handle_lens_triggers(int32_t l_id)
 			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
-				do_trigger_combo_ffc(i);
+				do_trigger_combo_ffc({&tmpscr, currscr, i, ffc});
 				break;
 			}
 		}
@@ -19057,7 +19061,7 @@ void HeroClass::checkgenpush()
 
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		// TODO z3
+		// TODO z3 find_ffc ?
 		word c = tmpscr.numFFC();
 		for(word i=0; i<c; i++)
 		{
@@ -19067,7 +19071,7 @@ void HeroClass::checkgenpush()
 				newcombo const& cmb3 = combobuf[ffc.getData()];
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
-					do_trigger_combo_ffc(i);
+					do_trigger_combo_ffc({&tmpscr, currscr, i, ffc});
 					break;
 				}
 			}
@@ -19303,9 +19307,9 @@ endsigns:
 	
 	if(getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput))
 	{
-		// TODO z3
+		// TODO z3 !
 		if (foundffc >= 0)
-			do_trigger_combo_ffc(foundffc, didsign ? ctrigIGNORE_SIGN : 0);
+			do_trigger_combo_ffc({&tmpscr, currscr, foundffc, tmpscr.ffcs[foundffc]}, didsign ? ctrigIGNORE_SIGN : 0);
 		else 
 			do_trigger_combo(get_pos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
@@ -20565,11 +20569,8 @@ void HeroClass::handleSpotlights()
 		}
 	});
 
-	// TODO z3 ffc
-	word c = tmpscr.numFFC();
-	for(word i=0; i<c; i++)
-	{
-		ffcdata& ffc = tmpscr.ffcs[i];
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		ffcdata& ffc = ffc_handle.ffc;
 		newcombo const* cmb = &combobuf[ffc.getData()];
 		size_t pos = COMBOPOS(ffc.x+8, ffc.y+8);
 		if(cmb->type == cLIGHTTARGET)
@@ -20601,10 +20602,11 @@ void HeroClass::handleSpotlights()
 			if(trigged ? (cmb->triggerflags[1] & combotriggerLIGHTON)
 				: (cmb->triggerflags[1] & combotriggerLIGHTOFF))
 			{
-				do_trigger_combo_ffc(i);
+				do_trigger_combo_ffc(ffc_handle);
 			}
 		}
-	}
+		return true;
+	});
 
 	if(hastrigs && istrigged && !alltrig)
 	{
@@ -20866,17 +20868,15 @@ void HeroClass::checkspecial()
 				}
 			}
 		}
-		// TODO z3 ffc
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			ffcdata& ffc = tmpscr.ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
 			if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 			{
-				do_trigger_combo_ffc(i);
+				do_trigger_combo_ffc(ffc_handle);
 			}
-		}
+			return true;
+		});
+		// TODO z3
 		if(tmpscr.flags9 & fENEMY_WAVES)
 		{
 			hasmainguy = hasMainGuy(); //possibly un-beat the enemies (another 'wave'?)
@@ -21538,15 +21538,15 @@ void HeroClass::checkspecial2(int32_t *ls)
 				}
 			}
 		}
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
+
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			bool found = false;
-			for(auto xch = 0; xch < 2; ++xch)
+			for (int xch = 0; xch < 2; ++xch)
 			{
-				for(auto ych = 0; ych < 2; ++ych)
+				for(int ych = 0; ych < 2; ++ych)
 				{
-					if (ffcIsAt(i, xPoses[xch], yPoses[ych]))
+					// TODO z3 !
+					if (ffcIsAt(ffc_handle.i, xPoses[xch], yPoses[ych]))
 					{
 						found = true;
 					}
@@ -21554,14 +21554,14 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			if (found)
 			{
-				ffcdata& ffc = tmpscr.ffcs[i];
-				newcombo const* cmb = &combobuf[ffc.getData()];
+				newcombo const* cmb = &combobuf[ffc_handle.ffc.getData()];
 				if (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
 				{
-					do_trigger_combo_ffc(i);
+					do_trigger_combo_ffc(ffc_handle);
 				}
 			}
-		}
+			return true;
+		});
 	}
 	
 	//

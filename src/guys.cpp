@@ -21181,7 +21181,7 @@ void screen_combo_modify_preroutine(const pos_handle_t& pos_handle)
 }
 
 //Placeholder in case we need it.
-void screen_ffc_modify_preroutine(word index)
+void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 {
 	return;
 }
@@ -21211,13 +21211,12 @@ void screen_combo_modify_postroutine(const pos_handle_t& pos_handle)
 	update_slope_combopos(pos_handle);
 }
 
-// TODO z3 !
-void screen_ffc_modify_postroutine(word index)
+void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ff = tmpscr.ffcs[index];
+	ffcdata& ff = ffc_handle.ffc;
 	newcombo const& cmb = combobuf[ff.getData()];
 	
-	rpos_t id = SLOPE_ID(index, 7);
+	rpos_t id = SLOPE_ID(ffc_handle.i, 7);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -21254,14 +21253,12 @@ void screen_combo_modify_post(int32_t cid)
 		}
 	});
 
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		for (word ind = 0; ind < MAXFFCS; ++ind)
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc.getData() == cid)
 		{
-			if (screen->ffcs[ind].getData() == cid)
-			{
-				screen_ffc_modify_postroutine(ind);
-			}
+			screen_ffc_modify_postroutine(ffc_handle);
 		}
+		return true;
 	});
 }
 

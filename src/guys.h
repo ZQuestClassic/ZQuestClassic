@@ -48,10 +48,10 @@ void update_slope_comboposes();
 void update_slope_combopos(const pos_handle_t& pos_handle);
 void screen_combo_modify_preroutine(mapscr *s, int32_t pos);
 void screen_combo_modify_preroutine(const pos_handle_t& pos_handle);
-void screen_ffc_modify_preroutine(word index);
+void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle);
 void screen_combo_modify_postroutine(mapscr *s, int32_t pos);
 void screen_combo_modify_postroutine(const pos_handle_t& pos_handle);
-void screen_ffc_modify_postroutine(word index);
+void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle);
 void screen_combo_modify_pre(int32_t cid);
 void screen_combo_modify_post(int32_t cid);
 

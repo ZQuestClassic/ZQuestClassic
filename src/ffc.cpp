@@ -17,7 +17,7 @@ extern newcombo *combobuf;
 // extern mapscr tmpscr[2]; // TODO z3 ! delete me
 extern int16_t lensclk;
 extern HeroClass Hero;
-void screen_ffc_modify_postroutine(word index);
+void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle);
 #endif
 
 ffcdata::ffcdata(ffcdata const& other)
@@ -114,11 +114,14 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 
 #if IS_PLAYER
+	// for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	// });
+	// TODO z3 !
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		if (this == &tmpscr.ffcs[i])
 		{
-			screen_ffc_modify_postroutine(i);
+			screen_ffc_modify_postroutine({&tmpscr, currscr, i, *this});
 			break;
 		}
 	}

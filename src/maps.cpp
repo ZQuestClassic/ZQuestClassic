@@ -2306,7 +2306,8 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool t
 			ffcdata& ffc2 = tmpscr.ffcs[i];
 			newcombo const& cmb = combobuf[ffc2.getData()];
 			pos_handle.rpos = (rpos_t)i;
-			if(triggers && force_ex_trigger_ffc(pos_handle, xflag))
+			// TODO z3 !!
+			if(triggers && force_ex_trigger_ffc({&tmpscr, currscr, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -2593,14 +2594,12 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = s->numFFC();
-		for(word i=0; i<c; i++)
-		{
-			ffcdata& ffc = s->ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
-			if(cmb.triggerflags[2] & combotriggerSECRETSTR)
-				do_trigger_combo_ffc(i);
-		}
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
+			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
+				do_trigger_combo_ffc(ffc_handle);
+			return true;
+		});
 	}
 
 	int32_t ft=0; //Flag trigger?
@@ -3367,18 +3366,16 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 		}
 	}
 
-	// TODO z3 !
-	word c = tmpscr.numFFC();
-	for(word i=0; i<c; i++)
-	{
-		ffcdata& ffc = tmpscr.ffcs[i];
-		if((combobuf[ffc.getData()].triggerflags[2] & trigflags)
-			&& ffc.collide(x,y,16,16))
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if((combobuf[ffc_handle.ffc.getData()].triggerflags[2] & trigflags)
+			&& ffc_handle.ffc.collide(x,y,16,16))
 		{
-			do_trigger_combo_ffc(i);
+			do_trigger_combo_ffc(ffc_handle);
 			ret = true;
 		}
-	}
+		return true;
+	});
+
 	return ret;
 }
 
@@ -4566,6 +4563,43 @@ void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& 
 	}
 }
 
+// void for_every_ffc_in_region(const std::function <void (const ffc_handle_t&)>& fn)
+// {
+// 	for (int screen_index = 0; screen_index < 128; screen_index++)
+// 	{
+// 		if (is_in_current_region(screen_index))
+// 		{
+// 			mapscr* screen = get_scr(currmap, screen_index);
+
+// 			int c = screen->numFFC();
+// 			for (int i = 0; i < c; i++)
+// 			{
+// 				ffc_handle_t ffc_handle = {screen, screen_index, i, screen->ffcs[i]};
+// 				fn(ffc_handle);
+// 			}
+// 		}
+// 	}
+// }
+
+// Stops execution when lambda returns false.
+void for_every_ffc_in_region(const std::function <bool (const ffc_handle_t&)>& fn)
+{
+	for (int screen_index = 0; screen_index < 128; screen_index++)
+	{
+		if (is_in_current_region(screen_index))
+		{
+			mapscr* screen = get_scr(currmap, screen_index);
+
+			int c = screen->numFFC();
+			for (int i = 0; i < c; i++)
+			{
+				ffc_handle_t ffc_handle = {screen, screen_index, i, screen->ffcs[i]};
+				if (!fn(ffc_handle)) return;
+			}
+		}
+	}
+}
+
 static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
 {
 	if (!is_z3_scrolling_mode())
@@ -5683,14 +5717,12 @@ void openshutters()
 	});
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			ffcdata& ffc = tmpscr.ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
-				do_trigger_combo_ffc(i);
-		}
+				do_trigger_combo_ffc(ffc_handle);
+			return true;
+		});
 	}
 		
 	sfx(WAV_DOOR,128);
@@ -6038,7 +6070,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		{
 			screen->ffcs[i].setLoaded(true);
 			screen->ffcs[i].solid_update(false);
-			screen_ffc_modify_postroutine(i);
+			screen_ffc_modify_postroutine({screen, scr, i, screen->ffcs[i]});
 		}
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
@@ -7424,7 +7456,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc(q,ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({m, screen_index, q, m->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7564,7 +7596,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc(q,ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({base_screen, screen_index, q, base_screen->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
