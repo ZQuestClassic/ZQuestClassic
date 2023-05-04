@@ -25209,7 +25209,6 @@ static void for_every_nearby_screen_during_scroll(
 		// TODO z3
 		// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
 		{
-			global_z3_cur_scr_drawing = scr;
 			mapscr* base_screen = use_new_screens ?
 				get_scr(base_map, scr) :
 				old_temporary_screens[scr*7];
@@ -25238,8 +25237,6 @@ static void for_every_nearby_screen_during_scroll(
 			}
 		}
 	}
-
-	global_z3_cur_scr_drawing = -1;
 }
 
 static int dir_to_scr_offset(direction dir)

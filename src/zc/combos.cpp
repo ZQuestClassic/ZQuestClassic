@@ -755,54 +755,48 @@ bool trigger_step(const pos_handle_t& pos_handle)
 			// Increment all combos of the same id as the triggered combo on the base screen.
 			// If the trigger is on a layer screen, that will be the only combo on that layer incremented.
 			int32_t id = pos_handle.screen->data[pos];
-			for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-				for(auto q = 0; q < 176; ++q)
+			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+				for (int q = 0; q < 176; ++q)
 				{
-					if (z3_scr->data[q] == id)
+					if (scr->data[q] == id)
 					{
-						++z3_scr->data[q];
+						++scr->data[q];
 					}
 				}
 			});
-			// TODO z3 ffc
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				word c = pos_handle.screen->numFFC();
-				for(word i=0; i<c; i++)
-				{
-					ffcdata& ffc2 = pos_handle.screen->ffcs[i];
-					if (ffc2.getData() == id)
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+					if (ffc_handle.ffc.getData() == id)
 					{
-						ffc2.incData(1);
+						ffc_handle.ffc.incData(1);
 					}
-				}
+					return true;
+				});
 			}
 			if (pos_handle.layer > 0) ++pos_handle.screen->data[pos];
 			break;
 		}
 		case cSTEPALL:
 		{
-			for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-				for(auto q = 0; q < 176; ++q)
+			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+				for (int q = 0; q < 176; ++q)
 				{
-					if (isStepType(combobuf[z3_scr->data[q]].type))
+					if (isStepType(combobuf[scr->data[q]].type))
 					{
-						++z3_scr->data[q];
+						++scr->data[q];
 					}
 				}
 			});
-			// TODO z3 ffc
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				word c = pos_handle.screen->numFFC();
-				for(word i=0; i<c; i++)
-				{
-					ffcdata& ffc2 = pos_handle.screen->ffcs[i];
-					if (isStepType(combobuf[ffc2.getData()].type))
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+					if (isStepType(combobuf[ffc_handle.ffc.getData()].type))
 					{
-						ffc2.incData(1);
+						ffc_handle.ffc.incData(1);
 					}
-				}
+					return true;
+				});
 			}
 			if (pos_handle.layer > 0) ++pos_handle.screen->data[pos];
 			break;
@@ -831,27 +825,25 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 		}
 		case cSTEPSAME:
 		{
-			// TODO z3 !
 			int32_t id = ffc.getData();
-			for(auto q = 0; q < 176; ++q)
-			{
-				if(tmpscr.data[q] == id)
+			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+				for (int q = 0; q < 176; ++q)
 				{
-					++tmpscr.data[q];
-				}
-			}
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
-			{
-				// TODO z3 !!!
-				word c = tmpscr.numFFC();
-				for(word i=0; i<c; i++)
-				{
-					ffcdata& ffc2 = tmpscr.ffcs[i];
-					if (ffc2.getData() == id && i != ffc_handle.i)
+					if (scr->data[q] == id)
 					{
-						ffc2.incData(1);
+						++scr->data[q];
 					}
 				}
+			});
+			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			{
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+					if (ffc_handle_2.ffc.getData() == id && &ffc_handle_2.ffc != &ffc_handle.ffc)
+					{
+						ffc_handle_2.ffc.incData(1);
+					}
+					return true;
+				});
 			}
 			ffc.incData(1);
 			break;
@@ -865,18 +857,15 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 					++tmpscr.data[q];
 				}
 			}
-			// TODO z3 !!
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				word c = tmpscr.numFFC();
-				for(word i=0; i<c; i++)
-				{
-					ffcdata& ffc2 = tmpscr.ffcs[i];
-					if (isStepType(combobuf[ffc2.getData()].type) && i != ffc_handle.i)
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+					if (isStepType(combobuf[ffc_handle_2.ffc.getData()].type) && &ffc_handle_2.ffc != &ffc_handle.ffc)
 					{
-						ffc2.incData(1);
+						ffc_handle_2.ffc.incData(1);
 					}
-				}
+					return true;
+				});
 			}
 			ffc.incData(1);
 			break;
@@ -1277,8 +1266,6 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 	return true;
 }
 
-
-// TODO z3 test
 bool trigger_lockblock(const pos_handle_t& pos_handle)
 {
 	DCHECK(pos_handle.rpos <= region_max_rpos);

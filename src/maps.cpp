@@ -2263,6 +2263,7 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool t
 		}
 	}
 
+	// TODO z3 this should be every rpos...
 	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
@@ -2393,7 +2394,6 @@ bool overheadcombos(mapscr *s)
 {
     for(int32_t i=0; i<176; i++)
     {
-//    if (combobuf[s->data[i]].type==cOLD_OVERHEAD)
         if(combo_class_buf[combobuf[s->data[i]].type].overhead)
         {
             return true;
@@ -4011,8 +4011,6 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer
     }
 }
 
-#define SOLID_COL makecol(178,36,36)
-//makecol(255,85,85)
 // Called by do_walkflags
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr)
 {
@@ -4081,7 +4079,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 			}
 			else
 			{
-				int32_t color = SOLID_COL;
+				int32_t color = makecol(178,36,36);
 				
 				if(isstepable(cmbdat)&& (!doladdercheck))
 					color=makecol(165,105,8);
@@ -4529,13 +4527,9 @@ void for_every_screen_in_region(const std::function <void (mapscr*, int, unsigne
 			unsigned int z3_scr_dx = scr_x - z3_scr_x;
 			unsigned int z3_scr_dy = scr_y - z3_scr_y;
 			mapscr* z3_scr = get_scr(currmap, scr);
-			// TODO z3!
-			global_z3_cur_scr_drawing = scr;
 			fn(z3_scr, scr, z3_scr_dx, z3_scr_dy);
 		}
 	}
-
-	global_z3_cur_scr_drawing = -1;
 }
 
 void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& fn)
@@ -4547,14 +4541,14 @@ void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& 
 		if (!is_in_current_region(screen_index)) continue;
 
 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-		for (auto lyr = 0; lyr <= 6; ++lyr)
+		for (int lyr = 0; lyr <= 6; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
 			pos_handle.screen = scr;
 			pos_handle.screen_index = screen_index;
 			pos_handle.layer = lyr;
 
-			for (auto pos = 0; pos < 176; ++pos)
+			for (int pos = 0; pos < 176; ++pos)
 			{
 				pos_handle.rpos = (rpos_t)((int)base_rpos + pos);
 				fn(pos_handle);
@@ -4630,7 +4624,7 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 				if (scr_y < 0 || scr_y >= 8) continue;
 			}
 
-			int scr = global_z3_cur_scr_drawing = scr_x + scr_y * 16;
+			int scr = scr_x + scr_y * 16;
 			if (!is_in_current_region(scr)) continue;
 
 			mapscr* myscr = get_scr(currmap, scr);
@@ -4647,8 +4641,6 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 			fn(myscr, scr, offx, offy);
 		}
 	}
-
-	global_z3_cur_scr_drawing = -1;
 }
 
 void draw_msgstr(byte layer, bool tempb = false)
