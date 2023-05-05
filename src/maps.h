@@ -215,15 +215,11 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 
 bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers = false);
 bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers);
-void clear_xstatecombos_old(int32_t tmp);
-void clear_xstatecombos_old(int32_t tmp, int32_t mi, bool triggers = false);
-// void clear_xstatecombos2(mapscr *s, int32_t scr);
-void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
+void clear_xstatecombos(mapscr *s, int32_t scr, bool triggers = false);
+void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers = false);
 
 bool remove_lockblocks(mapscr* s, int32_t screen_index);
-bool remove_lockblocks_old(int tmp);
 bool remove_bosslockblocks(mapscr* s, int32_t screen_index);
-bool remove_bosslockblocks_old(int32_t tmp);
 bool remove_chests(mapscr* s, int32_t screen_index);
 bool remove_lockedchests(mapscr* s, int32_t screen_index);
 bool remove_bosschests(mapscr* s, int32_t screen_index);

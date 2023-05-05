@@ -193,7 +193,7 @@ int get_region_id(int dmap, int scr)
 
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
-	if (!is_z3_scrolling_mode())
+	if (!is_z3_scrolling_mode() || screen_index >= 0x80)
 	{
 		origin_scr = screen_index;
 		region_scr_dx = 0;
@@ -1094,7 +1094,7 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 	    remove_screenstatecombos2(&scr, screen, false, cBOSSCHEST, cBOSSCHEST2);
 	}
 	
-	clear_xstatecombos2(&scr, screen, mi);
+	clear_xstatecombos_mi(&scr, screen, mi);
 	
 	return scr.data[pos];
 }
@@ -2147,13 +2147,6 @@ bool hiddenstair2(mapscr *s,bool redraw)
     return false;
 }
 
-// TODO z3 remove
-bool remove_screenstatecombos(int32_t tmp, int32_t what1, int32_t what2)
-{
-	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	return remove_screenstatecombos2(s, tmp == 0 ? currscr : homescr, true, what1, what2);
-}
-
 bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2)
 {
 	if (screen_index >= 128) s = &special_warp_return_screen;
@@ -2207,8 +2200,6 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 			}
 		}
 	}
-	
-	
 	
 	return didit;
 }
@@ -2297,20 +2288,15 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	return didit;
 }
 
-// TODO z3 !
-void clear_xstatecombos_old(int32_t tmp)
+void clear_xstatecombos(mapscr *s, int32_t scr, bool triggers)
 {
-	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr, tmp==0);
-}
-void clear_xstatecombos_old(int32_t tmp, int32_t mi, bool triggers)
-{
-	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	clear_xstatecombos2(s, currscr, mi, triggers);
+	int mi = (currmap*MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
+	clear_xstatecombos_mi(s, scr, mi, triggers);
 }
 
-void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, bool triggers)
+void clear_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 {
-	for(byte q = 0; q < 32; ++q)
+	for (int q = 0; q < 32; ++q)
 	{
 		remove_xstatecombos_mi(s,scr,mi,q,triggers);
 	}
@@ -2321,21 +2307,9 @@ bool remove_lockblocks(mapscr* s, int32_t screen_index)
     return remove_screenstatecombos2(s, screen_index, true, cLOCKBLOCK, cLOCKBLOCK2);
 }
 
-bool remove_lockblocks_old(int tmp)
-{
-	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-    return remove_lockblocks(s, currscr);
-}
-
 bool remove_bosslockblocks(mapscr* s, int32_t screen_index)
 {
     return remove_screenstatecombos2(s, screen_index, true, cBOSSLOCKBLOCK, cBOSSLOCKBLOCK2);
-}
-
-bool remove_bosslockblocks_old(int32_t tmp)
-{
-	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-    return remove_bosslockblocks(s, currscr);
 }
 
 bool remove_chests(mapscr* s, int32_t screen_index)
@@ -5762,7 +5736,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	// make any damn sense. Technically some quest could rely on this weird behavior
 	// to have state on a 0x80+ screen that stored its data in some random screen of the next map,
 	// so we have a compat rule for this now.
-	// TODO z3 ! make this a compat QR. for now am lazy and using "region mode" as stand-in.
+	// TODO z3 ! make this a compat QR. for now am lazy and using "region mode" as stand-in. Or.... don't bother?
 	int mi = currmap*MAPSCRSNORMAL + screen_index;
 	bool check_for_state_things_0x80_qr = !is_z3_scrolling_mode();
 	bool should_check_for_state_things = (check_for_state_things_0x80_qr || screen_index < 0x80) && mi < MAXMAPS2*MAPSCRSNORMAL;
@@ -5794,7 +5768,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 			remove_bosschests(base_screen, screen_index);
 		}
 		
-		clear_xstatecombos2(base_screen, screen_index, mi);
+		clear_xstatecombos_mi(base_screen, screen_index, mi);
 	}
 
 	// check doors
@@ -6232,7 +6206,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		remove_bosschests(screen, scr);
 	}
 	
-	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+scr);
+	clear_xstatecombos(screen, scr);
 	
 	// check doors
 	if(isdungeon(destdmap,scr))
@@ -6428,7 +6402,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		remove_bosschests(&screen, scr);
 	}
 	
-	clear_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+scr);
+	clear_xstatecombos(&screen, scr);
 	
 	// check doors
 	if(isdungeon(scr))

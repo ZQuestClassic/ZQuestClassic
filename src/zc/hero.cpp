@@ -20969,8 +20969,7 @@ void HeroClass::checkspecial()
 			remove_bosschests(z3_scr, scr);
 		}
 
-		int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-		clear_xstatecombos2(z3_scr, scr, mi, true);
+		clear_xstatecombos(z3_scr, scr, true);
 	});
 	
 	if((hasitem&8) && triggered_screen_secrets)

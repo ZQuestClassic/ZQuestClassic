@@ -1352,7 +1352,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mLOCKBLOCK);
-			remove_lockblocks_old((currscr>=128)?1:0);
+			remove_lockblocks(ffc_handle.screen, ffc_handle.screen_index);
 			break;
 			
 		case cBOSSLOCKBLOCK:
@@ -1389,7 +1389,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mBOSSLOCKBLOCK);
-			remove_bosslockblocks_old((currscr >= 128) ? 1 : 0);
+			remove_bosslockblocks(ffc_handle.screen, ffc_handle.screen_index);
 			break;
 		}
 		default: return false;
