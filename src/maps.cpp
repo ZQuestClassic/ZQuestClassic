@@ -2213,26 +2213,18 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 	return didit;
 }
 
-// TODO z3
-bool remove_xstatecombos_old(int32_t tmp, byte xflag, bool triggers)
-{
-	return remove_xstatecombos_old(tmp, (currmap*MAPSCRSNORMAL)+homescr, xflag, triggers);
-}
-bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag, bool triggers)
-{
-	mapscr *s = tmp == 0 ? &tmpscr : &special_warp_return_screen;
-	return remove_xstatecombos2(s, currscr, mi, xflag, false);
-}
-
-bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag, bool triggers)
+bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers)
 {
 	int mi = (currmap * MAPSCRSNORMAL) + (scr >= 0x80 ? homescr : scr);
-	return remove_xstatecombos2(s, scr, mi, xflag, triggers);
+	return remove_xstatecombos_mi(s, scr, mi, xflag, triggers);
 }
-bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers)
+bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers)
 {
 	bool didit=false;
 	if(!getxmapflag_mi(mi, 1<<xflag)) return false;
+
+	if (scr >= 0x80) s = &special_warp_return_screen;
+	scr = scr >= 0x80 ? homescr : scr;
 
 	pos_handle_t pos_handle;
 	pos_handle.screen = s;
@@ -2263,7 +2255,6 @@ bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool t
 		}
 	}
 
-	// TODO z3 this should be every rpos...
 	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
@@ -2348,7 +2339,7 @@ void clear_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, bool triggers)
 {
 	for(byte q = 0; q < 32; ++q)
 	{
-		remove_xstatecombos2(s,scr,mi,q,triggers);
+		remove_xstatecombos_mi(s,scr,mi,q,triggers);
 	}
 }
 

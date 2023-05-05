@@ -1049,7 +1049,6 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
-			//if(!usekey()) return; //Old check
 			if(!try_locked_combo(cmb))
 			{
 				play_combo_string(cmb.attributes[3]/10000L);
@@ -1058,7 +1057,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				// remove_xstatecombos_old((currscr>=128)?1:0, cmb.attribytes[5]);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKEDCHEST);
@@ -1068,7 +1067,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				// remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mCHEST);
@@ -1103,7 +1102,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				// remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mBOSSCHEST);
@@ -1165,7 +1164,6 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
-			//if(!usekey()) return; //Old check
 			if(!try_locked_combo(cmb))
 			{
 				play_combo_string(cmb.attributes[3]/10000L);
@@ -1175,7 +1173,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(ffc_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos(ffc_handle.screen, ffc_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mLOCKEDCHEST);
@@ -1185,7 +1183,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(ffc_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos(ffc_handle.screen, ffc_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mCHEST);
@@ -1220,7 +1218,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(ffc_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos(ffc_handle.screen, ffc_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mBOSSCHEST);
@@ -1283,7 +1281,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
@@ -1320,7 +1318,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos2(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mBOSSLOCKBLOCK);
@@ -1350,7 +1348,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(ffc_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos(ffc_handle.screen, ffc_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mLOCKBLOCK);
@@ -1387,7 +1385,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(ffc_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos_old((currscr>=128)?1:0, 1<<cmb.attribytes[5]);
+				remove_xstatecombos(ffc_handle.screen, ffc_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(ffc_handle.screen, ffc_handle.screen_index, mBOSSLOCKBLOCK);

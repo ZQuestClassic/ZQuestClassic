@@ -213,10 +213,8 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair2(mapscr *s, bool redraw);                      
 bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2);
 
-bool remove_xstatecombos_old(int32_t tmp, byte xflag, bool triggers = false);
-bool remove_xstatecombos_old(int32_t tmp, int32_t mi, byte xflag, bool triggers);
-bool remove_xstatecombos2(mapscr *s, int32_t scr, byte xflag, bool triggers);
-bool remove_xstatecombos2(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers);
+bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers = false);
+bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool triggers);
 void clear_xstatecombos_old(int32_t tmp);
 void clear_xstatecombos_old(int32_t tmp, int32_t mi, bool triggers = false);
 // void clear_xstatecombos2(mapscr *s, int32_t scr);
