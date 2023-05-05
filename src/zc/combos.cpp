@@ -1057,7 +1057,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKEDCHEST);
@@ -1067,7 +1067,7 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 			if(cmb.usrflags&cflag16)
 			{
 				setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, cmb.attribytes[5]);
+				remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5]);
 				break;
 			}
 			setmapflag(pos_handle.screen, pos_handle.screen_index, mCHEST);
