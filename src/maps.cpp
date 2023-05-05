@@ -2227,34 +2227,8 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	scr = scr >= 0x80 ? homescr : scr;
 
 	pos_handle_t pos_handle;
-	pos_handle.screen = s;
 	pos_handle.screen_index = scr;
 	pos_handle.layer = 0;
-	for(int32_t i=0; i<176; i++)
-	{
-		pos_handle.rpos = POS_TO_RPOS(i, scr);
-		newcombo const& cmb = combobuf[s->data[i]];
-		if(triggers && force_ex_trigger(pos_handle, xflag))
-			didit = true;
-		else switch(cmb.type)
-		{
-			case cLOCKBLOCK: case cLOCKBLOCK2:
-			case cBOSSLOCKBLOCK: case cBOSSLOCKBLOCK2:
-			case cCHEST: case cCHEST2:
-			case cLOCKEDCHEST: case cLOCKEDCHEST2:
-			case cBOSSCHEST: case cBOSSCHEST2:
-			{
-				if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
-				if(cmb.attribytes[5] == xflag)
-				{
-					s->data[i]++;
-					didit=true;
-				}
-				break;
-			}
-		}
-	}
-
 	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
@@ -2290,16 +2264,15 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 			}
 		}
 	}
+
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = tmpscr.numFFC();
+		word c = s->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata& ffc2 = tmpscr.ffcs[i];
+			ffcdata& ffc2 = s->ffcs[i];
 			newcombo const& cmb = combobuf[ffc2.getData()];
-			pos_handle.rpos = (rpos_t)i;
-			// TODO z3 !!
-			if(triggers && force_ex_trigger_ffc({&tmpscr, currscr, i, ffc2}, xflag))
+			if(triggers && force_ex_trigger_ffc({s, scr, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
