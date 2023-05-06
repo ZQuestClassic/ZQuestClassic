@@ -53,18 +53,6 @@ extern FFScript FFCore;
 
 extern HeroClass Hero;
 
-/*
-bugs even w/o scrolling mode:
-
-    equipped item disappers when opening subscreen
-
-bugs in scrolling mode:
-
-    wallmaster
-    death animation
-    triforce animation
-*/
-
 // TODO z3 checklist do all before starting beta
 // screen secrets:
 //    - trigger all secrets in region
@@ -74,10 +62,8 @@ bugs in scrolling mode:
 // monster spawning code as moving around
 // make sure ffcs work
 // ffc carryovers
-// ensure screen scrolling compatability (esp. scripts)
 // zscript this->Rpos
 // zscript docs
-// play thru an entire quest myself
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7] = {nullptr};
@@ -2048,7 +2034,7 @@ bool isSwitchHookable(newcombo const& cmb)
 }
 
 // TODO z3 ! rename rpos things here
-bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos, rpos_t *retffcpos)
+bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos, ffcdata **ret_ffc)
 {
 	rpos_t cpos = rpos_t::NONE;
 	if(retcpos)
@@ -2060,28 +2046,28 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 			cpos = (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS_REGION(x,y) : rpos_t::NONE;
 		}
 	}
-	rpos_t ffcpos = rpos_t::NONE;
-	if(retffcpos && !get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+
+	ffcdata* ffc = nullptr;
+	if (ret_ffc && !get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			if(ffcIsAt(i, x, y))
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			if (ffcIsAt(ffc_handle.i, x, y))
 			{
-				ffcdata& ffc2 = tmpscr.ffcs[i];
+				ffcdata& ffc2 = ffc_handle.ffc;
 				newcombo const& cmb = combobuf[ffc2.getData()];
 				if (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb))
 				{
-					// TODO z3 ffc
-					ffcpos = (rpos_t)i;
-					break;
+					ffc = &ffc_handle.ffc;
+					return false;
 				}
 			}
-		}
+			return true;
+		});
 	}
+
 	if (retcpos && cpos != rpos_t::NONE) *retcpos = cpos;
-	if (retffcpos && ffcpos != rpos_t::NONE) *retffcpos = ffcpos;
-	return (cpos != rpos_t::NONE || ffcpos != rpos_t::NONE);
+	if (ret_ffc && ffc) *ret_ffc = ffc;
+	return (cpos != rpos_t::NONE || ffc);
 }
 
 bool ishookshottable(int32_t bx, int32_t by)

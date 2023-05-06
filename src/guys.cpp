@@ -21966,7 +21966,6 @@ void loadenemies()
 		}
 		
 		game->guys[s] = guycnt;
-		//} //if(true)
 	});
 }
 void moneysign()

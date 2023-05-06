@@ -5018,7 +5018,7 @@ bool weapon::animate(int32_t index)
 			//Diagonal Hookshot (2)
 			
 			rpos_t cpos = rpos_t::NONE;
-			rpos_t ffcpos = rpos_t::NONE;
+			ffcdata* ffc = nullptr;
 			
 			if(misc==0)
 			{
@@ -5072,7 +5072,7 @@ bool weapon::animate(int32_t index)
 				
 				if(tx > -1)
 				{
-					hooked = check_hshot(0,tx, ty, sw, &cpos, &ffcpos);
+					hooked = check_hshot(0,tx, ty, sw, &cpos, &ffc);
 					
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
 						hooked = check_hshot(lyr,tx,ty,sw, &cpos);
@@ -5082,7 +5082,7 @@ bool weapon::animate(int32_t index)
 				}
 				if(tx2 > -1 && !hooked)
 				{
-					hooked = check_hshot(0,tx2, ty2, sw, &cpos, &ffcpos);
+					hooked = check_hshot(0,tx2, ty2, sw, &cpos, &ffc);
 					
 					for(auto lyr = 1; !hooked && lyr <= maxlayer; ++lyr)
 						hooked = check_hshot(lyr,tx2,ty2,sw, &cpos);
@@ -5104,14 +5104,11 @@ bool weapon::animate(int32_t index)
 				pull_hero=true;
 				if(sw)
 				{
-					if (ffcpos != rpos_t::NONE)
+					if (ffc)
 					{
-						// TODO z3 rename ffcpos
-						auto ffc_pos_handle = get_pos_handle(ffcpos, 0);
-						int pos = RPOS_TO_POS(ffc_pos_handle.rpos);
-						switching_object = &(ffc_pos_handle.screen->ffcs[pos]);
-						switching_object->switch_hooked = true;
-						ffc_pos_handle.screen->ffcs[pos].hooked = true;
+						ffc->hooked = true;
+						ffc->switch_hooked = true;
+						switching_object = ffc;
 					}
 					Hero.doSwitchHook(hshot.misc5);
 					sfx(hshot.usesound2,pan(int32_t(x)));
@@ -5120,11 +5117,9 @@ bool weapon::animate(int32_t index)
 				}
 				else
 				{
-					if (ffcpos != rpos_t::NONE)
+					if (ffc)
 					{
-						auto ffc_pos_handle = get_pos_handle(ffcpos, 0);
-						int pos = RPOS_TO_POS(ffc_pos_handle.rpos);
-						ffc_pos_handle.screen->ffcs[pos].hooked = true;
+						ffc->hooked = true;
 					}
 				}
 			}

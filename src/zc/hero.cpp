@@ -11390,48 +11390,49 @@ bool HeroClass::startwpn(int32_t itemid)
 			bool use_hookshot=true;
 			bool hit_hs = false, hit_solid = false, insta_switch = false;
 			int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
-			rpos_t cpos = rpos_t::NONE, ffcpos = rpos_t::NONE;
+			rpos_t cpos = rpos_t::NONE;
+			ffcdata* ffc = nullptr;
 			for(int32_t i=0; i<=max_layer && !hit_hs; ++i)
 			{
 				if(dir==up)
 				{
-					if(check_hshot(i,x+2,y-7,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+2,y-7,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				else if(dir==down)
 				{
-					if(check_hshot(i,x+12,y+23,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+12,y+23,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				else if(dir==left)
 				{
-					if(check_hshot(i,x-7,y+12,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x-7,y+12,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				else if(dir==right)
 				{
-					if(check_hshot(i,x+23,y+12,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+23,y+12,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				//Diagonal Hookshot (6)
 				else if(dir==r_down)
 				{
-					if(check_hshot(i,x+9,y+13,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+9,y+13,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				else if(dir==l_down)
 				{
-					if(check_hshot(i,x+6,y+13,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+6,y+13,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				else if(dir==r_up)
 				{
-					if(check_hshot(i,x+9,y+13,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+9,y+13,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 				else if(dir==l_up)
 				{
-					if(check_hshot(i,x+6,y+13,sw, &cpos, &ffcpos))
+					if(check_hshot(i,x+6,y+13,sw, &cpos, &ffc))
 						hit_hs = true;
 				}
 			}
@@ -11592,11 +11593,10 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
 				if (cpos != rpos_t::NONE) hooked_comborpos = cpos;
-				// TODO z3 !
-				if (ffcpos != rpos_t::NONE)
+				if (ffc)
 				{
-					switching_object = &(tmpscr.ffcs[(int)ffcpos%176]);
-					switching_object->switch_hooked = true;
+					ffc->switch_hooked = true;
+					switching_object = ffc;
 				}
 				w->misc=2;
 				w->step=0;

@@ -203,7 +203,7 @@ bool isstepable(int32_t combo);                                 //can use ladder
 bool isHSComboFlagType(int32_t type);
 bool isHSGrabbable(newcombo const& cmb);
 bool isSwitchHookable(newcombo const& cmb);
-bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos = nullptr, rpos_t *retffcpos = nullptr);
+bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos = nullptr, ffcdata **ret_ffc = nullptr);
 bool ishookshottable(int32_t bx, int32_t by);
 bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by);
 bool hiddenstair2(mapscr *s, bool redraw);                      
