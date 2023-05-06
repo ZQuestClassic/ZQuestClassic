@@ -21626,26 +21626,25 @@ bool is_ceiling_pattern(int32_t i)
 	return (i==pCEILING || i==pCEILINGR);
 }
 
-// TODO z3 enemy
 int32_t placeenemy(int32_t i)
 {
-	std::map<int32_t, int32_t> freeposcache;
-	int32_t frees = 0;
+	std::vector<rpos_t> freeposcache;
 	
-	for(int32_t y=0; y<176; y+=16)
+	for(int32_t y=0; y<world_h; y+=16)
 	{
-		for(int32_t x=0; x<256; x+=16)
+		for(int32_t x=0; x<world_w; x+=16)
 		{
 			if(is_starting_pos(i,x,y,0))
 			{
-				freeposcache[frees++] = (y&0xF0)+(x>>4);
+				freeposcache.push_back(COMBOPOS_REGION(x, y));
 			}
 		}
 	}
-	
-	if(frees > 0)
-		return freeposcache[zc_oldrand()%frees];
-		
+
+	if (!freeposcache.empty())
+		// TODO z3 !
+		return RPOS_TO_POS(freeposcache[zc_oldrand()%freeposcache.size()]);
+
 	return -1;
 }
 
