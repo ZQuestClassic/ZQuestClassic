@@ -36,8 +36,6 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y);
 bool can_locked_combo(newcombo const& cmb);
 bool try_locked_combo(newcombo const& cmb);
 
-// TODO z3 clean up
-// TODO z3 ffc
 void trigger_sign(newcombo const& cmb, int screen_index);
 void trigger_sign(newcombo const& cmb);
 void trigger_cuttable(const pos_handle_t& pos_handle);

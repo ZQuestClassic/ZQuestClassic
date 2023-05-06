@@ -7166,8 +7166,7 @@ void toggle_switches(dword flags, bool entry)
 {
 	if(!flags) return; //No flags to toggle
 
-	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		mapscr* screen = get_scr(currmap, screen_index);
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y) {
 		toggle_switches(flags, entry, screen, screen_index);
 	});
 }
@@ -7175,92 +7174,92 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 {
 	if(!flags) return; //No flags to toggle
 	bool iscurscr = m==&tmpscr;
-	byte togglegrid[176] = {0};
-	for(int32_t lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = lyr ? get_layer_scr(currmap, screen_index, lyr - 1) : m;
-		for(int32_t pos = 0; pos < 176; ++pos)
+
+	for_every_rpos_in_screen(m, screen_index, [&](const pos_handle_t& pos_handle) {
+		byte togglegrid[176] = {0};
+		mapscr* scr = pos_handle.screen;
+		int lyr = pos_handle.layer;
+		int pos = RPOS_TO_POS(pos_handle.rpos);
+		newcombo const& cmb = combobuf[scr->data[pos]];
+		if(iscurscr)
+			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
+				if(flags&(1<<cmb.trig_lstate))
+					do_trigger_combo(pos_handle, ctrigSWITCHSTATE);
+		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
+			&& !(cmb.usrflags & cflag11)) //global state
 		{
-			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(iscurscr)
-				if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
-					if(flags&(1<<cmb.trig_lstate))
-						do_trigger_combo(lyr,pos,ctrigSWITCHSTATE);
-			if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
-				&& !(cmb.usrflags & cflag11)) //global state
+			if(flags&(1<<cmb.attribytes[0]))
 			{
-				if(flags&(1<<cmb.attribytes[0]))
+				set<int32_t> oldData;
+				//Increment the combo/cset by the attributes
+				int32_t cmbofs = (cmb.attributes[0]/10000L);
+				int32_t csofs = (cmb.attributes[1]/10000L);
+				oldData.insert(scr->data[pos]);
+				scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
+				scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
+				if(entry && (cmb.usrflags&cflag8))
 				{
-					set<int32_t> oldData;
-					//Increment the combo/cset by the attributes
-					int32_t cmbofs = (cmb.attributes[0]/10000L);
-					int32_t csofs = (cmb.attributes[1]/10000L);
-					oldData.insert(scr->data[pos]);
-					scr->data[pos] = BOUND_COMBO(scr->data[pos] + cmbofs);
-					scr->cset[pos] = (scr->cset[pos] + csofs) & 15;
-					if(entry && (cmb.usrflags&cflag8))
+					newcombo const* tmp = &combobuf[scr->data[pos]];
+					while(tmp->nextcombo && (oldData.find(tmp->nextcombo) == oldData.end()))
 					{
-						newcombo const* tmp = &combobuf[scr->data[pos]];
-						while(tmp->nextcombo && (oldData.find(tmp->nextcombo) == oldData.end()))
+						scr->data[pos] = tmp->nextcombo;
+						if(!(tmp->animflags & AF_CYCLENOCSET))
+							scr->cset[pos] = tmp->nextcset;
+						oldData.insert(tmp->nextcombo);
+						tmp = &combobuf[tmp->nextcombo];
+					}
+				}
+				int32_t cmbid = scr->data[pos];
+				if(combobuf[cmbid].animflags & AF_CYCLE)
+				{
+					combobuf[cmbid].tile = combobuf[cmbid].o_tile;
+					combobuf[cmbid].cur_frame=0;
+					combobuf[cmbid].aclk = 0;
+				}
+				togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
+				if(cmb.type == cCSWITCH) return; //Switches don't toggle other layers
+				for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
+				{
+					if(lyr==lyr2) return;
+					if(!(cmb.usrflags&(1<<lyr2))) return;
+					if(togglegrid[pos]&(1<<lyr2)) return;
+					mapscr* scr_2 = (lyr2 ? get_layer_scr(currmap, screen_index, lyr2 - 1) : m);
+					if(!scr_2->data[pos]) //Don't increment empty space
+						return;
+					newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
+					if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag11)
+							&& cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
+						return; //This is a switch/block that will be hit later in the loop!
+					set<int32_t> oldData2;
+					//Increment the combo/cset by the original cmb's attributes
+					oldData2.insert(scr_2->data[pos]);
+					scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
+					scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
+					if(entry && (cmb.usrflags&cflag8)) //Skip cycling on screen entry
+					{
+						newcombo const* tmp = &combobuf[scr_2->data[pos]];
+						while(tmp->nextcombo && (oldData2.find(tmp->nextcombo) == oldData2.end()))
 						{
-							scr->data[pos] = tmp->nextcombo;
+							scr_2->data[pos] = tmp->nextcombo;
 							if(!(tmp->animflags & AF_CYCLENOCSET))
-								scr->cset[pos] = tmp->nextcset;
-							oldData.insert(tmp->nextcombo);
+								scr_2->cset[pos] = tmp->nextcset;
+							oldData2.insert(tmp->nextcombo);
 							tmp = &combobuf[tmp->nextcombo];
 						}
 					}
-					int32_t cmbid = scr->data[pos];
-					if(combobuf[cmbid].animflags & AF_CYCLE)
+					int32_t cmbid2 = scr_2->data[pos];
+					if(combobuf[cmbid2].animflags & AF_CYCLE)
 					{
-						combobuf[cmbid].tile = combobuf[cmbid].o_tile;
-						combobuf[cmbid].cur_frame=0;
-						combobuf[cmbid].aclk = 0;
+						combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
+						combobuf[cmbid2].cur_frame=0;
+						combobuf[cmbid2].aclk = 0;
 					}
-					togglegrid[pos] |= (1<<lyr); //Mark this pos toggled for this layer
-					if(cmb.type == cCSWITCH) continue; //Switches don't toggle other layers
-					for(int32_t lyr2 = 0; lyr2 < 7; ++lyr2) //Toggle same pos on other layers, if flag set
-					{
-						if(lyr==lyr2) continue;
-						if(!(cmb.usrflags&(1<<lyr2))) continue;
-						if(togglegrid[pos]&(1<<lyr2)) continue;
-						mapscr* scr_2 = (lyr2 ? get_layer_scr(currmap, screen_index, lyr2 - 1) : m);
-						if(!scr_2->data[pos]) //Don't increment empty space
-							continue;
-						newcombo const& cmb_2 = combobuf[scr_2->data[pos]];
-						if(lyr2 > lyr && (cmb_2.type == cCSWITCH || cmb_2.type == cCSWITCHBLOCK) && !(cmb.usrflags & cflag11)
-								&& cmb_2.attribytes[0] < 32 && (flags&(1<<cmb_2.attribytes[0])))
-							continue; //This is a switch/block that will be hit later in the loop!
-						set<int32_t> oldData2;
-						//Increment the combo/cset by the original cmb's attributes
-						oldData2.insert(scr_2->data[pos]);
-						scr_2->data[pos] = BOUND_COMBO(scr_2->data[pos] + cmbofs);
-						scr_2->cset[pos] = (scr_2->cset[pos] + csofs) & 15;
-						if(entry && (cmb.usrflags&cflag8)) //Skip cycling on screen entry
-						{
-							newcombo const* tmp = &combobuf[scr_2->data[pos]];
-							while(tmp->nextcombo && (oldData2.find(tmp->nextcombo) == oldData2.end()))
-							{
-								scr_2->data[pos] = tmp->nextcombo;
-								if(!(tmp->animflags & AF_CYCLENOCSET))
-									scr_2->cset[pos] = tmp->nextcset;
-								oldData2.insert(tmp->nextcombo);
-								tmp = &combobuf[tmp->nextcombo];
-							}
-						}
-						int32_t cmbid2 = scr_2->data[pos];
-						if(combobuf[cmbid2].animflags & AF_CYCLE)
-						{
-							combobuf[cmbid2].tile = combobuf[cmbid2].o_tile;
-							combobuf[cmbid2].cur_frame=0;
-							combobuf[cmbid2].aclk = 0;
-						}
-						togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
-					}
+					togglegrid[pos] |= (1<<lyr2); //Mark this pos toggled for this layer
 				}
 			}
 		}
-	}
+	});
+
 	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];

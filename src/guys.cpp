@@ -20975,7 +20975,7 @@ bool ok2add(int32_t id)
 
 static void activate_fireball_statue(const pos_handle_t& pos_handle)
 {
-	if (!pos_handle.screen->enemyflags&efFIREBALLS || statueID<0)
+	if (!(pos_handle.screen->enemyflags&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}

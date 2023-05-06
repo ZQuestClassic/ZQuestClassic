@@ -88,11 +88,11 @@ template<typename T, typename = std::enable_if_t<
 void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
 {
 	pos_handle_t pos_handle;
-	pos_handle.screen = screen;
 	pos_handle.screen_index = screen_index;
 	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
+		pos_handle.screen = lyr == 0 ? screen : get_layer_scr(currmap, screen_index, lyr - 1);
 		pos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)
 		{
