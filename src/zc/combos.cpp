@@ -746,12 +746,12 @@ bool trigger_step(const pos_handle_t& pos_handle)
 			// Increment all combos of the same id as the triggered combo on the base screen.
 			// If the trigger is on a layer screen, that will be the only combo on that layer incremented.
 			int32_t id = pos_handle.screen->data[pos];
-			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				for (int q = 0; q < 176; ++q)
 				{
-					if (scr->data[q] == id)
+					if (screen->data[q] == id)
 					{
-						++scr->data[q];
+						++screen->data[q];
 					}
 				}
 			});
@@ -770,12 +770,12 @@ bool trigger_step(const pos_handle_t& pos_handle)
 		}
 		case cSTEPALL:
 		{
-			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				for (int q = 0; q < 176; ++q)
 				{
-					if (isStepType(combobuf[scr->data[q]].type))
+					if (isStepType(combobuf[screen->data[q]].type))
 					{
-						++scr->data[q];
+						++screen->data[q];
 					}
 				}
 			});
@@ -817,12 +817,12 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 		case cSTEPSAME:
 		{
 			int32_t id = ffc->getData();
-			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				for (int q = 0; q < 176; ++q)
 				{
-					if (scr->data[q] == id)
+					if (screen->data[q] == id)
 					{
-						++scr->data[q];
+						++screen->data[q];
 					}
 				}
 			});

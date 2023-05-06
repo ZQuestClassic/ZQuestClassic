@@ -20816,8 +20816,8 @@ void loadguys()
 		addguy(dx+120,dy+62,gFAIRY,-14,false);
 	}
 	
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y) {
-		loaditem(screen, scr_x*256, scr_y*176);
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		loaditem(screen, region_scr_x*256, region_scr_y*176);
 	});
 	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
@@ -21903,7 +21903,7 @@ void loadenemies()
 		if(visited[i]==s)
 			beenhere = true;
 	
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		// do enemies that are always loaded
 		load_default_enemies(screen, screen_index);
 		activate_fireball_statues(screen, screen_index);
@@ -21957,7 +21957,7 @@ void loadenemies()
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		for(; i<loadcnt && screen->enemy[i]>0; i++)
 		{
-			spawnEnemy(screen, pos, clk, z3_scr_dx*256, z3_scr_dy*176, fastguys, i, guycnt, loadcnt);
+			spawnEnemy(screen, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
 			
 			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}

@@ -20216,18 +20216,19 @@ void HeroClass::handleSpotlights()
 
 	bool foundany = false;
 	
-	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+	// TODO z3 for_every_rpos
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		bool pos_has_seen_cmb[176] = {0};
 		
 		for(int32_t lyr = 6; lyr >= 0; --lyr)
 		{
-			mapscr* layer_scr = get_layer_scr(currmap, scr, lyr - 1);
+			mapscr* layer_scr = get_layer_scr(currmap, screen_index, lyr - 1);
 
 			for(size_t pos = 0; pos < 176; ++pos)
 			{
 				if (pos_has_seen_cmb[pos]) continue;
 				
-				int realpos = COMBOPOS_REGION_EXTENDED(pos, z3_scr_dx, z3_scr_dy);
+				int realpos = COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y);
 				newcombo const* cmb = &combobuf[layer_scr->data[pos]];
 				switch(cmb->type)
 				{
@@ -20269,10 +20270,10 @@ void HeroClass::handleSpotlights()
 	}
 
 	std::map<int32_t, std::map<size_t, byte>> MAPS_prism_dir_seen_map;
-	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		for(size_t layer = 0; layer < 7; ++layer)
 		{
-			mapscr* curlayer = get_layer_scr(currmap, scr, layer - 1);
+			mapscr* curlayer = get_layer_scr(currmap, screen_index, layer - 1);
 			for(size_t pos = 0; pos < 176; ++pos)
 			{
 				//For each spotlight combo on each layer...
@@ -20296,7 +20297,7 @@ void HeroClass::handleSpotlights()
 						maps[id] = grid;
 					}
 					byte spotdir = cmb.attribytes[0];
-					int32_t curpos = COMBOPOS_REGION_EXTENDED(pos, z3_scr_dx, z3_scr_dy);
+					int32_t curpos = COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y);
 					if(spotdir > 3)
 					{
 						grid[curpos] |= SP_VISITED;
@@ -20528,10 +20529,10 @@ void HeroClass::handleSpotlights()
 	//Check triggers
 	bool hastrigs = false, istrigged = true;
 	bool alltrig = getmapflag(mLIGHTBEAM);
-	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		for(size_t layer = 0; layer < 7; ++layer)
 		{
-			mapscr* curlayer = get_layer_scr(currmap, scr, layer - 1);
+			mapscr* curlayer = get_layer_scr(currmap, screen_index, layer - 1);
 			for(size_t pos = 0; pos < 176; ++pos)
 			{
 				newcombo const* cmb = &combobuf[curlayer->data[pos]];
@@ -20539,7 +20540,7 @@ void HeroClass::handleSpotlights()
 				{
 					int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
 					hastrigs = true;
-					bool trigged = (istrig[COMBOPOS_REGION_EXTENDED(pos, z3_scr_dx, z3_scr_dy)]&trigflag);
+					bool trigged = (istrig[COMBOPOS_REGION_EXTENDED(pos, region_scr_x, region_scr_y)]&trigflag);
 					if(cmb->usrflags&cflag2) //Invert
 						trigged = !trigged;
 					if(cmb->usrflags&cflag1) //Solved Version
@@ -20955,7 +20956,7 @@ void HeroClass::checkspecial()
     }
     
 	// TODO z3 actually need to do this for all the above too.
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		if (getmapflag(screen_index, mCHEST))              // if special stuff done before
 		{
 			remove_chests(screen, screen_index);
@@ -21914,12 +21915,13 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
 
-				for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+				// TODO z3 for_every_rpos
+				for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 					for(int32_t k=0; k<176; k++)
 					{
-						if (isStepType(combobuf[z3_scr->data[k]].type))
+						if (isStepType(combobuf[screen->data[k]].type))
 						{
-							z3_scr->data[k]++;
+							screen->data[k]++;
 						}
 					}
 				});				

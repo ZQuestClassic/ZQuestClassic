@@ -114,7 +114,7 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 
 #if IS_PLAYER
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		for (word i = 0; i < MAXFFCS; i++)
 		{
 			if (this == &screen->ffcs[i])

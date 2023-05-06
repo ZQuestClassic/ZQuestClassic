@@ -3,7 +3,11 @@
 #include "base/zdefs.h"
 #include "maps.h"
 
-// TODO z3_scr_dx -> offset_x
+// Iterates over every screen in the current region.
+// Callback function: void fn(mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_x)
+// region_scr_x and region_scr_y are the screen coordinates relative to the origin screen. For example, the relative
+// coordinates for the screen just to the right of the origin screen is (1, 0). This is always (0, 0) when not in a
+// region.
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_v<T, mapscr*, int, unsigned int, unsigned int>
 >>
@@ -15,23 +19,20 @@ void for_every_screen_in_region(T fn)
 		return;
 	}
 
-	int z3_scr_x = z3_get_origin_scr() % 16;
-	int z3_scr_y = z3_get_origin_scr() / 16;
-
-	for (int scr = 0; scr < 128; scr++)
+	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
-		if (is_in_current_region(scr))
+		if (is_in_current_region(screen_index))
 		{
-			unsigned int scr_x = scr % 16;
-			unsigned int scr_y = scr / 16;
-			unsigned int z3_scr_dx = scr_x - z3_scr_x;
-			unsigned int z3_scr_dy = scr_y - z3_scr_y;
-			mapscr* z3_scr = get_scr(currmap, scr);
-			fn(z3_scr, scr, z3_scr_dx, z3_scr_dy);
+			mapscr* screen = get_scr(currmap, screen_index);
+			unsigned int region_scr_x = z3_get_region_relative_dx(screen_index);
+			unsigned int region_scr_y = z3_get_region_relative_dy(screen_index);
+			fn(screen, screen_index, region_scr_x, region_scr_y);
 		}
 	}
 }
 
+// Iterates over every rpos in the current region.
+// Callback function: void fn(const pos_handle_t& pos_handle)
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_v<T, const pos_handle_t&>
 >>
@@ -60,7 +61,9 @@ void for_every_rpos_in_region(T fn)
 	}
 }
 
-// Stops execution when lambda returns false.
+// Iterates over every ffc in the current region.
+// Callback function: bool fn(const ffc_handle_t& ffc_handle)
+// If the callback returns false, the exeuction stops early.
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_r_v<bool, T, const ffc_handle_t&>
 >>
@@ -82,6 +85,13 @@ void for_every_ffc_in_region(T fn)
 	}
 }
 
+// __attribute__((pure)) static mapscr* get_layer_pure(int map, int screen_index, int layer)
+// {
+// 	return get_layer_scr(map, screen_index, layer);
+// }
+
+// Iterates over every rpos for a specified screen.
+// Callback function: void fn(const pos_handle_t& pos_handle_t)
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_v<T, const pos_handle_t&>
 >>
@@ -92,6 +102,7 @@ void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
 	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
+		// TODO z3 would `__attribute__((pure))` on get_layer_scr allow compiler to optimize more here?
 		pos_handle.screen = lyr == 0 ? screen : get_layer_scr(currmap, screen_index, lyr - 1);
 		pos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)

@@ -1487,14 +1487,14 @@ void update_combo_cycling()
 		initialized=true;
 	}
 
-	for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int scr_x, unsigned int scr_y) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		int32_t x;
 		std::set<uint16_t> restartanim;
 		std::set<uint16_t> restartanim2;
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			x=scr->data[i];
+			x=screen->data[i];
 			
 			if(combobuf[x].animflags & AF_FRESH) continue;
 			
@@ -1517,7 +1517,7 @@ void update_combo_cycling()
 		
 		for(int32_t i=0; i<176; i++)
 		{
-			x=scr->data[i];
+			x=screen->data[i];
 			
 			if(!(combobuf[x].animflags & AF_FRESH)) continue;
 			
@@ -1538,28 +1538,28 @@ void update_combo_cycling()
 			}
 		}
 		
-		int rpos_base = (int)POS_TO_RPOS(0, scr_x, scr_y);
+		int rpos_base = (int)POS_TO_RPOS(0, region_scr_x, region_scr_y);
 		for(int32_t i=0; i<176; i++)
 		{
 			if(newdata[i]==-1)
 				continue;
 
 			rpos_t rpos = (rpos_t)(rpos_base + i);
-			pos_handle_t pos_handle = {scr, screen_index, 0, rpos};
+			pos_handle_t pos_handle = {screen, screen_index, 0, rpos};
 			screen_combo_modify_preroutine(pos_handle);
-			scr->data[i]=newdata[i];
+			screen->data[i]=newdata[i];
 			if(newcset[i]>-1)
-				scr->cset[i]=newcset[i];
+				screen->cset[i]=newcset[i];
 			screen_combo_modify_postroutine(pos_handle);
 			
 			newdata[i]=-1;
 			newcset[i]=-1;
 		}
 		
-		word c = scr->numFFC();
+		word c = screen->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata& ffc = scr->ffcs[i];
+			ffcdata& ffc = screen->ffcs[i];
 			newcombo const& cmb = combobuf[ffc.getData()];
 			
 			bool fresh = cmb.animflags & AF_FRESH;
@@ -7168,7 +7168,7 @@ void toggle_switches(dword flags, bool entry)
 {
 	if(!flags) return; //No flags to toggle
 
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y) {
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		toggle_switches(flags, entry, screen, screen_index);
 	});
 }
@@ -7300,8 +7300,8 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 
 void toggle_gswitches(int32_t state, bool entry)
 {
-	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		toggle_gswitches(state, entry, z3_scr, screen_index);
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		toggle_gswitches(state, entry, screen, screen_index);
 	});
 }
 void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen_index)
@@ -7455,8 +7455,8 @@ void run_gswitch_timers()
 			if(!--game->gswitch_timers[q])
 				states[q] = true;
 	}
-	for_every_screen_in_region([&](mapscr* z3_scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		toggle_gswitches(states, false, z3_scr, screen_index);
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		toggle_gswitches(states, false, screen, screen_index);
 	});
 }
 void onload_gswitch_timers() //Reset all timers that were counting down, no trigger necessary
