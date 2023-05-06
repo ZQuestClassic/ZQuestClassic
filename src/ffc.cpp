@@ -11,6 +11,7 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 #include "combos.h"
 #include "maps.h"
 #include "hero.h"
+#include "iter.h"
 #include "base/mapscr.h"
 
 extern newcombo *combobuf;
@@ -114,17 +115,14 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 
 #if IS_PLAYER
-	// for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-	// });
-	// TODO z3 !
-	for (word i = 0; i < MAXFFCS; i++)
-	{
-		if (this == &tmpscr.ffcs[i])
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if (this == &ffc_handle.ffc)
 		{
-			screen_ffc_modify_postroutine({&tmpscr, currscr, i, *this});
-			break;
+			screen_ffc_modify_postroutine(ffc_handle);
+			return false;
 		}
-	}
+		return true;
+	});
 #endif
 }
 void ffcdata::incData(int32_t inc)

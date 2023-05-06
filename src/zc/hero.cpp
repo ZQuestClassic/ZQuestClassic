@@ -3840,7 +3840,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	
 	int cid = MAPCOMBO(bx,by);
 	int cid_ff = MAPFFCOMBO(x,y);
-	int current_ffcombo = getFFCAt(fx,fy);
+	auto current_ffc_handle = getFFCAt(fx,fy);
 	newcombo const& cmb = combobuf[cid];
 	newcombo const& cmb_ff = combobuf[cid_ff];
 	int type = cmb.type;
@@ -3868,8 +3868,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignorescreen = true;
 	
 	
-	
-	if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+	// TODO z3 !
+	if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
 	{
 		ignoreffc = true;
 	}
@@ -3991,12 +3991,12 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(isCuttableNextType(type2))
 		{
-			s->ffcs[current_ffcombo].incData(1);
+			current_ffc_handle->ffc.incData(1);
 		}
 		else
 		{
-			s->ffcs[current_ffcombo].setData(s->undercombo);
-			s->ffcs[current_ffcombo].cset = s->undercset;
+			current_ffc_handle->ffc.setData(s->undercombo);
+			current_ffc_handle->ffc.cset = s->undercset;
 		}
 	}
 	
@@ -4081,7 +4081,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	
 	if(!ignoreffc)
 	{
-		if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+		// TODO z3 !
+		if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffc_handle->i, 1);
 		
 		if(isCuttableItemType(type2))
 		{
@@ -4459,13 +4460,14 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         ignorescreen = true; dontignore = 0;
     }
     
-    int32_t current_ffcombo = getFFCAt(fx,fy);
+    auto current_ffc_handle = getFFCAt(fx,fy);
     
-    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+	// TODO z3 !
+    if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr.ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->ffc.getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4580,12 +4582,12 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffcs[current_ffcombo].incData(1);
+            current_ffc_handle->ffc.incData(1);
         }
         else
         {
-            s->ffcs[current_ffcombo].setData(s->undercombo);
-            s->ffcs[current_ffcombo].cset = s->undercset;
+            current_ffc_handle->ffc.setData(s->undercombo);
+            current_ffc_handle->ffc.cset = s->undercset;
         }
     }
     
@@ -4667,7 +4669,8 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+		// TODO z3 !
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffc_handle->i, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -4881,14 +4884,14 @@ void HeroClass::check_slash_block(weapon *w)
         ignorescreen = true;
     }
     
-	// TODO z3 ffc
-    int32_t current_ffcombo = getFFCAt(fx,fy);
+    auto current_ffc_handle = getFFCAt(fx,fy);
     
-    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+	// TODO z3 ffc
+    if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr.ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->ffc.getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4982,12 +4985,12 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffcs[current_ffcombo].incData(1);
+            current_ffc_handle->ffc.incData(1);
         }
         else
         {
-            s->ffcs[current_ffcombo].setData(s->undercombo);
-            s->ffcs[current_ffcombo].cset = s->undercset;
+            current_ffc_handle->ffc.setData(s->undercombo);
+            current_ffc_handle->ffc.cset = s->undercset;
         }
     }
     
@@ -5068,7 +5071,8 @@ void HeroClass::check_slash_block(weapon *w)
     
     if(!ignoreffc)
     {
-        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffcombo, 1);
+		// TODO z3 !
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffc_handle->i, 1);
         
         if(isCuttableItemType(type2))
         {
@@ -5241,9 +5245,10 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     if(get_bit(grid, pos) != 0)
         ignorescreen = true;
         
-    int32_t current_ffcombo = getFFCAt(fx,fy);
+    auto current_ffc_handle = getFFCAt(fx,fy);
     
-    if(current_ffcombo == -1 || get_bit(ffcgrid, current_ffcombo) != 0)
+	// TODO z3 !
+    if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
         ignoreffc = true;
         
     if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
@@ -5304,7 +5309,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         }
         else
         {
-            s->ffcs[current_ffcombo].incData(1);
+            current_ffc_handle->ffc.incData(1);
         }
     }
     
@@ -5337,7 +5342,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     
     if(!ignoreffc)
     {
-        set_bit(ffcgrid,current_ffcombo,1);
+        set_bit(ffcgrid,current_ffc_handle->i,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
             sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));

@@ -615,7 +615,6 @@ extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal* mirror_portal;
 extern zinitdata zinit;
-int32_t current_ffcombo=-1;
 bool triggered_screen_secrets=false;
 
 int16_t ffposx[MAXFFCS];
@@ -848,11 +847,10 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 
 int32_t MAPFFCOMBO(int32_t x,int32_t y)
 {
-	// TODO z3
-	int32_t ffcid = getFFCAt(x,y);
-	if(ffcid > -1)
+	auto ffc_handle = getFFCAt(x,y);
+	if (ffc_handle)
 	{
-		return tmpscr.ffcs[ffcid].getData();
+		return ffc_handle->ffc.getData();
 	}
     return 0;
 }
@@ -912,11 +910,10 @@ int32_t FFCOMBOTYPE(int32_t x,int32_t y)
 
 int32_t FFORCOMBO(int32_t x, int32_t y)
 {
-	// TODO z3
-	int32_t ffcid = getFFCAt(x,y);
-	if(ffcid > -1)
+	auto ffc_handle = getFFCAt(x, y);
+	if (ffc_handle)
 	{
-		return tmpscr.ffcs[ffcid].getData();
+		return ffc_handle->ffc.getData();
 	}
 	
 	return MAPCOMBO(x,y);
@@ -948,10 +945,10 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 
 int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y)
 {
-	int32_t ffcid = getFFCAt(x,y);
-	if(ffcid > -1)
+	auto ffc_handle = getFFCAt(x,y);
+	if (ffc_handle)
 	{
-		return tmpscr.ffcs[ffcid].getData();
+		return ffc_handle->ffc.getData();
 	}
 	
 	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
@@ -973,27 +970,33 @@ int32_t MAPCOMBOFLAG(int32_t x,int32_t y)
 
 int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 {
-	current_ffcombo = getFFCAt(x,y);
-	if(current_ffcombo > -1)
+	auto ffc_handle = getFFCAt(x, y);
+	if (ffc_handle)
 	{
-		return combobuf[tmpscr.ffcs[current_ffcombo].getData()].flag;
+		return combobuf[ffc_handle->ffc.getData()].flag;
 	}
     return 0;
 }
 
-// TODO z3 !!! need a unique id, or return ffc_handle.
-int32_t getFFCAt(int32_t x, int32_t y)
+std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 {
-	int result = -1;
+	// TODO z3 hacky. make ffc_handle_t ffc pointer instead of reference?
+	mapscr* screen = nullptr;
+	int screen_index = 0;
+	int i = 0;
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-        if (ffcIsAt(ffc_handle, x, y))
+		if (ffcIsAt(ffc_handle, x, y))
 		{
-			result = ffc_handle.i;
+			screen = ffc_handle.screen;
+			screen_index = ffc_handle.screen_index;
+			i = ffc_handle.i;
 			return false;
 		}
 		return true;
 	});
-    return result;
+
+	if (!screen) return std::nullopt;
+	return std::make_optional<ffc_handle_t>({screen, screen_index, i, screen->ffcs[i]});
 }
 
 int32_t MAPCOMBO(const pos_handle_t& pos_handle)
@@ -4593,7 +4596,6 @@ void draw_screen(bool showhero, bool runGeneric)
 		draw_lens_under(scrollbuf, false);
 	}
 	
-	// TODO z3
 	if(show_layer_0)
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		

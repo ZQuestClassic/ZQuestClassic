@@ -153,7 +153,7 @@ int32_t MAPFLAGL(int32_t layer,int32_t x,int32_t y);
 int32_t COMBOTYPEL(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y);
 
-int32_t getFFCAt(int32_t x, int32_t y);
+std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y);
 void eventlog_mapflags();
 
 void setmapflag(mapscr* scr, int32_t screen, int32_t flag);

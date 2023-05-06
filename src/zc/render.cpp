@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include "guys.h"
 #include "qst.h"
+#include "iter.h"
 #include "base/gui.h"
 #include "base/zapp.h"
 #include <fmt/format.h>
@@ -351,12 +352,11 @@ void render_zc()
 	}
 	if (show_ff_scripts)
 	{
-		for (int i = 0; i < tmpscr.numFFC(); i++)
-		{
-			// TODO z3 ffc
-			if (tmpscr.ffcs[i].script)
-				lines_right.push_back(ffcmap[tmpscr.ffcs[i].script-1].scriptname);
-		}
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			if (ffc_handle.ffc.script)
+				lines_right.push_back(ffcmap[ffc_handle.ffc.script-1].scriptname);
+			return true;
+		});
 	}
 	
 	render_text_lines(a5font, lines_left, TextJustify::left, font_scale);
