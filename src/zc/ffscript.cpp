@@ -18355,7 +18355,7 @@ void set_register(int32_t arg, int32_t value)
 			auto pos_handle = get_pos_handle(rpos, 0);
 			screen_combo_modify_preroutine(pos_handle);
 			pos_handle.screen->data[pos]=(val);
-			screen_combo_modify_postroutine(pos_handle.screen, pos);
+			screen_combo_modify_postroutine(pos_handle);
 		}
 	}
 	break;
@@ -18378,7 +18378,7 @@ void set_register(int32_t arg, int32_t value)
 			auto pos_handle = get_pos_handle(rpos, 0);
 			screen_combo_modify_preroutine(pos_handle);
 			pos_handle.screen->cset[pos]=(val)&15;
-			screen_combo_modify_postroutine(pos_handle.screen, pos);
+			screen_combo_modify_postroutine(pos_handle);
 		}
 	}
 	break;
@@ -18432,14 +18432,14 @@ void set_register(int32_t arg, int32_t value)
 			});
             
             combobuf[screen->data[pos]].type=val;
-            
-            for(int32_t i = 0; i < 176; i++)
-            {
-                if(screen->data[i] == screen->data[pos])
+
+			for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+				int pos = RPOS_TO_POS(pos_handle.rpos);
+				if (pos_handle.screen->data[pos] == screen->data[pos])
                 {
-                    screen_combo_modify_postroutine(screen,i);
+                    screen_combo_modify_postroutine(pos_handle);
                 }
-            }
+			});
         }
     }
     break;
@@ -18545,7 +18545,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t combo = vbound(value/10000,0,MAXCOMBOS);
 			if(scr==(currmap*MAPSCRS+initial_region_scr))
 			{
-				screen_combo_modify_preroutine(&tmpscr,pos);
+				screen_combo_modify_preroutine({&tmpscr, initial_region_scr, 0, (rpos_t)pos});
 				
 			}
 				
@@ -18554,7 +18554,7 @@ void set_register(int32_t arg, int32_t value)
 			if(scr==(currmap*MAPSCRS+initial_region_scr))
 			{
 				tmpscr.data[pos] = combo;
-				screen_combo_modify_postroutine(&tmpscr,pos);
+				screen_combo_modify_postroutine({&tmpscr, initial_region_scr, 0, (rpos_t)pos});
 				//Start the script for the new combo
 				FFCore.clear_combo_stack(pos);
 				comboScriptData[pos].Clear();

@@ -21231,7 +21231,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 		slopes.erase(it);
 	}
 
-	tmpscr.ffcCountMarkDirty();
+	ffc_handle.screen->ffcCountMarkDirty();
 }
 
 void screen_combo_modify_pre(int32_t cid)
