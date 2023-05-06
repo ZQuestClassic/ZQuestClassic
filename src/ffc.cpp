@@ -114,7 +114,7 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 
 #if IS_PLAYER
-	mapscr* screen = get_scr_no_load(currmap, 23);
+	mapscr* screen = get_scr_no_load(currmap, screen_index);
 	if (!screen) return;
 
 	for (word i = 0; i < MAXFFCS; i++)
