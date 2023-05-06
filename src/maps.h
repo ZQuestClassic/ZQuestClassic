@@ -106,6 +106,8 @@ mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
 void for_every_screen_in_region(const std::function <void (mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y)>& fn);
 void for_every_rpos_in_region(const std::function <void (const pos_handle_t& pos_handle)>& fn);
 // void for_every_ffc_in_region(const std::function <void (const ffc_handle_t&)>& fn);
+void for_every_rpos_in_screen(mapscr* screen, int screen_index, const std::function <void (const pos_handle_t&)>& fn);
+void for_every_rpos_in_screen_layer0(mapscr* screen, int screen_index, const std::function <void (const pos_handle_t&)>& fn);
 void for_every_ffc_in_region(const std::function <bool (const ffc_handle_t&)>& fn);
 int z3_get_origin_scr();
 int z3_get_region_relative_dx(int screen_index);

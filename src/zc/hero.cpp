@@ -5326,6 +5326,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
             sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
         
+		// TODO z3 rm?
 		// int x, y;
 		// COMBOXY_REGION(rpos, x, y);
 		// x -= viewport.x;

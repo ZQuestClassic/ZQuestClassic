@@ -3242,6 +3242,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	
 	if(scr->flags6&fTRIGGERFPERM)
 	{
+		// TODO z3 find for all screens in region?
 		int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
 		
 		if(tr)
@@ -3249,14 +3250,6 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 			Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
 			setflag=false;
 		}
-		
-		// int32_t ftr = findtrigger(screen_index, -1, true); //FFCs
-		
-		// if(ftr)
-		// {
-		// 	Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger FFC%s remain).\n", ftr, ftr>1?"s":"");
-		// 	setflag=false;
-		// }
 		
 		if(!(tr/*|| ftr*/) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
@@ -4492,6 +4485,40 @@ void for_every_rpos_in_region(const std::function <void (const pos_handle_t&)>& 
 				fn(pos_handle);
 			}
 		}
+	}
+}
+
+void for_every_rpos_in_screen(mapscr* screen, int screen_index, const std::function <void (const pos_handle_t&)>& fn)
+{
+	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+	for (int lyr = 0; lyr <= 6; ++lyr)
+	{
+		pos_handle_t pos_handle;
+		pos_handle.screen = screen;
+		pos_handle.screen_index = screen_index;
+		pos_handle.layer = lyr;
+
+		for (int pos = 0; pos < 176; ++pos)
+		{
+			pos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+			fn(pos_handle);
+		}
+	}
+}
+
+void for_every_rpos_in_screen_layer0(mapscr* screen, int screen_index, const std::function <void (const pos_handle_t&)>& fn)
+{
+	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
+
+	pos_handle_t pos_handle;
+	pos_handle.screen = screen;
+	pos_handle.screen_index = screen_index;
+	pos_handle.layer = 0;
+
+	for (int pos = 0; pos < 176; ++pos)
+	{
+		pos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+		fn(pos_handle);
 	}
 }
 

@@ -20972,22 +20972,21 @@ bool ok2add(int32_t id)
 	return true;
 }
 
-// TODO z3 pos_handle
-static void activate_fireball_statue(mapscr* screen, int screen_index, int32_t pos)
+static void activate_fireball_statue(const pos_handle_t& pos_handle)
 {
-	if(!(tmpscr.enemyflags&efFIREBALLS) || statueID<0)
+	if (!pos_handle.screen->enemyflags&efFIREBALLS || statueID<0)
 	{
 		return;
 	}
-	
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	int32_t ctype = combobuf[pos_handle.screen->data[pos]].type;
+	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
+
+	int32_t x, y;
+	COMBOXY_REGION(pos_handle.rpos, x, y);
+
 	int32_t cx=-1000, cy=-1000;
-	int32_t x = (pos&15)<<4;
-	int32_t y = pos&0xF0;
-	int dx = z3_get_region_relative_dx(screen_index)*256;
-	int dy = z3_get_region_relative_dy(screen_index)*176;
-	
-	int32_t ctype = combobuf[MAPCOMBO(x,y)].type;
-	
 	if(!isfixedtogrid(statueID))
 	{
 		if(ctype==cL_STATUE)
@@ -21025,21 +21024,20 @@ static void activate_fireball_statue(mapscr* screen, int screen_index, int32_t p
 			}
 		}
 		
-		addenemy(dx + cx, dy + cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
+		addenemy(cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
 	}
 }
 
 static void activate_fireball_statues(mapscr* screen, int screen_index)
 {
-	if(!(screen->enemyflags&efFIREBALLS))
+	if (!(screen->enemyflags&efFIREBALLS))
 	{
 		return;
 	}
-	
-	for(int32_t i=0; i<176; i++)
-	{
-		activate_fireball_statue(screen, screen_index, i);
-	}
+
+	for_every_rpos_in_screen_layer0(screen, screen_index, [&](const pos_handle_t& pos_handle) {
+		activate_fireball_statue(pos_handle);
+	});
 }
 
 void load_default_enemies(mapscr* screen, int screen_index)
@@ -21201,7 +21199,7 @@ void screen_combo_modify_postroutine(const pos_handle_t& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	pos_handle.screen->valid |= mVALID;
-	activate_fireball_statue(pos_handle.screen, pos_handle.screen_index, pos);
+	activate_fireball_statue(pos_handle);
 
 	if(combobuf[pos_handle.screen->data[pos]].type==cSPINTILE1)
 	{
