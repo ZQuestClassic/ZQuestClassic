@@ -53,7 +53,7 @@ extern FFScript FFCore;
 
 extern HeroClass Hero;
 
-// TODO z3 checklist do all before starting beta
+// TODO z3 ! checklist do all before starting beta
 // screen secrets:
 //    - trigger all secrets in region
 //    - multiple triggers across many screens in a region (multi-block puzzle)
@@ -545,7 +545,7 @@ int32_t COMBOY_REGION_EXTENDED(int32_t pos)
 
 int32_t COMBOPOS(int32_t x, int32_t y)
 {
-	// TODO z3 !
+	// TODO z3
 	// DCHECK(x >= 0 && x < 256 && y >= 0 && y < 176);
 	return (y & 0xF0) + (x >> 4);
 }
@@ -593,7 +593,7 @@ int32_t RPOS_TO_POS(rpos_t rpos)
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	// TODO z3 abs is needed because of layers during scrolling between regions ... do_scrolling_layer
+	// TODO z3 ! abs is needed because of layers during scrolling between regions ... do_scrolling_layer
 	return static_cast<rpos_t>(abs(scr_dx + scr_dy * region_scr_width)*176 + pos);
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
@@ -825,7 +825,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 
 // True if the FFC covers x, y and is not ethereal or a changer.
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
-// TODO z3 remove
+// TODO z3 ! remove
 bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 {
 	if(tmpscr.ffcs[index].getData()<=0)
@@ -1721,7 +1721,7 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 }
 
 // (x, y) are world coordinates
-// TODO z3 just make iswaterrex take world coords, then delete this one.
+// TODO z3 ! just make iswaterrex take world coords, then delete this one.
 int32_t iswaterex_z3(int32_t combo, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck, bool ShallowCheck, bool hero)
 {
 	if (x<0 || x>=world_w || y<0 || y>=world_h)
@@ -2048,7 +2048,7 @@ bool isSwitchHookable(newcombo const& cmb)
 	return cmb.genflags & cflag2;
 }
 
-// TODO z3 ! rename rpos things here
+// TODO z3 rename rpos things here
 bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos, ffcdata **ret_ffc)
 {
 	rpos_t cpos = rpos_t::NONE;
@@ -2400,7 +2400,7 @@ void delete_fireball_shooter(const pos_handle_t& pos_handle)
     }
 }
 
-// TODO z3
+// TODO z3 !
 int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 {
     int32_t checkflag=0;
@@ -2739,7 +2739,7 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 				for(int32_t j=0; j<6; j++)  //Layers
 				{
 					mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
-					// TODO z3 ! maybe instead `get_layer_scr` return null if not valid?
+					// TODO z3 maybe instead `get_layer_scr` return null if not valid?
 					if (!layer_scr->valid) continue; //If layer isn't used
 					
 					if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
@@ -3265,7 +3265,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	
 	if(scr->flags6&fTRIGGERFPERM)
 	{
-		// TODO z3 find for all screens in region?
+		// TODO z3 ! find for all screens in region?
 		int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
 		
 		if(tr)
@@ -3842,7 +3842,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 	}
 }
 
-// TODO z3 remove
+// TODO z3 ! remove
 void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
 	do_layer(bmp, type, currmap, currscr, layer, basescr, x, y, tempscreen, scrolling, drawprimitives);
@@ -5637,7 +5637,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		{
 			for(size_t layer = 0; layer < 7; ++layer)
 			{
-				// TODO z3 ?
+				// TODO z3 !?
 				// mapscr* layer_scr = (tmp==0) ? FFCore.tempScreens[layer] : FFCore.ScrollingScreens[layer];
 				mapscr* layer_scr = screens[layer + 1];
 				for(size_t pos = 0; pos < 176; ++pos)
@@ -6105,7 +6105,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 	
 	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
-	// TODO z3 ?! replay
+	// TODO z3 !? replay
 	toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
@@ -6746,7 +6746,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	}
 	else s2 = m;
 	
-	// TODO z3 script
+	// TODO z3 ! script
 	// rpos_t rpos = COMBOPOS_REGION(bx, by);
 	int32_t bx=COMBOPOS(x, y);
 	newcombo c =  !is_z3_scrolling_mode() ? combobuf[m->data[bx]]  : combobuf[MAPCOMBO3(currmap, currscr, 0, bx, false)];
@@ -6832,7 +6832,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	return (cwalkflag&b) ? !dried : false;
 }
 
-// TODO z3 script
+// TODO z3 ! script
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
 	{

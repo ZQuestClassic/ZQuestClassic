@@ -4083,7 +4083,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						clear_bitmap(tmpbmp);
 						if(p!=-1)
 						{
-							// TODO z3 verify
+							// TODO z3 ! verify
 							tempsel->x=viewport.x;
 							tempsel->y=viewport.y;
 							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);

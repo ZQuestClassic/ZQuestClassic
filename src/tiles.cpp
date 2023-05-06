@@ -2112,7 +2112,7 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
     // 1: slow, bounds checking
     int draw_mode = x < 0 || y < 0 || x >= dest->w-8 || y >= dest->h-8 ? 1 : 0;
 
-	// TODO can remove this, just need to update replays.
+	// TODO z3 ! can remove this, just need to update replays.
     if (is_z3_scrolling_mode() && draw_mode == 1)
     {
         draw_tile8_unified(dest, si, x, y, cset, flip, true);
@@ -2134,8 +2134,8 @@ void overtile8(BITMAP* dest,int32_t tile,int32_t x,int32_t y,int32_t cset,int32_
         for(int32_t dy=(y<0 ? 0-y : 0); (dy<8)&&(dy+y<dest->h); ++dy)
         {
             // the `x<0 ? 0 : x` 100% doesn't work as the author thought it did. combos get "pinned"
-            // to the edge of the screen when drawn like this (when x is negative). -connor
-			// TODO z3 !
+            // to the edge of the screen when drawn like this (when x is negative). With the new
+			// draw_tile8_unified code path above, this is no longer an issue.
             byte* di = &(dest->line[y+dy][x<0 ? 0 : x]);
             
             for(int32_t i=0; i<8; ++i)

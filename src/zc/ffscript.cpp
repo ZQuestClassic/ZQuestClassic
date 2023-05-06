@@ -24170,9 +24170,6 @@ void do_layermap()
 void do_triggersecrets()
 {
 	trigger_secrets_for_screen(false, -4);
-	//hidden_entrance(0,true,single16,scombo); 
-	//bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
-	//We need a variation on these that triggers any combos with a given flag. -Z
 }
 
 
@@ -32432,7 +32429,7 @@ j_command:
 				if(unsigned(pos) > 176)
 					break;
 				switching_object = NULL;
-				// TODO z3
+				// TODO z3 !
 				hooked_comborpos = (rpos_t)pos;
 				hooked_layerbits = 0;
 				Hero.doSwitchHook(get_register(sarg2)/10000);

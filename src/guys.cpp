@@ -2319,6 +2319,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 {
 	x=X;
 	y=Y;
+	screen_index_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
 	id=Id;
 	clk=Clk;
 	floor_y=y;
@@ -3265,8 +3266,7 @@ bool enemy::Dead(int32_t index)
 	{
 		if(deathexstate > -1 && deathexstate < 32)
 		{
-			// TODO z3 enemy needs a screen index, where it was spawned.
-			setxmapflag(currscr, 1<<deathexstate);
+			setxmapflag(screen_index_spawned, 1<<deathexstate);
 			deathexstate = -1;
 		}
 		--clk2;
@@ -5181,8 +5181,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		
 		case edTRIGGERSECRETS:
 		{
-			// TODO z3 what screen?
-			trigger_secrets_for_screen(initial_region_scr, false, -4);
+			trigger_secrets_for_screen(screen_index_spawned, false, -4);
 			return -1;
 		}
 		
@@ -5536,8 +5535,7 @@ int32_t enemy::defend(int32_t wpnId, int32_t *power, int32_t edef)
 		sfx(WAV_CHINK,pan(int32_t(x)));
 		return 1;
 	case edTRIGGERSECRETS:
-		// TODO z3 what screen?
-		trigger_secrets_for_screen(initial_region_scr, false, -4);
+		trigger_secrets_for_screen(screen_index_spawned, false, -4);
 		break;
 		
 	case edIGNOREL1:
@@ -21923,7 +21921,7 @@ void loadenemies()
 			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
 		}
 
-		// TODO z3
+		// TODO z3 !
 		if (screen_index != currscr) return;
 		
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
