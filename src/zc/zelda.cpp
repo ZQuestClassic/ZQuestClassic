@@ -488,8 +488,8 @@ char   fontsdat_sig[52]={0};
 char   cheat_goto_dmap_str[4]={0};
 char   cheat_goto_screen_str[3]={0};
 int16_t  visited[6]={0};
-byte   guygrid[176]={0};
-byte   guygridffc[MAXFFCS]={0};
+std::map<int, byte> activation_counters;
+std::map<int, byte> activation_counters_ffc;
 mapscr tmpscr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
@@ -1272,12 +1272,9 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
     stop_sfx(WAV_BRANG);
     
-    for(int32_t i=0; i<176; i++)
-        guygrid[i]=0;
+	activation_counters.clear();
+	activation_counters_ffc.clear();
 
-    for(int32_t i=0; i<MAXFFCS; i++)
-        guygridffc[i]=0;
-        
     sle_clk=0;
     blockmoving=false;
     fairy_cnt=0;
@@ -3613,18 +3610,18 @@ void game_loop()
 		
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{
-			for(int32_t i=0; i<176; i++)
+			for (auto q : activation_counters)
 			{
-				if(guygrid[i]>0)
+				if (q.second > 0)
 				{
-					--guygrid[i];
+					q.second -= 1;
 				}
 			}
-			for(int32_t i=0; i<MAXFFCS; i++)
+			for (auto q : activation_counters_ffc)
 			{
-				if(guygridffc[i]>0)
+				if (q.second > 0)
 				{
-					--guygridffc[i];
+					q.second -= 1;
 				}
 			}
 		}

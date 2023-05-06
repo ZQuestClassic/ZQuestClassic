@@ -31,6 +31,7 @@
 #include "base/util.h"
 #include "base/fonts.h"
 #include "replay.h"
+#include <map>
 
 class sprite;
 
@@ -458,11 +459,11 @@ extern int32_t    cheat_goto_dmap, cheat_goto_screen;
 extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
 extern int16_t  visited[6];
-extern byte   guygrid[176];
 extern mapscr scrolling_screen;
 extern mapscr tmpscr;
 extern mapscr special_warp_return_screen;
-extern byte   guygridffc[MAXFFCS];
+extern std::map<int, byte> activation_counters;
+extern std::map<int, byte> activation_counters_ffc;
 extern mapscr tmpscr2[6];
 extern mapscr tmpscr3[6];
 extern char   sig_str[44];

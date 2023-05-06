@@ -18,6 +18,7 @@
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "tiles.h"
+#include "maps.h"
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
@@ -271,8 +272,6 @@ void reset_combo_animations2()
 		combobuf[y].cur_frame = 0;
     }
 }
-
-extern void update_combo_cycling();
 
 //Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
 bool combocheck(newcombo& cdata)

@@ -1399,8 +1399,8 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
 	
 	int pos = RPOS_TO_POS(pos_handle.rpos);
-	//!TODO Expand 'guygrid' stuff to account for layers, so that layers >0 can be used
-	if(guygrid[pos]) return false; //Currently activating
+	//!TODO Expand 'activation_counters' stuff to account for layers, so that layers >0 can be used
+	if (activation_counters[pos]) return false;
 	int32_t gc = 0;
 	for(int32_t i=0; i<guys.Count(); ++i)
 	{
@@ -1447,7 +1447,7 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 			
 			if(cmb.usrflags&cflag3) //handle large enemy (EARLY RETURN)
 			{
-				guygrid[pos] = 61;
+				activation_counters[pos] = 61;
 				//! To-do Adjust for larger enemies, but we need it to be directional. 
 				int32_t ypos = 0; int32_t xpos = 0;
 				int32_t chy = 0; int32_t chx = 0;
@@ -1586,12 +1586,13 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 				int32_t xpos2 = tx+xpos;
 				int32_t ypos2 = ty+ypos;
 				int32_t id3 = COMBOPOS(xpos2, ypos2);
+				// TODO z3 ?
 				for (int32_t n = 0; n < armosysz && id3 < 176; n++)
 				{
 					for (int32_t m = 0; m < armosxsz && id3 < 176; m++) 
 					{
 						if (id3 + m < 176)
-							guygrid[(id3+m)]=61;
+							activation_counters[(id3+m)]=61;
 					}
 					id3+=16;
 				}
@@ -1638,7 +1639,7 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 		}
 		default: return false;
 	}
-	guygrid[pos] = 61;
+	activation_counters[pos] = 61;
 	if(addenemy(tx,ty+3,id2,eclk))
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 	else return false;
@@ -1647,8 +1648,8 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 {
-	// TODO z3 !!
-	if(guygridffc[ffc_handle.i]) return false; //Currently activating
+	if (activation_counters_ffc[ffc_handle.i]) return false; //Currently activating
+
 	int32_t gc = 0;
 	for(int32_t i=0; i<guys.Count(); ++i)
 	{
@@ -1722,7 +1723,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 		}
 		default: return false;
 	}
-	guygridffc[ffc_handle.i] = 61;
+	activation_counters_ffc[ffc_handle.i] = 61;
 	if(addenemy(tx,ty+3,id2,eclk))
 	{
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
@@ -2510,14 +2511,9 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 		{
 			bool skipself = ffc.getData() == cid;
 			copycat_id = cmb.trigcopycat;
-			// TODO z3 !!!
-			for(auto cclayer = 0; cclayer < 7; ++cclayer)
-			{
-				for(auto ccpos = 0; ccpos < 176; ++ccpos)
-				{
-					do_copycat_trigger(get_pos_handle((rpos_t)ccpos, cclayer));
-				}
-			}
+			for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+				do_copycat_trigger(pos_handle);
+			});
 			copycat_id = 0;
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{

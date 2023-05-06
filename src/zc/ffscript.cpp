@@ -27859,11 +27859,8 @@ void FFScript::AlloffLimited(int32_t flagset)
 	//    Hero.setClock(false);
 	watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
 	
-	for(int32_t i=0; i<176; i++)
-		guygrid[i]=0;
-	
-	for(int32_t i=0; i<MAXFFCS; i++)
-		guygridffc[i]=0;
+	activation_counters.clear();
+	activation_counters_ffc.clear();
 		
 	
 	sle_clk=0;

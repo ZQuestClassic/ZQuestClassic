@@ -1460,7 +1460,6 @@ int32_t WARPCODE(int32_t dmap,int32_t scr,int32_t dw)
     return (QMisc.warp[ring].dmap[index] << 8) + QMisc.warp[ring].scr[index];
 }
 
-// TODO z3 !!
 void update_combo_cycling()
 {
 	static int32_t newdata[176];
@@ -1535,7 +1534,6 @@ void update_combo_cycling()
 			}
 		}
 		
-		// TODO z3 maybe make a for_every_rpos_in_screen(scr, screen_index, [](){}) ?
 		int rpos_base = (int)POS_TO_RPOS(0, scr_x, scr_y);
 		for(int32_t i=0; i<176; i++)
 		{

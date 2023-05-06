@@ -10624,13 +10624,12 @@ bool eGhini::animate(int32_t index)
 			fading=0;
 			if (ffcactivated > 0) 
 			{
-				guygridffc[ffcactivated-1] = 0;
+				activation_counters_ffc[ffcactivated-1] = 0;
 				removearmosffc(ffcactivated-1);
 			}
 			else 
 			{
-				// TODO zc ?
-				guygrid[((int32_t(y)&0xF0)+(int32_t(x)>>4))%176]=0;
+				activation_counters[(int)COMBOPOS_REGION(x, y)]=0;
 				removearmos(x,y);
 			}
 		}
