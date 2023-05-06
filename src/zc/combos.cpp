@@ -52,12 +52,17 @@ bool alwaysCTypeEffects(int32_t type)
 	return false;
 }
 
-void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer)
+static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, const pos_handle_t& pos_handle, bool single16)
 {
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
 	{ 
 		return;
-	} 
+	}
+
+	int pos = RPOS_TO_POS(pos_handle.rpos);
+	int x, y;
+	COMBOXY_REGION(pos_handle.rpos, x, y);
+
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	if (true) // Probably needs a way to only be triggered once...
 	{
@@ -70,17 +75,17 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 					case 0:
 					case 1:
 					default:
-						decorations.add(new dBushLeaves((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), dBUSHLEAVES, 0, 0));
+						decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
-						decorations.add(new dFlowerClippings((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), dFLOWERCLIPPINGS, 0, 0));
+						decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0));
 						break;
 					case 3:
-						decorations.add(new dGrassClippings((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), dGRASSCLIPPINGS, 0, 0));
+						decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0));
 						break;
 				}
 			}
-			else decorations.add(new comboSprite((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(x, y, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		
 		int32_t it = -1; 
@@ -99,7 +104,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		}
 		if( it != -1 )
 		{
-			item* itm = (new item((zfix)COMBOX(scombo), (zfix)COMBOY(scombo),(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item(x, y,0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
 			items.add(itm);
 		}
@@ -107,21 +112,21 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		//drop special room item
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			items.add(new item((zfix)COMBOX(scombo),
-				(zfix)COMBOY(scombo),
-				(zfix)0,
+			items.add(new item(x,
+				y,
+				0,
 				tmpscr.catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr.catchall].family==itype_triforcepiece ||
 				(tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_combo_modify_preroutine(&tmpscr,scombo);
-			tmpscr.data[scombo] = tmpscr.secretcombo[ft];
-			tmpscr.cset[scombo] = tmpscr.secretcset[ft];
-			tmpscr.sflag[scombo] = tmpscr.secretflag[ft];
+			screen_combo_modify_preroutine(pos_handle);
+			pos_handle.screen->data[pos] = pos_handle.screen->secretcombo[ft];
+			pos_handle.screen->cset[pos] = pos_handle.screen->secretcset[ft];
+			pos_handle.screen->sflag[pos] = pos_handle.screen->secretflag[ft];
 			// newflag = s->secretflag[ft];
-			screen_combo_modify_postroutine(&tmpscr,scombo);
+			screen_combo_modify_postroutine(pos_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
 		}
@@ -131,44 +136,42 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		{
 			do
 			{
-				
-				
-				if (layer) 
+				if (pos_handle.layer) 
 				{
-					
-					screen_combo_modify_preroutine(FFCore.tempScreens[layer],scombo);
+					screen_combo_modify_preroutine(pos_handle);
 					
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						FFCore.tempScreens[layer]->data[scombo] = tmpscr.undercombo;
-						FFCore.tempScreens[layer]->cset[scombo] = tmpscr.undercset;
-						FFCore.tempScreens[layer]->sflag[scombo] = 0;	
+						pos_handle.screen->data[pos] = tmpscr.undercombo;
+						pos_handle.screen->cset[pos] = tmpscr.undercset;
+						pos_handle.screen->sflag[pos] = 0;	
 					}
 					else
-						++FFCore.tempScreens[layer]->data[scombo];
+						++pos_handle.screen->data[pos];
 					
-					screen_combo_modify_postroutine(FFCore.tempScreens[layer],scombo);
+					screen_combo_modify_postroutine(pos_handle);
 				}
 				else
 				{
-					screen_combo_modify_preroutine(&tmpscr,scombo);
+					screen_combo_modify_preroutine(pos_handle);
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						tmpscr.data[scombo] = tmpscr.undercombo;
-						tmpscr.cset[scombo] = tmpscr.undercset;
-						tmpscr.sflag[scombo] = 0;	
+						pos_handle.screen->data[pos] = pos_handle.screen->undercombo;
+						pos_handle.screen->cset[pos] = pos_handle.screen->undercset;
+						pos_handle.screen->sflag[pos] = 0;	
 					}
 					else
 					{
-						tmpscr.data[scombo]=vbound(tmpscr.data[scombo]+1,0,MAXCOMBOS);
+						pos_handle.screen->data[pos]=vbound(tmpscr.data[pos]+1,0,MAXCOMBOS);
 					}
-					screen_combo_modify_postroutine(&tmpscr,scombo);
+					screen_combo_modify_postroutine(pos_handle);
 				}
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
-				if ( (combobuf[cid].usrflags&cflag5) ) cid = ( layer ) ? MAPCOMBO2(layer,bx,by) : MAPCOMBO(bx,by);
+				
+				if ( (combobuf[cid].usrflags&cflag5) ) cid = pos_handle.screen->data[pos];
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
@@ -177,7 +180,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(COMBOX(scombo),COMBOY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 }
@@ -357,6 +360,7 @@ static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
 	}
+	// TODO z3 !
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		if(lyr == pos_handle.layer) continue;
@@ -377,16 +381,15 @@ static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			if(ffcIsAt(i, COMBOX(pos)+8, COMBOY(pos)+8))
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			// TODO z3 !
+			if(ffcIsAt(ffc_handle.i, COMBOX(pos)+8, COMBOY(pos)+8))
 			{
-				ffcdata& ffc2 = tmpscr.ffcs[i];
-				newcombo const& cmb_2 = combobuf[ffc2.getData()];
-				ffc2.setData(BOUND_COMBO(ffc2.getData() + cmbofs));
-				ffc2.cset = (ffc2.cset + csofs) & 15;
-				int32_t newcid2 = ffc2.getData();
+				ffcdata& ffc = ffc_handle.ffc;
+				newcombo const& cmb_2 = combobuf[ffc.getData()];
+				ffc.setData(BOUND_COMBO(ffc.getData() + cmbofs));
+				ffc.cset = (ffc.cset + csofs) & 15;
+				int32_t newcid2 = ffc.getData();
 				if(combobuf[newcid2].animflags & AF_CYCLE)
 				{
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
@@ -394,7 +397,8 @@ static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 					combobuf[newcid2].aclk = 0;
 				}
 			}
-		}
+			return true;
+		});
 	}
 }
 
@@ -461,26 +465,13 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	}
 }
 
-// TODO z3 !
-void spawn_decoration(newcombo const& cmb, int32_t pos)
+void spawn_decoration(newcombo const& cmb, const pos_handle_t& pos_handle)
 {
-	if(unsigned(pos) > 175) return;
-	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
-	if(decotype > 3) decotype = 0;
-	if(!decotype) decotype = (isBushType(cmb.type) ? 1 :
-		(isFlowersType(cmb.type) ? 2 :
-		(isGrassType(cmb.type) ? 3 :
-		((cmb.usrflags & cflag1) ? -1 : -2))));
-	switch(decotype)
-	{
-		case -2: break; //nothing
-		case -1:
-			decorations.add(new comboSprite(COMBOX(pos), COMBOY(pos), 0, 0, cmb.attribytes[0]));
-			break;
-		case 1: decorations.add(new dBushLeaves(COMBOX(pos), COMBOY(pos), dBUSHLEAVES, 0, 0)); break;
-		case 2: decorations.add(new dFlowerClippings(COMBOX(pos), COMBOY(pos), dFLOWERCLIPPINGS, 0, 0)); break;
-		case 3: decorations.add(new dGrassClippings(COMBOX(pos), COMBOY(pos), dGRASSCLIPPINGS, 0, 0)); break;
-	}
+	if (pos_handle.rpos > region_max_rpos) return;
+
+	int x, y;
+	COMBOXY_REGION(pos_handle.rpos, x, y);
+	spawn_decoration_xy(cmb, x, y);
 }
 
 void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
@@ -629,7 +620,7 @@ void trigger_cuttable(const pos_handle_t& pos_handle)
 			sfx(QMisc.miscsfx[sfxBUSHGRASS],int32_t(x));
 		}
 	}
-	spawn_decoration(cmb, pos);
+	spawn_decoration(cmb, pos_handle);
 }
 
 void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
@@ -2676,7 +2667,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				case cTRIGGERGENERIC:
 					if(w)
 						do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
-					else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
+					else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos_handle, false);
 					break;
 				case cCUSTOMBLOCK:
 					if(!w) break;
