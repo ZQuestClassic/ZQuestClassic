@@ -381,9 +381,9 @@ static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
+		int bx = COMBOX_REGION(pos_handle.rpos)+8, by = COMBOY_REGION(pos_handle.rpos)+8;
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			// TODO z3 !
-			if(ffcIsAt(ffc_handle.i, COMBOX(pos)+8, COMBOY(pos)+8))
+			if (ffcIsAt(ffc_handle, bx, by))
 			{
 				ffcdata& ffc = ffc_handle.ffc;
 				newcombo const& cmb_2 = combobuf[ffc.getData()];
@@ -444,8 +444,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 			if (&ffc_handle_2.ffc == &ffc_handle.ffc) return true;
 
-			// TODO z3 !!
-			if (ffcIsAt(ffc_handle.i, ffc.x+8, ffc.y+8))
+			if (ffcIsAt(ffc_handle_2, ffc.x+8, ffc.y+8))
 			{
 				ffcdata& ffc2 = ffc_handle_2.ffc;
 				newcombo const& cmb_2 = combobuf[ffc2.getData()];

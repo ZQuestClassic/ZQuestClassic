@@ -19063,21 +19063,18 @@ void HeroClass::checkgenpush()
 
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		// TODO z3 find_ffc ?
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			if (ffcIsAt(i, bx, by) || ffcIsAt(i, bx2, by2))
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
-				ffcdata& ffc = tmpscr.ffcs[i];
-				newcombo const& cmb3 = combobuf[ffc.getData()];
+				newcombo const& cmb3 = combobuf[ffc_handle.ffc.getData()];
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
-					do_trigger_combo_ffc({&tmpscr, currscr, i, ffc});
-					break;
+					do_trigger_combo_ffc(ffc_handle);
+					return false;
 				}
 			}
-		}
+			return true;
+		});
 	}
 }
 
@@ -21546,8 +21543,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{
 				for(int ych = 0; ych < 2; ++ych)
 				{
-					// TODO z3 !
-					if (ffcIsAt(ffc_handle.i, xPoses[xch], yPoses[ych]))
+					if (ffcIsAt(ffc_handle, xPoses[xch], yPoses[ych]))
 					{
 						found = true;
 					}

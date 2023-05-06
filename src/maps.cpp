@@ -821,6 +821,7 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 
 // True if the FFC covers x, y and is not ethereal or a changer.
 // Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
+// TODO z3 remove
 bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 {
 	if(tmpscr.ffcs[index].getData()<=0)
@@ -835,6 +836,25 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y)
         return false;
     
     if((tmpscr.ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
+        return false;
+    
+    return true;
+}
+
+bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
+{
+	if (ffc_handle.ffc.getData()<=0)
+        return false;
+
+    int32_t fx=ffc_handle.ffc.x.getInt();
+    if(x<fx || x>fx+(ffc_handle.screen->ffEffectWidth(ffc_handle.i)-1)) // FFC sizes are weird.
+        return false;
+    
+    int32_t fy=ffc_handle.ffc.y.getInt();
+    if(y<fy || y>fy+(ffc_handle.screen->ffEffectHeight(ffc_handle.i)-1))
+        return false;
+    
+    if((ffc_handle.ffc.flags&(ffCHANGER|ffETHEREAL))!=0)
         return false;
     
     return true;
@@ -975,16 +995,19 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
     return 0;
 }
 
+// TODO z3 !!! need a unique id, or return ffc_handle.
 int32_t getFFCAt(int32_t x, int32_t y)
 {
-	word c = tmpscr.numFFC();
-    for(word i=0; i<c; i++)
-    {
-        if(ffcIsAt(i, x, y))
-            return i;
-    }
-    
-    return -1;
+	int result = -1;
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+        if (ffcIsAt(ffc_handle, x, y))
+		{
+			result = ffc_handle.i;
+			return false;
+		}
+		return true;
+	});
+    return result;
 }
 
 int32_t MAPCOMBO(const pos_handle_t& pos_handle)
@@ -1483,8 +1506,7 @@ void update_combo_cycling()
 	}
 
 	for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int scr_x, unsigned int scr_y) {
-		int32_t x,y;
-		y = 0;
+		int32_t x;
 		std::set<uint16_t> restartanim;
 		std::set<uint16_t> restartanim2;
 		
@@ -1581,10 +1603,11 @@ void update_combo_cycling()
 		{
 			for(int32_t j=0; j<6; j++)
 			{
+				mapscr* layer_scr = get_layer_scr(currmap, screen_index, j);
+
 				for(int32_t i=0; i<176; i++)
 				{
-					// TODO z3 !
-					x=(tmpscr2+j)->data[i];
+					x=layer_scr->data[i];
 					
 					if(combobuf[x].animflags & AF_FRESH) continue;
 					
@@ -1607,7 +1630,7 @@ void update_combo_cycling()
 				
 				for(int32_t i=0; i<176; i++)
 				{
-					x=(tmpscr2+j)->data[i];
+					x=layer_scr->data[i];
 					
 					if(!(combobuf[x].animflags & AF_FRESH)) continue;
 					
@@ -1619,7 +1642,7 @@ void update_combo_cycling()
 						newdata2[i]=combobuf[x].nextcombo;
 						if(!(combobuf[x].animflags & AF_CYCLENOCSET))
 							newcset2[i]=combobuf[x].nextcset;
-						else newcset2[i]=(tmpscr2+j)->cset[i];
+						else newcset2[i]=layer_scr->cset[i];
 						int32_t c=newdata2[i];
 						int32_t cs=newcset2[i];
 						
@@ -1631,7 +1654,8 @@ void update_combo_cycling()
 						if(combobuf[c].type==cSPINTILE1)
 						{
 							// Uses animated_combo_table2
-							addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+							rpos_t rpos = (rpos_t)(rpos_base+i);
+							addenemy(COMBOX_REGION(rpos),COMBOY_REGION(rpos),(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
 				}
@@ -1641,11 +1665,11 @@ void update_combo_cycling()
 					if(newdata[i]!=-1)
 					{
 						rpos_t rpos = (rpos_t)(rpos_base + i);
-						pos_handle_t pos_handle = {tmpscr2+j, screen_index, j, rpos};
+						pos_handle_t pos_handle = {layer_scr, screen_index, j, rpos};
 						screen_combo_modify_preroutine(pos_handle);
-						(tmpscr2+j)->data[i]=newdata[i];
+						layer_scr->data[i]=newdata[i];
 						if(newcset[i]>-1)
-							(tmpscr2+j)->cset[i]=newcset[i];
+							layer_scr->cset[i]=newcset[i];
 						screen_combo_modify_postroutine(pos_handle);
 						
 						newdata[i]=-1;
@@ -1654,9 +1678,9 @@ void update_combo_cycling()
 					
 					if(newdata2[i]!=-1)
 					{
-						(tmpscr2+j)->data[i]=newdata2[i];
+						layer_scr->data[i]=newdata2[i];
 						if(newcset2[i]>-1)
-							(tmpscr2+j)->cset[i]=newcset2[i];
+							layer_scr->cset[i]=newcset2[i];
 						newdata2[i]=-1;
 						newcset2[i]=-1;
 					}
@@ -2023,7 +2047,7 @@ bool isSwitchHookable(newcombo const& cmb)
 	return cmb.genflags & cflag2;
 }
 
-// TODO ! rename rpos things here
+// TODO z3 ! rename rpos things here
 bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos, rpos_t *retffcpos)
 {
 	rpos_t cpos = rpos_t::NONE;
