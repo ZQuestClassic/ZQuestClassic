@@ -6008,6 +6008,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 		
 		init_ffpos();
+		// TODO z3 !
 		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((previous_scr.ffcs[i].flags&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
@@ -6072,7 +6073,12 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			}
 		}
 	}
-	
+
+	for (word i = 0; i < MAXFFCS; i++)
+	{
+		screen->ffcs[i].screen_index = scr;
+	}
+
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{

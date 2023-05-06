@@ -28,6 +28,7 @@ public:
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
+	int32_t screen_index;
 	bool initialized, hooked;
 	
 	ffcdata() = default;

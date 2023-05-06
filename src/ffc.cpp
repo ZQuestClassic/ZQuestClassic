@@ -114,33 +114,15 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 
 #if IS_PLAYER
-	// TODO z3 infinite loops.
-	// for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-	// 	for (word i = 0; i < MAXFFCS; i++)
-	// 	{
-	// 		if (this == &screen->ffcs[i])
-	// 		{
-	// 			screen_ffc_modify_postroutine({screen, screen_index, i, this});
-	// 			// TODO z3 early exit entire iteration.
-	// 			break;
-	// 		}
-	// 	}
-	// });
-	for (int screen_index = 0; screen_index < 128; screen_index++)
-	{
-		if (is_in_current_region(screen_index))
-		{
-			mapscr* screen = get_scr_no_load(currmap, screen_index);
-			if (!screen) continue;
+	mapscr* screen = get_scr_no_load(currmap, 23);
+	if (!screen) return;
 
-			for (word i = 0; i < MAXFFCS; i++)
-			{
-				if (this == &screen->ffcs[i])
-				{
-					screen_ffc_modify_postroutine({screen, screen_index, i, this});
-					return;
-				}
-			}
+	for (word i = 0; i < MAXFFCS; i++)
+	{
+		if (this == &screen->ffcs[i])
+		{
+			screen_ffc_modify_postroutine({screen, screen_index, i, this});
+			return;
 		}
 	}
 #endif
@@ -244,8 +226,7 @@ void ffcdata::doContactDamage(int32_t hdir)
 	if(flags & (ffCHANGER | ffETHEREAL))
 		return; //Changer or ethereal; has no type
 	newcombo const& cmb = combobuf[data];
-	// TODO z3 !
 	if(data && isdamage_type(cmb.type))
-		trigger_damage_combo(&tmpscr, data, hdir, true);
+		trigger_damage_combo(get_scr(currmap, screen_index), data, hdir, true);
 #endif
 }
