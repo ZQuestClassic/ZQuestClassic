@@ -3991,12 +3991,12 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(isCuttableNextType(type2))
 		{
-			current_ffc_handle->ffc.incData(1);
+			current_ffc_handle->ffc->incData(1);
 		}
 		else
 		{
-			current_ffc_handle->ffc.setData(s->undercombo);
-			current_ffc_handle->ffc.cset = s->undercset;
+			current_ffc_handle->ffc->setData(s->undercombo);
+			current_ffc_handle->ffc->cset = s->undercset;
 		}
 	}
 	
@@ -4467,7 +4467,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[current_ffc_handle->ffc.getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->ffc->getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4582,12 +4582,12 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            current_ffc_handle->ffc.incData(1);
+            current_ffc_handle->ffc->incData(1);
         }
         else
         {
-            current_ffc_handle->ffc.setData(s->undercombo);
-            current_ffc_handle->ffc.cset = s->undercset;
+            current_ffc_handle->ffc->setData(s->undercombo);
+            current_ffc_handle->ffc->cset = s->undercset;
         }
     }
     
@@ -4891,7 +4891,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[current_ffc_handle->ffc.getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->ffc->getData()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4985,12 +4985,12 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            current_ffc_handle->ffc.incData(1);
+            current_ffc_handle->ffc->incData(1);
         }
         else
         {
-            current_ffc_handle->ffc.setData(s->undercombo);
-            current_ffc_handle->ffc.cset = s->undercset;
+            current_ffc_handle->ffc->setData(s->undercombo);
+            current_ffc_handle->ffc->cset = s->undercset;
         }
     }
     
@@ -5309,7 +5309,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         }
         else
         {
-            current_ffc_handle->ffc.incData(1);
+            current_ffc_handle->ffc->incData(1);
         }
     }
     
@@ -9481,7 +9481,7 @@ bool HeroClass::animate(int32_t)
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
-		newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
+		newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 		
 		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 		{
@@ -12091,9 +12091,8 @@ bool HeroClass::doattack()
 						}
 					}
 					for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-						ffcdata& ffc = ffc_handle.ffc;
-						newcombo const& cmb = combobuf[ffc.getData()];
-						if(distance(x,y,ffc.x,ffc.y) > rad) return true;
+						newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return true;
 
 						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
 						{
@@ -12244,7 +12243,7 @@ void handle_lens_triggers(int32_t l_id)
 			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
-				do_trigger_combo_ffc({&tmpscr, currscr, i, ffc});
+				do_trigger_combo_ffc({&tmpscr, currscr, i, &ffc});
 				break;
 			}
 		}
@@ -19071,7 +19070,7 @@ void HeroClass::checkgenpush()
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
-				newcombo const& cmb3 = combobuf[ffc_handle.ffc.getData()];
+				newcombo const& cmb3 = combobuf[ffc_handle.ffc->getData()];
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
 					do_trigger_combo_ffc(ffc_handle);
@@ -19313,7 +19312,7 @@ endsigns:
 	{
 		// TODO z3 !
 		if (foundffc >= 0)
-			do_trigger_combo_ffc({&tmpscr, currscr, foundffc, tmpscr.ffcs[foundffc]}, didsign ? ctrigIGNORE_SIGN : 0);
+			do_trigger_combo_ffc({&tmpscr, currscr, foundffc, &tmpscr.ffcs[foundffc]}, didsign ? ctrigIGNORE_SIGN : 0);
 		else 
 			do_trigger_combo(get_pos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
@@ -20574,9 +20573,8 @@ void HeroClass::handleSpotlights()
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		ffcdata& ffc = ffc_handle.ffc;
-		newcombo const* cmb = &combobuf[ffc.getData()];
-		size_t pos = COMBOPOS(ffc.x+8, ffc.y+8);
+		newcombo const* cmb = &combobuf[ffc_handle.ffc->getData()];
+		size_t pos = COMBOPOS(ffc_handle.ffc->x+8, ffc_handle.ffc->y+8);
 		if(cmb->type == cLIGHTTARGET)
 		{
 			int32_t trigflag = cmb->attribytes[4] ? (1 << (cmb->attribytes[4]-1)) : ~0;
@@ -20588,14 +20586,14 @@ void HeroClass::handleSpotlights()
 			{
 				if(!(alltrig || trigged)) //Revert
 				{
-					ffc.incData(-1);
+					ffc_handle.ffc->incData(-1);
 					istrigged = false;
 				}
 			}
 			else //Unsolved version
 			{
 				if(alltrig || trigged) //Light
-					ffc.incData(1);
+					ffc_handle.ffc->incData(1);
 				else istrigged = false;
 			}
 		}
@@ -20873,7 +20871,7 @@ void HeroClass::checkspecial()
 			}
 		}
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
+			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 			if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 			{
 				do_trigger_combo_ffc(ffc_handle);
@@ -21556,7 +21554,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			if (found)
 			{
-				newcombo const* cmb = &combobuf[ffc_handle.ffc.getData()];
+				newcombo const* cmb = &combobuf[ffc_handle.ffc->getData()];
 				if (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
 				{
 					do_trigger_combo_ffc(ffc_handle);

@@ -5639,7 +5639,7 @@ struct ffc_handle_t
 	mapscr* screen;
 	int32_t screen_index;
 	int32_t i;
-	ffcdata& ffc;
+	ffcdata* ffc;
 };
 
 struct viewport_t

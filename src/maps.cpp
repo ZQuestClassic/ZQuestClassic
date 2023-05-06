@@ -828,18 +828,18 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 {
-	if (ffc_handle.ffc.getData()<=0)
+	if (ffc_handle.ffc->getData()<=0)
         return false;
 
-    int32_t fx=ffc_handle.ffc.x.getInt();
+    int32_t fx=ffc_handle.ffc->x.getInt();
     if(x<fx || x>fx+(ffc_handle.screen->ffEffectWidth(ffc_handle.i)-1)) // FFC sizes are weird.
         return false;
     
-    int32_t fy=ffc_handle.ffc.y.getInt();
+    int32_t fy=ffc_handle.ffc->y.getInt();
     if(y<fy || y>fy+(ffc_handle.screen->ffEffectHeight(ffc_handle.i)-1))
         return false;
     
-    if((ffc_handle.ffc.flags&(ffCHANGER|ffETHEREAL))!=0)
+    if((ffc_handle.ffc->flags&(ffCHANGER|ffETHEREAL))!=0)
         return false;
     
     return true;
@@ -850,7 +850,7 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 	auto ffc_handle = getFFCAt(x,y);
 	if (ffc_handle)
 	{
-		return ffc_handle->ffc.getData();
+		return ffc_handle->ffc->getData();
 	}
     return 0;
 }
@@ -913,7 +913,7 @@ int32_t FFORCOMBO(int32_t x, int32_t y)
 	auto ffc_handle = getFFCAt(x, y);
 	if (ffc_handle)
 	{
-		return ffc_handle->ffc.getData();
+		return ffc_handle->ffc->getData();
 	}
 	
 	return MAPCOMBO(x,y);
@@ -948,7 +948,7 @@ int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y)
 	auto ffc_handle = getFFCAt(x,y);
 	if (ffc_handle)
 	{
-		return ffc_handle->ffc.getData();
+		return ffc_handle->ffc->getData();
 	}
 	
 	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
@@ -973,30 +973,23 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 	auto ffc_handle = getFFCAt(x, y);
 	if (ffc_handle)
 	{
-		return combobuf[ffc_handle->ffc.getData()].flag;
+		return combobuf[ffc_handle->ffc->getData()].flag;
 	}
     return 0;
 }
 
 std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 {
-	// TODO z3 hacky. make ffc_handle_t ffc pointer instead of reference?
-	mapscr* screen = nullptr;
-	int screen_index = 0;
-	int i = 0;
+	std::optional<ffc_handle_t> result = std::nullopt;
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		if (ffcIsAt(ffc_handle, x, y))
 		{
-			screen = ffc_handle.screen;
-			screen_index = ffc_handle.screen_index;
-			i = ffc_handle.i;
+			result = ffc_handle;
 			return false;
 		}
 		return true;
 	});
-
-	if (!screen) return std::nullopt;
-	return std::make_optional<ffc_handle_t>({screen, screen_index, i, screen->ffcs[i]});
+	return result;
 }
 
 int32_t MAPCOMBO(const pos_handle_t& pos_handle)
@@ -2056,11 +2049,10 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle.i, x, y))
 			{
-				ffcdata& ffc2 = ffc_handle.ffc;
-				newcombo const& cmb = combobuf[ffc2.getData()];
+				newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 				if (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb))
 				{
-					ffc = &ffc_handle.ffc;
+					ffc = ffc_handle.ffc;
 					return false;
 				}
 			}
@@ -2202,12 +2194,12 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 		word c = tmpscr.numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata& ffc2 = tmpscr.ffcs[i];
-			newcombo const& cmb = combobuf[ffc2.getData()];
+			ffcdata* ffc2 = &tmpscr.ffcs[i];
+			newcombo const& cmb = combobuf[ffc2->getData()];
 			if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 			if((cmb.type== what1) || (cmb.type== what2))
 			{
-				ffc2.incData(1);
+				ffc2->incData(1);
 				didit=true;
 			}
 		}
@@ -2273,8 +2265,8 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		word c = s->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata& ffc2 = s->ffcs[i];
-			newcombo const& cmb = combobuf[ffc2.getData()];
+			ffcdata* ffc2 = &s->ffcs[i];
+			newcombo const& cmb = combobuf[ffc2->getData()];
 			if(triggers && force_ex_trigger_ffc({s, scr, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
@@ -2288,7 +2280,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 					if(!(cmb.usrflags&cflag16)) continue; //custom state instead of normal state
 					if(cmb.attribytes[5] == xflag)
 					{
-						ffc2.incData(1);
+						ffc2->incData(1);
 						didit=true;
 					}
 					break;
@@ -2545,7 +2537,7 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
+			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo_ffc(ffc_handle);
 			return true;
@@ -3310,8 +3302,8 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	}
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		if((combobuf[ffc_handle.ffc.getData()].triggerflags[2] & trigflags)
-			&& ffc_handle.ffc.collide(x,y,16,16))
+		if((combobuf[ffc_handle.ffc->getData()].triggerflags[2] & trigflags)
+			&& ffc_handle.ffc->collide(x,y,16,16))
 		{
 			do_trigger_combo_ffc(ffc_handle);
 			ret = true;
@@ -5564,7 +5556,7 @@ void openshutters()
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.ffc.getData()];
+			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
 				do_trigger_combo_ffc(ffc_handle);
 			return true;
@@ -5916,7 +5908,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		{
 			screen->ffcs[i].setLoaded(true);
 			screen->ffcs[i].solid_update(false);
-			screen_ffc_modify_postroutine({screen, scr, i, screen->ffcs[i]});
+			screen_ffc_modify_postroutine({screen, scr, i, &screen->ffcs[i]});
 		}
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
@@ -7301,7 +7293,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc({m, screen_index, q, m->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({m, screen_index, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7441,7 +7433,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc({base_screen, screen_index, q, base_screen->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({base_screen, screen_index, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }

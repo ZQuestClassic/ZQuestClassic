@@ -341,7 +341,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 	} 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	byte* grid = w->wscreengrid_ffc;
-	ffcdata& ffc = ffc_handle.ffc;
+	ffcdata* ffc = ffc_handle.ffc;
 	// TODO z3 !
 	if ( !(get_bit(grid,ffc_handle.i)) || (combobuf[cid].usrflags&cflag5) ) 
 	{
@@ -354,17 +354,17 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 					case 0:
 					case 1:
 					default:
-						decorations.add(new dBushLeaves(ffc.x, ffc.y, dBUSHLEAVES, 0, 0));
+						decorations.add(new dBushLeaves(ffc->x, ffc->y, dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
-						decorations.add(new dFlowerClippings(ffc.x, ffc.y, dFLOWERCLIPPINGS, 0, 0));
+						decorations.add(new dFlowerClippings(ffc->x, ffc->y, dFLOWERCLIPPINGS, 0, 0));
 						break;
 					case 3:
-						decorations.add(new dGrassClippings(ffc.x, ffc.y, dGRASSCLIPPINGS, 0, 0));
+						decorations.add(new dGrassClippings(ffc->x, ffc->y, dGRASSCLIPPINGS, 0, 0));
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(ffc.x, ffc.y, 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(ffc->x, ffc->y, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		int32_t it = -1;
 		int32_t thedropset = -1;
@@ -382,7 +382,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		}
 		if( it != -1 )
 		{
-			item* itm = (new item(ffc.x, ffc.y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item(ffc->x, ffc->y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
 			items.add(itm);
 		}
@@ -390,7 +390,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		//drop special room item
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			items.add(new item(ffc.x, ffc.y,
+			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,
 				tmpscr.catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr.catchall].family==itype_triforcepiece ||
 				(tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
@@ -399,11 +399,11 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(ffc_handle);
-			ffc.setData(tmpscr.secretcombo[ft]);
-			ffc.cset = tmpscr.secretcset[ft];
+			ffc->setData(tmpscr.secretcombo[ft]);
+			ffc->cset = tmpscr.secretcset[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
 		}
 		
 		//loop next combo
@@ -416,27 +416,27 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc.setData(tmpscr.undercombo);
-					ffc.cset = tmpscr.undercset;	
+					ffc->setData(tmpscr.undercombo);
+					ffc->cset = tmpscr.undercset;	
 				}
 				else
-					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
+					ffc->setData(vbound(ffc->getData()+1,0,MAXCOMBOS));
 				
 				screen_ffc_modify_postroutine(ffc_handle);
 				
 				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
 				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo
-				if (combobuf[cid].usrflags&cflag5) cid = ffc.getData(); //cid needs to be set to data so continuous combos work
+				if (combobuf[cid].usrflags&cflag5) cid = ffc->getData(); //cid needs to be set to data so continuous combos work
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
 			
 			
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc.x,ffc.y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		//zprint("continuous\n");
 		
@@ -463,7 +463,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 					ffcdata& ffc = tmpscr.ffcs[i];
 					if(!MatchComboTrigger(w, cbuf, ffc.getData())) continue;
 					// TODO z3 !
-					do_trigger_combo_ffc({&tmpscr, currscr, i, ffc}, 0, w);
+					do_trigger_combo_ffc({&tmpscr, currscr, i, &ffc}, 0, w);
 				}
 			}
 		}

@@ -192,7 +192,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		return;
 	} 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	ffcdata& ffc = ffc_handle.ffc;
+	ffcdata* ffc = ffc_handle.ffc;
 	if (true) // Probably needs a way to only be triggered once...
 	{
 		if (combobuf[cid].usrflags&cflag1) 
@@ -204,17 +204,17 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 					case 0:
 					case 1:
 					default:
-						decorations.add(new dBushLeaves(ffc.x, ffc.y, dBUSHLEAVES, 0, 0));
+						decorations.add(new dBushLeaves(ffc->x, ffc->y, dBUSHLEAVES, 0, 0));
 						break;
 					case 2:
-						decorations.add(new dFlowerClippings(ffc.x, ffc.y, dFLOWERCLIPPINGS, 0, 0));
+						decorations.add(new dFlowerClippings(ffc->x, ffc->y, dFLOWERCLIPPINGS, 0, 0));
 						break;
 					case 3:
-						decorations.add(new dGrassClippings(ffc.x, ffc.y, dGRASSCLIPPINGS, 0, 0));
+						decorations.add(new dGrassClippings(ffc->x, ffc->y, dGRASSCLIPPINGS, 0, 0));
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(ffc.x, ffc.y, 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(ffc->x, ffc->y, 0, 0, combobuf[cid].attribytes[0]));
 		}
 		
 		int32_t it = -1; 
@@ -233,7 +233,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		}
 		if( it != -1 )
 		{
-			item* itm = (new item(ffc.x, ffc.y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
+			item* itm = (new item(ffc->x, ffc->y,(zfix)0, it, ipBIGRANGE + ipTIMER, 0));
 			itm->from_dropset = thedropset;
 			items.add(itm);
 		}
@@ -241,7 +241,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		//drop special room item
 		if ( (combobuf[cid].usrflags&cflag6) && !getmapflag(mSPECIALITEM))
 		{
-			items.add(new item(ffc.x, ffc.y,(zfix)0,
+			items.add(new item(ffc->x, ffc->y,(zfix)0,
 				tmpscr.catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr.catchall].family==itype_triforcepiece ||
 				(tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
@@ -249,12 +249,12 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(ffc_handle);
-			ffc.setData(tmpscr.secretcombo[ft]);
-			ffc.cset = tmpscr.secretcset[ft];
+			ffc->setData(tmpscr.secretcombo[ft]);
+			ffc->cset = tmpscr.secretcset[ft];
 			// newflag = s->secretflag[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
 		}
 		
 		//loop next combo
@@ -266,27 +266,27 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc.setData(tmpscr.undercombo);
-					ffc.cset = tmpscr.undercset;
+					ffc->setData(tmpscr.undercombo);
+					ffc->cset = tmpscr.undercset;
 				}
 				else
 				{
-					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
+					ffc->setData(vbound(ffc->getData()+1,0,MAXCOMBOS));
 				}
 				screen_ffc_modify_postroutine(ffc_handle);
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
-				if ( (combobuf[cid].usrflags&cflag5) ) cid = ffc.getData();
+				if ( (combobuf[cid].usrflags&cflag5) ) cid = ffc->getData();
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
-				sfx(combobuf[cid].attribytes[2],int32_t(ffc.x));
+				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
 			
 			
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc.x,ffc.y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		
 	}
@@ -385,11 +385,11 @@ static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by))
 			{
-				ffcdata& ffc = ffc_handle.ffc;
-				newcombo const& cmb_2 = combobuf[ffc.getData()];
-				ffc.setData(BOUND_COMBO(ffc.getData() + cmbofs));
-				ffc.cset = (ffc.cset + csofs) & 15;
-				int32_t newcid2 = ffc.getData();
+				ffcdata* ffc = ffc_handle.ffc;
+				newcombo const& cmb_2 = combobuf[ffc->getData()];
+				ffc->setData(BOUND_COMBO(ffc->getData() + cmbofs));
+				ffc->cset = (ffc->cset + csofs) & 15;
+				int32_t newcid2 = ffc->getData();
 				if(combobuf[newcid2].animflags & AF_CYCLE)
 				{
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
@@ -404,23 +404,23 @@ static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 
 static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	auto cid = ffc.getData();
+	ffcdata* ffc = ffc_handle.ffc;
+	auto cid = ffc->getData();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cCSWITCHBLOCK) return;
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
-	ffc.setData(BOUND_COMBO(cid + cmbofs));
-	ffc.cset = (ffc.cset + csofs) & 15;
-	auto newcid = ffc.getData();
+	ffc->setData(BOUND_COMBO(cid + cmbofs));
+	ffc->cset = (ffc->cset + csofs) & 15;
+	auto newcid = ffc->getData();
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
 		combobuf[newcid].cur_frame=0;
 		combobuf[newcid].aclk = 0;
 	}
-	int32_t pos2 = COMBOPOS(ffc.x+8, ffc.y+8);
+	int32_t pos2 = COMBOPOS(ffc->x+8, ffc->y+8);
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		if(!(cmb.usrflags&(1<<lyr))) continue;
@@ -444,13 +444,13 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 			if (&ffc_handle_2.ffc == &ffc_handle.ffc) return true;
 
-			if (ffcIsAt(ffc_handle_2, ffc.x+8, ffc.y+8))
+			if (ffcIsAt(ffc_handle_2, ffc->x+8, ffc->y+8))
 			{
-				ffcdata& ffc2 = ffc_handle_2.ffc;
-				newcombo const& cmb_2 = combobuf[ffc2.getData()];
-				ffc2.setData(BOUND_COMBO(ffc2.getData() + cmbofs));
-				ffc2.cset = (ffc2.cset + csofs) & 15;
-				int32_t newcid2 = ffc2.getData();
+				ffcdata* ffc2 = ffc_handle_2.ffc;
+				newcombo const& cmb_2 = combobuf[ffc2->getData()];
+				ffc2->setData(BOUND_COMBO(ffc2->getData() + cmbofs));
+				ffc2->cset = (ffc2->cset + csofs) & 15;
+				int32_t newcid2 = ffc2->getData();
 				if(combobuf[newcid2].animflags & AF_CYCLE)
 				{
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
@@ -758,9 +758,9 @@ bool trigger_step(const pos_handle_t& pos_handle)
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-					if (ffc_handle.ffc.getData() == id)
+					if (ffc_handle.ffc->getData() == id)
 					{
-						ffc_handle.ffc.incData(1);
+						ffc_handle.ffc->incData(1);
 					}
 					return true;
 				});
@@ -782,9 +782,9 @@ bool trigger_step(const pos_handle_t& pos_handle)
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-					if (isStepType(combobuf[ffc_handle.ffc.getData()].type))
+					if (isStepType(combobuf[ffc_handle.ffc->getData()].type))
 					{
-						ffc_handle.ffc.incData(1);
+						ffc_handle.ffc->incData(1);
 					}
 					return true;
 				});
@@ -798,25 +798,25 @@ bool trigger_step(const pos_handle_t& pos_handle)
 
 bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc.getData()];
+	ffcdata* ffc = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ffc->getData()];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
 	if((cmb.usrflags & cflag1) && !Hero.HasHeavyBoots())
 		return false;
 	if(cmb.attribytes[0])
-		sfx(cmb.attribytes[0], pan(ffc.x));
+		sfx(cmb.attribytes[0], pan(ffc->x));
 	switch(cmb.type)
 	{
 		case cSTEP:
 		{
-			ffc.incData(1); 
+			ffc->incData(1); 
 			break;
 		}
 		case cSTEPSAME:
 		{
-			int32_t id = ffc.getData();
+			int32_t id = ffc->getData();
 			for_every_screen_in_region([&](mapscr* scr, int screen_index, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
 				for (int q = 0; q < 176; ++q)
 				{
@@ -829,14 +829,14 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (ffc_handle_2.ffc.getData() == id && &ffc_handle_2.ffc != &ffc_handle.ffc)
+					if (ffc_handle_2.ffc->getData() == id && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
-						ffc_handle_2.ffc.incData(1);
+						ffc_handle_2.ffc->incData(1);
 					}
 					return true;
 				});
 			}
-			ffc.incData(1);
+			ffc->incData(1);
 			break;
 		}
 		case cSTEPALL:
@@ -851,14 +851,14 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (isStepType(combobuf[ffc_handle_2.ffc.getData()].type) && &ffc_handle_2.ffc != &ffc_handle.ffc)
+					if (isStepType(combobuf[ffc_handle_2.ffc->getData()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
-						ffc_handle_2.ffc.incData(1);
+						ffc_handle_2.ffc->incData(1);
 					}
 					return true;
 				});
 			}
-			ffc.incData(1);
+			ffc->incData(1);
 			break;
 		}
 	}
@@ -1149,9 +1149,9 @@ bool trigger_chest(const pos_handle_t& pos_handle)
 
 bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc.getData()];
-	int32_t cid = ffc.getData();
+	ffcdata* ffc = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ffc->getData()];
+	int32_t cid = ffc->getData();
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
@@ -1326,8 +1326,8 @@ bool trigger_lockblock(const pos_handle_t& pos_handle)
 
 bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc.getData()];
+	ffcdata* ffc = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ffc->getData()];
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
@@ -1659,11 +1659,11 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 	}
 	if(gc > 10) return false; //Don't do it if there's already 10 enemies onscreen
 	//!TODO: Maybe allow a custom limit?
-	ffcdata& ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc.getData()];
+	ffcdata* ffc = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ffc->getData()];
 	int32_t eclk = -14;
 	int32_t id2 = 0;
-	int32_t tx = ffc.x, ty = ffc.y;
+	int32_t tx = ffc->x, ty = ffc->y;
 	bool nextcmb = false;
 	switch(cmb.type)
 	{
@@ -1717,7 +1717,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 				}
 			}
 			if(nextcmb)
-				ffc.incData(1);
+				ffc->incData(1);
 			break;
 		}
 		default: return false;
@@ -2010,11 +2010,11 @@ bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped)
 
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc.getData()];
-	int32_t tx = ffc.x, ty = ffc.y;
+	ffcdata* ffc = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ffc->getData()];
+	int32_t tx = ffc->x, ty = ffc->y;
 	int32_t thesfx = cmb.attribytes[0];
-	sfx_no_repeat(thesfx, pan(ffc.x));
+	sfx_no_repeat(thesfx, pan(ffc->x));
 	if ( cmb.usrflags&cflag1) //landmine
 	{
 		int32_t wpn = cmb.attribytes[1];
@@ -2186,7 +2186,7 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 		}
 		if (!(cmb.usrflags&cflag3)) //Don't Advance
 		{
-			ffc.incData(1);
+			ffc->incData(1);
 		}
 	}
 	return true;
@@ -2215,7 +2215,7 @@ bool trigger_switchhookblock(const pos_handle_t& pos_handle)
 static bool trigger_switchhookblock_ffc(const ffc_handle_t& ffc_handle)
 {
 	if(Hero.switchhookclk) return false;
-	switching_object = &ffc_handle.ffc;
+	switching_object = ffc_handle.ffc;
 	switching_object->switch_hooked = true;
 	hooked_comborpos = rpos_t::NONE;
 	hooked_layerbits = 0;
@@ -2426,7 +2426,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 {
 	if(!copycat_id) return false;
 
-	int32_t cid = ffc_handle.ffc.getData();
+	int32_t cid = ffc_handle.ffc->getData();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
 	{
@@ -2484,21 +2484,21 @@ void do_ex_trigger(const pos_handle_t& pos_handle)
 
 void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	int32_t cid = ffc.getData();
-	int32_t ocs = ffc.cset;
+	ffcdata* ffc = ffc_handle.ffc;
+	int32_t cid = ffc->getData();
+	int32_t ocs = ffc->cset;
 	newcombo const& cmb = combobuf[cid];	
 	if(cmb.trigchange)
 	{
-		ffc.setData(cid+cmb.trigchange);
+		ffc->setData(cid+cmb.trigchange);
 	}
 	if(cmb.trigcschange)
 	{
-		ffc.cset = (ocs+cmb.trigcschange) & 0xF;
+		ffc->cset = (ocs+cmb.trigcschange) & 0xF;
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
-		newcombo& rcmb = combobuf[ffc.getData()];
+		newcombo& rcmb = combobuf[ffc->getData()];
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
@@ -2508,7 +2508,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 	{
 		if(!copycat_id) //not already in a copycat
 		{
-			bool skipself = ffc.getData() == cid;
+			bool skipself = ffc->getData() == cid;
 			copycat_id = cmb.trigcopycat;
 			for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
 				do_copycat_trigger(pos_handle);
@@ -2545,8 +2545,8 @@ bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 
 bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate)
 {
-	ffcdata& ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc.getData()];	
+	ffcdata* ffc = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ffc->getData()];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(ffc_handle.screen_index, 1<<cmb.exstate))
@@ -2957,13 +2957,13 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 {
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 
-	ffcdata& ffc = ffc_handle.ffc;
+	ffcdata* ffc = ffc_handle.ffc;
 	// TODO z3 !!!
 	cpos_info& timer = ffc_posinfos[ffc_handle.i];
-	int32_t cid = ffc.getData();
-	int32_t ocs = ffc.cset;
-	int32_t cx = ffc.x;
-	int32_t cy = ffc.y;
+	int32_t cid = ffc->getData();
+	int32_t ocs = ffc->cset;
+	int32_t cx = ffc->x;
+	int32_t cy = ffc->y;
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
 	
@@ -3160,17 +3160,17 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			if(cmb.trigchange)
 			{
 				used_bit = true;
-				ffc.setData(cid+cmb.trigchange);
+				ffc->setData(cid+cmb.trigchange);
 			}
 			if(cmb.trigcschange)
 			{
 				used_bit = true;
-				ffc.cset = (ocs+cmb.trigcschange) & 0xF;
+				ffc->cset = (ocs+cmb.trigcschange) & 0xF;
 			}
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
 			{
-				newcombo& rcmb = combobuf[ffc.getData()];
+				newcombo& rcmb = combobuf[ffc->getData()];
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;
@@ -3265,7 +3265,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			{
 				if(!copycat_id) //not already in a copycat
 				{
-					bool skipself = ffc.getData() == cid;
+					bool skipself = ffc->getData() == cid;
 					copycat_id = cmb.trigcopycat;
 					for(auto cclayer = 0; cclayer < 7; ++cclayer)
 					{
@@ -3492,7 +3492,7 @@ void update_combo_timers()
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		// TODO z3 !!
 		cpos_info& timer = ffc_posinfos[ffc_handle.i];
-		timer.updateData(ffc_handle.ffc.getData());
+		timer.updateData(ffc_handle.ffc->getData());
 		newcombo const& cmb = combobuf[timer.data];
 		if(cmb.trigtimer)
 		{
@@ -3500,14 +3500,14 @@ void update_combo_timers()
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc_handle);
-				timer.updateData(ffc_handle.ffc.getData());
+				timer.updateData(ffc_handle.ffc->getData());
 			}
 		}
 		if(timer.trig_cd) --timer.trig_cd;
 		if(cmb.type == cSHOOTER)
 		{
-			zfix wx = ffc_handle.ffc.x;
-			zfix wy = ffc_handle.ffc.y;
+			zfix wx = ffc_handle.ffc->x;
+			zfix wy = ffc_handle.ffc->y;
 			wx += (ffc_handle.screen->ffTileWidth(ffc_handle.i)-1)*8;
 			wy += (ffc_handle.screen->ffTileHeight(ffc_handle.i)-1)*8;
 			handle_shooter(cmb, timer, wx, wy);

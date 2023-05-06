@@ -20816,8 +20816,8 @@ void loadguys()
 		addguy(dx+120,dy+62,gFAIRY,-14,false);
 	}
 	
-	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		loaditem(z3_scr, z3_scr_dx*256, z3_scr_dy*176);
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y) {
+		loaditem(screen, scr_x*256, scr_y*176);
 	});
 	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
@@ -21212,17 +21212,17 @@ void screen_combo_modify_postroutine(const pos_handle_t& pos_handle)
 
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 {
-	ffcdata& ff = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ff.getData()];
+	ffcdata* ff = ffc_handle.ffc;
+	newcombo const& cmb = combobuf[ff->getData()];
 	
 	rpos_t id = SLOPE_ID(ffc_handle.i, 7);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
-	bool isSlope = cmb.type == cSLOPE && !(ff.flags&ffCHANGER);
+	bool isSlope = cmb.type == cSLOPE && !(ff->flags&ffCHANGER);
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, nullptr, &ff, id);
+		slopes.try_emplace(id, nullptr, ff, id);
 	}
 	else if(wasSlope && !isSlope)
 	{
@@ -21253,7 +21253,7 @@ void screen_combo_modify_post(int32_t cid)
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		if (ffc_handle.ffc.getData() == cid)
+		if (ffc_handle.ffc->getData() == cid)
 		{
 			screen_ffc_modify_postroutine(ffc_handle);
 		}

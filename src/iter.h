@@ -75,7 +75,7 @@ void for_every_ffc_in_region(T fn)
 			int c = screen->numFFC();
 			for (int i = 0; i < c; i++)
 			{
-				ffc_handle_t ffc_handle = {screen, screen_index, i, screen->ffcs[i]};
+				ffc_handle_t ffc_handle = {screen, screen_index, i, &screen->ffcs[i]};
 				if (!fn(ffc_handle)) return;
 			}
 		}
