@@ -464,6 +464,25 @@ mapscr* get_scr(int map, int screen)
 	return temporary_screens[index][0];
 }
 
+mapscr* get_scr_no_load(int map, int screen)
+{
+	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
+	if (screen == initial_region_scr && map == currmap) return &tmpscr;
+	if (screen == homescr && map == currmap) return &special_warp_return_screen;
+
+	if (map == currmap)
+	{
+		int index = screen*7;
+		return temporary_screens_currmap[index];
+	}
+
+	int index = map*MAPSCRS + screen;
+	auto it = temporary_screens.find(index);
+	if (it != temporary_screens.end()) return it->second[0];
+
+	return nullptr;
+}
+
 // Note: layer=-1 returns the base screen, layer=0 returns the first layer.
 mapscr* get_layer_scr(int map, int screen, int layer)
 {

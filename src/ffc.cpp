@@ -114,17 +114,35 @@ void ffcdata::setData(word newdata)
 	data = newdata;
 
 #if IS_PLAYER
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		for (word i = 0; i < MAXFFCS; i++)
+	// TODO z3 infinite loops.
+	// for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+	// 	for (word i = 0; i < MAXFFCS; i++)
+	// 	{
+	// 		if (this == &screen->ffcs[i])
+	// 		{
+	// 			screen_ffc_modify_postroutine({screen, screen_index, i, this});
+	// 			// TODO z3 early exit entire iteration.
+	// 			break;
+	// 		}
+	// 	}
+	// });
+	for (int screen_index = 0; screen_index < 128; screen_index++)
+	{
+		if (is_in_current_region(screen_index))
 		{
-			if (this == &screen->ffcs[i])
+			mapscr* screen = get_scr_no_load(currmap, screen_index);
+			if (!screen) continue;
+
+			for (word i = 0; i < MAXFFCS; i++)
 			{
-				screen_ffc_modify_postroutine({screen, screen_index, i, this});
-				// TODO z3 early exit entire iteration.
-				break;
+				if (this == &screen->ffcs[i])
+				{
+					screen_ffc_modify_postroutine({screen, screen_index, i, this});
+					return;
+				}
 			}
 		}
-	});
+	}
 #endif
 }
 void ffcdata::incData(int32_t inc)
