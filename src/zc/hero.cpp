@@ -36,6 +36,7 @@
 #include "base/zc_math.h"
 #include "user_object.h"
 #include "slopes.h"
+#include "iter.h"
 extern FFScript FFCore;
 extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];

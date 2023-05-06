@@ -39,6 +39,7 @@ uint8_t using_SRAM = 0;
 #include "drawing.h"
 #include "base/colors.h"
 #include "pal.h"
+#include "iter.h"
 using namespace util;
 #include <sstream>
 using std::ostringstream;

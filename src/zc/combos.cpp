@@ -8,6 +8,7 @@
 #include "ffscript.h"
 #include "hero.h"
 #include "title.h"
+#include "iter.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;

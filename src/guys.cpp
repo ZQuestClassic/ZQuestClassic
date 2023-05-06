@@ -27,6 +27,7 @@
 #include "particles.h"
 #include "base/zc_math.h"
 #include "slopes.h"
+#include "iter.h"
 
 extern particle_list particles;
 
@@ -21035,8 +21036,11 @@ static void activate_fireball_statues(mapscr* screen, int screen_index)
 		return;
 	}
 
-	for_every_rpos_in_screen_layer0(screen, screen_index, [&](const pos_handle_t& pos_handle) {
-		activate_fireball_statue(pos_handle);
+	for_every_rpos_in_screen(screen, screen_index, [&](const pos_handle_t& pos_handle) {
+		if (pos_handle.layer == 0)
+		{
+			activate_fireball_statue(pos_handle);
+		}
 	});
 }
 
