@@ -2474,7 +2474,7 @@ attack:
 			}
 			
 			w->x = x+wx;
-			w->y = y+wy-(54-yofs)-fakez;
+			w->y = y+wy-(original_playing_field_offset-2-yofs)-fakez;
 			w->z = (z+zofs);
 			w->tile = t;
 			w->flip = f;
