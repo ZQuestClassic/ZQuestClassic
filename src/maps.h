@@ -12,6 +12,7 @@
 #define _MAPS_H_
 
 #include "base/zdefs.h"
+#include <optional>
 
 #define DRIEDLAKE ((tmpscr.flags7 & fWHISTLEWATER) && (whistleclk>=88))
 

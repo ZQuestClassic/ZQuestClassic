@@ -15,7 +15,6 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 #include "base/mapscr.h"
 
 extern newcombo *combobuf;
-// extern mapscr tmpscr[2]; // TODO z3 ! delete me
 extern int16_t lensclk;
 extern HeroClass Hero;
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle);

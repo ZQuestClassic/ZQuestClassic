@@ -53,7 +53,6 @@ char *guy_string[eMAXGUYS];
 void never_return(int32_t index);
 void playLevelMusic();
 
-//#define NEWOUTOFBOUNDS ((int32_t)y>32767 || y<-32767 || x<-32767 || x > 32767)
 #define IGNORE_SIDEVIEW_PLATFORMS (editorflags & ENEMY_FLAG14)
 #define OFFGRID_ENEMY (editorflags & ENEMY_FLAG15)
 
@@ -70,26 +69,25 @@ void do_fix(zfix& coord, int32_t val, bool nearest_half = false)
 	coord = c;
 }
 
-// TODO z3 change params to ints. remove z here.
-bool OUTOFBOUNDS(int32_t id, zfix x, zfix y, zfix z)
+static bool OUTOFBOUNDS(int32_t id, int32_t x, int32_t y)
 {
-	if ((int32_t)y > world_h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
+	if (y > world_h + (isSideViewGravity() && canfall(id) ? 16 : 176)) return true;
 	if (y < -176) return true;
 	if (x < -256) return true;
 	if (x > world_w+256) return true;
 	return false;
 }
 
-bool NEWOUTOFBOUNDS(zfix x, zfix y, zfix z)
+bool NEWOUTOFBOUNDS(int32_t x, int32_t y, int32_t z)
 {
 	return 
 	(
-		(((int32_t)y) > FFCore.enemy_removal_point[spriteremovalY2]) 
-		|| (((int32_t)y) < FFCore.enemy_removal_point[spriteremovalY1]) 
-		|| (((int32_t)x) < FFCore.enemy_removal_point[spriteremovalX1]) 
-		|| (((int32_t)x) > FFCore.enemy_removal_point[spriteremovalX2]) 
-		|| (((int32_t)z) < FFCore.enemy_removal_point[spriteremovalZ1]) 
-		|| (((int32_t)z) > FFCore.enemy_removal_point[spriteremovalZ2])
+		(y > FFCore.enemy_removal_point[spriteremovalY2]) 
+		|| (y < FFCore.enemy_removal_point[spriteremovalY1]) 
+		|| (x < FFCore.enemy_removal_point[spriteremovalX1]) 
+		|| (x > FFCore.enemy_removal_point[spriteremovalX2]) 
+		|| (z < FFCore.enemy_removal_point[spriteremovalZ1]) 
+		|| (z > FFCore.enemy_removal_point[spriteremovalZ2])
 	);
 }
 
@@ -3376,7 +3374,7 @@ bool enemy::animate(int32_t index)
 	{
 	//skip, it can go out of bounds, from a quest rule, or from the enemy editor (but not both!)
 	}
-	else if (OUTOFBOUNDS(id, x, y, z))
+	else if (OUTOFBOUNDS(id, x, y))
 	{
 		hp=-1000; //kill it, as it is not immortal, and no quest bit or rule is enabled
 	}
@@ -6743,7 +6741,7 @@ void enemy::fix_coords(bool bound)
 		}
 	}
 	
-	if(!OUTOFBOUNDS(id, x, y, z))
+	if(!OUTOFBOUNDS(id, x, y))
 	{
 		/*x=((int32_t(x)&0xF0)+((int32_t(x)&8)?16:0));
 		

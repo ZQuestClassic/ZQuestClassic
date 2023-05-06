@@ -20957,23 +20957,23 @@ void HeroClass::checkspecial()
     }
     
 	// TODO z3 actually need to do this for all the above too.
-	for_every_screen_in_region([&](mapscr* z3_scr, int scr, unsigned int z3_scr_dx, unsigned int z3_scr_dy) {
-		if (getmapflag(scr, mCHEST))              // if special stuff done before
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int scr_x, unsigned int scr_y) {
+		if (getmapflag(screen_index, mCHEST))              // if special stuff done before
 		{
-			remove_chests(z3_scr, scr);
+			remove_chests(screen, screen_index);
 		}
 		
-		if(getmapflag(scr, mLOCKEDCHEST))              // if special stuff done before
+		if(getmapflag(screen_index, mLOCKEDCHEST))              // if special stuff done before
 		{
-			remove_lockedchests(z3_scr, scr);
+			remove_lockedchests(screen, screen_index);
 		}
 		
-		if(getmapflag(scr, mBOSSCHEST))              // if special stuff done before
+		if(getmapflag(screen_index, mBOSSCHEST))              // if special stuff done before
 		{
-			remove_bosschests(z3_scr, scr);
+			remove_bosschests(screen, screen_index);
 		}
 
-		clear_xstatecombos(z3_scr, scr, true);
+		clear_xstatecombos(screen, screen_index, true);
 	});
 	
 	if((hasitem&8) && triggered_screen_secrets)
