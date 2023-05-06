@@ -48,7 +48,7 @@ bool trigger_lockblock(const pos_handle_t& pos_handle);
 bool trigger_lockblock_ffc(const pos_handle_t& pos_handle);
 bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir = -1);
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir = -1);
-bool trigger_damage_combo(int32_t cid, int32_t hdir = -1, bool force_solid = false);
+bool trigger_damage_combo(mapscr* screen, int32_t cid, int32_t hdir = -1, bool force_solid = false);
 bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped = false);
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped = false);
 void trigger_save(newcombo const& cmb);

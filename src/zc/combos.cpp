@@ -1733,7 +1733,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 }
 
 
-bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
+bool trigger_damage_combo(mapscr* screen, int32_t cid, int32_t hdir, bool force_solid)
 {
 	if(hdir > 3) hdir = -1;
 	newcombo const& cmb = combobuf[cid];
@@ -1748,9 +1748,7 @@ bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
 
-	// TODO z3 !
-	// bool current_ring = ((pos_handle.screen->flags6&fTOGGLERINGDAMAGE) != 0);
-	bool current_ring = ((tmpscr.flags6&fTOGGLERINGDAMAGE) != 0);
+	bool current_ring = (screen->flags6&fTOGGLERINGDAMAGE) != 0;
 	if(current_ring)
 	{
 		global_defring = !global_defring;
@@ -1807,14 +1805,6 @@ bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 		else paymagiccost(itemid); //boots succeeded
 	}
 	return false;
-}
-
-bool trigger_damage_combo(const pos_handle_t& pos_handle)
-{
-	int pos = RPOS_TO_POS(pos_handle.rpos);
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
-	int cid = pos_handle.screen->data[pos];
-	return trigger_damage_combo(cid);
 }
 
 bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped)
@@ -2734,7 +2724,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(pos_handle);
+						trigger_damage_combo(pos_handle.screen, cid);
 						break;
 					
 					case cSTEPSFX:
@@ -3115,7 +3105,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(cid);
+						trigger_damage_combo(ffc_handle.screen, cid);
 						break;
 					
 					case cSTEPSFX:

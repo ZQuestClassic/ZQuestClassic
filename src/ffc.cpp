@@ -244,7 +244,8 @@ void ffcdata::doContactDamage(int32_t hdir)
 	if(flags & (ffCHANGER | ffETHEREAL))
 		return; //Changer or ethereal; has no type
 	newcombo const& cmb = combobuf[data];
+	// TODO z3 !
 	if(data && isdamage_type(cmb.type))
-		trigger_damage_combo(data, hdir, true);
+		trigger_damage_combo(&tmpscr, data, hdir, true);
 #endif
 }
