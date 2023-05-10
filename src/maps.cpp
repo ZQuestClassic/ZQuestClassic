@@ -4374,9 +4374,9 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 		newcombo const& cmb = combobuf[scr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2), (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+			doDarkroomCircle((scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2)+offx, (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2)+offy, cmb.attribytes[0], darkscr_bmp_curscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2)+scrollxoffs, (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
+				doDarkroomCircle((scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2)+scrollxoffs+offx, (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2)+scrollyoffs+offy, cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
 	
@@ -4389,7 +4389,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 		{
 			doTorchCircle(darkscr_bmp_scrollscr, q, cmb, offx, offy);
 			if(scrolldir > -1)
-				doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+				doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs+offx, -scrollyoffs+offy);
 		}
 	}
 	for(int32_t lyr = 0; lyr < 6; ++lyr)
@@ -4402,7 +4402,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 			{
 				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, offx, offy);
 				if(scrolldir > -1)
-					doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+					doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs+offx, -scrollyoffs+offy);
 			}
 		}
 	}
@@ -4413,9 +4413,9 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 		newcombo const& cmb = combobuf[special_warp_return_screen.ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((special_warp_return_screen.ffcs[q].x.getInt())+(special_warp_return_screen.ffEffectWidth(q)/2), (special_warp_return_screen.ffcs[q].y.getInt())+(special_warp_return_screen.ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
+			doDarkroomCircle((special_warp_return_screen.ffcs[q].x.getInt())+(special_warp_return_screen.ffEffectWidth(q)/2)+offx, (special_warp_return_screen.ffcs[q].y.getInt())+(special_warp_return_screen.ffEffectHeight(q)/2)+offy, cmb.attribytes[0], darkscr_bmp_scrollscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((special_warp_return_screen.ffcs[q].x.getInt())+(special_warp_return_screen.ffEffectWidth(q)/2)-scrollxoffs, (special_warp_return_screen.ffcs[q].y.getInt())+(special_warp_return_screen.ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
+				doDarkroomCircle((special_warp_return_screen.ffcs[q].x.getInt())+(special_warp_return_screen.ffEffectWidth(q)/2)-scrollxoffs+offx, (special_warp_return_screen.ffcs[q].y.getInt())+(special_warp_return_screen.ffEffectHeight(q)/2)-scrollyoffs+offy, cmb.attribytes[0], darkscr_bmp_curscr);
 		}
 	}
 }
