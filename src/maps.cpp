@@ -5812,6 +5812,15 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
+	//screen / screendata script
+	FFCore.clear_screen_stack();
+	screenScriptData.Clear();
+	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
+	//reset combo script doscripts
+	//Init combo scripts
+	FFCore.init_combo_doscript();
+
 	update_slope_comboposes();
 
 	// "extended height mode" includes the top 56 pixels as part of the visible mapscr viewport,
