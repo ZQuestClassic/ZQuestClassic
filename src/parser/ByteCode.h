@@ -2129,34 +2129,34 @@ namespace ZScript
 			return new ONPCCanPlace();
 		}
 	};
-	class OReservedEmily20 : public BinaryOpcode
+	class OItemGetDispName : public UnaryOpcode
 	{
 	public:
-		OReservedEmily20(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OItemGetDispName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily20(a->clone(),b->clone());
+			return new OItemGetDispName(a->clone());
 		}
 	};
-	class OReservedEmily21 : public BinaryOpcode
+	class OItemSetDispName : public UnaryOpcode
 	{
 	public:
-		OReservedEmily21(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OItemSetDispName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily21(a->clone(),b->clone());
+			return new OItemSetDispName(a->clone());
 		}
 	};
-	class OReservedEmily22 : public BinaryOpcode
+	class OItemGetShownName : public UnaryOpcode
 	{
 	public:
-		OReservedEmily22(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OItemGetShownName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily22(a->clone(),b->clone());
+			return new OItemGetShownName(a->clone());
 		}
 	};
 	class OReservedEmily23 : public BinaryOpcode

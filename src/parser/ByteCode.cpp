@@ -2457,17 +2457,17 @@ string OSetCustomCursor::toString() const
 {
 	return "GAMESETCUSTOMCURSOR";
 }
-string OReservedEmily20::toString() const
+string OItemGetDispName::toString() const
 {
-	return "RESRVD_OP_EMILY20 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ITEMGETDISPLAYNAME " + getArgument()->toString();
 }
-string OReservedEmily21::toString() const
+string OItemSetDispName::toString() const
 {
-	return "RESRVD_OP_EMILY21 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ITEMSETDISPLAYNAME " + getArgument()->toString();
 }
-string OReservedEmily22::toString() const
+string OItemGetShownName::toString() const
 {
-	return "RESRVD_OP_EMILY22 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ITEMGETSHOWNNAME " + getArgument()->toString();
 }
 string OReservedEmily23::toString() const
 {

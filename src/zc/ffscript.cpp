@@ -26270,6 +26270,34 @@ void user_paldata::mix(user_paldata *pal_start, user_paldata *pal_end, double pe
 	}
 }
 
+void item_display_name(const bool setter)
+{
+	int32_t ID = ri->idata;
+	if(unsigned(ID) >= MAXITEMS)
+		return;
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	if(setter)
+	{
+		std::string str;
+		ArrayH::getString(arrayptr, str, 255);
+		strcpy(itemsbuf[ID].display_name, str.c_str());
+	}
+	else
+	{
+		if(ArrayH::setArray(arrayptr, string(itemsbuf[ID].display_name)) == SH::_Overflow)
+			Z_scripterrlog("Array supplied to 'itemdata->GetDisplayName()' not large enough\n");
+	}
+}
+void item_shown_name()
+{
+	int32_t ID = ri->idata;
+	if(unsigned(ID) >= MAXITEMS)
+		return;
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	if(ArrayH::setArray(arrayptr, itemsbuf[ID].get_name()) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'itemdata->GetShownName()' not large enough\n");
+}
+
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
@@ -31220,6 +31248,12 @@ j_command:
 			case LOADBSHOPDATA: //command
 				FFCore.do_loadbottleshop(false); break;
 
+			case ITEMGETDISPLAYNAME: //command
+				item_display_name(false); break;
+			case ITEMSETDISPLAYNAME: //command
+				item_display_name(true); break;
+			case ITEMGETSHOWNNAME: //command
+				item_shown_name(); break;
 
 			case DMAPDATAGETNAMER: //command
 				FFScript::do_getDMapData_dmapname(false); break;
@@ -39604,9 +39638,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
 	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
 	{ "NPCCANPLACE",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},
+	{ "ITEMGETDISPLAYNAME",   1,   0,   0,   0},
+	{ "ITEMSETDISPLAYNAME",   1,   0,   0,   0},
+	{ "ITEMGETSHOWNNAME",   1,   0,   0,   0},
 	{ "RESRVD_OP_EMILY23",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY24",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
