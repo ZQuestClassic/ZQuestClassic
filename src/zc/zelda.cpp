@@ -381,8 +381,8 @@ int32_t prt_tile=0;
 byte prt_cset=0, prt_x=0, prt_y=0, prt_tw=0, prt_th=0, msg_shdtype=0, msg_shdcol=0;
 bool msg_onscreen = false, msg_active = false, msgspace = false;
 BITMAP   *msg_txt_bmp_buf = NULL, *msg_bg_bmp_buf = NULL, *msg_portrait_bmp_buf = NULL, *msg_menu_bmp_buf = NULL;
-BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL,
-         *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL;
+BITMAP   *darkscr_bmp_curscr = NULL, *darkscr_bmp_scrollscr = NULL, *darkscr_bmp_z3 = NULL,
+         *darkscr_bmp_curscr_trans = NULL, *darkscr_bmp_scrollscr_trans = NULL, *darkscr_bmp_z3_trans = NULL;
 BITMAP *lightbeam_bmp = NULL;
 bool lightbeam_present;
 FONT	 *msgfont;
@@ -3564,6 +3564,8 @@ void game_loop()
 		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 
 		z3_update_viewport();
 		z3_update_currscr();
@@ -4417,6 +4419,7 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
+	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
 	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
 	//
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
@@ -4437,6 +4440,7 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	//Default bitmap handling
 	if(!dest) dest = darkscr_bmp_curscr;
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
+	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
 	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
 	//
 	int32_t ditherDiff = (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
@@ -4923,6 +4927,8 @@ int main(int argc, char **argv)
 	f6_menu_buf = create_bitmap_ex(8,256,224);
 	darkscr_bmp_curscr = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_curscr_trans = create_bitmap_ex(8, 256, 176);
+	darkscr_bmp_z3 = create_bitmap_ex(8, 256, 224);
+	darkscr_bmp_z3_trans = create_bitmap_ex(8, 256, 224);
 	darkscr_bmp_scrollscr = create_bitmap_ex(8, 256, 176);
 	darkscr_bmp_scrollscr_trans = create_bitmap_ex(8, 256, 176);
 	lightbeam_bmp = create_bitmap_ex(8, 256, 176);
@@ -6030,6 +6036,8 @@ void quit_game()
 	destroy_bitmap(darkscr_bmp_curscr_trans);
 	destroy_bitmap(darkscr_bmp_scrollscr);
 	destroy_bitmap(darkscr_bmp_scrollscr_trans);
+	destroy_bitmap(darkscr_bmp_z3);
+	destroy_bitmap(darkscr_bmp_z3_trans);
 	destroy_bitmap(lightbeam_bmp);
 	
 	al_trace("Subscreens... \n");

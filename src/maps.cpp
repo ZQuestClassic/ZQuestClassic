@@ -4455,7 +4455,7 @@ void calc_darkroom_combos2(int screen, int offx, int offy, BITMAP* bmp)
 		newcombo const& cmb = combobuf[scr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle(offx+(scr->ffcs[q].x.getInt()/10000)+(scr->ffEffectWidth(q)/2), offy+(scr->ffcs[q].y.getInt()/10000)+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], bmp);
+			doDarkroomCircle(offx+(scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2), offy+(scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2), cmb.attribytes[0], bmp);
 		}
 	}
 }
@@ -5775,6 +5775,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 
 	for (word x=0; x<animated_combos; x++)
 	{
@@ -5907,6 +5909,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
+		clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 
 		//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
 		for(word x=0; x<animated_combos; x++)
