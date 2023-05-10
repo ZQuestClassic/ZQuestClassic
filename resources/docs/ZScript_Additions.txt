@@ -6216,7 +6216,18 @@ int WeaponOverrideFlags;
 
 void GetName(char32 buffer[]);
  * Loads the item's name into 'buffer'.
- 
+
+void GetDisplayName(char32 buf[]);
+ * Fills the buffer with the item's Display Name.
+
+void SetDisplayName(char32 buf[]);
+ * Sets the item's Display Name to the contents of the buffer.
+
+void GetShownName(char32 buf[]);
+ * Fills the buffer with the name of the item as shown on the subscreen.
+ * This automatically handles display names, including special instances
+ *     such as the contents of Bottles.
+
 //! NOT IMPLEMENTED, or NOT FULLY-IMPLEMENTED. 
  
 int Range;

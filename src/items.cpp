@@ -876,3 +876,55 @@ ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(0,255,255,opacity);
 }
+
+std::string get_subscr_arrow_name(int itemid);
+std::string itemdata::get_name() const
+{
+	std::string name;
+	if(display_name[0])
+	{
+		name = display_name;
+		size_t repl_pos = name.find("%s");
+		if(repl_pos != std::string::npos)
+		{
+			std::string arg;
+			switch(family)
+			{
+				case itype_bottle:
+					arg = bottle_slot_name(misc1,"Empty");
+					break;
+			}
+			name.replace(repl_pos,2,arg);
+			//Anything with 2 args?
+			//repl_pos = name.find("%s");
+			replstr(name,"%s",""); //Clear any spare '%s'
+		}
+	}
+	else
+	{
+		int id = -1;
+		for(int q = 0; q < MAXITEMS; ++q)
+		{
+			if((itemsbuf+q) == this)
+			{
+				id = q;
+				break;
+			}
+		}
+		name = id > -1 ? item_string[id] : "";
+		std::string overname;
+		switch(family)
+		{
+			case itype_arrow:
+				overname = get_subscr_arrow_name(id);
+				break;
+			case itype_bottle:
+				overname = bottle_slot_name(misc1, "");
+				break;
+		}
+		if(!overname.empty())
+			return overname;
+	}
+	return name;
+}
+

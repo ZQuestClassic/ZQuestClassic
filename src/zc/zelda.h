@@ -33,6 +33,7 @@
 #include "replay.h"
 
 class sprite;
+struct itemdata;
 
 int32_t isFullScreen();
 int32_t onFullscreen();
@@ -553,6 +554,8 @@ enum
 	ZCM_MAX
 };
 
+
+#include "items.h"
 #endif
 
 /*** end of zelda.h ***/

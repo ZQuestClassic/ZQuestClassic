@@ -15,6 +15,7 @@
 #include "zelda.h"
 #include "tiles.h"
 #include "base/zsys.h"
+#include "base/util.h"
 #include "guys.h"
 #include "hero.h"
 #include "gamedata.h"
@@ -22,6 +23,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "ffscript.h"
+
+using namespace util;
 
 bool show_subscreen_dmap_dots=true;
 bool show_subscreen_numbers=true;
@@ -3931,31 +3934,9 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					if(!game->get_item(itemid))
 						break;
 						
-					char itemname[140]="";
-					sprintf(itemname, "%s", item_string[itemid]);
 					itemdata const& itm = itemsbuf[itemid];
-					switch(itm.family)
-					{
-						case itype_arrow:
-							if(Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
-							{
-								if(current_item_id(itype_bow)>-1)
-								{
-									bool hasarrows=checkmagiccost(itemid);
-									sprintf(itemname, "%s%s%s", item_string[current_item_id(itype_bow)], hasarrows?" & ":"",hasarrows?item_string[Bitem->id]:"");
-								}
-							}
-							break;
-						case itype_bottle:
-							if(size_t bind = game->get_bottle_slot(itemsbuf[itemid].misc1))
-							{
-								char const* btype_name = QMisc.bottle_types[bind-1].name;
-								if(btype_name[0])
-								{
-									sprintf(itemname, "%s", btype_name);
-								}
-							}
-					}
+					char itemname[256]="";
+					strncpy(itemname, itm.get_name().c_str(), 255);
 					
 					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
 					// draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,  wword,                 tabsize,            alignment,          textstyle,          color,                                             shadowcolor,                                       backcolor);
@@ -4126,6 +4107,19 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 	}
 }
 
+std::string get_subscr_arrow_name(int itemid)
+{
+	char itemname[256]="";
+	if(Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
+	{
+		if(current_item_id(itype_bow)>-1)
+		{
+			bool hasarrows=checkmagiccost(itemid);
+			sprintf(itemname, "%s%s%s", item_string[current_item_id(itype_bow)], hasarrows?" & ":"",hasarrows?item_string[Bitem->id]:"");
+		}
+	}
+	return std::string(itemname);
+}
 
 void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 {
