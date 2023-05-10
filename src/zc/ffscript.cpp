@@ -11862,7 +11862,7 @@ int32_t get_register(const int32_t arg)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -11875,7 +11875,7 @@ int32_t get_register(const int32_t arg)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -11888,7 +11888,7 @@ int32_t get_register(const int32_t arg)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -11902,12 +11902,12 @@ int32_t get_register(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( (unsigned)indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -11921,12 +11921,12 @@ int32_t get_register(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( (unsigned)indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -11940,7 +11940,7 @@ int32_t get_register(const int32_t arg)
 			int32_t flag =  (value/10000);  \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 			} \
 			else \
 			{ \
