@@ -1159,8 +1159,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Row(
-				Rows<2>(padding = 0_px,
-					Label(text = "Name:"),
+				Rows<3>(padding = 0_px,
+					Label(text = "Name:", hAlign = 1.0),
 					TextField(
 						fitParent = true,
 						maxLength = 63,
@@ -1173,21 +1173,36 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							window->setTitle(buf);
 						}
 					),
-					Label(text = "Type:"),
-					Row(
-						height = 21_px,
-						DropDownList(data = list_items,
-							fitParent = true, padding = 0_px,
-							selectedValue = local_itemref.family,
-							onSelectionChanged = message::ITEMCLASS
-						),
-						Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
+					DummyWidget(),
+					//
+					Label(text = "Display Name:", hAlign = 1.0),
+					TextField(
+						fitParent = true,
+						maxLength = 255,
+						text = local_itemref.display_name,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string s(str);
+							strncpy(local_itemref.display_name,s.c_str(),255);
+						}
+					),
+					INFOBTN("If this field is not blank, this text will display as the 'Selected Item Name' on the subscreen for this item."
+						"\nFor some types, such as Bottles, the text '%s' in the display name will be replaced with a special string (such as the bottle contents)."
+						"\nEx: 'Bottle (%s)' becomes 'Bottle (Empty)', or 'Bottle (Health Potion)'"),
+					//
+					Label(text = "Type:", hAlign = 1.0),
+					DropDownList(data = list_items,
+						fitParent = true, padding = 0_px,
+						selectedValue = local_itemref.family,
+						onSelectionChanged = message::ITEMCLASS
+					),
+					Button(forceFitH = true, text = "?",
+						minheight = 24_px,
+						onPressFunc = [&]()
 						{
 							InfoDialog(ZI.getItemClassName(local_itemref.family),
-								ZI.getItemClassHelp(local_itemref.family)
-							).show();
+								ZI.getItemClassHelp(local_itemref.family)).show();
 						})
-					)
 				),
 				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
 					Checkbox(

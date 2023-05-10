@@ -90,6 +90,16 @@ int32_t item::run_script(int32_t)
 {
 	return RUNSCRIPT_OK;
 }
+
+std::string bottle_name(size_t type)
+{
+	return "Empty";
+}
+std::string bottle_slot_name(size_t slot, std::string const& emptystr)
+{
+	return emptystr;
+}
+
 /*** end of sprite.cc ***/
 
 

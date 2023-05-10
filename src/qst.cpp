@@ -6972,6 +6972,13 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					return qe_invalid;
 				}
 			}
+			if ( s_version >= 57 )
+			{
+				std::string str;
+				if(!p_getcstr(&str,f,true))
+					return qe_invalid;
+				strncpy(tempitem.display_name,str.c_str(),255);
+			}
         }
         else
         {

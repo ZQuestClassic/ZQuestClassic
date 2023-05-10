@@ -8729,221 +8729,222 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
             {
                 new_return(48);
             }
-	    
-	    //New itemdata vars -Z
-	    //! version 27
-	    
-	    if(!p_putc(itemsbuf[i].useweapon,f))
-            {
-                new_return(49);
-            }
-	    if(!p_putc(itemsbuf[i].usedefence,f))
-            {
-                new_return(50);
-            }
-	    if(!p_iputl(itemsbuf[i].weaprange,f))
-            {
-                new_return(51);
-            }
-	    if(!p_iputl(itemsbuf[i].weapduration,f))
-            {
-                new_return(52);
-            }
-	    for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
-		    {
-			new_return(53);
-		    }
-	    }
-	    //version 28
-		if(!p_iputl(itemsbuf[i].duplicates,f))
-		{
-		    new_return(54);
-		}
-		for ( int32_t q = 0; q < INITIAL_D; q++ )
-		{
-			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
-			{
-				new_return(55);
-			}
-		}
-		for ( int32_t q = 0; q < INITIAL_A; q++ )
-		{
-			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
-			{
-				new_return(56);
-			}
-		}
-
-		if(!p_putc(itemsbuf[i].drawlayer,f))
-		{
-		    new_return(57);
-		}
-
-
-		if(!p_iputl(itemsbuf[i].hxofs,f))
-		{
-		    new_return(58);
-		}
-		if(!p_iputl(itemsbuf[i].hyofs,f))
-		{
-		    new_return(59);
-		}
-		if(!p_iputl(itemsbuf[i].hxsz,f))
-		{
-		    new_return(60);
-		}
-		if(!p_iputl(itemsbuf[i].hysz,f))
-		{
-		    new_return(61);
-		}
-		if(!p_iputl(itemsbuf[i].hzsz,f))
-		{
-		    new_return(62);
-		}
-		if(!p_iputl(itemsbuf[i].xofs,f))
-		{
-		    new_return(63);
-		}
-		if(!p_iputl(itemsbuf[i].yofs,f))
-		{
-		    new_return(64);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
-		{
-		    new_return(65);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
-		{
-		    new_return(66);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
-		{
-		    new_return(67);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hysz,f))
-		{
-		    new_return(68);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
-		{
-		    new_return(69);
-		}
-		if(!p_iputl(itemsbuf[i].weap_xofs,f))
-		{
-		    new_return(70);
-		}
-		if(!p_iputl(itemsbuf[i].weap_yofs,f))
-		{
-		    new_return(71);
-		}
-		if(!p_iputw(itemsbuf[i].weaponscript,f))
-		{
-		    new_return(72);
-		}
-		if(!p_iputl(itemsbuf[i].wpnsprite,f))
-		{
-		    new_return(73);
-		}
-		for(auto q = 0; q < 2; ++q)
-		{
-			if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
-			{
-				new_return(74);
-			}
-		}
-		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
-		{
-		    new_return(75);
-		}
-		if(!p_iputl(itemsbuf[i].tilew,f))
-		{
-		    new_return(76);
-		}
-		if(!p_iputl(itemsbuf[i].tileh,f))
-		{
-		    new_return(77);
-		}
-		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
-		{
-		    new_return(78);
-		}
-		if(!p_iputl(itemsbuf[i].weap_tilew,f))
-		{
-		    new_return(79);
-		}
-		if(!p_iputl(itemsbuf[i].weap_tileh,f))
-		{
-		    new_return(80);
-		}
-		if(!p_iputl(itemsbuf[i].pickup,f))
-		{
-		    new_return(81);
-		}
-		if(!p_iputw(itemsbuf[i].pstring,f))
-		{
-		    new_return(82);
-		}
-		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
-		{
-		    new_return(83);
-		}
-		
-		for(auto q = 0; q < 2; ++q)
-		{
-			if(!p_putc(itemsbuf[i].cost_counter[q],f))
-			{
-				new_return(84);
-			}
-		}
-		
-		//InitD[] labels
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
-				{
-					new_return(85);
-				} 
-			}
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
-				{
-					new_return(86);
-				} 
-			}
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
-				{
-					new_return(87);
-				} 
-			}
-			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
-			{
-				new_return(88);
-			} 
-		}
-		for ( int32_t q = 0; q < 2; q++ )
-		{
-			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
-			{
-				new_return(89);
-			} 
 			
-		}
-		if(!p_iputw(itemsbuf[i].sprite_script,f))
-		{
-			new_return(90);
-		} 
-		if(!p_putc(itemsbuf[i].pickupflag,f))
-		{
-			new_return(91);
-		} 
-		
-	    
+			//New itemdata vars -Z
+			//! version 27
+			
+			if(!p_putc(itemsbuf[i].useweapon,f))
+			{
+				new_return(49);
+			}
+			if(!p_putc(itemsbuf[i].usedefence,f))
+			{
+				new_return(50);
+			}
+			if(!p_iputl(itemsbuf[i].weaprange,f))
+			{
+				new_return(51);
+			}
+			if(!p_iputl(itemsbuf[i].weapduration,f))
+			{
+				new_return(52);
+			}
+			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+				if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+				{
+					new_return(53);
+				}
+			}
+			//version 28
+			if(!p_iputl(itemsbuf[i].duplicates,f))
+			{
+				new_return(54);
+			}
+			for ( int32_t q = 0; q < INITIAL_D; q++ )
+			{
+				if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+				{
+					new_return(55);
+				}
+			}
+			for ( int32_t q = 0; q < INITIAL_A; q++ )
+			{
+				if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+				{
+					new_return(56);
+				}
+			}
+
+			if(!p_putc(itemsbuf[i].drawlayer,f))
+			{
+				new_return(57);
+			}
+
+
+			if(!p_iputl(itemsbuf[i].hxofs,f))
+			{
+				new_return(58);
+			}
+			if(!p_iputl(itemsbuf[i].hyofs,f))
+			{
+				new_return(59);
+			}
+			if(!p_iputl(itemsbuf[i].hxsz,f))
+			{
+				new_return(60);
+			}
+			if(!p_iputl(itemsbuf[i].hysz,f))
+			{
+				new_return(61);
+			}
+			if(!p_iputl(itemsbuf[i].hzsz,f))
+			{
+				new_return(62);
+			}
+			if(!p_iputl(itemsbuf[i].xofs,f))
+			{
+				new_return(63);
+			}
+			if(!p_iputl(itemsbuf[i].yofs,f))
+			{
+				new_return(64);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+			{
+				new_return(65);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+			{
+				new_return(66);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+			{
+				new_return(67);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hysz,f))
+			{
+				new_return(68);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+			{
+				new_return(69);
+			}
+			if(!p_iputl(itemsbuf[i].weap_xofs,f))
+			{
+				new_return(70);
+			}
+			if(!p_iputl(itemsbuf[i].weap_yofs,f))
+			{
+				new_return(71);
+			}
+			if(!p_iputw(itemsbuf[i].weaponscript,f))
+			{
+				new_return(72);
+			}
+			if(!p_iputl(itemsbuf[i].wpnsprite,f))
+			{
+				new_return(73);
+			}
+			for(auto q = 0; q < 2; ++q)
+			{
+				if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
+				{
+					new_return(74);
+				}
+			}
+			if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+			{
+				new_return(75);
+			}
+			if(!p_iputl(itemsbuf[i].tilew,f))
+			{
+				new_return(76);
+			}
+			if(!p_iputl(itemsbuf[i].tileh,f))
+			{
+				new_return(77);
+			}
+			if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+			{
+				new_return(78);
+			}
+			if(!p_iputl(itemsbuf[i].weap_tilew,f))
+			{
+				new_return(79);
+			}
+			if(!p_iputl(itemsbuf[i].weap_tileh,f))
+			{
+				new_return(80);
+			}
+			if(!p_iputl(itemsbuf[i].pickup,f))
+			{
+				new_return(81);
+			}
+			if(!p_iputw(itemsbuf[i].pstring,f))
+			{
+				new_return(82);
+			}
+			if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+			{
+				new_return(83);
+			}
+			
+			for(auto q = 0; q < 2; ++q)
+			{
+				if(!p_putc(itemsbuf[i].cost_counter[q],f))
+				{
+					new_return(84);
+				}
+			}
+			
+			//InitD[] labels
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+					{
+						new_return(85);
+					} 
+				}
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+					{
+						new_return(86);
+					} 
+				}
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+					{
+						new_return(87);
+					} 
+				}
+				if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+				{
+					new_return(88);
+				} 
+			}
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+				{
+					new_return(89);
+				} 
+				
+			}
+			if(!p_iputw(itemsbuf[i].sprite_script,f))
+			{
+				new_return(90);
+			}
+			if(!p_putc(itemsbuf[i].pickupflag,f))
+			{
+				new_return(91);
+			}
+			std::string dispname(itemsbuf[i].display_name);
+			if(!p_putcstr(dispname,f))
+				new_return(92);
         }
         
         if(writecycle==0)

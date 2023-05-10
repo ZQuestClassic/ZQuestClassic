@@ -224,5 +224,19 @@ int32_t item::run_script(int32_t mode)
 	}
     return ret;
 }
+
+
+std::string bottle_name(size_t type)
+{
+	return std::string(QMisc.bottle_types[type-1].name);
+}
+std::string bottle_slot_name(size_t slot, std::string const& emptystr)
+{
+	size_t bind = game ? game->get_bottle_slot(slot) : 0;
+	if(!bind)
+		return emptystr;
+	return bottle_name(bind);
+}
+
 /*** end of sprite.cc ***/
 

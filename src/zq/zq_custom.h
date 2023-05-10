@@ -11,6 +11,8 @@
 #ifndef _ZQ_CUSTOM_H_
 #define _ZQ_CUSTOM_H_
 
+#include "items.h"
+
 void large_dialog(DIALOG *d);
 void large_dialog(DIALOG *d, float RESIZE_AMT);
 int32_t d_cstile_proc(int32_t msg,DIALOG *d,int32_t c);

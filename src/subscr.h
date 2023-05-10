@@ -292,6 +292,9 @@ void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32
 
 bool findWeaponWithParent(int32_t id, int32_t type);
 int32_t countWeaponWithParent(int32_t id, int32_t type);
+
+std::string get_subscr_arrow_name(int itemid);
+
 #endif
 
 /*** end of subscr.cc ***/
