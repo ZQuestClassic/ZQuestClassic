@@ -38,6 +38,7 @@ static AccessorTable itemclassTable[] =
 	{ "GetName",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "GetDisplayName",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "SetDisplayName",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "GetShownName",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "RunScript",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{ 10000 } },
 	
 	{ "getTileMod",                 0,         ZTID_FLOAT,   IDATALTM,                  0,  { ZTID_ITEMCLASS },{} },
