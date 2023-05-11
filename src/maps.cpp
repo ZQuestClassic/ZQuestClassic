@@ -1188,6 +1188,8 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
     return combobuf[MAPCOMBO2(layer,x,y)].type;
 }
 
+// Returns the flag for the combo at the given position.
+// This is also known as an "inherent flag".
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
@@ -2413,8 +2415,8 @@ void delete_fireball_shooter(const pos_handle_t& pos_handle)
     }
 }
 
-// TODO z3 !
-int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
+// TODO z3 ! secret
+int32_t findtrigger(int32_t screen_index, int32_t scombo)
 {
     int32_t checkflag=0;
     int32_t ret = 0;
@@ -2425,30 +2427,21 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 		screens[j] = get_layer_scr(currmap, screen_index, j - 1);
 	}
     
-	word c = ff ? screens[0]->numFFC() : 176;
 	bool sflag = false;
-    for(word j=0; j<c; j++)
+    for(word j=0; j<176; j++)
     {
-        for(int32_t layer = -2; layer < 6; ++layer)
+        for(int32_t layer = -1; layer < 6; ++layer)
 		{
-			if(layer == -2)
-			{
-				if(ff)
-					checkflag = combobuf[tmpscr.ffcs[j].getData()].flag;
-				else continue;
-			}
-			else
-			{
-				mapscr* screen = screens[layer+1];
-            	if (layer>-1 && screen->valid==0) continue;
+			mapscr* screen = screens[layer+1];
+			if (layer>-1 && screen->valid==0) continue;
 
-                if(sflag)
-                    checkflag = screen->sflag[j];
-                else
-                    checkflag = combobuf[screen->data[j]].flag;
-				sflag = !sflag;
-				if (sflag) --layer;
-			}
+			if(sflag)
+				checkflag = screen->sflag[j];
+			else
+				checkflag = combobuf[screen->data[j]].flag;
+			sflag = !sflag;
+			if (sflag) --layer;
+
 			switch(checkflag)
 			{
 				case mfANYFIRE:
@@ -2480,8 +2473,6 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo, bool ff)
 				case mfSTRIKE:
 					if(scombo!=j)
 						ret += 1;
-					[[fallthrough]];
-				default:
 					break;
 			}
 		}
@@ -2553,6 +2544,7 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 
 	if (do_layers)
 	{
+		// TODO z3 secret
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
 			for (auto pos = 0; pos < 176; ++pos)
@@ -3079,7 +3071,7 @@ void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers,
 		
 		if(s->flags6&fTRIGGERF1631)
 		{
-			int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
+			int32_t tr = findtrigger(screen_index, -1);  //Normal flags
 			
 			if(tr)
 			{
@@ -3175,14 +3167,14 @@ endhe:
 }
 
 // x,y are world coordinates.
-static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, int32_t& out_scombo, bool& out_single16)
+static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpos, bool& out_single16)
 {
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return false;
 
     bool found_cflag = false;
     bool found_nflag = false;
 	bool single16 = false;
-	int32_t scombo = -1;
+	rpos_t rpos = rpos_t::NONE;
 
 	for (int32_t layer = -1; layer < 6; layer++)
 	{
@@ -3208,11 +3200,11 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, int32_t& out_sc
         {
             if ((MAPCOMBOFLAG2(i, x, y) == mfSINGLE) && (MAPFLAG2(i, x, y) == flag))
             {
-                scombo = COMBOPOS(x, y);
+                rpos = COMBOPOS_REGION(x, y);
             }
             else if ((MAPCOMBOFLAG2(i, x, y) == mfSINGLE16) && (MAPFLAG2(i, x, y) == flag))
             {
-                scombo = COMBOPOS(x, y);
+                rpos = COMBOPOS_REGION(x, y);
                 single16 = true;
             }
         }
@@ -3221,17 +3213,17 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, int32_t& out_sc
         {
             if ((MAPFLAG2(i, x, y) == mfSINGLE) && (MAPCOMBOFLAG2(i, x, y) == flag))
             {
-                scombo = COMBOPOS(x, y);
+                rpos = COMBOPOS_REGION(x, y);
             }
             else if ((MAPFLAG2(i, x, y) == mfSINGLE16) && (MAPCOMBOFLAG2(i, x, y) == flag))
             {
-                scombo = COMBOPOS(x, y);
+                rpos = COMBOPOS_REGION(x, y);
                 single16 = true;
             }
         }
     }
 
-	out_scombo = scombo;
+	out_rpos = rpos;
 	out_single16 = single16;
 	return found_nflag || found_cflag || MAPFFCOMBOFLAG(x,y) == flag;
 }
@@ -3242,28 +3234,28 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 
 	mapscr* scr = NULL;
 	int32_t screen_index = -1;
-	int32_t scombo = -1;
+	rpos_t trigger_rpos = rpos_t::NONE;
 	bool single16 = false;
-	if (has_flag_trigger(x, y, flag, scombo, single16))
+	if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
 	{
 		screen_index = get_screen_index_for_world_xy(x, y);
 	}
-	else if (has_flag_trigger(x + 15, y, flag, scombo, single16))
+	else if (has_flag_trigger(x + 15, y, flag, trigger_rpos, single16))
 	{
 		screen_index = get_screen_index_for_world_xy(x + 15, y);
 	}
-	else if (has_flag_trigger(x, y + 15, flag, scombo, single16))
+	else if (has_flag_trigger(x, y + 15, flag, trigger_rpos, single16))
 	{
 		screen_index = get_screen_index_for_world_xy(x, y + 15);
 	}
-	else if (has_flag_trigger(x + 15, y + 15, flag, scombo, single16))
+	else if (has_flag_trigger(x + 15, y + 15, flag, trigger_rpos, single16))
 	{
 		screen_index = get_screen_index_for_world_xy(x + 15, y + 15);
 	}
 	if (screen_index != -1) scr = get_scr(currmap, screen_index);
 	if (!scr) return false;
 
-	if (scombo < 0)
+	if (trigger_rpos == rpos_t::NONE)
 	{
 		checktrigger = true;
 		trigger_secrets_for_screen(screen_index);
@@ -3271,15 +3263,16 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	else
 	{
 		checktrigger = true;
-		trigger_secrets_for_screen(screen_index, single16, scombo);
+		// TODO z3 secret
+		trigger_secrets_for_screen(screen_index, single16, RPOS_TO_POS(trigger_rpos));
 	}
 	
 	sfx(scr->secretsfx);
 	
 	if(scr->flags6&fTRIGGERFPERM)
 	{
-		// TODO z3 ! find for all screens in region?
-		int32_t tr = findtrigger(screen_index, -1, false);  //Normal flags
+		// TODO z3 ! secret find for all screens in region?
+		int32_t tr = findtrigger(screen_index, -1);  //Normal flags
 		
 		if(tr)
 		{

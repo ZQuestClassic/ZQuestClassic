@@ -70,7 +70,7 @@ extern bool dev_timestmp;
 #define mLOCKEDCHEST     0x0800                               // if the locked chest on this screen has been opened
 
 #define mBOSSCHEST       0x1000                               // if the boss chest on this screen has been opened
-#define mSECRET          0x2000                               // only overworld and caves use this
+#define mSECRET          0x2000                               // secrets on permanently. only overworld and caves use this
 #define mVISITED         0x4000                               // only overworld uses this
 #define mLIGHTBEAM       0x8000                               // light beam triggers completed
 
