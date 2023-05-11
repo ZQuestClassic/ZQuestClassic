@@ -820,11 +820,10 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					" cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id"
 					" est laborum. Duis nec venenatis ipsum. Aenean sed malesuada velit. Vivamus"
 					" eget cursus lacus. Pellentesque pharetra dui eget consequat posuere."
-					" Quisque vel semper enim. In sodales viverra turpis eget dignissim. Nullam"
-					" libero dui, rutrum id faucibus eu, eleifend nec mi. Aenean nec leo quis enim"
-					" tempus cursus.",
+					" Quisque vel semper enim."
+					"\n\n! @ # $ % ^ && * ( ) [ ] { } + - = | \\ < > , : ; \" ' ~",
 					framed = true, padding = 5_px,
-					maxLines = 20, height = 30_em,
+					maxLines = 30, height = 30_em,
 					width = 300_px, maxwidth = 300_px, fitParent = true)
 			)
 		)
