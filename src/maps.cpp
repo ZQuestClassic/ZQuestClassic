@@ -1091,7 +1091,7 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 	{
 		hiddenstair2(&scr, false);
 		bool do_layers = false;
-		trigger_secrets_for_screen(-1, &scr, do_layers, false, -3);
+		trigger_secrets_for_screen_internal(-1, &scr, do_layers, false, -3);
 	}
 	if(flags & mLIGHTBEAM)
 	{
@@ -2512,25 +2512,22 @@ static void log_trigger_secret_reason(TriggerSource source)
 			case CheatTemp: source_str = "by Cheat (Temp)"; break;
 			case CheatPerm: source_str = "by Cheat (Perm)"; break;
 		}
-		Z_eventlog("Screen Secrets triggered by %s", source_str);
+		Z_eventlog("Screen Secrets triggered by %s\n", source_str);
 	}
 }
 
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only, int32_t single)
 {
-	//There are no calls to 'hidden_entrance' in the code where tmp != 0
 	log_trigger_secret_reason(source);
-	if(single < 0)
+	if (single < 0)
 		triggered_screen_secrets = true;
 	bool do_layers = true;
-	trigger_secrets_for_screen(screen, NULL, do_layers, high16only, single);
+	trigger_secrets_for_screen_internal(screen, NULL, do_layers, high16only, single);
 }
 
 // TODO z3 remove
 void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
 {
-	//There are no calls to 'hidden_entrance' in the code where tmp != 0
-	//DCHECK(tmp == 0);
 	Z_eventlog("%sScreen Secrets triggered%s.\n",
 			   single>-1? "Restricted ":"",
 			   single==-2? " by the 'Enemies->Secret' screen flag":
@@ -2545,15 +2542,16 @@ void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single)
 		triggered_screen_secrets = true;
 	
 	bool do_layers = true;
-	trigger_secrets_for_screen(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, do_layers, high16only, single);
+	trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, do_layers, high16only, single);
 }
 
-void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single)
+void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single)
 {
 	DCHECK(screen_index != -1 || s);
 	if (!s) s = get_scr(currmap, screen_index);
 	if (screen_index == -1) screen_index = initial_region_scr;
 
+	// TODO z3 ! this should move into `trigger_secrets_for_screen`.
 	if (replay_is_active())
 		replay_step_comment(fmt::format("trigger secrets scr={}", screen_index));
 
@@ -5655,7 +5653,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		{
 			hiddenstair2(base_screen, false);
 			bool do_layers = true;
-			trigger_secrets_for_screen(screen_index, NULL, do_layers, false, -3);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen_index, false);
 		}
 		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mLIGHTBEAM) // if special stuff done before
 		{
@@ -6125,6 +6123,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			auto oscr = homescr;
 			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
+			// trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? initial_region_scr : oscr, false);
 			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
@@ -6325,6 +6324,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			auto oscr = homescr;
 			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
+			// trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? initial_region_scr : oscr, false);
 			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before

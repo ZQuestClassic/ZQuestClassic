@@ -241,9 +241,9 @@ enum TriggerSource {
 };
 void trigger_secrets_for_screen(TriggerSource source, bool high16only, int32_t single=-1);
 void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only=false, int32_t single=-1);
-void trigger_secrets_for_screen(int32_t screen_index, mapscr *s, bool do_layers, bool high16only=false, int32_t single=-1);
+void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single);
+void hidden_entrance(int32_t tmp, bool high16only=false, int32_t single=-1);
 
-void hidden_entrance(int32_t tmp, bool refresh, bool high16only=false, int32_t single=-1);
 void update_freeform_combos();
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);

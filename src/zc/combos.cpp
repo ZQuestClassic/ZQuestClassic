@@ -3138,7 +3138,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
 				{
 					triggering_generic_secrets = true;
-					hidden_entrance(0, true, false, -6);
+					trigger_secrets_for_screen(TriggerSource::GenericCombo, false);
 					triggering_generic_secrets = false;
 				}
 				// TODO z3 ffc

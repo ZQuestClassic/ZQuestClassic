@@ -320,12 +320,12 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
 	
 	case TrigSecrets:
 	{
-		hidden_entrance(0, true, false, -9);
+		trigger_secrets_for_screen(TriggerSource::CheatTemp, false);
 	}
 	break;
 	case TrigSecretsPerm:
 	{
-		hidden_entrance(0, true, false, -10);
+		trigger_secrets_for_screen(TriggerSource::CheatPerm, false);
 		setmapflag(mSECRET);
 	}
 	break;
