@@ -3421,7 +3421,7 @@ bool HeroClass::checkstab()
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
 							if (screen->flags9&fITEMSECRETPERM) setmapflag(screen, screen_index, mSECRET);
-							trigger_secrets_for_screen(screen_index, false, -5);
+							trigger_secrets_for_screen(TriggerSource::ItemsSecret, screen_index, false);
 						}
 						//!DIMI
 						
@@ -20614,7 +20614,7 @@ void HeroClass::handleSpotlights()
 	if(hastrigs && istrigged && !alltrig)
 	{
 		// TODO z3 what screen? main screen?
-		trigger_secrets_for_screen(false, -7);
+		trigger_secrets_for_screen(TriggerSource::LightTrigger, false);
 		sfx(tmpscr.secretsfx);
 		if(!(tmpscr.flags5&fTEMPSECRETS))
 		{
@@ -20918,7 +20918,7 @@ void HeroClass::checkspecial()
 			if(!did_secret && (tmpscr.flags2&fCLEARSECRET))
 			{
 				bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(only16_31,-2);
+				trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, only16_31);
 				
 				if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret(currdmap, currscr))
 				{
@@ -21135,7 +21135,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 						//zprint("Step Secrets SFX: %d\n", thesfx);
 						sfx(warpsound,pan((int32_t)x));
-						trigger_secrets_for_screen(pos_handle.screen_index, false);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, false);
 						didstrig = true;
 					}
 				}
@@ -21146,7 +21146,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						stepsecret = rpos;
 
 						bool high16only = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-						trigger_secrets_for_screen(pos_handle.screen_index, high16only);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, high16only);
 						didstrig = true;
 						//play trigger sound
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
@@ -21816,12 +21816,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 			{ 
 				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 				
-				trigger_secrets_for_screen(pos_handle.screen_index, false);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, false);
 			}
 			else 
 			{
 				bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(pos_handle.screen_index, only16_31);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, only16_31);
 			}
 		}
 	}
@@ -29197,7 +29197,7 @@ void HeroClass::checkitems(int32_t index)
 		{
 			// TODO z3
 			if(tmpscr.flags9&fITEMSECRETPERM) setmapflag(mSECRET);
-			trigger_secrets_for_screen(false, -5);
+			trigger_secrets_for_screen(TriggerSource::ItemsSecret, false);
 		}
 			
 		collectitem_script(id2);

@@ -2757,7 +2757,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
 				{
 					triggering_generic_secrets = true;
-					trigger_secrets_for_screen(false, -6);
+					trigger_secrets_for_screen(TriggerSource::GenericCombo, false);
 					triggering_generic_secrets = false;
 					if(pos_handle.screen->secretsfx)
 						sfx(pos_handle.screen->secretsfx);

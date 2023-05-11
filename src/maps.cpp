@@ -2484,29 +2484,44 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo)
 // single:
 // >-1 : the singular triggering combo
 // -1: triggered by some other cause
-void trigger_secrets_for_screen(bool high16only, int32_t single)
+void trigger_secrets_for_screen(TriggerSource source, bool high16only, int32_t single)
 {
-	trigger_secrets_for_screen(initial_region_scr, high16only, single);
+	trigger_secrets_for_screen(source, initial_region_scr, high16only, single);
 }
 
-void trigger_secrets_for_screen(int32_t screen, bool high16only, int32_t single)
+static void log_trigger_secret_reason(TriggerSource source)
+{
+	if (source == Singular)
+	{
+		Z_eventlog("Restricted Screen Secrets triggered\n");
+	}
+	else
+	{
+		const char* source_str = "";
+		switch (source)
+		{
+			case Singular: break;
+			case Unspecified: source_str = "by unspecified means"; break;
+			case EnemiesScreenFlag: source_str = "the 'Enemies->Secret' screen flag"; break;
+			case SecretsScreenState: source_str = "the 'Secrets' screen state"; break;
+			case Script: source_str = "a script"; break;
+			case ItemsSecret: source_str = "Items->Secret"; break;
+			case GenericCombo: source_str = "Generic Combo"; break;
+			case LightTrigger: source_str = "Light Triggers"; break;
+			case SCC: source_str = "by SCC"; break;
+			case CheatTemp: source_str = "by Cheat (Temp)"; break;
+			case CheatPerm: source_str = "by Cheat (Perm)"; break;
+		}
+		Z_eventlog("Screen Secrets triggered by %s", source_str);
+	}
+}
+
+void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high16only, int32_t single)
 {
 	//There are no calls to 'hidden_entrance' in the code where tmp != 0
-	Z_eventlog("%sScreen Secrets triggered%s.\n",
-			   single>-1? "Restricted ":"",
-			   single==-2? " by the 'Enemies->Secret' screen flag":
-			   single==-3? " by the 'Secrets' screen state" :
-			   single==-4? " by a script":
-			   single==-5? " by Items->Secret":
-			   single==-6? " by Generic Combo":
-			   single==-7? " by Light Triggers":
-			   single==-8? " by SCC":
-			   single==-9? " by Cheat (Temp)":
-			   single==-10? " by Cheat (Perm)":
-			   "");
+	log_trigger_secret_reason(source);
 	if(single < 0)
 		triggered_screen_secrets = true;
-
 	bool do_layers = true;
 	trigger_secrets_for_screen(screen, NULL, do_layers, high16only, single);
 }
@@ -3258,13 +3273,13 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if (trigger_rpos == rpos_t::NONE)
 	{
 		checktrigger = true;
-		trigger_secrets_for_screen(screen_index);
+		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index);
 	}
 	else
 	{
 		checktrigger = true;
 		// TODO z3 secret
-		trigger_secrets_for_screen(screen_index, single16, RPOS_TO_POS(trigger_rpos));
+		trigger_secrets_for_screen(TriggerSource::Singular, screen_index, single16, RPOS_TO_POS(trigger_rpos));
 	}
 	
 	sfx(scr->secretsfx);
@@ -3272,17 +3287,19 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if(scr->flags6&fTRIGGERFPERM)
 	{
 		// TODO z3 ! secret find for all screens in region?
-		int32_t tr = findtrigger(screen_index, -1);  //Normal flags
+		int32_t flags_remaining = findtrigger(screen_index, -1);  //Normal flags
 		
-		if(tr)
+		if (flags_remaining)
 		{
-			Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", tr, tr>1?"s":"");
+			Z_eventlog("Hit All Triggers->Perm Secret not fulfilled (%d trigger flag%s remain).\n", flags_remaining, flags_remaining>1?"s":"");
 			setflag=false;
 		}
 		
-		if(!(tr/*|| ftr*/) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
+		// Only actually trigger secrets now if 1) all triggers are gone and 2) QR qr_ALLTRIG_PERMSEC_NO_TEMP is off, in
+		// which case only the screen state for mSECRET may be set below.
+		if (!flags_remaining && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
-			trigger_secrets_for_screen(screen_index, true, scr->flags6&fTRIGGERF1631);
+			trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index, scr->flags6&fTRIGGERF1631, -1);
 		}
 	}
 	

@@ -24169,7 +24169,7 @@ void do_layermap()
 // TODO z3 what screen?
 void do_triggersecrets()
 {
-	trigger_secrets_for_screen(false, -4);
+	trigger_secrets_for_screen(TriggerSource::Script, false);
 }
 
 

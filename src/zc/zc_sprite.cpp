@@ -1038,7 +1038,7 @@ bool movingblock::animate(int32_t)
 				}
 				else
 				{
-					trigger_secrets_for_screen(pos_handle.screen_index,true,true);
+					trigger_secrets_for_screen(TriggerSource::Unspecified,pos_handle.screen_index,true,true);
 					
 					if((combobuf[bcombo].type == cPUSH_WAIT) ||
 							(combobuf[bcombo].type == cPUSH_HW) ||
