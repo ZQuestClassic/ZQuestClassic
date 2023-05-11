@@ -265,7 +265,15 @@ void z3_load_region(int dmap)
 
 void z3_clear_temporary_screens()
 {
+	for (auto screens : temporary_screens)
+	{
+		for (auto screen : screens.second)
+		{
+			free(screen);
+		}
+	}
 	temporary_screens.clear();
+
 	for (int i = 0; i < 136*7; i++)
 	{
 		if (temporary_screens_currmap[i])
