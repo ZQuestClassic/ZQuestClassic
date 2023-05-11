@@ -25080,7 +25080,7 @@ int32_t HeroClass::get_scroll_delay(int32_t scrolldir)
 	}
 }
 
-void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, BITMAP* bmp)
 {
 	int32_t lampid = current_item_id(itype_lantern);
 	if(lampid < 0) return;
@@ -25092,42 +25092,18 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, int32_t x2, int32_t y
 	}
 	lamp_paid = true;
 	paymagiccost(lampid,false,true);
-	int32_t hx1 = x.getInt() - x1 + 8;
-	int32_t hy1 = y.getInt() - y1 + 8;
-	int32_t hx2 = x.getInt() - x2 + 8;
-	int32_t hy2 = y.getInt() - y2 + 8;
+
+	int32_t hx = x.getInt() - x1 + 8;
+	int32_t hy = y.getInt() - y1 + 8;
 	
 	itemdata& lamp = itemsbuf[lampid];
 	switch(lamp.misc1) //Shape
 	{
 		case 0: //Circle
-			doDarkroomCircle(hx1, hy1, lamp.misc2, darkscr_bmp_curscr);
-			doDarkroomCircle(hx2, hy2, lamp.misc2, darkscr_bmp_scrollscr);
+			doDarkroomCircle(hx, hy, lamp.misc2, bmp);
 			break;
 		case 1: //Lamp Cone
-			doDarkroomCone(hx1, hy1, lamp.misc2, dir, darkscr_bmp_curscr);
-			doDarkroomCone(hx2, hy2, lamp.misc2, dir, darkscr_bmp_scrollscr);
-			break;
-	}
-}
-
-// Only used for z3 scrolling mode, during screen scrolling.
-// TODO z3 delete the old version
-void HeroClass::calc_darkroom_hero2(int32_t x1, int32_t y1)
-{
-	int32_t itemid = current_item_id(itype_lantern);
-	if(itemid < 0) return; //no lantern light circle
-	int32_t hx = x.getInt() - x1 + 8;
-	int32_t hy = y.getInt() - y1 + 8;
-	
-	itemdata& lamp = itemsbuf[itemid];
-	switch(lamp.misc1) //Shape
-	{
-		case 0: //Circle
-			doDarkroomCircle(hx, hy, lamp.misc2, darkscr_bmp_z3);
-			break;
-		case 1: //Lamp Cone
-			doDarkroomCone(hx, hy, lamp.misc2, dir, darkscr_bmp_z3);
+			doDarkroomCone(hx, hy, lamp.misc2, dir, bmp);
 			break;
 	}
 }
@@ -25282,10 +25258,10 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 			int offy = draw_dy * 176 + playing_field_offset;
 			if (screens[0]->flags & fDARK)
 			{
-				calc_darkroom_combos2(scr, offx, offy, darkscr_bmp_z3);
+				calc_darkroom_combos(scr, offx, offy, darkscr_bmp_z3);
 			}
 		});
-		Hero.calc_darkroom_hero2(0, -playing_field_offset);
+		Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
 
 		color_map = &trans_table2;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
@@ -25320,8 +25296,9 @@ static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<ma
 	}
 	else
 	{
-		calc_darkroom_combos(currscr, viewport.x, viewport.y, true);
-		Hero.calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY], FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+		calc_darkroom_combos_old(currscr, viewport.x, viewport.y, true);
+		Hero.calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY], darkscr_bmp_curscr);
+		Hero.calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY], darkscr_bmp_scrollscr);
 
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
 		int32_t dx1 = FFCore.ScrollingData[SCROLLDATA_NX], dy1 = FFCore.ScrollingData[SCROLLDATA_NY]+playing_field_offset;
@@ -27328,8 +27305,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-			calc_darkroom_combos(currscr, 0, 0, true);
-			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
+			calc_darkroom_combos_old(currscr, 0, 0, true);
+			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY], darkscr_bmp_curscr);
+			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY], darkscr_bmp_scrollscr);
 		}
 		
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))

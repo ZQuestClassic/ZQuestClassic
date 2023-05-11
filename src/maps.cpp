@@ -4322,7 +4322,8 @@ void doTorchCircle(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs 
 	doDarkroomCircle(COMBOX(pos)+8+xoffs, COMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
 }
 
-void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
+// TODO z3 remove when old scrollscr is deleted.
+void calc_darkroom_combos_old(int screen, int offx, int offy, bool scrolling)
 {
 	mapscr* scr = get_scr(currmap, screen);
 
@@ -4422,7 +4423,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, bool scrolling)
 
 // Only used for z3 scrolling mode, during screen scrolling.
 // TODO z3 delete the old version
-void calc_darkroom_combos2(int screen, int offx, int offy, BITMAP* bmp)
+void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 {
 	mapscr* scr = get_scr(currmap, screen);
 	if (!bmp) bmp = darkscr_bmp_curscr;
@@ -5010,9 +5011,9 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
 		for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-			calc_darkroom_combos(screen_index, offx, offy);
+			calc_darkroom_combos(screen_index, offx, offy, darkscr_bmp_curscr);
 		});
-		Hero.calc_darkroom_hero();
+		Hero.calc_darkroom_hero(0, 0, darkscr_bmp_curscr);
 	}
 	
 	//Darkroom if under the subscreen
