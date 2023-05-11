@@ -1329,12 +1329,17 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if((scr->nocarry&flag)!=flag)
+            if((scr->nocarry&flag)!=flag && !(game->maps[((nmap-1)<<7)+nscr] & flag))
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
-                if (replay_is_active() & !(game->maps[((nmap-1)<<7)+nscr] & flag))
+                if (replay_is_active())
+					// TODO z3 !!! this should be nmap, nscr
                     replay_step_comment(fmt::format("map {} scr {} flag {} carry", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
+				if (flag == mSECRET && nmap-1 == currmap && is_in_current_region(nscr))
+				{
+					trigger_secrets_for_screen(TriggerSource::Unspecified, nscr);
+				}
             }
             
             cmap=nmap;
@@ -2572,6 +2577,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
+		// TODO z3 ffc this should just for this screen ...
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
@@ -2786,11 +2792,6 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				}
 			}
 		}
-		
-		/*
-		  if(putit && refresh)
-		  putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-		  */
 	}
 	
 	for(word i=0; i<c; i++) // FFCs
@@ -2818,6 +2819,8 @@ endhe:
 }
 
 // x,y are world coordinates.
+// Returns true if there is a flag (either combo, screen, or ffc) at (x, y).
+// Out parameters will be set if the flag is Trigger->Self, which modifies how secrets will be triggered.
 static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpos, bool& out_single16)
 {
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return false;
@@ -2993,12 +2996,10 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 
 void update_freeform_combos()
 {
-	if (replay_get_frame() == 14152) {
-		printf("asd\n");
-	}
 	ffscript_engine(false);
 	if ( !FFCore.system_suspend[susptUPDATEFFC] )
 	{
+		// TODO z3 ffc
 		word c = tmpscr.numFFC();
 		for(word i=0; i<c; i++)
 		{
