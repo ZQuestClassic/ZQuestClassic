@@ -37,6 +37,7 @@ src/dialog/set_password.cpp
 src/dialog/cheat_codes.cpp
 src/dialog/common.cpp
 src/dialog/info.cpp
+src/dialog/info_lister.cpp
 src/dialog/about.cpp
 src/dialog/subscr_props.cpp
 src/dialog/room.cpp

@@ -27,6 +27,7 @@ extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 #define ISCRDATA_ALL     0x07
 void call_item_editor(int32_t index)
 {
+	if(unsigned(index) >= MAXITEMS) return;
 	item_use_script_data = zc_get_config("zquest","show_itemscript_meta_type",ISCRDATA_ALL)&ISCRDATA_ALL;
 	_reset_default = false;
 	ItemEditorDialog(index).show();

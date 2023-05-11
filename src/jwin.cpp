@@ -4634,12 +4634,16 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
 				update_hw_screen();
             }
             
-            if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
-            {
-                typedef void (*funcType)(int32_t /* index */, int32_t /* x */, int32_t /* y */);
-                funcType func=reinterpret_cast<funcType>(d->dp3);
-                func(d->d1, gui_mouse_x(), gui_mouse_y());
-            }
+            if(rightClicked)
+			{
+				GUI_EVENT(d, geRCLICK);
+				if((d->flags&(D_USER<<1))!=0 && d->dp3)
+				{
+					typedef void (*funcType)(int32_t /* index */, int32_t /* x */, int32_t /* y */);
+					funcType func=reinterpret_cast<funcType>(d->dp3);
+					func(d->d1, gui_mouse_x(), gui_mouse_y());
+				}
+			}
             
             if(d->flags & D_USER)
             {
@@ -4668,17 +4672,18 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
         
         if((!bar) || (gui_mouse_x() < d->x+d->w-18))
         {
-            if(d->flags & D_EXIT)
-            {
-                if(listsize)
-                {
-                    i = d->d1;
-                    object_message(d, MSG_CLICK, 0);
-                    
-                    if(i == d->d1)
-                        return D_CLOSE;
-                }
-            }
+			if(listsize)
+			{
+				i = d->d1;
+				object_message(d, MSG_CLICK, 0);
+				
+				if(i == d->d1)
+				{
+					if(d->flags & D_EXIT)
+						return D_CLOSE;
+					else GUI_EVENT(d, geDCLICK);
+				}
+			}
         }
         
         break;
@@ -4881,11 +4886,15 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 					update_hw_screen();
 				}
 				
-				if(rightClicked && (d->flags&(D_USER<<1))!=0 && d->dp3)
+				if(rightClicked)
 				{
-					typedef void (*funcType)(int32_t /* index */, int32_t /* x */, int32_t /* y */);
-					funcType func=reinterpret_cast<funcType>(d->dp3);
-					func(d->d1, gui_mouse_x(), gui_mouse_y());
+					GUI_EVENT(d, geRCLICK);
+					if((d->flags&(D_USER<<1))!=0 && d->dp3)
+					{
+						typedef void (*funcType)(int32_t /* index */, int32_t /* x */, int32_t /* y */);
+						funcType func=reinterpret_cast<funcType>(d->dp3);
+						func(d->d1, gui_mouse_x(), gui_mouse_y());
+					}
 				}
 				
 				if(d->flags & D_USER)
@@ -4925,15 +4934,16 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if((!bar) || (gui_mouse_x() < d->x+d->w-18))
 			{
-				if(d->flags & D_EXIT)
+				if(listsize)
 				{
-					if(listsize)
+					i = d->d1;
+					object_message(d, MSG_CLICK, 0);
+					
+					if(i == d->d1)
 					{
-						i = d->d1;
-						object_message(d, MSG_CLICK, 0);
-						
-						if(i == d->d1)
+						if(d->flags & D_EXIT)
 							ret = D_CLOSE;
+						else GUI_EVENT(d, geDCLICK);
 					}
 				}
 			}
@@ -7282,6 +7292,9 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
     ListData *data = (ListData *)d->dp;
     if(msg == MSG_START) wipe_abc_keypresses();
     
+	if(msg == MSG_CHAR && (key_shifts&KB_CTRL_FLAG))
+		return D_O_K;
+	
 	if(abc_patternmatch) // Search style pattern match. 
 	{
 		if(msg==MSG_CHAR && ((c&0xFF) > 31) && ((c&0xFF) < 127)) //(isalpha(c&0xFF) || isdigit(c&0xFF)))

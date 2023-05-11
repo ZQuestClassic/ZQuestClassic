@@ -36,9 +36,17 @@ public:
 	/* Returns the value of the currently selected item. */
 	int32_t getSelectedValue() const;
 
-	void setOnSelectFunc(std::function<void(int32_t)> newOnSelect)
+	void setOnSelectFunc(std::function<void(int32_t)> newFunc)
 	{
-		onSelectFunc = newOnSelect;
+		onSelectFunc = newFunc;
+	}
+	void setOnRClickFunc(std::function<void(int32_t,int32_t,int32_t)> newFunc)
+	{
+		onRClickFunc = newFunc;
+	}
+	void setOnDClickFunc(std::function<void(int32_t,int32_t,int32_t)> newFunc)
+	{
+		onDClickFunc = newFunc;
 	}
 	
 	void setIsABC(bool abc);
@@ -48,6 +56,16 @@ public:
 	{
 		message = static_cast<int32_t>(m);
 	}
+	template<typename T>
+	RequireMessage<T> onRClick(T m)
+	{
+		msg_r = static_cast<int32_t>(m);
+	}
+	template<typename T>
+	RequireMessage<T> onDClick(T m)
+	{
+		msg_d = static_cast<int32_t>(m);
+	}
 
 private:
 	// A bit ugly because there was already a ListData struct in jwin
@@ -55,8 +73,10 @@ private:
 	const ::GUI::ListData* listData;
 	int32_t selectedIndex, selectedValue;
 	DialogRef alDialog;
-	int32_t message;
+	int32_t message, msg_r, msg_d;
 	std::function<void(int32_t)> onSelectFunc;
+	std::function<void(int32_t,int32_t,int32_t)> onRClickFunc;
+	std::function<void(int32_t,int32_t,int32_t)> onDClickFunc;
 	bool isABC;
 
 	/* If a value was set rather than an index, find an index to select. */

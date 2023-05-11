@@ -802,7 +802,6 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
 const char *itemlist_num(int32_t index, int32_t *list_size);
-int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit_status);
 
 void build_biw_list();
 const char *weaponlist(int32_t index, int32_t *list_size);

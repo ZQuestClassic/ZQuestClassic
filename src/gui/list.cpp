@@ -126,11 +126,40 @@ void List::realize(DialogRunner& runner)
 
 int32_t List::onEvent(int32_t event, MessageDispatcher& sendMessage)
 {
-	assert(event == geCHANGE_SELECTION);
+	int clickty = -1;
+	switch(event)
+	{
+		case geCHANGE_SELECTION:
+			clickty = 0;
+			break;
+		case geRCLICK:
+			clickty = 1;
+			break;
+		case geDCLICK:
+			clickty = 2;
+			break;
+	}
+	assert(clickty>-1);
+	auto v = listData->getValue(alDialog->d1);
+	int mx = gui_mouse_x(), my = gui_mouse_y();
 	if(onSelectFunc)
-		onSelectFunc(listData->getValue(alDialog->d1));
+		onSelectFunc(v);
 	if(message >= 0)
-		sendMessage(message, listData->getValue(alDialog->d1));
+		sendMessage(message, v);
+	if(clickty==1)
+	{
+		if(onRClickFunc)
+			onRClickFunc(v, mx, my);
+		if(msg_r >= 0)
+			sendMessage(msg_r, v);
+	}
+	if(clickty==2)
+	{
+		if(onDClickFunc)
+			onDClickFunc(v, mx, my);
+		if(msg_d >= 0)
+			sendMessage(msg_d, v);
+	}
 	return -1;
 }
 

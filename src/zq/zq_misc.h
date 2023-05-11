@@ -16,6 +16,7 @@
 
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/fonts.h"
 #include "jwin.h"
 #include "sfx.h"
 
@@ -58,8 +59,11 @@ INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
     {
         rest(1);
     }
-    
-    return jwin_do_menu(menu,x,y);
+    FONT* oldfont = font;
+	font = get_custom_font(CFONT_GUI);
+    auto ret = jwin_do_menu(menu,x,y);
+	font = oldfont;
+	return ret;
 }
 
 INLINE int32_t bit(int32_t val,int32_t b)

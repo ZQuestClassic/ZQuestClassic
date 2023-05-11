@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include "dialog/info_lister.h"
 #ifdef __APPLE__
 // malloc.h is deprecated, but malloc also lives in stdlib
 #include <stdlib.h>
@@ -12973,23 +12974,6 @@ static DIALOG list_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-void ilist_rclick_func(int32_t index, int32_t x, int32_t y);
-void paste_item(int32_t index = -1);
-void copy_item(int32_t index = -1);
-void save_item(int32_t index = -1);
-void load_item(int32_t index = -1);
-DIALOG ilist_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,     60-12,   40,   200+24+24+56,  148+20,  vc(14),  vc(1),  0,       D_EXIT,          0,   0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,            0,       NULL, NULL, NULL },
-    { d_ilist_proc,       72-12-4,   60+4,   176+24+8,  90+3,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG], 0, D_EXIT, 0,  0,  NULL, NULL, NULL },
-    { jwin_button_proc,     90,   163+20,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { jwin_button_proc,     170,  163+20,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Done", NULL, NULL },
-    { jwin_button_proc,     220,   163+20,  61,   21,   vc(14),  vc(1),  13,     D_EXIT,     0,             0, (void *) "Edit", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL, NULL,  NULL }
-};
-
 static DIALOG wlist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -13120,61 +13104,6 @@ const char *DIlist(int32_t index, int32_t *list_size)
     int32_t i=DI[index];
     return bii[i].s;
     
-}
-
-int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit_status)
-{
-    int32_t index=0;
-    
-    for(int32_t j=0; j<bii_cnt; j++)
-    {
-        if(bii[j].i == item)
-        {
-            index=j;
-        }
-    }
-    
-    ilist_dlg[0].dp=(void *)prompt;
-    ilist_dlg[0].dp2=get_zc_font(font_lfont);
-    ilist_dlg[2].d1=index;
-    ListData item_list(itemlist_num, &font);
-    ilist_dlg[2].dp=(void *) &item_list;
-    
-    large_dialog(ilist_dlg);
-        
-    if(is_editor)
-    {
-        ilist_dlg[2].dp3 = (void *)&ilist_rclick_func;
-        ilist_dlg[2].flags|=(D_USER<<1);
-        ilist_dlg[3].dp = (void *)"Edit";
-        ilist_dlg[4].dp = (void *)"Done";
-        ilist_dlg[3].x = 285;
-        ilist_dlg[4].x = 405;
-        ilist_dlg[5].flags |= D_HIDDEN;
-    }
-    else
-    {
-        ilist_dlg[2].dp3 = NULL;
-        ilist_dlg[2].flags&=~(D_USER<<1);
-        ilist_dlg[3].dp = (void *)"OK";
-        ilist_dlg[4].dp = (void *)"Cancel";
-        ilist_dlg[3].x = 260;
-        ilist_dlg[4].x = 370;
-		ilist_dlg[5].x = 480;
-		ilist_dlg[5].flags &= ~D_HIDDEN;
-    }
-    
-    exit_status=zc_popup_dialog(ilist_dlg,2);
-    
-    if(exit_status==0||exit_status==4)
-    {
-        position_mouse_z(0);
-        return -1;
-    }
-    
-    index = ilist_dlg[2].d1;
-    position_mouse_z(0);
-    return bii[index].i;
 }
 
 weapon_struct biw[wMAX];
@@ -14870,40 +14799,24 @@ int32_t onUsedCombos()
 int32_t onItem()
 {
     restore_mouse();
-    build_bii_list(true);
     int32_t exit_status;
-    int32_t current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -2;
+    int32_t current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -1;
     
-    do
-    {
-        int32_t ret=select_item("Select Item",current_item,false,exit_status);
-        
-        if(exit_status == 5)
-        {
-            if(ret>=0)  // Edit
-            {
-                current_item=ret;
-                build_biw_list();
-                edit_itemdata(ret);
-            }
-            else exit_status = -1;
-        }
-        else  if(exit_status==2 || exit_status==3)   // Double-click or OK
-        {
-            if(ret>=0)
-            {
-                saved=false;
-                Map.CurrScr()->item=ret;
-                Map.CurrScr()->hasitem = true;
-            }
-            else
-            {
-                saved=false;
-                Map.CurrScr()->hasitem=false;
-            }
-        }
-    }
-    while(exit_status == 5);
+	ItemListerDialog(current_item,true).show();
+	if(current_item != lister_index)
+	{
+		if(lister_index>=0)
+		{
+			saved = false;
+			Map.CurrScr()->item = lister_index;
+			Map.CurrScr()->hasitem = true;
+		}
+		else
+		{
+			saved = false;
+			Map.CurrScr()->hasitem = false;
+		}
+	}
 
     refresh(rMAP+rMENU);
     return D_O_K;
@@ -15113,94 +15026,6 @@ int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c)
     }
     
     return ret;
-}
-
-int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	if(msg == MSG_XCHAR)
-	{
-		if(key_shifts & KB_CTRL_FLAG) //CTRL overrides the lister search function
-		{
-			int32_t ret = D_USED_CHAR;
-			switch(c>>8)
-			{
-				case KEY_V:
-					paste_item();
-					break;
-				case KEY_C:
-					copy_item();
-					break;
-				case KEY_S:
-					save_item();
-					break;
-				case KEY_L:
-					load_item();
-					break;
-				default: ret = 0;
-			}
-			if(ret) return ret;
-		}
-	}
-	int32_t ret = jwin_abclist_proc(msg,d,c);
-	
-	switch(msg)
-	{
-		case MSG_DRAW:
-		case MSG_CHAR:
-		case MSG_CLICK:
-			
-			int32_t tile = 0;
-			int32_t cset = 0;
-			
-			if(bii[d->d1].i >-1)
-			{
-				tile= itemsbuf[bii[d->d1].i].tile;
-				cset= itemsbuf[bii[d->d1].i].csets&15;
-			}
-			
-			int32_t x = d->x + d->w + 4;
-			int32_t y = d->y;
-			int32_t w = 32;
-			int32_t h = 32;
-			
-			BITMAP *buf = create_bitmap_ex(8,16,16);
-			BITMAP *bigbmp = create_bitmap_ex(8,w,h);
-			
-			if(buf && bigbmp)
-			{
-				clear_bitmap(buf);
-				
-				if(tile)
-					overtile16(buf, tile,0,0,cset,0);
-					
-				stretch_blit(buf, bigbmp, 0,0, 16, 16, 0, 0, w, h);
-				destroy_bitmap(buf);
-				jwin_draw_frame(screen,x,y,w+4,h+4,FR_DEEP);
-				blit(bigbmp,screen,0,0,x+2,y+2,w,h);
-				destroy_bitmap(bigbmp);
-			}
-			//Item editor power display in Select Item dialogue. 
-			if(bii[d->d1].i>=0)
-			{
-				FONT* tfont = get_zc_font(font_lfont_l);
-				int fh = text_height(tfont);
-				rectfill(screen,x,y+40,x+64,y+40+(10*fh),jwin_pal[jcBOX]);
-				textprintf_ex(screen,tfont,x,y+40+(0*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"#%d",bii[d->d1].i);
-				textprintf_ex(screen,tfont,x,y+40+(1*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Power: %d", itemsbuf[bii[d->d1].i].power);
-				textprintf_ex(screen,tfont,x,y+40+(2*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Level: %d", itemsbuf[bii[d->d1].i].fam_type);
-				textprintf_ex(screen,tfont,x,y+40+(3*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Type: %d", itemsbuf[bii[d->d1].i].family);
-				textprintf_ex(screen,tfont,x,y+40+(4*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet: %d", itemsbuf[bii[d->d1].i].csets);
-				textprintf_ex(screen,tfont,x,y+40+(5*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Scripts:");
-				textprintf_ex(screen,tfont,x,y+40+(6*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Action: %d", itemsbuf[bii[d->d1].i].script);
-				textprintf_ex(screen,tfont,x,y+40+(7*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Pickup: %d", itemsbuf[bii[d->d1].i].collect_script);
-				textprintf_ex(screen,tfont,x,y+40+(8*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Sprite: %d", itemsbuf[bii[d->d1].i].sprite_script);
-				textprintf_ex(screen,tfont,x,y+40+(9*fh),jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Weapon: %d", itemsbuf[bii[d->d1].i].weaponscript);
-			}
-			
-			break;
-	}
-	
-	return ret;
 }
 
 int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -31999,7 +31824,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(getnum_dlg);
     jwin_center_dialog(glist_dlg);
     jwin_center_dialog(help_dlg);
-    jwin_center_dialog(ilist_dlg);
     jwin_center_dialog(layerdata_dlg);
     jwin_center_dialog(list_dlg);
     jwin_center_dialog(loadmap_dlg);
