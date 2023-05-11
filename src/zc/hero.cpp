@@ -25250,7 +25250,7 @@ static int dir_to_scr_offset(direction dir)
 	return 0;
 }
 
-static void scrollscr_handle_dark(bool use_new_dark_code, mapscr* newscr, mapscr* oldscr, std::vector<mapscr*>& old_temporary_screens)
+static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<mapscr*>& old_temporary_screens)
 {
 	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
@@ -25259,20 +25259,18 @@ static void scrollscr_handle_dark(bool use_new_dark_code, mapscr* newscr, mapscr
 	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
 	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 
-	if (use_new_dark_code)
+	if (scrolling_use_new_dark_code)
 	{
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, framebuf->h);
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-			if (scr != currscr && !get_bit(quest_rules, qr_NEWDARK_SCROLLEDGE))
-				return;
-			
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176 + playing_field_offset;
-			if (!(screens[0]->flags & fDARK))
+			bool should_be_dark = (screens[0]->flags & fDARK) && (scr == currscr || get_bit(quest_rules, qr_NEWDARK_SCROLLEDGE));
+			if (!should_be_dark)
 			{
-				rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256, offy - viewport.y + 176, 0);
-				rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256, offy - viewport.y + 176, 0);
+				rectfill(darkscr_bmp_z3, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
+				rectfill(darkscr_bmp_z3_trans, offx - viewport.x, offy - viewport.y, offx - viewport.x + 256 - 1, offy - viewport.y + 176 - 1, 0);
 			}
 		});
 
@@ -25835,8 +25833,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		mapscr* base_screen = screens[0];
 		draw_dark = draw_dark || (base_screen->flags&fDARK);
 	});
-	// TODO z3 !!!
-	bool use_new_dark_code = true;
+	// TODO z3 remove old dark code
+	scrolling_use_new_dark_code = region_scrolling;
 
 	int no_move = 0;
 	int move_counter = 0;
@@ -26318,7 +26316,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		if (draw_dark && get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6))
 		{
-			scrollscr_handle_dark(use_new_dark_code, newscr, oldscr, old_temporary_screens);
+			scrollscr_handle_dark(newscr, oldscr, old_temporary_screens);
 		}
 
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
@@ -26328,7 +26326,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		
 		if (draw_dark && get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6))
 		{
-			scrollscr_handle_dark(use_new_dark_code, newscr, oldscr, old_temporary_screens);
+			scrollscr_handle_dark(newscr, oldscr, old_temporary_screens);
 		}
 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DRAW);
@@ -26348,7 +26346,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 	// TODO z3 old scrolling code doesn't clear darkscr_bmp_curscr at end of scroll, so first frame will have some lighting from
 	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
-	if (draw_dark && use_new_dark_code)
+	if (draw_dark && scrolling_use_new_dark_code)
 	{
 		blit(darkscr_bmp_z3, darkscr_bmp_curscr, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr->w, darkscr_bmp_curscr->h);
 		blit(darkscr_bmp_z3_trans, darkscr_bmp_curscr_trans, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr_trans->w, darkscr_bmp_curscr_trans->h);

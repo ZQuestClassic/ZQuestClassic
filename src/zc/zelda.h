@@ -314,6 +314,7 @@ extern BITMAP   *darkscr_bmp_curscr, *darkscr_bmp_scrollscr, *darkscr_bmp_z3,
                 *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr_trans, *darkscr_bmp_z3_trans;
 extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
+extern bool scrolling_use_new_dark_code;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
 extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;

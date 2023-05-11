@@ -415,6 +415,7 @@ byte forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,initial_region_scr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
+bool scrolling_use_new_dark_code=false;
 int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
@@ -4424,9 +4425,12 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* 
 	//
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (game->get_transdark_perc()/(double)100.0));
-	dithercircfill(dest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg());
+	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
+	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
+	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	dithercircfill(dest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg(),offx,offy);
 	circlefill(dest, cx, cy, zc_max(glowRad,transRad), 0);
-	dithercircfill(transdest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg());
+	dithercircfill(transdest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg(),offx,offy);
 	circlefill(transdest, cx, cy, glowRad, 0);
 }
 
@@ -4462,11 +4466,14 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 		case right: case r_up: case r_down: xs=-1; break;
 	}
 	if(d&4) {xs*=0.75; ys*=0.75;}
-	ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg());
+	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
+	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
+	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
+	ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg(), offx, offy);
 	if(glowRad>transRad) transDiff = 0;
 	lampcone(dest, sx+(xs*transDiff), sy+(ys*transDiff), zc_max(glowRad,transRad), d, 0);
 	
-	ditherLampCone(transdest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg());
+	ditherLampCone(transdest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg(), offx, offy);
 	lampcone(transdest, sx, sy, glowRad, d, 0);
 }
 

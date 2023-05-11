@@ -198,13 +198,16 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 
 void ditherblit_clipped(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
 {
-	int32_t wid = std::min({dest->w, src->w, dest->cr});
-	int32_t hei = std::min({dest->h, src->h, dest->cb});
-	for(int32_t ty = dest->ct; ty < hei; ++ty)
+	int32_t wid = std::min(dest->w, src->w);
+	int32_t hei = std::min(dest->h, src->h);
+	int32_t max_x = std::min(wid, src->cr);
+	int32_t max_y = std::min(hei, src->cb);
+
+	for(int32_t ty = dest->ct; ty < max_y; ++ty)
 	{
 		uintptr_t read_addr = bmp_read_line(src, ty);
 		uintptr_t write_addr = bmp_write_line(dest, ty);
-		for(int32_t tx = dest->cl; tx < wid; ++tx)
+		for(int32_t tx = dest->cl; tx < max_x; ++tx)
 		{
 			if(bmp_read8(read_addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
 			{
