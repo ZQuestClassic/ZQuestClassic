@@ -3853,7 +3853,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	auto pos_handle = get_pos_handle(rpos, 0);
 	int32_t i = RPOS_TO_POS(rpos);
 	
-	if (rpos > region_max_rpos)
+	if (!is_valid_rpos(rpos))
 		return;
 		
 	bool ignorescreen=false;

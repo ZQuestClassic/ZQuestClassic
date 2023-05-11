@@ -342,7 +342,7 @@ bool do_cswitch_combo(newcombo const& cmb, weapon* w)
 
 static void trigger_cswitch_block(const pos_handle_t& pos_handle)
 {
-	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return;
+	if(unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	int cid = pos_handle.screen->data[pos];
@@ -466,7 +466,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 
 void spawn_decoration(newcombo const& cmb, const pos_handle_t& pos_handle)
 {
-	if (pos_handle.rpos > region_max_rpos) return;
+	if (!is_valid_rpos(pos_handle.rpos)) return;
 
 	int x, y;
 	COMBOXY_REGION(pos_handle.rpos, x, y);
@@ -495,7 +495,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 
 void trigger_cuttable(const pos_handle_t& pos_handle)
 {
-	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return;
+	if(unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	mapscr* tmp = pos_handle.screen;
@@ -726,7 +726,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 bool trigger_step(const pos_handle_t& pos_handle)
 {
 	// TODO z3 this is repeated lots of places.
-	if(unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if(unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
@@ -1395,7 +1395,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 {
 	if (pos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 	
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	//!TODO Expand 'activation_counters' stuff to account for layers, so that layers >0 can be used
@@ -1809,7 +1809,7 @@ bool trigger_damage_combo(mapscr* screen, int32_t cid, int32_t hdir, bool force_
 
 bool trigger_stepfx(const pos_handle_t& pos_handle, bool stepped)
 {
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 
 	int32_t tx, ty;
 	COMBOXY_REGION(pos_handle.rpos, tx, ty);
@@ -2185,7 +2185,7 @@ bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped)
 
 bool trigger_switchhookblock(const pos_handle_t& pos_handle)
 {
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 	if(Hero.switchhookclk) return false;
 
 	int pos = RPOS_TO_POS(pos_handle.rpos);
@@ -2398,7 +2398,7 @@ static byte copycat_id = 0;
 static bool do_copycat_trigger(const pos_handle_t& pos_handle)
 {
 	if(!copycat_id) return false;
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	
 	if (unsigned(pos) > 175) return false;
@@ -2428,7 +2428,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 
 void do_ex_trigger(const pos_handle_t& pos_handle)
 {
-	if (pos_handle.rpos > region_max_rpos) return;
+	if (!is_valid_rpos(pos_handle.rpos)) return;
 
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
 	int32_t cid = pos_handle.screen->data[pos];
@@ -2519,7 +2519,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 
 bool force_ex_trigger(const pos_handle_t& pos_handle, char xstate)
 {
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 	int pos = RPOS_TO_POS(pos_handle.rpos);
 	newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
@@ -2561,7 +2561,7 @@ bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 // Forcibly triggers a combo at a given position
 bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w)
 {
-	if (unsigned(pos_handle.layer) > 6 || pos_handle.rpos > region_max_rpos) return false;
+	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
 
 	int lyr = pos_handle.layer;
 	int32_t pos = RPOS_TO_POS(pos_handle.rpos);

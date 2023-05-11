@@ -150,6 +150,11 @@ bool is_in_current_region(int scr)
 	return is_in_region(z3_origin_screen_index, currdmap, scr);
 }
 
+bool is_valid_rpos(rpos_t rpos)
+{
+	return (int)rpos >= 0 && rpos <= region_max_rpos;
+}
+
 bool is_z3_scrolling_mode()
 {
 	// Note: `screenscrolling` bit is only needed for some funky logic in do_scrolling_layer().
@@ -1043,7 +1048,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 { 
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
-	DCHECK((!(rpos > region_max_rpos || (int)rpos < 0)));
+	DCHECK(is_valid_rpos(rpos));
 	
 	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_pos_handle(rpos, layer + 1));
 	

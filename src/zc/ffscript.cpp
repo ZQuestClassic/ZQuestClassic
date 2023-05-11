@@ -18342,7 +18342,7 @@ void set_register(int32_t arg, int32_t value)
 		rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
 		int32_t val = (value/10000);
-		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [rpos] %d used to write to Region->ComboD[]\n", rpos);
 		}
@@ -18365,7 +18365,7 @@ void set_register(int32_t arg, int32_t value)
 		rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
 		int32_t val = (value/10000); //cset
-		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboC[]\n", pos);
 		}
@@ -18388,7 +18388,7 @@ void set_register(int32_t arg, int32_t value)
 		rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
 		int32_t val = (value/10000); //flag
-		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboF[]\n", pos);
 		}
@@ -18410,7 +18410,7 @@ void set_register(int32_t arg, int32_t value)
         rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
         int32_t val = (value/10000); //type
-	if (rpos > region_max_rpos || rpos < (rpos_t)0)
+	if (!is_valid_rpos(rpos))
 	{
 		Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboT[]\n", pos);
 	}
@@ -18449,7 +18449,7 @@ void set_register(int32_t arg, int32_t value)
         rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
         int32_t val = (value/10000); //iflag
-	if (rpos > region_max_rpos || rpos < (rpos_t)0)
+	if (!is_valid_rpos(rpos))
 	{
 		Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboI[]\n", pos);
 	}
@@ -18471,7 +18471,7 @@ void set_register(int32_t arg, int32_t value)
         rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
         int32_t val = (value/10000); //iflag
-		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboS[]\n", pos);
 		}
@@ -18493,7 +18493,7 @@ void set_register(int32_t arg, int32_t value)
         rpos_t rpos = (rpos_t) (ri->d[rINDEX]/10000);
 		int32_t pos = RPOS_TO_POS(rpos);
         int32_t val = (value/10000); //iflag
-		if (rpos > region_max_rpos || rpos < (rpos_t)0)
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [pos] %d used to write to Region->ComboE[]\n", pos);
 		}
@@ -32423,14 +32423,13 @@ j_command:
 			
 			case SWITCHCMB:
 			{
-				int32_t pos = get_register(sarg1)/10000;
+				rpos_t rpos = (rpos_t)(get_register(sarg1)/10000);
 				set_register(sarg1,0);
 				if(Hero.switchhookclk) break; //Already switching!
-				if(unsigned(pos) > 176)
+				if (!is_valid_rpos(rpos))
 					break;
 				switching_object = NULL;
-				// TODO z3 !
-				hooked_comborpos = (rpos_t)pos;
+				hooked_comborpos = rpos;
 				hooked_layerbits = 0;
 				Hero.doSwitchHook(get_register(sarg2)/10000);
 				if(!hooked_layerbits) //failed
