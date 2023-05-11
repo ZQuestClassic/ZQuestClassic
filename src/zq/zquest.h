@@ -869,7 +869,6 @@ int32_t onToggleShowInfo();
 int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list);
 INLINE int32_t d_enelist_proc(int32_t msg,DIALOG *d,int32_t c)
