@@ -2416,7 +2416,7 @@ void delete_fireball_shooter(const pos_handle_t& pos_handle)
 }
 
 // TODO z3 ! secret
-int32_t findtrigger(int32_t screen_index, int32_t scombo)
+static int32_t findtrigger(int32_t screen_index)
 {
     int32_t checkflag=0;
     int32_t ret = 0;
@@ -2471,8 +2471,7 @@ int32_t findtrigger(int32_t screen_index, int32_t scombo)
 				case mfWAND:
 				case mfHAMMER:
 				case mfSTRIKE:
-					if(scombo!=j)
-						ret += 1;
+					ret += 1;
 					break;
 			}
 		}
@@ -2588,8 +2587,6 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	{
 		if(single>=0 && i!=single) continue; //If it's got a singular flag and i isn't where the flag is
 		
-		bool putit;
-		
 		// Remember the misc. secret flag; if triggered, use this instead
 		if(s->sflag[i]>=mfSECRETS01 && s->sflag[i]<=mfSECRETS16)
 			msflag=sSECRET01+(s->sflag[i]-mfSECRETS01);
@@ -2602,134 +2599,14 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 		{
 			int32_t newflag = -1;
 			
-			
 			for(int32_t iter=0; iter<2; ++iter)
 			{
-				putit=true;
 				int32_t checkflag=combobuf[s->data[i]].flag; //Inherent
 				
 				if(iter==1) checkflag=s->sflag[i]; //Placed
 				
-				switch(checkflag)
-				{
-				case mfANYFIRE:
-					ft=sBCANDLE;
-					break;
-					
-				case mfSTRONGFIRE:
-					ft=sRCANDLE;
-					break;
-					
-				case mfMAGICFIRE:
-					ft=sWANDFIRE;
-					break;
-					
-				case mfDIVINEFIRE:
-					ft=sDIVINEFIRE;
-					break;
-					
-				case mfARROW:
-					ft=sARROW;
-					break;
-					
-				case mfSARROW:
-					ft=sSARROW;
-					break;
-					
-				case mfGARROW:
-					ft=sGARROW;
-					break;
-					
-				case mfSBOMB:
-					ft=sSBOMB;
-					break;
-					
-				case mfBOMB:
-					ft=sBOMB;
-					break;
-					
-				case mfBRANG:
-					ft=sBRANG;
-					break;
-					
-				case mfMBRANG:
-					ft=sMBRANG;
-					break;
-					
-				case mfFBRANG:
-					ft=sFBRANG;
-					break;
-					
-				case mfWANDMAGIC:
-					ft=sWANDMAGIC;
-					break;
-					
-				case mfREFMAGIC:
-					ft=sREFMAGIC;
-					break;
-					
-				case mfREFFIREBALL:
-					ft=sREFFIREBALL;
-					break;
-					
-				case mfSWORD:
-					ft=sSWORD;
-					break;
-					
-				case mfWSWORD:
-					ft=sWSWORD;
-					break;
-					
-				case mfMSWORD:
-					ft=sMSWORD;
-					break;
-					
-				case mfXSWORD:
-					ft=sXSWORD;
-					break;
-					
-				case mfSWORDBEAM:
-					ft=sSWORDBEAM;
-					break;
-					
-				case mfWSWORDBEAM:
-					ft=sWSWORDBEAM;
-					break;
-					
-				case mfMSWORDBEAM:
-					ft=sMSWORDBEAM;
-					break;
-					
-				case mfXSWORDBEAM:
-					ft=sXSWORDBEAM;
-					break;
-					
-				case mfHOOKSHOT:
-					ft=sHOOKSHOT;
-					break;
-					
-				case mfWAND:
-					ft=sWAND;
-					break;
-					
-				case mfHAMMER:
-					ft=sHAMMER;
-					break;
-					
-				case mfSTRIKE:
-					ft=sSTRIKE;
-					break;
-				
-				case mfSECRETSNEXT:
-					ft=sSECNEXT;
-					break;
-					
-				default:
-					putit = false;
-					break;
-				}
-				
-				if(putit)  //Change the combos for the secret
+				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+				if (ft != -1)  //Change the combos for the secret
 				{
 					// Use misc. secret flag instead if one is present
 					if(msflag!=0)
@@ -2774,131 +2651,11 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 						
 					for(int32_t iter=0; iter<2; ++iter)
 					{
-						putit=true;
 						int32_t checkflag=combobuf[layer_scr->data[i]].flag; //Inherent
-						
 						if(iter==1) checkflag=layer_scr->sflag[i];  //Placed
-						
-						switch(checkflag)
-						{
-							case mfANYFIRE:
-								ft=sBCANDLE;
-								break;
-							
-							case mfSTRONGFIRE:
-								ft=sRCANDLE;
-								break;
-							
-							case mfMAGICFIRE:
-								ft=sWANDFIRE;
-								break;
-							
-							case mfDIVINEFIRE:
-								ft=sDIVINEFIRE;
-								break;
-							
-							case mfARROW:
-								ft=sARROW;
-								break;
-							
-							case mfSARROW:
-								ft=sSARROW;
-								break;
-							
-							case mfGARROW:
-								ft=sGARROW;
-								break;
-							
-							case mfSBOMB:
-								ft=sSBOMB;
-								break;
-							
-							case mfBOMB:
-								ft=sBOMB;
-								break;
-							
-							case mfBRANG:
-								ft=sBRANG;
-								break;
-							
-							case mfMBRANG:
-								ft=sMBRANG;
-								break;
-							
-							case mfFBRANG:
-								ft=sFBRANG;
-								break;
-							
-							case mfWANDMAGIC:
-								ft=sWANDMAGIC;
-								break;
-							
-							case mfREFMAGIC:
-								ft=sREFMAGIC;
-								break;
-							
-							case mfREFFIREBALL:
-								ft=sREFFIREBALL;
-								break;
-							
-							case mfSWORD:
-								ft=sSWORD;
-								break;
-							
-							case mfWSWORD:
-								ft=sWSWORD;
-								break;
-							
-							case mfMSWORD:
-								ft=sMSWORD;
-								break;
-							
-							case mfXSWORD:
-								ft=sXSWORD;
-								break;
-							
-							case mfSWORDBEAM:
-								ft=sSWORDBEAM;
-								break;
-							
-							case mfWSWORDBEAM:
-								ft=sWSWORDBEAM;
-								break;
-							
-							case mfMSWORDBEAM:
-								ft=sMSWORDBEAM;
-								break;
-							
-							case mfXSWORDBEAM:
-								ft=sXSWORDBEAM;
-								break;
-							
-							case mfHOOKSHOT:
-								ft=sHOOKSHOT;
-								break;
-							
-							case mfWAND:
-								ft=sWAND;
-								break;
-							
-							case mfHAMMER:
-								ft=sHAMMER;
-								break;
-							
-							case mfSTRIKE:
-								ft=sSTRIKE;
-								break;
-							
-							case mfSECRETSNEXT:
-								ft=sSECNEXT;
-								break;
-							
-							default:
-								putit = false;
-								break;
-						}
-						
-						if(putit)  //Change the combos for the secret
+
+						ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+						if (ft != -1)  //Change the combos for the secret
 						{
 							// Use misc. secret flag instead if one is present
 							if(msflag!=0)
@@ -2939,130 +2696,11 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 		{
 			//for (int32_t iter=0; iter<1; ++iter) // Only one kind of FFC flag now.
 			{
-				putit=true;
 				int32_t checkflag=combobuf[s->ffcs[i].getData()].flag; //Inherent
-				
 				//No placed flags yet
-				switch(checkflag)
-				{
-					case mfANYFIRE:
-						ft=sBCANDLE;
-						break;
-						
-					case mfSTRONGFIRE:
-						ft=sRCANDLE;
-						break;
-						
-					case mfMAGICFIRE:
-						ft=sWANDFIRE;
-						break;
-						
-					case mfDIVINEFIRE:
-						ft=sDIVINEFIRE;
-						break;
-						
-					case mfARROW:
-						ft=sARROW;
-						break;
-						
-					case mfSARROW:
-						ft=sSARROW;
-						break;
-						
-					case mfGARROW:
-						ft=sGARROW;
-						break;
-						
-					case mfSBOMB:
-						ft=sSBOMB;
-						break;
-						
-					case mfBOMB:
-						ft=sBOMB;
-						break;
-						
-					case mfBRANG:
-						ft=sBRANG;
-						break;
-						
-					case mfMBRANG:
-						ft=sMBRANG;
-						break;
-						
-					case mfFBRANG:
-						ft=sFBRANG;
-						break;
-						
-					case mfWANDMAGIC:
-						ft=sWANDMAGIC;
-						break;
-						
-					case mfREFMAGIC:
-						ft=sREFMAGIC;
-						break;
-						
-					case mfREFFIREBALL:
-						ft=sREFFIREBALL;
-						break;
-						
-					case mfSWORD:
-						ft=sSWORD;
-						break;
-						
-					case mfWSWORD:
-						ft=sWSWORD;
-						break;
-						
-					case mfMSWORD:
-						ft=sMSWORD;
-						break;
-						
-					case mfXSWORD:
-						ft=sXSWORD;
-						break;
-						
-					case mfSWORDBEAM:
-						ft=sSWORDBEAM;
-						break;
-						
-					case mfWSWORDBEAM:
-						ft=sWSWORDBEAM;
-						break;
-						
-					case mfMSWORDBEAM:
-						ft=sMSWORDBEAM;
-						break;
-						
-					case mfXSWORDBEAM:
-						ft=sXSWORDBEAM;
-						break;
-						
-					case mfHOOKSHOT:
-						ft=sHOOKSHOT;
-						break;
-						
-					case mfWAND:
-						ft=sWAND;
-						break;
-						
-					case mfHAMMER:
-						ft=sHAMMER;
-						break;
-						
-					case mfSTRIKE:
-						ft=sSTRIKE;
-						break;
-					
-					case mfSECRETSNEXT:
-						ft=sSECNEXT;
-						break;
-						
-					default:
-						putit = false;
-						break;
-				}
-				
-				if(putit)  //Change the ffc's combo
+
+				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+				if (ft != -1)  //Change the ffc's combo
 				{
 					if(ft==sSECNEXT)
 					{
@@ -3084,7 +2722,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 		
 		if(s->flags6&fTRIGGERF1631)
 		{
-			int32_t tr = findtrigger(screen_index, -1);  //Normal flags
+			int32_t tr = findtrigger(screen_index);  //Normal flags
 			
 			if(tr)
 			{
@@ -3276,7 +2914,6 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	else
 	{
 		checktrigger = true;
-		// TODO z3 secret
 		trigger_secrets_for_screen(TriggerSource::Singular, screen_index, single16, RPOS_TO_POS(trigger_rpos));
 	}
 	
@@ -3285,7 +2922,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if(scr->flags6&fTRIGGERFPERM)
 	{
 		// TODO z3 ! secret find for all screens in region?
-		int32_t flags_remaining = findtrigger(screen_index, -1);  //Normal flags
+		int32_t flags_remaining = findtrigger(screen_index);  //Normal flags
 		
 		if (flags_remaining)
 		{
@@ -5987,13 +5624,10 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	{
 		screen->script = TheMaps[currmap*MAPSCRS+scr].script;
 		al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
-		//if ( !screen->screendatascriptInitialised )
-		//{
-			for ( int32_t q = 0; q < 8; q++ )
-			{
+		for ( int32_t q = 0; q < 8; q++ )
+		{
 			screen->screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
-			}
-		//}
+		}
 		screen->screendatascriptInitialised = 0;
 		screen->doscript = 1;
 	}

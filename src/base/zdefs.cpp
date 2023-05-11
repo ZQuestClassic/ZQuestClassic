@@ -2122,3 +2122,125 @@ DATAFILE* load_datafile_count(const char* path, size_t& sz)
 	else sz = 0;
 	return ret;
 }
+
+int combo_trigger_flag_to_secret_combo_index(int flag)
+{
+	int ft = -1;
+
+	switch(flag)
+	{
+	case mfANYFIRE:
+		ft=sBCANDLE;
+		break;
+		
+	case mfSTRONGFIRE:
+		ft=sRCANDLE;
+		break;
+		
+	case mfMAGICFIRE:
+		ft=sWANDFIRE;
+		break;
+		
+	case mfDIVINEFIRE:
+		ft=sDIVINEFIRE;
+		break;
+		
+	case mfARROW:
+		ft=sARROW;
+		break;
+		
+	case mfSARROW:
+		ft=sSARROW;
+		break;
+		
+	case mfGARROW:
+		ft=sGARROW;
+		break;
+		
+	case mfSBOMB:
+		ft=sSBOMB;
+		break;
+		
+	case mfBOMB:
+		ft=sBOMB;
+		break;
+		
+	case mfBRANG:
+		ft=sBRANG;
+		break;
+		
+	case mfMBRANG:
+		ft=sMBRANG;
+		break;
+		
+	case mfFBRANG:
+		ft=sFBRANG;
+		break;
+		
+	case mfWANDMAGIC:
+		ft=sWANDMAGIC;
+		break;
+		
+	case mfREFMAGIC:
+		ft=sREFMAGIC;
+		break;
+		
+	case mfREFFIREBALL:
+		ft=sREFFIREBALL;
+		break;
+		
+	case mfSWORD:
+		ft=sSWORD;
+		break;
+		
+	case mfWSWORD:
+		ft=sWSWORD;
+		break;
+		
+	case mfMSWORD:
+		ft=sMSWORD;
+		break;
+		
+	case mfXSWORD:
+		ft=sXSWORD;
+		break;
+		
+	case mfSWORDBEAM:
+		ft=sSWORDBEAM;
+		break;
+		
+	case mfWSWORDBEAM:
+		ft=sWSWORDBEAM;
+		break;
+		
+	case mfMSWORDBEAM:
+		ft=sMSWORDBEAM;
+		break;
+		
+	case mfXSWORDBEAM:
+		ft=sXSWORDBEAM;
+		break;
+		
+	case mfHOOKSHOT:
+		ft=sHOOKSHOT;
+		break;
+		
+	case mfWAND:
+		ft=sWAND;
+		break;
+		
+	case mfHAMMER:
+		ft=sHAMMER;
+		break;
+		
+	case mfSTRIKE:
+		ft=sSTRIKE;
+		break;
+	
+	case mfSECRETSNEXT:
+		ft=sSECNEXT;
+		break;
+	}
+
+	return ft;
+}

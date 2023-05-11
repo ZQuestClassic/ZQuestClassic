@@ -14501,8 +14501,6 @@ void zmap::prv_secrets(bool high16only)
     
     for(int32_t i=0; i<176; i++)
     {
-        bool putit;
-        
         if(!high16only)
         {
             for(int32_t j=-1; j<6; j++)
@@ -14511,8 +14509,6 @@ void zmap::prv_secrets(bool high16only)
                 
                 for(int32_t iter=0; iter<2; ++iter)
                 {
-                    putit=true;
-                    
                     if(!t[j].valid)
                         continue;
                         
@@ -14522,123 +14518,9 @@ void zmap::prv_secrets(bool high16only)
                     {
                         checkflag=t[j].sflag[i];
                     }
-                    
-                    switch(checkflag)
-                    {
-                    case mfANYFIRE:
-                        ft=sBCANDLE;
-                        break;
-                        
-                    case mfSTRONGFIRE:
-                        ft=sRCANDLE;
-                        break;
-                        
-                    case mfMAGICFIRE:
-                        ft=sWANDFIRE;
-                        break;
-                        
-                    case mfDIVINEFIRE:
-                        ft=sDIVINEFIRE;
-                        break;
-                        
-                    case mfARROW:
-                        ft=sARROW;
-                        break;
-                        
-                    case mfSARROW:
-                        ft=sSARROW;
-                        break;
-                        
-                    case mfGARROW:
-                        ft=sGARROW;
-                        break;
-                        
-                    case mfSBOMB:
-                        ft=sSBOMB;
-                        break;
-                        
-                    case mfBOMB:
-                        ft=sBOMB;
-                        break;
-                        
-                    case mfBRANG:
-                        ft=sBRANG;
-                        break;
-                        
-                    case mfMBRANG:
-                        ft=sMBRANG;
-                        break;
-                        
-                    case mfFBRANG:
-                        ft=sFBRANG;
-                        break;
-                        
-                    case mfWANDMAGIC:
-                        ft=sWANDMAGIC;
-                        break;
-                        
-                    case mfREFMAGIC:
-                        ft=sREFMAGIC;
-                        break;
-                        
-                    case mfREFFIREBALL:
-                        ft=sREFFIREBALL;
-                        break;
-                        
-                    case mfSWORD:
-                        ft=sSWORD;
-                        break;
-                        
-                    case mfWSWORD:
-                        ft=sWSWORD;
-                        break;
-                        
-                    case mfMSWORD:
-                        ft=sMSWORD;
-                        break;
-                        
-                    case mfXSWORD:
-                        ft=sXSWORD;
-                        break;
-                        
-                    case mfSWORDBEAM:
-                        ft=sSWORDBEAM;
-                        break;
-                        
-                    case mfWSWORDBEAM:
-                        ft=sWSWORDBEAM;
-                        break;
-                        
-                    case mfMSWORDBEAM:
-                        ft=sMSWORDBEAM;
-                        break;
-                        
-                    case mfXSWORDBEAM:
-                        ft=sXSWORDBEAM;
-                        break;
-                        
-                    case mfHOOKSHOT:
-                        ft=sHOOKSHOT;
-                        break;
-                        
-                    case mfWAND:
-                        ft=sWAND;
-                        break;
-                        
-                    case mfHAMMER:
-                        ft=sHAMMER;
-                        break;
-                        
-                    case mfSTRIKE:
-                        ft=sSTRIKE;
-                        break;
-                        
-                    default:
-                        putit = false;
-                        break;
-                    }
-                    
-                    if(putit)
+
+					ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+                    if (ft != -1)
                     {
                         if(j==-1)
                         {
@@ -14725,136 +14607,19 @@ void zmap::prv_secrets(bool high16only)
 	word c = s->numFFC();
     for(word i=0; i<c; ++i)
     {
-        bool putit;
-        
         if(!high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                putit=true;
                 int32_t checkflag=combobuf[s->ffcs[i].getData()].flag;
                 
                 if(iter==1)
                 {
                     checkflag=s->sflag[i];
                 }
-                
-                switch(checkflag)
-                {
-                case mfANYFIRE:
-                    ft=sBCANDLE;
-                    break;
-                    
-                case mfSTRONGFIRE:
-                    ft=sRCANDLE;
-                    break;
-                    
-                case mfMAGICFIRE:
-                    ft=sWANDFIRE;
-                    break;
-                    
-                case mfDIVINEFIRE:
-                    ft=sDIVINEFIRE;
-                    break;
-                    
-                case mfARROW:
-                    ft=sARROW;
-                    break;
-                    
-                case mfSARROW:
-                    ft=sSARROW;
-                    break;
-                    
-                case mfGARROW:
-                    ft=sGARROW;
-                    break;
-                    
-                case mfSBOMB:
-                    ft=sSBOMB;
-                    break;
-                    
-                case mfBOMB:
-                    ft=sBOMB;
-                    break;
-                    
-                case mfBRANG:
-                    ft=sBRANG;
-                    break;
-                    
-                case mfMBRANG:
-                    ft=sMBRANG;
-                    break;
-                    
-                case mfFBRANG:
-                    ft=sFBRANG;
-                    break;
-                    
-                case mfWANDMAGIC:
-                    ft=sWANDMAGIC;
-                    break;
-                    
-                case mfREFMAGIC:
-                    ft=sREFMAGIC;
-                    break;
-                    
-                case mfREFFIREBALL:
-                    ft=sREFFIREBALL;
-                    break;
-                    
-                case mfSWORD:
-                    ft=sSWORD;
-                    break;
-                    
-                case mfWSWORD:
-                    ft=sWSWORD;
-                    break;
-                    
-                case mfMSWORD:
-                    ft=sMSWORD;
-                    break;
-                    
-                case mfXSWORD:
-                    ft=sXSWORD;
-                    break;
-                    
-                case mfSWORDBEAM:
-                    ft=sSWORDBEAM;
-                    break;
-                    
-                case mfWSWORDBEAM:
-                    ft=sWSWORDBEAM;
-                    break;
-                    
-                case mfMSWORDBEAM:
-                    ft=sMSWORDBEAM;
-                    break;
-                    
-                case mfXSWORDBEAM:
-                    ft=sXSWORDBEAM;
-                    break;
-                    
-                case mfHOOKSHOT:
-                    ft=sHOOKSHOT;
-                    break;
-                    
-                case mfWAND:
-                    ft=sWAND;
-                    break;
-                    
-                case mfHAMMER:
-                    ft=sHAMMER;
-                    break;
-                    
-                case mfSTRIKE:
-                    ft=sSTRIKE;
-                    break;
-                    
-                default:
-                    putit = false;
-                    break;
-                }
-                
-                if(putit)
+
+				ft = combo_trigger_flag_to_secret_combo_index(checkflag);
+                if (ft != -1)
                 {
                     s->ffcs[i].setData(s->secretcombo[ft]);
                     s->ffcs[i].cset = s->secretcset[ft];

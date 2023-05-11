@@ -2954,6 +2954,8 @@ enum
     sMSWORDBEAM, sXSWORDBEAM, sHOOKSHOT, sWAND, sHAMMER, sSTRIKE, sSECNEXT
 };
 
+int combo_trigger_flag_to_secret_combo_index(int flag);
+
 struct comboclass
 {
     char  name[64];                       //  name
