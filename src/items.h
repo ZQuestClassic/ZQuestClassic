@@ -236,7 +236,7 @@ struct itemdata
 	
 	char display_name[256];
 	
-	std::string get_name() const;
+	std::string get_name(bool init = false) const;
 	//helper functions because stupid shit
 	int32_t misc(size_t ind) const
 	{

@@ -217,6 +217,16 @@ std::shared_ptr<GUI::Widget> InitDataDialog::TRICHECK(int ind)
 	);
 }
 
+std::string item_name(int id)
+{
+	if(unsigned(id) < MAXITEMS)
+	{
+		return itemsbuf[id].get_name(true);
+		//return item_string[id];
+	}
+	return "";
+}
+
 static size_t genscr_index = 0, maintab = 0, vartab = 0;
 std::shared_ptr<GUI::Widget> InitDataDialog::view()
 {
@@ -276,7 +286,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				std::shared_ptr<GUI::Checkbox> cb = Checkbox(
 					hAlign=0.0,vAlign=0.0,
 					checked = local_zinit.items[id],
-					text = item_string[id],
+					text = item_name(id),
 					onToggleFunc = [&,id](bool state)
 					{
 						local_zinit.items[id] = state;

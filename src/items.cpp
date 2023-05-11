@@ -23,6 +23,7 @@
 #include "zelda.h"
 #include "base/zdefs.h"
 #include "ffscript.h"
+#include <fmt/format.h>
 
 #include <queue>
 
@@ -878,7 +879,7 @@ ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 }
 
 std::string get_subscr_arrow_name(int itemid);
-std::string itemdata::get_name() const
+std::string itemdata::get_name(bool init) const
 {
 	std::string name;
 	if(display_name[0])
@@ -891,7 +892,16 @@ std::string itemdata::get_name() const
 			switch(family)
 			{
 				case itype_bottle:
-					arg = bottle_slot_name(misc1,"Empty");
+					if(init)
+					{
+						if(unsigned(misc1) < 256)
+							arg = fmt::format("Slot {}",misc1);
+						else arg = "Invalid Slot";
+					}
+					else
+					{
+						arg = bottle_slot_name(misc1,"Empty");
+					}
 					break;
 			}
 			name.replace(repl_pos,2,arg);
