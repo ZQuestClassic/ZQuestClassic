@@ -20852,7 +20852,6 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(!cmb.triggerbtn) return;
 	if(on_cooldown(found_lyr, COMBOPOS(fx,fy))) return;
 	switch(dir)
 	{
@@ -20873,7 +20872,7 @@ endsigns:
 				return;
 			break;
 	}
-	if(getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput))
+	if(cmb.triggerbtn && (getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput)))
 	{
 		if (foundffc >= 0)
 			do_trigger_combo_ffc(foundffc, didsign ? ctrigIGNORE_SIGN : 0);
