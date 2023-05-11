@@ -329,6 +329,7 @@ void z3_update_viewport()
 	z3_calculate_viewport(&tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
+void playLevelMusic();
 void z3_update_currscr()
 {
 	int dx = Hero.getX().getInt() / 256;
@@ -338,7 +339,9 @@ void z3_update_currscr()
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
+		bool try_replay_music = currscr != newscr;
 		currscr = newscr;
+		if (try_replay_music) playLevelMusic();
 	}
 }
 
@@ -1338,7 +1341,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
 				if (flag == mSECRET && nmap-1 == currmap && is_in_current_region(nscr))
 				{
-					trigger_secrets_for_screen(TriggerSource::Unspecified, nscr);
+					trigger_secrets_for_screen(TriggerSource::SecretsScreenState, nscr);
 				}
             }
             

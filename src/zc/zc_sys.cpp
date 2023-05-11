@@ -8775,7 +8775,7 @@ void play_DmapMusic()
 
 void playLevelMusic()
 {
-	int32_t m=tmpscr.screen_midi;
+	int32_t m=get_scr(currmap, currscr)->screen_midi;
 	
 	switch(m)
 	{
