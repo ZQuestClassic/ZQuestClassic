@@ -141,6 +141,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
 			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
 			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
+			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for triforce piece items.");
 			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
 			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
 			_SET(flag[10], "Don't Affect Music", "If not checked, music is stopped for the cutscene");

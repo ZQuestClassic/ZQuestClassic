@@ -28724,10 +28724,8 @@ void dospecialmoney(int32_t index)
 
 void getitem(int32_t id, bool nosound, bool doRunPassive)
 {
-	if(id<0)
-	{
+	if(unsigned(id) >= MAXITEMS)
 		return;
-	}
 
 	if (replay_is_active())
 		replay_step_comment(fmt::format("getitem {}", item_string[id]));
@@ -28763,94 +28761,95 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	}
 	
 	itemdata const& idat = itemsbuf[id&0xFF];
-	// if(idat.family!=0xFF) //1.92 compat... that already should be changed to 'itype_misc'? Blehg, hate this! -Em
+	
+	bool equipment = idat.flags &
+		((idat.family == itype_triforcepiece) ? ITEM_FLAG8 : ITEM_GAMEDATA);
+	
+	if(equipment)
 	{
-		if(idat.flags & ITEM_GAMEDATA && idat.family != itype_triforcepiece)
+		// Fix boomerang sounds.
+		int32_t itemid = current_item_id(idat.family);
+		
+		if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_divineprotection
+						 || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
+				&& sfx_allocated(itemsbuf[itemid].usesound)
+				&& idat.usesound != itemsbuf[itemid].usesound)
 		{
-			// Fix boomerang sounds.
-			int32_t itemid = current_item_id(idat.family);
-			
-			if(itemid>=0 && (idat.family == itype_brang || idat.family == itype_divineprotection
-							 || idat.family == itype_hookshot || idat.family == itype_switchhook || idat.family == itype_cbyrna)
-					&& sfx_allocated(itemsbuf[itemid].usesound)
-					&& idat.usesound != itemsbuf[itemid].usesound)
-			{
-				stop_sfx(itemsbuf[itemid].usesound);
-				cont_sfx(idat.usesound);
-			}
-			
-			int32_t curitm = current_item_id(idat.family);
-			if(!get_bit(quest_rules,qr_KEEPOLD_APPLIES_RETROACTIVELY)
-				|| curitm < 0 || (itemsbuf[curitm].fam_type <= idat.fam_type)
-				|| (itemsbuf[curitm].flags & ITEM_KEEPOLD))
-			{
-				game->set_item(id,true);
-				passiveitem_script(id, doRunPassive);
-			}
-			
-			if(!(idat.flags & ITEM_KEEPOLD))
-			{
-				if(!get_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
-				{
-					removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
-				}
-			}
-			
-			// NES consistency: replace all flying boomerangs with the current boomerang.
-			if(idat.family==itype_brang)
-				for(int32_t i=0; i<Lwpns.Count(); i++)
-				{
-					weapon *w = ((weapon*)Lwpns.spr(i));
-					
-					if(w->id==wBrang)
-					{
-						w->LOADGFX(idat.wpn);
-					}
-				}
+			stop_sfx(itemsbuf[itemid].usesound);
+			cont_sfx(idat.usesound);
 		}
 		
-		if(idat.count!=-1)
+		int32_t curitm = current_item_id(idat.family);
+		if(!get_bit(quest_rules,qr_KEEPOLD_APPLIES_RETROACTIVELY)
+			|| curitm < 0 || (itemsbuf[curitm].fam_type <= idat.fam_type)
+			|| (itemsbuf[curitm].flags & ITEM_KEEPOLD))
 		{
-			if(idat.setmax)
+			game->set_item(id,true);
+			passiveitem_script(id, doRunPassive);
+		}
+		
+		if(!(idat.flags & ITEM_KEEPOLD))
+		{
+			if(!get_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG) || current_item(idat.family)<idat.fam_type)
 			{
-				// Bomb bags are a special case; they may be set not to increase super bombs
-				if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
+				removeLowerLevelItemsOfFamily(game,itemsbuf,idat.family, idat.fam_type);
+			}
+		}
+		
+		// NES consistency: replace all flying boomerangs with the current boomerang.
+		if(idat.family==itype_brang)
+			for(int32_t i=0; i<Lwpns.Count(); i++)
+			{
+				weapon *w = ((weapon*)Lwpns.spr(i));
+				
+				if(w->id==wBrang)
 				{
-					int32_t max = game->get_maxbombs();
-					
-					if(max<idat.max) max=idat.max;
-					
-					game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
-				}
-				else
-				{
-					int32_t max = game->get_maxcounter(idat.count);
-					
-					if(max<idat.max) max=idat.max;
-					
-					game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
+					w->LOADGFX(idat.wpn);
 				}
 			}
-			
-			// Amount is an uint16_t, but the range is -9999 to 16383
-			// -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
-			if(idat.amount&0x3FFF)
+	}
+	
+	if(idat.count!=-1)
+	{
+		if(idat.setmax)
+		{
+			// Bomb bags are a special case; they may be set not to increase super bombs
+			if(idat.family==itype_bombbag && idat.count==2 && (idat.flags&16)==0)
 			{
-				if(idat.amount&0x8000)
-					game->set_dcounter(
-						game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
+				int32_t max = game->get_maxbombs();
+				
+				if(max<idat.max) max=idat.max;
+				
+				game->set_maxbombs(zc_min(game->get_maxbombs()+idat.setmax,max), false);
+			}
+			else
+			{
+				int32_t max = game->get_maxcounter(idat.count);
+				
+				if(max<idat.max) max=idat.max;
+				
+				game->set_maxcounter(zc_min(game->get_maxcounter(idat.count)+idat.setmax,max), idat.count);
+			}
+		}
+		
+		// Amount is an uint16_t, but the range is -9999 to 16383
+		// -1 is actually 16385 ... -9999 is 26383, and 0x8000 means use the drain counter
+		if(idat.amount&0x3FFF)
+		{
+			if(idat.amount&0x8000)
+				game->set_dcounter(
+					game->get_dcounter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF), idat.count);
+			else
+			{
+				if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
+					game->set_counter(0, idat.count);
 				else
-				{
-					if(idat.amount>=16385 && game->get_counter(0)<=idat.amount-16384)
-						game->set_counter(0, idat.count);
-					else
-						// This is too confusing to try and change...
-						game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
-				}
+					// This is too confusing to try and change...
+					game->set_counter(zc_min(game->get_counter(idat.count)+((idat.amount&0x4000)?-(idat.amount&0x3FFF):idat.amount&0x3FFF),game->get_maxcounter(idat.count)), idat.count);
 			}
 		}
 	}
-	
+
 	if(idat.playsound&&!nosound)
 	{
 		sfx(idat.playsound);
@@ -29097,6 +29096,34 @@ void post_item_collect()
 	ev.clear();
 	
 	throwGenScriptEvent(GENSCR_EVENT_POST_COLLECT_ITEM);
+}
+
+void HeroClass::handle_triforce(int32_t id)
+{
+	if(unsigned(id) >= MAXITEMS)
+		return;
+	itemdata const& itm = itemsbuf[id];
+	switch(itm.family)
+	{
+		case itype_itmbundle:
+		{
+			int ids[10] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
+				itm.misc6, itm.misc7, itm.misc8, itm.misc9, itm.misc10};
+			for(auto q = 0; q < 10; ++q)
+			{
+				if(unsigned(ids[q]) >= MAXITEMS) continue;
+				handle_triforce(ids[q]);
+			}
+		}
+		break;
+		case itype_triforcepiece:
+		{
+			if(itm.misc2>0)
+				getTriforce(id); //small
+			else getBigTri(id); //big
+		}
+		break;
+	}
 }
 
 // Attempt to pick up an item. (-1 = check items touching Hero.)
@@ -29579,18 +29606,12 @@ void HeroClass::checkitems(int32_t index)
 		set_clip_state(pricesdisplaybuf, 1);
 	}
 	
-	if(itemsbuf[id2].family==itype_triforcepiece)
+	if(itemsbuf[id2].family==itype_triforcepiece
+		&& itemsbuf[id2].misc2 <= 0 && ptr->linked_parent == eeGANON)
 	{
-		if(itemsbuf[id2].misc2>0) //Small TF Piece
-		{
-			getTriforce(id2);
-		}
-		else
-		{
-			if (ptr->linked_parent == eeGANON) game->lvlitems[dlevel]|=liBOSS;
-			getBigTri(id2);
-		}
+		game->lvlitems[dlevel]|=liBOSS;
 	}
+	handle_triforce(id2);
 	if(!holdclk)
 		post_item_collect();
 }
@@ -30024,7 +30045,7 @@ void HeroClass::getTriforce(int32_t id2)
     
 	//Warp Hero out of item cellars, in 2.10 and earlier quests. -Z ( 16th January, 2019 )
 	//Added a QR for this, to Other->2, as `Triforce in Cellar Warps Hero Out`. -Z 15th March, 2019 
-	if(itemsbuf[id2].flags & ITEM_FLAG1 && ( get_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
+	if((itemsbuf[id2].flags & ITEM_FLAG1) && ( get_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR) ? ( currscr < MAPSCRS192b136 ) : (currscr < MAPSCRSNORMAL) ) )
 	{
 		sdir=dir;
 		dowarp(1,0); //side warp
