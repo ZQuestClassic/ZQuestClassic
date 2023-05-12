@@ -32,6 +32,8 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 	
 	lister_index = start_ind;
 	
+	preinit();
+	
 	std::shared_ptr<GUI::Widget> okbtn;
 	if(selecting)
 		okbtn = Button(
@@ -51,6 +53,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 			Ctrl+V=message::PASTE,
 			Ctrl+S=message::SAVE,
 			Ctrl+L=message::LOAD,
+			Enter=message::CONFIRM,
 		},
 		Column(
 			hPadding = 0_px, 
@@ -75,7 +78,7 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 						forceDraw();
 						rclick(x,y);
 					},
-					onDClick = selecting ? message::OK : message::EDIT),
+					onDClick = message::CONFIRM),
 				widgPrev = TileFrame(visible = false),
 				widgInfo = Label(text = "", fitParent = true)
 			),
@@ -103,7 +106,10 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 bool BasicListerDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	bool refresh = false;
-	switch(msg.message)
+	auto m = msg.message;
+	if(m == message::CONFIRM)
+		m = selecting ? message::OK : message::EDIT;
+	switch(m)
 	{
 		case message::OK:
 			lister_index = selected_index;
@@ -145,8 +151,11 @@ static MENU cpsl_rclick_menu[] =
 };
 
 ItemListerDialog::ItemListerDialog(int itemid, bool selecting):
-	BasicListerDialog("Select Item",GUI::ZCListData::items(true),itemid,selecting)
+	BasicListerDialog("Select Item",itemid,selecting)
+{}
+void ItemListerDialog::preinit()
 {
+	lister = GUI::ZCListData::items(true);
 	if(!selecting)
 	{
 		lister.removeInd(0); //remove '(None)'
@@ -173,9 +182,13 @@ void ItemListerDialog::postinit()
 static int copied_item_id = -1;
 void ItemListerDialog::update()
 {
-	std::string copied_name = unsigned(copied_item_id) < MAXITEMS
-		? itemsbuf[copied_item_id].get_name(true)
-		: "(None)";
+	std::string copied_name = "(None)\n";
+	if(unsigned(copied_item_id) < MAXITEMS)
+	{
+		itemdata const& copied_itm = itemsbuf[copied_item_id];
+		copied_name = fmt::format("{}\n{}",item_string[copied_item_id],
+			copied_itm.display_name[0] ? copied_itm.get_name(true) : "[No Display Name]");
+	}
 	if(unsigned(selected_index) < MAXITEMS)
 	{
 		itemdata const& itm = itemsbuf[selected_index];
@@ -239,6 +252,8 @@ void ItemListerDialog::rclick(int x, int y)
 		save();
 	else if(ret==3)
 		load();
+	if(ret > -1)
+		update();
 }
 void ItemListerDialog::copy()
 {
