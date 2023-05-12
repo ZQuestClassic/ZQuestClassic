@@ -4864,11 +4864,13 @@ void showbombeddoor(BITMAP *dest, int32_t side)
 
 void openshutters()
 {
+	bool opened_door = false;
 	for(int32_t i=0; i<4; i++)
 		if(tmpscr->door[i]==dSHUTTER)
 		{
 			putdoor(scrollbuf,0,i,dOPENSHUTTER);
 			tmpscr->door[i]=dOPENSHUTTER;
+			opened_door = true;
 		}
 	
 	for(auto lyr = 0; lyr < 7; ++lyr)
@@ -4892,8 +4894,9 @@ void openshutters()
 				do_trigger_combo_ffc(i);
 		}
 	}
-		
-	sfx(WAV_DOOR,128);
+	
+	if(opened_door)
+		sfx(WAV_DOOR,128);
 }
 
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)

@@ -2953,6 +2953,8 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 				}
 			}
 			
+			update_trig_group(timer.data,tmp->data[pos]);
+			timer.updateData(tmp->data[pos]);
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -3308,6 +3310,8 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				}
 			}
 			
+			update_trig_group(timer.data,tmpscr->ffcs[pos].getData());
+			timer.updateData(tmpscr->ffcs[pos].getData());
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}

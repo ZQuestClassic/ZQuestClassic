@@ -62,6 +62,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special = 0, weapon* w = NULL);
 
 bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid);
 
+void update_trig_group(int oldc, int newc);
 void calculate_trig_groups();
 void trig_trigger_groups();
 void init_combo_timers();

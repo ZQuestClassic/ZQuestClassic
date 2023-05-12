@@ -22459,9 +22459,11 @@ void HeroClass::checkspecial()
     }
     
     // doors
+	bool has_shutter = false;
     for(int32_t i=0; i<4; i++)
         if(tmpscr->door[i]==dSHUTTER)
         {
+			has_shutter = true;
             if(opendoors==0 && loaded_enemies)
             {
                 if(!(tmpscr->flags&fSHUTTERS) && !hasmainguy)
@@ -22474,6 +22476,10 @@ void HeroClass::checkspecial()
                 
             break;
         }
+	if(!has_shutter && !opendoors && loaded_enemies && !(tmpscr->flags&fSHUTTERS) && !hasmainguy)
+	{
+		openshutters();
+	}
         
     // set boss flag when boss is gone
     if(loaded_enemies && tmpscr->enemyflags&efBOSS && !hasmainguy)
