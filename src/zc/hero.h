@@ -277,6 +277,8 @@ public:
 	zfix respawn_x, respawn_y;
 	uint16_t respawn_dmap, respawn_scr;
 	
+	zfix convey_forcex, convey_forcey;
+	
 	zfix falling_oldy; // Used by the Stomp Boots in sideview
 	byte dontdraw;
 	byte warp_sound;

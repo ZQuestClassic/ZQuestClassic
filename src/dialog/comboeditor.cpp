@@ -922,16 +922,14 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
-			l_flag[0] = "Stunned while moving";
-			h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
 			l_flag[1] = "Custom Speed";
 			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[local_comboref.type-cCVUP] + "ward direction.";
 			l_flag[2] = "Force Dir";
 			h_flag[2] = "Forces the Player to face in the conveyor's direction";
-			l_flag[3] = "Smart Corners";
-			h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			l_flag[4] = "Heavy Boots Disable";
 			h_flag[4] = "If the player has boots with the 'heavy' flag, the conveyor will not push them.";
+			l_flag[5] = "Force Walk";
+			h_flag[5] = "The player will walk the speed/dir of the conveyor, unable to walk against it. Requires Newer Player Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";
@@ -940,6 +938,13 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[1] = "Pixels moved in the Y direction per rate frames";
 				l_attribyte[0] = "Rate:";
 				h_attribyte[0] = "Every this many frames the conveyor moves by the set speeds. If set to 0, acts as if set to 1.";
+			}
+			if(!FL(cflag6)) //Force Walk
+			{
+				l_flag[0] = "Stunned while moving";
+				h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
+				l_flag[3] = "Smart Corners";
+				h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			}
 			break;
 		}
