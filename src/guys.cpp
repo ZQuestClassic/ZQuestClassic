@@ -6650,7 +6650,7 @@ void enemy::try_death(bool force_kill)
 		ev.clear();
 		if(isSaved) return;
 		
-		if(itemguy && (hasitem&2)!=0)
+		if(itemguy && screen_item_get_state(currscr) == ScreenItemState::CarriedByEnemy)
 		{
 			for(int32_t i=0; i<items.Count(); i++)
 			{
@@ -6702,7 +6702,6 @@ void enemy::try_death(bool force_kill)
 		
 		if(itemguy)
 		{
-			hasitem&=~2;
 			screen_item_clear_state(currscr);
 			item_set=0;
 		}
@@ -20707,7 +20706,6 @@ void loadguys()
 		prices[i]=0;
 	}
 	
-	hasitem=0;
 	screen_item_clear_state(currscr);
 	
 	if(currscr>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
@@ -20848,13 +20846,6 @@ void loaditem(mapscr* scr, int offx, int offy)
 				screen_item_set_state(currscr, ScreenItemState::WhenKillEnemies);
 			else if(scr->enemyflags&efCARRYITEM)
 				screen_item_set_state(currscr, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
-
-			if(scr->flags8&fSECRETITEM)
-				hasitem=8;
-			else if(scr->flags&fITEM)
-				hasitem=1;
-			else if(scr->enemyflags&efCARRYITEM)
-				hasitem=4; // Will be set to 2 by roaming_item
 			else
 			{
 				int x = scr->itemx;
@@ -23784,7 +23775,6 @@ void roaming_item()
 			additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
 					+ (((tmpscr.flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
-			hasitem |= 2;
 			screen_item_set_state(currscr, ScreenItemState::CarriedByEnemy);
 		}
 		else

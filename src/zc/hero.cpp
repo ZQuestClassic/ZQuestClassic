@@ -20990,7 +20990,6 @@ void HeroClass::checkspecial()
 									   (tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		
-		hasitem &= ~8;
 		screen_item_clear_state(currscr);
 	}
 }
@@ -29064,7 +29063,6 @@ void HeroClass::checkitems(int32_t index)
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
 			if(more_carried_items()<=1)  // 1 includes this own item.
-				// hasitem &= ~2;
 				screen_item_clear_state(currscr);
 				
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)

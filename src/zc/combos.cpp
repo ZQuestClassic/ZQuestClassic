@@ -2558,7 +2558,7 @@ bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 	return do_trigger_combo(get_pos_handle((rpos_t)pos, layer), special, w);
 }
 
-// Forcibly triggers a combo at a given position
+// Triggers a combo at a given position.
 bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w)
 {
 	if (unsigned(pos_handle.layer) > 6 || !is_valid_rpos(pos_handle.rpos)) return false;
