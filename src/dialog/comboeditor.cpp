@@ -2140,6 +2140,14 @@ std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
+	if(index < 0)
+	{
+		return Checkbox(
+			text = str, hAlign = 0.0,
+			fitParent = true, disabled = true
+		);
+	}
+	
 	return Checkbox(
 		text = str, hAlign = 0.0,
 		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
@@ -2755,36 +2763,107 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Effects", Row(
-						Rows<2>(
-							framed = true,
-							INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
-								" unless 'Temporary Secrets' screen data flag is checked."),
-							TRIGFLAG(48,"Triggers Secrets"),
-							INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
-								" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-								" Not available for all combo types; will be greyed out when unavailable."),
-							cteff_tflag = TRIGFLAG(28,"ComboType Effects"),
-							INFOBTN("The combo will ignore methods of triggering its standard effects that"
-								" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
-								" unless the 'Sword' weapon trigger is checked."),
-							TRIGFLAG(29,"Only Gen Triggers"),
-							INFOBTN("If triggered by a weapon, the triggering weapon will be destroyed"),
-							TRIGFLAG(30, "Kill Triggering Weapon"),
-							INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
-								" (by any trigger effect), the new combo is the one that resets."),
-							TRIGFLAG(18,"Reset Anim"),
-							INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-							TRIGFLAG(100, "Kill Enemies"),
-							INFOBTN("Delete all enemies on screen."),
-							TRIGFLAG(101, "Clear Enemies"),
-							INFOBTN("Delete all LWeapons on screen."),
-							TRIGFLAG(102, "Clear LWeapons"),
-							INFOBTN("Delete all EWeapons on screen."),
-							TRIGFLAG(103, "Clear EWeapons")
+					TabRef(name = "Effects", Rows<2>(
+						Column(padding = 0_px,
+							Frame(hAlign = 1.0, title = "Misc Effects",
+								Column(padding = 0_px,
+									Rows<2>(hAlign = 0.0,
+										INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+											" unless 'Temporary Secrets' screen data flag is checked."),
+										TRIGFLAG(48,"Triggers Secrets"),
+										INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
+											" (by any trigger effect), the new combo is the one that resets."),
+										TRIGFLAG(18,"Reset Anim"),
+										INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+										TRIGFLAG(100, "Kill Enemies"),
+										INFOBTN("Delete all enemies on screen."),
+										TRIGFLAG(101, "Clear Enemies"),
+										INFOBTN("Delete all LWeapons on screen."),
+										TRIGFLAG(102, "Clear LWeapons"),
+										INFOBTN("Delete all EWeapons on screen."),
+										TRIGFLAG(103, "Clear EWeapons")
+									),
+									Rows<3>(hAlign = 0.0,
+										Label(text = "Combo Change:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -65535, high = 65535, val = local_comboref.trigchange,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigchange = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Combo Change","If the value is not 0, the combo will"
+													" change by that much when triggered."
+													"\nEx. '1' causes '->Next', '-1' causes '->Prev'.").show();
+											}
+										),
+										Label(text = "CSet Change:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -15, high = 15, val = local_comboref.trigcschange,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigcschange = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("CSet Change","If the value is not 0, the cset will"
+													" change by that much when triggered."
+													"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.").show();
+											}
+										)
+									)
+								)
+							)
 						),
 						Column(padding = 0_px,
-							Rows<3>(framed = true, hAlign = 0.0,
+							Frame(hAlign = 0.0, title = "Weapon",
+								info = "Trigger effects related to the weapon that triggered this combo. These"
+									" effects will not occur if the combo is triggered by a non-weapon trigger.",
+								Rows<2>(
+									INFOBTN("Destroy the triggering weapon"),
+									TRIGFLAG(30, "Kill Triggering Weapon"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Any Fire' triggers."),
+									TRIGFLAG(104, "Ignite Weapon (Any)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
+									TRIGFLAG(105, "Ignite Weapon (Strong)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
+									TRIGFLAG(106, "Ignite Weapon (Magic)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
+									TRIGFLAG(107, "Ignite Weapon (Divine)")
+								)
+							),
+							Frame(hAlign = 0.0, title = "Trigger Handling",
+								info = "These flags have important / notable effects which change how the trigger is handled.",
+								Rows<2>(
+									INFOBTN("TODO @Emily"),
+									TRIGFLAG(-1,"ComboType Trigger->"),
+									INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
+										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+										" Not available for all combo types; will be greyed out when unavailable."),
+									cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
+									INFOBTN("The combo will ignore methods of triggering its standard effects that"
+										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+										" unless the 'Sword' weapon trigger is checked."),
+									TRIGFLAG(29,"Only Gen Triggers"),
+									INFOBTN("If triggered by a weapon, only the effects from the 'Weapon'"
+										" section will occur- all other flags will only apply to non-weapon triggers."),
+									TRIGFLAG(108,"Weapon Separate Triggers")
+								)
+							)
+						),
+						Frame(colSpan = 2,
+							Rows<3>(
 								Label(text = "SFX:", hAlign = 1.0),
 								DropDownList(data = list_sfx,
 									vPadding = 0_px,
@@ -2814,46 +2893,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									text = "?", hAlign = 1.0, onPressFunc = [&]()
 									{
 										InfoDialog("Run Frozen Generic Script","The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)").show();
-									}
-								)
-							),
-							Rows<3>(framed = true, hAlign = 0.0,
-								Label(text = "Combo Change:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -65535, high = 65535, val = local_comboref.trigchange,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.trigchange = val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Combo Change","If the value is not 0, the combo will"
-											" change by that much when triggered."
-											"\nEx. '1' causes '->Next', '-1' causes '->Prev'.").show();
-									}
-								),
-								Label(text = "CSet Change:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -15, high = 15, val = local_comboref.trigcschange,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.trigcschange = val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("CSet Change","If the value is not 0, the cset will"
-											" change by that much when triggered."
-											"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.").show();
 									}
 								)
 							)

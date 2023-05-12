@@ -2559,6 +2559,21 @@ bool force_ex_trigger_ffc(int32_t pos, char xstate)
 static bool triggering_generic_secrets = false;
 static bool triggering_generic_switchstate = false;
 
+void do_weapon_fx(weapon* w, newcombo const& cmb)
+{
+	if(!w) return;
+	if(cmb.triggerflags[0] & combotriggerKILLWPN)
+		killgenwpn(w);
+	if(cmb.triggerflags[3] & combotriggerIGNITE_ANYFIRE)
+		w->misc_wflags |= WFLAG_BURN_ANYFIRE;
+	if(cmb.triggerflags[3] & combotriggerIGNITE_STRONGFIRE)
+		w->misc_wflags |= WFLAG_BURN_STRONGFIRE;
+	if(cmb.triggerflags[3] & combotriggerIGNITE_MAGICFIRE)
+		w->misc_wflags |= WFLAG_BURN_MAGICFIRE;
+	if(cmb.triggerflags[3] & combotriggerIGNITE_DIVINEFIRE)
+		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
+}
+
 //Triggers a combo at a given position
 bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
@@ -2571,6 +2586,11 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	int32_t cy = COMBOY(pos);
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
+	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	{
+		do_weapon_fx(w,cmb);
+		return true;
+	}
 	
 	word ctramnt = game->get_counter(cmb.trigctr);
 	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
@@ -2583,6 +2603,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 	bool used_bit = false;
 	
 	uint32_t exflag = 0;
+	
 	if(cmb.exstate > -1)
 	{
 		exflag = 1<<cmb.exstate;
@@ -2940,8 +2961,8 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 		}
 	}
 	
-	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
-		killgenwpn(w);
+	if(w)
+		do_weapon_fx(w,cmb);
 	
 	if(dorun && cmb.trig_genscr)
 		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
@@ -2960,6 +2981,11 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	int32_t cy = ffc.y;
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
+	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	{
+		do_weapon_fx(w,cmb);
+		return true;
+	}
 	
 	word ctramnt = game->get_counter(cmb.trigctr);
 	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
@@ -3025,7 +3051,8 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		grid = w->wscreengrid_ffc;
 		check_bit = get_bit(grid,pos);
 	}
-	if(!timer.trig_cd)
+	bool dorun = !timer.trig_cd;
+	if(dorun)
 	{
 		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 		{
@@ -3289,8 +3316,11 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 		}
 	}
 	
-	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
-		killgenwpn(w);
+	if(w)
+		do_weapon_fx(w,cmb);
+	
+	if(dorun && cmb.trig_genscr)
+		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
 }
 

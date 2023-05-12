@@ -1445,6 +1445,11 @@ enum
 #define combotriggerCLEARENEMIES        0x00000020
 #define combotriggerCLEARLWEAPONS       0x00000040
 #define combotriggerCLEAREWEAPONS       0x00000080
+#define combotriggerIGNITE_ANYFIRE      0x00000100
+#define combotriggerIGNITE_STRONGFIRE   0x00000200
+#define combotriggerIGNITE_MAGICFIRE    0x00000400
+#define combotriggerIGNITE_DIVINEFIRE   0x00000800
+#define combotriggerSEPARATEWEAPON      0x00001000
 
 #define ctrigNONE          0x00
 #define ctrigIGNORE_SIGN   0x01
