@@ -78,7 +78,7 @@ private:
 	std::shared_ptr<GUI::Widget> CMB_ATTRIBYTE(int index);
 	std::shared_ptr<GUI::Widget> CMB_ATTRISHORT(int index);
 	std::shared_ptr<GUI::Widget> CMB_ATTRIBUTE(int index);
-	std::shared_ptr<GUI::Checkbox> TRIGFLAG(int index, const char* str);
+	std::shared_ptr<GUI::Checkbox> TRIGFLAG(int index, const char* str, int cspan = 1);
 	friend bool call_combo_editor(int32_t index);
 	friend class ComboWizardDialog;
 };

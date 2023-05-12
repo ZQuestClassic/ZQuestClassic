@@ -7189,6 +7189,13 @@ int TrigGStateTimer;
  *     the 'on' state with this value as a timer in frames.
  * If this value is 0, it instead toggles the state as normal.
 
+int TrigGroup;
+ * The Trigger Group used for the `TRIGFLAG_TGROUP_CONTRIB`, `TRIGFLAG_TGROUP_LESS`, and `TRIGFLAG_TGROUP_GREATER` flags.
+ * 0-255, inclusive.
+int TrigGroupVal;
+ * The value used for the `TRIGFLAG_TGROUP_LESS` and `TRIGFLAG_TGROUP_GREATER` flags.
+ * 0-65535, inclusive.
+
 int TrigGenScript;
  * When triggered, this generic script will be run in the 'RunFrozen' mode.
 

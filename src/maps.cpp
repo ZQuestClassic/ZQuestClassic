@@ -5104,6 +5104,11 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		}
 	}
 	
+	if(!tmp)
+	{
+		calculate_trig_groups();
+		trig_trigger_groups();
+	}
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
@@ -5164,6 +5169,11 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	clear_xstatecombos(tmp, (currmap*MAPSCRSNORMAL)+scr);
 	
+	if(!tmp)
+	{
+		calculate_trig_groups();
+		trig_trigger_groups();
+	}
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{

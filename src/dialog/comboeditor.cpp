@@ -2135,7 +2135,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
 	);
 }
 
-std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str)
+std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str, int cspan)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
@@ -2143,7 +2143,7 @@ std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char
 	if(index < 0)
 	{
 		return Checkbox(
-			text = str, hAlign = 0.0,
+			text = str, hAlign = 0.0, colSpan = cspan,
 			fitParent = true, disabled = true
 		);
 	}
@@ -2151,7 +2151,7 @@ std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char
 	return Checkbox(
 		text = str, hAlign = 0.0,
 		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
-		fitParent = true,
+		fitParent = true, colSpan = cspan,
 		onToggleFunc = [&, index](bool state)
 		{
 			SETFLAG(local_comboref.triggerflags[index/32],(1<<(index%32)),state);
@@ -2764,7 +2764,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)),
 					TabRef(name = "Effects", Rows<2>(
-						Column(padding = 0_px,
+						Column(padding = 0_px, vAlign = 1.0,
 							Frame(hAlign = 1.0, title = "Misc Effects",
 								Column(padding = 0_px,
 									Rows<2>(hAlign = 0.0,
@@ -3106,21 +3106,57 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										" state with this duration, in frames, instead of toggling"
 										" the global state.").show();
 								}
+							),
+							Label(text = "Trigger Group:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.trig_group,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_group = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Trigger Group","The Trigger Group used by the flags"
+										" 'TrigGroup Less->', 'TrigGroup Greater->', and '->TrigGroup'. 0-255.").show();
+								}
+							),
+							Label(text = "Trigger Group Val:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 65535, val = local_comboref.trig_group_val,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_group_val = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Trigger Group Val","The value used by the flags"
+										" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535.").show();
+								}
 							)
 						),
-						Rows<2>(framed = true, fitParent = true,
+						Rows<4>(framed = true, fitParent = true,
 							INFOBTN("'Req Item:' must NOT be owned to trigger"),
-							TRIGFLAG(49,"Invert Item Req"),
+							TRIGFLAG(49,"Invert Item Req",3),
 							INFOBTN("'Req Item:' will be taken when triggering"),
-							TRIGFLAG(50,"Consume Item Req"),
+							TRIGFLAG(50,"Consume Item Req",3),
 							INFOBTN("'Spawn Item' will be linked to the room's Special Item state"),
-							TRIGFLAG(83, "Spawns Special Item"),
+							TRIGFLAG(83, "Spawns Special Item",3),
 							INFOBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
-							TRIGFLAG(84, "Trigger ExState after item pickup"),
+							TRIGFLAG(84, "Trigger ExState after item pickup",3),
 							INFOBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
-							TRIGFLAG(85, "Trigger ExState after enemy kill"),
+							TRIGFLAG(85, "Trigger ExState after enemy kill",3),
 							INFOBTN("The item spawned by the combo will automatically be collected by the player."),
-							TRIGFLAG(86, "Spawned Item auto-collects"),
+							TRIGFLAG(86, "Spawned Item auto-collects",3),
 							INFOBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
 							TRIGFLAG(96, "LevelState->"),
 							INFOBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
@@ -3129,7 +3165,13 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(98, "GlobalState->"),
 							INFOBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
 								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
-							TRIGFLAG(99, "->GlobalState")
+							TRIGFLAG(99, "->GlobalState"),
+							INFOBTN("This combo contributes to it's Trigger Group."),
+							TRIGFLAG(109, "Contributes To TrigGroup",3),
+							INFOBTN("When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo."),
+							TRIGFLAG(110, "TrigGroup Less->"),
+							INFOBTN("When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo."),
+							TRIGFLAG(111, "TrigGroup Greater->")
 						),
 						Column(framed = true, fitParent = true, frameText = "Spawned Item Pickup",
 							MISCFLAG(spawnip, ipHOLDUP, "Hold Up Item"),

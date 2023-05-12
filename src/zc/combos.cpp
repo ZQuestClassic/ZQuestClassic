@@ -40,6 +40,7 @@ CutsceneState active_cutscene;
 
 cpos_info combo_posinfos[7][176];
 std::vector<cpos_info> ffc_posinfos;
+int trig_groups[256];
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2780,7 +2781,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					if(tmpscr->secretsfx)
 						sfx(tmpscr->secretsfx);
 				}
-				if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS))
+				if(canPermSecret() && !(tmpscr->flags5&fTEMPSECRETS) && !getmapflag(mSECRET))
 					setmapflag(mSECRET);
 			}
 			
@@ -3413,26 +3414,6 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	return true;
 }
 
-void init_combo_timers()
-{
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			combo_posinfos[lyr][pos].clear();
-		}
-	}
-	ffc_posinfos.clear();
-}
-
-bool on_cooldown(int32_t lyr, int32_t pos)
-{
-	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
-		return false;
-	return combo_posinfos[lyr][pos].trig_cd != 0;
-}
-
-
 static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix wy)
 {
 	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
@@ -3468,34 +3449,9 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, int32_t pos)
 {
 	handle_shooter(cmb, timer, COMBOX(pos), COMBOY(pos));
 }
-void update_combo_timers()
+
+void recount_ffc(dword c)
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			cpos_info& timer = combo_posinfos[lyr][pos];
-			timer.updateData(scr->data[pos]);
-			newcombo const& cmb = combobuf[timer.data];
-			if(cmb.trigtimer)
-			{
-				if(++timer.clk >= cmb.trigtimer)
-				{
-					timer.clk = 0;
-					do_trigger_combo(lyr, pos);
-					timer.updateData(scr->data[pos]);
-				}
-			}
-			if(timer.trig_cd) --timer.trig_cd;
-			if(cmb.type == cSHOOTER)
-			{
-				handle_shooter(cmb, timer, pos);
-			}
-		}
-	}
-	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->numFFC();
 	if(ffc_posinfos.size() != c)
 	{
 		dword osz = ffc_posinfos.size();
@@ -3505,18 +3461,163 @@ void update_combo_timers()
 			ffc_posinfos[q].clear();
 		}
 	}
+}
+
+void update_trig_group(int oldc, int newc)
+{
+	if(oldc == newc) return;
+	newcombo const& newcmb = combobuf[newc];
+	if(newcmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+		++trig_groups[newcmb.trig_group];
+	newcombo const& oldcmb = combobuf[oldc];
+	if(oldcmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+		--trig_groups[oldcmb.trig_group];
+}
+void calculate_trig_groups()
+{
+	memset(trig_groups, 0, sizeof(trig_groups));
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			cpos_info& timer = combo_posinfos[lyr][pos];
+			int cid = scr->data[pos];
+			timer.updateData(cid);
+			newcombo const& cmb = combobuf[cid];
+			if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+				++trig_groups[cmb.trig_group];
+		}
+	}
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	recount_ffc(c);
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
 		cpos_info& timer = ffc_posinfos[ffc];
-		timer.updateData(ffscr->ffcs[ffc].getData());
-		newcombo const& cmb = combobuf[timer.data];
+		int cid = ffscr->ffcs[ffc].getData();
+		timer.updateData(cid);
+		newcombo const& cmb = combobuf[cid];
+		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+			++trig_groups[cmb.trig_group];
+	}
+}
+void trig_trigger_groups()
+{
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	recount_ffc(c);
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			cpos_info& timer = combo_posinfos[lyr][pos];
+			int cid = scr->data[pos];
+			newcombo const& cmb = combobuf[cid];
+			
+			if(
+				((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
+					&& trig_groups[cmb.trig_group] < cmb.trig_group_val)
+				|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
+					&& trig_groups[cmb.trig_group] > cmb.trig_group_val)
+				)
+			{
+				do_trigger_combo(lyr,pos);
+				int cid2 = scr->data[pos];
+				update_trig_group(cid,cid2);
+				timer.updateData(cid2);
+				
+				--pos; continue; //check same pos again
+			}
+		}
+	}
+	for(word ffc = 0; ffc < c; ++ffc)
+	{
+		cpos_info& timer = ffc_posinfos[ffc];
+		int cid = ffscr->ffcs[ffc].getData();
+		newcombo const& cmb = combobuf[cid];
+		
+		if(
+			((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
+				&& trig_groups[cmb.trig_group] < cmb.trig_group_val)
+			|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
+				&& trig_groups[cmb.trig_group] > cmb.trig_group_val)
+			)
+		{
+			do_trigger_combo_ffc(ffc);
+			int cid2 = ffscr->ffcs[ffc].getData();
+			update_trig_group(cid,cid2);
+			timer.updateData(cid2);
+			
+			--ffc; continue; //check same pos again
+		}
+	}
+}
+
+void init_combo_timers()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			combo_posinfos[lyr][pos].clear();
+		}
+	}
+	ffc_posinfos.clear();
+}
+void update_combo_timers()
+{
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	recount_ffc(c);
+	
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			cpos_info& timer = combo_posinfos[lyr][pos];
+			int cid = scr->data[pos];
+			update_trig_group(timer.data,cid);
+			timer.updateData(cid);
+			
+			newcombo const& cmb = combobuf[cid];
+			if(cmb.trigtimer)
+			{
+				if(++timer.clk >= cmb.trigtimer)
+				{
+					timer.clk = 0;
+					do_trigger_combo(lyr, pos);
+					cid = scr->data[pos];
+					update_trig_group(timer.data,cid);
+					timer.updateData(cid);
+				}
+			}
+			if(timer.trig_cd) --timer.trig_cd;
+			if(cmb.type == cSHOOTER)
+			{
+				handle_shooter(cmb, timer, pos);
+			}
+		}
+	}
+	for(word ffc = 0; ffc < c; ++ffc)
+	{
+		cpos_info& timer = ffc_posinfos[ffc];
+		int cid = ffscr->ffcs[ffc].getData();
+		update_trig_group(timer.data,cid);
+		timer.updateData(cid);
+		
+		newcombo const& cmb = combobuf[cid];
 		if(cmb.trigtimer)
 		{
 			if(++timer.clk >= cmb.trigtimer)
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc);
-				timer.updateData(ffscr->ffcs[ffc].getData());
+				cid = ffscr->ffcs[ffc].getData();
+				update_trig_group(timer.data,cid);
+				timer.updateData(cid);
 			}
 		}
 		if(timer.trig_cd) --timer.trig_cd;
@@ -3529,5 +3630,15 @@ void update_combo_timers()
 			handle_shooter(cmb, timer, wx, wy);
 		}
 	}
+	
+	//Handle trigger groups
+	trig_trigger_groups();
+}
+
+bool on_cooldown(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
+		return false;
+	return combo_posinfos[lyr][pos].trig_cd != 0;
 }
 

@@ -282,7 +282,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          37
+#define V_COMBOS          38
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            16
@@ -1450,6 +1450,9 @@ enum
 #define combotriggerIGNITE_MAGICFIRE    0x00000400
 #define combotriggerIGNITE_DIVINEFIRE   0x00000800
 #define combotriggerSEPARATEWEAPON      0x00001000
+#define combotriggerTGROUP_CONTRIB      0x00002000
+#define combotriggerTGROUP_LESS         0x00004000
+#define combotriggerTGROUP_GREATER      0x00008000
 
 #define ctrigNONE          0x00
 #define ctrigIGNORE_SIGN   0x01
@@ -2909,6 +2912,8 @@ struct newcombo
 	byte trig_lstate, trig_gstate;
 	int32_t trig_statetime;
 	word trig_genscr;
+	byte trig_group;
+	word trig_group_val;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -2995,6 +3000,8 @@ struct newcombo
 		if(trig_gstate) return false;
 		if(trig_statetime) return false;
 		if(trig_genscr) return false;
+		if(trig_group) return false;
+		if(trig_group_val) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;

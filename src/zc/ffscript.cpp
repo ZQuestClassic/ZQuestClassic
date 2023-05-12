@@ -11764,6 +11764,26 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].trig_gstate) * 10000;
 			break;
 		}
+		case COMBODTRIGGERGROUP:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_group) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGROUPVAL:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroupVal: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_group_val) * 10000;
+			break;
+		}
 		case COMBODTRIGGERGTIMER:
 		{
 			ret = -10000;
@@ -21699,6 +21719,24 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGlobalState: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trig_gstate = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERGROUP:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_group = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERGROUPVAL:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroupVal: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_group_val = vbound(value/10000, 0, 65535);
 			break;
 		}
 		case COMBODTRIGGERGTIMER:
@@ -41059,8 +41097,8 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
 	{ "GAMEMOUSECURSOR", GAMEMOUSECURSOR, 0, 0 },
 	{ "COMBODTRIGGERGENSCRIPT", COMBODTRIGGERGENSCRIPT, 0, 0 },
-	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
-	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
+	{ "COMBODTRIGGERGROUP", COMBODTRIGGERGROUP, 0, 0 },
+	{ "COMBODTRIGGERGROUPVAL", COMBODTRIGGERGROUPVAL, 0, 0 },
 	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },
 	{ "RESRVD_VAR_EMILY15", RESRVD_VAR_EMILY15, 0, 0 },
 	{ "RESRVD_VAR_EMILY16", RESRVD_VAR_EMILY16, 0, 0 },
