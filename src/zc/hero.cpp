@@ -11177,7 +11177,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
-			if(Lwpns.idCount(wFire) >= (itm.misc3 < 1 ? 2 : itm.misc3))
+			if(Lwpns.idCount(wFire) >= (itm.misc2 < 1 ? 2 : itm.misc2))
 			{
 				return false;
 			}
@@ -11242,7 +11242,7 @@ bool HeroClass::startwpn(int32_t itemid)
 		
 		case itype_arrow:
 		{
-			if(Lwpns.idCount(wArrow) > itm.misc2)
+			if(Lwpns.idCount(wArrow) >= (itm.misc2 < 1 ? 1 : itm.misc2))
 				return false;
 				
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))

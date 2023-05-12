@@ -730,7 +730,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_candle:
 		{
 			inf->power = "Damage:";
-			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 2");
+			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 1");
 			_SET(misc[3], "Step Speed", "The step speed of the created fire weapon, where 100 = 1px/frame. Default 50.");
 			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
 			_SET(flag[1], "Don't Provide Light", "Does not light up dark rooms");
@@ -762,6 +762,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Duration (0 = Infinite):";
+			_SET(misc[1], "Max Arrows On Screen", "If < 1, defaults to 2");
 			inf->flag[0] = "Penetrate Enemies";
 			inf->flag[1] = "Allow Item Pickup";
 			inf->flag[3] = "Pick Up Anything";
