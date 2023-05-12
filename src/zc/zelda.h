@@ -409,6 +409,7 @@ extern int32_t currscr_for_passive_subscr;
 extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
+extern std::map<int, int> hasitem_states;
 extern bool analog_movement;
 extern int32_t joystick_index,Akey,Bkey,Skey,Lkey,Rkey,Pkey,Exkey1,Exkey2,Exkey3,Exkey4,Abtn,Bbtn,Sbtn,Mbtn,Lbtn,Rbtn,Pbtn,Exbtn1,Exbtn2,Exbtn3,Exbtn4,Quit;
 extern uint32_t GameFlags;

@@ -46,11 +46,6 @@ extern FFScript FFCore;
 #include "zc/render.h"
 #include "iter.h"
 
-
-#define EPSILON 0.01 // Define your own tolerance
-#define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
-#define DegtoFix(d)     ((d)*0.71111111)
-
 extern HeroClass Hero;
 
 // TODO z3 ! checklist do all before starting beta
@@ -1368,17 +1363,18 @@ void unsetmapflag(int32_t flag, bool anyflag)
 
 void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
 {
+    byte cscr = mi2&((1<<7)-1);
+    byte cmap = (mi2>>7);
+
     if(anyflag)
         game->maps[mi2] &= ~flag;
     else if(flag==mITEM || flag==mSPECIALITEM)
     {
-        if(!(tmpscr.flags4&fNOITEMRESET))
+        if(!(get_scr(cmap, cscr)->flags4&fNOITEMRESET))
             game->maps[mi2] &= ~flag;
     }
     else game->maps[mi2] &= ~flag;
     
-    byte cscr = mi2&((1<<7)-1);
-    byte cmap = (mi2>>7);
     char buf[20];
     sprintf(buf,"Screen (%d, %02X)",cmap+1,cscr);
     
@@ -1398,8 +1394,9 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if((tmpscr.nocarry&flag)!=flag)
+            if((tmpscr.nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
             {
+                // TODO z3 replay step here would be good
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
                 game->maps[((nmap-1)<<7)+nscr] &= ~flag;
             }
@@ -7636,6 +7633,19 @@ bool isCuttableItemType(int32_t type)
     return false;
 }
 
+static ScreenItemState screen_item_state;
 
-/*** end of maps.cc ***/
+ScreenItemState screen_item_get_state(int screen_index)
+{
+	return screen_item_state;
+}
 
+void screen_item_set_state(int screen_index, ScreenItemState state)
+{
+	screen_item_state = state;
+}
+
+void screen_item_clear_state(int screen_index)
+{
+	screen_item_state = ScreenItemState::None;
+}

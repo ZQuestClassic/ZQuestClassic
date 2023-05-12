@@ -14632,6 +14632,7 @@ void set_register(int32_t arg, int32_t value)
 				if((((item*)(s))->pickup & ipENEMY) < (newpickup & ipENEMY))
 				{
 					hasitem |= 2;
+					screen_item_set_state(currscr, ScreenItemState::CarriedByEnemy);
 					bool hasitemguy = false;
 					
 					for(int32_t i=0; i<guys.Count(); i++)
@@ -14696,6 +14697,7 @@ void set_register(int32_t arg, int32_t value)
 					if(more_carried_items()<=1)  // 1 includes this own item.
 					{
 						hasitem &= ~2;
+						screen_item_clear_state(currscr);
 					}
 				}
 				

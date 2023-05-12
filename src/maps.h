@@ -311,6 +311,19 @@ extern int16_t ffposy[MAXFFCS];
 extern int32_t ffprvx[MAXFFCS];
 extern int32_t ffprvy[MAXFFCS];
 void init_ffpos();
+
+enum class ScreenItemState {
+	None,
+	WhenKillEnemies,
+	WhenTriggerSecrets,
+	MustGiveToEnemy,
+	CarriedByEnemy,
+};
+
+ScreenItemState screen_item_get_state(int screen_index);
+void screen_item_set_state(int screen_index, ScreenItemState state);
+void screen_item_clear_state(int screen_index);
+
 #endif
 
 /*** end of maps.cc ***/

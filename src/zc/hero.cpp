@@ -20886,8 +20886,10 @@ void HeroClass::checkspecial()
 		}
         if(!hasmainguy)
 		{
+			ScreenItemState item_state = screen_item_get_state(currscr);
+			
 			// item
-			if(hasitem&(4|2|1))
+			if (item_state == ScreenItemState::MustGiveToEnemy || item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::WhenKillEnemies)
 			{
 				int32_t Item=tmpscr.item;
 				
@@ -20895,7 +20897,7 @@ void HeroClass::checkspecial()
 				//  Item=0;
 				if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
 				{
-					if(hasitem==1)
+					if (item_state == ScreenItemState::WhenKillEnemies)
 						sfx(WAV_CLEARED);
 						
 					items.add(new item((zfix)tmpscr.itemx,
@@ -20905,7 +20907,7 @@ void HeroClass::checkspecial()
 											   (tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 				}
 				
-				hasitem &= ~ (4|2|1);
+				screen_item_clear_state(currscr);
 			}
 			// if room has traps, guys don't come back
 			for(int32_t i=0; i<eMAXGUYS; i++)
@@ -20974,8 +20976,8 @@ void HeroClass::checkspecial()
 
 		clear_xstatecombos(screen, screen_index, true);
 	});
-	
-	if((hasitem&8) && triggered_screen_secrets)
+
+	if (screen_item_get_state(currscr) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
 	{
 		int32_t Item=tmpscr.item;
 		
@@ -20989,6 +20991,7 @@ void HeroClass::checkspecial()
 		}
 		
 		hasitem &= ~8;
+		screen_item_clear_state(currscr);
 	}
 }
 
@@ -29061,7 +29064,8 @@ void HeroClass::checkitems(int32_t index)
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
 			if(more_carried_items()<=1)  // 1 includes this own item.
-				hasitem &= ~2;
+				// hasitem &= ~2;
+				screen_item_clear_state(currscr);
 				
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
 		{

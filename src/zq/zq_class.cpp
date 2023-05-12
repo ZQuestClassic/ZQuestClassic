@@ -63,8 +63,6 @@ extern uint8_t ViewLayer3BG, ViewLayer2BG;
 
 using std::string;
 using std::pair;
-#define EPSILON 0.01 // Define your own tolerance
-#define FLOAT_EQ(x,v) (((v - EPSILON) < x) && (x <( v + EPSILON)))
 
 #define COLOR_SOLID  vc(4)
 #define COLOR_SLOPE  vc(13)

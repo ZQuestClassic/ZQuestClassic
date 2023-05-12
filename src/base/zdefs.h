@@ -540,7 +540,7 @@ extern volatile bool close_button_quit;
 
 // screen flags
 #define fSHUTTERS       1
-#define fITEM           2
+#define fITEM           2 // Enemies->Item
 #define fDARK           4 //'S.Flags1' Dark Room
 #define fROAR           8 // DEFUNCT
 #define fWHISTLE        16 //'

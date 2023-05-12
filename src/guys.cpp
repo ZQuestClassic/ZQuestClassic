@@ -6703,6 +6703,7 @@ void enemy::try_death(bool force_kill)
 		if(itemguy)
 		{
 			hasitem&=~2;
+			screen_item_clear_state(currscr);
 			item_set=0;
 		}
 		
@@ -10482,6 +10483,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 		return;
 	}
 
+	// TODO z3 ?
 	mapscr* scr = &tmpscr;
 	if (is_z3_scrolling_mode())
 	{
@@ -10526,6 +10528,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
+// TODO z3 ffc
 void enemy::removearmosffc(int32_t pos)
 {
 	if(did_armos)
@@ -20681,6 +20684,7 @@ void addfires()
 	}
 }
 
+// TODO z3 guys
 void loadguys()
 {
 	if(loaded_guys)
@@ -20704,6 +20708,7 @@ void loadguys()
 	}
 	
 	hasitem=0;
+	screen_item_clear_state(currscr);
 	
 	if(currscr>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
 	{
@@ -20837,6 +20842,13 @@ void loaditem(mapscr* scr, int offx, int offy)
 		
 		if((!getmapflag(mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
+			if(scr->flags8&fSECRETITEM)
+				screen_item_set_state(currscr, ScreenItemState::WhenTriggerSecrets);
+			else if(scr->flags&fITEM)
+				screen_item_set_state(currscr, ScreenItemState::WhenKillEnemies);
+			else if(scr->enemyflags&efCARRYITEM)
+				screen_item_set_state(currscr, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
+
 			if(scr->flags8&fSECRETITEM)
 				hasitem=8;
 			else if(scr->flags&fITEM)
@@ -21801,7 +21813,8 @@ placed_enemy:
 			}
 		}
 		
-		if(!foundCarrier && hasitem&(4|2))
+		ScreenItemState item_state = screen_item_get_state(currscr);
+		if (!foundCarrier && (item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy))
 		{
 			int32_t index = guys.idFirst(screen->enemy[i],0xFFF);
 			
@@ -23720,7 +23733,8 @@ int32_t more_carried_items()
 // messy code to do the enemy-carrying-the-item thing
 void roaming_item()
 {
-	if(!(hasitem&(4|2)) || !loaded_enemies)
+	ScreenItemState item_state = screen_item_get_state(currscr);
+	if(!(item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy) || !loaded_enemies)
 		return;
 	
 	// All enemies already dead upon entering a room?
@@ -23744,7 +23758,7 @@ void roaming_item()
 		}
 	}
 	
-	if(hasitem&4)
+	if (item_state == ScreenItemState::MustGiveToEnemy)
 	{
 		guycarryingitem = -1;
 		
@@ -23763,7 +23777,7 @@ void roaming_item()
 		
 		int32_t Item=tmpscr.item;
 		
-		hasitem &= ~4;
+		screen_item_clear_state(currscr);
 		
 		if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
 		{
@@ -23771,6 +23785,7 @@ void roaming_item()
 					+ (((tmpscr.flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			hasitem |= 2;
+			screen_item_set_state(currscr, ScreenItemState::CarriedByEnemy);
 		}
 		else
 		{
