@@ -2,7 +2,7 @@
 
 // Opportunities for improvement:
 // * Preprocess the ZASM byte code into function sections, and only compile one function at a time when deemed "hot".
-// * Multiple PUSHR (for example: Maths in script_playground.qst) commands could be combined to only modify the stack index pointer
+// * Multiple PUSHR (for example: Maths in playground.qst) commands could be combined to only modify the stack index pointer
 //   just once. Could be problematic for cases where an overflow might happen (detect this?). Same for POP.
 // * Compile: LSHIFTR RSHIFTR FLOOR CEILING
 
