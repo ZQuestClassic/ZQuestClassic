@@ -17058,7 +17058,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	}
 	return true;
 }
-bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool checkladder, bool earlyret)
+bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
 	bool ret = true;
 	bool sv = !ign_sv && sideview_mode() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking;
@@ -17066,6 +17066,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		dy = 0;
 	if(dx && dy)
 		shove = false;
+	bool checkladder = dy < 0;
 	
 	const int scl = 2;
 	while(abs(dx) > scl || abs(dy) > scl)
@@ -17073,7 +17074,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		if(abs(dx) > abs(dy))
 		{
 			int32_t tdx = dx.sign() * scl;
-			if(movexy(tdx, 0, kb, ign_sv, shove, false, earlyret))
+			if(movexy(tdx, 0, kb, ign_sv, shove, earlyret))
 				dx -= tdx;
 			else
 			{
@@ -17085,7 +17086,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		else
 		{
 			int32_t tdy = dy.sign() * scl;
-			if(movexy(0, tdy, kb, ign_sv, shove, false, earlyret))
+			if(movexy(0, tdy, kb, ign_sv, shove, earlyret))
 				dy -= tdy;
 			else
 			{
@@ -17237,7 +17238,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			}
 			else
 			{
-				movexy(0,-1*dy,false,false,false,false);
+				movexy(0,-1*dy,false,false,false);
 			}
 		}
 	}
@@ -17246,7 +17247,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 bool HeroClass::can_movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove)
 {
 	zfix ox(x),oy(y);
-	bool ret = movexy(dx,dy,kb,ign_sv,shove,false,true);
+	bool ret = movexy(dx,dy,kb,ign_sv,shove,true);
 	x = ox;
 	y = oy;
 	return ret;
@@ -18109,7 +18110,7 @@ bool HeroClass::new_engine_move(zfix dx, zfix dy) //no collision check
 	bool ret = true;
 	if(charging==0 || attack!=wHammer)
 	{
-		ret = movexy(dx,dy,false,false,true,true);
+		ret = movexy(dx,dy,false,false,true);
 	}
 	return ret;
 }

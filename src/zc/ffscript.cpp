@@ -32277,6 +32277,27 @@ j_command:
 				break;
 			}
 			
+			case HEROMOVEXY:
+			{
+				zfix dx = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix dy = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROCANMOVEXY:
+			{
+				zfix dx = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix dy = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.can_movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			
 			case LINKEXPLODER:
 			{
 				int32_t mode = get_register(sarg1) / 10000;
@@ -39679,8 +39700,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ITEMGETDISPLAYNAME",   1,   0,   0,   0},
 	{ "ITEMSETDISPLAYNAME",   1,   0,   0,   0},
 	{ "ITEMGETSHOWNNAME",   1,   0,   0,   0},
-	{ "RESRVD_OP_EMILY23",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY24",   0,   0,   0,   0},
+	{ "HEROMOVEXY",   0,   0,   0,   0},
+	{ "HEROCANMOVEXY",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY26",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY27",   0,   0,   0,   0},

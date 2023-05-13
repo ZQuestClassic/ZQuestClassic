@@ -2159,24 +2159,24 @@ namespace ZScript
 			return new OItemGetShownName(a->clone());
 		}
 	};
-	class OReservedEmily23 : public BinaryOpcode
+	class OHeroMoveXY : public Opcode
 	{
 	public:
-		OReservedEmily23(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OHeroMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily23(a->clone(),b->clone());
+			return new OHeroMoveXY();
 		}
 	};
-	class OReservedEmily24 : public BinaryOpcode
+	class OHeroCanMoveXY : public Opcode
 	{
 	public:
-		OReservedEmily24(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OHeroCanMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily24(a->clone(),b->clone());
+			return new OHeroCanMoveXY();
 		}
 	};
 	class OReservedEmily25 : public BinaryOpcode

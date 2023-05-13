@@ -2469,13 +2469,13 @@ string OItemGetShownName::toString() const
 {
 	return "ITEMGETSHOWNNAME " + getArgument()->toString();
 }
-string OReservedEmily23::toString() const
+string OHeroMoveXY::toString() const
 {
-	return "RESRVD_OP_EMILY23 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "HEROMOVEXY";
 }
-string OReservedEmily24::toString() const
+string OHeroCanMoveXY::toString() const
 {
-	return "RESRVD_OP_EMILY24 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "HEROCANMOVEXY";
 }
 string OReservedEmily25::toString() const
 {

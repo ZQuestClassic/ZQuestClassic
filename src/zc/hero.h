@@ -354,7 +354,7 @@ public:
 	void get_move(int movedir, zfix& dx, zfix& dy);
 	bool scr_walkflag(int dx,int dy,int dir,int mx,int my,bool kb);
 	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
-	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool checkladder = false, bool earlyret = false);
+	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
 	bool can_movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false);
 	bool premove();
 	void movehero();
