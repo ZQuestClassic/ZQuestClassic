@@ -8484,7 +8484,10 @@ void doflags()
 							break;
 					}
 				}
-				else cur_scr->sflag[c] = Flag;
+				else
+				{
+					Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), c, Flag);
+				}
 				Flag = tflag;
 			}
 		}
