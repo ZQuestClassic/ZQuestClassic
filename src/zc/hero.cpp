@@ -17073,30 +17073,30 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 		if(abs(dx) > abs(dy))
 		{
 			int32_t tdx = dx.sign() * scl;
-			if(movexy(tdx, 0, kb, ign_sv, shove, false))
+			if(movexy(tdx, 0, kb, ign_sv, shove, false, earlyret))
 				dx -= tdx;
 			else
 			{
-				dx = tdx;
 				if(earlyret) return false;
+				dx = tdx;
 				ret = false;
 			}
 		}
 		else
 		{
 			int32_t tdy = dy.sign() * scl;
-			if(movexy(0, tdy, kb, ign_sv, shove, false))
+			if(movexy(0, tdy, kb, ign_sv, shove, false, earlyret))
 				dy -= tdy;
 			else
 			{
-				dy = tdy;
 				if(earlyret) return false;
+				dy = tdy;
 				ret = false;
 			}
 		}
 	}
 	
-	bool skipdmg = hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS));
+	bool skipdmg = earlyret || hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS));
 	if(dx)
 	{
 		if(scr_canmove(dx, 0, kb, ign_sv))

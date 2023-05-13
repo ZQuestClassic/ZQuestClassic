@@ -3013,7 +3013,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv, bool
 		if(abs(dx) > abs(dy))
 		{
 			int32_t tdx = dx.sign() * scl;
-			if(movexy(tdx, 0, special, kb, ign_sv))
+			if(movexy(tdx, 0, special, kb, ign_sv, earlyret))
 				dx -= tdx;
 			else
 			{
@@ -3025,7 +3025,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv, bool
 		else
 		{
 			int32_t tdy = dy.sign() * scl;
-			if(movexy(0, tdy, special, kb, ign_sv))
+			if(movexy(0, tdy, special, kb, ign_sv, earlyret))
 				dy -= tdy;
 			else
 			{
