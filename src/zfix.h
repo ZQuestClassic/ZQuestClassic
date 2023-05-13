@@ -184,7 +184,7 @@ public:
 	
 	zfix& doBound(zfix low, zfix high)
 	{
-		if(low < high)
+		if(low > high)
 			return doBound(high,low);
 		if(val < low.val)
 			val = low.val;
