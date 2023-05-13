@@ -10949,15 +10949,15 @@ void domouse()
 											.data = 0,
 											.cset = 0,
 											.delay = 0,
-											.flags = 0,
 											.link = 0,
 											.script = 0,
-											.inita = 10000,
-											.initd = 0,
-											.ew = 16,
-											.eh = 16,
 											.tw = 1,
 											.th = 1,
+											.ew = 16,
+											.eh = 16,
+											.flags = 0,
+											.inita = 10000,
+											.initd = 0,
 										});
 
 										saved = false;

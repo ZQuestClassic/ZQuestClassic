@@ -88,15 +88,15 @@ void ffdata::save(mapscr* scr, int32_t ind)
 		.data = data,
 		.cset = cset,
 		.delay = delay,
-		.flags = flags,
 		.link = link,
 		.script = script,
-		.inita = inita,
-		.initd = initd,
-		.ew = (byte)(fwid+1),
-		.eh = (byte)(fhei+1),
 		.tw = (byte)(twid+1),
 		.th = (byte)(thei+1),
+		.ew = (byte)(fwid+1),
+		.eh = (byte)(fhei+1),
+		.flags = flags,
+		.inita = inita,
+		.initd = initd,
 	});
 }
 

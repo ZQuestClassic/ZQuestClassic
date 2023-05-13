@@ -4398,15 +4398,15 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.data = ffc.getData(),
 		.cset = ffc.cset,
 		.delay = ffc.delay,
-		.flags = ffc.flags,
 		.link = ffc.link,
 		.script = ffc.script,
-		.inita = inita_arr,
-		.initd = initd_arr,
-		.ew = ffc.hxsz,
-		.eh = ffc.hysz,
 		.tw = ffc.txsz,
 		.th = ffc.tysz,
+		.ew = ffc.hxsz,
+		.eh = ffc.hysz,
+		.flags = ffc.flags,
+		.inita = inita_arr,
+		.initd = initd_arr,
 	};
 }
 
@@ -4729,26 +4729,7 @@ void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data
 	std::array<int, 8> initd_arr;
 	std::copy(std::begin(mapscr_ptr->ffcs[i].initd), std::end(mapscr_ptr->ffcs[i].initd), initd_arr.begin());
 
-	set_ffc_command::data_t prev_data = {
-		.x = mapscr_ptr->ffcs[i].x,
-		.y = mapscr_ptr->ffcs[i].y,
-		.vx = mapscr_ptr->ffcs[i].vx,
-		.vy = mapscr_ptr->ffcs[i].vy,
-		.ax = mapscr_ptr->ffcs[i].ax,
-		.ay = mapscr_ptr->ffcs[i].ay,
-		.data = mapscr_ptr->ffcs[i].getData(),
-		.cset = mapscr_ptr->ffcs[i].cset,
-		.delay = mapscr_ptr->ffcs[i].delay,
-		.flags = mapscr_ptr->ffcs[i].flags,
-		.link = mapscr_ptr->ffcs[i].link,
-		.script = mapscr_ptr->ffcs[i].script,
-		.inita = inita_arr,
-		.initd = initd_arr,
-		.ew = mapscr_ptr->ffEffectWidth(i),
-		.eh = mapscr_ptr->ffEffectHeight(i),
-		.tw = mapscr_ptr->ffTileWidth(i),
-		.th = mapscr_ptr->ffTileHeight(i),
-	};
+	auto prev_data = set_ffc_command::create_data(mapscr_ptr->ffcs[i]);
 
     command->view_map = currmap;
     command->view_scr = currscr;
