@@ -202,7 +202,6 @@ void ItemListerDialog::update()
 			item_string[selected_index], display_name, selected_index, itm.power, itm.fam_type,
 			itm.family, itm.csets, itm.script, itm.collect_script, itm.sprite_script, itm.weaponscript,
 			copied_name));
-		widgPrev->setVisible(true);
 		widgPrev->setDisabled(false);
 		widgPrev->setTile(itm.tile);
 		widgPrev->setCSet(itm.csets&0xF);
@@ -213,7 +212,6 @@ void ItemListerDialog::update()
 			? itm.tilew-1 : 0);
 		widgPrev->setSkipY((itm.overrideFLAGS & itemdataOVERRIDE_TILEHEIGHT)
 			? itm.tileh-1 : 0);
-		widgPrev->setDoSized(true);
 	}
 	else
 	{
@@ -222,7 +220,6 @@ void ItemListerDialog::update()
 			"\n\n\n\n\n\n\n"
 			"\n\nCopied:\n{}",
 			copied_name));
-		widgPrev->setVisible(true);
 		widgPrev->setDisabled(true);
 		widgPrev->setTile(0);
 		widgPrev->setCSet(0);
@@ -231,8 +228,11 @@ void ItemListerDialog::update()
 		widgPrev->setDelay(0);
 		widgPrev->setSkipX(0);
 		widgPrev->setSkipY(0);
-		widgPrev->setDoSized(true);
 	}
+	widgPrev->setVisible(true);
+	widgPrev->setDoSized(true);
+	widgPrev->overrideWidth(Size::pixels(48+4));
+	widgPrev->overrideHeight(Size::pixels(48+4));
 }
 void ItemListerDialog::edit()
 {
