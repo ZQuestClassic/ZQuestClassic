@@ -16987,7 +16987,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	zfix bx = x, by = y+(bigHitbox?0:8); //left/top
 	zfix rx = x+15, ry = y+15; //right/bottom
 	zfix wid = 16, hei = bigHitbox ? 16 : 8;
-	if(!ign_sv && dy < 0 && sideview_mode())
+	if(!ign_sv && dy < 0 && sideview_mode() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 		return false;
 	
 	bool nosolid = true;
@@ -17058,13 +17058,14 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	}
 	return true;
 }
-bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool checkladder)
+bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool checkladder, bool earlyret)
 {
-	zfix ox(x),oy(y);
 	bool ret = true;
-	if(!ign_sv && dy < 0 && sideview_mode())
+	bool sv = !ign_sv && sideview_mode() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking;
+	if(sv)
 		dy = 0;
-	if(dx && dy) shove = false;
+	if(dx && dy)
+		shove = false;
 	
 	const int scl = 2;
 	while(abs(dx) > scl || abs(dy) > scl)
@@ -17077,6 +17078,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			else
 			{
 				dx = tdx;
+				if(earlyret) return false;
 				ret = false;
 			}
 		}
@@ -17088,6 +17090,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			else
 			{
 				dy = tdy;
+				if(earlyret) return false;
 				ret = false;
 			}
 		}
@@ -17137,11 +17140,18 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					x += xsign;
 					dx -= xsign;
 				}
-				zfix dxsign = dx.decsign();
-				while(scr_canmove(dxsign, 0, kb, ign_sv))
+				if(dx)
 				{
-					x += dxsign;
-					dx -= dxsign;
+					dx.doDecBound(0,-9999, 0,9999);
+					dx = binary_search_zfix(dx.decsign(), dx, [&](zfix val, zfix& retval){
+						if(scr_canmove(val, 0, kb, ign_sv))
+						{
+							retval = val;
+							return BSEARCH_CONTINUE_AWAY0;
+						}
+						else return BSEARCH_CONTINUE_TOWARD0;
+					});
+					x += dx;
 				}
 			}
 		}
@@ -17182,6 +17192,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			}
 			if(stopped)
 			{
+				if(earlyret) return false;
 				ret = false;
 				int ysign = dy.sign();
 				while(scr_canmove(0, ysign, kb, ign_sv))
@@ -17189,16 +17200,25 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					y += ysign;
 					dy -= ysign;
 				}
-				zfix dysign = dy.decsign();
-				while(scr_canmove(0, dysign, kb, ign_sv))
+				if(dy)
 				{
-					y += dysign;
-					dy -= dysign;
+					dy.doDecBound(0,-9999, 0,9999);
+					dy = binary_search_zfix(dy.decsign(), dy, [&](zfix val, zfix& retval){
+						if(scr_canmove(0, val, kb, ign_sv))
+						{
+							retval = val;
+							return BSEARCH_CONTINUE_AWAY0;
+						}
+						else return BSEARCH_CONTINUE_TOWARD0;
+					});
+					y += dy;
 				}
 			}
 		}
 	}
 	
+	if(earlyret)
+		return ret;
 	WalkflagInfo info;
 	info = walkflag(x,y+8-(bigHitbox*8)-4,2,up);
 	execute(info);
@@ -17226,143 +17246,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 bool HeroClass::can_movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove)
 {
 	zfix ox(x),oy(y);
-	bool ret = true;
-	if(!ign_sv && dy < 0 && sideview_mode())
-		return false;
-	if(dx && dy) shove = false;
-	
-	const int scl = 2;
-	while(abs(dx) > scl || abs(dy) > scl)
-	{
-		if(abs(dx) > abs(dy))
-		{
-			int32_t tdx = dx.sign() * scl;
-			if(movexy(tdx, 0, kb, ign_sv, shove, false))
-				dx -= tdx;
-			else
-			{
-				dx = tdx;
-				ret = false;
-			}
-		}
-		else
-		{
-			int32_t tdy = dy.sign() * scl;
-			if(movexy(0, tdy, kb, ign_sv, shove, false))
-				dy -= tdy;
-			else
-			{
-				dy = tdy;
-				ret = false;
-			}
-		}
-	}
-	
-	bool skipdmg = hclk || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS));
-	if(dx)
-	{
-		if(scr_canmove(dx, 0, kb, ign_sv))
-			x += dx;
-		else
-		{
-			bool stopped = true;
-			if(shove)
-			{
-				zfix tx = (dx < 0 ? (x-1) : (x+16));
-				auto mdir = GET_XDIR(dx);
-				bool hit_top = scr_walkflag(tx,y,mdir,x+sign(dx),y,false);
-				bool hit_mid = scr_walkflag(tx,y+8,mdir,x+sign(dx),y,false);
-				bool hit_bottom = scr_walkflag(tx,y+15,mdir,x+sign(dx),y,false);
-				if(!hit_mid && (hit_top!=hit_bottom))
-				{
-					if(hit_bottom) //shove up
-					{
-						if(skipdmg || !checkdamagecombos(tx,y+15))
-							y -= 1;
-					}
-					else //shove down
-					{
-						if(skipdmg || !checkdamagecombos(tx,y))
-							y += 1;
-					}
-					
-					if(scr_canmove(dx, 0, kb, ign_sv))
-					{
-						x += dx;
-						stopped = false;
-					}
-				}
-			}
-			if(stopped)
-			{
-				ret = false;
-				int xsign = dx.sign();
-				while(scr_canmove(xsign, 0, kb, ign_sv))
-				{
-					x += xsign;
-					dx -= xsign;
-				}
-				zfix dxsign = dx.decsign();
-				while(scr_canmove(dxsign, 0, kb, ign_sv))
-				{
-					x += dxsign;
-					dx -= dxsign;
-				}
-			}
-		}
-	}
-	if(dy)
-	{
-		if(scr_canmove(0, dy, kb, ign_sv))
-			y += dy;
-		else
-		{
-			bool stopped = true;
-			if(shove)
-			{
-				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)-1) : (y+16));
-				auto mdir = GET_YDIR(dy);
-				bool hit_left = scr_walkflag(x,ty,mdir,x,y+sign(dy),false);
-				bool hit_mid = scr_walkflag(x+8,ty,mdir,x,y+sign(dy),false);
-				bool hit_right = scr_walkflag(x+15,ty,mdir,x,y+sign(dy),false);
-				if(!hit_mid && (hit_left!=hit_right))
-				{
-					if(hit_right) //shove left
-					{
-						if(skipdmg || !checkdamagecombos(x+15,ty))
-							x -= 1;
-					}
-					else //shove right
-					{
-						if(skipdmg || !checkdamagecombos(x,ty))
-							x += 1;
-					}
-					
-					if(scr_canmove(0, dy, kb, ign_sv))
-					{
-						y += dy;
-						stopped = false;
-					}
-				}
-			}
-			if(stopped)
-			{
-				ret = false;
-				int ysign = dy.sign();
-				while(scr_canmove(0, ysign, kb, ign_sv))
-				{
-					y += ysign;
-					dy -= ysign;
-				}
-				zfix dysign = dy.decsign();
-				while(scr_canmove(0, dysign, kb, ign_sv))
-				{
-					y += dysign;
-					dy -= dysign;
-				}
-			}
-		}
-	}
+	bool ret = movexy(dx,dy,kb,ign_sv,shove,false,true);
 	x = ox;
 	y = oy;
 	return ret;

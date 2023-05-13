@@ -150,9 +150,9 @@ public:
 	bool scr_canmove(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
 	bool scr_canplace(zfix dx, zfix dy, int32_t special, bool kb = false);
 	bool scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwid, int32_t nhei);
-	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false);
-	bool moveDir(int32_t dir, zfix px, int32_t special, bool kb = false);
-	bool moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false);
+	bool movexy(zfix dx, zfix dy, int32_t special, bool kb = false, bool ign_sv = false, bool earlyret = false);
+	bool moveDir(int32_t dir, zfix px, int32_t special, bool kb = false, bool earlyret = false);
+	bool moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false, bool earlyret = false);
 	bool can_movexy(zfix dx, zfix dy, int32_t special, bool kb = false);
 	bool can_moveDir(int32_t dir, zfix px, int32_t special, bool kb = false);
 	bool can_moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb = false);

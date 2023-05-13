@@ -3002,7 +3002,7 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwi
 	return ret;
 }
 
-bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
+bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv, bool earlyret)
 {
 	bool ret = true;
 	if(!ign_sv && dy < 0 && (moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
@@ -3017,6 +3017,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 				dx -= tdx;
 			else
 			{
+				if(earlyret) return false;
 				dx = tdx;
 				ret = false;
 			}
@@ -3028,6 +3029,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 				dy -= tdy;
 			else
 			{
+				if(earlyret) return false;
 				dy = tdy;
 				ret = false;
 			}
@@ -3040,6 +3042,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			x += dx;
 		else
 		{
+			if(earlyret) return false;
 			ret = false;
 			int xsign = dx.sign();
 			while(scr_canmove(xsign, 0, special, kb, ign_sv))
@@ -3047,11 +3050,18 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 				x += xsign;
 				dx -= xsign;
 			}
-			zfix dxsign = dx.decsign();
-			while(scr_canmove(dxsign, 0, special, kb, ign_sv))
+			if(dx)
 			{
-				x += dxsign;
-				dx -= dxsign;
+				dx.doDecBound(0,-9999, 0,9999);
+				dx = binary_search_zfix(dx.decsign(), dx, [&](zfix val, zfix& retval){
+					if(scr_canmove(val, 0, special, kb, ign_sv))
+					{
+						retval = val;
+						return BSEARCH_CONTINUE_AWAY0;
+					}
+					else return BSEARCH_CONTINUE_TOWARD0;
+				});
+				x += dx;
 			}
 		}
 	}
@@ -3061,6 +3071,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			y += dy;
 		else
 		{
+			if(earlyret) return false;
 			ret = false;
 			int ysign = dy.sign();
 			while(scr_canmove(0, ysign, special, kb, ign_sv))
@@ -3068,53 +3079,60 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 				y += ysign;
 				dy -= ysign;
 			}
-			zfix dysign = dy.decsign();
-			while(scr_canmove(0, dysign, special, kb, ign_sv))
+			if(dy)
 			{
-				y += dysign;
-				dy -= dysign;
+				dy.doDecBound(0,-9999, 0,9999);
+				dy = binary_search_zfix(dy.decsign(), dy, [&](zfix val, zfix& retval){
+					if(scr_canmove(0, val, special, kb, ign_sv))
+					{
+						retval = val;
+						return BSEARCH_CONTINUE_AWAY0;
+					}
+					else return BSEARCH_CONTINUE_TOWARD0;
+				});
+				y += dy;
 			}
 		}
 	}
 	return ret;
 }
 
-bool enemy::moveDir(int32_t dir, zfix px, int32_t special, bool kb)
+bool enemy::moveDir(int32_t dir, zfix px, int32_t special, bool kb, bool earlyret)
 {
 	zfix diagrate = zslongToFix(7071);
 	switch(NORMAL_DIR(dir))
 	{
 		case up:
-			return movexy(0, -px, special, kb);
+			return movexy(0, -px, special, kb, false, earlyret);
 		case down:
-			return movexy(0, px, special, kb);
+			return movexy(0, px, special, kb, false, earlyret);
 		case left:
-			return movexy(-px, 0, special, kb);
+			return movexy(-px, 0, special, kb, false, earlyret);
 		case right:
-			return movexy(px, 0, special, kb);
+			return movexy(px, 0, special, kb, false, earlyret);
 		case r_up:
-			return movexy(px*diagrate, -px*diagrate, special, kb);
+			return movexy(px*diagrate, -px*diagrate, special, kb, false, earlyret);
 		case r_down:
-			return movexy(px*diagrate, px*diagrate, special, kb);
+			return movexy(px*diagrate, px*diagrate, special, kb, false, earlyret);
 		case l_up:
-			return movexy(-px*diagrate, -px*diagrate, special, kb);
+			return movexy(-px*diagrate, -px*diagrate, special, kb, false, earlyret);
 		case l_down:
-			return movexy(-px*diagrate, px*diagrate, special, kb);
+			return movexy(-px*diagrate, px*diagrate, special, kb, false, earlyret);
 	}
 	return false;
 }
 
-bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
+bool enemy::moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb, bool earlyret)
 {
 	double v = degrees.getFloat() * PI / 180.0;
 	zfix dx = zc::math::Cos(v)*px, dy = zc::math::Sin(v)*px;
-	return movexy(dx, dy, special, kb);
+	return movexy(dx, dy, special, kb, false, earlyret);
 }
 
 bool enemy::can_movexy(zfix dx, zfix dy, int32_t special, bool kb)
 {
 	zfix tx = x, ty = y;
-	bool ret = movexy(dx, dy, special, kb);
+	bool ret = movexy(dx, dy, special, kb, false, true);
 	x = tx;
 	y = ty;
 	return ret;
@@ -3122,7 +3140,7 @@ bool enemy::can_movexy(zfix dx, zfix dy, int32_t special, bool kb)
 bool enemy::can_moveDir(int32_t dir, zfix px, int32_t special, bool kb)
 {
 	zfix tx = x, ty = y;
-	bool ret = moveDir(dir, px, special, kb);
+	bool ret = moveDir(dir, px, special, kb, true);
 	x = tx;
 	y = ty;
 	return ret;
@@ -3130,7 +3148,7 @@ bool enemy::can_moveDir(int32_t dir, zfix px, int32_t special, bool kb)
 bool enemy::can_moveAtAngle(zfix degrees, zfix px, int32_t special, bool kb)
 {
 	zfix tx = x, ty = y;
-	bool ret = moveAtAngle(degrees, px, special, kb);
+	bool ret = moveAtAngle(degrees, px, special, kb, true);
 	x = tx;
 	y = ty;
 	return ret;

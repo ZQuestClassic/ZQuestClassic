@@ -981,3 +981,115 @@ std::string QRHINT(std::vector<int> qrs)
 	return oss.str();
 }
 
+int binary_search_int(int b1, int b2, std::function<int(int,int&)> proc, int defval)
+{
+	int ret = defval;
+	if(b2 < b1)
+		zc_swap(b1,b2);
+	int len = b2-b1;
+	bool running = true;
+	while(running)
+	{
+		int val;
+		if(len <= 0)
+		{
+			running = false;
+			val = b1;
+		}
+		else val = b1+(len/2);
+		
+		int res = proc(val,ret);
+		switch(res)
+		{
+			case BSEARCH_CONTINUE_AWAY0:
+				res = (val < 0 ? BSEARCH_CONTINUE_DOWN : BSEARCH_CONTINUE_UP);
+				break;
+			case BSEARCH_CONTINUE_TOWARD0:
+				res = (val < 0 ? BSEARCH_CONTINUE_UP : BSEARCH_CONTINUE_DOWN);
+				break;
+		}
+		switch(res)
+		{
+			case BSEARCH_FAIL:
+				return 0;
+			case BSEARCH_SUCCEED:
+				return ret;
+			case BSEARCH_CONTINUE_UP:
+				if(b1 == val)
+				{
+					running = false;
+					break;
+				}
+				b1 = val;
+				len = b2-b1;
+				break;
+			case BSEARCH_CONTINUE_DOWN:
+				if(b2 == val)
+				{
+					running = false;
+					break;
+				}
+				b2 = val;
+				len = b2-b1;
+				break;
+		}
+	}
+	return ret;
+}
+zfix binary_search_zfix(zfix b1, zfix b2, std::function<int(zfix,zfix&)> proc, zfix defval)
+{
+	zfix ret = defval;
+	if(b2 < b1)
+		zc_swap(b1,b2);
+	zfix len = b2-b1;
+	bool running = true;
+	while(running)
+	{
+		zfix val;
+		if(len <= 0)
+		{
+			running = false;
+			val = b1;
+		}
+		else val = b1+(len/2);
+		
+		int res = proc(val,ret);
+		switch(res)
+		{
+			case BSEARCH_CONTINUE_AWAY0:
+				res = (val < 0 ? BSEARCH_CONTINUE_DOWN : BSEARCH_CONTINUE_UP);
+				break;
+			case BSEARCH_CONTINUE_TOWARD0:
+				res = (val < 0 ? BSEARCH_CONTINUE_UP : BSEARCH_CONTINUE_DOWN);
+				break;
+		}
+		switch(res)
+		{
+			case BSEARCH_FAIL:
+				return 0;
+			case BSEARCH_SUCCEED:
+				return ret;
+			case BSEARCH_CONTINUE_UP:
+				if(b1 == val)
+				{
+					running = false;
+					break;
+				}
+				b1 = val;
+				len = b2-b1;
+				break;
+			case BSEARCH_CONTINUE_DOWN:
+				if(b2 == val)
+				{
+					running = false;
+					break;
+				}
+				b2 = val;
+				len = b2-b1;
+				break;
+		}
+	}
+	return ret;
+}
+
+
