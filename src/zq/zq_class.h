@@ -17,6 +17,7 @@
 #include <deque>
 #include <memory>
 #include <stack>
+#include <array>
 
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOPOS_B(int32_t x, int32_t y);
@@ -56,6 +57,28 @@ class set_combo_command : public user_input_command
 public:
     int map, scr, pos, combo, cset;
     int prev_combo, prev_cset;
+
+    void execute();
+    void undo();
+};
+
+class set_ffc_command : public user_input_command
+{
+public:
+	struct data_t {
+		int x, y, vx, vy, ax, ay, data;
+		int cset, delay, link, script;
+		int tw, th;
+		int ew, eh;
+		dword flags;
+		std::array<int, 2> inita;
+		std::array<int, 8> initd;
+		bool operator==(data_t const&) const = default;
+	};
+	static data_t create_data(const ffcdata& ffc);
+
+    int map, scr, i;
+	data_t data, prev_data;
 
     void execute();
     void undo();
@@ -171,6 +194,7 @@ public:
     void ClearCommandHistory();
     void CapCommandHistory();
     void DoSetComboCommand(int map, int scr, int pos, int combo, int cset);
+    void DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data);
     void DoSetFlagCommand(int map, int scr, int pos, int flag);
     void DoSetDoorCommand(int side, int door);
     void DoPasteScreenCommand(PasteCommandType type, int data = 0);

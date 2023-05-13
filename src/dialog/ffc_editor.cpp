@@ -77,28 +77,27 @@ void ffdata::load(mapscr const* scr, int32_t ind)
 void ffdata::save(mapscr* scr, int32_t ind)
 {
 	if(unsigned(ind)>MAXFFCS-1) return;
-	scr->ffcs[ind].x = zslongToFix(x);
-	scr->ffcs[ind].y = zslongToFix(y);
-	scr->ffcs[ind].vx = zslongToFix(dx);
-	scr->ffcs[ind].vy = zslongToFix(dy);
-	scr->ffcs[ind].ax = zslongToFix(ax);
-	scr->ffcs[ind].ay = zslongToFix(ay);
-	scr->ffcs[ind].setData(data);
-	scr->ffcCountMarkDirty();
-	scr->ffcs[ind].cset = cset;
-	scr->ffcs[ind].delay = delay;
-	scr->ffcs[ind].flags = flags;
-	scr->ffcs[ind].link = link;
-	scr->ffTileWidth(ind, twid+1);
-	scr->ffTileHeight(ind, thei+1);
-	scr->ffEffectWidth(ind, fwid+1);
-	scr->ffEffectHeight(ind, fhei+1);
-	scr->ffcs[ind].script = script;
-	for(auto q = 0; q < 2; ++q)
-		scr->ffcs[ind].inita[q] = inita[q];
-	for(auto q = 0; q < 8; ++q)
-		scr->ffcs[ind].initd[q] = initd[q];
-	scr->ffcs[ind].updateSolid();
+
+	Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), ind, {
+		.x = zslongToFix(x),
+		.y = zslongToFix(y),
+		.vx = zslongToFix(dx),
+		.vy = zslongToFix(dy),
+		.ax = zslongToFix(ax),
+		.ay = zslongToFix(ay),
+		.data = data,
+		.cset = cset,
+		.delay = delay,
+		.flags = flags,
+		.link = link,
+		.script = script,
+		.inita = inita,
+		.initd = initd,
+		.ew = (byte)(fwid+1),
+		.eh = (byte)(fhei+1),
+		.tw = (byte)(twid+1),
+		.th = (byte)(thei+1),
+	});
 }
 
 ffdata& ffdata::operator=(ffdata const& other)
@@ -119,10 +118,8 @@ ffdata& ffdata::operator=(ffdata const& other)
 	fwid = other.fwid;
 	fhei = other.fhei;
 	script = other.script;
-	for(auto q = 0; q < 8; ++q)
-		initd[q] = other.initd[q];
-	for(auto q = 0; q < 2; ++q)
-		inita[q] = other.inita[q];
+	initd = other.initd;
+	inita = other.inita;
 	return *this;
 }
 
