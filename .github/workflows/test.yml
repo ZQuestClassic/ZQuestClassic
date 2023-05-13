@@ -147,12 +147,12 @@ jobs:
           --build_folder ${{ env.BUILD_FOLDER }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
-          --filter script_playground_bumper.zplay
-          --filter script_playground_circle.zplay
-          --filter script_playground_prime.zplay
-          --filter script_playground_maths.zplay
-          --filter script_playground_early_exit.zplay
-          --filter script_playground_end_game.zplay
+          --filter playground_bumper.zplay
+          --filter playground_circle.zplay
+          --filter playground_prime.zplay
+          --filter playground_maths.zplay
+          --filter playground_early_exit.zplay
+          --filter playground_end_game.zplay
           --filter ghost_armos.zplay
           --filter keys.zplay
           --no-jit
