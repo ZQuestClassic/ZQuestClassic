@@ -11,9 +11,9 @@
 //
 //--------------------------------------------------------
 
-//#include "guys.h"
 #ifndef _GUYS_H_
 #define _GUYS_H_
+
 #include <list>
 #include "sprite.h"
 #include "weapons.h"

@@ -1242,6 +1242,8 @@ void cflag_help(int32_t id);
 void ctype_help(int32_t id);
 void questrev_help();
 void questminrev_help();
+void doDarkroomCirclePreview(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
+// void doDarkroomConePreview(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X

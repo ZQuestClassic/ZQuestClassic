@@ -36,7 +36,6 @@
 #include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
-#include "maps.h"
 #include "zc_sys.h"
 #include "md5.h"
 #include "zc_custom.h"
@@ -2661,7 +2660,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 			newcombo const& cmb = combobuf[layers[q]->data[pos]];
 			if(cmb.type == cTORCH)
 			{
-				doDarkroomCircle(COMBOX(pos)+8, COMBOY(pos)+8, cmb.attribytes[0], dest, transdest);
+				doDarkroomCirclePreview(COMBOX(pos)+8, COMBOY(pos)+8, cmb.attribytes[0], dest, transdest);
 			}
 		}
 	}
@@ -2671,7 +2670,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 		newcombo const& cmb = combobuf[basescr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
+			doDarkroomCirclePreview((basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
 		}
 	}
 }

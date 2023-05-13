@@ -16,7 +16,6 @@
 #include "tiles.h"
 #include "base/zsys.h"
 #include "base/util.h"
-#include "guys.h"
 #include "hero.h"
 #include "gamedata.h"
 #include "items.h"
