@@ -181,6 +181,21 @@ public:
 		val = getRoundAway() * 10000;
 		return *this;
 	}
+	
+	zfix& doBound(zfix low, zfix high)
+	{
+		if(low < high)
+			return doBound(high,low);
+		if(val < low.val)
+			val = low.val;
+		if(val > high.val)
+			val = high.val;
+		return *this;
+	}
+	zfix& doDecBound(int low_ipart, int low_dpart, int high_ipart, int high_dpart)
+	{
+		return doBound(zfix(low_ipart,low_dpart),zfix(high_ipart,high_dpart));
+	}
 public:
 	
 	zfix() : val(0)											{}

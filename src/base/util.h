@@ -74,7 +74,17 @@ void zc_trace_clear();
 
 std::string QRHINT(std::vector<int> qrs);
 
-//#define vbound(x,low,high) (x<low?low:(x>high?high:x))
+enum
+{
+	BSEARCH_FAIL,
+	BSEARCH_SUCCEED,
+	BSEARCH_CONTINUE_UP,
+	BSEARCH_CONTINUE_DOWN,
+	BSEARCH_CONTINUE_AWAY0,
+	BSEARCH_CONTINUE_TOWARD0
+};
+int binary_search_int(int b1, int b2, std::function<int(int,int&)> proc, int defval = 0);
+zfix binary_search_zfix(zfix b1, zfix b2, std::function<int(zfix,zfix&)> proc, zfix defval = 0);
 
 #endif
 
