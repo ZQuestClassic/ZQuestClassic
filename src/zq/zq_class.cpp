@@ -4381,6 +4381,89 @@ void set_combo_command::undo()
     mapscr_ptr->cset[pos] = prev_cset;
 }
 
+set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
+{
+	std::array<int, 2> inita_arr;
+	std::copy(std::begin(ffc.inita), std::end(ffc.inita), inita_arr.begin());
+	std::array<int, 8> initd_arr;
+	std::copy(std::begin(ffc.initd), std::end(ffc.initd), initd_arr.begin());
+
+	return {
+		.x = ffc.x,
+		.y = ffc.y,
+		.vx = ffc.vx,
+		.vy = ffc.vy,
+		.ax = ffc.ax,
+		.ay = ffc.ay,
+		.data = ffc.getData(),
+		.cset = ffc.cset,
+		.delay = ffc.delay,
+		.link = ffc.link,
+		.script = ffc.script,
+		.tw = ffc.txsz,
+		.th = ffc.tysz,
+		.ew = ffc.hxsz,
+		.eh = ffc.hysz,
+		.flags = ffc.flags,
+		.inita = inita_arr,
+		.initd = initd_arr,
+	};
+}
+
+void set_ffc_command::execute()
+{
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+
+    mapscr_ptr->ffcs[i].x = data.x;
+	mapscr_ptr->ffcs[i].y = data.y;
+	mapscr_ptr->ffcs[i].vx = data.vx;
+	mapscr_ptr->ffcs[i].vy = data.vy;
+	mapscr_ptr->ffcs[i].ax = data.ax;
+	mapscr_ptr->ffcs[i].ay = data.ay;
+	mapscr_ptr->ffcs[i].setData(data.data);
+	mapscr_ptr->ffcs[i].cset = data.cset;
+	mapscr_ptr->ffcs[i].delay = data.delay;
+	mapscr_ptr->ffcs[i].link = data.link;
+	mapscr_ptr->ffcs[i].script = data.script;
+	mapscr_ptr->ffcs[i].flags = data.flags;
+	mapscr_ptr->ffEffectWidth(i, data.ew);
+	mapscr_ptr->ffEffectHeight(i, data.eh);
+	mapscr_ptr->ffTileWidth(i, data.tw);
+	mapscr_ptr->ffTileHeight(i, data.th);
+	std::copy(std::begin(data.inita), std::end(data.inita), std::begin(mapscr_ptr->ffcs[i].inita));
+	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcCountMarkDirty();
+	mapscr_ptr->ffcs[i].updateSolid();
+}
+
+void set_ffc_command::undo()
+{
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+
+    mapscr_ptr->ffcs[i].x = prev_data.x;
+	mapscr_ptr->ffcs[i].y = prev_data.y;
+	mapscr_ptr->ffcs[i].vx = prev_data.vx;
+	mapscr_ptr->ffcs[i].vy = prev_data.vy;
+	mapscr_ptr->ffcs[i].ax = prev_data.ax;
+	mapscr_ptr->ffcs[i].ay = prev_data.ay;
+	mapscr_ptr->ffcs[i].setData(prev_data.data);
+	mapscr_ptr->ffcs[i].cset = prev_data.cset;
+	mapscr_ptr->ffcs[i].delay = prev_data.delay;
+	mapscr_ptr->ffcs[i].link = prev_data.link;
+	mapscr_ptr->ffcs[i].script = prev_data.script;
+	mapscr_ptr->ffcs[i].flags = prev_data.flags;
+	mapscr_ptr->ffEffectWidth(i, prev_data.ew);
+	mapscr_ptr->ffEffectHeight(i, prev_data.eh);
+	mapscr_ptr->ffTileWidth(i, prev_data.tw);
+	mapscr_ptr->ffTileHeight(i, prev_data.th);
+	std::copy(std::begin(prev_data.inita), std::end(prev_data.inita), std::begin(mapscr_ptr->ffcs[i].inita));
+	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcCountMarkDirty();
+	mapscr_ptr->ffcs[i].updateSolid();
+}
+
 void set_flag_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
@@ -4626,6 +4709,36 @@ void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
     command->prev_combo = mapscr_ptr->data[pos];
     command->prev_cset = mapscr_ptr->cset[pos];
     if ((command->combo != -1 && command->prev_combo == command->combo) && command->cset == command->prev_cset)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data)
+{
+	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+
+	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
+
+	std::array<int, 2> inita_arr;
+	std::copy(std::begin(mapscr_ptr->ffcs[i].inita), std::end(mapscr_ptr->ffcs[i].inita), inita_arr.begin());
+	std::array<int, 8> initd_arr;
+	std::copy(std::begin(mapscr_ptr->ffcs[i].initd), std::end(mapscr_ptr->ffcs[i].initd), initd_arr.begin());
+
+	auto prev_data = set_ffc_command::create_data(mapscr_ptr->ffcs[i]);
+
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->map = map;
+    command->scr = scr;
+    command->i = i;
+    command->data = data;
+    command->prev_data = prev_data;
+    if (data == prev_data)
     {
         // nothing to do...
         return;

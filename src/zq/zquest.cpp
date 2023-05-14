@@ -8549,8 +8549,10 @@ void moveffc(int32_t i, int32_t cx, int32_t cy)
     if(ffy > 160) ffy = 160;
     if((ffx != offx) || (ffy != offy))
     {
-        Map.CurrScr()->ffcs[i].x = ffx;
-        Map.CurrScr()->ffcs[i].y = ffy;
+        auto set_ffc_data = set_ffc_command::create_data(Map.CurrScr()->ffcs[i]);
+        set_ffc_data.x = ffx;
+        set_ffc_data.y = ffy;
+        Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
         saved = false;
     }
 }
@@ -10937,30 +10939,27 @@ void domouse()
 								case 3:
 									if(jwin_alert("Confirm Clear","Really clear this Freeform Combo?",NULL,NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 									{
-										Map.CurrScr()->ffcs[i].setData(0);
-										Map.CurrScr()->ffcCountMarkDirty();
-										Map.CurrScr()->ffcs[i].cset = 0;
-										Map.CurrScr()->ffcs[i].x = 0;
-										Map.CurrScr()->ffcs[i].y = 0;
-										Map.CurrScr()->ffcs[i].vx = 0;
-										Map.CurrScr()->ffcs[i].vy = 0;
-										Map.CurrScr()->ffcs[i].ax = 0;
-										Map.CurrScr()->ffcs[i].ay = 0;
-										Map.CurrScr()->ffcs[i].flags = 0;
-										Map.CurrScr()->ffcs[i].script = 0;
-										Map.CurrScr()->ffcs[i].link = 0;
-										Map.CurrScr()->ffcs[i].delay = 0;
-										Map.CurrScr()->ffcs[i].hxsz = 16;
-										Map.CurrScr()->ffcs[i].hysz = 16;
-										Map.CurrScr()->ffcs[i].txsz = 1;
-										Map.CurrScr()->ffcs[i].tysz = 1;
-										
-										for(int32_t j=0; j<8; j++)
-											Map.CurrScr()->ffcs[i].initd[j] = 0;
-											
-										for(int32_t j=0; j<2; j++)
-											Map.CurrScr()->ffcs[i].inita[j] = 10000;
-											
+										Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, {
+											.x = 0,
+											.y = 0,
+											.vx = 0,
+											.vy = 0,
+											.ax = 0,
+											.ay = 0,
+											.data = 0,
+											.cset = 0,
+											.delay = 0,
+											.link = 0,
+											.script = 0,
+											.tw = 1,
+											.th = 1,
+											.ew = 16,
+											.eh = 16,
+											.flags = 0,
+											.inita = 10000,
+											.initd = 0,
+										});
+
 										saved = false;
 									}
 									break;
@@ -10972,8 +10971,12 @@ void domouse()
 									int32_t pos = COMBOPOS(oldffx,oldffy);
 									int32_t newffy = COMBOY(pos);
 									int32_t newffx = COMBOX(pos);
-									Map.CurrScr()->ffcs[i].x = newffx;
-									Map.CurrScr()->ffcs[i].y = newffy;
+
+									auto set_ffc_data = set_ffc_command::create_data(Map.CurrScr()->ffcs[i]);
+									set_ffc_data.x = newffx;
+									set_ffc_data.y = newffy;
+									Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
+
 									saved = false;
 									break;
 								}

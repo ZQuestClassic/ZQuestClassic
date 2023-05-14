@@ -11,6 +11,7 @@
 #include <gui/list_data.h>
 #include <functional>
 #include <string_view>
+#include <array>
 
 struct ffdata;
 bool call_ffc_dialog(int32_t ffcombo, mapscr* scr = nullptr);
@@ -29,8 +30,8 @@ struct ffdata
 	byte thei : 2;
 	byte fhei : 6;
 	int32_t script;
-	int32_t initd[8];
-	int32_t inita[2];
+	std::array<int, 8> initd;
+	std::array<int, 2> inita;
 	
 	ffdata();
 	ffdata(mapscr const* scr, int32_t ind);
