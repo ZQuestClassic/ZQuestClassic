@@ -122,7 +122,7 @@ struct KeyMapReplayStep : ReplayStep
 
 	std::array<int, KeyMapReplayStep::NumButtons> button_keys;
 
-	KeyMapReplayStep(int frame, std::array<int, KeyMapReplayStep::NumButtons> button_keys) : button_keys(button_keys), ReplayStep(frame, TypeKeyMap)
+	KeyMapReplayStep(int frame, std::array<int, KeyMapReplayStep::NumButtons> button_keys) : ReplayStep(frame, TypeKeyMap), button_keys(button_keys)
 	{
 	}
 
@@ -998,8 +998,11 @@ static void start_manual_takeover()
     }
 
     // Avoid unexpected input when manual takeover starts, which can be awkward to play.
-    for (int i = 0; i < KEY_MAX; i++)
-        _key[i] = key[i] = 0;
+	for (int i = 0; i < KEY_MAX; i++)
+	{
+		_key[i] = 0;
+		key[i] = 0;
+	}
 
     mode = ReplayMode::ManualTakeover;
     uninstall_keyboard_handlers();
@@ -1156,7 +1159,8 @@ void replay_poll()
         for (int i = 0; i < KEY_MAX; i++)
         {
             key_copy[i] = key[i];
-            _key[i] = key[i] = 0;
+            _key[i] = 0;
+            key[i] = 0;
         }
         uninstall_keyboard_handlers();
 		
@@ -1176,7 +1180,10 @@ void replay_poll()
         did_attempt_input_during_replay = false;
         install_keyboard_handlers();
         for (int i = 0; i < KEY_MAX; i++)
-            _key[i] = key[i] = key_copy[i];
+        {
+            _key[i] = key_copy[i];
+            key[i] = key_copy[i];
+        }
         for (int i = 0; i < controls::btnLast; i++)
             down_control_states[i] = down_states[i];
     }
@@ -1407,7 +1414,11 @@ void replay_forget_input()
         return;
 
     for (int i = 0; i < KEY_MAX; i++)
-        _key[i] = key[i] = key_current_frame[i] = 0;
+    {
+        _key[i] = 0;
+        key[i] = 0;
+        key_current_frame[i] = 0;
+    }
     for (int i = 0; i < KeyMapReplayStep::NumButtons; i++)
         previous_control_state[i] = raw_control_state[i] = false;
     for (int i = 0; i < KEY_MAX; i++)
