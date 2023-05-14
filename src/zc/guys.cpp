@@ -23722,11 +23722,11 @@ void check_collisions()
 					{ 
 						e->hitby[HIT_BY_LWEAPON] = i+1;
 						e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
-						//e->hitby[HIT_BY_LWEAPON_FAMILY] = itemsbuf[w->parentid].family; //that would be the itemclass, not the weapon type!
-						e->hitby[HIT_BY_LWEAPON_FAMILY] = w->id;
-						//al_trace("npc->HitBy[] Parent Item is: %d /n", w->parentitem);
-						//al_trace("npc->HitBy[] Parent ID is: %d /n", w->parentid);
-						e->hitby[HIT_BY_LWEAPON_LITERAL_ID] = w->parentitem;
+						e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
+						if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
+						else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
+						e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
+						e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
 						
 					}
 					//we may need to handle this in special cases. -Z

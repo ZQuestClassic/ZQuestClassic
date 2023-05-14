@@ -875,7 +875,11 @@ static GUI::ListData compatRulesList
 	{ "Old FFC Bush Drops", qr_HARDCODED_FFC_BUSH_DROPS,
 		"If enabled, FFC bushes will drop a random '15% heart, 20% rupee' instead of using dropset 12." },
 	{ "Fake-solid Pushblocks", qr_MOVINGBLOCK_FAKE_SOLID,
-		"If enabled, pushblocks will not use 'real' solidity." }
+		"If enabled, pushblocks will not use 'real' solidity." },
+	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
+		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
+		" and both Player fire and bomb weapons won't work with HitBy if they hurt the player." 
+		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."}
 };
 
 static GUI::ListData enemiesRulesList

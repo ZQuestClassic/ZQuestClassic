@@ -478,7 +478,7 @@ void HeroClass::ClearhitHeroUIDs()
 		// 1. If set by internal mecanics, it has its value that you can read by script, before waitdraw--this part works at present.
 		// 2. FFCs can read it before Waitframe. --same.
 		// 3. After Waitframe(), it is wiped by the ZC Engine to 0. --I cannot get this to happen without breaking 1 and 2. 
-	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED_PLAYER; q++ ) 	
+	for ( int32_t q = 0; q < NUM_HIT_TYPES_USED; q++ ) 	
 	{
 		/*
 		if ( lastHitBy[q][1] == (frame-1) ) //Verify if this is needed at all now. 
@@ -3322,8 +3322,11 @@ bool HeroClass::checkstab()
 			{ 
 				e->hitby[HIT_BY_LWEAPON] = melee_weapon_index; 
 				e->hitby[HIT_BY_LWEAPON_UID] = w->script_UID;
-				e->hitby[HIT_BY_LWEAPON_FAMILY] = w->id;
-				e->hitby[HIT_BY_LWEAPON_LITERAL_ID] = w->parentitem;
+				e->hitby[HIT_BY_LWEAPON_TYPE] = w->id;
+				if (w->parentitem > -1) e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = itemsbuf[w->parentitem].family; 
+				else e->hitby[HIT_BY_LWEAPON_PARENT_FAMILY] = -1;
+				e->hitby[HIT_BY_LWEAPON_PARENT_ID] = w->parentitem;
+				e->hitby[HIT_BY_LWEAPON_ENGINE_UID] = w->getUID();
 			} //temp_hit = true; }
 			//melee weapons and non-melee weapons both writing to this index may be a problem. It needs to be cleared by something earlier than this check.
 			
@@ -6282,6 +6285,24 @@ void HeroClass::checkhit()
 				if(!divineprot)
 				{
 					game->set_life(zc_max(game->get_life()-dmg,0));
+					if (!get_bit(quest_rules, qr_BROKENHITBY))
+					{
+						sethitHeroUID(HIT_BY_LWEAPON,(i+1));
+						if (get_bit(quest_rules, qr_BROKENHITBY))
+						{
+							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+						}
+						else
+						{
+							
+							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+						}
+						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+						sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
+						if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+						else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
+						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+					}
 				}
 				
 				hitdir = hdir;
@@ -6456,6 +6477,24 @@ killweapon:
 				if(!divineprot)
 				{
 					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
+					if (!get_bit(quest_rules, qr_BROKENHITBY))
+					{
+						sethitHeroUID(HIT_BY_LWEAPON,(i+1));
+						if (get_bit(quest_rules, qr_BROKENHITBY))
+						{
+							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+						}
+						else
+						{
+							
+							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+						}
+						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+						sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
+						if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+						else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
+						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+					}
 				}
 				
 				hitdir = hdir;
@@ -6580,7 +6619,20 @@ killweapon:
 		{
 			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
-			sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
+			if (get_bit(quest_rules, qr_BROKENHITBY))
+			{
+				sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
+			}
+			else
+			{
+				
+				sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getScriptUID());
+			}
+			sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,lwpnspr->getUID());
+			sethitHeroUID(HIT_BY_LWEAPON_TYPE, lwpnspr->id);
+			if (lwpnspr->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, lwpnspr->parentitem);
+			else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
+			sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[lwpnspr->parentitem].family);
 		}
 		
 		hitdir = hdir;
@@ -6650,7 +6702,17 @@ killweapon:
 		{
 			game->set_life(zc_max(game->get_life()-dmg,0));
 			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
-			sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
+			if (get_bit(quest_rules, qr_BROKENHITBY))
+			{
+				sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
+			}
+			else
+			{
+				
+				sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getScriptUID());
+			}
+			sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID,ewpnspr->getUID());
+			sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
 		}
 		
 		hitdir = hdir;
@@ -6681,7 +6743,6 @@ killweapon:
 		sfx(getHurtSFX(),pan(x.getInt()));
 		return;
 	}
-	//else { sethitHeroUID(HIT_BY_EWEAPON,(0)); } //fails to clear
 	
 	// The rest of this method deals with damage combos, which can be jumped over.
 	if((z>0 || fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) return;
@@ -7104,6 +7165,17 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 		game->set_life(zc_max(game->get_life()-dmg,0));
 		sethitHeroUID(HIT_BY_NPC,(hit2+1));
 		sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
+		if (get_bit(quest_rules, qr_BROKENHITBY))
+		{
+			sethitHeroUID(HIT_BY_NPC_UID,enemyptr->getUID());
+		}
+		else
+		{
+			sethitHeroUID(HIT_BY_NPC_UID,enemyptr->script_UID);
+		}
+		sethitHeroUID(HIT_BY_NPC_ENGINE_UID,enemyptr->getUID());
+		sethitHeroUID(HIT_BY_NPC_ID, enemyptr->id);
+		sethitHeroUID(HIT_BY_NPC_TYPE, enemyptr->family);
 	}
 	
 	hitdir = hdir;

@@ -3620,6 +3620,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_HARDCODED_FFC_BUSH_DROPS,1);
 	if(compatrule_version < 40)
 		set_bit(quest_rules,qr_MOVINGBLOCK_FAKE_SOLID,1);
+	if(compatrule_version < 41)
+		set_bit(quest_rules,qr_BROKENHITBY,1);
 	
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

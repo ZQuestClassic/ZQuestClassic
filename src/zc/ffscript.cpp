@@ -3564,6 +3564,12 @@ int32_t get_register(const int32_t arg)
 				case 1:
 				case 2:
 				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 16:
 				{
 					ret = (int32_t)(Hero.gethitHeroUID(indx))* 10000;
 					break;
@@ -3573,6 +3579,9 @@ int32_t get_register(const int32_t arg)
 				case 5:
 				case 6:
 				case 7:
+				case 13:
+				case 14:
+				case 15:
 				{
 					ret = (int32_t)(Hero.gethitHeroUID(indx)); //do not multiply by 10000! UIDs are not *10000!
 					break;
@@ -6000,9 +6009,7 @@ int32_t get_register(const int32_t arg)
 					case 10:
 					case 11:
 					case 12:
-					case 13:
-					case 14:
-					case 15:
+					case 16:
 					{
 						ret = GuyH::getNPC()->hitby[indx] * 10000; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 						break;
@@ -6012,6 +6019,9 @@ int32_t get_register(const int32_t arg)
 					case 5:
 					case 6:
 					case 7:
+					case 13:
+					case 14:
+					case 15:
 					{
 						ret = GuyH::getNPC()->hitby[indx]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 						break;
@@ -13362,6 +13372,12 @@ void set_register(int32_t arg, int32_t value)
 				case 1:
 				case 2:
 				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 16:
 				{
 					Hero.sethitHeroUID(indx, (value/10000)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
@@ -13371,6 +13387,9 @@ void set_register(int32_t arg, int32_t value)
 				case 5:
 				case 6:
 				case 7:
+				case 13:
+				case 14:
+				case 15:
 				{
 					Hero.sethitHeroUID(indx, value); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
@@ -17214,9 +17233,7 @@ void set_register(int32_t arg, int32_t value)
 					case 10:
 					case 11:
 					case 12:
-					case 13:
-					case 14:
-					case 15:
+					case 16:
 					{
 						GuyH::getNPC()->hitby[indx] = vbound((value / 10000),0,255); //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
@@ -17226,6 +17243,9 @@ void set_register(int32_t arg, int32_t value)
 					case 5:
 					case 6:
 					case 7:
+					case 13:
+					case 14:
+					case 15:
 					{
 						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
