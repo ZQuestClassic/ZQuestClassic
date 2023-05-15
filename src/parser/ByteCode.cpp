@@ -2021,9 +2021,9 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODTRIGGERGSTATE: return "COMBODTRIGGERGSTATE";
 	case COMBODTRIGGERGTIMER: return "COMBODTRIGGERGTIMER";
 	case GAMEMOUSECURSOR: return "GAMEMOUSECURSOR";
-	case RESRVD_VAR_EMILY11: return "RESRVD_VAR_EMILY11";
-	case RESRVD_VAR_EMILY12: return "RESRVD_VAR_EMILY12";
-	case RESRVD_VAR_EMILY13: return "RESRVD_VAR_EMILY13";
+	case COMBODTRIGGERGENSCRIPT: return "COMBODTRIGGERGENSCRIPT";
+	case COMBODTRIGGERGROUP: return "COMBODTRIGGERGROUP";
+	case COMBODTRIGGERGROUPVAL: return "COMBODTRIGGERGROUPVAL";
 	case RESRVD_VAR_EMILY14: return "RESRVD_VAR_EMILY14";
 	case RESRVD_VAR_EMILY15: return "RESRVD_VAR_EMILY15";
 	case RESRVD_VAR_EMILY16: return "RESRVD_VAR_EMILY16";
@@ -2500,25 +2500,25 @@ string OSetCustomCursor::toString() const
 {
 	return "GAMESETCUSTOMCURSOR";
 }
-string OReservedEmily20::toString() const
+string OItemGetDispName::toString() const
 {
-	return "RESRVD_OP_EMILY20 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ITEMGETDISPLAYNAME " + getArgument()->toString();
 }
-string OReservedEmily21::toString() const
+string OItemSetDispName::toString() const
 {
-	return "RESRVD_OP_EMILY21 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ITEMSETDISPLAYNAME " + getArgument()->toString();
 }
-string OReservedEmily22::toString() const
+string OItemGetShownName::toString() const
 {
-	return "RESRVD_OP_EMILY22 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "ITEMGETSHOWNNAME " + getArgument()->toString();
 }
-string OReservedEmily23::toString() const
+string OHeroMoveXY::toString() const
 {
-	return "RESRVD_OP_EMILY23 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "HEROMOVEXY";
 }
-string OReservedEmily24::toString() const
+string OHeroCanMoveXY::toString() const
 {
-	return "RESRVD_OP_EMILY24 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "HEROCANMOVEXY";
 }
 string OReservedEmily25::toString() const
 {

@@ -128,6 +128,9 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     {
         zinit2->items[i] = gdata->get_item(i);
     }
+	
+	zinit2->hero_swim_mult = gdata->swim_mult;
+	zinit2->hero_swim_div = gdata->swim_div;
     
     return zinit2;
 }
@@ -178,7 +181,9 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(switchhookstyle); \
 	PROP(terminalv); \
 	PROP(transdark_percent); \
-	PROP(triforce)
+	PROP(triforce) \
+	PROP(hero_swim_mult) \
+	PROP(hero_swim_div)
 
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(boss_key); \

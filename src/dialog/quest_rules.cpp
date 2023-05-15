@@ -875,7 +875,11 @@ static GUI::ListData compatRulesList
 	{ "Old FFC Bush Drops", qr_HARDCODED_FFC_BUSH_DROPS,
 		"If enabled, FFC bushes will drop a random '15% heart, 20% rupee' instead of using dropset 12." },
 	{ "Fake-solid Pushblocks", qr_MOVINGBLOCK_FAKE_SOLID,
-		"If enabled, pushblocks will not use 'real' solidity." }
+		"If enabled, pushblocks will not use 'real' solidity." },
+	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
+		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
+		" and both Player fire and bomb weapons won't work with HitBy if they hurt the player." 
+		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."}
 };
 
 static GUI::ListData enemiesRulesList
@@ -1387,6 +1391,9 @@ static GUI::ListData playerRulesList
 		"Alters the player's movement; with this enabled, movement includes decimal precision,"
 		" diagonal movement is 'smoother', and the player's speed can be adjusted using"
 		" 'Player->Step' via ZScript, as well as the 'Player Step' option in 'Init Data'." },
+	{ "Newer Player Movement", qr_NEW_HERO_MOVEMENT2,
+		"Alters the player's movement; with this enabled, most of the effects of 'New Player Movement' and 'Disable 4-Way Movement's Gridlock'"
+		" apply, and the player's collision code is newly cleaned up."+QRHINT({qr_NEW_HERO_MOVEMENT,qr_DISABLE_4WAY_GRIDLOCK}) },
 	{ "Disable 4-Way Movement's Gridlock", qr_DISABLE_4WAY_GRIDLOCK,
 		"If enabled, disables the built in player gridlock. This does not allow the player to move diagonally,"
 		" but it does allow them to change direction when not aligned with the 8x8 pixel grid."},
@@ -1667,6 +1674,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 					onToggle = message::TOGGLE_QR,
 					initializer = local_qrs,
 					count = 0, //scrollpane
+					showtags = true,
 					scrollWidth = 675_px,
 					scrollHeight = 500_px,
 					data = tosearch.filter(

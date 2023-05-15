@@ -80,7 +80,7 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 	);
 }
 
-bool AlertDialog::handleMessage(const GUI::DialogMessage<int32_t>& msg)
+bool AlertDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	onEnd(((message)msg.message)==message::OK,dontshowagain);
 	return true;

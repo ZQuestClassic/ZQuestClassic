@@ -309,8 +309,6 @@ if args.filter:
 
 if args.ci:
     skip_in_ci = [
-        # TODO: needs to be re-recorded.
-        'solid.zplay',
     ]
     tests = [t for t in tests if t.name not in skip_in_ci]
 
@@ -379,6 +377,7 @@ def get_replay_data(file):
         'solid.zplay': 1400,
         'ss_jenny.zplay': 1500,
         'stellar_seas_randomizer.zplay': 500,
+        'yuurand.zplay': 650,
     }
     if file.name in estimated_fps_overrides:
         estimated_fps = estimated_fps_overrides[file.name]
@@ -643,6 +642,8 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
     timeout = 60
+    if replay_file.name == 'yuurand.zplay':
+        timeout = 120
     if is_coverage:
         timeout *= 5
 

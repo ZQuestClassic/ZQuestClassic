@@ -36,6 +36,9 @@ static AccessorTable itemclassTable[] =
 	{ "getInitD[]",                 0,       ZTID_UNTYPED,   ITEMCLASSINITDD,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "setInitD[]",                 0,          ZTID_VOID,   ITEMCLASSINITDD,           0,  { ZTID_ITEMCLASS, ZTID_FLOAT, ZTID_UNTYPED },{} },
 	{ "GetName",                    0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "GetDisplayName",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "SetDisplayName",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
+	{ "GetShownName",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{} },
 	{ "RunScript",                  0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_ITEMCLASS, ZTID_FLOAT },{ 10000 } },
 	
 	{ "getTileMod",                 0,         ZTID_FLOAT,   IDATALTM,                  0,  { ZTID_ITEMCLASS },{} },
@@ -243,9 +246,51 @@ void ItemclassSymbols::generateCode()
 		//pop off the param
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
-		//pop pointer, and ignore it
+		//pop pointer
 		POPREF();
 		addOpcode2 (code, new OGetItemName(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetDisplayName(itemclass, int32_t)
+	{
+		Function* function = getFunction("GetDisplayName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OItemGetDispName(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetDisplayName(itemclass, int32_t)
+	{
+		Function* function = getFunction("SetDisplayName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OItemSetDispName(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetShownName(itemclass, int32_t)
+	{
+		Function* function = getFunction("GetShownName");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OItemGetShownName(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -257,7 +302,7 @@ void ItemclassSymbols::generateCode()
 		//pop off the param
 		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
 		LABELBACK(label);
-		//pop pointer, and ignore it
+		//pop pointer
 		POPREF();
 		addOpcode2 (code, new ORunItemScript(new VarArgument(EXP1)));
 		RETURN();

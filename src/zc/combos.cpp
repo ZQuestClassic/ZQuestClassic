@@ -41,6 +41,7 @@ CutsceneState active_cutscene;
 
 cpos_info combo_posinfos[7][176];
 std::vector<cpos_info> ffc_posinfos;
+int trig_groups[256];
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2551,6 +2552,21 @@ bool force_ex_trigger_ffc(const ffc_handle_t& ffc_handle, char xstate)
 static bool triggering_generic_secrets = false;
 static bool triggering_generic_switchstate = false;
 
+void do_weapon_fx(weapon* w, newcombo const& cmb)
+{
+	if(!w) return;
+	if(cmb.triggerflags[0] & combotriggerKILLWPN)
+		killgenwpn(w);
+	if(cmb.triggerflags[3] & combotriggerIGNITE_ANYFIRE)
+		w->misc_wflags |= WFLAG_BURN_ANYFIRE;
+	if(cmb.triggerflags[3] & combotriggerIGNITE_STRONGFIRE)
+		w->misc_wflags |= WFLAG_BURN_STRONGFIRE;
+	if(cmb.triggerflags[3] & combotriggerIGNITE_MAGICFIRE)
+		w->misc_wflags |= WFLAG_BURN_MAGICFIRE;
+	if(cmb.triggerflags[3] & combotriggerIGNITE_DIVINEFIRE)
+		w->misc_wflags |= WFLAG_BURN_DIVINEFIRE;
+}
+
 // TODO z3 remove
 bool do_trigger_combo(int layer, int pos, int32_t special, weapon* w)
 {
@@ -2574,6 +2590,11 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 	int32_t ocs = pos_handle.screen->cset[pos];
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
+	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	{
+		do_weapon_fx(w,cmb);
+		return true;
+	}
 	
 	word ctramnt = game->get_counter(cmb.trigctr);
 	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
@@ -2586,6 +2607,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 	bool used_bit = false;
 	
 	uint32_t exflag = 0;
+	
 	if(cmb.exstate > -1)
 	{
 		exflag = 1<<cmb.exstate;
@@ -2641,7 +2663,8 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
 		check_bit = get_bit(grid, pos);
 	}
-	if(!timer.trig_cd)
+	bool dorun = !timer.trig_cd;
+	if(dorun)
 	{
 		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 		{
@@ -2762,7 +2785,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 					if(pos_handle.screen->secretsfx)
 						sfx(pos_handle.screen->secretsfx);
 				}
-				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS))
+				if(canPermSecret(currdmap, pos_handle.screen_index) && !(pos_handle.screen->flags5&fTEMPSECRETS) && !getmapflag(pos_handle.screen_index, mSECRET))
 					setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
 			}
 			
@@ -2929,6 +2952,8 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				}
 			}
 			
+			update_trig_group(timer.data, pos_handle.screen->data[pos]);
+			timer.updateData(pos_handle.screen->data[pos]);
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -2937,9 +2962,12 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 			set_bit(grid,pos,1);
 		}
 	}
-
-	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
-		killgenwpn(w);
+	
+	if(w)
+		do_weapon_fx(w,cmb);
+	
+	if(dorun && cmb.trig_genscr)
+		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
 }
 
@@ -2956,6 +2984,11 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	int32_t cy = ffc->y;
 	newcombo const& cmb = combobuf[cid];
 	bool hasitem = false;
+	if(w && (cmb.triggerflags[3] & combotriggerSEPARATEWEAPON))
+	{
+		do_weapon_fx(w,cmb);
+		return true;
+	}
 	
 	word ctramnt = game->get_counter(cmb.trigctr);
 	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
@@ -3022,7 +3055,8 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 		grid = w->wscreengrid_ffc;
 		check_bit = get_bit(grid, ffc_handle.i);
 	}
-	if(!timer.trig_cd)
+	bool dorun = !timer.trig_cd;
+	if(dorun)
 	{
 		if((cmb.triggerflags[0] & combotriggerCMBTYPEFX) || alwaysCTypeEffects(cmb.type))
 		{
@@ -3278,6 +3312,8 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				}
 			}
 			
+			update_trig_group(timer.data, ffc_handle.ffc->getData());
+			timer.updateData(ffc_handle.ffc->getData());
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -3288,8 +3324,11 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 		}
 	}
 	
-	if(w && (cmb.triggerflags[0] & combotriggerKILLWPN))
-		killgenwpn(w);
+	if(w)
+		do_weapon_fx(w,cmb);
+	
+	if(dorun && cmb.trig_genscr)
+		FFCore.runGenericFrozenEngine(cmb.trig_genscr);
 	return true;
 }
 
@@ -3382,26 +3421,6 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	return true;
 }
 
-void init_combo_timers()
-{
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			combo_posinfos[lyr][pos].clear();
-		}
-	}
-	ffc_posinfos.clear();
-}
-
-bool on_cooldown(int32_t lyr, int32_t pos)
-{
-	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
-		return false;
-	return combo_posinfos[lyr][pos].trig_cd != 0;
-}
-
-
 static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix wy)
 {
 	int32_t lowrate = zc_max(0,cmb.attrishorts[0]);
@@ -3441,34 +3460,20 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 	handle_shooter(cmb, timer, x, y);
 }
 
-void update_combo_timers()
-{
-	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+/*
+for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
 		int pos = RPOS_TO_POS(pos_handle.rpos);
-		// TODO z3 !
-		cpos_info& timer = combo_posinfos[pos_handle.layer][pos];
-		timer.updateData(pos_handle.screen->data[pos]);
-		newcombo const& cmb = combobuf[timer.data];
-		if(cmb.trigtimer)
-		{
-			if(++timer.clk >= cmb.trigtimer)
-			{
-				timer.clk = 0;
-				do_trigger_combo(pos_handle.layer, pos);
-				timer.updateData(pos_handle.screen->data[pos]);
-			}
-		}
-		if(timer.trig_cd) --timer.trig_cd;
-		if(cmb.type == cSHOOTER)
-		{
-			handle_shooter(cmb, timer, pos_handle.rpos);
-		}
-	});
 
-	// TODO z3 ffc stuff
 
-	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->numFFC();
+
+for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		// TODO z3 !!
+		cpos_info& timer = ffc_posinfos[ffc_handle.i];
+		timer.updateData(ffc_handle.ffc->getData());
+*/
+
+void recount_ffc(dword c)
+{
 	if(ffc_posinfos.size() != c)
 	{
 		dword osz = ffc_posinfos.size();
@@ -3478,19 +3483,165 @@ void update_combo_timers()
 			ffc_posinfos[q].clear();
 		}
 	}
+}
+
+void update_trig_group(int oldc, int newc)
+{
+	if(oldc == newc) return;
+	newcombo const& newcmb = combobuf[newc];
+	if(newcmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+		++trig_groups[newcmb.trig_group];
+	newcombo const& oldcmb = combobuf[oldc];
+	if(oldcmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+		--trig_groups[oldcmb.trig_group];
+}
+
+void calculate_trig_groups()
+{
+	memset(trig_groups, 0, sizeof(trig_groups));
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			cpos_info& timer = combo_posinfos[lyr][pos];
+			int cid = scr->data[pos];
+			timer.updateData(cid);
+			newcombo const& cmb = combobuf[cid];
+			if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+				++trig_groups[cmb.trig_group];
+		}
+	}
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	recount_ffc(c);
+	for(word ffc = 0; ffc < c; ++ffc)
+	{
+		cpos_info& timer = ffc_posinfos[ffc];
+		int cid = ffscr->ffcs[ffc].getData();
+		timer.updateData(cid);
+		newcombo const& cmb = combobuf[cid];
+		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+			++trig_groups[cmb.trig_group];
+	}
+}
+
+void trig_trigger_groups()
+{
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	recount_ffc(c);
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		mapscr* scr = FFCore.tempScreens[lyr];
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			cpos_info& timer = combo_posinfos[lyr][pos];
+			int cid = scr->data[pos];
+			newcombo const& cmb = combobuf[cid];
+			
+			if(
+				((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
+					&& trig_groups[cmb.trig_group] < cmb.trig_group_val)
+				|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
+					&& trig_groups[cmb.trig_group] > cmb.trig_group_val)
+				)
+			{
+				do_trigger_combo(lyr,pos);
+				int cid2 = scr->data[pos];
+				update_trig_group(cid,cid2);
+				timer.updateData(cid2);
+				
+				--pos; continue; //check same pos again
+			}
+		}
+	}
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		// TODO z3 !!
+		// TODO ! ffc
 		cpos_info& timer = ffc_posinfos[ffc_handle.i];
-		timer.updateData(ffc_handle.ffc->getData());
-		newcombo const& cmb = combobuf[timer.data];
+		int cid = ffc_handle.ffc->getData();
+		const newcombo* cmb = &combobuf[cid];
+		
+		while(
+			((cmb->triggerflags[3] & combotriggerTGROUP_LESS)
+				&& trig_groups[cmb->trig_group] < cmb->trig_group_val)
+			|| ((cmb->triggerflags[3] & combotriggerTGROUP_GREATER)
+				&& trig_groups[cmb->trig_group] > cmb->trig_group_val)
+			)
+		{
+			do_trigger_combo_ffc(ffc_handle);
+			int cid2 = ffc_handle.ffc->getData();
+			update_trig_group(cid,cid2);
+			timer.updateData(cid2);
+			cmb = &combobuf[cid2];
+		}
+
+		return true;
+	});
+}
+
+void init_combo_timers()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			combo_posinfos[lyr][pos].clear();
+		}
+	}
+	ffc_posinfos.clear();
+}
+
+void update_combo_timers()
+{
+	mapscr* ffscr = FFCore.tempScreens[0];
+	dword c = ffscr->numFFC();
+	recount_ffc(c);
+
+	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
+		int pos = RPOS_TO_POS(pos_handle.rpos);
+		int lyr = pos_handle.layer;
+		cpos_info& timer = combo_posinfos[lyr][pos];
+		int cid = pos_handle.screen->data[pos];
+		update_trig_group(timer.data,cid);
+		timer.updateData(cid);
+		
+		newcombo const& cmb = combobuf[cid];
+		if(cmb.trigtimer)
+		{
+			if(++timer.clk >= cmb.trigtimer)
+			{
+				timer.clk = 0;
+				do_trigger_combo(pos_handle);
+				cid = pos_handle.screen->data[pos];
+				update_trig_group(timer.data,cid);
+				timer.updateData(cid);
+			}
+		}
+		if(timer.trig_cd) --timer.trig_cd;
+		if(cmb.type == cSHOOTER)
+		{
+			handle_shooter(cmb, timer, pos_handle.rpos);
+		}
+	});
+
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		cpos_info& timer = ffc_posinfos[ffc_handle.i];
+		int cid = ffc_handle.ffc->getData();
+		update_trig_group(timer.data,cid);
+		timer.updateData(cid);
+		
+		newcombo const& cmb = combobuf[cid];
 		if(cmb.trigtimer)
 		{
 			if(++timer.clk >= cmb.trigtimer)
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc_handle);
-				timer.updateData(ffc_handle.ffc->getData());
+				cid = ffc_handle.ffc->getData();
+				update_trig_group(timer.data,cid);
+				timer.updateData(cid);
 			}
 		}
 		if(timer.trig_cd) --timer.trig_cd;
@@ -3502,6 +3653,16 @@ void update_combo_timers()
 			wy += (ffc_handle.screen->ffTileHeight(ffc_handle.i)-1)*8;
 			handle_shooter(cmb, timer, wx, wy);
 		}
+
 		return true;
 	});
+
+	trig_trigger_groups();
+}
+
+bool on_cooldown(int32_t lyr, int32_t pos)
+{
+	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
+		return false;
+	return combo_posinfos[lyr][pos].trig_cd != 0;
 }

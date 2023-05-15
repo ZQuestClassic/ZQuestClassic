@@ -289,17 +289,17 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          36
+#define V_COMBOS          38
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            17
 #define V_DOORS            1
-#define V_ITEMS           56
+#define V_ITEMS           57
 #define V_WEAPONS          8
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        33
+#define V_INITDATA        34
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
@@ -312,7 +312,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       40
+#define V_COMPATRULE       41
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -970,6 +970,7 @@ enum
 
 #define QUESTRULES_SIZE 20
 #define QUESTRULES_NEW_SIZE 100
+#define QR_SZ QUESTRULES_NEW_SIZE
 #define EXTRARULES_SIZE 1
 
 // "quest rules" flags (bit numbers in bit string)
@@ -1126,10 +1127,11 @@ enum
 	qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE, qr_NO_LIFT_SPRITE,
 	//45
 	qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING, qr_SPARKLES_INHERIT_PROPERTIES,
+	qr_BROKENHITBY,
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
-	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID,
+	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID, qr_NEW_HERO_MOVEMENT2,
 	//60
 	//70
 	
@@ -1327,18 +1329,19 @@ enum
 #define HIT_BY_LWEAPON_UID 6
 #define HIT_BY_FFC_UID 7
 
-#define HIT_BY_COMBO 8
-#define HIT_BY_MAPFLAG 9
+#define HIT_BY_LWEAPON_PARENT_ID 8
+#define HIT_BY_LWEAPON_PARENT_FAMILY 9
 
-#define HIT_BY_NPC_FAMILY 10
-#define HIT_BY_EWEAPON_FAMILY 11
-#define HIT_BY_LWEAPON_FAMILY 12
-#define HIT_BY_NPC_LITERAL_ID 13
-#define HIT_BY_EWEAPON_LITERAL_ID 14
-#define HIT_BY_LWEAPON_LITERAL_ID 15
+#define HIT_BY_NPC_TYPE 10
+#define HIT_BY_EWEAPON_TYPE 11
+#define HIT_BY_LWEAPON_TYPE 12
+#define HIT_BY_NPC_ENGINE_UID 13
+#define HIT_BY_EWEAPON_ENGINE_UID 14
+#define HIT_BY_LWEAPON_ENGINE_UID 15
+#define HIT_BY_NPC_ID 16
 
-#define NUM_HIT_TYPES_USED 16
-#define NUM_HIT_TYPES_USED_PLAYER 8
+
+#define NUM_HIT_TYPES_USED 17
 
 //triggerflags[0]
 
@@ -1452,6 +1455,14 @@ enum
 #define combotriggerCLEARENEMIES        0x00000020
 #define combotriggerCLEARLWEAPONS       0x00000040
 #define combotriggerCLEAREWEAPONS       0x00000080
+#define combotriggerIGNITE_ANYFIRE      0x00000100
+#define combotriggerIGNITE_STRONGFIRE   0x00000200
+#define combotriggerIGNITE_MAGICFIRE    0x00000400
+#define combotriggerIGNITE_DIVINEFIRE   0x00000800
+#define combotriggerSEPARATEWEAPON      0x00001000
+#define combotriggerTGROUP_CONTRIB      0x00002000
+#define combotriggerTGROUP_LESS         0x00004000
+#define combotriggerTGROUP_GREATER      0x00008000
 
 #define ctrigNONE          0x00
 #define ctrigIGNORE_SIGN   0x01
@@ -1987,180 +1998,6 @@ enum
 {
 	wmovepatternNONE, wmovepatternLINE, wmovepatternSINE, wmovepatternCOSINE, wmovepatternCIRCLE, wmovepatternARC, wmovepatternPATTERN_A, 
 	wmovepatternPATTERN_B, wmovepatternPATTERN_C, wmovepatternPATTERN_D, wmovepatternPATTERN_E, wmovepatternPATTERN_F
-};
-
-
-//Holds the movement pattern, and its args.
-
-struct itemdata
-{
-    int32_t tile;
-    byte misc_flags;                                                // 0000vhtf (vh:flipping, t:two hands, f:flash)
-    byte csets;                                               // ffffcccc (f:flash cset, c:cset)
-    byte frames;                                              // animation frame count
-    byte speed;                                               // animation speed
-    byte delay;                                               // extra delay factor (-1) for first frame
-    int32_t ltm;                                                 // Hero Tile Modifier
-    int32_t family;												// What family the item is in
-    byte fam_type;	//level										// What type in this family the item is
-    int32_t power;	// Damage, height, etc. //changed from byte to int32_t in V_ITEMS 31
-    int32_t flags;
-#define ITEM_GAMEDATA           0x00000001  // Whether this item sets the corresponding gamedata value or not
-#define ITEM_EDIBLE             0x00000002  // can be eaten by Like Like
-#define ITEM_COMBINE            0x00000004  // blue potion + blue potion = red potion
-#define ITEM_DOWNGRADE          0x00000008
-#define ITEM_FLAG1              0x00000010
-#define ITEM_FLAG2              0x00000020
-#define ITEM_KEEPOLD            0x00000040
-#define ITEM_RUPEE_MAGIC        0x00000080
-#define ITEM_UNUSED             0x00000100
-#define ITEM_GAINOLD            0x00000200
-#define ITEM_FLAG3              0x00000400
-#define ITEM_FLAG4              0x00000800
-#define ITEM_FLAG5              0x00001000
-#define ITEM_FLAG6              0x00002000
-#define ITEM_FLAG7              0x00004000
-#define ITEM_FLAG8              0x00008000
-#define ITEM_FLAG9              0x00010000
-#define ITEM_FLAG10             0x00020000
-#define ITEM_FLAG11             0x00040000
-#define ITEM_FLAG12             0x00080000
-#define ITEM_FLAG13             0x00100000
-#define ITEM_FLAG14             0x00200000
-#define ITEM_FLAG15             0x00400000
-#define ITEM_PASSIVESCRIPT      0x00800000
-#define ITEM_VALIDATEONLY       0x01000000
-#define ITEM_SIDESWIM_DISABLED  0x02000000
-#define ITEM_BUNNY_ENABLED      0x04000000
-#define ITEM_VALIDATEONLY2      0x08000000
-#define ITEM_JINX_IMMUNE        0x10000000
-#define ITEM_FLIP_JINX          0x20000000
-    word script;												// Which script the item is using
-    char count;
-    word amount;
-    int16_t setmax;
-    word max;
-    byte playsound;
-    word collect_script;
-//  byte exp[10];                                             // not used
-    int32_t initiald[INITIAL_D];
-    byte initiala[INITIAL_A];
-    byte wpn;
-    byte wpn2;
-    byte wpn3;
-    byte wpn4;
-    byte wpn5;
-    byte wpn6;
-    byte wpn7;
-    byte wpn8;
-    byte wpn9;
-    byte wpn10;
-    byte pickup_hearts;
-    int32_t misc1;
-    int32_t misc2;
-    int32_t misc3;
-    int32_t misc4;
-    int32_t misc5;
-    int32_t misc6;
-    int32_t misc7;
-    int32_t misc8;
-    int32_t misc9;
-    int32_t misc10;
-	int16_t cost_amount[2]; // Magic usage!
-    byte usesound, usesound2;
-    byte useweapon; //lweapon id type -Z
-    byte usedefence; //default defence type -Z
-    int32_t weap_pattern[ITEM_MOVEMENT_PATTERNS]; //formation, arg1, arg2 -Z
-    int32_t weaprange; //default range -Z
-    int32_t weapduration; //default duration, 0 = infinite. 
- 
-    
-    //To implement next;
-    int32_t duplicates; //Number of duplicate weapons generated.
-    int32_t wpn_misc_d[FFSCRIPT_MISC]; //THe initial Misc[d] that will be assiged to the weapon, 
-    
-    int32_t weap_initiald[INITIAL_D];
-    byte weap_initiala[INITIAL_A];
-    
-    byte drawlayer;
-    int32_t collectflags;
-    int32_t hxofs, hyofs, hxsz, hysz, hzsz, xofs, yofs; //item
-    int32_t weap_hxofs, weap_hyofs, weap_hxsz, weap_hysz, weap_hzsz, weap_xofs, weap_yofs; //weapon
-    int32_t tilew, tileh, weap_tilew, weap_tileh; //New for 2.54
-    int32_t pickup; byte pickupflag;
-    
-#define itemdataPSTRING_ALWAYS		0x00000001
-#define itemdataPSTRING_IP_HOLDUP	0x00000002
-#define itemdataPSTRING_NOMARK		0x00000004
-    word pstring;
-    word pickup_string_flags;
-    
-    
-  
-//Guydata Enemy Editor Size Panel FLags
-
-#define itemdataOVERRIDE_TILEWIDTH      0x00000001
-#define itemdataOVERRIDE_TILEHEIGHT     0x00000002
-#define itemdataOVERRIDE_HIT_WIDTH      0x00000004
-#define itemdataOVERRIDE_HIT_HEIGHT     0x00000008
-#define itemdataOVERRIDE_HIT_Z_HEIGHT   0x00000010
-#define itemdataOVERRIDE_HIT_X_OFFSET   0x00000020
-#define itemdataOVERRIDE_HIT_Y_OFFSET   0x00000040
-#define itemdataOVERRIDE_DRAW_X_OFFSET  0x00000080
-#define itemdataOVERRIDE_DRAW_Y_OFFSET  0x00000100
-#define itemdataOVERRIDE_DRAW_Z_OFFSET  0x00000200
-
-    int32_t overrideFLAGS; //Override flags.
-    int32_t weapoverrideFLAGS; 
-    
-    word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
-    int32_t wpnsprite; //enemy weapon sprite. 
-    int32_t magiccosttimer[2]; 
-    char cost_counter[2];
-    
-    char initD_label[8][65];
-    char weapon_initD_label[8][65];
-    char sprite_initD_label[8][65];
-    
-    int32_t sprite_initiald[INITIAL_D];
-    byte sprite_initiala[INITIAL_A];
-    word sprite_script;
-	
-	//helper functions because stupid shit
-	int32_t misc(size_t ind) const
-	{
-		switch(ind)
-		{
-			case 0: return misc1;
-			case 1: return misc2;
-			case 2: return misc3;
-			case 3: return misc4;
-			case 4: return misc5;
-			case 5: return misc6;
-			case 6: return misc7;
-			case 7: return misc8;
-			case 8: return misc9;
-			case 9: return misc10;
-		}
-		return 0;
-	}
-	void misc(size_t ind, int32_t val)
-	{
-		switch(ind)
-		{
-			case 0: misc1 = val; break;
-			case 1: misc2 = val; break;
-			case 2: misc3 = val; break;
-			case 3: misc4 = val; break;
-			case 4: misc5 = val; break;
-			case 5: misc6 = val; break;
-			case 6: misc7 = val; break;
-			case 7: misc8 = val; break;
-			case 8: misc9 = val; break;
-			case 9: misc10 = val; break;
-		}
-		return;
-	}
 };
 
 struct wpndata
@@ -3086,6 +2923,9 @@ struct newcombo
 	byte trigcooldown;
 	byte trig_lstate, trig_gstate;
 	int32_t trig_statetime;
+	word trig_genscr;
+	byte trig_group;
+	word trig_group_val;
 	byte liftflags;
 	byte liftlvl;
 	byte liftsfx;
@@ -3111,6 +2951,9 @@ struct newcombo
 	int32_t o_tile;
 	byte cur_frame;
 	byte aclk;
+	byte speed_mult = 1;
+	byte speed_div = 1;
+	zfix speed_add;
 	
 	void set_tile(int32_t newtile)
 	{
@@ -3165,6 +3008,12 @@ struct newcombo
 		if(spawnip) return false;
 		if(trigcopycat) return false;
 		if(trigcooldown) return false;
+		if(trig_lstate) return false;
+		if(trig_gstate) return false;
+		if(trig_statetime) return false;
+		if(trig_genscr) return false;
+		if(trig_group) return false;
+		if(trig_group_val) return false;
 		if(strlen(label)) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
@@ -3197,6 +3046,9 @@ struct newcombo
 		if(prompt_x != 12) return false;
 		if(prompt_y != -8) return false;
 		
+		if(speed_mult != 1) return false;
+		if(speed_div != 1) return false;
+		if(speed_add) return false;
 		return true;
 	}
 	
@@ -4272,6 +4124,8 @@ struct gamedata
 	int32_t portalwarpfx;
 	int16_t portalspr;
 	
+	byte swim_mult = 1, swim_div = 1;
+	
 	bool gen_doscript[NUMSCRIPTSGENERIC];
 	word gen_exitState[NUMSCRIPTSGENERIC];
 	word gen_reloadState[NUMSCRIPTSGENERIC];
@@ -4608,6 +4462,8 @@ struct zinitdata
 	byte switchhookstyle;
 	
 	byte magicdrainrate;
+	
+	byte hero_swim_mult = 2, hero_swim_div = 3;
 	
 	bool gen_doscript[NUMSCRIPTSGENERIC];
 	word gen_exitState[NUMSCRIPTSGENERIC];
@@ -5551,22 +5407,8 @@ INLINE void SCRFIX()
 //INLINE int32_t new_return(int32_t x) { fake_pack_writing=false; return x; }
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
-//some methods for dealing with items
-int32_t getItemFamily(itemdata *items, int32_t item);
-void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family);
-void removeItemsOfFamily(zinitdata *i, itemdata *items, int32_t family);
-void removeLowerLevelItemsOfFamily(gamedata *g, itemdata *items, int32_t family, int32_t level);
-int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t family);
-int32_t getHighestLevelOfFamily(gamedata *source, itemdata *items, int32_t family, bool checkenabled = false);
-int32_t getHighestLevelEvenUnowned(itemdata *items, int32_t family);
-int32_t getItemID(itemdata *items, int32_t family, int32_t level);
-int32_t getCanonicalItemID(itemdata *items, int32_t family);
-int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power);
-void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char levels);
-int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family);
-
 extern void flushItemCache();
-extern void removeFromItemCache(int32_t itemid);
+extern void removeFromItemCache(int32_t itemclass);
 
 #define GLOBAL_SCRIPT_INIT 			0
 #define GLOBAL_SCRIPT_GAME			1
@@ -5597,8 +5439,9 @@ extern void removeFromItemCache(int32_t itemid);
 #define CHAS_TRIG     0x04
 #define CHAS_ANIM     0x08
 #define CHAS_SCRIPT   0x10
-#define CHAS_GENERAL  0x20
+#define CHAS_BASIC    0x20
 #define CHAS_LIFT     0x40
+#define CHAS_GENERAL  0x80
 
 #define SCRHAS_ROOMDATA  0x00000001
 #define SCRHAS_ITEM      0x00000002
@@ -5634,6 +5477,8 @@ struct pos_handle_t
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
 	rpos_t rpos;
+
+	// TODO z3 data() pos_handle.screen->data[pos]
 };
 
 struct ffc_handle_t
@@ -5677,6 +5522,28 @@ enum { midissuspNONE, midissuspHALTED, midissuspRESUME };
 enum swStyle //Switchhook animation styles
 {
 	swPOOF, swFLICKER, swRISE
+};
+
+enum //Special hardcoded draw layers
+{
+	SPLAYER_PLAYER_DRAW = -200000, //The player, when this occurs changes based on various conditions.
+	SPLAYER_EWEAP_BEHIND_DRAW, //Eweapons with 'Behind = true'
+	SPLAYER_EWEAP_FRONT_DRAW, //Eweapons with 'Behind = false'
+	SPLAYER_LWEAP_BEHIND_DRAW, //Lweapons with 'Behind = true'
+	SPLAYER_LWEAP_FRONT_DRAW, //Lweapons with 'Behind = false'
+	SPLAYER_LWEAP_ABOVE_DRAW, //Lweapons with (Z+FakeZ) > Init Data 'Jump Layer Height', IF the player is also above this height.
+	SPLAYER_CHAINLINK_DRAW, //Hookshot chain links
+	SPLAYER_NPC_DRAW, //Enemies
+	SPLAYER_NPC_ABOVEPLAYER_DRAW, //Enemies 'grabbing' the player, or with a higher Z than the player
+	SPLAYER_NPC_AIRBORNE_DRAW, //Flying enemies, or enemies in the Z axis (amount required QR dependant)
+	SPLAYER_ITEMSPRITE_DRAW, //Itemsprites
+	SPLAYER_FAIRYITEM_DRAW, //Moving fairies
+	SPLAYER_PUSHBLOCK, //Pushable Blocks
+	SPLAYER_MOVINGBLOCK, //Moving Pushable Blocks
+	SPLAYER_OVERHEAD_CMB, //Overhead combos
+	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
+	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
+	SPLAYER_DARKROOM_OVER, //Over dark room darkness
 };
 
 //

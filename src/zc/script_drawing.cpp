@@ -10762,8 +10762,10 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	
 	if(type > 7)
 		return;
-	if(theScreen->hidescriptlayers & (1<<type))
+	if(type >= 0 && theScreen->hidescriptlayers & (1<<type))
 		return; //Script draws hidden for this layer
+	if(!script_drawing_commands.is_dirty(type))
+		return; //No draws to this layer
 	//--script_drawing_commands[][] reference--
 	//[][0]: type
 	//[][1-16]: defined by type
@@ -11075,6 +11077,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 void CScriptDrawingCommands::Clear()
 {
 	scb.update();
+	dirty_layers.clear();
 	if(commands.empty())
 		return;
 	

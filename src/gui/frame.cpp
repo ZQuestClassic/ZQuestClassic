@@ -15,16 +15,34 @@ Frame::Frame(): frameStyle(style::ETCHED)
 
 void Frame::setTitle(const std::string& newTitle)
 {
-	title = " "+newTitle+" ";
+	if(newTitle.empty())
+		title = "";
+	else title = " "+newTitle+" ";
+	if(titleDlg)
+	{
+		titleDlg->dp = title.data();
+		titleDlg.message(MSG_START,0);
+		if(infoDlg)
+		{
+			infoDlg->x = titleDlg->x+titleDlg->w+2;
+			infoDlg->y = titleDlg->y;
+		}
+	}
+}
+void Frame::setInfo(const std::string& newInfo)
+{
+	info = newInfo;
 }
 
 void Frame::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
 	if(alDialog)
-	{
 		alDialog.applyVisibility(visible);
-	}
+	if(titleDlg)
+		titleDlg.applyVisibility(visible);
+	if(infoDlg)
+		infoDlg.applyVisibility(visible);
 	if(content)
 		content->setExposed(visible);
 }
@@ -33,10 +51,11 @@ void Frame::applyDisabled(bool dis)
 {
 	Widget::applyDisabled(dis);
 	if(alDialog)
-	{
 		alDialog.applyDisabled(dis);
-		alDialog.applyDisabled(dis,1);
-	}
+	if(titleDlg)
+		titleDlg.applyDisabled(dis);
+	if(infoDlg)
+		infoDlg.applyDisabled(dis);
 	if(content)
 		content->applyDisabled(dis);
 }
@@ -46,11 +65,9 @@ void Frame::calculateSize()
 	if(content)
 	{
 		content->calculateSize();
-		int32_t extraHeight;
+		int extraHeight = 8;
 		if(!title.empty())
-			extraHeight = 10;
-		else
-			extraHeight = 8;
+			extraHeight += text_height(widgFont);
 		setPreferredWidth(Size::pixels(content->getTotalWidth()+8));
 		setPreferredHeight(Size::pixels(content->getTotalHeight()+extraHeight));
 	}
@@ -67,10 +84,11 @@ void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 	Widget::arrange(contX, contY, contW, contH);
 	if(content)
 	{
+		int cnt_y = title.empty() ? y+4 : (y-3+text_height(widgFont)+2);
+		int extraHeight = 8;
 		if(!title.empty())
-			content->arrange(x+4, y+8, getWidth()-8, getHeight()-10);
-		else
-			content->arrange(x+4, y+4, getWidth()-8, getHeight()-8);
+			extraHeight += text_height(widgFont);
+		content->arrange(x+4, cnt_y, getWidth()-8, getHeight()-extraHeight);
 	}
 }
 
@@ -88,8 +106,8 @@ void Frame::realize(DialogRunner& runner)
 
 	if(!title.empty())
 	{
-		runner.push(shared_from_this(), DIALOG {
-			jwin_text_proc,
+		titleDlg = runner.push(shared_from_this(), DIALOG {
+			newGUIProc<jwin_text_proc>,
 			x+5, y-3, getWidth(), getHeight(),
 			fgColor, bgColor,
 			0,
@@ -97,20 +115,33 @@ void Frame::realize(DialogRunner& runner)
 			0, 0,
 			title.data(), widgFont, nullptr // dp, dp2, dp3
 		});
+		titleDlg.message(MSG_START,0);
 	}
 	else // No title
 	{
-		// runner.push(shared_from_this(), DIALOG {
-			// d_dummy_proc,
-			// 0, 0, 0, 0,
-			// 0, 0,
-			// 0,
-			// getFlags(),
-			// 0, 0,
-			// nullptr, nullptr, nullptr
-		// });
+		titleDlg = runner.push(shared_from_this(), DIALOG {
+			newGUIProc<jwin_text_proc>,
+			x+5, y-3, getWidth(), getHeight(),
+			fgColor, bgColor,
+			0,
+			getFlags(),
+			0, 0,
+			(void*)"", widgFont, nullptr // dp, dp2, dp3
+		});
+		titleDlg.message(MSG_START,0);
 	}
-
+	if(!info.empty())
+	{
+		infoDlg = runner.push(shared_from_this(), DIALOG {
+			newGUIProc<jwin_infobtn_proc>,
+			titleDlg->x+titleDlg->w+2, titleDlg->y, text_length(widgFont,"?")*3, titleDlg->h,
+			0, 0,
+			0,
+			getFlags(),
+			0, 0,
+			&info, widgFont, nullptr //dp, dp2, dp3
+		});
+	}
 	if(content)
 		content->realize(runner);
 }

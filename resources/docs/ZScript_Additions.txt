@@ -5578,6 +5578,23 @@ int Step;
  * NOTE: This affects BOTH 4-way and 8-way movement, but ONLY
  *       if the quest rule "New Hero Movement" is enabled.
 
+bool MoveXY(float dx, float dy, bool is_knockback = false,
+	bool ignore_sideview = false, bool corner_shove = true);
+ * Attempts to move the player by 'dx, dy'; obeying solidity.
+ * 'is_knockback' should be true if this movement is the result of some scripted form of knockback.
+ *     This currently has no effect for the player... It may in the future?
+ * 'ignore_sideview': if this is false, and the current screen is sideview gravity, 'dy' will be
+ *     ignored (unless the player is 'Climbing', has walk-through-walls enabled, or is sideview swimming)
+ * 'corner_shove': if this is true, and the movement is not diagonal (i.e. one of dx or dy is '0'),
+ *     then if the movement pushes the player into the corner of a solid, the player will automatically
+ *     be shoved 'around' the corner. (Same as how engine movement does it)
+ * Returns true if the full distance was moved, false otherwise.
+
+bool CanMoveXY(float dx, float dy, bool is_knockback = false,
+	bool ignore_sideview = false, bool corner_shove = true);
+ * Same as MoveXY, but does not move the player- instead, just returns true/false based on what
+ *     'MoveXY' would return.
+
 bool Animation;
  * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.
  * Set this false to disable engine animation.
@@ -6216,7 +6233,18 @@ int WeaponOverrideFlags;
 
 void GetName(char32 buffer[]);
  * Loads the item's name into 'buffer'.
- 
+
+void GetDisplayName(char32 buf[]);
+ * Fills the buffer with the item's Display Name.
+
+void SetDisplayName(char32 buf[]);
+ * Sets the item's Display Name to the contents of the buffer.
+
+void GetShownName(char32 buf[]);
+ * Fills the buffer with the name of the item as shown on the subscreen.
+ * This automatically handles display names, including special instances
+ *     such as the contents of Bottles.
+
 //! NOT IMPLEMENTED, or NOT FULLY-IMPLEMENTED. 
  
 int Range;
@@ -7140,10 +7168,10 @@ int TriggerCtrAmount;
  * TriggerFlags[TRIGFLAG_COUNTER_EAT]
  * TriggerFlags[TRIGFLAG_COUNTER_NOT_ONLY_TRIG_EAT]
 
-int TriggerSFX;
+int TrigSFX;
  * The SFX to play when the combo is triggered. If 0, no SFX will be played.
 
-int TriggerChange;
+int TrigChange;
  * The amount the combo will change by when triggered.
  * Ex. '1' acts as '->Next', '-1' acts as '->Prev'.
  * If '0', no change occurs.
@@ -7166,6 +7194,27 @@ int TrigSpawnItem;
 int TrigSpawnItemPickup;
  * The item pickup flags for the spawned item
  * Only the flags IP_HOLDUP, IP_TIMEOUT, IP_TRIGGERSECRETS, IP_ALWAYSGRAB are used.
+
+int TrigLevelState;
+ * The LevelState used for the `TRIGFLAG_TRIGLEVELSTATE` and `TRIGFLAG_LEVELSTATE`
+ *     flags. 0-31, inclusive.
+int TrigGlobalState;
+ * The GlobalState used for the `TRIGFLAG_TRIGGLOBALSTATE` and `TRIGFLAG_GLOBALSTATE`
+ *     flags. 0-255, inclusive.
+int TrigGStateTimer;
+ * If `> 0`,  the global trigger caused by `TRIGFLAG_GLOBALSTATE` will set to
+ *     the 'on' state with this value as a timer in frames.
+ * If this value is 0, it instead toggles the state as normal.
+
+int TrigGroup;
+ * The Trigger Group used for the `TRIGFLAG_TGROUP_CONTRIB`, `TRIGFLAG_TGROUP_LESS`, and `TRIGFLAG_TGROUP_GREATER` flags.
+ * 0-255, inclusive.
+int TrigGroupVal;
+ * The value used for the `TRIGFLAG_TGROUP_LESS` and `TRIGFLAG_TGROUP_GREATER` flags.
+ * 0-65535, inclusive.
+
+int TrigGenScript;
+ * When triggered, this generic script will be run in the 'RunFrozen' mode.
 
 int LiftGFXCombo;
  * The 'Other Combo GFX' field

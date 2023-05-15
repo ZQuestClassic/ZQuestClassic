@@ -19,6 +19,7 @@
 #include "base/zsys.h"
 #include "tiles.h"
 #include "maps.h"
+#include "items.h"
 
 extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;

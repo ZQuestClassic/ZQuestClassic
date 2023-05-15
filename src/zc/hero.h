@@ -33,6 +33,7 @@
 #include "zc_custom.h"
 #include "subscr.h"
 #include "zfix.h"
+#include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -276,6 +277,8 @@ public:
 	zfix respawn_x, respawn_y;
 	uint16_t respawn_dmap, respawn_scr;
 	
+	zfix convey_forcex, convey_forcey;
+	
 	zfix falling_oldy; // Used by the Stomp Boots in sideview
 	byte dontdraw;
 	byte warp_sound;
@@ -346,9 +349,18 @@ public:
 	int32_t check_pitslide(bool ignore_hover = false);
 	bool pitslide();
 	void pitfall();
+	void moveheroOld();
+	void mod_steps(std::vector<zfix*>& v);
+	void get_move(int movedir, zfix& dx, zfix& dy);
+	bool scr_walkflag(int dx,int dy,int dir,int mx,int my,bool kb);
+	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
+	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
+	bool can_movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false);
+	bool premove();
 	void movehero();
-	void move(int32_t d, int32_t forceRate = -1);
+	bool new_engine_move(zfix dx, zfix dy);
 	void moveOld(int32_t d2);
+	void moveOld2(int32_t d2, int32_t forceRate = -1);
 	int32_t hithero(int32_t hit, int32_t force_hdir = -1);
 	int32_t  nextcombo(int32_t cx,int32_t cy,int32_t cdir);
 	int32_t  nextflag(int32_t cx,int32_t cy,int32_t cdir, bool comboflag);
@@ -421,6 +433,7 @@ private:
 	void stepout();
 	void masked_draw(BITMAP *dest);
 	void prompt_draw(BITMAP *dest);
+	void handle_triforce(int32_t id);
 	void getTriforce(int32_t id);
 	int32_t weaponattackpower(int32_t itid = -1);
 	void positionNet(weapon* w,int32_t itemid);

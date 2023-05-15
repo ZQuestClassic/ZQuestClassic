@@ -6,6 +6,7 @@
 #include "../tiles.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include <fmt/format.h>
 
 extern bool saved;
 extern zcmodule moduledata;
@@ -21,8 +22,6 @@ using std::to_string;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
-static int32_t scroll_pos1 = 0, scroll_pos2 = 0, scroll_pos3 = 0, scroll_pos4 = 0,
-	scroll_pos5 = 0, scroll_pos6 = 0, scroll_pos7 = 0, scroll_pos8 = 0;
 static bool combo_use_script_data = true;
 
 bool hasCTypeEffects(int32_t type)
@@ -80,6 +79,7 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_ctype(GUI::ZCListData::combotype(true)),
 	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
 	list_combscript(GUI::ZCListData::combodata_script()),
+	list_genscr(GUI::ZCListData::generic_script()),
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
@@ -95,10 +95,10 @@ ComboEditorDialog::ComboEditorDialog(int32_t index):
 //{ Help Strings
 static const char *combotype_help_string[cMAX] =
 {
-	"Select a Type, then click this button to find out what it does.",
+	"",
 	"The player is warped via Tile Warp A if they step on the bottom half of this combo.",
 	"The player marches down into this combo and is warped via Tile Warp A if they step on this. The combo's tile will be drawn above the player during this animation.",
-	"Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it.",
+	"",
 	"",
 	"",
 	"Raft paths must begin on a Dock-type combo. (Use the Raft combo flag to create raft paths.)",
@@ -156,9 +156,9 @@ static const char *combotype_help_string[cMAX] =
 	"Identical to Slash->Item, but when it is slashed, Flower Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
 	"Identical to Slash->Item, but when it is slashed, Grass Clippings sprites are drawn and the 'Tall Grass slashed' sound plays.",
 	"Ripples sprites are drawn on the player when they walk on this combo. Also, Quake Hammer pounds are nullified by this combo.",
-	"If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up.",
+	"",
 	"Identical to Lock Block, but if any other Lock Blocks are opened on the same screen, this changes to the next combo.",
-	"If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set.",
+	"",
 	"Identical to Lock Block (Boss), but if any other Boss Lock Blocks are opened on the same screen, this changes to the next combo.",
 	"If this combo is solid, the Ladder can be used to cross over it. Only works on layer 0.",
 	"",
@@ -265,123 +265,7 @@ static const char *combotype_help_string[cMAX] =
 	"",
 	"Switchblock combos change based on switch states toggled by Switch combos. They can also change"
 		" the combo at the same position on any layer.",
-	"Emits light in a radius in dark rooms (when \"Quest->Options->Misc->New Dark Rooms\" is enabled)"
-};
-
-static const char *flag_help_string[mfMAX] =
-{
-	"",
-	"Allows the Player to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.",
-	"Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.",
-	"Makes a heart circle appear on screen when the Player steps on it, and refills his life. See also the Heart Circle-related Quest Rules.",
-	"Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.",
-	"When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.",
-	"When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.",
-	"Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.",
-	"Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.",
-	"When the Player dives on a flagged water-type combo they will recieve the screen's Special Item. Requires the 'Special Item' Room Type.",
-	"Combos with this flag will flash white when viewed with the Lens of Truth item.",
-	"When the Player steps on this flag, the quest will end, and the credits will roll.",
-	// 16-31
-	"",
-	"",
-	"",//18
-	"",
-	"",
-	"",//21
-	"",
-	"",
-	"",//24
-	"",
-	"",
-	"",//27
-	"",
-	"",
-	"",//30
-	"",
-	// Anyway...
-	"Creates the lowest-numbered enemy with the 'Spawned by 'Horz Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by 'Vert Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by '4-Way Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by 'LR Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	"Creates the lowest-numbered enemy with the 'Spawned by 'UD Trap' Combo Type/Flag' enemy data flag on the flagged combo.",
-	// Enemy 0-9
-	"",
-	"",
-	"",//2
-	"",
-	"",
-	"",//5
-	"",
-	"",
-	"",//8
-	"",
-	//Anyway...
-	"Allows the Player to push the combo left or right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo up once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo left once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	"Allows the Player to push the combo right once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",
-	// Push Silent
-	"",//52
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",//59
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	//Anyway...
-	"Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters.",
-	"Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.",
-	"Triggers Screen Secrets when the Player touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.",
-	"Triggers Screen Secrets when the Player pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.",
-	"Triggers Screen Secrets when the Player touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.",
-	"A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it.",
-	"Makes a heart circle appear on screen when the Player steps on it, and refills his magic. See also the Heart Circle-related Quest Rules.",
-	"Makes a heart circle appear on screen when the Player steps on it, and refills his life and magic. See also the Heart Circle-related Quest Rules.",
-	"When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.",
-	"Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)",
-	"Enemies cannot enter or appear on the flagged combo.",
-	"Enemies that don't fly or jump cannot enter or appear on the flagged combo.",
-	//Script Flags follow.
-	"",
-	"",
-	"",
-	"",
-	"",
-	//Raft bounce flag! ^_^
-	"When the Player is rafting, and hits this flag, they will be turned around."
+	""
 };
 //}
 
@@ -393,6 +277,10 @@ std::string getComboTypeHelpText(int32_t id)
 	{
 		case cNONE:
 			typehelp = "Select a Type, then click this button to find out what it does.";
+			break;
+		case cWATER:
+			typehelp = "Liquid can contain Zora enemies and can be crossed with various weapons and items. If the matching quest rule is set, the player can drown in it."
+				+ QRHINT({qr_DROWN,qr_SMARTER_WATER,qr_NO_HOPPING,qr_NO_SOLID_SWIM,qr_WATER_ON_LAYER_1,qr_WATER_ON_LAYER_2,qr_SIDESWIM,qr_SIDESWIMDIR,qr_SHALLOW_SENSITIVE,qr_NO_SCROLL_WHILE_IN_AIR});
 			break;
 		case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 		case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
@@ -418,6 +306,19 @@ std::string getComboTypeHelpText(int32_t id)
 				typehelp += "\nRequires a key to open.";
 			else if(id==cBOSSCHEST)
 				typehelp += "\nRequires the Boss Key to open.";
+			typehelp += QRHINT({qr_OLD_CHEST_COLLISION});
+			break;
+		case cLOCKBLOCK:
+			typehelp = "If the combo is solid and the player pushes it with at least one Key, it changes to the next combo, the 'Lock Blocks' Screen State is set, and one key is used up."
+				+ QRHINT({qr_OLD_LOCKBLOCK_COLLISION});
+			break;
+		case cBOSSLOCKBLOCK:
+			typehelp = "If the combo is solid and the player pushes it with the Boss Key, it changes to the next combo and the 'Boss Lock Blocks' Screen State is set."
+				+ QRHINT({qr_OLD_LOCKBLOCK_COLLISION});
+			break;
+		case cTORCH:
+			typehelp = "Emits light in a radius in dark rooms (when QR 'New Dark Rooms' is enabled)"
+				+ QRHINT({qr_NEW_DARKROOM});
 			break;
 		case cSIGNPOST:
 			typehelp = "Signpost combos can be set to display a string. This can be hard-coded,"
@@ -497,13 +398,179 @@ std::string getComboTypeHelpText(int32_t id)
 std::string getMapFlagHelpText(int32_t id)
 {
 	std::string flaghelp = "?? Missing documentation! ??";
-	if(flag_help_string[id] && flag_help_string[id][0])
-		flaghelp = flag_help_string[id];
 	switch(id)
 	{
 		case 0:
 			flaghelp = "Select a Flag, then click this button to find out what it does.";
 			break;
+		case mfPUSHUD:
+			flaghelp = "Allows the Player to push the combo up or down once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			break;
+		case mfPUSH4:
+			flaghelp = "Allows the Player to push the combo in any direction once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.";
+			break;
+		case mfWHISTLE:
+			flaghelp = "Triggers Screen Secrets when the Player plays the Whistle on it. Is replaced with the 'Whistle' Secret Combo. Doesn't interfere with Whistle related Screen Flags.";
+			break;
+		case mfANYFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from any source. Is replaced with the 'Any Fire' Secret Combo.";
+			break;
+		case mfARROW:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Arrows. Is replaced with the 'Wooden Arrow' Secret Combo.";
+			break;
+		case mfBOMB:
+			flaghelp = "Triggers Screen Secrets when the middle part of a Bomb explosion touches it. Is replaced with the 'Bomb' Secret Combo.";
+			break;
+		case mfRAFT:
+			flaghelp = "Place in paths to define the path the Player travels when using the Raft. Use with Dock-type combos. If a path branches, the Player takes the clockwise-most path.";
+			break;
+		case mfARMOS_SECRET:
+			flaghelp = "When placed on an Armos-type combo, causes the 'Stairs'  Secret Combo to appear when the Armos is triggered, instead of the screen's Under Combo.";
+			break;
+		case mfARMOS_ITEM:
+			flaghelp = "When placed on an Armos or treasure chest, causes the room's Special Item to appear when the combo is activated. Requires the 'Special Item' Room Type.";
+			break;
+		case mfSBOMB:
+			flaghelp = "Triggers Screen Secrets when the middle part of a Super Bomb explosion touches it. Is replaced with the 'Super Bomb' Secret Combo.";
+			break;
+		case mfRAFT_BRANCH:
+			flaghelp = "Place at intersections of Raft flag paths to define points where the player may change directions. Change directions by holding down a directional key.";
+			break;
+		case mfDIVE_ITEM:
+			flaghelp = "When the Player dives on a flagged water-type combo they will recieve the screen's Special Item. Requires the 'Special Item' Room Type.";
+			break;
+		case mfLENSMARKER:
+			flaghelp = "Combos with this flag will flash white when viewed with the Lens of Truth item.";
+			break;
+		case mfZELDA:
+			flaghelp = "When the Player steps on this flag, the quest will end, and the credits will roll.";
+			break;
+		case mfTRAP_H:
+		case mfTRAP_V:
+		case mfTRAP_4:
+		case mfTRAP_LR:
+		case mfTRAP_UD:
+		{
+			static const char* name[]{"Horz","Vert","4-Way","LR","UD"};
+			flaghelp = fmt::format("Creates the lowest-numbered enemy with the 'Spawned by '{} Trap' Combo Type/Flag' enemy data flag on the flagged combo.",name[id-mfTRAP_H]);
+			break;
+		}
+		case mfPUSHLR:
+		case mfPUSHU:
+		case mfPUSHD:
+		case mfPUSHL:
+		case mfPUSHR:
+		{
+			static const char* name[]{"left or right","up","down","left","right"};
+			flaghelp = fmt::format("Allows the Player to push the combo {} once, triggering Screen Secrets (or just the 'Stairs', secret combo) as well as Block->Shutters.",name[id-mfPUSHLR]);
+			break;
+		}
+		case mfBLOCKTRIGGER:
+			flaghelp = "Pushing blocks onto ALL Block Triggers will trigger Screen Secrets (or just the 'Stairs' secret combo) as well as Block->Shutters."
+				+ QRHINT({qr_NONHEAVY_BLOCKTRIGGER_PERM,qr_BLOCKHOLE_SAME_ONLY,qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,qr_PUSHBLOCK_LAYER_1_2});
+			break;
+		case mfNOBLOCKS:
+			flaghelp = "Prevents push blocks from being pushed onto the flagged combo, even if it is not solid.";
+			break;
+		case mfBRANG:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Boomerangs. Is replaced with the 'Wooden Boomerang' Secret Combo.";
+			break;
+		case mfMBRANG:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Boomerang. Is replaced with the 'Magic Boomerang' Secret Combo.";
+			break;
+		case mfFBRANG:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Boomerang. Is replaced with the 'Fire Boomerang' Secret Combo.";
+			break;
+		case mfSARROW:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Arrow. Is replaced with the 'Silver Arrow' Secret Combo.";
+			break;
+		case mfGARROW:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Arrow. Is replaced with the 'Golden Arrow' Secret Combo.";
+			break;
+		case mfSTRONGFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Strong Fire' source. Is replaced with the 'Strong Fire' Secret Combo.";
+			break;
+		case mfMAGICFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Magic Fire' source. Is replaced with the 'Magic Fire' Secret Combo.";
+			break;
+		case mfDIVINEFIRE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with fire from a 'Divine Fire' source. Is replaced with the 'Divine Fire' Secret Combo.";
+			break;
+		case mfWANDMAGIC:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with Wand magic, be it fire or not. Is replaced with the 'Wand Magic' Secret Combo.";
+			break;
+		case mfREFMAGIC:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with reflected Wand magic. Is replaced with the 'Reflected Magic' Secret Combo.";
+			break;
+		case mfREFFIREBALL:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a Shield-reflected fireball. Is replaced with the 'Reflected Fireball' Secret Combo.";
+			break;
+		case mfSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Swords. Is replaced with the 'Wooden Sword' Secret Combo.";
+			break;
+		case mfWSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword. Is replaced with the 'White Sword' Secret Combo.";
+			break;
+		case mfMSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword. Is replaced with the 'Magic Sword' Secret Combo.";
+			break;
+		case mfXSWORD:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword. Is replaced with the 'Master Sword' Secret Combo.";
+			break;
+		case mfSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Sword beams. Is replaced with the 'Sword Beam' Secret Combo.";
+			break;
+		case mfWSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 2 or higher Sword's beam. Is replaced with the 'White Sword Beam' Secret Combo.";
+			break;
+		case mfMSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 3 or higher Sword's beam. Is replaced with the 'Magic Sword Beam' Secret Combo.";
+			break;
+		case mfXSWORDBEAM:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with a level 4 or higher Sword's beam. Is replaced with the 'Master Sword Beam' Secret Combo.";
+			break;
+		case mfHOOKSHOT:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Hookshot hooks. Is replaced with the 'Hookshot' Secret Combo.";
+			break;
+		case mfWAND:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with one of his Wands. Is replaced with the 'Wand' Secret Combo.";
+			break;
+		case mfHAMMER:
+			flaghelp = "Triggers Screen Secrets when the Player pounds it with one of his Hammers. Is replaced with the 'Hammer' Secret Combo.";
+			break;
+		case mfSTRIKE:
+			flaghelp = "Triggers Screen Secrets when the Player touches it with any weapon or projectile. Is replaced with the 'Any Weapon' Secret Combo.";
+			break;
+		case mfBLOCKHOLE:
+			flaghelp = "A push block pushed onto this flag will cycle to the next combo in the list, and lose the Push flag that was presumably on it."
+				+ QRHINT({qr_BLOCKHOLE_SAME_ONLY,qr_PUSHBLOCK_LAYER_1_2});
+			break;
+		case mfSINGLE:
+			flaghelp = "When stacked with a Trigger Combo Flag, it prevents the triggered Secrets process from changing all other flagged combos on-screen.";
+			break;
+		case mfSINGLE16:
+			flaghelp = "Similar to 'Trigger->Self Only', but the Secret Tile (16-31) flagged combos will still change. (The 'Hit All Triggers->16-31' Screen Flag overrides this.)";
+			break;
+		case mfNOENEMY:
+			flaghelp = "Enemies cannot enter or appear on the flagged combo.";
+			break;
+		case mfNOGROUNDENEMY:
+			flaghelp = "Enemies that don't fly or jump cannot enter or appear on the flagged combo.";
+			break;
+		
+		case mfRAFT_BOUNCE:
+			flaghelp = "When the Player is rafting, and hits this flag, they will be turned around.";
+			break;
+		
+		case mfFAIRY:
+		case mfMAGICFAIRY:
+		case mfALLFAIRY:
+		{
+			static const char* name[]{"life","magic","life and magic"};
+			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[id-mfFAIRY])
+				+ QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
+			break;
+		}
 		case mfSECRETS01: case mfSECRETS02: case mfSECRETS03: case mfSECRETS04:
 		case mfSECRETS05: case mfSECRETS06: case mfSECRETS07: case mfSECRETS08:
 		case mfSECRETS09: case mfSECRETS10: case mfSECRETS11: case mfSECRETS12:
@@ -540,13 +607,15 @@ std::string getMapFlagHelpText(int32_t id)
 		}
 		case mfSIDEVIEWLADDER:
 		{
-			flaghelp = "On a sideview screen, allows climbing. The topmost ladder in a column doubles as a Sideview Platform.";
+			flaghelp = "On a sideview screen, allows climbing. The topmost ladder in a column doubles as a Sideview Platform."
+				+ QRHINT({qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK,qr_SIDEVIEWLADDER_FACEUP,qr_DOWN_DOESNT_GRAB_LADDERS});
 			break;
 		}
 		case mfSIDEVIEWPLATFORM:
 		{
 			flaghelp = "On a sideview screen, can be stood on top of, even when nonsolid. Can be jumped through"
-				" from below, and depending on QRs, can also be dropped through.";
+				" from below, and depending on QRs, can also be dropped through."
+				+ QRHINT({qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS,qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK});
 			break;
 		}
 		case mfNOENEMYSPAWN:
@@ -853,16 +922,14 @@ void ComboEditorDialog::loadComboType()
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:
 		{
-			l_flag[0] = "Stunned while moving";
-			h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
 			l_flag[1] = "Custom Speed";
 			h_flag[1] = "Uses a custom speed/direction via attributes. If disabled, moves at 2 pixels every 3 frames in the " + dirstr[local_comboref.type-cCVUP] + "ward direction.";
 			l_flag[2] = "Force Dir";
 			h_flag[2] = "Forces the Player to face in the conveyor's direction";
-			l_flag[3] = "Smart Corners";
-			h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			l_flag[4] = "Heavy Boots Disable";
 			h_flag[4] = "If the player has boots with the 'heavy' flag, the conveyor will not push them.";
+			l_flag[5] = "Force Walk";
+			h_flag[5] = "The player will walk the speed/dir of the conveyor, unable to walk against it. Requires Newer Player Movement." + QRHINT({qr_NEW_HERO_MOVEMENT2});
 			if(FL(cflag2)) //Custom speed
 			{
 				l_attribute[0] = "X Speed:";
@@ -871,6 +938,13 @@ void ComboEditorDialog::loadComboType()
 				h_attribute[1] = "Pixels moved in the Y direction per rate frames";
 				l_attribyte[0] = "Rate:";
 				h_attribyte[0] = "Every this many frames the conveyor moves by the set speeds. If set to 0, acts as if set to 1.";
+			}
+			if(!FL(cflag6)) //Force Walk
+			{
+				l_flag[0] = "Stunned while moving";
+				h_flag[0] = "While the conveyor is moving the Player, they are 'stunned'.";
+				l_flag[3] = "Smart Corners";
+				h_flag[3] = "Uses the half-combo-grid to help avoid getting stuck on corners";
 			}
 			break;
 		}
@@ -2066,15 +2140,23 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::CMB_INITD(int index)
 	);
 }
 
-std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str)
+std::shared_ptr<GUI::Checkbox> ComboEditorDialog::TRIGFLAG(int index, const char* str, int cspan)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	
+	if(index < 0)
+	{
+		return Checkbox(
+			text = str, hAlign = 0.0, colSpan = cspan,
+			fitParent = true, disabled = true
+		);
+	}
+	
 	return Checkbox(
 		text = str, hAlign = 0.0,
 		checked = (local_comboref.triggerflags[index/32] & (1<<(index%32))),
-		fitParent = true,
+		fitParent = true, colSpan = cspan,
 		onToggleFunc = [&, index](bool state)
 		{
 			SETFLAG(local_comboref.triggerflags[index/32],(1<<(index%32)),state);
@@ -2379,33 +2461,34 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						CMB_FLAG(15)
 					)
 				)),
-				TabRef(name = "Attribs", ScrollingPane(
-					ptr = &scroll_pos1,
-					fitParent = true,
-					Rows<6>(
-						Label(text = "Attribytes", colSpan = 3),
-						Label(text = "Attrishorts", colSpan = 3),
+				TabRef(name = "Attribs 1", Row(
+					Rows<3>(framed = true, frameText = "Attribytes",
 						CMB_ATTRIBYTE(0),
-						CMB_ATTRISHORT(0),
 						CMB_ATTRIBYTE(1),
-						CMB_ATTRISHORT(1),
 						CMB_ATTRIBYTE(2),
-						CMB_ATTRISHORT(2),
 						CMB_ATTRIBYTE(3),
-						CMB_ATTRISHORT(3),
 						CMB_ATTRIBYTE(4),
-						CMB_ATTRISHORT(4),
 						CMB_ATTRIBYTE(5),
-						CMB_ATTRISHORT(5),
 						CMB_ATTRIBYTE(6),
+						CMB_ATTRIBYTE(7)
+					),
+					Rows<3>(framed = true, frameText = "Attrishorts",
+						CMB_ATTRISHORT(0),
+						CMB_ATTRISHORT(1),
+						CMB_ATTRISHORT(2),
+						CMB_ATTRISHORT(3),
+						CMB_ATTRISHORT(4),
+						CMB_ATTRISHORT(5),
 						CMB_ATTRISHORT(6),
-						CMB_ATTRIBYTE(7),
-						CMB_ATTRISHORT(7),
-						Label(text = "Attributes", colSpan = 3), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(0), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(1), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(2), DummyWidget(colSpan = 3),
-						CMB_ATTRIBUTE(3), DummyWidget(colSpan = 3)
+						CMB_ATTRISHORT(7)
+					)
+				)),
+				TabRef(name = "Attribs 2", Row(
+					Rows<3>(framed = true, frameText = "Attributes",
+						CMB_ATTRIBUTE(0),
+						CMB_ATTRIBUTE(1),
+						CMB_ATTRIBUTE(2),
+						CMB_ATTRIBUTE(3)
 					)
 				)),
 				TabRef(name = "Triggers", TabPanel(
@@ -2685,37 +2768,108 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							)
 						)
 					)),
-					TabRef(name = "Effects", Row(
-						Rows<2>(
-							framed = true,
-							INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
-								" unless 'Temporary Secrets' screen data flag is checked."),
-							TRIGFLAG(48,"Triggers Secrets"),
-							INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
-								" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
-								" Not available for all combo types; will be greyed out when unavailable."),
-							cteff_tflag = TRIGFLAG(28,"ComboType Effects"),
-							INFOBTN("The combo will ignore methods of triggering its standard effects that"
-								" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
-								" unless the 'Sword' weapon trigger is checked."),
-							TRIGFLAG(29,"Only Gen Triggers"),
-							INFOBTN("If triggered by a weapon, the triggering weapon will be destroyed"),
-							TRIGFLAG(30, "Kill Triggering Weapon"),
-							INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
-								" (by any trigger effect), the new combo is the one that resets."),
-							TRIGFLAG(18,"Reset Anim"),
-							INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
-							TRIGFLAG(100, "Kill Enemies"),
-							INFOBTN("Delete all enemies on screen."),
-							TRIGFLAG(101, "Clear Enemies"),
-							INFOBTN("Delete all LWeapons on screen."),
-							TRIGFLAG(102, "Clear LWeapons"),
-							INFOBTN("Delete all EWeapons on screen."),
-							TRIGFLAG(103, "Clear EWeapons")
+					TabRef(name = "Effects", Rows<2>(
+						Column(padding = 0_px, vAlign = 1.0,
+							Frame(hAlign = 1.0, title = "Misc Effects",
+								Column(padding = 0_px,
+									Rows<2>(hAlign = 0.0,
+										INFOBTN("Triggering the combo will trigger screen secrets. Will be permanent,"
+											" unless 'Temporary Secrets' screen data flag is checked."),
+										TRIGFLAG(48,"Triggers Secrets"),
+										INFOBTN("After triggering, the combo animation is reset. If the combo has changed"
+											" (by any trigger effect), the new combo is the one that resets."),
+										TRIGFLAG(18,"Reset Anim"),
+										INFOBTN("Kill all enemies on screen (same as 'kill all enemies' item)"),
+										TRIGFLAG(100, "Kill Enemies"),
+										INFOBTN("Delete all enemies on screen."),
+										TRIGFLAG(101, "Clear Enemies"),
+										INFOBTN("Delete all LWeapons on screen."),
+										TRIGFLAG(102, "Clear LWeapons"),
+										INFOBTN("Delete all EWeapons on screen."),
+										TRIGFLAG(103, "Clear EWeapons")
+									),
+									Rows<3>(hAlign = 0.0,
+										Label(text = "Combo Change:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -65535, high = 65535, val = local_comboref.trigchange,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigchange = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("Combo Change","If the value is not 0, the combo will"
+													" change by that much when triggered."
+													"\nEx. '1' causes '->Next', '-1' causes '->Prev'.").show();
+											}
+										),
+										Label(text = "CSet Change:", fitParent = true),
+										TextField(
+											fitParent = true,
+											vPadding = 0_px,
+											type = GUI::TextField::type::INT_DECIMAL,
+											low = -15, high = 15, val = local_comboref.trigcschange,
+											onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+											{
+												local_comboref.trigcschange = val;
+											}),
+										Button(
+											width = 1.5_em, padding = 0_px, forceFitH = true,
+											text = "?", hAlign = 1.0, onPressFunc = [&]()
+											{
+												InfoDialog("CSet Change","If the value is not 0, the cset will"
+													" change by that much when triggered."
+													"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.").show();
+											}
+										)
+									)
+								)
+							)
 						),
 						Column(padding = 0_px,
-							Rows<3>(framed = true, hAlign = 0.0,
-								Label(text = "SFX:", fitParent = true),
+							Frame(hAlign = 0.0, title = "Weapon",
+								info = "Trigger effects related to the weapon that triggered this combo. These"
+									" effects will not occur if the combo is triggered by a non-weapon trigger.",
+								Rows<2>(
+									INFOBTN("Destroy the triggering weapon"),
+									TRIGFLAG(30, "Kill Triggering Weapon"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Any Fire' triggers."),
+									TRIGFLAG(104, "Ignite Weapon (Any)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Strong Fire' triggers."),
+									TRIGFLAG(105, "Ignite Weapon (Strong)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Magic Fire' triggers."),
+									TRIGFLAG(106, "Ignite Weapon (Magic)"),
+									INFOBTN("Light the triggering weapon on fire, making it trigger 'Divine Fire' triggers."),
+									TRIGFLAG(107, "Ignite Weapon (Divine)")
+								)
+							),
+							Frame(hAlign = 0.0, title = "Trigger Handling",
+								info = "These flags have important / notable effects which change how the trigger is handled.",
+								Rows<2>(
+									INFOBTN("TODO @Emily"),
+									TRIGFLAG(-1,"ComboType Trigger->"),
+									INFOBTN("Triggering the combo will cause its inherent type-based effects to occur."
+										" Ex. Triggering a 'Signpost' displays its' string, triggering a chest opens it."
+										" Not available for all combo types; will be greyed out when unavailable."),
+									cteff_tflag = TRIGFLAG(28,"->ComboType Effects"),
+									INFOBTN("The combo will ignore methods of triggering its standard effects that"
+										" are not from the 'Triggers' tab; Ex. a bush will no longer react to swords,"
+										" unless the 'Sword' weapon trigger is checked."),
+									TRIGFLAG(29,"Only Gen Triggers"),
+									INFOBTN("If triggered by a weapon, only the effects from the 'Weapon'"
+										" section will occur- all other flags will only apply to non-weapon triggers."),
+									TRIGFLAG(108,"Weapon Separate Triggers")
+								)
+							)
+						),
+						Frame(colSpan = 2,
+							Rows<3>(
+								Label(text = "SFX:", hAlign = 1.0),
 								DropDownList(data = list_sfx,
 									vPadding = 0_px,
 									fitParent = true, selectedValue = local_comboref.trigsfx,
@@ -2730,45 +2884,20 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										InfoDialog("Trigger SFX","If the value is >0, the combo will"
 											" play the specified SFX when triggered.").show();
 									}
-								)
-							),
-							Rows<3>(framed = true, hAlign = 0.0,
-								Label(text = "Combo Change:", fitParent = true),
-								TextField(
-									fitParent = true,
-									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -65535, high = 65535, val = local_comboref.trigchange,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-									{
-										local_comboref.trigchange = val;
-									}),
-								Button(
-									width = 1.5_em, padding = 0_px, forceFitH = true,
-									text = "?", hAlign = 1.0, onPressFunc = [&]()
-									{
-										InfoDialog("Combo Change","If the value is not 0, the combo will"
-											" change by that much when triggered."
-											"\nEx. '1' causes '->Next', '-1' causes '->Prev'.").show();
-									}
 								),
-								Label(text = "CSet Change:", fitParent = true),
-								TextField(
-									fitParent = true,
+								Label(text = "RunFrozen:", hAlign = 1.0),
+								DropDownList(data = list_genscr,
 									vPadding = 0_px,
-									type = GUI::TextField::type::INT_DECIMAL,
-									low = -15, high = 15, val = local_comboref.trigcschange,
-									onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+									fitParent = true, selectedValue = local_comboref.trig_genscr,
+									onSelectFunc = [&](int32_t val)
 									{
-										local_comboref.trigcschange = val;
+										local_comboref.trig_genscr = val;
 									}),
 								Button(
 									width = 1.5_em, padding = 0_px, forceFitH = true,
 									text = "?", hAlign = 1.0, onPressFunc = [&]()
 									{
-										InfoDialog("CSet Change","If the value is not 0, the cset will"
-											" change by that much when triggered."
-											"\nEx. '1' causes '->Next CSet', '-1' causes '->Prev CSet'.").show();
+										InfoDialog("Run Frozen Generic Script","The selected generic script will be run in the 'Frozen' mode. (See 'genericdata->RunFrozen()' documentation)").show();
 									}
 								)
 							)
@@ -2982,21 +3111,57 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										" state with this duration, in frames, instead of toggling"
 										" the global state.").show();
 								}
+							),
+							Label(text = "Trigger Group:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 255, val = local_comboref.trig_group,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_group = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Trigger Group","The Trigger Group used by the flags"
+										" 'TrigGroup Less->', 'TrigGroup Greater->', and '->TrigGroup'. 0-255.").show();
+								}
+							),
+							Label(text = "Trigger Group Val:", fitParent = true),
+							TextField(
+								fitParent = true,
+								vPadding = 0_px,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = 0, high = 65535, val = local_comboref.trig_group_val,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.trig_group_val = val;
+								}),
+							Button(
+								width = 1.5_em, padding = 0_px, forceFitH = true,
+								text = "?", hAlign = 1.0, onPressFunc = [&]()
+								{
+									InfoDialog("Trigger Group Val","The value used by the flags"
+										" 'TrigGroup Less->' and 'TrigGroup Greater->'. 0-65535.").show();
+								}
 							)
 						),
-						Rows<2>(framed = true, fitParent = true,
+						Rows<4>(framed = true, fitParent = true,
 							INFOBTN("'Req Item:' must NOT be owned to trigger"),
-							TRIGFLAG(49,"Invert Item Req"),
+							TRIGFLAG(49,"Invert Item Req",3),
 							INFOBTN("'Req Item:' will be taken when triggering"),
-							TRIGFLAG(50,"Consume Item Req"),
+							TRIGFLAG(50,"Consume Item Req",3),
 							INFOBTN("'Spawn Item' will be linked to the room's Special Item state"),
-							TRIGFLAG(83, "Spawns Special Item"),
+							TRIGFLAG(83, "Spawns Special Item",3),
 							INFOBTN("The combo's 'ExState' will be set when the spawned item is picked up, rather than when it is triggered."),
-							TRIGFLAG(84, "Trigger ExState after item pickup"),
+							TRIGFLAG(84, "Trigger ExState after item pickup",3),
 							INFOBTN("The combo's 'ExState' will be set when the spawned enemy is defeated, rather than when it is triggered."),
-							TRIGFLAG(85, "Trigger ExState after enemy kill"),
+							TRIGFLAG(85, "Trigger ExState after enemy kill",3),
 							INFOBTN("The item spawned by the combo will automatically be collected by the player."),
-							TRIGFLAG(86, "Spawned Item auto-collects"),
+							TRIGFLAG(86, "Spawned Item auto-collects",3),
 							INFOBTN("This combo is triggered when the level-based switch state specified as 'LevelState' is toggled."),
 							TRIGFLAG(96, "LevelState->"),
 							INFOBTN("When triggered, toggles the level-based switch state specified as 'LevelState'."),
@@ -3005,7 +3170,13 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							TRIGFLAG(98, "GlobalState->"),
 							INFOBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
 								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
-							TRIGFLAG(99, "->GlobalState")
+							TRIGFLAG(99, "->GlobalState"),
+							INFOBTN("This combo contributes to it's Trigger Group."),
+							TRIGFLAG(109, "Contributes To TrigGroup",3),
+							INFOBTN("When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo."),
+							TRIGFLAG(110, "TrigGroup Less->"),
+							INFOBTN("When the number of combos that contribute to this combo's Trigger Group is GREATER than the Trigger Group Val, trigger this combo."),
+							TRIGFLAG(111, "TrigGroup Greater->")
 						),
 						Column(framed = true, fitParent = true, frameText = "Spawned Item Pickup",
 							MISCFLAG(spawnip, ipHOLDUP, "Hold Up Item"),
@@ -3230,6 +3401,42 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								}),
 							INFOBTN("The time, in frames, it takes to lift the combo")
 							
+						)
+					)
+				)),
+				TabRef(name = "General", Row(
+					Frame(title = "Player Speed Mod",
+						info = "Speed Modification only applies if the Quest Rule 'Newer Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
+						Rows<3>(
+							Label(text = "Multiplier:"),
+							TextField(type = GUI::TextField::type::INT_DECIMAL,
+								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_mult,
+								fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.speed_mult = val;
+								}),
+							INFOBTN("Multiplies the player's speed by this value when walking over this combo."),
+							Label(text = "Divisor:"),
+							TextField(type = GUI::TextField::type::INT_DECIMAL,
+								hAlign = 1.0, low = 0, high = 255, val = local_comboref.speed_div,
+								fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.speed_div = val;
+								}),
+							INFOBTN("Divides the player's speed by this value when walking over this combo. Applies after mult."
+								"\nIf 0, no division is performed."),
+							Label(text = "Additive:"),
+							TextField(maxLength = 13, type = GUI::TextField::type::NOSWAP_ZSINT,
+								hAlign = 1.0, val = local_comboref.speed_add.getZLong(),
+								swap_type = nswapDEC,
+								fitParent = true,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+								{
+									local_comboref.speed_add = zslongToFix(val);
+								}),
+							INFOBTN("Adds this value, in px/frame, to the player's speed walking over this combo. Applies after mult and div. Can be negative.")
 						)
 					)
 				)),

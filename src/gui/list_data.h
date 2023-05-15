@@ -139,6 +139,22 @@ public:
 		}
 	}
 	
+	inline void removeInd(int32_t ind)
+	{
+		if(unsigned(ind) >= listItems.size())
+			return;
+		for(std::vector<ListItem>::iterator it = listItems.begin(); it != listItems.end(); ++it)
+		{
+			if(ind)
+				--ind;
+			else
+			{
+				listItems.erase(it);
+				break;
+			}
+		}
+	}
+	
 	//Static constructors for specific lists
 	static ListData nullData()
 	{

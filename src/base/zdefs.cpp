@@ -1784,6 +1784,9 @@ void zinitdata::copy(zinitdata const& other)
 	
 	magicdrainrate = other.magicdrainrate;
 	
+	hero_swim_mult = other.hero_swim_mult;
+	hero_swim_div = other.hero_swim_div;
+	
 	memcpy(gen_doscript,other.gen_doscript,sizeof(gen_doscript));
 	memcpy(gen_exitState,other.gen_exitState,sizeof(gen_exitState));
 	memcpy(gen_reloadState,other.gen_reloadState,sizeof(gen_reloadState));

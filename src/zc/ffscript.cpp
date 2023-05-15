@@ -3581,6 +3581,12 @@ int32_t get_register(const int32_t arg)
 				case 1:
 				case 2:
 				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 16:
 				{
 					ret = (int32_t)(Hero.gethitHeroUID(indx))* 10000;
 					break;
@@ -3590,6 +3596,9 @@ int32_t get_register(const int32_t arg)
 				case 5:
 				case 6:
 				case 7:
+				case 13:
+				case 14:
+				case 15:
 				{
 					ret = (int32_t)(Hero.gethitHeroUID(indx)); //do not multiply by 10000! UIDs are not *10000!
 					break;
@@ -6017,9 +6026,7 @@ int32_t get_register(const int32_t arg)
 					case 10:
 					case 11:
 					case 12:
-					case 13:
-					case 14:
-					case 15:
+					case 16:
 					{
 						ret = GuyH::getNPC()->hitby[indx] * 10000; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 						break;
@@ -6029,6 +6036,9 @@ int32_t get_register(const int32_t arg)
 					case 5:
 					case 6:
 					case 7:
+					case 13:
+					case 14:
+					case 15:
 					{
 						ret = GuyH::getNPC()->hitby[indx]; // * 10000; //do not multiply by 10000! UIDs are not *10000!
 						break;
@@ -11870,6 +11880,26 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].trig_gstate) * 10000;
 			break;
 		}
+		case COMBODTRIGGERGROUP:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_group) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGROUPVAL:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroupVal: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_group_val) * 10000;
+			break;
+		}
 		case COMBODTRIGGERGTIMER:
 		{
 			ret = -10000;
@@ -11878,6 +11908,16 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
 			}
 			else ret = (combobuf[ri->combosref].trig_statetime) * 10000;
+			break;
+		}
+		case COMBODTRIGGERGENSCRIPT:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGenScript: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].trig_genscr) * 10000;
 			break;
 		}
 		
@@ -11958,7 +11998,7 @@ int32_t get_register(const int32_t arg)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -11971,7 +12011,7 @@ int32_t get_register(const int32_t arg)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -11984,7 +12024,7 @@ int32_t get_register(const int32_t arg)
 		{ \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 				ret = -10000; \
 			} \
 			else \
@@ -11998,12 +12038,12 @@ int32_t get_register(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( (unsigned)indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -12017,12 +12057,12 @@ int32_t get_register(const int32_t arg)
 				int32_t indx = ri->d[rINDEX] / 10000; \
 				if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 				{ \
-					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+					Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 					ret = -10000; \
 				} \
 				else if ( (unsigned)indx > indexbound ) \
 				{ \
-					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", indx, str); \
+					Z_scripterrlog("Invalid Array Index passed to npcdata->%s: %d\n", str, indx); \
 					ret = -10000; \
 				} \
 				else \
@@ -12036,7 +12076,7 @@ int32_t get_register(const int32_t arg)
 			int32_t flag =  (value/10000);  \
 			if( (unsigned) ri->npcdataref > (MAXNPCS-1) ) \
 			{ \
-				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", (ri->npcdataref*10000), str); \
+				Z_scripterrlog("Invalid NPC ID passed to npcdata->%s: %d\n", str, (ri->npcdataref*10000)); \
 			} \
 			else \
 			{ \
@@ -13124,7 +13164,7 @@ void set_register(int32_t arg, int32_t value)
 		case HEROSTEPRATE:
 			if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
 			{
-				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Hero Movement");
+				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Player Movement");
 			}
 			Hero.setStepRate(zc_max(value/10000,0));
 			if(!get_bit(quest_rules, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
@@ -13438,6 +13478,12 @@ void set_register(int32_t arg, int32_t value)
 				case 1:
 				case 2:
 				case 3:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 16:
 				{
 					Hero.sethitHeroUID(indx, (value/10000)); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
@@ -13447,6 +13493,9 @@ void set_register(int32_t arg, int32_t value)
 				case 5:
 				case 6:
 				case 7:
+				case 13:
+				case 14:
+				case 15:
 				{
 					Hero.sethitHeroUID(indx, value); //Why the Flidd did I vbound this? UIDs are LONGs, with a starting value of 0.0001. Why did I allow it, in fact? -Z
 					break;
@@ -17290,9 +17339,7 @@ void set_register(int32_t arg, int32_t value)
 					case 10:
 					case 11:
 					case 12:
-					case 13:
-					case 14:
-					case 15:
+					case 16:
 					{
 						GuyH::getNPC()->hitby[indx] = vbound((value / 10000),0,255); //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
@@ -17302,6 +17349,9 @@ void set_register(int32_t arg, int32_t value)
 					case 5:
 					case 6:
 					case 7:
+					case 13:
+					case 14:
+					case 15:
 					{
 						GuyH::getNPC()->hitby[indx] = value; //Once again, why did I vbound this, and why did I allow it to be written? UIDs are LONGs, with a starting value of 0.0001. -Z
 							break;
@@ -17773,8 +17823,14 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case DISABLEDITEM:
-			game->items_off[(ri->d[rINDEX])/10000]=value/10000;
+		{
+			int id = (ri->d[rINDEX])/10000;
+			if(unsigned(id) >= MAXITEMS)
+				break;
+			game->items_off[id]=value/10000;
+			removeFromItemCache(itemsbuf[id].family);
 			break;
+		}
 		
 		case GAMESUSPEND:
 		{
@@ -21968,6 +22024,24 @@ void set_register(int32_t arg, int32_t value)
 			else combobuf[ri->combosref].trig_gstate = vbound(value/10000, 0, 255);
 			break;
 		}
+		case COMBODTRIGGERGROUP:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroup: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_group = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODTRIGGERGROUPVAL:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGroupVal: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_group_val = vbound(value/10000, 0, 65535);
+			break;
+		}
 		case COMBODTRIGGERGTIMER:
 		{
 			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
@@ -21975,6 +22049,15 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGStateTimer: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].trig_statetime = vbound(value/10000, 0, 214748);
+			break;
+		}
+		case COMBODTRIGGERGENSCRIPT:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->TrigGenScript: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].trig_genscr = vbound(value/10000, 0, 65535);
 			break;
 		}
 		case COMBODTRIGGERLEVEL:	SET_COMBO_VAR_INT(triggerlevel, "TriggerLevel"); break;				//LONG
@@ -26539,6 +26622,34 @@ void user_paldata::mix(user_paldata *pal_start, user_paldata *pal_end, double pe
 	}
 }
 
+void item_display_name(const bool setter)
+{
+	int32_t ID = ri->idata;
+	if(unsigned(ID) >= MAXITEMS)
+		return;
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	if(setter)
+	{
+		std::string str;
+		ArrayH::getString(arrayptr, str, 255);
+		strcpy(itemsbuf[ID].display_name, str.c_str());
+	}
+	else
+	{
+		if(ArrayH::setArray(arrayptr, string(itemsbuf[ID].display_name)) == SH::_Overflow)
+			Z_scripterrlog("Array supplied to 'itemdata->GetDisplayName()' not large enough\n");
+	}
+}
+void item_shown_name()
+{
+	int32_t ID = ri->idata;
+	if(unsigned(ID) >= MAXITEMS)
+		return;
+	int32_t arrayptr = get_register(sarg1) / 10000;
+	if(ArrayH::setArray(arrayptr, itemsbuf[ID].get_name()) == SH::_Overflow)
+		Z_scripterrlog("Array supplied to 'itemdata->GetShownName()' not large enough\n");
+}
+
 void FFScript::do_getDMapData_dmapname(const bool v)
 {
 	//int32_t ID = ri->zmsgref;
@@ -27755,6 +27866,7 @@ void do_drawing_command(const int32_t script_command)
 			break;			
 		}
 	}
+	script_drawing_commands.mark_dirty(script_drawing_commands[j][1]/10000);
 }
 
 void do_set_rendertarget(bool)
@@ -28309,11 +28421,11 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				//If Hero does not have a map, and warps somewhere where he does, then the map still briefly shows. 
 			update_subscreens(dmapID);
 				
-			if ( has_item(itype_map, dlevel) ) 
-			{
-				//Blank the map during an intra-dmap scrolling warp. 
-				dlevel = -1; //a hack for the minimap. This works!! -Z
-			}
+			// if ( has_item(itype_map, dlevel) ) 
+			// {
+				// //Blank the map during an intra-dmap scrolling warp. 
+				// dlevel = -1; //a hack for the minimap. This works!! -Z
+			// }
 				
 			// fix the scrolling direction, if it was a tile or instant warp
 			Hero.sdir = vbound(Hero.dir,0,3);
@@ -31484,6 +31596,12 @@ j_command:
 			case LOADBSHOPDATA: //command
 				FFCore.do_loadbottleshop(false); break;
 
+			case ITEMGETDISPLAYNAME: //command
+				item_display_name(false); break;
+			case ITEMSETDISPLAYNAME: //command
+				item_display_name(true); break;
+			case ITEMGETSHOWNNAME: //command
+				item_shown_name(); break;
 
 			case DMAPDATAGETNAMER: //command
 				FFScript::do_getDMapData_dmapname(false); break;
@@ -32466,6 +32584,27 @@ j_command:
 			case KILLPLAYER:
 			{
 				Hero.kill(get_register(sarg1));
+				break;
+			}
+			
+			case HEROMOVEXY:
+			{
+				zfix dx = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix dy = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROCANMOVEXY:
+			{
+				zfix dx = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix dy = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.can_movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
 				break;
 			}
 			
@@ -39758,11 +39897,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "QUIT_NO_DEALLOC",   0,   0,   0,   0},
 	{ "GAMESETCUSTOMCURSOR",   0,   0,   0,   0},
 	{ "NPCCANPLACE",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY20",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY21",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY22",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY23",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY24",   0,   0,   0,   0},
+	{ "ITEMGETDISPLAYNAME",   1,   0,   0,   0},
+	{ "ITEMSETDISPLAYNAME",   1,   0,   0,   0},
+	{ "ITEMGETSHOWNNAME",   1,   0,   0,   0},
+	{ "HEROMOVEXY",   0,   0,   0,   0},
+	{ "HEROCANMOVEXY",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY26",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY27",   0,   0,   0,   0},
@@ -41182,9 +41321,9 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERGSTATE", COMBODTRIGGERGSTATE, 0, 0 },
 	{ "COMBODTRIGGERGTIMER", COMBODTRIGGERGTIMER, 0, 0 },
 	{ "GAMEMOUSECURSOR", GAMEMOUSECURSOR, 0, 0 },
-	{ "RESRVD_VAR_EMILY11", RESRVD_VAR_EMILY11, 0, 0 },
-	{ "RESRVD_VAR_EMILY12", RESRVD_VAR_EMILY12, 0, 0 },
-	{ "RESRVD_VAR_EMILY13", RESRVD_VAR_EMILY13, 0, 0 },
+	{ "COMBODTRIGGERGENSCRIPT", COMBODTRIGGERGENSCRIPT, 0, 0 },
+	{ "COMBODTRIGGERGROUP", COMBODTRIGGERGROUP, 0, 0 },
+	{ "COMBODTRIGGERGROUPVAL", COMBODTRIGGERGROUPVAL, 0, 0 },
 	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },
 	{ "RESRVD_VAR_EMILY15", RESRVD_VAR_EMILY15, 0, 0 },
 	{ "RESRVD_VAR_EMILY16", RESRVD_VAR_EMILY16, 0, 0 },
@@ -48132,6 +48271,7 @@ bool command_could_return_not_ok(int command)
 {
 	switch (command)
 	{
+	case 0xFFFF:
 	case EWPNDEL:
 	case GAMECONTINUE:
 	case GAMEEND:

@@ -70,7 +70,7 @@ private:
 		l_attrishort[8], l_flag[16];
 	int32_t index;
 	newcombo local_comboref;
-	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx,
+	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx, list_genscr,
 		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes;
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
 	std::shared_ptr<GUI::Widget> CMB_INITD(int index);
@@ -78,7 +78,7 @@ private:
 	std::shared_ptr<GUI::Widget> CMB_ATTRIBYTE(int index);
 	std::shared_ptr<GUI::Widget> CMB_ATTRISHORT(int index);
 	std::shared_ptr<GUI::Widget> CMB_ATTRIBUTE(int index);
-	std::shared_ptr<GUI::Checkbox> TRIGFLAG(int index, const char* str);
+	std::shared_ptr<GUI::Checkbox> TRIGFLAG(int index, const char* str, int cspan = 1);
 	friend bool call_combo_editor(int32_t index);
 	friend class ComboWizardDialog;
 };

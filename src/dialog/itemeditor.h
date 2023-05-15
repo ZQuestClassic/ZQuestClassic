@@ -13,6 +13,7 @@
 #include <functional>
 #include <string_view>
 #include <map>
+#include "items.h"
 
 void call_item_editor(int32_t index);
 

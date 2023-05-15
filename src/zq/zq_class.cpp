@@ -36,7 +36,6 @@
 #include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
-#include "maps.h"
 #include "zc_sys.h"
 #include "md5.h"
 #include "zc_custom.h"
@@ -2659,7 +2658,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 			newcombo const& cmb = combobuf[layers[q]->data[pos]];
 			if(cmb.type == cTORCH)
 			{
-				doDarkroomCircle(COMBOX(pos)+8, COMBOY(pos)+8, cmb.attribytes[0], dest, transdest);
+				doDarkroomCirclePreview(COMBOX(pos)+8, COMBOY(pos)+8, cmb.attribytes[0], dest, transdest);
 			}
 		}
 	}
@@ -2669,7 +2668,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 		newcombo const& cmb = combobuf[basescr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
+			doDarkroomCirclePreview((basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
 		}
 	}
 }
@@ -4380,6 +4379,89 @@ void set_combo_command::undo()
     mapscr_ptr->cset[pos] = prev_cset;
 }
 
+set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
+{
+	std::array<int, 2> inita_arr;
+	std::copy(std::begin(ffc.inita), std::end(ffc.inita), inita_arr.begin());
+	std::array<int, 8> initd_arr;
+	std::copy(std::begin(ffc.initd), std::end(ffc.initd), initd_arr.begin());
+
+	return {
+		.x = ffc.x,
+		.y = ffc.y,
+		.vx = ffc.vx,
+		.vy = ffc.vy,
+		.ax = ffc.ax,
+		.ay = ffc.ay,
+		.data = ffc.getData(),
+		.cset = ffc.cset,
+		.delay = ffc.delay,
+		.link = ffc.link,
+		.script = ffc.script,
+		.tw = ffc.txsz,
+		.th = ffc.tysz,
+		.ew = ffc.hxsz,
+		.eh = ffc.hysz,
+		.flags = ffc.flags,
+		.inita = inita_arr,
+		.initd = initd_arr,
+	};
+}
+
+void set_ffc_command::execute()
+{
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+
+    mapscr_ptr->ffcs[i].x = data.x;
+	mapscr_ptr->ffcs[i].y = data.y;
+	mapscr_ptr->ffcs[i].vx = data.vx;
+	mapscr_ptr->ffcs[i].vy = data.vy;
+	mapscr_ptr->ffcs[i].ax = data.ax;
+	mapscr_ptr->ffcs[i].ay = data.ay;
+	mapscr_ptr->ffcs[i].setData(data.data);
+	mapscr_ptr->ffcs[i].cset = data.cset;
+	mapscr_ptr->ffcs[i].delay = data.delay;
+	mapscr_ptr->ffcs[i].link = data.link;
+	mapscr_ptr->ffcs[i].script = data.script;
+	mapscr_ptr->ffcs[i].flags = data.flags;
+	mapscr_ptr->ffEffectWidth(i, data.ew);
+	mapscr_ptr->ffEffectHeight(i, data.eh);
+	mapscr_ptr->ffTileWidth(i, data.tw);
+	mapscr_ptr->ffTileHeight(i, data.th);
+	std::copy(std::begin(data.inita), std::end(data.inita), std::begin(mapscr_ptr->ffcs[i].inita));
+	std::copy(std::begin(data.initd), std::end(data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcCountMarkDirty();
+	mapscr_ptr->ffcs[i].updateSolid();
+}
+
+void set_ffc_command::undo()
+{
+    mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+
+    mapscr_ptr->ffcs[i].x = prev_data.x;
+	mapscr_ptr->ffcs[i].y = prev_data.y;
+	mapscr_ptr->ffcs[i].vx = prev_data.vx;
+	mapscr_ptr->ffcs[i].vy = prev_data.vy;
+	mapscr_ptr->ffcs[i].ax = prev_data.ax;
+	mapscr_ptr->ffcs[i].ay = prev_data.ay;
+	mapscr_ptr->ffcs[i].setData(prev_data.data);
+	mapscr_ptr->ffcs[i].cset = prev_data.cset;
+	mapscr_ptr->ffcs[i].delay = prev_data.delay;
+	mapscr_ptr->ffcs[i].link = prev_data.link;
+	mapscr_ptr->ffcs[i].script = prev_data.script;
+	mapscr_ptr->ffcs[i].flags = prev_data.flags;
+	mapscr_ptr->ffEffectWidth(i, prev_data.ew);
+	mapscr_ptr->ffEffectHeight(i, prev_data.eh);
+	mapscr_ptr->ffTileWidth(i, prev_data.tw);
+	mapscr_ptr->ffTileHeight(i, prev_data.th);
+	std::copy(std::begin(prev_data.inita), std::end(prev_data.inita), std::begin(mapscr_ptr->ffcs[i].inita));
+	std::copy(std::begin(prev_data.initd), std::end(prev_data.initd), std::begin(mapscr_ptr->ffcs[i].initd));
+	mapscr_ptr->ffcCountMarkDirty();
+	mapscr_ptr->ffcs[i].updateSolid();
+}
+
 void set_flag_command::execute()
 {
     mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
@@ -4625,6 +4707,36 @@ void zmap::DoSetComboCommand(int map, int scr, int pos, int combo, int cset)
     command->prev_combo = mapscr_ptr->data[pos];
     command->prev_cset = mapscr_ptr->cset[pos];
     if ((command->combo != -1 && command->prev_combo == command->combo) && command->cset == command->prev_cset)
+    {
+        // nothing to do...
+        return;
+    }
+
+    ExecuteCommand(command);
+}
+
+void zmap::DoSetFFCCommand(int map, int scr, int i, set_ffc_command::data_t data)
+{
+	mapscr* mapscr_ptr = Map.AbsoluteScr(map, scr);
+	if(!mapscr_ptr) return;
+
+	std::shared_ptr<set_ffc_command> command(new set_ffc_command);
+
+	std::array<int, 2> inita_arr;
+	std::copy(std::begin(mapscr_ptr->ffcs[i].inita), std::end(mapscr_ptr->ffcs[i].inita), inita_arr.begin());
+	std::array<int, 8> initd_arr;
+	std::copy(std::begin(mapscr_ptr->ffcs[i].initd), std::end(mapscr_ptr->ffcs[i].initd), initd_arr.begin());
+
+	auto prev_data = set_ffc_command::create_data(mapscr_ptr->ffcs[i]);
+
+    command->view_map = currmap;
+    command->view_scr = currscr;
+    command->map = map;
+    command->scr = scr;
+    command->i = i;
+    command->data = data;
+    command->prev_data = prev_data;
+    if (data == prev_data)
     {
         // nothing to do...
         return;
@@ -8739,221 +8851,222 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
             {
                 new_return(48);
             }
-	    
-	    //New itemdata vars -Z
-	    //! version 27
-	    
-	    if(!p_putc(itemsbuf[i].useweapon,f))
-            {
-                new_return(49);
-            }
-	    if(!p_putc(itemsbuf[i].usedefence,f))
-            {
-                new_return(50);
-            }
-	    if(!p_iputl(itemsbuf[i].weaprange,f))
-            {
-                new_return(51);
-            }
-	    if(!p_iputl(itemsbuf[i].weapduration,f))
-            {
-                new_return(52);
-            }
-	    for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-		    if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
-		    {
-			new_return(53);
-		    }
-	    }
-	    //version 28
-		if(!p_iputl(itemsbuf[i].duplicates,f))
-		{
-		    new_return(54);
-		}
-		for ( int32_t q = 0; q < INITIAL_D; q++ )
-		{
-			if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
-			{
-				new_return(55);
-			}
-		}
-		for ( int32_t q = 0; q < INITIAL_A; q++ )
-		{
-			if(!p_putc(itemsbuf[i].weap_initiala[q],f))
-			{
-				new_return(56);
-			}
-		}
-
-		if(!p_putc(itemsbuf[i].drawlayer,f))
-		{
-		    new_return(57);
-		}
-
-
-		if(!p_iputl(itemsbuf[i].hxofs,f))
-		{
-		    new_return(58);
-		}
-		if(!p_iputl(itemsbuf[i].hyofs,f))
-		{
-		    new_return(59);
-		}
-		if(!p_iputl(itemsbuf[i].hxsz,f))
-		{
-		    new_return(60);
-		}
-		if(!p_iputl(itemsbuf[i].hysz,f))
-		{
-		    new_return(61);
-		}
-		if(!p_iputl(itemsbuf[i].hzsz,f))
-		{
-		    new_return(62);
-		}
-		if(!p_iputl(itemsbuf[i].xofs,f))
-		{
-		    new_return(63);
-		}
-		if(!p_iputl(itemsbuf[i].yofs,f))
-		{
-		    new_return(64);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hxofs,f))
-		{
-		    new_return(65);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hyofs,f))
-		{
-		    new_return(66);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hxsz,f))
-		{
-		    new_return(67);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hysz,f))
-		{
-		    new_return(68);
-		}
-		if(!p_iputl(itemsbuf[i].weap_hzsz,f))
-		{
-		    new_return(69);
-		}
-		if(!p_iputl(itemsbuf[i].weap_xofs,f))
-		{
-		    new_return(70);
-		}
-		if(!p_iputl(itemsbuf[i].weap_yofs,f))
-		{
-		    new_return(71);
-		}
-		if(!p_iputw(itemsbuf[i].weaponscript,f))
-		{
-		    new_return(72);
-		}
-		if(!p_iputl(itemsbuf[i].wpnsprite,f))
-		{
-		    new_return(73);
-		}
-		for(auto q = 0; q < 2; ++q)
-		{
-			if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
-			{
-				new_return(74);
-			}
-		}
-		if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
-		{
-		    new_return(75);
-		}
-		if(!p_iputl(itemsbuf[i].tilew,f))
-		{
-		    new_return(76);
-		}
-		if(!p_iputl(itemsbuf[i].tileh,f))
-		{
-		    new_return(77);
-		}
-		if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
-		{
-		    new_return(78);
-		}
-		if(!p_iputl(itemsbuf[i].weap_tilew,f))
-		{
-		    new_return(79);
-		}
-		if(!p_iputl(itemsbuf[i].weap_tileh,f))
-		{
-		    new_return(80);
-		}
-		if(!p_iputl(itemsbuf[i].pickup,f))
-		{
-		    new_return(81);
-		}
-		if(!p_iputw(itemsbuf[i].pstring,f))
-		{
-		    new_return(82);
-		}
-		if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
-		{
-		    new_return(83);
-		}
-		
-		for(auto q = 0; q < 2; ++q)
-		{
-			if(!p_putc(itemsbuf[i].cost_counter[q],f))
-			{
-				new_return(84);
-			}
-		}
-		
-		//InitD[] labels
-		for ( int32_t q = 0; q < 8; q++ )
-		{
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_putc(itemsbuf[i].initD_label[q][w],f))
-				{
-					new_return(85);
-				} 
-			}
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
-				{
-					new_return(86);
-				} 
-			}
-			for ( int32_t w = 0; w < 65; w++ )
-			{
-				if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
-				{
-					new_return(87);
-				} 
-			}
-			if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
-			{
-				new_return(88);
-			} 
-		}
-		for ( int32_t q = 0; q < 2; q++ )
-		{
-			if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
-			{
-				new_return(89);
-			} 
 			
-		}
-		if(!p_iputw(itemsbuf[i].sprite_script,f))
-		{
-			new_return(90);
-		} 
-		if(!p_putc(itemsbuf[i].pickupflag,f))
-		{
-			new_return(91);
-		} 
-		
-	    
+			//New itemdata vars -Z
+			//! version 27
+			
+			if(!p_putc(itemsbuf[i].useweapon,f))
+			{
+				new_return(49);
+			}
+			if(!p_putc(itemsbuf[i].usedefence,f))
+			{
+				new_return(50);
+			}
+			if(!p_iputl(itemsbuf[i].weaprange,f))
+			{
+				new_return(51);
+			}
+			if(!p_iputl(itemsbuf[i].weapduration,f))
+			{
+				new_return(52);
+			}
+			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
+				if(!p_iputl(itemsbuf[i].weap_pattern[q],f))
+				{
+					new_return(53);
+				}
+			}
+			//version 28
+			if(!p_iputl(itemsbuf[i].duplicates,f))
+			{
+				new_return(54);
+			}
+			for ( int32_t q = 0; q < INITIAL_D; q++ )
+			{
+				if(!p_iputl(itemsbuf[i].weap_initiald[q],f))
+				{
+					new_return(55);
+				}
+			}
+			for ( int32_t q = 0; q < INITIAL_A; q++ )
+			{
+				if(!p_putc(itemsbuf[i].weap_initiala[q],f))
+				{
+					new_return(56);
+				}
+			}
+
+			if(!p_putc(itemsbuf[i].drawlayer,f))
+			{
+				new_return(57);
+			}
+
+
+			if(!p_iputl(itemsbuf[i].hxofs,f))
+			{
+				new_return(58);
+			}
+			if(!p_iputl(itemsbuf[i].hyofs,f))
+			{
+				new_return(59);
+			}
+			if(!p_iputl(itemsbuf[i].hxsz,f))
+			{
+				new_return(60);
+			}
+			if(!p_iputl(itemsbuf[i].hysz,f))
+			{
+				new_return(61);
+			}
+			if(!p_iputl(itemsbuf[i].hzsz,f))
+			{
+				new_return(62);
+			}
+			if(!p_iputl(itemsbuf[i].xofs,f))
+			{
+				new_return(63);
+			}
+			if(!p_iputl(itemsbuf[i].yofs,f))
+			{
+				new_return(64);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hxofs,f))
+			{
+				new_return(65);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hyofs,f))
+			{
+				new_return(66);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hxsz,f))
+			{
+				new_return(67);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hysz,f))
+			{
+				new_return(68);
+			}
+			if(!p_iputl(itemsbuf[i].weap_hzsz,f))
+			{
+				new_return(69);
+			}
+			if(!p_iputl(itemsbuf[i].weap_xofs,f))
+			{
+				new_return(70);
+			}
+			if(!p_iputl(itemsbuf[i].weap_yofs,f))
+			{
+				new_return(71);
+			}
+			if(!p_iputw(itemsbuf[i].weaponscript,f))
+			{
+				new_return(72);
+			}
+			if(!p_iputl(itemsbuf[i].wpnsprite,f))
+			{
+				new_return(73);
+			}
+			for(auto q = 0; q < 2; ++q)
+			{
+				if(!p_iputl(itemsbuf[i].magiccosttimer[q],f))
+				{
+					new_return(74);
+				}
+			}
+			if(!p_iputl(itemsbuf[i].overrideFLAGS,f))
+			{
+				new_return(75);
+			}
+			if(!p_iputl(itemsbuf[i].tilew,f))
+			{
+				new_return(76);
+			}
+			if(!p_iputl(itemsbuf[i].tileh,f))
+			{
+				new_return(77);
+			}
+			if(!p_iputl(itemsbuf[i].weapoverrideFLAGS,f))
+			{
+				new_return(78);
+			}
+			if(!p_iputl(itemsbuf[i].weap_tilew,f))
+			{
+				new_return(79);
+			}
+			if(!p_iputl(itemsbuf[i].weap_tileh,f))
+			{
+				new_return(80);
+			}
+			if(!p_iputl(itemsbuf[i].pickup,f))
+			{
+				new_return(81);
+			}
+			if(!p_iputw(itemsbuf[i].pstring,f))
+			{
+				new_return(82);
+			}
+			if(!p_iputw(itemsbuf[i].pickup_string_flags,f))
+			{
+				new_return(83);
+			}
+			
+			for(auto q = 0; q < 2; ++q)
+			{
+				if(!p_putc(itemsbuf[i].cost_counter[q],f))
+				{
+					new_return(84);
+				}
+			}
+			
+			//InitD[] labels
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_putc(itemsbuf[i].initD_label[q][w],f))
+					{
+						new_return(85);
+					} 
+				}
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_putc(itemsbuf[i].weapon_initD_label[q][w],f))
+					{
+						new_return(86);
+					} 
+				}
+				for ( int32_t w = 0; w < 65; w++ )
+				{
+					if(!p_putc(itemsbuf[i].sprite_initD_label[q][w],f))
+					{
+						new_return(87);
+					} 
+				}
+				if(!p_iputl(itemsbuf[i].sprite_initiald[q],f))
+				{
+					new_return(88);
+				} 
+			}
+			for ( int32_t q = 0; q < 2; q++ )
+			{
+				if(!p_putc(itemsbuf[i].sprite_initiala[q],f))
+				{
+					new_return(89);
+				} 
+				
+			}
+			if(!p_iputw(itemsbuf[i].sprite_script,f))
+			{
+				new_return(90);
+			}
+			if(!p_putc(itemsbuf[i].pickupflag,f))
+			{
+				new_return(91);
+			}
+			std::string dispname(itemsbuf[i].display_name);
+			if(!p_putcstr(dispname,f))
+				new_return(92);
         }
         
         if(writecycle==0)
@@ -9710,6 +9823,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.spawnitem || tmp_cmb.spawnenemy
 		|| tmp_cmb.exstate > -1 || tmp_cmb.spawnip
 		|| tmp_cmb.trigcopycat || tmp_cmb.trigcooldown
+		|| tmp_cmb.trig_genscr || tmp_cmb.trig_group
+		|| tmp_cmb.trig_group_val
 		|| tmp_cmb.prompt_cid || tmp_cmb.prompt_cs
 		|| tmp_cmb.prompt_x != 12 || tmp_cmb.prompt_y != -8)
 		combo_has_flags |= CHAS_TRIG;
@@ -9724,7 +9839,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		combo_has_flags |= CHAS_SCRIPT;
 	if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
 		|| tmp_cmb.type || tmp_cmb.csets)
-		combo_has_flags |= CHAS_GENERAL;
+		combo_has_flags |= CHAS_BASIC;
 	if(tmp_cmb.liftcmb || tmp_cmb.liftcs || tmp_cmb.liftdmg
 		|| tmp_cmb.liftlvl || tmp_cmb.liftitm || tmp_cmb.liftflags
 		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
@@ -9732,6 +9847,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16)
 		combo_has_flags |= CHAS_LIFT;
+	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add)
+		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
 	{
@@ -9739,7 +9856,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(!combo_has_flags) return 0; //Valid, done reading
 	//Write the combo
-	if(combo_has_flags&CHAS_GENERAL)
+	if(combo_has_flags&CHAS_BASIC)
 	{
 		if(!p_iputl(tmp_cmb.o_tile,f))
 		{
@@ -9970,6 +10087,18 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 71;
 		}
+		if(!p_iputw(tmp_cmb.trig_genscr,f))
+		{
+			return 72;
+		}
+		if(!p_putc(tmp_cmb.trig_group,f))
+		{
+			return 73;
+		}
+		if(!p_iputw(tmp_cmb.trig_group_val,f))
+		{
+			return 74;
+		}
 	}
 	if(combo_has_flags&CHAS_LIFT)
 	{
@@ -10033,6 +10162,15 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 68;
 		}
+	}
+	if(combo_has_flags&CHAS_GENERAL)
+	{
+		if(!p_putc(tmp_cmb.speed_mult,f))
+			return 73;
+		if(!p_putc(tmp_cmb.speed_div,f))
+			return 74;
+		if(!p_iputzf(tmp_cmb.speed_add,f))
+			return 75;
 	}
 	return 0;
 }
@@ -13778,6 +13916,14 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			if(!p_iputl(zinit.gen_eventstate[q],f))
 				new_return(101);
 		}
+        if(!p_putc(zinit.hero_swim_mult,f))
+        {
+            new_return(102);
+        }
+        if(!p_putc(zinit.hero_swim_div,f))
+        {
+            new_return(103);
+        }
 		
 		if(writecycle==0)
 		{

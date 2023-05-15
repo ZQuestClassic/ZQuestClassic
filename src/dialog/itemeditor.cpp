@@ -27,6 +27,7 @@ extern script_data *lwpnscripts[NUMSCRIPTWEAPONS];
 #define ISCRDATA_ALL     0x07
 void call_item_editor(int32_t index)
 {
+	if(unsigned(index) >= MAXITEMS) return;
 	item_use_script_data = zc_get_config("zquest","show_itemscript_meta_type",ISCRDATA_ALL)&ISCRDATA_ALL;
 	_reset_default = false;
 	ItemEditorDialog(index).show();
@@ -141,6 +142,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
 			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
 			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
+			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for triforce piece items.");
 			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
 			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
 			_SET(flag[10], "Don't Affect Music", "If not checked, music is stopped for the cutscene");
@@ -728,7 +730,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_candle:
 		{
 			inf->power = "Damage:";
-			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 2");
+			_SET(misc[1], "Max Fires On Screen", "If < 1, defaults to 1");
 			_SET(misc[3], "Step Speed", "The step speed of the created fire weapon, where 100 = 1px/frame. Default 50.");
 			_SET(flag[0], "Limited Per Screen", "Can only use a set number of times per screen");
 			_SET(flag[1], "Don't Provide Light", "Does not light up dark rooms");
@@ -760,6 +762,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		{
 			inf->power = "Damage:";
 			inf->misc[0] = "Duration (0 = Infinite):";
+			_SET(misc[1], "Max Arrows On Screen", "If < 1, defaults to 2");
 			inf->flag[0] = "Penetrate Enemies";
 			inf->flag[1] = "Allow Item Pickup";
 			inf->flag[3] = "Pick Up Anything";
@@ -1159,8 +1162,8 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Row(
-				Rows<2>(padding = 0_px,
-					Label(text = "Name:"),
+				Rows<3>(padding = 0_px,
+					Label(text = "Name:", hAlign = 1.0),
 					TextField(
 						fitParent = true,
 						maxLength = 63,
@@ -1173,21 +1176,36 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 							window->setTitle(buf);
 						}
 					),
-					Label(text = "Type:"),
-					Row(
-						height = 21_px,
-						DropDownList(data = list_items,
-							fitParent = true, padding = 0_px,
-							selectedValue = local_itemref.family,
-							onSelectionChanged = message::ITEMCLASS
-						),
-						Button(width = 1.5_em, padding = 0_px, text = "?", hAlign = 1.0, onPressFunc = [&]()
+					DummyWidget(),
+					//
+					Label(text = "Display Name:", hAlign = 1.0),
+					TextField(
+						fitParent = true,
+						maxLength = 255,
+						text = local_itemref.display_name,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string s(str);
+							strncpy(local_itemref.display_name,s.c_str(),255);
+						}
+					),
+					INFOBTN("If this field is not blank, this text will display as the 'Selected Item Name' on the subscreen for this item."
+						"\nFor some types, such as Bottles, the text '%s' in the display name will be replaced with a special string (such as the bottle contents)."
+						"\nEx: 'Bottle (%s)' becomes 'Bottle (Empty)', or 'Bottle (Health Potion)'"),
+					//
+					Label(text = "Type:", hAlign = 1.0),
+					DropDownList(data = list_items,
+						fitParent = true, padding = 0_px,
+						selectedValue = local_itemref.family,
+						onSelectionChanged = message::ITEMCLASS
+					),
+					Button(forceFitH = true, text = "?",
+						minheight = 24_px,
+						onPressFunc = [&]()
 						{
 							InfoDialog(ZI.getItemClassName(local_itemref.family),
-								ZI.getItemClassHelp(local_itemref.family)
-							).show();
+								ZI.getItemClassHelp(local_itemref.family)).show();
 						})
-					)
 				),
 				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
 					Checkbox(

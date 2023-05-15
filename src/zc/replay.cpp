@@ -773,7 +773,7 @@ static void load_replay(std::filesystem::path path)
             replay_log.push_back(std::make_shared<MouseReplayStep>(frame, state));
         }
 
-        if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg && mode != ReplayMode::ManualTakeover)
+        if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg && mode != ReplayMode::Update)
         {
             replay_log.pop_back();
             break;
@@ -1827,7 +1827,7 @@ bool replay_is_replaying()
 
 bool replay_is_recording()
 {
-    return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update;
+    return mode == ReplayMode::Record || mode == ReplayMode::Assert || mode == ReplayMode::Update || mode == ReplayMode::ManualTakeover;
 }
 
 void replay_set_frame_arg(int frame)

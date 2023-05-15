@@ -2048,9 +2048,9 @@ bool IsBackgroundLayer(int layer)
 	switch(layer)
 	{
 		case 2:
-			return ( ((Screen->Flags[SF_VIEW]&SFV_LAYER2BG) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
+			return ( ((Screen->Flags[SF_VIEW]&(1<<SFV_LAYER2BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
 		case 3:
-			return ( ((Screen->Flags[SF_VIEW]&SFV_LAYER3BG) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
+			return ( ((Screen->Flags[SF_VIEW]&(1<<SFV_LAYER3BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
 		default: return false;
 	}
 }
@@ -2062,9 +2062,9 @@ bool IsBackgroundLayer(int layer, mapdata m)
 	switch(layer)
 	{
 		case 2:
-			return ( ((m->Flags[SF_VIEW]&SFV_LAYER2BG) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
+			return ( ((m->Flags[SF_VIEW]&(1<<SFV_LAYER2BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER2ISBACKGROUND])) ? true : false );
 		case 3:
-			return ( ((m->Flags[SF_VIEW]&SFV_LAYER3BG) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
+			return ( ((m->Flags[SF_VIEW]&(1<<SFV_LAYER3BG)) ^^ (Game->LoadDMapData(Game->CurDMap)->Flagset[DMFS_LAYER3ISBACKGROUND])) ? true : false );
 		default: return false;
 	}
 }

@@ -9,13 +9,11 @@
 class AlertFuncDialog: public InfoDialog
 {
 public:
-	enum class message { OK, BTN };
-	
 	AlertFuncDialog(std::string title, std::string text, uint32_t numButtons = 0, uint32_t focused_button = 0, ...);
 	AlertFuncDialog(std::string title, std::vector<std::string_view> lines, uint32_t numButtons = 0, uint32_t focused_button = 0, ...);
 	
 	std::shared_ptr<GUI::Widget> view() override;
-	bool handleMessage(const GUI::DialogMessage<int32_t>& msg) override;
+	bool handleMessage(const GUI::DialogMessage<message>& msg) override;
 
 private:
 	bool didend;

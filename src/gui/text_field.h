@@ -16,7 +16,8 @@ public:
 	enum class type
 	{
 		TEXT, INT_DECIMAL, INT_HEX, SWAP_BYTE, SWAP_SSHORT,
-		SWAP_ZSINT, FIXED_DECIMAL, SWAP_ZSINT2, SWAP_ZSINT_NO_DEC
+		SWAP_ZSINT, FIXED_DECIMAL, SWAP_ZSINT2, SWAP_ZSINT_NO_DEC,
+		NOSWAP_ZSINT
 	};
 	
 	TextField();
@@ -26,7 +27,7 @@ public:
 	 */
 	void setType(type newType);
 	
-	bool isSwapType()
+	bool isSwapType(bool reqbtn = false)
 	{
 		switch(tfType)
 		{
@@ -38,6 +39,8 @@ public:
 				return true;
 			default:
 				return false;
+			case type::NOSWAP_ZSINT:
+				return !reqbtn;
 		}
 	}
 

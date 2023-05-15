@@ -803,7 +803,6 @@ void draw_combo_alias_thumbnail(BITMAP *dest, combo_alias *combo, int32_t x, int
 void build_bii_list(bool usenone);
 const char *itemlist(int32_t index, int32_t *list_size);
 const char *itemlist_num(int32_t index, int32_t *list_size);
-int32_t select_item(const char *prompt,int32_t item,bool is_editor,int32_t &exit_status);
 
 void build_biw_list();
 const char *weaponlist(int32_t index, int32_t *list_size);
@@ -871,7 +870,6 @@ int32_t onToggleShowInfo();
 int32_t d_ndroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_idroplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_nidroplist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_ilist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_wlist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list);
 INLINE int32_t d_enelist_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1245,6 +1243,8 @@ void cflag_help(int32_t id);
 void ctype_help(int32_t id);
 void questrev_help();
 void questminrev_help();
+void doDarkroomCirclePreview(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
+// void doDarkroomConePreview(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X

@@ -16,9 +16,9 @@ std::string const& getLongestTagName();
 namespace GUI
 {
 
-QRPanel::QRPanel(): TabPanel(), message(-1),
+QRPanel::QRPanel(): TabPanel(), message(-1), info_message(-1),
 	init_qrs(NULL), qrCount(16), scrolling(false),
-	scrollWidth(0_px), scrollHeight(0_px)
+	scrollWidth(0_px), scrollHeight(0_px), showTags(false)
 {}
 
 void QRPanel::loadQRs(byte const* qrs)
@@ -29,6 +29,10 @@ void QRPanel::loadQRs(byte const* qrs)
 void QRPanel::setCount(size_t count)
 {
 	qrCount = count;
+}
+void QRPanel::setShowTags(bool v)
+{
+	showTags = v;
 }
 
 void QRPanel::setScrollWidth(Size sz)
@@ -76,7 +80,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 	}
 	while(q < qrlist.size())
 	{
-		std::shared_ptr<Grid> content = Grid::rows(scrolling?3:2);
+		std::shared_ptr<Grid> content = Grid::rows((scrolling&&showTags)?3:2);
 		for(size_t ind = 0; ind < qrCount; ++ind)
 		{
 			std::shared_ptr<QRCheckbox> cbox = std::make_shared<QRCheckbox>();
@@ -106,6 +110,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			}
 			cbox->setHAlign(0.0);
 			ibtn->setHAlign(1.0);
+			ibtn->onClick(info_message);
 			cbox->setRightPadding(0_px);
 			cbox->setVPadding(2_px);
 			ibtn->setPadding(0_px);
@@ -113,7 +118,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			ibtn->setForceFitHei(true); //fit the height of the cbox
 			content->add(ibtn);
 			content->add(cbox);
-			if(scrolling)
+			if(scrolling && showTags)
 			{
 				//ASSERT(li);
 				std::shared_ptr<Label> lbl = std::make_shared<Label>();

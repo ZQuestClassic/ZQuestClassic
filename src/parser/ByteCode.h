@@ -1448,9 +1448,9 @@
 #define COMBODTRIGGERGSTATE      1365
 #define COMBODTRIGGERGTIMER      1366
 #define GAMEMOUSECURSOR      1367
-#define RESRVD_VAR_EMILY11      1368
-#define RESRVD_VAR_EMILY12      1369
-#define RESRVD_VAR_EMILY13      1370
+#define COMBODTRIGGERGENSCRIPT      1368
+#define COMBODTRIGGERGROUP      1369
+#define COMBODTRIGGERGROUPVAL      1370
 #define RESRVD_VAR_EMILY14      1371
 #define RESRVD_VAR_EMILY15      1372
 #define RESRVD_VAR_EMILY16      1373
@@ -2140,54 +2140,54 @@ namespace ZScript
 			return new ONPCCanPlace();
 		}
 	};
-	class OReservedEmily20 : public BinaryOpcode
+	class OItemGetDispName : public UnaryOpcode
 	{
 	public:
-		OReservedEmily20(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OItemGetDispName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily20(a->clone(),b->clone());
+			return new OItemGetDispName(a->clone());
 		}
 	};
-	class OReservedEmily21 : public BinaryOpcode
+	class OItemSetDispName : public UnaryOpcode
 	{
 	public:
-		OReservedEmily21(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OItemSetDispName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily21(a->clone(),b->clone());
+			return new OItemSetDispName(a->clone());
 		}
 	};
-	class OReservedEmily22 : public BinaryOpcode
+	class OItemGetShownName : public UnaryOpcode
 	{
 	public:
-		OReservedEmily22(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OItemGetShownName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily22(a->clone(),b->clone());
+			return new OItemGetShownName(a->clone());
 		}
 	};
-	class OReservedEmily23 : public BinaryOpcode
+	class OHeroMoveXY : public Opcode
 	{
 	public:
-		OReservedEmily23(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OHeroMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily23(a->clone(),b->clone());
+			return new OHeroMoveXY();
 		}
 	};
-	class OReservedEmily24 : public BinaryOpcode
+	class OHeroCanMoveXY : public Opcode
 	{
 	public:
-		OReservedEmily24(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OHeroCanMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily24(a->clone(),b->clone());
+			return new OHeroCanMoveXY();
 		}
 	};
 	class OReservedEmily25 : public BinaryOpcode

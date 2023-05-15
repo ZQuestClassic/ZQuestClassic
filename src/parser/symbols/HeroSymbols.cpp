@@ -165,6 +165,9 @@ static AccessorTable HeroSTable[] =
 	{ "getStanding",                0,          ZTID_BOOL,   HEROSTANDING,              0,  { ZTID_PLAYER },{} },
 	{ "getCoyoteTime",              0,         ZTID_FLOAT,   HEROCOYOTETIME,            0,  { ZTID_PLAYER },{} },
 	{ "setCoyoteTime",              0,          ZTID_VOID,   HEROCOYOTETIME,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "MoveXY",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	{ "CanMoveXY",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	
 	
 	//Intentionally undocumented
 	{ "Warp",                       1,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT },{} },
@@ -521,6 +524,30 @@ void HeroSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		addOpcode2 (code, new OKillPlayer(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MoveXY(player, int, int, bool, bool, bool)
+	{
+		Function* function = getFunction("MoveXY");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroMoveXY());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CanMoveXY(player, int, int, bool, bool, bool)
+	{
+		Function* function = getFunction("CanMoveXY");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroCanMoveXY());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
 		RETURN();
 		function->giveCode(code);
 	}

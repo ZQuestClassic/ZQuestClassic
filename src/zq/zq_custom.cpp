@@ -37,6 +37,7 @@
 #include "dialog/misc_sprs.h"
 #include "dialog/info.h"
 #include "dialog/spritedata.h"
+#include "dialog/info_lister.h"
 extern FFScript FFCore;
 
 extern int32_t ex;
@@ -225,7 +226,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_ilist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
+		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
 							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_xmaplist_proc && d[i].proc != d_dropdmaptypelist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
 							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc && d[i].proc !=  d_ctl_proc
 							&& d[i].proc != jwin_fontdrop_proc && d[i].proc != d_csl_proc && d[i].proc != d_csl2_proc && d[i].proc != d_stilelist_proc && d[i].proc != d_comboalist_proc);
@@ -406,16 +407,6 @@ void edit_itemdata(int32_t index)
 {
 	call_item_editor(index);
 }
-extern DIALOG ilist_dlg[];
-static int32_t copiedItem;
-static MENU ilist_rclick_menu[] =
-{
-	{ "&Copy",    NULL, NULL, 0, NULL },
-	{ "Paste &v", NULL, NULL, 0, NULL },
-	{ "&Save",    NULL, NULL, 0, NULL },
-	{ "&Load",    NULL, NULL, 0, NULL },
-	{ NULL,       NULL, NULL, 0, NULL }
-};
 
 int32_t readoneitem(PACKFILE *f, int32_t index)
 {
@@ -948,8 +939,8 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			//read it into an item
 		}
 	}
-	itemsbuf[bii[index].i] = tempitem;
-	strcpy(item_string[bii[index].i], istring);
+	itemsbuf[index] = tempitem;
+	strcpy(item_string[index], istring);
 	   
 	return 1;
 }
@@ -1436,105 +1427,9 @@ int32_t writeoneitem(PACKFILE *f, int32_t i)
 		return 1;
 }
 
-void paste_item(int32_t index)
-{
-	if(index < 0) index = ilist_dlg[2].d1;
-	if(bii[index].i<0) //(none)
-		return;
-	if(copiedItem<0) //Nothing copied
-		return;
-	itemsbuf[bii[index].i]=itemsbuf[copiedItem];
-	ilist_dlg[2].flags|=D_DIRTY;
-	saved=false;
-}
-void copy_item(int32_t index)
-{
-	if(index < 0) index = ilist_dlg[2].d1;
-	if(bii[index].i<0) //(none)
-		return;
-	copiedItem=bii[index].i;
-}
-void save_item(int32_t index)
-{
-	if(index < 0) index = ilist_dlg[2].d1;
-	if(bii[index].i<0) //(none)
-		return;
-	if(!getname("Save Item(.zitem)", "zitem", NULL,datapath,false))
-		return;
-	int32_t iid = bii[index].i;
-	
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	if (!writeoneitem(f,iid))
-	{
-		Z_error("Could not write to .zitem packfile %s\n", temppath);
-		InfoDialog("ZItem Error", "Could not save the specified item.").show();
-	}
-	pack_fclose(f);
-}
-void load_item(int32_t index)
-{
-	if(index < 0) index = ilist_dlg[2].d1;
-	if(bii[index].i<0) //(none)
-		return;
-	if(!getname("Load Item(.zitem)", "zitem", NULL,datapath,false))
-		return;
-	PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
-	if(!f) return;
-	
-	if (!readoneitem(f,index))
-	{
-		Z_error("Could not read from .zitem packfile %s\n", temppath);
-		InfoDialog("ZItem Error", "Could not load the specified item.").show();
-	}
-	
-	pack_fclose(f);
-	ilist_dlg[2].flags|=D_DIRTY;
-	saved=false;
-}
-
-
-void ilist_rclick_func(int32_t index, int32_t x, int32_t y)
-{
-	if(bii[index].i<0) // Clicked (none)?
-		return;
-	
-	if(copiedItem<0)
-		ilist_rclick_menu[1].flags|=D_DISABLED;
-	else
-		ilist_rclick_menu[1].flags&=~D_DISABLED;
-	
-	int32_t ret=popup_menu(ilist_rclick_menu, x, y);
-	
-	if(ret==0) // copy
-		copy_item(index);
-	else if(ret==1) // paste
-		paste_item(index);
-	else if(ret==2) // save
-		save_item(index);
-	else if(ret==3) // load
-		load_item(index);
-}
-
 int32_t onCustomItems()
 {
-	/*
-	  char *hold = item_string[0];
-	  item_string[0] = "rupee (1)";
-	  */
-	
-	build_bii_list(false);
-	int32_t foo;
-	int32_t index = select_item("Select Item",bii[0].i,true,foo);
-	copiedItem=-1;
-	
-	while(index >= 0)
-	{
-		build_biw_list();
-		edit_itemdata(index);
-		index = select_item("Select Item",index,true,foo);
-	}
-	
+	ItemListerDialog().show();
 	refresh(rMAP+rCOMBOS);
 	return D_O_K;
 }

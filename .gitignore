@@ -122,15 +122,7 @@ cmake_install.cmake
 /src/parser/y.output
 
 # Package generation
-output/_auto/buildpack_log.txt
-output/_auto/buildpack
-output/_auto/extrapack_log.txt
-output/_auto/extrapack
-output/_auto/zelda-classic-mac
 *.dmg
-output/_auto/buildpack_zq
-output/_auto/buildpack_lazy
-output/_auto/*.zip
 resources/docs/ZScript_Docs.html
 
 # Other
@@ -146,3 +138,4 @@ compare-report/
 __pycache__
 ./packages/
 resources/modules/classic/fontsdat
+output/

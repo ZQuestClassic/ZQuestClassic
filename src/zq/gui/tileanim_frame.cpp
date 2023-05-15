@@ -63,40 +63,43 @@ int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 			int32_t th = data[TileFrame::tfr_dosized] ? data[TileFrame::tfr_skipy]+1 : 1;
 			if(tw < 1) tw = 1;
 			if(th < 1) th = 1;
-			BITMAP *buf = create_bitmap_ex(8,tw*16,th*16);
 			BITMAP *bigbmp = create_bitmap_ex(8,d->w+4,d->h+4);
-			clear_to_color(buf, d->bg);
 			clear_to_color(bigbmp, d->bg);
-			//
-			int32_t cset = data[TileFrame::tfr_cset];
-			int32_t cs2 = data[TileFrame::tfr_cset2];
-			for(auto tx = 0; tx < tw; ++tx)
+			if(!(d->flags&D_DISABLED))
 			{
-				for(auto ty = 0; ty < th; ++ty)
+				BITMAP *buf = create_bitmap_ex(8,tw*16,th*16);
+				clear_to_color(buf, d->bg);
+				//
+				int32_t cset = data[TileFrame::tfr_cset];
+				int32_t cs2 = data[TileFrame::tfr_cset2];
+				for(auto tx = 0; tx < tw; ++tx)
 				{
-					int32_t tmptile = tileToDraw+tx+(TILES_PER_ROW*ty);
-					if(!(cs2&0xF0) || !(cs2&0xF) || newtilebuf[tileToDraw].format > tf4Bit)
-						overtile16(buf, tmptile, tx*16, ty*16, cset, data[TileFrame::tfr_flip]);
-					else
+					for(auto ty = 0; ty < th; ++ty)
 					{
-						int32_t csets[4];
-						int32_t cofs = cs2&0xF;
-						if(cofs&8)
-							cofs |= ~int32_t(0xF);
-						
-						for(int32_t i=0; i<4; ++i)
-							csets[i] = cs2&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
-						
-						drawtile16_cs2(buf,tmptile,tx*16,ty*16,csets,data[TileFrame::tfr_flip],true);
+						int32_t tmptile = tileToDraw+tx+(TILES_PER_ROW*ty);
+						if(!(cs2&0xF0) || !(cs2&0xF) || newtilebuf[tileToDraw].format > tf4Bit)
+							overtile16(buf, tmptile, tx*16, ty*16, cset, data[TileFrame::tfr_flip]);
+						else
+						{
+							int32_t csets[4];
+							int32_t cofs = cs2&0xF;
+							if(cofs&8)
+								cofs |= ~int32_t(0xF);
+							
+							for(int32_t i=0; i<4; ++i)
+								csets[i] = cs2&(16<<i) ? WRAP_CS2(cset, cofs) : cset;
+							
+							drawtile16_cs2(buf,tmptile,tx*16,ty*16,csets,data[TileFrame::tfr_flip],true);
+						}
 					}
 				}
+				//
+				stretch_blit(buf, bigbmp, 0, 0, tw*16, th*16, 2, 2, d->w, d->h);
+				destroy_bitmap(buf);
 			}
-			//
-			stretch_blit(buf, bigbmp, 0, 0, tw*16, th*16, 2, 2, d->w, d->h);
 			jwin_draw_frame(bigbmp, 0, 0, d->w+4, d->h+4, FR_DEEP);
 			masked_blit(bigbmp, screen, 0, 0, d->x, d->y, d->w+4, d->h+4);
 			//
-			destroy_bitmap(buf);
 			destroy_bitmap(bigbmp);
 			break;
 		}

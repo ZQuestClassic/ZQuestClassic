@@ -15,8 +15,9 @@
 #ifndef _DEFDATA_H_
 #define _DEFDATA_H_
 
+#include "base/zdefs.h"
 #include "items.h"
-#include "guys.h"
+
 extern comboclass default_combo_classes[cMAX+1];
 extern itemdata default_items[iLast];
 extern guydata default_guys[OLDMAXGUYS];

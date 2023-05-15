@@ -3454,6 +3454,12 @@ bool weapon::animate(int32_t index)
 			}
 		}
 	}
+	if(misc_wflags & WLFLAG_BURNFLAGS)
+		triggerfire(x,y,true,
+			misc_wflags&WFLAG_BURN_ANYFIRE,
+			misc_wflags&WFLAG_BURN_STRONGFIRE,
+			misc_wflags&WFLAG_BURN_MAGICFIRE,
+			misc_wflags&WFLAG_BURN_DIVINEFIRE);
 	//Only lweapons
 	if ( id < wEnemyWeapons || ( id >= wScript1 && id <= wScript10 && isLWeapon ) ) 
 	{
