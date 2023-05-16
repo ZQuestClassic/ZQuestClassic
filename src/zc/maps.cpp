@@ -3515,7 +3515,7 @@ void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
 {
     bool showlayer = true;
-	mapscr* basescr = screen_handle.base_screen;
+	mapscr* base_screen = screen_handle.base_screen;
 	int layer = screen_handle.layer;
     
     switch(type ? type : layer)
@@ -3594,20 +3594,19 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
         break;
     }
 	
-    if(!type && (layer==(int32_t)(basescr->lens_layer&7)+1) && ((basescr->lens_layer&llLENSSHOWS && !lensclk) || (basescr->lens_layer&llLENSHIDES && lensclk)))
+    if(!type && (layer==(int32_t)(base_screen->lens_layer&7)+1) && ((base_screen->lens_layer&llLENSSHOWS && !lensclk) || (base_screen->lens_layer&llLENSHIDES && lensclk)))
     {
         showlayer = false;
     }
     
-	
     if(showlayer)
     {
-		if(type || !(basescr->hidelayers & (1 << (layer))))
+		if(type || !(base_screen->hidelayers & (1 << (layer))))
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
         
         if(!type && drawprimitives && layer > 0 && layer <= 6)
         {
-            do_primitives(bmp, layer, basescr, 0, playing_field_offset);
+            do_primitives(bmp, layer, base_screen, 0, playing_field_offset);
         }
     }
 }
@@ -6349,6 +6348,7 @@ bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
+	// TODO z3
 	if (is_z3_scrolling_mode())
 	{
 		int max_x = world_w;
