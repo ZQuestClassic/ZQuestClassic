@@ -19,7 +19,7 @@ extern bool update_hw_pal;
 bool global_z3_scrolling_extended_height_mode = true;
 // TODO z3 !
 bool global_z3_always_use_new_scrollscr = !false;
-viewport_t viewport = {0};
+viewport_t viewport;
 
 volatile bool close_button_quit = false;
 

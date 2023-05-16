@@ -27754,11 +27754,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
-			int offy = draw_dy * 176 + playing_field_offset;
+			int offy = draw_dy * 176 - playing_field_offset;
 
 			mapscr* base_screen = screens[0];
-			if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, map, scr, 2, base_screen, screens[2], offx, offy, 2);
-			if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, map, scr, 3, base_screen, screens[3], offx, offy, 2);
+			if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, map, scr, 2, base_screen, screens[2], offx, offy);
+			if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, map, scr, 3, base_screen, screens[3], offx, offy);
 		});
 
 		// Draw screens' background layer primitives together, after their layers' combos.
@@ -27791,21 +27791,20 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
 			bool is_new_scr = scr == currscr;
-			int tempscreen = is_new_scr ? 2 : 3;
 
 			mapscr* base_screen = screens[0];
 			bool primitives = is_new_scr;
-			do_layer(framebuf, 0, map, scr, 1, base_screen, screens[1], offx, offy, tempscreen, false, primitives);
+			do_layer(framebuf, 0, map, scr, 1, base_screen, screens[1], offx, offy, false, false, primitives);
 
 			if(get_bit(quest_rules, qr_FFCSCROLL))
 			{
-				do_layer(framebuf, -3, map, scr, 0, base_screen, screens[0], offx, offy, tempscreen, true); // ffcs
+				do_layer(framebuf, -3, map, scr, 0, base_screen, screens[0], offx, offy, false, !is_new_scr); // ffcs
 			}
 
 			if(!(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)))
 			{
 				primitives &= !(oldscr->flags7&fLAYER2BG);
-				do_layer(framebuf, 0, map, scr, 2, base_screen, screens[2], offx, offy, 2, false, primitives);
+				do_layer(framebuf, 0, map, scr, 2, base_screen, screens[2], offx, offy, false, false, primitives);
 			}
 		});
 
@@ -27813,18 +27812,18 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
 			bool is_new_scr = scr == currscr;
-			int tempscreen = is_new_scr ? 2 : 3;
 			mapscr* base_screen = screens[0];
 
-			do_layer(framebuf, -2, map, scr, 0, base_screen, screens[0], offx, offy, is_new_scr);
+			do_layer(framebuf, -2, map, scr, 0, base_screen, screens[0], offx, offy);
 			if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 			{
-				do_layer(framebuf, -2, map, scr, 1, base_screen, screens[1], offx, offy, is_new_scr);
-				do_layer(framebuf, -2, map, scr, 2, base_screen, screens[2], offx, offy, is_new_scr);
+				do_layer(framebuf, -2, map, scr, 1, base_screen, screens[1], offx, offy);
+				do_layer(framebuf, -2, map, scr, 2, base_screen, screens[2], offx, offy);
 			}
 
-			do_walkflags(base_screen, offx, offy, is_new_scr); // show walkflags if the cheat is on
-			do_effectflags(base_screen, offx, offy, is_new_scr); // show effectflags if the cheat is on
+			int tempscreen = is_new_scr ? 2 : 3;
+			do_walkflags(base_screen, offx, offy, tempscreen); // show walkflags if the cheat is on
+			do_effectflags(base_screen, offx, offy, tempscreen); // show effectflags if the cheat is on
 		});
 
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](mapscr* screens[], int map, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
@@ -27862,27 +27861,24 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			bool is_new_scr = scr == currscr;
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-			// This only matters for overhead FFCs. See do_scrolling_layer.
-			// TODO z3
-			int tempscreen = is_new_scr ? 2 : 3;
 
 			mapscr* base_screen = screens[0];
 			if(!(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
 			{
 				bool primitives = is_new_scr && !(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
-				do_layer(framebuf, 0, map, scr, 3, base_screen, screens[3], offx, offy, tempscreen, false, primitives);
+				do_layer(framebuf, 0, map, scr, 3, base_screen, screens[3], offx, offy, false, false, primitives);
 			}
 			
-			do_layer(framebuf, 0, map, scr, 4, base_screen, screens[4], offx, offy, tempscreen, false, is_new_scr); //layer 4
-			do_layer(framebuf, -1, map, scr, 0, base_screen, screens[0], offx, offy, tempscreen); //overhead combos
+			do_layer(framebuf, 0, map, scr, 4, base_screen, screens[4], offx, offy, false, false, is_new_screen); //layer 4
+			do_layer(framebuf, -1, map, scr, 0, base_screen, screens[0], offx, offy); //overhead combos
 			if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 			{
-				do_layer(framebuf, -1, map, scr, 1, base_screen, screens[1], offx, offy, tempscreen); //overhead combos
-				do_layer(framebuf, -1, map, scr, 2, base_screen, screens[2], offx, offy, tempscreen); //overhead combos
+				do_layer(framebuf, -1, map, scr, 1, base_screen, screens[1], offx, offy); //overhead combos
+				do_layer(framebuf, -1, map, scr, 2, base_screen, screens[2], offx, offy); //overhead combos
 			}
-			do_layer(framebuf, 0, map, scr, 5, base_screen, screens[5], offx, offy, tempscreen, false, is_new_scr); //layer 5
-			do_layer(framebuf, -4, map, scr, 0, base_screen, screens[0], offx, offy, tempscreen, true); //overhead FFCs
-			do_layer(framebuf, 0, map, scr, 6, base_screen, screens[6], offx, offy, tempscreen, false, is_new_scr); //layer 6 <<<<<
+			do_layer(framebuf, 0, map, scr, 5, base_screen, screens[5], offx, offy, false, false, is_new_scr); //layer 5
+			do_layer(framebuf, -4, map, scr, 0, base_screen, screens[0], offx, offy, true, !is_new_scr); //overhead FFCs
+			do_layer(framebuf, 0, map, scr, 6, base_screen, screens[6], offx, offy, false, false, is_new_scr); //layer 6 <<<<<
 		});
 		
 		// pretty sure this doesn't do anything.
