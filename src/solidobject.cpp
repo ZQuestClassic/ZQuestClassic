@@ -4,6 +4,7 @@
 #include "hero.h"
 #include "base/zc_math.h"
 #include "slopes.h"
+#include "iter.h"
 
 #ifdef IS_PLAYER
 extern sprite_list guys;
@@ -16,14 +17,21 @@ template <class F>
 static bool for_every_solid_object(const F& fn)
 {
 #ifdef IS_PLAYER
-	word c = tmpscr.numFFC();
-	for (word i=0; i < c; i++)
-	{
-		if (tmpscr.ffcs[i].flags & ffCHANGER) continue;
-		solid_object* obj = &tmpscr.ffcs[i];
-		if (!obj->getSolid()) continue;
-		if (fn(obj)) return true;
-	}
+	bool should_continue = true;
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc->flags & ffCHANGER) return true;
+
+		solid_object* obj = ffc_handle.ffc;
+		if (!obj->getSolid()) return true;
+
+		if (fn(obj)) {
+			should_continue = false;
+			return false;
+		}
+
+		return true;
+	});
+	if (!should_continue) return true;
 
 	for (int i = 0; i < guys.Count(); i++)
 	{
