@@ -4110,35 +4110,35 @@ int32_t onSaveMapPic()
 					}
 				}
 				
-				if(XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				if(XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				putscr(_screen_draw_buffer,256,0,&special_warp_return_screen);
-				do_layer(_screen_draw_buffer, 0, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				do_layer_old(_screen_draw_buffer, 0, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				if(!XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(!XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				putscrdoors(_screen_draw_buffer,256,0,&special_warp_return_screen);
-				do_layer(_screen_draw_buffer, -2, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				do_layer_old(_screen_draw_buffer, -2, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 				{
-					do_layer(_screen_draw_buffer, -2, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -2, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					do_layer_old(_screen_draw_buffer, -2, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					do_layer_old(_screen_draw_buffer, -2, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				}
-				do_layer(_screen_draw_buffer, -3, 0, &special_warp_return_screen, 256, -playing_field_offset, 2); // Freeform combos!
+				do_layer_old(_screen_draw_buffer, -3, 0, &special_warp_return_screen, 256, -playing_field_offset, 2); // Freeform combos!
 				
-				if(!XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				if(!XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				do_layer(_screen_draw_buffer, 0, 4, &special_warp_return_screen, 256, -playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, -1, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				do_layer_old(_screen_draw_buffer, 0, 4, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				do_layer_old(_screen_draw_buffer, -1, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 				{
-					do_layer(_screen_draw_buffer, -1, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -1, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					do_layer_old(_screen_draw_buffer, -1, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					do_layer_old(_screen_draw_buffer, -1, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				}
-				do_layer(_screen_draw_buffer, 0, 5, &special_warp_return_screen, 256, -playing_field_offset, 2);
-				do_layer(_screen_draw_buffer, 0, 6, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				do_layer_old(_screen_draw_buffer, 0, 5, &special_warp_return_screen, 256, -playing_field_offset, 2);
+				do_layer_old(_screen_draw_buffer, 0, 6, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 			}
 			
