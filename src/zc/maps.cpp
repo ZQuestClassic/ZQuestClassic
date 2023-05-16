@@ -21,6 +21,7 @@
 #include <deque>
 #include <string>
 #include <set>
+#include <array>
 using std::set;
 
 #include "maps.h"
@@ -3387,53 +3388,55 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 	end_y   = MIN(11, ceil((bmp->h - y) / 16.0));
 }
 
-void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, mapscr* layerscr, int32_t x, int32_t y)
+void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y)
 {
-	DCHECK_LAYER_ZERO_INDEX(layer);
 	x -= viewport.x;
 	y -= viewport.y - playing_field_offset;
 
 	bool over = true, transp = false;
+	mapscr* screen = screen_handle.screen;
+	mapscr* base_screen = screen_handle.base_screen;
+	int layer = screen_handle.layer;
 	
 	switch(type ? type : layer)
 	{
 		case -4: //overhead FFCs
 		case -3:                                                //freeform combos
-			for(int32_t i = (basescr->numFFC()-1); i >= 0; --i)
+			for(int32_t i = (base_screen->numFFC()-1); i >= 0; --i)
 			{
-				if (screenscrolling && (basescr->ffcs[i].flags & ffCARRYOVER) != 0 && scr != scrolling_scr)
+				if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
 					continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-				basescr->ffcs[i].draw(bmp, x, y, (type==-4));
+				base_screen->ffcs[i].draw(bmp, x, y, (type==-4));
 			}
 			
 			return;
 			
 		case -2:                                                //push blocks
-			if(layerscr && layerscr->valid)
+			if(screen && screen->valid)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					int32_t mf=layerscr->sflag[i], mf2 = combobuf[layerscr->data[i]].flag;
+					int32_t mf=screen->sflag[i], mf2 = combobuf[screen->data[i]].flag;
 					
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						auto rpos = POS_TO_RPOS(i, scr);
-						draw_cmb_pos(bmp, x, y, rpos, layerscr->data[i], layerscr->cset[i], layer, true, false);
+						auto rpos = POS_TO_RPOS(i, screen_handle.index);
+						draw_cmb_pos(bmp, x, y, rpos, screen->data[i], screen->cset[i], layer, true, false);
 					}
 				}
 			}
 			return;
 			
 		case -1:                                                //over combo
-			if(layerscr && layerscr->valid)
+			if(screen && screen->valid)
 			{
 				for(int32_t i=0; i<176; i++)
 				{
-					if(combo_class_buf[combobuf[layerscr->data[i]].type].overhead)
+					if(combo_class_buf[combobuf[screen->data[i]].type].overhead)
 					{
-						auto rpos = POS_TO_RPOS(i, scr);
-						draw_cmb_pos(bmp, x, y, rpos, layerscr->data[i], layerscr->cset[i], layer, true, false);
+						auto rpos = POS_TO_RPOS(i, screen_handle.index);
+						draw_cmb_pos(bmp, x, y, rpos, screen->data[i], screen->cset[i], layer, true, false);
 					}
 				}
 			}
@@ -3443,11 +3446,11 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		case 4:
 		case 5:
 		case 6:
-			if(TransLayers || basescr->layeropacity[layer-1]==255)
+			if(TransLayers || base_screen->layeropacity[layer-1]==255)
 			{
-				if(layerscr && layerscr->valid)
+				if(screen && screen->valid)
 				{
-					if(basescr->layeropacity[layer-1]!=255)
+					if(base_screen->layeropacity[layer-1]!=255)
 						transp = true;
 					break;
 				}
@@ -3455,14 +3458,14 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 			return;
 			
 		case 2:
-			if(TransLayers || basescr->layeropacity[layer-1]==255)
+			if(TransLayers || base_screen->layeropacity[layer-1]==255)
 			{
-				if(layerscr && layerscr->valid)
+				if(screen && screen->valid)
 				{
-					if(basescr->layeropacity[layer-1]!=255)
+					if(base_screen->layeropacity[layer-1]!=255)
 						transp = true;
 					
-					if(XOR(basescr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+					if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 						over = false;
 					
 					break;
@@ -3471,15 +3474,15 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 			return;
 			
 		case 3:
-			if(TransLayers || basescr->layeropacity[layer-1]==255)
+			if(TransLayers || base_screen->layeropacity[layer-1]==255)
 			{
-				if(layerscr && layerscr->valid)
+				if(screen && screen->valid)
 				{
-					if(basescr->layeropacity[layer-1]!=255)
+					if(base_screen->layeropacity[layer-1]!=255)
 						transp = true;
 					
-					if(XOR(basescr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)
-						&& !XOR(basescr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+					if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)
+						&& !XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 						over = false;
 					
 					break;
@@ -3495,8 +3498,8 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = POS_TO_RPOS(i, scr);
-			draw_cmb_pos(bmp, x, y, rpos, layerscr->data[i], layerscr->cset[i], layer, over, transp);
+			auto rpos = POS_TO_RPOS(i, screen_handle.index);
+			draw_cmb_pos(bmp, x, y, rpos, screen->data[i], screen->cset[i], layer, over, transp);
 		}
 	}
 }
@@ -3504,21 +3507,16 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int
 // TODO z3 ! remove
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
-	do_layer_new(bmp, type, currmap, currscr, layer, basescr, x, y, drawprimitives);
-}
-
-void do_layer_new(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool drawprimitives)
-{
 	DCHECK_LAYER_ZERO_INDEX(layer);
-
-	mapscr* layerscr = get_layer_scr(map, scr, layer - 1);
-	do_layer_scr(bmp, type, map, scr, layer, basescr, layerscr, x, y, drawprimitives);
+	mapscr* layerscr = get_layer_scr(currmap, currscr, layer - 1);
+	do_layer(bmp, type, {basescr, layerscr, currmap, currscr, layer}, x, y, drawprimitives);
 }
 
-// TODO z3 ! rename do_layer. use screen_handle_t
-void do_layer_scr(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t layer, mapscr* basescr, mapscr* layerscr, int32_t x, int32_t y, bool drawprimitives)
+void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives)
 {
     bool showlayer = true;
+	mapscr* basescr = screen_handle.base_screen;
+	int layer = screen_handle.layer;
     
     switch(type ? type : layer)
     {
@@ -3605,7 +3603,7 @@ void do_layer_scr(BITMAP *bmp, int32_t type, int32_t map, int32_t scr, int32_t l
     if(showlayer)
     {
 		if(type || !(basescr->hidelayers & (1 << (layer))))
-			do_scrolling_layer(bmp, type, map, scr, layer, basescr, layerscr, x, y);
+			do_scrolling_layer(bmp, type, screen_handle, x, y);
         
         if(!type && drawprimitives && layer > 0 && layer <= 6)
         {
@@ -4110,11 +4108,21 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 	}
 }
 
-static void for_every_nearby_screen(const std::function <void (mapscr*, int, int, int)>& fn)
+static void for_every_nearby_screen(const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		fn(&tmpscr, currscr, 0, 0);
+		int screen_index = currscr;
+		mapscr* base_screen = get_scr(currmap, screen_index);
+		std::array<screen_handle_t, 7> screen_handles;
+		screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
+		for (int i = 1; i < 7; i++)
+		{
+			mapscr* screen = get_layer_scr(currmap, screen_index, i - 1);
+			screen_handles[i] = {base_screen, screen, currmap, screen_index, i};
+		}
+
+		fn(screen_handles, screen_index, 0, 0);
 		return;
 	}
 
@@ -4140,21 +4148,29 @@ static void for_every_nearby_screen(const std::function <void (mapscr*, int, int
 				if (scr_y < 0 || scr_y >= 8) continue;
 			}
 
-			int scr = scr_x + scr_y * 16;
-			if (!is_in_current_region(scr)) continue;
+			int screen_index = scr_x + scr_y * 16;
+			if (!is_in_current_region(screen_index)) continue;
 
-			mapscr* myscr = get_scr(currmap, scr);
-			if (!(myscr->valid & mVALID)) continue;
+			mapscr* base_screen = get_scr(currmap, screen_index);
+			if (!(base_screen->valid & mVALID)) continue;
 
-			int offx = z3_get_region_relative_dx(scr) * 256;
-			int offy = z3_get_region_relative_dy(scr) * 176;
+			int offx = z3_get_region_relative_dx(screen_index) * 256;
+			int offy = z3_get_region_relative_dy(screen_index) * 176;
 
 			if (offx - viewport.x <= -256) continue;
 			if (offy - viewport.y <= -176) continue;
 			if (offx - viewport.x >= 256) continue;
 			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
 
-			fn(myscr, scr, offx, offy);
+			std::array<screen_handle_t, 7> screen_handles;
+			screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
+			for (int i = 1; i < 7; i++)
+			{
+				mapscr* screen = get_layer_scr(currmap, screen_index, i - 1);
+				screen_handles[i] = {base_screen, screen, currmap, screen_index, i};
+			}
+
+			fn(screen_handles, screen_index, offx, offy);
 		}
 	}
 }
@@ -4231,24 +4247,26 @@ void draw_screen(bool showhero, bool runGeneric)
 	// TODO z3 move to game loop?
 	z3_update_viewport();
 	
-	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-		if(XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+		if(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
-			do_layer_new(scrollbuf, 0, currmap, screen_index, 2, myscr, offx, offy, true);
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true);
 			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
 			if (screen_index == currscr) draw_msgstr(2);
 		}
 		
-		if(XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+		if(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			do_layer_new(scrollbuf, 0, currmap, screen_index, 3, myscr, offx, offy, true);
+			do_layer(scrollbuf, 0, screen_handles[3], offx, offy, true);
 			if (screen_index == currscr) particles.draw(temp_buf, true, 2);
 			if (screen_index == currscr) draw_msgstr(3);
 		}
 	});
 	
-	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-		putscr(scrollbuf, offx, offy + playing_field_offset, myscr);
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+		putscr(scrollbuf, offx, offy + playing_field_offset, base_screen);
 	});
 
 	// Lens hints, then primitives, then particles.
@@ -4296,16 +4314,18 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-		do_layer_new(scrollbuf, 0, currmap, screen_index, 1, myscr, offx, offy, true); // LAYER 1
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+
+		do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
 		if (screen_index == currscr) particles.draw(temp_buf, true, 0);
 		if (screen_index == currscr) draw_msgstr(1, true);
 		
-		do_layer_new(scrollbuf, -3, currmap, screen_index, 0, myscr, offx, offy); // freeform combos!
+		do_layer(scrollbuf, -3, screen_handles[0], offx, offy); // freeform combos!
 
-		if(!XOR(myscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+		if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
-			do_layer_new(scrollbuf, 0, currmap, screen_index, 2, myscr, offx, offy, true); // LAYER 2
+			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
 			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
 			if (screen_index == currscr) draw_msgstr(2, true);
 		}
@@ -4342,19 +4362,21 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-		do_layer_new(scrollbuf, -2, currmap, screen_index, 0, myscr, offx, offy); // push blocks!
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+
+		do_layer(scrollbuf, -2, screen_handles[0], offx, offy); // push blocks!
 		if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 		{
-			do_layer_new(scrollbuf, -2, currmap, screen_index, 1, myscr, offx, offy); // push blocks!
-			do_layer_new(scrollbuf, -2, currmap, screen_index, 2, myscr, offx, offy); // push blocks!
+			do_layer(scrollbuf, -2, screen_handles[1], offx, offy); // push blocks!
+			do_layer(scrollbuf, -2, screen_handles[2], offx, offy); // push blocks!
 		}
 		// TODO z3 ?
-		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, myscr, offx, offy + playing_field_offset);
+		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, base_screen, offx, offy + playing_field_offset);
 
 		// Show walkflags cheat
-		do_walkflags(myscr, offx, offy, 2);
-		do_effectflags(myscr, offx, offy, 2);
+		do_walkflags(base_screen, offx, offy, 2);
+		do_effectflags(base_screen, offx, offy, 2);
 	});
 	
 	putscrdoors(scrollbuf,0,playing_field_offset,this_screen);
@@ -4554,25 +4576,27 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	//5. Draw some layers onto temp_buf
 	
-	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-		if(!XOR(myscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+
+		if(!XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG))
 		{
-			do_layer_new(temp_buf, 0, currmap, screen_index, 3, myscr, offx, offy, true);
+			do_layer(temp_buf, 0, screen_handles[3], offx, offy, true);
 			if (screen_index == currscr) particles.draw(temp_buf, true, 2);
 			if (screen_index == currscr) draw_msgstr(3, true);
 		}
 		
-		do_layer_new(temp_buf, 0, currmap, screen_index, 4, myscr, offx, offy, true);
-		//do_primitives(temp_buf, 3, myscr, 0,playing_field_offset);//don't uncomment me
+		do_layer(temp_buf, 0, screen_handles[4], offx, offy, true);
+		//do_primitives(temp_buf, 3, base_screen, 0,playing_field_offset);//don't uncomment me
 		
 		if (screen_index == currscr) particles.draw(temp_buf, true, 3);
 		if (screen_index == currscr) draw_msgstr(4, true);
 
-		do_layer_new(temp_buf, -1, currmap, screen_index, 0, myscr, offx, offy);
+		do_layer(temp_buf, -1, screen_handles[0], offx, offy);
 		if (get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
 		{
-			do_layer_new(temp_buf, -1, currmap, screen_index, 1, myscr, offx, offy);
-			do_layer_new(temp_buf, -1, currmap, screen_index, 2, myscr, offx, offy);
+			do_layer(temp_buf, -1, screen_handles[1], offx, offy);
+			do_layer(temp_buf, -1, screen_handles[2], offx, offy);
 		}
 	});
 
@@ -4663,15 +4687,17 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 	}
 
-	for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
-		do_layer_new(temp_buf, 0, currmap, screen_index, 5, myscr, offx, offy, true);
+	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+		mapscr* base_screen = screen_handles[0].base_screen;
+	
+		do_layer(temp_buf, 0, screen_handles[5], offx, offy, true);
 		if (screen_index == currscr) particles.draw(temp_buf, true, 4);
 		if (screen_index == currscr) draw_msgstr(5, true);
 		// overhead freeform combos!
-		do_layer_new(temp_buf, -4, currmap, screen_index, 0, myscr, offx, offy);
-		do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, myscr, offx, offy + playing_field_offset);
+		do_layer(temp_buf, -4, screen_handles[0], offx, offy);
+		do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
 		// ---
-		do_layer_new(temp_buf, 0, currmap, screen_index, 6, myscr, offx, offy, true);
+		do_layer(temp_buf, 0, screen_handles[6], offx, offy, true);
 		if (screen_index == currscr) particles.draw(temp_buf, true, 5);
 	});
 	
@@ -4683,7 +4709,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	//11. Handle low drawn darkness
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
-		for_every_nearby_screen([&](mapscr* myscr, int screen_index, int offx, int offy) {
+		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 			calc_darkroom_combos(screen_index, offx, offy, darkscr_bmp_curscr);
 		});
 		Hero.calc_darkroom_hero(0, 0, darkscr_bmp_curscr);

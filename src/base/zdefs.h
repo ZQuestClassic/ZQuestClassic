@@ -5470,6 +5470,16 @@ enum class rpos_t : int32_t {
 
 struct mapscr;
 
+struct screen_handle_t
+{
+	mapscr* base_screen;
+	mapscr* screen;
+	int32_t map;
+	int32_t index;
+	// 0 = base screen, 1 = layer 1, etc. Up to 6.
+	int32_t layer;
+};
+
 struct pos_handle_t
 {
 	mapscr* screen;
