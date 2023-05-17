@@ -12,6 +12,7 @@
 //
 //--------------------------------------------------------
 
+#include "maps.h"
 #include "zelda.h"
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
@@ -22456,22 +22457,23 @@ void HeroClass::checkspecial()
 	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 		bool hasmainguy = hasMainGuy(screen_index);
 		bool loaded_enemies = loaded_enemies_for_screen.contains(screen_index);
-		if (!loaded_enemies || hasmainguy) return;
+		if (!loaded_enemies || hasmainguy)
+		{
+			did_secret = false;
+			return;
+		}
 
 		// Enemies have been defeated.
 
 		// generic 'Enemies->' trigger
-		for(auto lyr = 0; lyr < 7; ++lyr)
-		{
-			for(auto pos = 0; pos < 176; ++pos)
+		for_every_rpos_in_screen(screen, screen_index, [&](const pos_handle_t& pos_handle) {
+			int pos = RPOS_TO_POS(pos_handle.rpos);
+			newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
+			if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 			{
-				newcombo const& cmb = combobuf[FFCore.tempScreens[lyr]->data[pos]];
-				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
-				{
-					do_trigger_combo(lyr,pos);
-				}
+				do_trigger_combo(pos_handle);
 			}
-		}
+		});
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
 			if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)

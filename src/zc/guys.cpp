@@ -21888,26 +21888,26 @@ void loadenemies()
 	}
 
 	// TODO z3 ! enemies. link_to_the_zelda.zplay
-	if (!is_z3_scrolling_mode())
-	{
-		if(tmpscr.pattern==pNOSPAWN) return;
-		if(loaded_enemies)
-			return;
+	// if (!is_z3_scrolling_mode())
+	// {
+	// 	if(tmpscr.pattern==pNOSPAWN) return;
+	// 	if(loaded_enemies)
+	// 		return;
 			
-		// check if it's the dungeon boss and it has been beaten before
-		if(tmpscr.enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
-		{
-			loaded_enemies_for_screen.insert(currscr);
-			loaded_enemies = true;
-			return;
-		}
+	// 	// check if it's the dungeon boss and it has been beaten before
+	// 	if(tmpscr.enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+	// 	{
+	// 		loaded_enemies_for_screen.insert(currscr);
+	// 		loaded_enemies = true;
+	// 		return;
+	// 	}
 		
-		if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
-		{
-			side_load_enemies();
-			return;
-		}
-	}
+	// 	if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
+	// 	{
+	// 		side_load_enemies();
+	// 		return;
+	// 	}
+	// }
 
 	loaded_enemies=true;
 	
