@@ -21574,7 +21574,11 @@ void side_load_enemies()
 	{
 		if(script_sle)
 			script_sle = false;
-		else loaded_enemies=true;
+		else
+		{
+			loaded_enemies=true;
+			loaded_enemies_for_screen.insert(currscr);
+		}
 		sle_clk = 0;
 	}
 }
@@ -21883,11 +21887,26 @@ void loadenemies()
 		return;
 	}
 
-	// TODO z3 ! enemies
-	if (tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
+	// TODO z3 ! enemies. link_to_the_zelda.zplay
+	if (!is_z3_scrolling_mode())
 	{
-		side_load_enemies();
-		return;
+		if(tmpscr.pattern==pNOSPAWN) return;
+		if(loaded_enemies)
+			return;
+			
+		// check if it's the dungeon boss and it has been beaten before
+		if(tmpscr.enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+		{
+			loaded_enemies_for_screen.insert(currscr);
+			loaded_enemies = true;
+			return;
+		}
+		
+		if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
+		{
+			side_load_enemies();
+			return;
+		}
 	}
 
 	loaded_enemies=true;
@@ -21910,8 +21929,6 @@ void loadenemies()
 		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
 			return;
 
-		loaded_enemies_for_screen.insert(screen_index);
-
 		// dungeon basements
 		static byte dngn_enemy_x[4] = {32,96,144,208};
 		if (currscr>=128)
@@ -21921,17 +21938,19 @@ void loadenemies()
 			{
 				for(int32_t i=0; i<10; i++)
 				{
-					if ( tmpscr.enemy[i] )
+					if ( screen->enemy[i] )
 					{
-						addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i],-14-i);
+						addenemy(dngn_enemy_x[i],96,screen->enemy[i],-14-i);
 					}
 				}
 			}
 			else
 			{
 				for(int32_t i=0; i<4; i++)
-					addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
+					addenemy(dngn_enemy_x[i],96,screen->enemy[i]?screen->enemy[i]:(int32_t)eKEESE1,-14-i);
 			}
+
+			loaded_enemies_for_screen.insert(screen_index);
 			return;
 		}
 
@@ -21943,6 +21962,8 @@ void loadenemies()
 			side_load_enemies();
 			return;
 		}
+
+		loaded_enemies_for_screen.insert(screen_index);
 
 		// check if it's the dungeon boss and it has been beaten before
 		if (screen->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
