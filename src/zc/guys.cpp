@@ -91,6 +91,12 @@ bool NEWOUTOFBOUNDS(int32_t x, int32_t y, int32_t z)
 	);
 }
 
+static void position_relative_to_screen(zfix& x, zfix& y, int32_t rx, int32_t ry)
+{
+	x = rx + (x.getInt()/256)*256;
+	y = ry + (y.getInt()/176)*176;
+}
+
 namespace
 {
 	int32_t trapConstantHorizontalID;
@@ -15169,8 +15175,7 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//these are here to bypass compiler warnings about unused arguments
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = (x.getInt()/256)*256 + (dmisc1 ? 64 : 176);
-		y = (y.getInt()/176)*176 + 64;
+		position_relative_to_screen(x, y, dmisc1 ? 64 : 176, 64);
 	}
 	else { x = X; y = Y; }
 	
@@ -15371,11 +15376,9 @@ bool eAquamentus::hit(weapon *w)
 
 eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // enemy((zfix)128,(zfix)48,Id,0)
 {
-	
 	if ( !(editorflags & ENEMY_FLAG5) )
 	{
-		x = 128;
-		y = 48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	else { x = X; y = Y; }
 	
@@ -16257,8 +16260,7 @@ eMoldorm::eMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=128;
-		y=48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	//else { x = X; y = Y; }
 	dir=(zc_oldrand()&7)+8;
@@ -16408,8 +16410,7 @@ esMoldorm::esMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=128;
-		y=48;
+		position_relative_to_screen(x, y, 128, 48);
 	}
 	
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
@@ -16550,8 +16551,7 @@ eLanmola::eLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id,C
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=64;
-		y=80;
+		position_relative_to_screen(x, y, 64, 80);
 	}
 	//else { x = X; y = Y; }
 	//zprint2("lanmola index is %d\n", index);
@@ -16721,8 +16721,7 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 {
 	if( !(editorflags & ENEMY_FLAG5) )
 	{
-		x=64;
-		y=80;
+		position_relative_to_screen(x, y, 64, 80);
 	}
 	int32_t incr = 16;
 	//Don't spawn in pits. 
@@ -21066,7 +21065,6 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	int dy = z3_get_region_relative_dy(screen_index)*176;
 
 	wallm_load_clk=frame-80;
-	int32_t Id=0;
 	
 	if(screen->enemyflags&efZORA)
 	{
@@ -21459,6 +21457,7 @@ void script_side_load_enemies()
 	sle_clk = 0;
 }
 
+// TODO z3 enemies
 void side_load_enemies()
 {
 	if(!script_sle && sle_clk==0)
@@ -21869,50 +21868,9 @@ void loadenemies()
 		side_load_enemies();
 		return;
 	}
-	if(tmpscr.pattern==pNOSPAWN) return;
-	if(loaded_enemies)
-		return;
-		
-	// check if it's the dungeon boss and it has been beaten before
-	if(tmpscr.enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
-	{
-		loaded_enemies = true;
-		return;
-	}
-	
-	if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
-	{
-		side_load_enemies();
-		return;
-	}
 	
 	loaded_enemies=true;
 	
-	// dungeon basements
-	
-	static byte dngn_enemy_x[4] = {32,96,144,208};
-	
-	if(currscr>=128)
-	{
-		if(DMaps[currdmap].flags&dmfCAVES) return;
-		if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
-		{
-			for(int32_t i=0; i<10; i++)
-			{
-				if ( tmpscr.enemy[i] )
-				{
-					addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i],-14-i);
-				}
-			}
-		}
-		else
-		{
-			for(int32_t i=0; i<4; i++)
-				addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
-		}
-		return;
-	}
-
 	// check if it's been long enough to reload all enemies
 	int16_t s = (currmap<<7)+z3_get_origin_scr();
 	bool beenhere = false;
@@ -21924,18 +21882,61 @@ void loadenemies()
 			beenhere = true;
 	
 	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		// do enemies that are always loaded
-		load_default_enemies(screen, screen_index);
-		activate_fireball_statues(screen, screen_index);
-		
-		// check if it's been long enough to reload all enemies
+		if (loaded_enemies_for_screen.contains(screen_index))
+			return;
+
+		// TODO z3 configure.
+		if (!viewport.intersects_with(region_scr_x*256, region_scr_y*176, 256, 176))
+			return;
+
+		loaded_enemies_for_screen.insert(screen_index);
+
+		// dungeon basements
+		static byte dngn_enemy_x[4] = {32,96,144,208};
+		if (currscr>=128)
+		{
+			if(DMaps[currdmap].flags&dmfCAVES) return;
+			if ( DMaps[currdmap].flags&dmfNEWCELLARENEMIES )
+			{
+				for(int32_t i=0; i<10; i++)
+				{
+					if ( tmpscr.enemy[i] )
+					{
+						addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i],-14-i);
+					}
+				}
+			}
+			else
+			{
+				for(int32_t i=0; i<4; i++)
+					addenemy(dngn_enemy_x[i],96,tmpscr.enemy[i]?tmpscr.enemy[i]:(int32_t)eKEESE1,-14-i);
+			}
+			return;
+		}
+
+		if (screen->pattern == pNOSPAWN)
+			return;
+
+		if (screen->pattern==pSIDES || screen->pattern==pSIDESR)
+		{
+			side_load_enemies();
+			return;
+		}
+
+		// check if it's the dungeon boss and it has been beaten before
+		if (screen->enemyflags&efBOSS && game->lvlitems[dlevel]&liBOSS)
+			return;
+
 		int32_t loadcnt = 10;
 		int16_t s = (currmap<<7)+screen_index;
 		
 		if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
 		{
-			visited[vhead]=s; //If not, it adds it to the array,
-			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+			if (screen_index == z3_get_origin_scr())
+			{
+				visited[vhead]=s; //If not, it adds it to the array,
+				vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
+			}
 		}
 		else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
 		{
@@ -21943,9 +21944,6 @@ void loadenemies()
 			reload  = false; //both by setting loadcnt to 0 and making the reload if statement not run.
 		}
 
-		// TODO z3 !
-		if (screen_index != currscr) return;
-		
 		if(reload) //This if statement is only false if this screen is one of the last 6 screens you visited and you left 0 enemies alive.
 		{
 			loadcnt = game->guys[s]; //Otherwise, if this if statement is true, it will try to load the last amount of enemies you left alive.
@@ -21968,12 +21966,16 @@ void loadenemies()
 				}
 			}
 		}
-		
+
 		if((get_bit(quest_rules,qr_ALWAYSRET)) || (screen->flags3&fENEMIESRETURN)) //If enemies always return is enabled quest-wide or for this screen,
 			loadcnt = 10; //All enemies also need to be respawned.
-			
+
+		// do enemies that are always loaded
+		load_default_enemies(screen, screen_index);
+		activate_fireball_statues(screen, screen_index);
+
 		int32_t pos=zc_oldrand()%9; //This sets up a variable for spawnEnemy to edit  so as to spawn the enemies pseudo-randomly.
-		int32_t clk=-15,x=0,y=0,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
+		int32_t clk=-15,fastguys=0; //clk being negative means the enemy is in it's spawn poof.
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		for(; i<loadcnt && screen->enemy[i]>0; i++)
 		{
@@ -22044,7 +22046,6 @@ void setupscreen()
 	mapscr* base_scr = currscr >= 128 ? &special_warp_return_screen : get_scr(currmap, currscr);
 	mapscr* cur_scr = get_scr(currmap, currscr);
 
-	int32_t t=currscr<128?0:1;
 	word str=base_scr->str;
 
 	int dx = z3_get_region_relative_dx(currscr)*256;

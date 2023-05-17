@@ -28,7 +28,7 @@ struct mapscr
 	byte tilewarpscr[4];
 	byte exitdir;
 	word enemy[10]; //GetSetScreenEnemies()
-	byte pattern;
+	byte pattern; // Enemy loading pattern.
 	byte sidewarptype[4];
 	byte sidewarpoverlayflags;
 	byte warparrivalx;

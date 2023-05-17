@@ -461,6 +461,7 @@ bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clea
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
+std::set<int> loaded_enemies_for_screen;
 bool darkroom=false,naturaldark=false,BSZ= false;                         //,NEWSUBSCR;
 
 bool down_control_states[controls::btnLast] = {false};
@@ -1271,6 +1272,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     //  if(watch)
     //    Hero.setClock(false);
     watch=freeze_guys=loaded_guys=loaded_enemies=blockpath=false;
+    loaded_enemies_for_screen.clear();
     stop_sfx(WAV_BRANG);
     
 	activation_counters.clear();

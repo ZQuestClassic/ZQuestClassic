@@ -2247,3 +2247,32 @@ int combo_trigger_flag_to_secret_combo_index(int flag)
 
 	return ft;
 }
+
+bool viewport_t::intersects_with(int x, int y, int w, int h) const
+{
+	int l = x;
+	int r = x + w;
+	int t = y;
+	int b = y + h;
+	return left() <= r && right() >= l && top() <= b && bottom() >= t;
+}
+
+int32_t viewport_t::left() const
+{
+	return x;
+}
+
+int32_t viewport_t::right() const
+{
+	return x + w;
+}
+
+int32_t viewport_t::top() const
+{
+	return y;
+}
+
+int32_t viewport_t::bottom() const
+{
+	return y + h;
+}
