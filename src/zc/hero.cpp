@@ -22449,7 +22449,6 @@ int32_t HeroClass::nextflag(int32_t cx, int32_t cy, int32_t cdir, bool comboflag
 
 bool did_secret;
 
-// TODO z3 !
 void HeroClass::checkspecial()
 {
     checktouchblk();
@@ -22460,115 +22459,111 @@ void HeroClass::checkspecial()
 		if (!loaded_enemies || hasmainguy)
 		{
 			did_secret = false;
-			return;
 		}
-
-		// Enemies have been defeated.
-
-		// generic 'Enemies->' trigger
-		for_every_rpos_in_screen(screen, screen_index, [&](const pos_handle_t& pos_handle) {
-			int pos = RPOS_TO_POS(pos_handle.rpos);
-			newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
-			if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
-			{
-				do_trigger_combo(pos_handle);
-			}
-		});
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
-			if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
-			{
-				do_trigger_combo_ffc(ffc_handle);
-			}
-			return true;
-		});
-
-		if (screen->flags9 & fENEMY_WAVES)
+		else
 		{
-			hasmainguy = hasMainGuy(screen_index); //possibly un-beat the enemies (another 'wave'?)
-		}
-        if(!hasmainguy)
-		{
-			ScreenItemState item_state = screen_item_get_state(screen_index);
-			
-			// item
-			if (item_state == ScreenItemState::MustGiveToEnemy || item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::WhenKillEnemies)
-			{
-				int32_t Item=screen->item;
+			// Enemies have been defeated.
 
-				if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
+			// generic 'Enemies->' trigger
+			for_every_rpos_in_screen(screen, screen_index, [&](const pos_handle_t& pos_handle) {
+				int pos = RPOS_TO_POS(pos_handle.rpos);
+				newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
+				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
-					if (item_state == ScreenItemState::WhenKillEnemies)
-						sfx(WAV_CLEARED);
+					do_trigger_combo(pos_handle);
+				}
+			});
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
+				{
+					do_trigger_combo_ffc(ffc_handle);
+				}
+				return true;
+			});
+
+			if (screen->flags9 & fENEMY_WAVES)
+			{
+				hasmainguy = hasMainGuy(screen_index); //possibly un-beat the enemies (another 'wave'?)
+			}
+			if(!hasmainguy)
+			{
+				ScreenItemState item_state = screen_item_get_state(screen_index);
+				
+				// item
+				if (item_state == ScreenItemState::MustGiveToEnemy || item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::WhenKillEnemies)
+				{
+					int32_t Item=screen->item;
+
+					if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
+					{
+						if (item_state == ScreenItemState::WhenKillEnemies)
+							sfx(WAV_CLEARED);
+						
+						zfix x = region_scr_x*256 + screen->itemx;
+						zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
+						items.add(new item(x, y, (screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+										Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+												(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+					}
 					
-					zfix x = region_scr_x*256 + screen->itemx;
-					zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
-					items.add(new item(x, y, (screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
-									   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-											   (screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+					screen_item_clear_state(screen_index);
 				}
-				
-				screen_item_clear_state(screen_index);
-			}
-			// if room has traps, guys don't come back
-			for (int32_t i=0; i<eMAXGUYS; i++)
-			{
-				if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-					if (guys.idCount(i) && !getmapflag(screen_index, mTMPNORET))
-						setmapflag(screen_index, mTMPNORET);
-			}
-			// clear enemies and open secret
-			if (!did_secret && (screen->flags2&fCLEARSECRET))
-			{
-				bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, only16_31);
-				
-				if (screen->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen_index))
+				// if room has traps, guys don't come back
+				// TODO z3
+				for (int32_t i=0; i<eMAXGUYS; i++)
 				{
-					if (!(screen->flags5&fTEMPSECRETS)) setmapflag(screen_index, mSECRET);
+					if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+						if (guys.idCount(i) && !getmapflag(screen_index, mTMPNORET))
+							setmapflag(screen_index, mTMPNORET);
 				}
-				
-				sfx(screen->secretsfx);
-				did_secret=true;
+				// clear enemies and open secret
+				if (!did_secret && (screen->flags2&fCLEARSECRET))
+				{
+					bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
+					trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, only16_31);
+					
+					if (screen->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen_index))
+					{
+						if (!(screen->flags5&fTEMPSECRETS)) setmapflag(screen_index, mSECRET);
+					}
+					
+					sfx(screen->secretsfx);
+					did_secret=true;
+				}
 			}
 		}
-	});
-    
-    bool hasmainguy = hasMainGuy();                           // calculate it once
-	// TODO z3
-    
-    // doors
-	bool has_shutter = false;
-    for(int32_t i=0; i<4; i++)
-        if(tmpscr.door[i]==dSHUTTER)
-        {
-			has_shutter = true;
-            if(opendoors==0 && loaded_enemies)
-            {
-                if(!(tmpscr.flags&fSHUTTERS) && !hasmainguy)
-                    opendoors=12;
-            }
-            else if(opendoors<0)
-                ++opendoors;
-            else if((--opendoors)==0)
-                openshutters();
-                
-            break;
-        }
-	if(!has_shutter && !opendoors && loaded_enemies && !(tmpscr.flags&fSHUTTERS) && !hasmainguy)
-	{
-		openshutters();
-	}
-        
-    // set boss flag when boss is gone
-    if(loaded_enemies && tmpscr.enemyflags&efBOSS && !hasmainguy)
-    {
-        game->lvlitems[dlevel]|=liBOSS;
-        stop_sfx(tmpscr.bosssfx);
-    }
-    
-	// TODO z3 actually need to do this for all the above too.
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+
+		// doors
+		bool has_shutter = false;
+		for(int32_t i=0; i<4; i++)
+			if(screen->door[i]==dSHUTTER)
+			{
+				has_shutter = true;
+				if(opendoors==0 && loaded_enemies)
+				{
+					if(!(screen->flags&fSHUTTERS) && !hasmainguy)
+						opendoors=12;
+				}
+				else if(opendoors<0)
+					++opendoors;
+				else if((--opendoors)==0)
+					openshutters();
+					
+				break;
+			}
+		if(!has_shutter && !opendoors && loaded_enemies && !(screen->flags&fSHUTTERS) && !hasmainguy)
+		{
+			openshutters();
+		}
+
+    	// set boss flag when boss is gone
+		if (loaded_enemies && screen->enemyflags&efBOSS && !hasmainguy)
+		{
+			game->lvlitems[dlevel]|=liBOSS;
+			stop_sfx(screen->bosssfx);
+		}
+
 		if (getmapflag(screen_index, mCHEST))              // if special stuff done before
 		{
 			remove_chests(screen, screen_index);
@@ -22587,6 +22582,7 @@ void HeroClass::checkspecial()
 		clear_xstatecombos(screen, screen_index, true);
 	});
 
+	// TODO z3 !
 	if (screen_item_get_state(currscr) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
 	{
 		int32_t Item=tmpscr.item;
@@ -22604,7 +22600,7 @@ void HeroClass::checkspecial()
 	}
 }
 
-//Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with '-1'
+//Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with rpos_t::NONE
 void getRposes(rpos_t* rposes, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
 	x1 %= world_w;
@@ -25301,8 +25297,8 @@ void HeroClass::exitcave()
 {
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     loadscr(currdmap, homescr, 255, false);                                   // bogus direction
-    x = region_scr_dx*256 + tmpscr.warpreturnx[0];
-    y = region_scr_dy*176 + tmpscr.warpreturny[0];
+    x = tmpscr.warpreturnx[0];
+    y = tmpscr.warpreturny[0];
     
     if(didpit)
     {
@@ -25313,6 +25309,9 @@ void HeroClass::exitcave()
     
     if(x+y == 0)
         x = y = 80;
+	
+	x += region_scr_dx*256;
+	y += region_scr_dy*176;
         
     int32_t type1 = combobuf[MAPCOMBO(x,y-16)].type;
     int32_t type2 = combobuf[MAPCOMBO(x,y)].type;
