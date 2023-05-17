@@ -3812,7 +3812,7 @@ bool enemy::isOnSideviewPlatform()
 {
 	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
 	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
-	if(y + usehei >= world_h && currscr>=0x70 && !(tmpscr.flags2&wfDOWN)) return true; //Bottom of the map
+	if(y + usehei >= world_h && currscr>=0x70 && !(get_scr(currmap, currscr)->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
 	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
 	{
@@ -19491,6 +19491,20 @@ bool hasMainGuy()
 	return false;
 }
 
+bool hasMainGuy(int screen_index)
+{
+	for(int32_t i=0; i<guys.Count(); i++)
+	{
+		enemy* e = (enemy*)guys.spr(i);
+		if (e->screen_index_spawned == screen_index && e->mainguy)
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
 void EatHero(int32_t index)
 {
 	((eStalfos*)guys.spr(index))->eathero();
@@ -21868,7 +21882,14 @@ void loadenemies()
 		side_load_enemies();
 		return;
 	}
-	
+
+	// TODO z3 ! enemies
+	if (tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
+	{
+		side_load_enemies();
+		return;
+	}
+
 	loaded_enemies=true;
 	
 	// check if it's been long enough to reload all enemies
@@ -21987,6 +22008,7 @@ void loadenemies()
 		game->guys[s] = guycnt;
 	});
 }
+
 void moneysign()
 {
 	int dx = z3_get_region_relative_dx(currscr)*256;

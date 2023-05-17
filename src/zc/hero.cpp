@@ -12,6 +12,7 @@
 //
 //--------------------------------------------------------
 
+#include "zelda.h"
 #ifndef __GTHREAD_HIDE_WIN32API
 #define __GTHREAD_HIDE_WIN32API 1
 #endif                            //prevent indirectly including windows.h
@@ -22451,15 +22452,14 @@ bool did_secret;
 void HeroClass::checkspecial()
 {
     checktouchblk();
-    
-    bool hasmainguy = hasMainGuy();                           // calculate it once
-    
-    if(!(loaded_enemies && !hasmainguy))
-        did_secret=false;
-    else
-    {
-        // after beating enemies
-        
+
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		bool hasmainguy = hasMainGuy(screen_index);
+		bool loaded_enemies = loaded_enemies_for_screen.contains(screen_index);
+		if (!loaded_enemies || hasmainguy) return;
+
+		// Enemies have been defeated.
+
 		// generic 'Enemies->' trigger
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
@@ -22480,59 +22480,60 @@ void HeroClass::checkspecial()
 			}
 			return true;
 		});
-		// TODO z3
-		if(tmpscr.flags9 & fENEMY_WAVES)
+
+		if (screen->flags9 & fENEMY_WAVES)
 		{
-			hasmainguy = hasMainGuy(); //possibly un-beat the enemies (another 'wave'?)
+			hasmainguy = hasMainGuy(screen_index); //possibly un-beat the enemies (another 'wave'?)
 		}
         if(!hasmainguy)
 		{
-			ScreenItemState item_state = screen_item_get_state(currscr);
+			ScreenItemState item_state = screen_item_get_state(screen_index);
 			
 			// item
 			if (item_state == ScreenItemState::MustGiveToEnemy || item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::WhenKillEnemies)
 			{
-				int32_t Item=tmpscr.item;
-				
-				//if(getmapflag())
-				//  Item=0;
-				if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
+				int32_t Item=screen->item;
+
+				if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
 				{
 					if (item_state == ScreenItemState::WhenKillEnemies)
 						sfx(WAV_CLEARED);
-						
-					items.add(new item((zfix)tmpscr.itemx,
-									   (tmpscr.flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr.itemy+1,
-									   (tmpscr.flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+					
+					zfix x = region_scr_x*256 + screen->itemx;
+					zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
+					items.add(new item(x, y, (screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 									   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-											   (tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+											   (screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 				}
 				
-				screen_item_clear_state(currscr);
+				screen_item_clear_state(screen_index);
 			}
 			// if room has traps, guys don't come back
-			for(int32_t i=0; i<eMAXGUYS; i++)
+			for (int32_t i=0; i<eMAXGUYS; i++)
 			{
-				if(guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
-					if(guys.idCount(i) && !getmapflag(mTMPNORET))
-						setmapflag(mTMPNORET);
+				if (guysbuf[i].family==eeTRAP&&guysbuf[i].misc2)
+					if (guys.idCount(i) && !getmapflag(screen_index, mTMPNORET))
+						setmapflag(screen_index, mTMPNORET);
 			}
 			// clear enemies and open secret
-			if(!did_secret && (tmpscr.flags2&fCLEARSECRET))
+			if (!did_secret && (screen->flags2&fCLEARSECRET))
 			{
 				bool only16_31 = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31)?true:false;
 				trigger_secrets_for_screen(TriggerSource::EnemiesScreenFlag, only16_31);
 				
-				if(tmpscr.flags4&fENEMYSCRTPERM && canPermSecret(currdmap, currscr))
+				if (screen->flags4&fENEMYSCRTPERM && canPermSecret(currdmap, screen_index))
 				{
-					if(!(tmpscr.flags5&fTEMPSECRETS)) setmapflag(mSECRET);
+					if (!(screen->flags5&fTEMPSECRETS)) setmapflag(screen_index, mSECRET);
 				}
 				
-				sfx(tmpscr.secretsfx);
+				sfx(screen->secretsfx);
 				did_secret=true;
 			}
 		}
-    }
+	});
+    
+    bool hasmainguy = hasMainGuy();                           // calculate it once
+	// TODO z3
     
     // doors
 	bool has_shutter = false;

@@ -3460,18 +3460,6 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 	handle_shooter(cmb, timer, x, y);
 }
 
-/*
-for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-		int pos = RPOS_TO_POS(pos_handle.rpos);
-
-
-
-for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		// TODO z3 !!
-		cpos_info& timer = ffc_posinfos[ffc_handle.i];
-		timer.updateData(ffc_handle.ffc->getData());
-*/
-
 void recount_ffc(dword c)
 {
 	if(ffc_posinfos.size() != c)
