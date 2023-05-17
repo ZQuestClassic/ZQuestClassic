@@ -8486,7 +8486,9 @@ void doflags()
 				}
 				else
 				{
-					Map.DoSetFlagCommand(Map.getCurrMap(), Map.getCurrScr(), c, Flag);
+					int map = CurrentLayer ? Map.CurrScr()->layermap[CurrentLayer-1]-1 : Map.getCurrMap();
+					int scr = CurrentLayer ? Map.CurrScr()->layerscreen[CurrentLayer-1] : Map.getCurrScr();
+					Map.DoSetFlagCommand(map, scr, c, Flag);
 				}
 				Flag = tflag;
 			}

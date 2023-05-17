@@ -802,12 +802,13 @@ foreach(target IN LISTS zc_targets)
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+		target_compile_options(${target} PRIVATE -Wall)
 		# Uncomment to autofix. Only works for clang. When done, comment this line out again.
 		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_clang_errors} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
 		target_compile_options(${target} PRIVATE ${zc_clang_errors})
 	endif()
 	if(CMAKE_C_COMPILER_ID MATCHES "GNU")
-		target_compile_options(${target} PRIVATE ${zc_gcc_errors})
+		target_compile_options(${target} PRIVATE -Wall ${zc_gcc_errors})
 	endif()
 endforeach()
 
