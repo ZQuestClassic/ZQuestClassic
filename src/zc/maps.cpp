@@ -3829,8 +3829,6 @@ void put_effectflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs,
 	{
 		int32_t tx=((i&2)<<2)+xx - viewport.x;
 		int32_t ty=((i&1)<<3)+yy - viewport.y;
-		int32_t tx2=((i&2)<<2)+x - viewport.x;
-		int32_t ty2=((i&1)<<3)+y - viewport.y;
 	
 		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
 		{
@@ -3852,9 +3850,6 @@ void put_effectflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbd
 	{
 		int32_t tx=((i&2)<<2)+xx;
 		int32_t ty=((i&1)<<3)+yy;
-		int32_t tx2=((i&2)<<2)+x;
-		int32_t ty2=((i&1)<<3)+y;
-	
 	
 		if(((c.walk>>4)&(1<<i)) && c.type != cNONE)
 		{
@@ -4097,7 +4092,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 	}
 
 	word c = scr->numFFC();
-	for(int q = 0; q < 32; ++q)
+	for(int q = 0; q < c; ++q)
 	{
 		newcombo const& cmb = combobuf[scr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
@@ -5724,7 +5719,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 		
 		init_ffpos();
-		// TODO z3 !
 		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((previous_scr.ffcs[i].flags&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
@@ -6864,13 +6858,14 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 {
 	if(dlevel)
-		if(x<32 || y<40 || (x+(cnt-1)*8)>=224 || y>=144)
+		if(x<32 || y<40 || (x+(cnt-1)*8)>=world_w-32 || y>=world_h-32)
 			return true;
-			
+	
+	// TODO z3 ?
 	if(blockpath && y<((get_bit(quest_rules,qr_LTTPCOLLISION))?80:88))
 		return true;
 		
-	if(x<16 || y<16 || (x+(cnt-1)*8)>=240 || y>=160)
+	if(x<16 || y<16 || (x+(cnt-1)*8)>=world_w-16 || y>=world_h-16)
 		return true;
 		
 	//  for(int32_t i=0; i<4; i++)
@@ -6885,7 +6880,7 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 
 bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign)
 {
-	if(x<0 || y<0 || x>=256 || y>=176)
+	if(x<0 || y<0 || x>=world_w || y>=world_h)
 		return true;
 		
 	//  for(int32_t i=0; i<4; i++)
