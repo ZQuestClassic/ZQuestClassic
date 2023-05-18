@@ -21583,17 +21583,18 @@ void side_load_enemies()
 	}
 }
 
+// TODO z3 ! enemy
 bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 { 
 	if (!is_z3_scrolling_mode())
-	if(tmpscr.enemy[i]<1||tmpscr.enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
-	{
-		//zprint2("is_starting_pos(), tmpscr.enemy[i] is: %d\n", tmpscr.enemy[i]);
-		return false; //never 0, never OoB.
-	}
+		if(tmpscr.enemy[i]<1||tmpscr.enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+		{
+			//zprint2("is_starting_pos(), tmpscr.enemy[i] is: %d\n", tmpscr.enemy[i]);
+			return false; //never 0, never OoB.
+		}
+
 	// No corner enemies
 	if((x==0 || x==240) && (y==0 || y==160))
-
 		return false;
 	
 	//Is a no spawn combo...
@@ -21641,7 +21642,8 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 	// Don't ever generate enemies on these combos!
 	if(COMBOTYPE(x+8,y+8)==cARMOS||COMBOTYPE(x+8,y+8)==cBSGRAVE)
 		return false;
-		
+
+	// TODO z3 enemy
 	//BS Dodongos need at least 2 spaces.
 	if((guysbuf[tmpscr.enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr.enemy[i]].misc10==1))
 	{
@@ -21678,13 +21680,12 @@ int32_t placeenemy(int32_t i)
 	}
 
 	if (!freeposcache.empty())
-		// TODO z3 !
+		// TODO z3 ! enemy
 		return RPOS_TO_POS(freeposcache[zc_oldrand()%freeposcache.size()]);
 
 	return -1;
 }
 
-// TODO z3 rename to 'screen' everywhere
 void spawnEnemy(mapscr* screen, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
 {
 	int x = 0;
