@@ -6674,7 +6674,7 @@ void enemy::try_death(bool force_kill)
 		ev.clear();
 		if(isSaved) return;
 		
-		if(itemguy && screen_item_get_state(currscr) == ScreenItemState::CarriedByEnemy)
+		if(itemguy && screen_item_get_state(screen_index_spawned) == ScreenItemState::CarriedByEnemy)
 		{
 			for(int32_t i=0; i<items.Count(); i++)
 			{
@@ -6726,12 +6726,12 @@ void enemy::try_death(bool force_kill)
 		
 		if(itemguy)
 		{
-			screen_item_clear_state(currscr);
+			screen_item_clear_state(screen_index_spawned);
 			item_set=0;
 		}
 		
-		if(currscr<128 && count_enemy && !script_spawned)
-			game->guys[(currmap<<7)+currscr]-=1;
+		if(screen_index_spawned<128 && count_enemy && !script_spawned)
+			game->guys[(currmap<<7)+screen_index_spawned]-=1;
 	}
 }
 
@@ -13186,36 +13186,7 @@ bool eStalfos::animate(int32_t index)
 			
 		return true;
 	}
-	/*
-	else if((dmisc2==e2tSPLITHIT && (hp<=0 && !immortal) &&!slide()))  //Possible vires fix; or could cause goodness knows what. -Z
-	{
-		stop_bgsfx(index);
-		int32_t kids = guys.Count();
-		int32_t id2=dmisc3;
-		
-		for(int32_t i=0; i < dmisc4; i++)
-		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : (i<<12)),-21-(i%4)))
-				((enemy*)guys.spr(kids+i))->count_enemy = false;
-		}
-		
-		if(itemguy) // Hand down the carried item
-		{
-			guycarryingitem = guys.Count()-1;
-			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
-			itemguy = false;
-		}
-		
-		if(hashero)
-		{
-			Hero.setEaten(0);
-			hashero=false;
-		}
-					
-		return true;
-	}
-	*/
+	
 	if(fading)
 	{
 		if(++clk4 > 60)
@@ -20715,31 +20686,16 @@ void addfires()
 }
 
 // TODO z3 guys
-void loadguys()
+void loadguys(mapscr* screen, int screen_index)
 {
-	if(loaded_guys)
-		return;
-		
-	loaded_guys=true;
-	
 	byte Guy=0;
 	// When in caves/item rooms, use mSPECIALITEM and ipONETIME2
 	// Else use mITEM and ipONETIME
-	int32_t mf = (currscr>=128) ? mSPECIALITEM : mITEM;
-	int32_t onetime = (currscr>=128) ? ipONETIME2 : ipONETIME;
+	int32_t mf = (screen_index>=128) ? mSPECIALITEM : mITEM;
+	int32_t onetime = (screen_index>=128) ? ipONETIME2 : ipONETIME;
 	
-	repaircharge=0;
-	adjustmagic=false;
-	learnslash=false;
-	
-	for(int32_t i=0; i<3; i++)
-	{
-		prices[i]=0;
-	}
-	
-	screen_item_clear_state(currscr);
-	
-	if(currscr>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
+	// TODO z3 guys
+	if(screen_index>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
 	{
 		if(DMaps[currdmap].flags&dmfCAVES)
 		{
@@ -20748,19 +20704,19 @@ void loadguys()
 	}
 	else
 	{
-		Guy=tmpscr.guy;
+		Guy=screen->guy;
 		
-		if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
-			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
+		if(screen_index < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
+			game->maps[(currmap*MAPSCRSNORMAL)+screen_index] |= mVISITED;          // mark as visited
 	}
 	
-	int dx = z3_get_region_relative_dx(currscr)*256;
-	int dy = z3_get_region_relative_dy(currscr)*176;
+	int dx = z3_get_region_relative_dx(screen_index)*256;
+	int dy = z3_get_region_relative_dy(screen_index)*176;
 
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
-	if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
+	if(Guy && ((screen_index>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
 	{
-		if(tmpscr.room==rZELDA)
+		if(screen->room==rZELDA)
 		{
 			addguy(dx+120,dy+72,Guy,-15,true);
 			guys.spr(0)->hxofs=1000;
@@ -20774,11 +20730,11 @@ void loadguys()
 		if(Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
 			addfires();
 			
-		if(currscr>=128)
-			if(getmapflag() && !(tmpscr.flags9&fBELOWRETURN))
+		if(screen_index>=128)
+			if(getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))
 				Guy=0;
 				
-		switch(tmpscr.room)
+		switch(screen->room)
 		{
 		case rSP_ITEM:
 		case rGRUMBLE:
@@ -20788,26 +20744,26 @@ void loadguys()
 		case rMUPGRADE:
 		case rLEARNSLASH:
 		case rTAKEONE:
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 			
 		case rREPAIR:
 			if (get_bit(quest_rules, qr_OLD_DOORREPAIR)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rRP_HC:
 			if (get_bit(quest_rules, qr_OLD_POTION_OR_HC)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
 		case rMONEY:
 			if (get_bit(quest_rules, qr_OLD_SECRETMONEY)) break;
-			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag((currscr < 128) ? mITEM : mSPECIALITEM)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag() && !(tmpscr.flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
+			if((get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, mf)) || (!get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW) && getmapflag(screen_index, 32) && !(screen->flags9&fBELOWRETURN))) //get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)
 				Guy=0;
 				
 			break;
@@ -20835,7 +20791,7 @@ void loadguys()
 			if(Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
 				blockpath=true;
 				
-			if(currscr<128)
+			if(screen_index<128)
 				sfx(WAV_SCALE);
 				
 			addguy(dx+120,dy+64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
@@ -20848,35 +20804,52 @@ void loadguys()
 		addguy(dx+120,dy+62,gFAIRY,-14,false);
 	}
 	
-	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-		loaditem(screen, region_scr_x*256, region_scr_y*176);
-	});
-	
 	// Collecting a rupee in a '10 Rupees' screen sets the mITEM screen state if
 	// it doesn't appear in a Cave/Item Cellar, and the mSPECIALITEM screen state if it does.
-	if(tmpscr.room==r10RUPIES && !getmapflag(mf))
+	if (screen->room==r10RUPIES && !getmapflag(screen_index, mf))
 	{
 		for(int32_t i=0; i<10; i++)
 			additem(dx+ten_rupies_x[i],dy+ten_rupies_y[i],0,ipBIGRANGE+onetime,-14);
 	}
 }
 
-void loaditem(mapscr* scr, int offx, int offy)
+void loadguys()
+{
+	if (loaded_guys)
+		return;
+		
+	loaded_guys = true;
+	repaircharge = 0;
+	adjustmagic = false;
+	learnslash = false;
+	for (int32_t i=0; i<3; i++)
+	{
+		prices[i] = 0;
+	}
+	screen_item_clear_state();
+
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		loadguys(screen, screen_index);
+		loaditem(screen, screen_index, region_scr_x*256, region_scr_y*176);
+	});
+}
+
+void loaditem(mapscr* scr, int screen_index, int offx, int offy)
 {
 	byte Item = 0;
 	
-	if(currscr<128)
+	if(screen_index<128)
 	{
 		Item=scr->item;
 		
-		if((!getmapflag(mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
+		if((!getmapflag(screen_index, mITEM) || (scr->flags9&fITEMRETURN)) && (scr->hasitem != 0))
 		{
 			if(scr->flags8&fSECRETITEM)
-				screen_item_set_state(currscr, ScreenItemState::WhenTriggerSecrets);
+				screen_item_set_state(screen_index, ScreenItemState::WhenTriggerSecrets);
 			else if(scr->flags&fITEM)
-				screen_item_set_state(currscr, ScreenItemState::WhenKillEnemies);
+				screen_item_set_state(screen_index, ScreenItemState::WhenKillEnemies);
 			else if(scr->enemyflags&efCARRYITEM)
-				screen_item_set_state(currscr, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
+				screen_item_set_state(screen_index, ScreenItemState::MustGiveToEnemy); // Will be set to CarriedByEnemy in roaming_item
 			else
 			{
 				int x = scr->itemx;
@@ -20892,8 +20865,8 @@ void loaditem(mapscr* scr, int offx, int offy)
 	}
 	else if(!(DMaps[currdmap].flags&dmfCAVES))
 	{
-		if((!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
-				&& (currscr==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
+		if((!getmapflag(screen_index, (screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (special_warp_return_screen.flags9&fBELOWRETURN)) && special_warp_return_screen.room==rSP_ITEM
+				&& (screen_index==128 || !get_bit(quest_rules,qr_ITEMSINPASSAGEWAYS)))
 		{
 			Item = special_warp_return_screen.catchall;
 			
@@ -20911,6 +20884,7 @@ void loaditem(mapscr* scr, int offx, int offy)
 	}
 }
 
+// TODO z3
 void never_return(int32_t index)
 {
 	if(!get_bit(quest_rules,qr_KILLALL))
@@ -21685,7 +21659,7 @@ int32_t placeenemy(int32_t i)
 }
 
 // TODO z3 rename to 'screen' everywhere
-void spawnEnemy(mapscr* screen, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
+void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, int offy, int& fastguys, int& i, int& guycnt, int& loadcnt)
 {
 	int x = 0;
 	int y = 0;
@@ -21839,7 +21813,7 @@ placed_enemy:
 			}
 		}
 		
-		ScreenItemState item_state = screen_item_get_state(currscr);
+		ScreenItemState item_state = screen_item_get_state(screen_index);
 		if (!foundCarrier && (item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy))
 		{
 			int32_t index = guys.idFirst(screen->enemy[i],0xFFF);
@@ -21872,7 +21846,7 @@ bool scriptloadenemies()
 	
 	for(; i<loadcnt && tmpscr.enemy[i]>0; i++)
 	{
-		spawnEnemy(&tmpscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(&tmpscr, currscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		
 		--clk;
 	}
@@ -21999,7 +21973,7 @@ void loadenemies()
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		for(; i<loadcnt && screen->enemy[i]>0; i++)
 		{
-			spawnEnemy(screen, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
+			spawnEnemy(screen, screen_index, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
 			
 			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}
@@ -23759,15 +23733,27 @@ int32_t more_carried_items()
 	return hasmorecarries;
 }
 
-// messy code to do the enemy-carrying-the-item thing
-void roaming_item()
+static int count_guys_from_screen(int screen_index)
 {
-	ScreenItemState item_state = screen_item_get_state(currscr);
+	int count = 0;
+	for (int i=0; i < guys.Count(); i++)
+	{
+		if (((enemy*)guys.spr(i))->screen_index_spawned == screen_index)
+			count += 1;
+	}
+	return count;
+}
+
+// messy code to do the enemy-carrying-the-item thing
+static void roaming_item(mapscr* screen, int screen_index)
+{
+	ScreenItemState item_state = screen_item_get_state(screen_index);
+	bool loaded_enemies = loaded_enemies_for_screen.contains(screen_index);
 	if(!(item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy) || !loaded_enemies)
 		return;
 	
 	// All enemies already dead upon entering a room?
-	if(guys.Count()==0)
+	if (count_guys_from_screen(screen_index) == 0)
 	{
 		return;
 	}
@@ -23779,7 +23765,8 @@ void roaming_item()
 		guycarryingitem=-1;
 		for(int32_t j=0; j<guys.Count(); j++)
 		{
-			if(((enemy*)guys.spr(j))->itemguy)
+			enemy* e = (enemy*)guys.spr(j);
+			if (e->screen_index_spawned == screen_index && e->itemguy)
 			{
 				guycarryingitem=j;
 				break;
@@ -23793,7 +23780,8 @@ void roaming_item()
 		
 		for(int32_t i=0; i<guys.Count(); i++)
 		{
-			if(((enemy*)guys.spr(i))->itemguy)
+			enemy* e = (enemy*)guys.spr(i);
+			if (e->screen_index_spawned == screen_index && e->itemguy)
 			{
 				guycarryingitem = i;
 			}
@@ -23804,16 +23792,16 @@ void roaming_item()
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
 		}                                                       //are not. Defer to HeroClass::checkspecial().
 		
-		int32_t Item=tmpscr.item;
+		int32_t Item=screen->item;
 		
-		screen_item_clear_state(currscr);
+		screen_item_clear_state(screen_index);
 		
-		if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
+		if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
 		{
 			additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
-					+ (((tmpscr.flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
+					+ (((screen->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
-			screen_item_set_state(currscr, ScreenItemState::CarriedByEnemy);
+			screen_item_set_state(screen_index, ScreenItemState::CarriedByEnemy);
 		}
 		else
 		{
@@ -23864,6 +23852,13 @@ void roaming_item()
 			}
 		}
 	}
+}
+
+void roaming_item()
+{
+	for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		roaming_item(screen, screen_index);
+	});
 }
 
 bool enemy::IsBigAnim()

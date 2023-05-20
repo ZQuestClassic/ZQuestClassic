@@ -932,7 +932,7 @@ bool isjumper(int32_t id);
 bool canfall(int32_t id);
 void addfires();
 void loadguys();
-void loaditem(mapscr* scr, int offx, int offy);
+void loaditem(mapscr* scr, int screen_index, int offx, int offy);
 void never_return(int32_t index);
 bool hasBoss();
 bool slowguy(int32_t id);

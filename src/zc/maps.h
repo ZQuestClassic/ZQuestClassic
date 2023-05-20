@@ -322,6 +322,7 @@ enum class ScreenItemState {
 ScreenItemState screen_item_get_state(int screen_index);
 void screen_item_set_state(int screen_index, ScreenItemState state);
 void screen_item_clear_state(int screen_index);
+void screen_item_clear_state();
 
 #endif
 

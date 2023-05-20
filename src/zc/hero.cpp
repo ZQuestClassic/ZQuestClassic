@@ -22580,24 +22580,25 @@ void HeroClass::checkspecial()
 		}
 
 		clear_xstatecombos(screen, screen_index, true);
-	});
 
-	// TODO z3 !
-	if (screen_item_get_state(currscr) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
-	{
-		int32_t Item=tmpscr.item;
-		
-		if((!getmapflag(mITEM) || (tmpscr.flags9&fITEMRETURN)) && (tmpscr.hasitem != 0))
+		// TODO z3 ! secrets
+		if (screen_item_get_state(screen_index) == ScreenItemState::WhenTriggerSecrets && triggered_screen_secrets)
 		{
-			items.add(new item((zfix)tmpscr.itemx,
-							   (tmpscr.flags7&fITEMFALLS && isSideViewHero()) ? (zfix)-170 : (zfix)tmpscr.itemy+1,
-							   (tmpscr.flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
-							   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
-									   (tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			int32_t Item=screen->item;
+			
+			if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
+			{
+				zfix x = region_scr_x*256 + screen->itemx;
+				zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
+				items.add(new item(x, y,
+								(screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+								Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
+										(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+			}
+			
+			screen_item_clear_state(screen_index);
 		}
-		
-		screen_item_clear_state(currscr);
-	}
+	});
 }
 
 //Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with rpos_t::NONE
@@ -32103,7 +32104,7 @@ void HeroClass::ganon_intro()
     271 GANON out, HERO face up
     */
     loaded_guys=true;
-    loaditem(&tmpscr, offx, offy);
+    loaditem(&tmpscr, currscr, offx, offy);
     
     if(game->lvlitems[dlevel]&liBOSS)
     {

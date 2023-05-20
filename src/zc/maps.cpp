@@ -7687,19 +7687,25 @@ bool isCuttableItemType(int32_t type)
     return false;
 }
 
-static ScreenItemState screen_item_state;
+static std::map<int, ScreenItemState> screen_item_state;
 
 ScreenItemState screen_item_get_state(int screen_index)
 {
-	return screen_item_state;
+	auto it = screen_item_state.find(screen_index);
+	return it == screen_item_state.end() ? ScreenItemState::None : it->second;
 }
 
 void screen_item_set_state(int screen_index, ScreenItemState state)
 {
-	screen_item_state = state;
+	screen_item_state[screen_index] = state;
 }
 
 void screen_item_clear_state(int screen_index)
 {
-	screen_item_state = ScreenItemState::None;
+	screen_item_state[screen_index] = ScreenItemState::None;
+}
+
+void screen_item_clear_state()
+{
+	screen_item_state.clear();
 }
