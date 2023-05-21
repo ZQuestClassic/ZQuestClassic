@@ -323,10 +323,9 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(COMBOX(scombo),COMBOY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			// TODO z3 !
+			addenemy(currscr,COMBOX(scombo),COMBOY(scombo),(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
-		//zprint("continuous\n");
-		
 	}
 	set_bit(grid,(((bx>>4) + by)),1);
 	
@@ -431,15 +430,12 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
-			
-			
 		}
+
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc_handle.screen_index,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
-		//zprint("continuous\n");
-		
 	}
 	set_bit(grid,ffc_handle.i,1);
 	

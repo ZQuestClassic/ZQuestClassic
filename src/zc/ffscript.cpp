@@ -27172,7 +27172,7 @@ void do_createnpc(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(0, 0, ID, -10);
+	word numcreated = addenemy(currscr, 0, 0, ID, -10);
 	
 	if(numcreated == 0)
 	{
@@ -37798,7 +37798,7 @@ void FFScript::do_npc_add(const bool v)
 		return;
 		
 	//If we make a segmented enemy there'll be more than one sprite created
-	word numcreated = addenemy(nx, ny, id, -10);
+	word numcreated = addenemy(currscr, nx, ny, id, -10);
 	
 	if(numcreated == 0)
 	{

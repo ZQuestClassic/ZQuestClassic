@@ -5098,28 +5098,10 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 		}
 		case edSPLIT:
 		{
-			//int32_t ex = x; int32_t ey = y;
-			//al_trace("edSplit dmisc3: %d\n", dmisc3);
-			//al_trace("edSplit dmisc4: %d\n", dmisc4);
-			/*
-			if ( txsx > 1 ) 
-			{
-				ex += ( txsz-1 ) * 8; //from its middle
-			}
-			if ( tysx > 1 ) 
-			{
-				ey += ( tysz-1 ) * 8; //from its middle
-			}
-			*/
 			for ( int32_t q = 0; q < dmisc4; q++ )
 			{
-				
-				//addenemy((x+(txsz*16)/2),(y+(tysz*16)/2),dmisc3+0x1000,-15);
-				addenemy(
-					//ex,ey,
-					x,y,
+				addenemy(screen_index_spawned,x,y,
 						dmisc3+0x1000,-15);
-				//addenemy(ex,ey,dmisc3,0);
 				
 			}
 			item_set = 0; //Do not make a drop. 
@@ -5138,7 +5120,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 			{
 				int32_t x2=16*((zc_oldrand()%12)+2);
 				int32_t y2=16*((zc_oldrand()%7)+2);
-				addenemy(
+				addenemy(screen_index_spawned,
 					//(x+(txsz*16)/2),(y+(tysz*16)/2)
 					x2,y2,
 						dmisc3+0x1000,-15);
@@ -9999,8 +9981,8 @@ bool guy::animate(int32_t index)
 		
 		if(!get_bit(quest_rules,qr_NOGUYFIRES))
 		{
-			addenemy(BSZ?64:72,68,eSHOOTFBALL,0);
-			addenemy(BSZ?176:168,68,eSHOOTFBALL,0);
+			addenemy(screen_index_spawned,BSZ?64:72,68,eSHOOTFBALL,0);
+			addenemy(screen_index_spawned,BSZ?176:168,68,eSHOOTFBALL,0);
 		}
 	}
 	
@@ -13141,7 +13123,7 @@ bool eStalfos::animate(int32_t index)
 		int32_t id2=dmisc3;
 		for(int32_t i=0; i < dmisc4; i++)
 		{
-			if(addenemy(this,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
+			if(addenemy(screen_index_spawned,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
 				((enemy*)guys.spr(kids+i))->count_enemy = false;
 		}
 		
@@ -13646,7 +13628,7 @@ bool eStalfos::animate(int32_t index)
 		
 		for(int32_t i=0; i<dmisc4; i++)
 		{
-			if(addenemy(x,y,id2,-24))
+			if(addenemy(screen_index_spawned,x,y,id2,-24))
 			{
 				if(itemguy) // Hand down the carried item
 				{
@@ -14050,7 +14032,7 @@ bool eKeese::animate(int32_t index)
 				int32_t kids = guys.Count();
 				bool success = false;
 				int32_t id2=dmisc3;
-				success = 0 != addenemy(this,(zfix)x,(zfix)y,id2,-24);
+				success = 0 != addenemy(screen_index_spawned,(zfix)x,(zfix)y,id2,-24);
 				
 				if(success)
 				{
@@ -15683,22 +15665,22 @@ bool eBigDig::animate(int32_t index)
 	case 2:
 		for(int32_t i=0; i<dmisc5; i++)
 		{
-			addenemy(this,x,y,dmisc1+0x1000,-15);
+			addenemy(screen_index_spawned,x,y,dmisc1+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc6; i++)
 		{
-			addenemy(this,x,y,dmisc2+0x1000,-15);
+			addenemy(screen_index_spawned,x,y,dmisc2+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc7; i++)
 		{
-			addenemy(this,x,y,dmisc3+0x1000,-15);
+			addenemy(screen_index_spawned,x,y,dmisc3+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc8; i++)
 		{
-			addenemy(this,x,y,dmisc4+0x1000,-15);
+			addenemy(screen_index_spawned,x,y,dmisc4+0x1000,-15);
 		}
 		
 		if(itemguy) // Hand down the carried item
@@ -19510,14 +19492,9 @@ void killfairynew(item const &itemfairy)
 }
 
 //Should probably change this to return an 'enemy*', null on failure -Em
-int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk)
+int32_t addenemy(int32_t screen_index, int32_t x,int32_t y,int32_t id,int32_t clk)
 {
-	return addenemy(nullptr,x,y,0,id,clk);
-}
-
-int32_t addenemy(enemy* from, int32_t x,int32_t y,int32_t id,int32_t clk)
-{
-	return addenemy(from,x,y,0,id,clk);
+	return addenemy_z(screen_index,x,y,0,id,clk);
 }
 
 int32_t addchild(int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
@@ -19968,12 +19945,7 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 }
 
 // Returns number of enemies/segments created
-int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
-{
-	return addenemy(nullptr, x, y, z, id, clk);
-}
-
-int32_t addenemy(enemy* from,int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
+int32_t addenemy_z(int32_t screen_index,int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 {
 	//zprint2("addenemy id is: %d\n", (id&0xFFF));
 	int32_t realid = id&0xFFF;
@@ -20411,13 +20383,10 @@ int32_t addenemy(enemy* from,int32_t x,int32_t y,int32_t z,int32_t id,int32_t cl
 	}
 	}
 
-	if (from)
+	for (int i = 0; i < ret; i++)
 	{
-		for (int i = 0; i < ret; i++)
-		{
-			enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
-			e->screen_index_spawned = from->screen_index_spawned;
-		}
+		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
+		e->screen_index_spawned = screen_index;
 	}
 	
 	return ret;
@@ -20661,10 +20630,10 @@ void loadguys(mapscr* screen, int screen_index)
 		{
 			addguy(dx+120,dy+72,Guy,-15,true);
 			guys.spr(0)->hxofs=1000;
-			addenemy(dx+128,dy+96,eFIRE,-15);
-			addenemy(dx+112,dy+96,eFIRE,-15);
-			addenemy(dx+96,dy+120,eFIRE,-15);
-			addenemy(dx+144,dy+120,eFIRE,-15);
+			addenemy(screen_index,dx+128,dy+96,eFIRE,-15);
+			addenemy(screen_index,dx+112,dy+96,eFIRE,-15);
+			addenemy(screen_index,dx+96,dy+120,eFIRE,-15);
+			addenemy(screen_index,dx+144,dy+120,eFIRE,-15);
 			return;
 		}
 		
@@ -20969,7 +20938,7 @@ static void activate_fireball_statue(const pos_handle_t& pos_handle)
 			}
 		}
 		
-		addenemy(cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
+		addenemy(pos_handle.screen_index, cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
 	}
 }
 
@@ -20998,17 +20967,17 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	if(screen->enemyflags&efZORA)
 	{
 		if(zoraID>=0)
-			addenemy(dx + -16, dy + -16, zoraID, 0);
+			addenemy(screen_index, dx - 16, dy - 16, zoraID, 0);
 	}
 	
 	if(screen->enemyflags&efTRAP4)
 	{
 		if(cornerTrapID>=0)
 		{
-			addenemy(dx + 32, dy + 32, cornerTrapID, -14);
-			addenemy(dx + 208, dy + 32, cornerTrapID, -14);
-			addenemy(dx + 32, dy + 128, cornerTrapID, -14);
-			addenemy(dx + 208, dy + 128, cornerTrapID, -14);
+			addenemy(screen_index, dx + 32, dy + 32, cornerTrapID, -14);
+			addenemy(screen_index, dx + 208, dy + 32, cornerTrapID, -14);
+			addenemy(screen_index, dx + 32, dy + 128, cornerTrapID, -14);
+			addenemy(screen_index, dx + 208, dy + 128, cornerTrapID, -14);
 		}
 	}
 	
@@ -21023,18 +20992,18 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
 			{
 				if(trapLOSHorizontalID>=0)
-					addenemy(dx + x, dy + y, trapLOSHorizontalID, -14);
+					addenemy(screen_index, dx + x, dy + y, trapLOSHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
 			{
 				if(trapLOSVerticalID>=0)
-					addenemy(dx + x, dy + y, trapLOSVerticalID, -14);
+					addenemy(screen_index, dx + x, dy + y, trapLOSVerticalID, -14);
 			}
 			else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
 			{
 				if(trapLOS4WayID>=0)
 				{
-					if(addenemy(dx + x, dy + y, trapLOS4WayID, -14))
+					if(addenemy(screen_index, dx + x, dy + y, trapLOS4WayID, -14))
 						guys.spr(guys.Count()-1)->dummy_int[1]=2;
 				}
 			}
@@ -21042,12 +21011,12 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
 			{
 				if(trapConstantHorizontalID>=0)
-					addenemy(dx + x, dy + y, trapConstantHorizontalID, -14);
+					addenemy(screen_index, dx + x, dy + y, trapConstantHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
 			{
 				if(trapConstantVerticalID>=0)
-					addenemy(dx + x, dy + y, trapConstantVerticalID, -14);
+					addenemy(screen_index, dx + x, dy + y, trapConstantVerticalID, -14);
 			}
 			
 			if(ctype==cSPINTILE1)
@@ -21063,10 +21032,10 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	{
 		if(centerTrapID>=-1)
 		{
-			if(addenemy(64, 80, centerTrapID, -14))
+			if(addenemy(screen_index, 64, 80, centerTrapID, -14))
 				guys.spr(guys.Count()-1)->dummy_int[1]=1;
 			
-			if(addenemy(176, 80, centerTrapID, -14))
+			if(addenemy(screen_index, 176, 80, centerTrapID, -14))
 				guys.spr(guys.Count()-1)->dummy_int[1]=1;
 		}
 	}
@@ -21075,9 +21044,9 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	{
 		if(rockID>=0)
 		{
-			addenemy(dx + (zc_oldrand()&0xF0), 0, rockID, 0);
-			addenemy(dx + (zc_oldrand()&0xF0), 0, rockID, 0);
-			addenemy(dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen_index, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen_index, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
+			addenemy(screen_index, dx + (zc_oldrand()&0xF0), 0, rockID, 0);
 		}
 	}
 }
@@ -21213,7 +21182,7 @@ void awaken_spinning_tile(const pos_handle_t& pos_handle)
 	mapscr* s = pos_handle.screen;
 	int x, y;
 	COMBOXY_REGION(pos_handle.rpos, x, y);
-	addenemy(x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
+	addenemy(pos_handle.screen_index, x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
 }
 
 // TODO z3 !
@@ -21475,7 +21444,7 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			
 		if(sle_cnt > 0)
 		{
-			if(addenemy(sle_x,sle_y,screen->enemy[--sle_cnt],0))
+			if(addenemy(screen_index, sle_x,sle_y,screen->enemy[--sle_cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
 				{
@@ -21624,7 +21593,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 				}
 				else
 				{
-					addenemy(x,
+					addenemy_z(screen_index,x,
 					 (is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
 					 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],-15);
 					
@@ -21643,7 +21612,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 				}
 				else
 				{
-					addenemy(x,
+					addenemy_z(screen_index,x,
 					 (is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
 					 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],-15);
 					
@@ -21723,7 +21692,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 		{
 			if(((screen->enemy[i]>0||screen->enemy[i]<MAXGUYS))) // Hackish fix for crash in Waterford.qst on screen 0x65 of dmap 0 (map 1).
 			{
-				addenemy(x,(is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
+				addenemy_z(screen_index,x,(is_ceiling_pattern(screen->pattern) && isSideViewGravity()) ? -(150+50*guycnt) : y,
 				 (is_ceiling_pattern(screen->pattern) && !(isSideViewGravity())) ? 150+50*guycnt : 0,screen->enemy[i],c);
 				
 				++guycnt;
@@ -21870,14 +21839,14 @@ void loadenemies()
 				{
 					if ( screen->enemy[i] )
 					{
-						addenemy(dngn_enemy_x[i],96,screen->enemy[i],-14-i);
+						addenemy(screen_index,dngn_enemy_x[i],96,screen->enemy[i],-14-i);
 					}
 				}
 			}
 			else
 			{
 				for(int32_t i=0; i<4; i++)
-					addenemy(dngn_enemy_x[i],96,screen->enemy[i]?screen->enemy[i]:(int32_t)eKEESE1,-14-i);
+					addenemy(screen_index,dngn_enemy_x[i],96,screen->enemy[i]?screen->enemy[i]:(int32_t)eKEESE1,-14-i);
 			}
 
 			loaded_enemies_for_screen.insert(screen_index);

@@ -181,7 +181,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(pos_handle.screen_index,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 }
@@ -287,7 +287,7 @@ void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t 
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(ffc_handle.screen_index,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 		
 	}
@@ -1600,7 +1600,7 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 				{
 					if ( combobuf[(tmpscr.data[pos-chx+1])].type == cARMOS ) xpos += 16;
 				}
-				if(addenemy(tx+xpos,ty+1+ypos,id2,0))
+				if(addenemy(pos_handle.screen_index,tx+xpos,ty+1+ypos,id2,0))
 				{
 					enemy* en = ((enemy*)guys.spr(guys.Count()-1));
 					en->did_armos=false;
@@ -1640,7 +1640,7 @@ bool trigger_armos_grave(const pos_handle_t& pos_handle, int32_t trigdir)
 		default: return false;
 	}
 	activation_counters[pos] = 61;
-	if(addenemy(tx,ty+3,id2,eclk))
+	if(addenemy(pos_handle.screen_index,tx,ty+3,id2,eclk))
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 	else return false;
 	return true;
@@ -1724,7 +1724,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 		default: return false;
 	}
 	activation_counters_ffc[ffc_handle.i] = 61;
-	if(addenemy(tx,ty+3,id2,eclk))
+	if(addenemy(ffc_handle.screen_index,tx,ty+3,id2,eclk))
 	{
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
 		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle.i+1;
@@ -2874,7 +2874,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 			{
 				enemy* enm = nullptr;
 				bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
-				word numcreated = addenemy(cx, cy, cmb.spawnenemy, -10);
+				word numcreated = addenemy(pos_handle.screen_index, cx, cy, cmb.spawnenemy, -10);
 				if(numcreated)
 				{
 					word index = guys.Count() - numcreated;
@@ -3228,7 +3228,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			{
 				enemy* enm = nullptr;
 				bool enm_ex = (cmb.triggerflags[2] & combotriggerEXSTENEMY);
-				word numcreated = addenemy(cx, cy, cmb.spawnenemy, -10);
+				word numcreated = addenemy(ffc_handle.screen_index, cx, cy, cmb.spawnenemy, -10);
 				if(numcreated)
 				{
 					word index = guys.Count() - numcreated;

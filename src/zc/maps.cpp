@@ -1677,7 +1677,7 @@ void update_combo_cycling()
 						{
 							// Uses animated_combo_table2
 							rpos_t rpos = (rpos_t)(rpos_base+i);
-							addenemy(COMBOX_REGION(rpos),COMBOY_REGION(rpos),(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+							addenemy(screen_index, COMBOX_REGION(rpos),COMBOY_REGION(rpos),(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
 				}
@@ -1734,6 +1734,7 @@ bool iswater_type(int32_t type)
 
 bool iswater(int32_t combo)
 {
+	// TODO z3
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
 int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck)
@@ -2682,7 +2683,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 							int32_t cs=layer_scr->cset[i];
 							
 							if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-								addenemy((i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+								addenemy(screen_index,(i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 						}
 					}
 					
@@ -2696,8 +2697,6 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	for(word i=0; i<c; i++) //FFC 'trigger flags'
 	{
 		if(single>=0) if(i+176!=single) continue;
-		
-		bool putit;
 		
 		if((!high16only)||(single>=0))
 		{

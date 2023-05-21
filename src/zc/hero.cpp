@@ -8248,7 +8248,8 @@ bool HeroClass::animate(int32_t)
 			{
 				for(int32_t zoras=0; zoras<clock_zoras[i]; zoras++)
 				{
-					addenemy(0,0,i,0);
+					// TODO z3
+					addenemy(currscr,0,0,i,0);
 				}
 			}
 		}
@@ -32145,11 +32146,11 @@ void HeroClass::ganon_intro()
             
             if(current_item(itype_ring))
             {
-                addenemy(offx+160,offy+96,Id,0);
+                addenemy(currscr,offx+160,offy+96,Id,0);
             }
             else
             {
-                addenemy(offx+80,offy+32,Id,0);
+                addenemy(currscr,offx+80,offy+32,Id,0);
             }
         }
         

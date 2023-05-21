@@ -44,7 +44,7 @@ extern sprite_list  items;
   */
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id)
 {
-    addenemy(x,y,eITEMFAIRY,id);
+    addenemy(currscr,x,y,eITEMFAIRY,id);
     ((enemy*)guys.spr(guys.Count()-1))->dstep=misc3;
     ((enemy*)guys.spr(guys.Count()-1))->step=(misc3/100.0);
     movefairy(x,y,id);
@@ -53,7 +53,7 @@ bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id)
 
 bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy)
 {
-    addenemy(x,y,eITEMFAIRY,0);
+    addenemy(currscr,x,y,eITEMFAIRY,0);
     enemy *ptr = ((enemy*)guys.spr(guys.Count()-1));
     ptr->dstep=misc3;
     ptr->step=(misc3/100.0);

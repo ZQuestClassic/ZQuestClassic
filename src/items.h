@@ -28,7 +28,6 @@ void movefairy(zfix &x,zfix &y,int32_t misc);
 void movefairynew(zfix &x,zfix &y,item const &itemfairy);
 void killfairy(int32_t misc);
 void killfairynew(item const &itemfairy);
-int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk);
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id);
 bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy);
 bool can_drop(zfix x, zfix y);
