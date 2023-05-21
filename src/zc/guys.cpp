@@ -4132,7 +4132,7 @@ void enemy::FireWeapon()
 			{
 			//zprint2("summon\n");
 			//al_trace("summon\n");
-				if(addchild(x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_index_spawned,x,y,dmisc3,-10, this->script_UID))
 		{
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
@@ -4176,7 +4176,7 @@ void enemy::FireWeapon()
 					{
 						//zprint2("summon\n");
 						//al_trace("summon\n");
-						if(addchild(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_index_spawned,x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							//((enemy*)guys.spr(guys.Count()-1))->parent_script_UID = this->script_UID;
@@ -14449,7 +14449,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			for(int32_t i=0; i<bats; i++)
 			{
 				// Summon bats (or anything)
-				if(addchild(x,y,dmisc3,-10, this->script_UID))
+				if(addchild(screen_index_spawned, x,y,dmisc3,-10, this->script_UID))
 					((enemy*)guys.spr(kids+i))->count_enemy = false;
 			}
 			
@@ -14483,7 +14483,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 					
 					if(!m_walkflag(x2,y2,0, dir) && (abs(x2-Hero.getX())>=32 || abs(y2-Hero.getY())>=32))
 					{
-						if(addchild(x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
+						if(addchild_z(screen_index_spawned,x2,y2,get_bit(quest_rules,qr_ENEMIESZAXIS) ? 64 : 0,id2,-10, this->script_UID))
 						{
 							((enemy*)guys.spr(kids+i))->count_enemy = false;
 							if (get_bit(quest_rules,qr_ENEMIESZAXIS) && (((enemy*)guys.spr(kids+i))->moveflags & FLAG_USE_FAKE_Z)) 
@@ -19497,12 +19497,12 @@ int32_t addenemy(int32_t screen_index, int32_t x,int32_t y,int32_t id,int32_t cl
 	return addenemy_z(screen_index,x,y,0,id,clk);
 }
 
-int32_t addchild(int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild(int32_t screen_index, int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
 {
-	return addchild(x,y,0,id,clk, parent_scriptUID);
+	return addchild_z(screen_index,x,y,0,id,clk, parent_scriptUID);
 }
 
-int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
+int32_t addchild_z(int32_t screen_index, int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t parent_scriptUID)
 {
 	if(id <= 0) return 0;
 	
@@ -19940,7 +19940,13 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 		break;
 	}
 	}
-	
+
+	for (int i = 0; i < ret; i++)
+	{
+		enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
+		e->screen_index_spawned = screen_index;
+	}
+
 	return ret;
 }
 
@@ -23704,6 +23710,9 @@ static void roaming_item(mapscr* screen, int screen_index)
 	{
 		return;
 	}
+
+	// TODO z3 this needs to be stored per-screen, or just calculated as needed. For now, keep unsetting.
+	guycarryingitem = -1;
 	
 	// Lost track of the carrier?
 	if(guycarryingitem<0 || guycarryingitem>=guys.Count() ||
