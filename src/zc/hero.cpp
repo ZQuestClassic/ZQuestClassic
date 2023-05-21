@@ -30604,8 +30604,7 @@ void HeroClass::checkitems(int32_t index)
 	int32_t holdid = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
-	// TODO z3 an item can move, so should really have a item->screen_index property.
-	int32_t item_screen_index = get_screen_index_for_world_xy(ptr->x.getInt(), ptr->y.getInt());
+	int32_t item_screen_index = ptr->screen_index_spawned;
 	
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
@@ -30699,7 +30698,7 @@ void HeroClass::checkitems(int32_t index)
 				
 		if(pickup&ipENEMY)                                        // item was being carried by enemy
 			if(more_carried_items()<=1)  // 1 includes this own item.
-				screen_item_clear_state(currscr);
+				screen_item_clear_state(item_screen_index);
 				
 		if(pickup&ipDUMMY)                                        // dummy item (usually a rupee)
 		{
@@ -30798,7 +30797,7 @@ void HeroClass::checkitems(int32_t index)
 			
 		if(pickup&ipONETIME)    // set mITEM for one-time-only items
 		{
-			setmapflag(mITEM);
+			setmapflag(item_screen_index, mITEM);
 
 			//Okay so having old source files is a godsend. You wanna know why?
 			//Because the issue here was never to so with the wrong flag being set; no it's always been setting the right flag.
@@ -30824,7 +30823,7 @@ void HeroClass::checkitems(int32_t index)
 			*/
 		}
 		else if(pickup&ipONETIME2)                                // set mSPECIALITEM flag for other one-time-only items
-			setmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+			setmapflag(item_screen_index, (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 		
 		if(exstate > -1 && exstate < 32)
 		{
@@ -30833,8 +30832,8 @@ void HeroClass::checkitems(int32_t index)
 		
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
-			// TODO z3
-			if(tmpscr.flags9&fITEMSECRETPERM) setmapflag(mSECRET);
+			// TODO z3 !
+			if (tmpscr.flags9&fITEMSECRETPERM) setmapflag(item_screen_index, mSECRET);
 			trigger_secrets_for_screen(TriggerSource::ItemsSecret, false);
 		}
 			

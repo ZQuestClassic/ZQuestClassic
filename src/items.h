@@ -45,6 +45,7 @@ public:
     int32_t aclk,aframe;
     char PriceIndex;
     bool flash,twohand,anim, subscreenItem;
+    int32_t screen_index_spawned;
     int32_t o_tile,o_cset, o_speed, o_delay, frames;
     int32_t fairyUID;
     word pstring; //pickup string

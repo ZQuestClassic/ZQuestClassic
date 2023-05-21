@@ -6678,7 +6678,7 @@ void enemy::try_death(bool force_kill)
 		{
 			for(int32_t i=0; i<items.Count(); i++)
 			{
-				if(((item*)items.spr(i))->pickup&ipENEMY)
+				if(((item*)items.spr(i))->pickup&ipENEMY && screen_index_spawned == ((item*)items.spr(i))->screen_index_spawned)
 				{
 					if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
 					{
@@ -23798,7 +23798,9 @@ static void roaming_item(mapscr* screen, int screen_index)
 		
 		if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
 		{
-			additem(0,0,Item,ipENEMY+ipONETIME+ipBIGRANGE
+			int x = z3_get_region_relative_dx(screen_index)*256;
+			int y = z3_get_region_relative_dy(screen_index)*176;
+			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
 					+ (((screen->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
 			screen_item_set_state(screen_index, ScreenItemState::CarriedByEnemy);
@@ -23811,7 +23813,7 @@ static void roaming_item(mapscr* screen, int screen_index)
 	
 	for(int32_t i=0; i<items.Count(); i++)
 	{
-		if(((item*)items.spr(i))->pickup&ipENEMY)
+		if(((item*)items.spr(i))->pickup&ipENEMY && ((item*)items.spr(i))->screen_index_spawned == screen_index)
 		{
 			if(get_bit(quest_rules,qr_HIDECARRIEDITEMS))
 			{
