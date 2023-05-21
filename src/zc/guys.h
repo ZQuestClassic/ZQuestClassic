@@ -906,6 +906,8 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup);
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk);
 void add_item_for_screen(int32_t screen_index, item* item);
+enemy* find_guy_first_for_id(int screen_index, int id, int mask);
+enemy* find_guy_nth_for_id(int screen_index, int id, int n, int mask);
 void kill_em_all();
 bool can_kill_em_all();
 // For Hero's hit detection. Don't count them if they are stunned or are guys.

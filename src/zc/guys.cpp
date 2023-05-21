@@ -3849,18 +3849,6 @@ void enemy::death_sfx()
 
 void enemy::move(zfix dx,zfix dy)
 {
-	/*if(FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && FFCore.getQuestHeaderInfo(vBuild) >= 50 )
-	{
-	switch(family)
-	{
-		case eeFIRE:
-		case eeOTHER:
-			return;
-		default: break;
-	}
-	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
-	}
-	*/
 	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !(moveflags & FLAG_OBEYS_GRAV) || !enemycanfall(id)))
 	{
 		x+=dx;
@@ -3870,17 +3858,6 @@ void enemy::move(zfix dx,zfix dy)
 
 void enemy::move(zfix s)
 {
-	/*if(FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && FFCore.getQuestHeaderInfo(vBuild) >= 50 )
-	{
-	switch(family)
-	{
-		case eeFIRE:
-		case eeOTHER:
-			return;
-		default: break;
-	}
-	if(family >= eeSCRIPT01 && family <= eeFFRIENDLY10 ) return;
-	}*/
 	if(!watch && (!(isSideViewGravity()) || isOnSideviewPlatform() || !enemycanfall(id) || !(moveflags & FLAG_OBEYS_GRAV)))
 	{
 		sprite::move(s);
@@ -13959,10 +13936,6 @@ bool eStalfos::WeaponOut()
 		{
 			return true;
 		}
-		
-		/*if (bgsfx > 0 && guys.idCount(id) < 2) // count self
-		  stop_sfx(bgsfx);
-		*/
 	}
 	
 	return false;
@@ -21772,15 +21745,17 @@ placed_enemy:
 	{
 		if(i==0 && screen->enemyflags&efLEADER)
 		{
-			int32_t index = guys.idFirst(screen->enemy[i],0xFFF);
-			
-			if(index!=-1)
+			enemy* e = find_guy_first_for_id(screen_index, screen->enemy[i], 0xFFF);
+			if (e)
 			{
 				//grab the first segment. Not accurate to how older versions did it, but the way they did it might be incompatible with enemy editor.
-				if ((((enemy*)guys.spr(index))->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER)) index = guys.idNth(screen->enemy[i], 2, 0xFFF); 
-				if(index!=-1)                                                                                                                                      
+				if ((e->family == eeLANM) && !get_bit(quest_rules, qr_NO_LANMOLA_RINGLEADER))
 				{
-					((enemy*)guys.spr(index))->leader = true;
+					e = find_guy_nth_for_id(screen_index, screen->enemy[i], 2, 0xFFF);
+				}
+				if (e)                                                                                                                                      
+				{
+					e->leader = true;
 				}
 			}
 		}
@@ -21788,15 +21763,45 @@ placed_enemy:
 		ScreenItemState item_state = screen_item_get_state(screen_index);
 		if (!foundCarrier && (item_state == ScreenItemState::CarriedByEnemy || item_state == ScreenItemState::MustGiveToEnemy))
 		{
-			int32_t index = guys.idFirst(screen->enemy[i],0xFFF);
-			
-			if(index!=-1 && (((enemy*)guys.spr(index))->flags&guy_doesntcount)==0)
+			enemy* e = find_guy_first_for_id(screen_index, screen->enemy[i], 0xFFF);
+			if (e && (e->flags&guy_doesntcount)==0)
 			{
-				((enemy*)guys.spr(index))->itemguy = true;
+				e->itemguy = true;
 				foundCarrier=true;
 			}
 		}
 	}
+}
+
+// returns index of first sprite with matching id, -1 if none found
+enemy* find_guy_first_for_id(int screen_index, int id, int mask)
+{
+	int count = guys.Count();
+    for (int32_t i=0; i<count; i++)
+    {
+		enemy* e = (enemy*)guys.spr(i);
+        if (e->screen_index_spawned == screen_index && (e->id&mask) == (id&mask))
+        {
+            return e;
+        }
+    }
+    
+    return nullptr;
+}
+
+enemy* find_guy_nth_for_id(int screen_index, int id, int n, int mask)
+{
+	int count = guys.Count();
+	for(int32_t i=0; i<count; i++)
+    {
+		enemy* e = (enemy*)guys.spr(i);
+        if (e->screen_index_spawned == screen_index && (e->id&mask) == (id&mask))
+        {
+			if (n > 1) --n;
+			else return e;
+        }
+    }
+    return nullptr;
 }
 
 bool scriptloadenemies()
@@ -23776,6 +23781,7 @@ static void roaming_item(mapscr* screen, int screen_index)
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
 					+ (((screen->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );
+			((item*)items.spr(items.Count() - 1))->screen_index_spawned = screen_index;
 			screen_item_set_state(screen_index, ScreenItemState::CarriedByEnemy);
 		}
 		else

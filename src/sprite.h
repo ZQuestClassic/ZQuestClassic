@@ -237,7 +237,7 @@ public:
 	void solid_push(solid_object* pusher);
     void check_conveyor();
 	void run_script(int32_t mode);
-    int32_t Count();
+    int32_t Count() const;
 	bool has_space(int32_t space = 1);
     int32_t hit(sprite *s);
     int32_t hit(int32_t x,int32_t y,int32_t z,int32_t xsize, int32_t ysize, int32_t zsize);

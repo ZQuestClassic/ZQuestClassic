@@ -2418,7 +2418,7 @@ void sprite_list::check_conveyor()
     }
 }
 
-int32_t sprite_list::Count()
+int32_t sprite_list::Count() const
 {
     return count;
 }
