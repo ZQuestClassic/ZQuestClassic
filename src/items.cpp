@@ -321,7 +321,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 {
 	x=X;
 	y=Y;
-	screen_index_spawned=get_screen_index_for_world_xy(x.getInt(), y.getInt());
+	screen_index_spawned=currscr;
 	z=Z;
 	id=i;
 	pickup=p;

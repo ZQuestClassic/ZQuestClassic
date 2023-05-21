@@ -3684,6 +3684,7 @@ bool HeroClass::checkstab()
 	return true;
 }
 
+// TODO z3 !
 void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 {
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
@@ -20386,9 +20387,9 @@ void HeroClass::oldcheckchest(int32_t type)
 		}
 	}
 	
-	if(itemflag && !getmapflag((found_screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
+	if(itemflag && !getmapflag(found_screen_index, (found_screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM))
 	{
-		items.add(new item(x, y,(zfix)0, screen->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		add_item_for_screen(found_screen_index, new item(x, y,(zfix)0, screen->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 	}
 }
 
@@ -22502,7 +22503,7 @@ void HeroClass::checkspecial()
 						
 						zfix x = region_scr_x*256 + screen->itemx;
 						zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
-						items.add(new item(x, y, (screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
+						add_item_for_screen(screen_index, new item(x, y, (screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 										Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 												(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 					}
@@ -22590,7 +22591,7 @@ void HeroClass::checkspecial()
 			{
 				zfix x = region_scr_x*256 + screen->itemx;
 				zfix y = region_scr_y*176 + ((screen->flags7&fITEMFALLS && isSideViewHero()) ? -170 : screen->itemy+1);
-				items.add(new item(x, y,
+				add_item_for_screen(screen_index, new item(x, y,
 								(screen->flags7&fITEMFALLS && !isSideViewHero()) ? (zfix)170 : (zfix)0,
 								Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 										(screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));

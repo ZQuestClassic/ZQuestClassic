@@ -8,6 +8,7 @@
 //
 //--------------------------------------------------------
 
+#include "base/zdefs.h"
 #include "precompiled.h" //always first
 
 #include <string.h>
@@ -3919,7 +3920,7 @@ void enemy::leave_item()
 			else itm = (new item(x,y,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
 		itm->from_dropset = thedropset;
-		items.add(itm);
+		add_item_for_screen(screen_index_spawned, itm);
 		
 		ev.push_back(getUID());
 		ev.push_back(itm->getUID());
@@ -13163,12 +13164,11 @@ bool eStalfos::animate(int32_t index)
 		int32_t id2=dmisc3;
 		for(int32_t i=0; i < dmisc4; i++)
 		{
-//	    if (addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((i+1)<<12)),-21-(i%4)))
-			if(addenemy(x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
+			if(addenemy(this,x,y,id2+(guysbuf[id2].family==eeKEESE ? 0 : ((editorflags & ENEMY_FLAG5) ? 0 : (i<<12))),-21-(i%4)))
 				((enemy*)guys.spr(kids+i))->count_enemy = false;
 		}
 		
-		if(itemguy) // Hand down the carried item
+		if (itemguy && guys.Count()) // Hand down the carried item
 		{
 			guycarryingitem = guys.Count()-1;
 			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
@@ -13227,29 +13227,6 @@ bool eStalfos::animate(int32_t index)
 			}
 			else removearmos(x,y); 
 		}
-		/*
-		if (txsz > 1 || tysz > 1 || (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) || (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) )//remove more than one combo based on enemy size
-		{
-			 //if removing a block, then adjust y by -1 as the enemy spawns at y+1
-			for(int32_t dx = 0; dx < hxsz; dx += 16)
-			{
-				for(int32_t dy = 0; dy < hysz; dy += 16)
-				{
-					removearmos((int32_t)x+dx+hxofs,(int32_t)y+dy+hyofs+1,ffcactivated);
-					did_armos = false;
-				}
-				removearmos((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-1,ffcactivated);
-				did_armos = false;
-			}
-			for(int32_t dy = 0; dy < hysz; dy += 16)
-			{
-				removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-1,ffcactivated);
-				did_armos = false;
-			}
-			removearmos((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-1,ffcactivated);
-		}
-				else removearmos(x,y,ffcactivated);
-		*/		
 	   
 		}
 				
@@ -13720,16 +13697,6 @@ bool eStalfos::animate(int32_t index)
 
 void eStalfos::draw(BITMAP *dest)
 {
-	/*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc<=0) //Submerged
-	{
-	  clk4--; //Kludge
-	  return;
-	}*/
-	
-	/*if ((dmisc9==e9tLEEVER || dmisc9==e9tZ3LEEVER) && misc>1)
-	{
-	  cs = dcset;
-	}*/
 	update_enemy_frame();
 	
 	if(!fallclk&&!drownclk&&(dmisc2==e2tBOMBCHU)&&dashing)
@@ -13744,16 +13711,6 @@ void eStalfos::drawshadow(BITMAP *dest, bool translucent)
 {
 	int32_t tempy=yofs;
 	
-	/*
-	  if (clk6 && dir>=left && !get_bit(quest_rules,qr_ENEMIESZAXIS)) {
-		flip = 0;
-		int32_t f2=get_bit(quest_rules,qr_NEWENEMYTILES)?
-		  (clk/(frate/4)):((clk>=(frate>>1))?1:0);
-		shadowtile = wpnsbuf[spr_shadow].tile+f2;
-		yofs+=(((int32_t)y+17)&0xF0)-y;
-		yofs+=8;
-	  }
-	*/
 	if((dmisc9 == e9tPOLSVOICE || dmisc9==e9tVIRE) && !get_bit(quest_rules,qr_ENEMIESZAXIS))
 	{
 		flip = 0;
@@ -14120,7 +14077,7 @@ bool eKeese::animate(int32_t index)
 				int32_t kids = guys.Count();
 				bool success = false;
 				int32_t id2=dmisc3;
-				success = 0 != addenemy((zfix)x,(zfix)y,id2,-24);
+				success = 0 != addenemy(this,(zfix)x,(zfix)y,id2,-24);
 				
 				if(success)
 				{
@@ -15753,22 +15710,22 @@ bool eBigDig::animate(int32_t index)
 	case 2:
 		for(int32_t i=0; i<dmisc5; i++)
 		{
-			addenemy(x,y,dmisc1+0x1000,-15);
+			addenemy(this,x,y,dmisc1+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc6; i++)
 		{
-			addenemy(x,y,dmisc2+0x1000,-15);
+			addenemy(this,x,y,dmisc2+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc7; i++)
 		{
-			addenemy(x,y,dmisc3+0x1000,-15);
+			addenemy(this,x,y,dmisc3+0x1000,-15);
 		}
 		
 		for(int32_t i=0; i<dmisc8; i++)
 		{
-			addenemy(x,y,dmisc4+0x1000,-15);
+			addenemy(this,x,y,dmisc4+0x1000,-15);
 		}
 		
 		if(itemguy) // Hand down the carried item
@@ -16541,42 +16498,34 @@ eLanmola::eLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id,C
 			//check each direction
 			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
 			{
-				//zprint2("Spawn adjustment: -x (%d)\n", incr);
 				x-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
 			{
-				//zprint2("Spawn adjustment: +x (%d)\n", incr);
 				x+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
 			{
-				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
 				x-=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
 			{
-				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
 				x+=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
 			{
-				//zprint2("Spawn adjustment: -y (%d)\n", incr);
 				y -= incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
 			{
-				//zprint2("Spawn adjustment: +y (%d)\n", incr);
 				y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
 			{
-				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
 				x-=incr; y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
 			{
-				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
 				x+=incr; y+=incr; break;
 			}
 			else continue;
@@ -16679,7 +16628,7 @@ bool eLanmola::animate(int32_t index)
 		clk2=19;
 		x=guys.spr(index+1)->x;
 		y=guys.spr(index+1)->y;
-		setmapflag(mTMPNORET);
+		setmapflag(screen_index_spawned, mTMPNORET);
 	}
 	
 	//this enemy is invincible.. BUT scripts don't know that, and can "kill" it by setting the hp negative.
@@ -16705,42 +16654,34 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 			//check each direction
 			if ( !m_walkflag_simple(x-incr, y) ) //legaldirs |= 0x1; //left
 			{
-				//zprint2("Spawn adjustment: -x (%d)\n", incr);
 				x-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y) ) //legaldirs |= 0x2; //right
 			{
-				//zprint2("Spawn adjustment: +x (%d)\n", incr);
 				x+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y-incr) ) //legaldirs |= 0x4; //left-up
 			{
-				//zprint2("Spawn adjustment: -x (%d), -y (%d)\n", incr, incr);
 				x-=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y-incr) ) //legaldirs |= 0x8; //right-up
 			{
-				//zprint2("Spawn adjustment: +x (%d), -y (%d)\n", incr, incr);
 				x+=incr; y-=incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y-incr) ) // legaldirs |= 0x10; //up
 			{
-				//zprint2("Spawn adjustment: -y (%d)\n", incr);
 				y -= incr; break;
 			}
 			else if ( !m_walkflag_simple(x, y+incr) ) //legaldirs |= 0x20; //down
 			{
-				//zprint2("Spawn adjustment: +y (%d)\n", incr);
 				y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x-incr, y+incr) ) //legaldirs |= 0x40; //left-down
 			{
-				//zprint2("Spawn adjustment: -x (%d), +y (%d)\n", incr, incr);
 				x-=incr; y+=incr; break;
 			}
 			else if ( !m_walkflag_simple(x+incr, y+incr) ) //legaldirs |= 0x80; //right-down
 			{
-				//zprint2("Spawn adjustment: +x (%d), +y (%d)\n", incr, incr);
 				x+=incr; y+=incr; break;
 			}
 			else continue;
@@ -19359,19 +19300,28 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy)
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item(zfix(x), zfix(y - get_bit(quest_rules, qr_NOITEMOFFSET)), zfix(0), id, pickup, 0);
+	i->screen_index_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup,int32_t clk)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_bit(quest_rules, qr_NOITEMOFFSET)),(zfix)0,id,pickup,clk);
+	i->screen_index_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
 }
 
 void adddummyitem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
 	item *i = new item((zfix)x,(zfix)y-(get_bit(quest_rules, qr_NOITEMOFFSET)),(zfix)0,id,pickup,0,true);
+	i->screen_index_spawned = get_screen_index_for_world_xy(x, y);
 	items.add(i);
+}
+
+void add_item_for_screen(int32_t screen_index, item* item)
+{
+	item->screen_index_spawned = screen_index;
+	items.add(item);
 }
 
 void kill_em_all()
@@ -19589,7 +19539,12 @@ void killfairynew(item const &itemfairy)
 //Should probably change this to return an 'enemy*', null on failure -Em
 int32_t addenemy(int32_t x,int32_t y,int32_t id,int32_t clk)
 {
-	return addenemy(x,y,0,id,clk);
+	return addenemy(nullptr,x,y,0,id,clk);
+}
+
+int32_t addenemy(enemy* from, int32_t x,int32_t y,int32_t id,int32_t clk)
+{
+	return addenemy(from,x,y,0,id,clk);
 }
 
 int32_t addchild(int32_t x,int32_t y,int32_t id,int32_t clk, int32_t parent_scriptUID)
@@ -20042,6 +19997,11 @@ int32_t addchild(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk, int32_t p
 // Returns number of enemies/segments created
 int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 {
+	return addenemy(nullptr, x, y, z, id, clk);
+}
+
+int32_t addenemy(enemy* from,int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
+{
 	//zprint2("addenemy id is: %d\n", (id&0xFFF));
 	int32_t realid = id&0xFFF;
 	if( realid > MAXGUYS ) 
@@ -20301,7 +20261,6 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		{
 			e = new eTrigger((zfix)x,(zfix)y,id,clk);
 			break;
-			break;
 		}
 		[[fallthrough]];
 	default:
@@ -20477,6 +20436,15 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 		
 		break;
 	}
+	}
+
+	if (from)
+	{
+		for (int i = 0; i < ret; i++)
+		{
+			enemy* e = (enemy*)guys.spr(guys.Count() - 1 - i);
+			e->screen_index_spawned = from->screen_index_spawned;
+		}
 	}
 	
 	return ret;
@@ -20856,7 +20824,7 @@ void loaditem(mapscr* scr, int screen_index, int offx, int offy)
 				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
 					-170 :
 					scr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1);
-				items.add(new item(offx + x, offy + y,
+				add_item_for_screen(screen_index, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
 								   Item,ipONETIME|ipBIGRANGE|((itemsbuf[Item].family==itype_triforcepiece ||
 										   (scr->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
@@ -20876,7 +20844,7 @@ void loaditem(mapscr* scr, int screen_index, int offx, int offy)
 				int y = scr->flags7&fITEMFALLS && isSideViewGravity() ?
 					-170 :
 					scr->itemy+(get_bit(quest_rules, qr_NOITEMOFFSET)?0:1);
-				items.add(new item(offx + x, offy + y,
+				add_item_for_screen(screen_index, new item(offx + x, offy + y,
 								   (scr->flags7&fITEMFALLS && !(isSideViewGravity())) ? (zfix)170 : (zfix)0,
 								   Item,ipONETIME2|ipBIGRANGE|ipHOLDUP | ((scr->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 			}
@@ -21446,11 +21414,11 @@ void script_side_load_enemies()
 }
 
 // TODO z3 enemies
-void side_load_enemies()
+static void side_load_enemies(mapscr* screen, int screen_index)
 {
 	if(!script_sle && sle_clk==0)
 	{
-		sle_pattern = tmpscr.pattern;
+		sle_pattern = screen->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
 		int16_t s = (currmap<<7)+z3_get_origin_scr();
@@ -21458,7 +21426,7 @@ void side_load_enemies()
 		bool reload=true;
 		bool unbeatablereload = true;
 		
-		load_default_enemies(&tmpscr, currscr);
+		load_default_enemies(screen, screen_index);
 		
 		for(int32_t i=0; i<6; i++)
 			if(visited[i]==s)
@@ -21482,21 +21450,21 @@ void side_load_enemies()
 			if((get_bit(quest_rules, qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK) && !beenhere)
 			|| sle_cnt==0)
 			{
-				while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
+				while(sle_cnt<10 && screen->enemy[sle_cnt]!=0)
 					++sle_cnt;
 			}
 			if (!beenhere && get_bit(quest_rules, qr_UNBEATABLES_DONT_KEEP_DEAD))
 			{
-				for(int32_t i = 0; i<sle_cnt && tmpscr.enemy[i]>0; i++)
+				for(int32_t i = 0; i<sle_cnt && screen->enemy[i]>0; i++)
 				{
-					if (!(guysbuf[tmpscr.enemy[i]].flags & guy_doesntcount)) 
+					if (!(guysbuf[screen->enemy[i]].flags & guy_doesntcount)) 
 					{
 						unbeatablereload = false;
 					}
 				}
 				if (unbeatablereload)
 				{
-					while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
+					while(sle_cnt<10 && screen->enemy[sle_cnt]!=0)
 					{
 						++sle_cnt;
 					}
@@ -21504,11 +21472,11 @@ void side_load_enemies()
 			}
 		}
 		
-		if((get_bit(quest_rules,qr_ALWAYSRET)) || (tmpscr.flags3&fENEMIESRETURN))
+		if((get_bit(quest_rules,qr_ALWAYSRET)) || (screen->flags3&fENEMIESRETURN))
 		{
 			sle_cnt = 0;
 			
-			while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
+			while(sle_cnt<10 && screen->enemy[sle_cnt]!=0)
 				++sle_cnt;
 		}
 		
@@ -21529,12 +21497,12 @@ void side_load_enemies()
 		
 		int32_t enemy_slot=guys.Count();
 		
-		while(sle_cnt > 0 && !ok2add(tmpscr.enemy[sle_cnt-1]))
+		while(sle_cnt > 0 && !ok2add(screen->enemy[sle_cnt-1]))
 			sle_cnt--;
 			
 		if(sle_cnt > 0)
 		{
-			if(addenemy(sle_x,sle_y,tmpscr.enemy[--sle_cnt],0))
+			if(addenemy(sle_x,sle_y,screen->enemy[--sle_cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
 				{
@@ -21551,7 +21519,7 @@ void side_load_enemies()
 		else
 		{
 			loaded_enemies=true;
-			loaded_enemies_for_screen.insert(currscr);
+			loaded_enemies_for_screen.insert(screen_index);
 		}
 		sle_clk = 0;
 	}
@@ -21566,7 +21534,7 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false; //never 0, never OoB.
 	}
 	// No corner enemies
-	if((x==0 || x==240) && (y==0 || y==160))
+	if((x==0 || x==world_w-16) && (y==0 || y==world_h-16))
 
 		return false;
 	
@@ -21636,13 +21604,13 @@ bool is_ceiling_pattern(int32_t i)
 	return (i==pCEILING || i==pCEILINGR);
 }
 
-int32_t placeenemy(int32_t i)
+rpos_t placeenemy(int32_t i, int32_t offx, int32_t offy)
 {
 	std::vector<rpos_t> freeposcache;
 	
-	for(int32_t y=0; y<world_h; y+=16)
+	for(int32_t y=offy; y<offy+176; y+=16)
 	{
-		for(int32_t x=0; x<world_w; x+=16)
+		for(int32_t x=offx; x<offx+256; x+=16)
 		{
 			if(is_starting_pos(i,x,y,0))
 			{
@@ -21652,10 +21620,9 @@ int32_t placeenemy(int32_t i)
 	}
 
 	if (!freeposcache.empty())
-		// TODO z3 !
-		return RPOS_TO_POS(freeposcache[zc_oldrand()%freeposcache.size()]);
+		return freeposcache[zc_oldrand()%freeposcache.size()];
 
-	return -1;
+	return rpos_t::NONE;
 }
 
 // TODO z3 rename to 'screen' everywhere
@@ -21735,7 +21702,9 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 	if(t<0 || t >= 20) // above enemy pattern failed
 	{
 		// Final chance: find a random position anywhere onscreen
-		int32_t randpos = placeenemy(i);
+		rpos_t rand_rpos = placeenemy(i, offx, offy);
+		// TODO z3 ! verify this code working. it runs rarely.
+		int randpos = RPOS_TO_POS(rand_rpos);
 		
 		if(randpos>-1)
 		{
@@ -21743,6 +21712,9 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 			y= randpos&0xF0;
 			x += offx;
 			y += offy;
+			// COMBOXY_REGION(rpos_t rpos, int32_t &out_x, int32_t &out_y)
+			// x = (rand_rpos&15)<<4;
+			// y = rand_rpos&0xF0;
 		}
 		else // All opportunities failed - abort
 		{
@@ -21855,9 +21827,10 @@ bool scriptloadenemies()
 
 void loadenemies()
 {
-	if(script_sle || sle_clk)
+	// TODO z3 rm. probably ok to, not tried to rm yet
+	if ((script_sle || sle_clk) && !is_z3_scrolling_mode())
 	{
-		side_load_enemies();
+		side_load_enemies(&tmpscr, currscr);
 		return;
 	}
 
@@ -21911,7 +21884,7 @@ void loadenemies()
 
 		if (screen->pattern==pSIDES || screen->pattern==pSIDESR)
 		{
-			side_load_enemies();
+			side_load_enemies(screen, screen_index);
 			return;
 		}
 
