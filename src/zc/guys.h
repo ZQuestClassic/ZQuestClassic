@@ -28,7 +28,6 @@ extern int32_t itemindex;
 extern int32_t wallm_load_clk;
 extern int32_t sle_x,sle_y,sle_cnt,sle_clk;
 extern int32_t vhead;
-extern int32_t guycarryingitem;
 
 int32_t random_layer_enemy();
 int32_t count_layer_enemies();

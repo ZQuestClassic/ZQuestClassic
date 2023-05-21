@@ -47,7 +47,6 @@ bool learnslash=false;
 int32_t wallm_load_clk=0;
 int32_t sle_x,sle_y,sle_cnt,sle_clk=0;
 int32_t vhead=0;
-int32_t guycarryingitem=0;
 
 char *guy_string[eMAXGUYS];
 
@@ -13129,7 +13128,7 @@ bool eStalfos::animate(int32_t index)
 		
 		if (itemguy && guys.Count()) // Hand down the carried item
 		{
-			guycarryingitem = guys.Count()-1;
+			int guycarryingitem = guys.Count()-1;
 			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 			itemguy = false;
 		}
@@ -13632,7 +13631,7 @@ bool eStalfos::animate(int32_t index)
 			{
 				if(itemguy) // Hand down the carried item
 				{
-					guycarryingitem = guys.Count()-1;
+					int guycarryingitem = guys.Count()-1;
 					((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 					itemguy = false;
 				}
@@ -14038,7 +14037,7 @@ bool eKeese::animate(int32_t index)
 				{
 					if(itemguy) // Hand down the carried item
 					{
-						guycarryingitem = guys.Count()-1;
+						int guycarryingitem = guys.Count()-1;
 						((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 						itemguy = false;
 					}
@@ -15685,7 +15684,7 @@ bool eBigDig::animate(int32_t index)
 		
 		if(itemguy) // Hand down the carried item
 		{
-			guycarryingitem = guys.Count()-1;
+			int guycarryingitem = guys.Count()-1;
 			((enemy*)guys.spr(guycarryingitem))->itemguy = true;
 			itemguy = false;
 		}
@@ -23711,38 +23710,19 @@ static void roaming_item(mapscr* screen, int screen_index)
 		return;
 	}
 
-	// TODO z3 this needs to be stored per-screen, or just calculated as needed. For now, keep unsetting.
-	guycarryingitem = -1;
-	
-	// Lost track of the carrier?
-	if(guycarryingitem<0 || guycarryingitem>=guys.Count() ||
-	   !((enemy*)guys.spr(guycarryingitem))->itemguy)
+	int guycarryingitem = -1;
+	for(int32_t j=0; j<guys.Count(); j++)
 	{
-		guycarryingitem=-1;
-		for(int32_t j=0; j<guys.Count(); j++)
+		enemy* e = (enemy*)guys.spr(j);
+		if (e->screen_index_spawned == screen_index && e->itemguy)
 		{
-			enemy* e = (enemy*)guys.spr(j);
-			if (e->screen_index_spawned == screen_index && e->itemguy)
-			{
-				guycarryingitem=j;
-				break;
-			}
+			guycarryingitem=j;
+			break;
 		}
 	}
-	
+
 	if (item_state == ScreenItemState::MustGiveToEnemy)
 	{
-		guycarryingitem = -1;
-		
-		for(int32_t i=0; i<guys.Count(); i++)
-		{
-			enemy* e = (enemy*)guys.spr(i);
-			if (e->screen_index_spawned == screen_index && e->itemguy)
-			{
-				guycarryingitem = i;
-			}
-		}
-		
 		if(guycarryingitem == -1)                                      //This happens when "default enemies" such as
 		{
 			return;                                               //eSHOOTFBALL are alive but enemies from the list
