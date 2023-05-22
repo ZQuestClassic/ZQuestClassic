@@ -879,7 +879,10 @@ static GUI::ListData compatRulesList
 	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
 		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
 		" and both Player fire and bomb weapons won't work with HitBy if they hurt the player." 
-		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."}
+		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
+	{ "Broken Moving & Air Bombs", qr_BROKEN_MOVING_BOMBS,
+		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
+		" will continue obeying gravity." }
 };
 
 static GUI::ListData enemiesRulesList

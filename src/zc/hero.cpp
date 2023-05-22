@@ -10419,65 +10419,124 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		return;
 	}
 	
-	//Check for a liftable combo
-	zfix bx, by;
-	zfix bx2, by2;
-	switch(dir)
-	{
-		case up:
-			by = y + (bigHitbox ? -2 : 6);
-			by2 = by;
-			bx = x + 4;
-			bx2 = bx + 8;
-			break;
-		case down:
-			by = y + 17;
-			by2 = by;
-			bx = x + 4;
-			bx2 = bx + 8;
-			break;
-		case left:
-			by = y + (bigHitbox ? 0 : 8);
-			by2 = y + 8;
-			bx = x - 2;
-			bx2 = x - 2;
-			break;
-		case right:
-			by = y + (bigHitbox ? 0 : 8);
-			by2 = y + 8;
-			bx = x + 17;
-			bx2 = x + 17;
-			break;
-	}
-	int32_t pos = COMBOPOS_B(bx,by);
-	int32_t pos2 = COMBOPOS_B(bx2,by2);
-	int32_t foundpos = -1;
-	
 	bool lifted = false;
-	for(auto lyr = 6; lyr >= 0; --lyr)
+	//Check for a liftable weapon
+	//if(!lifted)
 	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		if(pos > -1)
+		zfix hx, hy, hw, hh;
+		switch(dir)
 		{
-			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(cmb.liftflags & LF_LIFTABLE)
+			case up:
+				hx = x;
+				hy = y-8;
+				hw = 16;
+				hh = bigHitbox ? 8 : 16;
+				break;
+			case down:
+				hx = x;
+				hy = y+16;
+				hw = 16;
+				hh = 8;
+				break;
+			case left:
+				hx = x-8;
+				hy = y;
+				hw = 8;
+				hh = 16;
+				break;
+			case right:
+				hx = x+16;
+				hy = y;
+				hw = 8;
+				hh = 16;
+				break;
+		}
+		for(int32_t q = 0; q < Lwpns.Count(); ++q)
+		{
+			weapon* w = (weapon*)Lwpns.spr(q);
+			switch(w->id)
 			{
-				if(do_lift_combo(lyr,pos,liftid))
-				{
-					lifted = true;
+				case wLitBomb:
+				case wLitSBomb:
+					if(w->parentitem>=0)
+					{
+						itemdata const& parent = itemsbuf[w->parentitem];
+						if((parent.family==itype_bomb || parent.family==itype_sbomb)
+							&& (parent.misc4 && parent.misc4 <= glove.fam_type))
+						{
+							if(!w->hit(hx,hy,0,hw,hh,1))
+								continue;
+							lift(w, parent.misc5, parent.misc6);
+							Lwpns.remove(w);
+							lifted = true;
+							break;
+						}
+					}
 					break;
+			}
+			if(lifted) break;
+		}
+	}
+	if(!lifted) //Check for a liftable combo
+	{
+		zfix bx, by;
+		zfix bx2, by2;
+		switch(dir)
+		{
+			case up:
+				by = y + (bigHitbox ? -2 : 6);
+				by2 = by;
+				bx = x + 4;
+				bx2 = bx + 8;
+				break;
+			case down:
+				by = y + 17;
+				by2 = by;
+				bx = x + 4;
+				bx2 = bx + 8;
+				break;
+			case left:
+				by = y + (bigHitbox ? 0 : 8);
+				by2 = y + 8;
+				bx = x - 2;
+				bx2 = x - 2;
+				break;
+			case right:
+				by = y + (bigHitbox ? 0 : 8);
+				by2 = y + 8;
+				bx = x + 17;
+				bx2 = x + 17;
+				break;
+		}
+		int32_t pos = COMBOPOS_B(bx,by);
+		int32_t pos2 = COMBOPOS_B(bx2,by2);
+		int32_t foundpos = -1;
+		
+		for(auto lyr = 6; lyr >= 0; --lyr)
+		{
+			mapscr* scr = FFCore.tempScreens[lyr];
+			if(pos > -1)
+			{
+				newcombo const& cmb = combobuf[scr->data[pos]];
+				if(cmb.liftflags & LF_LIFTABLE)
+				{
+					if(do_lift_combo(lyr,pos,liftid))
+					{
+						lifted = true;
+						break;
+					}
 				}
 			}
-		}
-		if(pos != pos2 && pos2 > -1)
-		{
-			newcombo const& cmb2 = combobuf[scr->data[pos2]];
-			if(cmb2.liftflags & LF_LIFTABLE)
+			if(pos != pos2 && pos2 > -1)
 			{
-				if(do_lift_combo(lyr,pos2,liftid))
+				newcombo const& cmb2 = combobuf[scr->data[pos2]];
+				if(cmb2.liftflags & LF_LIFTABLE)
 				{
-					lifted = true;
-					break;
+					if(do_lift_combo(lyr,pos2,liftid))
+					{
+						lifted = true;
+						break;
+					}
 				}
 			}
 		}
@@ -10494,8 +10553,9 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 }
 void HeroClass::handle_lift(bool dec)
 {
-	lift_wpn->fakez = 0;
-	if(!lift_wpn) liftclk = 0;
+	if(lift_wpn)
+		lift_wpn->fakez = 0;
+	else liftclk = 0;
 	if(liftclk <= (dec?1:0))
 	{
 		liftclk = 0;
@@ -11131,6 +11191,11 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
+			if((itm.flags & ITEM_FLAG4) && lift_wpn)
+			{
+				do_liftglove(-1,false); //Throw the already-held weapon
+				return false;
+			}
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
 				return item_error();
@@ -11146,9 +11211,24 @@ bool HeroClass::startwpn(int32_t itemid)
 				wy=zc_max(wy,16);
 			}
 			
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itm.fam_type,
-								 itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-			sfx(WAV_PLACE,pan(wx));
+			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itm.fam_type,
+				itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true);
+			bool lifted = false;
+			if(itm.flags & ITEM_FLAG4)
+			{
+				auto liftid = current_item_id(itype_liftglove);
+				itemdata const& glove = itemsbuf[liftid];
+				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
+				{
+					lift(wpn,itm.misc5,itm.misc6);
+					lifted = true;
+				}
+			}
+			if(!lifted)
+			{
+				Lwpns.add(wpn);
+				sfx(WAV_PLACE,pan(wx));
+			}
 		}
 		break;
 		
@@ -11180,9 +11260,24 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(itm.misc1>0) // If not remote bombs
 				deselectbombs(true);
-				
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itm.fam_type,itm.power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true));
-			sfx(WAV_PLACE,pan(wx));
+			
+			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itm.fam_type,itm.power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true);
+			bool lifted = false;
+			if(itm.flags & ITEM_FLAG4)
+			{
+				auto liftid = current_item_id(itype_liftglove);
+				itemdata const& glove = itemsbuf[liftid];
+				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
+				{
+					lift(wpn,itm.misc5,itm.misc6);
+					lifted = true;
+				}
+			}
+			if(!lifted)
+			{
+				Lwpns.add(wpn);
+				sfx(WAV_PLACE,pan(wx));
+			}
 		}
 		break;
 		

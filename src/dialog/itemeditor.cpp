@@ -408,7 +408,11 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
 			inf->misc[1] = "Max. On Screen:";
 			inf->misc[2] = "Damage to Player:";
+			_SET(misc[3], "Lift Level", "If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level.");
+			_SET(misc[4], "Lift Height", "The Z height above the player's head to lift the weapon.");
 			inf->flag[1] = "Explosion Hurts Player";
+			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, it's step will be set to 0.");
+			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
 			inf->actionsnd[0] = "Explosion Sound:";
@@ -420,8 +424,13 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->misc[0] = "Fuse Duration (0 = Remote):";
 			inf->misc[1] = "Max. On Screen:";
 			inf->misc[2] = "Damage to Player:";
+			_SET(misc[3], "Lift Level", "If 0, the weapon is not liftable. Otherwise, liftable using Lift Gloves of at least this level.");
+			_SET(misc[4], "Lift Time", "The time, in frames, to lift the weapon above the player's head.");
+			_SET(misc[5], "Lift Height", "The Z height above the player's head to lift the weapon.");
 			inf->flag[0] = "Use 1.92 Timing";
 			inf->flag[1] = "Explosion Hurts Player";
+			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, it's step will be set to 0.");
+			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
 			inf->actionsnd[0] = "Explosion Sound:";

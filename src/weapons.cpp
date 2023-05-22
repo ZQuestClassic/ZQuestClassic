@@ -1306,6 +1306,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		case wThrown:
 			misc_wflags = WFLAG_BREAK_WHEN_LANDING;
 			break;
+		case wLitBomb:
+		case wLitSBomb:
+			if(parentitem>=0)
+			{
+				itemdata const& parent = itemsbuf[parentitem];
+				if((parent.family==itype_bomb || parent.family==itype_sbomb)
+					&& (parent.flags&ITEM_FLAG3))
+				{
+					misc_wflags |= WFLAG_STOP_WHEN_LANDING;
+				}
+			}
+			break;
 	}
 	
 	
@@ -3430,15 +3442,19 @@ void weapon::limited_animate()
 			if(!misc)
 				break;
 			
-			if(clk==(misc-2) && step==0)
+			bool fixboom = !get_bit(quest_rules,qr_BROKEN_MOVING_BOMBS);
+			bool canboom = (fixboom || step==0);
+			if(clk==(misc-2) && canboom)
 			{
 				id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
 						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
 				hxofs=2000;
+				step = 0;
+				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
 			}
 			
-			if(clk==(misc-1) && step==0)
+			if(clk==(misc-1) && canboom)
 			{
 				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
 					itemsbuf[parentitem].usesound,pan(int32_t(x)));
@@ -3456,14 +3472,19 @@ void weapon::limited_animate()
 				usedefence = usedefencedummy;
 				useweapon = useweapondummy;
 				hzsz=16;
+				step = 0;
+				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
 			}
 			
 			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
 								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
 								  
-			if(clk==boomend && step==0)
+			if(clk==boomend && canboom)
+			{
 				hxofs=2000;
-			
+				step = 0;
+				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
+			}
 			if(id<wEnemyWeapons)
 			{
 				if(clk==(misc-1))
@@ -3543,7 +3564,7 @@ void weapon::limited_animate()
 			
 			if(clk==misc+34)
 			{
-				if(step==0)
+				if(canboom)
 				{
 					dead=1;
 				}
@@ -3892,6 +3913,8 @@ bool weapon::animate(int32_t index)
 				
 				if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
 					dead = 0;
+				if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+					step = 0;
 			}
 			
 			if(y>192) dead=0;  // Out of bounds
@@ -3906,8 +3929,13 @@ bool weapon::animate(int32_t index)
 				if(fakez <= 0)
 				{
 					fakez = fakefall = 0;
-					if(didfall && (misc_wflags & WFLAG_BREAK_WHEN_LANDING)) //Die
-						dead = 0;
+					if(didfall)
+					{
+						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+							dead = 0;
+						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+							step = 0;
+					}
 				}
 				else if(fakefall <= (int32_t)zinit.terminalv)
 				{
@@ -3922,8 +3950,13 @@ bool weapon::animate(int32_t index)
 				if(z <= 0)
 				{
 					z = fall = 0;
-					if(didfall && (misc_wflags & WFLAG_BREAK_WHEN_LANDING)) //Die
-						dead = 0;
+					if(didfall)
+					{
+						if(misc_wflags & WFLAG_BREAK_WHEN_LANDING) //Die
+							dead = 0;
+						if(misc_wflags & WFLAG_STOP_WHEN_LANDING) //Stop movement
+							step = 0;
+					}
 				}
 				else if(fall <= (int32_t)zinit.terminalv)
 				{

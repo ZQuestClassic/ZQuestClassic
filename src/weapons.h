@@ -43,6 +43,7 @@ extern byte bszboomflip[4];
 #define WFLAG_BURN_STRONGFIRE      0x10
 #define WFLAG_BURN_MAGICFIRE       0x20
 #define WFLAG_BURN_DIVINEFIRE      0x40
+#define WFLAG_STOP_WHEN_LANDING    0x80
 
 #define WFLAG_MAX 6
 
