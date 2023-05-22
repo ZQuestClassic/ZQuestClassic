@@ -21241,21 +21241,25 @@ void nsp(bool random)
 	}
 }
 
-int32_t next_side_pos(bool random)
+int32_t next_side_pos(int32_t screen_index, bool random)
 // moves sle_x and sle_y to the next available position
 // returns the direction the enemy should face
 {
 	bool blocked;
 	int32_t c=0;
+	int offx = z3_get_region_relative_dx(screen_index)*256;
+	int offy = z3_get_region_relative_dy(screen_index)*176;
 	
 	do
 	{
 		nsp(c>35 ? false : random);
-		blocked = _walkflag(sle_x,sle_y,2) || _walkflag(sle_x,sle_y+8,2) ||
-				  (combo_class_buf[COMBOTYPE(sle_x,sle_y)].block_enemies ||
-				   MAPFLAG(sle_x,sle_y) == mfNOENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOENEMY ||
-				   MAPFLAG(sle_x,sle_y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(sle_x,sle_y)==mfNOGROUNDENEMY ||
-				   iswaterex_z3(MAPCOMBO(sle_x,sle_y), -1, sle_x, sle_y, true));
+		int x = sle_x + offx;
+		int y = sle_y + offy;
+		blocked = _walkflag(x,y,2) || _walkflag(x,y+8,2) ||
+				  (combo_class_buf[COMBOTYPE(x,y)].block_enemies ||
+				   MAPFLAG(x,y) == mfNOENEMY || MAPCOMBOFLAG(x,y)==mfNOENEMY ||
+				   MAPFLAG(x,y) == mfNOGROUNDENEMY || MAPCOMBOFLAG(x,y)==mfNOGROUNDENEMY ||
+				   iswaterex_z3(MAPCOMBO(x,y), -1, x, y, true));
 				   
 		if(++c>50)
 			return -1;
@@ -21435,9 +21439,11 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 	
 	if((++sle_clk+8)%24 == 0)
 	{
-		int32_t dir = next_side_pos(sle_pattern==pSIDESR);
+		int32_t dir = next_side_pos(screen_index, sle_pattern==pSIDESR);
+		int x = sle_x + z3_get_region_relative_dx(screen_index)*256;
+		int y = sle_y + z3_get_region_relative_dy(screen_index)*176;
 		
-		if(dir==-1 || tooclose(sle_x,sle_y,32))
+		if(dir==-1 || tooclose(x,y,32))
 		{
 			return;
 		}
@@ -21449,7 +21455,7 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			
 		if(sle_cnt > 0)
 		{
-			if(addenemy(screen_index, sle_x,sle_y,screen->enemy[--sle_cnt],0))
+			if(addenemy(screen_index, x,y,screen->enemy[--sle_cnt],0))
 			{
 				if (((enemy*)guys.spr(enemy_slot))->family != eeTEK)
 				{
@@ -21472,17 +21478,15 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 	}
 }
 
-bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
+bool is_starting_pos(mapscr* screen, int32_t i, int32_t x, int32_t y, int32_t t)
 { 
 	if (!is_z3_scrolling_mode())
-	if(tmpscr.enemy[i]<1||tmpscr.enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
+	if(screen->enemy[i]<1||screen->enemy[i]>=MAXGUYS) //Hackish fix for crash in Waterford.st on screen 0x65 of dmap 0 (map 1).
 	{
-		//zprint2("is_starting_pos(), tmpscr.enemy[i] is: %d\n", tmpscr.enemy[i]);
 		return false; //never 0, never OoB.
 	}
 	// No corner enemies
-	if((x==0 || x==world_w-16) && (y==0 || y==world_h-16))
-
+	if ((x==0 || x==world_w-16) && (y==0 || y==world_h-16))
 		return false;
 	
 	//Is a no spawn combo...
@@ -21498,15 +21502,15 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	// Can't fly onto it?
-	if(isflier(tmpscr.enemy[i])&&
-			(flyerblocked(x+8,y+8,spw_floater,guysbuf[tmpscr.enemy[i]])||
+	if(isflier(screen->enemy[i])&&
+			(flyerblocked(x+8,y+8,spw_floater,guysbuf[screen->enemy[i]])||
 			 (_walkflag(x,y+8,2)&&!get_bit(quest_rules,qr_WALLFLIERS))))
 		return false;
 		
 	// Can't jump onto it?
 	if
 	(
-		guysbuf[tmpscr.enemy[i]].family==eeTEK 
+		guysbuf[screen->enemy[i]].family==eeTEK 
 		
 		&&
 		(
@@ -21522,9 +21526,9 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 	}
 		
 	// Other off-limit combos
-	if((!isflier(tmpscr.enemy[i])&& guysbuf[tmpscr.enemy[i]].family!=eeTEK &&
-			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[tmpscr.enemy[i]]))) &&
-			guysbuf[tmpscr.enemy[i]].family!=eeZORA)
+	if((!isflier(screen->enemy[i])&& guysbuf[screen->enemy[i]].family!=eeTEK &&
+			(_walkflag(x,y+8,2) || groundblocked(x+8,y+8,guysbuf[screen->enemy[i]]))) &&
+			guysbuf[screen->enemy[i]].family!=eeZORA)
 		return false;
 		
 	// Don't ever generate enemies on these combos!
@@ -21532,7 +21536,7 @@ bool is_starting_pos(int32_t i, int32_t x, int32_t y, int32_t t)
 		return false;
 		
 	//BS Dodongos need at least 2 spaces.
-	if((guysbuf[tmpscr.enemy[i]].family==eeDONGO)&&(guysbuf[tmpscr.enemy[i]].misc10==1))
+	if((guysbuf[screen->enemy[i]].family==eeDONGO)&&(guysbuf[screen->enemy[i]].misc10==1))
 	{
 		if(((x<16) ||_walkflag(x-16,y+8, 2))&&
 				((x>224)||_walkflag(x+16,y+8, 2))&&
@@ -21551,7 +21555,7 @@ bool is_ceiling_pattern(int32_t i)
 	return (i==pCEILING || i==pCEILINGR);
 }
 
-rpos_t placeenemy(int32_t i, int32_t offx, int32_t offy)
+rpos_t placeenemy(mapscr* screen, int32_t i, int32_t offx, int32_t offy)
 {
 	std::vector<rpos_t> freeposcache;
 	
@@ -21559,7 +21563,7 @@ rpos_t placeenemy(int32_t i, int32_t offx, int32_t offy)
 	{
 		for(int32_t x=offx; x<offx+256; x+=16)
 		{
-			if(is_starting_pos(i,x,y,0))
+			if(is_starting_pos(screen,i,x,y,0))
 			{
 				freeposcache.push_back(COMBOPOS_REGION(x, y));
 			}
@@ -21643,13 +21647,13 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 			++pos;
 			++t;
 		}
-		while((t< 20) && !is_starting_pos(i,x,y,t));
+		while((t< 20) && !is_starting_pos(screen,i,x,y,t));
 	}
 	
 	if(t<0 || t >= 20) // above enemy pattern failed
 	{
 		// Final chance: find a random position anywhere onscreen
-		rpos_t rand_rpos = placeenemy(i, offx, offy);
+		rpos_t rand_rpos = placeenemy(screen, i, offx, offy);
 		// TODO z3 ! verify this code working. it runs rarely.
 		int randpos = RPOS_TO_POS(rand_rpos);
 		
@@ -21659,6 +21663,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 			y= randpos&0xF0;
 			x += offx;
 			y += offy;
+			// TODO z3
 			// COMBOXY_REGION(rpos_t rpos, int32_t &out_x, int32_t &out_y)
 			// x = (rand_rpos&15)<<4;
 			// y = rand_rpos&0xF0;

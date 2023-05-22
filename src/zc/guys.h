@@ -941,7 +941,7 @@ bool slowguy(int32_t id);
 bool ok2add(int32_t id);
 void load_default_enemies(mapscr* screen, int screen_index);
 void nsp(bool random);
-int32_t next_side_pos(bool random);
+int32_t next_side_pos(int32_t screen_index, bool random);
 bool can_side_load(int32_t id);
 bool scriptloadenemies();
 void loadenemies();
