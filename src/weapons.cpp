@@ -1311,10 +1311,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(parentitem>=0)
 			{
 				itemdata const& parent = itemsbuf[parentitem];
-				if((parent.family==itype_bomb || parent.family==itype_sbomb)
-					&& (parent.flags&ITEM_FLAG3))
+				if(parent.family==itype_bomb || parent.family==itype_sbomb)
 				{
-					misc_wflags |= WFLAG_STOP_WHEN_LANDING;
+					if(parent.flags&ITEM_FLAG3)
+						misc_wflags |= WFLAG_STOP_WHEN_LANDING;
+					if(parent.flags&ITEM_FLAG5)
+						misc_wflags |= WFLAG_STOP_WHEN_HIT_SOLID;
 				}
 			}
 			break;
@@ -6748,11 +6750,14 @@ bool weapon::animate(int32_t index)
 		}
 	}
 	
-	if(misc_wflags & WFLAG_BREAK_ON_SOLID)
+	if(misc_wflags & (WFLAG_BREAK_ON_SOLID|WFLAG_STOP_WHEN_HIT_SOLID))
 	{
 		if(_walkflag(x,y,2) || _walkflag(x,y+8,2))
 		{
-			dead = 0;
+			if(misc_wflags & WFLAG_BREAK_ON_SOLID)
+				dead = 0;
+			if(misc_wflags & WFLAG_STOP_WHEN_HIT_SOLID)
+				step = 0;
 			findcombotriggers(); //Hit solid triggers
 		}
 	}

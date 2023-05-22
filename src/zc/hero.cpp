@@ -11251,6 +11251,11 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
+			if((itm.flags & ITEM_FLAG4) && lift_wpn)
+			{
+				do_liftglove(-1,false); //Throw the already-held weapon
+				return false;
+			}
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
 				return item_error();

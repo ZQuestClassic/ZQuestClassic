@@ -36,18 +36,19 @@ extern byte bszboomflip[4];
 #define WPNUNB_REFL      0x08
 #define WPNUNB_ALL       0x0F
 
-#define WFLAG_PICKUP_ITEMS         0x01
-#define WFLAG_BREAK_WHEN_LANDING   0x02
-#define WFLAG_BREAK_ON_SOLID       0x04
-#define WFLAG_BURN_ANYFIRE         0x08
-#define WFLAG_BURN_STRONGFIRE      0x10
-#define WFLAG_BURN_MAGICFIRE       0x20
-#define WFLAG_BURN_DIVINEFIRE      0x40
-#define WFLAG_STOP_WHEN_LANDING    0x80
+#define WFLAG_PICKUP_ITEMS         0x0001
+#define WFLAG_BREAK_WHEN_LANDING   0x0002
+#define WFLAG_BREAK_ON_SOLID       0x0004
+#define WFLAG_BURN_ANYFIRE         0x0008
+#define WFLAG_BURN_STRONGFIRE      0x0010
+#define WFLAG_BURN_MAGICFIRE       0x0020
+#define WFLAG_BURN_DIVINEFIRE      0x0040
+#define WFLAG_STOP_WHEN_LANDING    0x0080
+#define WFLAG_STOP_WHEN_HIT_SOLID  0x0100
 
-#define WFLAG_MAX 6
+#define WFLAG_MAX 8
 
-#define WLFLAG_BURNFLAGS           0x78
+#define WLFLAG_BURNFLAGS           0x0078
 
 class weapon : public sprite
 {
@@ -79,7 +80,7 @@ public:
     bool autorotate;
 	byte linkedItem;
 	byte unblockable;
-	byte misc_wflags;
+	word misc_wflags;
 	byte wscreengrid[22];
 	byte wscreengrid_layer[6][22];
 	byte wscreengrid_ffc[MAXFFCS/8];

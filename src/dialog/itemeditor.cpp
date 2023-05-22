@@ -431,6 +431,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			inf->flag[1] = "Explosion Hurts Player";
 			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, it's step will be set to 0.");
 			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
+			_SET(flag[4], "Stops Movement on Solid", "If the weapon collides with a solid while moving, it's step will be set to 0.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
 			inf->actionsnd[0] = "Explosion Sound:";
