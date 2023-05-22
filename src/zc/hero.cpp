@@ -26048,6 +26048,8 @@ void HeroClass::checkscroll()
 		
 		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 			doit = false;
+		if(lift_wpn && get_bit(quest_rules,qr_NO_SCROLL_WHILE_CARRYING))
+			doit = false;
 		
         if(nextcombo_wf(up))
             doit=false;
@@ -26108,6 +26110,8 @@ void HeroClass::checkscroll()
         y=160;
 		
 		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		if(lift_wpn && get_bit(quest_rules,qr_NO_SCROLL_WHILE_CARRYING))
 			doit = false;
 		
         if(nextcombo_wf(down))
@@ -26170,6 +26174,8 @@ void HeroClass::checkscroll()
 		
 		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 			doit = false;
+		if(lift_wpn && get_bit(quest_rules,qr_NO_SCROLL_WHILE_CARRYING))
+			doit = false;
 		
         if(nextcombo_wf(left))
             doit=false;
@@ -26231,6 +26237,8 @@ void HeroClass::checkscroll()
         x=240;
 		
 		if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
+			doit = false;
+		if(lift_wpn && get_bit(quest_rules,qr_NO_SCROLL_WHILE_CARRYING))
 			doit = false;
 		
         if(nextcombo_wf(right))

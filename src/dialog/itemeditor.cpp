@@ -946,6 +946,21 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 	#undef FLAG
 }
 
+char const* get_ic_help(size_t q)
+{
+	static std::string buf;
+	buf = ZI.getItemClassHelp(q);
+	switch(q)
+	{
+		case itype_liftglove:
+		{
+			buf += QRHINT({qr_CARRYABLE_NO_ACROSS_SCREEN,qr_NO_SCROLL_WHILE_CARRYING});
+			break;
+		}
+	}
+	return buf.c_str();
+}
+
 ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
 	local_itemref(ref), itemname(str), index(index),
 	list_items(GUI::ZCListData::itemclass(true)),
@@ -1204,7 +1219,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 						onPressFunc = [&]()
 						{
 							InfoDialog(ZI.getItemClassName(local_itemref.family),
-								ZI.getItemClassHelp(local_itemref.family)).show();
+								get_ic_help(local_itemref.family)).show();
 						})
 				),
 				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,

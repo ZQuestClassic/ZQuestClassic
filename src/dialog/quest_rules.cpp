@@ -1207,6 +1207,10 @@ static GUI::ListData miscRulesList
 		" as you can jump over water and pits, scroll the screen, and set your respawn point over top of a pit, or even sequence"
 		" break where you aren't supposed to by drowning in water on the next screen, and jumping again after respawning. Enabling"
 		" this will prevent you from changing screens while jumping or otherwise in the air, allowing you to design around the feather easier."},
+	{ "No Scrolling Screen While Carrying", qr_NO_SCROLL_WHILE_CARRYING,
+		"If enabled, you cannot scroll the screen while the player is carrying something with a Lift Glove."},
+	{ "Carryables Can't Leave Screen", qr_CARRYABLE_NO_ACROSS_SCREEN,
+		"If enabled, leaving a screen while carrying something with a Lift Glove will delete the carried object."},
 	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
 		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
 		"Has no downsides, is only here for compatibility sake."},
