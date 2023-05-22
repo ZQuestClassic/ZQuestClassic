@@ -2997,45 +2997,61 @@ herodraw_end:
 
 void HeroClass::masked_draw(BITMAP* dest)
 {
-    if(isdungeon() && currscr<128 && (x<16 || x>224 || y<18 || y>146) && !get_bit(quest_rules,qr_FREEFORM))
-    {
-        // clip under doorways
-        BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
-        
-        if(sub!=NULL)
-        {
-            yofs -= (playing_field_offset+16);
-            xofs -= 16;
-            sprite::draw(sub);
+	zfix lz, lfz;
+	if(lift_wpn)
+	{
+		lz = lift_wpn->z;
+		lfz = lift_wpn->fakez;
+	}
+	
+	if(isdungeon() && currscr<128 && (x<16 || x>224 || y<18 || y>146) && !get_bit(quest_rules,qr_FREEFORM))
+	{
+		// clip under doorways
+		BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
+		
+		if(sub!=NULL)
+		{
+			yofs -= (playing_field_offset+16);
+			xofs -= 16;
+			sprite::draw(sub);
 			if(lift_wpn)
 			{
 				handle_lift(false);
 				bool shad = lift_wpn->has_shadow;
 				lift_wpn->has_shadow = false;
+				lift_wpn->z += z;
+				lift_wpn->fakez += fakez;
 				lift_wpn->draw(sub);
 				lift_wpn->has_shadow = shad;
 			}
 			prompt_draw(sub);
-            xofs+=16;
-            yofs += (playing_field_offset+16);
-            destroy_bitmap(sub);
-        }
-    }
-    else
-    {
-        sprite::draw(dest);
+			xofs+=16;
+			yofs += (playing_field_offset+16);
+			destroy_bitmap(sub);
+		}
+	}
+	else
+	{
+		sprite::draw(dest);
 		if(lift_wpn)
 		{
 			handle_lift(false);
 			bool shad = lift_wpn->has_shadow;
 			lift_wpn->has_shadow = false;
+			lift_wpn->z += z;
+			lift_wpn->fakez += fakez;
 			lift_wpn->draw(dest);
 			lift_wpn->has_shadow = shad;
 		}
 		prompt_draw(dest);
-    }
-    
-    return;
+	}
+	
+	if(lift_wpn)
+	{
+		lift_wpn->z = lz;
+		lift_wpn->fakez = lfz;
+	}
+	return;
 }
 void HeroClass::prompt_draw(BITMAP* dest)
 {
@@ -10227,12 +10243,13 @@ void HeroClass::drop_liftwpn()
 	handle_lift(false); //sets position properly, accounting for large weapons
 	auto liftid = current_item_id(itype_liftglove,true,true);
 	itemdata const& glove = itemsbuf[liftid];
+	auto lheight = liftheight+z+fakez;
 	if(glove.flags & ITEM_FLAG1)
 	{
 		lift_wpn->z = 0;
-		lift_wpn->fakez = liftheight;
+		lift_wpn->fakez = lheight;
 	}
-	else lift_wpn->z = liftheight;
+	else lift_wpn->z = lheight;
 	lift_wpn->dir = dir;
 	lift_wpn->step = 0;
 	lift_wpn->fakefall = 0;
@@ -10308,12 +10325,13 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			//Throw the weapon!
 			//hero's direction and position
 			handle_lift(false); //sets position properly, accounting for large weapons
+			auto lheight = liftheight+z+fakez;
 			if(glove.flags & ITEM_FLAG1)
 			{
 				lift_wpn->z = 0;
-				lift_wpn->fakez = liftheight;
+				lift_wpn->fakez = lheight;
 			}
-			else lift_wpn->z = liftheight;
+			else lift_wpn->z = lheight;
 			lift_wpn->dir = dir;
 			//Configured throw speed in both axes
 			lift_wpn->step = zfix(glove.misc2)/100;
