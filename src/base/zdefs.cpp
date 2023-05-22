@@ -2109,3 +2109,18 @@ DATAFILE* load_datafile_count(const char* path, size_t& sz)
 	else sz = 0;
 	return ret;
 }
+
+
+bool runscript_do_earlyret(int runscript_val)
+{
+	switch(runscript_val)
+	{
+		case RUNSCRIPT_SELFDELETE:
+		case RUNSCRIPT_SELFREMOVE:
+			return true;
+	}
+	return false;
+}
+
+
+

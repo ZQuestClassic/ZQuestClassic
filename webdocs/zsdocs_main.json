@@ -1606,6 +1606,10 @@
                             "val": "<h3>int Immortal;</h3>\nIf not 0, the player will not die, even when they have 0 hp. Effects such as bottled fairies will not trigger.\nIf '>0', automatically decrements by 1 each frame.\nIf this value becomes 0 while the player is at 0 hp, the death effect will trigger, including any bottled fairies.\n\n<h3>void Kill(bool bypass_revive);</h3>\nImmediately kills the player, setting their HP to 0, and ignoring 'Immortal'.\nIf 'bypass_revive' is true, revival effects such as bottled fairies will not trigger, and the 'one frame before death' that scripts would use to revive will also be skipped."
                         },
                         {
+                            "name": "Lifting ;; Hero::ReleaseLiftWeapon / Hero::LiftWeapon / Hero::LiftedWeapon / Hero::LiftTimer / Hero::LiftMaxTimer / Hero::LiftHeight",
+                            "val": "<h3>lweapon ReleaseLiftWeapon();</h3>\nReturns a pointer to the held weapon, and causes the player to let go of it.\n\n<h3>void LiftWeapon(lweapon weap, int timer, int height);</h3>\nCauses the player to lift the specified weapon in the same way they lift combos with the Lift Glove.\nIf an lweapon script lifts itself, this also functions as a ${Waitframe|Waitframe()}.\n\n<h3>lweapon LiftedWeapon;</h3>\nThe weapon currently held by the player. Overwriting this directly will delete any weapon previously held.\nIf an lweapon script lifts itself, this also functions as a ${Waitframe|Waitframe()}.\n\n<h3>int LiftTimer;\nint LiftMaxTimer;</h3>\nThe time the current lift operation takes. The LiftMaxTimer is the total time, the LiftTimer starts at the same value but ticks down each frame the lift continues.\n\n<h3>int LiftHeight;</h3>\nThe height that the object will be lifted above the player's head."
+                        },
+                        {
                             "name": "&lt;&lt;-- Start ;; heroptr",
                             "val": "$-1$0"
                         },

@@ -1982,10 +1982,10 @@ string ZScript::VarToString(int32_t ID)
 	case COMBODTRIGGERGENSCRIPT: return "COMBODTRIGGERGENSCRIPT";
 	case COMBODTRIGGERGROUP: return "COMBODTRIGGERGROUP";
 	case COMBODTRIGGERGROUPVAL: return "COMBODTRIGGERGROUPVAL";
-	case RESRVD_VAR_EMILY14: return "RESRVD_VAR_EMILY14";
-	case RESRVD_VAR_EMILY15: return "RESRVD_VAR_EMILY15";
-	case RESRVD_VAR_EMILY16: return "RESRVD_VAR_EMILY16";
-	case RESRVD_VAR_EMILY17: return "RESRVD_VAR_EMILY17";
+	case HEROLIFTEDWPN: return "HEROLIFTEDWPN";
+	case HEROLIFTTIMER: return "HEROLIFTTIMER";
+	case HEROLIFTMAXTIMER: return "HEROLIFTMAXTIMER";
+	case HEROLIFTHEIGHT: return "HEROLIFTHEIGHT";
 	case RESRVD_VAR_EMILY18: return "RESRVD_VAR_EMILY18";
 	case RESRVD_VAR_EMILY19: return "RESRVD_VAR_EMILY19";
 	case RESRVD_VAR_EMILY20: return "RESRVD_VAR_EMILY20";
@@ -2477,13 +2477,13 @@ string OHeroCanMoveXY::toString() const
 {
 	return "HEROCANMOVEXY";
 }
-string OReservedEmily25::toString() const
+string OHeroLiftRelease::toString() const
 {
-	return "RESRVD_OP_EMILY25 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "HEROLIFTRELEASE";
 }
-string OReservedEmily26::toString() const
+string OHeroLiftGrab::toString() const
 {
-	return "RESRVD_OP_EMILY26 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "HEROLIFTGRAB";
 }
 string OReservedEmily27::toString() const
 {

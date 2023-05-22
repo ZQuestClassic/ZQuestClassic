@@ -1452,10 +1452,10 @@
 #define COMBODTRIGGERGENSCRIPT      1368
 #define COMBODTRIGGERGROUP      1369
 #define COMBODTRIGGERGROUPVAL      1370
-#define RESRVD_VAR_EMILY14      1371
-#define RESRVD_VAR_EMILY15      1372
-#define RESRVD_VAR_EMILY16      1373
-#define RESRVD_VAR_EMILY17      1374
+#define HEROLIFTEDWPN      1371
+#define HEROLIFTTIMER      1372
+#define HEROLIFTMAXTIMER      1373
+#define HEROLIFTHEIGHT      1374
 #define RESRVD_VAR_EMILY18      1375
 #define RESRVD_VAR_EMILY19      1376
 #define RESRVD_VAR_EMILY20      1377
@@ -2162,7 +2162,6 @@ namespace ZScript
 	class OHeroMoveXY : public Opcode
 	{
 	public:
-		OHeroMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
@@ -2172,31 +2171,28 @@ namespace ZScript
 	class OHeroCanMoveXY : public Opcode
 	{
 	public:
-		OHeroCanMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
 			return new OHeroCanMoveXY();
 		}
 	};
-	class OReservedEmily25 : public BinaryOpcode
+	class OHeroLiftRelease : public Opcode
 	{
 	public:
-		OReservedEmily25(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily25(a->clone(),b->clone());
+			return new OHeroLiftRelease();
 		}
 	};
-	class OReservedEmily26 : public BinaryOpcode
+	class OHeroLiftGrab : public Opcode
 	{
 	public:
-		OReservedEmily26(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily26(a->clone(),b->clone());
+			return new OHeroLiftGrab();
 		}
 	};
 	class OReservedEmily27 : public BinaryOpcode

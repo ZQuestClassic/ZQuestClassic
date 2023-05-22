@@ -3216,6 +3216,7 @@ int32_t do_msgheight(int32_t msg, char const* str);
 int32_t do_msgwidth(int32_t msg, char const* str);
 //
 
+int32_t earlyretval = -1;
 int32_t get_register(const int32_t arg)
 {
 	int32_t ret = 0;
@@ -3883,6 +3884,27 @@ int32_t get_register(const int32_t arg)
 		case HEROCOYOTETIME:
 		{
 			ret = Hero.coyotetime*10000;
+			break;
+		}
+		
+		case HEROLIFTEDWPN:
+		{
+			ret = Hero.lift_wpn ? Hero.lift_wpn->getUID() : 0;
+			break;
+		}
+		case HEROLIFTTIMER:
+		{
+			ret = Hero.liftclk * 10000;
+			break;
+		}
+		case HEROLIFTMAXTIMER:
+		{
+			ret = Hero.tliftclk * 10000;
+			break;
+		}
+		case HEROLIFTHEIGHT:
+		{
+			ret = Hero.liftheight.getZLong();
 			break;
 		}
 		
@@ -13782,6 +13804,42 @@ void set_register(int32_t arg, int32_t value)
 			auto v = value/10000;
 			if(v < 0 || v > 65535) v = 65535;
 			Hero.coyotetime = word(v);
+			break;
+		}
+		case HEROLIFTEDWPN:
+		{
+			if(Hero.lift_wpn)
+			{
+				delete Hero.lift_wpn;
+				Hero.lift_wpn = nullptr;
+			}
+			if(value)
+			{
+				if(weapon* wpn = checkLWpn(value,"Hero->LiftedWeapon"))
+				{
+					if(wpn == Hero.lift_wpn) break;
+					Hero.lift_wpn = wpn;
+					if(Lwpns.find(wpn) > -1)
+						Lwpns.remove(wpn);
+					if(curScriptType == SCRIPT_LWPN && value == curScriptIndex)
+						earlyretval = RUNSCRIPT_SELFREMOVE;
+				}
+			} 
+			break;
+		}
+		case HEROLIFTTIMER:
+		{
+			Hero.liftclk = value/10000;
+			break;
+		}
+		case HEROLIFTMAXTIMER:
+		{
+			Hero.tliftclk = value/10000;
+			break;
+		}
+		case HEROLIFTHEIGHT:
+		{
+			Hero.liftheight = zslongToFix(value);
 			break;
 		}
 		
@@ -32317,6 +32375,26 @@ j_command:
 				ri->d[rEXP1] = Hero.can_movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
 				break;
 			}
+			case HEROLIFTRELEASE:
+			{
+				ri->d[rEXP1] = Hero.lift_wpn ? Hero.lift_wpn->getUID() : 0;
+				break;
+			}
+			case HEROLIFTGRAB:
+			{
+				auto lwuid = SH::read_stack(ri->sp + 2);
+				auto lifttime = SH::read_stack(ri->sp + 1)/10000;
+				auto liftheight = zslongToFix(SH::read_stack(ri->sp + 0));
+				if(weapon* wpn = checkLWpn(lwuid,"Hero->Lift()"))
+				{
+					Hero.lift(wpn, lifttime, liftheight);
+					if(Lwpns.find(wpn) > -1)
+						Lwpns.remove(wpn);
+					if(type == SCRIPT_LWPN && lwuid == i)
+						earlyretval = RUNSCRIPT_SELFREMOVE;
+				}
+				break;
+			}
 			
 			case LINKEXPLODER:
 			{
@@ -33455,6 +33533,11 @@ j_command:
 				break;
 			}
 		}
+		if(earlyretval == RUNSCRIPT_SELFDELETE)
+		{
+			earlyretval = -1;
+			return RUNSCRIPT_SELFDELETE;
+		}
 		if(hit_invalid_zasm) break;
 		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
@@ -33481,7 +33564,14 @@ j_command:
 			ri->pc = 0;
 			scommand = 0xFFFF;
 		}
-
+		
+		if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
+		{
+			auto v = earlyretval;
+			earlyretval = -1;
+			return earlyretval;
+		}
+		
 		// If running a JIT compiled script, we're only here to do a few commands.
 		commands_run += 1;
 		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
@@ -39722,8 +39812,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ITEMGETSHOWNNAME",   1,   0,   0,   0},
 	{ "HEROMOVEXY",   0,   0,   0,   0},
 	{ "HEROCANMOVEXY",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY26",   0,   0,   0,   0},
+	{ "HEROLIFTRELEASE",   0,   0,   0,   0},
+	{ "HEROLIFTGRAB",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY27",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY28",   0,   0,   0,   0},
 	{ "RESRVD_OP_EMILY29",   0,   0,   0,   0},
@@ -41140,10 +41230,10 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERGENSCRIPT", COMBODTRIGGERGENSCRIPT, 0, 0 },
 	{ "COMBODTRIGGERGROUP", COMBODTRIGGERGROUP, 0, 0 },
 	{ "COMBODTRIGGERGROUPVAL", COMBODTRIGGERGROUPVAL, 0, 0 },
-	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },
-	{ "RESRVD_VAR_EMILY15", RESRVD_VAR_EMILY15, 0, 0 },
-	{ "RESRVD_VAR_EMILY16", RESRVD_VAR_EMILY16, 0, 0 },
-	{ "RESRVD_VAR_EMILY17", RESRVD_VAR_EMILY17, 0, 0 },
+	{ "HEROLIFTEDWPN", HEROLIFTEDWPN, 0, 0 },
+	{ "HEROLIFTTIMER", HEROLIFTTIMER, 0, 0 },
+	{ "HEROLIFTMAXTIMER", HEROLIFTMAXTIMER, 0, 0 },
+	{ "HEROLIFTHEIGHT", HEROLIFTHEIGHT, 0, 0 },
 	{ "RESRVD_VAR_EMILY18", RESRVD_VAR_EMILY18, 0, 0 },
 	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
 	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },

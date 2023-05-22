@@ -1447,6 +1447,9 @@ static GUI::ListData weaponsRulesList
 		" Zelda games where the players own bombs can hurt them. This used to affect player-placed bombs,"
 		" but that functionality has since been moved to the bomb item in the item editor. This rule now"
 		" only determines if script-created player bombs can hurt the player."},
+	{ "Lifted Bombs Explode In Hand", qr_HELD_BOMBS_EXPLODE,
+		"If enabled, bomb lweapons that are 'lifted' by the player (currently script-only)"
+		" will still tick down their fuse and explode." },
 	
 	//should maybe keep this last as well? -Deedee
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN,

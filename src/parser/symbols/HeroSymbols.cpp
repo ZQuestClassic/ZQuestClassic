@@ -167,6 +167,16 @@ static AccessorTable HeroSTable[] =
 	{ "setCoyoteTime",              0,          ZTID_VOID,   HEROCOYOTETIME,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "MoveXY",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
 	{ "CanMoveXY",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	{ "ReleaseLiftWeapon",          0,          ZTID_LWPN,   -1,                   FL_INL,  { ZTID_PLAYER },{ 0, 0, 10000 },{} },
+	{ "LiftWeapon",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_LWPN, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getLiftedWeapon",            0,          ZTID_LWPN,   HEROLIFTEDWPN,             0,  { ZTID_PLAYER },{} },
+	{ "setLiftedWeapon",            0,          ZTID_VOID,   HEROLIFTEDWPN,             0,  { ZTID_PLAYER, ZTID_LWPN },{} },
+	{ "getLiftTimer",               0,         ZTID_FLOAT,   HEROLIFTTIMER,             0,  { ZTID_PLAYER },{} },
+	{ "setLiftTimer",               0,          ZTID_VOID,   HEROLIFTTIMER,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getLiftMaxTimer",            0,         ZTID_FLOAT,   HEROLIFTMAXTIMER,          0,  { ZTID_PLAYER },{} },
+	{ "setLiftMaxTimer",            0,          ZTID_VOID,   HEROLIFTMAXTIMER,          0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getLiftHeight",              0,         ZTID_FLOAT,   HEROLIFTHEIGHT,            0,  { ZTID_PLAYER },{} },
+	{ "setLiftHeight",              0,          ZTID_VOID,   HEROLIFTHEIGHT,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	
 	
 	//Intentionally undocumented
@@ -548,6 +558,29 @@ void HeroSymbols::generateCode()
 		addOpcode2 (code, new OHeroCanMoveXY());
 		LABELBACK(label);
 		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//lweapon ReleaseLiftWeapon(player)
+	{
+		Function* function = getFunction("ReleaseLiftWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroLiftRelease());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void LiftWeapon(player, lweapon, int, int)
+	{
+		Function* function = getFunction("LiftWeapon");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroLiftGrab());
+		LABELBACK(label);
+		POP_ARGS(3, NUL);
 		RETURN();
 		function->giveCode(code);
 	}

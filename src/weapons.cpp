@@ -3418,6 +3418,140 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
 
 
 void collectitem_script(int32_t id);
+void weapon::limited_animate()
+{
+	switch(id)
+	{
+		case wLitBomb:
+		case wBomb:
+		case wLitSBomb:
+		case wSBomb:
+		{
+			if(!misc)
+				break;
+			
+			if(clk==(misc-2) && step==0)
+			{
+				id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
+						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
+						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
+				hxofs=2000;
+			}
+			
+			if(clk==(misc-1) && step==0)
+			{
+				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
+					itemsbuf[parentitem].usesound,pan(int32_t(x)));
+					
+				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
+				{
+					hxofs=hyofs=-16;
+					hxsz=hysz=48;
+				}
+				else
+				{
+					hxofs=hyofs=-8;
+					hxsz=hysz=32;
+				}
+				usedefence = usedefencedummy;
+				useweapon = useweapondummy;
+				hzsz=16;
+			}
+			
+			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
+								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
+								  
+			if(clk==boomend && step==0)
+				hxofs=2000;
+			
+			if(id<wEnemyWeapons)
+			{
+				if(clk==(misc-1))
+				{
+					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
+					
+					for(int32_t tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
+					{
+						int32_t f2 = 0;
+						
+						if(tx==-8 || tx==8)
+							f2 = f1;
+							
+						for(int32_t ty=-f2; ty<=f2; ty+=32)
+						{
+							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
+							
+							if(id==wSBomb || id==wLitSBomb)
+							{
+								findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
+							}
+							
+							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
+						}
+					}
+				}
+				
+				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
+				{
+					if(!usebombpal)
+					{
+						if(clk==misc || clk==misc+5)
+						{
+						
+							usebombpal=true;
+							memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+							
+							//grayscale entire screen
+							if(get_bit(quest_rules,qr_FADE))
+							{
+								for(int32_t i=CSET(0); i < CSET(15); i++)
+								{
+									int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+									g = (g >> 1) + 32;
+									RAMpal[i] = _RGB(g,g,g);
+								}
+								
+							}
+							else
+							{
+								// this is awkward. NES Z1 converts colors based on the global
+								// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+								for(int32_t i=CSET(0); i < CSET(15); i++)
+								{
+									RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
+								}
+							}
+							
+							refreshpal = true;
+						}
+					}
+					
+					if((clk==misc+4 || clk==misc+9) && usebombpal)
+					{
+						// undo grayscale
+						usebombpal=false;
+						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+						refreshpal = true;
+					}
+				}
+				
+				if(clk==misc+30)
+				{
+					bombdoor(x,y);
+				}
+			}
+			
+			if(clk==misc+34)
+			{
+				if(step==0)
+				{
+					dead=1;
+				}
+			}
+			break;
+		}
+	}
+}
 bool weapon::animate(int32_t index)
 {
 	if(dead != 0) weapon_dying_frame = false; //reset dying frame if weapon revived
@@ -3426,7 +3560,7 @@ bool weapon::animate(int32_t index)
 		if(isLWeapon)
 		{
 			//Run its script
-			if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+			if (runscript_do_earlyret(run_script(MODE_NORMAL)))
 			{
 				return 0; //Avoid NULLPO if this object deleted itself
 			}
@@ -3907,7 +4041,7 @@ bool weapon::animate(int32_t index)
 			if ( parentitem > -1 || (isLWeapon && ScriptGenerated) )
 			{
 				//Z_scripterrlog("Script LWeapon Type (%d) has a weapon script of: %d\n", id, weaponscript);
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			
 			
@@ -3917,7 +4051,7 @@ bool weapon::animate(int32_t index)
 		case wSword:
 			if ( doscript && itemsbuf[parentitem].misc10 == 50 )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 		case wWand:
 		case wHammer:
@@ -3973,7 +4107,7 @@ bool weapon::animate(int32_t index)
 			}
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 		}
 		
@@ -4294,7 +4428,7 @@ bool weapon::animate(int32_t index)
 			{
 				if ( doscript )
 				{
-					if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+					if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				}
 			}
 			if ( id == ewSword )
@@ -4314,7 +4448,7 @@ bool weapon::animate(int32_t index)
 			
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			break;
 		}
@@ -4356,7 +4490,7 @@ bool weapon::animate(int32_t index)
 				
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			break;
 		}
@@ -4453,7 +4587,7 @@ bool weapon::animate(int32_t index)
 			}
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			break;
 		}
@@ -4465,138 +4599,9 @@ bool weapon::animate(int32_t index)
 		{
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
-			if(!misc)
-			{
-				break;
-			}
-			
-			// Naaah.
-			/*if (blocked())
-			{
-			  dead=1;
-			}*/
-			if(clk==(misc-2) && step==0)
-			{
-				id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
-						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
-						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
-				hxofs=2000;
-			}
-			
-			if(clk==(misc-1) && step==0)
-			{
-				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-					itemsbuf[parentitem].usesound,pan(int32_t(x)));
-					
-				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
-				{
-					hxofs=hyofs=-16;
-					hxsz=hysz=48;
-				}
-				else
-				{
-					hxofs=hyofs=-8;
-					hxsz=hysz=32;
-				}
-				usedefence = usedefencedummy;
-				useweapon = useweapondummy;
-				hzsz=16;
-			}
-			
-			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
-								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
-								  
-			if(clk==boomend && step==0)
-			{
-				hxofs=2000;
-			}
-			
-			if(id<wEnemyWeapons)
-			{
-				if(clk==(misc-1))
-				{
-					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
-					
-					for(int32_t tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
-					{
-						int32_t f2 = 0;
-						
-						if(tx==-8 || tx==8)
-							f2 = f1;
-							
-						for(int32_t ty=-f2; ty<=f2; ty+=32)
-						{
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
-							
-							if(id==wSBomb || id==wLitSBomb)
-							{
-								findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
-							}
-							
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
-						}
-					}
-				}
-				
-				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
-				{
-					if(!usebombpal)
-					{
-						if(clk==misc || clk==misc+5)
-						{
-						
-							usebombpal=true;
-							memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-							
-							//grayscale entire screen
-							if(get_bit(quest_rules,qr_FADE))
-							{
-								for(int32_t i=CSET(0); i < CSET(15); i++)
-								{
-									int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-									g = (g >> 1) + 32;
-									RAMpal[i] = _RGB(g,g,g);
-								}
-								
-							}
-							else
-							{
-								// this is awkward. NES Z1 converts colors based on the global
-								// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-								for(int32_t i=CSET(0); i < CSET(15); i++)
-								{
-									RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
-								}
-							}
-							
-							refreshpal = true;
-						}
-					}
-					
-					if((clk==misc+4 || clk==misc+9) && usebombpal)
-					{
-						// undo grayscale
-						usebombpal=false;
-						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-						refreshpal = true;
-					}
-				}
-				
-				if(clk==misc+30)
-				{
-					bombdoor(x,y);
-				}
-			}
-			
-			if(clk==misc+34)
-			{
-				if(step==0)
-				{
-					dead=1;
-				}
-			}
+			limited_animate();
 			break;
 		}
 		case ewLitBomb:
@@ -4741,7 +4746,7 @@ bool weapon::animate(int32_t index)
 			//Z_scripterrlog("Arrow weaponscript is: %d\n", weaponscript);
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			if(weapon_dying_frame)
 			{
@@ -4807,7 +4812,7 @@ bool weapon::animate(int32_t index)
 		
 			if ( doscript && isLWeapon )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			
 			break;
@@ -4827,7 +4832,7 @@ bool weapon::animate(int32_t index)
 		
 			if ( doscript && isLWeapon )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			
 			break;
@@ -4838,7 +4843,7 @@ bool weapon::animate(int32_t index)
 			{
 				if ( doscript )
 				{
-				   if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				}
 				dead=23;
 				goto skip_second_bait_script;
@@ -4850,7 +4855,7 @@ bool weapon::animate(int32_t index)
 			}
 			if ( doscript )
 			{
-			   if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+			   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			skip_second_bait_script:
 			break;
@@ -4864,7 +4869,7 @@ bool weapon::animate(int32_t index)
 				stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
 				if ( doscript )
 				{
-				   if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				}
 				break;
 			}
@@ -4873,7 +4878,7 @@ bool weapon::animate(int32_t index)
 			{
 				if ( doscript )
 				{
-				   if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				}
 				onhit(false);
 			}
@@ -4881,7 +4886,7 @@ bool weapon::animate(int32_t index)
 			{
 				if ( doscript )
 				{
-				   if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				   if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				}
 			}
 			
@@ -5303,7 +5308,7 @@ bool weapon::animate(int32_t index)
 				if(misc < 2) sfx(hshot.usesound,pan(int32_t(x)),true);
 				if ( doscript )
 				{
-					if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+					if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 				}
 				return false;
 			}
@@ -5343,7 +5348,7 @@ bool weapon::animate(int32_t index)
 					}
 					// if ( doscript )
 					// {
-						// if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+						// if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 					// }
 					return true;
 				}
@@ -5359,7 +5364,7 @@ bool weapon::animate(int32_t index)
 			}
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 		}
 		break;
@@ -6061,7 +6066,7 @@ bool weapon::animate(int32_t index)
 			//:Weapon Only
 			if ( doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 		}
 		break;
@@ -6463,7 +6468,7 @@ bool weapon::animate(int32_t index)
 			}
 			if ( id == wRefFireball && ScriptGenerated && doscript )
 			{
-				if(run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE) return false;
+				if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
 			}
 			break;
 		}

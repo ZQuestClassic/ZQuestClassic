@@ -7484,6 +7484,67 @@ bool HeroClass::animate(int32_t)
 		damageovertimeclk = 0;
 	}
 	
+	if(lift_wpn)
+	{
+		auto oldid = lift_wpn->id;
+		switch(lift_wpn->id)
+		{
+			case wLitBomb:
+			case wBomb:
+			case wLitSBomb:
+			case wSBomb:
+				if(lift_wpn->misc && get_bit(quest_rules,qr_HELD_BOMBS_EXPLODE)) //timed fuse
+				{
+					lift_wpn->limited_animate();
+					if(lift_wpn->id != oldid)
+					{
+						lift_wpn->moveflags &= ~FLAG_OBEYS_GRAV;
+						drop_liftwpn();
+						goto heroanimate_skip_liftwpn;
+					}
+					++lift_wpn->clk;
+				}
+				break;
+		}
+		if(lift_wpn->dead>0)
+			--lift_wpn->dead;
+		
+		if(lift_wpn->dead==0)
+		{
+			if(lift_wpn->death_spawnitem > -1)
+			{
+				item* itm = (new item(lift_wpn->x, lift_wpn->y, lift_wpn->z, lift_wpn->death_spawnitem, lift_wpn->death_item_pflags, 0));
+				itm->fakez = lift_wpn->fakez;
+				items.add(itm);
+			}
+			if(lift_wpn->death_spawndropset > -1)
+			{
+				auto itid = select_dropitem(lift_wpn->death_spawndropset);
+				if(itid > -1)
+				{
+					item* itm = (new item(lift_wpn->x, lift_wpn->y, lift_wpn->z, itid, lift_wpn->death_item_pflags, 0));
+					itm->fakez = lift_wpn->fakez;
+					itm->from_dropset = lift_wpn->death_spawndropset;
+					items.add(itm);
+				}
+			}
+			switch(lift_wpn->death_sprite)
+			{
+				case -2: decorations.add(new dBushLeaves(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dBUSHLEAVES, 0, 0)); break;
+				case -3: decorations.add(new dFlowerClippings(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dFLOWERCLIPPINGS, 0, 0)); break;
+				case -4: decorations.add(new dGrassClippings(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dGRASSCLIPPINGS, 0, 0)); break;
+				default:
+					if(lift_wpn->death_sprite < 0) break;
+					decorations.add(new comboSprite(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), 0, 0, lift_wpn->death_sprite));
+			}
+			if(lift_wpn->death_sfx > 0)
+				sfx(lift_wpn->death_sfx, pan(int32_t(lift_wpn->x)));
+			delete lift_wpn;
+			lift_wpn = nullptr;
+		}
+heroanimate_skip_liftwpn:;
+	}
+	
 	if(cheats_execute_goto)
 	{
 		didpit=true;

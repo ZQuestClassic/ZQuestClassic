@@ -3297,7 +3297,7 @@ bool enemy::animate(int32_t index)
 		if(get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT))
 		{
 			//Run its script
-			if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+			if (runscript_do_earlyret(run_script(MODE_NORMAL)))
 			{
 				return 0; //Avoid NULLPO if this object deleted itself
 			}
@@ -3519,7 +3519,7 @@ bool enemy::animate(int32_t index)
 	++c_clk;
 	
 	//Run its script
-	if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+	if (runscript_do_earlyret(run_script(MODE_NORMAL)))
 	{
 		return 0; //Avoid NULLPO if this object deleted itself
 	}
