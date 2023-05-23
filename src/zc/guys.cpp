@@ -21190,10 +21190,9 @@ void awaken_spinning_tile(const pos_handle_t& pos_handle)
 	addenemy(pos_handle.screen_index, x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
 }
 
-// TODO z3 !
 // It stands for next_side_pos
-void nsp(bool random)
 // moves sle_x and sle_y to the next position
+void nsp(bool random)
 {
 	if(random)
 	{
@@ -21241,9 +21240,9 @@ void nsp(bool random)
 	}
 }
 
-int32_t next_side_pos(int32_t screen_index, bool random)
 // moves sle_x and sle_y to the next available position
 // returns the direction the enemy should face
+int32_t next_side_pos(int32_t screen_index, bool random)
 {
 	bool blocked;
 	int32_t c=0;
@@ -21654,19 +21653,10 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 	{
 		// Final chance: find a random position anywhere onscreen
 		rpos_t rand_rpos = placeenemy(screen, i, offx, offy);
-		// TODO z3 ! verify this code working. it runs rarely.
-		int randpos = RPOS_TO_POS(rand_rpos);
 		
-		if(randpos>-1)
+		if (rand_rpos != rpos_t::NONE)
 		{
-			x=(randpos&15)<<4;
-			y= randpos&0xF0;
-			x += offx;
-			y += offy;
-			// TODO z3
-			// COMBOXY_REGION(rpos_t rpos, int32_t &out_x, int32_t &out_y)
-			// x = (rand_rpos&15)<<4;
-			// y = rand_rpos&0xF0;
+			COMBOXY_REGION(rand_rpos, x, y);
 		}
 		else // All opportunities failed - abort
 		{
