@@ -10686,9 +10686,6 @@ bool eTektite::animate(int32_t index)
 	{
 		y=floor_y;
 	}
-
-	int offx = z3_get_region_relative_dx(screen_index_spawned) * 256;
-	int offy = z3_get_region_relative_dy(screen_index_spawned) * 176;
 	
 	if(clk>=0 && !stunclk && !frozenclock && (!watch || misc==0))
 	{
@@ -10712,9 +10709,9 @@ bool eTektite::animate(int32_t index)
 				clk3=(r&1)+2;                                       // left or right
 				clk2start=clk2=(r&31)+10;                           // flight time
 				
-				if(y<32+offy)  clk2+=2;                                  // make them come down from top of screen
+				if(y<32)  clk2+=2;                                  // make them come down from top of screen
 				
-				if(y>112+offy) clk2-=2;                                  // make them go back up
+				if(y>world_h-64) clk2-=2;                                  // make them go back up
 				
 				cstart=c = 9-((r&31)>>3);                           // time before gravity kicks in
 			}
@@ -10827,15 +10824,15 @@ bool eTektite::animate(int32_t index)
 			
 			int32_t nb=get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
 			
-			if(x<=16-nb+offx)  clk3=right;
+			if(x<=16-nb)  clk3=right;
 			
-			if(x>=224+nb+offx) clk3=left;
+			if(x>=world_w-32+nb) clk3=left;
 			
 			x += (clk3==left) ? -1 : 1;
 			
-			if((--clk2<=0 && y>=16-nb+offy) || y>=144+nb+offy)
+			if((--clk2<=0 && y>=16-nb) || y>=world_h-32+nb)
 			{
-				if(y>=144+nb+offy && get_bit(quest_rules,qr_ENEMIESZAXIS))
+				if(y>=world_h-32+nb && get_bit(quest_rules,qr_ENEMIESZAXIS))
 				{
 					step=0-step;
 					y--;
