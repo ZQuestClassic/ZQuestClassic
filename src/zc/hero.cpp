@@ -3833,8 +3833,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		return;
 		
 	// find out which combo row/column the coordinates are in
-	bx = CLEAR_LOW_BITS(bx, 4);
-	by = CLEAR_LOW_BITS(by, 4);
+	bx = TRUNCATE_TILE(bx);
+	by = TRUNCATE_TILE(by);
 	
 	int cid = MAPCOMBO(bx,by);
 	int cid_ff = MAPFFCOMBO(x,y);
@@ -5217,8 +5217,8 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     if(z>8||fakez>8) return;
     
     //find out which combo row/column the coordinates are in
-	bx = CLEAR_LOW_BITS(bx, 4);
-	by = CLEAR_LOW_BITS(by, 4);
+	bx = TRUNCATE_TILE(bx);
+	by = TRUNCATE_TILE(by);
     
     int32_t type = COMBOTYPE(bx,by);
     int32_t type2 = FFCOMBOTYPE(fx,fy);
@@ -7797,7 +7797,7 @@ bool HeroClass::animate(int32_t)
 			//zprint2("ydif is: %d\n", (int32_t)fall);
 			falling_oldy = y; // Stomp Boots-related variable
 			
-			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (CLEAR_LOW_BITS(y.getInt()+ydiff+15, 4) != CLEAR_LOW_BITS(y.getInt()+15, 4)) && !platform_fallthrough())
+			if(fall > 0 && (checkSVLadderPlatform(x+4,y+ydiff+15)||checkSVLadderPlatform(x+12,y+ydiff+15)) && (TRUNCATE_TILE(y.getInt()+ydiff+15) != TRUNCATE_TILE(y.getInt()+15)) && !platform_fallthrough())
 			{
 				ydiff -= (y.getInt()+ydiff)%16;
 			}
@@ -8221,12 +8221,12 @@ bool HeroClass::animate(int32_t)
 		{
 		case up:
 		case down:
-			x = CLEAR_LOW_BITS(x.getInt() + 4, 3);
+			x = TRUNCATE_HALF_TILE(x.getInt() + 4);
 			break;
 			
 		case left:
 		case right:
-			y = CLEAR_LOW_BITS(y.getInt() + 4, 3);
+			y = TRUNCATE_HALF_TILE(y.getInt() + 4);
 			break;
 		}
 	}
@@ -8740,12 +8740,12 @@ bool HeroClass::animate(int32_t)
 		{
 			if(dir==up || dir==down)
 			{
-				y = CLEAR_LOW_BITS(int32_t(y+7), 4);
+				y = TRUNCATE_TILE(int32_t(y+7));
 			}
 			
 			if(dir==left || dir==right)
 			{
-				x = CLEAR_LOW_BITS(int32_t(x+7), 4);
+				x = TRUNCATE_TILE(int32_t(x+7));
 			}
 			
 			hs_fix=false;
@@ -19119,7 +19119,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 
 					[[fallthrough]];
                 case down:
-                    if(CLEAR_LOW_BITS(wy, 4)==laddery)
+                    if(TRUNCATE_TILE(wy)==laddery)
                     {
                         ret.setUnwalkable(false);
                         return ret;
@@ -19128,7 +19128,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     break;
                     
                 default:
-                    if(CLEAR_LOW_BITS(wx, 4)==ladderx)
+                    if(TRUNCATE_TILE(wx)==ladderx)
                     {
                         ret.setUnwalkable(false);
                         return ret;
@@ -19141,7 +19141,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                     return ret;
                 }
                 
-                ret.setUnwalkable(_walkflag(CLEAR_LOW_BITS(wx, 4),wy,1,SWITCHBLOCK_STATE) || _walkflag(CLEAR_LOW_BITS(wx, 4)+8,wy,1,SWITCHBLOCK_STATE));
+                ret.setUnwalkable(_walkflag(TRUNCATE_TILE(wx),wy,1,SWITCHBLOCK_STATE) || _walkflag(TRUNCATE_TILE(wx)+8,wy,1,SWITCHBLOCK_STATE));
                 return ret;
             }
             
@@ -19304,7 +19304,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             // a good way to do this, but it's too risky
                             // to make big changes to this stuff.
                             bool deployLadder=true;
-                            int32_t lx= CLEAR_LOW_BITS(wx, 4);
+                            int32_t lx= TRUNCATE_TILE(wx);
                             if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex_z3(MAPCOMBO(lx+8, y+8), -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
                             {
                                 if(iswaterex_z3(MAPCOMBO(lx, y), -1, lx, y) && 
@@ -19315,7 +19315,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             }
                             if(deployLadder)
                             {
-                                ladderx = CLEAR_LOW_BITS(wx, 4);
+                                ladderx = TRUNCATE_TILE(wx);
                                 laddery = y;
                                 ladderdir = left;
                                 ladderstart = d2;
@@ -19330,7 +19330,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         if(abs((wx)-(int32_t(x+c)))<=(b) && wtrx)
                         {
                             ladderx = x;
-                            laddery = CLEAR_LOW_BITS(wy, 4);
+                            laddery = TRUNCATE_TILE(wy);
                             ladderdir = up;
                             ladderstart = d2;
                             ret.setUnwalkable(ladderx!=x.getInt());
@@ -19342,7 +19342,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                             if(abs((wx+8)-(int32_t(x+c)))<=(b) && wtrx8)
                             {
                                 ladderx = x;
-                                laddery = CLEAR_LOW_BITS(wy, 4);
+                                laddery = TRUNCATE_TILE(wy);
                                 ladderdir = up;
                                 ladderstart = d2;
                                 ret.setUnwalkable(ladderx!=x.getInt());
@@ -19368,13 +19368,13 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
                         
                     if(ladderdir==up)
                     {
-                        ladderx = CLEAR_LOW_BITS(x.getInt(), 3);
-                        laddery = CLEAR_LOW_BITS(wy, 4);
+                        ladderx = TRUNCATE_HALF_TILE(x.getInt());
+                        laddery = TRUNCATE_TILE(wy);
                     }
                     else
                     {
-                        ladderx = CLEAR_LOW_BITS(wx, 4);
-                        laddery = CLEAR_LOW_BITS(y.getInt(), 3);
+                        ladderx = TRUNCATE_TILE(wx);
+                        laddery = TRUNCATE_HALF_TILE(y.getInt());
 						
                     }
                     
@@ -19550,8 +19550,8 @@ void HeroClass::checkpushblock()
 	// if(y<16) return;
 	if(isSideViewHero() && !on_sideview_solid_oldpos(x,y,old_x,old_y)) return;
 	
-	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
-	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
+	int32_t bx = TRUNCATE_TILE(x.getInt());
+	int32_t by = TRUNCATE_TILE(y.getInt());
 	
 	switch(dir)
 	{
@@ -19933,9 +19933,9 @@ void HeroClass::oldchecklockblock()
 {
 	if(toogam) return;
 	
-	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
-	int32_t bx2 = CLEAR_LOW_BITS(x.getInt() + 8, 4);
-	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
+	int32_t bx = TRUNCATE_TILE(x.getInt());
+	int32_t bx2 = TRUNCATE_TILE(x.getInt() + 8);
+	int32_t by = TRUNCATE_TILE(y.getInt());
 	// int32_t bx = x.getInt()&0xF0;
 	// int32_t bx2 = int32_t(x+8)&0xF0;
 	// int32_t by = y.getInt()&0xF0;
@@ -20079,9 +20079,9 @@ void HeroClass::oldcheckbosslockblock()
 {
 	if(toogam) return;
 	
-	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
-	int32_t bx2 = CLEAR_LOW_BITS(x.getInt()+8, 4);
-	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
+	int32_t bx = TRUNCATE_TILE(x.getInt());
+	int32_t bx2 = TRUNCATE_TILE(x.getInt()+8);
+	int32_t by = TRUNCATE_TILE(y.getInt());
 	
 	switch(dir)
 	{
@@ -20245,9 +20245,9 @@ void HeroClass::oldcheckchest(int32_t type)
 	if(toogam || z>0 || fakez > 0) return;
 	if(pushing<8) return;
 
-	int32_t bx = CLEAR_LOW_BITS(x.getInt(), 4);
-	int32_t bx2 = CLEAR_LOW_BITS(x.getInt()+8, 4);
-	int32_t by = CLEAR_LOW_BITS(y.getInt(), 4);
+	int32_t bx = TRUNCATE_TILE(x.getInt());
+	int32_t bx2 = TRUNCATE_TILE(x.getInt()+8);
+	int32_t by = TRUNCATE_TILE(y.getInt());
 	
 	switch(dir)
 	{
@@ -25594,13 +25594,13 @@ void HeroClass::walkdown(bool opening) //entering cave
     clk=0;
     //  int32_t cmby=(y.getInt()&0xF0)+16;
     // Fix Hero's position to the grid
-    y=CLEAR_LOW_BITS(y.getInt(), 4);
+    y=TRUNCATE_TILE(y.getInt());
     action=climbcoverbottom; FFCore.setHeroAction(climbcoverbottom);
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
-    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4) + 16;
+    climb_cover_x=TRUNCATE_TILE(x.getInt());
+    climb_cover_y=TRUNCATE_TILE(y.getInt()) + 16;
     
     guys.clear();
     chainlinks.clear();
@@ -25639,13 +25639,13 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     
         
     // Fix Hero's position to the grid
-    y=CLEAR_LOW_BITS(y.getInt(), 4);
+    y=TRUNCATE_TILE(y.getInt());
 	
     if((type==cCAVE2)||(type>=cCAVE2B && type<=cCAVE2D))
         y -= 16;
 	
-    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
-    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4);
+    climb_cover_x=TRUNCATE_TILE(x.getInt());
+    climb_cover_y=TRUNCATE_TILE(y.getInt());
 	
     dir=down;
     z=fakez=fall=fakefall=0;
@@ -25704,7 +25704,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         y+=16;
         
     // Fix Hero's position to the grid
-	y=CLEAR_LOW_BITS(y.getInt(), 4);
+	y=TRUNCATE_TILE(y.getInt());
     z=fakez=fall=fakefall=0;
     
     if(opening)
@@ -25722,8 +25722,8 @@ void HeroClass::walkup(bool opening) //exiting cave
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
-    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4);
+    climb_cover_x=TRUNCATE_TILE(x.getInt());
+    climb_cover_y=TRUNCATE_TILE(y.getInt());
     
     guys.clear();
     chainlinks.clear();
@@ -25774,9 +25774,9 @@ void HeroClass::walkup2(bool opening) //entering cave2
     attack=wNone;
     attackid=-1;
     reset_swordcharge();
-	CLEAR_LOW_BITS(x.getInt(), 4);
-    climb_cover_x=CLEAR_LOW_BITS(x.getInt(), 4);
-    climb_cover_y=CLEAR_LOW_BITS(y.getInt(), 4) - 16;
+	TRUNCATE_TILE(x.getInt());
+    climb_cover_x=TRUNCATE_TILE(x.getInt());
+    climb_cover_y=TRUNCATE_TILE(y.getInt()) - 16;
     
     guys.clear();
     chainlinks.clear();

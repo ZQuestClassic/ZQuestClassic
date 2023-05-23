@@ -2819,8 +2819,8 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 			}
 	}
 	
-	dx = CLEAR_LOW_BITS(dx, 3);
-	dy = CLEAR_LOW_BITS(dy, 3);
+	dx = TRUNCATE_HALF_TILE(dx);
+	dy = TRUNCATE_HALF_TILE(dy);
 	
 	if(!flying && !(moveflags & FLAG_IGNORE_BLOCKFLAGS) && groundblocked(dx,dy,kb)) return true;
 
@@ -7433,8 +7433,6 @@ int32_t enemy::slide()
 		if(!OFFGRID_ENEMY)
 		{
 			//Fix to grid
-			//x = (int32_t(x)+8)-((int32_t(x)+8)%16);
-			//y = (int32_t(y)+8)-((int32_t(y)+8)%16);
 			do_fix(x, 16, true);
 			do_fix(y, 16, true);
 		}
@@ -7857,7 +7855,7 @@ void enemy::newdir(int32_t newrate,int32_t newhoming,int32_t special)
 {
 	int32_t ndir=-1;
 	
-	if(grumble != 0 && (zc_oldrand()&3)<abs(grumble)) //yes, I know checking if grumble is equal to if grumble == 0, but the latter makes the intention more clear to less experienced coders who might join.
+	if(grumble != 0 && (zc_oldrand()&3)<abs(grumble))
 	{
 		int32_t i = Lwpns.idFirst(wBait);
 		if(i >= 0) //idfirst returns -1 if it can't find any
@@ -10671,6 +10669,7 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
 }
 
+// TODO z3 ! enemy
 bool eTektite::animate(int32_t index)
 {
 	if(switch_hooked) return enemy::animate(index);
@@ -11179,7 +11178,6 @@ bool eLeever::animate(int32_t index)
 	
 	if(clk>=0 && !slide())
 	{
-//    switch(d->misc1)
 		switch(dmisc1)
 		{
 		case 0:      //line of sight
@@ -11346,15 +11344,11 @@ bool eLeever::canplace(int32_t d2)
 	int32_t nx=HeroX();
 	int32_t ny=HeroY();
 	
-	if(d2<left) ny&=0xF0;
-	else       nx&=0xF0;
+	if(d2<left) ny=TRUNCATE_TILE(ny);
+	else        nx=TRUNCATE_TILE(nx);
 	
 	switch(d2)
 	{
-//    case up:    ny-=((d->misc1==0)?32:48); break;
-//    case down:  ny+=((d->misc1==0)?32:48); if(ny-HeroY()<32) ny+=((d->misc1==0)?16:0); break;
-//    case left:  nx-=((d->misc1==0)?32:48); break;
-//    case right: nx+=((d->misc1==0)?32:48); if(nx-HeroX()<32) nx+=((d->misc1==0)?16:0); break;
 	case up:
 		ny-=((dmisc1==0||dmisc1==2)?32:48);
 		break;
@@ -12238,7 +12232,7 @@ bool eRock::animate(int32_t index)
 			
 			++clk3;
 		}
-		else if(y<176)
+		else if(y<world_h)
 			clk3=0;                                               // next bounce
 		else
 			clk2 = -(zc_oldrand()&63);                                  // back to top
@@ -12925,13 +12919,18 @@ bool eZora::animate(int32_t index)
 		
 		while(!placed && t<160)
 		{
-			int32_t watertype = iswaterex_z3(tmpscr.data[pos2], -1, ((pos2)%16*16), ((pos2)&0xF0), false, true, true, (bool)(editorflags & ENEMY_FLAG7));
+			int32_t sx, sy;
+			rpos_t rpos = POS_TO_RPOS(pos2, screen_index_spawned);
+			COMBOXY_REGION(rpos, sx, sy);
+			mapscr* s = get_scr(currmap, screen_index_spawned);
+
+			int32_t watertype = iswaterex_z3(s->data[pos2], -1, sx, sy, false, true, true, (bool)(editorflags & ENEMY_FLAG7));
 			if(watertype && ((editorflags & ENEMY_FLAG6) || 
 			((combobuf[watertype].usrflags&cflag1) && (editorflags & ENEMY_FLAG5))
 			|| (!(combobuf[watertype].usrflags&cflag1) && !(editorflags & ENEMY_FLAG5))) && (pos2&15)>0 && (pos2&15)<15)
 			{
-				x=(pos2&15)<<4;
-				y=pos2&0xF0;
+				x=sx;
+				y=sy;
 				if (!(editorflags & ENEMY_FLAG8)) hp=guysbuf[id&0xFFF].hp;       // refill life each time, unless the flag is checked.
 				hxofs=1000;                                                      // avoid hit detection
 				stunclk=0;
@@ -21382,7 +21381,11 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 			if(visited[i]==s)
 				beenhere=true;
 				
-		if(!beenhere)
+		if (is_z3_scrolling_mode())
+		{
+			reload = true;
+		}
+		else if(!beenhere)
 		{
 			visited[vhead]=s;
 			vhead = (vhead+1)%6;
@@ -21864,13 +21867,14 @@ void loadenemies()
 		int32_t loadcnt = 10;
 		int16_t s = (currmap<<7)+screen_index;
 		
-		if(!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+		if (is_z3_scrolling_mode())
 		{
-			if (screen_index == z3_get_origin_scr())
-			{
-				visited[vhead]=s; //If not, it adds it to the array,
-				vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
-			}
+			reload = true;
+		}
+		else if (!beenhere) //Okay so this basically checks the last 6 unique screen's you've been in and checks if the current screen is one of them.
+		{
+			visited[vhead]=s; //If not, it adds it to the array,
+			vhead = (vhead+1)%6; //which overrides one of the others, and then moves onto the next.
 		}
 		else if(game->guys[s]==0) //Then, if you have been here, and the number of enemies left on the screen is 0,
 		{

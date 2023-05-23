@@ -446,6 +446,8 @@ extern volatile bool close_button_quit;
 
 #define XOR(a,b) (!(a) != !(b))
 #define CLEAR_LOW_BITS(x, b) ((x) & ~((1<<(b)) - 1))
+#define TRUNCATE_TILE(x) CLEAR_LOW_BITS(x, 4)
+#define TRUNCATE_HALF_TILE(x) CLEAR_LOW_BITS(x, 3)
 
 //#define MAGICDRAINRATE  2
 

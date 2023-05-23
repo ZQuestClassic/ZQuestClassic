@@ -467,8 +467,8 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	//find out which combo row/column the coordinates are in
 	bx=vbound(bx, 0, world_w-1);
 	by=vbound(by, 0, world_h-1);
-	bx=CLEAR_LOW_BITS(bx, 4);
-	by=CLEAR_LOW_BITS(by, 4);
+	bx=TRUNCATE_TILE(bx);
+	by=TRUNCATE_TILE(by);
 	int32_t cid = (layer) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
 	if(!MatchComboTrigger(w, cbuf, cid)) return;
 	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
@@ -3896,9 +3896,9 @@ bool weapon::animate(int32_t index)
 						flip ^= 2;
 						
 					ignoreHero=false;
-					ignorecombo=((CLEAR_LOW_BITS((int32_t)checky, 4))+(int32_t(checkx)>>4));
-					x=(int32_t)CLEAR_LOW_BITS(posx, 4)+check_x_ofs;
-					y=(int32_t)CLEAR_LOW_BITS(posy, 4)+check_y_ofs;
+					ignorecombo=((TRUNCATE_TILE((int32_t)checky))+(int32_t(checkx)>>4));
+					x=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
+					y=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORSLASH))
@@ -3933,9 +3933,9 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					ignoreHero=false;
-					ignorecombo=((CLEAR_LOW_BITS((int32_t)checky, 4))+(int32_t(checkx)>>4));
-					x=(int32_t)CLEAR_LOW_BITS(posx, 4)+check_x_ofs;
-					y=(int32_t)CLEAR_LOW_BITS(posy, 4)+check_y_ofs;
+					ignorecombo=((TRUNCATE_TILE((int32_t)checky))+(int32_t(checkx)>>4));
+					x=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
+					y=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
@@ -3972,16 +3972,16 @@ bool weapon::animate(int32_t index)
 						}
 					}
 					ignoreHero=false;
-					ignorecombo=((CLEAR_LOW_BITS((int32_t)checky, 4))+(int32_t(checkx)>>4));
-					x=(int32_t)CLEAR_LOW_BITS(posx, 4)+check_x_ofs;
-					y=(int32_t)CLEAR_LOW_BITS(posy, 4)+check_y_ofs;
+					ignorecombo=((TRUNCATE_TILE((int32_t)checky))+(int32_t(checkx)>>4));
+					x=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
+					y=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 				}
 				
 				if(hitcombo(checkx, checky, cMAGICPRISM))
 				{
 					int32_t newx, newy;
-					newx=(int32_t)CLEAR_LOW_BITS(posx, 4)+check_x_ofs;
-					newy=(int32_t)CLEAR_LOW_BITS(posy, 4)+check_y_ofs;
+					newx=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
+					newy=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
@@ -4058,8 +4058,8 @@ bool weapon::animate(int32_t index)
 				if(hitcombo(checkx, checky, cMAGICPRISM4))
 				{
 					int32_t newx, newy;
-					newx=(int32_t)CLEAR_LOW_BITS(posx, 4)+check_x_ofs;
-					newy=(int32_t)CLEAR_LOW_BITS(posy, 4)+check_y_ofs;
+					newx=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
+					newy=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 					
 					for(int32_t tdir=0; tdir<4; tdir++)
 					{
