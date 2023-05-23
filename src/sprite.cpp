@@ -2345,7 +2345,14 @@ extern char *guy_string[];
 void sprite_list::animate()
 {
 	active_iterator = 0;
-	
+
+	viewport_t freeze_rect = viewport;
+	int tile_buffer = 2;
+	freeze_rect.w += 16 * tile_buffer * 2;
+	freeze_rect.h += 16 * tile_buffer * 2;
+	freeze_rect.x -= 16 * tile_buffer;
+	freeze_rect.y -= 16 * tile_buffer;
+
 	while(active_iterator<count)
 	{
 		// TODO: add a higher debug mode for this. For now, just comment out as-needed for debugging.
@@ -2358,7 +2365,15 @@ void sprite_list::animate()
 		// 	);
 		// }
 
-		if(!(freeze_guys && sprites[active_iterator]->canfreeze))
+		bool should_freeze = freeze_guys;
+#ifndef IS_ZQUEST
+		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(sprites[active_iterator]->x.getInt(), sprites[active_iterator]->y.getInt(), 256, 176))
+		{
+			should_freeze = true;
+		}
+#endif
+
+		if(!(should_freeze && sprites[active_iterator]->canfreeze))
 		{
 			setCurObject(sprites[active_iterator]);
 			auto tmp_iter = active_iterator;
