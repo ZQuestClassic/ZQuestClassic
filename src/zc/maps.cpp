@@ -328,8 +328,10 @@ void z3_update_viewport()
 void playLevelMusic();
 void z3_update_currscr()
 {
-	int dx = Hero.getX().getInt() / 256;
-	int dy = Hero.getY().getInt() / 176;
+	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
+	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
+	int dx = x / 256;
+	int dy = y / 176;
 	int newscr = z3_origin_screen_index + dx + dy * 16;
 	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
 	{
@@ -355,14 +357,14 @@ bool edge_of_region(direction dir)
 	return !is_in_current_region(scr_xy_to_index(scr_x, scr_y));
 }
 
-// x, y are world coordinates (aka, where hero is in relation to origin screen)
+// x, y are world coordinates (aka, in relation to origin screen at the top-left)
 int get_screen_index_for_world_xy(int x, int y)
 {
 	if (!is_z3_scrolling_mode())
 		return currscr;
 
-	int dx = x / 256;
-	int dy = y / 176;
+	int dx = vbound(x, 0, world_w - 1) / 256;
+	int dy = vbound(y, 0, world_h - 1) / 176;
 	int origin_scr_x = z3_origin_screen_index % 16;
 	int origin_scr_y = z3_origin_screen_index / 16;
 	int scr_x = origin_scr_x + dx;
@@ -398,7 +400,7 @@ pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer)
 	return get_pos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
-// These functions all return _temporary_ screens. Any modifcations made to them (either by the engine
+// These functions all return _temporary_ screens. Any modifications made to them (either by the engine
 // directly or via zscript) only last until the next screen (or region) is loaded (via loadscr).
 
 // Returns the screen containing the (x, y) world position.
