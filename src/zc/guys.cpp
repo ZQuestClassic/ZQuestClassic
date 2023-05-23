@@ -21801,13 +21801,6 @@ bool scriptloadenemies()
 
 void loadenemies()
 {
-	// TODO z3 rm. probably ok to, not tried to rm yet
-	if ((script_sle || sle_clk) && !is_z3_scrolling_mode())
-	{
-		side_load_enemies(&tmpscr, currscr);
-		return;
-	}
-
 	loaded_enemies=true;
 
 	// check if it's been long enough to reload all enemies
