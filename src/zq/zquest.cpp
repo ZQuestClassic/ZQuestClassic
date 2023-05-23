@@ -14880,24 +14880,22 @@ static DIALOG screen_pal_dlg[] =
 
 int32_t onScreenPalette()
 {
-	if(key[KEY_ALT]||key[KEY_ALTGR])
-		return D_O_K; //'Alt+F4' should not pop this up...
-    restore_mouse();
-    screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
-    screen_pal_dlg[2].d1=Map.getcolor();
-    
-    large_dialog(screen_pal_dlg);
-        
-    if(zc_popup_dialog(screen_pal_dlg,2)==3)
-    {
-        saved=false;
-        Map.setcolor(screen_pal_dlg[2].d1);
-        refresh(rALL);
-    }
-    
-    rebuild_trans_table();
-    
-    return D_O_K;
+	restore_mouse();
+	screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
+	screen_pal_dlg[2].d1=Map.getcolor();
+	
+	large_dialog(screen_pal_dlg);
+	
+	if(zc_popup_dialog(screen_pal_dlg,2)==3)
+	{
+		saved=false;
+		Map.setcolor(screen_pal_dlg[2].d1);
+		refresh(rALL);
+	}
+	
+	rebuild_trans_table();
+	
+	return D_O_K;
 }
 
 int32_t onDecScrPal()

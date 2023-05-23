@@ -694,16 +694,14 @@ void zmap::setlayertarget()
 
 void zmap::setcolor(int32_t c)
 {
-    if(screens[currscr].valid&mVALID)
-    {
-        screens[currscr].color = c;
-        
-        if(Color!=c)
-        {
-            Color = c;
-            loadlvlpal(c);
-        }
-    }
+	screens[currscr].valid |= mVALID;
+	screens[currscr].color = c;
+	
+	if(Color!=c)
+	{
+		Color = c;
+		loadlvlpal(c);
+	}
 }
 
 int32_t zmap::getcolor()
