@@ -10833,7 +10833,7 @@ bool eTektite::animate(int32_t index)
 			
 			x += (clk3==left) ? -1 : 1;
 			
-			if((--clk2<=0 && y>=16-nb) || y>=144+nb)
+			if((--clk2<=0 && y>=16-nb+offy) || y>=144+nb+offy)
 			{
 				if(y>=144+nb+offy && get_bit(quest_rules,qr_ENEMIESZAXIS))
 				{
