@@ -74,7 +74,7 @@ int scrolling_maze_mode = 0;
 static bool global_z3_scrolling = true;
 
 // entire map is region
-#define hardcode_regions_mode 1
+// #define hardcode_regions_mode 1
 
 static int current_region_indices[128] = {
 #ifdef hardcode_regions_mode
