@@ -29477,7 +29477,7 @@ bool no_subscreen()
 }
 
 int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
 template <typename ...Params>

@@ -1162,7 +1162,7 @@ bool blockmoving;
 movingblock mblock2;                                        //mblock[4]?
 portal* mirror_portal = NULL;
 
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 particle_list particles;
 
 #include "zc_custom.h"
@@ -1222,6 +1222,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
 		delete mirror_portal;
 		mirror_portal = NULL;
 	}
+	portals.clear(force);
     clearScriptHelperData();
     
     if(decorationsToo)

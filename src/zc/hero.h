@@ -36,7 +36,7 @@
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 
 extern byte lsteps[8];
 
@@ -291,7 +291,6 @@ public:
 	byte defence[wMax];
 	int32_t subscr_speed;
 	bool is_warping;
-	bool can_mirror_portal;
 	byte dying_flags;
 	int32_t prompt_combo, prompt_x, prompt_y;
 	byte prompt_cset;
@@ -419,6 +418,8 @@ public:
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	int getHammerState() const;
+	void handle_portal_collide(portal* p);
+	void handle_portal_prox(portal* p);
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl);
 	void handleSpotlights();

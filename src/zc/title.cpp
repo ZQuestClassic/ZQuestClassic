@@ -1884,40 +1884,40 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		if(section_version >= 23)
 		{
-			if(!p_igetw(&(savedata[i].portaldestdmap), f, true))
+			if(!p_igetw(&(savedata[i].saved_mirror_portal.destdmap), f, true))
 			{
 				return 65;
 			}
-			if(!p_igetw(&(savedata[i].portalsrcdmap), f, true))
+			if(!p_igetw(&(savedata[i].saved_mirror_portal.srcdmap), f, true))
 			{
 				return 66;
 			}
-			if(!p_getc(&(savedata[i].portalscr),f,true))
+			if(!p_getc(&(savedata[i].saved_mirror_portal.scr),f,true))
 			{
 				return 67;
 			}
-			if(!p_igetl(&(savedata[i].portalx), f, true))
+			if(!p_igetl(&(savedata[i].saved_mirror_portal.x), f, true))
 			{
 				return 68;
 			}
-			if(!p_igetl(&(savedata[i].portaly), f, true))
+			if(!p_igetl(&(savedata[i].saved_mirror_portal.y), f, true))
 			{
 				return 69;
 			}
-			if(!p_getc(&(savedata[i].portalsfx),f,true))
+			if(!p_getc(&(savedata[i].saved_mirror_portal.sfx),f,true))
 			{
 				return 70;
 			}
-			if(!p_igetl(&(savedata[i].portalwarpfx), f, true))
+			if(!p_igetl(&(savedata[i].saved_mirror_portal.warpfx), f, true))
 			{
 				return 71;
 			}
-			if(!p_igetw(&(savedata[i].portalspr), f, true))
+			if(!p_igetw(&(savedata[i].saved_mirror_portal.spr), f, true))
 			{
 				return 72;
 			}
 		}
-		else savedata[i].clear_portal();
+		else savedata[i].saved_mirror_portal.clear();
 		
 		savedata[i].clear_genscript();
 		
@@ -2074,6 +2074,32 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					}
 					map[arr_index] = zsarr;
 				}
+			}
+		}
+		if(section_version >= 32)
+		{
+			uint32_t sz;
+			if(!p_igetl(&sz,f,true))
+				return 99;
+			for(uint32_t q = 0; q < sz; ++q)
+			{
+				savedportal& p = savedata[i].user_portals.emplace_back();
+				if(!p_igetw(&(p.destdmap), f, true))
+					return 100;
+				if(!p_igetw(&(p.srcdmap), f, true))
+					return 101;
+				if(!p_getc(&(p.scr),f,true))
+					return 102;
+				if(!p_igetl(&(p.x), f, true))
+					return 103;
+				if(!p_igetl(&(p.y), f, true))
+					return 104;
+				if(!p_getc(&(p.sfx),f,true))
+					return 105;
+				if(!p_igetl(&(p.warpfx), f, true))
+					return 106;
+				if(!p_igetw(&(p.spr), f, true))
+					return 107;
 			}
 		}
 	}
@@ -2619,35 +2645,35 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 62;
 		}
-		if(!p_iputw(savedata[i].portaldestdmap, f))
+		if(!p_iputw(savedata[i].saved_mirror_portal.destdmap, f))
 		{
 			return 63;
 		}
-		if(!p_iputw(savedata[i].portalsrcdmap, f))
+		if(!p_iputw(savedata[i].saved_mirror_portal.srcdmap, f))
 		{
 			return 64;
 		}
-		if(!p_putc(savedata[i].portalscr,f))
+		if(!p_putc(savedata[i].saved_mirror_portal.scr,f))
 		{
 			return 65;
 		}
-		if(!p_iputl(savedata[i].portalx, f))
+		if(!p_iputl(savedata[i].saved_mirror_portal.x, f))
 		{
 			return 66;
 		}
-		if(!p_iputl(savedata[i].portaly, f))
+		if(!p_iputl(savedata[i].saved_mirror_portal.y, f))
 		{
 			return 67;
 		}
-		if(!p_putc(savedata[i].portalsfx,f))
+		if(!p_putc(savedata[i].saved_mirror_portal.sfx,f))
 		{
 			return 68;
 		}
-		if(!p_iputl(savedata[i].portalwarpfx, f))
+		if(!p_iputl(savedata[i].saved_mirror_portal.warpfx, f))
 		{
 			return 69;
 		}
-		if(!p_iputw(savedata[i].portalspr, f))
+		if(!p_iputw(savedata[i].saved_mirror_portal.spr, f))
 		{
 			return 70;
 		}
@@ -2752,6 +2778,28 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 						return 98;
 				}
 			}
+		}
+		sz = savedata[i].user_portals.size();
+		if(!p_iputl(sz,f))
+			return 99;
+		for(savedportal const& p : savedata[i].user_portals)
+		{
+			if(!p_iputw(p.destdmap, f))
+				return 100;
+			if(!p_iputw(p.srcdmap, f))
+				return 101;
+			if(!p_putc(p.scr,f))
+				return 102;
+			if(!p_iputl(p.x, f))
+				return 103;
+			if(!p_iputl(p.y, f))
+				return 104;
+			if(!p_putc(p.sfx,f))
+				return 105;
+			if(!p_iputl(p.warpfx, f))
+				return 106;
+			if(!p_iputw(p.spr, f))
+				return 107;
 		}
 	}
 	

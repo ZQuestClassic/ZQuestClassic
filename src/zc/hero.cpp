@@ -382,7 +382,11 @@ void HeroClass::go_respawn_point()
 {
 	x = respawn_x;
 	y = respawn_y;
-	can_mirror_portal = false; //incase entry is on a portal!
+	handle_portal_prox(mirror_portal);
+	portals.forEach([&](sprite& p)
+	{
+		handle_portal_prox((portal*)&p);
+	});
 	warpx=x;
 	warpy=y;
 	raftwarpx = x;
@@ -1479,7 +1483,6 @@ void HeroClass::init()
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
 	is_warping = false;
-	can_mirror_portal = true;
 	coyotetime = 0;
 	
 	hammer_swim_up_offset = hammeroffsets[0];
@@ -7468,6 +7471,55 @@ int32_t getPushDir(int32_t flag)
 
 void post_item_collect();
 
+void HeroClass::handle_portal_collide(portal* p)
+{
+	if(!p) return;
+	p->animate(0);
+	if(abs(x - p->x) < 12
+		&& abs(y - p->y) < 12)
+	{
+		if(p->prox_active)
+		{
+			//Store some values to restore if 'warp fails'
+			int32_t tLastEntrance = lastentrance,
+					tLastEntranceDMap = lastentrance_dmap,
+					tContScr = game->get_continue_scrn(),
+					tContDMap = game->get_continue_dmap();
+			int32_t sourcescr = currscr, sourcedmap = currdmap;
+			zfix tx = x, ty = y, tz = z;
+			x = p->x;
+			y = p->y;
+			
+			int32_t weff = p->weffect,
+				wsfx = p->wsfx;
+			
+			FFCore.warp_player(wtIWARP, p->destdmap, p->destscr,
+				-1, -1, weff, wsfx, 0, -1);
+			
+			if(mirrorBonk()) //Invalid landing, warp back!
+			{
+				action = none; FFCore.setHeroAction(none);
+				lastentrance = tLastEntrance;
+				lastentrance_dmap = tLastEntranceDMap;
+				game->set_continue_scrn(tContScr);
+				game->set_continue_dmap(tContDMap);
+				x = tx;
+				y = ty;
+				z = tz;
+				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
+					wsfx, 0, -1);
+				p->prox_active = false;
+			}
+			else game->clear_portal(p->saved_data); //Remove portal once used
+		}
+	}
+	else p->prox_active = true;
+}
+void HeroClass::handle_portal_prox(portal* p)
+{
+	if(!p) return;
+	p->prox_active = !(abs(x - p->x) < 12 && abs(y - p->y) < 12);
+}
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -7569,49 +7621,11 @@ heroanimate_skip_liftwpn:;
 		climb_cover_y=-1000;
 	}
 	
-	if(mirror_portal)
+	handle_portal_collide(mirror_portal);
+	portals.forEach([&](sprite& p)
 	{
-		mirror_portal->animate(0);
-		if(abs(x - mirror_portal->x) < 12
-			&& abs(y - mirror_portal->y) < 12)
-		{
-			if(can_mirror_portal)
-			{
-				//Store some values to restore if 'warp fails'
-				int32_t tLastEntrance = lastentrance,
-						tLastEntranceDMap = lastentrance_dmap,
-						tContScr = game->get_continue_scrn(),
-						tContDMap = game->get_continue_dmap();
-				int32_t sourcescr = currscr, sourcedmap = currdmap;
-				zfix tx = x, ty = y, tz = z;
-				x = mirror_portal->x;
-				y = mirror_portal->y;
-				
-				int32_t weff = mirror_portal->weffect,
-					wsfx = mirror_portal->wsfx;
-				
-				FFCore.warp_player(wtIWARP, mirror_portal->destdmap, mirror_portal->destscr,
-					-1, -1, weff, wsfx, 0, -1);
-				
-				if(mirrorBonk()) //Invalid landing, warp back!
-				{
-					action = none; FFCore.setHeroAction(none);
-					lastentrance = tLastEntrance;
-					lastentrance_dmap = tLastEntranceDMap;
-					game->set_continue_scrn(tContScr);
-					game->set_continue_dmap(tContDMap);
-					x = tx;
-					y = ty;
-					z = tz;
-					FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
-						wsfx, 0, -1);
-					can_mirror_portal = false;
-				}
-				else game->clear_portal(); //Remove portal once used
-			}
-		}
-		else can_mirror_portal = true;
-	}
+		handle_portal_collide((portal*)&p);
+	});
 	
 	if(z<=8&&fakez<=8)
 	{
@@ -10181,10 +10195,10 @@ void HeroClass::doMirror(int32_t mirrorid)
 				tLastEntranceDMap = lastentrance_dmap,
 				tContScr = game->get_continue_scrn(),
 				tContDMap = game->get_continue_dmap(),
-				tPortalDMap = game->portalsrcdmap;
+				tPortalDMap = game->saved_mirror_portal.srcdmap;
 		int32_t sourcescr = currscr, sourcedmap = currdmap;
 		zfix tx = x, ty = y, tz = z;
-		game->portalsrcdmap = -1;
+		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
 		
 		//Warp to new dmap
@@ -10202,7 +10216,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 			x = tx;
 			y = ty;
 			z = tz;
-			game->portalsrcdmap = tPortalDMap;
+			game->saved_mirror_portal.srcdmap = tPortalDMap;
 			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
 				mirror.usesound, 0, -1);
 		}
@@ -10213,7 +10227,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 			//Since it was placed after loading this screen, load the portal object now
 			game->load_portal();
 			//Don't immediately trigger the warp back
-			can_mirror_portal = false;
+			mirror_portal->prox_active = false;
 			
 			//Set continue point
 			if(currdmap != game->get_continue_dmap())

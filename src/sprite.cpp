@@ -2550,6 +2550,12 @@ void sprite_list::checkConsistency()
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
 
+void sprite_list::forEach(std::function<void(sprite&)> proc)
+{
+	for(int q = 0; q < count; ++q)
+		proc(*sprites[q]);
+}
+
 void sprite::explode(int32_t type)
 {
 	al_trace("Trying to explode enemy tile: %d\n",tile);
