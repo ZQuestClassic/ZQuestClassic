@@ -4132,6 +4132,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	if(mirror_portal)
 		mirror_portal->draw(framebuf);
+	portals.draw(framebuf,true);
 	
 	if(showhero && ((Hero.getAction()!=climbcovertop)&& (Hero.getAction()!=climbcoverbottom)))
 	{
@@ -5268,7 +5269,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			}
 		}
 	}
-	game->load_portal();
+	game->load_portals();
 	if(!tmp)
 	{
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);

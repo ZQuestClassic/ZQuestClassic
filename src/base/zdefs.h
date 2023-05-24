@@ -296,7 +296,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        31
+#define V_SAVEGAME        32
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -4048,6 +4048,23 @@ enum
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
 
+struct savedportal
+{
+	int16_t destdmap = -1;
+	int16_t srcdmap = -1;
+	byte scr;
+	int32_t x;
+	int32_t y;
+	byte sfx;
+	int32_t warpfx;
+	int16_t spr;
+	
+	void clear()
+	{
+		*this = savedportal();
+	}
+};
+
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 #define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
@@ -4117,14 +4134,7 @@ struct gamedata
 	//115456 (260)
 	byte bottleSlots[256];
 	
-	int16_t portaldestdmap;
-	int16_t portalsrcdmap;
-	byte portalscr;
-	int32_t portalx;
-	int32_t portaly;
-	byte portalsfx;
-	int32_t portalwarpfx;
-	int16_t portalspr;
+	savedportal saved_mirror_portal;
 	
 	byte swim_mult = 1, swim_div = 1;
 	
@@ -4142,6 +4152,7 @@ struct gamedata
 
 	std::string replay_file;
 	std::vector<saved_user_object> user_objects;
+	std::vector<savedportal> user_portals;
 	
 	
 	// member functions
@@ -4376,7 +4387,9 @@ struct gamedata
 	
 	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
 	void load_portal();
-	void clear_portal();
+	void clear_portal(savedportal* p);
+	
+	void load_portals();
 
 	bool should_show_time();
 };
