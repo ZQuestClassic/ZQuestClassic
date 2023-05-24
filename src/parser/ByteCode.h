@@ -1520,8 +1520,24 @@
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
 #define CLASS_THISKEY2          1435
-#define Z3_RESERVED             1450 // 1436-1450 is reserved for z3!
-#define LAST_BYTECODE           1451
+#define RESRVD_VAR_Z3_01        1436
+#define RESRVD_VAR_Z3_02        1437
+#define RESRVD_VAR_Z3_03        1438
+#define RESRVD_VAR_Z3_04        1439
+#define RESRVD_VAR_Z3_05        1440
+#define RESRVD_VAR_Z3_06        1441
+#define RESRVD_VAR_Z3_07        1442
+#define RESRVD_VAR_Z3_08        1443
+#define RESRVD_VAR_Z3_09        1444
+#define RESRVD_VAR_Z3_10        1445
+#define RESRVD_VAR_Z3_11        1446
+#define RESRVD_VAR_Z3_12        1447
+#define RESRVD_VAR_Z3_13        1448
+#define RESRVD_VAR_Z3_14        1449
+#define RESRVD_VAR_Z3_15        1450
+#define RESRVD_VAR_Z3_16        1451
+
+#define LAST_BYTECODE           1452
 
 //} END OF BYTECODE
 
@@ -11197,6 +11213,116 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OPalDataOwn();
+		}
+	};
+
+	class OReservedZ3_01 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_01(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_01(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_02 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_02(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_02(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_03 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_03(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_03(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_04 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_04(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_04(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_05 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_05(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_05(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_06 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_06(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_06(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_07 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_07(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_07(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_08 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_08(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_08(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_09 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_09(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_09(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_10 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_10(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_10(a->clone(),b->clone());
 		}
 	};
 }

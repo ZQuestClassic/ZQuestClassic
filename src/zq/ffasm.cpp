@@ -1135,6 +1135,16 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SPRINTFVARG",           0,   0,   0,   0 },
 	{ "TRACELR",             1,   0,   0,   0},
 	{ "WAITFRAMESR",             1,   0,   0,   0},
+	{ "RESRVD_OP_Z3_01",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_02",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_03",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_04",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_05",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_06",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_07",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_08",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_09",   0,   0,   0,   0},
+	{ "RESRVD_OP_Z3_10",   0,   0,   0,   0},
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -2589,6 +2599,22 @@ script_variable variable_list[]=
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
+	{ "RESRVD_VAR_Z3_01", RESRVD_VAR_Z3_01, 0, 0 },
+	{ "RESRVD_VAR_Z3_02", RESRVD_VAR_Z3_02, 0, 0 },
+	{ "RESRVD_VAR_Z3_03", RESRVD_VAR_Z3_03, 0, 0 },
+	{ "RESRVD_VAR_Z3_04", RESRVD_VAR_Z3_04, 0, 0 },
+	{ "RESRVD_VAR_Z3_05", RESRVD_VAR_Z3_05, 0, 0 },
+	{ "RESRVD_VAR_Z3_06", RESRVD_VAR_Z3_06, 0, 0 },
+	{ "RESRVD_VAR_Z3_07", RESRVD_VAR_Z3_07, 0, 0 },
+	{ "RESRVD_VAR_Z3_08", RESRVD_VAR_Z3_08, 0, 0 },
+	{ "RESRVD_VAR_Z3_09", RESRVD_VAR_Z3_09, 0, 0 },
+	{ "RESRVD_VAR_Z3_10", RESRVD_VAR_Z3_10, 0, 0 },
+	{ "RESRVD_VAR_Z3_11", RESRVD_VAR_Z3_11, 0, 0 },
+	{ "RESRVD_VAR_Z3_12", RESRVD_VAR_Z3_12, 0, 0 },
+	{ "RESRVD_VAR_Z3_13", RESRVD_VAR_Z3_13, 0, 0 },
+	{ "RESRVD_VAR_Z3_14", RESRVD_VAR_Z3_14, 0, 0 },
+	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },
+	{ "RESRVD_VAR_Z3_16", RESRVD_VAR_Z3_16, 0, 0 },
 
 	{ " ",  -1, 0, 0 }
 };
