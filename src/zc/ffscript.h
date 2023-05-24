@@ -4814,8 +4814,9 @@ enum ASM_DEFINE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
 #define CLASS_THISKEY2          0x14D1
+#define Z3_RESERVED             0x14E0 // 0x14D2-14E0 is reserved for z3!
 
-#define NUMVARIABLES            0x14D2
+#define NUMVARIABLES            0x14E1
 
 //} End variables
 

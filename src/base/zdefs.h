@@ -621,6 +621,10 @@ extern volatile bool close_button_quit;
 #define fDISABLE_MIRROR     0x20 //'S.Flags1' Disable Magic Mirror
 #define fENEMY_WAVES     0x40 //'E.Flags' Chain 'Enemies->' triggers
 
+//flags10 - ENTIRE FLAGS10 RESERVED FOR Z3 SCROLLING! Please don't use :)
+#define fZ3_SCROLLING_WHEN  0x01
+// ----
+
 //lens layer effects
 #define llNORMAL        0
 #define llLENSHIDES     8
@@ -3483,6 +3487,8 @@ struct dmap
 #define dmfNEWCELLARENEMIES 0x080000
 #define dmfBUNNYIFNOPEARL   0x100000
 #define dmfMIRRORCONTINUE   0x200000
+#define dmfZ3_RESERVERD_1   0x400000
+#define dmfZ3_RESERVERD_2   0x800000
 
 
 #define OLDMAXCOMBOALIASES 256

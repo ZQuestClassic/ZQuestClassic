@@ -1520,8 +1520,8 @@
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
 #define CLASS_THISKEY2          1435
-
-#define LAST_BYTECODE           1436
+#define Z3_RESERVED             1450 // 1436-1450 is reserved for z3!
+#define LAST_BYTECODE           1451
 
 //} END OF BYTECODE
 
