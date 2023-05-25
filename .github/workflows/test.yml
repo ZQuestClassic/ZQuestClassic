@@ -182,3 +182,8 @@ jobs:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results
 
+      - uses: actions/upload-artifact@v3
+        if: contains(inputs.extra-args, '--update')
+        with:
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          path: ${{ github.workspace }}/tests/replays/**/*.zplay
