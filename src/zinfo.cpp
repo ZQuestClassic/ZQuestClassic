@@ -141,7 +141,9 @@ const char *itemclass_help_string_defaults[itype_max] =
 		" of the heart container they grant.", //Progressive
 	"When used, displays a string onscreen. Especially useful when combined"
 		" with string control codes.", //Note
-	"When used, can refill up to 5 counters, and optionally cure sword jinxes."
+	"When used, can refill up to 5 counters, and optionally cure sword jinxes.",
+	"When used, attempts to lift something in front of the player, OR throws the"
+		" already lifted object."
 };
 const char default_ctype_strings[cMAX][255] = 
 {

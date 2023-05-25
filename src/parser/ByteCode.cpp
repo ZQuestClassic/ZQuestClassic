@@ -2232,6 +2232,22 @@ string ZScript::VarToString(int32_t ID)
 	case RESRVD_VAR_MOOSH28: return "RESRVD_VAR_MOOSH28";
 	case RESRVD_VAR_MOOSH29: return "RESRVD_VAR_MOOSH29";
 	case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
+	case RESRVD_VAR_Z3_01: return "RESRVD_VAR_Z3_01";
+	case RESRVD_VAR_Z3_02: return "RESRVD_VAR_Z3_02";
+	case RESRVD_VAR_Z3_03: return "RESRVD_VAR_Z3_03";
+	case RESRVD_VAR_Z3_04: return "RESRVD_VAR_Z3_04";
+	case RESRVD_VAR_Z3_05: return "RESRVD_VAR_Z3_05";
+	case RESRVD_VAR_Z3_06: return "RESRVD_VAR_Z3_06";
+	case RESRVD_VAR_Z3_07: return "RESRVD_VAR_Z3_07";
+	case RESRVD_VAR_Z3_08: return "RESRVD_VAR_Z3_08";
+	case RESRVD_VAR_Z3_09: return "RESRVD_VAR_Z3_09";
+	case RESRVD_VAR_Z3_10: return "RESRVD_VAR_Z3_10";
+	case RESRVD_VAR_Z3_11: return "RESRVD_VAR_Z3_11";
+	case RESRVD_VAR_Z3_12: return "RESRVD_VAR_Z3_12";
+	case RESRVD_VAR_Z3_13: return "RESRVD_VAR_Z3_13";
+	case RESRVD_VAR_Z3_14: return "RESRVD_VAR_Z3_14";
+	case RESRVD_VAR_Z3_15: return "RESRVD_VAR_Z3_15";
+	case RESRVD_VAR_Z3_16: return "RESRVD_VAR_Z3_16";
 	
 	default:
 	{
@@ -6440,3 +6456,43 @@ string ORunGenericFrozenScript::toString() const
 	return "RUNGENFRZSCR " + getArgument()->toString();
 };
 
+string OReservedZ3_01::toString() const
+{
+	return "RESRVD_OP_Z3_01 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_02::toString() const
+{
+	return "RESRVD_OP_Z3_02 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_03::toString() const
+{
+	return "RESRVD_OP_Z3_03 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_04::toString() const
+{
+	return "RESRVD_OP_Z3_04 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_05::toString() const
+{
+	return "RESRVD_OP_Z3_05 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_06::toString() const
+{
+	return "RESRVD_OP_Z3_06 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_07::toString() const
+{
+	return "RESRVD_OP_Z3_07 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_08::toString() const
+{
+	return "RESRVD_OP_Z3_08 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_09::toString() const
+{
+	return "RESRVD_OP_Z3_09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+string OReservedZ3_10::toString() const
+{
+	return "RESRVD_OP_Z3_10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}

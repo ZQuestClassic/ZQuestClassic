@@ -3209,6 +3209,16 @@ enum ASM_DEFINE
 	SPRINTFVARG,
 	TRACELR,
 	WAITFRAMESR,
+	RESRVD_OP_Z3_01,
+	RESRVD_OP_Z3_02,
+	RESRVD_OP_Z3_03,
+	RESRVD_OP_Z3_04,
+	RESRVD_OP_Z3_05,
+	RESRVD_OP_Z3_06,
+	RESRVD_OP_Z3_07,
+	RESRVD_OP_Z3_08,
+	RESRVD_OP_Z3_09,
+	RESRVD_OP_Z3_10,
 	
 	NUMCOMMANDS           //0x01F8
 };
@@ -4814,8 +4824,24 @@ enum ASM_DEFINE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
 #define CLASS_THISKEY2          0x14D1
+#define RESRVD_VAR_Z3_01        0x14D2
+#define RESRVD_VAR_Z3_02        0x14D3
+#define RESRVD_VAR_Z3_03        0x14D4
+#define RESRVD_VAR_Z3_04        0x14D5
+#define RESRVD_VAR_Z3_05        0x14D6
+#define RESRVD_VAR_Z3_06        0x14D7
+#define RESRVD_VAR_Z3_07        0x14D8
+#define RESRVD_VAR_Z3_08        0x14D9
+#define RESRVD_VAR_Z3_09        0x14DA
+#define RESRVD_VAR_Z3_10        0x14DB
+#define RESRVD_VAR_Z3_11        0x14DC
+#define RESRVD_VAR_Z3_12        0x14DD
+#define RESRVD_VAR_Z3_13        0x14DE
+#define RESRVD_VAR_Z3_14        0x14DF
+#define RESRVD_VAR_Z3_15        0x14E0
+#define RESRVD_VAR_Z3_16        0x14E1
 
-#define NUMVARIABLES            0x14D2
+#define NUMVARIABLES            0x14E2
 
 //} End variables
 
