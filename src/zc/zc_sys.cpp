@@ -829,20 +829,9 @@ void null_quest()
 	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,0,false);
 }
 
+// TODO remove
 void init_NES_mode()
 {
-	/*
-	// qst.dat may not load correctly without this...
-	QHeader.templatepath[0]='\0';
-	
-	if(!init_colordata(true, &QHeader, &QMisc))
-	{
-		return;
-	}
-	
-	loadfullpal();
-	init_tiles(false, &QHeader);
-	*/
 	null_quest();
 }
 

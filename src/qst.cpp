@@ -1148,16 +1148,12 @@ void init_spritelists()
 
 bool reset_items(bool validate, zquestheader *Header)
 {
-    bool ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
+    // qst_dat (classic_qst.dat) has no ID_ITEMS, and the quest template file is a somewhat expensive thing to load
+    // for no reason, so let's stop doing that.
+    // https://discord.com/channels/876899628556091432/876908472728453161/1111405574899376239
+    // bool ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
+    bool ret = true;
     
-    //Ignore this, but don't remove it
-    /*
-    if (ret)
-      for(int32_t i=0; i<MAXITEMS; i++)
-      {
-        reset_itembuf(&itemsbuf[i], i);
-      }
-    */
     for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
     
     return ret;
