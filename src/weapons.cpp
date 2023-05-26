@@ -235,7 +235,7 @@ bool weapon::no_triggers() const
 		{
 			if(parentitem < 0) break;
 			itemdata const& itm = itemsbuf[parentitem];
-			if(itm.family == itype_hammer && (itm.flags & ITEM_FLAG1) && Hero.getHammerState() < 2)
+			if(itm.family == itype_hammer && (itm.flags & ITEM_FLAG1) && Hero.getHammerState() < 3)
 				return true;
 			break;
 		}

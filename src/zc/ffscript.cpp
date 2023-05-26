@@ -3950,6 +3950,11 @@ int32_t get_register(const int32_t arg)
 			ret = Hero.liftheight.getZLong();
 			break;
 		}
+		case HEROHAMMERSTATE:
+		{
+			ret = Hero.getHammerState() * 10000;
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Input States
@@ -14068,6 +14073,11 @@ void set_register(int32_t arg, int32_t value)
 		case HEROLIFTHEIGHT:
 		{
 			Hero.liftheight = zslongToFix(value);
+			break;
+		}
+		case HEROHAMMERSTATE:
+		{
+			//readonly
 			break;
 		}
 		
@@ -41821,7 +41831,7 @@ script_variable ZASMVars[]=
 	{ "HEROLIFTTIMER", HEROLIFTTIMER, 0, 0 },
 	{ "HEROLIFTMAXTIMER", HEROLIFTMAXTIMER, 0, 0 },
 	{ "HEROLIFTHEIGHT", HEROLIFTHEIGHT, 0, 0 },
-	{ "RESRVD_VAR_EMILY18", RESRVD_VAR_EMILY18, 0, 0 },
+	{ "HEROHAMMERSTATE", HEROHAMMERSTATE, 0, 0 },
 	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
 	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
 	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
