@@ -148,6 +148,8 @@ def clipboard_copy(s:str):
     pyperclip.copy(s)
 def clipboard_paste()->str:
     return pyperclip.paste()
+def jsoncopy(obj):
+    return json.loads(json.dumps(obj))
 # Take what is on the system clipboard, as a json object, and try to copy it
 def copy_from_sys_clipboard():
     s = clipboard_paste()
@@ -1367,9 +1369,9 @@ def paste_sheet():
         if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The sheet '{name}' will be replaced with the copied sheet '{cname}'."):
             return
     if cursheet == -1:
-        json_obj['named'] = copiedsheet
+        json_obj['named'] = jsoncopy(copiedsheet)
     else:
-        json_obj['sheets'][cursheet] = copiedsheet
+        json_obj['sheets'][cursheet] = jsoncopy(copiedsheet)
     mainframe.reload_lists()
     mark_edited()
 def sh_rclick(evt):
@@ -1525,9 +1527,9 @@ def paste_sec():
         if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The section '{name}' will be replaced with the copied section '{cname}'."):
             return
     if cursheet == -1:
-        json_obj['named']['tabs'][cursec] = copiedsec
+        json_obj['named']['tabs'][cursec] = jsoncopy(copiedsec)
     else:
-        json_obj['sheets'][cursheet]['tabs'][cursec] = copiedsec
+        json_obj['sheets'][cursheet]['tabs'][cursec] = jsoncopy(copiedsec)
     mainframe.reload_lists()
     mark_edited()
 def sec_rclick(evt):
@@ -1692,9 +1694,9 @@ def paste_entry():
         if not messagebox.askyesno(parent=root, title = f'Paste over {name}?', message = f"The entry '{name}' will be replaced with the copied entry '{cname}'."):
             return
     if cursheet == -1:
-        json_obj['named']['tabs'][cursec]['lines'][curentry] = copiedentry
+        json_obj['named']['tabs'][cursec]['lines'][curentry] = jsoncopy(copiedentry)
     else:
-        json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = copiedentry
+        json_obj['sheets'][cursheet]['tabs'][cursec]['lines'][curentry] = jsoncopy(copiedentry)
     mainframe.reload_lists()
     mark_edited()
 def entry_rclick(evt):
