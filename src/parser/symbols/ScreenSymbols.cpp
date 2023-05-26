@@ -278,11 +278,16 @@ static AccessorTable ScreenTable[] =
 	{ "SpawnScreenEnemies",         0,          ZTID_BOOL,   -1,                           FL_INL,  { ZTID_SCREEN },{} },
 	{ "TriggerCombo",               0,          ZTID_BOOL,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
+	{ "_getNumPortals",             0,         ZTID_FLOAT,   PORTALCOUNT,                       0,  { ZTID_SCREEN },{} },
+	{ "LoadPortal",                 0,        ZTID_PORTAL,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "CreatePortal",               0,        ZTID_PORTAL,   -1,                           FL_INL,  { ZTID_SCREEN },{} },
+	
 	{ "constNPCs",                  0,           ZTID_NPC,   INTARR_SCREEN_NPC*10000,      FL_ARR,  { ZTID_SCREEN },{} },
 	{ "constItems",                 0,          ZTID_ITEM,   INTARR_SCREEN_ITEMSPR*10000,  FL_ARR,  { ZTID_SCREEN },{} },
 	{ "constLWeapons",              0,          ZTID_LWPN,   INTARR_SCREEN_LWPN*10000,     FL_ARR,  { ZTID_SCREEN },{} },
 	{ "constEWeapons",              0,          ZTID_EWPN,   INTARR_SCREEN_EWPN*10000,     FL_ARR,  { ZTID_SCREEN },{} },
 	{ "constFFCs",                  0,           ZTID_FFC,   INTARR_SCREEN_FFC*10000,      FL_ARR,  { ZTID_SCREEN },{} },
+	{ "constPortals",               0,        ZTID_PORTAL,   INTARR_SCREEN_PORTALS*10000,  FL_ARR,  { ZTID_SCREEN },{} },
 	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX
@@ -1381,6 +1386,32 @@ void ScreenSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		addOpcode2 (code, new OScreenTriggerCombo(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//portal LoadPortal(screen, int32_t)
+	{
+		Function* function = getFunction("LoadPortal");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadPortalRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//portal CreatePortal(screen)
+	{
+		Function* function = getFunction("CreatePortal");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OCreatePortal());
+		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}

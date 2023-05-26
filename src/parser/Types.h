@@ -132,6 +132,8 @@ namespace ZScript
 		ZTID_GENERICDATA,
 		ZTID_STACK,
 		ZTID_PALDATA,
+		ZTID_PORTAL,
+		ZTID_SAVPORTAL,
 		ZTID_CLASS_END,
 
 		ZTID_END = ZTID_CLASS_END
@@ -237,6 +239,10 @@ namespace ZScript
 				return "BOTTLESHOP";
 			case ZTID_GENERICDATA:
 				return "GENERICDATA";
+			case ZTID_PORTAL:
+				return "PORTAL";
+			case ZTID_SAVPORTAL:
+				return "SAVEDPORTAL";
 			case ZTID_ZINFO:
 				return "ZINFO";
 			default:
@@ -356,6 +362,10 @@ namespace ZScript
 			return ZTID_BOTTLESHOP;
 		else if(name == "GENERICDATA")
 			return ZTID_GENERICDATA;
+		else if(name == "PORTAL")
+			return ZTID_PORTAL;
+		else if(name == "SAVEDPORTAL")
+			return ZTID_SAVPORTAL;
 		
 		return ZTID_VOID;
 	}
@@ -484,6 +494,8 @@ namespace ZScript
 		static DataTypeClassConst CBOTTLETYPE;
 		static DataTypeClassConst CBOTTLESHOP;
 		static DataTypeClassConst CGENERICDATA;
+		static DataTypeClassConst CPORTAL;
+		static DataTypeClassConst CSAVEDPORTAL;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -519,6 +531,8 @@ namespace ZScript
 		static DataTypeClass BOTTLETYPE;
 		static DataTypeClass BOTTLESHOP;
 		static DataTypeClass GENERICDATA;
+		static DataTypeClass PORTAL;
+		static DataTypeClass SAVEDPORTAL;
 	};
 
 	bool operator==(DataType const&, DataType const&);

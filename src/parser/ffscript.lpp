@@ -161,6 +161,8 @@ bottleshopdata	TOKEN( BOTTLESHOPDATA );
 subscreendata	TOKEN( SUBSCREENDATA );
 generic	TOKEN( GENERIC );
 genericdata	TOKEN( GENERICDATA );
+portal TOKEN( PORTAL );
+savedportal TOKEN( SAVEDPORTAL );
 particlesprite	TOKEN( PARTICLE );
 decorationsprite	TOKEN( DECORATION );
 "try"	{

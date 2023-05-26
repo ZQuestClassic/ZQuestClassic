@@ -1160,7 +1160,7 @@ void Z_scripterrlog(const char * const format,...)
 bool blockmoving;
 #include "sprite.h"
 movingblock mblock2;                                        //mblock[4]?
-portal* mirror_portal = NULL;
+portal mirror_portal;
 
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 particle_list particles;
@@ -1217,11 +1217,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     Lwpns.clear(force);
     Ewpns.clear(force);
     chainlinks.clear(force);
-	if(mirror_portal)
-	{
-		delete mirror_portal;
-		mirror_portal = NULL;
-	}
+	mirror_portal.clear();
 	portals.clear(force);
     clearScriptHelperData();
     

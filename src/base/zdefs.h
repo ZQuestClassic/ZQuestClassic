@@ -2262,6 +2262,7 @@ public:
 	dword fileref, subscreenref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
+	int32_t portalref, saveportalref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -4048,21 +4049,31 @@ enum
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
 
+#define MAX_SAVED_PORTALS 10000
 struct savedportal
 {
 	int16_t destdmap = -1;
 	int16_t srcdmap = -1;
-	byte scr;
+	byte srcscr;
+	byte destscr;
 	int32_t x;
 	int32_t y;
 	byte sfx;
 	int32_t warpfx;
 	int16_t spr;
+	bool deleting;
 	
+	int32_t getUID(){return uid;}
+	
+	savedportal();
 	void clear()
 	{
 		*this = savedportal();
 	}
+	
+private:
+	int32_t uid;
+	inline static int32_t nextuid = 1;
 };
 
 #define DIDCHEAT_BIT 0x80
@@ -4387,9 +4398,10 @@ struct gamedata
 	
 	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
 	void load_portal();
-	void clear_portal(savedportal* p);
+	void clear_portal(int32_t);
 	
 	void load_portals();
+	savedportal* getSavedPortal(int32_t uid);
 
 	bool should_show_time();
 };

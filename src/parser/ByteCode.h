@@ -1536,8 +1536,65 @@
 #define RESRVD_VAR_Z3_14        1449
 #define RESRVD_VAR_Z3_15        1450
 #define RESRVD_VAR_Z3_16        1451
+#define RESRVD_VAR_EMILY31      1452
+#define RESRVD_VAR_EMILY32      1453
+#define RESRVD_VAR_EMILY33      1454
+#define RESRVD_VAR_EMILY34      1455
+#define RESRVD_VAR_EMILY35      1456
+#define RESRVD_VAR_EMILY36      1457
+#define RESRVD_VAR_EMILY37      1458
+#define RESRVD_VAR_EMILY38      1459
+#define RESRVD_VAR_EMILY39      1460
+#define RESRVD_VAR_EMILY40      1461
+#define RESRVD_VAR_EMILY41      1462
+#define RESRVD_VAR_EMILY42      1463
+#define RESRVD_VAR_EMILY43      1464
+#define RESRVD_VAR_EMILY44      1465
+#define RESRVD_VAR_EMILY45      1466
+#define RESRVD_VAR_EMILY46      1467
+#define RESRVD_VAR_EMILY47      1468
+#define RESRVD_VAR_EMILY48      1469
+#define RESRVD_VAR_EMILY49      1470
+#define RESRVD_VAR_EMILY50      1471
+#define RESRVD_VAR_EMILY51      1472
+#define RESRVD_VAR_EMILY52      1473
+#define RESRVD_VAR_EMILY53      1474
+#define RESRVD_VAR_EMILY54      1475
+#define RESRVD_VAR_EMILY55      1476
+#define RESRVD_VAR_EMILY56      1477
+#define RESRVD_VAR_EMILY57      1478
+#define RESRVD_VAR_EMILY58      1479
+#define RESRVD_VAR_EMILY59      1480
+#define RESRVD_VAR_EMILY60      1481
+#define PORTALX                 1482
+#define PORTALY                 1483
+#define PORTALDMAP              1484
+#define PORTALSCREEN            1485
+#define PORTALACLK              1486
+#define PORTALAFRM              1487
+#define PORTALOTILE             1488
+#define PORTALASPD              1489
+#define PORTALFRAMES            1490
+#define PORTALSAVED             1491
+#define PORTALCLOSEDIS          1492
+#define REFPORTAL               1493
+#define REFSAVPORTAL            1494
+#define PORTALWARPSFX           1495
+#define PORTALWARPVFX           1496
+#define SAVEDPORTALX            1497
+#define SAVEDPORTALY            1498
+#define SAVEDPORTALSRCDMAP      1499
+#define SAVEDPORTALDESTDMAP     1500
+#define SAVEDPORTALSRCSCREEN       1501
+#define SAVEDPORTALWARPSFX      1502
+#define SAVEDPORTALWARPVFX      1503
+#define SAVEDPORTALSPRITE       1504
+#define SAVEDPORTALPORTAL       1505
+#define PORTALCOUNT             1506
+#define SAVEDPORTALCOUNT        1507
+#define SAVEDPORTALDSTSCREEN    1508
 
-#define LAST_BYTECODE           1452
+#define LAST_BYTECODE           1509
 
 //} END OF BYTECODE
 
@@ -1549,6 +1606,8 @@
 #define INTARR_SCREEN_LWPN      (65536+2)
 #define INTARR_SCREEN_EWPN      (65536+3)
 #define INTARR_SCREEN_FFC       (65536+4)
+#define INTARR_SCREEN_PORTALS   (65536+5)
+#define INTARR_SAVPRTL          (65536+6)
 
 //} END INTERNAL ARRAYS
 
@@ -2211,44 +2270,250 @@ namespace ZScript
 			return new OHeroLiftGrab();
 		}
 	};
-	class OReservedEmily27 : public BinaryOpcode
+	class OLoadPortalRegister : public UnaryOpcode
 	{
 	public:
-		OReservedEmily27(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OLoadPortalRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily27(a->clone(),b->clone());
+			return new OLoadPortalRegister(a->clone());
 		}
 	};
-	class OReservedEmily28 : public BinaryOpcode
+	class OCreatePortal : public Opcode
 	{
 	public:
-		OReservedEmily28(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily28(a->clone(),b->clone());
+			return new OCreatePortal();
 		}
 	};
-	class OReservedEmily29 : public BinaryOpcode
+	class OLoadSavPortalRegister : public UnaryOpcode
 	{
 	public:
-		OReservedEmily29(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OLoadSavPortalRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily29(a->clone(),b->clone());
+			return new OLoadSavPortalRegister(a->clone());
 		}
 	};
-	class OReservedEmily30 : public BinaryOpcode
+	class OCreateSavPortal : public Opcode
 	{
 	public:
-		OReservedEmily30(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily30(a->clone(),b->clone());
+			return new OCreateSavPortal();
+		}
+	};
+	class OPortalRemove : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPortalRemove();
+		}
+	};
+	class OSavedPortalRemove : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSavedPortalRemove();
+		}
+	};
+	class OSavedPortalGenerate : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSavedPortalGenerate();
+		}
+	};
+	class OUseSpritePortal : public UnaryOpcode
+	{
+	public:
+		OUseSpritePortal(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OUseSpritePortal(a->clone());
+		}
+	};
+	class OResrvdOpEmily02 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily02();
+		}
+	};
+	class OResrvdOpEmily03 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily03();
+		}
+	};
+	class OResrvdOpEmily04 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily04();
+		}
+	};
+	class OResrvdOpEmily05 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily05();
+		}
+	};
+	class OResrvdOpEmily06 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily06();
+		}
+	};
+	class OResrvdOpEmily07 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily07();
+		}
+	};
+	class OResrvdOpEmily08 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily08();
+		}
+	};
+	class OResrvdOpEmily09 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily09();
+		}
+	};
+	class OResrvdOpEmily10 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily10();
+		}
+	};
+	class OResrvdOpEmily11 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily11();
+		}
+	};
+	class OResrvdOpEmily12 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily12();
+		}
+	};
+	class OResrvdOpEmily13 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily13();
+		}
+	};
+	class OResrvdOpEmily14 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily14();
+		}
+	};
+	class OResrvdOpEmily15 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily15();
+		}
+	};
+	class OResrvdOpEmily16 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily16();
+		}
+	};
+	class OResrvdOpEmily17 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily17();
+		}
+	};
+	class OResrvdOpEmily18 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily18();
+		}
+	};
+	class OResrvdOpEmily19 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily19();
+		}
+	};
+	class OResrvdOpEmily20 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily20();
 		}
 	};
 

@@ -715,6 +715,12 @@ untyped : A special datatype that can be cast to and from any other type.
 	paldata :
 		Object type for storing palettes
 	
+	portal :
+		pointer to one of the on-screen 'portals' (See ZScript_Docs.html)
+	
+	savedportal :
+		Object type for storing portal data that saves with the save file (See ZScript_Docs.html)
+	
 	//Planned/Incomplete
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.

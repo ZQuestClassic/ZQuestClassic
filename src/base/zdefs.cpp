@@ -2122,5 +2122,8 @@ bool runscript_do_earlyret(int runscript_val)
 	return false;
 }
 
-
+savedportal::savedportal()
+{
+	uid = nextuid++;
+}
 

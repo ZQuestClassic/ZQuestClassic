@@ -529,6 +529,34 @@ private:
     void generateCode();
 };
 
+class PortalSymbols : public LibrarySymbols
+{
+public:
+    static PortalSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static PortalSymbols singleton;
+    PortalSymbols();
+    void generateCode();
+};
+
+class SavedPortalSymbols : public LibrarySymbols
+{
+public:
+    static SavedPortalSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static SavedPortalSymbols singleton;
+    SavedPortalSymbols();
+    void generateCode();
+};
+
 #endif
 
 

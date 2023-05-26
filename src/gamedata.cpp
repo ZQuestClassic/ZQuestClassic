@@ -24,7 +24,7 @@
 using namespace util;
 extern FFScript FFCore;
 #ifndef IS_ZQUEST
-extern portal* mirror_portal;
+extern portal mirror_portal;
 extern sprite_list portals;
 #endif
 extern int32_t dlevel;
@@ -205,6 +205,7 @@ void gamedata::Copy(const gamedata& g)
 	}
 #ifndef IS_ZQUEST
 	user_objects = g.user_objects;
+	user_portals = g.user_portals;
 #endif
 }
 
@@ -1119,7 +1120,8 @@ void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x
 {
 	saved_mirror_portal.destdmap = destdmap;
 	saved_mirror_portal.srcdmap = srcdmap;
-	saved_mirror_portal.scr = scr;
+	saved_mirror_portal.srcscr = scr;
+	saved_mirror_portal.destscr = scr;
 	saved_mirror_portal.x = x;
 	saved_mirror_portal.y = y;
 	saved_mirror_portal.warpfx = weffect;
@@ -1131,13 +1133,13 @@ portal* loadportal(savedportal& p)
 {
 	portal* retp = nullptr;
 #ifndef IS_ZQUEST
-	if(currdmap == p.srcdmap && currscr == p.scr)
+	if(currdmap == p.srcdmap && currscr == p.srcscr)
 	{
-		retp = new portal(p.destdmap, p.scr+DMaps[p.destdmap].xoff,
+		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
 			p.warpfx, p.sfx, p.spr);
 		retp->x = zslongToFix(p.x);
 		retp->y = zslongToFix(p.y);
-		retp->saved_data = &p;
+		retp->saved_data = p.getUID();
 	}
 #endif
 	return retp;
@@ -1145,19 +1147,27 @@ portal* loadportal(savedportal& p)
 void gamedata::load_portal()
 {
 #ifndef IS_ZQUEST
-	if(mirror_portal)
-		delete mirror_portal;
-	mirror_portal = loadportal(saved_mirror_portal);
+	mirror_portal.clear();
+	portal* tmp = loadportal(saved_mirror_portal);
+	if(tmp)
+	{
+		mirror_portal = *tmp;
+		delete tmp;
+	}
 #endif
 }
 void gamedata::load_portals()
 {
 #ifndef IS_ZQUEST
-	if(mirror_portal)
-		delete mirror_portal;
+	mirror_portal.clear();
 	portals.clear(true);
 	
-	mirror_portal = loadportal(saved_mirror_portal);
+	portal* tmp = loadportal(saved_mirror_portal);
+	if(tmp)
+	{
+		mirror_portal = *tmp;
+		delete tmp;
+	}
 	for(savedportal& saved : user_portals)
 	{
 		portal* p = loadportal(saved);
@@ -1166,21 +1176,35 @@ void gamedata::load_portals()
 #endif
 }
 
-void gamedata::clear_portal(savedportal* p)
+void gamedata::clear_portal(int32_t uid)
 {
+	savedportal* p = getSavedPortal(uid);
 	if(p)
 	{
 		p->clear();
 		for(auto it = user_portals.begin(); it != user_portals.end();)
 		{
 			savedportal& tmp = *it;
-			if(&tmp == p)
+			if(tmp.getUID() == uid)
 			{
 				it = user_portals.erase(it);
+				break;
 			}
 			else ++it;
 		}
 	}
+}
+savedportal* gamedata::getSavedPortal(int32_t uid)
+{
+	if(uid == saved_mirror_portal.getUID())
+		return &(saved_mirror_portal);
+	for(auto it = user_portals.begin(); it != user_portals.end(); ++it)
+	{
+		savedportal& tmp = *it;
+		if(tmp.getUID() == uid)
+			return &tmp;
+	}
+	return nullptr;
 }
 
 bool gamedata::should_show_time()
