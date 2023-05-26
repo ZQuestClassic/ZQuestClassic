@@ -1869,7 +1869,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
-		visit(host.right.get(), param);
+		literalVisit(host.right.get(), param);
 		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
@@ -1951,7 +1951,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
 		//Get rightx
 		//Get right
-		visit(host.right.get(), param);
+		literalVisit(host.right.get(), param);
 		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		//Set output
