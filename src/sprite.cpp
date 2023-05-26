@@ -2771,7 +2771,6 @@ portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 }
 void portal::LOADGFX(int32_t spr)
 {
-	zprint2("Loading GFX '%d' for portal '%d'\n", spr, getUID());
 	wpndata const& portalsprite = wpnsbuf[spr];
 	o_tile = portalsprite.tile;
 	aspd = portalsprite.speed ? portalsprite.speed : 1;
