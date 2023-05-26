@@ -1264,10 +1264,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
 	
 	auto* optarg = opcodeTargets.back();
-	
+	int32_t initIndex = result.size();
+	int32_t startRefCount = arrayRefs.size(); //Store ref count
 	if(func.prototype) //Prototype function
 	{
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
 		for (auto it = host.parameters.begin();
 			it != host.parameters.end(); ++it)
@@ -1304,16 +1304,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				}
 			}
 		}
-
-		//Deallocate string/array literals from within the parameters
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
 	}
 	else if(func.getFlag(FUNCFLAG_INLINE) && func.isInternal()) //Inline function
 	{
 		// User functions actually can't really benefit from any optimization like this... -Em
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		size_t num_actual_params = func.paramTypes.size() - func.extra_vargs;
 		size_t num_used_params = host.parameters.size();
 		
@@ -1487,10 +1481,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
-		//Deallocate string/array literals from within the parameters
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-			arrayRefs.pop_back();
 	}
 	else if(classfunc)
 	{
@@ -1502,7 +1492,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
 
 		//push the parameters, in forward order
@@ -1573,11 +1562,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(next);
 		if(store_this)
 			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
-		
-		//Deallocate string/array literals from within the parameters
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
 	}
 	else
 	{
@@ -1586,7 +1570,6 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
-		int32_t startRefCount = arrayRefs.size(); //Store ref count
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
 		
 		
@@ -1678,12 +1661,16 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				handleError(CompileError::BadReassignCall(&host, func.getSignature().asString()));
 			}
 		}
-		
-		//Deallocate string/array literals from within the parameters
-		deallocateRefsUntilCount(startRefCount);
-		while ((int32_t)arrayRefs.size() > startRefCount)
-		arrayRefs.pop_back();
 	}
+	
+	//Allocate string/array literals retroactively
+	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
+	c->initCode.clear();
+	
+	//Deallocate string/array literals from within the parameters
+	deallocateRefsUntilCount(startRefCount);
+	while ((int32_t)arrayRefs.size() > startRefCount)
+		arrayRefs.pop_back();
 }
 
 void BuildOpcodes::caseExprNegate(ASTExprNegate& host, void* param)
