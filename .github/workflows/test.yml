@@ -127,6 +127,13 @@ jobs:
           cd ${{ env.BUILD_FOLDER }}
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -assert test.zplay
+      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+        name: Test saving qst
+        run: |
+          cd ${{ env.BUILD_FOLDER }}
+          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -copy-qst modules/classic/classic_1st.qst tmp.qst
+          mv tmp.qst modules/classic/classic_1st.qst
+          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -assert test.zplay
 
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests

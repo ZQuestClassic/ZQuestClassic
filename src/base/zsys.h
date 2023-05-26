@@ -49,8 +49,6 @@ extern char zquestpwd[8];
 extern char datapwd[8];
 extern char zcheat[4][8];
 
-void resolve_password(char *pwd);
-
 bool decode_007(byte *buf, dword size, dword key, word check1, word check2, int32_t method);
 void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, int32_t method);
 int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key, const char *header, int32_t method);

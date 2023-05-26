@@ -29476,6 +29476,40 @@ bool no_subscreen()
     return false;
 }
 
+// Removes the top layer encoding from a quest file. See open_quest_file.
+// This has zero impact on the contents of the quest file. There should be no way for this to
+// break anything.
+static void do_unencrypt_qst_command(const char* input_filename, const char* output_filename)
+{
+	// If the file is already a packfile, there's nothing to do.
+	PACKFILE* pf_check = pack_fopen_password(input_filename, F_READ_PACKED, datapwd);
+	pack_fclose(pf_check);
+	if (pf_check) return;
+
+	char deletefilename[1024];
+	deletefilename[0] = '\0';
+	int32_t error;
+	PACKFILE* pf = open_quest_file(&error, input_filename, deletefilename, true, true, false);
+	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE_PACKED, datapwd);
+	int c;
+	while ((c = pack_getc(pf)) != EOF)
+	{
+		pack_putc(c, pf2);
+	}
+	pack_fclose(pf);
+	pack_fclose(pf2);
+	if (deletefilename[0]) delete_file(deletefilename);
+}
+
+// Copy a quest file by loading and resaving, exactly like if the user did it in the UI.
+// Note there could be changes introduced in the loading or saving functions. These are
+// typically for compatability, but could possibly be a source of bugs.
+static void do_copy_qst_command(const char* input_filename, const char* output_filename)
+{
+	load_quest(input_filename, true, false);
+	save_quest(output_filename, false);
+}
+
 int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
@@ -29625,6 +29659,22 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 	}
 
+	int unencrypt_qst_arg = used_switch(argc, argv, "-unencrypt-qst");
+	if (unencrypt_qst_arg > 0)
+	{
+		if (unencrypt_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -unencrypt-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[unencrypt_qst_arg + 1];
+		const char* output_filename = argv[unencrypt_qst_arg + 2];
+		do_unencrypt_qst_command(input_filename, output_filename);
+		exit(0);
+	}
+
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
@@ -29641,17 +29691,6 @@ int32_t main(int32_t argc,char **argv)
 
 	al5img_init();
 	register_png_file_type();
-
-	if(!al_install_audio())
-	{
-		// We can continue even with no audio.
-		Z_error("Failed al_install_audio");
-	}
-
-	if(!al_init_acodec_addon())
-	{
-		Z_error("Failed al_init_acodec_addon");
-	}
 
 	all_disable_threaded_display();
 
@@ -29710,7 +29749,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("Loading data files:\n");
 	
-	resolve_password(datapwd);
 	packfile_password(datapwd);
 	
 	
@@ -30075,7 +30113,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(used_switch(argc,argv,"-d"))
 	{
-		resolve_password(zquestpwd);
 		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
 	}
 	
@@ -30104,7 +30141,18 @@ int32_t main(int32_t argc,char **argv)
 	}
 	else
 	{
-		if(install_sound(DIGI_AUTODETECT,DIGI_AUTODETECT,NULL))
+		if(!al_install_audio())
+		{
+			// We can continue even with no audio.
+			Z_error("Failed al_install_audio");
+		}
+
+		if(!al_init_acodec_addon())
+		{
+			Z_error("Failed al_init_acodec_addon");
+		}
+
+		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 			FatalConsole("ZQuest Creator Init Error: %s\n", 
 				"Sound driver not available.  Sound disabled.!\n");
 		else Z_message("OK\n");
@@ -30342,6 +30390,22 @@ int32_t main(int32_t argc,char **argv)
 		if(comboscripts[i]!=NULL) delete comboscripts[i];
 		comboscripts[i] = new script_data();
 	}
+
+	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
+	if (copy_qst_arg > 0)
+	{
+		if (copy_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -copy-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[copy_qst_arg + 1];
+		const char* output_filename = argv[copy_qst_arg + 2];
+		do_copy_qst_command(input_filename, output_filename);
+		exit(0);
+	}
 	
 	zScript = string();
 	strcpy(zScriptBytes, "0 Bytes in Buffer");
@@ -30359,6 +30423,7 @@ int32_t main(int32_t argc,char **argv)
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
+	render_zq(); // Ensure the rendering bitmaps are setup.
 	//Display annoying beta warning message
 
 #ifdef __EMSCRIPTEN__

@@ -2218,6 +2218,12 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	}
 	
 	// decode to temp file
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(fname))
+    {
+        em_fetch_file(fname);
+    }
+#endif
 	ret = decode_file_007(fname, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, strstr(fname, ".dat#")!=NULL, "");
 	
 	if(ret)
@@ -3855,93 +3861,21 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 		str[0]=0;
 		return 0;
 	}
-	
-	bool oldquest=false;
-	
-	// default error
-	strcpy(str,"Error: Invalid quest file");
-	
-	char tmpfilename[L_tmpnam];
-	temp_name(tmpfilename);
-	int32_t ret;
-	PACKFILE *f;
-	
-	const char *passwd = datapwd;
-	ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, strstr(qstpath, ".dat#")!=NULL, passwd);
-	
-	if(ret)
+
+	char deletefilename[1024];
+	deletefilename[0] = '\0';
+	int32_t error;
+	PACKFILE* f = open_quest_file(&error, qstpath, deletefilename, true, true, false);
+	if (deletefilename[0]) delete_file(deletefilename);
+
+	if (!f)
 	{
-		switch(ret)
-		{
-		case 1:
-			strcpy(str,"Error: Unable to open file");
-			break;
-			
-		case 2:
-			strcpy(str,"Internal error occurred");
-			break;
-			// be sure not to delete tmpfilename now...
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_211B9, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B185, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B105, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B104, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret)
-		{
-			oldquest = true;
-			passwd = "";
-		}
-	}
-	
-	f = pack_fopen_password(oldquest ? qstpath : tmpfilename, F_READ_PACKED, passwd);
-	
-	if(!f)
-	{
-		if(!oldquest&&(errno==EDOM))
-		{
-			f = pack_fopen_password(oldquest ? qstpath : tmpfilename, F_READ, passwd);
-		}
-		
-		if(!f)
-		{
-			delete_file(tmpfilename);
-		}
-		
 		strcpy(str,"Error: Unable to open file");
-//	setPackfilePassword(NULL);
 		return 0;
 	}
-	
-	ret=readheader(f, header, true);
-	
-	if(f)
-	{
-		pack_fclose(f);
-	}
-	
-	if(!oldquest)
-	{
-		delete_file(tmpfilename);
-	}
-	
-//  setPackfilePassword(NULL);
+
+	pack_fclose(f);
+	int32_t ret = readheader(f, header, true);
 
 	switch(ret)
 	{
@@ -3964,28 +3898,10 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 			return 0;
 	}
 	
-	// if(header->quest_number > 0)
-	// {
-		// if(moduledata.old_quest_serial_flow)
-		// {
-			// strcpy(str,
-				   // (header->quest_number == 4) ? "Error: Not a custom quest! Clear the Second Quest with all 16 Heart Containers to play this." :
-				   // (header->quest_number == 3) ? "Error: Not a custom quest! Clear the Second Quest to play this." :
-				   // (header->quest_number > 1) ? "Error: Not a custom quest! Clear the First Quest to play this." :
-				   // "Error: Not a custom quest! Create a new save file and press Start to play the First Quest.");
-		// }
-		// else
-		// {
-			// strcpy(str, "Error: Not a custom quest! Clear the prior quest in the module to play this.");
-		// }
-		// return 0;
-	// }
-	
 	strcpy(str,"Title:\n");
 	strcat(str,header->title);
 	strcat(str,"\n\nAuthor:\n");
 	strcat(str,header->author);
-//  setPackfilePassword(NULL);
 
 	return 1;
 }

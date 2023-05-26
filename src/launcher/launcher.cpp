@@ -150,7 +150,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Loading data files:\n"); //{
 	
-	resolve_password(datapwd);
 	packfile_password(datapwd);
 	
 	Z_message("....Fonts.Dat..."); //{

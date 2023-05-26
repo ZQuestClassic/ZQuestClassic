@@ -83,6 +83,11 @@ App get_app_id()
     return app_id;
 }
 
+bool is_ci()
+{
+	return std::getenv("CI") != nullptr;
+}
+
 // https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
 // https://mariusbancila.ro/blog/2021/05/19/how-to-build-high-dpi-aware-native-desktop-applications/
 // On windows, Allegro sets DPI awareness at runtime:

@@ -35,10 +35,6 @@ using std::getline;
 #include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
 
-#ifdef __EMSCRIPTEN__
-#include "emscripten_utils.h"
-#endif
-
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
@@ -226,23 +222,13 @@ int32_t used_switch(int32_t argc,char *argv[],const char *s)
 #pragma warning(disable: 4310)
 #endif
 
-
-char zeldapwd[8]  = { char('N'+11),char('0'+22),char('S'+33),char('7'+44),char('1'+55),char('M'+66),char('3'+77), char(0 +88) };
-//char zquestpwd[8] = { 'C'+11,'a'+22,'o'+33,'M'+44,'e'+55,'i'+66,'7'+77, 0 +88 };
-//char zquestpwd[8] = { 'N'+11,'g'+22,'o'+33,'m'+44,'o'+55,'n'+66,'g'+77, 0 +88 };
-//char zquestpwd[8] = { 'C'+11,'a'+22,'n'+33,'t'+44,'i'+55,'k'+66,'a'+77,0+88 };
-char zquestpwd[8] = { char('S'+11),char('3'+22),char('('+33),char('r'+44),char('3'+55),char('7'+66),char('!'+77), char(0 +88) };
-char datapwd[8]   = { char('l'+11),char('o'+22),char('n'+33),char('g'+44),char('t'+55),char('a'+66),char('n'+77),char(0+88) };
+char zeldapwd[8]  = "N0S71M3";
+char zquestpwd[8] = "S3(r37!";
+char datapwd[8]   = "longtan";
 
 #ifdef _MSC_VER
 #pragma warning(default: 4309)
 #endif
-
-void resolve_password(char *pwd)
-{
-    for(int32_t i=0; i<8; i++)
-        pwd[i]-=(i+1)*11;
-}
 
 void set_bit(byte *bitstr,int32_t bit,byte val)
 {
@@ -642,13 +628,6 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
     int32_t tog = 0, c, r=0, err;
     int32_t size, i;
     int16_t c1 = 0, c2 = 0, check1, check2;
-
-#ifdef __EMSCRIPTEN__
-    if (em_is_lazy_file(srcfile))
-    {
-        em_fetch_file(srcfile);
-    }
-#endif
     
     // open files
     size = file_size_ex_password(srcfile, password);
@@ -1150,7 +1129,8 @@ void box_out(const char *msg)
         box_log = oldlog;
     }
     
-	update_hw_screen(true);
+    if (box_active)
+        update_hw_screen(true);
 }
 
 /* calls box_out, and box_eol for newlines */
@@ -1212,7 +1192,8 @@ void box_eol()
         memset(box_log_msg, 0, 480);
     }
     
-	update_hw_screen(true);
+    if (box_active)
+        update_hw_screen(true);
 }
 
 /* ends output of a progress message */

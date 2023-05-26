@@ -195,6 +195,9 @@ async function main() {
           console.error(msg);
         }
       },
+      preRun: [() => {
+        if (IS_CI) ENV.CI = '1';
+      }],
     };
 
     window.addEventListener('resize', resize);

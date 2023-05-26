@@ -4715,7 +4715,6 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	if(used_switch(argc,argv,"-show-fps")) ShowFPS=true;
 	
-	resolve_password(zeldapwd);
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 	
@@ -4782,7 +4781,6 @@ int main(int argc, char **argv)
 	}
 	
 	// load the data files
-	resolve_password(datapwd);
 	//setPackfilePassword(datapwd);
 	packfile_password(datapwd);
 	

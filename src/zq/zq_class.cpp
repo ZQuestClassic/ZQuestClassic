@@ -6946,7 +6946,7 @@ void set_rules(byte* newrules);
 void popup_bugfix_dlg(const char* cfg)
 {
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
-	if(!dont_show_again && hasCompatRulesEnabled())
+	if(!dont_show_again && hasCompatRulesEnabled() && !is_ci())
 	{
 		AlertDialog("Apply New Bugfixes",
 			"New bugfixes found that can be applied to this quest!"
@@ -14578,40 +14578,8 @@ int32_t save_quest(const char *filename, bool timed_save)
 		}
 	}
 	
-	char *tmpfilename;
-	char tempfilestr[L_tmpnam]; // This is stupid...
-	
-	if(compress)
-	{
-		temp_name(tempfilestr);
-		tmpfilename=tempfilestr;
-	}
-	else
-	{
-		tmpfilename=(char *)filename;
-	}
-	
 	int32_t ret;
-	ret  = save_unencoded_quest(tmpfilename, compress, filename);
-	
-	if(compress)
-	{
-		if(ret == 0)
-		{
-			box_out("Encrypting...");
-			ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + zc_oldrand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
-			
-			if(ret)
-			{
-				ret += 100;
-			}
-			
-			box_out("okay.");
-			box_eol();
-		}
-		
-		delete_file(tmpfilename);
-	}
+	ret  = save_unencoded_quest(filename, compress, filename);
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();

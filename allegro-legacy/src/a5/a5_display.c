@@ -207,8 +207,10 @@ static void _a5_destroy_screen(void)
 
 void all_process_display_events()
 {
-  ALLEGRO_EVENT event;
+  // local edit
+  if (!_a5_display_thread_event_queue) return;
 
+  ALLEGRO_EVENT event;
   while (!al_is_event_queue_empty(_a5_display_thread_event_queue))
   {
     al_get_next_event(_a5_display_thread_event_queue, &event);
