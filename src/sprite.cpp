@@ -2550,10 +2550,13 @@ void sprite_list::checkConsistency()
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
 
-void sprite_list::forEach(std::function<void(sprite&)> proc)
+void sprite_list::forEach(std::function<bool(sprite&)> proc)
 {
 	for(int q = 0; q < count; ++q)
-		proc(*sprites[q]);
+	{
+		if(proc(*sprites[q]))
+			return;
+	}
 }
 
 void sprite::explode(int32_t type)
@@ -2756,9 +2759,19 @@ void movingblock::draw(BITMAP *dest)
 }
 
 //Portal
+portal::portal()
+{
+	id = 0; //negative id doesn't draw!
+}
 portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 	: destdmap(dm), destscr(scr), weffect(gfx), wsfx(sfx)
 {
+	LOADGFX(spr);
+	id = 0; //negative id doesn't draw!
+}
+void portal::LOADGFX(int32_t spr)
+{
+	zprint2("Loading GFX '%d' for portal '%d'\n", spr, getUID());
 	wpndata const& portalsprite = wpnsbuf[spr];
 	o_tile = portalsprite.tile;
 	aspd = portalsprite.speed ? portalsprite.speed : 1;
@@ -2767,7 +2780,6 @@ portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 	aclk = 0;
 	cs = portalsprite.csets & 0xF;
 	tile = o_tile;
-	id = 0; //negative id doesn't draw!
 }
 
 bool portal::animate(int32_t)
@@ -2782,6 +2794,10 @@ bool portal::animate(int32_t)
 	}
 	tile = o_tile + aframe;
 	return false;
+}
+void portal::clear()
+{
+	*this = portal();
 }
 
 //BreakableCombo

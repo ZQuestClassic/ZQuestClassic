@@ -1999,6 +1999,63 @@ string ZScript::VarToString(int32_t ID)
 	case RESRVD_VAR_EMILY28: return "RESRVD_VAR_EMILY28";
 	case RESRVD_VAR_EMILY29: return "RESRVD_VAR_EMILY29";
 	case RESRVD_VAR_EMILY30: return "RESRVD_VAR_EMILY30";
+	case RESRVD_VAR_EMILY31: return "RESRVD_VAR_EMILY31";
+	case RESRVD_VAR_EMILY32: return "RESRVD_VAR_EMILY32";
+	case RESRVD_VAR_EMILY33: return "RESRVD_VAR_EMILY33";
+	case RESRVD_VAR_EMILY34: return "RESRVD_VAR_EMILY34";
+	case RESRVD_VAR_EMILY35: return "RESRVD_VAR_EMILY35";
+	case RESRVD_VAR_EMILY36: return "RESRVD_VAR_EMILY36";
+	case RESRVD_VAR_EMILY37: return "RESRVD_VAR_EMILY37";
+	case RESRVD_VAR_EMILY38: return "RESRVD_VAR_EMILY38";
+	case RESRVD_VAR_EMILY39: return "RESRVD_VAR_EMILY39";
+	case RESRVD_VAR_EMILY40: return "RESRVD_VAR_EMILY40";
+	case RESRVD_VAR_EMILY41: return "RESRVD_VAR_EMILY41";
+	case RESRVD_VAR_EMILY42: return "RESRVD_VAR_EMILY42";
+	case RESRVD_VAR_EMILY43: return "RESRVD_VAR_EMILY43";
+	case RESRVD_VAR_EMILY44: return "RESRVD_VAR_EMILY44";
+	case RESRVD_VAR_EMILY45: return "RESRVD_VAR_EMILY45";
+	case RESRVD_VAR_EMILY46: return "RESRVD_VAR_EMILY46";
+	case RESRVD_VAR_EMILY47: return "RESRVD_VAR_EMILY47";
+	case RESRVD_VAR_EMILY48: return "RESRVD_VAR_EMILY48";
+	case RESRVD_VAR_EMILY49: return "RESRVD_VAR_EMILY49";
+	case RESRVD_VAR_EMILY50: return "RESRVD_VAR_EMILY50";
+	case RESRVD_VAR_EMILY51: return "RESRVD_VAR_EMILY51";
+	case RESRVD_VAR_EMILY52: return "RESRVD_VAR_EMILY52";
+	case RESRVD_VAR_EMILY53: return "RESRVD_VAR_EMILY53";
+	case RESRVD_VAR_EMILY54: return "RESRVD_VAR_EMILY54";
+	case RESRVD_VAR_EMILY55: return "RESRVD_VAR_EMILY55";
+	case RESRVD_VAR_EMILY56: return "RESRVD_VAR_EMILY56";
+	case RESRVD_VAR_EMILY57: return "RESRVD_VAR_EMILY57";
+	case RESRVD_VAR_EMILY58: return "RESRVD_VAR_EMILY58";
+	case RESRVD_VAR_EMILY59: return "RESRVD_VAR_EMILY59";
+	case RESRVD_VAR_EMILY60: return "RESRVD_VAR_EMILY60";
+	case PORTALX: return "PORTALX";
+	case PORTALY: return "PORTALY";
+	case PORTALDMAP: return "PORTALDMAP";
+	case PORTALSCREEN: return "PORTALSCREEN";
+	case PORTALACLK: return "PORTALACLK";
+	case PORTALAFRM: return "PORTALAFRM";
+	case PORTALOTILE: return "PORTALOTILE";
+	case PORTALASPD: return "PORTALASPD";
+	case PORTALFRAMES: return "PORTALFRAMES";
+	case PORTALSAVED: return "PORTALSAVED";
+	case PORTALCLOSEDIS: return "PORTALCLOSEDIS";
+	case REFPORTAL: return "REFPORTAL";
+	case REFSAVPORTAL: return "REFSAVPORTAL";
+	case PORTALWARPSFX: return "PORTALWARPSFX";
+	case PORTALWARPVFX: return "PORTALWARPVFX";
+	case SAVEDPORTALX: return "SAVEDPORTALX";
+	case SAVEDPORTALY: return "SAVEDPORTALY";
+	case SAVEDPORTALSRCDMAP: return "SAVEDPORTALSRCDMAP";
+	case SAVEDPORTALDESTDMAP: return "SAVEDPORTALDESTDMAP";
+	case SAVEDPORTALSRCSCREEN: return "SAVEDPORTALSRCSCREEN";
+	case SAVEDPORTALDSTSCREEN: return "SAVEDPORTALDSTSCREEN";
+	case SAVEDPORTALWARPSFX: return "SAVEDPORTALWARPSFX";
+	case SAVEDPORTALWARPVFX: return "SAVEDPORTALWARPVFX";
+	case SAVEDPORTALSPRITE: return "SAVEDPORTALSPRITE";
+	case SAVEDPORTALPORTAL: return "SAVEDPORTALPORTAL";
+	case PORTALCOUNT: return "PORTALCOUNT";
+	case SAVEDPORTALCOUNT: return "SAVEDPORTALCOUNT";
 	
 	case LINKCLIMBING: return "LINKCLIMBING";
 	case NPCIMMORTAL: return "NPCIMMORTAL";
@@ -2501,21 +2558,113 @@ string OHeroLiftGrab::toString() const
 {
 	return "HEROLIFTGRAB";
 }
-string OReservedEmily27::toString() const
+string OLoadPortalRegister::toString() const
 {
-	return "RESRVD_OP_EMILY27 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "LOADPORTAL " + getArgument()->toString();
 }
-string OReservedEmily28::toString() const
+string OCreatePortal::toString() const
 {
-	return "RESRVD_OP_EMILY28 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "CREATEPORTAL";
 }
-string OReservedEmily29::toString() const
+string OLoadSavPortalRegister::toString() const
 {
-	return "RESRVD_OP_EMILY29 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "LOADSAVPORTAL " + getArgument()->toString();
 }
-string OReservedEmily30::toString() const
+string OCreateSavPortal::toString() const
 {
-	return "RESRVD_OP_EMILY30 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+	return "CREATESAVPORTAL";
+}
+string OPortalRemove::toString() const
+{
+	return "PORTALREMOVE";
+}
+string OSavedPortalRemove::toString() const
+{
+	return "SAVEDPORTALREMOVE";
+}
+string OSavedPortalGenerate::toString() const
+{
+	return "SAVEDPORTALGENERATE";
+}
+string OUseSpritePortal::toString() const
+{
+	return "PORTALUSESPRITE " + getArgument()->toString();
+}
+string OResrvdOpEmily02::toString() const
+{
+	return "RESRVD_OP_EMILY_02";
+}
+string OResrvdOpEmily03::toString() const
+{
+	return "RESRVD_OP_EMILY_03";
+}
+string OResrvdOpEmily04::toString() const
+{
+	return "RESRVD_OP_EMILY_04";
+}
+string OResrvdOpEmily05::toString() const
+{
+	return "RESRVD_OP_EMILY_05";
+}
+string OResrvdOpEmily06::toString() const
+{
+	return "RESRVD_OP_EMILY_06";
+}
+string OResrvdOpEmily07::toString() const
+{
+	return "RESRVD_OP_EMILY_07";
+}
+string OResrvdOpEmily08::toString() const
+{
+	return "RESRVD_OP_EMILY_08";
+}
+string OResrvdOpEmily09::toString() const
+{
+	return "RESRVD_OP_EMILY_09";
+}
+string OResrvdOpEmily10::toString() const
+{
+	return "RESRVD_OP_EMILY_10";
+}
+string OResrvdOpEmily11::toString() const
+{
+	return "RESRVD_OP_EMILY_11";
+}
+string OResrvdOpEmily12::toString() const
+{
+	return "RESRVD_OP_EMILY_12";
+}
+string OResrvdOpEmily13::toString() const
+{
+	return "RESRVD_OP_EMILY_13";
+}
+string OResrvdOpEmily14::toString() const
+{
+	return "RESRVD_OP_EMILY_14";
+}
+string OResrvdOpEmily15::toString() const
+{
+	return "RESRVD_OP_EMILY_15";
+}
+string OResrvdOpEmily16::toString() const
+{
+	return "RESRVD_OP_EMILY_16";
+}
+string OResrvdOpEmily17::toString() const
+{
+	return "RESRVD_OP_EMILY_17";
+}
+string OResrvdOpEmily18::toString() const
+{
+	return "RESRVD_OP_EMILY_18";
+}
+string OResrvdOpEmily19::toString() const
+{
+	return "RESRVD_OP_EMILY_19";
+}
+string OResrvdOpEmily20::toString() const
+{
+	return "RESRVD_OP_EMILY_20";
 }
 
 

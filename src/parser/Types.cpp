@@ -187,6 +187,8 @@ DataTypeClassConst DataType::CPALDATA(ZCLID_PALDATA, "const paldata");
 DataTypeClassConst DataType::CBOTTLETYPE(ZCLID_BOTTLETYPE, "const bottledata");
 DataTypeClassConst DataType::CBOTTLESHOP(ZCLID_BOTTLESHOP, "const bottleshopdata");
 DataTypeClassConst DataType::CGENERICDATA(ZCLID_GENERICDATA, "const genericdata");
+DataTypeClassConst DataType::CPORTAL(ZCLID_PORTAL, "const portal");
+DataTypeClassConst DataType::CSAVEDPORTAL(ZCLID_SAVPORTAL, "const savedportal");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
@@ -222,6 +224,8 @@ DataTypeClass DataType::PALDATA(ZCLID_PALDATA, "PALDATA", &CPALDATA);
 DataTypeClass DataType::BOTTLETYPE(ZCLID_BOTTLETYPE, "bottledata", &CBOTTLETYPE);
 DataTypeClass DataType::BOTTLESHOP(ZCLID_BOTTLESHOP, "bottleshopdata", &CBOTTLESHOP);
 DataTypeClass DataType::GENERICDATA(ZCLID_GENERICDATA, "genericdata", &CGENERICDATA);
+DataTypeClass DataType::PORTAL(ZCLID_PORTAL, "portal", &CPORTAL);
+DataTypeClass DataType::SAVEDPORTAL(ZCLID_SAVPORTAL, "savedportal", &CSAVEDPORTAL);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -269,6 +273,8 @@ DataType const* DataType::get(DataTypeId id)
 		case ZTID_BOTTLETYPE: return &BOTTLETYPE;
 		case ZTID_BOTTLESHOP: return &BOTTLESHOP;
 		case ZTID_GENERICDATA: return &GENERICDATA;
+		case ZTID_PORTAL: return &PORTAL;
+		case ZTID_SAVPORTAL: return &SAVEDPORTAL;
 		case ZTID_GRAPHICS: return &GRAPHICS;
 		case ZTID_BITMAP: return &BITMAP;
 		case ZTID_TEXT: return &TEXT;
@@ -321,6 +327,8 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLID_BOTTLETYPE: return &BOTTLETYPE;
 		case ZCLID_BOTTLESHOP: return &BOTTLESHOP;
 		case ZCLID_GENERICDATA: return &GENERICDATA;
+		case ZCLID_PORTAL: return &PORTAL;
+		case ZCLID_SAVPORTAL: return &SAVEDPORTAL;
 		case ZCLID_GRAPHICS: return &GRAPHICS;
 		case ZCLID_BITMAP: return &BITMAP;
 		case ZCLID_TEXT: return &TEXT;

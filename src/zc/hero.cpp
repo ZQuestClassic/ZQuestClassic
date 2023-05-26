@@ -57,7 +57,7 @@ extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 extern byte dmapscriptInitialised;
 extern word item_doscript[256];
 extern word item_collect_doscript[256];
-extern portal* mirror_portal;
+extern portal mirror_portal;
 using std::set;
 
 extern int32_t skipcont;
@@ -382,10 +382,11 @@ void HeroClass::go_respawn_point()
 {
 	x = respawn_x;
 	y = respawn_y;
-	handle_portal_prox(mirror_portal);
+	handle_portal_prox(&mirror_portal);
 	portals.forEach([&](sprite& p)
 	{
 		handle_portal_prox((portal*)&p);
+		return false;
 	});
 	warpx=x;
 	warpy=y;
@@ -7471,9 +7472,9 @@ int32_t getPushDir(int32_t flag)
 
 void post_item_collect();
 
-void HeroClass::handle_portal_collide(portal* p)
+bool HeroClass::handle_portal_collide(portal* p)
 {
-	if(!p) return;
+	if(!p) return false;
 	p->animate(0);
 	if(abs(x - p->x) < 12
 		&& abs(y - p->y) < 12)
@@ -7493,6 +7494,9 @@ void HeroClass::handle_portal_collide(portal* p)
 			int32_t weff = p->weffect,
 				wsfx = p->wsfx;
 			
+			int32_t savep = p->saved_data;
+			
+			//After this line, 'p' becomes INVALID!
 			FFCore.warp_player(wtIWARP, p->destdmap, p->destscr,
 				-1, -1, weff, wsfx, 0, -1);
 			
@@ -7508,12 +7512,19 @@ void HeroClass::handle_portal_collide(portal* p)
 				z = tz;
 				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
 					wsfx, 0, -1);
-				p->prox_active = false;
+				handle_portal_prox(&mirror_portal);
+				portals.forEach([&](sprite& p)
+				{
+					handle_portal_prox((portal*)&p);
+					return false;
+				});
 			}
-			else game->clear_portal(p->saved_data); //Remove portal once used
+			else game->clear_portal(savep); //Remove portal once used
+			return true;
 		}
 	}
 	else p->prox_active = true;
+	return false;
 }
 void HeroClass::handle_portal_prox(portal* p)
 {
@@ -7621,10 +7632,10 @@ heroanimate_skip_liftwpn:;
 		climb_cover_y=-1000;
 	}
 	
-	handle_portal_collide(mirror_portal);
+	handle_portal_collide(&mirror_portal);
 	portals.forEach([&](sprite& p)
 	{
-		handle_portal_collide((portal*)&p);
+		return handle_portal_collide((portal*)&p);
 	});
 	
 	if(z<=8&&fakez<=8)
@@ -10227,7 +10238,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 			//Since it was placed after loading this screen, load the portal object now
 			game->load_portal();
 			//Don't immediately trigger the warp back
-			mirror_portal->prox_active = false;
+			mirror_portal.prox_active = false;
 			
 			//Set continue point
 			if(currdmap != game->get_continue_dmap())

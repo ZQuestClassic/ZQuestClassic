@@ -182,6 +182,8 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token SUBSCREENDATA
 %token GENERIC
 %token GENERICDATA
+%token PORTAL
+%token SAVEDPORTAL
 %token PARTICLE
 %token DECORATION
 %token PALDATA
@@ -588,6 +590,8 @@ DataType : ZCONST DataType {
 	| BOTTLEDATA {$$ = new ASTDataType(DataType::BOTTLETYPE, @$);}
 	| BOTTLESHOPDATA {$$ = new ASTDataType(DataType::BOTTLESHOP, @$);}
 	| GENERICDATA {$$ = new ASTDataType(DataType::GENERICDATA, @$);}
+	| PORTAL {$$ = new ASTDataType(DataType::PORTAL, @$);}
+	| SAVEDPORTAL {$$ = new ASTDataType(DataType::SAVEDPORTAL, @$);}
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}

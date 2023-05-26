@@ -418,7 +418,7 @@ public:
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	int getHammerState() const;
-	void handle_portal_collide(portal* p);
+	bool handle_portal_collide(portal* p);
 	void handle_portal_prox(portal* p);
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl);

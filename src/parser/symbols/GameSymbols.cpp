@@ -171,6 +171,12 @@ static AccessorTable gameTable[] =
 	{ "setMouseCursor",             0,          ZTID_VOID,   GAMEMOUSECURSOR,           0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "SetCustomCursor",            0,          ZTID_VOID,   -1,                        0,  { ZTID_GAME, ZTID_BITMAP, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL },{ 0, 0 } },
 	
+	{ "_getNumSavedPortals",        0,         ZTID_FLOAT,   SAVEDPORTALCOUNT,          0,  { ZTID_GAME },{} },
+	{ "LoadSavedPortal",            0,     ZTID_SAVPORTAL,   -1,                        0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "CreateSavedPortal",          0,     ZTID_SAVPORTAL,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "constSavedPortals",          0,     ZTID_SAVPORTAL,   INTARR_SAVPRTL*10000, FL_ARR,  { ZTID_GAME },{} },
+	
+	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setSTD[]",                   0,          ZTID_VOID,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
@@ -2464,6 +2470,32 @@ void GameSymbols::generateCode()
 		addOpcode2 (code, new OSetCustomCursor());
 		LABELBACK(label);
 		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//savedportal LoadSavedPortal(game, int32_t)
+	{
+		Function* function = getFunction("LoadSavedPortal");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSavPortalRegister(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//portal CreateSavedPortal(game)
+	{
+		Function* function = getFunction("CreateSavedPortal");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OCreateSavPortal());
+		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}

@@ -1892,10 +1892,18 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 			{
 				return 66;
 			}
-			if(!p_getc(&(savedata[i].saved_mirror_portal.scr),f,true))
+			if(!p_getc(&(savedata[i].saved_mirror_portal.srcscr),f,true))
 			{
 				return 67;
 			}
+			if(section_version >= 32)
+			{
+				if(!p_getc(&(savedata[i].saved_mirror_portal.destscr),f,true))
+				{
+					return 67;
+				}
+			}
+			else savedata[i].saved_mirror_portal.destscr = savedata[i].saved_mirror_portal.srcscr;
 			if(!p_igetl(&(savedata[i].saved_mirror_portal.x), f, true))
 			{
 				return 68;
@@ -2088,18 +2096,20 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					return 100;
 				if(!p_igetw(&(p.srcdmap), f, true))
 					return 101;
-				if(!p_getc(&(p.scr),f,true))
+				if(!p_getc(&(p.srcscr),f,true))
 					return 102;
-				if(!p_igetl(&(p.x), f, true))
+				if(!p_getc(&(p.destscr),f,true))
 					return 103;
-				if(!p_igetl(&(p.y), f, true))
+				if(!p_igetl(&(p.x), f, true))
 					return 104;
-				if(!p_getc(&(p.sfx),f,true))
+				if(!p_igetl(&(p.y), f, true))
 					return 105;
-				if(!p_igetl(&(p.warpfx), f, true))
+				if(!p_getc(&(p.sfx),f,true))
 					return 106;
-				if(!p_igetw(&(p.spr), f, true))
+				if(!p_igetl(&(p.warpfx), f, true))
 					return 107;
+				if(!p_igetw(&(p.spr), f, true))
+					return 108;
 			}
 		}
 	}
@@ -2653,9 +2663,13 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 64;
 		}
-		if(!p_putc(savedata[i].saved_mirror_portal.scr,f))
+		if(!p_putc(savedata[i].saved_mirror_portal.srcscr,f))
 		{
 			return 65;
+		}
+		if(!p_putc(savedata[i].saved_mirror_portal.destscr,f))
+		{
+			return 109;
 		}
 		if(!p_iputl(savedata[i].saved_mirror_portal.x, f))
 		{
@@ -2788,18 +2802,20 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 				return 100;
 			if(!p_iputw(p.srcdmap, f))
 				return 101;
-			if(!p_putc(p.scr,f))
+			if(!p_putc(p.srcscr,f))
 				return 102;
-			if(!p_iputl(p.x, f))
+			if(!p_putc(p.destscr,f))
 				return 103;
-			if(!p_iputl(p.y, f))
+			if(!p_iputl(p.x, f))
 				return 104;
-			if(!p_putc(p.sfx,f))
+			if(!p_iputl(p.y, f))
 				return 105;
-			if(!p_iputl(p.warpfx, f))
+			if(!p_putc(p.sfx,f))
 				return 106;
-			if(!p_iputw(p.spr, f))
+			if(!p_iputl(p.warpfx, f))
 				return 107;
+			if(!p_iputw(p.spr, f))
+				return 108;
 		}
 	}
 	

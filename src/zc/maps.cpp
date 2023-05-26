@@ -93,7 +93,7 @@ FONT *get_zc_font(int index);
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
-extern portal* mirror_portal;
+extern portal mirror_portal;
 extern zinitdata zinit;
 extern HeroClass Hero;
 int32_t current_ffcombo=-1;
@@ -4130,8 +4130,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		guys.draw2(framebuf,true);
 	}
 	
-	if(mirror_portal)
-		mirror_portal->draw(framebuf);
+	if(mirror_portal.destdmap > -1)
+		mirror_portal.draw(framebuf);
 	portals.draw(framebuf,true);
 	
 	if(showhero && ((Hero.getAction()!=climbcovertop)&& (Hero.getAction()!=climbcoverbottom)))
