@@ -29481,8 +29481,8 @@ bool no_subscreen()
 // break anything.
 static void do_unencrypt_qst_command(const char* input_filename, const char* output_filename)
 {
-	// If the file is already a packfile, there's nothing to do.
-	PACKFILE* pf_check = pack_fopen_password(input_filename, F_READ_PACKED, datapwd);
+	// If the file is already an unencrypted packfile, there's nothing to do.
+	PACKFILE* pf_check = pack_fopen_password(input_filename, F_READ_PACKED, "");
 	pack_fclose(pf_check);
 	if (pf_check) return;
 
@@ -29490,7 +29490,7 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	deletefilename[0] = '\0';
 	int32_t error;
 	PACKFILE* pf = open_quest_file(&error, input_filename, deletefilename, true, true, false);
-	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE_PACKED, datapwd);
+	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE_PACKED, "");
 	int c;
 	while ((c = pack_getc(pf)) != EOF)
 	{
@@ -29783,8 +29783,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("QST.Dat...");
 	
-	//PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
-	//PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
 	PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
 	
 	if(!f)

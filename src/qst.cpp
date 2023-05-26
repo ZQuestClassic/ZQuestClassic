@@ -721,7 +721,8 @@ bool valid_zqt(const char *filename)
 		- .zqt: quest template files, skips top-layer encryption pass
 		- .qsu: "unencoded" (and uncompressed) files; skips encryption and compression (also makes the longtan password moot)
 
-	May 2023: .qst files are now saved without the top layer encoding.
+	May 2023: .qst files are now saved without the top layer encoding, and no allegro packfile password. The first bytes of these
+	files are now "slh!.AG ZC Enhanced Quest File".
 	The following command will take an existing qst file and upgrade it: `./zquest -unencrypt-qst <input> <output>`
 */
 PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
@@ -749,15 +750,19 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
 	else
 	{
 		// Input files may or may not include a top layer, which may or may not be compressed.
-		// Additionally, the bottom layer may or may not be compressed.
+		// Additionally, the bottom layer may or may not be compressed, and may or may not be encoded
+		// with an allegro packfile password (longtan).
 		// We peek into this file to read the header - we'll either see the top layer's header (ENC_STR)
 		// or the bottom layer's header (QH_IDSTR or QH_NEWIDSTR).
 		// Newly saved .qst files enjoy a fast path here, where there is no top layer at all.
 
 		bool id_came_from_compressed_file = false;
+		const char* packfile_password = "";
 		char id[31];
 		id[0] = '\0';
-		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, datapwd);
+		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
+		if (!pf)
+			pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
 		if (pf)
 		{
 			id_came_from_compressed_file = true;
@@ -785,7 +790,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
 		{
 			// The given file is already just the bottom layer - nothing more to do.
 			// There's no way to rewind a packfile, so just open it again.
-			return pack_fopen_password(filename, F_READ_PACKED, datapwd);
+			return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
 		}
 		else if (strstr(id, ENC_STR))
 		{

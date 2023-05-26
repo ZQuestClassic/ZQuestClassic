@@ -14154,7 +14154,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
+	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
 	{
