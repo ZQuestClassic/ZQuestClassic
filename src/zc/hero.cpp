@@ -7476,6 +7476,8 @@ bool HeroClass::handle_portal_collide(portal* p)
 {
 	if(!p) return false;
 	p->animate(0);
+	if(p->destdmap < 0 || p->destdmap >= MAXDMAPS)
+		return false;
 	if(abs(x - p->x) < 12
 		&& abs(y - p->y) < 12)
 	{
@@ -7495,7 +7497,6 @@ bool HeroClass::handle_portal_collide(portal* p)
 				wsfx = p->wsfx;
 			
 			int32_t savep = p->saved_data;
-			
 			//After this line, 'p' becomes INVALID!
 			FFCore.warp_player(wtIWARP, p->destdmap, p->destscr,
 				-1, -1, weff, wsfx, 0, -1);

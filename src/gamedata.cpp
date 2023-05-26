@@ -1178,6 +1178,7 @@ void gamedata::load_portals()
 
 void gamedata::clear_portal(int32_t uid)
 {
+	if(!uid) return;
 	savedportal* p = getSavedPortal(uid);
 	if(p)
 	{
@@ -1196,6 +1197,7 @@ void gamedata::clear_portal(int32_t uid)
 }
 savedportal* gamedata::getSavedPortal(int32_t uid)
 {
+	if(!uid) return nullptr;
 	if(uid == saved_mirror_portal.getUID())
 		return &(saved_mirror_portal);
 	for(auto it = user_portals.begin(); it != user_portals.end(); ++it)
