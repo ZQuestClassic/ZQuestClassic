@@ -5557,6 +5557,13 @@ bool Standing;
  * Returns true if the hero is 'standing', as is used to check if they are capable
  *     of jumping. Automatically accounts for sideview.
 
+int HammerState;
+ * Read-only. Returns a value representing the current hammer swing.
+ * 0 = not swinging hammer
+ * 1 = hammer above head
+ * 2 = hammer at angle
+ * 3 = hammer hit the ground
+
 int CoyoteTime;
  * The number of frames the hero has been off the ground. Range 0-65535.
  * 0 while standing. When not standing, ticks up by 1 each frame.

@@ -2107,9 +2107,10 @@ int HeroClass::getHammerState() const
 	if(attack == wHammer)
 	{
 		if(attackclk >= 15)
-			return 2;
+			return 3;
 		if(attackclk >= 13)
-			return 1;
+			return 2;
+		return 1;
 	}
 	return 0;
 }
@@ -5210,7 +5211,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
 void HeroClass::check_pound_block(int bx, int by, weapon* w)
 {
 	if(w && w->no_triggers()) return;
-	if(w && w->id == wHammer && getHammerState() < 2)
+	if(w && w->id == wHammer && getHammerState() < 3)
 		return;
 	if(get_bit(quest_rules,qr_POUNDLAYERS1AND2))
 	{
