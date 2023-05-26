@@ -777,8 +777,6 @@ static MENU import_250_menu[] =
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
     // { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
-    { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
-    { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -830,8 +828,6 @@ static MENU export_250_menu[] =
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
-    { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
-    { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -32442,11 +32438,11 @@ command_pair commands[cmdMAX]=
     { "Export DMaps",                       0, (intF) onExport_DMaps },
     { "Export Map",                         0, (intF) onExport_Map },
     { "Export Palettes",                    0, (intF) onExport_Pals },
-    { "Export Quest Template",              0, (intF) onExport_ZQT },
+    { "<UNUSED>",                           0, NULL },
     { "Export Strings",                     0, (intF) onExport_Msgs },
     { "Export Subscreen",                   0, (intF) onExport_Subscreen },
     { "Export Tiles",                       0, (intF) onExport_Tiles },
-    { "Export Unencoded Quest",             0, (intF) onExport_UnencodedQuest },
+    { "<UNUSED>",                           0, NULL },
     { "Export Graphics Pack",               0, (intF) onExport_ZGP },
     { "Flags",                              0, (intF) onFlags },
     { "Paste Freeform Combos",              0, (intF) onPasteFFCombos },
@@ -32466,11 +32462,11 @@ command_pair commands[cmdMAX]=
     { "Import Graphics Pack",               0, (intF) onImport_ZGP },
     { "Import Map",                         0, (intF) onImport_Map },
     { "Import Palettes",                    0, (intF) onImport_Pals },
-    { "Import Quest Template",              0, (intF) onImport_ZQT },
+    { "<UNUSED>",                           0, NULL },
     { "Import Strings",                     0, (intF) onImport_Msgs },
     { "Import Subscreen",                   0, (intF) onImport_Subscreen },
     { "Import Tiles",                       0, (intF) onImport_Tiles },
-    { "Import Unencoded Quest",             0, (intF) onImport_UnencodedQuest },
+    { "<UNUSED>",                           0, NULL },
     { "Info Types",                         0, (intF) onInfoTypes },
     { "Init Data",                          0, (intF) onInit },
     { "Integ. Check (All)",                 0, (intF) onIntegrityCheckAll },

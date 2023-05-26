@@ -978,10 +978,11 @@ int32_t onOpen()
 	static EXT_LIST list[] =
 	{
 		{ (char *)"Quest Files (*.qst)", (char *)"qst"                                     },
-		{ (char *)"Unencrypted Quest Files (*.qsu)", (char *)"qsu"                                     },
 		{ (char *)"Quest Auto-backups (*.qb?)", (char *)"qb0,qb1,qb2,qb3,qb4,qb5,qb6,qb7,qb8,qb9" },
 		{ (char *)"Quest Timed Auto-saves (*.qt?)", (char *)"qt0,qt1,qt2,qt3,qt4,qt5,qt6,qt7,qt8,qt9" },
 		{ (char *)"Uncompressed Quest Timed Auto-saves (*.qu?)", (char *)"qu0,qu1,qu2,qu3,qu4,qu5,qu6,qu7,qu8,qu9" },
+		{ (char *)"Unencrypted Quest Files (*.qsu)", (char *)"qsu"                                     },
+		{ (char *)"Quest Template Files (*.zqt)", (char *)"zqt"                                     },
 		{ (char *)"All Files (*.*)",                             NULL                                              },
 		{ NULL,                                                  NULL                                              }
 	};
@@ -1854,106 +1855,6 @@ int32_t onExport_Subscreen()
             sprintf(buf,"ZQuest");
             sprintf(buf2,"Did not save %s",name);
         }
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    return D_O_K;
-}
-
-int32_t onImport_ZQT()
-{
-    if(!getname("Import Quest Template (.zqt)","zqt",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    // usetiles=true;
-    int32_t error = load_quest(temppath,true, false);
-    
-    if(error != qe_OK && error != qe_cancel)
-    {
-        char buf[256+20],name[256];
-        extract_name(temppath,name,FILENAMEALL);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    register_blank_tiles();
-    loadlvlpal(Color);
-    setup_combo_animations();
-    setup_combo_animations2();
-    Map.setCurrMap(Map.getCurrMap());                         // for bound checking
-    refresh(rALL);
-    refresh_pal();
-    return D_O_K;
-}
-
-int32_t onExport_ZQT()
-{
-    if(!getname("Export Quest Template (.zqt)","zqt",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[256+20],buf2[256+20],name[256];
-    extract_name(temppath,name,FILENAMEALL);
-    
-    if(!save_unencoded_quest(temppath, true))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    return D_O_K;
-}
-
-int32_t onImport_UnencodedQuest()
-{
-    if(!getname("Import Unencoded Quest (.qsu)","qsu",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    // usetiles=true;
-    int32_t ret = load_quest(temppath,false,false);
-    
-    if(ret != qe_OK && ret != qe_cancel)
-    {
-        char buf[256+20],name[256];
-        extract_name(temppath,name,FILENAMEALL);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    register_blank_tiles();
-    loadlvlpal(Color);
-    setup_combo_animations();
-    setup_combo_animations2();
-    Map.setCurrMap(Map.getCurrMap());                         // for bound checking
-    refresh(rALL);
-    refresh_pal();
-    return D_O_K;
-}
-
-int32_t onExport_UnencodedQuest()
-{
-    if(!getname("Export Unencoded Quest (.qsu)","qsu",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[256+20],buf2[256+20],name[256];
-    extract_name(temppath,name,FILENAMEALL);
-    
-    if(!save_unencoded_quest(temppath, false))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
     }
     else
     {

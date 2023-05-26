@@ -243,8 +243,6 @@ int32_t onImport_Guys();
 int32_t onImport_Subscreen();
 int32_t onImport_Pals();
 int32_t onImport_ZGP();
-int32_t onImport_ZQT();
-int32_t onImport_UnencodedQuest();
 
 int32_t onExport_Map();
 int32_t onExport_DMaps();
@@ -256,8 +254,6 @@ int32_t onExport_Guys();
 int32_t onExport_Subscreen();
 int32_t onExport_Pals();
 int32_t onExport_ZGP();
-int32_t onExport_ZQT();
-int32_t onExport_UnencodedQuest();
 int32_t onAbout_Module();
 int32_t onExport_Tilepack();
 int32_t onImport_Tilepack();
