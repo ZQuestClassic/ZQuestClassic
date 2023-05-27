@@ -18,11 +18,6 @@
 //#include <dir.h>
 #include <ctype.h>
 #include "base/zc_alleg.h"
-
-#ifdef ALLEGRO_DOS
-#include <unistd.h>
-#endif
-
 #include "base/zdefs.h"
 #include "zelda.h"
 #include "tiles.h"

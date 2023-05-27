@@ -227,18 +227,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define WRONG_PATH_SLASH '\\'
 #endif
 
-#ifdef ALLEGRO_DOS
-//already defined in DOS
-/*
-#elif defined(ALLEGRO_WINDOWS)
 #define PI 3.14159265358979323846
-#elif defined(ALLEGRO_MACOSX)
-#define PI 3.14159265358979323846
-#elif defined(ALLEGRO_LINUX)
-*/
-#else
-#define PI 3.14159265358979323846
-#endif
 
 //#define HP_PER_HEART          16 //We should make this a global quest setting.
 //#define MAGICPERBLOCK         32

@@ -5910,10 +5910,6 @@ static int32_t menu_key_shortcut(int32_t c, AL_CONST char *s)
   *  up a menu.
   */
 
-//#ifdef ALLEGRO_DOS
-//int32_t menu_alt_key(int32_t k, MENU *m);
-//#elif defined ALLEGRO_WINDOWS
-
 int32_t menu_alt_key(int32_t k, MENU *m)
 {
     static uint8_t alt_table[] =

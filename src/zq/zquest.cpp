@@ -114,15 +114,7 @@ extern CConsoleLoggerEx parser_console;
 
 //SDL_Surface *sdl_screen;
 
-#ifdef ALLEGRO_DOS
-static const char *data_path_name   = "dos_data_path";
-static const char *midi_path_name   = "dos_midi_path";
-static const char *image_path_name  = "dos_image_path";
-static const char *tmusic_path_name = "dos_tmusic_path";
-static const char *last_quest_name  = "dos_last_quest";
-static const char *qtname_name      = "dos_qtname%d";
-static const char *qtpath_name      = "dos_qtpath%d";
-#elif defined(ALLEGRO_WINDOWS)
+#if defined(ALLEGRO_WINDOWS)
 static const char *data_path_name   = "win_data_path";
 static const char *midi_path_name   = "win_midi_path";
 static const char *image_path_name  = "win_image_path";
@@ -1618,9 +1610,6 @@ int32_t onFullScreen()
 		0, 
 		get_zc_font(font_lfont)) == 1)	
     {
-	#ifdef ALLEGRO_DOS
-	    return D_O_K;
-	#endif
 	    get_palette(RAMpal);
 	    bool windowed=is_windowed_mode()!=0;
 	    
@@ -1650,15 +1639,11 @@ int32_t onFullScreen()
 
 int32_t onEnter()
 {
-#ifdef ALLEGRO_DOS
-#else
-
     if(key[KEY_ALT]||key[KEY_ALTGR])
     {
         return onFullScreen();
     }
 
-#endif
     return D_O_K;
 }
 
@@ -29515,20 +29500,12 @@ template <typename ...Params>
 
 int32_t main(int32_t argc,char **argv)
 {
-#if (defined(_DEBUG) && defined(_MSC_VER))
-#if (VLD_FORCE_ENABLE == 0)
-	//::InitCrtDebug();
-#endif // (VLD_FORCE_ENABLE == 0)
-#endif // (defined(_DEBUG) && defined(_MSC_VER))
-
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
-
-	//InitCrtDebug();
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);

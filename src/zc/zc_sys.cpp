@@ -33,11 +33,6 @@
 #include "base/zc_math.h"
 #include "base/zapp.h"
 #include "dialog/cheatkeys.h"
-
-#ifdef ALLEGRO_DOS
-#include <unistd.h>
-#endif
-
 #include "metadata/metadata.h"
 #include "zelda.h"
 #include "tiles.h"
@@ -115,9 +110,7 @@ extern int32_t cheat_modifier_keys[4]; //two options each, default either contro
 
 static const char *ZC_str = "Zelda Classic";
 extern char save_file_name[1024];
-#ifdef ALLEGRO_DOS
-const char *qst_dir_name = "dos_qst_dir";
-#elif defined(ALLEGRO_WINDOWS)
+#if defined(ALLEGRO_WINDOWS)
 const char *qst_dir_name = "win_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)

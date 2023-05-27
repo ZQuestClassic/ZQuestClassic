@@ -24,10 +24,6 @@ using std::string;
 using std::istringstream;
 using std::getline;
 
-#ifdef ALLEGRO_DOS
-#include <conio.h>
-#endif
-
 #include "zsyssimple.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
@@ -282,7 +278,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+#if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
 #ifndef __EMSCRIPTEN__
@@ -306,7 +302,7 @@ void Z_error(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+#if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
@@ -323,7 +319,7 @@ void Z_message(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+#if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
     al_trace("%s",buf);
@@ -339,40 +335,7 @@ void Z_title(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#ifdef ALLEGRO_DOS
-    text_info ti;
-    gettextinfo(&ti);
-    int32_t w = ti.screenwidth;
-    
-    int32_t len = strlen(buf);
-    
-    if(len>w)
-        printf("%s\n",buf);
-    else
-    {
-        char title[81];
-        
-        for(int32_t i=0; i<w; i++)
-            title[i]=' ';
-            
-        title[w]=0;
-        
-        int32_t center = (w - len) >> 1;
-        memcpy(title+center,buf,len);
-        
-        printf("\n");
-        textattr(0x4E);
-        cprintf("%s",title);
-        textattr(0x07);
-        
-        for(int32_t i=0; i<w; i++)
-            cprintf(" ");
-    }
-    
-#else
     al_trace("%s\n",buf);
-    
-#endif
 	
     if(zscript_coloured_console.valid())
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 

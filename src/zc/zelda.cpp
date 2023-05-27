@@ -4414,11 +4414,6 @@ int main(int argc, char **argv)
 		
 		regulate_path(standalone_quest);
 	}
-	
-	//turn on MSVC memory checks
-	//this should be interesting...
-	
-//  InitCrtDebug();
 
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
