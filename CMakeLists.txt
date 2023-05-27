@@ -416,7 +416,6 @@ add_library(fmt STATIC
 target_include_directories(fmt PUBLIC include/fmt)
 
 set(zcbase_sources
-	src/base/alleg_compat.cpp
 	src/base/colors.cpp
 	src/base/fonts.cpp
 	src/base/gui.cpp
@@ -430,6 +429,7 @@ set(zcbase_sources
 	src/base/util.cpp
 	src/base/win32.cpp
 	src/base/zapp.cpp
+	src/base/zc_alleg.cpp
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )

@@ -1,4 +1,4 @@
-#include "base/allegro_wrapper.h"
+#include "base/zc_alleg.h"
 #include "launcher_dialog.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"

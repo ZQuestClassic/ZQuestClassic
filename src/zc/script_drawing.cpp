@@ -11,7 +11,7 @@
 #define LOG_BMPBLIT_LEVEL 0
 #include "precompiled.h" //always first
 
-#include "base/allegro_wrapper.h"
+#include "base/zc_alleg.h"
 #include "script_drawing.h"
 #include "rendertarget.h"
 #include "maps.h"

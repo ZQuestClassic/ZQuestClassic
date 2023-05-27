@@ -31979,7 +31979,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 		clear_tooltip();
 	}
 	
-	//YIELD();
 	rest(4);
 	ret = jwin_menu_proc(msg,d,c);
 	
