@@ -18,7 +18,7 @@
 #include <set>
 #include <stdio.h>
 
-#include "hero.h"
+#include "zc/hero.h"
 #include "guys.h"
 #include "subscr.h"
 #include "zc_subscr.h"
@@ -26,7 +26,7 @@
 #include "gamedata.h"
 #include "zc_custom.h"
 #include "title.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "drawing.h"
 #include "combos.h"
 #include "base/zc_math.h"

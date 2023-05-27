@@ -19,10 +19,9 @@
 #include "precompiled.h" //always first
 
 #include "items.h"
-#include "maps.h"
-#include "zelda.h"
+#include "zc/maps.h"
 #include "base/zdefs.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include <fmt/format.h>
 
 #include <queue>

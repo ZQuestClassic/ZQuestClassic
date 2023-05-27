@@ -8,7 +8,7 @@
 #include <assert.h>
 #include <sstream>
 
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 using std::pair;

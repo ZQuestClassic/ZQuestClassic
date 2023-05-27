@@ -1,5 +1,5 @@
 #include "script_debug.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "ConsoleLogger.h"
 #include <fmt/format.h>
 

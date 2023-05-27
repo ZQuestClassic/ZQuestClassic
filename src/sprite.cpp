@@ -19,15 +19,15 @@
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
-#include "maps.h"
-#include "replay.h"
-#include "guys.h"
+#include "zc/maps.h"
+#include "zc/replay.h"
+#include "zc/guys.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 
 #ifndef IS_ZQUEST
-#include "hero.h"
-#include "decorations.h"
+#include "zc/hero.h"
+#include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
 extern HeroClass Hero;
@@ -42,7 +42,7 @@ extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 #define degtoFix(d)     ((d)*0.7111111111111)

@@ -15,11 +15,11 @@
 #include "zelda.h"
 #include "subscr.h"
 #include "zc_subscr.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "gamedata.h"
 #include "guys.h"
-#include "ffscript.h"
-#include "replay.h"
+#include "zc/ffscript.h"
+#include "zc/replay.h"
 
 extern HeroClass   Hero;
 extern int32_t directItem;

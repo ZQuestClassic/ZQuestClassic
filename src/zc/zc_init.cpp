@@ -19,7 +19,7 @@
 #include "jwin.h"
 #include "base/zsys.h"
 #include "gamedata.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "zc_init.h"
 #include "cheats.h"
 #include <fmt/format.h>

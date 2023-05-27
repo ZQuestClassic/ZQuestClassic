@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "ffasm.h"
 
 #include "zquest.h"

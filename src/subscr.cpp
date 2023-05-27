@@ -12,16 +12,14 @@
 
 #include "subscr.h"
 #include "base/zapp.h"
-#include "zelda.h"
 #include "tiles.h"
 #include "base/zsys.h"
 #include "base/util.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "gamedata.h"
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
-#include "ffscript.h"
 
 using namespace util;
 

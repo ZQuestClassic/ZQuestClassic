@@ -20,13 +20,13 @@
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "guys.h"
 #include "title.h"
 #include "subscr.h"
 #include "init.h"
 #include "gamedata.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;

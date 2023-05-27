@@ -25,7 +25,7 @@
 #include "qst.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "questReport.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"

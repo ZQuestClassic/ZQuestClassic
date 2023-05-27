@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include "base/gui.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "zq_custom.h"
 #include "tiles.h"
 #include "zq_tiles.h"
@@ -27,7 +27,7 @@
 #include "sfx.h"
 #include "init.h"
 #include "defdata.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "dialog/itemeditor.h"
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"

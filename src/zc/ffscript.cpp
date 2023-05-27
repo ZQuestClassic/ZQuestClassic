@@ -23,7 +23,7 @@ extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 #include "base/zc_math.h"
 #include "base/zc_array.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "render.h"
 #include "zc_subscr.h"
 #include <time.h>
@@ -461,7 +461,7 @@ byte itemScriptsWaitdraw[256] = {0};
 
 #include "zelda.h"
 #include "particles.h"
-#include "hero.h"
+#include "zc/hero.h"
 extern int32_t directItem; //Is set if Player is currently using an item directly
 extern int32_t directItemA;
 extern int32_t directItemB;

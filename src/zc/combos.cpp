@@ -2,11 +2,11 @@
 #include "sprite.h"
 #include "decorations.h"
 #include "combos.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "items.h"
 #include "guys.h"
-#include "ffscript.h"
-#include "hero.h"
+#include "zc/ffscript.h"
+#include "zc/hero.h"
 #include "title.h"
 
 extern sprite_list items, decorations;

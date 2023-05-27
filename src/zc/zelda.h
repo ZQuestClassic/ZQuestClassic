@@ -30,7 +30,7 @@
 #include "zfix.h"
 #include "base/util.h"
 #include "base/fonts.h"
-#include "replay.h"
+#include "zc/replay.h"
 
 class sprite;
 struct itemdata;

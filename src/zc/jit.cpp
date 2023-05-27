@@ -7,7 +7,7 @@
 // * Compile: LSHIFTR RSHIFTR FLOOR CEILING
 
 #include "jit.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "script_debug.h"
 #include "ConsoleLogger.h"
 #include <fmt/format.h>

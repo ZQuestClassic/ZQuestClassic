@@ -1,5 +1,4 @@
 #include "string_editor.h"
-#include "zc_sys.h"
 #include "base/zsys.h"
 #include "editbox.h"
 #include "EditboxNew.h"

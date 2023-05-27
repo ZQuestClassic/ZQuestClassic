@@ -18,7 +18,7 @@
 #include "base/zdefs.h"
 #include "jwin.h"
 #include "base/zsys.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 #include "zq_misc.h"
 #include "tiles.h"
 #include "zq_class.h"

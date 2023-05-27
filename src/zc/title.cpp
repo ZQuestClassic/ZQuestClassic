@@ -31,8 +31,8 @@
 #include "base/jwinfsel.h"
 #include "title.h"
 #include "gamedata.h"
-#include "hero.h"
-#include "ffscript.h"
+#include "zc/hero.h"
+#include "zc/ffscript.h"
 #include "zc/render.h"
 
 #ifdef __EMSCRIPTEN__

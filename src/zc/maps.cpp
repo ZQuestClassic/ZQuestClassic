@@ -19,7 +19,7 @@
 #include <set>
 using std::set;
 
-#include "maps.h"
+#include "zc/maps.h"
 #include "zelda.h"
 #include "tiles.h"
 #include "sprite.h"
@@ -27,12 +27,12 @@ using std::set;
 #include "base/zsys.h"
 #include "subscr.h"
 #include "zc_subscr.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "guys.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "drawing.h"
 #include "combos.h"
-#include "replay.h"
+#include "zc/replay.h"
 #include "slopes.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;

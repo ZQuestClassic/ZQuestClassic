@@ -7,7 +7,7 @@
 #include "DataStructs.h"
 #include "Types.h"
 #include "Scope.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 

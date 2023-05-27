@@ -27,7 +27,6 @@ using std::getline;
 #include "zsyssimple.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "zc_sys.h"
 #include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
 

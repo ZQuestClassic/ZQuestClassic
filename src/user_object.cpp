@@ -1,6 +1,6 @@
 #include "base/zdefs.h"
 #include "user_object.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 
 void push_ri();
 void pop_ri();

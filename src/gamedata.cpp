@@ -15,11 +15,10 @@
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "zelda.h"
 #include "items.h"
 #include "pal.h"
 #include "base/util.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 
 using namespace util;
 extern FFScript FFCore;

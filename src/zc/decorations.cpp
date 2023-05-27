@@ -18,9 +18,9 @@
 #include "decorations.h"
 #include "zc_custom.h"
 #include "zelda.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "base/zsys.h"
-#include "hero.h"
+#include "zc/hero.h"
 
 /***************************************/
 /*******  Decoration Base Class  *******/

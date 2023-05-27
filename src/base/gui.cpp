@@ -15,22 +15,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-//#include <dir.h>
 #include <ctype.h>
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "zelda.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
-#include "qst.h"
-#include "zc_sys.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 
 extern int32_t zq_screen_w, zq_screen_h;
+extern void comeback();
+extern void go();
 
 static BITMAP* saved_gui_bmp = nullptr;
 void zc_set_gui_bmp(BITMAP* bmp)

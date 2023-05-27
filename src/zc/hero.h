@@ -17,7 +17,7 @@
 #include "zcmusic.h"
 #include "base/zdefs.h"
 #include "zelda.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"

@@ -154,8 +154,7 @@ add_definitions(-DALLEGRO_KCM_AUDIO_SRC)
 add_definitions(-DALLEGRO_UNSTABLE)
 option(SHARED "" ON)
 
-set (MINIMP3_INCLUDE_DIRS ./include/minimp3)
-include_directories(./include/minimp3)
+set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 
 FetchContent_Declare(
   allegro5
@@ -200,6 +199,7 @@ file(COPY ${allegro5_SOURCE_DIR}/addons/native_dialog/allegro5/allegro_native_di
 	DESTINATION ${allegro5_SOURCE_DIR}/include/allegro5
 )
 
+# TODO: figure out how to not use global includes for this
 include_directories(${allegro5_SOURCE_DIR}/include)
 include_directories(${allegro5_BINARY_DIR}/include)
 # Some performance problems with allegro legacy threaded event queues encouraged
@@ -224,12 +224,6 @@ endif()
 #############################################################
 # Header and source file lists
 #############################################################
-
-include_directories(./include/xxhash)
-# 
-include_directories(./src)
-# TODO: remove
-include_directories(./src/zc)
 
 if (EMSCRIPTEN)
 	set(ZCSOUNDSOURCES
@@ -438,6 +432,7 @@ if (EMSCRIPTEN)
 endif()
 add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
+target_include_directories(zcbase PUBLIC src)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -473,6 +468,7 @@ add_library(zcgui STATIC
 	src/gui/window.cpp
 )
 target_link_libraries(zcgui PUBLIC allegro_with_legacy)
+target_include_directories(zcgui PRIVATE src)
 
 #############################################################
 # ZConsole
@@ -579,9 +575,7 @@ target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${Z
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
 else()
-	include_directories(./include/dumb)
-	include_directories(./include/alogg)
-	include_directories(./include/gme)
+	target_include_directories(zcsound PRIVATE include/dumb include/alogg include/gme)
 endif()
 
 #############################################################
@@ -608,7 +602,7 @@ endif()
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
 set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")
-target_include_directories(zelda PRIVATE src/zc)
+target_include_directories(zelda PRIVATE src/zc include/xxhash)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(WIN32)

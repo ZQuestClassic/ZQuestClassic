@@ -3,7 +3,7 @@
 
 #include "zscriptversion.h"
 #include "zelda.h"
-#include "hero.h"
+#include "zc/hero.h"
 
 extern HeroClass Hero;
 

@@ -23,8 +23,8 @@
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "init.h"
-#include "zelda.h"
-//extern ZModule zcm;
+#include "zc/zelda.h"
+
 extern zcmodule moduledata;
 
 

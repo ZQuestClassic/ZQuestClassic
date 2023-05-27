@@ -1,6 +1,6 @@
 #include "cheats.h"
 #include "zelda.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "guys.h"
 #include "zc_init.h"
 #include "init.h"

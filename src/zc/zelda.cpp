@@ -47,7 +47,7 @@
 #include "fontsdat.h"
 #include "particles.h"
 #include "gamedata.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "jit.h"
 #include "script_debug.h"
 #include "combos.h"
@@ -55,7 +55,7 @@
 #include "base/util.h"
 #include "drawing.h"
 #include "dialog/info.h"
-#include "replay.h"
+#include "zc/replay.h"
 #include "cheats.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
@@ -1166,10 +1166,10 @@ sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals
 particle_list particles;
 
 #include "zc_custom.h"
-#include "hero.h"
+#include "zc/hero.h"
 HeroClass   Hero;
 
-#include "maps.h"
+#include "zc/maps.h"
 #include "subscr.h"
 #include "guys.h"
 

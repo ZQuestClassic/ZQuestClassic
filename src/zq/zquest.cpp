@@ -84,7 +84,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq_class.h"
 #include "subscr.h"
 #include "zq_subscr.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "EditboxNew.h"
 #include "sfx.h"
 #include "zq_custom.h" // custom items and guys
