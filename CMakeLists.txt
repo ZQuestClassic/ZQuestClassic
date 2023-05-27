@@ -654,33 +654,23 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestZScript PARSER_SOURCES)
 endif()
 
-set(Boost_DEBUG ON) # set to ON if you want to see more info in cmake
-set(BOOST_ROOT ${CMAKE_SOURCE_DIR}/include/boost_1_74_0)
-set(Boost_INCLUDE_DIR ${BOOST_ROOT})
+add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
+set_property(TARGET zquest PROPERTY VS_DPI_AWARE "PerMonitor")
 
-find_package(Boost 1.74.0)
+target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+target_include_directories(zquest PRIVATE src/zq)
 
-if(Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS})
-	add_definitions(-DHAS_BOOST)
-	add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
-	set_property(TARGET zquest PROPERTY VS_DPI_AWARE "PerMonitor")
-
-	target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
-	target_include_directories(zquest PRIVATE src/zq)
-
-	if(MSVC AND USE_PCH)
-		set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
-		target_compile_definitions(zquest PRIVATE ZC_PCH)
-	endif()
-
-	if(MSVC)
-		target_compile_definitions(zcsound PRIVATE ZCM_DLL)
-		target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
-		target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
-	endif()
-	target_compile_definitions(zquest PRIVATE IS_ZQUEST)
+if(MSVC AND USE_PCH)
+	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
+	target_compile_definitions(zquest PRIVATE ZC_PCH)
 endif()
+
+if(MSVC)
+	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
+	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+endif()
+target_compile_definitions(zquest PRIVATE IS_ZQUEST)
 
 if(WIN32)
 	set_source_files_properties(

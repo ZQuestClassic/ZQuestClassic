@@ -42,12 +42,12 @@ Program::~Program()
 
 Script* Program::getScript(string const& name) const
 {
-	return find<Script*>(scriptsByName_, name).value_or(boost::add_pointer<Script>::type());
+	return find<Script*>(scriptsByName_, name).value_or(std::add_pointer<Script>::type());
 }
 
 Script* Program::getScript(ASTScript* node) const
 {
-	return find<Script*>(scriptsByNode_, node).value_or(boost::add_pointer<Script>::type());
+	return find<Script*>(scriptsByNode_, node).value_or(std::add_pointer<Script>::type());
 }
 
 Script* Program::addScript(
@@ -64,12 +64,12 @@ Script* Program::addScript(
 
 UserClass* Program::getClass(string const& name) const
 {
-	return find<UserClass*>(classesByName_, name).value_or(boost::add_pointer<UserClass>::type());
+	return find<UserClass*>(classesByName_, name).value_or(std::add_pointer<UserClass>::type());
 }
 
 UserClass* Program::getClass(ASTClass* node) const
 {
-	return find<UserClass*>(classesByNode_, node).value_or(boost::add_pointer<UserClass>::type());
+	return find<UserClass*>(classesByNode_, node).value_or(std::add_pointer<UserClass>::type());
 }
 UserClass* Program::addClass(
 		ASTClass& node, Scope& parentScope, CompileErrorHandler* handler)

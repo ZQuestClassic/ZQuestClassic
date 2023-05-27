@@ -17,11 +17,6 @@
 #include <vld.h>
 #endif // (VLD_FORCE_ENABLE == 1)
 
-//Boost
-#include <boost/make_shared.hpp>
-#include <boost/smart_ptr.hpp>
-#include <boost/move/make_unique.hpp>
-
 //c standard lib
 #include <cassert>
 #include <cctype>
