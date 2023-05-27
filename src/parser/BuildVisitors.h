@@ -106,7 +106,9 @@ namespace ZScript
 		void addOpcodes(Container const& container);
 	
 		void deallocateArrayRef(int32_t arrayRef);
+		void deallocateArrayRef(int32_t arrayRef, std::vector<std::shared_ptr<Opcode>>& code);
 		void deallocateRefsUntilCount(int32_t count);
+		void deallocateRefsUntilCount(int32_t count, std::vector<std::shared_ptr<Opcode>>& code);
 		
 		std::vector<std::shared_ptr<Opcode>> result;
 		int32_t returnlabelid;

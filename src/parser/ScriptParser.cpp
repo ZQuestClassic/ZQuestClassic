@@ -345,6 +345,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
 		appendElements(rval->globalsInit, bo.getResult());
+		appendElements(rval->globalsInit, oc.deallocCode);
 	}
 
 	// Pop off everything.

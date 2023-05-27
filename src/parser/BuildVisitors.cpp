@@ -51,11 +51,13 @@ void BuildOpcodes::literalVisit(AST& node, void* param)
 {
 	if(node.isDisabled()) return; //Don't visit disabled nodes.
 	int32_t initIndex = result.size();
-	visit(node, param);
+	OpcodeContext *parentContext = (OpcodeContext*)param;
+	OpcodeContext prm(parentContext->typeStore);
+	OpcodeContext *c = &prm;
+	visit(node, (void*)c);
 	//Handle literals
-	OpcodeContext *c = (OpcodeContext *)param;
 	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
-	c->initCode.clear();
+	result.insert(result.end(), c->deallocCode.begin(), c->deallocCode.end());
 }
 
 void BuildOpcodes::literalVisit(AST* node, void* param)
@@ -92,6 +94,11 @@ void BuildOpcodes::deallocateArrayRef(int32_t arrayRef)
 	addOpcode(new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
 	addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
 }
+void BuildOpcodes::deallocateArrayRef(int32_t arrayRef, std::vector<std::shared_ptr<Opcode>>& code)
+{
+	addOpcode2(code, new OLoadDirect(new VarArgument(EXP2), new LiteralArgument(arrayRef)));
+	addOpcode2(code, new ODeallocateMemRegister(new VarArgument(EXP2)));
+}
 
 void BuildOpcodes::deallocateRefsUntilCount(int32_t count)
 {
@@ -99,6 +106,14 @@ void BuildOpcodes::deallocateRefsUntilCount(int32_t count)
 	for (auto it = arrayRefs.rbegin(); it != arrayRefs.rend() && count > 0; ++it, --count)
 	{
 		deallocateArrayRef(*it);
+	}
+}
+void BuildOpcodes::deallocateRefsUntilCount(int32_t count, std::vector<std::shared_ptr<Opcode>>& code)
+{
+	count = arrayRefs.size() - count;
+	for (auto it = arrayRefs.rbegin(); it != arrayRefs.rend() && count > 0; ++it, --count)
+	{
+		deallocateArrayRef(*it, code);
 	}
 }
 
@@ -1259,7 +1274,9 @@ void BuildOpcodes::caseExprIndex(ASTExprIndex& host, void* param)
 void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 {
 	if (host.isDisabled()) return;
-	OpcodeContext* c = (OpcodeContext*)param;
+	OpcodeContext* parentContext = (OpcodeContext*)param;
+	OpcodeContext prm(parentContext->typeStore);
+	OpcodeContext* c = &prm;
 	auto& func = *host.binding;
 	bool classfunc = func.getFlag(FUNCFLAG_CLASSFUNC) && !func.getFlag(FUNCFLAG_STATIC);
 	
@@ -1272,7 +1289,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		for (auto it = host.parameters.begin();
 			it != host.parameters.end(); ++it)
 		{
-			visit(*it, param);
+			visit(*it, c);
 		}
 		
 		//Set the return to the default value
@@ -1317,8 +1334,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			if (!(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
 			{
 				//load the value of the left-hand of the arrow into EXP1
-				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-				//visit(host.getLeft(), param);
+				visit(static_cast<ASTExprArrow&>(*host.left).left.get(), c);
+				//visit(host.getLeft(), c);
 				//push it onto the stack
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
@@ -1340,7 +1357,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
 			else
 			{
-				visit(arg, param);
+				visit(arg, c);
 				//Optimize
 				Opcode* lastop = optarg->back().get();
 				if (OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
@@ -1379,7 +1396,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OPushVargV(new LiteralArgument(*val)));
 				else
 				{
-					visit(arg, param);
+					visit(arg, c);
 					//Optimize
 					Opcode* lastop = optarg->back().get();
 					if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
@@ -1471,7 +1488,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
 					helper.parsing_user_class = parsing_user_class;
-					arr->left->execute(helper, param);
+					arr->left->execute(helper, c);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
@@ -1503,7 +1520,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
 			else
 			{
-				visit(*it, param);
+				visit(*it, c);
 				//Optimize
 				Opcode* lastop = optarg->back().get();
 				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
@@ -1543,7 +1560,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		if (store_this)
 		{
 			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), c);
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(EXP1)));
 		}
 		//goto
@@ -1578,8 +1595,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		if (host.left->isTypeArrow() && !(func.internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
 			//load the value of the left-hand of the arrow into EXP1
-			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), param);
-			//visit(host.getLeft(), param);
+			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), c);
+			//visit(host.getLeft(), c);
 			//push it onto the stack
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
 		}
@@ -1593,7 +1610,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
 			else
 			{
-				visit(*it, param);
+				visit(*it, c);
 				//Optimize
 				Opcode* lastop = optarg->back().get();
 				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
@@ -1651,7 +1668,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 					addOpcode(new OSetRegister(new VarArgument(EXP1), new VarArgument(EXP2)));
 					LValBOHelper helper(scope);
 					helper.parsing_user_class = parsing_user_class;
-					arr->left->execute(helper, param);
+					arr->left->execute(helper, c);
 					addOpcodes(helper.getResult());
 					if(!isVoid) addOpcode(new OPopRegister(new VarArgument(EXP1)));
 				}
@@ -1665,7 +1682,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	
 	//Allocate string/array literals retroactively
 	result.insert(result.begin() + initIndex, c->initCode.begin(), c->initCode.end());
-	c->initCode.clear();
+	result.insert(result.end(), c->deallocCode.begin(), c->deallocCode.end());
 	
 	//Deallocate string/array literals from within the parameters
 	deallocateRefsUntilCount(startRefCount);
@@ -1856,7 +1873,7 @@ void BuildOpcodes::caseExprAnd(ASTExprAnd& host, void* param)
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
 		addOpcode(new OGotoTrueImmediate(new LabelArgument(skip)));
 		//Get right
-		literalVisit(host.right.get(), param);
+		visit(host.right.get(), param);
 		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		Opcode* ocode =  new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1));
 		ocode->setLabel(skip);
@@ -1938,7 +1955,7 @@ void BuildOpcodes::caseExprOr(ASTExprOr& host, void* param)
 		addOpcode(new OGotoMoreImmediate(new LabelArgument(skip)));
 		//Get rightx
 		//Get right
-		literalVisit(host.right.get(), param);
+		visit(host.right.get(), param);
 		addOpcode(new OCastBoolF(new VarArgument(EXP1))); //Don't break boolean ops on negative numbers on the RHS.
 		addOpcode(new OCompareImmediate(new VarArgument(EXP1), new LiteralArgument(1)));
 		//Set output
@@ -2747,6 +2764,7 @@ void BuildOpcodes::stringLiteralFree(
 	int32_t size = data.size() + 1;
 	int32_t offset = *getStackOffset(manager) * 10000L;
 	vector<shared_ptr<Opcode>>& init = context.initCode;
+	vector<shared_ptr<Opcode>>& dealloc = context.deallocCode;
 
 	////////////////////////////////////////////////////////////////
 	// Initialization Code.
@@ -2782,8 +2800,9 @@ void BuildOpcodes::stringLiteralFree(
 
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
-
-	arrayRefs.push_back(offset);
+	
+	deallocateArrayRef(offset, dealloc);
+	//arrayRefs.push_back(offset); //Replaced by deallocCode
 }
 
 void BuildOpcodes::caseArrayLiteral(ASTArrayLiteral& host, void* param)
@@ -2983,7 +3002,8 @@ void BuildOpcodes::arrayLiteralFree(
 	////////////////////////////////////////////////////////////////
 	// Register for cleanup.
 
-	arrayRefs.push_back(offset);
+	deallocateArrayRef(offset, context.deallocCode);
+	//arrayRefs.push_back(offset); //Replaced by deallocCode
 }
 
 void BuildOpcodes::caseOptionValue(ASTOptionValue& host, void*)
