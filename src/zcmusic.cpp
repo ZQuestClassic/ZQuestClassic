@@ -3,10 +3,6 @@
 /* Wrapper for transparently extending */
 /* supported music file formats.       */
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
 //#include "precompiled.h" //always first
 
 #include "base/zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
@@ -152,9 +148,6 @@ typedef struct GMEFILE : public ZCMUSIC
     int32_t samples;
 } GMEFILE;
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
 #include <vector>
 static std::vector<ZCMUSIC*> playlist;                      //yeah, I'm too lazy to do it myself
 static int32_t libflags = 0;

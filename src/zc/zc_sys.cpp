@@ -9,9 +9,6 @@
 //
 //--------------------------------------------------------
 
-// to prevent <map> from generating errors
-#define __GTHREAD_HIDE_WIN32API 1
-
 #include "precompiled.h" //always first
 #include "zc_sys.h"
 
