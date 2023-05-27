@@ -44,8 +44,8 @@ env:
 jobs:
   build:
     # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/build.yml
-    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
+    # uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
     with:
       runs-on: ${{ inputs.runs-on }}
       arch: ${{ inputs.arch }}
@@ -106,35 +106,6 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
-      - if: ${{ matrix.shard_index == 1 && inputs.config != 'Coverage' }}
-        name: Test zscript
-        uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
-        with:
-          windows: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zscript.exe -input "include/std.zh" -unlinked
-          macos: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zscript -input "include/std.zh" -unlinked
-          linux: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zscript -input "include/std.zh" -unlinked
-
-        # TODO why does this result in "could not open file: test.zplay" on Windows?
-      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
-        name: Test recording
-        run: |
-          cd ${{ env.BUILD_FOLDER }}
-          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -assert test.zplay
-      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
-        name: Test saving qst
-        run: |
-          cd ${{ env.BUILD_FOLDER }}
-          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -copy-qst modules/classic/classic_1st.qst tmp.qst
-          mv tmp.qst modules/classic/classic_1st.qst
-          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -assert test.zplay
-
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
@@ -163,6 +134,36 @@ jobs:
           --filter ghost_armos.zplay
           --filter keys.zplay
           --no-jit
+
+      - if: ${{ matrix.shard_index == 1 && inputs.config != 'Coverage' }}
+        name: Test zscript
+        uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
+        with:
+          windows: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript.exe -input "include/std.zh" -unlinked
+          macos: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript -input "include/std.zh" -unlinked
+          linux: |
+            cd ${{ env.BUILD_FOLDER }}
+            ./zscript -input "include/std.zh" -unlinked
+
+        # TODO why does this result in "could not open file: test.zplay" on Windows?
+      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+        name: Test recording
+        run: |
+          cd ${{ env.BUILD_FOLDER }}
+          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
+          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -v0 -replay-exit-when-done -assert test.zplay
+      # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
+      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+        name: Test saving qst
+        run: |
+          cd ${{ env.BUILD_FOLDER }}
+          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -copy-qst modules/classic/classic_1st.qst tmp.qst
+          mv tmp.qst modules/classic/classic_1st.qst
+          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
