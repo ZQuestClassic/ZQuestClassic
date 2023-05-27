@@ -3781,7 +3781,7 @@ DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
 //Returns the item id of the item that the weapon that hit came from; -1 if the lweapon is script created
 DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8;
 //Returns the item class of the item that the weapon that hit came from (see IC_ constants); -1 if the lweapon is script created
-DEFINE HIT_BY_LWEAPON_PARENT_ID     = 9;
+DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9;
 //Returns the enemy class of the enemy that hit the player (see NPCT_ constants)
 DEFINE HIT_BY_NPC_TYPE              = 10; //Player only
 //Returns the ID of the weapon that hit (see LW_ and EW_ constants)
