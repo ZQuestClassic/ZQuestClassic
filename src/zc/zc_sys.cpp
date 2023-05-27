@@ -42,7 +42,6 @@
 #include "qst.h"
 #include "zc_sys.h"
 #include "play_midi.h"
-#include "debug.h"
 #include "jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"

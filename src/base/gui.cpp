@@ -26,7 +26,6 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc_sys.h"
-#include "debug.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"

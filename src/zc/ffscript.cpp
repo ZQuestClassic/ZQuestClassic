@@ -487,8 +487,6 @@ extern int32_t directItemY;
 #include "zc_custom.h"
 #include "qst.h"
 
-#include "debug.h"
-
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 /*template <typename T>
 T zc_max(T a, T b)
