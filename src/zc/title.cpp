@@ -1190,6 +1190,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	if(standalone_mode && save_count>1)
 	{
 		system_pal();
+		sys_mouse();
 		jwin_alert("Invalid save file",
 				   "This save file cannot be",
 				   "used in standalone mode.",
@@ -1199,7 +1200,9 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	}
 	else if(!standalone_mode && save_count==1)
 	{
+		bool restoregame = !is_sys_pal;
 		system_pal();
+		sys_mouse();
 		
 		if(jwin_alert3("Standalone save file",
 					   "This save file was created in standalone mode.",
@@ -1208,6 +1211,11 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					   "No","Yes",NULL, 'n','y', 0, get_zc_font(font_lfont))!=2)
 		{
 			exit(0);
+		}
+		if(restoregame)
+		{
+			game_pal();
+			game_mouse();
 		}
 	}
 	
@@ -1568,6 +1576,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		if(standalone_mode && strcmp(savedata[i].qstpath, standalone_quest)!=0)
 		{
 			system_pal();
+			sys_mouse();
 			jwin_alert("Invalid save file",
 					   "This save file is for",
 					   "a different quest.",
@@ -2324,6 +2333,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	
 newdata:
 	system_pal();
+	sys_mouse();
 	
 	if(standalone_mode)
 		goto init;
@@ -2342,12 +2352,14 @@ newdata:
 	}
 	
 	game_pal();
+	game_mouse();
 	Z_message("Save file not found.  Creating new save file.");
 	goto init;
 	
 cantopen:
 	{
 		system_pal();
+		sys_mouse();
 		char buf[256];
 		snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", SAVE_FILE);
 		jwin_alert("Can't Open Saved Game File",
@@ -2360,6 +2372,7 @@ cantopen:
 	
 reset:
 	system_pal();
+	sys_mouse();
 	
 	if(jwin_alert3("Can't Open Saved Game File",
 				   "Unable to read the save file.",
@@ -2371,6 +2384,7 @@ reset:
 	}
 	
 	game_pal();
+	game_mouse();
 	
 	if(f)
 		pack_fclose(f);
@@ -3871,8 +3885,8 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 		return 0;
 	}
 
-	pack_fclose(f);
 	int32_t ret = readheader(f, header, true);
+	pack_fclose(f);
 
 	switch(ret)
 	{
