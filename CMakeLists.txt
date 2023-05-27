@@ -357,7 +357,7 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	# 3) investigate removing the fp flags from all compilers and seeing if results can be made to be consistent;
 	#    would require a workaround for the MSVC internal compiler error mentioned above.
 	#
-	# In the meantime, we just use clang for replay tests (and for building release), which seems fine long term.
+	# In the meantime, we just use clang or msvc (never gcc) for replay tests (and for building release), which seems fine long term.
 
 	# https://stackoverflow.com/a/36502370/2788187
 	add_compile_options(-funsafe-math-optimizations -ffinite-math-only -fno-math-errno -fno-signaling-nans -fno-rounding-math -fcx-limited-range)
