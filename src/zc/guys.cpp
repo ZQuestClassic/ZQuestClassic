@@ -20695,10 +20695,12 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 	case eeGLEEOK:
 	{
 		id &= 0xFFF;
-		
+		eGleeok* parent = (eGleeok*)e;
+
 		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
 		{
-			if(!guys.add(new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e)))
+			esGleeok* head = new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e);
+			if(!guys.add(head))
 			{
 				al_trace("Gleeok head %d could not be created!\n",i+1);
 				
@@ -20710,6 +20712,20 @@ int32_t addenemy(int32_t x,int32_t y,int32_t z,int32_t id,int32_t clk)
 				return false;
 			}
 			
+			head->necktile=parent->necktile;
+			head->dummy_int[1]=parent->necktile;
+			if(get_bit(quest_rules,qr_NEWENEMYTILES))
+			{
+				head->dummy_int[2]=parent->o_tile+parent->dmisc8; //connected head tile
+				head->dummy_int[3]=parent->o_tile+parent->dmisc9; //flying head tile
+			}
+			else
+			{
+				head->dummy_int[2]=parent->necktile+1; //connected head tile
+				head->dummy_int[3]=parent->necktile+2; //flying head tile
+			}
+			head->tile = head->dummy_int[2];
+
 			c-=guysbuf[id].misc4;
 			ret++;
 		}
