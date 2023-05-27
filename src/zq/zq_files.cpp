@@ -379,6 +379,7 @@ int32_t ListQTs(bool edit)
     return index;
 }
 
+// TODO: remove this dialog.
 int32_t onQuestTemplates()
 {
     ListQTs(true);

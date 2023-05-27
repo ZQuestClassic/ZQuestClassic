@@ -220,7 +220,6 @@ bool reset_mapstyles(bool validate, miscQdata *Misc);
 bool reset_items(bool validate, zquestheader *Header);
 bool reset_guys();
 bool reset_wpns(bool validate, zquestheader *Header);
-bool reset_doorcombosets(bool validate, zquestheader *Header);
 bool init_tiles(bool validate, zquestheader *Header);
 bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc);
 bool init_combos(bool validate, zquestheader *Header);

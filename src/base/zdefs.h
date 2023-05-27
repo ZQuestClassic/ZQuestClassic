@@ -3117,6 +3117,7 @@ struct zquestheader
     byte  old_midi_flags[MIDIFLAGS_SIZE];
     //304
     byte  old_foo2[18];
+    // No one used custom quest templates, so we stopped supporting it.
     char  templatepath[2048];
     int32_t new_version_id_main;
     int32_t new_version_id_second;

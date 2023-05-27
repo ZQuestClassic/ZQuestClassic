@@ -950,11 +950,11 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     if(Header->templatepath[0]==0)
     {
         filename=(char *)malloc(2048);
-        //strcpy(filename, "qst.dat#NESQST_NEW_QST");
         strcpy(filename, qstdat_string);
     }
     else
     {
+        // TODO: should be safe to remove this, no one seems to use custom quest templates.
         filename=Header->templatepath;
     }
     
@@ -985,6 +985,10 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
 
 bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate)
 {
+    // We absolutely do not support loading from a template file to initialize data outside the editor.
+	// TODO: move this code into zq/
+    if (get_app_id() != App::zquest) return false;
+
     combosread=false;
     mapsread=false;
     fixffcs=false;
@@ -1256,7 +1260,9 @@ bool reset_guys()
 
 bool reset_wpns(bool validate, zquestheader *Header)
 {
-    bool ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
+	bool ret = true;
+    if (get_app_id() == App::zquest)
+        ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
     
     for(int32_t i=0; i<WPNCNT; i++)
         reset_weaponname(i);
@@ -1279,11 +1285,6 @@ bool reset_mapstyles(bool validate, miscQdata *Misc)
     Misc->colors.dungeon_map_tile = 19651;
     Misc->colors.dungeon_map_cset = 8;
     return true;
-}
-
-bool reset_doorcombosets(bool validate, zquestheader *Header)
-{
-    return init_section(Header, ID_DOORS, NULL, NULL, validate);
 }
 
 int32_t get_qst_buffers()
