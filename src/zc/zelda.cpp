@@ -1620,6 +1620,8 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	}
 	else ret = qe_no_qst;
 	
+	if(!exists(qstpath)) ret = qe_notfound;
+	
 	if(!ret)
 	{
 		//setPackfilePassword(datapwd);

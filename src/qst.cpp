@@ -766,6 +766,11 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	else
 	{
 		FILE* f = fopen(filename, "rb");
+		if (!f) 
+		{
+			*open_error=qe_notfound;
+			return nullptr;
+		}
 		if (!fread(id, sizeof(char), sizeof(id), f))
 		{
 			fclose(f);
@@ -21494,7 +21499,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     int32_t open_error=0;
     PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
     
-    if(!f)
+    if(!f) 
         return open_error;
 	char zinfofilename[2048];
 	replace_extension(zinfofilename, filename, "zinfo", 2047);
