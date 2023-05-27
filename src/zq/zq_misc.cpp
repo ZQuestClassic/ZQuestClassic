@@ -1219,19 +1219,3 @@ int32_t onIncMap();
 int32_t onDecMap();
 
 int32_t onDumpScr();
-
-// these are here so that copy_dialog won't choke when compiling zquest
-int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}
-
-int32_t d_listen_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}
-
-int32_t d_savemidi_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}

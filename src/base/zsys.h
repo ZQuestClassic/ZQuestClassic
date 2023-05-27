@@ -166,9 +166,6 @@ void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, 
 void textprintf_shadowed_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 
-void copy_dialog(DIALOG **to, DIALOG *from);
-void free_dialog(DIALOG **dlg);
-
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color, int thick);
 

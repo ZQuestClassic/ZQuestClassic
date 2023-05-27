@@ -32,20 +32,6 @@
 #include "zq_class.h"
 #include "dialog/paledit.h"
 #include "zq/render.h"
-
-extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t onHelp();
-extern int32_t jwin_pal[jcMAX];
-extern const char *dmaplist(int32_t index, int32_t *list_size);
-extern bool saved;
-extern int32_t dmap_list_size;
-extern bool dmap_list_zero;
-extern zinitdata zinit;
-extern int32_t startdmapxy[6];
-extern PALETTE RAMpal;
-
-
 #include "gfxpal.h"
 
 int32_t color_index=0, color_copy=-1;

@@ -1,6 +1,7 @@
 #include "zapp.h"
 #include "zc_alleg.h"
 #include "zconfig.h"
+#include "zsys.h"
 #include <filesystem>
 #include <string>
 
@@ -36,6 +37,9 @@ bool is_in_osx_application_bundle()
     return false;
 #endif
 }
+
+// TODO: move qst.cpp to base/
+int32_t get_qst_buffers();
 
 void common_main_setup(App id, int argc, char **argv)
 {
@@ -188,4 +192,3 @@ void zc_process_display_events()
 	doAspectResize();
 	zc_do_minsize();
 }
-
