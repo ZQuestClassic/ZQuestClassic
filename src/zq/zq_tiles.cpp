@@ -4218,15 +4218,11 @@ error2:
 		break;
 		
 	case ftQST:
-	packfile_password("");
 		encrypted=true;
-		
 	case ftZQT:
-	packfile_password("");
 		compressed=true;
-		
 	case ftQSU:
-	packfile_password("");
+		packfile_password("");
 		imagesize = file_size_ex_password(imagepath, encrypted ? datapwd : "");
 		newtilebuf=grabtilebuf;
 		byte skip_flags[4];
@@ -4238,15 +4234,12 @@ error2:
 		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
-		//if(encrypted)
-		//	  setPackfilePassword(datapwd);
-		loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,true,skip_flags);
-		//loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,false,skip_flags);
+		loadquest(imagepath,&tempheader,&misc,customtunes,false,true,skip_flags);
 	//fails to keep quest password data / header
 		
 		if(encrypted&&compressed)
 		{
-			if(quest_access(imagepath, &tempheader, compressed) != 1)
+			if(quest_access(imagepath, &tempheader) != 1)
 			{
 				imagetype=0;
 				imagesize=0;

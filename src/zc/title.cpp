@@ -3862,11 +3862,8 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 		return 0;
 	}
 
-	char deletefilename[1024];
-	deletefilename[0] = '\0';
 	int32_t error;
-	PACKFILE* f = open_quest_file(&error, qstpath, deletefilename, true, true, false);
-	if (deletefilename[0]) delete_file(deletefilename);
+	PACKFILE* f = open_quest_file(&error, qstpath, false);
 
 	if (!f)
 	{

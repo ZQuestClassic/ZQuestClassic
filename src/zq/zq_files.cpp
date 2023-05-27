@@ -896,32 +896,7 @@ int32_t onSaveAs()
 
 int32_t open_quest(char const* path)
 {
-	bool compressed=true;
-	bool encrypted=true;
-	char ext[2048];
-	char ext2[5];
-	strcpy(ext,get_extension(path));
-	strupr(ext);
-	
-	for(int32_t i=0; i<10; ++i)
-	{
-		sprintf(ext2,"qu%d",i);
-		
-		if(stricmp(ext,ext2)==0)
-		{
-			compressed=false;
-			encrypted=false;
-			break;
-		}
-	}
-	
-	if(stricmp(ext,"qsu")==0)
-	{
-		compressed=false;
-		encrypted=false;
-	}
-	
-	int32_t ret = load_quest(path, compressed, encrypted);
+	int32_t ret = load_quest(path);
 	
 	if(ret == qe_OK)
 	{
@@ -1008,7 +983,7 @@ int32_t onRevert()
     
     if(filepath[0]!=0)
     {
-        int32_t ret = load_quest(filepath, true, true);
+        int32_t ret = load_quest(filepath);
         
         if(!ret)
         {

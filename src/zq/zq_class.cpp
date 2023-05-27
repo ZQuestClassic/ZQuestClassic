@@ -6663,8 +6663,7 @@ int32_t init_quest(const char *)
     char buf[2048];
     
 	loading_file_new = true;
-	//load_quest("qst.dat#NESQST_NEW_QST",true,true);
-    load_quest(qstdat_string,true,true);
+    load_quest(qstdat_string);
     loading_file_new = false;
 	
 	sprintf(buf,"ZQuest - Untitled Quest");
@@ -6758,7 +6757,7 @@ int32_t reverse_string(char* str)
 }
 
 
-int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
+int32_t quest_access(const char *filename, zquestheader *hdr)
 {
 #ifdef __EMSCRIPTEN__
     return 1;
@@ -6780,11 +6779,6 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     if(devpwd()) return 1;
     
     char hash_string[33];
-    
-    if(!compressed)
-    {
-        return 1;
-    }
     
     if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))) || is_null_pwd_hash(hdr->pwd_hash))
     {
@@ -6970,7 +6964,7 @@ void popup_bugfix_dlg(const char* cfg)
 	}
 }
 // wrapper to reinitialize everything on an error
-int32_t load_quest(const char *filename, bool compressed, bool encrypted)
+int32_t load_quest(const char *filename)
 {
 	char buf[2048];
 //  if(encrypted)
@@ -6983,7 +6977,7 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_bit(quest_rules,i,0);
-	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
+	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,true,skip_flags);
 //  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)
@@ -6992,7 +6986,7 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 	}
 	else
 	{
-		int32_t accessret = quest_access(filename, &header, compressed);
+		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
 		{

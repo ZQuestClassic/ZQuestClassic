@@ -671,10 +671,8 @@ bool valid_zqt(const char *filename)
 {
     PACKFILE *f=NULL;
     bool isvalid;
-    char deletefilename[1024];
-    deletefilename[0]=0;
     int32_t error;
-    f=open_quest_file(&error, filename, deletefilename, true, true,false);
+    f=open_quest_file(&error, filename, false);
     
     if(!f)
     {
@@ -683,11 +681,6 @@ bool valid_zqt(const char *filename)
     }
     
     isvalid=valid_zqt(f);
-    
-    if(deletefilename[0])
-    {
-        delete_file(deletefilename);
-    }
     
 //  setPackfilePassword(NULL);
     return isvalid;
@@ -717,15 +710,18 @@ bool valid_zqt(const char *filename)
 	in opening and saving files. There is no version field, so they decryption key is
 	found via trial-by-error (very slow!)
 
-	There are two other file types of interest:
+	There are other file types of interest:
 		- .zqt: quest template files, skips top-layer encryption pass
 		- .qsu: "unencoded" (and uncompressed) files; skips encryption and compression (also makes the longtan password moot)
+		- .qu?: same as above. automated backup files
+		- .qb?: same as above. automated backup files
+		- .qt?: compressed and encrypted (or not encrypted, as of May 2023)
 
 	May 2023: .qst files are now saved without the top layer encoding, and no allegro packfile password. The first bytes of these
 	files are now "slh!.AG ZC Enhanced Quest File".
 	The following command will take an existing qst file and upgrade it: `./zquest -unencrypt-qst <input> <output>`
 */
-PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
+PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress)
 {
 #ifdef __EMSCRIPTEN__
     if (em_is_lazy_file(filename))
@@ -734,76 +730,69 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     }
 #endif
 
+	// Note: although this is primarily for loading .qst files, it can also handle all of the
+	// file types mentioned in the comment above. No need to be told if the file being loaded
+	// is encrypted or compressed, we can do some simple and fast checks to determine how to load it.
 	bool top_layer_compressed = false;
+	bool compressed = false;
+	bool encrypted = false;
 
-	std::string ext = util::get_ext(filename);
-	if (ext == ".zqt")
+	// Input files may or may not include a top layer, which may or may not be compressed.
+	// Additionally, the bottom layer may or may not be compressed, and may or may not be encoded
+	// with an allegro packfile password (longtan).
+	// We peek into this file to read the header - we'll either see the top layer's header (ENC_STR)
+	// or the bottom layer's header (QH_IDSTR or QH_NEWIDSTR).
+	// Newly saved .qst files enjoy a fast path here, where there is no top layer at all.
+
+	bool id_came_from_compressed_file = false;
+	const char* packfile_password = "";
+	char id[31];
+	id[0] = '\0';
+	PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
+	if (!pf)
+		pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
+	if (pf)
 	{
-		compressed = true;
-		encrypted = false;
-	}
-	else if (ext == ".qsu")
-	{
-		compressed = false;
-		encrypted = false;
+		id_came_from_compressed_file = true;
+		if (!pack_fread(id, sizeof(id), pf))
+		{
+			pack_fclose(pf);
+			Z_message("Unable to read header string\n");
+			return nullptr;
+		}
+		pack_fclose(pf);
 	}
 	else
 	{
-		// Input files may or may not include a top layer, which may or may not be compressed.
-		// Additionally, the bottom layer may or may not be compressed, and may or may not be encoded
-		// with an allegro packfile password (longtan).
-		// We peek into this file to read the header - we'll either see the top layer's header (ENC_STR)
-		// or the bottom layer's header (QH_IDSTR or QH_NEWIDSTR).
-		// Newly saved .qst files enjoy a fast path here, where there is no top layer at all.
-
-		bool id_came_from_compressed_file = false;
-		const char* packfile_password = "";
-		char id[31];
-		id[0] = '\0';
-		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
-		if (!pf)
-			pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
-		if (pf)
+		FILE* f = fopen(filename, "rb");
+		if (!fread(id, sizeof(char), sizeof(id), f))
 		{
-			id_came_from_compressed_file = true;
-			if (!pack_fread(id, sizeof(id), pf))
-			{
-				pack_fclose(pf);
-				Z_message("Unable to read header string\n");
-				return nullptr;
-			}
-			pack_fclose(pf);
-		}
-		else
-		{
-			FILE* f = fopen(filename, "rb");
-			if (!fread(id, sizeof(char), sizeof(id), f))
-			{
-				fclose(f);
-				Z_message("Unable to read header string\n");
-				return nullptr;
-			}
 			fclose(f);
+			Z_message("Unable to read header string\n");
+			return nullptr;
 		}
-
-		if (strstr(id, QH_NEWIDSTR) || strstr(id, QH_IDSTR))
-		{
-			// The given file is already just the bottom layer - nothing more to do.
-			// There's no way to rewind a packfile, so just open it again.
-			return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
-		}
-		else if (strstr(id, ENC_STR))
-		{
-			top_layer_compressed = id_came_from_compressed_file;
-			compressed = true;
-			encrypted = true;
-		}
-		else
-		{
-			// Unexpected, this is going to fail some header check later. Let's just defer to the
-			// compressed/encrypted values given as input and hope for the best.
-		}
+		fclose(f);
 	}
+
+	if (strstr(id, QH_NEWIDSTR) || strstr(id, QH_IDSTR))
+	{
+		// The given file is already just the bottom layer - nothing more to do.
+		// There's no way to rewind a packfile, so just open it again.
+		return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+	}
+	else if (strstr(id, ENC_STR))
+	{
+		top_layer_compressed = id_came_from_compressed_file;
+		compressed = true;
+		encrypted = true;
+	}
+	else
+	{
+		// Unexpected, this is going to fail some header check later.
+	}
+
+	// Everything below here is legacy code - recently saved quest files will have
+	// returned by now.
 
 	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
@@ -940,8 +929,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     
 	if(!oldquest)
 	{
-		if(deletefilename)
-			sprintf(deletefilename, "%s", tmpfilename);
+		delete_file(tmpfilename);
 	}
     
 	box_out("okay.");
@@ -955,7 +943,6 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     char *filename;
     PACKFILE *f=NULL;
     int32_t open_error=0;
-    deletefilename[0]=0;
     
 	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
@@ -970,7 +957,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
         filename=Header->templatepath;
     }
     
-    f=open_quest_file(&open_error, filename, deletefilename, true, true,false);
+    f=open_quest_file(&open_error, filename, false);
     
     if(Header->templatepath[0]==0)
     {
@@ -988,13 +975,6 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
         {
             jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             pack_fclose(f);
-            
-            //setPackfilePassword(NULL);
-            if(deletefilename[0])
-            {
-                delete_file(deletefilename);
-            }
-            
             return NULL;
         }
     }
@@ -21386,7 +21366,7 @@ void portBombRules()
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, const byte *skip_flags, byte printmetadata)
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, const byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
@@ -21512,8 +21492,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     // oldquest flag is set when an unencrypted qst file is suspected.
     bool oldquest = false;
     int32_t open_error=0;
-    char deletefilename[1024];
-    PACKFILE *f=open_quest_file(&open_error, filename, deletefilename, compressed, encrypted, show_progress);
+    PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
     
     if(!f)
         return open_error;
@@ -22253,11 +22232,6 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
     }
     
-    if(deletefilename[0] && exists(deletefilename))
-    {
-        delete_file(deletefilename);
-    }
-    
     //Debug FFCore.quest_format[]
 	al_trace("Quest made in ZC Version: %x\n", FFCore.quest_format[vZelda]);
 	al_trace("Quest made in ZC Build: %d\n", FFCore.quest_format[vBuild]);
@@ -22399,18 +22373,13 @@ invalid:
         {
             delete_file(tmpfilename);
         }
-        
-        if(deletefilename[0] && exists(deletefilename))
-        {
-            delete_file(deletefilename);
-        }
     }
     
     return qe_invalid;
     
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
 {
 	loading_qst_name = filename;
 	loading_qst_num = qst_num;
@@ -22418,7 +22387,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	// So to avoid a more-recently updated .qst file from hitting the "last saved in a newer version" prompt, we disable in CI.
 	if (!is_ci())
 		loadquest_report = report;
-	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, compressed, encrypted, keepall, skip_flags,printmetadata);
+	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, keepall, skip_flags,printmetadata);
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;
 	loadquest_report = false;

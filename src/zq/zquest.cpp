@@ -29482,10 +29482,8 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	pack_fclose(pf_check);
 	if (pf_check) return;
 
-	char deletefilename[1024];
-	deletefilename[0] = '\0';
 	int32_t error;
-	PACKFILE* pf = open_quest_file(&error, input_filename, deletefilename, true, true, false);
+	PACKFILE* pf = open_quest_file(&error, input_filename, false);
 	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE_PACKED, "");
 	int c;
 	while ((c = pack_getc(pf)) != EOF)
@@ -29494,7 +29492,6 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	}
 	pack_fclose(pf);
 	pack_fclose(pf2);
-	if (deletefilename[0]) delete_file(deletefilename);
 }
 
 // Copy a quest file by loading and resaving, exactly like if the user did it in the UI.
@@ -29502,7 +29499,7 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 // typically for compatability, but could possibly be a source of bugs.
 static void do_copy_qst_command(const char* input_filename, const char* output_filename)
 {
-	load_quest(input_filename, true, false);
+	load_quest(input_filename);
 	save_quest(output_filename, false);
 }
 
@@ -30479,7 +30476,7 @@ int32_t main(int32_t argc,char **argv)
 	{
 		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 		{
-			int32_t ret = load_quest(last_timed_save,true,true);
+			int32_t ret = load_quest(last_timed_save);
 			
 			if(ret == qe_OK)
 			{
@@ -30501,7 +30498,7 @@ int32_t main(int32_t argc,char **argv)
 		if(argc>1 && argv[1][0]!='-')
 		{
 			replace_extension(temppath,argv[1],"qst",2047);
-			int32_t ret = load_quest(temppath,true,true);
+			int32_t ret = load_quest(temppath);
 			
 			if(ret == qe_OK)
 			{
@@ -30512,7 +30509,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
 		{
-			int32_t ret = load_quest(filepath,true,true);
+			int32_t ret = load_quest(filepath);
 			
 			if(ret == qe_OK)
 			{

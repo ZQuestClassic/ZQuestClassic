@@ -1630,9 +1630,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			skip_flags[i]=0;
 		}
 		
-		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report,qst_num);
-		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,zc_get_config("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
-		//setPackfilePassword(NULL);
+		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,printmetadata,report,qst_num);
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
 		{
