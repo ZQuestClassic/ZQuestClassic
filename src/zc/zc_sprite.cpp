@@ -15,11 +15,11 @@
 #include "precompiled.h" //always first
 
 #include "sprite.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "zc/maps.h"
 #include "tiles.h"
 #include "zc/ffscript.h"
-#include "combos.h"
+#include "zc/combos.h"
 
 extern FFScript FFCore;
 /*

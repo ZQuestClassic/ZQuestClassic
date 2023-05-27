@@ -1,4 +1,4 @@
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 
 PACKFILE *pack_fopen_password(const char *filename, const char *mode, const char *password)
 {

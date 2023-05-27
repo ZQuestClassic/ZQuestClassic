@@ -2,11 +2,11 @@
 #define ZSCR_DATA_H
 
 #include "base/zdefs.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include <sstream>
 
 #ifndef IS_PARSER
-#include "zquest.h"
+#include "zq/zquest.h"
 #endif //!IS_PARSER
 
 #define ZC_CONSOLE_INFO_CODE -9998

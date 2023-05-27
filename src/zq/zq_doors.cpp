@@ -19,11 +19,11 @@
 #include "jwin.h"
 #include "base/zsys.h"
 #include "zc/zc_sys.h"
-#include "zq_misc.h"
+#include "zq/zq_misc.h"
 #include "tiles.h"
-#include "zq_class.h"
-#include "zq_tiles.h"
-#include "zquest.h"
+#include "zq/zq_class.h"
+#include "zq/zq_tiles.h"
+#include "zq/zquest.h"
 
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();

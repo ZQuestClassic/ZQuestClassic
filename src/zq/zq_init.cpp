@@ -17,9 +17,9 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "jwin.h"
-#include "zq_init.h"
+#include "zq/zq_init.h"
 #include "base/zsys.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 

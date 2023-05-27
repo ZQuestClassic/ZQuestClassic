@@ -1,7 +1,7 @@
 #include "base/zdefs.h"
-#include "zquest.h"
-#include "zq_misc.h"
-#include "zq_hotkey.h"
+#include "zq/zquest.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_hotkey.h"
 #include "dialog/zqhotkeys.h"
 
 extern int32_t prv_mode;

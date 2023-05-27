@@ -2,7 +2,7 @@
 #include "../precompiled.h" //always first
 #include <assert.h>
 #include <iostream>
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "CompileError.h"
 #include "DataStructs.h"
 #include "LibrarySymbols.h"

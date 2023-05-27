@@ -20,18 +20,18 @@
 using std::set;
 
 #include "zc/maps.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "sprite.h"
 #include "jwin.h"
 #include "base/zsys.h"
 #include "subscr.h"
-#include "zc_subscr.h"
+#include "zc/zc_subscr.h"
 #include "zc/hero.h"
-#include "guys.h"
+#include "zc/guys.h"
 #include "zc/ffscript.h"
 #include "drawing.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include "zc/replay.h"
 #include "slopes.h"
 extern word combo_doscript[176];

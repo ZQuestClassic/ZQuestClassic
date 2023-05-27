@@ -1,5 +1,5 @@
 #ifdef _WIN32
-	#include "ConsoleLogger.h"
+	#include "zconsole/ConsoleLogger.h"
 #else //Unix
 	#include <fcntl.h>
 	#include <unistd.h>

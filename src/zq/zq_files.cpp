@@ -14,16 +14,16 @@
 #include <stdio.h>
 
 #include "base/gui.h"
-#include "zq_files.h"
+#include "zq/zq_files.h"
 #include "base/zdefs.h"
-#include "zq_misc.h"
-#include "zquest.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 #include "qst.h"
 #include "base/zsys.h"
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "tiles.h"
-#include "zq_tiles.h"
-#include "zq_custom.h"
+#include "zq/zq_tiles.h"
+#include "zq/zq_custom.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"

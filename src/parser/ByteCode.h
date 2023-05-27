@@ -6,7 +6,7 @@
 #include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Compiler.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 
 #include <string>
 

@@ -18,7 +18,7 @@
 #include "base/zc_alleg.h"
 
 #include "base/zdefs.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
 #include "qst.h"
 #include "tiles.h"
@@ -29,7 +29,7 @@
 #include "subscr.h"
 //#include "jwin.h"
 #include "base/jwinfsel.h"
-#include "title.h"
+#include "zc/title.h"
 #include "gamedata.h"
 #include "zc/hero.h"
 #include "zc/ffscript.h"

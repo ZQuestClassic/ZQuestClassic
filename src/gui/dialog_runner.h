@@ -2,10 +2,9 @@
 #define ZC_GUI_DIALOGRUNNER_H
 
 #include "dialog_message.h"
-#include "dialog_ref.h"
-#include "helper.h"
-#include "widget.h"
-#include "../signals.h"
+#include "gui/dialog_ref.h"
+#include "gui/helper.h"
+#include "gui/widget.h"
 #include <memory>
 #include <type_traits>
 

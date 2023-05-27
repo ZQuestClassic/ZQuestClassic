@@ -163,7 +163,7 @@ typedef unsigned const char ucc;
 #include "base/render.h"
 #include "zconfig.h"
 #include "user_object.h"
-#include "mapscr.h"
+#include "base/mapscr.h"
 
 
 

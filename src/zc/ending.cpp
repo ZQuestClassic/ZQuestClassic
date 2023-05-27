@@ -13,16 +13,16 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "ending.h"
-#include "zelda.h"
+#include "zc/ending.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
 #include "play_midi.h"
 #include "sprite.h"
 #include "items.h"
 #include "pal.h"
 #include "zc/hero.h"
-#include "guys.h"
-#include "title.h"
+#include "zc/guys.h"
+#include "zc/title.h"
 #include "subscr.h"
 #include "init.h"
 #include "gamedata.h"

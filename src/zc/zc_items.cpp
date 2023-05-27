@@ -18,8 +18,8 @@
 
 #include "precompiled.h" //always first
 
-#include "zelda.h"
-#include "guys.h"
+#include "zc/zelda.h"
+#include "zc/guys.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
 #include "items.h"

@@ -4,7 +4,7 @@
 #include "parser/parser.h"
 #include <string>
 #include "zconfig.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include "zscrdata.h"
 #include "base/zapp.h"
 

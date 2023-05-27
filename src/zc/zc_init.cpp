@@ -20,8 +20,8 @@
 #include "base/zsys.h"
 #include "gamedata.h"
 #include "zc/hero.h"
-#include "zc_init.h"
-#include "cheats.h"
+#include "zc/zc_init.h"
+#include "zc/cheats.h"
 #include <fmt/format.h>
 
 int32_t onCheatConsole()

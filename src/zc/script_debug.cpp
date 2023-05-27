@@ -1,6 +1,6 @@
-#include "script_debug.h"
+#include "zc/script_debug.h"
 #include "zc/ffscript.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 
 extern CConsoleLoggerEx zscript_coloured_console;

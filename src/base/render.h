@@ -1,7 +1,7 @@
 #ifndef _BASE_RENDER_TREE_H_
 #define _BASE_RENDER_TREE_H_
 
-#include "zc_alleg.h"
+#include "base/zc_alleg.h"
 #include <vector>
 extern unsigned char info_opacity;
 

@@ -1,14 +1,14 @@
 #ifndef ZC_GUI_QRPANEL_H
 #define ZC_GUI_QRPANEL_H
 
-#include "widget.h"
-#include "tabpanel.h"
-#include "tabref.h"
-#include "button.h"
+#include "gui/widget.h"
+#include "gui/tabpanel.h"
+#include "gui/tabref.h"
+#include "gui/button.h"
 #include "list_data.h"
-#include "scrolling_pane.h"
+#include "gui/scrolling_pane.h"
 #include <vector>
-#include "dialog_ref.h"
+#include "gui/dialog_ref.h"
 
 namespace GUI
 {

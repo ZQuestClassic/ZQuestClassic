@@ -2,7 +2,7 @@
 #include "base/zc_alleg.h"
 #include "gui/dialog_runner.h"
 #include "gui/list_data.h"
-#include "../jwin.h"
+#include "jwin.h"
 #include <utility>
 
 int32_t d_cs_color_proc2(int32_t msg,DIALOG *d,int32_t)

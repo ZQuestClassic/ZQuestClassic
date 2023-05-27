@@ -1,5 +1,5 @@
 #include "render.h"
-#include "zdefs.h"
+#include "base/zdefs.h"
 #include "jwin_a5.h"
 
 RenderTreeItem rti_dialogs;

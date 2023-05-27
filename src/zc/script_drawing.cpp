@@ -12,11 +12,11 @@
 #include "precompiled.h" //always first
 
 #include "base/zc_alleg.h"
-#include "script_drawing.h"
+#include "zc/script_drawing.h"
 #include "rendertarget.h"
 #include "zc/maps.h"
 #include "tiles.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "base/util.h"
 #include "subscr.h"

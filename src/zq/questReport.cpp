@@ -1,4 +1,4 @@
-#include "questReport.h"
+#include "zq/questReport.h"
 
 #include <map>
 #include <stdio.h>
@@ -12,9 +12,9 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "zq_class.h"
-#include "zq_misc.h"
-#include "zquest.h"
+#include "zq/zq_class.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 #include "qst.h"
 
 extern int32_t bie_cnt;

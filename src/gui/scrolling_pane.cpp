@@ -1,7 +1,7 @@
-#include "scrolling_pane.h"
-#include "dialog_runner.h"
+#include "gui/scrolling_pane.h"
+#include "gui/dialog_runner.h"
 #include "base/zc_alleg.h"
-#include "../jwin.h"
+#include "jwin.h"
 #include <algorithm>
 
 extern int32_t jwin_pal[jcMAX];

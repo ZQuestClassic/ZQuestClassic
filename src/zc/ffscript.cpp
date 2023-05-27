@@ -15,23 +15,23 @@
 #include <fmt/format.h>
 //
 
-#include "zc_sys.h"
-#include "jit.h"
-#include "script_debug.h"
+#include "zc/zc_sys.h"
+#include "zc/jit.h"
+#include "zc/script_debug.h"
 #include "base/zc_alleg.h"
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 #include "base/zc_math.h"
 #include "base/zc_array.h"
 #include "zc/ffscript.h"
-#include "render.h"
-#include "zc_subscr.h"
+#include "zc/render.h"
+#include "zc/zc_subscr.h"
 #include <time.h>
-#include "script_drawing.h"
+#include "zc/script_drawing.h"
 #include "base/util.h"
-#include "ending.h"
+#include "zc/ending.h"
 #include "base/module.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include "drawing.h"
 #include "base/colors.h"
 #include "pal.h"
@@ -291,7 +291,7 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 
 //no ifdef here
 CConsoleLoggerEx coloured_console;
@@ -459,7 +459,7 @@ byte itemScriptsWaitdraw[256] = {0};
 
 //miscQdata *Misc;
 
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "particles.h"
 #include "zc/hero.h"
 extern int32_t directItem; //Is set if Player is currently using an item directly
@@ -468,19 +468,19 @@ extern int32_t directItemB;
 extern int32_t directItemX;
 extern int32_t directItemY;
 
-#include "guys.h"
+#include "zc/guys.h"
 //enemy enemyclass;
 #include "gamedata.h"
-#include "zc_init.h"
+#include "zc/zc_init.h"
 #include "base/zsys.h"
-#include "title.h"
+#include "zc/title.h"
 #include "zscriptversion.h"
 
 #include "pal.h"
 #include "base/zdefs.h"
 #include "rendertarget.h" //Needed for LoadBitmap
 
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "qst.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))

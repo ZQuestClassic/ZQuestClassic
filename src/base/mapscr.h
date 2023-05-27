@@ -1,7 +1,7 @@
 #ifndef _MAPSCR_H_
 #define _MAPSCR_H_
 
-#include "zdefs.h"
+#include "base/zdefs.h"
 
 struct mapscr
 {

@@ -15,7 +15,7 @@
 #include <sstream>
 #include "ASTVisitors.h"
 #include "CompileOption.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "base/util.h"
 
 using std::string;

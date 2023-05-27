@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "AST.h"
 #include "CompilerUtils.h"
 #include "parserDefs.h"

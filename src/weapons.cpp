@@ -17,17 +17,17 @@
 #include <string.h>
 
 #include "weapons.h"
-#include "guys.h"
-#include "zelda.h"
+#include "zc/guys.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
 #include "zc/maps.h"
 #include "tiles.h"
 #include "pal.h"
 #include "zc/hero.h"
 #include "zc/ffscript.h"
-#include "decorations.h"
+#include "zc/decorations.h"
 #include "drawing.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include "base/zc_math.h"
 
 extern HeroClass Hero;

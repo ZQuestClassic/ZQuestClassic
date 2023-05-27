@@ -1,6 +1,6 @@
-#include "dialog_ref.h"
-#include "dialog.h"
-#include "dialog_runner.h"
+#include "gui/dialog_ref.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
 
 namespace GUI
 {

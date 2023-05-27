@@ -58,13 +58,13 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "jwin_a5.h"
 #include "zc_list_data.h"
 #include "editbox.h"
-#include "zq_misc.h"
-#include "zq_tiles.h"                                       // tile and combo code
+#include "zq/zq_misc.h"
+#include "zq/zq_tiles.h"                                       // tile and combo code
 
-#include "zquest.h"
-#include "zquestdat.h"
-#include "ffasm.h"
-#include "render.h"
+#include "zq/zquest.h"
+#include "zq/zquestdat.h"
+#include "zq/ffasm.h"
+#include "zq/render.h"
 
 // the following are used by both zelda.cc and zquest.cc
 #include "base/zdefs.h"
@@ -81,23 +81,22 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "items.h"
 #include "fontsdat.h"
 #include "base/jwinfsel.h"
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "subscr.h"
-#include "zq_subscr.h"
+#include "zq/zq_subscr.h"
 #include "zc/ffscript.h"
 #include "EditboxNew.h"
 #include "sfx.h"
-#include "zq_custom.h" // custom items and guys
-#include "zq_strings.h"
-#include "questReport.h"
-#include "ffasmexport.h"
+#include "zq/zq_custom.h" // custom items and guys
+#include "zq/zq_strings.h"
+#include "zq/questReport.h"
+#include "zq/ffasmexport.h"
 #include <fstream>
 #include "base/module.h"
-//#include "zscrdata.h"
 #include "drawing.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include "colorname.h"
-#include "zq_hotkey.h"
+#include "zq/zq_hotkey.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -142,9 +141,9 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "base/win32.h"
 
-#include "zq_init.h"
-#include "zq_doors.h"
-#include "zq_cset.h"
+#include "zq/zq_init.h"
+#include "zq/zq_doors.h"
+#include "zq/zq_cset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -162,7 +161,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 extern byte monochrome_console;
 
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 
 CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
@@ -4404,7 +4403,7 @@ static TABPANEL gamemisc_tabs[] =
 };
 
 
-#include "zq_files.h"
+#include "zq/zq_files.h"
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG gamemiscarray_dlg[] =
 {
@@ -13884,7 +13883,7 @@ const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
 
 
-#include "zq_files.h"
+#include "zq/zq_files.h"
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG screenscript_dlg[] =
 {

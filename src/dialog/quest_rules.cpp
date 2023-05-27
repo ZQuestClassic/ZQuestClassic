@@ -6,12 +6,12 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "gui/use_size.h"
-#include "zq_files.h"
+#include "zq/zq_files.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);

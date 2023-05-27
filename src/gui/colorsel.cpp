@@ -1,8 +1,8 @@
-#include "colorsel.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "../jwin.h"
+#include "gui/colorsel.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "jwin.h"
 #include "base/zdefs.h"
 #include <algorithm>
 #include <cassert>

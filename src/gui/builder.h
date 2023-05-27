@@ -1,31 +1,31 @@
 #ifndef ZC_GUI_BUILDER_HPP
 #define ZC_GUI_BUILDER_HPP
 
-#include "use_size.h"
+#include "gui/use_size.h"
 extern int32_t zq_screen_w, zq_screen_h;
-#include "button.h"
-#include "checkbox.h"
-#include "checkbox_qr.h"
-#include "colorsel.h"
-#include "common.h"
-#include "drop_down_list.h"
-#include "frame.h"
-#include "grid.h"
-#include "key.h"
-#include "label.h"
-#include "qrpanel.h"
-#include "ddpanel.h"
-#include "radio.h"
-#include "radioset.h"
-#include "size.h"
-#include "switcher.h"
-#include "tabpanel.h"
-#include "tabref.h"
-#include "list.h"
-#include "scrolling_pane.h"
-#include "text_field.h"
-#include "window.h"
-#include "widget.h"
+#include "gui/button.h"
+#include "gui/checkbox.h"
+#include "gui/checkbox_qr.h"
+#include "gui/colorsel.h"
+#include "gui/common.h"
+#include "gui/drop_down_list.h"
+#include "gui/frame.h"
+#include "gui/grid.h"
+#include "gui/key.h"
+#include "gui/label.h"
+#include "gui/qrpanel.h"
+#include "gui/ddpanel.h"
+#include "gui/radio.h"
+#include "gui/radioset.h"
+#include "gui/size.h"
+#include "gui/switcher.h"
+#include "gui/tabpanel.h"
+#include "gui/tabref.h"
+#include "gui/list.h"
+#include "gui/scrolling_pane.h"
+#include "gui/text_field.h"
+#include "gui/window.h"
+#include "gui/widget.h"
 
 #ifdef IS_ZQUEST
 #include "zq/gui/seltile_swatch.h"
@@ -45,8 +45,8 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include <string_view>
 
 // These have to be included in order after the ones above.
-#include "macros.h"
-#include "props.h"
+#include "gui/macros.h"
+#include "gui/props.h"
 
 /*
  * A brief explanation of how this works:

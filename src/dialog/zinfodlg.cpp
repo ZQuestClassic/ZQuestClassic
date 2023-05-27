@@ -1,8 +1,8 @@
 #include "zinfodlg.h"
 #include <gui/builder.h>
 #include <base/gui.h>
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 #include "dialog/alert.h"
 #include "zc_list_data.h"
 

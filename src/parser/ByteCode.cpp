@@ -4,7 +4,7 @@
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "DataStructs.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include <assert.h>
 #include <iostream>
 #include <cstdlib>

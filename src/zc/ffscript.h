@@ -7,7 +7,7 @@
 #include <string>
 #include <list>
 #include <deque>
-#include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
+#include "zc/zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
 #include "zc/replay.h"
 
 #define ZS_BYTE 255

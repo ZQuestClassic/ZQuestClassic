@@ -1,8 +1,8 @@
 #ifndef ZC_GUI_WINDOW_H
 #define ZC_GUI_WINDOW_H
 
-#include "dialog_ref.h"
-#include "top_level.h"
+#include "gui/dialog_ref.h"
+#include "gui/top_level.h"
 #include <memory>
 #include <string>
 

@@ -14,7 +14,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "zc/maps.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "zc/hero.h"
 #include "base/colors.h"
 #include "base/zsys.h"

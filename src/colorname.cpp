@@ -2,7 +2,7 @@
 #include "colorname.h"
 #include "base/util.h"
 #include <sstream>
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "tiles.h"
 
 using std::map, std::string, std::vector, std::pair;

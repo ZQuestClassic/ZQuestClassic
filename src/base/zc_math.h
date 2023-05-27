@@ -2,7 +2,7 @@
 #define __zc_math_h_
 
 #include <math.h>
-#include "sin1.h"
+#include "base/sin1.h"
 #include "zc/replay.h"
 
 namespace zc

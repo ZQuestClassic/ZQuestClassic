@@ -1,9 +1,9 @@
 #ifndef ZC_GUI_TEXTFIELD_H
 #define ZC_GUI_TEXTFIELD_H
 
-#include "widget.h"
-#include "dialog_ref.h"
-#include "checkbox.h"
+#include "gui/widget.h"
+#include "gui/dialog_ref.h"
+#include "gui/checkbox.h"
 #include <memory>
 #include <string_view>
 

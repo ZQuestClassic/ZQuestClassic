@@ -18,7 +18,7 @@
 
 #include "precompiled.h" //always first
 
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "base/zdefs.h"
 #include "items.h"
 

@@ -3,12 +3,12 @@
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
 #include "gui/size.h"
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 #include <cassert>
 #include <utility>
 #include "tiles.h"
-#include "zq_tiles.h"
+#include "zq/zq_tiles.h"
 #include <allegro/internal/aintern.h>
 
 int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)

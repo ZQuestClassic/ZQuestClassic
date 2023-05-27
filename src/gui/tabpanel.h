@@ -1,10 +1,10 @@
 #ifndef ZC_GUI_TABPANEL_H
 #define ZC_GUI_TABPANEL_H
 
-#include "widget.h"
-#include "tabref.h"
+#include "gui/widget.h"
+#include "gui/tabref.h"
 #include <vector>
-#include "dialog_ref.h"
+#include "gui/dialog_ref.h"
 
 namespace GUI
 {

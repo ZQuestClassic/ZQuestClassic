@@ -4,7 +4,7 @@
 #include <gui/builder.h>
 #include "zc_list_data.h"
 #include "gui/use_size.h"
-#include "zq_tiles.h"
+#include "zq/zq_tiles.h"
 
 extern bool saved;
 combo_pool temp_cpool;

@@ -1,8 +1,8 @@
-#include "list.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "../jwin.h"
+#include "gui/list.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "jwin.h"
 #include <cassert>
 #include <cmath>
 

@@ -1,13 +1,13 @@
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "sprite.h"
-#include "decorations.h"
-#include "combos.h"
+#include "zc/decorations.h"
+#include "zc/combos.h"
 #include "zc/maps.h"
 #include "items.h"
-#include "guys.h"
+#include "zc/guys.h"
 #include "zc/ffscript.h"
 #include "zc/hero.h"
-#include "title.h"
+#include "zc/title.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;

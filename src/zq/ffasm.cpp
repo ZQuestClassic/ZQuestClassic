@@ -7,9 +7,9 @@
 #include <ctype.h>
 
 #include "zc/ffscript.h"
-#include "ffasm.h"
+#include "zq/ffasm.h"
 
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/util.h"
 #include "dialog/info.h"

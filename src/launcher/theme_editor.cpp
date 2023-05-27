@@ -1,4 +1,4 @@
-#include "theme_editor.h"
+#include "launcher/theme_editor.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
 #include "base/jwinfsel.h"

@@ -1,7 +1,7 @@
 #include "cheatkeys.h"
 #include "info.h"
 #include <gui/builder.h>
-#include "../jwin.h"
+#include "jwin.h"
 #include "base/zsys.h"
 #include "gui/use_size.h"
 #include "zc/cheats.h"

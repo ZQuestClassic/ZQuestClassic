@@ -32,31 +32,31 @@
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "aglogo.h"
+#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
 #include "qst.h"
-#include "matrix.h"
+#include "zc/matrix.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "fontsdat.h"
 #include "particles.h"
 #include "gamedata.h"
 #include "zc/ffscript.h"
-#include "jit.h"
-#include "script_debug.h"
-#include "combos.h"
+#include "zc/jit.h"
+#include "zc/script_debug.h"
+#include "zc/combos.h"
 #include "qst.h"
 #include "base/util.h"
 #include "drawing.h"
 #include "dialog/info.h"
 #include "zc/replay.h"
-#include "cheats.h"
+#include "zc/cheats.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -66,7 +66,7 @@
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern bool epilepsyFlashReduction;
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #ifndef _WIN32 //Unix
 	#include <fcntl.h>
 	#include <unistd.h>
@@ -1165,18 +1165,18 @@ portal mirror_portal;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 particle_list particles;
 
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "zc/hero.h"
 HeroClass   Hero;
 
 #include "zc/maps.h"
 #include "subscr.h"
-#include "guys.h"
+#include "zc/guys.h"
 
-#include "title.h"
-#include "ending.h"
+#include "zc/title.h"
+#include "zc/ending.h"
 
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid)

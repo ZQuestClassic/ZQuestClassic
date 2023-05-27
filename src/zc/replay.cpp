@@ -1,8 +1,8 @@
 #include "zc/replay.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 #include "base/zc_alleg.h"
 #include "base/util.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include <array>
 #include <vector>
 #include <map>

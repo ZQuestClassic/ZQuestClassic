@@ -1,8 +1,8 @@
 #include "waterpit_convert.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
-//#include "zq_files.h"
+#include "jwin.h"
+#include "zq/zquest.h"
+//#include "zq/zq_files.h"
 #include "info.h"
 
 int32_t onPitFix()

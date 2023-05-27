@@ -8,7 +8,7 @@ extern sprite_list Lwpns;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 #ifdef IS_PLAYER
-#include "combos.h"
+#include "zc/combos.h"
 #include "zc/maps.h"
 #include "zc/hero.h"
 #include "base/mapscr.h"

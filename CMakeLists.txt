@@ -480,7 +480,6 @@ if(WIN32)
 endif()
 
 add_library(zconsolelogger STATIC src/zconsole/ConsoleLogger.cpp)
-target_include_directories(zconsolelogger INTERFACE src/zconsole)
 target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 
 #############################################################
@@ -602,7 +601,7 @@ endif()
 add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
 target_compile_definitions(zelda PRIVATE IS_PLAYER)
 set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")
-target_include_directories(zelda PRIVATE src/zc include/xxhash)
+target_include_directories(zelda PRIVATE include/xxhash)
 target_link_libraries(zelda PRIVATE allegro_with_legacy)
 
 if(WIN32)
@@ -652,7 +651,7 @@ add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC
 set_property(TARGET zquest PROPERTY VS_DPI_AWARE "PerMonitor")
 
 target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
-target_include_directories(zquest PRIVATE src/zq)
+target_include_directories(zquest PRIVATE src)
 
 if(MSVC AND USE_PCH)
 	set_target_properties(zquest PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h /FIprecompiled.h /Fp\"${ZQPrecompiledBinary}\"" OBJECT_DEPENDS "${ZQPrecompiledBinary}")
@@ -682,7 +681,7 @@ endif()
 
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
-	target_include_directories(zscript PRIVATE src/zq)
+	target_include_directories(zscript PRIVATE src)
 	target_link_libraries(zscript PRIVATE allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
@@ -700,7 +699,6 @@ endif()
 add_executable(zlauncher ${LAUNCHER_SOURCES} ${LAUNCHER_GUI_SOURCES} ${LAUNCHEREXTRASOURCES})
 target_compile_definitions(zlauncher PRIVATE IS_LAUNCHER)
 set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
-target_include_directories(zlauncher PRIVATE src/launcher)
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################

@@ -12,12 +12,12 @@
 
 #include <string.h>
 
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "subscr.h"
-#include "zc_subscr.h"
+#include "zc/zc_subscr.h"
 #include "zc/hero.h"
 #include "gamedata.h"
-#include "guys.h"
+#include "zc/guys.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
 

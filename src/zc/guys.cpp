@@ -13,8 +13,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "base/zc_alleg.h"
-#include "guys.h"
-#include "zelda.h"
+#include "zc/guys.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
 #include "zc/maps.h"
 #include "zc/hero.h"

@@ -1,7 +1,7 @@
-#include "dialog_runner.h"
-#include "common.h"
+#include "gui/dialog_runner.h"
+#include "gui/common.h"
 #include "base/gui.h"
-#include "../jwin.h"
+#include "jwin.h"
 
 using std::shared_ptr;
 

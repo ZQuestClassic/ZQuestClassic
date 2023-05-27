@@ -1,7 +1,7 @@
 #include "test_quest_dlg.h"
 #include "alertfunc.h"
 #include "base/process_management.h"
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
 #include <fmt/format.h>

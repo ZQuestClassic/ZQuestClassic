@@ -4,8 +4,8 @@
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "parserDefs.h"
-#include "ffasmexport.h"
-#include "ffasm.h"
+#include "zq/ffasmexport.h"
+#include "zq/ffasm.h"
 
 #include <cstdio>
 #include <map>

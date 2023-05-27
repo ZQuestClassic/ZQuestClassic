@@ -2,8 +2,8 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include "gui/use_size.h"
 #include "zc_list_data.h"
