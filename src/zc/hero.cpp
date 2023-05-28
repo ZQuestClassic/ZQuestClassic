@@ -18192,7 +18192,7 @@ void HeroClass::movehero()
 			}
 			return;
 		}
-		get_move(dir,dx,dy);
+		get_move(holddir,dx,dy);
 	}
 	else //4-way
 	{
@@ -18219,7 +18219,7 @@ void HeroClass::movehero()
 				holddir = dir = right;
 			}
 		}
-		get_move(dir,dx,dy);
+		get_move(holddir,dx,dy);
 	}
 	
 	if(!new_engine_move(dx,dy))
