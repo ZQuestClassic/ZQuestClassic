@@ -686,4 +686,3 @@ string get_combo_colornames(int combo, int cs)
 		oss << p.first << ": " << p.second << "\n";
 	return oss.str();
 }
-
