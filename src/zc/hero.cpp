@@ -26960,7 +26960,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
-		
+	bool isForceFaceUp = getOnSideviewLadder() && canSideviewLadder() &&
+		!(jumping<0 || fall!=0 || fakefall!=0) && get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP);
+	if(isForceFaceUp) dir = up;
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
@@ -27106,6 +27108,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	++cx;
 	while(cx < 32)
 	{
+		if(isForceFaceUp) dir = up;
 		if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 		{
 			script_drawing_commands.Clear();
@@ -27314,6 +27317,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			action=none; FFCore.setHeroAction(none);
 		}
 	}
+	
+	isForceFaceUp = isForceFaceUp && canSideviewLadderRemote(lookaheadx,lookaheady);
 	
 	// The naturaldark state can be read/set by an FFC script before
 	// fade() or lighting() is called.
@@ -27609,6 +27614,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
 		herostep();
+		if(isForceFaceUp) dir = up;
 		
 		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
 		{
@@ -27924,6 +27930,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				stepforward(diagonalMovement?21:24, false);
 		}
 	}
+	
+	if(isForceFaceUp) dir = up;
 	
 	if(action == scrolling)
 	{
