@@ -107,7 +107,6 @@ static zc_randgen drunk_rng;
 #include "zc/rendertarget.h"
 #include "zconsole.h"
 #include "base/win32.h"
-#include "vectorset.h"
 #include "single_instance.h"
 #include "zc/zeldadat.h"
 
