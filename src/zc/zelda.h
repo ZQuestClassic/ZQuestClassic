@@ -554,7 +554,4 @@ enum
 	ZCM_MAX
 };
 
-
-#include "items.h"
 #endif
-

@@ -21,6 +21,7 @@
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "init.h"
+#include "items.h"
 #include "zc/zelda.h"
 
 extern zcmodule moduledata;
