@@ -17,8 +17,6 @@
 #include "zc/jit.h"
 #include "zc/script_debug.h"
 #include "base/zc_alleg.h"
-extern byte use_dwm_flush;
-uint8_t using_SRAM = 0;
 #include "base/zc_math.h"
 #include "base/zc_array.h"
 #include "zc/ffscript.h"
@@ -33,9 +31,7 @@ uint8_t using_SRAM = 0;
 #include "drawing.h"
 #include "base/colors.h"
 #include "pal.h"
-using namespace util;
 #include <sstream>
-using std::ostringstream;
 
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
@@ -56,6 +52,12 @@ using std::ostringstream;
 static int64_t script_timer[NUMCOMMANDS];
 static int64_t script_execount[NUMCOMMANDS];
 #endif
+
+using namespace util;
+using std::ostringstream;
+
+extern byte use_dwm_flush;
+uint8_t using_SRAM = 0;
 
 extern zinitdata zinit;
 int32_t hangcount = 0;
