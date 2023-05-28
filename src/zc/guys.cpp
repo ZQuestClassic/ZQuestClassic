@@ -18402,8 +18402,6 @@ bool ePatra::animate(int32_t index)
 	}
 	if (clk4 > 0) --clk4;
 	
-	double size=1;
-	
 	if (clk6 < 0)
 	{
 		if (dmisc5 == 1 || dmisc5 == 3)
@@ -18625,7 +18623,6 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	size=.5;
 	int randattempts = 0;
 	int randeye = 0;
 	if (flycnt2 > 0)
@@ -21310,7 +21307,6 @@ void activate_fireball_statues()
 void load_default_enemies()
 {
 	wallm_load_clk=frame-80;
-	int32_t Id=0;
 	
 	if(tmpscr->enemyflags&efZORA)
 	{

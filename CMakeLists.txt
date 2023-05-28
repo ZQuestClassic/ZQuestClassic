@@ -712,6 +712,7 @@ set(zc_clang_errors
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
 	-Werror=unreachable-code
+	# -Werror=unused
 	-Wno-write-strings
 	-Wno-switch
 )
@@ -723,6 +724,7 @@ set(zc_gcc_errors
 	-Werror=format-overflow
 	-Werror=return-type
 	-Werror=unreachable-code
+	# -Werror=unused
 	-Wno-write-strings
 	-Wno-switch
 	# TODO
