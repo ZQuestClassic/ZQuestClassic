@@ -27258,32 +27258,6 @@ void do_createlweapon(const bool v)
 		ri->lwpn = 0; // Now NULL
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
-	return; //do not use the old code, below here. 
-		//old version is below
-	if ( Lwpns.has_space() )
-	{
-		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Hero.getUID(),1));
-		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
-		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
-	}
-	else
-	{
-		ri->lwpn = 0;
-		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
-	}
-	//addLwpn(0, 0, 0, ID, 0, 0, 0, Hero.getUID());
-	/*
-	if(Lwpns.Count() < 1)
-	{
-		ri->lwpn = MAX_DWORD;
-		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
-	}
-	else
-	{
-		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
-		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
-	}
-	*/
 }
 
 void do_createeweapon(const bool v)
@@ -27319,19 +27293,6 @@ void do_createeweapon(const bool v)
 		ri->ewpn = 0;
 		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
 	}
-	//addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
-	/*
-	if(Ewpns.Count() < 1)
-	{
-		ri->ewpn = MAX_DWORD;
-		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
-	}
-	else
-	{
-		ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();
-		Z_eventlog("Script created eweapon %ld with UID = %ld\n", ID, ri->ewpn);
-	}
-	*/
 }
 
 void do_createitem(const bool v)

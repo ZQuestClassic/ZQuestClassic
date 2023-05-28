@@ -65,7 +65,6 @@ bool ZModule::init(bool d) //bool default
 	if(!fileexists((char*)moduledata.module_name))
 	{
 		Z_error_fatal("ZQuest Creator I/O Error:\nNo module definitions found.\nZQuest Creator cannot run without these definitions,\nand is now exiting.\nPlease check your settings in %s.cfg.\n","zcl");
-		exit(1);
 		return false;
 	}
 	if(!d) return true;

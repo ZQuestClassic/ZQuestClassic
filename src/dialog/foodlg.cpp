@@ -3,6 +3,11 @@
 #include "jwin.h"
 #include "zq/zquest.h"
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunreachable-code"
+#endif
+
 void call_foo_dlg()
 {
 	return; //This dialog for testing purposes only
@@ -14,6 +19,10 @@ void call_foo_dlg()
 		jwin_alert("Foo", buf, NULL, NULL, "OK", NULL, 0, 0, get_zc_font(font_lfont));
 	}).show();
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 FooDialog::FooDialog(int32_t v, std::function<void(int32_t,bool)> setVal):
 	v(v), setVal(setVal)

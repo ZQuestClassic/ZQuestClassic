@@ -540,18 +540,10 @@ void go_tiles()
 		if(newundotilebuf[i].data==NULL)
 		{
 			Z_error_fatal("Unable to initialize undo tile #%ld.\n", i);
-			exit(1);
 		}
 		
 		memcpy(newundotilebuf[i].data,newtilebuf[i].data,tilesize(newundotilebuf[i].format));
 	}
-	
-	/*
-	  int32_t *si = (int32_t*)tilebuf;
-	  int32_t *di = (int32_t*)undotilebuf;
-	  for(int32_t i=0; i<NEWTILE_SIZE2/4; i++)
-	  *(di++) = *(si++);
-	  */
 }
 
 void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
@@ -573,7 +565,6 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 			if(newundotilebuf[t].data==NULL)
 			{
 				Z_error_fatal("Unable to initialize undo tile #%ld.\n", t);
-				exit(1);
 			}
 			
 			memcpy(newundotilebuf[t].data,newtilebuf[t].data,tilesize(newundotilebuf[t].format));
@@ -607,7 +598,6 @@ void comeback_tiles()
 		if(newtilebuf[i].data==NULL)
 		{
 			Z_error_fatal("Unable to initialize tile #%ld.\n", i);
-			exit(1);
 		}
 		
 		memcpy(newtilebuf[i].data,newundotilebuf[i].data,tilesize(newtilebuf[i].format));

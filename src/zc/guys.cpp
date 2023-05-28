@@ -5903,16 +5903,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		case wBait:
 			return 0;
 
-			[[fallthrough]];
 		case wFire:
-#if 0
-			if(false /*flags2&guy_mirror*/)
-			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
-			}
-			
-#endif
 			;
 		}
 	}

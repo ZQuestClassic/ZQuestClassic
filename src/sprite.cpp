@@ -1620,10 +1620,9 @@ void sprite::drawzcboss(BITMAP* dest)
     
     if(clk>=0)
     {
+		BITMAP *temp;
         switch(e)
         {
-            BITMAP *temp;
-            
         case 1:
             temp = create_bitmap_ex(8,16,32);
             blit(dest, temp, sx, sy-16, 0, 0, 16, 32);

@@ -711,6 +711,7 @@ set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
+	-Werror=unreachable-code
 	-Wno-write-strings
 	-Wno-switch
 )
@@ -721,6 +722,7 @@ set(zc_gcc_errors
 	-Werror=format
 	-Werror=format-overflow
 	-Werror=return-type
+	-Werror=unreachable-code
 	-Wno-write-strings
 	-Wno-switch
 	# TODO
@@ -778,7 +780,7 @@ foreach(target IN LISTS zc_targets)
 		target_compile_options(${target} PRIVATE /W2 /WX)
 	endif()
 
-	if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+	if(CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT EMSCRIPTEN)
 		target_compile_options(${target} PRIVATE -Wall)
 		# Uncomment to autofix. Only works for clang. When done, comment this line out again.
 		# target_compile_options(${target} PRIVATE -ferror-limit=10000 -Wno-everything ${zc_clang_errors} "SHELL:-Xclang -fix-what-you-can" "SHELL:-Xclang -fixit-recompile")
@@ -789,9 +791,11 @@ foreach(target IN LISTS zc_targets)
 	endif()
 endforeach()
 
+# Disable warnings for generated file.
 if(WIN32)
-	# Disable warnings for generated file.
 	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS /W0)
+else()
+	set_source_files_properties(src/parser/lex.yy.cpp PROPERTIES COMPILE_FLAGS -Wno-everything)
 endif()
 
 find_program(PYTHON python3 python REQUIRED)
