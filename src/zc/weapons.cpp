@@ -12,9 +12,9 @@
 //
 //--------------------------------------------------------
 
-#include <string.h>
+#include <string>
 
-#include "weapons.h"
+#include "zc/weapons.h"
 #include "zc/guys.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"

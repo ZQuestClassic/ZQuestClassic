@@ -5,7 +5,8 @@
 #include "tiles.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
-#include "weapons.h"
+#include "items.h"
+#include "zc/weapons.h"
 #include "sfx.h"
 
 extern bool saved;

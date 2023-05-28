@@ -16,7 +16,7 @@
 
 #include <list>
 #include "sprite.h"
-#include "weapons.h"
+#include "zc/weapons.h"
 #include "zfix.h"
 
 class item;

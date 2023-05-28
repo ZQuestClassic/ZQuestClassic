@@ -27,7 +27,7 @@
 #include "zc/matrix.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "weapons.h"
+#include "zc/weapons.h"
 //#include "save_gif.h"
 #include "sprite.h"
 #include "zc/zc_custom.h"

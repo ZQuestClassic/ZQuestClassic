@@ -2,7 +2,7 @@
 #define _COMBOS_H_
 
 #include "base/zdefs.h"
-#include "weapons.h"
+#include "zc/weapons.h"
 
 extern newcombo *combobuf;
 #define minSECRET_TYPE 0
