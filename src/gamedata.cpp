@@ -1214,6 +1214,3 @@ bool gamedata::should_show_time()
 
 	return get_timevalid() && !did_cheat() && get_bit(quest_rules,qr_TIME);
 }
-
-/*** end of gamedata.cpp ***/
-

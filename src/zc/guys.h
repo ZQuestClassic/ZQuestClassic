@@ -957,5 +957,3 @@ void dragging_item();
 void roaming_item();
 int32_t more_carried_items();
 #endif
-/*** end of guys.cc ***/
-

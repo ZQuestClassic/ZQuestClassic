@@ -31765,8 +31765,3 @@ bool HeroClass::is_unpushable() const
 {
 	return toogam;
 }
-/*** end of hero.cpp ***/
-
-
-
-

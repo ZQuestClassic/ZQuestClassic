@@ -5967,5 +5967,3 @@ int32_t scounter_to_ctr(int32_t ssc)
 	return crNONE;
 }
 
-/*** end of subscr.cc ***/
-

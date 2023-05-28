@@ -16,6 +16,3 @@ void dosubscr(miscQdata *misc);
 void markBmap(int32_t dir, int32_t sc);
 void markBmap(int32_t dir);
 #endif
-
-/*** end of subscr.cc ***/
-

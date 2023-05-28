@@ -4413,6 +4413,3 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             break;
     }
 }
-
-/*** end of subscr.cc ***/
-

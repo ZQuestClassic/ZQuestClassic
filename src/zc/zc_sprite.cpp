@@ -1050,5 +1050,3 @@ bool movingblock::animate(int32_t)
 	return false;
 }
 
-/*** end of sprite.cc ***/
-

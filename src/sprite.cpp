@@ -2933,6 +2933,3 @@ double comparePointLine(double x, double y, double x1, double y1, double x2, dou
     double ly = slope*x + b;
     return y-ly;
 }
-
-/*** end of sprite.cc ***/
-

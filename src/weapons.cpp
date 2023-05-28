@@ -7823,5 +7823,3 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	weapon_dying_frame = false;
 }
 
-/*** end of weapons.cpp ***/
-

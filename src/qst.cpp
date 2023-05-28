@@ -22392,5 +22392,3 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	loading_qst_num = 0;
 	return ret;
 }
-/*** end of qst.cc ***/
-

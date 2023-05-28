@@ -7004,7 +7004,3 @@ bool isCuttableItemType(int32_t type)
     
     return false;
 }
-
-
-/*** end of maps.cc ***/
-

@@ -182,5 +182,3 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
                int32_t parentid);
 	       
 #endif
-/*** end of sprite.cc ***/
-

@@ -680,4 +680,3 @@ void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);
 #endif
-/*** end of hero.cpp ***/

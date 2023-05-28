@@ -476,5 +476,3 @@ void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_t r, in
 	}
 }
 
-/*** end of colors.cc ***/
-

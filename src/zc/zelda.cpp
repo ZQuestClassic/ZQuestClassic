@@ -6074,6 +6074,3 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 
 std::string getComboTypeHelpText(int32_t id) { return ""; }
 std::string getMapFlagHelpText(int32_t id) { return ""; }
-
-/*** end of zelda.cc ***/
-

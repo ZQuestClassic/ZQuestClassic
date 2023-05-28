@@ -230,4 +230,3 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 	running=false;
 }
 
-/*** end of gui.cpp ***/

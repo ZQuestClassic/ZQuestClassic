@@ -809,5 +809,3 @@ void dDivineProtectionShield::draw2(BITMAP *dest)
 }
 
 
-/*** end of sprite.cc ***/
-

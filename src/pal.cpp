@@ -677,6 +677,3 @@ int32_t reverse_NESpal(RGB c)
     
     return index;
 }
-
-/* end of pal.cc */
-

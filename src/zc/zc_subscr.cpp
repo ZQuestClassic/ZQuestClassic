@@ -420,5 +420,3 @@ void markBmap(int32_t dir)
     markBmap(dir, get_currscr());
 }
 
-/*** end of subscr.cc ***/
-

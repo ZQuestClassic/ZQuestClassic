@@ -84,5 +84,3 @@ public:
 
 
 #endif
-/*** end of sprite.cc ***/
-

@@ -331,7 +331,3 @@ particle * particle_list::getByUID(int32_t uid)
 		
 	return NULL;
 }
-
-
-/*** end of particle.cc ***/
-

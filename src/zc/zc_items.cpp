@@ -222,6 +222,3 @@ std::string bottle_slot_name(size_t slot, std::string const& emptystr)
 		return emptystr;
 	return bottle_name(bind);
 }
-
-/*** end of sprite.cc ***/
-

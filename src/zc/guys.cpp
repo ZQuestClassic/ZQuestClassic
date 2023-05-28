@@ -24143,6 +24143,3 @@ const char *old_guy_string[OLDMAXGUYS] =
 	// 175
 	"Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
-
-/*** end of guys.cc ***/
-

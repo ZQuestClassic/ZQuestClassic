@@ -2724,5 +2724,3 @@ int32_t comboa_lmasktotal(byte layermask)
     return result;
 }
 
-/* end of tiles.cc */
-

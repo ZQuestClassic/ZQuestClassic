@@ -558,5 +558,3 @@ enum
 #include "items.h"
 #endif
 
-/*** end of zelda.h ***/
-
