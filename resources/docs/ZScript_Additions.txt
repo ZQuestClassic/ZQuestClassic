@@ -715,6 +715,12 @@ untyped : A special datatype that can be cast to and from any other type.
 	paldata :
 		Object type for storing palettes
 	
+	portal :
+		pointer to one of the on-screen 'portals' (See ZScript_Docs.html)
+	
+	savedportal :
+		Object type for storing portal data that saves with the save file (See ZScript_Docs.html)
+	
 	//Planned/Incomplete
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
@@ -5550,6 +5556,13 @@ bool ClockActive;
 bool Standing;
  * Returns true if the hero is 'standing', as is used to check if they are capable
  *     of jumping. Automatically accounts for sideview.
+
+int HammerState;
+ * Read-only. Returns a value representing the current hammer swing.
+ * 0 = not swinging hammer
+ * 1 = hammer above head
+ * 2 = hammer at angle
+ * 3 = hammer hit the ground
 
 int CoyoteTime;
  * The number of frames the hero has been off the ground. Range 0-65535.

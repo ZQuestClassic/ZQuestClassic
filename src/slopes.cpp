@@ -1,6 +1,6 @@
 #include "base/zdefs.h"
 #include "slopes.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "base/zc_math.h"
 #include "sprite.h"
 

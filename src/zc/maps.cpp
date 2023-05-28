@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <assert.h>
 #include <math.h>
@@ -24,20 +18,20 @@
 #include <array>
 using std::set;
 
-#include "maps.h"
-#include "zelda.h"
+#include "zc/maps.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "sprite.h"
 #include "jwin.h"
 #include "base/zsys.h"
 #include "subscr.h"
-#include "zc_subscr.h"
-#include "hero.h"
-#include "guys.h"
-#include "ffscript.h"
+#include "zc/zc_subscr.h"
+#include "zc/hero.h"
+#include "zc/guys.h"
+#include "zc/ffscript.h"
 #include "drawing.h"
-#include "combos.h"
-#include "replay.h"
+#include "zc/combos.h"
+#include "zc/replay.h"
 #include "slopes.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
@@ -646,7 +640,7 @@ FONT *get_zc_font(int index);
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
-extern portal* mirror_portal;
+extern portal mirror_portal;
 extern zinitdata zinit;
 bool triggered_screen_secrets=false;
 
@@ -4514,8 +4508,9 @@ void draw_screen(bool showhero, bool runGeneric)
 		guys.draw2(framebuf,true);
 	}
 	
-	if(mirror_portal)
-		mirror_portal->draw(framebuf);
+	if(mirror_portal.destdmap > -1)
+		mirror_portal.draw(framebuf);
+	portals.draw(framebuf,true);
 	
 	if(showhero && ((Hero.getAction()!=climbcovertop)&& (Hero.getAction()!=climbcoverbottom)))
 	{
@@ -5560,6 +5555,11 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	game->load_portal();
 	throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
+	if (Hero.lift_wpn && get_bit(quest_rules,qr_CARRYABLE_NO_ACROSS_SCREEN))
+	{
+		delete Hero.lift_wpn;
+		Hero.lift_wpn = nullptr;
+	}
 }
 
 // Don't use this directly!
@@ -5957,11 +5957,16 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			}
 		}
 	}
-	
+
 	if (do_setups)
 	{
 		game->load_portal();
 		if(!tmp) throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
+		if(Hero.lift_wpn && get_bit(quest_rules,qr_CARRYABLE_NO_ACROSS_SCREEN))
+		{
+			delete Hero.lift_wpn;
+			Hero.lift_wpn = nullptr;
+		}
 	}
 }
 

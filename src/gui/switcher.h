@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_SWITCHER_H
 #define ZC_GUI_SWITCHER_H
 
-#include "widget.h"
+#include "gui/widget.h"
 #include <vector>
 
 namespace GUI

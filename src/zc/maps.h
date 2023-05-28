@@ -326,5 +326,3 @@ void screen_item_clear_state();
 
 #endif
 
-/*** end of maps.cc ***/
-

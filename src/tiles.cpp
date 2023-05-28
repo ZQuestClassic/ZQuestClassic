@@ -10,15 +10,13 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "base/zc_alleg.h"
 #include <string.h>
 
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "tiles.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "items.h"
 
 extern RGB_MAP rgb_table;
@@ -2817,6 +2815,4 @@ int32_t comboa_lmasktotal(byte layermask)
     result+=(layermask&32) >> 5;
     return result;
 }
-
-/* end of tiles.cc */
 

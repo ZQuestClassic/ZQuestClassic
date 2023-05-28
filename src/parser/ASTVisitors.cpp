@@ -1,7 +1,6 @@
-#include "../precompiled.h" // Always first.
 #include "ASTVisitors.h"
 
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "CompileError.h"
 #include "Scope.h"
 #include "parserDefs.h"

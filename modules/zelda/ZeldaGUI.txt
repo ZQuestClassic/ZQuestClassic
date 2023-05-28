@@ -6,7 +6,6 @@ set(ZELDA_GUI_SOURCES
 ################################
 src/play_midi.cpp
 src/zc/aglogo.cpp
-src/debug.cpp
 src/zc/decorations.cpp
 src/editbox.cpp
 src/EditboxModel.cpp

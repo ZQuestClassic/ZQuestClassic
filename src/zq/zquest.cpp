@@ -16,7 +16,6 @@
 
 #define MIDI_TRACK_BUFFER_SIZE 50
 
-#include "precompiled.h" //always first
 #include <memory>
 #include <stdio.h>
 #include <stdlib.h>
@@ -58,13 +57,13 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "jwin_a5.h"
 #include "zc_list_data.h"
 #include "editbox.h"
-#include "zq_misc.h"
-#include "zq_tiles.h"                                       // tile and combo code
+#include "zq/zq_misc.h"
+#include "zq/zq_tiles.h"                                       // tile and combo code
 
-#include "zquest.h"
-#include "zquestdat.h"
-#include "ffasm.h"
-#include "render.h"
+#include "zq/zquest.h"
+#include "zq/zquestdat.h"
+#include "zq/ffasm.h"
+#include "zq/render.h"
 
 // the following are used by both zelda.cc and zquest.cc
 #include "base/zdefs.h"
@@ -78,26 +77,24 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 #include "midi.h"
 #include "sprite.h"
-#include "items.h"
 #include "fontsdat.h"
 #include "base/jwinfsel.h"
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "subscr.h"
-#include "zq_subscr.h"
-#include "ffscript.h"
+#include "zq/zq_subscr.h"
+#include "zc/ffscript.h"
 #include "EditboxNew.h"
 #include "sfx.h"
-#include "zq_custom.h" // custom items and guys
-#include "zq_strings.h"
-#include "questReport.h"
-#include "ffasmexport.h"
+#include "zq/zq_custom.h" // custom items and guys
+#include "zq/zq_strings.h"
+#include "zq/questReport.h"
+#include "zq/ffasmexport.h"
 #include <fstream>
 #include "base/module.h"
-//#include "zscrdata.h"
 #include "drawing.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include "colorname.h"
-#include "zq_hotkey.h"
+#include "zq/zq_hotkey.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -114,15 +111,7 @@ extern CConsoleLoggerEx parser_console;
 
 //SDL_Surface *sdl_screen;
 
-#ifdef ALLEGRO_DOS
-static const char *data_path_name   = "dos_data_path";
-static const char *midi_path_name   = "dos_midi_path";
-static const char *image_path_name  = "dos_image_path";
-static const char *tmusic_path_name = "dos_tmusic_path";
-static const char *last_quest_name  = "dos_last_quest";
-static const char *qtname_name      = "dos_qtname%d";
-static const char *qtpath_name      = "dos_qtpath%d";
-#elif defined(ALLEGRO_WINDOWS)
+#if defined(ALLEGRO_WINDOWS)
 static const char *data_path_name   = "win_data_path";
 static const char *midi_path_name   = "win_midi_path";
 static const char *image_path_name  = "win_image_path";
@@ -150,9 +139,9 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #include "base/win32.h"
 
-#include "zq_init.h"
-#include "zq_doors.h"
-#include "zq_cset.h"
+#include "zq/zq_init.h"
+#include "zq/zq_doors.h"
+#include "zq/zq_cset.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -170,7 +159,7 @@ extern "C" FILE * __cdecl __iob_func(void) { return _iob; }
 
 extern byte monochrome_console;
 
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 
 CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
@@ -777,8 +766,6 @@ static MENU import_250_menu[] =
     { (char *)"&Combo Table",               onImport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onImport_ComboAlias,       NULL,                     0,            NULL   },
     // { (char *)"&Graphics Pack",             onImport_ZGP,              NULL,                     0,            NULL   },
-    { (char *)"&Quest Template",            onImport_ZQT,              NULL,                     0,            NULL   },
-    { (char *)"&Unencoded Quest",           onImport_UnencodedQuest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -830,8 +817,6 @@ static MENU export_250_menu[] =
     { (char *)"&Combo Table",               onExport_Combos,           NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onExport_ComboAlias,       NULL,                     0,            NULL   },
     { (char *)"&Graphics Pack",             onExport_ZGP,              NULL,                     0,            NULL   },
-    { (char *)"&Quest Template",            onExport_ZQT,              NULL,                     0,            NULL   },
-    { (char *)"&Unencoded Quest",           onExport_UnencodedQuest,   NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1108,7 +1093,6 @@ static MENU file_menu[] =
 	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
 	{ (char *)"Save &as...",                onSaveAs,                  NULL,                     0,            NULL   },
 	{ (char *)"&Revert",                    onRevert,                  NULL,                     0,            NULL   },
-	{ (char *)"Quest &Templates...",        onQuestTemplates,          NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Import\t ",                 NULL,                      import_menu,              0,            NULL   },
 	{ (char *)"&Export\t ",                 NULL,                      export_menu,              0,            NULL   },
@@ -1623,9 +1607,6 @@ int32_t onFullScreen()
 		0, 
 		get_zc_font(font_lfont)) == 1)	
     {
-	#ifdef ALLEGRO_DOS
-	    return D_O_K;
-	#endif
 	    get_palette(RAMpal);
 	    bool windowed=is_windowed_mode()!=0;
 	    
@@ -1655,15 +1636,11 @@ int32_t onFullScreen()
 
 int32_t onEnter()
 {
-#ifdef ALLEGRO_DOS
-#else
-
     if(key[KEY_ALT]||key[KEY_ALTGR])
     {
         return onFullScreen();
     }
 
-#endif
     return D_O_K;
 }
 
@@ -4424,7 +4401,7 @@ static TABPANEL gamemisc_tabs[] =
 };
 
 
-#include "zq_files.h"
+#include "zq/zq_files.h"
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG gamemiscarray_dlg[] =
 {
@@ -13904,7 +13881,7 @@ const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
 
 
-#include "zq_files.h"
+#include "zq/zq_files.h"
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG screenscript_dlg[] =
 {
@@ -14880,24 +14857,22 @@ static DIALOG screen_pal_dlg[] =
 
 int32_t onScreenPalette()
 {
-	if(key[KEY_ALT]||key[KEY_ALTGR])
-		return D_O_K; //'Alt+F4' should not pop this up...
-    restore_mouse();
-    screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
-    screen_pal_dlg[2].d1=Map.getcolor();
-    
-    large_dialog(screen_pal_dlg);
-        
-    if(zc_popup_dialog(screen_pal_dlg,2)==3)
-    {
-        saved=false;
-        Map.setcolor(screen_pal_dlg[2].d1);
-        refresh(rALL);
-    }
-    
-    rebuild_trans_table();
-    
-    return D_O_K;
+	restore_mouse();
+	screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
+	screen_pal_dlg[2].d1=Map.getcolor();
+	
+	large_dialog(screen_pal_dlg);
+	
+	if(zc_popup_dialog(screen_pal_dlg,2)==3)
+	{
+		saved=false;
+		Map.setcolor(screen_pal_dlg[2].d1);
+		refresh(rALL);
+	}
+	
+	rebuild_trans_table();
+	
+	return D_O_K;
 }
 
 int32_t onDecScrPal()
@@ -29661,8 +29636,39 @@ bool no_subscreen()
     return false;
 }
 
+// Removes the top layer encoding from a quest file. See open_quest_file.
+// This has zero impact on the contents of the quest file. There should be no way for this to
+// break anything.
+static void do_unencrypt_qst_command(const char* input_filename, const char* output_filename)
+{
+	// If the file is already an unencrypted packfile, there's nothing to do.
+	PACKFILE* pf_check = pack_fopen_password(input_filename, F_READ_PACKED, "");
+	pack_fclose(pf_check);
+	if (pf_check) return;
+
+	int32_t error;
+	PACKFILE* pf = open_quest_file(&error, input_filename, false);
+	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE_PACKED, "");
+	int c;
+	while ((c = pack_getc(pf)) != EOF)
+	{
+		pack_putc(c, pf2);
+	}
+	pack_fclose(pf);
+	pack_fclose(pf2);
+}
+
+// Copy a quest file by loading and resaving, exactly like if the user did it in the UI.
+// Note there could be changes introduced in the loading or saving functions. These are
+// typically for compatability, but could possibly be a source of bugs.
+static void do_copy_qst_command(const char* input_filename, const char* output_filename)
+{
+	load_quest(input_filename);
+	save_quest(output_filename, false);
+}
+
 int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
 template <typename ...Params>
@@ -29674,20 +29680,12 @@ template <typename ...Params>
 
 int32_t main(int32_t argc,char **argv)
 {
-#if (defined(_DEBUG) && defined(_MSC_VER))
-#if (VLD_FORCE_ENABLE == 0)
-	//::InitCrtDebug();
-#endif // (VLD_FORCE_ENABLE == 0)
-#endif // (defined(_DEBUG) && defined(_MSC_VER))
-
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
-
-	//InitCrtDebug();
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
@@ -29810,6 +29808,22 @@ int32_t main(int32_t argc,char **argv)
 		quit_game();
 	}
 
+	int unencrypt_qst_arg = used_switch(argc, argv, "-unencrypt-qst");
+	if (unencrypt_qst_arg > 0)
+	{
+		if (unencrypt_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -unencrypt-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[unencrypt_qst_arg + 1];
+		const char* output_filename = argv[unencrypt_qst_arg + 2];
+		do_unencrypt_qst_command(input_filename, output_filename);
+		exit(0);
+	}
+
 	// Merge old a4 config into a5 system config.
 	ALLEGRO_CONFIG *tempcfg = al_load_config_file(get_config_file_name());
 	if (tempcfg) {
@@ -29826,17 +29840,6 @@ int32_t main(int32_t argc,char **argv)
 
 	al5img_init();
 	register_png_file_type();
-
-	if(!al_install_audio())
-	{
-		// We can continue even with no audio.
-		Z_error("Failed al_install_audio");
-	}
-
-	if(!al_init_acodec_addon())
-	{
-		Z_error("Failed al_init_acodec_addon");
-	}
 
 	all_disable_threaded_display();
 
@@ -29895,7 +29898,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("Loading data files:\n");
 	
-	resolve_password(datapwd);
 	packfile_password(datapwd);
 	
 	
@@ -29930,8 +29932,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("QST.Dat...");
 	
-	//PACKFILE *f=pack_fopen_password("qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
-	//PACKFILE *f=pack_fopen_password("classic_qst.dat#_SIGNATURE", F_READ_PACKED, datapwd);
 	PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
 	
 	if(!f)
@@ -30260,7 +30260,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	if(used_switch(argc,argv,"-d"))
 	{
-		resolve_password(zquestpwd);
 		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
 	}
 	
@@ -30289,7 +30288,18 @@ int32_t main(int32_t argc,char **argv)
 	}
 	else
 	{
-		if(install_sound(DIGI_AUTODETECT,DIGI_AUTODETECT,NULL))
+		if(!al_install_audio())
+		{
+			// We can continue even with no audio.
+			Z_error("Failed al_install_audio");
+		}
+
+		if(!al_init_acodec_addon())
+		{
+			Z_error("Failed al_init_acodec_addon");
+		}
+
+		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
 			FatalConsole("ZQuest Creator Init Error: %s\n", 
 				"Sound driver not available.  Sound disabled.!\n");
 		else Z_message("OK\n");
@@ -30527,6 +30537,22 @@ int32_t main(int32_t argc,char **argv)
 		if(comboscripts[i]!=NULL) delete comboscripts[i];
 		comboscripts[i] = new script_data();
 	}
+
+	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
+	if (copy_qst_arg > 0)
+	{
+		if (copy_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -copy-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[copy_qst_arg + 1];
+		const char* output_filename = argv[copy_qst_arg + 2];
+		do_copy_qst_command(input_filename, output_filename);
+		exit(0);
+	}
 	
 	zScript = string();
 	strcpy(zScriptBytes, "0 Bytes in Buffer");
@@ -30544,6 +30570,7 @@ int32_t main(int32_t argc,char **argv)
 	al_init_image_addon();
 	al_init_font_addon();
 	al_init_primitives_addon();
+	render_zq(); // Ensure the rendering bitmaps are setup.
 	//Display annoying beta warning message
 
 #ifdef __EMSCRIPTEN__
@@ -30605,7 +30632,7 @@ int32_t main(int32_t argc,char **argv)
 	{
 		if(jwin_alert("ZQuest","It appears that ZQuest crashed last time.","Would you like to load the last timed save?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 		{
-			int32_t ret = load_quest(last_timed_save,true,true);
+			int32_t ret = load_quest(last_timed_save);
 			
 			if(ret == qe_OK)
 			{
@@ -30627,7 +30654,7 @@ int32_t main(int32_t argc,char **argv)
 		if(argc>1 && argv[1][0]!='-')
 		{
 			replace_extension(temppath,argv[1],"qst",2047);
-			int32_t ret = load_quest(temppath,true,true);
+			int32_t ret = load_quest(temppath);
 			
 			if(ret == qe_OK)
 			{
@@ -30638,7 +30665,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		else if(OpenLastQuest&&filepath[0]&&exists(filepath)&&!used_switch(argc,argv,"-new"))
 		{
-			int32_t ret = load_quest(filepath,true,true);
+			int32_t ret = load_quest(filepath);
 			
 			if(ret == qe_OK)
 			{
@@ -32132,7 +32159,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 		clear_tooltip();
 	}
 	
-	//YIELD();
 	rest(4);
 	ret = jwin_menu_proc(msg,d,c);
 	
@@ -32564,11 +32590,11 @@ command_pair commands[cmdMAX]=
     { "Export DMaps",                       0, (intF) onExport_DMaps },
     { "Export Map",                         0, (intF) onExport_Map },
     { "Export Palettes",                    0, (intF) onExport_Pals },
-    { "Export Quest Template",              0, (intF) onExport_ZQT },
+    { "<UNUSED>",                           0, NULL },
     { "Export Strings",                     0, (intF) onExport_Msgs },
     { "Export Subscreen",                   0, (intF) onExport_Subscreen },
     { "Export Tiles",                       0, (intF) onExport_Tiles },
-    { "Export Unencoded Quest",             0, (intF) onExport_UnencodedQuest },
+    { "<UNUSED>",                           0, NULL },
     { "Export Graphics Pack",               0, (intF) onExport_ZGP },
     { "Flags",                              0, (intF) onFlags },
     { "Paste Freeform Combos",              0, (intF) onPasteFFCombos },
@@ -32588,11 +32614,11 @@ command_pair commands[cmdMAX]=
     { "Import Graphics Pack",               0, (intF) onImport_ZGP },
     { "Import Map",                         0, (intF) onImport_Map },
     { "Import Palettes",                    0, (intF) onImport_Pals },
-    { "Import Quest Template",              0, (intF) onImport_ZQT },
+    { "<UNUSED>",                           0, NULL },
     { "Import Strings",                     0, (intF) onImport_Msgs },
     { "Import Subscreen",                   0, (intF) onImport_Subscreen },
     { "Import Tiles",                       0, (intF) onImport_Tiles },
-    { "Import Unencoded Quest",             0, (intF) onImport_UnencodedQuest },
+    { "<UNUSED>",                           0, NULL },
     { "Info Types",                         0, (intF) onInfoTypes },
     { "Init Data",                          0, (intF) onInit },
     { "Integ. Check (All)",                 0, (intF) onIntegrityCheckAll },
@@ -32626,7 +32652,7 @@ command_pair commands[cmdMAX]=
     { "Maze Path",                          0, (intF) onPath },
     { "Play Music",                         0, (intF) playMusic },
     { "Preview Mode",                       0, (intF) onPreviewMode },
-    { "Quest Templates",                    0, (intF) onQuestTemplates },
+    { "<UNUSED>",                           0, NULL },
     { "Apply Template to All",              0, (intF) onReTemplate },
     { "Relational Mode",                    0, (intF) onDrawingModeRelational },
     { "Revert",                             0, (intF) onRevert },

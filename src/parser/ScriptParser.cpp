@@ -1,7 +1,5 @@
 //2.53 Updated to 16th Jan, 2017
-#include "../precompiled.h" //always first
-
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "CompileOption.h"
@@ -345,6 +343,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 		if (bo.hasError()) failure = true;
 		appendElements(rval->globalsInit, oc.initCode);
 		appendElements(rval->globalsInit, bo.getResult());
+		appendElements(rval->globalsInit, oc.deallocCode);
 	}
 
 	// Pop off everything.

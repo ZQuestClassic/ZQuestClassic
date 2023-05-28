@@ -50,6 +50,8 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_BOTTLETYPE: return &BottleTypeSymbols::getInst();
 		case ZTID_BOTTLESHOP: return &BottleShopSymbols::getInst();
 		case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
+		case ZTID_PORTAL: return &PortalSymbols::getInst();
+		case ZTID_SAVPORTAL: return &SavedPortalSymbols::getInst();
 		default: return &nilsymbols;
     }
 }

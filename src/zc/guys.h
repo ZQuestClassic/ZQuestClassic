@@ -16,7 +16,7 @@
 
 #include <list>
 #include "sprite.h"
-#include "weapons.h"
+#include "zc/weapons.h"
 #include "zfix.h"
 
 class item;
@@ -962,5 +962,3 @@ void dragging_item();
 void roaming_item();
 int32_t more_carried_items();
 #endif
-/*** end of guys.cc ***/
-

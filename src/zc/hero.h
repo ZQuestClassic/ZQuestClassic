@@ -16,27 +16,27 @@
 #include "base/zc_alleg.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
-#include "zelda.h"
-#include "maps.h"
+#include "zc/zelda.h"
+#include "zc/maps.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "aglogo.h"
+#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "qst.h"
-#include "matrix.h"
+#include "zc/matrix.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "weapons.h"
+#include "zc/weapons.h"
 //#include "save_gif.h"
 #include "sprite.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "subscr.h"
 #include "zfix.h"
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 
 extern byte lsteps[8];
 
@@ -291,7 +291,6 @@ public:
 	byte defence[wMax];
 	int32_t subscr_speed;
 	bool is_warping;
-	bool can_mirror_portal;
 	byte dying_flags;
 	int32_t prompt_combo, prompt_x, prompt_y;
 	byte prompt_cset;
@@ -422,6 +421,8 @@ public:
 	int32_t defend(weapon *w);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	int getHammerState() const;
+	bool handle_portal_collide(portal* p);
+	void handle_portal_prox(portal* p);
 private:
 	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl, std::map<size_t, byte>& prism_dir_seen_map);
 	void handleSpotlights();
@@ -682,4 +683,3 @@ void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);
 #endif
-/*** end of hero.cpp ***/

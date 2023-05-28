@@ -6,11 +6,11 @@
 #ifndef _ZSCRIPTVER_H
 #define _ZSCRIPTVER_H
 
-#include "hero.h" // TODO z3 rm
+#include "zc/hero.h" // TODO z3 rm
 #include "base/zdefs.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include <fmt/format.h> // TODO z3
-#include "replay.h"
+#include "zc/replay.h"
 extern FFScript FFCore;
 
 class ZScriptVersion

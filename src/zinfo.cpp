@@ -77,7 +77,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"After charging the Quake Hammer, holding down the button longer enables a stronger attack which stuns more enemies for longer.",
 	"The Player's sprite faintly vibrates when they stands on or near secret-triggering combo flags. Sensitivity increases the distance at which it works.",
 	"If the Player, while jumping, lands on an enemy, that enemy takes a certain amount of damage, instead of damaging the Player.",
-	"The Sword, Wand and Hammer will occasionally do increased damage in a single strike.",
+	"The Sword, Wand, and Hammer will occasionally do increased damage in a single strike.",
 	"Divides the damage that the Player takes when their health is below a certain level.",
 	"These items have no built-in effect. They will not be dropped in an Item Drop Set.",
 	//ic67 to 86, custom IC
@@ -117,7 +117,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"This item class is used to create LW_SCRIPT_10 type lweapons with properties defined by the Item Editor.",
 	//265
 	"This item class is reserved for the Ice Rod in a future version of ZC", //icerod
-	"The Sword, Wand and Hammer deal more damage. The multiplier applies before the bonus damage.", //Atkring
+	"The Sword, Wand, and Hammer deal more damage. The multiplier applies before the bonus damage.", //Atkring
 	"Emanates light passively from the player in dark rooms.", //Lantern
 	"Prevents the player from becoming a Bunny on certain dmaps.", //Pearls
 	"Can be filled with bottle contents, and trigger their effects.\n"
@@ -141,7 +141,9 @@ const char *itemclass_help_string_defaults[itype_max] =
 		" of the heart container they grant.", //Progressive
 	"When used, displays a string onscreen. Especially useful when combined"
 		" with string control codes.", //Note
-	"When used, can refill up to 5 counters, and optionally cure sword jinxes."
+	"When used, can refill up to 5 counters, and optionally cure sword jinxes.",
+	"When used, attempts to lift something in front of the player, OR throws the"
+		" already lifted object."
 };
 const char default_ctype_strings[cMAX][255] = 
 {

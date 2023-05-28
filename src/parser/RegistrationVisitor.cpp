@@ -10,7 +10,7 @@
 #include "Scope.h"
 #include "CompileError.h"
 
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 using std::string;
 using std::vector;

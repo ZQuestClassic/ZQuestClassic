@@ -1,7 +1,7 @@
 #include "scaletile.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 
 ScaleTileDialog::ScaleTileDialog(int32_t *w, int32_t *h):
 	swid(*w), shei(*h), twid(w), thei(h), tw(*w), th(*h)

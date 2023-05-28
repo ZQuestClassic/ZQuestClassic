@@ -1,10 +1,10 @@
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "base/util.h"
 #include "parser/ZScript.h"
 #include "parser/parser.h"
 #include <string>
 #include "zconfig.h"
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include "zscrdata.h"
 #include "base/zapp.h"
 

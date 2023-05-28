@@ -8,8 +8,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -24,20 +22,11 @@ using std::string;
 using std::istringstream;
 using std::getline;
 
-#ifdef ALLEGRO_DOS
-#include <conio.h>
-#endif
-
 #include "zsyssimple.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "zc_sys.h"
 #include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
-
-#ifdef __EMSCRIPTEN__
-#include "emscripten_utils.h"
-#endif
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -226,23 +215,13 @@ int32_t used_switch(int32_t argc,char *argv[],const char *s)
 #pragma warning(disable: 4310)
 #endif
 
-
-char zeldapwd[8]  = { char('N'+11),char('0'+22),char('S'+33),char('7'+44),char('1'+55),char('M'+66),char('3'+77), char(0 +88) };
-//char zquestpwd[8] = { 'C'+11,'a'+22,'o'+33,'M'+44,'e'+55,'i'+66,'7'+77, 0 +88 };
-//char zquestpwd[8] = { 'N'+11,'g'+22,'o'+33,'m'+44,'o'+55,'n'+66,'g'+77, 0 +88 };
-//char zquestpwd[8] = { 'C'+11,'a'+22,'n'+33,'t'+44,'i'+55,'k'+66,'a'+77,0+88 };
-char zquestpwd[8] = { char('S'+11),char('3'+22),char('('+33),char('r'+44),char('3'+55),char('7'+66),char('!'+77), char(0 +88) };
-char datapwd[8]   = { char('l'+11),char('o'+22),char('n'+33),char('g'+44),char('t'+55),char('a'+66),char('n'+77),char(0+88) };
+char zeldapwd[8]  = "N0S71M3";
+char zquestpwd[8] = "S3(r37!";
+char datapwd[8]   = "longtan";
 
 #ifdef _MSC_VER
 #pragma warning(default: 4309)
 #endif
-
-void resolve_password(char *pwd)
-{
-    for(int32_t i=0; i<8; i++)
-        pwd[i]-=(i+1)*11;
-}
 
 void set_bit(byte *bitstr,int32_t bit,byte val)
 {
@@ -296,7 +275,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+#if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
 #ifndef __EMSCRIPTEN__
@@ -320,7 +299,7 @@ void Z_error(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+#if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
@@ -337,7 +316,7 @@ void Z_message(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#if defined(ALLEGRO_DOS ) || defined(ALLEGRO_MAXOSX)
+#if defined(ALLEGRO_MAXOSX)
     printf("%s",buf);
 #endif
     al_trace("%s",buf);
@@ -353,40 +332,7 @@ void Z_title(const char *format,...)
     vsprintf(buf, format, ap);
     va_end(ap);
     
-#ifdef ALLEGRO_DOS
-    text_info ti;
-    gettextinfo(&ti);
-    int32_t w = ti.screenwidth;
-    
-    int32_t len = strlen(buf);
-    
-    if(len>w)
-        printf("%s\n",buf);
-    else
-    {
-        char title[81];
-        
-        for(int32_t i=0; i<w; i++)
-            title[i]=' ';
-            
-        title[w]=0;
-        
-        int32_t center = (w - len) >> 1;
-        memcpy(title+center,buf,len);
-        
-        printf("\n");
-        textattr(0x4E);
-        cprintf("%s",title);
-        textattr(0x07);
-        
-        for(int32_t i=0; i<w; i++)
-            cprintf(" ");
-    }
-    
-#else
     al_trace("%s\n",buf);
-    
-#endif
 	
     if(zscript_coloured_console.valid())
 		zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY | 
@@ -642,13 +588,6 @@ int32_t decode_file_007(const char *srcfile, const char *destfile, const char *h
     int32_t tog = 0, c, r=0, err;
     int32_t size, i;
     int16_t c1 = 0, c2 = 0, check1, check2;
-
-#ifdef __EMSCRIPTEN__
-    if (em_is_lazy_file(srcfile))
-    {
-        em_fetch_file(srcfile);
-    }
-#endif
     
     // open files
     size = file_size_ex_password(srcfile, password);
@@ -1150,7 +1089,8 @@ void box_out(const char *msg)
         box_log = oldlog;
     }
     
-	update_hw_screen(true);
+    if (box_active)
+        update_hw_screen(true);
 }
 
 /* calls box_out, and box_eol for newlines */
@@ -1212,7 +1152,8 @@ void box_eol()
         memset(box_log_msg, 0, 480);
     }
     
-	update_hw_screen(true);
+    if (box_active)
+        update_hw_screen(true);
 }
 
 /* ends output of a progress message */
@@ -1783,20 +1724,6 @@ void textprintf_shadow_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
     textout_shadow_x_ex(bmp, f, buf, x-text_length(f, buf), y, shadow, bg);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void textprintf_shadowed_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...)
 {
     char buf[512];
@@ -2022,363 +1949,6 @@ void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32
     
     textout_shadowed_x_ex(bmp, f, buf, x-text_length(f, buf), y, color, shadow, bg);
 }
-/*
-  void dclick_check(void)
-  {
-  if (dclick_status==DCLICK_START) {              // first click...
-  if (!gui_mouse_b()) {
-  dclick_status = DCLICK_RELEASE;           // aah! released first
-  dclick_time = 0;
-  return;
-  }
-  }
-  else if (dclick_status==DCLICK_RELEASE) {       // wait for second click
-  if (gui_mouse_b()) {
-  dclick_status = DCLICK_AGAIN;             // yes! the second click
-  dclick_time = 0;
-  return;
-  }
-  }
-  else
-  {
-  return;
-  }
-
-  // timeout?
-  if (dclick_time++ > 10)
-  {
-  dclick_status = DCLICK_NOT;
-  }
-  }
-  */
-
-
-extern int32_t d_alltriggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-#ifndef _MSC_VER
-//Inconsistent DLL linkage... what the fuck
-extern int32_t d_button_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_check_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ctext_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_text_proc(int32_t msg,DIALOG *d,int32_t c);
-#endif
-extern int32_t d_comboa_radio_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_comboabutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_tri_edit_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_triggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_button_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_check_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_ctext_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_radio_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_rtext_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_text_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_win_proc(int32_t msg,DIALOG *d,int32_t c);
-
-//extern DIALOG *sso_properties_dlg;
-
-void copy_dialog(DIALOG **to, DIALOG *from)
-{
-    int32_t count=0;
-    
-    for(count=1; from[count].proc!=NULL; ++count)
-    {
-        /* do nothing */
-    }
-    
-    (*to)=(DIALOG*)malloc((count+1)*sizeof(DIALOG));
-    memcpy((*to),from,sizeof(DIALOG)*(count+1));
-    
-    for(int32_t i=0; i<count; ++i)
-    {
-        if((from[i].dp!=NULL)&&
-                ((from[i].proc==d_alltriggerbutton_proc)||
-                 (from[i].proc==d_button_proc)||
-                 (from[i].proc==d_check_proc)||
-                 (from[i].proc==d_comboa_radio_proc)||
-                 (from[i].proc==d_comboabutton_proc)||
-                 (from[i].proc==d_ctext_proc)||
-                 (from[i].proc==d_dummy_proc)||
-                 (from[i].proc==d_jbutton_proc)||
-                 (from[i].proc==d_kbutton_proc)||
-                 (from[i].proc==d_listen_proc)||
-                 (from[i].proc==d_savemidi_proc)||
-                 (from[i].proc==d_ssdn_btn_proc)||
-                 (from[i].proc==d_ssdn_btn2_proc)||
-                 (from[i].proc==d_ssdn_btn3_proc)||
-                 (from[i].proc==d_sslt_btn_proc)||
-                 (from[i].proc==d_sslt_btn2_proc)||
-                 (from[i].proc==d_sslt_btn3_proc)||
-                 (from[i].proc==d_ssrt_btn_proc)||
-                 (from[i].proc==d_ssrt_btn2_proc)||
-                 (from[i].proc==d_ssrt_btn3_proc)||
-                 (from[i].proc==d_ssup_btn_proc)||
-                 (from[i].proc==d_ssup_btn2_proc)||
-                 (from[i].proc==d_ssup_btn3_proc)||
-                 (from[i].proc==d_text_proc)||
-                 (from[i].proc==d_tri_edit_proc)||
-                 (from[i].proc==d_triggerbutton_proc)||
-                 (from[i].proc==jwin_button_proc)||
-                 (from[i].proc==jwin_check_proc)||
-                 (from[i].proc==jwin_ctext_proc)||
-                 (from[i].proc==jwin_edit_proc) ||
-                 (from[i].proc==jwin_radio_proc)||
-                 (from[i].proc==jwin_rtext_proc)||
-                 (from[i].proc==jwin_text_proc)||
-                 (from[i].proc==jwin_win_proc)))
-        {
-            (*to)[i].dp=malloc(strlen((char *)from[i].dp)+1);
-            strcpy((char *)(*to)[i].dp,(char *)from[i].dp);
-        }
-        
-        if((from[i].proc==d_tab_proc)||
-                (from[i].proc==jwin_tab_proc))
-        {
-            (*to)[i].dp3=(void *)(*to);
-        }
-        
-        /*
-            case d_bitmap_proc:
-            case d_box_proc:
-            case d_combo_proc:
-            case d_comboa_proc:
-            case d_comboacheck_proc:
-            case d_comboalist_proc:
-            case d_comboat_proc:
-            case d_cset_proc:
-            case d_cstile_proc:
-            case d_ctile_proc:
-            case d_ctl_proc:
-            case d_dmaplist_proc:
-            case d_dmapscrsel_proc:
-            case d_dropcancel_proc:
-            case d_dropdmaplist_proc:
-            case d_dropdmaptypelist_proc:
-            case d_edit_proc:
-            case d_editbox_proc:
-            case d_grid_proc:
-            case d_hexedit_proc:
-            case d_intro_edit_proc:
-            case d_itile_proc:
-            case d_keyboard_proc:
-            case d_list_proc:
-            case d_ltile_proc:
-            case d_maptile_proc:
-            case d_maxbombsedit_proc:
-            case d_bombratioedit_proc:
-            case d_midilist_proc:
-            case d_misccolors_hexedit_proc:
-            case d_misccolors_proc:
-            case d_misccolors_tab_proc:
-            case d_musiclist_proc:
-            case d_nbmenu_proc:
-            case d_nilist_proc:
-            case d_scombo_proc:
-            case d_scroll_bmp_proc:
-            case d_sel_scombo_proc:
-            case d_showedit_proc:
-            case d_subscreen_proc:
-            case d_tab_proc:
-            case d_ticsedit_proc:
-            case d_title_edit_proc:
-            case d_tri_frame_proc:
-            case d_vsync_proc:
-            case d_warpbutton_proc:
-            case d_warpdestsel_proc:
-            case d_warplist_proc:
-            case d_wclist_proc:
-            case d_wflag_proc:
-            case d_xmaplist_proc:
-            case d_yield_proc:
-            case fs_dlist_proc:
-            case fs_edit_proc:
-            case fs_elist_proc:
-            case fs_flist_proc:
-            case jwin_abclist_proc:
-            case jwin_as_droplist_proc:
-            case jwin_droplist_proc:
-            case jwin_edit_proc:
-            case jwin_frame_proc:
-            case jwin_guitest_proc:
-            case jwin_hexedit_proc:
-            case jwin_list_proc:
-            case jwin_menu_proc:
-            case jwin_numedit_proc:
-            case jwin_slider_proc:
-            case jwin_tab_proc:
-            case jwin_textbox_proc:
-            case jwin_vline_proc:
-        */
-    }
-}
-
-void free_dialog(DIALOG **dlg)
-{
-    int32_t count=0;
-    
-    for(count=1; (*dlg)[count].proc!=NULL; ++count)
-    {
-        /* do nothing */
-    }
-    
-    for(int32_t i=0; i<count+1; ++i)
-    {
-        if(((*dlg)[i].dp!=NULL)&&
-                (((*dlg)[i].proc==d_alltriggerbutton_proc)||
-                 ((*dlg)[i].proc==d_button_proc)||
-                 ((*dlg)[i].proc==d_check_proc)||
-                 ((*dlg)[i].proc==d_comboa_radio_proc)||
-                 ((*dlg)[i].proc==d_comboabutton_proc)||
-                 ((*dlg)[i].proc==d_ctext_proc)||
-                 ((*dlg)[i].proc==d_edit_proc)||
-                 ((*dlg)[i].proc==d_jbutton_proc)||
-                 ((*dlg)[i].proc==d_kbutton_proc)||
-                 ((*dlg)[i].proc==d_listen_proc)||
-                 ((*dlg)[i].proc==d_savemidi_proc)||
-                 ((*dlg)[i].proc==d_ssdn_btn_proc)||
-                 ((*dlg)[i].proc==d_ssdn_btn2_proc)||
-                 ((*dlg)[i].proc==d_ssdn_btn3_proc)||
-                 ((*dlg)[i].proc==d_sslt_btn_proc)||
-                 ((*dlg)[i].proc==d_sslt_btn2_proc)||
-                 ((*dlg)[i].proc==d_sslt_btn3_proc)||
-                 ((*dlg)[i].proc==d_ssrt_btn_proc)||
-                 ((*dlg)[i].proc==d_ssrt_btn2_proc)||
-                 ((*dlg)[i].proc==d_ssrt_btn3_proc)||
-                 ((*dlg)[i].proc==d_ssup_btn_proc)||
-                 ((*dlg)[i].proc==d_ssup_btn2_proc)||
-                 ((*dlg)[i].proc==d_ssup_btn3_proc)||
-                 ((*dlg)[i].proc==d_text_proc)||
-                 ((*dlg)[i].proc==d_tri_edit_proc)||
-                 ((*dlg)[i].proc==d_triggerbutton_proc)||
-                 ((*dlg)[i].proc==jwin_button_proc)||
-                 ((*dlg)[i].proc==jwin_check_proc)||
-                 ((*dlg)[i].proc==jwin_ctext_proc)||
-                 ((*dlg)[i].proc==jwin_edit_proc)||
-                 ((*dlg)[i].proc==jwin_radio_proc)||
-                 ((*dlg)[i].proc==jwin_rtext_proc)||
-                 ((*dlg)[i].proc==jwin_text_proc)||
-                 ((*dlg)[i].proc==jwin_win_proc)))
-        {
-            free((*dlg)[i].dp);
-        }
-        
-        
-        /*
-            case d_bitmap_proc:
-            case d_box_proc:
-            case d_combo_proc:
-            case d_comboa_proc:
-            case d_comboacheck_proc:
-            case d_comboalist_proc:
-            case d_comboat_proc:
-            case d_cset_proc:
-            case d_cstile_proc:
-            case d_ctile_proc:
-            case d_ctl_proc:
-            case d_dmaplist_proc:
-            case d_dmapscrsel_proc:
-            case d_dropcancel_proc:
-            case d_dropdmaplist_proc:
-            case d_dropdmaptypelist_proc:
-            case d_editbox_proc:
-            case d_grid_proc:
-            case d_hexedit_proc:
-            case d_intro_edit_proc:
-            case d_itile_proc:
-            case d_keyboard_proc:
-            case d_list_proc:
-            case d_ltile_proc:
-            case d_maptile_proc:
-            case d_maxbombsedit_proc:
-            case d_bombratioedit_proc:
-            case d_midilist_proc:
-            case d_misccolors_hexedit_proc:
-            case d_misccolors_proc:
-            case d_misccolors_tab_proc:
-            case d_musiclist_proc:
-            case d_nbmenu_proc:
-            case d_nilist_proc:
-            case d_scombo_proc:
-            case d_scroll_bmp_proc:
-            case d_sel_scombo_proc:
-            case d_showedit_proc:
-            case d_subscreen_proc:
-            case d_tab_proc:
-            case d_ticsedit_proc:
-            case d_title_edit_proc:
-            case d_tri_frame_proc:
-            case d_vsync_proc:
-            case d_warpbutton_proc:
-            case d_warpdestsel_proc:
-            case d_warplist_proc:
-            case d_wclist_proc:
-            case d_wflag_proc:
-            case d_xmaplist_proc:
-            case d_yield_proc:
-            case fs_dlist_proc:
-            case fs_edit_proc:
-            case fs_elist_proc:
-            case fs_flist_proc:
-            case jwin_abclist_proc:
-            case jwin_as_droplist_proc:
-            case jwin_droplist_proc:
-            case jwin_frame_proc:
-            case jwin_guitest_proc:
-            case jwin_hexedit_proc:
-            case jwin_list_proc:
-            case jwin_menu_proc:
-            case jwin_numedit_proc:
-            case jwin_slider_proc:
-            case jwin_tab_proc:
-            case jwin_textbox_proc:
-            case jwin_vline_proc:
-        */
-    }
-    
-    memset((*dlg),0,sizeof(DIALOG)*(count+1));
-    free((*dlg));
-}
-
-/*static char * packpasswrd = NULL;
-void setPackfilePassword(const char *newpwd)
-{
-	if(newpwd==NULL)
-		packpasswrd = NULL;
-	else
-	{
-		int32_t len = (int32_t)strlen(newpwd);
-		if(packpasswrd != NULL)
-			delete[] packpasswrd;
-		packpasswrd = new char[len+1];
-		strcpy(packpasswrd, newpwd);
-	}
-	packfile_password(packpasswrd);
-}
-
-char * getCurPackfilePassword()
-{
-	if(packpasswrd == NULL)
-		return NULL;
-	int32_t len = (int32_t)strlen(packpasswrd);
-	char *ret = new char[len+1];
-	strcpy(ret, packpasswrd);
-	return ret;
-}*/
 
 // A lot of crashes in ZQuest can be traced to rect(). Hopefully, this will help.
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)

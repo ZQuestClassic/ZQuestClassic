@@ -9,22 +9,20 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "gamedata.h"
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "zelda.h"
 #include "items.h"
 #include "pal.h"
 #include "base/util.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 
 using namespace util;
 extern FFScript FFCore;
 #ifndef IS_ZQUEST
-extern portal* mirror_portal;
+extern portal mirror_portal;
+extern sprite_list portals;
 #endif
 extern int32_t dlevel;
 extern void flushItemCache();
@@ -86,7 +84,7 @@ void gamedata::Clear()
     forced_ywpn = -1;
 	
 	memset(bottleSlots, 0, sizeof(bottleSlots));
-	clear_portal();
+	saved_mirror_portal.clear();
 	
 	clear_genscript();
     std::fill(gswitch_timers, gswitch_timers+256, 0);
@@ -184,14 +182,7 @@ void gamedata::Copy(const gamedata& g)
 	for(size_t q = 0; q < 256; ++q)
 		bottleSlots[q] = g.bottleSlots[q];
 	
-	portaldestdmap = g.portaldestdmap;
-	portalsrcdmap = g.portalsrcdmap;
-	portalscr = g.portalscr;
-	portalx = g.portalx;
-	portaly = g.portaly;
-	portalsfx = g.portalsfx;
-	portalwarpfx = g.portalwarpfx;
-	portalspr = g.portalspr;
+	saved_mirror_portal = g.saved_mirror_portal;
 	
 	memcpy(gen_doscript, g.gen_doscript, sizeof(gen_doscript));
 	memcpy(gen_exitState, g.gen_exitState, sizeof(gen_exitState));
@@ -211,6 +202,7 @@ void gamedata::Copy(const gamedata& g)
 	}
 #ifndef IS_ZQUEST
 	user_objects = g.user_objects;
+	user_portals = g.user_portals;
 #endif
 }
 
@@ -1123,42 +1115,95 @@ bool gamedata::canFillBottle()
 
 void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite)
 {
-	portaldestdmap = destdmap;
-	portalsrcdmap = srcdmap;
-	portalscr = scr;
-	portalx = x;
-	portaly = y;
-	portalwarpfx = weffect;
-	portalsfx = sfx;
-	portalspr = psprite;
+	saved_mirror_portal.destdmap = destdmap;
+	saved_mirror_portal.srcdmap = srcdmap;
+	saved_mirror_portal.srcscr = scr;
+	saved_mirror_portal.destscr = scr;
+	saved_mirror_portal.x = x;
+	saved_mirror_portal.y = y;
+	saved_mirror_portal.warpfx = weffect;
+	saved_mirror_portal.sfx = sfx;
+	saved_mirror_portal.spr = psprite;
 }
 
+portal* loadportal(savedportal& p)
+{
+	portal* retp = nullptr;
+#ifndef IS_ZQUEST
+	if(currdmap == p.srcdmap && currscr == p.srcscr)
+	{
+		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
+			p.warpfx, p.sfx, p.spr);
+		retp->x = zslongToFix(p.x);
+		retp->y = zslongToFix(p.y);
+		retp->saved_data = p.getUID();
+	}
+#endif
+	return retp;
+}
 void gamedata::load_portal()
 {
 #ifndef IS_ZQUEST
-	if(mirror_portal)
-		delete mirror_portal;
-	if(currdmap == portalsrcdmap && currscr == portalscr)
+	mirror_portal.clear();
+	portal* tmp = loadportal(saved_mirror_portal);
+	if(tmp)
 	{
-		mirror_portal = new portal(portaldestdmap, portalscr+DMaps[portaldestdmap].xoff,
-			portalwarpfx, portalsfx, portalspr);
-		mirror_portal->x = zslongToFix(portalx);
-		mirror_portal->y = zslongToFix(portaly);
+		mirror_portal = *tmp;
+		delete tmp;
 	}
-	else mirror_portal = NULL;
+#endif
+}
+void gamedata::load_portals()
+{
+#ifndef IS_ZQUEST
+	mirror_portal.clear();
+	portals.clear(true);
+	
+	portal* tmp = loadportal(saved_mirror_portal);
+	if(tmp)
+	{
+		mirror_portal = *tmp;
+		delete tmp;
+	}
+	for(savedportal& saved : user_portals)
+	{
+		portal* p = loadportal(saved);
+		if(p) portals.add(p);
+	}
 #endif
 }
 
-void gamedata::clear_portal()
+void gamedata::clear_portal(int32_t uid)
 {
-	portalsrcdmap = -1;
-	portaldestdmap = -1;
-	portalscr = 0;
-	portalx = 0;
-	portaly = 0;
-	portalsfx = 0;
-	portalwarpfx = 0;
-	portalspr = 0;
+	if(!uid) return;
+	savedportal* p = getSavedPortal(uid);
+	if(p)
+	{
+		p->clear();
+		for(auto it = user_portals.begin(); it != user_portals.end();)
+		{
+			savedportal& tmp = *it;
+			if(tmp.getUID() == uid)
+			{
+				it = user_portals.erase(it);
+				break;
+			}
+			else ++it;
+		}
+	}
+}
+savedportal* gamedata::getSavedPortal(int32_t uid)
+{
+	if(!uid) return nullptr;
+	if(uid == saved_mirror_portal.getUID())
+		return &(saved_mirror_portal);
+	for(auto it = user_portals.begin(); it != user_portals.end(); ++it)
+	{
+		savedportal& tmp = *it;
+		if(tmp.getUID() == uid)
+			return &tmp;
+	}
+	return nullptr;
 }
 
 bool gamedata::should_show_time()
@@ -1169,6 +1214,3 @@ bool gamedata::should_show_time()
 
 	return get_timevalid() && !did_cheat() && get_bit(quest_rules,qr_TIME);
 }
-
-/*** end of gamedata.cpp ***/
-

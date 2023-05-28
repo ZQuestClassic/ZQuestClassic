@@ -3763,20 +3763,36 @@ enum //*weapon->Flags[] indexes
 	WFLAG_BURN_STRONGFIRE,
 	WFLAG_BURN_MAGICFIRE,
 	WFLAG_BURN_DIVINEFIRE,
+	WFLAG_STOP_ON_LANDING,
+	WFLAG_STOP_ON_SOLID,
 	WFLAG_MAX
 };
 
-enum
-{
-	HIT_BY_NPC, HIT_BY_EWEAPON, HIT_BY_LWEAPON, HIT_BY_FFC,
-	HIT_BY_NPC_PTR, HIT_BY_EWEAPON_PTR, HIT_BY_LWEAPON_PTR, HIT_BY_FFC_PTR,
-	HIT_BY_COMBO, HIT_BY_MAPFLAG
-};
-//Compat for old scripts, the names of these changed
-DEFINE HIT_BY_NPC_UID = HIT_BY_NPC_PTR;
-DEFINE HIT_BY_EWEAPON_UID = HIT_BY_EWEAPON_PTR;
-DEFINE HIT_BY_LWEAPON_UID = HIT_BY_LWEAPON_PTR;
-DEFINE HIT_BY_FFC_UID = HIT_BY_FFC_PTR;
+//For Screen->LoadNPC() and etc; the screen index of the thing
+DEFINE HIT_BY_NPC                   = 0; //Player only
+DEFINE HIT_BY_EWEAPON               = 1; //Player only
+DEFINE HIT_BY_LWEAPON               = 2;
+DEFINE HIT_BY_FFC                   = 3; //Unimplemented
+//For Screen->LoadNPCByUID() and etc; corresponds with the ->UID of the thing. Not to be confused with the internal UID used by the engine.
+DEFINE HIT_BY_NPC_UID               = 4; //Player only
+DEFINE HIT_BY_EWEAPON_UID           = 5; //Player only
+DEFINE HIT_BY_LWEAPON_UID           = 6;
+DEFINE HIT_BY_FFC_UID               = 7; //Unimplemented
+//Returns the item id of the item that the weapon that hit came from; -1 if the lweapon is script created
+DEFINE HIT_BY_LWEAPON_PARENT_ID     = 8;
+//Returns the item class of the item that the weapon that hit came from (see IC_ constants); -1 if the lweapon is script created
+DEFINE HIT_BY_LWEAPON_PARENT_FAMILY = 9;
+//Returns the enemy class of the enemy that hit the player (see NPCT_ constants)
+DEFINE HIT_BY_NPC_TYPE              = 10; //Player only
+//Returns the ID of the weapon that hit (see LW_ and EW_ constants)
+DEFINE HIT_BY_EWEAPON_TYPE          = 11; //Player only
+DEFINE HIT_BY_LWEAPON_TYPE          = 12;
+//Returns the internal UID used by the engine for the thing. Can case these to their respective types (example: npc n = <npc>(Player->HitBy[HIT_BY_NPC_PTR]);)
+DEFINE HIT_BY_NPC_PTR               = 13;
+DEFINE HIT_BY_EWEAPON_PTR           = 14;
+DEFINE HIT_BY_LWEAPON_PTR           = 15;
+//Returns the ID of the enemy that hit the Player
+DEFINE HIT_BY_NPC_ID                = 16;
 
 DEFINE AF_FRESH          = 0x01;
 DEFINE AF_CYCLE          = 0x02;

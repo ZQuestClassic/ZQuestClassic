@@ -1,6 +1,6 @@
 #include "common.h"
-#include "zq_misc.h"
-#include "zquest.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 #include <fmt/format.h>
 #include <algorithm>
 #include <array>

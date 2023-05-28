@@ -1,8 +1,8 @@
 #ifndef ZC_GUI_TOPLEVEL_H
 #define ZC_GUI_TOPLEVEL_H
 
-#include "widget.h"
-#include "key.h"
+#include "gui/widget.h"
+#include "gui/key.h"
 #include <initializer_list>
 #include <vector>
 #include <map>

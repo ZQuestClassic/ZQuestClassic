@@ -6,7 +6,7 @@
 #include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Compiler.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 
 #include <string>
 
@@ -1451,11 +1451,11 @@
 #define COMBODTRIGGERGENSCRIPT      1368
 #define COMBODTRIGGERGROUP      1369
 #define COMBODTRIGGERGROUPVAL      1370
-#define RESRVD_VAR_EMILY14      1371
-#define RESRVD_VAR_EMILY15      1372
-#define RESRVD_VAR_EMILY16      1373
-#define RESRVD_VAR_EMILY17      1374
-#define RESRVD_VAR_EMILY18      1375
+#define HEROLIFTEDWPN      1371
+#define HEROLIFTTIMER      1372
+#define HEROLIFTMAXTIMER      1373
+#define HEROLIFTHEIGHT      1374
+#define HEROHAMMERSTATE      1375
 #define RESRVD_VAR_EMILY19      1376
 #define RESRVD_VAR_EMILY20      1377
 #define RESRVD_VAR_EMILY21      1378
@@ -1519,7 +1519,6 @@
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
 #define CLASS_THISKEY2          1435
-
 #define REGIONID                1436 // region_max_rpos of these
 #define REGIONTD                1437 // region_max_rpos of these
 #define REGIONSD                1438 // region_max_rpos of these
@@ -1531,8 +1530,70 @@
 #define REGIONWORLDHEIGHT       1444
 #define REGIONSCREENWIDTH       1445
 #define REGIONSCREENHEIGHT      1446
+#define RESRVD_VAR_Z3_12        1447
+#define RESRVD_VAR_Z3_13        1448
+#define RESRVD_VAR_Z3_14        1449
+#define RESRVD_VAR_Z3_15        1450
+#define RESRVD_VAR_Z3_16        1451
+#define RESRVD_VAR_EMILY31      1452
+#define RESRVD_VAR_EMILY32      1453
+#define RESRVD_VAR_EMILY33      1454
+#define RESRVD_VAR_EMILY34      1455
+#define RESRVD_VAR_EMILY35      1456
+#define RESRVD_VAR_EMILY36      1457
+#define RESRVD_VAR_EMILY37      1458
+#define RESRVD_VAR_EMILY38      1459
+#define RESRVD_VAR_EMILY39      1460
+#define RESRVD_VAR_EMILY40      1461
+#define RESRVD_VAR_EMILY41      1462
+#define RESRVD_VAR_EMILY42      1463
+#define RESRVD_VAR_EMILY43      1464
+#define RESRVD_VAR_EMILY44      1465
+#define RESRVD_VAR_EMILY45      1466
+#define RESRVD_VAR_EMILY46      1467
+#define RESRVD_VAR_EMILY47      1468
+#define RESRVD_VAR_EMILY48      1469
+#define RESRVD_VAR_EMILY49      1470
+#define RESRVD_VAR_EMILY50      1471
+#define RESRVD_VAR_EMILY51      1472
+#define RESRVD_VAR_EMILY52      1473
+#define RESRVD_VAR_EMILY53      1474
+#define RESRVD_VAR_EMILY54      1475
+#define RESRVD_VAR_EMILY55      1476
+#define RESRVD_VAR_EMILY56      1477
+#define RESRVD_VAR_EMILY57      1478
+#define RESRVD_VAR_EMILY58      1479
+#define RESRVD_VAR_EMILY59      1480
+#define RESRVD_VAR_EMILY60      1481
+#define PORTALX                 1482
+#define PORTALY                 1483
+#define PORTALDMAP              1484
+#define PORTALSCREEN            1485
+#define PORTALACLK              1486
+#define PORTALAFRM              1487
+#define PORTALOTILE             1488
+#define PORTALASPD              1489
+#define PORTALFRAMES            1490
+#define PORTALSAVED             1491
+#define PORTALCLOSEDIS          1492
+#define REFPORTAL               1493
+#define REFSAVPORTAL            1494
+#define PORTALWARPSFX           1495
+#define PORTALWARPVFX           1496
+#define SAVEDPORTALX            1497
+#define SAVEDPORTALY            1498
+#define SAVEDPORTALSRCDMAP      1499
+#define SAVEDPORTALDESTDMAP     1500
+#define SAVEDPORTALSRCSCREEN       1501
+#define SAVEDPORTALWARPSFX      1502
+#define SAVEDPORTALWARPVFX      1503
+#define SAVEDPORTALSPRITE       1504
+#define SAVEDPORTALPORTAL       1505
+#define PORTALCOUNT             1506
+#define SAVEDPORTALCOUNT        1507
+#define SAVEDPORTALDSTSCREEN    1508
 
-#define LAST_BYTECODE           1447
+#define LAST_BYTECODE           1509
 
 //} END OF BYTECODE
 
@@ -1544,6 +1605,8 @@
 #define INTARR_SCREEN_LWPN      (65536+2)
 #define INTARR_SCREEN_EWPN      (65536+3)
 #define INTARR_SCREEN_FFC       (65536+4)
+#define INTARR_SCREEN_PORTALS   (65536+5)
+#define INTARR_SAVPRTL          (65536+6)
 
 //} END INTERNAL ARRAYS
 
@@ -2173,7 +2236,6 @@ namespace ZScript
 	class OHeroMoveXY : public Opcode
 	{
 	public:
-		OHeroMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
@@ -2183,71 +2245,274 @@ namespace ZScript
 	class OHeroCanMoveXY : public Opcode
 	{
 	public:
-		OHeroCanMoveXY() : Opcode() {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
 			return new OHeroCanMoveXY();
 		}
 	};
-	class OReservedEmily25 : public BinaryOpcode
+	class OHeroLiftRelease : public Opcode
 	{
 	public:
-		OReservedEmily25(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily25(a->clone(),b->clone());
+			return new OHeroLiftRelease();
 		}
 	};
-	class OReservedEmily26 : public BinaryOpcode
+	class OHeroLiftGrab : public Opcode
 	{
 	public:
-		OReservedEmily26(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily26(a->clone(),b->clone());
+			return new OHeroLiftGrab();
 		}
 	};
-	class OReservedEmily27 : public BinaryOpcode
+	class OLoadPortalRegister : public UnaryOpcode
 	{
 	public:
-		OReservedEmily27(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OLoadPortalRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily27(a->clone(),b->clone());
+			return new OLoadPortalRegister(a->clone());
 		}
 	};
-	class OReservedEmily28 : public BinaryOpcode
+	class OCreatePortal : public Opcode
 	{
 	public:
-		OReservedEmily28(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily28(a->clone(),b->clone());
+			return new OCreatePortal();
 		}
 	};
-	class OReservedEmily29 : public BinaryOpcode
+	class OLoadSavPortalRegister : public UnaryOpcode
 	{
 	public:
-		OReservedEmily29(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		OLoadSavPortalRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily29(a->clone(),b->clone());
+			return new OLoadSavPortalRegister(a->clone());
 		}
 	};
-	class OReservedEmily30 : public BinaryOpcode
+	class OCreateSavPortal : public Opcode
 	{
 	public:
-		OReservedEmily30(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily30(a->clone(),b->clone());
+			return new OCreateSavPortal();
+		}
+	};
+	class OPortalRemove : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPortalRemove();
+		}
+	};
+	class OSavedPortalRemove : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSavedPortalRemove();
+		}
+	};
+	class OSavedPortalGenerate : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSavedPortalGenerate();
+		}
+	};
+	class OUseSpritePortal : public UnaryOpcode
+	{
+	public:
+		OUseSpritePortal(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OUseSpritePortal(a->clone());
+		}
+	};
+	class OResrvdOpEmily02 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily02();
+		}
+	};
+	class OResrvdOpEmily03 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily03();
+		}
+	};
+	class OResrvdOpEmily04 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily04();
+		}
+	};
+	class OResrvdOpEmily05 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily05();
+		}
+	};
+	class OResrvdOpEmily06 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily06();
+		}
+	};
+	class OResrvdOpEmily07 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily07();
+		}
+	};
+	class OResrvdOpEmily08 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily08();
+		}
+	};
+	class OResrvdOpEmily09 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily09();
+		}
+	};
+	class OResrvdOpEmily10 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily10();
+		}
+	};
+	class OResrvdOpEmily11 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily11();
+		}
+	};
+	class OResrvdOpEmily12 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily12();
+		}
+	};
+	class OResrvdOpEmily13 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily13();
+		}
+	};
+	class OResrvdOpEmily14 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily14();
+		}
+	};
+	class OResrvdOpEmily15 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily15();
+		}
+	};
+	class OResrvdOpEmily16 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily16();
+		}
+	};
+	class OResrvdOpEmily17 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily17();
+		}
+	};
+	class OResrvdOpEmily18 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily18();
+		}
+	};
+	class OResrvdOpEmily19 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily19();
+		}
+	};
+	class OResrvdOpEmily20 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OResrvdOpEmily20();
 		}
 	};
 
@@ -11223,6 +11488,116 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OPalDataOwn();
+		}
+	};
+
+	class OReservedZ3_01 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_01(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_01(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_02 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_02(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_02(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_03 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_03(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_03(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_04 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_04(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_04(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_05 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_05(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_05(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_06 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_06(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_06(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_07 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_07(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_07(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_08 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_08(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_08(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_09 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_09(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_09(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_10 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_10(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_10(a->clone(),b->clone());
 		}
 	};
 }

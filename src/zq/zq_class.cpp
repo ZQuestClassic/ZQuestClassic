@@ -12,12 +12,6 @@
 /****** ZMAP class ******/
 /************************/
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <string>
 #include <stdexcept>
@@ -26,25 +20,25 @@
 #include "metadata/metadata.h"
 
 #include "base/gui.h"
-#include "zq_class.h"
-#include "zq_misc.h"
-#include "zquest.h"
+#include "zq/zq_class.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 #include "qst.h"
 #include "base/colors.h"
 #include "tiles.h"
-#include "zquestdat.h"
+#include "zq/zquestdat.h"
 #include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 #include "md5.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "subscr.h"
-#include "zq_strings.h"
-#include "zq_subscr.h"
-#include "ffscript.h"
+#include "zq/zq_strings.h"
+#include "zq/zq_subscr.h"
+#include "zc/ffscript.h"
 #include "base/util.h"
-#include "zq_files.h"
+#include "zq/zq_files.h"
 #include "dialog/alert.h"
 #include "slopes.h"
 
@@ -692,16 +686,14 @@ void zmap::setlayertarget()
 
 void zmap::setcolor(int32_t c)
 {
-    if(screens[currscr].valid&mVALID)
-    {
-        screens[currscr].color = c;
-        
-        if(Color!=c)
-        {
-            Color = c;
-            loadlvlpal(c);
-        }
-    }
+	screens[currscr].valid |= mVALID;
+	screens[currscr].color = c;
+	
+	if(Color!=c)
+	{
+		Color = c;
+		loadlvlpal(c);
+	}
 }
 
 int32_t zmap::getcolor()
@@ -6663,8 +6655,7 @@ int32_t init_quest(const char *)
     char buf[2048];
     
 	loading_file_new = true;
-	//load_quest("qst.dat#NESQST_NEW_QST",true,true);
-    load_quest(qstdat_string,true,true);
+    load_quest(qstdat_string);
     loading_file_new = false;
 	
 	sprintf(buf,"ZQuest - Untitled Quest");
@@ -6758,7 +6749,7 @@ int32_t reverse_string(char* str)
 }
 
 
-int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
+int32_t quest_access(const char *filename, zquestheader *hdr)
 {
 	return 1; // TODO z3 ! remove
 #ifdef __EMSCRIPTEN__
@@ -6781,11 +6772,6 @@ int32_t quest_access(const char *filename, zquestheader *hdr, bool compressed)
     if(devpwd()) return 1;
     
     char hash_string[33];
-    
-    if(!compressed)
-    {
-        return 1;
-    }
     
     if((get_debug() && (!(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))) || is_null_pwd_hash(hdr->pwd_hash))
     {
@@ -6947,7 +6933,7 @@ void set_rules(byte* newrules);
 void popup_bugfix_dlg(const char* cfg)
 {
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
-	if(!dont_show_again && hasCompatRulesEnabled())
+	if(!dont_show_again && hasCompatRulesEnabled() && !is_ci())
 	{
 		AlertDialog("Apply New Bugfixes",
 			"New bugfixes found that can be applied to this quest!"
@@ -6971,7 +6957,7 @@ void popup_bugfix_dlg(const char* cfg)
 	}
 }
 // wrapper to reinitialize everything on an error
-int32_t load_quest(const char *filename, bool compressed, bool encrypted)
+int32_t load_quest(const char *filename)
 {
 	char buf[2048];
 //  if(encrypted)
@@ -6984,7 +6970,7 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_bit(quest_rules,i,0);
-	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,compressed,encrypted,true,skip_flags);
+	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,true,skip_flags);
 //  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)
@@ -6993,7 +6979,7 @@ int32_t load_quest(const char *filename, bool compressed, bool encrypted)
 	}
 	else
 	{
-		int32_t accessret = quest_access(filename, &header, compressed);
+		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
 		{
@@ -14166,7 +14152,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, compressed ? datapwd : "");
+	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
 	{
@@ -14590,40 +14576,8 @@ int32_t save_quest(const char *filename, bool timed_save)
 		}
 	}
 	
-	char *tmpfilename;
-	char tempfilestr[L_tmpnam]; // This is stupid...
-	
-	if(compress)
-	{
-		temp_name(tempfilestr);
-		tmpfilename=tempfilestr;
-	}
-	else
-	{
-		tmpfilename=(char *)filename;
-	}
-	
 	int32_t ret;
-	ret  = save_unencoded_quest(tmpfilename, compress, filename);
-	
-	if(compress)
-	{
-		if(ret == 0)
-		{
-			box_out("Encrypting...");
-			ret = encode_file_007(tmpfilename, filename,((INTERNAL_VERSION + zc_oldrand()) & 0xffff) + 0x413F0000, ENC_STR, ENC_METHOD_MAX-1);
-			
-			if(ret)
-			{
-				ret += 100;
-			}
-			
-			box_out("okay.");
-			box_eol();
-		}
-		
-		delete_file(tmpfilename);
-	}
+	ret  = save_unencoded_quest(filename, compress, filename);
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();

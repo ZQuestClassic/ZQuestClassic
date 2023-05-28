@@ -8,11 +8,11 @@ extern sprite_list Lwpns;
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 #ifdef IS_PLAYER
-#include "combos.h"
-#include "maps.h"
-#include "hero.h"
-#include "iter.h"
+#include "zc/maps.h"
+#include "zc/hero.h"
+#include "zc/combos.h"
 #include "base/mapscr.h"
+#include "iter.h"
 
 extern newcombo *combobuf;
 extern int16_t lensclk;

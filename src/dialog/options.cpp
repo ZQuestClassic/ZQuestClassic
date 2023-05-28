@@ -1,9 +1,9 @@
 #include "options.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
-#include "../tiles.h"
-#include "zq_misc.h"
+#include "jwin.h"
+#include "zq/zquest.h"
+#include "tiles.h"
+#include "zq/zq_misc.h"
 #include "zc_list_data.h"
 #include "alert.h"
 

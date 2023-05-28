@@ -1,5 +1,3 @@
-#include "../precompiled.h" // Always first.
-
 #include "ASTVisitors.h"
 #include "CompilerUtils.h"
 #include "DataStructs.h"
@@ -8,7 +6,7 @@
 #include <assert.h>
 #include <sstream>
 
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 using std::pair;

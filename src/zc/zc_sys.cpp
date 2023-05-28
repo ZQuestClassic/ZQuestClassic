@@ -9,11 +9,7 @@
 //
 //--------------------------------------------------------
 
-// to prevent <map> from generating errors
-#define __GTHREAD_HIDE_WIN32API 1
-
-#include "precompiled.h" //always first
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,45 +21,39 @@
 #include <sstream>
 #include "base/zc_alleg.h"
 #include "gamedata.h"
-#include "zc_init.h"
+#include "zc/zc_init.h"
 #include "init.h"
-#include "replay.h"
-#include "cheats.h"
-#include "render.h"
+#include "zc/replay.h"
+#include "zc/cheats.h"
+#include "zc/render.h"
 #include "base/zc_math.h"
 #include "base/zapp.h"
 #include "dialog/cheatkeys.h"
-
-#ifdef ALLEGRO_DOS
-#include <unistd.h>
-#endif
-
 #include "metadata/metadata.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
 #include "qst.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 #include "play_midi.h"
-#include "debug.h"
 #include "jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 #include "midi.h"
 #include "subscr.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "sprite.h"
-#include "guys.h"
-#include "hero.h"
-#include "title.h"
+#include "zc/guys.h"
+#include "zc/hero.h"
+#include "zc/title.h"
 #include "particles.h"
 #include "zconsole.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
@@ -115,9 +105,7 @@ extern int32_t cheat_modifier_keys[4]; //two options each, default either contro
 
 static const char *ZC_str = "Zelda Classic";
 extern char save_file_name[1024];
-#ifdef ALLEGRO_DOS
-const char *qst_dir_name = "dos_qst_dir";
-#elif defined(ALLEGRO_WINDOWS)
+#if defined(ALLEGRO_WINDOWS)
 const char *qst_dir_name = "win_qst_dir";
 static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
@@ -826,23 +814,12 @@ void null_quest()
 	
 	byte skip_flags[4] = { 0 };
 	
-	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,0,false);
+	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,0,false);
 }
 
+// TODO remove
 void init_NES_mode()
 {
-	/*
-	// qst.dat may not load correctly without this...
-	QHeader.templatepath[0]='\0';
-	
-	if(!init_colordata(true, &QHeader, &QMisc))
-	{
-		return;
-	}
-	
-	loadfullpal();
-	init_tiles(false, &QHeader);
-	*/
 	null_quest();
 }
 
@@ -9832,112 +9809,3 @@ void zc_putpixel(int32_t layer, int32_t x, int32_t y, int32_t cset, int32_t colo
 	timer=timer;
 	particles.add(new particle(zfix(x), zfix(y), layer, cset, color));
 }
-
-// these are here so that copy_dialog won't choke when compiling zelda
-int32_t d_alltriggerbutton_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_comboa_radio_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_comboabutton_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssdn_btn_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssdn_btn2_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssdn_btn3_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssdn_btn4_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_sslt_btn_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_sslt_btn2_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_sslt_btn3_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_sslt_btn4_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssrt_btn_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssrt_btn2_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssrt_btn3_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssrt_btn4_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssup_btn_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssup_btn2_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssup_btn3_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_ssup_btn4_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_tri_edit_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-int32_t d_triggerbutton_proc(int32_t, DIALOG*, int32_t)
-{
-	return D_O_K;
-}
-
-/*** end of zc_sys.cc ***/
-

@@ -9,13 +9,11 @@
 //--------------------------------------------------------
 
 
-#include "precompiled.h" //always first
-
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "maps.h"
-#include "zelda.h"
-#include "hero.h"
+#include "zc/maps.h"
+#include "zc/zelda.h"
+#include "zc/hero.h"
 #include "base/colors.h"
 #include "base/zsys.h"
 #include "pal.h"
@@ -680,6 +678,3 @@ int32_t reverse_NESpal(RGB c)
     
     return index;
 }
-
-/* end of pal.cc */
-

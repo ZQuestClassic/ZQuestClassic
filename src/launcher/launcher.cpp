@@ -1,11 +1,11 @@
 // Launcher executable main file
 #include "base/zdefs.h"
-#include "launcher.h"
+#include "launcher/launcher.h"
 #include "base/module.h"
 #include "base/fonts.h"
 #include "base/render.h"
 #include "dialog/alert.h"
-#include "launcher_dialog.h"
+#include "launcher/launcher_dialog.h"
 #include "base/zapp.h"
 #include "fontsdat.h"
 
@@ -150,7 +150,6 @@ int32_t main(int32_t argc, char* argv[])
 	
 	Z_message("Loading data files:\n"); //{
 	
-	resolve_password(datapwd);
 	packfile_password(datapwd);
 	
 	Z_message("....Fonts.Dat..."); //{

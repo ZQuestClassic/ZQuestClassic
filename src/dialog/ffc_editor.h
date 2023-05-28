@@ -4,7 +4,7 @@
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
-#include <gui/selcombo_swatch.h>
+#include <zq/gui/selcombo_swatch.h>
 #include <gui/label.h>
 #include <gui/button.h>
 #include <gui/window.h>

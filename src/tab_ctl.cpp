@@ -24,10 +24,7 @@
 
 /* This code is not fully tested */
 
-#include "precompiled.h" //always first
-
-#define ALLEGRO_NO_COMPATIBILITY
-#include "base/allegro_wrapper.h"
+#include "base/zc_alleg.h"
 #include "tab_ctl.h"
 #include "jwin.h"
 

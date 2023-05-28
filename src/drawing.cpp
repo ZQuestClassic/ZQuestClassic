@@ -1,6 +1,5 @@
 #include "base/zdefs.h"
 #include "drawing.h"
-#include "zelda.h"
 #include "base/util.h"
 #include "base/zc_math.h"
 #include <allegro/internal/aintern.h>

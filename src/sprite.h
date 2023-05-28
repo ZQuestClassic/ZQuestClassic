@@ -259,6 +259,8 @@ public:
     // returns index of last sprite with matching id, -1 if none found
     int32_t idLast(int32_t id);
     
+	void forEach(std::function<bool(sprite&)> proc);
+	
 private:
 
     void checkConsistency(); //for debugging
@@ -299,10 +301,15 @@ public:
 class portal : public sprite
 {
 public:
-	int32_t destdmap, destscr, weffect, wsfx;
+	int32_t destdmap = -1, destscr, weffect, wsfx;
     int32_t aclk, aframe, o_tile, aspd, frames;
+	int32_t saved_data;
+	bool prox_active;
+	portal();
 	portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr);
 	virtual bool animate(int32_t);
+	void LOADGFX(int32_t spr);
+	void clear();
 };
 
 class breakable : public sprite
@@ -328,5 +335,3 @@ double comparePointLine(double x, double y, double x1, double x2, double y1, dou
 
 #include "items.h"
 #endif
-/*** end of sprite.cc ***/
-

@@ -1,4 +1,4 @@
-#include "zq_strings.h"
+#include "zq/zq_strings.h"
 #include "editbox.h"
 #include "EditboxNew.h"
 #include "base/gui.h"
@@ -7,10 +7,10 @@
 #include "tiles.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "zq_custom.h"
-#include "zq_misc.h"
-#include "zq_tiles.h"
-#include "zquest.h"
+#include "zq/zq_custom.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_tiles.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include <map>
 #include <string>

@@ -1,7 +1,7 @@
 #include <functional>
 #include <type_traits>
 #include "base/zdefs.h"
-#include "maps.h"
+#include "zc/maps.h"
 
 // Iterates over every screen in the current region.
 // Callback function: void fn(mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_x)

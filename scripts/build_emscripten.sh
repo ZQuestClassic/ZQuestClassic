@@ -250,6 +250,11 @@ if [[ "${TARGETS[*]}" =~ "zelda" ]]; then
   set_files zelda.html
   insert_css zelda.html
   sed -i -e 's|if(SDL2.audio.scriptProcessorNode|if(SDL2.audio?.scriptProcessorNode|' zelda.js
+  if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
+    sed -i -e 's/__IS_CI__/true/' zelda.html
+  else
+    sed -i -e 's/__IS_CI__/false/' zelda.html
+  fi
 fi
 if [[ "${TARGETS[*]}" =~ "zquest" ]]; then
   cp ../../web/index.html zquest.html
@@ -258,6 +263,11 @@ if [[ "${TARGETS[*]}" =~ "zquest" ]]; then
   sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
   set_files zquest.html
   insert_css zquest.html
+  if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
+    sed -i -e 's/__IS_CI__/true/' zquest.html
+  else
+    sed -i -e 's/__IS_CI__/false/' zquest.html
+  fi
 fi
 
 cp -r ../../timidity .

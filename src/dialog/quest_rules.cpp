@@ -6,12 +6,12 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "gui/use_size.h"
-#include "zq_files.h"
+#include "zq/zq_files.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -879,7 +879,10 @@ static GUI::ListData compatRulesList
 	{ "Broken ->HitBY UIDs", qr_BROKENHITBY,
 		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
 		" and both Player fire and bomb weapons won't work with HitBy if they hurt the player." 
-		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."}
+		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
+	{ "Broken Moving & Air Bombs", qr_BROKEN_MOVING_BOMBS,
+		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
+		" will continue obeying gravity." }
 };
 
 static GUI::ListData enemiesRulesList
@@ -1207,6 +1210,10 @@ static GUI::ListData miscRulesList
 		" as you can jump over water and pits, scroll the screen, and set your respawn point over top of a pit, or even sequence"
 		" break where you aren't supposed to by drowning in water on the next screen, and jumping again after respawning. Enabling"
 		" this will prevent you from changing screens while jumping or otherwise in the air, allowing you to design around the feather easier."},
+	{ "No Scrolling Screen While Carrying", qr_NO_SCROLL_WHILE_CARRYING,
+		"If enabled, you cannot scroll the screen while the player is carrying something with a Lift Glove."},
+	{ "Carryables Can't Leave Screen", qr_CARRYABLE_NO_ACROSS_SCREEN,
+		"If enabled, leaving a screen while carrying something with a Lift Glove will delete the carried object."},
 	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
 		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
 		"Has no downsides, is only here for compatibility sake."},
@@ -1443,6 +1450,9 @@ static GUI::ListData weaponsRulesList
 		" Zelda games where the players own bombs can hurt them. This used to affect player-placed bombs,"
 		" but that functionality has since been moved to the bomb item in the item editor. This rule now"
 		" only determines if script-created player bombs can hurt the player."},
+	{ "Lifted Bombs Explode In Hand", qr_HELD_BOMBS_EXPLODE,
+		"If enabled, bomb lweapons that are 'lifted' by the player (currently script-only)"
+		" will still tick down their fuse and explode." },
 	
 	//should maybe keep this last as well? -Deedee
 	{ "Weapons Move Offscreen (Buggy, use at own risk)", qr_WEAPONSMOVEOFFSCREEN,

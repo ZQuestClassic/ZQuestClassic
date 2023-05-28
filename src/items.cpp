@@ -16,13 +16,11 @@
 /**********  Item Class  **********/
 /**********************************/
 
-#include "precompiled.h" //always first
-
 #include "items.h"
-#include "maps.h"
-#include "zelda.h"
+#include "zc/guys.h"
+#include "zc/maps.h"
 #include "base/zdefs.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include <fmt/format.h>
 
 #include <queue>
@@ -40,9 +38,10 @@ int32_t fairy_cnt=0;
 
 item::~item()
 {
+	// TODO: we should have an item manager class in zc and manage lifetime explicitly, not via dtors.
+#ifndef IS_ZQUEST
 	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_bit(quest_rules,qr_OLD_FAIRY_LIMIT))
 		killfairynew(*this);
-#ifndef IS_ZQUEST
 	FFCore.deallocateAllArrays(SCRIPT_ITEMSPRITE, getUID());
 #endif
 }
@@ -68,7 +67,6 @@ bool item::animate(int32_t)
 			int32_t animclk = (PITFALL_FALL_FRAMES-fallclk);
 			tile = spr.tile + zc_min(animclk / spd, fr-1);
 			
-			// run_script(MODE_NORMAL);
 			solid_update(false);
 			return false;
 		}
@@ -97,11 +95,10 @@ bool item::animate(int32_t)
 				tile = spr.tile + zc_min(animclk / spd, fr-1);
 			}
 			
-			// run_script(MODE_NORMAL);
-			
 			solid_update(false);
 			return false;
 		}
+#ifndef IS_ZQUEST
 		if(isSideViewGravity())
 		{
 			if((
@@ -183,6 +180,7 @@ bool item::animate(int32_t)
 				}
 			}
 		}
+#endif
 	}
 	
 #ifndef IS_ZQUEST
@@ -277,10 +275,12 @@ bool item::animate(int32_t)
 #endif
 	}
 	
+#ifndef IS_ZQUEST
 	if(itemsbuf[id].family == itype_fairy && itemsbuf[id].misc3)
 	{
 		movefairynew(x,y,*this);
 	}
+#endif
 	
 	if(fadeclk==0 && !subscreenItem)
 	{
@@ -414,9 +414,10 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	if(!isDummy && itm.family == itype_fairy && itm.misc3)
 	{
 		misc = ++fairy_cnt;
-		
+#ifndef IS_ZQUEST
 		if(addfairynew(x, y, itm.misc3, *this))
 			sfx(itm.usesound);
+#endif
 	}
 	
 	/*for(int32_t j=0;j<8;j++)
@@ -805,22 +806,6 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char le
 	}
 }
 
-int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family)
-{
-	int32_t rval=0;
-	
-	for(int32_t i=0; i<MAXITEMS; i++)
-	{
-		if(items[i].family == family && source->items[i])
-		{
-			if(items[i].fam_type > 0)
-				rval |= 1<<(items[i].fam_type-1);
-		}
-	}
-	
-	return rval;
-}
-
 const char *old_item_string[iLast] =
 {
 	"Rupee (1)", "Rupee (5)", "Heart", "Bomb (Normal)", "Clock",
@@ -903,7 +888,11 @@ std::string itemdata::get_name(bool init) const
 					}
 					else
 					{
+#ifndef IS_ZQUEST
 						arg = bottle_slot_name(misc1,"Empty");
+#else
+						arg = "Empty";
+#endif
 					}
 					break;
 			}
@@ -932,7 +921,11 @@ std::string itemdata::get_name(bool init) const
 				overname = get_subscr_arrow_name(id);
 				break;
 			case itype_bottle:
-				overname = bottle_slot_name(misc1, "");
+#ifndef IS_ZQUEST
+				overname = bottle_slot_name(misc1,"");
+#else
+				overname = "";
+#endif
 				break;
 		}
 		if(!overname.empty())

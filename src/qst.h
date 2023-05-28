@@ -16,7 +16,7 @@
 #include "zscriptversion.h"
 
 
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript ffengine;
 
 struct script_slot_data
@@ -183,7 +183,7 @@ extern int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 char *VerStr(int32_t version);
 char *ordinal(int32_t num);
 
-PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed, bool encrypted, bool show_progress);
+PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress);
 PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool validate);
 
 void clear_combo(int32_t i);
@@ -209,7 +209,7 @@ void portCandleRules();
 void portBombRules();
 
 int32_t loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
+              miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
 
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
@@ -220,7 +220,6 @@ bool reset_mapstyles(bool validate, miscQdata *Misc);
 bool reset_items(bool validate, zquestheader *Header);
 bool reset_guys();
 bool reset_wpns(bool validate, zquestheader *Header);
-bool reset_doorcombosets(bool validate, zquestheader *Header);
 bool init_tiles(bool validate, zquestheader *Header);
 bool init_colordata(bool validate, zquestheader *Header, miscQdata *Misc);
 bool init_combos(bool validate, zquestheader *Header);

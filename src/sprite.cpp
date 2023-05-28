@@ -12,26 +12,20 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
-#include "maps.h"
-#include "replay.h"
-#include "guys.h"
+#include "zc/maps.h"
+#include "zc/replay.h"
+#include "zc/guys.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 
 #ifndef IS_ZQUEST
-#include "hero.h"
-#include "decorations.h"
+#include "zc/hero.h"
+#include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
 extern HeroClass Hero;
@@ -46,7 +40,7 @@ extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 #define degtoFix(d)     ((d)*0.7111111111111)
@@ -2579,6 +2573,15 @@ void sprite_list::checkConsistency()
         assert(sprites[i] == getByUID(sprites[i]->getUID()));
 }
 
+void sprite_list::forEach(std::function<bool(sprite&)> proc)
+{
+	for(int q = 0; q < count; ++q)
+	{
+		if(proc(*sprites[q]))
+			return;
+	}
+}
+
 void sprite::explode(int32_t type)
 {
 	al_trace("Trying to explode enemy tile: %d\n",tile);
@@ -2779,8 +2782,17 @@ void movingblock::draw(BITMAP *dest)
 }
 
 //Portal
+portal::portal()
+{
+	id = 0; //negative id doesn't draw!
+}
 portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 	: destdmap(dm), destscr(scr), weffect(gfx), wsfx(sfx)
+{
+	LOADGFX(spr);
+	id = 0; //negative id doesn't draw!
+}
+void portal::LOADGFX(int32_t spr)
 {
 	wpndata const& portalsprite = wpnsbuf[spr];
 	o_tile = portalsprite.tile;
@@ -2790,7 +2802,6 @@ portal::portal(int32_t dm, int32_t scr, int32_t gfx, int32_t sfx, int32_t spr)
 	aclk = 0;
 	cs = portalsprite.csets & 0xF;
 	tile = o_tile;
-	id = 0; //negative id doesn't draw!
 }
 
 bool portal::animate(int32_t)
@@ -2805,6 +2816,10 @@ bool portal::animate(int32_t)
 	}
 	tile = o_tile + aframe;
 	return false;
+}
+void portal::clear()
+{
+	*this = portal();
 }
 
 //BreakableCombo
@@ -2947,6 +2962,3 @@ double comparePointLine(double x, double y, double x1, double y1, double x2, dou
     double ly = slope*x + b;
     return y-ly;
 }
-
-/*** end of sprite.cc ***/
-

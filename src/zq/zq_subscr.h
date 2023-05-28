@@ -32,6 +32,3 @@ extern bool show_new_ss;
 extern DIALOG sslist_dlg[];
 
 #endif
-
-/*** end of subscr.cc ***/
- 

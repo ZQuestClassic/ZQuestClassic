@@ -16,16 +16,10 @@
 /**********  Item Class  **********/
 /**********************************/
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
-#include "zelda.h"
-#include "guys.h"
+#include "zc/zelda.h"
+#include "zc/guys.h"
 #include "base/zdefs.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "items.h"
 #include "zscriptversion.h"
 #include <stdio.h>
@@ -33,15 +27,6 @@
 extern sprite_list  guys;
 extern sprite_list  items;
 
-/*
-  void movefairy(zfix &x,zfix &y,int32_t misc) {
-  return;
-  }
-
-  void killfairy(int32_t misc) {
-  return;
-  }
-  */
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id)
 {
     addenemy(currscr,x,y,eITEMFAIRY,id);
@@ -237,6 +222,3 @@ std::string bottle_slot_name(size_t slot, std::string const& emptystr)
 		return emptystr;
 	return bottle_name(bind);
 }
-
-/*** end of sprite.cc ***/
-

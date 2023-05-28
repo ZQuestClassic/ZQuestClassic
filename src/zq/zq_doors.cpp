@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <vector>
 
@@ -22,22 +16,18 @@
 #include "base/zdefs.h"
 #include "jwin.h"
 #include "base/zsys.h"
-#include "zc_sys.h"
-#include "zq_misc.h"
+#include "zc/zc_sys.h"
+#include "zq/zq_misc.h"
 #include "tiles.h"
-#include "zq_class.h"
-#include "zq_tiles.h"
-#include "zquest.h"
+#include "zq/zq_class.h"
+#include "zq/zq_tiles.h"
+#include "zq/zquest.h"
 
-extern void large_dialog(DIALOG *d, float RESIZE_AMT);
-extern int32_t d_dummy_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();
 extern std::vector<mapscr> TheMaps;
 extern zquestheader header;
 extern word map_count;
-extern int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 
 extern int32_t onHelp();
 extern int32_t jwin_pal[jcMAX];

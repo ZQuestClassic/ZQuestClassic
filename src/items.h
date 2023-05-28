@@ -1,17 +1,3 @@
-//--------------------------------------------------------
-//  Zelda Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  sprite.cc
-//
-//  Sprite classes:
-//   - sprite:      base class for the guys and enemies in zelda.cc
-//   - movingblock: the moving block class
-//   - sprite_list: main container class for different groups of sprites
-//   - item:        items class
-//
-//--------------------------------------------------------
-
 #ifndef _ITEMS_H_
 #define _ITEMS_H_
 
@@ -24,10 +10,6 @@ struct itemdata;
 extern char *item_string[ITEMCNT];
 
 extern int32_t fairy_cnt;
-void movefairy(zfix &x,zfix &y,int32_t misc);
-void movefairynew(zfix &x,zfix &y,item const &itemfairy);
-void killfairy(int32_t misc);
-void killfairynew(item const &itemfairy);
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id);
 bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy);
 bool can_drop(zfix x, zfix y);
@@ -56,9 +38,7 @@ public:
 	bool is_dragged;
 	int16_t from_dropset;
 	int8_t pickupexstate;
-    //int32_t weapoverrideFLAGS; 
-    
-    //word weaponscript; //If only. -Z This would link an item to a weapon script in the item editor.
+
 //Linker errors because this is shared with zquest. :( -Z
     #ifndef IS_ZQUEST
     int32_t script_UID;
@@ -72,7 +52,9 @@ public:
     virtual ~item();
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
+#ifndef IS_ZQUEST
 	virtual int32_t run_script(int32_t mode);
+#endif
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
 	void set_forcegrab(bool val)
 	{
@@ -286,12 +268,7 @@ int32_t getItemID(itemdata *items, int32_t family, int32_t level);
 int32_t getCanonicalItemID(itemdata *items, int32_t family);
 int32_t getItemIDPower(itemdata *items, int32_t family, int32_t power);
 void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char levels);
-int32_t computeOldStyleBitfield(zinitdata *source, itemdata *items, int32_t family);
-
-
 
 std::string bottle_name(size_t type);
 std::string bottle_slot_name(size_t slot, std::string const& emptystr);
 #endif
-/*** end of sprite.cc ***/
-

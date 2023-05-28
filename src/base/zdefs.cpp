@@ -2276,3 +2276,19 @@ int32_t viewport_t::bottom() const
 {
 	return y + h;
 }
+
+bool runscript_do_earlyret(int runscript_val)
+{
+	switch(runscript_val)
+	{
+		case RUNSCRIPT_SELFDELETE:
+		case RUNSCRIPT_SELFREMOVE:
+			return true;
+	}
+	return false;
+}
+
+savedportal::savedportal()
+{
+	uid = nextuid++;
+}

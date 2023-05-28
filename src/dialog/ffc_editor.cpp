@@ -1,8 +1,8 @@
 #include "ffc_editor.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
-#include "zq_class.h"
+#include "jwin.h"
+#include "zq/zquest.h"
+#include "zq/zq_class.h"
 #include "alert.h"
 #include "zc_list_data.h"
 

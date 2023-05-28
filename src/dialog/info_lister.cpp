@@ -3,10 +3,10 @@
 #include "itemeditor.h"
 #include "info.h"
 #include "zc_list_data.h"
-#include "zquest.h"
-#include "zq_misc.h"
-#include "zq_class.h"
-#include "zq_custom.h"
+#include "zq/zquest.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_class.h"
+#include "zq/zq_custom.h"
 #include "qst.h"
 #include <fmt/format.h>
 #include <utility>

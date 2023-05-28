@@ -24,8 +24,6 @@
 
 /* This code is not fully tested */
 
-#include "precompiled.h" //always first
-
 #include <ctype.h>
 #include <string.h>
 #include "base/zc_alleg.h"
@@ -5909,10 +5907,6 @@ static int32_t menu_key_shortcut(int32_t c, AL_CONST char *s)
   *  Searches a menu for keyboard shortcuts, for the alt+letter to bring
   *  up a menu.
   */
-
-//#ifdef ALLEGRO_DOS
-//int32_t menu_alt_key(int32_t k, MENU *m);
-//#elif defined ALLEGRO_WINDOWS
 
 int32_t menu_alt_key(int32_t k, MENU *m)
 {

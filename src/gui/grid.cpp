@@ -1,4 +1,4 @@
-#include "grid.h"
+#include "gui/grid.h"
 #include <algorithm>
 
 using std::shared_ptr;

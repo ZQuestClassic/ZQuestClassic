@@ -11,15 +11,13 @@
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 //INLINE void SCRFIX() {}
 
-#include "precompiled.h" //always first
-
-#include "zq_misc.h"
-#include "zquestdat.h"
-#include "zquest.h"
+#include "zq/zq_misc.h"
+#include "zq/zquestdat.h"
+#include "zq/zquest.h"
 #include "base/colors.h"
 #include "qst.h"
 #include "base/zsys.h"
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
 #include "drawing.h"
@@ -790,8 +788,6 @@ int32_t onImport_Tiles();
 int32_t onImport_Subscreen();
 int32_t onImport_Pals();
 int32_t onImport_ZGP();
-int32_t onImport_ZQT();
-int32_t onImport_UnencodedQuest();
 
 int32_t onExport_Map();
 int32_t onExport_DMaps();
@@ -802,8 +798,6 @@ int32_t onExport_Tiles();
 int32_t onExport_Subscreen();
 int32_t onExport_Pals();
 int32_t onExport_ZGP();
-int32_t onExport_ZQT();
-int32_t onExport_UnencodedQuest();
 
 int32_t onGotoMap();
 
@@ -1223,19 +1217,3 @@ int32_t onIncMap();
 int32_t onDecMap();
 
 int32_t onDumpScr();
-
-// these are here so that copy_dialog won't choke when compiling zquest
-int32_t d_jbutton_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}
-
-int32_t d_listen_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}
-
-int32_t d_savemidi_proc(int32_t, DIALOG*, int32_t)
-{
-    return D_O_K;
-}

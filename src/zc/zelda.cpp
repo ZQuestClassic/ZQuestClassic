@@ -9,8 +9,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include <memory>
 #include <filesystem>
 #include <stdio.h>
@@ -32,31 +30,31 @@
 #include "zscriptversion.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "aglogo.h"
+#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
 #include "qst.h"
-#include "matrix.h"
+#include "zc/matrix.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "fontsdat.h"
 #include "particles.h"
 #include "gamedata.h"
-#include "ffscript.h"
-#include "jit.h"
-#include "script_debug.h"
-#include "combos.h"
+#include "zc/ffscript.h"
+#include "zc/jit.h"
+#include "zc/script_debug.h"
+#include "zc/combos.h"
 #include "qst.h"
 #include "base/util.h"
 #include "drawing.h"
 #include "dialog/info.h"
-#include "replay.h"
-#include "cheats.h"
+#include "zc/replay.h"
+#include "zc/cheats.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -66,7 +64,7 @@
 using namespace util;
 extern FFScript FFCore; //the core script engine.
 extern bool epilepsyFlashReduction;
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #ifndef _WIN32 //Unix
 	#include <fcntl.h>
 	#include <unistd.h>
@@ -106,12 +104,11 @@ static zc_randgen drunk_rng;
 
 #include "init.h"
 #include <assert.h>
-#include "rendertarget.h"
+#include "zc/rendertarget.h"
 #include "zconsole.h"
 #include "base/win32.h"
-#include "vectorset.h"
 #include "single_instance.h"
-#include "zeldadat.h"
+#include "zc/zeldadat.h"
 
 #define LOGGAMELOOP 0
 
@@ -1169,23 +1166,23 @@ void Z_scripterrlog(const char * const format,...)
 bool blockmoving;
 #include "sprite.h"
 movingblock mblock2;                                        //mblock[4]?
-portal* mirror_portal = NULL;
+portal mirror_portal;
 
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 particle_list particles;
 
-#include "zc_custom.h"
-#include "hero.h"
+#include "zc/zc_custom.h"
+#include "zc/hero.h"
 HeroClass   Hero;
 
-#include "maps.h"
+#include "zc/maps.h"
 #include "subscr.h"
-#include "guys.h"
+#include "zc/guys.h"
 
-#include "title.h"
-#include "ending.h"
+#include "zc/title.h"
+#include "zc/ending.h"
 
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 
 // Wait... this is only used by ffscript.cpp!?
 void addLwpn(int32_t x,int32_t y,int32_t z,int32_t id,int32_t type,int32_t power,int32_t dir, int32_t parentid)
@@ -1226,11 +1223,8 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
     Lwpns.clear(force);
     Ewpns.clear(force);
     chainlinks.clear(force);
-	if(mirror_portal)
-	{
-		delete mirror_portal;
-		mirror_portal = NULL;
-	}
+	mirror_portal.clear();
+	portals.clear(force);
     clearScriptHelperData();
     
     if(decorationsToo)
@@ -1399,7 +1393,6 @@ void HeroSuperDebug()
 	SUPER_DEBUG_(blowcnt);
 	SUPER_DEBUG_(c_clk);
 	SUPER_DEBUG_(can_flicker);
-	SUPER_DEBUG_(can_mirror_portal);
 	SUPER_DEBUG_(canfreeze);
 	SUPER_DEBUG_(charging);
 	SUPER_DEBUG_(climb_cover_x);
@@ -1853,6 +1846,8 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	}
 	else ret = qe_no_qst;
 	
+	if(!exists(qstpath)) ret = qe_notfound;
+	
 	if(!ret)
 	{
 		//setPackfilePassword(datapwd);
@@ -1863,9 +1858,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			skip_flags[i]=0;
 		}
 		
-		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,true,true,skip_flags,printmetadata,report,qst_num);
-		//zprint2("qstpath: '%s', qstdir(cfg): '%s', standalone_quest: '%s'\n",qstpath,zc_get_config("zeldadx",qst_dir_name,""),standalone_quest?standalone_quest:"");
-		//setPackfilePassword(NULL);
+		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,printmetadata,report,qst_num);
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
 		{
@@ -4673,11 +4666,6 @@ int main(int argc, char **argv)
 		
 		regulate_path(standalone_quest);
 	}
-	
-	//turn on MSVC memory checks
-	//this should be interesting...
-	
-//  InitCrtDebug();
 
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
@@ -4976,7 +4964,6 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-v1")) Throttlefps=true;
 	if(used_switch(argc,argv,"-show-fps")) ShowFPS=true;
 	
-	resolve_password(zeldapwd);
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 	
@@ -5043,7 +5030,6 @@ int main(int argc, char **argv)
 	}
 	
 	// load the data files
-	resolve_password(datapwd);
 	//setPackfilePassword(datapwd);
 	packfile_password(datapwd);
 	
@@ -6348,6 +6334,3 @@ void paymagiccost(int32_t itemid, bool ignoreTimer, bool onlyTimer)
 
 std::string getComboTypeHelpText(int32_t id) { return ""; }
 std::string getMapFlagHelpText(int32_t id) { return ""; }
-
-/*** end of zelda.cc ***/
-

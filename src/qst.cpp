@@ -8,12 +8,10 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
+#include "allegro/file.h"
+#include "base/util.h"
+#include "base/zapp.h"
+#include <filesystem>
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -32,16 +30,20 @@
 #include "tiles.h"
 #include "base/zsys.h"
 #include "qst.h"
-//#include "zquest.h"
 #include "defdata.h"
 #include "subscr.h"
 #include "font.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "particles.h"
 #include "dialog/alert.h"
+
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 //FFScript FFCore;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -663,10 +665,8 @@ bool valid_zqt(const char *filename)
 {
     PACKFILE *f=NULL;
     bool isvalid;
-    char deletefilename[1024];
-    deletefilename[0]=0;
     int32_t error;
-    f=open_quest_file(&error, filename, deletefilename, true, true,false);
+    f=open_quest_file(&error, filename, false);
     
     if(!f)
     {
@@ -676,17 +676,123 @@ bool valid_zqt(const char *filename)
     
     isvalid=valid_zqt(f);
     
-    if(deletefilename[0])
-    {
-        delete_file(deletefilename);
-    }
-    
 //  setPackfilePassword(NULL);
     return isvalid;
 }
 
-PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *deletefilename, bool compressed,bool encrypted, bool show_progress)
+/*
+	.qst file history
+
+	.qst files have always been compressed using allegro's packfiles.
+
+	At some point, an encoding layer was added. The two layers look like this:
+
+		1) The top layer is from us. See decode_file_007.
+			[0-24]    Preamble "Zelda Classic Quest File"
+			[25-28]   Initial decoding seed value.
+			[29-X]    Allegro-encoded payload (AKA "packed" file)
+			[last 4]  Checksum
+
+		2) The bottom layer is a "compressed packed file" from Allegro 4. The entire payload
+			is XOR'd with a password (datapwd). Once that is undone, the first four bytes are "slh!",
+			followed by a lzss compressed representation of the payload (from allergo' packfile compression).
+			The oldest quests skip the password part.
+
+	Simply, the job of this function is to peel away the top layer.
+
+	With this second layer of encryption, the data isn't any more secure, and adds a significant delay
+	in opening and saving files. There is no version field, so they decryption key is
+	found via trial-by-error (very slow!)
+
+	There are other file types of interest:
+		- .zqt: quest template files, skips top-layer encryption pass
+		- .qsu: "unencoded" (and uncompressed) files; skips encryption and compression (also makes the longtan password moot)
+		- .qu?: same as above. automated backup files
+		- .qb?: same as above. automated backup files
+		- .qt?: compressed and encrypted (or not encrypted, as of May 2023)
+
+	May 2023: .qst files are now saved without the top layer encoding, and no allegro packfile password. The first bytes of these
+	files are now "slh!.AG ZC Enhanced Quest File".
+	The following command will take an existing qst file and upgrade it: `./zquest -unencrypt-qst <input> <output>`
+*/
+PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress)
 {
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(filename))
+    {
+        em_fetch_file(filename);
+    }
+#endif
+
+	// Note: although this is primarily for loading .qst files, it can also handle all of the
+	// file types mentioned in the comment above. No need to be told if the file being loaded
+	// is encrypted or compressed, we can do some simple and fast checks to determine how to load it.
+	bool top_layer_compressed = false;
+	bool compressed = false;
+	bool encrypted = false;
+
+	// Input files may or may not include a top layer, which may or may not be compressed.
+	// Additionally, the bottom layer may or may not be compressed, and may or may not be encoded
+	// with an allegro packfile password (longtan).
+	// We peek into this file to read the header - we'll either see the top layer's header (ENC_STR)
+	// or the bottom layer's header (QH_IDSTR or QH_NEWIDSTR).
+	// Newly saved .qst files enjoy a fast path here, where there is no top layer at all.
+
+	bool id_came_from_compressed_file = false;
+	const char* packfile_password = "";
+	char id[31];
+	id[0] = '\0';
+	PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
+	if (!pf)
+		pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
+	if (pf)
+	{
+		id_came_from_compressed_file = true;
+		if (!pack_fread(id, sizeof(id), pf))
+		{
+			pack_fclose(pf);
+			Z_message("Unable to read header string\n");
+			return nullptr;
+		}
+		pack_fclose(pf);
+	}
+	else
+	{
+		FILE* f = fopen(filename, "rb");
+		if (!f) 
+		{
+			*open_error=qe_notfound;
+			return nullptr;
+		}
+		if (!fread(id, sizeof(char), sizeof(id), f))
+		{
+			fclose(f);
+			Z_message("Unable to read header string\n");
+			return nullptr;
+		}
+		fclose(f);
+	}
+
+	if (strstr(id, QH_NEWIDSTR) || strstr(id, QH_IDSTR))
+	{
+		// The given file is already just the bottom layer - nothing more to do.
+		// There's no way to rewind a packfile, so just open it again.
+		return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+	}
+	else if (strstr(id, ENC_STR))
+	{
+		top_layer_compressed = id_came_from_compressed_file;
+		compressed = true;
+		encrypted = true;
+	}
+	else
+	{
+		// Unexpected, this is going to fail some header check later.
+	}
+
+	// Everything below here is legacy code - recently saved quest files will have
+	// returned by now.
+
 	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 	char percent_done[30];
@@ -705,18 +811,9 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
 	}
     
 	box_out("Loading Quest: ");
-	//if(strncasecmp(filename, "qst.dat", 7)!=0)
-	//int32_t qstdat_str_size = 0;
-	//for ( int32_t q = 0; q < 255; q++ ) //find the length of the string
-	//{
-	//	if ( moduledata.datafiles[qst_dat][q] != 0 ) qstdat_str_size++;
-	//	else break;
-	//}
-	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], 7)!=0)
 	al_trace("Trying to do strncasecmp() when loading a quest\n");
 	int32_t qstdat_filename_size = strlen(moduledata.datafiles[qst_dat]);
 	al_trace("Filename size of qst.dat file %s is %d.\n", moduledata.datafiles[qst_dat], qstdat_filename_size);
-	//if(strncasecmp(filename, moduledata.datafiles[qst_dat], qstdat_filename_size)!=0)
 	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
 	{
 		box_out(filename);
@@ -733,7 +830,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
 	{
 		box_out("Decrypting...");
 		box_save_x();
-		ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, strstr(filename, ".dat#")!=NULL, passwd);
+		ret = decode_file_007(filename, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, top_layer_compressed, passwd);
         
 		if(ret)
 		{
@@ -831,8 +928,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, char *delet
     
 	if(!oldquest)
 	{
-		if(deletefilename)
-			sprintf(deletefilename, "%s", tmpfilename);
+		delete_file(tmpfilename);
 	}
     
 	box_out("okay.");
@@ -846,22 +942,21 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     char *filename;
     PACKFILE *f=NULL;
     int32_t open_error=0;
-    deletefilename[0]=0;
     
 	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
 	strcat(qstdat_string,"#NESQST_NEW_QST");
     if(Header->templatepath[0]==0)
     {
         filename=(char *)malloc(2048);
-        //strcpy(filename, "qst.dat#NESQST_NEW_QST");
         strcpy(filename, qstdat_string);
     }
     else
     {
+        // TODO: should be safe to remove this, no one seems to use custom quest templates.
         filename=Header->templatepath;
     }
     
-    f=open_quest_file(&open_error, filename, deletefilename, true, true,false);
+    f=open_quest_file(&open_error, filename, false);
     
     if(Header->templatepath[0]==0)
     {
@@ -879,13 +974,6 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
         {
             jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             pack_fclose(f);
-            
-            //setPackfilePassword(NULL);
-            if(deletefilename[0])
-            {
-                delete_file(deletefilename);
-            }
-            
             return NULL;
         }
     }
@@ -895,6 +983,10 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
 
 bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zctune *tunes, bool validate)
 {
+    // We absolutely do not support loading from a template file to initialize data outside the editor.
+	// TODO: move this code into zq/
+    if (get_app_id() != App::zquest) return false;
+
     combosread=false;
     mapsread=false;
     fixffcs=false;
@@ -1148,16 +1240,10 @@ void init_spritelists()
 
 bool reset_items(bool validate, zquestheader *Header)
 {
-    bool ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
+    bool ret = true;
+    if (get_app_id() == App::zquest)
+        ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
     
-    //Ignore this, but don't remove it
-    /*
-    if (ret)
-      for(int32_t i=0; i<MAXITEMS; i++)
-      {
-        reset_itembuf(&itemsbuf[i], i);
-      }
-    */
     for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
     
     return ret;
@@ -1172,7 +1258,9 @@ bool reset_guys()
 
 bool reset_wpns(bool validate, zquestheader *Header)
 {
-    bool ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
+	bool ret = true;
+    if (get_app_id() == App::zquest)
+        ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
     
     for(int32_t i=0; i<WPNCNT; i++)
         reset_weaponname(i);
@@ -1195,11 +1283,6 @@ bool reset_mapstyles(bool validate, miscQdata *Misc)
     Misc->colors.dungeon_map_tile = 19651;
     Misc->colors.dungeon_map_cset = 8;
     return true;
-}
-
-bool reset_doorcombosets(bool validate, zquestheader *Header)
-{
-    return init_section(Header, ID_DOORS, NULL, NULL, validate);
 }
 
 int32_t get_qst_buffers()
@@ -3622,6 +3705,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_MOVINGBLOCK_FAKE_SOLID,1);
 	if(compatrule_version < 41)
 		set_bit(quest_rules,qr_BROKENHITBY,1);
+	if(compatrule_version < 42)
+		set_bit(quest_rules,qr_BROKEN_MOVING_BOMBS,1);
 	
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -21293,7 +21378,7 @@ void portBombRules()
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, const byte *skip_flags, byte printmetadata)
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, const byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
@@ -21419,10 +21504,9 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     // oldquest flag is set when an unencrypted qst file is suspected.
     bool oldquest = false;
     int32_t open_error=0;
-    char deletefilename[1024];
-    PACKFILE *f=open_quest_file(&open_error, filename, deletefilename, compressed, encrypted, show_progress);
+    PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
     
-    if(!f)
+    if(!f) 
         return open_error;
 	char zinfofilename[2048];
 	replace_extension(zinfofilename, filename, "zinfo", 2047);
@@ -22160,11 +22244,6 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
     }
     
-    if(deletefilename[0] && exists(deletefilename))
-    {
-        delete_file(deletefilename);
-    }
-    
     //Debug FFCore.quest_format[]
 	al_trace("Quest made in ZC Version: %x\n", FFCore.quest_format[vZelda]);
 	al_trace("Quest made in ZC Build: %d\n", FFCore.quest_format[vBuild]);
@@ -22306,31 +22385,24 @@ invalid:
         {
             delete_file(tmpfilename);
         }
-        
-        if(deletefilename[0] && exists(deletefilename))
-        {
-            delete_file(deletefilename);
-        }
     }
     
     return qe_invalid;
     
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool compressed, bool encrypted, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
 {
 	loading_qst_name = filename;
 	loading_qst_num = qst_num;
 	// In CI, builds are cached for replay tests, which can result in their build dates being earlier than what it would be locally.
-	// So to avoid a more-recently update .qst file from hitting the "last saved in a newer version" prompt, we disable for replaying.
-	if (!replay_is_replaying())
+	// So to avoid a more-recently updated .qst file from hitting the "last saved in a newer version" prompt, we disable in CI.
+	if (!is_ci())
 		loadquest_report = report;
-	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, compressed, encrypted, keepall, skip_flags,printmetadata);
+	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, keepall, skip_flags,printmetadata);
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;
 	loadquest_report = false;
 	loading_qst_num = 0;
 	return ret;
 }
-/*** end of qst.cc ***/
-

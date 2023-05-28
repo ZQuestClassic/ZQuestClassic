@@ -163,11 +163,8 @@ typedef unsigned const char ucc;
 #include "base/render.h"
 #include "zconfig.h"
 #include "user_object.h"
-#include "mapscr.h"
-#include "check.h"
+#include "base/mapscr.h"
 #include "dcheck.h"
-#include "notreached.h"
-
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
@@ -292,7 +289,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        31
+#define V_SAVEGAME        32
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -301,7 +298,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       41
+#define V_COMPATRULE       42
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -618,6 +615,10 @@ extern volatile bool close_button_quit;
 #define fDARK_TRANS         0x10 //'S.Flags1' ...transparent dark
 #define fDISABLE_MIRROR     0x20 //'S.Flags1' Disable Magic Mirror
 #define fENEMY_WAVES     0x40 //'E.Flags' Chain 'Enemies->' triggers
+
+//flags10 - ENTIRE FLAGS10 RESERVED FOR Z3 SCROLLING! Please don't use :)
+#define fZ3_SCROLLING_WHEN  0x01
+// ----
 
 //lens layer effects
 #define llNORMAL        0
@@ -1122,7 +1123,9 @@ enum
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
-	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID, qr_NEW_HERO_MOVEMENT2,
+	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID, qr_NEW_HERO_MOVEMENT2, qr_CARRYABLE_NO_ACROSS_SCREEN,
+	//51
+	qr_NO_SCROLL_WHILE_CARRYING, qr_HELD_BOMBS_EXPLODE, qr_BROKEN_MOVING_BOMBS,
 	//60
 	//70
 	
@@ -2255,6 +2258,7 @@ public:
 	dword fileref, subscreenref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
+	int32_t portalref, saveportalref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -3111,6 +3115,7 @@ struct zquestheader
     byte  old_midi_flags[MIDIFLAGS_SIZE];
     //304
     byte  old_foo2[18];
+    // No one used custom quest templates, so we stopped supporting it.
     char  templatepath[2048];
     int32_t new_version_id_main;
     int32_t new_version_id_second;
@@ -3478,6 +3483,8 @@ struct dmap
 #define dmfNEWCELLARENEMIES 0x080000
 #define dmfBUNNYIFNOPEARL   0x100000
 #define dmfMIRRORCONTINUE   0x200000
+#define dmfZ3_RESERVERD_1   0x400000
+#define dmfZ3_RESERVERD_2   0x800000
 
 
 #define OLDMAXCOMBOALIASES 256
@@ -4037,6 +4044,33 @@ enum
 	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
 };
 
+#define MAX_SAVED_PORTALS 10000
+struct savedportal
+{
+	int16_t destdmap = -1;
+	int16_t srcdmap = -1;
+	byte srcscr;
+	byte destscr;
+	int32_t x;
+	int32_t y;
+	byte sfx;
+	int32_t warpfx;
+	int16_t spr;
+	bool deleting;
+	
+	int32_t getUID(){return uid;}
+	
+	savedportal();
+	void clear()
+	{
+		*this = savedportal();
+	}
+	
+private:
+	int32_t uid;
+	inline static int32_t nextuid = 1;
+};
+
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 #define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
@@ -4106,14 +4140,7 @@ struct gamedata
 	//115456 (260)
 	byte bottleSlots[256];
 	
-	int16_t portaldestdmap;
-	int16_t portalsrcdmap;
-	byte portalscr;
-	int32_t portalx;
-	int32_t portaly;
-	byte portalsfx;
-	int32_t portalwarpfx;
-	int16_t portalspr;
+	savedportal saved_mirror_portal;
 	
 	byte swim_mult = 1, swim_div = 1;
 	
@@ -4131,6 +4158,7 @@ struct gamedata
 
 	std::string replay_file;
 	std::vector<saved_user_object> user_objects;
+	std::vector<savedportal> user_portals;
 	
 	
 	// member functions
@@ -4365,7 +4393,10 @@ struct gamedata
 	
 	void set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x, int32_t y, byte sfx, int32_t weffect, int16_t psprite);
 	void load_portal();
-	void clear_portal();
+	void clear_portal(int32_t);
+	
+	void load_portals();
+	savedportal* getSavedPortal(int32_t uid);
 
 	bool should_show_time();
 };
@@ -5424,6 +5455,9 @@ extern void removeFromItemCache(int32_t itemclass);
 #define RUNSCRIPT_ERROR			1
 #define RUNSCRIPT_SELFDELETE	2
 #define RUNSCRIPT_STOPPED		3
+#define RUNSCRIPT_SELFREMOVE	4
+
+bool runscript_do_earlyret(int runscript_val);
 
 #define CHAS_ATTRIB   0x01
 #define CHAS_FLAG     0x02

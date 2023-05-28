@@ -1,16 +1,11 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-// Prevent indirectly including windows.h
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif
-
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "parserDefs.h"
-#include "ffasmexport.h"
-#include "ffasm.h"
+#include "zq/ffasmexport.h"
+#include "zq/ffasm.h"
 
 #include <cstdio>
 #include <map>

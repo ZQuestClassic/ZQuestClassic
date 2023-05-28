@@ -9,8 +9,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -18,7 +16,7 @@
 #include "base/zc_alleg.h"
 
 #include "base/zdefs.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
 #include "qst.h"
 #include "tiles.h"
@@ -29,10 +27,10 @@
 #include "subscr.h"
 //#include "jwin.h"
 #include "base/jwinfsel.h"
-#include "title.h"
+#include "zc/title.h"
 #include "gamedata.h"
-#include "hero.h"
-#include "ffscript.h"
+#include "zc/hero.h"
+#include "zc/ffscript.h"
 #include "zc/render.h"
 
 #ifdef __EMSCRIPTEN__
@@ -1190,6 +1188,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	if(standalone_mode && save_count>1)
 	{
 		system_pal();
+		sys_mouse();
 		jwin_alert("Invalid save file",
 				   "This save file cannot be",
 				   "used in standalone mode.",
@@ -1199,7 +1198,9 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	}
 	else if(!standalone_mode && save_count==1)
 	{
+		bool restoregame = !is_sys_pal;
 		system_pal();
+		sys_mouse();
 		
 		if(jwin_alert3("Standalone save file",
 					   "This save file was created in standalone mode.",
@@ -1208,6 +1209,11 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 					   "No","Yes",NULL, 'n','y', 0, get_zc_font(font_lfont))!=2)
 		{
 			exit(0);
+		}
+		if(restoregame)
+		{
+			game_pal();
+			game_mouse();
 		}
 	}
 	
@@ -1568,6 +1574,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		if(standalone_mode && strcmp(savedata[i].qstpath, standalone_quest)!=0)
 		{
 			system_pal();
+			sys_mouse();
 			jwin_alert("Invalid save file",
 					   "This save file is for",
 					   "a different quest.",
@@ -1884,40 +1891,48 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		}
 		if(section_version >= 23)
 		{
-			if(!p_igetw(&(savedata[i].portaldestdmap), f, true))
+			if(!p_igetw(&(savedata[i].saved_mirror_portal.destdmap), f, true))
 			{
 				return 65;
 			}
-			if(!p_igetw(&(savedata[i].portalsrcdmap), f, true))
+			if(!p_igetw(&(savedata[i].saved_mirror_portal.srcdmap), f, true))
 			{
 				return 66;
 			}
-			if(!p_getc(&(savedata[i].portalscr),f,true))
+			if(!p_getc(&(savedata[i].saved_mirror_portal.srcscr),f,true))
 			{
 				return 67;
 			}
-			if(!p_igetl(&(savedata[i].portalx), f, true))
+			if(section_version >= 32)
+			{
+				if(!p_getc(&(savedata[i].saved_mirror_portal.destscr),f,true))
+				{
+					return 67;
+				}
+			}
+			else savedata[i].saved_mirror_portal.destscr = savedata[i].saved_mirror_portal.srcscr;
+			if(!p_igetl(&(savedata[i].saved_mirror_portal.x), f, true))
 			{
 				return 68;
 			}
-			if(!p_igetl(&(savedata[i].portaly), f, true))
+			if(!p_igetl(&(savedata[i].saved_mirror_portal.y), f, true))
 			{
 				return 69;
 			}
-			if(!p_getc(&(savedata[i].portalsfx),f,true))
+			if(!p_getc(&(savedata[i].saved_mirror_portal.sfx),f,true))
 			{
 				return 70;
 			}
-			if(!p_igetl(&(savedata[i].portalwarpfx), f, true))
+			if(!p_igetl(&(savedata[i].saved_mirror_portal.warpfx), f, true))
 			{
 				return 71;
 			}
-			if(!p_igetw(&(savedata[i].portalspr), f, true))
+			if(!p_igetw(&(savedata[i].saved_mirror_portal.spr), f, true))
 			{
 				return 72;
 			}
 		}
-		else savedata[i].clear_portal();
+		else savedata[i].saved_mirror_portal.clear();
 		
 		savedata[i].clear_genscript();
 		
@@ -2076,6 +2091,34 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 				}
 			}
 		}
+		if(section_version >= 32)
+		{
+			uint32_t sz;
+			if(!p_igetl(&sz,f,true))
+				return 99;
+			for(uint32_t q = 0; q < sz; ++q)
+			{
+				savedportal& p = savedata[i].user_portals.emplace_back();
+				if(!p_igetw(&(p.destdmap), f, true))
+					return 100;
+				if(!p_igetw(&(p.srcdmap), f, true))
+					return 101;
+				if(!p_getc(&(p.srcscr),f,true))
+					return 102;
+				if(!p_getc(&(p.destscr),f,true))
+					return 103;
+				if(!p_igetl(&(p.x), f, true))
+					return 104;
+				if(!p_igetl(&(p.y), f, true))
+					return 105;
+				if(!p_getc(&(p.sfx),f,true))
+					return 106;
+				if(!p_igetl(&(p.warpfx), f, true))
+					return 107;
+				if(!p_igetw(&(p.spr), f, true))
+					return 108;
+			}
+		}
 	}
 	
 	
@@ -2182,6 +2225,12 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	}
 	
 	// decode to temp file
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(fname))
+    {
+        em_fetch_file(fname);
+    }
+#endif
 	ret = decode_file_007(fname, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, strstr(fname, ".dat#")!=NULL, "");
 	
 	if(ret)
@@ -2282,6 +2331,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	
 newdata:
 	system_pal();
+	sys_mouse();
 	
 	if(standalone_mode)
 		goto init;
@@ -2300,12 +2350,14 @@ newdata:
 	}
 	
 	game_pal();
+	game_mouse();
 	Z_message("Save file not found.  Creating new save file.");
 	goto init;
 	
 cantopen:
 	{
 		system_pal();
+		sys_mouse();
 		char buf[256];
 		snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", SAVE_FILE);
 		jwin_alert("Can't Open Saved Game File",
@@ -2318,6 +2370,7 @@ cantopen:
 	
 reset:
 	system_pal();
+	sys_mouse();
 	
 	if(jwin_alert3("Can't Open Saved Game File",
 				   "Unable to read the save file.",
@@ -2329,6 +2382,7 @@ reset:
 	}
 	
 	game_pal();
+	game_mouse();
 	
 	if(f)
 		pack_fclose(f);
@@ -2619,35 +2673,39 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		{
 			return 62;
 		}
-		if(!p_iputw(savedata[i].portaldestdmap, f))
+		if(!p_iputw(savedata[i].saved_mirror_portal.destdmap, f))
 		{
 			return 63;
 		}
-		if(!p_iputw(savedata[i].portalsrcdmap, f))
+		if(!p_iputw(savedata[i].saved_mirror_portal.srcdmap, f))
 		{
 			return 64;
 		}
-		if(!p_putc(savedata[i].portalscr,f))
+		if(!p_putc(savedata[i].saved_mirror_portal.srcscr,f))
 		{
 			return 65;
 		}
-		if(!p_iputl(savedata[i].portalx, f))
+		if(!p_putc(savedata[i].saved_mirror_portal.destscr,f))
+		{
+			return 109;
+		}
+		if(!p_iputl(savedata[i].saved_mirror_portal.x, f))
 		{
 			return 66;
 		}
-		if(!p_iputl(savedata[i].portaly, f))
+		if(!p_iputl(savedata[i].saved_mirror_portal.y, f))
 		{
 			return 67;
 		}
-		if(!p_putc(savedata[i].portalsfx,f))
+		if(!p_putc(savedata[i].saved_mirror_portal.sfx,f))
 		{
 			return 68;
 		}
-		if(!p_iputl(savedata[i].portalwarpfx, f))
+		if(!p_iputl(savedata[i].saved_mirror_portal.warpfx, f))
 		{
 			return 69;
 		}
-		if(!p_iputw(savedata[i].portalspr, f))
+		if(!p_iputw(savedata[i].saved_mirror_portal.spr, f))
 		{
 			return 70;
 		}
@@ -2752,6 +2810,30 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 						return 98;
 				}
 			}
+		}
+		sz = savedata[i].user_portals.size();
+		if(!p_iputl(sz,f))
+			return 99;
+		for(savedportal const& p : savedata[i].user_portals)
+		{
+			if(!p_iputw(p.destdmap, f))
+				return 100;
+			if(!p_iputw(p.srcdmap, f))
+				return 101;
+			if(!p_putc(p.srcscr,f))
+				return 102;
+			if(!p_putc(p.destscr,f))
+				return 103;
+			if(!p_iputl(p.x, f))
+				return 104;
+			if(!p_iputl(p.y, f))
+				return 105;
+			if(!p_putc(p.sfx,f))
+				return 106;
+			if(!p_iputl(p.warpfx, f))
+				return 107;
+			if(!p_iputw(p.spr, f))
+				return 108;
 		}
 	}
 	
@@ -3791,93 +3873,18 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 		str[0]=0;
 		return 0;
 	}
-	
-	bool oldquest=false;
-	
-	// default error
-	strcpy(str,"Error: Invalid quest file");
-	
-	char tmpfilename[L_tmpnam];
-	temp_name(tmpfilename);
-	int32_t ret;
-	PACKFILE *f;
-	
-	const char *passwd = datapwd;
-	ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_MAX-1, strstr(qstpath, ".dat#")!=NULL, passwd);
-	
-	if(ret)
+
+	int32_t error;
+	PACKFILE* f = open_quest_file(&error, qstpath, false);
+
+	if (!f)
 	{
-		switch(ret)
-		{
-		case 1:
-			strcpy(str,"Error: Unable to open file");
-			break;
-			
-		case 2:
-			strcpy(str,"Internal error occurred");
-			break;
-			// be sure not to delete tmpfilename now...
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_211B9, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B185, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B105, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret==5)                                              //old encryption?
-		{
-			ret = decode_file_007(qstpath, tmpfilename, ENC_STR, ENC_METHOD_192B104, strstr(qstpath, ".dat#")!=NULL,passwd);
-		}
-		
-		if(ret)
-		{
-			oldquest = true;
-			passwd = "";
-		}
-	}
-	
-	f = pack_fopen_password(oldquest ? qstpath : tmpfilename, F_READ_PACKED, passwd);
-	
-	if(!f)
-	{
-		if(!oldquest&&(errno==EDOM))
-		{
-			f = pack_fopen_password(oldquest ? qstpath : tmpfilename, F_READ, passwd);
-		}
-		
-		if(!f)
-		{
-			delete_file(tmpfilename);
-		}
-		
 		strcpy(str,"Error: Unable to open file");
-//	setPackfilePassword(NULL);
 		return 0;
 	}
-	
-	ret=readheader(f, header, true);
-	
-	if(f)
-	{
-		pack_fclose(f);
-	}
-	
-	if(!oldquest)
-	{
-		delete_file(tmpfilename);
-	}
-	
-//  setPackfilePassword(NULL);
+
+	int32_t ret = readheader(f, header, true);
+	pack_fclose(f);
 
 	switch(ret)
 	{
@@ -3900,28 +3907,10 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 			return 0;
 	}
 	
-	// if(header->quest_number > 0)
-	// {
-		// if(moduledata.old_quest_serial_flow)
-		// {
-			// strcpy(str,
-				   // (header->quest_number == 4) ? "Error: Not a custom quest! Clear the Second Quest with all 16 Heart Containers to play this." :
-				   // (header->quest_number == 3) ? "Error: Not a custom quest! Clear the Second Quest to play this." :
-				   // (header->quest_number > 1) ? "Error: Not a custom quest! Clear the First Quest to play this." :
-				   // "Error: Not a custom quest! Create a new save file and press Start to play the First Quest.");
-		// }
-		// else
-		// {
-			// strcpy(str, "Error: Not a custom quest! Clear the prior quest in the module to play this.");
-		// }
-		// return 0;
-	// }
-	
 	strcpy(str,"Title:\n");
 	strcat(str,header->title);
 	strcat(str,"\n\nAuthor:\n");
 	strcat(str,header->author);
-//  setPackfilePassword(NULL);
 
 	return 1;
 }
@@ -4996,66 +4985,3 @@ bool save_game(bool savepoint, int32_t type)
 	
 	return didsaved;
 }
-
-
-/*
-static void list_saves2()
-{
-  if(savecnt>3)
-  {
-	if(listpos>=3)
-	  textout_ex(framebuf,get_zc_font(font_zfont),(char *)left_arrow_str,96,60,3,0);
-	if(listpos+3<savecnt)
-	  textout_ex(framebuf,get_zc_font(font_zfont),(char *)right_arrow_str,176,60,3,0);
-	textprintf_ex(framebuf,get_zc_font(font_zfont),112,60,3,0,"%2d - %-2d",listpos+1,listpos+3);
-  }
-
-  bool r = refreshpal;
-
-  for(int32_t i=0; i<3; i++)
-  {
-	if(listpos+i<savecnt)
-	{
-	  game->set_maxlife( saves[listpos+i].get_maxlife());
-	  game->set_life( saves[listpos+i].get_maxlife());
-	  //boogie!
-	  lifemeter(framebuf,144,i*24+56+((game->get_maxlife()>16*(zinit.hp_per_heart))?8:0),1,0);
-	  textout_ex(framebuf,get_zc_font(font_zfont),saves[listpos+i].get_name(),72,i*24+72,1,0);
-
-	  if(saves[listpos+i].get_quest())
-		textprintf_ex(framebuf,get_zc_font(font_zfont),72,i*24+80,1,0,"%3d",saves[listpos+i].get_deaths());
-
-	  if(saves[listpos+i].get_quest()==2)
-		overtile16(framebuf,41,56,i*24+70,9,0);             //put sword on second quests
-
-	  if(saves[listpos+i].get_quest()==3)
-	  {
-		overtile16(framebuf,41,56,i*24+70,9,0);             //put sword on second quests
-		overtile16(framebuf,41,41,i*24+70,9,0);             //put sword on third quests
-	  }
-	  // maybe the triforce for the 4th quest?
-	  textprintf_ex(framebuf,get_zc_font(font_zfont),72,i*24+72,1,0,"%s",saves[listpos+i].get_name());
-	}
-
-	byte *hold = newtilebuf[0].data;
-	byte holdformat=newtilebuf[0].format;
-	newtilebuf[0].format=tf4Bit;
-	newtilebuf[0].data = saves[listpos+i].icon;
-	overtile16(framebuf,0,48,i*24+73,i+10,0);               //hero
-	newtilebuf[0].format=holdformat;
-	newtilebuf[0].data = hold;
-
-	hold = colordata;
-	colordata = saves[listpos+i].pal;
-	loadpalset(i+10,0);
-	colordata = hold;
-
-	textout_ex(framebuf,get_zc_font(font_zfont),"-",136,i*24+72,1,0);
-  }
-
-  refreshpal = r;
-}
-
-*/
-
-/*** end of title.cc ***/

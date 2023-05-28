@@ -1,6 +1,7 @@
-#include "zapp.h"
-#include "zc_alleg.h"
+#include "base/zapp.h"
+#include "base/zc_alleg.h"
 #include "zconfig.h"
+#include "base/zsys.h"
 #include <filesystem>
 #include <string>
 
@@ -36,6 +37,9 @@ bool is_in_osx_application_bundle()
     return false;
 #endif
 }
+
+// TODO: move qst.cpp to base/
+int32_t get_qst_buffers();
 
 void common_main_setup(App id, int argc, char **argv)
 {
@@ -81,6 +85,11 @@ void common_main_setup(App id, int argc, char **argv)
 App get_app_id()
 {
     return app_id;
+}
+
+bool is_ci()
+{
+	return std::getenv("CI") != nullptr;
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
@@ -183,4 +192,3 @@ void zc_process_display_events()
 	doAspectResize();
 	zc_do_minsize();
 }
-

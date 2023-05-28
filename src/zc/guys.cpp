@@ -9,19 +9,17 @@
 //--------------------------------------------------------
 
 #include "base/zdefs.h"
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <stdio.h>
 #include "base/zc_alleg.h"
-#include "guys.h"
-#include "maps.h"
-#include "zelda.h"
+#include "zc/guys.h"
+#include "zc/maps.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
-#include "maps.h"
-#include "hero.h"
+#include "zc/maps.h"
+#include "zc/hero.h"
 #include "subscr.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "gamedata.h"
 #include "defdata.h"
 #include "zscriptversion.h"
@@ -3328,7 +3326,7 @@ bool enemy::animate(int32_t index)
 		if(get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT))
 		{
 			//Run its script
-			if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+			if (runscript_do_earlyret(run_script(MODE_NORMAL)))
 			{
 				return 0; //Avoid NULLPO if this object deleted itself
 			}
@@ -3550,7 +3548,7 @@ bool enemy::animate(int32_t index)
 	++c_clk;
 	
 	//Run its script
-	if (run_script(MODE_NORMAL)==RUNSCRIPT_SELFDELETE)
+	if (runscript_do_earlyret(run_script(MODE_NORMAL)))
 	{
 		return 0; //Avoid NULLPO if this object deleted itself
 	}
@@ -20324,10 +20322,12 @@ int32_t addenemy_z(int32_t screen_index,int32_t x,int32_t y,int32_t z,int32_t id
 	case eeGLEEOK:
 	{
 		id &= 0xFFF;
-		
+		eGleeok* parent = (eGleeok*)e;
+
 		for(int32_t i=0; i<zc_max(1,zc_min(254,guysbuf[id&0xFFF].misc1)); i++)
 		{
-			if(!guys.add(new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e)))
+			esGleeok* head = new esGleeok((zfix)x,(zfix)y,id+0x1000,c, e);
+			if(!guys.add(head))
 			{
 				al_trace("Gleeok head %d could not be created!\n",i+1);
 				
@@ -20339,6 +20339,20 @@ int32_t addenemy_z(int32_t screen_index,int32_t x,int32_t y,int32_t z,int32_t id
 				return false;
 			}
 			
+			head->necktile=parent->necktile;
+			head->dummy_int[1]=parent->necktile;
+			if(get_bit(quest_rules,qr_NEWENEMYTILES))
+			{
+				head->dummy_int[2]=parent->o_tile+parent->dmisc8; //connected head tile
+				head->dummy_int[3]=parent->o_tile+parent->dmisc9; //flying head tile
+			}
+			else
+			{
+				head->dummy_int[2]=parent->necktile+1; //connected head tile
+				head->dummy_int[3]=parent->necktile+2; //flying head tile
+			}
+			head->tile = head->dummy_int[2];
+
 			c-=guysbuf[id].misc4;
 			ret++;
 		}
@@ -23867,6 +23881,3 @@ const char *old_guy_string[OLDMAXGUYS] =
 	// 175
 	"Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
-
-/*** end of guys.cc ***/
-

@@ -8,29 +8,23 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <cmath>
 
 #include "base/gui.h"
-#include "zquestdat.h"
-#include "zq_tiles.h"
-#include "zquest.h"
+#include "zq/zquestdat.h"
+#include "zq/zq_tiles.h"
+#include "zq/zquest.h"
 #include "tiles.h"
-#include "zq_misc.h"
-#include "zq_class.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_class.h"
 #include "base/zsys.h"
 #include "base/colors.h"
 #include "qst.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "zc_custom.h"
-#include "questReport.h"
+#include "zc/zc_custom.h"
+#include "zq/questReport.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
 #include "dialog/alert.h"
@@ -4218,15 +4212,11 @@ error2:
 		break;
 		
 	case ftQST:
-	packfile_password("");
 		encrypted=true;
-		
 	case ftZQT:
-	packfile_password("");
 		compressed=true;
-		
 	case ftQSU:
-	packfile_password("");
+		packfile_password("");
 		imagesize = file_size_ex_password(imagepath, encrypted ? datapwd : "");
 		newtilebuf=grabtilebuf;
 		byte skip_flags[4];
@@ -4238,15 +4228,12 @@ error2:
 		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
-		//if(encrypted)
-		//	  setPackfilePassword(datapwd);
-		loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,true,skip_flags);
-		//loadquest(imagepath,&tempheader,&misc,customtunes,false,compressed,encrypted,false,skip_flags);
+		loadquest(imagepath,&tempheader,&misc,customtunes,false,true,skip_flags);
 	//fails to keep quest password data / header
 		
 		if(encrypted&&compressed)
 		{
-			if(quest_access(imagepath, &tempheader, compressed) != 1)
+			if(quest_access(imagepath, &tempheader) != 1)
 			{
 				imagetype=0;
 				imagesize=0;

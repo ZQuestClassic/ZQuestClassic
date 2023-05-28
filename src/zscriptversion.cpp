@@ -1,9 +1,7 @@
 
-#include "precompiled.h" //always first
-
 #include "zscriptversion.h"
-#include "zelda.h"
-#include "hero.h"
+#include "zc/zelda.h"
+#include "zc/hero.h"
 
 extern HeroClass Hero;
 

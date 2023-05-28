@@ -1,7 +1,7 @@
-#include "dialog_runner.h"
-#include "common.h"
+#include "gui/dialog_runner.h"
+#include "gui/common.h"
 #include "base/gui.h"
-#include "../jwin.h"
+#include "jwin.h"
 
 using std::shared_ptr;
 
@@ -93,8 +93,6 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 		0, 0, // d1, d2
 		nullptr, nullptr, nullptr // dp1, dp2, dp3
 	});
-
-	dialogConstructed.emit();
 }
 
 void DialogRunner::runInner(std::shared_ptr<Widget> root)

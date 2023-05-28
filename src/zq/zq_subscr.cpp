@@ -8,19 +8,13 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include "base/gui.h"
 #include "subscr.h"
-#include "zq_subscr.h"
+#include "zq/zq_subscr.h"
 #include "jwin.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
-#include "zq_misc.h"
+#include "zq/zq_misc.h"
 #include "tiles.h"
 #include "qst.h"
 #include "init.h"
@@ -46,11 +40,8 @@ subscreen_group *css;
 bool sso_selection[MAXSUBSCREENITEMS];
 static int32_t ss_propCopySrc=-1;
 
-void replacedp(DIALOG &d, const char *newdp, size_t size=256);
-
 gamedata *game;
 
-//extern char *itemlist(int32_t index, int32_t *list_size)
 extern int32_t bii_cnt;
 
 void delete_subscreen(int32_t subscreenidx);
@@ -698,43 +689,6 @@ int32_t d_tileblock_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-
-extern int32_t d_alltriggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_comboa_radio_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_comboabutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_listen_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_savemidi_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_triggerbutton_proc(int32_t msg,DIALOG *d,int32_t c);
-
-void dummy_dialog_proc(DIALOG *d)
-{
-    replacedp(*d,NULL);
-    d->proc=d_dummy_proc;
-    d->x=-1;
-    d->y=-1;
-    d->w=0;
-    d->h=0;
-}
-
-
 void extract_colortype(DIALOG *d, subscreen_object *tempsso, int32_t ct)
 {
     switch(ct)
@@ -993,65 +947,6 @@ static ListData spectile_list(spectilelist, &font);
 static ListData ssfont_list(ssfontlist, &font);
 static ListData colortype_list(colortypelist, &font);
 static ListData item_list(itemlist_num, &font);
-
-void replacedp(DIALOG &d, const char *newdp, size_t size)
-{
-    if((d.proc==d_alltriggerbutton_proc)||
-            (d.proc==d_button_proc)||
-            (d.proc==d_check_proc)||
-            (d.proc==d_comboa_radio_proc)||
-            (d.proc==d_comboabutton_proc)||
-            (d.proc==d_ctext2_proc)||
-            (d.proc==d_edit_proc)||
-            (d.proc==d_jbutton_proc)||
-            (d.proc==d_kbutton_proc)||
-            (d.proc==d_listen_proc)||
-            (d.proc==d_savemidi_proc)||
-            (d.proc==d_ssdn_btn_proc)||
-            (d.proc==d_ssdn_btn2_proc)||
-            (d.proc==d_ssdn_btn3_proc)||
-            (d.proc==d_ssdn_btn4_proc)||
-            (d.proc==d_sslt_btn_proc)||
-            (d.proc==d_sslt_btn2_proc)||
-            (d.proc==d_sslt_btn3_proc)||
-            (d.proc==d_sslt_btn4_proc)||
-            (d.proc==d_ssrt_btn_proc)||
-            (d.proc==d_ssrt_btn2_proc)||
-            (d.proc==d_ssrt_btn3_proc)||
-            (d.proc==d_ssrt_btn4_proc)||
-            (d.proc==d_ssup_btn_proc)||
-            (d.proc==d_ssup_btn2_proc)||
-            (d.proc==d_ssup_btn3_proc)||
-            (d.proc==d_ssup_btn4_proc)||
-            (d.proc==d_text_proc)||
-            (d.proc==d_tri_edit_proc)||
-            (d.proc==d_triggerbutton_proc)||
-            (d.proc==jwin_button_proc)||
-            (d.proc==jwin_check_proc)||
-            (d.proc==jwin_ctext_proc)||
-            (d.proc==jwin_radio_proc)||
-            (d.proc==jwin_rtext_proc)||
-            (d.proc==jwin_text_proc)||
-            (d.proc==jwin_win_proc) ||
-            (d.proc==jwin_edit_proc))
-    {
-        if(d.dp != NULL)
-            free(d.dp);
-            
-        if(newdp != NULL)
-        {
-            size = zc_max(size, strlen((char *)newdp)+1);
-            d.dp = malloc(size);
-            strcpy((char*)d.dp, newdp);
-        }
-        else
-            d.dp = NULL;
-    }
-    else
-    {
-        d.dp = (void *)newdp;
-    }
-}
 
 int32_t sso_properties(subscreen_object *tempsso)
 {
@@ -4518,6 +4413,3 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             break;
     }
 }
-
-/*** end of subscr.cc ***/
-

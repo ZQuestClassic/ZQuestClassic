@@ -1,10 +1,10 @@
 #ifndef ZC_GUI_DROPDOWNLIST_H
 #define ZC_GUI_DROPDOWNLIST_H
 
-#include "widget.h"
-#include "dialog_ref.h"
+#include "gui/widget.h"
+#include "gui/dialog_ref.h"
 #include "list_data.h"
-#include "../jwin.h"
+#include "jwin.h"
 #include <vector>
 
 namespace GUI

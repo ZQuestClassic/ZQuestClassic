@@ -12,29 +12,24 @@
 //
 //--------------------------------------------------------
 
-#include "maps.h"
-#include "zelda.h"
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
+#include "zc/maps.h"
+#include "zc/zelda.h"
 
 #include <string.h>
 #include <set>
 #include <stdio.h>
 
-#include "hero.h"
-#include "guys.h"
+#include "zc/hero.h"
+#include "zc/guys.h"
 #include "subscr.h"
-#include "zc_subscr.h"
-#include "decorations.h"
+#include "zc/zc_subscr.h"
+#include "zc/decorations.h"
 #include "gamedata.h"
-#include "zc_custom.h"
-#include "title.h"
-#include "ffscript.h"
+#include "zc/zc_custom.h"
+#include "zc/title.h"
+#include "zc/ffscript.h"
 #include "drawing.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include "base/zc_math.h"
 #include "user_object.h"
 #include "slopes.h"
@@ -61,7 +56,7 @@ extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
 extern byte dmapscriptInitialised;
 extern word item_doscript[256];
 extern word item_collect_doscript[256];
-extern portal* mirror_portal;
+extern portal mirror_portal;
 using std::set;
 
 extern int32_t skipcont;
@@ -388,7 +383,12 @@ void HeroClass::go_respawn_point()
 {
 	x = respawn_x;
 	y = respawn_y;
-	can_mirror_portal = false; //incase entry is on a portal!
+	handle_portal_prox(&mirror_portal);
+	portals.forEach([&](sprite& p)
+	{
+		handle_portal_prox((portal*)&p);
+		return false;
+	});
 	warpx=x;
 	warpy=y;
 	raftwarpx = x;
@@ -1485,7 +1485,6 @@ void HeroClass::init()
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
 	is_warping = false;
-	can_mirror_portal = true;
 	coyotetime = 0;
 	
 	hammer_swim_up_offset = hammeroffsets[0];
@@ -2109,9 +2108,10 @@ int HeroClass::getHammerState() const
 	if(attack == wHammer)
 	{
 		if(attackclk >= 15)
-			return 2;
+			return 3;
 		if(attackclk >= 13)
-			return 1;
+			return 2;
+		return 1;
 	}
 	return 0;
 }
@@ -3003,45 +3003,61 @@ herodraw_end:
 
 void HeroClass::masked_draw(BITMAP* dest)
 {
-    if(isdungeon() && currscr<128 && (x<16 || x>(world_w-32) || y<18 || y>(world_h-30)) && !get_bit(quest_rules,qr_FREEFORM))
-    {
-        // clip under doorways
-        BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
-        
-        if(sub!=NULL)
-        {
-            yofs -= (playing_field_offset+16);
-            xofs -= 16;
-            sprite::draw(sub);
+	zfix lz, lfz;
+	if(lift_wpn)
+	{
+		lz = lift_wpn->z;
+		lfz = lift_wpn->fakez;
+	}
+	
+	if(isdungeon() && currscr<128 && (x<16 || x>(world_w-32) || y<18 || y>(world_h-30)) && !get_bit(quest_rules,qr_FREEFORM))
+	{
+		// clip under doorways
+		BITMAP *sub=create_sub_bitmap(dest,16,playing_field_offset+16,224,144);
+		
+		if(sub!=NULL)
+		{
+			yofs -= (playing_field_offset+16);
+			xofs -= 16;
+			sprite::draw(sub);
 			if(lift_wpn)
 			{
 				handle_lift(false);
 				bool shad = lift_wpn->has_shadow;
 				lift_wpn->has_shadow = false;
+				lift_wpn->z += z;
+				lift_wpn->fakez += fakez;
 				lift_wpn->draw(sub);
 				lift_wpn->has_shadow = shad;
 			}
 			prompt_draw(sub);
-            xofs+=16;
-            yofs += (playing_field_offset+16);
-            destroy_bitmap(sub);
-        }
-    }
-    else
-    {
-        sprite::draw(dest);
+			xofs+=16;
+			yofs += (playing_field_offset+16);
+			destroy_bitmap(sub);
+		}
+	}
+	else
+	{
+		sprite::draw(dest);
 		if(lift_wpn)
 		{
 			handle_lift(false);
 			bool shad = lift_wpn->has_shadow;
 			lift_wpn->has_shadow = false;
+			lift_wpn->z += z;
+			lift_wpn->fakez += fakez;
 			lift_wpn->draw(dest);
 			lift_wpn->has_shadow = shad;
 		}
 		prompt_draw(dest);
-    }
-    
-    return;
+	}
+	
+	if(lift_wpn)
+	{
+		lift_wpn->z = lz;
+		lift_wpn->fakez = lfz;
+	}
+	return;
 }
 void HeroClass::prompt_draw(BITMAP* dest)
 {
@@ -5198,7 +5214,7 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
 void HeroClass::check_pound_block(int bx, int by, weapon* w)
 {
 	if(w && w->no_triggers()) return;
-	if(w && w->id == wHammer && getHammerState() < 2)
+	if(w && w->id == wHammer && getHammerState() < 3)
 		return;
 	if(get_bit(quest_rules,qr_POUNDLAYERS1AND2))
 	{
@@ -7468,6 +7484,66 @@ int32_t getPushDir(int32_t flag)
 
 void post_item_collect();
 
+bool HeroClass::handle_portal_collide(portal* p)
+{
+	if(!p) return false;
+	p->animate(0);
+	if(p->destdmap < 0 || p->destdmap >= MAXDMAPS)
+		return false;
+	if(abs(x - p->x) < 12
+		&& abs(y - p->y) < 12)
+	{
+		if(p->prox_active)
+		{
+			//Store some values to restore if 'warp fails'
+			int32_t tLastEntrance = lastentrance,
+					tLastEntranceDMap = lastentrance_dmap,
+					tContScr = game->get_continue_scrn(),
+					tContDMap = game->get_continue_dmap();
+			int32_t sourcescr = currscr, sourcedmap = currdmap;
+			zfix tx = x, ty = y, tz = z;
+			x = p->x;
+			y = p->y;
+			
+			int32_t weff = p->weffect,
+				wsfx = p->wsfx;
+			
+			int32_t savep = p->saved_data;
+			//After this line, 'p' becomes INVALID!
+			FFCore.warp_player(wtIWARP, p->destdmap, p->destscr,
+				-1, -1, weff, wsfx, 0, -1);
+			
+			if(mirrorBonk()) //Invalid landing, warp back!
+			{
+				action = none; FFCore.setHeroAction(none);
+				lastentrance = tLastEntrance;
+				lastentrance_dmap = tLastEntranceDMap;
+				game->set_continue_scrn(tContScr);
+				game->set_continue_dmap(tContDMap);
+				x = tx;
+				y = ty;
+				z = tz;
+				FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
+					wsfx, 0, -1);
+				handle_portal_prox(&mirror_portal);
+				portals.forEach([&](sprite& p)
+				{
+					handle_portal_prox((portal*)&p);
+					return false;
+				});
+			}
+			else game->clear_portal(savep); //Remove portal once used
+			return true;
+		}
+	}
+	else p->prox_active = true;
+	return false;
+}
+void HeroClass::handle_portal_prox(portal* p)
+{
+	if(!p) return;
+	p->prox_active = !(abs(x - p->x) < 12 && abs(y - p->y) < 12);
+}
 // returns true when game over
 bool HeroClass::animate(int32_t)
 {
@@ -7482,6 +7558,67 @@ bool HeroClass::animate(int32_t)
 	else if (damageovertimeclk)
 	{
 		damageovertimeclk = 0;
+	}
+	
+	if(lift_wpn)
+	{
+		auto oldid = lift_wpn->id;
+		switch(lift_wpn->id)
+		{
+			case wLitBomb:
+			case wBomb:
+			case wLitSBomb:
+			case wSBomb:
+				if(lift_wpn->misc && get_bit(quest_rules,qr_HELD_BOMBS_EXPLODE)) //timed fuse
+				{
+					lift_wpn->limited_animate();
+					if(lift_wpn->id != oldid)
+					{
+						lift_wpn->moveflags &= ~FLAG_OBEYS_GRAV;
+						drop_liftwpn();
+						goto heroanimate_skip_liftwpn;
+					}
+					++lift_wpn->clk;
+				}
+				break;
+		}
+		if(lift_wpn->dead>0)
+			--lift_wpn->dead;
+		
+		if(lift_wpn->dead==0)
+		{
+			if(lift_wpn->death_spawnitem > -1)
+			{
+				item* itm = (new item(lift_wpn->x, lift_wpn->y, lift_wpn->z, lift_wpn->death_spawnitem, lift_wpn->death_item_pflags, 0));
+				itm->fakez = lift_wpn->fakez;
+				items.add(itm);
+			}
+			if(lift_wpn->death_spawndropset > -1)
+			{
+				auto itid = select_dropitem(lift_wpn->death_spawndropset);
+				if(itid > -1)
+				{
+					item* itm = (new item(lift_wpn->x, lift_wpn->y, lift_wpn->z, itid, lift_wpn->death_item_pflags, 0));
+					itm->fakez = lift_wpn->fakez;
+					itm->from_dropset = lift_wpn->death_spawndropset;
+					items.add(itm);
+				}
+			}
+			switch(lift_wpn->death_sprite)
+			{
+				case -2: decorations.add(new dBushLeaves(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dBUSHLEAVES, 0, 0)); break;
+				case -3: decorations.add(new dFlowerClippings(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dFLOWERCLIPPINGS, 0, 0)); break;
+				case -4: decorations.add(new dGrassClippings(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dGRASSCLIPPINGS, 0, 0)); break;
+				default:
+					if(lift_wpn->death_sprite < 0) break;
+					decorations.add(new comboSprite(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), 0, 0, lift_wpn->death_sprite));
+			}
+			if(lift_wpn->death_sfx > 0)
+				sfx(lift_wpn->death_sfx, pan(int32_t(lift_wpn->x)));
+			delete lift_wpn;
+			lift_wpn = nullptr;
+		}
+heroanimate_skip_liftwpn:;
 	}
 	
 	if(cheats_execute_goto)
@@ -7508,49 +7645,11 @@ bool HeroClass::animate(int32_t)
 		climb_cover_y=-1000;
 	}
 	
-	if(mirror_portal)
+	handle_portal_collide(&mirror_portal);
+	portals.forEach([&](sprite& p)
 	{
-		mirror_portal->animate(0);
-		if(abs(x - mirror_portal->x) < 12
-			&& abs(y - mirror_portal->y) < 12)
-		{
-			if(can_mirror_portal)
-			{
-				//Store some values to restore if 'warp fails'
-				int32_t tLastEntrance = lastentrance,
-						tLastEntranceDMap = lastentrance_dmap,
-						tContScr = game->get_continue_scrn(),
-						tContDMap = game->get_continue_dmap();
-				int32_t sourcescr = currscr, sourcedmap = currdmap;
-				zfix tx = x, ty = y, tz = z;
-				x = mirror_portal->x;
-				y = mirror_portal->y;
-				
-				int32_t weff = mirror_portal->weffect,
-					wsfx = mirror_portal->wsfx;
-				
-				FFCore.warp_player(wtIWARP, mirror_portal->destdmap, mirror_portal->destscr,
-					-1, -1, weff, wsfx, 0, -1);
-				
-				if(mirrorBonk()) //Invalid landing, warp back!
-				{
-					action = none; FFCore.setHeroAction(none);
-					lastentrance = tLastEntrance;
-					lastentrance_dmap = tLastEntranceDMap;
-					game->set_continue_scrn(tContScr);
-					game->set_continue_dmap(tContDMap);
-					x = tx;
-					y = ty;
-					z = tz;
-					FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, weff,
-						wsfx, 0, -1);
-					can_mirror_portal = false;
-				}
-				else game->clear_portal(); //Remove portal once used
-			}
-		}
-		else can_mirror_portal = true;
-	}
+		return handle_portal_collide((portal*)&p);
+	});
 	
 	if(z<=8&&fakez<=8)
 	{
@@ -10151,10 +10250,10 @@ void HeroClass::doMirror(int32_t mirrorid)
 				tLastEntranceDMap = lastentrance_dmap,
 				tContScr = game->get_continue_scrn(),
 				tContDMap = game->get_continue_dmap(),
-				tPortalDMap = game->portalsrcdmap;
+				tPortalDMap = game->saved_mirror_portal.srcdmap;
 		int32_t sourcescr = currscr, sourcedmap = currdmap;
 		zfix tx = x, ty = y, tz = z;
-		game->portalsrcdmap = -1;
+		game->saved_mirror_portal.srcdmap = -1;
 		action = none; FFCore.setHeroAction(none);
 		
 		//Warp to new dmap
@@ -10172,7 +10271,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 			x = tx;
 			y = ty;
 			z = tz;
-			game->portalsrcdmap = tPortalDMap;
+			game->saved_mirror_portal.srcdmap = tPortalDMap;
 			FFCore.warp_player(wtIWARP, sourcedmap, sourcescr, -1, -1, mirror.misc1,
 				mirror.usesound, 0, -1);
 		}
@@ -10183,7 +10282,7 @@ void HeroClass::doMirror(int32_t mirrorid)
 			//Since it was placed after loading this screen, load the portal object now
 			game->load_portal();
 			//Don't immediately trigger the warp back
-			can_mirror_portal = false;
+			mirror_portal.prox_active = false;
 			
 			//Set continue point
 			if(currdmap != game->get_continue_dmap())
@@ -10274,12 +10373,13 @@ void HeroClass::drop_liftwpn()
 	handle_lift(false); //sets position properly, accounting for large weapons
 	auto liftid = current_item_id(itype_liftglove,true,true);
 	itemdata const& glove = itemsbuf[liftid];
+	auto lheight = liftheight+z+fakez;
 	if(glove.flags & ITEM_FLAG1)
 	{
 		lift_wpn->z = 0;
-		lift_wpn->fakez = liftheight;
+		lift_wpn->fakez = lheight;
 	}
-	else lift_wpn->z = liftheight;
+	else lift_wpn->z = lheight;
 	lift_wpn->dir = dir;
 	lift_wpn->step = 0;
 	lift_wpn->fakefall = 0;
@@ -10355,12 +10455,13 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			//Throw the weapon!
 			//hero's direction and position
 			handle_lift(false); //sets position properly, accounting for large weapons
+			auto lheight = liftheight+z+fakez;
 			if(glove.flags & ITEM_FLAG1)
 			{
 				lift_wpn->z = 0;
-				lift_wpn->fakez = liftheight;
+				lift_wpn->fakez = lheight;
 			}
-			else lift_wpn->z = liftheight;
+			else lift_wpn->z = lheight;
 			lift_wpn->dir = dir;
 			//Configured throw speed in both axes
 			lift_wpn->step = zfix(glove.misc2)/100;
@@ -10387,65 +10488,124 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		return;
 	}
 	
-	//Check for a liftable combo
-	zfix bx, by;
-	zfix bx2, by2;
-	switch(dir)
-	{
-		case up:
-			by = y + (bigHitbox ? -2 : 6);
-			by2 = by;
-			bx = x + 4;
-			bx2 = bx + 8;
-			break;
-		case down:
-			by = y + 17;
-			by2 = by;
-			bx = x + 4;
-			bx2 = bx + 8;
-			break;
-		case left:
-			by = y + (bigHitbox ? 0 : 8);
-			by2 = y + 8;
-			bx = x - 2;
-			bx2 = x - 2;
-			break;
-		case right:
-			by = y + (bigHitbox ? 0 : 8);
-			by2 = y + 8;
-			bx = x + 17;
-			bx2 = x + 17;
-			break;
-	}
-	int32_t pos = COMBOPOS_B(bx,by);
-	int32_t pos2 = COMBOPOS_B(bx2,by2);
-	int32_t foundpos = -1;
-	
 	bool lifted = false;
-	for(auto lyr = 6; lyr >= 0; --lyr)
+	//Check for a liftable weapon
+	//if(!lifted)
 	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		if(pos > -1)
+		zfix hx, hy, hw, hh;
+		switch(dir)
 		{
-			newcombo const& cmb = combobuf[scr->data[pos]];
-			if(cmb.liftflags & LF_LIFTABLE)
+			case up:
+				hx = x;
+				hy = y-8;
+				hw = 16;
+				hh = bigHitbox ? 8 : 16;
+				break;
+			case down:
+				hx = x;
+				hy = y+16;
+				hw = 16;
+				hh = 8;
+				break;
+			case left:
+				hx = x-8;
+				hy = y;
+				hw = 8;
+				hh = 16;
+				break;
+			case right:
+				hx = x+16;
+				hy = y;
+				hw = 8;
+				hh = 16;
+				break;
+		}
+		for(int32_t q = 0; q < Lwpns.Count(); ++q)
+		{
+			weapon* w = (weapon*)Lwpns.spr(q);
+			switch(w->id)
 			{
-				if(do_lift_combo(lyr,pos,liftid))
-				{
-					lifted = true;
+				case wLitBomb:
+				case wLitSBomb:
+					if(w->parentitem>=0)
+					{
+						itemdata const& parent = itemsbuf[w->parentitem];
+						if((parent.family==itype_bomb || parent.family==itype_sbomb)
+							&& (parent.misc4 && parent.misc4 <= glove.fam_type))
+						{
+							if(!w->hit(hx,hy,0,hw,hh,1))
+								continue;
+							lift(w, parent.misc5, parent.misc6);
+							Lwpns.remove(w);
+							lifted = true;
+							break;
+						}
+					}
 					break;
+			}
+			if(lifted) break;
+		}
+	}
+	if(!lifted) //Check for a liftable combo
+	{
+		zfix bx, by;
+		zfix bx2, by2;
+		switch(dir)
+		{
+			case up:
+				by = y + (bigHitbox ? -2 : 6);
+				by2 = by;
+				bx = x + 4;
+				bx2 = bx + 8;
+				break;
+			case down:
+				by = y + 17;
+				by2 = by;
+				bx = x + 4;
+				bx2 = bx + 8;
+				break;
+			case left:
+				by = y + (bigHitbox ? 0 : 8);
+				by2 = y + 8;
+				bx = x - 2;
+				bx2 = x - 2;
+				break;
+			case right:
+				by = y + (bigHitbox ? 0 : 8);
+				by2 = y + 8;
+				bx = x + 17;
+				bx2 = x + 17;
+				break;
+		}
+		int32_t pos = COMBOPOS_B(bx,by);
+		int32_t pos2 = COMBOPOS_B(bx2,by2);
+		int32_t foundpos = -1;
+		
+		for(auto lyr = 6; lyr >= 0; --lyr)
+		{
+			mapscr* scr = FFCore.tempScreens[lyr];
+			if(pos > -1)
+			{
+				newcombo const& cmb = combobuf[scr->data[pos]];
+				if(cmb.liftflags & LF_LIFTABLE)
+				{
+					if(do_lift_combo(lyr,pos,liftid))
+					{
+						lifted = true;
+						break;
+					}
 				}
 			}
-		}
-		if(pos != pos2 && pos2 > -1)
-		{
-			newcombo const& cmb2 = combobuf[scr->data[pos2]];
-			if(cmb2.liftflags & LF_LIFTABLE)
+			if(pos != pos2 && pos2 > -1)
 			{
-				if(do_lift_combo(lyr,pos2,liftid))
+				newcombo const& cmb2 = combobuf[scr->data[pos2]];
+				if(cmb2.liftflags & LF_LIFTABLE)
 				{
-					lifted = true;
-					break;
+					if(do_lift_combo(lyr,pos2,liftid))
+					{
+						lifted = true;
+						break;
+					}
 				}
 			}
 		}
@@ -10462,8 +10622,9 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 }
 void HeroClass::handle_lift(bool dec)
 {
-	lift_wpn->fakez = 0;
-	if(!lift_wpn) liftclk = 0;
+	if(lift_wpn)
+		lift_wpn->fakez = 0;
+	else liftclk = 0;
 	if(liftclk <= (dec?1:0))
 	{
 		liftclk = 0;
@@ -11113,6 +11274,11 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
+			if((itm.flags & ITEM_FLAG4) && lift_wpn)
+			{
+				do_liftglove(-1,false); //Throw the already-held weapon
+				return false;
+			}
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
 				return item_error();
@@ -11128,9 +11294,24 @@ bool HeroClass::startwpn(int32_t itemid)
 				wy=zc_max(wy,16);
 			}
 			
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itm.fam_type,
-								 itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true));
-			sfx(WAV_PLACE,pan(wx));
+			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitBomb,itm.fam_type,
+				itm.power*game->get_hero_dmgmult(),dir,itemid,getUID(),false,false,true);
+			bool lifted = false;
+			if(itm.flags & ITEM_FLAG4)
+			{
+				auto liftid = current_item_id(itype_liftglove);
+				itemdata const& glove = itemsbuf[liftid];
+				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
+				{
+					lift(wpn,itm.misc5,itm.misc6);
+					lifted = true;
+				}
+			}
+			if(!lifted)
+			{
+				Lwpns.add(wpn);
+				sfx(WAV_PLACE,pan(wx));
+			}
 		}
 		break;
 		
@@ -11153,6 +11334,11 @@ bool HeroClass::startwpn(int32_t itemid)
 				return false;
 			}
 			
+			if((itm.flags & ITEM_FLAG4) && lift_wpn)
+			{
+				do_liftglove(-1,false); //Throw the already-held weapon
+				return false;
+			}
 			if(!(checkbunny(itemid) && checkmagiccost(itemid)))
 			{
 				return item_error();
@@ -11162,9 +11348,24 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 			if(itm.misc1>0) // If not remote bombs
 				deselectbombs(true);
-				
-			Lwpns.add(new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itm.fam_type,itm.power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true));
-			sfx(WAV_PLACE,pan(wx));
+			
+			weapon* wpn = new weapon((zfix)wx,(zfix)wy,(zfix)wz,wLitSBomb,itm.fam_type,itm.power*game->get_hero_dmgmult(),dir, itemid,getUID(),false,false,true);
+			bool lifted = false;
+			if(itm.flags & ITEM_FLAG4)
+			{
+				auto liftid = current_item_id(itype_liftglove);
+				itemdata const& glove = itemsbuf[liftid];
+				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
+				{
+					lift(wpn,itm.misc5,itm.misc6);
+					lifted = true;
+				}
+			}
+			if(!lifted)
+			{
+				Lwpns.add(wpn);
+				sfx(WAV_PLACE,pan(wx));
+			}
 		}
 		break;
 		
@@ -18051,7 +18252,7 @@ void HeroClass::movehero()
 			}
 			return;
 		}
-		get_move(dir,dx,dy);
+		get_move(holddir,dx,dy);
 	}
 	else //4-way
 	{
@@ -18078,7 +18279,7 @@ void HeroClass::movehero()
 				holddir = dir = right;
 			}
 		}
-		get_move(dir,dx,dy);
+		get_move(holddir,dx,dy);
 	}
 	
 	if(!new_engine_move(dx,dy))
@@ -26099,6 +26300,9 @@ void HeroClass::do_scroll_direction(direction dir)
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
 
+	if(lift_wpn && get_bit(quest_rules,qr_NO_SCROLL_WHILE_CARRYING))
+		should_scroll = false;
+
 	if(nextcombo_wf(dir))
 		should_scroll = false;
 	
@@ -26983,6 +27187,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	if (!is_z3_scrolling_mode() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
 	
+	bool isForceFaceUp = getOnSideviewLadder() && canSideviewLadder() &&
+		!(jumping<0 || fall!=0 || fakefall!=0) && get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP);
+	if (isForceFaceUp) dir = up;
+
 	bool is_unsmooth_vertical_scrolling =
 		(scrolldir == up || scrolldir == down) && get_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING) == 0;
 
@@ -27887,7 +28095,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			}
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_new_scr); //layer 5
 			do_layer(framebuf, -4, screen_handles[0], offx, offy); //overhead FFCs
-			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_new_scr); //layer 6 <<<<<
+			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_new_scr); //layer 6
 		});
 		
 		// pretty sure this doesn't do anything.
@@ -28193,6 +28401,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
+
+	bool isForceFaceUp = getOnSideviewLadder() && canSideviewLadder() &&
+		!(jumping<0 || fall!=0 || fakefall!=0) && get_bit(quest_rules,qr_SIDEVIEWLADDER_FACEUP);
+	if(isForceFaceUp) dir = up;
+
 	screenscrolling = true;
 	scrolling_scr = currscr;
 	// scrolling_destdmap = destdmap == -1 ? currdmap : destdmap;
@@ -28339,6 +28552,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	++cx;
 	while(cx < 32)
 	{
+		if(isForceFaceUp) dir = up;
 		if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 		{
 			script_drawing_commands.Clear();
@@ -28554,6 +28768,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			action=none; FFCore.setHeroAction(none);
 		}
 	}
+	
+	isForceFaceUp = isForceFaceUp && canSideviewLadderRemote(lookaheadx,lookaheady);
 	
 	// The naturaldark state can be read/set by an FFC script before
 	// fade() or lighting() is called.
@@ -28858,6 +29074,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(framebuf, 0-tx2, 0-ty2+playing_field_offset, oldscr);
 		putscrdoors(framebuf, 0-tx,  0-ty+playing_field_offset, newscr);
 		herostep();
+		if(isForceFaceUp) dir = up;
 		
 		if((z > 0 || fakez > 0) && (!get_bit(quest_rules,qr_SHADOWSFLICKER) || frame&1))
 		{
@@ -29175,6 +29392,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				stepforward(diagonalMovement?21:24, false);
 		}
 	}
+	
+	if(isForceFaceUp) dir = up;
 	
 	if(action == scrolling)
 	{
@@ -33020,8 +33239,3 @@ bool HeroClass::is_unpushable() const
 {
 	return toogam;
 }
-/*** end of hero.cpp ***/
-
-
-
-

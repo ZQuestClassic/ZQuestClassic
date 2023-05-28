@@ -1,7 +1,7 @@
-#include "widget.h"
-#include "common.h"
-#include "dialog_runner.h"
-#include "../jwin.h"
+#include "gui/widget.h"
+#include "gui/common.h"
+#include "gui/dialog_runner.h"
+#include "jwin.h"
 #include "base/zdefs.h"
 #include <cassert>
 

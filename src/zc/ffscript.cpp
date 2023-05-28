@@ -1,9 +1,3 @@
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <deque>
 #include <string>
 #include <sstream>
@@ -19,30 +13,28 @@
 #include <fmt/format.h>
 //
 
-#include "zc_sys.h"
-#include "jit.h"
-#include "script_debug.h"
+#include "zc/zc_sys.h"
+#include "zc/jit.h"
+#include "zc/script_debug.h"
 #include "base/zc_alleg.h"
-extern byte use_dwm_flush;
-uint8_t using_SRAM = 0;
 #include "base/zc_math.h"
 #include "base/zc_array.h"
-#include "ffscript.h"
-#include "render.h"
-#include "zc_subscr.h"
+#include "zc/ffscript.h"
+#include "zc/render.h"
+#include "zc/zc_subscr.h"
 #include <time.h>
-#include "script_drawing.h"
+#include "zc/script_drawing.h"
 #include "base/util.h"
-#include "ending.h"
+#include "zc/ending.h"
 #include "base/module.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include "drawing.h"
 #include "base/colors.h"
 #include "pal.h"
 #include "iter.h"
-using namespace util;
 #include <sstream>
-using std::ostringstream;
+
+using namespace util;
 
 #ifdef _WIN32
 #define SCRIPT_FILE_MODE	(_S_IREAD | _S_IWRITE)
@@ -63,6 +55,12 @@ using std::ostringstream;
 static int64_t script_timer[NUMCOMMANDS];
 static int64_t script_execount[NUMCOMMANDS];
 #endif
+
+using namespace util;
+using std::ostringstream;
+
+extern byte use_dwm_flush;
+uint8_t using_SRAM = 0;
 
 extern zinitdata zinit;
 int32_t hangcount = 0;
@@ -296,7 +294,7 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 
 //no ifdef here
 CConsoleLoggerEx coloured_console;
@@ -464,31 +462,28 @@ byte itemScriptsWaitdraw[256] = {0};
 
 //miscQdata *Misc;
 
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "particles.h"
-#include "hero.h"
+#include "zc/hero.h"
 extern int32_t directItem; //Is set if Player is currently using an item directly
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemX;
 extern int32_t directItemY;
 
-#include "guys.h"
-//enemy enemyclass;
+#include "zc/guys.h"
 #include "gamedata.h"
-#include "zc_init.h"
+#include "zc/zc_init.h"
 #include "base/zsys.h"
-#include "title.h"
+#include "zc/title.h"
 #include "zscriptversion.h"
 
 #include "pal.h"
 #include "base/zdefs.h"
-#include "rendertarget.h" //Needed for LoadBitmap
+#include "zc/rendertarget.h"
 
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "qst.h"
-
-#include "debug.h"
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 /*template <typename T>
@@ -3023,6 +3018,49 @@ user_genscript *checkGenericScr(int32_t ref, const char *what)
 	}
 	return &user_scripts[ref];
 }
+extern portal mirror_portal;
+portal *checkPortal(int32_t ref, const char *what, bool skiperr = false)
+{
+	if(ref == -1)
+		return &mirror_portal;
+	portal* p = (portal*)portals.getByUID(ref);
+	if(!p)
+	{
+		if(!skiperr)
+			Z_scripterrlog("Invalid portal pointer access (%ld) for '->%s'\n", ref, what);
+		return nullptr;
+	}
+	return p;
+}
+
+savedportal *checkSavedPortal(int32_t ref, const char* what, bool skiperr = false)
+{
+	savedportal* sp = game->getSavedPortal(ref);
+	if(!sp)
+	{
+		if(!skiperr)
+			Z_scripterrlog("Invalid savedportal pointer access (%ld) for '->%s'\n", ref, what);
+		return nullptr;
+	}
+	return sp;
+}
+int32_t getPortalFromSaved(savedportal* p)
+{
+	if(p == &(game->saved_mirror_portal))
+		return -1;
+	portal* prtl = nullptr;
+	portals.forEach([&](sprite& spr)
+	{
+		portal* tmp = (portal*)&spr;
+		if(p->getUID() == tmp->saved_data)
+		{
+			prtl = tmp;
+			return true;
+		}
+		return false;
+	});
+	return prtl ? prtl->getUID() : 0;
+}
 
 user_dir *checkDir(int32_t ref, const char *what, bool skipError = false)
 {
@@ -3233,6 +3271,7 @@ int32_t do_msgheight(int32_t msg, char const* str);
 int32_t do_msgwidth(int32_t msg, char const* str);
 //
 
+int32_t earlyretval = -1;
 int32_t get_register(const int32_t arg)
 {
 	int32_t ret = 0;
@@ -3900,6 +3939,32 @@ int32_t get_register(const int32_t arg)
 		case HEROCOYOTETIME:
 		{
 			ret = Hero.coyotetime*10000;
+			break;
+		}
+		
+		case HEROLIFTEDWPN:
+		{
+			ret = Hero.lift_wpn ? Hero.lift_wpn->getUID() : 0;
+			break;
+		}
+		case HEROLIFTTIMER:
+		{
+			ret = Hero.liftclk * 10000;
+			break;
+		}
+		case HEROLIFTMAXTIMER:
+		{
+			ret = Hero.tliftclk * 10000;
+			break;
+		}
+		case HEROLIFTHEIGHT:
+		{
+			ret = Hero.liftheight.getZLong();
+			break;
+		}
+		case HEROHAMMERSTATE:
+		{
+			ret = Hero.getHammerState() * 10000;
 			break;
 		}
 		
@@ -12828,6 +12893,191 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		///----------------------------------------------------------------------------------------------------//
+		
+		case PORTALX:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "X"))
+				ret = p->x.getZLong();
+			break;
+		}
+		case PORTALY:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "Y"))
+				ret = p->y.getZLong();
+			break;
+		}
+		case PORTALDMAP:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "DMap"))
+				ret = p->destdmap*10000;
+			break;
+		}
+		case PORTALSCREEN:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "Screen"))
+				ret = p->destscr*10000;
+			break;
+		}
+		case PORTALACLK:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "AClk"))
+				ret = p->aclk*10000;
+			break;
+		}
+		case PORTALAFRM:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "AFrame"))
+				ret = p->aframe*10000;
+			break;
+		}
+		case PORTALOTILE:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "OriginalTile"))
+				ret = p->o_tile*10000;
+			break;
+		}
+		case PORTALASPD:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "ASpeed"))
+				ret = p->aspd*10000;
+			break;
+		}
+		case PORTALFRAMES:
+		{
+			ret = -10000;
+			if(portal* p = checkPortal(ri->portalref, "Frames"))
+				ret = p->frames*10000;
+			break;
+		}
+		case PORTALSAVED:
+		{
+			ret = 0;
+			if(portal* p = checkPortal(ri->portalref, "SavedPortal"))
+				ret = p->saved_data;
+			break;
+		}
+		case PORTALCLOSEDIS:
+		{
+			ret = 0;
+			if(portal* p = checkPortal(ri->portalref, "CloseDisabled"))
+				ret = p->prox_active ? 0 : 10000; //Inverted
+			break;
+		}
+		case REFPORTAL:
+		{
+			ret = ri->portalref;
+			break;
+		}
+		case REFSAVPORTAL:
+		{
+			ret = ri->saveportalref;
+			break;
+		}
+		case PORTALWARPSFX:
+		{
+			ret = 0;
+			if(portal* p = checkPortal(ri->portalref, "WarpSFX"))
+				ret = p->wsfx ? 0 : 10000;
+			break;
+		}
+		case PORTALWARPVFX:
+		{
+			ret = 0;
+			if(portal* p = checkPortal(ri->portalref, "WarpEffect"))
+				ret = p->weffect ? 0 : 10000;
+			break;
+		}
+		case SAVEDPORTALX:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "X"))
+				ret = p->x;
+			break;
+		}
+		case SAVEDPORTALY:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Y"))
+				ret = p->y;
+			break;
+		}
+		case SAVEDPORTALSRCDMAP:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcDMap"))
+				ret = p->srcdmap * 10000;
+			break;
+		}
+		case SAVEDPORTALDESTDMAP:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestDMap"))
+				ret = p->destdmap * 10000;
+			break;
+		}
+		case SAVEDPORTALSRCSCREEN:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcScreen"))
+				ret = p->srcscr * 10000;
+			break;
+		}
+		case SAVEDPORTALDSTSCREEN:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestScreen"))
+				ret = p->destscr * 10000;
+			break;
+		}
+		case SAVEDPORTALWARPSFX:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpSFX"))
+				ret = p->sfx * 10000;
+			break;
+		}
+		case SAVEDPORTALWARPVFX:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpEffect"))
+				ret = p->warpfx * 10000;
+			break;
+		}
+		case SAVEDPORTALSPRITE:
+		{
+			ret = -10000;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Sprite"))
+				ret = p->spr * 10000;
+			break;
+		}
+		case SAVEDPORTALPORTAL:
+		{
+			ret = 0;
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Portal"))
+				ret = getPortalFromSaved(p);
+			break;
+		}
+		case PORTALCOUNT:
+		{
+			ret = portals.Count()*10000;
+			break;
+		}
+		case SAVEDPORTALCOUNT:
+		{
+			ret = game->user_portals.size()*10000;
+			break;
+		}
+		
+		
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ret = ri->d[arg - D(0)];
@@ -13888,6 +14138,47 @@ void set_register(int32_t arg, int32_t value)
 			auto v = value/10000;
 			if(v < 0 || v > 65535) v = 65535;
 			Hero.coyotetime = word(v);
+			break;
+		}
+		case HEROLIFTEDWPN:
+		{
+			if(Hero.lift_wpn)
+			{
+				delete Hero.lift_wpn;
+				Hero.lift_wpn = nullptr;
+			}
+			if(value)
+			{
+				if(weapon* wpn = checkLWpn(value,"Hero->LiftedWeapon"))
+				{
+					if(wpn == Hero.lift_wpn) break;
+					Hero.lift_wpn = wpn;
+					if(Lwpns.find(wpn) > -1)
+						Lwpns.remove(wpn);
+					if(curScriptType == SCRIPT_LWPN && value == curScriptIndex)
+						earlyretval = RUNSCRIPT_SELFREMOVE;
+				}
+			} 
+			break;
+		}
+		case HEROLIFTTIMER:
+		{
+			Hero.liftclk = value/10000;
+			break;
+		}
+		case HEROLIFTMAXTIMER:
+		{
+			Hero.tliftclk = value/10000;
+			break;
+		}
+		case HEROLIFTHEIGHT:
+		{
+			Hero.liftheight = zslongToFix(value);
+			break;
+		}
+		case HEROHAMMERSTATE:
+		{
+			//readonly
 			break;
 		}
 		
@@ -22867,6 +23158,176 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		
+		//----------------------------------------------------------------------------------------------------//
+		
+		case PORTALX:
+		{
+			if(portal* p = checkPortal(ri->portalref, "X"))
+				p->x = zslongToFix(value);
+			break;
+		}
+		case PORTALY:
+		{
+			if(portal* p = checkPortal(ri->portalref, "Y"))
+				p->y = zslongToFix(value);
+			break;
+		}
+		case PORTALDMAP:
+		{
+			if(portal* p = checkPortal(ri->portalref, "DMap"))
+				p->destdmap = vbound(value/10000,-1,MAXDMAPS-1);
+			break;
+		}
+		case PORTALSCREEN:
+		{
+			if(portal* p = checkPortal(ri->portalref, "Screen"))
+				p->destscr = vbound(value/10000,0,255);
+			break;
+		}
+		case PORTALACLK:
+		{
+			if(portal* p = checkPortal(ri->portalref, "AClk"))
+				p->aclk = vbound(value/10000, 0, 9999);
+			break;
+		}
+		case PORTALAFRM:
+		{
+			if(portal* p = checkPortal(ri->portalref, "AFrame"))
+				p->aframe = vbound(value/10000, 0, 9999);
+			break;
+		}
+		case PORTALOTILE:
+		{
+			if(portal* p = checkPortal(ri->portalref, "OriginalTile"))
+				p->o_tile = vbound(value/10000, 0, NEWMAXTILES-1);
+			break;
+		}
+		case PORTALASPD:
+		{
+			if(portal* p = checkPortal(ri->portalref, "ASpeed"))
+				p->aspd = vbound(value/10000, 0, 9999);
+			break;
+		}
+		case PORTALFRAMES:
+		{
+			if(portal* p = checkPortal(ri->portalref, "Frames"))
+				p->frames = vbound(value/10000, 0, 9999);
+			break;
+		}
+		case PORTALSAVED:
+		{
+			if(ri->portalref < 0 || value < 0) break;
+			if(portal* p = checkPortal(ri->portalref, "SavedPortal"))
+			{
+				if(!value)
+					p->saved_data = 0;
+				else if(savedportal* sp = checkSavedPortal(value, "portal->SavedPortal"))
+					p->saved_data = sp->getUID();
+			}
+			break;
+		}
+		case PORTALCLOSEDIS:
+		{
+			if(portal* p = checkPortal(ri->portalref, "CloseDisabled"))
+				p->prox_active = value==0; //Inverted
+			break;
+		}
+		case REFPORTAL:
+		{
+			ri->portalref = value;
+			break;
+		}
+		case REFSAVPORTAL:
+		{
+			ri->saveportalref = value;
+			break;
+		}
+		case PORTALWARPSFX:
+		{
+			if(portal* p = checkPortal(ri->portalref, "WarpSFX"))
+				p->wsfx = vbound(value/10000,0,255);
+			break;
+		}
+		case PORTALWARPVFX:
+		{
+			if(portal* p = checkPortal(ri->portalref, "WarpEffect"))
+				p->weffect = vbound(value/10000,0,255);
+			break;
+		}
+		case SAVEDPORTALX:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "X"))
+				p->x = value;
+			break;
+		}
+		case SAVEDPORTALY:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Y"))
+				p->y = value;
+			break;
+		}
+		case SAVEDPORTALSRCDMAP:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcDMap"))
+				p->srcdmap = vbound(value/10000, -1, MAXDMAPS-1);
+			break;
+		}
+		case SAVEDPORTALDESTDMAP:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestDMap"))
+				p->destdmap = vbound(value/10000, -1, MAXDMAPS-1);
+			break;
+		}
+		case SAVEDPORTALSRCSCREEN:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "SrcScreen"))
+				p->srcscr = vbound(value/10000,0,255);
+			break;
+		}
+		case SAVEDPORTALDSTSCREEN:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "DestScreen"))
+				p->destscr = vbound(value/10000,0,255);
+			break;
+		}
+		case SAVEDPORTALWARPSFX:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpSFX"))
+				p->sfx = vbound(value/10000,0,255);
+			break;
+		}
+		case SAVEDPORTALWARPVFX:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "WarpEffect"))
+				p->warpfx = vbound(value/10000,0,255);
+			break;
+		}
+		case SAVEDPORTALSPRITE:
+		{
+			if(savedportal* p = checkSavedPortal(ri->saveportalref, "Sprite"))
+				p->spr = vbound(value/10000,0,255);
+			break;
+		}
+		case SAVEDPORTALPORTAL:
+		{
+			if(ri->saveportalref < 0 || value < 0) break;
+			if(savedportal* sp = checkSavedPortal(ri->saveportalref, "Portal"))
+			{
+				int32_t id = getPortalFromSaved(sp);
+				if(id == value) break; //no change
+				portal* p = checkPortal(value,"savedportal->Portal");
+				if(p)
+				{
+					p->saved_data = sp->getUID();
+					if(id > 0)
+					{
+						portal* p = checkPortal(id,"THIS SHOULD NOT APPEAR");
+						p->saved_data = 0;
+					}
+				}
+			}
+			break;
+		}
 		
 		default:
 		{
@@ -22913,6 +23374,18 @@ int32_t get_int_arr(const int32_t ptr, int32_t indx)
 				return 0;
 			return indx*10000;
 		}
+		case INTARR_SCREEN_PORTALS:
+		{
+			if(BC::checkBoundsOneIndexed(indx, 0, portals.Count()-1, "Screen->Portals[]") != SH::_NoError)
+				return 0;
+			return portals.spr(indx)->getUID();
+		}
+		case INTARR_SAVPRTL:
+		{
+			if(BC::checkBoundsOneIndexed(indx, 0, game->user_portals.size()-1, "Game->SavedPortals[]") != SH::_NoError)
+				return 0;
+			return (indx+1)*10000;
+		}
 		default:
 		{
 			Z_scripterrlog("Unknown internal array '%d' read from!\n", ptr);
@@ -22938,6 +23411,12 @@ void set_int_arr(const int32_t ptr, int32_t indx, int32_t val)
 			return;
 		case INTARR_SCREEN_FFC:
 			Z_scripterrlog("Read-only array 'Screen->FFCs' cannot be written to!\n");
+			return;
+		case INTARR_SCREEN_PORTALS:
+			Z_scripterrlog("Read-only array 'Screen->Portals' cannot be written to!\n");
+			return;
+		case INTARR_SAVPRTL:
+			Z_scripterrlog("Read-only array 'Game->SavedPortals' cannot be written to!\n");
 			return;
 		
 		default:
@@ -22970,6 +23449,14 @@ int32_t sz_int_arr(const int32_t ptr)
 		case INTARR_SCREEN_FFC:
 		{
 			return MAXFFCS;
+		}
+		case INTARR_SCREEN_PORTALS:
+		{
+			return portals.Count();
+		}
+		case INTARR_SAVPRTL:
+		{
+			return game->user_portals.size();
 		}
 		default:
 		{
@@ -24974,6 +25461,17 @@ void do_ewpnusesprite(const bool v)
 		
 	if(EwpnH::loadWeapon(ri->ewpn, "eweapon->UseSprite") == SH::_NoError)
 		EwpnH::getWeapon()->LOADGFX(ID);
+}
+
+void do_portalusesprite()
+{
+	int32_t ID = get_register(sarg1) / 10000;
+	
+	if(BC::checkWeaponMiscSprite(ID, "portal->UseSprite") != SH::_NoError)
+		return;
+	
+	if(portal* p = checkPortal(ri->portalref, "UseSprite()"))
+		p->LOADGFX(ID);
 }
 
 void do_clearsprites(const bool v)
@@ -29437,6 +29935,7 @@ int32_t get_own_i(int32_t type)
 	return 0;
 }
 
+portal* loadportal(savedportal& p);
 ///----------------------------------------------------------------------------------------------------//
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
@@ -29929,6 +30428,7 @@ j_command:
 		sarg2 = curscript->zasm[ri->pc].arg2;
 		sargstr = curscript->zasm[ri->pc].strptr;
 		sargvec = curscript->zasm[ri->pc].vecptr;
+		//zprint2("Executing zasm: %d,%d,%d,%d,%d\n",scommand,sarg1,sarg2,get_register(sarg1),get_register(sarg2));
 
 		if (is_debugging && (!is_jitted || commands_run > 0))
 		{
@@ -32607,6 +33107,142 @@ j_command:
 				ri->d[rEXP1] = Hero.can_movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
 				break;
 			}
+			case HEROLIFTRELEASE:
+			{
+				ri->d[rEXP1] = Hero.lift_wpn ? Hero.lift_wpn->getUID() : 0;
+				break;
+			}
+			case HEROLIFTGRAB:
+			{
+				auto lwuid = SH::read_stack(ri->sp + 2);
+				auto lifttime = SH::read_stack(ri->sp + 1)/10000;
+				auto liftheight = zslongToFix(SH::read_stack(ri->sp + 0));
+				if(weapon* wpn = checkLWpn(lwuid,"Hero->Lift()"))
+				{
+					Hero.lift(wpn, lifttime, liftheight);
+					if(Lwpns.find(wpn) > -1)
+						Lwpns.remove(wpn);
+					if(type == SCRIPT_LWPN && lwuid == i)
+						earlyretval = RUNSCRIPT_SELFREMOVE;
+				}
+				break;
+			}
+			case LOADPORTAL:
+			{
+				auto val = get_register(sarg1)/10000;
+				if(val != -1)
+				{
+					portal* prt = (portal*)portals.spr(val);
+					if(prt)
+						val = prt->getUID();
+					else
+					{
+						Z_scripterrlog("Tried to load invalid portal index '%d'\n", val);
+						val = 0;
+					}
+				}
+				ri->portalref = ri->d[rEXP1] = val;
+				break;
+			}
+			case CREATEPORTAL:
+			{
+				portal* p = new portal();
+				if(portals.add(p))
+					ri->portalref = ri->d[rEXP1] = p->getUID();
+				else
+				{
+					ri->portalref = ri->d[rEXP1] = 0;
+					Z_scripterrlog("Unable to create new portal! Limit reached!\n");
+				}
+				break;
+			}
+			case LOADSAVPORTAL:
+			{
+				auto val = get_register(sarg1)/10000;
+				savedportal* prt = checkSavedPortal(val,"Game->LoadSavedPortal");
+				ri->saveportalref = ri->d[rEXP1] = prt ? val : 0;
+				break;
+			}
+			case CREATESAVPORTAL:
+			{
+				if(game->user_portals.size() >= MAX_SAVED_PORTALS)
+				{
+					ri->saveportalref = ri->d[rEXP1] = 0;
+					Z_scripterrlog("Cannot create any more Saved Portals! Remove some first!\n");
+					break;
+				}
+				savedportal& ref = game->user_portals.emplace_back();
+				ri->saveportalref = ri->d[rEXP1] = ref.getUID();
+				break;
+			}
+			case PORTALREMOVE:
+			{
+				if(portal* p = checkPortal(ri->portalref, "Remove", true))
+				{
+					if(p == &mirror_portal)
+						p->clear();
+					else
+					{
+						auto id = portals.find(p);
+						if(id > -1)
+							portals.del(id,true);
+					}
+				}
+				break;
+			}
+			case PORTALUSESPRITE:
+				do_portalusesprite();
+				break;
+			case SAVEDPORTALREMOVE:
+			{
+				if(savedportal* sp = checkSavedPortal(ri->saveportalref, "Remove", true))
+				{
+					if(sp == &(game->saved_mirror_portal))
+						sp->clear();
+					else
+					{
+						//ensure all pointers to the object are cleared before deleting
+						portals.forEach([&](sprite& spr)
+						{
+							portal* tmp = (portal*)&spr;
+							if(sp->getUID() == tmp->saved_data)
+							{
+								tmp->saved_data = 0;
+							}
+							return false;
+						});
+						//delete the savedportal object from the vector
+						for(auto it = game->user_portals.begin();
+							it != game->user_portals.end();)
+						{
+							savedportal& tmp = *it;
+							if(sp == &tmp)
+							{
+								game->user_portals.erase(it);
+								break;
+							}
+							else ++it;
+						}
+					}
+				}
+				break;
+			}
+			case SAVEDPORTALGENERATE:
+			{
+				auto retval = 0;
+				if(savedportal* sp = checkSavedPortal(ri->saveportalref, "Generate"))
+				{
+					retval = getPortalFromSaved(sp);
+					if(!retval)
+					{
+						if(portal* p = loadportal(*sp))
+							if(portals.add(p))
+								retval = p->getUID();
+					}
+				}
+				ri->d[rEXP1] = retval;
+				break;
+			}
 			
 			case LINKEXPLODER:
 			{
@@ -33749,6 +34385,11 @@ j_command:
 				break;
 			}
 		}
+		if(earlyretval == RUNSCRIPT_SELFDELETE)
+		{
+			earlyretval = -1;
+			return RUNSCRIPT_SELFDELETE;
+		}
 		if(hit_invalid_zasm) break;
 		if(script_funcrun && ri->pc == MAX_PC)
 			return RUNSCRIPT_OK;
@@ -33775,7 +34416,14 @@ j_command:
 			ri->pc = 0;
 			scommand = 0xFFFF;
 		}
-
+		
+		if(earlyretval > -1) //Should this be below the 'commands_run += 1'? Unsure. -Em
+		{
+			auto v = earlyretval;
+			earlyretval = -1;
+			return earlyretval;
+		}
+		
 		// If running a JIT compiled script, we're only here to do a few commands.
 		commands_run += 1;
 		if (is_jitted && commands_run == jitted_uncompiled_command_count) break;
@@ -39902,12 +40550,12 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ITEMGETSHOWNNAME",   1,   0,   0,   0},
 	{ "HEROMOVEXY",   0,   0,   0,   0},
 	{ "HEROCANMOVEXY",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY25",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY26",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY27",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY28",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY29",   0,   0,   0,   0},
-	{ "RESRVD_OP_EMILY30",   0,   0,   0,   0},
+	{ "HEROLIFTRELEASE",   0,   0,   0,   0},
+	{ "HEROLIFTGRAB",   0,   0,   0,   0},
+	{ "LOADPORTAL",   0,   0,   0,   0},
+	{ "CREATEPORTAL",   0,   0,   0,   0},
+	{ "LOADSAVPORTAL",   0,   0,   0,   0},
+	{ "CREATESAVPORTAL",   0,   0,   0,   0},
 	{ "CREATEPALDATA",           0,   0,   0,   0 },
 	{ "CREATEPALDATACLR",           1,   0,   0,   0 },
 	{ "MIXCLR",           0,   0,   0,   0 },
@@ -39942,8 +40590,41 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PUSHVARGR",           1,   0,   0,   0 },
 	{ "PRINTFVARG",           0,   0,   0,   0 },
 	{ "SPRINTFVARG",           0,   0,   0,   0 },
-	{ "TRACELR",             1,   0,   0,   0},
-	{ "WAITFRAMESR",             1,   0,   0,   0},
+	{ "TRACELR",             1,   0,   0,   0 },
+	{ "WAITFRAMESR",             1,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_02",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_03",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_04",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_05",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_06",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_07",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_08",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_09",   0,   0,   0,   0 },
+	{ "RESRVD_OP_Z3_10",   0,   0,   0,   0 },
+	{ "PORTALREMOVE",   0,   0,   0,   0 },
+	{ "SAVEDPORTALREMOVE",   0,   0,   0,   0 },
+	{ "SAVEDPORTALGENERATE",   0,   0,   0,   0 },
+	{ "PORTALUSESPRITE", 1, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_02", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_03", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_04", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_05", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_06", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_07", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_08", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_09", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_13", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },
+	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
+	
 	{ "",                    0,   0,   0,   0}
 };
 
@@ -41324,11 +42005,11 @@ script_variable ZASMVars[]=
 	{ "COMBODTRIGGERGENSCRIPT", COMBODTRIGGERGENSCRIPT, 0, 0 },
 	{ "COMBODTRIGGERGROUP", COMBODTRIGGERGROUP, 0, 0 },
 	{ "COMBODTRIGGERGROUPVAL", COMBODTRIGGERGROUPVAL, 0, 0 },
-	{ "RESRVD_VAR_EMILY14", RESRVD_VAR_EMILY14, 0, 0 },
-	{ "RESRVD_VAR_EMILY15", RESRVD_VAR_EMILY15, 0, 0 },
-	{ "RESRVD_VAR_EMILY16", RESRVD_VAR_EMILY16, 0, 0 },
-	{ "RESRVD_VAR_EMILY17", RESRVD_VAR_EMILY17, 0, 0 },
-	{ "RESRVD_VAR_EMILY18", RESRVD_VAR_EMILY18, 0, 0 },
+	{ "HEROLIFTEDWPN", HEROLIFTEDWPN, 0, 0 },
+	{ "HEROLIFTTIMER", HEROLIFTTIMER, 0, 0 },
+	{ "HEROLIFTMAXTIMER", HEROLIFTMAXTIMER, 0, 0 },
+	{ "HEROLIFTHEIGHT", HEROLIFTHEIGHT, 0, 0 },
+	{ "HEROHAMMERSTATE", HEROHAMMERSTATE, 0, 0 },
 	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
 	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
 	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
@@ -41392,6 +42073,68 @@ script_variable ZASMVars[]=
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
+	{ "RESRVD_VAR_Z3_12", RESRVD_VAR_Z3_12, 0, 0 },
+	{ "RESRVD_VAR_Z3_13", RESRVD_VAR_Z3_13, 0, 0 },
+	{ "RESRVD_VAR_Z3_14", RESRVD_VAR_Z3_14, 0, 0 },
+	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },
+	{ "RESRVD_VAR_Z3_16", RESRVD_VAR_Z3_16, 0, 0 },
+	{ "RESRVD_VAR_EMILY31", RESRVD_VAR_EMILY31, 0, 0},
+	{ "RESRVD_VAR_EMILY32", RESRVD_VAR_EMILY32, 0, 0},
+	{ "RESRVD_VAR_EMILY33", RESRVD_VAR_EMILY33, 0, 0},
+	{ "RESRVD_VAR_EMILY34", RESRVD_VAR_EMILY34, 0, 0},
+	{ "RESRVD_VAR_EMILY35", RESRVD_VAR_EMILY35, 0, 0},
+	{ "RESRVD_VAR_EMILY36", RESRVD_VAR_EMILY36, 0, 0},
+	{ "RESRVD_VAR_EMILY37", RESRVD_VAR_EMILY37, 0, 0},
+	{ "RESRVD_VAR_EMILY38", RESRVD_VAR_EMILY38, 0, 0},
+	{ "RESRVD_VAR_EMILY39", RESRVD_VAR_EMILY39, 0, 0},
+	{ "RESRVD_VAR_EMILY40", RESRVD_VAR_EMILY40, 0, 0},
+	{ "RESRVD_VAR_EMILY41", RESRVD_VAR_EMILY41, 0, 0},
+	{ "RESRVD_VAR_EMILY42", RESRVD_VAR_EMILY42, 0, 0},
+	{ "RESRVD_VAR_EMILY43", RESRVD_VAR_EMILY43, 0, 0},
+	{ "RESRVD_VAR_EMILY44", RESRVD_VAR_EMILY44, 0, 0},
+	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},
+	{ "RESRVD_VAR_EMILY46", RESRVD_VAR_EMILY46, 0, 0},
+	{ "RESRVD_VAR_EMILY47", RESRVD_VAR_EMILY47, 0, 0},
+	{ "RESRVD_VAR_EMILY48", RESRVD_VAR_EMILY48, 0, 0},
+	{ "RESRVD_VAR_EMILY49", RESRVD_VAR_EMILY49, 0, 0},
+	{ "RESRVD_VAR_EMILY50", RESRVD_VAR_EMILY50, 0, 0},
+	{ "RESRVD_VAR_EMILY51", RESRVD_VAR_EMILY51, 0, 0},
+	{ "RESRVD_VAR_EMILY52", RESRVD_VAR_EMILY52, 0, 0},
+	{ "RESRVD_VAR_EMILY53", RESRVD_VAR_EMILY53, 0, 0},
+	{ "RESRVD_VAR_EMILY54", RESRVD_VAR_EMILY54, 0, 0},
+	{ "RESRVD_VAR_EMILY55", RESRVD_VAR_EMILY55, 0, 0},
+	{ "RESRVD_VAR_EMILY56", RESRVD_VAR_EMILY56, 0, 0},
+	{ "RESRVD_VAR_EMILY57", RESRVD_VAR_EMILY57, 0, 0},
+	{ "RESRVD_VAR_EMILY58", RESRVD_VAR_EMILY58, 0, 0},
+	{ "RESRVD_VAR_EMILY59", RESRVD_VAR_EMILY59, 0, 0},
+	{ "RESRVD_VAR_EMILY60", RESRVD_VAR_EMILY60, 0, 0},
+	{ "PORTALX", PORTALX, 0, 0},
+	{ "PORTALY", PORTALY, 0, 0},
+	{ "PORTALDMAP", PORTALDMAP, 0, 0},
+	{ "PORTALSCREEN", PORTALSCREEN, 0, 0},
+	{ "PORTALACLK", PORTALACLK, 0, 0},
+	{ "PORTALAFRM", PORTALAFRM, 0, 0},
+	{ "PORTALOTILE", PORTALOTILE, 0, 0},
+	{ "PORTALASPD", PORTALASPD, 0, 0},
+	{ "PORTALFRAMES", PORTALFRAMES, 0, 0},
+	{ "PORTALSAVED", PORTALSAVED, 0, 0},
+	{ "PORTALCLOSEDIS", PORTALCLOSEDIS, 0, 0},
+	{ "REFPORTAL", REFPORTAL, 0, 0},
+	{ "REFSAVPORTAL", REFSAVPORTAL, 0, 0},
+	{ "PORTALWARPSFX", PORTALWARPSFX, 0, 0},
+	{ "PORTALWARPVFX", PORTALWARPVFX, 0, 0},
+	{ "SAVEDPORTALX", SAVEDPORTALX, 0, 0},
+	{ "SAVEDPORTALY", SAVEDPORTALY, 0, 0},
+	{ "SAVEDPORTALSRCDMAP", SAVEDPORTALSRCDMAP, 0, 0},
+	{ "SAVEDPORTALDESTDMAP", SAVEDPORTALDESTDMAP, 0, 0},
+	{ "SAVEDPORTALSRCSCREEN", SAVEDPORTALSRCSCREEN, 0, 0},
+	{ "SAVEDPORTALWARPSFX", SAVEDPORTALWARPSFX, 0, 0},
+	{ "SAVEDPORTALWARPVFX", SAVEDPORTALWARPVFX, 0, 0},
+	{ "SAVEDPORTALSPRITE", SAVEDPORTALSPRITE, 0, 0},
+	{ "SAVEDPORTALPORTAL", SAVEDPORTALPORTAL, 0, 0},
+	{ "PORTALCOUNT", PORTALCOUNT, 0, 0},
+	{ "SAVEDPORTALCOUNT", SAVEDPORTALCOUNT, 0, 0},
+	{ "SAVEDPORTALDSTSCREEN", SAVEDPORTALDSTSCREEN, 0, 0},
 	
 	{ " ", -1, 0, 0 }
 };

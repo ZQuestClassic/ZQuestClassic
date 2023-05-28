@@ -8,8 +8,8 @@
 #include <gui/text_field.h>
 #include <gui/window.h>
 #include <gui/list_data.h>
-#include <gui/seltile_swatch.h>
-#include <gui/selcombo_swatch.h>
+#include <zq/gui/seltile_swatch.h>
+#include <zq/gui/selcombo_swatch.h>
 #include <zq/gui/tileanim_frame.h>
 #include <zq/gui/cornerselect.h>
 #include <functional>

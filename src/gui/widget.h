@@ -1,10 +1,10 @@
 #ifndef ZC_GUI_WIDGET_H
 #define ZC_GUI_WIDGET_H
 
-#include "common.h"
+#include "gui/common.h"
 #include "dialog_message.h"
-#include "dialog_ref.h"
-#include "size.h"
+#include "gui/dialog_ref.h"
+#include "gui/size.h"
 #include "base/zc_alleg.h"
 #include <any>
 #include <memory>

@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_TABREF_H
 #define ZC_GUI_TABREF_H
 
-#include "widget.h"
+#include "gui/widget.h"
 #include <vector>
 
 namespace GUI

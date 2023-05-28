@@ -1,8 +1,8 @@
-#include "cheats.h"
-#include "zelda.h"
-#include "hero.h"
-#include "guys.h"
-#include "zc_init.h"
+#include "zc/cheats.h"
+#include "zc/zelda.h"
+#include "zc/hero.h"
+#include "zc/guys.h"
+#include "zc/zc_init.h"
 #include "init.h"
 #include <queue>
 #include <tuple>

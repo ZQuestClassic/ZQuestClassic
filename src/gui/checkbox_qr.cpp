@@ -1,8 +1,8 @@
-#include "checkbox_qr.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "../jwin.h"
+#include "gui/checkbox_qr.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "jwin.h"
 #include <cassert>
 #include <utility>
 

@@ -49,8 +49,6 @@ extern char zquestpwd[8];
 extern char datapwd[8];
 extern char zcheat[4][8];
 
-void resolve_password(char *pwd);
-
 bool decode_007(byte *buf, dword size, dword key, word check1, word check2, int32_t method);
 void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, int32_t method);
 int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key, const char *header, int32_t method);
@@ -167,9 +165,6 @@ void textprintf_shadowed_right_plus_ex(BITMAP *bmp, const FONT *f, int32_t x, in
 void textprintf_shadowed_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void textprintf_shadowed_center_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void textprintf_shadowed_right_x_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
-
-void copy_dialog(DIALOG **to, DIALOG *from);
-void free_dialog(DIALOG **dlg);
 
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 void safe_rect(BITMAP *bmp, int x1, int y1, int x2, int y2, int color, int thick);

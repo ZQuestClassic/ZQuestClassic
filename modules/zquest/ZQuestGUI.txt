@@ -10,7 +10,6 @@ src/zq/zq_custom.cpp
 src/zq/zq_doors.cpp
 src/zq/zq_files.cpp
 src/zq/zq_init.cpp
-src/zq/zq_items.cpp
 src/zq/zq_misc.cpp
 src/zq/zq_sprite.cpp
 src/zq/zq_subscr.cpp

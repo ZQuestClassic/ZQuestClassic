@@ -2,8 +2,8 @@
 #define ZC_GUI_DIALOG_H
 
 #include "dialog_message.h"
-#include "dialog_runner.h"
-#include "widget.h"
+#include "gui/dialog_runner.h"
+#include "gui/widget.h"
 #include <base/gui.h>
 #include <dialog/common.h>
 #include <memory>

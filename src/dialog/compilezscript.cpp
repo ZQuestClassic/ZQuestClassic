@@ -1,12 +1,12 @@
 #include "compilezscript.h"
 #include <gui/builder.h>
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "alert.h"
 #include "alertfunc.h"
 #include "headerdlg.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "qst.h"
-#include "ffasmexport.h"
+#include "zq/ffasmexport.h"
 #include "zscrdata.h"
 #include "info.h"
 using std::string;
