@@ -20,7 +20,7 @@
 #include "base/zdefs.h"
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
-#include "zeldadat.h"
+#include "zc/zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"

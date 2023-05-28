@@ -14,7 +14,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/fonts.h"
-#include "zeldadat.h"
+#include "zc/zeldadat.h"
 #include "zc/render.h"
 
 extern DATAFILE* datafile;

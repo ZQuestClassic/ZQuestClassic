@@ -109,7 +109,7 @@ static zc_randgen drunk_rng;
 #include "base/win32.h"
 #include "vectorset.h"
 #include "single_instance.h"
-#include "zeldadat.h"
+#include "zc/zeldadat.h"
 
 #define LOGGAMELOOP 0
 
