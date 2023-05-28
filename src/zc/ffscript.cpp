@@ -467,7 +467,6 @@ extern int32_t directItemX;
 extern int32_t directItemY;
 
 #include "zc/guys.h"
-//enemy enemyclass;
 #include "gamedata.h"
 #include "zc/zc_init.h"
 #include "base/zsys.h"
@@ -476,7 +475,7 @@ extern int32_t directItemY;
 
 #include "pal.h"
 #include "base/zdefs.h"
-#include "rendertarget.h" //Needed for LoadBitmap
+#include "zc/rendertarget.h"
 
 #include "zc/zc_custom.h"
 #include "qst.h"

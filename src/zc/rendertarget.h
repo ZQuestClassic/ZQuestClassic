@@ -1,7 +1,7 @@
 #ifndef _zscript_rendertarget_h_
 #define _zscript_rendertarget_h_
 
-#include<allegro.h>
+#include <allegro.h>
 
 
 #ifdef _MSC_VER

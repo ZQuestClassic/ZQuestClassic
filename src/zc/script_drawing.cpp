@@ -11,7 +11,7 @@
 #define LOG_BMPBLIT_LEVEL 0
 #include "base/zc_alleg.h"
 #include "zc/script_drawing.h"
-#include "rendertarget.h"
+#include "zc/rendertarget.h"
 #include "zc/maps.h"
 #include "tiles.h"
 #include "zc/zelda.h"
