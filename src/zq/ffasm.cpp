@@ -1,5 +1,3 @@
-#include "precompiled.h" //always first
-
 #include "parser/Types.h"
 #include <stdio.h>
 #include <stdlib.h>

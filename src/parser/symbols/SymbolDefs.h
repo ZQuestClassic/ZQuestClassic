@@ -1,7 +1,6 @@
 #ifndef _ZSCRIPT_SYMBOLS_H
 #define _ZSCRIPT_SYMBOLS_H
 
-#include "../../precompiled.h" //always first
 #include <assert.h>
 #include "zsyssimple.h"
 #include "parser/ByteCode.h"

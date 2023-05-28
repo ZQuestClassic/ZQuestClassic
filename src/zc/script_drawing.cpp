@@ -9,8 +9,6 @@
 #endif
 
 #define LOG_BMPBLIT_LEVEL 0
-#include "precompiled.h" //always first
-
 #include "base/zc_alleg.h"
 #include "zc/script_drawing.h"
 #include "rendertarget.h"

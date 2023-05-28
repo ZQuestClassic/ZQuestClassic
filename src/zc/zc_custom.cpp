@@ -8,8 +8,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "zc/zc_custom.h"
 #include "zc/zelda.h"
 #include "base/zdefs.h"

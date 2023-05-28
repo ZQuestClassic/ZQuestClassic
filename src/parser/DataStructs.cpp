@@ -1,5 +1,4 @@
 //2.53 Updated to 16th Jan, 2017
-#include "../precompiled.h" //always first
 #include <assert.h>
 #include <iostream>
 #include "zsyssimple.h"

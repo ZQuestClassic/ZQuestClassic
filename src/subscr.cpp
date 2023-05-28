@@ -8,8 +8,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "subscr.h"
 #include "base/zapp.h"
 #include "tiles.h"

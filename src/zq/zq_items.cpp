@@ -16,8 +16,6 @@
 /**********  Item Class  **********/
 /**********************************/
 
-#include "precompiled.h" //always first
-
 #include "zq/zq_class.h"
 #include "base/zdefs.h"
 #include "items.h"

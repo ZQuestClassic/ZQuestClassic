@@ -12,8 +12,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "sprite.h"

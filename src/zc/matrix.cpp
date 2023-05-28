@@ -8,8 +8,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "zc/matrix.h"
 #include "zc/render.h"
 FONT* get_zc_font(int index);

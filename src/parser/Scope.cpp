@@ -1,4 +1,3 @@
-#include "../precompiled.h"
 #include "parserDefs.h"
 #include "Scope.h"
 

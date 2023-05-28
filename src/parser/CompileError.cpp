@@ -1,5 +1,3 @@
-#include "../precompiled.h" //always first
-
 #include "CompileError.h"
 #include <iostream>
 #include <iomanip>

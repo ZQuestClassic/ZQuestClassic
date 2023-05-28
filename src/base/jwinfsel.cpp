@@ -44,8 +44,6 @@
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
 
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <filesystem>
 

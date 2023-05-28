@@ -24,7 +24,6 @@
 
 /* This code is not fully tested */
 
-#include "precompiled.h" //always first
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
 #include "jwin.h"

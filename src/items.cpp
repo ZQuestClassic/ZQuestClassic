@@ -16,8 +16,6 @@
 /**********  Item Class  **********/
 /**********************************/
 
-#include "precompiled.h" //always first
-
 #include "items.h"
 #include "zc/maps.h"
 #include "base/zdefs.h"

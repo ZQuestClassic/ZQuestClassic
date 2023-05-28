@@ -1,5 +1,3 @@
-#include "../precompiled.h" // Always first.
-
 #include "ASTVisitors.h"
 #include "CompilerUtils.h"
 #include "DataStructs.h"

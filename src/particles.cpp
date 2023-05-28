@@ -2,8 +2,6 @@
 /********  Particle Class  ********/
 /**********************************/
 
-#include "precompiled.h" //always first
-
 #include "particles.h"
 #include "base/zc_math.h"
 

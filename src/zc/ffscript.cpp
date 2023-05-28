@@ -1,5 +1,3 @@
-#include "precompiled.h" //always first
-
 #include <deque>
 #include <string>
 #include <sstream>

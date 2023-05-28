@@ -8,8 +8,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq/zq_subscr.h"

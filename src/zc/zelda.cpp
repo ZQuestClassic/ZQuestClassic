@@ -9,8 +9,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include <memory>
 #include <filesystem>
 #include <stdio.h>

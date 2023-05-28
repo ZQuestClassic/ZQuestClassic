@@ -12,8 +12,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "sprite.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"

@@ -8,8 +8,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 //#include <mem.h>
 #include <string.h>
 #include <stdio.h>

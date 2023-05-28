@@ -6,7 +6,6 @@
 
 /* declarations */
 %{
-#include "../precompiled.h"
 #include "parserDefs.h"
 #include <stdlib.h>
 #include <stdio.h>

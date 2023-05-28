@@ -9,7 +9,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
 #include "zc/zc_sys.h"
 
 #include <stdio.h>

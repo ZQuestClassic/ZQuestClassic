@@ -16,8 +16,6 @@
 /**********  Item Class  **********/
 /**********************************/
 
-#include "precompiled.h" //always first
-
 #include "zc/zelda.h"
 #include "zc/guys.h"
 #include "base/zdefs.h"

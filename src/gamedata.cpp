@@ -9,8 +9,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "gamedata.h"
 #include <stdio.h>
 #include "base/zc_alleg.h"

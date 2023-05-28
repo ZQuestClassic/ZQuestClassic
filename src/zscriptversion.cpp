@@ -1,6 +1,4 @@
 
-#include "precompiled.h" //always first
-
 #include "zscriptversion.h"
 #include "zc/zelda.h"
 #include "zc/hero.h"

@@ -12,8 +12,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "sprite.h"
 #include "zc/decorations.h"
 #include "zc/zc_custom.h"
