@@ -27,15 +27,6 @@
 extern sprite_list  guys;
 extern sprite_list  items;
 
-/*
-  void movefairy(zfix &x,zfix &y,int32_t misc) {
-  return;
-  }
-
-  void killfairy(int32_t misc) {
-  return;
-  }
-  */
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id)
 {
     addenemy(x,y,eITEMFAIRY,id);

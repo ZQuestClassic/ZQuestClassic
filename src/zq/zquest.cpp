@@ -77,7 +77,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 #include "midi.h"
 #include "sprite.h"
-#include "items.h"
 #include "fontsdat.h"
 #include "base/jwinfsel.h"
 #include "zq/zq_class.h"

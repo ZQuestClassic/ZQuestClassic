@@ -1073,8 +1073,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
+#ifndef IS_ZQUEST
             if (!game2->get_item(i))
                 getitem(i,true,false);
+#endif
         }
         else
             game2->set_item_no_flush(i,false);
