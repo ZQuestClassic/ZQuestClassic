@@ -93,8 +93,6 @@ void DialogRunner::realize(shared_ptr<Widget> root)
 		0, 0, // d1, d2
 		nullptr, nullptr, nullptr // dp1, dp2, dp3
 	});
-
-	dialogConstructed.emit();
 }
 
 void DialogRunner::runInner(std::shared_ptr<Widget> root)

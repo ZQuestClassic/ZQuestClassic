@@ -48,7 +48,6 @@ public:
 
 	/* Returns a raw pointer to the DIALOG array for widgets that need it.
 	 * This must not be called until the array is fully constructed.
-	 * This can be done using the dialogConstructed signal.
 	 */
 	inline DIALOG* getDialogArray()
 	{
@@ -82,11 +81,6 @@ public:
 	{
 		done = true;
 	}
-
-	/* A signal emitted when construction of the DIALOG array is finished.
-	 * Shouldn't really be public, but that can be dealt with later.
-	 */
-	Signal dialogConstructed;
 
 private:
 	std::function<void(int32_t, MessageArg, std::shared_ptr<Widget>)> sendMessage;
