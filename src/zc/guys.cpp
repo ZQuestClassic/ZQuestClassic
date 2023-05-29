@@ -152,9 +152,10 @@ void identifyCFEnemies()
 	}
 }
 
-int32_t random_layer_enemy()
+int32_t random_layer_enemy(int screen_index)
 {
-	int32_t cnt=count_layer_enemies();
+	int32_t cnt=count_layer_enemies(screen_index);
+	mapscr* base_screen = get_scr(currmap, screen_index);
 	
 	if(cnt==0)
 	{
@@ -166,9 +167,9 @@ int32_t random_layer_enemy()
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr.layermap[i]!=0)
+		if(base_screen->layermap[i]!=0)
 		{
-			mapscr *layerscreen=&TheMaps[(tmpscr.layermap[i]-1)*MAPSCRS]+tmpscr.layerscreen[i];
+			const mapscr* layerscreen = get_canonical_scr(base_screen->layermap[i]-1, base_screen->layerscreen[i]);
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -188,15 +189,17 @@ int32_t random_layer_enemy()
 	return eNONE;
 }
 
-int32_t count_layer_enemies()
+int32_t count_layer_enemies(int screen_index)
 {
 	int32_t cnt=0;
+
+	mapscr* base_screen = get_scr(currmap, screen_index);
 	
 	for(int32_t i=0; i<6; ++i)
 	{
 		if(tmpscr.layermap[i]!=0)
 		{
-			mapscr *layerscreen=&TheMaps[(tmpscr.layermap[i]-1)*MAPSCRS]+tmpscr.layerscreen[i];
+			const mapscr* layerscreen = get_canonical_scr(base_screen->layermap[i]-1, base_screen->layerscreen[i]);
 			
 			for(int32_t j=0; j<10; ++j)
 			{
@@ -4147,7 +4150,7 @@ void enemy::FireWeapon()
 	
 	case e1tSUMMONLAYER: // Summoner
 	{
-		if(count_layer_enemies()==0)
+		if(count_layer_enemies(screen_index_spawned)==0)
 		{
 			break;
 		}
@@ -4161,7 +4164,7 @@ void enemy::FireWeapon()
 			
 			for(int32_t i=0; i<newguys; i++)
 			{
-				int32_t id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
+				int32_t id2=vbound(random_layer_enemy(screen_index_spawned),eSTART,eMAXGUYS-1);
 				int32_t x2=0;
 				int32_t y2=0;
 				
@@ -14446,7 +14449,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 	}
 	else if(dmisc2==3)  //summon from layer
 	{
-		if(count_layer_enemies()==0)
+		if(count_layer_enemies(screen_index_spawned)==0)
 		{
 			return;
 		}
@@ -14460,7 +14463,7 @@ void eWizzrobe::wizzrobe_attack_for_real()
 			
 			for(int32_t i=0; i<newguys; i++)
 			{
-				int32_t id2=vbound(random_layer_enemy(),eSTART,eMAXGUYS-1);
+				int32_t id2=vbound(random_layer_enemy(screen_index_spawned),eSTART,eMAXGUYS-1);
 				int32_t x2=0;
 				int32_t y2=0;
 				

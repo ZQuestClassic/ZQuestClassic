@@ -29,8 +29,8 @@ extern int32_t wallm_load_clk;
 extern int32_t sle_x,sle_y,sle_cnt,sle_clk;
 extern int32_t vhead;
 
-int32_t random_layer_enemy();
-int32_t count_layer_enemies();
+int32_t random_layer_enemy(int screen_index);
+int32_t count_layer_enemies(int screen_index);
 bool can_do_clock();
 int32_t hero_on_wall();
 bool tooclose(int32_t x,int32_t y,int32_t d);
