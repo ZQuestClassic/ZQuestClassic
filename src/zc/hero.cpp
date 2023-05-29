@@ -19684,7 +19684,7 @@ bool HeroClass::checksoliddamage()
 			if (bx >= world_w || by >= world_h) break;
 
 			auto rpos_handle = get_rpos_handle(COMBOPOS_REGION(bx, by), i);
-			newcombo const& cmb = combobuf[rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)]];
+			newcombo const& cmb = combobuf[rpos_handle.data()];
 			t = cmb.type;
 			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 				t = cNONE;
@@ -20829,7 +20829,7 @@ void HeroClass::checkgenpush(rpos_t rpos)
 	for (int layer = 0; layer < 7; ++layer)
 	{
 		auto rpos_handle = get_rpos_handle(rpos, layer);
-		newcombo const& cmb = combobuf[rpos_handle.screen->data[RPOS_TO_POS(rpos)]];
+		newcombo const& cmb = combobuf[rpos_handle.data()];
 		if (cmb.triggerflags[1] & combotriggerPUSH)
 			do_trigger_combo(rpos_handle);
 	}

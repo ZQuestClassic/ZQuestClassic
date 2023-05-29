@@ -1038,7 +1038,7 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
 {
 	if (!rpos_handle.screen->valid) return 0;
-	return rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)];
+	return rpos_handle.data();
 }
 
 int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
@@ -1050,7 +1050,7 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.screen->valid) return 0;
 
-	return rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)];
+	return rpos_handle.data();
 }
 
 // MAPCOMBO3 will read from the current temporary screens or, if (map, screen) is not loaded,
@@ -1211,7 +1211,7 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.screen->valid) return 0;
 
-	int cid = rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)];
+	int cid = rpos_handle.data();
 	return combobuf[cid].flag;
 }
 
@@ -2966,7 +2966,7 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 		for(rpos_t rpos : rposes)
 		{
 			auto rpos_handle = get_rpos_handle(rpos, q);
-			int cid = rpos_handle.screen->data[RPOS_TO_POS(rpos)];
+			int cid = rpos_handle.data();
 			if(combobuf[cid].triggerflags[2] & trigflags)
 			{
 				do_trigger_combo(rpos_handle);
