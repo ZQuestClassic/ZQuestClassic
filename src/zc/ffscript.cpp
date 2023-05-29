@@ -20549,7 +20549,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					auto cid = tmpscr->data[pos];
+					auto cid = m->data[pos];
 					screen_combo_modify_pre(cid);
 					combobuf[cid].type=val;
 					screen_combo_modify_post(cid);
