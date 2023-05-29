@@ -20903,7 +20903,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 		return;
 	}
 
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	int32_t ctype = combobuf[rpos_handle.screen->data[pos]].type;
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
@@ -21064,7 +21064,7 @@ void load_default_enemies(mapscr* screen, int screen_index)
 void update_slope_combopos(const rpos_handle_t& rpos_handle)
 {
 	mapscr* s = rpos_handle.screen;
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
 	rpos_t id = SLOPE_ID(rpos_handle.rpos, rpos_handle.layer);
@@ -21105,7 +21105,7 @@ void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 {
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	rpos_handle.screen->valid |= mVALID;
 	activate_fireball_statue(rpos_handle);
 
@@ -21142,8 +21142,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 void screen_combo_modify_pre(int32_t cid)
 {
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-		int pos = RPOS_TO_POS(rpos_handle.rpos);
-		if (rpos_handle.screen->data[pos] == cid)
+		if (rpos_handle.data() == cid)
 		{
 			screen_combo_modify_preroutine(rpos_handle);
 		}
@@ -21152,15 +21151,14 @@ void screen_combo_modify_pre(int32_t cid)
 void screen_combo_modify_post(int32_t cid)
 {
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-		int pos = RPOS_TO_POS(rpos_handle.rpos);
-		if (rpos_handle.screen->data[pos] == cid)
+		if (rpos_handle.data() == cid)
 		{
 			screen_combo_modify_postroutine(rpos_handle);
 		}
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		if (ffc_handle.ffc->getData() == cid)
+		if (ffc_handle.data() == cid)
 		{
 			screen_ffc_modify_postroutine(ffc_handle);
 		}
@@ -21170,11 +21168,11 @@ void screen_combo_modify_post(int32_t cid)
 
 void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 {
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
-	mapscr* s = rpos_handle.screen;
+	int cid = rpos_handle.data();
+	int cset = rpos_handle.cset();
 	int x, y;
 	COMBOXY_REGION(rpos_handle.rpos, x, y);
-	addenemy(rpos_handle.screen_index, x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
+	addenemy(rpos_handle.screen_index, x, y, (cset<<12)+eSPINTILE1, combobuf[cid].o_tile + zc_max(1,combobuf[cid].frames));
 }
 
 // It stands for next_side_pos

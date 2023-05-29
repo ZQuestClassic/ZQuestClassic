@@ -871,7 +871,7 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y)
 
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 {
-	if (ffc_handle.ffc->getData()<=0)
+	if (ffc_handle.data()<=0)
         return false;
 
     int32_t fx=ffc_handle.ffc->x.getInt();
@@ -1158,7 +1158,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.screen->valid) return 0;
 	
-	return rpos_handle.screen->cset[RPOS_TO_POS(rpos_handle.rpos)];
+	return rpos_handle.screen->cset[rpos_handle.pos()];
 }
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
@@ -1171,7 +1171,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.screen->valid) return 0;
 
-	return rpos_handle.screen->sflag[RPOS_TO_POS(rpos_handle.rpos)];
+	return rpos_handle.screen->sflag[rpos_handle.pos()];
 }
 
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
@@ -2102,7 +2102,7 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle.i, x, y))
 			{
-				newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+				newcombo const& cmb = combobuf[ffc_handle.data()];
 				if (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb))
 				{
 					ffc = ffc_handle.ffc;
@@ -2401,7 +2401,7 @@ bool overheadcombos(mapscr *s)
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
     int32_t cx=0, cy=0;
-    int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
+    int32_t pos = rpos_handle.pos();
     int32_t ct=combobuf[rpos_handle.screen->data[pos]].type;
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
@@ -2573,7 +2573,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	{
 		// TODO z3 ffc this should just for this screen ...
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo_ffc(ffc_handle);
 			return true;
@@ -2976,7 +2976,7 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	}
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		if((combobuf[ffc_handle.ffc->getData()].triggerflags[2] & trigflags)
+		if((combobuf[ffc_handle.data()].triggerflags[2] & trigflags)
 			&& ffc_handle.ffc->collide(x,y,16,16))
 		{
 			do_trigger_combo_ffc(ffc_handle);
@@ -5259,7 +5259,7 @@ void openshutters()
 		}
 	
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-		int pos = RPOS_TO_POS(rpos_handle.rpos);
+		int pos = rpos_handle.pos();
 		newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
@@ -5269,7 +5269,7 @@ void openshutters()
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
 				do_trigger_combo_ffc(ffc_handle);
 			return true;
@@ -6934,7 +6934,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 		byte togglegrid[176] = {0};
 		mapscr* scr = rpos_handle.screen;
 		int lyr = rpos_handle.layer;
-		int pos = RPOS_TO_POS(rpos_handle.rpos);
+		int pos = rpos_handle.pos();
 		newcombo const& cmb = combobuf[scr->data[pos]];
 		if(iscurscr)
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)

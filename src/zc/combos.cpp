@@ -60,7 +60,7 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 		return;
 	}
 
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	int x, y;
 	COMBOXY_REGION(rpos_handle.rpos, x, y);
 
@@ -165,14 +165,14 @@ static void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag,
 					}
 					else
 					{
-						rpos_handle.screen->data[pos]=vbound(tmpscr.data[pos]+1,0,MAXCOMBOS);
+						rpos_handle.screen->data[pos]=vbound(rpos_handle.data()+1,0,MAXCOMBOS);
 					}
 					screen_combo_modify_postroutine(rpos_handle);
 				}
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
 				
-				if ( (combobuf[cid].usrflags&cflag5) ) cid = rpos_handle.screen->data[pos];
+				if ( (combobuf[cid].usrflags&cflag5) ) cid = rpos_handle.data();
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(bx));
@@ -345,8 +345,8 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 {
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return;
 
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
-	int cid = rpos_handle.screen->data[pos];
+	int pos = rpos_handle.pos();
+	int cid = rpos_handle.data();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cCSWITCHBLOCK) return;
 	
@@ -354,7 +354,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	int32_t csofs = (cmb.attributes[1]/10000L);
 	rpos_handle.screen->data[pos] = BOUND_COMBO(cid + cmbofs);
 	rpos_handle.screen->cset[pos] = (rpos_handle.screen->cset[pos] + csofs) & 15;
-	auto newcid = rpos_handle.screen->data[pos];
+	auto newcid = rpos_handle.data();
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
@@ -498,7 +498,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 {
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return;
 
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	mapscr* tmp = rpos_handle.screen;
 	newcombo const& cmb = combobuf[tmp->data[pos]];
 	auto type = cmb.type;
@@ -729,7 +729,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 	// TODO z3 this is repeated lots of places.
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 
-	int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
+	int32_t pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
@@ -746,7 +746,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 		{
 			// Increment all combos of the same id as the triggered combo on the base screen.
 			// If the trigger is on a layer screen, that will be the only combo on that layer incremented.
-			int32_t id = rpos_handle.screen->data[pos];
+			int32_t id = rpos_handle.data();
 			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				for (int q = 0; q < 176; ++q)
 				{
@@ -759,7 +759,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-					if (ffc_handle.ffc->getData() == id)
+					if (ffc_handle.data() == id)
 					{
 						ffc_handle.ffc->incData(1);
 					}
@@ -783,7 +783,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-					if (isStepType(combobuf[ffc_handle.ffc->getData()].type))
+					if (isStepType(combobuf[ffc_handle.data()].type))
 					{
 						ffc_handle.ffc->incData(1);
 					}
@@ -1032,7 +1032,7 @@ bool trigger_warp(newcombo const& cmb)
 
 bool trigger_chest(const rpos_handle_t& rpos_handle)
 {
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	if (unsigned(rpos_handle.layer) > 6 || unsigned(pos) > unsigned(region_max_rpos)) return false;
 
 	mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.screen : get_scr(currmap, rpos_handle.screen_index);
@@ -1260,7 +1260,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 {
 	DCHECK(rpos_handle.rpos <= region_max_rpos);
 	
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 	switch(cmb.type)
 	{
@@ -1398,7 +1398,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 	if (rpos_handle.layer != 0) return false; // Currently cannot activate on layers >0!
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	//!TODO Expand 'activation_counters' stuff to account for layers, so that layers >0 can be used
 	if (activation_counters[pos]) return false;
 	int32_t gc = 0;
@@ -1817,7 +1817,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 	tx += 8;
 	ty += 8;
 
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 
 	int32_t thesfx = cmb.attribytes[0];
@@ -2189,7 +2189,7 @@ bool trigger_switchhookblock(const rpos_handle_t& rpos_handle)
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	if(Hero.switchhookclk) return false;
 
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 	switching_object = NULL;
 	hooked_comborpos = rpos_handle.rpos;
@@ -2400,10 +2400,10 @@ static bool do_copycat_trigger(const rpos_handle_t& rpos_handle)
 {
 	if(!copycat_id) return false;
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	
 	if (unsigned(pos) > 175) return false;
-	int32_t cid = rpos_handle.screen->data[pos];
+	int32_t cid = rpos_handle.data();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
 	{
@@ -2417,7 +2417,7 @@ static bool do_copycat_trigger_ffc(const ffc_handle_t& ffc_handle)
 {
 	if(!copycat_id) return false;
 
-	int32_t cid = ffc_handle.ffc->getData();
+	int32_t cid = ffc_handle.data();
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
 	{
@@ -2431,8 +2431,8 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 {
 	if (!is_valid_rpos(rpos_handle.rpos)) return;
 
-	int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
-	int32_t cid = rpos_handle.screen->data[pos];
+	int32_t pos = rpos_handle.pos();
+	int32_t cid = rpos_handle.data();
 	int32_t ocs = rpos_handle.screen->cset[pos];
 	newcombo const& cmb = combobuf[cid];	
 	if(cmb.trigchange)
@@ -2455,7 +2455,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 	{
 		if(!copycat_id) //not already in a copycat
 		{
-			bool skipself = rpos_handle.screen->data[pos] == cid;
+			bool skipself = rpos_handle.data() == cid;
 			copycat_id = cmb.trigcopycat;
 			for_every_rpos_in_region([&](const rpos_handle_t& cc_pos_handle) {
 				if (skipself && cc_pos_handle.layer == rpos_handle.layer && cc_pos_handle.rpos == rpos_handle.rpos) return;
@@ -2521,7 +2521,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate)
 {
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
@@ -2580,10 +2580,10 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 
 	int lyr = rpos_handle.layer;
-	int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
+	int32_t pos = rpos_handle.pos();
 	// TODO z3 !!
 	cpos_info& timer = combo_posinfos[lyr][pos];
-	int32_t cid = rpos_handle.screen->data[pos];
+	int32_t cid = rpos_handle.data();
 	int32_t cx, cy;
 	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
 
@@ -2935,7 +2935,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			{
 				if(!copycat_id) //not already in a copycat
 				{
-					bool skipself = rpos_handle.screen->data[pos] == cid;
+					bool skipself = rpos_handle.data() == cid;
 					copycat_id = cmb.trigcopycat;
 					for_every_rpos_in_region([&](const rpos_handle_t& cc_pos_handle) {
 						if (skipself && cc_pos_handle.layer == rpos_handle.layer && cc_pos_handle.rpos == rpos_handle.rpos) return;
@@ -3312,8 +3312,8 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				}
 			}
 			
-			update_trig_group(timer.data, ffc_handle.ffc->getData());
-			timer.updateData(ffc_handle.ffc->getData());
+			update_trig_group(timer.data, ffc_handle.data());
+			timer.updateData(ffc_handle.data());
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -3548,7 +3548,7 @@ void trig_trigger_groups()
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		// TODO ! ffc
 		cpos_info& timer = ffc_posinfos[ffc_handle.i];
-		int cid = ffc_handle.ffc->getData();
+		int cid = ffc_handle.data();
 		const newcombo* cmb = &combobuf[cid];
 		
 		while(
@@ -3559,7 +3559,7 @@ void trig_trigger_groups()
 			)
 		{
 			do_trigger_combo_ffc(ffc_handle);
-			int cid2 = ffc_handle.ffc->getData();
+			int cid2 = ffc_handle.data();
 			update_trig_group(cid,cid2);
 			timer.updateData(cid2);
 			cmb = &combobuf[cid2];
@@ -3588,10 +3588,10 @@ void update_combo_timers()
 	recount_ffc(c);
 
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-		int pos = RPOS_TO_POS(rpos_handle.rpos);
+		int pos = rpos_handle.pos();
 		int lyr = rpos_handle.layer;
 		cpos_info& timer = combo_posinfos[lyr][pos];
-		int cid = rpos_handle.screen->data[pos];
+		int cid = rpos_handle.data();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
 		
@@ -3602,7 +3602,7 @@ void update_combo_timers()
 			{
 				timer.clk = 0;
 				do_trigger_combo(rpos_handle);
-				cid = rpos_handle.screen->data[pos];
+				cid = rpos_handle.data();
 				update_trig_group(timer.data,cid);
 				timer.updateData(cid);
 			}
@@ -3616,7 +3616,7 @@ void update_combo_timers()
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		cpos_info& timer = ffc_posinfos[ffc_handle.i];
-		int cid = ffc_handle.ffc->getData();
+		int cid = ffc_handle.data();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
 		
@@ -3627,7 +3627,7 @@ void update_combo_timers()
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc_handle);
-				cid = ffc_handle.ffc->getData();
+				cid = ffc_handle.data();
 				update_trig_group(timer.data,cid);
 				timer.updateData(cid);
 			}

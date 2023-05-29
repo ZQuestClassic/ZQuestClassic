@@ -5518,10 +5518,10 @@ struct rpos_handle_t
 	int32_t pos() const;
 
 	int32_t data() const;
-	void set_data(int32_t value);
+	void set_data(int32_t value) const;
 
 	int32_t cset() const;
-	void set_cset(int32_t value);
+	void set_cset(int32_t value) const;
 };
 
 struct ffc_handle_t
@@ -5530,6 +5530,8 @@ struct ffc_handle_t
 	int32_t screen_index;
 	int32_t i;
 	ffcdata* ffc;
+
+	int32_t data() const;
 };
 
 struct viewport_t

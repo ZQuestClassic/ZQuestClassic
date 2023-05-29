@@ -18772,8 +18772,8 @@ void set_register(int32_t arg, int32_t value)
             
 			// Preprocess each instance of the combo in the region.
 			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-				int pos = RPOS_TO_POS(rpos_handle.rpos);
-				if (rpos_handle.screen->data[pos] == screen->data[pos])
+				int pos = rpos_handle.pos();
+				if (rpos_handle.data() == screen->data[pos])
                 {
                     screen_combo_modify_preroutine(rpos_handle);
                 }
@@ -18782,8 +18782,8 @@ void set_register(int32_t arg, int32_t value)
             combobuf[screen->data[pos]].type=val;
 
 			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-				int pos = RPOS_TO_POS(rpos_handle.rpos);
-				if (rpos_handle.screen->data[pos] == screen->data[pos])
+				int pos = rpos_handle.pos();
+				if (rpos_handle.data() == screen->data[pos])
                 {
                     screen_combo_modify_postroutine(rpos_handle);
                 }

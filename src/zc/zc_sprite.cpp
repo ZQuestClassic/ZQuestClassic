@@ -642,7 +642,7 @@ bool movingblock::animate(int32_t)
 			blockmoving=false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-			size_t combopos = RPOS_TO_POS(rpos_handle.rpos);
+			size_t combopos = rpos_handle.pos();
 			int f1 = rpos_handle.screen->sflag[combopos];
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;

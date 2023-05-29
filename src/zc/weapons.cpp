@@ -173,7 +173,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 		return;
 	}
 
-	int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
+	int32_t pos = rpos_handle.pos();
 	int32_t layer = rpos_handle.layer;
 	mapscr* screen = rpos_handle.screen;
 	int32_t x, y;
@@ -426,7 +426,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 				if (ffcIsAt(ffc_handle, bx, by))
 				{
-					if (MatchComboTrigger(w, cbuf, ffc_handle.ffc->getData()))
+					if (MatchComboTrigger(w, cbuf, ffc_handle.data()))
 					{
 						do_trigger_combo_ffc(ffc_handle, 0, w);
 					}

@@ -2271,7 +2271,7 @@ int32_t rpos_handle_t::data() const
 	return screen->data[pos()];
 }
 
-void rpos_handle_t::set_data(int32_t value)
+void rpos_handle_t::set_data(int32_t value) const
 {
 	screen->data[pos()] = value;
 }
@@ -2281,9 +2281,14 @@ int32_t rpos_handle_t::cset() const
 	return screen->cset[pos()];
 }
 
-void rpos_handle_t::set_cset(int32_t value)
+void rpos_handle_t::set_cset(int32_t value) const
 {
 	screen->cset[pos()] = value;
+}
+
+int32_t ffc_handle_t::data() const
+{
+	return ffc->getData();
 }
 
 bool runscript_do_earlyret(int runscript_val)

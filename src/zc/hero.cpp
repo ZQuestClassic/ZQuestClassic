@@ -9657,7 +9657,7 @@ heroanimate_skip_liftwpn:;
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
-		newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+		newcombo const& cmb = combobuf[ffc_handle.data()];
 		
 		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 		{
@@ -12369,7 +12369,7 @@ bool HeroClass::doattack()
 						}
 					}
 					for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-						newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+						newcombo const& cmb = combobuf[ffc_handle.data()];
 						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return true;
 
 						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
@@ -20878,7 +20878,7 @@ void HeroClass::checkgenpush()
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
-				newcombo const& cmb3 = combobuf[ffc_handle.ffc->getData()];
+				newcombo const& cmb3 = combobuf[ffc_handle.data()];
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
 					do_trigger_combo_ffc(ffc_handle);
@@ -22380,7 +22380,7 @@ void HeroClass::handleSpotlights()
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		newcombo const* cmb = &combobuf[ffc_handle.ffc->getData()];
+		newcombo const* cmb = &combobuf[ffc_handle.data()];
 		size_t pos = COMBOPOS(ffc_handle.ffc->x+8, ffc_handle.ffc->y+8);
 		if(cmb->type == cLIGHTTARGET)
 		{
@@ -22669,7 +22669,7 @@ void HeroClass::checkspecial()
 
 			// generic 'Enemies->' trigger
 			for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
-				int pos = RPOS_TO_POS(rpos_handle.rpos);
+				int pos = rpos_handle.pos();
 				newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
@@ -22677,7 +22677,7 @@ void HeroClass::checkspecial()
 				}
 			});
 			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-				newcombo const& cmb = combobuf[ffc_handle.ffc->getData()];
+				newcombo const& cmb = combobuf[ffc_handle.data()];
 				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
 					do_trigger_combo_ffc(ffc_handle);
@@ -23367,7 +23367,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 			if (found)
 			{
-				newcombo const* cmb = &combobuf[ffc_handle.ffc->getData()];
+				newcombo const* cmb = &combobuf[ffc_handle.data()];
 				if (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
 				{
 					do_trigger_combo_ffc(ffc_handle);
