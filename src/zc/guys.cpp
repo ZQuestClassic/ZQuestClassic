@@ -5894,16 +5894,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		case wBait:
 			return 0;
 
-			[[fallthrough]];
 		case wFire:
-#if 0
-			if(false /*flags2&guy_mirror*/)
-			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
-			}
-			
-#endif
 			;
 		}
 	}
@@ -18012,8 +18003,6 @@ bool ePatra::animate(int32_t index)
 	}
 	if (clk4 > 0) --clk4;
 	
-	double size=1;
-	
 	if (clk6 < 0)
 	{
 		if (dmisc5 == 1 || dmisc5 == 3)
@@ -18235,7 +18224,6 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	size=.5;
 	int randattempts = 0;
 	int randeye = 0;
 	if (flycnt2 > 0)

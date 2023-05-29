@@ -18540,15 +18540,6 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		if(ret) return ret; //error, end read
 	}
 	
-	if(keepdata && false/*section_version < 34*/)
-	{
-		for(int32_t i=start_combo; i<combos_used; i++)
-		{
-			newcombo& cmb = combobuf[i];
-			//Do anything to 'cmb' needed for version handling
-		}
-	}
-	
 	if(keepdata==true)
 	{
 		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))

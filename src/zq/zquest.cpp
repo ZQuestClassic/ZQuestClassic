@@ -29721,24 +29721,13 @@ int32_t main(int32_t argc,char **argv)
 	if(!customtunes)
 	{
 		Z_error_fatal("Error");
-		quit_game();
 	}
 	
 	Z_message("OK\n");									  // Allocating MIDI buffer...
 	
-	/*memrequested+=sizeof(emusic)*MAXMUSIC;
-	Z_message("Allocating Enhanced Music buffer (%s)... ", byte_conversion2(sizeof(emusic)*MAXMUSIC,memrequested,-1,-1));
-	enhancedMusic = (emusic*)malloc(sizeof(emusic)*MAXMUSIC);
-	if(!enhancedMusic)
-	{
-	  Z_error_fatal("Error");
-	}
-	Z_message("OK\n");									  // Allocating Enhanced Music buffer...
-	*/
 	if(!get_qst_buffers())
 	{
 		Z_error_fatal("Error");
-		quit_game();
 	}
 	
 	memrequested+=sizeof(newcombo)*MAXCOMBOS;
@@ -29748,7 +29737,6 @@ int32_t main(int32_t argc,char **argv)
 	if(!undocombobuf)
 	{
 		Z_error_fatal("Error: no memory for combo undo buffer!");
-		quit_game();
 	}
 	
 	Z_message("OK\n");									  // Allocating combo undo buffer...
@@ -29759,7 +29747,6 @@ int32_t main(int32_t argc,char **argv)
 	if((newundotilebuf=(tiledata*)malloc(NEWMAXTILES*sizeof(tiledata)))==NULL)
 	{
 		Z_error_fatal("Error: no memory for tile undo buffer!");
-		quit_game();
 	}
 	
 	memset(newundotilebuf, 0, NEWMAXTILES*sizeof(tiledata));
@@ -29786,7 +29773,6 @@ int32_t main(int32_t argc,char **argv)
 	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
 	{
 		Z_error_fatal("Error: no memory for file paths!");
-		quit_game();
 	}
 	
 	Z_message("OK\n");									  // Allocating file path buffers...
@@ -29800,12 +29786,10 @@ int32_t main(int32_t argc,char **argv)
 	if(!al_init())
 	{
 		Z_error_fatal("Failed Init!");
-		quit_game();
 	}
 	if(allegro_init() != 0)
 	{
 		Z_error_fatal("Failed Init!");
-		quit_game();
 	}
 
 	int unencrypt_qst_arg = used_switch(argc, argv, "-unencrypt-qst");
@@ -29835,7 +29819,6 @@ int32_t main(int32_t argc,char **argv)
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
-		quit_game();
 	}
 
 	al5img_init();
@@ -29856,19 +29839,16 @@ int32_t main(int32_t argc,char **argv)
 	if(install_timer() < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	
 	if(install_keyboard() < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	
 	if(install_mouse() < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	
 	LOCK_VARIABLE(lastfps);
@@ -29879,7 +29859,6 @@ int32_t main(int32_t argc,char **argv)
 	if(install_int_ex(fps_callback,SECS_TO_TIMER(1)))
 	{
 		Z_error_fatal("couldn't allocate timer");
-		quit_game();
 	}
 	
 	
@@ -29946,8 +29925,7 @@ int32_t main(int32_t argc,char **argv)
 		if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
 		{
 			pack_fclose(f);
-			Z_error_fatal("failed");
-			quit_game();
+			Z_error_fatal("failed to read qst.dat");
 		}
 	}
 	
@@ -30181,7 +30159,6 @@ int32_t main(int32_t argc,char **argv)
 	if(install_int_ex(myvsync_callback,BPS_TO_TIMER(RequestedFPS)))
 	{
 		Z_error_fatal("couldn't allocate timer");
-		quit_game();
 	}
 	
 	// 1 <= zcmusic_bufsz <= 128
@@ -30425,8 +30402,6 @@ int32_t main(int32_t argc,char **argv)
 	if(!screen2 || !tmp_scr || !menu1 || !menu3 || !dmapbmp_large || !dmapbmp_large || !brushbmp || !brushscreen)// || !brushshadowbmp )
 	{
 		Z_error_fatal("Failed to create system bitmaps!\n");
-		allegro_exit();
-		quit_game();
 		return 1;
 	}
 	

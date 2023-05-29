@@ -455,11 +455,6 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 			pal[dvc(6)] = _RGB(13,14,14);//menu selected text
 			pal[dvc(7)] = _RGB(42,60,48);
 			pal[dvc(8)] = _RGB(6,49,35);//highlight on selected menu text
-			
-			byte palrstart= 10*63/255, palrend=166*63/255,
-				 palgstart= 36*63/255, palgend=202*63/255,
-				 palbstart=106*63/255, palbend=240*63/255,
-				 paldivs=7;
 		   
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
@@ -503,18 +498,6 @@ void load_colorset(int32_t colorset, PALETTE pal, ALLEGRO_COLOR* colors)
 			pal[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
 			pal[dvc(8)] = _RGB(63,49,0);
 			
-			byte palrstart= 10*63/255, palrend=166*63/255,
-				 palgstart= 36*63/255, palgend=202*63/255,
-				 palbstart=106*63/255, palbend=240*63/255,
-				 paldivs=7;
-			/*	 
-			for(int32_t i=0; i<paldivs; i++)
-			{
-				pal[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-				pal[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-				pal[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-			}
-			*/
 			jwin_pal[jcBOX]	=dvc(4);
 			jwin_pal[jcLIGHT]  =dvc(5);
 			jwin_pal[jcMEDLT]  =dvc(4);
@@ -849,7 +832,7 @@ bool load_qr_hexstr_clipboard()
 	string str(clipboardstr);
 	bool ret = load_qr_hexstr(str);
 	al_free(clipboardstr);
-	return true;
+	return ret;
 }
 
 bool load_dev_info(string& devstr)
@@ -874,7 +857,7 @@ bool load_dev_info_clipboard()
 	string str(clipboardstr);
 	bool ret = load_dev_info(str);
 	al_free(clipboardstr);
-	return true;
+	return ret;
 }
 
 string generate_zq_about()

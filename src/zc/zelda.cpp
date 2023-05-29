@@ -4649,7 +4649,6 @@ int main(int argc, char **argv)
 			Z_error_fatal("-standalone requires a quest file, e.g.\n" \
 					"  -standalone MyQuest.qst\n" \
 					"  -standalone \"Name with spaces.qst\"");
-			exit(1);
 		}
 		
 		standalone_quest=argv[arg+1];
@@ -4661,7 +4660,6 @@ int main(int argc, char **argv)
 		  stricmp(standalone_quest, "5th.qst")==0)
 		{
 			Z_error_fatal("Standalone mode can only be used with custom quests.");
-			exit(1);
 		}
 		
 		regulate_path(standalone_quest);
@@ -4679,7 +4677,6 @@ int main(int argc, char **argv)
 	if(!qstdir || !qstpath)
 	{
 		Z_error_fatal("Allocation error");
-		quit_game();
 	}
 	
 	qstdir[0] = 0;
@@ -4690,19 +4687,16 @@ int main(int argc, char **argv)
 	if(!get_qst_buffers())
 	{
 		Z_error_fatal("Error");
-		quit_game();
 	}
 	
 	Z_message("Initializing Allegro... ");
 	if(!al_init())
 	{
 		Z_error_fatal("Failed Init!");
-		quit_game();
 	}
 	if(allegro_init() != 0)
 	{
 		Z_error_fatal("Failed Init!");
-		quit_game();
 	}
 
 	// Merge old a4 config into a5 system config.
@@ -4722,19 +4716,16 @@ int main(int argc, char **argv)
 	if(!al_init_image_addon())
 	{
 		Z_error_fatal("Failed al_init_image_addon");
-		quit_game();
 	}
 
 	if(!al_init_font_addon())
 	{
 		Z_error_fatal("Failed al_init_font_addon");
-		quit_game();
 	}
 
 	if(!al_init_primitives_addon())
 	{
 		Z_error_fatal("Failed al_init_primitives_addon");
-		quit_game();
 	}
 
 	al5img_init();
@@ -4780,26 +4771,22 @@ int main(int argc, char **argv)
 	if(install_timer() < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	
 	if(install_keyboard() < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	poll_keyboard();
 	
 	if(install_mouse() < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	
 	if(install_joystick(JOY_TYPE_AUTODETECT) < 0)
 	{
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	
 	//set_keyboard_rate(1000,160);
@@ -4809,7 +4796,6 @@ int main(int argc, char **argv)
 	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
 	{
 		Z_error_fatal("Could not install timer.\n");
-		quit_game();
 	}
 	
 	LOCK_VARIABLE(myvsync);
@@ -4825,7 +4811,6 @@ int main(int argc, char **argv)
 	if(timerfail)
 	{
 		Z_error_fatal("Couldn't Allocate Timers");
-		quit_game();
 	}
 	
 	Z_message("OK\n");
@@ -4935,7 +4920,6 @@ int main(int argc, char **argv)
 			|| !script_menu_buf || !f6_menu_buf)
 	{
 		Z_error_fatal("Error");
-		quit_game();
 	}
 	
 	clear_bitmap(lightbeam_bmp);
@@ -5046,13 +5030,11 @@ int main(int argc, char **argv)
 	if((datafile=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
 	{
 		Z_error_fatal("failed");
-		quit_game();
 	}
 	
 	if(strncmp((char*)datafile[0].dat,zeldadat_sig,24))
 	{
 		Z_error_fatal("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
-		quit_game();
 	}
 	
 	Z_message("OK\n");
@@ -5063,18 +5045,15 @@ int main(int argc, char **argv)
 	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
 	{
 		Z_error_fatal("failed");
-		quit_game();
 	}
 	if(fontsdat_cnt != FONTSDAT_CNT)
 	{
 		Z_error_fatal("failed: count error (found %d != exp %d)\n", fontsdat_cnt, FONTSDAT_CNT);
-		quit_game();
 	}
 	
 	if(strncmp((char*)fontsdata[0].dat,fontsdat_sig,24))
 	{
 		Z_error_fatal("\nIncompatible version of fonts.dat.\nPlease upgrade to %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
-		quit_game();
 	}
 	
 	Z_message("OK\n");
@@ -5087,13 +5066,11 @@ int main(int argc, char **argv)
 	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
 	{
 		Z_error_fatal("failed");
-		quit_game();
 	}
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
 	{
 		Z_error_fatal("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
-		quit_game();
 	}
 	
 	Z_message("OK\n");
@@ -5330,7 +5307,6 @@ int main(int argc, char **argv)
 	{
 		al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
 		Z_error_fatal(allegro_error);
-		quit_game();
 	}
 	else
 	{
@@ -5423,7 +5399,6 @@ int main(int argc, char **argv)
 		{
 			Z_error_fatal( "-test missing parameters:\n"
 				"-test \"quest_file_path\" test_dmap test_screen\n" );
-			exit(1);
 		}
 		bool error = false;
 		testingqst_name = argv[test_arg+1];
@@ -5434,26 +5409,22 @@ int main(int argc, char **argv)
 		{
 			Z_error_fatal( "-test invalid parameter: 'quest_file_path' was '%s',"
 				" but that file does not exist!\n", testingqst_name.c_str());
-			error = true;
 		}
 		if(unsigned(dm) >= MAXDMAPS)
 		{
 			Z_error_fatal( "-test invalid parameter: 'test_dmap' was '%d'."
 				" Must be '0 <= test_dmap < %d'\n", dm, MAXDMAPS);
-			error = true;
 		}
 		if(unsigned(scr) >= 0x80)
 		{
 			Z_error_fatal( "-test invalid parameter: 'test_screen' was '%d'."
 				" Must be '0 <= test_screen < 128'\n", scr);
-			error = true;
 		}
 		if(unsigned(retsqr) > 3) retsqr = 0;
 		
 		if(error)
 		{
 			Z_error_fatal("Failed '-test \"%s\" %d %d'\n", testingqst_name.c_str(), dm, scr);
-			exit(1);
 		}
 		use_testingst_start = true;
 		testingqst_dmap = (uint16_t)dm;
@@ -5640,7 +5611,6 @@ reload_for_replay_file:
 		if(load_savedgames() != 0)
 		{
 			Z_error_fatal("Insufficient memory");
-			quit_game();
 		}
 		zprint2("Finished Loading Saved Games\n");
 	}

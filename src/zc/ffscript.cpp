@@ -6156,8 +6156,6 @@ int32_t get_register(const int32_t arg)
 		
 		case NPCSCRIPT:
 		{
-			int32_t a = ri->d[rINDEX] / 10000;
-			
 			if(GuyH::loadNPC(ri->guyref, "npc->Script") != SH::_NoError )
 				ret = -10000;
 			else
@@ -12420,7 +12418,6 @@ int32_t get_register(const int32_t arg)
 			int32_t init_d_index = get_register(sarg2) / 10000;
 			
 			string name;
-			int32_t num=-1;
 			ArrayH::getString(arrayptr, name, 256); // What's the limit on name length?
 			
 			bool match = (!( strcmp(name.c_str(), guysbuf[ri->npcdataref].initD_label[init_d_index] )));
@@ -26229,13 +26226,11 @@ void FFScript::do_paldata_write_cycle()
 	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->WriteCyclePalette()"))
 	{
 		int32_t lvl = get_register(sarg1) / 10000;
-		bool changed = false;
 		for (int32_t q = 4; q <= 12; ++q)
 		{
 			if (pd->check_cset(q, lvl * pdLEVEL + poLEVEL + q))
 			{
 				pd->write_cset(q, lvl * pdLEVEL + poLEVEL + q);
-				changed = true;
 			}
 		}
 	}
@@ -27554,32 +27549,6 @@ void do_createlweapon(const bool v)
 		ri->lwpn = 0; // Now NULL
 		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
 	}
-	return; //do not use the old code, below here. 
-		//old version is below
-	if ( Lwpns.has_space() )
-	{
-		Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,ID,0,0,0,-1,false,1,Hero.getUID(),1));
-		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
-		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
-	}
-	else
-	{
-		ri->lwpn = 0;
-		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
-	}
-	//addLwpn(0, 0, 0, ID, 0, 0, 0, Hero.getUID());
-	/*
-	if(Lwpns.Count() < 1)
-	{
-		ri->lwpn = MAX_DWORD;
-		Z_scripterrlog("Couldn't create lweapon %ld, screen lweapon limit reached\n", ID);
-	}
-	else
-	{
-		ri->lwpn = Lwpns.spr(Lwpns.Count() - 1)->getUID();
-		Z_eventlog("Script created lweapon %ld with UID = %ld\n", ID, ri->lwpn);
-	}
-	*/
 }
 
 void do_createeweapon(const bool v)
@@ -27615,19 +27584,6 @@ void do_createeweapon(const bool v)
 		ri->ewpn = 0;
 		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
 	}
-	//addEwpn(0, 0, 0, ID, 0, 0, 0, -1);
-	/*
-	if(Ewpns.Count() < 1)
-	{
-		ri->ewpn = MAX_DWORD;
-		Z_scripterrlog("Couldn't create eweapon %ld, screen eweapon limit reached\n", ID);
-	}
-	else
-	{
-		ri->ewpn = Ewpns.spr(Ewpns.Count() - 1)->getUID();
-		Z_eventlog("Script created eweapon %ld with UID = %ld\n", ID, ri->ewpn);
-	}
-	*/
 }
 
 void do_createitem(const bool v)
@@ -28564,7 +28520,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 
 	if ( warpType == wtNOWARP ) { Z_eventlog("Used a Cancel Warped to DMap %d: %s, screen %d", currdmap, DMaps[currdmap].name,currscr); return false; }
 	int32_t mapID = (DMaps[dmapID].map+1);
-	int32_t warp_return_index = -1;
 	int32_t dest_dmap_xoff = DMaps[dmapID].xoff;	
 	//mapscr *m = &TheMaps[mapID * MAPSCRS + scrID]; 
 	mapscr *m = &TheMaps[(zc_max((mapID)-1,0) * MAPSCRS + dest_dmap_xoff + scrID)];
@@ -28615,7 +28570,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	//zprint("FFCore.warp_player reached line: %d \n", 15918);
 	//warp coordinates are wx, wy, not x, y! -Z
 	if ( !(warpFlags&warpFlagDONTKILLSCRIPTDRAWS) ) script_drawing_commands.Clear();
-	int32_t wrindex = 0;
 	//we also need to check if dmaps are sideview here! -Z
 	//Likewise, we need to add that check to the normal Hero:;dowarp(0
 	bool wasSideview = isSideViewGravity(t); //((tmpscr[t].flags7 & fSIDEVIEW)!=0 || DMaps[currdmap].sideview) && !ignoreSideview;
@@ -31798,10 +31752,10 @@ j_command:
 
 			case ADJUSTSFX:
 			{
-				int32_t sound = ri->d[rEXP1]/10000;
-				int32_t pan = ri->d[rINDEX2];
+				// int32_t sound = ri->d[rEXP1]/10000;
+				// int32_t pan = ri->d[rINDEX2];
 				// control_state[6]=((value/10000)!=0)?true:false;
-				bool loop = ((ri->d[rINDEX]/10000)!=0)?true:false;
+				// bool loop = ((ri->d[rINDEX]/10000)!=0)?true:false;
 				//SFXBackend.adjust_sfx(sound,pan,loop);
 				
 				//! adjust_sfx was not ported to the new back end!!! -Z
@@ -36845,7 +36799,7 @@ void FFScript::init()
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
-	int32_t usr_midi_volume = midi_volume;
+	usr_midi_volume = midi_volume;
 	usr_digi_volume = digi_volume;
 	usr_sfx_volume = sfx_volume;
 	usr_music_volume = emusic_volume;
@@ -37058,7 +37012,6 @@ void FFScript::do_warp_ex(bool v)
 	ArrayManager am(zscript_array_ptr);
 	if(am.invalid()) return;
 	int32_t zscript_array_size = am.size();
-	bool success = false;
 	switch(zscript_array_size)
 	{
 		case 8:
@@ -37957,7 +37910,7 @@ bool FFScript::do_itemsprite_delete()
 void FFScript::updateIncludePaths()
 {
 	includePaths.clear();
-	int32_t pos = 0; int32_t pathnumber = 0;
+	int32_t pos = 0;
 	for ( int32_t q = 0; includePathString[pos]; ++q )
 	{
 		int32_t dest = 0;
@@ -38367,7 +38320,7 @@ void FFScript::do_npc_simulate_hit(const bool v)
 		//enemy *e = (enemy*)guys.spr(GuyH::getNPCIndex(ri->guyref));
 		if ( sz == 2 ) //type and pointer
 		{
-			int32_t type = am.get(0)/10000;
+			// int32_t type = am.get(0)/10000;
 			
 			//switch(type)
 			//{
@@ -38423,7 +38376,7 @@ void FFScript::do_npc_add(const bool v)
 	if(am.invalid()) return;
 	int32_t sz = am.size();
 	
-	int32_t id = 0, nx = 0, ny = 0, clk = -10;
+	int32_t id = 0, nx = 0, ny = 0;
 	
 	if ( sz < 1 ) 
 	{
@@ -42647,7 +42600,6 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 			else if(format[0] == '%')
 			{
 				++format;
-				bool hex_upper = true;
 				int32_t min_digits = 0;
 				if(format[0] == '0' && !is_old_args)
 				{
@@ -42764,7 +42716,7 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 
 void FFScript::do_printf(const bool v, const bool varg)
 {
-	int32_t num_args, dest_arrayptr, format_arrayptr;
+	int32_t num_args, format_arrayptr;
 	if(varg)
 	{
 		num_args = zs_vargs.size();
@@ -47274,7 +47226,6 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 			int32_t idval = c+(176*q);
 			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
 			word cid = m->data[c];
-			int32_t type = combobuf[cid].type;
 			if(combo_id_cache[idval] < 0)
 				combo_id_cache[idval] = cid;
 			else if(combo_id_cache[idval] != cid)

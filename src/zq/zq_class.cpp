@@ -6748,6 +6748,10 @@ int32_t reverse_string(char* str)
     return 0;
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunreachable-code"
+#endif
 
 int32_t quest_access(const char *filename, zquestheader *hdr)
 {
@@ -6956,6 +6960,11 @@ void popup_bugfix_dlg(const char* cfg)
 		).show();
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 // wrapper to reinitialize everything on an error
 int32_t load_quest(const char *filename)
 {
