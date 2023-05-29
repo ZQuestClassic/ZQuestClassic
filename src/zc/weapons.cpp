@@ -14,6 +14,7 @@
 
 #include <string>
 
+#include "base/zdefs.h"
 #include "zc/weapons.h"
 #include "zc/guys.h"
 #include "zc/zelda.h"
@@ -27,6 +28,7 @@
 #include "drawing.h"
 #include "zc/combos.h"
 #include "base/zc_math.h"
+#include "iter.h"
 
 extern HeroClass Hero;
 extern zinitdata zinit;
@@ -421,27 +423,29 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	{
 		if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 		{
-			word c = tmpscr.numFFC();
-			for(word i=0; i<c; i++)
-			{
-				if (ffcIsAt(i, bx, by))
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				if (ffcIsAt(ffc_handle, bx, by))
 				{
-					ffcdata& ffc = tmpscr.ffcs[i];
-					if(!MatchComboTrigger(w, cbuf, ffc.getData())) continue;
-					// TODO z3 !
-					do_trigger_combo_ffc({&tmpscr, currscr, i, &ffc}, 0, w);
+					if (MatchComboTrigger(w, cbuf, ffc_handle.ffc->getData()))
+					{
+						do_trigger_combo_ffc(ffc_handle, 0, w);
+					}
 				}
-			}
+				return true;
+			});
 		}
 	}
+
 	//find out which combo row/column the coordinates are in
 	bx=vbound(bx, 0, world_w-1);
 	by=vbound(by, 0, world_h-1);
 	bx=TRUNCATE_TILE(bx);
 	by=TRUNCATE_TILE(by);
-	int32_t cid = (layer) ? MAPCOMBOL(layer,bx,by) : MAPCOMBO(bx,by);
+	pos_handle_t pos_handle = get_pos_handle_for_world_xy(bx, by, layer);
+	int32_t cid = pos_handle.data();
 	if(!MatchComboTrigger(w, cbuf, cid)) return;
-	do_trigger_combo(layer, COMBOPOS(bx,by), 0, w);
+
+	do_trigger_combo(pos_handle, 0, w);
 }
 
 /**************************************/

@@ -127,6 +127,8 @@
   */
 
 #include <cstdio>
+#include <stddef.h>
+#include <stdint.h>
 #include <math.h>
 #include <string.h>
 #include <vector>
@@ -5513,7 +5515,7 @@ struct pos_handle_t
 	int32_t layer;
 	rpos_t rpos;
 
-	// TODO z3 data() pos_handle.screen->data[pos]
+	int32_t data() const;
 };
 
 struct ffc_handle_t

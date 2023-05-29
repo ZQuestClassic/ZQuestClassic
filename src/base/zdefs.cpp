@@ -2260,6 +2260,12 @@ int32_t viewport_t::bottom() const
 	return y + h;
 }
 
+int32_t pos_handle_t::data() const
+{
+	int32_t pos = static_cast<int32_t>(rpos)%176;
+	return screen->data[pos];
+}
+
 bool runscript_do_earlyret(int runscript_val)
 {
 	switch(runscript_val)
