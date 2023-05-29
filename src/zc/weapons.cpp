@@ -165,7 +165,7 @@ void killgenwpn(weapon* w)
 	}
 }
 
-void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid, 
+void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid, 
 	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, bool single16) //WID currently is unused; if you add code relating to it, make sure to check if it's greater than 0
 {
 	if ( combobuf[cid].type < cTRIGGERGENERIC && !(combobuf[cid].usrflags&cflag9 )  )  //Script combos need an 'Engine' flag
@@ -173,11 +173,11 @@ void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid,
 		return;
 	}
 
-	int32_t pos = RPOS_TO_POS(pos_handle.rpos);
-	int32_t layer = pos_handle.layer;
-	mapscr* screen = pos_handle.screen;
+	int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
+	int32_t layer = rpos_handle.layer;
+	mapscr* screen = rpos_handle.screen;
 	int32_t x, y;
-	COMBOXY_REGION(pos_handle.rpos, x, y);
+	COMBOXY_REGION(rpos_handle.rpos, x, y);
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
 	// TODO z3 !
@@ -237,11 +237,11 @@ void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid,
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
-			screen_combo_modify_preroutine(pos_handle);
+			screen_combo_modify_preroutine(rpos_handle);
 			screen->data[pos] = screen->secretcombo[ft];
 			screen->cset[pos] = screen->secretcset[ft];
 			screen->sflag[pos] = screen->secretflag[ft];
-			screen_combo_modify_postroutine(pos_handle);
+			screen_combo_modify_postroutine(rpos_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],x);
 		}
@@ -253,7 +253,7 @@ void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid,
 			{
 				if (layer) 
 				{
-					screen_combo_modify_preroutine(pos_handle);
+					screen_combo_modify_preroutine(rpos_handle);
 					
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
@@ -265,11 +265,11 @@ void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid,
 					else
 						++screen->data[pos];
 					
-					screen_combo_modify_postroutine(pos_handle);
+					screen_combo_modify_postroutine(rpos_handle);
 				}
 				else
 				{
-					screen_combo_modify_preroutine(pos_handle);
+					screen_combo_modify_preroutine(rpos_handle);
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
@@ -281,7 +281,7 @@ void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid,
 					{
 						screen->data[pos]=vbound(screen->data[pos]+1,0,MAXCOMBOS);
 					}
-					screen_combo_modify_postroutine(pos_handle);
+					screen_combo_modify_postroutine(rpos_handle);
 				}
 				
 				if ( combobuf[cid].usrflags&cflag8 ) w->dead = 1;
@@ -295,7 +295,7 @@ void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid,
 		}
 		if((combobuf[cid].usrflags&cflag14)) //drop enemy
 		{
-			addenemy(pos_handle.screen_index,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
+			addenemy(rpos_handle.screen_index,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
 	// TODO z3 !
@@ -441,11 +441,11 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	by=vbound(by, 0, world_h-1);
 	bx=TRUNCATE_TILE(bx);
 	by=TRUNCATE_TILE(by);
-	pos_handle_t pos_handle = get_pos_handle_for_world_xy(bx, by, layer);
-	int32_t cid = pos_handle.data();
+	rpos_handle_t rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
+	int32_t cid = rpos_handle.data();
 	if(!MatchComboTrigger(w, cbuf, cid)) return;
 
-	do_trigger_combo(pos_handle, 0, w);
+	do_trigger_combo(rpos_handle, 0, w);
 }
 
 /**************************************/

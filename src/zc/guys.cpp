@@ -20896,19 +20896,19 @@ bool ok2add(int32_t id)
 	return true;
 }
 
-static void activate_fireball_statue(const pos_handle_t& pos_handle)
+static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 {
-	if (!(pos_handle.screen->enemyflags&efFIREBALLS) || statueID<0)
+	if (!(rpos_handle.screen->enemyflags&efFIREBALLS) || statueID<0)
 	{
 		return;
 	}
 
-	int pos = RPOS_TO_POS(pos_handle.rpos);
-	int32_t ctype = combobuf[pos_handle.screen->data[pos]].type;
+	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	int32_t ctype = combobuf[rpos_handle.screen->data[pos]].type;
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
 	int32_t x, y;
-	COMBOXY_REGION(pos_handle.rpos, x, y);
+	COMBOXY_REGION(rpos_handle.rpos, x, y);
 
 	int32_t cx=-1000, cy=-1000;
 	if(!isfixedtogrid(statueID))
@@ -20948,7 +20948,7 @@ static void activate_fireball_statue(const pos_handle_t& pos_handle)
 			}
 		}
 		
-		addenemy(pos_handle.screen_index, cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
+		addenemy(rpos_handle.screen_index, cx, cy, statueID, !isfixedtogrid(statueID) ? 24 : 0);
 	}
 }
 
@@ -20959,10 +20959,10 @@ static void activate_fireball_statues(mapscr* screen, int screen_index)
 		return;
 	}
 
-	for_every_rpos_in_screen(screen, screen_index, [&](const pos_handle_t& pos_handle) {
-		if (pos_handle.layer == 0)
+	for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
+		if (rpos_handle.layer == 0)
 		{
-			activate_fireball_statue(pos_handle);
+			activate_fireball_statue(rpos_handle);
 		}
 	});
 }
@@ -21032,8 +21032,8 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
-				pos_handle_t pos_handle = {screen, screen_index, 0, COMBOPOS_REGION(dx + x, dy + y)};
-				awaken_spinning_tile(pos_handle);
+				rpos_handle_t rpos_handle = {screen, screen_index, 0, COMBOPOS_REGION(dx + x, dy + y)};
+				awaken_spinning_tile(rpos_handle);
 			}
 		}
 	}
@@ -21061,13 +21061,13 @@ void load_default_enemies(mapscr* screen, int screen_index)
 	}
 }
 
-void update_slope_combopos(const pos_handle_t& pos_handle)
+void update_slope_combopos(const rpos_handle_t& rpos_handle)
 {
-	mapscr* s = pos_handle.screen;
-	int pos = RPOS_TO_POS(pos_handle.rpos);
+	mapscr* s = rpos_handle.screen;
+	int pos = RPOS_TO_POS(rpos_handle.rpos);
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
-	rpos_t id = SLOPE_ID(pos_handle.rpos, pos_handle.layer);
+	rpos_t id = SLOPE_ID(rpos_handle.rpos, rpos_handle.layer);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
@@ -21084,16 +21084,16 @@ void update_slope_combopos(const pos_handle_t& pos_handle)
 }
 void update_slope_comboposes()
 {
-	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-		update_slope_combopos(pos_handle);
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		update_slope_combopos(rpos_handle);
 	});
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
-void screen_combo_modify_preroutine(const pos_handle_t& pos_handle)
+void screen_combo_modify_preroutine(const rpos_handle_t& rpos_handle)
 {
-	delete_fireball_shooter(pos_handle);
+	delete_fireball_shooter(rpos_handle);
 }
 
 //Placeholder in case we need it.
@@ -21103,18 +21103,18 @@ void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 }
 
 // Everything that must be done after we change a screen's combo to another combo. -L
-void screen_combo_modify_postroutine(const pos_handle_t& pos_handle)
+void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 {
-	int pos = RPOS_TO_POS(pos_handle.rpos);
-	pos_handle.screen->valid |= mVALID;
-	activate_fireball_statue(pos_handle);
+	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	rpos_handle.screen->valid |= mVALID;
+	activate_fireball_statue(rpos_handle);
 
-	if(combobuf[pos_handle.screen->data[pos]].type==cSPINTILE1)
+	if(combobuf[rpos_handle.screen->data[pos]].type==cSPINTILE1)
 	{
-		awaken_spinning_tile(pos_handle);
+		awaken_spinning_tile(rpos_handle);
 	}
 
-	update_slope_combopos(pos_handle);
+	update_slope_combopos(rpos_handle);
 }
 
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
@@ -21141,21 +21141,21 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 
 void screen_combo_modify_pre(int32_t cid)
 {
-	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-		int pos = RPOS_TO_POS(pos_handle.rpos);
-		if (pos_handle.screen->data[pos] == cid)
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		int pos = RPOS_TO_POS(rpos_handle.rpos);
+		if (rpos_handle.screen->data[pos] == cid)
 		{
-			screen_combo_modify_preroutine(pos_handle);
+			screen_combo_modify_preroutine(rpos_handle);
 		}
 	});
 }
 void screen_combo_modify_post(int32_t cid)
 {
-	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-		int pos = RPOS_TO_POS(pos_handle.rpos);
-		if (pos_handle.screen->data[pos] == cid)
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		int pos = RPOS_TO_POS(rpos_handle.rpos);
+		if (rpos_handle.screen->data[pos] == cid)
 		{
-			screen_combo_modify_postroutine(pos_handle);
+			screen_combo_modify_postroutine(rpos_handle);
 		}
 	});
 
@@ -21168,13 +21168,13 @@ void screen_combo_modify_post(int32_t cid)
 	});
 }
 
-void awaken_spinning_tile(const pos_handle_t& pos_handle)
+void awaken_spinning_tile(const rpos_handle_t& rpos_handle)
 {
-	int pos = RPOS_TO_POS(pos_handle.rpos);
-	mapscr* s = pos_handle.screen;
+	int pos = RPOS_TO_POS(rpos_handle.rpos);
+	mapscr* s = rpos_handle.screen;
 	int x, y;
-	COMBOXY_REGION(pos_handle.rpos, x, y);
-	addenemy(pos_handle.screen_index, x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
+	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	addenemy(rpos_handle.screen_index, x, y, (s->cset[pos]<<12)+eSPINTILE1, combobuf[s->data[pos]].o_tile + zc_max(1,combobuf[s->data[pos]].frames));
 }
 
 // It stands for next_side_pos

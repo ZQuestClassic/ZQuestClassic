@@ -18554,10 +18554,10 @@ void set_register(int32_t arg, int32_t value)
 		else
 		{
 			// TODO z3 !!
-			auto pos_handle = get_pos_handle(rpos, 0);
-			screen_combo_modify_preroutine(pos_handle);
-			pos_handle.set_data(val);
-			screen_combo_modify_postroutine(pos_handle);
+			auto rpos_handle = get_rpos_handle(rpos, 0);
+			screen_combo_modify_preroutine(rpos_handle);
+			rpos_handle.set_data(val);
+			screen_combo_modify_postroutine(rpos_handle);
 		}
 	}
 	break;
@@ -18577,10 +18577,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			auto pos_handle = get_pos_handle(rpos, 0);
-			screen_combo_modify_preroutine(pos_handle);
-			pos_handle.set_cset(val&15);
-			screen_combo_modify_postroutine(pos_handle);
+			auto rpos_handle = get_rpos_handle(rpos, 0);
+			screen_combo_modify_preroutine(rpos_handle);
+			rpos_handle.set_cset(val&15);
+			screen_combo_modify_postroutine(rpos_handle);
 		}
 	}
 	break;
@@ -18700,10 +18700,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			auto pos_handle = get_pos_handle(rpos, 0);
-			screen_combo_modify_preroutine(pos_handle);
-			pos_handle.screen->data[pos]=(val);
-			screen_combo_modify_postroutine(pos_handle);
+			auto rpos_handle = get_rpos_handle(rpos, 0);
+			screen_combo_modify_preroutine(rpos_handle);
+			rpos_handle.screen->data[pos]=(val);
+			screen_combo_modify_postroutine(rpos_handle);
 		}
 	}
 	break;
@@ -18723,10 +18723,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			auto pos_handle = get_pos_handle(rpos, 0);
-			screen_combo_modify_preroutine(pos_handle);
-			pos_handle.screen->cset[pos]=(val)&15;
-			screen_combo_modify_postroutine(pos_handle);
+			auto rpos_handle = get_rpos_handle(rpos, 0);
+			screen_combo_modify_preroutine(rpos_handle);
+			rpos_handle.screen->cset[pos]=(val)&15;
+			screen_combo_modify_postroutine(rpos_handle);
 		}
 	}
 	break;
@@ -18771,21 +18771,21 @@ void set_register(int32_t arg, int32_t value)
 			mapscr* screen = get_screen_for_rpos(rpos);
             
 			// Preprocess each instance of the combo in the region.
-			for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-				int pos = RPOS_TO_POS(pos_handle.rpos);
-				if (pos_handle.screen->data[pos] == screen->data[pos])
+			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+				int pos = RPOS_TO_POS(rpos_handle.rpos);
+				if (rpos_handle.screen->data[pos] == screen->data[pos])
                 {
-                    screen_combo_modify_preroutine(pos_handle);
+                    screen_combo_modify_preroutine(rpos_handle);
                 }
 			});
             
             combobuf[screen->data[pos]].type=val;
 
-			for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-				int pos = RPOS_TO_POS(pos_handle.rpos);
-				if (pos_handle.screen->data[pos] == screen->data[pos])
+			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+				int pos = RPOS_TO_POS(rpos_handle.rpos);
+				if (rpos_handle.screen->data[pos] == screen->data[pos])
                 {
-                    screen_combo_modify_postroutine(pos_handle);
+                    screen_combo_modify_postroutine(rpos_handle);
                 }
 			});
         }
@@ -20757,10 +20757,10 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					pos_handle_t pos_handle = get_pos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
-					screen_combo_modify_preroutine(pos_handle);
+					rpos_handle_t rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
+					screen_combo_modify_preroutine(rpos_handle);
 					m->data[pos]=val;
-					screen_combo_modify_postroutine(pos_handle);
+					screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			else
@@ -20786,10 +20786,10 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					pos_handle_t pos_handle = get_pos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
-					screen_combo_modify_preroutine(pos_handle);
+					rpos_handle_t rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
+					screen_combo_modify_preroutine(rpos_handle);
 					m->cset[pos]=(val)&15;
-					screen_combo_modify_postroutine(pos_handle);
+					screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			else
@@ -36003,23 +36003,23 @@ void FFScript::do_triggersecret(const bool v)
 				if ( iter == 1 )
 				{
 					if ( s->sflag[q] == ID ) {
-						pos_handle_t pos_handle = get_pos_handle_for_screen(currscr, 0, q);
-						screen_combo_modify_preroutine(pos_handle);
+						rpos_handle_t rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
+						screen_combo_modify_preroutine(rpos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
 						s->sflag[q] = s->secretflag[ft];
-						screen_combo_modify_postroutine(pos_handle);
+						screen_combo_modify_postroutine(rpos_handle);
 					}
 				}
 				//Inherent flags
 				else
 				{
 					if ( combobuf[s->data[q]].flag == ID ) {
-						pos_handle_t pos_handle = get_pos_handle_for_screen(currscr, 0, q);
-						screen_combo_modify_preroutine(pos_handle);
+						rpos_handle_t rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
+						screen_combo_modify_preroutine(rpos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
-						screen_combo_modify_postroutine(pos_handle);
+						screen_combo_modify_postroutine(rpos_handle);
 					}
 					
 				}

@@ -3864,7 +3864,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	int flag3 = cmb_ff.flag;
 	
 	rpos_t rpos = COMBOPOS_REGION(bx, by);
-	auto pos_handle = get_pos_handle(rpos, 0);
+	auto rpos_handle = get_rpos_handle(rpos, 0);
 	int32_t i = RPOS_TO_POS(rpos);
 	
 	if (!is_valid_rpos(rpos))
@@ -3902,7 +3902,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignoreffc = true;
 	}
 	
-	mapscr *s = currscr >= 128 ? &special_warp_return_screen : pos_handle.screen;
+	mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.screen;
 	
 	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
@@ -5246,7 +5246,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     int32_t pos = RPOS_TO_POS(rpos);
     if (unsigned(rpos) > unsigned(region_max_rpos))
         return;
-	pos_handle_t pos_handle = get_pos_handle(rpos, 0);
+	rpos_handle_t rpos_handle = get_rpos_handle(rpos, 0);
         
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -8392,8 +8392,8 @@ heroanimate_skip_liftwpn:;
 											if(!(hooked_layerbits & (1<<q)))
 												continue; //non-switching layer
 											
-											auto target_pos_handle = get_pos_handle(targrpos, q);
-											auto player_pos_handle = get_pos_handle(plrpos, q);
+											auto target_pos_handle = get_rpos_handle(targrpos, q);
+											auto player_pos_handle = get_rpos_handle(plrpos, q);
 											
 											mapscr* player_scr = player_pos_handle.screen;
 											mapscr* target_scr = target_pos_handle.screen;
@@ -10777,8 +10777,8 @@ void HeroClass::doSwitchHook(byte style)
 		
 		for(auto q = max_layer; q > -1; --q)
 		{
-			auto target_pos_handle = get_pos_handle(hooked_comborpos, q);
-			auto player_pos_handle = get_pos_handle(plrpos, q);
+			auto target_pos_handle = get_rpos_handle(hooked_comborpos, q);
+			auto player_pos_handle = get_rpos_handle(plrpos, q);
 			
 			mapscr* player_scr = player_pos_handle.screen;
 			mapscr* target_scr = target_pos_handle.screen;
@@ -19683,8 +19683,8 @@ bool HeroClass::checksoliddamage()
 		{
 			if (bx >= world_w || by >= world_h) break;
 
-			auto pos_handle = get_pos_handle(COMBOPOS_REGION(bx, by), i);
-			newcombo const& cmb = combobuf[pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)]];
+			auto rpos_handle = get_rpos_handle(COMBOPOS_REGION(bx, by), i);
+			newcombo const& cmb = combobuf[rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)]];
 			t = cmb.type;
 			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)
 				t = cNONE;
@@ -19839,8 +19839,8 @@ void HeroClass::checkpushblock()
 			continue;
 		// TODO z3 !
 		cpos_info& cpinfo = combo_posinfos[lyr][combopos];
-		auto pos_handle = get_pos_handle(rpos, lyr);
-		mapscr* m = pos_handle.screen;
+		auto rpos_handle = get_rpos_handle(rpos, lyr);
+		mapscr* m = rpos_handle.screen;
 		int cid = lyr == 0 ? MAPCOMBO(bx,by) : MAPCOMBOL(lyr,bx,by);
 		newcombo const& cmb = combobuf[cid];
 		int f = MAPFLAG2(lyr-1,bx,by);
@@ -20257,16 +20257,16 @@ void HeroClass::oldchecklockblock()
 	if(!try_locked_combo(cmb3))
 		return;
 	
-	auto pos_handle = found1 ? get_pos_handle_for_world_xy(bx, by, 0) : get_pos_handle_for_world_xy(bx2, by, 0);
+	auto rpos_handle = found1 ? get_rpos_handle_for_world_xy(bx, by, 0) : get_rpos_handle_for_world_xy(bx2, by, 0);
 	if(cmb.usrflags&cflag16)
 	{
-		setxmapflag(pos_handle.screen_index, 1<<cmb.attribytes[5]);
-		remove_xstatecombos(pos_handle.screen, pos_handle.screen_index, 1<<cmb.attribytes[5], false);
+		setxmapflag(rpos_handle.screen_index, 1<<cmb.attribytes[5]);
+		remove_xstatecombos(rpos_handle.screen, rpos_handle.screen_index, 1<<cmb.attribytes[5], false);
 	}
 	else
 	{
-		setmapflag(pos_handle.screen, pos_handle.screen_index, mLOCKBLOCK);
-		remove_lockblocks(pos_handle.screen, pos_handle.screen_index);
+		setmapflag(rpos_handle.screen, rpos_handle.screen_index, mLOCKBLOCK);
+		remove_lockblocks(rpos_handle.screen, rpos_handle.screen_index);
 	}
 	if ( cmb3.usrflags&cflag3 )
 	{
@@ -20814,11 +20814,11 @@ void HeroClass::checkchest(int32_t type)
 	
 	if(ischest)
 	{
-		if (!trigger_chest(get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
+		if (!trigger_chest(get_rpos_handle_for_world_xy(fx, fy, foundlayer))) return;
 	}
 	else if(islockblock)
 	{
-		if (!trigger_lockblock(get_pos_handle_for_world_xy(fx, fy, foundlayer))) return;
+		if (!trigger_lockblock(get_rpos_handle_for_world_xy(fx, fy, foundlayer))) return;
 	}
 	if(intbtn && (cmb->usrflags & cflag13))
 		prompt_combo = 0;
@@ -20828,10 +20828,10 @@ void HeroClass::checkgenpush(rpos_t rpos)
 {
 	for (int layer = 0; layer < 7; ++layer)
 	{
-		auto pos_handle = get_pos_handle(rpos, layer);
-		newcombo const& cmb = combobuf[pos_handle.screen->data[RPOS_TO_POS(rpos)]];
+		auto rpos_handle = get_rpos_handle(rpos, layer);
+		newcombo const& cmb = combobuf[rpos_handle.screen->data[RPOS_TO_POS(rpos)]];
 		if (cmb.triggerflags[1] & combotriggerPUSH)
-			do_trigger_combo(pos_handle);
+			do_trigger_combo(rpos_handle);
 	}
 }
 
@@ -21120,7 +21120,7 @@ endsigns:
 		if (foundffc >= 0)
 			do_trigger_combo_ffc({&tmpscr, currscr, foundffc, &tmpscr.ffcs[foundffc]}, didsign ? ctrigIGNORE_SIGN : 0);
 		else 
-			do_trigger_combo(get_pos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
+			do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
 	else if(cmb.type == cBUTTONPROMPT)
 	{
@@ -22512,7 +22512,7 @@ void HeroClass::checktouchblk()
 	{
 		if (getAction() != hopping || isSideViewHero())
 		{
-			trigger_armos_grave(get_pos_handle_for_world_xy(tx, ty, 0), dir);
+			trigger_armos_grave(get_rpos_handle_for_world_xy(tx, ty, 0), dir);
 		}
 	}
 }
@@ -22668,12 +22668,12 @@ void HeroClass::checkspecial()
 			// Enemies have been defeated.
 
 			// generic 'Enemies->' trigger
-			for_every_rpos_in_screen(screen, screen_index, [&](const pos_handle_t& pos_handle) {
-				int pos = RPOS_TO_POS(pos_handle.rpos);
-				newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
+			for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
+				int pos = RPOS_TO_POS(rpos_handle.rpos);
+				newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
-					do_trigger_combo(pos_handle);
+					do_trigger_combo(rpos_handle);
 				}
 			});
 			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
@@ -22932,22 +22932,22 @@ void HeroClass::checkspecial2(int32_t *ls)
 			rpos_t rpos = COMBOPOS_REGION(x+j, y+i);
 			if((stype==cSTRIGNOFLAG || stype==cSTRIGFLAG) && stepsecret!=rpos)
 			{
-				auto pos_handle = get_pos_handle(rpos, 0);
+				auto rpos_handle = get_rpos_handle(rpos, 0);
 				
-				if(stype==cSTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
+				if(stype==cSTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen_index))
 				{ 
 					if(!didstrig)
 					{
 						stepsecret = rpos;
 						
-						if(!(pos_handle.screen->flags5&fTEMPSECRETS))
+						if(!(rpos_handle.screen->flags5&fTEMPSECRETS))
 						{
-							setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
+							setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
 						}
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
 						//zprint("Step Secrets SFX: %d\n", thesfx);
 						sfx(warpsound,pan((int32_t)x));
-						trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, false);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, false);
 						didstrig = true;
 					}
 				}
@@ -22958,7 +22958,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 						stepsecret = rpos;
 
 						bool high16only = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-						trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, high16only);
+						trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, high16only);
 						didstrig = true;
 						//play trigger sound
 						//int32_t thesfx = combobuf[MAPCOMBO(x+j,y+i)].attribytes[0];
@@ -23343,12 +23343,12 @@ void HeroClass::checkspecial2(int32_t *ls)
 				newcombo const* cmb2 = sensRposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(sensRposes[p])]];
 				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
 				{
-					do_trigger_combo(get_pos_handle(rposes[p], lyr));
+					do_trigger_combo(get_rpos_handle(rposes[p], lyr));
 					if(rposes[p] == sensRposes[p]) continue;
 				}
 				if(cmb2 && (cmb2->triggerflags[0] & combotriggerSTEPSENS))
 				{
-					do_trigger_combo(get_pos_handle(sensRposes[p], lyr));
+					do_trigger_combo(get_rpos_handle(sensRposes[p], lyr));
 				}
 			}
 		}
@@ -23620,20 +23620,20 @@ void HeroClass::checkspecial2(int32_t *ls)
 		if (COMBOPOS_REGION(tx+8, ty+8)!=stepsecret || get_bit(quest_rules,qr_TRIGGERSREPEAT))
 		{
 			stepsecret = COMBOPOS_REGION(tx+8, ty+8);
-			auto pos_handle = get_pos_handle(stepsecret, 0);
-			sfx(combobuf[MAPCOMBO(pos_handle)].attribytes[0],pan((int32_t)x));
+			auto rpos_handle = get_rpos_handle(stepsecret, 0);
+			sfx(combobuf[MAPCOMBO(rpos_handle)].attribytes[0],pan((int32_t)x));
 			//zprint("Step Secrets Sound: %d\n", combobuf[tmpscr.data[stepsecret]].attribytes[0]);
 			
-			if(type==cTRIGFLAG && canPermSecret(currdmap, pos_handle.screen_index))
+			if(type==cTRIGFLAG && canPermSecret(currdmap, rpos_handle.screen_index))
 			{ 
-				if(!(pos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(pos_handle.screen, pos_handle.screen_index, mSECRET);
+				if(!(rpos_handle.screen->flags5&fTEMPSECRETS)) setmapflag(rpos_handle.screen, rpos_handle.screen_index, mSECRET);
 				
-				trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, false);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, false);
 			}
 			else 
 			{
 				bool only16_31 = get_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31)?true:false;
-				trigger_secrets_for_screen(TriggerSource::Unspecified, pos_handle.screen_index, only16_31);
+				trigger_secrets_for_screen(TriggerSource::Unspecified, rpos_handle.screen_index, only16_31);
 			}
 		}
 	}
@@ -23683,8 +23683,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 		if (COMBOPOS_REGION(tx+8, ty+8) != stepnext)
 		{
 			stepnext = COMBOPOS_REGION(tx+8, ty+8);
-			auto pos_handle = get_pos_handle(stepnext, 0);
-			int cid = MAPCOMBO(pos_handle);
+			auto rpos_handle = get_rpos_handle(stepnext, 0);
+			int cid = MAPCOMBO(rpos_handle);
 			int pos = RPOS_TO_POS(stepnext);
 			
 			if
@@ -23696,7 +23696,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		)
 		{
 			sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
-			pos_handle.screen->data[pos]++;
+			rpos_handle.screen->data[pos]++;
 		}
 			
 			if
@@ -23710,9 +23710,9 @@ void HeroClass::checkspecial2(int32_t *ls)
 				sfx(combobuf[cid].attribytes[0],pan((int32_t)x));
 				for(int32_t k=0; k<176; k++)
 				{
-					if(pos_handle.screen->data[k]==cid)
+					if(rpos_handle.screen->data[k]==cid)
 					{
-						pos_handle.screen->data[k]++;
+						rpos_handle.screen->data[k]++;
 					}
 				}
 			}
@@ -23742,7 +23742,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	else if(type==cSTEPSFX && action == walking)
 	{
-		trigger_stepfx(get_pos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
+		trigger_stepfx(get_rpos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
 	}
 	else stepnext = rpos_t::NONE;
 	

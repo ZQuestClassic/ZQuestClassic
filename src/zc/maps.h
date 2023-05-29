@@ -101,10 +101,10 @@ bool edge_of_region(direction dir);
 int get_screen_index_for_world_xy(int x, int y);
 int get_screen_index_for_rpos(rpos_t rpos);
 mapscr* get_screen_for_rpos(rpos_t rpos);
-pos_handle_t get_pos_handle(rpos_t rpos, int layer);
-pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer);
-pos_handle_t get_pos_handle_for_screen(int screen_index, int layer, int pos);
-pos_handle_t get_pos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos);
+rpos_handle_t get_rpos_handle(rpos_t rpos, int layer);
+rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer);
+rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos);
+rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos);
 mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
 int z3_get_origin_scr();
@@ -127,7 +127,7 @@ int32_t count_dmaps();
 int32_t isdungeon(int32_t dmap = -1, int32_t scr = -1);
 bool canPermSecret(int32_t dmap, int32_t screen_index);
 int32_t MAPCOMBO(int32_t x, int32_t y);
-int32_t MAPCOMBO(const pos_handle_t& pos_handle);
+int32_t MAPCOMBO(const rpos_handle_t& rpos_handle);
 int32_t MAPCOMBOzq(int32_t x,int32_t y);
 int32_t MAPFFCOMBO(int32_t x,int32_t y);
 int32_t MAPCSET(int32_t x,int32_t y);
@@ -227,7 +227,7 @@ bool remove_lockedchests(mapscr* s, int32_t screen_index);
 bool remove_bosschests(mapscr* s, int32_t screen_index);
 
 bool overheadcombos(mapscr *s);
-void delete_fireball_shooter(const pos_handle_t& pos_handle);
+void delete_fireball_shooter(const rpos_handle_t& rpos_handle);
 
 enum TriggerSource {
 	Unspecified,

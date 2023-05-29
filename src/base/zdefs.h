@@ -5507,7 +5507,7 @@ struct screen_handle_t
 	int32_t layer;
 };
 
-struct pos_handle_t
+struct rpos_handle_t
 {
 	mapscr* screen;
 	int32_t screen_index;

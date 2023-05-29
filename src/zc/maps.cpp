@@ -376,7 +376,7 @@ int get_screen_index_for_rpos(rpos_t rpos)
 	return scr_xy_to_index(scr_x, scr_y);
 }
 
-pos_handle_t get_pos_handle(rpos_t rpos, int layer)
+rpos_handle_t get_rpos_handle(rpos_t rpos, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode())
@@ -386,16 +386,16 @@ pos_handle_t get_pos_handle(rpos_t rpos, int layer)
 	return {screen, screen_index, layer, rpos};
 }
 
-pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer)
+rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (!is_z3_scrolling_mode())
 		return {get_layer_scr(currmap, currscr, layer - 1), currscr, layer, (rpos_t)COMBOPOS(x, y)};
-	return get_pos_handle(COMBOPOS_REGION(x, y), layer);
+	return get_rpos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
 // Return a pos_handle_t for a screen-specific `pos` (0-175).
-pos_handle_t get_pos_handle_for_screen(int screen_index, int layer, int pos)
+rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	return {get_layer_scr(currmap, screen_index, layer - 1), screen_index, layer, POS_TO_RPOS(pos, screen_index)};
@@ -403,7 +403,7 @@ pos_handle_t get_pos_handle_for_screen(int screen_index, int layer, int pos)
 
 // Return a pos_handle_t for a screen-specific `pos` (0-175).
 // Use this instead of the other `get_pos_handle_for_screen` if you already have a reference to the screen.
-pos_handle_t get_pos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos)
+rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index)};
@@ -1035,10 +1035,10 @@ std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 	return result;
 }
 
-int32_t MAPCOMBO(const pos_handle_t& pos_handle)
+int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
 {
-	if (!pos_handle.screen->valid) return 0;
-	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
+	if (!rpos_handle.screen->valid) return 0;
+	return rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)];
 }
 
 int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
@@ -1047,10 +1047,10 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h) return 0;
     if (layer == -1) return MAPCOMBO(x, y);
     
-	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
-	if (!pos_handle.screen->valid) return 0;
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
+	if (!rpos_handle.screen->valid) return 0;
 
-	return pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
+	return rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)];
 }
 
 // MAPCOMBO3 will read from the current temporary screens or, if (map, screen) is not loaded,
@@ -1069,7 +1069,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 	DCHECK(map >= 0 && screen >= 0);
 	DCHECK(is_valid_rpos(rpos));
 	
-	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_pos_handle(rpos, layer + 1));
+	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_rpos_handle(rpos, layer + 1));
 	
 	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
 	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
@@ -1155,10 +1155,10 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCSET(x, y);
 
-	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
-	if (!pos_handle.screen->valid) return 0;
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
+	if (!rpos_handle.screen->valid) return 0;
 	
-	return pos_handle.screen->cset[RPOS_TO_POS(pos_handle.rpos)];
+	return rpos_handle.screen->cset[RPOS_TO_POS(rpos_handle.rpos)];
 }
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
@@ -1168,10 +1168,10 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPFLAG(x, y);
 
-	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
-	if (!pos_handle.screen->valid) return 0;
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
+	if (!rpos_handle.screen->valid) return 0;
 
-	return pos_handle.screen->sflag[RPOS_TO_POS(pos_handle.rpos)];
+	return rpos_handle.screen->sflag[RPOS_TO_POS(rpos_handle.rpos)];
 }
 
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
@@ -1208,10 +1208,10 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 		return 0;
     if (layer == -1) return MAPCOMBOFLAG(x, y);
 
-	auto pos_handle = get_pos_handle_for_world_xy(x, y, layer + 1);
-	if (!pos_handle.screen->valid) return 0;
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
+	if (!rpos_handle.screen->valid) return 0;
 
-	int cid = pos_handle.screen->data[RPOS_TO_POS(pos_handle.rpos)];
+	int cid = rpos_handle.screen->data[RPOS_TO_POS(rpos_handle.rpos)];
 	return combobuf[cid].flag;
 }
 
@@ -1597,12 +1597,12 @@ void update_combo_cycling()
 				continue;
 
 			rpos_t rpos = (rpos_t)(rpos_base + i);
-			pos_handle_t pos_handle = {screen, screen_index, 0, rpos};
-			screen_combo_modify_preroutine(pos_handle);
+			rpos_handle_t rpos_handle = {screen, screen_index, 0, rpos};
+			screen_combo_modify_preroutine(rpos_handle);
 			screen->data[i]=newdata[i];
 			if(newcset[i]>-1)
 				screen->cset[i]=newcset[i];
-			screen_combo_modify_postroutine(pos_handle);
+			screen_combo_modify_postroutine(rpos_handle);
 			
 			newdata[i]=-1;
 			newcset[i]=-1;
@@ -1699,12 +1699,12 @@ void update_combo_cycling()
 					if(newdata[i]!=-1)
 					{
 						rpos_t rpos = (rpos_t)(rpos_base + i);
-						pos_handle_t pos_handle = {layer_scr, screen_index, j, rpos};
-						screen_combo_modify_preroutine(pos_handle);
+						rpos_handle_t rpos_handle = {layer_scr, screen_index, j, rpos};
+						screen_combo_modify_preroutine(rpos_handle);
 						layer_scr->data[i]=newdata[i];
 						if(newcset[i]>-1)
 							layer_scr->cset[i]=newcset[i];
-						screen_combo_modify_postroutine(pos_handle);
+						screen_combo_modify_postroutine(rpos_handle);
 						
 						newdata[i]=-1;
 						newcset[i]=-1;
@@ -2274,24 +2274,24 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	if (scr >= 0x80) s = &special_warp_return_screen;
 	scr = scr >= 0x80 ? homescr : scr;
 
-	pos_handle_t pos_handle;
-	pos_handle.screen_index = scr;
-	pos_handle.layer = 0;
+	rpos_handle_t rpos_handle;
+	rpos_handle.screen_index = scr;
+	rpos_handle.layer = 0;
 	for (int j = -1; j < 6; j++)
 	{
 		if (j != -1) s = get_layer_scr(currmap, scr, j);
 		if (!s->valid) continue;
 
-		pos_handle.screen = s;
-		pos_handle.screen_index = scr;
-		pos_handle.layer = j + 1;
+		rpos_handle.screen = s;
+		rpos_handle.screen_index = scr;
+		rpos_handle.layer = j + 1;
 		
 		for (int32_t i=0; i<176; i++)
 		{
-			pos_handle.rpos = POS_TO_RPOS(i, scr);
+			rpos_handle.rpos = POS_TO_RPOS(i, scr);
 			// TODO z3 very slow! prob best to figure out how to not call this function so much.
 			newcombo const& cmb = combobuf[s->data[i]];
-			if(triggers && force_ex_trigger(pos_handle, xflag))
+			if(triggers && force_ex_trigger(rpos_handle, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -2398,16 +2398,16 @@ bool overheadcombos(mapscr *s)
     return false;
 }
 
-void delete_fireball_shooter(const pos_handle_t& pos_handle)
+void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
     int32_t cx=0, cy=0;
-    int32_t pos = RPOS_TO_POS(pos_handle.rpos);
-    int32_t ct=combobuf[pos_handle.screen->data[pos]].type;
+    int32_t pos = RPOS_TO_POS(rpos_handle.rpos);
+    int32_t ct=combobuf[rpos_handle.screen->data[pos]].type;
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;
     
-    COMBOXY_REGION(pos_handle.rpos, cx, cy);
+    COMBOXY_REGION(rpos_handle.rpos, cx, cy);
     switch(ct)
     {
     case cL_STATUE:
@@ -2563,7 +2563,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				newcombo const& cmb = combobuf[layer_screen->data[pos]];
 				if(cmb.triggerflags[2] & combotriggerSECRETSTR)
 				{
-					do_trigger_combo(get_pos_handle_for_screen(layer_screen, initial_region_scr, lyr, pos), ctrigSECRETS);
+					do_trigger_combo(get_rpos_handle_for_screen(layer_screen, initial_region_scr, lyr, pos), ctrigSECRETS);
 				}
 			}
 		}
@@ -2612,8 +2612,8 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 					if(msflag!=0)
 						ft=msflag;
 					
-					pos_handle_t pos_handle = get_pos_handle_for_screen(s, screen_index, 0, i);
-					screen_combo_modify_preroutine(pos_handle);
+					rpos_handle_t rpos_handle = get_rpos_handle_for_screen(s, screen_index, 0, i);
+					screen_combo_modify_preroutine(rpos_handle);
 					if(ft==sSECNEXT)
 					{
 						s->data[i]++;
@@ -2624,7 +2624,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 						s->cset[i] = s->secretcset[ft];
 					}
 					newflag = s->secretflag[ft];
-					screen_combo_modify_postroutine(pos_handle);
+					screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			
@@ -2748,12 +2748,12 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					pos_handle_t pos_handle = {s, screen_index, 0, POS_TO_RPOS(i, screen_index)};
-					screen_combo_modify_preroutine(pos_handle);
+					rpos_handle_t rpos_handle = {s, screen_index, 0, POS_TO_RPOS(i, screen_index)};
+					screen_combo_modify_preroutine(rpos_handle);
 					s->data[i] = s->secretcombo[checkflag-16+4];
 					s->cset[i] = s->secretcset[checkflag-16+4];
 					newflag = s->secretflag[checkflag-16+4];
-					screen_combo_modify_postroutine(pos_handle);
+					screen_combo_modify_postroutine(rpos_handle);
 				}
 			}
 			
@@ -2965,11 +2965,11 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 		mapscr* m = FFCore.tempScreens[q];
 		for(rpos_t rpos : rposes)
 		{
-			auto pos_handle = get_pos_handle(rpos, q);
-			int cid = pos_handle.screen->data[RPOS_TO_POS(rpos)];
+			auto rpos_handle = get_rpos_handle(rpos, q);
+			int cid = rpos_handle.screen->data[RPOS_TO_POS(rpos)];
 			if(combobuf[cid].triggerflags[2] & trigflags)
 			{
-				do_trigger_combo(pos_handle);
+				do_trigger_combo(rpos_handle);
 				ret = true;
 			}
 		}
@@ -5258,12 +5258,12 @@ void openshutters()
 			opened_door = true;
 		}
 	
-	for_every_rpos_in_region([&](const pos_handle_t& pos_handle) {
-		int pos = RPOS_TO_POS(pos_handle.rpos);
-		newcombo const& cmb = combobuf[pos_handle.screen->data[pos]];
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		int pos = RPOS_TO_POS(rpos_handle.rpos);
+		newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
-			do_trigger_combo(pos_handle);
+			do_trigger_combo(rpos_handle);
 		}
 	});
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
@@ -6930,16 +6930,16 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 	if(!flags) return; //No flags to toggle
 	bool iscurscr = m==&tmpscr;
 
-	for_every_rpos_in_screen(m, screen_index, [&](const pos_handle_t& pos_handle) {
+	for_every_rpos_in_screen(m, screen_index, [&](const rpos_handle_t& rpos_handle) {
 		byte togglegrid[176] = {0};
-		mapscr* scr = pos_handle.screen;
-		int lyr = pos_handle.layer;
-		int pos = RPOS_TO_POS(pos_handle.rpos);
+		mapscr* scr = rpos_handle.screen;
+		int lyr = rpos_handle.layer;
+		int pos = RPOS_TO_POS(rpos_handle.rpos);
 		newcombo const& cmb = combobuf[scr->data[pos]];
 		if(iscurscr)
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo(pos_handle, ctrigSWITCHSTATE);
+					do_trigger_combo(rpos_handle, ctrigSWITCHSTATE);
 		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32
 			&& !(cmb.usrflags & cflag11)) //global state
 		{

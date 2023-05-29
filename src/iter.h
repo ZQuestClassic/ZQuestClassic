@@ -32,30 +32,30 @@ void for_every_screen_in_region(T fn)
 }
 
 // Iterates over every rpos in the current region.
-// Callback function: void fn(const pos_handle_t& pos_handle)
+// Callback function: void fn(const pos_handle_t& rpos_handle)
 template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const pos_handle_t&>
+    std::is_invocable_v<T, const rpos_handle_t&>
 >>
 void for_every_rpos_in_region(T fn)
 {
-	pos_handle_t pos_handle;
+	rpos_handle_t rpos_handle;
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{
 		// TODO z3 should cache this
 		if (!is_in_current_region(screen_index)) continue;
 
 		rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
-		pos_handle.screen_index = screen_index;
+		rpos_handle.screen_index = screen_index;
 		for (int lyr = 0; lyr <= 6; ++lyr)
 		{
 			mapscr* scr = get_layer_scr(currmap, screen_index, lyr - 1);
-			pos_handle.screen = scr;
-			pos_handle.layer = lyr;
+			rpos_handle.screen = scr;
+			rpos_handle.layer = lyr;
 
 			for (int pos = 0; pos < 176; ++pos)
 			{
-				pos_handle.rpos = (rpos_t)((int)base_rpos + pos);
-				fn(pos_handle);
+				rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+				fn(rpos_handle);
 			}
 		}
 	}
@@ -93,22 +93,22 @@ void for_every_ffc_in_region(T fn)
 // Iterates over every rpos for a specified screen.
 // Callback function: void fn(const pos_handle_t& pos_handle_t)
 template<typename T, typename = std::enable_if_t<
-    std::is_invocable_v<T, const pos_handle_t&>
+    std::is_invocable_v<T, const rpos_handle_t&>
 >>
 void for_every_rpos_in_screen(mapscr* screen, int screen_index, T fn)
 {
-	pos_handle_t pos_handle;
-	pos_handle.screen_index = screen_index;
+	rpos_handle_t rpos_handle;
+	rpos_handle.screen_index = screen_index;
 	rpos_t base_rpos = POS_TO_RPOS(0, z3_get_region_relative_dx(screen_index), z3_get_region_relative_dy(screen_index));
 	for (int lyr = 0; lyr <= 6; ++lyr)
 	{
 		// TODO z3 would `__attribute__((pure))` on get_layer_scr allow compiler to optimize more here?
-		pos_handle.screen = lyr == 0 ? screen : get_layer_scr(currmap, screen_index, lyr - 1);
-		pos_handle.layer = lyr;
+		rpos_handle.screen = lyr == 0 ? screen : get_layer_scr(currmap, screen_index, lyr - 1);
+		rpos_handle.layer = lyr;
 		for (int pos = 0; pos < 176; ++pos)
 		{
-			pos_handle.rpos = (rpos_t)((int)base_rpos + pos);
-			fn(pos_handle);
+			rpos_handle.rpos = (rpos_t)((int)base_rpos + pos);
+			fn(rpos_handle);
 		}
 	}
 }
