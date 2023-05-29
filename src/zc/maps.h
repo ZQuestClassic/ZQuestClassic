@@ -103,6 +103,8 @@ int get_screen_index_for_rpos(rpos_t rpos);
 mapscr* get_screen_for_rpos(rpos_t rpos);
 pos_handle_t get_pos_handle(rpos_t rpos, int layer);
 pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer);
+pos_handle_t get_pos_handle_for_screen(int screen_index, int layer, int pos);
+pos_handle_t get_pos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos);
 mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
 int z3_get_origin_scr();

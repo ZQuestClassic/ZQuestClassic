@@ -394,6 +394,21 @@ pos_handle_t get_pos_handle_for_world_xy(int x, int y, int layer)
 	return get_pos_handle(COMBOPOS_REGION(x, y), layer);
 }
 
+// Return a pos_handle_t for a screen-specific `pos` (0-175).
+pos_handle_t get_pos_handle_for_screen(int screen_index, int layer, int pos)
+{
+	DCHECK_LAYER_ZERO_INDEX(layer);
+	return {get_layer_scr(currmap, screen_index, layer - 1), screen_index, layer, POS_TO_RPOS(pos, screen_index)};
+}
+
+// Return a pos_handle_t for a screen-specific `pos` (0-175).
+// Use this instead of the other `get_pos_handle_for_screen` if you already have a reference to the screen.
+pos_handle_t get_pos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos)
+{
+	DCHECK_LAYER_ZERO_INDEX(layer);
+	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index)};
+}
+
 // These functions all return _temporary_ screens. Any modifications made to them (either by the engine
 // directly or via zscript) only last until the next screen (or region) is loaded (via loadscr).
 
@@ -606,6 +621,7 @@ rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
 {
+	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return POS_TO_RPOS(pos, z3_get_region_relative_dx(scr), z3_get_region_relative_dy(scr));
 }
 void COMBOXY_REGION(rpos_t rpos, int32_t& out_x, int32_t& out_y)
@@ -2538,15 +2554,16 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 
 	if (do_layers)
 	{
-		// TODO z3 secret
+		// TODO z3 ! secret
 		for(auto lyr = 0; lyr < 7; ++lyr)
 		{
+			mapscr* layer_screen = get_layer_scr(currmap, screen_index, lyr - 1);
 			for (auto pos = 0; pos < 176; ++pos)
 			{
-				newcombo const& cmb = combobuf[get_layer_scr(currmap, screen_index, lyr - 1)->data[pos]];
+				newcombo const& cmb = combobuf[layer_screen->data[pos]];
 				if(cmb.triggerflags[2] & combotriggerSECRETSTR)
 				{
-					do_trigger_combo(get_pos_handle(POS_TO_RPOS(pos, initial_region_scr), lyr), ctrigSECRETS);
+					do_trigger_combo(get_pos_handle_for_screen(layer_screen, initial_region_scr, lyr, pos), ctrigSECRETS);
 				}
 			}
 		}
@@ -2594,8 +2611,9 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 					// Use misc. secret flag instead if one is present
 					if(msflag!=0)
 						ft=msflag;
-						
-					screen_combo_modify_preroutine(s,i);
+					
+					pos_handle_t pos_handle = get_pos_handle_for_screen(s, screen_index, 0, i);
+					screen_combo_modify_preroutine(pos_handle);
 					if(ft==sSECNEXT)
 					{
 						s->data[i]++;
@@ -2606,7 +2624,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 						s->cset[i] = s->secretcset[ft];
 					}
 					newflag = s->secretflag[ft];
-					screen_combo_modify_postroutine(s,i);
+					screen_combo_modify_postroutine(pos_handle);
 				}
 			}
 			
@@ -2730,11 +2748,12 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					screen_combo_modify_preroutine(s,i);
+					pos_handle_t pos_handle = {s, screen_index, 0, POS_TO_RPOS(i, screen_index)};
+					screen_combo_modify_preroutine(pos_handle);
 					s->data[i] = s->secretcombo[checkflag-16+4];
 					s->cset[i] = s->secretcset[checkflag-16+4];
 					newflag = s->secretflag[checkflag-16+4];
-					screen_combo_modify_postroutine(s,i);
+					screen_combo_modify_postroutine(pos_handle);
 				}
 			}
 			

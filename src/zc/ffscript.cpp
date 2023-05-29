@@ -35984,7 +35984,6 @@ void FFScript::do_triggersecret(const bool v)
 {
 	int32_t ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
 	mapscr *s = &tmpscr;
-	int32_t checkflag; //checked flag temp. 
 	//Convert a flag type to a secret type.
 	int32_t ft = combo_trigger_flag_to_secret_combo_index(ID);
 	if (ft != -1)
@@ -35993,37 +35992,27 @@ void FFScript::do_triggersecret(const bool v)
 		{
 			for ( int32_t q = 0; q < 176; q++ ) 
 			{		
-				if(iter==1) checkflag=s->sflag[q]; //Placed
-				else checkflag=combobuf[s->data[q]].flag; //Inherent
-				Z_message("checkflag is: %d\n", checkflag);
-				al_trace("checkflag is: %d\n", checkflag);
-				
-				Z_message("ID is: %ld\n", ID);
-				al_trace("ID is: %d\n", ID);
-				//cmbx = COMBOX(q);
-				////cmby = COMBOY(q);
-				
 				//Placed flags
 				if ( iter == 1 )
 				{
 					if ( s->sflag[q] == ID ) {
-						screen_combo_modify_preroutine(s,q);
+						pos_handle_t pos_handle = get_pos_handle_for_screen(currscr, 0, q);
+						screen_combo_modify_preroutine(pos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
 						s->sflag[q] = s->secretflag[ft];
-						// newflag = s->secretflag[ft];
-						screen_combo_modify_postroutine(s,q);
+						screen_combo_modify_postroutine(pos_handle);
 					}
 				}
 				//Inherent flags
 				else
 				{
 					if ( combobuf[s->data[q]].flag == ID ) {
-						screen_combo_modify_preroutine(s,q);
+						pos_handle_t pos_handle = get_pos_handle_for_screen(currscr, 0, q);
+						screen_combo_modify_preroutine(pos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
-						//s->sflag[q] = s->secretflag[ft];
-						screen_combo_modify_postroutine(s,q);
+						screen_combo_modify_postroutine(pos_handle);
 					}
 					
 				}
