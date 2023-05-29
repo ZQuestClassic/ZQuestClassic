@@ -20753,9 +20753,10 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					screen_combo_modify_preroutine(m,pos);
+					pos_handle_t pos_handle = get_pos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
+					screen_combo_modify_preroutine(pos_handle);
 					m->data[pos]=val;
-					screen_combo_modify_postroutine(m,pos);
+					screen_combo_modify_postroutine(pos_handle);
 				}
 			}
 			else
@@ -20781,9 +20782,10 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					screen_combo_modify_preroutine(m,pos);
+					pos_handle_t pos_handle = get_pos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
+					screen_combo_modify_preroutine(pos_handle);
 					m->cset[pos]=(val)&15;
-					screen_combo_modify_postroutine(m,pos);
+					screen_combo_modify_postroutine(pos_handle);
 				}
 			}
 			else
@@ -20834,6 +20836,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
+					// TODO z3 ! seems like a bug, this should use m?
 					auto cid = tmpscr.data[pos];
 					screen_combo_modify_pre(cid);
 					combobuf[cid].type=val;
