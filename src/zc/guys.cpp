@@ -229,7 +229,13 @@ bool tooclose(int32_t x,int32_t y,int32_t d)
 
 bool enemy::overpit(enemy *e)
 {
-	for ( int32_t q = 0; q < hxsz; ++q )
+	// This function (and shadow_overpit) has been broken since it was written, and only
+	// checked the same diagonal of the hitbox, over and over again. The bug is because both
+	// loops used the same variable name.
+	// Checking literally every pixel seems like overkill, so for now let's continue to
+	// do the single diagonal but just once. That's why the outer loop is commented out.
+
+	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
 		for ( int32_t q = 0; q < hysz; ++q )
 		{
@@ -246,7 +252,7 @@ bool enemy::overpit(enemy *e)
 
 bool enemy::shadow_overpit(enemy *e)
 {
-	for ( int32_t q = 0; q < hxsz; ++q )
+	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
 		for ( int32_t q = 0; q < hysz; ++q )
 		{
