@@ -20903,8 +20903,7 @@ static void activate_fireball_statue(const rpos_handle_t& rpos_handle)
 		return;
 	}
 
-	int pos = rpos_handle.pos();
-	int32_t ctype = combobuf[rpos_handle.screen->data[pos]].type;
+	int32_t ctype = combobuf[rpos_handle.data()].type;
 	if (ctype != cL_STATUE && ctype != cR_STATUE && ctype != cC_STATUE) return;
 
 	int32_t x, y;
@@ -21105,11 +21104,10 @@ void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 // Everything that must be done after we change a screen's combo to another combo. -L
 void screen_combo_modify_postroutine(const rpos_handle_t& rpos_handle)
 {
-	int pos = rpos_handle.pos();
 	rpos_handle.screen->valid |= mVALID;
 	activate_fireball_statue(rpos_handle);
 
-	if(combobuf[rpos_handle.screen->data[pos]].type==cSPINTILE1)
+	if(combobuf[rpos_handle.data()].type==cSPINTILE1)
 	{
 		awaken_spinning_tile(rpos_handle);
 	}

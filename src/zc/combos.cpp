@@ -352,9 +352,9 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
-	rpos_handle.screen->data[pos] = BOUND_COMBO(cid + cmbofs);
-	rpos_handle.screen->cset[pos] = (rpos_handle.screen->cset[pos] + csofs) & 15;
-	auto newcid = rpos_handle.data();
+	auto newcid = BOUND_COMBO(cid + cmbofs);
+	rpos_handle.set_data(newcid);
+	rpos_handle.set_cset((rpos_handle.screen->cset[pos] + csofs) & 15);
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
@@ -500,7 +500,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 
 	int pos = rpos_handle.pos();
 	mapscr* tmp = rpos_handle.screen;
-	newcombo const& cmb = combobuf[tmp->data[pos]];
+	newcombo const& cmb = combobuf[rpos_handle.data()];
 	auto type = cmb.type;
 	if(!isCuttableType(type)) return;
 	auto flag = tmp->sflag[pos];
@@ -628,7 +628,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 	// TODO z3 !
 	int pos = ffc_handle.i;
 	if(unsigned(pos) > MAXFFCS) return;
-	ffcdata& ffc = tmpscr.ffcs[pos];
+	ffcdata& ffc = *ffc_handle.ffc;
 	newcombo const& cmb = combobuf[ffc.getData()];
 	auto type = cmb.type;
 	if (!isCuttableType(type)) return;
@@ -730,7 +730,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 	if(unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 
 	int32_t pos = rpos_handle.pos();
-	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
+	newcombo const& cmb = combobuf[rpos_handle.data()];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
@@ -1037,7 +1037,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 
 	mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.screen : get_scr(currmap, rpos_handle.screen_index);
 
-	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
+	newcombo const& cmb = combobuf[rpos_handle.data()];
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
@@ -1260,8 +1260,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 {
 	DCHECK(rpos_handle.rpos <= region_max_rpos);
 	
-	int pos = rpos_handle.pos();
-	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
+	newcombo const& cmb = combobuf[rpos_handle.data()];
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
@@ -1818,7 +1817,7 @@ bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped)
 	ty += 8;
 
 	int pos = rpos_handle.pos();
-	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
+	newcombo const& cmb = combobuf[rpos_handle.data()];
 
 	int32_t thesfx = cmb.attribytes[0];
 	sfx_no_repeat(thesfx,pan(COMBOX(pos)));
@@ -2189,8 +2188,6 @@ bool trigger_switchhookblock(const rpos_handle_t& rpos_handle)
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 	if(Hero.switchhookclk) return false;
 
-	int pos = rpos_handle.pos();
-	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
 	switching_object = NULL;
 	hooked_comborpos = rpos_handle.rpos;
 	hooked_layerbits = 0;
@@ -2445,7 +2442,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
-		newcombo& rcmb = combobuf[rpos_handle.screen->data[pos]];
+		newcombo& rcmb = combobuf[rpos_handle.data()];
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
@@ -2521,8 +2518,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 bool force_ex_trigger(const rpos_handle_t& rpos_handle, char xstate)
 {
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
-	int pos = rpos_handle.pos();
-	newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];	
+	newcombo const& cmb = combobuf[rpos_handle.data()];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(rpos_handle.screen_index, 1<<cmb.exstate))
@@ -2840,7 +2836,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
 			{
-				newcombo& rcmb = combobuf[rpos_handle.screen->data[pos]];
+				newcombo& rcmb = combobuf[rpos_handle.data()];
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;

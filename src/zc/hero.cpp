@@ -5244,9 +5244,8 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
 
     rpos_t rpos = COMBOPOS_REGION(bx, by);
     int32_t pos = RPOS_TO_POS(rpos);
-    if (unsigned(rpos) > unsigned(region_max_rpos))
+    if (!is_valid_rpos(rpos))
         return;
-	auto rpos_handle = get_rpos_handle(rpos, 0);
         
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -22669,8 +22668,7 @@ void HeroClass::checkspecial()
 
 			// generic 'Enemies->' trigger
 			for_every_rpos_in_screen(screen, screen_index, [&](const rpos_handle_t& rpos_handle) {
-				int pos = rpos_handle.pos();
-				newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
+				newcombo const& cmb = combobuf[rpos_handle.data()];
 				if (cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
 					do_trigger_combo(rpos_handle);

@@ -2401,8 +2401,7 @@ bool overheadcombos(mapscr *s)
 void delete_fireball_shooter(const rpos_handle_t& rpos_handle)
 {
     int32_t cx=0, cy=0;
-    int32_t pos = rpos_handle.pos();
-    int32_t ct=combobuf[rpos_handle.screen->data[pos]].type;
+    int32_t ct=combobuf[rpos_handle.data()].type;
     
     if(ct!=cL_STATUE && ct!=cR_STATUE && ct!=cC_STATUE)
         return;
@@ -5259,8 +5258,7 @@ void openshutters()
 		}
 	
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-		int pos = rpos_handle.pos();
-		newcombo const& cmb = combobuf[rpos_handle.screen->data[pos]];
+		newcombo const& cmb = combobuf[rpos_handle.data()];
 		if (cmb.triggerflags[0] & combotriggerSHUTTER)
 		{
 			do_trigger_combo(rpos_handle);
