@@ -175,8 +175,8 @@ public:
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
 void killgenwpn(weapon* w);
-void do_generic_combo(weapon *w, int32_t bx, int32_t by, int32_t wid, 
-	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);
+void do_generic_combo(const pos_handle_t& pos_handle, weapon *w, int32_t wid, 
+	int32_t cid, int32_t flag, int32_t flag2, int32_t ft, bool single16);
 void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
 void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type, int32_t dir, int32_t &aclk, int32_t &aframe,
                int32_t parentid);

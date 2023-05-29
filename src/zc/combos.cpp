@@ -2674,7 +2674,7 @@ bool do_trigger_combo(const pos_handle_t& pos_handle, int32_t special, weapon* w
 				case cSCRIPT6: case cSCRIPT7: case cSCRIPT8: case cSCRIPT9: case cSCRIPT10:
 				case cTRIGGERGENERIC:
 					if(w)
-						do_generic_combo(w, cx, cy, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], pos, false, lyr);
+						do_generic_combo(pos_handle, w, (w->useweapon > 0) ? w->useweapon : w->id, cid, flag, flag2, cmb.attribytes[3], false);
 					else do_generic_combo2(cx, cy, cid, flag, flag2, cmb.attribytes[3], pos_handle, false);
 					break;
 				case cCUSTOMBLOCK:
