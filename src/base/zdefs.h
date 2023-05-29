@@ -5515,7 +5515,13 @@ struct pos_handle_t
 	int32_t layer;
 	rpos_t rpos;
 
+	int32_t pos() const;
+
 	int32_t data() const;
+	void set_data(int32_t value);
+
+	int32_t cset() const;
+	void set_cset(int32_t value);
 };
 
 struct ffc_handle_t

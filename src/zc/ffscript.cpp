@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 //
 
+#include "zc/maps.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -18540,8 +18541,9 @@ void set_register(int32_t arg, int32_t value)
 	case COMBODD:
 	{
 		int32_t pos = (ri->d[rINDEX])/10000;
+		rpos_t rpos = (rpos_t)pos;
 		int32_t val = (value/10000);
-		if ( ((unsigned) pos) > 175 )
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboD[]\n", pos);
 		}
@@ -18551,10 +18553,11 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			auto pos_handle = get_pos_handle((rpos_t)pos, 0);
+			// TODO z3 !!
+			auto pos_handle = get_pos_handle(rpos, 0);
 			screen_combo_modify_preroutine(pos_handle);
-			tmpscr.data[pos]=(val);
-			screen_combo_modify_postroutine(&tmpscr,pos);
+			pos_handle.set_data(val);
+			screen_combo_modify_postroutine(pos_handle);
 		}
 	}
 	break;
@@ -18562,8 +18565,9 @@ void set_register(int32_t arg, int32_t value)
 	case COMBOCD:
 	{
 		int32_t pos = (ri->d[rINDEX])/10000;
+		rpos_t rpos = (rpos_t)pos;
 		int32_t val = (value/10000); //cset
-		if ( ((unsigned) pos) > 175 )
+		if (!is_valid_rpos(rpos))
 		{
 			Z_scripterrlog("Invalid [pos] %d used to write to Screen->ComboC[]\n", pos);
 		}
@@ -18573,10 +18577,10 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			auto pos_handle = get_pos_handle((rpos_t)pos, 0);
+			auto pos_handle = get_pos_handle(rpos, 0);
 			screen_combo_modify_preroutine(pos_handle);
-			tmpscr.cset[pos]=(val)&15;
-			screen_combo_modify_postroutine(&tmpscr,pos);
+			pos_handle.set_cset(val&15);
+			screen_combo_modify_postroutine(pos_handle);
 		}
 	}
 	break;

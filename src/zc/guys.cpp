@@ -21091,14 +21091,6 @@ void update_slope_comboposes()
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
 // There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
-// TODO z3 ! remove
-void screen_combo_modify_preroutine(mapscr *s, int32_t pos)
-{
-	pos_handle_t pos_handle;
-	pos_handle.screen = s;
-	pos_handle.rpos = (rpos_t)pos;
-	screen_combo_modify_preroutine(pos_handle);
-}
 void screen_combo_modify_preroutine(const pos_handle_t& pos_handle)
 {
 	delete_fireball_shooter(pos_handle);
@@ -21111,16 +21103,6 @@ void screen_ffc_modify_preroutine(const ffc_handle_t& ffc_handle)
 }
 
 // Everything that must be done after we change a screen's combo to another combo. -L
-// TODO z3 ! remove
-void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
-{
-	pos_handle_t pos_handle;
-	pos_handle.screen = s;
-	pos_handle.screen_index = currscr; // TODO z3 !
-	pos_handle.rpos = (rpos_t)pos;
-	screen_combo_modify_postroutine(pos_handle);
-}
-
 void screen_combo_modify_postroutine(const pos_handle_t& pos_handle)
 {
 	int pos = RPOS_TO_POS(pos_handle.rpos);

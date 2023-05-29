@@ -2260,10 +2260,30 @@ int32_t viewport_t::bottom() const
 	return y + h;
 }
 
-int32_t pos_handle_t::data() const
+int32_t pos_handle_t::pos() const
 {
 	int32_t pos = static_cast<int32_t>(rpos)%176;
-	return screen->data[pos];
+	return pos;
+}
+
+int32_t pos_handle_t::data() const
+{
+	return screen->data[pos()];
+}
+
+void pos_handle_t::set_data(int32_t value)
+{
+	screen->data[pos()] = value;
+}
+
+int32_t pos_handle_t::cset() const
+{
+	return screen->cset[pos()];
+}
+
+void pos_handle_t::set_cset(int32_t value)
+{
+	screen->cset[pos()] = value;
 }
 
 bool runscript_do_earlyret(int runscript_val)
