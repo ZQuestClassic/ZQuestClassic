@@ -18553,7 +18553,6 @@ void set_register(int32_t arg, int32_t value)
 		}
 		else
 		{
-			// TODO z3 !!
 			auto rpos_handle = get_rpos_handle(rpos, 0);
 			screen_combo_modify_preroutine(rpos_handle);
 			rpos_handle.set_data(val);

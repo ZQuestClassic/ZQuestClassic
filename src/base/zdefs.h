@@ -3781,12 +3781,7 @@ struct cpos_info
 	}
 	void clear()
 	{
-		data = 0;
-		clk = 0;
-		shootrclk = 0;
-		trig_cd = 0;
-		for(int q = 0; q < 4; ++q)
-			pushes[q] = 0;
+		*this = cpos_info();
 	}
 	void updateData(int32_t newdata)
 	{
@@ -3796,7 +3791,6 @@ struct cpos_info
 			data = newdata;
 		}
 	}
-	cpos_info() {clear();}
 };
 #define MFORMAT_MIDI 0
 #define MFORMAT_NSF  1
