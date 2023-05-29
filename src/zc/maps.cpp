@@ -2418,7 +2418,6 @@ void delete_fireball_shooter(const pos_handle_t& pos_handle)
     }
 }
 
-// TODO z3 ! secret
 static int32_t findtrigger(int32_t screen_index)
 {
     int32_t checkflag=0;
@@ -2525,26 +2524,6 @@ void trigger_secrets_for_screen(TriggerSource source, int32_t screen, bool high1
 		triggered_screen_secrets = true;
 	bool do_layers = true;
 	trigger_secrets_for_screen_internal(screen, NULL, do_layers, high16only, single);
-}
-
-// TODO z3 remove
-void hidden_entrance(int32_t tmp, bool refresh, bool high16only, int32_t single) //Perhaps better known as 'Trigger Secrets'
-{
-	Z_eventlog("%sScreen Secrets triggered%s.\n",
-			   single>-1? "Restricted ":"",
-			   single==-2? " by the 'Enemies->Secret' screen flag":
-			   single==-3? " by the 'Secrets' screen state" :
-			   single==-4? " by a script":
-			   single==-5? " by Items->Secret":
-			   single==-6? " by Generic Combo":
-			   single==-7? " by Light Triggers":
-			   single==-8? " by SCC":
-			   "");
-	if(single < 0)
-		triggered_screen_secrets = true;
-	
-	bool do_layers = true;
-	trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, do_layers, high16only, single);
 }
 
 void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool do_layers, bool high16only, int32_t single)
@@ -5805,8 +5784,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			hiddenstair2(screen, false);
 			auto oscr = homescr;
 			homescr = scr;
-			hidden_entrance(tmp,false,false,-3);
-			// trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? initial_region_scr : oscr, false);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? scr : oscr, false);
 			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
@@ -6016,8 +5994,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			hiddenstair2(&screen, false);
 			auto oscr = homescr;
 			homescr = scr;
-			hidden_entrance(tmp,false,false,-3);
-			// trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? initial_region_scr : oscr, false);
+			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? scr : oscr, false);
 			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before

@@ -256,7 +256,7 @@ bool enemy::overpit(enemy *e)
 			}
 		}
 
-		break; // LOL this is just because the code was written in a bad way (see same variable being
+		if(e)break; // LOL this is just because the code was written in a bad way (see same variable being
 				// used in both loops), and this function showed up as pretty expensive when profiling.
 				// So instead of wasting a ton of work .... or fixing this function .... let's just make
 				// is not take at least 16x longer than it should.
@@ -278,7 +278,8 @@ bool enemy::shadow_overpit(enemy *e)
 			}
 		}
 
-		break; // LOL this is just because the code was written in a bad way (see same variable being
+		// TODO z3 !!!
+		if(e)break; // LOL this is just because the code was written in a bad way (see same variable being
 				// used in both loops), and this function showed up as pretty expensive when profiling.
 				// So instead of wasting a ton of work .... or fixing this function .... let's just make
 				// is not take at least 16x longer than it should.
