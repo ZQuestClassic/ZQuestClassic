@@ -2612,7 +2612,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 					if(msflag!=0)
 						ft=msflag;
 					
-					rpos_handle_t rpos_handle = get_rpos_handle_for_screen(s, screen_index, 0, i);
+					auto rpos_handle = get_rpos_handle_for_screen(s, screen_index, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					if(ft==sSECNEXT)
 					{
@@ -2748,7 +2748,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				
 				if((checkflag > 15)&&(checkflag < 32)) //If we've got a 16->32 flag change the combo
 				{
-					rpos_handle_t rpos_handle = {s, screen_index, 0, POS_TO_RPOS(i, screen_index)};
+					auto rpos_handle = get_rpos_handle_for_screen(s, screen_index, 0, i);
 					screen_combo_modify_preroutine(rpos_handle);
 					s->data[i] = s->secretcombo[checkflag-16+4];
 					s->cset[i] = s->secretcset[checkflag-16+4];

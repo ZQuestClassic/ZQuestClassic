@@ -20757,7 +20757,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					rpos_handle_t rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
+					auto rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
 					screen_combo_modify_preroutine(rpos_handle);
 					m->data[pos]=val;
 					screen_combo_modify_postroutine(rpos_handle);
@@ -20786,7 +20786,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					rpos_handle_t rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
+					auto rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
 					screen_combo_modify_preroutine(rpos_handle);
 					m->cset[pos]=(val)&15;
 					screen_combo_modify_postroutine(rpos_handle);
@@ -36003,7 +36003,7 @@ void FFScript::do_triggersecret(const bool v)
 				if ( iter == 1 )
 				{
 					if ( s->sflag[q] == ID ) {
-						rpos_handle_t rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
+						auto rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
 						screen_combo_modify_preroutine(rpos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];
@@ -36015,7 +36015,7 @@ void FFScript::do_triggersecret(const bool v)
 				else
 				{
 					if ( combobuf[s->data[q]].flag == ID ) {
-						rpos_handle_t rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
+						auto rpos_handle = get_rpos_handle_for_screen(currscr, 0, q);
 						screen_combo_modify_preroutine(rpos_handle);
 						s->data[q] = s->secretcombo[ft];
 						s->cset[q] = s->secretcset[ft];

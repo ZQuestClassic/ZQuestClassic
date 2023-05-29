@@ -5246,7 +5246,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     int32_t pos = RPOS_TO_POS(rpos);
     if (unsigned(rpos) > unsigned(region_max_rpos))
         return;
-	rpos_handle_t rpos_handle = get_rpos_handle(rpos, 0);
+	auto rpos_handle = get_rpos_handle(rpos, 0);
         
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -19683,7 +19683,7 @@ bool HeroClass::checksoliddamage()
 		{
 			if (bx >= world_w || by >= world_h) break;
 
-			auto rpos_handle = get_rpos_handle(COMBOPOS_REGION(bx, by), i);
+			auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, i);
 			newcombo const& cmb = combobuf[rpos_handle.data()];
 			t = cmb.type;
 			if(cmb.triggerflags[0] & combotriggerONLYGENTRIG)

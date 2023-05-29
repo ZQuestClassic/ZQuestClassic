@@ -441,7 +441,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	by=vbound(by, 0, world_h-1);
 	bx=TRUNCATE_TILE(bx);
 	by=TRUNCATE_TILE(by);
-	rpos_handle_t rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
 	int32_t cid = rpos_handle.data();
 	if(!MatchComboTrigger(w, cbuf, cid)) return;
 
