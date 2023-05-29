@@ -5784,7 +5784,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			hiddenstair2(screen, false);
 			auto oscr = homescr;
 			homescr = scr;
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? scr : oscr, false);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
 			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
@@ -5994,7 +5994,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			hiddenstair2(&screen, false);
 			auto oscr = homescr;
 			homescr = scr;
-			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, tmp == 0 ? scr : oscr, false);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
 			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before

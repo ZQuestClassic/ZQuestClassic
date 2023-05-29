@@ -711,7 +711,7 @@ set(zc_clang_errors
 	-Werror=format
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
-	-Werror=unreachable-code
+	# -Werror=unreachable-code
 	# -Werror=unused
 	-Wno-write-strings
 	-Wno-switch
