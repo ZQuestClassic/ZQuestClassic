@@ -3647,8 +3647,8 @@ bool weapon::animate(int32_t index)
 			screengrid_layer[1][q] = 0;
 		}
 		
-		for (int16_t q = MAXFFCS / 8 - 1; q >= 0; --q)
-			ffcgrid[q] = 0;
+		// for (int16_t q = MAXFFCS / 8 - 1; q >= 0; --q)
+		// 	ffcgrid[q] = 0;
 		
 		bool pound = useweapon == wHammer && id != wHammer;
 		
@@ -3695,7 +3695,7 @@ bool weapon::animate(int32_t index)
 		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
 		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
-		memcpy(ffcgrid, temp_ffcgrid, sizeof(ffcgrid));
+		// memcpy(ffcgrid, temp_ffcgrid, sizeof(ffcgrid));
 	}
 	else findcombotriggers();
 	

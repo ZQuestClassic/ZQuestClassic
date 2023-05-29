@@ -3865,7 +3865,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	
 	rpos_t rpos = COMBOPOS_REGION(bx, by);
 	auto rpos_handle = get_rpos_handle(rpos, 0);
-	int32_t i = RPOS_TO_POS(rpos);
+	int32_t i = rpos_handle.pos();
 	
 	if (!is_valid_rpos(rpos))
 		return;
@@ -5355,7 +5355,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     
     if(!ignoreffc)
     {
-        set_bit(ffcgrid,current_ffc_handle->i,1);
+        // set_bit(ffcgrid,current_ffc_handle->i,1);
         
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
             sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));

@@ -20839,7 +20839,6 @@ void set_register(int32_t arg, int32_t value)
 				}
 				else
 				{
-					// TODO z3 ! seems like a bug, this should use m?
 					auto cid = tmpscr.data[pos];
 					screen_combo_modify_pre(cid);
 					combobuf[cid].type=val;
