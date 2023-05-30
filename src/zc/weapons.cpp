@@ -181,9 +181,8 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 	COMBOXY_REGION(rpos_handle.rpos, x, y);
 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	// TODO z3 !
-	byte* grid = (layer ? w->wscreengrid_layer[layer-1] : w->wscreengrid);
-	if ( !(get_bit(grid,pos)) || (combobuf[cid].usrflags&cflag5) ) 
+	bool checked = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
+	if ( !checked || (combobuf[cid].usrflags&cflag5) ) 
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
@@ -299,8 +298,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 			addenemy(rpos_handle.screen_index,x,y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
-	// TODO z3 !
-	set_bit(grid,pos,1);
+	w->rposes_checked.insert({rpos_handle.layer, rpos_handle.rpos});
 	
 	if ( combobuf[cid].usrflags&cflag8 ) killgenwpn(w);
 }

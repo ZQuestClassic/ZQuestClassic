@@ -2598,7 +2598,6 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	int32_t flag = rpos_handle.screen->sflag[pos];
 	int32_t flag2 = cmb.flag;
 	
-	byte* grid = nullptr;
 	bool check_bit = false;
 	bool used_bit = false;
 	
@@ -2653,11 +2652,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			return false;
 	}
 	
-	if(w)
+	if (w)
 	{
-		// TODO z3
-		grid = (lyr ? w->wscreengrid_layer[lyr-1] : w->wscreengrid);
-		check_bit = get_bit(grid, pos);
+		check_bit = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
 	}
 	bool dorun = !timer.trig_cd;
 	if(dorun)
@@ -2826,12 +2823,12 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			if(cmb.trigchange)
 			{
 				used_bit = true;
-				rpos_handle.screen->data[pos] = cid+cmb.trigchange;
+				rpos_handle.set_data(cid+cmb.trigchange);
 			}
 			if(cmb.trigcschange)
 			{
 				used_bit = true;
-				rpos_handle.screen->cset[pos] = (ocs+cmb.trigcschange) & 0xF;
+				rpos_handle.set_cset((ocs+cmb.trigcschange) & 0xF);
 			}
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
@@ -2953,9 +2950,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
-		if(used_bit && grid)
+		if (w && used_bit)
 		{
-			set_bit(grid,pos,1);
+			w->rposes_checked.insert({rpos_handle.layer, rpos_handle.rpos});
 		}
 	}
 	
@@ -3168,13 +3165,12 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				if(!(special & ctrigSECRETS) && !triggering_generic_secrets)
 				{
 					triggering_generic_secrets = true;
-					trigger_secrets_for_screen(TriggerSource::GenericCombo, false);
+					trigger_secrets_for_screen(TriggerSource::GenericCombo, ffc_handle.screen_index, false);
 					triggering_generic_secrets = false;
 				}
-				// TODO z3 ffc
-				if(canPermSecret(currdmap, currscr) && !(tmpscr.flags5&fTEMPSECRETS))
-					setmapflag(mSECRET);
-				sfx(tmpscr.secretsfx);
+				if(canPermSecret(currdmap, ffc_handle.screen_index) && !(ffc_handle.screen->flags5&fTEMPSECRETS))
+					setmapflag(ffc_handle.screen_index, mSECRET);
+				sfx(ffc_handle.screen->secretsfx);
 			}
 			
 			if(cmb.trigchange)

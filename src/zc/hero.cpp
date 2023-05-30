@@ -4330,6 +4330,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
     if(i > 175)
         return;
     
+	// bool checked = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
     if((get_bit(w->wscreengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
     {
 	return; 
@@ -5172,12 +5173,6 @@ void HeroClass::check_slash_block(weapon *w)
     }
 }
 
-//TODO: Boomerang that cuts bushes. -L
-/*void HeroClass::slash_bush()
-{
-
-}*/
-
 void HeroClass::check_wand_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
@@ -5384,6 +5379,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     return;
 }
 
+// TODO z3 !
 void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 {
 	if(lyr < 1 || lyr > 2) return; //sanity
