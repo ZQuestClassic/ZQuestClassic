@@ -26257,19 +26257,10 @@ bool handle_slot(script_slot_data& slotdata, int indx, script_data** scriptdata)
 {
 	if(slotdata.hasScriptData())
 	{
-		FILE* tempfile = std::tmpfile();
+		std::string scriptstr;
+		(*doslot_scripts)[slotdata.scriptname].write(scriptstr, doslots_log_output);
+		parse_script_string(&scriptdata[indx],scriptstr,false);
 		
-		if(!tempfile)
-		{
-			jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-			return false;
-		}
-		
-		(*doslot_scripts)[slotdata.scriptname].write(tempfile, doslots_log_output);
-		
-		fseek(tempfile, 0, SEEK_SET);
-		parse_script_file(&scriptdata[indx],tempfile,false);
-		fclose(tempfile);
 		if(slotdata.isDisassembled()) scriptdata[indx]->meta.setFlag(ZMETA_DISASSEMBLED);
 		else if(slotdata.isImportedZASM()) scriptdata[indx]->meta.setFlag(ZMETA_IMPORTED);
 	}
