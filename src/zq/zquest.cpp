@@ -185,7 +185,7 @@ zcmodule moduledata;
 
 void load_size_poses();
 void do_previewtext();
-bool do_slots(map<string, disassembled_script_data> &scripts);
+bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign);
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
@@ -25245,7 +25245,7 @@ int32_t onSlotAssign()
 	
 	do_script_disassembly(scripts, false);
 	
-	do_slots(scripts);
+	do_slots(scripts, false);
 	return D_O_K;
 }
 
@@ -26251,7 +26251,7 @@ void doClearSlots(byte* flags);
 
 extern byte compile_success_sample, compile_error_sample,
 	compile_finish_sample, compile_audio_volume;
-bool do_slots(map<string, disassembled_script_data> &scripts)
+bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign)
 {
 	large_dialog(assignscript_dlg);
 	int32_t ret = 3;
@@ -26261,12 +26261,11 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 	bool retval = false;
 	
     popup_zqdialog_start();
-	while(true)
+	while(!quick_assign)
 	{
 		slotflags = reload_scripts(scripts);
         ret = do_zqdialog(assignscript_dlg, ret);
 		
-		FILE* tempfile = NULL;
 		switch(ret)
 		{
 			case 0:
@@ -26274,372 +26273,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 				//Cancel
 				goto exit_do_slots;
 				
-			case 3:
-			{
-			
-				//OK
-				bool output = (assignscript_dlg[13].flags == D_SELECTED);
-				clock_t start_assign_time = clock();
-				for(map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&ffscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) ffscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) ffscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(ffscripts[it->first+1])
-					{
-						delete ffscripts[it->first+1];
-						ffscripts[it->first+1] = new script_data();
-					}
-				}
-				
-				for(map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&globalscripts[it->first],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) globalscripts[it->first]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) globalscripts[it->first]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(globalscripts[it->first])
-					{
-						delete globalscripts[it->first];
-						globalscripts[it->first] = new script_data();
-					}
-				}
-				
-				for(map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&itemscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) itemscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) itemscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(itemscripts[it->first+1])
-					{
-						delete itemscripts[it->first+1];
-						itemscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&guyscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) guyscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) guyscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(guyscripts[it->first+1])
-					{
-						delete guyscripts[it->first+1];
-						guyscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&lwpnscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(lwpnscripts[it->first+1])
-					{
-						delete lwpnscripts[it->first+1];
-						lwpnscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&ewpnscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(ewpnscripts[it->first+1])
-					{
-						delete ewpnscripts[it->first+1];
-						ewpnscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&playerscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) playerscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) playerscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(playerscripts[it->first+1])
-					{
-						delete playerscripts[it->first+1];
-						playerscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&dmapscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(dmapscripts[it->first+1])
-					{
-						delete dmapscripts[it->first+1];
-						dmapscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&screenscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) screenscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) screenscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(screenscripts[it->first+1])
-					{
-						delete screenscripts[it->first+1];
-						screenscripts[it->first+1] = new script_data();
-					}
-				}
-				for(map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&itemspritescripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(itemspritescripts[it->first+1])
-					{
-						delete itemspritescripts[it->first+1];
-						itemspritescripts[it->first+1] = new script_data();
-					}
-				}
-				
-				for(map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&comboscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) comboscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) comboscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(comboscripts[it->first+1])
-					{
-						delete comboscripts[it->first+1];
-						comboscripts[it->first+1] = new script_data();
-					}
-				}
-				for(auto it = genericmap.begin(); it != genericmap.end(); it++)
-				{
-					if(it->second.hasScriptData())
-					{
-						tempfile = std::tmpfile();
-						
-						if(!tempfile)
-						{
-							jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-							//return false;
-							goto exit_do_slots;
-						}
-						
-						scripts[it->second.scriptname].write(tempfile, output);
-						
-						fseek(tempfile, 0, SEEK_SET);
-						parse_script_file(&genericscripts[it->first+1],tempfile,false);
-						fclose(tempfile);
-						if(it->second.isDisassembled()) genericscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
-						else if(it->second.isImportedZASM()) genericscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
-					}
-					else if(genericscripts[it->first+1])
-					{
-						delete genericscripts[it->first+1];
-						genericscripts[it->first+1] = new script_data();
-					}
-				}
-
-				clock_t end_assign_time = clock();
-				al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
-				char buf[256] = {0};
-				sprintf(buf, "ZScripts successfully loaded into script slots"
-					"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
-				//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
-				compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
-				compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
-				if ( compile_finish_sample > 0 )
-				{
-					if(sfxdat)
-					sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
-					else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
-					voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
-					//zc_set_volume(255,-1);
-					//kill_sfx();
-					voice_start(sfx_voice[compile_finish_sample]);
-				}
-				InfoDialog("Slots Assigned",buf).show();
-				if ( compile_finish_sample > 0 )
-				{
-					if(sfx_voice[compile_finish_sample]!=-1)
-					{
-						deallocate_voice(sfx_voice[compile_finish_sample]);
-						sfx_voice[compile_finish_sample]=-1;
-					}
-				}
-				build_biffs_list();
-				build_biitems_list();
-				retval = true;
-				goto exit_do_slots;
-			}
+			case 3: goto auto_do_slots;
 			
 			case 6:
 				//<<, FFC
@@ -27138,7 +26772,372 @@ bool do_slots(map<string, disassembled_script_data> &scripts)
 			}
 		}
 	}
+auto_do_slots:
+	//OK
+	{
+		FILE* tempfile = NULL;
+		bool output = (assignscript_dlg[13].flags == D_SELECTED);
+		clock_t start_assign_time = clock();
+		for(map<int32_t, script_slot_data >::iterator it = ffcmap.begin(); it != ffcmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&ffscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) ffscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) ffscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(ffscripts[it->first+1])
+			{
+				delete ffscripts[it->first+1];
+				ffscripts[it->first+1] = new script_data();
+			}
+		}
+		
+		for(map<int32_t, script_slot_data >::iterator it = globalmap.begin(); it != globalmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&globalscripts[it->first],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) globalscripts[it->first]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) globalscripts[it->first]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(globalscripts[it->first])
+			{
+				delete globalscripts[it->first];
+				globalscripts[it->first] = new script_data();
+			}
+		}
+		
+		for(map<int32_t, script_slot_data >::iterator it = itemmap.begin(); it != itemmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&itemscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) itemscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) itemscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(itemscripts[it->first+1])
+			{
+				delete itemscripts[it->first+1];
+				itemscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = npcmap.begin(); it != npcmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&guyscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) guyscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) guyscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(guyscripts[it->first+1])
+			{
+				delete guyscripts[it->first+1];
+				guyscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = lwpnmap.begin(); it != lwpnmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&lwpnscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) lwpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(lwpnscripts[it->first+1])
+			{
+				delete lwpnscripts[it->first+1];
+				lwpnscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = ewpnmap.begin(); it != ewpnmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&ewpnscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) ewpnscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(ewpnscripts[it->first+1])
+			{
+				delete ewpnscripts[it->first+1];
+				ewpnscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = playermap.begin(); it != playermap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&playerscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) playerscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) playerscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(playerscripts[it->first+1])
+			{
+				delete playerscripts[it->first+1];
+				playerscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = dmapmap.begin(); it != dmapmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&dmapscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) dmapscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(dmapscripts[it->first+1])
+			{
+				delete dmapscripts[it->first+1];
+				dmapscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = screenmap.begin(); it != screenmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&screenscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) screenscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) screenscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(screenscripts[it->first+1])
+			{
+				delete screenscripts[it->first+1];
+				screenscripts[it->first+1] = new script_data();
+			}
+		}
+		for(map<int32_t, script_slot_data >::iterator it = itemspritemap.begin(); it != itemspritemap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&itemspritescripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) itemspritescripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(itemspritescripts[it->first+1])
+			{
+				delete itemspritescripts[it->first+1];
+				itemspritescripts[it->first+1] = new script_data();
+			}
+		}
+		
+		for(map<int32_t, script_slot_data >::iterator it = comboscriptmap.begin(); it != comboscriptmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&comboscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) comboscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) comboscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(comboscripts[it->first+1])
+			{
+				delete comboscripts[it->first+1];
+				comboscripts[it->first+1] = new script_data();
+			}
+		}
+		for(auto it = genericmap.begin(); it != genericmap.end(); it++)
+		{
+			if(it->second.hasScriptData())
+			{
+				tempfile = std::tmpfile();
+				
+				if(!tempfile)
+				{
+					jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+					//return false;
+					goto exit_do_slots;
+				}
+				
+				scripts[it->second.scriptname].write(tempfile, output);
+				
+				fseek(tempfile, 0, SEEK_SET);
+				parse_script_file(&genericscripts[it->first+1],tempfile,false);
+				fclose(tempfile);
+				if(it->second.isDisassembled()) genericscripts[it->first+1]->meta.setFlag(ZMETA_DISASSEMBLED);
+				else if(it->second.isImportedZASM()) genericscripts[it->first+1]->meta.setFlag(ZMETA_IMPORTED);
+			}
+			else if(genericscripts[it->first+1])
+			{
+				delete genericscripts[it->first+1];
+				genericscripts[it->first+1] = new script_data();
+			}
+		}
 
+		clock_t end_assign_time = clock();
+		al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
+		char buf[256] = {0};
+		sprintf(buf, "ZScripts successfully loaded into script slots"
+			"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
+		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
+		compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
+		compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
+		if ( compile_finish_sample > 0 )
+		{
+			if(sfxdat)
+			sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
+			else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
+			voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
+			//zc_set_volume(255,-1);
+			//kill_sfx();
+			voice_start(sfx_voice[compile_finish_sample]);
+		}
+		InfoDialog("Slots Assigned",buf).show();
+		if ( compile_finish_sample > 0 )
+		{
+			if(sfx_voice[compile_finish_sample]!=-1)
+			{
+				deallocate_voice(sfx_voice[compile_finish_sample]);
+				sfx_voice[compile_finish_sample]=-1;
+			}
+		}
+		build_biffs_list();
+		build_biitems_list();
+		retval = true;
+		goto exit_do_slots;
+	}
 exit_do_slots:
     popup_zqdialog_end();
 	return retval;
