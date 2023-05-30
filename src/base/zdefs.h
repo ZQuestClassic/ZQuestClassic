@@ -2228,6 +2228,10 @@ struct guydata
 #define FLAG_USE_NEW_MOVEMENT         0x00004000
 #define FLAG_NOT_PUSHABLE             0x00008000
 
+#define LIFTFL_DIS_SHIELD             0x00000001
+#define LIFTFL_DIS_ITEMS              0x00000002
+#define NUM_LIFTFL 2
+
 #define MAX_PC dword(-1)
 class refInfo
 {

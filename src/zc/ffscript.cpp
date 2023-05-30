@@ -3856,6 +3856,17 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case HEROLIFTFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX]/10000;
+			if(BC::checkBounds(indx, 0, NUM_LIFTFL-1, "Hero->LiftFlags[]") != SH::_NoError)
+				ret = 0; //false
+			else
+			{
+				ret = (Hero.liftflags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
 		
 		case HEROISWARPING:
 			ret = Hero.is_warping ? 10000L : 0L;
@@ -13971,6 +13982,19 @@ void set_register(int32_t arg, int32_t value)
 					Hero.moveflags |= bit;
 				else
 					Hero.moveflags &= ~bit;
+			}
+			break;
+		}
+		case HEROLIFTFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX]/10000;
+			if(BC::checkBounds(indx, 0, NUM_LIFTFL-1, "Hero->LiftFlags[]") == SH::_NoError)
+			{
+				int32_t bit = 1<<indx;
+				if(value)
+					Hero.liftflags |= bit;
+				else
+					Hero.liftflags &= ~bit;
 			}
 			break;
 		}
@@ -41778,7 +41802,7 @@ script_variable ZASMVars[]=
 	{ "HEROLIFTMAXTIMER", HEROLIFTMAXTIMER, 0, 0 },
 	{ "HEROLIFTHEIGHT", HEROLIFTHEIGHT, 0, 0 },
 	{ "HEROHAMMERSTATE", HEROHAMMERSTATE, 0, 0 },
-	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
+	{ "HEROLIFTFLAGS", HEROLIFTFLAGS, 0, 0 },
 	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
 	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
 	{ "RESRVD_VAR_EMILY22", RESRVD_VAR_EMILY22, 0, 0 },
