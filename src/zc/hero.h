@@ -333,10 +333,11 @@ public:
 	byte liftclk;
 	byte tliftclk;
 	zfix liftheight;
-	
+	uint32_t liftflags;
 	
 	// Methods below here.
 	bool isLifting();
+	void set_liftflags(int liftid);
 	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
 	void explode(int32_t type);

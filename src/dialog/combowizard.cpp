@@ -444,7 +444,7 @@ void ComboWizardDialog::endUpdate()
 			switch(adir)
 			{
 				case 0:
-					a0 = ddls[3]->getSelectedValue()*10000;
+					a0 = ddls[5]->getSelectedValue()*10000;
 					break;
 				case 1: //Angle
 					a0 = tfs[2]->getVal();

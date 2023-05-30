@@ -162,6 +162,7 @@ bool usingActiveShield(int32_t itmid)
 			break;
 		default: return false;
 	}
+	if(Hero.lift_wpn && (Hero.liftflags&LIFTFL_DIS_SHIELD)) return false;
 	if(itmid < 0)
 		itmid = (Hero.active_shield_id < 0
 			? current_item_id(itype_shield,true,true) : Hero.active_shield_id);
@@ -290,6 +291,14 @@ bool HeroClass::isLifting()
 {
 	if(lift_wpn) return true;
 	return false;
+}
+void HeroClass::set_liftflags(int liftid)
+{
+	if(unsigned(liftid) >= MAXITEMS)
+		return;
+	itemdata const& itm = itemsbuf[liftid];
+	SETFLAG(liftflags, LIFTFL_DIS_SHIELD, itm.flags & ITEM_FLAG3);
+	SETFLAG(liftflags, LIFTFL_DIS_ITEMS, itm.flags & ITEM_FLAG4);
 }
 
 void HeroClass::set_respawn_point(bool setwarp)
@@ -1462,6 +1471,7 @@ void HeroClass::init()
 	liftclk = 0;
 	tliftclk = 0;
 	liftheight = 0;
+	liftflags = 0;
     if ( dontdraw != 2 ) {  dontdraw = 0; } //scripted dontdraw == 2, normal == 1, draw hero == 0
     hookshot_used=false;
     justmoved = 0;
@@ -5997,16 +6007,18 @@ int32_t HeroClass::EwpnHit()
 			}
 			
 			int32_t itemid = getCurrentShield(false);
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
+				return i;
 			itemdata const& shield = itemsbuf[itemid];
+			bool allow_inactive = (shield.flags & ITEM_FLAG9);
 			auto cmpdir = compareDir(ew->dir);
 			bool hitshield = compareShield(cmpdir, shield);
 			
-			
-			if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF)
-			{
+			if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
 				return i;
-			}
+			
+			if(!hitshield)
+				return i;
 			
 			paymagiccost(itemid);
 			
@@ -6127,7 +6139,8 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 			
 			if (!(lw->id == wRefFireball || lw->id == wRefMagic || lw->id == wRefBeam || lw->id == wRefRock)) return -1;
 			int32_t itemid = getCurrentShield(false);
-			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
+			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid)))
+				return i;
 			itemdata const& shield = itemsbuf[itemid];
 			auto cmpdir = compareDir(lw->dir);
 			bool hitshield = compareShield(cmpdir, shield);
@@ -6182,7 +6195,11 @@ int32_t HeroClass::LwpnHit()                                    //only here to c
 				return -1;
 			}
 			
-			if(!hitshield || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || hopclk==0xFF)
+			bool allow_inactive = (shield.flags & ITEM_FLAG9);
+			if(!allow_inactive && ((lift_wpn && (liftflags & LIFTFL_DIS_SHIELD)) || (action==attacking||action==sideswimattacking) || action==swimming || action == sideswimming || action == sideswimattacking || charging > 0 || spins > 0 || hopclk==0xFF))
+				return i;
+			
+			if(!hitshield)
 				return i;
 				
 			if(itemid<0 || !(checkbunny(itemid) && checkmagiccost(itemid))) return i;
@@ -10616,6 +10633,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		paidmagic = true;
 		paymagiccost(liftid);
 	}
+	set_liftflags(liftid);
 	if(passive)
 		getIntBtnInput(intbtn, true, true, false, false, false); //eat buttons
 	return;
@@ -10944,7 +10962,25 @@ bool HeroClass::startwpn(int32_t itemid)
 	if(((dir==up && y<24) || (dir==down && y>world_h-48) ||
 			(dir==left && x<32) || (dir==right && x>world_w-48)) && !(get_bit(quest_rules,qr_ITEMSONEDGES) || inlikelike))
 		return false;
-		
+	
+	bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+	if(liftonly)
+	{
+		dowpn = -1;
+		switch(itm.family)
+		{
+			case itype_bomb:
+			case itype_sbomb:
+				if(itm.flags & ITEM_FLAG4)
+					do_liftglove(-1,false);
+				break;
+			case itype_liftglove:
+				do_liftglove(-1,false);
+				break;
+		}
+		return false;
+	}
+	
 	int32_t wx=x;
 	int32_t wy=y-fakez;
 	int32_t wz=z;
@@ -11304,6 +11340,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
 				{
 					lift(wpn,itm.misc5,itm.misc6);
+					set_liftflags(liftid);
 					lifted = true;
 				}
 			}
@@ -11358,6 +11395,7 @@ bool HeroClass::startwpn(int32_t itemid)
 				if(liftid > -1 && (!itm.misc4 || itm.misc4 <= glove.fam_type))
 				{
 					lift(wpn,itm.misc5,itm.misc6);
+					set_liftflags(liftid);
 					lifted = true;
 				}
 			}
@@ -12129,6 +12167,8 @@ bool HeroClass::startwpn(int32_t itemid)
 
 bool HeroClass::doattack()
 {
+	if(lift_wpn && (liftflags & LIFTFL_DIS_ITEMS))
+		return false;
 	//int32_t s = BSZ ? 0 : 11;
 	int32_t s = (zinit.heroAnimationStyle==las_bszelda) ? 0 : 11;
 	
@@ -13848,7 +13888,8 @@ void HeroClass::moveheroOld()
 	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
@@ -13867,7 +13908,7 @@ void HeroClass::moveheroOld()
 				item_error();
 			}
 		}
-		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
@@ -13885,7 +13926,7 @@ void HeroClass::moveheroOld()
 				attackclk=0;
 			}
 		}
-		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
@@ -13898,7 +13939,7 @@ void HeroClass::moveheroOld()
 				attackclk=0;
 			}
 		}
-		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -13918,7 +13959,7 @@ void HeroClass::moveheroOld()
 				item_error();
 			}
 		}
-		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
@@ -17792,7 +17833,8 @@ bool HeroClass::premove()
 	if(can_attack() && btnwpn>itype_sword && charging==0 && btnwpn!=itype_rupee) // This depends on item 0 being a rupee...
 	{
 		bool paidmagic = false;
-		if(btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
+		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
+		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
@@ -17811,7 +17853,7 @@ bool HeroClass::premove()
 				item_error();
 			}
 		}
-		else if((btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
+		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
@@ -17829,7 +17871,7 @@ bool HeroClass::premove()
 				attackclk=0;
 			}
 		}
-		else if((btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
+		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
@@ -17842,7 +17884,7 @@ bool HeroClass::premove()
 				attackclk=0;
 			}
 		}
-		else if((btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
+		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
 			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
@@ -17862,7 +17904,7 @@ bool HeroClass::premove()
 				item_error();
 			}
 		}
-		else if((btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
+		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
 				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
 			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);

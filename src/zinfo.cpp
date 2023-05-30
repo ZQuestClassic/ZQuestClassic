@@ -268,7 +268,7 @@ const char weap_name_default_string[wMax][255] =
 	"","","","","",
 	"","","","-wEnemyWeapons","E Fireball",
 	//130
-	"E Arrow","E Boomerang","E Sword","E Rock","E Magic"
+	"E Arrow","E Boomerang","E Sword","E Rock","E Magic",
 	"E Bomb Blast","E Super Bomb Blast","E Bomb","E Super Bomb","E Fire Trail",
 	//140
 	"E Fire","E Wind","-E Fire 2","-E Fire Trail 2","-E Ice",

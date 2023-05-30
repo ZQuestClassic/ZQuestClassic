@@ -1344,7 +1344,7 @@ void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
                 if (replay_is_active())
-                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
 				if (flag == mSECRET && nmap-1 == currmap && is_in_current_region(nscr))
 				{

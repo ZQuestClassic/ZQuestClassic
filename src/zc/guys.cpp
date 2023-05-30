@@ -247,7 +247,13 @@ bool tooclose(int32_t x,int32_t y,int32_t d)
 
 bool enemy::overpit(enemy *e)
 {
-	for ( int32_t q = 0; q < hxsz; ++q )
+	// This function (and shadow_overpit) has been broken since it was written, and only
+	// checked the same diagonal of the hitbox, over and over again. The bug is because both
+	// loops used the same variable name.
+	// Checking literally every pixel seems like overkill, so for now let's continue to
+	// do the single diagonal but just once. That's why the outer loop is commented out.
+
+	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
 		for ( int32_t q = 0; q < hysz; ++q )
 		{
@@ -258,18 +264,13 @@ bool enemy::overpit(enemy *e)
 				return true;
 			}
 		}
-
-		if(e)break; // LOL this is just because the code was written in a bad way (see same variable being
-				// used in both loops), and this function showed up as pretty expensive when profiling.
-				// So instead of wasting a ton of work .... or fixing this function .... let's just make
-				// is not take at least 16x longer than it should.
 	}
 	return false;
 }
 
 bool enemy::shadow_overpit(enemy *e)
 {
-	for ( int32_t q = 0; q < hxsz; ++q )
+	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
 		for ( int32_t q = 0; q < hysz; ++q )
 		{
@@ -280,12 +281,6 @@ bool enemy::shadow_overpit(enemy *e)
 				return true;
 			}
 		}
-
-		// TODO z3 !!!
-		if(e)break; // LOL this is just because the code was written in a bad way (see same variable being
-				// used in both loops), and this function showed up as pretty expensive when profiling.
-				// So instead of wasting a ton of work .... or fixing this function .... let's just make
-				// is not take at least 16x longer than it should.
 	}
 	return false;
 }
