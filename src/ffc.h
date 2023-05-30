@@ -30,7 +30,7 @@ public:
 	int32_t inita[INITIAL_A];
 	int32_t screen_index;
 	bool initialized, hooked;
-	bool cooling_down;
+	bool recently_hit;
 	
 	ffcdata() = default;
 	ffcdata(ffcdata const& other);

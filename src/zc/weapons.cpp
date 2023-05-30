@@ -15,6 +15,7 @@
 #include <string>
 
 #include "base/zdefs.h"
+#include "ffc.h"
 #include "zc/weapons.h"
 #include "zc/guys.h"
 #include "zc/zelda.h"
@@ -3632,13 +3633,14 @@ bool weapon::animate(int32_t index)
 		}
 		
 		}*/
+
+		// https://discord.com/channels/876899628556091432/976887183518625883/976887186454618152
 		byte temp_screengrid[22];
 		byte temp_screengrid_layer[2][22];
-		byte temp_ffcgrid[MAXFFCS/8];
+		std::map<ffcdata*, bool> temp_recently_hit;
 		memcpy(temp_screengrid, screengrid, sizeof(screengrid));
 		memcpy(temp_screengrid_layer[0], screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(temp_screengrid_layer[1], screengrid_layer[1], sizeof(screengrid_layer[1]));
-		memcpy(temp_ffcgrid, ffcgrid, sizeof(ffcgrid));
 		
 		for(int32_t q=0; q<22; q++)
 		{
@@ -3646,9 +3648,11 @@ bool weapon::animate(int32_t index)
 			screengrid_layer[0][q] = 0;
 			screengrid_layer[1][q] = 0;
 		}
-		
-		// for (int16_t q = MAXFFCS / 8 - 1; q >= 0; --q)
-		// 	ffcgrid[q] = 0;
+
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			temp_recently_hit[ffc_handle.ffc] = ffc_handle.ffc->recently_hit;
+			return true;
+		});
 		
 		bool pound = useweapon == wHammer && id != wHammer;
 		
@@ -3695,7 +3699,12 @@ bool weapon::animate(int32_t index)
 		memcpy(screengrid, temp_screengrid, sizeof(screengrid));
 		memcpy(screengrid_layer[0], temp_screengrid_layer[0], sizeof(screengrid_layer[0]));
 		memcpy(screengrid_layer[1], temp_screengrid_layer[1], sizeof(screengrid_layer[1]));
-		// memcpy(ffcgrid, temp_ffcgrid, sizeof(ffcgrid));
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			auto it = temp_recently_hit.find(ffc_handle.ffc);
+			if (it != temp_recently_hit.end())
+				ffc_handle.ffc->recently_hit = it->second;
+			return true;
+		});
 	}
 	else findcombotriggers();
 	

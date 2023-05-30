@@ -390,7 +390,6 @@ int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
 int32_t    Bpos = 0;
 byte screengrid[22]={0};
 byte screengrid_layer[2][22]={0};
-byte ffcgrid[MAXFFCS/8]={0};
 bool halt=false;
 bool screenscrolling=false;
 PALETTE tempbombpal;

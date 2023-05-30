@@ -3498,9 +3498,11 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[0],q,0);
 				set_bit(screengrid_layer[1],q,0);
 			}
-			
-			for(dword q = MAXFFCS/8; q > 0; --q)
-				ffcgrid[q-1] = 0;
+
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				ffc_handle.ffc->recently_hit = false;
+				return true;
+			});
 		}
 		
 		if(dir==up && ((x.getInt()&15)==0))
@@ -3601,8 +3603,10 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for(dword q = MAXFFCS/8; q > 0; --q)
-				ffcgrid[q-1] = 0;
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				ffc_handle.ffc->recently_hit = false;
+				return true;
+			});
 		}
 		
 		// cutable blocks
@@ -3654,8 +3658,10 @@ bool HeroClass::checkstab()
 			set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for(dword q = MAXFFCS/8; q > 0; --q)
-			ffcgrid[q-1] = 0;
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			ffc_handle.ffc->recently_hit = false;
+			return true;
+		});
 			
 		if(dir==up && (x.getInt()&15)==0)
 		{
@@ -3873,7 +3879,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	bool ignorescreen=false;
 	bool ignoreffc=false;
 	
-	// TODO z3
+	// TODO z3 !
 	if(get_bit(screengrid, i) != 0)
 	{
 		ignorescreen = true;
@@ -3882,8 +3888,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 		ignorescreen = true;
 	
 	
-	// TODO z3 !
-	if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
+	if (!current_ffc_handle || current_ffc_handle->ffc->recently_hit)
 	{
 		ignoreffc = true;
 	}
@@ -4096,7 +4101,10 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	if(!ignoreffc)
 	{
 		// TODO z3 !
-		if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffc_handle->i, 1);
+		if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS))
+		{
+			current_ffc_handle->ffc->recently_hit = true;
+		}
 		
 		if(isCuttableItemType(type2))
 		{
@@ -4476,8 +4484,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     auto current_ffc_handle = getFFCAt(fx,fy);
     
-	// TODO z3 !
-    if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
+    if (!current_ffc_handle || current_ffc_handle->ffc->recently_hit)
     {
         ignoreffc = true;
     }
@@ -4683,8 +4690,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     if(!ignoreffc)
     {
-		// TODO z3 !
-        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffc_handle->i, 1);
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS))
+		{
+			current_ffc_handle->ffc->recently_hit = true;
+		}
         
         if(isCuttableItemType(type2))
         {
@@ -4900,12 +4909,11 @@ void HeroClass::check_slash_block(weapon *w)
     
     auto current_ffc_handle = getFFCAt(fx,fy);
     
-	// TODO z3 ffc
-    if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
+    if (!current_ffc_handle || current_ffc_handle->ffc->recently_hit)
     {
         ignoreffc = true;
     }
-    else if(combobuf[current_ffc_handle->ffc->getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[current_ffc_handle->data()].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -5086,7 +5094,10 @@ void HeroClass::check_slash_block(weapon *w)
     if(!ignoreffc)
     {
 		// TODO z3 !
-        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(ffcgrid, current_ffc_handle->i, 1);
+        if(!isTouchyType(type2) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS))
+		{
+			current_ffc_handle->ffc->recently_hit = true;
+		}
         
         if(isCuttableItemType(type2))
         {
@@ -5260,8 +5271,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         
     auto current_ffc_handle = getFFCAt(fx,fy);
     
-	// TODO z3 !
-    if (!current_ffc_handle || get_bit(ffcgrid, current_ffc_handle->i) != 0)
+    if (!current_ffc_handle || current_ffc_handle->ffc->recently_hit)
         ignoreffc = true;
         
     if(type2!=cPOUND && flag3!=mfSTRIKE && flag3!=mfHAMMER)
@@ -5355,8 +5365,8 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     
     if(!ignoreffc)
     {
-        // set_bit(ffcgrid,current_ffc_handle->i,1);
-        
+		current_ffc_handle->ffc->recently_hit = true;
+
         if(type2==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
             sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
     }
@@ -9904,15 +9914,6 @@ heroanimate_skip_liftwpn:;
 	
 	if (!checkstab() )
 	{
-		/*
-		for(int32_t q=0; q<176; q++)
-			{
-				set_bit(screengrid,q,0); 
-			}
-			
-			for(int32_t q=0; q<MAXFFCS; q++)
-				set_bit(ffcgrid, q, 0);
-		*/
 	}
 	
 	check_conveyor();
