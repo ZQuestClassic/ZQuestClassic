@@ -6,12 +6,14 @@
 #include "tiles.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include "items.h"
 #include <fmt/format.h>
 
 extern bool saved;
 extern zcmodule moduledata;
 extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
+extern itemdata *itemsbuf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
@@ -85,6 +87,25 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_lift_parent_items(GUI::ZCListData::items(true).filter(
+		[&](GUI::ListItem& itm)
+		{
+			if(itm.value == 0) //Remove item 0
+				return false;
+			if(itm.value == -1) //Change the none value to 0
+				itm.value = 0;
+			else switch(itemsbuf[itm.value].family) //Limit valid item types
+			{
+				case itype_bomb:
+					itm.text += fmt::format(" [{}]",ZI.getWeapName(wLitBomb));
+					break;
+				case itype_sbomb:
+					itm.text += fmt::format(" [{}]",ZI.getWeapName(wLitSBomb));
+					break;
+				default: return false;
+			}
+			return true;
+		})),
 	list_deftypes(GUI::ZCListData::deftypes())
 {}
 
@@ -3230,8 +3251,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.liftbreaksprite = val;
 									}
 								),
-								
-							Row(padding = 0_px,
+							Rows<3>(padding = 0_px,
 								Label(text = "Lift SFX:"),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_comboref.liftsfx,
@@ -3239,9 +3259,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftsfx = val;
 									}),
-								INFOBTN("The sfx to play when lifted")
-							),
-							Row(padding = 0_px,
+								INFOBTN("The sfx to play when lifted"),
 								Label(text = "Break SFX:"),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_comboref.liftbreaksfx,
@@ -3249,7 +3267,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftbreaksfx = val;
 									}),
-								INFOBTN("The sfx to play when the object breaks")
+								INFOBTN("The sfx to play when the object breaks"),
+								Label(text = "Lift Weapon:"),
+								DropDownList(data = list_lift_parent_items,
+									fitParent = true, selectedValue = local_comboref.lift_parent_item,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.lift_parent_item = val;
+									}),
+								INFOBTN("What item to use to create the lift weapon. If '(None)', a basic 'Thrown' weapon will be created from the lift glove item.")
 							)
 						)
 					),

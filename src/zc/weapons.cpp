@@ -1255,6 +1255,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		
 	isLWeapon = isLW;
 	minX = minY = maxX = maxY = 0;
+	rundeath = false;
+	shd_aclk = shd_aframe = 0;
 	//memset(stack,0,sizeof(stack));
 	//memset(stack, 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
 	
@@ -3447,6 +3449,7 @@ void weapon::limited_animate()
 						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
 				hxofs=2000;
 				step = 0;
+				rundeath = true;
 				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
 			}
 			
@@ -3568,6 +3571,7 @@ void weapon::limited_animate()
 			break;
 		}
 	}
+	if(rundeath) do_death_fx();
 }
 bool weapon::animate(int32_t index)
 {
@@ -6803,38 +6807,47 @@ bool weapon::animate(int32_t index)
 			ret = false;
 		}
 	}
-	if(ret)
+	if(ret || rundeath) do_death_fx();
+	return ret;
+}
+
+void weapon::do_death_fx()
+{
+	if(death_spawnitem > -1)
 	{
-		if(death_spawnitem > -1)
+		item* itm = (new item(x, y, z, death_spawnitem, death_item_pflags, 0));
+		itm->fakez = fakez;
+		items.add(itm);
+	}
+	if(death_spawndropset > -1)
+	{
+		auto itid = select_dropitem(death_spawndropset);
+		if(itid > -1)
 		{
-			item* itm = (new item(x, y, z, death_spawnitem, death_item_pflags, 0));
+			item* itm = (new item(x, y, z, itid, death_item_pflags, 0));
 			itm->fakez = fakez;
+			itm->from_dropset = death_spawndropset;
 			items.add(itm);
 		}
-		if(death_spawndropset > -1)
-		{
-			auto itid = select_dropitem(death_spawndropset);
-			if(itid > -1)
-			{
-				item* itm = (new item(x, y, z, itid, death_item_pflags, 0));
-				itm->fakez = fakez;
-				itm->from_dropset = death_spawndropset;
-				items.add(itm);
-			}
-		}
-		switch(death_sprite)
-		{
-			case -2: decorations.add(new dBushLeaves(x, y-(z+fakez), dBUSHLEAVES, 0, 0)); break;
-			case -3: decorations.add(new dFlowerClippings(x, y-(z+fakez), dFLOWERCLIPPINGS, 0, 0)); break;
-			case -4: decorations.add(new dGrassClippings(x, y-(z+fakez), dGRASSCLIPPINGS, 0, 0)); break;
-			default:
-				if(death_sprite < 0) break;
-				decorations.add(new comboSprite(x, y-(z+fakez), 0, 0, death_sprite));
-		}
-		if(death_sfx > 0)
-			sfx(death_sfx, pan(int32_t(x)));
 	}
-	return ret;
+	switch(death_sprite)
+	{
+		case -2: decorations.add(new dBushLeaves(x, y-(z+fakez), dBUSHLEAVES, 0, 0)); break;
+		case -3: decorations.add(new dFlowerClippings(x, y-(z+fakez), dFLOWERCLIPPINGS, 0, 0)); break;
+		case -4: decorations.add(new dGrassClippings(x, y-(z+fakez), dGRASSCLIPPINGS, 0, 0)); break;
+		default:
+			if(death_sprite < 0) break;
+			decorations.add(new comboSprite(x, y-(z+fakez), 0, 0, death_sprite));
+	}
+	if(death_sfx > 0)
+		sfx(death_sfx, pan(int32_t(x)));
+	
+	death_spawnitem = -1;
+	death_item_pflags = 0;
+	death_spawndropset = -1;
+	death_sprite = -1;
+	death_sfx = 0;
+	rundeath = false;
 }
 
 void weapon::onhit(bool clipped, enemy* e, int32_t ehitType)
@@ -7272,7 +7285,8 @@ void weapon::draw(BITMAP *dest)
 		sprite::draw(dest);
 		return;
 	}
-	if ( !FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon || !FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon)
+	bool suspt = (FFCore.system_suspend[susptLWEAPONS] && this->isLWeapon) || (FFCore.system_suspend[susptEWEAPONS] && !this->isLWeapon);
+	if(!suspt)
 	{
 		if(flash==1)
 		{
@@ -7670,7 +7684,19 @@ void weapon::draw(BITMAP *dest)
 	
 	if (has_shadow && (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
 	{
-		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
+		wpndata const& spr = wpnsbuf[spr_shadow];
+		if(!suspt)
+		{
+			if(++shd_aclk >= zc_max(spr.speed,1))
+			{
+				shd_aclk = 0;
+				if(++shd_aframe >= zc_max(spr.frames,1))
+				{
+					shd_aframe = 0;
+				}
+			}
+		}
+		shadowtile = spr.tile+shd_aframe;
 		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
 	}
 	sprite::draw(dest);
@@ -7821,5 +7847,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     doscript = 0;
     weaponscript = 0;
 	weapon_dying_frame = false;
+	rundeath = false;
+	shd_aclk = shd_aframe = 0;
 }
 

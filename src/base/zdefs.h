@@ -271,7 +271,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          38
+#define V_COMBOS          39
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            16
@@ -2929,6 +2929,7 @@ struct newcombo
 	byte liftbreaksfx;
 	byte lifthei = 8;
 	byte lifttime = 16;
+	byte lift_parent_item;
 	word prompt_cid;
 	byte prompt_cs;
 	int16_t prompt_x = 12;
@@ -3029,8 +3030,9 @@ struct newcombo
 		if(liftsfx) return false;
 		if(liftbreaksprite != -1) return false;
 		if(liftbreaksfx) return false;
-		if(lifthei) return false;
-		if(lifttime) return false;
+		if(lifthei != 8) return false;
+		if(lifttime != 16) return false;
+		if(lift_parent_item) return false;
 		if(prompt_cid) return false;
 		if(prompt_cs) return false;
 		if(prompt_x != 12) return false;

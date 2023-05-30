@@ -108,6 +108,10 @@ static AccessorTable CombosTable[] =
 	{ "setTrigGStateTimer",         0,          ZTID_VOID,   COMBODTRIGGERGTIMER,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getTrigGenScript",           0,         ZTID_FLOAT,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS },{} },
 	{ "setTrigGenScript",           0,          ZTID_VOID,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigGroup",               0,         ZTID_FLOAT,   COMBODTRIGGERGROUP,        0,  { ZTID_COMBOS },{} },
+	{ "setTrigGroup",               0,          ZTID_VOID,   COMBODTRIGGERGROUP,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTrigGroupVal",            0,         ZTID_FLOAT,   COMBODTRIGGERGROUPVAL,     0,  { ZTID_COMBOS },{} },
+	{ "setTrigGroupVal",            0,          ZTID_VOID,   COMBODTRIGGERGROUPVAL,     0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getLiftGFXCombo",            0,         ZTID_FLOAT,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS },{} },
 	{ "setLiftGFXCombo",            0,          ZTID_VOID,   COMBODLIFTGFXCOMBO,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getLiftGFXCSet",             0,         ZTID_FLOAT,   COMBODLIFTGFXCCSET,        0,  { ZTID_COMBOS },{} },
@@ -138,6 +142,8 @@ static AccessorTable CombosTable[] =
 	{ "setLiftHeight",              0,          ZTID_VOID,   COMBODLIFTHEIGHT,          0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getLiftTime",                0,         ZTID_FLOAT,   COMBODLIFTTIME,            0,  { ZTID_COMBOS },{} },
 	{ "setLiftTime",                0,          ZTID_VOID,   COMBODLIFTTIME,            0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getLiftWeaponItem",          0,         ZTID_FLOAT,   COMBODLIFTWEAPONITEM,      0,  { ZTID_COMBOS },{} },
+	{ "setLiftWeaponItem",          0,          ZTID_VOID,   COMBODLIFTWEAPONITEM,      0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	//Undocumented intentionally
 	{ "getTriggerButton[]",         0,          ZTID_BOOL,   COMBODTRIGGERBUTTON,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
@@ -181,6 +187,10 @@ static AccessorTable CombosTable[] =
 	{ "setTriggerGStateTimer",      0,          ZTID_VOID,   COMBODTRIGGERGTIMER,       0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	{ "getTriggerGenScript",        0,         ZTID_FLOAT,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS },{} },
 	{ "setTriggerGenScript",        0,          ZTID_VOID,   COMBODTRIGGERGENSCRIPT,    0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerGroup",            0,         ZTID_FLOAT,   COMBODTRIGGERGROUP,        0,  { ZTID_COMBOS },{} },
+	{ "setTriggerGroup",            0,          ZTID_VOID,   COMBODTRIGGERGROUP,        0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
+	{ "getTriggerGroupVal",         0,         ZTID_FLOAT,   COMBODTRIGGERGROUPVAL,     0,  { ZTID_COMBOS },{} },
+	{ "setTriggerGroupVal",         0,          ZTID_VOID,   COMBODTRIGGERGROUPVAL,     0,  { ZTID_COMBOS, ZTID_FLOAT },{} },
 	
 	{ "_getPosX",                   0,         ZTID_FLOAT,   COMBOXR,                   0,  { ZTID_COMBOS },{} },
 	{ "_getPosY",                   0,         ZTID_FLOAT,   COMBOYR,                   0,  { ZTID_COMBOS },{} },

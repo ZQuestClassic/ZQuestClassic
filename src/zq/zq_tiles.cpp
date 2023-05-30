@@ -17635,6 +17635,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].liftbreaksfx = combo.liftbreaksfx;
 			combobuf[i].lifthei = combo.lifthei;
 			combobuf[i].lifttime = combo.lifttime;
+			combobuf[i].lift_parent_item = combo.lift_parent_item;
 		}
 	}
 	

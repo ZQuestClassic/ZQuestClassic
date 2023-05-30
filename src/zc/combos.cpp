@@ -3374,8 +3374,30 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 		}
 	}
 	
-	weapon* w = new weapon(cx, cy, 0, wThrown, 0, cmb.liftdmg*game->get_hero_dmgmult(),
-		oppositeDir[NORMAL_DIR(HeroDir())], gloveid, Hero.getUID(), false, 0, 1);
+	weapon* w = nullptr;
+	byte prntid = cmb.lift_parent_item;
+	int wlvl = 0, wtype = wThrown;
+	if(prntid)
+	{
+		itemdata const& prntitm = itemsbuf[prntid];
+		switch(prntitm.family)
+		{
+			case itype_bomb:
+				wtype = wLitBomb;
+				wlvl = prntitm.fam_type;
+				break;
+			case itype_sbomb:
+				wtype = wLitSBomb;
+				wlvl = prntitm.fam_type;
+				break;
+			default:
+				prntid = gloveid;
+				break;
+		}
+	}
+	else prntid = gloveid;
+	w = new weapon(cx, cy, 0, wtype, wlvl, cmb.liftdmg*game->get_hero_dmgmult(),
+		oppositeDir[NORMAL_DIR(HeroDir())], prntid, Hero.getUID(), false, 0, 1);
 	if(hasitem && !(cmb.liftflags & LF_DROPONLIFT))
 	{
 		w->death_spawnitem = dropitem;
