@@ -2447,9 +2447,9 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 		{
 			bool skipself = rpos_handle.data() == cid;
 			copycat_id = cmb.trigcopycat;
-			for_every_rpos_in_region([&](const rpos_handle_t& cc_pos_handle) {
-				if (skipself && cc_pos_handle.screen_index == rpos_handle.screen_index && cc_pos_handle.layer == rpos_handle.layer && cc_pos_handle.rpos == rpos_handle.rpos) return;
-				do_copycat_trigger(cc_pos_handle);
+			for_every_rpos_in_region([&](const rpos_handle_t& cc_rpos_handle) {
+				if (skipself && cc_rpos_handle.screen_index == rpos_handle.screen_index && cc_rpos_handle.layer == rpos_handle.layer && cc_rpos_handle.rpos == rpos_handle.rpos) return;
+				do_copycat_trigger(cc_rpos_handle);
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
@@ -2923,9 +2923,9 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				{
 					bool skipself = rpos_handle.data() == cid;
 					copycat_id = cmb.trigcopycat;
-					for_every_rpos_in_region([&](const rpos_handle_t& cc_pos_handle) {
-						if (skipself && cc_pos_handle.layer == rpos_handle.layer && cc_pos_handle.rpos == rpos_handle.rpos) return;
-						do_copycat_trigger(cc_pos_handle);
+					for_every_rpos_in_region([&](const rpos_handle_t& cc_rpos_handle) {
+						if (skipself && cc_rpos_handle.layer == rpos_handle.layer && cc_rpos_handle.rpos == rpos_handle.rpos) return;
+						do_copycat_trigger(cc_rpos_handle);
 					});
 					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 					{
