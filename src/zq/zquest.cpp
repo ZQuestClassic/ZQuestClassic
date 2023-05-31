@@ -29826,8 +29826,6 @@ int32_t main(int32_t argc,char **argv)
 		else Z_message("OK\n");
 	}
 	
-	if(used_switch(argc,argv,"-q"))
-		FatalConsole("-q switch used, quitting program.\n");
 	zcmusic_init();
 	
 	switch(zqColorDepth) //defaults to 8bit
@@ -30104,12 +30102,15 @@ int32_t main(int32_t argc,char **argv)
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
-	if(zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
+	if (zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
 	{
-		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
-			" There may be major bugs, which could cause quests"
-			"\nto crash or become corrupted. Keep backups of your quest file!!"
-			"\nAdditionally, new features may change over time.").show();
+		if (!is_ci())
+		{
+			InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
+				" There may be major bugs, which could cause quests"
+				"\nto crash or become corrupted. Keep backups of your quest file!!"
+				"\nAdditionally, new features may change over time.").show();
+		}
 	}
 	
 	delete[] curcontrol;
@@ -30297,6 +30298,13 @@ int32_t main(int32_t argc,char **argv)
 	init_ffpos();
 	
 	call_foo_dlg();
+
+	if(used_switch(argc,argv,"-q"))
+	{
+		Z_message("-q switch used, quitting program.\n");
+		exit(0);
+	}
+
 	while(!quit)
 	{
 	

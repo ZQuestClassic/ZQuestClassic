@@ -21529,8 +21529,11 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     int32_t open_error=0;
     PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
     
-    if(!f) 
+    if (!f)
+    {
+        ASSERT(open_error != 0);
         return open_error;
+    }
 	char zinfofilename[2048];
 	replace_extension(zinfofilename, filename, "zinfo", 2047);
     int32_t ret=0;

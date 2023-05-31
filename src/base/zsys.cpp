@@ -279,7 +279,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     printf("%s",buf);
 #endif
 #ifndef __EMSCRIPTEN__
-    if (!zscript_coloured_console.valid())
+    if (!zscript_coloured_console.valid() && !is_ci())
     {
         al_show_native_message_box(all_get_display(), "Zelda Classic: I AM ERROR", "", buf, NULL, ALLEGRO_MESSAGEBOX_ERROR);
     }
