@@ -30156,7 +30156,7 @@ int32_t main(int32_t argc,char **argv)
 			
 			if(ret == qe_OK)
 			{
-				replace_extension(filepath,last_timed_save,"qst",2047);
+				strcpy(filepath,last_timed_save);
 				load_last_timed_save=true;
 				saved=false;
 			}
@@ -30173,13 +30173,12 @@ int32_t main(int32_t argc,char **argv)
 		
 		if(argc>1 && argv[1][0]!='-')
 		{
-			replace_extension(temppath,argv[1],"qst",2047);
-			int32_t ret = load_quest(temppath);
+			int32_t ret = load_quest(argv[1]);
 			
 			if(ret == qe_OK)
 			{
 				first_save=true;
-				strcpy(filepath,temppath);
+				strcpy(filepath,argv[1]);
 				refresh(rALL);
 			}
 		}

@@ -790,7 +790,14 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	{
 		// The given file is already just the bottom layer - nothing more to do.
 		// There's no way to rewind a packfile, so just open it again.
-		return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+		if (id_came_from_compressed_file)
+		{
+			return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+		}
+		else
+		{
+			return pack_fopen_password(filename, F_READ, "");
+		}
 	}
 	else if (strstr(id, ENC_STR))
 	{
