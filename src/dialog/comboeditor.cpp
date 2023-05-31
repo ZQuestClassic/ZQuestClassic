@@ -1379,7 +1379,9 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[5] = "Script:";
 			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
 				"\nNote that there is no way to supply InitD to such scripts.";
-			
+			l_attribyte[6] = "Parent Item:";
+			h_attribyte[6] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
+				"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
 			//short[0],[1] : Rate
 			l_attrishort[2] = "Damage:";
 			h_attrishort[2] = "The damage of the spawned weapon";
@@ -1652,6 +1654,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[2] = "Direction for the weapon. 0-7 are the standard dirs, 8+ selects a random dir.";
 				l_attribyte[3] = "Wpn Sprite:";
 				h_attribyte[3] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 1 to 255.";
+				l_attribyte[4] = "Parent Item:";
+				h_attribyte[4] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
+					"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
 			}
 			break;
 		}
@@ -1986,7 +1991,7 @@ static const GUI::ListData listdata_lift_gfx
 #define SPR_LAB_WID 10_em
 #define ACTION_LAB_WID 6_em
 #define ACTION_FIELD_WID 6_em
-#define FLAGS_WID 16_em
+#define FLAGS_WID 18_em
 
 static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word max)
 {

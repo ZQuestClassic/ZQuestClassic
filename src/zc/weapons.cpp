@@ -299,9 +299,12 @@ int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid)
 	if(!trig) return 0;
 	if(w->isLWeapon) //min/max level check
 	{
+		//Nothing should ever count as 'level 0'
+		int lv = w->type, tlv = c[comboid].triggerlevel;
+		if(lv<1) lv=1;
+		if(tlv<1) tlv=1;
 		if((c[comboid].triggerflags[0]&combotriggerINVERTMINMAX)
-			? w->type <= c[comboid].triggerlevel
-			: w->type >= c[comboid].triggerlevel)
+			? lv <= tlv : lv >= tlv)
 			return 1;
 		else return 0;
 	}
