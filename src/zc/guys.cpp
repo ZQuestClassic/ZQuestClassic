@@ -23720,7 +23720,8 @@ void check_collisions()
 			{
 				enemy *e = (enemy*)guys.spr(j);
 				
-				if(e->hit(w)) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
+				bool didhit = w->hit(e);
+				if(didhit) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
 				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
 				{
 					// !(e->stunclk)

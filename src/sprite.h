@@ -131,6 +131,7 @@ public:
 	int32_t drownCombo; // Pitfall fallen combo
 	bool isspawning;
 	bool can_flicker;
+	bool hide_hitbox;
 	
 	byte spr_shadow, spr_death, spr_spawn;
 	int16_t spr_death_anim_clk, spr_spawn_anim_clk;
@@ -184,6 +185,7 @@ public:
 	virtual int32_t run_script(int32_t mode);
 	
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
+	virtual void draw_hitbox();
 };
 
 enum //run_script modes

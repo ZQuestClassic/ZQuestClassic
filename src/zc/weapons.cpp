@@ -28,12 +28,17 @@
 #include "zc/combos.h"
 #include "base/zc_math.h"
 
+#ifndef IS_ZQUEST
+#include "zc/render.h"
+#endif
+
 extern HeroClass Hero;
 extern zinitdata zinit;
 extern int32_t directWpn;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
+extern bool show_hitboxes;
 
 static void weapon_triggersecret(int32_t pos, int32_t flag)
 {
@@ -617,6 +622,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 {
 	if (screenIsScrolling()) return;
 	if(w->weapon_dying_frame) return;
+	if(unsigned(bx) > 255 || unsigned(by) > 175) return;
 	if (!layer)
 	{
 		if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
@@ -3431,6 +3437,45 @@ bool weapon::blocked(int32_t xOffset, int32_t yOffset)
 
 
 void collectitem_script(int32_t id);
+
+static const int bombxoff[] = {-16, -8, -8, 0,  8,  8, 16};
+static const int bombyoff[] = {  0,-16, 16, 0,-16, 16,  0};
+static const int sbombxoff[] = { -8,  8,-24, -8,  8, 24,-32,-16,  0, 16, 32,-24, -8,  8, 24, -8,  8};
+static const int sbombyoff[] = {-32,-32,-16,-16,-16,-16,  0,  0,  0,  0,  0, 16, 16, 16, 16, 32, 32};
+static const int bombcount = 7;
+static const int sbombcount = 17;
+void weapon::getBombPoses(std::set<int>& poses)
+{
+	poses.clear();
+	int parentid = parentitem < 0 ? -1 : parentitem;
+	itemdata const& itm = itemsbuf[parentid];
+	if(parentid < 0 || itm.misc7 < 1) //standard pattern
+	{
+		bool sbomb = id == wSBomb || id == ewSBomb;
+		for(int q = 0; q < (sbomb ? sbombcount : bombcount); ++q)
+		{
+			int tx = x+(sbomb?sbombxoff:bombxoff)[q];
+			int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
+			
+			poses.insert(COMBOPOS(tx,ty));
+			poses.insert(COMBOPOS(tx+15,ty));
+			poses.insert(COMBOPOS(tx,ty+15));
+			poses.insert(COMBOPOS(tx+15,ty+15));
+		}
+	}
+	else //radius
+	{
+		int rad = itm.misc7;
+		int tx = x, ty = y-fakez;
+		poses.insert(COMBOPOS(tx+8,ty+8)); //always hits at least 1 combo
+		for(int q = 0; q < 176; ++q)
+		{
+			if(distance(tx,ty,COMBOX(q),COMBOY(q)) <= rad)
+				poses.insert(q);
+		}
+	}
+}
+
 void weapon::limited_animate()
 {
 	switch(id)
@@ -3447,9 +3492,8 @@ void weapon::limited_animate()
 			bool canboom = (fixboom || step==0);
 			if(clk==(misc-2) && canboom)
 			{
-				id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
-						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
-						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
+				id = parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
+						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb);
 				hxofs=2000;
 				step = 0;
 				rundeath = true;
@@ -3458,9 +3502,8 @@ void weapon::limited_animate()
 			
 			if(clk==(misc-1) && canboom)
 			{
-				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-					itemsbuf[parentitem].usesound,pan(int32_t(x)));
-					
+				sfx(parentitem<0 ? WAV_BOMB : itemsbuf[parentitem].usesound,pan(int32_t(x)));
+				
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
 					hxofs=hyofs=-16;
@@ -3478,8 +3521,7 @@ void weapon::limited_animate()
 				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
 			}
 			
-			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
-								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
+			int32_t boomend = misc+((parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1) ? 35 : 31);
 								  
 			if(clk==boomend && canboom)
 			{
@@ -3487,9 +3529,10 @@ void weapon::limited_animate()
 				step = 0;
 				if(fixboom) moveflags &= ~FLAG_OBEYS_GRAV;
 			}
-			if(id<wEnemyWeapons)
+			
+			if(clk==(misc-1))
 			{
-				if(clk==(misc-1))
+				if(get_bit(quest_rules,qr_OLD_BOMB_HITBOXES))
 				{
 					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
 					
@@ -3513,55 +3556,67 @@ void weapon::limited_animate()
 						}
 					}
 				}
-				
-				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
+				else
 				{
-					if(!usebombpal)
+					bool sbomb = (id==wSBomb || id==wLitSBomb);
+					std::set<int> poses;
+					getBombPoses(poses);
+					for(int pos : poses)
 					{
-						if(clk==misc || clk==misc+5)
-						{
-						
-							usebombpal=true;
-							memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-							
-							//grayscale entire screen
-							if(get_bit(quest_rules,qr_FADE))
-							{
-								for(int32_t i=CSET(0); i < CSET(15); i++)
-								{
-									int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-									g = (g >> 1) + 32;
-									RAMpal[i] = _RGB(g,g,g);
-								}
-								
-							}
-							else
-							{
-								// this is awkward. NES Z1 converts colors based on the global
-								// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-								for(int32_t i=CSET(0); i < CSET(15); i++)
-								{
-									RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
-								}
-							}
-							
-							refreshpal = true;
-						}
+						findentrance(COMBOX(pos),COMBOY(pos),mfBOMB,true);
+						if(sbomb) findentrance(COMBOX(pos),COMBOY(pos),mfSBOMB,true);
+						findentrance(COMBOX(pos),COMBOY(pos),mfSTRIKE,true);
 					}
-					
-					if((clk==misc+4 || clk==misc+9) && usebombpal)
+				}
+			}
+			
+			if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
+			{
+				if(!usebombpal)
+				{
+					if(clk==misc || clk==misc+5)
 					{
-						// undo grayscale
-						usebombpal=false;
-						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+					
+						usebombpal=true;
+						memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
+						
+						//grayscale entire screen
+						if(get_bit(quest_rules,qr_FADE))
+						{
+							for(int32_t i=CSET(0); i < CSET(15); i++)
+							{
+								int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
+								g = (g >> 1) + 32;
+								RAMpal[i] = _RGB(g,g,g);
+							}
+							
+						}
+						else
+						{
+							// this is awkward. NES Z1 converts colors based on the global
+							// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
+							for(int32_t i=CSET(0); i < CSET(15); i++)
+							{
+								RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
+							}
+						}
+						
 						refreshpal = true;
 					}
 				}
 				
-				if(clk==misc+30)
+				if((clk==misc+4 || clk==misc+9) && usebombpal)
 				{
-					bombdoor(x,y);
+					// undo grayscale
+					usebombpal=false;
+					memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
+					refreshpal = true;
 				}
+			}
+			
+			if(clk==misc+30)
+			{
+				bombdoor(x,y);
 			}
 			
 			if(clk==misc+34)
@@ -4657,16 +4712,13 @@ bool weapon::animate(int32_t index)
 			}*/
 			if(clk==(misc-2) && step==0)
 			{
-				id = (id>wEnemyWeapons ? (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb)
-						  : parentitem>-1 ? ((itemsbuf[parentitem].family==itype_sbomb) ? wSBomb:wBomb)
-						  : (id==wLitSBomb||id==wSBomb ? wSBomb : wBomb));
+				id = (id==ewLitSBomb||id==ewSBomb ? ewSBomb : ewBomb);
 				hxofs=2000;
 			}
 			
 			if(clk==(misc-1) && step==0)
 			{
-				sfx((id>=wEnemyWeapons || parentitem<0) ? WAV_BOMB :
-					itemsbuf[parentitem].usesound,pan(int32_t(x)));
+				sfx(WAV_BOMB,pan(int32_t(x)));
 					
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
@@ -4682,89 +4734,11 @@ bool weapon::animate(int32_t index)
 				hzsz=16;
 			}
 			
-			int32_t boomend = (misc+(((id == wBomb || id == wSBomb || id == wLitBomb || id == wLitSBomb) &&
-								  (parentitem>-1 && itemsbuf[parentitem].flags & ITEM_FLAG1)) ? 35 : 31));
+			int32_t boomend = (misc+31);
 								  
 			if(clk==boomend && step==0)
 			{
 				hxofs=2000;
-			}
-			
-			if(id<wEnemyWeapons)
-			{
-				if(clk==(misc-1))
-				{
-					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
-					
-					for(int32_t tx=-f1; tx<=f1; tx+=8)  // -16,-8,0,8,16
-					{
-						int32_t f2 = 0;
-						
-						if(tx==-8 || tx==8)
-							f2 = f1;
-							
-						for(int32_t ty=-f2; ty<=f2; ty+=32)
-						{
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfBOMB,true);
-							
-							if(id==wSBomb || id==wLitSBomb)
-							{
-								findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSBOMB,true);
-							}
-							
-							findentrance(x+tx,y+ty+(isSideViewGravity()?2:-3),mfSTRIKE,true);
-						}
-					}
-				}
-				
-				if(!get_bit(quest_rules,qr_NOBOMBPALFLASH))
-				{
-					if(!usebombpal)
-					{
-						if(clk==misc || clk==misc+5)
-						{
-						
-							usebombpal=true;
-							memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
-							
-							//grayscale entire screen
-							if(get_bit(quest_rules,qr_FADE))
-							{
-								for(int32_t i=CSET(0); i < CSET(15); i++)
-								{
-									int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
-									g = (g >> 1) + 32;
-									RAMpal[i] = _RGB(g,g,g);
-								}
-								
-							}
-							else
-							{
-								// this is awkward. NES Z1 converts colors based on the global
-								// NES palette. Something like RAMpal[i] = NESpal( reverse_NESpal(RAMpal[i]) & 0x30 );
-								for(int32_t i=CSET(0); i < CSET(15); i++)
-								{
-									RAMpal[i] = NESpal(reverse_NESpal(RAMpal[i]) & 0x30);
-								}
-							}
-							
-							refreshpal = true;
-						}
-					}
-					
-					if((clk==misc+4 || clk==misc+9) && usebombpal)
-					{
-						// undo grayscale
-						usebombpal=false;
-						memcpy(RAMpal, tempbombpal, PAL_SIZE*sizeof(RGB));
-						refreshpal = true;
-					}
-				}
-				
-				if(clk==misc+30)
-				{
-					bombdoor(x,y);
-				}
 			}
 			
 			if(clk==misc+34)
@@ -7229,29 +7203,97 @@ bool weapon::hit(sprite *s)
 	if(id==wBugNet) return false;
     if(id==ewBrang && misc)
         return false;
-        
-    return (Dead()&&dead!=-10) ? false : sprite::hit(s);
+	if(Dead()&&dead!=-10) return false;
+	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	{
+		if(z+zofs >= s->z+s->zofs+s->hzsz || z+zofs+hzsz < s->z+s->zofs)
+			return false;
+		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
+		{
+			bool sbomb = id == wSBomb;
+			for(int q = 0; q < (sbomb ? sbombcount : bombcount); ++q)
+			{
+				int tx = x+(sbomb?sbombxoff:bombxoff)[q];
+				int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
+				if(s->hit(tx,ty,16,16))
+					return true;
+			}
+			return false;
+		}
+		else
+		{
+			int rad = itemsbuf[parentitem].misc7;
+			return (distance(x+8,y+8-fakez,s->x+s->hxsz/2,s->y+s->hysz/2) <= rad);
+		}
+	}
+    return sprite::hit(s);
 }
 
-bool weapon::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
+bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
 	if(id==wBugNet) return false;
     if(id==ewBrang && misc)
         return false;
-        
-    return (Dead()&&dead!=-10) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
+	if(Dead()&&dead!=-10) return false;
+	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	{
+		if(z+zofs >= tz2+tzsz2 || z+zofs+hzsz < tz2)
+			return false;
+		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
+		{
+			bool sbomb = id == wSBomb;
+			for(int q = 0; q < (sbomb ? sbombcount : bombcount); ++q)
+			{
+				int tx = x+(sbomb?sbombxoff:bombxoff)[q];
+				int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
+				if(tx >= tx2+txsz2 || ty >= ty2+tysz2
+					|| tx+15 < tx2 || ty+15 < ty2)
+					continue;
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			int rad = itemsbuf[parentitem].misc7;
+			return (distance(x+8,y+8-fakez,tx2+txsz2/2,ty2+tysz2/2) <= rad);
+		}
+	}
+    return sprite::hit(tx2,ty2,tz2,txsz2,tysz2,tzsz2);
 }
-bool weapon::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
+bool weapon::hit(int32_t tx2,int32_t ty2,int32_t txsz2,int32_t tysz2)
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
 	if(id==wBugNet) return false;
     if(id==ewBrang && misc)
         return false;
-        
-    return (Dead()&&dead!=-10) ? false : sprite::hit(tx,ty,txsz2,tysz2);
+	if(Dead()&&dead!=-10) return false;
+    if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	{
+		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
+		{
+			bool sbomb = id == wSBomb;
+			for(int q = 0; q < (sbomb ? sbombcount : bombcount); ++q)
+			{
+				int tx = x+(sbomb?sbombxoff:bombxoff)[q];
+				int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
+				if(tx >= tx2+txsz2 || ty >= ty2+tysz2
+					|| tx+15 < tx2 || ty+15 < ty2)
+					continue;
+				return true;
+			}
+			return false;
+		}
+		else
+		{
+			int rad = itemsbuf[parentitem].misc7;
+			return (distance(x+8,y+8-fakez,tx2+txsz2/2,ty2+tysz2/2) <= rad);
+		}
+	}
+	return sprite::hit(tx2,ty2,txsz2,tysz2);
 }
 
 void weapon::update_weapon_frame(int32_t change, int32_t orig)
@@ -7456,10 +7498,10 @@ void weapon::draw(BITMAP *dest)
 					//equally divide up the explosion time among the frames
 					int32_t perframe = (boomframes >= 34 ? 1 : (boomframes + 34)/boomframes);
 					if ( do_animation ) 
-				{
-				if(clk > misc)
-					tile += (clk-misc)/perframe;
-				}
+					{
+						if(clk > misc)
+							tile += (clk-misc)/perframe;
+					}
 					//update_weapon_frame((clk-misc)/perframe,tile);
 				}
 				else if(clk>misc+22)
@@ -7490,7 +7532,9 @@ void weapon::draw(BITMAP *dest)
 			if(get_debug() && zc_getkey(KEY_O))
 				rectfill(dest,x+hxofs,y+hyofs+yofs-(z+zofs)-fakez,
 						 x+hxofs+hxsz-1,y+hyofs+hysz-1+yofs-fakez,vc(id));
-						 
+			
+			if(show_hitboxes)
+				draw_hitbox();
 			return;											   // don't draw bomb
 		}
 		
@@ -7721,12 +7765,29 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
     aframe=temp.aframe;
 }
 
-
 void weapon::findcombotriggers()
 {
 	if(!CanComboTrigger(this)) return;
 	int32_t layercount = get_bit(quest_rules,qr_CUSTOMCOMBOS_EVERY_LAYER) ?
 		7 : ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1);
+	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	{
+		bool sbomb = id == wSBomb || id == ewSBomb;
+		std::set<int> poses;
+		getBombPoses(poses);
+		for(int pos : poses)
+		{
+			for (int32_t ly = 0; ly < layercount; ++ly )
+				MatchComboTrigger2(this, COMBOX(pos), COMBOY(pos), combobuf, ly);
+			if(misc_wflags & WLFLAG_BURNFLAGS)
+				triggerfire(COMBOX(pos), COMBOY(pos), true,
+					misc_wflags&WFLAG_BURN_ANYFIRE,
+					misc_wflags&WFLAG_BURN_STRONGFIRE,
+					misc_wflags&WFLAG_BURN_MAGICFIRE,
+					misc_wflags&WFLAG_BURN_DIVINEFIRE);
+		}
+		return;
+	}
 	for(int32_t dx = 0; dx < hxsz; dx += 16)
 	{
 		for(int32_t dy = 0; dy < hysz; dy += 16)
@@ -7734,36 +7795,22 @@ void weapon::findcombotriggers()
 			for (int32_t ly = 0; ly < layercount; ++ly )
 			{
 				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 			}
 		}
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
 			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 		}
-		
 	}
 	for(int32_t dy = 0; dy < hysz; dy += 16)
 	{
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
 			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
 		}
-		
 	}
 	for (int32_t ly = 0; ly < layercount; ++ly )
 	{
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
 	}
 }
@@ -7792,6 +7839,33 @@ int32_t weapon::run_script(int32_t mode)
 ALLEGRO_COLOR weapon::hitboxColor(byte opacity) const
 {
 	return al_map_rgba(isLWeapon ? 0 : 255,255,0,opacity);
+}
+void weapon::draw_hitbox()
+{
+	if(hide_hitbox) return;
+	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	{
+#ifndef IS_ZQUEST
+		start_info_bmp();
+		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
+		{
+			bool sbomb = id == wSBomb || id == ewSBomb;
+			for(int q = 0; q < (sbomb ? sbombcount : bombcount); ++q)
+			{
+				int tx = x+(sbomb?sbombxoff:bombxoff)[q];
+				int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q]+playing_field_offset;
+				al_draw_rectangle(tx,ty,tx+15,ty+15,hitboxColor(info_opacity),1);
+			}
+		}
+		else
+		{
+			al_draw_circle(x+8, y+8-fakez+playing_field_offset, itemsbuf[parentitem].misc7, hitboxColor(info_opacity), 1);
+		}
+		end_info_bmp();
+#endif
+		return;
+	}
+	sprite::draw_hitbox();
 }
 //Dummy weapon for visual effects.
 weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g) : sprite(), parentid(prntid)
