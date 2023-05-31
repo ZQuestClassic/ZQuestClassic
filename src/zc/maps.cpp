@@ -892,9 +892,7 @@ int32_t MAPFFCOMBO(int32_t x,int32_t y)
 {
 	auto ffc_handle = getFFCAt(x,y);
 	if (ffc_handle)
-	{
-		return ffc_handle->ffc->getData();
-	}
+		return ffc_handle->data();
     return 0;
 }
 
@@ -955,9 +953,7 @@ int32_t FFORCOMBO(int32_t x, int32_t y)
 {
 	auto ffc_handle = getFFCAt(x, y);
 	if (ffc_handle)
-	{
-		return ffc_handle->ffc->getData();
-	}
+		return ffc_handle->data();
 	
 	return MAPCOMBO(x,y);
 }
@@ -990,9 +986,7 @@ int32_t FFORCOMBO_L(int32_t layer, int32_t x, int32_t y)
 {
 	auto ffc_handle = getFFCAt(x,y);
 	if (ffc_handle)
-	{
-		return ffc_handle->ffc->getData();
-	}
+		return ffc_handle->data();
 	
 	return layer ? MAPCOMBOL(layer, x, y) : MAPCOMBO(x,y);
 }
@@ -1015,9 +1009,7 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 {
 	auto ffc_handle = getFFCAt(x, y);
 	if (ffc_handle)
-	{
-		return combobuf[ffc_handle->ffc->getData()].flag;
-	}
+		return combobuf[ffc_handle->data()].flag;
     return 0;
 }
 

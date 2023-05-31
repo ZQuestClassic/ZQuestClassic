@@ -68,7 +68,7 @@ void calculate_trig_groups();
 void trig_trigger_groups();
 void init_combo_timers();
 void update_combo_timers();
-bool on_cooldown(int32_t lyr, int32_t pos);
+bool on_cooldown(const rpos_handle_t& rpos_handle);
 
 #endif
 

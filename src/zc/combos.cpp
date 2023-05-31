@@ -3637,9 +3637,10 @@ void update_combo_timers()
 	trig_trigger_groups();
 }
 
-bool on_cooldown(int32_t lyr, int32_t pos)
+bool on_cooldown(const rpos_handle_t& rpos_handle)
 {
-	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
+	int pos = rpos_handle.pos();
+	if(unsigned(rpos_handle.layer) > 7 || unsigned(pos) > 176)
 		return false;
-	return combo_posinfos[lyr][pos].trig_cd != 0;
+	return combo_posinfos[rpos_handle.layer][pos].trig_cd != 0;
 }

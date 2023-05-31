@@ -1,4 +1,5 @@
 #include <functional>
+#include <optional>
 #include <type_traits>
 #include "base/zdefs.h"
 #include "zc/maps.h"
@@ -83,6 +84,32 @@ void for_every_ffc_in_region(T fn)
 			}
 		}
 	}
+}
+
+// Iterates over every ffc in the current region, and returns a handle to the
+// first one for which the callback functions evaluates true for.
+// Callback function: bool fn(const ffc_handle_t& ffc_handle)
+template<typename T, typename = std::enable_if_t<
+    std::is_invocable_r_v<bool, T, const ffc_handle_t&>
+>>
+std::optional<ffc_handle_t> find_ffc_in_region(T fn)
+{
+	for (int screen_index = 0; screen_index < 128; screen_index++)
+	{
+		if (is_in_current_region(screen_index))
+		{
+			mapscr* screen = get_scr(currmap, screen_index);
+
+			int c = screen->numFFC();
+			for (int i = 0; i < c; i++)
+			{
+				ffc_handle_t ffc_handle = {screen, screen_index, i, &screen->ffcs[i]};
+				if (fn(ffc_handle)) return ffc_handle;
+			}
+		}
+	}
+
+	return std::nullopt;
 }
 
 // __attribute__((pure)) static mapscr* get_layer_pure(int map, int screen_index, int layer)

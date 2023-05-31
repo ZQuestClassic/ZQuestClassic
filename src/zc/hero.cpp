@@ -12,9 +12,11 @@
 //
 //--------------------------------------------------------
 
+#include "base/zdefs.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 
+#include <optional>
 #include <string.h>
 #include <set>
 #include <stdio.h>
@@ -20966,7 +20968,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	int32_t found = -1;
 	int32_t found_scr = -1;
-	int32_t foundffc = -1;
+	std::optional<ffc_handle_t> foundffc;
 	int32_t found_lyr = 0;
 	bool found_sign = false;
 	int32_t tmp_cid = MAPCOMBO(bx, by);
@@ -21014,24 +21016,22 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			if (ffcIsAt(i, bx, by) || ffcIsAt(i, bx2, by2))
+		foundffc = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
-				ffcdata& ffc = tmpscr.ffcs[i];
-				tmp_cmb = &combobuf[ffc.getData()];
+				tmp_cmb = &combobuf[ffc_handle.data()];
 				if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 				|| tmp_cmb->triggerbtn) && true) //!TODO: FFC effect flag?
 				{
-					foundffc = i;
-					break;
+					return true;
 				}
 			}
-		}
+
+			return false;
+		});
 	}
 	
-	if(found<0 && foundffc < 0)
+	if(found<0 && !foundffc)
 	{
 		scr = get_screen_index_for_world_xy(bx, by);
 		for(int32_t i=0; i<6; i++)
@@ -21083,8 +21083,9 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		}
 	}
 	
-	if(found<0&&foundffc<0) return;
-	newcombo const& cmb = (foundffc<0?combobuf[found]:combobuf[tmpscr.ffcs[foundffc].getData()]);
+	if(found<0&&!foundffc) return;
+
+	newcombo const& cmb = foundffc ? combobuf[foundffc->data()] : combobuf[found];
 	
 	byte signInput = 0;
 	bool didsign = false;
@@ -21132,7 +21133,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if(on_cooldown(found_lyr, COMBOPOS(fx,fy))) return;
+	if (on_cooldown(get_rpos_handle_for_world_xy(fx, fy, found_lyr))) return;
+
 	switch(dir)
 	{
 		case down:
@@ -21154,9 +21156,8 @@ endsigns:
 	}
 	if(cmb.triggerbtn && (getIntBtnInput(cmb.triggerbtn, true, true, false, false) || checkIntBtnVal(cmb.triggerbtn, signInput)))
 	{
-		// TODO z3 !
-		if (foundffc >= 0)
-			do_trigger_combo_ffc({&tmpscr, currscr, foundffc, &tmpscr.ffcs[foundffc]}, didsign ? ctrigIGNORE_SIGN : 0);
+		if (foundffc)
+			do_trigger_combo_ffc(foundffc.value(), didsign ? ctrigIGNORE_SIGN : 0);
 		else 
 			do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
