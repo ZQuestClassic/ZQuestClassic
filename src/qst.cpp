@@ -1281,7 +1281,9 @@ void init_spritelists()
 
 bool reset_items(bool validate, zquestheader *Header)
 {
-    bool ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
+    bool ret = true;
+    if (get_app_id() == App::zquest)
+        ret = init_section(Header, ID_ITEMS, NULL, NULL, validate);
     
     for(int32_t i=0; i<MAXITEMS; i++) reset_itemname(i);
     
