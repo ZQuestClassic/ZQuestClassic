@@ -798,7 +798,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 {
 	ffcdata* ffc = ffc_handle.ffc;
-	newcombo const& cmb = combobuf[ffc->getData()];
+	newcombo const& cmb = combobuf[ffc_handle.data()];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
@@ -810,54 +810,50 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 	{
 		case cSTEP:
 		{
-			ffc->incData(1); 
+			ffc_handle.increment_data();
 			break;
 		}
 		case cSTEPSAME:
 		{
 			int32_t id = ffc->getData();
-			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				for (int q = 0; q < 176; ++q)
+			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+				if (rpos_handle.data() == id)
 				{
-					if (screen->data[q] == id)
-					{
-						++screen->data[q];
-					}
+					rpos_handle.increment_data();
 				}
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (ffc_handle_2.ffc->getData() == id && ffc_handle_2.ffc != ffc_handle.ffc)
+					if (ffc_handle_2.data() == id && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
-						ffc_handle_2.ffc->incData(1);
+						ffc_handle_2.increment_data();
 					}
 					return true;
 				});
 			}
-			ffc->incData(1);
+			ffc_handle.increment_data();
 			break;
 		}
 		case cSTEPALL:
 		{
-			for(auto q = 0; q < 176; ++q)
-			{
-				if(isStepType(combobuf[tmpscr.data[q]].type))
+			for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+				if (isStepType(combobuf[rpos_handle.data()].type))
 				{
-					++tmpscr.data[q];
+					rpos_handle.increment_data();
 				}
-			}
+			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
-					if (isStepType(combobuf[ffc_handle_2.ffc->getData()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
+					if (isStepType(combobuf[ffc_handle_2.data()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
-						ffc_handle_2.ffc->incData(1);
+						ffc_handle_2.increment_data();
 					}
 					return true;
 				});
 			}
-			ffc->incData(1);
+			ffc_handle.increment_data();
 			break;
 		}
 	}

@@ -5517,6 +5517,7 @@ struct rpos_handle_t
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
+	void increment_data() const;
 
 	int32_t cset() const;
 	void set_cset(int32_t value) const;
@@ -5530,6 +5531,8 @@ struct ffc_handle_t
 	ffcdata* ffc;
 
 	int32_t data() const;
+	void set_data(int32_t value) const;
+	void increment_data() const;
 };
 
 struct viewport_t
