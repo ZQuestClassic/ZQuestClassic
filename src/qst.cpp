@@ -785,6 +785,28 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 		compressed = true;
 		encrypted = true;
 	}
+	else if (id_came_from_compressed_file && strstr(id, "slh!\xff"))
+	{
+		// We must be reading the compressed contents of an allegro dataobject file. ex: `classic_qst.dat#NESQST_NEW_QST`.
+		// Let's extract the content and re-open as a separate file, so allegro will uncompress correctly.
+
+		char tmpfilename[L_tmpnam];
+		std::tmpnam(tmpfilename);
+		FILE* tf = fopen(tmpfilename, "wb");
+		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+
+		int c;
+		while ((c = pack_getc(pf)) != EOF)
+		{
+			fputc(c, tf);
+		}
+		fclose(tf);
+		pack_fclose(pf);
+
+		// not good: temp file storage leak. Callers don't know to delete temp files anymore.
+		// We should put qsu in the dat file, or use a separate .qst file for new qst.
+		return pack_fopen_password(tmpfilename, F_READ_PACKED, packfile_password);
+	}
 	else
 	{
 		// Unexpected, this is going to fail some header check later.
