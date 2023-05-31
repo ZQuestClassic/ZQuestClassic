@@ -2,8 +2,6 @@
 /********  Particle Class  ********/
 /**********************************/
 
-#include "precompiled.h" //always first
-
 #include "particles.h"
 #include "base/zc_math.h"
 
@@ -333,7 +331,3 @@ particle * particle_list::getByUID(int32_t uid)
 		
 	return NULL;
 }
-
-
-/*** end of particle.cc ***/
-

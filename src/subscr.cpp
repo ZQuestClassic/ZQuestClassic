@@ -8,20 +8,16 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "subscr.h"
 #include "base/zapp.h"
-#include "zelda.h"
 #include "tiles.h"
 #include "base/zsys.h"
 #include "base/util.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "gamedata.h"
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
-#include "ffscript.h"
 
 using namespace util;
 
@@ -5970,6 +5966,4 @@ int32_t scounter_to_ctr(int32_t ssc)
 	}
 	return crNONE;
 }
-
-/*** end of subscr.cc ***/
 

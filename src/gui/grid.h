@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_GRID_H
 #define ZC_GUI_GRID_H
 
-#include "widget.h"
+#include "gui/widget.h"
 #include <functional>
 #include <memory>
 #include <utility>

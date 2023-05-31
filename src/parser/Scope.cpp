@@ -1,4 +1,3 @@
-#include "../precompiled.h"
 #include "parserDefs.h"
 #include "Scope.h"
 
@@ -718,7 +717,7 @@ BasicScope::~BasicScope()
 
 Scope* BasicScope::getChild(string const& name) const
 {
-	return find<Scope*>(children_, name).value_or(boost::add_pointer<Scope>::type());
+	return find<Scope*>(children_, name).value_or(std::add_pointer<Scope>::type());
 }
 
 vector<Scope*> BasicScope::getChildren() const
@@ -847,7 +846,7 @@ int32_t BasicScope::useNamespace(std::string name, bool noUsing)
 
 DataType const* BasicScope::getLocalDataType(string const& name) const
 {
-	return find<DataType const*>(dataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
+	return find<DataType const*>(dataTypes_, name).value_or(std::add_pointer<DataType const>::type());
 }
 
 std::optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
@@ -857,28 +856,28 @@ std::optional<ScriptType> BasicScope::getLocalScriptType(string const& name) con
 
 ZClass* BasicScope::getLocalClass(string const& name) const
 {
-	return find<ZClass*>(classes_, name).value_or(boost::add_pointer<ZClass>::type());
+	return find<ZClass*>(classes_, name).value_or(std::add_pointer<ZClass>::type());
 }
 
 Datum* BasicScope::getLocalDatum(string const& name) const
 {
-	return find<Datum*>(namedData_, name).value_or(boost::add_pointer<Datum>::type());
+	return find<Datum*>(namedData_, name).value_or(std::add_pointer<Datum>::type());
 }
 
 Function* BasicScope::getLocalGetter(string const& name) const
 {
-	return find<Function*>(getters_, name).value_or(boost::add_pointer<Function>::type());
+	return find<Function*>(getters_, name).value_or(std::add_pointer<Function>::type());
 }
 
 Function* BasicScope::getLocalSetter(string const& name) const
 {
-	return find<Function*>(setters_, name).value_or(boost::add_pointer<Function>::type());
+	return find<Function*>(setters_, name).value_or(std::add_pointer<Function>::type());
 }
 
 Function* BasicScope::getLocalFunction(
 		FunctionSignature const& signature) const
 {
-	return find<Function*>(functionsBySignature_, signature).value_or(boost::add_pointer<Function>::type());
+	return find<Function*>(functionsBySignature_, signature).value_or(std::add_pointer<Function>::type());
 }
 
 vector<Function*> BasicScope::getLocalFunctions(string const& name) const
@@ -1232,7 +1231,7 @@ ClassScope* FileScope::makeClassChild(UserClass& user_class)
 NamespaceScope* FileScope::makeNamespaceChild(ASTNamespace& node)
 {
 	string name = node.name;
-	if (Scope* scope = find<Scope*>(children_, name).value_or(boost::add_pointer<Scope>::type()))
+	if (Scope* scope = find<Scope*>(children_, name).value_or(std::add_pointer<Scope>::type()))
 	{
 		if(scope->isNamespace())
 		{
@@ -1453,7 +1452,7 @@ Scope* RootScope::getChild(std::string const& name) const
 {
 	Scope* result = BasicScope::getChild(name);
 	if (!result)
-		result = find<Scope*>(descChildren_, name).value_or(boost::add_pointer<Scope>::type());
+		result = find<Scope*>(descChildren_, name).value_or(std::add_pointer<Scope>::type());
 	return result;
 }
 
@@ -1461,7 +1460,7 @@ DataType const* RootScope::getLocalDataType(string const& name) const
 {
 	DataType const* result = BasicScope::getLocalDataType(name);
 	if (!result)
-		result = find<DataType const*>(descDataTypes_, name).value_or(boost::add_pointer<DataType const>::type());
+		result = find<DataType const*>(descDataTypes_, name).value_or(std::add_pointer<DataType const>::type());
 	return result;
 }
 
@@ -1476,7 +1475,7 @@ ZClass* RootScope::getLocalClass(string const& name) const
 {
 	ZClass* result = BasicScope::getLocalClass(name);
 	if (!result)
-		result = find<ZClass*>(descClasses_, name).value_or(boost::add_pointer<ZClass>::type());
+		result = find<ZClass*>(descClasses_, name).value_or(std::add_pointer<ZClass>::type());
 	return result;
 }
 
@@ -1484,7 +1483,7 @@ Datum* RootScope::getLocalDatum(string const& name) const
 {
 	Datum* result = BasicScope::getLocalDatum(name);
 	if (!result)
-		result = find<Datum*>(descData_, name).value_or(boost::add_pointer<Datum>::type());
+		result = find<Datum*>(descData_, name).value_or(std::add_pointer<Datum>::type());
 	return result;
 }
 
@@ -1492,7 +1491,7 @@ Function* RootScope::getLocalGetter(string const& name) const
 {
 	Function* result = BasicScope::getLocalGetter(name);
 	if (!result)
-		result = find<Function*>(descGetters_, name).value_or(boost::add_pointer<Function>::type());
+		result = find<Function*>(descGetters_, name).value_or(std::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1500,7 +1499,7 @@ Function* RootScope::getLocalSetter(string const& name) const
 {
 	Function* result = BasicScope::getLocalSetter(name);
 	if (!result)
-		result = find<Function*>(descSetters_, name).value_or(boost::add_pointer<Function>::type());
+		result = find<Function*>(descSetters_, name).value_or(std::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1510,7 +1509,7 @@ Function* RootScope::getLocalFunction(
 	Function* result = BasicScope::getLocalFunction(signature);
 	if (!result)
 		result = find<Function*>(descFunctionsBySignature_, signature)
-			.value_or(boost::add_pointer<Function>::type());
+			.value_or(std::add_pointer<Function>::type());
 	return result;
 }
 
@@ -1656,7 +1655,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErr
 	if(headerGuard == OPT_OFF) return true; //Don't check anything, behave as usual.
 	string fname = node->getFilename();
 	//lowerstr(fname);
-	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(boost::add_pointer<ASTImportDecl>::type()))
+	if(ASTImportDecl* first = find<ASTImportDecl*>(importsByName_, fname).value_or(std::add_pointer<ASTImportDecl>::type()))
 	{
 		node->disable(); //Disable node.
 		switch(headerGuard)
@@ -1687,7 +1686,7 @@ bool RootScope::checkImport(ASTImportDecl* node, int32_t headerGuard, CompileErr
 
 bool RootScope::isImported(string const& path)
 {
-	if(find<ASTImportDecl*>(importsByName_, path).value_or(boost::add_pointer<ASTImportDecl>::type()))
+	if(find<ASTImportDecl*>(importsByName_, path).value_or(std::add_pointer<ASTImportDecl>::type()))
 		return true;
 	return false;
 }

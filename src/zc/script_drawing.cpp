@@ -9,15 +9,13 @@
 #endif
 
 #define LOG_BMPBLIT_LEVEL 0
-#include "precompiled.h" //always first
-
-#include "base/allegro_wrapper.h"
-#include "script_drawing.h"
-#include "rendertarget.h"
-#include "maps.h"
+#include "base/zc_alleg.h"
+#include "zc/script_drawing.h"
+#include "zc/rendertarget.h"
+#include "zc/maps.h"
 #include "tiles.h"
-#include "zelda.h"
-#include "ffscript.h"
+#include "zc/zelda.h"
+#include "zc/ffscript.h"
 #include "base/util.h"
 #include "subscr.h"
 #include "drawing.h"

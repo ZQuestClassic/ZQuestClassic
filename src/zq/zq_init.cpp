@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <stdio.h>
 
 #include "base/gui.h"
@@ -21,9 +15,9 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "jwin.h"
-#include "zq_init.h"
+#include "zq/zq_init.h"
 #include "base/zsys.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 

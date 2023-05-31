@@ -1,12 +1,12 @@
 #ifndef ZC_GUI_RADIOSET_H
 #define ZC_GUI_RADIOSET_H
 
-#include "widget.h"
-#include "radio.h"
-#include "grid.h"
+#include "gui/widget.h"
+#include "gui/radio.h"
+#include "gui/grid.h"
 #include "list_data.h"
 #include <vector>
-#include "dialog_ref.h"
+#include "gui/dialog_ref.h"
 
 namespace GUI
 {

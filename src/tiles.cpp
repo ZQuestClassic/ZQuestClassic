@@ -10,8 +10,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "base/zc_alleg.h"
 #include <string.h>
 
@@ -2725,6 +2723,4 @@ int32_t comboa_lmasktotal(byte layermask)
     result+=(layermask&32) >> 5;
     return result;
 }
-
-/* end of tiles.cc */
 

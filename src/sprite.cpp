@@ -12,26 +12,20 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
-#include "maps.h"
-#include "replay.h"
-#include "guys.h"
+#include "zc/maps.h"
+#include "zc/replay.h"
+#include "zc/guys.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 
 #ifndef IS_ZQUEST
-#include "hero.h"
-#include "decorations.h"
+#include "zc/hero.h"
+#include "zc/decorations.h"
 #include "items.h"
 #include "zc/render.h"
 extern HeroClass Hero;
@@ -46,7 +40,7 @@ extern bool show_sprites;
 extern bool show_hitboxes;
 extern bool is_zquest();
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 #define degtoFix(d)     ((d)*0.7111111111111)
@@ -1626,10 +1620,9 @@ void sprite::drawzcboss(BITMAP* dest)
     
     if(clk>=0)
     {
+		BITMAP *temp;
         switch(e)
         {
-            BITMAP *temp;
-            
         case 1:
             temp = create_bitmap_ex(8,16,32);
             blit(dest, temp, sx, sy-16, 0, 0, 16, 32);
@@ -2939,6 +2932,3 @@ double comparePointLine(double x, double y, double x1, double y1, double x2, dou
     double ly = slope*x + b;
     return y-ly;
 }
-
-/*** end of sprite.cc ***/
-

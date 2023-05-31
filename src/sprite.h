@@ -335,5 +335,3 @@ double comparePointLine(double x, double y, double x1, double x2, double y1, dou
 
 #include "items.h"
 #endif
-/*** end of sprite.cc ***/
-

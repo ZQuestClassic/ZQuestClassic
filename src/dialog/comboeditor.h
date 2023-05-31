@@ -8,8 +8,8 @@
 #include <gui/text_field.h>
 #include <gui/window.h>
 #include <gui/list_data.h>
-#include <gui/seltile_swatch.h>
-#include <gui/selcombo_swatch.h>
+#include <zq/gui/seltile_swatch.h>
+#include <zq/gui/selcombo_swatch.h>
 #include <zq/gui/tileanim_frame.h>
 #include <zq/gui/cornerselect.h>
 #include <functional>
@@ -71,7 +71,8 @@ private:
 	int32_t index;
 	newcombo local_comboref;
 	GUI::ListData list_ctype, list_flag, list_combscript, list_sfx, list_genscr,
-		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes;
+		list_counters_nn, list_sprites, list_sprites_spec, list_weaptype, list_deftypes,
+		list_lift_parent_items;
 	std::shared_ptr<GUI::Widget> ANIM_FIELD_IMPL(byte* data, byte min, byte max);
 	std::shared_ptr<GUI::Widget> CMB_INITD(int index);
 	std::shared_ptr<GUI::Widget> CMB_FLAG(int index);

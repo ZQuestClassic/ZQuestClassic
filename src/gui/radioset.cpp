@@ -1,9 +1,9 @@
-#include "radioset.h"
-#include "radio.h"
-#include "grid.h"
+#include "gui/radioset.h"
+#include "gui/radio.h"
+#include "gui/grid.h"
 #include "base/zc_alleg.h"
-#include "dialog_runner.h"
-#include "../jwin.h"
+#include "gui/dialog_runner.h"
+#include "jwin.h"
 #include "base/zsys.h"
 #include <utility>
 

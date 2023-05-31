@@ -6,7 +6,7 @@
 #include "ASTVisitors.h"
 #include "DataStructs.h"
 #include "Compiler.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 
 #include <string>
 
@@ -1457,8 +1457,8 @@
 #define HEROLIFTMAXTIMER      1373
 #define HEROLIFTHEIGHT      1374
 #define HEROHAMMERSTATE      1375
-#define RESRVD_VAR_EMILY19      1376
-#define RESRVD_VAR_EMILY20      1377
+#define HEROLIFTFLAGS      1376
+#define COMBODLIFTWEAPONITEM      1377
 #define RESRVD_VAR_EMILY21      1378
 #define RESRVD_VAR_EMILY22      1379
 #define RESRVD_VAR_EMILY23      1380

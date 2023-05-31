@@ -9,17 +9,14 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "gamedata.h"
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
-#include "zelda.h"
 #include "items.h"
 #include "pal.h"
 #include "base/util.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 
 using namespace util;
 extern FFScript FFCore;
@@ -1217,6 +1214,3 @@ bool gamedata::should_show_time()
 
 	return get_timevalid() && !did_cheat() && get_bit(quest_rules,qr_TIME);
 }
-
-/*** end of gamedata.cpp ***/
-

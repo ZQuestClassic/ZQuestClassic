@@ -1,22 +1,18 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-// Prevent indirectly including windows.h
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif
-
 #include "CompilerUtils.h"
 #include "Types.h"
 #include "parserDefs.h"
-#include "ffasmexport.h"
-#include "ffasm.h"
+#include "zq/ffasmexport.h"
+#include "zq/ffasm.h"
 
 #include <cstdio>
 #include <map>
 #include <memory>
 #include <vector>
 #include <string>
+#include <sstream>
 using std::unique_ptr;
 
 namespace ZScript
@@ -136,6 +132,27 @@ namespace ZScript
 					safe_al_trace(str);
 				fwrite(str.c_str(), sizeof(char), str.size(), dest);
 			}
+		}
+		void write(std::string& dest, bool al = false, bool spaced = false) const
+		{
+			std::ostringstream output;
+			std::string str = first.get_meta();
+			if(spaced) output << "\n\n";
+			output << str;
+			if(al)
+			{
+				al_trace("\n\n");
+				safe_al_trace(str);
+				al_trace("\n");
+			}
+			for(auto& line : second)
+			{
+				str = line->printLine();
+				if(al)
+					safe_al_trace(str);
+				output << str;
+			}
+			dest += output.str();
 		}
 	};
 

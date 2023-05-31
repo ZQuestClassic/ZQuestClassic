@@ -1,10 +1,8 @@
 //2.53 Updated to 16th Jan, 2017
-#include "../precompiled.h" //always first
-
 #include "ByteCode.h"
 #include "CompileError.h"
 #include "DataStructs.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include <assert.h>
 #include <iostream>
 #include <cstdlib>
@@ -1987,8 +1985,8 @@ string ZScript::VarToString(int32_t ID)
 	case HEROLIFTMAXTIMER: return "HEROLIFTMAXTIMER";
 	case HEROLIFTHEIGHT: return "HEROLIFTHEIGHT";
 	case HEROHAMMERSTATE: return "HEROHAMMERSTATE";
-	case RESRVD_VAR_EMILY19: return "RESRVD_VAR_EMILY19";
-	case RESRVD_VAR_EMILY20: return "RESRVD_VAR_EMILY20";
+	case HEROLIFTFLAGS: return "HEROLIFTFLAGS";
+	case COMBODLIFTWEAPONITEM: return "COMBODLIFTWEAPONITEM";
 	case RESRVD_VAR_EMILY21: return "RESRVD_VAR_EMILY21";
 	case RESRVD_VAR_EMILY22: return "RESRVD_VAR_EMILY22";
 	case RESRVD_VAR_EMILY23: return "RESRVD_VAR_EMILY23";

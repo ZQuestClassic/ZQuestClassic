@@ -44,13 +44,10 @@
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
 
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <filesystem>
 
-#include "base/allegro_wrapper.h"
-#include <allegro/internal/aintern.h>
+#include "base/zc_alleg.h"
 #include <allegro/alcompat.h>
 
 #include "jwin.h"

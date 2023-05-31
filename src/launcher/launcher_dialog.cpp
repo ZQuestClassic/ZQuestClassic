@@ -1,10 +1,10 @@
-#include "base/allegro_wrapper.h"
-#include "launcher_dialog.h"
+#include "base/zc_alleg.h"
+#include "launcher/launcher_dialog.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
-#include "theme_editor.h"
-#include "launcher.h"
+#include "launcher/theme_editor.h"
+#include "launcher/launcher.h"
 #include "gui/builder.h"
 
 LauncherDialog::LauncherDialog(){}

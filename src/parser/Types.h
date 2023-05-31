@@ -6,7 +6,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <boost/type_traits.hpp>
+#include <type_traits>
 #include "CompilerUtils.h"
 #include "parserDefs.h"
 
@@ -417,7 +417,7 @@ namespace ZScript
 		static DataType const* get(DataTypeId id);
 		static DataTypeClass const* getClass(int32_t classId);
 		static DataTypeCustom const* getCustom(int32_t customId) {
-			return find<DataTypeCustom*>(customTypes, customId).value_or(boost::add_pointer<DataTypeCustom>::type());
+			return find<DataTypeCustom*>(customTypes, customId).value_or(std::add_pointer<DataTypeCustom>::type());
 		};
 		static void addCustom(DataTypeCustom* custom);
 		static int32_t getUniqueCustomId() {return nextCustomId_++;}

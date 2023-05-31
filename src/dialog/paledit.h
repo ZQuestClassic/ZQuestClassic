@@ -3,9 +3,9 @@
 
 #include <gui/dialog.h>
 #include <gui/text_field.h>
-#include <gui/palette_frame.h>
 #include <gui/tabpanel.h>
 #include <gui/button.h>
+#include <zq/gui/palette_frame.h>
 #include <functional>
 #include <string_view>
 #include "base/colors.h"

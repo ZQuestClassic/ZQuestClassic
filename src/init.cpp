@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <map>
 #include <vector>
 #include <algorithm>
@@ -27,8 +21,9 @@
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "init.h"
-#include "zelda.h"
-//extern ZModule zcm;
+#include "items.h"
+#include "zc/zelda.h"
+
 extern zcmodule moduledata;
 
 
@@ -1079,8 +1074,10 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
+#ifndef IS_ZQUEST
             if (!game2->get_item(i))
                 getitem(i,true,false);
+#endif
         }
         else
             game2->set_item_no_flush(i,false);

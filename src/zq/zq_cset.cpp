@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 //#include <mem.h>
 #include <string.h>
 #include <stdio.h>
@@ -23,13 +17,13 @@
 #include "base/zdefs.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "jwin.h"
 #include "base/zsys.h"
-#include "zq_tiles.h"
-#include "zq_misc.h"
-#include "zq_cset.h"
-#include "zq_class.h"
+#include "zq/zq_tiles.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_cset.h"
+#include "zq/zq_class.h"
 #include "dialog/paledit.h"
 #include "zq/render.h"
 #include "gfxpal.h"

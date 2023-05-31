@@ -16,7 +16,7 @@
 #include "zscriptversion.h"
 
 
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript ffengine;
 
 struct script_slot_data

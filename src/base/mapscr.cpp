@@ -1,5 +1,5 @@
-#include "mapscr.h"
-#include "zsys.h"
+#include "base/mapscr.h"
+#include "base/zsys.h"
 
 extern byte quest_rules[QUESTRULES_NEW_SIZE];
 

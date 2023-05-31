@@ -12,12 +12,6 @@
 #include "base/util.h"
 #include "base/zapp.h"
 #include <filesystem>
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -36,14 +30,13 @@
 #include "tiles.h"
 #include "base/zsys.h"
 #include "qst.h"
-//#include "zquest.h"
 #include "defdata.h"
 #include "subscr.h"
 #include "font.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "particles.h"
 #include "dialog/alert.h"
 
@@ -18462,6 +18455,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.lifttime,f,true))
 					return qe_invalid;
 			}
+			if(s_version >= 39)
+			{
+				if(!p_getc(&temp_combo.lift_parent_item,f,true))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_GENERAL)
 		{
@@ -18531,15 +18529,6 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	{
 		auto ret = readcombos_old(section_version,f,Header,version,build,start_combo,max_combos,keepdata);
 		if(ret) return ret; //error, end read
-	}
-	
-	if(keepdata && false/*section_version < 34*/)
-	{
-		for(int32_t i=start_combo; i<combos_used; i++)
-		{
-			newcombo& cmb = combobuf[i];
-			//Do anything to 'cmb' needed for version handling
-		}
 	}
 	
 	if(keepdata==true)
@@ -22399,5 +22388,3 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	loading_qst_num = 0;
 	return ret;
 }
-/*** end of qst.cc ***/
-

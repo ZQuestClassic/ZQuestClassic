@@ -6,7 +6,7 @@
 #include <gui/text_field.h>
 #include <gui/radio.h>
 #include <gui/drop_down_list.h>
-#include <gui/msgstr_preview.h>
+#include <zq/gui/msgstr_preview.h>
 #include <gui/window.h>
 #include <functional>
 #include <string_view>

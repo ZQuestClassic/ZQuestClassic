@@ -1,7 +1,7 @@
-#include "zapp.h"
-#include "zc_alleg.h"
+#include "base/zapp.h"
+#include "base/zc_alleg.h"
 #include "zconfig.h"
-#include "zsys.h"
+#include "base/zsys.h"
 #include <filesystem>
 #include <string>
 

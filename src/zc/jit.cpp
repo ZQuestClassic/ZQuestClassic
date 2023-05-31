@@ -6,10 +6,10 @@
 //   just once. Could be problematic for cases where an overflow might happen (detect this?). Same for POP.
 // * Compile: LSHIFTR RSHIFTR FLOOR CEILING
 
-#include "jit.h"
-#include "ffscript.h"
-#include "script_debug.h"
-#include "ConsoleLogger.h"
+#include "zc/jit.h"
+#include "zc/ffscript.h"
+#include "zc/script_debug.h"
+#include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 
 #ifdef ZC_JIT

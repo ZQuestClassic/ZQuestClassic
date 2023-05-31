@@ -6,6 +6,7 @@
 #include "zc_list_data.h"
 #include "zc/ffscript.h"
 #include "vectorpick.h"
+#include "items.h"
 
 using std::map;
 using std::vector;

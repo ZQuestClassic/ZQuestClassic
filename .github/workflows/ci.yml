@@ -42,8 +42,8 @@ jobs:
             compiler: clang
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
-    uses: ./.github/workflows/test.yml
-    # uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
+    # uses: ./.github/workflows/test.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}

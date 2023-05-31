@@ -297,5 +297,3 @@ std::string get_subscr_arrow_name(int itemid);
 
 #endif
 
-/*** end of subscr.cc ***/
-

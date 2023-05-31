@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <assert.h>
 #include <math.h>
@@ -23,20 +17,20 @@
 #include <set>
 using std::set;
 
-#include "maps.h"
-#include "zelda.h"
+#include "zc/maps.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "sprite.h"
 #include "jwin.h"
 #include "base/zsys.h"
 #include "subscr.h"
-#include "zc_subscr.h"
-#include "hero.h"
-#include "guys.h"
-#include "ffscript.h"
+#include "zc/zc_subscr.h"
+#include "zc/hero.h"
+#include "zc/guys.h"
+#include "zc/ffscript.h"
 #include "drawing.h"
-#include "combos.h"
-#include "replay.h"
+#include "zc/combos.h"
+#include "zc/replay.h"
 #include "slopes.h"
 extern word combo_doscript[176];
 extern refInfo screenScriptData;
@@ -734,7 +728,7 @@ void setmapflag(int32_t mi2, int32_t flag)
             {
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap+1,nscr);
                 if (replay_is_active() & !(game->maps[((nmap-1)<<7)+nscr] & flag))
-                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", cmap, cscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
+                    replay_step_comment(fmt::format("map {} scr {} flag {} carry", nmap, nscr, flag > 0 ? screenstate_string[(int32_t)temp] : "<Unknown>"));
                 game->maps[((nmap-1)<<7)+nscr] |= flag;
             }
             
@@ -7010,7 +7004,3 @@ bool isCuttableItemType(int32_t type)
     
     return false;
 }
-
-
-/*** end of maps.cc ***/
-

@@ -19,18 +19,18 @@
 #include <map>
 #include "base/zdefs.h"
 #include "base/zc_array.h"
-#include "zc_sys.h"
-#include "zeldadat.h"
+#include "zc/zc_sys.h"
+#include "zc/zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "jwin.h"
 #include "gamedata.h"
 #include "base/zsys.h"
-#include "script_drawing.h"
+#include "zc/script_drawing.h"
 #include "zfix.h"
 #include "base/util.h"
 #include "base/fonts.h"
-#include "replay.h"
+#include "zc/replay.h"
 
 class sprite;
 struct itemdata;
@@ -554,9 +554,4 @@ enum
 	ZCM_MAX
 };
 
-
-#include "items.h"
 #endif
-
-/*** end of zelda.h ***/
-

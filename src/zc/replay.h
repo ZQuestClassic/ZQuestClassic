@@ -2,7 +2,7 @@
 #define _REPLAY_H_
 
 #include "base/random.h"
-#include "cheats.h"
+#include "zc/cheats.h"
 #include <string>
 #include <filesystem>
 

@@ -1,47 +1,12 @@
-/*
- * - Visual Studio "autoexp.dat" info. -Gleeok
- *
-;------------------------------------------------------------------------------
-;  Array
-;------------------------------------------------------------------------------
-Array<*>{
-	children
-	(
-		#array
-		(
-			expr :		($e._ptr)[$i],
-			size :		$e._size
-		)
-	)
-	preview
-	(
-		#(
-			"[", $e._size, "](",
-			#array
-			(
-				expr :	($e._ptr)[$i],
-				size :	$e._size
-			),
-			")"
-		)
-	)
-}
-ArrayIterator<*>{
-	preview		( #(*$e._ptr))
-	children	( #(ptr: *$e._ptr))
-}
-*/
 #if defined (_MSC_VER) && defined (USING_ARRAY)
 #define ZCArray Array
 #define ZCArrayIterator ArrayIterator
 #endif
 
-
-#include "base/zdefs.h"
-
 #ifndef __zc_array_h_
 #define __zc_array_h_
 
+#include "base/zdefs.h"
 #include <sstream>
 #include <functional>
 //#define _DEBUGZCARRAY
@@ -303,7 +268,6 @@ public:
 	{
 		std::ostringstream oss;
 		oss << "{ ";
-		char buf[32];
 		size_type s = _size;
 		bool overflow = limit < s;
 		if(overflow)

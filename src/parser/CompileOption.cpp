@@ -1,5 +1,3 @@
-#include "../precompiled.h" // Always first.
-
 #include "CompileOption.h"
 #include <map>
 #include <vector>

@@ -1,12 +1,12 @@
 #include "compilezscript.h"
 #include <gui/builder.h>
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "alert.h"
 #include "alertfunc.h"
 #include "headerdlg.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "qst.h"
-#include "ffasmexport.h"
+#include "zq/ffasmexport.h"
 #include "zscrdata.h"
 #include "info.h"
 using std::string;
@@ -19,7 +19,7 @@ using std::string;
 void doEditZScript(int32_t bg,int32_t fg);
 void clear_map_states();
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
-bool do_slots(map<string, disassembled_script_data> &scripts);
+bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign);
 int32_t onZScriptCompilerSettings();
 
 extern string zScript;
@@ -153,6 +153,18 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 	);
 	updateLabels();
 	return window;
+}
+
+static bool quick_assign, compile_cancel;
+bool quickassign()
+{
+	quick_assign = true;
+	return true;
+}
+bool docancel()
+{
+	compile_cancel = true;
+	return true;
 }
 
 bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
@@ -388,16 +400,22 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			compile_sfx(!code);
 			if (DisableCompileConsole) box_end(true);
 			
-			bool cancel = code;
+			compile_cancel = code;
+			quick_assign = false;
 			if (!DisableCompileConsole) 
 			{
 				if(code)
 					InfoDialog("ZScript Parser", buf).show();
-				else AlertDialog("ZScript Parser", buf,
-					[&](bool ret,bool)
-					{
-						cancel = !ret;
-					}, "Continue", "Cancel").show();
+				else
+				{
+					AlertFuncDialog("ZScript Parser",
+						buf,
+						3, 1, //2 buttons, where buttons[1] is focused
+						"Quick Assign", quickassign,
+						"OK", NULL,
+						"Cancel", docancel
+					).show();
+				}
 			}
 			if ( compile_success_sample > 0 )
 			{
@@ -417,7 +435,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			//refresh(rALL);
 			
-			if(cancel)
+			if(compile_cancel)
 				return false;
 			
 			asffcscripts.clear();
@@ -494,7 +512,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 						break;
 				}
 			}
-		
+			
 			//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
 			misc.zscript_last_compiled_version = V_FFSCRIPT;
 			FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
@@ -503,7 +521,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			do_script_disassembly(scripts, true);
 			
 			//assign scripts to slots
-			do_slots(scripts);
+			do_slots(scripts, quick_assign);
 			
 			if(WarnOnInitChanged)
 			{

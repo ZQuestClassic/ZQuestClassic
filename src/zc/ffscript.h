@@ -7,8 +7,8 @@
 #include <string>
 #include <list>
 #include <deque>
-#include "zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
-#include "replay.h"
+#include "zc/zelda.h" //This is probably the source of the duplication of BMP_MOUSE. -Z
+#include "zc/replay.h"
 
 #define ZS_BYTE 255
 #define ZS_CHAR 255
@@ -4784,8 +4784,8 @@ enum ASM_DEFINE
 #define HEROLIFTMAXTIMER      0x1493
 #define HEROLIFTHEIGHT      0x1494
 #define HEROHAMMERSTATE      0x1495
-#define RESRVD_VAR_EMILY19      0x1496
-#define RESRVD_VAR_EMILY20      0x1497
+#define HEROLIFTFLAGS      0x1496
+#define COMBODLIFTWEAPONITEM      0x1497
 #define RESRVD_VAR_EMILY21      0x1498
 #define RESRVD_VAR_EMILY22      0x1499
 #define RESRVD_VAR_EMILY23      0x149A

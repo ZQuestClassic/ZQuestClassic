@@ -1,11 +1,9 @@
-#include "../precompiled.h" //always first
-
 #include "CompileError.h"
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <sstream>
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "AST.h"
 #include "CompilerUtils.h"
 #include "parserDefs.h"

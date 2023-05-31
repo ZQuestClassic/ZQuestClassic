@@ -12,12 +12,6 @@
 /****** ZMAP class ******/
 /************************/
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <string>
 #include <stdexcept>
@@ -26,25 +20,25 @@
 #include "metadata/metadata.h"
 
 #include "base/gui.h"
-#include "zq_class.h"
-#include "zq_misc.h"
-#include "zquest.h"
+#include "zq/zq_class.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 #include "qst.h"
 #include "base/colors.h"
 #include "tiles.h"
-#include "zquestdat.h"
+#include "zq/zquestdat.h"
 #include "base/zsys.h"
 #include "sprite.h"
 #include "items.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 #include "md5.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "subscr.h"
-#include "zq_strings.h"
-#include "zq_subscr.h"
-#include "ffscript.h"
+#include "zq/zq_strings.h"
+#include "zq/zq_subscr.h"
+#include "zc/ffscript.h"
 #include "base/util.h"
-#include "zq_files.h"
+#include "zq/zq_files.h"
 #include "dialog/alert.h"
 #include "slopes.h"
 
@@ -6756,6 +6750,10 @@ int32_t reverse_string(char* str)
     return 0;
 }
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunreachable-code"
+#endif
 
 int32_t quest_access(const char *filename, zquestheader *hdr)
 {
@@ -6963,6 +6961,11 @@ void popup_bugfix_dlg(const char* cfg)
 		).show();
 	}
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
+
 // wrapper to reinitialize everything on an error
 int32_t load_quest(const char *filename)
 {
@@ -9827,7 +9830,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.liftgfx || tmp_cmb.liftsprite || tmp_cmb.liftsfx
 		|| tmp_cmb.liftundercmb || tmp_cmb.liftundercs
 		|| tmp_cmb.liftbreaksprite!=-1 || tmp_cmb.liftbreaksfx
-		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16)
+		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
+		|| tmp_cmb.lift_parent_item)
 		combo_has_flags |= CHAS_LIFT;
 	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add)
 		combo_has_flags |= CHAS_GENERAL;
@@ -10075,11 +10079,11 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		}
 		if(!p_putc(tmp_cmb.trig_group,f))
 		{
-			return 73;
+			return 76;
 		}
 		if(!p_iputw(tmp_cmb.trig_group_val,f))
 		{
-			return 74;
+			return 77;
 		}
 	}
 	if(combo_has_flags&CHAS_LIFT)
@@ -10143,6 +10147,10 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		if(!p_putc(tmp_cmb.lifttime,f))
 		{
 			return 68;
+		}
+		if(!p_putc(tmp_cmb.lift_parent_item,f))
+		{
+			return 78;
 		}
 	}
 	if(combo_has_flags&CHAS_GENERAL)

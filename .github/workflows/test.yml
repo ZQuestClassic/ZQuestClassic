@@ -44,8 +44,8 @@ env:
 jobs:
   build:
     # See https://github.com/community/community/discussions/40777
-    uses: ./.github/workflows/build.yml
-    # uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    # uses: ./.github/workflows/build.yml
+    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
     with:
       runs-on: ${{ inputs.runs-on }}
       arch: ${{ inputs.arch }}
@@ -182,3 +182,8 @@ jobs:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results
 
+      - uses: actions/upload-artifact@v3
+        if: contains(inputs.extra-args, '--update')
+        with:
+          name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
+          path: ${{ github.workspace }}/tests/replays/**/*.zplay

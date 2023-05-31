@@ -8,7 +8,7 @@
  * @author stfwi
  **/
  
-#include "sin1.h"
+#include "base/sin1.h"
  
 /*
  * The number of bits of our data type: here 16 (sizeof operator returns bytes).

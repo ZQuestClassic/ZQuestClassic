@@ -1,9 +1,9 @@
 #ifndef ZC_GUI_QRCHECKBOX_H
 #define ZC_GUI_QRCHECKBOX_H
 
-#include "widget.h"
-#include "checkbox.h"
-#include "dialog_ref.h"
+#include "gui/widget.h"
+#include "gui/checkbox.h"
+#include "gui/dialog_ref.h"
 
 namespace GUI
 {

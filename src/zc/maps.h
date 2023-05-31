@@ -190,5 +190,3 @@ extern int32_t ffprvy[MAXFFCS];
 void init_ffpos();
 #endif
 
-/*** end of maps.cc ***/
-

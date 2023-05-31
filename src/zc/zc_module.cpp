@@ -1,4 +1,4 @@
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "base/module.h"
 
 extern zcmodule moduledata;

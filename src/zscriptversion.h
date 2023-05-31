@@ -7,7 +7,7 @@
 #define _ZSCRIPTVER_H
 
 #include "base/zdefs.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 extern FFScript FFCore;
 
 class ZScriptVersion

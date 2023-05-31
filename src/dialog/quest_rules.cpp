@@ -6,12 +6,12 @@
 #include "info.h"
 #include "alert.h"
 #include <gui/builder.h>
-#include "../jwin.h"
-#include "zquest.h"
+#include "jwin.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "gui/use_size.h"
-#include "zq_files.h"
+#include "zq/zq_files.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -880,7 +880,7 @@ static GUI::ListData compatRulesList
 		"If enabled, ->HitBy[HIT_BY_(thing)_UID] will use the real engine uid instead of the script uid,"
 		" and both Player fire and bomb weapons won't work with HitBy if they hurt the player." 
 		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
-	{ "Broken Moving & Air Bombs", qr_BROKEN_MOVING_BOMBS,
+	{ "Broken Moving && Air Bombs", qr_BROKEN_MOVING_BOMBS,
 		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
 		" will continue obeying gravity." }
 };

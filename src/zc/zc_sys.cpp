@@ -9,11 +9,7 @@
 //
 //--------------------------------------------------------
 
-// to prevent <map> from generating errors
-#define __GTHREAD_HIDE_WIN32API 1
-
-#include "precompiled.h" //always first
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,40 +21,39 @@
 #include <sstream>
 #include "base/zc_alleg.h"
 #include "gamedata.h"
-#include "zc_init.h"
+#include "zc/zc_init.h"
 #include "init.h"
-#include "replay.h"
-#include "cheats.h"
-#include "render.h"
+#include "zc/replay.h"
+#include "zc/cheats.h"
+#include "zc/render.h"
 #include "base/zc_math.h"
 #include "base/zapp.h"
 #include "dialog/cheatkeys.h"
 #include "metadata/metadata.h"
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
 #include "base/zsys.h"
 #include "qst.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 #include "play_midi.h"
-#include "debug.h"
 #include "jwin_a5.h"
 #include "base/jwinfsel.h"
 #include "base/gui.h"
 #include "midi.h"
 #include "subscr.h"
-#include "maps.h"
+#include "zc/maps.h"
 #include "sprite.h"
-#include "guys.h"
-#include "hero.h"
-#include "title.h"
+#include "zc/guys.h"
+#include "zc/hero.h"
+#include "zc/title.h"
 #include "particles.h"
 #include "zconsole.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "dialog/info.h"
 #include "dialog/alert.h"
-#include "combos.h"
+#include "zc/combos.h"
 #include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__

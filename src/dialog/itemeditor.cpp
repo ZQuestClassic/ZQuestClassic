@@ -342,6 +342,8 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(actionsnd[1], "Throw Sound", "SFX to play when an object is thrown");
 			_SET(flag[0], "Fake Z Throw", "Throws weapons in the fakez axis instead of the z axis");
 			_SET(flag[1], "Lift In Water", "Allows lifting while swimming");
+			_SET(flag[2], "Disable Shield", "Makes the shield not protect from projectiles, in the same way as when the player is attacking");
+			_SET(flag[3], "Disable Item Use", "Stop the use of items unrelated to lifting while an object is lifted");
 			break;
 		}
 		case itype_magicring:

@@ -16,21 +16,21 @@
 #include "base/zc_alleg.h"
 #include "zcmusic.h"
 #include "base/zdefs.h"
-#include "zelda.h"
-#include "maps.h"
+#include "zc/zelda.h"
+#include "zc/maps.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "aglogo.h"
+#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "qst.h"
-#include "matrix.h"
+#include "zc/matrix.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "weapons.h"
+#include "zc/weapons.h"
 //#include "save_gif.h"
 #include "sprite.h"
-#include "zc_custom.h"
+#include "zc/zc_custom.h"
 #include "subscr.h"
 #include "zfix.h"
 #include <vector>
@@ -333,10 +333,11 @@ public:
 	byte liftclk;
 	byte tliftclk;
 	zfix liftheight;
-	
+	uint32_t liftflags;
 	
 	// Methods below here.
 	bool isLifting();
+	void set_liftflags(int liftid);
 	void doSwitchHook(byte style);
 	bool isStanding(bool forJump = false);
 	void explode(int32_t type);
@@ -680,4 +681,3 @@ void takeitem(int32_t id);
 void red_shift();
 void slide_in_color(int32_t color);
 #endif
-/*** end of hero.cpp ***/

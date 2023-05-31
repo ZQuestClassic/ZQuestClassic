@@ -1,7 +1,7 @@
 #ifndef ZC_GUI_USESIZE_H
 #define ZC_GUI_USESIZE_H
 
-#include "size.h"
+#include "gui/size.h"
 
 using GUI::Size;
 using GUI::operator ""_em;

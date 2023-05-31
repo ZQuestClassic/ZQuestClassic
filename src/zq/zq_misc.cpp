@@ -11,15 +11,13 @@
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 //INLINE void SCRFIX() {}
 
-#include "precompiled.h" //always first
-
-#include "zq_misc.h"
-#include "zquestdat.h"
-#include "zquest.h"
+#include "zq/zq_misc.h"
+#include "zq/zquestdat.h"
+#include "zq/zquest.h"
 #include "base/colors.h"
 #include "qst.h"
 #include "base/zsys.h"
-#include "zq_class.h"
+#include "zq/zq_class.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
 #include "drawing.h"

@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <stdio.h>
 
 #include "base/gui.h"
@@ -23,9 +17,9 @@
 #include "jwin.h"
 #include "base/zsys.h"
 #include "gamedata.h"
-#include "hero.h"
-#include "zc_init.h"
-#include "cheats.h"
+#include "zc/hero.h"
+#include "zc/zc_init.h"
+#include "zc/cheats.h"
 #include <fmt/format.h>
 
 int32_t onCheatConsole()

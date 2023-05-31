@@ -1,6 +1,4 @@
 
-#include "precompiled.h" //always first
-
 
 #ifdef _WIN32
 

@@ -8,22 +8,16 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 
-#include "zelda.h"
+#include "zc/zelda.h"
 #include "subscr.h"
-#include "zc_subscr.h"
-#include "hero.h"
+#include "zc/zc_subscr.h"
+#include "zc/hero.h"
 #include "gamedata.h"
-#include "guys.h"
-#include "ffscript.h"
-#include "replay.h"
+#include "zc/guys.h"
+#include "zc/ffscript.h"
+#include "zc/replay.h"
 
 extern HeroClass   Hero;
 extern int32_t directItem;
@@ -425,6 +419,4 @@ void markBmap(int32_t dir)
 {
     markBmap(dir, get_currscr());
 }
-
-/*** end of subscr.cc ***/
 

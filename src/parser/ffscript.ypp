@@ -6,7 +6,6 @@
 
 /* declarations */
 %{
-#include "../precompiled.h"
 #include "parserDefs.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,7 +14,7 @@
 #include <sstream>
 #include "ASTVisitors.h"
 #include "CompileOption.h"
-#include "../zsyssimple.h"
+#include "zsyssimple.h"
 #include "base/util.h"
 
 using std::string;

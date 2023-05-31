@@ -6,8 +6,8 @@
 #include <gui/checkbox.h>
 #include <gui/label.h>
 #include <gui/text_field.h>
-#include <gui/tileanim_frame.h>
-#include <gui/seltile_swatch.h>
+#include <zq/gui/tileanim_frame.h>
+#include <zq/gui/seltile_swatch.h>
 #include <gui/window.h>
 #include <functional>
 

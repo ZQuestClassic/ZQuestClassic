@@ -1,9 +1,9 @@
 #include "msgstr_preview.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
-#include "../jwin.h"
+#include "jwin.h"
 #include "subscr.h"
 #include "tiles.h"
 #include <utility>

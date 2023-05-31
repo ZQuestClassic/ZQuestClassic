@@ -8,30 +8,24 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <map>
 #include <string.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "base/gui.h"
-#include "zc_custom.h"
-#include "zq_custom.h"
+#include "zc/zc_custom.h"
+#include "zq/zq_custom.h"
 #include "tiles.h"
-#include "zq_tiles.h"
-#include "zq_misc.h"
-#include "zquest.h"
+#include "zq/zq_tiles.h"
+#include "zq/zq_misc.h"
+#include "zq/zquest.h"
 #include "items.h"
 #include "base/zsys.h"
 #include "sfx.h"
 #include "init.h"
 #include "defdata.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "dialog/itemeditor.h"
 #include "dialog/misc_sfx.h"
 #include "dialog/misc_sprs.h"

@@ -371,7 +371,7 @@ async function renderQuestList() {
     contentEl.querySelector('.description').innerHTML = quest.descriptionHtml;
     contentEl.querySelector('.story').innerHTML = quest.storyHtml;
     contentEl.querySelector('.tips').innerHTML = quest.tipsAndCheatsHtml;
-    contentEl.querySelector('.credits').innerHTML = quest.storyHtml;
+    contentEl.querySelector('.credits').innerHTML = quest.creditsHtml;
 
     function setCurImage(imgUrl) {
       const imgEl = document.createElement('img');

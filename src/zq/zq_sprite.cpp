@@ -12,8 +12,6 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "sprite.h"
 
 int32_t fadeclk=-1;

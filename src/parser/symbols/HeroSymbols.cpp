@@ -179,6 +179,8 @@ static AccessorTable HeroSTable[] =
 	{ "setLiftHeight",              0,          ZTID_VOID,   HEROLIFTHEIGHT,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getHammerState",             0,         ZTID_FLOAT,   HEROHAMMERSTATE,           0,  { ZTID_PLAYER },{} },
 	{ "setHammerState",             0,          ZTID_VOID,   HEROHAMMERSTATE,           0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getLiftFlags[]",             0,          ZTID_BOOL,   HEROLIFTFLAGS,             0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "setLiftFlags[]",             0,          ZTID_VOID,   HEROLIFTFLAGS,             0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_BOOL },{} },
 	
 	
 	//Intentionally undocumented

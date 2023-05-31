@@ -1,5 +1,3 @@
-#include "precompiled.h" //always first
-
 #include <ctype.h>
 #include <string.h>
 #include "base/zc_alleg.h"

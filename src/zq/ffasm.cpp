@@ -1,19 +1,13 @@
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include "parser/Types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
-#include "ffscript.h"
-#include "ffasm.h"
+#include "zc/ffscript.h"
+#include "zq/ffasm.h"
 
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
 #include "base/util.h"
 #include "dialog/info.h"
@@ -2561,8 +2555,8 @@ script_variable variable_list[]=
 	{ "HEROLIFTMAXTIMER", HEROLIFTMAXTIMER, 0, 0 },
 	{ "HEROLIFTHEIGHT", HEROLIFTHEIGHT, 0, 0 },
 	{ "HEROHAMMERSTATE", HEROHAMMERSTATE, 0, 0 },
-	{ "RESRVD_VAR_EMILY19", RESRVD_VAR_EMILY19, 0, 0 },
-	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
+	{ "HEROLIFTFLAGS", HEROLIFTFLAGS, 0, 0 },
+	{ "COMBODLIFTWEAPONITEM", COMBODLIFTWEAPONITEM, 0, 0 },
 	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
 	{ "RESRVD_VAR_EMILY22", RESRVD_VAR_EMILY22, 0, 0 },
 	{ "RESRVD_VAR_EMILY23", RESRVD_VAR_EMILY23, 0, 0 },
@@ -2792,10 +2786,10 @@ int32_t parse_script_file(script_data **script, const char *path, bool report_su
 	fclose(fscript);
 	return result;
 }
+#define SUBBUFSZ 0x200
 int32_t parse_script_file(script_data **script, FILE* fscript, bool report_success)
 {
 	saved=false;
-#define SUBBUFSZ 0x200
 	std::string buffer;
 	char combuf[SUBBUFSZ] = {0};
 	char arg1buf[SUBBUFSZ] = {0};
@@ -3282,6 +3276,494 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 zasmfile_fail:
+	return success?D_O_K:D_CLOSE;
+}
+int32_t parse_script_string(script_data **script, std::string const& scriptstr, bool report_success)
+{
+	saved=false;
+	std::string buffer;
+	char combuf[SUBBUFSZ] = {0};
+	char arg1buf[SUBBUFSZ] = {0};
+	char arg2buf[SUBBUFSZ] = {0};
+	std::vector<int32_t> arr_vec;
+	std::string arr_str;
+	bool has_vec = false;
+	bool has_str = false;
+	bool stop=false;
+	bool success=true;
+	bool meta_done=false;
+	int32_t num_commands;
+	char const* scrptr = scriptstr.c_str();
+	
+	for(int32_t i=0;; i++)
+	{
+		buffer.clear();
+		
+		if(stop)
+		{
+			num_commands=i+1;
+			break;
+		}
+		
+		bool meta = false;
+		bool running = true;
+		while(running)
+		{
+			char c = *scrptr++;
+			
+			if(!c) //null terminator
+			{
+				stop = true;
+				--scrptr;
+				break;
+			}
+			else
+			{
+				buffer += c;
+				if(buffer[0] == '#' && !meta_done) //Metadata line
+				{
+					while(true)
+					{
+						char c2 = *scrptr++;
+						if(c2 == '\n') break;
+						if(!c2)
+						{
+							stop=true;
+							break;
+						}
+					}
+					--i;
+					meta = true;
+					break;
+				}
+				else if(c == ';' || c == '\n' || c == 13)
+				{
+					if(c != '\n')
+					{
+						while(true)
+						{
+							char c2 = *scrptr++;
+							if(c2 == '\n') break;
+							if(!c2)
+							{
+								stop=true;
+								break;
+							}
+						}
+					}
+					buffer.pop_back();
+					break;
+				}
+				else if (c == '"' || c == '{')
+				{
+					bool vec = c == '{';
+					auto j = buffer.size()-1;
+					while(true)
+					{
+						char c2 = *scrptr++;
+						if(!c2) //null terminator
+						{
+							stop=true;
+							--scrptr;
+							running = false;
+							break;
+						}
+						buffer += vec ? toupper(c2) : c2;
+						if(vec)
+						{
+							if(c2 == '}')
+							{
+								size_t sz = vecstr_size(buffer.c_str()+j);
+								if(sz)
+								{
+									j += sz;
+									break;
+								}
+							}
+						}
+						else
+						{
+							if(c2 == '"')
+							{
+								size_t sz = escstr_size(buffer.c_str()+j);
+								if(sz)
+								{
+									j += sz;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(meta) continue;
+		else meta_done = true;
+		int32_t k=0;
+		
+		while(buffer[k] == ' ' || buffer[k] == '\t') k++;
+		
+		if(buffer[k] == '\0')
+		{
+			--i;
+			continue;
+		}
+		
+		k=0;
+		
+		if(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
+		{
+			char lbuf[80] = {0};
+			while(buffer[k] != ' ' && buffer[k] !='\t' && buffer[k] != '\0')
+			{
+				lbuf[k] = buffer[k];
+				k++;
+			}
+			string lbl(lbuf);
+			map<string,int32_t>::iterator it = labels.find(lbl);
+			if(it != labels.end())
+			{
+				char buf[120],buf2[120],buf3[120],name[13];
+				extract_name(temppath,name,FILENAME8_3);
+				sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
+				sprintf(buf2,"The error was: Duplicate Label");
+				sprintf(buf3,"The duplicate label was: \"%s\"",lbuf);
+				jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				stop=true;
+				success=false;
+				(*script)->disable();
+				goto zasmfile_fail_str;
+			}
+			labels[lbl] = i;
+			while(buffer[k] == ' ' || buffer[k] == '\t')
+			{
+				++k;
+			}
+			if(buffer[k] == '\0')
+			{
+				--i; //No command on this line
+				continue;
+			}
+		}
+	}
+	
+	scrptr = scriptstr.c_str(); //reset to start
+	stop = false;
+	meta_done = false;
+	
+	if((*script)!=NULL)
+		delete (*script);
+	(*script) = new script_data(num_commands);
+	for(int32_t i=0; i<num_commands; i++)
+	{
+		(*script)->zasm[i].clear();
+	}
+	
+	for(int32_t i=0; i<num_commands; ++i)
+	{
+		if(stop)
+		{
+			(*script)->zasm[i].clear();
+			break;
+		}
+		else
+		{
+			buffer.clear();
+			combuf[0]=0;
+			arg1buf[0]=0;
+			arg2buf[0]=0;
+			bool meta_mode = false;
+			arr_vec.clear();
+			arr_str.clear();
+			has_vec = false;
+			has_str = false;
+			
+			bool running = true;
+			while(running)
+			{
+				char c = *scrptr++;
+				
+				if(!c) //null terminator
+				{
+					stop=true;
+					--scrptr;
+					break;
+				}
+				else
+				{
+					c = toupper(c);
+					buffer += c;
+					if (buffer[0] == '#' && !meta_done) //Metadata line
+					{
+						meta_mode = true;
+						char temp;
+						bool buffering = true;
+						while ((temp = (*scrptr++)) != '\n')
+						{
+							if (!temp) //null terminator
+							{
+								stop = true;
+								break;
+							}
+							if (temp == '\r')
+								buffering = false;
+							if(buffering)
+								buffer += temp;
+						}
+						break;
+					}
+					else if (c == ';' || c == '\n' || c == '\r')
+					{
+						if (c != '\n')
+						{
+							while(true)
+							{
+								char c2 = *scrptr++;
+								if(c2 == '\n') break;
+								if(!c2) //null terminator
+								{
+									stop=true;
+									break;
+								}
+							}
+						}
+						buffer.pop_back();
+						break;
+					}
+					else if (c == '"' || c == '{')
+					{
+						bool vec = c == '{';
+						auto j = buffer.size()-1;
+						while(true)
+						{
+							char c2 = *scrptr++;
+							if(!c2) //null terminator
+							{
+								stop=true;
+								--scrptr;
+								running = false;
+								break;
+							}
+							buffer += vec ? toupper(c2) : c2;
+							if(vec)
+							{
+								if(c2 == '}')
+								{
+									size_t sz = vecstr_size(buffer.c_str()+j);
+									if(sz)
+									{
+										j += sz;
+										break;
+									}
+								}
+							}
+							else
+							{
+								if(c2 == '"')
+								{
+									size_t sz = escstr_size(buffer.c_str()+j);
+									if(sz)
+									{
+										j += sz;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			if(meta_mode)
+			{
+				(*script)->meta.parse_meta(buffer.c_str());
+				--i; continue;
+			}
+			meta_done = true;
+			
+			int32_t k=0, l=0;
+			
+			while(buffer[k] == ' ' || buffer[k] == '\t') k++;
+			
+			if(buffer[k] == '\0')
+			{
+				--i;
+				continue;
+			}
+			
+			k=0;
+			
+			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') k++; //label
+			
+			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0')  k++; //ws
+			
+			while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //command
+			{
+				combuf[l] = buffer[k];
+				k++;
+				l++;
+			}
+			
+			if(l == 0) //No command
+			{
+				--i;
+				continue;
+			}
+			
+			combuf[l] = '\0';
+			l=0;
+			
+			while((buffer[k] == ' ' || buffer[k] == '\t') && buffer[k] != '\0') k++; //ws
+			
+			if(buffer[k] == '"') //string
+			{
+				arr_str = unescape_string(buffer.c_str()+k);
+				has_str = true;
+				k += escstr_size(buffer.c_str()+k);
+			}
+			else if(buffer[k] == '{') //array
+			{
+				unstringify_vector(arr_vec, buffer.c_str()+k, true);
+				has_vec = true;
+				k += vecstr_size(buffer.c_str()+k);
+			}
+			else while(buffer[k] != ',' && buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg1
+			{
+				arg1buf[l] = buffer[k];
+				k++;
+				l++;
+			}
+			
+			arg1buf[l] = '\0';
+			l=0;
+			
+			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
+			
+			bool bad_dstr = false;
+			bool bad_dvec = false;
+			if(buffer[k] == '"') //string
+			{
+				if(has_str) bad_dstr = true;
+				else
+				{
+					arr_str = unescape_string(buffer.c_str()+k);
+					has_str = true;
+				}
+				k += escstr_size(buffer.c_str()+k);
+			}
+			else if(buffer[k] == '{') //array
+			{
+				if(has_vec) bad_dvec = true;
+				else
+				{
+					unstringify_vector(arr_vec, buffer.c_str()+k, true);
+					has_vec = true;
+				}
+				k += vecstr_size(buffer.c_str()+k);
+			}
+			else while(buffer[k] != ' ' && buffer[k] != '\t' && buffer[k] != '\0') //arg2
+			{
+				arg2buf[l] = buffer[k];
+				k++;
+				l++;
+			}
+			
+			arg2buf[l] = '\0';
+			
+			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
+			
+			if(buffer[k] == '"') //string
+			{
+				if(has_str) bad_dstr = true;
+				else
+				{
+					arr_str = unescape_string(buffer.c_str()+k);
+					has_str = true;
+				}
+				k += escstr_size(buffer.c_str()+k);
+			}
+			else if(buffer[k] == '{') //array
+			{
+				if(has_vec) bad_dvec = true;
+				else
+				{
+					unstringify_vector(arr_vec, buffer.c_str()+k, true);
+					has_vec = true;
+				}
+				k += vecstr_size(buffer.c_str()+k);
+			}
+			
+			while((buffer[k] == ' ' || buffer[k] == '\t' || buffer[k] == ',') && buffer[k] != '\0') k++; //ws/comma
+			
+			if(buffer[k] == '"') //string
+			{
+				if(has_str) bad_dstr = true;
+				else
+				{
+					arr_str = unescape_string(buffer.c_str()+k);
+					has_str = true;
+				}
+				k += escstr_size(buffer.c_str()+k);
+			}
+			else if(buffer[k] == '{') //array
+			{
+				if(has_vec) bad_dvec = true;
+				else
+				{
+					unstringify_vector(arr_vec, buffer.c_str()+k, true);
+					has_vec = true;
+				}
+				k += vecstr_size(buffer.c_str()+k);
+			}
+			
+			int32_t parse_err;
+			if(bad_dstr || bad_dvec ||
+				!(parse_script_section(combuf, arg1buf, arg2buf, script, i, parse_err, has_vec ? &arr_vec : nullptr, has_str ? &arr_str : nullptr)))
+			{
+				if(bad_dstr) parse_err = 3;
+				if(bad_dvec) parse_err = 4;
+				//char buf[80],buf2[80],buf3[80],name[13];
+				char buf[512], name[13];
+				const char* errstrbuf[] =
+				{
+					"invalid instruction!",
+					"parameter 1 invalid!",
+					"parameter 2 invalid!",
+					"string parameter invalid!",
+					"vector parameter invalid!"
+				};
+				extract_name(temppath,name,FILENAME8_3);
+				char vstrbuf[64] = {0};
+				if(has_str || has_vec)
+					sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
+				sprintf(buf,"Unable to parse instruction %d from script %s"
+					"\nThe error was: %s"
+					"\nThe command was (%s) (%s,%s)%s"
+					,i+1,name
+					,errstrbuf[parse_err]
+					,combuf,arg1buf,arg2buf,vstrbuf);
+				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
+				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
+				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
+				// jwin_alert("Error",buf,buf2,buf3,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+				InfoDialog("Error",buf).show();
+				stop=true;
+				success=false;
+				(*script)->zasm[i].strptr = nullptr;
+				(*script)->zasm[i].vecptr = nullptr;
+				(*script)->disable();
+			}
+		}
+	}
+	
+	if(report_success && success) //(!stop) // stop is never true here
+	{
+		char buf[80],name[13];
+		extract_name(temppath,name,FILENAME8_3);
+		sprintf(buf,"Script %s has been parsed",name);
+		jwin_alert("Success",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+	}
+zasmfile_fail_str:
 	return success?D_O_K:D_CLOSE;
 }
 

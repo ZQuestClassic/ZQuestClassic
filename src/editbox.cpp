@@ -24,8 +24,6 @@
 
 /* This code is not fully tested */
 
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include "base/zc_alleg.h"
 #include "jwin.h"

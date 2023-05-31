@@ -8,10 +8,8 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
-#include "matrix.h"
-#include "render.h"
+#include "zc/matrix.h"
+#include "zc/render.h"
 FONT* get_zc_font(int index);
 
 #define MAX_COLS      256

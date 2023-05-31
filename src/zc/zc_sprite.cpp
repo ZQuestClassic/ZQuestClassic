@@ -12,14 +12,12 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include "sprite.h"
-#include "zelda.h"
-#include "maps.h"
+#include "zc/zelda.h"
+#include "zc/maps.h"
 #include "tiles.h"
-#include "ffscript.h"
-#include "combos.h"
+#include "zc/ffscript.h"
+#include "zc/combos.h"
 
 extern FFScript FFCore;
 /*
@@ -1051,6 +1049,4 @@ bool movingblock::animate(int32_t)
 	}
 	return false;
 }
-
-/*** end of sprite.cc ***/
 

@@ -12,7 +12,7 @@
 #define _MATRIX_H_
 
 #include "base/zc_alleg.h"
-#include "zc_sys.h"
+#include "zc/zc_sys.h"
 
 extern int32_t  input_idle(bool checkmouse);
 

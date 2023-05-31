@@ -1,5 +1,3 @@
-
-#include "../precompiled.h" //always first
 #include <assert.h>
 
 #include "BuildVisitors.h"

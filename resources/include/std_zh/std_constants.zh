@@ -3914,4 +3914,11 @@ enum
 	SPLAYER_DARKROOM_OVER //Over dark room darkness
 };
 
+enum //for Hero->LiftFlags[]
+{
+	LIFTFL_DISABLE_SHIELD,
+	LIFTFL_DISABLE_ITEMS,
+	LIFTFL_MAX
+};
+
 

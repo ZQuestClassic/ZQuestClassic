@@ -1,16 +1,15 @@
 #ifndef _ZSCRIPT_SYMBOLS_H
 #define _ZSCRIPT_SYMBOLS_H
 
-#include "../../precompiled.h" //always first
 #include <assert.h>
-#include "../../zsyssimple.h"
-#include "../ByteCode.h"
-#include "../base/zdefs.h" //Putting this higher has issues?
-#include "../parserDefs.h"
-#include "../Scope.h"
-#include "../ZScript.h"
-#include "../CompilerUtils.h"
-#include "../LibrarySymbols.h"
+#include "zsyssimple.h"
+#include "parser/ByteCode.h"
+#include "parser/parserDefs.h"
+#include "parser/Scope.h"
+#include "parser/ZScript.h"
+#include "parser/CompilerUtils.h"
+#include "parser/LibrarySymbols.h"
+
 using namespace ZScript;
 using std::shared_ptr;
 

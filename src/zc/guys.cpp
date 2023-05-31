@@ -8,18 +8,16 @@
 //
 //--------------------------------------------------------
 
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <stdio.h>
 #include "base/zc_alleg.h"
-#include "guys.h"
-#include "zelda.h"
+#include "zc/guys.h"
+#include "zc/zelda.h"
 #include "base/zsys.h"
-#include "maps.h"
-#include "hero.h"
+#include "zc/maps.h"
+#include "zc/hero.h"
 #include "subscr.h"
-#include "ffscript.h"
+#include "zc/ffscript.h"
 #include "gamedata.h"
 #include "defdata.h"
 #include "zscriptversion.h"
@@ -231,7 +229,13 @@ bool tooclose(int32_t x,int32_t y,int32_t d)
 
 bool enemy::overpit(enemy *e)
 {
-	for ( int32_t q = 0; q < hxsz; ++q )
+	// This function (and shadow_overpit) has been broken since it was written, and only
+	// checked the same diagonal of the hitbox, over and over again. The bug is because both
+	// loops used the same variable name.
+	// Checking literally every pixel seems like overkill, so for now let's continue to
+	// do the single diagonal but just once. That's why the outer loop is commented out.
+
+	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
 		for ( int32_t q = 0; q < hysz; ++q )
 		{
@@ -248,7 +252,7 @@ bool enemy::overpit(enemy *e)
 
 bool enemy::shadow_overpit(enemy *e)
 {
-	for ( int32_t q = 0; q < hxsz; ++q )
+	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
 		for ( int32_t q = 0; q < hysz; ++q )
 		{
@@ -5905,16 +5909,7 @@ int32_t enemy::takehit(weapon *w, weapon* realweap)
 		case wBait:
 			return 0;
 
-			[[fallthrough]];
 		case wFire:
-#if 0
-			if(false /*flags2&guy_mirror*/)
-			{
-				sfx(WAV_CHINK,pan(int32_t(x)));
-				return 1;
-			}
-			
-#endif
 			;
 		}
 	}
@@ -18413,8 +18408,6 @@ bool ePatra::animate(int32_t index)
 	}
 	if (clk4 > 0) --clk4;
 	
-	double size=1;
-	
 	if (clk6 < 0)
 	{
 		if (dmisc5 == 1 || dmisc5 == 3)
@@ -18636,7 +18629,6 @@ bool ePatra::animate(int32_t index)
 		}
 	}
 	
-	size=.5;
 	int randattempts = 0;
 	int randeye = 0;
 	if (flycnt2 > 0)
@@ -21321,7 +21313,6 @@ void activate_fireball_statues()
 void load_default_enemies()
 {
 	wallm_load_clk=frame-80;
-	int32_t Id=0;
 	
 	if(tmpscr->enemyflags&efZORA)
 	{
@@ -24145,6 +24136,3 @@ const char *old_guy_string[OLDMAXGUYS] =
 	// 175
 	"Grappler Bug (HP) ", "Grappler Bug (MP) "
 };
-
-/*** end of guys.cc ***/
-

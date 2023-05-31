@@ -8,19 +8,13 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include "base/gui.h"
 #include "subscr.h"
-#include "zq_subscr.h"
+#include "zq/zq_subscr.h"
 #include "jwin.h"
-#include "zquest.h"
+#include "zq/zquest.h"
 #include "base/zsys.h"
-#include "zq_misc.h"
+#include "zq/zq_misc.h"
 #include "tiles.h"
 #include "qst.h"
 #include "init.h"
@@ -4419,6 +4413,3 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             break;
     }
 }
-
-/*** end of subscr.cc ***/
-

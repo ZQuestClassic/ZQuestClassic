@@ -1,9 +1,9 @@
-#include "radio.h"
-#include "common.h"
-#include "dialog.h"
-#include "dialog_runner.h"
-#include "size.h"
-#include "../jwin.h"
+#include "gui/radio.h"
+#include "gui/common.h"
+#include "gui/dialog.h"
+#include "gui/dialog_runner.h"
+#include "gui/size.h"
+#include "jwin.h"
 #include <cassert>
 #include <utility>
 

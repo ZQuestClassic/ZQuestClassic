@@ -8,29 +8,23 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <cmath>
 
 #include "base/gui.h"
-#include "zquestdat.h"
-#include "zq_tiles.h"
-#include "zquest.h"
+#include "zq/zquestdat.h"
+#include "zq/zq_tiles.h"
+#include "zq/zquest.h"
 #include "tiles.h"
-#include "zq_misc.h"
-#include "zq_class.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_class.h"
 #include "base/zsys.h"
 #include "base/colors.h"
 #include "qst.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
-#include "zc_custom.h"
-#include "questReport.h"
+#include "zc/zc_custom.h"
+#include "zq/questReport.h"
 #include "dialog/info.h"
 #include "dialog/scaletile.h"
 #include "dialog/alert.h"
@@ -546,18 +540,10 @@ void go_tiles()
 		if(newundotilebuf[i].data==NULL)
 		{
 			Z_error_fatal("Unable to initialize undo tile #%ld.\n", i);
-			exit(1);
 		}
 		
 		memcpy(newundotilebuf[i].data,newtilebuf[i].data,tilesize(newundotilebuf[i].format));
 	}
-	
-	/*
-	  int32_t *si = (int32_t*)tilebuf;
-	  int32_t *di = (int32_t*)undotilebuf;
-	  for(int32_t i=0; i<NEWTILE_SIZE2/4; i++)
-	  *(di++) = *(si++);
-	  */
 }
 
 void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
@@ -579,7 +565,6 @@ void go_slide_tiles(int32_t columns, int32_t rows, int32_t top, int32_t left)
 			if(newundotilebuf[t].data==NULL)
 			{
 				Z_error_fatal("Unable to initialize undo tile #%ld.\n", t);
-				exit(1);
 			}
 			
 			memcpy(newundotilebuf[t].data,newtilebuf[t].data,tilesize(newundotilebuf[t].format));
@@ -613,7 +598,6 @@ void comeback_tiles()
 		if(newtilebuf[i].data==NULL)
 		{
 			Z_error_fatal("Unable to initialize tile #%ld.\n", i);
-			exit(1);
 		}
 		
 		memcpy(newtilebuf[i].data,newundotilebuf[i].data,tilesize(newtilebuf[i].format));
@@ -17651,6 +17635,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].liftbreaksfx = combo.liftbreaksfx;
 			combobuf[i].lifthei = combo.lifthei;
 			combobuf[i].lifttime = combo.lifttime;
+			combobuf[i].lift_parent_item = combo.lift_parent_item;
 		}
 	}
 	

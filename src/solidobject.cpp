@@ -1,7 +1,7 @@
 #include "solidobject.h"
 #include "base/zdefs.h"
 #include "sprite.h"
-#include "hero.h"
+#include "zc/hero.h"
 #include "base/zc_math.h"
 #include "slopes.h"
 

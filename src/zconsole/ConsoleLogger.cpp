@@ -1,4 +1,4 @@
-#include "ConsoleLogger.h"
+#include "zconsole/ConsoleLogger.h"
 #include "zconfig.h"
 #include "base/zc_alleg.h"
 

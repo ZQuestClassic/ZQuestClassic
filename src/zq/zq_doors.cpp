@@ -8,12 +8,6 @@
 //
 //--------------------------------------------------------
 
-#ifndef __GTHREAD_HIDE_WIN32API
-#define __GTHREAD_HIDE_WIN32API 1
-#endif                            //prevent indirectly including windows.h
-
-#include "precompiled.h" //always first
-
 #include <string.h>
 #include <vector>
 
@@ -22,12 +16,12 @@
 #include "base/zdefs.h"
 #include "jwin.h"
 #include "base/zsys.h"
-#include "zc_sys.h"
-#include "zq_misc.h"
+#include "zc/zc_sys.h"
+#include "zq/zq_misc.h"
 #include "tiles.h"
-#include "zq_class.h"
-#include "zq_tiles.h"
-#include "zquest.h"
+#include "zq/zq_class.h"
+#include "zq/zq_tiles.h"
+#include "zq/zquest.h"
 
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();
