@@ -3881,13 +3881,9 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	int flag2 = cmb.flag;
 	int flag3 = cmb_ff.flag;
 	
-	rpos_t rpos = COMBOPOS_REGION(bx, by);
-	auto rpos_handle = get_rpos_handle(rpos, 0);
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
 	int32_t i = rpos_handle.pos();
-	
-	if (!is_valid_rpos(rpos))
-		return;
-		
+
 	bool ignorescreen=false;
 	bool ignoreffc=false;
 	
@@ -4069,12 +4065,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 				items.add(itm);
 			}
 		}
-		
-		{
-			int x, y;
-			COMBOXY_REGION(rpos, x, y);
-			putcombo(scrollbuf, x - viewport.x, y - viewport.y, s->data[i], s->cset[i]);
-		}
+
+		putcombo(scrollbuf, bx - viewport.x, by - viewport.y, s->data[i], s->cset[i]);
 		
 		if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
