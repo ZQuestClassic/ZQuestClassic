@@ -18748,7 +18748,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			auto rpos_handle = get_rpos_handle(rpos, 0);
 			screen_combo_modify_preroutine(rpos_handle);
-			rpos_handle.screen->cset[pos]=(val)&15;
+			rpos_handle.set_cset(val&15);
 			screen_combo_modify_postroutine(rpos_handle);
 		}
 	}
