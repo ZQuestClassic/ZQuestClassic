@@ -3885,6 +3885,7 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 
 	int32_t ret = readheader(f, header, true);
 	pack_fclose(f);
+	clear_quest_tmpfile();
 
 	switch(ret)
 	{

@@ -183,6 +183,7 @@ extern int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 char *VerStr(int32_t version);
 char *ordinal(int32_t num);
 
+void clear_quest_tmpfile();
 PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress);
 PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool validate);
 

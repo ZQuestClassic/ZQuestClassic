@@ -29199,6 +29199,7 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	}
 	pack_fclose(pf);
 	pack_fclose(pf2);
+	clear_quest_tmpfile();
 }
 
 // Copy a quest file by loading and resaving, exactly like if the user did it in the UI.

@@ -675,11 +675,24 @@ bool valid_zqt(const char *filename)
     }
     
     isvalid=valid_zqt(f);
+	
+	clear_quest_tmpfile();
+	pack_fclose(f);
     
 //  setPackfilePassword(NULL);
     return isvalid;
 }
 
+static std::string tmp_file_name;
+void clear_quest_tmpfile()
+{
+	if(tmp_file_name.size())
+	{
+		if(exists(tmp_file_name.c_str()))
+			delete_file(tmp_file_name.c_str());
+		tmp_file_name.clear();
+	}
+}
 /*
 	.qst file history
 
@@ -723,7 +736,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
         em_fetch_file(filename);
     }
 #endif
-
+	clear_quest_tmpfile();
 	// Note: although this is primarily for loading .qst files, it can also handle all of the
 	// file types mentioned in the comment above. No need to be told if the file being loaded
 	// is encrypted or compressed, we can do some simple and fast checks to determine how to load it.
@@ -802,10 +815,12 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 		}
 		fclose(tf);
 		pack_fclose(pf);
-
+		
+		tmp_file_name = tmpfilename; //store so it can be cleaned up later
+		
 		// not good: temp file storage leak. Callers don't know to delete temp files anymore.
 		// We should put qsu in the dat file, or use a separate .qst file for new qst.
-		return pack_fopen_password(tmpfilename, F_READ_PACKED, packfile_password);
+		return pack_fopen_password(tmpfilename, F_READ_PACKED, "");
 	}
 	else
 	{
@@ -996,6 +1011,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
         {
             jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             pack_fclose(f);
+			clear_quest_tmpfile();
             return NULL;
         }
     }
@@ -1068,6 +1084,7 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     if(ret||(version==0))
     {
         pack_fclose(f);
+		clear_quest_tmpfile();
         
         if(deletefilename[0])
         {
@@ -1082,7 +1099,8 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     {
         al_trace("Can't find section!\n");
         pack_fclose(f);
-        
+        clear_quest_tmpfile();
+		
         if(deletefilename[0])
         {
             delete_file(deletefilename);
@@ -1204,7 +1222,8 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     }
     
     pack_fclose(f);
-    
+    clear_quest_tmpfile();
+	
     if(deletefilename[0])
     {
         delete_file(deletefilename);
@@ -22184,6 +22203,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     {
         pack_fclose(f);
     }
+	clear_quest_tmpfile();
     
     if(!oldquest)
     {
