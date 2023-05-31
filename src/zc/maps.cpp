@@ -1059,8 +1059,13 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	DCHECK(map >= 0 && screen >= 0);
+
 	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
-	return MAPCOMBO3(map, screen, layer, COMBOPOS_REGION(x, y), secrets);
+
+	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
+	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
+	rpos_t rpos = COMBOPOS_REGION(x, y);
+	return MAPCOMBO3(m, map, screen, layer, RPOS_TO_POS(rpos), secrets);
 }
 
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets)
