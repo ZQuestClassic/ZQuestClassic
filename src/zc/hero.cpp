@@ -27197,10 +27197,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		return;
 	}
 
-	if (replay_get_frame() == 340010) {
-		printf("asd\n");
-	}
-
 	bool overlay = false;
 	if(scrolldir >= 0 && scrolldir <= 3)
 	{
@@ -27694,10 +27690,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		if (replay_is_active() && replay_get_version() < 3)
 		{
 			replay_poll();
-		}
-
-		if (replay_get_frame() == 318) {
-			printf("asd\n");
 		}
 
 		if(Quit)
