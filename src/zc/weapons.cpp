@@ -7196,7 +7196,7 @@ offscreenCheck:
 }
 
 // override hit detection to check for invicibility, etc
-bool weapon::hit(sprite *s)
+bool weapon::hit()
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return false;
     
@@ -7204,6 +7204,11 @@ bool weapon::hit(sprite *s)
     if(id==ewBrang && misc)
         return false;
 	if(Dead()&&dead!=-10) return false;
+	return sprite::hit();
+}
+bool weapon::hit(sprite *s)
+{
+    if(!hit() || !s->hit()) return false;
 	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		if(z+zofs >= s->z+s->zofs+s->hzsz || z+zofs+hzsz < s->z+s->zofs)
@@ -7231,12 +7236,7 @@ bool weapon::hit(sprite *s)
 
 bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
-	if(id==wBugNet) return false;
-    if(id==ewBrang && misc)
-        return false;
-	if(Dead()&&dead!=-10) return false;
+    if(!hit()) return false;
 	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		if(z+zofs >= tz2+tzsz2 || z+zofs+hzsz < tz2)
@@ -7265,12 +7265,7 @@ bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2
 }
 bool weapon::hit(int32_t tx2,int32_t ty2,int32_t txsz2,int32_t tysz2)
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
-	if(id==wBugNet) return false;
-    if(id==ewBrang && misc)
-        return false;
-	if(Dead()&&dead!=-10) return false;
+    if(!hit()) return false;
     if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)

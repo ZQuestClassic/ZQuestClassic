@@ -188,6 +188,7 @@ public:
 	// Take damage or ignore it
 	virtual int32_t takehit(weapon *w, weapon* realweap = nullptr);
 	// override hit detection to check for invicibility, stunned, etc
+	virtual bool hit();
 	virtual bool hit(sprite *s);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);

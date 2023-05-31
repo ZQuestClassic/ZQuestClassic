@@ -6575,27 +6575,38 @@ void enemy::masked_draw(BITMAP *dest,int32_t mx,int32_t my,int32_t mw,int32_t mh
 }
 
 // override hit detection to check for invicibility, stunned, etc
+bool enemy::hit()
+{
+    if(dying || hclk>0) return false;
+	return sprite::hit();
+}
 bool enemy::hit(sprite *s)
 {
-	if(!(s->scriptcoldet&1) || s->fallclk || s->drownclk) return false;
-	
-	return (dying || hclk>0) ? false : sprite::hit(s);
+	if(!hit() || !s->hit()) return false;
+	return sprite::hit(s);
 }
 
 bool enemy::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
-	return (dying || hclk>0) ? false : sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
+	if(!hit()) return false;
+	return sprite::hit(tx,ty,tz,txsz2,tysz2,tzsz2);
 }
 bool enemy::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
 {
-	return (dying || hclk>0) ? false : sprite::hit(tx,ty,txsz2,tysz2);
+	if(!hit()) return false;
+	return sprite::hit(tx,ty,txsz2,tysz2);
 }
 
 bool enemy::hit(weapon *w)
 {
-	if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk) return false;
-	
-	return (dying || hclk>0) ? false : sprite::hit(w);
+	if(!hit()) return false;
+	if(replay_is_active() && replay_get_version() < 14)
+	{
+		if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk)
+			return false;
+		return sprite::hit(w);
+	}
+	return w->hit(this);
 }
 
 bool enemy::can_pitfall(bool checkspawning)
@@ -23720,7 +23731,7 @@ void check_collisions()
 			{
 				enemy *e = (enemy*)guys.spr(j);
 				
-				bool didhit = w->hit(e);
+				bool didhit = e->hit(w);
 				if(didhit) //boomerangs and such that last for more than a frame can write hitby[] for more than one frame, 
 				//because this only checks `if(dying || clk<0 || hclk>0 || superman)`
 				{

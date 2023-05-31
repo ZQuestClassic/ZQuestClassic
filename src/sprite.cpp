@@ -977,24 +977,23 @@ int32_t sprite::check_water() //Returns combo ID of water fallen into; 0 for not
 	return 0;
 }
 
+bool sprite::hit()
+{
+	if(!(scriptcoldet&1) || fallclk || drownclk) return false;
+	if(id<0 || clk<0) return false;
+	return true;
+}
+
 bool sprite::hit(sprite *s)
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
-    if(id<0 || s->id<0 || clk<0) return false;
-    
-    if(halt)
-    {
-    }
+    if(!hit() || !s->hit()) return false;
     
     return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
-    if(id<0 || clk<0) return false;
+    if(!hit()) return false;
     
     return tx+txsz2>x+hxofs &&
            ty+tysz2>y+hyofs &&
@@ -1005,9 +1004,7 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
-    if(!(scriptcoldet&1) || fallclk || drownclk) return false;
-    
-    if(id<0 || clk<0) return false;
+    if(!hit()) return false;
     
     return tx+txsz2>x+hxofs &&
            ty+tysz2>y+hyofs-fakez &&

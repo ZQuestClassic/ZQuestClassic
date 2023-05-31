@@ -166,6 +166,7 @@ public:
     int32_t real_ground_y(zfix fy);
     int32_t real_z(zfix fz);
     int32_t fake_z(zfix fz);
+    virtual bool hit();
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
     virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
