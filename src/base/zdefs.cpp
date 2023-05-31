@@ -2260,52 +2260,6 @@ int32_t viewport_t::bottom() const
 	return y + h;
 }
 
-int32_t rpos_handle_t::pos() const
-{
-	int32_t pos = static_cast<int32_t>(rpos)%176;
-	return pos;
-}
-
-int32_t rpos_handle_t::data() const
-{
-	return screen->data[pos()];
-}
-
-void rpos_handle_t::set_data(int32_t value) const
-{
-	screen->data[pos()] = value;
-}
-
-void rpos_handle_t::increment_data() const
-{
-	screen->data[pos()] += 1;
-}
-
-int32_t rpos_handle_t::cset() const
-{
-	return screen->cset[pos()];
-}
-
-void rpos_handle_t::set_cset(int32_t value) const
-{
-	screen->cset[pos()] = value;
-}
-
-int32_t ffc_handle_t::data() const
-{
-	return ffc->getData();
-}
-
-void ffc_handle_t::set_data(int32_t value) const
-{
-	ffc->setData(value);
-}
-
-void ffc_handle_t::increment_data() const
-{
-	ffc->incData(1);
-}
-
 bool runscript_do_earlyret(int runscript_val)
 {
 	switch(runscript_val)

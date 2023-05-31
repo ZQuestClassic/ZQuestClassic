@@ -403,6 +403,7 @@ set(zcbase_sources
 	src/base/colors.cpp
 	src/base/fonts.cpp
 	src/base/gui.cpp
+	src/base/handles.cpp
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
 	src/base/module.cpp
