@@ -1,4 +1,38 @@
-TODO: document how to build from scratch on windows and osx
+Some prerequisites to building from source:
+
+- CMake (2.24 or later)
+- Install flexbison (Windows, use https://chocolatey.org/: `choco install winflexbison3`)
+- For Windows: Visual Studio 2019 (but later is better)
+
+# Configuring the build
+
+Advanced CMake users can likely skip this section.
+
+You can either use the CMake GUI, or the following command to initialize the build system:
+
+```sh
+cmake -S . -B build
+```
+
+On Windows, this defaults to creating a Visual Studio solution file. You can open that to actually build.
+
+You can also build from the terminal:
+
+```sh
+cmake --build build
+```
+
+Tip: use `-t` to build a single target (instead of everything), and use `--config Release` (or `--config Debug`) to specify the optimization level.
+
+OSX/Linux developers will benefit from using Ninja (this is faster than the default Makefile generator). For a multi-configuration Ninja build, use: `cmake -G 'Ninja Multi-Config' -S . -B build`.
+
+After building, you'll find the executables in `build/{Release|Debug}`.
+
+# Quick-start: Windows with MSVC and CMake GUI
+
+Download CMake and run the CMake GUI. It will prompt your for the location of the source code, and the location in which to build the binaries. Specify the root (the folder containing this file) for the former and the `build` folder for the latter.
+
+Click "Generate." This will create a Visual Studio project file for you in the build directory. You can then open up the project file in MSVC and do editing/compilation/debugging in MSVC. You do not need to touch CMake again unless you want to change project configuration options or add/remove source files.
 
 # Building on Ubuntu
 
