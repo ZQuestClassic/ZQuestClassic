@@ -31,6 +31,8 @@ public:
 	int32_t screen_index;
 	bool initialized, hooked;
 	bool recently_hit;
+	int32_t changer_x = -1000, changer_y = -1000;
+	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
 	
 	ffcdata() = default;
 	ffcdata(ffcdata const& other);

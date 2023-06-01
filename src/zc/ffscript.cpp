@@ -13280,13 +13280,13 @@ void set_register(int32_t arg, int32_t value)
 		case FFCLASTCHANGERX:
 			// TODO z3 ffc
 			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerX") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].last_changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
+				tmpscr.ffcs[ri->ffcref].changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 			
 		case FFCLASTCHANGERY:
 			// TODO z3 ffc
 			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerY") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].last_changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
+				tmpscr.ffcs[ri->ffcref].changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		
 			

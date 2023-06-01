@@ -75,8 +75,8 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 	
 	if(i > -1 && j > -1)
 	{
-		last_changer_x = other.x.getInt();
-		last_changer_y = other.y.getInt();
+		changer_x = other.x.getInt();
+		changer_y = other.y.getInt();
 		if((other.flags&ffSWAPNEXT)||(other.flags&ffSWAPPREV))
 		{
 			int32_t k=0;

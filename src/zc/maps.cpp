@@ -662,20 +662,17 @@ extern portal mirror_portal;
 extern zinitdata zinit;
 bool triggered_screen_secrets=false;
 
-// TODO z3 !!!!!
-int32_t ffprvx[MAXFFCS];
-int32_t ffprvy[MAXFFCS];
+// TODO z3 can this be removed?
 void init_ffpos()
 {
-	for(word q = 0; q < MAXFFCS; ++q)
-	{
-		ffprvx[q] = -10000000;
-		ffprvy[q] = -10000000;
-	}
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		ffc_handle.ffc->changer_x = -1000;
+		ffc_handle.ffc->changer_y = -1000;
+		ffc_handle.ffc->prev_changer_x = -10000000;
+		ffc_handle.ffc->prev_changer_y = -10000000;
+		return true;
+	});
 }
-
-
-
 
 void Z_message_d(const char *format,...)
 {
@@ -3023,10 +3020,10 @@ void update_freeform_combos()
 						continue;
 						
 					// Ignore this changer?
-					if((otherffc.x.getInt()==thisffc.last_changer_x&&otherffc.y.getInt()==thisffc.last_changer_y) || thisffc.flags&ffIGNORECHANGER)
+					if((otherffc.x.getInt()==thisffc.changer_x&&otherffc.y.getInt()==thisffc.changer_y) || thisffc.flags&ffIGNORECHANGER)
 						continue;
 						
-					if((isonline(thisffc.x.getZLong(), thisffc.y.getZLong(), ffprvx[i],ffprvy[i], otherffc.x.getZLong(), otherffc.y.getZLong()) || // Along the line, or...
+					if((isonline(thisffc.x.getZLong(), thisffc.y.getZLong(), thisffc.prev_changer_x, thisffc.prev_changer_y, otherffc.x.getZLong(), otherffc.y.getZLong()) || // Along the line, or...
 						( // At exactly the same position, 
 							(thisffc.x==otherffc.x && thisffc.y==otherffc.y)) 
 							||
@@ -3034,7 +3031,7 @@ void update_freeform_combos()
 							( (thisffc.flags&ffIMPRECISIONCHANGER) && ((abs(thisffc.x.getZLong() - otherffc.x.getZLong()) < 10000) && abs(thisffc.y.getZLong() - otherffc.y.getZLong()) < 10000) )
 						)
 					&& //and...
-						(ffprvx[i]>-10000000 && ffprvy[i]>-10000000)) // This isn't the first frame on this screen
+						(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
 					{
 						thisffc.changerCopy(otherffc, i, j);
 						break;
@@ -3046,15 +3043,15 @@ void update_freeform_combos()
 			{
 				if(thisffc.link&&(thisffc.link-1)!=i)
 				{
-					ffprvx[i] = thisffc.x.getZLong();
-					ffprvy[i] = thisffc.y.getZLong();
+					thisffc.prev_changer_x = thisffc.x.getZLong();
+					thisffc.prev_changer_y = thisffc.y.getZLong();
 					thisffc.x+=tmpscr.ffcs[thisffc.link-1].vx;
 					thisffc.y+=tmpscr.ffcs[thisffc.link-1].vy;
 				}
 				else
 				{
-					ffprvx[i] = thisffc.x.getZLong();
-					ffprvy[i] = thisffc.y.getZLong();
+					thisffc.prev_changer_x = thisffc.x.getZLong();
+					thisffc.prev_changer_y = thisffc.y.getZLong();
 					thisffc.x+=thisffc.vx;
 					thisffc.y+=thisffc.vy;
 					thisffc.vx+=thisffc.ax;
@@ -3088,10 +3085,10 @@ void update_freeform_combos()
 				{
 					thisffc.x = 288+(thisffc.x+32);
 					thisffc.solid_update(false);
-					ffprvy[i] = thisffc.y.getZLong();
+					thisffc.prev_changer_y = thisffc.y.getZLong();
 					// Re-enable previous changer
-					thisffc.last_changer_x = -1000;
-					thisffc.last_changer_y = -1000;
+					thisffc.changer_x = -1000;
+					thisffc.changer_y = -1000;
 				}
 				else if(thisffc.x<-64)
 				{
@@ -3106,9 +3103,9 @@ void update_freeform_combos()
 				{
 					thisffc.x = thisffc.x-288-32;
 					thisffc.solid_update(false);
-					ffprvy[i] = thisffc.y.getZLong();
-					thisffc.last_changer_x = -1000;
-					thisffc.last_changer_y = -1000;
+					thisffc.prev_changer_y = thisffc.y.getZLong();
+					thisffc.changer_x = -1000;
+					thisffc.changer_y = -1000;
 				}
 				else
 				{
@@ -3124,9 +3121,9 @@ void update_freeform_combos()
 				{
 					thisffc.y = 208+(thisffc.y+32);
 					thisffc.solid_update(false);
-					ffprvx[i] = thisffc.x.getZLong();
-					thisffc.last_changer_x = -1000;
-					thisffc.last_changer_y = -1000;
+					thisffc.prev_changer_x = thisffc.x.getZLong();
+					thisffc.changer_x = -1000;
+					thisffc.changer_y = -1000;
 				}
 				else if(thisffc.y<-64)
 				{
@@ -3141,9 +3138,9 @@ void update_freeform_combos()
 				{
 					thisffc.y = thisffc.y-208-32;
 					thisffc.solid_update(false);
-					ffprvy[i] = thisffc.x.getZLong();
-					thisffc.last_changer_x = -1000;
-					thisffc.last_changer_y = -1000;
+					thisffc.prev_changer_y = thisffc.x.getZLong();
+					thisffc.changer_x = -1000;
+					thisffc.changer_y = -1000;
 				}
 				else
 				{
