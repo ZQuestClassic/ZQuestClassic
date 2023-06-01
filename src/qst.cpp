@@ -753,15 +753,15 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 
 	bool id_came_from_compressed_file = false;
 	const char* packfile_password = "";
-	char id[31];
-	id[0] = '\0';
+	char id[32];
+	id[0] = id[31] = '\0';
 	PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
 	if (!pf)
 		pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
 	if (pf)
 	{
 		id_came_from_compressed_file = true;
-		if (!pack_fread(id, sizeof(id), pf))
+		if (!pack_fread(id, sizeof(id)-1, pf))
 		{
 			pack_fclose(pf);
 			Z_message("Unable to read header string\n");
@@ -777,7 +777,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 			*open_error=qe_notfound;
 			return nullptr;
 		}
-		if (!fread(id, sizeof(char), sizeof(id), f))
+		if (!fread(id, sizeof(char), sizeof(id)-1, f))
 		{
 			fclose(f);
 			Z_message("Unable to read header string\n");
