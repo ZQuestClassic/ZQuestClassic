@@ -86,7 +86,7 @@ public:
 	byte wscreengrid_layer[6][22];
 	// (layer, rpos_t)
 	std::set<std::pair<int, rpos_t>> rposes_checked;
-	byte wscreengrid_ffc[MAXFFCS/8];
+	std::set<ffcdata*> ffcs_checked;
 	
 	int16_t death_spawnitem;
 	int16_t death_spawndropset;

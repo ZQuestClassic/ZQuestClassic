@@ -318,10 +318,8 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		return;
 	} 
 	ft = vbound(ft, minSECRET_TYPE, maxSECRET_TYPE); //sanity guard to legal secret types. 44 to 127 are unused
-	byte* grid = w->wscreengrid_ffc;
 	ffcdata* ffc = ffc_handle.ffc;
-	// TODO z3 !
-	if ( !(get_bit(grid,ffc_handle.i)) || (combobuf[cid].usrflags&cflag5) ) 
+	if ( !w->ffcs_checked.contains(ffc) || (combobuf[cid].usrflags&cflag5) ) 
 	{
 		if ((combobuf[cid].usrflags&cflag1)) 
 		{
@@ -416,7 +414,7 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 			addenemy(ffc_handle.screen_index,ffc->x,ffc->y,(combobuf[cid].attribytes[4]),((combobuf[cid].usrflags&cflag13) ? 0 : -15));
 		}
 	}
-	set_bit(grid,ffc_handle.i,1);
+	w->ffcs_checked.insert(ffc);
 	
 	if (combobuf[cid].usrflags&cflag8) killgenwpn(w);
 }
@@ -765,7 +763,7 @@ weapon::weapon(weapon const & other):
 	//}
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 	memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
-	memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
+	// memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	for( int32_t q = 0; q < 8; q++ ) 
 	{
 		weap_initd[q] = other.weap_initd[q];
@@ -1065,7 +1063,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	linkedItem = 0;
 	for ( int32_t q = 0; q < 22; q++ ) wscreengrid[q] = 0;
 		memset(wscreengrid_layer, 0, sizeof(wscreengrid_layer));
-		memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
+		// memset(wscreengrid_ffc, 0, sizeof(wscreengrid_ffc));
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_WEAPON); 
 		
 	ScriptGenerated = script_gen; //t/b/a for script generated swords and other HeroCLass items. 

@@ -2990,7 +2990,6 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	
 	int32_t flag2 = cmb.flag;
 	
-	byte* grid = nullptr;
 	bool check_bit = false;
 	bool used_bit = false;
 	
@@ -3046,9 +3045,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	
 	if(w)
 	{
-		// TODO z3 ! what is this?
-		grid = w->wscreengrid_ffc;
-		check_bit = get_bit(grid, ffc_handle.i);
+		check_bit = w->ffcs_checked.contains(ffc_handle.ffc);
 	}
 	bool dorun = !timer.trig_cd;
 	if(dorun)
@@ -3311,10 +3308,9 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
-		if(used_bit && grid)
+		if (w && used_bit)
 		{
-			// TODO z3 !
-			set_bit(grid,ffc_handle.i,1);
+			w->ffcs_checked.insert(ffc_handle.ffc);
 		}
 	}
 	
