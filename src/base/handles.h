@@ -8,7 +8,7 @@ enum class rpos_t : int32_t {
 };
 
 struct mapscr;
-struct ffcdata;
+class ffcdata;
 
 struct screen_handle_t
 {
