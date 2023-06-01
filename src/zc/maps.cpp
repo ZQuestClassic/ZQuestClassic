@@ -2180,6 +2180,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	return ret;
 }
 
+// TODO z3 !!!
 bool hiddenstair2(mapscr *s,bool redraw)
 {
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
@@ -7184,7 +7185,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 }
 void toggle_gswitches_load(mapscr* base_screen, int screen_index)
 {
-	bool states[256] = {false};
+	bool states[256];
 	for(auto q = 0; q < 256; ++q)
 	{
 		states[q] = game->gswitch_timers[q] != 0;

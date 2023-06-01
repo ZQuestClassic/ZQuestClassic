@@ -539,10 +539,12 @@ void dryuplake()
         
     if((++whistleclk)&7)
         return;
-        
+
+    mapscr* screen = get_screen_for_world_xy(HeroX(), HeroY());
+
     if(whistleclk<88)
     {
-        if(tmpscr.flags7 & fWHISTLEPAL)
+        if(screen->flags7 & fWHISTLEPAL)
         {
             if(!usingdrypal)
             {
@@ -557,9 +559,9 @@ void dryuplake()
     }
     else
     {
-        if(tmpscr.flags & fWHISTLE)
+        if(screen->flags & fWHISTLE)
         {
-            if(hiddenstair2(&tmpscr,true))
+            if(hiddenstair2(screen, true))
             {
                 sfx(tmpscr.secretsfx);
             }
