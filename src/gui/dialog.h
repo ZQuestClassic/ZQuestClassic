@@ -25,6 +25,7 @@ public:
 	
 	inline void show()
 	{
+		clear_keybuf();
 		auto oz = gui_mouse_z();
 		runner = DialogRunner();
 		rerun_dlg = false;

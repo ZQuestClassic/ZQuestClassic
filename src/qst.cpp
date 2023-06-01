@@ -675,11 +675,24 @@ bool valid_zqt(const char *filename)
     }
     
     isvalid=valid_zqt(f);
+	
+	clear_quest_tmpfile();
+	pack_fclose(f);
     
 //  setPackfilePassword(NULL);
     return isvalid;
 }
 
+static std::string tmp_file_name;
+void clear_quest_tmpfile()
+{
+	if(tmp_file_name.size())
+	{
+		if(exists(tmp_file_name.c_str()))
+			delete_file(tmp_file_name.c_str());
+		tmp_file_name.clear();
+	}
+}
 /*
 	.qst file history
 
@@ -723,7 +736,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
         em_fetch_file(filename);
     }
 #endif
-
+	clear_quest_tmpfile();
 	// Note: although this is primarily for loading .qst files, it can also handle all of the
 	// file types mentioned in the comment above. No need to be told if the file being loaded
 	// is encrypted or compressed, we can do some simple and fast checks to determine how to load it.
@@ -777,13 +790,44 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	{
 		// The given file is already just the bottom layer - nothing more to do.
 		// There's no way to rewind a packfile, so just open it again.
-		return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+		if (id_came_from_compressed_file)
+		{
+			return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+		}
+		else
+		{
+			return pack_fopen_password(filename, F_READ, "");
+		}
 	}
 	else if (strstr(id, ENC_STR))
 	{
 		top_layer_compressed = id_came_from_compressed_file;
 		compressed = true;
 		encrypted = true;
+	}
+	else if (id_came_from_compressed_file && strstr(id, "slh!\xff"))
+	{
+		// We must be reading the compressed contents of an allegro dataobject file. ex: `classic_qst.dat#NESQST_NEW_QST`.
+		// Let's extract the content and re-open as a separate file, so allegro will uncompress correctly.
+
+		char tmpfilename[L_tmpnam];
+		std::tmpnam(tmpfilename);
+		FILE* tf = fopen(tmpfilename, "wb");
+		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+
+		int c;
+		while ((c = pack_getc(pf)) != EOF)
+		{
+			fputc(c, tf);
+		}
+		fclose(tf);
+		pack_fclose(pf);
+		
+		tmp_file_name = tmpfilename; //store so it can be cleaned up later
+		
+		// not good: temp file storage leak. Callers don't know to delete temp files anymore.
+		// We should put qsu in the dat file, or use a separate .qst file for new qst.
+		return pack_fopen_password(tmpfilename, F_READ_PACKED, "");
 	}
 	else
 	{
@@ -974,6 +1018,7 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
         {
             jwin_alert("Error","Invalid Quest Template",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
             pack_fclose(f);
+			clear_quest_tmpfile();
             return NULL;
         }
     }
@@ -1046,6 +1091,7 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     if(ret||(version==0))
     {
         pack_fclose(f);
+		clear_quest_tmpfile();
         
         if(deletefilename[0])
         {
@@ -1060,7 +1106,8 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     {
         al_trace("Can't find section!\n");
         pack_fclose(f);
-        
+        clear_quest_tmpfile();
+		
         if(deletefilename[0])
         {
             delete_file(deletefilename);
@@ -1182,7 +1229,8 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     }
     
     pack_fclose(f);
-    
+    clear_quest_tmpfile();
+	
     if(deletefilename[0])
     {
         delete_file(deletefilename);
@@ -3707,6 +3755,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_BROKENHITBY,1);
 	if(compatrule_version < 42)
 		set_bit(quest_rules,qr_BROKEN_MOVING_BOMBS,1);
+	if(compatrule_version < 43)
+		set_bit(quest_rules,qr_OLD_BOMB_HITBOXES,1);
 	
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -18469,6 +18519,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				if(!p_getc(&temp_combo.lifttime,f,true))
 					return qe_invalid;
 			}
+			if(s_version >= 39)
+			{
+				if(!p_getc(&temp_combo.lift_parent_item,f,true))
+					return qe_invalid;
+			}
 		}
 		if(combo_has_flags&CHAS_GENERAL)
 		{
@@ -21497,8 +21552,11 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     int32_t open_error=0;
     PACKFILE *f=open_quest_file(&open_error, filename, show_progress);
     
-    if(!f) 
+    if (!f)
+    {
+        ASSERT(open_error != 0);
         return open_error;
+    }
 	char zinfofilename[2048];
 	replace_extension(zinfofilename, filename, "zinfo", 2047);
     int32_t ret=0;
@@ -22173,6 +22231,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     {
         pack_fclose(f);
     }
+	clear_quest_tmpfile();
     
     if(!oldquest)
     {

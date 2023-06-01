@@ -317,6 +317,12 @@ void item::draw(BITMAP *dest)
 	}
 }
 
+void item::draw_hitbox()
+{
+	if(subscreenItem) return;
+	sprite::draw_hitbox();
+}
+
 item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : sprite()
 {
 	x=X;
@@ -450,6 +456,7 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0);
 	temp.yofs=0;
+	temp.hide_hitbox = true;
 	
 	if ( itemsbuf[item_id].overrideFLAGS > 0 ) {
 		temp.extend = 3; 
@@ -576,6 +583,7 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 	temp.yofs=0;
 	temp.aclk=aclk;
 	temp.aframe=aframe;
+	temp.hide_hitbox = true;
 	
 	if(flash)
 	{

@@ -278,7 +278,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          38
+#define V_COMBOS          39
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            17
@@ -301,7 +301,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       42
+#define V_COMPATRULE       43
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1128,7 +1128,7 @@ enum
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
 	qr_POUNDLAYERS1AND2, qr_MOVINGBLOCK_FAKE_SOLID, qr_NEW_HERO_MOVEMENT2, qr_CARRYABLE_NO_ACROSS_SCREEN,
 	//51
-	qr_NO_SCROLL_WHILE_CARRYING, qr_HELD_BOMBS_EXPLODE, qr_BROKEN_MOVING_BOMBS,
+	qr_NO_SCROLL_WHILE_CARRYING, qr_HELD_BOMBS_EXPLODE, qr_BROKEN_MOVING_BOMBS, qr_OLD_BOMB_HITBOXES,
 	//60
 	//70
 	
@@ -2941,6 +2941,7 @@ struct newcombo
 	byte liftbreaksfx;
 	byte lifthei = 8;
 	byte lifttime = 16;
+	byte lift_parent_item;
 	word prompt_cid;
 	byte prompt_cs;
 	int16_t prompt_x = 12;
@@ -3041,8 +3042,9 @@ struct newcombo
 		if(liftsfx) return false;
 		if(liftbreaksprite != -1) return false;
 		if(liftbreaksfx) return false;
-		if(lifthei) return false;
-		if(lifttime) return false;
+		if(lifthei != 8) return false;
+		if(lifttime != 16) return false;
+		if(lift_parent_item) return false;
 		if(prompt_cid) return false;
 		if(prompt_cs) return false;
 		if(prompt_x != 12) return false;

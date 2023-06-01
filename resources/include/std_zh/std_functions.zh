@@ -3962,6 +3962,7 @@ eweapon FireEWeaponAngle(int type, int x, int y, int radians, int step, int dmg,
 	
 	weap->Angle = radians;
 	weap->Angular = true;
+	weap->Dir = AngleDir8(weap->DegAngle); //For shields
 	return weap;
 }
 eweapon FireEWeaponDegAngle(int type, int x, int y, int degrees, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
@@ -3974,6 +3975,7 @@ eweapon FireEWeaponDegAngle(int type, int x, int y, int degrees, int step, int d
 	
 	weap->DegAngle = degrees;
 	weap->Angular = true;
+	weap->Dir = AngleDir8(degrees); //For shields
 	return weap;
 }
 eweapon FireEWeaponDir(int type, int x, int y, int dir, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
@@ -3996,11 +3998,10 @@ eweapon FireEWeaponAtHero(int type, int x, int y, bool angular, int step, int dm
 	if(sfx) Audio->PlaySound(sfx);
 	
 	weap->Angular = angular;
-	int angle = Angle(x,y,Hero->X,Hero->Y);
+	int degrees = Angle(x,y,Hero->X,Hero->Y);
 	if(angular)
-		weap->Angle = angle;
-	else
-		weap->Dir = AngleDir8(angle);
+		weap->DegAngle = degrees;
+	weap->Dir = AngleDir8(degrees);
 	return weap;
 }
 
@@ -4014,6 +4015,7 @@ lweapon FireLWeaponAngle(int type, int x, int y, int radians, int step, int dmg,
 	
 	weap->Angle = radians;
 	weap->Angular = true;
+	weap->Dir = AngleDir8(weap->DegAngle); //For shields
 	return weap;
 }
 lweapon FireLWeaponDegAngle(int type, int x, int y, int degrees, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)
@@ -4026,6 +4028,7 @@ lweapon FireLWeaponDegAngle(int type, int x, int y, int degrees, int step, int d
 	
 	weap->DegAngle = degrees;
 	weap->Angular = true;
+	weap->Dir = AngleDir8(degrees); //For shields
 	return weap;
 }
 lweapon FireLWeaponDir(int type, int x, int y, int dir, int step, int dmg, int sprite = -1, int sfx = 0, int scriptid = 0, untyped args = NULL)

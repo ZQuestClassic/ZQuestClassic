@@ -1887,7 +1887,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			exit(1);
 		}
 
-		system_pal();
+		enter_sys_pal();
 		std::ostringstream oss;
 		if(ret == qe_no_qst)
 		{
@@ -1906,7 +1906,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			exit(1);
 		}
 		
-		game_pal();
+		exit_sys_pal();
 	}
 	
 	return ret;

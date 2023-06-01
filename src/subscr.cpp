@@ -3112,6 +3112,7 @@ void add_subscr_item(item *newItem)
 {
 	//al_trace("Adding a subscreen item, ID: %d\n",newItem->id); //Logging stuff to remove, later.
     newItem->subscreenItem=true;
+    newItem->hide_hitbox=true;
     Sitems.add(newItem);
 }
 
@@ -4135,6 +4136,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
         {
             Aitem->x=x + viewport.x;
             Aitem->y=y + viewport.y;
+            Aitem->hide_hitbox = true;
             
             switch(itemsbuf[Aitem->id].family)
             {
@@ -4162,6 +4164,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
         {
             Bitem->x=x + viewport.x;
             Bitem->y=y + viewport.y;
+            Bitem->hide_hitbox = true;
             
             switch(itemsbuf[Bitem->id].family)
             {
@@ -4191,6 +4194,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 		//zprint2("Drawing X Item\n");
             Xitem->x=x + viewport.x;
             Xitem->y=y + viewport.y;
+            Xitem->hide_hitbox = true;
             
             switch(itemsbuf[Xitem->id].family)
             {
@@ -4221,6 +4225,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
 		//zprint2("Drawing Y Item\n");
             Yitem->x=x + viewport.x;
             Yitem->y=y + viewport.y;
+            Yitem->hide_hitbox = true;
             
             switch(itemsbuf[Yitem->id].family)
             {

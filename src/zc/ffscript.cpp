@@ -11935,6 +11935,16 @@ int32_t get_register(const int32_t arg)
 			else ret = (combobuf[ri->combosref].lifttime) * 10000;
 			break;
 		}
+		case COMBODLIFTWEAPONITEM:
+		{
+			ret = -10000;
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftWeaponItem: %d\n", (ri->combosref*10000));
+			}
+			else ret = (combobuf[ri->combosref].lift_parent_item) * 10000;
+			break;
+		}
 		case COMBODTRIGGERLSTATE:
 		{
 			ret = -10000;
@@ -22321,6 +22331,15 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftTime: %d\n", (ri->combosref*10000));
 			}
 			else combobuf[ri->combosref].lifttime = vbound(value/10000, 0, 255);
+			break;
+		}
+		case COMBODLIFTWEAPONITEM:
+		{
+			if(ri->combosref < 0 || ri->combosref > (MAXCOMBOS-1) )
+			{
+				Z_scripterrlog("Invalid Combo ID passed to combodata->LiftWeaponItem: %d\n", (ri->combosref*10000));
+			}
+			else combobuf[ri->combosref].lift_parent_item = vbound(value/10000, 0, 255);
 			break;
 		}
 		case COMBODTRIGGERLSTATE:
@@ -41982,7 +42001,7 @@ script_variable ZASMVars[]=
 	{ "HEROLIFTHEIGHT", HEROLIFTHEIGHT, 0, 0 },
 	{ "HEROHAMMERSTATE", HEROHAMMERSTATE, 0, 0 },
 	{ "HEROLIFTFLAGS", HEROLIFTFLAGS, 0, 0 },
-	{ "RESRVD_VAR_EMILY20", RESRVD_VAR_EMILY20, 0, 0 },
+	{ "COMBODLIFTWEAPONITEM", COMBODLIFTWEAPONITEM, 0, 0 },
 	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
 	{ "RESRVD_VAR_EMILY22", RESRVD_VAR_EMILY22, 0, 0 },
 	{ "RESRVD_VAR_EMILY23", RESRVD_VAR_EMILY23, 0, 0 },

@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "base/gui.h"
+#include "base/util.h"
 #include "zq/zq_files.h"
 #include "base/zdefs.h"
 #include "zq/zq_misc.h"
@@ -809,7 +810,9 @@ int32_t onSave()
         return D_O_K;
     }
     
-    int32_t ret = save_quest(filepath, false);
+    bool compress = !UncompressedAutoSaves;
+    if (util::get_ext(temppath) == ".qsu") compress = false;
+    int32_t ret = save_unencoded_quest(filepath, compress, filepath);
     char buf[256+20],name[256];
     extract_name(filepath,name,FILENAMEALL);
     
@@ -835,16 +838,23 @@ void update_recent_quest(char const* path);
 
 int32_t onSaveAs()
 {
+	static EXT_LIST list[] =
+	{
+		{ (char *)"Quest Files (*.qst)", (char *)"qst"                                     },
+		{ (char *)"Unencrypted Quest Files (*.qsu)", (char *)"qsu"                                     },
+		{ NULL,                                                  NULL                                              }
+	};
+
     if(disable_saving)
     {
         jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         return D_O_K;
     }
 #ifdef __EMSCRIPTEN__
-		if(!getname("Save Quest As (.qst)","qst",NULL,get_initial_file_dialog_folder().c_str(),true))
+		if(!getname("Save Quest As (.qst)","qst",list,get_initial_file_dialog_folder().c_str(),true))
         return D_O_K;
 #else
-		if(!getname("Save Quest As (.qst)","qst",NULL,filepath,true))
+		if(!getname("Save Quest As (.qst)","qst",list,filepath,true))
         return D_O_K;
 #endif
         
@@ -862,7 +872,9 @@ int32_t onSaveAs()
         }
     }
     
-    int32_t ret = save_quest(temppath, false);
+    bool compress = !UncompressedAutoSaves;
+    if (util::get_ext(temppath) == ".qsu") compress = false;
+    int32_t ret = save_unencoded_quest(temppath, compress, temppath);
     char buf[1024],name[256];
     extract_name(temppath,name,FILENAMEALL);
     

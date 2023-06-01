@@ -6497,86 +6497,91 @@ killweapon:
 		
 		if((itemsbuf[itemid].flags & ITEM_FLAG2)||(itemid==-1&&get_bit(quest_rules,qr_OUCHBOMBS)))
 		{
-			if(((s->id==wBomb)||(s->id==wSBomb)) && s->hit(this) && !superman && (scriptcoldet&1) && !fallclk)
+			if(((s->id==wBomb)||(s->id==wSBomb)) && !superman && (scriptcoldet&1) && !fallclk)
 			{
-				std::vector<int32_t> &ev = FFCore.eventData;
-				ev.clear();
-				ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
-				ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
-				ev.push_back(0);
-				ev.push_back(DivineProtectionShieldClk>0?10000:0);
-				ev.push_back(48*10000);
-				ev.push_back(ZSD_LWPN*10000);
-				ev.push_back(s->getUID());
-				
-				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
-				int32_t dmg = ev[0]/10000;
-				bool nullhit = ev[2] != 0;
-				
-				if(nullhit) {ev.clear(); return;}
-				
-				//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
-				ev[0] = ringpower(dmg)*10000;
-				
-				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
-				dmg = ev[0]/10000;
-				int32_t hdir = ev[1]/10000;
-				nullhit = ev[2] != 0;
-				bool divineprot = ev[3] != 0;
-				int32_t iframes = ev[4] / 10000;
-				ev.clear();
-				if(nullhit) return;
-				if(!divineprot)
+				weapon* w = (weapon*)s;
+				bool didhit = s->hit(this);
+				if(didhit)
 				{
-					game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
-					if (!get_bit(quest_rules, qr_BROKENHITBY))
+					std::vector<int32_t> &ev = FFCore.eventData;
+					ev.clear();
+					ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
+					ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+					ev.push_back(0);
+					ev.push_back(DivineProtectionShieldClk>0?10000:0);
+					ev.push_back(48*10000);
+					ev.push_back(ZSD_LWPN*10000);
+					ev.push_back(s->getUID());
+					
+					throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+					int32_t dmg = ev[0]/10000;
+					bool nullhit = ev[2] != 0;
+					
+					if(nullhit) {ev.clear(); return;}
+					
+					//Args: 'damage (post-ring)','hitdir','nullifyhit','type:npc','npc uid'
+					ev[0] = ringpower(dmg)*10000;
+					
+					throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+					dmg = ev[0]/10000;
+					int32_t hdir = ev[1]/10000;
+					nullhit = ev[2] != 0;
+					bool divineprot = ev[3] != 0;
+					int32_t iframes = ev[4] / 10000;
+					ev.clear();
+					if(nullhit) return;
+					if(!divineprot)
 					{
-						sethitHeroUID(HIT_BY_LWEAPON,(i+1));
-						if (get_bit(quest_rules, qr_BROKENHITBY))
+						game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
+						if (!get_bit(quest_rules, qr_BROKENHITBY))
 						{
-							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+							sethitHeroUID(HIT_BY_LWEAPON,(i+1));
+							if (get_bit(quest_rules, qr_BROKENHITBY))
+							{
+								sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+							}
+							else
+							{
+								
+								sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+							}
+							sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+							sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
+							if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+							else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
+							sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+						}
+					}
+					
+					hitdir = hdir;
+					
+					if (action != rafting && action != freeze && action != sideswimfreeze)
+					{
+						if (IsSideSwim())
+						{
+							action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
+						}
+						else if (action == swimming || hopclk == 0xFF)
+						{
+							action=swimhit; FFCore.setHeroAction(swimhit);
 						}
 						else
 						{
-							
-							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+							action=gothit; FFCore.setHeroAction(gothit);
 						}
-						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
-						sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
-						if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
-						else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
 					}
-				}
-				
-				hitdir = hdir;
-				
-				if (action != rafting && action != freeze && action != sideswimfreeze)
-				{
-			if (IsSideSwim())
-			{
-				action=sideswimhit; FFCore.setHeroAction(sideswimhit); 
-			}
-			else if (action == swimming || hopclk == 0xFF)
-			{
-				action=swimhit; FFCore.setHeroAction(swimhit);
-			}
-			else
-			{
-				action=gothit; FFCore.setHeroAction(gothit);
-			}
-				}
+						
+					if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
+					{
+						spins = charging = attackclk = 0;
+						attack=none;
+						tapping = false;
+					}
 					
-				if(charging > 0 || spins > 0 || attack == wSword || attack == wHammer)
-				{
-					spins = charging = attackclk = 0;
-					attack=none;
-					tapping = false;
+					hclk=iframes;
+					sfx(getHurtSFX(),pan(x.getInt()));
+					return;
 				}
-				
-				hclk=iframes;
-				sfx(getHurtSFX(),pan(x.getInt()));
-				return;
 			}
 		}
 		

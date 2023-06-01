@@ -6,12 +6,14 @@
 #include "tiles.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include "items.h"
 #include <fmt/format.h>
 
 extern bool saved;
 extern zcmodule moduledata;
 extern newcombo *combobuf;
 extern comboclass *combo_class_buf;
+extern itemdata *itemsbuf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
@@ -85,6 +87,25 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_lift_parent_items(GUI::ZCListData::items(true).filter(
+		[&](GUI::ListItem& itm)
+		{
+			if(itm.value == 0) //Remove item 0
+				return false;
+			if(itm.value == -1) //Change the none value to 0
+				itm.value = 0;
+			else switch(itemsbuf[itm.value].family) //Limit valid item types
+			{
+				case itype_bomb:
+					itm.text += fmt::format(" [{}]",ZI.getWeapName(wLitBomb));
+					break;
+				case itype_sbomb:
+					itm.text += fmt::format(" [{}]",ZI.getWeapName(wLitSBomb));
+					break;
+				default: return false;
+			}
+			return true;
+		})),
 	list_deftypes(GUI::ZCListData::deftypes())
 {}
 
@@ -1358,7 +1379,9 @@ void ComboEditorDialog::loadComboType()
 			l_attribyte[5] = "Script:";
 			h_attribyte[5] = "LWeapon or EWeapon script ID to attach to the fired weapons."
 				"\nNote that there is no way to supply InitD to such scripts.";
-			
+			l_attribyte[6] = "Parent Item:";
+			h_attribyte[6] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
+				"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
 			//short[0],[1] : Rate
 			l_attrishort[2] = "Damage:";
 			h_attrishort[2] = "The damage of the spawned weapon";
@@ -1631,6 +1654,9 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[2] = "Direction for the weapon. 0-7 are the standard dirs, 8+ selects a random dir.";
 				l_attribyte[3] = "Wpn Sprite:";
 				h_attribyte[3] = "The 'Sprite Data' sprite to use for the spawned weapon. Only valid if 1 to 255.";
+				l_attribyte[4] = "Parent Item:";
+				h_attribyte[4] = "The item ID to use as the 'parent item' of the weapon. Only used for LWeapons. 0 = no parent."
+					"\nThis affects various attributes of certain lweapons, such as a bomb's fuse.";
 			}
 			break;
 		}
@@ -1965,7 +1991,7 @@ static const GUI::ListData listdata_lift_gfx
 #define SPR_LAB_WID 10_em
 #define ACTION_LAB_WID 6_em
 #define ACTION_FIELD_WID 6_em
-#define FLAGS_WID 16_em
+#define FLAGS_WID 18_em
 
 static std::shared_ptr<GUI::Widget> NUM_FIELD_IMPL(word* data, word min, word max)
 {
@@ -3230,8 +3256,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 										local_comboref.liftbreaksprite = val;
 									}
 								),
-								
-							Row(padding = 0_px,
+							Rows<3>(padding = 0_px,
 								Label(text = "Lift SFX:"),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_comboref.liftsfx,
@@ -3239,9 +3264,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftsfx = val;
 									}),
-								INFOBTN("The sfx to play when lifted")
-							),
-							Row(padding = 0_px,
+								INFOBTN("The sfx to play when lifted"),
 								Label(text = "Break SFX:"),
 								DropDownList(data = list_sfx,
 									fitParent = true, selectedValue = local_comboref.liftbreaksfx,
@@ -3249,7 +3272,15 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 									{
 										local_comboref.liftbreaksfx = val;
 									}),
-								INFOBTN("The sfx to play when the object breaks")
+								INFOBTN("The sfx to play when the object breaks"),
+								Label(text = "Lift Weapon:"),
+								DropDownList(data = list_lift_parent_items,
+									fitParent = true, selectedValue = local_comboref.lift_parent_item,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.lift_parent_item = val;
+									}),
+								INFOBTN("What item to use to create the lift weapon. If '(None)', a basic 'Thrown' weapon will be created from the lift glove item.")
 							)
 						)
 					),

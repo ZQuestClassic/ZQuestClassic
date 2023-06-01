@@ -18,6 +18,7 @@
 #include "base/zdefs.h"
 #include "sprite.h"
 #include "zfix.h"
+#include <set>
 
 /**************************************/
 /***********  Weapon Class  ***********/
@@ -143,8 +144,15 @@ public:
     byte ScriptGenerated; //Used to permit creating HeroClass weapons, or other weapon types that the engine does not control.
     byte isLWeapon;
 	bool weapon_dying_frame; //a last_hurrah for weapons -Em
+	bool rundeath; //run death effects
 	int weap_timeout;
     byte specialinfo;
+	
+	int shd_aclk, shd_aframe;
+	
+	
+	
+	void do_death_fx();
     void convertType(bool toLW);
     weapon(weapon const &other);
     //weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t Dir, int32_t Parentid, int32_t prntid, bool isDummy=false);
@@ -163,9 +171,11 @@ public:
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     void limited_animate();
     virtual bool animate(int32_t index);
+	void getBombPoses(std::set<int>& poses);
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);
     virtual void onhit(bool clipped, int32_t special, int32_t herodir, enemy* e = NULL, int32_t ehitType = -1);
     // override hit detection to check for invicibility, etc
+    virtual bool hit();
     virtual bool hit(sprite *s);
     virtual bool hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz,int32_t tysz,int32_t tzsz);
 	virtual bool hit(int32_t tx,int32_t ty,int32_t txsz,int32_t tysz);
@@ -173,6 +183,7 @@ public:
     virtual void update_weapon_frame(int32_t change, int32_t orig);
 	virtual int32_t run_script(int32_t mode);
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;
+	virtual void draw_hitbox();
 };
 
 int32_t MatchComboTrigger(weapon *w, newcombo *c, int32_t comboid);
