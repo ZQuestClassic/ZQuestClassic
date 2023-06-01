@@ -3253,9 +3253,9 @@ static const int sbombxoff[] = { -8,  8,-24, -8,  8, 24,-32,-16,  0, 16, 32,-24,
 static const int sbombyoff[] = {-32,-32,-16,-16,-16,-16,  0,  0,  0,  0,  0, 16, 16, 16, 16, 32, 32};
 static const int bombcount = 7;
 static const int sbombcount = 17;
-void weapon::getBombPoses(std::set<int>& poses)
+std::set<rpos_t> weapon::getBombPositions()
 {
-	poses.clear();
+	std::set<rpos_t> rposes;
 	int parentid = parentitem < 0 ? -1 : parentitem;
 	itemdata const& itm = itemsbuf[parentid];
 	if(parentid < 0 || itm.misc7 < 1) //standard pattern
@@ -3266,23 +3266,30 @@ void weapon::getBombPoses(std::set<int>& poses)
 			int tx = x+(sbomb?sbombxoff:bombxoff)[q];
 			int ty = y-fakez+(sbomb?sbombyoff:bombyoff)[q];
 			
-			poses.insert(COMBOPOS(tx,ty));
-			poses.insert(COMBOPOS(tx+15,ty));
-			poses.insert(COMBOPOS(tx,ty+15));
-			poses.insert(COMBOPOS(tx+15,ty+15));
+			rposes.insert(COMBOPOS_REGION(tx,ty));
+			rposes.insert(COMBOPOS_REGION(tx+15,ty));
+			rposes.insert(COMBOPOS_REGION(tx,ty+15));
+			rposes.insert(COMBOPOS_REGION(tx+15,ty+15));
 		}
 	}
 	else //radius
 	{
 		int rad = itm.misc7;
 		int tx = x, ty = y-fakez;
-		poses.insert(COMBOPOS(tx+8,ty+8)); //always hits at least 1 combo
-		for(int q = 0; q < 176; ++q)
+		rposes.insert(COMBOPOS_REGION(tx+8,ty+8)); //always hits at least 1 combo
+		// TODO z3 this is crazy inefficient
+		for (int q = 0; q <= (int)region_max_rpos; ++q)
 		{
-			if(distance(tx,ty,COMBOX(q),COMBOY(q)) <= rad)
-				poses.insert(q);
+			rpos_t rpos = (rpos_t)q;
+			int x, y;
+			COMBOXY_REGION(rpos, x, y);
+
+			if (distance(tx,ty,x,y) <= rad)
+				rposes.insert(rpos);
 		}
 	}
+
+	return rposes;
 }
 
 void weapon::limited_animate()
@@ -3367,15 +3374,16 @@ void weapon::limited_animate()
 				}
 				else
 				{
-					// TODO z3 !!
 					bool sbomb = (id==wSBomb || id==wLitSBomb);
-					std::set<int> poses;
-					getBombPoses(poses);
-					for(int pos : poses)
+					std::set<rpos_t> rposes = getBombPositions();
+					for (rpos_t rpos : rposes)
 					{
-						trigger_secrets_if_flag(COMBOX(pos),COMBOY(pos),mfBOMB,true);
-						if(sbomb) trigger_secrets_if_flag(COMBOX(pos),COMBOY(pos),mfSBOMB,true);
-						trigger_secrets_if_flag(COMBOX(pos),COMBOY(pos),mfSTRIKE,true);
+						int x, y;
+						COMBOXY_REGION(rpos, x, y);
+
+						trigger_secrets_if_flag(x,y,mfBOMB,true);
+						if(sbomb) trigger_secrets_if_flag(x,y,mfSBOMB,true);
+						trigger_secrets_if_flag(x,y,mfSTRIKE,true);
 					}
 				}
 			}
@@ -7593,14 +7601,16 @@ void weapon::findcombotriggers()
 	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		bool sbomb = id == wSBomb || id == ewSBomb;
-		std::set<int> poses;
-		getBombPoses(poses);
-		for(int pos : poses)
+		std::set<rpos_t> rposes = getBombPositions();
+		for (rpos_t rpos : rposes)
 		{
+			int x, y;
+			COMBOXY_REGION(rpos, x, y);
+
 			for (int32_t ly = 0; ly < layercount; ++ly )
-				MatchComboTrigger2(this, COMBOX(pos), COMBOY(pos), combobuf, ly);
+				MatchComboTrigger2(this, x, y, combobuf, ly);
 			if(misc_wflags & WLFLAG_BURNFLAGS)
-				triggerfire(COMBOX(pos), COMBOY(pos), true,
+				triggerfire(x, y, true,
 					misc_wflags&WFLAG_BURN_ANYFIRE,
 					misc_wflags&WFLAG_BURN_STRONGFIRE,
 					misc_wflags&WFLAG_BURN_MAGICFIRE,

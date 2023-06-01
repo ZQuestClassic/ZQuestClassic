@@ -171,7 +171,7 @@ public:
     virtual bool blocked(int32_t xOffset, int32_t yOffset);
     void limited_animate();
     virtual bool animate(int32_t index);
-	void getBombPoses(std::set<int>& poses);
+	std::set<rpos_t> getBombPositions();
     virtual void onhit(bool clipped, enemy* e = NULL, int32_t ehitType = -1);
     virtual void onhit(bool clipped, int32_t special, int32_t herodir, enemy* e = NULL, int32_t ehitType = -1);
     // override hit detection to check for invicibility, etc
