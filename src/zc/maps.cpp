@@ -6299,6 +6299,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	return _walkflag_new(x, y, switchblockstate) || (cnt != 1 && _walkflag_new(x + 8, y, switchblockstate));
 }
 
+// TODO z3 rename
 bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 {
 	mapscr* s0 = get_screen_for_world_xy(x, y);
@@ -6335,8 +6336,7 @@ bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
-	// TODO z3
-	if (is_z3_scrolling_mode())
+	// if (is_z3_scrolling_mode())
 	{
 		int max_x = world_w;
 		int max_y = world_h;
@@ -6351,6 +6351,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 		if (y >= max_y) return false;
 		return _effectflag_new(x, y, layer) || (cnt == 2 && _effectflag_new(x + 8, y, layer));
 	}
+	// TODO z3 !! rm
 
 	int max_x = world_w;
 	int max_y = world_h;

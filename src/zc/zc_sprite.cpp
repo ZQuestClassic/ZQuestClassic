@@ -366,6 +366,7 @@ bool movingblock::check_hole() const
 	return false;
 }
 
+// TODO z3 blocks
 bool movingblock::animate(int32_t)
 {
 	if (x > world_w || y > world_h)
