@@ -69,16 +69,12 @@ extern string zScript;
 
 zmap Map;
 int32_t prv_mode=0;
-int16_t ffposx[MAXFFCS];
-int16_t ffposy[MAXFFCS];
 int32_t ffprvx[MAXFFCS];
 int32_t ffprvy[MAXFFCS];
 void init_ffpos()
 {
     for (word q = 0; q < MAXFFCS; ++q)
     {
-        ffposx[q] = -1000;
-        ffposy[q] = -1000;
         ffprvx[q] = -10000000;
         ffprvy[q] = -10000000;
     }
@@ -5429,7 +5425,7 @@ void zmap::update_freeform_combos()
                 {
                     if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].getData() != 0)
                     {
-                        if((((prvscr.ffcs[j].x.getInt())!=ffposx[i])||((prvscr.ffcs[j].y.getInt())!=ffposy[i]))&&(prvscr.ffcs[i].link==0))
+                        if((((prvscr.ffcs[j].x.getInt())!=prvscr.ffcs[i].last_changer_x)||((prvscr.ffcs[j].y.getInt())!=prvscr.ffcs[i].last_changer_y))&&(prvscr.ffcs[i].link==0))
                         {
                             if((isonline(prvscr.ffcs[i].x.getZLong(),prvscr.ffcs[i].y.getZLong(),ffprvx[i],ffprvy[i],prvscr.ffcs[j].x.getZLong(),prvscr.ffcs[j].y.getZLong())||
                                     ((prvscr.ffcs[i].x.getZLong()==prvscr.ffcs[j].x.getZLong())&&(prvscr.ffcs[i].y.getZLong()==prvscr.ffcs[j].y.getZLong())))&&(ffprvx[i]>-10000000&&ffprvy[i]>-10000000))
@@ -5468,8 +5464,8 @@ void zmap::update_freeform_combos()
                                 else prvscr.ffcs[i].flags=prvscr.ffcs[j].flags;
                                 
                                 prvscr.ffcs[i].flags&=~ffCHANGER;
-                                ffposx[i]=(prvscr.ffcs[j].x.getInt());
-                                ffposy[i]=(prvscr.ffcs[j].y.getInt());
+                                prvscr.ffcs[i].last_changer_x=(prvscr.ffcs[j].x.getInt());
+                                prvscr.ffcs[i].last_changer_y=(prvscr.ffcs[j].y.getInt());
                                 
                                 if(combobuf[prvscr.ffcs[j].getData()].flag>15 && combobuf[prvscr.ffcs[j].getData()].flag<32)
                                 {
@@ -5692,8 +5688,6 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
     }
     
     //also reset FFC information (so that changers will work correctly) -DD
-    memset(ffposx,0xFF,sizeof(int16_t)*32);
-    memset(ffposy,0xFF,sizeof(int16_t)*32);
     memset(ffprvx,0xFF,sizeof(float)*32);
     memset(ffprvy,0xFF,sizeof(float)*32);
 }

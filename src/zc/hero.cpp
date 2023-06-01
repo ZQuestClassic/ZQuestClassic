@@ -9674,7 +9674,6 @@ heroanimate_skip_liftwpn:;
 	
 	awarp=false;
 	
-	// TODO z3 ffc
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
@@ -9716,7 +9715,7 @@ heroanimate_skip_liftwpn:;
 		
 		if(awarp)
 		{
-			if(tmpscr.flags5&fDIRECTAWARP)
+			if(ffc_handle.screen->flags5&fDIRECTAWARP)
 			{
 				didpit=true;
 				pitx=x;
@@ -9724,6 +9723,7 @@ heroanimate_skip_liftwpn:;
 			}
 			
 			sdir = dir;
+			// TODO z3 warp
 			dowarp(1,ind);
 			return false;
 		}
@@ -27281,13 +27281,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
 	actiontype lastaction = action;
 	{
-		int dx = 0;
-		int dy = 0;
-		if (scrolldir == up)    dy = -1;
-		if (scrolldir == down)  dy = 1;
-		if (scrolldir == left)  dx = -1;
-		if (scrolldir == right) dx = 1;
-
 		ALLOFF(false, false);
 		// for now, restore Hero's previous action
 		if(!get_bit(quest_rules, qr_SCROLLING_KILLS_CHARGE))

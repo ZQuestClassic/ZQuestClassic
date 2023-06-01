@@ -307,8 +307,6 @@ bool displayOnMap(int32_t x, int32_t y);
 void ViewMap();
 int32_t onViewMap();
 
-extern int16_t ffposx[MAXFFCS];
-extern int16_t ffposy[MAXFFCS];
 extern int32_t ffprvx[MAXFFCS];
 extern int32_t ffprvy[MAXFFCS];
 void init_ffpos();

@@ -20,6 +20,7 @@ public:
 	int32_t hxsz=16,hysz=16,hxofs,hyofs;
 	int32_t sxofs,syofs,sxsz_ofs,sysz_ofs;
 	int32_t solidflags, dir=-1;
+	int32_t last_changer_x = -1000, last_changer_y = -1000;
 	bool switch_hooked;
 	
 	virtual bool setSolid(bool set);

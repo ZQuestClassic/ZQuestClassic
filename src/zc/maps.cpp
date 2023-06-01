@@ -662,16 +662,13 @@ extern portal mirror_portal;
 extern zinitdata zinit;
 bool triggered_screen_secrets=false;
 
-int16_t ffposx[MAXFFCS];
-int16_t ffposy[MAXFFCS];
+// TODO z3 !!!!!
 int32_t ffprvx[MAXFFCS];
 int32_t ffprvy[MAXFFCS];
 void init_ffpos()
 {
 	for(word q = 0; q < MAXFFCS; ++q)
 	{
-		ffposx[q] = -1000;
-		ffposy[q] = -1000;
 		ffprvx[q] = -10000000;
 		ffprvy[q] = -10000000;
 	}
@@ -2990,7 +2987,7 @@ void update_freeform_combos()
 	ffscript_engine(false);
 	if ( !FFCore.system_suspend[susptUPDATEFFC] )
 	{
-		// TODO z3 ffc
+		// TODO z3 !!!!! ffc
 		word c = tmpscr.numFFC();
 		for(word i=0; i<c; i++)
 		{
@@ -3025,8 +3022,8 @@ void update_freeform_combos()
 					if(!(otherffc.flags&ffCHANGER))
 						continue;
 						
-					// Ignore this changer? (ffposx and ffposy are last changer position)
-					if((otherffc.x.getInt()==ffposx[i]&&otherffc.y.getInt()==ffposy[i]) || thisffc.flags&ffIGNORECHANGER)
+					// Ignore this changer?
+					if((otherffc.x.getInt()==thisffc.last_changer_x&&otherffc.y.getInt()==thisffc.last_changer_y) || thisffc.flags&ffIGNORECHANGER)
 						continue;
 						
 					if((isonline(thisffc.x.getZLong(), thisffc.y.getZLong(), ffprvx[i],ffprvy[i], otherffc.x.getZLong(), otherffc.y.getZLong()) || // Along the line, or...
@@ -3092,8 +3089,9 @@ void update_freeform_combos()
 					thisffc.x = 288+(thisffc.x+32);
 					thisffc.solid_update(false);
 					ffprvy[i] = thisffc.y.getZLong();
-					ffposx[i]=-1000; // Re-enable previous changer
-					ffposy[i]=-1000;
+					// Re-enable previous changer
+					thisffc.last_changer_x = -1000;
+					thisffc.last_changer_y = -1000;
 				}
 				else if(thisffc.x<-64)
 				{
@@ -3109,8 +3107,8 @@ void update_freeform_combos()
 					thisffc.x = thisffc.x-288-32;
 					thisffc.solid_update(false);
 					ffprvy[i] = thisffc.y.getZLong();
-					ffposx[i]=-1000;
-					ffposy[i]=-1000;
+					thisffc.last_changer_x = -1000;
+					thisffc.last_changer_y = -1000;
 				}
 				else
 				{
@@ -3127,8 +3125,8 @@ void update_freeform_combos()
 					thisffc.y = 208+(thisffc.y+32);
 					thisffc.solid_update(false);
 					ffprvx[i] = thisffc.x.getZLong();
-					ffposx[i]=-1000;
-					ffposy[i]=-1000;
+					thisffc.last_changer_x = -1000;
+					thisffc.last_changer_y = -1000;
 				}
 				else if(thisffc.y<-64)
 				{
@@ -3144,8 +3142,8 @@ void update_freeform_combos()
 					thisffc.y = thisffc.y-208-32;
 					thisffc.solid_update(false);
 					ffprvy[i] = thisffc.x.getZLong();
-					ffposx[i]=-1000;
-					ffposy[i]=-1000;
+					thisffc.last_changer_x = -1000;
+					thisffc.last_changer_y = -1000;
 				}
 				else
 				{
