@@ -370,15 +370,15 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 		{
 			items.add(new item(ffc->x, ffc->y,
 				(zfix)0,
-				tmpscr.catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[tmpscr.catchall].family==itype_triforcepiece ||
-				(tmpscr.flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0),0));
+				ffc_handle.screen->catchall,ipONETIME2|ipBIGRANGE|((itemsbuf[ffc_handle.screen->catchall].family==itype_triforcepiece ||
+				(ffc_handle.screen->flags3&fHOLDITEM)) ? ipHOLDUP : 0) | ((ffc_handle.screen->flags8&fITEMSECRET) ? ipSECRETS : 0),0));
 		}
 		//screen secrets
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(ffc_handle);
-			ffc->setData(tmpscr.secretcombo[ft]);
-			ffc->cset = tmpscr.secretcset[ft];
+			ffc->setData(ffc_handle.screen->secretcombo[ft]);
+			ffc->cset = ffc_handle.screen->secretcset[ft];
 			screen_ffc_modify_postroutine(ffc_handle);
 			if ( combobuf[cid].attribytes[2] > 0 )
 				sfx(combobuf[cid].attribytes[2],int32_t(ffc->x));
@@ -394,8 +394,8 @@ void do_generic_combo_ffc(weapon *w, const ffc_handle_t& ffc_handle, int32_t cid
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc->setData(tmpscr.undercombo);
-					ffc->cset = tmpscr.undercset;	
+					ffc->setData(ffc_handle.screen->undercombo);
+					ffc->cset = ffc_handle.screen->undercset;	
 				}
 				else
 					ffc->setData(vbound(ffc->getData()+1,0,MAXCOMBOS));
@@ -426,7 +426,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 {
 	if (screenIsScrolling()) return;
 	if(w->weapon_dying_frame) return;
-	if(unsigned(bx) > 255 || unsigned(by) > 175) return;
+	if(unsigned(bx) > world_w-1 || unsigned(by) > world_h-1) return;
 	if (!layer)
 	{
 		if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
