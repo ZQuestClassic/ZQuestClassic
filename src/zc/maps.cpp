@@ -426,6 +426,8 @@ mapscr* get_screen_for_rpos(rpos_t rpos)
 }
 
 // Note: layer=0 is the base screen, 1 is the first layer, etc.
+// TODO rename get_screen_layer_for_world_xy
+// TODO z3 de-dupe this and get_layer_scr_for_xy
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer)
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);

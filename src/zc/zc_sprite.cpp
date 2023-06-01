@@ -345,40 +345,21 @@ bool is_push(mapscr* m, int32_t pos)
 
 bool movingblock::check_hole() const
 {
-	mapscr* m = FFCore.tempScreens[blockLayer];
-	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
-	if((m->sflag[combopos]==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
+	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
+	size_t combopos = rpos_handle.pos();
+	if ((rpos_handle.screen->sflag[combopos]==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
 		return true;
-	else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
-	{
-		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
-		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
-		{
-			if(lyr==blockLayer) continue;
-			if((FFCore.tempScreens[lyr]->sflag[combopos]==mfBLOCKHOLE)
-				|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
-				return true;
-		}
-	}
-	return false;
-}
 
-bool movingblock::check_trig() const
-{
-	mapscr* m = FFCore.tempScreens[blockLayer];
-	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
-	if(fallclk || drownclk)
-		return false;
-	if((m->sflag[combopos]==mfBLOCKTRIGGER)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKTRIGGER)
-		return true;
-	else if(!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+	if (!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
 	{
-		auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
-		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
+		int maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+		for (int lyr = 0; lyr <= maxLayer; ++lyr)
 		{
 			if(lyr==blockLayer) continue;
-			if(FFCore.tempScreens[lyr]->sflag[combopos] == mfBLOCKTRIGGER
-				|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
+
+			mapscr* m2 = get_layer_scr(currmap, rpos_handle.screen_index, lyr - 1);
+			if ((m2->sflag[combopos]==mfBLOCKHOLE)
+				|| MAPCOMBOFLAG2(lyr-1,x,y)==mfBLOCKHOLE)
 				return true;
 		}
 	}
@@ -389,8 +370,6 @@ bool movingblock::animate(int32_t)
 {
 	if (x > world_w || y > world_h)
 	{
-		// TODO z3 !
-		// movingblock keeps animating even when moving to a different screen ...
 		return false;
 	}
 

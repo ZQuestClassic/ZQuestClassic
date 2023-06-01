@@ -296,7 +296,6 @@ public:
     void push(zfix bx,zfix by,int32_t d,int32_t f);
     void push_new(zfix bx,zfix by,int32_t d,int32_t f,zfix spd);
 	bool check_hole() const;
-	bool check_trig() const;
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
 };
