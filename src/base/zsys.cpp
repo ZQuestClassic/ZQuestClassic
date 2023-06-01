@@ -287,7 +287,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
-    exit(1);
+    abort();
 }
 
 void Z_error(const char *format,...)

@@ -1656,7 +1656,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	{
 		if(replay_is_active())
 		{
-			exit(1);
+			abort();
 		}
 
 		enter_sys_pal();
@@ -1675,7 +1675,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		
 		if(standalone_mode)
 		{
-			exit(1);
+			abort();
 		}
 		
 		exit_sys_pal();
@@ -4283,9 +4283,7 @@ int32_t onFullscreen()
 		success=setGraphicsMode(windowed);
 		if(!success)
 		{
-		    Z_message("Failed to set video mode.\n");
-		    Z_message(allegro_error);
-		    exit(1);
+			Z_error_fatal("Failed to set video mode. allegro_error: %s\n", allegro_error);
 		}
 	    }
 	    
@@ -4772,7 +4770,7 @@ int main(int argc, char **argv)
 	
 	if((datafile=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
 	{
-		Z_error_fatal("failed");
+		Z_error_fatal("failed to load zelda_dat");
 	}
 	
 	if(strncmp((char*)datafile[0].dat,zeldadat_sig,24))
@@ -4787,7 +4785,7 @@ int main(int argc, char **argv)
 	
 	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
 	{
-		Z_error_fatal("failed");
+		Z_error_fatal("failed to load fonts");
 	}
 	if(fontsdat_cnt != FONTSDAT_CNT)
 	{
@@ -4808,7 +4806,7 @@ int main(int argc, char **argv)
 	
 	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
 	{
-		Z_error_fatal("failed");
+		Z_error_fatal("failed to load sfx_dat");
 	}
 	
 	if(strncmp((char*)sfxdata[0].dat,sfxdat_sig,22) || sfxdata[Z35].type != DAT_ID('S', 'A', 'M', 'P'))
@@ -5888,22 +5886,6 @@ bool isSideViewHero(int32_t t)
 int32_t d_timer_proc(int32_t, DIALOG *, int32_t)
 {
     return D_O_K;
-}
-
-
-void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
-{
-    if(!e)
-    {
-        //for best results set a breakpoint in here.
-        char buf[1024];
-        sprintf(buf, "ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
-        
-        al_trace("%s", buf);
-        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("%s", buf);
-        //exit(-1); //flashing lights are probably enough.
-    }
 }
 
 #ifdef __EMSCRIPTEN__

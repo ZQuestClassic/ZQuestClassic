@@ -216,7 +216,7 @@ char *byte_conversion(int32_t number, int32_t format)
         break;
         
     default:
-        exit(1);
+        abort();
         break;
     }
     
@@ -288,7 +288,7 @@ char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_
         break;
         
     default:
-        exit(1);
+        abort();
         break;
     }
     
@@ -311,7 +311,7 @@ char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_
         break;
         
     default:
-        exit(1);
+        abort();
         break;
     }
     

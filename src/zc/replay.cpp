@@ -610,7 +610,7 @@ static void load_replay(std::filesystem::path path)
     if (!file.is_open())
     {
         fprintf(stderr, "could not open file: %s\n", path.string().c_str());
-        exit(1);
+        abort();
     }
 
     KeyMapReplayStep key_map = KeyMapReplayStep::make(0);

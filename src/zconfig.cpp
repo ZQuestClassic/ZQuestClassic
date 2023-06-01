@@ -18,7 +18,7 @@ char const* get_config_file_name(App a)
 		case App::zscript: return "zscript.cfg";
 #endif
 		case App::launcher: return "zcl.cfg";
-		default: exit(1);
+		default: abort();
 	}
 }
 char const* get_config_base_name(App a)
@@ -31,7 +31,7 @@ char const* get_config_base_name(App a)
 		case App::zquest: return "base_config/zquest.cfg";
 		case App::zscript: return "base_config/zscript.cfg";
 		case App::launcher: return "base_config/zcl.cfg";
-		default: exit(1);
+		default: abort();
 	}
 }
 

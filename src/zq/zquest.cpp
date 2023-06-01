@@ -1613,10 +1613,7 @@ int32_t onFullScreen()
 	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
 	    if(ret!=0)
 	    {
-			Z_message("Can't set video mode (%d).\n", ret);
-			Z_message(allegro_error);
-			// quit_game();
-			exit(1);
+			Z_error_fatal("Failed to set video mode: %d. allegro_error: %s\n", ret, allegro_error);
 	    }
 	    
 	    gui_mouse_focus=0;
@@ -29234,28 +29231,6 @@ int32_t main(int32_t argc,char **argv)
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
 	
-	/*
-		// Initialize SDL
-		if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-			fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
-			return(1);
-		}
-	
-		// Initialize the display
-		int32_t w=LARGE_W, h=LARGE_H;
-		int32_t desired_bpp=8;
-		Uint32 video_flags=SDL_HWSURFACE|SDL_HWPALETTE;
-		sdl_screen = SDL_SetVideoMode(w, h, desired_bpp, video_flags);
-		if ( sdl_screen == NULL ) {
-			fprintf(stderr, "Couldn't set %dx%dx%d video mode: %s\n",
-						w, h, desired_bpp, SDL_GetError());
-			exit(1);
-		}
-	
-		// Set the window manager title bar
-		SDL_WM_SetCaption("SDL test window", "testwin");
-	*/
-	
 	//FFScript::init();
 	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
 	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
@@ -30309,17 +30284,8 @@ int32_t main(int32_t argc,char **argv)
 	
 #ifdef _WIN32
 	
-		try   // I *think* it might throw here.
-		{
 			if(zqUseWin32Proc != FALSE)
 				win32data.Update(Frameskip); //experimental win32 fixes
-		}
-		catch(...)
-		{
-			set_gfx_mode(GFX_TEXT,0,0,0,0);
-			allegro_message("ZQ-Windows Fatal Error: Set \"zq_win_proc_fix = 0\" in config file.");
-			exit(1);
-		}
 		
 #endif
 		check_autosave();
@@ -32702,21 +32668,6 @@ void ZQ_ClearQuestPath()
 {
 	zc_set_config("zquest","win_last_quest",(char const*)nullptr);
 	strcpy(filepath,"");
-}
-
-void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
-{
-    //for best results set a breakpoint in here.
-    if(!e)
-    {
-        char buf[1024];
-        sprintf(buf, "ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
-        
-        al_trace("%s", buf);
-        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("%s", buf);
-        //...
-    }
 }
 
 //FFCore
