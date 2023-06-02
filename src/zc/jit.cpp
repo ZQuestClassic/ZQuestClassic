@@ -4,7 +4,7 @@
 // * Preprocess the ZASM byte code into function sections, and only compile one function at a time when deemed "hot".
 // * Multiple PUSHR (for example: Maths in playground.qst) commands could be combined to only modify the stack index pointer
 //   just once. Could be problematic for cases where an overflow might happen (detect this?). Same for POP.
-// * Compile: LSHIFTR RSHIFTR FLOOR CEILING
+// * Compile: LSHIFTR RSHIFTR
 
 #include "zc/jit.h"
 #include "zc/ffscript.h"
@@ -399,8 +399,10 @@ static bool command_is_compiled(int command)
 	case ANDV:
 	case CASTBOOLF:
 	case CASTBOOLI:
+	case CEILING:
 	case DIVR:
 	case DIVV:
+	case FLOOR:
 	case LOADD:
 	case LOADI:
 	case MAXR:
@@ -1155,6 +1157,33 @@ static JittedFunction compile_script(script_data *script)
 			x86::Gp val = get_z_register(cc, vStackIndex, arg2);
 			x86::Gp val2 = get_z_register(cc, vStackIndex, arg1);
 			cc.cmp(val2, val);
+		}
+		break;
+		// https://gcc.godbolt.org/z/r9zq67bK1
+		case FLOOR:
+		{
+			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Xmm y = cc.newXmm();
+			x86::Mem mem = cc.newQWordConst(ConstPoolScope::kGlobal, 4547007122018943789);
+			cc.cvtsi2sd(y, val);
+			cc.mulsd(y, mem);
+			cc.roundsd(y, y, 9);
+			cc.cvttsd2si(val, y);
+			cc.imul(val, val, 10000);
+			set_z_register(cc, vStackIndex, arg1, val);
+		}
+		break;
+		case CEILING:
+		{
+			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Xmm y = cc.newXmm();
+			x86::Mem mem = cc.newQWordConst(ConstPoolScope::kGlobal, 4547007122018943789);
+			cc.cvtsi2sd(y, val);
+			cc.mulsd(y, mem);
+			cc.roundsd(y, y, 10);
+			cc.cvttsd2si(val, y);
+			cc.imul(val, val, 10000);
+			set_z_register(cc, vStackIndex, arg1, val);
 		}
 		break;
 		default:
