@@ -583,7 +583,14 @@ static JittedFunction compile_script(script_data *script)
 	{
 		int command = script->zasm[i].command;
 		int prev_command = script->zasm[i - 1].command;
-		if (command == GOTO && (prev_command == PUSHR || prev_command == PUSHV))
+		if (command != GOTO) continue;
+
+		bool is_function_call_like =
+			// Typical function calls push the return address to the stack just before the GOTO.
+			prev_command == PUSHR || prev_command == PUSHV ||
+			// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
+			(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+		if (is_function_call_like)
 		{
 			call_pc_to_return_label[i] = cc.newLabel();
 			function_calls.insert(i);
