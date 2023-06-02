@@ -785,6 +785,11 @@ static JittedFunction compile_script(script_data *script)
 			cc.mov(address, x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3));
 
 			int function_index = return_to_function_id.at(i);
+			if (function_jump_annotations.size() <= function_index)
+			{
+				error(script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				return nullptr;
+			}
 			cc.jmp(address, function_jump_annotations[function_index]);
 		}
 		break;
@@ -799,6 +804,11 @@ static JittedFunction compile_script(script_data *script)
 			cc.mov(address, x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3));
 
 			int function_index = return_to_function_id.at(i);
+			if (function_jump_annotations.size() <= function_index)
+			{
+				error(script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				return nullptr;
+			}
 			cc.jmp(address, function_jump_annotations[function_index]);
 		}
 		break;
@@ -1247,6 +1257,8 @@ static JittedFunction do_cached_compile(script_data *script)
 		auto fn = compiled_functions[script->debug_id] = compile_script(script);
 		if (fn)
 			al_trace("success\n");
+		else
+			al_trace("failure\n");
 		return fn;
 	}
 	else
