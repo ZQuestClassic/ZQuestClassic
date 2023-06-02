@@ -24,6 +24,7 @@
 #include "zscriptversion.h"
 #include <stdio.h>
 
+extern FFScript FFCore;
 extern sprite_list  guys;
 extern sprite_list  items;
 
