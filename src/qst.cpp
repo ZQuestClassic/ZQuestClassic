@@ -730,6 +730,11 @@ void clear_quest_tmpfile()
 */
 PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_progress)
 {
+	if (show_progress)
+	{
+		box_start(1, "Loading Quest", get_zc_font(font_lfont), font, true);
+	}
+
 #ifdef __EMSCRIPTEN__
     if (em_is_lazy_file(filename))
     {
@@ -848,16 +853,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	// oldquest flag is set when an unencrypted qst file is suspected.
 	bool oldquest = false;
 	int32_t ret;
-    
-	if(show_progress)
-	{
-		box_start(1, "Loading Quest", get_zc_font(font_lfont), font, true);
-	}
-    
-	box_out("Loading Quest: ");
-	al_trace("Trying to do strncasecmp() when loading a quest\n");
-	int32_t qstdat_filename_size = strlen(moduledata.datafiles[qst_dat]);
-	al_trace("Filename size of qst.dat file %s is %d.\n", moduledata.datafiles[qst_dat], qstdat_filename_size);
+
 	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
 	{
 		box_out(filename);
