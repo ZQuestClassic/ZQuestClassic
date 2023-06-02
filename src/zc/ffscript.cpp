@@ -24580,7 +24580,6 @@ void do_mapdataissolid_layer()
 		}
 		else
 		{
-			// TODO z3
 			switch(ri->mapsref)
 			{
 				case MAPSCR_TEMP0:
@@ -24618,6 +24617,7 @@ void do_issolid_layer()
 	}
 	else
 	{
+		// TODO z3 ?
 		set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.tempScreens[layer])) ? 10000 : 0);
 	}
 }

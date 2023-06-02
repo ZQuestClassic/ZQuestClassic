@@ -8003,8 +8003,7 @@ heroanimate_skip_liftwpn:;
 			inair = false;
 			hoverflags = 0;
 			
-			// TODO z3
-			if(y>=world_h-16 && currscr>=0x70 && !(tmpscr.flags2&wfDOWN))  // Landed on the bottommost screen.
+			if(y>=world_h-16 && currscr>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN))  // Landed on the bottommost screen.
 				y = world_h-16;
 		}
 		// Stop hovering if you press down.
@@ -8022,7 +8021,6 @@ heroanimate_skip_liftwpn:;
 			needFall = true;
 			for (zfix ty = y+1; ty < my; ++ty)
 			{
-				//if (on_sideview_solid_oldpos(x, ty,old_x,old_y, false, 1)) break;
 				if (on_sideview_solid_oldpos(x, ty,old_x,old_y, false, 0))
 				{
 					y = ty;
@@ -8368,7 +8366,7 @@ heroanimate_skip_liftwpn:;
 			{
 				for(int32_t zoras=0; zoras<clock_zoras[i]; zoras++)
 				{
-					// TODO z3
+					// TODO z3 ? ignore?
 					addenemy(currscr,0,0,i,0);
 				}
 			}

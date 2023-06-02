@@ -6,11 +6,9 @@
 #ifndef _ZSCRIPTVER_H
 #define _ZSCRIPTVER_H
 
-#include "zc/hero.h" // TODO z3 rm
 #include "base/zdefs.h"
 #include "zc/ffscript.h"
-#include <fmt/format.h> // TODO z3
-#include "zc/replay.h"
+
 extern FFScript FFCore;
 
 class ZScriptVersion
@@ -36,42 +34,11 @@ public:
     //Only one if check at quest load, rather than each time we use the function
     static inline int32_t RunScript(const byte type, const word script, const int32_t i = -1)
     {
-		// TODO z3
-		// replay_step_comment(fmt::format("RunScript {} {} {}", type, script, i));
-		// replay_step_comment(fmt::format("data {} {} {} {} {} {}", currscr, homescr, currmap, currdmap, HeroX().getInt(), HeroY().getInt()));
-		// replay_step_comment(fmt::format("data {} {} {} {}", currscr, homescr, currmap, currdmap));
-	/*
-	switch(type)
-	{
-		case SCRIPT_PLAYER: 
-		case SCRIPT_SCREEN: 
-		case SCRIPT_LWPN: 
-		case SCRIPT_SUBSCREEN: 
-		case SCRIPT_NPC: 
-		case SCRIPT_EWPN: 
-		case SCRIPT_DMAP: 
-		case SCRIPT_ITEMSPRITE: 
-		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) < 0x255 ) 
-			{
-				if ( DEVLEVEL > 1 ) 
-				{
-					Z_scripterrlog("Invalid script type %d for ZC Quest Version: %x\n", type,  FFCore.getQuestHeaderInfo(vZelda));
-				}
-				return 0;
-			}
-			else return (*Interpreter)(type, script, i);
-		}
-		default:
-			return (*Interpreter)(type, script, i);
-	}
-	*/
-	return (*Interpreter)(type, script, i);
+        return (*Interpreter)(type, script, i);
     }
     
     static inline void RunScrollingScript(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
     {
-		// replay_step_comment(fmt::format("RunScrollingScript {} {} {}", cx, sx, sy));
         (*onScrolling)(scrolldir, cx, sx, sy, end_frames,waitdraw);
     }
     
