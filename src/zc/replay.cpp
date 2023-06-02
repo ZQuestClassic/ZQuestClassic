@@ -844,7 +844,7 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     out.close();
 }
 
-static void save_result(bool stopped = false)
+static void save_result(bool stopped = false, bool changed = false)
 {
 	time_result_saved = std::chrono::system_clock::now();
 	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
@@ -870,6 +870,8 @@ static void save_result(bool stopped = false)
 	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
 		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+	if (mode == ReplayMode::Update)
+		out << fmt::format("changed: {}", changed) << '\n';
 	out.close();
 
 	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"));
@@ -1488,7 +1490,10 @@ void replay_stop()
         }
 
         if (should_save)
+        {
             replay_save();
+            save_result(true, true);
+        }
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)
