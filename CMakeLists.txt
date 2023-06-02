@@ -726,8 +726,6 @@ set(zc_clang_errors
 )
 set(zc_gcc_errors
 	-Werror=array-bounds
-	-Werror=constant-conversion
-	-Werror=extra-tokens
 	-Werror=format
 	-Werror=format-overflow
 	-Werror=return-type
