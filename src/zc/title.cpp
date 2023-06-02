@@ -2366,7 +2366,7 @@ cantopen:
 				   buf,
 				   "OK",NULL,'o',0,get_zc_font(font_lfont));
 	}
-	exit(1);
+	abort();
 	
 reset:
 	system_pal();
@@ -2378,7 +2378,7 @@ reset:
 				   "Warning: Doing so will erase any previous saved games!",
 				   "No","Yes",NULL,'n','y',0,get_zc_font(font_lfont))!=2)
 	{
-		exit(1);
+		abort();
 	}
 	
 	game_pal();

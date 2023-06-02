@@ -419,26 +419,6 @@ bool isonline(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_
     return nondegenq >= 0 && nondegenq <= nondegend;
 }
 
-//clears a tile
-/*
-void clear_tile(tiledata *buf, word tile)
-{
-  buf[tile].format=tf4Bit;
-  if (buf[tile].data!=NULL)
-  {
-    free(buf[tile].data);
-    buf[tile].data = NULL;
-  }
-  buf[tile].data=(byte *)malloc(tilesize(buf[tile].format));
-  if (buf[tile].data==NULL)
-  {
-    Z_error_fatal("Unable to initialize tile #%d.\n", tile);
-    exit(1);
-  }
-  memset(buf[tile].data,0,tilesize(buf[tile].format));
-}
-*/
-
 void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
 {
     buf[t].format=format;
@@ -460,27 +440,6 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
     {
         buf[t].data[i]=0;
     }
-    
-    /*if(zctiles)
-    {
-    if(tilebuf[t] != NULL) destroy_bitmap(tilebuf[t]);
-    tilebuf = create_bitmap_ex(8,16,16);
-    if(buf[t].format == tf4Bit)
-    {
-      for(int32_t i=0; i<128; i++)
-      {
-        tilebuf[t]->line[i/8][(i%8)*2] = buf[t].data[i]>>4;
-    	tilebuf[t]->line[i/8][(i%8)*2+1] = buf[t].data[i]&0xF;
-      }
-    }
-    else
-    {
-      for(int32_t i=0; i<256; i++)
-      {
-        tilebuf[t]->line[i/16][i%16] = buf[t].data[i];
-      }
-    }
-    }*/
 }
 
 //clears the tile buffer

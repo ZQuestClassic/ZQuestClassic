@@ -4,7 +4,7 @@
 // * Preprocess the ZASM byte code into function sections, and only compile one function at a time when deemed "hot".
 // * Multiple PUSHR (for example: Maths in playground.qst) commands could be combined to only modify the stack index pointer
 //   just once. Could be problematic for cases where an overflow might happen (detect this?). Same for POP.
-// * Compile: LSHIFTR RSHIFTR FLOOR CEILING
+// * Compile: LSHIFTR RSHIFTR
 
 #include "zc/jit.h"
 #include "zc/ffscript.h"
@@ -232,7 +232,7 @@ static void div_10000(x86::Compiler &cc, x86::Gp dividend)
 	else
 	{
 		ASSERT(false);
-		exit(0);
+		abort();
 	}
 }
 
@@ -399,8 +399,10 @@ static bool command_is_compiled(int command)
 	case ANDV:
 	case CASTBOOLF:
 	case CASTBOOLI:
+	case CEILING:
 	case DIVR:
 	case DIVV:
+	case FLOOR:
 	case LOADD:
 	case LOADI:
 	case MAXR:
@@ -439,7 +441,7 @@ static void error(script_data *script, std::string str)
 	if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL)
 	{
 		ASSERT(false);
-		exit(1);
+		abort();
 	}
 }
 
@@ -583,7 +585,14 @@ static JittedFunction compile_script(script_data *script)
 	{
 		int command = script->zasm[i].command;
 		int prev_command = script->zasm[i - 1].command;
-		if (command == GOTO && (prev_command == PUSHR || prev_command == PUSHV))
+		if (command != GOTO) continue;
+
+		bool is_function_call_like =
+			// Typical function calls push the return address to the stack just before the GOTO.
+			prev_command == PUSHR || prev_command == PUSHV ||
+			// Class construction function calls do `SETR CLASS_THISKEY, D2` just before its GOTO.
+			(prev_command == SETR && script->zasm[i - 1].arg1 == CLASS_THISKEY);
+		if (is_function_call_like)
 		{
 			call_pc_to_return_label[i] = cc.newLabel();
 			function_calls.insert(i);
@@ -778,6 +787,11 @@ static JittedFunction compile_script(script_data *script)
 			cc.mov(address, x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3));
 
 			int function_index = return_to_function_id.at(i);
+			if (function_jump_annotations.size() <= function_index)
+			{
+				error(script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				return nullptr;
+			}
 			cc.jmp(address, function_jump_annotations[function_index]);
 		}
 		break;
@@ -792,6 +806,11 @@ static JittedFunction compile_script(script_data *script)
 			cc.mov(address, x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3));
 
 			int function_index = return_to_function_id.at(i);
+			if (function_jump_annotations.size() <= function_index)
+			{
+				error(script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				return nullptr;
+			}
 			cc.jmp(address, function_jump_annotations[function_index]);
 		}
 		break;
@@ -1140,6 +1159,33 @@ static JittedFunction compile_script(script_data *script)
 			cc.cmp(val2, val);
 		}
 		break;
+		// https://gcc.godbolt.org/z/r9zq67bK1
+		case FLOOR:
+		{
+			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Xmm y = cc.newXmm();
+			x86::Mem mem = cc.newQWordConst(ConstPoolScope::kGlobal, 4547007122018943789);
+			cc.cvtsi2sd(y, val);
+			cc.mulsd(y, mem);
+			cc.roundsd(y, y, 9);
+			cc.cvttsd2si(val, y);
+			cc.imul(val, val, 10000);
+			set_z_register(cc, vStackIndex, arg1, val);
+		}
+		break;
+		case CEILING:
+		{
+			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Xmm y = cc.newXmm();
+			x86::Mem mem = cc.newQWordConst(ConstPoolScope::kGlobal, 4547007122018943789);
+			cc.cvtsi2sd(y, val);
+			cc.mulsd(y, mem);
+			cc.roundsd(y, y, 10);
+			cc.cvttsd2si(val, y);
+			cc.imul(val, val, 10000);
+			set_z_register(cc, vStackIndex, arg1, val);
+		}
+		break;
 		default:
 		{
 			error(script, fmt::format("unhandled command: {}", command));
@@ -1240,6 +1286,8 @@ static JittedFunction do_cached_compile(script_data *script)
 		auto fn = compiled_functions[script->debug_id] = compile_script(script);
 		if (fn)
 			al_trace("success\n");
+		else
+			al_trace("failure\n");
 		return fn;
 	}
 	else
