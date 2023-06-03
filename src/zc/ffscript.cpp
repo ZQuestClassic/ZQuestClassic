@@ -34676,7 +34676,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 		bool create = false;
 		for(int32_t q = 0; f_mode[q]; ++q)
 		{
-			if(f_mode[q] == 'w')
+			if(f_mode[q] == 'w' || f_mode[q] == 'a')
 			{
 				create = true;
 				break;
