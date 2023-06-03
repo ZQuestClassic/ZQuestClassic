@@ -3847,7 +3847,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	by &= 0xF0;
 	
 	int cid = MAPCOMBO(bx,by);
-	int cid_ff = MAPFFCOMBO(x,y);
+	int cid_ff = MAPFFCOMBO(fx,fy);
 	int current_ffcombo = getFFCAt(fx,fy);
 	newcombo const& cmb = combobuf[cid];
 	newcombo const& cmb_ff = combobuf[cid_ff];
