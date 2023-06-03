@@ -279,7 +279,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     printf("%s",buf);
 #endif
 #ifndef __EMSCRIPTEN__
-    if (!zscript_coloured_console.valid())
+    if (!zscript_coloured_console.valid() && !is_ci())
     {
         al_show_native_message_box(all_get_display(), "Zelda Classic: I AM ERROR", "", buf, NULL, ALLEGRO_MESSAGEBOX_ERROR);
     }
@@ -287,7 +287,7 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
-    exit(1);
+    abort();
 }
 
 void Z_error(const char *format,...)

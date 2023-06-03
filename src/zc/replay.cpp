@@ -24,7 +24,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 13;
+static const int VERSION = 14;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -610,7 +610,7 @@ static void load_replay(std::filesystem::path path)
     if (!file.is_open())
     {
         fprintf(stderr, "could not open file: %s\n", path.string().c_str());
-        exit(1);
+        abort();
     }
 
     KeyMapReplayStep key_map = KeyMapReplayStep::make(0);
@@ -844,7 +844,7 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     out.close();
 }
 
-static void save_result(bool stopped = false)
+static void save_result(bool stopped = false, bool changed = false)
 {
 	time_result_saved = std::chrono::system_clock::now();
 	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
@@ -870,6 +870,8 @@ static void save_result(bool stopped = false)
 	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
 		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+	if (mode == ReplayMode::Update)
+		out << fmt::format("changed: {}", changed) << '\n';
 	out.close();
 
 	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"));
@@ -1227,7 +1229,7 @@ void replay_poll()
         check_assert();
         if (mode != ReplayMode::Off)
         {
-            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*20 || frame_count > replay_log.back()->frame))
                 replay_stop();
         }
         break;
@@ -1488,7 +1490,10 @@ void replay_stop()
         }
 
         if (should_save)
+        {
             replay_save();
+            save_result(true, true);
+        }
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)

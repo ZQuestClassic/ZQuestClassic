@@ -11,7 +11,7 @@ from typing import List
 from pathlib import Path
 # pip install PyGithub
 from github import Github, GithubException, WorkflowRun, PaginatedList
-from common import infer_gha_platform, get_gha_artifacts, ReplayTestResults
+from common import get_gha_artifacts, ReplayTestResults
 from workflow_job import WorkflowJob
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -30,8 +30,8 @@ parser.add_argument('--token', required=True)
 
 # Specify workflow parameters.
 parser.add_argument('--commit', default='main')
-parser.add_argument('--runs_on')
-parser.add_argument('--arch')
+parser.add_argument('--runs_on', default='ubuntu-22.04')
+parser.add_argument('--arch', default='x64')
 parser.add_argument('--compiler')
 parser.add_argument('--extra_args', default='')
 
@@ -220,13 +220,15 @@ else:
     if args.extra_args:
         extra_args = args.extra_args.split(' ')
 
-    if args.runs_on and args.arch:
-        runs_on, arch = args.runs_on, args.arch
-    else:
-        print('--runs_on and --arch not defined')
-        runs_on, arch = infer_gha_platform()
-        print(f'inferred from current machine: {runs_on} {arch}')
+    if args.compiler:
+        compiler = args.compiler
+    elif args.runs_on.startswith('windows'):
+        compiler = 'msvc'
+    elif args.runs_on.startswith('mac'):
+        compiler = 'clang'
+    elif args.runs_on.startswith('ubuntu'):
+        compiler = 'clang'
 
     run_id = start_test_workflow_run(
-        args.commit, runs_on, arch, args.compiler, extra_args)
+        args.commit, args.runs_on, args.arch, compiler, extra_args)
     poll_workflow_run(run_id)

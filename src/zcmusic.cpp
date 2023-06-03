@@ -3,7 +3,7 @@
 /* Wrapper for transparently extending */
 /* supported music file formats.       */
 
-//#include "base/zc_alleg.h" // Has to be there or else OS X Universal 10.4 complains of fix overload - Taku
+#include "base/zc_alleg.h" // TODO: why do we get "_malloca macro redefinition" in Windows debug builds without this include?
 #include <string.h>
 
 #ifdef _DEBUG

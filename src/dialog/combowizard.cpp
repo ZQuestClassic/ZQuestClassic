@@ -34,7 +34,7 @@ bool hasComboWizard(int32_t type)
 		// case cSLASH: case cSLASHTOUCHY:
 		//!Todo combo wizards -Em
 		// case cTRIGGERGENERIC: case cCSWITCH:
-		// case cSTEPSFX: case cSWITCHHOOK: case cCSWITCHBLOCK:
+		// case cSWITCHHOOK: case cCSWITCHBLOCK:
 		// case cSAVE: case cSAVE2:
 		case cCUTSCENETRIG:
 		case cSIGNPOST:
@@ -62,6 +62,7 @@ bool hasComboWizard(int32_t type)
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
+		case cSTEPSFX:
 			return true;
 	}
 	return false;
@@ -235,6 +236,12 @@ void ComboWizardDialog::update(bool first)
 			size_t adir = getRadio(0);
 			ddls[5]->setDisabled(adir!=0);
 			tfs[2]->setDisabled(adir!=1);
+			break;
+		}
+		case cSTEPSFX:
+		{
+			grids[0]->setDisabled(!(local_ref.usrflags&cflag1));
+			grids[1]->setDisabled(!(local_ref.usrflags&cflag1));
 			break;
 		}
 		case cCHEST: case cLOCKEDCHEST: case cBOSSCHEST:
@@ -805,7 +812,7 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attributes[0] = 40000;
 			break;
 		case cSHOOTER:
-			ref.attribytes[1] = ewARROW;
+			ref.attribytes[1] = ewArrow;
 			ref.attribytes[2] = 19;
 			ref.attrishorts[0] = 60;
 			ref.attrishorts[2] = 2;
@@ -813,6 +820,12 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attributes[1] = 4*10000;
 			ref.attributes[2] = 200*10000;
 			ref.usrflags = cflag1 | cflag4;
+			break;
+		case cSTEPSFX:
+			ref.attribytes[1] = ewBomb;
+			ref.attribytes[3] = 76;
+			ref.attributes[0] = 4*10000;
+			ref.usrflags = cflag1;
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
@@ -1680,6 +1693,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte& unblockable = local_ref.attribytes[4];
 			byte& script = local_ref.attribytes[5];
+			byte& parentid = local_ref.attribytes[6];
 			
 			int32_t& angle_dir = local_ref.attributes[0];
 			
@@ -1730,6 +1744,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			rs_sz[0] = 5;
 			
+			lists[0] = GUI::ZCListData::items(true).filter(
+				[&](GUI::ListItem& itm)
+				{
+					if(itm.value == 0) //Remove item 0
+						return false;
+					if(itm.value == -1) //Change the none value to 0
+						itm.value = 0;
+					return true;
+				});
+			
 			static size_t tabpos = 0;
 			windowRow->add(TabPanel(ptr = &tabpos,
 				TabRef(name = "1", Rows<2>(
@@ -1761,6 +1785,17 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								update();
 							}),
 						INFOBTN("The LWeapon or EWeapon ID to be shot"),
+						//
+						Label(text = "Parent Item:", hAlign = 1.0),
+						ddls[6] = DropDownList(data = lists[0],
+							fitParent = true, selectedValue = parentid,
+							onSelectFunc = [&](int32_t val)
+							{ 
+								parentid = val;
+								update();
+							}),
+						INFOBTN("The item ID to use as the 'parent item' of the weapon. Only used for LWeapons."
+							"\nThis affects various attributes of certain lweapons, such as a bomb's fuse."),
 						//
 						Label(text = "Script:", hAlign = 1.0),
 						switcher[0] = Switcher(
@@ -2064,6 +2099,144 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 					)
 				))
 			));
+			break;
+		}
+		case cSTEPSFX:
+		{
+			byte& shot_sfx = local_ref.attribytes[0];
+			byte& weap_type = local_ref.attribytes[1];
+			byte& weap_dir = local_ref.attribytes[2];
+			byte& weap_sprite = local_ref.attribytes[3];
+			byte& parentid = local_ref.attribytes[4];
+			int32_t& damage = local_ref.attributes[0];
+			if(damage/10000 < 1) damage = 4*10000;
+			
+			lists[0] = GUI::ZCListData::items(true).filter(
+				[&](GUI::ListItem& itm)
+				{
+					if(itm.value == 0) //Remove item 0
+						return false;
+					if(itm.value == -1) //Change the none value to 0
+						itm.value = 0;
+					return true;
+				});
+			
+			windowRow->add(
+				Columns<2>(
+					Rows<3>(hAlign = 1.0, vAlign = 1.0,
+						Label(text = "SFX:", hAlign = 1.0),
+						ddls[0] = DropDownList(data = parent.list_sfx,
+							fitParent = true, selectedValue = shot_sfx,
+							onSelectFunc = [&](int32_t val)
+							{
+								shot_sfx = val;
+							}),
+						INFOBTN("SFX to play when activated.")
+					),
+					grids[0] = Rows<3>(hAlign = 1.0, vAlign = 0.0,
+						Label(text = "Weapon Sprite:", hAlign = 1.0),
+						ddls[1] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = weap_sprite,
+							onSelectFunc = [&](int32_t val)
+							{
+								weap_sprite = val;
+							}),
+						INFOBTN("The sprite of the spawned weapon"),
+						//
+						Label(text = "Weapon Type:", hAlign = 1.0),
+						ddls[2] = DropDownList(data = parent.list_weaptype,
+							fitParent = true, selectedValue = weap_type,
+							onSelectFunc = [&](int32_t val)
+							{ 
+								weap_type = val;
+								update();
+							}),
+						INFOBTN("The LWeapon or EWeapon ID to be shot"),
+						//
+						Label(text = "Weapon Dir:", hAlign = 1.0),
+						ddls[3] = DropDownList(data = list_dirs,
+							fitParent = true, selectedValue = weap_dir,
+							onSelectFunc = [&](int32_t val)
+							{ 
+								weap_dir = val;
+								update();
+							}),
+						INFOBTN("The direction for the weapon to shoot"),
+						//
+						Label(text = "Parent Item:", hAlign = 1.0),
+						ddls[4] = DropDownList(data = lists[0],
+							fitParent = true, selectedValue = parentid,
+							onSelectFunc = [&](int32_t val)
+							{ 
+								parentid = val;
+								update();
+							}),
+						INFOBTN("The item ID to use as the 'parent item' of the weapon. Only used for LWeapons."
+							"\nThis affects various attributes of certain lweapons, such as a bomb's fuse."),
+						//
+						Label(text = "Damage:", hAlign = 1.0),
+						tfs[0] = TextField(
+							fitParent = true, minwidth = 8_em,
+							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+							low = 10000, high = 2147480000, val = damage,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								damage = val;
+							}),
+						INFOBTN("The damage of the spawned weapon.")
+					),
+					Rows<2>(hAlign = 0.0, vAlign = 1.0,
+						INFOBTN("Spawns a weapon when triggered, and by default advances to the next combo in the combo list."),
+						cboxes[0] = Checkbox(
+							text = "Landmine (Step->Weapon)",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag1, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag1,state);
+								update();
+							}
+						)
+					),
+					grids[1] = Rows<2>(hAlign = 0.0, vAlign = 0.0,
+						INFOBTN("Script weapon IDs for 'Weapon Type' are EWeapons by default; if checked, they will be LWeapons instead."),
+						cboxes[1] = Checkbox(
+							text = "Script Weapon IDs spawn LWeapons",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag2, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag2,state);
+								update();
+							}
+						),
+						INFOBTN("If checked, the combo will not advance to the next combo when triggered."
+							" This may cause the landmine to trigger multiple times in a row."),
+						cboxes[2] = Checkbox(
+							text = "Don't Advance",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag3, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag3,state);
+								update();
+							}
+						),
+						INFOBTN("If the weapon type is a Script weapon and 'Script Weapon IDs spawn LWeapons' is checked, or the weapon type is"
+							" a sparkle type, it will immediately damage the player (knocking them back none)."),
+						cboxes[3] = Checkbox(
+							text = "Direct Damage Script LW / Sparkles",
+							hAlign = 0.0,
+							checked = local_ref.usrflags&cflag4, fitParent = true,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_ref.usrflags,cflag4,state);
+								update();
+							}
+						)
+					)
+				)
+			);
 			break;
 		}
 		case cCVUP: case cCVDOWN: case cCVLEFT: case cCVRIGHT:

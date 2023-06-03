@@ -12,15 +12,23 @@ set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
+set(WANT_ASAN FALSE CACHE BOOL "Compile with ASAN")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Uncomment for ASAN on MSVC.
-# Will also need to use `-s` flag to disable sound, as there is a known problem there.
-# string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-# add_compile_options(/fsanitize=address)
+if(WANT_ASAN)
+	# Will also need to use `-s` flag to disable sound, as there is a known problem there.
+	if(MSVC)
+		string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+		add_compile_options(/fsanitize=address)
+		add_link_options(/fsanitize=address)
+	else()
+		add_compile_options(-fsanitize=address)
+		add_link_options(-fsanitize=address)
+	endif()
+endif()
 
 # This allows outputs to be run where they are by putting their libaries in
 # the same folder. 
@@ -718,8 +726,6 @@ set(zc_clang_errors
 )
 set(zc_gcc_errors
 	-Werror=array-bounds
-	-Werror=constant-conversion
-	-Werror=extra-tokens
 	-Werror=format
 	-Werror=format-overflow
 	-Werror=return-type
@@ -732,7 +738,7 @@ set(zc_gcc_errors
 )
 
 if(WANT_SENTRY)
-	set(SENTRY_VERSION 0.6.0)
+	set(SENTRY_VERSION 0.6.3)
 	set(SENTRY_BACKEND crashpad)
 	set(SENTRY_BUILD_SHARED_LIBS OFF)
 	FetchContent_Declare(sentry URL https://github.com/getsentry/sentry-native/releases/download/${SENTRY_VERSION}/sentry-native.zip)
@@ -749,6 +755,15 @@ if(RELEASE_TAG)
 		target_compile_definitions(${target} PRIVATE RELEASE_TAG="${RELEASE_TAG}")
 	endforeach()
 endif()
+
+# if(WANT_ASAN)
+	# add_compile_options(-fsanitize=address)
+	# add_link_options(-fsanitize=address)
+	# foreach(target IN LISTS zc_targets)
+	# 	target_compile_options(${target} PRIVATE -fsanitize=address)
+	# 	target_link_options(${target} PRIVATE -fsanitize=address)
+	# endforeach()
+# endif()
 
 if(USE_PCH)
 	foreach(target IN LISTS zc_targets)

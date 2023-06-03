@@ -318,7 +318,7 @@ int32_t main(int32_t argc, char **argv)
 	if(allegro_init() != 0)
 	{
 		zconsole_error("%s", "Failed Init!");
-		exit(1);
+		abort();
 	}
 	
 	int32_t script_path_index = used_switch(argc, argv, "-input");

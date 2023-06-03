@@ -156,6 +156,12 @@ jobs:
           cd ${{ env.BUILD_FOLDER }}
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -v0 -replay-exit-when-done -assert test.zplay
+      # Simply open ZQuest with the new quest template.
+      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+        name: Test ZQuest File->New
+        run: |
+          cd ${{ env.BUILD_FOLDER }}
+          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -q 'modules/classic/classic_qst.dat#NESQST_NEW_QST'
       # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
       - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test saving qst
@@ -186,4 +192,4 @@ jobs:
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
-          path: ${{ github.workspace }}/tests/replays/**/*.zplay
+          path: ${{ github.workspace }}/.tmp/test_results/updated

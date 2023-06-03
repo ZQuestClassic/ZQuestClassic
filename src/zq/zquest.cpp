@@ -1613,10 +1613,7 @@ int32_t onFullScreen()
 	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
 	    if(ret!=0)
 	    {
-			Z_message("Can't set video mode (%d).\n", ret);
-			Z_message(allegro_error);
-			// quit_game();
-			exit(1);
+			Z_error_fatal("Failed to set video mode: %d. allegro_error: %s\n", ret, allegro_error);
 	    }
 	    
 	    gui_mouse_focus=0;
@@ -29199,6 +29196,7 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	}
 	pack_fclose(pf);
 	pack_fclose(pf2);
+	clear_quest_tmpfile();
 }
 
 // Copy a quest file by loading and resaving, exactly like if the user did it in the UI.
@@ -29232,28 +29230,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
-	
-	/*
-		// Initialize SDL
-		if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
-			fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
-			return(1);
-		}
-	
-		// Initialize the display
-		int32_t w=LARGE_W, h=LARGE_H;
-		int32_t desired_bpp=8;
-		Uint32 video_flags=SDL_HWSURFACE|SDL_HWPALETTE;
-		sdl_screen = SDL_SetVideoMode(w, h, desired_bpp, video_flags);
-		if ( sdl_screen == NULL ) {
-			fprintf(stderr, "Couldn't set %dx%dx%d video mode: %s\n",
-						w, h, desired_bpp, SDL_GetError());
-			exit(1);
-		}
-	
-		// Set the window manager title bar
-		SDL_WM_SetCaption("SDL test window", "testwin");
-	*/
 	
 	//FFScript::init();
 	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
@@ -29825,8 +29801,6 @@ int32_t main(int32_t argc,char **argv)
 		else Z_message("OK\n");
 	}
 	
-	if(used_switch(argc,argv,"-q"))
-		FatalConsole("-q switch used, quitting program.\n");
 	zcmusic_init();
 	
 	switch(zqColorDepth) //defaults to 8bit
@@ -30103,12 +30077,15 @@ int32_t main(int32_t argc,char **argv)
 	char *curcontrol = getBetaControlString();
 	const char *oldcontrol = zc_get_config("zquest", "beta_warning", "");
 	
-	if(zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
+	if (zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
 	{
-		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
-			" There may be major bugs, which could cause quests"
-			"\nto crash or become corrupted. Keep backups of your quest file!!"
-			"\nAdditionally, new features may change over time.").show();
+		if (!is_ci())
+		{
+			InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
+				" There may be major bugs, which could cause quests"
+				"\nto crash or become corrupted. Keep backups of your quest file!!"
+				"\nAdditionally, new features may change over time.").show();
+		}
 	}
 	
 	delete[] curcontrol;
@@ -30154,7 +30131,7 @@ int32_t main(int32_t argc,char **argv)
 			
 			if(ret == qe_OK)
 			{
-				replace_extension(filepath,last_timed_save,"qst",2047);
+				strcpy(filepath,last_timed_save);
 				load_last_timed_save=true;
 				saved=false;
 			}
@@ -30171,13 +30148,12 @@ int32_t main(int32_t argc,char **argv)
 		
 		if(argc>1 && argv[1][0]!='-')
 		{
-			replace_extension(temppath,argv[1],"qst",2047);
-			int32_t ret = load_quest(temppath);
+			int32_t ret = load_quest(argv[1]);
 			
 			if(ret == qe_OK)
 			{
 				first_save=true;
-				strcpy(filepath,temppath);
+				strcpy(filepath,argv[1]);
 				refresh(rALL);
 			}
 		}
@@ -30296,22 +30272,20 @@ int32_t main(int32_t argc,char **argv)
 	init_ffpos();
 	
 	call_foo_dlg();
+
+	if(used_switch(argc,argv,"-q"))
+	{
+		Z_message("-q switch used, quitting program.\n");
+		exit(0);
+	}
+
 	while(!quit)
 	{
 	
 #ifdef _WIN32
 	
-		try   // I *think* it might throw here.
-		{
 			if(zqUseWin32Proc != FALSE)
 				win32data.Update(Frameskip); //experimental win32 fixes
-		}
-		catch(...)
-		{
-			set_gfx_mode(GFX_TEXT,0,0,0,0);
-			allegro_message("ZQ-Windows Fatal Error: Set \"zq_win_proc_fix = 0\" in config file.");
-			exit(1);
-		}
 		
 #endif
 		check_autosave();
@@ -32694,21 +32668,6 @@ void ZQ_ClearQuestPath()
 {
 	zc_set_config("zquest","win_last_quest",(char const*)nullptr);
 	strcpy(filepath,"");
-}
-
-void __zc_always_assert(bool e, const char* expression, const char* file, int32_t line)
-{
-    //for best results set a breakpoint in here.
-    if(!e)
-    {
-        char buf[1024];
-        sprintf(buf, "ASSERTION FAILED! : %s, %s line %i\n", expression, file, line);
-        
-        al_trace("%s", buf);
-        set_gfx_mode(GFX_TEXT, 0, 0, 0, 0);
-        allegro_message("%s", buf);
-        //...
-    }
 }
 
 //FFCore

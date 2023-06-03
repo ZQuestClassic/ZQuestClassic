@@ -32814,7 +32814,13 @@ j_command:
 			}
 			case HEROLIFTRELEASE:
 			{
-				ri->d[rEXP1] = Hero.lift_wpn ? Hero.lift_wpn->getUID() : 0;
+				if(Hero.lift_wpn)
+				{
+					ri->d[rEXP1] = Hero.lift_wpn->getUID();
+					Lwpns.add(Hero.lift_wpn);
+					Hero.lift_wpn = nullptr;
+				}
+				else ri->d[rEXP1] = 0;
 				break;
 			}
 			case HEROLIFTGRAB:

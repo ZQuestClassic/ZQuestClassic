@@ -483,6 +483,7 @@ bool zmap::reset_templates(bool validate)
     readmapscreen(f, &header, &TheMaps[MAPSCRS+129], &temp_map, sversion);
     
     pack_fclose(f);
+	clear_quest_tmpfile();
     
     if(deletefilename[0]==0)
     {

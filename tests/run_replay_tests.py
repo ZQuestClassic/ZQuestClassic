@@ -721,6 +721,11 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {exit_code}')
+            # .zplay files are updated in-place, but lets also copy over to the test output folder.
+            # This makes it easy to upload an archive of updated replays in CI.
+            if mode == 'update' and watcher.result['changed']:
+                (test_results_dir / 'updated').mkdir()
+                shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
             break
         except ReplayTimeoutException:
             print('\nSTDOUT:\n\n', (output_dir / 'stdout.txt').read_text())
@@ -830,6 +835,21 @@ for i in range(args.retries + 1):
 
 
 test_results_path.write_text(test_results.to_json())
+
+if 'CI' in os.environ:
+    # Only keep the images of the last run of each replay.
+    replay_runs: List[RunResult] = []
+    for runs in reversed(test_results.runs):
+        for run in runs:
+            if any(r for r in replay_runs if r.name == run.name):
+                continue
+            replay_runs.append(run)
+
+    for runs in test_results.runs:
+        for run in runs:
+            if run not in replay_runs:
+                for png in (test_results_dir / run.directory).glob('*.png'):
+                    png.unlink()
 
 if mode == 'assert':
     failing_tests = [r.name for r in test_results.runs[-1] if not r.success]

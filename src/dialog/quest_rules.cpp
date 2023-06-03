@@ -882,7 +882,10 @@ static GUI::ListData compatRulesList
 		" Note that you can access the real engine uid with ->HitBy[HIT_BY_(thing)_ENGINE_UID] regardless of this rule."},
 	{ "Broken Moving && Air Bombs", qr_BROKEN_MOVING_BOMBS,
 		"If enabled, bombs exploding while moving will behave oddly and broken, and bomb explosions"
-		" will continue obeying gravity." }
+		" will continue obeying gravity." },
+	{ "Old Bomb Hitboxes", qr_OLD_BOMB_HITBOXES,
+		"If enabled, the outer ring of bombs' hitboxes will not count for triggering combos/secrets,"
+		" and giving bombs custom radii will not work."}
 };
 
 static GUI::ListData enemiesRulesList
