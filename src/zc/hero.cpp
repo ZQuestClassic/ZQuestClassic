@@ -24170,8 +24170,10 @@ const char *roomtype_string[rMAX] =
     "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
 };
 
+static bool refresh_dmap_scrollscript = false;
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 {
+	refresh_dmap_scrollscript = false;
 	byte reposition_sword_postwarp = 0;
 	if(index<0)
 	{
@@ -25406,6 +25408,11 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
 		FFCore.initZScriptDMapScripts();
 		FFCore.initZScriptActiveSubscreenScript();
+		if(refresh_dmap_scrollscript)
+		{
+			run_scrolling_script_int(false); //Pre-waitdraw
+			refresh_dmap_scrollscript = false;
+		}
 	}
 	is_warping = false;
 	return true;
@@ -26707,53 +26714,8 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
     return tmpscr[0].sflag[combo];           // flag
 }
 
-//Bit of a messy kludge to give the correct Hero->X/Hero->Y in the script
-void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+void HeroClass::run_scrolling_script_int(bool waitdraw)
 {
-	// For rafting (and possibly other esoteric things)
-	// Hero's action should remain unchanged while scrolling,
-	// but for the sake of scripts, here's an eye-watering kludge.
-	actiontype lastaction = action;
-	action=scrolling; FFCore.setHeroAction(scrolling);
-	if(waitdraw)
-	{
-		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
-	}
-	else
-	{
-		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
-	}
-	zfix storex = x, storey = y;
-	switch(scrolldir)
-	{
-	case up:
-		if(y < 160) y = 176;
-		else if(cx > 0 && !end_frames) y = sy + 156;
-		else y = 160;
-		
-		break;
-		
-	case down:
-		if(y > 0) y = -16;
-		else if(cx > 0 && !end_frames) y = sy - 172;
-		else y = 0;
-		
-		break;
-		
-	case left:
-		if(x < 240) x = 256;
-		else if(cx > 0) x = sx + 236;
-		else x = 240;
-		
-		break;
-		
-	case right:
-		if(x > 0) x = -16;
-		else if(cx > 0)	x = sx - 252;
-		else x = 0;
-		
-		break;
-	}
 	if(waitdraw)
 	{
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
@@ -26826,6 +26788,55 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		if(!FFCore.system_suspend[susptITEMSCRIPTENGINE] && !old)
 			FFCore.itemScriptEngine();
 	}
+}
+//Bit of a messy kludge to give the correct Hero->X/Hero->Y in the script
+void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
+{
+	// For rafting (and possibly other esoteric things)
+	// Hero's action should remain unchanged while scrolling,
+	// but for the sake of scripts, here's an eye-watering kludge.
+	actiontype lastaction = action;
+	action=scrolling; FFCore.setHeroAction(scrolling);
+	if(waitdraw)
+	{
+		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
+	}
+	else
+	{
+		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
+	}
+	zfix storex = x, storey = y;
+	switch(scrolldir)
+	{
+	case up:
+		if(y < 160) y = 176;
+		else if(cx > 0 && !end_frames) y = sy + 156;
+		else y = 160;
+		
+		break;
+		
+	case down:
+		if(y > 0) y = -16;
+		else if(cx > 0 && !end_frames) y = sy - 172;
+		else y = 0;
+		
+		break;
+		
+	case left:
+		if(x < 240) x = 256;
+		else if(cx > 0) x = sx + 236;
+		else x = 240;
+		
+		break;
+		
+	case right:
+		if(x > 0) x = -16;
+		else if(cx > 0)	x = sx - 252;
+		else x = 0;
+		
+		break;
+	}
+	run_scrolling_script_int(waitdraw);
 	
 	x = storex, y = storey;
 	
@@ -28002,7 +28013,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
+		if(olddmap == newdmap)
+			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
+		else refresh_dmap_scrollscript = true;
 	}
 }
 
