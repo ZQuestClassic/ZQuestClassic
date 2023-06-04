@@ -109,7 +109,7 @@ jobs:
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
-          bash .github/workflows/run_replay_tests.sh
+          bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder ${{ env.BUILD_FOLDER }}
           --test_results_folder .tmp/test_results
           --retries 1
@@ -121,7 +121,7 @@ jobs:
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.arch != 'win32' }}
         name: Test w/o JIT
         run: >
-          bash .github/workflows/run_replay_tests.sh
+          bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder ${{ env.BUILD_FOLDER }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
@@ -134,6 +134,10 @@ jobs:
           --filter ghost_armos.zplay
           --filter keys.zplay
           --no-jit
+
+      - if: ${{ matrix.shard_index == 1 && inputs.config != 'Coverage' }}
+        name: Test replay system
+        run: bash .github/workflows/run_python.sh tests/test_replays.py
 
       - if: ${{ matrix.shard_index == 1 && inputs.config != 'Coverage' }}
         name: Test zscript
