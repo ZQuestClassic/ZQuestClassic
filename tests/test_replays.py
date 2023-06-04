@@ -15,6 +15,10 @@ failing_replay = test_dir / 'failing.zplay'
 output_dir = test_dir / 'output'
 
 
+def get_frame_from_snapshot_index(path: str) -> int:
+    return int(re.match(r'.*\.zplay\.(\d+)', path).group(1))
+
+
 def create_test_replay(contents):
     if test_dir.exists():
         shutil.rmtree(test_dir)
@@ -25,8 +29,7 @@ def create_test_replay(contents):
 def get_snapshots():
     paths = [s.relative_to(output_dir).as_posix()
              for s in output_dir.rglob('*.png')]
-    return sorted(paths, key=lambda k:
-                  int(re.match(r'.*\.zplay\.(\d+)', k).group(1)))
+    return sorted(paths, key=get_frame_from_snapshot_index)
 
 
 class TestReplays(unittest.TestCase):
@@ -125,6 +128,83 @@ class TestReplays(unittest.TestCase):
         self.assertEqual([s for s in snapshots if 'unexpected.png' in s], [
             '0/failing/failing.zplay.549-unexpected.png',
             '0/failing/failing.zplay.1574-unexpected.png',
+        ])
+
+    # There should be a limit to the number of unexpected snapshots written when
+    # many frames are failing in a row. If gfx goes back to working as expected,
+    # we should also save more unexpected snapshots if needed to again.
+    def test_failing_replay_different_gfx_step_limit(self):
+        failing_replay_contents = (
+            root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
+
+        segment_1 = [100, 60*20 + 500]
+        segment_2 = [segment_1[1] + 2000, segment_1[1] + 2200]
+        lines = []
+        for line in failing_replay_contents.splitlines():
+            if not (line.startswith('C') and ' g ' in line):
+                lines.append(line)
+                continue
+
+            frame = int(line.split(' ')[1])
+            if frame >= segment_1[0] and frame <= segment_1[1]:
+                line = f'C {frame} g blah'
+            if frame >= segment_2[0] and frame <= segment_2[1]:
+                line = f'C {frame} g blah'
+            lines.append(line)
+        failing_replay_contents = '\n'.join(lines)
+        create_test_replay(failing_replay_contents)
+
+        test_results = self.run_replay()
+        result = test_results.runs[0][0]
+        self.assertEqual(result.name, 'failing.zplay')
+        self.assertEqual(result.success, False)
+        self.assertEqual(result.failing_frame, 102)
+        snapshots = get_snapshots()
+        self.assertEqual(len([s for s in snapshots if segment_1[0]
+                         <= get_frame_from_snapshot_index(s) <= segment_1[1]]), 923)
+        self.assertEqual(len([s for s in snapshots if segment_2[0]
+                         <= get_frame_from_snapshot_index(s) <= segment_2[1]]), 201)
+        self.assertEqual([s for s in snapshots if not 'unexpected' in s], [
+            '0/failing/failing.zplay.84.png',
+            '0/failing/failing.zplay.85.png',
+            '0/failing/failing.zplay.86.png',
+            '0/failing/failing.zplay.87.png',
+            '0/failing/failing.zplay.88.png',
+            '0/failing/failing.zplay.89.png',
+            '0/failing/failing.zplay.90.png',
+            '0/failing/failing.zplay.91.png',
+            '0/failing/failing.zplay.96.png',
+            '0/failing/failing.zplay.97.png',
+            '0/failing/failing.zplay.1701.png',
+            '0/failing/failing.zplay.1702.png',
+            '0/failing/failing.zplay.1703.png',
+            '0/failing/failing.zplay.1704.png',
+            '0/failing/failing.zplay.1705.png',
+            '0/failing/failing.zplay.1706.png',
+            '0/failing/failing.zplay.1707.png',
+            '0/failing/failing.zplay.1708.png',
+            '0/failing/failing.zplay.1709.png',
+            '0/failing/failing.zplay.1710.png',
+            '0/failing/failing.zplay.3690.png',
+            '0/failing/failing.zplay.3691.png',
+            '0/failing/failing.zplay.3692.png',
+            '0/failing/failing.zplay.3693.png',
+            '0/failing/failing.zplay.3694.png',
+            '0/failing/failing.zplay.3695.png',
+            '0/failing/failing.zplay.3696.png',
+            '0/failing/failing.zplay.3697.png',
+            '0/failing/failing.zplay.3698.png',
+            '0/failing/failing.zplay.3699.png',
+            '0/failing/failing.zplay.3901.png',
+            '0/failing/failing.zplay.3902.png',
+            '0/failing/failing.zplay.3903.png',
+            '0/failing/failing.zplay.3904.png',
+            '0/failing/failing.zplay.3905.png',
+            '0/failing/failing.zplay.3906.png',
+            '0/failing/failing.zplay.3907.png',
+            '0/failing/failing.zplay.3908.png',
+            '0/failing/failing.zplay.3909.png',
+            '0/failing/failing.zplay.3910.png',
         ])
 
     def test_never_ending_failing_replay(self):

@@ -50,6 +50,9 @@ static std::vector<std::shared_ptr<ReplayStep>> replay_log;
 static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
 static std::vector<int> snapshot_frames;
+static std::vector<int> expected_loadscr_frame_count;
+static int loadscr_count;
+static int failed_loadscr_count_frame;
 static size_t replay_log_current_index;
 static size_t replay_log_current_quit_index;
 static size_t assert_current_index;
@@ -57,6 +60,7 @@ static size_t manual_takeover_start_index;
 static bool has_assert_failed;
 static int failing_frame;
 static int last_failing_gfx_frame;
+static int current_failing_gfx_segment_start_frame;
 static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
@@ -787,6 +791,19 @@ static void load_replay(std::filesystem::path path)
     version = replay_get_meta_int("version", 1);
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
+
+    if (mode == ReplayMode::Assert)
+    {
+        expected_loadscr_frame_count.clear();
+        for (auto step : replay_log)
+        {
+            if (step->type != TypeComment) continue;
+
+            auto comment_step = static_cast<CommentReplayStep *>(step.get());
+            if (comment_step->comment.rfind("scr=", 0) == 0)
+                expected_loadscr_frame_count.push_back(step->frame);
+        }
+    }
 }
 
 static void save_replay(std::string filename, const std::vector<std::shared_ptr<ReplayStep>> &log)
@@ -895,7 +912,7 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 
 static void save_history_snapshots()
 {
-	for (auto entry : framebuf_history)
+	for (auto& entry : framebuf_history)
 	{
 		if (entry.frame > 0)
 		{
@@ -1013,11 +1030,22 @@ static void start_manual_takeover()
 
 static void maybe_take_snapshot()
 {
-	if (mode == ReplayMode::Assert && last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
+	if (mode == ReplayMode::Assert)
 	{
-		if (!prev_gfx_hash_was_same)
-			save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
-		return;
+		if (current_failing_gfx_segment_start_frame != -1)
+		{
+			// Limit how many snapshots are saved in the same gfx failure segment.
+			if (frame_count - current_failing_gfx_segment_start_frame <= 60*20 && !prev_gfx_hash_was_same)
+				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+			return;
+		}
+		else if (last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
+		{
+			// Save a few frames after the last failing gfx, for context.
+			if (!prev_gfx_hash_was_same)
+				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+			return;
+		}
 	}
 
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
@@ -1081,6 +1109,9 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     has_assert_failed = false;
     failing_frame = -1;
     last_failing_gfx_frame = -1;
+    current_failing_gfx_segment_start_frame = -1;
+    loadscr_count = 0;
+    failed_loadscr_count_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
     replay_path = path;
@@ -1247,11 +1278,11 @@ void replay_poll()
         break;
     }
 
-    maybe_take_snapshot();
     if (mode == ReplayMode::Assert && gfx_got_mismatch)
     {
         save_history_snapshots();
     }
+    maybe_take_snapshot();
 
     if (frame_count == 0)
         save_result();
@@ -1283,7 +1314,23 @@ void replay_poll()
             return;
         }
 
-        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*20 || frame_count > replay_log.back()->frame))
+        if (frame_count > replay_log.back()->frame)
+        {
+            replay_stop();
+            return;
+        }
+
+        // If loadscr is not called when expected, the rest of the replay is not going to go well and may possible
+        // loop forever. Only record 60 more frames at this point.
+        if (has_assert_failed && failed_loadscr_count_frame == -1)
+        {
+            int expected_frame = loadscr_count + 1 >= expected_loadscr_frame_count.size() ?
+                replay_log.back()->frame :
+                expected_loadscr_frame_count[loadscr_count + 1];
+            if (frame_count > expected_frame)
+                failed_loadscr_count_frame = frame_count;
+        }
+        if (has_assert_failed && failed_loadscr_count_frame != -1 && frame_count - failed_loadscr_count_frame > 60)
         {
             replay_stop();
             return;
@@ -1414,7 +1461,7 @@ void replay_do_cheats()
 
 bool replay_is_assert_done()
 {
-    return mode == ReplayMode::Assert && (has_assert_failed || assert_current_index == replay_log.size());
+    return mode == ReplayMode::Assert && (assert_current_index == replay_log.size() || frame_count >= replay_log.back()->frame);
 }
 
 void replay_forget_input()
@@ -1625,6 +1672,12 @@ void replay_step_comment(std::string comment)
     }
 }
 
+void replay_step_comment_loadscr(int screen_index)
+{
+	replay_step_comment(fmt::format("scr={}", screen_index));
+	loadscr_count += 1;
+}
+
 // https://base91.sourceforge.net/
 // The maximum number of digits this can generate:
 //     uint64_t = 10
@@ -1678,6 +1731,13 @@ void replay_step_gfx(uint32_t gfx_hash)
 			gfx_got_mismatch = true;
 		if (gfx_got_mismatch)
 			last_failing_gfx_frame = frame_count;
+		if (gfx_hash != prev_gfx_hash)
+		{
+			if (gfx_got_mismatch && current_failing_gfx_segment_start_frame == -1)
+				current_failing_gfx_segment_start_frame = frame_count;
+			else if (!gfx_got_mismatch)
+				current_failing_gfx_segment_start_frame = -1;
+		}
 	}
 
 	// Skip if last invocation was the same value.
