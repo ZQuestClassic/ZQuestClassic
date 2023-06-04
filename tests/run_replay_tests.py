@@ -424,43 +424,6 @@ def get_shards(tests, n):
     return result
 
 
-def parse_result_txt_file(path: pathlib.Path):
-    if platform.system() == 'Windows':
-        # Windows has a tough time reading this file, sometimes resulting in a permission
-        # denied error. I suspect MSVC's `std::filesystem::rename` is not atomic like it
-        # claims to be. Or maybe the problem lies with Python's mtime.
-        for _ in range(0, 10):
-            try:
-                lines = path.read_text().splitlines()
-                if _ != 0:
-                    logging.warning('finally was able to read it')
-                break
-            except:
-                logging.exception(f'could not read {path}')
-                sleep(0.1)
-    else:
-        lines = path.read_text().splitlines()
-
-    result = {}
-    for line in lines:
-        key, value = line.split(': ', 1)
-        if value == 'true':
-            value = True
-        elif value == 'false':
-            value = False
-        elif value.isdigit():
-            value = int(value)
-        else:
-            try:
-                value = float(value)
-            except:
-                pass
-
-        result[key] = value
-
-    return result
-
-
 tests.sort(key=lambda test: -get_replay_data(test)['estimated_duration'])
 
 if args.shard and args.print_shards:
