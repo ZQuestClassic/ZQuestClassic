@@ -55,6 +55,7 @@ static size_t replay_log_current_quit_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
+static int failing_frame;
 static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
@@ -870,6 +871,8 @@ static void save_result(bool stopped = false, bool changed = false)
 	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
 		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+	if (has_assert_failed)
+		out << fmt::format("failing_frame: {}", failing_frame) << '\n';
 	if (mode == ReplayMode::Update)
 		out << fmt::format("changed: {}", changed) << '\n';
 	out.close();
@@ -940,6 +943,7 @@ static void check_assert()
         if (!steps_are_equal(replay_step.get(), record_step.get()))
         {
             has_assert_failed = true;
+            failing_frame = replay_step->frame;
             int line_number = assert_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
                                             replay_step->print(), record_step->print());
@@ -1073,6 +1077,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     sync_rng = false;
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
+    failing_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
     replay_path = path;

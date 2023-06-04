@@ -718,6 +718,10 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             result.fps = int(watcher.result['fps'])
 
             result.success = watcher.result['stopped'] and watcher.result['success']
+            if not result.success:
+                result.failing_frame = watcher.result['failing_frame']
+            else:
+                result.failing_frame = None
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {exit_code}')
@@ -768,16 +772,6 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             result.diff = ''.join(trimmed_diff_lines)
         else:
             result.diff = 'missing roundtrip file, cannnot diff'
-
-    stderr_path = output_dir / 'stderr.txt'
-    if not result.success and stderr_path.exists():
-        # TODO make this part of .result.txt
-        failing_frame_match = re.match(
-            r'.*expected:\n.*?(\d+)', stderr_path.read_text(), re.DOTALL)
-        if failing_frame_match:
-            result.failing_frame = int(failing_frame_match.group(1))
-        else:
-            print('could not find failing frame')
 
     return result
 
