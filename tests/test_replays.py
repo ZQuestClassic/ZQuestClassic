@@ -86,6 +86,7 @@ class TestReplays(unittest.TestCase):
             '0/failing/failing.zplay.556.png',
             '0/failing/failing.zplay.557.png',
             '0/failing/failing.zplay.558.png',
+            '0/failing/failing.zplay.559.png',
             '0/failing/failing.zplay.1560.png',
             '0/failing/failing.zplay.1561.png',
             '0/failing/failing.zplay.1562.png',
@@ -97,15 +98,12 @@ class TestReplays(unittest.TestCase):
             '0/failing/failing.zplay.1572.png',
             '0/failing/failing.zplay.1573.png',
             '0/failing/failing.zplay.1574-unexpected.png',
-            '0/failing/failing.zplay.1575.png',
             '0/failing/failing.zplay.1576.png',
-            '0/failing/failing.zplay.1577.png',
             '0/failing/failing.zplay.1578.png',
             '0/failing/failing.zplay.1579.png',
             '0/failing/failing.zplay.1580.png',
-            '0/failing/failing.zplay.1581.png',
             '0/failing/failing.zplay.1582.png',
-            '0/failing/failing.zplay.1583.png',
+            '0/failing/failing.zplay.1584.png',
         ])
 
     def test_failing_replay_missing_gfx_step(self):
@@ -123,7 +121,7 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 550)
         snapshots = get_snapshots()
-        self.assertEqual(len(snapshots), 40)
+        self.assertEqual(len(snapshots), 38)
         self.assertEqual([s for s in snapshots if 'unexpected.png' in s], [
             '0/failing/failing.zplay.549-unexpected.png',
             '0/failing/failing.zplay.1574-unexpected.png',
@@ -143,9 +141,9 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 1)
         snapshots = get_snapshots()
-        self.assertEqual(len(snapshots), 1197)
-        self.assertEqual(
-            len([s for s in snapshots if 'unexpected.png' in s]), 916)
+        self.assertEqual(snapshots, [
+            '0/failing/failing.zplay.1-unexpected.png',
+        ])
 
 
 if __name__ == '__main__':

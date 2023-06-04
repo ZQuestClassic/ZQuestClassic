@@ -56,6 +56,7 @@ static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
 static int failing_frame;
+static int last_failing_gfx_frame;
 static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
@@ -1012,6 +1013,13 @@ static void start_manual_takeover()
 
 static void maybe_take_snapshot()
 {
+	if (mode == ReplayMode::Assert && last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
+	{
+		if (!prev_gfx_hash_was_same)
+			save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+		return;
+	}
+
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
 	if (!snapshot_all_frames && !gfx_got_mismatch && it == snapshot_frames.end())
 	{
@@ -1072,6 +1080,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
     failing_frame = -1;
+    last_failing_gfx_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
     replay_path = path;
@@ -1242,9 +1251,6 @@ void replay_poll()
     if (mode == ReplayMode::Assert && gfx_got_mismatch)
     {
         save_history_snapshots();
-        // Snapshot the next few frames too.
-        for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
-            snapshot_frames.push_back(frame_count + i);
     }
 
     if (frame_count == 0)
@@ -1670,6 +1676,8 @@ void replay_step_gfx(uint32_t gfx_hash)
 			gfx_got_mismatch = true;
 		if (!expected_gfx_comment.empty() && expected_gfx_comment != gfx_comment)
 			gfx_got_mismatch = true;
+		if (gfx_got_mismatch)
+			last_failing_gfx_frame = frame_count;
 	}
 
 	// Skip if last invocation was the same value.
