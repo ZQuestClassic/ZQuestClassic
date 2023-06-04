@@ -894,12 +894,12 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 
 static void save_history_snapshots()
 {
-	for (auto framebuf_history : framebuf_history)
+	for (auto entry : framebuf_history)
 	{
-		if (framebuf_history.frame > 0)
+		if (entry.frame > 0)
 		{
-			save_snapshot(framebuf_history.bitmap, framebuf_history.pal, framebuf_history.frame, false);
-			framebuf_history.frame = -1;
+			save_snapshot(entry.bitmap, entry.pal, entry.frame, false);
+			entry.frame = -1;
 		}
 	}
 }
@@ -955,12 +955,6 @@ static void check_assert()
                 jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK (keep replaying)", NULL, 13, 27, get_zc_font(font_lfont));
                 exit_sys_pal();
             }
-
-            save_history_snapshots();
-
-            // Snapshot the next few frames.
-            for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
-                snapshot_frames.push_back(frame_count + i);
             break;
         }
 
@@ -1031,6 +1025,13 @@ static void maybe_take_snapshot()
 		return;
 	}
 
+	if (mode == ReplayMode::Assert && gfx_got_mismatch)
+	{
+		save_history_snapshots();
+		// Snapshot the next few frames too.
+		for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
+			snapshot_frames.push_back(frame_count + i);
+	}
 	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 }
 
@@ -1232,11 +1233,6 @@ void replay_poll()
         do_replaying_poll();
         do_recording_poll();
         check_assert();
-        if (mode != ReplayMode::Off)
-        {
-            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*20 || frame_count > replay_log.back()->frame))
-                replay_stop();
-        }
         break;
     case ReplayMode::Update:
         do_replaying_poll();
@@ -1281,7 +1277,7 @@ void replay_poll()
             return;
         }
 
-        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*20 || frame_count > replay_log.back()->frame))
         {
             replay_stop();
             return;

@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -22,13 +23,15 @@ def create_test_replay(contents):
 
 
 def get_snapshots():
-    return sorted(s.relative_to(output_dir).as_posix()
-                  for s in output_dir.rglob('*.png'))
+    paths = [s.relative_to(output_dir).as_posix()
+             for s in output_dir.rglob('*.png')]
+    return sorted(paths, key=lambda k:
+                  int(re.match(r'.*\.zplay\.(\d+)', k).group(1)))
 
 
 class TestReplays(unittest.TestCase):
 
-    def setUp(self) -> None:
+    def setUp(self):
         self.maxDiff = None
 
     def run_replay(self):
@@ -53,6 +56,8 @@ class TestReplays(unittest.TestCase):
             root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
         failing_replay_contents = failing_replay_contents.replace(
             'C 549 g H!V', 'C 549 g blah')
+        failing_replay_contents = failing_replay_contents.replace(
+            'C 1574 g H@:', 'C 1574 g blah')
         create_test_replay(failing_replay_contents)
 
         test_results = self.run_replay()
@@ -81,6 +86,26 @@ class TestReplays(unittest.TestCase):
             '0/failing/failing.zplay.556.png',
             '0/failing/failing.zplay.557.png',
             '0/failing/failing.zplay.558.png',
+            '0/failing/failing.zplay.1560.png',
+            '0/failing/failing.zplay.1561.png',
+            '0/failing/failing.zplay.1562.png',
+            '0/failing/failing.zplay.1564.png',
+            '0/failing/failing.zplay.1566.png',
+            '0/failing/failing.zplay.1567.png',
+            '0/failing/failing.zplay.1568.png',
+            '0/failing/failing.zplay.1570.png',
+            '0/failing/failing.zplay.1572.png',
+            '0/failing/failing.zplay.1573.png',
+            '0/failing/failing.zplay.1574-unexpected.png',
+            '0/failing/failing.zplay.1575.png',
+            '0/failing/failing.zplay.1576.png',
+            '0/failing/failing.zplay.1577.png',
+            '0/failing/failing.zplay.1578.png',
+            '0/failing/failing.zplay.1579.png',
+            '0/failing/failing.zplay.1580.png',
+            '0/failing/failing.zplay.1581.png',
+            '0/failing/failing.zplay.1582.png',
+            '0/failing/failing.zplay.1583.png',
         ])
 
     def test_never_ending_failing_replay(self):
@@ -97,9 +122,9 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 1)
         snapshots = get_snapshots()
-        self.assertEqual(len(snapshots), 915)
+        self.assertEqual(len(snapshots), 1197)
         self.assertEqual(
-            len([s for s in snapshots if 'unexpected.png' in s]), 915)
+            len([s for s in snapshots if 'unexpected.png' in s]), 916)
 
 
 if __name__ == '__main__':
