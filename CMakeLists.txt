@@ -658,6 +658,7 @@ if(WIN32)
 		src/dialog/itemeditor.cpp
 		src/dialog/init_data.cpp
 		src/dialog/comboeditor.cpp
+		src/dialog/combowizard.cpp
 		src/parser/GlobalSymbols.cpp
 		PROPERTIES COMPILE_FLAGS "/bigobj"
 	)
