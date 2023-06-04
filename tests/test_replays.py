@@ -68,6 +68,7 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 549)
+        self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
         self.assertEqual(get_snapshots(), [
             '0/failing/failing.zplay.539.png',
             '0/failing/failing.zplay.540.png',
@@ -123,6 +124,7 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 550)
+        self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
         snapshots = get_snapshots()
         self.assertEqual(len(snapshots), 38)
         self.assertEqual([s for s in snapshots if 'unexpected.png' in s], [
@@ -159,6 +161,7 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 102)
+        self.assertEqual(len(result.unexpected_gfx_frames), 1124)
         snapshots = get_snapshots()
         self.assertEqual(len([s for s in snapshots if segment_1[0]
                          <= get_frame_from_snapshot_index(s) <= segment_1[1]]), 923)
@@ -220,6 +223,7 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 1)
+        self.assertEqual(result.unexpected_gfx_frames, [1])
         snapshots = get_snapshots()
         self.assertEqual(snapshots, [
             '0/failing/failing.zplay.1-unexpected.png',

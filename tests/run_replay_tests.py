@@ -86,7 +86,9 @@ def parse_result_txt_file(path: pathlib.Path):
     result = {}
     for line in lines:
         key, value = line.split(': ', 1)
-        if value == 'true':
+        if key == 'unexpected_gfx_frames':
+            value = [int(x) for x in value.split(', ')]
+        elif value == 'true':
             value = True
         elif value == 'false':
             value = False
@@ -683,8 +685,10 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             result.success = watcher.result['stopped'] and watcher.result['success']
             if not result.success:
                 result.failing_frame = watcher.result['failing_frame']
+                result.unexpected_gfx_frames = watcher.result['unexpected_gfx_frames']
             else:
                 result.failing_frame = None
+                result.unexpected_gfx_frames = None
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {exit_code}')

@@ -27,6 +27,7 @@ class RunResult:
     duration: float = None
     fps: int = None
     failing_frame: int = None
+    unexpected_gfx_frames: List[int] = None
     diff: str = None
 
 

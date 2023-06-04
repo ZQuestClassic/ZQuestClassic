@@ -61,6 +61,7 @@ static bool has_assert_failed;
 static int failing_frame;
 static int last_failing_gfx_frame;
 static int current_failing_gfx_segment_start_frame;
+static std::vector<int> unexpected_gfx_frames;
 static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
@@ -893,6 +894,8 @@ static void save_result(bool stopped = false, bool changed = false)
 		out << fmt::format("failing_frame: {}", failing_frame) << '\n';
 	if (mode == ReplayMode::Update)
 		out << fmt::format("changed: {}", changed) << '\n';
+	if (has_assert_failed && !unexpected_gfx_frames.empty())
+		out << fmt::format("unexpected_gfx_frames: {}", fmt::join(unexpected_gfx_frames, ", ")) << '\n';
 	out.close();
 
 	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"));
@@ -908,6 +911,8 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 	// TODO: fmt::print crashes in Visual Studio IDE...
 	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}", img_path.string()).c_str());
 	save_bitmap(img_path.string().c_str(), bitmap, pal);
+	if (was_unexpected)
+		unexpected_gfx_frames.push_back(frame);
 }
 
 static void save_history_snapshots()
@@ -1110,6 +1115,7 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     failing_frame = -1;
     last_failing_gfx_frame = -1;
     current_failing_gfx_segment_start_frame = -1;
+    unexpected_gfx_frames.clear();
     loadscr_count = 0;
     failed_loadscr_count_frame = -1;
     has_rng_desynced = false;

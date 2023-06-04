@@ -9,6 +9,7 @@ import json
 from time import sleep
 from typing import List
 from pathlib import Path
+import intervaltree
 # pip install PyGithub
 from github import Github, GithubException, WorkflowRun, PaginatedList
 from common import get_gha_artifacts, ReplayTestResults
@@ -179,13 +180,19 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
             if run.name not in failing_frames_by_replay:
                 failing_frames_by_replay[run.name] = []
             failing_frames_by_replay[run.name].append(run.failing_frame)
+            failing_frames_by_replay[run.name].extend(run.unexpected_gfx_frames)
 
     extra_args = []
     for replay_name, failing_frames in failing_frames_by_replay.items():
         extra_args.append(f'--filter {replay_name}')
+        ranges = []
         for failing_frame in set(failing_frames):
+            ranges.append([max(0, failing_frame-60), failing_frame+60])
+        tree = intervaltree.IntervalTree.from_tuples(ranges)
+        tree.merge_overlaps(strict=False)
+        for interval in tree.items():
             extra_args.append(
-                f'--snapshot {replay_name}={max(0, failing_frame-60)}-{failing_frame+60}')
+                f'--snapshot {replay_name}={interval.begin}-{interval.end}')
         max_frame = max(failing_frames)
         extra_args.append(f'--frame {replay_name}={max_frame+60}')
 
