@@ -51,7 +51,7 @@ class TestReplays(unittest.TestCase):
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         return ReplayTestResults(**test_results_json)
 
-    def test_failing_replay(self):
+    def test_failing_replay_different_gfx_step(self):
         failing_replay_contents = (
             root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
         failing_replay_contents = failing_replay_contents.replace(
@@ -106,6 +106,27 @@ class TestReplays(unittest.TestCase):
             '0/failing/failing.zplay.1581.png',
             '0/failing/failing.zplay.1582.png',
             '0/failing/failing.zplay.1583.png',
+        ])
+
+    def test_failing_replay_missing_gfx_step(self):
+        failing_replay_contents = (
+            root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
+        failing_replay_contents = failing_replay_contents.replace(
+            'C 549 g H!V\n', '')
+        failing_replay_contents = failing_replay_contents.replace(
+            'C 1574 g H@:\n', '')
+        create_test_replay(failing_replay_contents)
+
+        test_results = self.run_replay()
+        result = test_results.runs[0][0]
+        self.assertEqual(result.name, 'failing.zplay')
+        self.assertEqual(result.success, False)
+        self.assertEqual(result.failing_frame, 550)
+        snapshots = get_snapshots()
+        self.assertEqual(len(snapshots), 40)
+        self.assertEqual([s for s in snapshots if 'unexpected.png' in s], [
+            '0/failing/failing.zplay.549-unexpected.png',
+            '0/failing/failing.zplay.1574-unexpected.png',
         ])
 
     def test_never_ending_failing_replay(self):
