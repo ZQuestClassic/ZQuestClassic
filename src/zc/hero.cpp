@@ -20791,7 +20791,7 @@ void HeroClass::checkchest(int32_t type)
 			return; //Button not pressed
 		}
 	}
-	else if(pushing < 8) return; //Not pushing against chest enough
+	else if(pushing < 8 || pushing % 8) return; //Not pushing against chest enough
 	
 	if(ischest)
 	{
