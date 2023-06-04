@@ -1025,13 +1025,6 @@ static void maybe_take_snapshot()
 		return;
 	}
 
-	if (mode == ReplayMode::Assert && gfx_got_mismatch)
-	{
-		save_history_snapshots();
-		// Snapshot the next few frames too.
-		for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
-			snapshot_frames.push_back(frame_count + i);
-	}
 	save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 }
 
@@ -1246,6 +1239,13 @@ void replay_poll()
     }
 
     maybe_take_snapshot();
+    if (mode == ReplayMode::Assert && gfx_got_mismatch)
+    {
+        save_history_snapshots();
+        // Snapshot the next few frames too.
+        for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
+            snapshot_frames.push_back(frame_count + i);
+    }
 
     if (frame_count == 0)
         save_result();
