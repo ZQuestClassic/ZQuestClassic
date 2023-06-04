@@ -11,23 +11,27 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_dir = root_dir / '.tmp/test_replays'
 failing_replay = test_dir / 'failing.zplay'
+output_dir = test_dir / 'output'
+
+
+def create_test_replay(contents):
+    if test_dir.exists():
+        shutil.rmtree(test_dir)
+    test_dir.mkdir(parents=True)
+    failing_replay.write_text(contents)
+
+
+def get_snapshots():
+    return sorted(s.relative_to(output_dir).as_posix()
+                  for s in output_dir.rglob('*.png'))
 
 
 class TestReplays(unittest.TestCase):
 
     def setUp(self) -> None:
         self.maxDiff = None
-        if test_dir.exists():
-            shutil.rmtree(test_dir)
-        test_dir.mkdir(parents=True)
-        failing_replay_contents = (
-            root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
-        failing_replay_contents = failing_replay_contents.replace(
-            'C 549 g H!V', 'C 549 g blah')
-        failing_replay.write_text(failing_replay_contents)
 
-    def test_failing_replay(self):
-        output_dir = test_dir / 'output'
+    def run_replay(self):
         args = [
             sys.executable,
             root_dir / 'tests/run_replay_tests.py',
@@ -42,15 +46,21 @@ class TestReplays(unittest.TestCase):
 
         test_results_path = test_dir / 'output/test_results.json'
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
-        test_results = ReplayTestResults(**test_results_json)
+        return ReplayTestResults(**test_results_json)
 
+    def test_failing_replay(self):
+        failing_replay_contents = (
+            root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
+        failing_replay_contents = failing_replay_contents.replace(
+            'C 549 g H!V', 'C 549 g blah')
+        create_test_replay(failing_replay_contents)
+
+        test_results = self.run_replay()
         result = test_results.runs[0][0]
-        snapshots = (s.relative_to(output_dir).as_posix()
-                     for s in output_dir.rglob('*.png'))
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 549)
-        self.assertEqual(sorted(snapshots), [
+        self.assertEqual(get_snapshots(), [
             '0/failing/failing.zplay.539.png',
             '0/failing/failing.zplay.540.png',
             '0/failing/failing.zplay.541.png',
@@ -72,6 +82,24 @@ class TestReplays(unittest.TestCase):
             '0/failing/failing.zplay.557.png',
             '0/failing/failing.zplay.558.png',
         ])
+
+    def test_never_ending_failing_replay(self):
+        failing_replay_contents = (
+            root_dir / 'tests/replays/classic_1st_lvl1.zplay').read_text()
+        lines = failing_replay_contents.splitlines()
+        failing_replay_contents = '\n'.join(
+            l for l in lines if not l.startswith('D') and not l.startswith('U'))
+        create_test_replay(failing_replay_contents)
+
+        test_results = self.run_replay()
+        result = test_results.runs[0][0]
+        self.assertEqual(result.name, 'failing.zplay')
+        self.assertEqual(result.success, False)
+        self.assertEqual(result.failing_frame, 1)
+        snapshots = get_snapshots()
+        self.assertEqual(len(snapshots), 915)
+        self.assertEqual(
+            len([s for s in snapshots if 'unexpected.png' in s]), 915)
 
 
 if __name__ == '__main__':
