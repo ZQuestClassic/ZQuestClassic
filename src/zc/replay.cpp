@@ -1040,7 +1040,7 @@ static void maybe_take_snapshot()
 		if (current_failing_gfx_segment_start_frame != -1)
 		{
 			// Limit how many snapshots are saved in the same gfx failure segment.
-			if (frame_count - current_failing_gfx_segment_start_frame <= 60*20 && !prev_gfx_hash_was_same)
+			if (frame_count - current_failing_gfx_segment_start_frame <= 60*10 && !prev_gfx_hash_was_same)
 				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
 			return;
 		}

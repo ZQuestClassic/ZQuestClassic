@@ -161,10 +161,10 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 102)
-        self.assertEqual(len(result.unexpected_gfx_frames), 1124)
+        self.assertEqual(len(result.unexpected_gfx_frames), 553)
         snapshots = get_snapshots()
         self.assertEqual(len([s for s in snapshots if segment_1[0]
-                         <= get_frame_from_snapshot_index(s) <= segment_1[1]]), 923)
+                         <= get_frame_from_snapshot_index(s) <= segment_1[1]]), 352)
         self.assertEqual(len([s for s in snapshots if segment_2[0]
                          <= get_frame_from_snapshot_index(s) <= segment_2[1]]), 201)
         self.assertEqual([s for s in snapshots if not 'unexpected' in s], [
