@@ -966,7 +966,7 @@ static void check_assert()
         if (!steps_are_equal(replay_step.get(), record_step.get()))
         {
             has_assert_failed = true;
-            failing_frame = replay_step->frame;
+            failing_frame = record_step->frame;
             int line_number = assert_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
                                             replay_step->print(), record_step->print());

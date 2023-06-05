@@ -123,7 +123,7 @@ class TestReplays(unittest.TestCase):
         result = test_results.runs[0][0]
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
-        self.assertEqual(result.failing_frame, 550)
+        self.assertEqual(result.failing_frame, 549)
         self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
         snapshots = get_snapshots()
         self.assertEqual(len(snapshots), 38)
