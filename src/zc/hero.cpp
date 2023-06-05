@@ -28013,7 +28013,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		if(olddmap == newdmap)
+		if(olddmap == newdmap || (replay_is_active() && replay_get_version() < 15))
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
 		else refresh_dmap_scrollscript = true;
 	}
