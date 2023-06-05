@@ -885,7 +885,10 @@ static GUI::ListData compatRulesList
 		" will continue obeying gravity." },
 	{ "Old Bomb Hitboxes", qr_OLD_BOMB_HITBOXES,
 		"If enabled, the outer ring of bombs' hitboxes will not count for triggering combos/secrets,"
-		" and giving bombs custom radii will not work."}
+		" and giving bombs custom radii will not work."},
+	{ "Broken scroll/warp frame issue", qr_SCROLLWARP_NO_RESET_FRAME,
+		"If enabled, after a scroll or warp, the next frame is started mid-frame"
+		" instead of from the start, possibly causing issues with things like input." }
 };
 
 static GUI::ListData enemiesRulesList

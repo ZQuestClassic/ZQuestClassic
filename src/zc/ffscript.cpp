@@ -28821,10 +28821,9 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		initZScriptDMapScripts();
 	}
 	Hero.is_warping = false;
+	if(!get_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME))
+		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
-	
-	
-	
 }
 
 void FFScript::do_adjustvolume(const bool v)
