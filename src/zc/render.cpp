@@ -67,10 +67,7 @@ static void init_render_tree()
 	// the bitmap being cleared when losing focus. Since we sometimes don't always draw to this
 	// every frame (when it is frozen under a pause menu), we need to pay the cost to keep the texture
 	// backed up.
-	if (zc_get_config("zeldadx", "scaling_mode", 0) == 1)
-		al_set_new_bitmap_flags(base_flags_preserve_texture | ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR);
-	else
-		al_set_new_bitmap_flags(base_flags_preserve_texture);
+	al_set_new_bitmap_flags(base_flags_preserve_texture);
 	rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 	rti_game.a4_bitmap = framebuf;
 	rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
