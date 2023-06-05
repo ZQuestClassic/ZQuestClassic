@@ -113,6 +113,13 @@ jobs:
               wait=True,
           )
 
+      # Upload as artifact, so that if publishing to surge fails the report is still accessible.
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: report
+          path: ${{ github.workspace }}/tests/compare-report
+
   web:
     needs: warm-lfs-cache
     runs-on: ubuntu-22.04
