@@ -12,6 +12,22 @@ Later work on this system may introduce more user-facing features, such as saves
 
 In the meantime, **a great way to contribute to ZC development** is to enable the recording feature for your new games, and provide us your `.zplay` files. You don't have to finish the game, any amount of playthroughs could be helpful. The more we have, the better coverage our testing system will have, and the fewer regressions/compatability bugs there will be!
 
+## Technical details
+
+Replays are implemented in `replay.cpp`.
+
+The player emits `.zplay.result.txt` files when the replay system is active. This allows for external programs (our python test scripts) to poll the results as the program runs.
+
+The replays tests run in CI live in `tests/replays`, and can be run like this: `python3 tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay`. The results are summarized in `.tmp/default/test_results.json`.
+
+The `run_test_workflow.py` script can be used to run replays in CI. It can take the results of `run_replay_tests.py` to run just the set of replays that are currently failing.
+
+The `compare_replays.py` script creates an HTML report of a baseline replay tests run and failing replay tests runs.
+
+In CI, when replays fail, the replays are ran on a working baseline commit to collect snapshots of the frames in question. An HTML report is generated and uploaded to surge.sh, which is then pinged over to Discord.
+
+TODO: there's a lot more to say about how it actually works. replay versions, zplay format, assert mode, snapshots, etc...
+
 ## Test coverage
 
 - `pip install gcovr`
