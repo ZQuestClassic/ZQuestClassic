@@ -1977,7 +1977,7 @@ const char *key_str[] =
 	",",            ".",             "/",             "Space",
 	"Insert",       "Delete",        "Home",          "End",
 	"Page Up",      "Page Down",     "Left",          "Right",
-	"Up",           "down",          "Num /",         "Num *",
+	"Up",           "Down",          "Num /",         "Num *",
 	"Num -",        "Num +",         "Num delete",    "Num enter",
 	"Print screen", "Pause",         "Abnt C1",       "Yen",
 	"Kana",         "Convert",       "No Convert",    "At",
