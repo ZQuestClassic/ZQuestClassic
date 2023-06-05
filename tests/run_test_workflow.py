@@ -164,7 +164,7 @@ def poll_workflow_run(run_id: int):
 # files, and dispatch and wait for a workflow run to finish using a baseline
 # commit.
 def collect_baseline_from_test_results(test_results_paths: List[Path]):
-    failing_frames_by_replay = {}
+    failing_segments_by_replay = {}
     for path in test_results_paths:
         test_results_json = json.loads(path.read_text('utf-8'))
         test_results = ReplayTestResults(**test_results_json)
@@ -177,24 +177,27 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
                 print(f'{path}: no failing_frame for {run.name}, skipping')
                 continue
 
-            if run.name not in failing_frames_by_replay:
-                failing_frames_by_replay[run.name] = []
-            failing_frames_by_replay[run.name].append(run.failing_frame)
-            failing_frames_by_replay[run.name].extend(run.unexpected_gfx_frames)
+            if run.name not in failing_segments_by_replay:
+                failing_segments_by_replay[run.name] = []
+            # Capture the very first frame (this covers non-gfx failures).
+            failing_segments_by_replay[run.name].append([run.failing_frame, run.failing_frame])
+            # ...and all unexpected gfx segments (but, the limited variant).
+            failing_segments_by_replay[run.name].extend(run.unexpected_gfx_segments_limited)
 
     extra_args = []
-    for replay_name, failing_frames in failing_frames_by_replay.items():
+    for replay_name, failing_segments in failing_segments_by_replay.items():
         extra_args.append(f'--filter {replay_name}')
         ranges = []
-        for failing_frame in set(failing_frames):
-            ranges.append([max(0, failing_frame-60), failing_frame+60])
+        for start, end in failing_segments:
+            # Add some context around these snapshot ranges.
+            ranges.append([max(0, start - 60), end + 60])
         tree = intervaltree.IntervalTree.from_tuples(ranges)
         tree.merge_overlaps(strict=False)
         for interval in tree.items():
             extra_args.append(
                 f'--snapshot {replay_name}={interval.begin}-{interval.end}')
-        max_frame = max(failing_frames)
-        extra_args.append(f'--frame {replay_name}={max_frame+60}')
+        max_frame = max([segment[1] for segment in ranges])
+        extra_args.append(f'--frame {replay_name}={max_frame}')
 
     if not extra_args:
         raise Exception('all failing replays were invalid')

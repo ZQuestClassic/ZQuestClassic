@@ -88,6 +88,16 @@ def parse_result_txt_file(path: pathlib.Path):
         key, value = line.split(': ', 1)
         if key == 'unexpected_gfx_frames':
             value = [int(x) for x in value.split(', ')]
+        elif key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited':
+            segments = []
+            for pair in value.split(' '):
+                if '-' in pair:
+                    start, end = pair.split('-')
+                else:
+                    start = int(pair)
+                    end = start
+                segments.append([int(start), int(end)])
+            value = segments
         elif value == 'true':
             value = True
         elif value == 'false':
@@ -681,11 +691,14 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             watcher.update_result()
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
+            result.frame = int(watcher.result['frame'])
 
             result.success = watcher.result['stopped'] and watcher.result['success']
             if not result.success:
                 result.failing_frame = watcher.result['failing_frame']
                 result.unexpected_gfx_frames = watcher.result['unexpected_gfx_frames']
+                result.unexpected_gfx_segments = watcher.result['unexpected_gfx_segments']
+                result.unexpected_gfx_segments_limited = watcher.result['unexpected_gfx_segments_limited']
             else:
                 result.failing_frame = None
                 result.unexpected_gfx_frames = None

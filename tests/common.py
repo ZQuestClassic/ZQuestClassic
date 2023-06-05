@@ -5,7 +5,7 @@ import json
 from time import sleep
 from dataclasses import dataclass
 import dataclasses
-from typing import List, Literal, Dict, Optional, Any
+from typing import List, Literal, Tuple, Optional, Any
 import requests
 import zipfile
 from pathlib import Path
@@ -26,8 +26,11 @@ class RunResult:
     success: bool = False
     duration: float = None
     fps: int = None
+    frame: int = None
     failing_frame: int = None
     unexpected_gfx_frames: List[int] = None
+    unexpected_gfx_segments: List[Tuple[int, int]] = None
+    unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
     diff: str = None
 
 

@@ -69,6 +69,8 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 549)
         self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
+        self.assertEqual(result.unexpected_gfx_segments, [[549, 549], [1574, 1575]])
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[549, 549], [1574, 1575]])
         self.assertEqual(get_snapshots(), [
             '0/failing/failing.zplay.539.png',
             '0/failing/failing.zplay.540.png',
@@ -125,6 +127,8 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 549)
         self.assertEqual(result.unexpected_gfx_frames, [549, 1574])
+        self.assertEqual(result.unexpected_gfx_segments, [[549, 549], [1574, 1575]])
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[549, 549], [1574, 1575]])
         snapshots = get_snapshots()
         self.assertEqual(len(snapshots), 38)
         self.assertEqual([s for s in snapshots if 'unexpected.png' in s], [
@@ -161,6 +165,8 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 102)
+        self.assertEqual(result.unexpected_gfx_segments, [[102, 1700], [3700, 3900]])
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[102, 702], [3700, 3900]])
         self.assertEqual(len(result.unexpected_gfx_frames), 553)
         snapshots = get_snapshots()
         self.assertEqual(len([s for s in snapshots if segment_1[0]
@@ -222,8 +228,12 @@ class TestReplays(unittest.TestCase):
         result = test_results.runs[0][0]
         self.assertEqual(result.name, 'failing.zplay')
         self.assertEqual(result.success, False)
+        # This is the frame it stops at because of the loadscr check failing.
+        self.assertEqual(result.frame, 634)
         self.assertEqual(result.failing_frame, 1)
         self.assertEqual(result.unexpected_gfx_frames, [1])
+        self.assertEqual(result.unexpected_gfx_segments, [[1, 634]])
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[1, 601]])
         snapshots = get_snapshots()
         self.assertEqual(snapshots, [
             '0/failing/failing.zplay.1-unexpected.png',
