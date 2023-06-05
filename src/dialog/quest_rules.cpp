@@ -648,8 +648,8 @@ static GUI::ListData compatRulesList
 		" they die!"},
 	{ "Old Itemdata Script timing", qr_OLD_ITEMDATA_SCRIPT_TIMING, 
 		"Changes the timing of itemdata scripts. If this is disabled, they run"
-		" immediately before the Player's internal code. If this is enabled,"
-		" it will run immediately after."},
+		" immediately after the Player's internal code. If this is enabled,"
+		" it will run immediately before."},
 	{ "Old fairy spawn limit", qr_OLD_FAIRY_LIMIT, 
 		"If this rule is enabled, there is a limit of one fairy onscreen that enemies"
 		" and combos can drop."},
