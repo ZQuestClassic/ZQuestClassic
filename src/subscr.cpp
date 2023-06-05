@@ -3715,20 +3715,22 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 	color_map=&trans_table;
 	set_trans_blender(0, 0, 0, 128);
 	
-	//doing animation here leads to 2x speed when drawing both active and passive subscreen -DD
-	/*static item sel_a((zfix)0,(zfix)0,(zfix)0,iSelectA,0,0);
-	static item sel_b((zfix)0,(zfix)0,(zfix)0,iSelectB,0,0);
-	if (new_sel)
-	{
-	  sel_a=item((zfix)0,(zfix)0,(zfix)0,iSelectA,0,0);
-	  sel_b=item((zfix)0,(zfix)0,(zfix)0,iSelectB,0,0);
-	  new_sel=false;
-	}
-	sel_a.yofs=0;
-	sel_a.animate(0);
-	sel_b.yofs=0;
-	sel_b.animate(0);*/
-	if(!sel_a || !sel_b)
+	#ifdef IS_ZQUEST
+	bool animate_sel = true; //ZQ needs to always animate -Em
+	/* ZQ also has no 'advanceframe' to increment the global frame counter,
+	 * so we need to increment that here, as flashing items use it for their draw.
+	 * -Em
+	 */
+	++frame;
+	#else
+	/* Animating in ZC every frame causes doubled animation speed, due to
+	 * animating both for the passive and active subscreen.
+	 * So, only call it if new selectors are needed. ZC doesn't use 'bool new_sel'.
+	 * -Em
+	 */
+	bool animate_sel = !sel_a || !sel_b;
+	#endif
+	if(animate_sel)
 		animate_selectors();
 		
 	for(int32_t i=0; i<MAXSUBSCREENITEMS&&css->objects[i].type>ssoNULL; ++i)
