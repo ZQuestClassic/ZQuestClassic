@@ -754,7 +754,7 @@ static GUI::ListData compatRulesList
 		" Enabling this recreates this bug."},
 	{ "Old Intro String in Ganon Room Behavior", qr_GANONINTRO,
 		"In older versions, Ganon Rooms used to call the function that reset the dmap's intro clock."
-		" This normally wouldn't do anythingas it checks if you've already visited the dmap, but in"
+		" This normally wouldn't do anything as it checks if you've already visited the dmap, but in"
 		" certain circumstances this could allow Ganon to repeat the dmap's intro string."
 		" Enabling this will recreate this behavior."},
 	{ "Candle use limit is shared", qr_CANDLES_SHARED_LIMIT,
