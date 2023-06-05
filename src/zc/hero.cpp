@@ -25415,6 +25415,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		}
 	}
 	is_warping = false;
+	if(!get_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME))
+		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
 }
 
@@ -28017,6 +28019,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			ZScriptVersion::RunScrollingScript(scrolldir, cx, sx, sy, end_frames, false); //Prewaitdraw
 		else refresh_dmap_scrollscript = true;
 	}
+	if(!get_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME))
+		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 }
 
 
