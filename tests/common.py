@@ -73,9 +73,15 @@ def infer_gha_platform():
 # See:
 # - https://nightly.link/
 # - https://github.com/actions/upload-artifact/issues/51
-def download_artifact(repo, artifact, dest):
-    url = f'https://nightly.link/{repo}/actions/artifacts/{artifact.id}.zip'
-    r = requests.get(url)
+def download_artifact(gh, repo, artifact, dest):
+    auth_header = gh._Github__requester._Requester__authorizationHeader
+    if auth_header == None:
+        url = f'https://nightly.link/{repo}/actions/artifacts/{artifact.id}.zip'
+        r = requests.get(url)
+    else:
+        url = artifact.archive_download_url
+        r = requests.get(url, headers={'Authorization': auth_header})
+
     zip = zipfile.ZipFile(io.BytesIO(r.content))
     zip.extractall(dest)
     zip.close()
@@ -101,7 +107,7 @@ def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
         artifact_dir = workflow_run_dir / str(artifact.name)
         if not artifact_dir.exists():
             print(f'downloading artifact: {artifact.name}')
-            download_artifact(repo_str, artifact, artifact_dir)
+            download_artifact(gh, repo_str, artifact, artifact_dir)
         test_results_path = next(artifact_dir.glob('test_results.json'), None)
         if test_results_path:
             test_results_paths.append(test_results_path)
