@@ -446,9 +446,6 @@ void update_combobrush();
 void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
-static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
-static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal);
-static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
 /**************************/
