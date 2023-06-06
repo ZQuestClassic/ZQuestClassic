@@ -9,9 +9,10 @@ import json
 from time import sleep
 from typing import List
 from pathlib import Path
+import intervaltree
 # pip install PyGithub
 from github import Github, GithubException, WorkflowRun, PaginatedList
-from common import infer_gha_platform, get_gha_artifacts, ReplayTestResults
+from common import get_gha_artifacts, ReplayTestResults
 from workflow_job import WorkflowJob
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -30,8 +31,8 @@ parser.add_argument('--token', required=True)
 
 # Specify workflow parameters.
 parser.add_argument('--commit', default='main')
-parser.add_argument('--runs_on')
-parser.add_argument('--arch')
+parser.add_argument('--runs_on', default='ubuntu-22.04')
+parser.add_argument('--arch', default='x64')
 parser.add_argument('--compiler')
 parser.add_argument('--extra_args', default='')
 
@@ -163,7 +164,7 @@ def poll_workflow_run(run_id: int):
 # files, and dispatch and wait for a workflow run to finish using a baseline
 # commit.
 def collect_baseline_from_test_results(test_results_paths: List[Path]):
-    failing_frames_by_replay = {}
+    failing_segments_by_replay = {}
     for path in test_results_paths:
         test_results_json = json.loads(path.read_text('utf-8'))
         test_results = ReplayTestResults(**test_results_json)
@@ -176,18 +177,27 @@ def collect_baseline_from_test_results(test_results_paths: List[Path]):
                 print(f'{path}: no failing_frame for {run.name}, skipping')
                 continue
 
-            if run.name not in failing_frames_by_replay:
-                failing_frames_by_replay[run.name] = []
-            failing_frames_by_replay[run.name].append(run.failing_frame)
+            if run.name not in failing_segments_by_replay:
+                failing_segments_by_replay[run.name] = []
+            # Capture the very first frame (this covers non-gfx failures).
+            failing_segments_by_replay[run.name].append([run.failing_frame, run.failing_frame])
+            # ...and all unexpected gfx segments (but, the limited variant).
+            failing_segments_by_replay[run.name].extend(run.unexpected_gfx_segments_limited)
 
     extra_args = []
-    for replay_name, failing_frames in failing_frames_by_replay.items():
+    for replay_name, failing_segments in failing_segments_by_replay.items():
         extra_args.append(f'--filter {replay_name}')
-        for failing_frame in set(failing_frames):
+        ranges = []
+        for start, end in failing_segments:
+            # Add some context around these snapshot ranges.
+            ranges.append([max(0, start - 60), end + 60])
+        tree = intervaltree.IntervalTree.from_tuples(ranges)
+        tree.merge_overlaps(strict=False)
+        for interval in tree.items():
             extra_args.append(
-                f'--snapshot {replay_name}={max(0, failing_frame-60)}-{failing_frame+60}')
-        max_frame = max(failing_frames)
-        extra_args.append(f'--frame {replay_name}={max_frame+60}')
+                f'--snapshot {replay_name}={interval.begin}-{interval.end}')
+        max_frame = max([segment[1] for segment in ranges])
+        extra_args.append(f'--frame {replay_name}={max_frame}')
 
     if not extra_args:
         raise Exception('all failing replays were invalid')
@@ -220,13 +230,15 @@ else:
     if args.extra_args:
         extra_args = args.extra_args.split(' ')
 
-    if args.runs_on and args.arch:
-        runs_on, arch = args.runs_on, args.arch
-    else:
-        print('--runs_on and --arch not defined')
-        runs_on, arch = infer_gha_platform()
-        print(f'inferred from current machine: {runs_on} {arch}')
+    if args.compiler:
+        compiler = args.compiler
+    elif args.runs_on.startswith('windows'):
+        compiler = 'msvc'
+    elif args.runs_on.startswith('mac'):
+        compiler = 'clang'
+    elif args.runs_on.startswith('ubuntu'):
+        compiler = 'clang'
 
     run_id = start_test_workflow_run(
-        args.commit, runs_on, arch, args.compiler, extra_args)
+        args.commit, args.runs_on, args.arch, compiler, extra_args)
     poll_workflow_run(run_id)

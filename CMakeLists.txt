@@ -659,6 +659,7 @@ if(WIN32)
 		src/dialog/itemeditor.cpp
 		src/dialog/init_data.cpp
 		src/dialog/comboeditor.cpp
+		src/dialog/combowizard.cpp
 		src/parser/GlobalSymbols.cpp
 		PROPERTIES COMPILE_FLAGS "/bigobj"
 	)
@@ -727,8 +728,6 @@ set(zc_clang_errors
 )
 set(zc_gcc_errors
 	-Werror=array-bounds
-	-Werror=constant-conversion
-	-Werror=extra-tokens
 	-Werror=format
 	-Werror=format-overflow
 	-Werror=return-type

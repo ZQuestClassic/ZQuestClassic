@@ -29120,10 +29120,9 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		initZScriptDMapScripts();
 	}
 	Hero.is_warping = false;
+	if(!get_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME))
+		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
-	
-	
-	
 }
 
 void FFScript::do_adjustvolume(const bool v)
@@ -33113,7 +33112,13 @@ j_command:
 			}
 			case HEROLIFTRELEASE:
 			{
-				ri->d[rEXP1] = Hero.lift_wpn ? Hero.lift_wpn->getUID() : 0;
+				if(Hero.lift_wpn)
+				{
+					ri->d[rEXP1] = Hero.lift_wpn->getUID();
+					Lwpns.add(Hero.lift_wpn);
+					Hero.lift_wpn = nullptr;
+				}
+				else ri->d[rEXP1] = 0;
 				break;
 			}
 			case HEROLIFTGRAB:
@@ -34973,7 +34978,7 @@ void FFScript::do_fopen(const bool v, const char* f_mode)
 		bool create = false;
 		for(int32_t q = 0; f_mode[q]; ++q)
 		{
-			if(f_mode[q] == 'w')
+			if(f_mode[q] == 'w' || f_mode[q] == 'a')
 			{
 				create = true;
 				break;

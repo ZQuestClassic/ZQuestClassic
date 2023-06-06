@@ -5577,7 +5577,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				replay_step_comment(fmt::format("dmap={}", destdmap));
 			}
 		}
-		replay_step_comment(fmt::format("scr={}", scr));
+		replay_step_comment_loadscr(scr);
 
 		// Reset the rngs and frame count so that recording steps can be modified without impacting
 		// behavior of later screens.

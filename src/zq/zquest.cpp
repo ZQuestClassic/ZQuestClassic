@@ -553,7 +553,7 @@ int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp re
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
 bool Vsync = false, ShowFPS = false, SaveDragResize = false, DragAspect = false, SaveWinPos=false;
-bool allowHideMouse = false; //!TODO add config for this
+bool allowHideMouse = false;
 double aspect_ratio = LARGE_H / double(LARGE_W);
 int window_min_width = 0, window_min_height = 0;
 int32_t ComboBrush = 0;                                             //show the brush instead of the normal mouse

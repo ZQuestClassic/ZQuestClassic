@@ -1344,20 +1344,21 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     enlarge_file_selector(width,height);
     ret = popup_zqdialog(file_selector, FS_EDIT);
     
-    if(fext)
-    {
-        free(fext);
-        fext = NULL;
-    }
-    
-    if(fext_p)
-    {
-        _al_free(fext_p);
-        fext_p = NULL;
-    }
-    
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
+    {
+        if(fext)
+        {
+            free(fext);
+            fext = NULL;
+        }
+
+        if(fext_p)
+        {
+            _al_free(fext_p);
+            fext_p = NULL;
+        }
         return FALSE;
+    }
         
     *list_sel = file_selector[FS_TYPES].d1;
     
@@ -1372,6 +1373,18 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
             p += usetc(p, '.');
             ustrzcpy(p, size, fext);
         }
+    }
+
+    if(fext)
+    {
+        free(fext);
+        fext = NULL;
+    }
+
+    if(fext_p)
+    {
+        _al_free(fext_p);
+        fext_p = NULL;
     }
     
     return TRUE;

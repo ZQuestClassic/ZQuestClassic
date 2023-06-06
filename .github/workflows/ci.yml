@@ -62,7 +62,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10' 
-      - run: pip install PyGithub requests discord.py Pillow
+      - run: pip install PyGithub requests discord.py Pillow intervaltree
       - name: Install Node.js 16.x
         uses: actions/setup-node@v3
         with:
@@ -112,6 +112,13 @@ jobs:
               thread_name=f'Replay tests failed for {ref_name}',
               wait=True,
           )
+
+      # Upload as artifact, so that if publishing to surge fails the report is still accessible.
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: report
+          path: ${{ github.workspace }}/tests/compare-report
 
   web:
     needs: warm-lfs-cache

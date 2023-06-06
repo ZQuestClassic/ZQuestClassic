@@ -86,7 +86,19 @@ def parse_result_txt_file(path: pathlib.Path):
     result = {}
     for line in lines:
         key, value = line.split(': ', 1)
-        if value == 'true':
+        if key == 'unexpected_gfx_frames':
+            value = [int(x) for x in value.split(', ')]
+        elif key == 'unexpected_gfx_segments' or key == 'unexpected_gfx_segments_limited':
+            segments = []
+            for pair in value.split(' '):
+                if '-' in pair:
+                    start, end = pair.split('-')
+                else:
+                    start = int(pair)
+                    end = start
+                segments.append([int(start), int(end)])
+            value = segments
+        elif value == 'true':
             value = True
         elif value == 'false':
             value = False
@@ -424,43 +436,6 @@ def get_shards(tests, n):
     return result
 
 
-def parse_result_txt_file(path: pathlib.Path):
-    if platform.system() == 'Windows':
-        # Windows has a tough time reading this file, sometimes resulting in a permission
-        # denied error. I suspect MSVC's `std::filesystem::rename` is not atomic like it
-        # claims to be. Or maybe the problem lies with Python's mtime.
-        for _ in range(0, 10):
-            try:
-                lines = path.read_text().splitlines()
-                if _ != 0:
-                    logging.warning('finally was able to read it')
-                break
-            except:
-                logging.exception(f'could not read {path}')
-                sleep(0.1)
-    else:
-        lines = path.read_text().splitlines()
-
-    result = {}
-    for line in lines:
-        key, value = line.split(': ', 1)
-        if value == 'true':
-            value = True
-        elif value == 'false':
-            value = False
-        elif value.isdigit():
-            value = int(value)
-        else:
-            try:
-                value = float(value)
-            except:
-                pass
-
-        result[key] = value
-
-    return result
-
-
 tests.sort(key=lambda test: -get_replay_data(test)['estimated_duration'])
 
 if args.shard and args.print_shards:
@@ -716,11 +691,25 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             watcher.update_result()
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
+            result.frame = int(watcher.result['frame'])
 
             result.success = watcher.result['stopped'] and watcher.result['success']
+            if not result.success:
+                result.failing_frame = watcher.result['failing_frame']
+                result.unexpected_gfx_frames = watcher.result['unexpected_gfx_frames']
+                result.unexpected_gfx_segments = watcher.result['unexpected_gfx_segments']
+                result.unexpected_gfx_segments_limited = watcher.result['unexpected_gfx_segments_limited']
+            else:
+                result.failing_frame = None
+                result.unexpected_gfx_frames = None
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {exit_code}')
+            # .zplay files are updated in-place, but lets also copy over to the test output folder.
+            # This makes it easy to upload an archive of updated replays in CI.
+            if mode == 'update' and watcher.result['changed']:
+                (test_results_dir / 'updated').mkdir()
+                shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
             break
         except ReplayTimeoutException:
             print('\nSTDOUT:\n\n', (output_dir / 'stdout.txt').read_text())
@@ -763,16 +752,6 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             result.diff = ''.join(trimmed_diff_lines)
         else:
             result.diff = 'missing roundtrip file, cannnot diff'
-
-    stderr_path = output_dir / 'stderr.txt'
-    if not result.success and stderr_path.exists():
-        # TODO make this part of .result.txt
-        failing_frame_match = re.match(
-            r'.*expected:\n.*?(\d+)', stderr_path.read_text(), re.DOTALL)
-        if failing_frame_match:
-            result.failing_frame = int(failing_frame_match.group(1))
-        else:
-            print('could not find failing frame')
 
     return result
 

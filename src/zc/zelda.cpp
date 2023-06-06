@@ -3961,6 +3961,7 @@ void game_loop()
 				putmsg();
 				
 				update_msgstr();
+				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
 			#if LOGGAMELOOP > 0
 		al_trace("game_loop is calling: %s\n", "do_dcounters()\n");

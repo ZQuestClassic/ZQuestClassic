@@ -164,7 +164,6 @@ void solid_object::solid_update(bool push)
 void solid_object::solid_push(solid_object* pusher)
 {
 	//Default behavior: Ignore
-	//!TODO SOLIDPUSH Implement 'enemy::solid_push'
 }
 
 void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, int32_t& hdir)

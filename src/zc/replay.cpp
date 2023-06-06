@@ -24,7 +24,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 14;
+static const int VERSION = 15;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -50,11 +50,20 @@ static std::vector<std::shared_ptr<ReplayStep>> replay_log;
 static std::vector<std::shared_ptr<ReplayStep>> record_log;
 static std::map<std::string, std::string> meta_map;
 static std::vector<int> snapshot_frames;
+static std::vector<int> expected_loadscr_frame_count;
+static int loadscr_count;
+static int failed_loadscr_count_frame;
 static size_t replay_log_current_index;
 static size_t replay_log_current_quit_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
+static int failing_frame;
+static int last_failing_gfx_frame;
+static int current_failing_gfx_segment_start_frame;
+static std::vector<int> unexpected_gfx_frames;
+static std::vector<std::pair<int, int>> unexpected_gfx_segments;
+static std::vector<std::pair<int, int>> unexpected_gfx_segments_limited;
 static bool has_rng_desynced;
 static bool did_attempt_input_during_replay;
 static int frame_count;
@@ -786,6 +795,19 @@ static void load_replay(std::filesystem::path path)
     version = replay_get_meta_int("version", 1);
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
+
+    if (mode == ReplayMode::Assert)
+    {
+        expected_loadscr_frame_count.clear();
+        for (auto step : replay_log)
+        {
+            if (step->type != TypeComment) continue;
+
+            auto comment_step = static_cast<CommentReplayStep *>(step.get());
+            if (comment_step->comment.rfind("scr=", 0) == 0)
+                expected_loadscr_frame_count.push_back(step->frame);
+        }
+    }
 }
 
 static void save_replay(std::string filename, const std::vector<std::shared_ptr<ReplayStep>> &log)
@@ -845,7 +867,22 @@ static void save_replay(std::string filename, const std::vector<std::shared_ptr<
     out.close();
 }
 
-static void save_result(bool stopped = false)
+static std::string segments_to_string(const std::vector<std::pair<int, int>>& segments)
+{
+	std::vector<std::string> parts;
+	for (auto it : segments)
+	{
+		int first = it.first;
+		int second = it.second == -1 ? frame_count : it.second;
+		if (first != second)
+			parts.push_back(fmt::format("{}-{}", first, second));
+		else
+			parts.push_back(fmt::format("{}", first));
+	}
+	return fmt::format("{}", fmt::join(parts, " "));
+}
+
+static void save_result(bool stopped = false, bool changed = false)
 {
 	time_result_saved = std::chrono::system_clock::now();
 	std::chrono::duration<double, std::milli> elapsed = time_result_saved - time_started;
@@ -871,6 +908,17 @@ static void save_result(bool stopped = false)
 	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
 		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+	if (has_assert_failed)
+		out << fmt::format("failing_frame: {}", failing_frame) << '\n';
+	if (mode == ReplayMode::Update)
+		out << fmt::format("changed: {}", changed) << '\n';
+	if (has_assert_failed && !unexpected_gfx_frames.empty())
+		out << fmt::format("unexpected_gfx_frames: {}", fmt::join(unexpected_gfx_frames, ", ")) << '\n';
+	if (has_assert_failed && !unexpected_gfx_segments.empty())
+		out << fmt::format("unexpected_gfx_segments: {}", segments_to_string(unexpected_gfx_segments)) << '\n';
+	if (has_assert_failed && !unexpected_gfx_segments_limited.empty())
+		out << fmt::format("unexpected_gfx_segments_limited: {}", segments_to_string(unexpected_gfx_segments_limited)) << '\n';
+
 	out.close();
 
 	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"));
@@ -886,16 +934,18 @@ static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexp
 	// TODO: fmt::print crashes in Visual Studio IDE...
 	fprintf(stdout, "%s\n", fmt::format("Saving bitmap: {}", img_path.string()).c_str());
 	save_bitmap(img_path.string().c_str(), bitmap, pal);
+	if (was_unexpected)
+		unexpected_gfx_frames.push_back(frame);
 }
 
 static void save_history_snapshots()
 {
-	for (auto framebuf_history : framebuf_history)
+	for (auto& entry : framebuf_history)
 	{
-		if (framebuf_history.frame > 0)
+		if (entry.frame > 0)
 		{
-			save_snapshot(framebuf_history.bitmap, framebuf_history.pal, framebuf_history.frame, false);
-			framebuf_history.frame = -1;
+			save_snapshot(entry.bitmap, entry.pal, entry.frame, false);
+			entry.frame = -1;
 		}
 	}
 }
@@ -939,6 +989,7 @@ static void check_assert()
         if (!steps_are_equal(replay_step.get(), record_step.get()))
         {
             has_assert_failed = true;
+            failing_frame = record_step->frame;
             int line_number = assert_current_index + meta_map.size() + 1;
             std::string error = fmt::format("<{}> expected:\n\t{}\nbut got:\n\t{}", line_number,
                                             replay_step->print(), record_step->print());
@@ -950,12 +1001,6 @@ static void check_assert()
                 jwin_auto_alert("Assert", error.c_str(), 150, 8, "OK (keep replaying)", NULL, 13, 27, get_zc_font(font_lfont));
                 exit_sys_pal();
             }
-
-            save_history_snapshots();
-
-            // Snapshot the next few frames.
-            for (int i = 0; i < ASSERT_SNAPSHOT_BUFFER; i++)
-                snapshot_frames.push_back(frame_count + i);
             break;
         }
 
@@ -1013,6 +1058,29 @@ static void start_manual_takeover()
 
 static void maybe_take_snapshot()
 {
+	if (mode == ReplayMode::Assert)
+	{
+		if (current_failing_gfx_segment_start_frame != -1)
+		{
+			// Limit how many snapshots are saved in the same gfx failure segment.
+			if (frame_count - current_failing_gfx_segment_start_frame > 60*10)
+			{
+				if (unexpected_gfx_segments_limited.back().second == -1)
+					unexpected_gfx_segments_limited.back().second = frame_count - 1;
+			}
+			else if (!prev_gfx_hash_was_same)
+				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+			return;
+		}
+		else if (last_failing_gfx_frame != -1 && frame_count - last_failing_gfx_frame <= 10)
+		{
+			// Save a few frames after the last failing gfx, for context.
+			if (!prev_gfx_hash_was_same)
+				save_snapshot(framebuf, RAMpal, frame_count, gfx_got_mismatch);
+			return;
+		}
+	}
+
 	auto it = std::find(snapshot_frames.begin(), snapshot_frames.end(), frame_count);
 	if (!snapshot_all_frames && !gfx_got_mismatch && it == snapshot_frames.end())
 	{
@@ -1072,6 +1140,14 @@ void replay_start(ReplayMode mode_, std::filesystem::path path, int frame)
     sync_rng = false;
     did_attempt_input_during_replay = false;
     has_assert_failed = false;
+    failing_frame = -1;
+    last_failing_gfx_frame = -1;
+    current_failing_gfx_segment_start_frame = -1;
+    unexpected_gfx_frames.clear();
+    unexpected_gfx_segments.clear();
+    unexpected_gfx_segments_limited.clear();
+    loadscr_count = 0;
+    failed_loadscr_count_frame = -1;
     has_rng_desynced = false;
     gfx_got_mismatch = false;
     replay_path = path;
@@ -1226,11 +1302,6 @@ void replay_poll()
         do_replaying_poll();
         do_recording_poll();
         check_assert();
-        if (mode != ReplayMode::Off)
-        {
-            if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*20 || frame_count > replay_log.back()->frame))
-                replay_stop();
-        }
         break;
     case ReplayMode::Update:
         do_replaying_poll();
@@ -1243,6 +1314,10 @@ void replay_poll()
         break;
     }
 
+    if (mode == ReplayMode::Assert && gfx_got_mismatch)
+    {
+        save_history_snapshots();
+    }
     maybe_take_snapshot();
 
     if (frame_count == 0)
@@ -1275,7 +1350,23 @@ void replay_poll()
             return;
         }
 
-        if (has_assert_failed && (frame_count - replay_log[assert_current_index]->frame > 60*60 || frame_count > replay_log.back()->frame))
+        if (frame_count > replay_log.back()->frame)
+        {
+            replay_stop();
+            return;
+        }
+
+        // If loadscr is not called when expected, the rest of the replay is not going to go well and may possible
+        // loop forever. Only record 60 more frames at this point.
+        if (has_assert_failed && failed_loadscr_count_frame == -1)
+        {
+            int expected_frame = loadscr_count + 1 >= expected_loadscr_frame_count.size() ?
+                replay_log.back()->frame :
+                expected_loadscr_frame_count[loadscr_count + 1];
+            if (frame_count > expected_frame)
+                failed_loadscr_count_frame = frame_count;
+        }
+        if (has_assert_failed && failed_loadscr_count_frame != -1 && frame_count - failed_loadscr_count_frame > 60)
         {
             replay_stop();
             return;
@@ -1406,7 +1497,7 @@ void replay_do_cheats()
 
 bool replay_is_assert_done()
 {
-    return mode == ReplayMode::Assert && (has_assert_failed || assert_current_index == replay_log.size());
+    return mode == ReplayMode::Assert && (assert_current_index == replay_log.size() || frame_count >= replay_log.back()->frame);
 }
 
 void replay_forget_input()
@@ -1489,7 +1580,10 @@ void replay_stop()
         }
 
         if (should_save)
+        {
             replay_save();
+            save_result(true, true);
+        }
     }
 
     for (int i = 0; i < framebuf_history.size(); i++)
@@ -1614,6 +1708,12 @@ void replay_step_comment(std::string comment)
     }
 }
 
+void replay_step_comment_loadscr(int screen_index)
+{
+	replay_step_comment(fmt::format("scr={}", screen_index));
+	loadscr_count += 1;
+}
+
 // https://base91.sourceforge.net/
 // The maximum number of digits this can generate:
 //     uint64_t = 10
@@ -1665,6 +1765,25 @@ void replay_step_gfx(uint32_t gfx_hash)
 			gfx_got_mismatch = true;
 		if (!expected_gfx_comment.empty() && expected_gfx_comment != gfx_comment)
 			gfx_got_mismatch = true;
+		if (gfx_got_mismatch)
+			last_failing_gfx_frame = frame_count;
+		if (gfx_hash != prev_gfx_hash)
+		{
+			if (gfx_got_mismatch && current_failing_gfx_segment_start_frame == -1)
+			{
+				current_failing_gfx_segment_start_frame = frame_count;
+				unexpected_gfx_segments.push_back({frame_count, -1});
+				unexpected_gfx_segments_limited.push_back({frame_count, -1});
+			}
+			else if (!gfx_got_mismatch && current_failing_gfx_segment_start_frame != -1)
+			{
+				current_failing_gfx_segment_start_frame = -1;
+				if (!unexpected_gfx_segments.empty())
+					unexpected_gfx_segments.back().second = frame_count - 1;
+				if (!unexpected_gfx_segments_limited.empty() && unexpected_gfx_segments_limited.back().second == -1)
+					unexpected_gfx_segments_limited.back().second = frame_count - 1;
+			}
+		}
 	}
 
 	// Skip if last invocation was the same value.

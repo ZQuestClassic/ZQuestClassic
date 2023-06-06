@@ -109,7 +109,7 @@ jobs:
       # Note: Uses JIT by default, except for win32.
       - name: Run replay tests
         run: >
-          bash .github/workflows/run_replay_tests.sh
+          bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder ${{ env.BUILD_FOLDER }}
           --test_results_folder .tmp/test_results
           --retries 1
@@ -121,7 +121,7 @@ jobs:
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.arch != 'win32' }}
         name: Test w/o JIT
         run: >
-          bash .github/workflows/run_replay_tests.sh
+          bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder ${{ env.BUILD_FOLDER }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
@@ -135,7 +135,11 @@ jobs:
           --filter keys.zplay
           --no-jit
 
-      - if: ${{ matrix.shard_index == 1 && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+        name: Test replay system
+        run: bash .github/workflows/run_python.sh tests/test_replays.py
+
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Test zscript
         uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
         with:
@@ -150,20 +154,20 @@ jobs:
             ./zscript -input "include/std.zh" -unlinked
 
         # TODO why does this result in "could not open file: test.zplay" on Windows?
-      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test recording
         run: |
           cd ${{ env.BUILD_FOLDER }}
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
           bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -v0 -replay-exit-when-done -assert test.zplay
       # Simply open ZQuest with the new quest template.
-      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test ZQuest File->New
         run: |
           cd ${{ env.BUILD_FOLDER }}
           bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -q 'modules/classic/classic_qst.dat#NESQST_NEW_QST'
       # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
-      - if: ${{ matrix.shard_index == 1 && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test saving qst
         run: |
           cd ${{ env.BUILD_FOLDER }}
@@ -192,4 +196,4 @@ jobs:
         if: contains(inputs.extra-args, '--update')
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
-          path: ${{ github.workspace }}/tests/replays/**/*.zplay
+          path: ${{ github.workspace }}/.tmp/test_results/updated

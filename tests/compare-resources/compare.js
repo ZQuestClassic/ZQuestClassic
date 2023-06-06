@@ -5,6 +5,8 @@ const titleEl = find('.replay-title');
 let tracks = [];
 /** @type {Array<{frame: number, snapshots: Array<{url: string, frame: number, unexpected: boolean}>, tracks: number[]}>} */
 let trackFrames = [];
+/** @type {Array<{start: number, end: number}>} */
+let segments = [];
 let frameViewFrameIndex = -1;
 let frameViewTrackIndex = -1;
 let trackViewDirty = false;
@@ -36,6 +38,7 @@ function setTitle(title) {
 function getOptions() {
     return {
         replay: find('.select__replays select').value,
+        segment: Number(find('.select__segments select').value) || 0,
         showOnlyUnexpectedFrames: find('.label__expected-filter input').checked,
         showDiff: find('.label__diff input').checked,
     };
@@ -190,6 +193,12 @@ function init() {
 
     selectEl.addEventListener('change', () => renderTracks(getOptions()));
     renderTracks(getOptions());
+
+    const segmentsEl = find('.select__segments select');
+    segmentsEl.addEventListener('change', () => {
+        const options = getOptions();
+        scrollToSegment(options.segment);
+    });
 }
 
 /**
@@ -293,8 +302,16 @@ function renderTracks(options) {
         });
     }
 
+    segments = [];
+    let startSegment = true;
+
     for (let i = 0; i < trackFrames.length; i++) {
         const trackFrame = trackFrames[i];
+
+        if (startSegment) {
+            segments.push({start: i, end: null});
+            startSegment = false;
+        }
 
         const containerEl = document.createElement('div');
         containerEl.className = 'track-frame-container';
@@ -331,10 +348,30 @@ function renderTracks(options) {
             el.className = 'track-frame-container track-frame-container--skip';
             el.innerHTML = '<div>.</div>';
             tracksEl.append(el);
+            startSegment = true;
+            segments[segments.length - 1].end = i;
         }
     }
+    segments[segments.length - 1].end = trackFrames.length - 1;
 
-    console.log({ trackFrames });
+    console.log({ trackFrames, segments });
+
+    const segmentsEl = find('.select__segments select');
+    segmentsEl.innerHTML = '';
+    for (let i = 0; i < segments.length; i++) {
+        const el = document.createElement('option');
+        el.value = i;
+        const {start, end} = segments[i];
+        const length = trackFrames[end].frame - trackFrames[start].frame + 1;
+        el.textContent = `Segment ${i + 1} Frame ${trackFrames[start].frame} length: ${length}`;
+        segmentsEl.append(el);
+    }
+    segmentsEl.value = options.segment;
+}
+
+function scrollToSegment(index) {
+    const selectedSegmentFrame = trackFrames[segments[index].start].frame;
+    find(`.track-frame-container[data-frame="${selectedSegmentFrame}"]`).scrollIntoView({inline: 'start'});
 }
 
 async function loadImageFromTrack(frameIndex, trackIndex) {
