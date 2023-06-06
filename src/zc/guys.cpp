@@ -12899,8 +12899,7 @@ bool eZora::animate(int32_t index)
 	
 	if(watch)
 	{
-		// TODO z3 !! rm clock_zoras, upstream main
-		++clock_zoras[id];
+		clock_zoras.push_back({screen_index_spawned, id});
 		return true;
 	}
 	

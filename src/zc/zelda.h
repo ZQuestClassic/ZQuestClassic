@@ -417,7 +417,10 @@ extern int32_t js_stick_1_y_stick, js_stick_1_y_axis, js_stick_1_y_offset;
 extern int32_t js_stick_2_x_stick, js_stick_2_x_axis, js_stick_2_x_offset;
 extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
-extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
+extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk;
+// Stores zoras that are "killed" during clocks, so they can be restored after.
+// (screen_index, id)
+extern std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item, title_version;
 extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;

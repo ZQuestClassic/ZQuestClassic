@@ -8362,13 +8362,11 @@ heroanimate_skip_liftwpn:;
 			
 			watch=false;
 			
-			for(int32_t i=0; i<eMAXGUYS; i++)
+			for (auto it : clock_zoras)
 			{
-				for(int32_t zoras=0; zoras<clock_zoras[i]; zoras++)
-				{
-					// TODO z3 ? ignore?
-					addenemy(currscr,0,0,i,0);
-				}
+				int screen_index = it.first;
+				int id = it.second;
+				addenemy(screen_index,0,0,id,0);
 			}
 		}
 	}
@@ -12021,8 +12019,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			
 			setClock(watch=true);
 			
-			for(int32_t i=0; i<eMAXGUYS; i++)
-				clock_zoras[i]=0;
+			clock_zoras.clear();
 				
 			clockclk=itm.misc1;
 			sfx(itm.usesound);
@@ -30607,8 +30604,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 				break;
 			setClock(watch=true);
 			
-			for(int32_t i=0; i<eMAXGUYS; i++)
-				clock_zoras[i]=0;
+			clock_zoras.clear();
 				
 			clockclk=itemsbuf[id&0xFF].misc1;
 			sfx(idat.usesound);
