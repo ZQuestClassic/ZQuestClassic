@@ -39,7 +39,6 @@ void CutsceneState::error()
 CutsceneState active_cutscene;
 
 cpos_info combo_posinfos[7][176];
-std::vector<cpos_info> ffc_posinfos;
 int trig_groups[256];
 
 bool alwaysCTypeEffects(int32_t type)
@@ -2986,7 +2985,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	cpos_info& timer = ffc_posinfos[pos];
+	cpos_info& timer = tmpscr->ffcs[pos].info;
 	int32_t cid = ffc.getData();
 	int32_t ocs = ffc.cset;
 	int32_t cx = ffc.x;
@@ -3485,16 +3484,12 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, int32_t pos)
 	handle_shooter(cmb, timer, COMBOX(pos), COMBOY(pos));
 }
 
-void recount_ffc(dword c)
+void ffc_clear_cpos_info()
 {
-	if(ffc_posinfos.size() != c)
+	int c = tmpscr->numFFC();
+	for (int q = 0; q < c; ++q )
 	{
-		dword osz = ffc_posinfos.size();
-		ffc_posinfos.resize(c);
-		for(dword q = osz; q < c; ++q) //Is this needed? -Em
-		{
-			ffc_posinfos[q].clear();
-		}
+		tmpscr->ffcs[q].info.clear();
 	}
 }
 
@@ -3526,10 +3521,10 @@ void calculate_trig_groups()
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	recount_ffc(c);
+	ffc_clear_cpos_info();
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffc_posinfos[ffc];
+		cpos_info& timer = ffscr->ffcs[ffc].info;
 		int cid = ffscr->ffcs[ffc].getData();
 		timer.updateData(cid);
 		newcombo const& cmb = combobuf[cid];
@@ -3541,7 +3536,7 @@ void trig_trigger_groups()
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	recount_ffc(c);
+	ffc_clear_cpos_info();
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
@@ -3569,7 +3564,7 @@ void trig_trigger_groups()
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffc_posinfos[ffc];
+		cpos_info& timer = ffscr->ffcs[ffc].info;
 		int cid = ffscr->ffcs[ffc].getData();
 		newcombo const& cmb = combobuf[cid];
 		
@@ -3599,13 +3594,13 @@ void init_combo_timers()
 			combo_posinfos[lyr][pos].clear();
 		}
 	}
-	ffc_posinfos.clear();
+	ffc_clear_cpos_info();
 }
 void update_combo_timers()
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	recount_ffc(c);
+	ffc_clear_cpos_info();
 	
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
@@ -3638,7 +3633,7 @@ void update_combo_timers()
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffc_posinfos[ffc];
+		cpos_info& timer = ffscr->ffcs[ffc].info;
 		int cid = ffscr->ffcs[ffc].getData();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);

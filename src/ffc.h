@@ -1,6 +1,8 @@
 #ifndef _FFC_H_
 #define _FFC_H_
 
+#include "base/zdefs.h"
+#include "base/cpos_info.h"
 #include "zfix.h"
 #include "solidobject.h"
 
@@ -29,6 +31,7 @@ public:
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
 	bool initialized, hooked;
+	cpos_info info;
 	
 	ffcdata() = default;
 	ffcdata(ffcdata const& other);
