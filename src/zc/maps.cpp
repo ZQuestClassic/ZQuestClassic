@@ -2990,172 +2990,176 @@ void update_freeform_combos()
 	ffscript_engine(false);
 	if ( !FFCore.system_suspend[susptUPDATEFFC] )
 	{
-		// TODO z3 !!!!! ffc
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			ffcdata& thisffc = tmpscr.ffcs[i];
-			// Combo 0?
-			if(thisffc.getData()==0)
-				continue;
-				
-			// Changer?
-			if(thisffc.flags&ffCHANGER)
-				continue;
-				
-			// Stationary?
-			if(thisffc.flags&ffSTATIONARY)
-				continue;
-				
-			// Frozen because Hero's holding up an item?
-			if(Hero.getHoldClk()>0 && (thisffc.flags&ffIGNOREHOLDUP)==0)
-				continue;
-				
-			// Check for changers
-			if(thisffc.link==0)
+		int wrap_right = world_w + 32;
+		int wrap_bottom = world_h + 32;
+		for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+			word c = screen->numFFC();
+			for(word i=0; i<c; i++)
 			{
-				for(word j=0; j<c; j++)
+				ffcdata& thisffc = screen->ffcs[i];
+				// Combo 0?
+				if(thisffc.getData()==0)
+					continue;
+					
+				// Changer?
+				if(thisffc.flags&ffCHANGER)
+					continue;
+					
+				// Stationary?
+				if(thisffc.flags&ffSTATIONARY)
+					continue;
+					
+				// Frozen because Hero's holding up an item?
+				if(Hero.getHoldClk()>0 && (thisffc.flags&ffIGNOREHOLDUP)==0)
+					continue;
+					
+				// Check for changers
+				// TODO z3 ! ffc. currently changers only affect ffcs in same screen
+				if(thisffc.link==0)
 				{
-					ffcdata& otherffc = tmpscr.ffcs[j];
-					// Combo 0?
-					if(otherffc.getData()==0)
-						continue;
-						
-					// Not a changer?
-					if(!(otherffc.flags&ffCHANGER))
-						continue;
-						
-					// Ignore this changer?
-					if((otherffc.x.getInt()==thisffc.changer_x&&otherffc.y.getInt()==thisffc.changer_y) || thisffc.flags&ffIGNORECHANGER)
-						continue;
-						
-					if((isonline(thisffc.x.getZLong(), thisffc.y.getZLong(), thisffc.prev_changer_x, thisffc.prev_changer_y, otherffc.x.getZLong(), otherffc.y.getZLong()) || // Along the line, or...
-						( // At exactly the same position, 
-							(thisffc.x==otherffc.x && thisffc.y==otherffc.y)) 
-							||
-							//or imprecision and close enough
-							( (thisffc.flags&ffIMPRECISIONCHANGER) && ((abs(thisffc.x.getZLong() - otherffc.x.getZLong()) < 10000) && abs(thisffc.y.getZLong() - otherffc.y.getZLong()) < 10000) )
-						)
-					&& //and...
-						(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
+					for(word j=0; j<c; j++)
 					{
-						thisffc.changerCopy(otherffc, i, j);
-						break;
+						ffcdata& otherffc = screen->ffcs[j];
+						// Combo 0?
+						if(otherffc.getData()==0)
+							continue;
+							
+						// Not a changer?
+						if(!(otherffc.flags&ffCHANGER))
+							continue;
+							
+						// Ignore this changer?
+						if((otherffc.x.getInt()==thisffc.changer_x&&otherffc.y.getInt()==thisffc.changer_y) || thisffc.flags&ffIGNORECHANGER)
+							continue;
+							
+						if((isonline(thisffc.x.getZLong(), thisffc.y.getZLong(), thisffc.prev_changer_x, thisffc.prev_changer_y, otherffc.x.getZLong(), otherffc.y.getZLong()) || // Along the line, or...
+							( // At exactly the same position, 
+								(thisffc.x==otherffc.x && thisffc.y==otherffc.y)) 
+								||
+								//or imprecision and close enough
+								( (thisffc.flags&ffIMPRECISIONCHANGER) && ((abs(thisffc.x.getZLong() - otherffc.x.getZLong()) < 10000) && abs(thisffc.y.getZLong() - otherffc.y.getZLong()) < 10000) )
+							)
+						&& //and...
+							(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
+						{
+							thisffc.changerCopy(otherffc, i, j);
+							break;
+						}
 					}
 				}
-			}
-			
-			if(thisffc.link ? !tmpscr.ffcs[thisffc.link].delay : !thisffc.delay)
-			{
-				if(thisffc.link&&(thisffc.link-1)!=i)
+				
+				if(thisffc.link ? !screen->ffcs[thisffc.link].delay : !thisffc.delay)
 				{
-					thisffc.prev_changer_x = thisffc.x.getZLong();
-					thisffc.prev_changer_y = thisffc.y.getZLong();
-					thisffc.x+=tmpscr.ffcs[thisffc.link-1].vx;
-					thisffc.y+=tmpscr.ffcs[thisffc.link-1].vy;
-				}
-				else
-				{
-					thisffc.prev_changer_x = thisffc.x.getZLong();
-					thisffc.prev_changer_y = thisffc.y.getZLong();
-					thisffc.x+=thisffc.vx;
-					thisffc.y+=thisffc.vy;
-					thisffc.vx+=thisffc.ax;
-					thisffc.vy+=thisffc.ay;
-					
-					
-					if(get_bit(quest_rules, qr_OLD_FFC_SPEED_CAP))
+					if(thisffc.link&&(thisffc.link-1)!=i)
 					{
-						if(thisffc.vx>128) thisffc.vx=128;
+						thisffc.prev_changer_x = thisffc.x.getZLong();
+						thisffc.prev_changer_y = thisffc.y.getZLong();
+						thisffc.x+=screen->ffcs[thisffc.link-1].vx;
+						thisffc.y+=screen->ffcs[thisffc.link-1].vy;
+					}
+					else
+					{
+						thisffc.prev_changer_x = thisffc.x.getZLong();
+						thisffc.prev_changer_y = thisffc.y.getZLong();
+						thisffc.x+=thisffc.vx;
+						thisffc.y+=thisffc.vy;
+						thisffc.vx+=thisffc.ax;
+						thisffc.vy+=thisffc.ay;
 						
-						if(thisffc.vx<-128) thisffc.vx=-128;
 						
-						if(thisffc.vy>128) thisffc.vy=128;
-						
-						if(thisffc.vy<-128) thisffc.vy=-128;
+						if(get_bit(quest_rules, qr_OLD_FFC_SPEED_CAP))
+						{
+							if(thisffc.vx>128) thisffc.vx=128;
+							
+							if(thisffc.vx<-128) thisffc.vx=-128;
+							
+							if(thisffc.vy>128) thisffc.vy=128;
+							
+							if(thisffc.vy<-128) thisffc.vy=-128;
+						}
 					}
 				}
-			}
-			else
-			{
-				if(!thisffc.link || (thisffc.link-1)==i)
-					thisffc.delay--;
-			}
-			
-			// Check if the FFC's off the side of the screen
-			
-			// Left
-			if(thisffc.x<-32)
-			{
-				if(tmpscr.flags6&fWRAPAROUNDFF)
-				{
-					thisffc.x = 288+(thisffc.x+32);
-					thisffc.solid_update(false);
-					thisffc.prev_changer_y = thisffc.y.getZLong();
-					// Re-enable previous changer
-					thisffc.changer_x = -1000;
-					thisffc.changer_y = -1000;
-				}
-				else if(thisffc.x<-64)
-				{
-					thisffc.setData(0);
-					thisffc.flags&=~ffCARRYOVER;
-				}
-			}
-			// Right
-			else if(thisffc.x>=288)
-			{
-				if(tmpscr.flags6&fWRAPAROUNDFF)
-				{
-					thisffc.x = thisffc.x-288-32;
-					thisffc.solid_update(false);
-					thisffc.prev_changer_y = thisffc.y.getZLong();
-					thisffc.changer_x = -1000;
-					thisffc.changer_y = -1000;
-				}
 				else
 				{
-					thisffc.setData(0);
-					thisffc.flags&=~ffCARRYOVER;
+					if(!thisffc.link || (thisffc.link-1)==i)
+						thisffc.delay--;
 				}
+				
+				// Check if the FFC's off the side of the screen
+				
+				// Left
+				if(thisffc.x<-32)
+				{
+					if(screen->flags6&fWRAPAROUNDFF)
+					{
+						thisffc.x = wrap_right+(thisffc.x+32);
+						thisffc.solid_update(false);
+						thisffc.prev_changer_y = thisffc.y.getZLong();
+						// Re-enable previous changer
+						thisffc.changer_x = -1000;
+						thisffc.changer_y = -1000;
+					}
+					else if(thisffc.x<-64)
+					{
+						thisffc.setData(0);
+						thisffc.flags&=~ffCARRYOVER;
+					}
+				}
+				// Right
+				else if(thisffc.x>=wrap_right)
+				{
+					if(screen->flags6&fWRAPAROUNDFF)
+					{
+						thisffc.x = thisffc.x-wrap_right-32;
+						thisffc.solid_update(false);
+						thisffc.prev_changer_y = thisffc.y.getZLong();
+						thisffc.changer_x = -1000;
+						thisffc.changer_y = -1000;
+					}
+					else
+					{
+						thisffc.setData(0);
+						thisffc.flags&=~ffCARRYOVER;
+					}
+				}
+				
+				// Top
+				if(thisffc.y<-32)
+				{
+					if(screen->flags6&fWRAPAROUNDFF)
+					{
+						thisffc.y = wrap_bottom+(thisffc.y+32);
+						thisffc.solid_update(false);
+						thisffc.prev_changer_x = thisffc.x.getZLong();
+						thisffc.changer_x = -1000;
+						thisffc.changer_y = -1000;
+					}
+					else if(thisffc.y<-64)
+					{
+						thisffc.setData(0);
+						thisffc.flags&=~ffCARRYOVER;
+					}
+				}
+				// Bottom
+				else if(thisffc.y>=wrap_bottom)
+				{
+					if(screen->flags6&fWRAPAROUNDFF)
+					{
+						thisffc.y = thisffc.y-wrap_bottom-32;
+						thisffc.solid_update(false);
+						thisffc.prev_changer_y = thisffc.x.getZLong();
+						thisffc.changer_x = -1000;
+						thisffc.changer_y = -1000;
+					}
+					else
+					{
+						thisffc.setData(0);
+						thisffc.flags&=~ffCARRYOVER;
+					}
+				}
+				thisffc.solid_update();
 			}
-			
-			// Top
-			if(thisffc.y<-32)
-			{
-				if(tmpscr.flags6&fWRAPAROUNDFF)
-				{
-					thisffc.y = 208+(thisffc.y+32);
-					thisffc.solid_update(false);
-					thisffc.prev_changer_x = thisffc.x.getZLong();
-					thisffc.changer_x = -1000;
-					thisffc.changer_y = -1000;
-				}
-				else if(thisffc.y<-64)
-				{
-					thisffc.setData(0);
-					thisffc.flags&=~ffCARRYOVER;
-				}
-			}
-			// Bottom
-			else if(thisffc.y>=208)
-			{
-				if(tmpscr.flags6&fWRAPAROUNDFF)
-				{
-					thisffc.y = thisffc.y-208-32;
-					thisffc.solid_update(false);
-					thisffc.prev_changer_y = thisffc.x.getZLong();
-					thisffc.changer_x = -1000;
-					thisffc.changer_y = -1000;
-				}
-				else
-				{
-					thisffc.setData(0);
-					thisffc.flags&=~ffCARRYOVER;
-				}
-			}
-			thisffc.solid_update();
-		}
+		});
 	}
 }
 
