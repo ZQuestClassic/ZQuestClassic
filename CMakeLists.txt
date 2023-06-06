@@ -692,15 +692,6 @@ set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################
-# Allegro 5 Example
-#############################################################
-
-add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example/al5_example_main.c)
-target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
-target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
-target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
-
-#############################################################
 # Emscripten
 #############################################################
 
@@ -873,7 +864,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)
