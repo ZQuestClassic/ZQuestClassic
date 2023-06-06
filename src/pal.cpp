@@ -561,7 +561,7 @@ void dryuplake()
     {
         if(screen->flags & fWHISTLE)
         {
-            if(hiddenstair2(screen, true))
+            if(hiddenstair2(screen, currscr, true))
             {
                 sfx(tmpscr.secretsfx);
             }

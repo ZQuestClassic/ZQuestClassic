@@ -1095,7 +1095,7 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 	// TODO z3 can this not be called all the time?
 	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
 	{
-		hiddenstair2(&scr, false);
+		hiddenstair2(&scr, screen, false);
 		bool do_layers = false;
 		trigger_secrets_for_screen_internal(-1, &scr, do_layers, false, -3);
 	}
@@ -2180,8 +2180,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	return ret;
 }
 
-// TODO z3 !!!
-bool hiddenstair2(mapscr *s,bool redraw)
+bool hiddenstair2(mapscr *s, int32_t screen_index, bool redraw)
 {
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
     {
@@ -2190,8 +2189,12 @@ bool hiddenstair2(mapscr *s,bool redraw)
         s->cset[di] = s->secretcset[sSTAIRS];
         s->sflag[di] = s->secretflag[sSTAIRS];
         
-        if(redraw)
-            putcombo(scrollbuf,s->stairx,s->stairy,s->data[di],s->cset[di]);
+        if (redraw)
+		{
+			int x = s->stairx + z3_get_region_relative_dx(screen_index) * 256;
+			int y = s->stairy + z3_get_region_relative_dy(screen_index) * 176;
+            putcombo(scrollbuf,x,y,s->data[di],s->cset[di]);
+		}
             
         return true;
     }
@@ -5316,7 +5319,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	{
 		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mSECRET)    // if special stuff done before
 		{
-			hiddenstair2(base_screen, false);
+			hiddenstair2(base_screen, screen_index, false);
 			bool do_layers = true;
 			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen_index, false);
 		}
@@ -5792,7 +5795,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair2(screen, false);
+			hiddenstair2(screen, scr, false);
 			auto oscr = homescr;
 			homescr = scr;
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
@@ -6002,7 +6005,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair2(&screen, false);
+			hiddenstair2(&screen, scr, false);
 			auto oscr = homescr;
 			homescr = scr;
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
