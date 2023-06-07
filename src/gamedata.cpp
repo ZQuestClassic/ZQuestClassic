@@ -30,13 +30,6 @@ extern zinitdata zinit;
 extern void Z_eventlog(char *format,...);
 extern void ringcolor(bool forceDefault);
 
-// Debug variables: these log certain operations on gamedata when active.
-// Should help me debug those item bugs.
-
-// #define DEBUG_GD_ITEMS
-// #define DEBUG_GD_COUNTERS
-//#define DEBUG_GD_HCP
-
 void gamedata::Clear()
 {
     isclearing=true;
@@ -727,18 +720,11 @@ byte gamedata::get_HCpieces()
 }
 void gamedata::set_HCpieces(byte p)
 {
-#ifdef DEBUG_GD_HCP
-    al_trace("Setting HCP to %i\n",p);
-#endif
-    
     set_generic(p, 0);
     return;
 }
 void gamedata::change_HCpieces(int16_t p)
 {
-#ifdef DEBUG_GD_HCP
-    al_trace("Changing HCP by %d to %d\n",p, get_generic(0));
-#endif
     change_generic(p, 0);
     return;
 }
