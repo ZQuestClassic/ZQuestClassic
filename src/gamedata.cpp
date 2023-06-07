@@ -204,6 +204,8 @@ void gamedata::Copy(const gamedata& g)
 	user_objects = g.user_objects;
 	user_portals = g.user_portals;
 #endif
+
+	replay_file = g.replay_file;
 }
 
 void gamedata::save_user_objects()

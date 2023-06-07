@@ -9,6 +9,7 @@
 //
 //--------------------------------------------------------
 
+#include <filesystem>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -3808,9 +3809,17 @@ static bool copy_file(int32_t file)
 		saves[savecnt]=saves[file];
 		if (!saves[savecnt].replay_file.empty())
 		{
-			std::string new_replay_path = create_replay_path_for_save(&saves[savecnt]);
-			saves[savecnt].replay_file = new_replay_path;
-			std::filesystem::copy(saves[file].replay_file, new_replay_path);
+			if (std::filesystem::exists(saves[file].replay_file))
+			{
+				std::string new_replay_path = create_replay_path_for_save(&saves[savecnt]);
+				saves[savecnt].replay_file = new_replay_path;
+				std::filesystem::copy(saves[file].replay_file, new_replay_path);
+			}
+			else
+			{
+				Z_error("Error copying replay file - %s not found", saves[file].replay_file.c_str());
+				saves[savecnt].replay_file = "";
+			}
 		}
 		iconbuffer[savecnt]=iconbuffer[file];
 		++savecnt;
