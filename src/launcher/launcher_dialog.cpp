@@ -476,10 +476,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Window Height:",App::zelda,"zeldadx","window_height", 480, 240, 2250, "The height of the ZC window, for windowed mode"),
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zelda,"zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
-#ifndef _WIN32
-						// TODO: wgl crashes zc on al_resize_display, so no point in offering this configuration option yet.
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
-#endif
 						//
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()
