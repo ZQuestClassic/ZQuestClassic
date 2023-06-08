@@ -1841,19 +1841,6 @@ int32_t init_game()
 		lens_hint_weapon[x][0]=0;
 		lens_hint_weapon[x][1]=0;
 	}
-	
-	/* Disabling to see if this is causing virus scanner redflags. -Z
-	//Confuse the cheaters by moving the game data to a random location
-	if(game != NULL)
-		delete game;
-		
-	char *dummy = (char *) malloc((zc_oldrand()%(RAND_MAX/2))+32);
-	game = new gamedata;
-	game->Clear();
-	
-	free(dummy);
-	*/
-	
 
 	onload_gswitch_timers();
 	flushItemCache();
@@ -5309,7 +5296,7 @@ int main(int argc, char **argv)
 	rgb_map = &rgb_table;
 	
 	// set up an initial game save slot (for the list_saves function)
-	game = new gamedata;
+	game = new gamedata();
 	
 	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false);

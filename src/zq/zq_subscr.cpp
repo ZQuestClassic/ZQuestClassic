@@ -3612,7 +3612,7 @@ int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
 
 void edit_subscreen()
 {
-    game = new gamedata;
+    game = new gamedata();
     game->set_time(0);
     resetItems(game,&zinit,true);
     

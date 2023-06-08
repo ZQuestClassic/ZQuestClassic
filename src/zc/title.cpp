@@ -2152,6 +2152,8 @@ int32_t init_saves()
 	if(saves == NULL)
 	{
 		saves = new gamedata[MAXSAVES];
+		for (int i = 0; i < MAXSAVES; i++)
+			saves[i].Clear();
 		
 		if(saves==NULL)
 			return 1;
