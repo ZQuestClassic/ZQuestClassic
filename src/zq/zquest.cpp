@@ -5731,9 +5731,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(ShowFFCs)
 			{
+				mapscr* ffscr = prv_mode?Map.get_prvscr():Map.CurrScr();
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
-					ffcdata& ff = Map.CurrScr()->ffcs[i];
+					ffcdata& ff = ffscr->ffcs[i];
 					if(ff.getData() !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
 					{
 						auto x = ff.x+(showedges?16:0);
