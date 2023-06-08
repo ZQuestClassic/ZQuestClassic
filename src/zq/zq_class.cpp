@@ -5258,7 +5258,7 @@ void zmap::update_combo_cycling()
     int32_t x;
     int32_t newdata[176];
     int32_t newcset[176];
-    bool restartanim[MAXCOMBOS];
+    bool restartanim[MAXCOMBOS] = {0};
     
     for(int32_t i=0; i<176; i++)
     {
