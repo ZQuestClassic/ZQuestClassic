@@ -66,8 +66,8 @@ class set_ffc_command : public user_input_command
 {
 public:
 	struct data_t {
-		int x, y, vx, vy, ax, ay, data;
-		int cset, delay, link, script;
+		zfix x, y, vx, vy, ax, ay;
+		int data, cset, delay, link, script;
 		int tw, th;
 		int ew, eh;
 		dword flags;
