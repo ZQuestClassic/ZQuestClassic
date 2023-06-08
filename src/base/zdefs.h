@@ -4090,7 +4090,7 @@ struct gamedata
 	std::vector< ZCArray <int32_t> > globalRAM;
 	
 	byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
-	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
+	int16_t forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
 	bool isclearing; // The gamedata is being cleared
 	//115456 (260)
 	byte bottleSlots[256];
@@ -4115,9 +4115,27 @@ struct gamedata
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
-	void Clear();
+	
+	// member functions
+	// public:
+	gamedata()
+	{
+		Clear();
+	}
+	
+	~gamedata()
+	{}
+	
+	void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
 	void Copy(const gamedata& g);
 	void clear_genscript();
+	
+	gamedata &operator = (const gamedata& data)
+	{
+		this->Copy(data);
+		this->globalRAM=data.globalRAM;
+		return *this;
+	}
 	
 	void save_user_objects();
 	void load_user_objects();

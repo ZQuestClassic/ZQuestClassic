@@ -2155,6 +2155,11 @@ int32_t init_saves()
 		
 		if(saves==NULL)
 			return 1;
+		
+		for(auto q = 0; q < MAXSAVES; ++q)
+		{
+			saves[q].Clear();
+		}
 	}
 	return 0;
 }
