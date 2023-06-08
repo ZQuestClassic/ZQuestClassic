@@ -18,7 +18,6 @@ struct scr_func_exec
 	void clear();
 	void execute();
 	bool validate();
-	scr_func_exec& operator=(scr_func_exec const& other);
 };
 struct user_object
 {
@@ -35,7 +34,6 @@ struct user_object
 	void prep(dword pc, int32_t type, word script, int32_t i);
 	
 	void clear(bool destructor = true);
-	user_object& operator=(user_object const& other);
 	
 	void disown()
 	{
@@ -70,7 +68,6 @@ struct saved_user_object
 	int32_t object_index;
 	user_object obj;
 	std::map<int32_t,ZScriptArray> held_arrays;
-	saved_user_object& operator=(saved_user_object const& other);
 };
 extern user_object script_objects[MAX_USER_OBJECTS];
 

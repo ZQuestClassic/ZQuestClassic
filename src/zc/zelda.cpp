@@ -5310,7 +5310,6 @@ int main(int argc, char **argv)
 	
 	// set up an initial game save slot (for the list_saves function)
 	game = new gamedata;
-	game->Clear();
 	
 	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false);

@@ -23,17 +23,6 @@ void scr_func_exec::clear()
 	name.clear();
 }
 
-scr_func_exec& scr_func_exec::operator=(scr_func_exec const& other)
-{
-	pc = other.pc;
-	type = other.type;
-	i = other.i;
-	script = other.script;
-	name = other.name;
-	thiskey = other.thiskey;
-	return *this;
-}
-
 void scr_func_exec::execute()
 {
 	static int32_t static_stack[MAX_SCRIPT_REGISTERS];
@@ -157,23 +146,3 @@ void user_object::clear(bool destructor)
 	owned_i = 0;
 	owned_vars = 0;
 }
-
-user_object& user_object::operator=(user_object const& other)
-{
-	reserved = other.reserved;
-	owned_type = other.owned_type;
-	owned_i = other.owned_i;
-	data = other.data;
-	owned_vars = other.owned_vars;
-	destruct = other.destruct;
-	return *this;
-}
-
-saved_user_object& saved_user_object::operator=(saved_user_object const& other)
-{
-	obj = other.obj;
-	object_index = other.object_index;
-	held_arrays = other.held_arrays;
-	return *this;
-}
-
