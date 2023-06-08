@@ -16,6 +16,7 @@ import subprocess
 import platform
 import requests
 import zipfile
+import tarfile
 import shutil
 from joblib import Memory
 from typing import List
@@ -103,7 +104,8 @@ def get_release_package_url(tag):
             asset = next((asset for asset in assets if 'x64' in asset.name), None) or \
                 next((asset for asset in assets if 'x86' in asset.name), None)
     elif channel == 'linux':
-        asset = next(asset for asset in assets if asset.name.endswith('.tgz'))
+        asset = next(asset for asset in assets if asset.name.endswith(
+            '.tar.gz') or asset.name.endswith('.tgz'))
 
     if not asset:
         raise Exception(f'could not find package url for {tag}')
@@ -130,6 +132,10 @@ def download_release(tag: str):
         subprocess.check_call(['hdiutil', 'unmount', str(
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
         (dest / 'ZeldaClassic.dmg').unlink()
+    elif url.endswith('.tar.gz'):
+        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r:gz')
+        tf.extractall(dest)
+        tf.close()
     else:
         zip = zipfile.ZipFile(io.BytesIO(r.content))
         zip.extractall(dest)
