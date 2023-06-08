@@ -79,11 +79,8 @@ extern int32_t loadlast;
 extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
 byte use_save_indicator;
-byte midi_patch_fix;
-bool midi_paused=false;
 int32_t paused_midi_pos = 0;
 byte midi_suspended = 0;
-byte callback_switchin = 0;
 byte zc_192b163_warp_compatibility;
 char modulepath[2048];
 bool epilepsyFlashReduction;
@@ -450,8 +447,6 @@ void load_game_configs()
 	// This one's for Aero
 	use_dwm_flush = (byte) zc_get_config("zeldadx","use_dwm_flush",0);
    
-	// And this one fixes patches unloading on some MIDI setups
-	midi_patch_fix = (byte) zc_get_config("zeldadx","midi_patch_fix",1);
 	monochrome_console = (byte) zc_get_config("CONSOLE","monochrome_debuggers",0);
 #else //UNIX
 	zasm_debugger = (byte) zc_get_config("CONSOLE","print_ZASM",0);
@@ -6516,7 +6511,6 @@ int32_t onMIDICredits()
 	{
 		paused_midi_pos = midi_pos;
 		stop_midi();
-		midi_paused=true;
 		midi_suspended = midissuspHALTED;
 	}
 	
@@ -6542,6 +6536,7 @@ int32_t onMIDICredits()
 	
 	if(do_pause_midi)
 	{
+		// TODO: this probably doesn't resume midis nicely when scrolling (or in some other inner-gameloop).
 		midi_suspended = midissuspRESUME;
 		currmidi = restore_midi;
 		midi_pos = paused_midi_pos;
@@ -7462,7 +7457,7 @@ static MENU options_menu[] =
 	{ "S&napshot Format",             NULL,                    snapshot_format_menu,      0, NULL },
 	{ "&Window Settings",             NULL,                    window_menu,               0, NULL },
 	{ "Epilepsy Flash Reduction",     onEpilepsy,              NULL,                      0, NULL },
-	{ "Windows MIDI Patch",           onMIDIPatch,             NULL,                      0, NULL },
+	{ "Pause In Background",          onPauseInBackground,     NULL,                      0, NULL },
 	{ NULL,                           NULL,                    NULL,                      0, NULL }
 };
 static MENU settings_menu[] =
@@ -7640,12 +7635,12 @@ MENU the_player_menu[] =
 	#endif
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
-int32_t onMIDIPatch()
+int32_t onPauseInBackground()
 {
 	if(jwin_alert3(
-			"Toggle Windows MIDI Fix", 
-			"This action will change whether ZC Player auto-restarts a MIDI at its",
-			"last index if you move ZC Player out of focus, then back into focus.",
+			"Toggle Pause In Background", 
+			"This action will change whether ZC Player pauses when the window loses focus.",
+			"",
 			"Proceed?",
 		 "&Yes", 
 		"&No", 
@@ -7655,10 +7650,14 @@ int32_t onMIDIPatch()
 		0, 
 		get_zc_font(font_lfont)) == 1)
 	{
-		midi_patch_fix = midi_patch_fix ? 0 : 1;
-		zc_set_config("zeldadx","midi_patch_fix",midi_patch_fix);
+		pause_in_background = pause_in_background ? 0 : 1;
+		zc_set_config("zeldadx","pause_in_background", pause_in_background);
+		int switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
+		set_display_switch_mode(fullscreen?SWITCH_BACKAMNESIA:switch_type);
+		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
-	options_menu[5].flags =(midi_patch_fix)?D_SELECTED:0;
+	options_menu[5].flags =(pause_in_background)?D_SELECTED:0;
 	return D_O_K;
 }
 
@@ -7820,41 +7819,14 @@ void exit_sys_pal()
 
 void switch_out_callback()
 {
-	if (pause_in_background)
+	if (pause_in_background && !MenuOpen)
 	{
-		callback_switchin = 3;
-		return;
+		System();
 	}
-
-#ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==-1 || zcmusic)
-		return;
-
-	
-	paused_midi_pos = midi_pos;
-	zc_stop_midi();
-	midi_paused=true;
-	midi_suspended = midissuspHALTED;
-#endif
 }
 
 void switch_in_callback()
 {
-	if(pause_in_background)
-	{
-		return;
-	}
-
-#ifdef _WIN32
-	if(midi_patch_fix==0 || currmidi==-1 || zcmusic)
-		return;
-	
-	else
-	{
-		callback_switchin = 1;
-		midi_suspended = midissuspRESUME;
-	}
-#endif
 }
 
 void game_pal()
@@ -7872,7 +7844,6 @@ void music_pause()
 	//al_pause_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_PAUSE);
 	zc_midi_pause();
-	midi_paused=true;
 }
 
 void music_resume()
@@ -7880,7 +7851,6 @@ void music_resume()
 	//al_resume_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_RESUME);
 	zc_midi_resume();
-	midi_paused=false;
 }
 
 void music_stop()
@@ -7892,7 +7862,6 @@ void music_stop()
 	zcmusic_stop(zcmusic);
 	zcmusic_unload_file(zcmusic);
 	zc_stop_midi();
-	midi_paused=false;
 	currmidi=-1;
 }
 
@@ -7962,7 +7931,7 @@ void System()
 		window_menu[4].flags = stretchGame?D_SELECTED:0;
 
 		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
-		options_menu[5].flags = (midi_patch_fix)?D_SELECTED:0;
+		options_menu[5].flags = (pause_in_background)?D_SELECTED:0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8212,7 +8181,6 @@ void jukebox(int32_t index,int32_t loop)
 	
 	currmidi=index;
 	master_volume(digi_volume,midi_volume);
-	midi_paused=false;
 }
 
 void jukebox(int32_t index)
@@ -8224,7 +8192,6 @@ void jukebox(int32_t index)
 	// do nothing if it's already playing
 	if(index==currmidi && midi_pos>=0)
 	{
-		midi_paused=false;
 		return;
 	}
 	

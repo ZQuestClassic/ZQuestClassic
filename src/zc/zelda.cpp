@@ -192,10 +192,8 @@ extern int32_t script_hero_flip;
 volatile int32_t logic_counter=0;
 bool trip=false;
 extern byte midi_suspended;
-extern byte callback_switchin;
-extern bool midi_paused;
 extern int32_t paused_midi_pos;
-extern byte midi_patch_fix;
+
 void update_logic_counter()
 {
     ++logic_counter;
@@ -3213,48 +3211,9 @@ void game_loop()
 {
 	while(true)
 	{
-		if(callback_switchin == 3) 
-		{
-			System();
-			callback_switchin = 0;
-		}
-
 		GameFlags &= ~GAMEFLAG_RESET_GAME_LOOP;
 		genscript_timing = SCR_TIMING_START_FRAME;
-		if((pause_in_background && callback_switchin && midi_patch_fix))
-		{
-			if(currmidi>=0)
-			{
-				if(callback_switchin == 2) 
-				{
-					if ( currmidi >= 0 )
-					{
-						int32_t digi_vol, midi_vol;
-					
-						get_volume(&digi_vol, &midi_vol);
-						zc_stop_midi();
-						jukebox(currmidi);
-						zc_set_volume(digi_vol, midi_vol);
-						zc_midi_seek(paused_midi_pos);
-					}
-					midi_paused=false;
-					midi_suspended = midissuspNONE;
-					callback_switchin = 0;
-				}
-				if(callback_switchin == 1) 
-				{
-					paused_midi_pos = midi_pos;
-					midi_paused=true;
-					zc_stop_midi();
-					++callback_switchin;
-				}
-			}
-			else //no MIDI playing
-			{
-				callback_switchin = 0;
-			}
-		}
-		else if(midi_suspended==midissuspRESUME )
+		if (midi_suspended==midissuspRESUME )
 		{
 			if ( currmidi >= 0 )
 			{
@@ -3266,7 +3225,6 @@ void game_loop()
 				zc_set_volume(digi_vol, midi_vol);
 				zc_midi_seek(paused_midi_pos);
 			}
-			midi_paused=false;
 			midi_suspended = midissuspNONE;
 		}
 		
@@ -4998,6 +4956,8 @@ int main(int argc, char **argv)
 #endif
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
 	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
+	set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+	set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	
 	hw_palette = &RAMpal;
 	zq_screen_w = 640;
@@ -5042,7 +5002,9 @@ int main(int argc, char **argv)
 	
 	//set switching/focus mode -Z
 	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
-	
+	set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+	set_display_switch_callback(SWITCH_IN, switch_in_callback);
+
 	int32_t test_arg = used_switch(argc,argv,"-test");
 	zqtesting_mode = test_arg > 0;
 	if(zqtesting_mode)
@@ -5331,7 +5293,6 @@ reload_for_replay_file:
 		else titlescreen(load_save);
 		if(clearConsoleOnReload)
 			clearConsole();
-		callback_switchin = 0;
 		load_save=0;
 		load_qstpath="";
 		setup_combo_animations();
