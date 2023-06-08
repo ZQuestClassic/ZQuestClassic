@@ -810,7 +810,9 @@ int32_t onSave()
         return D_O_K;
     }
     
-    bool compress = !UncompressedAutoSaves;
+    //bool compress = !UncompressedAutoSaves;
+	//Don't tie regular saves being uncompressed to the autosave option.
+	bool compress = true;
     if (util::get_ext(temppath) == ".qsu") compress = false;
     int32_t ret = save_unencoded_quest(filepath, compress, filepath);
     char buf[256+20],name[256];
@@ -872,7 +874,8 @@ int32_t onSaveAs()
         }
     }
     
-    bool compress = !UncompressedAutoSaves;
+    //bool compress = !UncompressedAutoSaves;
+	bool compress = true;
     if (util::get_ext(temppath) == ".qsu") compress = false;
     int32_t ret = save_unencoded_quest(temppath, compress, temppath);
     char buf[1024],name[256];
