@@ -7641,21 +7641,13 @@ void draw(bool justcset)
 					}
 					else
 					{
-						int32_t p=Combo/256;
-						int32_t pc=Combo%256;
-						
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								cc=((cx/4)*52)+(cy*4)+(cx%4)+pc;
-								
-								if(cc>=0&&cc<256)
-								{
-									cc+=(p*256);
-									Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
-								}
+								cc=Combo + cx + cy*4;
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
 							}
 						}
 					}
@@ -7684,21 +7676,13 @@ void draw(bool justcset)
 					}
 					else
 					{
-						int32_t p=cid/256;
-						int32_t pc=cid%256;
-						
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								cid=((cx/4)*52)+(cy*4)+(cx%4)+pc;
-								
-								if(cid>=0&&cid<256)
-								{
-									cid+=(p*256);
-									Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid, cs);
-								}
+								cid=Combo + cx + cy*4;
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid, cs);
 							}
 						}
 					}
