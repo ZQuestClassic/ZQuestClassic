@@ -4574,6 +4574,18 @@ int set_screen_command::size()
     return (prev_screen ? 1 : 0) + (screen ? 1 : 0);
 }
 
+extern byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
+
+void tile_grid_draw_command::execute()
+{
+	util::copy_2d_array<byte, 15, 20>(tile_grid, relational_tile_grid);
+}
+
+void tile_grid_draw_command::undo()
+{
+	util::copy_2d_array<byte, 15, 20>(prev_tile_grid, relational_tile_grid);
+}
+
 static std::shared_ptr<list_command> current_list_command;
 void zmap::StartListCommand()
 {

@@ -3034,10 +3034,15 @@ void fix_drawing_mode_menu()
     drawing_mode_menu[draw_mode].flags=D_SELECTED;
 }
 
+void reset_relational_tile_grid()
+{
+	memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+}
+
 int32_t onDrawingMode()
 {
     draw_mode=(draw_mode+1)%dm_max;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3046,7 +3051,7 @@ int32_t onDrawingMode()
 int32_t onDrawingModeNormal()
 {
     draw_mode=dm_normal;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3060,7 +3065,7 @@ int32_t onDrawingModeRelational()
     }
     
     draw_mode=dm_relational;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3074,7 +3079,7 @@ int32_t onDrawingModeDungeon()
     }
     
     draw_mode=dm_dungeon;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3089,7 +3094,7 @@ int32_t onDrawingModeAlias()
     
     draw_mode=dm_alias;
     alias_cset_mod=0;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3103,7 +3108,7 @@ int32_t onDrawingModePool()
     }
     
     draw_mode=dm_cpool;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3274,7 +3279,7 @@ int32_t onDelete()
         }
     }
     
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     saved=false;
     return D_O_K;
 }
@@ -3308,7 +3313,7 @@ int32_t onIncMap()
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     if(m!=Map.getCurrMap())
     {
-        memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+        reset_relational_tile_grid();
     }
     
     int32_t newcolor=Map.getcolor();
@@ -3332,7 +3337,7 @@ int32_t onDecMap()
     
     if(m!=Map.getCurrMap())
     {
-        memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+        reset_relational_tile_grid();
     }
     
     int32_t newcolor=Map.getcolor();
@@ -7595,6 +7600,13 @@ void draw(bool justcset)
     
     refresh(rMAP+rSCRMAP);
 	int32_t lastpos = -1;
+
+    std::shared_ptr<tile_grid_draw_command> dungeon_draw_cmd;
+    if (draw_mode == dm_relational || draw_mode == dm_dungeon)
+    {
+        dungeon_draw_cmd = std::make_shared<tile_grid_draw_command>();
+        util::copy_2d_array<byte, 15, 20>(relational_tile_grid, dungeon_draw_cmd->prev_tile_grid);
+    }
 	
     Map.StartListCommand();
     while(gui_mouse_b())
@@ -7966,6 +7978,11 @@ void draw(bool justcset)
 		refresh(rALL);
     }
 
+    if (dungeon_draw_cmd)
+    {
+        util::copy_2d_array<byte, 15, 20>(relational_tile_grid, dungeon_draw_cmd->tile_grid);
+        Map.ExecuteCommand(dungeon_draw_cmd, true);
+    }
     Map.FinishListCommand();
 }
 
@@ -14610,7 +14627,7 @@ int32_t onGotoMap()
         
         if(m!=Map.getCurrMap())
         {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+            reset_relational_tile_grid();
         }
     }
     

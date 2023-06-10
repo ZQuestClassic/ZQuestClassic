@@ -54,6 +54,12 @@ namespace util
 	void unstringify_vector(std::vector<int32_t>& vec, char const* str, bool dec);
 	size_t vecstr_size(char const* str);
 	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext);
+
+	template <typename T, std::size_t R, std::size_t C>
+	inline void copy_2d_array(T source[R][C] , T dest[R][C])
+	{
+		std::copy(&source[0][0], &source[0][0] + (R*C)/sizeof(source[0][0]), &dest[0][0]);
+	}
 }
 int32_t vbound(int32_t val, int32_t low, int32_t high);
 double vbound(double val, double low, double high);

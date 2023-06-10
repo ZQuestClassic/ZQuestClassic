@@ -39,6 +39,7 @@ public:
 
     virtual void execute() = 0;
     virtual void undo() = 0;
+    // Rough estimate of how much memory retained by the command, in terms of sizeof(mapscr).
     int size() { return 0; }
 };
 
@@ -149,6 +150,16 @@ public:
     void execute();
     void undo();
     int size();
+};
+
+class tile_grid_draw_command : public user_input_command
+{
+public:
+	byte tile_grid[15][20];
+	byte prev_tile_grid[15][20];
+
+    void execute();
+    void undo();
 };
 
 void reset_dmap(int32_t index);
