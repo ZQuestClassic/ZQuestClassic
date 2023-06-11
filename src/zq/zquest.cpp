@@ -26821,6 +26821,8 @@ auto_do_slots:
 			goto exit_do_slots;
 		if(!handle_slot_map(playermap, 1, playerscripts))
 			goto exit_do_slots;
+		if(!handle_slot_map(dmapmap, 1, dmapscripts))
+			goto exit_do_slots;
 		if(!handle_slot_map(screenmap, 1, screenscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(itemspritemap, 1, itemspritescripts))
