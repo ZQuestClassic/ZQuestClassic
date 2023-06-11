@@ -1,0 +1,3 @@
+#!/bin/sh
+
+python scripts/git_hooks/prepare_commit_msg.py "$@"
