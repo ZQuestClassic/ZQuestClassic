@@ -476,26 +476,6 @@ void trigger_cswitch_block_ffc(int32_t pos)
 }
 
 
-void spawn_decoration(newcombo const& cmb, int32_t pos)
-{
-	if(unsigned(pos) > 175) return;
-	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
-	if(decotype > 3) decotype = 0;
-	if(!decotype) decotype = (isBushType(cmb.type) ? 1 :
-		(isFlowersType(cmb.type) ? 2 :
-		(isGrassType(cmb.type) ? 3 :
-		((cmb.usrflags & cflag1) ? -1 : -2))));
-	switch(decotype)
-	{
-		case -2: break; //nothing
-		case -1:
-			decorations.add(new comboSprite(COMBOX(pos), COMBOY(pos), 0, 0, cmb.attribytes[0]));
-			break;
-		case 1: decorations.add(new dBushLeaves(COMBOX(pos), COMBOY(pos), dBUSHLEAVES, 0, 0)); break;
-		case 2: decorations.add(new dFlowerClippings(COMBOX(pos), COMBOY(pos), dFLOWERCLIPPINGS, 0, 0)); break;
-		case 3: decorations.add(new dGrassClippings(COMBOX(pos), COMBOY(pos), dGRASSCLIPPINGS, 0, 0)); break;
-	}
-}
 
 void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 {
@@ -515,6 +495,11 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 		case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
 		case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
 	}
+}
+void spawn_decoration(newcombo const& cmb, int32_t pos)
+{
+	if(unsigned(pos) > 175) return;
+	spawn_decoration_xy(cmb, COMBOX(pos), COMBOY(pos));
 }
 
 void trigger_cuttable(int32_t lyr, int32_t pos)

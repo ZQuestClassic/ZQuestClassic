@@ -3812,19 +3812,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		}
 	}
 	
-	int16_t decotype = (combobuf[cid].usrflags & cflag1) ? ((combobuf[cid].usrflags & cflag10) ? (combobuf[cid].attribytes[0]) : (-1)) : (0);
-	if(decotype > 3) decotype = 0;
-	if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((combobuf[cid].usrflags & cflag1) ? -1 : -2))));
-	switch(decotype)
-	{
-		case -2: break; //nothing
-		case -1:
-			decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
-			break;
-		case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-		case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-		case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-	}
+	spawn_decoration_xy(combobuf[cid], fx, fy);
 }
 
 void HeroClass::check_slash_block(int32_t bx, int32_t by)
@@ -4064,19 +4052,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			}
 		}
 		
-		int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
-		if(decotype > 3) decotype = 0;
-		if(!decotype) decotype = (isBushType(type) ? 1 : (isFlowersType(type) ? 2 : (isGrassType(type) ? 3 : ((cmb.usrflags & cflag1) ? -1 : -2))));
-		switch(decotype)
-		{
-			case -2: break; //nothing
-			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, cmb.attribytes[0]));
-				break;
-			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-		}
+		spawn_decoration_xy(cmb, fx, fy);
 	}
 	
 	if(!ignoreffc)
@@ -4142,19 +4118,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 			}
 		}
 		
-		int16_t decotype = (cmb_ff.usrflags & cflag1) ? ((cmb_ff.usrflags & cflag10) ? (cmb_ff.attribytes[0]) : (-1)) : (0);
-		if(decotype > 3) decotype = 0;
-		if(!decotype) decotype = (isBushType(type2) ? 1 : (isFlowersType(type2) ? 2 : (isGrassType(type2) ? 3 : ((cmb_ff.usrflags & cflag1) ? -1 : -2))));
-		switch(decotype)
-		{
-			case -2: break; //nothing
-			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, cmb_ff.attribytes[0]));
-				break;
-			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
-			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
-			case 3: decorations.add(new dGrassClippings((zfix)fx, (zfix)fy, dGRASSCLIPPINGS, 0, 0)); break;
-		}
+		spawn_decoration_xy(cmb_ff, fx, fy);
 	}
 }
 
