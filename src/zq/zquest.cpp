@@ -24414,7 +24414,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_win_proc,		  0,	0,		330,	236,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
     { jwin_tab_proc,		  6,	25,		330-12,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
     { jwin_button_proc,	  251,	207,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,	  182,	207,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
+    { jwin_button_proc,	  182,	207,	61,		21,		vc(14), vc(1),	0,	    D_EXIT,	0,	0,	(void *) "OK", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
     //6
