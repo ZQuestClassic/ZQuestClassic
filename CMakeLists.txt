@@ -13,6 +13,7 @@ set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(WANT_ASAN FALSE CACHE BOOL "Compile with ASAN")
+set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -27,6 +28,28 @@ if(WANT_ASAN)
 	else()
 		add_compile_options(-fsanitize=address)
 		add_link_options(-fsanitize=address)
+	endif()
+endif()
+
+if(WANT_GIT_HOOKS)
+	if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+		if(UNIX)
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/commit-msg")
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/prepare-commit-msg")
+			file(
+				COPY "${CMAKE_SOURCE_DIR}/.git/commit-msg"
+				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
+				FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+			)
+			file(
+				COPY "${CMAKE_SOURCE_DIR}/.git/prepare-commit-msg"
+				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
+				FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+			)
+		else()
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/hooks/commit-msg")
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/hooks/prepare-commit-msg")
+		endif()
 	endif()
 endif()
 
