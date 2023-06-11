@@ -7630,7 +7630,6 @@ void draw(bool justcset)
 				continue;
 			}
 			lastpos = cstart;
-            combo_alias *combo = &combo_aliases[combo_apos];
             
             switch(draw_mode)
             {
@@ -7675,15 +7674,16 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
+						auto cid2 = cid;
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid + cx), cs);
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid2 + cx), cs);
 							}
 							
-							cid+=20;
+							cid2+=20;
 						}
 					}
 					else
@@ -7693,8 +7693,8 @@ void draw(bool justcset)
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								cid=Combo + cx + cy*4;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid, cs);
+								auto cid2=cid + cx + cy*4;
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid2, cs);
 							}
 						}
 					}
@@ -7852,6 +7852,8 @@ void draw(bool justcset)
 				break;
 				
 				case dm_alias:
+				{
+					combo_alias *combo = &combo_aliases[combo_apos];
 					if(!combo->layermask)
 					{
 						int32_t ox=0, oy=0;
@@ -7971,6 +7973,7 @@ void draw(bool justcset)
 					}
 					
 					break;
+				}
             }
         }
         
