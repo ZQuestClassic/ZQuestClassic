@@ -1,6 +1,10 @@
 // 2.55 Change Log
 // Updated 10th Apr, 2023
 
+//Alpha 114
+
+See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-114
+
 Fix icy pushblock interactions with block holes.
 	( EmilyV, Apr 10th, 2023 )
 
