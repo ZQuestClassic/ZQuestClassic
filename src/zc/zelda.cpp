@@ -5095,12 +5095,13 @@ int main(int argc, char **argv)
 	if(!onlyInstance)
 	{
 		clear_to_color(screen,BLACK);
-		system_pal();
+		enter_sys_pal();
 		int32_t ret=jwin_alert3("Multiple Instances",
 							"Another instance of ZC is already running.",
 							"Running multiple instances may cause your",
 							"save file to be deleted. Continue anyway?",
 							"&No","&Yes", 0, 'n', 'y', 0, get_zc_font(font_lfont));
+		exit_sys_pal();
 		if(ret!=2)
 		{
 			if(forceExit)
@@ -5218,7 +5219,7 @@ int main(int argc, char **argv)
 		if (!checked_epilepsy)
 		{
 			clear_to_color(screen,BLACK);
-			system_pal();
+			enter_sys_pal();
 			if(jwin_alert("EPILEPSY Options",
 				"Do you desire epilepsy protection?",
 				"This will reduce the intensity of flashing effects",
@@ -5227,6 +5228,7 @@ int main(int argc, char **argv)
 			{
 				epilepsyFlashReduction = 1;
 			}
+			exit_sys_pal();
 			zc_set_config("zeldadx","checked_epilepsy",1);
 			zc_set_config("zeldadx","epilepsy_flash_reduction",epilepsyFlashReduction);
 			checked_epilepsy = 1;
