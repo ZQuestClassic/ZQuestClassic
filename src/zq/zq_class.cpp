@@ -2707,11 +2707,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	
 	int32_t layermap, layerscreen;
-	layermap=layer->layermap[CurrentLayer-1]-1;
-	
-	if(layermap<0)
+	if(CurrentLayer < 1)
+		layermap = -1;
+	else
 	{
-		CurrentLayer=0;
+		layermap=layer->layermap[CurrentLayer-1]-1;
+		
+		if(layermap<0)
+			CurrentLayer=0;
 	}
 	
 	if(!(layer->valid&mVALID))
