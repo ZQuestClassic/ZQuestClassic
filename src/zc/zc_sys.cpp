@@ -4627,7 +4627,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
 	
-	if (!replay_is_active() || replay_get_version() >= 11)
+	if (replay_is_active() && replay_get_version() >= 11 && replay_get_version() < 16)
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
 	
@@ -8637,10 +8637,10 @@ int32_t next_press_btn()
 	}
 }
 
-static bool rButton(bool &btn, bool &flag, bool* rawbtn = nullptr)
+static bool rButton(bool &btn, bool &flag)
 {
 	bool ret = btn && !flag;
-	flag = rawbtn ? *rawbtn : btn;
+	flag = btn;
 	
 	return ret;
 }
@@ -8810,38 +8810,33 @@ bool zc_key_pressed()
 
 bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
-	bool ret = false, drunkstate = false, rawret = false;
+	bool ret = false, drunkstate = false;
 	bool* flag = &down_control_states[btn];
 	switch(btn)
 	{
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F12, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F11, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F5, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
-			rawret = zc_getrawkey(KEY_Q, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
-			rawret = zc_getrawkey(KEY_I, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			rawret = ret = zc_getrawkey(KEY_ESC, ignoreDisable);
+			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			eatEntirely = false;
 			break;
 		default: //control_state[] index
@@ -8849,15 +8844,13 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
-			rawret = raw_control_state[btn];
 	}
 	assert(flag);
 	if(press)
 	{
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
-		else if (replay_is_active() && replay_get_version() < 8) ret = rButton(ret, *flag);
-		else ret = rButton(ret, *flag, &rawret);
+		else ret = rButton(ret, *flag);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
