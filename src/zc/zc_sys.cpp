@@ -8080,8 +8080,7 @@ void System()
 	
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
-		misc_menu[14].flags =(clearConsoleOnReload)?D_SELECTED:0;
-		misc_menu[15].flags =(clearConsoleOnLoad)?D_SELECTED:0;
+		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
 		
 		bool nocheat = (replay_is_replaying() || !Playing
 			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
