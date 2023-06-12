@@ -10,6 +10,7 @@
 
 extern sprite_list guys;
 extern double aspect_ratio;
+extern byte use_save_indicator;
 
 RenderTreeItem rti_root;
 RenderTreeItem rti_game;
@@ -337,7 +338,7 @@ void render_zc()
 		lines_left.push_back(replay_get_buttons_string().c_str());
 	if (Paused)
 		lines_right.push_back("PAUSED");
-	if (Saving)
+	if (Saving && use_save_indicator)
 		lines_right.push_back("SAVING ...");
 	if (details && game)
 	{

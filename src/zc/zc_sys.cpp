@@ -7240,7 +7240,7 @@ int32_t onHeartBeep()
 
 int32_t onSaveIndicator()
 {
-	use_save_indicator=!use_save_indicator;
+	use_save_indicator = use_save_indicator ? 0 : 1;
 	zc_set_config(cfg_sect,"save_indicator",use_save_indicator);
 	return D_O_K;
 }
