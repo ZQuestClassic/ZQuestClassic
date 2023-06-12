@@ -167,6 +167,10 @@ static AccessorTable HeroSTable[] =
 	{ "setCoyoteTime",              0,          ZTID_VOID,   HEROCOYOTETIME,            0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "MoveXY",                     0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
 	{ "CanMoveXY",                  0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	{ "MoveAtAngle",                0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	{ "CanMoveAtAngle",             0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	{ "Move",                       0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
+	{ "CanMove",                    0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL, ZTID_BOOL, ZTID_BOOL },{ 0, 0, 10000 } },
 	{ "ReleaseLiftWeapon",          0,          ZTID_LWPN,   -1,                   FL_INL,  { ZTID_PLAYER },{} },
 	{ "LiftWeapon",                 0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_PLAYER, ZTID_LWPN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getLiftedWeapon",            0,          ZTID_LWPN,   HEROLIFTEDWPN,             0,  { ZTID_PLAYER },{} },
@@ -560,6 +564,54 @@ void HeroSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
 		addOpcode2 (code, new OHeroCanMoveXY());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void MoveAtAngle(player, int, int, bool, bool, bool)
+	{
+		Function* function = getFunction("MoveAtAngle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroMoveAtAngle());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CanMoveAtAngle(player, int, int, bool, bool, bool)
+	{
+		Function* function = getFunction("CanMoveAtAngle");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroCanMoveAtAngle());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Move(player, int, int, bool, bool, bool)
+	{
+		Function* function = getFunction("Move");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroMove());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CanMove(player, int, int, bool, bool, bool)
+	{
+		Function* function = getFunction("CanMove");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OHeroCanMove());
 		LABELBACK(label);
 		POP_ARGS(5, NUL);
 		RETURN();

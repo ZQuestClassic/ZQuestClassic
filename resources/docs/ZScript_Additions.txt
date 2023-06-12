@@ -5626,10 +5626,29 @@ bool MoveXY(float dx, float dy, bool is_knockback = false,
  *     be shoved 'around' the corner. (Same as how engine movement does it)
  * Returns true if the full distance was moved, false otherwise.
 
+bool MoveAtAngle(float degrees, float pxamnt, bool is_knockback = false,
+	bool ignore_sideview = false, bool corner_shove = false);
+ * As 'MoveXY()', but for a 'pxamnt' movement in the 'degrees' angle.
+
+bool Move(int dir, float pxamnt, bool is_knockback = false,
+	bool ignore_sideview = false, bool corner_shove = false);
+ * As 'MoveXY()', but for a 'pxamnt' movement in the 'dir' direction.
+
+
 bool CanMoveXY(float dx, float dy, bool is_knockback = false,
 	bool ignore_sideview = false, bool corner_shove = true);
  * Same as MoveXY, but does not move the player- instead, just returns true/false based on what
  *     'MoveXY' would return.
+
+bool CanMoveAtAngle(float degrees, float pxamnt, bool is_knockback = false,
+	bool ignore_sideview = false, bool corner_shove = true);
+ * Same as MoveAtAngle, but does not move the player- instead, just returns true/false based on what
+ *     'MoveAtAngle' would return.
+
+bool CanMove(int dir, float pxamnt, bool is_knockback = false,
+	bool ignore_sideview = false, bool corner_shove = true);
+ * Same as Move, but does not move the player- instead, just returns true/false based on what
+ *     'Move' would return.
 
 bool Animation;
  * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.

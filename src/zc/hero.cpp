@@ -17522,6 +17522,53 @@ bool HeroClass::can_movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove)
 	y = oy;
 	return ret;
 }
+bool HeroClass::moveAtAngle(zfix degrees, zfix px, bool kb, bool ign_sv, bool shove, bool earlyret)
+{
+	double v = degrees.getFloat() * PI / 180.0;
+	zfix dx = zc::math::Cos(v)*px, dy = zc::math::Sin(v)*px;
+	return movexy(dx, dy, kb, ign_sv, shove, earlyret);
+}
+bool HeroClass::can_moveAtAngle(zfix degrees, zfix px, bool kb, bool ign_sv, bool shove)
+{
+	zfix ox(x),oy(y);
+	bool ret = moveAtAngle(degrees,px,kb,ign_sv,shove,true);
+	x = ox;
+	y = oy;
+	return ret;
+}
+bool HeroClass::moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove, bool earlyret)
+{
+	static const zfix diagrate = zslongToFix(7071);
+	switch(NORMAL_DIR(dir))
+	{
+		case up:
+			return movexy(0, -px, kb, ign_sv, shove, earlyret);
+		case down:
+			return movexy(0, px, kb, ign_sv, shove, earlyret);
+		case left:
+			return movexy(-px, 0, kb, ign_sv, shove, earlyret);
+		case right:
+			return movexy(px, 0, kb, ign_sv, shove, earlyret);
+		case r_up:
+			return movexy(px*diagrate, -px*diagrate, kb, ign_sv, shove, earlyret);
+		case r_down:
+			return movexy(px*diagrate, px*diagrate, kb, ign_sv, shove, earlyret);
+		case l_up:
+			return movexy(-px*diagrate, -px*diagrate, kb, ign_sv, shove, earlyret);
+		case l_down:
+			return movexy(-px*diagrate, px*diagrate, kb, ign_sv, shove, earlyret);
+	}
+	return false;
+}
+bool HeroClass::can_moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove)
+{
+	zfix ox(x),oy(y);
+	bool ret = moveDir(dir,px,kb,ign_sv,shove,true);
+	x = ox;
+	y = oy;
+	return ret;
+}
+
 
 bool HeroClass::premove()
 {

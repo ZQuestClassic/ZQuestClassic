@@ -3103,7 +3103,7 @@ bool enemy::movexy(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv, bool
 
 bool enemy::moveDir(int32_t dir, zfix px, int32_t special, bool kb, bool earlyret)
 {
-	zfix diagrate = zslongToFix(7071);
+	static const zfix diagrate = zslongToFix(7071);
 	switch(NORMAL_DIR(dir))
 	{
 		case up:

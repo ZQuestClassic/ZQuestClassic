@@ -2588,21 +2588,21 @@ string OUseSpritePortal::toString() const
 {
 	return "PORTALUSESPRITE " + getArgument()->toString();
 }
-string OResrvdOpEmily02::toString() const
+string OHeroMoveAtAngle::toString() const
 {
-	return "RESRVD_OP_EMILY_02";
+	return "HEROMOVEATANGLE";
 }
-string OResrvdOpEmily03::toString() const
+string OHeroCanMoveAtAngle::toString() const
 {
-	return "RESRVD_OP_EMILY_03";
+	return "HEROCANMOVEATANGLE";
 }
-string OResrvdOpEmily04::toString() const
+string OHeroMove::toString() const
 {
-	return "RESRVD_OP_EMILY_04";
+	return "HEROMOVE";
 }
-string OResrvdOpEmily05::toString() const
+string OHeroCanMove::toString() const
 {
-	return "RESRVD_OP_EMILY_05";
+	return "HEROCANMOVE";
 }
 string OResrvdOpEmily06::toString() const
 {

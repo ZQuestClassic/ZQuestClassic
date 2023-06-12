@@ -2345,40 +2345,40 @@ namespace ZScript
 			return new OUseSpritePortal(a->clone());
 		}
 	};
-	class OResrvdOpEmily02 : public Opcode
+	class OHeroMoveAtAngle : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily02();
+			return new OHeroMoveAtAngle();
 		}
 	};
-	class OResrvdOpEmily03 : public Opcode
+	class OHeroCanMoveAtAngle : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily03();
+			return new OHeroCanMoveAtAngle();
 		}
 	};
-	class OResrvdOpEmily04 : public Opcode
+	class OHeroMove : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily04();
+			return new OHeroMove();
 		}
 	};
-	class OResrvdOpEmily05 : public Opcode
+	class OHeroCanMove : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily05();
+			return new OHeroCanMove();
 		}
 	};
 	class OResrvdOpEmily06 : public Opcode

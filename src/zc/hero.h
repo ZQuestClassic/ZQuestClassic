@@ -356,6 +356,10 @@ public:
 	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
 	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
 	bool can_movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false);
+	bool moveAtAngle(zfix degrees, zfix px, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
+	bool can_moveAtAngle(zfix degrees, zfix px, bool kb = false, bool ign_sv = false, bool shove = false);
+	bool moveDir(int dir, zfix px, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
+	bool can_moveDir(int dir, zfix px, bool kb = false, bool ign_sv = false, bool shove = false);
 	bool premove();
 	void movehero();
 	bool new_engine_move(zfix dx, zfix dy);

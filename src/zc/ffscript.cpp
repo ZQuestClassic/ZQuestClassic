@@ -33002,6 +33002,46 @@ j_command:
 				ri->d[rEXP1] = Hero.can_movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
 				break;
 			}
+			case HEROMOVEATANGLE:
+			{
+				zfix degrees = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.moveAtAngle(degrees, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROCANMOVEATANGLE:
+			{
+				zfix degrees = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.can_moveAtAngle(degrees, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROMOVE:
+			{
+				int dir = SH::read_stack(ri->sp + 4)/10000;
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.moveDir(dir, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROCANMOVE:
+			{
+				int dir = SH::read_stack(ri->sp + 4)/10000;
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.can_moveDir(dir, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
 			case HEROLIFTRELEASE:
 			{
 				if(Hero.lift_wpn)
@@ -40616,10 +40656,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SAVEDPORTALREMOVE",   0,   0,   0,   0 },
 	{ "SAVEDPORTALGENERATE",   0,   0,   0,   0 },
 	{ "PORTALUSESPRITE", 1, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_02", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_03", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_04", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_05", 0, 0, 0, 0 },
+	{ "HEROMOVEATANGLE", 0, 0, 0, 0 },
+	{ "HEROCANMOVEATANGLE", 0, 0, 0, 0 },
+	{ "HEROMOVE", 0, 0, 0, 0 },
+	{ "HEROCANMOVE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_06", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_07", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_08", 0, 0, 0, 0 },
