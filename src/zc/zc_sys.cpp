@@ -757,6 +757,7 @@ void load_mouse()
 			blit(tmpbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
 		destroy_bitmap(tmpbmp);
 	}
+	if(!hw_palette) hw_palette = &RAMpal;
 	zc_set_palette(*hw_palette);
 	
 	BITMAP* blankmouse = create_bitmap_ex(8,16,16);
@@ -3914,8 +3915,7 @@ void updatescr(bool allowwavy)
 
 //----------------------------------------------------------------
 
-PALETTE sys_pal;
-
+static PALETTE syspal;
 int32_t onGUISnapshot()
 {
 	char buf[200];
@@ -3931,43 +3931,8 @@ int32_t onGUISnapshot()
 	
 	if(b)
 	{
-		if(MenuOpen)
-	{
-		//Cannot load game's palette while GUI elements are in focus. -Z
-		//If there is a way to do this, then I have missed it.
-		/*
-		game_pal();
-		RAMpal[253] = _RGB(0,0,0);
-		RAMpal[254] = _RGB(63,63,63);
-		zc_set_palette_range(RAMpal,0,255,false);
-		memcpy(RAMpal, snappal, sizeof(snappal));
-		create_rgb_table(&rgb_table, RAMpal, NULL);
-		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-		
-		for(int32_t q=0; q<PAL_SIZE; q++)
-		{
-			trans_table2.data[0][q] = q;
-			trans_table2.data[q][q] = q;
-		}
-		*/
-		//ringcolor(false);
-		//get_palette(RAMpal);
 		blit(screen,b,0,0,0,0,resx,resy);
-		//al_trace("Menu Open\n");
-		//game_pal();
-		//PALETTE temppal;
-		//get_palette(temppal);
-		//system_pal();
-		save_bitmap(buf,b,sys_pal);
-		//save_bitmap(buf,b,RAMpal);
-		//save_bitmap(buf,b,snappal);
-	}	
-	else 
-	{
-		blit(screen,b,0,0,0,0,resx,resy);
-		save_bitmap(buf,b,realpal?sys_pal:RAMpal);
-	}
+		save_bitmap(buf,b,RAMpal);
 		destroy_bitmap(b);
 	}
 	
@@ -7816,89 +7781,9 @@ void system_pal(bool force)
 {
 	if(is_sys_pal && !force) return;
 	is_sys_pal = true;
-	static PALETTE pal;
-	copy_pal((RGB*)datafile[PAL_GUI].dat, pal);
-	
-	// set up the grayscale palette
-	for(int32_t i=128; i<192; i++)
-	{
-		pal[i].r = i-128;
-		pal[i].g = i-128;
-		pal[i].b = i-128;
-	}
-	load_colorset(gui_colorset, pal, jwin_a5_colors);
-	
-	color_layer(pal, pal, 24,16,16, 28, 128,191);
-	
-	for(int32_t i=0; i<256; i+=2)
-	{
-		int32_t v = (i>>3)+2;
-		int32_t c = (i>>3)+192;
-		pal[c] = _RGB(v,v,v+(v>>1));
-		/*
-		  if(i<240)
-		  {
-		  _allegro_hline(tmp_scr,0,i,319,c);
-		  _allegro_hline(tmp_scr,0,i+1,319,c);
-		  }
-		  */
-	}
-	
-	// draw the vertical screen gradient
-	for(int32_t i=0; i<240; ++i)
-	{
-		_allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
-	}
-	
-	/*
-	  palrstart= 10*63/255; palrend=166*63/255;
-	  palgstart= 36*63/255; palgend=202*63/255;
-	  palbstart=106*63/255; palbend=240*63/255;
-	  paldivs=32;
-	  for(int32_t i=0; i<paldivs; i++)
-	  {
-	  pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-	  pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-	  pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	  }
-	  */
-	BITMAP *panorama = create_bitmap_ex(8,256,224);
-	int32_t ts_height, ts_start;
-	
-	if(tmpscr->flags3&fNOSUBSCR && !(tmpscr->flags3&fNOSUBSCROFFSET))
-	{
-		clear_to_color(panorama,0);
-		blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
-		ts_height=224-passive_subscreen_height;
-		ts_start=28;
-	}
-	else
-	{
-		blit(framebuf,panorama,0,0,0,0,256,224);
-		ts_height=224;
-		ts_start=0;
-	}
-	
-	// gray scale the current frame
-	for(int32_t y=0; y<ts_height; y++)
-	{
-		for(int32_t x=0; x<256; x++)
-		{
-			int32_t c = panorama->line[y+ts_start][x];
-			int32_t gray = zc_min((RAMpal[c].r*42 + RAMpal[c].g*75 + RAMpal[c].b*14) >> 7, 63);
-			tmp_scr->line[y+8+ts_start][x+32] = gray+128;
-		}
-	}
-	
-	destroy_bitmap(panorama);
-	
-	// display everything
-	vsync();
-	hw_palette = &pal;
+	load_colorset(gui_colorset, syspal, jwin_a5_colors);
+	hw_palette = &syspal;
 	update_hw_pal = true;
-		
-	//  sys_pal = pal;
-	memcpy(sys_pal,pal,sizeof(pal));
 }
 
 static uint32_t entered_sys_pal = 0;
@@ -7969,7 +7854,6 @@ void game_pal()
 {
 	is_sys_pal = false;
 	entered_sys_pal = 0;
-	clear_to_color(screen,BLACK);
 	hw_palette = &RAMpal;
 	update_hw_pal = true;
 }
@@ -8011,8 +7895,7 @@ void System()
 	music_pause();
 	pause_all_sfx();
 	MenuOpen = true;
-	system_pal(true);
-	sys_mouse();
+	enter_sys_pal();
 	//  FONT *oldfont=font;
 	//  font=tfont;
 	
@@ -8171,14 +8054,13 @@ void System()
 	}
 	else
 	{
-		game_pal();
-		game_mouse();
 		music_resume();
 		resume_all_sfx();
 		
 		if(rc)
 			ringcolor(false);
 	}
+	exit_sys_pal();
 	
 	eat_buttons();
 	
