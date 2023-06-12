@@ -186,8 +186,8 @@ static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
 	{
 		rti->computed.xscale = rti->transform.xscale * rti_parent->computed.xscale;
 		rti->computed.yscale = rti->transform.yscale * rti_parent->computed.yscale;
-		rti->computed.x = rti->computed.xscale * rti->transform.x + rti_parent->transform.x;
-		rti->computed.y = rti->computed.yscale * rti->transform.y + rti_parent->transform.y;
+		rti->computed.x = rti->computed.xscale * rti->transform.x + rti_parent->computed.x;
+		rti->computed.y = rti->computed.yscale * rti->transform.y + rti_parent->computed.y;
 	}
 	
 	for (auto rti_child : rti->children)

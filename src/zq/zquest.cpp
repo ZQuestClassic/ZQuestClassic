@@ -1593,8 +1593,7 @@ int32_t onResetTransparency()
 
 int32_t onFullScreen()
 {
-	
-    if(jwin_alert3(
+	if(jwin_alert3(
 			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
 			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
 			(is_windowed_mode()) ? "We strongly advise saving your quest before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
@@ -1606,29 +1605,29 @@ int32_t onFullScreen()
 		'n', 
 		0, 
 		get_zc_font(font_lfont)) == 1)	
-    {
-	    get_palette(RAMpal);
-	    bool windowed=is_windowed_mode()!=0;
-	    
-	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
-	    if(ret!=0)
-	    {
+	{
+		get_palette(RAMpal);
+		bool windowed=is_windowed_mode()!=0;
+		
+		int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
+		if(ret!=0)
+		{
 			Z_error_fatal("Failed to set video mode: %d. allegro_error: %s\n", ret, allegro_error);
-	    }
-	    
-	    gui_mouse_focus=0;
-	    gui_bg_color=jwin_pal[jcBOX];
-	    gui_fg_color=jwin_pal[jcBOXFG];
-	    MouseSprite::set(ZQM_NORMAL);
-	    zc_set_palette(RAMpal);
-	    position_mouse(zq_screen_w/2,zq_screen_h/2);
-	    set_display_switch_mode(SWITCH_BACKGROUND);
-	    set_display_switch_callback(SWITCH_OUT, switch_out);
-	    set_display_switch_callback(SWITCH_IN, switch_in);
+		}
+		
+		gui_mouse_focus=0;
+		gui_bg_color=jwin_pal[jcBOX];
+		gui_fg_color=jwin_pal[jcBOXFG];
+		MouseSprite::set(ZQM_NORMAL);
+		zc_set_palette(RAMpal);
+		position_mouse(zq_screen_w/2,zq_screen_h/2);
+		set_display_switch_mode(SWITCH_BACKGROUND);
+		set_display_switch_callback(SWITCH_OUT, switch_out);
+		set_display_switch_callback(SWITCH_IN, switch_in);
 		zc_set_config("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
-	    return D_REDRAW;
-    }
-    else return D_O_K;
+		return D_REDRAW;
+	}
+	else return D_O_K;
 }
 
 int32_t onEnter()
@@ -4826,220 +4825,220 @@ int32_t onViewPic()
 
 int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap)
 {
-    restore_mouse();
-    BITMAP *buf;
-    bool done=false, redraw=true;
-    
-    go();
-    clear_bitmap(screen);
-    
-    // Always call load_the_map() when viewing the map.
-    if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
-    {
-        zc_set_palette(RAMpal);
-        comeback();
-        return D_O_K;
-    }
-    
-    get_bw(pal,pblack,pwhite);
-    
-    int32_t oldfgcolor = gui_fg_color;
-    int32_t oldbgcolor = gui_bg_color;
-    
-    buf = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-    
-    if(!buf)
-    {
-        jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-        return D_O_K;
-    }
-    
-    //  go();
-    //    //  clear_bitmap(screen);
-    zc_set_palette(pal);
-    
-    do
-    {
-        if(redraw)
-        {
-            clear_to_color(buf,pblack);
-            stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
-                         int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
-                         int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
-                         
-            if(vp_showpal)
-                for(int32_t i=0; i<256; i++)
-                    rectfill(buf,((i&15)<<2)+zq_screen_w-64,((i>>4)<<2)+zq_screen_h-64,((i&15)<<2)+zq_screen_w-64+3,((i>>4)<<2)+zq_screen_h-64+3,i);
-                    
-            if(vp_showsize)
-            {
-                //        text_mode(pblack);
-                textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
-            }
-            
-            blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-            redraw=false;
-        }
-        
-        custom_vsync();
-        
-        int32_t step = 4;
-        
-        if(*scale2 < 1.0)
-            step = int32_t(4.0/ *scale2);
-            
-        if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-            step <<= 2;
-            
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-            step = 1;
-            
-        if(key[KEY_UP])
-        {
-            *py2+=step;
-            redraw=true;
-        }
-        
-        if(key[KEY_DOWN])
-        {
-            *py2-=step;
-            redraw=true;
-        }
-        
-        if(key[KEY_LEFT])
-        {
-            *px2+=step;
-            redraw=true;
-        }
-        
-        if(key[KEY_RIGHT])
-        {
-            *px2-=step;
-            redraw=true;
-        }
-        
-        if(keypressed() && !redraw)
-            switch(readkey()>>8)
-            {
-            case KEY_PGUP:
-                *scale2*=0.95;
-                
-                if(*scale2<0.1) *scale2=0.1;
-                
-                redraw=true;
-                break;
-                
-            case KEY_PGDN:
-                *scale2/=0.95;
-                
-                if(*scale2>5.0) *scale2=5.0;
-                
-                redraw=true;
-                break;
-                
-            case KEY_HOME:
-                *scale2/=2.0;
-                
-                if(*scale2<0.1) *scale2=0.1;
-                
-                redraw=true;
-                break;
-                
-            case KEY_END:
-                *scale2*=2.0;
-                
-                if(*scale2>5.0) *scale2=5.0;
-                
-                redraw=true;
-                break;
-                
-            case KEY_TILDE:
-                *scale2=0.5;
-                redraw=true;
-                break;
-                
-            case KEY_Z:
-                *px2=(*pictoview)->w-zq_screen_w;
-                *py2=(*pictoview)->h-zq_screen_h;
-                vp_center=false;
-                redraw=true;
-                break;
-                
-            case KEY_1:
-                *scale2=1.0;
-                redraw=true;
-                break;
-                
-            case KEY_2:
-                *scale2=2.0;
-                redraw=true;
-                break;
-                
-            case KEY_3:
-                *scale2=3.0;
-                redraw=true;
-                break;
-                
-            case KEY_4:
-                *scale2=4.0;
-                redraw=true;
-                break;
-                
-            case KEY_5:
-                *scale2=5.0;
-                redraw=true;
-                break;
-                
-            case KEY_C:
-                *px2=*py2=0;
-                redraw=vp_center=true;
-                break;
-                
-            case KEY_S:
-                vp_showsize = !vp_showsize;
-                redraw=true;
-                break;
-                
-            case KEY_D:
-                vp_showpal = !vp_showpal;
-                redraw=true;
-                break;
-                
-            case KEY_P:
-                if(isviewingmap) break;
-                
-            case KEY_ESC:
-                done=true;
-                break;
-                
-            case KEY_SPACE:
-                if(isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)==2)
-                {
-                    done=true;
-                }
-                else
-                {
-                    redraw=true;
-                    gui_bg_color = pblack;
-                    gui_fg_color = pwhite;
-                    *scale2=1.0;
-                    zc_set_palette(pal);
-                }
-                
-                get_bw(pal,pblack,pwhite);
-                break;
-            }
-    }
-    while(!done);
-    
-    destroy_bitmap(buf);
-    zc_set_palette(RAMpal);
-    gui_fg_color = oldfgcolor;
-    gui_bg_color = oldbgcolor;
-    
-    comeback();
-    position_mouse_z(0);
-    return D_O_K;
+	restore_mouse();
+	BITMAP *buf;
+	bool done=false, redraw=true;
+	
+	popup_zqdialog_start();
+	
+	// Always call load_the_map() when viewing the map.
+	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
+	{
+		zc_set_palette(RAMpal);
+		popup_zqdialog_end();
+		return D_O_K;
+	}
+	
+	get_bw(pal,pblack,pwhite);
+	
+	int32_t oldfgcolor = gui_fg_color;
+	int32_t oldbgcolor = gui_bg_color;
+	
+	buf = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
+	
+	if(!buf)
+	{
+		jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+		popup_zqdialog_end();
+		return D_O_K;
+	}
+	
+	//  go();
+	//    //  clear_bitmap(screen);
+	zc_set_palette(pal);
+	
+	do
+	{
+		if(redraw)
+		{
+			clear_to_color(buf,pblack);
+			stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
+						 int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
+						 int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
+						 
+			if(vp_showpal)
+				for(int32_t i=0; i<256; i++)
+					rectfill(buf,((i&15)<<2)+zq_screen_w-64,((i>>4)<<2)+zq_screen_h-64,((i&15)<<2)+zq_screen_w-64+3,((i>>4)<<2)+zq_screen_h-64+3,i);
+					
+			if(vp_showsize)
+			{
+				//        text_mode(pblack);
+				textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
+			}
+			
+			blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+			redraw=false;
+		}
+		
+		custom_vsync();
+		
+		int32_t step = 4;
+		
+		if(*scale2 < 1.0)
+			step = int32_t(4.0/ *scale2);
+			
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+			step <<= 2;
+			
+		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			step = 1;
+			
+		if(key[KEY_UP])
+		{
+			*py2+=step;
+			redraw=true;
+		}
+		
+		if(key[KEY_DOWN])
+		{
+			*py2-=step;
+			redraw=true;
+		}
+		
+		if(key[KEY_LEFT])
+		{
+			*px2+=step;
+			redraw=true;
+		}
+		
+		if(key[KEY_RIGHT])
+		{
+			*px2-=step;
+			redraw=true;
+		}
+		
+		if(keypressed() && !redraw)
+			switch(readkey()>>8)
+			{
+			case KEY_PGUP:
+				*scale2*=0.95;
+				
+				if(*scale2<0.1) *scale2=0.1;
+				
+				redraw=true;
+				break;
+				
+			case KEY_PGDN:
+				*scale2/=0.95;
+				
+				if(*scale2>5.0) *scale2=5.0;
+				
+				redraw=true;
+				break;
+				
+			case KEY_HOME:
+				*scale2/=2.0;
+				
+				if(*scale2<0.1) *scale2=0.1;
+				
+				redraw=true;
+				break;
+				
+			case KEY_END:
+				*scale2*=2.0;
+				
+				if(*scale2>5.0) *scale2=5.0;
+				
+				redraw=true;
+				break;
+				
+			case KEY_TILDE:
+				*scale2=0.5;
+				redraw=true;
+				break;
+				
+			case KEY_Z:
+				*px2=(*pictoview)->w-zq_screen_w;
+				*py2=(*pictoview)->h-zq_screen_h;
+				vp_center=false;
+				redraw=true;
+				break;
+				
+			case KEY_1:
+				*scale2=1.0;
+				redraw=true;
+				break;
+				
+			case KEY_2:
+				*scale2=2.0;
+				redraw=true;
+				break;
+				
+			case KEY_3:
+				*scale2=3.0;
+				redraw=true;
+				break;
+				
+			case KEY_4:
+				*scale2=4.0;
+				redraw=true;
+				break;
+				
+			case KEY_5:
+				*scale2=5.0;
+				redraw=true;
+				break;
+				
+			case KEY_C:
+				*px2=*py2=0;
+				redraw=vp_center=true;
+				break;
+				
+			case KEY_S:
+				vp_showsize = !vp_showsize;
+				redraw=true;
+				break;
+				
+			case KEY_D:
+				vp_showpal = !vp_showpal;
+				redraw=true;
+				break;
+				
+			case KEY_P:
+				if(isviewingmap) break;
+				
+			case KEY_ESC:
+				done=true;
+				break;
+				
+			case KEY_SPACE:
+				if(isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)==2)
+				{
+					done=true;
+				}
+				else
+				{
+					redraw=true;
+					gui_bg_color = pblack;
+					gui_fg_color = pwhite;
+					*scale2=1.0;
+					zc_set_palette(pal);
+				}
+				
+				get_bw(pal,pblack,pwhite);
+				break;
+			}
+	}
+	while(!done);
+	
+	destroy_bitmap(buf);
+	zc_set_palette(RAMpal);
+	gui_fg_color = oldfgcolor;
+	gui_bg_color = oldbgcolor;
+	
+	popup_zqdialog_end();
+	position_mouse_z(0);
+	return D_O_K;
 }
 
 static DIALOG loadmap_dlg[] =
