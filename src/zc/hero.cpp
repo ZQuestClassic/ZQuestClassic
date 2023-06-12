@@ -10461,27 +10461,15 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		for(int32_t q = 0; q < Lwpns.Count(); ++q)
 		{
 			weapon* w = (weapon*)Lwpns.spr(q);
-			switch(w->id)
+			if((w->lift_level && w->lift_level <= glove.fam_type))
 			{
-				case wLitBomb:
-				case wLitSBomb:
-					if(w->parentitem>=0)
-					{
-						itemdata const& parent = itemsbuf[w->parentitem];
-						if((parent.family==itype_bomb || parent.family==itype_sbomb)
-							&& (parent.misc4 && parent.misc4 <= glove.fam_type))
-						{
-							if(!w->hit(hx,hy,0,hw,hh,1))
-								continue;
-							lift(w, parent.misc5, parent.misc6);
-							Lwpns.remove(w);
-							lifted = true;
-							break;
-						}
-					}
-					break;
+				if(!w->hit(hx,hy,0,hw,hh,1))
+					continue;
+				lift(w, w->lift_time, w->lift_height);
+				Lwpns.remove(w);
+				lifted = true;
+				break;
 			}
-			if(lifted) break;
 		}
 	}
 	if(!lifted) //Check for a liftable combo

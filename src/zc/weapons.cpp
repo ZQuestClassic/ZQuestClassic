@@ -914,6 +914,9 @@ weapon::weapon(weapon const & other):
 	death_item_pflags(other.death_item_pflags),
 	death_sprite(other.death_sprite),
 	death_sfx(other.death_sfx),
+	lift_level(other.lift_level),
+	lift_time(other.lift_time),
+	lift_height(other.lift_height),
 	has_shadow(other.has_shadow)
     
 	
@@ -1180,6 +1183,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	death_spawndropset = -1;
 	death_sprite = -1;
 	death_sfx = 0;
+	lift_level = 0;
+	lift_time = 16;
+	lift_height = 8;
 	death_item_pflags = 0;
 	has_shadow = true;
 	if ( Parentitem > -1 )
@@ -2072,6 +2078,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				defaultw = itemsbuf[itemid].wpn;
 				misc = (id==wBomb ? 1 : itemsbuf[itemid].misc1);
+				if(id == wLitBomb && itemsbuf[itemid].misc4)
+				{
+					lift_level = itemsbuf[itemid].misc4;
+					lift_time = itemsbuf[itemid].misc5;
+					lift_height = itemsbuf[itemid].misc6;
+				}
 			}
 			else
 			{
@@ -2118,7 +2130,13 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if ( parentitem > -1 )
 			{
 				defaultw = itemsbuf[itemid].wpn;
-					misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc1);
+				misc = (id==wSBomb ? 1 : itemsbuf[itemid].misc1);
+				if(id == wLitSBomb && itemsbuf[itemid].misc4)
+				{
+					lift_level = itemsbuf[itemid].misc4;
+					lift_time = itemsbuf[itemid].misc5;
+					lift_height = itemsbuf[itemid].misc6;
+				}
 				//Port Item Editor Weapon Size Values
 				if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 					extend = 3; 
@@ -7881,6 +7899,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	death_spawndropset = -1;
 	death_sprite = -1;
 	death_sfx = 0;
+	lift_level = 0;
+	lift_time = 16;
+	lift_height = 8;
 	has_shadow = true;
 	death_item_pflags = 0;
     x=X;

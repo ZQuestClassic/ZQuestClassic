@@ -5015,10 +5015,33 @@ int FakeJump;
  * The current velocity on the FakeZ axis. This value is added to FakeZ every frame; and this value is decreased
  * by the gravity value until it is lower than the terminal velocity value.
 
-bool Flags[1];
- * A set of flags for all weapons.
- * Flags[WFLAG_PICKUP_ITEMS] -> If true, the weapon will collect any items it touches,
- *      similar to engine melee weapons.
+bool Flags[WFLAG_MAX];
+ * A set of flags for all weapons. See 'WFLAG_' constants in 'std_constants.zh'
+
+int DeathItem;
+ * If > -1, this item ID will be spawned when the weapon dies.
+
+int DeathDropset;
+ * If > -1, this item dropset will be rolled for a drop when the weapon dies.
+
+int DeathItemPFlags;
+ * The item '->Pickup' flags for the item dropped by 'DeathItem' or 'DeathDropset'.
+
+int DeathSprite;
+ * If this is > -1, that Sprite Data sprite will be displayed when the weapon dies.
+ * If this is -2, -3, or -4, Bush, Flower, or Grass clippings respectively will be displayed when the weapon dies.
+
+int DeathSFX;
+ * If non-0, this SFX will be played when the weapon dies.
+
+int LiftLevel;
+ * If >0, the weapon can be lifted by a lift glove of this level or higher.
+
+int LiftTime;
+ * The time it takes to lift this weapon
+
+int LiftHeight;
+ * The height this weapon is lifted above the player's head
 
 void Own(bitmap b);
 void Own(paldata pd);
