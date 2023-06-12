@@ -5532,6 +5532,14 @@ bool isChestType(int32_t type);
 
 DATAFILE* load_datafile_count(const char* path, size_t& sz);
 
+enum
+{
+	ZSD_NONE = -1,
+	ZSD_NPC, ZSD_LWPN, ZSD_EWPN, ZSD_ITSPR, ZSD_COMBODATA,
+	ZSD_COMBOPOS, ZSD_FFC,
+	NUM_ZSD
+};
+
 #define FONTSDAT_CNT (FONT_ZX+1)
 
 #define SMART_WRAP(x, mod) ((x) < 0 ? (((mod)-(-(x)%(mod)))%(mod)) : ((x)%(mod)))

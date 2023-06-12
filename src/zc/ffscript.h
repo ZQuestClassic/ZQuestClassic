@@ -840,11 +840,6 @@ enum
 	GENEVT_ICTYPE_MELEE_EW, //Melee eweapon collected the item
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag
 };
-enum
-{
-	ZSD_NPC, ZSD_LWPN, ZSD_EWPN, ZSD_ITSPR, ZSD_COMBODATA,
-	NUM_ZSD
-};
 
 struct user_genscript
 {

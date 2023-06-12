@@ -1723,7 +1723,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 }
 
 
-bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
+bool trigger_damage_combo(int32_t cid, int type, int ptrval, int32_t hdir, bool force_solid)
 {
 	if(hdir > 3) hdir = -1;
 	newcombo const& cmb = combobuf[cid];
@@ -1763,6 +1763,8 @@ bool trigger_damage_combo(int32_t cid, int32_t hdir, bool force_solid)
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(cid);
+			ev.push_back(type*10000);
+			ev.push_back(ptrval);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
@@ -2736,7 +2738,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(cid);
+						trigger_damage_combo(cid, ZSD_COMBOPOS, pos*10000);
 						break;
 					
 					case cSTEPSFX:
@@ -3131,7 +3133,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(cid);
+						trigger_damage_combo(cid, ZSD_FFC, pos);
 						break;
 					
 					case cSTEPSFX:

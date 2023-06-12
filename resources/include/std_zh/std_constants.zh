@@ -3699,7 +3699,9 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT
 	GENEV_HEROHIT_NAYRUON, //Bool: if nayru's love will nullify the damage, or not
 	GENEV_HEROHIT_IFRAMES, //Number of IFrames to have after hit, if not nullified
 	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ('OBJTYPE_')
-	GENEV_HEROHIT_HITOBJ //The pointer to that object
+	GENEV_HEROHIT_HITOBJ, //The pointer to that object
+	GENEV_HEROHIT_HITTYPE2, //A second type of object (sometimes 'OBJTYPE_NONE')
+	GENEV_HEROHIT_HITOBJ2 //The pointer to the second object
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_COLLECT_ITEM'
 {
@@ -3748,9 +3750,11 @@ enum //constants for 'GENEV_ITEMCOL_TYPE'
 	GENEVT_ICTYPE_MELEE_EW, //Melee weapon collected the item
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag //Only 'NULLIFY' can be edited here
 };
-enum //constants for 'GENEV_HEROHIT_HITTYPE'
+enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 {
+	OBJTYPE_NONE = -1,
 	OBJTYPE_NPC, OBJTYPE_LWPN, OBJTYPE_EWPN, OBJTYPE_ITSPR, OBJTYPE_COMBODATA,
+	OBJTYPE_COMBOPOS, OBJTYPE_FFC,
 	NUM_OBJTYPE
 };
 

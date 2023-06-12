@@ -6274,6 +6274,8 @@ void HeroClass::checkhit()
 				ev.push_back(48*10000);
 				ev.push_back(ZSD_LWPN*10000);
 				ev.push_back(s->getUID());
+				ev.push_back(ZSD_NONE*10000);
+				ev.push_back(0);
 				
 				throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 				int32_t dmg = ev[0]/10000;
@@ -6470,6 +6472,8 @@ killweapon:
 					ev.push_back(48*10000);
 					ev.push_back(ZSD_LWPN*10000);
 					ev.push_back(s->getUID());
+					ev.push_back(ZSD_NONE*10000);
+					ev.push_back(0);
 					
 					throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 					int32_t dmg = ev[0]/10000;
@@ -6553,6 +6557,8 @@ killweapon:
 			ev.push_back(0);
 			ev.push_back(ZSD_LWPN*10000);
 			ev.push_back(s->getUID());
+			ev.push_back(ZSD_NONE*10000);
+			ev.push_back(0);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			bool nullhit = ev[2] != 0;
@@ -6612,6 +6618,8 @@ killweapon:
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_LWPN*10000);
 		ev.push_back(lwpnspr->getUID());
+		ev.push_back(ZSD_NONE*10000);
+		ev.push_back(0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 		int32_t dmg = ev[0]/10000;
@@ -6695,6 +6703,8 @@ killweapon:
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
+	ev.push_back(ZSD_NONE*10000);
+	ev.push_back(0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 		int32_t dmg = ev[0]/10000;
@@ -6871,7 +6881,9 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	
 	int32_t bestcid=0;
+	int best_cpos = -1;
 	int32_t hp_modtotal=0;
+	int poses[8] = {COMBOPOS(dx1,dy1),COMBOPOS(dx1,dy2),COMBOPOS(dx2,dy1),COMBOPOS(dx2,dy2)};
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
 	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
 	if (!_effectflag(dx2,dy1,1, layer)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
@@ -6908,6 +6920,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotal = hp_mod[i];
 					bestcid = cid[i];
+					best_cpos = poses[i];
 				}
 			}
 			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Hero.
@@ -6916,6 +6929,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotal = hp_mod[i];
 					bestcid = cid[i];
+					best_cpos = poses[i];
 				}
 			}
 		}
@@ -6923,11 +6937,13 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		{
 			hp_modtotal = hp_mod[i];
 			bestcid = cid[i];
+			best_cpos = poses[i];
 		}
 	}
 	
 	{
-		cid[4] = MAPFFCOMBO(dx1,dy1);
+		poses[4] = getFFCAt(dx1,dy1);
+		cid[4] = poses[4] > -1 ?  tmpscr->ffcs[poses[4]].getData() : 0;
 		newcombo& cmb = combobuf[cid[4]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -6940,7 +6956,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		cid[5] = MAPFFCOMBO(dx1,dy2);
+		poses[5] = getFFCAt(dx1,dy2);
+		cid[5] = poses[5] > -1 ?  tmpscr->ffcs[poses[5]].getData() : 0;
 		newcombo& cmb = combobuf[cid[5]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -6953,7 +6970,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		cid[6] = MAPFFCOMBO(dx2,dy1);
+		poses[6] = getFFCAt(dx2,dy1);
+		cid[6] = poses[6] > -1 ?  tmpscr->ffcs[poses[6]].getData() : 0;
 		newcombo& cmb = combobuf[cid[6]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -6966,7 +6984,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	{
-		cid[7] = MAPFFCOMBO(dx2,dy2);
+		poses[7] = getFFCAt(dx2,dy2);
+		cid[7] = poses[7] > -1 ?  tmpscr->ffcs[poses[7]].getData() : 0;
 		newcombo& cmb = combobuf[cid[7]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -6980,6 +6999,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	
 	int32_t bestffccid = 0;
+	int best_ffcpos = -1;
 	int32_t hp_modtotalffc = 0;
 	
 	for (int32_t i = 0; i <= 1; ++i)
@@ -7005,6 +7025,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	for(int32_t i=0; i<4; i++)
 	{
+		if(poses[i+4] < 0) continue;
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotalffc >= 0)
@@ -7013,6 +7034,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotalffc = hp_mod[i];
 					bestffccid = cid[4+i];
+					best_ffcpos = poses[4+i];
 				}
 			}
 			else if(hp_mod[i] < 0)
@@ -7021,6 +7043,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotalffc = hp_mod[i];
 					bestffccid = cid[4+i];
+					best_ffcpos = poses[4+i];
 				}
 			}
 		}
@@ -7028,11 +7051,17 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		{
 			hp_modtotalffc = hp_mod[i];
 			bestffccid = cid[4+i];
+			best_ffcpos = poses[4+i];
 		}
 	}
 	
 	int32_t hp_modmin = zc_min(hp_modtotal, hp_modtotalffc);
-	if(hp_modtotalffc < hp_modmin) bestcid = bestffccid;
+	int best_type = 0;
+	if(hp_modtotalffc < hp_modtotal)
+	{
+		bestcid = bestffccid;
+		best_type = 1;
+	}
 	
 	bool global_defring = ((itemsbuf[current_item_id(itype_ring)].flags & ITEM_FLAG1));
 	bool global_perilring = ((itemsbuf[current_item_id(itype_perilring)].flags & ITEM_FLAG1));
@@ -7061,6 +7090,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(bestcid);
+			ev.push_back((best_type ? ZSD_FFC : ZSD_COMBOPOS)*10000);
+			ev.push_back(best_type ? best_ffcpos : best_cpos*10000);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
@@ -7155,6 +7186,8 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 	ev.push_back(48*10000);
 	ev.push_back(ZSD_NPC*10000);
 	ev.push_back(enemyptr->getUID());
+	ev.push_back(ZSD_NONE*10000);
+	ev.push_back(0);
 	
 	throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 	int32_t dmg = ev[0] / 10000;
