@@ -145,6 +145,20 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	return false;
 }
 
+void HeroClass::snap_platform()
+{
+	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false) < 0)
+		return;
+	if (y>=160 && currscr>=0x70 && !(tmpscr->flags2&wfDOWN))
+	{
+		y = 160;
+		return;
+	}
+	if (!(_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)))
+		return;
+	movexy(0,1,false,true,false,false);
+}
+
 
 bool usingActiveShield(int32_t itmid)
 {
@@ -7934,10 +7948,18 @@ heroanimate_skip_liftwpn:;
 		if((on_sideview_solid_oldpos(x,y,old_x,old_y) || getOnSideviewLadder())  && !(pull_hero && dir==down) && action!=rafting && !platformfell2)
 		{
 			stop_item_sfx(itype_hoverboots);
-			if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE)
-				&& !getOnSideviewLadder()
-				&& (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
-				y-=(int32_t)y%8; //fix position
+			if(get_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE))
+			{
+				if(!getOnSideviewLadder() && (fall > 0 || get_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON)))
+				{
+					y.doFloor();
+					y-=(int32_t)y%8; //fix position
+				}
+			}
+			else
+			{
+				snap_platform();
+			}
 			fall = hoverclk = jumping = 0;
 			inair = false;
 			hoverflags = 0;

@@ -3983,7 +3983,10 @@ bool weapon::animate(int32_t index)
 			else
 			{
 				if(fall!=0 && !(step>0 && dir==up))  // Don't fix pos if still moving through solidness
+				{
+					y.doFloor();
 					y-=(int32_t)y%8; // Fix position
+				}
 					
 				fall = 0;
 				
