@@ -17383,6 +17383,25 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	}
 	return true;
 }
+bool handle_movestate(std::function<bool()> proc)
+{
+	zfix ox = Hero.x, oy = Hero.y;
+	auto oladderx = Hero.ladderx;
+	auto oladdery = Hero.laddery;
+	auto oladderdir = Hero.ladderdir;
+	auto oladderstart = Hero.ladderstart;
+	
+	bool ret = proc();
+	
+	Hero.x = ox;
+	Hero.y = oy;
+	Hero.ladderx = oladderx;
+	Hero.laddery = oladdery;
+	Hero.ladderdir = oladderdir;
+	Hero.ladderstart = oladderstart;
+	
+	return ret;
+}
 bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
 	bool ret = true;
@@ -17571,11 +17590,10 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 }
 bool HeroClass::can_movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove)
 {
-	zfix ox(x),oy(y);
-	bool ret = movexy(dx,dy,kb,ign_sv,shove,true);
-	x = ox;
-	y = oy;
-	return ret;
+	return handle_movestate([&]()
+	{
+		return movexy(dx,dy,kb,ign_sv,shove,true);
+	});
 }
 bool HeroClass::moveAtAngle(zfix degrees, zfix px, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
@@ -17585,11 +17603,10 @@ bool HeroClass::moveAtAngle(zfix degrees, zfix px, bool kb, bool ign_sv, bool sh
 }
 bool HeroClass::can_moveAtAngle(zfix degrees, zfix px, bool kb, bool ign_sv, bool shove)
 {
-	zfix ox(x),oy(y);
-	bool ret = moveAtAngle(degrees,px,kb,ign_sv,shove,true);
-	x = ox;
-	y = oy;
-	return ret;
+	return handle_movestate([&]()
+	{
+		return moveAtAngle(degrees,px,kb,ign_sv,shove,true);
+	});
 }
 bool HeroClass::moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
@@ -17617,11 +17634,10 @@ bool HeroClass::moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove, bool
 }
 bool HeroClass::can_moveDir(int dir, zfix px, bool kb, bool ign_sv, bool shove)
 {
-	zfix ox(x),oy(y);
-	bool ret = moveDir(dir,px,kb,ign_sv,shove,true);
-	x = ox;
-	y = oy;
-	return ret;
+	return handle_movestate([&]()
+	{
+		return moveDir(dir,px,kb,ign_sv,shove,true);
+	});
 }
 
 
