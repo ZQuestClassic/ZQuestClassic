@@ -18,6 +18,8 @@ extern zctune tunes[MAXMIDIS];
 #elif defined(IS_ZQUEST)
 extern zctune *customtunes;
 const char *msgslist(int32_t index, int32_t *list_size);
+char *MsgString(int32_t index, bool show_number, bool pad_number);
+int32_t addtomsglist(int32_t index, bool allow_numerical_sort = true);
 #endif
 
 extern std::string msgfont_str[font_max];
@@ -124,15 +126,29 @@ static const GUI::ListData combostrs
 	{ " -2: Screen Catchall", -2 },
 	{ " -1: Screen Message String", -1 }
 };
-GUI::ListData GUI::ZCListData::strings(bool combostr)
+GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order)
 {
 	GUI::ListData ls;
 	#ifdef IS_ZQUEST
 	if(combostr)
 		ls = combostrs;
 	
-	::ListData msgs_list(msgslist, &font);
-	ls += GUI::ListData(msgs_list, 0);
+	std::map<int,int> poses;
+	for(int q = 0; q < msg_count; ++q)
+	{
+		if(respect_order)
+		{
+			int listpos = addtomsglist(q, false);
+			poses[listpos] = q;
+		}
+		else poses[q] = q;
+	}
+	for(auto it = poses.begin(); it != poses.end(); ++it)
+	{
+		int val = it->second;
+		std::string name(MsgString(val, false, false));
+		ls.add(name,val);
+	}
 	#endif
 	return ls;
 }
