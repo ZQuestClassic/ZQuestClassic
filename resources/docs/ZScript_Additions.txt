@@ -5650,6 +5650,9 @@ bool CanMove(int dir, float pxamnt, bool is_knockback = false,
  * Same as Move, but does not move the player- instead, just returns true/false based on what
  *     'Move' would return.
 
+int ShieldJinx;
+ * The time, in frames, that the shield is disabled. Negative values disable indefinitely.
+
 bool Animation;
  * Normally 'true'. If enabled, the player sprite is animated by the ZC engine.
  * Set this false to disable engine animation.

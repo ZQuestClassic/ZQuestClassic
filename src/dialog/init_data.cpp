@@ -988,7 +988,25 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						{
 							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_POST_COLLECT_ITEM),state);
 						}),
-					INFOBTN("After an item is collected (After the holdup animation completes, if held)")
+					INFOBTN("After an item is collected (After the holdup animation completes, if held)"),
+					//
+					Checkbox(hAlign = 0.0,
+						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_FALL),
+						text = "Player Fall",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_FALL),state);
+						}),
+					INFOBTN("After the player falls in a Pitfall"),
+					//
+					Checkbox(hAlign = 0.0,
+						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_DROWN),
+						text = "Player Drown",
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_DROWN),state);
+						}),
+					INFOBTN("After the player drowns")
 				),
 				Rows<3>(vAlign = 0.0,
 					Label(text = "Data Size:"),

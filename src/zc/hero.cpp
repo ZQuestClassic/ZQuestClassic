@@ -162,6 +162,7 @@ void HeroClass::snap_platform()
 
 bool usingActiveShield(int32_t itmid)
 {
+	if(Hero.shieldjinxclk) return false;
 	switch(Hero.action) //filter allowed actions
 	{
 		case none: case walking: case rafting:
@@ -182,6 +183,7 @@ bool usingActiveShield(int32_t itmid)
 }
 int32_t getCurrentShield(bool requireActive)
 {
+	if(Hero.shieldjinxclk) return -1;
 	if(Hero.active_shield_id > -1 && usingActiveShield(Hero.active_shield_id))
 		return Hero.active_shield_id;
 	if(!requireActive) return current_item_id(itype_shield);
@@ -624,6 +626,8 @@ void HeroClass::resetflags(bool all)
 	}
     if(itemclk>0 || all)
         itemclk=0;
+    if(shieldjinxclk>0 || all)
+        shieldjinxclk=0;
         
     if(all)
     {
@@ -7724,42 +7728,83 @@ heroanimate_skip_liftwpn:;
 				{
 					decorations.add(new dRipples(x, y, dRIPPLES, 0));
 				}
-				int32_t watercheck = iswaterex(FFORCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, false, false, true, true);
-				if (combobuf[watercheck].usrflags&cflag2)
+				int watercheck_x = x.getInt()+7.5, watercheck_y = y.getInt()+12;
+				int ffpos = getFFCAt(watercheck_x,watercheck_y);
+				int combopos = ffpos < 0 ? COMBOPOS(watercheck_x,watercheck_y) : -1;
+				if(watercheck_x < 0 || watercheck_x > 255 || watercheck_y < 0 || watercheck_y > 175)
+					combopos = -1;
+				int waterid = ffpos > -1 ? tmpscr->ffcs[ffpos].getData() : (combopos > -1 ? tmpscr->data[combopos] : 0);
+				if(waterid)
+					waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
+				if(waterid)
 				{
-					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
+					newcombo const& watercmb = combobuf[waterid];
+					if (watercmb.usrflags&cflag2)
 					{
-						onpassivedmg = true;
-						if (!damageovertimeclk)
+						if (!(current_item(watercmb.attribytes[2]) > 0 && current_item(watercmb.attribytes[2]) >= watercmb.attribytes[3]))
 						{
-							int32_t curhp = game->get_life();
-							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
-							else game->set_life(vbound(game->get_life()+combobuf[watercheck].attributes[1]/10000L, 0, game->get_maxlife()));
-							if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
-							if (game->get_life() < curhp && combobuf[watercheck].usrflags&cflag7)
+							onpassivedmg = true;
+							if (!damageovertimeclk)
 							{
-								hclk = 48;
-								hitdir = -1;
-								action = gothit; FFCore.setHeroAction(gothit);
+								int32_t curhp = game->get_life();
+								auto dmg = watercmb.attributes[1]/10000L;
+								auto hitsfx = watercmb.attributes[2]/10000L;
+								bool hitstun = dmg < 0 && (watercmb.usrflags&cflag7);
+								
+								if(game->get_life() == curhp && (watercmb.usrflags&cflag6))
+									hitsfx = 0;
+								
+								std::vector<int32_t> &ev = FFCore.eventData;
+								ev.clear();
+								ev.push_back(-dmg*10000);
+								ev.push_back(-1*10000);
+								ev.push_back(0);
+								ev.push_back(0);
+								ev.push_back(48*10000);
+								ev.push_back(ZSD_COMBODATA*10000);
+								ev.push_back(waterid);
+								ev.push_back((ffpos > -1 ? ZSD_FFC : ZSD_COMBOPOS)*10000);
+								ev.push_back(ffpos > -1 ? ffpos : combopos*10000);
+								
+								throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+								
+								if(watercmb.usrflags & cflag5)
+									ev[0] = ringpower(ev[0]/10000) * 10000;
+								
+								throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+								dmg = -ev[0]/10000;
+								
+								if(!ev[2]) //nullify
+								{
+									game->set_life(vbound(game->get_life()+dmg, 0, game->get_maxlife()));
+									if (hitsfx)
+										sfx(hitsfx);
+									if (hitstun)
+									{
+										hclk = ev[4]/10000;
+										hitdir = ev[1]/10000;
+										action = gothit; FFCore.setHeroAction(gothit);
+									}
+								}
 							}
-						}
-						if (combobuf[watercheck].attribytes[1] > 0)
-						{
-							if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
-							else --damageovertimeclk;
+							if (watercmb.attribytes[1] > 0)
+							{
+								if (!damageovertimeclk || damageovertimeclk > watercmb.attribytes[1]) damageovertimeclk = watercmb.attribytes[1];
+								else --damageovertimeclk;
+							}
+							else damageovertimeclk = 0;
 						}
 						else damageovertimeclk = 0;
 					}
 					else damageovertimeclk = 0;
+					int32_t thesfx = watercmb.attribytes[0];
+					if (watercmb.type != cSHALLOWWATER || !get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
+					{
+						thesfx = watercmb.attribytes[5];
+					}
+					if (action==walking)
+						sfx_no_repeat(thesfx,pan((int32_t)x));
 				}
-				else damageovertimeclk = 0;
-				int32_t thesfx = combobuf[watercheck].attribytes[0];
-				if (combobuf[watercheck].type != cSHALLOWWATER || !get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
-				{
-					thesfx = combobuf[watercheck].attribytes[5];
-				}
-				if (action==walking)
-					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
 		}
 	}
@@ -9131,6 +9176,8 @@ heroanimate_skip_liftwpn:;
 	}
 	if(itemclk>0)
 		--itemclk;
+	if(shieldjinxclk>0)
+		--shieldjinxclk;
 		
 	if(inwallm)
 	{
@@ -9235,15 +9282,26 @@ heroanimate_skip_liftwpn:;
 		if(--drownclk==0)
 		{
 			action=none; FFCore.setHeroAction(none);
-			int32_t water = iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
-			int32_t damage = combobuf[water].attributes[0]/10000L;
-			//if (damage == 0 && !(combobuf[water].usrflags&cflag7)) damage = (game->get_hp_per_heart()/4);
-			drownCombo = 0;
-			if (combobuf[water].type != cWATER) damage = 4;
+			int32_t water = drownCombo ? drownCombo : iswaterex(MAPCOMBO(x.getInt()+7.5,y.getInt()+12), currmap, currscr, -1, x.getInt()+7.5,y.getInt()+12, true, false);
+			
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(water*10000);
+			
+			throwGenScriptEvent(GENSCR_EVENT_PLAYER_DROWN);
+			water = ev[0]/10000;
+			newcombo const& watercmb = combobuf[water];
+			
+			int32_t damage = 4;
+			if (watercmb.type == cWATER)
+				damage = watercmb.attributes[0]/10000L;
+			else water = 0;
+			
 			if(cheat_superman && damage > 0)
 				damage = 0;
 			if(damage)
 				game->set_life(vbound(game->get_life()-damage,0, game->get_maxlife()));
+			drownCombo = 0;
 			go_respawn_point();
 			hclk=48;
 		}
@@ -13469,6 +13527,16 @@ void HeroClass::pitfall()
 		//Handle falling
 		if(!--fallclk)
 		{
+			std::vector<int32_t> &ev = FFCore.eventData;
+			ev.clear();
+			ev.push_back(fallCombo*10000);
+			
+			throwGenScriptEvent(GENSCR_EVENT_PLAYER_FALL);
+			
+			fallCombo = ev[0]/10000;
+			if(fallCombo < 0 || fallCombo >= MAXCOMBOS)
+				fallCombo = 0;
+			
 			int32_t dmg = game->get_hp_per_heart()/4;
 			bool dmg_perc = false;
 			bool warp = false;

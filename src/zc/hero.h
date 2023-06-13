@@ -225,6 +225,7 @@ public:
 		attackid, //current attack itemid.
 		swordclk, //sword jinx timeout.
 		itemclk,  //item jinx timeout.
+		shieldjinxclk, //shield jinx timeout.
 		didstuff, //played the whistle? used the blue candle?
 		blowcnt,  //number of times whistle blown on this screen.
 		drownclk, //drowning timeout.

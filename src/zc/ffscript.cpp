@@ -3868,6 +3868,10 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case HEROSHIELDJINX:
+			ret = Hero.shieldjinxclk * 10000;
+			break;
+		
 		case HEROISWARPING:
 			ret = Hero.is_warping ? 10000L : 0L;
 			break;
@@ -14104,6 +14108,10 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		
+		case HEROSHIELDJINX:
+			Hero.shieldjinxclk = value/10000;
+			break;
 		
 		case CLOCKACTIVE:
 		{
@@ -42142,7 +42150,7 @@ script_variable ZASMVars[]=
 	{ "EWPNLIFTLEVEL", EWPNLIFTLEVEL, 0, 0},
 	{ "EWPNLIFTTIME", EWPNLIFTTIME, 0, 0},
 	{ "EWPNLIFTHEIGHT", EWPNLIFTHEIGHT, 0, 0},
-	{ "RESRVD_VAR_EMILY37", RESRVD_VAR_EMILY37, 0, 0},
+	{ "HEROSHIELDJINX", HEROSHIELDJINX, 0, 0},
 	{ "RESRVD_VAR_EMILY38", RESRVD_VAR_EMILY38, 0, 0},
 	{ "RESRVD_VAR_EMILY39", RESRVD_VAR_EMILY39, 0, 0},
 	{ "RESRVD_VAR_EMILY40", RESRVD_VAR_EMILY40, 0, 0},

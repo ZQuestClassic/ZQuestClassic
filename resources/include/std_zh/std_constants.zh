@@ -3689,6 +3689,8 @@ enum
 	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses
 	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses
 	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held)
+	GENSCR_EVENT_PLAYER_FALL, //Player falls in a pitfall
+	GENSCR_EVENT_PLAYER_DROWN, //Player drowns
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -3741,6 +3743,10 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_HIT1' and 'GENSCR_EVENT
 	GENEV_EHIT_NULLIFY, //Bool: if true the hit will not connect
 	GENEV_EHIT_NPCPTR, //npc pointer
 	GENEV_EHIT_LWPNPTR //lweapon pointer
+};
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_PLAYER_FALL' and 'GENSCR_EVENT_PLAYER_DROWN'
+{
+	GENEV_PLAYER_FALLDROWN_COMBO //The combo ID the player is falling/drowning into.
 };
 
 enum //constants for 'GENEV_ITEMCOL_TYPE'
