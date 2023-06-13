@@ -1444,6 +1444,7 @@ enum
 #define combotriggerTGROUP_CONTRIB      0x00002000
 #define combotriggerTGROUP_LESS         0x00004000
 #define combotriggerTGROUP_GREATER      0x00008000
+#define combotriggerPUSHEDTRIG          0x00010000
 
 #define ctrigNONE          0x00
 #define ctrigIGNORE_SIGN   0x01

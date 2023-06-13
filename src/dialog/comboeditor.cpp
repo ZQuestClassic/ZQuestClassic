@@ -2709,6 +2709,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(59,"Lens Off->"),
 								INFOBTN("Triggered when the player pushes against the combo"),
 								TRIGFLAG(57,"Push->"),
+								INFOBTN("Triggered when the combo is pushed as a pushblock (after it settles into the new position)."),
+								TRIGFLAG(112,"Pushed->"),
 								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
 								TRIGFLAG(19,"Invert Proximity Req"),
 								INFOBTN("Triggers when all enemies are defeated"),
