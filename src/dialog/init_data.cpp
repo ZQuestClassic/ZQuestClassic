@@ -747,16 +747,6 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 	tabs->add(TabRef(name = "Main",
 		ScrollingPane(targHeight = 400_px,
 			Row(padding = 0_px,
-				Rows<2>(vAlign = 0.0,
-					Checkbox(
-						checked = local_zinit.gen_doscript[index],
-						text = "Run from Start",
-						onToggleFunc = [&](bool state)
-						{
-							local_zinit.gen_doscript[index] = state;
-						}),
-					INFOBTN("Script will run when starting a new save")
-				),
 				Rows<3>(vAlign = 0.0,
 					Row(padding = 0_px,
 						Label(text = "Exit States"),
@@ -850,165 +840,17 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 							SETFLAG(local_zinit.gen_reloadState[index],GEN_EXSTATE_CHANGE_LEVEL,state);
 						})
 				),
-				Rows<2>(vAlign = 0.0,
-					Label(text = "Event Listens"),
-					INFOBTN("If the script calls 'WaitEvent()', these"
-						" events will trigger it."),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_INIT),
-						text = "Init",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_INIT),state);
-						}),
-					INFOBTN("When loading the game"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CONTINUE),
-						text = "Continue",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CONTINUE),state);
-						}),
-					INFOBTN("When using the 'Continue' option"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_FFC_PRELOAD),
-						text = "FFC Preload",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_FFC_PRELOAD),state);
-						}),
-					INFOBTN("Just before FFC scripts run 'On Screen Init'"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_SCREEN),
-						text = "Change Screen",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CHANGE_SCREEN),state);
-						}),
-					INFOBTN("When changing to a new screen"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_DMAP),
-						text = "Change DMap",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CHANGE_DMAP),state);
-						}),
-					INFOBTN("When changing to a new dmap"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_LEVEL),
-						text = "Change Level",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CHANGE_LEVEL),state);
-						}),
-					INFOBTN("When changing to a new dmap level"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_1),
-						text = "Hero Hit 1",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_HERO_HIT_1),state);
-						}),
-					INFOBTN("When the player is hit, before applying ring defense"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_2),
-						text = "Hero Hit 2",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_HERO_HIT_2),state);
-						}),
-					INFOBTN("When the player is hit, after applying ring defense"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_COLLECT_ITEM),
-						text = "Collect Item",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_COLLECT_ITEM),state);
-						}),
-					INFOBTN("When an item is collected"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_1),
-						text = "Enemy Drop Item 1",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_1),state);
-						}),
-					INFOBTN("When an enemy is deciding whether or not to drop an item"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_2),
-						text = "Enemy Drop Item 2",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_2),state);
-						}),
-					INFOBTN("When an enemy has dropped an item"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DEATH),
-						text = "Enemy Death",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_DEATH),state);
-						}),
-					INFOBTN("When an enemy is dying"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_HIT1),
-						text = "Enemy Hit 1",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_HIT1),state);
-						}),
-					INFOBTN("When an enemy is hit, before applying defenses"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_HIT2),
-						text = "Enemy Hit 2",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_HIT2),state);
-						}),
-					INFOBTN("When an enemy is hit, after applying defenses"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_POST_COLLECT_ITEM),
-						text = "Post Collect Item",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_POST_COLLECT_ITEM),state);
-						}),
-					INFOBTN("After an item is collected (After the holdup animation completes, if held)"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_FALL),
-						text = "Player Fall",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_FALL),state);
-						}),
-					INFOBTN("After the player falls in a Pitfall"),
-					//
-					Checkbox(hAlign = 0.0,
-						checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_DROWN),
-						text = "Player Drown",
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_DROWN),state);
-						}),
-					INFOBTN("After the player drowns")
-				),
 				Rows<3>(vAlign = 0.0,
+					Checkbox(
+						checked = local_zinit.gen_doscript[index],
+						text = "Run from Start",
+						colSpan = 2,
+						onToggleFunc = [&](bool state)
+						{
+							local_zinit.gen_doscript[index] = state;
+						}),
+					INFOBTN("Script will run when starting a new save"),
+					//
 					Label(text = "Data Size:"),
 					TextField(
 						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
@@ -1021,6 +863,7 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 							databtn->setDisabled(!val);
 						}),
 					INFOBTN("The starting size of the script's 'Data' array."),
+					//
 					databtn = Button(colSpan = 3, fitParent = true,
 						text = "Edit Starting Data",
 						disabled = !local_zinit.gen_dataSize[index],
@@ -1032,6 +875,174 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 									local_zinit.gen_dataSize[index]);
 							}
 						})
+				)
+			)
+		)
+	));
+	tabs->add(TabRef(name = "Events",
+		ScrollingPane(targHeight = 400_px,
+			Column(padding = 0_px,
+				Row(vAlign = 0.0,
+					Label(text = "Event Listens"),
+					INFOBTN("If the script calls 'WaitEvent()', these"
+						" events will trigger it.")
+				),
+				Row(vAlign = 0.0,
+					Rows<2>(vAlign = 0.0,
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_INIT),
+							text = "Init",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_INIT),state);
+							}),
+						INFOBTN("When loading the game"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CONTINUE),
+							text = "Continue",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CONTINUE),state);
+							}),
+						INFOBTN("When using the 'Continue' option"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_FFC_PRELOAD),
+							text = "FFC Preload",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_FFC_PRELOAD),state);
+							}),
+						INFOBTN("Just before FFC scripts run 'On Screen Init'"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_SCREEN),
+							text = "Change Screen",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CHANGE_SCREEN),state);
+							}),
+						INFOBTN("When changing to a new screen"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_DMAP),
+							text = "Change DMap",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CHANGE_DMAP),state);
+							}),
+						INFOBTN("When changing to a new dmap"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_CHANGE_LEVEL),
+							text = "Change Level",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_CHANGE_LEVEL),state);
+							}),
+						INFOBTN("When changing to a new dmap level"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_1),
+							text = "Hero Hit 1",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_HERO_HIT_1),state);
+							}),
+						INFOBTN("When the player is hit, before applying ring defense"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_HERO_HIT_2),
+							text = "Hero Hit 2",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_HERO_HIT_2),state);
+							}),
+						INFOBTN("When the player is hit, after applying ring defense"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_COLLECT_ITEM),
+							text = "Collect Item",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_COLLECT_ITEM),state);
+							}),
+						INFOBTN("When an item is collected"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_1),
+							text = "Enemy Drop Item 1",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_1),state);
+							}),
+						INFOBTN("When an enemy is deciding whether or not to drop an item"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_2),
+							text = "Enemy Drop Item 2",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_DROP_ITEM_2),state);
+							}),
+						INFOBTN("When an enemy has dropped an item")
+					),
+					Rows<2>(vAlign = 0.0,
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_DEATH),
+							text = "Enemy Death",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_DEATH),state);
+							}),
+						INFOBTN("When an enemy is dying"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_HIT1),
+							text = "Enemy Hit 1",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_HIT1),state);
+							}),
+						INFOBTN("When an enemy is hit, before applying defenses"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_ENEMY_HIT2),
+							text = "Enemy Hit 2",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_ENEMY_HIT2),state);
+							}),
+						INFOBTN("When an enemy is hit, after applying defenses"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_POST_COLLECT_ITEM),
+							text = "Post Collect Item",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_POST_COLLECT_ITEM),state);
+							}),
+						INFOBTN("After an item is collected (After the holdup animation completes, if held)"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_FALL),
+							text = "Player Fall",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_FALL),state);
+							}),
+						INFOBTN("After the player falls in a Pitfall"),
+						//
+						Checkbox(hAlign = 0.0,
+							checked = local_zinit.gen_eventstate[index]&(1<<GENSCR_EVENT_PLAYER_DROWN),
+							text = "Player Drown",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_zinit.gen_eventstate[index],(1<<GENSCR_EVENT_PLAYER_DROWN),state);
+							}),
+						INFOBTN("After the player drowns")
+					)
 				)
 			)
 		)
