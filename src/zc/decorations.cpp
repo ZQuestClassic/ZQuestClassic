@@ -592,7 +592,7 @@ void dHammerSmack::draw(BITMAP *dest)
 	}
 }
 
-dTallGrass::dTallGrass(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
+dTallGrass::dTallGrass(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk,wpnSpr)
 {
 	id=Id;
 	clk=Clk;
@@ -620,13 +620,11 @@ void dTallGrass::draw(BITMAP *dest)
 	{
 		t=wpnsbuf[the_deco_sprite].tile*4;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwTallGrass].tile*4;
 		cs=wpnsbuf[iwTallGrass].csets&15;
-		
 	}
 	
 	flip=0;
@@ -649,7 +647,7 @@ void dTallGrass::draw(BITMAP *dest)
 	decoration::draw8(dest);
 }
 
-dRipples::dRipples(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk)
+dRipples::dRipples(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decoration(X,Y,Id,Clk,wpnSpr)
 {
 	id=Id;
 	clk=Clk;
@@ -694,13 +692,11 @@ void dRipples::draw(BITMAP *dest)
 	{
 		t=wpnsbuf[the_deco_sprite].tile*4;
 		cs=wpnsbuf[the_deco_sprite].csets&15;
-		
 	}
 	else
 	{
 		t=wpnsbuf[iwRipples].tile*4;
 		cs=wpnsbuf[iwRipples].csets&15;
-		
 	}
 	
 	flip=0;

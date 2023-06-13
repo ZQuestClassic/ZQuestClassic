@@ -1422,6 +1422,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& drown_sfx = local_ref.attribytes[4];
 			int32_t& drown_damage = local_ref.attributes[0];
 			
+			byte& ripple_sprite = local_ref.attribytes[6];
+			
 			//Shallow only
 			int shallow_indx = get_bit(quest_rules,qr_OLD_SHALLOW_SFX) ? 0 : 5;
 			byte& splash_sfx = local_ref.attribytes[shallow_indx];
@@ -1513,8 +1515,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								drown_sfx = val;
 							}),
-						INFOBTN("The SFX played when drowning")
+						INFOBTN("The SFX played when drowning"),
 						//
+						Label(text = "Ripple Sprite:", hAlign = 1.0),
+						ddls[2] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = ripple_sprite,
+							onSelectFunc = [&](int32_t val)
+							{
+								ripple_sprite = val;
+							}),
+						INFOBTN("The sprite used to display ripples in shallow liquid.")
 					)
 				);
 			}
@@ -1528,7 +1538,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							splash_sfx = val;
 						}),
-					INFOBTN("The SFX played when walking in")
+					INFOBTN("The SFX played when walking in"),
+					//
+					Label(text = "Ripple Sprite:", hAlign = 1.0),
+					ddls[2] = DropDownList(data = list_sprites,
+						fitParent = true, selectedValue = ripple_sprite,
+						onSelectFunc = [&](int32_t val)
+						{
+							ripple_sprite = val;
+						}),
+					INFOBTN("The sprite used to display ripples in shallow liquid.")
 				);
 			}
 			
@@ -2383,6 +2402,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& dropitem = local_ref.attribytes[1];
 			byte& cutsfx = local_ref.attribytes[2];
 			byte& walksfx = local_ref.attribytes[3];
+			byte& grass_spr = local_ref.attribytes[6];
 			auto radmode = 0;
 			if(local_ref.usrflags&cflag1)
 			{
@@ -2530,7 +2550,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								walksfx = val;
 							}),
-						INFOBTN("The SFX to play when the player walks through this combo. If 0, no sound is played.")
+						INFOBTN("The SFX to play when the player walks through this combo. If 0, no sound is played."),
+						//
+						Label(text = "Grass Sprite:", hAlign = 1.0),
+						ddls[6] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = grass_spr,
+							onSelectFunc = [&](int32_t val)
+							{
+								grass_spr = val;
+							}),
+						INFOBTN("The sprite used to display when walking through tall grass.")
 					)
 				)
 			);

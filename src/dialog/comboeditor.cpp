@@ -832,6 +832,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[4] = "The SFX played when drowning";
 			l_attribyte[5] = "Splash SFX:";
 			h_attribyte[5] = "SFX ID to play when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
+			l_attribyte[6] = "Ripple Sprite:";
+			h_attribyte[6] = "Sprite ID to show when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -868,6 +870,8 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[5] = "Splash Sound";
 				h_attribyte[5] = "SFX ID to play when stepping in the shallow liquid";
 			}
+			l_attribyte[6] = "Ripple Sprite:";
+			h_attribyte[6] = "Sprite ID to show when stepping in the shallow liquid";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -994,6 +998,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[2] = "Specify a custom slash SFX";
 			l_attribyte[3] = "Walking Sound:";
 			h_attribyte[3] = "The SFX to play when the player walks through this combo. If 0, no sound is played.";
+			l_attribyte[6] = "Grass Sprite";
+			h_attribyte[6] = "The sprite to show when the player walks through this combo.";
 			if(FL(cflag2))
 			{
 				l_flag[10] = "Specific Item";

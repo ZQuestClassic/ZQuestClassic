@@ -17681,6 +17681,21 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 }
 
 
+void update_combo(newcombo& cmb, word section_version)
+{
+	if(section_version < 40)
+	{
+		switch(cmb.type)
+		{
+			case cWATER: case cSHALLOWWATER:
+				cmb.attribytes[6] = iwRipples;
+				break;
+			case cTALLGRASS: case cTALLGRASSNEXT: case cTALLGRASSTOUCHY:
+				cmb.attribytes[6] = iwTallGrass;
+				break;
+		}
+	}
+}
 int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos, bool keepdata)
 {
 	reset_combo_animations();
@@ -18088,6 +18103,8 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 					break;
 			}
 		}
+		
+		update_combo(temp_combo, section_version);
 		
 		if(keepdata==true && i>=start_combo)
 		{
@@ -18519,6 +18536,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 		}
 	}
+	update_combo(temp_combo, s_version);
 	return 0;
 }
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)

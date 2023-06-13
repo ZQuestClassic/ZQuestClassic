@@ -7685,11 +7685,13 @@ heroanimate_skip_liftwpn:;
 			}
 			if(g1 && g2 && g3 && g4)
 			{
+				int grasscid = MAPCOMBO(x+8,y+12);
+				newcombo const& cmb = combobuf[grasscid];
 				if(decorations.idCount(dTALLGRASS)==0)
 				{
-					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
 				}
-				int32_t thesfx = combobuf[MAPCOMBO(x+8,y+12)].attribytes[3];
+				int32_t thesfx = cmb.attribytes[3];
 				if (action==walking)
 					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
@@ -7704,11 +7706,13 @@ heroanimate_skip_liftwpn:;
 			}
 			if(g1 && g2)
 			{
+				int grasscid = MAPCOMBO(x+8,y+15);
+				newcombo const& cmb = combobuf[grasscid];
 				if(decorations.idCount(dTALLGRASS)==0)
 				{
-					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0));
+					decorations.add(new dTallGrass(x, y, dTALLGRASS, 0, cmb.attribytes[6]));
 				}
-				int32_t thesfx = combobuf[MAPCOMBO(x+8,y+15)].attribytes[3];
+				int32_t thesfx = cmb.attribytes[3];
 				if (action==walking )
 					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
@@ -7724,10 +7728,6 @@ heroanimate_skip_liftwpn:;
 			&& iswaterex(FFORCOMBO(x+11,y+9), currmap, currscr, -1, x+11,y+9, false, false, true, true)
 			&& iswaterex(FFORCOMBO(x+4,y+9), currmap, currscr, -1, x+4,y+9, false, false, true, true))
 			{
-				if(decorations.idCount(dRIPPLES)==0)
-				{
-					decorations.add(new dRipples(x, y, dRIPPLES, 0));
-				}
 				int watercheck_x = x.getInt()+7.5, watercheck_y = y.getInt()+12;
 				int ffpos = getFFCAt(watercheck_x,watercheck_y);
 				int combopos = ffpos < 0 ? COMBOPOS(watercheck_x,watercheck_y) : -1;
@@ -7739,6 +7739,9 @@ heroanimate_skip_liftwpn:;
 				if(waterid)
 				{
 					newcombo const& watercmb = combobuf[waterid];
+					auto ripplesprite = watercmb.attribytes[6];
+					if(decorations.idCount(dRIPPLES)==0)
+						decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
 					if (watercmb.usrflags&cflag2)
 					{
 						if (!(current_item(watercmb.attribytes[2]) > 0 && current_item(watercmb.attribytes[2]) >= watercmb.attribytes[3]))
@@ -7812,11 +7815,12 @@ heroanimate_skip_liftwpn:;
 	{
 		if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER) && z==0 && fakez==0)
 		{
+			int32_t watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
+			auto ripplesprite = combobuf[watercheck].attribytes[6];
 			if(decorations.idCount(dRIPPLES)==0)
 			{
-				decorations.add(new dRipples(x, y, dRIPPLES, 0));
+				decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
 			}
-			int32_t watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
 			if (combobuf[watercheck].usrflags&cflag2)
 			{
 				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
