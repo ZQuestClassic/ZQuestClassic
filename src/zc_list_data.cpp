@@ -126,7 +126,7 @@ static const GUI::ListData combostrs
 	{ " -2: Screen Catchall", -2 },
 	{ " -1: Screen Message String", -1 }
 };
-GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order)
+GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order, bool numbered)
 {
 	GUI::ListData ls;
 	#ifdef IS_ZQUEST
@@ -139,14 +139,14 @@ GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order)
 		if(respect_order)
 		{
 			int listpos = addtomsglist(q, false);
-			poses[listpos] = q;
+			poses[q] = listpos;
 		}
 		else poses[q] = q;
 	}
 	for(auto it = poses.begin(); it != poses.end(); ++it)
 	{
 		int val = it->second;
-		std::string name(MsgString(val, false, false));
+		std::string name(MsgString(val, numbered, numbered));
 		ls.add(name,val);
 	}
 	#endif
