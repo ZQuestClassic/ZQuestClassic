@@ -221,8 +221,6 @@ bool ZModule::init(bool d) //bool default
 		al_trace("Module zquest_dat set to %s\n",moduledata.datafiles[zquest_dat]);
 		strcpy(moduledata.datafiles[fonts_dat],zc_get_config_basic("DATAFILES","fonts_datafile","fonts.dat"));
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
-		strcpy(moduledata.datafiles[qst_dat],zc_get_config_basic("DATAFILES","quest_template_datafile","qst.dat"));
-		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
 		strcpy(moduledata.base_NSF_file,zc_get_config_basic("DATAFILES","base_NSF_file","zelda.nsf"));
 		al_trace("Base NSF file: %s\n", moduledata.base_NSF_file);

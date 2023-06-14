@@ -803,8 +803,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 void null_quest()
 {
 	char qstdat_string[2048];
-	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_string,"#NESQST_NEW_QST");
+	strcpy(qstdat_string, "modules/classic/default.qst");
 
 #ifdef __EMSCRIPTEN__
     // The quest template data file is not included because it's really big and isn't really needed

@@ -6667,8 +6667,7 @@ static bool loading_file_new = false;
 int32_t init_quest(const char *)
 {
 	char qstdat_string[2048];
-	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_string,"#NESQST_NEW_QST");
+	strcpy(qstdat_string, "modules/classic/default.qst");
 
     char buf[2048];
     

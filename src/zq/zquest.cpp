@@ -716,7 +716,6 @@ char                palnames[MAXLEVELS][17];
 quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];
 char                zquestdat_sig[52];
-char                qstdat_sig[52];
 char                sfxdat_sig[52];
 char		    qstdat_str[2048];
 miscQdata           QMisc;
@@ -29426,39 +29425,6 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("failed to load zquest.dat");
 	
 	datafile_str=moduledata.datafiles[zquest_dat];
-	Z_message("OK\n");
-	
-	strcpy(qstdat_str,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_str,"#_SIGNATURE");
-	//al_trace("qstdat_str is: %s\n", qstdat_str);
-	
-	sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
-	
-	Z_message("QST.Dat...");
-	
-	PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
-	
-	if(!f)
-		FatalConsole("failed to load qst.dat");
-	
-	char qstdat_read_sig[52];
-	memset(qstdat_read_sig, 0, 52);
-	int32_t pos=0;
-	
-	while(!pack_feof(f))
-	{
-		if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
-		{
-			pack_fclose(f);
-			Z_error_fatal("failed to read qst.dat");
-		}
-	}
-	
-	pack_fclose(f);
-	
-	if(strncmp(qstdat_read_sig,qstdat_sig,22))
-		FatalConsole("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
-	
 	Z_message("OK\n");
 	
 	

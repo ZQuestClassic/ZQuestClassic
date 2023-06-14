@@ -854,7 +854,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	bool oldquest = false;
 	int32_t ret;
 
-	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
+	if(strcmp(filename, "default.qst")!=0)
 	{
 		box_out(filename);
 	}
@@ -982,9 +982,8 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     char *filename;
     PACKFILE *f=NULL;
     int32_t open_error=0;
-    
-	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_string,"#NESQST_NEW_QST");
+ 
+	strcpy(qstdat_string, "modules/classic/default.qst");
     if(Header->templatepath[0]==0)
     {
         filename=(char *)malloc(2048);
