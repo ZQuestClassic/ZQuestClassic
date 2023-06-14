@@ -358,6 +358,11 @@ def run_bisect(revisions: List[Revision]):
             'roughly %d steps left.' % (revs[lower].tag, min_str, revs[upper].tag,
                                         max_str, int(upper - lower).bit_length()))
 
+        lower_tag = revs[lower].tag
+        upper_tag = revs[upper].tag
+        print(
+            f'changelog of current range: https://github.com/ArmageddonGames/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
+
         print(f'checking {rev.tag}')
         binaries = get_revision_binaries(rev)
 
