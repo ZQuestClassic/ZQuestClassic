@@ -38,6 +38,8 @@ parser.add_argument('--download_release')
 parser.add_argument('--channel')
 parser.add_argument('-c', '--command',
                     help='command to run on each step. \'%zc\' is replaced with the path to the player, \'%zq\' is the editor, and \'%zl\' is the launcher')
+parser.add_argument('--check_return_code',
+                    action=argparse.BooleanOptionalAction, default=False)
 
 args = parser.parse_args()
 
@@ -301,10 +303,8 @@ def AskIsGoodBuild():
         prompt = ('Revision is '
                   '[(g)ood/(b)ad/(u)nknown/(q)uit]: ')
         response = input(prompt)
-        if response in ('g', 'b', 'u'):
+        if response in ('g', 'b', 'u', 'q'):
             return response
-        if response == 'q':
-            raise SystemExit()
 
 
 def run_bisect(revisions: List[Revision]):
@@ -375,10 +375,20 @@ def run_bisect(revisions: List[Revision]):
             cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
             cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
             print(f'running command: {cmd}')
-            retcode = subprocess.call(cmd, cwd=binaries['dir'], shell=True)
-            print(f'code: {retcode}')
+            p = subprocess.Popen(cmd, cwd=binaries['dir'])
+            if args.check_return_code:
+                retcode = p.communicate()
+                answer = 'g' if retcode == 0 else 'b'
+                print(f'code: {retcode}, answer: {answer}')
+            else:
+                answer = AskIsGoodBuild()
+                p.terminate()
+        else:
+            answer = AskIsGoodBuild()
 
-        answer = AskIsGoodBuild()
+        if answer == 'q':
+            raise SystemExit()
+
         if answer == 'g':
             goods.append(pivot)
         elif answer == 'b':
