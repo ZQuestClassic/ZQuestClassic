@@ -78,6 +78,15 @@ def get_release_commit_count(tag: str):
 
 
 @memory.cache
+def has_release_package(tag: str):
+    try:
+        url = get_release_package_url(tag)
+        return bool(url)
+    except:
+        return False
+
+
+@memory.cache
 def get_workflow_run_artifact_names(run_id: int):
     run = repo.get_workflow_run(run_id)
     return list(run.get_artifacts())
@@ -94,9 +103,7 @@ def get_releases():
         commit_count = get_release_commit_count(tag)
         if channel == 'windows' and commit_count < 6252:
             # Every release after this commit will have binaries, but before only some do.
-            try:
-                get_release_package_url(tag)
-            except:
+            if not has_release_package(tag):
                 continue
         if channel == 'mac' and commit_count < 6384:
             continue
