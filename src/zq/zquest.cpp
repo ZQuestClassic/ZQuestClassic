@@ -10341,12 +10341,21 @@ void domouse()
 			if(unsigned(c) < 176 && draw_mapscr)
 			{
 				tooltip_current_combo = c;
-				char msg[512] = {0};
 				int cid = draw_mapscr->data[c];
-				sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
-					c, cid, draw_mapscr->cset[c], draw_mapscr->sflag[c], combobuf[cid].flag,
-					combo_class_buf[combobuf[cid].type].name);
-				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, msg);
+				newcombo const& cmb = combobuf[cid];
+				std::ostringstream oss;
+				int cs = draw_mapscr->cset[c];
+				int sflag = draw_mapscr->sflag[c];
+				oss << "Pos: " << c
+					<< "\nCombo: " << cid
+					<< "\nCSet: " << cs;
+				if(sflag || cmb.flag)
+					oss << "\nFlags: " << sflag << ", " << (int)cmb.flag;
+				if(cmb.type)
+					oss << "\nCombo type: " << combo_class_buf[cmb.type].name;
+				if(cmb.label[0])
+					oss << "\nLabel: " << cmb.label;
+				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, oss.str().c_str());
 			}
 		}
 	}
