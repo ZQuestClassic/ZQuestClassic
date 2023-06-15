@@ -26,7 +26,7 @@
 #include <queue>
 
 char *item_string[ITEMCNT];
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 
 extern zinitdata zinit;
 #ifndef IS_ZQUEST

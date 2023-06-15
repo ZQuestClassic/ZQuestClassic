@@ -38973,13 +38973,13 @@ void FFScript::do_getcombobyname()
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int32_t num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+	ArrayH::getString(arrayptr, the_string, 256);
 	
-	for(int32_t q = 0; q < MAXCOMBOS; q++)
+	if (!the_string.empty())
 	{
-		if ( combobuf[q].label[0] ) //skip blank)
+		for(int32_t q = 0; q < MAXCOMBOS; q++)
 		{
-			if(!(strcmp(the_string.c_str(), combobuf[q].label)))
+			if (the_string == combobuf[q].label)
 			{
 				num = q;
 				break;

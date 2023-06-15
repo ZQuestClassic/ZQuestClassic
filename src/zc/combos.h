@@ -4,7 +4,7 @@
 #include "base/zdefs.h"
 #include "zc/weapons.h"
 
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 #define minSECRET_TYPE 0
 #define maxSECRET_TYPE 43
 

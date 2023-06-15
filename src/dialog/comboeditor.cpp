@@ -11,7 +11,7 @@
 
 extern bool saved;
 extern zcmodule moduledata;
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern int32_t CSet;
@@ -2289,14 +2289,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						TextField(
 							fitParent = true,
 							type = GUI::TextField::type::TEXT,
-							maxLength = 10,
-							text = std::string(local_comboref.label),
+							maxLength = 255,
+							text = local_comboref.label,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
 							{
-								std::string foo;
-								foo.assign(text);
-								strncpy(local_comboref.label, foo.c_str(), 10);
-								local_comboref.label[10] = 0;
+								local_comboref.label = text;
 							}),
 						Label(text = "CSet 2:", hAlign = 1.0),
 						TextField(

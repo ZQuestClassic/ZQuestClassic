@@ -4,7 +4,7 @@
 #include "base/zc_math.h"
 #include "sprite.h"
 
-extern newcombo* combobuf;
+extern std::vector<newcombo> combobuf;
 
 std::map<int32_t, slope_object> slopes;
 

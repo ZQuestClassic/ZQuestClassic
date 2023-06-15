@@ -243,18 +243,7 @@ extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
 extern quest_template      QuestTemplates[MAXQTS];
 //extern byte              *undotilebuf;
-/*
-extern tiledata *newtilebuf, *grabtilebuf;
-extern newcombo *combobuf;
-extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
-extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
-extern word animated_combos;
-extern word animated_combo_table2[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
-extern word animated_combo_table24[MAXCOMBOS][2];            //[0]=combo, [1]=clock
-extern word animated_combos2;
-extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
-extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
-*/
+
 extern char   fontsdat_sig[52];
 
 extern uint8_t console_is_open;

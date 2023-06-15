@@ -11,7 +11,7 @@
 
 extern bool saved;
 extern zcmodule moduledata;
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;

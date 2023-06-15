@@ -264,7 +264,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          40
+#define V_COMBOS          41
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            16
@@ -2929,7 +2929,7 @@ struct newcombo
 	byte prompt_cs;
 	int16_t prompt_x = 12;
 	int16_t prompt_y = -8;
-	char label[11];
+	std::string label;
 	byte attribytes[8];
 	int16_t attrishorts[8];
 	word script;
@@ -3000,7 +3000,7 @@ struct newcombo
 		if(trig_genscr) return false;
 		if(trig_group) return false;
 		if(trig_group_val) return false;
-		if(strlen(label)) return false;
+		if(!label.empty()) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
 		for(auto q = 0; q < 8; ++q)

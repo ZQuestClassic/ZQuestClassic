@@ -345,18 +345,7 @@ ZCHEATS    zcheats;
 byte       use_cheats;
 byte       use_tiles;
 char       palnames[MAXLEVELS][PALNAMESIZE];
-/*
-tiledata   *newtilebuf, *grabtilebuf;
-newcombo   *combobuf;
-word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos;
-word animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos2;
-bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
-bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tiles
-*/
+
 bool ewind_restart=false;
 
 word     msgclk = 0, msgstr = 0, enqueued_str = 0,

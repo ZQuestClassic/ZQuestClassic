@@ -10504,7 +10504,7 @@ void domouse()
 				oss << "Combo " << c2 << ": " << combo_class_buf[cmb.type].name;
 				if(cmb.flag != 0)
 					oss << "\nInherent flag: " << ZI.getMapFlagName(cmb.flag);
-				if(cmb.label[0])
+				if(!cmb.label.empty())
 					oss << "\nLabel: " << cmb.label;
 					
 				update_tooltip(x,y,sqr.subsquare(ind), oss.str().c_str());
@@ -29274,13 +29274,9 @@ int32_t main(int32_t argc,char **argv)
 	
 	memrequested+=sizeof(newcombo)*MAXCOMBOS;
 	Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-	undocombobuf = (newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS);
-	
-	if(!undocombobuf)
-	{
-		Z_error_fatal("Error: no memory for combo undo buffer!");
-	}
-	
+	undocombobuf.clear();
+	undocombobuf.resize(MAXCOMBOS);
+
 	Z_message("OK\n");									  // Allocating combo undo buffer...
 	
 	memrequested+=(NEWMAXTILES*sizeof(tiledata));
@@ -31290,7 +31286,7 @@ void quit_game()
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) free(undocombobuf);
+    undocombobuf.clear();
     
     if(newundotilebuf)
     {
@@ -31473,7 +31469,7 @@ void quit_game2()
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) free(undocombobuf);
+    undocombobuf.clear();
     
     if(newundotilebuf)
     {

@@ -19,7 +19,7 @@
 /*****    Tiles & Combos    ******/
 /*********************************/
 extern tiledata     *newundotilebuf;
-extern newcombo     *undocombobuf;
+extern std::vector<newcombo> undocombobuf;
 extern byte cset_reduce_table[PAL_SIZE];
 void calc_cset_reduce_table(PALETTE pal, int32_t cs);
 

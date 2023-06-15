@@ -7794,7 +7794,7 @@ void weapon::findcombotriggers()
 		for(int pos : poses)
 		{
 			for (int32_t ly = 0; ly < layercount; ++ly )
-				MatchComboTrigger2(this, COMBOX(pos), COMBOY(pos), combobuf, ly);
+				MatchComboTrigger2(this, COMBOX(pos), COMBOY(pos), combobuf.data(), ly);
 			if(misc_wflags & WLFLAG_BURNFLAGS)
 				triggerfire(COMBOX(pos), COMBOY(pos), true,
 					misc_wflags&WFLAG_BURN_ANYFIRE,
@@ -7810,24 +7810,24 @@ void weapon::findcombotriggers()
 		{
 			for (int32_t ly = 0; ly < layercount; ++ly )
 			{
-				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+				MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, combobuf.data(), ly);
 			}
 		}
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf.data(), ly);
 		}
 	}
 	for(int32_t dy = 0; dy < hysz; dy += 16)
 	{
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf, ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf.data(), ly);
 		}
 	}
 	for (int32_t ly = 0; ly < layercount; ++ly )
 	{
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf, ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf.data(), ly);
 	}
 }
 

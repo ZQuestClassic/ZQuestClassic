@@ -4432,7 +4432,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     byte dontignore = 0;
     byte dontignoreffc = 0;
     
-	    if (isCuttableType(type) && MatchComboTrigger(w, combobuf, cid))
+	    if (isCuttableType(type) && MatchComboTrigger(w, combobuf.data(), cid))
 	    {
 		al_trace("This weapon (%d) can slash the combo: combobuf[%d].\n", w->id, cid);
 		dontignore = 1;
@@ -4774,8 +4774,8 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
-    if(w->useweapon != wWand && !MatchComboTrigger (w, combobuf, cid)) return;
-    if ( MatchComboTrigger (w, combobuf, cid) ) dontignore = 1;
+    if(w->useweapon != wWand && !MatchComboTrigger (w, combobuf.data(), cid)) return;
+    if ( MatchComboTrigger (w, combobuf.data(), cid) ) dontignore = 1;
     
     //first things first
     if(z>8||fakez>8) return;
