@@ -352,7 +352,7 @@ public:
 	void pitfall();
 	void moveheroOld();
 	void mod_steps(std::vector<zfix*>& v);
-	void get_move(int movedir, zfix& dx, zfix& dy);
+	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
 	bool scr_walkflag(int dx,int dy,int dir,int mx,int my,bool kb);
 	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
 	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);

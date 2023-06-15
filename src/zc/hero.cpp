@@ -18354,8 +18354,6 @@ void HeroClass::movehero()
 		}
 		else
 		{
-			if(shield_forcedir > -1 && action != rafting)
-				dir = shield_forcedir;
 			int32_t wtry  = iswaterex(MAPCOMBO(x,y+15), currmap, currscr, -1, x,y+15, true, false);
 			int32_t wtry8 = iswaterex(MAPCOMBO(x+15,y+15), currmap, currscr, -1, x+15,y+15, true, false);
 			int32_t wtrx = iswaterex(MAPCOMBO(x,y+(bigHitbox?0:8)), currmap, currscr, -1, x,y+(bigHitbox?0:8), true, false);
@@ -18375,44 +18373,39 @@ void HeroClass::movehero()
 			}
 			return;
 		}
-		get_move(holddir,dx,dy);
+		get_move(holddir,dx,dy,dir);
 	}
 	else //4-way
 	{
 		shiftdir = -1;
-		if(!novert)
+		holddir = -1;
+		if(!novert && DrunkUp())
 		{
-			if(DrunkUp())
-			{
-				holddir = dir = up;
-			}
-			else if(DrunkDown())
-			{
-				holddir = dir = down;
-			}
+			holddir = dir = up;
 		}
-		else if(!nohorz)
+		else if(!novert && DrunkDown())
 		{
-			if(DrunkLeft())
-			{
-				holddir = dir = left;
-			}
-			else if(DrunkRight())
-			{
-				holddir = dir = right;
-			}
+			holddir = dir = down;
 		}
-		get_move(holddir,dx,dy);
+		else if(!nohorz && DrunkLeft())
+		{
+			holddir = dir = left;
+		}
+		else if(!nohorz && DrunkRight())
+		{
+			holddir = dir = right;
+		}
+		get_move(holddir,dx,dy,dir);
 	}
 	
 	if(!new_engine_move(dx,dy))
 		pushing = push+1;
 }
 
-void HeroClass::get_move(int movedir, zfix& dx, zfix& dy)
+void HeroClass::get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir)
 {
 	dx = 0; dy = 0;
-    if( inlikelike || lstunclock > 0 || is_conveyor_stunned)
+    if(inlikelike || lstunclock > 0 || is_conveyor_stunned || movedir < 0)
         return;
 	
 	zfix base_movepix(zfix(steprate) / 100);
@@ -18539,11 +18532,11 @@ void HeroClass::get_move(int movedir, zfix& dx, zfix& dy)
 	
 	if((charging==0 || attack==wHammer) && spins==0 && attackclk!=HAMMERCHARGEFRAME && action != sideswimattacking && !(IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (movedir == up || movedir == down))) //!DIRECTION SET
 	{
-		dir=movedir;
+		facedir = movedir;
 	}
 	else if (IsSideSwim() && get_bit(quest_rules,qr_SIDESWIMDIR) && (movedir == up || movedir == down) && (shiftdir == left || shiftdir == right) && (charging==0 && spins==0))
 	{
-		dir = shiftdir; 
+		facedir = shiftdir;
 	}
 }
 
