@@ -560,6 +560,7 @@ int32_t ComboBrush = 0;                                             //show the b
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 int AutoBrush = 0; //Drag to size the brush on the combo panes
+bool AutoBrushRevert = false; //Revert after placing
 int LinkedScroll = 0;
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
@@ -7350,6 +7351,7 @@ void select_combo(int32_t clist)
 	int autobrush_cx = -1, autobrush_cy = -1;
 	int autobrush_first = First[current_combolist];
 	auto& curlist = combolist[current_combolist];
+	AutoBrushRevert = (key[KEY_ALT]||key[KEY_ALTGR]);
     while(gui_mouse_b())
     {
         int32_t x=gui_mouse_x();
@@ -7387,7 +7389,8 @@ void select_combo(int32_t clist)
 		if(AutoBrush) //Prevent any scrolling
 			First[current_combolist] = autobrush_first;
     }
-    
+    if(key[KEY_ALT]||key[KEY_ALTGR])
+		AutoBrushRevert = true;
 	position_mouse_z(0);
     ComboBrush=tempcb;
 }
@@ -7985,6 +7988,12 @@ void draw(bool justcset)
         Map.ExecuteCommand(dungeon_draw_cmd, true);
     }
     Map.FinishListCommand();
+	if(AutoBrushRevert)
+	{
+		AutoBrushRevert = false;
+		BrushWidth = 1;
+		BrushHeight = 1;
+	}
 }
 
 void replace(int32_t c)
