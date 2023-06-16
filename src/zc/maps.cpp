@@ -583,7 +583,7 @@ int32_t COMBOPOS(int32_t x, int32_t y)
 }
 int32_t COMBOPOS_B(int32_t x, int32_t y)
 {
-	if(unsigned(x) >= 256 || unsigned(y) >= 176)
+	if(unsigned(x) >= world_w || unsigned(y) >= world_h)
 		return -1;
 	return COMBOPOS(x,y);
 }
@@ -3383,7 +3383,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 			{
 				if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
 					continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-				base_screen->ffcs[i].draw(bmp, x, y, (type==-4));
+				base_screen->ffcs[i].draw(bmp, -viewport.x, -viewport.y, (type==-4));
 			}
 			
 			return;
@@ -4079,7 +4079,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 	}
 }
 
-static void for_every_nearby_screen(const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
+static void for_every_nearby_screen(const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn, bool check_bounds = true)
 {
 	if (!is_z3_scrolling_mode())
 	{
@@ -4128,10 +4128,14 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			int offx = z3_get_region_relative_dx(screen_index) * 256;
 			int offy = z3_get_region_relative_dy(screen_index) * 176;
 
-			if (offx - viewport.x <= -256) continue;
-			if (offy - viewport.y <= -176) continue;
-			if (offx - viewport.x >= 256) continue;
-			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
+			// Can skip processsing screen if out of viewport... unless wanting to draw the ffcs.
+			if (check_bounds)
+			{
+				if (offx - viewport.x <= -256) continue;
+				if (offy - viewport.y <= -176) continue;
+				if (offx - viewport.x >= 256) continue;
+				if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
+			}
 
 			std::array<screen_handle_t, 7> screen_handles;
 			screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
@@ -4300,7 +4304,7 @@ void draw_screen(bool showhero, bool runGeneric)
 			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
 			if (screen_index == currscr) draw_msgstr(2, true);
 		}
-	});
+	}, false);
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
 	{
@@ -5769,6 +5773,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		screen->ffcs[i].screen_index = scr;
+		screen->ffcs[i].x += z3_get_region_relative_dx(scr) * 256;
+		screen->ffcs[i].y += z3_get_region_relative_dy(scr) * 176;
 	}
 
 	// TODO z3 !!!
