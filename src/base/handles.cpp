@@ -43,6 +43,11 @@ void ffc_handle_t::set_data(int32_t value) const
 	ffc->setData(value);
 }
 
+void ffc_handle_t::set_cset(int32_t cset) const
+{
+	ffc->cset = cset;
+}
+
 void ffc_handle_t::increment_data() const
 {
 	ffc->setData(ffc->getData());

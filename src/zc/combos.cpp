@@ -1663,7 +1663,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 {
-	if (activation_counters_ffc[ffc_handle.i]) return false; //Currently activating
+	if (activation_counters_ffc[ffc_handle.region_id]) return false; //Currently activating
 
 	int32_t gc = 0;
 	for(int32_t i=0; i<guys.Count(); ++i)
@@ -1738,11 +1738,11 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 		}
 		default: return false;
 	}
-	activation_counters_ffc[ffc_handle.i] = 61;
+	activation_counters_ffc[ffc_handle.region_id] = 61;
 	if(addenemy(ffc_handle.screen_index,tx,ty+3,id2,eclk))
 	{
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle.i+1;
+		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle.region_id+1;
 	}
 	else return false;
 	return true;

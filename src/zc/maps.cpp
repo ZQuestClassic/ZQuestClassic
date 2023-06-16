@@ -851,31 +851,13 @@ int32_t MAPCOMBOFLAGL(int32_t layer,int32_t x,int32_t y)
 
 
 // True if the FFC covers x, y and is not ethereal or a changer.
-// Used by MAPFFCOMBO(), MAPFFCOMBOFLAG, and getFFCAt().
-// TODO z3 ! remove
-bool ffcIsAt(int32_t index, int32_t x, int32_t y)
-{
-	if(tmpscr.ffcs[index].getData()<=0)
-        return false;
-
-    int32_t fx=tmpscr.ffcs[index].x.getInt();
-    if(x<fx || x>fx+(tmpscr.ffEffectWidth(index)-1)) // FFC sizes are weird.
-        return false;
-    
-    int32_t fy=tmpscr.ffcs[index].y.getInt();
-    if(y<fy || y>fy+(tmpscr.ffEffectHeight(index)-1))
-        return false;
-    
-    if((tmpscr.ffcs[index].flags&(ffCHANGER|ffETHEREAL))!=0)
-        return false;
-    
-    return true;
-}
-
 // TODO z3 !!! ffc stop using ffEffectWidth ?
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 {
 	if (ffc_handle.data()<=0)
+        return false;
+
+    if((ffc_handle.ffc->flags&(ffCHANGER|ffETHEREAL))!=0)
         return false;
 
     int32_t fx=ffc_handle.ffc->x.getInt();
@@ -885,10 +867,7 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
     int32_t fy=ffc_handle.ffc->y.getInt();
     if(y<fy || y>fy+(ffc_handle.screen->ffEffectHeight(ffc_handle.i)-1))
         return false;
-    
-    if((ffc_handle.ffc->flags&(ffCHANGER|ffETHEREAL))!=0)
-        return false;
-    
+
     return true;
 }
 

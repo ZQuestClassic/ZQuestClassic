@@ -53,6 +53,7 @@ struct ffc_handle_t
 
 	int32_t data() const;
 	void set_data(int32_t value) const;
+	void set_cset(int32_t cset) const;
 	void increment_data() const;
 };
 

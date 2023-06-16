@@ -290,6 +290,7 @@ protected:
 	virtual void death_sfx();
 	virtual void move(zfix dx,zfix dy);
 	virtual void removearmos(int32_t ax,int32_t ay, word ffcactive = 0);
+	virtual void removearmosffc(const ffc_handle_t& ffc_handle);
 	virtual void removearmosffc(int32_t pos);
 	virtual void move(zfix s);
 	void leave_item();

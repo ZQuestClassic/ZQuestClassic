@@ -10507,8 +10507,18 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
-// TODO z3 ffc
-void enemy::removearmosffc(int32_t pos)
+void enemy::removearmosffc(int32_t region_id)
+{
+	int i = region_id % 176;
+	int screen_index_offset = region_id / 128;
+	int scr_dx = screen_index_offset % region_scr_width;
+	int scr_dy = screen_index_offset / region_scr_width;
+	int screen_index = z3_get_origin_scr() + scr_dx + scr_dy*16;
+	mapscr* screen = get_scr(currmap, screen_index);
+	removearmosffc({screen, screen_index, region_id, i, &screen->ffcs[i]});
+}
+
+void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
 {
 	if(did_armos)
 	{
@@ -10516,8 +10526,9 @@ void enemy::removearmosffc(int32_t pos)
 	}
 	
 	did_armos=true;
-	ffcdata& ffc = tmpscr.ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	ffcdata& ffc = *ffc_handle.ffc;
+	mapscr* screen = ffc_handle.screen;
+	newcombo const& cmb = combobuf[ffc_handle.data()];
 	int32_t f2 = cmb.flag;
 	
 	if(cmb.type!=cARMOS)
@@ -10525,26 +10536,26 @@ void enemy::removearmosffc(int32_t pos)
 		return;
 	}
 	
-	ffc.setData(tmpscr.undercombo);
-	ffc.cset = tmpscr.undercset;
+	ffc_handle.set_data(screen->undercombo);
+	ffc_handle.set_cset(screen->undercset);
 	
 	if(f2 == mfARMOS_SECRET)
 	{
-		ffc.setData(tmpscr.secretcombo[sSTAIRS]);
-		ffc.cset = tmpscr.secretcset[sSTAIRS];
-		sfx(tmpscr.secretsfx);
+		ffc_handle.set_data(screen->secretcombo[sSTAIRS]);
+		ffc_handle.set_cset(screen->secretcset[sSTAIRS]);
+		sfx(screen->secretsfx);
 	}
 	
 	if(f2 == mfARMOS_ITEM)
 	{
-		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN))
+		if(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (screen->flags9&fBELOWRETURN))
 		{
-			additem(ffc.x,ffc.y,tmpscr.catchall, (ipONETIME2 + ipBIGRANGE) | ((tmpscr.flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0));
-			sfx(tmpscr.secretsfx);
+			additem(ffc.x,ffc.y,screen->catchall, (ipONETIME2 + ipBIGRANGE) | ((screen->flags3&fHOLDITEM) ? ipHOLDUP : 0) | ((screen->flags8&fITEMSECRET) ? ipSECRETS : 0));
+			sfx(screen->secretsfx);
 		}
 	}
 	
-	putcombo(scrollbuf,ffc.x,ffc.y,ffc.getData(),ffc.cset);
+	putcombo(scrollbuf,ffc.x,ffc.y,ffc_handle.data(),ffc.cset);
 }
 
 

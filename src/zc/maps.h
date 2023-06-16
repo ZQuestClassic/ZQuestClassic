@@ -35,7 +35,6 @@ int32_t COMBOX_REGION(rpos_t rpos);
 int32_t COMBOY_REGION(rpos_t rpos);
 
 int32_t mapind(int32_t map, int32_t scr);
-bool ffcIsAt(int32_t index, int32_t x, int32_t y);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 
 extern bool triggered_screen_secrets;
