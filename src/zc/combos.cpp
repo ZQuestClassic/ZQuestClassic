@@ -39,7 +39,30 @@ void CutsceneState::error()
 }
 CutsceneState active_cutscene;
 
-cpos_info combo_posinfos[7][176];
+// TODO z3 !!!!
+static cpos_info combo_posinfos[7][176];
+
+void clear_combo_posinfo()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			combo_posinfos[lyr][pos].clear();
+		}
+	}
+}
+
+cpos_info& get_combo_posinfo(int32_t layer, int32_t pos)
+{
+	return combo_posinfos[layer][pos];
+}
+
+void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo)
+{
+	combo_posinfos[layer][pos] = posinfo;
+}
+
 int trig_groups[256];
 
 bool alwaysCTypeEffects(int32_t type)
@@ -2580,8 +2603,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 
 	int lyr = rpos_handle.layer;
 	int32_t pos = rpos_handle.pos();
-	// TODO z3 !!
-	cpos_info& timer = combo_posinfos[lyr][pos];
+	cpos_info& timer = get_combo_posinfo(lyr, pos);
 	int32_t cid = rpos_handle.data();
 	int32_t cx, cy;
 	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
@@ -2973,7 +2995,6 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
 
 	ffcdata* ffc = ffc_handle.ffc;
-	// TODO z3 !!!
 	int32_t cid = ffc->getData();
 	cpos_info& timer = ffc->info;
 	int32_t ocs = ffc->cset;
@@ -3504,7 +3525,7 @@ void calculate_trig_groups()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = combo_posinfos[lyr][pos];
+			cpos_info& timer = get_combo_posinfo(lyr, pos);
 			int cid = scr->data[pos];
 			timer.updateData(cid);
 			newcombo const& cmb = combobuf[cid];
@@ -3512,6 +3533,7 @@ void calculate_trig_groups()
 				++trig_groups[cmb.trig_group];
 		}
 	}
+	// TODO z3 !!
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
 	ffc_clear_cpos_info();
@@ -3536,7 +3558,7 @@ void trig_trigger_groups()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = combo_posinfos[lyr][pos];
+			cpos_info& timer = get_combo_posinfo(lyr, pos);
 			int cid = scr->data[pos];
 			newcombo const& cmb = combobuf[cid];
 			
@@ -3583,13 +3605,7 @@ void trig_trigger_groups()
 
 void init_combo_timers()
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			combo_posinfos[lyr][pos].clear();
-		}
-	}
+	clear_combo_posinfo();
 	ffc_clear_cpos_info();
 }
 
@@ -3600,7 +3616,7 @@ void update_combo_timers()
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		int pos = rpos_handle.pos();
 		int lyr = rpos_handle.layer;
-		cpos_info& timer = combo_posinfos[lyr][pos];
+		cpos_info& timer = get_combo_posinfo(lyr, pos);
 		int cid = rpos_handle.data();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
@@ -3663,5 +3679,5 @@ bool on_cooldown(const rpos_handle_t& rpos_handle)
 	int pos = rpos_handle.pos();
 	if(unsigned(rpos_handle.layer) > 7 || unsigned(pos) > 176)
 		return false;
-	return combo_posinfos[rpos_handle.layer][pos].trig_cd != 0;
+	return get_combo_posinfo(rpos_handle.layer, pos).trig_cd != 0;
 }
