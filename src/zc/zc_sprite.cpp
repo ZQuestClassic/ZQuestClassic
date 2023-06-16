@@ -818,7 +818,7 @@ bool movingblock::animate(int32_t)
 			
 			if(m->data[combopos] == bcombo)
 			{
-				combo_posinfos[blockLayer][combopos] = blockinfo;
+				set_combo_posinfo(blockLayer, combopos, blockinfo);
 			}
 		}
 		else

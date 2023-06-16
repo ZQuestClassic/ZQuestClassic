@@ -2,6 +2,7 @@
 #define _COMBOS_H_
 
 #include "base/zdefs.h"
+#include "base/cpos_info.h"
 #include "zc/weapons.h"
 
 extern std::vector<newcombo> combobuf;
@@ -24,7 +25,9 @@ public:
 };
 extern CutsceneState active_cutscene;
 
-extern cpos_info combo_posinfos[7][176];
+void clear_combo_posinfo();
+cpos_info& get_combo_posinfo(int32_t layer, int32_t pos);
+void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo);
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_t flag2, int32_t ft, int32_t scombo, bool single16, int32_t layer);

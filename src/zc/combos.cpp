@@ -38,7 +38,29 @@ void CutsceneState::error()
 }
 CutsceneState active_cutscene;
 
-cpos_info combo_posinfos[7][176];
+static cpos_info combo_posinfos[7][176];
+
+void clear_combo_posinfo()
+{
+	for(auto lyr = 0; lyr < 7; ++lyr)
+	{
+		for(auto pos = 0; pos < 176; ++pos)
+		{
+			combo_posinfos[lyr][pos].clear();
+		}
+	}
+}
+
+cpos_info& get_combo_posinfo(int32_t layer, int32_t pos)
+{
+	return combo_posinfos[layer][pos];
+}
+
+void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo)
+{
+	combo_posinfos[layer][pos] = posinfo;
+}
+
 int trig_groups[256];
 
 bool alwaysCTypeEffects(int32_t type)
@@ -2575,7 +2597,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 {
 	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	mapscr* tmp = FFCore.tempScreens[lyr];
-	cpos_info& timer = combo_posinfos[lyr][pos];
+	cpos_info& timer = get_combo_posinfo(lyr, pos);
 	int32_t cid = tmp->data[pos];
 	int32_t ocs = tmp->cset[pos];
 	int32_t cx = COMBOX(pos);
@@ -3498,7 +3520,7 @@ void calculate_trig_groups()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = combo_posinfos[lyr][pos];
+			cpos_info& timer = get_combo_posinfo(lyr, pos);
 			int cid = scr->data[pos];
 			timer.updateData(cid);
 			newcombo const& cmb = combobuf[cid];
@@ -3529,7 +3551,7 @@ void trig_trigger_groups()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = combo_posinfos[lyr][pos];
+			cpos_info& timer = get_combo_posinfo(lyr, pos);
 			int cid = scr->data[pos];
 			newcombo const& cmb = combobuf[cid];
 			
@@ -3574,13 +3596,7 @@ void trig_trigger_groups()
 
 void init_combo_timers()
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			combo_posinfos[lyr][pos].clear();
-		}
-	}
+	clear_combo_posinfo();
 	ffc_clear_cpos_info();
 }
 void update_combo_timers()
@@ -3594,7 +3610,7 @@ void update_combo_timers()
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = combo_posinfos[lyr][pos];
+			cpos_info& timer = get_combo_posinfo(lyr, pos);
 			int cid = scr->data[pos];
 			update_trig_group(timer.data,cid);
 			timer.updateData(cid);
@@ -3656,6 +3672,5 @@ bool on_cooldown(int32_t lyr, int32_t pos)
 {
 	if(unsigned(lyr) > 7 || unsigned(pos) > 176)
 		return false;
-	return combo_posinfos[lyr][pos].trig_cd != 0;
+	return get_combo_posinfo(lyr, pos).trig_cd != 0;
 }
-
