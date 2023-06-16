@@ -1000,16 +1000,9 @@ int32_t MAPFFCOMBOFLAG(int32_t x,int32_t y)
 
 std::optional<ffc_handle_t> getFFCAt(int32_t x, int32_t y)
 {
-	std::optional<ffc_handle_t> result = std::nullopt;
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		if (ffcIsAt(ffc_handle, x, y))
-		{
-			result = ffc_handle;
-			return false;
-		}
-		return true;
+	return find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		return ffcIsAt(ffc_handle, x, y);
 	});
-	return result;
 }
 
 int32_t MAPCOMBO(const rpos_handle_t& rpos_handle)
